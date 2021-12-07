@@ -2,6 +2,7 @@ package fractalzoomer.fractal_options.iteration_statistics;
 
 import fractalzoomer.core.Complex;
 import fractalzoomer.core.ThreadDraw;
+import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.utils.ColorAlgorithm;
 
@@ -20,9 +21,10 @@ public class NormalMap extends GenericStatistic {
     private boolean normalMapInvertDE;
     private int normalMapColoring;
     private boolean useNormalMap;
+    private int function;
 
 
-    public NormalMap(double statistic_intensity, double power, double height, double angle, boolean useSecondDerivative, double size, double normalMapDEfactor, boolean isJulia, boolean normalMapUseDE, boolean normalMapInvertDE, int normalMapColoring, boolean useNormalMap, boolean isJuliter, int juliterIterations) {
+    public NormalMap(double statistic_intensity, double power, double height, double angle, boolean useSecondDerivative, double size, double normalMapDEfactor, boolean isJulia, boolean normalMapUseDE, boolean normalMapInvertDE, int normalMapColoring, boolean useNormalMap) {
         super(statistic_intensity, false, false);
         this.power = power;
         h2 = height;
@@ -35,8 +37,17 @@ public class NormalMap extends GenericStatistic {
         this.normalMapInvertDE = normalMapInvertDE;
         this.normalMapColoring = normalMapColoring;
         this.useNormalMap = useNormalMap;
+        isJuliter = false;
+        juliterIterations = 0;
+    }
+
+    public void setJuliterOptions(boolean isJuliter, int juliterIterations) {
         this.isJuliter = isJuliter;
         this.juliterIterations = juliterIterations;
+    }
+
+    public void setFunctionId(int function) {
+        this.function = function;
     }
 
     @Override
@@ -48,86 +59,108 @@ public class NormalMap extends GenericStatistic {
         }
 
         if(iterations == 0) {
-            if(zold.compare(new Complex()) != 0)  {
-                derivative = new Complex(1, 0);
+
+            if(function == Constants.LAMBDA && isJulia && !isJuliter) {
+                derivative = new Complex(0.25, 0);
+            }
+            else if ((function >= MainWindow.MANDELBROT && function <= MainWindow.MANDELBROTNTH)){
+                if (zold.compare(new Complex()) != 0) {
+                    derivative = new Complex(1, 0);
+                }
             }
         }
 
         if(useSecondDerivative) {
-            if(power == 2) {
+            if(function == Constants.MANDELBROT) {
                 derivative2 = (derivative2.times(zold).plus_mutable(derivative.square())).times_mutable(power); // 2ddc * z + 2dc^2
             }
-            else if(power == 3) {
+            else if(function == Constants.MANDELBROTCUBED) {
                 //Hopefully my math are correct
                 //ddc = 3*ddc*z^2 + 6*z*dc^2
                 derivative2 = derivative2.times(power).times_mutable(zold.square()).plus_mutable(derivative.square().times_mutable(power * (power - 1)).times_mutable(zold));
             }
-            else if(power == 4) {
+            else if(function == Constants.MANDELBROTFOURTH) {
                 derivative2 = derivative2.times(power).times_mutable(zold.cube()).plus_mutable(derivative.square().times_mutable(power * (power - 1)).times_mutable(zold.square()));
             }
-            else if(power == 5) {
+            else if(function == Constants.MANDELBROTFIFTH) {
                 derivative2 = derivative2.times(power).times_mutable(zold.fourth()).plus_mutable(derivative.square().times_mutable(power * (power - 1)).times_mutable(zold.cube()));
             }
-            else if(power == 6) {
+            else if(function == Constants.MANDELBROTSIXTH) {
                 derivative2 = derivative2.times(power).times_mutable(zold.fifth()).plus_mutable(derivative.square().times_mutable(power * (power - 1)).times_mutable(zold.fourth()));
             }
-            else if(power == 7) {
+            else if(function == Constants.MANDELBROTSEVENTH) {
                 derivative2 = derivative2.times(power).times_mutable(zold.sixth()).plus_mutable(derivative.square().times_mutable(power * (power - 1)).times_mutable(zold.fifth()));
             }
-            else if(power == 8) {
+            else if(function == Constants.MANDELBROTEIGHTH) {
                 derivative2 = derivative2.times(power).times_mutable(zold.seventh()).plus_mutable(derivative.square().times_mutable(power * (power - 1)).times_mutable(zold.sixth()));
             }
-            else if(power == 9) {
+            else if(function == Constants.MANDELBROTNINTH) {
                 derivative2 = derivative2.times(power).times_mutable(zold.eighth()).plus_mutable(derivative.square().times_mutable(power * (power - 1)).times_mutable(zold.seventh()));
             }
-            else if(power == 10) {
+            else if(function == Constants.MANDELBROTTENTH) {
                 derivative2 = derivative2.times(power).times_mutable(zold.ninth()).plus_mutable(derivative.square().times_mutable(power * (power - 1)).times_mutable(zold.eighth()));
             }
-            else if(power == 11) {
-                derivative2 = derivative2.times(power).times_mutable(zold.tenth()).plus_mutable(derivative.square().times_mutable(power * (power - 1)).times_mutable(zold.ninth()));
+            else if(function == Constants.MANDELBROTNTH) {
+                if(power == 11) {
+                    derivative2 = derivative2.times(power).times_mutable(zold.tenth()).plus_mutable(derivative.square().times_mutable(power * (power - 1)).times_mutable(zold.ninth()));
+                }
+                else {
+                    derivative2 = derivative2.times(power).times_mutable(zold.pow(power - 1)).plus_mutable(derivative.square().times_mutable(power * (power - 1)).times_mutable(zold.pow(power - 2)));
+                }
             }
-            else {
-                derivative2 = derivative2.times(power).times_mutable(zold.pow(power - 1)).plus_mutable(derivative.square().times_mutable(power * (power - 1)).times_mutable(zold.pow(power - 2)));
+            else if(function == Constants.LAMBDA) {
+                derivative2 = (derivative2.times(zold.times(2).r_sub_mutable(1)).sub_mutable(derivative.square().times_mutable(2))).times_mutable(c_val);
+            }
+
+            if(function == Constants.LAMBDA && (!isJulia || (isJulia && isJuliter && iterations < juliterIterations))) {
+                derivative2.plus_mutable((zold.times(4).r_sub_mutable(2)).times_mutable(derivative));
             }
         }
 
-        if(power == 2) {
+        if(function == Constants.MANDELBROT) {
             derivative = derivative.times(power).times_mutable(zold);
-
         }
-        else if(power == 3) {
+        else if(function == Constants.MANDELBROTCUBED) {
             derivative = derivative.times(power).times_mutable(zold.square());
         }
-        else if(power == 4) {
+        else if(function == Constants.MANDELBROTFOURTH) {
             derivative = derivative.times(power).times_mutable(zold.cube());
         }
-        else if(power == 5) {
+        else if(function == Constants.MANDELBROTFIFTH) {
             derivative = derivative.times(power).times_mutable(zold.fourth());
         }
-        else if(power == 6) {
+        else if(function == Constants.MANDELBROTSIXTH) {
             derivative = derivative.times(power).times_mutable(zold.fifth());
         }
-        else if(power == 7) {
+        else if(function == Constants.MANDELBROTSEVENTH) {
             derivative = derivative.times(power).times_mutable(zold.sixth());
         }
-        else if(power == 8) {
+        else if(function == Constants.MANDELBROTEIGHTH) {
             derivative = derivative.times(power).times_mutable(zold.seventh());
         }
-        else if(power == 9) {
+        else if(function == Constants.MANDELBROTNINTH) {
             derivative = derivative.times(power).times_mutable(zold.eighth());
         }
-        else if(power == 10) {
+        else if(function == Constants.MANDELBROTTENTH) {
             derivative = derivative.times(power).times_mutable(zold.ninth());
         }
-        else if(power == 11) {
-            derivative = derivative.times(power).times_mutable(zold.tenth());
+        else if(function == Constants.MANDELBROTNTH) {
+            if(power == 11) {
+                derivative = derivative.times(power).times_mutable(zold.tenth());
+            }
+            else {
+                derivative = derivative.times(power).times_mutable(zold.pow(power - 1));
+            }
         }
-        else {
-            derivative = derivative.times(power).times_mutable(zold.pow(power - 1));
+        else if (function == Constants.LAMBDA) {
+            derivative = derivative.times(zold.times(2).r_sub_mutable(1)).times_mutable(c_val);
         }
 
-        if(!isJulia || (isJulia && isJuliter && iterations < juliterIterations)) {
+        if((function >= MainWindow.MANDELBROT && function <= MainWindow.MANDELBROTNTH) && (!isJulia || (isJulia && isJuliter && iterations < juliterIterations))) {
             derivative.plus_mutable(1);
+        }
+        else if(function == Constants.LAMBDA && (!isJulia || (isJulia && isJuliter && iterations < juliterIterations))) {
+            derivative.sub_mutable(zold.square()).plus_mutable(zold);
         }
 
         samples++;

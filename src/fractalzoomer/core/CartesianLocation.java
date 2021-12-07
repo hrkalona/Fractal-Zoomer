@@ -2,7 +2,6 @@ package fractalzoomer.core;
 
 import fractalzoomer.functions.Fractal;
 import org.apfloat.Apfloat;
-import org.apfloat.ApfloatMath;
 
 public class CartesianLocation extends Location {
     private double temp_size_image_size_x;
@@ -46,18 +45,18 @@ public class CartesianLocation extends Location {
             ddycenter = yCenter;
 
             Apfloat point5 = new MyApfloat(0.5);
-            Apfloat size_2_x = size.multiply(point5);
+            Apfloat size_2_x = MyApfloat.fp.multiply(size, point5);
             Apfloat ddimage_size = new MyApfloat(image_size);
             Apfloat ddheight_ratio = new MyApfloat(height_ratio);
 
             ddsize = size;
 
-            Apfloat size_2_y = size.multiply(ddheight_ratio).multiply(point5);
-            ddtemp_size_image_size_x = size.divide(ddimage_size);
-            ddtemp_size_image_size_y = size.multiply(ddheight_ratio).divide(ddimage_size);
+            Apfloat size_2_y = MyApfloat.fp.multiply(MyApfloat.fp.multiply(size, ddheight_ratio), point5);
+            ddtemp_size_image_size_x = MyApfloat.fp.divide(size, ddimage_size);
+            ddtemp_size_image_size_y = MyApfloat.fp.divide(MyApfloat.fp.multiply(size, ddheight_ratio), ddimage_size);
 
-            ddtemp_xcenter_size = xCenter.subtract(size_2_x);
-            ddtemp_ycenter_size =  yCenter.add(size_2_y);
+            ddtemp_xcenter_size = MyApfloat.fp.subtract(xCenter, size_2_x);
+            ddtemp_ycenter_size =  MyApfloat.fp.add(yCenter, size_2_y);
 
             rotation = new BigComplex(rotation_vals[0], rotation_vals[1]);
             rot_center = new BigComplex(rotation_center[0], rotation_center[1]);
@@ -127,16 +126,16 @@ public class CartesianLocation extends Location {
         ddycenter = yCenter;
 
         Apfloat point5 = new MyApfloat(0.5);
-        Apfloat size_2_x = size.multiply(point5);
+        Apfloat size_2_x = MyApfloat.fp.multiply(size, point5);
         Apfloat ddimage_size = new MyApfloat(image_size);
         Apfloat ddiheight_ratio = new MyApfloat(height_ratio);
 
-        Apfloat size_2_y = size.multiply(ddiheight_ratio).multiply(point5);
-        ddtemp_size_image_size_x = size.divide(ddimage_size);
-        ddtemp_size_image_size_y = size.multiply(ddiheight_ratio).divide(ddimage_size);
+        Apfloat size_2_y = MyApfloat.fp.multiply(MyApfloat.fp.multiply(size, ddiheight_ratio), point5);
+        ddtemp_size_image_size_x = MyApfloat.fp.divide(size, ddimage_size);
+        ddtemp_size_image_size_y = MyApfloat.fp.divide(MyApfloat.fp.multiply(size, ddiheight_ratio), ddimage_size);
 
-        ddtemp_xcenter_size = xCenter.subtract(size_2_x);
-        ddtemp_ycenter_size =  yCenter.add(size_2_y);
+        ddtemp_xcenter_size = MyApfloat.fp.subtract(xCenter, size_2_x);
+        ddtemp_ycenter_size =  MyApfloat.fp.add(yCenter, size_2_y);
 
     }
 
@@ -144,8 +143,8 @@ public class CartesianLocation extends Location {
     public GenericComplex getComplex(int x, int y) {
         if(highPresicion) {
 
-            ddtempX = ddtemp_xcenter_size.add(ddtemp_size_image_size_x.multiply(new MyApfloat(x)));
-            ddtempY = ddtemp_ycenter_size.subtract(ddtemp_size_image_size_y.multiply(new MyApfloat(y)));
+            ddtempX = MyApfloat.fp.add(ddtemp_xcenter_size, MyApfloat.fp.multiply(ddtemp_size_image_size_x, new MyApfloat(x)));
+            ddtempY = MyApfloat.fp.subtract(ddtemp_ycenter_size, MyApfloat.fp.multiply(ddtemp_size_image_size_y, new MyApfloat(y)));
 
             BigComplex temp = new BigComplex(ddtempX, ddtempY);
 
@@ -167,7 +166,7 @@ public class CartesianLocation extends Location {
     public void precalculateY(int y) {
 
         if(highPresicion) {
-            ddtempY = ddtemp_ycenter_size.subtract(ddtemp_size_image_size_y.multiply(new MyApfloat(y)));
+            ddtempY = MyApfloat.fp.subtract(ddtemp_ycenter_size, MyApfloat.fp.multiply(ddtemp_size_image_size_y, new MyApfloat(y)));
         }
         else {
             tempY = temp_ycenter_size - temp_size_image_size_y * y;
@@ -179,7 +178,7 @@ public class CartesianLocation extends Location {
     public void precalculateX(int x) {
 
         if(highPresicion) {
-            ddtempX = ddtemp_xcenter_size.add(ddtemp_size_image_size_x.multiply(new MyApfloat(x)));
+            ddtempX = MyApfloat.fp.add(ddtemp_xcenter_size, MyApfloat.fp.multiply(ddtemp_size_image_size_x, new MyApfloat(x)));
         }
         else {
             tempX = temp_xcenter_size + temp_size_image_size_x * x;
@@ -190,7 +189,7 @@ public class CartesianLocation extends Location {
     @Override
     public GenericComplex getComplexWithX(int x) {
         if(highPresicion) {
-            ddtempX = ddtemp_xcenter_size.add(ddtemp_size_image_size_x.multiply(new MyApfloat(x)));
+            ddtempX = MyApfloat.fp.add(ddtemp_xcenter_size, MyApfloat.fp.multiply(ddtemp_size_image_size_x, new MyApfloat(x)));
             BigComplex temp = new BigComplex(ddtempX, ddtempY);
             temp = temp.sub(rot_center);
             temp = temp.times(rotation).plus(rot_center);
@@ -206,7 +205,7 @@ public class CartesianLocation extends Location {
     @Override
     public GenericComplex getComplexWithY(int y) {
         if(highPresicion) {
-            ddtempY = ddtemp_ycenter_size.subtract(ddtemp_size_image_size_y.multiply(new MyApfloat(y)));
+            ddtempY = MyApfloat.fp.subtract(ddtemp_ycenter_size, MyApfloat.fp.multiply(ddtemp_size_image_size_y, new MyApfloat(y)));
             BigComplex temp = new BigComplex(ddtempX, ddtempY);
             temp = temp.sub(rot_center);
             temp = temp.times(rotation).plus(rot_center);
@@ -221,27 +220,26 @@ public class CartesianLocation extends Location {
 
     @Override
     public BigPoint getPoint(int x, int y) {
-        return new BigPoint(ddtemp_xcenter_size.add(ddtemp_size_image_size_x.multiply(new MyApfloat(x))), ddtemp_ycenter_size.subtract(ddtemp_size_image_size_y.multiply(new MyApfloat(y))));
+        return new BigPoint(MyApfloat.fp.add(ddtemp_xcenter_size, MyApfloat.fp.multiply(ddtemp_size_image_size_x, new MyApfloat(x))), MyApfloat.fp.subtract(ddtemp_ycenter_size, MyApfloat.fp.multiply(ddtemp_size_image_size_y, new MyApfloat(y))));
     }
 
 
     public BigPoint getDragPoint(int x, int y) {
-        return new BigPoint(ddxcenter.subtract(ddtemp_size_image_size_x.multiply(new MyApfloat(x))), ddycenter.add(ddtemp_size_image_size_y.multiply(new MyApfloat(y))));
+        return new BigPoint(MyApfloat.fp.subtract(ddxcenter, MyApfloat.fp.multiply(ddtemp_size_image_size_x, new MyApfloat(x))), MyApfloat.fp.add(ddycenter, MyApfloat.fp.multiply(ddtemp_size_image_size_y, new MyApfloat(y))));
     }
 
     @Override
     public void createAntialiasingSteps() {
         if(highPresicion) {
             Apfloat point25 = new MyApfloat(0.25);
-            Apfloat two = new MyApfloat(2.0);
 
-            Apfloat ddx_antialiasing_size = ddtemp_size_image_size_x.multiply(point25);
-            Apfloat ddx_antialiasing_size_x2 = ddx_antialiasing_size.multiply(two);
+            Apfloat ddx_antialiasing_size = MyApfloat.fp.multiply(ddtemp_size_image_size_x, point25);
+            Apfloat ddx_antialiasing_size_x2 = MyApfloat.fp.multiply(ddx_antialiasing_size, MyApfloat.TWO);
 
-            Apfloat ddy_antialiasing_size = ddtemp_size_image_size_y.multiply(point25);
-            Apfloat ddy_antialiasing_size_x2 = ddy_antialiasing_size.multiply(two);
+            Apfloat ddy_antialiasing_size = MyApfloat.fp.multiply(ddtemp_size_image_size_y, point25);
+            Apfloat ddy_antialiasing_size_x2 = MyApfloat.fp.multiply(ddy_antialiasing_size, MyApfloat.TWO);
 
-            Apfloat zero = new MyApfloat(0.0);
+            Apfloat zero = MyApfloat.ZERO;
 
             Apfloat temp_x[] = {ddx_antialiasing_size.negate(), ddx_antialiasing_size, ddx_antialiasing_size, ddx_antialiasing_size.negate(),
                     ddx_antialiasing_size.negate(), ddx_antialiasing_size, zero, zero,
@@ -281,7 +279,7 @@ public class CartesianLocation extends Location {
     @Override
     public GenericComplex getAntialiasingComplex(int sample) {
         if(highPresicion) {
-            BigComplex temp = new BigComplex(ddtempX.add(ddantialiasing_x[sample]), ddtempY.add(ddantialiasing_y[sample]));
+            BigComplex temp = new BigComplex(MyApfloat.fp.add(ddtempX, ddantialiasing_x[sample]), MyApfloat.fp.add(ddtempY, ddantialiasing_y[sample]));
 
             temp = temp.sub(rot_center);
             temp = temp.times(rotation).plus(rot_center);
@@ -298,8 +296,8 @@ public class CartesianLocation extends Location {
     public Complex getComplexOrbit(int x, int y) {
         if(highPresicion) {
 
-            ddtempX = ddtemp_xcenter_size.add(ddtemp_size_image_size_x.multiply(new MyApfloat(x)));
-            ddtempY = ddtemp_ycenter_size.subtract(ddtemp_size_image_size_y.multiply(new MyApfloat(y)));
+            ddtempX = MyApfloat.fp.add(ddtemp_xcenter_size, MyApfloat.fp.multiply(ddtemp_size_image_size_x, new MyApfloat(x)));
+            ddtempY = MyApfloat.fp.subtract(ddtemp_ycenter_size, MyApfloat.fp.multiply(ddtemp_size_image_size_y, new MyApfloat(y)));
 
             BigComplex temp = new BigComplex(ddtempX, ddtempY);
 
@@ -316,12 +314,12 @@ public class CartesianLocation extends Location {
     public MantExp getSeriesApproxSize() {
         if(highPresicion) {
             if(height_ratio == 1) {
-                return new MantExp(ddsize.multiply(new MyApfloat(0.525)).multiply(MyApfloat.SQRT_TWO));
+                return new MantExp(MyApfloat.fp.multiply(MyApfloat.fp.multiply(ddsize, new MyApfloat(0.525)), MyApfloat.SQRT_TWO));
             }
             else {
-                Apfloat temp = ddsize.multiply(new MyApfloat(0.525));
-                Apfloat temp2 = temp.multiply(new MyApfloat(height_ratio));
-                return new MantExp(ApfloatMath.sqrt(temp.multiply(temp).add(temp2.multiply(temp2))));
+                Apfloat temp = MyApfloat.fp.multiply(ddsize, new MyApfloat(0.525));
+                Apfloat temp2 = MyApfloat.fp.multiply(temp, new MyApfloat(height_ratio));
+                return new MantExp(MyApfloat.fp.sqrt(MyApfloat.fp.add(MyApfloat.fp.multiply(temp, temp), MyApfloat.fp.multiply(temp2, temp2))));
             }
         }
         else {

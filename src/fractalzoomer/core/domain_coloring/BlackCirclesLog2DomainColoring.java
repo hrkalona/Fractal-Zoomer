@@ -43,6 +43,8 @@ public class BlackCirclesLog2DomainColoring extends DomainColoring {
     
     @Override
     public int getDomainColor(Complex res) {
+
+        res = round(res);
         
         int color = applyArgColor(res.arg());
         

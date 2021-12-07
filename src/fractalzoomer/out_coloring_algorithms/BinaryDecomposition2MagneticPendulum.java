@@ -34,7 +34,7 @@ public class BinaryDecomposition2MagneticPendulum extends OutColorAlgorithm {
     @Override
     public double getResult(Object[] object) {
 
-        return ((Complex)object[1]).getRe() < 0 ? -(((Complex)object[7]).getRe() + INCREMENT) : ((Complex)object[7]).getRe();
+        return ((Complex)object[1]).getRe() < 0 ? -(((Complex)object[9]).getRe() + INCREMENT) : ((Complex)object[9]).getRe();
 
     }
     

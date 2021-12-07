@@ -51,7 +51,7 @@ public class InversedLambdaPlane extends Plane {
         }
         pixel = pixel.reciprocal();
 
-        return pixel.times(pixel.r_sub(new MyApfloat(1)));
+        return pixel.times(pixel.r_sub(MyApfloat.ONE));
 
     }
     

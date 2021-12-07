@@ -37,7 +37,7 @@ public class MandelgrassDialog extends JDialog {
     private MainWindow ptra;
     private JOptionPane optionPane;
 
-    public MandelgrassDialog(MainWindow ptr, Settings s, JCheckBoxMenuItem mandel_grass_opt) {
+    public MandelgrassDialog(MainWindow ptr, Settings s, JMenuItem mandel_grass_opt) {
 
         super(ptr);
         
@@ -47,6 +47,11 @@ public class MandelgrassDialog extends JDialog {
         setModal(true);
         setIconImage(getIcon("/fractalzoomer/icons/mandel2.png").getImage());
 
+        final JCheckBox mandelgrass = new JCheckBox("Mandel Grass");
+        mandelgrass.setSelected(s.fns.mandel_grass);
+        mandelgrass.setFocusable(false);
+        mandelgrass.setToolTipText("Enables mandel grass.");
+
         JTextField field_real = new JTextField();
         field_real.setText("" + s.fns.mandel_grass_vals[0]);
 
@@ -54,6 +59,8 @@ public class MandelgrassDialog extends JDialog {
         field_imaginary.setText("" + s.fns.mandel_grass_vals[1]);
 
         Object[] message = {
+                " ",
+                mandelgrass,
             " ",
             "Set the real and imaginary part of the mandel grass.",
             "Real:", field_real,
@@ -90,7 +97,6 @@ public class MandelgrassDialog extends JDialog {
                     optionPane.setValue(JOptionPane.UNINITIALIZED_VALUE);
 
                     if ((Integer) value == JOptionPane.CANCEL_OPTION || (Integer) value == JOptionPane.NO_OPTION || (Integer) value == JOptionPane.CLOSED_OPTION) {
-                        mandel_grass_opt.setSelected(false);
                         dispose();
                         return;
                     }
@@ -102,7 +108,17 @@ public class MandelgrassDialog extends JDialog {
                         s.fns.mandel_grass_vals[0] = temp;
                         s.fns.mandel_grass_vals[1] = temp2;
 
-                        s.fns.mandel_grass = true;
+                        boolean oldMandelGrass = s.fns.mandel_grass;
+
+                        s.fns.mandel_grass = mandelgrass.isSelected();
+
+                        if(s.fns.mandel_grass && !oldMandelGrass) {
+                            mandel_grass_opt.setIcon(getIcon("/fractalzoomer/icons/check.png"));
+                        }
+                        else if(!s.fns.mandel_grass && oldMandelGrass) {
+                            mandel_grass_opt.setIcon(null);
+                        }
+
                     } catch (Exception ex) {
                         JOptionPane.showMessageDialog(ptra, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
                         return;

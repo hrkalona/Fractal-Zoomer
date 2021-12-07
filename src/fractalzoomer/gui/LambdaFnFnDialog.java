@@ -83,7 +83,7 @@ public class LambdaFnFnDialog extends JDialog {
 
         formula_panel_cond13.add(new JLabel("left = right, z = c * "));
         formula_panel_cond13.add(field_formula_cond3);
-        Object[] labels33 = ptra.createUserFormulaLabels("z, c, s, c0, p, pp, n, maxn, center, size, sizei, v1 - v30, point");
+        Object[] labels33 = ptra.createUserFormulaLabels("z, c, s, c0, pixel, p, pp, n, maxn, center, size, sizei, v1 - v30, point");
 
         Object[] message33 = {
             labels33,

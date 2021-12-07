@@ -9,7 +9,7 @@ public class ReciprocalFunctionFilter extends FunctionFilter {
     }
 
     @Override
-    public Complex getValue(Complex z, int iterations, Complex c, Complex start, Complex c0) {
+    public Complex getValue(Complex z, int iterations, Complex c, Complex start, Complex c0, Complex pixel) {
         return z.reciprocal_mutable();
     }
 }

@@ -20,7 +20,6 @@ import fractalzoomer.core.Derivative;
 import fractalzoomer.core.MyApfloat;
 import fractalzoomer.main.Constants;
 import org.apfloat.Apfloat;
-import org.apfloat.ApfloatMath;
 
 
 /**
@@ -122,6 +121,7 @@ public class FunctionSettings implements Constants {
     public InertiaGravityFractalSettings igs;
     public LambdaFnFnSettings lfns;
     public int skip_bailout_iterations;
+    public int skip_convergent_bailout_iterations;
     public double[] newton_hines_k;
     public TrueColorSettings tcs;
     public int derivative_method;
@@ -133,6 +133,7 @@ public class FunctionSettings implements Constants {
     public boolean juliterIncludeInitialIterations;
     public PlaneInfluenceSettings ips;
     public boolean defaultNovaInitialValue;
+    public ConvergentBailoutConditionSettings cbs;
     
     public FunctionSettings() {
         n_norm = 2;
@@ -148,6 +149,7 @@ public class FunctionSettings implements Constants {
         bailout = 2;
         bailout_test_algorithm = 0;
         skip_bailout_iterations = 0;
+        skip_convergent_bailout_iterations = 0;
 
         bailout_test_user_formula = "norm(z)";
         bailout_test_user_formula2 = "bail";
@@ -159,7 +161,7 @@ public class FunctionSettings implements Constants {
 
         rotation = 0;
 
-        Apfloat tempRadians = ApfloatMath.toRadians(new MyApfloat(rotation));
+        Apfloat tempRadians = MyApfloat.fp.toRadians(new MyApfloat(rotation));
         rotation_vals[0] = MyApfloat.cos(tempRadians);
         rotation_vals[1] = MyApfloat.sin(tempRadians);
 
@@ -373,6 +375,8 @@ public class FunctionSettings implements Constants {
         ips = new PlaneInfluenceSettings();
 
         defaultNovaInitialValue = true;
+
+        cbs = new ConvergentBailoutConditionSettings();
         
     }
     

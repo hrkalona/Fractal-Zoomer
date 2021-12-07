@@ -164,7 +164,7 @@ public class BailoutConditionsMenu extends JMenu {
         bailout_tests_group.add(bailout_conditions[MainWindow.BAILOUT_CONDITION_RE_IM_SQUARED]);
 
         bailout_conditions[MainWindow.BAILOUT_CONDITION_NNORM] = new JRadioButtonMenuItem(bailoutConditionNames[MainWindow.BAILOUT_CONDITION_NNORM]);
-        bailout_conditions[MainWindow.BAILOUT_CONDITION_NNORM].setToolTipText("The Nth norm condition.");
+        bailout_conditions[MainWindow.BAILOUT_CONDITION_NNORM].setToolTipText("The Nth norm bailout condition.");
         bailout_conditions[MainWindow.BAILOUT_CONDITION_NNORM].addActionListener(new ActionListener() {
 
             @Override

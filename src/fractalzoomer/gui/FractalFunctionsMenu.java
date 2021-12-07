@@ -76,7 +76,7 @@ public class FractalFunctionsMenu extends JMenu {
     private JMenu user_formulas_type_functions;
     private JMenu coupled_type_functions;
     private JCheckBoxMenuItem burning_ship_opt;
-    private JCheckBoxMenuItem mandel_grass_opt;
+    private JMenuItem mandel_grass_opt;
     private int i;
 
     public static String[] functionNames;
@@ -316,6 +316,8 @@ public class FractalFunctionsMenu extends JMenu {
         functionNames[MainWindow.MAGNET14] = "Magnet 1 Fourth";
         functionNames[MainWindow.MAGNET23] = "Magnet 2 Cubed";
         functionNames[MainWindow.MAGNET24] = "Magnet 2 Fourth";
+
+        functionNames[MainWindow.NEWTON_THIRD_DEGREE_PARAMETER_SPACE] = "Newton Third Degree Parameter Space";
     }
 
     public FractalFunctionsMenu(MainWindow ptr2, String name, int function) {
@@ -383,7 +385,7 @@ public class FractalFunctionsMenu extends JMenu {
         user_formulas_type_functions = new JMenu("User Formulas");
 
         burning_ship_opt = new JCheckBoxMenuItem("Burning Ship");
-        mandel_grass_opt = new JCheckBoxMenuItem("Mandel Grass");
+        mandel_grass_opt = new JMenuItem("Mandel Grass");
 
         burning_ship_opt.setToolTipText("Enables the burning ship variation.");
         mandel_grass_opt.setToolTipText("Enables the mandel grass variation.");
@@ -1410,6 +1412,21 @@ public class FractalFunctionsMenu extends JMenu {
         });
         add(fractal_functions[MainWindow.NOVA]);
         functions_button_group.add(fractal_functions[MainWindow.NOVA]);
+
+        addSeparator();
+        fractal_functions[MainWindow.NEWTON_THIRD_DEGREE_PARAMETER_SPACE] = new JRadioButtonMenuItem(functionNames[MainWindow.NEWTON_THIRD_DEGREE_PARAMETER_SPACE]);
+        fractal_functions[MainWindow.NEWTON_THIRD_DEGREE_PARAMETER_SPACE].addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFunction(MainWindow.NEWTON_THIRD_DEGREE_PARAMETER_SPACE);
+
+            }
+        });
+        add(fractal_functions[MainWindow.NEWTON_THIRD_DEGREE_PARAMETER_SPACE]);
+        functions_button_group.add(fractal_functions[MainWindow.NEWTON_THIRD_DEGREE_PARAMETER_SPACE]);
+
         addSeparator();
 
         fractal_functions[MainWindow.MANDELBAR] = new JRadioButtonMenuItem(functionNames[MainWindow.MANDELBAR]);
@@ -2766,7 +2783,7 @@ public class FractalFunctionsMenu extends JMenu {
 
     }
 
-    public JCheckBoxMenuItem getMandelGrassOpt() {
+    public JMenuItem getMandelGrassOpt() {
 
         return mandel_grass_opt;
 

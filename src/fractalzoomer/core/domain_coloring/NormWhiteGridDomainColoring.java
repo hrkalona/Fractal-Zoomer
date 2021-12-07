@@ -42,7 +42,9 @@ public class NormWhiteGridDomainColoring extends DomainColoring {
 
     @Override
     public int getDomainColor(Complex res) {
-        
+
+        res = round(res);
+
         int color = applyNormColor(res.norm());
         
         return applyGrid(color, res.getRe(), res.getIm());

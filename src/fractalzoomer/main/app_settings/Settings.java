@@ -17,6 +17,7 @@
 package fractalzoomer.main.app_settings;
 
 import fractalzoomer.bailout_conditions.SkipBailoutCondition;
+import fractalzoomer.convergent_bailout_conditions.SkipConvergentBailoutCondition;
 import fractalzoomer.core.Complex;
 import fractalzoomer.core.Derivative;
 import fractalzoomer.core.MyApfloat;
@@ -30,7 +31,6 @@ import fractalzoomer.parser.Parser;
 import fractalzoomer.settings.*;
 import fractalzoomer.utils.ColorAlgorithm;
 import org.apfloat.Apfloat;
-import org.apfloat.ApfloatMath;
 
 import javax.swing.*;
 import java.awt.*;
@@ -90,6 +90,7 @@ public class Settings implements Constants {
     public boolean globalIncrementBypass;
     public boolean julia_map;
     public double contourFactor;
+    public int MagnetColorOffset;
 
     public Settings() {
         defaultValues();
@@ -156,6 +157,8 @@ public class Settings implements Constants {
         d3s = new D3Settings();
 
         contourFactor = 2;
+
+        MagnetColorOffset = ColorAlgorithm.MAGNET_INCREMENT_DEFAULT;
 
         post_processing_order = new int[TOTAL_POST_PROCESS_ALGORITHMS];
         defaultProcessingOrder();
@@ -275,6 +278,10 @@ public class Settings implements Constants {
             else if (version == 1079) {
                 xJuliaCenter = ((SettingsJulia1079) settings).getXJuliaCenter();
                 yJuliaCenter = ((SettingsJulia1079) settings).getYJuliaCenter();
+            }
+            else if (version == 1080) {
+                xJuliaCenter = ((SettingsJulia1080) settings).getXJuliaCenter();
+                yJuliaCenter = ((SettingsJulia1080) settings).getYJuliaCenter();
             }
 
             fns.julia = true;
@@ -1163,6 +1170,73 @@ public class Settings implements Constants {
             contourFactor = ((SettingsFractals1079) settings).getContourFactor();
         }
 
+        if(version < 1080) {
+            ots.checkType = defaults.ots.checkType;
+            ots.sfm1 = defaults.ots.sfm1;
+            ots.sfm2 = defaults.ots.sfm2;
+            ots.sfn1 = defaults.ots.sfn1;
+            ots.sfn2 = defaults.ots.sfn2;
+            ots.sfn3 = defaults.ots.sfn3;
+            ots.sfa = defaults.ots.sfa;
+            ots.sfb = defaults.ots.sfb;
+
+            sts.rootIterationsScaling = defaults.sts.rootIterationsScaling;
+            sts.rootShading = defaults.sts.rootShading;
+            sts.rootContourColorMethod = defaults.sts.rootContourColorMethod;
+            sts.rootBlending = defaults.sts.rootBlending;
+            sts.rootShadingFunction = defaults.sts.rootShadingFunction;
+            sts.revertRootShading = defaults.sts.revertRootShading;
+            sts.highlightRoots = defaults.sts.highlightRoots;
+            sts.rootSmooting = defaults.sts.rootSmooting;
+            sts.rootColors = defaults.sts.rootColors;
+
+            MagnetColorOffset = defaults.MagnetColorOffset;
+
+            fns.cbs.convergent_bailout_test_algorithm = defaults.fns.cbs.convergent_bailout_test_algorithm;
+            fns.cbs.convergent_bailout_test_user_formula = defaults.fns.cbs.convergent_bailout_test_user_formula;
+            fns.cbs.convergent_bailout_test_user_formula2 = defaults.fns.cbs.convergent_bailout_test_user_formula2;
+            fns.cbs.convergent_bailout_test_comparison = defaults.fns.cbs.convergent_bailout_test_comparison;
+            fns.cbs.convergent_n_norm = defaults.fns.cbs.convergent_n_norm;
+
+            fns.skip_convergent_bailout_iterations = defaults.fns.skip_convergent_bailout_iterations;
+
+            sts.twlPoint = defaults.sts.twlPoint;
+            sts.twlFunction = defaults.sts.twlFunction;
+        }
+        else {
+            ots.checkType = ((SettingsFractals1080) settings).getCheckType();
+            ots.sfm1 = ((SettingsFractals1080) settings).getSfm1();
+            ots.sfm2 = ((SettingsFractals1080) settings).getSfm2();
+            ots.sfn1 = ((SettingsFractals1080) settings).getSfn1();
+            ots.sfn2 = ((SettingsFractals1080) settings).getSfn2();
+            ots.sfn3 = ((SettingsFractals1080) settings).getSfn3();
+            ots.sfa = ((SettingsFractals1080) settings).getSfa();
+            ots.sfb = ((SettingsFractals1080) settings).getSfb();
+
+            sts.rootIterationsScaling = ((SettingsFractals1080) settings).getRootIterationsScaling();
+            sts.rootShading = ((SettingsFractals1080) settings).getRootShading();
+            sts.rootContourColorMethod = ((SettingsFractals1080) settings).getRootContourColorMethod();
+            sts.rootBlending = ((SettingsFractals1080) settings).getRootBlending();
+            sts.rootShadingFunction = ((SettingsFractals1080) settings).getRootShadingFunction();
+            sts.revertRootShading = ((SettingsFractals1080) settings).getRevertRootShading();
+            sts.highlightRoots = ((SettingsFractals1080) settings).getHighlightRoots();
+            sts.rootSmooting = ((SettingsFractals1080) settings).getRootSmooting();
+            sts.rootColors = ((SettingsFractals1080) settings).getRootColors();
+
+            MagnetColorOffset = ((SettingsFractals1080) settings).getMagnetColorOffset();
+
+            fns.cbs.convergent_bailout_test_algorithm = ((SettingsFractals1080) settings).getConvergentBailoutTestAlgorithm();
+            fns.cbs.convergent_bailout_test_user_formula = ((SettingsFractals1080) settings).getConvergentBailoutTestUserFormula();
+            fns.cbs.convergent_bailout_test_user_formula2 = ((SettingsFractals1080) settings).getConvergentBailoutTestUserFormula2();
+            fns.cbs.convergent_bailout_test_comparison = ((SettingsFractals1080) settings).getConvergentBailoutTestComparison();
+            fns.cbs.convergent_n_norm = ((SettingsFractals1080) settings).getConvergentNNorm();
+
+            fns.skip_convergent_bailout_iterations = ((SettingsFractals1080) settings).getSkipConvergentBailoutIterations();
+
+            sts.twlPoint = ((SettingsFractals1080) settings).getTwlPoint();
+            sts.twlFunction = ((SettingsFractals1080) settings).getTwlFunction();
+        }
+
         if (fns.plane_type == USER_PLANE) {
             if (version < 1058) {
                 fns.user_plane_algorithm = defaults.fns.user_plane_algorithm;
@@ -1223,7 +1297,7 @@ public class Settings implements Constants {
             }
         }
 
-        Apfloat tempRadians =  ApfloatMath.toRadians(new MyApfloat(fns.rotation));
+        Apfloat tempRadians =  MyApfloat.fp.toRadians(new MyApfloat(fns.rotation));
         fns.rotation_vals[0] = MyApfloat.cos(tempRadians);
         fns.rotation_vals[1] = MyApfloat.sin(tempRadians);
 
@@ -1624,9 +1698,9 @@ public class Settings implements Constants {
             file_temp = new ObjectOutputStream(new FileOutputStream(filename));
             SettingsFractals settings;
             if (fns.julia) {
-                settings = new SettingsJulia1079(this);
+                settings = new SettingsJulia1080(this);
             } else {
-                settings = new SettingsFractals1079(this);
+                settings = new SettingsFractals1080(this);
             }
             file_temp.writeObject(settings);
             file_temp.flush();
@@ -1749,6 +1823,21 @@ public class Settings implements Constants {
                 yCenter = new MyApfloat(0.0);
                 size = new MyApfloat(6);
                 break;
+        }
+    }
+
+    public void resetConvergentBailoutFormulas() {
+        if (isConvergingType()) {
+            fns.cbs.convergent_bailout_test_user_formula = "norm(z - p)";
+            fns.cbs.convergent_bailout_test_user_formula2 = "cbail";
+        }
+        else if(isMagnetType()) {
+            fns.cbs.convergent_bailout_test_user_formula = "norm(z - 1)";
+            fns.cbs.convergent_bailout_test_user_formula2 = "cbail";
+        }
+        else {
+            fns.cbs.convergent_bailout_test_user_formula = "norm(z - p)";
+            fns.cbs.convergent_bailout_test_user_formula2 = "cbail";
         }
     }
 
@@ -2087,13 +2176,14 @@ public class Settings implements Constants {
                 || fns.function == NOVA
                 || fns.function == USER_FORMULA_NOVA
                 || fns.function == LAMBERT_W_VARIATION
+                || fns.function == NEWTON_THIRD_DEGREE_PARAMETER_SPACE
                 || (fns.function == USER_FORMULA && fns.bail_technique == 1) || (fns.function == USER_FORMULA_ITERATION_BASED && fns.bail_technique == 1) || (fns.function == USER_FORMULA_CONDITIONAL && fns.bail_technique == 1) || (fns.function == USER_FORMULA_COUPLED && fns.bail_technique == 1);
 
     }
 
     public boolean isMagnetType() {
 
-        return fns.function == MAGNET1 || fns.function == MAGNET2;
+        return fns.function == MAGNET1 || fns.function == MAGNET2 || fns.function == MAGNET13 || fns.function == MAGNET14 || fns.function == MAGNET23 || fns.function == MAGNET24;
 
     }
 
@@ -2288,15 +2378,28 @@ public class Settings implements Constants {
         ThreadDraw.COLOR_SMOOTHING_METHOD = color_smoothing_method;
 
         SkipBailoutCondition.SKIPPED_ITERATION_COUNT = fns.skip_bailout_iterations;
+
+        SkipConvergentBailoutCondition.SKIPPED_ITERATION_COUNT = fns.skip_convergent_bailout_iterations;
         
         Derivative.DERIVATIVE_METHOD = fns.derivative_method;
 
         ImageOrbitTrap.image = ots.trapImage;
 
+        ColorAlgorithm.MAGNET_INCREMENT = MagnetColorOffset;
+
     }
 
     public boolean supportsPerturbationTheory() {
-        return !fns.julia && !julia_map && (fns.function == MANDELBROT || fns.function == MANDELBROTCUBED || fns.function == MANDELBROTFOURTH || fns.function == MANDELBROTFIFTH || fns.function == MANDELBAR || fns.function == LAMBDA || fns.function == MAGNET1);
+
+        if(julia_map) {
+            return false;
+        }
+
+        if(fns.julia && fns.juliter) {
+            return false;
+        }
+
+        return (fns.function == MANDELBROT || fns.function == MANDELBROTCUBED || fns.function == MANDELBROTFOURTH || fns.function == MANDELBROTFIFTH || fns.function == MANDELBAR || fns.function == LAMBDA || fns.function == MAGNET1 || fns.function == NEWTON_THIRD_DEGREE_PARAMETER_SPACE  || fns.function == NEWTON3 || (fns.function == NOVA && fns.nova_method == NOVA_NEWTON && fns.defaultNovaInitialValue && fns.z_exponent_nova[0] == 3 &&  fns.z_exponent_nova[1] == 0 && fns.relaxation[0] == 1 && fns.relaxation[1] == 0));
     }
 
     public boolean isPertubationTheoryInUse() {

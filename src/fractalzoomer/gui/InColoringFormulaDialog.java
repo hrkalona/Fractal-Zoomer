@@ -111,7 +111,7 @@ public class InColoringFormulaDialog extends JDialog {
 
         tabbedPane.addTab("Conditional", panel_cond);
 
-        Object[] labels3 = ptra.createUserFormulaLabels("z, c, s, c0, p, pp, n, maxn, bail, cbail, center, size, sizei, v1 - v30, point");
+        Object[] labels3 = ptra.createUserFormulaLabels("z, c, s, c0, pixel, p, pp, n, maxn, bail, cbail, center, size, sizei, v1 - v30, point");
 
         tabbedPane.setSelectedIndex(s.fns.user_in_coloring_algorithm);
 

@@ -50,7 +50,9 @@ public class GridContoursIsoLinesDomainColoring extends DomainColoring {
 
     @Override
     public int getDomainColor(Complex res) {
-        
+
+        res = round(res);
+
         double arg = res.arg();
 
         int color = applyArgColor(arg);

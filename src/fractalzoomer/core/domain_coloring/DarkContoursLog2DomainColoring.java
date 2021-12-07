@@ -42,6 +42,8 @@ public class DarkContoursLog2DomainColoring extends DomainColoring {
     @Override
     public int getDomainColor(Complex res) {
 
+        res = round(res);
+
         int color = applyArgColor(res.arg());
 
         return applyNormContours(color, res.norm());

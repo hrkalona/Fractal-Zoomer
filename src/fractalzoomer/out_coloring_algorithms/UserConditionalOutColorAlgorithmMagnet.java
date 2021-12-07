@@ -61,6 +61,10 @@ public class UserConditionalOutColorAlgorithmMagnet extends UserConditionalOutCo
             parser[0].setC0value(((Complex)object[8]));
         }
 
+        if (parser[0].foundPixel()) {
+            parser[0].setPixelvalue(((Complex) object[9]));
+        }
+
         if(parser[0].foundP()) {
             parser[0].setPvalue(((Complex)object[4]));
         }
@@ -95,6 +99,11 @@ public class UserConditionalOutColorAlgorithmMagnet extends UserConditionalOutCo
         if(parser[1].foundC0()) {
             parser[1].setC0value(((Complex)object[8]));
         }
+
+        if (parser[1].foundPixel()) {
+            parser[1].setPixelvalue(((Complex) object[9]));
+        }
+
 
         if(parser[1].foundP()) {
             parser[1].setPvalue(((Complex)object[4]));
@@ -132,6 +141,11 @@ public class UserConditionalOutColorAlgorithmMagnet extends UserConditionalOutCo
             if(parser2[0].foundC0()) {
                 parser2[0].setC0value(((Complex)object[8]));
             }
+
+            if (parser2[0].foundPixel()) {
+                parser2[0].setPixelvalue(((Complex) object[9]));
+            }
+
 
             if(parser2[0].foundP()) {
                 parser2[0].setPvalue(((Complex)object[4]));
@@ -185,6 +199,10 @@ public class UserConditionalOutColorAlgorithmMagnet extends UserConditionalOutCo
                 parser2[1].setC0value(((Complex)object[8]));
             }
 
+            if (parser2[1].foundPixel()) {
+                parser2[1].setPixelvalue(((Complex) object[9]));
+            }
+
             if(parser2[1].foundP()) {
                 parser2[1].setPvalue(((Complex)object[4]));
             }
@@ -235,6 +253,10 @@ public class UserConditionalOutColorAlgorithmMagnet extends UserConditionalOutCo
 
             if(parser2[2].foundC0()) {
                 parser2[2].setC0value(((Complex)object[8]));
+            }
+
+            if (parser2[2].foundPixel()) {
+                parser2[2].setPixelvalue(((Complex) object[9]));
             }
 
             if(parser2[2].foundP()) {

@@ -18,6 +18,8 @@ package fractalzoomer.fractal_options.orbit_traps;
 
 import fractalzoomer.core.Complex;
 
+import static fractalzoomer.main.Constants.*;
+
 /**
  *
  * @author hrkalona
@@ -27,16 +29,20 @@ public class StalksOrbitTrap extends OrbitTrap {
     private double stalksradiuslow;
     private double cnorm;
     
-    public StalksOrbitTrap(double pointRe, double pointIm, double trapWidth, boolean countTrapIterations) {
-        super(pointRe, pointIm, 0.0, trapWidth, countTrapIterations);
+    public StalksOrbitTrap(int checkType, double pointRe, double pointIm, double trapWidth, boolean countTrapIterations) {
+        super(checkType, pointRe, pointIm, 0.0, trapWidth, countTrapIterations);
     }
 
     @Override
     public void check(Complex val, int iteration) {
 
+        if(checkType == TRAP_CHECK_TYPE_TRAPPED_FIRST && trapped) {
+            return;
+        }
+
         double dist = val.distance(point);
 
-        if (dist <= stalksradiushigh && dist >= stalksradiuslow && iteration > 0) {
+        if (dist <= stalksradiushigh && dist >= stalksradiuslow && iteration > 0 && (checkType == TRAP_CHECK_TYPE_TRAPPED_FIRST || checkType == TRAP_CHECK_TYPE_TRAPPED_LAST ||  checkType == TRAP_CHECK_TYPE_TRAPPED_MIN_DISTANCE && dist < distance)) {
             distance = dist;
             trapId = 0;
             setTrappedData(val, iteration);

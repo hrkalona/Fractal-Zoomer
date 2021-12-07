@@ -59,6 +59,8 @@ public class NormBlackGridContoursLog2IsoLinesDomainColoring extends DomainColor
     @Override
     public int getDomainColor(Complex res) {
 
+        res = round(res);
+
         double norm = res.norm();
         
         int color = applyNormColor(norm);

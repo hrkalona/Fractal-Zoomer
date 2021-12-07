@@ -39,6 +39,7 @@ public abstract class GenericStatistic {
     protected boolean useSmoothing;
     protected boolean useAverage;
     protected int mode;
+    protected int iterations;
     
     public GenericStatistic(double statistic_intensity, boolean useSmoothing, boolean useAverage) {
         this.statistic_intensity = statistic_intensity;
@@ -62,6 +63,7 @@ public abstract class GenericStatistic {
         start_val.assign(start);
         c_val.assign(c);
         c0_val.assign(c0);
+        this.iterations = iterations;
     }
 
     public void initialize(Complex pixel, Complex untransformedPixel) {
@@ -72,6 +74,7 @@ public abstract class GenericStatistic {
         c_val.reset();
         c0_val.reset();
         pixel_val.assign(pixel);
+        iterations = 0;
     }
 
     public abstract double getValue();
@@ -135,5 +138,7 @@ public abstract class GenericStatistic {
     public double getExtraValue() {
         return 0;
     }
+
+    public int getIterations() { return iterations;}
     
 }

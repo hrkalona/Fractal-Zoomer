@@ -47,7 +47,7 @@ public class InversedMu4Plane extends Plane {
         if(pixel.isZero()) {
             return pixel;
         }
-        return pixel.reciprocal().sub(new MyApfloat(2));
+        return pixel.reciprocal().sub(MyApfloat.TWO);
 
     }
 }

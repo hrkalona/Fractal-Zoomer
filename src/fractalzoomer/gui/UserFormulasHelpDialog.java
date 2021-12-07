@@ -41,6 +41,7 @@ public class UserFormulasHelpDialog {
                 + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>c</b></font>: plane point, the conversion of a pixel into a complex number.<br>"
                 + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>s</b></font>: starting sequence point, z(0).<br>"
                 + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>c0</b></font>: starting plane point, c(0).<br>"
+                + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>pixel</b></font>: plane point, the conversion of a pixel into a complex number.<br>"
                 + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>p</b></font>: previous sequence point, z(n - 1).<br>"
                 + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>pp</b></font>: second to previous sequence point, z(n - 2).<br>"
                 + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>n</b></font>: current iteration.<br>"

@@ -172,7 +172,7 @@ public class LyapunovDialog extends JDialog {
         formula_panel_lyapunov8.add(new JLabel("Exponent ="));
         formula_panel_lyapunov8.add(field_exponent_function);
 
-        Object[] labels_lyap = ptra.createUserFormulaLabels("z, r, c, c0, s, p, pp, n, maxn, center, size, sizei, v1 - v30, point");
+        Object[] labels_lyap = ptra.createUserFormulaLabels("z, r, c, c0, s, pixel, p, pp, n, maxn, center, size, sizei, v1 - v30, point");
 
 
         Object[] message_lyap = {
@@ -299,8 +299,8 @@ public class LyapunovDialog extends JDialog {
                         
                         s.parser.parse(initial_value.getText());
 
-                        if (s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundC0() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
-                            JOptionPane.showMessageDialog(ptra, "The variables: z, n, s, c0, p, pp, bail, cbail, r, stat, trap cannot be used in the initial value formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                        if (s.parser.foundPixel() || s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundC0() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                            JOptionPane.showMessageDialog(ptra, "The variables: z, n, s, c0, pixel, p, pp, bail, cbail, r, stat, trap cannot be used in the initial value formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                             return;
                         }
                         

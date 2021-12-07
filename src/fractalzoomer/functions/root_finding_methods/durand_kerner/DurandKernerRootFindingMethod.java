@@ -16,6 +16,7 @@
  */
 package fractalzoomer.functions.root_finding_methods.durand_kerner;
 
+import fractalzoomer.convergent_bailout_conditions.ConvergentBailoutCondition;
 import fractalzoomer.core.Complex;
 import fractalzoomer.functions.root_finding_methods.RootFindingMethods;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
@@ -84,10 +85,11 @@ public abstract class DurandKernerRootFindingMethod extends RootFindingMethods {
         return roots;
     }
 
-    public static boolean converged(Complex[] complex, Complex[] oldValues, double convergent_bailout) {
+    public static boolean converged(ConvergentBailoutCondition convergent_bailout_algorithm, Complex[] complex, Complex[] oldValues, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0, Complex pixel) {
 
-        for(int i = 0; i < complex.length; i++) {
-            if(complex[i].distance_squared(oldValues[i]) > convergent_bailout) {
+        for(int i = complex.length - 1; i >= 0; i--) { //In reversed order in order to get the correct distance at the end
+
+            if(!convergent_bailout_algorithm.converged(complex[i], oldValues[i], zold, zold2, iterations, c, start, c0, pixel)) {
                 return false;
             }
         }
@@ -134,6 +136,10 @@ public abstract class DurandKernerRootFindingMethod extends RootFindingMethods {
 
         initialize(complex, pixel, durandKernerInitializationMethod, a);
 
+        for(int i = 0; i < workSpace.length; i++) {
+            workSpace[i] = new Complex();
+        }
+
         zold = new Complex();
         zold2 = new Complex();
         start = new Complex(complex[0]);
@@ -146,7 +152,6 @@ public abstract class DurandKernerRootFindingMethod extends RootFindingMethods {
     @Override
     protected double iterateFractalWithoutPeriodicity(Complex[] complex, Complex pixel) {
         iterations = 0;
-        double temp = 0;
 
         if (degree <= 0) {
             return 0;
@@ -160,19 +165,17 @@ public abstract class DurandKernerRootFindingMethod extends RootFindingMethods {
                 trap.check(complex[0], iterations);
             }
 
-            if (iterations > 0 && converged(complex, workSpace, convergent_bailout)) {
+            if (iterations > 0 && converged(convergent_bailout_algorithm, complex, workSpace, zold, zold2, iterations, pixel, start, c0, pixel)) {
                 escaped = true;
 
-                temp = complex[0].distance_squared(zold);
-
-                Object[] object = {iterations, complex[0], temp, zold, zold2, pixel, start, c0};
+                Object[] object = {iterations, complex[0], convergent_bailout_algorithm.getDistance(), zold, zold2, pixel, start, c0, pixel};
                 iterationData = object;
                 double out = out_color_algorithm.getResult(object);
 
                 out = getFinalValueOut(out);
 
                 if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(complex[0], zold, zold2, iterations, pixel, start, c0);
+                    setTrueColorOut(complex[0], zold, zold2, iterations, pixel, start, c0, pixel);
                 }
 
                 return out;
@@ -180,9 +183,9 @@ public abstract class DurandKernerRootFindingMethod extends RootFindingMethods {
             zold2.assign(zold);
             zold.assign(complex[0]);
 
-            complex[0] = preFilter.getValue(complex[0], iterations, pixel, start, c0);
+            complex[0] = preFilter.getValue(complex[0], iterations, pixel, start, c0, pixel);
             function(complex);
-            complex[0] = postFilter.getValue(complex[0], iterations, pixel, start, c0);
+            complex[0] = postFilter.getValue(complex[0], iterations, pixel, start, c0, pixel);
 
             if (statistic != null) {
                 statistic.insert(complex[0], zold, zold2, iterations, pixel, start, c0);
@@ -190,14 +193,14 @@ public abstract class DurandKernerRootFindingMethod extends RootFindingMethods {
 
         }
 
-        Object[] object = {complex[0], zold, zold2, pixel, start, c0};
+        Object[] object = {complex[0], zold, zold2, pixel, start, c0, pixel};
         iterationData = object;
         double in = in_color_algorithm.getResult(object);
 
         in = getFinalValueIn(in);
 
         if (inTrueColorAlgorithm != null) {
-            setTrueColorIn(complex[0], zold, zold2, iterations, pixel, start, c0);
+            setTrueColorIn(complex[0], zold, zold2, iterations, pixel, start, c0, pixel);
         }
 
         return in;

@@ -36,24 +36,24 @@ public class SkipBailoutCondition extends BailoutCondition {
     }
     
      @Override
-     public boolean escaped(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0, double norm_squared) {
+     public boolean escaped(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0, double norm_squared, Complex pixel) {
          
         if(iterations < SKIPPED_ITERATION_COUNT) {
             return false;
         }
         
-        return wrappedCondition.escaped(z, zold, zold2, iterations, c, start, c0, norm_squared);
+        return wrappedCondition.escaped(z, zold, zold2, iterations, c, start, c0, norm_squared, pixel);
   
      }
 
     @Override
-    public boolean escaped(BigComplex z, BigComplex zold, BigComplex zold2, int iterations, BigComplex c, BigComplex start, BigComplex c0, Apfloat norm_squared) {
+    public boolean escaped(BigComplex z, BigComplex zold, BigComplex zold2, int iterations, BigComplex c, BigComplex start, BigComplex c0, Apfloat norm_squared, BigComplex pixel) {
 
         if(iterations < SKIPPED_ITERATION_COUNT) {
             return false;
         }
 
-        return wrappedCondition.escaped(z, zold, zold2, iterations, c, start, c0, norm_squared);
+        return wrappedCondition.escaped(z, zold, zold2, iterations, c, start, c0, norm_squared, pixel);
 
     }
     

@@ -252,6 +252,10 @@ public class UserConditionalInColorAlgorithm extends InColorAlgorithm {
             parser[0].setC0value(((Complex)object[5]));
         }
 
+        if(parser[0].foundPixel()) {
+            parser[0].setPixelvalue(((Complex)object[6]));
+        }
+
         if(parser[0].foundP()) {
             parser[0].setPvalue(((Complex)object[1]));
         }
@@ -282,6 +286,10 @@ public class UserConditionalInColorAlgorithm extends InColorAlgorithm {
 
         if(parser[1].foundC0()) {
             parser[1].setC0value(((Complex)object[5]));
+        }
+
+        if(parser[1].foundPixel()) {
+            parser[1].setPixelvalue(((Complex)object[6]));
         }
 
         if(parser[1].foundP()) {
@@ -315,6 +323,10 @@ public class UserConditionalInColorAlgorithm extends InColorAlgorithm {
 
             if(parser2[0].foundC0()) {
                 parser2[0].setC0value(((Complex)object[5]));
+            }
+
+            if(parser2[0].foundPixel()) {
+                parser2[0].setPixelvalue(((Complex)object[6]));
             }
 
             if(parser2[0].foundP()) {
@@ -360,6 +372,10 @@ public class UserConditionalInColorAlgorithm extends InColorAlgorithm {
                 parser2[1].setC0value(((Complex)object[5]));
             }
 
+            if(parser2[1].foundPixel()) {
+                parser2[1].setPixelvalue(((Complex)object[6]));
+            }
+
             if(parser2[1].foundP()) {
                 parser2[1].setPvalue(((Complex)object[1]));
             }
@@ -401,6 +417,10 @@ public class UserConditionalInColorAlgorithm extends InColorAlgorithm {
 
             if(parser2[2].foundC0()) {
                 parser2[2].setC0value(((Complex)object[5]));
+            }
+
+            if(parser2[2].foundPixel()) {
+                parser2[2].setPixelvalue(((Complex)object[6]));
             }
 
             if(parser2[2].foundP()) {

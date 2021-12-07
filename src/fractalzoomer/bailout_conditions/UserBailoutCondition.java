@@ -115,7 +115,7 @@ public class UserBailoutCondition extends BailoutCondition {
     }
 
     @Override
-    public boolean escaped(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0, double norm_squared) {
+    public boolean escaped(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0, double norm_squared, Complex pixel) {
         
         /*LEFT*/
         if(parser[0].foundN()) {
@@ -132,6 +132,10 @@ public class UserBailoutCondition extends BailoutCondition {
         
         if(parser[0].foundS()) {
             parser[0].setSvalue(start);
+        }
+
+        if(parser[0].foundPixel()) {
+            parser[0].setPixelvalue(pixel);
         }
 
         if(parser[0].foundC0()) {
@@ -167,6 +171,10 @@ public class UserBailoutCondition extends BailoutCondition {
         
         if(parser[1].foundS()) {
             parser[1].setSvalue(start);
+        }
+
+        if(parser[1].foundPixel()) {
+            parser[1].setPixelvalue(pixel);
         }
 
         if(parser[1].foundC0()) {
@@ -209,7 +217,7 @@ public class UserBailoutCondition extends BailoutCondition {
     }
 
     @Override
-    public boolean escaped(BigComplex z, BigComplex zold, BigComplex zold2, int iterations, BigComplex c, BigComplex start, BigComplex c0, Apfloat norm_squared) {
-        return escaped(z.toComplex(), zold.toComplex(), zold2.toComplex(), iterations, c.toComplex(), start.toComplex(), c0.toComplex(), norm_squared.doubleValue());
+    public boolean escaped(BigComplex z, BigComplex zold, BigComplex zold2, int iterations, BigComplex c, BigComplex start, BigComplex c0, Apfloat norm_squared, BigComplex pixel) {
+        return escaped(z.toComplex(), zold.toComplex(), zold2.toComplex(), iterations, c.toComplex(), start.toComplex(), c0.toComplex(), norm_squared.doubleValue(), pixel.toComplex());
     }
 }

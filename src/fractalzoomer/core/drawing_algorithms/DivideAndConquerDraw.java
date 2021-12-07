@@ -16,9 +16,7 @@
  */
 package fractalzoomer.core.drawing_algorithms;
 
-import fractalzoomer.core.CartesianLocation;
 import fractalzoomer.core.Location;
-import fractalzoomer.core.PolarLocation;
 import fractalzoomer.core.ThreadDraw;
 import fractalzoomer.main.ImageExpanderWindow;
 import fractalzoomer.main.MainWindow;
@@ -60,9 +58,9 @@ public class DivideAndConquerDraw extends ThreadDraw {
     @Override
     protected void drawIterations(int image_size, boolean polar) {
 
-        Location location = Location.getInstanceForDrawing(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, polar, PERTURBATION_THEORY && !fractal.isJulia() && fractal.supportsPerturbationTheory());
+        Location location = Location.getInstanceForDrawing(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, polar, PERTURBATION_THEORY && fractal.supportsPerturbationTheory());
 
-        if(PERTURBATION_THEORY && !fractal.isJulia() && fractal.supportsPerturbationTheory()) {
+        if(PERTURBATION_THEORY && fractal.supportsPerturbationTheory()) {
             if (reference_calc_sync.getAndIncrement() == 0) {
                 calculateReference(location);
             }
@@ -333,10 +331,10 @@ public class DivideAndConquerDraw extends ThreadDraw {
 
     @Override
     protected void drawIterationsAntialiased(int image_size, boolean polar) {
-        Location location = Location.getInstanceForDrawing(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, polar, PERTURBATION_THEORY && !fractal.isJulia() && fractal.supportsPerturbationTheory());
+        Location location = Location.getInstanceForDrawing(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, polar, PERTURBATION_THEORY  && fractal.supportsPerturbationTheory());
         location.createAntialiasingSteps();
 
-        if(PERTURBATION_THEORY && !fractal.isJulia() && fractal.supportsPerturbationTheory()) {
+        if(PERTURBATION_THEORY && fractal.supportsPerturbationTheory()) {
             if (reference_calc_sync.getAndIncrement() == 0) {
                 calculateReference(location);
             }
@@ -731,7 +729,22 @@ public class DivideAndConquerDraw extends ThreadDraw {
     @Override
     protected void drawFastJulia(int image_size, boolean polar) {
 
-        Location location = Location.getInstanceForDrawing(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, polar, false);
+        Location location = Location.getInstanceForDrawing(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, polar, PERTURBATION_THEORY && fractal.supportsPerturbationTheory());
+
+        if(PERTURBATION_THEORY && fractal.supportsPerturbationTheory()) {
+
+            if (reference_calc_sync.getAndIncrement() == 0) {
+                calculateReferenceFastJulia(location);
+            }
+
+            try {
+                reference_sync.await();
+            } catch (InterruptedException ex) {
+
+            } catch (BrokenBarrierException ex) {
+
+            }
+        }
 
         int loc;
 
@@ -954,8 +967,23 @@ public class DivideAndConquerDraw extends ThreadDraw {
     @Override
     protected void drawFastJuliaAntialiased(int image_size, boolean polar) {
 
-        Location location = Location.getInstanceForDrawing(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, polar, false);
+        Location location = Location.getInstanceForDrawing(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, polar, PERTURBATION_THEORY && fractal.supportsPerturbationTheory());
         location.createAntialiasingSteps();
+
+        if(PERTURBATION_THEORY && fractal.supportsPerturbationTheory()) {
+
+            if (reference_calc_sync.getAndIncrement() == 0) {
+                calculateReferenceFastJulia(location);
+            }
+
+            try {
+                reference_sync.await();
+            } catch (InterruptedException ex) {
+
+            } catch (BrokenBarrierException ex) {
+
+            }
+        }
 
         int loc;
 

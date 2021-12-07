@@ -35,6 +35,7 @@ public class OptionsMenu extends JMenu {
     private ColorsMenu colors_menu;
     private JMenu iterations_menu;
     private BailoutConditionsMenu bailout_condition_menu;
+    private ConvergentBailoutConditionsMenu convergent_bailout_condition_menu;
     private JMenu rotation_menu;
     private OptimizationsMenu optimizations_menu;
     private ToolsOptionsMenu tools_options_menu;
@@ -58,7 +59,7 @@ public class OptionsMenu extends JMenu {
     private JCheckBoxMenuItem infobar_opt;
     private JCheckBoxMenuItem fullscreen_opt;
 
-    public OptionsMenu(MainWindow ptr2, String name, PaletteSettings ps, PaletteSettings ps2, boolean smoothing, boolean show_orbit_converging_point, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, int out_coloring_algorithm, int in_coloring_algorithm, int function, int plane_type, int bailout_test_algorithm, int color_blending, int temp_color_cycling_location, int temp_color_cycling_location2, int pre_filter, int post_filter, int plane_influence) {
+    public OptionsMenu(MainWindow ptr2, String name, PaletteSettings ps, PaletteSettings ps2, boolean smoothing, boolean show_orbit_converging_point, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, int out_coloring_algorithm, int in_coloring_algorithm, int function, int plane_type, int bailout_test_algorithm, int color_blending, int temp_color_cycling_location, int temp_color_cycling_location2, int pre_filter, int post_filter, int plane_influence, int convergent_bailout_test_algorithm) {
 
         super(name);
 
@@ -76,6 +77,8 @@ public class OptionsMenu extends JMenu {
         iterations = new JMenuItem("Set Iterations", getIcon("/fractalzoomer/icons/iterations.png"));
 
         bailout_condition_menu = new BailoutConditionsMenu(ptr, "Bailout Condition", bailout_test_algorithm);
+
+        convergent_bailout_condition_menu = new ConvergentBailoutConditionsMenu(ptr, "Convergent Bailout Condition", convergent_bailout_test_algorithm);
 
         bailout_number = new JMenuItem("Bailout", getIcon("/fractalzoomer/icons/bailout.png"));
 
@@ -345,6 +348,7 @@ public class OptionsMenu extends JMenu {
         addSeparator();
         add(bailout_condition_menu);
         add(bailout_number);
+        add(convergent_bailout_condition_menu);
         addSeparator();
         add(rotation_menu);
         addSeparator();
@@ -493,39 +497,9 @@ public class OptionsMenu extends JMenu {
 
     }
 
-    public JMenuItem getJuliaMapOptions() {
-
-        return tools_options_menu.getJuliaMapOptions();
-
-    }
-
-    public JMenuItem getJuliterOptions() {
-
-        return tools_options_menu.getJuliterOptions();
-
-    }
-
-    public JMenuItem getPolarProjectionOptions() {
-
-        return tools_options_menu.getPolarProjectionOptions();
-
-    }
-
     public JCheckBoxMenuItem getFastJuliaFiltersOptions() {
 
         return tools_options_menu.getFastJuliaFiltersOptions();
-
-    }
-
-    public JMenuItem getDomainColoringOptions() {
-
-        return tools_options_menu.getDomainColoringOptions();
-
-    }
-
-    public JMenuItem get3DOptions() {
-
-        return tools_options_menu.get3DOptions();
 
     }
 
@@ -553,13 +527,13 @@ public class OptionsMenu extends JMenu {
 
     }
 
-    public JCheckBoxMenuItem getInitialValue() {
+    public JMenuItem getInitialValue() {
 
         return fractal_options_menu.getInitialValue();
 
     }
 
-    public JCheckBoxMenuItem getPerturbation() {
+    public JMenuItem getPerturbation() {
 
         return fractal_options_menu.getPerturbation();
 
@@ -574,6 +548,12 @@ public class OptionsMenu extends JMenu {
     public BailoutConditionsMenu getBailoutConditionMenu() {
 
         return bailout_condition_menu;
+
+    }
+
+    public ConvergentBailoutConditionsMenu getConvergentBailoutConditionMenu() {
+
+        return convergent_bailout_condition_menu;
 
     }
 
@@ -619,7 +599,7 @@ public class OptionsMenu extends JMenu {
 
     }
 
-    public JCheckBoxMenuItem getMandelGrassOpt() {
+    public JMenuItem getMandelGrassOpt() {
 
         return fractal_options_menu.getMandelGrassOpt();
 
@@ -628,6 +608,12 @@ public class OptionsMenu extends JMenu {
     public JRadioButtonMenuItem[] getBailoutConditions() {
 
         return bailout_condition_menu.getBailoutConditions();
+
+    }
+
+    public JRadioButtonMenuItem[] getConvergentBailoutConditions() {
+
+        return convergent_bailout_condition_menu.getConvergentBailoutConditions();
 
     }
 

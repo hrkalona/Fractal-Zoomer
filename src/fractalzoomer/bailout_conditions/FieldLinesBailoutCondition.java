@@ -18,6 +18,7 @@ package fractalzoomer.bailout_conditions;
 
 import fractalzoomer.core.BigComplex;
 import fractalzoomer.core.Complex;
+import fractalzoomer.core.MyApfloat;
 import org.apfloat.Apfloat;
 
 /**
@@ -33,14 +34,14 @@ public class FieldLinesBailoutCondition extends BailoutCondition {
     }
     
     @Override
-     public boolean escaped(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0, double norm_squared) {
+     public boolean escaped(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0, double norm_squared, Complex pixel) {
 
         return iterations > 1 && z.getRe() / zold.getRe() >= bound && z.getIm() / zold.getIm() >= bound;
          
      }
 
     @Override
-    public boolean escaped(BigComplex z, BigComplex zold, BigComplex zold2, int iterations, BigComplex c, BigComplex start, BigComplex c0, Apfloat norm_squared) {
+    public boolean escaped(BigComplex z, BigComplex zold, BigComplex zold2, int iterations, BigComplex c, BigComplex start, BigComplex c0, Apfloat norm_squared, BigComplex pixel) {
 
         Apfloat zoldRe = zold.getRe();
         Apfloat zoldIm = zold.getIm();
@@ -49,7 +50,7 @@ public class FieldLinesBailoutCondition extends BailoutCondition {
             return false;
         }
 
-        return iterations > 1 && z.getRe().divide(zoldRe).compareTo(ddbound) >= 0 && z.getIm().divide(zoldIm).compareTo(ddbound) >= 0;
+        return iterations > 1 && MyApfloat.fp.divide(z.getRe(), zoldRe).compareTo(ddbound) >= 0 && MyApfloat.fp.divide(z.getIm(), zoldIm).compareTo(ddbound) >= 0;
 
     }
     

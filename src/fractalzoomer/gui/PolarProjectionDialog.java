@@ -42,7 +42,7 @@ public class PolarProjectionDialog extends JDialog {
     private MainWindow ptra;
     private JOptionPane optionPane;
 
-    public PolarProjectionDialog(MainWindow ptr, Settings s, JButton polar_projection_button, JCheckBoxMenuItem polar_projection_opt, boolean mode) {
+    public PolarProjectionDialog(MainWindow ptr, Settings s) {
         
         super(ptr);
 
@@ -51,6 +51,11 @@ public class PolarProjectionDialog extends JDialog {
         setTitle("Polar Projection");
         setModal(true);
         setIconImage(getIcon("/fractalzoomer/icons/mandel2.png").getImage());
+
+        final JCheckBox polar = new JCheckBox("Polar Projection");
+        polar.setSelected(s.polar_projection);
+        polar.setFocusable(false);
+        polar.setToolTipText("Enables the polar projection coordinates.");
 
         JTextArea field_real = new JTextArea(3, 50);
         field_real.setFont(TEMPLATE_TFIELD.getFont());
@@ -64,9 +69,8 @@ public class PolarProjectionDialog extends JDialog {
 
         BigPoint p = MathUtils.rotatePointRelativeToPoint(new BigPoint(s.xCenter, s.yCenter), s.fns.rotation_vals, s.fns.rotation_center);
 
-        Apfloat zero = new MyApfloat(0.0);
 
-        if (p.x.compareTo(zero) == 0) {
+        if (p.x.compareTo(MyApfloat.ZERO) == 0) {
             field_real.setText("" + 0.0);
         } else {
             field_real.setText("" + p.x.toString(true));
@@ -82,7 +86,7 @@ public class PolarProjectionDialog extends JDialog {
         CenterSizeDialog.disableKeys(field_imaginary.getInputMap());
         CenterSizeDialog.disableKeys(scrollImaginary.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT));
 
-        if (p.y.compareTo(zero) == 0) {
+        if (p.y.compareTo(MyApfloat.ZERO) == 0) {
             field_imaginary.setText("" + 0.0);
         } else {
             field_imaginary.setText("" + p.y.toString(true));
@@ -131,6 +135,8 @@ public class PolarProjectionDialog extends JDialog {
         });
 
         Object[] message3 = {
+                " ",
+                polar,
             " ",
             "Set the real and imaginary part of the polar projection center",
             "and the size.",
@@ -175,22 +181,17 @@ public class PolarProjectionDialog extends JDialog {
                     optionPane.setValue(JOptionPane.UNINITIALIZED_VALUE);
 
                     if ((Integer) value == JOptionPane.CANCEL_OPTION || (Integer) value == JOptionPane.NO_OPTION || (Integer) value == JOptionPane.CLOSED_OPTION) {
-                        if(mode) {
-                            polar_projection_opt.setSelected(false);
-                            polar_projection_button.setSelected(false);
-                        }
                         dispose();
                         return;
                     }
 
                     try {
-                        Apfloat tempReal = new MyApfloat(field_real.getText()).subtract(s.fns.rotation_center[0]);
-                        Apfloat tempImaginary = new MyApfloat(field_imaginary.getText()).subtract(s.fns.rotation_center[1]);
+                        Apfloat tempReal = MyApfloat.fp.subtract(new MyApfloat(field_real.getText()), s.fns.rotation_center[0]);
+                        Apfloat tempImaginary = MyApfloat.fp.subtract(new MyApfloat(field_imaginary.getText()), s.fns.rotation_center[1]);
                         Apfloat tempSize = new MyApfloat(field_size.getText());
                         double temp_circle_period = Double.parseDouble(field_circle_period.getText());
 
-                        Apfloat zero = new MyApfloat(0.0);
-                        if (tempSize.compareTo(zero) <= 0) {
+                        if (tempSize.compareTo(MyApfloat.ZERO) <= 0) {
                             JOptionPane.showMessageDialog(ptra, "Size number must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
                             return;
                         }
@@ -202,8 +203,8 @@ public class PolarProjectionDialog extends JDialog {
 
                         s.size = tempSize;
 
-                        s.xCenter = tempReal.multiply(s.fns.rotation_vals[0]).add(tempImaginary.multiply(s.fns.rotation_vals[1])).add(s.fns.rotation_center[0]);
-                        s.yCenter = tempReal.negate().multiply(s.fns.rotation_vals[1]).add(tempImaginary.multiply(s.fns.rotation_vals[0])).add(s.fns.rotation_center[1]);
+                        s.xCenter = MyApfloat.fp.add(MyApfloat.fp.add(MyApfloat.fp.multiply(tempReal, s.fns.rotation_vals[0]), MyApfloat.fp.multiply(tempImaginary, s.fns.rotation_vals[1])), s.fns.rotation_center[0]);
+                        s.yCenter = MyApfloat.fp.add(MyApfloat.fp.add(MyApfloat.fp.multiply(tempReal.negate(), s.fns.rotation_vals[1]), MyApfloat.fp.multiply(tempImaginary, s.fns.rotation_vals[0])), s.fns.rotation_center[1]);
 
                         s.circle_period = temp_circle_period;
                     } catch (Exception ex) {
@@ -212,12 +213,7 @@ public class PolarProjectionDialog extends JDialog {
                     }
 
                     dispose();
-                    if(mode) {
-                        ptra.setPolarProjectionPost();
-                    }
-                    else {
-                        ptra.setPolarProjectionOptionsPost();
-                    }
+                    ptra.setPolarProjectionPost(polar.isSelected());
                 }
             }
         });

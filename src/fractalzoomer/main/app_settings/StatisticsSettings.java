@@ -23,6 +23,7 @@ import fractalzoomer.main.Constants;
  * @author hrkalona2
  */
 public class StatisticsSettings implements Constants {
+    public static final int[] defRootColors = {0xFF0000, 0x00FF00, 0x0000FF, 0xFFFF00, 0xFFA500, 0xff00ff, 0x00ffff, 0x00FF7F, 0x9400D3, 0xFF7F50};
     public boolean statistic;
     public int statistic_type;
     public double statistic_intensity;
@@ -64,6 +65,19 @@ public class StatisticsSettings implements Constants {
     public double normalMapDEfactor;
     public boolean normalMapInvertDE;
     public int normalMapColoring;
+
+    public double rootIterationsScaling;
+    public boolean rootShading;
+    public int rootContourColorMethod;
+    public double rootBlending;
+    public int rootShadingFunction;
+    public boolean revertRootShading;
+    public boolean highlightRoots;
+    public boolean rootSmooting;
+    public int[] rootColors;
+
+    public int twlFunction;
+    public double[] twlPoint;
     
     public StatisticsSettings(StatisticsSettings copy) {
         statistic = copy.statistic;
@@ -107,6 +121,24 @@ public class StatisticsSettings implements Constants {
         normalMapInvertDE = copy.normalMapInvertDE;
         normalMapColoring = copy.normalMapColoring;
         useNormalMap = copy.useNormalMap;
+
+        rootIterationsScaling = copy.rootIterationsScaling;
+        rootContourColorMethod = copy.rootContourColorMethod;
+        rootBlending = copy.rootBlending;
+        rootShading = copy.rootShading;
+        rootShadingFunction = copy.rootShadingFunction;
+        revertRootShading = copy.revertRootShading;
+        highlightRoots = copy.highlightRoots;
+        rootSmooting = copy.rootSmooting;
+
+        rootColors = new int[copy.rootColors.length];
+        for(int i = 0; i < rootColors.length; i++) {
+            rootColors[i] = copy.rootColors[i];
+        }
+
+        twlFunction = copy.twlFunction;
+        twlPoint = copy.twlPoint;
+
     }
     
     public StatisticsSettings() {
@@ -152,5 +184,23 @@ public class StatisticsSettings implements Constants {
         normalMapInvertDE = false;
         normalMapColoring = 0;
         useNormalMap = true;
+
+        rootIterationsScaling = 30;
+        rootContourColorMethod = 0;
+        rootBlending = 0.5;
+        rootShadingFunction = 0;
+        revertRootShading = false;
+        rootShading = true;
+        highlightRoots = true;
+        rootColors = new int[defRootColors.length];
+        for(int i = 0; i < rootColors.length; i++) {
+            rootColors[i] = defRootColors[i];
+        }
+        rootSmooting = true;
+
+        twlFunction = 0;
+        twlPoint = new double[2];
+        twlPoint[0] = 2.81395;
+        twlPoint[1] = -1.88372;
     }
 }

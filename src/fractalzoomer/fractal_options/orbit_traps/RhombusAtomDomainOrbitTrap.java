@@ -18,6 +18,8 @@ package fractalzoomer.fractal_options.orbit_traps;
 
 import fractalzoomer.core.Complex;
 
+import static fractalzoomer.main.Constants.*;
+
 /**
  *
  * @author hrkalona
@@ -25,9 +27,9 @@ import fractalzoomer.core.Complex;
 public class RhombusAtomDomainOrbitTrap extends OrbitTrap {
     private double old_distance;
 
-    public RhombusAtomDomainOrbitTrap(double pointRe, double pointIm, boolean countTrapIterations) {
+    public RhombusAtomDomainOrbitTrap(int checkType, double pointRe, double pointIm, boolean countTrapIterations) {
 
-        super(pointRe, pointIm, 0.0, 0.0, countTrapIterations);
+        super(checkType, pointRe, pointIm, 0.0, 0.0, countTrapIterations);
 
     }
     
@@ -42,18 +44,29 @@ public class RhombusAtomDomainOrbitTrap extends OrbitTrap {
     @Override
     public void check(Complex val, int iteration) {
 
+        if(checkType == TRAP_CHECK_TYPE_TRAPPED_FIRST && trapped) {
+            return;
+        }
+
         Complex diff = val.sub(point);
         
         double dist = diff.getAbsRe() + diff.getAbsIm();
 
-        if (dist < distance) {
+        if (checkType == TRAP_CHECK_TYPE_TRAPPED_FIRST || checkType == TRAP_CHECK_TYPE_TRAPPED_LAST) {
             old_distance = distance;
             distance = dist;
             trapId = 0;
-            setTrappedData(val, iteration);           
-        } else if (dist < old_distance) {
-            old_distance = dist;
-            countExtraIterations();
+            setTrappedData(val, iteration);
+        } else if (checkType == TRAP_CHECK_TYPE_TRAPPED_MIN_DISTANCE) {
+            if (dist < distance) {
+                old_distance = distance;
+                distance = dist;
+                trapId = 0;
+                setTrappedData(val, iteration);
+            } else if (dist < old_distance) {
+                old_distance = dist;
+                countExtraIterations();
+            }
         }
 
     }

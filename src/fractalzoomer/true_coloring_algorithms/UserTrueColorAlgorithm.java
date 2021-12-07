@@ -151,7 +151,7 @@ public class UserTrueColorAlgorithm extends TrueColorAlgorithm {
     }
 
     @Override
-    public int createColor(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0, double stat, double trap, boolean escaped) {
+    public int createColor(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0, Complex pixel, double stat, double trap, boolean escaped) {
 
         /**
          * * C1 ***
@@ -170,6 +170,10 @@ public class UserTrueColorAlgorithm extends TrueColorAlgorithm {
 
         if (parser1.foundS()) {
             parser1.setSvalue(start);
+        }
+
+        if (parser1.foundPixel()) {
+            parser1.setPixelvalue(pixel);
         }
 
         if (parser1.foundC0()) {
@@ -221,6 +225,10 @@ public class UserTrueColorAlgorithm extends TrueColorAlgorithm {
                 parser2.setSvalue(start);
             }
 
+            if (parser2.foundPixel()) {
+                parser2.setPixelvalue(pixel);
+            }
+
             if (parser2.foundC0()) {
                 parser2.setSvalue(c0);
             }
@@ -267,6 +275,10 @@ public class UserTrueColorAlgorithm extends TrueColorAlgorithm {
 
             if (parser3.foundS()) {
                 parser3.setSvalue(start);
+            }
+
+            if (parser3.foundPixel()) {
+                parser3.setPixelvalue(pixel);
             }
 
             if (parser3.foundC0()) {

@@ -17,6 +17,7 @@
 package fractalzoomer.functions.root_finding_methods.newton;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.fractal_options.initial_value.DefaultInitialValue;
 import fractalzoomer.functions.root_finding_methods.RootFindingMethods;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
 

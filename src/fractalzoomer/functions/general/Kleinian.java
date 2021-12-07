@@ -126,13 +126,13 @@ public class Kleinian extends FractalWithoutConstant {
             if (complex[0].getIm() < 0.0 || complex[0].getIm() > u) {
                 escaped = true;
 
-                Object[] object = {iterations, complex[0], zold, zold2, pixel, start, c0};
+                Object[] object = {iterations, complex[0], zold, zold2, pixel, start, c0, pixel};
                 double out = out_color_algorithm.getResult(object);
 
                 out = getFinalValueOut(out);
 
                 if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(complex[0], zold, zold2, iterations, pixel, start, c0);
+                    setTrueColorOut(complex[0], zold, zold2, iterations, pixel, start, c0, pixel);
                 }
 
                 return out;
@@ -141,13 +141,13 @@ public class Kleinian extends FractalWithoutConstant {
             //If the iterated points enters a 2-cycle , bail out.
             if (iterations != 0 && complex[0].distance_squared(zold2) < error) {
 
-                Object[] object = {complex[0], zold, zold2, pixel, start, c0};
+                Object[] object = {complex[0], zold, zold2, pixel, start, c0, pixel};
                 double in = in_color_algorithm.getResult(object);
 
                 in = getFinalValueIn(in);
 
                 if (inTrueColorAlgorithm != null) {
-                    setTrueColorIn(complex[0], zold, zold2, iterations, pixel, start, c0);
+                    setTrueColorIn(complex[0], zold, zold2, iterations, pixel, start, c0, pixel);
                 }
 
                 return in;
@@ -157,22 +157,22 @@ public class Kleinian extends FractalWithoutConstant {
             zold2.assign(zold);
             zold.assign(complex[0]);
 
-            complex[0] = preFilter.getValue(complex[0], iterations, pixel, start, c0);
+            complex[0] = preFilter.getValue(complex[0], iterations, pixel, start, c0, pixel);
             function(complex);
-            complex[0] = postFilter.getValue(complex[0], iterations, pixel, start, c0);
+            complex[0] = postFilter.getValue(complex[0], iterations, pixel, start, c0, pixel);
 
             if (statistic != null) {
                 statistic.insert(complex[0], zold, zold2, iterations, pixel, start, c0);
             }
         }
 
-        Object[] object = {complex[0], zold, zold2, pixel, start, c0};
+        Object[] object = {complex[0], zold, zold2, pixel, start, c0, pixel};
         double in = in_color_algorithm.getResult(object);
 
         in = getFinalValueIn(in);
 
         if (inTrueColorAlgorithm != null) {
-            setTrueColorIn(complex[0], zold, zold2, iterations, pixel, start, c0);
+            setTrueColorIn(complex[0], zold, zold2, iterations, pixel, start, c0, pixel);
         }
 
         return in;

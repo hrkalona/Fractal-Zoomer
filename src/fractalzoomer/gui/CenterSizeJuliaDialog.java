@@ -70,9 +70,8 @@ public class CenterSizeJuliaDialog extends JDialog {
 
         BigPoint p = MathUtils.rotatePointRelativeToPoint(new BigPoint(s.xCenter, s.yCenter), s.fns.rotation_vals, s.fns.rotation_center);
 
-        Apfloat zero = new MyApfloat(0.0);
 
-        if (p.x.compareTo(zero) == 0) {
+        if (p.x.compareTo(MyApfloat.ZERO) == 0) {
             field_real.setText("" + 0.0);
         } else {
             field_real.setText("" + p.x.toString(true));
@@ -88,7 +87,7 @@ public class CenterSizeJuliaDialog extends JDialog {
         CenterSizeDialog.disableKeys(field_imaginary.getInputMap());
         CenterSizeDialog.disableKeys(scrollImaginary.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT));
 
-        if (p.y.compareTo(zero) == 0) {
+        if (p.y.compareTo(MyApfloat.ZERO) == 0) {
             field_imaginary.setText("" + 0.0);
         } else {
             field_imaginary.setText("" + p.y.toString(true));
@@ -233,15 +232,14 @@ public class CenterSizeJuliaDialog extends JDialog {
                     }
 
                     try {
-                        Apfloat tempReal =  new MyApfloat(field_real.getText()).subtract(s.fns.rotation_center[0]);
-                        Apfloat tempImaginary =  new MyApfloat(field_imaginary.getText()).subtract(s.fns.rotation_center[1]);
+                        Apfloat tempReal =  MyApfloat.fp.subtract(new MyApfloat(field_real.getText()), s.fns.rotation_center[0]);
+                        Apfloat tempImaginary =  MyApfloat.fp.subtract(new MyApfloat(field_imaginary.getText()), s.fns.rotation_center[1]);
                         Apfloat tempSize =  new MyApfloat(field_size.getText());
                         double tempJuliaReal = Double.parseDouble(real_seed.getText());
                         double tempJuliaImaginary = Double.parseDouble(imag_seed.getText());
 
-                        Apfloat zero = new MyApfloat(0.0);
 
-                        if (tempSize.compareTo(zero) <= 0) {
+                        if (tempSize.compareTo(MyApfloat.ZERO) <= 0) {
                             JOptionPane.showMessageDialog(ptra, "Size number must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
                             return;
                         }
@@ -260,8 +258,8 @@ public class CenterSizeJuliaDialog extends JDialog {
 
                         s.size = tempSize;
                         /* Inverse rotation */
-                        s.xCenter = tempReal.multiply(s.fns.rotation_vals[0]).add(tempImaginary.multiply(s.fns.rotation_vals[1])).add(s.fns.rotation_center[0]);
-                        s.yCenter = tempReal.negate().multiply(s.fns.rotation_vals[1]).add(tempImaginary.multiply(s.fns.rotation_vals[0])).add(s.fns.rotation_center[1]);
+                        s.xCenter = MyApfloat.fp.add(MyApfloat.fp.add(MyApfloat.fp.multiply(tempReal, s.fns.rotation_vals[0]), MyApfloat.fp.multiply(tempImaginary, s.fns.rotation_vals[1])), s.fns.rotation_center[0]);
+                        s.yCenter = MyApfloat.fp.add(MyApfloat.fp.add(MyApfloat.fp.multiply(tempReal.negate(), s.fns.rotation_vals[1]), MyApfloat.fp.multiply(tempImaginary, s.fns.rotation_vals[0])), s.fns.rotation_center[1]);
 
                         s.xJuliaCenter = tempJuliaReal;
                         s.yJuliaCenter = tempJuliaImaginary;

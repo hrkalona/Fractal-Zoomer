@@ -57,11 +57,11 @@ public class Equicontinuity extends GenericStatistic {
         f.updateZoldAndZold2(complex[0]);
 
         if(!isFractalWithoutConstant) {
-            complex[1] = f.getPlaneInfluence().getValue(complex[0], iterations, complex[1], start, zold, zold2, c0);
+            complex[1] = f.getPlaneInfluence().getValue(complex[0], iterations, complex[1], start, zold, zold2, c0, pixel_val);
         }
-        complex[0] = f.getPreFilter().getValue(complex[0], iterations, isFractalWithoutConstant ? pixel_val : complex[1], start, c0);
+        complex[0] = f.getPreFilter().getValue(complex[0], iterations, isFractalWithoutConstant ? pixel_val : complex[1], start, c0, pixel_val);
         f.function(complex);
-        complex[0] = f.getPostFilter().getValue(complex[0], iterations, isFractalWithoutConstant ? pixel_val : complex[1], start, c0);
+        complex[0] = f.getPostFilter().getValue(complex[0], iterations, isFractalWithoutConstant ? pixel_val : complex[1], start, c0, pixel_val);
 
         double res = complex[0].distance_squared(z);
 

@@ -17,13 +17,11 @@
 package fractalzoomer.functions.magnet;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.fractal_options.initial_value.DefaultInitialValue;
 import fractalzoomer.fractal_options.initial_value.InitialValue;
 import fractalzoomer.fractal_options.initial_value.VariableConditionalInitialValue;
 import fractalzoomer.fractal_options.initial_value.VariableInitialValue;
 import fractalzoomer.fractal_options.perturbation.DefaultPerturbation;
-import fractalzoomer.fractal_options.perturbation.Perturbation;
-import fractalzoomer.fractal_options.perturbation.VariableConditionalPerturbation;
-import fractalzoomer.fractal_options.perturbation.VariablePerturbation;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
 import fractalzoomer.main.app_settings.StatisticsSettings;
@@ -42,22 +40,7 @@ public class Magnet2 extends MagnetType {
 
         convergent_bailout = 1E-9;
 
-        if(perturbation) {
-            if(variable_perturbation) {
-                if(user_perturbation_algorithm == 0) {
-                    pertur_val = new VariablePerturbation(perturbation_user_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
-                }
-                else {
-                    pertur_val = new VariableConditionalPerturbation(user_perturbation_conditions, user_perturbation_condition_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
-                }
-            }
-            else {
-                pertur_val = new Perturbation(perturbation_vals[0], perturbation_vals[1]);
-            }
-        }
-        else {
-            pertur_val = new DefaultPerturbation();
-        }
+        setPertubationOption(perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, perturbation_user_formula, user_perturbation_conditions, user_perturbation_condition_formula, plane_transform_center);
 
         if(init_value) {
             if(variable_init_value) {
@@ -128,22 +111,7 @@ public class Magnet2 extends MagnetType {
 
         super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
 
-        if(perturbation) {
-            if(variable_perturbation) {
-                if(user_perturbation_algorithm == 0) {
-                    pertur_val = new VariablePerturbation(perturbation_user_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
-                }
-                else {
-                    pertur_val = new VariableConditionalPerturbation(user_perturbation_conditions, user_perturbation_condition_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
-                }
-            }
-            else {
-                pertur_val = new Perturbation(perturbation_vals[0], perturbation_vals[1]);
-            }
-        }
-        else {
-            pertur_val = new DefaultPerturbation();
-        }
+        setPertubationOption(perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, perturbation_user_formula, user_perturbation_conditions, user_perturbation_condition_formula, plane_transform_center);
 
         if(init_value) {
             if(variable_init_value) {

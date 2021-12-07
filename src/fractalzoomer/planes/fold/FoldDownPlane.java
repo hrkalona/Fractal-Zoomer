@@ -34,7 +34,7 @@ public class FoldDownPlane extends Plane {
 
         super();
         center = new Complex(plane_transform_center[0], plane_transform_center[1]);
-        ddcenter = new BigComplex(ddcenter);
+        ddcenter = new BigComplex(center);
 
     }
 

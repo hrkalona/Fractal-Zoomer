@@ -27,10 +27,8 @@ import fractalzoomer.fractal_options.initial_value.VariableConditionalInitialVal
 import fractalzoomer.fractal_options.initial_value.VariableInitialValue;
 import fractalzoomer.fractal_options.iteration_statistics.*;
 import fractalzoomer.fractal_options.perturbation.DefaultPerturbation;
-import fractalzoomer.fractal_options.perturbation.Perturbation;
-import fractalzoomer.fractal_options.perturbation.VariableConditionalPerturbation;
-import fractalzoomer.fractal_options.perturbation.VariablePerturbation;
 import fractalzoomer.functions.Julia;
+import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
 import fractalzoomer.main.app_settings.StatisticsSettings;
@@ -40,7 +38,11 @@ import fractalzoomer.out_coloring_algorithms.SmoothEscapeTime;
 import fractalzoomer.utils.ColorAlgorithm;
 import org.apfloat.Apfloat;
 
+import javax.swing.*;
 import java.util.ArrayList;
+
+import static fractalzoomer.main.Constants.REFERENCE_CALCULATION_STR;
+import static fractalzoomer.main.Constants.SA_CALCULATION_STR;
 
 /**
  *
@@ -56,6 +58,11 @@ public class Mandelbrot extends Julia {
     private boolean inverse_dem;
     public static Complex[] Referencex2;
     public static MantExpComplex[] ReferenceDeepx2;
+
+    public Mandelbrot(boolean burning_ship) {
+        super();
+        this.burning_ship = burning_ship;
+    }
 
     public Mandelbrot(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, boolean exterior_de, double exterior_de_factor, boolean inverse_dem, int escaping_smooth_algorithm, OrbitTrapSettings ots, StatisticsSettings sts) {
 
@@ -77,19 +84,7 @@ public class Mandelbrot extends Julia {
             type2 = new NormalMandel();
         }
 
-        if (perturbation) {
-            if (variable_perturbation) {
-                if (user_perturbation_algorithm == 0) {
-                    pertur_val = new VariablePerturbation(perturbation_user_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
-                } else {
-                    pertur_val = new VariableConditionalPerturbation(user_perturbation_conditions, user_perturbation_condition_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
-                }
-            } else {
-                pertur_val = new Perturbation(perturbation_vals[0], perturbation_vals[1]);
-            }
-        } else {
-            pertur_val = new DefaultPerturbation();
-        }
+        setPertubationOption(perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, perturbation_user_formula, user_perturbation_conditions, user_perturbation_condition_formula, plane_transform_center);
 
         if (init_value) {
             if (variable_init_value) {
@@ -215,19 +210,7 @@ public class Mandelbrot extends Julia {
             type2 = new NormalMandel();
         }
 
-        if (perturbation) {
-            if (variable_perturbation) {
-                if (user_perturbation_algorithm == 0) {
-                    pertur_val = new VariablePerturbation(perturbation_user_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
-                } else {
-                    pertur_val = new VariableConditionalPerturbation(user_perturbation_conditions, user_perturbation_condition_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
-                }
-            } else {
-                pertur_val = new Perturbation(perturbation_vals[0], perturbation_vals[1]);
-            }
-        } else {
-            pertur_val = new DefaultPerturbation();
-        }
+        setPertubationOption(perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, perturbation_user_formula, user_perturbation_conditions, user_perturbation_condition_formula, plane_transform_center);
 
         if (init_value) {
             if (variable_init_value) {
@@ -293,7 +276,7 @@ public class Mandelbrot extends Julia {
                 trap.check(complex[0], iterations);
             }
 
-            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, 0.0)) {
+            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, 0.0, pixel)) {
                 escaped = true;
 
                 double temp2 = complex[0].norm_squared();
@@ -302,13 +285,13 @@ public class Mandelbrot extends Julia {
                 boolean condition = inverse_dem ? (temp2 * temp3 * temp3) <= (dc.norm_squared() * limit) : (temp2 * temp3 * temp3) > (dc.norm_squared() * limit);
 
                 if (condition) {
-                    Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0};
+                    Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0, pixel};
                     double res = out_color_algorithm.getResult(object);
 
                     res = getFinalValueOut(res);
 
                     if (outTrueColorAlgorithm != null) {
-                        setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0);
+                        setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
                     }
 
                     return res;
@@ -320,17 +303,17 @@ public class Mandelbrot extends Julia {
 
             zold2.assign(zold);
             zold.assign(complex[0]);
-            if(isJulia || isJulia && juliter && iterations >= juliterIterations) {
+            if(isJulia && (!juliter || juliter && iterations >= juliterIterations)) {
                 dc.times_mutable(complex[0]).times_mutable(2);
             }
             else {
                 dc.times_mutable(complex[0]).times_mutable(2).plus_mutable(1);
             }
 
-            complex[1] = planeInfluence.getValue(complex[0], iterations, complex[1], start, zold, zold2, c0);
-            complex[0] = preFilter.getValue(complex[0], iterations, complex[1], start, c0);
+            complex[1] = planeInfluence.getValue(complex[0], iterations, complex[1], start, zold, zold2, c0, pixel);
+            complex[0] = preFilter.getValue(complex[0], iterations, complex[1], start, c0, pixel);
             function(complex);
-            complex[0] = postFilter.getValue(complex[0], iterations, complex[1], start, c0);
+            complex[0] = postFilter.getValue(complex[0], iterations, complex[1], start, c0, pixel);
 
             if (statistic != null) {
                 statistic.insert(complex[0], zold, zold2, iterations, complex[1], start, c0);
@@ -338,13 +321,13 @@ public class Mandelbrot extends Julia {
 
         }
 
-        Object[] object = {complex[0], zold, zold2, complex[1], start, c0};
+        Object[] object = {complex[0], zold, zold2, complex[1], start, c0, pixel};
         double in = in_color_algorithm.getResult(object);
 
         in = getFinalValueIn(in);
 
         if (inTrueColorAlgorithm != null) {
-            setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start, c0);
+            setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
         }
 
         return in;
@@ -364,7 +347,7 @@ public class Mandelbrot extends Julia {
                 trap.check(complex[0], iterations);
             }
 
-            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, 0.0)) {
+            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, 0.0, pixel)) {
                 escaped = true;
 
                 double temp2 = complex[0].norm_squared();
@@ -379,7 +362,7 @@ public class Mandelbrot extends Julia {
                     res = getFinalValueOut(res);
 
                     if (outTrueColorAlgorithm != null) {
-                        setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0);
+                        setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
                     }
 
                     return res;
@@ -388,7 +371,7 @@ public class Mandelbrot extends Julia {
                 }
             }
 
-            if(isJulia || isJulia && juliter && iterations >= juliterIterations) {
+            if(isJulia && (!juliter || juliter && iterations >= juliterIterations)) {
                 dc.times_mutable(complex[0]).times_mutable(2);
             }
             else {
@@ -398,10 +381,10 @@ public class Mandelbrot extends Julia {
             zold2.assign(zold);
             zold.assign(complex[0]);
 
-            complex[1] = planeInfluence.getValue(complex[0], iterations, complex[1], start, zold, zold2, c0);
-            complex[0] = preFilter.getValue(complex[0], iterations, complex[1], start, c0);
+            complex[1] = planeInfluence.getValue(complex[0], iterations, complex[1], start, zold, zold2, c0, pixel);
+            complex[0] = preFilter.getValue(complex[0], iterations, complex[1], start, c0, pixel);
             function(complex);
-            complex[0] = postFilter.getValue(complex[0], iterations, complex[1], start, c0);
+            complex[0] = postFilter.getValue(complex[0], iterations, complex[1], start, c0, pixel);
 
             if (statistic != null) {
                 statistic.insert(complex[0], zold, zold2, iterations, complex[1], start, c0);
@@ -409,13 +392,13 @@ public class Mandelbrot extends Julia {
 
         }
 
-        Object[] object = {complex[0], zold, zold2, complex[1], start, c0};
+        Object[] object = {complex[0], zold, zold2, complex[1], start, c0, pixel};
         double in = in_color_algorithm.getResult(object);
 
         in = getFinalValueIn(in);
 
         if (inTrueColorAlgorithm != null) {
-            setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start, c0);
+            setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
         }
 
         return in;
@@ -433,16 +416,16 @@ public class Mandelbrot extends Julia {
                 trap.check(complex[0], iterations);
             }
 
-            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, 0.0)) {
+            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, 0.0, pixel)) {
                 escaped = true;
 
-                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0};
+                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0, pixel};
                 double res = out_color_algorithm.getResult(object);
 
                 res = getFinalValueOut(res);
 
                 if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0);
+                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
                 }
 
                 return res;
@@ -450,10 +433,10 @@ public class Mandelbrot extends Julia {
             zold2.assign(zold);
             zold.assign(complex[0]);
 
-            complex[1] = planeInfluence.getValue(complex[0], iterations, complex[1], start, zold, zold2, c0);
-            complex[0] = preFilter.getValue(complex[0], iterations, complex[1], start, c0);
+            complex[1] = planeInfluence.getValue(complex[0], iterations, complex[1], start, zold, zold2, c0, pixel);
+            complex[0] = preFilter.getValue(complex[0], iterations, complex[1], start, c0, pixel);
             function(complex);
-            complex[0] = postFilter.getValue(complex[0], iterations, complex[1], start, c0);
+            complex[0] = postFilter.getValue(complex[0], iterations, complex[1], start, c0, pixel);
 
             if (statistic != null) {
                 statistic.insert(complex[0], zold, zold2, iterations, complex[1], start, c0);
@@ -461,13 +444,13 @@ public class Mandelbrot extends Julia {
 
         }
 
-        Object[] object = {complex[0], zold, zold2, complex[1], start, c0};
+        Object[] object = {complex[0], zold, zold2, complex[1], start, c0, pixel};
         double in = in_color_algorithm.getResult(object);
 
         in = getFinalValueIn(in);
 
         if (inTrueColorAlgorithm != null) {
-            setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start, c0);
+            setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
         }
 
         return in;
@@ -487,7 +470,7 @@ public class Mandelbrot extends Julia {
                 trap.check(complex[0], iterations);
             }
 
-            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, 0.0)) {
+            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, 0.0, pixel)) {
                 escaped = true;
 
                 Object[] object = {iterations, complex[0], dc};
@@ -496,7 +479,7 @@ public class Mandelbrot extends Julia {
                 res = getFinalValueOut(res);
 
                 if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0);
+                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
                 }
 
                 return res;
@@ -505,17 +488,17 @@ public class Mandelbrot extends Julia {
             zold2.assign(zold);
             zold.assign(complex[0]);
 
-            if(isJulia || isJulia && juliter && iterations >= juliterIterations) {
+            if(isJulia && (!juliter || juliter && iterations >= juliterIterations)) {
                 dc.times_mutable(complex[0]).times_mutable(2);
             }
             else {
                 dc.times_mutable(complex[0]).times_mutable(2).plus_mutable(1);
             }
 
-            complex[1] = planeInfluence.getValue(complex[0], iterations, complex[1], start, zold, zold2, c0);
-            complex[0] = preFilter.getValue(complex[0], iterations, complex[1], start, c0);
+            complex[1] = planeInfluence.getValue(complex[0], iterations, complex[1], start, zold, zold2, c0, pixel);
+            complex[0] = preFilter.getValue(complex[0], iterations, complex[1], start, c0, pixel);
             function(complex);
-            complex[0] = postFilter.getValue(complex[0], iterations, complex[1], start, c0);
+            complex[0] = postFilter.getValue(complex[0], iterations, complex[1], start, c0, pixel);
 
             if (statistic != null) {
                 statistic.insert(complex[0], zold, zold2, iterations, complex[1], start, c0);
@@ -523,13 +506,13 @@ public class Mandelbrot extends Julia {
 
         }
 
-        Object[] object = {complex[0], zold, zold2, complex[1], start, c0};
+        Object[] object = {complex[0], zold, zold2, complex[1], start, c0, pixel};
         double in = in_color_algorithm.getResult(object);
 
         in = getFinalValueIn(in);
 
         if (inTrueColorAlgorithm != null) {
-            setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start, c0);
+            setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
         }
 
         return in;
@@ -570,7 +553,7 @@ public class Mandelbrot extends Julia {
 
             updateValues(complex);
 
-            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, 0.0)) {
+            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, 0.0, pixel)) {
                 escaped = true;
 
                 double temp2 = complex[0].norm_squared();
@@ -579,13 +562,13 @@ public class Mandelbrot extends Julia {
                 boolean condition = inverse_dem ? (temp2 * temp3 * temp3) <= (dc.norm_squared() * limit) : (temp2 * temp3 * temp3) > (dc.norm_squared() * limit);
 
                 if (condition) {
-                    Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0};
+                    Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0, pixel};
                     double res = out_color_algorithm.getResult(object);
 
                     res = getFinalValueOut(res);
 
                     if (outTrueColorAlgorithm != null) {
-                        setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0);
+                        setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
                     }
 
                     return res;
@@ -595,17 +578,17 @@ public class Mandelbrot extends Julia {
             }
             zold2.assign(zold);
             zold.assign(complex[0]);
-            if(isJulia || isJulia && juliter && iterations >= juliterIterations) {
+            if(isJulia && (!juliter || juliter && iterations >= juliterIterations)) {
                 dc.times_mutable(complex[0]).times_mutable(2);
             }
             else {
                 dc.times_mutable(complex[0]).times_mutable(2).plus_mutable(1);
             }
 
-            complex[1] = planeInfluence.getValue(complex[0], iterations, complex[1], start, zold, zold2, c0);
-            complex[0] = preFilter.getValue(complex[0], iterations, complex[1], start, c0);
+            complex[1] = planeInfluence.getValue(complex[0], iterations, complex[1], start, zold, zold2, c0, pixel);
+            complex[0] = preFilter.getValue(complex[0], iterations, complex[1], start, c0, pixel);
             function(complex);
-            complex[0] = postFilter.getValue(complex[0], iterations, complex[1], start, c0);
+            complex[0] = postFilter.getValue(complex[0], iterations, complex[1], start, c0, pixel);
 
             if (periodicityCheck(complex[0])) {
                 return ColorAlgorithm.MAXIMUM_ITERATIONS;
@@ -638,7 +621,7 @@ public class Mandelbrot extends Julia {
 
             updateValues(complex);
 
-            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, 0.0)) {
+            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, 0.0, pixel)) {
                 escaped = true;
 
                 double temp2 = complex[0].norm_squared();
@@ -653,7 +636,7 @@ public class Mandelbrot extends Julia {
                     res = getFinalValueOut(res);
 
                     if (outTrueColorAlgorithm != null) {
-                        setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0);
+                        setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
                     }
 
                     return res;
@@ -662,7 +645,7 @@ public class Mandelbrot extends Julia {
                 }
             }
 
-            if(isJulia || isJulia && juliter && iterations >= juliterIterations) {
+            if(isJulia && (!juliter || juliter && iterations >= juliterIterations)) {
                 dc.times_mutable(complex[0]).times_mutable(2);
             }
             else {
@@ -671,10 +654,10 @@ public class Mandelbrot extends Julia {
             zold2.assign(zold);
             zold.assign(complex[0]);
 
-            complex[1] = planeInfluence.getValue(complex[0], iterations, complex[1], start, zold, zold2, c0);
-            complex[0] = preFilter.getValue(complex[0], iterations, complex[1], start, c0);
+            complex[1] = planeInfluence.getValue(complex[0], iterations, complex[1], start, zold, zold2, c0, pixel);
+            complex[0] = preFilter.getValue(complex[0], iterations, complex[1], start, c0, pixel);
             function(complex);
-            complex[0] = postFilter.getValue(complex[0], iterations, complex[1], start, c0);
+            complex[0] = postFilter.getValue(complex[0], iterations, complex[1], start, c0, pixel);
 
             if (periodicityCheck(complex[0])) {
                 return ColorAlgorithm.MAXIMUM_ITERATIONS;
@@ -705,16 +688,16 @@ public class Mandelbrot extends Julia {
 
             updateValues(complex);
 
-            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, 0.0)) {
+            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, 0.0, pixel)) {
                 escaped = true;
 
-                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0};
+                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0, pixel};
                 double res = out_color_algorithm.getResult(object);
 
                 res = getFinalValueOut(res);
 
                 if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0);
+                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
                 }
 
                 return res;
@@ -722,10 +705,10 @@ public class Mandelbrot extends Julia {
             zold2.assign(zold);
             zold.assign(complex[0]);
 
-            complex[1] = planeInfluence.getValue(complex[0], iterations, complex[1], start, zold, zold2, c0);
-            complex[0] = preFilter.getValue(complex[0], iterations, complex[1], start, c0);
+            complex[1] = planeInfluence.getValue(complex[0], iterations, complex[1], start, zold, zold2, c0, pixel);
+            complex[0] = preFilter.getValue(complex[0], iterations, complex[1], start, c0, pixel);
             function(complex);
-            complex[0] = postFilter.getValue(complex[0], iterations, complex[1], start, c0);
+            complex[0] = postFilter.getValue(complex[0], iterations, complex[1], start, c0, pixel);
 
             if (periodicityCheck(complex[0])) {
                 return ColorAlgorithm.MAXIMUM_ITERATIONS;
@@ -758,7 +741,7 @@ public class Mandelbrot extends Julia {
 
             updateValues(complex);
 
-            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, 0.0)) {
+            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, 0.0, pixel)) {
                 escaped = true;
 
                 Object[] object = {iterations, complex[0], dc};
@@ -767,7 +750,7 @@ public class Mandelbrot extends Julia {
                 res = getFinalValueOut(res);
 
                 if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0);
+                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
                 }
 
                 return res;
@@ -775,17 +758,17 @@ public class Mandelbrot extends Julia {
 
             zold2.assign(zold);
             zold.assign(complex[0]);
-            if(isJulia || isJulia && juliter && iterations >= juliterIterations) {
+            if(isJulia && (!juliter || juliter && iterations >= juliterIterations)) {
                 dc.times_mutable(complex[0]).times_mutable(2);
             }
             else {
                 dc.times_mutable(complex[0]).times_mutable(2).plus_mutable(1);
             }
 
-            complex[1] = planeInfluence.getValue(complex[0], iterations, complex[1], start, zold, zold2, c0);
-            complex[0] = preFilter.getValue(complex[0], iterations, complex[1], start, c0);
+            complex[1] = planeInfluence.getValue(complex[0], iterations, complex[1], start, zold, zold2, c0, pixel);
+            complex[0] = preFilter.getValue(complex[0], iterations, complex[1], start, c0, pixel);
             function(complex);
-            complex[0] = postFilter.getValue(complex[0], iterations, complex[1], start, c0);
+            complex[0] = postFilter.getValue(complex[0], iterations, complex[1], start, c0, pixel);
 
             if (periodicityCheck(complex[0])) {
                 return ColorAlgorithm.MAXIMUM_ITERATIONS;
@@ -827,14 +810,14 @@ public class Mandelbrot extends Julia {
             return;
         }
         else if(sts.statisticGroup == 2) {
-            if(ThreadDraw.PERTURBATION_THEORY && !isJulia && supportsPerturbationTheory()) {
+            if(ThreadDraw.PERTURBATION_THEORY && supportsPerturbationTheory()) {
                 return;
             }
             statistic = new Equicontinuity(sts.statistic_intensity, sts.useSmoothing, sts.useAverage, log_bailout_squared, false, 0, sts.equicontinuityDenominatorFactor, sts.equicontinuityInvertFactor, sts.equicontinuityDelta);
             return;
         }
         else if(sts.statisticGroup == 3) {
-            statistic = new NormalMap(sts.statistic_intensity, power, sts.normalMapHeight, sts.normalMapAngle, sts.normalMapUseSecondDerivative, size, sts.normalMapDEfactor, isJulia, sts.normalMapUseDE, sts.normalMapInvertDE, sts.normalMapColoring, sts.useNormalMap, juliter, juliterIterations);
+            statistic = new NormalMap(sts.statistic_intensity, power, sts.normalMapHeight, sts.normalMapAngle, sts.normalMapUseSecondDerivative, size, sts.normalMapDEfactor, isJulia, sts.normalMapUseDE, sts.normalMapInvertDE, sts.normalMapColoring, sts.useNormalMap);
             return;
         }
 
@@ -857,54 +840,103 @@ public class Mandelbrot extends Julia {
             case MainWindow.DISCRETE_LAGRANGIAN_DESCRIPTORS:
                 statistic = new DiscreteLagrangianDescriptors(sts.statistic_intensity, sts.lagrangianPower, log_bailout_squared, sts.useSmoothing, sts.useAverage, false, 0);
                 break;
+            case MainWindow.TWIN_LAMPS:
+                statistic = new TwinLamps(sts.statistic_intensity, sts.twlFunction, sts.twlPoint);
+                break;
 
         }
     }
 
+    //private static BigComplex lastZGlitchCheckValue;
+
     @Override
-    public void calculateReferencePoint(BigComplex pixel, Apfloat size, boolean deepZoom, int iterations, Location externalLocation) {
+    public void calculateReferencePoint(BigComplex pixel, Apfloat size, boolean deepZoom, int iterations, Location externalLocation, JProgressBar progress) {
 
+        int initIterations = iterations;
 
-        if(iterations == 0) {
+        if(progress != null) {
+            progress.setMaximum(max_iterations - initIterations);
+            progress.setValue(0);
+            progress.setForeground(MainWindow.progress_ref_color);
+            progress.setString(REFERENCE_CALCULATION_STR + " " + String.format("%3d", 0) + "%");
+        }
+
+        if (iterations == 0) {
             Reference = new Complex[max_iterations];
+
+            if(isJulia) {
+                ReferenceSubCp = new Complex[max_iterations];
+            }
+
             if (!burning_ship) {
                 Referencex2 = new Complex[max_iterations];
             }
 
             if (deepZoom) {
                 ReferenceDeep = new MantExpComplex[max_iterations];
+
+                if(isJulia) {
+                    ReferenceSubCpDeep = new MantExpComplex[max_iterations];
+                }
+
                 if (!burning_ship) {
                     ReferenceDeepx2 = new MantExpComplex[max_iterations];
                 }
             }
-        }
-        else if (max_iterations > Reference.length){
+        } else if (max_iterations > Reference.length) {
             Reference = copyReference(Reference, new Complex[max_iterations]);
+
+            if(isJulia) {
+                ReferenceSubCp = copyReference(ReferenceSubCp, new Complex[max_iterations]);
+            }
+
             if (!burning_ship) {
                 Referencex2 = copyReference(Referencex2, new Complex[max_iterations]);
             }
 
             if (deepZoom) {
                 ReferenceDeep = copyDeepReference(ReferenceDeep, new MantExpComplex[max_iterations]);
+
+                if(isJulia) {
+                    ReferenceSubCpDeep = copyDeepReference(ReferenceSubCpDeep, new MantExpComplex[max_iterations]);
+                }
+
                 if (!burning_ship) {
                     ReferenceDeepx2 = copyDeepReference(ReferenceDeepx2, new MantExpComplex[max_iterations]);
                 }
             }
         }
 
+
         Location loc = new Location();
 
-        BigComplex z = iterations == 0 ? new BigComplex() : lastZValue;
-        BigComplex c = pixel;
+        //BigComplex z = iterations == 0 ? (isJulia ? pixel : new BigComplex()) : lastZValue;
+
+        //new BigComplex(new MyApfloat("-1.99996619445037030418434688506350579675531241540724851511761922944801584242342684381376129778868913812287046406560949864353810575744772166485672496092803920095332"), new MyApfloat("+0.00000000000000000000000000000000030013824367909383240724973039775924987346831190773335270174257280120474975614823581185647299288414075519224186504978181625478529"))
+        //BigComplex c = isJulia ? new BigComplex(seed) : pixel; //new BigComplex(seed)
+
+
+        BigComplex z = iterations == 0 ? (isJulia ? pixel : new BigComplex()) : lastZValue;
+        BigComplex c = isJulia ? new BigComplex(seed) : pixel;
+
+        //BigComplex zGlitchCheck = iterations == 0 ? new BigComplex() : lastZGlitchCheckValue;
+        //BigComplex cGlitchCheck = c;
+
         BigComplex zold = iterations == 0 ? new BigComplex() : secondTolastZValue;
         BigComplex zold2 = iterations == 0 ? new BigComplex() : thirdTolastZValue;
-        BigComplex start = z;
-        BigComplex c0 = pixel;
+        BigComplex start = isJulia ? pixel : new BigComplex();
+        BigComplex c0 = c;
 
         refPoint = pixel;
+        refPointSmall = pixel.toComplex();
+
+        if(deepZoom) {
+            refPointSmallDeep = loc.getMantExpComplex(refPoint);
+        }
+
         RefType = getRefType();
 
-        boolean isSeriesInUse = ThreadDraw.SERIES_APPROXIMATION && !burning_ship;
+        boolean isSeriesInUse = ThreadDraw.SERIES_APPROXIMATION && supportsSeriesApproximation();
         boolean fullReference = ThreadDraw.CALCULATE_FULL_REFERENCE;
 
         FullRef = fullReference;
@@ -918,15 +950,26 @@ public class Mandelbrot extends Julia {
 
             Reference[iterations] = cz;
 
+            if(isJulia) {
+                BigComplex zsubcp = z.sub(refPoint);
+                ReferenceSubCp[iterations] = zsubcp.toComplex();
+
+                if(deepZoom) {
+                    ReferenceSubCpDeep[iterations] = loc.getMantExpComplex(zsubcp);
+                }
+            }
+
+            //BigComplex z2 = null;
             if(!burning_ship) {
-                //Referencex2[iterations] = z.times(MyApfloat.TWO).toComplex();
+                //z2 = z.times(MyApfloat.TWO);
+                //Referencex2[iterations] = z2.toComplex();
                 Referencex2[iterations] = Reference[iterations].times(2);
             }
 
             if(deepZoom) {
                 ReferenceDeep[iterations] = loc.getMantExpComplex(z);
                 if(!burning_ship) {
-                    //ReferenceDeepx2[iterations] = loc.getMantExpComplex(z.times(MyApfloat.TWO));
+                    //ReferenceDeepx2[iterations] = loc.getMantExpComplex(z2);
                     ReferenceDeepx2[iterations] = ReferenceDeep[iterations].times2();
                 }
 
@@ -936,30 +979,53 @@ public class Mandelbrot extends Julia {
                 }*/
             }
 
-            if (!fullReference && iterations > 0 && bailout_algorithm.escaped(z, zold, zold2, iterations, c, start, c0, Apfloat.ZERO)) {
+            if (!fullReference && iterations > 0 && bailout_algorithm.escaped(z, zold, zold2, iterations, c, start, c0, Apfloat.ZERO, pixel)) {
                 break;
             }
 
             zold2 = zold;
             zold = z;
 
-            if (burning_ship) {
-                z = z.abs().square_plus_c(c);
-            } else {
-                z = z.square_plus_c(c);
+            try {
+                if (burning_ship) {
+                    z = z.abs().square_plus_c(c);
+                } else {
+                    z = z.square_plus_c(c);
+                }
+
+                /*if(isJulia) {
+                    zGlitchCheck = zGlitchCheck.square_plus_c(cGlitchCheck);
+                }*/
+            }
+            catch (Exception ex) {
+                break;
+            }
+
+
+
+            if(progress != null && iterations % 1000 == 0) {
+                progress.setValue(iterations - initIterations);
+                progress.setString(REFERENCE_CALCULATION_STR + " " + String.format("%3d",(int) ((double) (iterations - initIterations) / progress.getMaximum() * 100)) + "%");
             }
 
         }
 
+        //lastZGlitchCheckValue = zGlitchCheck;
         lastZValue = z;
         secondTolastZValue = zold;
         thirdTolastZValue = zold2;
 
         MaxRefIteration = iterations - 1;
 
+        if(progress != null) {
+            progress.setValue(progress.getMaximum());
+            progress.setString(REFERENCE_CALCULATION_STR + " 100%");
+        }
+
+
         skippedIterations = 0;
         if(isSeriesInUse) {
-            calculateSeries(size, deepZoom, externalLocation);
+            calculateSeriesWrapper(size, deepZoom, externalLocation, progress);
         }
 
     }
@@ -1005,7 +1071,7 @@ public class Mandelbrot extends Julia {
     @Override
     public Complex perturbationFunction(Complex DeltaSubN, int RefIteration) {
 
-        if(burning_ship) {
+        if (burning_ship) {
 
             Complex X = Reference[RefIteration];
             double r = X.getRe();
@@ -1015,14 +1081,37 @@ public class Mandelbrot extends Julia {
             double a2 = a * a;
             double b2 = b * b;
             return new Complex(2.0 * a * r + a2 - 2.0 * b * i - b2, Complex.DiffAbs(r * i, r * b + i * a + a * b) * 2);
-        }
-        else {
+        } else {
             return DeltaSubN.times(Referencex2[RefIteration]).plus_mutable(DeltaSubN.square());
         }
     }
 
     @Override
-    public void calculateSeries(Apfloat dsize, boolean deepZoom, Location loc) {
+    public MantExpComplex perturbationFunction(MantExpComplex DeltaSubN, int RefIteration) {
+
+        if(burning_ship) {
+            MantExpComplex X = ReferenceDeep[RefIteration];
+            MantExp r = X.getRe();
+            MantExp i = X.getIm();
+            MantExp a = DeltaSubN.getRe();
+            MantExp b = DeltaSubN.getIm();
+            MantExp a2 = a.multiply(a);
+            MantExp b2 = b.multiply(b);
+
+            return new MantExpComplex(a.multiply2().multiply_mutable(r).add_mutable(a2).subtract_mutable(b.multiply2().multiply_mutable(i)).subtract_mutable(b2), MantExpComplex.DiffAbs(r.multiply(i), r.multiply(b).add_mutable(i.multiply(a)).add_mutable(a.multiply(b))).multiply2_mutable());
+        }
+        else {
+            return DeltaSubN.times(ReferenceDeepx2[RefIteration]).plus_mutable(DeltaSubN.square());
+        }
+    }
+
+    /*public Complex perturbationFunctionGlitch(Complex DeltaSubN, int RefIteration) {
+        return DeltaSubN.times(ReferenceSubCp[RefIteration].times(2)).plus_mutable(DeltaSubN.square());
+    }*/
+
+
+    @Override
+    protected void calculateSeries(Apfloat dsize, boolean deepZoom, Location loc, JProgressBar progress) {
 
         skippedIterations = 0;
 
@@ -1152,6 +1241,11 @@ public class Mandelbrot extends Julia {
                 return;
             }
 
+            if(progress != null && i % 1000 == 0) {
+                progress.setValue(i);
+                progress.setString(SA_CALCULATION_STR + " " + String.format("%3d",(int) ((double) (i) / progress.getMaximum() * 100)) + "%");
+            }
+
         }
 
         i = length - 1;
@@ -1161,7 +1255,15 @@ public class Mandelbrot extends Julia {
 
     @Override
     public boolean supportsPerturbationTheory() {
-        return true;
+        if(isJuliaMap) {
+            return false;
+        }
+        return !isJulia || (isJulia && !juliter);
+    }
+
+    @Override
+    public boolean supportsSeriesApproximation() {
+        return !burning_ship && !isJulia;
     }
 
     /*protected boolean mandelbrotOptimization(Complex pixel) {
@@ -1264,29 +1366,60 @@ public class Mandelbrot extends Julia {
 
     @Override
     public String getRefType() {
-        return super.getRefType() + (burning_ship ? "-Burning Ship" : "");
+        return super.getRefType() + (burning_ship ? "-Burning Ship" : "") + (isJulia ? "-Julia-" + seed : "");
+    }
+
+    @Override
+    public void function(BigComplex[] complex) {
+        complex[0] = complex[0].square_plus_c(complex[1]);
     }
 
     public static void main(String[] args) {
-        int numCoefficients = 8;
-        for(int k = 0; k < numCoefficients; k++) {
-            //MantExpComplex sum = new MantExpComplex();
-            String sum = "2*Z * a" + (k + 1);
+        Mandelbrot a = new Mandelbrot(false);
 
-            if( k == 0) {
-                sum = sum + " + 1";
-            }
+        Reference = new Complex[2];
+        Reference[0] = new Complex();
+        Reference[1] = new Complex(0.32, 7.321);
 
-            for(int j = 0; j < k; j++) {
+        Referencex2 = new Complex[2];
+        Referencex2[0] = new Complex();
+        Referencex2[1] = Reference[0].times(2);
 
-                    sum = sum + " + a" + (j + 1) + " * a" + (k - j - 1 + 1);
+        ReferenceDeep = new MantExpComplex[2];
+        ReferenceDeep[0] = new MantExpComplex(Reference[0]);
+        ReferenceDeep[1] = new MantExpComplex(Reference[1]);
 
-            }
-            System.out.println(sum);
+        ReferenceDeepx2 = new MantExpComplex[2];
+        ReferenceDeepx2[0] = new MantExpComplex(Referencex2[0]);
+        ReferenceDeepx2[1] = new MantExpComplex(Referencex2[1]);
 
-        }
+        refPointSmall = new Complex(0.4, 0.0002);
+        refPointSmallDeep = new MantExpComplex(refPointSmall);
 
+        Complex Dn = new Complex(1.321, -4.21);
+        Complex D0 = new Complex();
+        MantExpComplex MDn = new MantExpComplex(Dn);
+        MantExpComplex MD0 = new MantExpComplex(D0);
 
+        Complex nzD0 = new Complex(-0.5, 1.4);
+        MantExpComplex nzMD0 = new MantExpComplex(nzD0);
+
+        System.out.println(a.perturbationFunction(Dn, D0, 1));
+        System.out.println(a.perturbationFunction(Dn, 1));
+        System.out.println(a.perturbationFunction(MDn, MD0, 1));
+        System.out.println("Non Zero D0");
+        System.out.println(a.perturbationFunction(Dn, nzD0, 1));
+        System.out.println(a.perturbationFunction(MDn, nzMD0, 1));
+
+        Mandelbrot b = new Mandelbrot(true);
+
+        System.out.println();
+        System.out.println(b.perturbationFunction(Dn, D0, 1));
+        System.out.println(b.perturbationFunction(Dn, 1));
+        System.out.println(b.perturbationFunction(MDn, MD0, 1));
+        System.out.println("Non Zero D0");
+        System.out.println(b.perturbationFunction(Dn, nzD0, 1));
+        System.out.println(b.perturbationFunction(MDn, nzMD0, 1));
     }
 
 }

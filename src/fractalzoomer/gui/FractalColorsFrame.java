@@ -33,14 +33,14 @@ public class FractalColorsFrame extends JFrame {
 	private MainWindow ptra2;
     private FractalColorsFrame this_frame;
     
-    public FractalColorsFrame(MainWindow ptra, Color max_it_color, Color dem_color, Color special_color, boolean use_palette_color_special, boolean special_bypass) {
+    public FractalColorsFrame(MainWindow ptra, Color max_it_color, Color dem_color, Color special_color, boolean use_palette_color_special, boolean special_bypass, int magnetOffset) {
         super();
         this.ptra2 = ptra;
         this_frame = this;
         
         ptra2.setEnabled(false);
         int color_window_width = 400;
-        int color_window_height = 320;
+        int color_window_height = 370;
         setTitle("Fractal Colors");
         setIconImage(getIcon("/fractalzoomer/icons/color.png").getImage());
         setSize(color_window_width, color_window_height);
@@ -146,6 +146,11 @@ public class FractalColorsFrame extends JFrame {
         final JPanel special_color_panel = new JPanel();
         special_color_panel.setBackground(MainWindow.bg_color);
         special_color_panel.setLayout(new FlowLayout());
+
+        final JPanel magnet_color_panel = new JPanel();
+        magnet_color_panel.setBackground(MainWindow.bg_color);
+        magnet_color_panel.setLayout(new FlowLayout());
+
         
         final JPanel special_color_panel2 = new JPanel();
         special_color_panel2.setBackground(MainWindow.bg_color);
@@ -234,14 +239,22 @@ public class FractalColorsFrame extends JFrame {
 
         JPanel color_panel = new JPanel();
         color_panel.setBackground(MainWindow.bg_color);
-        color_panel.setLayout(new GridLayout(4, 1));
-        color_panel.setPreferredSize(new Dimension(290, 180));
+        color_panel.setLayout(new GridLayout(5, 1));
+        color_panel.setPreferredSize(new Dimension(290, 230));
+
+        final JTextField magnetOffsetopt = new JTextField(10);
+        magnetOffsetopt.setText("" + magnetOffset);
+        magnetOffsetopt.setToolTipText("Adds an offset to the magnet functions coloring.");
+
+        magnet_color_panel.add(new JLabel("Magnet Color Offset: "));
+        magnet_color_panel.add(magnetOffsetopt);
         
         color_panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Fractal Colors", TitledBorder.CENTER, TitledBorder.CENTER));
  
         color_panel.add(fractal_color_panel);
         color_panel.add(dem_color_panel);
         color_panel.add(special_color_panel);
+        color_panel.add(magnet_color_panel);
         color_panel.add(special_color_panel2);
 
         JButton ok = new JButton("Ok");
@@ -251,9 +264,23 @@ public class FractalColorsFrame extends JFrame {
         ok.addActionListener(new ActionListener() {
 
             @Override
-            public void actionPerformed(ActionEvent e) {              
+            public void actionPerformed(ActionEvent e) {
+
+                int temp = 0;
+                try {
+                    temp = Integer.parseInt(magnetOffsetopt.getText());
+                }
+                catch (Exception ex) {
+                    JOptionPane.showMessageDialog(ptra, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                if (temp < 0) {
+                    JOptionPane.showMessageDialog(ptra, "The magnet color offset value must be greater than -1.", "Error!", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
        
-                ptra2.fractalColorsChanged(max_it_color_label.getBackground(), dem_color_label.getBackground(), special_color_label.getBackground(), use_palette_color.isSelected(), remove_special_increment.isSelected());
+                ptra2.fractalColorsChanged(max_it_color_label.getBackground(), dem_color_label.getBackground(), special_color_label.getBackground(), use_palette_color.isSelected(), remove_special_increment.isSelected(), temp);
                 ptra2.setEnabled(true);
                 dispose();
                 
@@ -282,7 +309,7 @@ public class FractalColorsFrame extends JFrame {
 
         RoundedPanel round_panel = new RoundedPanel(true, true, true, 15);
         round_panel.setBackground(MainWindow.bg_color);
-        round_panel.setPreferredSize(new Dimension(330, 240));
+        round_panel.setPreferredSize(new Dimension(330, 290));
         round_panel.setLayout(new GridBagLayout());
 
         GridBagConstraints con = new GridBagConstraints();

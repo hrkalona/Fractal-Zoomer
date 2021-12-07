@@ -21,9 +21,10 @@ package fractalzoomer.utils;
  * @author hrkalona2
  */
 public class ColorAlgorithm {
-    public static final int MAXIMUM_ITERATIONS = 1234567890;
+    public static final int MAXIMUM_ITERATIONS = Integer.MAX_VALUE;
     public static final int INCREMENT = 50;
-    public static final int MAGNET_INCREMENT = 106;
+    public static final int MAGNET_INCREMENT_DEFAULT = 106;
+    public static int MAGNET_INCREMENT = MAGNET_INCREMENT_DEFAULT;
     public static boolean OutNotUsingIncrement = true;
     public static boolean InNotUsingIncrement = true;
     public static boolean GlobalIncrementBypass = false;

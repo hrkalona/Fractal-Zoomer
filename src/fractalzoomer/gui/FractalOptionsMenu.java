@@ -32,8 +32,8 @@ public class FractalOptionsMenu extends JMenu {
 	private MainWindow ptr;
     private FractalFunctionsMenu fractal_functions_menu;
     private PlanesMenu planes_menu;
-    private JCheckBoxMenuItem perturbation_opt;
-    private JCheckBoxMenuItem init_val_opt;
+    private JMenuItem perturbation_opt;
+    private JMenuItem init_val_opt;
     private FunctionFiltersMenu pre_function_filters;
     private FunctionFiltersMenu post_function_filters;
     private PlaneInfluenceMenu plane_influence_menu;
@@ -54,8 +54,8 @@ public class FractalOptionsMenu extends JMenu {
 
         plane_influence_menu = new PlaneInfluenceMenu(ptr, plane_influence);
         
-        perturbation_opt = new JCheckBoxMenuItem("Perturbation");
-        init_val_opt = new JCheckBoxMenuItem("Initial Value");
+        perturbation_opt = new JMenuItem("Perturbation");
+        init_val_opt = new JMenuItem("Initial Value");
         
         perturbation_opt.setToolTipText("Adds a complex number to the initial value of the fractal calculation.");
         init_val_opt.setToolTipText("Changes the initial value of the fractal calculation.");
@@ -146,19 +146,19 @@ public class FractalOptionsMenu extends JMenu {
         
     }
     
-    public JCheckBoxMenuItem getMandelGrassOpt() {
+    public JMenuItem getMandelGrassOpt() {
         
         return fractal_functions_menu.getMandelGrassOpt();
         
     }
     
-    public JCheckBoxMenuItem getInitialValue() {
+    public JMenuItem getInitialValue() {
         
         return init_val_opt;
         
     }
     
-    public JCheckBoxMenuItem getPerturbation() {
+    public JMenuItem getPerturbation() {
         
         return perturbation_opt;
         

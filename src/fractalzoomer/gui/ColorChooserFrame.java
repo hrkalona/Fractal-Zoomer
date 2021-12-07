@@ -57,6 +57,9 @@ public class ColorChooserFrame extends JFrame {
         else if(obj2 instanceof Color) {
             color_chooser.setColor((Color)obj2);
         }
+        else if(obj2 instanceof String) {
+            color_chooser.setColor(new Color(Integer.valueOf((String)obj2)));
+        }
 
         color_chooser.setPreferredSize(new Dimension(600, 360));
 
@@ -94,6 +97,12 @@ public class ColorChooserFrame extends JFrame {
                 else if(obj2 instanceof Color) {
                     if(ptr2 instanceof MainWindow) {
                         ((MainWindow)ptr2).storeColor(num, color_chooser.getColor());
+                    }
+                }
+                else if(obj2 instanceof String) {
+
+                    if(ptr2 instanceof StatisticsColoringFrame) {
+                        ((StatisticsColoringFrame)ptr2).storeColor(num, color_chooser.getColor());
                     }
                 }
 

@@ -175,7 +175,7 @@ public class NewtonHinesFormula extends NewtonHinesRootFindingMethod {
 
         Complex[] complex = super.initialize(pixel);
 
-        setInitVariables(start, zold, zold2);
+        setInitVariables(start, zold, zold2, pixel);
 
         return complex;
 
@@ -201,7 +201,16 @@ public class NewtonHinesFormula extends NewtonHinesRootFindingMethod {
 
     }
 
-    private void setInitVariables(Complex start, Complex zold, Complex zold2) {
+    private void setInitVariables(Complex start, Complex zold, Complex zold2, Complex pixel) {
+
+        if (parser.foundPixel()) {
+            parser.setPixelvalue(pixel);
+        }
+
+        if (parser2.foundPixel()) {
+            parser2.setPixelvalue(pixel);
+        }
+
 
         if (parser.foundS()) {
             parser.setSvalue(start);

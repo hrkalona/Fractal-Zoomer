@@ -153,6 +153,18 @@ public abstract class DomainColoring {
 
     public abstract int getDomainColor(Complex res);
 
+    protected Complex round(Complex res) {
+
+        double Re = res.getRe();
+        double Im = res.getIm();
+
+        double temp = Math.floor(1e10 * Re + (Re > 0 ? 0.5 : -0.5)) / 1e10;
+        double temp2 = Math.floor(1e10 * Im + (Im > 0 ? 0.5 : -0.5)) / 1e10;
+
+        return new Complex(temp, temp2);
+
+    }
+
     protected int getColor(double result) {
 
         result = color_transfer.transfer(result);

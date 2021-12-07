@@ -30,7 +30,7 @@ public class Xaos3TrueColorAlgorithm extends TrueColorAlgorithm {
     }
 
     @Override
-    public int createColor(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0, double stat, double trap, boolean escaped) {
+    public int createColor(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0, Complex pixel, double stat, double trap, boolean escaped) {
 
         double h, s, br;
         

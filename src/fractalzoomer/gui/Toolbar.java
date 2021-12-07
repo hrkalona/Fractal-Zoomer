@@ -351,7 +351,7 @@ public class Toolbar extends JToolBar {
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                ptr.setJuliaMapButton();
+                ptr.setJuliaMap();
             }
         });
 
@@ -367,7 +367,7 @@ public class Toolbar extends JToolBar {
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                ptr.set3DButton();
+                ptr.set3DOption();
 
             }
         });
@@ -384,7 +384,7 @@ public class Toolbar extends JToolBar {
             @Override
             public void actionPerformed(ActionEvent e) {
 
-               ptr.setPolarProjectionButton();
+               ptr.setPolarProjection();
 
             }
         });
@@ -401,7 +401,7 @@ public class Toolbar extends JToolBar {
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                ptr.setDomainColoringButton();
+                ptr.setDomainColoring();
 
             }
         });

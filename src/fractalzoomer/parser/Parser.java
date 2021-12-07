@@ -119,6 +119,7 @@ public class Parser {
     boolean found_stat;
     boolean found_trap;
     boolean found_c0;
+    boolean found_pixel;
 
     boolean found_vars[];
 
@@ -140,6 +141,7 @@ public class Parser {
     ArrayList<VariableExpressionNode> stat_var;
     ArrayList<VariableExpressionNode> trap_var;
     ArrayList<VariableExpressionNode> c0_var;
+    ArrayList<VariableExpressionNode> pixel_var;
 
     VariableExpressionNode[] z_var_arr;
     VariableExpressionNode[] c_var_arr;
@@ -159,6 +161,7 @@ public class Parser {
     VariableExpressionNode[] stat_var_arr;
     VariableExpressionNode[] trap_var_arr;
     VariableExpressionNode[] c0_var_arr;
+    VariableExpressionNode[] pixel_var_arr;
 
     /**
      * ************************************
@@ -192,6 +195,7 @@ public class Parser {
         found_stat = false;
         found_trap = false;
         found_c0 = false;
+        found_pixel = false;
 
         found_vars = new boolean[EXTRA_VARS];
 
@@ -216,6 +220,7 @@ public class Parser {
         stat_var = new ArrayList<>();
         trap_var = new ArrayList<>();
         c0_var = new ArrayList<>();
+        pixel_var = new ArrayList<>();
 
         for(int i = 0; i < EXTRA_VARS; i++) {
             vars_var.add(new ArrayList<>());
@@ -272,6 +277,7 @@ public class Parser {
         stat_var_arr = new VariableExpressionNode[stat_var.size()];
         trap_var_arr = new VariableExpressionNode[trap_var.size()];
         c0_var_arr = new VariableExpressionNode[c0_var.size()];
+        pixel_var_arr = new VariableExpressionNode[pixel_var.size()];
 
         z_var_arr = z_var.toArray(z_var_arr);
         c_var_arr = c_var.toArray(c_var_arr);
@@ -290,6 +296,7 @@ public class Parser {
         stat_var_arr = stat_var.toArray(stat_var_arr);
         trap_var_arr = trap_var.toArray(trap_var_arr);
         c0_var_arr = c0_var.toArray(c0_var_arr);
+        pixel_var_arr = pixel_var.toArray(pixel_var_arr);
 
         vars_var_arr = new VariableExpressionNode[EXTRA_VARS][];
 
@@ -670,7 +677,8 @@ public class Parser {
                     && !temp.equalsIgnoreCase("stat")
                     && !temp.equalsIgnoreCase("trap")
                     && !temp.equalsIgnoreCase("rand")
-                    && !temp.equalsIgnoreCase("c0")) {
+                    && !temp.equalsIgnoreCase("c0")
+                    && !temp.equalsIgnoreCase("pixel")) {
                 throw new ParserException("Unrecognized variable %s found.", lookahead);
             }
 
@@ -775,6 +783,12 @@ public class Parser {
                 found_c0 = true;
                 c0_var.add((VariableExpressionNode)expr);
             }
+
+            if(temp.equalsIgnoreCase("pixel")) {
+                found_pixel = true;
+                pixel_var.add((VariableExpressionNode)expr);
+            }
+
 
             for(int i = 0; i < vars_var.size(); i++) {
                 if(temp.equalsIgnoreCase("v" + (i + 1))) {
@@ -947,6 +961,10 @@ public class Parser {
         return found_c0;
     }
 
+    public boolean foundPixel() {
+        return found_pixel;
+    }
+
     public boolean foundVar(int i) {
         try {
             return found_vars[i];
@@ -1105,6 +1123,14 @@ public class Parser {
 
         for(int i = 0; i < c0_var_arr.length; i++) {
             c0_var_arr[i].setValue(new Complex(value));
+        }
+
+    }
+
+    public void setPixelvalue(Complex value) {
+
+        for(int i = 0; i < pixel_var_arr.length; i++) {
+            pixel_var_arr[i].setValue(new Complex(value));
         }
 
     }

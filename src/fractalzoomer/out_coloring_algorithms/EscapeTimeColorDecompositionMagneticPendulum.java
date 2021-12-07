@@ -46,7 +46,7 @@ public class EscapeTimeColorDecompositionMagneticPendulum extends EscapeTimeColo
             }
         }
  
-        return pi59 * (min_i + 1) + ((Complex)object[7]).getRe();
+        return pi59 * (min_i + 1) + ((Complex)object[9]).getRe();
         
     }
     

@@ -2134,6 +2134,29 @@ public final class Complex extends GenericComplex {
 
     }
 
+
+    public final String toStringTruncated() {
+
+        String temp = "";
+
+        double tempre = re;
+        double tempim = im;
+
+        tempre = Math.abs(tempre) < 1e-16 ? 0.0 : tempre;
+        tempim = Math.abs(tempim) < 1e-16 ? 0.0 : tempim;
+
+        if (tempim > 0) {
+            temp = tempre + "+" + tempim + "i";
+        } else if (tempim == 0) {
+            temp = tempre + "+" + (0.0) + "i";
+        } else {
+            temp = tempre + "" + tempim + "i";
+        }
+
+        return temp;
+
+    }
+
     public final Complex fold_out(Complex z2) {
 
         double norm_sqr = re * re + im * im;

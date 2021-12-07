@@ -1,3 +1,15 @@
+Version 1.0.8.0
+    -Added new function Newton Third Degree Parameter Space
+    -Added Perturbation Theory for Nova Newton z^3-1 and Newton Third Degree Parameter Space
+    -Added Perturbation Theory for Julia sets for all functions that currently support Perturbation Theory (experimental)
+    -Added Superformula as an Orbit Trap
+    -Added Root Coloring in Statistical Coloring Methods
+    -Added Twin Lamps in Statistical Coloring Methods
+    -Added Convergent Bailout Conditions for all Root Finding Methods and Magnet functions
+    -Added progress indication when calculating the Reference Point and Series Approximation(where applicable)
+    -Changed a lot of dialogs so they can be re-opened without having to cancel the option first. The corresponding option dialogs were removed.
+    -Bug fixes and stability changes
+
 Version 1.0.7.9
     -Added Perturbation Theory for Mandelbrot Fifth and its Burning-Ship variant.
     -Added Series Approximation for Mandelbrot Fifth.

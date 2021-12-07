@@ -30,7 +30,7 @@ public class Xaos8TrueColorAlgorithm extends TrueColorAlgorithm {
     }
 
     @Override
-    public int createColor(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0, double stat, double trap, boolean escaped) {
+    public int createColor(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0, Complex pixel, double stat, double trap, boolean escaped) {
 
         double re = z.getRe();
         double im = z.getIm();

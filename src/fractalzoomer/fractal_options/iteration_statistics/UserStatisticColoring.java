@@ -170,6 +170,10 @@ public class UserStatisticColoring extends GenericStatistic {
         val2 = new Complex(val);
         samples = 0;
         statisticIteration = 0;
+
+        if (parser.foundPixel()) {
+            parser.setPixelvalue(pixel);
+        }
     }
 
     @Override

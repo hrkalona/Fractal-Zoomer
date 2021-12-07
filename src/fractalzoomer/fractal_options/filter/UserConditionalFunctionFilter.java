@@ -141,7 +141,7 @@ public class UserConditionalFunctionFilter extends FunctionFilter {
     }
 
     @Override
-    public Complex getValue(Complex z, int iterations, Complex c, Complex start, Complex c0) {
+    public Complex getValue(Complex z, int iterations, Complex c, Complex start, Complex c0, Complex pixel) {
 
         /* LEFT */
         if (parser[0].foundN()) {
@@ -158,6 +158,10 @@ public class UserConditionalFunctionFilter extends FunctionFilter {
 
         if (parser[0].foundS()) {
             parser[0].setSvalue(start);
+        }
+
+        if (parser[0].foundPixel()) {
+            parser[0].setPixelvalue(pixel);
         }
 
         if (parser[0].foundC0()) {
@@ -185,6 +189,10 @@ public class UserConditionalFunctionFilter extends FunctionFilter {
 
         if (parser[1].foundS()) {
             parser[1].setSvalue(start);
+        }
+
+        if (parser[1].foundPixel()) {
+            parser[1].setPixelvalue(pixel);
         }
 
         if (parser[1].foundC0()) {
@@ -216,6 +224,10 @@ public class UserConditionalFunctionFilter extends FunctionFilter {
                 parser2[0].setSvalue(start);
             }
 
+            if (parser2[0].foundPixel()) {
+                parser2[0].setPixelvalue(pixel);
+            }
+
             if (parser2[0].foundC0()) {
                 parser2[0].setC0value(c0);
             }
@@ -244,6 +256,10 @@ public class UserConditionalFunctionFilter extends FunctionFilter {
                 parser2[1].setSvalue(start);
             }
 
+            if (parser2[1].foundPixel()) {
+                parser2[1].setPixelvalue(pixel);
+            }
+
             if (parser2[1].foundC0()) {
                 parser2[1].setC0value(c0);
             }
@@ -270,6 +286,10 @@ public class UserConditionalFunctionFilter extends FunctionFilter {
 
             if (parser2[2].foundS()) {
                 parser2[2].setSvalue(start);
+            }
+
+            if (parser2[2].foundPixel()) {
+                parser2[2].setPixelvalue(pixel);
             }
 
             if (parser2[2].foundC0()) {

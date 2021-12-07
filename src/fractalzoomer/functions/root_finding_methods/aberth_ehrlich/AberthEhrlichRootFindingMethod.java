@@ -76,6 +76,10 @@ public abstract class AberthEhrlichRootFindingMethod extends RootFindingMethods 
 
         DurandKernerRootFindingMethod.initialize(complex, pixel, aberthEhrlichInitializationMethod, a);
 
+        for(int i = 0; i < workSpace.length; i++) {
+            workSpace[i] = new Complex();
+        }
+
         zold = new Complex();
         zold2 = new Complex();
         start = new Complex(complex[0]);
@@ -88,7 +92,6 @@ public abstract class AberthEhrlichRootFindingMethod extends RootFindingMethods 
     @Override
     protected double iterateFractalWithoutPeriodicity(Complex[] complex, Complex pixel) {
         iterations = 0;
-        double temp = 0;
 
         if (degree <= 0) {
             return 0;
@@ -102,19 +105,18 @@ public abstract class AberthEhrlichRootFindingMethod extends RootFindingMethods 
                 trap.check(complex[0], iterations);
             }
 
-            if (iterations > 0 && DurandKernerRootFindingMethod.converged(complex, workSpace, convergent_bailout)) {
+            if (iterations > 0 && DurandKernerRootFindingMethod.converged(convergent_bailout_algorithm, complex, workSpace, zold, zold2, iterations, pixel, start, c0, pixel)) {
                 escaped = true;
 
-                temp = complex[0].distance_squared(zold);
-
-                Object[] object = {iterations, complex[0], temp, zold, zold2, pixel, start, c0};
+                //Todo: some kind of bug in smoothing?
+                Object[] object = {iterations, complex[0], convergent_bailout_algorithm.getDistance(), zold, zold2, pixel, start, c0, pixel};
                 iterationData = object;
                 double out = out_color_algorithm.getResult(object);
 
                 out = getFinalValueOut(out);
 
                 if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(complex[0], zold, zold2, iterations, pixel, start, c0);
+                    setTrueColorOut(complex[0], zold, zold2, iterations, pixel, start, c0, pixel);
                 }
 
                 return out;
@@ -122,9 +124,9 @@ public abstract class AberthEhrlichRootFindingMethod extends RootFindingMethods 
             zold2.assign(zold);
             zold.assign(complex[0]);
 
-            complex[0] = preFilter.getValue(complex[0], iterations, pixel, start, c0);
+            complex[0] = preFilter.getValue(complex[0], iterations, pixel, start, c0, pixel);
             function(complex);
-            complex[0] = postFilter.getValue(complex[0], iterations, pixel, start, c0);
+            complex[0] = postFilter.getValue(complex[0], iterations, pixel, start, c0, pixel);
 
             if (statistic != null) {
                 statistic.insert(complex[0], zold, zold2, iterations, pixel, start, c0);
@@ -132,14 +134,14 @@ public abstract class AberthEhrlichRootFindingMethod extends RootFindingMethods 
 
         }
 
-        Object[] object = {complex[0], zold, zold2, pixel, start, c0};
+        Object[] object = {complex[0], zold, zold2, pixel, start, c0, pixel};
         iterationData = object;
         double in = in_color_algorithm.getResult(object);
 
         in = getFinalValueIn(in);
 
         if (inTrueColorAlgorithm != null) {
-            setTrueColorIn(complex[0], zold, zold2, iterations, pixel, start, c0);
+            setTrueColorIn(complex[0], zold, zold2, iterations, pixel, start, c0, pixel);
         }
 
         return in;

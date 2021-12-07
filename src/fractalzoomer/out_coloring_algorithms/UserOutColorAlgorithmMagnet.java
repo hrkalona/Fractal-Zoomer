@@ -60,7 +60,11 @@ public class UserOutColorAlgorithmMagnet extends  UserOutColorAlgorithm {
         if(parser.foundC0()) {
             parser.setC0value(((Complex)object[8]));
         }
-        
+
+        if (parser.foundPixel()) {
+            parser.setPixelvalue(((Complex) object[9]));
+        }
+
         if(parser.foundP()) {
             parser.setPvalue(((Complex)object[4]));
         }

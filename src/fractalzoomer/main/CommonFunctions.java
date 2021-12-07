@@ -104,6 +104,11 @@ public class CommonFunctions implements Constants {
 
         String path = System.getProperty("java.home");
         String file_separator = System.getProperty("file.separator");
+        String version = System.getProperty("java.version");
+
+        if(!version.startsWith("1.8")) {
+            return new Object[]{0, ""};
+        }
 
         if (!path.isEmpty() && !file_separator.isEmpty()) {
             path += file_separator + "lib" + file_separator;
@@ -134,6 +139,11 @@ public class CommonFunctions implements Constants {
 
         String path = System.getProperty("java.home");
         String file_separator = System.getProperty("file.separator");
+        String version = System.getProperty("java.version");
+
+        if(!version.startsWith("1.8")) {
+            return true;
+        }
 
         if (!path.isEmpty() && !file_separator.isEmpty()) {
             path += file_separator + "lib" + file_separator;
@@ -270,9 +280,23 @@ public class CommonFunctions implements Constants {
             overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[" + s.fns.lfns.lambda_formula_conditions[0] + " = " + s.fns.lfns.lambda_formula_conditions[1] + "]</font> <font color='" + keyword_color + "'>then</font> z = c * (" + s.fns.lfns.lambda_formula_condition_formula[2] + ")<br>";
         } else if (s.fns.function == MAGNET1) {
             overview += tab + "z = ((z^2 + c - 1)/(2z + c - 2))^2" + "<br>";
-        } else if (s.fns.function == MAGNET2) {
+        }
+        else if (s.fns.function == MAGNET13) {
+            overview += tab + "z = ((z^2 + c - 1)/(2z + c - 2))^3" + "<br>";
+        }
+        else if (s.fns.function == MAGNET14) {
+            overview += tab + "z = ((z^2 + c - 1)/(2z + c - 2))^4" + "<br>";
+        }
+        else if (s.fns.function == MAGNET2) {
             overview += tab + "z = ((z^3 + 3(c - 1)z + (c - 1)(c - 2))/(3z^2 + 3(c - 2)z + (c - 1)(c - 2))))^2" + "<br>";
-        } else if (s.fns.function == FROTHY_BASIN) {
+        }
+        else if (s.fns.function == MAGNET23) {
+            overview += tab + "z = ((z^3 + 3(c - 1)z + (c - 1)(c - 2))/(3z^2 + 3(c - 2)z + (c - 1)(c - 2))))^3" + "<br>";
+        }
+        else if (s.fns.function == MAGNET24) {
+            overview += tab + "z = ((z^3 + 3(c - 1)z + (c - 1)(c - 2))/(3z^2 + 3(c - 2)z + (c - 1)(c - 2))))^4" + "<br>";
+        }
+        else if (s.fns.function == FROTHY_BASIN) {
             overview += tab + "z = z^2 - (1 + 1.028713768218725i)conj(z) + c<br>";
         } else if (s.fns.function == SPIDER) {
             overview += tab + "z = z^2 + c<br>";
@@ -513,6 +537,9 @@ public class CommonFunctions implements Constants {
             overview += tab + "Relaxation = " + s.fns.user_relaxation_formula + "<br>";
             overview += tab + "Addend = " + s.fns.user_nova_addend_formula + "<br>";
         }
+        else if (s.fns.function == NEWTON_THIRD_DEGREE_PARAMETER_SPACE) {
+            overview += tab + "z = z - ((z - 1)*(z + 1)*(z - c)) / (-2*c*z + 3*z^2 - 1)<br>";
+        }
 
         if (s.fns.function == DURAND_KERNER3 || s.fns.function == DURAND_KERNER4 || s.fns.function == DURAND_KERNERGENERALIZED3 || s.fns.function == DURAND_KERNERGENERALIZED8
         || s.fns.function == ABERTH_EHRLICH3 || s.fns.function == ABERTH_EHRLICH4 || s.fns.function == ABERTH_EHRLICHGENERALIZED3 || s.fns.function == ABERTH_EHRLICHGENERALIZED8) {
@@ -632,12 +659,19 @@ public class CommonFunctions implements Constants {
             String res = ThreadDraw.getDefaultInitialValue();
 
             if (!res.equals("")) {
-                overview += "<b><font color='red'>Initial Value:</font></b> Default Value<br>";
+                if(res.equals("c")) {
+                    overview += "<b><font color='red'>Initial Value:</font></b> Default Value<br>";
+                }
+                else {
+                    overview += "<b><font color='red'>Initial Value:</font></b> Static Value<br>";
+                }
                 overview += tab + "z(0) = " + res + "<br>";
                 overview += "<br>";
             }
         } else {
-            if(s.julia_map || s.fns.julia) {
+            if((s.julia_map || s.fns.julia) && !(s.fns.function == MainWindow.USER_FORMULA || s.fns.function == MainWindow.USER_FORMULA_CONDITIONAL || s.fns.function == MainWindow.USER_FORMULA_ITERATION_BASED || s.fns.function == MainWindow.USER_FORMULA_COUPLED
+                    || s.fns.function == MainWindow.USER_FORMULA_NOVA || s.fns.function == MainWindow.LYAPUNOV || s.fns.function == MainWindow.LAMBDA_FN_FN)) {
+
                 String res = ThreadDraw.getDefaultInitialValue();
 
                 if (!res.equals("")) {
@@ -645,6 +679,7 @@ public class CommonFunctions implements Constants {
                     overview += tab + "z(0) = " + res + "<br>";
                     overview += "<br>";
                 }
+
             }
             else {
                 if (s.fns.variable_init_value) {
@@ -803,20 +838,137 @@ public class CommonFunctions implements Constants {
                 overview += "<b><font color='red'>Skip Bailout Condition Iterations:</font></b> " + s.fns.skip_bailout_iterations + "<br><br>";
             }
 
-            if (s.fns.function == MAGNET1 || s.fns.function == MAGNET2) {
-                overview += "<b><font color='red'>Bailout Condition 2:</font></b> Escaping when a complex value almost reaches 1 + 0i (convergence).<br>";
-                overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[norm(z - 1 - 0i) &#60;= convergent bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
-                overview += tab + "<font color='" + keyword_color + "'>else then</font> Not Escaped<br><br>";
+            if (s.isMagnetType()) {
+                overview += "<b><font color='red'>Bailout Condition 2:</font></b> Escaping when the criterion defined by the convergent bailout condition \"" + ConvergentBailoutConditionsMenu.convergentBailoutConditionNames[s.fns.cbs.convergent_bailout_test_algorithm] + "\" is met.<br>";
+                if(s.fns.cbs.convergent_bailout_test_algorithm == Constants.CONVERGENT_BAILOUT_CONDITION_CIRCLE) {
+                    overview += tab + "Escaping when a complex value almost reaches 1 + 0i (convergence).<br>";
+                    overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[norm(z - 1 - 0i) &#60;= convergent bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
+                    overview += tab + "<font color='" + keyword_color + "'>else then</font> Not Escaped<br>";
+                }
+                else if(s.fns.cbs.convergent_bailout_test_algorithm == Constants.CONVERGENT_BAILOUT_CONDITION_SQUARE) {
+                    overview += tab + "Escaping when a complex value almost reaches 1 + 0i (convergence).<br>";
+                    overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[abs(re(z - 1 - 0i)) &#60;= convergent bailout or abs(im(z - 1 - 0i)) &#60;= convergent bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
+                    overview += tab + "<font color='" + keyword_color + "'>else then</font> Not Escaped<br>";
+                }
+                else if(s.fns.cbs.convergent_bailout_test_algorithm == Constants.CONVERGENT_BAILOUT_CONDITION_RHOMBUS) {
+                    overview += tab + "Escaping when a complex value almost reaches 1 + 0i (convergence).<br>";
+                    overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[abs(re(z - 1 - 0i)) + abs(im(z - 1 - 0i)) &#60;= convergent bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
+                    overview += tab + "<font color='" + keyword_color + "'>else then</font> Not Escaped<br>";
+                }
+                else if(s.fns.cbs.convergent_bailout_test_algorithm == Constants.CONVERGENT_BAILOUT_CONDITION_NNORM) {
+                    overview += tab + "Escaping when a complex value almost reaches 1 + 0i (convergence).<br>";
+                    overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[(abs(re(z - 1 - 0i))^" + s.fns.n_norm + " + abs(im(z - 1 - 0i))^" + s.fns.n_norm + ")^(1/" + s.fns.n_norm + ") &#60;= convergent bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
+                    overview += tab + "<font color='" + keyword_color + "'>else then</font> Not Escaped<br>";
+                }
+                else if (s.fns.cbs.convergent_bailout_test_algorithm ==  Constants.CONVERGENT_BAILOUT_CONDITION_USER) {
+                    String greater = "", equal = "", lower = "";
 
-                overview += "<b><font color='red'>Convergent Bailout:</font></b> " + ThreadDraw.getConvergentBailout() + "<br><br>";
+                    if (s.fns.cbs.convergent_bailout_test_algorithm == GREATER) { // >
+                        greater = "Converged";
+                        equal = "Not Converged";
+                        lower = "Not Converged";
+                    } else if (s.fns.cbs.convergent_bailout_test_algorithm == GREATER_EQUAL) { // >=
+                        greater = "Converged";
+                        equal = "Converged";
+                        lower = "Not Converged";
+                    } else if (s.fns.cbs.convergent_bailout_test_algorithm == LOWER) { // <
+                        greater = "Not Converged";
+                        equal = "Not Converged";
+                        lower = "Converged";
+                    } else if (s.fns.cbs.convergent_bailout_test_algorithm == LOWER_EQUAL) { // <=
+                        greater = "Not Converged";
+                        equal = "Converged";
+                        lower = "Converged";
+                    } else if (s.fns.cbs.convergent_bailout_test_algorithm == EQUAL) { // ==
+                        greater = "Not Converged";
+                        equal = "Converged";
+                        lower = "Not Converged";
+                    } else if (s.fns.cbs.convergent_bailout_test_algorithm == NOT_EQUAL) { // !=
+                        greater = "Converged";
+                        equal = "Not Converged";
+                        lower = "Converged";
+                    }
+
+                    overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[" + s.fns.cbs.convergent_bailout_test_user_formula + " > " + s.fns.cbs.convergent_bailout_test_user_formula2 + "]</font> <font color='" + keyword_color + "'>then</font> " + greater + "<br>";
+                    overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[" + s.fns.cbs.convergent_bailout_test_user_formula+ " &#60; " + s.fns.cbs.convergent_bailout_test_user_formula2 + "]</font> <font color='" + keyword_color + "'>then</font> " + lower + "<br>";
+                    overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[" + s.fns.cbs.convergent_bailout_test_user_formula + " = " + s.fns.cbs.convergent_bailout_test_user_formula2 + "]</font> <font color='" + keyword_color + "'>then</font> " + equal + "<br>";
+                }
+
+                overview += "<br>";
+
+                if (s.fns.cbs.convergent_bailout_test_algorithm != Constants.CONVERGENT_BAILOUT_CONDITION_NO_BAILOUT) {
+                    overview += "<b><font color='red'>Convergent Bailout:</font></b> " + ThreadDraw.getConvergentBailout() + "<br><br>";
+                    overview += "<b><font color='red'>Skip Convergent Bailout Condition Iterations:</font></b> " + s.fns.skip_convergent_bailout_iterations + "<br><br>";
+                }
+
             }
 
         } else if (!s.ds.domain_coloring && s.fns.function != KLEINIAN && s.fns.function != MAGNETIC_PENDULUM) {
-            overview += "<b><font color='red'>Bailout Condition:</font></b> Escaping when two consecutive complex values are almost the same (convergence).<br>";
-            overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[norm(z - p) &#60;= convergent bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
-            overview += tab + "<font color='" + keyword_color + "'>else then</font> Not Escaped<br><br>";
 
-            overview += "<b><font color='red'>Convergent Bailout:</font></b> " + ThreadDraw.getConvergentBailout() + "<br><br>";
+            overview += "<b><font color='red'>Bailout Condition:</font></b> Escaping when the criterion defined by the convergent bailout condition \"" + ConvergentBailoutConditionsMenu.convergentBailoutConditionNames[s.fns.cbs.convergent_bailout_test_algorithm] + "\" is met.<br>";
+
+            if(s.fns.cbs.convergent_bailout_test_algorithm == Constants.CONVERGENT_BAILOUT_CONDITION_CIRCLE) {
+                overview += tab + "Escaping when two consecutive complex values are almost the same (convergence).<br>";
+                overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[norm(z - p) &#60;= convergent bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
+                overview += tab + "<font color='" + keyword_color + "'>else then</font> Not Escaped<br>";
+            }
+            else if(s.fns.cbs.convergent_bailout_test_algorithm == Constants.CONVERGENT_BAILOUT_CONDITION_SQUARE) {
+                overview += tab + "Escaping when two consecutive complex values are almost the same (convergence).<br>";
+                overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[abs(re(z - p)) &#60;= convergent bailout or abs(im(z - p)) &#60;= convergent bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
+                overview += tab + "<font color='" + keyword_color + "'>else then</font> Not Escaped<br>";
+            }
+            else if(s.fns.cbs.convergent_bailout_test_algorithm == Constants.CONVERGENT_BAILOUT_CONDITION_RHOMBUS) {
+                overview += tab + "Escaping when two consecutive complex values are almost the same (convergence).<br>";
+                overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[abs(re(z - p)) + abs(im(z - p)) &#60;= convergent bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
+                overview += tab + "<font color='" + keyword_color + "'>else then</font> Not Escaped<br>";
+            }
+            else if(s.fns.cbs.convergent_bailout_test_algorithm == Constants.CONVERGENT_BAILOUT_CONDITION_NNORM) {
+                overview += tab + "Escaping when two consecutive complex values are almost the same (convergence).<br>";
+                overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[(abs(re(z - p))^" + s.fns.n_norm + " + abs(im(z - p))^" + s.fns.n_norm + ")^(1/" + s.fns.n_norm + ") &#60;= convergent bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
+                overview += tab + "<font color='" + keyword_color + "'>else then</font> Not Escaped<br>";
+            }
+            else if (s.fns.cbs.convergent_bailout_test_algorithm ==  Constants.CONVERGENT_BAILOUT_CONDITION_USER) {
+                String greater = "", equal = "", lower = "";
+
+                if (s.fns.cbs.convergent_bailout_test_algorithm == GREATER) { // >
+                    greater = "Converged";
+                    equal = "Not Converged";
+                    lower = "Not Converged";
+                } else if (s.fns.cbs.convergent_bailout_test_algorithm == GREATER_EQUAL) { // >=
+                    greater = "Converged";
+                    equal = "Converged";
+                    lower = "Not Converged";
+                } else if (s.fns.cbs.convergent_bailout_test_algorithm == LOWER) { // <
+                    greater = "Not Converged";
+                    equal = "Not Converged";
+                    lower = "Converged";
+                } else if (s.fns.cbs.convergent_bailout_test_algorithm == LOWER_EQUAL) { // <=
+                    greater = "Not Converged";
+                    equal = "Converged";
+                    lower = "Converged";
+                } else if (s.fns.cbs.convergent_bailout_test_algorithm == EQUAL) { // ==
+                    greater = "Not Converged";
+                    equal = "Converged";
+                    lower = "Not Converged";
+                } else if (s.fns.cbs.convergent_bailout_test_algorithm == NOT_EQUAL) { // !=
+                    greater = "Converged";
+                    equal = "Not Converged";
+                    lower = "Converged";
+                }
+
+                overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[" + s.fns.cbs.convergent_bailout_test_user_formula + " > " + s.fns.cbs.convergent_bailout_test_user_formula2 + "]</font> <font color='" + keyword_color + "'>then</font> " + greater + "<br>";
+                overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[" + s.fns.cbs.convergent_bailout_test_user_formula+ " &#60; " + s.fns.cbs.convergent_bailout_test_user_formula2 + "]</font> <font color='" + keyword_color + "'>then</font> " + lower + "<br>";
+                overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[" + s.fns.cbs.convergent_bailout_test_user_formula + " = " + s.fns.cbs.convergent_bailout_test_user_formula2 + "]</font> <font color='" + keyword_color + "'>then</font> " + equal + "<br>";
+            }
+
+            overview += "<br>";
+
+            if (s.fns.cbs.convergent_bailout_test_algorithm != Constants.CONVERGENT_BAILOUT_CONDITION_NO_BAILOUT) {
+                overview += "<b><font color='red'>Convergent Bailout:</font></b> " + ThreadDraw.getConvergentBailout() + "<br><br>";
+                overview += "<b><font color='red'>Skip Convergent Bailout Condition Iterations:</font></b> " + s.fns.skip_convergent_bailout_iterations + "<br><br>";
+            }
+
+
         } else if (!s.ds.domain_coloring && s.fns.function == KLEINIAN) {
             overview += "<b><font color='red'>Bailout Condition:</font></b> Escaping when a value reaches out of bounds.<br>";
             overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[Im(z) &#60; 0 or Im(z) > " + s.fns.kleinianLine[0] + "]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
@@ -875,11 +1027,15 @@ public class CommonFunctions implements Constants {
                     }
                     else if (s.sts.statistic_type == Constants.ATOM_DOMAIN_BOF60_BOF61) {
                         if (s.sts.showAtomDomains) {
-                            overview += tab + "Shows atom domains.<br>";
+                            overview += tab2 + "Shows atom domains.<br>";
                         }
                     }
                     else if(s.sts.statistic_type == Constants.DISCRETE_LAGRANGIAN_DESCRIPTORS) {
                         overview += tab2 + "Power = " + s.sts.lagrangianPower + "<br>";
+                    }
+                    else if(s.sts.statistic_type == Constants.TWIN_LAMPS) {
+                        overview += tab2 + "Point = " + Complex.toString2(s.sts.twlPoint[0], s.sts.twlPoint[1]) + "<br>";
+                        overview += tab2 + "Function = " + Constants.twinLampsFunction[s.sts.twlFunction] + "<br>";
                     }
                 } else if (s.sts.statisticGroup == 1){
                     overview += "<b><font color='red'>Statistical Coloring:</font></b><br>";
@@ -961,13 +1117,41 @@ public class CommonFunctions implements Constants {
                     }
 
                 }
+                else if (s.sts.statisticGroup == 4){
+                    overview += "<b><font color='red'>Statistical Coloring:</font></b><br>";
+                    overview += tab + "Root Coloring<br>";
+
+                    if(s.sts.rootShading) {
+                        overview += tab + "Root Contouring<br>";
+
+                        overview += tab2 + "Iterations Scaling = " + s.sts.rootIterationsScaling + "<br>";
+                        overview += tab2 + "Contour Function = " + rootShadingFunction[s.sts.rootShadingFunction] + "<br>";
+                        overview += tab2 + "Contour Color Mode = " + colorMethod[s.sts.rootContourColorMethod] + "<br>";
+
+                        if(s.sts.revertRootShading) {
+                            overview += tab2 + "Inverted Contouring" + "<br>";
+                        }
+
+                        if(s.sts.highlightRoots) {
+                            overview += tab2 + "Root highlighting" + "<br>";
+                        }
+
+                        if (s.sts.normalMapColorMode == 3) {
+                            overview += tab3 + "Color Blending = " + s.sts.rootBlending + "<br>";
+                        }
+
+                        if(s.sts.rootSmooting) {
+                            overview += tab2 + "Uses Contour Smoothing" + "<br>";
+                        }
+                    }
+                }
 
                 if(s.sts.statisticGroup != 2 || !s.isPertubationTheoryInUse()) {
                     if (s.sts.statisticIncludeEscaped) {
-                        overview += tab + "Includes escaped points.<br>";
+                        overview += tab + "Includes escaped points<br>";
                     }
                     if (s.sts.statisticIncludeNotEscaped) {
-                        overview += tab + "Includes not escaped points.<br>";
+                        overview += tab + "Includes not escaped points<br>";
                     }
 
                     if (s.sts.statisticGroup == 1) {
@@ -979,11 +1163,11 @@ public class CommonFunctions implements Constants {
                             overview += tab + "Using Average<br>";
                         }
                     } else if (s.sts.statisticGroup == 0) {
-                        if (s.sts.useSmoothing && s.sts.statistic_type != Constants.ATOM_DOMAIN_BOF60_BOF61 && s.sts.statistic_type != Constants.COS_ARG_DIVIDE_INVERSE_NORM) {
+                        if (s.sts.useSmoothing && s.sts.statistic_type != Constants.ATOM_DOMAIN_BOF60_BOF61 && s.sts.statistic_type != Constants.COS_ARG_DIVIDE_INVERSE_NORM && s.sts.statistic_type != Constants.TWIN_LAMPS) {
                             overview += tab + "Smooth Sum.<br>";
                         }
 
-                        if (s.sts.useAverage && s.sts.statistic_type != Constants.ATOM_DOMAIN_BOF60_BOF61 && s.sts.statistic_type != Constants.COS_ARG_DIVIDE_INVERSE_NORM) {
+                        if (s.sts.useAverage && s.sts.statistic_type != Constants.ATOM_DOMAIN_BOF60_BOF61 && s.sts.statistic_type != Constants.COS_ARG_DIVIDE_INVERSE_NORM && s.sts.statistic_type != Constants.TWIN_LAMPS) {
                             overview += tab + "Using Average<br>";
                         }
                     } else if (s.sts.statisticGroup == 2) {
@@ -996,7 +1180,12 @@ public class CommonFunctions implements Constants {
                         }
                     }
 
-                    overview += tab + "Intensity = " + s.sts.statistic_intensity + "<br><br>";
+                    if(s.sts.statisticGroup != 4) {
+                        overview += tab + "Intensity = " + s.sts.statistic_intensity + "<br><br>";
+                    }
+                    else {
+                        overview += "<br>";
+                    }
                 }
             }
         }
@@ -1177,7 +1366,10 @@ public class CommonFunctions implements Constants {
                 overview += tab + "Shape = " + Constants.orbitTrapsNames[s.ots.trapType] + "<br>";
                 overview += tab + "Center = " + Complex.toString2(s.ots.trapPoint[0], s.ots.trapPoint[1]) + "<br>";
 
-                if (s.ots.trapType != Constants.ATOM_DOMAIN_TRAP && s.ots.trapType != Constants.SQUARE_ATOM_DOMAIN_TRAP && s.ots.trapType != Constants.RHOMBUS_ATOM_DOMAIN_TRAP && s.ots.trapType != Constants.NNORM_ATOM_DOMAIN_TRAP && s.ots.trapType != Constants.GOLDEN_RATIO_SPIRAL_TRAP && s.ots.trapType != Constants.STALKS_TRAP) {
+                int type = s.ots.trapType == Constants.IMAGE_TRAP && s.ots.checkType == Constants.TRAP_CHECK_TYPE_TRAPPED_MIN_DISTANCE ? Constants.TRAP_CHECK_TYPE_TRAPPED_FIRST : s.ots.checkType;
+                overview += tab + "Check type = " + Constants.orbitTrapCheckTypes[type] + "<br>";
+
+                if (s.ots.trapType != Constants.SUPER_FORMULA_ORBIT_TRAP && s.ots.trapType != Constants.ATOM_DOMAIN_TRAP && s.ots.trapType != Constants.SQUARE_ATOM_DOMAIN_TRAP && s.ots.trapType != Constants.RHOMBUS_ATOM_DOMAIN_TRAP && s.ots.trapType != Constants.NNORM_ATOM_DOMAIN_TRAP && s.ots.trapType != Constants.GOLDEN_RATIO_SPIRAL_TRAP && s.ots.trapType != Constants.STALKS_TRAP) {
                     overview += tab + "Length = " + s.ots.trapLength + "<br>";
                 }
 
@@ -1191,6 +1383,16 @@ public class CommonFunctions implements Constants {
 
                 if (s.ots.trapType == Constants.CROSS_TRAP || s.ots.trapType == Constants.RE_TRAP || s.ots.trapType == Constants.IM_TRAP || s.ots.trapType == Constants.CIRCLE_CROSS_TRAP || s.ots.trapType == Constants.SQUARE_CROSS_TRAP || s.ots.trapType == Constants.RHOMBUS_CROSS_TRAP || s.ots.trapType == Constants.N_NORM_CROSS_TRAP || s.ots.trapType == Constants.GOLDEN_RATIO_SPIRAL_CROSS_TRAP || s.ots.trapType == Constants.STALKS_CROSS_TRAP) {
                     overview += tab + "Line Function = " + Constants.orbitTrapLineTypes[s.ots.lineType] + "<br>";
+                }
+
+                if(s.ots.trapType == Constants.SUPER_FORMULA_ORBIT_TRAP) {
+                    overview += tab + "m1 = " + s.ots.sfm1 + "<br>";
+                    overview += tab + "m2 = " + s.ots.sfm2 + "<br>";
+                    overview += tab + "n1 = " + s.ots.sfn1 + "<br>";
+                    overview += tab + "n2 = " + s.ots.sfn2 + "<br>";
+                    overview += tab + "n3 = " + s.ots.sfn3 + "<br>";
+                    overview += tab + "a = " + s.ots.sfa + "<br>";
+                    overview += tab + "b = " + s.ots.sfa + "<br>";
                 }
 
                 if (s.ots.trapType != Constants.IMAGE_TRAP) {
@@ -1215,10 +1417,10 @@ public class CommonFunctions implements Constants {
                 }
 
                 if (s.ots.trapIncludeEscaped) {
-                    overview += tab + "Includes escaped points.<br>";
+                    overview += tab + "Includes escaped points<br>";
                 }
                 if (s.ots.trapIncludeNotEscaped) {
-                    overview += tab + "Includes not escaped points.<br>";
+                    overview += tab + "Includes not escaped points<br>";
                 }
                 if (s.ots.countTrapIterations) {
                     overview += tab + "Counts trap iterations.<br>";
@@ -1754,7 +1956,7 @@ public class CommonFunctions implements Constants {
         String help = "<html><center><font size='5' face='arial' color='blue'><b><u>Special Offset Removal</u></b></font></center><br>"
                 + "<font size='4' face='arial'>"
                 + "Disclaimer, the Offset Removal option is tightly coupled with the<br>"
-                + "implentation of the current software and its only provided in order to<br>"
+                + "implementation of the current software and its only provided in order to<br>"
                 + "bypass an implementation design.<br><br>"
                 + "Coloring algorithms that apply an offset to the palette, based<br>"
                 + "on a specific condition, (Binary Decomposition Variant, Biomorph, Escape Time + Grid,<br>"
@@ -1810,5 +2012,32 @@ public class CommonFunctions implements Constants {
                 + "Set the " + mode + "." + mode2
                 + "</html>");
 
+    }
+
+    public static void showPerturbationTheoryHelp(JDialog dialog) {
+
+        new PerturbationTheoryHelpDialog(dialog);
+
+    }
+
+    public static void checkForLostPrecision(String[] inputs) {
+
+        int max = -1;
+        for(int i = 0; i < inputs.length; i++) {
+            String temp = inputs[i].toLowerCase();
+            try {
+                new MyApfloat(temp);
+            }
+            catch (Exception ex) {
+                return;
+            }
+            int eIndex = temp.lastIndexOf('e');
+            int dotIndex = temp.indexOf('.');
+            if(dotIndex != -1) {
+                eIndex = eIndex == - 1 ? temp.length() : eIndex;
+                String digits = temp.substring(dotIndex + 1, eIndex);
+                max = digits.length() > max ? digits.length() : max;
+            }
+        }
     }
 }

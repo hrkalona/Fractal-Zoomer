@@ -140,6 +140,10 @@ public class SecantFormula extends SecantRootFindingMethod {
 
     private void setInitVariables(Complex start, Complex zold, Complex zold2, Complex pixel) {
 
+        if (parser.foundPixel()) {
+            parser.setPixelvalue(pixel);
+        }
+
         if (parser.foundZ()) {
             parser.setZvalue(pixel);
         }

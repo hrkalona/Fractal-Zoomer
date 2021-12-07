@@ -23,9 +23,6 @@ import fractalzoomer.fractal_options.initial_value.InitialValue;
 import fractalzoomer.fractal_options.initial_value.VariableConditionalInitialValue;
 import fractalzoomer.fractal_options.initial_value.VariableInitialValue;
 import fractalzoomer.fractal_options.perturbation.DefaultPerturbation;
-import fractalzoomer.fractal_options.perturbation.Perturbation;
-import fractalzoomer.fractal_options.perturbation.VariableConditionalPerturbation;
-import fractalzoomer.fractal_options.perturbation.VariablePerturbation;
 import fractalzoomer.functions.ExtendedConvergentType;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
@@ -50,19 +47,7 @@ public class UserFormulaIterationBasedConverging extends ExtendedConvergentType 
 
         super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, false, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, ots);
 
-        if (perturbation) {
-            if (variable_perturbation) {
-                if (user_perturbation_algorithm == 0) {
-                    pertur_val = new VariablePerturbation(perturbation_user_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
-                } else {
-                    pertur_val = new VariableConditionalPerturbation(user_perturbation_conditions, user_perturbation_condition_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
-                }
-            } else {
-                pertur_val = new Perturbation(perturbation_vals[0], perturbation_vals[1]);
-            }
-        } else {
-            pertur_val = new DefaultPerturbation();
-        }
+        setPertubationOption(perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, perturbation_user_formula, user_perturbation_conditions, user_perturbation_condition_formula, plane_transform_center);
 
         if (init_value) {
             if (variable_init_value) {
@@ -147,19 +132,7 @@ public class UserFormulaIterationBasedConverging extends ExtendedConvergentType 
 
         super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
 
-        if (perturbation) {
-            if (variable_perturbation) {
-                if (user_perturbation_algorithm == 0) {
-                    pertur_val = new VariablePerturbation(perturbation_user_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
-                } else {
-                    pertur_val = new VariableConditionalPerturbation(user_perturbation_conditions, user_perturbation_condition_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
-                }
-            } else {
-                pertur_val = new Perturbation(perturbation_vals[0], perturbation_vals[1]);
-            }
-        } else {
-            pertur_val = new DefaultPerturbation();
-        }
+        setPertubationOption(perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, perturbation_user_formula, user_perturbation_conditions, user_perturbation_condition_formula, plane_transform_center);
 
         if (init_value) {
             if (variable_init_value) {
@@ -300,7 +273,7 @@ public class UserFormulaIterationBasedConverging extends ExtendedConvergentType 
 
         Complex[] complex = super.initialize(pixel);
 
-        setInitVariables(start, zold, zold2, c0);
+        setInitVariables(start, zold, zold2, c0, pixel);
 
         return complex;
 
@@ -311,7 +284,7 @@ public class UserFormulaIterationBasedConverging extends ExtendedConvergentType 
 
         Complex[] complex = super.initializeSeed(pixel);
 
-        setInitVariables(start, zold, zold2, c0);
+        setInitVariables(start, zold, zold2, c0, pixel);
 
         return complex;
 
@@ -331,13 +304,18 @@ public class UserFormulaIterationBasedConverging extends ExtendedConvergentType 
 
     }
 
-    private void setInitVariables(Complex start, Complex zold, Complex zold2, Complex c0) {
+    private void setInitVariables(Complex start, Complex zold, Complex zold2, Complex c0, Complex pixel) {
 
         Complex c_center = new Complex(xCenter, yCenter);
         Complex c_size = new Complex(size, 0);
         Complex c_isize = new Complex(ThreadDraw.IMAGE_SIZE, 0);
 
         for (int i = 0; i < parser.length; i++) {
+
+            if (parser[i].foundPixel()) {
+                parser[i].setPixelvalue(pixel);
+            }
+
             if (parser[i].foundS()) {
                 parser[i].setSvalue(start);
             }

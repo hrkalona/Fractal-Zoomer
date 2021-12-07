@@ -21,15 +21,17 @@ import fractalzoomer.fractal_options.initial_value.InitialValue;
 import fractalzoomer.fractal_options.initial_value.VariableConditionalInitialValue;
 import fractalzoomer.fractal_options.initial_value.VariableInitialValue;
 import fractalzoomer.fractal_options.perturbation.DefaultPerturbation;
-import fractalzoomer.fractal_options.perturbation.Perturbation;
-import fractalzoomer.fractal_options.perturbation.VariableConditionalPerturbation;
-import fractalzoomer.fractal_options.perturbation.VariablePerturbation;
 import fractalzoomer.functions.Julia;
+import fractalzoomer.main.Constants;
+import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
 import fractalzoomer.main.app_settings.StatisticsSettings;
 import org.apfloat.Apfloat;
 
+import javax.swing.*;
 import java.util.ArrayList;
+
+import static fractalzoomer.main.Constants.REFERENCE_CALCULATION_STR;
 
 /**
  *
@@ -37,30 +39,19 @@ import java.util.ArrayList;
  */
 public class Lambda extends Julia {
 
+    public Lambda() {
+        super();
+    }
+
     public Lambda(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, OrbitTrapSettings ots, StatisticsSettings sts) {
 
         super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, ots);
 
-        defaultInitVal = new Complex(0.5, 0);
+        defaultInitVal = new InitialValue(0.5, 0);
 
         power = 2;
 
-        if(perturbation) {
-            if(variable_perturbation) {
-                if(user_perturbation_algorithm == 0) {
-                    pertur_val = new VariablePerturbation(perturbation_user_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
-                }
-                else {
-                    pertur_val = new VariableConditionalPerturbation(user_perturbation_conditions, user_perturbation_condition_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
-                }
-            }
-            else {
-                pertur_val = new Perturbation(perturbation_vals[0], perturbation_vals[1]);
-            }
-        }
-        else {
-            pertur_val = new DefaultPerturbation();
-        }
+        setPertubationOption(perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, perturbation_user_formula, user_perturbation_conditions, user_perturbation_condition_formula, plane_transform_center);
 
         if(init_value) {
             if(variable_init_value) {
@@ -76,7 +67,7 @@ public class Lambda extends Julia {
             }
         }
         else {
-            init_val = new InitialValue(defaultInitVal);
+            init_val = defaultInitVal;
         }
 
         OutColoringAlgorithmFactory(out_coloring_algorithm, smoothing, escaping_smooth_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, plane_transform_center);
@@ -94,7 +85,7 @@ public class Lambda extends Julia {
 
         power = 2;
 
-        defaultInitVal = new Complex(0.5, 0);
+        defaultInitVal = new InitialValue(0.5, 0);
 
         OutColoringAlgorithmFactory(out_coloring_algorithm, smoothing, escaping_smooth_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, plane_transform_center);
         
@@ -105,7 +96,7 @@ public class Lambda extends Julia {
         }
 
         pertur_val = new DefaultPerturbation();
-        init_val = new InitialValue(defaultInitVal);
+        init_val = defaultInitVal;
     }
 
     //orbit
@@ -115,24 +106,9 @@ public class Lambda extends Julia {
 
         power = 2;
 
-        defaultInitVal = new Complex(0.5, 0);
+        defaultInitVal = new InitialValue(0.5, 0);
 
-        if(perturbation) {
-            if(variable_perturbation) {
-                if(user_perturbation_algorithm == 0) {
-                    pertur_val = new VariablePerturbation(perturbation_user_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
-                }
-                else {
-                    pertur_val = new VariableConditionalPerturbation(user_perturbation_conditions, user_perturbation_condition_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
-                }
-            }
-            else {
-                pertur_val = new Perturbation(perturbation_vals[0], perturbation_vals[1]);
-            }
-        }
-        else {
-            pertur_val = new DefaultPerturbation();
-        }
+        setPertubationOption(perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, perturbation_user_formula, user_perturbation_conditions, user_perturbation_condition_formula, plane_transform_center);
 
         if(init_value) {
             if(variable_init_value) {
@@ -148,7 +124,7 @@ public class Lambda extends Julia {
             }
         }
         else {
-            init_val = new InitialValue(defaultInitVal);
+            init_val = defaultInitVal;
         }
 
     }
@@ -156,9 +132,9 @@ public class Lambda extends Julia {
     public Lambda(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double xJuliaCenter, double yJuliaCenter) {
 
         super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
-        defaultInitVal = new Complex(0.5, 0);
+        defaultInitVal = new InitialValue(0.5, 0);
         pertur_val = new DefaultPerturbation();
-        init_val = new InitialValue(defaultInitVal);
+        init_val = defaultInitVal;
         power = 2;
     }
 
@@ -171,44 +147,83 @@ public class Lambda extends Julia {
 
     @Override
     public boolean supportsPerturbationTheory() {
-        return true;
+        if(isJuliaMap) {
+            return false;
+        }
+        return !isJulia || (isJulia && !juliter);
     }
 
     @Override
-    public void calculateReferencePoint(BigComplex pixel, Apfloat size, boolean deepZoom, int iterations, Location externalLocation) {
+    public String getRefType() {
+        return super.getRefType() + (isJulia ? "-Julia-" + seed : "");
+    }
 
-        if(iterations == 0) {
+    @Override
+    public void calculateReferencePoint(BigComplex pixel, Apfloat size, boolean deepZoom, int iterations, Location externalLocation, JProgressBar progress) {
+
+        int initIterations = iterations;
+
+        if(progress != null) {
+            progress.setMaximum(max_iterations - initIterations);
+            progress.setValue(0);
+            progress.setForeground(MainWindow.progress_ref_color);
+            progress.setString(REFERENCE_CALCULATION_STR + " " + String.format("%3d", 0) + "%");
+        }
+
+        if (iterations == 0) {
             Reference = new Complex[max_iterations];
+
+            ReferenceSubCp = new Complex[max_iterations];
+
+            PrecalculatedTerms = new Complex[max_iterations];
 
             if (deepZoom) {
                 ReferenceDeep = new MantExpComplex[max_iterations];
+
+                ReferenceSubCpDeep = new MantExpComplex[max_iterations];
+
+                PrecalculatedTermsDeep = new MantExpComplex[max_iterations];
+
             }
-        }
-        else if (max_iterations > Reference.length){
+        } else if (max_iterations > Reference.length) {
             Reference = copyReference(Reference, new Complex[max_iterations]);
 
+            ReferenceSubCp = copyReference(ReferenceSubCp, new Complex[max_iterations]);
+
+            PrecalculatedTerms = copyReference(PrecalculatedTerms, new Complex[max_iterations]);
+
             if (deepZoom) {
-                ReferenceDeep = copyDeepReference(ReferenceDeep,  new MantExpComplex[max_iterations]);
+                ReferenceDeep = copyDeepReference(ReferenceDeep, new MantExpComplex[max_iterations]);
+
+                ReferenceSubCpDeep = copyDeepReference(ReferenceSubCpDeep, new MantExpComplex[max_iterations]);
+
+                PrecalculatedTermsDeep = copyDeepReference(PrecalculatedTermsDeep, new MantExpComplex[max_iterations]);
+
             }
         }
 
-        BigComplex z = iterations == 0 ? new BigComplex() : lastZValue;
-        BigComplex c = pixel;
+
+        BigComplex initVal = new BigComplex(defaultInitVal.getValue(null));
+
+        BigComplex z = iterations == 0 ? (isJulia ? pixel : initVal) : lastZValue;
+
+        BigComplex c = isJulia ? new BigComplex(seed) : pixel;
+
         BigComplex zold = iterations == 0 ? new BigComplex() : secondTolastZValue;
         BigComplex zold2 = iterations == 0 ? new BigComplex() : thirdTolastZValue;
-        BigComplex start = z;
-        BigComplex c0 = pixel;
-
-        Apfloat point25 = new MyApfloat(0.25);
-        Apfloat point5 = new MyApfloat(0.5);
+        BigComplex start = isJulia ? pixel : initVal;
+        BigComplex c0 = c;
 
         Location loc = new Location();
 
         refPoint = pixel;
         refPointSmall = refPoint.toComplex();
 
+        C = c.toComplex();
+
         if(deepZoom) {
             refPointSmallDeep = loc.getMantExpComplex(refPoint);
+            Cdeep = loc.getMantExpComplex(c);
         }
 
         boolean fullReference = ThreadDraw.CALCULATE_FULL_REFERENCE;
@@ -225,20 +240,41 @@ public class Lambda extends Julia {
 
             Reference[iterations] = cz;
 
+            BigComplex zsubcp = isJulia ? z.sub(refPoint) : z.sub(initVal);
+            ReferenceSubCp[iterations] = zsubcp.toComplex();
+
+            BigComplex preCalc = z.times(MyApfloat.TWO).sub(MyApfloat.ONE); //2*Z-1 for catastrophic cancelation
+            PrecalculatedTerms[iterations] = preCalc.toComplex();
+
+            if(deepZoom) {
+                ReferenceSubCpDeep[iterations] = loc.getMantExpComplex(zsubcp);
+                PrecalculatedTermsDeep[iterations] = loc.getMantExpComplex(preCalc);
+            }
+
             if(deepZoom) {
                 ReferenceDeep[iterations] = loc.getMantExpComplex(z);
                 //ReferenceDeep[iterations] = new MantExpComplex(Reference[iterations]);
             }
 
-            if (!fullReference && iterations > 0 && bailout_algorithm.escaped(z, zold, zold2, iterations, c, start, c0, Apfloat.ZERO)) {
+            if (!fullReference && iterations > 0 && bailout_algorithm.escaped(z, zold, zold2, iterations, c, start, c0, Apfloat.ZERO, pixel)) {
                 break;
             }
 
             zold2 = zold;
             zold = z;
 
-            z = c.times(z.square().negative().plus(point25)).sub(point5);
-            //z = z.square().plus(c.times(point5)).sub(c.square().times(point25));
+            try {
+                z = z.times(c).times(z.r_sub(MyApfloat.ONE));
+                //z = c.times(z.square().negative().plus(point25)).sub(point5);
+            }
+            catch (Exception ex) {
+                break;
+            }
+
+            if(progress != null && iterations % 1000 == 0) {
+                progress.setValue(iterations - initIterations);
+                progress.setString(REFERENCE_CALCULATION_STR + " " + String.format("%3d",(int) ((double) (iterations - initIterations) / progress.getMaximum() * 100)) + "%");
+            }
 
         }
 
@@ -249,76 +285,86 @@ public class Lambda extends Julia {
         MaxRefIteration = iterations - 1;
 
         skippedIterations = 0;
+
+        if(progress != null) {
+            progress.setValue(progress.getMaximum());
+            progress.setString(REFERENCE_CALCULATION_STR + " 100%");
+        }
     }
 
-    //Affine conjugation
-    //f(z+CP) - CP
-    //z = c*(-z^2+0.25) - 0.5 with critical point at 0
-    //Pertubation function: Dn+1 = -D0*(Dn^2 + 2DnXn + Xn^2 - 0.25) -X0(Dn^2 + 2DnXn)
-    // -(C + c)*z^2 + (-1.0*Z^2 + 0.25)*c - 2*(C*Z + Z*c)*z
 
-    //Alternative
-    //
-    //z = z^2 + 0.5*c - 0.25*c^2 with critical point at 0
-    //Pertubation function: Dn+1 = Dn^2 + 2DnXn + (1 - 0.5D0 - X0)*0.5D0
-
+    //(-z^2 - (2*Z - 1)*z)*C + (-z^2 - Z^2 + Z - (2*Z-1)*z) * c
     @Override
     public Complex perturbationFunction(Complex DeltaSubN, Complex DeltaSub0, int RefIteration) {
 
-        Complex X = Reference[RefIteration];
+        /*Complex X = Reference[RefIteration];
 
         Complex DnSqrPlustwoDnXn = DeltaSubN.square().plus_mutable(DeltaSubN.times(2).times_mutable(X));
 
         return DeltaSub0.negative().times(DnSqrPlustwoDnXn.plus(X.square()).sub_mutable(0.25))
-                .sub_mutable(refPointSmall.times(DnSqrPlustwoDnXn));
+                .sub_mutable(refPointSmall.times(DnSqrPlustwoDnXn));*/
+
+        Complex Z = Reference[RefIteration];
+        Complex c = DeltaSub0;
+        Complex z = DeltaSubN;
+
+        Complex temp = z.square().plus_mutable(PrecalculatedTerms[RefIteration].times(z)).negative_mutable();
+
+        return temp.times(C).plus_mutable(Z.sub(Z.square()).plus_mutable(temp).times_mutable(c));
 
 
-        /*Complex DeltaSub0point5 = DeltaSub0.times(0.5);
 
-        return DeltaSubN.square().plus_mutable(DeltaSubN.times(2).times_mutable(X)).plus_mutable(DeltaSub0point5.times(DeltaSub0point5.negative().plus_mutable(1).sub_mutable(refPointSmall)));
-*/
     }
 
     @Override
     public MantExpComplex perturbationFunction(MantExpComplex DeltaSubN, MantExpComplex DeltaSub0, int RefIteration) {
 
-        MantExpComplex X = ReferenceDeep[RefIteration];
+        MantExpComplex Z = ReferenceDeep[RefIteration];
+        MantExpComplex c = DeltaSub0;
+        MantExpComplex z = DeltaSubN;
 
-        MantExpComplex DnSqrPlustwoDnXn = DeltaSubN.square().plus_mutable(DeltaSubN.times2().times_mutable(X));
+        MantExpComplex temp = z.square().plus_mutable(PrecalculatedTermsDeep[RefIteration].times(z)).negative_mutable();
 
-        return DeltaSub0.negative().times(DnSqrPlustwoDnXn.plus(X.square()).sub_mutable(MantExp.POINTTWOFIVE))
-                .sub_mutable(refPointSmallDeep.times(DnSqrPlustwoDnXn));
+        return temp.times(Cdeep).plus_mutable(Z.sub(Z.square()).plus_mutable(temp).times_mutable(c));
     }
 
     @Override
     public Complex perturbationFunction(Complex DeltaSubN, int RefIteration) {
 
-        Complex X = Reference[RefIteration];
+        Complex z = DeltaSubN;
 
-        Complex DnSqrPlustwoDnXn = DeltaSubN.square().plus_mutable(DeltaSubN.times(2).times_mutable(X));
+        Complex temp = z.square().plus_mutable(PrecalculatedTerms[RefIteration].times(z)).negative_mutable();
 
-        return refPointSmall.times(DnSqrPlustwoDnXn);
+        return temp.times(C);
     }
 
-    //Unconjugate the values
     @Override
-    public double iterateFractalWithPerturbationWithoutPeriodicity(Complex[] complex, Complex pixel) {
+    public MantExpComplex perturbationFunction(MantExpComplex DeltaSubN, int RefIteration) {
+
+        MantExpComplex z = DeltaSubN;
+
+        MantExpComplex temp = z.square().plus_mutable(PrecalculatedTermsDeep[RefIteration].times(z)).negative_mutable();
+
+        return temp.times(Cdeep);
+    }
+
+
+
+    @Override
+    public double iterateFractalWithPerturbationWithoutPeriodicity(Complex[] complex, Complex dpixel) {
 
         iterations = skippedIterations;
 
-        Complex DeltaSubN = new Complex(complex[0]); // Delta z
-
-        if(skippedIterations != 0) {
-
-            DeltaSubN = (Complex) initializeFromSeries(pixel);
-
-        }
+        Complex[] deltas = initializePerturbation(dpixel);
+        Complex DeltaSubN = deltas[0]; // Delta z
+        Complex DeltaSub0 = deltas[1]; // Delta c
 
         int RefIteration = iterations;
 
-        Complex DeltaSub0 = new Complex(pixel); // Delta c
 
         Complex zWithoutInitVal = new Complex();
+
+        Complex pixel = dpixel.plus(refPointSmall);
 
         for (; iterations < max_iterations; iterations++) {
 
@@ -328,16 +374,16 @@ public class Lambda extends Julia {
                 trap.check(complex[0], iterations);
             }
 
-            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, 0.0)) {
+            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, 0.0, pixel)) {
                 escaped = true;
 
-                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0};
+                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0, pixel};
                 double res = out_color_algorithm.getResult(object);
 
                 res = getFinalValueOut(res);
 
                 if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0);
+                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
                 }
 
                 return res;
@@ -353,8 +399,8 @@ public class Lambda extends Julia {
             //No Plane influence work
             //No Pre filters work
             if(max_iterations > 1){
-                zWithoutInitVal = Reference[RefIteration].plus(DeltaSubN);
-                complex[0] = zWithoutInitVal.plus(defaultInitVal); //unconjugate
+                zWithoutInitVal = ReferenceSubCp[RefIteration].plus(DeltaSubN);
+                complex[0] = Reference[RefIteration].plus(DeltaSubN);
             }
             //No Post filters work
 
@@ -369,42 +415,37 @@ public class Lambda extends Julia {
 
         }
 
-        Object[] object = {complex[0], zold, zold2, complex[1], start, c0};
+        Object[] object = {complex[0], zold, zold2, complex[1], start, c0, pixel};
         double in = in_color_algorithm.getResult(object);
 
         in = getFinalValueIn(in);
 
         if (inTrueColorAlgorithm != null) {
-            setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start, c0);
+            setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
         }
 
         return in;
 
     }
 
-    //Unconjugate the values
     @Override
-    public double iterateFractalWithPerturbationWithoutPeriodicity(Complex[] complex, MantExpComplex pixel) {
+    public double iterateFractalWithPerturbationWithoutPeriodicity(Complex[] complex, MantExpComplex dpixel) {
 
         iterations = skippedIterations;
 
-        MantExpComplex DeltaSubN = new MantExpComplex(); // Delta z
-
-        if(skippedIterations != 0) {
-
-            DeltaSubN = (MantExpComplex) initializeFromSeries(pixel);
-
-        }
+        MantExpComplex[] deltas = initializePerturbation(dpixel);
+        MantExpComplex DeltaSubN = deltas[0]; // Delta z
+        MantExpComplex DeltaSub0 = deltas[1]; // Delta c
 
         int RefIteration = iterations;
-
-        MantExpComplex DeltaSub0 = new MantExpComplex(pixel); // Delta c
 
         int minExp = -1000;
         int reducedExp = minExp / (int)power;
 
         DeltaSubN.Reduce();
         long exp = DeltaSubN.getExp();
+
+        Complex pixel = dpixel.plus(refPointSmallDeep).toComplex();
 
         if(ThreadDraw.USE_FULL_FLOATEXP_FOR_DEEP_ZOOM || (skippedIterations == 0 && exp <= minExp) || (skippedIterations != 0 && exp <= reducedExp)) {
             MantExpComplex z = new MantExpComplex();
@@ -413,16 +454,16 @@ public class Lambda extends Julia {
                     trap.check(complex[0], iterations);
                 }
 
-                if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, 0.0)) {
+                if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, 0.0, pixel)) {
                     escaped = true;
 
-                    Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0};
+                    Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0, pixel};
                     double res = out_color_algorithm.getResult(object);
 
                     res = getFinalValueOut(res);
 
                     if (outTrueColorAlgorithm != null) {
-                        setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0);
+                        setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
                     }
 
                     return res;
@@ -436,8 +477,8 @@ public class Lambda extends Julia {
                 zold.assign(complex[0]);
 
                 if (max_iterations > 1) {
-                    z = ReferenceDeep[RefIteration].plus(DeltaSubN);
-                    complex[0] = z.toComplex().plus_mutable(defaultInitVal); //unconjucate
+                    z = ReferenceSubCpDeep[RefIteration].plus(DeltaSubN);
+                    complex[0] = ReferenceDeep[RefIteration].plus(DeltaSubN).toComplex();
                 }
 
                 if (statistic != null) {
@@ -475,16 +516,16 @@ public class Lambda extends Julia {
                     trap.check(complex[0], iterations);
                 }
 
-                if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, 0.0)) {
+                if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, 0.0, pixel)) {
                     escaped = true;
 
-                    Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0};
+                    Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0, pixel};
                     double res = out_color_algorithm.getResult(object);
 
                     res = getFinalValueOut(res);
 
                     if (outTrueColorAlgorithm != null) {
-                        setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0);
+                        setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
                     }
 
                     return res;
@@ -504,8 +545,8 @@ public class Lambda extends Julia {
                 //No Plane influence work
                 //No Pre filters work
                 if (max_iterations > 1) {
-                    zWithoutInitVal = Reference[RefIteration].plus(CDeltaSubN);
-                    complex[0] = zWithoutInitVal.plus(defaultInitVal); //unconjugate
+                    zWithoutInitVal = ReferenceSubCp[RefIteration].plus(CDeltaSubN);
+                    complex[0] = Reference[RefIteration].plus(CDeltaSubN);
                 }
                 //No Post filters work
 
@@ -521,17 +562,45 @@ public class Lambda extends Julia {
             }
         }
 
-        Object[] object = {complex[0], zold, zold2, complex[1], start, c0};
+        Object[] object = {complex[0], zold, zold2, complex[1], start, c0, pixel};
         double in = in_color_algorithm.getResult(object);
 
         in = getFinalValueIn(in);
 
         if (inTrueColorAlgorithm != null) {
-            setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start, c0);
+            setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
         }
 
         return in;
 
     }
 
+    public static void main(String[] args) {
+        Lambda a = new Lambda();
+
+        Reference = new Complex[2];
+        Reference[0] = new Complex();
+        Reference[1] = new Complex(0.32, 7.321);
+        ReferenceDeep = new MantExpComplex[2];
+        ReferenceDeep[0] = new MantExpComplex(Reference[0]);
+        ReferenceDeep[1] = new MantExpComplex(Reference[1]);
+
+        refPointSmall = new Complex(0.4, 0.0002);
+        refPointSmallDeep = new MantExpComplex(refPointSmall);
+
+        Complex Dn = new Complex(1.321, -4.21);
+        Complex D0 = new Complex();
+        MantExpComplex MDn = new MantExpComplex(Dn);
+        MantExpComplex MD0 = new MantExpComplex(D0);
+
+        Complex nzD0 = new Complex(-0.5, 1.4);
+        MantExpComplex nzMD0 = new MantExpComplex(nzD0);
+
+        System.out.println(a.perturbationFunction(Dn, D0, 1));
+        System.out.println(a.perturbationFunction(Dn, 1));
+        System.out.println(a.perturbationFunction(MDn, MD0, 1));
+        System.out.println("Non Zero D0");
+        System.out.println(a.perturbationFunction(Dn, nzD0, 1));
+        System.out.println(a.perturbationFunction(MDn, nzMD0, 1));
+    }
 }

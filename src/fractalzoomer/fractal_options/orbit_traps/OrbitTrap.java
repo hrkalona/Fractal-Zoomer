@@ -18,6 +18,7 @@ package fractalzoomer.fractal_options.orbit_traps;
 
 import fractalzoomer.core.Complex;
 
+
 /**
  *
  * @author hrkalona2
@@ -34,13 +35,15 @@ public abstract class OrbitTrap {
     protected Complex trappedPoint;
     protected boolean trapped;
     protected boolean countTrapIterations;
+    protected int checkType;
     
-    public OrbitTrap(double pointRe, double pointIm, double trapLength, double trapWidth, boolean countTrapIterations) {
+    public OrbitTrap(int checkType, double pointRe, double pointIm, double trapLength, double trapWidth, boolean countTrapIterations) {
         
         point = new Complex(pointRe, pointIm);
         this.trapLength = trapLength;
         this.trapWidth = trapWidth;
         this.countTrapIterations = countTrapIterations;
+        this.checkType = checkType;
         
     }
     

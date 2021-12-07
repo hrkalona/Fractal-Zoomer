@@ -18,6 +18,8 @@ package fractalzoomer.fractal_options.orbit_traps;
 
 import fractalzoomer.core.Complex;
 
+import static fractalzoomer.main.Constants.*;
+
 /**
  *
  * @author hrkalona2
@@ -26,9 +28,9 @@ public class GoldenRatioSpiralNNormOrbitTrap extends OrbitTrap {
     private double phi;
     private double n_norm;
 
-    public GoldenRatioSpiralNNormOrbitTrap(double pointRe, double pointIm, double trapLength, double trapWidth, double n_norm, boolean countTrapIterations) {
+    public GoldenRatioSpiralNNormOrbitTrap(int checkType, double pointRe, double pointIm, double trapLength, double trapWidth, double n_norm, boolean countTrapIterations) {
 
-        super(pointRe, pointIm, trapLength, trapWidth, countTrapIterations);
+        super(checkType, pointRe, pointIm, trapLength, trapWidth, countTrapIterations);
         phi = 0.5 * (1 + Math.sqrt(5));
         this.n_norm = n_norm;
 
@@ -37,13 +39,17 @@ public class GoldenRatioSpiralNNormOrbitTrap extends OrbitTrap {
     @Override
     public void check(Complex val, int iteration) {
 
+        if(checkType == TRAP_CHECK_TYPE_TRAPPED_FIRST && trapped) {
+            return;
+        }
+
         Complex temp = val.sub(point);
 
-        if(!trapped) {
+        {
             double dist = Math.log(temp.norm()) / (4 * Math.log(phi)) - (temp.arg()) / (2 * Math.PI);
             dist = 18 * Math.abs(dist - Math.round(dist));
 
-            if (dist < trapWidth && dist < distance) {
+            if (dist < trapWidth && (checkType == TRAP_CHECK_TYPE_TRAPPED_FIRST || checkType == TRAP_CHECK_TYPE_TRAPPED_LAST ||  checkType == TRAP_CHECK_TYPE_TRAPPED_MIN_DISTANCE && dist < distance)) {
                 distance = dist;
                 trapId = 0;
                 setTrappedData(val, iteration);
@@ -52,7 +58,7 @@ public class GoldenRatioSpiralNNormOrbitTrap extends OrbitTrap {
         
         double dist = Math.abs(temp.nnorm(n_norm) - trapLength);
 
-        if(dist < trapWidth && dist < distance) {
+        if(dist < trapWidth && (checkType == TRAP_CHECK_TYPE_TRAPPED_FIRST || checkType == TRAP_CHECK_TYPE_TRAPPED_LAST ||  checkType == TRAP_CHECK_TYPE_TRAPPED_MIN_DISTANCE && dist < distance)) {
             distance = dist;
             trapId = 1;
             setTrappedData(val, iteration);

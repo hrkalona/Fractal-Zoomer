@@ -26,15 +26,18 @@ import fractalzoomer.fractal_options.initial_value.InitialValue;
 import fractalzoomer.fractal_options.initial_value.VariableConditionalInitialValue;
 import fractalzoomer.fractal_options.initial_value.VariableInitialValue;
 import fractalzoomer.fractal_options.perturbation.DefaultPerturbation;
-import fractalzoomer.fractal_options.perturbation.Perturbation;
-import fractalzoomer.fractal_options.perturbation.VariableConditionalPerturbation;
-import fractalzoomer.fractal_options.perturbation.VariablePerturbation;
 import fractalzoomer.functions.Julia;
+import fractalzoomer.main.Constants;
+import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
 import fractalzoomer.main.app_settings.StatisticsSettings;
 import org.apfloat.Apfloat;
 
+import javax.swing.*;
 import java.util.ArrayList;
+
+import static fractalzoomer.main.Constants.REFERENCE_CALCULATION_STR;
+import static fractalzoomer.main.Constants.SA_CALCULATION_STR;
 
 /**
  *
@@ -44,6 +47,11 @@ public class MandelbrotFifth extends Julia {
 
     private MandelVariation type;
     private MandelVariation type2;
+
+    public MandelbrotFifth(boolean burning_ship) {
+        super();
+        this.burning_ship = burning_ship;
+    }
 
     public MandelbrotFifth(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, OrbitTrapSettings ots, StatisticsSettings sts) {
 
@@ -67,22 +75,7 @@ public class MandelbrotFifth extends Julia {
             type2 = new NormalMandel();
         }
 
-        if(perturbation) {
-            if(variable_perturbation) {
-                if(user_perturbation_algorithm == 0) {
-                    pertur_val = new VariablePerturbation(perturbation_user_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
-                }
-                else {
-                    pertur_val = new VariableConditionalPerturbation(user_perturbation_conditions, user_perturbation_condition_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
-                }
-            }
-            else {
-                pertur_val = new Perturbation(perturbation_vals[0], perturbation_vals[1]);
-            }
-        }
-        else {
-            pertur_val = new DefaultPerturbation();
-        }
+        setPertubationOption(perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, perturbation_user_formula, user_perturbation_conditions, user_perturbation_condition_formula, plane_transform_center);
 
         if(init_value) {
             if(variable_init_value) {
@@ -167,22 +160,7 @@ public class MandelbrotFifth extends Julia {
             type2 = new NormalMandel();
         }
 
-        if(perturbation) {
-            if(variable_perturbation) {
-                if(user_perturbation_algorithm == 0) {
-                    pertur_val = new VariablePerturbation(perturbation_user_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
-                }
-                else {
-                    pertur_val = new VariableConditionalPerturbation(user_perturbation_conditions, user_perturbation_condition_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
-                }
-            }
-            else {
-                pertur_val = new Perturbation(perturbation_vals[0], perturbation_vals[1]);
-            }
-        }
-        else {
-            pertur_val = new DefaultPerturbation();
-        }
+        setPertubationOption(perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, perturbation_user_formula, user_perturbation_conditions, user_perturbation_condition_formula, plane_transform_center);
 
         if(init_value) {
             if(variable_init_value) {
@@ -241,42 +219,79 @@ public class MandelbrotFifth extends Julia {
 
     @Override
     public boolean supportsPerturbationTheory() {
-        return true;
+        if(isJuliaMap) {
+            return false;
+        }
+        return !isJulia || (isJulia && !juliter);
     }
 
     @Override
-    public void calculateReferencePoint(BigComplex pixel, Apfloat size, boolean deepZoom, int iterations, Location externalLocation) {
+    public void calculateReferencePoint(BigComplex pixel, Apfloat size, boolean deepZoom, int iterations, Location externalLocation, JProgressBar progress) {
 
-        if(iterations == 0) {
+        int initIterations = iterations;
+
+        if(progress != null) {
+            progress.setMaximum(max_iterations - initIterations);
+            progress.setValue(0);
+            progress.setForeground(MainWindow.progress_ref_color);
+            progress.setString(REFERENCE_CALCULATION_STR + " " + String.format("%3d", 0) + "%");
+        }
+
+        if (iterations == 0) {
             Reference = new Complex[max_iterations];
+
+            if(isJulia) {
+                ReferenceSubCp = new Complex[max_iterations];
+            }
 
             if (deepZoom) {
                 ReferenceDeep = new MantExpComplex[max_iterations];
+
+                if(isJulia) {
+                    ReferenceSubCpDeep = new MantExpComplex[max_iterations];
+                }
+
             }
-        }
-        else if (max_iterations > Reference.length){
+        } else if (max_iterations > Reference.length) {
             Reference = copyReference(Reference, new Complex[max_iterations]);
 
+            if(isJulia) {
+                ReferenceSubCp = copyReference(ReferenceSubCp, new Complex[max_iterations]);
+            }
+
             if (deepZoom) {
-                ReferenceDeep = copyDeepReference(ReferenceDeep,  new MantExpComplex[max_iterations]);
+                ReferenceDeep = copyDeepReference(ReferenceDeep, new MantExpComplex[max_iterations]);
+
+                if(isJulia) {
+                    ReferenceSubCpDeep = copyDeepReference(ReferenceSubCpDeep, new MantExpComplex[max_iterations]);
+                }
+
             }
         }
 
-        BigComplex z = iterations == 0 ? new BigComplex() : lastZValue;
-        BigComplex c = pixel;
+        BigComplex z = iterations == 0 ? (isJulia ? pixel : new BigComplex()) : lastZValue;
+
+        BigComplex c = isJulia ? new BigComplex(seed) : pixel;
+
         BigComplex zold = iterations == 0 ? new BigComplex() : secondTolastZValue;
         BigComplex zold2 = iterations == 0 ? new BigComplex() : thirdTolastZValue;
-        BigComplex start = z;
-        BigComplex c0 = pixel;
+        BigComplex start = isJulia ? pixel : new BigComplex();
+        BigComplex c0 = c;
+
+        Location loc = new Location();
 
         refPoint = pixel;
 
+        refPointSmall = pixel.toComplex();
+
+        if(deepZoom) {
+            refPointSmallDeep = loc.getMantExpComplex(refPoint);
+        }
+
         boolean fullReference = ThreadDraw.CALCULATE_FULL_REFERENCE;
-        boolean isSeriesInUse = ThreadDraw.SERIES_APPROXIMATION && !burning_ship;
+        boolean isSeriesInUse = ThreadDraw.SERIES_APPROXIMATION && supportsSeriesApproximation();
         RefType = getRefType();
         FullRef = fullReference;
-
-        Location loc = new Location();
 
         for (; iterations < max_iterations; iterations++) {
 
@@ -287,23 +302,44 @@ public class MandelbrotFifth extends Julia {
 
             Reference[iterations] = cz;
 
+            if(isJulia) {
+                BigComplex zsubcp = z.sub(refPoint);
+                ReferenceSubCp[iterations] = zsubcp.toComplex();
+
+                if(deepZoom) {
+                    ReferenceSubCpDeep[iterations] = loc.getMantExpComplex(zsubcp);
+                }
+            }
+
             if(deepZoom) {
                 ReferenceDeep[iterations] = loc.getMantExpComplex(z);
                 //ReferenceDeep[iterations] = new MantExpComplex(Reference[iterations]);
             }
 
 
-            if (!fullReference && iterations > 0 && bailout_algorithm.escaped(z, zold, zold2, iterations, c, start, c0, Apfloat.ZERO)) {
+            if (!fullReference && iterations > 0 && bailout_algorithm.escaped(z, zold, zold2, iterations, c, start, c0, Apfloat.ZERO, pixel)) {
                 break;
             }
 
             zold2 = zold;
             zold = z;
 
-            if (burning_ship) {
-                z = z.abs().fifth().plus(c);
-            } else {
-                z = z.fifth().plus(c);
+            try {
+
+                if (burning_ship) {
+                    z = z.abs().fifth().plus(c);
+                } else {
+                    z = z.fifth().plus(c);
+                }
+
+            }
+            catch (Exception ex) {
+                break;
+            }
+
+            if(progress != null && iterations % 1000 == 0) {
+                progress.setValue(iterations - initIterations);
+                progress.setString(REFERENCE_CALCULATION_STR + " " + String.format("%3d",(int) ((double) (iterations - initIterations) / progress.getMaximum() * 100)) + "%");
             }
 
         }
@@ -314,9 +350,14 @@ public class MandelbrotFifth extends Julia {
 
         MaxRefIteration = iterations - 1;
 
+        if(progress != null) {
+            progress.setValue(progress.getMaximum());
+            progress.setString(REFERENCE_CALCULATION_STR + " 100%");
+        }
+
         skippedIterations = 0;
         if(isSeriesInUse) {
-            calculateSeries(size, deepZoom, externalLocation);
+            calculateSeriesWrapper(size, deepZoom, externalLocation, progress);
         }
 
     }
@@ -507,7 +548,87 @@ public class MandelbrotFifth extends Julia {
     }
 
     @Override
-    public void calculateSeries(Apfloat dsize, boolean deepZoom, Location loc) {
+    public MantExpComplex perturbationFunction(MantExpComplex DeltaSubN, int RefIteration) {
+
+        MantExpComplex X = ReferenceDeep[RefIteration];
+
+        if(burning_ship) {
+            MantExp r = X.getRe();
+            MantExp i = X.getIm();
+            MantExp a = DeltaSubN.getRe();
+            MantExp b = DeltaSubN.getIm();
+            MantExp r2 = r.multiply(r);
+            MantExp i2 = i.multiply(i);
+            MantExp a2 = a.multiply(a);
+            MantExp b2 = b.multiply(b);
+            MantExp ra = r.multiply(a);
+            MantExp ib = i.multiply(b);
+
+            MantExp b2b2 = b2.multiply(b2);
+            MantExp r2r2 = r2.multiply(r2);
+            MantExp r2i2 = r2.multiply(i2);
+            MantExp i2i2 = i2.multiply(i2);
+            MantExp r2ra = r2.multiply(ra);
+            MantExp r2a2 = r2.multiply(a2);
+            MantExp raa2 = ra.multiply(a2);
+            MantExp a2a2 = a2.multiply(a2);
+            MantExp i2ib = i2.multiply(ib);
+            MantExp i2b2 = i2.multiply(b2);
+            MantExp ibb2 = ib.multiply(b2);
+
+
+            MantExp temp = r2.multiply(ib).multiply_mutable(MantExp.TWENTY)
+                    .add_mutable(r2.multiply(b2).multiply_mutable(MantExp.TEN))
+                    .add_mutable(ra.multiply(i2).multiply_mutable(MantExp.TWENTY))
+                    .add_mutable(ra.multiply(ib).multiply_mutable(MantExp.FOURTY))
+                    .add_mutable(ra.multiply(b2).multiply_mutable(MantExp.TWENTY))
+                    .add_mutable(a2.multiply(i2).multiply_mutable(MantExp.TEN))
+                    .add_mutable(a2.multiply(ib).multiply_mutable(MantExp.TWENTY))
+                    .add_mutable(a2.multiply(b2).multiply_mutable(MantExp.TEN));
+
+            MantExp Dnr = MantExpComplex.DiffAbs(r, a);
+
+
+            Dnr = Dnr.multiply(r2r2.subtract(r2i2.multiply(MantExp.TEN)).add_mutable(i2i2.multiply(MantExp.FIVE)))
+                    .add_mutable(r.add(a).abs_mutable().multiply_mutable(r2ra.multiply4()
+                            .add_mutable(r2a2.multiply(MantExp.SIX))
+                            .add_mutable(raa2.multiply4())
+                            .add_mutable(a2a2)
+                            .subtract_mutable(temp)
+                            .add_mutable(i2ib.multiply(MantExp.TWENTY))
+                            .add_mutable(i2b2.multiply(MantExp.THIRTY))
+                            .add_mutable(ibb2.multiply(MantExp.TWENTY))
+                            .add_mutable(b2b2.multiply(MantExp.FIVE))
+                    ));
+
+            MantExp Dni = MantExpComplex.DiffAbs(i, b);
+
+
+            Dni = Dni.multiply(r2r2.multiply(MantExp.FIVE).subtract_mutable(r2i2.multiply(MantExp.TEN)).add_mutable(i2i2))
+                    .add_mutable(i.add(b).abs_mutable().multiply_mutable(r2ra.multiply(MantExp.TWENTY)
+                            .add_mutable(r2a2.multiply(MantExp.THIRTY))
+                            .add_mutable(raa2.multiply(MantExp.TWENTY))
+                            .add_mutable(a2a2.multiply(MantExp.FIVE))
+                            .subtract_mutable(temp)
+                            .add_mutable(i2ib.multiply4())
+                            .add_mutable(i2b2.multiply(MantExp.SIX))
+                            .add_mutable(ibb2.multiply4())
+                            .add_mutable(b2b2)
+                    ));
+
+            return new MantExpComplex(Dnr, Dni);
+        }
+        else {
+            return DeltaSubN.times(MantExp.FIVE).times_mutable(X.fourth())
+                    .plus_mutable(DeltaSubN.square().times_mutable(MantExp.TEN).times_mutable(X.cube()))
+                    .plus_mutable(DeltaSubN.cube().times_mutable(MantExp.TEN).times_mutable(X.square()))
+                    .plus_mutable(DeltaSubN.fourth().times_mutable(MantExp.FIVE).times_mutable(X))
+                    .plus_mutable(DeltaSubN.fifth());
+        }
+    }
+
+    @Override
+    protected void calculateSeries(Apfloat dsize, boolean deepZoom, Location loc, JProgressBar progress) {
 
         skippedIterations = 0;
 
@@ -652,6 +773,11 @@ public class MandelbrotFifth extends Julia {
                 return;
             }
 
+            if(progress != null && i % 1000 == 0) {
+                progress.setValue(i);
+                progress.setString(SA_CALCULATION_STR + " " + String.format("%3d",(int) ((double) (i) / progress.getMaximum() * 100)) + "%");
+            }
+
         }
 
         i = length - 1;
@@ -659,7 +785,51 @@ public class MandelbrotFifth extends Julia {
     }
 
     @Override
+    public boolean supportsSeriesApproximation() {
+        return !burning_ship && !isJulia;
+    }
+
+    @Override
     public String getRefType() {
-        return super.getRefType() + (burning_ship ? "-Burning Ship" : "");
+        return super.getRefType() + (burning_ship ? "-Burning Ship" : "") + (isJulia ? "-Julia-" + seed : "");
+    }
+
+    public static void main(String[] args) {
+        MandelbrotFifth a = new MandelbrotFifth(false);
+
+        Reference = new Complex[2];
+        Reference[0] = new Complex();
+        Reference[1] = new Complex(0.32, 7.321);
+        ReferenceDeep = new MantExpComplex[2];
+        ReferenceDeep[0] = new MantExpComplex(Reference[0]);
+        ReferenceDeep[1] = new MantExpComplex(Reference[1]);
+
+        refPointSmall = new Complex(0.4, 0.0002);
+        refPointSmallDeep = new MantExpComplex(refPointSmall);
+
+        Complex Dn = new Complex(1.321, -4.21);
+        Complex D0 = new Complex();
+        MantExpComplex MDn = new MantExpComplex(Dn);
+        MantExpComplex MD0 = new MantExpComplex(D0);
+
+        Complex nzD0 = new Complex(-0.5, 1.4);
+        MantExpComplex nzMD0 = new MantExpComplex(nzD0);
+
+        System.out.println(a.perturbationFunction(Dn, D0, 1));
+        System.out.println(a.perturbationFunction(Dn, 1));
+        System.out.println(a.perturbationFunction(MDn, MD0, 1));
+        System.out.println("Non Zero D0");
+        System.out.println(a.perturbationFunction(Dn, nzD0, 1));
+        System.out.println(a.perturbationFunction(MDn, nzMD0, 1));
+
+        MandelbrotFifth b = new MandelbrotFifth(true);
+
+        System.out.println();
+        System.out.println(b.perturbationFunction(Dn, D0, 1));
+        System.out.println(b.perturbationFunction(Dn, 1));
+        System.out.println(b.perturbationFunction(MDn, MD0, 1));
+        System.out.println("Non Zero D0");
+        System.out.println(b.perturbationFunction(Dn, nzD0, 1));
+        System.out.println(b.perturbationFunction(MDn, nzMD0, 1));
     }
 }

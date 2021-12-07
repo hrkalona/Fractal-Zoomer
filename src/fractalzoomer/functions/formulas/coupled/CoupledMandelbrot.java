@@ -23,9 +23,6 @@ import fractalzoomer.fractal_options.initial_value.InitialValue;
 import fractalzoomer.fractal_options.initial_value.VariableConditionalInitialValue;
 import fractalzoomer.fractal_options.initial_value.VariableInitialValue;
 import fractalzoomer.fractal_options.perturbation.DefaultPerturbation;
-import fractalzoomer.fractal_options.perturbation.Perturbation;
-import fractalzoomer.fractal_options.perturbation.VariableConditionalPerturbation;
-import fractalzoomer.fractal_options.perturbation.VariablePerturbation;
 import fractalzoomer.functions.Julia;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
 import fractalzoomer.main.app_settings.StatisticsSettings;
@@ -46,19 +43,7 @@ public class CoupledMandelbrot extends Julia {
 
         coupler = new SimpleCoupling(0.1);
 
-        if (perturbation) {
-            if (variable_perturbation) {
-                if (user_perturbation_algorithm == 0) {
-                    pertur_val = new VariablePerturbation(perturbation_user_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
-                } else {
-                    pertur_val = new VariableConditionalPerturbation(user_perturbation_conditions, user_perturbation_condition_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
-                }
-            } else {
-                pertur_val = new Perturbation(perturbation_vals[0], perturbation_vals[1]);
-            }
-        } else {
-            pertur_val = new DefaultPerturbation();
-        }
+        setPertubationOption(perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, perturbation_user_formula, user_perturbation_conditions, user_perturbation_condition_formula, plane_transform_center);
 
         if (init_value) {
             if (variable_init_value) {
@@ -108,19 +93,7 @@ public class CoupledMandelbrot extends Julia {
 
         coupler = new SimpleCoupling(0.1);
 
-        if (perturbation) {
-            if (variable_perturbation) {
-                if (user_perturbation_algorithm == 0) {
-                    pertur_val = new VariablePerturbation(perturbation_user_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
-                } else {
-                    pertur_val = new VariableConditionalPerturbation(user_perturbation_conditions, user_perturbation_condition_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
-                }
-            } else {
-                pertur_val = new Perturbation(perturbation_vals[0], perturbation_vals[1]);
-            }
-        } else {
-            pertur_val = new DefaultPerturbation();
-        }
+        setPertubationOption(perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, perturbation_user_formula, user_perturbation_conditions, user_perturbation_condition_formula, plane_transform_center);
 
         if (init_value) {
             if (variable_init_value) {
@@ -180,9 +153,9 @@ public class CoupledMandelbrot extends Julia {
     public Complex[] initializeSeed(Complex pixel) {
 
         Complex[] complex = new Complex[3];
-        complex[0] = new Complex(pixel);//z
+        complex[0] = new Complex(pertur_val.getValue(init_val.getValue(pixel)));//z
         complex[1] = new Complex(seed);//c
-        complex[2] = new Complex(pixel);//z2
+        complex[2] = new Complex(complex[0]);//z2
 
         zold = new Complex();
         zold2 = new Complex();

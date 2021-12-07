@@ -53,11 +53,11 @@ public class PolarLocation extends Location {
 
             Apfloat ddimage_size = new MyApfloat(image_size);
 
-            ddmuly = new MyApfloat(circle_period).multiply(new MyApfloat(2.0)).multiply(MyApfloat.getPi()).divide(ddimage_size);
+            ddmuly = MyApfloat.fp.divide(MyApfloat.fp.multiply(MyApfloat.fp.multiply(new MyApfloat(circle_period), MyApfloat.TWO), MyApfloat.getPi()), ddimage_size);
 
-            ddmulx = ddmuly.multiply(new MyApfloat(height_ratio));
+            ddmulx = MyApfloat.fp.multiply(ddmuly, new MyApfloat(height_ratio));
 
-            ddstart = ddcenter.subtract(ddmulx.multiply(ddimage_size).multiply(new MyApfloat(0.5)));
+            ddstart = MyApfloat.fp.subtract(ddcenter, MyApfloat.fp.multiply(MyApfloat.fp.multiply(ddmulx, ddimage_size), new MyApfloat(0.5)));
 
             rotation = new BigComplex(rotation_vals[0], rotation_vals[1]);
             rot_center = new BigComplex(rotation_center[0], rotation_center[1]);
@@ -93,11 +93,11 @@ public class PolarLocation extends Location {
 
         Apfloat ddimage_size = new MyApfloat(image_size);
 
-        ddmuly = new MyApfloat(circle_period).multiply(new MyApfloat(2.0)).multiply(MyApfloat.getPi()).divide(ddimage_size);
+        ddmuly = MyApfloat.fp.divide(MyApfloat.fp.multiply(MyApfloat.fp.multiply(new MyApfloat(circle_period), MyApfloat.TWO), MyApfloat.getPi()), ddimage_size);
 
-        ddmulx = ddmuly.multiply(new MyApfloat(height_ratio));
+        ddmulx = MyApfloat.fp.multiply(ddmuly, new MyApfloat(height_ratio));
 
-        ddstart = ddcenter.subtract(ddmulx.multiply(ddimage_size).multiply(new MyApfloat(0.5)));
+        ddstart = MyApfloat.fp.subtract(ddcenter, MyApfloat.fp.multiply(MyApfloat.fp.multiply(ddmulx, ddimage_size), new MyApfloat(0.5)));
 
     }
 
@@ -138,13 +138,13 @@ public class PolarLocation extends Location {
     @Override
     public GenericComplex getComplex(int x, int y) {
         if(highPresicion) {
-            Apfloat f = ddmuly.multiply(new MyApfloat(y));
+            Apfloat f = MyApfloat.fp.multiply(ddmuly, new MyApfloat(y));
             temp_ddsf = MyApfloat.fastSin(f);
             temp_ddcf = MyApfloat.fastCos(f);
 
-            temp_ddr = MyApfloat.fastExp(ddmulx.multiply(new MyApfloat(x)).add(ddstart));
+            temp_ddr = MyApfloat.fastExp(MyApfloat.fp.add(MyApfloat.fp.multiply(ddmulx, new MyApfloat(x)), ddstart));
 
-            BigComplex temp = new BigComplex(ddxcenter.add(temp_ddr.multiply(temp_ddcf)), ddycenter.add(temp_ddr.multiply(temp_ddsf)));
+            BigComplex temp = new BigComplex(MyApfloat.fp.add(ddxcenter, MyApfloat.fp.multiply(temp_ddr, temp_ddcf)), MyApfloat.fp.add(ddycenter, MyApfloat.fp.multiply(temp_ddr, temp_ddsf)));
             temp = temp.sub(rot_center);
             temp = temp.times(rotation).plus(rot_center);
 
@@ -167,7 +167,7 @@ public class PolarLocation extends Location {
     public void precalculateY(int y) {
 
         if(highPresicion) {
-            Apfloat f = ddmuly.multiply(new MyApfloat(y));
+            Apfloat f = MyApfloat.fp.multiply(ddmuly, new MyApfloat(y));
             temp_ddsf = MyApfloat.fastSin(f);
             temp_ddcf = MyApfloat.fastCos(f);
         }
@@ -183,7 +183,7 @@ public class PolarLocation extends Location {
     public void precalculateX(int x) {
 
         if(highPresicion) {
-            temp_ddr = MyApfloat.fastExp(ddmulx.multiply(new MyApfloat(x)).add(ddstart));
+            temp_ddr = MyApfloat.fastExp(MyApfloat.fp.add(MyApfloat.fp.multiply(ddmulx, new MyApfloat(x)), ddstart));
         }
         else {
             temp_r = Math.exp(x * mulx + start);
@@ -194,9 +194,9 @@ public class PolarLocation extends Location {
     @Override
     public GenericComplex getComplexWithX(int x) {
         if(highPresicion) {
-            temp_ddr = MyApfloat.fastExp(ddmulx.multiply(new MyApfloat(x)).add(ddstart));
+            temp_ddr = MyApfloat.fastExp(MyApfloat.fp.add(MyApfloat.fp.multiply(ddmulx, new MyApfloat(x)), ddstart));
 
-            BigComplex temp = new BigComplex(ddxcenter.add(temp_ddr.multiply(temp_ddcf)), ddycenter.add(temp_ddr.multiply(temp_ddsf)));
+            BigComplex temp = new BigComplex(MyApfloat.fp.add(ddxcenter, MyApfloat.fp.multiply(temp_ddr, temp_ddcf)), MyApfloat.fp.add(ddycenter, MyApfloat.fp.multiply(temp_ddr, temp_ddsf)));
             temp = temp.sub(rot_center);
             temp = temp.times(rotation).plus(rot_center);
             temp = fractal.getPlaneTransformedPixel(temp);
@@ -211,11 +211,11 @@ public class PolarLocation extends Location {
     @Override
     public GenericComplex getComplexWithY(int y) {
         if(highPresicion) {
-            Apfloat f = ddmuly.multiply(new MyApfloat(y));
+            Apfloat f = MyApfloat.fp.multiply(ddmuly, new MyApfloat(y));
             temp_ddsf = MyApfloat.fastSin(f);
             temp_ddcf = MyApfloat.fastCos(f);
 
-            BigComplex temp = new BigComplex(ddxcenter.add(temp_ddr.multiply(temp_ddcf)), ddycenter.add(temp_ddr.multiply(temp_ddsf)));
+            BigComplex temp = new BigComplex(MyApfloat.fp.add(ddxcenter, MyApfloat.fp.multiply(temp_ddr, temp_ddcf)), MyApfloat.fp.add(ddycenter, MyApfloat.fp.multiply(temp_ddr, temp_ddsf)));
             temp = temp.sub(rot_center);
             temp = temp.times(rotation).plus(rot_center);
             temp = fractal.getPlaneTransformedPixel(temp);
@@ -232,31 +232,30 @@ public class PolarLocation extends Location {
 
     @Override
     public BigPoint getPoint(int x, int y) {
-        Apfloat f = ddmuly.multiply(new MyApfloat(y));
+        Apfloat f = MyApfloat.fp.multiply(ddmuly, new MyApfloat(y));
         Apfloat sf = MyApfloat.sin(f);
         Apfloat cf = MyApfloat.cos(f);
 
-        Apfloat r = MyApfloat.exp(ddmulx.multiply(new MyApfloat(x)).add(ddstart));
+        Apfloat r = MyApfloat.exp(MyApfloat.fp.add(MyApfloat.fp.multiply(ddmulx, new MyApfloat(x)), ddstart));
 
-        return new BigPoint(ddxcenter.add(r.multiply(cf)), ddycenter.add(r.multiply(sf)));
+        return new BigPoint(MyApfloat.fp.add(ddxcenter, MyApfloat.fp.multiply(r, cf)), MyApfloat.fp.add(ddycenter, MyApfloat.fp.multiply(r, sf)));
     }
 
     @Override
     public void createAntialiasingSteps() {
         if(highPresicion) {
             Apfloat point25 = new MyApfloat(0.25);
-            Apfloat two = new MyApfloat(2.0);
 
-            Apfloat ddy_antialiasing_size = ddmuly.multiply(point25);
-            Apfloat ddx_antialiasing_size = ddmulx.multiply(point25);
+            Apfloat ddy_antialiasing_size = MyApfloat.fp.multiply(ddmuly, point25);
+            Apfloat ddx_antialiasing_size = MyApfloat.fp.multiply(ddmulx, point25);
 
             Apfloat exp_x_antialiasing_size = MyApfloat.exp(ddx_antialiasing_size);
             Apfloat exp_inv_x_antialiasing_size = MyApfloat.reciprocal(exp_x_antialiasing_size);
 
-            Apfloat exp_x_antialiasing_size_x2 = exp_x_antialiasing_size.multiply(exp_x_antialiasing_size);
+            Apfloat exp_x_antialiasing_size_x2 = MyApfloat.fp.multiply(exp_x_antialiasing_size, exp_x_antialiasing_size);
             Apfloat exp_inv_x_antialiasing_size_x2 = MyApfloat.reciprocal(exp_x_antialiasing_size_x2);
 
-            Apfloat one = new MyApfloat(1.0);
+            Apfloat one = MyApfloat.ONE;
 
             Apfloat temp_x[] = {exp_inv_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size, exp_inv_x_antialiasing_size,
                     exp_inv_x_antialiasing_size, exp_x_antialiasing_size, one, one,
@@ -271,13 +270,13 @@ public class PolarLocation extends Location {
             Apfloat sin_inv_y_antialiasing_size = sin_y_antialiasing_size.negate();
             Apfloat cos_inv_y_antialiasing_size = cos_y_antialiasing_size;
 
-            Apfloat sin_y_antialiasing_size_x2 = two.multiply(sin_y_antialiasing_size).multiply(cos_y_antialiasing_size);
-            Apfloat cos_y_antialiasing_size_x2 = two.multiply(cos_y_antialiasing_size).multiply(cos_y_antialiasing_size).subtract(one);
+            Apfloat sin_y_antialiasing_size_x2 = MyApfloat.fp.multiply(MyApfloat.fp.multiply(MyApfloat.TWO, sin_y_antialiasing_size), cos_y_antialiasing_size);
+            Apfloat cos_y_antialiasing_size_x2 = MyApfloat.fp.subtract(MyApfloat.fp.multiply(MyApfloat.fp.multiply(MyApfloat.TWO, cos_y_antialiasing_size), cos_y_antialiasing_size), one);
 
             Apfloat sin_inv_y_antialiasing_size_x2 = sin_y_antialiasing_size_x2.negate();
             Apfloat cos_inv_y_antialiasing_size_x2 = cos_y_antialiasing_size_x2;
 
-            Apfloat zero = new MyApfloat(0.0);
+            Apfloat zero = MyApfloat.ZERO;
 
             Apfloat temp_y_sin[] = {sin_inv_y_antialiasing_size, sin_inv_y_antialiasing_size, sin_y_antialiasing_size, sin_y_antialiasing_size,
                     zero, zero, sin_inv_y_antialiasing_size, sin_y_antialiasing_size,
@@ -343,12 +342,12 @@ public class PolarLocation extends Location {
     @Override
     public GenericComplex getAntialiasingComplex(int sample) {
         if(highPresicion) {
-            Apfloat sf2 = temp_ddsf.multiply(ddantialiasing_y_cos[sample]).add(temp_ddcf.multiply(ddantialiasing_y_sin[sample]));
-            Apfloat cf2 = temp_ddcf.multiply(ddantialiasing_y_cos[sample]).subtract(temp_ddsf.multiply(ddantialiasing_y_sin[sample]));
+            Apfloat sf2 = MyApfloat.fp.add(MyApfloat.fp.multiply(temp_ddsf, ddantialiasing_y_cos[sample]), MyApfloat.fp.multiply(temp_ddcf, ddantialiasing_y_sin[sample]));
+            Apfloat cf2 = MyApfloat.fp.subtract(MyApfloat.fp.multiply(temp_ddcf, ddantialiasing_y_cos[sample]), MyApfloat.fp.multiply(temp_ddsf, ddantialiasing_y_sin[sample]));
 
-            Apfloat r2 = temp_ddr.multiply(ddantialiasing_x[sample]);
+            Apfloat r2 = MyApfloat.fp.multiply(temp_ddr, ddantialiasing_x[sample]);
 
-            BigComplex temp = new BigComplex(ddxcenter.add(r2.multiply(cf2)), ddycenter.add(r2.multiply(sf2)));
+            BigComplex temp = new BigComplex(MyApfloat.fp.add(ddxcenter, MyApfloat.fp.multiply(r2, cf2)), MyApfloat.fp.add(ddycenter, MyApfloat.fp.multiply(r2, sf2)));
 
             temp = temp.sub(rot_center);
             temp = temp.times(rotation).plus(rot_center);
@@ -368,13 +367,13 @@ public class PolarLocation extends Location {
     @Override
     public Complex getComplexOrbit(int x, int y) {
         if(highPresicion) {
-            Apfloat f = ddmuly.multiply(new MyApfloat(y));
+            Apfloat f = MyApfloat.fp.multiply(ddmuly, new MyApfloat(y));
             temp_ddsf = MyApfloat.fastSin(f);
             temp_ddcf = MyApfloat.fastCos(f);
 
-            temp_ddr = MyApfloat.fastExp(ddmulx.multiply(new MyApfloat(x)).add(ddstart));
+            temp_ddr = MyApfloat.fastExp(MyApfloat.fp.add(MyApfloat.fp.multiply(ddmulx, new MyApfloat(x)), ddstart));
 
-            BigComplex temp = new BigComplex(ddxcenter.add(temp_ddr.multiply(temp_ddcf)), ddycenter.add(temp_ddr.multiply(temp_ddsf)));
+            BigComplex temp = new BigComplex(MyApfloat.fp.add(ddxcenter, MyApfloat.fp.multiply(temp_ddr, temp_ddcf)), MyApfloat.fp.add(ddycenter, MyApfloat.fp.multiply(temp_ddr, temp_ddsf)));
 
             return temp.toComplex();
         }
@@ -392,7 +391,7 @@ public class PolarLocation extends Location {
     @Override
     public MantExp getSeriesApproxSize() {
         if(highPresicion) {
-            Apfloat end = ddcenter.add(ddmulx.multiply(new MyApfloat(image_size)).multiply(new MyApfloat(0.55))); // add 10% extra
+            Apfloat end = MyApfloat.fp.add(ddcenter, MyApfloat.fp.multiply(MyApfloat.fp.multiply(ddmulx, new MyApfloat(image_size)), new MyApfloat(0.55))); // add 10% extra
             return new MantExp(MyApfloat.fastExp(end));
         }
         else {

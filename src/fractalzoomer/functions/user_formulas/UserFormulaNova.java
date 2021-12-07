@@ -24,9 +24,6 @@ import fractalzoomer.fractal_options.initial_value.InitialValue;
 import fractalzoomer.fractal_options.initial_value.VariableConditionalInitialValue;
 import fractalzoomer.fractal_options.initial_value.VariableInitialValue;
 import fractalzoomer.fractal_options.perturbation.DefaultPerturbation;
-import fractalzoomer.fractal_options.perturbation.Perturbation;
-import fractalzoomer.fractal_options.perturbation.VariableConditionalPerturbation;
-import fractalzoomer.fractal_options.perturbation.VariablePerturbation;
 import fractalzoomer.functions.ExtendedConvergentType;
 import fractalzoomer.functions.root_finding_methods.abbasbandy.AbbasbandyRootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.halley.HalleyRootFindingMethod;
@@ -54,8 +51,6 @@ import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
 import fractalzoomer.main.app_settings.Settings;
 import fractalzoomer.main.app_settings.StatisticsSettings;
-import fractalzoomer.out_coloring_algorithms.ColorDecomposition;
-import fractalzoomer.out_coloring_algorithms.EscapeTimeColorDecomposition;
 import fractalzoomer.parser.ExpressionNode;
 import fractalzoomer.parser.Parser;
 import fractalzoomer.utils.ColorAlgorithm;
@@ -117,21 +112,9 @@ public class UserFormulaNova extends ExtendedConvergentType {
         parserAddend = new Parser();
         exprAddend = parserAddend.parse(user_nova_addend_formula);
 
-        defaultInitVal = new Complex(1, 0);
+        defaultInitVal = new InitialValue(1, 0);
 
-        if (perturbation) {
-            if (variable_perturbation) {
-                if (user_perturbation_algorithm == 0) {
-                    pertur_val = new VariablePerturbation(perturbation_user_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
-                } else {
-                    pertur_val = new VariableConditionalPerturbation(user_perturbation_conditions, user_perturbation_condition_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
-                }
-            } else {
-                pertur_val = new Perturbation(perturbation_vals[0], perturbation_vals[1]);
-            }
-        } else {
-            pertur_val = new DefaultPerturbation();
-        }
+        setPertubationOption(perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, perturbation_user_formula, user_perturbation_conditions, user_perturbation_condition_formula, plane_transform_center);
 
         if (init_value) {
             if (variable_init_value) {
@@ -145,7 +128,7 @@ public class UserFormulaNova extends ExtendedConvergentType {
             }
         } else {
             if(defaultNovaInitialValue) {
-                init_val = new InitialValue(defaultInitVal);
+                init_val = defaultInitVal;
             }
             else {
                 init_val = new DefaultInitialValue();
@@ -204,7 +187,7 @@ public class UserFormulaNova extends ExtendedConvergentType {
         parserAddend = new Parser();
         exprAddend = parserAddend.parse(user_nova_addend_formula);
 
-        defaultInitVal = new Complex(1, 0);
+        defaultInitVal = new InitialValue(1, 0);
 
         switch (out_coloring_algorithm) {
 
@@ -237,7 +220,7 @@ public class UserFormulaNova extends ExtendedConvergentType {
 
         pertur_val = new DefaultPerturbation();
         if(defaultNovaInitialValue) {
-            init_val = new InitialValue(defaultInitVal);
+            init_val = defaultInitVal;
         }
         else {
             init_val = new DefaultInitialValue();
@@ -272,21 +255,9 @@ public class UserFormulaNova extends ExtendedConvergentType {
         parserAddend = new Parser();
         exprAddend = parserAddend.parse(user_nova_addend_formula);
 
-        defaultInitVal = new Complex(1, 0);
+        defaultInitVal = new InitialValue(1, 0);
 
-        if (perturbation) {
-            if (variable_perturbation) {
-                if (user_perturbation_algorithm == 0) {
-                    pertur_val = new VariablePerturbation(perturbation_user_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
-                } else {
-                    pertur_val = new VariableConditionalPerturbation(user_perturbation_conditions, user_perturbation_condition_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
-                }
-            } else {
-                pertur_val = new Perturbation(perturbation_vals[0], perturbation_vals[1]);
-            }
-        } else {
-            pertur_val = new DefaultPerturbation();
-        }
+        setPertubationOption(perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, perturbation_user_formula, user_perturbation_conditions, user_perturbation_condition_formula, plane_transform_center);
 
         if (init_value) {
             if (variable_init_value) {
@@ -300,7 +271,7 @@ public class UserFormulaNova extends ExtendedConvergentType {
             }
         } else {
             if(defaultNovaInitialValue) {
-                init_val = new InitialValue(defaultInitVal);
+                init_val = defaultInitVal;
             }
             else {
                 init_val = new DefaultInitialValue();
@@ -340,11 +311,11 @@ public class UserFormulaNova extends ExtendedConvergentType {
 
         point = new Complex(plane_transform_center[0], plane_transform_center[1]);
 
-        defaultInitVal = new Complex(1, 0);
+        defaultInitVal = new InitialValue(1, 0);
 
         pertur_val = new DefaultPerturbation();
         if(defaultNovaInitialValue) {
-            init_val = new InitialValue(defaultInitVal);
+            init_val = defaultInitVal;
         }
         else {
             init_val = new DefaultInitialValue();
@@ -828,7 +799,7 @@ public class UserFormulaNova extends ExtendedConvergentType {
         start = new Complex(complex[0]);
         c0 = new Complex(complex[1]);
 
-        setInitVariables(start, zold, zold2, c0);
+        setInitVariables(start, zold, zold2, c0, pixel);
 
         initExtra(complex);
 
@@ -840,7 +811,7 @@ public class UserFormulaNova extends ExtendedConvergentType {
     public Complex[] initializeSeed(Complex pixel) {
 
         Complex[] complex = new Complex[6];
-        complex[0] = new Complex(pixel);
+        complex[0] = new Complex(pertur_val.getValue(init_val.getValue(pixel)));//z
         complex[1] = new Complex(seed);//c
         complex[2] = new Complex();
         complex[4] = new Complex(1e-10, 0);
@@ -850,7 +821,7 @@ public class UserFormulaNova extends ExtendedConvergentType {
         start = new Complex(complex[0]);
         c0 = new Complex(complex[1]);
 
-        setInitVariables(start, zold, zold2, c0);
+        setInitVariables(start, zold, zold2, c0, pixel);
 
         initExtra(complex);
 
@@ -902,7 +873,27 @@ public class UserFormulaNova extends ExtendedConvergentType {
 
     }
 
-    private void setInitVariables(Complex start, Complex zold, Complex zold2, Complex c0) {
+    private void setInitVariables(Complex start, Complex zold, Complex zold2, Complex c0, Complex pixel) {
+
+        if (parser.foundPixel()) {
+            parser.setPixelvalue(pixel);
+        }
+
+        if (parser2.foundPixel()) {
+            parser2.setPixelvalue(pixel);
+        }
+
+        if (parser3.foundPixel()) {
+            parser3.setPixelvalue(pixel);
+        }
+
+        if (parserRelaxation.foundPixel()) {
+            parserRelaxation.setPixelvalue(pixel);
+        }
+
+        if (parserAddend.foundPixel()) {
+            parserAddend.setPixelvalue(pixel);
+        }
 
         if (parser.foundS()) {
             parser.setSvalue(start);

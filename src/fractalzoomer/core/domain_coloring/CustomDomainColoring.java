@@ -131,6 +131,9 @@ public class CustomDomainColoring extends DomainColoring {
 
     @Override
     public int getDomainColor(Complex res) {
+
+        res = round(res);
+
         int color = 0xffffffff;
 
         double norm = 0;

@@ -91,7 +91,7 @@ public class UserFunctionFilterDialog extends JDialog {
 
         tabbedPane.addTab("Conditional", panel_cond);
 
-        Object[] labels33 = ptra.createUserFormulaLabels("z, c, s, c0, n, maxn, center, size, sizei, v1 - v30, point");
+        Object[] labels33 = ptra.createUserFormulaLabels("z, c, s, c0, pixel, n, maxn, center, size, sizei, v1 - v30, point");
 
         tabbedPane.setSelectedIndex(ffs.user_function_filter_algorithm);
 

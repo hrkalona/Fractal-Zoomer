@@ -35,7 +35,7 @@ public class BailoutNNormDialog extends JDialog {
     private MainWindow ptra;
     private JOptionPane optionPane;
 
-    public BailoutNNormDialog(MainWindow ptr, Settings s, int oldSelected, JRadioButtonMenuItem[] bailout_tests) {
+    public BailoutNNormDialog(MainWindow ptr, Settings s, int oldSelected, JRadioButtonMenuItem[] bailout_tests, boolean mode) {
 
         super(ptr);
         
@@ -46,12 +46,18 @@ public class BailoutNNormDialog extends JDialog {
         setIconImage(getIcon("/fractalzoomer/icons/mandel2.png").getImage());
 
         JTextField field = new JTextField();
-        field.setText("" + s.fns.n_norm);
+
+        if(mode) {
+            field.setText("" + s.fns.n_norm);
+        }
+        else {
+            field.setText("" + s.fns.cbs.convergent_n_norm);
+        }
         field.addAncestorListener(new RequestFocusListener());
 
         Object[] message3 = {
             " ",
-            "You are using " + s.fns.n_norm + " as the N-Norm.\nEnter the new N-Norm number.",
+            "You are using " + s.fns.cbs.convergent_n_norm + " as the N-Norm.\nEnter the new N-Norm number.",
             field,
             " ",};
 
@@ -86,7 +92,13 @@ public class BailoutNNormDialog extends JDialog {
 
                     if ((Integer) value == JOptionPane.CANCEL_OPTION || (Integer) value == JOptionPane.NO_OPTION || (Integer) value == JOptionPane.CLOSED_OPTION) {
                         bailout_tests[oldSelected].setSelected(true);
-                        s.fns.bailout_test_algorithm = oldSelected;
+
+                        if(mode) {
+                            s.fns.bailout_test_algorithm = oldSelected;
+                        }
+                        else {
+                            s.fns.cbs.convergent_bailout_test_algorithm = oldSelected;
+                        }
                         dispose();
                         return;
                     }
@@ -94,13 +106,19 @@ public class BailoutNNormDialog extends JDialog {
                     try {
                         double temp3 = Double.parseDouble(field.getText());
 
-                        s.fns.n_norm = temp3;
+                        if(mode) {
+                            s.fns.n_norm = temp3;
+                        }
+                        else {
+                            s.fns.cbs.convergent_n_norm  = temp3;
+                        }
                     } catch (ParserException ex) {
                         JOptionPane.showMessageDialog(ptra, ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 
                     dispose();
+
                     ptra.setBailoutTestPost();
                 }
             }

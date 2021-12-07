@@ -40,7 +40,7 @@ public class DomainColoringFrame extends JFrame {
 	private MainWindow ptra2;
     private DomainColoringFrame this_frame;
 
-    public DomainColoringFrame(MainWindow ptra, final Settings s, final boolean options) {
+    public DomainColoringFrame(MainWindow ptra, final Settings s) {
 
         super();
 
@@ -50,14 +50,10 @@ public class DomainColoringFrame extends JFrame {
 
         ptra2.setEnabled(false);
         int custom_palette_window_width = 750;
-        int custom_palette_window_height = 330;
+        int custom_palette_window_height = 390;
         setTitle("Domain Coloring");
-        if(options) {
-            setIconImage(getIcon("/fractalzoomer/icons/domain_coloring_options.png").getImage());
-        }
-        else {
-            setIconImage(getIcon("/fractalzoomer/icons/domain_coloring.png").getImage());
-        }
+        setIconImage(getIcon("/fractalzoomer/icons/domain_coloring.png").getImage());
+
         setSize(custom_palette_window_width, custom_palette_window_height);
         setLocation((int) (ptra2.getLocation().getX() + ptra2.getSize().getWidth() / 2) - (custom_palette_window_width / 2), (int) (ptra2.getLocation().getY() + ptra2.getSize().getHeight() / 2) - (custom_palette_window_height / 2));
 
@@ -66,19 +62,28 @@ public class DomainColoringFrame extends JFrame {
             @Override
             public void windowClosing(WindowEvent e) {
 
-                if(!options) {                  
-                    ptra2.cancelDomainColoring();
-                }
                 ptra2.setEnabled(true);
                 dispose();
 
             }
         });
 
+        final JCheckBox domain_coloring = new JCheckBox("Domain Coloring");
+        domain_coloring.setSelected(s.ds.domain_coloring);
+        domain_coloring.setFocusable(false);
+        domain_coloring.setToolTipText("Enables domain coloring.");
+        domain_coloring.setBackground(MainWindow.bg_color);
+
+        JPanel first_panel = new JPanel();
+        first_panel.setLayout(new FlowLayout(FlowLayout.LEFT));
+        first_panel.setBackground(MainWindow.bg_color);
+
+        first_panel.add(domain_coloring);
+
         JPanel domain_coloring_panel = new JPanel();
 
-        domain_coloring_panel.setPreferredSize(new Dimension(650, 193));
-        domain_coloring_panel.setLayout(new GridLayout(3, 1));
+        domain_coloring_panel.setPreferredSize(new Dimension(650, 253));
+        domain_coloring_panel.setLayout(new GridLayout(4, 1));
         domain_coloring_panel.setBackground(MainWindow.bg_color);
 
         final JTextField iterations_textfield = new JTextField(10);
@@ -220,8 +225,9 @@ public class DomainColoringFrame extends JFrame {
         custom_panel.add(color_domain_algs_opt);
         custom_panel.add(customButton);
         custom_panel.add(custom);
-        
-       
+
+
+        domain_coloring_panel.add(first_panel);
         domain_coloring_panel.add(settings_panel);
         domain_coloring_panel.add(processing_panel);
         domain_coloring_panel.add(custom_panel);
@@ -290,9 +296,7 @@ public class DomainColoringFrame extends JFrame {
                     s.temp_color_cycling_location = s.ps.color_cycling_location;
                 }
 
-                s.ds.domain_coloring = true;
-
-                ptra2.setDomainColoringSettings();
+                ptra2.setDomainColoringSettings(domain_coloring.isSelected());
                 ptra2.setEnabled(true);
                 dispose();
 
@@ -309,9 +313,6 @@ public class DomainColoringFrame extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                if(!options) {                  
-                    ptra2.cancelDomainColoring();
-                }
                 ptra2.setEnabled(true);
                 dispose();
 
@@ -322,7 +323,7 @@ public class DomainColoringFrame extends JFrame {
 
         RoundedPanel round_panel = new RoundedPanel(true, true, true, 15);
         round_panel.setBackground(MainWindow.bg_color);
-        round_panel.setPreferredSize(new Dimension(680, 250));
+        round_panel.setPreferredSize(new Dimension(680, 310));
         round_panel.setLayout(new GridBagLayout());
 
         GridBagConstraints con = new GridBagConstraints();

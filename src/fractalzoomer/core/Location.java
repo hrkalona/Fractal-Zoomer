@@ -2,7 +2,6 @@ package fractalzoomer.core;
 
 import fractalzoomer.functions.Fractal;
 import org.apfloat.Apfloat;
-import org.apfloat.ApfloatMath;
 
 import java.util.HashMap;
 
@@ -34,6 +33,13 @@ public class Location {
 
     public static Location getInstanceForDrawing(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int image_size, double circle_period, Apfloat[] rotation_center, Apfloat[] rotation_vals, Fractal fractal, boolean polar, boolean highPresicion) {
 
+        /*if(polar) {
+            return new PolarLocationArbitrary(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal);
+        }
+        else {
+            return new CartesianLocationArbitrary(xCenter, yCenter, size, height_ratio, image_size, rotation_center, rotation_vals, fractal);
+        }*/
+
         if(polar) {
             if(highPresicion && size.compareTo(MyApfloat.MAX_DOUBLE_SIZE) < 0) {
                 return new PolarLocationDeep(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal);
@@ -62,6 +68,12 @@ public class Location {
         else if(loc instanceof PolarLocationDeep) {
             return new PolarLocationDeep((PolarLocationDeep)loc);
         }
+        else if(loc instanceof CartesianLocationArbitrary) {
+            return new CartesianLocationArbitrary((CartesianLocationArbitrary)loc);
+        }
+        else if(loc instanceof PolarLocationArbitrary) {
+            return new PolarLocationArbitrary((PolarLocationArbitrary)loc);
+        }
         return null;
     }
 
@@ -75,7 +87,7 @@ public class Location {
             exponent = MantExp.MIN_BIG_EXPONENT;
         }
         else {
-            Apfloat exp = new MyApfloat(c.scale() - 1).multiply(MyApfloat.RECIPROCAL_LOG_TWO_BASE_TEN);
+            Apfloat exp = MyApfloat.fp.multiply(new MyApfloat(c.scale() - 1), MyApfloat.RECIPROCAL_LOG_TWO_BASE_TEN);
             long long_exp = 0;
 
             double double_exp = exp.doubleValue();
@@ -92,16 +104,16 @@ public class Location {
             if(twoToExpReciprocal == null) {
 
                 if(double_exp < 0) {
-                    twoToExpReciprocal = ApfloatMath.pow(MyApfloat.TWO, -long_exp);
+                    twoToExpReciprocal = MyApfloat.fp.pow(MyApfloat.TWO, -long_exp);
                 }
                 else {
-                    twoToExpReciprocal = MyApfloat.reciprocal(ApfloatMath.pow(MyApfloat.TWO, long_exp));
+                    twoToExpReciprocal = MyApfloat.reciprocal(MyApfloat.fp.pow(MyApfloat.TWO, long_exp));
                 }
 
                 twoToExpReciprocals.put(long_exp, twoToExpReciprocal);
             }
 
-            mantissa = c.multiply(twoToExpReciprocal).doubleValue();
+            mantissa = MyApfloat.fp.multiply(c, twoToExpReciprocal).doubleValue();
             exponent = long_exp;
         }
 

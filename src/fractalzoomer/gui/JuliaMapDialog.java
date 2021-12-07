@@ -17,6 +17,7 @@
 package fractalzoomer.gui;
 
 import fractalzoomer.main.MainWindow;
+import fractalzoomer.main.app_settings.Settings;
 
 import javax.swing.*;
 import java.awt.event.WindowAdapter;
@@ -33,7 +34,7 @@ public class JuliaMapDialog extends JDialog {
     private MainWindow ptra;
     private JOptionPane optionPane;
 
-    public JuliaMapDialog(MainWindow ptr, int julia_grid_first_dimension, JButton julia_map_button, JCheckBoxMenuItem julia_map_opt, boolean mode) {
+    public JuliaMapDialog(MainWindow ptr, int julia_grid_first_dimension, Settings s) {
 
         super(ptr);
         
@@ -43,12 +44,19 @@ public class JuliaMapDialog extends JDialog {
         setModal(true);
         setIconImage(getIcon("/fractalzoomer/icons/mandel2.png").getImage());
 
+        final JCheckBox julia_map = new JCheckBox("Julia Map");
+        julia_map.setSelected(s.julia_map);
+        julia_map.setFocusable(false);
+        julia_map.setToolTipText("Enables julia map.");
+
         JTextField field = new JTextField();
         field.addAncestorListener(new RequestFocusListener());
         field.setText("" + julia_grid_first_dimension);
 
         Object[] message3 = {
             " ",
+                julia_map,
+                " ",
             "You are using a " + julia_grid_first_dimension + "x" + julia_grid_first_dimension + " grid.\nEnter the first dimension, n,\nof the nxn 2D grid.",
             field,
             " ",};
@@ -83,10 +91,6 @@ public class JuliaMapDialog extends JDialog {
                     optionPane.setValue(JOptionPane.UNINITIALIZED_VALUE);
 
                     if ((Integer) value == JOptionPane.CANCEL_OPTION || (Integer) value == JOptionPane.NO_OPTION || (Integer) value == JOptionPane.CLOSED_OPTION) {
-                        if (mode) {
-                            julia_map_opt.setSelected(false);
-                            julia_map_button.setSelected(false);
-                        }
                         dispose();
                         return;
                     }
@@ -108,11 +112,7 @@ public class JuliaMapDialog extends JDialog {
                     }
 
                     dispose();
-                    if (mode) {
-                        ptr.setJuliaMapPost(temp);
-                    } else {
-                        ptr.setJuliaMapOptionsPost(temp);
-                    }
+                    ptr.setJuliaMapPost(julia_map.isSelected(), temp);
                 }
             }
         });

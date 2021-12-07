@@ -32,12 +32,12 @@ public class ToolsMenu extends JMenu {
 	private MainWindow ptr;
     private JCheckBoxMenuItem orbit_opt;
     private JCheckBoxMenuItem julia_opt;
-    private JCheckBoxMenuItem polar_projection_opt;
-    private JCheckBoxMenuItem d3_opt;
+    private JMenuItem polar_projection_opt;
+    private JMenuItem d3_opt;
     private JCheckBoxMenuItem color_cycling_opt;
-    private JCheckBoxMenuItem julia_map_opt;
-    private JCheckBoxMenuItem juliter_opt;
-    private JCheckBoxMenuItem domain_coloring_opt;
+    private JMenuItem julia_map_opt;
+    private JMenuItem juliter_opt;
+    private JMenuItem domain_coloring_opt;
     private JCheckBoxMenuItem grid_opt;
     private JCheckBoxMenuItem boundaries_opt;
     private JCheckBoxMenuItem zoom_window_opt;
@@ -52,11 +52,11 @@ public class ToolsMenu extends JMenu {
         orbit_opt = new JCheckBoxMenuItem("Orbit", getIcon("/fractalzoomer/icons/orbit.png"));
         julia_opt = new JCheckBoxMenuItem("Julia", getIcon("/fractalzoomer/icons/julia.png"));
         color_cycling_opt = new JCheckBoxMenuItem("Color Cycling", getIcon("/fractalzoomer/icons/color_cycling.png"));
-        d3_opt = new JCheckBoxMenuItem("3D", getIcon("/fractalzoomer/icons/3d.png"));
-        julia_map_opt = new JCheckBoxMenuItem("Julia Map", getIcon("/fractalzoomer/icons/julia_map.png"));
-        juliter_opt = new JCheckBoxMenuItem("Juliter", getIcon("/fractalzoomer/icons/juliter.png"));
-        domain_coloring_opt = new JCheckBoxMenuItem("Domain Coloring", getIcon("/fractalzoomer/icons/domain_coloring.png"));
-        polar_projection_opt = new JCheckBoxMenuItem("Polar Projection", getIcon("/fractalzoomer/icons/polar_projection.png"));
+        d3_opt = new JMenuItem("3D", getIcon("/fractalzoomer/icons/3d.png"));
+        julia_map_opt = new JMenuItem("Julia Map", getIcon("/fractalzoomer/icons/julia_map.png"));
+        juliter_opt = new JMenuItem("Juliter", getIcon("/fractalzoomer/icons/juliter.png"));
+        domain_coloring_opt = new JMenuItem("Domain Coloring", getIcon("/fractalzoomer/icons/domain_coloring.png"));
+        polar_projection_opt = new JMenuItem("Polar Projection", getIcon("/fractalzoomer/icons/polar_projection.png"));
         grid_opt = new JCheckBoxMenuItem("Show Grid", getIcon("/fractalzoomer/icons/grid.png"));
         zoom_window_opt = new JCheckBoxMenuItem("Show Zoom Window", getIcon("/fractalzoomer/icons/zoom_window.png"));
         boundaries_opt = new JCheckBoxMenuItem("Show Boundaries", getIcon("/fractalzoomer/icons/boundaries.png"));
@@ -252,13 +252,13 @@ public class ToolsMenu extends JMenu {
         
     }
     
-    public JCheckBoxMenuItem getJuliaMap() {
+    public JMenuItem getJuliaMap() {
         
         return julia_map_opt;
         
     }
     
-    public JCheckBoxMenuItem getPolarProjection() {
+    public JMenuItem getPolarProjection() {
         
         return polar_projection_opt;
         
@@ -276,7 +276,7 @@ public class ToolsMenu extends JMenu {
         
     }
     
-    public JCheckBoxMenuItem getDomainColoring() {
+    public JMenuItem getDomainColoring() {
         
         return domain_coloring_opt;
         
@@ -294,7 +294,7 @@ public class ToolsMenu extends JMenu {
         
     }
     
-    public JCheckBoxMenuItem get3D() {
+    public JMenuItem get3D() {
         
         return d3_opt;
         
@@ -306,7 +306,7 @@ public class ToolsMenu extends JMenu {
         
     }
 
-    public JCheckBoxMenuItem getJuliter() {
+    public JMenuItem getJuliter() {
 
         return juliter_opt;
 

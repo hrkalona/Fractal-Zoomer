@@ -38,7 +38,7 @@ public class D3Dialog extends JDialog {
     private MainWindow ptra;
     private JOptionPane optionPane;
 
-    public D3Dialog(MainWindow ptr, Settings s, JButton d3_button, JCheckBoxMenuItem d3_opt, boolean mode) {
+    public D3Dialog(MainWindow ptr, Settings s) {
 
         super(ptr);
         
@@ -47,6 +47,11 @@ public class D3Dialog extends JDialog {
         setTitle("3D");
         setModal(true);
         setIconImage(getIcon("/fractalzoomer/icons/mandel2.png").getImage());
+
+        final JCheckBox d3 = new JCheckBox("3D");
+        d3.setSelected(s.d3s.d3);
+        d3.setFocusable(false);
+        d3.setToolTipText("Enables the 3D rendering.");
 
         JTextField field = new JTextField();
         field.setText("" + s.d3s.detail);
@@ -273,6 +278,9 @@ public class D3Dialog extends JDialog {
         });
 
         Object[] message3 = {
+                " ",
+                d3,
+                " ",
             "Set the 3D detail level and size.",
             temp_p2,
             "Set the scale of the height.",
@@ -323,10 +331,6 @@ public class D3Dialog extends JDialog {
                     optionPane.setValue(JOptionPane.UNINITIALIZED_VALUE);
 
                     if ((Integer) value == JOptionPane.CANCEL_OPTION || (Integer) value == JOptionPane.NO_OPTION || (Integer) value == JOptionPane.CLOSED_OPTION) {
-                        if (mode) {
-                            d3_opt.setSelected(false);
-                            d3_button.setSelected(false);
-                        }
                         dispose();
                         return;
                     }
@@ -407,13 +411,7 @@ public class D3Dialog extends JDialog {
                     }
 
                     dispose();
-                    if (mode) {
-                        s.d3s.fiX = 0.64;
-                        s.d3s.fiY = 0.82;
-                        ptra.set3DOptionPost();
-                    } else {
-                        ptra.set3DDetailsPost();
-                    }
+                    ptra.set3DOptionPost(d3.isSelected());
                 }
             }
         });

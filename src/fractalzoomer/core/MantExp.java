@@ -1,12 +1,14 @@
 package fractalzoomer.core;
 
-import org.apfloat.*;
+import org.apfloat.Apfloat;
 
 public class MantExp {
     public static final long MIN_SMALL_EXPONENT = -1023;
     public static final long MIN_BIG_EXPONENT = Long.MIN_VALUE >> 3;
     public static final MantExp ZERO = new MantExp(0, MIN_BIG_EXPONENT);
     public static final MantExp POINTTWOFIVE = new MantExp(0.25);
+    public static final MantExp POINTFIVE = new MantExp(0.5);
+    public static final MantExp ONEPOINTFIVE = new MantExp(1.5);
     public static final MantExp ONE = new MantExp(1.0);
     public static final MantExp TWO = new MantExp(2.0);
     public static final MantExp THREE = new MantExp(3.0);
@@ -15,13 +17,18 @@ public class MantExp {
     public static final MantExp SIX = new MantExp(6.0);
     public static final MantExp SEVEN = new MantExp(7.0);
     public static final MantExp EIGHT = new MantExp(8.0);
+    public static final MantExp NINE = new MantExp(9.0);
     public static final MantExp TEN = new MantExp(10.0);
     public static final MantExp TWELVE = new MantExp(12.0);
     public static final MantExp SIXTEEN = new MantExp(16.0);
+    public static final MantExp EIGHTEEN = new MantExp(18.0);
     public static final MantExp TWENTY = new MantExp(20.0);
     public static final MantExp TWENTYFOUR = new MantExp(24.0);
+    public static final MantExp TWENTYSEVEN = new MantExp(27.0);
     public static final MantExp THIRTY = new MantExp(30.0);
     public static final MantExp FOURTY = new MantExp(40.0);
+    public static final MantExp FIFTYFOUR = new MantExp(54.0);
+    public static final MantExp EIGHTYONE = new MantExp(81.0);
     public static final double LOG_10_2 = Math.log10(2);
     private static final double LN2 = Math.log(2);
     private static final double LN2_REC = 1.0/LN2;
@@ -72,7 +79,7 @@ public class MantExp {
             return;
         }
 
-        Apfloat exp = new MyApfloat(number.scale() - 1).multiply(MyApfloat.RECIPROCAL_LOG_TWO_BASE_TEN);
+        Apfloat exp = MyApfloat.fp.multiply(new MyApfloat(number.scale() - 1), MyApfloat.RECIPROCAL_LOG_TWO_BASE_TEN);
 
         long long_exp = 0;
 
@@ -80,13 +87,13 @@ public class MantExp {
 
         if(double_exp < 0) {
             long_exp = (long)(double_exp - 0.5);
-            Apfloat twoToExp = ApfloatMath.pow(MyApfloat.TWO, -long_exp);
-            mantissa = number.multiply(twoToExp).doubleValue();
+            Apfloat twoToExp = MyApfloat.fp.pow(MyApfloat.TWO, -long_exp);
+            mantissa = MyApfloat.fp.multiply(number, twoToExp).doubleValue();
         }
         else {
             long_exp = (long)(double_exp + 0.5);
-            Apfloat twoToExp = ApfloatMath.pow(MyApfloat.TWO, long_exp);
-            mantissa = number.divide(twoToExp).doubleValue();
+            Apfloat twoToExp = MyApfloat.fp.pow(MyApfloat.TWO, long_exp);
+            mantissa = MyApfloat.fp.divide(number, twoToExp).doubleValue();
         }
 
         this.exp = long_exp;

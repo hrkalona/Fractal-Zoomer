@@ -189,9 +189,9 @@ public class MagneticPendulum extends FractalWithoutConstant {
             zold2.assign(zold);
             zold.assign(complex[0]);
 
-            complex[0] = preFilter.getValue(complex[0], iterations, pixel, start, c0);
+            complex[0] = preFilter.getValue(complex[0], iterations, pixel, start, c0, pixel);
             function(complex);
-            complex[0] = postFilter.getValue(complex[0], iterations, pixel, start, c0);
+            complex[0] = postFilter.getValue(complex[0], iterations, pixel, start, c0, pixel);
 
             if (statistic != null) {
                 statistic.insert(complex[0], zold, zold2, iterations, pixel, start, c0);
@@ -203,14 +203,14 @@ public class MagneticPendulum extends FractalWithoutConstant {
 
         escaped = true;
 
-        Object[] object = {iterations, complex[0], 0, zold, zold2, pixel, start, complex[4], c0};
+        Object[] object = {iterations, complex[0], 0, zold, zold2, pixel, start, c0, pixel, complex[4]};
         iterationData = object;
         double out = out_color_algorithm.getResult(object);
 
         out = getFinalValueOut(out);
 
         if (outTrueColorAlgorithm != null) {
-            setTrueColorOut(complex[0], zold, zold2, iterations, pixel, start, c0);
+            setTrueColorOut(complex[0], zold, zold2, iterations, pixel, start, c0, pixel);
         }
 
         return out;

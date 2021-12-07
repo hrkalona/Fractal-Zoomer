@@ -211,7 +211,7 @@ public class HouseholderFormula extends HouseholderRootFindingMethod {
 
         Complex[] complex = super.initialize(pixel);
 
-        setInitVariables(start, zold, zold2);
+        setInitVariables(start, zold, zold2, pixel);
 
         return complex;
 
@@ -245,7 +245,20 @@ public class HouseholderFormula extends HouseholderRootFindingMethod {
 
     }
 
-    private void setInitVariables(Complex start, Complex zold, Complex zold2) {
+    private void setInitVariables(Complex start, Complex zold, Complex zold2, Complex pixel) {
+
+        if (parser.foundPixel()) {
+            parser.setPixelvalue(pixel);
+        }
+
+        if (parser2.foundPixel()) {
+            parser2.setPixelvalue(pixel);
+        }
+
+        if (parser3.foundPixel()) {
+            parser3.setPixelvalue(pixel);
+        }
+
 
         if (parser.foundS()) {
             parser.setSvalue(start);

@@ -18,6 +18,8 @@ package fractalzoomer.fractal_options.orbit_traps;
 
 import fractalzoomer.core.Complex;
 
+import static fractalzoomer.main.Constants.*;
+
 /**
  *
  * @author hrkalona
@@ -28,9 +30,9 @@ public class StalksPointNNormOrbitTrap extends OrbitTrap {
     private double cnorm;
     private double n_norm;
     
-    public StalksPointNNormOrbitTrap(double pointRe, double pointIm, double trapLength, double trapWidth, double n_norm, boolean countTrapIterations) {
+    public StalksPointNNormOrbitTrap(int checkType, double pointRe, double pointIm, double trapLength, double trapWidth, double n_norm, boolean countTrapIterations) {
         
-        super(pointRe, pointIm, trapLength, trapWidth, countTrapIterations);
+        super(checkType, pointRe, pointIm, trapLength, trapWidth, countTrapIterations);
         this.n_norm = n_norm;
         
     }
@@ -38,9 +40,13 @@ public class StalksPointNNormOrbitTrap extends OrbitTrap {
     @Override
     public void check(Complex val, int iteration) {
 
+        if(checkType == TRAP_CHECK_TYPE_TRAPPED_FIRST && trapped) {
+            return;
+        }
+
         double dist = val.distance(point);
 
-        if (dist <= stalksradiushigh && dist >= stalksradiuslow && iteration > 0) {
+        if (dist <= stalksradiushigh && dist >= stalksradiuslow && iteration > 0 && (checkType == TRAP_CHECK_TYPE_TRAPPED_FIRST || checkType == TRAP_CHECK_TYPE_TRAPPED_LAST ||  checkType == TRAP_CHECK_TYPE_TRAPPED_MIN_DISTANCE && dist < distance)) {
             distance = dist;
             trapId = 0;
             setTrappedData(val, iteration);
@@ -49,7 +55,7 @@ public class StalksPointNNormOrbitTrap extends OrbitTrap {
         Complex temp = val.sub(point);
         dist = temp.nnorm(n_norm);
 
-        if(dist < trapLength && dist < distance) {
+        if(dist < trapLength && (checkType == TRAP_CHECK_TYPE_TRAPPED_FIRST || checkType == TRAP_CHECK_TYPE_TRAPPED_LAST ||  checkType == TRAP_CHECK_TYPE_TRAPPED_MIN_DISTANCE && dist < distance)) {
             distance = dist;
             trapId = 1;
             setTrappedData(val, iteration);

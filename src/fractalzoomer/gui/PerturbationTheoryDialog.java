@@ -19,15 +19,17 @@ package fractalzoomer.gui;
 import fractalzoomer.core.MyApfloat;
 import fractalzoomer.core.ThreadDraw;
 import fractalzoomer.functions.Fractal;
+import fractalzoomer.main.CommonFunctions;
 import fractalzoomer.main.ImageExpanderWindow;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
-import org.apfloat.Apfloat;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
@@ -41,15 +43,34 @@ public class PerturbationTheoryDialog extends JDialog {
 
     private Component ptra;
     private JOptionPane optionPane;
+    private PerturbationTheoryDialog that;
 
     public PerturbationTheoryDialog(Component ptr, Settings s) {
         
         super((JFrame)ptr);
 
         ptra = ptr;
+        that = this;
 
         setTitle("Perturbation Theory");
         setModal(true);
+
+        JButton info_user = new JButton("Help");
+        info_user.setToolTipText("Shows show info on Perturbation Theory.");
+        info_user.setFocusable(false);
+        info_user.setIcon(getIcon("/fractalzoomer/icons/help2.png"));
+        info_user.setPreferredSize(new Dimension(105, 23));
+
+        info_user.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                CommonFunctions.showPerturbationTheoryHelp(that);
+
+            }
+
+        });
 
         if (ptra instanceof MainWindow) {
             setIconImage(getIcon("/fractalzoomer/icons/mandel2.png").getImage());
@@ -106,7 +127,13 @@ public class PerturbationTheoryDialog extends JDialog {
 
         panel.add(saTerms);
 
+        JPanel info_panel = new JPanel();
+        info_panel.setLayout(new FlowLayout());
+        info_panel.add(info_user);
+
+
         Object[] message3 = {
+            info_panel,
             " ",
             enable_perturbation,
             " ",

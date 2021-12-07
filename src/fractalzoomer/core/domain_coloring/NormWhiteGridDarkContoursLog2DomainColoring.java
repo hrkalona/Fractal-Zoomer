@@ -50,6 +50,8 @@ public class NormWhiteGridDarkContoursLog2DomainColoring extends DomainColoring 
     @Override
     public int getDomainColor(Complex res) {
 
+        res = round(res);
+
         double norm = res.norm();
 
         int color = applyNormColor(norm);

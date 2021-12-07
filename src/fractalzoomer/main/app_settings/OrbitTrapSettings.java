@@ -52,9 +52,20 @@ public class OrbitTrapSettings {
     public double trapCellularSize;
     public boolean invertTrapHeight;
     public int trapHeightFunction;
+    public int checkType;
+
+    public double sfm1;
+    public double sfm2;
+    public double sfn1;
+    public double sfn2;
+    public double sfn3;
+    public double sfa;
+    public double sfb;
     
     public OrbitTrapSettings() {
-        
+
+        checkType = Constants.TRAP_CHECK_TYPE_TRAPPED_MIN_DISTANCE;
+
         trapType = Constants.POINT_TRAP;
         useTraps = false;
         trapPoint = new double[2];
@@ -86,6 +97,14 @@ public class OrbitTrapSettings {
         
         invertTrapHeight = false;
         trapHeightFunction = 1;
+
+        sfm1 = 3;
+        sfm2 = 3;
+        sfn1 = 4.5;
+        sfn2 = 10;
+        sfn3 = 10;
+        sfa = 0.5;
+        sfb = 0.5;
         
     }
     

@@ -55,11 +55,10 @@ public class Newton4Plane extends Plane {
     public BigComplex transform(BigComplex pixel) {
 
         BigComplex temp = pixel;
-        Apfloat one = new MyApfloat(1.0);
         Apfloat four = new MyApfloat(4.0);
 
         for(int iterations = 0; iterations < 5; iterations++) {
-            BigComplex fz = temp.fourth().sub(one);
+            BigComplex fz = temp.fourth().sub(MyApfloat.ONE);
             BigComplex dfz = temp.cube().times(four);
 
             temp.sub(fz.divide(dfz));

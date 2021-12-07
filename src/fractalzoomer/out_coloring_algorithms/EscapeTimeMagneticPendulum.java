@@ -32,7 +32,7 @@ public class EscapeTimeMagneticPendulum extends OutColorAlgorithm {
     @Override
     public double getResult(Object[] object) {
 
-        return ((Complex)object[7]).getRe();
+        return ((Complex)object[9]).getRe();
 
     }
     

@@ -63,16 +63,14 @@ public class MathUtils {
     }
 
 	public static BigPoint rotatePointRelativeToPoint(BigPoint p, Apfloat[] rotation_vals, Apfloat[] rotation_center) {
-		Apfloat temp_xcenter = p.x.subtract(rotation_center[0]);
-		Apfloat temp_ycenter = p.y.subtract(rotation_center[1]);
+		Apfloat temp_xcenter = MyApfloat.fp.subtract(p.x, rotation_center[0]);
+		Apfloat temp_ycenter = MyApfloat.fp.subtract(p.y, rotation_center[1]);
 
-		Apfloat temp1 = temp_xcenter.multiply(rotation_vals[0]).subtract(temp_ycenter.multiply(rotation_vals[1])).add(rotation_center[0]);
-		Apfloat temp2 = temp_xcenter.multiply(rotation_vals[1]).add(temp_ycenter.multiply(rotation_vals[0])).add(rotation_center[1]);
+		Apfloat temp1 = MyApfloat.fp.add(MyApfloat.fp.subtract(MyApfloat.fp.multiply(temp_xcenter, rotation_vals[0]), MyApfloat.fp.multiply(temp_ycenter, rotation_vals[1])), rotation_center[0]);
+		Apfloat temp2 = MyApfloat.fp.add(MyApfloat.fp.add(MyApfloat.fp.multiply(temp_xcenter, rotation_vals[1]), MyApfloat.fp.multiply(temp_ycenter, rotation_vals[0])), rotation_center[1]);
 
-		Apfloat zero = new MyApfloat(0.0);
-
-		temp1 = temp1.compareTo(zero) == 0 ? zero : temp1;
-		temp2 = temp2.compareTo(zero) == 0 ? zero : temp2;
+		temp1 = temp1.compareTo(MyApfloat.ZERO) == 0 ? MyApfloat.ZERO : temp1;
+		temp2 = temp2.compareTo(MyApfloat.ZERO) == 0 ? MyApfloat.ZERO : temp2;
 
 		return new BigPoint(temp1, temp2);
 	}
@@ -80,14 +78,15 @@ public class MathUtils {
     public static Apfloat[] convertFromCenterSizeToCorners(Apfloat xCenter, Apfloat yCenter, Apfloat size) {
 
 		Apfloat point5 = new MyApfloat(0.5);
-        return new Apfloat[] {xCenter.subtract(size.multiply(point5)), yCenter.add(size.multiply(point5)), xCenter.add(size.multiply(point5)), yCenter.subtract(size.multiply(point5))};
+		Apfloat sizePoint5 = MyApfloat.fp.multiply(size, point5);
+        return new Apfloat[] {MyApfloat.fp.subtract(xCenter, sizePoint5), MyApfloat.fp.add(yCenter, sizePoint5), MyApfloat.fp.add(xCenter, sizePoint5), MyApfloat.fp.subtract(yCenter, sizePoint5)};
         
     }
     
     public static Apfloat[] convertFromCornersToCenterSize(Apfloat[] corners) {
 
-		Apfloat xLen = ApfloatMath.abs(corners[0].subtract(corners[2]));
-		Apfloat yLen = ApfloatMath.abs(corners[1].subtract(corners[3]));
+		Apfloat xLen = ApfloatMath.abs(MyApfloat.fp.subtract(corners[0], corners[2]));
+		Apfloat yLen = ApfloatMath.abs(MyApfloat.fp.subtract(corners[1], corners[3]));
 		Apfloat size = ApfloatMath.max(xLen, yLen);
 
 		Apfloat topX = ApfloatMath.min(corners[0], corners[2]);
@@ -95,7 +94,7 @@ public class MathUtils {
 
 		Apfloat point5 = new MyApfloat(0.5);
         
-        return new Apfloat[] {topX.add(xLen.multiply(point5)), topY.subtract(yLen.multiply(point5)), size};
+        return new Apfloat[] {MyApfloat.fp.add(topX, MyApfloat.fp.multiply(xLen, point5)), MyApfloat.fp.subtract(topY, MyApfloat.fp.multiply(yLen, point5)), size};
         
     }
     

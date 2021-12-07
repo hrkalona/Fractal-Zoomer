@@ -198,7 +198,7 @@ public class UserFormulaCoupledDialog extends JDialog {
             }
         });
 
-        Object[] labels5 = ptra.createUserFormulaLabels("z, c, s, c0, p, pp, n, maxn, center, size, sizei, v1 - v30, point");
+        Object[] labels5 = ptra.createUserFormulaLabels("z, c, s, c0, pixel, p, pp, n, maxn, center, size, sizei, v1 - v30, point");
 
         Object[] message5 = {
             labels5,

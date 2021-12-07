@@ -34,23 +34,36 @@ public class SkipBailoutDialog extends JDialog {
     private MainWindow ptra;
     private JOptionPane optionPane;
 
-    public SkipBailoutDialog(MainWindow ptr, Settings s) {
+    public SkipBailoutDialog(MainWindow ptr, Settings s, boolean mode) {
         
         super(ptr);
 
         ptra = ptr;
 
-        setTitle("Skip Bailout Condition Iterations");
+        if(mode) {
+            setTitle("Skip Bailout Condition Iterations");
+        }
+        else {
+            setTitle("Skip Convergent Bailout Condition Iterations");
+        }
         setModal(true);
         setIconImage(getIcon("/fractalzoomer/icons/skip_bailout.png").getImage());
 
         JTextField field = new JTextField();
         field.addAncestorListener(new RequestFocusListener());
-        field.setText("" + s.fns.skip_bailout_iterations);
+        if(mode) {
+            field.setText("" + s.fns.skip_bailout_iterations);
+        }
+        else {
+            field.setText("" + s.fns.skip_convergent_bailout_iterations);
+        }
+
+        String message = mode ? ("You are using " + s.fns.skip_bailout_iterations + " skip bailout condition iterations.\nEnter the new skip bailout condition iterations number." ) :
+                ("You are using " + s.fns.skip_convergent_bailout_iterations + " skip convergent bailout condition iterations.\nEnter the new skip convergent bailout condition iterations number." );
 
         Object[] message3 = {
             " ",
-            "You are using " + s.fns.skip_bailout_iterations + " skip bailout condition iterations.\nEnter the new skip bailout condition iterations number.",
+                message,
             field,
             " ",};
 
@@ -92,11 +105,21 @@ public class SkipBailoutDialog extends JDialog {
                         int temp = Integer.parseInt(field.getText());
 
                         if (temp < 0) {
-                            JOptionPane.showMessageDialog(ptra, "Skip bailout condition iterations number must be greater than -1.", "Error!", JOptionPane.ERROR_MESSAGE);
+                            if(mode) {
+                                JOptionPane.showMessageDialog(ptra, "Skip bailout condition iterations number must be greater than -1.", "Error!", JOptionPane.ERROR_MESSAGE);
+                            }
+                            else {
+                                JOptionPane.showMessageDialog(ptra, "Skip convergent bailout condition iterations number must be greater than -1.", "Error!", JOptionPane.ERROR_MESSAGE);
+                            }
                             return;
                         }
 
-                        s.fns.skip_bailout_iterations = temp;                      
+                        if(mode) {
+                            s.fns.skip_bailout_iterations = temp;
+                        }
+                        else {
+                            s.fns.skip_convergent_bailout_iterations = temp;
+                        }
                     } catch (Exception ex) {
                         JOptionPane.showMessageDialog(ptra, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
                         return;

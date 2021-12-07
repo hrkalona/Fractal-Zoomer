@@ -23,15 +23,16 @@ import java.awt.*;
  * @author hrkalona2
  */
 public interface Constants {
-    public static final int VERSION = 1079;
+    public static final int VERSION = 1080;
     public static final boolean beta = false;
     public static final int FAST_JULIA_IMAGE_SIZE = 252;
     public static final int TOTAL_PALETTES = 37;
     public static final int TOTAL_INCOLORING_ALGORITHMS = 11;
     public static final int TOTAL_OUTCOLORING_ALGORITHMS = 25;
     public static final int TOTAL_BAILOUT_CONDITIONS = 13;
+    public static final int TOTAL_CONVERGENT_BAILOUT_CONDITIONS = 6;
     public static final int TOTAL_PLANES = 64;
-    public static final int TOTAL_FUNCTIONS = 292;
+    public static final int TOTAL_FUNCTIONS = 293;
     public static final int TOTAL_FILTERS = 35;
     public static final int TOTAL_COLOR_TRANSFER_FILTERS = 7;
     public static final int TOTAL_COLOR_BLENDING = 30;
@@ -40,6 +41,9 @@ public interface Constants {
     public static final int TOTAL_PLANE_INFLUENCES = 2;
 
     public static final int MAX_ITERATIONS_NUMBER = Integer.MAX_VALUE;
+
+    public static final String SA_CALCULATION_STR = "SA Calculation:";
+    public static final String REFERENCE_CALCULATION_STR = "Reference Calculation:";
     
     public static final String[] domainAlgNames = {"Black Grid, White Circles log2", "White Grid, Black Circles log2", "Black Grid", "White Grid", "Black Grid, Bright Contours log2", "White Grid, Dark Contours log2", "Norm, Black Grid, White Circles log2", "Norm, White Grid, Black Circles log2", "Norm, Black Grid", "Norm, White Grid", "Norm, Black Grid, Bright Contours log2", "Norm, White Grid, Dark Contours log2", "White Circles log2", "Black Circles log2", "Bright Contours log2", "Dark Contours log2", "Norm, White Circles log2", "Norm, Black Circles log2", "Norm, Bright Contours log2", "Norm, Dark Contours log2",
     "Black Grid, Contours log2, Iso-Argument lines", "Norm, Black Grid, Contours log2, Iso-Argument lines", "Black Grid, Iso-Argument Contours", "Norm, Black Grid, Iso-Argument Contours", "Iso-Argument Contours, Contours log2", "Norm, Iso-Argument Contours, Contours log2",
@@ -53,14 +57,15 @@ public interface Constants {
     public static final String[] domainColors = {"Argument", "Norm", "Re", "Im"};
     public static final String[] domainContours = {"Norm", "Iso-Argument", "Norm, Iso-Argument", "Grid", "Grid, Norm", "Grid, Iso-Argument", "Grid, Norm, Iso-Argument", "Grid Lines", "Circles Lines", "Iso-Arg Lines", "Grid Lines, Circles Lines", "Circles Lines, Iso-Arg Lines"};
     public static final String[] argumentLinesDistance = {"2 * pi", "pi", "pi / 2", "pi / 4", "pi / 6", "pi / 8", "pi / 10", "pi / 12", "pi / 14", "pi / 16"};
-    public static final String[] orbitTrapsNames = {"Point", "Point Square", "Point Rhombus", "Point N-Norm", "Cross", "Re", "Im", "Circle", "Square", "Rhombus", "N-Norm", "Circle/Cross", "Square/Cross", "Rhombus/Cross", "N-Norm/Cross", "Circle/Point", "Square/Point", "Rhombus/Point", "N-Norm/Point", "N-Norm/Point N-Norm", "Golden Ratio Spiral", "Golden Ratio Spiral/Point", "Golden Ratio Spiral/Point N-Norm", "Golden Ratio Spiral/Cross", "Golden Ratio Spiral/Circle", "Golden Ratio Spiral/Square", "Golden Ratio Spiral/Rhombus", "Golden Ratio Spiral/N-Norm", "Stalks", "Stalks/Point", "Stalks/Point N-Norm", "Stalks/Cross", "Stalks/Circle", "Stalks/Square", "Stalks/Rhombus", "Stalks/N-Norm", "Image Based", "Atom Domain Circle", "Atom Domain Square", "Atom Domain Rhombus", "Atom Domain N-Norm", "Teardrop"};
+    public static final String[] orbitTrapsNames = {"Point", "Point Square", "Point Rhombus", "Point N-Norm", "Cross", "Re", "Im", "Circle", "Square", "Rhombus", "N-Norm", "Circle/Cross", "Square/Cross", "Rhombus/Cross", "N-Norm/Cross", "Circle/Point", "Square/Point", "Rhombus/Point", "N-Norm/Point", "N-Norm/Point N-Norm", "Golden Ratio Spiral", "Golden Ratio Spiral/Point", "Golden Ratio Spiral/Point N-Norm", "Golden Ratio Spiral/Cross", "Golden Ratio Spiral/Circle", "Golden Ratio Spiral/Square", "Golden Ratio Spiral/Rhombus", "Golden Ratio Spiral/N-Norm", "Stalks", "Stalks/Point", "Stalks/Point N-Norm", "Stalks/Cross", "Stalks/Circle", "Stalks/Square", "Stalks/Rhombus", "Stalks/N-Norm", "Image Based", "Atom Domain Circle", "Atom Domain Square", "Atom Domain Rhombus", "Atom Domain N-Norm", "Teardrop", "Super-Formula"};
     public static final String[] orbitTrapLineTypes = {"Line", "Sin", "Cos", "Tan", "Sinh", "Cosh", "Tanh", "Asin", "Acos", "Atan", "Square", "Cube", "Sqrt", "Cbrt", "Exp", "Log", "Abs" };
+    public static final String[] orbitTrapCheckTypes = {"Minimum Distance", "Trapped First", "Trapped Last"};
     public static final String[] contourColorAlgorithmNames = {"Non-smooth Transitions", "Smooth Transitions", "Boundaries", "Boundaries/Non-Smooth Colors"};
     public static final String[] circleAndGridFadeNames = {"Square Root", "Cube Root", "Fourth Root", "Linear", "Saturate"};
     public static final String[] colorMethod = {"Lab", "HSB", "HSL", "Blending", "RGB Scaling"};
     public static final String[] lightTransfer = {"x * factor", "sqrt(x * factor)", "(x * factor)^2"};
     public static final String[] lightModes = {"Mode 1", "Mode 2", "Mode 3"};
-    public static final String[] statisticalColoringName = {"Stripe Average(Sum)", "Curvature Average(Sum)", "Triange Inequality Average(Sum)", "cos(density * arg(z)) / norm(z) Average(Sum)", "cos(density * (arg(z - p) + pi)) / (factor + 1 / norm(z - p)) Sum", "Atom Domain (bof60/bof61)", "Discrete Lagrangian Descriptors"};
+    public static final String[] statisticalColoringName = {"Stripe Average(Sum)", "Curvature Average(Sum)", "Triange Inequality Average(Sum)", "cos(density * arg(z)) / norm(z) Average(Sum)", "cos(density * (arg(z - p) + pi)) / (factor + 1 / norm(z - p)) Sum", "Atom Domain (bof60/bof61)", "Discrete Lagrangian Descriptors", "Twin Lamps"};
     public static final String[] domainProcessingTransferNames = {"x * factor", "1 / (x * factor)"};
     public static final String[] inertiaGravityPullFunction = {"Exponential", "Linear", "Oddball"};
     public static final String[] reductionMethod = {"sum", "min", "max", "assign", "sub", "multiply"};
@@ -75,6 +80,8 @@ public interface Constants {
     public static final String[] equicontinuityColorMethods = {"HSL", "HSB", "LCH", "Arg-Palette", "Palette"};
     public static final String[] equicontinuityArgs = {"Final Z value", "Start Z value", "Pixel Value", "C Value"};
     public static final String[] normalMapColoringMethods = {"Original Color", "Rainbow Palette", "Distance Estimator", "Original + Distance Estimator"};
+    public static final String[] rootShadingFunction = {"Linear", "Sqrt", "Cbrt", "Cosine", "Exponential"};
+    public static final String[] twinLampsFunction = {"Linear", "Sqrt"};
     /**
      * ** FUNCTION ***
      */
@@ -373,6 +380,8 @@ public interface Constants {
     public static final int MAGNET14 = 289;
     public static final int MAGNET23 = 290;
     public static final int MAGNET24 = 291;
+
+    public static final int NEWTON_THIRD_DEGREE_PARAMETER_SPACE = 292;
     /**
      * ***************
      */
@@ -560,6 +569,19 @@ public interface Constants {
     public static final int BAILOUT_CONDITION_RE_IM_SQUARED = 10;
     public static final int BAILOUT_CONDITION_NO_BAILOUT = 11;
     public static final int BAILOUT_CONDITION_CUSTOM = 12;
+    /**
+     * ********************
+     */
+
+    /**
+     * ** CONVERGENT BAILOUT TESTS ***
+     */
+    public static final int CONVERGENT_BAILOUT_CONDITION_CIRCLE = 0;
+    public static final int CONVERGENT_BAILOUT_CONDITION_SQUARE = 1;
+    public static final int CONVERGENT_BAILOUT_CONDITION_RHOMBUS = 2;
+    public static final int CONVERGENT_BAILOUT_CONDITION_NNORM = 3;
+    public static final int CONVERGENT_BAILOUT_CONDITION_USER = 4;
+    public static final int CONVERGENT_BAILOUT_CONDITION_NO_BAILOUT = 5;
     /**
      * ********************
      */
@@ -804,6 +826,7 @@ public interface Constants {
     public static final int COS_ARG_DIVIDE_INVERSE_NORM = 4;
     public static final int ATOM_DOMAIN_BOF60_BOF61 = 5;
     public static final int DISCRETE_LAGRANGIAN_DESCRIPTORS = 6;
+    public static final int TWIN_LAMPS = 7;
     
     /**
      * **************************************
@@ -854,6 +877,7 @@ public interface Constants {
     public static final int RHOMBUS_ATOM_DOMAIN_TRAP = 39;
     public static final int NNORM_ATOM_DOMAIN_TRAP = 40;
     public static final int TEAR_DROP_ORBIT_TRAP = 41;
+    public static final int SUPER_FORMULA_ORBIT_TRAP = 42;
 
 
 
@@ -869,6 +893,11 @@ public interface Constants {
     public static final int TRAP_COLOR_ARG_PALETTE = 6;
     public static final int TRAP_COLOR_ITER_HSB = 7;
     public static final int TRAP_COLOR_ITER_LCH = 8;
+
+
+    public static final int TRAP_CHECK_TYPE_TRAPPED_MIN_DISTANCE = 0;
+    public static final int TRAP_CHECK_TYPE_TRAPPED_FIRST = 1;
+    public static final int TRAP_CHECK_TYPE_TRAPPED_LAST = 2;
     
     
      /**
@@ -907,4 +936,6 @@ public interface Constants {
     public static final Color progress_color = new Color(222, 81, 69);//new Color(255, 185, 15);
     public static final Color progress_filters_color = new Color(24, 161, 95);
     public static final Color progress_d3_color = new Color(76, 139, 245);
+    public static final Color progress_ref_color = new Color(100, 100, 100);
+    public static final Color progress_sa_color = new Color(30, 90, 255);
 }

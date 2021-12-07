@@ -14,7 +14,7 @@ public class JuliterDialog extends JDialog {
     private MainWindow ptra;
     private JOptionPane optionPane;
 
-    public JuliterDialog(MainWindow ptr, int juliterIterations, boolean juliterIncludeInitialIterations, JCheckBoxMenuItem juliter_opt, boolean mode, Settings s) {
+    public JuliterDialog(MainWindow ptr, int juliterIterations, boolean juliterIncludeInitialIterations, Settings s) {
 
         super(ptr);
 
@@ -23,6 +23,11 @@ public class JuliterDialog extends JDialog {
         setTitle("Juliter");
         setModal(true);
         setIconImage(getIcon("/fractalzoomer/icons/mandel2.png").getImage());
+
+        final JCheckBox juliter = new JCheckBox("Juliter");
+        juliter.setSelected(s.fns.juliter);
+        juliter.setFocusable(false);
+        juliter.setToolTipText("Enables juliter.");
 
 
         JTextField juliterIterationsfield = new JTextField();
@@ -34,7 +39,8 @@ public class JuliterDialog extends JDialog {
         includePreStarting.setSelected(juliterIncludeInitialIterations);
 
         Object[] message3 = {
-
+                " ",
+                juliter,
                 " ",
                 "Set the starting iterations of Juliter.",
                 "Starting Iterations:",
@@ -73,9 +79,6 @@ public class JuliterDialog extends JDialog {
                             optionPane.setValue(JOptionPane.UNINITIALIZED_VALUE);
 
                             if ((Integer) value == JOptionPane.CANCEL_OPTION || (Integer) value == JOptionPane.NO_OPTION || (Integer) value == JOptionPane.CLOSED_OPTION) {
-                                if (mode) {
-                                    juliter_opt.setSelected(false);
-                                }
                                 dispose();
                                 return;
                             }
@@ -96,10 +99,10 @@ public class JuliterDialog extends JDialog {
 
                             dispose();
 
-                            if (!s.julia_map && !s.fns.julia) {
+                            if (!s.julia_map && !s.fns.julia && juliter.isSelected()) {
                                 JOptionPane.showMessageDialog(ptra, "Juliter is an extension of Julia or Julia-Map.\nMake sure you have any of those options selected, in order for Juliter to be applied.", "Warning!", JOptionPane.WARNING_MESSAGE);
                             }
-                            ptr.setJuliterPost(temp, includePreStarting.isSelected());
+                            ptr.setJuliterPost(juliter.isSelected(), temp, includePreStarting.isSelected());
                         }
                     }
                 });

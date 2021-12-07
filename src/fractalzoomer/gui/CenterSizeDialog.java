@@ -24,8 +24,10 @@ import fractalzoomer.utils.MathUtils;
 import org.apfloat.Apfloat;
 
 import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -68,8 +70,7 @@ public class CenterSizeDialog extends JDialog {
 
         BigPoint p = MathUtils.rotatePointRelativeToPoint(new BigPoint(s.xCenter, s.yCenter), s.fns.rotation_vals, s.fns.rotation_center);
 
-        Apfloat zero = new MyApfloat(0.0);
-        if (p.x.compareTo(zero) == 0) {
+        if (p.x.compareTo(MyApfloat.ZERO) == 0) {
             field_real.setText("" + 0.0);
         } else {
             field_real.setText("" + p.x.toString(true));
@@ -88,7 +89,7 @@ public class CenterSizeDialog extends JDialog {
         scrollImaginary.getInputMap().put(KeyStroke.getKeyStroke("ENTER"),"doNothing");
 
 
-        if (p.y.compareTo(zero) == 0) {
+        if (p.y.compareTo(MyApfloat.ZERO) == 0) {
             field_imaginary.setText("" + 0.0);
         } else {
             field_imaginary.setText("" + p.y.toString(true));
@@ -182,20 +183,19 @@ public class CenterSizeDialog extends JDialog {
                     }
 
                     try {
-                        Apfloat tempReal = new MyApfloat(field_real.getText()).subtract(s.fns.rotation_center[0]);
-                        Apfloat tempImaginary = new MyApfloat(field_imaginary.getText()).subtract(s.fns.rotation_center[1]);
+                        Apfloat tempReal = MyApfloat.fp.subtract(new MyApfloat(field_real.getText()), s.fns.rotation_center[0]);
+                        Apfloat tempImaginary = MyApfloat.fp.subtract(new MyApfloat(field_imaginary.getText()), s.fns.rotation_center[1]);
                         Apfloat tempSize = new MyApfloat(field_size.getText());
 
-                        Apfloat zero = new MyApfloat(0.0);
-                        if (tempSize.compareTo(zero) <= 0) {
+                        if (tempSize.compareTo(MyApfloat.ZERO) <= 0) {
                             JOptionPane.showMessageDialog(ptra, "Size number must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
                             return;
                         }
 
                         s.size = tempSize;
                         /* Inverse rotation */
-                        s.xCenter = tempReal.multiply(s.fns.rotation_vals[0]).add(tempImaginary.multiply(s.fns.rotation_vals[1])).add(s.fns.rotation_center[0]);
-                        s.yCenter = tempReal.negate().multiply(s.fns.rotation_vals[1]).add(tempImaginary.multiply(s.fns.rotation_vals[0])).add(s.fns.rotation_center[1]);
+                        s.xCenter = MyApfloat.fp.add(MyApfloat.fp.add(MyApfloat.fp.multiply(tempReal, s.fns.rotation_vals[0]), MyApfloat.fp.multiply(tempImaginary, s.fns.rotation_vals[1])), s.fns.rotation_center[0]);
+                        s.yCenter = MyApfloat.fp.add(MyApfloat.fp.add(MyApfloat.fp.multiply(tempReal.negate(), s.fns.rotation_vals[1]), MyApfloat.fp.multiply(tempImaginary, s.fns.rotation_vals[0])), s.fns.rotation_center[1]);
                     } catch (Exception ex) {
                         JOptionPane.showMessageDialog(ptra, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
                         return;

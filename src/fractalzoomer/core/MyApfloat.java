@@ -3,6 +3,7 @@ package fractalzoomer.core;
 import fractalzoomer.main.app_settings.Settings;
 import org.apfloat.Apfloat;
 import org.apfloat.ApfloatMath;
+import org.apfloat.FixedPrecisionApfloatHelper;
 
 public class MyApfloat extends Apfloat {
     public static int precision;
@@ -18,18 +19,20 @@ public class MyApfloat extends Apfloat {
     public static Apfloat MIN_DOUBLE_SIZE;
     public static Apfloat SA_START_SIZE;
     public static Apfloat NEGATIVE_INFINITY = new Apfloat("-1e5000000000");
+    public static FixedPrecisionApfloatHelper fp;
 
 
     static {
         precision = 300;
-        PI = ApfloatMath.pi(precision);
-        E = ApfloatMath.exp(new MyApfloat(1.0));
+        fp = new FixedPrecisionApfloatHelper(precision);
+        PI = fp.pi();
         TWO = new MyApfloat(2);
         ONE = new MyApfloat(1);
         ZERO = new MyApfloat(0);
-        TWO_PI = PI.multiply(TWO);
-        SQRT_TWO = ApfloatMath.sqrt(TWO);
-        RECIPROCAL_LOG_TWO_BASE_TEN = MyApfloat.reciprocal(MyApfloat.log(TWO).divide(MyApfloat.log(new MyApfloat(10.0))));
+        E = fp.exp(ONE);
+        TWO_PI = fp.multiply(PI, TWO);
+        SQRT_TWO = fp.sqrt(TWO);
+        RECIPROCAL_LOG_TWO_BASE_TEN = MyApfloat.reciprocal(fp.divide(MyApfloat.log(TWO), MyApfloat.log(new MyApfloat(10.0))));
         MAX_DOUBLE_SIZE = new MyApfloat("1.0e-305");
         MIN_DOUBLE_SIZE = new MyApfloat("1.0e-13");
         SA_START_SIZE = new MyApfloat("1.0e-5");
@@ -37,14 +40,15 @@ public class MyApfloat extends Apfloat {
 
     public static void setPrecision(int prec, Settings s) {
         precision = prec;
-        PI = ApfloatMath.pi(precision);
-        E = ApfloatMath.exp(new MyApfloat(1.0));
+        fp = new FixedPrecisionApfloatHelper(precision);
+        PI = fp.pi();
         TWO = new MyApfloat(2);
         ONE = new MyApfloat(1);
         ZERO = new MyApfloat(0);
-        TWO_PI = PI.multiply(TWO);
-        SQRT_TWO = ApfloatMath.sqrt(TWO);
-        RECIPROCAL_LOG_TWO_BASE_TEN = MyApfloat.reciprocal(MyApfloat.log(TWO).divide(MyApfloat.log(new MyApfloat(10.0))));
+        E = fp.exp(ONE);
+        TWO_PI = fp.multiply(PI, TWO);
+        SQRT_TWO = fp.sqrt(TWO);
+        RECIPROCAL_LOG_TWO_BASE_TEN = MyApfloat.reciprocal(fp.divide(MyApfloat.log(TWO), MyApfloat.log(new MyApfloat(10.0))));
         MAX_DOUBLE_SIZE = new MyApfloat("1.0e-305");
         MIN_DOUBLE_SIZE = new MyApfloat("1.0e-13");
         SA_START_SIZE = new MyApfloat("1.0e-5");
@@ -67,7 +71,7 @@ public class MyApfloat extends Apfloat {
     }
 
     public MyApfloat(String value, int radix) {
-        super(value, precision, radix);
+        super(value.trim(), precision, radix);
     }
 
     public MyApfloat(double value, int radix) {
@@ -79,7 +83,7 @@ public class MyApfloat extends Apfloat {
     }
 
     public MyApfloat(String value) {
-        super(value, precision);
+        super(value.trim(), precision);
     }
 
     public static Apfloat getPi() {
@@ -87,7 +91,7 @@ public class MyApfloat extends Apfloat {
     }
 
     public static Apfloat reciprocal(Apfloat val) {
-        return new MyApfloat(1.0).divide(val);
+        return fp.divide(MyApfloat.ONE, val);
     }
 
     public static Apfloat fastSin(Apfloat val) {
@@ -118,33 +122,33 @@ public class MyApfloat extends Apfloat {
         Apfloat TWO_PIremainder;
 
         if ((ApfloatMath.abs(val)).compareTo(TWO_PI) > 0) {
-            TWO_PIFullTimes = ApfloatMath.truncate(val.divide(TWO_PI));
-            TWO_PIremainder = val.subtract(TWO_PI.multiply(TWO_PIFullTimes));
+            TWO_PIFullTimes = ApfloatMath.truncate(fp.divide(val, TWO_PI));
+            TWO_PIremainder = fp.subtract(val, fp.multiply(TWO_PI, TWO_PIFullTimes));
         }
         else {
             TWO_PIremainder = val;
         }
         if (TWO_PIremainder.compareTo(PI) > 0) {
-            TWO_PIremainder = TWO_PIremainder.subtract(PI);
+            TWO_PIremainder = fp.subtract(TWO_PIremainder, PI);
             negate = true;
         }
         else if (TWO_PIremainder.compareTo(PI.negate()) < 0) {
-            TWO_PIremainder = TWO_PIremainder.add(PI);
+            TWO_PIremainder = fp.add(TWO_PIremainder, PI);
             negate = true;
         }
-        Apfloat msquare = (TWO_PIremainder.multiply(TWO_PIremainder)).negate();
+        Apfloat msquare = (fp.multiply(TWO_PIremainder, TWO_PIremainder)).negate();
         Apfloat s = TWO_PIremainder;
         Apfloat sOld = s;
         Apfloat t = TWO_PIremainder;
         double n = 1.0;
         do {
             n += 1.0;
-            t = t.divide(new MyApfloat(n));
+            t = fp.divide(t, new MyApfloat(n));
             n += 1.0;
-            t = t.divide(new MyApfloat(n));
-            t = t.multiply(msquare);
+            t = fp.divide(t, new MyApfloat(n));
+            t = fp.multiply(t, msquare);
             sOld = s;
-            s = s.add(t);
+            s = fp.add(s, t);
         } while (s.compareTo(sOld) != 0);
 
         if (negate) {
@@ -164,34 +168,34 @@ public class MyApfloat extends Apfloat {
         Apfloat TWO_PIFullTimes;
         Apfloat TWO_PIremainder;
         if ((ApfloatMath.abs(val)).compareTo(TWO_PI) > 0) {
-            TWO_PIFullTimes = ApfloatMath.truncate(val.divide(TWO_PI));
-            TWO_PIremainder = val.subtract(TWO_PI.multiply(TWO_PIFullTimes));
+            TWO_PIFullTimes = ApfloatMath.truncate(fp.divide(val, TWO_PI));
+            TWO_PIremainder = fp.subtract(val, fp.multiply(TWO_PI, TWO_PIFullTimes));
         }
         else {
             TWO_PIremainder = val;
         }
         if (TWO_PIremainder.compareTo(PI) > 0) {
-            TWO_PIremainder = TWO_PIremainder.subtract(PI);
+            TWO_PIremainder = fp.subtract(TWO_PIremainder, PI);
             negate = true;
         }
         else if (TWO_PIremainder.compareTo(PI.negate()) < 0) {
-            TWO_PIremainder = TWO_PIremainder.add(PI);
+            TWO_PIremainder = fp.add(TWO_PIremainder, PI);
             negate = true;
         }
-        Apfloat msquare = (TWO_PIremainder.multiply(TWO_PIremainder)).negate();
-        Apfloat one = new MyApfloat(1.0);
+        Apfloat msquare = (fp.multiply(TWO_PIremainder, TWO_PIremainder)).negate();
+        Apfloat one = MyApfloat.ONE;
         Apfloat s = one;
         Apfloat sOld = s;
         Apfloat t = one;
         double n = 0.0;
         do {
             n += 1.0;
-            t = t.divide(new MyApfloat(n));
+            t = fp.divide(t, new MyApfloat(n));
             n += 1.0;
-            t = t.divide(new MyApfloat(n));
-            t = t.multiply(msquare);
+            t = fp.divide(t, new MyApfloat(n));
+            t = fp.multiply(t, msquare);
             sOld = s;
-            s = s.add(t);
+            s = fp.add(s, t);
         } while (s.compareTo(sOld) != 0);
         if (negate) {
             s = s.negate();
@@ -208,43 +212,37 @@ public class MyApfloat extends Apfloat {
         }*/
 
         Apfloat x = val;
-        Apfloat one = new MyApfloat(1.0);
+        Apfloat one = MyApfloat.ONE;
         int intX = x.intValue();
         Apfloat baseVal = one;
         if (intX >= 1) {
-            /*for (int i = 1; i <= intX; i++) {
-                baseVal = baseVal.multiply(E);
-            }*/
-            baseVal = ApfloatMath.pow(E, intX);
+            baseVal = fp.pow(E, intX);
         }
         else if (intX <= -1) {
-            /*for (int i = 1; i <= Math.abs(intX); i++) {
-                baseVal = baseVal.divide(E);
-            }*/
-            baseVal = reciprocal(ApfloatMath.pow(E, -intX));
+            baseVal = reciprocal(fp.pow(E, -intX));
         }
-        Apfloat fractionX = x.subtract(new MyApfloat(intX));
+        Apfloat fractionX = fp.subtract(x, new MyApfloat(intX));
         if (x.compareTo(new MyApfloat(0.0)) < 0) {
             // Much greater precision if all numbers in the series have the same sign.
             fractionX = fractionX.negate();
             invert = true;
         }
-        Apfloat s = (one).add(fractionX);
+        Apfloat s = fp.add(one, fractionX);
         Apfloat sOld = s;
         Apfloat t = fractionX;
         double n = 1.0;
 
         do {
             n += 1.0;
-            t = t.divide(new MyApfloat(n));
-            t = t.multiply(fractionX);
+            t = fp.divide(t, new MyApfloat(n));
+            t = fp.multiply(t, fractionX);
             sOld = s;
-            s = s.add(t);
+            s = fp.add(s, t);
         } while (s.compareTo(sOld) != 0);
         if (invert) {
             s = MyApfloat.reciprocal(s);
         }
-        s = s.multiply(baseVal);
+        s = fp.multiply(s, baseVal);
         return s;
     }
 
@@ -257,28 +255,22 @@ public class MyApfloat extends Apfloat {
         }*/
 
         Apfloat x = val;
-        Apfloat one = new MyApfloat(1.0);
+        Apfloat one = MyApfloat.ONE;
         int intX = x.intValue();
         Apfloat baseVal = one;
         if (intX >= 1) {
-            /*for (int i = 1; i <= intX; i++) {
-                baseVal = baseVal.multiply(E);
-            }*/
-            baseVal = ApfloatMath.pow(E, intX);
+            baseVal = fp.pow(E, intX);
         }
         else if (intX <= -1) {
-            /*for (int i = 1; i <= Math.abs(intX); i++) {
-                baseVal = baseVal.divide(E);
-            }*/
-            baseVal = reciprocal(ApfloatMath.pow(E, -intX));
+            baseVal = reciprocal(fp.pow(E, -intX));
         }
-        Apfloat fractionX = x.subtract(new MyApfloat(intX));
+        Apfloat fractionX = fp.subtract(x, new MyApfloat(intX));
         if (x.compareTo(new MyApfloat(0.0)) < 0) {
             // Much greater precision if all numbers in the series have the same sign.
             fractionX = fractionX.negate();
             invert = true;
         }
-        Apfloat s = (one).add(fractionX);
+        Apfloat s = fp.add(one, fractionX);
         Apfloat sOld = s;
         Apfloat t = fractionX;
         double n = 1.0;
@@ -286,16 +278,16 @@ public class MyApfloat extends Apfloat {
         int iterations = 0;
         do {
             n += 1.0;
-            t = t.divide(new MyApfloat(n));
-            t = t.multiply(fractionX);
+            t = fp.divide(t, new MyApfloat(n));
+            t = fp.multiply(t, fractionX);
             sOld = s;
-            s = s.add(t);
+            s = fp.add(s, t);
             iterations++;
         } while (s.compareTo(sOld) != 0 && iterations < max_iterations);
         if (invert) {
             s = MyApfloat.reciprocal(s);
         }
-        s = s.multiply(baseVal);
+        s = fp.multiply(s, baseVal);
         return s;
     }
 
@@ -305,7 +297,7 @@ public class MyApfloat extends Apfloat {
         //    return NaN;
         //}
 
-        MyApfloat zero = new MyApfloat(0.0);
+        Apfloat zero = MyApfloat.ZERO;
         if (val.compareTo(zero) == 0) {
             return NEGATIVE_INFINITY;
         }
@@ -317,22 +309,22 @@ public class MyApfloat extends Apfloat {
         Apfloat number = val;
         int intPart = 0;
         while (number.compareTo(E) > 0) {
-            number = number.divide(E);
+            number = fp.divide(number, E);
             intPart++;
         }
 
         Apfloat invE = MyApfloat.reciprocal(E);
         while (number.compareTo(invE) < 0) {
-            number = number.multiply(E);
+            number = fp.multiply(number, E);
             intPart--;
         }
 
-        MyApfloat one = new MyApfloat(1.0);
-        Apfloat num = number.subtract(one);
-        Apfloat denom = number.add(one);
-        Apfloat ratio = num.divide(denom);
-        Apfloat ratioSquare = ratio.multiply(ratio);
-        Apfloat s = new MyApfloat(2.0).multiply(ratio);
+        Apfloat one = MyApfloat.ONE;
+        Apfloat num = fp.subtract(number, one);
+        Apfloat denom = fp.add(number, one);
+        Apfloat ratio = fp.divide(num, denom);
+        Apfloat ratioSquare = fp.multiply(ratio, ratio);
+        Apfloat s = fp.multiply(MyApfloat.TWO, ratio);
         Apfloat sOld = s;
         Apfloat t = s;
         Apfloat w = s;
@@ -340,12 +332,12 @@ public class MyApfloat extends Apfloat {
 
         do {
             n += 2.0;
-            t = t.multiply(ratioSquare);
-            w = t.divide(new MyApfloat(n));
+            t = fp.multiply(t, ratioSquare);
+            w = fp.divide(t, new MyApfloat(n));
             sOld = s;
-            s = s.add(w);
+            s = fp.add(s, w);
         } while (s.compareTo(sOld) != 0);
-        return s.add(new MyApfloat(intPart));
+        return fp.add(s, new MyApfloat(intPart));
 
     }
 
@@ -363,8 +355,8 @@ public class MyApfloat extends Apfloat {
          //   return NaN;
         //}
 
-        Apfloat zero = new MyApfloat(0.0);
-        Apfloat one = new MyApfloat(1.0);
+        Apfloat zero = MyApfloat.ZERO;
+        Apfloat one = MyApfloat.ONE;
         if (x.compareTo(zero) == 0) {
             return one;
         }
@@ -375,23 +367,23 @@ public class MyApfloat extends Apfloat {
 
 
         Apfloat loga = MyApfloat.log(v);
-        Apfloat base = x.multiply(loga);
+        Apfloat base = fp.multiply(x, loga);
         if (base.compareTo(zero) < 0) {
             // Much greater precision if all numbers in the series have the same sign.
             base = base.negate();
             invert = true;
         }
-        Apfloat s = one.add(base);
+        Apfloat s = fp.add(one, base);
         Apfloat sOld = s;
         Apfloat t = base;
         double n = 1.0;
 
         do {
             n += 1.0;
-            t = t.divide(new MyApfloat(n));
-            t = t.multiply(base);
+            t = fp.divide(t, new MyApfloat(n));
+            t = fp.multiply(t, base);
             sOld = s;
-            s = s.add(t);
+            s = fp.add(s, t);
         } while (s.compareTo(sOld) != 0);
         if (invert) {
             s = MyApfloat.reciprocal(s);
@@ -437,6 +429,7 @@ public class MyApfloat extends Apfloat {
     public static void main(String[] args) {
 
         MyApfloat.precision = 1200;
+        MyApfloat.fp = new FixedPrecisionApfloatHelper(MyApfloat.precision);
 
         Apfloat a = new MyApfloat("-1.99996619445037030418434688506350579675531241540724851511761922944801584242342684381376129778868913812287046406560949864353810575744772166485672496092803920095332");
         Apfloat b = new MyApfloat("+0.00000000000000000000000000000000030013824367909383240724973039775924987346831190773335270174257280120474975614823581185647299288414075519224186504978181625478529");
@@ -450,19 +443,19 @@ public class MyApfloat extends Apfloat {
 
 
         for(long i = 0; i < runs; i++) {
-            ApfloatMath.exp(c);
+            fp.exp(c);
             MyApfloat.exp(c);
         }
 
 
         for(long i = 0; i < runs; i++) {
-            ApfloatMath.exp(c);
+            fp.exp(c);
             MyApfloat.exp(c);
         }
 
         long time = System.currentTimeMillis();
         for(long i = 0; i < runs; i++) {
-            ApfloatMath.exp(c);
+            fp.exp(c);
         }
         System.out.println(System.currentTimeMillis() - time);
 
@@ -474,6 +467,12 @@ public class MyApfloat extends Apfloat {
         System.out.println(System.currentTimeMillis() - time);
 
 
+        Apfloat e = new Apfloat(1);
+
+        e.add(e);
+        e.subtract(e);
+        e.multiply(e);
+        e.divide(e);
     }
 
 }
