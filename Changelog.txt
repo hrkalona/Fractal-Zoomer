@@ -1,6 +1,6 @@
 Version 1.0.8.0
     -Added new function Newton Third Degree Parameter Space
-    -Added Perturbation Theory for Nova Newton z^3-1 and Newton Third Degree Parameter Space
+    -Added Perturbation Theory for Nova Newton z^3-1 and Newton Third Degree Parameter Space and Newton3
     -Added Perturbation Theory for Julia sets for all functions that currently support Perturbation Theory (experimental)
     -Added Superformula as an Orbit Trap
     -Added Root Coloring in Statistical Coloring Methods
