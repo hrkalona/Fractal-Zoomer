@@ -21,6 +21,7 @@ import fractalzoomer.core.Derivative;
 import fractalzoomer.core.MyApfloat;
 import fractalzoomer.core.ThreadDraw;
 import fractalzoomer.core.drawing_algorithms.BoundaryTracingDraw;
+import fractalzoomer.core.drawing_algorithms.BruteForce2Draw;
 import fractalzoomer.core.drawing_algorithms.BruteForceDraw;
 import fractalzoomer.core.drawing_algorithms.DivideAndConquerDraw;
 import fractalzoomer.gui.*;
@@ -41,6 +42,9 @@ import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
@@ -80,6 +84,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
     private MemoryLabel memory_label;
     private Timer timer;
     private CommonFunctions common;
+    private int brute_force_alg;
 
     public ImageExpanderWindow() {
         super();
@@ -88,6 +93,8 @@ public class ImageExpanderWindow extends JFrame implements Constants {
 
         s = new Settings();
         s.applyStaticSettings();
+
+        brute_force_alg = 0;
 
         n = 2;
 
@@ -403,7 +410,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
 
     public void loadSettings() {
 
-        file_chooser = new JFileChooser(".");
+        file_chooser = new JFileChooser(MainWindow.SaveSettingsPath.isEmpty() ? "." : MainWindow.SaveSettingsPath);
 
         file_chooser.setAcceptAllFileFilterUsed(false);
         file_chooser.setDialogType(JFileChooser.OPEN_DIALOG);
@@ -450,6 +457,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
                 greedyAlgorithmsButton.setEnabled(true);
                 perturbationTheoryButton.setEnabled(true);
 
+                MainWindow.SaveSettingsPath = file.getParent();
             }
             catch(IOException ex) {
                 JOptionPane.showMessageDialog(ptr, "Error while loading the file.", "Error!", JOptionPane.ERROR_MESSAGE);
@@ -462,6 +470,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
                 savePreferences();
                 System.exit(-1);
             }
+
         }
     }
 
@@ -543,7 +552,12 @@ public class ImageExpanderWindow extends JFrame implements Constants {
                             }
                         }
                         else {
-                            threads[i][j] = new BruteForceDraw(j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.xJuliaCenter, s.yJuliaCenter);
+                            if (brute_force_alg == 0) {
+                                threads[i][j] = new BruteForceDraw(j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.xJuliaCenter, s.yJuliaCenter);
+                            }
+                            else {
+                                threads[i][j] = new BruteForce2Draw(j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.xJuliaCenter, s.yJuliaCenter);
+                            }
                         }
                     }
                     else {
@@ -556,7 +570,12 @@ public class ImageExpanderWindow extends JFrame implements Constants {
                             }
                         }
                         else {
-                            threads[i][j] = new BruteForceDraw(j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor);
+                            if (brute_force_alg == 0) {
+                                threads[i][j] = new BruteForceDraw(j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor);
+                            }
+                            else {
+                                threads[i][j] = new BruteForce2Draw(j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor);
+                            }
                         }
                     }
                     threads[i][j].setThreadId(i * n + j);
@@ -639,7 +658,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
 
     public void setGreedyAlgorithms() {
 
-        new GreedyAlgorithmsFrame(ptr, greedy_algorithm, greedy_algorithm_selection);
+        new GreedyAlgorithmsFrame(ptr, greedy_algorithm, greedy_algorithm_selection, brute_force_alg);
 
     }
 
@@ -647,10 +666,11 @@ public class ImageExpanderWindow extends JFrame implements Constants {
         new PerturbationTheoryDialog(ptr, s);
     }
 
-    public void boundaryTracingOptionsChanged(boolean greedy_algorithm, int algorithm) {
+    public void boundaryTracingOptionsChanged(boolean greedy_algorithm, int algorithm, int brute_force_alg) {
 
         this.greedy_algorithm = greedy_algorithm;
         greedy_algorithm_selection = algorithm;
+        this.brute_force_alg = brute_force_alg;
 
     }
 
@@ -734,6 +754,10 @@ public class ImageExpanderWindow extends JFrame implements Constants {
             writer.println();
             writer.println();
 
+            writer.println("[General]");
+            writer.println("save_settings_path \"" + MainWindow.SaveSettingsPath + "\"");
+            writer.println("save_image_path \"" + MainWindow.SaveImagesPath + "\"");
+
             writer.println("[Optimizations]");
             writer.println("thread_dim " + n);
             writer.println("greedy_drawing_algorithm " + greedy_algorithm);
@@ -743,11 +767,22 @@ public class ImageExpanderWindow extends JFrame implements Constants {
             writer.println("skipped_pixels_user_color " + ((color >> 16) & 0xff) + " " + ((color >> 8) & 0xff) + " " + (color & 0xff));
             writer.println("perturbation_theory " + ThreadDraw.PERTURBATION_THEORY);
             writer.println("precision " + MyApfloat.precision);
-            writer.println("calculate_full_reference " + ThreadDraw.CALCULATE_FULL_REFERENCE);
-            writer.println("series_approximation " + ThreadDraw.SERIES_APPROXIMATION);
+            writer.println("approximation_algorithm " + ThreadDraw.APPROXIMATION_ALGORITHM);
             writer.println("series_approximation_terms " + ThreadDraw.SERIES_APPROXIMATION_TERMS);
             writer.println("series_approximation_oom_diff " + ThreadDraw.SERIES_APPROXIMATION_OOM_DIFFERENCE);
+            writer.println("series_approximation_max_skip " + ThreadDraw.SERIES_APPROXIMATION_MAX_SKIP_ITER);
             writer.println("use_full_floatexp " + ThreadDraw.USE_FULL_FLOATEXP_FOR_DEEP_ZOOM);
+            writer.println("use_bignum_for_ref " + ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE);
+            writer.println("use_bignum_for_pixels " + ThreadDraw.USE_BIGNUM_FOR_PIXELS_IF_POSSIBLE);
+            writer.println("automatic_bignum_precision " + ThreadDraw.BIGNUM_AUTOMATIC_PRECISION);
+            writer.println("bignum_precision_bits " + ThreadDraw.BIGNUM_PRECISION);
+            writer.println("bignum_precision_factor " + ThreadDraw.BIGNUM_PRECISION_FACTOR);
+            writer.println("use_threads_for_sa " + ThreadDraw.USE_THREADS_FOR_SA);
+            writer.println("bla_precision_bits " + ThreadDraw.BLA_BITS);
+            writer.println("bla_limit_factor " + ThreadDraw.BLA_LIMIT_FACTOR);
+            writer.println("use_threads_for_bla " + ThreadDraw.USE_THREADS_FOR_BLA);
+            writer.println("detect_period " + ThreadDraw.DETECT_PERIOD);
+            writer.println("brute_force_alg " + brute_force_alg);
             
             writer.println();
             
@@ -774,7 +809,14 @@ public class ImageExpanderWindow extends JFrame implements Constants {
 
             while((str_line = br.readLine()) != null) {
 
-                StringTokenizer tokenizer = new StringTokenizer(str_line, " ");
+                StringTokenizer tokenizer;
+
+                if(str_line.startsWith("save_settings_path") || str_line.startsWith("save_image_path")) {
+                    tokenizer = new StringTokenizer(str_line, "\"");
+                }
+                else {
+                    tokenizer = new StringTokenizer(str_line, " ");
+                }
 
                 if(tokenizer.hasMoreTokens()) {
 
@@ -802,6 +844,32 @@ public class ImageExpanderWindow extends JFrame implements Constants {
                             greedy_algorithm = true;
                         }
                     }
+                    else if (token.startsWith("save_settings_path") && tokenizer.countTokens() == 1) {
+
+                        MainWindow.SaveSettingsPath = tokenizer.nextToken();
+
+                        try {
+                            Path path = Paths.get(MainWindow.SaveSettingsPath);
+                            MainWindow.SaveSettingsPath = Files.notExists(path) || !Files.isDirectory(path) ? "" : MainWindow.SaveSettingsPath;
+                        }
+                        catch (Exception ex) {
+                            MainWindow.SaveSettingsPath = "";
+                        }
+
+                    }
+                    else if (token.startsWith("save_image_path") && tokenizer.countTokens() == 1) {
+
+                        MainWindow.SaveImagesPath = tokenizer.nextToken();
+
+                        try {
+                            Path path = Paths.get(MainWindow.SaveImagesPath);
+                            MainWindow.SaveImagesPath = Files.notExists(path) || !Files.isDirectory(path) ? "" : MainWindow.SaveImagesPath;
+                        }
+                        catch (Exception ex) {
+                            MainWindow.SaveImagesPath = "";
+                        }
+
+                    }
                     else if(token.equals("greedy_drawing_algorithm_id") && tokenizer.countTokens() == 1) {
 
                         try {
@@ -812,6 +880,17 @@ public class ImageExpanderWindow extends JFrame implements Constants {
                             }
                         }
                         catch(Exception ex) {
+                        }
+                    }
+                    else if (token.equals("brute_force_alg") && tokenizer.countTokens() == 1) {
+
+                        try {
+                            int temp = Integer.parseInt(tokenizer.nextToken());
+
+                            if (temp >= 0 && temp <= 1) {
+                                brute_force_alg = temp;
+                            }
+                        } catch (Exception ex) {
                         }
                     }
                     else if(token.equals("skipped_pixels_coloring") && tokenizer.countTokens() == 1) {
@@ -850,6 +929,77 @@ public class ImageExpanderWindow extends JFrame implements Constants {
                             ThreadDraw.PERTURBATION_THEORY = true;
                         }
                     }
+                    else if (token.equals("detect_period") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if (token.equals("false")) {
+                            ThreadDraw.DETECT_PERIOD = false;
+                        } else if (token.equals("true")) {
+                            ThreadDraw.DETECT_PERIOD = true;
+                        }
+                    }
+                    else if (token.equals("use_bignum_for_ref") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if (token.equals("false")) {
+                            ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE = false;
+                        } else if (token.equals("true")) {
+                            ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE = true;
+                        }
+                    }
+                    else if (token.equals("use_threads_for_sa") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if (token.equals("false")) {
+                            ThreadDraw.USE_THREADS_FOR_SA = false;
+                        } else if (token.equals("true")) {
+                            ThreadDraw.USE_THREADS_FOR_SA = true;
+                        }
+                    }
+                    else if (token.equals("use_threads_for_bla") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if (token.equals("false")) {
+                            ThreadDraw.USE_THREADS_FOR_BLA = false;
+                        } else if (token.equals("true")) {
+                            ThreadDraw.USE_THREADS_FOR_BLA = true;
+                        }
+                    }
+                    else if (token.equals("bla_limit_factor") && tokenizer.countTokens() == 1) {
+
+                        try {
+                            double temp = Double.parseDouble(tokenizer.nextToken());
+
+                            if (temp > 0) {
+                                ThreadDraw.BLA_LIMIT_FACTOR = temp;
+                            }
+                        } catch (Exception ex) {
+                        }
+                    }
+                    else if (token.equals("use_bignum_for_pixels") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if (token.equals("false")) {
+                            ThreadDraw.USE_BIGNUM_FOR_PIXELS_IF_POSSIBLE = false;
+                        } else if (token.equals("true")) {
+                            ThreadDraw.USE_BIGNUM_FOR_PIXELS_IF_POSSIBLE = true;
+                        }
+                    }
+                    else if (token.equals("automatic_bignum_precision") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if (token.equals("false")) {
+                            ThreadDraw.BIGNUM_AUTOMATIC_PRECISION = false;
+                        } else if (token.equals("true")) {
+                            ThreadDraw.BIGNUM_AUTOMATIC_PRECISION = true;
+                        }
+                    }
                     else if (token.equals("precision") && tokenizer.countTokens() == 1) {
 
                         try {
@@ -861,25 +1011,49 @@ public class ImageExpanderWindow extends JFrame implements Constants {
                         } catch (Exception ex) {
                         }
                     }
-                    else if (token.equals("series_approximation") && tokenizer.countTokens() == 1) {
+                    else if (token.equals("bla_precision_bits") && tokenizer.countTokens() == 1) {
 
-                        token = tokenizer.nextToken();
+                        try {
+                            int temp = Integer.parseInt(tokenizer.nextToken());
 
-                        if (token.equals("false")) {
-                            ThreadDraw.SERIES_APPROXIMATION = false;
-                        } else if (token.equals("true")) {
-                            ThreadDraw.SERIES_APPROXIMATION = true;
+                            if (temp > 0 && temp < 64) {
+                                ThreadDraw.BLA_BITS = temp;
+                            }
+                        } catch (Exception ex) {
                         }
                     }
-                    else if (token.equals("calculate_full_reference") && tokenizer.countTokens() == 1) {
+                    else if (token.equals("bignum_precision_factor") && tokenizer.countTokens() == 1) {
 
-                        token = tokenizer.nextToken();
-                        if (token.equals("false")) {
-                            ThreadDraw.CALCULATE_FULL_REFERENCE = false;
-                        } else if (token.equals("true")) {
-                            ThreadDraw.CALCULATE_FULL_REFERENCE = true;
+                        try {
+                            double temp = Double.parseDouble(tokenizer.nextToken());
+
+                            if (temp > 0) {
+                                ThreadDraw.BIGNUM_PRECISION_FACTOR = temp;
+                            }
+                        } catch (Exception ex) {
                         }
+                    }
+                    else if (token.equals("bignum_precision_bits") && tokenizer.countTokens() == 1) {
 
+                        try {
+                            int temp = Integer.parseInt(tokenizer.nextToken());
+
+                            if (temp > 0) {
+                                ThreadDraw.BIGNUM_PRECISION = temp;
+                            }
+                        } catch (Exception ex) {
+                        }
+                    }
+                    else if (token.equals("approximation_algorithm") && tokenizer.countTokens() == 1) {
+
+                        try {
+                            int temp = Integer.parseInt(tokenizer.nextToken());
+
+                            if (temp >= 0 && temp <= 2) {
+                                ThreadDraw.APPROXIMATION_ALGORITHM = temp;
+                            }
+                        } catch (Exception ex) {
+                        }
                     }
                     else if (token.equals("use_full_floatexp") && tokenizer.countTokens() == 1) {
 
@@ -905,8 +1079,19 @@ public class ImageExpanderWindow extends JFrame implements Constants {
                         try {
                             int temp = Integer.parseInt(tokenizer.nextToken());
 
-                            if (temp >=2  && temp <= 129) {
+                            if (temp >=2  && temp <= 257) {
                                 ThreadDraw.SERIES_APPROXIMATION_TERMS = temp;
+                            }
+                        } catch (Exception ex) {
+                        }
+                    }
+                    else if (token.equals("series_approximation_max_skip") && tokenizer.countTokens() == 1) {
+
+                        try {
+                            int temp = Integer.parseInt(tokenizer.nextToken());
+
+                            if (temp >=0) {
+                                ThreadDraw.SERIES_APPROXIMATION_MAX_SKIP_ITER = temp;
                             }
                         } catch (Exception ex) {
                         }
@@ -948,6 +1133,8 @@ public class ImageExpanderWindow extends JFrame implements Constants {
         catch(IOException ex) {
 
         }
+
+        MyApfloat.setPrecision(MyApfloat.precision, s);
     }
 
     /*public static void main(String[] args) throws Exception {

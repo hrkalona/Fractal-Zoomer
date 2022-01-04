@@ -44,4 +44,10 @@ public abstract class JarattRootFindingMethod extends RootFindingMethods {
         return z;
 
     }
+
+    public static Complex jarattStep(Complex fz, Complex dfz, Complex df_combined) {
+
+        return (fz.divide(dfz).times_mutable(0.5)).plus_mutable((fz.divide(dfz.sub(df_combined.times_mutable(3)))));
+
+    }
 }

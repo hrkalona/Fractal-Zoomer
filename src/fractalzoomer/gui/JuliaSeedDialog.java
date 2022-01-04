@@ -160,7 +160,7 @@ public class JuliaSeedDialog extends JDialog {
                             s.fns.juliterIncludeInitialIterations = includePreStarting.isSelected();
                         }
                     } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(ptra, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 

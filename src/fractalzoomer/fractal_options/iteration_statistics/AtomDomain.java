@@ -27,10 +27,14 @@ public class AtomDomain extends GenericStatistic {
     private double minNorm;
     private int minIteration;
     private boolean showAtomDomains;
+    private int normtType;
+    private double atomNorm;
     
-    public AtomDomain(boolean showAtomDomains, double statistic_intensity) {
+    public AtomDomain(boolean showAtomDomains, double statistic_intensity, int normtType, double atomNorm) {
         super(statistic_intensity, false, false);
         this.showAtomDomains = showAtomDomains;
+        this.normtType = normtType;
+        this.atomNorm = atomNorm;
     }
 
     @Override
@@ -38,7 +42,23 @@ public class AtomDomain extends GenericStatistic {
 
         super.insert(z, zold, zold2, iterations, c, start, c0);
 
-        double currentNorm = z.norm();
+        double currentNorm = 0;
+
+        switch (normtType) {
+            case 0:
+                currentNorm = z.norm();
+                break;
+            case 1: //Rhombus
+                currentNorm = z.getAbsRe() + z.getAbsIm();
+                break;
+            case 2: //Square
+                currentNorm = Math.max(z.getAbsRe(), z.getAbsIm());
+                break;
+            case 3:
+                currentNorm = z.nnorm(atomNorm);
+                break;
+        }
+
         if(currentNorm < minNorm) {
             minNorm = currentNorm;
             minIteration = iterations;

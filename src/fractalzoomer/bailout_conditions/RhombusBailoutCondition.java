@@ -17,9 +17,7 @@
 
 package fractalzoomer.bailout_conditions;
 
-import fractalzoomer.core.BigComplex;
-import fractalzoomer.core.Complex;
-import fractalzoomer.core.MyApfloat;
+import fractalzoomer.core.*;
 import org.apfloat.Apfloat;
 
 /**
@@ -46,6 +44,11 @@ public class RhombusBailoutCondition extends BailoutCondition {
 
         return MyApfloat.fp.add(z.getAbsRe(), z.getAbsIm()).compareTo(ddbound) >= 0;
 
+    }
+
+    @Override
+    public boolean escaped(BigNumComplex z, BigNumComplex zold, BigNumComplex zold2, int iterations, BigNumComplex c, BigNumComplex start, BigNumComplex c0, BigNum norm_squared, BigNumComplex pixel) {
+        return z.getAbsRe().add(z.getAbsIm()).compare(bnbound) >= 0;
     }
     
 }

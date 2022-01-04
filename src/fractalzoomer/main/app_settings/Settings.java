@@ -283,6 +283,10 @@ public class Settings implements Constants {
                 xJuliaCenter = ((SettingsJulia1080) settings).getXJuliaCenter();
                 yJuliaCenter = ((SettingsJulia1080) settings).getYJuliaCenter();
             }
+            else if (version == 1081) {
+                xJuliaCenter = ((SettingsJulia1081) settings).getXJuliaCenter();
+                yJuliaCenter = ((SettingsJulia1081) settings).getYJuliaCenter();
+            }
 
             fns.julia = true;
 
@@ -1237,6 +1241,33 @@ public class Settings implements Constants {
             sts.twlFunction = ((SettingsFractals1080) settings).getTwlFunction();
         }
 
+        if(version < 1081) {
+            fns.period = defaults.fns.period;
+            sts.langNormType = defaults.sts.langNormType;
+            sts.langNNorm = defaults.sts.langNNorm;
+            sts.atomNormType = defaults.sts.atomNormType;
+            sts.atomNNorm = defaults.sts.atomNNorm;
+            hss.hmapping = defaults.hss.hmapping;
+            fns.useGlobalMethod = defaults.fns.useGlobalMethod;
+            fns.globalMethodFactor = defaults.fns.globalMethodFactor;
+            ots.showOnlyTraps = defaults.ots.showOnlyTraps;
+            ots.background = defaults.ots.background;
+            ds.domain_height_method = defaults.ds.domain_height_method;
+        }
+        else {
+            fns.period = ((SettingsFractals1081) settings).getPeriod();
+            sts.langNormType = ((SettingsFractals1081) settings).getLangNormType();
+            sts.langNNorm = ((SettingsFractals1081) settings).getLangNNorm();
+            sts.atomNormType = ((SettingsFractals1081) settings).getAtomNormType();
+            sts.atomNNorm = ((SettingsFractals1081) settings).getAtomNNorm();
+            hss.hmapping = ((SettingsFractals1081) settings).getHmapping();
+            fns.useGlobalMethod = ((SettingsFractals1081) settings).getUseGlobalMethod();
+            fns.globalMethodFactor = ((SettingsFractals1081) settings).getGlobalMethodFactor();
+            ots.showOnlyTraps = ((SettingsFractals1081) settings).getShowOnlyTraps();
+            ots.background = ((SettingsFractals1081) settings).getTrapBgColor();
+            ds.domain_height_method = ((SettingsFractals1081) settings).getDomainHeightMethod();
+        }
+
         if (fns.plane_type == USER_PLANE) {
             if (version < 1058) {
                 fns.user_plane_algorithm = defaults.fns.user_plane_algorithm;
@@ -1698,9 +1729,9 @@ public class Settings implements Constants {
             file_temp = new ObjectOutputStream(new FileOutputStream(filename));
             SettingsFractals settings;
             if (fns.julia) {
-                settings = new SettingsJulia1080(this);
+                settings = new SettingsJulia1081(this);
             } else {
-                settings = new SettingsFractals1080(this);
+                settings = new SettingsFractals1081(this);
             }
             file_temp.writeObject(settings);
             file_temp.flush();
@@ -2389,6 +2420,19 @@ public class Settings implements Constants {
 
     }
 
+    public boolean supportsPeriod() {
+
+        if(julia_map) {
+            return false;
+        }
+
+        if(fns.julia && fns.juliter) {
+            return false;
+        }
+
+        return (fns.function == MANDELBROT || fns.function == MANDELBROTCUBED || fns.function == MANDELBROTFOURTH || fns.function == MANDELBROTFIFTH);
+    }
+
     public boolean supportsPerturbationTheory() {
 
         if(julia_map) {
@@ -2404,6 +2448,10 @@ public class Settings implements Constants {
 
     public boolean isPertubationTheoryInUse() {
         return ThreadDraw.PERTURBATION_THEORY && supportsPerturbationTheory();
+    }
+
+    public boolean isPeriodInUse() {
+        return isPertubationTheoryInUse() && ThreadDraw.APPROXIMATION_ALGORITHM == 2 && supportsPeriod();
     }
 
     public void loadedSettings(String file, Component parent, int version) {

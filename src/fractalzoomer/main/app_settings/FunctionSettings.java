@@ -134,8 +134,12 @@ public class FunctionSettings implements Constants {
     public PlaneInfluenceSettings ips;
     public boolean defaultNovaInitialValue;
     public ConvergentBailoutConditionSettings cbs;
+    public boolean useGlobalMethod;
+    public double[] globalMethodFactor;
+    public int period;
     
     public FunctionSettings() {
+        period = 0;
         n_norm = 2;
         z_exponent = 2;
         
@@ -377,6 +381,11 @@ public class FunctionSettings implements Constants {
         defaultNovaInitialValue = true;
 
         cbs = new ConvergentBailoutConditionSettings();
+
+        useGlobalMethod = false;
+        globalMethodFactor = new double[2];
+        globalMethodFactor[0] = 0.5;
+        globalMethodFactor[1] = 0;
         
     }
     

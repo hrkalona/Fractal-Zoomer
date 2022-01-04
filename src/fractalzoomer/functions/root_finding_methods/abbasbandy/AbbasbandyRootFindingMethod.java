@@ -58,4 +58,10 @@ public abstract class AbbasbandyRootFindingMethod extends RootFindingMethods {
         return z;
         
     }
+
+    public static Complex abbasbandyStep(Complex fz, Complex dfz, Complex ddfz, Complex dddfz) {
+
+        return fz.divide(dfz).sub_mutable((fz.square().times_mutable(ddfz)).divide_mutable(dfz.cube().times_mutable(2))).sub_mutable((fz.cube().times_mutable(dddfz)).divide_mutable(dfz.fourth().times_mutable(6)));
+
+    }
 }

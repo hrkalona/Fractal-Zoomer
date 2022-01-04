@@ -178,7 +178,7 @@ public class PinchPlaneDialog extends JDialog {
                         s.fns.plane_transform_radius = temp4;
                         s.fns.plane_transform_amount = temp5 == 0.0 ? 0.0 : temp5;
                     } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(ptra, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 

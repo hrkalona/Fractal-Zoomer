@@ -157,7 +157,7 @@ public class ContourColoringDialog extends JDialog {
                         s.cns.contourColorMethod = color_method_combo.getSelectedIndex();
 
                     } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(ptra, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 

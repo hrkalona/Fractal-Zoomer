@@ -21,7 +21,6 @@ import java.awt.*;
 public class HSBAdjustFilter extends PointFilter {
 	
 	public float hFactor, sFactor, bFactor;
-	private float[] hsb = new float[3];
 	
 	public HSBAdjustFilter() {
 		this(0, 0, 0);
@@ -64,6 +63,7 @@ public class HSBAdjustFilter extends PointFilter {
 		int r = (rgb >> 16) & 0xff;
 		int g = (rgb >> 8) & 0xff;
 		int b = rgb & 0xff;
+		float[] hsb = new float[3];
 		Color.RGBtoHSB(r, g, b, hsb);
 		hsb[0] += hFactor;
 		while (hsb[0] < 0)

@@ -60,4 +60,14 @@ public abstract class SecantRootFindingMethod extends RootFindingMethods {
         return z;
         
     }
+
+    public static Complex secantStep(Complex z, Complex fz, Complex z1, Complex fz1) {
+
+        Complex temp = new Complex(z);
+        Complex step = (fz.times((z.sub(z1)).divide_mutable(fz.sub(fz1))));
+        z1.assign(temp);
+        fz1.assign(fz);
+        return step;
+
+    }
 }

@@ -212,7 +212,7 @@ public class LaguerreFormulaDialog extends JDialog {
                         return;
                     }
                     catch (Exception ex) {
-                        JOptionPane.showMessageDialog(ptra, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 

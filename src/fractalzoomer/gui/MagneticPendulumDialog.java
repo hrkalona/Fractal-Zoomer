@@ -239,7 +239,7 @@ public class MagneticPendulumDialog extends JDialog {
                         s.fns.mps.stepsize_im = temp_stepsize_im;
                         s.fns.mps.magnetPendVariableId = variable_choice.getSelectedIndex();
                     } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(ptra, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 

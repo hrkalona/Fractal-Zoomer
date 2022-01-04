@@ -17,6 +17,8 @@
 package fractalzoomer.bailout_conditions;
 
 import fractalzoomer.core.BigComplex;
+import fractalzoomer.core.BigNum;
+import fractalzoomer.core.BigNumComplex;
 import fractalzoomer.core.Complex;
 import org.apfloat.Apfloat;
 
@@ -55,6 +57,15 @@ public class SkipBailoutCondition extends BailoutCondition {
 
         return wrappedCondition.escaped(z, zold, zold2, iterations, c, start, c0, norm_squared, pixel);
 
+    }
+
+    @Override
+    public boolean escaped(BigNumComplex z, BigNumComplex zold, BigNumComplex zold2, int iterations, BigNumComplex c, BigNumComplex start, BigNumComplex c0, BigNum norm_squared, BigNumComplex pixel) {
+        if(iterations < SKIPPED_ITERATION_COUNT) {
+            return false;
+        }
+
+        return wrappedCondition.escaped(z, zold, zold2, iterations, c, start, c0, norm_squared, pixel);
     }
     
 }

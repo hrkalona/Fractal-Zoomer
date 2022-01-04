@@ -271,7 +271,7 @@ public class FractalColorsFrame extends JFrame {
                     temp = Integer.parseInt(magnetOffsetopt.getText());
                 }
                 catch (Exception ex) {
-                    JOptionPane.showMessageDialog(ptra, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
 

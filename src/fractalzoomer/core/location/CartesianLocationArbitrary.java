@@ -1,5 +1,6 @@
-package fractalzoomer.core;
+package fractalzoomer.core.location;
 
+import fractalzoomer.core.*;
 import fractalzoomer.functions.Fractal;
 import org.apfloat.Apfloat;
 
@@ -72,6 +73,8 @@ public class CartesianLocationArbitrary extends Location {
 
         ddantialiasing_y = other.ddantialiasing_y;
         ddantialiasing_x = other.ddantialiasing_x;
+
+        reference = other.reference;
     }
 
     @Override
@@ -180,12 +183,12 @@ public class CartesianLocationArbitrary extends Location {
     }
 
     @Override
-    public MantExp getSeriesApproxSize() {
+    public MantExp getMaxSizeInImage() {
         if(height_ratio == 1) {
-            return new MantExp(MyApfloat.fp.multiply(MyApfloat.fp.multiply(ddsize, new MyApfloat(0.525)), MyApfloat.SQRT_TWO));
+            return new MantExp(MyApfloat.fp.multiply(MyApfloat.fp.multiply(ddsize, new MyApfloat(0.5)), MyApfloat.SQRT_TWO));
         }
         else {
-            Apfloat temp = MyApfloat.fp.multiply(ddsize, new MyApfloat(0.525));
+            Apfloat temp = MyApfloat.fp.multiply(ddsize, new MyApfloat(0.5));
             Apfloat temp2 = MyApfloat.fp.multiply(temp, new MyApfloat(height_ratio));
             return new MantExp(MyApfloat.fp.sqrt(MyApfloat.fp.add(MyApfloat.fp.multiply(temp, temp), MyApfloat.fp.multiply(temp2, temp2))));
         }

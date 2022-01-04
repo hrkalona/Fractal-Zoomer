@@ -35,7 +35,7 @@ public class GreedyAlgorithmsFrame extends JFrame {
 	private Component ptra2;
     private JFrame this_frame;
 
-    public GreedyAlgorithmsFrame(Component ptra, boolean greedy_algorithm, int greedy_algorithm_selection) {
+    public GreedyAlgorithmsFrame(Component ptra, boolean greedy_algorithm, int greedy_algorithm_selection, int brute_force_alg) {
 
         super();
         ptra2 = ptra;
@@ -43,7 +43,7 @@ public class GreedyAlgorithmsFrame extends JFrame {
 
         ptra2.setEnabled(false);
         int color_window_width = 800;
-        int color_window_height = 300;
+        int color_window_height = 340;
         setTitle("Greedy Drawing Algorithms");
         setSize(color_window_width, color_window_height);
         setIconImage(getIcon("/fractalzoomer/icons/greedy_algorithm.png").getImage());
@@ -212,6 +212,26 @@ public class GreedyAlgorithmsFrame extends JFrame {
 
         });
 
+        JPanel panel3 = new JPanel();
+        panel3.setBackground(MainWindow.bg_color);
+
+        JComboBox brute_force_alg_opt = new JComboBox(new String[] {"Chunks", "Grid"});
+        brute_force_alg_opt.setSelectedIndex(brute_force_alg);
+        brute_force_alg_opt.setFocusable(false);
+        brute_force_alg_opt.setToolTipText("Sets the brute force algorithm.");
+
+        brute_force_alg_opt.setEnabled(!greedy_algorithm_opt.isSelected());
+
+        greedy_algorithm_opt.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                brute_force_alg_opt.setEnabled(!greedy_algorithm_opt.isSelected());
+            }
+        });
+
+        panel3.add(new JLabel("Brute Force Algorithm: "));
+        panel3.add(brute_force_alg_opt);
+
         JButton ok = new JButton("Ok");
         getRootPane().setDefaultButton(ok);
         ok.setFocusable(false);
@@ -247,10 +267,10 @@ public class GreedyAlgorithmsFrame extends JFrame {
                 }
 
                 if(ptra2 instanceof MainWindow) {
-                    ((MainWindow)ptra2).boundaryTracingOptionsChanged(greedy_algorithm_opt.isSelected(), algorithm);
+                    ((MainWindow)ptra2).boundaryTracingOptionsChanged(greedy_algorithm_opt.isSelected(), algorithm, brute_force_alg_opt.getSelectedIndex());
                 }
                 else {
-                    ((ImageExpanderWindow)ptra2).boundaryTracingOptionsChanged(greedy_algorithm_opt.isSelected(), algorithm);
+                    ((ImageExpanderWindow)ptra2).boundaryTracingOptionsChanged(greedy_algorithm_opt.isSelected(), algorithm,  brute_force_alg_opt.getSelectedIndex());
                 }
 
                 ptra2.setEnabled(true);
@@ -287,7 +307,7 @@ public class GreedyAlgorithmsFrame extends JFrame {
 
         RoundedPanel round_panel = new RoundedPanel(true, true, true, 15);
         round_panel.setBackground(MainWindow.bg_color);
-        round_panel.setPreferredSize(new Dimension(730, 220));
+        round_panel.setPreferredSize(new Dimension(730, 260));
         round_panel.setLayout(new GridBagLayout());
 
         GridBagConstraints con = new GridBagConstraints();
@@ -301,6 +321,12 @@ public class GreedyAlgorithmsFrame extends JFrame {
         con.fill = GridBagConstraints.CENTER;
         con.gridx = 0;
         con.gridy = 1;
+
+        round_panel.add(panel3, con);
+
+        con.fill = GridBagConstraints.CENTER;
+        con.gridx = 0;
+        con.gridy = 2;
 
         round_panel.add(buttons, con);
 

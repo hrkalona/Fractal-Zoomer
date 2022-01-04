@@ -18,6 +18,8 @@
 package fractalzoomer.planes.distort;
 
 import fractalzoomer.core.BigComplex;
+import fractalzoomer.core.BigNum;
+import fractalzoomer.core.BigNumComplex;
 import fractalzoomer.core.Complex;
 import fractalzoomer.planes.Plane;
 
@@ -47,6 +49,13 @@ public class ShearPlane extends Plane {
     public BigComplex transform(BigComplex pixel) {
 
         return pixel.shear(new BigComplex(plane_transform_scales[0], plane_transform_scales[1]));
+
+    }
+
+    @Override
+    public BigNumComplex transform(BigNumComplex pixel) {
+
+        return pixel.shear(new BigNumComplex(plane_transform_scales[0], plane_transform_scales[1]));
 
     }
 }

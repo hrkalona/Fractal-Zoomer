@@ -1,3 +1,19 @@
+Version 1.0.8.1
+    -Added a new fixed point precision implementation (BigNum)
+    -Optimized the reference calculation and pixel to coordinate mapping on all fractals that support pertubation and do not use division
+    -Reduced the memory footprint of the reference orbit
+    -Reduced the memory footprint when saving struct-like types and saved them like primitive values
+    -Optimized SA for Mandelbrot, add thread support, and increased the terms up to 257
+    -Optimized reference calculation in order to reuse the computed norm data for the fractal function calculation
+    -Implemented BLA for Mandelbrot 2-5 powers
+    -Added thread support for some image filters
+    -Implemented more Anti-Aliasing algorithms
+    -Added calculation statistics
+    -Added global method for User Formula Nova
+    -Added new mapping options in Histogram Coloring and fixed some bugs
+    -Added norm types in some statistical coloring algorithms
+    -Bug fixes and stability changes
+ 
 Version 1.0.8.0
     -Added new function Newton Third Degree Parameter Space
     -Added Perturbation Theory for Nova Newton z^3-1 and Newton Third Degree Parameter Space and Newton3

@@ -60,4 +60,10 @@ public abstract class NewtonHinesRootFindingMethod extends RootFindingMethods {
         return z;
         
     }
+
+    public static Complex newtonHinesStep(Complex z, Complex fz, Complex dfz, Complex k) {
+
+        return ((fz).divide_mutable(dfz.sub(fz.divide(z).times_mutable(k))));
+
+    }
 }

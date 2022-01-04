@@ -534,6 +534,10 @@ public class CommonFunctions implements Constants {
                 overview += tab + "f(z) = " + s.fns.user_fz_formula + "<br>";
             }
 
+            if(s.fns.useGlobalMethod) {
+                overview += tab + "Global Method<br>";
+                overview += tab2 + "Step Factor = " + Complex.toString2(s.fns.globalMethodFactor[0], s.fns.globalMethodFactor[1]) + "<br>";
+            }
             overview += tab + "Relaxation = " + s.fns.user_relaxation_formula + "<br>";
             overview += tab + "Addend = " + s.fns.user_nova_addend_formula + "<br>";
         }
@@ -560,25 +564,25 @@ public class CommonFunctions implements Constants {
 
         if ((s.fns.function <= 9 || s.fns.function == MANDELPOLY || s.fns.function == MANDELBROTWTH) && s.fns.burning_ship) {
             overview += tab + "Burning Ship<br>";
-            overview += tab2 + "z = abs(z), applied before the function evaluation.<br>";
+            overview += tab2 + "z = abs(z), applied before the function evaluation<br>";
         }
 
         if ((s.fns.function <= 9 || s.fns.function == MANDELPOLY || s.fns.function == MANDELBROTWTH) && s.fns.mandel_grass && !s.isPertubationTheoryInUse()) {
             overview += tab + "Mandel Grass = " + Complex.toString2(s.fns.mandel_grass_vals[0], s.fns.mandel_grass_vals[1]) + "<br>";
-            overview += tab2 + "z = z + (MG * z)/(norm(z)), applied after the function evaluation.<br>";
+            overview += tab2 + "z = z + (MG * z)/(norm(z)), applied after the function evaluation<br>";
         }
         overview += "<br>";
 
         if (s.fns.julia) {
             if(s.fns.juliter) {
-                overview += "<b><font color='red'>Julia Seed:</font></b> " + Complex.toString2(s.xJuliaCenter, s.yJuliaCenter) + " is replacing the c constant in the formula after the iteration " + s.fns.juliterIterations + " (Juliter).<br><br>";
+                overview += "<b><font color='red'>Julia Seed:</font></b> " + Complex.toString2(s.xJuliaCenter, s.yJuliaCenter) + " is replacing the c constant in the formula after the iteration " + s.fns.juliterIterations + " (Juliter)<br><br>";
             }
             else {
-                overview += "<b><font color='red'>Julia Seed:</font></b> " + Complex.toString2(s.xJuliaCenter, s.yJuliaCenter) + " is replacing the c constant in the formula.<br><br>";
+                overview += "<b><font color='red'>Julia Seed:</font></b> " + Complex.toString2(s.xJuliaCenter, s.yJuliaCenter) + " is replacing the c constant in the formula<br><br>";
             }
         }
 
-        overview += "<b><font color='red'>Plane Transformation:</font></b> Applies the transformation \"" + PlanesMenu.planeNames[s.fns.plane_type] + "\" to every plane point c.<br>";
+        overview += "<b><font color='red'>Plane Transformation:</font></b> Applies the transformation \"" + PlanesMenu.planeNames[s.fns.plane_type] + "\" to every plane point c<br>";
 
         if (s.fns.plane_type == CIRCLEINVERSION_PLANE) {
             overview += tab + "Center = " + Complex.toString2(s.fns.plane_transform_center[0], s.fns.plane_transform_center[1]) + "<br>";
@@ -630,11 +634,11 @@ public class CommonFunctions implements Constants {
 
         if (!s.fns.perturbation && !s.fns.init_val && s.functionSupportsC() && (s.fns.julia || s.julia_map)) {
             if (s.fns.apply_plane_on_julia && s.fns.apply_plane_on_julia_seed) {
-                overview += "<b><font color='red'>Julia Set Plane Transformation:</font></b> Applicable to the Julia Seed and the Whole Plane (c).<br><br>";
+                overview += "<b><font color='red'>Julia Set Plane Transformation:</font></b> Applicable to the Julia Seed and the Whole Plane (c)<br><br>";
             } else if (s.fns.apply_plane_on_julia) {
-                overview += "<b><font color='red'>Julia Set Plane Transformation:</font></b> Applicable to Whole Plane (c).<br><br>";
+                overview += "<b><font color='red'>Julia Set Plane Transformation:</font></b> Applicable to Whole Plane (c)<br><br>";
             } else if (s.fns.apply_plane_on_julia_seed) {
-                overview += "<b><font color='red'>Julia Set Plane Transformation:</font></b> Applicable to the Julia Seed.<br><br>";
+                overview += "<b><font color='red'>Julia Set Plane Transformation:</font></b> Applicable to the Julia Seed<br><br>";
             }
         }
 
@@ -756,12 +760,16 @@ public class CommonFunctions implements Constants {
 
         overview += "<b><font color='red'>Maximum Iterations:</font></b> " + s.max_iterations + "<br><br>";
 
+        if(s.isPeriodInUse()) {
+            overview += "<b><font color='red'>Period:</font></b> " + s.fns.period + "<br><br>";
+        }
+
         if (!s.ds.domain_coloring && !s.isConvergingType() && s.fns.function != KLEINIAN && (s.fns.function != LYAPUNOV || (s.fns.function == LYAPUNOV && !s.fns.lpns.lyapunovskipBailoutCheck))) {
 
             if (s.fns.bailout_test_algorithm == BAILOUT_CONDITION_NO_BAILOUT) {
-                overview += "<b><font color='red'>Bailout Condition:</font></b> The escaping condition is disabled.<br>";
+                overview += "<b><font color='red'>Bailout Condition:</font></b> The escaping condition is disabled<br>";
             } else {
-                overview += "<b><font color='red'>Bailout Condition:</font></b> Escaping when the criterion defined by the bailout condition \"" + BailoutConditionsMenu.bailoutConditionNames[s.fns.bailout_test_algorithm] + "\" is met.<br>";
+                overview += "<b><font color='red'>Bailout Condition:</font></b> Escaping when the criterion defined by the bailout condition \"" + BailoutConditionsMenu.bailoutConditionNames[s.fns.bailout_test_algorithm] + "\" is met<br>";
                 if (s.fns.bailout_test_algorithm == BAILOUT_CONDITION_NNORM) {
                     overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[(abs(re(z))^" + s.fns.n_norm + " + abs(im(z))^" + s.fns.n_norm + ")^(1/" + s.fns.n_norm + ") >= bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
                     overview += tab + "<font color='" + keyword_color + "'>else then</font> Not Escaped";
@@ -815,7 +823,7 @@ public class CommonFunctions implements Constants {
                 } else if (s.fns.bailout_test_algorithm == BAILOUT_CONDITION_FIELD_LINES) {
                     overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[re(z) / re(p) >= bailout and im(z) / im(p) >= bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
                     overview += tab + "<font color='" + keyword_color + "'>else then</font> Not Escaped<br>";
-                    overview += tab + "p is the previous value of z.<br>";
+                    overview += tab + "p is the previous value of z<br>";
                 } else if (s.fns.bailout_test_algorithm == BAILOUT_CONDITION_CROSS) {
                     overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[abs(re(z)) >= bailout and abs(im(z)) >= bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
                     overview += tab + "<font color='" + keyword_color + "'>else then</font> Not Escaped<br>";
@@ -839,24 +847,24 @@ public class CommonFunctions implements Constants {
             }
 
             if (s.isMagnetType()) {
-                overview += "<b><font color='red'>Bailout Condition 2:</font></b> Escaping when the criterion defined by the convergent bailout condition \"" + ConvergentBailoutConditionsMenu.convergentBailoutConditionNames[s.fns.cbs.convergent_bailout_test_algorithm] + "\" is met.<br>";
+                overview += "<b><font color='red'>Bailout Condition 2:</font></b> Escaping when the criterion defined by the convergent bailout condition \"" + ConvergentBailoutConditionsMenu.convergentBailoutConditionNames[s.fns.cbs.convergent_bailout_test_algorithm] + "\" is met<br>";
                 if(s.fns.cbs.convergent_bailout_test_algorithm == Constants.CONVERGENT_BAILOUT_CONDITION_CIRCLE) {
-                    overview += tab + "Escaping when a complex value almost reaches 1 + 0i (convergence).<br>";
+                    overview += tab + "Escaping when a complex value almost reaches 1 + 0i (convergence)<br>";
                     overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[norm(z - 1 - 0i) &#60;= convergent bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
                     overview += tab + "<font color='" + keyword_color + "'>else then</font> Not Escaped<br>";
                 }
                 else if(s.fns.cbs.convergent_bailout_test_algorithm == Constants.CONVERGENT_BAILOUT_CONDITION_SQUARE) {
-                    overview += tab + "Escaping when a complex value almost reaches 1 + 0i (convergence).<br>";
+                    overview += tab + "Escaping when a complex value almost reaches 1 + 0i (convergence)<br>";
                     overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[abs(re(z - 1 - 0i)) &#60;= convergent bailout or abs(im(z - 1 - 0i)) &#60;= convergent bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
                     overview += tab + "<font color='" + keyword_color + "'>else then</font> Not Escaped<br>";
                 }
                 else if(s.fns.cbs.convergent_bailout_test_algorithm == Constants.CONVERGENT_BAILOUT_CONDITION_RHOMBUS) {
-                    overview += tab + "Escaping when a complex value almost reaches 1 + 0i (convergence).<br>";
+                    overview += tab + "Escaping when a complex value almost reaches 1 + 0i (convergence)<br>";
                     overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[abs(re(z - 1 - 0i)) + abs(im(z - 1 - 0i)) &#60;= convergent bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
                     overview += tab + "<font color='" + keyword_color + "'>else then</font> Not Escaped<br>";
                 }
                 else if(s.fns.cbs.convergent_bailout_test_algorithm == Constants.CONVERGENT_BAILOUT_CONDITION_NNORM) {
-                    overview += tab + "Escaping when a complex value almost reaches 1 + 0i (convergence).<br>";
+                    overview += tab + "Escaping when a complex value almost reaches 1 + 0i (convergence)<br>";
                     overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[(abs(re(z - 1 - 0i))^" + s.fns.n_norm + " + abs(im(z - 1 - 0i))^" + s.fns.n_norm + ")^(1/" + s.fns.n_norm + ") &#60;= convergent bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
                     overview += tab + "<font color='" + keyword_color + "'>else then</font> Not Escaped<br>";
                 }
@@ -905,25 +913,25 @@ public class CommonFunctions implements Constants {
 
         } else if (!s.ds.domain_coloring && s.fns.function != KLEINIAN && s.fns.function != MAGNETIC_PENDULUM) {
 
-            overview += "<b><font color='red'>Bailout Condition:</font></b> Escaping when the criterion defined by the convergent bailout condition \"" + ConvergentBailoutConditionsMenu.convergentBailoutConditionNames[s.fns.cbs.convergent_bailout_test_algorithm] + "\" is met.<br>";
+            overview += "<b><font color='red'>Bailout Condition:</font></b> Escaping when the criterion defined by the convergent bailout condition \"" + ConvergentBailoutConditionsMenu.convergentBailoutConditionNames[s.fns.cbs.convergent_bailout_test_algorithm] + "\" is met<br>";
 
             if(s.fns.cbs.convergent_bailout_test_algorithm == Constants.CONVERGENT_BAILOUT_CONDITION_CIRCLE) {
-                overview += tab + "Escaping when two consecutive complex values are almost the same (convergence).<br>";
+                overview += tab + "Escaping when two consecutive complex values are almost the same (convergence)<br>";
                 overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[norm(z - p) &#60;= convergent bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
                 overview += tab + "<font color='" + keyword_color + "'>else then</font> Not Escaped<br>";
             }
             else if(s.fns.cbs.convergent_bailout_test_algorithm == Constants.CONVERGENT_BAILOUT_CONDITION_SQUARE) {
-                overview += tab + "Escaping when two consecutive complex values are almost the same (convergence).<br>";
+                overview += tab + "Escaping when two consecutive complex values are almost the same (convergence)<br>";
                 overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[abs(re(z - p)) &#60;= convergent bailout or abs(im(z - p)) &#60;= convergent bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
                 overview += tab + "<font color='" + keyword_color + "'>else then</font> Not Escaped<br>";
             }
             else if(s.fns.cbs.convergent_bailout_test_algorithm == Constants.CONVERGENT_BAILOUT_CONDITION_RHOMBUS) {
-                overview += tab + "Escaping when two consecutive complex values are almost the same (convergence).<br>";
+                overview += tab + "Escaping when two consecutive complex values are almost the same (convergence)<br>";
                 overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[abs(re(z - p)) + abs(im(z - p)) &#60;= convergent bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
                 overview += tab + "<font color='" + keyword_color + "'>else then</font> Not Escaped<br>";
             }
             else if(s.fns.cbs.convergent_bailout_test_algorithm == Constants.CONVERGENT_BAILOUT_CONDITION_NNORM) {
-                overview += tab + "Escaping when two consecutive complex values are almost the same (convergence).<br>";
+                overview += tab + "Escaping when two consecutive complex values are almost the same (convergence)<br>";
                 overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[(abs(re(z - p))^" + s.fns.n_norm + " + abs(im(z - p))^" + s.fns.n_norm + ")^(1/" + s.fns.n_norm + ") &#60;= convergent bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
                 overview += tab + "<font color='" + keyword_color + "'>else then</font> Not Escaped<br>";
             }
@@ -970,11 +978,11 @@ public class CommonFunctions implements Constants {
 
 
         } else if (!s.ds.domain_coloring && s.fns.function == KLEINIAN) {
-            overview += "<b><font color='red'>Bailout Condition:</font></b> Escaping when a value reaches out of bounds.<br>";
+            overview += "<b><font color='red'>Bailout Condition:</font></b> Escaping when a value reaches out of bounds<br>";
             overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[Im(z) &#60; 0 or Im(z) > " + s.fns.kleinianLine[0] + "]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
             overview += tab + "<font color='" + keyword_color + "'>else then</font> Not Escaped<br><br>";
         } else if (!s.ds.domain_coloring && s.fns.function == MAGNETIC_PENDULUM) {
-            overview += "<b><font color='red'>Bailout Condition:</font></b> Escaping when the maximum iterations value is reached.<br><br>";
+            overview += "<b><font color='red'>Bailout Condition:</font></b> Escaping when the maximum iterations value is reached<br><br>";
         }
 
         overview += "<b><font color='red'>Rotation:</font></b> " + s.fns.rotation + " <font color='" + keyword_color + "'>degrees about</font> " + BigComplex.toString2Pretty(s.fns.rotation_center[0], s.fns.rotation_center[1], s.size) + "<br><br>";
@@ -1026,12 +1034,20 @@ public class CommonFunctions implements Constants {
                         overview += tab2 + "Stripe Denominator Factor = " + s.sts.StripeDenominatorFactor + "<br>";
                     }
                     else if (s.sts.statistic_type == Constants.ATOM_DOMAIN_BOF60_BOF61) {
+                        overview += tab2 + "Norm Type = " + Constants.atomNormTypes[s.sts.atomNormType] + "<br>";
+                        if(s.sts.atomNormType == 3) {
+                            overview += tab3 + "N-Norm = " + s.sts.atomNNorm + "<br>";
+                        }
                         if (s.sts.showAtomDomains) {
-                            overview += tab2 + "Shows atom domains.<br>";
+                            overview += tab2 + "Shows atom domains<br>";
                         }
                     }
                     else if(s.sts.statistic_type == Constants.DISCRETE_LAGRANGIAN_DESCRIPTORS) {
                         overview += tab2 + "Power = " + s.sts.lagrangianPower + "<br>";
+                        overview += tab2 + "Norm Type = " + Constants.langNormTypes[s.sts.langNormType] + "<br>";
+                        if(s.sts.langNormType == 4) {
+                            overview += tab3 + "N-Norm = " + s.sts.langNNorm + "<br>";
+                        }
                     }
                     else if(s.sts.statistic_type == Constants.TWIN_LAMPS) {
                         overview += tab2 + "Point = " + Complex.toString2(s.sts.twlPoint[0], s.sts.twlPoint[1]) + "<br>";
@@ -1088,7 +1104,7 @@ public class CommonFunctions implements Constants {
                         overview += tab2 + "Angle = " + s.sts.normalMapAngle + "<br>";
 
                         if(s.sts.normalMapUseSecondDerivative) {
-                            overview += tab2 + "Using second derivative.<br>";
+                            overview += tab2 + "Using second derivative<br>";
                         }
 
                         if(s.sts.normalMapOverrideColoring) {
@@ -1156,7 +1172,7 @@ public class CommonFunctions implements Constants {
 
                     if (s.sts.statisticGroup == 1) {
                         if (s.sts.useSmoothing && s.sts.reductionFunction == Constants.REDUCTION_SUM) {
-                            overview += tab + "Smooth Sum.<br>";
+                            overview += tab + "Smooth Sum<br>";
                         }
 
                         if (s.sts.useAverage && s.sts.reductionFunction == Constants.REDUCTION_SUM) {
@@ -1164,7 +1180,7 @@ public class CommonFunctions implements Constants {
                         }
                     } else if (s.sts.statisticGroup == 0) {
                         if (s.sts.useSmoothing && s.sts.statistic_type != Constants.ATOM_DOMAIN_BOF60_BOF61 && s.sts.statistic_type != Constants.COS_ARG_DIVIDE_INVERSE_NORM && s.sts.statistic_type != Constants.TWIN_LAMPS) {
-                            overview += tab + "Smooth Sum.<br>";
+                            overview += tab + "Smooth Sum<br>";
                         }
 
                         if (s.sts.useAverage && s.sts.statistic_type != Constants.ATOM_DOMAIN_BOF60_BOF61 && s.sts.statistic_type != Constants.COS_ARG_DIVIDE_INVERSE_NORM && s.sts.statistic_type != Constants.TWIN_LAMPS) {
@@ -1172,7 +1188,7 @@ public class CommonFunctions implements Constants {
                         }
                     } else if (s.sts.statisticGroup == 2) {
                         if (s.sts.useSmoothing) {
-                            overview += tab + "Smooth Sum.<br>";
+                            overview += tab + "Smooth Sum<br>";
                         }
 
                         if (s.sts.useAverage) {
@@ -1408,9 +1424,9 @@ public class CommonFunctions implements Constants {
                     overview += tab + "Interpolation percent = " + s.ots.trapColorInterpolation + "<br>";
 
                     if (s.ots.trapCellularStructure) {
-                        overview += tab + "Uses cellular structure.<br>";
+                        overview += tab + "Uses cellular structure<br>";
                         if (s.ots.trapCellularInverseColor) {
-                            overview += tab2 + "Uses inverted coloring.<br>";
+                            overview += tab2 + "Uses inverted coloring<br>";
                         }
                         overview += tab2 + "Cellular Size = " + s.ots.trapCellularSize + "<br>";
                     }
@@ -1423,7 +1439,10 @@ public class CommonFunctions implements Constants {
                     overview += tab + "Includes not escaped points<br>";
                 }
                 if (s.ots.countTrapIterations) {
-                    overview += tab + "Counts trap iterations.<br>";
+                    overview += tab + "Counts trap iterations<br>";
+                }
+                if (s.ots.showOnlyTraps) {
+                    overview += tab + "Shows only traps<br>";
                 }
 
                 if (s.ots.trapType != Constants.IMAGE_TRAP) {
@@ -1431,7 +1450,7 @@ public class CommonFunctions implements Constants {
                     overview += tab + "Height Function = " + Constants.trapHeightAlgorithms[s.ots.trapHeightFunction] + "<br>";
                     
                     if(s.ots.invertTrapHeight) {
-                        overview += tab + "Inverts trap height.<br>";
+                        overview += tab + "Inverts trap height<br>";
                     }
                 }
 
@@ -1440,11 +1459,15 @@ public class CommonFunctions implements Constants {
 
             if (s.hss.histogramColoring) {
                 overview += "<b><font color='red'>Histogram Coloring:</font></b><br>";
-                overview += tab + "Bin Granularity = " + s.hss.histogramBinGranularity + "<br>";
-                overview += tab + "Density = " + s.hss.histogramDensity + "<br>";
+
+                overview += tab + "Mapping = " + histogramMapping[s.hss.hmapping] + "<br>";
+                if(s.hss.hmapping == 0) {
+                    overview += tab2 + "Bin Granularity = " + s.hss.histogramBinGranularity + "<br>";
+                    overview += tab2 + "Density = " + s.hss.histogramDensity + "<br>";
+                    overview += tab2 + "Min Scaling = " + s.hss.histogramScaleMin + "<br>";
+                    overview += tab2 + "Max Scaling = " + s.hss.histogramScaleMax + "<br>";
+                }
                 overview += tab + "Color Blending = " + s.hss.hs_blending + "<br>";
-                overview += tab + "Min Scaling = " + s.hss.histogramScaleMin + "<br>";
-                overview += tab + "Max Scaling = " + s.hss.histogramScaleMax + "<br>";
                 overview += tab + "Noise Reduction Factor = " + s.hss.hs_noise_reducing_factor + "<br><br>";
             }
         }
@@ -1715,7 +1738,7 @@ public class CommonFunctions implements Constants {
                 saveOverview.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        JFileChooser file_chooser = new JFileChooser(".");
+                        JFileChooser file_chooser = new JFileChooser(MainWindow.SaveSettingsPath.isEmpty() ? "." : MainWindow.SaveSettingsPath);
                         file_chooser.setAcceptAllFileFilterUsed(false);
                         file_chooser.setDialogType(JFileChooser.SAVE_DIALOG);
 
@@ -1761,6 +1784,7 @@ public class CommonFunctions implements Constants {
 
                                 writer.close();
 
+                                MainWindow.SaveSettingsPath = file.getParent();
 
                             } catch (IOException ex) {
                             }
@@ -1957,20 +1981,20 @@ public class CommonFunctions implements Constants {
                 + "<font size='4' face='arial'>"
                 + "Disclaimer, the Offset Removal option is tightly coupled with the<br>"
                 + "implementation of the current software and its only provided in order to<br>"
-                + "bypass an implementation design.<br><br>"
+                + "bypass an implementation design<br><br>"
                 + "Coloring algorithms that apply an offset to the palette, based<br>"
                 + "on a specific condition, (Binary Decomposition Variant, Biomorph, Escape Time + Grid,<br>"
-                + "Escape Time + Field Lines Variant) will return a value offseted by 50.<br>"
+                + "Escape Time + Field Lines Variant) will return a value offseted by 50<br>"
                 + "The return value of these algorithms that contains the value 50 will be<br>"
-                + "negative in order for the software to determine this special offset.<br>"
+                + "negative in order for the software to determine this special offset<br>"
                 + "For instance Binary Decomposition will produce the following:<br>"
                 + "<b>(if im(z) &lt 0) then return -(n + 50) else return n</b><br><br>"
                 + "This constant offset value of 50, is creating noisy images when<br>"
-                + "applying processing algorithms like Bump-Mapping or Entropy Coloring.<br>"
+                + "applying processing algorithms like Bump-Mapping or Entropy Coloring<br>"
                 + "The same issue arises also in 3d mode, so in order to alleviate the problem,<br>"
-                + "this constant needs to be subtracted before applying any processing.<br><br>"
+                + "this constant needs to be subtracted before applying any processing<br><br>"
                 + "This action is already applied on the included coloring algorithms, but<br>"
-                + "it will not be used for the User Out/In Coloring Algorithms.<br>"
+                + "it will not be used for the User Out/In Coloring Algorithms<br>"
                 + "If you want to set your own coloring algorithm that uses this offset, you<br>"
                 + "must always choose the value of 50 to be the offset, and always produce a<br>"
                 + "negative value. Under those conditions you can enable the removal of the special<br>"

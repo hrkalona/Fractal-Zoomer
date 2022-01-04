@@ -35,6 +35,7 @@ public class OptimizationsMenu extends JMenu {
     private JMenuItem quick_draw_opt;
     private JMenuItem thread_number;
     private JMenuItem perturbation_theory;
+    private JCheckBoxMenuItem auto_repaint_image_opt;
     
     public OptimizationsMenu(MainWindow ptr2, String name) {
 
@@ -47,6 +48,7 @@ public class OptimizationsMenu extends JMenu {
         thread_number = new JMenuItem("Threads", getIcon("/fractalzoomer/icons/threads.png"));
         greedy_algorithm_item = new JMenuItem("Greedy Drawing Algorithms", getIcon("/fractalzoomer/icons/greedy_algorithm.png"));
         periodicity_checking_opt = new JCheckBoxMenuItem("Periodicity Checking");
+        auto_repaint_image_opt  = new JCheckBoxMenuItem("Show Drawing Progress");
         perturbation_theory = new JMenuItem("Perturbation Theory", getIcon("/fractalzoomer/icons/perturbation.png"));
 
         quick_draw_opt = new JMenuItem("Quick Draw Tiles", getIcon("/fractalzoomer/icons/quickdraw.png"));
@@ -62,6 +64,7 @@ public class OptimizationsMenu extends JMenu {
         periodicity_checking_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_K, ActionEvent.CTRL_MASK));
         greedy_algorithm_item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, ActionEvent.ALT_MASK));
         perturbation_theory.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_1, ActionEvent.ALT_MASK));
+        auto_repaint_image_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, ActionEvent.ALT_MASK | ActionEvent.SHIFT_MASK));
         
         thread_number.addActionListener(new ActionListener() {
 
@@ -103,6 +106,16 @@ public class OptimizationsMenu extends JMenu {
             }
         });
 
+        auto_repaint_image_opt.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setAutoRepaintImage();
+
+            }
+        });
+
         perturbation_theory.addActionListener(new ActionListener() {
 
             @Override
@@ -123,6 +136,8 @@ public class OptimizationsMenu extends JMenu {
         add(periodicity_checking_opt);
         addSeparator();
         add(quick_draw_opt);
+        addSeparator();
+        add(auto_repaint_image_opt);
     }
     
     private ImageIcon getIcon(String path) {
@@ -135,6 +150,12 @@ public class OptimizationsMenu extends JMenu {
     
         return periodicity_checking_opt;
         
+    }
+
+    public JCheckBoxMenuItem getAutoRepaintImage() {
+
+        return auto_repaint_image_opt;
+
     }
     
     public JMenuItem getGreedyAlgorithm() {

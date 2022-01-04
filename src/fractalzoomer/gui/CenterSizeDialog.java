@@ -58,7 +58,7 @@ public class CenterSizeDialog extends JDialog {
         setModal(true);
         setIconImage(getIcon("/fractalzoomer/icons/mandel2.png").getImage());
 
-        JTextArea field_real = new JTextArea(3, 50);
+        JTextArea field_real = new JTextArea(6, 50);
         field_real.setLineWrap(true);
         field_real.setFont(TEMPLATE_TFIELD.getFont());
 
@@ -76,7 +76,7 @@ public class CenterSizeDialog extends JDialog {
             field_real.setText("" + p.x.toString(true));
         }
 
-        JTextArea field_imaginary = new JTextArea(3, 50);
+        JTextArea field_imaginary = new JTextArea(6, 50);
         field_imaginary.setLineWrap(true);
         field_imaginary.setFont(TEMPLATE_TFIELD.getFont());
 
@@ -95,7 +95,7 @@ public class CenterSizeDialog extends JDialog {
             field_imaginary.setText("" + p.y.toString(true));
         }
 
-        JTextArea field_size = new JTextArea(3, 50);
+        JTextArea field_size = new JTextArea(6, 50);
         field_size.setLineWrap(true);
         field_size.setFont(TEMPLATE_TFIELD.getFont());
 
@@ -115,12 +115,32 @@ public class CenterSizeDialog extends JDialog {
         corners.setFocusable(false);
         corners.setIcon(getIcon("/fractalzoomer/icons/corners.png"));
 
+        JButton magnification = new JButton("Set Magnification");
+        magnification.setToolTipText("An alternative size option.");
+        magnification.setFocusable(false);
+        magnification.setIcon(getIcon("/fractalzoomer/icons/magnification.png"));
+
+        JPanel cornersPanel = new JPanel();
+        cornersPanel.add(corners);
+        cornersPanel.add(magnification);
+
         corners.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
 
                 new CornersDialog(ptr, s, field_real, field_imaginary, field_size);
+
+            }
+
+        });
+
+        magnification.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                new MagnificationDialog(ptr, s, field_size);
 
             }
 
@@ -145,7 +165,7 @@ public class CenterSizeDialog extends JDialog {
             "Imaginary:", scrollImaginary,
             "Size:", scrollSize,
             " ",
-            corners,
+            cornersPanel,
             " "};
 
         optionPane = new JOptionPane(message, JOptionPane.QUESTION_MESSAGE, JOptionPane.OK_CANCEL_OPTION, null, null, null);
@@ -197,7 +217,7 @@ public class CenterSizeDialog extends JDialog {
                         s.xCenter = MyApfloat.fp.add(MyApfloat.fp.add(MyApfloat.fp.multiply(tempReal, s.fns.rotation_vals[0]), MyApfloat.fp.multiply(tempImaginary, s.fns.rotation_vals[1])), s.fns.rotation_center[0]);
                         s.yCenter = MyApfloat.fp.add(MyApfloat.fp.add(MyApfloat.fp.multiply(tempReal.negate(), s.fns.rotation_vals[1]), MyApfloat.fp.multiply(tempImaginary, s.fns.rotation_vals[0])), s.fns.rotation_center[1]);
                     } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(ptra, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 

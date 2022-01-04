@@ -104,7 +104,7 @@ public class MandelbrotWthDialog extends JDialog {
                         s.fns.z_exponent_complex[0] = temp3 == 0.0 ? 0.0 : temp3;
                         s.fns.z_exponent_complex[1] = temp4 == 0.0 ? 0.0 : temp4;
                     } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(ptra, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 

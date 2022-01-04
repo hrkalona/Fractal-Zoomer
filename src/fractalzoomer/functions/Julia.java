@@ -171,6 +171,10 @@ public abstract class Julia extends Fractal {
             }
         }
         /*else {
+            BigNumComplex pixel = (BigNumComplex) gpixel;
+            return iterateFractalArbitraryPrecisionWithoutPeriodicity(initializeSeed(pixel), pixel);
+        }*/
+        /*else {
             BigComplex pixel = (BigComplex) gpixel;
             return iterateFractalArbitraryPrecisionWithoutPeriodicity(initializeSeed(pixel), pixel);
         }*/
@@ -216,6 +220,24 @@ public abstract class Julia extends Fractal {
 
         complex[0] = new BigComplex(pixel);//z
         complex[1] = new BigComplex(seed);//c
+
+
+        //zold = new Complex();
+        //zold2 = new Complex();
+        //start = new Complex(complex[0]);
+        //c0 = new Complex(complex[1]);
+
+        return complex;
+
+    }
+
+    @Override
+    public BigNumComplex[] initializeSeed(BigNumComplex pixel) {
+
+        BigNumComplex[] complex = new BigNumComplex[2];
+
+        complex[0] = new BigNumComplex(pixel);//z
+        complex[1] = new BigNumComplex(seed);//c
 
 
         //zold = new Complex();
@@ -316,8 +338,8 @@ public abstract class Julia extends Fractal {
             //No Plane influence work
             //No Pre filters work
             if(max_iterations > 1){
-                zWithoutInitVal = ReferenceSubCp[RefIteration].plus(DeltaSubN);
-                complex[0] = Reference[RefIteration].plus(DeltaSubN);
+                zWithoutInitVal = getArrayValue(ReferenceSubPixel, RefIteration).plus_mutable(DeltaSubN);
+                complex[0] = getArrayValue(Reference, RefIteration).plus_mutable(DeltaSubN);
             }
             //No Post filters work
 
@@ -365,14 +387,16 @@ public abstract class Julia extends Fractal {
         DeltaSubN.Reduce();
         long exp = DeltaSubN.getExp();
 
-        if(ThreadDraw.USE_FULL_FLOATEXP_FOR_DEEP_ZOOM || (skippedIterations == 0 && exp <= minExp) || (skippedIterations != 0 && exp <= reducedExp)) {
+        boolean useFullFloatExp = ThreadDraw.USE_FULL_FLOATEXP_FOR_DEEP_ZOOM;
+
+        if(useFullFloatExp || (skippedIterations == 0 && exp <= minExp) || (skippedIterations != 0 && exp <= reducedExp)) {
             MantExpComplex z = new MantExpComplex();
             for (; iterations < max_iterations; iterations++) {
                 if (trap != null) {
                     trap.check(complex[0], iterations);
                 }
 
-                if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, 0.0, pixel)) {
+                if (useFullFloatExp && bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, 0.0, pixel)) {
                     escaped = true;
 
                     Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0, pixel};
@@ -395,8 +419,8 @@ public abstract class Julia extends Fractal {
                 zold.assign(complex[0]);
 
                 if (max_iterations > 1) {
-                    z = ReferenceSubCpDeep[RefIteration].plus(DeltaSubN);
-                    complex[0] = ReferenceDeep[RefIteration].plus(DeltaSubN).toComplex();
+                    z = getArrayDeepValue(ReferenceSubPixelDeep, RefIteration).plus_mutable(DeltaSubN);
+                    complex[0] = getArrayDeepValue(ReferenceDeep, RefIteration).plus_mutable(DeltaSubN).toComplex();
                 }
 
                 if (statistic != null) {
@@ -410,7 +434,7 @@ public abstract class Julia extends Fractal {
 
                 DeltaSubN.Reduce();
 
-                if(!ThreadDraw.USE_FULL_FLOATEXP_FOR_DEEP_ZOOM) {
+                if(!useFullFloatExp) {
                     if (DeltaSubN.getExp() > reducedExp) {
                         iterations++;
                         break;
@@ -419,7 +443,7 @@ public abstract class Julia extends Fractal {
             }
         }
 
-        if(!ThreadDraw.USE_FULL_FLOATEXP_FOR_DEEP_ZOOM) {
+        if(!useFullFloatExp) {
             Complex CDeltaSubN = DeltaSubN.toComplex();
 
             for (; iterations < max_iterations; iterations++) {
@@ -455,8 +479,8 @@ public abstract class Julia extends Fractal {
                 //No Plane influence work
                 //No Pre filters work
                 if (max_iterations > 1) {
-                    zWithoutInitVal = ReferenceSubCp[RefIteration].plus(CDeltaSubN);
-                    complex[0] = Reference[RefIteration].plus(CDeltaSubN);
+                    zWithoutInitVal = getArrayValue(ReferenceSubPixel, RefIteration).plus_mutable(CDeltaSubN);
+                    complex[0] = getArrayValue(Reference, RefIteration).plus_mutable(CDeltaSubN);
                 }
                 //No Post filters work
 

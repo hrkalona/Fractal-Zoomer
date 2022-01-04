@@ -84,10 +84,10 @@ public class MemoryLabel extends JLabel {
         setText(Math.round(usedMemory) + "M / "
                 + Math.round(allocatedMemory) + "M / "
                 + Math.round(maxMemory) + "M");
-        setToolTipText("<html>Java heap space:<br>&bull; " + formatDouble(usedMemory, 1)
-                + " MiB used<br>&bull; " + formatDouble(allocatedMemory, 1)
-                + " MiB allocated<br>&bull; " + formatDouble(maxMemory, 1) + " MiB maximum"
-                + "<br>Installed RAM: " + formatDouble(installedMemory) + " MiB</html>");
+        setToolTipText("<html>Java heap space:<br>&bull; <b>" + formatDouble(usedMemory, 1)
+                + " MiB</b> used<br>&bull; <b>" + formatDouble(allocatedMemory, 1)
+                + " MiB</b> allocated<br>&bull; <b>" + formatDouble(maxMemory, 1) + " MiB</b> maximum"
+                + "<br>Installed RAM: <b>" + formatDouble(installedMemory) + " MiB</b></html>");
         repaint();
     }
 

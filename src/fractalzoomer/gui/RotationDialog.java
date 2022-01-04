@@ -116,7 +116,7 @@ public class RotationDialog extends JDialog {
 
         });
 
-        JTextArea field_real = new JTextArea(3, 50);
+        JTextArea field_real = new JTextArea(6, 50);
         field_real.setFont(TEMPLATE_TFIELD.getFont());
         field_real.setLineWrap(true);
 
@@ -133,7 +133,7 @@ public class RotationDialog extends JDialog {
             field_real.setText("" + s.fns.rotation_center[0].toString(true));
         }
 
-        JTextArea field_imaginary = new JTextArea(3, 50);
+        JTextArea field_imaginary = new JTextArea(6, 50);
         field_imaginary.setFont(TEMPLATE_TFIELD.getFont());
         field_imaginary.setLineWrap(true);
 
@@ -195,6 +195,42 @@ public class RotationDialog extends JDialog {
             }
         });
 
+        JButton resetValues = new JButton("Reset");
+        resetValues.setFocusable(false);
+        resetValues.setIcon(getIcon("/fractalzoomer/icons/reset_small.png"));
+
+        JPanel resetPanel = new JPanel();
+        resetPanel.add(resetValues);
+
+        resetValues.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Settings defaultSettings = new Settings();
+
+                field_rotation.setText("" + defaultSettings.fns.rotation);
+
+                rotation_slid.setValue((int)defaultSettings.fns.rotation);
+
+                if (defaultSettings.fns.rotation_center[0].compareTo(MyApfloat.ZERO) == 0) {
+                    field_real.setText("" + 0.0);
+                } else {
+                    field_real.setText("" + defaultSettings.fns.rotation_center[0].toString(true));
+                }
+
+                if (defaultSettings.fns.rotation_center[1].compareTo(MyApfloat.ZERO) == 0) {
+                    field_imaginary.setText("" + 0.0);
+                } else {
+                    field_imaginary.setText("" + defaultSettings.fns.rotation_center[1].toString(true));
+                }
+
+                current_center.setSelected(false);
+
+                field_imaginary.setEnabled(true);
+                field_real.setEnabled(true);
+            }
+        });
+
+
         Object[] message = {
             " ",
             "Set the rotation angle in degrees.",
@@ -203,7 +239,9 @@ public class RotationDialog extends JDialog {
             "Set the rotation center.",
             "Real:", scrollReal,
             "Imaginary:", scrollImaginary,
-            current_center, " "};
+            current_center, " ",
+                resetPanel,
+        " "};
 
         optionPane = new JOptionPane(message, JOptionPane.QUESTION_MESSAGE, JOptionPane.OK_CANCEL_OPTION, null, null, null);
 
@@ -269,7 +307,7 @@ public class RotationDialog extends JDialog {
                         s.xCenter = s.fns.rotation_center[0];
                         s.yCenter = s.fns.rotation_center[1];
                     } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(ptra, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 

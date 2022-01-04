@@ -275,7 +275,7 @@ public class UserFormulaCoupledDialog extends JDialog {
                             temp_freq = Double.parseDouble(field_frequency.getText());
                             temp_seed = Integer.parseInt(field_seed.getText());
                         } catch (Exception ex) {
-                            JOptionPane.showMessageDialog(ptra, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                             return;
                         }
 

@@ -2438,4 +2438,58 @@ public final class Complex extends GenericComplex {
             if (cd > 0.0)      return d + 2.0 * c;
             else      return -d;
     }
+
+    public double hypot() {
+        return Math.hypot(re, im);
+    }
+
+    /*
+     *  A*X + B*Y
+     */
+    public static final Complex AtXpBtY(Complex A, Complex X, Complex B, Complex Y) {
+
+        double Ax = A.re;
+        double Ay = A.im;
+        double Bx = B.re;
+        double By = B.im;
+        double zx = X.re;
+        double zy = X.im;
+        double cx = Y.re;
+        double cy = Y.im;
+
+        return new Complex(Ax * zx - Ay * zy + Bx * cx - By * cy, Ax * zy + Ay * zx + Bx * cy + By * cx);
+
+    }
+
+    /*
+     *  A*X + B
+     */
+    public static final Complex AtXpB(Complex A, Complex X, Complex B) {
+
+        double Ax = A.re;
+        double Ay = A.im;
+        double Bx = B.re;
+        double By = B.im;
+        double zx = X.re;
+        double zy = X.im;
+
+        return new Complex(Ax * zx - Ay * zy + Bx, Ax * zy + Ay * zx + By);
+
+    }
+
+    /*
+     *  A*X + Y
+     */
+    public static final Complex AtXpY(Complex A, Complex X, Complex Y) {
+
+        double Ax = A.re;
+        double Ay = A.im;
+        double zx = X.re;
+        double zy = X.im;
+        double cx = Y.re;
+        double cy = Y.im;
+
+        return new Complex(Ax * zx - Ay * zy + cx, Ax * zy + Ay * zx + cy);
+
+    }
 }

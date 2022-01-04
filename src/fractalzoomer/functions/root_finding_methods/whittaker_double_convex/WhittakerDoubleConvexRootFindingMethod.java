@@ -44,11 +44,11 @@ public abstract class WhittakerDoubleConvexRootFindingMethod extends RootFinding
     public Complex whittakerDoubleConvexMethod(Complex z, Complex fz, Complex dfz, Complex ddfz) {
         
         Complex ufz = fz.divide(dfz);
-	Complex lfz = fz.times(ddfz).divide_mutable(dfz.square());
-		
-	Complex fraction = (lfz.times(2).plus_mutable(4)).divide_mutable(lfz.times(lfz.r_sub(2)).r_sub_mutable(2));
-		
-	z.sub_mutable(ufz.times(0.25).times_mutable(lfz.r_sub(2).plus_mutable(fraction)));
+        Complex lfz = fz.times(ddfz).divide_mutable(dfz.square());
+
+        Complex fraction = (lfz.times(2).plus_mutable(4)).divide_mutable(lfz.times(lfz.r_sub(2)).r_sub_mutable(2));
+
+        z.sub_mutable(ufz.times(0.25).times_mutable(lfz.r_sub(2).plus_mutable(fraction)));
         
         return z;
         
@@ -57,13 +57,24 @@ public abstract class WhittakerDoubleConvexRootFindingMethod extends RootFinding
     public static Complex whittakerDoubleConvexMethod(Complex z, Complex fz, Complex dfz, Complex ddfz, Complex relaxation) {
        
         Complex ufz = fz.divide(dfz);
-	Complex lfz = fz.times(ddfz).divide_mutable(dfz.square());
-		
-	Complex fraction = (lfz.times(2).plus_mutable(4)).divide_mutable(lfz.times(lfz.r_sub(2)).r_sub_mutable(2));
-		
-	z.sub_mutable((ufz.times(0.25).times_mutable(lfz.r_sub(2).plus_mutable(fraction))).times_mutable(relaxation));
+        Complex lfz = fz.times(ddfz).divide_mutable(dfz.square());
+
+        Complex fraction = (lfz.times(2).plus_mutable(4)).divide_mutable(lfz.times(lfz.r_sub(2)).r_sub_mutable(2));
+
+        z.sub_mutable((ufz.times(0.25).times_mutable(lfz.r_sub(2).plus_mutable(fraction))).times_mutable(relaxation));
         
         return z;
         
+    }
+
+    public static Complex whittakerDoubleConvexStep(Complex fz, Complex dfz, Complex ddfz) {
+
+        Complex ufz = fz.divide(dfz);
+        Complex lfz = fz.times(ddfz).divide_mutable(dfz.square());
+
+        Complex fraction = (lfz.times(2).plus_mutable(4)).divide_mutable(lfz.times(lfz.r_sub(2)).r_sub_mutable(2));
+
+        return (ufz.times(0.25).times_mutable(lfz.r_sub(2).plus_mutable(fraction)));
+
     }
 }

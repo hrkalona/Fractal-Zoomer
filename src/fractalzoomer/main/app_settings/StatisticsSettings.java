@@ -78,6 +78,12 @@ public class StatisticsSettings implements Constants {
 
     public int twlFunction;
     public double[] twlPoint;
+
+    public int langNormType;
+    public double langNNorm;
+
+    public int atomNormType;
+    public double atomNNorm;
     
     public StatisticsSettings(StatisticsSettings copy) {
         statistic = copy.statistic;
@@ -138,6 +144,12 @@ public class StatisticsSettings implements Constants {
 
         twlFunction = copy.twlFunction;
         twlPoint = copy.twlPoint;
+
+        langNormType = copy.langNormType;
+        langNNorm = copy.langNNorm;
+
+        atomNormType = copy.atomNormType;
+        atomNNorm = copy.atomNNorm;
 
     }
     
@@ -202,5 +214,11 @@ public class StatisticsSettings implements Constants {
         twlPoint = new double[2];
         twlPoint[0] = 2.81395;
         twlPoint[1] = -1.88372;
+
+        langNormType = 0;
+        langNNorm = 2;
+
+        atomNormType = 0;
+        atomNNorm = 2;
     }
 }

@@ -361,7 +361,7 @@ public class PaletteMenu extends JMenu {
 
     public static int[] choosePaletteFiler(Component parent) {
 
-        JFileChooser file_chooser = new JFileChooser(".");
+        JFileChooser file_chooser = new JFileChooser(MainWindow.SaveSettingsPath.isEmpty() ? "." : MainWindow.SaveSettingsPath);
 
         file_chooser.setAcceptAllFileFilterUsed(false);
         file_chooser.setDialogType(JFileChooser.OPEN_DIALOG);
@@ -383,7 +383,8 @@ public class PaletteMenu extends JMenu {
             if(res == null) {
                 JOptionPane.showMessageDialog(parent, "Failed to directly load the palette.", "Error!", JOptionPane.ERROR_MESSAGE);
             }
-            
+
+            MainWindow.SaveSettingsPath = file_chooser.getSelectedFile().getParent();
             return res;
         }
         

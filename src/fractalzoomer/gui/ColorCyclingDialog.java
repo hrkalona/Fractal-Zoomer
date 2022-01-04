@@ -123,7 +123,7 @@ public class ColorCyclingDialog extends JDialog {
                     try {
                         ptra.setColorCyclingOptionsPost(cycleColors.isSelected(), cycleGradient.isSelected(), cycleLights.isSelected(), speed_slid.getMaximum() - speed_slid.getValue());
                     } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(ptra, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 

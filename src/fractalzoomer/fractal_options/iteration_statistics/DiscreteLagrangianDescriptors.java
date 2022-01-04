@@ -14,8 +14,10 @@ public class DiscreteLagrangianDescriptors extends GenericStatistic {
     private double log_bailout_squared;
     private double log_convergent_bailout;
     private Complex root;
+    private int normtType;
+    private double langNorm;
 
-    public DiscreteLagrangianDescriptors(double statistic_intensity, double power, double log_bailout_squared, boolean useSmoothing, boolean useAverage, boolean rootFindingMode, double log_convergent_bailout) {
+    public DiscreteLagrangianDescriptors(double statistic_intensity, double power, double log_bailout_squared, boolean useSmoothing, boolean useAverage, boolean rootFindingMode, double log_convergent_bailout, int normtType, double langNorm) {
         super(statistic_intensity, useSmoothing, useAverage);
         sum = 0;
         sum2 = 0;
@@ -34,13 +36,33 @@ public class DiscreteLagrangianDescriptors extends GenericStatistic {
         }
 
         root = new Complex(1, 0);
+        this.normtType = normtType;
+        this.langNorm = langNorm;
     }
 
     @Override
     public void insert(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0) {
         super.insert(z, zold, zold2, iterations, c, start, c0);
 
-        double d = z.norm_squared();
+        double d = 0;
+
+        switch (normtType) {
+            case 0:
+                d = z.norm_squared();
+                break;
+            case 1:
+                d = z.norm();
+                break;
+            case 2: //Rhombus
+                d = z.getAbsRe() + z.getAbsIm();
+                break;
+            case 3: //Square
+                d = Math.max(z.getAbsRe(), z.getAbsIm());
+                break;
+            case 4:
+                d = z.nnorm(langNorm);
+                break;
+        }
 
         double xx = 0;
         double yy = 0;

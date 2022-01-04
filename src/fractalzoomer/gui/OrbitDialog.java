@@ -173,7 +173,7 @@ public class OrbitDialog extends JDialog {
                         x_real = tempReal * rot_vals[0] + tempImaginary * rot_vals[1] + rot_center[0];
                         y_imag = -tempReal * rot_vals[1] + tempImaginary * rot_vals[0] + rot_center[1];
                     } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(ptra, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 

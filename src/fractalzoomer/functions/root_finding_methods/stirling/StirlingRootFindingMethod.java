@@ -62,5 +62,11 @@ public abstract class StirlingRootFindingMethod extends RootFindingMethods {
         return z;
         
     }
+
+    public static Complex stirlingStep(Complex fz, Complex combined_dfz) {
+
+        return fz.divide(combined_dfz);
+
+    }
     
 }

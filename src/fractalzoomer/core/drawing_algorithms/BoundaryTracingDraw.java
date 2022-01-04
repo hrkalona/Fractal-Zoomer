@@ -16,8 +16,10 @@
  */
 package fractalzoomer.core.drawing_algorithms;
 
-import fractalzoomer.core.Location;
+import fractalzoomer.core.location.Location;
 import fractalzoomer.core.ThreadDraw;
+import fractalzoomer.core.antialiasing.AntialiasingAlgorithm;
+import fractalzoomer.functions.Fractal;
 import fractalzoomer.main.ImageExpanderWindow;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.*;
@@ -58,7 +60,6 @@ public class BoundaryTracingDraw extends ThreadDraw {
     protected void drawIterations(int image_size, boolean polar) {
 
         Location location = Location.getInstanceForDrawing(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, polar, PERTURBATION_THEORY && fractal.supportsPerturbationTheory());
-        Location location2 = Location.getCopy(location);
 
         int pixel_percent = (image_size * image_size) / 100;
 
@@ -91,7 +92,13 @@ public class BoundaryTracingDraw extends ThreadDraw {
             } catch (BrokenBarrierException ex) {
 
             }
+            location.setReference(Fractal.refPoint);
         }
+
+        Location location2 = Location.getCopy(location);
+
+        boolean escaped_val;
+        double f_val;
 
         //ptr.setWholeImageDone(true);
 
@@ -109,9 +116,9 @@ public class BoundaryTracingDraw extends ThreadDraw {
                 ix = x;
                 iy = y;
 
-                start_val = image_iterations[pix] = iteration_algorithm.calculate(location.getComplexWithX(x));
-                startEscaped = escaped[pix] = iteration_algorithm.escaped();
-                startColor = rgbs[pix] = getFinalColor(start_val, startEscaped);
+                image_iterations[pix] = start_val = iteration_algorithm.calculate(location.getComplexWithX(x));
+                escaped[pix]  = startEscaped = iteration_algorithm.escaped();
+                rgbs[pix] = startColor = getFinalColor(start_val, startEscaped);
                 drawing_done++;
                 thread_calculated++;
                 /*ptr.getMainPanel().repaint();
@@ -143,9 +150,9 @@ public class BoundaryTracingDraw extends ThreadDraw {
 
                         if ((nextColor = rgbs[nextPix]) == culcColor) {
 
-                            image_iterations[nextPix] = iteration_algorithm.calculate(location2.getComplex(next_ix, next_iy));
-                            escaped[nextPix] = iteration_algorithm.escaped();
-                            nextColor = rgbs[nextPix] = getFinalColor(image_iterations[nextPix], escaped[nextPix]);
+                            image_iterations[nextPix] = f_val = iteration_algorithm.calculate(location2.getComplex(next_ix, next_iy));
+                            escaped[nextPix] = escaped_val = iteration_algorithm.escaped();
+                            rgbs[nextPix] = nextColor = getFinalColor(f_val, escaped_val);
                             drawing_done++;
                             thread_calculated++;
                             /*ptr.getMainPanel().repaint();
@@ -259,7 +266,6 @@ public class BoundaryTracingDraw extends ThreadDraw {
 
         Location location = Location.getInstanceForDrawing(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, polar, PERTURBATION_THEORY && fractal.supportsPerturbationTheory());
         location.createAntialiasingSteps();
-        Location location2 = Location.getCopy(location);
 
         if(PERTURBATION_THEORY && fractal.supportsPerturbationTheory()) {
 
@@ -274,13 +280,15 @@ public class BoundaryTracingDraw extends ThreadDraw {
             } catch (BrokenBarrierException ex) {
 
             }
+
+            location.setReference(Fractal.refPoint);
         }
+
+        Location location2 = Location.getCopy(location);
 
         int color;
 
         double temp_result;
-
-        int red, green, blue;
 
         final int dirRight = 0, dirUP = 3, maskDir = 3, culcColor = 0;
 
@@ -296,8 +304,15 @@ public class BoundaryTracingDraw extends ThreadDraw {
         double start_val;
         boolean startEscaped;
 
-        int supersampling_num = (filters_options_vals[MainWindow.ANTIALIASING] == 0 ? 4 : 8 * filters_options_vals[MainWindow.ANTIALIASING]);
-        double temp_samples = supersampling_num + 1;
+        int aaMethod = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
+        int aaSamplesIndex = (filters_options_vals[MainWindow.ANTIALIASING] % 100) % 10;
+        boolean aaAvgWithMean = filters_options_vals[MainWindow.ANTIALIASING] / 100 == 1;
+        int supersampling_num = (aaSamplesIndex == 0 ? 4 : 8 * aaSamplesIndex);
+
+        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(supersampling_num + 1, aaMethod, aaAvgWithMean);
+
+        boolean escaped_val;
+        double f_val;
 
         for (y = FROMy; y < TOy; y++) {
             location.precalculateY(y);
@@ -312,25 +327,21 @@ public class BoundaryTracingDraw extends ThreadDraw {
                 ix = x;
                 iy = y;
 
-                start_val = image_iterations_fast_julia[pix] = iteration_algorithm.calculate(location.getComplexWithX(x));
-                startEscaped = escaped_fast_julia[pix] = iteration_algorithm.escaped();
+                image_iterations_fast_julia[pix] = start_val = iteration_algorithm.calculate(location.getComplexWithX(x));
+                escaped_fast_julia[pix] = startEscaped = iteration_algorithm.escaped();
                 color = getFinalColor(start_val, startEscaped);
 
-                red = (color >> 16) & 0xff;
-                green = (color >> 8) & 0xff;
-                blue = color & 0xff;
+                aa.initialize(color);
 
                 //Supersampling
                 for (int i = 0; i < supersampling_num; i++) {
                     temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i));
                     color = getFinalColor(temp_result, iteration_algorithm.escaped());
 
-                    red += (color >> 16) & 0xff;
-                    green += (color >> 8) & 0xff;
-                    blue += color & 0xff;
+                    aa.addSample(color);
                 }
 
-                startColor = rgbs[pix] = 0xff000000 | (((int) (red / temp_samples + 0.5)) << 16) | (((int) (green / temp_samples + 0.5)) << 8) | ((int) (blue / temp_samples + 0.5));
+                startColor = rgbs[pix] = aa.getColor();
 
                 while (iy - 1 >= FROMy && rgbs[startPix - image_size] == startColor) {   // looking for boundary
                     curPix = startPix = startPix - image_size;
@@ -355,25 +366,21 @@ public class BoundaryTracingDraw extends ThreadDraw {
 
                         if ((nextColor = rgbs[nextPix]) == culcColor) {
 
-                            image_iterations_fast_julia[nextPix] = iteration_algorithm.calculate(location2.getComplex(next_ix, next_iy));
-                            escaped_fast_julia[nextPix] = iteration_algorithm.escaped();
-                            color = getFinalColor(image_iterations_fast_julia[nextPix], escaped_fast_julia[nextPix]);
+                            image_iterations_fast_julia[nextPix] = f_val = iteration_algorithm.calculate(location2.getComplex(next_ix, next_iy));
+                            escaped_fast_julia[nextPix] = escaped_val = iteration_algorithm.escaped();
+                            color = getFinalColor(f_val, escaped_val);
 
-                            red = (color >> 16) & 0xff;
-                            green = (color >> 8) & 0xff;
-                            blue = color & 0xff;
+                            aa.initialize(color);
 
                             //Supersampling
                             for (int i = 0; i < supersampling_num; i++) {
                                 temp_result = iteration_algorithm.calculate(location2.getAntialiasingComplex(i));
                                 color = getFinalColor(temp_result, iteration_algorithm.escaped());
 
-                                red += (color >> 16) & 0xff;
-                                green += (color >> 8) & 0xff;
-                                blue += color & 0xff;
+                                aa.addSample(color);
                             }
 
-                            nextColor = rgbs[nextPix] = 0xff000000 | (((int) (red / temp_samples + 0.5)) << 16) | (((int) (green / temp_samples + 0.5)) << 8) | ((int) (blue / temp_samples + 0.5));
+                            nextColor = rgbs[nextPix] = aa.getColor();
 
                         }
 
@@ -453,15 +460,12 @@ public class BoundaryTracingDraw extends ThreadDraw {
 
         Location location = Location.getInstanceForDrawing(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, polar, PERTURBATION_THEORY && fractal.supportsPerturbationTheory());
         location.createAntialiasingSteps();
-        Location location2 = Location.getCopy(location);
 
         int pixel_percent = (image_size * image_size) / 100;
 
         int color;
 
         double temp_result;
-
-        int red, green, blue;
 
         final int dirRight = 0, dirUP = 3, maskDir = 3, culcColor = 0;
 
@@ -489,14 +493,24 @@ public class BoundaryTracingDraw extends ThreadDraw {
             } catch (BrokenBarrierException ex) {
 
             }
+
+            location.setReference(Fractal.refPoint);
         }
 
+        Location location2 = Location.getCopy(location);
 
-        int supersampling_num = (filters_options_vals[MainWindow.ANTIALIASING] == 0 ? 4 : 8 * filters_options_vals[MainWindow.ANTIALIASING]);
-        double temp_samples = supersampling_num + 1;
+        int aaMethod = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
+        int aaSamplesIndex = (filters_options_vals[MainWindow.ANTIALIASING] % 100) % 10;
+        boolean aaAvgWithMean = filters_options_vals[MainWindow.ANTIALIASING] / 100 == 1;
+        int supersampling_num = (aaSamplesIndex == 0 ? 4 : 8 * aaSamplesIndex);
+
+        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(supersampling_num + 1, aaMethod, aaAvgWithMean);
 
         int last_drawing_done = 0;
         int totalPixels = (TOx - FROMx) * (TOy - FROMy);
+
+        boolean escaped_val;
+        double f_val;
 
         done:
         for (y = FROMy; y < TOy; y++) {
@@ -512,25 +526,21 @@ public class BoundaryTracingDraw extends ThreadDraw {
                 ix = x;
                 iy = y;
 
-                start_val = image_iterations[pix] = iteration_algorithm.calculate(location.getComplexWithX(x));
-                startEscaped = escaped[pix] = iteration_algorithm.escaped();
+                image_iterations[pix] =  start_val = iteration_algorithm.calculate(location.getComplexWithX(x));
+                escaped[pix] = startEscaped = iteration_algorithm.escaped();
                 color = getFinalColor(start_val, startEscaped);
 
-                red = (color >> 16) & 0xff;
-                green = (color >> 8) & 0xff;
-                blue = color & 0xff;
+                aa.initialize(color);
 
                 //Supersampling
                 for (int i = 0; i < supersampling_num; i++) {
                     temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i));
                     color = getFinalColor(temp_result, iteration_algorithm.escaped());
 
-                    red += (color >> 16) & 0xff;
-                    green += (color >> 8) & 0xff;
-                    blue += color & 0xff;
+                    aa.addSample(color);
                 }
 
-                startColor = rgbs[pix] = 0xff000000 | (((int) (red / temp_samples + 0.5)) << 16) | (((int) (green / temp_samples + 0.5)) << 8) | ((int) (blue / temp_samples + 0.5));
+                startColor = rgbs[pix] = aa.getColor();
 
                 drawing_done++;
                 thread_calculated++;
@@ -562,25 +572,21 @@ public class BoundaryTracingDraw extends ThreadDraw {
                         nextPix = curPix + delPix[dir];
 
                         if ((nextColor = rgbs[nextPix]) == culcColor) {
-                            image_iterations[nextPix] = iteration_algorithm.calculate(location2.getComplex(next_ix, next_iy));
-                            escaped[nextPix] = iteration_algorithm.escaped();
-                            color = getFinalColor(image_iterations[nextPix], escaped[nextPix]);
+                            image_iterations[nextPix] = f_val = iteration_algorithm.calculate(location2.getComplex(next_ix, next_iy));
+                            escaped[nextPix] = escaped_val = iteration_algorithm.escaped();
+                            color = getFinalColor(f_val, escaped_val);
 
-                            red = (color >> 16) & 0xff;
-                            green = (color >> 8) & 0xff;
-                            blue = color & 0xff;
+                            aa.initialize(color);
 
                             //Supersampling
                             for (int i = 0; i < supersampling_num; i++) {
                                 temp_result = iteration_algorithm.calculate(location2.getAntialiasingComplex(i));
                                 color = getFinalColor(temp_result, iteration_algorithm.escaped());
 
-                                red += (color >> 16) & 0xff;
-                                green += (color >> 8) & 0xff;
-                                blue += color & 0xff;
+                                aa.addSample(color);
                             }
 
-                            nextColor = rgbs[nextPix] = 0xff000000 | (((int) (red / temp_samples + 0.5)) << 16) | (((int) (green / temp_samples + 0.5)) << 8) | ((int) (blue / temp_samples + 0.5));
+                            nextColor = rgbs[nextPix] = aa.getColor();
 
                             drawing_done++;
                             thread_calculated++;
@@ -694,7 +700,6 @@ public class BoundaryTracingDraw extends ThreadDraw {
     protected void drawFastJulia(int image_size, boolean polar) {
 
         Location location = Location.getInstanceForDrawing(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, polar, PERTURBATION_THEORY && fractal.supportsPerturbationTheory());
-        Location location2 = Location.getCopy(location);
 
         if(PERTURBATION_THEORY && fractal.supportsPerturbationTheory()) {
 
@@ -709,7 +714,11 @@ public class BoundaryTracingDraw extends ThreadDraw {
             } catch (BrokenBarrierException ex) {
 
             }
+
+            location.setReference(Fractal.refPoint);
         }
+
+        Location location2 = Location.getCopy(location);
 
         final int dirRight = 0, dirUP = 3, maskDir = 3, culcColor = 0;
 
@@ -726,6 +735,10 @@ public class BoundaryTracingDraw extends ThreadDraw {
 
         double start_val;
 
+        boolean escaped_val;
+        double f_val;
+
+
         for (y = FROMy; y < TOy; y++) {
             location.precalculateY(y);
             for (x = FROMx, pix = y * image_size + x; x < TOx; x++, pix++) {
@@ -739,9 +752,9 @@ public class BoundaryTracingDraw extends ThreadDraw {
                 ix = x;
                 iy = y;
 
-                start_val = image_iterations_fast_julia[pix] = iteration_algorithm.calculate(location.getComplexWithX(x));
-                startEscaped = escaped_fast_julia[pix] = iteration_algorithm.escaped();
-                startColor = rgbs[pix] = getFinalColor(start_val, startEscaped);
+                image_iterations_fast_julia[pix] = start_val = iteration_algorithm.calculate(location.getComplexWithX(x));
+                escaped_fast_julia[pix] = startEscaped = iteration_algorithm.escaped();
+                rgbs[pix] = startColor = getFinalColor(start_val, startEscaped);
 
                 while (iy - 1 >= FROMy && rgbs[startPix - image_size] == startColor) {   // looking for boundary
                     curPix = startPix = startPix - image_size;
@@ -765,9 +778,9 @@ public class BoundaryTracingDraw extends ThreadDraw {
                         nextPix = curPix + delPix[dir];
 
                         if ((nextColor = rgbs[nextPix]) == culcColor) {
-                            image_iterations_fast_julia[nextPix] = iteration_algorithm.calculate(location2.getComplex(next_ix, next_iy));
-                            escaped_fast_julia[nextPix] = iteration_algorithm.escaped();
-                            nextColor = rgbs[nextPix] = getFinalColor(image_iterations_fast_julia[nextPix], escaped_fast_julia[nextPix]);
+                            image_iterations_fast_julia[nextPix] = f_val = iteration_algorithm.calculate(location2.getComplex(next_ix, next_iy));
+                            escaped_fast_julia[nextPix] = escaped_val = iteration_algorithm.escaped();
+                            rgbs[nextPix] = nextColor = getFinalColor(f_val, escaped_val);
                         }
 
                         if (nextColor == startColor) {

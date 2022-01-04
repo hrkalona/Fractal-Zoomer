@@ -120,7 +120,7 @@ public class GenericCpAZpBCDialog extends JDialog {
                         s.fns.gcps.alpha2 = temp_alpha;
                         s.fns.gcps.beta2 = temp_beta;
                     } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(ptra, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 

@@ -1,5 +1,6 @@
-package fractalzoomer.core;
+package fractalzoomer.core.location;
 
+import fractalzoomer.core.*;
 import fractalzoomer.functions.Fractal;
 import org.apfloat.Apfloat;
 
@@ -20,6 +21,10 @@ public class Location {
 
     protected Fractal fractal;
 
+    protected GenericComplex reference;
+
+    public boolean isPolar() {return false;}
+
 
     public BigPoint getPoint(int x, int y) {return  null;}
     public GenericComplex getComplex(int x, int y) {return  null;}
@@ -31,13 +36,20 @@ public class Location {
     public GenericComplex getAntialiasingComplex(int sample) {return  null;}
     public Complex getComplexOrbit(int x, int y) {return  null;}
 
+    public void setReference(GenericComplex ref) {reference = ref instanceof BigComplex ? ref : new BigNumComplex((BigNumComplex)ref); }
+
     public static Location getInstanceForDrawing(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int image_size, double circle_period, Apfloat[] rotation_center, Apfloat[] rotation_vals, Fractal fractal, boolean polar, boolean highPresicion) {
 
         /*if(polar) {
             return new PolarLocationArbitrary(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal);
         }
         else {
-            return new CartesianLocationArbitrary(xCenter, yCenter, size, height_ratio, image_size, rotation_center, rotation_vals, fractal);
+            if(fractal.supportsBignum() && ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE && ThreadDraw.USE_BIGNUM_FOR_PIXELS_IF_POSSIBLE) {
+                return new CartesianLocationBigNumArbitrary(xCenter, yCenter, size, height_ratio, image_size, rotation_center, rotation_vals, fractal);
+            }
+            else {
+                return new CartesianLocationArbitrary(xCenter, yCenter, size, height_ratio, image_size, rotation_center, rotation_vals, fractal);
+            }
         }*/
 
         if(polar) {
@@ -48,9 +60,19 @@ public class Location {
         }
         else {
             if(highPresicion && size.compareTo(MyApfloat.MAX_DOUBLE_SIZE) < 0) {
-                return new CartesianLocationDeep(xCenter, yCenter, size, height_ratio, image_size, rotation_center, rotation_vals, fractal);
+                if(fractal.supportsBignum() && ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE && ThreadDraw.USE_BIGNUM_FOR_PIXELS_IF_POSSIBLE) {
+                    return new CartesianLocationDeepBigNum(xCenter, yCenter, size, height_ratio, image_size, rotation_center, rotation_vals, fractal);
+                }
+                else {
+                    return new CartesianLocationDeep(xCenter, yCenter, size, height_ratio, image_size, rotation_center, rotation_vals, fractal);
+                }
             }
-            return new CartesianLocation(xCenter, yCenter, size, height_ratio, image_size, rotation_center, rotation_vals, fractal, highPresicion);
+
+           if(fractal.supportsBignum() && ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE && ThreadDraw.USE_BIGNUM_FOR_PIXELS_IF_POSSIBLE) {
+               return new CartesianLocationBigNum(xCenter, yCenter, size, height_ratio, image_size, rotation_center, rotation_vals, fractal, highPresicion);
+           } else {
+                return new CartesianLocation(xCenter, yCenter, size, height_ratio, image_size, rotation_center, rotation_vals, fractal, highPresicion);
+            }
         }
 
     }
@@ -73,6 +95,15 @@ public class Location {
         }
         else if(loc instanceof PolarLocationArbitrary) {
             return new PolarLocationArbitrary((PolarLocationArbitrary)loc);
+        }
+        else if(loc instanceof CartesianLocationBigNum) {
+            return new CartesianLocationBigNum((CartesianLocationBigNum)loc);
+        }
+        else if(loc instanceof CartesianLocationDeepBigNum) {
+            return new CartesianLocationDeepBigNum((CartesianLocationDeepBigNum)loc);
+        }
+        else if(loc instanceof CartesianLocationBigNumArbitrary) {
+            return new CartesianLocationBigNumArbitrary((CartesianLocationBigNumArbitrary)loc);
         }
         return null;
     }
@@ -124,7 +155,18 @@ public class Location {
         return new MantExpComplex(getMantExp(c.getRe()), getMantExp(c.getIm()));
     }
 
-    public MantExp getSeriesApproxSize() {
+    public MantExpComplex getMantExpComplex(GenericComplex c) {
+        if(c instanceof BigNumComplex) {
+            BigNumComplex cn = (BigNumComplex)c;
+            return new MantExpComplex(cn.getRe().getMantExp(), cn.getIm().getMantExp());
+        }
+        else {
+            BigComplex cn = (BigComplex)c;
+            return new MantExpComplex(getMantExp(cn.getRe()), getMantExp(cn.getIm()));
+        }
+    }
+
+    public MantExp getMaxSizeInImage() {
         return null;
     }
 

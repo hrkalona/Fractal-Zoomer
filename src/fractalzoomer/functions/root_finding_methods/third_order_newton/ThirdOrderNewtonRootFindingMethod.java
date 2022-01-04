@@ -44,4 +44,10 @@ public abstract class ThirdOrderNewtonRootFindingMethod extends RootFindingMetho
         return z;
 
     }
+
+    public static Complex thirdOrderNewtonStep(Complex fz, Complex dfz, Complex f_combined) {
+
+        return ((fz.plus(f_combined)).divide_mutable(dfz));
+
+    }
 }

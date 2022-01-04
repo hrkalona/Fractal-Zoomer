@@ -45,4 +45,10 @@ public abstract class WeerakoonFernandoRootFindingMethod extends RootFindingMeth
 
     }
 
+    public static Complex weerakoonFernandoStep(Complex fz, Complex dfz, Complex df_combined) {
+
+        return ((fz.times(2)).divide_mutable(dfz.plus(df_combined)));
+
+    }
+
 }

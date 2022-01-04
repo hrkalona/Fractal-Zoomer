@@ -43,6 +43,7 @@ public class D3Settings {
     public boolean histogram_equalization;
     public int histogram_granularity;
     public double histogram_density;
+    public boolean preHeightScaling;
     
     public D3Settings() {
         
@@ -76,6 +77,8 @@ public class D3Settings {
         histogram_equalization = false;
         histogram_granularity = 10;
         histogram_density = 3;
+
+        preHeightScaling = false;
         
     }
 }

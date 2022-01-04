@@ -21,6 +21,12 @@ public class MantExpComplex extends GenericComplex {
         this.exp = exp < MantExp.MIN_BIG_EXPONENT ? MantExp.MIN_BIG_EXPONENT : exp;
     }
 
+    public MantExpComplex(long exp, double mantissaReal, double mantissaImag) {
+        this.mantissaReal = mantissaReal;
+        this.mantissaImag = mantissaImag;
+        this.exp = exp;
+    }
+
     public MantExpComplex(MantExpComplex other) {
         this.mantissaReal = other.mantissaReal;
         this.mantissaImag = other.mantissaImag;
@@ -248,6 +254,19 @@ public class MantExpComplex extends GenericComplex {
         }*/
 
         return this;
+    }
+
+    public MantExpComplex times05() {
+        MantExpComplex p = new MantExpComplex(mantissaReal, mantissaImag, exp - 1);
+        return p;
+    }
+
+    public MantExpComplex times05_mutable() {
+
+        long exp = this.exp - 1;
+        this.exp = exp < MantExp.MIN_BIG_EXPONENT ? MantExp.MIN_BIG_EXPONENT : exp;
+        return this;
+
     }
 
     public MantExpComplex times2() {
@@ -559,12 +578,12 @@ public class MantExpComplex extends GenericComplex {
             return;
         }
 
-        long expDiffRe = Math.getExponent(mantissaReal);
-        long expDiffIm = Math.getExponent(mantissaImag);
+        long expDiffRe = MantExp.getExponent(mantissaReal);
+        long expDiffIm = MantExp.getExponent(mantissaImag);
 
         long expDiff = Math.max(expDiffRe, expDiffIm);
         long expCombined = exp + expDiff;
-        double mul = MantExp.getMultiplier(exp-expCombined);
+        double mul = MantExp.getMultiplier(-expDiff);
         mantissaReal *= mul;
         mantissaImag *= mul;
         exp = expCombined;
@@ -760,7 +779,11 @@ public class MantExpComplex extends GenericComplex {
     }
 
     public MantExp norm() {
-        return new MantExp(Math.sqrt(mantissaReal * mantissaReal + mantissaImag * mantissaImag), exp);
+        return new MantExp(exp, Math.sqrt(mantissaReal * mantissaReal + mantissaImag * mantissaImag));
+    }
+
+    public MantExp hypot() {
+        return new MantExp(exp, Math.hypot(mantissaReal, mantissaImag));
     }
 
     public final MantExpComplex divide(MantExpComplex factor) {
@@ -847,7 +870,7 @@ public class MantExpComplex extends GenericComplex {
 
     public MantExpComplex negative() {
 
-        return new MantExpComplex(-mantissaReal, -mantissaImag, exp);
+        return new MantExpComplex(exp, -mantissaReal, -mantissaImag);
 
     }
 
@@ -861,7 +884,7 @@ public class MantExpComplex extends GenericComplex {
 
     public MantExpComplex abs() {
 
-        return new MantExpComplex(Math.abs(mantissaReal), Math.abs(mantissaImag), exp);
+        return new MantExpComplex(exp, Math.abs(mantissaReal), Math.abs(mantissaImag));
 
     }
 
@@ -875,7 +898,7 @@ public class MantExpComplex extends GenericComplex {
 
     public MantExpComplex conjugate() {
 
-        return new MantExpComplex(mantissaReal, -mantissaImag, exp);
+        return new MantExpComplex(exp, mantissaReal, -mantissaImag);
 
     }
 
@@ -899,14 +922,22 @@ public class MantExpComplex extends GenericComplex {
 
     public final MantExp getRe() {
 
-        return new MantExp(mantissaReal, exp);
+        return new MantExp(exp, mantissaReal);
 
     }
 
     public final MantExp getIm() {
 
-        return new MantExp(mantissaImag, exp);
+        return new MantExp(exp, mantissaImag);
 
+    }
+
+    public final double getMantissaReal() {
+        return mantissaReal;
+    }
+
+    public final double getMantissaImag() {
+        return mantissaImag;
     }
 
     public final long getExp() {
@@ -927,7 +958,34 @@ public class MantExpComplex extends GenericComplex {
     }
 
     public long log2normApprox() {
-        return (Math.getExponent(mantissaReal*mantissaReal + mantissaImag*mantissaImag) >> 1) + exp;
+        return (MantExp.getExponent(mantissaReal*mantissaReal + mantissaImag*mantissaImag) >> 1) + exp;
+    }
+
+    /*
+     *  A*X + B*Y
+     */
+    public static final MantExpComplex AtXpBtY(MantExpComplex A, MantExpComplex X, MantExpComplex B, MantExpComplex Y) {
+
+        return A.times(X).plus_mutable(B.times(Y));
+
+    }
+
+    /*
+     *  A*X +Y
+     */
+    public static final MantExpComplex AtXpY(MantExpComplex A, MantExpComplex X, MantExpComplex Y) {
+
+        return A.times(X).plus_mutable(Y);
+
+    }
+
+    /*
+     *  A*X + B
+     */
+    public static final MantExpComplex AtXpB(MantExpComplex A, MantExpComplex X, MantExpComplex B) {
+
+        return A.times(X).plus_mutable(B);
+
     }
 
     public static void main(String[] args) {

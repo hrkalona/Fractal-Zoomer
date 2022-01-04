@@ -57,7 +57,7 @@ public class PolarProjectionDialog extends JDialog {
         polar.setFocusable(false);
         polar.setToolTipText("Enables the polar projection coordinates.");
 
-        JTextArea field_real = new JTextArea(3, 50);
+        JTextArea field_real = new JTextArea(6, 50);
         field_real.setFont(TEMPLATE_TFIELD.getFont());
         field_real.setLineWrap(true);
 
@@ -76,7 +76,7 @@ public class PolarProjectionDialog extends JDialog {
             field_real.setText("" + p.x.toString(true));
         }
 
-        JTextArea field_imaginary = new JTextArea(3, 50);
+        JTextArea field_imaginary = new JTextArea(6, 50);
         field_imaginary.setFont(TEMPLATE_TFIELD.getFont());
         field_imaginary.setLineWrap(true);
 
@@ -92,7 +92,7 @@ public class PolarProjectionDialog extends JDialog {
             field_imaginary.setText("" + p.y.toString(true));
         }
 
-        JTextArea field_size = new JTextArea(3, 50);
+        JTextArea field_size = new JTextArea(6, 50);
         field_size.setFont(TEMPLATE_TFIELD.getFont());
         field_size.setLineWrap(true);
 
@@ -112,12 +112,32 @@ public class PolarProjectionDialog extends JDialog {
         corners.setFocusable(false);
         corners.setIcon(getIcon("/fractalzoomer/icons/corners.png"));
 
+        JButton magnification = new JButton("Set Magnification");
+        magnification.setToolTipText("An alternative size option.");
+        magnification.setFocusable(false);
+        magnification.setIcon(getIcon("/fractalzoomer/icons/magnification.png"));
+
+        JPanel cornersPanel = new JPanel();
+        cornersPanel.add(corners);
+        cornersPanel.add(magnification);
+
         corners.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
 
                 new CornersDialog(ptr, s, field_real, field_imaginary, field_size);
+
+            }
+
+        });
+
+        magnification.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                new MagnificationDialog(ptr, s, field_size);
 
             }
 
@@ -144,7 +164,7 @@ public class PolarProjectionDialog extends JDialog {
             "Imaginary:", scrollImaginary,
             "Size:", scrollSize,
             " ",
-            corners,
+            cornersPanel,
             " ",
             "Set the circle periods number.",
             "Circle Periods:",
@@ -208,7 +228,7 @@ public class PolarProjectionDialog extends JDialog {
 
                         s.circle_period = temp_circle_period;
                     } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(ptra, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 

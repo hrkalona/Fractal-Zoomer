@@ -56,4 +56,10 @@ public abstract class HouseholderRootFindingMethod extends RootFindingMethods {
         return z;
         
     }
+
+    public static Complex householderStep(Complex fz, Complex dfz, Complex ddfz) {
+
+        return ((fz.times_mutable(dfz.square().times_mutable(2).plus_mutable(fz.times(ddfz)))).divide_mutable(dfz.cube_mutable().times_mutable(2)));//householder
+
+    }
 }

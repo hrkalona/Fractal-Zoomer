@@ -18,6 +18,7 @@
 package fractalzoomer.planes;
 
 import fractalzoomer.core.BigComplex;
+import fractalzoomer.core.BigNumComplex;
 import fractalzoomer.core.Complex;
 
 /**
@@ -36,6 +37,13 @@ public abstract class Plane {
     public BigComplex transform(BigComplex pixel) {
 
         return new BigComplex(transform(pixel.toComplex()));
+
+    }
+
+    //Todo fix the low precision ones
+    public BigNumComplex transform(BigNumComplex pixel) {
+
+        return new BigNumComplex(transform(pixel.toComplex()));
 
     }
 

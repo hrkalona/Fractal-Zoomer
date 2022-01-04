@@ -192,7 +192,7 @@ public class CornersDialog extends JDialog {
                         field_imaginary.setText("" + centersize[1].toString(true));
                         field_size.setText("" + centersize[2]);
                     } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(ptra, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 

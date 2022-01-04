@@ -59,6 +59,7 @@ public class DomainColoringSettings {
     public double gridWidth;
     public int gridAlgorithm;
     public int combineType;
+    public int domain_height_method;
 
 
     public DomainColoringSettings(DomainColoringSettings copy ) {
@@ -108,6 +109,7 @@ public class DomainColoringSettings {
         gridAlgorithm = copy.gridAlgorithm;
         
         combineType = copy.combineType;
+        domain_height_method = copy.domain_height_method;
     }
     
     public DomainColoringSettings() {
@@ -161,6 +163,7 @@ public class DomainColoringSettings {
         
         gridAlgorithm = 0;
         combineType = 0;
+        domain_height_method = 0;
         
     }
     

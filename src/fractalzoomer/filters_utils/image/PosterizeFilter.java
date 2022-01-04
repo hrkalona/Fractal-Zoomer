@@ -16,6 +16,8 @@ limitations under the License.
 
 package fractalzoomer.filters_utils.image;
 
+import java.awt.image.BufferedImage;
+
 /**
  * A filter to posterize an image.
  */
@@ -52,18 +54,23 @@ public class PosterizeFilter extends PointFilter {
      * Initialize the filter.
      */
     protected void initialize() {
+		initialized = true;
 		levels = new int[256];
 		if (numLevels != 1)
 			for (int i = 0; i < 256; i++)
 				levels[i] = 255 * (numLevels*i / 256) / (numLevels-1);
 	}
+
+	@Override
+	public BufferedImage filter(BufferedImage src, BufferedImage dst ) {
+		if (!initialized) {
+			initialize();
+		}
+		return super.filter( src, dst );
+	}
 	
         @Override
 	public int filterRGB(int x, int y, int rgb) {
-		if (!initialized) {
-			initialized = true;
-			initialize();
-		}
 		int a = rgb & 0xff000000;
 		int r = (rgb >> 16) & 0xff;
 		int g = (rgb >> 8) & 0xff;

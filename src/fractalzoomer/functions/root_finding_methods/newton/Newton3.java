@@ -18,6 +18,8 @@
 package fractalzoomer.functions.root_finding_methods.newton;
 
 import fractalzoomer.core.*;
+import fractalzoomer.core.DeepReference;
+import fractalzoomer.core.location.Location;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
 import fractalzoomer.main.app_settings.StatisticsSettings;
@@ -25,6 +27,7 @@ import org.apfloat.Apfloat;
 
 import javax.swing.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import static fractalzoomer.main.Constants.REFERENCE_CALCULATION_STR;
 
@@ -91,26 +94,28 @@ public class Newton3 extends NewtonRootFindingMethod {
     @Override
     public Complex perturbationFunction(Complex DeltaSubN, int RefIteration) {
 
-        Complex Z = Reference[RefIteration];
+        Complex Z = getArrayValue(Reference, RefIteration);
         Complex z = DeltaSubN;
 
         Complex temp = Z.times(2).plus_mutable(z).times_mutable(z).times_mutable(Z.square());
-        return temp.plus(PrecalculatedTerms[RefIteration]).sub_mutable(z.times(0.5)).times_mutable(z).divide_mutable(temp.plus(Z.fourth()).times_mutable(1.5));
+        return temp.plus(getArrayValue(PrecalculatedTerms, RefIteration)).sub_mutable(z.times(0.5)).times_mutable(z).divide_mutable(temp.plus(Z.fourth()).times_mutable(1.5));
 
     }
 
     @Override
     public MantExpComplex perturbationFunction(MantExpComplex DeltaSubN, int RefIteration) {
 
-        MantExpComplex Z = ReferenceDeep[RefIteration];
+        MantExpComplex Z = getArrayDeepValue(ReferenceDeep, RefIteration);
         MantExpComplex z = DeltaSubN;
 
         MantExpComplex temp = Z.times2().plus_mutable(z).times_mutable(z).times_mutable(Z.square());
-        return temp.plus(PrecalculatedTermsDeep[RefIteration]).sub_mutable(z.times(MantExp.POINTFIVE)).times_mutable(z).divide_mutable(temp.plus(Z.fourth()).times_mutable(MantExp.ONEPOINTFIVE));
+        return temp.plus(getArrayDeepValue(PrecalculatedTermsDeep, RefIteration)).sub_mutable(z.times05()).times_mutable(z).divide_mutable(temp.plus(Z.fourth()).times_mutable(MantExp.ONEPOINTFIVE));
     }
 
     @Override
-    public void calculateReferencePoint(BigComplex pixel, Apfloat size, boolean deepZoom, int iterations, Location externalLocation, JProgressBar progress) {
+    public void calculateReferencePoint(GenericComplex gpixel, Apfloat size, boolean deepZoom, int iterations, Location externalLocation, JProgressBar progress) {
+
+        long time = System.currentTimeMillis();
 
         int initIterations = iterations;
 
@@ -122,27 +127,31 @@ public class Newton3 extends NewtonRootFindingMethod {
         }
 
         if(iterations == 0) {
-            Reference = new Complex[max_iterations];
-            ReferenceSubCp = new Complex[max_iterations];
-            PrecalculatedTerms = new Complex[max_iterations];
+            Reference = new double[max_iterations << 1];
+            ReferenceSubPixel = new double[max_iterations << 1];
+            PrecalculatedTerms = new double[max_iterations << 1];
 
             if (deepZoom) {
-                ReferenceDeep = new MantExpComplex[max_iterations];
-                ReferenceSubCpDeep = new MantExpComplex[max_iterations];
-                PrecalculatedTermsDeep = new MantExpComplex[max_iterations];
+                ReferenceDeep = new DeepReference(max_iterations);
+                ReferenceSubPixelDeep = new DeepReference(max_iterations);
+                PrecalculatedTermsDeep = new DeepReference(max_iterations);
             }
         }
-        else if (max_iterations > Reference.length){
-            Reference = copyReference(Reference, new Complex[max_iterations]);
-            ReferenceSubCp = copyReference(ReferenceSubCp, new Complex[max_iterations]);
-            PrecalculatedTerms = copyReference(PrecalculatedTerms, new Complex[max_iterations]);
+        else if (max_iterations > (Reference.length >> 1)){
+            Reference = Arrays.copyOf(Reference, max_iterations << 1);
+            ReferenceSubPixel = Arrays.copyOf(ReferenceSubPixel, max_iterations << 1);
+            PrecalculatedTerms = Arrays.copyOf(PrecalculatedTerms, max_iterations << 1);
 
             if (deepZoom) {
-                ReferenceDeep = copyDeepReference(ReferenceDeep,  new MantExpComplex[max_iterations]);
-                ReferenceSubCpDeep = copyDeepReference(ReferenceSubCpDeep, new MantExpComplex[max_iterations]);
-                PrecalculatedTermsDeep = copyDeepReference(PrecalculatedTermsDeep, new MantExpComplex[max_iterations]);
+                ReferenceDeep.resize(max_iterations);
+                ReferenceSubPixelDeep.resize(max_iterations);
+                PrecalculatedTermsDeep.resize(max_iterations);
             }
+
+            System.gc();
         }
+
+        BigComplex pixel = (BigComplex)gpixel;
 
         //Due to zero, all around zero will not work
         if(pixel.norm().compareTo(new MyApfloat(1e-4)) < 0) {
@@ -150,10 +159,10 @@ public class Newton3 extends NewtonRootFindingMethod {
             pixel = new BigComplex(dx, dx);
         }
 
-        BigComplex z = iterations == 0 ? pixel : lastZValue;
+        BigComplex z = iterations == 0 ? pixel : (BigComplex)lastZValue;
 
-        BigComplex zold = iterations == 0 ? new BigComplex() : secondTolastZValue;
-        BigComplex zold2 = iterations == 0 ? new BigComplex() : thirdTolastZValue;
+        BigComplex zold = iterations == 0 ? new BigComplex() : (BigComplex)secondTolastZValue;
+        BigComplex zold2 = iterations == 0 ? new BigComplex() : (BigComplex)thirdTolastZValue;
         BigComplex start = pixel;
 
         Location loc = new Location();
@@ -166,9 +175,7 @@ public class Newton3 extends NewtonRootFindingMethod {
             refPointSmallDeep = loc.getMantExpComplex(refPoint);
         }
 
-        boolean fullReference = ThreadDraw.CALCULATE_FULL_REFERENCE;
         RefType = getRefType();
-        FullRef = fullReference;
 
         Apfloat three = new MyApfloat(3.0);
 
@@ -179,21 +186,21 @@ public class Newton3 extends NewtonRootFindingMethod {
                 break;
             }
 
-            Reference[iterations] = cz;
+            setArrayValue(Reference, iterations, cz);
 
-            BigComplex zsubcp = z.sub(refPoint);
+            BigComplex zsubpixel = z.sub(pixel);
             BigComplex preCalc = z.fourth().sub(z); //Z^4-Z for catastrophic cancelation
 
-            ReferenceSubCp[iterations] = zsubcp.toComplex();
-            PrecalculatedTerms[iterations] = preCalc.toComplex();
+            setArrayValue(ReferenceSubPixel, iterations, zsubpixel.toComplex());
+            setArrayValue(PrecalculatedTerms, iterations, preCalc.toComplex());
 
             if(deepZoom) {
-                ReferenceDeep[iterations] = loc.getMantExpComplex(z);
-                ReferenceSubCpDeep[iterations] =  loc.getMantExpComplex(zsubcp);
-                PrecalculatedTermsDeep[iterations] =  loc.getMantExpComplex(preCalc);
+                setArrayDeepValue(ReferenceDeep, iterations, loc.getMantExpComplex(z));
+                setArrayDeepValue(ReferenceSubPixelDeep, iterations, loc.getMantExpComplex(zsubpixel));
+                setArrayDeepValue(PrecalculatedTermsDeep, iterations, loc.getMantExpComplex(preCalc));
             }
 
-            if (!fullReference && iterations > 0 && convergent_bailout_algorithm.converged(z, zold, zold2, iterations, pixel, start, pixel, pixel)) {
+            if (iterations > 0 && convergent_bailout_algorithm.converged(z, zold, zold2, iterations, pixel, start, pixel, pixel)) {
                 break;
             }
 
@@ -226,6 +233,9 @@ public class Newton3 extends NewtonRootFindingMethod {
             progress.setValue(progress.getMaximum());
             progress.setString(REFERENCE_CALCULATION_STR + " 100%");
         }
+
+        ReferenceCalculationTime = System.currentTimeMillis() - time;
+
     }
 
 }

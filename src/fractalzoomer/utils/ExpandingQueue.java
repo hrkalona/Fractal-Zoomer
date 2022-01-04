@@ -77,7 +77,7 @@ public class ExpandingQueue<Item> {
 
             int LinkedQueueuIndex = tail / initialAllocation + 1;
             if (LinkedQueueuIndex >= LinkedQueues.length) {
-                LinkedQueues = Arrays.copyOf(LinkedQueues, 2 * LinkedQueues.length);
+                LinkedQueues = Arrays.copyOf(LinkedQueues, LinkedQueues.length << 1);
             }
             LinkedQueues[LinkedQueueuIndex] = tailQueue;
         }

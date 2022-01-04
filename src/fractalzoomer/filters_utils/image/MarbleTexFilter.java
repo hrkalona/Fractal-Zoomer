@@ -34,6 +34,9 @@ public class MarbleTexFilter extends PointFilter {
 	public MarbleTexFilter() {
 	}
 
+	@Override
+	protected boolean supportsThreadsWithFullLoop() { return false;}
+
 	public void setScale(float scale) {
 		this.scale = scale;
 	}

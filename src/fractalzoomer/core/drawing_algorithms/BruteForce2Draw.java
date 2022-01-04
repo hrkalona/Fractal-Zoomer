@@ -16,8 +16,10 @@
  */
 package fractalzoomer.core.drawing_algorithms;
 
-import fractalzoomer.core.Location;
+import fractalzoomer.core.location.Location;
 import fractalzoomer.core.ThreadDraw;
+import fractalzoomer.core.antialiasing.AntialiasingAlgorithm;
+import fractalzoomer.functions.Fractal;
 import fractalzoomer.main.ImageExpanderWindow;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.*;
@@ -90,6 +92,7 @@ public class BruteForce2Draw extends ThreadDraw {
             } catch (BrokenBarrierException ex) {
 
             }
+            location.setReference(Fractal.refPoint);
         }
 
         for(y = FROMy; y < TOy; y++) {
@@ -127,10 +130,12 @@ public class BruteForce2Draw extends ThreadDraw {
 
         double temp_result;
 
-        int red, green, blue;
+        int aaMethod = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
+        int aaSamplesIndex = (filters_options_vals[MainWindow.ANTIALIASING] % 100) % 10;
+        boolean aaAvgWithMean = filters_options_vals[MainWindow.ANTIALIASING] / 100 == 1;
+        int supersampling_num = (aaSamplesIndex == 0 ? 4 : 8 * aaSamplesIndex);
 
-        int supersampling_num = (filters_options_vals[MainWindow.ANTIALIASING] == 0 ? 4 : 8 * filters_options_vals[MainWindow.ANTIALIASING]);
-        double temp_samples = supersampling_num + 1;
+        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(supersampling_num + 1, aaMethod, aaAvgWithMean);
 
         if(PERTURBATION_THEORY && fractal.supportsPerturbationTheory()) {
             if (reference_calc_sync.getAndIncrement() == 0) {
@@ -144,6 +149,7 @@ public class BruteForce2Draw extends ThreadDraw {
             } catch (BrokenBarrierException ex) {
 
             }
+            location.setReference(Fractal.refPoint);
         }
 
         for(y = FROMy; y < TOy; y++) {
@@ -153,21 +159,17 @@ public class BruteForce2Draw extends ThreadDraw {
                 escaped[loc] = iteration_algorithm.escaped();
                 color = getFinalColor(image_iterations[loc], escaped[loc]);
 
-                red = (color >> 16) & 0xff;
-                green = (color >> 8) & 0xff;
-                blue = color & 0xff;
+                aa.initialize(color);
 
                 //Supersampling
                 for(int i = 0; i < supersampling_num; i++) {
                     temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i));
                     color = getFinalColor(temp_result, iteration_algorithm.escaped());
 
-                    red += (color >> 16) & 0xff;
-                    green += (color >> 8) & 0xff;
-                    blue += color & 0xff;
+                    aa.addSample(color);
                 }
 
-                rgbs[loc] = 0xff000000 | (((int)(red / temp_samples + 0.5)) << 16) | (((int)(green / temp_samples + 0.5)) << 8) | ((int)(blue / temp_samples + 0.5));
+                rgbs[loc] = aa.getColor();
 
                 drawing_done++;
                 thread_calculated++;
@@ -202,6 +204,7 @@ public class BruteForce2Draw extends ThreadDraw {
             } catch (BrokenBarrierException ex) {
 
             }
+            location.setReference(Fractal.refPoint);
         }
 
         int x, y, loc;
@@ -239,6 +242,7 @@ public class BruteForce2Draw extends ThreadDraw {
             } catch (BrokenBarrierException ex) {
 
             }
+            location.setReference(Fractal.refPoint);
         }
 
         int x, y, loc;
@@ -246,10 +250,12 @@ public class BruteForce2Draw extends ThreadDraw {
 
         double temp_result;
 
-        int red, green, blue;
+        int aaMethod = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
+        int aaSamplesIndex = (filters_options_vals[MainWindow.ANTIALIASING] % 100) % 10;
+        boolean aaAvgWithMean = filters_options_vals[MainWindow.ANTIALIASING] / 100 == 1;
+        int supersampling_num = (aaSamplesIndex == 0 ? 4 : 8 * aaSamplesIndex);
 
-        int supersampling_num = (filters_options_vals[MainWindow.ANTIALIASING] == 0 ? 4 : 8 * filters_options_vals[MainWindow.ANTIALIASING]);
-        double temp_samples = supersampling_num + 1;
+        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(supersampling_num + 1, aaMethod, aaAvgWithMean);
 
         for(y = FROMy; y < TOy; y++) {
             for(x = FROMx, loc = y * image_size + x; x < TOx; x++, loc++) {
@@ -258,21 +264,17 @@ public class BruteForce2Draw extends ThreadDraw {
                 escaped_fast_julia[loc] = iteration_algorithm.escaped();
                 color = getFinalColor(image_iterations_fast_julia[loc], escaped_fast_julia[loc]);
 
-                red = (color >> 16) & 0xff;
-                green = (color >> 8) & 0xff;
-                blue = color & 0xff;
+                aa.initialize(color);
 
                 //Supersampling
                 for(int i = 0; i < supersampling_num; i++) {
                     temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i));
                     color = getFinalColor(temp_result, iteration_algorithm.escaped());
 
-                    red += (color >> 16) & 0xff;
-                    green += (color >> 8) & 0xff;
-                    blue += color & 0xff;
+                    aa.addSample(color);
                 }
 
-                rgbs[loc] = 0xff000000 | (((int)(red / temp_samples + 0.5)) << 16) | (((int)(green / temp_samples + 0.5)) << 8) | ((int)(blue / temp_samples + 0.5));
+                rgbs[loc] = aa.getColor();
             }
 
         }

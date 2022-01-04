@@ -44,6 +44,7 @@ public class OptionsMenu extends JMenu {
     private JMenuItem iterations;
     private JMenuItem increase_iterations;
     private JMenuItem decrease_iterations;
+    private JMenuItem period;
     private JMenuItem height_ratio_number;
     private JMenuItem set_rotation;
     private JMenuItem increase_rotation;
@@ -52,6 +53,7 @@ public class OptionsMenu extends JMenu {
     private JMenuItem change_zooming_factor;
     private JMenuItem point_opt;
     private JMenuItem overview_opt;
+    private JMenuItem stats_opt;
     private FractalOptionsMenu fractal_options_menu;
     private JMenu window_menu;
     private JCheckBoxMenuItem toolbar_opt;
@@ -75,6 +77,8 @@ public class OptionsMenu extends JMenu {
         decrease_iterations = new JMenuItem("Decrease Iterations", getIcon("/fractalzoomer/icons/minus.png"));
 
         iterations = new JMenuItem("Set Iterations", getIcon("/fractalzoomer/icons/iterations.png"));
+
+        period  = new JMenuItem("Period", getIcon("/fractalzoomer/icons/period.png"));
 
         bailout_condition_menu = new BailoutConditionsMenu(ptr, "Bailout Condition", bailout_test_algorithm);
 
@@ -112,12 +116,15 @@ public class OptionsMenu extends JMenu {
 
         overview_opt = new JMenuItem("Options Overview", getIcon("/fractalzoomer/icons/overview.png"));
 
+        stats_opt = new JMenuItem("Statistics", getIcon("/fractalzoomer/icons/stats.png"));
+
         toolbar_opt = new JCheckBoxMenuItem("Tool Bar");
         statusbar_opt = new JCheckBoxMenuItem("Status Bar");
         infobar_opt = new JCheckBoxMenuItem("Information Bar");
         fullscreen_opt = new JCheckBoxMenuItem("Full Screen");
 
         size_of_image.setToolTipText("Sets the image size.");
+        period.setToolTipText("Sets the period for the reference calculation.");
         iterations.setToolTipText("Sets the maximum number of iterations.");
         increase_iterations.setToolTipText("Increases the maximum iteterations number by one.");
         decrease_iterations.setToolTipText("Decreases the maximum iteterations number by one.");
@@ -130,6 +137,7 @@ public class OptionsMenu extends JMenu {
         height_ratio_number.setToolTipText("Changes the ratio of the image and creates a stretch.");
         filters_options.setToolTipText("Sets the options of the image filters.");
         overview_opt.setToolTipText("Creates a report of all the active fractal options.");
+        stats_opt.setToolTipText("Displays the statistics of last rendered fractal.");
         toolbar_opt.setToolTipText("Activates the tool bar.");
         statusbar_opt.setToolTipText("Activates the status bar.");
         infobar_opt.setToolTipText("Activates the information bar.");
@@ -137,13 +145,14 @@ public class OptionsMenu extends JMenu {
 
         size_of_image.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, ActionEvent.CTRL_MASK));
         iterations.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, 0));
+        period.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_PERIOD, 0));
         increase_iterations.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, ActionEvent.ALT_MASK));
         decrease_iterations.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, ActionEvent.ALT_MASK));
         bailout_number.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_U, ActionEvent.ALT_MASK));
         set_rotation.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, ActionEvent.ALT_MASK));
         increase_rotation.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, ActionEvent.CTRL_MASK));
         decrease_rotation.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, ActionEvent.CTRL_MASK));
-        point_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_PERIOD, 0));
+        point_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_COMMA, 0));
         change_zooming_factor.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, ActionEvent.CTRL_MASK));
         height_ratio_number.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, ActionEvent.SHIFT_MASK));
         filters_options.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, ActionEvent.SHIFT_MASK));
@@ -151,6 +160,7 @@ public class OptionsMenu extends JMenu {
         statusbar_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.ALT_MASK));
         infobar_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, ActionEvent.ALT_MASK));
         fullscreen_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F11, 0));
+        stats_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F12, 0));
 
         overview_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.SHIFT_MASK));
 
@@ -170,6 +180,16 @@ public class OptionsMenu extends JMenu {
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setIterations();
+
+            }
+        });
+
+        period.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setPeriod();
 
             }
         });
@@ -274,6 +294,16 @@ public class OptionsMenu extends JMenu {
             }
         });
 
+        stats_opt.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.Stats();
+
+            }
+        });
+
         toolbar_opt.addActionListener(new ActionListener() {
 
             @Override
@@ -358,6 +388,8 @@ public class OptionsMenu extends JMenu {
         addSeparator();
         add(height_ratio_number);
         addSeparator();
+        add(period);
+        addSeparator();
         add(change_zooming_factor);
         addSeparator();
         add(optimizations_menu);
@@ -367,6 +399,8 @@ public class OptionsMenu extends JMenu {
         add(filters_options);
         addSeparator();
         add(overview_opt);
+        addSeparator();
+        add(stats_opt);
         addSeparator();
         add(window_menu);
     }
@@ -665,6 +699,12 @@ public class OptionsMenu extends JMenu {
 
     }
 
+    public JMenuItem getStats() {
+
+        return stats_opt;
+
+    }
+
     public JCheckBoxMenuItem getToolbar() {
 
         return toolbar_opt;
@@ -815,6 +855,10 @@ public class OptionsMenu extends JMenu {
         return colors_menu.getInTrueColoring();
     }
 
+    public JMenuItem getPeriod() {
+        return period;
+    }
+
     public JRadioButtonMenuItem[] getPreFunctionFilters() {
 
         return fractal_options_menu.getPreFunctionFilters();
@@ -836,6 +880,12 @@ public class OptionsMenu extends JMenu {
     public JMenu getPlaneInfluenceMenu() {
 
         return fractal_options_menu.getPlaneInfluenceMenu();
+
+    }
+
+    public JCheckBoxMenuItem getAutoRepaintImage() {
+
+        return optimizations_menu.getAutoRepaintImage();
 
     }
 

@@ -17,6 +17,8 @@
 package fractalzoomer.bailout_conditions;
 
 import fractalzoomer.core.BigComplex;
+import fractalzoomer.core.BigNum;
+import fractalzoomer.core.BigNumComplex;
 import fractalzoomer.core.Complex;
 import org.apfloat.Apfloat;
 
@@ -44,6 +46,11 @@ public class ImaginaryStripBailoutCondition extends BailoutCondition {
 
         return z.getAbsIm().compareTo(ddbound) >= 0;
 
+    }
+
+    @Override
+    public boolean escaped(BigNumComplex z, BigNumComplex zold, BigNumComplex zold2, int iterations, BigNumComplex c, BigNumComplex start, BigNumComplex c0, BigNum norm_squared, BigNumComplex pixel) {
+        return z.getAbsIm().compare(bnbound) >= 0;
     }
     
 }

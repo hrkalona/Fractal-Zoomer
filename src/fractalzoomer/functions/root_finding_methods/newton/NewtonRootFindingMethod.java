@@ -65,4 +65,10 @@ public abstract class NewtonRootFindingMethod extends RootFindingMethods {
         return z;
         
     }
+
+    public static Complex newtonStep(Complex fz, Complex dfz) {
+
+        return ((fz).divide_mutable(dfz));
+
+    }
 }

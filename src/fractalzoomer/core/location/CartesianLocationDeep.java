@@ -1,5 +1,6 @@
-package fractalzoomer.core;
+package fractalzoomer.core.location;
 
+import fractalzoomer.core.*;
 import fractalzoomer.functions.Fractal;
 import org.apfloat.Apfloat;
 
@@ -75,6 +76,8 @@ public class CartesianLocationDeep extends Location {
 
         ddantialiasing_y = other.ddantialiasing_y;
         ddantialiasing_x = other.ddantialiasing_x;
+
+        reference = other.reference;
     }
 
     @Override
@@ -90,7 +93,7 @@ public class CartesianLocationDeep extends Location {
 
         temp = fractal.getPlaneTransformedPixel(temp);
 
-        temp = temp.sub(Fractal.refPoint);
+        temp = temp.sub(reference);
 
         return new MantExpComplex(getMantExp(temp.getRe()), getMantExp(temp.getIm()));
     }
@@ -116,7 +119,7 @@ public class CartesianLocationDeep extends Location {
         temp = temp.sub(rot_center);
         temp = temp.times(rotation).plus(rot_center);
         temp = fractal.getPlaneTransformedPixel(temp);
-        temp = temp.sub(Fractal.refPoint);
+        temp = temp.sub(reference);
         return new MantExpComplex(getMantExp(temp.getRe()), getMantExp(temp.getIm()));
     }
 
@@ -127,7 +130,7 @@ public class CartesianLocationDeep extends Location {
         temp = temp.sub(rot_center);
         temp = temp.times(rotation).plus(rot_center);
         temp = fractal.getPlaneTransformedPixel(temp);
-        temp = temp.sub(Fractal.refPoint);
+        temp = temp.sub(reference);
         return new MantExpComplex(getMantExp(temp.getRe()), getMantExp(temp.getIm()));
     }
 
@@ -175,7 +178,7 @@ public class CartesianLocationDeep extends Location {
 
         temp = fractal.getPlaneTransformedPixel(temp);
 
-        temp = temp.sub(Fractal.refPoint);
+        temp = temp.sub(reference);
 
         return new MantExpComplex(getMantExp(temp.getRe()), getMantExp(temp.getIm()));
     }
@@ -190,12 +193,12 @@ public class CartesianLocationDeep extends Location {
     }
 
     @Override
-    public MantExp getSeriesApproxSize() {
+    public MantExp getMaxSizeInImage() {
         if(height_ratio.compareTo(Apfloat.ONE) == 0) {
-            return new MantExp(MyApfloat.fp.multiply(MyApfloat.fp.multiply(ddsize, new MyApfloat(0.525)), MyApfloat.SQRT_TWO)); //0.5 is ok but lets add 5%
+            return new MantExp(MyApfloat.fp.multiply(MyApfloat.fp.multiply(ddsize, new MyApfloat(0.5)), MyApfloat.SQRT_TWO));
         }
         else {
-            Apfloat temp = MyApfloat.fp.multiply(ddsize, new MyApfloat(0.525)); //0.5 is ok but lets add 5%
+            Apfloat temp = MyApfloat.fp.multiply(ddsize, new MyApfloat(0.5));
             Apfloat temp2 = MyApfloat.fp.multiply(temp, height_ratio);
             return new MantExp(MyApfloat.fp.sqrt(MyApfloat.fp.add(MyApfloat.fp.multiply(temp, temp), MyApfloat.fp.multiply(temp2, temp2))));
         }

@@ -128,13 +128,21 @@ public class DomainColoringFrame extends JFrame {
         domain_processing_transfer_opt.setSelectedIndex(s.ds.domainProcessingTransfer);
         domain_processing_transfer_opt.setFocusable(false);
         domain_processing_transfer_opt.setToolTipText("Sets the domain coloring processing transfer function.");
-        
-        final JTextField factor_textfield = new JTextField(10);
+
+        final JComboBox domain_height_opt = new JComboBox(MainWindow.domainHeightNames);
+        domain_height_opt.setSelectedIndex(s.ds.domain_height_method);
+        domain_height_opt.setFocusable(false);
+        domain_height_opt.setToolTipText("Sets the domain coloring height method.");
+
+
+        final JTextField factor_textfield = new JTextField(8);
         factor_textfield.setText("" + s.ds.domainProcessingHeightFactor);
-        
-        s2.add(new JLabel("Processing Transfer Function: "));
+
+        s2.add(new JLabel("Height: "));
+        s2.add(domain_height_opt);
+        s2.add(new JLabel("  Transfer Function: "));
         s2.add(domain_processing_transfer_opt);
-        s2.add(new JLabel("  Processing Factor: "));
+        s2.add(new JLabel("  Factor: "));
         s2.add(factor_textfield);
         
         settings_panel.add(s1);
@@ -289,6 +297,7 @@ public class DomainColoringFrame extends JFrame {
                 s.ds.domain_coloring_mode = use_palette_dc.getSelectedIndex();
                 s.ds.domainProcessingTransfer = domain_processing_transfer_opt.getSelectedIndex();
                 s.ds.domainProcessingHeightFactor = tempFactor;
+                s.ds.domain_height_method = domain_height_opt.getSelectedIndex();
                 
                 s.ps.color_cycling_location = tempOffset;
                 

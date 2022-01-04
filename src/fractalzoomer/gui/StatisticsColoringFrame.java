@@ -49,6 +49,12 @@ public class StatisticsColoringFrame extends JFrame {
     private JComboBox root_color_method_combo;
     private JList<String> list;
     private JLabel colorsLength;
+    private JComboBox langNormType;
+    private JTextField langNNorm;
+    private JRadioButton lagrangian;
+    private JComboBox atomNormType;
+    private JTextField atomNNorm;
+    private JRadioButton atomDomain;
 
     public StatisticsColoringFrame(MainWindow ptra, StatisticsSettings sts2, Settings s, boolean periodicity_checking) {
 
@@ -64,8 +70,8 @@ public class StatisticsColoringFrame extends JFrame {
         JRadioButton triangle_inequality_average = new JRadioButton(Constants.statisticalColoringName[MainWindow.TRIANGLE_INEQUALITY_AVERAGE]);
         JRadioButton alg1 = new JRadioButton(Constants.statisticalColoringName[MainWindow.COS_ARG_DIVIDE_NORM_AVERAGE]);
         JRadioButton alg2 = new JRadioButton(Constants.statisticalColoringName[MainWindow.COS_ARG_DIVIDE_INVERSE_NORM]);
-        JRadioButton atomDomain = new JRadioButton(Constants.statisticalColoringName[MainWindow.ATOM_DOMAIN_BOF60_BOF61]);
-        JRadioButton lagrangian = new JRadioButton(Constants.statisticalColoringName[MainWindow.DISCRETE_LAGRANGIAN_DESCRIPTORS]);
+        atomDomain  = new JRadioButton(Constants.statisticalColoringName[MainWindow.ATOM_DOMAIN_BOF60_BOF61]);
+        lagrangian = new JRadioButton(Constants.statisticalColoringName[MainWindow.DISCRETE_LAGRANGIAN_DESCRIPTORS]);
         JRadioButton twinLamps = new JRadioButton(Constants.statisticalColoringName[MainWindow.TWIN_LAMPS]);
 
         if(s.fns.function != MainWindow.MANDELBROT) {
@@ -1081,7 +1087,29 @@ public class StatisticsColoringFrame extends JFrame {
         showAtomDomain.setSelected(sts.showAtomDomains);
         showAtomDomain.setFocusable(false);
 
-        atom_domain_panel.add(showAtomDomain);     
+        atom_domain_panel.add(showAtomDomain);
+
+        atomNormType = new JComboBox(Constants.atomNormTypes);
+        atomNormType.setSelectedIndex(sts.atomNormType);
+        atomNormType.setFocusable(false);
+        atomNormType.setToolTipText("Sets the norm type.");
+
+        atom_domain_panel.add(new JLabel(" Norm-Type: "));
+        atom_domain_panel.add(atomNormType);
+
+        atomNNorm = new JTextField(10);
+        atomNNorm.setText("" + sts.atomNNorm);
+
+        atomNormType.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                atomNNorm.setEnabled(atomNormType.getSelectedIndex() == 3);
+            }
+        });
+
+        atom_domain_panel.add(new JLabel(" N-Norm: "));
+        atom_domain_panel.add(atomNNorm);
+
 
         atomDomain.setBackground(MainWindow.bg_color);
         atomDomain.setSelected(sts.statistic_type == MainWindow.ATOM_DOMAIN_BOF60_BOF61);
@@ -1100,6 +1128,27 @@ public class StatisticsColoringFrame extends JFrame {
         lagrPower.setText("" + sts.lagrangianPower);
         lagrangian_panel.add(new JLabel("Power: "));
         lagrangian_panel.add(lagrPower);
+
+        langNormType = new JComboBox(Constants.langNormTypes);
+        langNormType.setSelectedIndex(sts.langNormType);
+        langNormType.setFocusable(false);
+        langNormType.setToolTipText("Sets the norm type.");
+
+        lagrangian_panel.add(new JLabel(" Norm-Type: "));
+        lagrangian_panel.add(langNormType);
+
+        langNNorm = new JTextField(10);
+        langNNorm.setText("" + sts.langNNorm);
+
+        langNormType.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                langNNorm.setEnabled(langNormType.getSelectedIndex() == 4);
+            }
+        });
+
+        lagrangian_panel.add(new JLabel(" N-Norm: "));
+        lagrangian_panel.add(langNNorm);
 
         lagrangian.setBackground(MainWindow.bg_color);
         lagrangian.setSelected(sts.statistic_type == MainWindow.DISCRETE_LAGRANGIAN_DESCRIPTORS);
@@ -1159,6 +1208,9 @@ public class StatisticsColoringFrame extends JFrame {
         atom_domain_border.setState(atomDomain.isSelected());
         lagrangian_border.setState(lagrangian.isSelected());
         twin_lamps_border.setState(twinLamps.isSelected());
+
+        langNNorm.setEnabled(lagrangian.isSelected() && langNormType.getSelectedIndex() == 4);
+        atomNNorm.setEnabled(atomDomain.isSelected() && atomNormType.getSelectedIndex() == 3);
 
         stripe_average.addActionListener(new ActionListener() {
             @Override
@@ -1241,7 +1293,7 @@ public class StatisticsColoringFrame extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                double temp, temp2, temp3, temp4, temp5, temp6, temp7, temp8, temp9, temp10, temp11, temp12, temp13, temp14;
+                double temp, temp2, temp3, temp4, temp5, temp6, temp7, temp8, temp9, temp10, temp11, temp12, temp13, temp14, temp15, temp16;
 
                 try {
                     temp = Double.parseDouble(intensity.getText());
@@ -1258,6 +1310,8 @@ public class StatisticsColoringFrame extends JFrame {
                     temp12 = Double.parseDouble(rootIterScaling.getText());
                     temp13 = Double.parseDouble(twinPointRe.getText());
                     temp14 = Double.parseDouble(twinPointIm.getText());
+                    temp15 = Double.parseDouble(langNNorm.getText());
+                    temp16 = Double.parseDouble(atomNNorm.getText());
                 }
                 catch(Exception ex) {
                     JOptionPane.showMessageDialog(this_frame, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
@@ -1381,6 +1435,12 @@ public class StatisticsColoringFrame extends JFrame {
                 sts.twlPoint[1] = temp14;
                 sts.twlFunction = twin_l_function.getSelectedIndex();
 
+                sts.langNormType = langNormType.getSelectedIndex();
+                sts.langNNorm = temp15;
+
+                sts.atomNormType = atomNormType.getSelectedIndex();
+                sts.atomNNorm = temp16;
+
                 if(stripe_average.isSelected()) {
                     sts.statistic_type = MainWindow.STRIPE_AVERAGE;
                 }
@@ -1494,6 +1554,14 @@ public class StatisticsColoringFrame extends JFrame {
 
         if(rootShading.isSelected()) {
             root_color_blend_opt.setEnabled(root_color_method_combo.getSelectedIndex() == 3);
+        }
+
+        if(lagrangian.isSelected()) {
+            langNNorm.setEnabled(langNormType.getSelectedIndex() == 4);
+        }
+
+        if(atomDomain.isSelected()) {
+            atomNNorm.setEnabled(atomNormType.getSelectedIndex() == 3);
         }
 
     }

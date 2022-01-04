@@ -29,6 +29,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.ConvolveOp;
 import java.awt.image.DataBufferInt;
 import java.awt.image.Kernel;
+import java.util.stream.IntStream;
 
 /**
  *
@@ -170,7 +171,9 @@ public class ImageFilters {
 
         int condition = image_size * image_size;
 
-        for (int p = 0; p < condition; p++) {
+        IntStream.range(0, condition)
+                .parallel().forEach(p -> {
+        //for (int p = 0; p < condition; p++) {
 
             int r = (raster[p] >> 16) & 0xff;
             int g = (raster[p] >> 8) & 0xff;
@@ -178,7 +181,7 @@ public class ImageFilters {
             if (r <= sensitivity && g <= sensitivity && b <= sensitivity) {//(0xff000000 | raster[p]) == black
                 rgbs[p] = filter_color.getRGB();
             }
-        }
+        });
 
         kernel = null;
         cop = null;
@@ -385,10 +388,12 @@ public class ImageFilters {
 
         int condition = image_size * image_size;
 
-        int r, g, b;
 
-        for (int p = 0; p < condition; p++) {
+        IntStream.range(0, condition)
+                .parallel().forEach(p -> {
+        //for (int p = 0; p < condition; p++) {
 
+            int r, g, b;
             if (filter_value == 0) {
                 raster[p] = ~(raster[p] & 0x00ffffff);
             } else if (filter_value == 1) { // Brightness
@@ -441,7 +446,7 @@ public class ImageFilters {
                 raster[p] = 0xff000000 | r << 16 | g << 8 | (255 - b);
             }
 
-        }
+        });
 
     }
 
@@ -485,11 +490,15 @@ public class ImageFilters {
         int image_size = image.getHeight();
 
         int[] raster = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
-        int r, g, b;
+
 
         int condition = image_size * image_size;
 
-        for (int p = 0; p < condition; p++) {
+        IntStream.range(0, condition)
+                .parallel().forEach(p -> {
+        //for (int p = 0; p < condition; p++) {
+
+             int r, g, b;
             r = (raster[p] >> 16) & 0xff;
             g = (raster[p] >> 8) & 0xff;
             b = raster[p] & 0xff;
@@ -505,7 +514,7 @@ public class ImageFilters {
             } else {
                 raster[p] = 0xff000000 | (b << 16) | (r << 8) | g;
             }
-        }
+        });
 
     }
 
@@ -546,11 +555,14 @@ public class ImageFilters {
 
         int[] raster = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 
-        int r, g, b, rgb;
 
         int condition = image_size * image_size;
 
-        for (int p = 0; p < condition; p++) {
+        //for (int p = 0; p < condition; p++) {
+        IntStream.range(0, condition)
+                .parallel().forEach(p -> {
+
+            int r, g, b, rgb;
             r = (raster[p] >> 16) & 0xff;
             g = (raster[p] >> 8) & 0xff;
             b = raster[p] & 0xff;
@@ -571,7 +583,7 @@ public class ImageFilters {
             }
 
             raster[p] = 0xff000000 | (rgb << 16) | (rgb << 8) | rgb;
-        }
+        });
 
     }
 
@@ -690,15 +702,18 @@ public class ImageFilters {
             }
 
             // Now apply the changes (stretch the values)
-            int r, g, b;
 
-            for (int p = 0; p < condition; p++) {
+
+            IntStream.range(0, condition)
+                    .parallel().forEach(p -> {
+            //for (int p = 0; p < condition; p++) {
+                        int r, g, b;
                 r = hist[0][(raster[p] >> 16) & 0xff];
                 g = hist[1][(raster[p] >> 8) & 0xff];
                 b = hist[2][raster[p] & 0xff];
 
                 raster[p] = 0xff000000 | (r << 16) | (g << 8) | b;
-            }
+            });
         } else if (filter_value == 0 || filter_value == 5 || filter_value == 6 || filter_value == 7) { //brightness, hue ,saturation, lightness
             int hist[] = new int[1025];
 
@@ -708,10 +723,9 @@ public class ImageFilters {
 
             int hist_len = hist.length - 1;
 
-            int r, g, b;
-
             // Fill the histogram by counting the number of pixels with each value
             for (int p = 0; p < condition; p++) {
+                int r, g, b;
                 r = (raster[p] >> 16) & 0xff;
                 g = (raster[p] >> 8) & 0xff;
                 b = raster[p] & 0xff;
@@ -785,7 +799,10 @@ public class ImageFilters {
             }
 
             // Now apply the changes (stretch the values)
-            for (int p = 0; p < condition; p++) {
+            IntStream.range(0, condition)
+                    .parallel().forEach(p -> {
+            //for (int p = 0; p < condition; p++) {
+                int r, g, b;
                 r = (raster[p] >> 16) & 0xff;
                 g = (raster[p] >> 8) & 0xff;
                 b = raster[p] & 0xff;
@@ -814,7 +831,7 @@ public class ImageFilters {
                     int[] col = ColorSpaceConverter.LABtoRGB(temp * 100, res[1], res[2]);
                     raster[p] = 0xFF000000 | col[0] << 16 | col[1] << 8 | col[2];
                 }
-            }
+            });
 
         } else if (filter_value == 2 || filter_value == 3 || filter_value == 4) { //red, green, blue
             int hist[] = new int[256];
@@ -881,10 +898,13 @@ public class ImageFilters {
             }
 
             // Now apply the changes (stretch the values)
-            int r, g, b;
 
-            for (int p = 0; p < condition; p++) {
 
+            IntStream.range(0, condition)
+                    .parallel().forEach(p -> {
+            //for (int p = 0; p < condition; p++) {
+
+                 int r, g, b;
                 if (filter_value == 2) {
                     r = hist[(raster[p] >> 16) & 0xff];
                     g = (raster[p] >> 8) & 0xff;
@@ -900,7 +920,7 @@ public class ImageFilters {
                 }
 
                 raster[p] = 0xff000000 | (r << 16) | (g << 8) | b;
-            }
+            });
         }
 
         if (image.getHeight() > IMAGE_SIZE_LIMIT) {
@@ -1381,8 +1401,8 @@ public class ImageFilters {
         int light_type = (int) (filter_value / 100000000.0);
         double direction = (int) (((int) (filter_value % 100000000.0)) / 1000000.0) / 80.0 * 360.0 * Math.PI / 180.0;
         double elevation = (int) (((int) (((int) (filter_value % 100000000.0)) % 1000000.0)) / 10000.0) / 80.0 * Math.PI / 2;
-        double distance = (int) (((int) (((int) (((int) (filter_value % 100000000.0)) % 1000000.0)) % 10000.0)) / 100) / 80.0 * 1000;
-        double intensity = (int) (((int) (((int) (((int) (filter_value % 100000000.0)) % 1000000.0)) % 10000.0)) % 100) / 80.0;
+        double distance = (((int) (((int) (((int) (filter_value % 100000000.0)) % 1000000.0)) % 10000.0)) / 100) / 80.0 * 1000;
+        double intensity = (((int) (((int) (((int) (filter_value % 100000000.0)) % 1000000.0)) % 10000.0)) % 100) / 80.0;
 
         double x = (int) (filter_value2 / 1000000.0) / 80.0;
         double y = (int) (((int) (filter_value2 % 1000000.0)) / 10000.0) / 80.0;

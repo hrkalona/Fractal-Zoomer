@@ -126,7 +126,7 @@ public class RipplesPlaneDialog extends JDialog {
                         s.fns.plane_transform_wavelength[1] = temp8 == 0.0 ? 0.0 : temp8;
                         s.fns.waveType = wavetype_combobox.getSelectedIndex();
                     } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(ptra, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 
