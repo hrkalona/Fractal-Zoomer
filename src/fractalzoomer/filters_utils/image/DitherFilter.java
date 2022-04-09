@@ -16,6 +16,8 @@ limitations under the License.
 
 package fractalzoomer.filters_utils.image;
 
+import java.awt.image.BufferedImage;
+
 /**
  * A filter which performs ordered dithering on an image.
  */
@@ -233,6 +235,7 @@ public class DitherFilter extends PointFilter {
      * Initialize the filter.
      */
     protected void initialize() {
+		initialized = true;
 		rows = cols = (int)Math.sqrt(matrix.length);
 		map = new int[levels];
 		for (int i = 0; i < levels; i++) {
@@ -248,12 +251,18 @@ public class DitherFilter extends PointFilter {
 		}
 	}
 
+	@Override
+	public BufferedImage filter(BufferedImage src, BufferedImage dst ) {
+		if (!initialized)
+			initialize();
+		return super.filter( src, dst );
+	}
+
+	@Override
+	protected boolean supportsThreadsWithFullLoop() { return false;}
+
         @Override
 	public int filterRGB(int x, int y, int rgb) {
-		if (!initialized) {
-			initialized = true;
-			initialize();
-		}
 		int a = rgb & 0xff000000;
 		int r = (rgb >> 16) & 0xff;
 		int g = (rgb >> 8) & 0xff;

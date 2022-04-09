@@ -114,6 +114,12 @@ public class OrbitTrapsFrame extends JFrame {
 
         });
 
+        JCheckBox showOnlyTraps = new JCheckBox("Traps Only");
+        showOnlyTraps.setFocusable(false);
+        showOnlyTraps.setSelected(ots.showOnlyTraps);
+        showOnlyTraps.setToolTipText("Renders only the traps");
+        showOnlyTraps.setBackground(MainWindow.bg_color);
+
 
         load_image_button = new JButton();
         load_image_button.setIcon(getIcon("/fractalzoomer/icons/load_image.png"));
@@ -433,6 +439,47 @@ public class OrbitTrapsFrame extends JFrame {
             }
 
         });
+
+        final JLabel background_label = new JLabel();
+
+        background_label.setPreferredSize(new Dimension(22, 22));
+        background_label.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
+        background_label.setBackground(ots.background);
+        background_label.setOpaque(true);
+        background_label.setToolTipText("Changes the background color.");
+
+        background_label.addMouseListener(new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+
+                if(!background_label.isEnabled()) {
+                    return;
+                }
+
+                new ColorChooserFrame(this_frame, "Background Color", background_label, -1);
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+
+            }
+
+        });
         
         JSlider interpolation_opt = new JSlider(JSlider.HORIZONTAL, 0, 100, 0);
         interpolation_opt.setValue((int) (100 * ots.trapColorInterpolation));
@@ -463,7 +510,10 @@ public class OrbitTrapsFrame extends JFrame {
         colors.setSelectedIndex(ots.trapColorFillingMethod);
         colors.setToolTipText("Sets the trap color filling method.");
 
-        p7.add(new JLabel("Color Filling Method: "));
+        p7.add(showOnlyTraps);
+        p7.add(new JLabel("  Background: "));
+        p7.add(background_label);
+        p7.add(new JLabel(" Color Filling Method: "));
         p7.add(colors);
         
         
@@ -664,6 +714,9 @@ public class OrbitTrapsFrame extends JFrame {
                     ots.trapImage = image;
                     ImageOrbitTrap.image = ots.trapImage;
                 }
+
+                ots.showOnlyTraps = showOnlyTraps.isSelected();
+                ots.background = background_label.getBackground();
 
                 ptra2.setOrbitTrapSettings();
                 ptra2.setEnabled(true);

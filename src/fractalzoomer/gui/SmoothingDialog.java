@@ -130,7 +130,7 @@ public class SmoothingDialog extends JDialog {
                         s.fns.converging_smooth_algorithm = converging_alg_combo.getSelectedIndex();
                         s.color_smoothing_method = combo_box_color_interp.getSelectedIndex();
                     } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(ptra, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 

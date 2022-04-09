@@ -225,7 +225,7 @@ public class InertiaGravityDialog extends JDialog {
                         s.fns.igs.inertia_exponent = temp_exponent;
                         s.fns.igs.time_step = temp_timestep;
                     } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(ptra, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 

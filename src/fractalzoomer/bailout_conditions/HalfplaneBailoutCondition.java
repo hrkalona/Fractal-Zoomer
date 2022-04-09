@@ -17,6 +17,8 @@
 package fractalzoomer.bailout_conditions;
 
 import fractalzoomer.core.BigComplex;
+import fractalzoomer.core.BigNum;
+import fractalzoomer.core.BigNumComplex;
 import fractalzoomer.core.Complex;
 import org.apfloat.Apfloat;
 
@@ -45,6 +47,11 @@ public class HalfplaneBailoutCondition extends BailoutCondition {
 
         return z.getRe().compareTo(ddbound) >= 0;
 
+    }
+
+    @Override
+    public boolean escaped(BigNumComplex z, BigNumComplex zold, BigNumComplex zold2, int iterations, BigNumComplex c, BigNumComplex start, BigNumComplex c0, BigNum norm_squared, BigNumComplex pixel) {
+        return z.getRe().compare(bnbound) >= 0;
     }
     
 }

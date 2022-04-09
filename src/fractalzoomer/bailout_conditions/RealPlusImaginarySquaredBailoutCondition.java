@@ -16,9 +16,7 @@
  */
 package fractalzoomer.bailout_conditions;
 
-import fractalzoomer.core.BigComplex;
-import fractalzoomer.core.Complex;
-import fractalzoomer.core.MyApfloat;
+import fractalzoomer.core.*;
 import org.apfloat.Apfloat;
 
 /**
@@ -47,6 +45,12 @@ public class RealPlusImaginarySquaredBailoutCondition extends BailoutCondition {
         Apfloat temp = MyApfloat.fp.add(z.getRe(), z.getIm());
         return MyApfloat.fp.multiply(temp, temp).compareTo(ddbound) >= 0;
 
+    }
+
+    @Override
+    public boolean escaped(BigNumComplex z, BigNumComplex zold, BigNumComplex zold2, int iterations, BigNumComplex c, BigNumComplex start, BigNumComplex c0, BigNum norm_squared, BigNumComplex pixel) {
+        BigNum temp = z.getRe().add(z.getIm());
+        return temp.squareFull().compare(bnbound) >= 0;
     }
     
 }

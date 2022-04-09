@@ -53,6 +53,8 @@ public class OrbitTrapSettings {
     public boolean invertTrapHeight;
     public int trapHeightFunction;
     public int checkType;
+    public boolean showOnlyTraps;
+    public Color background;
 
     public double sfm1;
     public double sfm2;
@@ -105,6 +107,9 @@ public class OrbitTrapSettings {
         sfn3 = 10;
         sfa = 0.5;
         sfb = 0.5;
+
+        showOnlyTraps = false;
+        background = Color.BLACK;
         
     }
     

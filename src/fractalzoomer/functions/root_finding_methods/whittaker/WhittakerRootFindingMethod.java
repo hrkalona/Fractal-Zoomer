@@ -56,4 +56,10 @@ public abstract class WhittakerRootFindingMethod extends RootFindingMethods {
         return z;
         
     }
+
+    public static Complex whittakerStep(Complex fz, Complex dfz, Complex ddfz) {
+
+        return ((dfz.square().times_mutable(2).times_mutable(fz).sub_mutable(fz.square().times_mutable(ddfz))).divide_mutable(dfz.cube().times_mutable(2)));
+
+    }
 }

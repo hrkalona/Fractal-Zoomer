@@ -18,6 +18,8 @@
 package fractalzoomer.bailout_conditions;
 
 import fractalzoomer.core.BigComplex;
+import fractalzoomer.core.BigNum;
+import fractalzoomer.core.BigNumComplex;
 import fractalzoomer.core.Complex;
 import org.apfloat.Apfloat;
 import org.apfloat.ApfloatMath;
@@ -50,6 +52,17 @@ public class SquareBailoutCondition extends BailoutCondition {
         Apfloat max = ApfloatMath.max(absRe, absIm);
 
         return max.compareTo(ddbound) >= 0;
+
+    }
+
+    @Override
+    public boolean escaped(BigNumComplex z, BigNumComplex zold, BigNumComplex zold2, int iterations, BigNumComplex c, BigNumComplex start, BigNumComplex c0, BigNum norm_squared, BigNumComplex pixel) {
+        BigNum absRe = z.getAbsRe();
+        BigNum absIm = z.getAbsIm();
+
+        BigNum max = absRe.compare(absIm) == 1 ? absRe : absIm;
+
+        return max.compare(bnbound) >= 0;
 
     }
     

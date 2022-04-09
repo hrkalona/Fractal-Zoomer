@@ -16,8 +16,9 @@
  */
 package fractalzoomer.core.drawing_algorithms;
 
-import fractalzoomer.core.Location;
+import fractalzoomer.core.location.Location;
 import fractalzoomer.core.ThreadDraw;
+import fractalzoomer.functions.Fractal;
 import fractalzoomer.main.ImageExpanderWindow;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.*;
@@ -89,6 +90,7 @@ public class SolidGuessingDraw extends ThreadDraw {
             } catch (BrokenBarrierException ex) {
 
             }
+            location.setReference(Fractal.refPoint);
         }
 
         int pixel_percent = (image_size * image_size) / 100;

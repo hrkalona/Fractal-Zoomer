@@ -112,6 +112,10 @@ public class ComponentTitledBorder implements Border, MouseListener, MouseMotion
                 for (int i = 0; i < components.length; i++) {
                     setComponentState(components[i], enable);
                 }
+
+                if (parentFrame instanceof StatisticsColoringFrame) {
+                    ((StatisticsColoringFrame) parentFrame).toggled(element.isSelected());
+                }
                 
                 container.repaint();
             }

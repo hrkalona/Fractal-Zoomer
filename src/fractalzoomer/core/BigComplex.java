@@ -1,5 +1,6 @@
 package fractalzoomer.core;
 
+import fractalzoomer.utils.NormComponents;
 import org.apfloat.Apfloat;
 import org.apfloat.ApfloatMath;
 import org.apfloat.FixedPrecisionApfloatHelper;
@@ -110,6 +111,7 @@ public class BigComplex extends GenericComplex {
     /*
      *  z - Real
      */
+    @Override
     public final BigComplex sub(Apfloat number) {
 
         return  new BigComplex(MyApfloat.fp.subtract(re, number),im);
@@ -119,6 +121,7 @@ public class BigComplex extends GenericComplex {
     /*
      *  Real - z1
      */
+    @Override
     public final BigComplex r_sub(Apfloat number) {
 
         return  new BigComplex(MyApfloat.fp.subtract(number, re), im.negate());
@@ -130,7 +133,7 @@ public class BigComplex extends GenericComplex {
      */
     public final BigComplex i_sub(Apfloat number) {
 
-        return  new BigComplex(MyApfloat.fp.subtract(number, re), im.negate());
+        return  new BigComplex(re.negate(), MyApfloat.fp.subtract(number, im));
 
     }
 
@@ -146,6 +149,7 @@ public class BigComplex extends GenericComplex {
     /*
      *  z1 * Real
      */
+    @Override
     public final BigComplex times(Apfloat number) {
 
         return new BigComplex(MyApfloat.fp.multiply(re, number), MyApfloat.fp.multiply(im, number));
@@ -220,6 +224,7 @@ public class BigComplex extends GenericComplex {
     /*
      *  z^2
      */
+    @Override
     public final BigComplex square() {
         Apfloat temp = MyApfloat.fp.multiply(re, im);
         return new BigComplex(MyApfloat.fp.multiply(MyApfloat.fp.add(re, im), MyApfloat.fp.subtract(re, im)), MyApfloat.fp.add(temp, temp));
@@ -228,6 +233,7 @@ public class BigComplex extends GenericComplex {
     /*
      *  z^3
      */
+    @Override
     public final BigComplex cube() {
 
         Apfloat temp = MyApfloat.fp.multiply(re, re);
@@ -241,6 +247,7 @@ public class BigComplex extends GenericComplex {
     /*
      *  z^4
      */
+    @Override
     public final BigComplex fourth() {
 
         Apfloat temp = MyApfloat.fp.multiply(re, re);
@@ -253,6 +260,7 @@ public class BigComplex extends GenericComplex {
     /*
      *  z^5
      */
+    @Override
     public final BigComplex fifth() {
 
         Apfloat temp = MyApfloat.fp.multiply(re, re);
@@ -272,6 +280,13 @@ public class BigComplex extends GenericComplex {
 
         return MyApfloat.fp.add(MyApfloat.fp.multiply(re, re), MyApfloat.fp.multiply(im, im));
 
+    }
+
+    @Override
+    public NormComponents normSquaredWithComponents() {
+        Apfloat reSqr = MyApfloat.fp.multiply(re, re);
+        Apfloat imSqr = MyApfloat.fp.multiply(im, im);
+        return new NormComponents(reSqr, imSqr, MyApfloat.fp.add(reSqr, imSqr));
     }
 
     /*
@@ -364,6 +379,7 @@ public class BigComplex extends GenericComplex {
     /*
      *  Real -Imaginary i
      */
+    @Override
     public final BigComplex conjugate() {
 
         return new BigComplex(re, im.negate());
@@ -411,6 +427,7 @@ public class BigComplex extends GenericComplex {
     /*
      *  abs(z)
      */
+    @Override
     public final BigComplex abs() {
 
         return new BigComplex(ApfloatMath.abs(re), ApfloatMath.abs(im));
@@ -549,6 +566,35 @@ public class BigComplex extends GenericComplex {
     }
 
     /*
+     *  lexicographical comparison between two complex numbers
+     * -1 when z1 > z2
+     *  1 when z1 < z2
+     *  0 when z1 == z2
+     */
+    @Override
+    public final int compare(GenericComplex z2c) {
+
+        BigComplex z2 = (BigComplex)z2c;
+
+        int comparisonRe = re.compareTo(z2.re);
+        int comparisonIm = im.compareTo(z2.im);
+
+        if (comparisonRe >  0) {
+            return -1;
+        } else if (comparisonRe < 0) {
+            return 1;
+        } else if (comparisonIm > 0) {
+            return -1;
+        } else if (comparisonIm < 0) {
+            return 1;
+        } else if (comparisonRe == 0 && comparisonIm == 0) {
+            return 0;
+        }
+
+        return 2;
+    }
+
+    /*
      * y + xi
      */
     public final BigComplex flip() {
@@ -647,6 +693,141 @@ public class BigComplex extends GenericComplex {
 
     public final boolean isZero() {
         return re.compareTo(Apfloat.ZERO) == 0 && im.compareTo(Apfloat.ZERO) == 0;
+    }
+
+
+    /* more efficient z^2 + c */
+    @Override
+    public final BigComplex square_plus_c(GenericComplex cn) {
+        BigComplex c = (BigComplex)cn;
+
+        Apfloat temp = MyApfloat.fp.multiply(re, im);
+
+        return new BigComplex(MyApfloat.fp.add(MyApfloat.fp.multiply(MyApfloat.fp.add(re, im), MyApfloat.fp.subtract(re, im)), c.re), MyApfloat.fp.add(MyApfloat.fp.add(temp, temp), c.im));
+
+    }
+
+    /*
+     *  z^2 + c
+     */
+    @Override
+    public final BigComplex squareFast_plus_c(NormComponents normComponents, GenericComplex ca) {
+        Apfloat reSqr = (Apfloat) normComponents.reSqr;
+        Apfloat imSqr = (Apfloat) normComponents.imSqr;
+        Apfloat normSquared = (Apfloat) normComponents.normSquared;
+        BigComplex c = (BigComplex) ca;
+        Apfloat temp = MyApfloat.fp.add(re, im);
+        return new BigComplex(MyApfloat.fp.add(MyApfloat.fp.subtract(reSqr, imSqr), c.re), MyApfloat.fp.add(MyApfloat.fp.subtract(MyApfloat.fp.multiply(temp, temp), normSquared), c.im));
+    }
+
+    /*
+     *  z^2 + c
+     */
+    @Override
+    public final BigComplex squareFast(NormComponents normComponents) {
+        Apfloat reSqr = (Apfloat) normComponents.reSqr;
+        Apfloat imSqr = (Apfloat) normComponents.imSqr;
+        Apfloat normSquared = (Apfloat) normComponents.normSquared;
+        Apfloat temp = MyApfloat.fp.add(re, im);
+        return new BigComplex(MyApfloat.fp.subtract(reSqr, imSqr), MyApfloat.fp.subtract(MyApfloat.fp.multiply(temp, temp), normSquared));
+    }
+
+    /*
+     *  z^3
+     */
+    @Override
+    public final BigComplex cubeFast(NormComponents normComponents) {
+
+        Apfloat temp = (Apfloat) normComponents.reSqr;
+        Apfloat temp2 = (Apfloat) normComponents.imSqr;
+        Apfloat three = new MyApfloat(3.0);
+
+        return new BigComplex(MyApfloat.fp.multiply(re, MyApfloat.fp.subtract(temp, MyApfloat.fp.multiply(temp2, three))), MyApfloat.fp.multiply(im, MyApfloat.fp.subtract(MyApfloat.fp.multiply(temp, three), temp2)));
+
+    }
+
+    /*
+     *  z^4
+     */
+    @Override
+    public final BigComplex fourthFast(NormComponents normComponents) {
+
+        Apfloat temp = (Apfloat) normComponents.reSqr;
+        Apfloat temp2 = (Apfloat) normComponents.imSqr;
+
+        return new BigComplex(MyApfloat.fp.add(MyApfloat.fp.multiply(temp, MyApfloat.fp.subtract(temp, MyApfloat.fp.multiply(new MyApfloat(6), temp2))), MyApfloat.fp.multiply(temp2, temp2)), MyApfloat.fp.multiply(new MyApfloat(4), MyApfloat.fp.multiply(re, MyApfloat.fp.multiply(im, MyApfloat.fp.subtract(temp, temp2)))));
+
+    }
+
+    /*
+     *  z^5
+     */
+    @Override
+    public final BigComplex fifthFast(NormComponents normComponents) {
+
+        Apfloat temp = (Apfloat) normComponents.reSqr;
+        Apfloat temp2 = (Apfloat) normComponents.imSqr;
+
+        Apfloat five = new MyApfloat(5);
+        Apfloat ten = new MyApfloat(10);
+
+        return new BigComplex(MyApfloat.fp.multiply(re, MyApfloat.fp.add(MyApfloat.fp.multiply(temp, temp), MyApfloat.fp.multiply(temp2, MyApfloat.fp.subtract(MyApfloat.fp.multiply(temp2, five), MyApfloat.fp.multiply(temp, ten))))), MyApfloat.fp.multiply(im, MyApfloat.fp.add(MyApfloat.fp.multiply(temp2, temp2), MyApfloat.fp.multiply(temp, MyApfloat.fp.subtract(MyApfloat.fp.multiply(temp, five), MyApfloat.fp.multiply(temp2, ten))))));
+    }
+
+    /*
+     *  z1 - z2
+     */
+    @Override
+    public final BigComplex sub(GenericComplex zn) {
+
+        BigComplex z = (BigComplex)zn;
+
+        return  new BigComplex(MyApfloat.fp.subtract(re, z.re), MyApfloat.fp.subtract(im, z.im));
+
+    }
+
+    /*
+     * z1 + z2
+     */
+    @Override
+    public final BigComplex plus(GenericComplex zn) {
+
+        BigComplex z = (BigComplex)zn;
+        return new BigComplex(MyApfloat.fp.add(re, z.re), MyApfloat.fp.add(im, z.im));
+
+    }
+
+    /*
+     *  z1 * z2
+     */
+    @Override
+    public final BigComplex times(GenericComplex zn) {
+
+        BigComplex z = (BigComplex)zn;
+        return new BigComplex(MyApfloat.fp.subtract(MyApfloat.fp.multiply(re, z.re), MyApfloat.fp.multiply(im, z.im)), MyApfloat.fp.add(MyApfloat.fp.multiply(re, z.im), MyApfloat.fp.multiply(im, z.re)));
+
+    }
+
+    /*
+     *  |z|^2
+     */
+    @Override
+    public final Apfloat normSquared() {
+
+        return MyApfloat.fp.add(MyApfloat.fp.multiply(re, re), MyApfloat.fp.multiply(im, im));
+
+    }
+
+    /*
+     *  |z1 - z2|^2
+     */
+    @Override
+    public final Apfloat distanceSquared(GenericComplex za) {
+        BigComplex z = (BigComplex) za;
+        Apfloat temp_re = MyApfloat.fp.subtract(re, z.re);
+        Apfloat temp_im = MyApfloat.fp.subtract(im, z.im);
+        return MyApfloat.fp.add(MyApfloat.fp.multiply(temp_re, temp_re), MyApfloat.fp.multiply(temp_im, temp_im));
+
     }
 
 

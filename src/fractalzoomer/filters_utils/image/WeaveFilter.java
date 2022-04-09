@@ -117,6 +117,9 @@ public class WeaveFilter extends PointFilter {
             
         }
 
+	@Override
+	protected boolean supportsThreadsWithFullLoop() { return false;}
+
         @Override
 	public int filterRGB(int x, int y, int rgb) {
 		x += xWidth+xGap/2;

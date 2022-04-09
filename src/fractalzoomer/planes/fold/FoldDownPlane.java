@@ -18,6 +18,7 @@
 package fractalzoomer.planes.fold;
 
 import fractalzoomer.core.BigComplex;
+import fractalzoomer.core.BigNumComplex;
 import fractalzoomer.core.Complex;
 import fractalzoomer.planes.Plane;
 
@@ -29,12 +30,14 @@ public class FoldDownPlane extends Plane {
 
     private Complex center;
     private BigComplex ddcenter;
+    private BigNumComplex bncenter;
 
     public FoldDownPlane(double[] plane_transform_center) {
 
         super();
         center = new Complex(plane_transform_center[0], plane_transform_center[1]);
         ddcenter = new BigComplex(center);
+        bncenter = new BigNumComplex(center);
 
     }
 
@@ -49,6 +52,13 @@ public class FoldDownPlane extends Plane {
     public BigComplex transform(BigComplex pixel) {
 
         return pixel.fold_down(ddcenter);
+
+    }
+
+    @Override
+    public BigNumComplex transform(BigNumComplex pixel) {
+
+        return pixel.fold_down(bncenter);
 
     }
 }

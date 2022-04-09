@@ -17,6 +17,8 @@
 package fractalzoomer.functions.general;
 
 import fractalzoomer.core.*;
+import fractalzoomer.core.DeepReference;
+import fractalzoomer.core.location.Location;
 import fractalzoomer.fractal_options.initial_value.DefaultInitialValue;
 import fractalzoomer.fractal_options.initial_value.InitialValue;
 import fractalzoomer.fractal_options.initial_value.VariableConditionalInitialValue;
@@ -53,6 +55,7 @@ import org.apfloat.Apfloat;
 
 import javax.swing.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import static fractalzoomer.main.Constants.REFERENCE_CALCULATION_STR;
 
@@ -649,7 +652,9 @@ public class Nova extends ExtendedConvergentType {
     }
 
     @Override
-    public void calculateReferencePoint(BigComplex pixel, Apfloat size, boolean deepZoom, int iterations, Location externalLocation, JProgressBar progress) {
+    public void calculateReferencePoint(GenericComplex gpixel, Apfloat size, boolean deepZoom, int iterations, Location externalLocation, JProgressBar progress) {
+
+        long time = System.currentTimeMillis();
 
         int initIterations = iterations;
 
@@ -661,27 +666,59 @@ public class Nova extends ExtendedConvergentType {
         }
 
         if(iterations == 0) {
-            Reference = new Complex[max_iterations];
-            ReferenceSubCp = new Complex[max_iterations];
-            PrecalculatedTerms = new Complex[max_iterations];
+            Reference = new double[max_iterations << 1];
+
+            if(isJulia) {
+                ReferenceSubPixel = new double[max_iterations << 1];
+            }
+            else {
+                ReferenceSubCp = new double[max_iterations << 1];
+            }
+
+            PrecalculatedTerms = new double[max_iterations << 1];
 
             if (deepZoom) {
-                ReferenceDeep = new MantExpComplex[max_iterations];
-                ReferenceSubCpDeep = new MantExpComplex[max_iterations];
-                PrecalculatedTermsDeep = new MantExpComplex[max_iterations];
+                ReferenceDeep = new DeepReference(max_iterations);
+
+                if(isJulia) {
+                    ReferenceSubPixelDeep = new DeepReference(max_iterations);
+                }
+                else {
+                    ReferenceSubCpDeep = new DeepReference(max_iterations);
+                }
+
+                PrecalculatedTermsDeep = new DeepReference(max_iterations);
             }
         }
-        else if (max_iterations > Reference.length){
-            Reference = copyReference(Reference, new Complex[max_iterations]);
-            ReferenceSubCp = copyReference(ReferenceSubCp, new Complex[max_iterations]);
-            PrecalculatedTerms = copyReference(PrecalculatedTerms, new Complex[max_iterations]);
+        else if (max_iterations > (Reference.length >> 1)){
+            Reference = Arrays.copyOf(Reference, max_iterations << 1);
+
+            if(isJulia) {
+                ReferenceSubPixel = Arrays.copyOf(ReferenceSubPixel, max_iterations << 1);
+            }
+            else {
+                ReferenceSubCp = Arrays.copyOf(ReferenceSubCp, max_iterations << 1);
+            }
+
+            PrecalculatedTerms = Arrays.copyOf(PrecalculatedTerms, max_iterations << 1);
 
             if (deepZoom) {
-                ReferenceDeep = copyDeepReference(ReferenceDeep,  new MantExpComplex[max_iterations]);
-                ReferenceSubCpDeep = copyDeepReference(ReferenceSubCpDeep, new MantExpComplex[max_iterations]);
-                PrecalculatedTermsDeep = copyDeepReference(PrecalculatedTermsDeep, new MantExpComplex[max_iterations]);
+                ReferenceDeep.resize(max_iterations);
+
+                if(isJulia) {
+                    ReferenceSubPixelDeep.resize(max_iterations);
+                }
+                else {
+                    ReferenceSubCpDeep.resize(max_iterations);
+                }
+
+                PrecalculatedTermsDeep.resize(max_iterations);
             }
+
+            System.gc();
         }
+
+        BigComplex pixel = (BigComplex)gpixel;
 
         //Due to zero, all around zero will not work
         if(isJulia && pixel.norm().compareTo(new MyApfloat(1e-4)) < 0) {
@@ -691,12 +728,12 @@ public class Nova extends ExtendedConvergentType {
 
         BigComplex initVal = new BigComplex(defaultInitVal.getValue(null));
 
-        BigComplex z = iterations == 0 ? (isJulia ? pixel : initVal) : lastZValue;
+        BigComplex z = iterations == 0 ? (isJulia ? pixel : initVal) : (BigComplex)lastZValue;
 
         BigComplex c = isJulia ? new BigComplex(seed) : pixel;
 
-        BigComplex zold = iterations == 0 ? new BigComplex() : secondTolastZValue;
-        BigComplex zold2 = iterations == 0 ? new BigComplex() : thirdTolastZValue;
+        BigComplex zold = iterations == 0 ? new BigComplex() : (BigComplex)secondTolastZValue;
+        BigComplex zold2 = iterations == 0 ? new BigComplex() : (BigComplex)thirdTolastZValue;
         BigComplex start = isJulia ? pixel : initVal;
         BigComplex c0 = c;
 
@@ -710,9 +747,7 @@ public class Nova extends ExtendedConvergentType {
             refPointSmallDeep = loc.getMantExpComplex(refPoint);
         }
 
-        boolean fullReference = ThreadDraw.CALCULATE_FULL_REFERENCE;
         RefType = getRefType();
-        FullRef = fullReference;
 
         Apfloat three = new MyApfloat(3.0);
 
@@ -723,21 +758,36 @@ public class Nova extends ExtendedConvergentType {
                 break;
             }
 
-            Reference[iterations] = cz;
+            setArrayValue(Reference, iterations, cz);
 
-            BigComplex zsubcp = isJulia ? z.sub(refPoint) : z.sub(initVal);
-            BigComplex preCalc = z.fourth().sub(z); //Z^4-Z for catastrophic cancelation
-
-            ReferenceSubCp[iterations] = zsubcp.toComplex();
-            PrecalculatedTerms[iterations] = preCalc.toComplex();
-
-            if(deepZoom) {
-                ReferenceDeep[iterations] = loc.getMantExpComplex(z);
-                ReferenceSubCpDeep[iterations] =  loc.getMantExpComplex(zsubcp);
-                PrecalculatedTermsDeep[iterations] =  loc.getMantExpComplex(preCalc);
+            BigComplex zsubcp = null;
+            BigComplex zsubpixel = null;
+            if(isJulia) {
+                zsubpixel = z.sub(pixel);
+                setArrayValue(ReferenceSubPixel, iterations, zsubpixel.toComplex());
+            }
+            else {
+                zsubcp = z.sub(initVal);
+                setArrayValue(ReferenceSubCp, iterations, zsubcp.toComplex());
             }
 
-            if (!fullReference && iterations > 0 && convergent_bailout_algorithm.converged(z, zold, zold2, iterations, c, start, c0, pixel)) {
+            BigComplex preCalc = z.fourth().sub(z); //Z^4-Z for catastrophic cancelation
+            setArrayValue(PrecalculatedTerms, iterations, preCalc.toComplex());
+
+            if(deepZoom) {
+                setArrayDeepValue(ReferenceDeep, iterations, loc.getMantExpComplex(z));
+
+                if(isJulia) {
+                    setArrayDeepValue(ReferenceSubPixelDeep, iterations, loc.getMantExpComplex(zsubpixel));
+                }
+                else {
+                    setArrayDeepValue(ReferenceSubCpDeep, iterations, loc.getMantExpComplex(zsubcp));
+                }
+
+                setArrayDeepValue(PrecalculatedTermsDeep, iterations, loc.getMantExpComplex(preCalc));
+            }
+
+            if (iterations > 0 && convergent_bailout_algorithm.converged(z, zold, zold2, iterations, c, start, c0, pixel)) {
                 break;
             }
 
@@ -770,6 +820,8 @@ public class Nova extends ExtendedConvergentType {
             progress.setValue(progress.getMaximum());
             progress.setString(REFERENCE_CALCULATION_STR + " 100%");
         }
+        ReferenceCalculationTime = System.currentTimeMillis() - time;
+
     }
 
 
@@ -796,44 +848,44 @@ public class Nova extends ExtendedConvergentType {
         return (((XA.times(DeltaSubN).plus_mutable(XB)).times_mutable(DeltaSubN).plus_mutable(XC)).times_mutable(DeltaSubN)).divide_mutable(XD.times((Xp1.plus(DeltaSubN)).square_mutable())).plus_mutable(DeltaSub0);
 */
 
-        Complex Z = Reference[RefIteration];
+        Complex Z = getArrayValue(Reference, RefIteration);
         Complex z = DeltaSubN;
         Complex c = DeltaSub0;
 
         Complex temp = Z.times(2).plus_mutable(z).times_mutable(z).times_mutable(Z.square());
-        return temp.plus(PrecalculatedTerms[RefIteration]).sub_mutable(z.times(0.5)).times_mutable(z).divide_mutable(temp.plus(Z.fourth()).times_mutable(1.5)).plus_mutable(c);
+        return temp.plus(getArrayValue(PrecalculatedTerms, RefIteration)).sub_mutable(z.times(0.5)).times_mutable(z).divide_mutable(temp.plus(Z.fourth()).times_mutable(1.5)).plus_mutable(c);
     }
 
     @Override
     public MantExpComplex perturbationFunction(MantExpComplex DeltaSubN, MantExpComplex DeltaSub0, int RefIteration) {
 
-        MantExpComplex Z = ReferenceDeep[RefIteration];
+        MantExpComplex Z = getArrayDeepValue(ReferenceDeep, RefIteration);
         MantExpComplex z = DeltaSubN;
         MantExpComplex c = DeltaSub0;
 
         MantExpComplex temp = Z.times2().plus_mutable(z).times_mutable(z).times_mutable(Z.square());
-        return temp.plus(PrecalculatedTermsDeep[RefIteration]).sub_mutable(z.times(MantExp.POINTFIVE)).times_mutable(z).divide_mutable(temp.plus(Z.fourth()).times_mutable(MantExp.ONEPOINTFIVE)).plus_mutable(c);
+        return temp.plus(getArrayDeepValue(PrecalculatedTermsDeep, RefIteration)).sub_mutable(z.times05()).times_mutable(z).divide_mutable(temp.plus(Z.fourth()).times_mutable(MantExp.ONEPOINTFIVE)).plus_mutable(c);
     }
 
     @Override
     public Complex perturbationFunction(Complex DeltaSubN, int RefIteration) {
 
-        Complex Z = Reference[RefIteration];
+        Complex Z = getArrayValue(Reference, RefIteration);
         Complex z = DeltaSubN;
 
         Complex temp = Z.times(2).plus_mutable(z).times_mutable(z).times_mutable(Z.square());
-        return temp.plus(PrecalculatedTerms[RefIteration]).sub_mutable(z.times(0.5)).times_mutable(z).divide_mutable(temp.plus(Z.fourth()).times_mutable(1.5));
+        return temp.plus(getArrayValue(PrecalculatedTerms, RefIteration)).sub_mutable(z.times(0.5)).times_mutable(z).divide_mutable(temp.plus(Z.fourth()).times_mutable(1.5));
 
     }
 
     @Override
     public MantExpComplex perturbationFunction(MantExpComplex DeltaSubN, int RefIteration) {
 
-        MantExpComplex Z = ReferenceDeep[RefIteration];
+        MantExpComplex Z = getArrayDeepValue(ReferenceDeep, RefIteration);
         MantExpComplex z = DeltaSubN;
 
         MantExpComplex temp = Z.times2().plus_mutable(z).times_mutable(z).times_mutable(Z.square());
-        return temp.plus(PrecalculatedTermsDeep[RefIteration]).sub_mutable(z.times(MantExp.POINTFIVE)).times_mutable(z).divide_mutable(temp.plus(Z.fourth()).times_mutable(MantExp.ONEPOINTFIVE));
+        return temp.plus(getArrayDeepValue(PrecalculatedTermsDeep, RefIteration)).sub_mutable(z.times05()).times_mutable(z).divide_mutable(temp.plus(Z.fourth()).times_mutable(MantExp.ONEPOINTFIVE));
     }
 
     @Override
@@ -861,36 +913,6 @@ public class Nova extends ExtendedConvergentType {
 
         return complex;
 
-    }
-
-
-    public static void main(String[] args) {
-        Nova a = new Nova();
-
-        Reference = new Complex[2];
-        Reference[0] = new Complex();
-        Reference[1] = new Complex(0.32, 7.321);
-        ReferenceDeep = new MantExpComplex[2];
-        ReferenceDeep[0] = new MantExpComplex(Reference[0]);
-        ReferenceDeep[1] = new MantExpComplex(Reference[1]);
-
-        refPointSmall = new Complex(0.4, 0.0002);
-        refPointSmallDeep = new MantExpComplex(refPointSmall);
-
-        Complex Dn = new Complex(1.321, -4.21);
-        Complex D0 = new Complex();
-        MantExpComplex MDn = new MantExpComplex(Dn);
-        MantExpComplex MD0 = new MantExpComplex(D0);
-
-        Complex nzD0 = new Complex(-0.5, 1.4);
-        MantExpComplex nzMD0 = new MantExpComplex(nzD0);
-
-        System.out.println(a.perturbationFunction(Dn, D0, 1));
-        System.out.println(a.perturbationFunction(Dn, 1));
-        System.out.println(a.perturbationFunction(MDn, MD0, 1));
-        System.out.println("Non Zero D0");
-        System.out.println(a.perturbationFunction(Dn, nzD0, 1));
-        System.out.println(a.perturbationFunction(MDn, nzMD0, 1));
     }
 
 }

@@ -17,6 +17,8 @@
 package fractalzoomer.functions.mandelbrot;
 
 import fractalzoomer.core.*;
+import fractalzoomer.core.DeepReference;
+import fractalzoomer.core.location.Location;
 import fractalzoomer.fractal_options.initial_value.DefaultInitialValue;
 import fractalzoomer.fractal_options.initial_value.InitialValue;
 import fractalzoomer.fractal_options.initial_value.VariableConditionalInitialValue;
@@ -26,10 +28,12 @@ import fractalzoomer.functions.Julia;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
 import fractalzoomer.main.app_settings.StatisticsSettings;
+import fractalzoomer.utils.NormComponents;
 import org.apfloat.Apfloat;
 
 import javax.swing.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import static fractalzoomer.main.Constants.REFERENCE_CALCULATION_STR;
 
@@ -147,7 +151,9 @@ public class Mandelbar extends Julia {
     }
 
     @Override
-    public void calculateReferencePoint(BigComplex pixel, Apfloat size, boolean deepZoom, int iterations, Location externalLocation, JProgressBar progress) {
+    public void calculateReferencePoint(GenericComplex inputPixel, Apfloat size, boolean deepZoom, int iterations, Location externalLocation, JProgressBar progress) {
+
+        long time = System.currentTimeMillis();
 
         int initIterations = iterations;
 
@@ -160,61 +166,86 @@ public class Mandelbar extends Julia {
         }
 
         if (iterations == 0) {
-            Reference = new Complex[max_iterations];
+            Reference = new double[max_iterations << 1];
 
             if(isJulia) {
-                ReferenceSubCp = new Complex[max_iterations];
+                ReferenceSubPixel = new double[max_iterations << 1];
             }
 
             if (deepZoom) {
-                ReferenceDeep = new MantExpComplex[max_iterations];
+                ReferenceDeep = new DeepReference(max_iterations);
 
                 if(isJulia) {
-                    ReferenceSubCpDeep = new MantExpComplex[max_iterations];
+                    ReferenceSubPixelDeep = new DeepReference(max_iterations);
                 }
 
             }
-        } else if (max_iterations > Reference.length) {
-            Reference = copyReference(Reference, new Complex[max_iterations]);
+        } else if (max_iterations > (Reference.length >> 1)) {
+            Reference = Arrays.copyOf(Reference, max_iterations << 1);
 
             if(isJulia) {
-                ReferenceSubCp = copyReference(ReferenceSubCp, new Complex[max_iterations]);
+                ReferenceSubPixel = Arrays.copyOf(ReferenceSubPixel, max_iterations << 1);
             }
 
             if (deepZoom) {
-                ReferenceDeep = copyDeepReference(ReferenceDeep, new MantExpComplex[max_iterations]);
+                ReferenceDeep.resize(max_iterations);
 
                 if(isJulia) {
-                    ReferenceSubCpDeep = copyDeepReference(ReferenceSubCpDeep, new MantExpComplex[max_iterations]);
+                    ReferenceSubPixelDeep.resize(max_iterations);
                 }
 
             }
+
+            System.gc();
         }
 
-        BigComplex z = iterations == 0 ? (isJulia ? pixel : new BigComplex()) : lastZValue;
+        GenericComplex z, c, zold, zold2, start, c0, pixel;
+        Object normSquared;
 
-        BigComplex c = isJulia ? new BigComplex(seed) : pixel;
-
-        BigComplex zold = iterations == 0 ? new BigComplex() : secondTolastZValue;
-        BigComplex zold2 = iterations == 0 ? new BigComplex() : thirdTolastZValue;
-        BigComplex start = isJulia ? pixel : new BigComplex();
-        BigComplex c0 = c;
+        if(ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE) {
+            if(inputPixel instanceof  BigNumComplex) {
+                z = iterations == 0 ? (isJulia ? inputPixel : new BigNumComplex()) : lastZValue;
+                c = isJulia ? new BigNumComplex(seed) : inputPixel;
+                zold = iterations == 0 ? new BigNumComplex() : secondTolastZValue;
+                zold2 = iterations == 0 ? new BigNumComplex() : thirdTolastZValue;
+                start = isJulia ? inputPixel : new BigNumComplex();
+                c0 = c;
+                pixel = inputPixel;
+            }
+            else {
+                BigComplex bz = (BigComplex)inputPixel;
+                BigNumComplex bn = new BigNumComplex(bz);
+                z = iterations == 0 ? (isJulia ? bn : new BigNumComplex()) : lastZValue;
+                c = isJulia ? new BigNumComplex(seed) : bn;
+                zold = iterations == 0 ? new BigNumComplex() : secondTolastZValue;
+                zold2 = iterations == 0 ? new BigNumComplex() : thirdTolastZValue;
+                start = isJulia ? bn : new BigNumComplex();
+                c0 = c;
+                pixel = bn;
+            }
+            normSquared = new BigNum();
+        }
+        else {
+            z = iterations == 0 ? (isJulia ? inputPixel : new BigComplex()) : lastZValue;
+            c = isJulia ? new BigComplex(seed) : inputPixel;
+            zold = iterations == 0 ? new BigComplex() : secondTolastZValue;
+            zold2 = iterations == 0 ? new BigComplex() : thirdTolastZValue;
+            start = isJulia ? inputPixel : new BigComplex();
+            c0 = c;
+            pixel = inputPixel;
+            normSquared = Apfloat.ZERO;
+        }
 
         Location loc = new Location();
 
-        refPoint = pixel;
-
-        refPointSmall = pixel.toComplex();
+        refPoint = inputPixel;
+        refPointSmall = refPoint.toComplex();
 
         if(deepZoom) {
             refPointSmallDeep = loc.getMantExpComplex(refPoint);
         }
 
-        boolean fullReference = ThreadDraw.CALCULATE_FULL_REFERENCE;
         RefType = getRefType();
-        FullRef = fullReference;
-
-
 
         for (; iterations < max_iterations; iterations++) {
 
@@ -223,23 +254,26 @@ public class Mandelbar extends Julia {
                 break;
             }
 
-            Reference[iterations] = cz;
+            setArrayValue(Reference, iterations, cz);
 
             if(isJulia) {
-                BigComplex zsubcp = z.sub(refPoint);
-                ReferenceSubCp[iterations] = zsubcp.toComplex();
+                GenericComplex zsubpixel = z.sub(pixel);
+                setArrayValue(ReferenceSubPixel, iterations, zsubpixel.toComplex());
 
                 if(deepZoom) {
-                    ReferenceSubCpDeep[iterations] = loc.getMantExpComplex(zsubcp);
+                    setArrayDeepValue(ReferenceSubPixelDeep, iterations, loc.getMantExpComplex(zsubpixel));
                 }
             }
 
             if(deepZoom) {
-                ReferenceDeep[iterations] = loc.getMantExpComplex(z);
+                setArrayDeepValue(ReferenceDeep, iterations, loc.getMantExpComplex(z));
                 //ReferenceDeep[iterations] = new MantExpComplex(Reference[iterations]);
             }
 
-            if (!fullReference && iterations > 0 && bailout_algorithm.escaped(z, zold, zold2, iterations, c, start, c0, Apfloat.ZERO, pixel)) {
+            NormComponents normData = z.normSquaredWithComponents();
+            normSquared = normData.normSquared;
+
+            if (iterations > 0 && bailout_algorithm2.escaped(z, zold, zold2, iterations, c, start, c0, normSquared, pixel)) {
                 break;
             }
 
@@ -247,7 +281,7 @@ public class Mandelbar extends Julia {
             zold = z;
 
             try {
-                z = z.conjugate().square_plus_c(c);
+                z = z.conjugate().squareFast_plus_c(normData, c);
             }
             catch (Exception ex) {
                 break;
@@ -272,20 +306,21 @@ public class Mandelbar extends Julia {
             progress.setValue(progress.getMaximum());
             progress.setString(REFERENCE_CALCULATION_STR + " 100%");
         }
+        ReferenceCalculationTime = System.currentTimeMillis() - time;
 
     }
 
     @Override
     public Complex perturbationFunction(Complex DeltaSubN, Complex DeltaSub0, int RefIteration) {
 
-        Complex X = Reference[RefIteration];
+        Complex X = getArrayValue(Reference, RefIteration);
 
         double r = X.getRe();
         double i = X.getIm();
         double a = DeltaSubN.getRe();
         double b = DeltaSubN.getIm();
 
-        double Dnr = 2 * r*a + a*a - b*b - 2 * b*i;
+        double Dnr = 2 * (r*a - b*i) + a*a - b*b;
         double Dni = - (r*b + a * i + a * b) * 2;
 
         return new Complex(Dnr, Dni).plus_mutable(DeltaSub0);
@@ -295,14 +330,14 @@ public class Mandelbar extends Julia {
     @Override
     public MantExpComplex perturbationFunction(MantExpComplex DeltaSubN, MantExpComplex DeltaSub0, int RefIteration) {
 
-        MantExpComplex X = ReferenceDeep[RefIteration];
+        MantExpComplex X = getArrayDeepValue(ReferenceDeep, RefIteration);
 
         MantExp r = X.getRe();
         MantExp i = X.getIm();
         MantExp a = DeltaSubN.getRe();
         MantExp b = DeltaSubN.getIm();
 
-        MantExp Dnr = r.multiply(a).multiply2_mutable().add_mutable(a.multiply(a)).subtract_mutable(b.multiply(b)).subtract_mutable(b.multiply(i).multiply2_mutable());
+        MantExp Dnr = r.multiply(a).subtract_mutable(b.multiply(i)).multiply2_mutable().add_mutable(a.multiply(a)).subtract_mutable(b.multiply(b));
         MantExp Dni = (r.multiply(b).add_mutable(a.multiply(i)).add_mutable(a.multiply(b))).multiply2_mutable().negate_mutable();
 
         return new MantExpComplex(Dnr, Dni).plus_mutable(DeltaSub0);
@@ -311,14 +346,14 @@ public class Mandelbar extends Julia {
     @Override
     public Complex perturbationFunction(Complex DeltaSubN, int RefIteration) {
 
-        Complex X = Reference[RefIteration];
+        Complex X = getArrayValue(Reference, RefIteration);
 
         double r = X.getRe();
         double i = X.getIm();
         double a = DeltaSubN.getRe();
         double b = DeltaSubN.getIm();
 
-        double Dnr = 2 * r*a + a*a - b*b - 2 * b*i;
+        double Dnr = 2 * (r*a - b*i) + a*a - b*b;
         double Dni = - (r*b + a * i + a * b) * 2;
 
         return new Complex(Dnr, Dni);
@@ -327,14 +362,14 @@ public class Mandelbar extends Julia {
     @Override
     public MantExpComplex perturbationFunction(MantExpComplex DeltaSubN, int RefIteration) {
 
-        MantExpComplex X = ReferenceDeep[RefIteration];
+        MantExpComplex X = getArrayDeepValue(ReferenceDeep, RefIteration);
 
         MantExp r = X.getRe();
         MantExp i = X.getIm();
         MantExp a = DeltaSubN.getRe();
         MantExp b = DeltaSubN.getIm();
 
-        MantExp Dnr = r.multiply(a).multiply2_mutable().add_mutable(a.multiply(a)).subtract_mutable(b.multiply(b)).subtract_mutable(b.multiply(i).multiply2_mutable());
+        MantExp Dnr = r.multiply(a).subtract_mutable(b.multiply(i)).multiply2_mutable().add_mutable(a.multiply(a)).subtract_mutable(b.multiply(b));
         MantExp Dni = (r.multiply(b).add_mutable(a.multiply(i)).add_mutable(a.multiply(b))).multiply2_mutable().negate_mutable();
 
         return new MantExpComplex(Dnr, Dni);
@@ -345,32 +380,7 @@ public class Mandelbar extends Julia {
         return super.getRefType() + (isJulia ? "-Julia-" + seed : "");
     }
 
-    public static void main(String[] args) {
-        Mandelbar a = new Mandelbar();
+    @Override
+    public boolean supportsBignum() { return true;}
 
-        Reference = new Complex[2];
-        Reference[0] = new Complex();
-        Reference[1] = new Complex(0.32, 7.321);
-        ReferenceDeep = new MantExpComplex[2];
-        ReferenceDeep[0] = new MantExpComplex(Reference[0]);
-        ReferenceDeep[1] = new MantExpComplex(Reference[1]);
-
-        refPointSmall = new Complex(0.4, 0.0002);
-        refPointSmallDeep = new MantExpComplex(refPointSmall);
-
-        Complex Dn = new Complex(1.321, -4.21);
-        Complex D0 = new Complex();
-        MantExpComplex MDn = new MantExpComplex(Dn);
-        MantExpComplex MD0 = new MantExpComplex(D0);
-
-        Complex nzD0 = new Complex(-0.5, 1.4);
-        MantExpComplex nzMD0 = new MantExpComplex(nzD0);
-
-        System.out.println(a.perturbationFunction(Dn, D0, 1));
-        System.out.println(a.perturbationFunction(Dn, 1));
-        System.out.println(a.perturbationFunction(MDn, MD0, 1));
-        System.out.println("Non Zero D0");
-        System.out.println(a.perturbationFunction(Dn, nzD0, 1));
-        System.out.println(a.perturbationFunction(MDn, nzMD0, 1));
-    }
 }

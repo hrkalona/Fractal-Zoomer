@@ -21,6 +21,7 @@ import fractalzoomer.main.MainWindow;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 
 /**
  *
@@ -180,12 +181,16 @@ public class Toolbar extends JToolBar {
             }
         });
 
+        current_function_button.setMnemonic('e');
+
         add(current_function_button);
 
         current_plane_button = new JButton();
         current_plane_button.setIcon(getIcon("/fractalzoomer/icons/planes.png"));
         current_plane_button.setFocusable(false);
         current_plane_button.setToolTipText("Selects the active plane transformation for parameterization (if applicable).");
+
+        current_plane_button.setMnemonic('q');
 
         current_plane_button.addActionListener(new ActionListener() {
 

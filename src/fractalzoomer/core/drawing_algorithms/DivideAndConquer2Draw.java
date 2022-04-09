@@ -16,12 +16,13 @@
  */
 package fractalzoomer.core.drawing_algorithms;
 
-import fractalzoomer.core.Location;
+import fractalzoomer.core.location.Location;
 import fractalzoomer.core.ThreadDraw;
+import fractalzoomer.functions.Fractal;
 import fractalzoomer.main.ImageExpanderWindow;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.*;
-import fractalzoomer.utils.ExpandingQueue;
+import fractalzoomer.utils.ExpandingQueueSquare;
 import fractalzoomer.utils.Square;
 import org.apfloat.Apfloat;
 
@@ -91,9 +92,10 @@ public class DivideAndConquer2Draw extends ThreadDraw {
             } catch (BrokenBarrierException ex) {
 
             }
+            location.setReference(Fractal.refPoint);
         }
 
-        ExpandingQueue<Square> squares = new ExpandingQueue(INIT_QUEUE_SIZE);
+        ExpandingQueueSquare squares = new ExpandingQueueSquare(INIT_QUEUE_SIZE);
 
         Square square = new Square(FROMx, FROMy, TOx, TOy, randomNumber);
 

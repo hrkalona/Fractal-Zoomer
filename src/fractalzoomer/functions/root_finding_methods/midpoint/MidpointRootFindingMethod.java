@@ -62,5 +62,11 @@ public abstract class MidpointRootFindingMethod extends RootFindingMethods {
         return z;
         
     }
+
+    public static Complex midpointStep(Complex fz, Complex combined_dfz) {
+
+        return fz.divide(combined_dfz);
+
+    }
     
 }

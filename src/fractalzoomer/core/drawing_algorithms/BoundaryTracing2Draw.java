@@ -17,12 +17,13 @@
 package fractalzoomer.core.drawing_algorithms;
 
 import fractalzoomer.core.GenericComplex;
-import fractalzoomer.core.Location;
+import fractalzoomer.core.location.Location;
 import fractalzoomer.core.ThreadDraw;
+import fractalzoomer.functions.Fractal;
 import fractalzoomer.main.ImageExpanderWindow;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.*;
-import fractalzoomer.utils.ExpandingQueue;
+import fractalzoomer.utils.ExpandingQueuePixel;
 import fractalzoomer.utils.Pixel;
 import org.apfloat.Apfloat;
 
@@ -36,7 +37,7 @@ import java.util.concurrent.BrokenBarrierException;
  */
 public class BoundaryTracing2Draw extends ThreadDraw {
     private boolean[] added;
-    private ExpandingQueue<Pixel> pixels;
+    private ExpandingQueuePixel pixels;
     private static final int INIT_QUEUE_SIZE = 200;
 
     public BoundaryTracing2Draw(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, D3Settings d3s, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, DomainColoringSettings ds, boolean inverse_dem, boolean quickDraw, double color_intensity, int transfer_function, double color_intensity2, int transfer_function2, boolean usePaletteForInColoring, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, int color_blending, OrbitTrapSettings ots, ContourColoringSettings cns, int[] post_processing_order, LightSettings ls, PaletteGradientMergingSettings pbs, StatisticsSettings sts, int gradient_offset, HistogramColoringSettings hss, double contourFactor) {
@@ -138,6 +139,7 @@ public class BoundaryTracing2Draw extends ThreadDraw {
             } catch (BrokenBarrierException ex) {
 
             }
+            location.setReference(Fractal.refPoint);
         }
 
         int pixel_percent = (image_size * image_size) / 100;
@@ -146,7 +148,7 @@ public class BoundaryTracing2Draw extends ThreadDraw {
 
         int loc, p1, p2, p3, p4;
 
-        pixels = new ExpandingQueue(INIT_QUEUE_SIZE);
+        pixels = new ExpandingQueuePixel(INIT_QUEUE_SIZE);
 
         int x;
         int y = FROMy;

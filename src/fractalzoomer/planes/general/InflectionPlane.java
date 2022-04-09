@@ -17,6 +17,7 @@
 package fractalzoomer.planes.general;
 
 import fractalzoomer.core.BigComplex;
+import fractalzoomer.core.BigNumComplex;
 import fractalzoomer.core.Complex;
 import fractalzoomer.planes.Plane;
 
@@ -27,12 +28,14 @@ import fractalzoomer.planes.Plane;
 public class InflectionPlane extends Plane {
     private Complex center;
     private BigComplex ddcenter;
+    private BigNumComplex bncenter;
     
     public InflectionPlane(double[] plane_transform_center) {
         
         super();
         center = new Complex(plane_transform_center[0], plane_transform_center[1]);
         ddcenter = new BigComplex(center);
+        bncenter = new BigNumComplex(center);
         
     }
 
@@ -47,6 +50,13 @@ public class InflectionPlane extends Plane {
     public BigComplex transform(BigComplex pixel) {
 
         return  pixel.inflection(ddcenter);
+
+    }
+
+    @Override
+    public BigNumComplex transform(BigNumComplex pixel) {
+
+        return  pixel.inflection(bncenter);
 
     }
 

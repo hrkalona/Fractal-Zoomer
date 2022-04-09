@@ -1,5 +1,6 @@
-package fractalzoomer.core;
+package fractalzoomer.core.location;
 
+import fractalzoomer.core.*;
 import fractalzoomer.functions.Fractal;
 import org.apfloat.Apfloat;
 
@@ -110,6 +111,8 @@ public class CartesianLocation extends Location {
         ddantialiasing_y = other.ddantialiasing_y;
         antialiasing_x = other.antialiasing_x;
         ddantialiasing_x = other.ddantialiasing_x;
+
+        reference = other.reference;
     }
 
     public CartesianLocation(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int image_size) {
@@ -153,7 +156,7 @@ public class CartesianLocation extends Location {
 
             temp = fractal.getPlaneTransformedPixel(temp);
 
-            return temp.sub(Fractal.refPoint).toComplex();
+            return temp.sub(reference).toComplex();
         }
         else {
             tempX = temp_xcenter_size + temp_size_image_size_x * x;
@@ -194,7 +197,7 @@ public class CartesianLocation extends Location {
             temp = temp.sub(rot_center);
             temp = temp.times(rotation).plus(rot_center);
             temp = fractal.getPlaneTransformedPixel(temp);
-            return temp.sub(Fractal.refPoint).toComplex();
+            return temp.sub(reference).toComplex();
         }
         else {
             tempX = temp_xcenter_size + temp_size_image_size_x * x;
@@ -210,7 +213,7 @@ public class CartesianLocation extends Location {
             temp = temp.sub(rot_center);
             temp = temp.times(rotation).plus(rot_center);
             temp = fractal.getPlaneTransformedPixel(temp);
-            return temp.sub(Fractal.refPoint).toComplex();
+            return temp.sub(reference).toComplex();
         }
         else {
             tempY = temp_ycenter_size - temp_size_image_size_y * y;
@@ -286,7 +289,7 @@ public class CartesianLocation extends Location {
 
             temp = fractal.getPlaneTransformedPixel(temp);
 
-            return temp.sub(Fractal.refPoint).toComplex();
+            return temp.sub(reference).toComplex();
         }
         else {
             return new Complex(tempX + antialiasing_x[sample], tempY + antialiasing_y[sample]);
@@ -311,24 +314,24 @@ public class CartesianLocation extends Location {
     }
 
     @Override
-    public MantExp getSeriesApproxSize() {
+    public MantExp getMaxSizeInImage() {
         if(highPresicion) {
             if(height_ratio == 1) {
-                return new MantExp(MyApfloat.fp.multiply(MyApfloat.fp.multiply(ddsize, new MyApfloat(0.525)), MyApfloat.SQRT_TWO));
+                return new MantExp(MyApfloat.fp.multiply(MyApfloat.fp.multiply(ddsize, new MyApfloat(0.5)), MyApfloat.SQRT_TWO));
             }
             else {
-                Apfloat temp = MyApfloat.fp.multiply(ddsize, new MyApfloat(0.525));
+                Apfloat temp = MyApfloat.fp.multiply(ddsize, new MyApfloat(0.5));
                 Apfloat temp2 = MyApfloat.fp.multiply(temp, new MyApfloat(height_ratio));
                 return new MantExp(MyApfloat.fp.sqrt(MyApfloat.fp.add(MyApfloat.fp.multiply(temp, temp), MyApfloat.fp.multiply(temp2, temp2))));
             }
         }
         else {
-            if(height_ratio == 1) {
+            if(height_ratio == 1) { // ((size * 0.5) / image_size) * sqrt(image_size^2 + image_size^2) = ((size * 0.5) / image_size) * sqrt(2) * image_size
                 double sqrt2 = Math.sqrt(2);
-                return new MantExp(sqrt2 * size * 0.525); //0.5 is ok but lets add 5%
+                return new MantExp(sqrt2 * size * 0.5);
             }
             else {
-                double temp = size * 0.525; //0.5 is ok but lets add 5%
+                double temp = size * 0.5;
                 double temp2 = temp * height_ratio;
                 return new MantExp(Math.sqrt(temp * temp + temp2 * temp2));
             }

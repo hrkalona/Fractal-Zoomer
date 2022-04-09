@@ -52,4 +52,13 @@ public abstract class Jaratt2RootFindingMethod extends RootFindingMethods {
         return z;
 
     }
+
+    public static Complex jaratt2Step(Complex fz, Complex dfz, Complex combined_dfz) {
+
+        Complex ufz = fz.divide(dfz);
+
+        Complex hfz = (combined_dfz.sub_mutable(dfz)).divide_mutable(dfz);
+
+        return ufz.plus_mutable(ufz.times(0.75).times_mutable(hfz).times_mutable(hfz.times(1.5).r_sub_mutable(1)));
+    }
 }

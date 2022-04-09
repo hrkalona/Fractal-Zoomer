@@ -170,7 +170,7 @@ public class EntropyColoringDialog extends JDialog {
                         s.ens.en_blending = color_blend_opt.getValue() / 100.0;
                         s.ens.entropy_algorithm = entropy_coloring_method_opt.getSelectedIndex();
                     } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(ptra, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 

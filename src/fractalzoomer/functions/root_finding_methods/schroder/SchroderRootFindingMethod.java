@@ -56,4 +56,10 @@ public abstract class SchroderRootFindingMethod extends RootFindingMethods {
         return z;
         
     }
+
+    public static Complex schroderStep(Complex fz, Complex dfz, Complex ddfz) {
+
+        return ((fz.times(dfz)).divide_mutable((dfz.square_mutable()).sub_mutable(fz.times_mutable(ddfz))));//schroeder
+
+    }
 }

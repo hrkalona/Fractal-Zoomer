@@ -16,6 +16,8 @@
  */
 package fractalzoomer.main;
 
+import org.apfloat.Apint;
+
 import java.awt.*;
 
 /**
@@ -23,7 +25,7 @@ import java.awt.*;
  * @author hrkalona2
  */
 public interface Constants {
-    public static final int VERSION = 1080;
+    public static final int VERSION = 1081;
     public static final boolean beta = false;
     public static final int FAST_JULIA_IMAGE_SIZE = 252;
     public static final int TOTAL_PALETTES = 37;
@@ -43,6 +45,7 @@ public interface Constants {
     public static final int MAX_ITERATIONS_NUMBER = Integer.MAX_VALUE;
 
     public static final String SA_CALCULATION_STR = "SA Calculation:";
+    public static final String BLA_CALCULATION_STR = "BLA Calculation:";
     public static final String REFERENCE_CALCULATION_STR = "Reference Calculation:";
     
     public static final String[] domainAlgNames = {"Black Grid, White Circles log2", "White Grid, Black Circles log2", "Black Grid", "White Grid", "Black Grid, Bright Contours log2", "White Grid, Dark Contours log2", "Norm, Black Grid, White Circles log2", "Norm, White Grid, Black Circles log2", "Norm, Black Grid", "Norm, White Grid", "Norm, Black Grid, Bright Contours log2", "Norm, White Grid, Dark Contours log2", "White Circles log2", "Black Circles log2", "Bright Contours log2", "Dark Contours log2", "Norm, White Circles log2", "Norm, Black Circles log2", "Norm, Bright Contours log2", "Norm, Dark Contours log2",
@@ -67,6 +70,7 @@ public interface Constants {
     public static final String[] lightModes = {"Mode 1", "Mode 2", "Mode 3"};
     public static final String[] statisticalColoringName = {"Stripe Average(Sum)", "Curvature Average(Sum)", "Triange Inequality Average(Sum)", "cos(density * arg(z)) / norm(z) Average(Sum)", "cos(density * (arg(z - p) + pi)) / (factor + 1 / norm(z - p)) Sum", "Atom Domain (bof60/bof61)", "Discrete Lagrangian Descriptors", "Twin Lamps"};
     public static final String[] domainProcessingTransferNames = {"x * factor", "1 / (x * factor)"};
+    public static final String[] domainHeightNames = {"Norm", "Re", "Im", "Re + Im"};
     public static final String[] inertiaGravityPullFunction = {"Exponential", "Linear", "Oddball"};
     public static final String[] reductionMethod = {"sum", "min", "max", "assign", "sub", "multiply"};
     public static final String[] trueColorModes = {"Xaos true color 1", "Xaos true color 2", "Xaos true color 3", "Xaos true color 4", "Xaos true color 5", "Xaos true color 6", "Xaos true color 7", "Xaos true color 8", "Xaos true color 9", "Xaos true color 10"};
@@ -82,6 +86,9 @@ public interface Constants {
     public static final String[] normalMapColoringMethods = {"Original Color", "Rainbow Palette", "Distance Estimator", "Original + Distance Estimator"};
     public static final String[] rootShadingFunction = {"Linear", "Sqrt", "Cbrt", "Cosine", "Exponential"};
     public static final String[] twinLampsFunction = {"Linear", "Sqrt"};
+    public static final String[] langNormTypes = {"Norm Squared", "Norm", "Rhombus-Norm", "Square-Norm", "N-Norm"};
+    public static final String[] atomNormTypes = {"Norm", "Rhombus-Norm", "Square-Norm", "N-Norm"};
+    public static final String[] histogramMapping = {"Histogram", "Linear", "Square Root", "Cube Root", "Fourth Root", "Logarithmic"};
     /**
      * ** FUNCTION ***
      */
@@ -938,4 +945,8 @@ public interface Constants {
     public static final Color progress_d3_color = new Color(76, 139, 245);
     public static final Color progress_ref_color = new Color(100, 100, 100);
     public static final Color progress_sa_color = new Color(30, 90, 255);
+    public static final Color progress_bla_color = new Color(24, 201, 85);
+
+    public static final Apint DEFAULT_MAGNIFICATION = new Apint(6);
+
 }

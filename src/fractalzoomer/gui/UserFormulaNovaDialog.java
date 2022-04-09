@@ -248,6 +248,37 @@ public class UserFormulaNovaDialog extends JDialog {
             formula_dfz_panel9.setVisible(false);
         }
 
+        JPanel globalMethodPanel = new JPanel();
+
+        JCheckBox globalMethod = new JCheckBox("Global Method");
+        globalMethod.setSelected(s.fns.useGlobalMethod);
+        globalMethod.setToolTipText("Changes the relaxation value automatically to increase convergence.");
+        globalMethod.setFocusable(false);
+
+        JTextField global_real = new JTextField(10);
+        global_real.setText("" + s.fns.globalMethodFactor[0]);
+
+        JTextField global_imaginary = new JTextField(10);
+        global_imaginary.setText("" + s.fns.globalMethodFactor[1]);
+
+        globalMethodPanel.add(globalMethod);
+        globalMethodPanel.add(new JLabel(" Factor = "));
+        globalMethodPanel.add(new JLabel("Real:"));
+        globalMethodPanel.add(global_real);
+        globalMethodPanel.add(new JLabel(" Imaginary:"));
+        globalMethodPanel.add(global_imaginary);
+
+        global_real.setEnabled(globalMethod.isSelected());
+        global_imaginary.setEnabled(globalMethod.isSelected());
+
+        globalMethod.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                global_real.setEnabled(globalMethod.isSelected());
+                global_imaginary.setEnabled(globalMethod.isSelected());
+            }
+        });
+
         Object[] message3 = {
             labels3,
             root,
@@ -260,6 +291,7 @@ public class UserFormulaNovaDialog extends JDialog {
             formula_ddfz_panel9,
             formula_dddfz_panel9,
             p1,
+                globalMethodPanel,
             defaultInitPanel,
             degree_panel,
             k_panel};
@@ -381,6 +413,9 @@ public class UserFormulaNovaDialog extends JDialog {
                             s.fns.newton_hines_k[1] = temp8;
                         }
 
+                        double temp9 = Double.parseDouble(global_real.getText());
+                        double temp10 = Double.parseDouble(global_imaginary.getText());
+
                         if (Settings.isFourFunctionsNovaFormula(method_choice.getSelectedIndex()) || Settings.isThreeFunctionsNovaFormula(method_choice.getSelectedIndex()) || Settings.isTwoFunctionsNovaFormula(method_choice.getSelectedIndex())) {
                             s.fns.user_dfz_formula = field_dfz_formula9.getText();
                         }
@@ -404,13 +439,17 @@ public class UserFormulaNovaDialog extends JDialog {
 
                         s.fns.defaultNovaInitialValue = defaultInit.isSelected();
 
+                        s.fns.useGlobalMethod = globalMethod.isSelected();
+                        s.fns.globalMethodFactor[0] = temp9;
+                        s.fns.globalMethodFactor[1] = temp10;
+
                         ptra.setUserFormulaOptions(true);
                     } catch (ParserException ex) {
                         JOptionPane.showMessageDialog(ptra, ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
                     catch (Exception ex) {
-                        JOptionPane.showMessageDialog(ptra, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 

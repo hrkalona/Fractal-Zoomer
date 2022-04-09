@@ -162,7 +162,7 @@ public class CircleInversionPlaneDialog extends JDialog {
                         s.fns.plane_transform_center[1] = tempImaginary;
                         s.fns.plane_transform_radius = temp4;
                     } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(ptra, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 

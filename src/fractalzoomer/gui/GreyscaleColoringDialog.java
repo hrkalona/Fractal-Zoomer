@@ -105,7 +105,7 @@ public class GreyscaleColoringDialog extends JDialog {
                         s.gss.greyscale_coloring = enable_greyscale_coloring.isSelected();
                         s.gss.gs_noise_reducing_factor = temp2;
                     } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(ptra, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 

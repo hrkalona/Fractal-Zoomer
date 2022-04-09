@@ -87,6 +87,11 @@ public class D3Dialog extends JDialog {
         temp_p3.add(scale_max_val_opt);
         temp_p3.add(scale_range);
 
+        final JCheckBox preHeightScaling = new JCheckBox("Pre-Scaling");
+        preHeightScaling.setSelected(s.d3s.preHeightScaling);
+        preHeightScaling.setFocusable(false);
+        preHeightScaling.setToolTipText("Enables the pre-scaling of height values.");
+
         String[] height_options = {"log(x + 1)", "log(log(x + 1) + 1)", "1 / (x + 1)", "e^(-x + 5)", "150 - e^(-x + 5)", "150 / (1 + e^(-3*x+3))", "1 / (log(x + 1) + 1)"};
 
         JComboBox height_algorithm_opt = new JComboBox(height_options);
@@ -291,6 +296,8 @@ public class D3Dialog extends JDialog {
             "Set the height algorithm.",
             "Height Algorithm:",
             height_algorithm_opt,
+                " ",
+                preHeightScaling,
             " ",
             "Select the gaussian normalization weight and radius.",
             gaussian_scaling_opt,
@@ -404,9 +411,10 @@ public class D3Dialog extends JDialog {
                         s.d3s.histogram_equalization = histogram_opt.isSelected();
                         s.d3s.histogram_granularity = temp5;
                         s.d3s.histogram_density = temp6;
+                        s.d3s.preHeightScaling = preHeightScaling.isSelected();
 
                     } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(ptra, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 

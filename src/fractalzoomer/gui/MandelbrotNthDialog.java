@@ -96,7 +96,7 @@ public class MandelbrotNthDialog extends JDialog {
                         s.fns.z_exponent = Double.parseDouble(field.getText());
                         s.fns.z_exponent = s.fns.z_exponent == 0.0 ? 0.0 : s.fns.z_exponent;
                     } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(ptra, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 

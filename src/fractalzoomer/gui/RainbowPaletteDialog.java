@@ -170,7 +170,7 @@ public class RainbowPaletteDialog extends JDialog {
                         s.rps.rp_blending = color_blend_opt.getValue() / 100.0;
                         s.rps.rainbow_algorithm = rainbow_coloring_method_opt.getSelectedIndex();
                     } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(ptra, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 

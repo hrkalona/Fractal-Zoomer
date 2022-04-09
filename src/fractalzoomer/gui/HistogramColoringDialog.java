@@ -16,10 +16,13 @@
  */
 package fractalzoomer.gui;
 
+import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
 
 import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
@@ -43,12 +46,19 @@ public class HistogramColoringDialog extends JDialog {
         setTitle("Histogram Coloring");
         setModal(true);
         setIconImage(getIcon("/fractalzoomer/icons/mandel2.png").getImage());
-        
+
+        JComboBox mapping = new JComboBox(Constants.histogramMapping);
+        mapping.setSelectedIndex(s.hss.hmapping);
+        mapping.setFocusable(false);
+        mapping.setToolTipText("Sets the value mapping method.");
+
         JTextField granularity_field = new JTextField();
         granularity_field.setText("" + s.hss.histogramBinGranularity);
+        granularity_field.setEnabled(mapping.getSelectedIndex() == 0);
         
         JTextField density_field = new JTextField();
         density_field.setText("" + s.hss.histogramDensity);
+        density_field.setEnabled(mapping.getSelectedIndex() == 0);
 
         final JCheckBox enable_histogram_coloring = new JCheckBox("Histogram Coloring");
         enable_histogram_coloring.setSelected(s.hss.histogramColoring);
@@ -69,13 +79,27 @@ public class HistogramColoringDialog extends JDialog {
         scale_range.setToolTipText("Sets the histogram scaling range.");
         scale_range.setFocusable(false);
         scale_range.setPaintLabels(true);
+        scale_range.setEnabled(mapping.getSelectedIndex() == 0);
 
         JTextField noise_factor_field = new JTextField();
         noise_factor_field.setText("" + s.hss.hs_noise_reducing_factor);
 
+        mapping.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                scale_range.setEnabled(mapping.getSelectedIndex() == 0);
+                density_field.setEnabled(mapping.getSelectedIndex() == 0);
+                granularity_field.setEnabled(mapping.getSelectedIndex() == 0);
+            }
+        });
+
         Object[] message = {
             " ",
             enable_histogram_coloring,
+            " ",
+            "Set the mapping function.",
+            "Mapping: ",
+            mapping,
             " ",
             "Set the color blending percentage.",
             "Color Blending:", color_blend_opt,
@@ -163,8 +187,9 @@ public class HistogramColoringDialog extends JDialog {
                         s.hss.histogramBinGranularity = temp;
                         s.hss.histogramScaleMax = scale_range.getUpperValue() / 100.0;
                         s.hss.histogramScaleMin = scale_range.getValue() / 100.0;
+                        s.hss.hmapping = mapping.getSelectedIndex();
                     } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(ptra, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 

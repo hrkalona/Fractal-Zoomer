@@ -308,7 +308,7 @@ public class LyapunovDialog extends JDialog {
                         try {
                             temp = Integer.parseInt(initial_iterations.getText());
                         } catch (Exception ex) {
-                            JOptionPane.showMessageDialog(ptra, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                             return;
                         }
                         
@@ -316,7 +316,7 @@ public class LyapunovDialog extends JDialog {
                             JOptionPane.showMessageDialog(ptra, "Initial iterations number must be greater than -1.", "Error!", JOptionPane.ERROR_MESSAGE);
                             return;
                         } else if (temp > MainWindow.MAX_ITERATIONS_NUMBER) {
-                            JOptionPane.showMessageDialog(ptra, "Initial iterations number must be less than 100001.", "Error!", JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(ptra, "Initial iterations number must be less than 2147483648.", "Error!", JOptionPane.ERROR_MESSAGE);
                             return;
                         }
 

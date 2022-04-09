@@ -56,4 +56,10 @@ public abstract class HalleyRootFindingMethod extends RootFindingMethods {
         return z;
         
     }
+
+    public static Complex halleyStep(Complex fz, Complex dfz, Complex ddfz) {
+
+        return ((fz.times(dfz).times_mutable(2)).divide_mutable((dfz.square_mutable().times_mutable(2)).sub_mutable(fz.times_mutable(ddfz)))); //halley
+
+    }
 }

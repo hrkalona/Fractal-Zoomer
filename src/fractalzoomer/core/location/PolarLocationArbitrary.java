@@ -1,17 +1,20 @@
-package fractalzoomer.core;
+package fractalzoomer.core.location;
 
+import fractalzoomer.core.*;
 import fractalzoomer.functions.Fractal;
 import org.apfloat.Apfloat;
 
-public class PolarLocationDeep extends Location {
+public class PolarLocationArbitrary extends Location {
+
     private BigComplex rotation;
     private BigComplex rot_center;
+
+    private int image_size;
 
     private Apfloat ddmuly;
     private Apfloat ddmulx;
     private Apfloat ddstart;
     private Apfloat ddcenter;
-    private int image_size;
 
     private Apfloat[] ddantialiasing_y_sin;
     private Apfloat[] ddantialiasing_y_cos;
@@ -22,9 +25,10 @@ public class PolarLocationDeep extends Location {
     private Apfloat temp_ddsf;
     private Apfloat temp_ddcf;
     private Apfloat temp_ddr;
+
     private static int expIterations = 8;
 
-    public PolarLocationDeep(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int image_size, double circle_period, Apfloat[] rotation_center, Apfloat[] rotation_vals, Fractal fractal) {
+    public PolarLocationArbitrary(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int image_size, double circle_period, Apfloat[] rotation_center, Apfloat[] rotation_vals, Fractal fractal) {
 
         super();
 
@@ -50,17 +54,19 @@ public class PolarLocationDeep extends Location {
 
     }
 
-    public PolarLocationDeep(PolarLocationDeep other) {
+    public PolarLocationArbitrary(PolarLocationArbitrary other) {
         highPresicion = other.highPresicion;
         fractal = other.fractal;
 
-        ddxcenter = other.ddxcenter;
-        ddycenter = other.ddycenter;
+        xcenter = other.xcenter;
+        ycenter = other.ycenter;
+
+        ddcenter = other.ddcenter;
 
         ddmulx = other.ddmulx;
         ddmuly = other.ddmuly;
         ddstart = other.ddstart;
-        ddcenter = other.ddcenter;
+
         image_size = other.image_size;
 
         rotation = other.rotation;
@@ -69,7 +75,12 @@ public class PolarLocationDeep extends Location {
         ddantialiasing_y_cos = other.ddantialiasing_y_cos;
         ddantialiasing_y_sin = other.ddantialiasing_y_sin;
         ddantialiasing_x = other.ddantialiasing_x;
+
+        reference = other.reference;
     }
+
+    @Override
+    public boolean isPolar() {return true;}
 
     @Override
     public GenericComplex getComplex(int x, int y) {
@@ -85,9 +96,7 @@ public class PolarLocationDeep extends Location {
 
         temp = fractal.getPlaneTransformedPixel(temp);
 
-        temp =  temp.sub(Fractal.refPoint);
-
-        return new MantExpComplex(getMantExp(temp.getRe()), getMantExp(temp.getIm()));
+        return temp;
     }
 
     @Override
@@ -114,9 +123,7 @@ public class PolarLocationDeep extends Location {
         temp = temp.sub(rot_center);
         temp = temp.times(rotation).plus(rot_center);
         temp = fractal.getPlaneTransformedPixel(temp);
-        temp = temp.sub(Fractal.refPoint);
-
-        return new MantExpComplex(getMantExp(temp.getRe()), getMantExp(temp.getIm()));
+        return temp;
     }
 
     @Override
@@ -129,9 +136,7 @@ public class PolarLocationDeep extends Location {
         temp = temp.sub(rot_center);
         temp = temp.times(rotation).plus(rot_center);
         temp = fractal.getPlaneTransformedPixel(temp);
-        temp = temp.sub(Fractal.refPoint);
-
-        return new MantExpComplex(getMantExp(temp.getRe()), getMantExp(temp.getIm()));
+        return temp;
     }
 
     @Override
@@ -147,6 +152,7 @@ public class PolarLocationDeep extends Location {
 
     @Override
     public void createAntialiasingSteps() {
+
         Apfloat point25 = new MyApfloat(0.25);
 
         Apfloat ddy_antialiasing_size = MyApfloat.fp.multiply(ddmuly, point25);
@@ -194,6 +200,7 @@ public class PolarLocationDeep extends Location {
 
         ddantialiasing_y_sin = temp_y_sin;
         ddantialiasing_y_cos = temp_y_cos;
+
     }
 
     @Override
@@ -209,9 +216,7 @@ public class PolarLocationDeep extends Location {
         temp = temp.times(rotation).plus(rot_center);
         temp = fractal.getPlaneTransformedPixel(temp);
 
-        temp = temp.sub(Fractal.refPoint);
-
-        return new MantExpComplex(getMantExp(temp.getRe()), getMantExp(temp.getIm()));
+        return temp;
     }
 
     @Override
@@ -228,8 +233,8 @@ public class PolarLocationDeep extends Location {
     }
 
     @Override
-    public MantExp getSeriesApproxSize() {
-        Apfloat end = MyApfloat.fp.add(ddcenter, MyApfloat.fp.multiply(MyApfloat.fp.multiply(ddmulx, new MyApfloat(image_size)), new MyApfloat(0.55))); // add 10% extra
+    public MantExp getMaxSizeInImage() {
+        Apfloat end = MyApfloat.fp.add(ddcenter, MyApfloat.fp.multiply(MyApfloat.fp.multiply(ddmulx, new MyApfloat(image_size)), new MyApfloat(0.5)));
         return new MantExp(MyApfloat.exp(end, expIterations));
     }
 }

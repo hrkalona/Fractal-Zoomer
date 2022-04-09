@@ -2075,7 +2075,7 @@ public class CustomPaletteEditorFrame extends JFrame {
 
     private void savePalette() {
 
-        file_chooser = new JFileChooser(".");
+        file_chooser = new JFileChooser(MainWindow.SaveSettingsPath.isEmpty() ? "." : MainWindow.SaveSettingsPath);
         file_chooser.setAcceptAllFileFilterUsed(false);
         file_chooser.setDialogType(JFileChooser.SAVE_DIALOG);
 
@@ -2148,6 +2148,8 @@ public class CustomPaletteEditorFrame extends JFrame {
                     }
 
                     writer.close();
+
+                    MainWindow.SaveSettingsPath = file.getParent();
                 } catch (FileNotFoundException ex) {
 
                 }

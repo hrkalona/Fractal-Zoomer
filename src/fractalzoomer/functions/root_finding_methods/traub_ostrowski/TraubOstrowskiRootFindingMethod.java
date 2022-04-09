@@ -64,5 +64,11 @@ public abstract class TraubOstrowskiRootFindingMethod extends RootFindingMethods
         return z;
         
     }
+
+    public static Complex traubOstrowskiStep(Complex fz, Complex dfz, Complex fnewtons) {
+
+        return (fz.times(fnewtons.sub(fz))).divide_mutable(dfz.times(fnewtons.times(2).sub_mutable(fz)));
+
+    }
     
 }

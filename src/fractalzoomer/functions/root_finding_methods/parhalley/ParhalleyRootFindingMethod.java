@@ -74,4 +74,19 @@ public abstract class ParhalleyRootFindingMethod extends RootFindingMethods {
         
         return z;
     }
+
+    public static Complex parhalleyStep(Complex fz, Complex dfz, Complex ddfz) {
+
+        Complex sqrt = (dfz.square().sub_mutable(fz.times(ddfz).times_mutable(2))).sqrt_mutable();
+
+        Complex denom1 = dfz.plus(sqrt);
+        Complex denom2 = dfz.sub(sqrt);
+
+        if(denom1.norm_squared() > denom2.norm_squared()) {
+            return (fz.times(2).divide_mutable(denom1));
+        }
+        else {
+            return (fz.times(2).divide_mutable(denom2));
+        }
+    }
 }

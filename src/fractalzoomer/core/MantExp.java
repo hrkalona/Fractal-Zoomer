@@ -5,9 +5,8 @@ import org.apfloat.Apfloat;
 public class MantExp {
     public static final long MIN_SMALL_EXPONENT = -1023;
     public static final long MIN_BIG_EXPONENT = Long.MIN_VALUE >> 3;
-    public static final MantExp ZERO = new MantExp(0, MIN_BIG_EXPONENT);
+    public static final MantExp ZERO = new MantExp(MIN_BIG_EXPONENT, 0.0);
     public static final MantExp POINTTWOFIVE = new MantExp(0.25);
-    public static final MantExp POINTFIVE = new MantExp(0.5);
     public static final MantExp ONEPOINTFIVE = new MantExp(1.5);
     public static final MantExp ONE = new MantExp(1.0);
     public static final MantExp TWO = new MantExp(2.0);
@@ -51,9 +50,19 @@ public class MantExp {
         exp = MIN_BIG_EXPONENT;
     }
 
+    public MantExp(MantExp other) {
+        mantissa = other.mantissa;
+        exp = other.exp;
+    }
+
     public MantExp(double mantissa, long exp) {
         this.mantissa = mantissa;
         this.exp = exp < MantExp.MIN_BIG_EXPONENT ? MantExp.MIN_BIG_EXPONENT : exp;
+    }
+
+    public MantExp(long exp, double mantissa) {
+        this.mantissa = mantissa;
+        this.exp = exp;
     }
 
     public MantExp(double number) {
@@ -63,7 +72,7 @@ public class MantExp {
             return;
         }
 
-        long bits = Double.doubleToLongBits(number);
+        long bits = Double.doubleToRawLongBits(number);
         long f_exp = ((bits & 0x7FF0000000000000L) >> 52) + MIN_SMALL_EXPONENT;
         double f_val = Double.longBitsToDouble((bits & 0x800FFFFFFFFFFFFFL) | 0x3FF0000000000000L);
 
@@ -106,7 +115,7 @@ public class MantExp {
             return;
         }
 
-        long bits = Double.doubleToLongBits(mantissa);
+        long bits = Double.doubleToRawLongBits(mantissa);
         long f_exp = ((bits & 0x7FF0000000000000L) >> 52) + MIN_SMALL_EXPONENT;
         double f_val = Double.longBitsToDouble((bits & 0x800FFFFFFFFFFFFFL) | 0x3FF0000000000000L);
         double temp_mantissa = f_val;
@@ -150,13 +159,17 @@ public class MantExp {
         return toDouble(mantissa, exp);
     }
 
+    public double getMantissa() {return  mantissa;}
+
+    public long getExp() { return exp;}
+
     public static double toDouble(double mantissa, long exp)
     {
         if(mantissa == 0) {
             return 0.0;
         }
 
-        long bits = Double.doubleToLongBits(mantissa);
+        long bits = Double.doubleToRawLongBits(mantissa);
         long f_exp = ((bits & 0x7FF0000000000000L) >> 52) + MIN_SMALL_EXPONENT;
 
         long sum_exp = exp + f_exp;
@@ -247,6 +260,46 @@ public class MantExp {
     public MantExp multiply_mutable(double factor) {
         MantExp factorMant = new MantExp(factor);
         return multiply_mutable(factorMant);
+    }
+
+    public MantExp square() {
+        double mantissa = this.mantissa * this.mantissa;
+        long exp = this.exp << 1;
+
+        MantExp res = new MantExp(mantissa, exp);
+
+        /*double abs = Math.abs(res.mantissa);
+        if (abs > 1e50 || abs < 1e-50) {
+            res.Reduce();
+        }*/
+
+        return res;
+    }
+
+    public MantExp square_mutable() {
+        double mantissa = this.mantissa * this.mantissa;
+        long exp = this.exp << 1;
+
+        this.mantissa = mantissa;
+        this.exp = exp < MantExp.MIN_BIG_EXPONENT ? MantExp.MIN_BIG_EXPONENT : exp;
+
+        /*double abs = Math.abs(mantissa);
+        if (abs > 1e50 || abs < 1e-50) {
+            Reduce();
+        }*/
+
+        return this;
+    }
+
+    public MantExp multiply05() {
+        MantExp res = new MantExp(mantissa, exp - 1);
+        return res;
+    }
+
+    public MantExp multiply05_mutable() {
+        long exp = this.exp - 1;
+        this.exp = exp < MantExp.MIN_BIG_EXPONENT ? MantExp.MIN_BIG_EXPONENT : exp;
+        return this;
     }
 
     public MantExp multiply2() {
@@ -460,6 +513,58 @@ public class MantExp {
         }
     }
 
+    public int compareToReduced(MantExp compareToReduced) {
+
+        if(mantissa == 0 && compareToReduced.mantissa == 0) {
+            return 0;
+        }
+
+        if(mantissa > 0) {
+            if(compareToReduced.mantissa <= 0) {
+                return 1;
+            }
+            else if(exp > compareToReduced.exp) {
+                return 1;
+            }
+            else if(exp < compareToReduced.exp){
+                return -1;
+            }
+            else {
+                if(mantissa > compareToReduced.mantissa) {
+                    return 1;
+                }
+                else if(mantissa < compareToReduced.mantissa) {
+                    return - 1;
+                }
+                else {
+                    return 0;
+                }
+            }
+        }
+        else {
+            if(compareToReduced.mantissa > 0) {
+                return -1;
+            }
+            else if(exp > compareToReduced.exp) {
+                return -1;
+            }
+            else if(exp < compareToReduced.exp) {
+                return 1;
+            }
+            else {
+                if(mantissa > compareToReduced.mantissa) {
+                    return 1;
+                }
+                else if(mantissa < compareToReduced.mantissa) {
+                    return - 1;
+                }
+                else {
+                    return 0;
+                }
+            }
+        }
+    }
+
     @Override
     public String toString() {
 
@@ -475,55 +580,78 @@ public class MantExp {
     }
 
     public long log2approx() {
-        return Math.getExponent(mantissa) + exp;
+        return MantExp.getExponent(mantissa) + exp;
     }
 
     public double log() {
         return Math.log(mantissa) + exp * LN2;
     }
 
-    /*public static void main(String[] args) {
+    public static long getExponent(double val) {
+        long bits = Double.doubleToRawLongBits(val);
+        return  ((bits & 0x7FF0000000000000L) >> 52) + MIN_SMALL_EXPONENT;
+    }
 
-        MyApfloat.precision = 1200;
+    public MantExp sqrt() {
+        //double dexp = exp * 0.5;
+        //return new MantExp(Math.sqrt(mantissa) * Math.pow(2, dexp - (int)dexp), (int)dexp);
 
+        boolean isOdd = (exp & 1) != 0;
+        return new MantExp(Math.sqrt(isOdd ? 2.0 * mantissa : mantissa), isOdd ? (exp - 1) >> 1 : exp >> 1);
+    }
 
-        Apfloat a = new MyApfloat("1e-1000");
-        long runs = 10000;
+    public MantExp sqrt_mutable() {
+        boolean isOdd = (exp & 1) != 0;
 
-        System.out.println(new MantExp(a).toString() + " " + new MantExp(a, true).toString());
+        mantissa = Math.sqrt(isOdd ? 2.0 * mantissa : mantissa);
+        long exp = isOdd ? (this.exp - 1) >> 1 : this.exp >> 1;
+        this.exp = exp < MantExp.MIN_BIG_EXPONENT ? MantExp.MIN_BIG_EXPONENT : exp;
 
+        return this;
+    }
 
+    public static MantExp hypot(MantExp a, MantExp b) {
+        return a.square().add_mutable(b.square()).sqrt_mutable();
+    }
 
-        for(long i = 0; i < runs; i++) {
-            new MantExp(a);
-            new MantExp(a, true);
+    public static MantExp hypot(double mRe, double mIm, long exp) {return new MantExp(exp, Math.hypot(mRe, mIm));}
+
+    public static MantExp max(MantExp a, MantExp b) {
+        return a.compareTo(b) > 0 ? a : b;
+    }
+
+    public static MantExp min(MantExp a, MantExp b) {
+        return a.compareTo(b) < 0 ? a : b;
+    }
+
+    public MantExp pow(int n) {
+        switch (n) {
+            case 0: return new MantExp(ONE);
+            case 1: return new MantExp(this);
+            case 2: return square();
+            case 3: return multiply(square());
+            case 4: return square().square();
+            case 5: return multiply(square().square());
+            case 6: return multiply(square()).square();
+            case 7: return multiply(multiply(square()).square());
+            case 8: return square().square().square();
+            default:
+            {
+                if(n < 0) {
+                    return new MantExp();
+                }
+                MantExp y = new MantExp(ONE);
+                MantExp x = new MantExp(this);
+                while (n > 1)
+                {
+                    if ((n & 1) != 0)
+                        y.multiply_mutable(x);
+
+                    x.square_mutable();
+                    n >>= 1;
+                 }
+                return x.multiply(y);
+            }
         }
-
-        for(long i = 0; i < runs; i++) {
-            new MantExp(a);
-            new MantExp(a, true);
-        }
-
-
-
-
-
-
-        long time = System.currentTimeMillis();
-        for(long i = 0; i < runs; i++) {
-            new MantExp(a, true);
-        }
-        System.out.println(System.currentTimeMillis() - time);
-
-
-        time = System.currentTimeMillis();
-
-        for(long i = 0; i < runs; i++) {
-            new MantExp(a);
-        }
-        System.out.println(System.currentTimeMillis() - time);
-
-
-
-    }*/
-}
+    }
+ }

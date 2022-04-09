@@ -62,4 +62,10 @@ public abstract class SteffensenRootFindingMethod extends RootFindingMethods {
         return z;
         
     }
+
+    public static Complex steffensenStep(Complex fz, Complex ffz) {
+
+        return ((fz.square()).divide_mutable(ffz.sub_mutable(fz)));
+
+    }
 }

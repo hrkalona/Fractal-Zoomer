@@ -29,6 +29,7 @@ public class HistogramColoringSettings {
     public double hs_blending;
     public double histogramScaleMin;
     public double histogramScaleMax;
+    public int hmapping;
 
     public HistogramColoringSettings() {
         histogramColoring = false;
@@ -38,5 +39,6 @@ public class HistogramColoringSettings {
         hs_blending = 1;
         histogramScaleMin = 0;
         histogramScaleMax = 1;
+        hmapping = 0;
     }
 }

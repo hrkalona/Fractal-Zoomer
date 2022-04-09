@@ -26,15 +26,17 @@ import java.util.TimerTask;
  */
 public class CompleteImageTask extends TimerTask {
     private MainWindow ptr;
+    private boolean d3;
     
-    public CompleteImageTask(MainWindow ptr) {
+    public CompleteImageTask(MainWindow ptr, boolean d3) {
         super();
         this.ptr = ptr;
+        this.d3 = d3;
     }
 
     @Override
     public void run() {
-        ptr.taskCompleteImage();
+        ptr.taskCompleteImage(d3);
     }
     
 }

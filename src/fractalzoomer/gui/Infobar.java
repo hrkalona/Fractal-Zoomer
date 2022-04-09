@@ -46,6 +46,7 @@ public class Infobar extends JToolBar {
     private JLabel gradient_toolbar_preview;
     private JLabel gradient_toolbar_preview_lbl;
     private JButton overview_button;
+    private JButton stats_button;
     private boolean listenerEnabled;
     public static int PALETTE_PREVIEW_WIDTH = 175;
     public static int PALETTE_PREVIEW_HEIGHT = 24;
@@ -272,9 +273,27 @@ public class Infobar extends JToolBar {
             }
         });
 
+        stats_button = new JButton();
+        stats_button.setIcon(getIcon("/fractalzoomer/icons/stats.png"));
+        stats_button.setFocusable(false);
+        stats_button.setToolTipText("Displays the statistics of last rendered fractal.");
+
+        stats_button.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.Stats();
+
+            }
+        });
+
+
         add(Box.createHorizontalGlue());
         addSeparator();
         add(overview_button);
+        addSeparator();
+        add(stats_button);
 
         palette_toolbar_preview_lbl2.setVisible(false);
         incoloring_palette_toolbar_preview.setVisible(false);
@@ -289,6 +308,12 @@ public class Infobar extends JToolBar {
     public JButton getOverview() {
 
         return overview_button;
+
+    }
+
+    public JButton getStats() {
+
+        return stats_button;
 
     }
 

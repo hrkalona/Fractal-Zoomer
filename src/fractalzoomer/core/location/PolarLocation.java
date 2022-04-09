@@ -1,5 +1,6 @@
-package fractalzoomer.core;
+package fractalzoomer.core.location;
 
+import fractalzoomer.core.*;
 import fractalzoomer.functions.Fractal;
 import org.apfloat.Apfloat;
 
@@ -133,6 +134,8 @@ public class PolarLocation extends Location {
         ddantialiasing_y_sin = other.ddantialiasing_y_sin;
         antialiasing_x = other.antialiasing_x;
         ddantialiasing_x = other.ddantialiasing_x;
+
+        reference = other.reference;
     }
 
     @Override
@@ -150,7 +153,7 @@ public class PolarLocation extends Location {
 
             temp = fractal.getPlaneTransformedPixel(temp);
 
-            return temp.sub(Fractal.refPoint).toComplex();
+            return temp.sub(reference).toComplex();
         }
         else {
             double f = y * muly;
@@ -200,13 +203,16 @@ public class PolarLocation extends Location {
             temp = temp.sub(rot_center);
             temp = temp.times(rotation).plus(rot_center);
             temp = fractal.getPlaneTransformedPixel(temp);
-            return temp.sub(Fractal.refPoint).toComplex();
+            return temp.sub(reference).toComplex();
         }
         else {
             temp_r = Math.exp(x * mulx + start);
             return new Complex(xcenter + temp_r * temp_cf, ycenter + temp_r * temp_sf);
         }
     }
+
+    @Override
+    public boolean isPolar() {return true;}
 
     @Override
     public GenericComplex getComplexWithY(int y) {
@@ -219,7 +225,7 @@ public class PolarLocation extends Location {
             temp = temp.sub(rot_center);
             temp = temp.times(rotation).plus(rot_center);
             temp = fractal.getPlaneTransformedPixel(temp);
-            return temp.sub(Fractal.refPoint).toComplex();
+            return temp.sub(reference).toComplex();
         }
         else {
             double f = y * muly;
@@ -353,7 +359,7 @@ public class PolarLocation extends Location {
             temp = temp.times(rotation).plus(rot_center);
             temp = fractal.getPlaneTransformedPixel(temp);
 
-            return temp.sub(Fractal.refPoint).toComplex();
+            return temp.sub(reference).toComplex();
         }
         else {
             double sf2 = temp_sf * antialiasing_y_cos[sample] + temp_cf * antialiasing_y_sin[sample];
@@ -389,13 +395,13 @@ public class PolarLocation extends Location {
     }
 
     @Override
-    public MantExp getSeriesApproxSize() {
+    public MantExp getMaxSizeInImage() {
         if(highPresicion) {
-            Apfloat end = MyApfloat.fp.add(ddcenter, MyApfloat.fp.multiply(MyApfloat.fp.multiply(ddmulx, new MyApfloat(image_size)), new MyApfloat(0.55))); // add 10% extra
+            Apfloat end = MyApfloat.fp.add(ddcenter, MyApfloat.fp.multiply(MyApfloat.fp.multiply(ddmulx, new MyApfloat(image_size)), new MyApfloat(0.5)));
             return new MantExp(MyApfloat.fastExp(end));
         }
         else {
-            double end = center + mulx * image_size * 0.55;
+            double end = center + mulx * image_size * 0.5;
             return new MantExp(Math.exp(end));
         }
     }

@@ -83,4 +83,21 @@ public abstract class LaguerreRootFindingMethod extends RootFindingMethods {
         return z;
         
     }
+
+    public static Complex laguerreStep(Complex fz, Complex dfz, Complex ddfz, Complex degree) {
+
+        Complex n1 = degree.sub(1);
+        Complex sqrt = (n1.times(dfz).square_mutable().sub_mutable(degree.times(n1).times_mutable(ddfz).times_mutable(fz))).sqrt_mutable();
+
+        Complex denom1 = dfz.plus(sqrt);
+        Complex denom2 = dfz.sub(sqrt);
+
+        if(denom1.norm_squared() > denom2.norm_squared()) {
+            return (degree.times(fz).divide_mutable(denom1));
+        }
+        else {
+            return (degree.times(fz).divide_mutable(denom2));
+        }
+
+    }
 }

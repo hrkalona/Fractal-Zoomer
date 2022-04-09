@@ -17,9 +17,7 @@
 
 package fractalzoomer.planes.general;
 
-import fractalzoomer.core.BigComplex;
-import fractalzoomer.core.Complex;
-import fractalzoomer.core.MyApfloat;
+import fractalzoomer.core.*;
 import fractalzoomer.planes.Plane;
 
 /**
@@ -45,6 +43,13 @@ public class LambdaPlane extends Plane {
     public BigComplex transform(BigComplex pixel) {
 
         return  pixel.times(pixel.r_sub(MyApfloat.ONE));
+
+    }
+
+    @Override
+    public BigNumComplex transform(BigNumComplex pixel) {
+
+        return  pixel.times(pixel.r_sub(new BigNum(1)));
 
     }
     

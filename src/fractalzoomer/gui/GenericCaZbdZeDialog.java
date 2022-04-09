@@ -145,7 +145,7 @@ public class GenericCaZbdZeDialog extends JDialog {
                         s.fns.gcs.delta = temp_delta;
                         s.fns.gcs.epsilon = temp_epsilon;
                     } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(ptra, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 

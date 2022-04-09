@@ -136,11 +136,82 @@ public class FiltersOptionsFrame extends JFrame {
         panels[MainWindow.ANTIALIASING].setBackground(MainWindow.bg_color);
         String[] antialiasing_str = {"4x Samples", "8x Samples", "16x Samples", "24x Samples"};
 
-        components_filters[MainWindow.ANTIALIASING] = new JComboBox(antialiasing_str);
-        ((JComboBox)components_filters[MainWindow.ANTIALIASING]).setSelectedIndex(filters_options_vals[MainWindow.ANTIALIASING]);
-        ((JComboBox)components_filters[MainWindow.ANTIALIASING]).setFocusable(false);
-        ((JComboBox)components_filters[MainWindow.ANTIALIASING]).setToolTipText("Sets the sampled pixels number for the anti-aliasing.");
-        panels[MainWindow.ANTIALIASING].add(((JComboBox)components_filters[MainWindow.ANTIALIASING]));
+        components_filters[MainWindow.ANTIALIASING] = new JPanel();
+        ((JPanel)components_filters[MainWindow.ANTIALIASING]).setBackground(MainWindow.bg_color);
+        ((JPanel)components_filters[MainWindow.ANTIALIASING]).setLayout(new GridLayout(5, 1));
+
+        JComboBox aaSamples = new JComboBox(antialiasing_str);
+        aaSamples.setSelectedIndex((filters_options_vals[MainWindow.ANTIALIASING] % 100) % 10);
+        aaSamples.setFocusable(false);
+        aaSamples.setToolTipText("Sets the sampled pixels number for the anti-aliasing.");
+
+        String[] antialiasing_method_str = {"Mean", "Median", "Mid-Point", "Closest to Mean", "Closest To Mid-Point"};
+
+        JComboBox aaMethod = new JComboBox(antialiasing_method_str);
+        aaMethod.setSelectedIndex((filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10);
+        aaMethod.setFocusable(false);
+        aaMethod.setToolTipText("Sets the anti-aliasing method.");
+
+        /*String[] antialiasing_cpsace_str = {"RGB", "Lab"};
+
+        JComboBox aaSpace = new JComboBox(antialiasing_cpsace_str);
+        aaSpace.setSelectedIndex((filters_options_vals[MainWindow.ANTIALIASING] / 100));
+        aaSpace.setFocusable(false);
+        aaSpace.setToolTipText("Sets the anti-aliasing color space.");*/
+
+        final JCheckBox aaAvgWithMean = new JCheckBox("Average Method & Mean");
+        aaAvgWithMean.setFocusable(false);
+        aaAvgWithMean.setBackground(MainWindow.bg_color);
+        aaAvgWithMean.setToolTipText("Computes the mean value and the method's value and then averages them.");
+        aaAvgWithMean.setSelected((filters_options_vals[MainWindow.ANTIALIASING] / 100) == 1);
+
+        aaAvgWithMean.setEnabled(aaMethod.getSelectedIndex() != 0);
+
+        aaMethod.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                aaAvgWithMean.setEnabled(aaMethod.getSelectedIndex() != 0);
+            }
+        });
+
+
+        JPanel samplesLabel = new JPanel();
+        samplesLabel.setBackground(MainWindow.bg_color);
+        samplesLabel.add(new JLabel("Samples:"));
+
+        JPanel samples = new JPanel();
+        samples.setBackground(MainWindow.bg_color);
+        samples.add(aaSamples);
+
+        JPanel methodLabel = new JPanel();
+        methodLabel.setBackground(MainWindow.bg_color);
+        methodLabel.add(new JLabel("Method:"));
+
+        JPanel method = new JPanel();
+        method.setBackground(MainWindow.bg_color);
+        method.add(aaMethod);
+
+        JPanel avg = new JPanel();
+        avg.setBackground(MainWindow.bg_color);
+        avg.add(aaAvgWithMean);
+
+        /*JPanel spaceLabel = new JPanel();
+        spaceLabel.setBackground(MainWindow.bg_color);
+        spaceLabel.add(new JLabel("Color Space:"));
+
+        JPanel space = new JPanel();
+        space.setBackground(MainWindow.bg_color);
+        space.add(aaSpace);*/
+
+        ((JPanel)components_filters[MainWindow.ANTIALIASING]).add(samplesLabel);
+        ((JPanel)components_filters[MainWindow.ANTIALIASING]).add(samples);
+        ((JPanel)components_filters[MainWindow.ANTIALIASING]).add(methodLabel);
+        ((JPanel)components_filters[MainWindow.ANTIALIASING]).add(method);
+        ((JPanel)components_filters[MainWindow.ANTIALIASING]).add(avg);
+        //((JPanel)components_filters[MainWindow.ANTIALIASING]).add(spaceLabel);
+        //((JPanel)components_filters[MainWindow.ANTIALIASING]).add(space);
+
+        panels[MainWindow.ANTIALIASING].add(((JPanel)components_filters[MainWindow.ANTIALIASING]));
         panels[MainWindow.ANTIALIASING].setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Anti-Aliasing", TitledBorder.DEFAULT_POSITION, TitledBorder.DEFAULT_POSITION));
 
         panels[MainWindow.EDGE_DETECTION] = new JPanel();
@@ -2835,6 +2906,10 @@ public class FiltersOptionsFrame extends JFrame {
                         }                            
                         else if(k == MainWindow.EDGE_DETECTION2) {
                             filters_options_vals[k] = horizontal_edge_alg.getSelectedIndex() * 10 + vertical_edge_alg.getSelectedIndex();
+                        }
+                        else if(k == MainWindow.ANTIALIASING) {
+                            //aaSpace.getSelectedIndex() * 100
+                            filters_options_vals[k] = (aaAvgWithMean.isSelected() ? 100 : 0) + aaMethod.getSelectedIndex() * 10 + aaSamples.getSelectedIndex();
                         }
                         else if ( components_filters[k] instanceof JComboBox){
                             filters_options_vals[k] = ((JComboBox)components_filters[k]).getSelectedIndex();
