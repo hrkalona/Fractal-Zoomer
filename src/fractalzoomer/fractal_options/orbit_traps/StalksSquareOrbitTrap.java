@@ -36,7 +36,7 @@ public class StalksSquareOrbitTrap extends OrbitTrap {
     }
 
     @Override
-    public void check(Complex val, int iteration) {
+    protected void checkInternal(Complex val, int iteration) {
 
         if(checkType == TRAP_CHECK_TYPE_TRAPPED_FIRST && trapped) {
             return;

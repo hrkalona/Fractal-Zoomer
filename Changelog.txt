@@ -1,6 +1,10 @@
+Version 1.0.8.2
+    -Fixed a bug that caused settings for julia set to fail to load
+    -Fixed a bug in orbit traps when the initial value was a constant
+
 Version 1.0.8.1
     -Added a new fixed point precision implementation (BigNum)
-    -Optimized the reference calculation and pixel to coordinate mapping on all fractals that support pertubation and do not use division
+    -Optimized the reference calculation and pixel to coordinate mapping on all fractals that support perturbation and do not use division
     -Reduced the memory footprint of the reference orbit
     -Reduced the memory footprint when saving struct-like types and saved them like primitive values
     -Optimized SA for Mandelbrot, add thread support, and increased the terms up to 257

@@ -4,7 +4,7 @@ import fractalzoomer.main.app_settings.Settings;
 
 import java.io.Serializable;
 
-public class SettingsJulia1081  extends SettingsFractals1080 implements Serializable {
+public class SettingsJulia1081  extends SettingsFractals1081 implements Serializable {
     private static final long serialVersionUID = 80132942389L;
     private double xJuliaCenter;
     private double yJuliaCenter;

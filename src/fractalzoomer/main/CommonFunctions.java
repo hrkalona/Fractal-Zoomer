@@ -1385,6 +1385,10 @@ public class CommonFunctions implements Constants {
                 int type = s.ots.trapType == Constants.IMAGE_TRAP && s.ots.checkType == Constants.TRAP_CHECK_TYPE_TRAPPED_MIN_DISTANCE ? Constants.TRAP_CHECK_TYPE_TRAPPED_FIRST : s.ots.checkType;
                 overview += tab + "Check type = " + Constants.orbitTrapCheckTypes[type] + "<br>";
 
+                if(s.ots.skipTrapCheckForIterations > 0) {
+                    overview += tab + "Skip Trap Check for the first iterations = " + s.ots.skipTrapCheckForIterations + "<br>";
+                }
+
                 if (s.ots.trapType != Constants.SUPER_FORMULA_ORBIT_TRAP && s.ots.trapType != Constants.ATOM_DOMAIN_TRAP && s.ots.trapType != Constants.SQUARE_ATOM_DOMAIN_TRAP && s.ots.trapType != Constants.RHOMBUS_ATOM_DOMAIN_TRAP && s.ots.trapType != Constants.NNORM_ATOM_DOMAIN_TRAP && s.ots.trapType != Constants.GOLDEN_RATIO_SPIRAL_TRAP && s.ots.trapType != Constants.STALKS_TRAP) {
                     overview += tab + "Length = " + s.ots.trapLength + "<br>";
                 }
@@ -1446,7 +1450,7 @@ public class CommonFunctions implements Constants {
                 }
 
                 if (s.ots.trapType != Constants.IMAGE_TRAP) {
-                    overview += tab + "Intesity = " + s.ots.trapIntensity + "<br>";
+                    overview += tab + "Intensity = " + s.ots.trapIntensity + "<br>";
                     overview += tab + "Height Function = " + Constants.trapHeightAlgorithms[s.ots.trapHeightFunction] + "<br>";
                     
                     if(s.ots.invertTrapHeight) {

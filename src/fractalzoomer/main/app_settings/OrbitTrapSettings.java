@@ -63,6 +63,8 @@ public class OrbitTrapSettings {
     public double sfn3;
     public double sfa;
     public double sfb;
+
+    public int skipTrapCheckForIterations;
     
     public OrbitTrapSettings() {
 
@@ -110,6 +112,7 @@ public class OrbitTrapSettings {
 
         showOnlyTraps = false;
         background = Color.BLACK;
+        skipTrapCheckForIterations = 0;
         
     }
     

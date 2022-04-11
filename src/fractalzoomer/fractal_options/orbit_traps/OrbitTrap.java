@@ -36,6 +36,11 @@ public abstract class OrbitTrap {
     protected boolean trapped;
     protected boolean countTrapIterations;
     protected int checkType;
+    protected boolean isJulia;
+    protected boolean usesPerturbation;
+    protected boolean usesStaticInitVal;
+    protected boolean doFirstIterationSkipCheck;
+    protected int skipTrapCheckForIterations;
     
     public OrbitTrap(int checkType, double pointRe, double pointIm, double trapLength, double trapWidth, boolean countTrapIterations) {
         
@@ -44,7 +49,6 @@ public abstract class OrbitTrap {
         this.trapWidth = trapWidth;
         this.countTrapIterations = countTrapIterations;
         this.checkType = checkType;
-        
     }
     
     public void initialize(Complex pixel) {
@@ -56,10 +60,18 @@ public abstract class OrbitTrap {
         extraIterations = 0;
         trappedPoint = new Complex();
         trapped = false;
+        doFirstIterationSkipCheck = !isJulia && (usesPerturbation || usesStaticInitVal);
         
     }
-    
-    public abstract void check(Complex val, int iteration);
+
+    public void check(Complex val, int iteration) {
+        if((doFirstIterationSkipCheck && iteration == 0) || (iteration < skipTrapCheckForIterations)) {
+            return;
+        }
+        checkInternal(val, iteration);
+    }
+
+    protected abstract void checkInternal(Complex val, int iteration);
     
     public double getDistance() {
         
@@ -164,5 +176,22 @@ public abstract class OrbitTrap {
         return trapped;
 
     }
-    
+
+    public void setJulia(boolean julia) {
+        isJulia = julia;
+    }
+
+    public void setUsesPerturbation(boolean usesPerturbation) {
+        this.usesPerturbation = usesPerturbation;
+    }
+
+    public void setUsesStaticInitVal(boolean usesStaticInitVal) {
+        this.usesStaticInitVal = usesStaticInitVal;
+    }
+
+    public void setSkipTrapCheckForIterations(int skipTrapCheckForIterations) {
+        this.skipTrapCheckForIterations = skipTrapCheckForIterations;
+    }
+
+
 }
