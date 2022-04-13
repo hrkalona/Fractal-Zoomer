@@ -529,6 +529,17 @@ public class GradientFrame extends JFrame {
 
         });
 
+        getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
+                KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "Ok");
+        getRootPane().getActionMap().put("Ok", new AbstractAction()
+        {
+
+            public void actionPerformed(ActionEvent e)
+            {
+                ok.doClick();
+            }
+        });
+
         buttons.add(ok);
 
         JButton cancel = new JButton("Cancel");
@@ -541,6 +552,17 @@ public class GradientFrame extends JFrame {
                 ptra2.setEnabled(true);
                 dispose();
 
+            }
+        });
+
+        getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
+                KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "Cancel");
+        getRootPane().getActionMap().put("Cancel", new AbstractAction()
+        {
+
+            public void actionPerformed(ActionEvent e)
+            {
+                cancel.doClick();
             }
         });
 

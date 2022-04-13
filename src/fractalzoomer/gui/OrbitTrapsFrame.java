@@ -273,6 +273,8 @@ public class OrbitTrapsFrame extends JFrame {
         p9.add(heightFunction);
         p9.add(invert_height_opt);
 
+        //Todo: add skip trap check
+
 
         JPanel p10 = new JPanel();
         p10.setBackground(MainWindow.bg_color);
@@ -505,7 +507,7 @@ public class OrbitTrapsFrame extends JFrame {
         JPanel p7 = new JPanel();
         p7.setBackground(MainWindow.bg_color);
         
-        JComboBox colors = new JComboBox(new String[] {"Per Trap", "Random", "Hue/Arg HSB", "Hue/Arg LCH", "Random HSB", "Random Palette", "Arg Palette", "Trap Iteration HSB", "Trap Iterations LCH"});
+        JComboBox colors = new JComboBox(new String[] {"Per Trap", "Random", "Hue/Arg HSB", "Hue/Arg LCH", "Random HSB", "Random Palette", "Arg Palette", "Trap Iterations HSB", "Trap Iterations LCH"});
         colors.setFocusable(false);
         colors.setSelectedIndex(ots.trapColorFillingMethod);
         colors.setToolTipText("Sets the trap color filling method.");
@@ -725,6 +727,17 @@ public class OrbitTrapsFrame extends JFrame {
             }
         });
 
+        getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
+                KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "Ok");
+        getRootPane().getActionMap().put("Ok", new AbstractAction()
+        {
+
+            public void actionPerformed(ActionEvent e)
+            {
+                ok.doClick();
+            }
+        });
+
         JButton close = new JButton("Cancel");
         close.setFocusable(false);
         close.addActionListener(new ActionListener() {
@@ -735,6 +748,17 @@ public class OrbitTrapsFrame extends JFrame {
                 ptra2.setEnabled(true);
                 dispose();
 
+            }
+        });
+
+        getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
+                KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "Cancel");
+        getRootPane().getActionMap().put("Cancel", new AbstractAction()
+        {
+
+            public void actionPerformed(ActionEvent e)
+            {
+                close.doClick();
             }
         });
 

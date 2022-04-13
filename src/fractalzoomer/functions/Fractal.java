@@ -2493,6 +2493,11 @@ public abstract class Fractal {
 
         }
 
+        trap.setJulia(isJulia);
+        trap.setUsesPerturbation(ThreadDraw.PERTURBATION_THEORY && supportsPerturbationTheory());
+        trap.setUsesStaticInitVal(init_val instanceof InitialValue);
+        trap.setSkipTrapCheckForIterations(ots.skipTrapCheckForIterations);
+
     }
 
     public void setTrueColorAlgorithm(TrueColorSettings tcs) {

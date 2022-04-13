@@ -279,6 +279,17 @@ public class GreedyAlgorithmsFrame extends JFrame {
             }
         });
 
+        getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
+                KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "Ok");
+        getRootPane().getActionMap().put("Ok", new AbstractAction()
+        {
+
+            public void actionPerformed(ActionEvent e)
+            {
+                ok.doClick();
+            }
+        });
+
         JButton close = new JButton("Cancel");
         close.setFocusable(false);
         close.addActionListener(new ActionListener() {
@@ -289,6 +300,17 @@ public class GreedyAlgorithmsFrame extends JFrame {
                 ptra2.setEnabled(true);
                 dispose();
 
+            }
+        });
+
+        getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
+                KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "Cancel");
+        getRootPane().getActionMap().put("Cancel", new AbstractAction()
+        {
+
+            public void actionPerformed(ActionEvent e)
+            {
+                close.doClick();
             }
         });
 
