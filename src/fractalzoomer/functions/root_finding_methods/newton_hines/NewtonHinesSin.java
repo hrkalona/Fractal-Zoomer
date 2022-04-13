@@ -76,4 +76,9 @@ public class NewtonHinesSin extends NewtonHinesRootFindingMethod {
 
     }
 
+    @Override
+    public Complex evaluateFunction(Complex z, Complex c) {
+        return z.sin();
+    }
+
 }

@@ -18,6 +18,8 @@ package fractalzoomer.main.app_settings;
 
 import fractalzoomer.main.Constants;
 
+import java.awt.*;
+
 /**
  *
  * @author hrkalona2
@@ -64,7 +66,10 @@ public class StatisticsSettings implements Constants {
     public boolean normalMapUseDE;
     public double normalMapDEfactor;
     public boolean normalMapInvertDE;
+    public int normalMapDeFadeAlgorithm;
+    public double normalMapDEUpperLimitFactor;
     public int normalMapColoring;
+    public boolean normalMapDEAAEffect;
 
     public double rootIterationsScaling;
     public boolean rootShading;
@@ -84,6 +89,9 @@ public class StatisticsSettings implements Constants {
 
     public int atomNormType;
     public double atomNNorm;
+
+    public Color unmmapedRootColor;
+    public Color rootShadingColor;
     
     public StatisticsSettings(StatisticsSettings copy) {
         statistic = copy.statistic;
@@ -127,6 +135,7 @@ public class StatisticsSettings implements Constants {
         normalMapInvertDE = copy.normalMapInvertDE;
         normalMapColoring = copy.normalMapColoring;
         useNormalMap = copy.useNormalMap;
+        normalMapDeFadeAlgorithm = copy.normalMapDeFadeAlgorithm;
 
         rootIterationsScaling = copy.rootIterationsScaling;
         rootContourColorMethod = copy.rootContourColorMethod;
@@ -150,6 +159,10 @@ public class StatisticsSettings implements Constants {
 
         atomNormType = copy.atomNormType;
         atomNNorm = copy.atomNNorm;
+        unmmapedRootColor = copy.unmmapedRootColor;
+        rootShadingColor = copy.rootShadingColor;
+        normalMapDEUpperLimitFactor = copy.normalMapDEUpperLimitFactor;
+        normalMapDEAAEffect = copy.normalMapDEAAEffect;
 
     }
     
@@ -192,10 +205,13 @@ public class StatisticsSettings implements Constants {
         normalMapAngle = 45;
         normalMapUseSecondDerivative = false;
         normalMapDEfactor = 1;
+        normalMapDEUpperLimitFactor = 0;
         normalMapUseDE = false;
         normalMapInvertDE = false;
         normalMapColoring = 0;
         useNormalMap = true;
+        normalMapDEAAEffect = false;
+        normalMapDeFadeAlgorithm = 0;
 
         rootIterationsScaling = 30;
         rootContourColorMethod = 0;
@@ -220,5 +236,8 @@ public class StatisticsSettings implements Constants {
 
         atomNormType = 0;
         atomNNorm = 2;
+
+        unmmapedRootColor = Color.BLACK;
+        rootShadingColor = Color.BLACK;
     }
 }

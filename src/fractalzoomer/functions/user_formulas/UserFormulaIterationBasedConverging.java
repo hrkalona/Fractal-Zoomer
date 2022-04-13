@@ -369,4 +369,9 @@ public class UserFormulaIterationBasedConverging extends ExtendedConvergentType 
         return ColorAlgorithm.transformResultToHeight(value, max_iterations);
 
     }
+
+    @Override
+    public Complex evaluateFunction(Complex z, Complex c) {
+        return null;
+    }
 }

@@ -27,42 +27,8 @@ public class PaletteColorSmooth extends PaletteColor {
     public PaletteColorSmooth(int[] palette, Color special_color, int color_smoothing_method, boolean special_use_palette_color) {
 
         super(palette, special_color, special_use_palette_color);
-        
-        switch(color_smoothing_method) {
-            case MainWindow.INTERPOLATION_LINEAR:
-                interpolator = new LinearInterpolation();
-                break;
-            case MainWindow.INTERPOLATION_COSINE:
-                interpolator = new CosineInterpolation();
-                break;
-            case MainWindow.INTERPOLATION_ACCELERATION:
-                interpolator = new AccelerationInterpolation();
-                break;
-             case MainWindow.INTERPOLATION_DECELERATION:
-                 interpolator = new DecelerationInterpolation();
-                 break;
-             case MainWindow.INTERPOLATION_EXPONENTIAL:
-                 interpolator = new ExponentialInterpolation();
-                 break;
-             case MainWindow.INTERPOLATION_CATMULLROM:
-                 interpolator = new CatmullRomInterpolation();
-                 break;
-             case MainWindow.INTERPOLATION_CATMULLROM2:
-                 interpolator = new CatmullRom2Interpolation();
-                 break;
-             case MainWindow.INTERPOLATION_SIGMOID:
-                 interpolator = new SigmoidInterpolation();
-                 break;
-            case MainWindow.INTERPOLATION_QUADRATIC:
-                interpolator = new QuadraticInterpolation();
-                break;
-            case MainWindow.INTERPOLATION_CUBIC:
-                interpolator = new CubicInterpolation();
-                break;
-            case MainWindow.INTERPOLATION_SQRT:
-                interpolator = new SqrtInterpolation();
-                break;
-        }     
+
+        interpolator = InterpolationMethod.create(color_smoothing_method);
 
     }
 

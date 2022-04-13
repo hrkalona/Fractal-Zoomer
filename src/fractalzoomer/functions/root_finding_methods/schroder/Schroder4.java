@@ -75,4 +75,9 @@ public class Schroder4 extends SchroderRootFindingMethod {
 
     }
 
+    @Override
+    public Complex evaluateFunction(Complex z, Complex c) {
+        return z.fourth().sub_mutable(1);
+    }
+
 }

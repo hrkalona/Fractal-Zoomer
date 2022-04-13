@@ -80,4 +80,9 @@ public class WhittakerDoubleConvexCos extends WhittakerDoubleConvexRootFindingMe
 
     }
 
+    @Override
+    public Complex evaluateFunction(Complex z, Complex c) {
+        return z.cos();
+    }
+
 }

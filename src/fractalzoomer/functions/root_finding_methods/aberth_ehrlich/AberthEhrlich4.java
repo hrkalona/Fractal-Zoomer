@@ -53,4 +53,9 @@ public class AberthEhrlich4 extends AberthEhrlichRootFindingMethod {
         aberthEhrlichMethod(complex, fz, dfz);
 
     }
+
+    @Override
+    public Complex evaluateFunction(Complex z, Complex c) {
+        return z.fourth().sub_mutable(1);
+    }
 }

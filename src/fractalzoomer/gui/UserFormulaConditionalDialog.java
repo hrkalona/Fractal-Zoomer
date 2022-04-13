@@ -36,7 +36,7 @@ public class UserFormulaConditionalDialog extends JDialog {
     private MainWindow ptra;
     private JOptionPane optionPane;
 
-    public UserFormulaConditionalDialog(MainWindow ptr, Settings s, int oldSelected, JRadioButtonMenuItem[] fractal_functions, boolean wasMagnetType, boolean wasConvergingType, boolean wasSimpleType, boolean wasMagneticPendulumType) {
+    public UserFormulaConditionalDialog(MainWindow ptr, Settings s, int oldSelected, JRadioButtonMenuItem[] fractal_functions, boolean wasMagnetType, boolean wasConvergingType, boolean wasSimpleType, boolean wasMagneticPendulumType, boolean wasEscapingOrConvergingType) {
 
         super(ptr);
         
@@ -87,7 +87,7 @@ public class UserFormulaConditionalDialog extends JDialog {
         JLabel bail3 = new JLabel("Bailout Technique:");
         bail3.setFont(new Font("Arial", Font.BOLD, 11));
 
-        String[] method43 = {"Escaping Algorithm", "Converging Algorithm"};
+        String[] method43 = {"Escaping Algorithm", "Converging Algorithm", "Escaping or Converging Algorithm"};
 
         JComboBox method43_choice = new JComboBox(method43);
         method43_choice.setSelectedIndex(s.fns.bail_technique);
@@ -201,7 +201,7 @@ public class UserFormulaConditionalDialog extends JDialog {
 
                     ptra.optionsEnableShortcut();
                     dispose();
-                    ptra.setFunctionPost(wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
+                    ptra.setFunctionPost(wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType, wasEscapingOrConvergingType);
                 }
             }
         });

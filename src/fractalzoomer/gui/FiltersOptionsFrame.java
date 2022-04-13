@@ -134,7 +134,7 @@ public class FiltersOptionsFrame extends JFrame {
 
         panels[MainWindow.ANTIALIASING] = new JPanel();
         panels[MainWindow.ANTIALIASING].setBackground(MainWindow.bg_color);
-        String[] antialiasing_str = {"4x Samples", "8x Samples", "16x Samples", "24x Samples"};
+        String[] antialiasing_str = {"5x Samples", "9x Samples", "17x Samples", "25x Samples"};
 
         components_filters[MainWindow.ANTIALIASING] = new JPanel();
         ((JPanel)components_filters[MainWindow.ANTIALIASING]).setBackground(MainWindow.bg_color);
@@ -145,7 +145,7 @@ public class FiltersOptionsFrame extends JFrame {
         aaSamples.setFocusable(false);
         aaSamples.setToolTipText("Sets the sampled pixels number for the anti-aliasing.");
 
-        String[] antialiasing_method_str = {"Mean", "Median", "Mid-Point", "Closest to Mean", "Closest To Mid-Point"};
+        String[] antialiasing_method_str = {"Mean", "Median", "Mid-Point", "Closest to Mean", "Closest To Mid-Point", "Adaptive Mean(Min 5)"};
 
         JComboBox aaMethod = new JComboBox(antialiasing_method_str);
         aaMethod.setSelectedIndex((filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10);
@@ -165,12 +165,12 @@ public class FiltersOptionsFrame extends JFrame {
         aaAvgWithMean.setToolTipText("Computes the mean value and the method's value and then averages them.");
         aaAvgWithMean.setSelected((filters_options_vals[MainWindow.ANTIALIASING] / 100) == 1);
 
-        aaAvgWithMean.setEnabled(aaMethod.getSelectedIndex() != 0);
+        aaAvgWithMean.setEnabled(aaMethod.getSelectedIndex() != 0 && aaMethod.getSelectedIndex() != 5);
 
         aaMethod.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                aaAvgWithMean.setEnabled(aaMethod.getSelectedIndex() != 0);
+                aaAvgWithMean.setEnabled(aaMethod.getSelectedIndex() != 0 && aaMethod.getSelectedIndex() != 5);
             }
         });
 

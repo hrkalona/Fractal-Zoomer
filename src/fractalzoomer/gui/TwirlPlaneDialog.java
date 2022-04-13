@@ -175,7 +175,7 @@ public class TwirlPlaneDialog extends JDialog {
                     }
 
                     dispose();
-                    ptra.defaultFractalSettings();
+                    ptra.defaultFractalSettings(true);
                 }
             }
         });

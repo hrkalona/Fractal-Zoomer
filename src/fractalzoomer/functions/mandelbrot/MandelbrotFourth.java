@@ -242,8 +242,12 @@ public class MandelbrotFourth extends Julia {
             progress.setString(REFERENCE_CALCULATION_STR + " " + String.format("%3d", 0) + "%");
         }
 
+        boolean lowPrecReferenceOrbitNeeded = !(deepZoom && ThreadDraw.APPROXIMATION_ALGORITHM == 2 && supportsBilinearApproximation());
+
         if (iterations == 0) {
-            Reference = new double[max_iterations << 1];
+            if(lowPrecReferenceOrbitNeeded) {
+                Reference = new double[max_iterations << 1];
+            }
 
             if(isJulia) {
                 ReferenceSubPixel = new double[max_iterations << 1];
@@ -257,8 +261,10 @@ public class MandelbrotFourth extends Julia {
                 }
 
             }
-        } else if (max_iterations > (Reference.length >> 1)) {
-            Reference = Arrays.copyOf(Reference, max_iterations << 1);
+        } else if (max_iterations > getReferenceLength()) {
+            if(lowPrecReferenceOrbitNeeded) {
+                Reference = Arrays.copyOf(Reference, max_iterations << 1);
+            }
 
             if(isJulia) {
                 ReferenceSubPixel = Arrays.copyOf(ReferenceSubPixel, max_iterations << 1);
@@ -285,26 +291,14 @@ public class MandelbrotFourth extends Julia {
 
         boolean useBignum = ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE;
         if(useBignum) {
-            if(inputPixel instanceof  BigNumComplex) {
-                z = iterations == 0 ? (isJulia ? inputPixel : new BigNumComplex()) : lastZValue;
-                c = isJulia ? new BigNumComplex(seed) : inputPixel;
-                zold = iterations == 0 ? new BigNumComplex() : secondTolastZValue;
-                zold2 = iterations == 0 ? new BigNumComplex() : thirdTolastZValue;
-                start = isJulia ? inputPixel : new BigNumComplex();
-                c0 = c;
-                pixel = inputPixel;
-            }
-            else {
-                BigComplex bz = (BigComplex)inputPixel;
-                BigNumComplex bn = new BigNumComplex(bz);
-                z = iterations == 0 ? (isJulia ? bn : new BigNumComplex()) : lastZValue;
-                c = isJulia ? new BigNumComplex(seed) : bn;
-                zold = iterations == 0 ? new BigNumComplex() : secondTolastZValue;
-                zold2 = iterations == 0 ? new BigNumComplex() : thirdTolastZValue;
-                start = isJulia ? bn : new BigNumComplex();
-                c0 = c;
-                pixel = bn;
-            }
+            BigNumComplex bn = inputPixel.toBigNumComplex();
+            z = iterations == 0 ? (isJulia ? bn : new BigNumComplex()) : lastZValue;
+            c = isJulia ? new BigNumComplex(seed) : bn;
+            zold = iterations == 0 ? new BigNumComplex() : secondTolastZValue;
+            zold2 = iterations == 0 ? new BigNumComplex() : thirdTolastZValue;
+            start = isJulia ? bn : new BigNumComplex();
+            c0 = c;
+            pixel = bn;
             normSquared = new BigNum();
             minValue = iterations == 0 ? BigNum.getMax() : minValue;
         }
@@ -334,14 +328,19 @@ public class MandelbrotFourth extends Julia {
         boolean detectPeriod = ThreadDraw.DETECT_PERIOD && supportsPeriod();
         RefType = getRefType();
 
+        boolean preCalcNormData = detectPeriod || bailout_algorithm2.getId() == MainWindow.BAILOUT_CONDITION_CIRCLE;
+        NormComponents normData = null;
+
         for (; iterations < max_iterations; iterations++) {
 
-            Complex cz = z.toComplex();
-            if(cz.isInfinite()) {
-                break;
-            }
+            if(lowPrecReferenceOrbitNeeded) {
+                Complex cz = z.toComplex();
+                if (cz.isInfinite()) {
+                    break;
+                }
 
-            setArrayValue(Reference, iterations, cz);
+                setArrayValue(Reference, iterations, cz);
+            }
 
             if(isJulia) {
                 GenericComplex zsubpixel = z.sub(pixel);
@@ -357,8 +356,10 @@ public class MandelbrotFourth extends Julia {
                 //ReferenceDeep[iterations] = new MantExpComplex(Reference[iterations]);
             }
 
-            NormComponents normData = z.normSquaredWithComponents();
-            normSquared = normData.normSquared;
+            if(preCalcNormData) {
+                normData = z.normSquaredWithComponents();
+                normSquared = normData.normSquared;
+            }
 
             if(detectPeriod) {
                 if(useBignum) {
@@ -375,7 +376,7 @@ public class MandelbrotFourth extends Julia {
                 }
             }
 
-            if (iterations > 0 && bailout_algorithm2.escaped(z, zold, zold2, iterations, c, start, c0, normSquared, pixel)) {
+            if (iterations > 0 && bailout_algorithm2.Escaped(z, zold, zold2, iterations, c, start, c0, normSquared, pixel)) {
                 break;
             }
 
@@ -384,10 +385,19 @@ public class MandelbrotFourth extends Julia {
 
             try {
 
-                if (burning_ship) {
-                    z = z.abs().fourthFast(normData).plus(c);
-                } else {
-                    z = z.fourthFast(normData).plus(c);
+                if(preCalcNormData) {
+                    if (burning_ship) {
+                        z = z.abs().fourthFast(normData).plus(c);
+                    } else {
+                        z = z.fourthFast(normData).plus(c);
+                    }
+                }
+                else {
+                    if (burning_ship) {
+                        z = z.abs().fourth().plus(c);
+                    } else {
+                        z = z.fourth().plus(c);
+                    }
                 }
 
             }
@@ -420,7 +430,7 @@ public class MandelbrotFourth extends Julia {
             calculateSeriesWrapper(size, deepZoom, externalLocation, progress);
         }
         else if(isBLAInUse) {
-            calculateBLAWrapper(size, deepZoom, externalLocation, progress);
+            calculateBLAWrapper(deepZoom, externalLocation, progress);
         }
 
     }

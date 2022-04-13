@@ -11,7 +11,17 @@ public class BLADeep1Step extends BLADeep {
         super(r2, A);
     }
 
+    @Override
     public MantExpComplex getValue(MantExpComplex DeltaSubN, MantExpComplex DeltaSub0) {
+
+        //double zxn = Ax * zx - Ay * zy + Bx * cx - By * cy;
+        //double zyn = Ax * zy + Ay * zx + Bx * cy + By * cx;
+
+        return MantExpComplex.AtXpY(new MantExpComplex(Aexp, Ax, Ay), DeltaSubN, DeltaSub0);
+    }
+
+    @Override
+    public MantExpComplex getValue(MantExpComplex DeltaSubN, MantExp DeltaSub0) {
 
         //double zxn = Ax * zx - Ay * zy + Bx * cx - By * cy;
         //double zyn = Ax * zy + Ay * zx + Bx * cy + By * cx;

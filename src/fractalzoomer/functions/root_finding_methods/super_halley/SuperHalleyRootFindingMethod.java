@@ -59,7 +59,7 @@ public abstract class SuperHalleyRootFindingMethod extends RootFindingMethods {
 
     public static Complex superHalleyStep(Complex fz, Complex dfz, Complex ddfz) {
 
-        return fz.divide(dfz).sub_mutable(((fz.square().times_mutable(ddfz)).divide_mutable(dfz.cube().times_mutable(2).sub_mutable(fz.times(dfz).times_mutable(ddfz).times_mutable(2)))));
+        return fz.divide(dfz).plus_mutable(((fz.square().times_mutable(ddfz)).divide_mutable(dfz.cube().times_mutable(2).sub_mutable(fz.times(dfz).times_mutable(ddfz).times_mutable(2)))));
 
     }
 }

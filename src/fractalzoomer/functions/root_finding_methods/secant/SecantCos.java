@@ -89,4 +89,9 @@ public class SecantCos extends SecantRootFindingMethod {
 
     }
 
+    @Override
+    public Complex evaluateFunction(Complex z, Complex c) {
+        return z.cos();
+    }
+
 }

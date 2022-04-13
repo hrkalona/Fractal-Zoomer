@@ -78,7 +78,7 @@ public abstract class MagnetType extends Julia {
     @Override
     protected double iterateFractalWithPeriodicity(Complex[] complex, Complex pixel) {
         iterations = 0;
-        Boolean temp1, temp2;
+        boolean temp1 = false, temp2 = false;
 
         converged = false;
 
@@ -94,9 +94,7 @@ public abstract class MagnetType extends Julia {
 
             updateValues(complex);
 
-            temp1 = convergent_bailout_algorithm.converged(complex[0], 1, zold, zold2, iterations, complex[1], start, c0, pixel);
-            temp2 = bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, 0.0, pixel);
-            if (temp1 || temp2) {
+            if ((temp1 = convergent_bailout_algorithm.converged(complex[0], 1, zold, zold2, iterations, complex[1], start, c0, pixel)) || (temp2 = bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, 0.0, pixel))) {
                 escaped = true;
                 converged = temp1;
 
@@ -135,7 +133,7 @@ public abstract class MagnetType extends Julia {
     @Override
     protected double iterateFractalWithoutPeriodicity(Complex[] complex, Complex pixel) {
         iterations = 0;
-        Boolean temp1, temp2;
+        boolean temp1 = false, temp2 = false;
 
         converged = false;
 
@@ -147,9 +145,7 @@ public abstract class MagnetType extends Julia {
                 trap.check(complex[0], iterations);
             }
 
-            temp1 = convergent_bailout_algorithm.converged(complex[0], 1, zold, zold2, iterations, complex[1], start, c0, pixel);
-            temp2 = bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, 0.0, pixel);
-            if (temp1 || temp2) {
+            if ((temp1 = convergent_bailout_algorithm.converged(complex[0], 1, zold, zold2, iterations, complex[1], start, c0, pixel)) || (temp2 = bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, 0.0, pixel))) {
                 escaped = true;
                 converged = temp1;
 
@@ -424,7 +420,12 @@ public abstract class MagnetType extends Julia {
 
         double norm_squared = 0;
 
-        Boolean temp1, temp2;
+        if(iterations != 0 && RefIteration < MaxRefIteration) {
+            complex[0] = getArrayValue(Reference, RefIteration).plus_mutable(DeltaSubN);
+            norm_squared = complex[0].norm_squared();
+        }
+
+        boolean temp1 = false, temp2 = false;
 
         converged = false;
 
@@ -436,9 +437,7 @@ public abstract class MagnetType extends Julia {
                 trap.check(complex[0], iterations);
             }
 
-            temp1 = convergent_bailout_algorithm.converged(complex[0], 1, zold, zold2, iterations, complex[1], start, c0, pixel);
-            temp2 = bailout_algorithm2.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, norm_squared, pixel);
-            if (temp1 || temp2) {
+            if ((temp1 = convergent_bailout_algorithm.converged(complex[0], 1, zold, zold2, iterations, complex[1], start, c0, pixel)) || (temp2 = bailout_algorithm2.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, norm_squared, pixel))) {
                 escaped = true;
                 converged = temp1;
 
@@ -508,7 +507,7 @@ public abstract class MagnetType extends Julia {
         DeltaSubN.Reduce();
         long exp = DeltaSubN.getExp();
 
-        Boolean temp1, temp2;
+        boolean temp1 = false, temp2 = false;
 
         converged = false;
 
@@ -516,17 +515,21 @@ public abstract class MagnetType extends Julia {
 
         boolean useFullFloatExp = ThreadDraw.USE_FULL_FLOATEXP_FOR_DEEP_ZOOM;
 
+        boolean usedDeepCode = false;
         if(useFullFloatExp || (skippedIterations == 0 && exp <= minExp) || (skippedIterations != 0 && exp <= reducedExp)) {
+            usedDeepCode = true;
             MantExpComplex z = new MantExpComplex();
+            if(iterations != 0 && RefIteration < MaxRefIteration) {
+                z = getArrayDeepValue(ReferenceDeep, RefIteration).plus_mutable(DeltaSubN);
+                complex[0] = z.toComplex();
+            }
             for (; iterations < max_iterations; iterations++) {
                 if (trap != null) {
                     trap.check(complex[0], iterations);
                 }
 
                 if(useFullFloatExp) {
-                    temp1 = convergent_bailout_algorithm.converged(complex[0], 1, zold, zold2, iterations, complex[1], start, c0, pixel);
-                    temp2 = bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, 0.0, pixel);
-                    if (temp1 || temp2) {
+                    if ((temp1 = convergent_bailout_algorithm.converged(complex[0], 1, zold, zold2, iterations, complex[1], start, c0, pixel)) || (temp2 = bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, 0.0, pixel))) {
                         escaped = true;
                         converged = temp1;
 
@@ -580,6 +583,10 @@ public abstract class MagnetType extends Julia {
             Complex CDeltaSub0 = DeltaSub0.toComplex();
 
             boolean isZero = CDeltaSub0.isZero();
+
+            if(!usedDeepCode && iterations != 0 && RefIteration < MaxRefIteration) {
+                complex[0] = getArrayValue(Reference, RefIteration).plus_mutable(CDeltaSubN);
+            }
             double norm_squared = complex[0].norm_squared();
 
             for (; iterations < max_iterations; iterations++) {
@@ -590,9 +597,7 @@ public abstract class MagnetType extends Julia {
                     trap.check(complex[0], iterations);
                 }
 
-                temp1 = convergent_bailout_algorithm.converged(complex[0], 1, zold, zold2, iterations, complex[1], start, c0, pixel);
-                temp2 = bailout_algorithm2.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, norm_squared, pixel);
-                if (temp1 || temp2) {
+                if ((temp1 = convergent_bailout_algorithm.converged(complex[0], 1, zold, zold2, iterations, complex[1], start, c0, pixel)) || (temp2 = bailout_algorithm2.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, norm_squared, pixel))) {
                     escaped = true;
                     converged = temp1;
 
@@ -663,7 +668,7 @@ public abstract class MagnetType extends Julia {
 
         int RefIteration = iterations;
 
-        Boolean temp1, temp2;
+        boolean temp1 = false, temp2 = false;
 
         converged = false;
 
@@ -677,9 +682,7 @@ public abstract class MagnetType extends Julia {
                 trap.check(complex[0], iterations);
             }
 
-            temp1 = convergent_bailout_algorithm.converged(complex[0], 1, zold, zold2, iterations, complex[1], start, c0, pixel);
-            temp2 = bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, 0.0, pixel);
-            if (temp1 || temp2) {
+            if ((temp1 = convergent_bailout_algorithm.converged(complex[0], 1, zold, zold2, iterations, complex[1], start, c0, pixel)) || (temp2 = bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, 0.0, pixel))) {
                 escaped = true;
                 converged = temp1;
 
@@ -750,7 +753,7 @@ public abstract class MagnetType extends Julia {
 
         Complex zWithoutInitVal = new Complex();
 
-        Boolean temp1, temp2;
+        boolean temp1 = false, temp2 = false;
 
         converged = false;
 
@@ -758,17 +761,21 @@ public abstract class MagnetType extends Julia {
 
         boolean useFullFloatExp = ThreadDraw.USE_FULL_FLOATEXP_FOR_DEEP_ZOOM;
 
+        boolean usedDeepCode = false;
         if(useFullFloatExp || (skippedIterations == 0 && exp <= minExp) || (skippedIterations != 0 && exp <= reducedExp)) {
+            usedDeepCode = true;
             MantExpComplex z = new MantExpComplex();
+            if(iterations != 0 && RefIteration < MaxRefIteration) {
+                z = getArrayDeepValue(ReferenceSubPixelDeep, RefIteration).plus_mutable(DeltaSubN);
+                complex[0] = getArrayDeepValue(ReferenceDeep, RefIteration).plus_mutable(DeltaSubN).toComplex();
+            }
             for (; iterations < max_iterations; iterations++) {
                 if (trap != null) {
                     trap.check(complex[0], iterations);
                 }
 
                 if(useFullFloatExp) {
-                    temp1 = convergent_bailout_algorithm.converged(complex[0], 1, zold, zold2, iterations, complex[1], start, c0, pixel);
-                    temp2 = bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, 0.0, pixel);
-                    if (temp1 || temp2) {
+                    if ((temp1 = convergent_bailout_algorithm.converged(complex[0], 1, zold, zold2, iterations, complex[1], start, c0, pixel)) || (temp2 = bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, 0.0, pixel))) {
                         escaped = true;
                         converged = temp1;
 
@@ -820,6 +827,10 @@ public abstract class MagnetType extends Julia {
         if(!useFullFloatExp) {
             Complex CDeltaSubN = DeltaSubN.toComplex();
 
+            if(!usedDeepCode && iterations != 0 && RefIteration < MaxRefIteration) {
+                complex[0] = getArrayValue(Reference, RefIteration).plus_mutable(CDeltaSubN);
+            }
+
             for (; iterations < max_iterations; iterations++) {
 
                 //No update values
@@ -828,9 +839,7 @@ public abstract class MagnetType extends Julia {
                     trap.check(complex[0], iterations);
                 }
 
-                temp1 = convergent_bailout_algorithm.converged(complex[0], 1, zold, zold2, iterations, complex[1], start, c0, pixel);
-                temp2 = bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, 0.0, pixel);
-                if (temp1 || temp2) {
+                if ((temp1 = convergent_bailout_algorithm.converged(complex[0], 1, zold, zold2, iterations, complex[1], start, c0, pixel)) || (temp2 = bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, 0.0, pixel))) {
                     escaped = true;
                     converged = temp1;
 

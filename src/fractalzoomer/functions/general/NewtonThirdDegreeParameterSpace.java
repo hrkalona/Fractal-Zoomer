@@ -210,7 +210,7 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
                 PrecalculatedTerms2Deep = new DeepReference(max_iterations);
             }
         }
-        else if (max_iterations > (Reference.length >> 1)){
+        else if (max_iterations > getReferenceLength()){
             Reference = Arrays.copyOf(Reference, max_iterations << 1);
 
             if(isJulia) {
@@ -562,5 +562,10 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
 
         return complex;
 
+    }
+
+    @Override
+    public Complex evaluateFunction(Complex z, Complex c) {
+        return z.sub(1).times_mutable(z.plus(1)).times_mutable(z.sub(c));
     }
 }

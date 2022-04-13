@@ -20,7 +20,7 @@ import javax.imageio.*;
  *	-You may define your own helper functions, which can have variable arguments and return type but they must be static.
  *	-Any exception thrown during the execution will be translated a the function returned a Complex number with the value of zero.
  *	-Do not break the code! (Infinite loops or whatever crazy thing comes to your mind).
- *	-Please refer to the Complex.java file and Derivative.java file, contained in the executable directory, in order to see all the available operations.
+ *	-Please refer to the library manual Complex class Derivative class, in order to see all the available operations.
  *	-Note that the evaluation of the code is left to right and does not follow the standard order of operations.
  *	 This means that z.plus(3).times(new Complex(2, 3)); is equivalent to (z + 3) * (2 + 3i). If you want to enforce the correct order 
  *	 change the order of the code or use brackets. For instance z.plus(new Complex(2, 3).times(3)) is equivalent to z + ((2 + 3i) * 3).

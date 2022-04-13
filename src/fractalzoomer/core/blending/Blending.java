@@ -28,41 +28,8 @@ public abstract class Blending {
     
     public Blending(int color_interpolation) {
         
-        switch (color_interpolation) {
-            case MainWindow.INTERPOLATION_LINEAR:
-                method = new LinearInterpolation();
-                break;
-            case MainWindow.INTERPOLATION_COSINE:
-                method = new CosineInterpolation();
-                break;
-            case MainWindow.INTERPOLATION_ACCELERATION:
-                method = new AccelerationInterpolation();
-                break;
-            case MainWindow.INTERPOLATION_DECELERATION:
-                method = new DecelerationInterpolation();
-                break;
-            case MainWindow.INTERPOLATION_EXPONENTIAL:
-                method = new ExponentialInterpolation();
-                break;
-            case MainWindow.INTERPOLATION_CATMULLROM:
-                method = new CatmullRomInterpolation();
-                break;
-            case MainWindow.INTERPOLATION_CATMULLROM2:
-                method = new CatmullRom2Interpolation();
-                break;
-            case MainWindow.INTERPOLATION_SIGMOID:
-                method = new SigmoidInterpolation();
-                break;
-            case MainWindow.INTERPOLATION_QUADRATIC:
-                method = new QuadraticInterpolation();
-                break;
-            case MainWindow.INTERPOLATION_CUBIC:
-                method = new CubicInterpolation();
-                break;
-            case MainWindow.INTERPOLATION_SQRT:
-                method = new SqrtInterpolation();
-                break;
-        }
+        method = InterpolationMethod.create(color_interpolation);
+
     }
     
     public abstract int blend(int redA, int greenA, int blueA, int redB, int greenB, int blueB, double coef);

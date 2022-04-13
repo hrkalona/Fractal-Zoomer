@@ -127,4 +127,14 @@ public class ParhalleyPoly extends ParhalleyRootFindingMethod {
 
     }
 
+    @Override
+    public Complex evaluateFunction(Complex z, Complex c) {
+        if(usesComplexCoefficients) {
+            return z.tenth().times_mutable(complex_coefficients[0]).plus_mutable(z.ninth().times_mutable(complex_coefficients[1])).plus_mutable(z.eighth().times_mutable(complex_coefficients[2])).plus_mutable(z.seventh().times_mutable(complex_coefficients[3])).plus_mutable(z.sixth().times_mutable(complex_coefficients[4])).plus_mutable(z.fifth().times_mutable(complex_coefficients[5])).plus_mutable(z.fourth().times_mutable(complex_coefficients[6])).plus_mutable(z.cube().times_mutable(complex_coefficients[7])).plus_mutable(z.square().times_mutable(complex_coefficients[8])).plus_mutable(z.times(complex_coefficients[9])).plus_mutable(complex_coefficients[10]);
+        }
+        else {
+            return z.tenth().times_mutable(coefficients[0]).plus_mutable(z.ninth().times_mutable(coefficients[1])).plus_mutable(z.eighth().times_mutable(coefficients[2])).plus_mutable(z.seventh().times_mutable(coefficients[3])).plus_mutable(z.sixth().times_mutable(coefficients[4])).plus_mutable(z.fifth().times_mutable(coefficients[5])).plus_mutable(z.fourth().times_mutable(coefficients[6])).plus_mutable(z.cube().times_mutable(coefficients[7])).plus_mutable(z.square().times_mutable(coefficients[8])).plus_mutable(z.times(coefficients[9])).plus_mutable(coefficients[10]);
+        }
+    }
+
 }

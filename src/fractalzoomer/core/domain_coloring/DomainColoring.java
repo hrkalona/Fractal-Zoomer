@@ -113,42 +113,7 @@ public abstract class DomainColoring {
 
         this.blending = blending;
 
-        switch (color_interpolation) {
-            case MainWindow.INTERPOLATION_LINEAR:
-                method = new LinearInterpolation();
-                break;
-            case MainWindow.INTERPOLATION_COSINE:
-                method = new CosineInterpolation();
-                break;
-            case MainWindow.INTERPOLATION_ACCELERATION:
-                method = new AccelerationInterpolation();
-                break;
-            case MainWindow.INTERPOLATION_DECELERATION:
-                method = new DecelerationInterpolation();
-                break;
-            case MainWindow.INTERPOLATION_EXPONENTIAL:
-                method = new ExponentialInterpolation();
-                break;
-            case MainWindow.INTERPOLATION_CATMULLROM:
-                method = new CatmullRomInterpolation();
-                break;
-            case MainWindow.INTERPOLATION_CATMULLROM2:
-                method = new CatmullRom2Interpolation();
-                break;
-            case MainWindow.INTERPOLATION_SIGMOID:
-                method = new SigmoidInterpolation();
-                break;
-            case MainWindow.INTERPOLATION_QUADRATIC:
-                method = new QuadraticInterpolation();
-                break;
-            case MainWindow.INTERPOLATION_CUBIC:
-                method = new CubicInterpolation();
-                break;
-            case MainWindow.INTERPOLATION_SQRT:
-                method = new SqrtInterpolation();
-                break;
-        }
-
+        method = InterpolationMethod.create(color_interpolation);
     }
 
     public abstract int getDomainColor(Complex res);
@@ -722,15 +687,31 @@ public abstract class DomainColoring {
 
         switch (this.circleFadeFunction) {
             case 0:
-                return Math.sqrt(value);              
+                return SqrtInterpolation.getCoefficient(value);
             case 1:
-                return Math.cbrt(value);
+                return CbrtInterpolation.getCoefficient(value);
             case 2:
-                return Math.sqrt(Math.sqrt(value));
+                return FrthrootInterpolation.getCoefficient(value);
             case 3:
                 return value;
             case 4:
                 return value != 1 ? 0 : 1;
+            case 5:
+                return CosineInterpolation.getCoefficient(value);
+            case 6:
+                return AccelerationInterpolation.getCoefficient(value);
+            case 7:
+                return SineInterpolation.getCoefficient(value);
+            case 8:
+                return DecelerationInterpolation.getCoefficient(value);
+            case 9:
+                return ThirdPolynomialInterpolation.getCoefficient(value);
+            case 10:
+                return FifthPolynomialInterpolation.getCoefficient(value);
+            case 11:
+                return Exponential2Interpolation.getCoefficient(value);
+            case 12:
+                return SmoothTransitionFunctionInterpolation.getCoefficient(value);
         }
         return 0;
     }
@@ -738,16 +719,32 @@ public abstract class DomainColoring {
      private double gridfade(double value) {
 
         switch (this.gridFadeFunction) {
-            case 0: 
-                return Math.sqrt(value);
+            case 0:
+                return SqrtInterpolation.getCoefficient(value);
             case 1:
-                return Math.cbrt(value);
+                return CbrtInterpolation.getCoefficient(value);
             case 2:
-                return Math.sqrt(Math.sqrt(value));
+                return FrthrootInterpolation.getCoefficient(value);
             case 3:
                 return value;
             case 4:
                 return value != 1 ? 0 : 1;
+            case 5:
+                return CosineInterpolation.getCoefficient(value);
+            case 6:
+                return AccelerationInterpolation.getCoefficient(value);
+            case 7:
+                return SineInterpolation.getCoefficient(value);
+            case 8:
+                return DecelerationInterpolation.getCoefficient(value);
+            case 9:
+                return ThirdPolynomialInterpolation.getCoefficient(value);
+            case 10:
+                return FifthPolynomialInterpolation.getCoefficient(value);
+            case 11:
+                return Exponential2Interpolation.getCoefficient(value);
+            case 12:
+                return SmoothTransitionFunctionInterpolation.getCoefficient(value);
         }
         
         return 0;

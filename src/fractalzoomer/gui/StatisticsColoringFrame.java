@@ -24,6 +24,7 @@ import fractalzoomer.main.app_settings.StatisticsSettings;
 import fractalzoomer.parser.ParserException;
 
 import javax.swing.*;
+import javax.swing.border.EtchedBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
@@ -55,6 +56,16 @@ public class StatisticsColoringFrame extends JFrame {
     private JComboBox atomNormType;
     private JTextField atomNNorm;
     private JRadioButton atomDomain;
+    private JCheckBox de;
+    private JTextField deUpperLimitFactor;
+
+    private JCheckBox smoothDE;
+
+    private JComboBox root_shading_function_combo;
+
+    private JCheckBox rootSmoothing;
+
+    private JComboBox de_fade_method_combo;
 
     public StatisticsColoringFrame(MainWindow ptra, StatisticsSettings sts2, Settings s, boolean periodicity_checking) {
 
@@ -85,7 +96,7 @@ public class StatisticsColoringFrame extends JFrame {
             triangle_inequality_average.setEnabled(false);
             twinLamps.setEnabled(false);
         }
-        else if(!s.isMagnetType()) {
+        else if(!s.isMagnetType() && !s.isEscapingOrConvergingType()) {
             alg2.setEnabled(false);
         }
 
@@ -217,7 +228,7 @@ public class StatisticsColoringFrame extends JFrame {
         tabbedPane.addTab("Normal Map", panel8);
         tabbedPane.addTab("Root Coloring", panel9);
 
-        tabbedPane.setEnabledAt(3, (s.fns.function >= MainWindow.MANDELBROT && s.fns.function <= MainWindow.MANDELBROTNTH && !s.fns.burning_ship) || s.fns.function == MainWindow.LAMBDA);
+        tabbedPane.setEnabledAt(3, (s.fns.function >= MainWindow.MANDELBROT && s.fns.function <= MainWindow.MANDELBROTNTH ) || s.fns.function == MainWindow.LAMBDA);
         tabbedPane.setEnabledAt(4, s.isConvergingType() && s.fns.function != MainWindow.MAGNETIC_PENDULUM);
 
         if(periodicity_checking) {
@@ -332,7 +343,7 @@ public class StatisticsColoringFrame extends JFrame {
         panel23.setPreferredSize(new Dimension((MainWindow.runsOnWindows ? 500 : 600) + 90, 30));
 
         panel23.add(iterations);
-        if(s.isMagnetType()) {
+        if(s.isMagnetType() || s.isEscapingOrConvergingType()) {
             panel23.add(new JLabel("Type: "));
             panel23.add(escape_type);
         }
@@ -551,6 +562,8 @@ public class StatisticsColoringFrame extends JFrame {
         normalMap.setSelected(sts.useNormalMap);
         normalMap.setFocusable(false);
 
+        normalMap.setEnabled((s.fns.function >= MainWindow.MANDELBROT && s.fns.function <= MainWindow.MANDELBROTNTH && !s.fns.burning_ship) || s.fns.function == MainWindow.LAMBDA);
+
         JPanel panel83 = new JPanel();
         panel83.setBackground(MainWindow.bg_color);
         panel83.setPreferredSize(new Dimension((MainWindow.runsOnWindows ? 530 : 630) + 90, 150));
@@ -625,9 +638,9 @@ public class StatisticsColoringFrame extends JFrame {
 
         JPanel panel81 = new JPanel();
         panel81.setBackground(MainWindow.bg_color);
-        panel81.setPreferredSize(new Dimension((MainWindow.runsOnWindows ? 530 : 630) + 90, 75));
+        panel81.setPreferredSize(new Dimension((MainWindow.runsOnWindows ? 530 : 630) + 90, 100));//Todo: Fix this
 
-        JCheckBox de = new JCheckBox("Distance Estimation");
+        de = new JCheckBox("Distance Estimation");
         de.setToolTipText("Enables the use of distance estimation.");
         de.setBackground(MainWindow.bg_color);
         de.setSelected(sts.normalMapUseDE);
@@ -639,6 +652,12 @@ public class StatisticsColoringFrame extends JFrame {
         panel81.setBorder(de_border);
 
 
+        smoothDE = new JCheckBox("Fading");
+        smoothDE.setToolTipText("Fades the distance estimation and creates an Anti-aliasing effect.");
+        smoothDE.setBackground(MainWindow.bg_color);
+        smoothDE.setSelected(sts.normalMapDEAAEffect);
+        smoothDE.setFocusable(false);
+
         JCheckBox inverDe = new JCheckBox("Invert Coloring");
         inverDe.setToolTipText("Inverts the application of distance estimation.");
         inverDe.setBackground(MainWindow.bg_color);
@@ -648,8 +667,33 @@ public class StatisticsColoringFrame extends JFrame {
         JTextField deFactor = new JTextField(10);
         deFactor.setText("" + sts.normalMapDEfactor);
 
-        panel81.add(new JLabel(" Distance Estimation Factor: "));
+        deUpperLimitFactor = new JTextField(10);
+        deUpperLimitFactor.setText("" + sts.normalMapDEUpperLimitFactor);
+        deUpperLimitFactor.setToolTipText("Change the color which corresponds to maximum iteration to see the effect of this setting.");
+
+        smoothDE.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                deUpperLimitFactor.setEnabled(de.isSelected() && !smoothDE.isSelected());
+                de_fade_method_combo.setEnabled(de.isSelected() && smoothDE.isSelected());
+            }
+        });
+
+        de_fade_method_combo = new JComboBox(Constants.deFadeAlgs);
+        de_fade_method_combo.setSelectedIndex(sts.normalMapDeFadeAlgorithm);
+        de_fade_method_combo.setFocusable(false);
+        de_fade_method_combo.setToolTipText("Sets the fading method.");
+
+        panel81.add(smoothDE);
+
+        panel81.add(new JLabel( " Fade Method: "));
+        panel81.add(de_fade_method_combo);
+
+        panel81.add(new JLabel(" Lower Limit: "));
         panel81.add(deFactor);
+
+        panel81.add(new JLabel(" Upper Limit: "));
+        panel81.add(deUpperLimitFactor);
         panel81.add(inverDe);
 
         JPanel panel84 = new JPanel();
@@ -660,6 +704,8 @@ public class StatisticsColoringFrame extends JFrame {
         normalMapOverrideColoring.setBackground(MainWindow.bg_color);
         normalMapOverrideColoring.setSelected(sts.normalMapOverrideColoring);
         normalMapOverrideColoring.setFocusable(false);
+        normalMapOverrideColoring.setEnabled((s.fns.function >= MainWindow.MANDELBROT && s.fns.function <= MainWindow.MANDELBROTNTH && !s.fns.burning_ship) || s.fns.function == MainWindow.LAMBDA);
+
 
         JComboBox normal_map_color_method_combo = new JComboBox(Constants.normalMapColoringMethods);
         normal_map_color_method_combo.setSelectedIndex(sts.normalMapColoring);
@@ -694,7 +740,8 @@ public class StatisticsColoringFrame extends JFrame {
         color_method_combo.setEnabled(normalMapOverrideColoring.isSelected() && normalMap.isSelected());
         nmLightFactor.setEnabled(normalMapOverrideColoring.isSelected() && normalMap.isSelected());
         color_blend_opt.setEnabled(normalMapOverrideColoring.isSelected() && normalMap.isSelected() && color_method_combo.getSelectedIndex() == 3);
-
+        deUpperLimitFactor.setEnabled(de.isSelected() && !smoothDE.isSelected());
+        de_fade_method_combo.setEnabled(de.isSelected() && smoothDE.isSelected());
 
         JPanel panel90 = new JPanel();
         panel90.setBackground(MainWindow.bg_color);
@@ -708,8 +755,8 @@ public class StatisticsColoringFrame extends JFrame {
         rootShading.setSelected(sts.rootShading);
         rootShading.setFocusable(false);
 
-        JCheckBox invertShading = new JCheckBox("Invert Contouring");
-        invertShading.setToolTipText("Inverts the contouring application.");
+        JCheckBox invertShading = new JCheckBox("Invert Coloring");
+        invertShading.setToolTipText("Inverts the coloring application.");
         invertShading.setBackground(MainWindow.bg_color);
         invertShading.setSelected(sts.revertRootShading);
         invertShading.setFocusable(false);
@@ -720,7 +767,7 @@ public class StatisticsColoringFrame extends JFrame {
         hightlight.setSelected(sts.highlightRoots);
         hightlight.setFocusable(false);
 
-        JComboBox root_shading_function_combo = new JComboBox(Constants.rootShadingFunction);
+        root_shading_function_combo = new JComboBox(Constants.rootShadingFunction);
         root_shading_function_combo.setSelectedIndex(sts.rootShadingFunction);
         root_shading_function_combo.setFocusable(false);
         root_shading_function_combo.setToolTipText("Sets the contouring function.");
@@ -773,16 +820,108 @@ public class StatisticsColoringFrame extends JFrame {
         JPanel panel98 = new JPanel();
         panel98.setBackground(MainWindow.bg_color);
 
-        panel98.setPreferredSize(new Dimension(200, 40));
-
-
-        JCheckBox rootSmoothing = new JCheckBox("Contour Smoothing");
+        rootSmoothing = new JCheckBox("Contour Smoothing");
         rootSmoothing.setToolTipText("Enables the contour smoothing.");
         rootSmoothing.setBackground(MainWindow.bg_color);
         rootSmoothing.setSelected(sts.rootSmooting);
         rootSmoothing.setFocusable(false);
 
+
+        root_shading_function_combo.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                root_color_method_combo.setEnabled(rootShading.isSelected() && root_shading_function_combo.getSelectedIndex() != 5);
+                rootSmoothing.setEnabled(rootShading.isSelected() && root_shading_function_combo.getSelectedIndex() != 5);
+                root_color_blend_opt.setEnabled(rootShading.isSelected() && root_color_method_combo.getSelectedIndex() == 3 && root_shading_function_combo.getSelectedIndex() != 5);
+            }
+        });
+
         panel98.add(rootSmoothing);
+
+        final JLabel unmmapped_root_label = new JLabel();
+
+        unmmapped_root_label.setPreferredSize(new Dimension(22, 22));
+        unmmapped_root_label.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
+        unmmapped_root_label.setBackground(sts.unmmapedRootColor);
+        unmmapped_root_label.setOpaque(true);
+        unmmapped_root_label.setToolTipText("Changes the un-mapped root color.");
+
+        unmmapped_root_label.addMouseListener(new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+
+                if(!unmmapped_root_label.isEnabled()) {
+                    return;
+                }
+
+                new ColorChooserFrame(this_frame, "Un-mapped Root Color", unmmapped_root_label, -1);
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+
+            }
+
+        });
+
+        final JLabel root_shading_color_label = new JLabel();
+
+        root_shading_color_label.setPreferredSize(new Dimension(22, 22));
+        root_shading_color_label.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
+        root_shading_color_label.setBackground(sts.rootShadingColor);
+        root_shading_color_label.setOpaque(true);
+        root_shading_color_label.setToolTipText("Changes the root shading color.");
+
+        root_shading_color_label.addMouseListener(new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+
+                if(!root_shading_color_label.isEnabled()) {
+                    return;
+                }
+
+                new ColorChooserFrame(this_frame, "Root Shading Color", root_shading_color_label, -1);
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+
+            }
+
+        });
+
+        panel98.add(new JLabel(" Root Shading Color: "));
+        panel98.add(root_shading_color_label);
 
 
         panel93.add(panel90);
@@ -793,8 +932,10 @@ public class StatisticsColoringFrame extends JFrame {
 
         rootShading_border.setState(rootShading.isSelected());
 
-        root_color_method_combo.setEnabled(rootShading.isSelected());
-        root_color_blend_opt.setEnabled(rootShading.isSelected() && root_color_method_combo.getSelectedIndex() == 3);
+        root_color_method_combo.setEnabled(rootShading.isSelected() && root_shading_function_combo.getSelectedIndex() != 5);
+        rootSmoothing.setEnabled(rootShading.isSelected() && root_shading_function_combo.getSelectedIndex() != 5);
+        root_color_blend_opt.setEnabled(rootShading.isSelected() && root_color_method_combo.getSelectedIndex() == 3 && root_shading_function_combo.getSelectedIndex() != 5);
+
 
 
         DefaultListModel<String> m = new DefaultListModel<>();
@@ -865,7 +1006,7 @@ public class StatisticsColoringFrame extends JFrame {
         });
 
         JScrollPane scroll_pane = new JScrollPane(list);
-        scroll_pane.setPreferredSize(new Dimension((MainWindow.runsOnWindows ? 530 : 630) + 90, 230));
+        scroll_pane.setPreferredSize(new Dimension((MainWindow.runsOnWindows ? 530 : 630) + 90, 190));
         scroll_pane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         scroll_pane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
@@ -976,7 +1117,13 @@ public class StatisticsColoringFrame extends JFrame {
 
         JPanel panel97 = new JPanel();
         panel97.setBackground(MainWindow.bg_color);
-        panel97.setPreferredSize(new Dimension(620, 40));
+        panel97.setPreferredSize(new Dimension(620, 30));
+
+        JPanel panel99 = new JPanel();
+        panel99.setBackground(MainWindow.bg_color);
+
+        panel99.add(new JLabel(" Un-mapped Root Color: "));
+        panel99.add(unmmapped_root_label);
 
 
         panel97.add(colorsLength);
@@ -985,6 +1132,8 @@ public class StatisticsColoringFrame extends JFrame {
         panel9.add(panel94);
         panel9.add(panel95);
         panel9.add(panel97);
+        panel9.add(panel99);
+
 
 
         ButtonGroup button_group = new ButtonGroup();
@@ -1293,7 +1442,7 @@ public class StatisticsColoringFrame extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                double temp, temp2, temp3, temp4, temp5, temp6, temp7, temp8, temp9, temp10, temp11, temp12, temp13, temp14, temp15, temp16;
+                double temp, temp2, temp3, temp4, temp5, temp6, temp7, temp8, temp9, temp10, temp11, temp12, temp13, temp14, temp15, temp16, temp17;
 
                 try {
                     temp = Double.parseDouble(intensity.getText());
@@ -1312,6 +1461,7 @@ public class StatisticsColoringFrame extends JFrame {
                     temp14 = Double.parseDouble(twinPointIm.getText());
                     temp15 = Double.parseDouble(langNNorm.getText());
                     temp16 = Double.parseDouble(atomNNorm.getText());
+                    temp17 = Double.parseDouble(deUpperLimitFactor.getText());
                 }
                 catch(Exception ex) {
                     JOptionPane.showMessageDialog(this_frame, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
@@ -1345,6 +1495,11 @@ public class StatisticsColoringFrame extends JFrame {
 
                 if (temp12 < 1) {
                     JOptionPane.showMessageDialog(this_frame, "The root contour scaling value  must be greater or equal to 1.", "Error!", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                if(temp17 < 0) {
+                    JOptionPane.showMessageDialog(this_frame, "The distance estimation upper limit factor must be greater than -1.", "Error!", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
 
@@ -1420,6 +1575,9 @@ public class StatisticsColoringFrame extends JFrame {
                 sts.normalMapBlending = color_blend_opt.getValue() / 100.0;
                 sts.normalMapUseSecondDerivative = useSecondDer.isSelected();
                 sts.normalMapColoring = normal_map_color_method_combo.getSelectedIndex();
+                sts.normalMapDEUpperLimitFactor = temp17;
+                sts.normalMapDEAAEffect = smoothDE.isSelected();
+                sts.normalMapDeFadeAlgorithm = de_fade_method_combo.getSelectedIndex();
 
                 sts.rootShading = rootShading.isSelected();
                 sts.revertRootShading = invertShading.isSelected();
@@ -1430,6 +1588,8 @@ public class StatisticsColoringFrame extends JFrame {
                 sts.highlightRoots = hightlight.isSelected();
                 sts.rootColors = tempColors;
                 sts.rootSmooting = rootSmoothing.isSelected();
+                sts.unmmapedRootColor = unmmapped_root_label.getBackground();
+                sts.rootShadingColor = root_shading_color_label.getBackground();
 
                 sts.twlPoint[0] = temp13;
                 sts.twlPoint[1] = temp14;
@@ -1575,7 +1735,15 @@ public class StatisticsColoringFrame extends JFrame {
         }
 
         if(rootShading.isSelected()) {
-            root_color_blend_opt.setEnabled(root_color_method_combo.getSelectedIndex() == 3);
+            root_color_method_combo.setEnabled(root_shading_function_combo.getSelectedIndex() != 5);
+            rootSmoothing.setEnabled(rootShading.isSelected() && root_shading_function_combo.getSelectedIndex() != 5);
+            root_color_blend_opt.setEnabled(root_color_method_combo.getSelectedIndex() == 3 && root_shading_function_combo.getSelectedIndex() != 5);
+
+        }
+
+        if(de.isSelected()) {
+            deUpperLimitFactor.setEnabled(!smoothDE.isSelected());
+            de_fade_method_combo.setEnabled(smoothDE.isSelected());
         }
 
         if(lagrangian.isSelected()) {

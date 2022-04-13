@@ -45,10 +45,7 @@ package fractalzoomer.main;
 import fractalzoomer.bailout_conditions.SkipBailoutCondition;
 import fractalzoomer.convergent_bailout_conditions.SkipConvergentBailoutCondition;
 import fractalzoomer.core.*;
-import fractalzoomer.core.drawing_algorithms.BoundaryTracingDraw;
-import fractalzoomer.core.drawing_algorithms.BruteForce2Draw;
-import fractalzoomer.core.drawing_algorithms.BruteForceDraw;
-import fractalzoomer.core.drawing_algorithms.DivideAndConquerDraw;
+import fractalzoomer.core.drawing_algorithms.*;
 import fractalzoomer.core.location.CartesianLocation;
 import fractalzoomer.core.location.PolarLocation;
 import fractalzoomer.functions.Fractal;
@@ -830,6 +827,14 @@ public class MainWindow extends JFrame implements Constants {
         loadPreferences();
         loadAutoSave();
 
+        if(!Settings.hasFunctionParameterization(s.fns.function)) {
+            toolbar.getCurrentFunction().setEnabled(false);
+        }
+
+        if(!Settings.hasPlaneParameterization(s.fns.plane_type)) {
+            toolbar.getCurrentPlane().setEnabled(false);
+        }
+
         ThreadDraw.setArrays(image_size, s.ds.domain_coloring);
 
         threads = new ThreadDraw[n][n];
@@ -1542,7 +1547,7 @@ public class MainWindow extends JFrame implements Constants {
         }
 
         if (s.ots.useTraps  || s.fns.tcs.trueColorIn || (s.sts.statistic && s.sts.statisticGroup == 2 && s.sts.equicontinuityOverrideColoring)
-                || (s.sts.statistic && s.sts.statisticGroup == 3 && s.sts.normalMapOverrideColoring) || (s.sts.statistic && s.sts.statisticGroup == 4)) {
+                || (s.sts.statistic && s.sts.statisticGroup == 3) || (s.sts.statistic && s.sts.statisticGroup == 4)) {
             periodicity_checking = false;
             options_menu.getPeriodicityChecking().setSelected(false);
             options_menu.getPeriodicityChecking().setEnabled(false);
@@ -1575,45 +1580,51 @@ public class MainWindow extends JFrame implements Constants {
             options_menu.getDirectColor().setSelected(false);
             ThreadDraw.USE_DIRECT_COLOR = s.useDirectColor = false;
 
-            if (!s.ds.domain_coloring) {
-                if (s.usePaletteForInColoring) {
-                    infobar.getInColoringPalettePreview().setVisible(true);
-                    infobar.getInColoringPalettePreviewLabel().setVisible(true);
-                    infobar.getMaxIterationsColorPreview().setVisible(false);
-                    infobar.getMaxIterationsColorPreviewLabel().setVisible(false);
-                } else {
-                    infobar.getMaxIterationsColorPreview().setVisible(true);
-                    infobar.getMaxIterationsColorPreviewLabel().setVisible(true);
-                    infobar.getInColoringPalettePreview().setVisible(false);
-                    infobar.getInColoringPalettePreviewLabel().setVisible(false);
+            if(!(s.sts.statistic && s.sts.statisticGroup == 4)){
+                if (!s.ds.domain_coloring) {
+                    if (s.usePaletteForInColoring) {
+                        infobar.getInColoringPalettePreview().setVisible(true);
+                        infobar.getInColoringPalettePreviewLabel().setVisible(true);
+                        infobar.getMaxIterationsColorPreview().setVisible(false);
+                        infobar.getMaxIterationsColorPreviewLabel().setVisible(false);
+                    } else {
+                        infobar.getMaxIterationsColorPreview().setVisible(true);
+                        infobar.getMaxIterationsColorPreviewLabel().setVisible(true);
+                        infobar.getInColoringPalettePreview().setVisible(false);
+                        infobar.getInColoringPalettePreviewLabel().setVisible(false);
+                    }
                 }
+                infobar.getOutColoringPalettePreview().setVisible(true);
+                infobar.getOutColoringPalettePreviewLabel().setVisible(true);
             }
+
             infobar.getGradientPreviewLabel().setVisible(true);
             infobar.getGradientPreview().setVisible(true);
-            infobar.getOutColoringPalettePreview().setVisible(true);
-            infobar.getOutColoringPalettePreviewLabel().setVisible(true);
         }
 
         if (!s.useDirectColor) {
             options_menu.getDirectColor().setSelected(false);
 
-            if (!s.ds.domain_coloring) {
-                if (s.usePaletteForInColoring) {
-                    infobar.getInColoringPalettePreview().setVisible(true);
-                    infobar.getInColoringPalettePreviewLabel().setVisible(true);
-                    infobar.getMaxIterationsColorPreview().setVisible(false);
-                    infobar.getMaxIterationsColorPreviewLabel().setVisible(false);
-                } else {
-                    infobar.getMaxIterationsColorPreview().setVisible(true);
-                    infobar.getMaxIterationsColorPreviewLabel().setVisible(true);
-                    infobar.getInColoringPalettePreview().setVisible(false);
-                    infobar.getInColoringPalettePreviewLabel().setVisible(false);
+            if(!(s.sts.statistic && s.sts.statisticGroup == 4)) {
+                if (!s.ds.domain_coloring) {
+                    if (s.usePaletteForInColoring) {
+                        infobar.getInColoringPalettePreview().setVisible(true);
+                        infobar.getInColoringPalettePreviewLabel().setVisible(true);
+                        infobar.getMaxIterationsColorPreview().setVisible(false);
+                        infobar.getMaxIterationsColorPreviewLabel().setVisible(false);
+                    } else {
+                        infobar.getMaxIterationsColorPreview().setVisible(true);
+                        infobar.getMaxIterationsColorPreviewLabel().setVisible(true);
+                        infobar.getInColoringPalettePreview().setVisible(false);
+                        infobar.getInColoringPalettePreviewLabel().setVisible(false);
+                    }
                 }
+                infobar.getOutColoringPalettePreview().setVisible(true);
+                infobar.getOutColoringPalettePreviewLabel().setVisible(true);
             }
+
             infobar.getGradientPreviewLabel().setVisible(true);
             infobar.getGradientPreview().setVisible(true);
-            infobar.getOutColoringPalettePreview().setVisible(true);
-            infobar.getOutColoringPalettePreviewLabel().setVisible(true);
         } else {
             options_menu.getDirectColor().setSelected(true);
 
@@ -1752,7 +1763,7 @@ public class MainWindow extends JFrame implements Constants {
             infobar.getInColoringPalettePreviewLabel().setVisible(false);
 
         } else {
-            if (!s.useDirectColor) {
+            if (!s.useDirectColor && !(s.sts.statistic && s.sts.statisticGroup == 4)) {
                 if (s.usePaletteForInColoring) {
                     infobar.getInColoringPalettePreview().setVisible(true);
                     infobar.getInColoringPalettePreviewLabel().setVisible(true);
@@ -1767,6 +1778,41 @@ public class MainWindow extends JFrame implements Constants {
             }
         }
 
+        if(s.sts.statistic && s.sts.statisticGroup == 4) {
+            infobar.getMaxIterationsColorPreview().setVisible(false);
+            infobar.getMaxIterationsColorPreviewLabel().setVisible(false);
+            infobar.getOutColoringPalettePreview().setVisible(false);
+            infobar.getOutColoringPalettePreviewLabel().setVisible(false);
+            infobar.getInColoringPalettePreview().setVisible(false);
+            infobar.getInColoringPalettePreviewLabel().setVisible(false);
+
+            if (!s.useDirectColor) {
+                infobar.getGradientPreviewLabel().setVisible(true);
+                infobar.getGradientPreview().setVisible(true);
+            }
+        }
+        else {
+            if (!s.useDirectColor) {
+                if (!s.ds.domain_coloring) {
+                    if (s.usePaletteForInColoring) {
+                        infobar.getInColoringPalettePreview().setVisible(true);
+                        infobar.getInColoringPalettePreviewLabel().setVisible(true);
+                        infobar.getMaxIterationsColorPreview().setVisible(false);
+                        infobar.getMaxIterationsColorPreviewLabel().setVisible(false);
+                    } else {
+                        infobar.getMaxIterationsColorPreview().setVisible(true);
+                        infobar.getMaxIterationsColorPreviewLabel().setVisible(true);
+                        infobar.getInColoringPalettePreview().setVisible(false);
+                        infobar.getInColoringPalettePreviewLabel().setVisible(false);
+                    }
+                }
+                infobar.getGradientPreviewLabel().setVisible(true);
+                infobar.getGradientPreview().setVisible(true);
+                infobar.getOutColoringPalettePreview().setVisible(true);
+                infobar.getOutColoringPalettePreviewLabel().setVisible(true);
+            }
+        }
+
         if(s.ds.domain_coloring) {
             tools_menu.getDomainColoring().setIcon(getIcon("/fractalzoomer/icons/domain_coloring_enabled.png"));
         }
@@ -1777,7 +1823,7 @@ public class MainWindow extends JFrame implements Constants {
         toolbar.getDomainColoringButton().setSelected(s.ds.domain_coloring);
 
         if (s.ots.useTraps || s.fns.tcs.trueColorIn || (s.sts.statistic && s.sts.statisticGroup == 2 && s.sts.equicontinuityOverrideColoring)
-         || (s.sts.statistic && s.sts.statisticGroup == 3 && s.sts.normalMapOverrideColoring) || (s.sts.statistic && s.sts.statisticGroup == 4)
+         || (s.sts.statistic && s.sts.statisticGroup == 3) || (s.sts.statistic && s.sts.statisticGroup == 4)
         ) {
             tools_menu.getColorCycling().setEnabled(false);
             toolbar.getColorCyclingButton().setEnabled(false);
@@ -1918,7 +1964,7 @@ public class MainWindow extends JFrame implements Constants {
                 optionsEnableShortcut();
                 break;
             default:
-                if(s.isPolynomialFunction()) {
+                if(Settings.isPolynomialFunction(s.fns.function)) {
                     if (s.fns.function == MANDELPOLY) {
                         options_menu.getConvergentBailoutConditionMenu().setEnabled(false);
                         optionsEnableShortcut();
@@ -1936,7 +1982,7 @@ public class MainWindow extends JFrame implements Constants {
                 break;
         }
 
-        if(s.isMagnetType()) {
+        if(s.isMagnetType() || s.isEscapingOrConvergingType()) {
             options_menu.getConvergentBailoutConditionMenu().setEnabled(true);
         }
 
@@ -1959,6 +2005,14 @@ public class MainWindow extends JFrame implements Constants {
         options_menu.getPreFunctionFilters()[s.fns.preffs.functionFilter].setSelected(true);
         options_menu.getPostFunctionFilters()[s.fns.postffs.functionFilter].setSelected(true);
         options_menu.getPlaneInfluences()[s.fns.ips.influencePlane].setSelected(true);
+
+        if(!Settings.hasFunctionParameterization(s.fns.function)) {
+            toolbar.getCurrentFunction().setEnabled(false);
+        }
+
+        if(!Settings.hasPlaneParameterization(s.fns.plane_type)) {
+            toolbar.getCurrentPlane().setEnabled(false);
+        }
     }
 
     public void loadSettings() {
@@ -2224,7 +2278,15 @@ public class MainWindow extends JFrame implements Constants {
 
     }
 
-    public void defaultFractalSettings() {
+    public void defaultFractalSettings(boolean resetImage) {
+
+        if(!Settings.hasFunctionParameterization(s.fns.function)) {
+            toolbar.getCurrentFunction().setEnabled(false);
+        }
+
+        if(!Settings.hasPlaneParameterization(s.fns.plane_type)) {
+            toolbar.getCurrentPlane().setEnabled(false);
+        }
 
         resetOrbit();
         setOptions(false);
@@ -2242,7 +2304,12 @@ public class MainWindow extends JFrame implements Constants {
         scroll_pane.getHorizontalScrollBar().setValue((int) (scroll_pane.getHorizontalScrollBar().getMaximum() / 2 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2));
         scroll_pane.getVerticalScrollBar().setValue((int) (scroll_pane.getVerticalScrollBar().getMaximum() / 2 - scroll_pane.getVerticalScrollBar().getSize().getHeight() / 2));
 
-        resetImage();
+        if(resetImage) {
+            resetImage();
+        }
+        else {
+            Arrays.fill(((DataBufferInt) image.getRaster().getDataBuffer()).getData(), 0);
+        }
 
         whole_image_done = false;
 
@@ -2341,7 +2408,7 @@ public class MainWindow extends JFrame implements Constants {
 
     public void setJuliaSeedPost() {
         first_seed = false;
-        defaultFractalSettings();
+        defaultFractalSettings(true);
     }
 
     public void goToJulia() {
@@ -2681,7 +2748,7 @@ public class MainWindow extends JFrame implements Constants {
                 }
 
                 if (s.ots.useTraps || s.fns.tcs.trueColorOut || s.fns.tcs.trueColorIn || (s.sts.statistic && s.sts.statisticGroup == 2 && s.sts.equicontinuityOverrideColoring)
-                        || (s.sts.statistic && s.sts.statisticGroup == 3 && s.sts.normalMapOverrideColoring) || (s.sts.statistic && s.sts.statisticGroup == 4)) {
+                        || (s.sts.statistic && s.sts.statisticGroup == 3) || (s.sts.statistic && s.sts.statisticGroup == 4)) {
                     if (s.d3s.d3) {
                         createThreadsPaletteAndFilter3DModel();
                     } else {
@@ -2751,7 +2818,7 @@ public class MainWindow extends JFrame implements Constants {
             }
 
             if (s.fs.filters[ANTIALIASING] || s.ots.useTraps || s.ds.domain_coloring || s.fns.tcs.trueColorOut || s.fns.tcs.trueColorIn || (s.sts.statistic && s.sts.statisticGroup == 2 && s.sts.equicontinuityOverrideColoring)
-                    || (s.sts.statistic && s.sts.statisticGroup == 3 && s.sts.normalMapOverrideColoring) || (s.sts.statistic && s.sts.statisticGroup == 4)) {
+                    || (s.sts.statistic && s.sts.statisticGroup == 3) || (s.sts.statistic && s.sts.statisticGroup == 4)) {
                 if(s.julia_map) {
                     createThreadsJuliaMap();
                 }
@@ -3349,7 +3416,7 @@ public class MainWindow extends JFrame implements Constants {
 
                 main_panel.repaint();
 
-                defaultFractalSettings();
+                defaultFractalSettings(true);
                 return;
             }
         } else {
@@ -3477,7 +3544,7 @@ public class MainWindow extends JFrame implements Constants {
                 fractal_functions[INERTIA_GRAVITY].setEnabled(true);
             }
             if (!first_seed) {
-                defaultFractalSettings();
+                defaultFractalSettings(true);
                 main_panel.repaint();
             } else {
                 setOptions(true);
@@ -3793,7 +3860,7 @@ public class MainWindow extends JFrame implements Constants {
         } else if (where == LEFT) {
 
             if (s.polar_projection) {
-                Apfloat end = MyApfloat.log(s.size);
+                Apfloat end = MyApfloat.fp.log(s.size);
 
                 Apfloat ddimage_size = new MyApfloat(image_size);
 
@@ -3808,7 +3875,7 @@ public class MainWindow extends JFrame implements Constants {
                 s.xCenter = MyApfloat.fp.subtract(s.xCenter, s.size);
             }
         } else if (s.polar_projection) {
-            Apfloat start =  MyApfloat.log(s.size);
+            Apfloat start =  MyApfloat.fp.log(s.size);
 
             Apfloat ddimage_size = new MyApfloat(image_size);
 
@@ -3860,7 +3927,7 @@ public class MainWindow extends JFrame implements Constants {
 
     }
 
-    public void setOptions(Boolean option) {
+    public void setOptions(boolean option) {
 
         file_menu.getStartingPosition().setEnabled(option);
         toolbar.getStartingPositionButton().setEnabled(option);
@@ -3873,6 +3940,7 @@ public class MainWindow extends JFrame implements Constants {
 
         file_menu.getCodeEditor().setEnabled(option);
         file_menu.getCompileCode().setEnabled(option);
+        file_menu.getLibraryCode().setEnabled(option);
 
         if ((!s.fns.julia || !first_seed)) {
             file_menu.getGoTo().setEnabled(option);
@@ -3901,8 +3969,15 @@ public class MainWindow extends JFrame implements Constants {
         toolbar.getRotationButton().setEnabled(option);
         toolbar.getSaveImageButton().setEnabled(option);
         toolbar.getSaveImageAndSettignsButton().setEnabled(option);
-        toolbar.getCurrentFunction().setEnabled(option);
-        toolbar.getCurrentPlane().setEnabled(option);
+
+        if(Settings.hasFunctionParameterization(s.fns.function)) {
+            toolbar.getCurrentFunction().setEnabled(option);
+        }
+
+        if(Settings.hasPlaneParameterization(s.fns.plane_type)) {
+            toolbar.getCurrentPlane().setEnabled(option);
+        }
+
         options_menu.getPoint().setEnabled(option);
 
         if (!s.ds.domain_coloring && !s.isConvergingType() && s.fns.function != KLEINIAN) {
@@ -3910,7 +3985,7 @@ public class MainWindow extends JFrame implements Constants {
             options_menu.getBailoutConditionMenu().setEnabled(option);
         }
 
-        if (!s.ds.domain_coloring && (s.isConvergingType() || s.isMagnetType()) && s.fns.function != MAGNETIC_PENDULUM) {
+        if (!s.ds.domain_coloring && (s.isConvergingType() || s.isMagnetType() || s.isEscapingOrConvergingType()) && s.fns.function != MAGNETIC_PENDULUM) {
             options_menu.getConvergentBailoutConditionMenu().setEnabled(option);
         }
 
@@ -3921,7 +3996,7 @@ public class MainWindow extends JFrame implements Constants {
             options_menu.getDirectColor().setEnabled(option);
         }
 
-        if (!s.ds.domain_coloring && !s.isConvergingType() && s.fns.function != KLEINIAN && s.fns.function != SIERPINSKI_GASKET && s.fns.function != INERTIA_GRAVITY && !s.ots.useTraps && !s.fns.tcs.trueColorIn && !(s.sts.statistic && s.sts.statisticGroup == 2 && s.sts.equicontinuityOverrideColoring) && !(s.sts.statistic && s.sts.statisticGroup == 3 && s.sts.normalMapOverrideColoring) && !(s.sts.statistic && s.sts.statisticGroup == 4)) {
+        if (!s.ds.domain_coloring && !s.isConvergingType() && s.fns.function != KLEINIAN && s.fns.function != SIERPINSKI_GASKET && s.fns.function != INERTIA_GRAVITY && !s.ots.useTraps && !s.fns.tcs.trueColorIn && !(s.sts.statistic && s.sts.statisticGroup == 2 && s.sts.equicontinuityOverrideColoring) && !(s.sts.statistic && s.sts.statisticGroup == 3) && !(s.sts.statistic && s.sts.statisticGroup == 4) && !ThreadDraw.PERTURBATION_THEORY) {
             options_menu.getPeriodicityChecking().setEnabled(option);
         }
 
@@ -3935,7 +4010,7 @@ public class MainWindow extends JFrame implements Constants {
         }
 
         if (!zoom_window && !orbit && !color_cycling && !s.d3s.d3 && !s.ots.useTraps && !s.useDirectColor && !s.fns.tcs.trueColorOut && !s.fns.tcs.trueColorIn && !(s.sts.statistic && s.sts.statisticGroup == 2 && s.sts.equicontinuityOverrideColoring)
-                && !(s.sts.statistic && s.sts.statisticGroup == 3 && s.sts.normalMapOverrideColoring) && !(s.sts.statistic && s.sts.statisticGroup == 4)) {
+                && !(s.sts.statistic && s.sts.statisticGroup == 3) && !(s.sts.statistic && s.sts.statisticGroup == 4)) {
             tools_menu.getColorCycling().setEnabled(option);
             toolbar.getColorCyclingButton().setEnabled(option);
         }
@@ -3964,7 +4039,9 @@ public class MainWindow extends JFrame implements Constants {
 
             options_menu.getOffsetColoring().setEnabled(option);
 
-            options_menu.getHistogramColoring().setEnabled(option);
+            if(!(s.sts.statistic && s.sts.statisticGroup == 4)) {
+                options_menu.getHistogramColoring().setEnabled(option);
+            }
 
             if (!periodicity_checking) {
                 options_menu.getOrbitTraps().setEnabled(option);
@@ -4078,6 +4155,11 @@ public class MainWindow extends JFrame implements Constants {
 
         infobar.setListenersEnabled(option);
 
+        if((!s.fns.julia || s.fns.julia && !first_seed)) {
+            file_menu.getCancelOperation().setEnabled(!option);
+            infobar.getCancelButton().setEnabled(!option);
+        }
+
     }
 
     public void setLine() {
@@ -4179,8 +4261,9 @@ public class MainWindow extends JFrame implements Constants {
 
         boolean wasConvergingType = s.isConvergingType();
         boolean wasMagnetType = s.isMagnetType();
+        boolean wasEscapingOrConvergingType = s.isEscapingOrConvergingType();
         boolean wasMagneticPendulumType = s.fns.function == MAGNETIC_PENDULUM;
-        boolean wasSimpleType = !wasConvergingType && !wasMagnetType && !wasMagneticPendulumType;
+        boolean wasSimpleType = !wasConvergingType && !wasMagnetType && !wasMagneticPendulumType && !wasEscapingOrConvergingType;
 
         resetOrbit();
         int oldSelected = s.fns.function;
@@ -4188,49 +4271,49 @@ public class MainWindow extends JFrame implements Constants {
 
         switch (s.fns.function) {
             case LYAPUNOV:
-                new LyapunovDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
+                new LyapunovDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType, wasEscapingOrConvergingType);
                 return;
             case MAGNETIC_PENDULUM:
-                new MagneticPendulumDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
+                new MagneticPendulumDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType, wasEscapingOrConvergingType);
                 return;
             case MANDELBROTNTH:
-                new MandelbrotNthDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
+                new MandelbrotNthDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType, wasEscapingOrConvergingType);
                 return;
             case MANDELBROTWTH:
-                new MandelbrotWthDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
+                new MandelbrotWthDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType, wasEscapingOrConvergingType);
                 return;
             case GENERIC_CaZbdZe:
-                new GenericCaZbdZeDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
+                new GenericCaZbdZeDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType, wasEscapingOrConvergingType);
                 return;
             case GENERIC_CpAZpBC:
-                new GenericCpAZpBCDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
+                new GenericCpAZpBCDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType, wasEscapingOrConvergingType);
                 return;
             case MULLERFORMULA:
-                new MullerFormulaDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
+                new MullerFormulaDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType, wasEscapingOrConvergingType);
                 return;
             case LAGUERREFORMULA:
-                new LaguerreFormulaDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
+                new LaguerreFormulaDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType, wasEscapingOrConvergingType);
                 return;
             case NOVA:
-                new NovaDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
+                new NovaDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType, wasEscapingOrConvergingType);
                 return;
             case KLEINIAN:
-                new KleinianDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
+                new KleinianDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType, wasEscapingOrConvergingType);
                 return;
             case INERTIA_GRAVITY:
-                new InertiaGravityDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
+                new InertiaGravityDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType, wasEscapingOrConvergingType);
                 return;
             case SIERPINSKI_GASKET:
                 setInertiaGravitySierpinskiPost();
                 break;
             case USER_FORMULA_ITERATION_BASED:
-                new UserFormulaIterationBasedDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
+                new UserFormulaIterationBasedDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType, wasEscapingOrConvergingType);
                 return;
             case USER_FORMULA_CONDITIONAL:
-                new UserFormulaConditionalDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
+                new UserFormulaConditionalDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType, wasEscapingOrConvergingType);
                 return;
             case LAMBDA_FN_FN:
-                new LambdaFnFnDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
+                new LambdaFnFnDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType, wasEscapingOrConvergingType);
                 return;
             case MANDELBROT:
                 if (!s.ds.domain_coloring) {
@@ -4291,33 +4374,33 @@ public class MainWindow extends JFrame implements Constants {
                 options_menu.getConvergentBailoutConditionMenu().setEnabled(false);
                 break;
             case USER_FORMULA:
-                new UserFormulaDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
+                new UserFormulaDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType, wasEscapingOrConvergingType);
                 return;
             case USER_FORMULA_COUPLED:
-                new UserFormulaCoupledDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
+                new UserFormulaCoupledDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType, wasEscapingOrConvergingType);
                 return;
             case USER_FORMULA_NOVA:
-                new UserFormulaNovaDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
+                new UserFormulaNovaDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType, wasEscapingOrConvergingType);
                 return;
             default:
                 if(Settings.isTwoFunctionsRootFindingMethodFormula(s.fns.function)) {
-                    new RootFindingTwoFunctionsDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
+                    new RootFindingTwoFunctionsDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType, wasEscapingOrConvergingType);
                     return;
                 }
                 else if(Settings.isThreeFunctionsRootFindingMethodFormula(s.fns.function)) {
-                    new RootFindingThreeFunctionsDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
+                    new RootFindingThreeFunctionsDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType, wasEscapingOrConvergingType);
                     return;
                 }
                 else if(Settings.isFourFunctionsRootFindingMethodFormula(s.fns.function)) {
-                    new RootFindingFourFunctionsDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
+                    new RootFindingFourFunctionsDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType, wasEscapingOrConvergingType);
                     return;
                 }
                 else if(Settings.isOneFunctionsRootFindingMethodFormula(s.fns.function)) {
-                    new RootFindingOneFunctionDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
+                    new RootFindingOneFunctionDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType, wasEscapingOrConvergingType);
                     return;
                 }
-                else if(s.isPolynomialFunction()) {
-                    new PolynomialDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
+                else if(Settings.isPolynomialFunction(s.fns.function)) {
+                    new PolynomialDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType, wasEscapingOrConvergingType);
                     return;
                 }
                 else if(Settings.isRootSolvingMethod(s.fns.function)) {
@@ -4330,11 +4413,11 @@ public class MainWindow extends JFrame implements Constants {
                 break;
         }
 
-        if(s.isMagnetType()) {
+        if(s.isMagnetType() || s.isEscapingOrConvergingType()) {
             options_menu.getConvergentBailoutConditionMenu().setEnabled(true);
         }
 
-        setFunctionPost(wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
+        setFunctionPost(wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType, wasEscapingOrConvergingType);
 
     }
 
@@ -4350,14 +4433,15 @@ public class MainWindow extends JFrame implements Constants {
         options_menu.getPlaneInfluenceMenu().setEnabled(false);
     }
 
-    public void setFunctionPost(boolean wasMagnetType, boolean wasConvergingType, boolean wasSimpleType, boolean wasMagneticPendulumType) {
+    public void setFunctionPost(boolean wasMagnetType, boolean wasConvergingType, boolean wasSimpleType, boolean wasMagneticPendulumType, boolean wasEscapingOrConvergingType) {
 
         boolean isConvergingType = s.isConvergingType();
         boolean isMagnetType = s.isMagnetType();
         boolean isMagneticPendulumType = s.fns.function == MAGNETIC_PENDULUM;
-        boolean isSimpleType = !isConvergingType && !isMagnetType && !isMagneticPendulumType;
+        boolean isEscapingOrConvergingType = s.isEscapingOrConvergingType();
+        boolean isSimpleType = !isConvergingType && !isMagnetType && !isMagneticPendulumType && !isEscapingOrConvergingType;
 
-        if (isConvergingType != wasConvergingType || isMagnetType != wasMagnetType || isSimpleType != wasSimpleType || isMagneticPendulumType != wasMagneticPendulumType) {
+        if (isConvergingType != wasConvergingType || isMagnetType != wasMagnetType || isSimpleType != wasSimpleType || isMagneticPendulumType != wasMagneticPendulumType || isEscapingOrConvergingType != wasEscapingOrConvergingType) {
             s.resetUserOutColoringFormulas();
             s.resetStatisticalColoringFormulas();
             s.resetConvergentBailoutFormulas();
@@ -4369,19 +4453,24 @@ public class MainWindow extends JFrame implements Constants {
 
         if (s.isConvergingType()) {
             s.sts.statistic_type = COS_ARG_DIVIDE_INVERSE_NORM;
-        } else if (s.sts.statistic_type == COS_ARG_DIVIDE_INVERSE_NORM && !s.isMagnetType()) {
+        } else if (s.sts.statistic_type == COS_ARG_DIVIDE_INVERSE_NORM && !s.isMagnetType() && !s.isEscapingOrConvergingType()) {
             s.sts.statistic_type = STRIPE_AVERAGE;
         }
 
         if(!((s.fns.function >= MainWindow.MANDELBROT && s.fns.function <= MainWindow.MANDELBROTNTH && !s.fns.burning_ship) || s.fns.function == MainWindow.LAMBDA) && s.sts.statisticGroup == 3) {
             s.sts.statisticGroup = 0;
         }
+        else if(s.fns.function >= MainWindow.MANDELBROT && s.fns.function <= MainWindow.MANDELBROTNTH && s.fns.burning_ship) {
+            s.sts.useNormalMap = false;
+            s.sts.normalMapOverrideColoring = false;
+            s.sts.normalMapColoring = 0;
+        }
 
         if(!(s.isConvergingType() && s.fns.function != MainWindow.MAGNETIC_PENDULUM) && s.sts.statisticGroup == 4) {
             s.sts.statisticGroup = 0;
         }
 
-        defaultFractalSettings();
+        defaultFractalSettings(true);
 
     }
 
@@ -4577,8 +4666,14 @@ public class MainWindow extends JFrame implements Constants {
             s.fns.burning_ship = true;
         }
 
+        if(s.fns.function >= MainWindow.MANDELBROT && s.fns.function <= MainWindow.MANDELBROTNTH && s.fns.burning_ship) {
+            s.sts.useNormalMap = false;
+            s.sts.normalMapOverrideColoring = false;
+            s.sts.normalMapColoring = 0;
+        }
+
         if (s.fns.function <= 9 || s.fns.function == MANDELPOLY || s.fns.function == MANDELBROTWTH) {
-            defaultFractalSettings();
+            defaultFractalSettings(true);
         }
 
     }
@@ -5109,7 +5204,7 @@ public class MainWindow extends JFrame implements Constants {
             new SkewPlaneDialog(ptr, s, oldSelected, planes);
             return;
         } else {
-            defaultFractalSettings();
+            defaultFractalSettings(true);
         }
     }
 
@@ -5242,23 +5337,25 @@ public class MainWindow extends JFrame implements Constants {
             options_menu.getDirectColor().setSelected(false);
             ThreadDraw.USE_DIRECT_COLOR = s.useDirectColor = false;
 
-            if (!s.ds.domain_coloring) {
-                if (s.usePaletteForInColoring) {
-                    infobar.getInColoringPalettePreview().setVisible(true);
-                    infobar.getInColoringPalettePreviewLabel().setVisible(true);
-                    infobar.getMaxIterationsColorPreview().setVisible(false);
-                    infobar.getMaxIterationsColorPreviewLabel().setVisible(false);
-                } else {
-                    infobar.getMaxIterationsColorPreview().setVisible(true);
-                    infobar.getMaxIterationsColorPreviewLabel().setVisible(true);
-                    infobar.getInColoringPalettePreview().setVisible(false);
-                    infobar.getInColoringPalettePreviewLabel().setVisible(false);
+            if(!(s.sts.statistic && s.sts.statisticGroup == 4)) {
+                if (!s.ds.domain_coloring) {
+                    if (s.usePaletteForInColoring) {
+                        infobar.getInColoringPalettePreview().setVisible(true);
+                        infobar.getInColoringPalettePreviewLabel().setVisible(true);
+                        infobar.getMaxIterationsColorPreview().setVisible(false);
+                        infobar.getMaxIterationsColorPreviewLabel().setVisible(false);
+                    } else {
+                        infobar.getMaxIterationsColorPreview().setVisible(true);
+                        infobar.getMaxIterationsColorPreviewLabel().setVisible(true);
+                        infobar.getInColoringPalettePreview().setVisible(false);
+                        infobar.getInColoringPalettePreviewLabel().setVisible(false);
+                    }
                 }
+                infobar.getOutColoringPalettePreview().setVisible(true);
+                infobar.getOutColoringPalettePreviewLabel().setVisible(true);
             }
             infobar.getGradientPreviewLabel().setVisible(true);
             infobar.getGradientPreview().setVisible(true);
-            infobar.getOutColoringPalettePreview().setVisible(true);
-            infobar.getOutColoringPalettePreviewLabel().setVisible(true);
         }
 
         setOptions(false);
@@ -5297,7 +5394,7 @@ public class MainWindow extends JFrame implements Constants {
 
         if (s.fns.in_coloring_algorithm == MAX_ITERATIONS) {
             if (!s.ds.domain_coloring && !s.isConvergingType() && s.fns.function != KLEINIAN && s.fns.function != SIERPINSKI_GASKET && s.fns.function != INERTIA_GRAVITY && !s.ots.useTraps && !s.fns.tcs.trueColorIn && !(s.sts.statistic && s.sts.statisticGroup == 2 && s.sts.equicontinuityOverrideColoring)
-                    && !(s.sts.statistic && s.sts.statisticGroup == 3 && s.sts.normalMapOverrideColoring) && !(s.sts.statistic && s.sts.statisticGroup == 4)) {
+                    && !(s.sts.statistic && s.sts.statisticGroup == 3) && !(s.sts.statistic && s.sts.statisticGroup == 4) && !ThreadDraw.PERTURBATION_THEORY) {
                 options_menu.getPeriodicityChecking().setEnabled(true);
             }
         } else if (s.fns.in_coloring_algorithm == USER_INCOLORING_ALGORITHM) {
@@ -5317,23 +5414,25 @@ public class MainWindow extends JFrame implements Constants {
             options_menu.getDirectColor().setSelected(false);
             ThreadDraw.USE_DIRECT_COLOR = s.useDirectColor = false;
 
-            if (!s.ds.domain_coloring) {
-                if (s.usePaletteForInColoring) {
-                    infobar.getInColoringPalettePreview().setVisible(true);
-                    infobar.getInColoringPalettePreviewLabel().setVisible(true);
-                    infobar.getMaxIterationsColorPreview().setVisible(false);
-                    infobar.getMaxIterationsColorPreviewLabel().setVisible(false);
-                } else {
-                    infobar.getMaxIterationsColorPreview().setVisible(true);
-                    infobar.getMaxIterationsColorPreviewLabel().setVisible(true);
-                    infobar.getInColoringPalettePreview().setVisible(false);
-                    infobar.getInColoringPalettePreviewLabel().setVisible(false);
+            if(!(s.sts.statistic && s.sts.statisticGroup == 4)) {
+                if (!s.ds.domain_coloring) {
+                    if (s.usePaletteForInColoring) {
+                        infobar.getInColoringPalettePreview().setVisible(true);
+                        infobar.getInColoringPalettePreviewLabel().setVisible(true);
+                        infobar.getMaxIterationsColorPreview().setVisible(false);
+                        infobar.getMaxIterationsColorPreviewLabel().setVisible(false);
+                    } else {
+                        infobar.getMaxIterationsColorPreview().setVisible(true);
+                        infobar.getMaxIterationsColorPreviewLabel().setVisible(true);
+                        infobar.getInColoringPalettePreview().setVisible(false);
+                        infobar.getInColoringPalettePreviewLabel().setVisible(false);
+                    }
                 }
+                infobar.getOutColoringPalettePreview().setVisible(true);
+                infobar.getOutColoringPalettePreviewLabel().setVisible(true);
             }
             infobar.getGradientPreviewLabel().setVisible(true);
             infobar.getGradientPreview().setVisible(true);
-            infobar.getOutColoringPalettePreview().setVisible(true);
-            infobar.getOutColoringPalettePreviewLabel().setVisible(true);
         }
 
         setOptions(false);
@@ -6275,16 +6374,21 @@ public class MainWindow extends JFrame implements Constants {
 
         if (!options_menu.getUsePaletteForInColoring().isSelected()) {
             s.usePaletteForInColoring = false;
-            infobar.getInColoringPalettePreview().setVisible(false);
-            infobar.getInColoringPalettePreviewLabel().setVisible(false);
-            infobar.getMaxIterationsColorPreview().setVisible(true);
-            infobar.getMaxIterationsColorPreviewLabel().setVisible(true);
+            if(!(s.sts.statistic && s.sts.statisticGroup == 4)){
+                infobar.getInColoringPalettePreview().setVisible(false);
+                infobar.getInColoringPalettePreviewLabel().setVisible(false);
+                infobar.getMaxIterationsColorPreview().setVisible(true);
+                infobar.getMaxIterationsColorPreviewLabel().setVisible(true);
+            }
         } else {
             s.usePaletteForInColoring = true;
-            infobar.getInColoringPalettePreview().setVisible(true);
-            infobar.getInColoringPalettePreviewLabel().setVisible(true);
-            infobar.getMaxIterationsColorPreview().setVisible(false);
-            infobar.getMaxIterationsColorPreviewLabel().setVisible(false);
+
+            if(!(s.sts.statistic && s.sts.statisticGroup == 4)) {
+                infobar.getInColoringPalettePreview().setVisible(true);
+                infobar.getInColoringPalettePreviewLabel().setVisible(true);
+                infobar.getMaxIterationsColorPreview().setVisible(false);
+                infobar.getMaxIterationsColorPreviewLabel().setVisible(false);
+            }
         }
 
         updateColors();
@@ -6327,7 +6431,7 @@ public class MainWindow extends JFrame implements Constants {
             }
         }
 
-        defaultFractalSettings();
+        defaultFractalSettings(true);
 
     }
 
@@ -6368,7 +6472,7 @@ public class MainWindow extends JFrame implements Constants {
             }
         }
 
-        defaultFractalSettings();
+        defaultFractalSettings(true);
 
     }
 
@@ -6763,14 +6867,24 @@ public class MainWindow extends JFrame implements Constants {
 
                 toolbar.getDomainColoringButton().setSelected(false);
 
-                if (s.usePaletteForInColoring) {
-                    infobar.getInColoringPalettePreview().setVisible(true);
-                    infobar.getInColoringPalettePreviewLabel().setVisible(true);
+                if(!(s.sts.statistic && s.sts.statisticGroup == 4)) {
+                    if (s.usePaletteForInColoring) {
+                        infobar.getInColoringPalettePreview().setVisible(true);
+                        infobar.getInColoringPalettePreviewLabel().setVisible(true);
+                        infobar.getMaxIterationsColorPreview().setVisible(false);
+                        infobar.getMaxIterationsColorPreviewLabel().setVisible(false);
+                    } else {
+                        infobar.getMaxIterationsColorPreview().setVisible(true);
+                        infobar.getMaxIterationsColorPreviewLabel().setVisible(true);
+                        infobar.getInColoringPalettePreview().setVisible(false);
+                        infobar.getInColoringPalettePreviewLabel().setVisible(false);
+                    }
+                }
+                else {
                     infobar.getMaxIterationsColorPreview().setVisible(false);
                     infobar.getMaxIterationsColorPreviewLabel().setVisible(false);
-                } else {
-                    infobar.getMaxIterationsColorPreview().setVisible(true);
-                    infobar.getMaxIterationsColorPreviewLabel().setVisible(true);
+                    infobar.getOutColoringPalettePreview().setVisible(false);
+                    infobar.getOutColoringPalettePreviewLabel().setVisible(false);
                     infobar.getInColoringPalettePreview().setVisible(false);
                     infobar.getInColoringPalettePreviewLabel().setVisible(false);
                 }
@@ -6888,23 +7002,26 @@ public class MainWindow extends JFrame implements Constants {
                     options_menu.getDirectColor().setSelected(false);
                     ThreadDraw.USE_DIRECT_COLOR = s.useDirectColor = false;
 
-                    if (!s.ds.domain_coloring) {
-                        if (s.usePaletteForInColoring) {
-                            infobar.getInColoringPalettePreview().setVisible(true);
-                            infobar.getInColoringPalettePreviewLabel().setVisible(true);
-                            infobar.getMaxIterationsColorPreview().setVisible(false);
-                            infobar.getMaxIterationsColorPreviewLabel().setVisible(false);
-                        } else {
-                            infobar.getMaxIterationsColorPreview().setVisible(true);
-                            infobar.getMaxIterationsColorPreviewLabel().setVisible(true);
-                            infobar.getInColoringPalettePreview().setVisible(false);
-                            infobar.getInColoringPalettePreviewLabel().setVisible(false);
+                    if(!(s.sts.statistic && s.sts.statisticGroup == 4)) {
+                        if (!s.ds.domain_coloring) {
+                            if (s.usePaletteForInColoring) {
+                                infobar.getInColoringPalettePreview().setVisible(true);
+                                infobar.getInColoringPalettePreviewLabel().setVisible(true);
+                                infobar.getMaxIterationsColorPreview().setVisible(false);
+                                infobar.getMaxIterationsColorPreviewLabel().setVisible(false);
+                            } else {
+                                infobar.getMaxIterationsColorPreview().setVisible(true);
+                                infobar.getMaxIterationsColorPreviewLabel().setVisible(true);
+                                infobar.getInColoringPalettePreview().setVisible(false);
+                                infobar.getInColoringPalettePreviewLabel().setVisible(false);
+                            }
                         }
+                        infobar.getOutColoringPalettePreview().setVisible(true);
+                        infobar.getOutColoringPalettePreviewLabel().setVisible(true);
                     }
+
                     infobar.getGradientPreviewLabel().setVisible(true);
                     infobar.getGradientPreview().setVisible(true);
-                    infobar.getOutColoringPalettePreview().setVisible(true);
-                    infobar.getOutColoringPalettePreviewLabel().setVisible(true);
 
                     scroll_pane.getHorizontalScrollBar().setValue((int) (scroll_pane.getHorizontalScrollBar().getMaximum() / 2 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2));
                     scroll_pane.getVerticalScrollBar().setValue((int) (scroll_pane.getVerticalScrollBar().getMaximum() / 2 - scroll_pane.getVerticalScrollBar().getSize().getHeight() / 2));
@@ -7126,7 +7243,7 @@ public class MainWindow extends JFrame implements Constants {
         }
 
         if (s.fns.julia || s.julia_map) {
-            defaultFractalSettings();
+            defaultFractalSettings(true);
         }
 
     }
@@ -7142,7 +7259,7 @@ public class MainWindow extends JFrame implements Constants {
         }
 
         if (s.fns.julia || s.julia_map) {
-            defaultFractalSettings();
+            defaultFractalSettings(true);
         }
 
     }
@@ -7166,7 +7283,7 @@ public class MainWindow extends JFrame implements Constants {
 
             textArea.setEditable(false);
             textArea.setContentType("text/html");
-            textArea.setPreferredSize(new Dimension(400, 400));
+            textArea.setPreferredSize(new Dimension(400, 450));
             //textArea.setLineWrap(false);
             //textArea.setWrapStyleWord(false);
 
@@ -7352,7 +7469,7 @@ public class MainWindow extends JFrame implements Constants {
 
         PrintWriter writer;
         try {
-            writer = new PrintWriter(new File("preferences.ini"));
+            writer = new PrintWriter(new File("FZpreferences.ini"));
 
             writer.println("#Fractal Zoomer preferences.");
             writer.println("#This file contains all the preferences of the user and it is updated,");
@@ -7385,7 +7502,7 @@ public class MainWindow extends JFrame implements Constants {
             writer.println("use_bignum_for_pixels " + ThreadDraw.USE_BIGNUM_FOR_PIXELS_IF_POSSIBLE);
             writer.println("use_threads_for_sa " + ThreadDraw.USE_THREADS_FOR_SA);
             writer.println("bla_precision_bits " + ThreadDraw.BLA_BITS);
-            writer.println("bla_limit_factor " + ThreadDraw.BLA_LIMIT_FACTOR);
+            writer.println("bla_starting_level " + ThreadDraw.BLA_STARTING_LEVEL);
             writer.println("use_threads_for_bla " + ThreadDraw.USE_THREADS_FOR_BLA);
             writer.println("detect_period " + ThreadDraw.DETECT_PERIOD);
             writer.println("brute_force_alg " + brute_force_alg);
@@ -7459,16 +7576,27 @@ public class MainWindow extends JFrame implements Constants {
             writer.println("derivative_step " + Derivative.DZ.getRe());
 
             writer.close();
-        } catch (FileNotFoundException ex) {
+
+            Files.deleteIfExists(Paths.get("preferences.ini"));
+        } catch (Exception ex) {
 
         }
     }
 
     private void loadPreferences() {
-        BufferedReader br;
+        BufferedReader br = null;
 
         try {
-            br = new BufferedReader(new FileReader("preferences.ini"));
+            if(Files.exists(Paths.get("preferences.ini"))) {
+                br = new BufferedReader(new FileReader("preferences.ini"));
+            }
+            else if(Files.exists(Paths.get("FZpreferences.ini"))) {
+                br = new BufferedReader(new FileReader("FZpreferences.ini"));
+            }
+            else {
+                return;
+            }
+
             String str_line;
 
             while ((str_line = br.readLine()) != null) {
@@ -7634,16 +7762,17 @@ public class MainWindow extends JFrame implements Constants {
                             ThreadDraw.USE_THREADS_FOR_BLA = true;
                         }
                     }
-                    else if (token.equals("bla_limit_factor") && tokenizer.countTokens() == 1) {
+                    else if (token.equals("bla_starting_level") && tokenizer.countTokens() == 1) {
 
                         try {
-                            double temp = Double.parseDouble(tokenizer.nextToken());
+                            int temp = Integer.parseInt(tokenizer.nextToken());
 
-                            if (temp > 0) {
-                                ThreadDraw.BLA_LIMIT_FACTOR = temp;
+                            if (temp > 0 && temp <= 32) {
+                                ThreadDraw.BLA_STARTING_LEVEL = temp;
                             }
                         } catch (Exception ex) {
                         }
+
                     }
                     else if (token.equals("use_bignum_for_ref") && tokenizer.countTokens() == 1) {
 
@@ -7700,7 +7829,7 @@ public class MainWindow extends JFrame implements Constants {
                     else if (token.equals("bignum_precision_factor") && tokenizer.countTokens() == 1) {
 
                         try {
-                            double temp = Double.parseDouble(tokenizer.nextToken());
+                            int temp = Integer.parseInt(tokenizer.nextToken());
 
                             if (temp > 0) {
                                 ThreadDraw.BIGNUM_PRECISION_FACTOR = temp;
@@ -8059,6 +8188,12 @@ public class MainWindow extends JFrame implements Constants {
         }
 
         MyApfloat.setPrecision(MyApfloat.precision, s);
+
+        if(ThreadDraw.PERTURBATION_THEORY) {
+            periodicity_checking = false;
+            options_menu.getPeriodicityChecking().setSelected(false);
+            options_menu.getPeriodicityChecking().setEnabled(false);
+        }
     }
 
     public void filtersOptionsChanged(int[] filters_options_vals, int[][] filters_options_extra_vals, Color[] filters_colors, Color[][] filters_extra_colors, int[] filters_order, boolean[] activeFilters) {
@@ -8091,7 +8226,7 @@ public class MainWindow extends JFrame implements Constants {
         whole_image_done = false;
 
         if (s.fs.filters[ANTIALIASING] || s.ds.domain_coloring || s.ots.useTraps || s.fns.tcs.trueColorOut || s.fns.tcs.trueColorIn || (s.sts.statistic && s.sts.statisticGroup == 2 && s.sts.equicontinuityOverrideColoring)
-                || (s.sts.statistic && s.sts.statisticGroup == 3 && s.sts.normalMapOverrideColoring) || (s.sts.statistic && s.sts.statisticGroup == 4)) {
+                || (s.sts.statistic && s.sts.statisticGroup == 3) || (s.sts.statistic && s.sts.statisticGroup == 4)) {
 
             if (s.d3s.d3) {
                 Arrays.fill(((DataBufferInt) image.getRaster().getDataBuffer()).getData(), Color.BLACK.getRGB());
@@ -8381,6 +8516,57 @@ public class MainWindow extends JFrame implements Constants {
         }
     }
 
+    public void libraryCode() {
+
+        resetOrbit();
+        try {
+            InputStream src = getClass().getResource("/fractalzoomer/parser/code/Library.javacode").openStream();
+
+            File TempFile = File.createTempFile("Library", ".java");
+            FileOutputStream out = new FileOutputStream(TempFile);
+            byte[] temp = new byte[32768];
+            int rc;
+
+            while ((rc = src.read(temp)) > 0) {
+                out.write(temp, 0, rc);
+            }
+
+            src.close();
+            out.close();
+            TempFile.deleteOnExit();
+            Desktop.getDesktop().open(TempFile);
+
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(scroll_pane, "Unable to access the library code file.", "Error!", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    public void cancelOperation() {
+
+        resetOrbit();
+
+        int N = 0;
+        if (s.julia_map) {
+            N = julia_grid_first_dimension;
+        } else {
+            N = n;
+        }
+
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < N; j++) {
+                threads[i][j].stop();
+            }
+        }
+
+        while (!threadsAvailable()) {}
+
+
+
+        s.max_iterations = s.max_iterations > 500 ? 500 : s.max_iterations;
+        defaultFractalSettings(false);
+
+    }
+
     public void createCompleteImage(int delay, boolean d3) {
         if (timer == null) {
             timer = new Timer();
@@ -8534,7 +8720,22 @@ public class MainWindow extends JFrame implements Constants {
     }
 
     public void setPerturbationTheoryPost() {
+
+        if(ThreadDraw.PERTURBATION_THEORY) {
+            periodicity_checking = false;
+            options_menu.getPeriodicityChecking().setSelected(false);
+            options_menu.getPeriodicityChecking().setEnabled(false);
+        }
+        else {
+            if (s.fns.in_coloring_algorithm == MAX_ITERATIONS) {
+                if (!s.ds.domain_coloring && !s.isConvergingType() && s.fns.function != KLEINIAN && s.fns.function != SIERPINSKI_GASKET && s.fns.function != INERTIA_GRAVITY && !s.ots.useTraps && !s.fns.tcs.trueColorIn && !(s.sts.statistic && s.sts.statisticGroup == 2 && s.sts.equicontinuityOverrideColoring)
+                        && !(s.sts.statistic && s.sts.statisticGroup == 3) && !(s.sts.statistic && s.sts.statisticGroup == 4) && !ThreadDraw.PERTURBATION_THEORY) {
+                    options_menu.getPeriodicityChecking().setEnabled(true);
+                }
+            }
+        }
         redraw();
+
     }
 
     public void openCustomPaletteEditor(int temp, boolean outcoloring_mode) {
@@ -8709,23 +8910,26 @@ public class MainWindow extends JFrame implements Constants {
         if (!options_menu.getDirectColor().isSelected()) {
             ThreadDraw.USE_DIRECT_COLOR = s.useDirectColor = false;
 
-            if (!s.ds.domain_coloring) {
-                if (s.usePaletteForInColoring) {
-                    infobar.getInColoringPalettePreview().setVisible(true);
-                    infobar.getInColoringPalettePreviewLabel().setVisible(true);
-                    infobar.getMaxIterationsColorPreview().setVisible(false);
-                    infobar.getMaxIterationsColorPreviewLabel().setVisible(false);
-                } else {
-                    infobar.getMaxIterationsColorPreview().setVisible(true);
-                    infobar.getMaxIterationsColorPreviewLabel().setVisible(true);
-                    infobar.getInColoringPalettePreview().setVisible(false);
-                    infobar.getInColoringPalettePreviewLabel().setVisible(false);
+            if(!(s.sts.statistic && s.sts.statisticGroup == 4)) {
+                if (!s.ds.domain_coloring) {
+                    if (s.usePaletteForInColoring) {
+                        infobar.getInColoringPalettePreview().setVisible(true);
+                        infobar.getInColoringPalettePreviewLabel().setVisible(true);
+                        infobar.getMaxIterationsColorPreview().setVisible(false);
+                        infobar.getMaxIterationsColorPreviewLabel().setVisible(false);
+                    } else {
+                        infobar.getMaxIterationsColorPreview().setVisible(true);
+                        infobar.getMaxIterationsColorPreviewLabel().setVisible(true);
+                        infobar.getInColoringPalettePreview().setVisible(false);
+                        infobar.getInColoringPalettePreviewLabel().setVisible(false);
+                    }
                 }
+                infobar.getOutColoringPalettePreview().setVisible(true);
+                infobar.getOutColoringPalettePreviewLabel().setVisible(true);
             }
+
             infobar.getGradientPreviewLabel().setVisible(true);
             infobar.getGradientPreview().setVisible(true);
-            infobar.getOutColoringPalettePreview().setVisible(true);
-            infobar.getOutColoringPalettePreviewLabel().setVisible(true);
         } else {
             ThreadDraw.USE_DIRECT_COLOR = s.useDirectColor = true;
             s.ots.useTraps = false;
@@ -8947,7 +9151,7 @@ public class MainWindow extends JFrame implements Constants {
         whole_image_done = false;
 
         if (s.fs.filters[ANTIALIASING] || s.ots.useTraps || s.fns.tcs.trueColorOut || s.fns.tcs.trueColorIn || (s.sts.statistic && s.sts.statisticGroup == 2 && s.sts.equicontinuityOverrideColoring)
-                || (s.sts.statistic && s.sts.statisticGroup == 3 && s.sts.normalMapOverrideColoring) || (s.sts.statistic && s.sts.statisticGroup == 4)) {
+                || (s.sts.statistic && s.sts.statisticGroup == 3) || (s.sts.statistic && s.sts.statisticGroup == 4)) {
             if(s.julia_map) {
                 createThreadsJuliaMap();
             } else {
@@ -8989,10 +9193,45 @@ public class MainWindow extends JFrame implements Constants {
 
         options_menu.getProcessing().updateIcons(s);
 
-        if((sts.statistic && sts.statisticGroup == 2 && sts.equicontinuityOverrideColoring) || (s.sts.statistic && s.sts.statisticGroup == 3 && s.sts.normalMapOverrideColoring) || (s.sts.statistic && s.sts.statisticGroup == 4)) {
+        if((sts.statistic && sts.statisticGroup == 2 && sts.equicontinuityOverrideColoring) || (s.sts.statistic && s.sts.statisticGroup == 3) || (s.sts.statistic && s.sts.statisticGroup == 4)) {
             tools_menu.getColorCycling().setEnabled(false);
             toolbar.getColorCyclingButton().setEnabled(false);
             options_menu.getPeriodicityChecking().setEnabled(false);
+        }
+
+        if(sts.statistic && sts.statisticGroup == 4) {
+            infobar.getMaxIterationsColorPreview().setVisible(false);
+            infobar.getMaxIterationsColorPreviewLabel().setVisible(false);
+            infobar.getOutColoringPalettePreview().setVisible(false);
+            infobar.getOutColoringPalettePreviewLabel().setVisible(false);
+            infobar.getInColoringPalettePreview().setVisible(false);
+            infobar.getInColoringPalettePreviewLabel().setVisible(false);
+
+            options_menu.getHistogramColoring().setEnabled(false);
+
+            s.hss.histogramColoring = false;
+            options_menu.getProcessing().updateIcons(s);
+        }
+        else {
+            if (!s.useDirectColor) {
+                if (!s.ds.domain_coloring) {
+                    if (s.usePaletteForInColoring) {
+                        infobar.getInColoringPalettePreview().setVisible(true);
+                        infobar.getInColoringPalettePreviewLabel().setVisible(true);
+                        infobar.getMaxIterationsColorPreview().setVisible(false);
+                        infobar.getMaxIterationsColorPreviewLabel().setVisible(false);
+                    } else {
+                        infobar.getMaxIterationsColorPreview().setVisible(true);
+                        infobar.getMaxIterationsColorPreviewLabel().setVisible(true);
+                        infobar.getInColoringPalettePreview().setVisible(false);
+                        infobar.getInColoringPalettePreviewLabel().setVisible(false);
+                    }
+                }
+                infobar.getGradientPreviewLabel().setVisible(true);
+                infobar.getGradientPreview().setVisible(true);
+                infobar.getOutColoringPalettePreview().setVisible(true);
+                infobar.getOutColoringPalettePreviewLabel().setVisible(true);
+            }
         }
 
         setOptions(false);
@@ -9148,7 +9387,7 @@ public class MainWindow extends JFrame implements Constants {
             }
         }
 
-        ptr.defaultFractalSettings();
+        ptr.defaultFractalSettings(true);
     }
 
     public void setPlaneInfluence(int plane_influence) {
@@ -9164,7 +9403,7 @@ public class MainWindow extends JFrame implements Constants {
             return;
         }
 
-        ptr.defaultFractalSettings();
+        ptr.defaultFractalSettings(true);
     }
 
     public void clickCurrentFunction() {

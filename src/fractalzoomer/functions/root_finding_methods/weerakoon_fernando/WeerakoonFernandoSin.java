@@ -60,4 +60,9 @@ public class WeerakoonFernandoSin extends WeerakoonFernandoRootFindingMethod {
         weerakoonFernandoMethod(complex[0], fz, dfz, combined_dfz);
 
     }
+
+    @Override
+    public Complex evaluateFunction(Complex z, Complex c) {
+        return z.sin();
+    }
 }

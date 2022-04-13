@@ -91,4 +91,9 @@ public class MullerCos extends MullerRootFindingMethod {
 
     }
 
+    @Override
+    public Complex evaluateFunction(Complex z, Complex c) {
+        return z.cos();
+    }
+
 }

@@ -51,7 +51,7 @@ public class SplashThread extends Thread {
             l1.setImage(image.getSubimage(i, 0, width, height));
             l1.repaint();
             try {
-                Thread.sleep(3);
+                Thread.sleep(2);
             }
             catch(InterruptedException ex) {
                 
@@ -69,7 +69,7 @@ public class SplashThread extends Thread {
         l1.repaint();
             
         try {
-            Thread.sleep(3000);
+            Thread.sleep(2000);
         }
         catch(InterruptedException ex) {
                 

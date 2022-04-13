@@ -28,8 +28,8 @@ public class DecelerationInterpolation extends InterpolationMethod {
     
     @Override
     public int interpolate(int r1, int g1, int b1, int r2, int g2, int b2, double coef) {
-        
-        coef = 1 - (1 - coef) * (1 - coef);
+
+        coef = getCoefficient(coef);
         
         int red = (int)(r1 + (r2 - r1) * coef + 0.5);
         int green = (int)(g1 + (g2 - g1) * coef + 0.5);
@@ -40,8 +40,8 @@ public class DecelerationInterpolation extends InterpolationMethod {
     
     @Override
     public double interpolate(double a, double b, double coef) {
-        
-        coef = 1 - (1 - coef) * (1 - coef);
+
+        coef = getCoefficient(coef);
         
         return a + (b - a) * coef;
         
@@ -49,8 +49,8 @@ public class DecelerationInterpolation extends InterpolationMethod {
     
     @Override
     public int interpolate(int a, int b, double coef) {
-        
-        coef = 1 - (1 - coef) * (1 - coef);
+
+        coef = getCoefficient(coef);
         
         return (int)(a + (b - a) * coef + 0.5);
         
@@ -58,8 +58,13 @@ public class DecelerationInterpolation extends InterpolationMethod {
     
     @Override
     public double getCoef(double coef) {
+
+        return getCoefficient(coef);
         
-        return 1 - (1 - coef) * (1 - coef);
-        
+    }
+
+    public static double getCoefficient(double coef) {
+        double temp = 1 - coef;
+        return 1 - temp * temp;
     }
 }

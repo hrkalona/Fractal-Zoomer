@@ -27,19 +27,45 @@ import fractalzoomer.fractal_options.perturbation.DefaultPerturbation;
 import fractalzoomer.functions.ExtendedConvergentType;
 import fractalzoomer.functions.root_finding_methods.RootFindingMethods;
 import fractalzoomer.functions.root_finding_methods.abbasbandy.AbbasbandyRootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.abbasbandy2.Abbasbandy2RootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.abbasbandy3.Abbasbandy3RootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.changbum_chun1.ChangBumChun1RootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.changbum_chun2.ChangBumChun2RootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.changbum_chun3.ChangBumChun3RootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.chun_ham.ChunHamRootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.chun_kim.ChunKimRootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.contra_harmonic_newton.ContraHarmonicNewtonRootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.euler_chebyshev.EulerChebyshevRootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.ezzati_saleki1.EzzatiSaleki1RootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.ezzati_saleki2.EzzatiSaleki2RootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.feng.FengRootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.halley.HalleyRootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.harmonic_simpson_newton.HarmonicSimpsonNewtonRootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.homeier1.Homeier1RootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.homeier2.Homeier2RootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.householder.HouseholderRootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.householder3.Householder3RootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.jaratt.JarattRootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.jaratt2.Jaratt2RootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.kim_chun.KimChunRootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.king1.King1RootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.king3.King3RootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.kou_li_wang1.KouLiWang1RootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.laguerre.LaguerreRootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.maheshweri.MaheshweriRootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.midpoint.MidpointRootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.muller.MullerRootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.nedzhibov.NedzhibovRootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.newton.NewtonRootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.newton_hines.NewtonHinesRootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.noor_gupta.NoorGuptaRootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.parhalley.ParhalleyRootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.popovski1.Popovski1RootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.rafis_rafiullah.RafisRafiullahRootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.rafiullah1.Rafiullah1RootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.schroder.SchroderRootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.secant.SecantRootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.simpson_newton.SimpsonNewtonRootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.steffensen.SteffensenRootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.stirling.StirlingRootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.super_halley.SuperHalleyRootFindingMethod;
@@ -57,6 +83,8 @@ import fractalzoomer.parser.Parser;
 import fractalzoomer.utils.ColorAlgorithm;
 
 import java.util.ArrayList;
+
+import static fractalzoomer.main.Constants.*;
 
 /**
  *
@@ -350,6 +378,42 @@ public class UserFormulaNova extends ExtendedConvergentType {
         else if(nova_method == MainWindow.NOVA_THIRD_ORDER_NEWTON) {
             temp = ThirdOrderNewtonRootFindingMethod.getFunctionArgument(z, fz, dfz);
         }
+        else if(nova_method == MainWindow.NOVA_CHUN_HAM) {
+            temp = ChunHamRootFindingMethod.getFunctionArgument(z, fz, dfz);
+        }
+        else if(nova_method == MainWindow.NOVA_EZZATI_SALEKI2) {
+            temp = EzzatiSaleki2RootFindingMethod.getFunctionArgument(z, fz, dfz);
+        }
+        else if(nova_method == MainWindow.NOVA_CHANGBUM_CHUN1) {
+            temp = ChangBumChun1RootFindingMethod.getFunctionArgument(z, fz, dfz);
+        }
+        else if(nova_method == MainWindow.NOVA_CHANGBUM_CHUN2) {
+            temp = ChangBumChun2RootFindingMethod.getFunctionArgument(z, fz, dfz);
+        }
+        else if(nova_method == MainWindow.NOVA_KING3) {
+            temp = King3RootFindingMethod.getFunctionArgument(z, fz, dfz);
+        }
+        else if(nova_method == MainWindow.NOVA_KOU_LI_WANG1) {
+            temp = KouLiWang1RootFindingMethod.getFunctionArgument(z, fz, dfz);
+        }
+        else if(nova_method == MainWindow.NOVA_MAHESHWERI) {
+            temp = MaheshweriRootFindingMethod.getFunctionArgument(z, fz, dfz);
+        }
+        else if(nova_method == MainWindow.NOVA_CHANGBUM_CHUN3) {
+            temp = ChangBumChun3RootFindingMethod.getFunctionAndDerivativeArgument(z, fz, dfz);
+        }
+        else if(nova_method == MainWindow.NOVA_EZZATI_SALEKI1) {
+            temp = EzzatiSaleki1RootFindingMethod.getFunctionAndDerivativeArgument(z, fz, dfz);
+        }
+        else if(nova_method == MainWindow.NOVA_FENG) {
+            temp = FengRootFindingMethod.getFunctionAndDerivativeArgument(z, fz, dfz);
+        }
+        else if(nova_method == MainWindow.NOVA_KING1) {
+            temp = King1RootFindingMethod.getFunctionAndDerivativeArgument(z, fz, dfz);
+        }
+        else if(nova_method == MainWindow.NOVA_NOOR_GUPTA) {
+            temp = NoorGuptaRootFindingMethod.getFunctionAndDerivativeArgument(z, fz, dfz);
+        }
 
         if (parser.foundZ()) {
             parser.setZvalue(temp);
@@ -359,8 +423,8 @@ public class UserFormulaNova extends ExtendedConvergentType {
 
     }
 
-    private Complex combinedDFZ(Complex z, Complex fz, Complex dfz) {
-        Complex temp = null, combined_dfz;
+    private Complex[] combinedDFZ(Complex z, Complex fz, Complex dfz) {
+        Complex temp = null, combined_dfz, combined_dfz2 = null;
 
         if(nova_method == MainWindow.NOVA_MIDPOINT) {
             temp = MidpointRootFindingMethod.getDerivativeArgument(z, fz, dfz);
@@ -376,6 +440,48 @@ public class UserFormulaNova extends ExtendedConvergentType {
         }
         else if(nova_method == MainWindow.NOVA_WEERAKOON_FERNANDO) {
             temp = WeerakoonFernandoRootFindingMethod.getDerivativeArgument(z, fz, dfz);
+        }
+        else if(nova_method == MainWindow.NOVA_CONTRA_HARMONIC_NEWTON) {
+            temp = ContraHarmonicNewtonRootFindingMethod.getDerivativeArgument(z, fz, dfz);
+        }
+        else if(nova_method == MainWindow.NOVA_CHUN_KIM) {
+            temp = ChunKimRootFindingMethod.getDerivativeArgument(z, fz, dfz);
+        }
+        else if(nova_method == MainWindow.NOVA_HOMEIER1) {
+            temp = Homeier1RootFindingMethod.getDerivativeArgument(z, fz, dfz);
+        }
+        else if(nova_method == MainWindow.NOVA_HOMEIER2) {
+            temp = Homeier2RootFindingMethod.getDerivativeArgument(z, fz, dfz);
+        }
+        else if(nova_method == MainWindow.NOVA_KIM_CHUN) {
+            temp = KimChunRootFindingMethod.getDerivativeArgument(z, fz, dfz);
+        }
+        else if(nova_method == MainWindow.NOVA_RAFIULLAH1) {
+            temp = Rafiullah1RootFindingMethod.getDerivativeArgument(z, fz, dfz);
+        }
+        else if(nova_method == MainWindow.NOVA_CHANGBUM_CHUN3) {
+            temp = ChangBumChun3RootFindingMethod.getFunctionAndDerivativeArgument(z, fz, dfz);
+        }
+        else if(nova_method == MainWindow.NOVA_EZZATI_SALEKI1) {
+            temp = EzzatiSaleki1RootFindingMethod.getFunctionAndDerivativeArgument(z, fz, dfz);
+        }
+        else if(nova_method == MainWindow.NOVA_FENG) {
+            temp = FengRootFindingMethod.getFunctionAndDerivativeArgument(z, fz, dfz);
+        }
+        else if(nova_method == MainWindow.NOVA_KING1) {
+            temp = King1RootFindingMethod.getFunctionAndDerivativeArgument(z, fz, dfz);
+        }
+        else if(nova_method == MainWindow.NOVA_NOOR_GUPTA) {
+            temp = NoorGuptaRootFindingMethod.getFunctionAndDerivativeArgument(z, fz, dfz);
+        }
+        else if(nova_method == NOVA_HARMONIC_SIMPSON_NEWTON) {
+            temp = HarmonicSimpsonNewtonRootFindingMethod.getDerivativeArgument(z, fz, dfz);
+        }
+        else if(nova_method == NOVA_NEDZHIBOV) {
+            temp = NedzhibovRootFindingMethod.getDerivativeArgument(z, fz, dfz);
+        }
+        else if(nova_method == NOVA_SIMPSON_NEWTON) {
+            temp = SimpsonNewtonRootFindingMethod.getDerivativeArgument(z, fz, dfz);
         }
 
         if (Derivative.DERIVATIVE_METHOD == Derivative.DISABLED) {
@@ -428,7 +534,139 @@ public class UserFormulaNova extends ExtendedConvergentType {
             combined_dfz = Derivative.numericalBackwardDerivativeFirstOrder(cmb_fz, cmb_fzmdz);
         }
 
-        return combined_dfz;
+        if(nova_method == MainWindow.NOVA_HARMONIC_SIMPSON_NEWTON || nova_method == NOVA_NEDZHIBOV || nova_method == NOVA_SIMPSON_NEWTON) {
+            Complex temp2 = z.plus(temp).times_mutable(0.5);
+
+            if (Derivative.DERIVATIVE_METHOD == Derivative.DISABLED) {
+                if (parser2.foundZ()) {
+                    parser2.setZvalue(temp2);
+                }
+
+                combined_dfz2 = expr2.getValue();
+            } else if (Derivative.DERIVATIVE_METHOD == Derivative.NUMERICAL_CENTRAL) {
+                if (parser.foundZ()) {
+                    parser.setZvalue(temp2.plus(Derivative.DZ));
+                }
+
+                Complex cmb_fzdz = expr.getValue();
+
+                if (parser.foundZ()) {
+                    parser.setZvalue(temp2.sub(Derivative.DZ));
+                }
+
+                Complex cmb_fzmdz = expr.getValue();
+
+                combined_dfz2 = Derivative.numericalCentralDerivativeFirstOrder(cmb_fzdz, cmb_fzmdz);
+            } else if (Derivative.DERIVATIVE_METHOD == Derivative.NUMERICAL_FORWARD) {
+                if (parser.foundZ()) {
+                    parser.setZvalue(temp2);
+                }
+
+                Complex cmb_fz = expr.getValue();
+
+                if (parser.foundZ()) {
+                    parser.setZvalue(temp2.plus(Derivative.DZ));
+                }
+
+                Complex cmb_fzdz = expr.getValue();
+
+                combined_dfz2 = Derivative.numericalForwardDerivativeFirstOrder(cmb_fz, cmb_fzdz);
+            } else {
+                if (parser.foundZ()) {
+                    parser.setZvalue(temp2);
+                }
+
+                Complex cmb_fz = expr.getValue();
+
+                if (parser.foundZ()) {
+                    parser.setZvalue(temp2.sub(Derivative.DZ));
+                }
+
+                Complex cmb_fzmdz = expr.getValue();
+
+                combined_dfz2 = Derivative.numericalBackwardDerivativeFirstOrder(cmb_fz, cmb_fzmdz);
+            }
+        }
+
+        return new Complex[] {combined_dfz, combined_dfz2};
+    }
+
+    private Complex combinedDDFZ(Complex z, Complex fz, Complex dfz) {
+        Complex temp = null, combined_ddfz;
+
+        if(nova_method == MainWindow.NOVA_RAFIS_RAFIULLAH) {
+            temp = RafisRafiullahRootFindingMethod.getSecondDerivativeArgument(z, fz, dfz);
+        }
+
+        if (Derivative.DERIVATIVE_METHOD == Derivative.DISABLED) {
+            if (parser3.foundZ()) {
+                parser3.setZvalue(temp);
+            }
+
+            combined_ddfz = expr3.getValue();
+        } else if (Derivative.DERIVATIVE_METHOD == Derivative.NUMERICAL_CENTRAL) {
+            if (parser.foundZ()) {
+                parser.setZvalue(temp);
+            }
+
+            Complex cmb_fz = expr.getValue();
+
+            if (parser.foundZ()) {
+                parser.setZvalue(temp.plus(Derivative.DZ));
+            }
+
+            Complex cmb_fzdz = expr.getValue();
+
+            if (parser.foundZ()) {
+                parser.setZvalue(temp.sub(Derivative.DZ));
+            }
+
+            Complex cmb_fzmdz = expr.getValue();
+
+            combined_ddfz = Derivative.numericalCentralDerivativeSecondOrder(cmb_fz, cmb_fzdz, cmb_fzmdz);
+        } else if (Derivative.DERIVATIVE_METHOD == Derivative.NUMERICAL_FORWARD) {
+            if (parser.foundZ()) {
+                parser.setZvalue(temp);
+            }
+
+            Complex cmb_fz = expr.getValue();
+
+            if (parser.foundZ()) {
+                parser.setZvalue(temp.plus(Derivative.DZ));
+            }
+
+            Complex cmb_fzdz = expr.getValue();
+
+            if (parser.foundZ()) {
+                parser.setZvalue(temp.plus(Derivative.DZ_2));
+            }
+
+            Complex cmb_fz2dz = expr.getValue();
+
+            combined_ddfz = Derivative.numericalForwardDerivativeSecondOrder(cmb_fz, cmb_fzdz, cmb_fz2dz);
+        } else {
+            if (parser.foundZ()) {
+                parser.setZvalue(temp);
+            }
+
+            Complex cmb_fz = expr.getValue();
+
+            if (parser.foundZ()) {
+                parser.setZvalue(temp.sub(Derivative.DZ));
+            }
+
+            Complex cmb_fzmdz = expr.getValue();
+
+            if (parser.foundZ()) {
+                parser.setZvalue(temp.sub(Derivative.DZ_2));
+            }
+
+            Complex cmb_fzm2dz = expr.getValue();
+
+            combined_ddfz = Derivative.numericalBackwardDerivativeSecondOrder(cmb_fz, cmb_fzmdz, cmb_fzm2dz);
+        }
+
+        return combined_ddfz;
     }
 
     @Override
@@ -439,6 +677,8 @@ public class UserFormulaNova extends ExtendedConvergentType {
         Complex dddfz = null;
         Complex ffz = null;
         Complex combined_dfz = null;
+        Complex combined_ddfz = null;
+        Complex combined_dfz2 = null;
 
         if (parserAddend.foundZ()) {
             parserAddend.setZvalue(complex[0]);
@@ -674,8 +914,14 @@ public class UserFormulaNova extends ExtendedConvergentType {
         if (Settings.hasNovaCombinedFFZ(nova_method)) {
             ffz = combinedFFZ(complex[0], fz, dfz);
         }
-        else if(Settings.hasNovaCombinedDFZ(nova_method)) {
-            combined_dfz = combinedDFZ(complex[0], fz, dfz);
+
+        if(Settings.hasNovaCombinedDFZ(nova_method)) {
+            Complex[] res = combinedDFZ(complex[0], fz, dfz);
+            combined_dfz = res[0];
+            combined_dfz2 = res[1];
+        }
+        else if(Settings.hasNovaCombinedDDFZ(nova_method)) {
+            combined_ddfz = combinedDDFZ(complex[0], fz, dfz);
         }
 
         Complex z = new Complex(complex[0]);
@@ -749,6 +995,84 @@ public class UserFormulaNova extends ExtendedConvergentType {
                 break;
             case MainWindow.NOVA_HOUSEHOLDER3:
                 step = Householder3RootFindingMethod.householder3Step(fz, dfz, ddfz, dddfz);
+                break;
+            case MainWindow.NOVA_CONTRA_HARMONIC_NEWTON:
+                step = ContraHarmonicNewtonRootFindingMethod.chnStep(fz, dfz, combined_dfz);
+                break;
+            case MainWindow.NOVA_CHUN_HAM:
+                step = ChunHamRootFindingMethod.chunHamStep(fz, dfz, ffz);
+                break;
+            case MainWindow.NOVA_CHUN_KIM:
+                step = ChunKimRootFindingMethod.chunKimStep(fz, dfz, combined_dfz);
+                break;
+            case MainWindow.NOVA_EULER_CHEBYSHEV:
+                step = EulerChebyshevRootFindingMethod.eulerChebyshevStep(fz, dfz, ddfz);
+                break;
+            case MainWindow.NOVA_EZZATI_SALEKI2:
+                step = EzzatiSaleki2RootFindingMethod.ezzatiSaleki2Step(fz, dfz, ffz);
+                break;
+            case MainWindow.NOVA_HOMEIER1:
+                step = Homeier1RootFindingMethod.homeier1Step(fz, combined_dfz);
+                break;
+            case MainWindow.NOVA_ABBASBANDY2:
+                step = Abbasbandy2RootFindingMethod.abbasbandy2Step(fz, dfz, ddfz);
+                break;
+            case MainWindow.NOVA_ABBASBANDY3:
+                step = Abbasbandy3RootFindingMethod.abbasbandy3Step(fz, dfz, ddfz, dddfz);
+                break;
+            case MainWindow.NOVA_POPOVSKI1:
+                step = Popovski1RootFindingMethod.popovski1Step(fz, dfz, ddfz);
+                break;
+            case MainWindow.NOVA_CHANGBUM_CHUN1:
+                step = ChangBumChun1RootFindingMethod.changbumChun1Step(fz, dfz, ffz);
+                break;
+            case MainWindow.NOVA_CHANGBUM_CHUN2:
+                step = ChangBumChun2RootFindingMethod.changbumChun2Step(fz, dfz, ffz);
+                break;
+            case MainWindow.NOVA_KING3:
+                step = King3RootFindingMethod.king3Step(fz, dfz, ffz);
+                break;
+            case MainWindow.NOVA_HOMEIER2:
+                step = Homeier2RootFindingMethod.homeier2Step(fz, dfz, combined_dfz);
+                break;
+            case MainWindow.NOVA_KIM_CHUN:
+                step = KimChunRootFindingMethod.kimChunStep(fz, dfz, combined_dfz);
+                break;
+            case MainWindow.NOVA_KOU_LI_WANG1:
+                step = KouLiWang1RootFindingMethod.kouLiWang1Step(fz, dfz, ffz);
+                break;
+            case MainWindow.NOVA_MAHESHWERI:
+                step = MaheshweriRootFindingMethod.maheshweriStep(fz, dfz, ffz);
+                break;
+            case MainWindow.NOVA_RAFIULLAH1:
+                step = Rafiullah1RootFindingMethod.rafiullah1Step(fz, dfz, combined_dfz);
+                break;
+            case MainWindow.NOVA_RAFIS_RAFIULLAH:
+                step = RafisRafiullahRootFindingMethod.rafisRafiullahStep(fz, dfz, ddfz, combined_ddfz);
+                break;
+            case MainWindow.NOVA_CHANGBUM_CHUN3:
+                step = ChangBumChun3RootFindingMethod.changbumChun3Step(fz, dfz, ffz, combined_dfz);
+                break;
+            case MainWindow.NOVA_EZZATI_SALEKI1:
+                step = EzzatiSaleki1RootFindingMethod.ezzatiSaleki1Step(fz, dfz, ffz, combined_dfz);
+                break;
+            case MainWindow.NOVA_FENG:
+                step = FengRootFindingMethod.fengStep(fz, dfz, ffz, combined_dfz);
+                break;
+            case MainWindow.NOVA_KING1:
+                step = King1RootFindingMethod.king1Step(fz, dfz, ffz, combined_dfz);
+                break;
+            case MainWindow.NOVA_NOOR_GUPTA:
+                step = NoorGuptaRootFindingMethod.noorGuptaStep(fz, dfz, ffz, combined_dfz);
+                break;
+            case MainWindow.NOVA_HARMONIC_SIMPSON_NEWTON:
+                step = HarmonicSimpsonNewtonRootFindingMethod.hsnStep(fz, dfz, combined_dfz, combined_dfz2);
+                break;
+            case MainWindow.NOVA_NEDZHIBOV:
+                step = NedzhibovRootFindingMethod.nedzhibovStep(fz, dfz, combined_dfz, combined_dfz2);
+                break;
+            case MainWindow.NOVA_SIMPSON_NEWTON:
+                step = SimpsonNewtonRootFindingMethod.simpsonNewtonStep(fz, dfz, combined_dfz, combined_dfz2);
                 break;
 
         }
@@ -1141,6 +1465,43 @@ public class UserFormulaNova extends ExtendedConvergentType {
         }
 
         return ColorAlgorithm.transformResultToHeight(value, max_iterations);
+
+    }
+
+    @Override
+    public Complex evaluateFunction(Complex z, Complex c) {
+
+        if(!isJulia) {
+            return null;
+        }
+
+        if (parser.foundP()) {
+            parser.setPvalue(zold);
+        }
+
+        if (parser.foundPP()) {
+            parser.setPPvalue(zold2);
+        }
+
+        if (parser.foundZ()) {
+            parser.setZvalue(z);
+        }
+
+        if (parser.foundN()) {
+            parser.setNvalue(new Complex(iterations, 0));
+        }
+
+        if (parser.foundC()) {
+            parser.setCvalue(c);
+        }
+
+        for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+            if (parser.foundVar(i)) {
+                parser.setVarsvalue(i, globalVars[i]);
+            }
+        }
+
+        return expr.getValue();
 
     }
 

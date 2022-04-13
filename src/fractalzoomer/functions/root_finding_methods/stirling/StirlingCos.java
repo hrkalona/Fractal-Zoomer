@@ -49,9 +49,14 @@ public class StirlingCos extends StirlingRootFindingMethod {
 
         Complex temp = getDerivativeArgument(complex[0], fz);
 
-        Complex combined_dfz = temp.sin().negative();
+        Complex combined_dfz = temp.sin().negative_mutable();
 
         stirlingMethod(complex[0], fz, combined_dfz);
 
+    }
+
+    @Override
+    public Complex evaluateFunction(Complex z, Complex c) {
+        return z.cos();
     }
 }

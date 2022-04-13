@@ -77,4 +77,9 @@ public class Parhalley3 extends ParhalleyRootFindingMethod {
         
     }
 
+    @Override
+    public Complex evaluateFunction(Complex z, Complex c) {
+        return z.cube().sub_mutable(1);
+    }
+
 }

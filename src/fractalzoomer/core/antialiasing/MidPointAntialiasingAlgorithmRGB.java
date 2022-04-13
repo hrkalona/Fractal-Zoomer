@@ -24,6 +24,7 @@ public class MidPointAntialiasingAlgorithmRGB extends AntialiasingAlgorithm {
         blueSum = 0;
     }
 
+    @Override
     public void initialize(int color) {
         int red = (color >> 16) & 0xff;
         int green = (color >> 8) & 0xff;
@@ -56,7 +57,8 @@ public class MidPointAntialiasingAlgorithmRGB extends AntialiasingAlgorithm {
         }
     }
 
-    public void addSample(int color) {
+    @Override
+    public boolean addSample(int color) {
         int red = (color >> 16) & 0xff;
         int green = (color >> 8) & 0xff;
         int blue = color & 0xff;
@@ -86,7 +88,11 @@ public class MidPointAntialiasingAlgorithmRGB extends AntialiasingAlgorithm {
         if(blue > maxBlue) {
             maxBlue = blue;
         }
+
+        return true;
     }
+
+    @Override
     public int getColor() {
 
         if(avgWithMean) {

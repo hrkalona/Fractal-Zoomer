@@ -77,4 +77,9 @@ public class Steffensen4 extends SteffensenRootFindingMethod {
 
     }
 
+    @Override
+    public Complex evaluateFunction(Complex z, Complex c) {
+        return z.fourth().sub_mutable(1);
+    }
+
 }

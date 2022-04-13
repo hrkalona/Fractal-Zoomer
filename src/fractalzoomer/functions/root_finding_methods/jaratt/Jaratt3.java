@@ -58,4 +58,9 @@ public class Jaratt3 extends JarattRootFindingMethod {
         jarattMethod(complex[0], fz, dfz, combined_dfz);
 
     }
+
+    @Override
+    public Complex evaluateFunction(Complex z, Complex c) {
+        return z.cube().sub_mutable(1);
+    }
 }

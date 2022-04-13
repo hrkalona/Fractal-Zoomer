@@ -56,5 +56,9 @@ public class LinearInterpolation extends InterpolationMethod {
         return coef;
         
     }
+
+    public static double getCoefficient(double coef) {
+        return coef;
+    }
     
 }

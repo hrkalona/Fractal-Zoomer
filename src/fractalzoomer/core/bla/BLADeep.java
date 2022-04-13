@@ -17,6 +17,12 @@ public abstract class BLADeep {
 
     public abstract MantExpComplex getValue(MantExpComplex DeltaSubN, MantExpComplex DeltaSub0);
 
+    public abstract MantExpComplex getValue(MantExpComplex DeltaSubN, MantExp DeltaSub0);
+
+    public MantExpComplex getValue(MantExpComplex DeltaSubN) {
+        return MantExpComplex.AtX(new MantExpComplex(Aexp, Ax, Ay), DeltaSubN);
+    }
+
     public MantExp hypotA() {
         return MantExp.hypot(Ax, Ay, Aexp);
     }

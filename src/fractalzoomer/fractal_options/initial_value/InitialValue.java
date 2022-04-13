@@ -53,5 +53,8 @@ public class InitialValue extends PlanePointOption {
         
         return pixel.toString();
         
-    } 
+    }
+
+    @Override
+    public boolean isStatic() {return true;}
 }

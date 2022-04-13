@@ -137,7 +137,7 @@ public class Newton3 extends NewtonRootFindingMethod {
                 PrecalculatedTermsDeep = new DeepReference(max_iterations);
             }
         }
-        else if (max_iterations > (Reference.length >> 1)){
+        else if (max_iterations > getReferenceLength()){
             Reference = Arrays.copyOf(Reference, max_iterations << 1);
             ReferenceSubPixel = Arrays.copyOf(ReferenceSubPixel, max_iterations << 1);
             PrecalculatedTerms = Arrays.copyOf(PrecalculatedTerms, max_iterations << 1);
@@ -236,6 +236,11 @@ public class Newton3 extends NewtonRootFindingMethod {
 
         ReferenceCalculationTime = System.currentTimeMillis() - time;
 
+    }
+
+    @Override
+    public Complex evaluateFunction(Complex z, Complex c) {
+        return z.cube().sub_mutable(1);
     }
 
 }

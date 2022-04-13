@@ -77,4 +77,9 @@ public class Whittaker3 extends WhittakerRootFindingMethod {
         
     }
 
+    @Override
+    public Complex evaluateFunction(Complex z, Complex c) {
+        return z.cube().sub_mutable(1);
+    }
+
 }

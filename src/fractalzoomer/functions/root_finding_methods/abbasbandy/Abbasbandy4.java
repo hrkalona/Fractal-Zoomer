@@ -56,4 +56,9 @@ public class Abbasbandy4 extends AbbasbandyRootFindingMethod {
         abbasbandyMethod(complex[0], fz, dfz, ddfz, dddfz);
 
     }
+
+    @Override
+    public Complex evaluateFunction(Complex z, Complex c) {
+        return z.fourth().sub_mutable(1);
+    }
 }

@@ -779,8 +779,8 @@ public class ImageExpanderWindow extends JFrame implements Constants {
             writer.println("bignum_precision_factor " + ThreadDraw.BIGNUM_PRECISION_FACTOR);
             writer.println("use_threads_for_sa " + ThreadDraw.USE_THREADS_FOR_SA);
             writer.println("bla_precision_bits " + ThreadDraw.BLA_BITS);
-            writer.println("bla_limit_factor " + ThreadDraw.BLA_LIMIT_FACTOR);
             writer.println("use_threads_for_bla " + ThreadDraw.USE_THREADS_FOR_BLA);
+            writer.println("bla_starting_level " + ThreadDraw.BLA_STARTING_LEVEL);
             writer.println("detect_period " + ThreadDraw.DETECT_PERIOD);
             writer.println("brute_force_alg " + brute_force_alg);
             
@@ -969,16 +969,17 @@ public class ImageExpanderWindow extends JFrame implements Constants {
                             ThreadDraw.USE_THREADS_FOR_BLA = true;
                         }
                     }
-                    else if (token.equals("bla_limit_factor") && tokenizer.countTokens() == 1) {
+                    else if (token.equals("bla_starting_level") && tokenizer.countTokens() == 1) {
 
                         try {
-                            double temp = Double.parseDouble(tokenizer.nextToken());
+                            int temp = Integer.parseInt(tokenizer.nextToken());
 
-                            if (temp > 0) {
-                                ThreadDraw.BLA_LIMIT_FACTOR = temp;
+                            if (temp > 0 && temp <= 32) {
+                                ThreadDraw.BLA_STARTING_LEVEL = temp;
                             }
                         } catch (Exception ex) {
                         }
+
                     }
                     else if (token.equals("use_bignum_for_pixels") && tokenizer.countTokens() == 1) {
 
@@ -1025,7 +1026,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
                     else if (token.equals("bignum_precision_factor") && tokenizer.countTokens() == 1) {
 
                         try {
-                            double temp = Double.parseDouble(tokenizer.nextToken());
+                            int temp = Integer.parseInt(tokenizer.nextToken());
 
                             if (temp > 0) {
                                 ThreadDraw.BIGNUM_PRECISION_FACTOR = temp;
@@ -1135,6 +1136,10 @@ public class ImageExpanderWindow extends JFrame implements Constants {
         }
 
         MyApfloat.setPrecision(MyApfloat.precision, s);
+
+        if(ThreadDraw.PERTURBATION_THEORY) {
+            periodicity_checking = false;
+        }
     }
 
     /*public static void main(String[] args) throws Exception {

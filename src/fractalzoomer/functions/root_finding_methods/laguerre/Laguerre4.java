@@ -78,4 +78,9 @@ public class Laguerre4 extends LaguerreRootFindingMethod {
 
     }
 
+    @Override
+    public Complex evaluateFunction(Complex z, Complex c) {
+        return z.fourth().sub_mutable(1);
+    }
+
 }

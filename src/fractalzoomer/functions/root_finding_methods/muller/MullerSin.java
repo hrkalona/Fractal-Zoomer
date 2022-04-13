@@ -91,4 +91,9 @@ public class MullerSin extends MullerRootFindingMethod {
 
     }
 
+    @Override
+    public Complex evaluateFunction(Complex z, Complex c) {
+        return z.sin();
+    }
+
 }

@@ -40,7 +40,7 @@ public class RootFindingTwoFunctionsDialog extends JDialog {
     private MainWindow ptra;
     private JOptionPane optionPane;
 
-    public RootFindingTwoFunctionsDialog(MainWindow ptr, Settings s, int oldSelected, JRadioButtonMenuItem[] fractal_functions, boolean wasMagnetType, boolean wasConvergingType, boolean wasSimpleType, boolean wasMagneticPendulumType) {
+    public RootFindingTwoFunctionsDialog(MainWindow ptr, Settings s, int oldSelected, JRadioButtonMenuItem[] fractal_functions, boolean wasMagnetType, boolean wasConvergingType, boolean wasSimpleType, boolean wasMagneticPendulumType, boolean wasEscapingOrConvergingType) {
 
         super(ptr);
         
@@ -112,6 +112,69 @@ public class RootFindingTwoFunctionsDialog extends JDialog {
         }
         else if(s.fns.function == Constants.WEERAKOON_FERNANDOFORMULA) {
             imagelabel4.setIcon(getIcon("/fractalzoomer/icons/weerakoon_fernando.png"));
+        }
+        else if(s.fns.function == Constants.CONTRA_HARMONIC_NEWTONFORMULA) {
+            imagelabel4.setIcon(getIcon("/fractalzoomer/icons/contra_harmonic_newton.png"));
+        }
+        else if(s.fns.function == Constants.CHUN_HAMFORMULA) {
+            imagelabel4.setIcon(getIcon("/fractalzoomer/icons/chun_ham.png"));
+        }
+        else if(s.fns.function == Constants.CHUN_KIMFORMULA) {
+            imagelabel4.setIcon(getIcon("/fractalzoomer/icons/chun_kim.png"));
+        }
+        else if(s.fns.function == Constants.EZZATI_SALEKI2FORMULA) {
+            imagelabel4.setIcon(getIcon("/fractalzoomer/icons/ezzati_saleki2.png"));
+        }
+        else if(s.fns.function == Constants.HOMEIER1FORMULA) {
+            imagelabel4.setIcon(getIcon("/fractalzoomer/icons/homeier1.png"));
+        }
+        else if(s.fns.function == Constants.CHANGBUM_CHUN1FORMULA) {
+            imagelabel4.setIcon(getIcon("/fractalzoomer/icons/changbum_chun1.png"));
+        }
+        else if(s.fns.function == Constants.CHANGBUM_CHUN2FORMULA) {
+            imagelabel4.setIcon(getIcon("/fractalzoomer/icons/changbum_chun2.png"));
+        }
+        else if(s.fns.function == Constants.KING3FORMULA) {
+            imagelabel4.setIcon(getIcon("/fractalzoomer/icons/king3.png"));
+        }
+        else if(s.fns.function == Constants.HOMEIER2FORMULA) {
+            imagelabel4.setIcon(getIcon("/fractalzoomer/icons/homeier2.png"));
+        }
+        else if(s.fns.function == Constants.KIM_CHUNFORMULA) {
+            imagelabel4.setIcon(getIcon("/fractalzoomer/icons/kim_chun.png"));
+        }
+        else if(s.fns.function == Constants.KOU_LI_WANG1FORMULA) {
+            imagelabel4.setIcon(getIcon("/fractalzoomer/icons/kou_li_wang1.png"));
+        }
+        else if(s.fns.function == Constants.MAHESHWERIFORMULA) {
+            imagelabel4.setIcon(getIcon("/fractalzoomer/icons/maheshweri.png"));
+        }
+        else if(s.fns.function == Constants.RAFIULLAH1FORMULA) {
+            imagelabel4.setIcon(getIcon("/fractalzoomer/icons/rafiullah1.png"));
+        }
+        else if(s.fns.function == Constants.CHANGBUM_CHUN3FORMULA) {
+            imagelabel4.setIcon(getIcon("/fractalzoomer/icons/changbum_chun3.png"));
+        }
+        else if(s.fns.function == Constants.EZZATI_SALEKI1FORMULA) {
+            imagelabel4.setIcon(getIcon("/fractalzoomer/icons/ezzati_saleki1.png"));
+        }
+        else if(s.fns.function == Constants.FENGFORMULA) {
+            imagelabel4.setIcon(getIcon("/fractalzoomer/icons/feng.png"));
+        }
+        else if(s.fns.function == Constants.KING1FORMULA) {
+            imagelabel4.setIcon(getIcon("/fractalzoomer/icons/king1.png"));
+        }
+        else if(s.fns.function == Constants.NOOR_GUPTAFORMULA) {
+            imagelabel4.setIcon(getIcon("/fractalzoomer/icons/noor_gupta.png"));
+        }
+        else if(s.fns.function == Constants.HARMONIC_SIMPSON_NEWTONFORMULA) {
+            imagelabel4.setIcon(getIcon("/fractalzoomer/icons/harmonic_simpson_newton.png"));
+        }
+        else if(s.fns.function == Constants.NEDZHIBOVFORMULA) {
+            imagelabel4.setIcon(getIcon("/fractalzoomer/icons/nedzhibov.png"));
+        }
+        else if(s.fns.function == Constants.SIMPSON_NEWTONFORMULA) {
+            imagelabel4.setIcon(getIcon("/fractalzoomer/icons/simpson_newton.png"));
         }
 
         JPanel imagepanel4 = new JPanel();
@@ -226,7 +289,7 @@ public class RootFindingTwoFunctionsDialog extends JDialog {
 
                     ptra.optionsEnableShortcut2();
                     dispose();
-                    ptra.setFunctionPost(wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
+                    ptra.setFunctionPost(wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType, wasEscapingOrConvergingType);
                 }
             }
         });

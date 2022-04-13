@@ -77,4 +77,9 @@ public class WhittakerDoubleConvex3 extends WhittakerDoubleConvexRootFindingMeth
         
     }
 
+    @Override
+    public Complex evaluateFunction(Complex z, Complex c) {
+        return z.cube().sub_mutable(1);
+    }
+
 }

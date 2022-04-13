@@ -76,4 +76,9 @@ public class NewtonCos extends NewtonRootFindingMethod {
 
     }
 
+    @Override
+    public Complex evaluateFunction(Complex z, Complex c) {
+        return z.cos();
+    }
+
 }

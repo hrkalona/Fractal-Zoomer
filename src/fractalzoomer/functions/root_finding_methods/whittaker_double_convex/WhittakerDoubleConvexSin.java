@@ -80,4 +80,9 @@ public class WhittakerDoubleConvexSin extends WhittakerDoubleConvexRootFindingMe
 
     }
 
+    @Override
+    public Complex evaluateFunction(Complex z, Complex c) {
+        return z.sin();
+    }
+
 }

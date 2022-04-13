@@ -45,6 +45,9 @@ public class BigNumComplex extends GenericComplex {
 
     }
 
+    @Override
+    public BigNumComplex toBigNumComplex() { return this; }
+
     public final BigNum getRe() {
 
         return re;

@@ -201,7 +201,7 @@ public class UserStatisticColoringMagnetConverging extends GenericStatistic {
         
         double smoothing = OutColorAlgorithm.fractionalPartMagnetConverging(z_val, zold_val, root, log_convergent_bailout);
         
-	return (sumRe + (sum2Re - sumRe) * smoothing) * statistic_intensity;
+	    return (sumRe + (sum2Re - sumRe) * smoothing) * statistic_intensity;
     }
     
     @Override

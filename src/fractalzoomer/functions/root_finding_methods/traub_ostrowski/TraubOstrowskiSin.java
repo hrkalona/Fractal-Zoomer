@@ -56,4 +56,9 @@ public class TraubOstrowskiSin extends TraubOstrowskiRootFindingMethod {
         traubOstrowskiMethod(complex[0], fz, dfz, ffz);
 
     }
+
+    @Override
+    public Complex evaluateFunction(Complex z, Complex c) {
+        return z.sin();
+    }
 }

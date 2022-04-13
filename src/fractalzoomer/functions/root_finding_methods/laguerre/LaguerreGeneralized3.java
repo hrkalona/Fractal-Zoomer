@@ -78,4 +78,9 @@ public class LaguerreGeneralized3 extends LaguerreRootFindingMethod {
 
     }
 
+    @Override
+    public Complex evaluateFunction(Complex z, Complex c) {
+        return z.cube().sub_mutable(z.times(2)).plus_mutable(2);
+    }
+
 }

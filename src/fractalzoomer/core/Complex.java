@@ -68,6 +68,9 @@ public final class Complex extends GenericComplex {
 
     }
 
+    @Override
+    public BigNumComplex toBigNumComplex() { return new BigNumComplex(this); }
+
     public final void setRe(double re) {
 
         this.re = re;

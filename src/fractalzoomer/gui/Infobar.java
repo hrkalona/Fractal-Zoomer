@@ -47,6 +47,8 @@ public class Infobar extends JToolBar {
     private JLabel gradient_toolbar_preview_lbl;
     private JButton overview_button;
     private JButton stats_button;
+
+    private JButton cancel_button;
     private boolean listenerEnabled;
     public static int PALETTE_PREVIEW_WIDTH = 175;
     public static int PALETTE_PREVIEW_HEIGHT = 24;
@@ -67,7 +69,7 @@ public class Infobar extends JToolBar {
         setFloatable(false);
         setAlignmentX(Component.LEFT_ALIGNMENT);
         setAlignmentY(Component.CENTER_ALIGNMENT);
-        setPreferredSize(new Dimension(0, 28));
+        setPreferredSize(new Dimension(0, 30));
         setBorderPainted(true);
         setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
 
@@ -288,8 +290,25 @@ public class Infobar extends JToolBar {
             }
         });
 
+        cancel_button= new JButton();
+        cancel_button.setIcon(getIcon("/fractalzoomer/icons/abort.png"));
+        cancel_button.setFocusable(false);
+        cancel_button.setToolTipText("Cancels the current rendering operation and resets.");
+
+        cancel_button.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.cancelOperation();
+
+            }
+        });
+
 
         add(Box.createHorizontalGlue());
+        addSeparator();
+        add(cancel_button);
         addSeparator();
         add(overview_button);
         addSeparator();
@@ -315,6 +334,10 @@ public class Infobar extends JToolBar {
 
         return stats_button;
 
+    }
+
+    public JButton getCancelButton() {
+        return cancel_button;
     }
 
     public JLabel getOutColoringPalettePreview() {
@@ -548,6 +571,10 @@ public class Infobar extends JToolBar {
         palette[34].setToolTipText("A legacy FractInt palette.");
         palette[35].setToolTipText("A legacy FractInt palette.");
         palette[36].setToolTipText("A palette from QFractal.");
+        palette[37].setToolTipText("A palette from QFractal.");
+        palette[38].setToolTipText("A palette from QFractal.");
+        palette[39].setToolTipText("A palette from QFractal.");
+        palette[40].setToolTipText("A palette from QFractal.");
         
         palette[color_choice].setSelected(true);
         popup.show(e.getComponent(), e.getX(), e.getY());

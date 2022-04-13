@@ -243,7 +243,7 @@ public class Magnet1 extends MagnetType {
                 }
 
             }
-        } else if (max_iterations > (Reference.length >> 1)) {
+        } else if (max_iterations > getReferenceLength()) {
             Reference = Arrays.copyOf(Reference, max_iterations << 1);
 
             if(isJulia) {
@@ -403,6 +403,8 @@ public class Magnet1 extends MagnetType {
         Apfloat convergentB = new MyApfloat(convergent_bailout);
         BigComplex one = new BigComplex(MyApfloat.ONE, MyApfloat.ZERO);
 
+        boolean preCalcNormData = bailout_algorithm2.getId() == MainWindow.BAILOUT_CONDITION_CIRCLE;
+        NormComponents normData = null;
 
         for (; iterations < max_iterations; iterations++) {
 
@@ -426,10 +428,12 @@ public class Magnet1 extends MagnetType {
                 setArrayDeepValue(ReferenceDeep, iterations, loc.getMantExpComplex(z));
             }
 
-            NormComponents normData = z.normSquaredWithComponents();
-            normSquared = normData.normSquared;
+            if(preCalcNormData) {
+                normData = z.normSquaredWithComponents();
+                normSquared = normData.normSquared;
+            }
 
-            if (iterations > 0 && (z.distance_squared(one).compareTo(convergentB) <= 0 || bailout_algorithm2.escaped(z, zold, zold2, iterations, c, start, c0, normSquared, pixel))) {
+            if (iterations > 0 && (z.distance_squared(one).compareTo(convergentB) <= 0 || bailout_algorithm2.Escaped(z, zold, zold2, iterations, c, start, c0, normSquared, pixel))) {
                 break;
             }
 
@@ -437,7 +441,12 @@ public class Magnet1 extends MagnetType {
             zold = z;
 
             try {
-                z = (z.squareFast(normData).plus(c.sub(MyApfloat.ONE))).divide(z.times(MyApfloat.TWO).plus(c.sub(MyApfloat.TWO))).square();
+                if(preCalcNormData) {
+                    z = (z.squareFast(normData).plus(c.sub(MyApfloat.ONE))).divide(z.times(MyApfloat.TWO).plus(c.sub(MyApfloat.TWO))).square();
+                }
+                else {
+                    z = (z.square().plus(c.sub(MyApfloat.ONE))).divide(z.times(MyApfloat.TWO).plus(c.sub(MyApfloat.TWO))).square();
+                }
             }
             catch (Exception ex) {
                 break;

@@ -56,4 +56,9 @@ public class ThirdOrderNewtonSin extends ThirdOrderNewtonRootFindingMethod {
         thirdOrderNewtonMethod(complex[0], fz, dfz, ffz);
 
     }
+
+    @Override
+    public Complex evaluateFunction(Complex z, Complex c) {
+        return z.sin();
+    }
 }

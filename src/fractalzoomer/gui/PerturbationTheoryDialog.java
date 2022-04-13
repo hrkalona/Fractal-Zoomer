@@ -108,6 +108,27 @@ public class PerturbationTheoryDialog extends JDialog {
         use_threads_for_bla.setSelected(ThreadDraw.USE_THREADS_FOR_BLA);
         use_threads_for_bla.setFocusable(false);
 
+        final JSlider bla_starting_level_slid = new JSlider(JSlider.HORIZONTAL, 1, 32, ThreadDraw.BLA_STARTING_LEVEL);
+
+        bla_starting_level_slid.setPreferredSize(new Dimension(350, 55));
+
+        bla_starting_level_slid.setToolTipText("Sets the BLA starting level.");
+
+        bla_starting_level_slid.setPaintLabels(true);
+        bla_starting_level_slid.setFocusable(false);
+        bla_starting_level_slid.setPaintTicks(true);
+        bla_starting_level_slid.setMajorTickSpacing(2);
+
+
+        JLabel blaLevel = new JLabel("BLA Starting Level: " + bla_starting_level_slid.getValue());
+
+        bla_starting_level_slid.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                blaLevel.setText("BLA Starting Level: " + bla_starting_level_slid.getValue());
+            }
+        });
+
         enable_bignum_pixels.setEnabled(enable_bignum.isSelected());
 
         final JCheckBox full_floatexp = new JCheckBox("Use FloatExp For All Iterations In Deep Zooms");
@@ -248,21 +269,23 @@ public class PerturbationTheoryDialog extends JDialog {
         panel2.add(blaBitsLabel);
 
 
-        JPanel BlaLimitPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        BlaLimitPanel.add(new JLabel( "|Z| Limit Factor:"));
-        JTextField blaLimit = new JTextField();
-        blaLimit.setText("" + ThreadDraw.BLA_LIMIT_FACTOR);
-
         JPanel blaThreadsPAnel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         blaThreadsPAnel.add(use_threads_for_bla);
+
+        JPanel blaSkipLevel1PAnel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        blaSkipLevel1PAnel.add(bla_starting_level_slid);
+
+
+        JPanel blaSkipLevel1PAnelLabel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        blaSkipLevel1PAnelLabel.add(blaLevel);
 
         BLApanel.setLayout(new BoxLayout(BLApanel, BoxLayout.Y_AXIS));
 
         BLApanel.add(panel2);
         BLApanel.add(blaBits);
         BLApanel.add(new JLabel(" "));
-        BLApanel.add(BlaLimitPanel);
-        BLApanel.add(blaLimit);
+        BLApanel.add(blaSkipLevel1PAnelLabel);
+        BLApanel.add(blaSkipLevel1PAnel);
         BLApanel.add(new JLabel(" "));
         BLApanel.add(blaThreadsPAnel);
         BLApanel.add(new JLabel(" "));
@@ -333,7 +356,6 @@ public class PerturbationTheoryDialog extends JDialog {
                         long temp2 = Long.parseLong(seriesApproximationTolerance.getText());
                         int temp3 = Integer.parseInt(maxSkipIter.getText());
                         int temp4 = Integer.parseInt(bignumPrecision.getText());
-                        double temp5 = Double.parseDouble(blaLimit.getText());
 
                         if (tempPrecision < 1) {
                             JOptionPane.showMessageDialog(ptra, "Precision number must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
@@ -347,11 +369,6 @@ public class PerturbationTheoryDialog extends JDialog {
 
                         if (temp3 < 0) {
                             JOptionPane.showMessageDialog(ptra, "Maximum skipped iterations must be greater than -1.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            return;
-                        }
-
-                        if(temp5 <= 0) {
-                            JOptionPane.showMessageDialog(ptra, "BLA limit factor must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
                             return;
                         }
 
@@ -390,8 +407,9 @@ public class PerturbationTheoryDialog extends JDialog {
                         ThreadDraw.APPROXIMATION_ALGORITHM = approximation_alg.getSelectedIndex();
 
                         if(oldApproximationAlg != ThreadDraw.APPROXIMATION_ALGORITHM) {
-                            Fractal.clearApproximation();
+                            Fractal.clearReferences();
                         }
+
 
                         ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE = tempBigNum;
                         ThreadDraw.APPROXIMATION_ALGORITHM = approximation_alg.getSelectedIndex();
@@ -402,7 +420,7 @@ public class PerturbationTheoryDialog extends JDialog {
                         ThreadDraw.USE_BIGNUM_FOR_PIXELS_IF_POSSIBLE = enable_bignum_pixels.isSelected();
                         ThreadDraw.USE_THREADS_FOR_SA = use_threads_for_sa.isSelected();
                         ThreadDraw.BLA_BITS = blaBits.getValue();
-                        ThreadDraw.BLA_LIMIT_FACTOR = temp5;
+                        ThreadDraw.BLA_STARTING_LEVEL = bla_starting_level_slid.getValue();
                         ThreadDraw.USE_THREADS_FOR_BLA = use_threads_for_bla.isSelected();
 
                         if(ptra instanceof MainWindow) {

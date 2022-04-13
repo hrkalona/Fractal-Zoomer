@@ -971,6 +971,15 @@ public class MantExpComplex extends GenericComplex {
     }
 
     /*
+     *  A*X + B*Y
+     */
+    public static final MantExpComplex AtXpBtY(MantExpComplex A, MantExpComplex X, MantExpComplex B, MantExp Y) {
+
+        return A.times(X).plus_mutable(B.times(Y));
+
+    }
+
+    /*
      *  A*X +Y
      */
     public static final MantExpComplex AtXpY(MantExpComplex A, MantExpComplex X, MantExpComplex Y) {
@@ -980,11 +989,20 @@ public class MantExpComplex extends GenericComplex {
     }
 
     /*
-     *  A*X + B
+     *  A*X +Y
      */
-    public static final MantExpComplex AtXpB(MantExpComplex A, MantExpComplex X, MantExpComplex B) {
+    public static final MantExpComplex AtXpY(MantExpComplex A, MantExpComplex X, MantExp Y) {
 
-        return A.times(X).plus_mutable(B);
+        return A.times(X).plus_mutable(Y);
+
+    }
+
+    /*
+     *  A*X
+     */
+    public static final MantExpComplex AtX(MantExpComplex A, MantExpComplex X) {
+
+        return A.times(X);
 
     }
 
