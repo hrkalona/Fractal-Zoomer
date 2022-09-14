@@ -50,10 +50,14 @@ public class TriangleInequalityAverage extends GenericStatistic {
         double mp = temp.norm();
         double m = Math.abs(mp - mc);
         double M = mp + mc;
-        
-        samples++;
-        sum2 = sum;
-	    sum += (z.norm() - m) / (M - m);
+
+        double denom =  (M - m);
+
+        if(denom != 0) {
+            samples++;
+            sum2 = sum;
+            sum += (z.norm() - m) / denom;
+        }
     }
 
     @Override
@@ -80,6 +84,7 @@ public class TriangleInequalityAverage extends GenericStatistic {
         }
         
         double smoothing = OutColorAlgorithm.fractionalPartEscaping(z_val, zold_val, log_bailout_squared);
+
         return (sum + (sum2 - sum) * smoothing) * statistic_intensity;
     }
     

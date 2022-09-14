@@ -58,4 +58,9 @@ public class WeerakoonFernandoGeneralized8 extends WeerakoonFernandoRootFindingM
         weerakoonFernandoMethod(complex[0], fz, dfz, combined_dfz);
 
     }
+
+    @Override
+    public Complex evaluateFunction(Complex z, Complex c) {
+        return z.eighth().plus_mutable(z.fourth().times_mutable(15)).sub_mutable(16);
+    }
 }

@@ -73,4 +73,9 @@ public class DurandKerner4 extends DurandKernerRootFindingMethod {
 
     }
 
+    @Override
+    public Complex evaluateFunction(Complex z, Complex c) {
+        return z.fourth().sub_mutable(1);
+    }
+
 }

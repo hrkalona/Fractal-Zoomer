@@ -59,6 +59,6 @@ public abstract class Jaratt2RootFindingMethod extends RootFindingMethods {
 
         Complex hfz = (combined_dfz.sub_mutable(dfz)).divide_mutable(dfz);
 
-        return ufz.plus_mutable(ufz.times(0.75).times_mutable(hfz).times_mutable(hfz.times(1.5).r_sub_mutable(1)));
+        return ufz.sub_mutable(ufz.times(0.75).times_mutable(hfz).times_mutable(hfz.times(1.5).r_sub_mutable(1)));
     }
 }

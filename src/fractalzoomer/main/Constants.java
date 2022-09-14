@@ -25,16 +25,16 @@ import java.awt.*;
  * @author hrkalona2
  */
 public interface Constants {
-    public static final int VERSION = 1082;
+    public static final int VERSION = 1083;
     public static final boolean beta = false;
     public static final int FAST_JULIA_IMAGE_SIZE = 252;
-    public static final int TOTAL_PALETTES = 37;
+    public static final int TOTAL_PALETTES = 41;
     public static final int TOTAL_INCOLORING_ALGORITHMS = 11;
     public static final int TOTAL_OUTCOLORING_ALGORITHMS = 25;
     public static final int TOTAL_BAILOUT_CONDITIONS = 13;
     public static final int TOTAL_CONVERGENT_BAILOUT_CONDITIONS = 6;
     public static final int TOTAL_PLANES = 64;
-    public static final int TOTAL_FUNCTIONS = 293;
+    public static final int TOTAL_FUNCTIONS = 501;
     public static final int TOTAL_FILTERS = 35;
     public static final int TOTAL_COLOR_TRANSFER_FILTERS = 7;
     public static final int TOTAL_COLOR_BLENDING = 30;
@@ -53,7 +53,7 @@ public interface Constants {
     "Grid Contours, Iso-Argument Lines", "Norm, Grid Contours, Iso-Argument Lines"};
     public static final String[] waveTypes = {"Sine", "Sawtooth", "Triangle", "Noise"};
     public static final String[] bumpTransferNames = {"1.5 / (x * factor + 1.5)", "1 / sqrt(x * factor + 1)", "1 / cbrt(x * factor + 1)", "2^(-x * factor)"};
-    public static final String[] color_interp_str = {"Linear", "Cosine", "Acceleration", "Deceleration", "Exponential", "Catmull-Rom", "Catmull-Rom 2", "Sigmoid", "Quadratic", "Cubic", "Sqrt"};
+    public static final String[] color_interp_str = {"Linear", "Cosine", "Acceleration", "Deceleration", "Exponential", "Catmull-Rom", "Catmull-Rom 2", "Sigmoid", "Quadratic", "Cubic", "Sqrt Values", "Sine", "Square Root", "3rd Degree Poly", "5th Degree Poly", "Exponential 2", "Cube Root", "Fourth Root", "Smooth Transition"};
     public static final String[] bumpProcessingMethod = {"RGB Scaling", "Blending", "Blending Alternative", "Lab", "HSB", "HSL"};
     public static final String[] entropyMethod = {"Palette Coloring", "Gradient Coloring"};
     public static final String[] rainbowMethod = {"Palette Coloring", "Gradient Coloring"};
@@ -64,10 +64,12 @@ public interface Constants {
     public static final String[] orbitTrapLineTypes = {"Line", "Sin", "Cos", "Tan", "Sinh", "Cosh", "Tanh", "Asin", "Acos", "Atan", "Square", "Cube", "Sqrt", "Cbrt", "Exp", "Log", "Abs" };
     public static final String[] orbitTrapCheckTypes = {"Minimum Distance", "Trapped First", "Trapped Last"};
     public static final String[] contourColorAlgorithmNames = {"Non-smooth Transitions", "Smooth Transitions", "Boundaries", "Boundaries/Non-Smooth Colors"};
-    public static final String[] circleAndGridFadeNames = {"Square Root", "Cube Root", "Fourth Root", "Linear", "Saturate"};
+    public static final String[] circleAndGridFadeNames = {"Square Root", "Cube Root", "Fourth Root", "Linear", "Saturate", "Cosine", "Square", "Sine", "Deceleration", "3rd Degree Poly", "5th Degree Poly", "Exponential", "Smooth Transition"};
     public static final String[] colorMethod = {"Lab", "HSB", "HSL", "Blending", "RGB Scaling"};
     public static final String[] lightTransfer = {"x * factor", "sqrt(x * factor)", "(x * factor)^2"};
     public static final String[] lightModes = {"Mode 1", "Mode 2", "Mode 3"};
+
+    public static final String[] deFadeAlgs = {"Linear", "Square Root", "Cube Root", "Fourth Root", "Cosine", "Square", "Sine", "Deceleration", "3rd Degree Poly", "5th Degree Poly", "Exponential", "Smooth Transition"};
     public static final String[] statisticalColoringName = {"Stripe Average(Sum)", "Curvature Average(Sum)", "Triange Inequality Average(Sum)", "cos(density * arg(z)) / norm(z) Average(Sum)", "cos(density * (arg(z - p) + pi)) / (factor + 1 / norm(z - p)) Sum", "Atom Domain (bof60/bof61)", "Discrete Lagrangian Descriptors", "Twin Lamps"};
     public static final String[] domainProcessingTransferNames = {"x * factor", "1 / (x * factor)"};
     public static final String[] domainHeightNames = {"Norm", "Re", "Im", "Re + Im"};
@@ -78,13 +80,14 @@ public interface Constants {
     public static final String[] derivativeMethod = {"Provided", "Numerical Forward", "Numerical Central", "Numerical Backward"};
     public static final String[] gridAlgorithms = {"sin", "mod"};
     public static final String[] combineAlgorithms = {"Multiply", "Average"};
-    public static final String[] trapHeightAlgorithms = {"Linear", "Cosine", "Sqrt", "Exponential"};
-    public static final String[] novaMethods = {"Newton Method", "Halley Method", "Schroder Method", "Householder Method", "Secant Method", "Steffensen Method", "Muller Method", "Parhalley Method", "Laguerre Method", "Newton-Hines Method", "Whittaker Method", "Whittaker Double Convex Method", "Super Halley Method",  "Midpoint Method", "Traub-Ostrowski Method", "Stirling Method", "Jaratt Method", "Jaratt 2 Method", "Weerakoon-Fernando Method", "Third Order Newton Method", "Abbasbandy Method", "Householder3 Method"};
+    public static final String[] trapHeightAlgorithms = {"Linear", "Cosine", "Square Root", "Exponential", "Cube Root", "Fourth Root", "Square", "Sine", "Deceleration", "3rd Degree Poly", "5th Degree Poly", "Smooth Transition"};
+    public static final String[] novaMethods = {"Newton Method", "Halley Method", "Schroder Method", "Householder Method", "Secant Method", "Steffensen Method", "Muller Method", "Parhalley Method", "Laguerre Method", "Newton-Hines Method", "Whittaker Method", "Whittaker Double Convex Method", "Super Halley Method",  "Midpoint Method", "Traub-Ostrowski Method", "Stirling Method", "Jaratt Method", "Jaratt 2 Method", "Weerakoon-Fernando Method", "Third Order Newton Method", "Abbasbandy Method", "Householder3 Method", "Contra Harmonic Newton", "Chun-Ham", "Chun-Kim", "Euler-Chebyshev Method", "Ezzati-Saleki 2 Method", "Homeier Method", "Abbasbandy 2 Method", "Abbasbandy 3 Method", "Popovski Method", "Changbum-Chun Method", "Changbum-Chun 2 Method", "King 3 Method", "Homeier 2 Method", "Kou-Li-Wang Method", "Kim-Chun Method", "Maheshweri Method", "Rafiullah Method", "Rafis-Rafiuallah Method", "Changbum-Chun 3 Method", "Ezzati-Saleki Method", "Feng Method", "King Method"
+    , "Noor-Gupta Method", "Harmonic-Simpson-Newton Method", "Nedzhibov Method", "Simpson-Newton Method"};
     public static final String[] rootInitializationMethod = {"(a^i) * z", "z's circle", "z * cos(a * i)", "z * e^(a * i)"};
     public static final String[] equicontinuityColorMethods = {"HSL", "HSB", "LCH", "Arg-Palette", "Palette"};
     public static final String[] equicontinuityArgs = {"Final Z value", "Start Z value", "Pixel Value", "C Value"};
     public static final String[] normalMapColoringMethods = {"Original Color", "Rainbow Palette", "Distance Estimator", "Original + Distance Estimator"};
-    public static final String[] rootShadingFunction = {"Linear", "Sqrt", "Cbrt", "Cosine", "Exponential"};
+    public static final String[] rootShadingFunction = {"Linear", "Square Root", "Cube Root", "Cosine", "Exponential", "Constant", "Square", "Sine", "Deceleration", "3rd Degree Poly", "5th Degree Poly", "Fourth Root", "Smooth Transition"};
     public static final String[] twinLampsFunction = {"Linear", "Sqrt"};
     public static final String[] langNormTypes = {"Norm Squared", "Norm", "Rhombus-Norm", "Square-Norm", "N-Norm"};
     public static final String[] atomNormTypes = {"Norm", "Rhombus-Norm", "Square-Norm", "N-Norm"};
@@ -389,6 +392,240 @@ public interface Constants {
     public static final int MAGNET24 = 291;
 
     public static final int NEWTON_THIRD_DEGREE_PARAMETER_SPACE = 292;
+
+    public static final int CONTRA_HARMONIC_NEWTON3 = 293;
+    public static final int CONTRA_HARMONIC_NEWTON4 = 294;
+    public static final int CONTRA_HARMONIC_NEWTONGENERALIZED3 = 295;
+    public static final int CONTRA_HARMONIC_NEWTONGENERALIZED8 = 296;
+    public static final int CONTRA_HARMONIC_NEWTONSIN = 297;
+    public static final int CONTRA_HARMONIC_NEWTONCOS = 298;
+    public static final int CONTRA_HARMONIC_NEWTONPOLY = 299;
+    public static final int CONTRA_HARMONIC_NEWTONFORMULA = 300;
+
+    public static final int CHUN_HAM3 = 301;
+    public static final int CHUN_HAM4 = 302;
+    public static final int CHUN_HAMGENERALIZED3 = 303;
+    public static final int CHUN_HAMGENERALIZED8 = 304;
+    public static final int CHUN_HAMSIN = 305;
+    public static final int CHUN_HAMCOS = 306;
+    public static final int CHUN_HAMPOLY = 307;
+    public static final int CHUN_HAMFORMULA = 308;
+
+    public static final int CHUN_KIM3 = 309;
+    public static final int CHUN_KIM4 = 310;
+    public static final int CHUN_KIMGENERALIZED3 = 311;
+    public static final int CHUN_KIMGENERALIZED8 = 312;
+    public static final int CHUN_KIMSIN = 313;
+    public static final int CHUN_KIMCOS = 314;
+    public static final int CHUN_KIMPOLY = 315;
+    public static final int CHUN_KIMFORMULA = 316;
+
+    public static final int EULER_CHEBYSHEV3 = 317;
+    public static final int EULER_CHEBYSHEV4 = 318;
+    public static final int EULER_CHEBYSHEVGENERALIZED3 = 319;
+    public static final int EULER_CHEBYSHEVGENERALIZED8 = 320;
+    public static final int EULER_CHEBYSHEVSIN = 321;
+    public static final int EULER_CHEBYSHEVCOS = 322;
+    public static final int EULER_CHEBYSHEVPOLY = 323;
+    public static final int EULER_CHEBYSHEVFORMULA = 324;
+
+    public static final int EZZATI_SALEKI23 = 325;
+    public static final int EZZATI_SALEKI24 = 326;
+    public static final int EZZATI_SALEKI2GENERALIZED3 = 327;
+    public static final int EZZATI_SALEKI2GENERALIZED8 = 328;
+    public static final int EZZATI_SALEKI2SIN = 329;
+    public static final int EZZATI_SALEKI2COS = 330;
+    public static final int EZZATI_SALEKI2POLY = 331;
+    public static final int EZZATI_SALEKI2FORMULA = 332;
+
+    public static final int HOMEIER13 = 333;
+    public static final int HOMEIER14 = 334;
+    public static final int HOMEIER1GENERALIZED3 = 335;
+    public static final int HOMEIER1GENERALIZED8 = 336;
+    public static final int HOMEIER1SIN = 337;
+    public static final int HOMEIER1COS = 338;
+    public static final int HOMEIER1POLY = 339;
+    public static final int HOMEIER1FORMULA = 340;
+
+    public static final int ABBASBANDY23 = 341;
+    public static final int ABBASBANDY24 = 342;
+    public static final int ABBASBANDY2GENERALIZED3 = 343;
+    public static final int ABBASBANDY2GENERALIZED8 = 344;
+    public static final int ABBASBANDY2SIN = 345;
+    public static final int ABBASBANDY2COS = 346;
+    public static final int ABBASBANDY2POLY = 347;
+    public static final int ABBASBANDY2FORMULA = 348;
+
+    public static final int ABBASBANDY33 = 349;
+    public static final int ABBASBANDY34 = 350;
+    public static final int ABBASBANDY3GENERALIZED3 = 351;
+    public static final int ABBASBANDY3GENERALIZED8 = 352;
+    public static final int ABBASBANDY3SIN = 353;
+    public static final int ABBASBANDY3COS = 354;
+    public static final int ABBASBANDY3POLY = 355;
+    public static final int ABBASBANDY3FORMULA = 356;
+
+    public static final int POPOVSKI13 = 357;
+    public static final int POPOVSKI14 = 358;
+    public static final int POPOVSKI1GENERALIZED3 = 359;
+    public static final int POPOVSKI1GENERALIZED8 = 360;
+    public static final int POPOVSKI1SIN = 361;
+    public static final int POPOVSKI1COS = 362;
+    public static final int POPOVSKI1POLY = 363;
+    public static final int POPOVSKI1FORMULA = 364;
+
+    public static final int CHANGBUM_CHUN13 = 365;
+    public static final int CHANGBUM_CHUN14 = 366;
+    public static final int CHANGBUM_CHUN1GENERALIZED3 = 367;
+    public static final int CHANGBUM_CHUN1GENERALIZED8 = 368;
+    public static final int CHANGBUM_CHUN1SIN = 369;
+    public static final int CHANGBUM_CHUN1COS = 370;
+    public static final int CHANGBUM_CHUN1POLY = 371;
+    public static final int CHANGBUM_CHUN1FORMULA = 372;
+
+    public static final int CHANGBUM_CHUN23 = 373;
+    public static final int CHANGBUM_CHUN24 = 374;
+    public static final int CHANGBUM_CHUN2GENERALIZED3 = 375;
+    public static final int CHANGBUM_CHUN2GENERALIZED8 = 376;
+    public static final int CHANGBUM_CHUN2SIN = 377;
+    public static final int CHANGBUM_CHUN2COS = 378;
+    public static final int CHANGBUM_CHUN2POLY = 379;
+    public static final int CHANGBUM_CHUN2FORMULA = 380;
+
+    public static final int KING33 = 381;
+    public static final int KING34 = 382;
+    public static final int KING3GENERALIZED3 = 383;
+    public static final int KING3GENERALIZED8 = 384;
+    public static final int KING3SIN = 385;
+    public static final int KING3COS = 386;
+    public static final int KING3POLY = 387;
+    public static final int KING3FORMULA = 388;
+
+    public static final int HOMEIER23 = 389;
+    public static final int HOMEIER24 = 390;
+    public static final int HOMEIER2GENERALIZED3 = 391;
+    public static final int HOMEIER2GENERALIZED8 = 392;
+    public static final int HOMEIER2SIN = 393;
+    public static final int HOMEIER2COS = 394;
+    public static final int HOMEIER2POLY = 395;
+    public static final int HOMEIER2FORMULA = 396;
+
+    public static final int KOU_LI_WANG13 = 397;
+    public static final int KOU_LI_WANG14 = 398;
+    public static final int KOU_LI_WANG1GENERALIZED3 = 399;
+    public static final int KOU_LI_WANG1GENERALIZED8 = 400;
+    public static final int KOU_LI_WANG1SIN = 401;
+    public static final int KOU_LI_WANG1COS = 402;
+    public static final int KOU_LI_WANG1POLY = 403;
+    public static final int KOU_LI_WANG1FORMULA = 404;
+
+    public static final int KIM_CHUN3 = 405;
+    public static final int KIM_CHUN4 = 406;
+    public static final int KIM_CHUNGENERALIZED3 = 407;
+    public static final int KIM_CHUNGENERALIZED8 = 408;
+    public static final int KIM_CHUNSIN = 409;
+    public static final int KIM_CHUNCOS = 410;
+    public static final int KIM_CHUNPOLY = 411;
+    public static final int KIM_CHUNFORMULA = 412;
+
+    public static final int MAHESHWERI3 = 413;
+    public static final int MAHESHWERI4 = 414;
+    public static final int MAHESHWERIGENERALIZED3 = 415;
+    public static final int MAHESHWERIGENERALIZED8 = 416;
+    public static final int MAHESHWERISIN = 417;
+    public static final int MAHESHWERICOS = 418;
+    public static final int MAHESHWERIPOLY = 419;
+    public static final int MAHESHWERIFORMULA = 420;
+
+    public static final int RAFIS_RAFIULLAH3 = 421;
+    public static final int RAFIS_RAFIULLAH4 = 422;
+    public static final int RAFIS_RAFIULLAHGENERALIZED3 = 423;
+    public static final int RAFIS_RAFIULLAHGENERALIZED8 = 424;
+    public static final int RAFIS_RAFIULLAHSIN = 425;
+    public static final int RAFIS_RAFIULLAHCOS = 426;
+    public static final int RAFIS_RAFIULLAHPOLY = 427;
+    public static final int RAFIS_RAFIULLAHFORMULA = 428;
+
+    public static final int RAFIULLAH13 = 429;
+    public static final int RAFIULLAH14 = 430;
+    public static final int RAFIULLAH1GENERALIZED3 = 431;
+    public static final int RAFIULLAH1GENERALIZED8 = 432;
+    public static final int RAFIULLAH1SIN = 433;
+    public static final int RAFIULLAH1COS = 434;
+    public static final int RAFIULLAH1POLY = 435;
+    public static final int RAFIULLAH1FORMULA = 436;
+
+    public static final int CHANGBUM_CHUN33 = 437;
+    public static final int CHANGBUM_CHUN34 = 438;
+    public static final int CHANGBUM_CHUN3GENERALIZED3 = 439;
+    public static final int CHANGBUM_CHUN3GENERALIZED8 = 440;
+    public static final int CHANGBUM_CHUN3SIN = 441;
+    public static final int CHANGBUM_CHUN3COS = 442;
+    public static final int CHANGBUM_CHUN3POLY = 443;
+    public static final int CHANGBUM_CHUN3FORMULA = 444;
+
+    public static final int EZZATI_SALEKI13 = 445;
+    public static final int EZZATI_SALEKI14 = 446;
+    public static final int EZZATI_SALEKI1GENERALIZED3 = 447;
+    public static final int EZZATI_SALEKI1GENERALIZED8 = 448;
+    public static final int EZZATI_SALEKI1SIN = 449;
+    public static final int EZZATI_SALEKI1COS = 450;
+    public static final int EZZATI_SALEKI1POLY = 451;
+    public static final int EZZATI_SALEKI1FORMULA = 452;
+
+    public static final int FENG3 = 453;
+    public static final int FENG4 = 454;
+    public static final int FENGGENERALIZED3 = 455;
+    public static final int FENGGENERALIZED8 = 456;
+    public static final int FENGSIN = 457;
+    public static final int FENGCOS = 458;
+    public static final int FENGPOLY = 459;
+    public static final int FENGFORMULA = 460;
+
+    public static final int KING13 = 461;
+    public static final int KING14 = 462;
+    public static final int KING1GENERALIZED3 = 463;
+    public static final int KING1GENERALIZED8 = 464;
+    public static final int KING1SIN = 465;
+    public static final int KING1COS = 466;
+    public static final int KING1POLY = 467;
+    public static final int KING1FORMULA = 468;
+
+    public static final int NOOR_GUPTA3 = 469;
+    public static final int NOOR_GUPTA4 = 470;
+    public static final int NOOR_GUPTAGENERALIZED3 = 471;
+    public static final int NOOR_GUPTAGENERALIZED8 = 472;
+    public static final int NOOR_GUPTASIN = 473;
+    public static final int NOOR_GUPTACOS = 474;
+    public static final int NOOR_GUPTAPOLY = 475;
+    public static final int NOOR_GUPTAFORMULA = 476;
+
+    public static final int HARMONIC_SIMPSON_NEWTON3 = 477;
+    public static final int HARMONIC_SIMPSON_NEWTON4 = 478;
+    public static final int HARMONIC_SIMPSON_NEWTONGENERALIZED3 = 479;
+    public static final int HARMONIC_SIMPSON_NEWTONGENERALIZED8 = 480;
+    public static final int HARMONIC_SIMPSON_NEWTONSIN = 481;
+    public static final int HARMONIC_SIMPSON_NEWTONCOS = 482;
+    public static final int HARMONIC_SIMPSON_NEWTONPOLY = 483;
+    public static final int HARMONIC_SIMPSON_NEWTONFORMULA = 484;
+
+    public static final int NEDZHIBOV3 = 485;
+    public static final int NEDZHIBOV4 = 486;
+    public static final int NEDZHIBOVGENERALIZED3 = 487;
+    public static final int NEDZHIBOVGENERALIZED8 = 488;
+    public static final int NEDZHIBOVSIN = 489;
+    public static final int NEDZHIBOVCOS = 490;
+    public static final int NEDZHIBOVPOLY = 491;
+    public static final int NEDZHIBOVFORMULA = 492;
+
+    public static final int SIMPSON_NEWTON3 = 493;
+    public static final int SIMPSON_NEWTON4 = 494;
+    public static final int SIMPSON_NEWTONGENERALIZED3 = 495;
+    public static final int SIMPSON_NEWTONGENERALIZED8 = 496;
+    public static final int SIMPSON_NEWTONSIN = 497;
+    public static final int SIMPSON_NEWTONCOS = 498;
+    public static final int SIMPSON_NEWTONPOLY = 499;
+    public static final int SIMPSON_NEWTONFORMULA = 500;
     /**
      * ***************
      */
@@ -418,6 +655,52 @@ public interface Constants {
     public static final int NOVA_THIRD_ORDER_NEWTON = 19;
     public static final int NOVA_ABBASBANDY = 20;
     public static final int NOVA_HOUSEHOLDER3 = 21;
+    public static final int NOVA_CONTRA_HARMONIC_NEWTON = 22;
+    public static final int NOVA_CHUN_HAM = 23;
+    public static final int NOVA_CHUN_KIM = 24;
+
+    public static final int NOVA_EULER_CHEBYSHEV = 25;
+
+    public static final int NOVA_EZZATI_SALEKI2 = 26;
+
+    public static final int NOVA_HOMEIER1 = 27;
+
+    public static final int NOVA_ABBASBANDY2 = 28;
+
+    public static final int NOVA_ABBASBANDY3 = 29;
+
+    public static final int NOVA_POPOVSKI1 = 30;
+
+    public static final int NOVA_CHANGBUM_CHUN1 = 31;
+
+    public static final int NOVA_CHANGBUM_CHUN2 = 32;
+
+    public static final int NOVA_KING3 = 33;
+
+    public static final int NOVA_HOMEIER2 = 34;
+
+    public static final int NOVA_KOU_LI_WANG1 = 35;
+
+    public static final int NOVA_KIM_CHUN = 36;
+
+    public static final int NOVA_MAHESHWERI = 37;
+
+    public static final int NOVA_RAFIULLAH1 = 38;
+    public static final int NOVA_RAFIS_RAFIULLAH = 39;
+
+    public static final int NOVA_CHANGBUM_CHUN3 = 40;
+
+    public static final int NOVA_EZZATI_SALEKI1 = 41;
+    public static final int NOVA_FENG = 42;
+
+    public static final int NOVA_KING1 = 43;
+    public static final int NOVA_NOOR_GUPTA = 44;
+    public static final int NOVA_HARMONIC_SIMPSON_NEWTON = 45;
+
+    public static final int NOVA_NEDZHIBOV = 46;
+    public static final int NOVA_SIMPSON_NEWTON = 47;
+
+
     /**
      * *******************
      */
@@ -692,7 +975,23 @@ public interface Constants {
     public static final int INTERPOLATION_SIGMOID = 7;
     public static final int INTERPOLATION_QUADRATIC = 8;
     public static final int INTERPOLATION_CUBIC = 9;
-    public static final int INTERPOLATION_SQRT = 10;
+    public static final int INTERPOLATION_SQRT_VALUES = 10;
+
+    public static final int INTERPOLATION_SINE = 11;
+
+    public static final int INTERPOLATION_SQRT = 12;
+
+    public static final int INTERPOLATION_THIRD_POLY = 13;
+
+    public static final int INTERPOLATION_FIFTH_POLY = 14;
+
+    public static final int INTERPOLATION_EXPONENTIAL_2 = 15;
+
+    public static final int INTERPOLATION_CUBE_ROOT = 16;
+
+    public static final int INTERPOLATION_FOURTH_ROOT = 17;
+
+    public static final int INTERPOLATION_SMOOTH_TRANSITION_STEP = 18;
     /**
      * **************************
      */
@@ -732,6 +1031,15 @@ public interface Constants {
     public static final int PROCESSING_RYB1 = 18;
     public static final int PROCESSING_RYB2 = 19;
     public static final int PROCESSING_HISTOGRAM_LIGHTNESS_LAB = 20;
+    public static final int PROCESSING_BRIGHTNESS3 = 21;
+    public static final int PROCESSING_HUE3 = 22;
+    public static final int PROCESSING_SATURATION3 = 23;
+    public static final int PROCESSING_RED3 = 24;
+    public static final int PROCESSING_GREEN3 = 25;
+    public static final int PROCESSING_BLUE3 = 26;
+    public static final int PROCESSING_RGB3 = 27;
+    public static final int PROCESSING_HSB3 = 28;
+    public static final int PROCESSING_RYB3 = 29;
     /**
      * *************************
      */
@@ -947,6 +1255,6 @@ public interface Constants {
     public static final Color progress_sa_color = new Color(30, 90, 255);
     public static final Color progress_bla_color = new Color(24, 201, 85);
 
-    public static final Apint DEFAULT_MAGNIFICATION = new Apint(6);
+    public static final Apint DEFAULT_MAGNIFICATION = new Apint(4);
 
 }

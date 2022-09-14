@@ -1,18 +1,44 @@
 import fractalzoomer.core.Complex;
 import fractalzoomer.functions.root_finding_methods.abbasbandy.AbbasbandyRootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.abbasbandy2.Abbasbandy2RootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.abbasbandy3.Abbasbandy3RootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.changbum_chun1.ChangBumChun1RootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.changbum_chun2.ChangBumChun2RootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.changbum_chun3.ChangBumChun3RootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.chun_ham.ChunHamRootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.chun_kim.ChunKimRootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.contra_harmonic_newton.ContraHarmonicNewtonRootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.euler_chebyshev.EulerChebyshevRootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.ezzati_saleki1.EzzatiSaleki1RootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.ezzati_saleki2.EzzatiSaleki2RootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.feng.FengRootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.halley.HalleyRootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.harmonic_simpson_newton.HarmonicSimpsonNewtonRootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.homeier1.Homeier1RootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.homeier2.Homeier2RootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.householder.HouseholderRootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.householder3.Householder3RootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.jaratt.JarattRootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.jaratt2.Jaratt2RootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.kim_chun.KimChunRootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.king1.King1RootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.king3.King3RootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.kou_li_wang1.KouLiWang1RootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.laguerre.LaguerreRootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.maheshweri.MaheshweriRootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.midpoint.MidpointRootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.muller.MullerRootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.nedzhibov.NedzhibovRootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.newton.NewtonRootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.newton_hines.NewtonHinesRootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.noor_gupta.NoorGuptaRootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.parhalley.ParhalleyRootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.popovski1.Popovski1RootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.rafis_rafiullah.RafisRafiullahRootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.rafiullah1.Rafiullah1RootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.schroder.SchroderRootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.secant.SecantRootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.simpson_newton.SimpsonNewtonRootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.steffensen.SteffensenRootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.stirling.StirlingRootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.super_halley.SuperHalleyRootFindingMethod;
@@ -31,13 +57,41 @@ import java.util.Random;
 public class TestRootFindingMethodUniquenes {
     private static final double epsilon = 1e-4;
 
+    public static Complex getFz(Complex z) {
+        //return z.cube().sub(1);
+        return z.fourth().sub(1);
+        //return z.cube().sub_mutable(z.times(2)).plus_mutable(2);
+        //return z.eighth().plus_mutable(z.fourth().times_mutable(15)).sub_mutable(16);
+    }
+
+    public static Complex getDFz(Complex z) {
+        //return  z.square().times(3);
+        return z.cube().times(4);
+       //return z.square().times_mutable(3).sub_mutable(2);
+        //return z.seventh().times_mutable(8).plus_mutable(z.cube().times_mutable(60));
+    }
+
+    public static Complex getDDFz(Complex z) {
+        //return z.times(6);
+        return z.square().times(12);
+        //return z.times(6);
+        //return z.sixth().times_mutable(56).plus_mutable(z.square().times_mutable(180));
+    }
+
+    public static Complex getDDDFz(Complex z) {
+        //return new Complex(6, 0);
+        return z.times(24);
+        //return new Complex(6, 0);
+        //return z.fifth().times_mutable(336).plus_mutable(z.times(360));
+    }
+
     public static Complex getNextIterationForMethod(Complex z, int method, Complex zold, Complex zold2)
     {
 
-        Complex fz = z.fourth().sub(1);
-        Complex dfz = z.cube().times(4);
-        Complex ddfz = z.square().times(12);
-        Complex dddfz = z.times(24);
+        Complex fz = getFz(z);
+        Complex dfz = getDFz(z);
+        Complex ddfz = getDDFz(z);
+        Complex dddfz = getDDDFz(z);
 
         switch (method) {
             case 0: //Newton
@@ -55,7 +109,7 @@ public class TestRootFindingMethodUniquenes {
             case 6: //Newton-hines
                 return NewtonHinesRootFindingMethod.newtonHinesMethod(z, fz, dfz, new Complex(-0.5, 0), new Complex(1, 0));
             case 7: //Secant
-                Complex fz1 = zold.fourth().sub(1);
+                Complex fz1 = getFz(zold);
                 return SecantRootFindingMethod.secantMethod(z, fz, zold,fz1, new Complex(1, 0));
             case 8: //Whittaker
                 return WhittakerRootFindingMethod.whittakerMethod(z, fz, dfz, ddfz, new Complex(1, 0));
@@ -63,46 +117,158 @@ public class TestRootFindingMethodUniquenes {
                 return WhittakerDoubleConvexRootFindingMethod.whittakerDoubleConvexMethod(z, fz, dfz, ddfz, new Complex(1, 0));
             case 10: //Jaratt
                 Complex df_combined = JarattRootFindingMethod.getDerivativeArgument(z, fz, dfz);
-                df_combined = df_combined.cube().times(4);
+                df_combined = getDFz(df_combined);
                 return JarattRootFindingMethod.jarattMethod(z, fz, dfz, df_combined, new Complex(1, 0));
             case 11: //Jaratt2
                 df_combined = Jaratt2RootFindingMethod.getDerivativeArgument(z, fz, dfz);
-                df_combined = df_combined.cube().times(4);
+                df_combined = getDFz(df_combined);
                 return Jaratt2RootFindingMethod.jaratt2Method(z, fz, dfz, df_combined, new Complex(1, 0));
             case 12: // Super-halley
                 return SuperHalleyRootFindingMethod.superHalleyMethod(z, fz, dfz, ddfz, new Complex(1, 0));
             case 13: //Weerakoon-F
                 df_combined = WeerakoonFernandoRootFindingMethod.getDerivativeArgument(z, fz, dfz);
-                df_combined = df_combined.cube().times(4);
+                df_combined = getDFz(df_combined);
                 return WeerakoonFernandoRootFindingMethod.weerakoonFernandoMethod(z, fz, dfz, df_combined, new Complex(1, 0));
             case 14: //Midpoint
                 df_combined = MidpointRootFindingMethod.getDerivativeArgument(z, fz, dfz);
-                df_combined = df_combined.cube().times(4);
+                df_combined = getDFz(df_combined);
                 return MidpointRootFindingMethod.midpointMethod(z, fz, df_combined, new Complex(1, 0));
             case 15: //Stirling
                 df_combined = StirlingRootFindingMethod.getDerivativeArgument(z, fz);
-                df_combined = df_combined.cube().times(4);
+                df_combined = getDFz(df_combined);
                 return StirlingRootFindingMethod.stirlingMethod(z, fz, df_combined, new Complex(1, 0));
             case 16: //ThirdOrderNewton
                 Complex ffz = ThirdOrderNewtonRootFindingMethod.getFunctionArgument(z, fz, dfz);
-                ffz = ffz.fourth().sub(1);
+                ffz = getFz(ffz);
                 return ThirdOrderNewtonRootFindingMethod.thirdOrderNewtonMethod(z, fz, dfz, ffz, new Complex(1, 0));
             case 17: //TraubOstrowski
                 ffz = TraubOstrowskiRootFindingMethod.getFunctionArgument(z, fz, dfz);
-                ffz = ffz.fourth().sub(1);
+                ffz = getFz(ffz);
                 return TraubOstrowskiRootFindingMethod.traubOstrowskiMethod(z, fz, dfz, ffz, new Complex(1, 0));
             case 18: //Steffensen
                 ffz = SteffensenRootFindingMethod.getFunctionArgument(z, fz);
-                ffz = ffz.fourth().sub(1);
+                ffz = getFz(ffz);
                 return SteffensenRootFindingMethod.steffensenMethod(z, fz, ffz, new Complex(1, 0));
             case 19: //Muller
-                return MullerRootFindingMethod.mullerMethod(z, zold, zold2, fz, zold.fourth().sub(1), zold2.fourth().sub(1), new Complex(1, 0));
+                return MullerRootFindingMethod.mullerMethod(z, zold, zold2, fz, getFz(zold), getFz(zold2), new Complex(1, 0));
                 //return MullerRootFindingMethod.mullerMethod(z, new Complex(), new Complex(1e-10, 0), fz, new Complex().fourth().sub(1), new Complex(1e-10, 0).fourth().sub(1), new Complex(1, 0));
             case 20: //Abbasbandy
                 return AbbasbandyRootFindingMethod.abbasbandyMethod(z, fz, dfz, ddfz, dddfz, new Complex(1, 0));
             case 21: //Householder3
                 return Householder3RootFindingMethod.householder3Method(z, fz, dfz, ddfz, dddfz, new Complex(1, 0));
+            case 22: //CHN
+                df_combined = ContraHarmonicNewtonRootFindingMethod.getDerivativeArgument(z, fz, dfz);
+                df_combined = getDFz(df_combined);
+                return ContraHarmonicNewtonRootFindingMethod.chnMethod(z, fz, dfz, df_combined, new Complex(1, 0));
+            case 23: //Chun-Ham
+                ffz = ChunHamRootFindingMethod.getFunctionArgument(z, fz, dfz);
+                ffz = getFz(ffz);
+                return ChunHamRootFindingMethod.chunHamMethod(z, fz, dfz, ffz, new Complex(1, 0));
+            case 24: //Chun-Kim
+                df_combined = ChunKimRootFindingMethod.getDerivativeArgument(z, fz, dfz);
+                df_combined = getDFz(df_combined);
+                return ChunKimRootFindingMethod.chunKimMethod(z, fz, dfz, df_combined, new Complex(1, 0));
+            case 25: //Abbasbandy 2
+                return Abbasbandy2RootFindingMethod.abbasbandy2Method(z, fz, dfz, ddfz, new Complex(1, 0));
+            case 26: //Abbasbandy 3
+                return Abbasbandy3RootFindingMethod.abbasbandy3Method(z, fz, dfz, ddfz, dddfz, new Complex(1, 0));
+            case 27: //Changbum-Chun 1
+                ffz = ChangBumChun1RootFindingMethod.getFunctionArgument(z, fz, dfz);
+                ffz = getFz(ffz);
+                return ChangBumChun1RootFindingMethod.changbumChun1Method(z, fz, dfz, ffz, new Complex(1, 0));
+            case 28: //Euler-Chebyshev
+                return EulerChebyshevRootFindingMethod.eulerChebyshevMethod(z, fz, dfz, ddfz, new Complex(1, 0));
+            case 29: //Homeier1
+                df_combined = Homeier1RootFindingMethod.getDerivativeArgument(z, fz, dfz);
+                df_combined = getDFz(df_combined);
+                return Homeier1RootFindingMethod.homeier1Method(z, fz, df_combined, new Complex(1, 0));
+            case 30: // ChangBumChun2
+                ffz = ChangBumChun2RootFindingMethod.getFunctionArgument(z, fz, dfz);
+                ffz = getFz(ffz);
+                return ChangBumChun2RootFindingMethod.changbumChun2Method(z, fz, dfz, ffz, new Complex(1, 0));
+            case 31: //HSN
+                Complex y = HarmonicSimpsonNewtonRootFindingMethod.getDerivativeArgument(z, fz, dfz);
+                df_combined = getDFz(y);
+
+                Complex df_combined2 = z.plus(y).times_mutable(0.5);
+                df_combined2 = getDFz(df_combined2);
+                return HarmonicSimpsonNewtonRootFindingMethod.hsnMethod(z, fz, dfz, df_combined, df_combined2, new Complex(1, 0));
+            case 32: //EzzatiSaleki2
+                ffz = EzzatiSaleki2RootFindingMethod.getFunctionArgument(z, fz, dfz);
+                ffz = getFz(ffz);
+                return EzzatiSaleki2RootFindingMethod.ezzatiSaleki2Method(z, fz, dfz, ffz, new Complex(1, 0));
+            case 33: //Homeier2
+                df_combined = Homeier2RootFindingMethod.getDerivativeArgument(z, fz, dfz);
+                df_combined = getDFz(df_combined);
+                return Homeier2RootFindingMethod.homeier2Method(z, fz, dfz, df_combined, new Complex(1, 0));
+            case 34: //KimChun
+                df_combined = KimChunRootFindingMethod.getDerivativeArgument(z, fz, dfz);
+                df_combined = getDFz(df_combined);
+                return KimChunRootFindingMethod.kimChunMethod(z, fz, dfz, df_combined, new Complex(1, 0));
+            case 35: //King3
+                ffz = King3RootFindingMethod.getFunctionArgument(z, fz, dfz);
+                ffz = getFz(ffz);
+                return King3RootFindingMethod.king3Method(z, fz, dfz, ffz, new Complex(1, 0));
+            case 36: //KouLiWang1
+                ffz = KouLiWang1RootFindingMethod.getFunctionArgument(z, fz, dfz);
+                ffz = getFz(ffz);
+                return KouLiWang1RootFindingMethod.kouLiWang1Method(z, fz, dfz, ffz, new Complex(1, 0));
+            case 37: //Maheshweri
+                ffz = MaheshweriRootFindingMethod.getFunctionArgument(z, fz, dfz);
+                ffz = getFz(ffz);
+                return MaheshweriRootFindingMethod.maheshweriMethod(z, fz, dfz, ffz, new Complex(1, 0));
+            case 38: //Nedzhibov
+                y = NedzhibovRootFindingMethod.getDerivativeArgument(z, fz, dfz);
+                df_combined = getDFz(y);
+                df_combined2 = z.plus(y).times_mutable(0.5);
+                df_combined2 = getDFz(df_combined2);
+                return NedzhibovRootFindingMethod.nedzhibovMethod(z, fz, dfz, df_combined, df_combined2, new Complex(1, 0));
+            case 39: //Popovski1
+                return Popovski1RootFindingMethod.popovski1Method(z, fz, dfz, ddfz, new Complex(1, 0));
+            case 40: //Rafis-Rafiullah
+                Complex ddf_combined = RafisRafiullahRootFindingMethod.getSecondDerivativeArgument(z, fz, dfz);
+                ddf_combined = getDDFz(ddf_combined);
+                return RafisRafiullahRootFindingMethod.rafisRafiullahMethod(z, fz, dfz, ddfz, ddf_combined, new Complex(1, 0));
+            case 41: // Rafiullah1
+                df_combined = Rafiullah1RootFindingMethod.getDerivativeArgument(z, fz, dfz);
+                df_combined = getDFz(df_combined);
+                return Rafiullah1RootFindingMethod.rafiullah1Method(z, fz, dfz, df_combined, new Complex(1, 0));
+            case 42: //Simpson-Newton
+                y = SimpsonNewtonRootFindingMethod.getDerivativeArgument(z, fz, dfz);
+                df_combined = getDFz(y);
+                df_combined2 = z.plus(y).times_mutable(0.5);
+                df_combined2 = getDFz(df_combined2);
+                return SimpsonNewtonRootFindingMethod.simpsonNewtonMethod(z, fz, dfz, df_combined, df_combined2, new Complex(1, 0));
+
+            case 43: //ChangBumChun3
+                y = ChangBumChun3RootFindingMethod.getFunctionAndDerivativeArgument(z, fz, dfz);
+                df_combined = getDFz(y);
+                ffz = getFz(y);
+                return ChangBumChun3RootFindingMethod.changbumChun3Method(z, fz, dfz, ffz, df_combined, new Complex(1, 0));
+            case 44: //EzzatiSaleki1
+                y = EzzatiSaleki1RootFindingMethod.getFunctionAndDerivativeArgument(z, fz, dfz);
+                df_combined = getDFz(y);
+                ffz = getFz(y);
+                return EzzatiSaleki1RootFindingMethod.ezzatiSaleki1Method(z, fz, dfz, ffz, df_combined, new Complex(1, 0));
+            case 45: //Feng
+                y = FengRootFindingMethod.getFunctionAndDerivativeArgument(z, fz, dfz);
+                df_combined = getDFz(y);
+                ffz = getFz(y);
+                return FengRootFindingMethod.fengMethod(z, fz, dfz, ffz, df_combined, new Complex(1, 0));
+            case 46: //King1
+                y = King1RootFindingMethod.getFunctionAndDerivativeArgument(z, fz, dfz);
+                df_combined = getDFz(y);
+                ffz = getFz(y);
+                return King1RootFindingMethod.king1Method(z, fz, dfz, ffz, df_combined, new Complex(1, 0));
+            case 47: //Noor-Gupta
+                y = NoorGuptaRootFindingMethod.getFunctionAndDerivativeArgument(z, fz, dfz);
+                df_combined = getDFz(y);
+                ffz = getFz(y);
+                return NoorGuptaRootFindingMethod.noorGuptaMethod(z, fz, dfz, ffz, df_combined, new Complex(1, 0));
+
+
         }
+
 
         return null;
     }
@@ -112,7 +278,7 @@ public class TestRootFindingMethodUniquenes {
         Complex[] vals = new Complex[100000];
         Random rand = new Random(123);
 
-        int[] methods = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21};
+        int[] methods = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47};
 
         for(int i = 0; i < vals.length; i++) {
             double signRe = rand.nextDouble() >= 0.5 ? -1 : 1;
@@ -189,9 +355,9 @@ public class TestRootFindingMethodUniquenes {
                     Complex z_2 = new Complex();
 
                     int iteration = 0;
-                    for(iteration = 0; iteration < 500; iteration++) {
+                    for(iteration = 0; iteration < 1000; iteration++) {
 
-                        if(c.distance_squared(zold) < 1e-10 && iteration > 0) {
+                        if(c.distance_squared(zold) < 1e-8 && iteration > 0) {
                             escaped = true;
                             break;
                         }

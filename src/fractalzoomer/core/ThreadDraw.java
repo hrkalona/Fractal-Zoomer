@@ -28,6 +28,7 @@ import fractalzoomer.core.location.Location;
 import fractalzoomer.core.location.PolarLocation;
 import fractalzoomer.fractal_options.iteration_statistics.Equicontinuity;
 import fractalzoomer.fractal_options.iteration_statistics.GenericStatistic;
+import fractalzoomer.fractal_options.iteration_statistics.NormalMap;
 import fractalzoomer.fractal_options.iteration_statistics.RootColoring;
 import fractalzoomer.fractal_options.orbit_traps.OrbitTrap;
 import fractalzoomer.functions.Fractal;
@@ -53,22 +54,48 @@ import fractalzoomer.functions.magnet.*;
 import fractalzoomer.functions.mandelbrot.*;
 import fractalzoomer.functions.math.*;
 import fractalzoomer.functions.root_finding_methods.abbasbandy.*;
+import fractalzoomer.functions.root_finding_methods.abbasbandy2.*;
+import fractalzoomer.functions.root_finding_methods.abbasbandy3.*;
 import fractalzoomer.functions.root_finding_methods.aberth_ehrlich.*;
 import fractalzoomer.functions.root_finding_methods.bairstow.*;
+import fractalzoomer.functions.root_finding_methods.changbum_chun1.*;
+import fractalzoomer.functions.root_finding_methods.changbum_chun2.*;
+import fractalzoomer.functions.root_finding_methods.changbum_chun3.*;
+import fractalzoomer.functions.root_finding_methods.chun_ham.*;
+import fractalzoomer.functions.root_finding_methods.chun_kim.*;
+import fractalzoomer.functions.root_finding_methods.contra_harmonic_newton.*;
 import fractalzoomer.functions.root_finding_methods.durand_kerner.*;
+import fractalzoomer.functions.root_finding_methods.euler_chebyshev.*;
+import fractalzoomer.functions.root_finding_methods.ezzati_saleki1.*;
+import fractalzoomer.functions.root_finding_methods.ezzati_saleki2.*;
+import fractalzoomer.functions.root_finding_methods.feng.*;
 import fractalzoomer.functions.root_finding_methods.halley.*;
+import fractalzoomer.functions.root_finding_methods.harmonic_simpson_newton.*;
+import fractalzoomer.functions.root_finding_methods.homeier1.*;
+import fractalzoomer.functions.root_finding_methods.homeier2.*;
 import fractalzoomer.functions.root_finding_methods.householder.*;
 import fractalzoomer.functions.root_finding_methods.householder3.*;
 import fractalzoomer.functions.root_finding_methods.jaratt.*;
 import fractalzoomer.functions.root_finding_methods.jaratt2.*;
+import fractalzoomer.functions.root_finding_methods.kim_chun.*;
+import fractalzoomer.functions.root_finding_methods.king1.*;
+import fractalzoomer.functions.root_finding_methods.king3.*;
+import fractalzoomer.functions.root_finding_methods.kou_li_wang1.*;
 import fractalzoomer.functions.root_finding_methods.laguerre.*;
+import fractalzoomer.functions.root_finding_methods.maheshweri.*;
 import fractalzoomer.functions.root_finding_methods.midpoint.*;
 import fractalzoomer.functions.root_finding_methods.muller.*;
+import fractalzoomer.functions.root_finding_methods.nedzhibov.*;
 import fractalzoomer.functions.root_finding_methods.newton.*;
 import fractalzoomer.functions.root_finding_methods.newton_hines.*;
+import fractalzoomer.functions.root_finding_methods.noor_gupta.*;
 import fractalzoomer.functions.root_finding_methods.parhalley.*;
+import fractalzoomer.functions.root_finding_methods.popovski1.*;
+import fractalzoomer.functions.root_finding_methods.rafis_rafiullah.*;
+import fractalzoomer.functions.root_finding_methods.rafiullah1.*;
 import fractalzoomer.functions.root_finding_methods.schroder.*;
 import fractalzoomer.functions.root_finding_methods.secant.*;
+import fractalzoomer.functions.root_finding_methods.simpson_newton.*;
 import fractalzoomer.functions.root_finding_methods.steffensen.*;
 import fractalzoomer.functions.root_finding_methods.stirling.*;
 import fractalzoomer.functions.root_finding_methods.super_halley.*;
@@ -273,7 +300,6 @@ public abstract class ThreadDraw extends Thread {
     protected static boolean[] escaped_fast_julia;
     protected static boolean[] escaped;
     public static int IMAGE_SIZE;
-    private static long PixelCalculationTime;
     /**
      * ********************
      */
@@ -383,12 +409,13 @@ public abstract class ThreadDraw extends Thread {
     public static boolean USE_BIGNUM_FOR_PIXELS_IF_POSSIBLE = true;
     public static boolean BIGNUM_AUTOMATIC_PRECISION = true;
     public static int BIGNUM_PRECISION = 996;
-    public static double BIGNUM_PRECISION_FACTOR = 1;
+    public static int BIGNUM_PRECISION_FACTOR = 1;
     public static boolean USE_THREADS_FOR_SA = false;
     public static int BLA_BITS = 23;
-    public static double BLA_LIMIT_FACTOR = 0.5;
     public static boolean USE_THREADS_FOR_BLA = true;
     public static boolean DETECT_PERIOD = false;
+    public static boolean SCALED_ITERATIONS = true;
+    public static int BLA_STARTING_LEVEL = 1;
     
 
     static {
@@ -549,11 +576,11 @@ public abstract class ThreadDraw extends Thread {
 
         rgbs = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 
-        fractal = fractalFactory(function, xCenter.doubleValue(), yCenter.doubleValue(), size.doubleValue(), max_iterations, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, plane_type, Settings.fromDDArray(rotation_vals), Settings.fromDDArray(rotation_center), burning_ship, mandel_grass, mandel_grass_vals, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, z_exponent, z_exponent_complex, coefficients, coefficients_im, z_exponent_nova, relaxation, nova_method, bail_technique, user_formula, user_formula2, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, coupling, user_formula_coupled, coupling_method, coupling_amplitude, coupling_frequency, coupling_seed, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, gcs, lyapunovExpression, ots, exterior_de, exterior_de_factor, inverse_dem, escaping_smooth_algorithm, converging_smooth_algorithm, sts, useLyapunovExponent, user_fz_formula, user_dfz_formula, user_ddfz_formula, user_dddfz_formula, kleinianLine, kleinianK, kleinianM, laguerre_deg, durand_kernel_init_val, mps, lyapunovFunction, lyapunovExponentFunction, lyapunovVariableId, user_relaxation_formula, user_nova_addend_formula, gcps, igs, lfns, newton_hines_k, tcs, lyapunovInitialValue, lyapunovInitializationIteratons, lyapunovskipBailoutCheck, root_initialization_method, preffs, postffs, ips, defaultNovaInitialValue, cbs, useGlobalMethod, globalMethodFactor, period);
+        fractal = fractalFactory(function, xCenter.doubleValue(), yCenter.doubleValue(), size, size.doubleValue(), max_iterations, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, plane_type, Settings.fromDDArray(rotation_vals), Settings.fromDDArray(rotation_center), burning_ship, mandel_grass, mandel_grass_vals, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, z_exponent, z_exponent_complex, coefficients, coefficients_im, z_exponent_nova, relaxation, nova_method, bail_technique, user_formula, user_formula2, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, coupling, user_formula_coupled, coupling_method, coupling_amplitude, coupling_frequency, coupling_seed, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, gcs, lyapunovExpression, ots, exterior_de, exterior_de_factor, inverse_dem, escaping_smooth_algorithm, converging_smooth_algorithm, sts, useLyapunovExponent, user_fz_formula, user_dfz_formula, user_ddfz_formula, user_dddfz_formula, kleinianLine, kleinianK, kleinianM, laguerre_deg, durand_kernel_init_val, mps, lyapunovFunction, lyapunovExponentFunction, lyapunovVariableId, user_relaxation_formula, user_nova_addend_formula, gcps, igs, lfns, newton_hines_k, tcs, lyapunovInitialValue, lyapunovInitializationIteratons, lyapunovskipBailoutCheck, root_initialization_method, preffs, postffs, ips, defaultNovaInitialValue, cbs, useGlobalMethod, globalMethodFactor, period);
 
         this.sts = sts;
         if(sts.statistic && sts.statisticGroup == 2) {
-            Fractal f2 = fractalFactory(function, xCenter.doubleValue(), yCenter.doubleValue(), size.doubleValue(), max_iterations, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, plane_type, Settings.fromDDArray(rotation_vals), Settings.fromDDArray(rotation_center), burning_ship, mandel_grass, mandel_grass_vals, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, z_exponent, z_exponent_complex, coefficients, coefficients_im, z_exponent_nova, relaxation, nova_method, bail_technique, user_formula, user_formula2, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, coupling, user_formula_coupled, coupling_method, coupling_amplitude, coupling_frequency, coupling_seed, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, gcs, lyapunovExpression, ots, exterior_de, exterior_de_factor, inverse_dem, escaping_smooth_algorithm, converging_smooth_algorithm, sts, useLyapunovExponent, user_fz_formula, user_dfz_formula, user_ddfz_formula, user_dddfz_formula, kleinianLine, kleinianK, kleinianM, laguerre_deg, durand_kernel_init_val, mps, lyapunovFunction, lyapunovExponentFunction, lyapunovVariableId, user_relaxation_formula, user_nova_addend_formula, gcps, igs, lfns, newton_hines_k, tcs, lyapunovInitialValue, lyapunovInitializationIteratons, lyapunovskipBailoutCheck, root_initialization_method, preffs, postffs, ips, defaultNovaInitialValue, cbs, useGlobalMethod, globalMethodFactor, period);
+            Fractal f2 = fractalFactory(function, xCenter.doubleValue(), yCenter.doubleValue(), size, size.doubleValue(), max_iterations, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, plane_type, Settings.fromDDArray(rotation_vals), Settings.fromDDArray(rotation_center), burning_ship, mandel_grass, mandel_grass_vals, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, z_exponent, z_exponent_complex, coefficients, coefficients_im, z_exponent_nova, relaxation, nova_method, bail_technique, user_formula, user_formula2, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, coupling, user_formula_coupled, coupling_method, coupling_amplitude, coupling_frequency, coupling_seed, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, gcs, lyapunovExpression, ots, exterior_de, exterior_de_factor, inverse_dem, escaping_smooth_algorithm, converging_smooth_algorithm, sts, useLyapunovExponent, user_fz_formula, user_dfz_formula, user_ddfz_formula, user_dddfz_formula, kleinianLine, kleinianK, kleinianM, laguerre_deg, durand_kernel_init_val, mps, lyapunovFunction, lyapunovExponentFunction, lyapunovVariableId, user_relaxation_formula, user_nova_addend_formula, gcps, igs, lfns, newton_hines_k, tcs, lyapunovInitialValue, lyapunovInitializationIteratons, lyapunovskipBailoutCheck, root_initialization_method, preffs, postffs, ips, defaultNovaInitialValue, cbs, useGlobalMethod, globalMethodFactor, period);
             if(fractal.getStatisticInstance() != null) {
                 ((Equicontinuity) fractal.getStatisticInstance()).setFractal(f2);
                 ((Equicontinuity) fractal.getStatisticInstance()).setJulia(false);
@@ -653,11 +680,11 @@ public abstract class ThreadDraw extends Thread {
 
         rgbs = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 
-        fractal = fractalFactory(function, xCenter.doubleValue(), yCenter.doubleValue(), size.doubleValue(), max_iterations, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, plane_type, Settings.fromDDArray(rotation_vals), Settings.fromDDArray(rotation_center), burning_ship, mandel_grass, mandel_grass_vals, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, z_exponent, z_exponent_complex, coefficients, coefficients_im, z_exponent_nova, relaxation, nova_method, bail_technique, user_formula, user_formula2, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, coupling, user_formula_coupled, coupling_method, coupling_amplitude, coupling_frequency, coupling_seed, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, gcs, lyapunovExpression, ots, exterior_de, exterior_de_factor, inverse_dem, escaping_smooth_algorithm, converging_smooth_algorithm, sts, useLyapunovExponent, user_fz_formula, user_dfz_formula, user_ddfz_formula, user_dddfz_formula, kleinianLine, kleinianK, kleinianM, laguerre_deg, durand_kernel_init_val, mps, lyapunovFunction, lyapunovExponentFunction, lyapunovVariableId, user_relaxation_formula, user_nova_addend_formula, gcps, igs, lfns, newton_hines_k, tcs, lyapunovInitialValue, lyapunovInitializationIteratons, lyapunovskipBailoutCheck, root_initialization_method, preffs, postffs, ips, defaultNovaInitialValue, cbs, useGlobalMethod, globalMethodFactor, period);
+        fractal = fractalFactory(function, xCenter.doubleValue(), yCenter.doubleValue(), size, size.doubleValue(), max_iterations, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, plane_type, Settings.fromDDArray(rotation_vals), Settings.fromDDArray(rotation_center), burning_ship, mandel_grass, mandel_grass_vals, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, z_exponent, z_exponent_complex, coefficients, coefficients_im, z_exponent_nova, relaxation, nova_method, bail_technique, user_formula, user_formula2, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, coupling, user_formula_coupled, coupling_method, coupling_amplitude, coupling_frequency, coupling_seed, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, gcs, lyapunovExpression, ots, exterior_de, exterior_de_factor, inverse_dem, escaping_smooth_algorithm, converging_smooth_algorithm, sts, useLyapunovExponent, user_fz_formula, user_dfz_formula, user_ddfz_formula, user_dddfz_formula, kleinianLine, kleinianK, kleinianM, laguerre_deg, durand_kernel_init_val, mps, lyapunovFunction, lyapunovExponentFunction, lyapunovVariableId, user_relaxation_formula, user_nova_addend_formula, gcps, igs, lfns, newton_hines_k, tcs, lyapunovInitialValue, lyapunovInitializationIteratons, lyapunovskipBailoutCheck, root_initialization_method, preffs, postffs, ips, defaultNovaInitialValue, cbs, useGlobalMethod, globalMethodFactor, period);
 
         this.sts = sts;
         if(sts.statistic && sts.statisticGroup == 2) {
-            Fractal f2 = fractalFactory(function, xCenter.doubleValue(), yCenter.doubleValue(), size.doubleValue(), max_iterations, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, plane_type, Settings.fromDDArray(rotation_vals), Settings.fromDDArray(rotation_center), burning_ship, mandel_grass, mandel_grass_vals, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, z_exponent, z_exponent_complex, coefficients, coefficients_im, z_exponent_nova, relaxation, nova_method, bail_technique, user_formula, user_formula2, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, coupling, user_formula_coupled, coupling_method, coupling_amplitude, coupling_frequency, coupling_seed, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, gcs, lyapunovExpression, ots, exterior_de, exterior_de_factor, inverse_dem, escaping_smooth_algorithm, converging_smooth_algorithm, sts, useLyapunovExponent, user_fz_formula, user_dfz_formula, user_ddfz_formula, user_dddfz_formula, kleinianLine, kleinianK, kleinianM, laguerre_deg, durand_kernel_init_val, mps, lyapunovFunction, lyapunovExponentFunction, lyapunovVariableId, user_relaxation_formula, user_nova_addend_formula, gcps, igs, lfns, newton_hines_k, tcs, lyapunovInitialValue, lyapunovInitializationIteratons, lyapunovskipBailoutCheck, root_initialization_method, preffs, postffs, ips, defaultNovaInitialValue, cbs, useGlobalMethod, globalMethodFactor, period);
+            Fractal f2 = fractalFactory(function, xCenter.doubleValue(), yCenter.doubleValue(), size, size.doubleValue(), max_iterations, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, plane_type, Settings.fromDDArray(rotation_vals), Settings.fromDDArray(rotation_center), burning_ship, mandel_grass, mandel_grass_vals, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, z_exponent, z_exponent_complex, coefficients, coefficients_im, z_exponent_nova, relaxation, nova_method, bail_technique, user_formula, user_formula2, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, coupling, user_formula_coupled, coupling_method, coupling_amplitude, coupling_frequency, coupling_seed, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, gcs, lyapunovExpression, ots, exterior_de, exterior_de_factor, inverse_dem, escaping_smooth_algorithm, converging_smooth_algorithm, sts, useLyapunovExponent, user_fz_formula, user_dfz_formula, user_ddfz_formula, user_dddfz_formula, kleinianLine, kleinianK, kleinianM, laguerre_deg, durand_kernel_init_val, mps, lyapunovFunction, lyapunovExponentFunction, lyapunovVariableId, user_relaxation_formula, user_nova_addend_formula, gcps, igs, lfns, newton_hines_k, tcs, lyapunovInitialValue, lyapunovInitializationIteratons, lyapunovskipBailoutCheck, root_initialization_method, preffs, postffs, ips, defaultNovaInitialValue, cbs, useGlobalMethod, globalMethodFactor, period);
             if(fractal.getStatisticInstance() != null) {
                 ((Equicontinuity) fractal.getStatisticInstance()).setFractal(f2);
                 ((Equicontinuity) fractal.getStatisticInstance()).setJulia(false);
@@ -783,11 +810,11 @@ public abstract class ThreadDraw extends Thread {
 
         rgbs = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 
-        fractal = juliaFactory(function, xCenter.doubleValue(), yCenter.doubleValue(), size.doubleValue(), max_iterations, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, Settings.fromDDArray(rotation_vals), Settings.fromDDArray(rotation_center), burning_ship, mandel_grass, mandel_grass_vals, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, z_exponent, z_exponent_complex, coefficients, coefficients_im, z_exponent_nova, relaxation, nova_method, bail_technique, user_formula, user_formula2, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, coupling, user_formula_coupled, coupling_method, coupling_amplitude, coupling_frequency, coupling_seed, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, gcs, lyapunovExpression, ots, exterior_de, exterior_de_factor, inverse_dem, escaping_smooth_algorithm, converging_smooth_algorithm, sts, useLyapunovExponent, lyapunovFunction, lyapunovExponentFunction, lyapunovVariableId, user_fz_formula, user_dfz_formula, user_ddfz_formula, user_dddfz_formula, user_relaxation_formula, user_nova_addend_formula, laguerre_deg, gcps, lfns, newton_hines_k, tcs, lyapunovInitialValue, lyapunovInitializationIteratons, lyapunovskipBailoutCheck, preffs, postffs, ips, juliter, juliterIterations, juliterIncludeInitialIterations, defaultNovaInitialValue, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, perturbation_user_formula, user_perturbation_conditions, user_perturbation_condition_formula, init_value, initial_vals, variable_init_value, user_initial_value_algorithm, initial_value_user_formula, user_initial_value_conditions, user_initial_value_condition_formula, cbs, useGlobalMethod, globalMethodFactor, xJuliaCenter, yJuliaCenter);
+        fractal = juliaFactory(function, xCenter.doubleValue(), yCenter.doubleValue(), size, size.doubleValue(), max_iterations, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, Settings.fromDDArray(rotation_vals), Settings.fromDDArray(rotation_center), burning_ship, mandel_grass, mandel_grass_vals, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, z_exponent, z_exponent_complex, coefficients, coefficients_im, z_exponent_nova, relaxation, nova_method, bail_technique, user_formula, user_formula2, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, coupling, user_formula_coupled, coupling_method, coupling_amplitude, coupling_frequency, coupling_seed, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, gcs, lyapunovExpression, ots, exterior_de, exterior_de_factor, inverse_dem, escaping_smooth_algorithm, converging_smooth_algorithm, sts, useLyapunovExponent, lyapunovFunction, lyapunovExponentFunction, lyapunovVariableId, user_fz_formula, user_dfz_formula, user_ddfz_formula, user_dddfz_formula, user_relaxation_formula, user_nova_addend_formula, laguerre_deg, gcps, lfns, newton_hines_k, tcs, lyapunovInitialValue, lyapunovInitializationIteratons, lyapunovskipBailoutCheck, preffs, postffs, ips, juliter, juliterIterations, juliterIncludeInitialIterations, defaultNovaInitialValue, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, perturbation_user_formula, user_perturbation_conditions, user_perturbation_condition_formula, init_value, initial_vals, variable_init_value, user_initial_value_algorithm, initial_value_user_formula, user_initial_value_conditions, user_initial_value_condition_formula, cbs, useGlobalMethod, globalMethodFactor, xJuliaCenter, yJuliaCenter);
 
         this.sts = sts;
         if(sts.statistic && sts.statisticGroup == 2) {
-            Fractal f2 = juliaFactory(function, xCenter.doubleValue(), yCenter.doubleValue(), size.doubleValue(), max_iterations, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, Settings.fromDDArray(rotation_vals), Settings.fromDDArray(rotation_center), burning_ship, mandel_grass, mandel_grass_vals, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, z_exponent, z_exponent_complex, coefficients, coefficients_im, z_exponent_nova, relaxation, nova_method, bail_technique, user_formula, user_formula2, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, coupling, user_formula_coupled, coupling_method, coupling_amplitude, coupling_frequency, coupling_seed, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, gcs, lyapunovExpression, ots, exterior_de, exterior_de_factor, inverse_dem, escaping_smooth_algorithm, converging_smooth_algorithm, sts, useLyapunovExponent, lyapunovFunction, lyapunovExponentFunction, lyapunovVariableId, user_fz_formula, user_dfz_formula, user_ddfz_formula, user_dddfz_formula, user_relaxation_formula, user_nova_addend_formula, laguerre_deg, gcps, lfns, newton_hines_k, tcs, lyapunovInitialValue, lyapunovInitializationIteratons, lyapunovskipBailoutCheck, preffs, postffs, ips, juliter, juliterIterations, juliterIncludeInitialIterations, defaultNovaInitialValue, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, perturbation_user_formula, user_perturbation_conditions, user_perturbation_condition_formula, init_value, initial_vals, variable_init_value, user_initial_value_algorithm, initial_value_user_formula, user_initial_value_conditions, user_initial_value_condition_formula, cbs, useGlobalMethod, globalMethodFactor, xJuliaCenter, yJuliaCenter);
+            Fractal f2 = juliaFactory(function, xCenter.doubleValue(), yCenter.doubleValue(), size, size.doubleValue(), max_iterations, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, Settings.fromDDArray(rotation_vals), Settings.fromDDArray(rotation_center), burning_ship, mandel_grass, mandel_grass_vals, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, z_exponent, z_exponent_complex, coefficients, coefficients_im, z_exponent_nova, relaxation, nova_method, bail_technique, user_formula, user_formula2, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, coupling, user_formula_coupled, coupling_method, coupling_amplitude, coupling_frequency, coupling_seed, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, gcs, lyapunovExpression, ots, exterior_de, exterior_de_factor, inverse_dem, escaping_smooth_algorithm, converging_smooth_algorithm, sts, useLyapunovExponent, lyapunovFunction, lyapunovExponentFunction, lyapunovVariableId, user_fz_formula, user_dfz_formula, user_ddfz_formula, user_dddfz_formula, user_relaxation_formula, user_nova_addend_formula, laguerre_deg, gcps, lfns, newton_hines_k, tcs, lyapunovInitialValue, lyapunovInitializationIteratons, lyapunovskipBailoutCheck, preffs, postffs, ips, juliter, juliterIterations, juliterIncludeInitialIterations, defaultNovaInitialValue, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, perturbation_user_formula, user_perturbation_conditions, user_perturbation_condition_formula, init_value, initial_vals, variable_init_value, user_initial_value_algorithm, initial_value_user_formula, user_initial_value_conditions, user_initial_value_condition_formula, cbs, useGlobalMethod, globalMethodFactor, xJuliaCenter, yJuliaCenter);
             if(fractal.getStatisticInstance() != null) {
                 ((Equicontinuity) fractal.getStatisticInstance()).setFractal(f2);
                 ((Equicontinuity) fractal.getStatisticInstance()).setJulia(true);
@@ -889,11 +916,11 @@ public abstract class ThreadDraw extends Thread {
 
         rgbs = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 
-        fractal = juliaFactory(function, xCenter.doubleValue(), yCenter.doubleValue(), size.doubleValue(), max_iterations, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, Settings.fromDDArray(rotation_vals), Settings.fromDDArray(rotation_center), burning_ship, mandel_grass, mandel_grass_vals, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, z_exponent, z_exponent_complex, coefficients, coefficients_im, z_exponent_nova, relaxation, nova_method, bail_technique, user_formula, user_formula2, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, coupling, user_formula_coupled, coupling_method, coupling_amplitude, coupling_frequency, coupling_seed, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, gcs, lyapunovExpression, ots, exterior_de, exterior_de_factor, inverse_dem, escaping_smooth_algorithm, converging_smooth_algorithm, sts, useLyapunovExponent, lyapunovFunction, lyapunovExponentFunction, lyapunovVariableId, user_fz_formula, user_dfz_formula, user_ddfz_formula, user_dddfz_formula, user_relaxation_formula, user_nova_addend_formula, laguerre_deg, gcps, lfns, newton_hines_k, tcs, lyapunovInitialValue, lyapunovInitializationIteratons, lyapunovskipBailoutCheck, preffs, postffs, ips, juliter, juliterIterations, juliterIncludeInitialIterations, defaultNovaInitialValue, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, perturbation_user_formula, user_perturbation_conditions, user_perturbation_condition_formula, init_value, initial_vals, variable_init_value, user_initial_value_algorithm, initial_value_user_formula, user_initial_value_conditions, user_initial_value_condition_formula, cbs,  useGlobalMethod, globalMethodFactor, xJuliaCenter, yJuliaCenter);
+        fractal = juliaFactory(function, xCenter.doubleValue(), yCenter.doubleValue(), size, size.doubleValue(), max_iterations, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, Settings.fromDDArray(rotation_vals), Settings.fromDDArray(rotation_center), burning_ship, mandel_grass, mandel_grass_vals, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, z_exponent, z_exponent_complex, coefficients, coefficients_im, z_exponent_nova, relaxation, nova_method, bail_technique, user_formula, user_formula2, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, coupling, user_formula_coupled, coupling_method, coupling_amplitude, coupling_frequency, coupling_seed, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, gcs, lyapunovExpression, ots, exterior_de, exterior_de_factor, inverse_dem, escaping_smooth_algorithm, converging_smooth_algorithm, sts, useLyapunovExponent, lyapunovFunction, lyapunovExponentFunction, lyapunovVariableId, user_fz_formula, user_dfz_formula, user_ddfz_formula, user_dddfz_formula, user_relaxation_formula, user_nova_addend_formula, laguerre_deg, gcps, lfns, newton_hines_k, tcs, lyapunovInitialValue, lyapunovInitializationIteratons, lyapunovskipBailoutCheck, preffs, postffs, ips, juliter, juliterIterations, juliterIncludeInitialIterations, defaultNovaInitialValue, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, perturbation_user_formula, user_perturbation_conditions, user_perturbation_condition_formula, init_value, initial_vals, variable_init_value, user_initial_value_algorithm, initial_value_user_formula, user_initial_value_conditions, user_initial_value_condition_formula, cbs,  useGlobalMethod, globalMethodFactor, xJuliaCenter, yJuliaCenter);
 
         this.sts = sts;
         if(sts.statistic && sts.statisticGroup == 2) {
-            Fractal f2 = juliaFactory(function, xCenter.doubleValue(), yCenter.doubleValue(), size.doubleValue(), max_iterations, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, Settings.fromDDArray(rotation_vals), Settings.fromDDArray(rotation_center), burning_ship, mandel_grass, mandel_grass_vals, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, z_exponent, z_exponent_complex, coefficients, coefficients_im, z_exponent_nova, relaxation, nova_method, bail_technique, user_formula, user_formula2, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, coupling, user_formula_coupled, coupling_method, coupling_amplitude, coupling_frequency, coupling_seed, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, gcs, lyapunovExpression, ots, exterior_de, exterior_de_factor, inverse_dem, escaping_smooth_algorithm, converging_smooth_algorithm, sts, useLyapunovExponent, lyapunovFunction, lyapunovExponentFunction, lyapunovVariableId, user_fz_formula, user_dfz_formula, user_ddfz_formula, user_dddfz_formula, user_relaxation_formula, user_nova_addend_formula, laguerre_deg, gcps, lfns, newton_hines_k, tcs, lyapunovInitialValue, lyapunovInitializationIteratons, lyapunovskipBailoutCheck, preffs, postffs, ips, juliter, juliterIterations, juliterIncludeInitialIterations, defaultNovaInitialValue, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, perturbation_user_formula, user_perturbation_conditions, user_perturbation_condition_formula, init_value, initial_vals, variable_init_value, user_initial_value_algorithm, initial_value_user_formula, user_initial_value_conditions, user_initial_value_condition_formula, cbs,  useGlobalMethod, globalMethodFactor, xJuliaCenter, yJuliaCenter);
+            Fractal f2 = juliaFactory(function, xCenter.doubleValue(), yCenter.doubleValue(), size, size.doubleValue(), max_iterations, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, Settings.fromDDArray(rotation_vals), Settings.fromDDArray(rotation_center), burning_ship, mandel_grass, mandel_grass_vals, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, z_exponent, z_exponent_complex, coefficients, coefficients_im, z_exponent_nova, relaxation, nova_method, bail_technique, user_formula, user_formula2, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, coupling, user_formula_coupled, coupling_method, coupling_amplitude, coupling_frequency, coupling_seed, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, gcs, lyapunovExpression, ots, exterior_de, exterior_de_factor, inverse_dem, escaping_smooth_algorithm, converging_smooth_algorithm, sts, useLyapunovExponent, lyapunovFunction, lyapunovExponentFunction, lyapunovVariableId, user_fz_formula, user_dfz_formula, user_ddfz_formula, user_dddfz_formula, user_relaxation_formula, user_nova_addend_formula, laguerre_deg, gcps, lfns, newton_hines_k, tcs, lyapunovInitialValue, lyapunovInitializationIteratons, lyapunovskipBailoutCheck, preffs, postffs, ips, juliter, juliterIterations, juliterIncludeInitialIterations, defaultNovaInitialValue, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, perturbation_user_formula, user_perturbation_conditions, user_perturbation_condition_formula, init_value, initial_vals, variable_init_value, user_initial_value_algorithm, initial_value_user_formula, user_initial_value_conditions, user_initial_value_condition_formula, cbs,  useGlobalMethod, globalMethodFactor, xJuliaCenter, yJuliaCenter);
             if(fractal.getStatisticInstance() != null) {
                 ((Equicontinuity) fractal.getStatisticInstance()).setFractal(f2);
                 ((Equicontinuity) fractal.getStatisticInstance()).setJulia(true);
@@ -1013,12 +1040,12 @@ public abstract class ThreadDraw extends Thread {
             mapxCenter = -2;
         }
 
-        fractal = juliaFactory(function, mapxCenter, mapyCenter, size.doubleValue(), max_iterations, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, Settings.fromDDArray(rotation_vals), Settings.fromDDArray(rotation_center), burning_ship, mandel_grass, mandel_grass_vals, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, z_exponent, z_exponent_complex, coefficients, coefficients_im, z_exponent_nova, relaxation, nova_method, bail_technique, user_formula, user_formula2, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, coupling, user_formula_coupled, coupling_method, coupling_amplitude, coupling_frequency, coupling_seed, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, gcs, lyapunovExpression, ots, exterior_de, exterior_de_factor, inverse_dem, escaping_smooth_algorithm, converging_smooth_algorithm, sts, useLyapunovExponent, lyapunovFunction, lyapunovExponentFunction, lyapunovVariableId, user_fz_formula, user_dfz_formula, user_ddfz_formula, user_dddfz_formula, user_relaxation_formula, user_nova_addend_formula, laguerre_deg, gcps, lfns, newton_hines_k, tcs, lyapunovInitialValue, lyapunovInitializationIteratons, lyapunovskipBailoutCheck, preffs, postffs, ips, juliter, juliterIterations, juliterIncludeInitialIterations, defaultNovaInitialValue, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, perturbation_user_formula, user_perturbation_conditions, user_perturbation_condition_formula, init_value, initial_vals, variable_init_value, user_initial_value_algorithm, initial_value_user_formula, user_initial_value_conditions, user_initial_value_condition_formula, cbs,  useGlobalMethod, globalMethodFactor, xJuliaCenter, yJuliaCenter);
+        fractal = juliaFactory(function, mapxCenter, mapyCenter, size, size.doubleValue(), max_iterations, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, Settings.fromDDArray(rotation_vals), Settings.fromDDArray(rotation_center), burning_ship, mandel_grass, mandel_grass_vals, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, z_exponent, z_exponent_complex, coefficients, coefficients_im, z_exponent_nova, relaxation, nova_method, bail_technique, user_formula, user_formula2, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, coupling, user_formula_coupled, coupling_method, coupling_amplitude, coupling_frequency, coupling_seed, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, gcs, lyapunovExpression, ots, exterior_de, exterior_de_factor, inverse_dem, escaping_smooth_algorithm, converging_smooth_algorithm, sts, useLyapunovExponent, lyapunovFunction, lyapunovExponentFunction, lyapunovVariableId, user_fz_formula, user_dfz_formula, user_ddfz_formula, user_dddfz_formula, user_relaxation_formula, user_nova_addend_formula, laguerre_deg, gcps, lfns, newton_hines_k, tcs, lyapunovInitialValue, lyapunovInitializationIteratons, lyapunovskipBailoutCheck, preffs, postffs, ips, juliter, juliterIterations, juliterIncludeInitialIterations, defaultNovaInitialValue, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, perturbation_user_formula, user_perturbation_conditions, user_perturbation_condition_formula, init_value, initial_vals, variable_init_value, user_initial_value_algorithm, initial_value_user_formula, user_initial_value_conditions, user_initial_value_condition_formula, cbs,  useGlobalMethod, globalMethodFactor, xJuliaCenter, yJuliaCenter);
         fractal.setJuliaMap(true);
 
         this.sts = sts;
         if(sts.statistic && sts.statisticGroup == 2) {
-            Fractal f2 = juliaFactory(function, mapxCenter, mapyCenter, size.doubleValue(), max_iterations, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, Settings.fromDDArray(rotation_vals), Settings.fromDDArray(rotation_center), burning_ship, mandel_grass, mandel_grass_vals, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, z_exponent, z_exponent_complex, coefficients, coefficients_im, z_exponent_nova, relaxation, nova_method, bail_technique, user_formula, user_formula2, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, coupling, user_formula_coupled, coupling_method, coupling_amplitude, coupling_frequency, coupling_seed, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, gcs, lyapunovExpression, ots, exterior_de, exterior_de_factor, inverse_dem, escaping_smooth_algorithm, converging_smooth_algorithm, sts, useLyapunovExponent, lyapunovFunction, lyapunovExponentFunction, lyapunovVariableId, user_fz_formula, user_dfz_formula, user_ddfz_formula, user_dddfz_formula, user_relaxation_formula, user_nova_addend_formula, laguerre_deg, gcps, lfns, newton_hines_k, tcs, lyapunovInitialValue, lyapunovInitializationIteratons, lyapunovskipBailoutCheck, preffs, postffs, ips, juliter, juliterIterations, juliterIncludeInitialIterations, defaultNovaInitialValue, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, perturbation_user_formula, user_perturbation_conditions, user_perturbation_condition_formula, init_value, initial_vals, variable_init_value, user_initial_value_algorithm, initial_value_user_formula, user_initial_value_conditions, user_initial_value_condition_formula, cbs, useGlobalMethod, globalMethodFactor, xJuliaCenter, yJuliaCenter);
+            Fractal f2 = juliaFactory(function, mapxCenter, mapyCenter, size, size.doubleValue(), max_iterations, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, Settings.fromDDArray(rotation_vals), Settings.fromDDArray(rotation_center), burning_ship, mandel_grass, mandel_grass_vals, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, z_exponent, z_exponent_complex, coefficients, coefficients_im, z_exponent_nova, relaxation, nova_method, bail_technique, user_formula, user_formula2, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, coupling, user_formula_coupled, coupling_method, coupling_amplitude, coupling_frequency, coupling_seed, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, gcs, lyapunovExpression, ots, exterior_de, exterior_de_factor, inverse_dem, escaping_smooth_algorithm, converging_smooth_algorithm, sts, useLyapunovExponent, lyapunovFunction, lyapunovExponentFunction, lyapunovVariableId, user_fz_formula, user_dfz_formula, user_ddfz_formula, user_dddfz_formula, user_relaxation_formula, user_nova_addend_formula, laguerre_deg, gcps, lfns, newton_hines_k, tcs, lyapunovInitialValue, lyapunovInitializationIteratons, lyapunovskipBailoutCheck, preffs, postffs, ips, juliter, juliterIterations, juliterIncludeInitialIterations, defaultNovaInitialValue, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, perturbation_user_formula, user_perturbation_conditions, user_perturbation_condition_formula, init_value, initial_vals, variable_init_value, user_initial_value_algorithm, initial_value_user_formula, user_initial_value_conditions, user_initial_value_condition_formula, cbs, useGlobalMethod, globalMethodFactor, xJuliaCenter, yJuliaCenter);
             f2.setJuliaMap(true);
             if(fractal.getStatisticInstance() != null) {
                 ((Equicontinuity) fractal.getStatisticInstance()).setFractal(f2);
@@ -1106,11 +1133,11 @@ public abstract class ThreadDraw extends Thread {
         this.usePaletteForInColoring = usePaletteForInColoring;
         colorTransferFactory(transfer_function, transfer_function2, color_intensity, color_intensity2);
 
-        fractal = juliaFactory(function, xCenter.doubleValue(), yCenter.doubleValue(), size.doubleValue(), max_iterations, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, Settings.fromDDArray(rotation_vals), Settings.fromDDArray(rotation_center), burning_ship, mandel_grass, mandel_grass_vals, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, z_exponent, z_exponent_complex, coefficients, coefficients_im, z_exponent_nova, relaxation, nova_method, bail_technique, user_formula, user_formula2, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, coupling, user_formula_coupled, coupling_method, coupling_amplitude, coupling_frequency, coupling_seed, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, gcs, lyapunovExpression, ots, exterior_de, exterior_de_factor, inverse_dem, escaping_smooth_algorithm, converging_smooth_algorithm, sts, useLyapunovExponent, lyapunovFunction, lyapunovExponentFunction, lyapunovVariableId, user_fz_formula, user_dfz_formula, user_ddfz_formula, user_dddfz_formula, user_relaxation_formula, user_nova_addend_formula, laguerre_deg, gcps, lfns, newton_hines_k, tcs, lyapunovInitialValue, lyapunovInitializationIteratons, lyapunovskipBailoutCheck, preffs, postffs, ips, juliter, juliterIterations, juliterIncludeInitialIterations, defaultNovaInitialValue, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, perturbation_user_formula, user_perturbation_conditions, user_perturbation_condition_formula, init_value, initial_vals, variable_init_value, user_initial_value_algorithm, initial_value_user_formula, user_initial_value_conditions, user_initial_value_condition_formula, cbs, useGlobalMethod, globalMethodFactor, xJuliaCenter, yJuliaCenter);
+        fractal = juliaFactory(function, xCenter.doubleValue(), yCenter.doubleValue(), size, size.doubleValue(), max_iterations, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, Settings.fromDDArray(rotation_vals), Settings.fromDDArray(rotation_center), burning_ship, mandel_grass, mandel_grass_vals, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, z_exponent, z_exponent_complex, coefficients, coefficients_im, z_exponent_nova, relaxation, nova_method, bail_technique, user_formula, user_formula2, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, coupling, user_formula_coupled, coupling_method, coupling_amplitude, coupling_frequency, coupling_seed, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, gcs, lyapunovExpression, ots, exterior_de, exterior_de_factor, inverse_dem, escaping_smooth_algorithm, converging_smooth_algorithm, sts, useLyapunovExponent, lyapunovFunction, lyapunovExponentFunction, lyapunovVariableId, user_fz_formula, user_dfz_formula, user_ddfz_formula, user_dddfz_formula, user_relaxation_formula, user_nova_addend_formula, laguerre_deg, gcps, lfns, newton_hines_k, tcs, lyapunovInitialValue, lyapunovInitializationIteratons, lyapunovskipBailoutCheck, preffs, postffs, ips, juliter, juliterIterations, juliterIncludeInitialIterations, defaultNovaInitialValue, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, perturbation_user_formula, user_perturbation_conditions, user_perturbation_condition_formula, init_value, initial_vals, variable_init_value, user_initial_value_algorithm, initial_value_user_formula, user_initial_value_conditions, user_initial_value_condition_formula, cbs, useGlobalMethod, globalMethodFactor, xJuliaCenter, yJuliaCenter);
 
         this.sts = sts;
         if(sts.statistic && sts.statisticGroup == 2) {
-            Fractal f2 = fractal = juliaFactory(function, xCenter.doubleValue(), yCenter.doubleValue(), size.doubleValue(), max_iterations, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, Settings.fromDDArray(rotation_vals), Settings.fromDDArray(rotation_center), burning_ship, mandel_grass, mandel_grass_vals, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, z_exponent, z_exponent_complex, coefficients, coefficients_im, z_exponent_nova, relaxation, nova_method, bail_technique, user_formula, user_formula2, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, coupling, user_formula_coupled, coupling_method, coupling_amplitude, coupling_frequency, coupling_seed, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, gcs, lyapunovExpression, ots, exterior_de, exterior_de_factor, inverse_dem, escaping_smooth_algorithm, converging_smooth_algorithm, sts, useLyapunovExponent, lyapunovFunction, lyapunovExponentFunction, lyapunovVariableId, user_fz_formula, user_dfz_formula, user_ddfz_formula, user_dddfz_formula, user_relaxation_formula, user_nova_addend_formula, laguerre_deg, gcps, lfns, newton_hines_k, tcs, lyapunovInitialValue, lyapunovInitializationIteratons, lyapunovskipBailoutCheck, preffs, postffs, ips, juliter, juliterIterations, juliterIncludeInitialIterations, defaultNovaInitialValue, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, perturbation_user_formula, user_perturbation_conditions, user_perturbation_condition_formula, init_value, initial_vals, variable_init_value, user_initial_value_algorithm, initial_value_user_formula, user_initial_value_conditions, user_initial_value_condition_formula, cbs, useGlobalMethod, globalMethodFactor, xJuliaCenter, yJuliaCenter);
+            Fractal f2 = fractal = juliaFactory(function, xCenter.doubleValue(), yCenter.doubleValue(), size, size.doubleValue(), max_iterations, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, Settings.fromDDArray(rotation_vals), Settings.fromDDArray(rotation_center), burning_ship, mandel_grass, mandel_grass_vals, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, z_exponent, z_exponent_complex, coefficients, coefficients_im, z_exponent_nova, relaxation, nova_method, bail_technique, user_formula, user_formula2, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, coupling, user_formula_coupled, coupling_method, coupling_amplitude, coupling_frequency, coupling_seed, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, gcs, lyapunovExpression, ots, exterior_de, exterior_de_factor, inverse_dem, escaping_smooth_algorithm, converging_smooth_algorithm, sts, useLyapunovExponent, lyapunovFunction, lyapunovExponentFunction, lyapunovVariableId, user_fz_formula, user_dfz_formula, user_ddfz_formula, user_dddfz_formula, user_relaxation_formula, user_nova_addend_formula, laguerre_deg, gcps, lfns, newton_hines_k, tcs, lyapunovInitialValue, lyapunovInitializationIteratons, lyapunovskipBailoutCheck, preffs, postffs, ips, juliter, juliterIterations, juliterIncludeInitialIterations, defaultNovaInitialValue, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, perturbation_user_formula, user_perturbation_conditions, user_perturbation_condition_formula, init_value, initial_vals, variable_init_value, user_initial_value_algorithm, initial_value_user_formula, user_initial_value_conditions, user_initial_value_condition_formula, cbs, useGlobalMethod, globalMethodFactor, xJuliaCenter, yJuliaCenter);
             if(fractal.getStatisticInstance() != null) {
                 ((Equicontinuity) fractal.getStatisticInstance()).setFractal(f2);
                 ((Equicontinuity) fractal.getStatisticInstance()).setJulia(true);
@@ -1382,12 +1409,14 @@ public abstract class ThreadDraw extends Thread {
             }
             System.exit(-1);
         }
+        catch (IllegalMonitorStateException ex) {
+
+        }
 
     }
 
-    private long getPixelCalculationTime() {
-        long time = ptr != null ? ptr.getCalculationTime() : ptrExpander.getCalculationTime();
-        return System.currentTimeMillis() - time - Fractal.ReferenceCalculationTime - Fractal.SACalculationTime - Fractal.BLACalculationTime - PostProcessingCalculationTime - D3RenderingCalculationTime;
+    private long getPixelCalculationTime(long totalTime) {
+        return totalTime - Fractal.ReferenceCalculationTime - Fractal.SACalculationTime - Fractal.BLACalculationTime - PostProcessingCalculationTime - D3RenderingCalculationTime - FilterCalculationTime;
     }
 
     private void drawDomainExpander() {
@@ -1407,8 +1436,6 @@ public abstract class ThreadDraw extends Thread {
         total_calculated.add(thread_calculated);
 
         if (finalize_sync.incrementAndGet() == ptrExpander.getNumberOfThreads()) {
-
-            PixelCalculationTime = getPixelCalculationTime();
 
             image_iterations = null;
             escaped = null;
@@ -1432,18 +1459,20 @@ public abstract class ThreadDraw extends Thread {
         int threads = ptr != null ? ptr.getNumberOfThreads() : ptrExpander.getNumberOfThreads();
 
         int aaSamplesIndex = (filters_options_vals[MainWindow.ANTIALIASING] % 100) % 10;
-        int supersampling_num = !filters[MainWindow.ANTIALIASING] ? 0 : (aaSamplesIndex == 0 ? 4 : 8 * aaSamplesIndex);
+        int supersampling_num = !filters[MainWindow.ANTIALIASING] ? 0 : (aaSamplesIndex == 0 ? 4 : 8 * aaSamplesIndex) + 1;
 
         long total_calculated_pixels = total_calculated.sum();
 
-        progress.setToolTipText("<html><li>Total Elapsed Time: <b>" + (System.currentTimeMillis() - time) + " ms</b><br>" +
+        long total_time = System.currentTimeMillis() - time;
+
+        progress.setToolTipText("<html><li>Total Elapsed Time: <b>" + total_time + " ms</b><br>" +
                 "<li>Pixels Calculated: <b>" + String.format("%6.2f", ((double) total_calculated_pixels) / (total) * 100) + "%</b><br>" +
                 "<li>Image Size: <b>" + IMAGE_SIZE + "x" +  IMAGE_SIZE + "</b><br>" +
                 (filters[MainWindow.ANTIALIASING] ? "<li>Anti-Aliasing Samples: <b>" +  supersampling_num + "x</b><br>" : "") +
                 "<li>Threads used: <b>" + threads + "</b><br>" +
-                "<li>Arbitrary precision: <b>" + MyApfloat.precision + " digits</b><br>" +
-                (USE_BIGNUM_FOR_REF_IF_POSSIBLE ? "<li>BigNum precision: <b>" + (BigNum.fracDigits * BigNum.SHIFT) + " bits</b><br>" : "") +
-                "<li>Pixel Calculation Elapsed Time: <b>" + PixelCalculationTime + " ms</b><br>" +
+                (PERTURBATION_THEORY && fractal.supportsPerturbationTheory() ? "<li>Arbitrary Precision: <b>" + MyApfloat.precision + " digits</b><br>" : "") +
+                (PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && USE_BIGNUM_FOR_REF_IF_POSSIBLE && fractal.supportsBignum() ? "<li>BigNum Precision: <b>" + (BigNum.fracDigits * BigNum.SHIFT) + " bits</b><br>" : "") +
+                "<li>Pixel Calculation Elapsed Time: <b>" + getPixelCalculationTime(total_time) + " ms</b><br>" +
                 "<li>Post Processing Elapsed Time: <b>" + PostProcessingCalculationTime + " ms</b><br>" +
                 "<li>Image Filters Elapsed Time: <b>" + FilterCalculationTime + " ms</b><br>" +
                 (d3 ? "<li>3D Rendering Elapsed Time: <b>" + D3RenderingCalculationTime + " ms</b><br>" : "") +
@@ -1453,7 +1482,10 @@ public abstract class ThreadDraw extends Thread {
                 (PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && APPROXIMATION_ALGORITHM == 1 && fractal.supportsSeriesApproximation() && Fractal.skippedIterations != 0 && Fractal.SATerms != 0 ? "<li>SA Terms Used: <b>" + Fractal.SATerms + "</b><br>" : "") +
                 (PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && APPROXIMATION_ALGORITHM == 1 && fractal.supportsSeriesApproximation() && Fractal.skippedIterations != 0 && Fractal.SATerms != 0 ? "<li>SA Skipped Iterations: <b>" + Fractal.skippedIterations + "</b><br>": "") +
                 (PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && APPROXIMATION_ALGORITHM == 2 && fractal.supportsBilinearApproximation()  ? "<li>BLA Calculation Elapsed Time: <b>" + Fractal.BLACalculationTime + " ms</b><br>" : "") +
+                (PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && APPROXIMATION_ALGORITHM == 2 && fractal.supportsBilinearApproximation()  ? "<li>BLA Precision: <b>" + ThreadDraw.BLA_BITS + " bits</b><br>" : "") +
+                (PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && APPROXIMATION_ALGORITHM == 2 && fractal.supportsBilinearApproximation()  ? "<li>BLA Starting Level: <b>" + ThreadDraw.BLA_STARTING_LEVEL + "</b><br>" : "") +
                 (PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && APPROXIMATION_ALGORITHM == 2 && fractal.supportsBilinearApproximation()  ? "<li>BLA Iterations Per Pixel: <b>" +  String.format("%.2f", Fractal.total_bla_iterations.sum() / ((double) total_calculated_pixels * (supersampling_num + 1))) + "</b><br>" : "") +
+                (PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && APPROXIMATION_ALGORITHM == 2 && fractal.supportsBilinearApproximation()  ? "<li>BLA Iterations Per BLA Step: <b>" +  (Fractal.total_bla_steps.sum() == 0 ? "N/A" : String.format("%.2f", Fractal.total_bla_iterations.sum() / ((double)Fractal.total_bla_steps.sum()))) + "</b><br>" : "") +
                 (PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && APPROXIMATION_ALGORITHM == 2 && fractal.supportsBilinearApproximation()  ? "<li>Perturbation Iterations Per Pixel: <b>" +  String.format("%.2f", Fractal.total_perturb_iterations.sum() / ((double) total_calculated_pixels * (supersampling_num + 1))) + "</b><br>" : "") +
                 (PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && APPROXIMATION_ALGORITHM == 2 && fractal.supportsBilinearApproximation()  ? "<li>BLA Steps Per Pixel: <b>" + String.format("%.2f", Fractal.total_bla_steps.sum() / ((double) total_calculated_pixels * (supersampling_num + 1))) + "</b><br>" : "") +
                 (PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && APPROXIMATION_ALGORITHM == 2 && fractal.supportsBilinearApproximation()  ? "<li>Total Steps Per Pixel: <b>" + String.format("%.2f", (Fractal.total_bla_steps.sum() + Fractal.total_perturb_iterations.sum()) / ((double) total_calculated_pixels * (supersampling_num + 1))) + "</b><br>" : "") +
@@ -1478,14 +1510,16 @@ public abstract class ThreadDraw extends Thread {
         int aaSamplesIndex = (filters_options_vals[MainWindow.ANTIALIASING] % 100) % 10;
         int supersampling_num = (aaSamplesIndex == 0 ? 4 : 8 * aaSamplesIndex);
 
-        progress.setToolTipText("<html><li>Total Elapsed Time: <b>" + (System.currentTimeMillis() - time) + " ms</b><br>" +
+        long total_time = System.currentTimeMillis() - time;
+
+        progress.setToolTipText("<html><li>Total Elapsed Time: <b>" + total_time + " ms</b><br>" +
                 "<li>Pixels Calculated: <b>100.00%</b><br>" +
                 "<li>Image Size: <b>" + IMAGE_SIZE + "x" +  IMAGE_SIZE + "</b><br>" +
                 (filters[MainWindow.ANTIALIASING] ? "<li>Anti-Aliasing Samples: <b>" +  supersampling_num + "x</b><br>" : "") +
                 "<li>Threads used: <b>" + threads + "</b><br>" +
                 "<li>Arbitrary precision: <b>" + MyApfloat.precision + " digits</b><br>" +
                 (USE_BIGNUM_FOR_REF_IF_POSSIBLE ? "<li>BigNum precision: <b>" + (BigNum.fracDigits * BigNum.SHIFT) + " bits</b><br>" : "") +
-                "<li>Pixel Calculation Elapsed Time: <b>" + PixelCalculationTime + " ms</b><br>" +
+                "<li>Pixel Calculation Elapsed Time: <b>" + getPixelCalculationTime(total_time) + " ms</b><br>" +
                 "<li>Post Processing Elapsed Time: <b>" + PostProcessingCalculationTime + " ms</b><br>" +
                 "<li>Image Filters Elapsed Time: <b>" + FilterCalculationTime + " ms</b><br>" +
                 (d3 ? "<li>3D Rendering Elapsed Time: <b>" + D3RenderingCalculationTime + " ms</b><br>" : "") +
@@ -1511,8 +1545,6 @@ public abstract class ThreadDraw extends Thread {
         total_calculated.add(thread_calculated);
 
         if (finalize_sync.incrementAndGet() == ptrExpander.getNumberOfThreads()) {
-            PixelCalculationTime = getPixelCalculationTime();
-
             image_iterations = null;
             escaped = null;
             System.gc();
@@ -1546,8 +1578,6 @@ public abstract class ThreadDraw extends Thread {
         total_calculated.add(thread_calculated);
 
         if (finalize_sync.incrementAndGet() == ptrExpander.getNumberOfThreads()) {
-            PixelCalculationTime = getPixelCalculationTime();
-
             image_iterations = null;
             escaped = null;
             System.gc();
@@ -1582,8 +1612,6 @@ public abstract class ThreadDraw extends Thread {
         total_calculated.add(thread_calculated);
 
         if (finalize_sync.incrementAndGet() == ptrExpander.getNumberOfThreads()) {
-            PixelCalculationTime = getPixelCalculationTime();
-
             image_iterations = null;
             escaped = null;
             System.gc();
@@ -1623,8 +1651,6 @@ public abstract class ThreadDraw extends Thread {
         total_calculated.add(thread_calculated);
 
         if (finalize_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
-            PixelCalculationTime = getPixelCalculationTime();
-
             applyFilters();
 
             if (d3) {
@@ -1658,8 +1684,6 @@ public abstract class ThreadDraw extends Thread {
         total_calculated.add(thread_calculated);
 
         if (finalize_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
-            PixelCalculationTime = getPixelCalculationTime();
-
             if (iteration_algorithm instanceof JuliaIterationAlgorithm) {
                 ptr.updateValues("Julia mode");
             } else {
@@ -1685,8 +1709,6 @@ public abstract class ThreadDraw extends Thread {
         total_calculated.add(thread_calculated);
 
         if (finalize_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
-            PixelCalculationTime = getPixelCalculationTime();
-
             if (iteration_algorithm instanceof JuliaIterationAlgorithm) {
                 ptr.updateValues("Julia mode");
             } else {
@@ -1726,8 +1748,6 @@ public abstract class ThreadDraw extends Thread {
         total_calculated.add(thread_calculated);
 
         if (finalize_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
-            PixelCalculationTime = getPixelCalculationTime();
-
             applyFilters();
 
             if (d3) {
@@ -1759,8 +1779,6 @@ public abstract class ThreadDraw extends Thread {
         total_calculated.add(thread_calculated);
 
         if (finalize_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
-            PixelCalculationTime = getPixelCalculationTime();
-
             ptr.updateValues("Domain C. mode");
 
             ptr.setWholeImageDone(true);
@@ -1782,8 +1800,6 @@ public abstract class ThreadDraw extends Thread {
         total_calculated.add(thread_calculated);
 
         if (finalize_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
-            PixelCalculationTime = getPixelCalculationTime();
-
             ptr.updateValues("Domain C. mode");
 
             ptr.setWholeImageDone(true);
@@ -1819,8 +1835,6 @@ public abstract class ThreadDraw extends Thread {
         total_calculated.add(thread_calculated);
 
         if (finalize_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
-            PixelCalculationTime = getPixelCalculationTime();
-
             applyFilters();
 
             if (d3) {
@@ -1868,8 +1882,6 @@ public abstract class ThreadDraw extends Thread {
         total_calculated.add(thread_calculated);
 
         if (finalize_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
-            PixelCalculationTime = getPixelCalculationTime();
-
             applyFilters();
 
             if (d3) {
@@ -1909,20 +1921,25 @@ public abstract class ThreadDraw extends Thread {
                 color = result < 0 ? getPaletteMergedColor(result * pbs.gradient_intensity - 2 * color_cycling_location_outcoloring, color) : getPaletteMergedColor(result * pbs.gradient_intensity + 2 * color_cycling_location_outcoloring, color);
             }
         }
-        else if (sts.statistic && sts.statisticGroup == 2 && sts.equicontinuityOverrideColoring &&
-                !((!sts.statisticIncludeNotEscaped && (!escaped || Math.abs(result) == ColorAlgorithm.MAXIMUM_ITERATIONS))
-                || (!sts.statisticIncludeEscaped && escaped && Math.abs(result) != ColorAlgorithm.MAXIMUM_ITERATIONS))) {
-            color = getEquicontinuityColor(result, escaped);
-        }
-        else if (sts.statistic && sts.statisticGroup == 3 && sts.normalMapOverrideColoring &&
-                !((!sts.statisticIncludeNotEscaped && (!escaped || Math.abs(result) == ColorAlgorithm.MAXIMUM_ITERATIONS))
-                        || (!sts.statisticIncludeEscaped && escaped && Math.abs(result) != ColorAlgorithm.MAXIMUM_ITERATIONS))) {
-            color = getNormalMapColor(result, escaped);
-        }
-        else if (sts.statistic && sts.statisticGroup == 4 &&
-                !((!sts.statisticIncludeNotEscaped && (!escaped || Math.abs(result) == ColorAlgorithm.MAXIMUM_ITERATIONS))
-                        || (!sts.statisticIncludeEscaped && escaped && Math.abs(result) != ColorAlgorithm.MAXIMUM_ITERATIONS))) {
-            color = getRootColor(result, escaped);
+        else if(sts.statistic) {
+            if (sts.statisticGroup == 2 && sts.equicontinuityOverrideColoring &&
+                    !((!sts.statisticIncludeNotEscaped && (!escaped || Math.abs(result) == ColorAlgorithm.MAXIMUM_ITERATIONS))
+                            || (!sts.statisticIncludeEscaped && escaped && Math.abs(result) != ColorAlgorithm.MAXIMUM_ITERATIONS))) {
+                color = getEquicontinuityColor(result, escaped);
+            }
+            else if (sts.statisticGroup == 3 &&
+                    !((!sts.statisticIncludeNotEscaped && (!escaped || Math.abs(result) == ColorAlgorithm.MAXIMUM_ITERATIONS))
+                            || (!sts.statisticIncludeEscaped && escaped && Math.abs(result) != ColorAlgorithm.MAXIMUM_ITERATIONS))) {
+                color = getNormalMapColor(result, escaped);
+            }
+            else if (sts.statisticGroup == 4 &&
+                    !((!sts.statisticIncludeNotEscaped && (!escaped || Math.abs(result) == ColorAlgorithm.MAXIMUM_ITERATIONS))
+                            || (!sts.statisticIncludeEscaped && escaped && Math.abs(result) != ColorAlgorithm.MAXIMUM_ITERATIONS))) {
+                color = getRootColor(result, escaped);
+            }
+            else {
+                color = getStandardColor(result, escaped);
+            }
         }
         else {
             color = getStandardColor(result, escaped);
@@ -2005,7 +2022,7 @@ public abstract class ThreadDraw extends Thread {
 
         int color = getStandardColor(result, escaped);
 
-        if((sts.normalMapColoring == 1 || sts.normalMapColoring == 2 ) && Math.abs(result) != ColorAlgorithm.MAXIMUM_ITERATIONS) {
+        if(sts.normalMapOverrideColoring && (sts.normalMapColoring == 1 || sts.normalMapColoring == 2 ) && Math.abs(result) != ColorAlgorithm.MAXIMUM_ITERATIONS) {
 
             if(sts.normalMapColoring == 1) {
                 int paletteLength = (!escaped && usePaletteForInColoring) ? palette_incoloring.getPaletteLength() : palette_outcoloring.getPaletteLength();
@@ -2016,133 +2033,152 @@ public abstract class ThreadDraw extends Thread {
             }
         }
 
-        if(!sts.useNormalMap) {
-            return color;
+        int output_color = 0;
+        if(!sts.useNormalMap || !sts.normalMapOverrideColoring) {
+            output_color =  color;
+        }
+        else {
+
+            int r = (color >> 16) & 0xFF;
+            int g = (color >> 8) & 0xFF;
+            int b = color & 0xFF;
+
+            double L = statistic.getValueForColoring() * 2;
+
+            double coef = L;
+            coef = coef > 1 ? 1 : coef;
+
+            double coef2 = L - 1;
+            coef2 = coef2 < 0 ? 0 : coef2;
+            coef2 = coef2 * sts.normalMapLightFactor;
+
+            if (sts.normalMapColorMode == 0) { //Lab
+                double[] res = ColorSpaceConverter.RGBtoLAB(r, g, b);
+                int[] rgb = ColorSpaceConverter.LABtoRGB(res[0] * coef + coef2 * 100, res[1], res[2]);
+                output_color = 0xff000000 | (rgb[0] << 16) | (rgb[1] << 8) | rgb[2];
+            } else if (sts.normalMapColorMode == 1) { //HSB
+                double[] res = ColorSpaceConverter.RGBtoHSB(r, g, b);
+
+                double val = res[2] * coef + coef2;
+
+                if (val > 1) {
+                    val = 1;
+                }
+                if (val < 0) {
+                    val = 0;
+                }
+
+                int[] rgb = ColorSpaceConverter.HSBtoRGB(res[0], res[1], val);
+                output_color = 0xff000000 | (rgb[0] << 16) | (rgb[1] << 8) | rgb[2];
+            } else if (sts.normalMapColorMode == 2) { //HSL
+                double[] res = ColorSpaceConverter.RGBtoHSL(r, g, b);
+
+                double val = res[2] * coef + coef2;
+
+                if (val > 1) {
+                    val = 1;
+                }
+                if (val < 0) {
+                    val = 0;
+                }
+
+                int[] rgb = ColorSpaceConverter.HSLtoRGB(res[0], res[1], val);
+                output_color = 0xff000000 | (rgb[0] << 16) | (rgb[1] << 8) | rgb[2];
+            } else if (sts.normalMapColorMode == 3) { //Blending
+                if (coef > 1) {
+                    coef = 1;
+                }
+                if (coef < 0) {
+                    coef = 0;
+                }
+
+                int index = (int) ((1 - coef) * (gradient.length - 1) + 0.5);
+                index = gradient.length - 1 - index;
+
+                int grad_color = getGradientColor(index + gradient_offset);
+
+                int temp_red = (grad_color >> 16) & 0xff;
+                int temp_green = (grad_color >> 8) & 0xff;
+                int temp_blue = grad_color & 0xff;
+
+                int new_color = blending.blend(temp_red, temp_green, temp_blue, r, g, b, 1 - sts.normalMapBlending);
+
+                r = (new_color >> 16) & 0xFF;
+                g = (new_color >> 8) & 0xFF;
+                b = new_color & 0xFF;
+
+                double temp = coef2 * 255;
+                r = (int) (r + temp + 0.5);
+                g = (int) (g + temp + 0.5);
+                b = (int) (b + temp + 0.5);
+
+                if (r > 255) {
+                    r = 255;
+                }
+                if (g > 255) {
+                    g = 255;
+                }
+                if (b > 255) {
+                    b = 255;
+                }
+
+                if (r < 0) {
+                    r = 0;
+                }
+                if (g < 0) {
+                    g = 0;
+                }
+                if (b < 0) {
+                    b = 0;
+                }
+
+                output_color = 0xff000000 | (r << 16) | (g << 8) | b;
+            } else { //scaling
+
+                double temp = coef2 * 255;
+                r = (int) (r * coef + temp + 0.5);
+                g = (int) (g * coef + temp + 0.5);
+                b = (int) (b * coef + temp + 0.5);
+
+                if (r > 255) {
+                    r = 255;
+                }
+                if (g > 255) {
+                    g = 255;
+                }
+                if (b > 255) {
+                    b = 255;
+                }
+
+                if (r < 0) {
+                    r = 0;
+                }
+                if (g < 0) {
+                    g = 0;
+                }
+                if (b < 0) {
+                    b = 0;
+                }
+
+                output_color = 0xff000000 | (r << 16) | (g << 8) | b;
+            }
         }
 
-        int r = (color >> 16) & 0xFF;
-        int g = (color >> 8) & 0xFF;
-        int b = color & 0xFF;
+        if(sts.normalMapUseDE && sts.normalMapDEAAEffect) {
+            NormalMap nm = (NormalMap) statistic;
 
-        double L = statistic.getValueForColoring() * 2;
+            int r1 = (output_color >> 16) & 0xFF;
+            int g1 = (output_color >> 8) & 0xFF;
+            int b1 = output_color & 0xFF;
 
-        double coef = L;
-        coef = coef > 1 ? 1 : coef;
+            int r2 = (dem_color >> 16) & 0xFF;
+            int g2 = (dem_color >> 8) & 0xFF;
+            int b2 = dem_color & 0xFF;
 
-        double coef2 = L - 1;
-        coef2 = coef2 < 0 ? 0 : coef2;
-        coef2 = coef2 * sts.normalMapLightFactor;
-
-        if (sts.normalMapColorMode == 0) { //Lab
-            double[] res = ColorSpaceConverter.RGBtoLAB(r, g, b);
-            int[] rgb = ColorSpaceConverter.LABtoRGB(res[0] * coef + coef2 * 100, res[1], res[2]);
-            return 0xff000000 | (rgb[0] << 16) | (rgb[1] << 8) | rgb[2];
-        } else if (sts.normalMapColorMode == 1) { //HSB
-            double[] res = ColorSpaceConverter.RGBtoHSB(r, g, b);
-
-            double val = res[2] * coef + coef2;
-
-            if (val > 1) {
-                val = 1;
-            }
-            if (val < 0) {
-                val = 0;
-            }
-
-            int[] rgb = ColorSpaceConverter.HSBtoRGB(res[0], res[1], val);
-            return 0xff000000 | (rgb[0] << 16) | (rgb[1] << 8) | rgb[2];
-        } else if (sts.normalMapColorMode == 2) { //HSL
-            double[] res = ColorSpaceConverter.RGBtoHSL(r, g, b);
-
-            double val = res[2] * coef + coef2;
-
-            if (val > 1) {
-                val = 1;
-            }
-            if (val < 0) {
-                val = 0;
-            }
-
-            int[] rgb = ColorSpaceConverter.HSLtoRGB(res[0], res[1], val);
-            return 0xff000000 | (rgb[0] << 16) | (rgb[1] << 8) | rgb[2];
-        } else if (sts.normalMapColorMode == 3) { //Blending
-            if (coef > 1) {
-                coef = 1;
-            }
-            if (coef < 0) {
-                coef = 0;
-            }
-
-            int index = (int) ((1 - coef) * (gradient.length - 1) + 0.5);
-            index = gradient.length - 1 - index;
-
-            int grad_color = getGradientColor(index + gradient_offset);
-
-            int temp_red = (grad_color >> 16) & 0xff;
-            int temp_green = (grad_color >> 8) & 0xff;
-            int temp_blue = grad_color & 0xff;
-
-            int new_color =  blending.blend(temp_red, temp_green, temp_blue, r, g, b, 1 - sts.normalMapBlending);
-
-            r = (new_color >> 16) & 0xFF;
-            g = (new_color >> 8) & 0xFF;
-            b = new_color & 0xFF;
-
-            double temp = coef2 * 255;
-            r = (int) (r + temp + 0.5);
-            g = (int) (g + temp + 0.5);
-            b = (int) (b + temp +  0.5);
-
-            if (r > 255) {
-                r = 255;
-            }
-            if (g > 255) {
-                g = 255;
-            }
-            if (b > 255) {
-                b = 255;
-            }
-
-            if (r < 0) {
-                r = 0;
-            }
-            if (g < 0) {
-                g = 0;
-            }
-            if (b < 0) {
-                b = 0;
-            }
-
-            return 0xff000000 | (r << 16) | (g << 8) | b;
-        } else { //scaling
-
-            double temp = coef2 * 255;
-            r = (int) (r * coef + temp + 0.5);
-            g = (int) (g * coef + temp + 0.5);
-            b = (int) (b * coef + temp +  0.5);
-
-            if (r > 255) {
-                r = 255;
-            }
-            if (g > 255) {
-                g = 255;
-            }
-            if (b > 255) {
-                b = 255;
-            }
-
-            if (r < 0) {
-                r = 0;
-            }
-            if (g < 0) {
-                g = 0;
-            }
-            if (b < 0) {
-                b = 0;
-            }
-
-            return 0xff000000 | (r << 16) | (g << 8) | b;
+            output_color = method.interpolate(r1, g1, b1, r2, g2, b2, 1 - nm.getDeCoefficient());
         }
+
+        return output_color;
     }
 
     private int getRootColor(double result, boolean escaped) {
@@ -2164,32 +2200,53 @@ public abstract class ThreadDraw extends Thread {
 
         double factor = 1 - ((RootColoring) statistic).getDepthFactor();
 
-        switch (sts.rootShadingFunction) {
-            case 1:
-                factor = Math.sqrt(factor);
-                break;
-            case 2:
-                factor = Math.cbrt(factor);
-                break;
-            case 3:
-                factor = (-Math.cos(Math.PI * factor) * 0.5 + 0.5);
-                break;
-            case 4:
-                factor = (Math.exp(factor) - 1) / (Math.E - 1);
-                break;
+        if(sts.rootShadingFunction != 5) {
+            switch (sts.rootShadingFunction) {
+                case 1:
+                    factor = SqrtInterpolation.getCoefficient(factor);
+                    break;
+                case 2:
+                    factor = CbrtInterpolation.getCoefficient(factor);
+                    break;
+                case 3:
+                    factor = CosineInterpolation.getCoefficient(factor);
+                    break;
+                case 4:
+                    factor = Exponential2Interpolation.getCoefficient(factor);
+                    break;
+                case 6:
+                    factor = AccelerationInterpolation.getCoefficient(factor);
+                    break;
+                case 7:
+                    factor = SineInterpolation.getCoefficient(factor);
+                    break;
+                case 8:
+                    factor = DecelerationInterpolation.getCoefficient(factor);
+                    break;
+                case 9:
+                    factor = ThirdPolynomialInterpolation.getCoefficient(factor);
+                    break;
+                case 10:
+                    factor = FifthPolynomialInterpolation.getCoefficient(factor);
+                    break;
+                case 11:
+                    factor = FrthrootInterpolation.getCoefficient(factor);
+                    break;
+                case 12:
+                    factor = SmoothTransitionFunctionInterpolation.getCoefficient(factor);
+                    break;
+            }
+
+            if (sts.revertRootShading) {
+                factor = 1 - factor;
+            }
+
+            int r = (color >> 16) & 0xFF;
+            int g = (color >> 8) & 0xFF;
+            int b = color & 0xFF;
+
+            color = getModifiedColor(r, g, b, factor, sts.rootContourColorMethod, 1 - sts.rootBlending, false);
         }
-
-        if (sts.revertRootShading) {
-            factor = 1 - factor;
-        }
-
-        int r = (color >> 16) & 0xFF;
-        int g = (color >> 8) & 0xFF;
-
-        int b = color & 0xFF;
-
-        color = getModifiedColor(r, g, b, factor, sts.rootContourColorMethod, 1 - sts.rootBlending, false);
-
 
         if(!sts.highlightRoots) {
             return 0xFF000000 | color;
@@ -2203,9 +2260,9 @@ public abstract class ThreadDraw extends Thread {
             int temp_green2 = (color >> 8) & 0xff;
             int temp_blue2 = color & 0xff;
 
-            int temp_red1 = !sts.revertRootShading ? 0 : 255;
-            int temp_green1 = !sts.revertRootShading ? 0 : 255;
-            int temp_blue1 = !sts.revertRootShading ? 0 : 255;
+            int temp_red1 = !sts.revertRootShading ? sts.rootShadingColor.getRed() : 255 - sts.rootShadingColor.getRed();
+            int temp_green1 = !sts.revertRootShading ? sts.rootShadingColor.getGreen()  : 255 - sts.rootShadingColor.getGreen();
+            int temp_blue1 = !sts.revertRootShading ? sts.rootShadingColor.getBlue()  : 255 - sts.rootShadingColor.getBlue();
 
             return method.interpolate(temp_red1, temp_green1, temp_blue1, temp_red2, temp_green2, temp_blue2, highlightFactor);
 
@@ -2301,16 +2358,19 @@ public abstract class ThreadDraw extends Thread {
         if (trap.hasColor()) {
             int color = trap.getColor();
             if (((color >> 24) & 0xFF) == 0) {
+                if(ots.showOnlyTraps) {
+                    originalColor = ots.background.getRGB();
+                }
                 return originalColor;
             }
             return color;
         }
 
-        double distance = trap.getDistance();
-
         if(ots.showOnlyTraps) {
             originalColor = ots.background.getRGB();
         }
+
+        double distance = trap.getDistance();
 
         if ((ots.trapMaxDistance != 0 && distance > ots.trapMaxDistance) || distance == Double.MAX_VALUE) {
             return originalColor;
@@ -2802,8 +2862,9 @@ public abstract class ThreadDraw extends Thread {
 
     private void drawIterations3DAntialiased(int image_size, boolean polar) {
 
+        int aaMethod = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
         Location location = Location.getInstanceForDrawing(xCenter, yCenter, size, height_ratio, detail, circle_period, rotation_center, rotation_vals, fractal, polar, PERTURBATION_THEORY && fractal.supportsPerturbationTheory());
-        location.createAntialiasingSteps();
+        location.createAntialiasingSteps(aaMethod == 5);
 
         if(PERTURBATION_THEORY && fractal.supportsPerturbationTheory()) {
             if (reference_calc_sync.getAndIncrement() == 0) {
@@ -2831,8 +2892,6 @@ public abstract class ThreadDraw extends Thread {
         int x, y, loc;
 
         int condition = detail * detail;
-
-        int aaMethod = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
         int aaSamplesIndex = (filters_options_vals[MainWindow.ANTIALIASING] % 100) % 10;
         boolean aaAvgWithMean = filters_options_vals[MainWindow.ANTIALIASING] / 100 == 1;
         int supersampling_num = (aaSamplesIndex == 0 ? 4 : 8 * aaSamplesIndex);
@@ -2873,7 +2932,10 @@ public abstract class ThreadDraw extends Thread {
                     color = getFinalColor(temp[1], iteration_algorithm.escaped());
 
                     height += temp[0];
-                    aa.addSample(color);
+
+                    if(!aa.addSample(color)) {
+                        break;
+                    }
                 }
 
                 vert[x][y][1] = (float) (height / temp_samples);
@@ -2906,8 +2968,10 @@ public abstract class ThreadDraw extends Thread {
 
     private void drawIterationsDomain3DAntialiased(int image_size, boolean polar) {
 
+        int aaMethod = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
+
         Location location = Location.getInstanceForDrawing(xCenter, yCenter, size, height_ratio, detail, circle_period, rotation_center, rotation_vals, fractal, polar, false);
-        location.createAntialiasingSteps();
+        location.createAntialiasingSteps(aaMethod == 5);
 
         int pixel_percent = detail * detail / 100;
 
@@ -2919,7 +2983,7 @@ public abstract class ThreadDraw extends Thread {
 
         int condition = detail * detail;
 
-        int aaMethod = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
+
         int aaSamplesIndex = (filters_options_vals[MainWindow.ANTIALIASING] % 100) % 10;
         boolean aaAvgWithMean = filters_options_vals[MainWindow.ANTIALIASING] / 100 == 1;
         int supersampling_num = (aaSamplesIndex == 0 ? 4 : 8 * aaSamplesIndex);
@@ -2958,7 +3022,9 @@ public abstract class ThreadDraw extends Thread {
                     color = domain_color.getDomainColor(a);
                     height += calaculateDomainColoringHeight(getDomainHeight(a));
 
-                    aa.addSample(color);
+                    if(!aa.addSample(color)) {
+                        break;
+                    }
                 }
 
                 vert[x][y][1] = (float) (height / temp_samples);
@@ -2992,8 +3058,9 @@ public abstract class ThreadDraw extends Thread {
 
     private void drawIterationsDomainAntialiased(int image_size, boolean polar) {
 
+        int aaMethod = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
         Location location = Location.getInstanceForDrawing(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, polar, false);
-        location.createAntialiasingSteps();
+        location.createAntialiasingSteps(aaMethod == 5);
 
         int pixel_percent = (image_size * image_size) / 100;
 
@@ -3003,7 +3070,6 @@ public abstract class ThreadDraw extends Thread {
 
         int condition = image_size * image_size;
 
-        int aaMethod = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
         int aaSamplesIndex = (filters_options_vals[MainWindow.ANTIALIASING] % 100) % 10;
         boolean aaAvgWithMean = filters_options_vals[MainWindow.ANTIALIASING] / 100 == 1;
         int supersampling_num = (aaSamplesIndex == 0 ? 4 : 8 * aaSamplesIndex);
@@ -3038,7 +3104,9 @@ public abstract class ThreadDraw extends Thread {
                 for (int i = 0; i < supersampling_num; i++) {
                     color = domain_color.getDomainColor(iteration_algorithm.calculateDomain(location.getAntialiasingComplex(i)));
 
-                    aa.addSample(color);
+                    if(!aa.addSample(color)) {
+                        break;
+                    }
                 }
 
                 rgbs[loc] = aa.getColor();
@@ -3818,8 +3886,6 @@ public abstract class ThreadDraw extends Thread {
         }
 
         if (finalize_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
-            PixelCalculationTime = getPixelCalculationTime();
-
             applyFiltersNoProgress();
 
             ptr.setOptions(true);
@@ -3844,8 +3910,6 @@ public abstract class ThreadDraw extends Thread {
         }
 
         if (finalize_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
-            PixelCalculationTime = getPixelCalculationTime();
-
             applyFilters();
 
             ptr.setOptions(true);
@@ -3868,8 +3932,6 @@ public abstract class ThreadDraw extends Thread {
         }
 
         if (finalize_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
-            PixelCalculationTime = getPixelCalculationTime();
-
             applyFilters();
 
             ptr.setOptions(true);
@@ -3923,8 +3985,6 @@ public abstract class ThreadDraw extends Thread {
         }
 
         if (finalize_sync.incrementAndGet() == ptr.getJuliaMapSlices()) {
-            PixelCalculationTime = getPixelCalculationTime();
-
             applyFilters();
 
             ptr.updateValues("Julia Map mode");
@@ -3953,8 +4013,6 @@ public abstract class ThreadDraw extends Thread {
         }
 
         if (finalize_sync.incrementAndGet() == ptr.getJuliaMapSlices()) {
-            PixelCalculationTime = getPixelCalculationTime();
-
             applyFilters();
 
             ptr.updateValues("Julia Map mode");
@@ -4001,8 +4059,9 @@ public abstract class ThreadDraw extends Thread {
 
     private void juliaMapAntialiased(int image_size, boolean polar) {
 
+        int aaMethod = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
         Location location = Location.getInstanceForDrawing(xCenter, yCenter, size, height_ratio, TOx - FROMx, circle_period, rotation_center, rotation_vals, fractal, polar, false);
-        location.createAntialiasingSteps();
+        location.createAntialiasingSteps(aaMethod == 5);
 
         int pixel_percent = (image_size * image_size) / 100;
 
@@ -4011,7 +4070,6 @@ public abstract class ThreadDraw extends Thread {
 
         int color;
 
-        int aaMethod = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
         int aaSamplesIndex = (filters_options_vals[MainWindow.ANTIALIASING] % 100) % 10;
         boolean aaAvgWithMean = filters_options_vals[MainWindow.ANTIALIASING] / 100 == 1;
         int supersampling_num = (aaSamplesIndex == 0 ? 4 : 8 * aaSamplesIndex);
@@ -4035,7 +4093,9 @@ public abstract class ThreadDraw extends Thread {
                     temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i));
                     color = getFinalColor(temp_result, iteration_algorithm.escaped());
 
-                    aa.addSample(color);
+                    if(!aa.addSample(color)) {
+                        break;
+                    }
                 }
 
                 rgbs[loc] = aa.getColor();
@@ -4777,7 +4837,7 @@ public abstract class ThreadDraw extends Thread {
 
                         g.setColor(new Color(getModifiedColor(red, green, blue, Norm1z[i][j][0], d3_color_type, color_3d_blending, false)));
 
-                        if (filters[MainWindow.ANTIALIASING]) {
+                        if (filters[MainWindow.ANTIALIASING] && tile_size == 1) {
                             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
                             g.fillPolygon(xPol, yPol, 3);
                             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -4798,7 +4858,7 @@ public abstract class ThreadDraw extends Thread {
 
                         g.setColor(new Color(getModifiedColor(red, green, blue, Norm1z[i][j][1], d3_color_type, color_3d_blending, false)));
 
-                        if (filters[MainWindow.ANTIALIASING]) {
+                        if (filters[MainWindow.ANTIALIASING] && tile_size == 1) {
                             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
                             g.fillPolygon(xPol, yPol, 3);
                             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -5824,6 +5884,7 @@ public abstract class ThreadDraw extends Thread {
                         }
                     }
 
+                    val = (hss.histogramScaleMax - hss.histogramScaleMin) * val + hss.histogramScaleMin;
                     val *= sign;
 
                     int paletteLength = (!esc && usePaletteForInColoring) ? palette_incoloring.getPaletteLength() : palette_outcoloring.getPaletteLength();
@@ -6128,7 +6189,6 @@ public abstract class ThreadDraw extends Thread {
         Fractal.SACalculationTime = 0;
         Fractal.BLACalculationTime = 0;
         PostProcessingCalculationTime = 0;
-        PixelCalculationTime = 0;
         D3RenderingCalculationTime = 0;
         FilterCalculationTime = 0;
 
@@ -6250,44 +6310,12 @@ public abstract class ThreadDraw extends Thread {
     }
 
     private void interpolationFactory(int color_interpolation) {
-        switch (color_interpolation) {
-            case MainWindow.INTERPOLATION_LINEAR:
-                method = new LinearInterpolation();
-                break;
-            case MainWindow.INTERPOLATION_COSINE:
-                method = new CosineInterpolation();
-                break;
-            case MainWindow.INTERPOLATION_ACCELERATION:
-                method = new AccelerationInterpolation();
-                break;
-            case MainWindow.INTERPOLATION_DECELERATION:
-                method = new DecelerationInterpolation();
-                break;
-            case MainWindow.INTERPOLATION_EXPONENTIAL:
-                method = new ExponentialInterpolation();
-                break;
-            case MainWindow.INTERPOLATION_CATMULLROM:
-                method = new CatmullRomInterpolation();
-                break;
-            case MainWindow.INTERPOLATION_CATMULLROM2:
-                method = new CatmullRom2Interpolation();
-                break;
-            case MainWindow.INTERPOLATION_SIGMOID:
-                method = new SigmoidInterpolation();
-                break;
-            case MainWindow.INTERPOLATION_QUADRATIC:
-                method = new QuadraticInterpolation();
-                break;
-            case MainWindow.INTERPOLATION_CUBIC:
-                method = new CubicInterpolation();
-                break;
-            case MainWindow.INTERPOLATION_SQRT:
-                method = new SqrtInterpolation();
-                break;
-        }
+
+        method = InterpolationMethod.create(color_interpolation);
+
     }
 
-    private Fractal fractalFactory(int function, double xCenter, double yCenter, double size, int max_iterations, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_val, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, int plane_type, double[] rotation_vals, double[] rotation_center, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double z_exponent, double[] z_exponent_complex, double[] coefficients, double[] coefficients_im, double[] z_exponent_nova, double[] relaxation, int nova_method, int bail_technique, String user_formula, String user_formula2, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, double coupling, String[] user_formula_coupled, int coupling_method, double coupling_amplitude, double coupling_frequency, int coupling_seed, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, GenericCaZbdZeSettings gcs, String[] lyapunovExpression, OrbitTrapSettings ots, boolean exterior_de, double exterior_de_factor, boolean inverse_dem, int escaping_smooth_algorithm, int converging_smooth_algorithm, StatisticsSettings sts, boolean useLyapunovExponent, String user_fz_formula, String user_dfz_formula, String user_ddfz_formula, String user_dddfz_formula, double[] kleinianLine, double kleinianK, double kleinianM, double[] laguerre_deg, double[] durand_kernel_init_val, MagneticPendulumSettings mps, String lyapunovFunction, String lyapunovExponentFunction, int lyapunovVariableId, String user_relaxation_formula, String user_nova_addend_formula, GenericCpAZpBCSettings gcps, InertiaGravityFractalSettings igs, LambdaFnFnSettings lfns, double[] newton_hines_k, TrueColorSettings tcs, String lyapunovInitialValue, int lyapunovInitializationIteratons, boolean lyapunovskipBailoutCheck, int root_initialization_method, FunctionFilterSettings preffs, FunctionFilterSettings postffs, PlaneInfluenceSettings ips, boolean defaultNovaInitialValue, ConvergentBailoutConditionSettings cbs, boolean useGlobalMethod, double[] globalMethodFactor, int period) {
+    private Fractal fractalFactory(int function, double xCenter, double yCenter, Apfloat dsize, double size, int max_iterations, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_val, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, int plane_type, double[] rotation_vals, double[] rotation_center, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double z_exponent, double[] z_exponent_complex, double[] coefficients, double[] coefficients_im, double[] z_exponent_nova, double[] relaxation, int nova_method, int bail_technique, String user_formula, String user_formula2, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, double coupling, String[] user_formula_coupled, int coupling_method, double coupling_amplitude, double coupling_frequency, int coupling_seed, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, GenericCaZbdZeSettings gcs, String[] lyapunovExpression, OrbitTrapSettings ots, boolean exterior_de, double exterior_de_factor, boolean inverse_dem, int escaping_smooth_algorithm, int converging_smooth_algorithm, StatisticsSettings sts, boolean useLyapunovExponent, String user_fz_formula, String user_dfz_formula, String user_ddfz_formula, String user_dddfz_formula, double[] kleinianLine, double kleinianK, double kleinianM, double[] laguerre_deg, double[] durand_kernel_init_val, MagneticPendulumSettings mps, String lyapunovFunction, String lyapunovExponentFunction, int lyapunovVariableId, String user_relaxation_formula, String user_nova_addend_formula, GenericCpAZpBCSettings gcps, InertiaGravityFractalSettings igs, LambdaFnFnSettings lfns, double[] newton_hines_k, TrueColorSettings tcs, String lyapunovInitialValue, int lyapunovInitializationIteratons, boolean lyapunovskipBailoutCheck, int root_initialization_method, FunctionFilterSettings preffs, FunctionFilterSettings postffs, PlaneInfluenceSettings ips, boolean defaultNovaInitialValue, ConvergentBailoutConditionSettings cbs, boolean useGlobalMethod, double[] globalMethodFactor, int period) {
 
         Fractal fractal = null;
 
@@ -6691,29 +6719,41 @@ public abstract class ThreadDraw extends Thread {
             case MainWindow.USER_FORMULA:
                 if (bail_technique == 0) {
                     fractal = new UserFormulaEscaping(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, user_formula, user_formula2, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, ots, sts);
-                } else {
+                } else if (bail_technique == 1) {
                     fractal = new UserFormulaConverging(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, user_formula, user_formula2, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                }
+                else {
+                    fractal = new UserFormulaEscapingOrConverging(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, user_formula, user_formula2, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, converging_smooth_algorithm, ots, sts);
                 }
                 break;
             case MainWindow.USER_FORMULA_ITERATION_BASED:
                 if (bail_technique == 0) {
                     fractal = new UserFormulaIterationBasedEscaping(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, user_formula_iteration_based, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, ots, sts);
-                } else {
+                } else if (bail_technique == 1) {
                     fractal = new UserFormulaIterationBasedConverging(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, user_formula_iteration_based, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                }
+                else {
+                    fractal = new UserFormulaIterationBasedEscapingOrConverging(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, user_formula_iteration_based, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, converging_smooth_algorithm, ots, sts);
                 }
                 break;
             case MainWindow.USER_FORMULA_CONDITIONAL:
                 if (bail_technique == 0) {
                     fractal = new UserFormulaConditionalEscaping(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, user_formula_conditions, user_formula_condition_formula, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, ots, sts);
-                } else {
+                } else if (bail_technique == 1) {
                     fractal = new UserFormulaConditionalConverging(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, user_formula_conditions, user_formula_condition_formula, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                }
+                else {
+                    fractal = new UserFormulaConditionalEscapingOrConverging(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, user_formula_conditions, user_formula_condition_formula, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, converging_smooth_algorithm, ots, sts);
                 }
                 break;
             case MainWindow.USER_FORMULA_COUPLED:
                 if (bail_technique == 0) {
                     fractal = new UserFormulaCoupledEscaping(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, coupling, user_formula_coupled, coupling_method, coupling_amplitude, coupling_frequency, coupling_seed, ots, sts);
-                } else {
+                } else if (bail_technique == 1) {
                     fractal = new UserFormulaCoupledConverging(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, coupling, user_formula_coupled, coupling_method, coupling_amplitude, coupling_frequency, coupling_seed, ots, sts);
+                }
+                else {
+                    fractal = new UserFormulaCoupledEscapingOrConverging(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, converging_smooth_algorithm, coupling, user_formula_coupled, coupling_method, coupling_amplitude, coupling_frequency, coupling_seed, ots, sts);
                 }
                 break;
             case MainWindow.FROTHY_BASIN:
@@ -7187,6 +7227,630 @@ public abstract class ThreadDraw extends Thread {
             case MainWindow.ABBASBANDYFORMULA:
                 fractal = new AbbasbandyFormula(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, user_fz_formula, user_dfz_formula, user_ddfz_formula, user_dddfz_formula, ots, sts);
                 break;
+            case MainWindow.CONTRA_HARMONIC_NEWTON3:
+                fractal = new ContraHarmonicNewton3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.CONTRA_HARMONIC_NEWTON4:
+                fractal = new ContraHarmonicNewton4(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.CONTRA_HARMONIC_NEWTONGENERALIZED3:
+                fractal = new ContraHarmonicNewtonGeneralized3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.CONTRA_HARMONIC_NEWTONGENERALIZED8:
+                fractal = new ContraHarmonicNewtonGeneralized8(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.CONTRA_HARMONIC_NEWTONSIN:
+                fractal = new ContraHarmonicNewtonSin(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.CONTRA_HARMONIC_NEWTONCOS:
+                fractal = new ContraHarmonicNewtonCos(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.CONTRA_HARMONIC_NEWTONPOLY:
+                fractal = new ContraHarmonicNewtonPoly(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, coefficients, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts, coefficients_im);
+                break;
+            case MainWindow.CONTRA_HARMONIC_NEWTONFORMULA:
+                fractal = new ContraHarmonicNewtonFormula(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, user_fz_formula, user_dfz_formula, ots, sts);
+                break;
+            case MainWindow.CHUN_HAM3:
+                fractal = new ChunHam3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.CHUN_HAM4:
+                fractal = new ChunHam4(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.CHUN_HAMGENERALIZED3:
+                fractal = new ChunHamGeneralized3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.CHUN_HAMGENERALIZED8:
+                fractal = new ChunHamGeneralized8(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.CHUN_HAMSIN:
+                fractal = new ChunHamSin(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.CHUN_HAMCOS:
+                fractal = new ChunHamCos(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.CHUN_HAMPOLY:
+                fractal = new ChunHamPoly(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, coefficients, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts, coefficients_im);
+                break;
+            case MainWindow.CHUN_HAMFORMULA:
+                fractal = new ChunHamFormula(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, user_fz_formula, user_dfz_formula, ots, sts);
+                break;
+            case MainWindow.CHUN_KIM3:
+                fractal = new ChunKim3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.CHUN_KIM4:
+                fractal = new ChunKim4(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.CHUN_KIMGENERALIZED3:
+                fractal = new ChunKimGeneralized3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.CHUN_KIMGENERALIZED8:
+                fractal = new ChunKimGeneralized8(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.CHUN_KIMSIN:
+                fractal = new ChunKimSin(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.CHUN_KIMCOS:
+                fractal = new ChunKimCos(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.CHUN_KIMPOLY:
+                fractal = new ChunKimPoly(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, coefficients, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts, coefficients_im);
+                break;
+            case MainWindow.CHUN_KIMFORMULA:
+                fractal = new ChunKimFormula(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, user_fz_formula, user_dfz_formula, ots, sts);
+                break;
+            case MainWindow.EULER_CHEBYSHEV3:
+                fractal = new EulerChebyshev3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.EULER_CHEBYSHEV4:
+                fractal = new EulerChebyshev4(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.EULER_CHEBYSHEVGENERALIZED3:
+                fractal = new EulerChebyshevGeneralized3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.EULER_CHEBYSHEVGENERALIZED8:
+                fractal = new EulerChebyshevGeneralized8(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.EULER_CHEBYSHEVSIN:
+                fractal = new EulerChebyshevSin(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.EULER_CHEBYSHEVCOS:
+                fractal = new EulerChebyshevCos(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.EULER_CHEBYSHEVPOLY:
+                fractal = new EulerChebyshevPoly(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, coefficients, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts, coefficients_im);
+                break;
+            case MainWindow.EULER_CHEBYSHEVFORMULA:
+                fractal = new EulerChebyshevFormula(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, user_fz_formula, user_dfz_formula, user_ddfz_formula, ots, sts);
+                break;
+            case MainWindow.EZZATI_SALEKI23:
+                fractal = new EzzatiSaleki23(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.EZZATI_SALEKI24:
+                fractal = new EzzatiSaleki24(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.EZZATI_SALEKI2GENERALIZED3:
+                fractal = new EzzatiSaleki2Generalized3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.EZZATI_SALEKI2GENERALIZED8:
+                fractal = new EzzatiSaleki2Generalized8(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.EZZATI_SALEKI2SIN:
+                fractal = new EzzatiSaleki2Sin(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.EZZATI_SALEKI2COS:
+                fractal = new EzzatiSaleki2Cos(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.EZZATI_SALEKI2POLY:
+                fractal = new EzzatiSaleki2Poly(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, coefficients, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts, coefficients_im);
+                break;
+            case MainWindow.EZZATI_SALEKI2FORMULA:
+                fractal = new EzzatiSaleki2Formula(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, user_fz_formula, user_dfz_formula, ots, sts);
+                break;
+            case MainWindow.HOMEIER13:
+                fractal = new Homeier13(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.HOMEIER14:
+                fractal = new Homeier14(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.HOMEIER1GENERALIZED3:
+                fractal = new Homeier1Generalized3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.HOMEIER1GENERALIZED8:
+                fractal = new Homeier1Generalized8(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.HOMEIER1SIN:
+                fractal = new Homeier1Sin(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.HOMEIER1COS:
+                fractal = new Homeier1Cos(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.HOMEIER1POLY:
+                fractal = new Homeier1Poly(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, coefficients, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts, coefficients_im);
+                break;
+            case MainWindow.HOMEIER1FORMULA:
+                fractal = new Homeier1Formula(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, user_fz_formula, user_dfz_formula, ots, sts);
+                break;
+            case MainWindow.ABBASBANDY23:
+                fractal = new Abbasbandy23(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.ABBASBANDY24:
+                fractal = new Abbasbandy24(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.ABBASBANDY2GENERALIZED3:
+                fractal = new Abbasbandy2Generalized3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.ABBASBANDY2GENERALIZED8:
+                fractal = new Abbasbandy2Generalized8(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.ABBASBANDY2SIN:
+                fractal = new Abbasbandy2Sin(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.ABBASBANDY2COS:
+                fractal = new Abbasbandy2Cos(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.ABBASBANDY2POLY:
+                fractal = new Abbasbandy2Poly(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, coefficients, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts, coefficients_im);
+                break;
+            case MainWindow.ABBASBANDY2FORMULA:
+                fractal = new Abbasbandy2Formula(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, user_fz_formula, user_dfz_formula, user_ddfz_formula, ots, sts);
+                break;
+            case MainWindow.ABBASBANDY33:
+                fractal = new Abbasbandy33(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.ABBASBANDY34:
+                fractal = new Abbasbandy34(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.ABBASBANDY3GENERALIZED3:
+                fractal = new Abbasbandy3Generalized3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.ABBASBANDY3GENERALIZED8:
+                fractal = new Abbasbandy3Generalized8(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.ABBASBANDY3SIN:
+                fractal = new Abbasbandy3Sin(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.ABBASBANDY3COS:
+                fractal = new Abbasbandy3Cos(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.ABBASBANDY3POLY:
+                fractal = new Abbasbandy3Poly(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, coefficients, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts, coefficients_im);
+                break;
+            case MainWindow.ABBASBANDY3FORMULA:
+                fractal = new Abbasbandy3Formula(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, user_fz_formula, user_dfz_formula, user_ddfz_formula, user_dddfz_formula, ots, sts);
+                break;
+            case MainWindow.POPOVSKI13:
+                fractal = new Popovski13(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.POPOVSKI14:
+                fractal = new Popovski14(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.POPOVSKI1GENERALIZED3:
+                fractal = new Popovski1Generalized3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.POPOVSKI1GENERALIZED8:
+                fractal = new Popovski1Generalized8(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.POPOVSKI1SIN:
+                fractal = new Popovski1Sin(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.POPOVSKI1COS:
+                fractal = new Popovski1Cos(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.POPOVSKI1POLY:
+                fractal = new Popovski1Poly(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, coefficients, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts, coefficients_im);
+                break;
+            case MainWindow.POPOVSKI1FORMULA:
+                fractal = new Popovski1Formula(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, user_fz_formula, user_dfz_formula, user_ddfz_formula, ots, sts);
+                break;
+            case MainWindow.CHANGBUM_CHUN13:
+                fractal = new ChangBumChun13(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.CHANGBUM_CHUN14:
+                fractal = new ChangBumChun14(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.CHANGBUM_CHUN1GENERALIZED3:
+                fractal = new ChangBumChun1Generalized3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.CHANGBUM_CHUN1GENERALIZED8:
+                fractal = new ChangBumChun1Generalized8(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.CHANGBUM_CHUN1SIN:
+                fractal = new ChangBumChun1Sin(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.CHANGBUM_CHUN1COS:
+                fractal = new ChangBumChun1Cos(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.CHANGBUM_CHUN1POLY:
+                fractal = new ChangBumChun1Poly(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, coefficients, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts, coefficients_im);
+                break;
+            case MainWindow.CHANGBUM_CHUN1FORMULA:
+                fractal = new ChangBumChun1Formula(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, user_fz_formula, user_dfz_formula, ots, sts);
+                break;
+            case MainWindow.CHANGBUM_CHUN23:
+                fractal = new ChangBumChun23(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.CHANGBUM_CHUN24:
+                fractal = new ChangBumChun24(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.CHANGBUM_CHUN2GENERALIZED3:
+                fractal = new ChangBumChun2Generalized3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.CHANGBUM_CHUN2GENERALIZED8:
+                fractal = new ChangBumChun2Generalized8(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.CHANGBUM_CHUN2SIN:
+                fractal = new ChangBumChun2Sin(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.CHANGBUM_CHUN2COS:
+                fractal = new ChangBumChun2Cos(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.CHANGBUM_CHUN2POLY:
+                fractal = new ChangBumChun2Poly(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, coefficients, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts, coefficients_im);
+                break;
+            case MainWindow.CHANGBUM_CHUN2FORMULA:
+                fractal = new ChangBumChun2Formula(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, user_fz_formula, user_dfz_formula, ots, sts);
+                break;
+            case MainWindow.KING33:
+                fractal = new King33(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.KING34:
+                fractal = new King34(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.KING3GENERALIZED3:
+                fractal = new King3Generalized3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.KING3GENERALIZED8:
+                fractal = new King3Generalized8(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.KING3SIN:
+                fractal = new King3Sin(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.KING3COS:
+                fractal = new King3Cos(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.KING3POLY:
+                fractal = new King3Poly(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, coefficients, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts, coefficients_im);
+                break;
+            case MainWindow.KING3FORMULA:
+                fractal = new King3Formula(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, user_fz_formula, user_dfz_formula, ots, sts);
+                break;
+            case MainWindow.HOMEIER23:
+                fractal = new Homeier23(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.HOMEIER24:
+                fractal = new Homeier24(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.HOMEIER2GENERALIZED3:
+                fractal = new Homeier2Generalized3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.HOMEIER2GENERALIZED8:
+                fractal = new Homeier2Generalized8(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.HOMEIER2SIN:
+                fractal = new Homeier2Sin(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.HOMEIER2COS:
+                fractal = new Homeier2Cos(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.HOMEIER2POLY:
+                fractal = new Homeier2Poly(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, coefficients, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts, coefficients_im);
+                break;
+            case MainWindow.HOMEIER2FORMULA:
+                fractal = new Homeier2Formula(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, user_fz_formula, user_dfz_formula, ots, sts);
+                break;
+            case MainWindow.KIM_CHUN3:
+                fractal = new KimChun3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.KIM_CHUN4:
+                fractal = new KimChun4(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.KIM_CHUNGENERALIZED3:
+                fractal = new KimChunGeneralized3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.KIM_CHUNGENERALIZED8:
+                fractal = new KimChunGeneralized8(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.KIM_CHUNSIN:
+                fractal = new KimChunSin(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.KIM_CHUNCOS:
+                fractal = new KimChunCos(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.KIM_CHUNPOLY:
+                fractal = new KimChunPoly(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, coefficients, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts, coefficients_im);
+                break;
+            case MainWindow.KIM_CHUNFORMULA:
+                fractal = new KimChunFormula(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, user_fz_formula, user_dfz_formula, ots, sts);
+                break;
+            case MainWindow.KOU_LI_WANG13:
+                fractal = new KouLiWang13(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.KOU_LI_WANG14:
+                fractal = new KouLiWang14(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.KOU_LI_WANG1GENERALIZED3:
+                fractal = new KouLiWang1Generalized3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.KOU_LI_WANG1GENERALIZED8:
+                fractal = new KouLiWang1Generalized8(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.KOU_LI_WANG1SIN:
+                fractal = new KouLiWang1Sin(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.KOU_LI_WANG1COS:
+                fractal = new KouLiWang1Cos(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.KOU_LI_WANG1POLY:
+                fractal = new KouLiWang1Poly(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, coefficients, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts, coefficients_im);
+                break;
+            case MainWindow.KOU_LI_WANG1FORMULA:
+                fractal = new KouLiWang1Formula(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, user_fz_formula, user_dfz_formula, ots, sts);
+                break;
+            case MainWindow.MAHESHWERI3:
+                fractal = new Maheshweri3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.MAHESHWERI4:
+                fractal = new Maheshweri4(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.MAHESHWERIGENERALIZED3:
+                fractal = new MaheshweriGeneralized3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.MAHESHWERIGENERALIZED8:
+                fractal = new MaheshweriGeneralized8(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.MAHESHWERISIN:
+                fractal = new MaheshweriSin(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.MAHESHWERICOS:
+                fractal = new MaheshweriCos(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.MAHESHWERIPOLY:
+                fractal = new MaheshweriPoly(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, coefficients, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts, coefficients_im);
+                break;
+            case MainWindow.MAHESHWERIFORMULA:
+                fractal = new MaheshweriFormula(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, user_fz_formula, user_dfz_formula, ots, sts);
+                break;
+            case MainWindow.RAFIULLAH13:
+                fractal = new Rafiullah13(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.RAFIULLAH14:
+                fractal = new Rafiullah14(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.RAFIULLAH1GENERALIZED3:
+                fractal = new Rafiullah1Generalized3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.RAFIULLAH1GENERALIZED8:
+                fractal = new Rafiullah1Generalized8(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.RAFIULLAH1SIN:
+                fractal = new Rafiullah1Sin(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.RAFIULLAH1COS:
+                fractal = new Rafiullah1Cos(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.RAFIULLAH1POLY:
+                fractal = new Rafiullah1Poly(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, coefficients, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts, coefficients_im);
+                break;
+            case MainWindow.RAFIULLAH1FORMULA:
+                fractal = new Rafiullah1Formula(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, user_fz_formula, user_dfz_formula, ots, sts);
+                break;
+            case MainWindow.RAFIS_RAFIULLAH3:
+                fractal = new RafisRafiullah3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.RAFIS_RAFIULLAH4:
+                fractal = new RafisRafiullah4(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.RAFIS_RAFIULLAHGENERALIZED3:
+                fractal = new RafisRafiullahGeneralized3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.RAFIS_RAFIULLAHGENERALIZED8:
+                fractal = new RafisRafiullahGeneralized8(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.RAFIS_RAFIULLAHSIN:
+                fractal = new RafisRafiullahSin(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.RAFIS_RAFIULLAHCOS:
+                fractal = new RafisRafiullahCos(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.RAFIS_RAFIULLAHPOLY:
+                fractal = new RafisRafiullahPoly(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, coefficients, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts, coefficients_im);
+                break;
+            case MainWindow.RAFIS_RAFIULLAHFORMULA:
+                fractal = new RafisRafiullahFormula(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, user_fz_formula, user_dfz_formula, user_ddfz_formula, ots, sts);
+                break;
+            case MainWindow.CHANGBUM_CHUN33:
+                fractal = new ChangBumChun33(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.CHANGBUM_CHUN34:
+                fractal = new ChangBumChun34(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.CHANGBUM_CHUN3GENERALIZED3:
+                fractal = new ChangBumChun3Generalized3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.CHANGBUM_CHUN3GENERALIZED8:
+                fractal = new ChangBumChun3Generalized8(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.CHANGBUM_CHUN3SIN:
+                fractal = new ChangBumChun3Sin(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.CHANGBUM_CHUN3COS:
+                fractal = new ChangBumChun3Cos(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.CHANGBUM_CHUN3POLY:
+                fractal = new ChangBumChun3Poly(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, coefficients, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts, coefficients_im);
+                break;
+            case MainWindow.CHANGBUM_CHUN3FORMULA:
+                fractal = new ChangBumChun3Formula(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, user_fz_formula, user_dfz_formula, ots, sts);
+                break;
+            case MainWindow.EZZATI_SALEKI13:
+                fractal = new EzzatiSaleki13(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.EZZATI_SALEKI14:
+                fractal = new EzzatiSaleki14(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.EZZATI_SALEKI1GENERALIZED3:
+                fractal = new EzzatiSaleki1Generalized3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.EZZATI_SALEKI1GENERALIZED8:
+                fractal = new EzzatiSaleki1Generalized8(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.EZZATI_SALEKI1SIN:
+                fractal = new EzzatiSaleki1Sin(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.EZZATI_SALEKI1COS:
+                fractal = new EzzatiSaleki1Cos(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.EZZATI_SALEKI1POLY:
+                fractal = new EzzatiSaleki1Poly(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, coefficients, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts, coefficients_im);
+                break;
+            case MainWindow.EZZATI_SALEKI1FORMULA:
+                fractal = new EzzatiSaleki1Formula(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, user_fz_formula, user_dfz_formula, ots, sts);
+                break;
+            case MainWindow.FENG3:
+                fractal = new Feng3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.FENG4:
+                fractal = new Feng4(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.FENGGENERALIZED3:
+                fractal = new FengGeneralized3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.FENGGENERALIZED8:
+                fractal = new FengGeneralized8(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.FENGSIN:
+                fractal = new FengSin(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.FENGCOS:
+                fractal = new FengCos(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.FENGPOLY:
+                fractal = new FengPoly(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, coefficients, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts, coefficients_im);
+                break;
+            case MainWindow.FENGFORMULA:
+                fractal = new FengFormula(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, user_fz_formula, user_dfz_formula, ots, sts);
+                break;
+            case MainWindow.KING13:
+                fractal = new King13(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.KING14:
+                fractal = new King14(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.KING1GENERALIZED3:
+                fractal = new King1Generalized3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.KING1GENERALIZED8:
+                fractal = new King1Generalized8(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.KING1SIN:
+                fractal = new King1Sin(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.KING1COS:
+                fractal = new King1Cos(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.KING1POLY:
+                fractal = new King1Poly(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, coefficients, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts, coefficients_im);
+                break;
+            case MainWindow.KING1FORMULA:
+                fractal = new King1Formula(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, user_fz_formula, user_dfz_formula, ots, sts);
+                break;
+            case MainWindow.NOOR_GUPTA3:
+                fractal = new NoorGupta3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.NOOR_GUPTA4:
+                fractal = new NoorGupta4(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.NOOR_GUPTAGENERALIZED3:
+                fractal = new NoorGuptaGeneralized3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.NOOR_GUPTAGENERALIZED8:
+                fractal = new NoorGuptaGeneralized8(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.NOOR_GUPTASIN:
+                fractal = new NoorGuptaSin(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.NOOR_GUPTACOS:
+                fractal = new NoorGuptaCos(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.NOOR_GUPTAPOLY:
+                fractal = new NoorGuptaPoly(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, coefficients, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts, coefficients_im);
+                break;
+            case MainWindow.NOOR_GUPTAFORMULA:
+                fractal = new NoorGuptaFormula(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, user_fz_formula, user_dfz_formula, ots, sts);
+                break;
+            case MainWindow.HARMONIC_SIMPSON_NEWTON3:
+                fractal = new HarmonicSimpsonNewton3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.HARMONIC_SIMPSON_NEWTON4:
+                fractal = new HarmonicSimpsonNewton4(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.HARMONIC_SIMPSON_NEWTONGENERALIZED3:
+                fractal = new HarmonicSimpsonNewtonGeneralized3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.HARMONIC_SIMPSON_NEWTONGENERALIZED8:
+                fractal = new HarmonicSimpsonNewtonGeneralized8(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.HARMONIC_SIMPSON_NEWTONSIN:
+                fractal = new HarmonicSimpsonNewtonSin(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.HARMONIC_SIMPSON_NEWTONCOS:
+                fractal = new HarmonicSimpsonNewtonCos(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.HARMONIC_SIMPSON_NEWTONPOLY:
+                fractal = new HarmonicSimpsonNewtonPoly(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, coefficients, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts, coefficients_im);
+                break;
+            case MainWindow.HARMONIC_SIMPSON_NEWTONFORMULA:
+                fractal = new HarmonicSimpsonNewtonFormula(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, user_fz_formula, user_dfz_formula, ots, sts);
+                break;
+            case MainWindow.NEDZHIBOV3:
+                fractal = new Nedzhibov3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.NEDZHIBOV4:
+                fractal = new Nedzhibov4(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.NEDZHIBOVGENERALIZED3:
+                fractal = new NedzhibovGeneralized3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.NEDZHIBOVGENERALIZED8:
+                fractal = new NedzhibovGeneralized8(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.NEDZHIBOVSIN:
+                fractal = new NedzhibovSin(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.NEDZHIBOVCOS:
+                fractal = new NedzhibovCos(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.NEDZHIBOVPOLY:
+                fractal = new NedzhibovPoly(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, coefficients, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts, coefficients_im);
+                break;
+            case MainWindow.NEDZHIBOVFORMULA:
+                fractal = new NedzhibovFormula(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, user_fz_formula, user_dfz_formula, ots, sts);
+                break;
+            case MainWindow.SIMPSON_NEWTON3:
+                fractal = new SimpsonNewton3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.SIMPSON_NEWTON4:
+                fractal = new SimpsonNewton4(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.SIMPSON_NEWTONGENERALIZED3:
+                fractal = new SimpsonNewtonGeneralized3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.SIMPSON_NEWTONGENERALIZED8:
+                fractal = new SimpsonNewtonGeneralized8(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.SIMPSON_NEWTONSIN:
+                fractal = new SimpsonNewtonSin(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.SIMPSON_NEWTONCOS:
+                fractal = new SimpsonNewtonCos(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.SIMPSON_NEWTONPOLY:
+                fractal = new SimpsonNewtonPoly(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, coefficients, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts, coefficients_im);
+                break;
+            case MainWindow.SIMPSON_NEWTONFORMULA:
+                fractal = new SimpsonNewtonFormula(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, user_fz_formula, user_dfz_formula, ots, sts);
+                break;
         }
 
         fractal.preFilterFactory(preffs);
@@ -7194,13 +7858,19 @@ public abstract class ThreadDraw extends Thread {
         fractal.influencePlaneFactory(ips);
         fractal.setFunctionId(function);
         fractal.ConvergentBailoutConditionFactory(cbs.convergent_bailout_test_algorithm, fractal.getConvergentBailout(), cbs.convergent_bailout_test_user_formula, cbs.convergent_bailout_test_user_formula2, cbs.convergent_bailout_test_comparison, cbs.convergent_n_norm, plane_transform_center);
-
+        fractal.updateTrapsWithInitValData();
         fractal.setPeriod(period);
+
+        GenericStatistic statistic = fractal.getStatisticInstance();
+        if(statistic != null) {
+            statistic.setSize(dsize);
+        }
+
         return fractal;
 
     }
 
-    private Fractal juliaFactory(int function, double xCenter, double yCenter, double size, int max_iterations, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double z_exponent, double[] z_exponent_complex, double[] coefficients, double[] coefficients_im, double[] z_exponent_nova, double[] relaxation, int nova_method, int bail_technique, String user_formula, String user_formula2, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, double coupling, String[] user_formula_coupled, int coupling_method, double coupling_amplitude, double coupling_frequency, int coupling_seed, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, GenericCaZbdZeSettings gcs, String[] lyapunovExpression, OrbitTrapSettings ots, boolean exterior_de, double exterior_de_factor, boolean inverse_dem, int escaping_smooth_algorithm, int converging_smooth_algorithm, StatisticsSettings sts, boolean useLyapunovExponent, String lyapunovFunction, String lyapunovExponentFunction, int lyapunovVariableId, String user_fz_formula, String user_dfz_formula, String user_ddfz_formula, String user_dddfz_formula, String user_relaxation_formula, String user_nova_addend_formula, double[] laguerre_deg, GenericCpAZpBCSettings gcps, LambdaFnFnSettings lfns, double[] newton_hines_k, TrueColorSettings tcs, String lyapunovInitialValue, int lyapunovInitializationIteratons, boolean lyapunovskipBailoutCheck, FunctionFilterSettings preffs, FunctionFilterSettings postffs, PlaneInfluenceSettings ips, boolean juliter, int juliterIterations, boolean juliterIncludeInitialIterations, boolean defaultNovaInitialValue, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String perturbation_user_formula, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String initial_value_user_formula, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, ConvergentBailoutConditionSettings cbs,  boolean useGlobalMethod, double[] globalMethodFactor, double xJuliaCenter, double yJuliaCenter) {
+    private Fractal juliaFactory(int function, double xCenter, double yCenter,  Apfloat dsize, double size, int max_iterations, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double z_exponent, double[] z_exponent_complex, double[] coefficients, double[] coefficients_im, double[] z_exponent_nova, double[] relaxation, int nova_method, int bail_technique, String user_formula, String user_formula2, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, double coupling, String[] user_formula_coupled, int coupling_method, double coupling_amplitude, double coupling_frequency, int coupling_seed, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, GenericCaZbdZeSettings gcs, String[] lyapunovExpression, OrbitTrapSettings ots, boolean exterior_de, double exterior_de_factor, boolean inverse_dem, int escaping_smooth_algorithm, int converging_smooth_algorithm, StatisticsSettings sts, boolean useLyapunovExponent, String lyapunovFunction, String lyapunovExponentFunction, int lyapunovVariableId, String user_fz_formula, String user_dfz_formula, String user_ddfz_formula, String user_dddfz_formula, String user_relaxation_formula, String user_nova_addend_formula, double[] laguerre_deg, GenericCpAZpBCSettings gcps, LambdaFnFnSettings lfns, double[] newton_hines_k, TrueColorSettings tcs, String lyapunovInitialValue, int lyapunovInitializationIteratons, boolean lyapunovskipBailoutCheck, FunctionFilterSettings preffs, FunctionFilterSettings postffs, PlaneInfluenceSettings ips, boolean juliter, int juliterIterations, boolean juliterIncludeInitialIterations, boolean defaultNovaInitialValue, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String perturbation_user_formula, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String initial_value_user_formula, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, ConvergentBailoutConditionSettings cbs,  boolean useGlobalMethod, double[] globalMethodFactor, double xJuliaCenter, double yJuliaCenter) {
 
         Fractal fractal = null;
 
@@ -7466,29 +8136,41 @@ public abstract class ThreadDraw extends Thread {
             case MainWindow.USER_FORMULA:
                 if (bail_technique == 0) {
                     fractal = new UserFormulaEscaping(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_formula, user_formula2, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, ots, sts, xJuliaCenter, yJuliaCenter);
-                } else {
+                } else if (bail_technique == 1) {
                     fractal = new UserFormulaConverging(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_formula, user_formula2, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts, xJuliaCenter, yJuliaCenter);
+                }
+                else {
+                    fractal = new UserFormulaEscapingOrConverging(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_formula, user_formula2, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, converging_smooth_algorithm, ots, sts, xJuliaCenter, yJuliaCenter);
                 }
                 break;
             case MainWindow.USER_FORMULA_ITERATION_BASED:
                 if (bail_technique == 0) {
                     fractal = new UserFormulaIterationBasedEscaping(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_formula_iteration_based, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, ots, sts, xJuliaCenter, yJuliaCenter);
-                } else {
+                } else if (bail_technique == 1) {
                     fractal = new UserFormulaIterationBasedConverging(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_formula_iteration_based, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts, xJuliaCenter, yJuliaCenter);
+                }
+                else {
+                    fractal = new UserFormulaIterationBasedEscapingOrConverging(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_formula_iteration_based, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, converging_smooth_algorithm, ots, sts, xJuliaCenter, yJuliaCenter);
                 }
                 break;
             case MainWindow.USER_FORMULA_CONDITIONAL:
                 if (bail_technique == 0) {
                     fractal = new UserFormulaConditionalEscaping(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_formula_conditions, user_formula_condition_formula, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, ots, sts, xJuliaCenter, yJuliaCenter);
-                } else {
+                } else if (bail_technique == 1) {
                     fractal = new UserFormulaConditionalConverging(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_formula_conditions, user_formula_condition_formula, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts, xJuliaCenter, yJuliaCenter);
+                }
+                else {
+                    fractal = new UserFormulaConditionalEscapingOrConverging(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_formula_conditions, user_formula_condition_formula, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, converging_smooth_algorithm, ots, sts, xJuliaCenter, yJuliaCenter);
                 }
                 break;
             case MainWindow.USER_FORMULA_COUPLED:
                 if (bail_technique == 0) {
                     fractal = new UserFormulaCoupledEscaping(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, coupling, user_formula_coupled, coupling_method, coupling_amplitude, coupling_frequency, coupling_seed, ots, sts, xJuliaCenter, yJuliaCenter);
-                } else {
+                } else if (bail_technique == 1) {
                     fractal = new UserFormulaCoupledConverging(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, coupling, user_formula_coupled, coupling_method, coupling_amplitude, coupling_frequency, coupling_seed, ots, sts, xJuliaCenter, yJuliaCenter);
+                }
+                else {
+                    fractal = new UserFormulaCoupledEscapingOrConverging(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, converging_smooth_algorithm, coupling, user_formula_coupled, coupling_method, coupling_amplitude, coupling_frequency, coupling_seed, ots, sts, xJuliaCenter, yJuliaCenter);
                 }
                 break;
             case MainWindow.FROTHY_BASIN:
@@ -7544,6 +8226,10 @@ public abstract class ThreadDraw extends Thread {
         fractal.influencePlaneFactory(ips);
         fractal.ConvergentBailoutConditionFactory(cbs.convergent_bailout_test_algorithm, fractal.getConvergentBailout(), cbs.convergent_bailout_test_user_formula, cbs.convergent_bailout_test_user_formula2, cbs.convergent_bailout_test_comparison, cbs.convergent_n_norm, plane_transform_center);
 
+        GenericStatistic statistic = fractal.getStatisticInstance();
+        if(statistic != null) {
+            statistic.setSize(dsize);
+        }
         return fractal;
 
     }
@@ -7644,10 +8330,10 @@ public abstract class ThreadDraw extends Thread {
 
         int max_ref_iterations = fractal.getReferenceMaxIterations();
 
-        if(Fractal.refPoint != null && Fractal.Reference != null && temp.getClass().equals(Fractal.refPoint.getClass()) && temp.compare(Fractal.refPoint) == 0 && Fractal.RefType.equals(fractal.getRefType())
-                && !(Fractal.ReferenceDeep == null && isDeep)) {
+        if(Fractal.refPoint != null && temp.getClass().equals(Fractal.refPoint.getClass()) && temp.compare(Fractal.refPoint) == 0 && Fractal.RefType.equals(fractal.getRefType())
+                && !(Fractal.ReferenceDeep == null && isDeep) && !(Fractal.Reference == null && !isDeep)) {
 
-            if(max_ref_iterations > (fractal.Reference.length >> 1)) {
+            if(max_ref_iterations > fractal.getReferenceLength()) {
                 fractal.calculateReferencePoint(temp, size,size.compareTo(MyApfloat.MAX_DOUBLE_SIZE) < 0, Fractal.MaxRefIteration + 1, loc, progress);
             }
             else {
@@ -7664,11 +8350,11 @@ public abstract class ThreadDraw extends Thread {
                 else if(APPROXIMATION_ALGORITHM == 2 && fractal.supportsBilinearApproximation() && (Fractal.B == null || (isDeep && Fractal.B.bdeep == null)
                         || (!isDeep && Fractal.B.b == null)
                         || BLA_BITS != Fractal.BLAbits
-                        || BLA_LIMIT_FACTOR != Fractal.BLALimitFactor
                         || fractal.getBLALength() != Fractal.B.M
                         || loc.getMaxSizeInImage().compareTo(Fractal.BLASize) != 0
+                        || BLA_STARTING_LEVEL != Fractal.BLAStartingLevel
                 )) {
-                    fractal.calculateBLAWrapper(size, isDeep, loc, progress);
+                    fractal.calculateBLAWrapper(isDeep, loc, progress);
                 }
             }
 

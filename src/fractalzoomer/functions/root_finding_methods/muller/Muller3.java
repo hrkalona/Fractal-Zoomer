@@ -91,4 +91,9 @@ public class Muller3 extends MullerRootFindingMethod {
 
     }
 
+    @Override
+    public Complex evaluateFunction(Complex z, Complex c) {
+        return z.cube().sub_mutable(1);
+    }
+
 }

@@ -54,4 +54,9 @@ public class ThirdOrderNewton3 extends ThirdOrderNewtonRootFindingMethod {
         thirdOrderNewtonMethod(complex[0], fz, dfz, ffz);
 
     }
+
+    @Override
+    public Complex evaluateFunction(Complex z, Complex c) {
+        return z.cube().sub_mutable(1);
+    }
 }

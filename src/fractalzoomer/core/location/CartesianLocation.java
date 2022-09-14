@@ -232,50 +232,16 @@ public class CartesianLocation extends Location {
     }
 
     @Override
-    public void createAntialiasingSteps() {
+    public void createAntialiasingSteps(boolean adaptive) {
         if(highPresicion) {
-            Apfloat point25 = new MyApfloat(0.25);
-
-            Apfloat ddx_antialiasing_size = MyApfloat.fp.multiply(ddtemp_size_image_size_x, point25);
-            Apfloat ddx_antialiasing_size_x2 = MyApfloat.fp.multiply(ddx_antialiasing_size, MyApfloat.TWO);
-
-            Apfloat ddy_antialiasing_size = MyApfloat.fp.multiply(ddtemp_size_image_size_y, point25);
-            Apfloat ddy_antialiasing_size_x2 = MyApfloat.fp.multiply(ddy_antialiasing_size, MyApfloat.TWO);
-
-            Apfloat zero = MyApfloat.ZERO;
-
-            Apfloat temp_x[] = {ddx_antialiasing_size.negate(), ddx_antialiasing_size, ddx_antialiasing_size, ddx_antialiasing_size.negate(),
-                    ddx_antialiasing_size.negate(), ddx_antialiasing_size, zero, zero,
-                    ddx_antialiasing_size_x2.negate(), ddx_antialiasing_size_x2.negate(), ddx_antialiasing_size_x2.negate(), zero, zero, ddx_antialiasing_size_x2, ddx_antialiasing_size_x2, ddx_antialiasing_size_x2,
-                    ddx_antialiasing_size_x2.negate(), ddx_antialiasing_size_x2.negate(), ddx_antialiasing_size.negate(), ddx_antialiasing_size.negate(), ddx_antialiasing_size, ddx_antialiasing_size, ddx_antialiasing_size_x2, ddx_antialiasing_size_x2};
-            Apfloat temp_y[] = {ddy_antialiasing_size.negate(), ddy_antialiasing_size.negate(), ddy_antialiasing_size, ddy_antialiasing_size,
-                    zero, zero, ddy_antialiasing_size.negate(), ddy_antialiasing_size,
-                    ddy_antialiasing_size_x2.negate(), zero, ddy_antialiasing_size_x2, ddy_antialiasing_size_x2.negate(), ddy_antialiasing_size_x2, ddy_antialiasing_size_x2.negate(), zero, ddy_antialiasing_size_x2,
-                    ddy_antialiasing_size.negate(), ddy_antialiasing_size, ddy_antialiasing_size_x2.negate(), ddy_antialiasing_size_x2, ddy_antialiasing_size_x2.negate(), ddy_antialiasing_size_x2, ddy_antialiasing_size.negate(), ddy_antialiasing_size};
-
-            ddantialiasing_x = temp_x;
-            ddantialiasing_y = temp_y;
-
+            Apfloat[][] steps = createAntialiasingStepsApfloat(ddtemp_size_image_size_x, ddtemp_size_image_size_y, adaptive);
+            ddantialiasing_x = steps[0];
+            ddantialiasing_y = steps[1];
         }
         else {
-
-            double x_antialiasing_size = temp_size_image_size_x * 0.25;
-            double x_antialiasing_size_x2 = 2 * x_antialiasing_size;
-
-            double y_antialiasing_size = temp_size_image_size_y * 0.25;
-            double y_antialiasing_size_x2 = 2 * y_antialiasing_size;
-
-            double temp_x[] = {-x_antialiasing_size, x_antialiasing_size, x_antialiasing_size, -x_antialiasing_size,
-                    -x_antialiasing_size, x_antialiasing_size, 0, 0,
-                    -x_antialiasing_size_x2, -x_antialiasing_size_x2, -x_antialiasing_size_x2, 0, 0, x_antialiasing_size_x2, x_antialiasing_size_x2, x_antialiasing_size_x2,
-                    -x_antialiasing_size_x2, -x_antialiasing_size_x2, -x_antialiasing_size, -x_antialiasing_size, x_antialiasing_size, x_antialiasing_size, x_antialiasing_size_x2, x_antialiasing_size_x2};
-            double temp_y[] = {-y_antialiasing_size, -y_antialiasing_size, y_antialiasing_size, y_antialiasing_size,
-                    0, 0, -y_antialiasing_size, y_antialiasing_size,
-                    -y_antialiasing_size_x2, 0, y_antialiasing_size_x2, -y_antialiasing_size_x2, y_antialiasing_size_x2, -y_antialiasing_size_x2, 0, y_antialiasing_size_x2,
-                    -y_antialiasing_size, y_antialiasing_size, -y_antialiasing_size_x2, y_antialiasing_size_x2, -y_antialiasing_size_x2, y_antialiasing_size_x2, -y_antialiasing_size, y_antialiasing_size};
-
-            antialiasing_x = temp_x;
-            antialiasing_y = temp_y;
+            double[][] steps = createAntialiasingStepsDouble(temp_size_image_size_x, temp_size_image_size_y, adaptive);
+            antialiasing_x = steps[0];
+            antialiasing_y = steps[1];
         }
     }
 
@@ -296,6 +262,7 @@ public class CartesianLocation extends Location {
         }
     }
 
+    @Override
     public Complex getComplexOrbit(int x, int y) {
         if(highPresicion) {
 

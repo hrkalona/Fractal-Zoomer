@@ -78,4 +78,9 @@ public class Parhalley4 extends ParhalleyRootFindingMethod {
 
     }
 
+    @Override
+    public Complex evaluateFunction(Complex z, Complex c) {
+        return z.fourth().sub_mutable(1);
+    }
+
 }

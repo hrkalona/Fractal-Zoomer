@@ -223,8 +223,9 @@ public class SolidGuessingDraw extends ThreadDraw {
                         skippedColor = getColorForSkippedPixels(temp_starting_pixel_color, randomNumber + step);
 
                         for (int k = y; k < temp2; k++) {
-                            temp3 = k * image_size + x;
-                            temp4 = k * image_size + temp1;
+                            int temploc = k * image_size;
+                            temp3 = temploc + x;
+                            temp4 = temploc + temp1;
                             Arrays.fill(image_iterations, temp3, temp4, temp_starting_pixel_cicle);
                             Arrays.fill(rgbs, temp3, temp4, skippedColor);
                             Arrays.fill(escaped, temp3, temp4, temp_starting_escaped);

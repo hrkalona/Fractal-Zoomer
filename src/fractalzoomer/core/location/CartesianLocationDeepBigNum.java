@@ -149,28 +149,10 @@ public class CartesianLocationDeepBigNum extends Location {
     }
 
     @Override
-    public void createAntialiasingSteps() {
-        BigNum point25 = new BigNum(0.25);
-
-        BigNum ddx_antialiasing_size = bntemp_size_image_size_x.mult(point25);
-        BigNum ddx_antialiasing_size_x2 = ddx_antialiasing_size.mult2();
-
-        BigNum ddy_antialiasing_size = bntemp_size_image_size_y.mult(point25);
-        BigNum ddy_antialiasing_size_x2 = ddy_antialiasing_size.mult2();
-
-        BigNum zero = new BigNum();
-
-        BigNum temp_x[] = {ddx_antialiasing_size.negate(), ddx_antialiasing_size, ddx_antialiasing_size, ddx_antialiasing_size.negate(),
-                ddx_antialiasing_size.negate(), ddx_antialiasing_size, zero, zero,
-                ddx_antialiasing_size_x2.negate(), ddx_antialiasing_size_x2.negate(), ddx_antialiasing_size_x2.negate(), zero, zero, ddx_antialiasing_size_x2, ddx_antialiasing_size_x2, ddx_antialiasing_size_x2,
-                ddx_antialiasing_size_x2.negate(), ddx_antialiasing_size_x2.negate(), ddx_antialiasing_size.negate(), ddx_antialiasing_size.negate(), ddx_antialiasing_size, ddx_antialiasing_size, ddx_antialiasing_size_x2, ddx_antialiasing_size_x2};
-        BigNum temp_y[] = {ddy_antialiasing_size.negate(), ddy_antialiasing_size.negate(), ddy_antialiasing_size, ddy_antialiasing_size,
-                zero, zero, ddy_antialiasing_size.negate(), ddy_antialiasing_size,
-                ddy_antialiasing_size_x2.negate(), zero, ddy_antialiasing_size_x2, ddy_antialiasing_size_x2.negate(), ddy_antialiasing_size_x2, ddy_antialiasing_size_x2.negate(), zero, ddy_antialiasing_size_x2,
-                ddy_antialiasing_size.negate(), ddy_antialiasing_size, ddy_antialiasing_size_x2.negate(), ddy_antialiasing_size_x2, ddy_antialiasing_size_x2.negate(), ddy_antialiasing_size_x2, ddy_antialiasing_size.negate(), ddy_antialiasing_size};
-
-        bnantialiasing_x = temp_x;
-        bnantialiasing_y = temp_y;
+    public void createAntialiasingSteps(boolean adaptive) {
+        BigNum[][] steps = createAntialiasingStepsBigNum(bntemp_size_image_size_x, bntemp_size_image_size_y, adaptive);
+        bnantialiasing_x = steps[0];
+        bnantialiasing_y = steps[1];
     }
 
     @Override
@@ -187,6 +169,7 @@ public class CartesianLocationDeepBigNum extends Location {
         return new MantExpComplex(temp.getRe().getMantExp(), temp.getIm().getMantExp());
     }
 
+    @Override
     public Complex getComplexOrbit(int x, int y) {
         bntempX = bntemp_xcenter_size.add(bntemp_size_image_size_x.mult(new BigNum(x)));
         bntempY = bntemp_ycenter_size.sub(bntemp_size_image_size_y.mult(new BigNum(y)));

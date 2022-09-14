@@ -57,10 +57,10 @@ public class SmoothEscapeTimeFieldLinesMagnet extends SmoothEscapeTimeFieldLines
                 temp = Math.log(temp);
                 
                 if(temp3 < 0) {
-                    return temp3 -((log_bailout_squared - temp) / (temp3 - temp) + MAGNET_INCREMENT);
+                    return temp3 -((log_bailout_squared - temp) / (temp2 - temp) + MAGNET_INCREMENT);
                 }
                 else {
-                    return temp3 + (log_bailout_squared - temp) / (temp3 - temp) + MAGNET_INCREMENT;
+                    return temp3 + (log_bailout_squared - temp) / (temp2 - temp) + MAGNET_INCREMENT;
                 }           
             }
             else {

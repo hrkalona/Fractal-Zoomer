@@ -55,9 +55,14 @@ public class JarattCos extends JarattRootFindingMethod {
 
         Complex temp2 = getDerivativeArgument(complex[0], fz, dfz);
 
-        Complex combined_dfz = temp2.sin().negative();
+        Complex combined_dfz = temp2.sin().negative_mutable();
 
         jarattMethod(complex[0], fz, dfz, combined_dfz);
 
+    }
+
+    @Override
+    public Complex evaluateFunction(Complex z, Complex c) {
+        return z.cos();
     }
 }

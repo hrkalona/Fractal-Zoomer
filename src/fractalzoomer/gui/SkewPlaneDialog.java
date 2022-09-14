@@ -106,7 +106,7 @@ public class SkewPlaneDialog extends JDialog {
                     }
 
                     dispose();
-                    ptra.defaultFractalSettings();
+                    ptra.defaultFractalSettings(true);
                 }
             }
         });

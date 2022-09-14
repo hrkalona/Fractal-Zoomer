@@ -29,5 +29,7 @@ public abstract class PlanePointOption {
     }
     
     public abstract Complex getValue(Complex pixel);
+
+    public boolean isStatic() {return false;}
     
 }

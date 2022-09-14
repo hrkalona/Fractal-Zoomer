@@ -30,7 +30,7 @@ public class CatmullRomInterpolation extends InterpolationMethod {
     @Override
     public int interpolate(int r1, int g1, int b1, int r2, int g2, int b2, double coef) {
         
-        coef = catmullrom(coef, 0.5, 0, 1, 0.5);
+        coef = getCoefficient(coef);
         
         int red = (int)(r1 + (r2 - r1) * coef + 0.5);
         int green = (int)(g1 + (g2 - g1) * coef + 0.5);
@@ -42,7 +42,7 @@ public class CatmullRomInterpolation extends InterpolationMethod {
     @Override
     public double interpolate(double a, double b, double coef) {
         
-        coef = catmullrom(coef, 0.5, 0, 1, 0.5);
+        coef = getCoefficient(coef);
         
         return a + (b - a) * coef;
         
@@ -51,7 +51,7 @@ public class CatmullRomInterpolation extends InterpolationMethod {
     @Override
     public int interpolate(int a, int b, double coef) {
         
-        coef = catmullrom(coef, 0.5, 0, 1, 0.5);
+        coef = getCoefficient(coef);
         
         return (int)(a + (b - a) * coef + 0.5);
         
@@ -60,7 +60,7 @@ public class CatmullRomInterpolation extends InterpolationMethod {
     @Override
     public double getCoef(double coef) {
         
-        return catmullrom(coef, 0.5, 0, 1, 0.5);
+        return getCoefficient(coef);
         
     }
     
@@ -69,5 +69,9 @@ public class CatmullRomInterpolation extends InterpolationMethod {
                 + (-p0 + p2) * t
                 + (2 * p0 - 5 * p1 + 4 * p2 - p3) * t * t
                 + (-p0 + 3 * p1 - 3 * p2 + p3) * t * t * t);
+    }
+
+    public static double getCoefficient(double coef) {
+        return catmullrom(coef, 0.5, 0, 1, 0.5);
     }
 }

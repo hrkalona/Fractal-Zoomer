@@ -180,7 +180,7 @@ public class Mandelbar extends Julia {
                 }
 
             }
-        } else if (max_iterations > (Reference.length >> 1)) {
+        } else if (max_iterations > getReferenceLength()) {
             Reference = Arrays.copyOf(Reference, max_iterations << 1);
 
             if(isJulia) {
@@ -203,26 +203,14 @@ public class Mandelbar extends Julia {
         Object normSquared;
 
         if(ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE) {
-            if(inputPixel instanceof  BigNumComplex) {
-                z = iterations == 0 ? (isJulia ? inputPixel : new BigNumComplex()) : lastZValue;
-                c = isJulia ? new BigNumComplex(seed) : inputPixel;
-                zold = iterations == 0 ? new BigNumComplex() : secondTolastZValue;
-                zold2 = iterations == 0 ? new BigNumComplex() : thirdTolastZValue;
-                start = isJulia ? inputPixel : new BigNumComplex();
-                c0 = c;
-                pixel = inputPixel;
-            }
-            else {
-                BigComplex bz = (BigComplex)inputPixel;
-                BigNumComplex bn = new BigNumComplex(bz);
-                z = iterations == 0 ? (isJulia ? bn : new BigNumComplex()) : lastZValue;
-                c = isJulia ? new BigNumComplex(seed) : bn;
-                zold = iterations == 0 ? new BigNumComplex() : secondTolastZValue;
-                zold2 = iterations == 0 ? new BigNumComplex() : thirdTolastZValue;
-                start = isJulia ? bn : new BigNumComplex();
-                c0 = c;
-                pixel = bn;
-            }
+            BigNumComplex bn = inputPixel.toBigNumComplex();
+            z = iterations == 0 ? (isJulia ? bn : new BigNumComplex()) : lastZValue;
+            c = isJulia ? new BigNumComplex(seed) : bn;
+            zold = iterations == 0 ? new BigNumComplex() : secondTolastZValue;
+            zold2 = iterations == 0 ? new BigNumComplex() : thirdTolastZValue;
+            start = isJulia ? bn : new BigNumComplex();
+            c0 = c;
+            pixel = bn;
             normSquared = new BigNum();
         }
         else {
@@ -247,6 +235,9 @@ public class Mandelbar extends Julia {
 
         RefType = getRefType();
 
+        boolean preCalcNormData = bailout_algorithm2.getId() == MainWindow.BAILOUT_CONDITION_CIRCLE;
+        NormComponents normData = null;
+
         for (; iterations < max_iterations; iterations++) {
 
             Complex cz = z.toComplex();
@@ -270,10 +261,12 @@ public class Mandelbar extends Julia {
                 //ReferenceDeep[iterations] = new MantExpComplex(Reference[iterations]);
             }
 
-            NormComponents normData = z.normSquaredWithComponents();
-            normSquared = normData.normSquared;
+            if(preCalcNormData) {
+                normData = z.normSquaredWithComponents();
+                normSquared = normData.normSquared;
+            }
 
-            if (iterations > 0 && bailout_algorithm2.escaped(z, zold, zold2, iterations, c, start, c0, normSquared, pixel)) {
+            if (iterations > 0 && bailout_algorithm2.Escaped(z, zold, zold2, iterations, c, start, c0, normSquared, pixel)) {
                 break;
             }
 
@@ -281,7 +274,12 @@ public class Mandelbar extends Julia {
             zold = z;
 
             try {
-                z = z.conjugate().squareFast_plus_c(normData, c);
+                if(preCalcNormData) {
+                    z = z.conjugate().squareFast_plus_c(normData, c);
+                }
+                else {
+                    z = z.conjugate().square_plus_c(c);
+                }
             }
             catch (Exception ex) {
                 break;

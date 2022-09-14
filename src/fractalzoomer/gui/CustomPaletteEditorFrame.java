@@ -1074,7 +1074,7 @@ public class CustomPaletteEditorFrame extends JFrame {
             scale_factor_palette_slid.setEnabled(false);
         }
 
-        String[] processing_str = {"None", "Histogram Bright", "Brightness 1", "Brightness 2", "Hue 1", "Hue 2", "Saturation 1", "Saturation 2", "Red 1", "Red 2", "Green 1", "Green 2", "Blue 1", "Blue 2", "RGB 1", "RGB 2", "HSB 1", "HSB 2", "RYB 1", "RYB 2", "Histogram Light"};
+        String[] processing_str = {"None", "Histogram Bright", "Brightness 1", "Brightness 2", "Hue 1", "Hue 2", "Saturation 1", "Saturation 2", "Red 1", "Red 2", "Green 1", "Green 2", "Blue 1", "Blue 2", "RGB 1", "RGB 2", "HSB 1", "HSB 2", "RYB 1", "RYB 2", "Histogram Light", "Brightness 3", "Hues 3", "Saturation 3", "Red 3", "Green 3", "Blue 3", "RGB 3", "HSB 3", "RYB 3"};
 
         combo_box_processing = new JComboBox(processing_str);
         combo_box_processing.setSelectedIndex(processing_alg);

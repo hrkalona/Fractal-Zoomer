@@ -25,6 +25,7 @@ import fractalzoomer.core.ThreadDraw;
 import fractalzoomer.fractal_options.orbit_traps.ImageOrbitTrap;
 import fractalzoomer.functions.Fractal;
 import fractalzoomer.main.Constants;
+import fractalzoomer.main.MainWindow;
 import fractalzoomer.palettes.CustomPalette;
 import fractalzoomer.palettes.PresetPalette;
 import fractalzoomer.parser.Parser;
@@ -286,6 +287,10 @@ public class Settings implements Constants {
             else if (version == 1081) {
                 xJuliaCenter = ((SettingsJulia1081) settings).getXJuliaCenter();
                 yJuliaCenter = ((SettingsJulia1081) settings).getYJuliaCenter();
+            }
+            else if (version == 1083) {
+                xJuliaCenter = ((SettingsJulia1083) settings).getXJuliaCenter();
+                yJuliaCenter = ((SettingsJulia1083) settings).getYJuliaCenter();
             }
 
             fns.julia = true;
@@ -1268,6 +1273,21 @@ public class Settings implements Constants {
             ds.domain_height_method = ((SettingsFractals1081) settings).getDomainHeightMethod();
         }
 
+        if(version < 1083) {
+            sts.normalMapDeFadeAlgorithm = defaults.sts.normalMapDeFadeAlgorithm;
+            sts.normalMapDEUpperLimitFactor = defaults.sts.normalMapDEUpperLimitFactor;
+            sts.normalMapDEAAEffect = defaults.sts.normalMapDEAAEffect;
+            sts.unmmapedRootColor = defaults.sts.unmmapedRootColor;
+            sts.rootShadingColor = defaults.sts.rootShadingColor;
+        }
+        else {
+            sts.normalMapDeFadeAlgorithm = ((SettingsFractals1083) settings).getNormalMapDeFadeAlgorithm();
+            sts.normalMapDEUpperLimitFactor = ((SettingsFractals1083) settings).getNormalMapDEUpperLimitFactor();
+            sts.normalMapDEAAEffect = ((SettingsFractals1083) settings).getNormalMapDEAAEffect();
+            sts.unmmapedRootColor = ((SettingsFractals1083) settings).getUnmmapedRootColor();
+            sts.rootShadingColor = ((SettingsFractals1083) settings).getRootShadingColor();
+        }
+
         if (fns.plane_type == USER_PLANE) {
             if (version < 1058) {
                 fns.user_plane_algorithm = defaults.fns.user_plane_algorithm;
@@ -1649,7 +1669,7 @@ public class Settings implements Constants {
                 userFormulaHasC = temp_bool;
                 break;
              default:
-                    if(isPolynomialFunction()) {
+                    if(Settings.isPolynomialFunction(fns.function)) {
                         fns.coefficients = settings.getCoefficients();
 
                         if (version < 1072) {
@@ -1707,6 +1727,11 @@ public class Settings implements Constants {
             resetStatisticalColoringFormulas();
         }
 
+        if(fns.function >= MainWindow.MANDELBROT && fns.function <= MainWindow.MANDELBROTNTH && fns.burning_ship) {
+            sts.useNormalMap = false;
+            sts.normalMapOverrideColoring = false;
+        }
+
         Fractal.clearReferences();
 
         applyStaticSettings();
@@ -1729,9 +1754,9 @@ public class Settings implements Constants {
             file_temp = new ObjectOutputStream(new FileOutputStream(filename));
             SettingsFractals settings;
             if (fns.julia) {
-                settings = new SettingsJulia1081(this);
+                settings = new SettingsJulia1083(this);
             } else {
-                settings = new SettingsFractals1081(this);
+                settings = new SettingsFractals1083(this);
             }
             file_temp.writeObject(settings);
             file_temp.flush();
@@ -1858,11 +1883,10 @@ public class Settings implements Constants {
     }
 
     public void resetConvergentBailoutFormulas() {
-        if (isConvergingType()) {
+        if (isConvergingType() || isEscapingOrConvergingType()) {
             fns.cbs.convergent_bailout_test_user_formula = "norm(z - p)";
             fns.cbs.convergent_bailout_test_user_formula2 = "cbail";
-        }
-        else if(isMagnetType()) {
+        } else if(isMagnetType()) {
             fns.cbs.convergent_bailout_test_user_formula = "norm(z - 1)";
             fns.cbs.convergent_bailout_test_user_formula2 = "cbail";
         }
@@ -2218,6 +2242,10 @@ public class Settings implements Constants {
 
     }
 
+    public boolean isEscapingOrConvergingType() {
+        return (fns.function == USER_FORMULA && fns.bail_technique == 2) || (fns.function == USER_FORMULA_ITERATION_BASED && fns.bail_technique == 2) || (fns.function == USER_FORMULA_CONDITIONAL && fns.bail_technique == 2) || (fns.function == USER_FORMULA_COUPLED && fns.bail_technique == 2);
+    }
+
     public static boolean isRootFindingMethod(int function ) {
 
         return function == MAGNETIC_PENDULUM || isRootSolvingMethod(function);
@@ -2244,16 +2272,25 @@ public class Settings implements Constants {
 
     }
 
-    public boolean isPolynomialFunction() {
+    public static boolean isPolynomialFunction(int function) {
 
-        return fns.function == MANDELPOLY  || isRootPolynomialFunction(fns.function);
+        return function == MANDELPOLY  || isRootPolynomialFunction(function);
     }
 
     public static boolean isRootPolynomialFunction(int function) {
 
         return function == NEWTONPOLY || function == HALLEYPOLY || function == SCHRODERPOLY || function == HOUSEHOLDERPOLY || function == SECANTPOLY || function == STEFFENSENPOLY || function == MULLERPOLY || function == PARHALLEYPOLY || function == LAGUERREPOLY || function == DURAND_KERNERPOLY || function == BAIRSTOWPOLY || function == NEWTON_HINESPOLY || function == WHITTAKERPOLY || function == WHITTAKERDOUBLECONVEXPOLY || function == SUPERHALLEYPOLY || function == TRAUB_OSTROWSKIPOLY || function == STIRLINGPOLY || function == MIDPOINTPOLY
                 || function == ABERTH_EHRLICHPOLY || function == JARATTPOLY || function == JARATT2POLY || function == THIRDORDERNEWTONPOLY || function == WEERAKOON_FERNANDOPOLY
-                || function == HOUSEHOLDER3POLY || function == ABBASBANDYPOLY;
+                || function == HOUSEHOLDER3POLY || function == ABBASBANDYPOLY
+                || function == CONTRA_HARMONIC_NEWTONPOLY || function == CHUN_HAMPOLY || function == CHUN_KIMPOLY
+                || function == EULER_CHEBYSHEVPOLY || function == EZZATI_SALEKI2POLY || function == HOMEIER1POLY
+                || function == ABBASBANDY2POLY || function == ABBASBANDY3POLY || function == POPOVSKI1POLY
+                || function == CHANGBUM_CHUN1POLY || function == CHANGBUM_CHUN2POLY || function == KING3POLY
+                || function == HOMEIER2POLY || function == KOU_LI_WANG1POLY || function == KIM_CHUNPOLY
+                || function == MAHESHWERIPOLY || function == RAFIS_RAFIULLAHPOLY || function == RAFIULLAH1POLY
+                || function == CHANGBUM_CHUN3POLY || function == EZZATI_SALEKI1POLY || function == FENGPOLY
+                || function == KING1POLY || function == NOOR_GUPTAPOLY || function == HARMONIC_SIMPSON_NEWTONPOLY
+                || function == NEDZHIBOVPOLY || function == SIMPSON_NEWTONPOLY;
 
     }
 
@@ -2261,7 +2298,17 @@ public class Settings implements Constants {
 
         return function == NEWTON3 || function == HALLEY3 || function == HOUSEHOLDER3 || function == SCHRODER3 || function == SECANT3 || function == STEFFENSEN3 || function == MULLER3 || function == PARHALLEY3 || function == LAGUERRE3 || function == DURAND_KERNER3 || function == BAIRSTOW3 || function == NEWTON_HINES3 || function == WHITTAKER3 || function == WHITTAKERDOUBLECONVEX3 || function == SUPERHALLEY3 || function == TRAUB_OSTROWSKI3 || function == STIRLING3 || function == MIDPOINT3
                 || function == ABERTH_EHRLICH3 || function == JARATT3 || function == JARATT23 || function == THIRDORDERNEWTON3 || function == WEERAKOON_FERNANDO3
-                || function == HOUSEHOLDER33 || function == ABBASBANDY3;
+                || function == HOUSEHOLDER33 || function == ABBASBANDY3
+                || function == CONTRA_HARMONIC_NEWTON3 || function == CHUN_HAM3 || function == CHUN_KIM3
+                || function == EULER_CHEBYSHEV3 || function == EZZATI_SALEKI23 || function == HOMEIER13
+                || function == ABBASBANDY23 || function == ABBASBANDY33 || function == POPOVSKI13
+                || function == CHANGBUM_CHUN13 || function == CHANGBUM_CHUN23 || function == KING33
+                || function == HOMEIER23 || function == KOU_LI_WANG13 || function == KIM_CHUN3
+                || function == MAHESHWERI3 || function == RAFIS_RAFIULLAH3 || function == RAFIULLAH13
+                || function == CHANGBUM_CHUN33 || function == EZZATI_SALEKI13 || function == FENG3
+                || function == KING13 || function == NOOR_GUPTA3 || function == HARMONIC_SIMPSON_NEWTON3
+                || function == NEDZHIBOV3 || function == SIMPSON_NEWTON3;
+
 
     }
 
@@ -2269,7 +2316,18 @@ public class Settings implements Constants {
 
         return function == NEWTONGENERALIZED3 || function == HALLEYGENERALIZED3 || function == HOUSEHOLDERGENERALIZED3 || function == SCHRODERGENERALIZED3 || function == SECANTGENERALIZED3 || function == STEFFENSENGENERALIZED3 || function == MULLERGENERALIZED3 || function == PARHALLEYGENERALIZED3 || function == LAGUERREGENERALIZED3 || function == DURAND_KERNERGENERALIZED3 || function == BAIRSTOWGENERALIZED3 || function == NEWTON_HINESGENERALIZED3 || function == WHITTAKERGENERALIZED3 || function == WHITTAKERDOUBLECONVEXGENERALIZED3 || function == SUPERHALLEYGENERALIZED3 || function == TRAUB_OSTROWSKIGENERALIZED3 || function == STIRLINGGENERALIZED3 || function == MIDPOINTGENERALIZED3
                 || function == ABERTH_EHRLICHGENERALIZED3 || function == JARATTGENERALIZED3 || function == JARATT2GENERALIZED3 || function == THIRDORDERNEWTONGENERALIZED3 || function == WEERAKOON_FERNANDOGENERALIZED3
-                || function == HOUSEHOLDER3GENERALIZED3 || function == ABBASBANDYGENERALIZED3;
+                || function == HOUSEHOLDER3GENERALIZED3 || function == ABBASBANDYGENERALIZED3
+        || function == CONTRA_HARMONIC_NEWTONGENERALIZED3 || function == CHUN_HAMGENERALIZED3 || function == CHUN_KIMGENERALIZED3
+                || function == EULER_CHEBYSHEVGENERALIZED3 || function == EZZATI_SALEKI2GENERALIZED3 || function == HOMEIER1GENERALIZED3
+                || function == ABBASBANDY2GENERALIZED3 || function == ABBASBANDY3GENERALIZED3 || function == POPOVSKI1GENERALIZED3
+                || function == CHANGBUM_CHUN1GENERALIZED3 || function == CHANGBUM_CHUN2GENERALIZED3 || function == KING3GENERALIZED3
+                || function == HOMEIER2GENERALIZED3 || function == KOU_LI_WANG1GENERALIZED3 || function == KIM_CHUNGENERALIZED3
+                || function == MAHESHWERIGENERALIZED3 || function == RAFIS_RAFIULLAHGENERALIZED3 || function == RAFIULLAH1GENERALIZED3
+                || function == CHANGBUM_CHUN3GENERALIZED3 || function == EZZATI_SALEKI1GENERALIZED3 || function == FENGGENERALIZED3
+                || function == KING1GENERALIZED3 || function == NOOR_GUPTAGENERALIZED3 || function == HARMONIC_SIMPSON_NEWTONGENERALIZED3
+                || function == NEDZHIBOVGENERALIZED3 || function == SIMPSON_NEWTONGENERALIZED3;
+
+
 
     }
 
@@ -2277,7 +2335,17 @@ public class Settings implements Constants {
 
         return function == NEWTONGENERALIZED8 || function == HALLEYGENERALIZED8 || function == HOUSEHOLDERGENERALIZED8 || function == SCHRODERGENERALIZED8 || function == SECANTGENERALIZED8 || function == MULLERGENERALIZED8 || function == PARHALLEYGENERALIZED8 || function == LAGUERREGENERALIZED8 || function == DURAND_KERNERGENERALIZED8 || function == BAIRSTOWGENERALIZED8 || function == NEWTON_HINESGENERALIZED8 || function == WHITTAKERGENERALIZED8 || function == WHITTAKERDOUBLECONVEXGENERALIZED8 || function == SUPERHALLEYGENERALIZED8 || function == TRAUB_OSTROWSKIGENERALIZED8 || function == STIRLINGGENERALIZED8 || function == MIDPOINTGENERALIZED8
                 || function == ABERTH_EHRLICHGENERALIZED8 || function == JARATTGENERALIZED8 || function == JARATT2GENERALIZED8 || function == THIRDORDERNEWTONGENERALIZED8 || function == WEERAKOON_FERNANDOGENERALIZED8
-                || function == HOUSEHOLDER3GENERALIZED8 || function == ABBASBANDYGENERALIZED8;
+                || function == HOUSEHOLDER3GENERALIZED8 || function == ABBASBANDYGENERALIZED8
+                || function == CONTRA_HARMONIC_NEWTONGENERALIZED8 || function == CHUN_HAMGENERALIZED8 || function == CHUN_KIMGENERALIZED8
+        || function == EULER_CHEBYSHEVGENERALIZED8 || function == EZZATI_SALEKI2GENERALIZED8 || function == HOMEIER1GENERALIZED8
+                || function == ABBASBANDY2GENERALIZED8 || function == ABBASBANDY3GENERALIZED8 || function == POPOVSKI1GENERALIZED8
+                || function == CHANGBUM_CHUN1GENERALIZED8 || function == CHANGBUM_CHUN2GENERALIZED8 || function == KING3GENERALIZED8
+                || function == HOMEIER2GENERALIZED8 || function == KOU_LI_WANG1GENERALIZED8 || function == KIM_CHUNGENERALIZED8
+                || function == MAHESHWERIGENERALIZED8 || function == RAFIS_RAFIULLAHGENERALIZED8 || function == RAFIULLAH1GENERALIZED8
+                || function == CHANGBUM_CHUN3GENERALIZED8 || function == EZZATI_SALEKI1GENERALIZED8 || function == FENGGENERALIZED8
+                || function == KING1GENERALIZED8 || function == NOOR_GUPTAGENERALIZED8 || function == HARMONIC_SIMPSON_NEWTONGENERALIZED8
+                || function == NEDZHIBOVGENERALIZED8 || function == SIMPSON_NEWTONGENERALIZED8;
+
 
     }
 
@@ -2285,7 +2353,17 @@ public class Settings implements Constants {
 
         return function == NEWTONSIN || function == HALLEYSIN || function == HOUSEHOLDERSIN || function == SCHRODERSIN || function == MULLERSIN || function == PARHALLEYSIN || function == LAGUERRESIN || function == NEWTON_HINESSIN || function == WHITTAKERSIN || function == WHITTAKERDOUBLECONVEXSIN || function == SUPERHALLEYSIN || function == TRAUB_OSTROWSKISIN || function == STIRLINGSIN || function == MIDPOINTSIN
                 || function == JARATTSIN || function == JARATT2SIN || function == THIRDORDERNEWTONSIN || function == WEERAKOON_FERNANDOSIN
-                || function == HOUSEHOLDER3SIN || function == ABBASBANDYSIN;
+                || function == HOUSEHOLDER3SIN || function == ABBASBANDYSIN
+                || function == CONTRA_HARMONIC_NEWTONSIN || function == CHUN_HAMSIN || function == CHUN_KIMSIN
+                || function == EULER_CHEBYSHEVSIN || function == EZZATI_SALEKI2SIN || function == HOMEIER1SIN
+                || function == ABBASBANDY2SIN|| function == ABBASBANDY3SIN || function == POPOVSKI1SIN
+                || function == CHANGBUM_CHUN1SIN || function == CHANGBUM_CHUN2SIN || function == KING3SIN
+                || function == HOMEIER2SIN || function == KOU_LI_WANG1SIN || function == KIM_CHUNSIN
+                || function == MAHESHWERISIN || function == RAFIS_RAFIULLAHSIN || function == RAFIULLAH1SIN
+                || function == CHANGBUM_CHUN3SIN || function == EZZATI_SALEKI1SIN || function == FENGSIN
+                || function == KING1SIN || function == NOOR_GUPTASIN || function == HARMONIC_SIMPSON_NEWTONSIN
+                || function == NEDZHIBOVSIN || function == SIMPSON_NEWTONSIN;
+
 
     }
 
@@ -2293,7 +2371,17 @@ public class Settings implements Constants {
 
         return function == NEWTONCOS || function == HALLEYCOS || function == HOUSEHOLDERCOS || function == SCHRODERCOS || function == SECANTCOS || function == MULLERCOS || function == PARHALLEYCOS || function == LAGUERRECOS || function == NEWTON_HINESCOS || function == WHITTAKERCOS || function == WHITTAKERDOUBLECONVEXCOS || function == SUPERHALLEYCOS || function == TRAUB_OSTROWSKICOS || function == STIRLINGCOS || function == MIDPOINTCOS
                 || function == JARATTCOS || function == JARATT2COS || function == THIRDORDERNEWTONCOS || function == WEERAKOON_FERNANDOCOS
-                || function == HOUSEHOLDER3COS || function == ABBASBANDYCOS;
+                || function == HOUSEHOLDER3COS || function == ABBASBANDYCOS
+                || function == CONTRA_HARMONIC_NEWTONCOS|| function == CHUN_HAMCOS || function == CHUN_KIMCOS
+                || function == EULER_CHEBYSHEVCOS || function == EZZATI_SALEKI2COS || function == HOMEIER1COS
+                || function == ABBASBANDY2COS || function == ABBASBANDY3COS || function == POPOVSKI1COS
+                || function == CHANGBUM_CHUN1COS || function == CHANGBUM_CHUN2COS || function == KING3COS
+                || function == HOMEIER2COS || function == KOU_LI_WANG1COS || function == KIM_CHUNCOS
+                || function == MAHESHWERICOS || function == RAFIS_RAFIULLAHCOS || function == RAFIULLAH1COS
+                || function == CHANGBUM_CHUN3COS || function == EZZATI_SALEKI1COS || function == FENGCOS
+                || function == KING1COS || function == NOOR_GUPTACOS || function == HARMONIC_SIMPSON_NEWTONCOS
+                || function == NEDZHIBOVCOS || function == SIMPSON_NEWTONCOS;
+
 
     }
 
@@ -2301,16 +2389,40 @@ public class Settings implements Constants {
 
         return function == NEWTON4 || function == HALLEY4 || function == HOUSEHOLDER4 || function == SCHRODER4 || function == SECANT4 || function == STEFFENSEN4 || function == MULLER4 || function == PARHALLEY4 || function == LAGUERRE4 || function == DURAND_KERNER4 | function == BAIRSTOW4 || function == NEWTON_HINES4 || function == WHITTAKER4 || function == WHITTAKERDOUBLECONVEX4 || function == SUPERHALLEY4 || function == TRAUB_OSTROWSKI4 || function == STIRLING4 || function == MIDPOINT4
                 || function == ABERTH_EHRLICH4 || function == JARATT4 || function == JARATT24 || function == THIRDORDERNEWTON4 || function == WEERAKOON_FERNANDO4
-                || function == HOUSEHOLDER34 || function == ABBASBANDY4;
+                || function == HOUSEHOLDER34 || function == ABBASBANDY4
+                || function == CONTRA_HARMONIC_NEWTON4 || function == CHUN_HAM4|| function == CHUN_KIM4
+                || function == EULER_CHEBYSHEV4 || function == EZZATI_SALEKI24 || function == HOMEIER14
+                || function == ABBASBANDY24 || function == ABBASBANDY34 || function == POPOVSKI14
+                || function == CHANGBUM_CHUN14 || function == CHANGBUM_CHUN24 || function == KING34
+                || function == HOMEIER24 || function == KOU_LI_WANG14|| function == KIM_CHUN4
+                || function == MAHESHWERI4 || function == RAFIS_RAFIULLAH4|| function == RAFIULLAH14
+                || function == CHANGBUM_CHUN34 || function == EZZATI_SALEKI14 || function == FENG4
+                || function == KING14 || function == NOOR_GUPTA4 || function == HARMONIC_SIMPSON_NEWTON4
+                || function == NEDZHIBOV4 || function == SIMPSON_NEWTON4;
+
 
     }
 
     public static boolean hasNovaCombinedFFZ(int nova_method) {
-        return nova_method == NOVA_STEFFENSEN || nova_method == NOVA_TRAUB_OSTROWSKI || nova_method == NOVA_THIRD_ORDER_NEWTON;
+        return nova_method == NOVA_STEFFENSEN || nova_method == NOVA_TRAUB_OSTROWSKI || nova_method == NOVA_THIRD_ORDER_NEWTON
+        || nova_method == NOVA_CHUN_HAM || nova_method == NOVA_EZZATI_SALEKI2
+        || nova_method == NOVA_CHANGBUM_CHUN1 || nova_method == NOVA_CHANGBUM_CHUN2 || nova_method == NOVA_KING3
+                || nova_method == NOVA_KOU_LI_WANG1 || nova_method == NOVA_MAHESHWERI
+                || nova_method == NOVA_CHANGBUM_CHUN3 || nova_method == NOVA_EZZATI_SALEKI1 || nova_method == NOVA_FENG
+                || nova_method == NOVA_KING1 || nova_method == NOVA_NOOR_GUPTA;
     }
 
     public static boolean hasNovaCombinedDFZ(int nova_method) {
-        return nova_method == NOVA_MIDPOINT || nova_method == NOVA_STIRLING || nova_method == NOVA_JARATT || nova_method == NOVA_JARATT2 || nova_method == NOVA_WEERAKOON_FERNANDO;
+        return nova_method == NOVA_MIDPOINT || nova_method == NOVA_STIRLING || nova_method == NOVA_JARATT || nova_method == NOVA_JARATT2 || nova_method == NOVA_WEERAKOON_FERNANDO
+                || nova_method == NOVA_CONTRA_HARMONIC_NEWTON || nova_method == NOVA_CHUN_KIM || nova_method == NOVA_HOMEIER1
+                || nova_method == NOVA_HOMEIER2 || nova_method == NOVA_KIM_CHUN || nova_method == NOVA_RAFIULLAH1
+                || nova_method == NOVA_CHANGBUM_CHUN3 || nova_method == NOVA_EZZATI_SALEKI1 || nova_method == NOVA_FENG
+                || nova_method == NOVA_KING1 || nova_method == NOVA_NOOR_GUPTA || nova_method == NOVA_HARMONIC_SIMPSON_NEWTON
+                || nova_method == NOVA_NEDZHIBOV || nova_method == NOVA_SIMPSON_NEWTON;
+    }
+
+    public static boolean hasNovaCombinedDDFZ(int nova_method) {
+        return nova_method == NOVA_RAFIS_RAFIULLAH;
     }
 
     public static boolean isTwoFunctionsNovaFormula(int nova_method) {
@@ -2322,7 +2434,29 @@ public class Settings implements Constants {
                 || nova_method == NOVA_JARATT
                 || nova_method == NOVA_JARATT2
                 || nova_method == NOVA_WEERAKOON_FERNANDO
-                || nova_method == NOVA_THIRD_ORDER_NEWTON;
+                || nova_method == NOVA_THIRD_ORDER_NEWTON
+                || nova_method == NOVA_CONTRA_HARMONIC_NEWTON
+                || nova_method == NOVA_CHUN_HAM
+                || nova_method == NOVA_CHUN_KIM
+                || nova_method == NOVA_HOMEIER1
+                || nova_method == NOVA_EZZATI_SALEKI2
+                || nova_method == NOVA_CHANGBUM_CHUN1
+                || nova_method == NOVA_CHANGBUM_CHUN2
+                || nova_method == NOVA_KING3
+                || nova_method == NOVA_KIM_CHUN
+                || nova_method == NOVA_HOMEIER2
+                || nova_method == NOVA_KOU_LI_WANG1
+                || nova_method == NOVA_MAHESHWERI
+                || nova_method == NOVA_RAFIULLAH1
+                || nova_method == NOVA_CHANGBUM_CHUN3
+                || nova_method == NOVA_EZZATI_SALEKI1
+                || nova_method == NOVA_FENG
+                || nova_method == NOVA_KING1
+                || nova_method == NOVA_NOOR_GUPTA
+                || nova_method == NOVA_HARMONIC_SIMPSON_NEWTON
+                || nova_method == NOVA_NEDZHIBOV
+                || nova_method == NOVA_SIMPSON_NEWTON;
+
     }
 
     public static boolean isThreeFunctionsNovaFormula(int nova_method) {
@@ -2335,7 +2469,11 @@ public class Settings implements Constants {
                 || nova_method == NOVA_LAGUERRE
                 || nova_method == NOVA_WHITTAKER
                 || nova_method == NOVA_WHITTAKER_DOUBLE_CONVEX
-                || nova_method == NOVA_SUPER_HALLEY;
+                || nova_method == NOVA_SUPER_HALLEY
+                || nova_method == NOVA_EULER_CHEBYSHEV
+                || nova_method == NOVA_ABBASBANDY2
+                || nova_method == NOVA_POPOVSKI1
+                || nova_method == NOVA_RAFIS_RAFIULLAH;
 
     }
 
@@ -2349,7 +2487,7 @@ public class Settings implements Constants {
 
     public static boolean isFourFunctionsNovaFormula(int nova_method) {
 
-        return  nova_method == NOVA_ABBASBANDY || nova_method == NOVA_HOUSEHOLDER3;
+        return  nova_method == NOVA_ABBASBANDY || nova_method == NOVA_HOUSEHOLDER3 || nova_method == NOVA_ABBASBANDY3;
 
     }
 
@@ -2361,7 +2499,11 @@ public class Settings implements Constants {
                 function == WHITTAKERFORMULA ||
                 function == WHITTAKERDOUBLECONVEXFORMULA ||
                 function == SUPERHALLEYFORMULA ||
-                function == LAGUERREFORMULA;
+                function == LAGUERREFORMULA ||
+                function == EULER_CHEBYSHEVFORMULA ||
+                function == ABBASBANDY2FORMULA ||
+                function == POPOVSKI1FORMULA ||
+                function == RAFIS_RAFIULLAHFORMULA;
     }
 
     public static boolean isOneFunctionsRootFindingMethodFormula(int function) {
@@ -2372,18 +2514,45 @@ public class Settings implements Constants {
 
     public static boolean isTwoFunctionsRootFindingMethodFormula(int function) {
         return function == NEWTONFORMULA || function == NEWTON_HINESFORMULA || function == TRAUB_OSTROWSKIFORMULA || function == STIRLINGFORMULA || function == MIDPOINTFORMULA
-                || function == JARATTFORMULA || function == JARATT2FORMULA || function == THIRDORDERNEWTONFORMULA|| function == WEERAKOON_FERNANDOFORMULA;
+                || function == JARATTFORMULA || function == JARATT2FORMULA || function == THIRDORDERNEWTONFORMULA|| function == WEERAKOON_FERNANDOFORMULA
+                || function == CONTRA_HARMONIC_NEWTONFORMULA || function == CHUN_HAMFORMULA || function == CHUN_KIMFORMULA
+                || function == EZZATI_SALEKI2FORMULA || function == HOMEIER1FORMULA
+                || function == CHANGBUM_CHUN1FORMULA || function == CHANGBUM_CHUN2FORMULA || function == KING3FORMULA
+                || function == HOMEIER2FORMULA || function == KIM_CHUNFORMULA || function == KOU_LI_WANG1FORMULA
+                || function == MAHESHWERIFORMULA || function == RAFIULLAH1FORMULA
+                || function == CHANGBUM_CHUN3FORMULA || function == EZZATI_SALEKI1FORMULA || function == FENGFORMULA
+                || function == KING1FORMULA || function == NOOR_GUPTAFORMULA || function == HARMONIC_SIMPSON_NEWTONFORMULA
+                || function == NEDZHIBOVFORMULA || function == SIMPSON_NEWTONFORMULA;
     }
 
     public static boolean isFourFunctionsRootFindingMethodFormula(int function) {
         return function == HOUSEHOLDER3FORMULA ||
-                function == ABBASBANDYFORMULA;
+                function == ABBASBANDYFORMULA ||
+                function == ABBASBANDY3FORMULA;
     }
 
     public static boolean isRootFormulaFunction(int function) {
 
         return isThreeFunctionsRootFindingMethodFormula(function) || isTwoFunctionsRootFindingMethodFormula(function) || isOneFunctionsRootFindingMethodFormula(function) || isFourFunctionsRootFindingMethodFormula(function);
 
+    }
+
+    public static boolean hasFunctionParameterization(int function) {
+        return function == LYAPUNOV || function == MAGNETIC_PENDULUM || function == MANDELBROTNTH || function == MANDELBROTWTH
+                || function == GENERIC_CaZbdZe || function == GENERIC_CpAZpBC || function == MULLERFORMULA
+                || function == LAGUERREFORMULA || function == NOVA || function == KLEINIAN
+                || function == INERTIA_GRAVITY || function == USER_FORMULA_ITERATION_BASED || function == USER_FORMULA_CONDITIONAL
+                || function == LAMBDA_FN_FN || function == USER_FORMULA || function == USER_FORMULA_COUPLED || function == USER_FORMULA_NOVA
+                || isTwoFunctionsRootFindingMethodFormula(function) || isThreeFunctionsRootFindingMethodFormula(function) || isFourFunctionsRootFindingMethodFormula(function)
+                || isOneFunctionsRootFindingMethodFormula(function) || isPolynomialFunction(function);
+    }
+
+    public static boolean hasPlaneParameterization(int plane) {
+        return plane == USER_PLANE || plane == TWIRL_PLANE || plane == SHEAR_PLANE || plane == RIPPLES_PLANE
+                || plane == KALEIDOSCOPE_PLANE || plane == PINCH_PLANE || plane == FOLDUP_PLANE
+                || plane == FOLDDOWN_PLANE || plane == FOLDRIGHT_PLANE || plane == FOLDLEFT_PLANE || plane == INFLECTION_PLANE
+                || plane == BIPOLAR_PLANE || plane == INVERSED_BIPOLAR_PLANE || plane == FOLDIN_PLANE || plane == FOLDOUT_PLANE
+                || plane == CIRCLEINVERSION_PLANE || plane == SKEW_PLANE;
     }
 
     public void applyStaticSettings() {
@@ -2452,6 +2621,14 @@ public class Settings implements Constants {
 
     public boolean isPeriodInUse() {
         return isPertubationTheoryInUse() && ThreadDraw.APPROXIMATION_ALGORITHM == 2 && supportsPeriod();
+    }
+
+    public boolean supportsBilinearApproximation() {
+        return (fns.function == MANDELBROT || fns.function == MANDELBROTCUBED || fns.function == MANDELBROTFOURTH || fns.function == MANDELBROTFIFTH);
+    }
+
+    public boolean isBilinearApproximationInUse() {
+        return ThreadDraw.APPROXIMATION_ALGORITHM == 2 && supportsBilinearApproximation();
     }
 
     public void loadedSettings(String file, Component parent, int version) {

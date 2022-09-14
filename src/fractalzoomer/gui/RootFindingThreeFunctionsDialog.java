@@ -41,7 +41,7 @@ public class RootFindingThreeFunctionsDialog extends JDialog {
     private MainWindow ptra;
     private JOptionPane optionPane;
 
-    public RootFindingThreeFunctionsDialog(MainWindow ptr, Settings s, int oldSelected, JRadioButtonMenuItem[] fractal_functions, boolean wasMagnetType, boolean wasConvergingType, boolean wasSimpleType, boolean wasMagneticPendulumType) {
+    public RootFindingThreeFunctionsDialog(MainWindow ptr, Settings s, int oldSelected, JRadioButtonMenuItem[] fractal_functions, boolean wasMagnetType, boolean wasConvergingType, boolean wasSimpleType, boolean wasMagneticPendulumType, boolean wasEscapingOrConvergingType) {
 
         super(ptr);
         
@@ -104,6 +104,18 @@ public class RootFindingThreeFunctionsDialog extends JDialog {
         }
         else if (s.fns.function == SUPERHALLEYFORMULA) {
             imagelabel41.setIcon(getIcon("/fractalzoomer/icons/super_halley.png"));
+        }
+        else if(s.fns.function == EULER_CHEBYSHEVFORMULA) {
+            imagelabel41.setIcon(getIcon("/fractalzoomer/icons/euler_chebyshev.png"));
+        }
+        else if(s.fns.function == ABBASBANDY2FORMULA) {
+            imagelabel41.setIcon(getIcon("/fractalzoomer/icons/abbasbandy2.png"));
+        }
+        else if(s.fns.function == POPOVSKI1FORMULA) {
+            imagelabel41.setIcon(getIcon("/fractalzoomer/icons/popovski1.png"));
+        }
+        else if(s.fns.function == RAFIS_RAFIULLAHFORMULA) {
+            imagelabel41.setIcon(getIcon("/fractalzoomer/icons/rafis_rafiullah.png"));
         }
 
         JPanel imagepanel41 = new JPanel();
@@ -215,7 +227,7 @@ public class RootFindingThreeFunctionsDialog extends JDialog {
 
                     ptra.optionsEnableShortcut2();
                     dispose();
-                    ptra.setFunctionPost(wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
+                    ptra.setFunctionPost(wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType, wasEscapingOrConvergingType);
                 }
             }
         });

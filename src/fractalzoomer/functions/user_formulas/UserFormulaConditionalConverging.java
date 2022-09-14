@@ -610,4 +610,9 @@ public class UserFormulaConditionalConverging extends ExtendedConvergentType {
 
     }
 
+    @Override
+    public Complex evaluateFunction(Complex z, Complex c) {
+        return null;
+    }
+
 }

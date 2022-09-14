@@ -262,9 +262,12 @@ public class DivideAndConquer2Draw extends ThreadDraw {
                 skippedColor = getColorForSkippedPixels(temp_starting_pixel_color, currentSquare.iteration);
                 
                 for(int k = y; k < temp2; k++) {
-                    Arrays.fill(rgbs, k * image_size + x, k * image_size + temp1, skippedColor);
-                    Arrays.fill(image_iterations, k * image_size + x, k * image_size + temp1, temp_starting_value);
-                    Arrays.fill(escaped, k * image_size + x, k * image_size + temp1, temp_starting_escaped);
+                    int temploc = k * image_size;
+                    int loc3 = temploc + x;
+                    int loc4 = temploc + temp1;
+                    Arrays.fill(rgbs, loc3, loc4, skippedColor);
+                    Arrays.fill(image_iterations, loc3, loc4, temp_starting_value);
+                    Arrays.fill(escaped, loc3, loc4, temp_starting_escaped);
                     drawing_done += chunk;
                 }
                 

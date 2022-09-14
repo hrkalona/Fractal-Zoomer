@@ -36,7 +36,7 @@ public class MullerFormulaDialog extends JDialog {
     private MainWindow ptra;
     private JOptionPane optionPane;
 
-    public MullerFormulaDialog(MainWindow ptr, Settings s, int oldSelected, JRadioButtonMenuItem[] fractal_functions, boolean wasMagnetType, boolean wasConvergingType, boolean wasSimpleType, boolean wasMagneticPendulumType) {
+    public MullerFormulaDialog(MainWindow ptr, Settings s, int oldSelected, JRadioButtonMenuItem[] fractal_functions, boolean wasMagnetType, boolean wasConvergingType, boolean wasSimpleType, boolean wasMagneticPendulumType, boolean wasEscapingOrConvergingType) {
 
         super(ptr);
         
@@ -158,7 +158,7 @@ public class MullerFormulaDialog extends JDialog {
 
                     ptra.optionsEnableShortcut2();
                     dispose();
-                    ptra.setFunctionPost(wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
+                    ptra.setFunctionPost(wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType, wasEscapingOrConvergingType);
                 }
             }
         });

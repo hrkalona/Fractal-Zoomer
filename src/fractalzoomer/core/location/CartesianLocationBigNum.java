@@ -232,50 +232,16 @@ public class CartesianLocationBigNum extends Location {
     }
 
     @Override
-    public void createAntialiasingSteps() {
+    public void createAntialiasingSteps(boolean adaptive) {
         if(highPresicion) {
-            BigNum point25 = new BigNum(0.25);
-
-            BigNum ddx_antialiasing_size = bntemp_size_image_size_x.mult(point25);
-            BigNum ddx_antialiasing_size_x2 = ddx_antialiasing_size.mult2();
-
-            BigNum ddy_antialiasing_size = bntemp_size_image_size_y.mult(point25);
-            BigNum ddy_antialiasing_size_x2 = ddy_antialiasing_size.mult2();
-
-            BigNum zero = new BigNum();
-
-            BigNum temp_x[] = {ddx_antialiasing_size.negate(), ddx_antialiasing_size, ddx_antialiasing_size, ddx_antialiasing_size.negate(),
-                    ddx_antialiasing_size.negate(), ddx_antialiasing_size, zero, zero,
-                    ddx_antialiasing_size_x2.negate(), ddx_antialiasing_size_x2.negate(), ddx_antialiasing_size_x2.negate(), zero, zero, ddx_antialiasing_size_x2, ddx_antialiasing_size_x2, ddx_antialiasing_size_x2,
-                    ddx_antialiasing_size_x2.negate(), ddx_antialiasing_size_x2.negate(), ddx_antialiasing_size.negate(), ddx_antialiasing_size.negate(), ddx_antialiasing_size, ddx_antialiasing_size, ddx_antialiasing_size_x2, ddx_antialiasing_size_x2};
-            BigNum temp_y[] = {ddy_antialiasing_size.negate(), ddy_antialiasing_size.negate(), ddy_antialiasing_size, ddy_antialiasing_size,
-                    zero, zero, ddy_antialiasing_size.negate(), ddy_antialiasing_size,
-                    ddy_antialiasing_size_x2.negate(), zero, ddy_antialiasing_size_x2, ddy_antialiasing_size_x2.negate(), ddy_antialiasing_size_x2, ddy_antialiasing_size_x2.negate(), zero, ddy_antialiasing_size_x2,
-                    ddy_antialiasing_size.negate(), ddy_antialiasing_size, ddy_antialiasing_size_x2.negate(), ddy_antialiasing_size_x2, ddy_antialiasing_size_x2.negate(), ddy_antialiasing_size_x2, ddy_antialiasing_size.negate(), ddy_antialiasing_size};
-
-            bnantialiasing_x = temp_x;
-            bnantialiasing_y = temp_y;
-
+            BigNum[][] steps = createAntialiasingStepsBigNum(bntemp_size_image_size_x, bntemp_size_image_size_y, adaptive);
+            bnantialiasing_x = steps[0];
+            bnantialiasing_y = steps[1];
         }
         else {
-
-            double x_antialiasing_size = temp_size_image_size_x * 0.25;
-            double x_antialiasing_size_x2 = 2 * x_antialiasing_size;
-
-            double y_antialiasing_size = temp_size_image_size_y * 0.25;
-            double y_antialiasing_size_x2 = 2 * y_antialiasing_size;
-
-            double temp_x[] = {-x_antialiasing_size, x_antialiasing_size, x_antialiasing_size, -x_antialiasing_size,
-                    -x_antialiasing_size, x_antialiasing_size, 0, 0,
-                    -x_antialiasing_size_x2, -x_antialiasing_size_x2, -x_antialiasing_size_x2, 0, 0, x_antialiasing_size_x2, x_antialiasing_size_x2, x_antialiasing_size_x2,
-                    -x_antialiasing_size_x2, -x_antialiasing_size_x2, -x_antialiasing_size, -x_antialiasing_size, x_antialiasing_size, x_antialiasing_size, x_antialiasing_size_x2, x_antialiasing_size_x2};
-            double temp_y[] = {-y_antialiasing_size, -y_antialiasing_size, y_antialiasing_size, y_antialiasing_size,
-                    0, 0, -y_antialiasing_size, y_antialiasing_size,
-                    -y_antialiasing_size_x2, 0, y_antialiasing_size_x2, -y_antialiasing_size_x2, y_antialiasing_size_x2, -y_antialiasing_size_x2, 0, y_antialiasing_size_x2,
-                    -y_antialiasing_size, y_antialiasing_size, -y_antialiasing_size_x2, y_antialiasing_size_x2, -y_antialiasing_size_x2, y_antialiasing_size_x2, -y_antialiasing_size, y_antialiasing_size};
-
-            antialiasing_x = temp_x;
-            antialiasing_y = temp_y;
+            double[][] steps = createAntialiasingStepsDouble(temp_size_image_size_x, temp_size_image_size_y, adaptive);
+            antialiasing_x = steps[0];
+            antialiasing_y = steps[1];
         }
     }
 
@@ -296,6 +262,7 @@ public class CartesianLocationBigNum extends Location {
         }
     }
 
+    @Override
     public Complex getComplexOrbit(int x, int y) {
         if(highPresicion) {
 

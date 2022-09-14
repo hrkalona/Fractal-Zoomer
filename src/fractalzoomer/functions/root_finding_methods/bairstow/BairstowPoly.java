@@ -111,5 +111,10 @@ public class BairstowPoly extends BairstowRootFindingMethod {
     public void function(Complex[] complex) {
         bairstowMethod(complex[0]);
     }
+
+    @Override
+    public Complex evaluateFunction(Complex z, Complex c) {
+        return null;
+    }
     
 }

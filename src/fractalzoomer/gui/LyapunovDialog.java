@@ -40,7 +40,7 @@ public class LyapunovDialog extends JDialog {
     private MainWindow ptra;
     private JOptionPane optionPane;
 
-    public LyapunovDialog(MainWindow ptr, Settings s, int oldSelected, JRadioButtonMenuItem[] fractal_functions, boolean wasMagnetType, boolean wasConvergingType, boolean wasSimpleType, boolean wasMagneticPendulumType) {
+    public LyapunovDialog(MainWindow ptr, Settings s, int oldSelected, JRadioButtonMenuItem[] fractal_functions, boolean wasMagnetType, boolean wasConvergingType, boolean wasSimpleType, boolean wasMagneticPendulumType, boolean wasEscapingOrConvergingType) {
 
         super(ptr);
         
@@ -64,6 +64,7 @@ public class LyapunovDialog extends JDialog {
 
         JTextField field_expression = new JTextField(50);
         field_expression.setText(s.fns.lpns.lyapunovExpression);
+        field_expression.setToolTipText("The format is: $A;$B;$C;$D using any combination you want.");
         
         JTextField field_function = new JTextField(50);
         field_function.setText(s.fns.lpns.lyapunovFunction);
@@ -344,7 +345,7 @@ public class LyapunovDialog extends JDialog {
 
                     ptra.optionsEnableShortcut();
                     dispose();
-                    ptra.setFunctionPost(wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
+                    ptra.setFunctionPost(wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType, wasEscapingOrConvergingType);
                 }
             }
         });

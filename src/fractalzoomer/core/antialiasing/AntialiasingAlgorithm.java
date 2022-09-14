@@ -10,15 +10,18 @@ public abstract class AntialiasingAlgorithm {
     }
 
     public abstract void initialize(int color);
-    public abstract void addSample(int color);
+    public abstract boolean addSample(int color);
     public abstract int getColor();
 
     public static AntialiasingAlgorithm getAntialiasingAlgorithm(int totalSamples, int method, boolean avgWithMean) {
 
         //int colorspace = 0;
         if(method == 0) {
+            return new MeanAntialiasingAlgorithmRGB(totalSamples);
+
             //if(colorspace == 0) {
-                return new MeanAntialiasingAlgorithmRGB(totalSamples);
+                //return new MeanAntialiasingAlgorithmRGB(totalSamples);
+
 //            }
 //            else {
 //                return new MeanAntialiasingAlgorithmLAB(totalSamples);
@@ -43,8 +46,14 @@ public abstract class AntialiasingAlgorithm {
         else if (method == 3) {
             return new ClosestToMeanAntialiasingAlgorithmRGB(totalSamples, avgWithMean);
         }
-        else {
+        else if (method == 4) {
             return new ClosestToMidPointAntialiasingAlgorithmRGB(totalSamples, avgWithMean);
         }
+        else {
+            return new AdaptiveMeanAntialiasingAlgorithmRGB(totalSamples, 5);
+        }
+//        else {
+//            return new AdaptiveMeanAntialiasingAlgorithmRGB(totalSamples, 9);
+//        }
     }
 }

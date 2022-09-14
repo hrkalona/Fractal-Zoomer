@@ -20,6 +20,7 @@ package fractalzoomer.planes.general;
 import fractalzoomer.core.BigComplex;
 import fractalzoomer.core.Complex;
 import fractalzoomer.core.MyApfloat;
+import fractalzoomer.core.ThreadDraw;
 import fractalzoomer.planes.Plane;
 import org.apfloat.Apfloat;
 
@@ -39,8 +40,11 @@ public class CircleInversionPlane extends Plane {
         super();
         center = new Complex(plane_transform_center[0], plane_transform_center[1]);
         this.plane_transform_radius = plane_transform_radius;
-        ddplane_transform_radius = new MyApfloat(plane_transform_radius);
-        ddcenter = new BigComplex(center);
+
+        if(ThreadDraw.PERTURBATION_THEORY) {
+            ddplane_transform_radius = new MyApfloat(plane_transform_radius);
+            ddcenter = new BigComplex(center);
+        }
 
     }
 

@@ -219,7 +219,7 @@ public class PlaneFormulaDialog extends JDialog {
                     }
 
                     dispose();
-                    ptra.defaultFractalSettings();
+                    ptra.defaultFractalSettings(true);
                 }
             }
         });

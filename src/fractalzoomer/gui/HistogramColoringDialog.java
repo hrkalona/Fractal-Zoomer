@@ -76,10 +76,9 @@ public class HistogramColoringDialog extends JDialog {
         scale_range.setUpperValue((int)(s.hss.histogramScaleMax * 100));
         scale_range.setMajorTickSpacing(25);
         scale_range.setMinorTickSpacing(1);
-        scale_range.setToolTipText("Sets the histogram scaling range.");
+        scale_range.setToolTipText("Sets the scaling range.");
         scale_range.setFocusable(false);
         scale_range.setPaintLabels(true);
-        scale_range.setEnabled(mapping.getSelectedIndex() == 0);
 
         JTextField noise_factor_field = new JTextField();
         noise_factor_field.setText("" + s.hss.hs_noise_reducing_factor);
@@ -87,7 +86,6 @@ public class HistogramColoringDialog extends JDialog {
         mapping.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                scale_range.setEnabled(mapping.getSelectedIndex() == 0);
                 density_field.setEnabled(mapping.getSelectedIndex() == 0);
                 granularity_field.setEnabled(mapping.getSelectedIndex() == 0);
             }
@@ -112,7 +110,7 @@ public class HistogramColoringDialog extends JDialog {
             "Density:",
             density_field,
             " ",
-            "Set the histogram scaling range.",
+            "Set the scaling range.",
             "Scaling Range:",
             scale_range,
             " ",

@@ -56,4 +56,9 @@ public class Householder33 extends Householder3RootFindingMethod {
         householder3Method(complex[0], fz, dfz, ddfz, dddfz);
 
     }
+
+    @Override
+    public Complex evaluateFunction(Complex z, Complex c) {
+        return z.cube().sub_mutable(1);
+    }
 }

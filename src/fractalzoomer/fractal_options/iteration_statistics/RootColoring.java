@@ -1,9 +1,13 @@
 package fractalzoomer.fractal_options.iteration_statistics;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.functions.ExtendedConvergentType;
+import fractalzoomer.functions.Fractal;
+import fractalzoomer.functions.root_finding_methods.RootFindingMethods;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.out_coloring_algorithms.OutColorAlgorithm;
 
+import java.awt.*;
 import java.util.ArrayList;
 
 public class RootColoring extends GenericStatistic {
@@ -15,12 +19,15 @@ public class RootColoring extends GenericStatistic {
     private double scaling;
     private int max_iterations;
     private boolean rootSmooting;
+    private Fractal fractal;
+
+    private int unmmaped_root_color;
 
     static {
         roots = new ArrayList<>();
     }
 
-    public RootColoring(double log_convergent_bailout, double scaling, int max_iterations, int[] rootColors, boolean rootSmooting) {
+    public RootColoring(double log_convergent_bailout, double scaling, int max_iterations, int[] rootColors, boolean rootSmooting, Fractal fractal, int unmmaped_root_color) {
         super(0, false, false);
         rootTolerance = 1e-10;
         highlightTolerance = 1e-3;
@@ -29,6 +36,8 @@ public class RootColoring extends GenericStatistic {
         this.max_iterations = max_iterations;
         this.rootColors = rootColors;
         this.rootSmooting = rootSmooting;
+        this.fractal = fractal;
+        this.unmmaped_root_color = unmmaped_root_color;
     }
 
     @Override
@@ -58,7 +67,21 @@ public class RootColoring extends GenericStatistic {
     public int getRootColor() {
 
         if(iterations == max_iterations) {
-            return 0;
+            return unmmaped_root_color;
+        }
+
+        if(fractal instanceof RootFindingMethods) {
+            Complex result = ((RootFindingMethods)fractal).evaluateFunction(z_val, c_val);
+            if(!(result == null || result.norm_squared() < rootTolerance)) {
+                return unmmaped_root_color;
+            }
+        }
+
+        if(fractal instanceof ExtendedConvergentType) {
+            Complex result = ((ExtendedConvergentType)fractal).evaluateFunction(z_val, c_val);
+            if(!(result == null || result.norm_squared() < rootTolerance)) {
+                return unmmaped_root_color;
+            }
         }
 
         int rootId = 0;
@@ -76,7 +99,11 @@ public class RootColoring extends GenericStatistic {
             }
         }
 
-        return rootColors[rootId % rootColors.length];
+        if(rootId >= rootColors.length) {
+            return unmmaped_root_color;
+        }
+
+        return rootColors[rootId];
 
     }
 
@@ -92,6 +119,7 @@ public class RootColoring extends GenericStatistic {
     }
 
     public double getHighlightFactor() {
+
         synchronized (roots) {
 
             for(Complex root : roots) {

@@ -391,6 +391,10 @@ public abstract class Julia extends Fractal {
 
         if(useFullFloatExp || (skippedIterations == 0 && exp <= minExp) || (skippedIterations != 0 && exp <= reducedExp)) {
             MantExpComplex z = new MantExpComplex();
+            if(iterations != 0 && RefIteration < MaxRefIteration) {
+                z = getArrayDeepValue(ReferenceSubPixelDeep, RefIteration).plus_mutable(DeltaSubN);
+                complex[0] = getArrayDeepValue(ReferenceDeep, RefIteration).plus_mutable(DeltaSubN).toComplex();
+            }
             for (; iterations < max_iterations; iterations++) {
                 if (trap != null) {
                     trap.check(complex[0], iterations);

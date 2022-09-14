@@ -17,6 +17,9 @@
 package fractalzoomer.fractal_options.iteration_statistics;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.core.bla.BLA;
+import fractalzoomer.core.bla.BLADeep;
+import org.apfloat.Apfloat;
 
 /**
  *
@@ -40,6 +43,7 @@ public abstract class GenericStatistic {
     protected boolean useAverage;
     protected int mode;
     protected int iterations;
+    protected Apfloat size;
     
     public GenericStatistic(double statistic_intensity, boolean useSmoothing, boolean useAverage) {
         this.statistic_intensity = statistic_intensity;
@@ -64,6 +68,14 @@ public abstract class GenericStatistic {
         c_val.assign(c);
         c0_val.assign(c0);
         this.iterations = iterations;
+    }
+
+    public void insert(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0, BLA bla) {
+        insert(z, zold, zold2, iterations, c, start, c0);
+    }
+
+    public void insert(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0, BLADeep bla) {
+        insert(z, zold, zold2, iterations, c, start, c0);
     }
 
     public void initialize(Complex pixel, Complex untransformedPixel) {
@@ -140,5 +152,9 @@ public abstract class GenericStatistic {
     }
 
     public int getIterations() { return iterations;}
+
+    public void setSize(Apfloat size) {
+        this.size = size;
+    }
     
 }

@@ -54,4 +54,9 @@ public class ThirdOrderNewtonGeneralized8 extends ThirdOrderNewtonRootFindingMet
         thirdOrderNewtonMethod(complex[0], fz, dfz, ffz);
 
     }
+
+    @Override
+    public Complex evaluateFunction(Complex z, Complex c) {
+        return z.eighth().plus_mutable(z.fourth().times_mutable(15)).sub_mutable(16);
+    }
 }

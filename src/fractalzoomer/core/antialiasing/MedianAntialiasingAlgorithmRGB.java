@@ -26,6 +26,7 @@ public class MedianAntialiasingAlgorithmRGB extends AntialiasingAlgorithm {
         blueSum = 0;
     }
 
+    @Override
     public void initialize(int color) {
         int red = (color >> 16) & 0xff;
         int green = (color >> 8) & 0xff;
@@ -44,7 +45,8 @@ public class MedianAntialiasingAlgorithmRGB extends AntialiasingAlgorithm {
         index++;
     }
 
-    public void addSample(int color) {
+    @Override
+    public boolean addSample(int color) {
         int red = (color >> 16) & 0xff;
         int green = (color >> 8) & 0xff;
         int blue = color & 0xff;
@@ -59,7 +61,11 @@ public class MedianAntialiasingAlgorithmRGB extends AntialiasingAlgorithm {
         greenValues[index] = green;
         blueValues[index] = blue;
         index++;
+
+        return true;
     }
+
+    @Override
     public int getColor() {
         Arrays.sort(redValues);
         Arrays.sort(greenValues);

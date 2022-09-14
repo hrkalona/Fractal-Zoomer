@@ -54,4 +54,9 @@ public class Stirling4 extends StirlingRootFindingMethod {
         stirlingMethod(complex[0], fz, combined_dfz);
 
     }
+
+    @Override
+    public Complex evaluateFunction(Complex z, Complex c) {
+        return z.fourth().sub_mutable(1);
+    }
 }

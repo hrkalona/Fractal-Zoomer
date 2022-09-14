@@ -30,8 +30,7 @@ import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
-import static fractalzoomer.main.Constants.ABBASBANDYFORMULA;
-import static fractalzoomer.main.Constants.HOUSEHOLDER3FORMULA;
+import static fractalzoomer.main.Constants.*;
 
 /**
  *
@@ -42,7 +41,7 @@ public class RootFindingFourFunctionsDialog extends JDialog {
     private MainWindow ptra;
     private JOptionPane optionPane;
 
-    public RootFindingFourFunctionsDialog(MainWindow ptr, Settings s, int oldSelected, JRadioButtonMenuItem[] fractal_functions, boolean wasMagnetType, boolean wasConvergingType, boolean wasSimpleType, boolean wasMagneticPendulumType) {
+    public RootFindingFourFunctionsDialog(MainWindow ptr, Settings s, int oldSelected, JRadioButtonMenuItem[] fractal_functions, boolean wasMagnetType, boolean wasConvergingType, boolean wasSimpleType, boolean wasMagneticPendulumType, boolean wasEscapingOrConvergingType) {
 
         super(ptr);
         
@@ -102,6 +101,9 @@ public class RootFindingFourFunctionsDialog extends JDialog {
             imagelabel41.setIcon(getIcon("/fractalzoomer/icons/householder3.png"));
         } else if (s.fns.function == ABBASBANDYFORMULA) {
             imagelabel41.setIcon(getIcon("/fractalzoomer/icons/abbasbandy.png"));
+        }
+        else if (s.fns.function == ABBASBANDY3FORMULA) {
+            imagelabel41.setIcon(getIcon("/fractalzoomer/icons/abbasbandy3.png"));
         }
 
         JPanel imagepanel41 = new JPanel();
@@ -224,7 +226,7 @@ public class RootFindingFourFunctionsDialog extends JDialog {
 
                     ptra.optionsEnableShortcut2();
                     dispose();
-                    ptra.setFunctionPost(wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
+                    ptra.setFunctionPost(wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType, wasEscapingOrConvergingType);
                 }
             }
         });

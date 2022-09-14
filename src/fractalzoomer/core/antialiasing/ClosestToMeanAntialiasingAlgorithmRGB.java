@@ -23,6 +23,7 @@ public class ClosestToMeanAntialiasingAlgorithmRGB  extends AntialiasingAlgorith
         this.avgWithMean = avgWithMean;
     }
 
+    @Override
     public void initialize(int color) {
         int red = (color >> 16) & 0xff;
         int green = (color >> 8) & 0xff;
@@ -38,7 +39,8 @@ public class ClosestToMeanAntialiasingAlgorithmRGB  extends AntialiasingAlgorith
         index++;
     }
 
-    public void addSample(int color) {
+    @Override
+    public boolean addSample(int color) {
         int red = (color >> 16) & 0xff;
         int green = (color >> 8) & 0xff;
         int blue = color & 0xff;
@@ -50,7 +52,9 @@ public class ClosestToMeanAntialiasingAlgorithmRGB  extends AntialiasingAlgorith
         greenValues[index] = green;
         blueValues[index] = blue;
         index++;
+        return true;
     }
+    @Override
     public int getColor() {
 
         double avgRed = redSum / totalSamples;

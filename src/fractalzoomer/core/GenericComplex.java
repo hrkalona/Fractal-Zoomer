@@ -52,5 +52,7 @@ public class GenericComplex {
 
     public NormComponents normSquaredWithComponents() {return null;}
 
+    public BigNumComplex toBigNumComplex() { return null; }
+
 
 }

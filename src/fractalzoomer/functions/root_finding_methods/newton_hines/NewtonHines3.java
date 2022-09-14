@@ -75,4 +75,9 @@ public class NewtonHines3 extends NewtonHinesRootFindingMethod {
 
     }
 
+    @Override
+    public Complex evaluateFunction(Complex z, Complex c) {
+        return z.cube().sub_mutable(1);
+    }
+
 }

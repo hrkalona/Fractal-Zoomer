@@ -239,4 +239,7 @@ public class VariableConditionalInitialValue extends PlanePointOption {
 
     }
 
+    @Override
+    public boolean isStatic() {return !(parser[0].foundC() || parser[1].foundC() || parser2[0].foundC() || parser2[1].foundC() || parser2[2].foundC());}
+
 }

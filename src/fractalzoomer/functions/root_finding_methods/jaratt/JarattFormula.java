@@ -178,21 +178,33 @@ public class JarattFormula extends JarattRootFindingMethod {
             combined_dfz = Derivative.numericalCentralDerivativeFirstOrder(fzdz, fzmdz);
         } else if (Derivative.DERIVATIVE_METHOD == Derivative.NUMERICAL_FORWARD) {
             if (parser.foundZ()) {
+                parser.setZvalue(temp);
+            }
+
+            Complex fzTemp = expr.getValue();
+
+            if (parser.foundZ()) {
                 parser.setZvalue(temp.plus(Derivative.DZ));
             }
 
             Complex fzdz = expr.getValue();
 
-            combined_dfz = Derivative.numericalForwardDerivativeFirstOrder(fz, fzdz);
+            combined_dfz = Derivative.numericalForwardDerivativeFirstOrder(fzTemp, fzdz);
 
         } else {
+            if (parser.foundZ()) {
+                parser.setZvalue(temp);
+            }
+
+            Complex fzTemp = expr.getValue();
+
             if (parser.foundZ()) {
                 parser.setZvalue(temp.sub(Derivative.DZ));
             }
 
             Complex fzmdz = expr.getValue();
 
-            combined_dfz = Derivative.numericalBackwardDerivativeFirstOrder(fz, fzmdz);
+            combined_dfz = Derivative.numericalBackwardDerivativeFirstOrder(fzTemp, fzmdz);
         }
 
         jarattMethod(complex[0], fz, dfz, combined_dfz);
@@ -313,5 +325,33 @@ public class JarattFormula extends JarattRootFindingMethod {
             parser2.setPointvalue(point);
         }
 
+    }
+
+    @Override
+    public Complex evaluateFunction(Complex z, Complex c) {
+
+        if (parser.foundP()) {
+            parser.setPvalue(zold);
+        }
+
+        if (parser.foundPP()) {
+            parser.setPPvalue(zold2);
+        }
+
+        if (parser.foundZ()) {
+            parser.setZvalue(z);
+        }
+
+        if (parser.foundN()) {
+            parser.setNvalue(new Complex(iterations, 0));
+        }
+
+        for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+            if (parser.foundVar(i)) {
+                parser.setVarsvalue(i, globalVars[i]);
+            }
+        }
+
+        return expr.getValue();
     }
 }

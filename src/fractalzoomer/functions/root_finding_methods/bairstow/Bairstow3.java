@@ -96,4 +96,9 @@ public class Bairstow3 extends BairstowRootFindingMethod {
         bairstowMethod(complex[0]);
     }
 
+    @Override
+    public Complex evaluateFunction(Complex z, Complex c) {
+        return null;
+    }
+
 }

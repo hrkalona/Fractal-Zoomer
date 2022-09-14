@@ -98,43 +98,7 @@ public class CustomPalette extends Palette {
             calculateBezierControlPoints(colors);
         }
 
-        InterpolationMethod method = null;
-
-        switch (color_interpolation) {
-            case MainWindow.INTERPOLATION_LINEAR:
-                method = new LinearInterpolation();
-                break;
-            case MainWindow.INTERPOLATION_COSINE:
-                method = new CosineInterpolation();
-                break;
-            case MainWindow.INTERPOLATION_ACCELERATION:
-                method = new AccelerationInterpolation();
-                break;
-            case MainWindow.INTERPOLATION_DECELERATION:
-                method = new DecelerationInterpolation();
-                break;
-            case MainWindow.INTERPOLATION_EXPONENTIAL:
-                method = new ExponentialInterpolation();
-                break;
-            case MainWindow.INTERPOLATION_CATMULLROM:
-                method = new CatmullRomInterpolation();
-                break;
-            case MainWindow.INTERPOLATION_CATMULLROM2:
-                method = new CatmullRom2Interpolation();
-                break;
-            case MainWindow.INTERPOLATION_SIGMOID:
-                method = new SigmoidInterpolation();
-                break;
-            case MainWindow.INTERPOLATION_QUADRATIC:
-                method = new QuadraticInterpolation();
-                break;
-            case MainWindow.INTERPOLATION_CUBIC:
-                method = new CubicInterpolation();
-                break;
-            case MainWindow.INTERPOLATION_SQRT:
-                method = new SqrtInterpolation();
-                break;
-        }
+        InterpolationMethod method = InterpolationMethod.create(color_interpolation);
 
         int n = length - offset % length;
         int red, green, blue;
@@ -384,23 +348,23 @@ public class CustomPalette extends Palette {
             }
         }
 
-        if (processing_alg == MainWindow.PROCESSING_BRIGHTNESS1 || processing_alg == MainWindow.PROCESSING_BRIGHTNESS2) {
+        if (processing_alg == MainWindow.PROCESSING_BRIGHTNESS1 || processing_alg == MainWindow.PROCESSING_BRIGHTNESS2 || processing_alg == MainWindow.PROCESSING_BRIGHTNESS3) {
             cycleBrightness(colors, scale_factor_palette_val, processing_alg);
-        } else if (processing_alg == MainWindow.PROCESSING_HUE1 || processing_alg == MainWindow.PROCESSING_HUE2) {
+        } else if (processing_alg == MainWindow.PROCESSING_HUE1 || processing_alg == MainWindow.PROCESSING_HUE2 || processing_alg == MainWindow.PROCESSING_HUE3) {
             cycleHue(colors, scale_factor_palette_val, processing_alg);
-        } else if (processing_alg == MainWindow.PROCESSING_SATURATION1 || processing_alg == MainWindow.PROCESSING_SATURATION2) {
+        } else if (processing_alg == MainWindow.PROCESSING_SATURATION1 || processing_alg == MainWindow.PROCESSING_SATURATION2 || processing_alg == MainWindow.PROCESSING_SATURATION3) {
             cycleSaturation(colors, scale_factor_palette_val, processing_alg);
-        } else if (processing_alg == MainWindow.PROCESSING_RED1 || processing_alg == MainWindow.PROCESSING_RED2) {
+        } else if (processing_alg == MainWindow.PROCESSING_RED1 || processing_alg == MainWindow.PROCESSING_RED2 || processing_alg == MainWindow.PROCESSING_RED3) {
             cycleRed(colors, scale_factor_palette_val, processing_alg);
-        } else if (processing_alg == MainWindow.PROCESSING_GREEN1 || processing_alg == MainWindow.PROCESSING_GREEN2) {
+        } else if (processing_alg == MainWindow.PROCESSING_GREEN1 || processing_alg == MainWindow.PROCESSING_GREEN2 || processing_alg == MainWindow.PROCESSING_GREEN3) {
             cycleGreen(colors, scale_factor_palette_val, processing_alg);
-        } else if (processing_alg == MainWindow.PROCESSING_BLUE1 || processing_alg == MainWindow.PROCESSING_BLUE2) {
+        } else if (processing_alg == MainWindow.PROCESSING_BLUE1 || processing_alg == MainWindow.PROCESSING_BLUE2 || processing_alg == MainWindow.PROCESSING_BLUE3) {
             cycleBlue(colors, scale_factor_palette_val, processing_alg);
-        } else if (processing_alg == MainWindow.PROCESSING_RGB1 || processing_alg == MainWindow.PROCESSING_RGB2) {
+        } else if (processing_alg == MainWindow.PROCESSING_RGB1 || processing_alg == MainWindow.PROCESSING_RGB2 || processing_alg == MainWindow.PROCESSING_RGB3) {
             cycleRGB(colors, scale_factor_palette_val, processing_alg);
-        } else if (processing_alg == MainWindow.PROCESSING_HSB1 || processing_alg == MainWindow.PROCESSING_HSB2) {
+        } else if (processing_alg == MainWindow.PROCESSING_HSB1 || processing_alg == MainWindow.PROCESSING_HSB2 || processing_alg == MainWindow.PROCESSING_HSB3) {
             cycleHSB(colors, scale_factor_palette_val, processing_alg);
-        } else if (processing_alg == MainWindow.PROCESSING_RYB1 || processing_alg == MainWindow.PROCESSING_RYB2) {
+        } else if (processing_alg == MainWindow.PROCESSING_RYB1 || processing_alg == MainWindow.PROCESSING_RYB2 || processing_alg == MainWindow.PROCESSING_RYB3) {
             cycleRYB(colors, scale_factor_palette_val, processing_alg);
         }
 
@@ -410,43 +374,7 @@ public class CustomPalette extends Palette {
             calculateBezierControlPoints(colors);
         }
 
-        InterpolationMethod method = null;
-
-        switch (color_interpolation) {
-            case MainWindow.INTERPOLATION_LINEAR:
-                method = new LinearInterpolation();
-                break;
-            case MainWindow.INTERPOLATION_COSINE:
-                method = new CosineInterpolation();
-                break;
-            case MainWindow.INTERPOLATION_ACCELERATION:
-                method = new AccelerationInterpolation();
-                break;
-            case MainWindow.INTERPOLATION_DECELERATION:
-                method = new DecelerationInterpolation();
-                break;
-            case MainWindow.INTERPOLATION_EXPONENTIAL:
-                method = new ExponentialInterpolation();
-                break;
-            case MainWindow.INTERPOLATION_CATMULLROM:
-                method = new CatmullRomInterpolation();
-                break;
-            case MainWindow.INTERPOLATION_CATMULLROM2:
-                method = new CatmullRom2Interpolation();
-                break;
-            case MainWindow.INTERPOLATION_SIGMOID:
-                method = new SigmoidInterpolation();
-                break;
-            case MainWindow.INTERPOLATION_QUADRATIC:
-                method = new QuadraticInterpolation();
-                break;
-            case MainWindow.INTERPOLATION_CUBIC:
-                method = new CubicInterpolation();
-                break;
-            case MainWindow.INTERPOLATION_SQRT:
-                method = new SqrtInterpolation();
-                break;
-        }
+        InterpolationMethod method = InterpolationMethod.create(color_interpolation);
 
         n = n - color_cycling_location % n;
         //System.out.print("{");
@@ -728,10 +656,21 @@ public class CustomPalette extends Palette {
                 } else if (val < 0) {
                     val += 1;
                 }
-            } else if (val > 1) {
-                val = 1 - (val - 1);
-            } else if (val < 0) {
-                val *= -1;
+            }
+            else if(alg == MainWindow.PROCESSING_BRIGHTNESS2) {
+                if (val > 1) {
+                    val = 1 - (val - 1);
+                } else if (val < 0) {
+                    val *= -1;
+                }
+            }
+            else {
+                if (val > 1) {
+                    val = 1;
+                }
+                else if (val < 0) {
+                    val = 0;
+                }
             }
 
             Color temp = new Color(Color.HSBtoRGB(res[0], res[1], (float) val));
@@ -768,10 +707,19 @@ public class CustomPalette extends Palette {
                 } else if (val < 0) {
                     val += 1;
                 }
-            } else if (val > 1) {
-                val = 1 - (val - 1);
-            } else if (val < 0) {
-                val *= -1;
+            } else if(alg == MainWindow.PROCESSING_SATURATION2) {
+                if (val > 1) {
+                    val = 1 - (val - 1);
+                } else if (val < 0) {
+                    val *= -1;
+                }
+            }
+            else {
+                if (val > 1) {
+                    val = 1;
+                } else if (val < 0) {
+                    val = 0;
+                }
             }
 
             Color temp = new Color(Color.HSBtoRGB(res[0], (float) val, res[2]));
@@ -808,10 +756,19 @@ public class CustomPalette extends Palette {
                 } else if (val < 0) {
                     val += 1;
                 }
-            } else if (val > 1) {
-                val = 1 - (val - 1);
-            } else if (val < 0) {
-                val *= -1;
+            } else if(alg == MainWindow.PROCESSING_HUE2) {
+                if (val > 1) {
+                    val = 1 - (val - 1);
+                } else if (val < 0) {
+                    val *= -1;
+                }
+            }
+            else {
+                if (val > 1) {
+                    val = 1;
+                } else if (val < 0) {
+                    val = 0;
+                }
             }
 
             Color temp = new Color(Color.HSBtoRGB((float) val, res[1], res[2]));
@@ -850,10 +807,19 @@ public class CustomPalette extends Palette {
                 } else if (valh < 0) {
                     valh += 1;
                 }
-            } else if (valh > 1) {
-                valh = 1 - (valh - 1);
-            } else if (valh < 0) {
-                valh *= -1;
+            } else if (alg == MainWindow.PROCESSING_HSB2) {
+                if (valh > 1) {
+                    valh = 1 - (valh - 1);
+                } else if (valh < 0) {
+                    valh *= -1;
+                }
+            }
+            else {
+                if (valh > 1) {
+                    valh = 1;
+                } else if (valh < 0) {
+                    valh = 0;
+                }
             }
 
             if (alg == MainWindow.PROCESSING_HSB1) {
@@ -862,10 +828,19 @@ public class CustomPalette extends Palette {
                 } else if (vals < 0) {
                     vals += 1;
                 }
-            } else if (vals > 1) {
-                vals = 1 - (vals - 1);
-            } else if (vals < 0) {
-                vals *= -1;
+            } else if (alg == MainWindow.PROCESSING_HSB2) {
+                if (vals > 1) {
+                    vals = 1 - (vals - 1);
+                } else if (vals < 0) {
+                    vals *= -1;
+                }
+            }
+            else {
+                if (vals > 1) {
+                    vals = 1;
+                } else if (vals < 0) {
+                    vals = 0;
+                }
             }
 
             if (alg == MainWindow.PROCESSING_HSB1) {
@@ -874,10 +849,19 @@ public class CustomPalette extends Palette {
                 } else if (valb < 0) {
                     valb += 1;
                 }
-            } else if (valb > 1) {
-                valb = 1 - (valb - 1);
-            } else if (valb < 0) {
-                valb *= -1;
+            } else if (alg == MainWindow.PROCESSING_HSB2) {
+                if (valb > 1) {
+                    valb = 1 - (valb - 1);
+                } else if (valb < 0) {
+                    valb *= -1;
+                }
+            }
+            else {
+                if (valb > 1) {
+                    valb = 1;
+                } else if (valb < 0) {
+                    valb = 0;
+                }
             }
 
             Color temp = new Color(Color.HSBtoRGB((float) valh, (float) vals, (float) valb));
@@ -914,10 +898,19 @@ public class CustomPalette extends Palette {
                 } else if (valr < 0) {
                     valr += 1;
                 }
-            } else if (valr > 1) {
-                valr = 1 - (valr - 1);
-            } else if (valr < 0) {
-                valr *= -1;
+            } else if (alg == MainWindow.PROCESSING_RYB2) {
+                if (valr > 1) {
+                    valr = 1 - (valr - 1);
+                } else if (valr < 0) {
+                    valr *= -1;
+                }
+            }
+            else {
+                if (valr > 1) {
+                    valr = 1;
+                } else if (valr < 0) {
+                    valr = 0;
+                }
             }
 
             if (alg == MainWindow.PROCESSING_RYB1) {
@@ -926,10 +919,19 @@ public class CustomPalette extends Palette {
                 } else if (valy < 0) {
                     valy += 1;
                 }
-            } else if (valy > 1) {
-                valy = 1 - (valy - 1);
-            } else if (valy < 0) {
-                valy *= -1;
+            } else if (alg == MainWindow.PROCESSING_RYB2) {
+                if (valy > 1) {
+                    valy = 1 - (valy - 1);
+                } else if (valy < 0) {
+                    valy *= -1;
+                }
+            }
+            else {
+                if (valy > 1) {
+                    valy = 1;
+                } else if (valy < 0) {
+                    valy = 0;
+                }
             }
 
             if (alg == MainWindow.PROCESSING_RYB1) {
@@ -938,10 +940,19 @@ public class CustomPalette extends Palette {
                 } else if (valb < 0) {
                     valb += 1;
                 }
-            } else if (valb > 1) {
-                valb = 1 - (valb - 1);
-            } else if (valb < 0) {
-                valb *= -1;
+            } else if (alg == MainWindow.PROCESSING_RYB2) {
+                if (valb > 1) {
+                    valb = 1 - (valb - 1);
+                } else if (valb < 0) {
+                    valb *= -1;
+                }
+            }
+            else {
+                if (valb > 1) {
+                    valb = 1;
+                } else if (valb < 0) {
+                    valb  = 0;
+                }
             }
 
             int[] temp = ColorSpaceConverter.RYBtoRGB(valr, valy, valb);
@@ -974,10 +985,19 @@ public class CustomPalette extends Palette {
                 } else if (val < 0) {
                     val += 255;
                 }
-            } else if (val > 255) {
-                val = 255 - (val - 255);
-            } else if (val < 0) {
-                val *= -1;
+            } else if (alg == MainWindow.PROCESSING_RED2) {
+                if (val > 255) {
+                    val = 255 - (val - 255);
+                } else if (val < 0) {
+                    val *= -1;
+                }
+            }
+            else {
+                if (val > 255) {
+                    val = 255;
+                } else if (val < 0) {
+                    val = 0;
+                }
             }
 
             int[] vec = new int[colors[p].length];
@@ -1008,10 +1028,19 @@ public class CustomPalette extends Palette {
                 } else if (val < 0) {
                     val += 255;
                 }
-            } else if (val > 255) {
-                val = 255 - (val - 255);
-            } else if (val < 0) {
-                val *= -1;
+            } else if (alg == MainWindow.PROCESSING_GREEN2) {
+                if (val > 255) {
+                    val = 255 - (val - 255);
+                } else if (val < 0) {
+                    val *= -1;
+                }
+            }
+            else {
+                if (val > 255) {
+                    val = 255;
+                } else if (val < 0) {
+                    val = 0;
+                }
             }
 
             int[] vec = new int[colors[p].length];
@@ -1042,10 +1071,19 @@ public class CustomPalette extends Palette {
                 } else if (val < 0) {
                     val += 255;
                 }
-            } else if (val > 255) {
-                val = 255 - (val - 255);
-            } else if (val < 0) {
-                val *= -1;
+            } else if (alg == MainWindow.PROCESSING_BLUE2) {
+                if (val > 255) {
+                    val = 255 - (val - 255);
+                } else if (val < 0) {
+                    val *= -1;
+                }
+            }
+            else {
+                if (val > 255) {
+                    val = 255;
+                } else if (val < 0) {
+                    val = 0;
+                }
             }
 
             int[] vec = new int[colors[p].length];
@@ -1078,10 +1116,19 @@ public class CustomPalette extends Palette {
                 } else if (valr < 0) {
                     valr += 255;
                 }
-            } else if (valr > 255) {
-                valr = 255 - (valr - 255);
-            } else if (valr < 0) {
-                valr *= -1;
+            } else if (alg == MainWindow.PROCESSING_RGB2) {
+                if (valr > 255) {
+                    valr = 255 - (valr - 255);
+                } else if (valr < 0) {
+                    valr *= -1;
+                }
+            }
+            else {
+                if (valr > 255) {
+                    valr = 255;
+                } else if (valr < 0) {
+                    valr = 0;
+                }
             }
 
             if (alg == MainWindow.PROCESSING_RGB1) {
@@ -1090,10 +1137,19 @@ public class CustomPalette extends Palette {
                 } else if (valg < 0) {
                     valg += 255;
                 }
-            } else if (valg > 255) {
-                valg = 255 - (valg - 255);
-            } else if (valg < 0) {
-                valg *= -1;
+            } else if (alg == MainWindow.PROCESSING_RGB2) {
+                if (valg > 255) {
+                    valg = 255 - (valg - 255);
+                } else if (valg < 0) {
+                    valg *= -1;
+                }
+            }
+            else {
+                if (valg > 255) {
+                    valg = 255;
+                } else if (valg < 0) {
+                    valg = 0;
+                }
             }
 
             if (alg == MainWindow.PROCESSING_RGB1) {
@@ -1102,10 +1158,19 @@ public class CustomPalette extends Palette {
                 } else if (valb < 0) {
                     valb += 255;
                 }
-            } else if (valb > 255) {
-                valb = 255 - (valb - 255);
-            } else if (valb < 0) {
-                valb *= -1;
+            } else if (alg == MainWindow.PROCESSING_RGB2) {
+                if (valb > 255) {
+                    valb = 255 - (valb - 255);
+                } else if (valb < 0) {
+                    valb *= -1;
+                }
+            }
+            else {
+                if (valb > 255) {
+                    valb = 255;
+                } else if (valb < 0) {
+                    valb = 0;
+                }
             }
 
             int[] vec = new int[colors[p].length];

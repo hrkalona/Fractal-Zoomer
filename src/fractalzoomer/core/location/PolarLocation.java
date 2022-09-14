@@ -50,7 +50,7 @@ public class PolarLocation extends Location {
             ddxcenter = xCenter;
             ddycenter = yCenter;
 
-            ddcenter = MyApfloat.log(size);
+            ddcenter = MyApfloat.fp.log(size);
 
             Apfloat ddimage_size = new MyApfloat(image_size);
 
@@ -90,7 +90,7 @@ public class PolarLocation extends Location {
 
         this.image_size = image_size;
 
-        ddcenter = MyApfloat.log(size);
+        ddcenter = MyApfloat.fp.log(size);
 
         Apfloat ddimage_size = new MyApfloat(image_size);
 
@@ -248,100 +248,18 @@ public class PolarLocation extends Location {
     }
 
     @Override
-    public void createAntialiasingSteps() {
+    public void createAntialiasingSteps(boolean adaptive) {
         if(highPresicion) {
-            Apfloat point25 = new MyApfloat(0.25);
-
-            Apfloat ddy_antialiasing_size = MyApfloat.fp.multiply(ddmuly, point25);
-            Apfloat ddx_antialiasing_size = MyApfloat.fp.multiply(ddmulx, point25);
-
-            Apfloat exp_x_antialiasing_size = MyApfloat.exp(ddx_antialiasing_size);
-            Apfloat exp_inv_x_antialiasing_size = MyApfloat.reciprocal(exp_x_antialiasing_size);
-
-            Apfloat exp_x_antialiasing_size_x2 = MyApfloat.fp.multiply(exp_x_antialiasing_size, exp_x_antialiasing_size);
-            Apfloat exp_inv_x_antialiasing_size_x2 = MyApfloat.reciprocal(exp_x_antialiasing_size_x2);
-
-            Apfloat one = MyApfloat.ONE;
-
-            Apfloat temp_x[] = {exp_inv_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size, exp_inv_x_antialiasing_size,
-                    exp_inv_x_antialiasing_size, exp_x_antialiasing_size, one, one,
-                    exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size_x2, one, one, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x2,
-                    exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size, exp_inv_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x2};
-
-            ddantialiasing_x = temp_x;
-
-            Apfloat sin_y_antialiasing_size = MyApfloat.sin(ddy_antialiasing_size);
-            Apfloat cos_y_antialiasing_size = MyApfloat.cos(ddy_antialiasing_size);
-
-            Apfloat sin_inv_y_antialiasing_size = sin_y_antialiasing_size.negate();
-            Apfloat cos_inv_y_antialiasing_size = cos_y_antialiasing_size;
-
-            Apfloat sin_y_antialiasing_size_x2 = MyApfloat.fp.multiply(MyApfloat.fp.multiply(MyApfloat.TWO, sin_y_antialiasing_size), cos_y_antialiasing_size);
-            Apfloat cos_y_antialiasing_size_x2 = MyApfloat.fp.subtract(MyApfloat.fp.multiply(MyApfloat.fp.multiply(MyApfloat.TWO, cos_y_antialiasing_size), cos_y_antialiasing_size), one);
-
-            Apfloat sin_inv_y_antialiasing_size_x2 = sin_y_antialiasing_size_x2.negate();
-            Apfloat cos_inv_y_antialiasing_size_x2 = cos_y_antialiasing_size_x2;
-
-            Apfloat zero = MyApfloat.ZERO;
-
-            Apfloat temp_y_sin[] = {sin_inv_y_antialiasing_size, sin_inv_y_antialiasing_size, sin_y_antialiasing_size, sin_y_antialiasing_size,
-                    zero, zero, sin_inv_y_antialiasing_size, sin_y_antialiasing_size,
-                    sin_inv_y_antialiasing_size_x2, zero, sin_y_antialiasing_size_x2, sin_inv_y_antialiasing_size_x2, sin_y_antialiasing_size_x2, sin_inv_y_antialiasing_size_x2, zero, sin_y_antialiasing_size_x2,
-                    sin_inv_y_antialiasing_size, sin_y_antialiasing_size, sin_inv_y_antialiasing_size_x2, sin_y_antialiasing_size_x2, sin_inv_y_antialiasing_size_x2, sin_y_antialiasing_size_x2, sin_inv_y_antialiasing_size, sin_y_antialiasing_size};
-
-            Apfloat temp_y_cos[] = {cos_inv_y_antialiasing_size, cos_inv_y_antialiasing_size, cos_y_antialiasing_size, cos_y_antialiasing_size,
-                    one, one, cos_inv_y_antialiasing_size, cos_y_antialiasing_size,
-                    cos_inv_y_antialiasing_size_x2, one, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, one, cos_y_antialiasing_size_x2,
-                    cos_inv_y_antialiasing_size, cos_y_antialiasing_size, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size, cos_y_antialiasing_size};
-
-
-            ddantialiasing_y_sin = temp_y_sin;
-            ddantialiasing_y_cos = temp_y_cos;
-
+            Apfloat[][] steps = createAntialiasingPolarStepsApfloat(ddmulx, ddmuly, adaptive);
+            ddantialiasing_x = steps[0];
+            ddantialiasing_y_sin = steps[1];
+            ddantialiasing_y_cos = steps[2];
         }
         else {
-            double y_antialiasing_size = muly * 0.25;
-            double x_antialiasing_size = mulx * 0.25;
-
-            double exp_x_antialiasing_size = Math.exp(x_antialiasing_size);
-            double exp_inv_x_antialiasing_size = 1 / exp_x_antialiasing_size;
-
-            double exp_x_antialiasing_size_x2 = exp_x_antialiasing_size * exp_x_antialiasing_size;
-            double exp_inv_x_antialiasing_size_x2 = 1 / exp_x_antialiasing_size_x2;
-
-            double temp_x[] = {exp_inv_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size, exp_inv_x_antialiasing_size,
-                    exp_inv_x_antialiasing_size, exp_x_antialiasing_size, 1, 1,
-                    exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size_x2, 1, 1, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x2,
-                    exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size, exp_inv_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x2};
-
-            antialiasing_x = temp_x;
-
-            double sin_y_antialiasing_size = Math.sin(y_antialiasing_size);
-            double cos_y_antialiasing_size = Math.cos(y_antialiasing_size);
-
-            double sin_inv_y_antialiasing_size = -sin_y_antialiasing_size;
-            double cos_inv_y_antialiasing_size = cos_y_antialiasing_size;
-
-            double sin_y_antialiasing_size_x2 = 2 * sin_y_antialiasing_size * cos_y_antialiasing_size;
-            double cos_y_antialiasing_size_x2 = 2 * cos_y_antialiasing_size * cos_y_antialiasing_size - 1;
-
-            double sin_inv_y_antialiasing_size_x2 = -sin_y_antialiasing_size_x2;
-            double cos_inv_y_antialiasing_size_x2 = cos_y_antialiasing_size_x2;
-
-            double temp_y_sin[] = {sin_inv_y_antialiasing_size, sin_inv_y_antialiasing_size, sin_y_antialiasing_size, sin_y_antialiasing_size,
-                    0, 0, sin_inv_y_antialiasing_size, sin_y_antialiasing_size,
-                    sin_inv_y_antialiasing_size_x2, 0, sin_y_antialiasing_size_x2, sin_inv_y_antialiasing_size_x2, sin_y_antialiasing_size_x2, sin_inv_y_antialiasing_size_x2, 0, sin_y_antialiasing_size_x2,
-                    sin_inv_y_antialiasing_size, sin_y_antialiasing_size, sin_inv_y_antialiasing_size_x2, sin_y_antialiasing_size_x2, sin_inv_y_antialiasing_size_x2, sin_y_antialiasing_size_x2, sin_inv_y_antialiasing_size, sin_y_antialiasing_size};
-
-            double temp_y_cos[] = {cos_inv_y_antialiasing_size, cos_inv_y_antialiasing_size, cos_y_antialiasing_size, cos_y_antialiasing_size,
-                    1, 1, cos_inv_y_antialiasing_size, cos_y_antialiasing_size,
-                    cos_inv_y_antialiasing_size_x2, 1, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, 1, cos_y_antialiasing_size_x2,
-                    cos_inv_y_antialiasing_size, cos_y_antialiasing_size, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size, cos_y_antialiasing_size};
-
-
-            antialiasing_y_sin = temp_y_sin;
-            antialiasing_y_cos = temp_y_cos;
-
+            double[][] steps = createAntialiasingPolarStepsDouble(mulx, muly, adaptive);
+            antialiasing_x = steps[0];
+            antialiasing_y_sin = steps[1];
+            antialiasing_y_cos = steps[2];
         }
     }
 

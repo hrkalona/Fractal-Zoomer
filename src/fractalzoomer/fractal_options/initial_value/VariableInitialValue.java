@@ -87,4 +87,7 @@ public class VariableInitialValue extends PlanePointOption {
 
     }
 
+    @Override
+    public boolean isStatic() {return !parser.foundC();}
+
 }

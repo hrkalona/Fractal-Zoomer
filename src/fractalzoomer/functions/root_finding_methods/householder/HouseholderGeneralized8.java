@@ -78,4 +78,9 @@ public class HouseholderGeneralized8 extends HouseholderRootFindingMethod {
 
     }
 
+    @Override
+    public Complex evaluateFunction(Complex z, Complex c) {
+        return z.eighth().plus_mutable(z.fourth().times_mutable(15)).sub_mutable(16);
+    }
+
 }

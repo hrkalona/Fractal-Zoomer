@@ -203,7 +203,7 @@ public class Lambda extends Julia {
                 PrecalculatedTerms2Deep = new DeepReference(max_iterations);
 
             }
-        } else if (max_iterations > (Reference.length >> 1)) {
+        } else if (max_iterations > getReferenceLength()) {
             Reference = Arrays.copyOf(Reference, max_iterations << 1);
 
             if(isJulia) {
@@ -250,32 +250,20 @@ public class Lambda extends Julia {
 
         boolean useBignum = ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE;
 
-        if(ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE) {
+        if(useBignum) {
 
             initVal = new BigNumComplex(defaultInitVal.getValue(null));
             two = new BigNum(2);
             one = new BigNum(1);
 
-            if(inputPixel instanceof  BigNumComplex) {
-                z = iterations == 0 ? (isJulia ? inputPixel : initVal) : lastZValue;
-                c = isJulia ? new BigNumComplex(seed) : inputPixel;
-                zold = iterations == 0 ? new BigNumComplex() : secondTolastZValue;
-                zold2 = iterations == 0 ? new BigNumComplex() : thirdTolastZValue;
-                start = isJulia ? inputPixel : initVal;
-                c0 = c;
-                pixel = inputPixel;
-            }
-            else {
-                BigComplex bz = (BigComplex)inputPixel;
-                BigNumComplex bn = new BigNumComplex(bz);
-                z = iterations == 0 ? (isJulia ? bn : initVal) : lastZValue;
-                c = isJulia ? new BigNumComplex(seed) : bn;
-                zold = iterations == 0 ? new BigNumComplex() : secondTolastZValue;
-                zold2 = iterations == 0 ? new BigNumComplex() : thirdTolastZValue;
-                start = isJulia ? bn : initVal;
-                c0 = c;
-                pixel = bn;
-            }
+            BigNumComplex bn = inputPixel.toBigNumComplex();
+            z = iterations == 0 ? (isJulia ? bn : initVal) : lastZValue;
+            c = isJulia ? new BigNumComplex(seed) : bn;
+            zold = iterations == 0 ? new BigNumComplex() : secondTolastZValue;
+            zold2 = iterations == 0 ? new BigNumComplex() : thirdTolastZValue;
+            start = isJulia ? bn : initVal;
+            c0 = c;
+            pixel = bn;
             normSquared = new BigNum();
         }
         else {
@@ -307,6 +295,9 @@ public class Lambda extends Julia {
 
         RefType = getRefType();
 
+        boolean preCalcNormData = bailout_algorithm2.getId() == MainWindow.BAILOUT_CONDITION_CIRCLE;
+        NormComponents normData = null;
+
         for (; iterations < max_iterations; iterations++) {
 
             Complex cz = z.toComplex();
@@ -336,10 +327,19 @@ public class Lambda extends Julia {
                 preCalc = z.times((Apfloat) two).sub((Apfloat) one); //2*Z-1 for catastrophic cancelation
             }
 
-            NormComponents normData = z.normSquaredWithComponents();
-            normSquared = normData.normSquared;
+            if(preCalcNormData) {
+                normData = z.normSquaredWithComponents();
+                normSquared = normData.normSquared;
+            }
 
-            GenericComplex preCalc2 = z.sub(z.squareFast(normData)); //Z-Z^2 for catastrophic cancelation
+            GenericComplex preCalc2 = null;
+
+            if(preCalcNormData) {
+                preCalc2 = z.sub(z.squareFast(normData)); //Z-Z^2 for catastrophic cancelation
+            }
+            else {
+                preCalc2 = z.sub(z.square()); //Z-Z^2 for catastrophic cancelation
+            }
 
             setArrayValue(PrecalculatedTerms, iterations, preCalc.toComplex());
             setArrayValue(PrecalculatedTerms2, iterations, preCalc2.toComplex());
@@ -356,7 +356,7 @@ public class Lambda extends Julia {
                 setArrayDeepValue(PrecalculatedTerms2Deep, iterations, loc.getMantExpComplex(preCalc2));
             }
 
-            if (iterations > 0 && bailout_algorithm2.escaped(z, zold, zold2, iterations, c, start, c0, normSquared, pixel)) {
+            if (iterations > 0 && bailout_algorithm2.Escaped(z, zold, zold2, iterations, c, start, c0, normSquared, pixel)) {
                 break;
             }
 
@@ -552,8 +552,15 @@ public class Lambda extends Julia {
 
         boolean useFullFloatExp = ThreadDraw.USE_FULL_FLOATEXP_FOR_DEEP_ZOOM;
 
+        boolean usedDeepCode = false;
+
         if(useFullFloatExp || (skippedIterations == 0 && exp <= minExp) || (skippedIterations != 0 && exp <= reducedExp)) {
+            usedDeepCode = true;
             MantExpComplex z = new MantExpComplex();
+            if(iterations != 0 && RefIteration < MaxRefIteration) {
+                z = getArrayDeepValue(ReferenceSubCpDeep, RefIteration).plus_mutable(DeltaSubN);
+                complex[0] = getArrayDeepValue(ReferenceDeep, RefIteration).plus_mutable(DeltaSubN).toComplex();
+            }
             for (; iterations < max_iterations; iterations++) {
                 if (trap != null) {
                     trap.check(complex[0], iterations);
@@ -612,6 +619,10 @@ public class Lambda extends Julia {
 
             boolean isZero = CDeltaSub0.isZero();
             Complex zWithoutInitVal = new Complex();
+
+            if(!usedDeepCode && iterations != 0 && RefIteration < MaxRefIteration) {
+                complex[0] = getArrayValue(Reference, RefIteration).plus_mutable(CDeltaSubN);
+            }
 
             for (; iterations < max_iterations; iterations++) {
 

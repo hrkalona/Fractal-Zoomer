@@ -60,4 +60,9 @@ public class JarattSin extends JarattRootFindingMethod {
         jarattMethod(complex[0], fz, dfz, combined_dfz);
 
     }
+
+    @Override
+    public Complex evaluateFunction(Complex z, Complex c) {
+        return z.sin();
+    }
 }

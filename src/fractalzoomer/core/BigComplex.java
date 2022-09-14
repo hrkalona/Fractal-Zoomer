@@ -44,6 +44,9 @@ public class BigComplex extends GenericComplex {
 
     }
 
+    @Override
+    public BigNumComplex toBigNumComplex() { return new BigNumComplex(this); }
+
     public final Apfloat getRe() {
 
         return re;
@@ -421,7 +424,7 @@ public class BigComplex extends GenericComplex {
      * n-norm
      */
     public final Apfloat nnorm(Apfloat n) {
-        return MyApfloat.pow(MyApfloat.fp.add(MyApfloat.pow(ApfloatMath.abs(re), n), MyApfloat.pow(ApfloatMath.abs(im), n)), MyApfloat.fp.divide(MyApfloat.ONE, n));
+        return MyApfloat.fp.pow(MyApfloat.fp.add(MyApfloat.fp.pow(ApfloatMath.abs(re), n), MyApfloat.fp.pow(ApfloatMath.abs(im), n)), MyApfloat.fp.divide(MyApfloat.ONE, n));
     }
 
     /*

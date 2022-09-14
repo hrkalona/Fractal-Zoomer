@@ -73,4 +73,9 @@ public class DurandKerner3 extends DurandKernerRootFindingMethod {
         
     }
 
+    @Override
+    public Complex evaluateFunction(Complex z, Complex c) {
+        return z.cube().sub_mutable(1);
+    }
+
 }

@@ -127,7 +127,7 @@ public class MandelgrassDialog extends JDialog {
                     dispose();
 
                     if (s.fns.function <= 9 || s.fns.function == MANDELPOLY || s.fns.function == MANDELBROTWTH) {
-                        ptra.defaultFractalSettings();
+                        ptra.defaultFractalSettings(true);
                     }
                 }
             }

@@ -38,6 +38,7 @@ public class FileMenu extends JMenu {
     private JMenuItem load_settings;
     private JMenuItem save_settings_image;
     private JMenuItem code_editor;
+    private JMenuItem library_code;
     private JMenuItem compile_code;
     private JMenuItem zoom_in;
     private JMenuItem zoom_out;
@@ -48,6 +49,8 @@ public class FileMenu extends JMenu {
     private JMenuItem right;
     private JMenuItem default_opt;
     private JMenuItem save_initial_settings_opt;
+
+    private JMenuItem cancel_operation;
     
     public FileMenu(MainWindow ptr2, String name) {
 
@@ -83,8 +86,10 @@ public class FileMenu extends JMenu {
         save_settings_image = new JMenuItem("Save Settings and Image As...", getIcon("/fractalzoomer/icons/save_image_settings.png"));
 
         code_editor = new JMenuItem("Edit User Code", getIcon("/fractalzoomer/icons/code_editor.png"));
+        library_code = new JMenuItem("Library Code", getIcon("/fractalzoomer/icons/code_editor.png"));
         compile_code = new JMenuItem("Compile User Code", getIcon("/fractalzoomer/icons/compile.png"));
 
+        cancel_operation  = new JMenuItem("Cancel Operation", getIcon("/fractalzoomer/icons/abort.png"));
         exit = new JMenuItem("Exit", getIcon("/fractalzoomer/icons/exit.png"));
         
         starting_position.setToolTipText("Resets the fractal to the default position.");
@@ -100,11 +105,13 @@ public class FileMenu extends JMenu {
         save_image.setToolTipText("Saves a png image.");
         save_settings_image.setToolTipText("Saves the current settings and a png image.");
         code_editor.setToolTipText("<html>Opens the java code, containing the user defined functions,<br>with a text editor.</html>");
+        library_code.setToolTipText("Opens the library code with a text editor.");
         compile_code.setToolTipText("Compiles the java code, containing the user defined functions.");
         exit.setToolTipText("Exits the application.");
         default_opt.setToolTipText("Resets all fractal settings to the default values.");
         repaint_opt.setToolTipText("Repaints the image, using the current active settings.");
         save_initial_settings_opt.setToolTipText("Creates a save file, called autoload.fzs, that will be always loaded at start-up.");
+        cancel_operation.setToolTipText("Cancels the current rendering operation and resets.");
         
         starting_position.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F2, ActionEvent.CTRL_MASK));
         go_to.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F3, ActionEvent.CTRL_MASK));
@@ -124,6 +131,7 @@ public class FileMenu extends JMenu {
         default_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_1, ActionEvent.SHIFT_MASK));
         repaint_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F6, ActionEvent.CTRL_MASK));
         save_initial_settings_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F7, 0));
+        cancel_operation.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0));
         
         default_opt.addActionListener(new ActionListener() {
 
@@ -236,6 +244,27 @@ public class FileMenu extends JMenu {
             }
         });
 
+
+        library_code.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.libraryCode();
+
+            }
+        });
+
+        cancel_operation.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.cancelOperation();
+
+            }
+        });
+
         exit.addActionListener(new ActionListener() {
 
             @Override
@@ -326,7 +355,10 @@ public class FileMenu extends JMenu {
         add(save_settings_image);
         addSeparator();
         add(code_editor);
+        add(library_code);
         add(compile_code);
+        addSeparator();
+        add(cancel_operation);
         addSeparator();
         add(exit);
         
@@ -383,7 +415,19 @@ public class FileMenu extends JMenu {
     public JMenuItem getCodeEditor() {
         
         return code_editor;
-        
+
+    }
+
+    public JMenuItem getLibraryCode() {
+
+        return library_code;
+
+    }
+
+    public JMenuItem getCancelOperation() {
+
+        return cancel_operation;
+
     }
     
     public JMenuItem getCompileCode() {

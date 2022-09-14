@@ -1,3 +1,14 @@
+Version 1.0.8.3
+    -Fixed Normal Map (and distance estimation) Statistical coloring method to work correctly with BLA
+    -Changed the 1-Step BLA radius which increased the performance
+    -Added memory optimizations for BLA construction
+    -Optimized performance of BigNum library
+    -Added new Root Finding Methods
+    -Added Escaping or Converging method in user formulas
+    -Added an option to abort the current render
+    -Added more options in Normal Map and Root Coloring Statistical coloring methods
+    -Bug fixes and stability changes
+
 Version 1.0.8.2
     -Fixed a bug that caused settings for julia set to fail to load
     -Fixed a bug in orbit traps when the initial value was a constant

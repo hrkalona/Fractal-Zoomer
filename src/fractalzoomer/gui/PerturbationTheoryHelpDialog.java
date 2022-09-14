@@ -49,7 +49,7 @@ public class PerturbationTheoryHelpDialog {
                 "Some options like Plane Influence, Pre/Post Function Filters, Initial Value, Perturbation, Equicontinuity will be ignored if perturbation theory" +
                 "is enabled and the current function supports it. Perturbation theory will not work on Julia sets with Juliter enabled (The low precision calculations will be used).<br><br>" +
                 "The thread option for Series Approximation is only supported by Mandelbrot. It may or may not decrease the SA completion time, and it is based on your system and number of coefficients selected.<br><br>" +
-                "Bilinear (Bivariate) Approximation is a new development in perturbation theory optimization and its goal is to create a look-up table of coefficients" +
+                "Bilinear (Bivariate) Approximation is a new development in perturbation theory optimization and its goal is to create a look-up table of coefficients " +
                 "in order to used during the fractal iteration and approximate the iteration value by applying multiple iterations at one step, in the form of a linear " +
                 "function. Currently it is only implemented for the Mandelbrot (2-5) powers.<br><br>" +
                 "Using Series Approximation or Bilinear Approximation with statistical coloring will not produce accurate images, as those approximations skip or merge a number of iterations " +

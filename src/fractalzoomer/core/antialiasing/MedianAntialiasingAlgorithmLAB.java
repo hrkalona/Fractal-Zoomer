@@ -20,6 +20,7 @@ public class MedianAntialiasingAlgorithmLAB extends AntialiasingAlgorithm {
         median = (totalSamples >>> 1);
     }
 
+    @Override
     public void initialize(int color) {
         index = 0;
         double[] res = ColorSpaceConverter.RGBtoLAB((color >> 16) & 0xff, (color >> 8) & 0xff, color & 0xff);
@@ -29,13 +30,17 @@ public class MedianAntialiasingAlgorithmLAB extends AntialiasingAlgorithm {
         index++;
     }
 
-    public void addSample(int color) {
+    @Override
+    public boolean addSample(int color) {
         double[] res = ColorSpaceConverter.RGBtoLAB((color >> 16) & 0xff, (color >> 8) & 0xff, color & 0xff);
         LValues[index] = res[0];
         AValues[index] = res[1];
         BValues[index] = res[2];
         index++;
+        return true;
     }
+
+    @Override
     public int getColor() {
         Arrays.sort(LValues);
         Arrays.sort(AValues);

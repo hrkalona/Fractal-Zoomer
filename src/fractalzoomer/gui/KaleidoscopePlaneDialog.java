@@ -194,7 +194,7 @@ public class KaleidoscopePlaneDialog extends JDialog {
                     }
 
                     dispose();
-                    ptra.defaultFractalSettings();
+                    ptra.defaultFractalSettings(true);
                 }
             }
         });

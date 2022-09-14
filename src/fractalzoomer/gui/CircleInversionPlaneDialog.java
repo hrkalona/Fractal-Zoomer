@@ -167,7 +167,7 @@ public class CircleInversionPlaneDialog extends JDialog {
                     }
 
                     dispose();
-                    ptra.defaultFractalSettings();
+                    ptra.defaultFractalSettings(true);
                 }
             }
         });

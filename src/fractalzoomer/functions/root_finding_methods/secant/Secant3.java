@@ -83,4 +83,9 @@ public class Secant3 extends SecantRootFindingMethod {
 
     }
 
+    @Override
+    public Complex evaluateFunction(Complex z, Complex c) {
+        return z.cube().sub_mutable(1);
+    }
+
 }

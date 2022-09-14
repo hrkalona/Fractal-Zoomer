@@ -92,6 +92,10 @@ public class PaletteMenu extends JMenu {
         paletteNames[34] = "Wizzl017";
         paletteNames[35] = "Wizzl018";
         paletteNames[36] = "Q Fractal";
+        paletteNames[37] = "Q Fractal 2";
+        paletteNames[38] = "Q Fractal 3";
+        paletteNames[39] = "Q Fractal 4";
+        paletteNames[40] = "Q Fractal 5";
     }
 
     public PaletteMenu(MainWindow ptr2, String name, int color_choice, boolean smoothing, int[][] custom_palette, int color_interpolation, int color_space, boolean reversed_palette, int color_cycling_location, double scale_factor_palette_val, int processing_alg, final boolean outcoloring_mode, int temp_color_cycling_location) {
@@ -102,7 +106,7 @@ public class PaletteMenu extends JMenu {
 
         setIcon(getIcon("/fractalzoomer/icons/palette.png"));
         
-        paletteLegacyFractintMenu = new JMenu("Legacy/FractInt Maps");
+        paletteLegacyFractintMenu = new JMenu("Other Paletttes/Maps");
         paletteLegacyFractintMenu.setIcon(getIcon("/fractalzoomer/icons/palette.png"));
         
         palette = new JRadioButtonMenuItem[paletteNames.length];
@@ -278,6 +282,10 @@ public class PaletteMenu extends JMenu {
         palette[34].setToolTipText("A legacy FractInt palette.");
         palette[35].setToolTipText("A legacy FractInt palette.");
         palette[36].setToolTipText("A palette from QFractal.");
+        palette[37].setToolTipText("A palette from QFractal.");
+        palette[38].setToolTipText("A palette from QFractal.");
+        palette[39].setToolTipText("A palette from QFractal.");
+        palette[40].setToolTipText("A palette from QFractal.");
     }
 
     private ImageIcon getIcon(String path) {

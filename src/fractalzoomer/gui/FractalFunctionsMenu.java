@@ -48,6 +48,7 @@ public class FractalFunctionsMenu extends JMenu {
     private JMenu newton_hines_type_functions;
     private JMenu aberth_ehrlich_type_functions;
     private JMenu root_finding_functions2;
+    private JMenu root_finding_functions3;
     private JMenu whittaker_type_functions;
     private JMenu whittaker_double_convex_type_functions;
     private JMenu super_halley_type_functions;
@@ -60,6 +61,49 @@ public class FractalFunctionsMenu extends JMenu {
     private JMenu weerakoon_fernando_type_functions;
     private JMenu householder3_type_functions;
     private JMenu abbasbandy_type_functions;
+
+    private JMenu contra_harmonic_newton_type_functions;
+    private JMenu chun_ham_type_functions;
+    private JMenu chun_kim_type_functions;
+
+    private JMenu euler_chebyshev_type_functions;
+
+    private JMenu ezzati_saleki2_type_functions;
+
+    private JMenu homeier1_type_functions;
+
+    private JMenu abbasbandy2_type_functions;
+
+    private JMenu abbasbandy3_type_functions;
+
+    private JMenu popovski1_type_functions;
+
+    private JMenu changbum_chun1_type_functions;
+
+    private JMenu changbum_chun2_type_functions;
+
+    private JMenu king3_type_functions;
+
+    private JMenu homeier2_type_functions;
+    private JMenu kim_chun_type_functions;
+    private JMenu kou_li_wang1_type_functions;
+
+    private JMenu maheshweri_type_functions;
+    private JMenu rafiullah1_type_functions;
+    private JMenu rafis_rafiullah_type_functions;
+
+    private JMenu changbum_chun3_type_functions;
+
+    private JMenu ezzati_saleki1_type_functions;
+
+    private JMenu feng_type_functions;
+
+    private JMenu king1_type_functions;
+    private JMenu noor_gupta_type_functions;
+    private JMenu harmonic_simpson_newton_type_functions;
+
+    private JMenu nedzhibov_type_functions;
+    private JMenu simpson_newton_type_functions;
     private JMenu lambda_type_functions;
     private JMenu barnsley_type_functions;
     private JMenu szegedi_butterfly_type_functions;
@@ -293,7 +337,7 @@ public class FractalFunctionsMenu extends JMenu {
         }
 
         for(int i = 0; i < rootPostfixes.length; i++) {
-            functionNames[i + MainWindow.JARATT23] = "Jaratt2 " + rootPostfixes[i];
+            functionNames[i + MainWindow.JARATT23] = "Jaratt 2 " + rootPostfixes[i];
         }
 
         for(int i = 0; i < rootPostfixes.length; i++) {
@@ -305,7 +349,7 @@ public class FractalFunctionsMenu extends JMenu {
         }
 
         for(int i = 0; i < rootPostfixes.length; i++) {
-            functionNames[i + MainWindow.HOUSEHOLDER33] = "Householder3 " + rootPostfixes[i];
+            functionNames[i + MainWindow.HOUSEHOLDER33] = "Householder 3 " + rootPostfixes[i];
         }
 
         for(int i = 0; i < rootPostfixes.length; i++) {
@@ -318,6 +362,110 @@ public class FractalFunctionsMenu extends JMenu {
         functionNames[MainWindow.MAGNET24] = "Magnet 2 Fourth";
 
         functionNames[MainWindow.NEWTON_THIRD_DEGREE_PARAMETER_SPACE] = "Newton Third Degree Parameter Space";
+
+        for(int i = 0; i < rootPostfixes.length; i++) {
+            functionNames[i + MainWindow.CONTRA_HARMONIC_NEWTON3] = "Contra Harmonic Newton " + rootPostfixes[i];
+        }
+
+        for(int i = 0; i < rootPostfixes.length; i++) {
+            functionNames[i + MainWindow.CHUN_HAM3] = "Chun-Ham " + rootPostfixes[i];
+        }
+
+        for(int i = 0; i < rootPostfixes.length; i++) {
+            functionNames[i + MainWindow.CHUN_KIM3] = "Chun-Kim " + rootPostfixes[i];
+        }
+
+        for(int i = 0; i < rootPostfixes.length; i++) {
+            functionNames[i + MainWindow.EULER_CHEBYSHEV3] = "Euler-Chebyshev " + rootPostfixes[i];
+        }
+
+        for(int i = 0; i < rootPostfixes.length; i++) {
+            functionNames[i + MainWindow.EZZATI_SALEKI23] = "Ezzati-Saleki 2 " + rootPostfixes[i];
+        }
+
+        for(int i = 0; i < rootPostfixes.length; i++) {
+            functionNames[i + MainWindow.HOMEIER13] = "Homeier " + rootPostfixes[i];
+        }
+
+        for(int i = 0; i < rootPostfixes.length; i++) {
+            functionNames[i + MainWindow.ABBASBANDY23] = "Abbasbandy 2 " + rootPostfixes[i];
+        }
+
+        for(int i = 0; i < rootPostfixes.length; i++) {
+            functionNames[i + MainWindow.ABBASBANDY33] = "Abbasbandy 3 " + rootPostfixes[i];
+        }
+
+        for(int i = 0; i < rootPostfixes.length; i++) {
+            functionNames[i + MainWindow.POPOVSKI13] = "Popovski " + rootPostfixes[i];
+        }
+
+        for(int i = 0; i < rootPostfixes.length; i++) {
+            functionNames[i + MainWindow.CHANGBUM_CHUN13] = "Changbum-Chun " + rootPostfixes[i];
+        }
+
+        for(int i = 0; i < rootPostfixes.length; i++) {
+            functionNames[i + MainWindow.CHANGBUM_CHUN23] = "Changbum-Chun 2 " + rootPostfixes[i];
+        }
+
+        for(int i = 0; i < rootPostfixes.length; i++) {
+            functionNames[i + MainWindow.KING33] = "King 3 " + rootPostfixes[i];
+        }
+
+        for(int i = 0; i < rootPostfixes.length; i++) {
+            functionNames[i + MainWindow.HOMEIER23] = "Homeier 2 " + rootPostfixes[i];
+        }
+
+        for(int i = 0; i < rootPostfixes.length; i++) {
+            functionNames[i + MainWindow.KIM_CHUN3] = "Kim-Chun " + rootPostfixes[i];
+        }
+
+        for(int i = 0; i < rootPostfixes.length; i++) {
+            functionNames[i + MainWindow.KOU_LI_WANG13] = "Kou-Li-Wang " + rootPostfixes[i];
+        }
+
+        for(int i = 0; i < rootPostfixes.length; i++) {
+            functionNames[i + MainWindow.MAHESHWERI3] = "Maheshweri " + rootPostfixes[i];
+        }
+
+        for(int i = 0; i < rootPostfixes.length; i++) {
+            functionNames[i + MainWindow.RAFIULLAH13] = "Rafiullah " + rootPostfixes[i];
+        }
+
+        for(int i = 0; i < rootPostfixes.length; i++) {
+            functionNames[i + MainWindow.RAFIS_RAFIULLAH3] = "Rafis-Rafiullah " + rootPostfixes[i];
+        }
+
+        for(int i = 0; i < rootPostfixes.length; i++) {
+            functionNames[i + MainWindow.CHANGBUM_CHUN33] = "Changbum-Chun 3 " + rootPostfixes[i];
+        }
+
+        for(int i = 0; i < rootPostfixes.length; i++) {
+            functionNames[i + MainWindow.EZZATI_SALEKI13] = "Ezzati-Saleki " + rootPostfixes[i];
+        }
+
+        for(int i = 0; i < rootPostfixes.length; i++) {
+            functionNames[i + MainWindow.FENG3] = "Feng " + rootPostfixes[i];
+        }
+
+        for(int i = 0; i < rootPostfixes.length; i++) {
+            functionNames[i + MainWindow.KING13] = "King " + rootPostfixes[i];
+        }
+
+        for(int i = 0; i < rootPostfixes.length; i++) {
+            functionNames[i + MainWindow.NOOR_GUPTA3] = "Noor-Gupta " + rootPostfixes[i];
+        }
+
+        for(int i = 0; i < rootPostfixes.length; i++) {
+            functionNames[i + MainWindow.HARMONIC_SIMPSON_NEWTON3] = "Harmonic-Simpson-Newton " + rootPostfixes[i];
+        }
+
+        for(int i = 0; i < rootPostfixes.length; i++) {
+            functionNames[i + MainWindow.NEDZHIBOV3] = "Nedzhibov " + rootPostfixes[i];
+        }
+
+        for(int i = 0; i < rootPostfixes.length; i++) {
+            functionNames[i + MainWindow.SIMPSON_NEWTON3] = "Simpson-Newton " + rootPostfixes[i];
+        }
     }
 
     public FractalFunctionsMenu(MainWindow ptr2, String name, int function) {
@@ -346,13 +494,40 @@ public class FractalFunctionsMenu extends JMenu {
         newton_hines_type_functions = new JMenu("Newton-Hines Method");
         aberth_ehrlich_type_functions = new JMenu("Aberth/Ehrlich Method");
         jaratt_type_functions = new JMenu("Jaratt Method");
-        jaratt2_type_functions = new JMenu("Jaratt2 Method");
+        jaratt2_type_functions = new JMenu("Jaratt 2 Method");
         third_order_newtton_type_functions = new JMenu("Third Order Newton Method");
         weerakoon_fernando_type_functions = new JMenu("Weerakoon/Fernando Method");
-        householder3_type_functions = new JMenu("Householder3 Method");
+        householder3_type_functions = new JMenu("Householder 3 Method");
         abbasbandy_type_functions = new JMenu("Abbasbandy Method");
+        contra_harmonic_newton_type_functions = new JMenu("Contra Harmonic Newton Method");
+        chun_ham_type_functions = new JMenu("Chun-Ham Method");
+        chun_kim_type_functions = new JMenu("Chun-Kim Method");
+        euler_chebyshev_type_functions = new JMenu("Euler-Chebyshev Method");
+        ezzati_saleki2_type_functions = new JMenu("Ezzati-Saleki 2 Method");
+        homeier1_type_functions = new JMenu("Homeier Method");
+        abbasbandy2_type_functions = new JMenu("Abbasbandy 2 Method");
+        abbasbandy3_type_functions = new JMenu("Abbasbandy 3 Method");
+        popovski1_type_functions = new JMenu("Popovski Method");
+        changbum_chun1_type_functions = new JMenu("Changbum-Chun Method");
+        changbum_chun2_type_functions = new JMenu("Changbum-Chun 2 Method");
+        king3_type_functions = new JMenu("King 3 Method");
+        homeier2_type_functions = new JMenu("Homeier 2 Method");
+        kim_chun_type_functions = new JMenu("Kim-Chun Method");
+        kou_li_wang1_type_functions = new JMenu("Kou-Li-Wang Method");
+        maheshweri_type_functions = new JMenu("Maheshweri Method");
+        rafiullah1_type_functions = new JMenu("Rafiullah Method");
+        rafis_rafiullah_type_functions = new JMenu("Rafis-Rafiullah Method");
+        changbum_chun3_type_functions = new JMenu("Changbum-Chun 3 Method");
+        ezzati_saleki1_type_functions = new JMenu("Ezzati-Saleki Method");
+        feng_type_functions = new JMenu("Feng Method");
+        king1_type_functions = new JMenu("King Method");
+        noor_gupta_type_functions = new JMenu("Noor-Gupta Method");
+        harmonic_simpson_newton_type_functions = new JMenu("Harmonic-Simpson-Newton Method");
+        nedzhibov_type_functions = new JMenu("Nedzhibov Method");
+        simpson_newton_type_functions = new JMenu("Simpson-Newton Method");
         
         root_finding_functions2 = new JMenu("Root Finding Methods (2)");
+        root_finding_functions3 = new JMenu("Root Finding Methods (3)");
         whittaker_type_functions = new JMenu("Whittaker Method");
         whittaker_double_convex_type_functions = new JMenu("Whittaker Double Convex Method");
         super_halley_type_functions = new JMenu("Super Halley Method");
@@ -1299,6 +1474,14 @@ public class FractalFunctionsMenu extends JMenu {
         root_finding_functions.add(newton_hines_type_functions);
         root_finding_functions.addSeparator();
         root_finding_functions.add(aberth_ehrlich_type_functions);
+        root_finding_functions.addSeparator();
+        root_finding_functions.add(feng_type_functions);
+        root_finding_functions.addSeparator();
+        root_finding_functions.add(harmonic_simpson_newton_type_functions);
+        root_finding_functions.addSeparator();
+        root_finding_functions.add(nedzhibov_type_functions);
+        root_finding_functions.addSeparator();
+        root_finding_functions.add(simpson_newton_type_functions);
 
         
         
@@ -1325,9 +1508,56 @@ public class FractalFunctionsMenu extends JMenu {
         root_finding_functions2.add(householder3_type_functions);
         root_finding_functions2.addSeparator();
         root_finding_functions2.add(abbasbandy_type_functions);
+        root_finding_functions2.addSeparator();
+        root_finding_functions2.add(abbasbandy2_type_functions);
+        root_finding_functions2.addSeparator();
+        root_finding_functions2.add(abbasbandy3_type_functions);
+        root_finding_functions2.addSeparator();
+        root_finding_functions2.add(king1_type_functions);
+        root_finding_functions2.addSeparator();
+        root_finding_functions2.add(king3_type_functions);
+        root_finding_functions2.addSeparator();
+        root_finding_functions2.add(noor_gupta_type_functions);
+
+
+        root_finding_functions3.add(contra_harmonic_newton_type_functions);
+        root_finding_functions3.addSeparator();
+        root_finding_functions3.add(chun_ham_type_functions);
+        root_finding_functions3.addSeparator();
+        root_finding_functions3.add(chun_kim_type_functions);
+        root_finding_functions3.addSeparator();
+        root_finding_functions3.add(euler_chebyshev_type_functions);
+        root_finding_functions3.addSeparator();
+        root_finding_functions3.add(ezzati_saleki1_type_functions);
+        root_finding_functions3.addSeparator();
+        root_finding_functions3.add(ezzati_saleki2_type_functions);
+        root_finding_functions3.addSeparator();
+        root_finding_functions3.add(homeier1_type_functions);
+        root_finding_functions3.addSeparator();
+        root_finding_functions3.add(homeier2_type_functions);
+        root_finding_functions3.addSeparator();
+        root_finding_functions3.add(popovski1_type_functions);
+        root_finding_functions3.addSeparator();
+        root_finding_functions3.add(changbum_chun1_type_functions);
+        root_finding_functions3.addSeparator();
+        root_finding_functions3.add(changbum_chun2_type_functions);
+        root_finding_functions3.addSeparator();
+        root_finding_functions3.add(changbum_chun3_type_functions);
+        root_finding_functions3.addSeparator();
+        root_finding_functions3.add(kim_chun_type_functions);
+        root_finding_functions3.addSeparator();
+        root_finding_functions3.add(kou_li_wang1_type_functions);
+        root_finding_functions3.addSeparator();
+        root_finding_functions3.add(maheshweri_type_functions);
+        root_finding_functions3.addSeparator();
+        root_finding_functions3.add(rafiullah1_type_functions);
+        root_finding_functions3.addSeparator();
+        root_finding_functions3.add(rafis_rafiullah_type_functions);
+
 
         add(root_finding_functions);
         add(root_finding_functions2);
+        add(root_finding_functions3);
         addSeparator();
 
         fractal_functions[MainWindow.BARNSLEY1] = new JRadioButtonMenuItem(functionNames[MainWindow.BARNSLEY1]);
@@ -2744,6 +2974,474 @@ public class FractalFunctionsMenu extends JMenu {
                 }
             });
             abbasbandy_type_functions.add(fractal_functions[i]);
+            functions_button_group.add(fractal_functions[i]);
+        }
+
+        for(int i = MainWindow.CONTRA_HARMONIC_NEWTON3; i <=  MainWindow.CONTRA_HARMONIC_NEWTONFORMULA; i++) {
+
+            final int temp = i;
+
+            fractal_functions[i] = new JRadioButtonMenuItem(functionNames[i]);
+            fractal_functions[i].addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+
+                    ptr.setFunction(temp);
+
+                }
+            });
+            contra_harmonic_newton_type_functions.add(fractal_functions[i]);
+            functions_button_group.add(fractal_functions[i]);
+        }
+
+        for(int i = MainWindow.CHUN_HAM3; i <=  MainWindow.CHUN_HAMFORMULA; i++) {
+
+            final int temp = i;
+
+            fractal_functions[i] = new JRadioButtonMenuItem(functionNames[i]);
+            fractal_functions[i].addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+
+                    ptr.setFunction(temp);
+
+                }
+            });
+            chun_ham_type_functions.add(fractal_functions[i]);
+            functions_button_group.add(fractal_functions[i]);
+        }
+
+        for(int i = MainWindow.CHUN_KIM3; i <=  MainWindow.CHUN_KIMFORMULA; i++) {
+
+            final int temp = i;
+
+            fractal_functions[i] = new JRadioButtonMenuItem(functionNames[i]);
+            fractal_functions[i].addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+
+                    ptr.setFunction(temp);
+
+                }
+            });
+            chun_kim_type_functions.add(fractal_functions[i]);
+            functions_button_group.add(fractal_functions[i]);
+        }
+
+        for(int i = MainWindow.EULER_CHEBYSHEV3; i <=  MainWindow.EULER_CHEBYSHEVFORMULA; i++) {
+
+            final int temp = i;
+
+            fractal_functions[i] = new JRadioButtonMenuItem(functionNames[i]);
+            fractal_functions[i].addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+
+                    ptr.setFunction(temp);
+
+                }
+            });
+            euler_chebyshev_type_functions.add(fractal_functions[i]);
+            functions_button_group.add(fractal_functions[i]);
+        }
+
+        for(int i = MainWindow.EZZATI_SALEKI23; i <=  MainWindow.EZZATI_SALEKI2FORMULA; i++) {
+
+            final int temp = i;
+
+            fractal_functions[i] = new JRadioButtonMenuItem(functionNames[i]);
+            fractal_functions[i].addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+
+                    ptr.setFunction(temp);
+
+                }
+            });
+            ezzati_saleki2_type_functions.add(fractal_functions[i]);
+            functions_button_group.add(fractal_functions[i]);
+        }
+
+        for(int i = MainWindow.HOMEIER13; i <=  MainWindow.HOMEIER1FORMULA; i++) {
+
+            final int temp = i;
+
+            fractal_functions[i] = new JRadioButtonMenuItem(functionNames[i]);
+            fractal_functions[i].addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+
+                    ptr.setFunction(temp);
+
+                }
+            });
+            homeier1_type_functions.add(fractal_functions[i]);
+            functions_button_group.add(fractal_functions[i]);
+        }
+
+        for(int i = MainWindow.ABBASBANDY23; i <=  MainWindow.ABBASBANDY2FORMULA; i++) {
+
+            final int temp = i;
+
+            fractal_functions[i] = new JRadioButtonMenuItem(functionNames[i]);
+            fractal_functions[i].addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+
+                    ptr.setFunction(temp);
+
+                }
+            });
+            abbasbandy2_type_functions.add(fractal_functions[i]);
+            functions_button_group.add(fractal_functions[i]);
+        }
+
+        for(int i = MainWindow.ABBASBANDY33; i <=  MainWindow.ABBASBANDY3FORMULA; i++) {
+
+            final int temp = i;
+
+            fractal_functions[i] = new JRadioButtonMenuItem(functionNames[i]);
+            fractal_functions[i].addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+
+                    ptr.setFunction(temp);
+
+                }
+            });
+            abbasbandy3_type_functions.add(fractal_functions[i]);
+            functions_button_group.add(fractal_functions[i]);
+        }
+
+        for(int i = MainWindow.POPOVSKI13; i <=  MainWindow.POPOVSKI1FORMULA; i++) {
+
+            final int temp = i;
+
+            fractal_functions[i] = new JRadioButtonMenuItem(functionNames[i]);
+            fractal_functions[i].addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+
+                    ptr.setFunction(temp);
+
+                }
+            });
+            popovski1_type_functions.add(fractal_functions[i]);
+            functions_button_group.add(fractal_functions[i]);
+        }
+
+        for(int i = MainWindow.CHANGBUM_CHUN13; i <=  MainWindow.CHANGBUM_CHUN1FORMULA; i++) {
+
+            final int temp = i;
+
+            fractal_functions[i] = new JRadioButtonMenuItem(functionNames[i]);
+            fractal_functions[i].addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+
+                    ptr.setFunction(temp);
+
+                }
+            });
+            changbum_chun1_type_functions.add(fractal_functions[i]);
+            functions_button_group.add(fractal_functions[i]);
+        }
+
+        for(int i = MainWindow.CHANGBUM_CHUN23; i <=  MainWindow.CHANGBUM_CHUN2FORMULA; i++) {
+
+            final int temp = i;
+
+            fractal_functions[i] = new JRadioButtonMenuItem(functionNames[i]);
+            fractal_functions[i].addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+
+                    ptr.setFunction(temp);
+
+                }
+            });
+            changbum_chun2_type_functions.add(fractal_functions[i]);
+            functions_button_group.add(fractal_functions[i]);
+        }
+
+        for(int i = MainWindow.KING33; i <=  MainWindow.KING3FORMULA; i++) {
+
+            final int temp = i;
+
+            fractal_functions[i] = new JRadioButtonMenuItem(functionNames[i]);
+            fractal_functions[i].addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+
+                    ptr.setFunction(temp);
+
+                }
+            });
+            king3_type_functions.add(fractal_functions[i]);
+            functions_button_group.add(fractal_functions[i]);
+        }
+
+        for(int i = MainWindow.HOMEIER23; i <=  MainWindow.HOMEIER2FORMULA; i++) {
+
+            final int temp = i;
+
+            fractal_functions[i] = new JRadioButtonMenuItem(functionNames[i]);
+            fractal_functions[i].addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+
+                    ptr.setFunction(temp);
+
+                }
+            });
+            homeier2_type_functions.add(fractal_functions[i]);
+            functions_button_group.add(fractal_functions[i]);
+        }
+
+        for(int i = MainWindow.KIM_CHUN3; i <=  MainWindow.KIM_CHUNFORMULA; i++) {
+
+            final int temp = i;
+
+            fractal_functions[i] = new JRadioButtonMenuItem(functionNames[i]);
+            fractal_functions[i].addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+
+                    ptr.setFunction(temp);
+
+                }
+            });
+            kim_chun_type_functions.add(fractal_functions[i]);
+            functions_button_group.add(fractal_functions[i]);
+        }
+
+        for(int i = MainWindow.KOU_LI_WANG13; i <=  MainWindow.KOU_LI_WANG1FORMULA; i++) {
+
+            final int temp = i;
+
+            fractal_functions[i] = new JRadioButtonMenuItem(functionNames[i]);
+            fractal_functions[i].addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+
+                    ptr.setFunction(temp);
+
+                }
+            });
+            kou_li_wang1_type_functions.add(fractal_functions[i]);
+            functions_button_group.add(fractal_functions[i]);
+        }
+
+        for(int i = MainWindow.MAHESHWERI3; i <=  MainWindow.MAHESHWERIFORMULA; i++) {
+
+            final int temp = i;
+
+            fractal_functions[i] = new JRadioButtonMenuItem(functionNames[i]);
+            fractal_functions[i].addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+
+                    ptr.setFunction(temp);
+
+                }
+            });
+            maheshweri_type_functions.add(fractal_functions[i]);
+            functions_button_group.add(fractal_functions[i]);
+        }
+
+        for(int i = MainWindow.RAFIULLAH13; i <=  MainWindow.RAFIULLAH1FORMULA; i++) {
+
+            final int temp = i;
+
+            fractal_functions[i] = new JRadioButtonMenuItem(functionNames[i]);
+            fractal_functions[i].addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+
+                    ptr.setFunction(temp);
+
+                }
+            });
+            rafiullah1_type_functions.add(fractal_functions[i]);
+            functions_button_group.add(fractal_functions[i]);
+        }
+
+        for(int i = MainWindow.RAFIS_RAFIULLAH3; i <=  MainWindow.RAFIS_RAFIULLAHFORMULA; i++) {
+
+            final int temp = i;
+
+            fractal_functions[i] = new JRadioButtonMenuItem(functionNames[i]);
+            fractal_functions[i].addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+
+                    ptr.setFunction(temp);
+
+                }
+            });
+            rafis_rafiullah_type_functions.add(fractal_functions[i]);
+            functions_button_group.add(fractal_functions[i]);
+        }
+
+        for(int i = MainWindow.CHANGBUM_CHUN33; i <=  MainWindow.CHANGBUM_CHUN3FORMULA; i++) {
+
+            final int temp = i;
+
+            fractal_functions[i] = new JRadioButtonMenuItem(functionNames[i]);
+            fractal_functions[i].addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+
+                    ptr.setFunction(temp);
+
+                }
+            });
+            changbum_chun3_type_functions.add(fractal_functions[i]);
+            functions_button_group.add(fractal_functions[i]);
+        }
+
+        for(int i = MainWindow.EZZATI_SALEKI13; i <=  MainWindow.EZZATI_SALEKI1FORMULA; i++) {
+
+            final int temp = i;
+
+            fractal_functions[i] = new JRadioButtonMenuItem(functionNames[i]);
+            fractal_functions[i].addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+
+                    ptr.setFunction(temp);
+
+                }
+            });
+            ezzati_saleki1_type_functions.add(fractal_functions[i]);
+            functions_button_group.add(fractal_functions[i]);
+        }
+
+        for(int i = MainWindow.FENG3; i <=  MainWindow.FENGFORMULA; i++) {
+
+            final int temp = i;
+
+            fractal_functions[i] = new JRadioButtonMenuItem(functionNames[i]);
+            fractal_functions[i].addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+
+                    ptr.setFunction(temp);
+
+                }
+            });
+            feng_type_functions.add(fractal_functions[i]);
+            functions_button_group.add(fractal_functions[i]);
+        }
+
+        for(int i = MainWindow.KING13; i <=  MainWindow.KING1FORMULA; i++) {
+
+            final int temp = i;
+
+            fractal_functions[i] = new JRadioButtonMenuItem(functionNames[i]);
+            fractal_functions[i].addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+
+                    ptr.setFunction(temp);
+
+                }
+            });
+            king1_type_functions.add(fractal_functions[i]);
+            functions_button_group.add(fractal_functions[i]);
+        }
+
+        for(int i = MainWindow.NOOR_GUPTA3; i <=  MainWindow.NOOR_GUPTAFORMULA; i++) {
+
+            final int temp = i;
+
+            fractal_functions[i] = new JRadioButtonMenuItem(functionNames[i]);
+            fractal_functions[i].addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+
+                    ptr.setFunction(temp);
+
+                }
+            });
+            noor_gupta_type_functions.add(fractal_functions[i]);
+            functions_button_group.add(fractal_functions[i]);
+        }
+
+        for(int i = MainWindow.HARMONIC_SIMPSON_NEWTON3; i <=  MainWindow.HARMONIC_SIMPSON_NEWTONFORMULA; i++) {
+
+            final int temp = i;
+
+            fractal_functions[i] = new JRadioButtonMenuItem(functionNames[i]);
+            fractal_functions[i].addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+
+                    ptr.setFunction(temp);
+
+                }
+            });
+            harmonic_simpson_newton_type_functions.add(fractal_functions[i]);
+            functions_button_group.add(fractal_functions[i]);
+        }
+
+        for(int i = MainWindow.NEDZHIBOV3; i <=  MainWindow.NEDZHIBOVFORMULA; i++) {
+
+            final int temp = i;
+
+            fractal_functions[i] = new JRadioButtonMenuItem(functionNames[i]);
+            fractal_functions[i].addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+
+                    ptr.setFunction(temp);
+
+                }
+            });
+            nedzhibov_type_functions.add(fractal_functions[i]);
+            functions_button_group.add(fractal_functions[i]);
+        }
+
+        for(int i = MainWindow.SIMPSON_NEWTON3; i <=  MainWindow.SIMPSON_NEWTONFORMULA; i++) {
+
+            final int temp = i;
+
+            fractal_functions[i] = new JRadioButtonMenuItem(functionNames[i]);
+            fractal_functions[i].addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+
+                    ptr.setFunction(temp);
+
+                }
+            });
+            simpson_newton_type_functions.add(fractal_functions[i]);
             functions_button_group.add(fractal_functions[i]);
         }
 

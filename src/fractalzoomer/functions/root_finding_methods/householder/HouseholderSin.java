@@ -80,4 +80,9 @@ public class HouseholderSin extends HouseholderRootFindingMethod {
 
     }
 
+    @Override
+    public Complex evaluateFunction(Complex z, Complex c) {
+        return z.sin();
+    }
+
 }

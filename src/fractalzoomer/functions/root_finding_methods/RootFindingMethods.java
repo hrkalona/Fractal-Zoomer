@@ -356,7 +356,7 @@ public abstract class RootFindingMethods extends Fractal {
             return;
         }
         else if(sts.statisticGroup == 4) {
-            statistic = new RootColoring(Math.log(convergent_bailout), sts.rootIterationsScaling, max_iterations, sts.rootColors, sts.rootSmooting);
+            statistic = new RootColoring(Math.log(convergent_bailout), sts.rootIterationsScaling, max_iterations, sts.rootColors, sts.rootSmooting, this, sts.unmmapedRootColor.getRGB());
             return;
         }
 
@@ -431,6 +431,10 @@ public abstract class RootFindingMethods extends Fractal {
         Complex zWithoutInitVal = new Complex();
 
         Complex pixel = dpixel.plus(refPointSmall);
+
+        if(iterations != 0 && RefIteration < MaxRefIteration) {
+            complex[0] = getArrayValue(Reference, RefIteration).plus_mutable(DeltaSubN);
+        }
 
         for (; iterations < max_iterations; iterations++) {
 
@@ -517,8 +521,16 @@ public abstract class RootFindingMethods extends Fractal {
 
         boolean useFullFloatExp = ThreadDraw.USE_FULL_FLOATEXP_FOR_DEEP_ZOOM;
 
+        boolean usedDeepCode = false;
         if(useFullFloatExp || (skippedIterations == 0 && exp <= minExp) || (skippedIterations != 0 && exp <= reducedExp)) {
+            usedDeepCode = true;
+
             MantExpComplex z = new MantExpComplex();
+            if(iterations != 0 && RefIteration < MaxRefIteration) {
+                z = getArrayDeepValue(ReferenceSubPixelDeep, RefIteration).plus_mutable(DeltaSubN);
+                complex[0] = getArrayDeepValue(ReferenceDeep, RefIteration).plus_mutable(DeltaSubN).toComplex();;
+            }
+
             for (; iterations < max_iterations; iterations++) {
                 if (trap != null) {
                     trap.check(complex[0], iterations);
@@ -573,6 +585,10 @@ public abstract class RootFindingMethods extends Fractal {
 
         if(!useFullFloatExp) {
             Complex CDeltaSubN = DeltaSubN.toComplex();
+
+            if(!usedDeepCode && iterations != 0 && RefIteration < MaxRefIteration) {
+                complex[0] = getArrayValue(Reference, RefIteration).plus_mutable(CDeltaSubN);
+            }
 
             for (; iterations < max_iterations; iterations++) {
 
@@ -642,5 +658,7 @@ public abstract class RootFindingMethods extends Fractal {
         return z.sub(step.times(relaxation));
 
     }
+
+    public abstract Complex evaluateFunction(Complex z, Complex c);
 
 }

@@ -14,6 +14,13 @@ public abstract class BLA {
     }
 
     public abstract Complex getValue(Complex DeltaSubN, Complex DeltaSub0);
+    public abstract Complex getValue(Complex DeltaSubN, double DeltaSub0);
+
+    public Complex getValue(Complex DeltaSubN) {
+        double zx = DeltaSubN.getRe();
+        double zy = DeltaSubN.getIm();
+        return new Complex(Ax * zx - Ay * zy, Ax * zy + Ay * zx);
+    }
 
     public double hypotA() {
         return Math.hypot(Ax, Ay);

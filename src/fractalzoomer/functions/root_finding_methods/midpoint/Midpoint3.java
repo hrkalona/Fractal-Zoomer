@@ -58,4 +58,9 @@ public class Midpoint3 extends MidpointRootFindingMethod {
         midpointMethod(complex[0], fz, combined_dfz);
 
     }
+
+    @Override
+    public Complex evaluateFunction(Complex z, Complex c) {
+        return z.cube().sub_mutable(1);
+    }
 }

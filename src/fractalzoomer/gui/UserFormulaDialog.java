@@ -36,7 +36,7 @@ public class UserFormulaDialog extends JDialog {
     private MainWindow ptra;
     private JOptionPane optionPane;
 
-    public UserFormulaDialog(MainWindow ptr, Settings s, int oldSelected, JRadioButtonMenuItem[] fractal_functions, boolean wasMagnetType, boolean wasConvergingType, boolean wasSimpleType, boolean wasMagneticPendulumType) {
+    public UserFormulaDialog(MainWindow ptr, Settings s, int oldSelected, JRadioButtonMenuItem[] fractal_functions, boolean wasMagnetType, boolean wasConvergingType, boolean wasSimpleType, boolean wasMagneticPendulumType, boolean wasEscapingOrConvergingType) {
 
         super(ptr);
         
@@ -65,7 +65,7 @@ public class UserFormulaDialog extends JDialog {
         JLabel bail = new JLabel("Bailout Technique:");
         bail.setFont(new Font("Arial", Font.BOLD, 11));
 
-        String[] method4 = {"Escaping Algorithm", "Converging Algorithm"};
+        String[] method4 = {"Escaping Algorithm", "Converging Algorithm", "Escaping or Converging Algorithm"};
 
         JComboBox method4_choice = new JComboBox(method4);
         method4_choice.setSelectedIndex(s.fns.bail_technique);
@@ -148,7 +148,7 @@ public class UserFormulaDialog extends JDialog {
 
                     ptra.optionsEnableShortcut();
                     dispose();
-                    ptra.setFunctionPost(wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
+                    ptra.setFunctionPost(wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType, wasEscapingOrConvergingType);
                 }
             }
         });

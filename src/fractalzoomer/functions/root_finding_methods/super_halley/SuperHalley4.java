@@ -78,4 +78,9 @@ public class SuperHalley4 extends SuperHalleyRootFindingMethod {
 
     }
 
+    @Override
+    public Complex evaluateFunction(Complex z, Complex c) {
+        return z.fourth().sub_mutable(1);
+    }
+
 }
