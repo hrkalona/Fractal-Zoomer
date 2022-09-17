@@ -24,12 +24,8 @@ import fractalzoomer.utils.ColorSpaceConverter;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 
 /**
  *
@@ -48,7 +44,7 @@ public class OutTrueColorDialog extends JDialog {
 
         setTitle("Out True Coloring Mode");
         setModal(true);
-        setIconImage(getIcon("/fractalzoomer/icons/mandel2.png").getImage());
+        setIconImage(MainWindow.getIcon("mandel2.png").getImage());
 
         final JCheckBox true_color = new JCheckBox("True Coloring");
         true_color.setSelected(s.fns.tcs.trueColorOut);
@@ -67,7 +63,7 @@ public class OutTrueColorDialog extends JDialog {
         true_color_group.add(presetButton);
         true_color_group.add(userDefinedButton);
 
-        final JComboBox true_color_presets_opt = new JComboBox(Constants.trueColorModes);
+        final JComboBox<String> true_color_presets_opt = new JComboBox<>(Constants.trueColorModes);
         true_color_presets_opt.setSelectedIndex(s.fns.tcs.trueColorOutPreset);
         true_color_presets_opt.setFocusable(false);
         true_color_presets_opt.setToolTipText("Sets the true coloring mode preset.");
@@ -108,7 +104,7 @@ public class OutTrueColorDialog extends JDialog {
 
         setLabels(c1Label, c2Label, c3Label, s.fns.tcs.outTcColorSpace);
 
-        final JComboBox color_space_opt = new JComboBox(Constants.trueColorSpaces);
+        final JComboBox<String> color_space_opt = new JComboBox<>(Constants.trueColorSpaces);
         color_space_opt.setSelectedIndex(s.fns.tcs.outTcColorSpace);
         color_space_opt.setFocusable(false);
         color_space_opt.setToolTipText("Sets the true coloring mode color space.");
@@ -120,17 +116,12 @@ public class OutTrueColorDialog extends JDialog {
         c3_panel.setVisible(s.fns.tcs.outTcColorSpace != ColorSpaceConverter.DIRECT && s.fns.tcs.outTcColorSpace != ColorSpaceConverter.PALETTE && s.fns.tcs.outTcColorSpace != ColorSpaceConverter.GRADIENT);
         valueLabel.setVisible(s.fns.tcs.outTcColorSpace != ColorSpaceConverter.DIRECT && s.fns.tcs.outTcColorSpace != ColorSpaceConverter.PALETTE && s.fns.tcs.outTcColorSpace != ColorSpaceConverter.GRADIENT);
 
-        color_space_opt.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                setLabels(c1Label, c2Label, c3Label, color_space_opt.getSelectedIndex());
-                c2_panel.setVisible(color_space_opt.getSelectedIndex() != ColorSpaceConverter.DIRECT && color_space_opt.getSelectedIndex() != ColorSpaceConverter.PALETTE && color_space_opt.getSelectedIndex() != ColorSpaceConverter.GRADIENT);
-                c3_panel.setVisible(color_space_opt.getSelectedIndex() != ColorSpaceConverter.DIRECT && color_space_opt.getSelectedIndex() != ColorSpaceConverter.PALETTE && color_space_opt.getSelectedIndex() != ColorSpaceConverter.GRADIENT);
-                valueLabel.setVisible(color_space_opt.getSelectedIndex() != ColorSpaceConverter.DIRECT && color_space_opt.getSelectedIndex() != ColorSpaceConverter.PALETTE && color_space_opt.getSelectedIndex() != ColorSpaceConverter.GRADIENT);
-                pack();
-            }
-
+        color_space_opt.addActionListener(e -> {
+            setLabels(c1Label, c2Label, c3Label, color_space_opt.getSelectedIndex());
+            c2_panel.setVisible(color_space_opt.getSelectedIndex() != ColorSpaceConverter.DIRECT && color_space_opt.getSelectedIndex() != ColorSpaceConverter.PALETTE && color_space_opt.getSelectedIndex() != ColorSpaceConverter.GRADIENT);
+            c3_panel.setVisible(color_space_opt.getSelectedIndex() != ColorSpaceConverter.DIRECT && color_space_opt.getSelectedIndex() != ColorSpaceConverter.PALETTE && color_space_opt.getSelectedIndex() != ColorSpaceConverter.GRADIENT);
+            valueLabel.setVisible(color_space_opt.getSelectedIndex() != ColorSpaceConverter.DIRECT && color_space_opt.getSelectedIndex() != ColorSpaceConverter.PALETTE && color_space_opt.getSelectedIndex() != ColorSpaceConverter.GRADIENT);
+            pack();
         });
 
         JPanel color_space_panel = new JPanel();
@@ -164,7 +155,7 @@ public class OutTrueColorDialog extends JDialog {
         for (Object obj : labels3) {
             if (obj instanceof JPanel) {
 
-                Component comp[] = ((JPanel) obj).getComponents();
+                Component[] comp = ((JPanel) obj).getComponents();
                 for (Component componet : comp) {
                     componet.setEnabled(s.fns.tcs.trueColorOutMode == 1);
                 }
@@ -173,70 +164,60 @@ public class OutTrueColorDialog extends JDialog {
             }
         }
 
-        userDefinedButton.addActionListener(new ActionListener() {
+        userDefinedButton.addActionListener(e -> {
+            true_color_presets_opt.setEnabled(!userDefinedButton.isSelected());
+            infoLabel.setEnabled(userDefinedButton.isSelected());
+            valueLabel.setEnabled(userDefinedButton.isSelected());
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                true_color_presets_opt.setEnabled(!userDefinedButton.isSelected());
-                infoLabel.setEnabled(userDefinedButton.isSelected());
-                valueLabel.setEnabled(userDefinedButton.isSelected());
+            color_space_opt.setEnabled(userDefinedButton.isSelected());
+            color_space_label.setEnabled(userDefinedButton.isSelected());
 
-                color_space_opt.setEnabled(userDefinedButton.isSelected());
-                color_space_label.setEnabled(userDefinedButton.isSelected());
+            c1Label.setEnabled(userDefinedButton.isSelected());
+            c2Label.setEnabled(userDefinedButton.isSelected());
+            c3Label.setEnabled(userDefinedButton.isSelected());
 
-                c1Label.setEnabled(userDefinedButton.isSelected());
-                c2Label.setEnabled(userDefinedButton.isSelected());
-                c3Label.setEnabled(userDefinedButton.isSelected());
+            field_c1.setEnabled(userDefinedButton.isSelected());
+            field_c2.setEnabled(userDefinedButton.isSelected());
+            field_c3.setEnabled(userDefinedButton.isSelected());
 
-                field_c1.setEnabled(userDefinedButton.isSelected());
-                field_c2.setEnabled(userDefinedButton.isSelected());
-                field_c3.setEnabled(userDefinedButton.isSelected());
-
-                for (Object obj : labels3) {
-                    if (obj instanceof JPanel) {
-                        Component comp[] = ((JPanel) obj).getComponents();
-                        for (Component componet : comp) {
-                            componet.setEnabled(userDefinedButton.isSelected());
-                        }
-                    } else if (obj instanceof JLabel) {
-                        ((JLabel) obj).setEnabled(userDefinedButton.isSelected());
+            for (Object obj : labels3) {
+                if (obj instanceof JPanel) {
+                    Component[] comp = ((JPanel) obj).getComponents();
+                    for (Component componet : comp) {
+                        componet.setEnabled(userDefinedButton.isSelected());
                     }
+                } else if (obj instanceof JLabel) {
+                    ((JLabel) obj).setEnabled(userDefinedButton.isSelected());
                 }
             }
-
         });
 
-        presetButton.addActionListener(new ActionListener() {
+        presetButton.addActionListener(e -> {
+            true_color_presets_opt.setEnabled(presetButton.isSelected());
+            infoLabel.setEnabled(!presetButton.isSelected());
+            valueLabel.setEnabled(!presetButton.isSelected());
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                true_color_presets_opt.setEnabled(presetButton.isSelected());
-                infoLabel.setEnabled(!presetButton.isSelected());
-                valueLabel.setEnabled(!presetButton.isSelected());
-                
-                color_space_opt.setEnabled(!presetButton.isSelected());
-                color_space_label.setEnabled(!presetButton.isSelected());
+            color_space_opt.setEnabled(!presetButton.isSelected());
+            color_space_label.setEnabled(!presetButton.isSelected());
 
-                c1Label.setEnabled(!presetButton.isSelected());
-                c2Label.setEnabled(!presetButton.isSelected());
-                c3Label.setEnabled(!presetButton.isSelected());
+            c1Label.setEnabled(!presetButton.isSelected());
+            c2Label.setEnabled(!presetButton.isSelected());
+            c3Label.setEnabled(!presetButton.isSelected());
 
-                field_c1.setEnabled(!presetButton.isSelected());
-                field_c2.setEnabled(!presetButton.isSelected());
-                field_c3.setEnabled(!presetButton.isSelected());
+            field_c1.setEnabled(!presetButton.isSelected());
+            field_c2.setEnabled(!presetButton.isSelected());
+            field_c3.setEnabled(!presetButton.isSelected());
 
-                for (Object obj : labels3) {
-                    if (obj instanceof JPanel) {
-                        Component comp[] = ((JPanel) obj).getComponents();
-                        for (Component componet : comp) {
-                            componet.setEnabled(!presetButton.isSelected());
-                        }
-                    } else if (obj instanceof JLabel) {
-                        ((JLabel) obj).setEnabled(!presetButton.isSelected());
+            for (Object obj : labels3) {
+                if (obj instanceof JPanel) {
+                    Component[] comp = ((JPanel) obj).getComponents();
+                    for (Component componet : comp) {
+                        componet.setEnabled(!presetButton.isSelected());
                     }
+                } else if (obj instanceof JLabel) {
+                    ((JLabel) obj).setEnabled(!presetButton.isSelected());
                 }
             }
-
         });
 
         Object[] message3 = {
@@ -257,120 +238,119 @@ public class OutTrueColorDialog extends JDialog {
 
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
+            @Override
             public void windowClosing(WindowEvent we) {
-                optionPane.setValue(new Integer(JOptionPane.CLOSED_OPTION));
+                optionPane.setValue(JOptionPane.CLOSED_OPTION);
             }
         });
 
         optionPane.addPropertyChangeListener(
-                new PropertyChangeListener() {
-            public void propertyChange(PropertyChangeEvent e) {
-                String prop = e.getPropertyName();
+                e -> {
+                    String prop = e.getPropertyName();
 
-                if (isVisible() && (e.getSource() == optionPane) && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
+                    if (isVisible() && (e.getSource() == optionPane) && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
 
-                    Object value = optionPane.getValue();
+                        Object value = optionPane.getValue();
 
-                    if (value == JOptionPane.UNINITIALIZED_VALUE) {
-                        //ignore reset
-                        return;
-                    }
+                        if (value == JOptionPane.UNINITIALIZED_VALUE) {
+                            //ignore reset
+                            return;
+                        }
 
-                    //Reset the JOptionPane's value.
-                    //If you don't do this, then if the user
-                    //presses the same button next time, no
-                    //property change event will be fired.
-                    optionPane.setValue(JOptionPane.UNINITIALIZED_VALUE);
+                        //Reset the JOptionPane's value.
+                        //If you don't do this, then if the user
+                        //presses the same button next time, no
+                        //property change event will be fired.
+                        optionPane.setValue(JOptionPane.UNINITIALIZED_VALUE);
 
-                    if ((Integer) value == JOptionPane.CANCEL_OPTION || (Integer) value == JOptionPane.NO_OPTION || (Integer) value == JOptionPane.CLOSED_OPTION) {
+                        if ((Integer) value == JOptionPane.CANCEL_OPTION || (Integer) value == JOptionPane.NO_OPTION || (Integer) value == JOptionPane.CLOSED_OPTION) {
+                            dispose();
+                            return;
+                        }
+
+                        try {
+
+                            if (userDefinedButton.isSelected()) {
+                                s.parser.parse(field_c1.getText());
+
+                                if (s.parser.foundR()) {
+                                    JOptionPane.showMessageDialog(ptra, "The variable: r cannot be used in the formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                    return;
+                                }
+
+                                if (s.isConvergingType()) {
+                                    if (s.parser.foundBail()) {
+                                        JOptionPane.showMessageDialog(ptra, "The variable: bail can only be used in escaping type fractals.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                        return;
+                                    }
+                                } else if (s.parser.foundCbail()) {
+                                    JOptionPane.showMessageDialog(ptra, "The variable: cbail can only be used in converging type fractals\n(Root finding methods, Nova, User converging formulas).", "Error!", JOptionPane.ERROR_MESSAGE);
+                                    return;
+                                }
+
+                                if (color_space_opt.getSelectedIndex() != ColorSpaceConverter.DIRECT && color_space_opt.getSelectedIndex() != ColorSpaceConverter.PALETTE && color_space_opt.getSelectedIndex() != ColorSpaceConverter.GRADIENT) {
+                                    s.parser.parse(field_c2.getText());
+
+                                    if (s.parser.foundR()) {
+                                        JOptionPane.showMessageDialog(ptra, "The variable: r cannot be used in the formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                        return;
+                                    }
+
+                                    if (s.isConvergingType()) {
+                                        if (s.parser.foundBail()) {
+                                            JOptionPane.showMessageDialog(ptra, "The variable: bail can only be used in escaping type fractals.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                            return;
+                                        }
+                                    } else if (s.parser.foundCbail()) {
+                                        JOptionPane.showMessageDialog(ptra, "The variable: cbail can only be used in converging type fractals\n(Root finding methods, Nova, User converging formulas).", "Error!", JOptionPane.ERROR_MESSAGE);
+                                        return;
+                                    }
+
+                                    s.parser.parse(field_c3.getText());
+
+                                    if (s.parser.foundR()) {
+                                        JOptionPane.showMessageDialog(ptra, "The variable: r cannot be used in the formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                        return;
+                                    }
+
+                                    if (s.isConvergingType()) {
+                                        if (s.parser.foundBail()) {
+                                            JOptionPane.showMessageDialog(ptra, "The variable: bail can only be used in escaping type fractals.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                            return;
+                                        }
+                                    } else if (s.parser.foundCbail()) {
+                                        JOptionPane.showMessageDialog(ptra, "The variable: cbail can only be used in converging type fractals\n(Root finding methods, Nova, User converging formulas).", "Error!", JOptionPane.ERROR_MESSAGE);
+                                        return;
+                                    }
+                                }
+                            }
+
+                            s.fns.tcs.trueColorOut = true_color.isSelected();
+
+                            if (presetButton.isSelected()) {
+                                s.fns.tcs.trueColorOutMode = 0;
+                                s.fns.tcs.trueColorOutPreset = true_color_presets_opt.getSelectedIndex();
+                            } else {
+                                s.fns.tcs.trueColorOutMode = 1;
+
+                                s.fns.tcs.outTcColorSpace = color_space_opt.getSelectedIndex();
+
+                                s.fns.tcs.outTcComponent1 = field_c1.getText();
+
+                                if (s.fns.tcs.outTcColorSpace != ColorSpaceConverter.DIRECT && s.fns.tcs.outTcColorSpace != ColorSpaceConverter.PALETTE && s.fns.tcs.outTcColorSpace != ColorSpaceConverter.GRADIENT) {
+                                    s.fns.tcs.outTcComponent2 = field_c2.getText();
+                                    s.fns.tcs.outTcComponent3 = field_c3.getText();
+                                }
+                            }
+                        } catch (ParserException ex) {
+                            JOptionPane.showMessageDialog(ptra, ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
+
                         dispose();
-                        return;
+                        ptra.setOutTrueColorModePost();
                     }
-
-                    try {
-
-                        if (userDefinedButton.isSelected()) {
-                            s.parser.parse(field_c1.getText());
-
-                            if (s.parser.foundR()) {
-                                JOptionPane.showMessageDialog(ptra, "The variable: r cannot be used in the formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                return;
-                            }
-
-                            if (s.isConvergingType()) {
-                                if (s.parser.foundBail()) {
-                                    JOptionPane.showMessageDialog(ptra, "The variable: bail can only be used in escaping type fractals.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                    return;
-                                }
-                            } else if (s.parser.foundCbail()) {
-                                JOptionPane.showMessageDialog(ptra, "The variable: cbail can only be used in converging type fractals\n(Root finding methods, Nova, User converging formulas).", "Error!", JOptionPane.ERROR_MESSAGE);
-                                return;
-                            }
-
-                            if (color_space_opt.getSelectedIndex() != ColorSpaceConverter.DIRECT && color_space_opt.getSelectedIndex() != ColorSpaceConverter.PALETTE && color_space_opt.getSelectedIndex() != ColorSpaceConverter.GRADIENT) {
-                                s.parser.parse(field_c2.getText());
-
-                                if (s.parser.foundR()) {
-                                    JOptionPane.showMessageDialog(ptra, "The variable: r cannot be used in the formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                    return;
-                                }
-
-                                if (s.isConvergingType()) {
-                                    if (s.parser.foundBail()) {
-                                        JOptionPane.showMessageDialog(ptra, "The variable: bail can only be used in escaping type fractals.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                        return;
-                                    }
-                                } else if (s.parser.foundCbail()) {
-                                    JOptionPane.showMessageDialog(ptra, "The variable: cbail can only be used in converging type fractals\n(Root finding methods, Nova, User converging formulas).", "Error!", JOptionPane.ERROR_MESSAGE);
-                                    return;
-                                }
-
-                                s.parser.parse(field_c3.getText());
-
-                                if (s.parser.foundR()) {
-                                    JOptionPane.showMessageDialog(ptra, "The variable: r cannot be used in the formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                    return;
-                                }
-
-                                if (s.isConvergingType()) {
-                                    if (s.parser.foundBail()) {
-                                        JOptionPane.showMessageDialog(ptra, "The variable: bail can only be used in escaping type fractals.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                        return;
-                                    }
-                                } else if (s.parser.foundCbail()) {
-                                    JOptionPane.showMessageDialog(ptra, "The variable: cbail can only be used in converging type fractals\n(Root finding methods, Nova, User converging formulas).", "Error!", JOptionPane.ERROR_MESSAGE);
-                                    return;
-                                }
-                            }
-                        }
-
-                        s.fns.tcs.trueColorOut = true_color.isSelected();
-
-                        if (presetButton.isSelected()) {
-                            s.fns.tcs.trueColorOutMode = 0;
-                            s.fns.tcs.trueColorOutPreset = true_color_presets_opt.getSelectedIndex();
-                        } else {
-                            s.fns.tcs.trueColorOutMode = 1;
-
-                            s.fns.tcs.outTcColorSpace = color_space_opt.getSelectedIndex();
-
-                            s.fns.tcs.outTcComponent1 = field_c1.getText();
-
-                            if (s.fns.tcs.outTcColorSpace != ColorSpaceConverter.DIRECT && s.fns.tcs.outTcColorSpace != ColorSpaceConverter.PALETTE && s.fns.tcs.outTcColorSpace != ColorSpaceConverter.GRADIENT) {
-                                s.fns.tcs.outTcComponent2 = field_c2.getText();
-                                s.fns.tcs.outTcComponent3 = field_c3.getText();
-                            }
-                        }
-                    } catch (ParserException ex) {
-                        JOptionPane.showMessageDialog(ptra, ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-
-                    dispose();
-                    ptra.setOutTrueColorModePost();
-                }
-            }
-        });
+                });
 
         //Make this dialog display it.
         setContentPane(optionPane);
@@ -380,12 +360,6 @@ public class OutTrueColorDialog extends JDialog {
         setResizable(false);
         setLocation((int) (ptra.getLocation().getX() + ptra.getSize().getWidth() / 2) - (getWidth() / 2), (int) (ptra.getLocation().getY() + ptra.getSize().getHeight() / 2) - (getHeight() / 2));
         setVisible(true);
-
-    }
-
-    private ImageIcon getIcon(String path) {
-
-        return new ImageIcon(getClass().getResource(path));
 
     }
 

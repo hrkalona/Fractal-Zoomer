@@ -17,10 +17,9 @@
 
 package fractalzoomer.planes.general;
 
-import fractalzoomer.core.BigComplex;
-import fractalzoomer.core.Complex;
-import fractalzoomer.core.MyApfloat;
-import fractalzoomer.core.ThreadDraw;
+import fractalzoomer.core.*;
+import fractalzoomer.core.mpfr.LibMpfr;
+import fractalzoomer.core.mpfr.MpfrBigNum;
 import fractalzoomer.planes.Plane;
 import org.apfloat.Apfloat;
 
@@ -35,6 +34,12 @@ public class CircleInversionPlane extends Plane {
     private double plane_transform_radius;
     private Apfloat ddplane_transform_radius;
 
+    private MpfrBigNumComplex mpfrbncenter;
+    private MpfrBigNum mpfrbnplane_transform_radius;
+
+    private DDComplex ddccenter;
+    private DoubleDouble ddcplane_transform_radius;
+
     public CircleInversionPlane(double[] plane_transform_center, double plane_transform_radius) {
 
         super();
@@ -44,6 +49,18 @@ public class CircleInversionPlane extends Plane {
         if(ThreadDraw.PERTURBATION_THEORY) {
             ddplane_transform_radius = new MyApfloat(plane_transform_radius);
             ddcenter = new BigComplex(center);
+
+            ddccenter = new DDComplex(center);
+            ddcplane_transform_radius = new DoubleDouble(plane_transform_radius);
+
+
+            if(ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE) {
+
+                if(LibMpfr.LOAD_ERROR == null) {
+                    mpfrbncenter = new MpfrBigNumComplex(center);
+                    mpfrbnplane_transform_radius = new MpfrBigNum(plane_transform_radius);
+                }
+            }
         }
 
     }
@@ -59,6 +76,20 @@ public class CircleInversionPlane extends Plane {
     public BigComplex transform(BigComplex pixel) {
 
         return pixel.circle_inversion(ddcenter, ddplane_transform_radius);
+
+    }
+
+    @Override
+    public MpfrBigNumComplex transform(MpfrBigNumComplex pixel) {
+
+        return pixel.circle_inversion(mpfrbncenter, mpfrbnplane_transform_radius);
+
+    }
+
+    @Override
+    public DDComplex transform(DDComplex pixel) {
+
+        return pixel.circle_inversion(ddccenter, ddcplane_transform_radius);
 
     }
 

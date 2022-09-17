@@ -79,16 +79,16 @@ public class FilterOrderSelectionPanel extends JPanel {
                     boolean isSelected, boolean cellHasFocus) {
                 
                 if(FiltersMenu.getDetailNamesList().contains(value)) {
-                    icon.setIcon(getIcon("/fractalzoomer/icons/filter_details.png"));
+                    icon.setIcon(MainWindow.getIcon("filter_details.png"));
                 }
                 else if(FiltersMenu.getColorNamesList().contains(value)) {
-                    icon.setIcon(getIcon("/fractalzoomer/icons/filter_colors.png"));
+                    icon.setIcon(MainWindow.getIcon("filter_colors.png"));
                 }
                 else if(FiltersMenu.getTextureNamesList().contains(value)) {
-                    icon.setIcon(getIcon("/fractalzoomer/icons/filter_texture.png"));
+                    icon.setIcon(MainWindow.getIcon("filter_texture.png"));
                 }
                 else {
-                    icon.setIcon(getIcon("/fractalzoomer/icons/filter_lighting.png"));
+                    icon.setIcon(MainWindow.getIcon("filter_lighting.png"));
                 }
                 
                 label.setText(value);
@@ -154,12 +154,6 @@ public class FilterOrderSelectionPanel extends JPanel {
         add(Box.createRigidArea(new Dimension(30,0)));
         add(scroll_pane);
 
-    }
-    
-    private ImageIcon getIcon(String path) {
-
-        return new ImageIcon(getClass().getResource(path));
-        
     }
     
     public int[] getFilterOrder() {

@@ -17,7 +17,6 @@
 package fractalzoomer.functions.general;
 
 import fractalzoomer.core.*;
-import fractalzoomer.core.DeepReference;
 import fractalzoomer.core.location.Location;
 import fractalzoomer.fractal_options.initial_value.DefaultInitialValue;
 import fractalzoomer.fractal_options.initial_value.InitialValue;
@@ -73,6 +72,7 @@ import fractalzoomer.functions.root_finding_methods.traub_ostrowski.TraubOstrows
 import fractalzoomer.functions.root_finding_methods.weerakoon_fernando.WeerakoonFernandoRootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.whittaker.WhittakerRootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.whittaker_double_convex.WhittakerDoubleConvexRootFindingMethod;
+import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
 import fractalzoomer.main.app_settings.Settings;
@@ -909,7 +909,7 @@ public class Nova extends ExtendedConvergentType {
     }
 
     @Override
-    public void calculateReferencePoint(GenericComplex gpixel, Apfloat size, boolean deepZoom, int iterations, Location externalLocation, JProgressBar progress) {
+    public void calculateReferencePoint(GenericComplex inputPixel, Apfloat size, boolean deepZoom, int iterations, int iterations2, Location externalLocation, JProgressBar progress) {
 
         long time = System.currentTimeMillis();
 
@@ -924,89 +924,113 @@ public class Nova extends ExtendedConvergentType {
 
         if(iterations == 0) {
             Reference = new double[max_iterations << 1];
-
-            if(isJulia) {
-                ReferenceSubPixel = new double[max_iterations << 1];
-            }
-            else {
-                ReferenceSubCp = new double[max_iterations << 1];
-            }
-
+            ReferenceSubCp = new double[max_iterations << 1];
             PrecalculatedTerms = new double[max_iterations << 1];
 
             if (deepZoom) {
                 ReferenceDeep = new DeepReference(max_iterations);
-
-                if(isJulia) {
-                    ReferenceSubPixelDeep = new DeepReference(max_iterations);
-                }
-                else {
-                    ReferenceSubCpDeep = new DeepReference(max_iterations);
-                }
-
+                ReferenceSubCpDeep = new DeepReference(max_iterations);
                 PrecalculatedTermsDeep = new DeepReference(max_iterations);
             }
         }
         else if (max_iterations > getReferenceLength()){
             Reference = Arrays.copyOf(Reference, max_iterations << 1);
-
-            if(isJulia) {
-                ReferenceSubPixel = Arrays.copyOf(ReferenceSubPixel, max_iterations << 1);
-            }
-            else {
-                ReferenceSubCp = Arrays.copyOf(ReferenceSubCp, max_iterations << 1);
-            }
-
+            ReferenceSubCp = Arrays.copyOf(ReferenceSubCp, max_iterations << 1);
             PrecalculatedTerms = Arrays.copyOf(PrecalculatedTerms, max_iterations << 1);
 
             if (deepZoom) {
                 ReferenceDeep.resize(max_iterations);
-
-                if(isJulia) {
-                    ReferenceSubPixelDeep.resize(max_iterations);
-                }
-                else {
-                    ReferenceSubCpDeep.resize(max_iterations);
-                }
-
+                ReferenceSubCpDeep.resize(max_iterations);
                 PrecalculatedTermsDeep.resize(max_iterations);
             }
-
-            System.gc();
         }
 
-        BigComplex pixel = (BigComplex)gpixel;
-
-        //Due to zero, all around zero will not work
-        if(isJulia && pixel.norm().compareTo(new MyApfloat(1e-4)) < 0) {
-            Apfloat dx = new MyApfloat(1e-4);
-            pixel = new BigComplex(dx, dx);
+        if(isJulia) {
+            if(inputPixel instanceof BigComplex && ((BigComplex)inputPixel).norm().compareTo(new MyApfloat(1e-4)) < 0) {
+                inputPixel = new BigComplex(1e-4, 1e-4);
+            }
+            else if(inputPixel instanceof MpfrBigNumComplex && ((MpfrBigNumComplex)inputPixel).norm().compare(1e-4) < 0) {
+                inputPixel = new MpfrBigNumComplex(1e-4, 1e-4);
+            }
+            else if(inputPixel instanceof DDComplex && ((DDComplex)inputPixel).norm().compareTo(new DoubleDouble(1e-4)) < 0) {
+                inputPixel = new DDComplex(1e-4, 1e-4);
+            }
+            else if(inputPixel instanceof Complex && ((Complex)inputPixel).norm() < 1e-4) {
+                inputPixel = new Complex(1e-4, 1e-4);
+            }
         }
 
-        BigComplex initVal = new BigComplex(defaultInitVal.getValue(null));
 
-        BigComplex z = iterations == 0 ? (isJulia ? pixel : initVal) : (BigComplex)lastZValue;
+        int bigNumLib = ThreadDraw.getBignumLibrary(size, this);
+        boolean useBignum = ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE  && bigNumLib != Constants.BIGNUM_APFLOAT;
 
-        BigComplex c = isJulia ? new BigComplex(seed) : pixel;
+        GenericComplex z, c, zold, zold2, start, c0, initVal, pixel;
+        if(useBignum) {
+            if(bigNumLib == Constants.BIGNUM_MPFR) {
 
-        BigComplex zold = iterations == 0 ? new BigComplex() : (BigComplex)secondTolastZValue;
-        BigComplex zold2 = iterations == 0 ? new BigComplex() : (BigComplex)thirdTolastZValue;
-        BigComplex start = isJulia ? pixel : initVal;
-        BigComplex c0 = c;
+                initVal = new MpfrBigNumComplex(defaultInitVal.getValue(null));
+
+                MpfrBigNumComplex bn = new MpfrBigNumComplex(inputPixel.toMpfrBigNumComplex());
+
+                z = iterations == 0 ? (isJulia ? bn : new MpfrBigNumComplex((MpfrBigNumComplex)initVal)) : lastZValue;
+                c = isJulia ? getSeed(useBignum, bigNumLib) : bn;
+                zold = iterations == 0 ? new MpfrBigNumComplex() : secondTolastZValue;
+                zold2 = iterations == 0 ? new MpfrBigNumComplex() : thirdTolastZValue;
+                start = isJulia ? new MpfrBigNumComplex(bn) : new MpfrBigNumComplex((MpfrBigNumComplex)initVal);
+                c0 = new MpfrBigNumComplex((MpfrBigNumComplex)c);
+                pixel = new MpfrBigNumComplex(bn);
+            }
+            else if(bigNumLib == Constants.BIGNUM_DOUBLEDOUBLE) {
+                initVal = new DDComplex(defaultInitVal.getValue(null));
+
+                DDComplex ddn = inputPixel.toDDComplex();
+                z = iterations == 0 ? (isJulia ? ddn : initVal) : lastZValue;
+                c = isJulia ? getSeed(useBignum, bigNumLib) : ddn;
+                zold = iterations == 0 ? new DDComplex() : secondTolastZValue;
+                zold2 = iterations == 0 ? new DDComplex() : thirdTolastZValue;
+                start = isJulia ? ddn : initVal;
+                c0 = c;
+                pixel = ddn;
+            }
+            else {
+                initVal = defaultInitVal.getValue(null);
+
+                Complex bn = inputPixel.toComplex();
+
+                z = iterations == 0 ? (isJulia ? bn : new Complex((Complex)initVal)) : lastZValue;
+                c = isJulia ? getSeed(useBignum, bigNumLib) : bn;
+                zold = iterations == 0 ? new Complex() : secondTolastZValue;
+                zold2 = iterations == 0 ? new Complex() : thirdTolastZValue;
+                start = isJulia ? new Complex(bn) : new Complex((Complex)initVal);
+                c0 = new Complex((Complex) c);
+                pixel = new Complex(bn);
+            }
+        }
+        else {
+            initVal = new BigComplex(defaultInitVal.getValue(null));
+
+            z = iterations == 0 ? (isJulia ? inputPixel : initVal) : lastZValue;
+            c = isJulia ? getSeed(useBignum, bigNumLib) : inputPixel;
+            zold = iterations == 0 ? new BigComplex() : secondTolastZValue;
+            zold2 = iterations == 0 ? new BigComplex() : thirdTolastZValue;
+            start = isJulia ? inputPixel : initVal;
+            c0 = c;
+            pixel = inputPixel;
+        }
+
+
 
         Location loc = new Location();
 
-        refPoint = pixel;
+        refPoint = inputPixel;
 
-        refPointSmall = pixel.toComplex();
+        refPointSmall = refPoint.toComplex();
 
         if(deepZoom) {
             refPointSmallDeep = loc.getMantExpComplex(refPoint);
         }
 
         RefType = getRefType();
-
-        Apfloat three = new MyApfloat(3.0);
 
         for (; iterations < max_iterations; iterations++) {
 
@@ -1017,42 +1041,34 @@ public class Nova extends ExtendedConvergentType {
 
             setArrayValue(Reference, iterations, cz);
 
-            BigComplex zsubcp = null;
-            BigComplex zsubpixel = null;
-            if(isJulia) {
-                zsubpixel = z.sub(pixel);
-                setArrayValue(ReferenceSubPixel, iterations, zsubpixel.toComplex());
-            }
-            else {
-                zsubcp = z.sub(initVal);
-                setArrayValue(ReferenceSubCp, iterations, zsubcp.toComplex());
-            }
+            GenericComplex zsubcp = z.sub(initVal);
+            setArrayValue(ReferenceSubCp, iterations, zsubcp.toComplex());
 
-            BigComplex preCalc = z.fourth().sub(z); //Z^4-Z for catastrophic cancelation
+            GenericComplex preCalc;
+            preCalc = z.fourth().sub_mutable(z); //Z^4-Z for catastrophic cancelation
+
             setArrayValue(PrecalculatedTerms, iterations, preCalc.toComplex());
 
             if(deepZoom) {
                 setArrayDeepValue(ReferenceDeep, iterations, loc.getMantExpComplex(z));
-
-                if(isJulia) {
-                    setArrayDeepValue(ReferenceSubPixelDeep, iterations, loc.getMantExpComplex(zsubpixel));
-                }
-                else {
-                    setArrayDeepValue(ReferenceSubCpDeep, iterations, loc.getMantExpComplex(zsubcp));
-                }
-
+                setArrayDeepValue(ReferenceSubCpDeep, iterations, loc.getMantExpComplex(zsubcp));
                 setArrayDeepValue(PrecalculatedTermsDeep, iterations, loc.getMantExpComplex(preCalc));
             }
 
-            if (iterations > 0 && convergent_bailout_algorithm.converged(z, zold, zold2, iterations, c, start, c0, pixel)) {
+            if (iterations > 0 && convergent_bailout_algorithm.Converged(z, zold, zold2, iterations, c, start, c0, pixel)) {
                 break;
             }
 
-            zold2 = zold;
-            zold = z;
+            zold2.set(zold);
+            zold.set(z);
 
             try {
-                z = z.sub(z.cube().sub(MyApfloat.ONE).divide(z.square().times(three))).plus(c);
+                if(useBignum) {
+                    z = z.sub_mutable(z.cube().sub_mutable(1).divide_mutable(z.square().times_mutable(3))).plus_mutable(c);
+                }
+                else {
+                    z = z.sub(z.cube().sub(MyApfloat.ONE).divide(z.square().times(MyApfloat.THREE))).plus(c);
+                }
             }
             catch (Exception ex) {
                 break;
@@ -1079,6 +1095,176 @@ public class Nova extends ExtendedConvergentType {
         }
         ReferenceCalculationTime = System.currentTimeMillis() - time;
 
+        if(isJulia) {
+            calculateJuliaReferencePoint(inputPixel, size, deepZoom, iterations2, progress);
+        }
+
+    }
+
+    @Override
+    protected void calculateJuliaReferencePoint(GenericComplex inputPixel, Apfloat size, boolean deepZoom, int iterations, JProgressBar progress) {
+
+        if(iterations == 0 && ((!deepZoom && SecondReference != null) || (deepZoom && SecondReferenceDeep != null))) {
+            return;
+        }
+
+        long time = System.currentTimeMillis();
+
+        int max_ref_iterations = getReferenceMaxIterations();
+
+        int initIterations = iterations;
+
+        if(progress != null) {
+            progress.setMaximum(max_ref_iterations - initIterations);
+            progress.setValue(0);
+            progress.setForeground(MainWindow.progress_ref_color);
+            progress.setString(REFERENCE_CALCULATION_STR + " " + String.format("%3d", 0) + "%");
+        }
+
+        if (iterations == 0) {
+            SecondReference = new double[max_ref_iterations << 1];
+            SecondReferenceSubCp = new double[max_ref_iterations << 1];
+            SecondPrecalculatedTerms = new double[max_ref_iterations << 1];
+
+            if (deepZoom) {
+                SecondReferenceDeep = new DeepReference(max_ref_iterations);
+                SecondReferenceSubCpDeep = new DeepReference(max_ref_iterations);
+                SecondPrecalculatedTermsDeep = new DeepReference(max_ref_iterations);
+            }
+        } else if (max_ref_iterations > getSecondReferenceLength()) {
+            SecondReference = Arrays.copyOf(SecondReference, max_ref_iterations << 1);
+            SecondReferenceSubCp = Arrays.copyOf(SecondReferenceSubCp, max_ref_iterations << 1);
+            SecondPrecalculatedTerms = Arrays.copyOf(SecondPrecalculatedTerms, max_ref_iterations << 1);
+
+            if (deepZoom) {
+                SecondReferenceDeep.resize(max_ref_iterations);
+                SecondReferenceSubCpDeep.resize(max_ref_iterations);
+                SecondPrecalculatedTermsDeep.resize(max_ref_iterations);
+            }
+        }
+
+        Location loc = new Location();
+
+        GenericComplex z, c, zold, zold2, start, c0, pixel, initVal;
+
+        int bigNumLib = ThreadDraw.getBignumLibrary(size, this);
+        boolean useBignum = ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE  && bigNumLib != Constants.BIGNUM_APFLOAT;
+
+        if(useBignum) {
+            if(bigNumLib == Constants.BIGNUM_MPFR) {
+
+                initVal = new MpfrBigNumComplex(defaultInitVal.getValue(null));
+
+                MpfrBigNumComplex bn = new MpfrBigNumComplex(inputPixel.toMpfrBigNumComplex());
+
+                z = iterations == 0 ? new MpfrBigNumComplex((MpfrBigNumComplex)initVal) : lastZ2Value;
+                c = getSeed(useBignum, bigNumLib);
+                zold = iterations == 0 ? new MpfrBigNumComplex() : secondTolastZ2Value;
+                zold2 = iterations == 0 ? new MpfrBigNumComplex() : thirdTolastZ2Value;
+                start = new MpfrBigNumComplex((MpfrBigNumComplex)initVal);
+                c0 = new MpfrBigNumComplex((MpfrBigNumComplex)c);
+                pixel = new MpfrBigNumComplex(bn);
+            }
+            else if(bigNumLib == Constants.BIGNUM_DOUBLEDOUBLE) {
+                initVal = new DDComplex(defaultInitVal.getValue(null));
+
+                DDComplex ddn = inputPixel.toDDComplex();
+                z = iterations == 0 ? initVal : lastZ2Value;
+                c = getSeed(useBignum, bigNumLib);
+                zold = iterations == 0 ? new DDComplex() : secondTolastZ2Value;
+                zold2 = iterations == 0 ? new DDComplex() : thirdTolastZ2Value;
+                start = initVal;
+                c0 = c;
+                pixel = ddn;
+            }
+            else {
+                initVal = defaultInitVal.getValue(null);
+
+                Complex bn = inputPixel.toComplex();
+
+                z = iterations == 0 ? new Complex((Complex)initVal) : lastZ2Value;
+                c = getSeed(useBignum, bigNumLib);
+                zold = iterations == 0 ? new Complex() : secondTolastZ2Value;
+                zold2 = iterations == 0 ? new Complex() : thirdTolastZ2Value;
+                start = new Complex((Complex)initVal);
+                c0 = new Complex((Complex) c);
+                pixel = new Complex(bn);
+            }
+        }
+        else {
+            initVal = new BigComplex(defaultInitVal.getValue(null));
+
+            z = iterations == 0 ? initVal : lastZ2Value;
+            c = getSeed(useBignum, bigNumLib);
+            zold = iterations == 0 ? new BigComplex() : secondTolastZ2Value;
+            zold2 = iterations == 0 ? new BigComplex() : thirdTolastZ2Value;
+            start = initVal;
+            c0 = c;
+            pixel = inputPixel;
+        }
+
+
+        for (; iterations < max_ref_iterations; iterations++) {
+
+            Complex cz = z.toComplex();
+            if(cz.isInfinite()) {
+                break;
+            }
+
+            setArrayValue(SecondReference, iterations, cz);
+
+            GenericComplex zsubcp = z.sub(initVal);
+            setArrayValue(SecondReferenceSubCp, iterations, zsubcp.toComplex());
+
+            GenericComplex preCalc;
+            preCalc = z.fourth().sub_mutable(z); //Z^4-Z for catastrophic cancelation
+
+            setArrayValue(SecondPrecalculatedTerms, iterations, preCalc.toComplex());
+
+            if(deepZoom) {
+                setArrayDeepValue(SecondReferenceDeep, iterations, loc.getMantExpComplex(z));
+                setArrayDeepValue(SecondReferenceSubCpDeep, iterations, loc.getMantExpComplex(zsubcp));
+                setArrayDeepValue(SecondPrecalculatedTermsDeep, iterations, loc.getMantExpComplex(preCalc));
+            }
+
+            if (iterations > 0 && convergent_bailout_algorithm.Converged(z, zold, zold2, iterations, c, start, c0, pixel)) {
+                break;
+            }
+
+            zold2.set(zold);
+            zold.set(z);
+
+            try {
+                if(useBignum) {
+                    z = z.sub_mutable(z.cube().sub_mutable(1).divide_mutable(z.square().times_mutable(3))).plus_mutable(c);
+                }
+                else {
+                    z = z.sub(z.cube().sub(MyApfloat.ONE).divide(z.square().times(MyApfloat.THREE))).plus(c);
+                }
+            }
+            catch (Exception ex) {
+                break;
+            }
+
+            if(progress != null && iterations % 1000 == 0) {
+                progress.setValue(iterations - initIterations);
+                progress.setString(REFERENCE_CALCULATION_STR + " " + String.format("%3d",(int) ((double) (iterations - initIterations) / progress.getMaximum() * 100)) + "%");
+            }
+
+        }
+
+        lastZ2Value = z;
+        secondTolastZ2Value = zold;
+        thirdTolastZ2Value = zold2;
+
+        MaxRef2Iteration = iterations - 1;
+
+        if(progress != null) {
+            progress.setValue(progress.getMaximum());
+            progress.setString(REFERENCE_CALCULATION_STR + " 100%");
+        }
+
+        SecondReferenceCalculationTime = System.currentTimeMillis() - time;
     }
 
 
@@ -1121,7 +1307,7 @@ public class Nova extends ExtendedConvergentType {
         MantExpComplex c = DeltaSub0;
 
         MantExpComplex temp = Z.times2().plus_mutable(z).times_mutable(z).times_mutable(Z.square());
-        return temp.plus(getArrayDeepValue(PrecalculatedTermsDeep, RefIteration)).sub_mutable(z.times05()).times_mutable(z).divide_mutable(temp.plus(Z.fourth()).times_mutable(MantExp.ONEPOINTFIVE)).plus_mutable(c);
+        return temp.plus(getArrayDeepValue(PrecalculatedTermsDeep, RefIteration)).sub_mutable(z.divide2()).times_mutable(z).divide_mutable(temp.plus(Z.fourth()).times_mutable(MantExp.ONEPOINTFIVE)).plus_mutable(c);
     }
 
     @Override
@@ -1142,17 +1328,38 @@ public class Nova extends ExtendedConvergentType {
         MantExpComplex z = DeltaSubN;
 
         MantExpComplex temp = Z.times2().plus_mutable(z).times_mutable(z).times_mutable(Z.square());
-        return temp.plus(getArrayDeepValue(PrecalculatedTermsDeep, RefIteration)).sub_mutable(z.times05()).times_mutable(z).divide_mutable(temp.plus(Z.fourth()).times_mutable(MantExp.ONEPOINTFIVE));
+        return temp.plus(getArrayDeepValue(PrecalculatedTermsDeep, RefIteration)).sub_mutable(z.divide2()).times_mutable(z).divide_mutable(temp.plus(Z.fourth()).times_mutable(MantExp.ONEPOINTFIVE));
+    }
+
+    @Override
+    public Complex perturbationFunction(Complex DeltaSubN, double[] Reference, double[] PrecalculatedTerms,  double[] PrecalculatedTerms2, int RefIteration) {
+
+        Complex Z = getArrayValue(Reference, RefIteration);
+        Complex z = DeltaSubN;
+
+        Complex temp = Z.times(2).plus_mutable(z).times_mutable(z).times_mutable(Z.square());
+        return temp.plus(getArrayValue(PrecalculatedTerms, RefIteration)).sub_mutable(z.times(0.5)).times_mutable(z).divide_mutable(temp.plus(Z.fourth()).times_mutable(1.5));
+
+    }
+
+    @Override
+    public MantExpComplex perturbationFunction(MantExpComplex DeltaSubN, DeepReference ReferenceDeep, DeepReference PrecalculatedTermsDeep, DeepReference PrecalculatedTerms2Deep, int RefIteration) {
+
+        MantExpComplex Z = getArrayDeepValue(ReferenceDeep, RefIteration);
+        MantExpComplex z = DeltaSubN;
+
+        MantExpComplex temp = Z.times2().plus_mutable(z).times_mutable(z).times_mutable(Z.square());
+        return temp.plus(getArrayDeepValue(PrecalculatedTermsDeep, RefIteration)).sub_mutable(z.divide2()).times_mutable(z).divide_mutable(temp.plus(Z.fourth()).times_mutable(MantExp.ONEPOINTFIVE));
     }
 
     @Override
     public String getRefType() {
-        return super.getRefType() + "-" + z_exponent.toString() + "-" + relaxation.toString() + (isJulia ? "-Julia-" + seed : "");
+        return super.getRefType() + "-" + z_exponent.toString() + "-" + relaxation.toString() + (isJulia ? "-Julia-" + bigSeed.toStringPretty() : "");
     }
 
     @Override
     public void function(BigComplex[] complex) {
-        complex[0] = complex[0].sub(complex[0].cube().sub(MyApfloat.ONE).divide(complex[0].square().times(new MyApfloat(3.0)))).plus(complex[1]);
+        complex[0] = complex[0].sub(complex[0].cube().sub(MyApfloat.ONE).divide(complex[0].square().times(MyApfloat.THREE))).plus(complex[1]);
     }
 
     @Override
@@ -1208,5 +1415,8 @@ public class Nova extends ExtendedConvergentType {
 
         return fz;
     }
+
+    @Override
+    public boolean supportsMpfrBignum() { return true;}
 
 }

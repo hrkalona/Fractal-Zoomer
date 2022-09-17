@@ -17,9 +17,7 @@
 
 package fractalzoomer.planes.general;
 
-import fractalzoomer.core.BigComplex;
-import fractalzoomer.core.BigNumComplex;
-import fractalzoomer.core.Complex;
+import fractalzoomer.core.*;
 import fractalzoomer.planes.Plane;
 
 /**
@@ -50,6 +48,20 @@ public class MuSquaredPlane extends Plane {
 
     @Override
     public BigNumComplex transform(BigNumComplex pixel) {
+
+        return pixel.square();
+
+    }
+
+    @Override
+    public MpfrBigNumComplex transform(MpfrBigNumComplex pixel) {
+
+        return pixel.square();
+
+    }
+
+    @Override
+    public DDComplex transform(DDComplex pixel) {
 
         return pixel.square();
 

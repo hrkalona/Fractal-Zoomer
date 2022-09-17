@@ -20,7 +20,10 @@ import fractalzoomer.main.MainWindow;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 /**
  *
@@ -43,7 +46,7 @@ public class ColorChooserFrame extends JFrame {
         int color_window_height = 480;
         setTitle(title);
         setSize(color_window_width, color_window_height);
-        setIconImage(getIcon("/fractalzoomer/icons/color.png").getImage());
+        setIconImage(MainWindow.getIcon("color.png").getImage());
         setLocation((int)(ptr2.getLocation().getX() + ptr2.getSize().getWidth() / 2) - (color_window_width / 2), (int)(ptr2.getLocation().getY() + ptr2.getSize().getHeight() / 2) - (color_window_height / 2));
         final JColorChooser color_chooser = new JColorChooser();
         color_chooser.setBackground(MainWindow.bg_color);
@@ -76,37 +79,33 @@ public class ColorChooserFrame extends JFrame {
         
         getRootPane().setDefaultButton(ok);
 
-        ok.addActionListener(new ActionListener() {
+        ok.addActionListener(e -> {
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
+            if(obj2 instanceof JLabel) {
+                ((JLabel)obj2).setBackground(new Color(color_chooser.getColor().getRed(), color_chooser.getColor().getGreen(), color_chooser.getColor().getBlue()));
 
-                if(obj2 instanceof JLabel) {
-                    ((JLabel)obj2).setBackground(new Color(color_chooser.getColor().getRed(), color_chooser.getColor().getGreen(), color_chooser.getColor().getBlue()));
-                    
-                    if(ptr2 instanceof GradientFrame) {
-                        ((GradientFrame)ptr2).colorChanged();
-                    }
-                    else if(ptr2 instanceof CustomPaletteEditorFrame) {
-                        ((CustomPaletteEditorFrame)ptr2).colorChanged(num);
-                    }
+                if(ptr2 instanceof GradientFrame) {
+                    ((GradientFrame)ptr2).colorChanged();
                 }
-                else if(obj2 instanceof Color) {
-                    if(ptr2 instanceof MainWindow) {
-                        ((MainWindow)ptr2).storeColor(num, color_chooser.getColor());
-                    }
+                else if(ptr2 instanceof CustomPaletteEditorFrame) {
+                    ((CustomPaletteEditorFrame)ptr2).colorChanged(num);
                 }
-                else if(obj2 instanceof String) {
-
-                    if(ptr2 instanceof StatisticsColoringFrame) {
-                        ((StatisticsColoringFrame)ptr2).storeColor(num, color_chooser.getColor());
-                    }
-                }
-
-                ptr2.setEnabled(true);
-                dispose();
-
             }
+            else if(obj2 instanceof Color) {
+                if(ptr2 instanceof MainWindow) {
+                    ((MainWindow)ptr2).storeColor(num, color_chooser.getColor());
+                }
+            }
+            else if(obj2 instanceof String) {
+
+                if(ptr2 instanceof StatisticsColoringFrame) {
+                    ((StatisticsColoringFrame)ptr2).storeColor(num, color_chooser.getColor());
+                }
+            }
+
+            ptr2.setEnabled(true);
+            dispose();
+
         });
 
         getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
@@ -122,15 +121,11 @@ public class ColorChooserFrame extends JFrame {
 
         JButton close = new JButton("Cancel");
         close.setFocusable(false);
-        close.addActionListener(new ActionListener() {
+        close.addActionListener(e -> {
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
+            ptr2.setEnabled(true);
+            dispose();
 
-                ptr2.setEnabled(true);
-                dispose();
-
-            }
         });
 
         getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
@@ -180,10 +175,5 @@ public class ColorChooserFrame extends JFrame {
         add(scrollPane);
 
         setVisible(true);
-    }
-
-    private ImageIcon getIcon(String path) {
-
-        return new ImageIcon(getClass().getResource(path));
     }
 }

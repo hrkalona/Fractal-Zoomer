@@ -29,7 +29,7 @@ public class GrainExtractBlending extends Blending {
     }
 
     @Override
-    public int blend(int redA, int greenA, int blueA, int redB, int greenB, int blueB, double coef) {
+    public int blendInternal(int redA, int greenA, int blueA, int redB, int greenB, int blueB, double coef) {
 
         int temp_red = redB - redA + 128;
         int temp_green = greenB - greenA + 128;

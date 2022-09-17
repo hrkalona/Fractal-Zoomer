@@ -23,8 +23,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 
 /**
  *
@@ -43,14 +41,14 @@ public class GenericCpAZpBCDialog extends JDialog {
 
         setTitle("z = (c^alpha) * (z^beta) + c");
         setModal(true);
-        setIconImage(getIcon("/fractalzoomer/icons/mandel2.png").getImage());
+        setIconImage(MainWindow.getIcon("mandel2.png").getImage());
 
         JLabel func = new JLabel();
-        func.setIcon(getIcon("/fractalzoomer/icons/cpazpbc.png"));
+        func.setIcon(MainWindow.getIcon("cpazpbc.png"));
 
         JPanel alpha_panel = new JPanel();
         JLabel alpha_label = new JLabel();
-        alpha_label.setIcon(getIcon("/fractalzoomer/icons/alpha.png"));
+        alpha_label.setIcon(MainWindow.getIcon("alpha.png"));
         JTextField alpha_filed = new JTextField(30);
         alpha_filed.setText("" + s.fns.gcps.alpha2);
         alpha_panel.setLayout(new FlowLayout());
@@ -60,7 +58,7 @@ public class GenericCpAZpBCDialog extends JDialog {
 
         JPanel beta_panel = new JPanel();
         JLabel beta_label = new JLabel();
-        beta_label.setIcon(getIcon("/fractalzoomer/icons/beta.png"));
+        beta_label.setIcon(MainWindow.getIcon("beta.png"));
         JTextField beta_filed = new JTextField(30);
         beta_filed.setText("" + s.fns.gcps.beta2);
         beta_panel.setLayout(new FlowLayout());
@@ -81,55 +79,54 @@ public class GenericCpAZpBCDialog extends JDialog {
 
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
+            @Override
             public void windowClosing(WindowEvent we) {
-                optionPane.setValue(new Integer(JOptionPane.CLOSED_OPTION));
+                optionPane.setValue(JOptionPane.CLOSED_OPTION);
             }
         });
 
         optionPane.addPropertyChangeListener(
-                new PropertyChangeListener() {
-            public void propertyChange(PropertyChangeEvent e) {
-                String prop = e.getPropertyName();
+                e -> {
+                    String prop = e.getPropertyName();
 
-                if (isVisible() && (e.getSource() == optionPane) && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
+                    if (isVisible() && (e.getSource() == optionPane) && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
 
-                    Object value = optionPane.getValue();
+                        Object value = optionPane.getValue();
 
-                    if (value == JOptionPane.UNINITIALIZED_VALUE) {
-                        //ignore reset
-                        return;
-                    }
+                        if (value == JOptionPane.UNINITIALIZED_VALUE) {
+                            //ignore reset
+                            return;
+                        }
 
-                    //Reset the JOptionPane's value.
-                    //If you don't do this, then if the user
-                    //presses the same button next time, no
-                    //property change event will be fired.
-                    optionPane.setValue(JOptionPane.UNINITIALIZED_VALUE);
+                        //Reset the JOptionPane's value.
+                        //If you don't do this, then if the user
+                        //presses the same button next time, no
+                        //property change event will be fired.
+                        optionPane.setValue(JOptionPane.UNINITIALIZED_VALUE);
 
-                    if ((Integer) value == JOptionPane.CANCEL_OPTION || (Integer) value == JOptionPane.NO_OPTION || (Integer) value == JOptionPane.CLOSED_OPTION) {
-                        fractal_functions[oldSelected].setSelected(true);
-                        s.fns.function = oldSelected;
+                        if ((Integer) value == JOptionPane.CANCEL_OPTION || (Integer) value == JOptionPane.NO_OPTION || (Integer) value == JOptionPane.CLOSED_OPTION) {
+                            fractal_functions[oldSelected].setSelected(true);
+                            s.fns.function = oldSelected;
+                            dispose();
+                            return;
+                        }
+
+                        try {
+                            double temp_alpha = Double.parseDouble(alpha_filed.getText());
+                            double temp_beta = Double.parseDouble(beta_filed.getText());
+
+                            s.fns.gcps.alpha2 = temp_alpha;
+                            s.fns.gcps.beta2 = temp_beta;
+                        } catch (Exception ex) {
+                            JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
+
+                        ptra.optionsEnableShortcut();
                         dispose();
-                        return;
+                        ptra.setFunctionPost(wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType, wasEscapingOrConvergingType);
                     }
-
-                    try {
-                        double temp_alpha = Double.parseDouble(alpha_filed.getText());
-                        double temp_beta = Double.parseDouble(beta_filed.getText());
-
-                        s.fns.gcps.alpha2 = temp_alpha;
-                        s.fns.gcps.beta2 = temp_beta;
-                    } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-
-                    ptra.optionsEnableShortcut();
-                    dispose();
-                    ptra.setFunctionPost(wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType, wasEscapingOrConvergingType);
-                }
-            }
-        });
+                });
 
         //Make this dialog display it.
         setContentPane(optionPane);
@@ -139,12 +136,6 @@ public class GenericCpAZpBCDialog extends JDialog {
         setResizable(false);
         setLocation((int) (ptra.getLocation().getX() + ptra.getSize().getWidth() / 2) - (getWidth() / 2), (int) (ptra.getLocation().getY() + ptra.getSize().getHeight() / 2) - (getHeight() / 2));
         setVisible(true);
-
-    }
-
-    private ImageIcon getIcon(String path) {
-
-        return new ImageIcon(getClass().getResource(path));
 
     }
     

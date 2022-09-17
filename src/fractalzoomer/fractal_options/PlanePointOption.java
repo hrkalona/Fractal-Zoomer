@@ -24,7 +24,7 @@ import fractalzoomer.core.Complex;
  */
 public abstract class PlanePointOption {
     
-    public PlanePointOption() {
+    protected PlanePointOption() {
         
     }
     

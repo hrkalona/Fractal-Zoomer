@@ -17,6 +17,7 @@
 package fractalzoomer.core;
 
 import fractalzoomer.filters_utils.math.Noise;
+import fractalzoomer.utils.NormComponents;
 
 public final class Complex extends GenericComplex {
     public static final double HALF_PI = Math.PI * 0.5;
@@ -49,6 +50,13 @@ public final class Complex extends GenericComplex {
 
     }
 
+    public Complex(BigComplex c) {
+
+        this.re = c.getRe().doubleValue();
+        this.im = c.getIm().doubleValue();
+
+    }
+
     public final void reset() {
 
         re = 0;
@@ -71,6 +79,9 @@ public final class Complex extends GenericComplex {
     @Override
     public BigNumComplex toBigNumComplex() { return new BigNumComplex(this); }
 
+    @Override
+    public MpfrBigNumComplex toMpfrBigNumComplex() { return new MpfrBigNumComplex(this);}
+
     public final void setRe(double re) {
 
         this.re = re;
@@ -88,6 +99,13 @@ public final class Complex extends GenericComplex {
         re = z.re;
         im = z.im;
 
+    }
+
+    @Override
+    public void set(GenericComplex za) {
+        Complex z = (Complex) za;
+        re = z.re;
+        im = z.im;
     }
     
     public final void assign(double re) {
@@ -131,6 +149,28 @@ public final class Complex extends GenericComplex {
      *  z = z + Real
      */
     public final Complex plus_mutable(double number) {
+
+        re = re + number;
+
+        return this;
+
+    }
+
+    /*
+     *  z + Real
+     */
+    @Override
+    public final Complex plus(int number) {
+
+        return new Complex(re + number, im);
+
+    }
+
+    /*
+     *  z = z + Real
+     */
+    @Override
+    public final Complex plus_mutable(int number) {
 
         re = re + number;
 
@@ -192,6 +232,28 @@ public final class Complex extends GenericComplex {
      *  z = z - Real
      */
     public final Complex sub_mutable(double number) {
+
+        re = re - number;
+
+        return this;
+
+    }
+
+    /*
+     *  z - Real
+     */
+    @Override
+    public final Complex sub(int number) {
+
+        return new Complex(re - number, im);
+
+    }
+
+    /*
+     *  z = z - Real
+     */
+    @Override
+    public final Complex sub_mutable(int number) {
 
         re = re - number;
 
@@ -321,6 +383,29 @@ public final class Complex extends GenericComplex {
     }
 
     /*
+     *  z1 * Real
+     */
+    @Override
+    public final Complex times(int number) {
+
+        return new Complex(re * number, im * number);
+
+    }
+
+    /*
+     *  z1 = z1 * Real
+     */
+    @Override
+    public final Complex times_mutable(int number) {
+
+        re = re * number;
+        im = im * number;
+
+        return this;
+
+    }
+
+    /*
      *  z * Imaginary
      */
     public final Complex times_i(double number) {
@@ -385,6 +470,28 @@ public final class Complex extends GenericComplex {
      * z = z / Real
      */
     public final Complex divide_mutable(double number) {
+
+        re = re / number;
+        im = im / number;
+
+        return this;
+
+    }
+
+    /*
+     *  z / Real
+     */
+    @Override
+    public final Complex divide(int number) {
+
+        return new Complex(re / number, im / number);
+
+    }
+
+    /*
+     * z = z / Real
+     */
+    public final Complex divide_mutable(int number) {
 
         re = re / number;
         im = im / number;
@@ -631,6 +738,7 @@ public final class Complex extends GenericComplex {
     /*
      *  z^2
      */
+    @Override
     public final Complex square() {
 
         double temp = re * im;
@@ -642,6 +750,7 @@ public final class Complex extends GenericComplex {
     /*
      *  z = z^2
      */
+    @Override
     public final Complex square_mutable() {
 
         double temp = re * im;
@@ -656,6 +765,7 @@ public final class Complex extends GenericComplex {
     /*
      *  z^3
      */
+    @Override
     public final Complex cube() {
 
         double temp = re * re;
@@ -683,6 +793,7 @@ public final class Complex extends GenericComplex {
     /*
      *  z^4
      */
+    @Override
     public final Complex fourth() {
 
         double temp = re * re;
@@ -711,6 +822,7 @@ public final class Complex extends GenericComplex {
     /*
      *  z^5
      */
+    @Override
     public final Complex fifth() {
 
         double temp = re * re;
@@ -1015,6 +1127,7 @@ public final class Complex extends GenericComplex {
     /*
      *  abs(z)
      */
+    @Override
     public final Complex abs() {
 
         return new Complex(re >= 0 ? re : -re, im >= 0 ? im : -im);
@@ -1076,6 +1189,7 @@ public final class Complex extends GenericComplex {
     /*
      *  Real -Imaginary i
      */
+    @Override
     public final Complex conjugate() {
 
         return new Complex(re, -im);
@@ -1096,6 +1210,7 @@ public final class Complex extends GenericComplex {
     /*
      *  -z
      */
+    @Override
     public final Complex negative() {
 
         return new Complex(-re, -im);
@@ -1105,6 +1220,7 @@ public final class Complex extends GenericComplex {
     /*
      *  z = -z
      */
+    @Override
     public final Complex negative_mutable() {
 
         re = -re;
@@ -2049,7 +2165,7 @@ public final class Complex extends GenericComplex {
         Complex sum = new Complex();
 
         for (int k = 0; k < 50; k++) {
-            double temp = 2 * k + 1;
+            double temp = 2 * k + 1.0;
             sum.plus_mutable((this.pow(temp).times_mutable(Math.pow(-1, k))).divide_mutable(new Complex(k, 0).factorial().times_mutable(temp)));
         }
 
@@ -2065,7 +2181,7 @@ public final class Complex extends GenericComplex {
         Complex sum2 = new Complex();
 
         for (int k = 1; k < 101; k++) {
-            sum2.plus_mutable((new Complex(-1, 0).pow(k - 1)).times_mutable(new Complex(k, 0).pow(temp2)));
+            sum2.plus_mutable((new Complex(-1, 0).pow(k - 1.0)).times_mutable(new Complex(k, 0).pow(temp2)));
         }
 
         return sum2.divide_mutable(new Complex(2, 0).pow(temp).r_sub_mutable(1));
@@ -2233,6 +2349,15 @@ public final class Complex extends GenericComplex {
 
     }
 
+    public final Complex shear_mutable(Complex sh) {
+
+        double tempRe =  re + (im * sh.re);
+        im = im + (re * sh.im);
+        re = tempRe;
+        return this;
+
+    }
+
     public final Complex kaleidoscope(Complex center, double phi, double phi2, double radius, int sides) {
 
         double angle = Math.toRadians(phi);
@@ -2359,11 +2484,6 @@ public final class Complex extends GenericComplex {
         double ny = re / wavelength.im;
         double fx, fy;
         switch (waveType) {
-            case 0:
-            default:
-                fx = Math.sin(nx);
-                fy = Math.sin(ny);
-                break;
             case 1:
                 fx = mod(nx, 1);
                 fy = mod(ny, 1);
@@ -2375,6 +2495,11 @@ public final class Complex extends GenericComplex {
             case 3:
                 fx = Noise.noise1((float) nx);
                 fy = Noise.noise1((float) ny);
+                break;
+            case 0:
+            default:
+                fx = Math.sin(nx);
+                fy = Math.sin(ny);
                 break;
         }
 
@@ -2495,4 +2620,278 @@ public final class Complex extends GenericComplex {
         return new Complex(Ax * zx - Ay * zy + cx, Ax * zy + Ay * zx + cy);
 
     }
+
+    @Override
+    public MantExpComplex toMantExpComplex() { return new MantExpComplex(this);}
+
+    @Override
+    public Complex toComplex() {return new Complex(this);}
+
+    @Override
+    public NormComponents normSquaredWithComponents(NormComponents n) {
+        double reSqr = re * re;
+        double imSqr = im * im;
+        return new NormComponents(reSqr, imSqr, reSqr + imSqr);
+    }
+
+    /*
+     *  z1 - z2
+     */
+    @Override
+    public final Complex sub(GenericComplex zn) {
+
+        Complex z = (Complex)zn;
+
+        return  new Complex(re - z.re, im - z.im);
+
+    }
+
+    /*
+     *  z1 * z2
+     */
+    @Override
+    public final Complex times(GenericComplex zn) {
+
+        Complex z = (Complex)zn;
+        return new Complex(re * z.re - im * z.im, re * z.im + im * z.re);
+
+    }
+
+    @Override
+    public Complex times2() {
+        return new Complex(re * 2, im * 2);
+    }
+
+    @Override
+    public Complex times4() {
+        return new Complex(re * 4, im * 4);
+    }
+
+    @Override
+    public Complex times2_mutable() {
+        re = 2 * re;
+        im = 2 * im;
+        return this;
+    }
+
+    public Complex times4_mutable() {
+
+        re = 4 * re;
+        im = 4 * im;
+        return this;
+
+    }
+
+    /*
+     * z1 + z2
+     */
+    @Override
+    public final Complex plus(GenericComplex zn) {
+
+        Complex z = (Complex)zn;
+        return new Complex(re + z.re, im + z.im);
+
+    }
+
+    /*
+     *  lexicographical comparison between two complex numbers
+     * -1 when z1 > z2
+     *  1 when z1 < z2
+     *  0 when z1 == z2
+     */
+    @Override
+    public final int compare(GenericComplex z2c) {
+
+        Complex z2 = (Complex)z2c;
+
+        if (re > z2.re) {
+            return -1;
+        } else if (re < z2.re) {
+            return 1;
+        } else if (im > z2.im) {
+            return -1;
+        } else if (im < z2.im) {
+            return 1;
+        } else if (re == z2.re && im == z2.im) {
+            return 0;
+        }
+
+        return 2;
+
+    }
+
+    /*
+     *  |z|^2
+     */
+    @Override
+    public final Double normSquared() {
+
+        return re * re + im * im;
+
+    }
+
+    /*
+     *  |z1 - z2|^2
+     */
+    @Override
+    public final Double distanceSquared(GenericComplex za) {
+        Complex z = (Complex) za;
+        double temp_re = re - z.re;
+        double temp_im = im - z.im;
+        return temp_re * temp_re + temp_im * temp_im;
+
+    }
+
+    /*
+     *  z^2 + c
+     */
+    @Override
+    public final Complex squareFast_plus_c(NormComponents normComponents, GenericComplex ca) {
+        double reSqr = (double) normComponents.reSqr;
+        double imSqr = (double) normComponents.imSqr;
+        double normSquared = (double) normComponents.normSquared;
+        Complex c = (Complex) ca;
+        double temp = re + im;
+        return new Complex(reSqr - imSqr + c.re, temp * temp - normSquared + c.im);
+    }
+
+    /*
+     *  z^2 + c
+     */
+    @Override
+    public final Complex squareFast(NormComponents normComponents) {
+        double reSqr = (double) normComponents.reSqr;
+        double imSqr = (double) normComponents.imSqr;
+        double normSquared = (double) normComponents.normSquared;
+        double temp = re + im;
+        return new Complex(reSqr - imSqr, temp * temp - normSquared);
+    }
+
+    /*
+     *  z^3
+     */
+    @Override
+    public final Complex cubeFast(NormComponents normComponents) {
+
+        double temp = (double) normComponents.reSqr;
+        double temp2 = (double) normComponents.imSqr;
+
+        return new Complex(re * (temp - 3 * temp2), im * (3 * temp - temp2));
+    }
+
+    /*
+     *  z^4
+     */
+    @Override
+    public final Complex fourthFast(NormComponents normComponents) {
+
+        double temp = (double) normComponents.reSqr;
+        double temp2 = (double) normComponents.imSqr;
+
+        return new Complex(temp * (temp - 6 * temp2) + temp2 * temp2, 4 * re * im * (temp - temp2));
+    }
+
+    /*
+     *  z^5
+     */
+    @Override
+    public final Complex fifthFast(NormComponents normComponents) {
+
+        double temp = (double) normComponents.reSqr;
+        double temp2 = (double) normComponents.imSqr;
+
+        return new Complex(re * (temp * temp + temp2 * (5 * temp2 - 10 * temp)), im * (temp2 * temp2 + temp * (5 * temp - 10 * temp2)));
+    }
+
+    /* more efficient z^2 + c */
+    @Override
+    public final Complex square_plus_c(GenericComplex cn) {
+
+        Complex c = (Complex)cn;
+        double temp = re * im;
+
+        return new Complex((re + im) * (re - im) + c.re, temp + temp + c.im);
+    }
+
+    /*
+     *  z1 / z2
+     */
+    @Override
+    public final Complex divide(GenericComplex za) {
+        Complex z = (Complex) za;
+
+        double temp = z.re;
+        double temp2 = z.im;
+        double temp3 = temp * temp + temp2 * temp2;
+
+        return new Complex((re * temp + im * temp2) / temp3, (im * temp - re * temp2) / temp3);
+
+    }
+
+    /*
+     *  z1 = z1 * z2
+     */
+    @Override
+    public final Complex times_mutable(GenericComplex za) {
+        Complex z = (Complex) za;
+
+        double temp = z.re;
+        double temp2 = z.im;
+
+        double temp3 = re * temp - im * temp2;
+        im = re * temp2 + im * temp;
+        re = temp3;
+
+        return this;
+
+    }
+
+    /*
+     * z1 = z1 + z2
+     */
+    @Override
+    public final Complex plus_mutable(GenericComplex za) {
+        Complex z = (Complex) za;
+
+
+        re = re + z.re;
+        im = im + z.im;
+
+        return this;
+
+    }
+
+    /*
+     *  z1 = z1 / z2
+     */
+    public final Complex divide_mutable(GenericComplex za) {
+        Complex z = (Complex) za;
+
+        double temp = z.re;
+        double temp2 = z.im;
+        double temp3 = temp * temp + temp2 * temp2;
+
+        double temp4 = (re * temp + im * temp2) / temp3;
+        im = (im * temp - re * temp2) / temp3;
+        re = temp4;
+
+        return this;
+
+    }
+
+    /*
+     *  z1 = z1 - z2
+     */
+    public final Complex sub_mutable(GenericComplex za) {
+        Complex z = (Complex) za;
+
+        re = re - z.re;
+        im = im - z.im;
+
+        return this;
+
+    }
+
+    @Override
+    public DDComplex toDDComplex() { return new DDComplex(this); }
 }

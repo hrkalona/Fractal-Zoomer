@@ -18,6 +18,7 @@
 package fractalzoomer.planes.math;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.core.MpfrBigNumComplex;
 import fractalzoomer.planes.Plane;
 
 /**
@@ -32,9 +33,22 @@ public class GammaFunctionPlane extends Plane {
 
     @Override
     public Complex transform(Complex pixel) {
-        
+
+        if(pixel.isZero()) {
+            return pixel;
+        }
         return pixel.gamma_la();
         
-    }   
+    }
+
+    @Override
+    public MpfrBigNumComplex transform(MpfrBigNumComplex pixel) {
+        if(pixel.isZero()) {
+            return pixel;
+        }
+
+        return new MpfrBigNumComplex(transform(pixel.toComplex()));
+
+    }
     
 }

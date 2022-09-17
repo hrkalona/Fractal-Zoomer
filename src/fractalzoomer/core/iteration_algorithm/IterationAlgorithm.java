@@ -27,7 +27,7 @@ import fractalzoomer.functions.Fractal;
 public abstract class IterationAlgorithm {
     protected Fractal fractal;
     
-    public IterationAlgorithm(Fractal fractal) {
+    protected IterationAlgorithm(Fractal fractal) {
         this.fractal = fractal;
     }
     

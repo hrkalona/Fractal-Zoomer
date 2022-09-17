@@ -43,4 +43,11 @@ public class PaletteColorNormal extends PaletteColor {
 
     }
 
+    @Override
+    public int calculateColor(double result, int paletteId,  int color_cycling_location, int cycle) {
+
+        return getGeneratedColor(result, paletteId, color_cycling_location, cycle);
+
+    }
+
 }

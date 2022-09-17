@@ -17,6 +17,7 @@
 package fractalzoomer.bailout_conditions;
 
 import fractalzoomer.core.*;
+import fractalzoomer.core.mpfr.MpfrBigNum;
 import org.apfloat.Apfloat;
 
 /**
@@ -61,6 +62,32 @@ public class FieldLinesBailoutCondition extends BailoutCondition {
             return temp.getRe() / temp2.getRe() >= bound && temp.getIm() / temp2.getIm() >= bound;
         }
         return false;
+
+    }
+
+    @Override
+    public boolean escaped(MpfrBigNumComplex z, MpfrBigNumComplex zold, MpfrBigNumComplex zold2, int iterations, MpfrBigNumComplex c, MpfrBigNumComplex start, MpfrBigNumComplex c0, MpfrBigNum norm_squared, MpfrBigNumComplex pixel) {
+        MpfrBigNum zoldRe = zold.getRe();
+        MpfrBigNum zoldIm = zold.getIm();
+
+        if(iterations > 1 && (zoldRe.compare(0) == 0 || zoldIm.compare(0) == 0)) {
+            return false;
+        }
+
+        return iterations > 1 && z.getRe().divide(zoldRe).compare(bound) >= 0 && z.getIm().divide(zoldIm).compare(bound) >= 0;
+    }
+
+    @Override
+    public boolean escaped(DDComplex z, DDComplex zold, DDComplex zold2, int iterations, DDComplex c, DDComplex start, DDComplex c0, DoubleDouble norm_squared, DDComplex pixel) {
+
+        DoubleDouble zoldRe = zold.getRe();
+        DoubleDouble zoldIm = zold.getIm();
+
+        if(iterations > 1 && (zoldRe.compareTo(0) == 0 || zoldIm.compareTo(0) == 0)) {
+            return false;
+        }
+
+        return iterations > 1 && z.getRe().divide(zoldRe).compareTo(ddcbound) >= 0 && z.getIm().divide(zoldIm).compareTo(ddcbound) >= 0;
 
     }
     

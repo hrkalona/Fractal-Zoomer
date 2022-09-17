@@ -31,8 +31,6 @@ import javax.swing.plaf.basic.BasicFileChooserUI;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -44,12 +42,12 @@ public class OrbitTrapsFrame extends JFrame {
 	private MainWindow ptra2;
     private JFrame this_frame;
     private JTextField trap_norm_field;
-    private JComboBox orbit_traps_combo;
-    private JComboBox lines_function_combo;
+    private JComboBox<String> orbit_traps_combo;
+    private JComboBox<String> lines_function_combo;
     private JTextField trap_width_field;
     private JTextField trap_length_field;
     private JSlider blend_opt;
-    private JComboBox color_method_combo;
+    private JComboBox<String> color_method_combo;
     private JButton load_image_button;
     private JTextField trap_threshold_field;
     private JTextField trap_intensity_field;
@@ -74,7 +72,7 @@ public class OrbitTrapsFrame extends JFrame {
         int color_window_height = 710;
         setTitle("Orbit Traps");
         setSize(color_window_width, color_window_height);
-        setIconImage(getIcon("/fractalzoomer/icons/orbit_traps.png").getImage());
+        setIconImage(MainWindow.getIcon("orbit_traps.png").getImage());
         setLocation((int) (ptra2.getLocation().getX() + ptra2.getSize().getWidth() / 2) - (color_window_width / 2), (int) (ptra2.getLocation().getY() + ptra2.getSize().getHeight() / 2) - (color_window_height / 2));
 
         addWindowListener(new WindowAdapter() {
@@ -104,18 +102,12 @@ public class OrbitTrapsFrame extends JFrame {
 
         options_panel.setBorder(options_border);
 
-        orbit_traps_combo = new JComboBox(MainWindow.orbitTrapsNames);
+        orbit_traps_combo = new JComboBox<>(MainWindow.orbitTrapsNames);
         orbit_traps_combo.setSelectedIndex(ots.trapType);
         orbit_traps_combo.setFocusable(false);
         orbit_traps_combo.setToolTipText("Sets the orbit shape.");
 
-        orbit_traps_combo.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                toggled(true);
-            }
-
-        });
+        orbit_traps_combo.addActionListener(e -> toggled(true));
 
         JCheckBox showOnlyTraps = new JCheckBox("Traps Only");
         showOnlyTraps.setFocusable(false);
@@ -127,22 +119,17 @@ public class OrbitTrapsFrame extends JFrame {
 
 
         load_image_button = new JButton();
-        load_image_button.setIcon(getIcon("/fractalzoomer/icons/load_image.png"));
+        load_image_button.setIcon(MainWindow.getIcon("load_image.png"));
         load_image_button.setFocusable(false);
         load_image_button.setToolTipText("Loads an image to be used as a pattern, with the Image based Trap");
         load_image_button.setPreferredSize(new Dimension(30, 30));
 
-        load_image_button.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                loadPatternImage(this_frame);
-            }
-        });
+        load_image_button.addActionListener(e -> loadPatternImage(this_frame));
 
         trap_norm_field = new JTextField(9);
         trap_norm_field.setText("" + ots.trapNorm);
         
-        lines_function_combo = new JComboBox(MainWindow.orbitTrapLineTypes);
+        lines_function_combo = new JComboBox<>(MainWindow.orbitTrapLineTypes);
         lines_function_combo.setSelectedIndex(ots.lineType);
         lines_function_combo.setFocusable(false);
         lines_function_combo.setToolTipText("Sets the function which is applied to the lines.");
@@ -164,7 +151,7 @@ public class OrbitTrapsFrame extends JFrame {
         final JTextField imaginary_textfield = new JTextField(16);
         imaginary_textfield.setText("" + ots.trapPoint[1]);
 
-        JComboBox checkType = new JComboBox(Constants.orbitTrapCheckTypes);
+        JComboBox<String> checkType = new JComboBox<>(Constants.orbitTrapCheckTypes);
         checkType.setSelectedIndex(ots.checkType);
         checkType.setFocusable(false);
         checkType.setToolTipText("Sets the trap finding method.");
@@ -220,17 +207,12 @@ public class OrbitTrapsFrame extends JFrame {
         blend_opt.setFocusable(false);
         blend_opt.setPaintLabels(true);
         
-        color_method_combo = new JComboBox(Constants.colorMethod);
+        color_method_combo = new JComboBox<>(Constants.colorMethod);
         color_method_combo.setSelectedIndex(ots.trapColorMethod);
         color_method_combo.setFocusable(false);
         color_method_combo.setToolTipText("Sets the color method.");
         
-        color_method_combo.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                blend_opt.setEnabled(color_method_combo.getSelectedIndex() == 3);
-            }         
-        });
+        color_method_combo.addActionListener(e -> blend_opt.setEnabled(color_method_combo.getSelectedIndex() == 3));
       
         JPanel p4 = new JPanel();
         p4.setBackground(MainWindow.bg_color);
@@ -271,7 +253,7 @@ public class OrbitTrapsFrame extends JFrame {
         JPanel p9 = new JPanel();
         p9.setBackground(MainWindow.bg_color);
         
-        JComboBox heightFunction = new JComboBox(Constants.trapHeightAlgorithms);
+        JComboBox<String> heightFunction = new JComboBox<>(Constants.trapHeightAlgorithms);
         heightFunction.setFocusable(false);
         heightFunction.setSelectedIndex(ots.trapHeightFunction);
         heightFunction.setToolTipText("Sets the trap height function.");
@@ -521,7 +503,7 @@ public class OrbitTrapsFrame extends JFrame {
         JPanel p7 = new JPanel();
         p7.setBackground(MainWindow.bg_color);
         
-        JComboBox colors = new JComboBox(new String[] {"Per Trap", "Random", "Hue/Arg HSB", "Hue/Arg LCH", "Random HSB", "Random Palette", "Arg Palette", "Trap Iterations HSB", "Trap Iterations LCH"});
+        JComboBox<String> colors = new JComboBox<>(new String[] {"Per Trap", "Random", "Hue/Arg HSB", "Hue/Arg LCH", "Random HSB", "Random Palette", "Arg Palette", "Trap Iterations HSB", "Trap Iterations LCH"});
         colors.setFocusable(false);
         colors.setSelectedIndex(ots.trapColorFillingMethod);
         colors.setToolTipText("Sets the trap color filling method.");
@@ -648,112 +630,108 @@ public class OrbitTrapsFrame extends JFrame {
         
         getRootPane().setDefaultButton( ok );
 
-        ok.addActionListener(new ActionListener() {
+        ok.addActionListener(e -> {
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                double temp, temp2, temp3, temp4, temp5, temp6, temp7;
-                double tempM1, tempM2, tempN1, tempN2, tempN3, tempA, tempB;
-                int skipTrapIterations;
-                try {
-                    temp = Double.parseDouble(trap_norm_field.getText());
-                    temp2 = Double.parseDouble(real_textfield.getText());
-                    temp3 = Double.parseDouble(imaginary_textfield.getText());
-                    temp4 = Double.parseDouble(trap_length_field.getText());
-                    temp5 = Double.parseDouble(trap_width_field.getText());
-                    temp6 = Double.parseDouble(trap_threshold_field.getText());
-                    temp7 = Double.parseDouble(trap_intensity_field.getText());
-                    tempM1 = Double.parseDouble(m1.getText());
-                    tempM2 = Double.parseDouble(m2.getText());
-                    tempN1 = Double.parseDouble(n1.getText());
-                    tempN2 = Double.parseDouble(n2.getText());
-                    tempN3 = Double.parseDouble(n3.getText());
-                    tempA = Double.parseDouble(a.getText());
-                    tempB = Double.parseDouble(b.getText());
-                    skipTrapIterations = Integer.parseInt(skipCheck.getText());
-                } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(this_frame, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-
-                if (temp4 < 0) {
-                    JOptionPane.showMessageDialog(this_frame, "Trap Length must be greater than -1.", "Error!", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-
-                if (temp5 < 0) {
-                    JOptionPane.showMessageDialog(this_frame, "Trap Width must be greater than -1.", "Error!", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-
-                if (temp6 < 0) {
-                    JOptionPane.showMessageDialog(this_frame, "Trap Max Distance must be greater than -1.", "Error!", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-                
-                if (temp7 < 0) {
-                    JOptionPane.showMessageDialog(this_frame, "Trap Intesity must be greater than -1.", "Error!", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-
-                if(skipTrapIterations < 0) {
-                    JOptionPane.showMessageDialog(this_frame, "Trap skip first iterations must be greater than -1.", "Error!", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-
-                ots.trapType = orbit_traps_combo.getSelectedIndex();
-                ots.useTraps = orbit_traps_opt.isSelected();
-                ots.trapLength = temp4;
-                ots.trapWidth = temp5;
-                ots.trapMaxDistance = temp6;
-                ots.trapIntensity = temp7;
-                ots.trapNorm = temp;
-                ots.trapPoint[0] = temp2;
-                ots.trapPoint[1] = temp3;
-                ots.trapBlending = blend_opt.getValue() / 100.0;
-                ots.lineType = lines_function_combo.getSelectedIndex();
-                ots.trapColorMethod = color_method_combo.getSelectedIndex();
-                ots.trapColor1 = trap1_color_label.getBackground();
-                ots.trapColor2 = trap2_color_label.getBackground();
-                ots.trapColor3 = trap3_color_label.getBackground();
-                ots.trapColorInterpolation = interpolation_opt.getValue() / 100.0;
-                ots.trapIncludeEscaped = include_escaped_opt.isSelected();
-                ots.trapIncludeNotEscaped = include_notescaped_opt.isSelected();
-                ots.trapColorFillingMethod = colors.getSelectedIndex();
-                
-                ots.trapCellularInverseColor = invert_trap_cellular_opt.isSelected();
-                ots.trapCellularStructure = trap_cellular_opt.isSelected();
-                ots.trapCellularColor = cellular_color_label.getBackground();
-                ots.trapCellularSize = cellular_size_opt.getValue() / 100.0;
-                ots.countTrapIterations = trap_iterations_opt.isSelected();
-                ots.trapHeightFunction = heightFunction.getSelectedIndex();
-                ots.invertTrapHeight = invert_height_opt.isSelected();
-
-                ots.checkType = checkType.getSelectedIndex();
-                ots.skipTrapCheckForIterations = skipTrapIterations;
-
-                ots.sfm1 = tempM1;
-                ots.sfm2 = tempM2;
-                ots.sfn1 = tempN1;
-                ots.sfn2 = tempN2;
-                ots.sfn3 = tempN3;
-                ots.sfa = tempA;
-                ots.sfb = tempB;
-
-                if(image != null) {
-                    ots.trapImage = image;
-                    ImageOrbitTrap.image = ots.trapImage;
-                }
-
-                ots.showOnlyTraps = showOnlyTraps.isSelected();
-                ots.background = background_label.getBackground();
-
-                ptra2.setOrbitTrapSettings();
-                ptra2.setEnabled(true);
-                dispose();
-
+            double temp, temp2, temp3, temp4, temp5, temp6, temp7;
+            double tempM1, tempM2, tempN1, tempN2, tempN3, tempA, tempB;
+            int skipTrapIterations;
+            try {
+                temp = Double.parseDouble(trap_norm_field.getText());
+                temp2 = Double.parseDouble(real_textfield.getText());
+                temp3 = Double.parseDouble(imaginary_textfield.getText());
+                temp4 = Double.parseDouble(trap_length_field.getText());
+                temp5 = Double.parseDouble(trap_width_field.getText());
+                temp6 = Double.parseDouble(trap_threshold_field.getText());
+                temp7 = Double.parseDouble(trap_intensity_field.getText());
+                tempM1 = Double.parseDouble(m1.getText());
+                tempM2 = Double.parseDouble(m2.getText());
+                tempN1 = Double.parseDouble(n1.getText());
+                tempN2 = Double.parseDouble(n2.getText());
+                tempN3 = Double.parseDouble(n3.getText());
+                tempA = Double.parseDouble(a.getText());
+                tempB = Double.parseDouble(b.getText());
+                skipTrapIterations = Integer.parseInt(skipCheck.getText());
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this_frame, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
+                return;
             }
+
+            if (temp4 < 0) {
+                JOptionPane.showMessageDialog(this_frame, "Trap Length must be greater than -1.", "Error!", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            if (temp5 < 0) {
+                JOptionPane.showMessageDialog(this_frame, "Trap Width must be greater than -1.", "Error!", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            if (temp6 < 0) {
+                JOptionPane.showMessageDialog(this_frame, "Trap Max Distance must be greater than -1.", "Error!", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            if (temp7 < 0) {
+                JOptionPane.showMessageDialog(this_frame, "Trap Intesity must be greater than -1.", "Error!", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            if(skipTrapIterations < 0) {
+                JOptionPane.showMessageDialog(this_frame, "Trap skip first iterations must be greater than -1.", "Error!", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            ots.trapType = orbit_traps_combo.getSelectedIndex();
+            ots.useTraps = orbit_traps_opt.isSelected();
+            ots.trapLength = temp4;
+            ots.trapWidth = temp5;
+            ots.trapMaxDistance = temp6;
+            ots.trapIntensity = temp7;
+            ots.trapNorm = temp;
+            ots.trapPoint[0] = temp2;
+            ots.trapPoint[1] = temp3;
+            ots.trapBlending = blend_opt.getValue() / 100.0;
+            ots.lineType = lines_function_combo.getSelectedIndex();
+            ots.trapColorMethod = color_method_combo.getSelectedIndex();
+            ots.trapColor1 = trap1_color_label.getBackground();
+            ots.trapColor2 = trap2_color_label.getBackground();
+            ots.trapColor3 = trap3_color_label.getBackground();
+            ots.trapColorInterpolation = interpolation_opt.getValue() / 100.0;
+            ots.trapIncludeEscaped = include_escaped_opt.isSelected();
+            ots.trapIncludeNotEscaped = include_notescaped_opt.isSelected();
+            ots.trapColorFillingMethod = colors.getSelectedIndex();
+
+            ots.trapCellularInverseColor = invert_trap_cellular_opt.isSelected();
+            ots.trapCellularStructure = trap_cellular_opt.isSelected();
+            ots.trapCellularColor = cellular_color_label.getBackground();
+            ots.trapCellularSize = cellular_size_opt.getValue() / 100.0;
+            ots.countTrapIterations = trap_iterations_opt.isSelected();
+            ots.trapHeightFunction = heightFunction.getSelectedIndex();
+            ots.invertTrapHeight = invert_height_opt.isSelected();
+
+            ots.checkType = checkType.getSelectedIndex();
+            ots.skipTrapCheckForIterations = skipTrapIterations;
+
+            ots.sfm1 = tempM1;
+            ots.sfm2 = tempM2;
+            ots.sfn1 = tempN1;
+            ots.sfn2 = tempN2;
+            ots.sfn3 = tempN3;
+            ots.sfa = tempA;
+            ots.sfb = tempB;
+
+            if(image != null) {
+                ots.trapImage = image;
+                ImageOrbitTrap.image = ots.trapImage;
+            }
+
+            ots.showOnlyTraps = showOnlyTraps.isSelected();
+            ots.background = background_label.getBackground();
+
+            ptra2.setOrbitTrapSettings();
+            ptra2.setEnabled(true);
+            dispose();
+
         });
 
         getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
@@ -769,15 +747,11 @@ public class OrbitTrapsFrame extends JFrame {
 
         JButton close = new JButton("Cancel");
         close.setFocusable(false);
-        close.addActionListener(new ActionListener() {
+        close.addActionListener(e -> {
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
+            ptra2.setEnabled(true);
+            dispose();
 
-                ptra2.setEnabled(true);
-                dispose();
-
-            }
         });
 
         getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
@@ -832,12 +806,6 @@ public class OrbitTrapsFrame extends JFrame {
         setVisible(true);
     }
 
-    private ImageIcon getIcon(String path) {
-
-        return new ImageIcon(getClass().getResource(path));
-
-    }
-
     public void toggled(boolean toggled) {
 
         if (!toggled) {
@@ -857,30 +825,11 @@ public class OrbitTrapsFrame extends JFrame {
             setComponentState(color_options_panel ,false);
         }
 
-        if (index == MainWindow.NNORM_ATOM_DOMAIN_TRAP || index == MainWindow.POINT_N_NORM_TRAP || index == MainWindow.N_NORM_TRAP || index == MainWindow.N_NORM_CROSS_TRAP || index == MainWindow.N_NORM_POINT_TRAP || index == MainWindow.N_NORM_POINT_N_NORM_TRAP || index == MainWindow.GOLDEN_RATIO_SPIRAL_POINT_N_NORM_TRAP || index == MainWindow.GOLDEN_RATIO_SPIRAL_N_NORM_TRAP || index == MainWindow.STALKS_POINT_N_NORM_TRAP || index == MainWindow.STALKS_N_NORM_TRAP) {
-            trap_norm_field.setEnabled(true);
-        } else {
-            trap_norm_field.setEnabled(false);
-        }
 
-        if (index == MainWindow.ATOM_DOMAIN_TRAP || index == MainWindow.SQUARE_ATOM_DOMAIN_TRAP || index == MainWindow.RHOMBUS_ATOM_DOMAIN_TRAP || index == MainWindow.NNORM_ATOM_DOMAIN_TRAP || index == MainWindow.POINT_RHOMBUS_TRAP || index == MainWindow.POINT_SQUARE_TRAP || index == MainWindow.POINT_TRAP || index == MainWindow.POINT_N_NORM_TRAP) {
-            trap_width_field.setEnabled(false);
-        } else {
-            trap_width_field.setEnabled(true);
-        }
-        
-        if (index == Constants.SUPER_FORMULA_ORBIT_TRAP || index == MainWindow.ATOM_DOMAIN_TRAP || index == MainWindow.SQUARE_ATOM_DOMAIN_TRAP || index == MainWindow.RHOMBUS_ATOM_DOMAIN_TRAP || index == MainWindow.NNORM_ATOM_DOMAIN_TRAP ||  index == MainWindow.GOLDEN_RATIO_SPIRAL_TRAP || index == MainWindow.STALKS_TRAP) {
-            trap_length_field.setEnabled(false);
-        } else {
-            trap_length_field.setEnabled(true);
-        }
-
-        if(index == MainWindow.CROSS_TRAP || index ==  MainWindow.RE_TRAP || index ==  MainWindow.IM_TRAP || index ==  MainWindow.CIRCLE_CROSS_TRAP || index ==  MainWindow.SQUARE_CROSS_TRAP || index ==  MainWindow.RHOMBUS_CROSS_TRAP || index ==  MainWindow.N_NORM_CROSS_TRAP || index == MainWindow.GOLDEN_RATIO_SPIRAL_CROSS_TRAP || index == MainWindow.STALKS_CROSS_TRAP) {
-            lines_function_combo.setEnabled(true);
-        }
-        else {
-            lines_function_combo.setEnabled(false);
-        }
+        trap_norm_field.setEnabled(index == MainWindow.NNORM_ATOM_DOMAIN_TRAP || index == MainWindow.POINT_N_NORM_TRAP || index == MainWindow.N_NORM_TRAP || index == MainWindow.N_NORM_CROSS_TRAP || index == MainWindow.N_NORM_POINT_TRAP || index == MainWindow.N_NORM_POINT_N_NORM_TRAP || index == MainWindow.GOLDEN_RATIO_SPIRAL_POINT_N_NORM_TRAP || index == MainWindow.GOLDEN_RATIO_SPIRAL_N_NORM_TRAP || index == MainWindow.STALKS_POINT_N_NORM_TRAP || index == MainWindow.STALKS_N_NORM_TRAP);
+        trap_width_field.setEnabled(!(index == MainWindow.ATOM_DOMAIN_TRAP || index == MainWindow.SQUARE_ATOM_DOMAIN_TRAP || index == MainWindow.RHOMBUS_ATOM_DOMAIN_TRAP || index == MainWindow.NNORM_ATOM_DOMAIN_TRAP || index == MainWindow.POINT_RHOMBUS_TRAP || index == MainWindow.POINT_SQUARE_TRAP || index == MainWindow.POINT_TRAP || index == MainWindow.POINT_N_NORM_TRAP));
+        trap_length_field.setEnabled(!(index == Constants.SUPER_FORMULA_ORBIT_TRAP || index == MainWindow.ATOM_DOMAIN_TRAP || index == MainWindow.SQUARE_ATOM_DOMAIN_TRAP || index == MainWindow.RHOMBUS_ATOM_DOMAIN_TRAP || index == MainWindow.NNORM_ATOM_DOMAIN_TRAP ||  index == MainWindow.GOLDEN_RATIO_SPIRAL_TRAP || index == MainWindow.STALKS_TRAP));
+        lines_function_combo.setEnabled(index == MainWindow.CROSS_TRAP || index ==  MainWindow.RE_TRAP || index ==  MainWindow.IM_TRAP || index ==  MainWindow.CIRCLE_CROSS_TRAP || index ==  MainWindow.SQUARE_CROSS_TRAP || index ==  MainWindow.RHOMBUS_CROSS_TRAP || index ==  MainWindow.N_NORM_CROSS_TRAP || index == MainWindow.GOLDEN_RATIO_SPIRAL_CROSS_TRAP || index == MainWindow.STALKS_CROSS_TRAP);
 
         if(index == MainWindow.SUPER_FORMULA_ORBIT_TRAP) {
             m1.setEnabled(true);
@@ -919,13 +868,9 @@ public class OrbitTrapsFrame extends JFrame {
 
         file_chooser.addChoosableFileFilter(imageFilter);
 
-        file_chooser.addPropertyChangeListener(JFileChooser.FILE_FILTER_CHANGED_PROPERTY, new PropertyChangeListener() {
-
-            @Override
-            public void propertyChange(PropertyChangeEvent evt) {
-                String file_name = ((BasicFileChooserUI) file_chooser.getUI()).getFileName();
-                file_chooser.setSelectedFile(new File(file_name));
-            }
+        file_chooser.addPropertyChangeListener(JFileChooser.FILE_FILTER_CHANGED_PROPERTY, evt -> {
+            String file_name = ((BasicFileChooserUI) file_chooser.getUI()).getFileName();
+            file_chooser.setSelectedFile(new File(file_name));
         });
 
         int returnVal = file_chooser.showDialog(parent, "Load Pattern Image");
@@ -949,7 +894,7 @@ public class OrbitTrapsFrame extends JFrame {
         }
         if (component instanceof JComponent) {
             JComponent a = (JComponent) component;
-            Component comp[] = a.getComponents();
+            Component[] comp = a.getComponents();
             for (int i = 0; i < comp.length; i++) {
                 setComponentState(comp[i], state);
             }

@@ -1,7 +1,6 @@
 package fractalzoomer.functions.root_finding_methods.contra_harmonic_newton;
 
 import fractalzoomer.core.Complex;
-import fractalzoomer.functions.root_finding_methods.midpoint.MidpointRootFindingMethod;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
 import fractalzoomer.main.app_settings.StatisticsSettings;

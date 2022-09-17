@@ -25,14 +25,12 @@ import fractalzoomer.planes.Plane;
  */
 public class SkewPlane extends Plane {
 
-    private double[] plane_transform_scales;
+    private Complex skew;
 
     public SkewPlane(double plane_transform_angle, double plane_transform_angle2) {
 
         super();
-        plane_transform_scales = new double[2];
-        plane_transform_scales[0] = Math.tan(Math.toRadians(plane_transform_angle));
-        plane_transform_scales[1] = Math.tan(Math.toRadians(plane_transform_angle2));
+        skew = new Complex(Math.tan(Math.toRadians(plane_transform_angle)), Math.tan(Math.toRadians(plane_transform_angle2)));
         
 
     }
@@ -40,7 +38,7 @@ public class SkewPlane extends Plane {
     @Override
     public Complex transform(Complex pixel) {
 
-        return pixel.shear(new Complex(plane_transform_scales[0], plane_transform_scales[1]));
+        return pixel.shear(skew);
 
     }
     

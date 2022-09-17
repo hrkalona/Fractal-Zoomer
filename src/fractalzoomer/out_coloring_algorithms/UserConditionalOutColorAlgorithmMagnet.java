@@ -26,13 +26,10 @@ import fractalzoomer.utils.ColorAlgorithm;
  * @author hrkalona2
  */
 public class UserConditionalOutColorAlgorithmMagnet extends UserConditionalOutColorAlgorithm {
-
-    protected int max_iterations;
     
     public UserConditionalOutColorAlgorithmMagnet(String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, double bailout, int max_iterations, double xCenter, double yCenter, double size, double[] point, Complex[] globalVars) {
 
         super(user_outcoloring_conditions, user_outcoloring_condition_formula, bailout, max_iterations, xCenter, yCenter, size, point, globalVars);
-        this.max_iterations = max_iterations;
         OutNotUsingIncrement = true;
         
     }

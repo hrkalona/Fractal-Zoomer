@@ -38,14 +38,13 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLWriter;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.*;
-import java.nio.file.*;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -85,13 +84,13 @@ public class CommonFunctions implements Constants {
                 Object[] message = {
                     res[0],};
 
-                JOptionPane.showMessageDialog(parent, message, "Software Update", JOptionPane.PLAIN_MESSAGE, getIcon("/fractalzoomer/icons/checkmark.png"));
+                JOptionPane.showMessageDialog(parent, message, "Software Update", JOptionPane.PLAIN_MESSAGE, MainWindow.getIcon("checkmark.png"));
             }
         } else {
             Object[] message = {
                 new LinkLabel(res[0], res[1])};
 
-            JOptionPane.showMessageDialog(parent, message, "Software Update", JOptionPane.PLAIN_MESSAGE, getIcon("/fractalzoomer/icons/update_larger.png"));
+            JOptionPane.showMessageDialog(parent, message, "Software Update", JOptionPane.PLAIN_MESSAGE, MainWindow.getIcon("update_larger.png"));
         }
 
     }
@@ -206,10 +205,10 @@ public class CommonFunctions implements Constants {
         try {
             Parser.compileUserFunctions();
             if (show_success) {
-                JOptionPane.showMessageDialog(parent, "Compilation was successful!", "Success!", JOptionPane.INFORMATION_MESSAGE, getIcon("/fractalzoomer/icons/compile_sucess.png"));
+                JOptionPane.showMessageDialog(parent, "Compilation was successful!", "Success!", JOptionPane.INFORMATION_MESSAGE, MainWindow.getIcon("compile_sucess.png"));
             }
         } catch (ParserException ex) {
-            JOptionPane.showMessageDialog(parent, ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE, getIcon("/fractalzoomer/icons/compile_error.png"));
+            JOptionPane.showMessageDialog(parent, ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE, MainWindow.getIcon("compile_error.png"));
         }
 
     }
@@ -590,10 +589,10 @@ public class CommonFunctions implements Constants {
 
         if (s.fns.julia) {
             if(s.fns.juliter) {
-                overview += "<b><font color='red'>Julia Seed:</font></b> " + Complex.toString2(s.xJuliaCenter, s.yJuliaCenter) + " is replacing the c constant in the formula after the iteration " + s.fns.juliterIterations + " (Juliter)<br><br>";
+                overview += "<b><font color='red'>Julia Seed:</font></b> " + BigComplex.toString2Pretty(s.xJuliaCenter, s.yJuliaCenter) + " is replacing the c constant in the formula after the iteration " + s.fns.juliterIterations + " (Juliter)<br><br>";
             }
             else {
-                overview += "<b><font color='red'>Julia Seed:</font></b> " + Complex.toString2(s.xJuliaCenter, s.yJuliaCenter) + " is replacing the c constant in the formula<br><br>";
+                overview += "<b><font color='red'>Julia Seed:</font></b> " + BigComplex.toString2Pretty(s.xJuliaCenter, s.yJuliaCenter)  + " is replacing the c constant in the formula<br><br>";
             }
         }
 
@@ -723,16 +722,16 @@ public class CommonFunctions implements Constants {
         if (s.fns.perturbation && !s.isPertubationTheoryInUse()) {
             if (s.fns.variable_perturbation) {
                 if (s.fns.user_perturbation_algorithm == 0) {
-                    overview += "<b><font color='red'>Perturbation:</font></b> Variable Value<br>";
+                    overview += "<b><font color='red'>Initial Perturbation:</font></b> Variable Value<br>";
                     overview += tab + "z(0) = z(0) + " + s.fns.perturbation_user_formula + "<br>";
                 } else {
-                    overview += "<b><font color='red'>Perturbation:</font></b> Variable Value Conditional<br>";
+                    overview += "<b><font color='red'>Initial Perturbation:</font></b> Variable Value Conditional<br>";
                     overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[" + s.fns.user_perturbation_conditions[0] + " > " + s.fns.user_perturbation_conditions[1] + "]</font> <font color='" + keyword_color + "'>then</font> z(0) = z(0) + " + s.fns.user_perturbation_condition_formula[0] + "<br>";
                     overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[" + s.fns.user_perturbation_conditions[0] + " &#60; " + s.fns.user_perturbation_conditions[1] + "]</font> <font color='" + keyword_color + "'>then</font> z(0) = z(0) + " + s.fns.user_perturbation_condition_formula[1] + "<br>";
                     overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[" + s.fns.user_perturbation_conditions[0] + " = " + s.fns.user_perturbation_conditions[1] + "]</font> <font color='" + keyword_color + "'>then</font> z(0) = z(0) + " + s.fns.user_perturbation_condition_formula[2] + "<br>";
                 }
             } else {
-                overview += "<b><font color='red'>Perturbation:</font></b> Static Value<br>";
+                overview += "<b><font color='red'>Initial Perturbation:</font></b> Static Value<br>";
                 overview += tab + "z(0) = z(0) + " + Complex.toString2(s.fns.perturbation_vals[0], s.fns.perturbation_vals[1]) + "<br>";
             }
             overview += "<br>";
@@ -1068,6 +1067,13 @@ public class CommonFunctions implements Constants {
 
         overview += "<b><font color='red'>Stretch Factor:</font></b> " + s.height_ratio + "<br><br>";
 
+        if(s.js.enableJitter) {
+            overview += "<b><font color='red'>Jitter:</font></b><br>";
+            overview += tab + "Shape = " + Constants.jitterShape[s.js.jitterShape] + "<br>";
+            overview += tab + "Seed = " + s.js.jitterSeed + "<br>";
+            overview += tab + "Scale = " + s.js.jitterScale + "<br><br>";
+        }
+
         if (!s.ds.domain_coloring) {
 
             if(s.isPertubationTheoryInUse() && s.fns.out_coloring_algorithm == MainWindow.DISTANCE_ESTIMATOR) {
@@ -1301,13 +1307,24 @@ public class CommonFunctions implements Constants {
         }
 
         if ((!s.ds.domain_coloring || (s.ds.domain_coloring && s.ds.domain_coloring_mode == 1)) && !s.useDirectColor) {
-            overview += "<b><font color='red'>Palette(Out):</font></b> " + PaletteMenu.paletteNames[s.ps.color_choice] + "<br>";
+
+            if(s.gps.useGeneratedPaletteOutColoring) {
+                overview += "<b><font color='red'>Palette(Out):</font></b> " + Constants.generatedPalettes[s.gps.generatedPaletteOutColoringId] + "<br>";
+            }
+            else {
+                overview += "<b><font color='red'>Palette(Out):</font></b> " + PaletteMenu.paletteNames[s.ps.color_choice] + "<br>";
+            }
             overview += tab + "Palette Offset = " + s.ps.color_cycling_location + "<br>";
             overview += tab + "Transfer Function = " + ColorTransferMenu.colorTransferNames[s.ps.transfer_function] + "<br>";
             overview += tab + "Color Intensity = " + s.ps.color_intensity + "<br><br>";
 
             if (!s.ds.domain_coloring && s.usePaletteForInColoring) {
-                overview += "<b><font color='red'>Palette(In):</font></b> " + PaletteMenu.paletteNames[s.ps2.color_choice] + "<br>";
+                if(s.gps.useGeneratedPaletteInColoring) {
+                    overview += "<b><font color='red'>Palette(In):</font></b> " + Constants.generatedPalettes[s.gps.generatedPaletteInColoringId] + "<br>";
+                }
+                else {
+                    overview += "<b><font color='red'>Palette(In):</font></b> " + PaletteMenu.paletteNames[s.ps2.color_choice] + "<br>";
+                }
                 overview += tab + "Palette Offset = " + s.ps2.color_cycling_location + "<br>";
                 overview += tab + "Transfer Function = " + ColorTransferMenu.colorTransferNames[s.ps2.transfer_function] + "<br>";
                 overview += tab + "Color Intensity = " + s.ps2.color_intensity + "<br><br>";
@@ -1801,10 +1818,10 @@ public class CommonFunctions implements Constants {
                 Object[] message = {
                     scroll_pane_2,
                     " ",
-                    s.sts.statistic && s.sts.statisticGroup == 4 ? null : palette_text_label,
-                        s.sts.statistic && s.sts.statisticGroup == 4 ? null : palette_label,
-                        s.sts.statistic && s.sts.statisticGroup == 4 ? null : palette_in_text_label,
-                        s.sts.statistic && s.sts.statisticGroup == 4 ? null : palette_in_label,
+                    s.sts.statistic && s.sts.statisticGroup == 4 || s.gps.useGeneratedPaletteOutColoring ? null : palette_text_label,
+                        s.sts.statistic && s.sts.statisticGroup == 4 || s.gps.useGeneratedPaletteOutColoring ? null : palette_label,
+                        s.sts.statistic && s.sts.statisticGroup == 4 || s.gps.useGeneratedPaletteInColoring ? null : palette_in_text_label,
+                        s.sts.statistic && s.sts.statisticGroup == 4 || s.gps.useGeneratedPaletteInColoring ? null : palette_in_label,
                     gradient_text_label,
                     gradient_label};
 
@@ -1829,74 +1846,67 @@ public class CommonFunctions implements Constants {
 
                 saveOverview.setToolTipText("Saves the overview as an html file.");
                 saveOverview.setFocusable(false);
-                saveOverview.setIcon(getIcon("/fractalzoomer/icons/save.png"));
+                saveOverview.setIcon(MainWindow.getIcon("save.png"));
                 saveOverview.setPreferredSize(new Dimension(150, 32));
 
 
-                saveOverview.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        JFileChooser file_chooser = new JFileChooser(MainWindow.SaveSettingsPath.isEmpty() ? "." : MainWindow.SaveSettingsPath);
-                        file_chooser.setAcceptAllFileFilterUsed(false);
-                        file_chooser.setDialogType(JFileChooser.SAVE_DIALOG);
+                saveOverview.addActionListener(e -> {
+                    JFileChooser file_chooser = new JFileChooser(MainWindow.SaveSettingsPath.isEmpty() ? "." : MainWindow.SaveSettingsPath);
+                    file_chooser.setAcceptAllFileFilterUsed(false);
+                    file_chooser.setDialogType(JFileChooser.SAVE_DIALOG);
 
-                        file_chooser.addChoosableFileFilter(new FileNameExtensionFilter("HTML (*.html)", "html"));
+                    file_chooser.addChoosableFileFilter(new FileNameExtensionFilter("HTML (*.html)", "html"));
 
-                        String name = "fractal overview " + DateTimeFormatter.ofPattern("yyyy-MM-dd HH;mm;ss").format(LocalDateTime.now()) + ".html";
-                        file_chooser.setSelectedFile(new File(name));
+                    String name = "fractal overview " + DateTimeFormatter.ofPattern("yyyy-MM-dd HH;mm;ss").format(LocalDateTime.now()) + ".html";
+                    file_chooser.setSelectedFile(new File(name));
 
-                        file_chooser.addPropertyChangeListener(JFileChooser.FILE_FILTER_CHANGED_PROPERTY, new PropertyChangeListener() {
+                    file_chooser.addPropertyChangeListener(JFileChooser.FILE_FILTER_CHANGED_PROPERTY, evt -> {
+                        FileNameExtensionFilter filter = (FileNameExtensionFilter) evt.getNewValue();
 
-                            @Override
-                            public void propertyChange(PropertyChangeEvent evt) {
-                                FileNameExtensionFilter filter = (FileNameExtensionFilter) evt.getNewValue();
+                        String extension = filter.getExtensions()[0];
 
-                                String extension = filter.getExtensions()[0];
+                        String file_name = ((BasicFileChooserUI) file_chooser.getUI()).getFileName();
 
-                                String file_name = ((BasicFileChooserUI) file_chooser.getUI()).getFileName();
+                        int index = file_name.lastIndexOf(".");
 
-                                int index = file_name.lastIndexOf(".");
+                        if (index != -1) {
+                            file_name = file_name.substring(0, index);
+                        }
 
-                                if (index != -1) {
-                                    file_name = file_name.substring(0, index);
-                                }
+                        file_chooser.setSelectedFile(new File(file_name + "." + extension));
+                    });
 
-                                file_chooser.setSelectedFile(new File(file_name + "." + extension));
-                            }
-                        });
+                    int returnVal = file_chooser.showDialog(parent, "Save Image");
 
-                        int returnVal = file_chooser.showDialog(parent, "Save Image");
+                    if (returnVal == JFileChooser.APPROVE_OPTION) {
+                        try {
+                            File file = file_chooser.getSelectedFile();
 
-                        if (returnVal == JFileChooser.APPROVE_OPTION) {
-                            try {
-                                File file = file_chooser.getSelectedFile();
+                            FileNameExtensionFilter filter = (FileNameExtensionFilter) file_chooser.getFileFilter();
 
-                                FileNameExtensionFilter filter = (FileNameExtensionFilter) file_chooser.getFileFilter();
-
-                                if (!file.getAbsolutePath().endsWith(".html")) {
-                                    file = new File(file.getAbsolutePath() + ".html");
-                                }
-
-                                BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-                                writer.write(writeOverview(textArea));
-
-                                writer.close();
-
-                                MainWindow.SaveSettingsPath = file.getParent();
-
-                            } catch (IOException ex) {
+                            if (!file.getAbsolutePath().endsWith(".html")) {
+                                file = new File(file.getAbsolutePath() + ".html");
                             }
 
+                            BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+                            writer.write(writeOverview(textArea));
+
+                            writer.close();
+
+                            MainWindow.SaveSettingsPath = file.getParent();
+
+                        } catch (IOException ex) {
                         }
 
                     }
+
                 });
 
                 Object[] message = {
                     scroll_pane_2,
                     " ",
-                        s.sts.statistic && s.sts.statisticGroup == 4 ? null : palette_text_label,
-                        s.sts.statistic && s.sts.statisticGroup == 4 ? null : palette_label,
+                        s.sts.statistic && s.sts.statisticGroup == 4 || (s.gps.useGeneratedPaletteOutColoring && (!s.ds.domain_coloring || (s.ds.domain_coloring && s.ds.domain_coloring_mode == 1))) ? null : palette_text_label,
+                        s.sts.statistic && s.sts.statisticGroup == 4 || (s.gps.useGeneratedPaletteOutColoring && (!s.ds.domain_coloring || (s.ds.domain_coloring && s.ds.domain_coloring_mode == 1))) ? null : palette_label,
                     gradient_text_label,
                     gradient_label
                     ," ",
@@ -1945,9 +1955,9 @@ public class CommonFunctions implements Constants {
             } else {
                 c2 = c[j + 1];
             }
-            GradientPaint gp = new GradientPaint(j * palette_preview.getWidth() / c.length, 0, c[j], (j + 1) * palette_preview.getWidth() / c.length, 0, c2);
+            GradientPaint gp = new GradientPaint(j * palette_preview.getWidth() / ((float)c.length), 0, c[j], (j + 1) * palette_preview.getWidth() / ((float)c.length), 0, c2);
             g.setPaint(gp);
-            g.fill(new Rectangle2D.Double(j * palette_preview.getWidth() / c.length, 0, (j + 1) * palette_preview.getWidth() / c.length - j * palette_preview.getWidth() / c.length, palette_preview.getHeight()));
+            g.fill(new Rectangle2D.Double(j * palette_preview.getWidth() / ((double)c.length), 0, (j + 1) * palette_preview.getWidth() / ((double)c.length) - j * palette_preview.getWidth() / ((double)c.length), palette_preview.getHeight()));
         }
 
         return palette_preview;
@@ -2006,9 +2016,9 @@ public class CommonFunctions implements Constants {
         Graphics2D g = palette_preview.createGraphics();
         for (int j = 0; j < c.length; j++) {
             if (s.fns.smoothing || isSmooth) {
-                GradientPaint gp = new GradientPaint(j * palette_preview.getWidth() / c.length, 0, c[j], (j + 1) * palette_preview.getWidth() / c.length, 0, c[(j + 1) % c.length]);
+                GradientPaint gp = new GradientPaint(j * palette_preview.getWidth() / ((float)c.length), 0, c[j], (j + 1) * palette_preview.getWidth() / ((float)c.length), 0, c[(j + 1) % c.length]);
                 g.setPaint(gp);
-                g.fill(new Rectangle2D.Double(j * palette_preview.getWidth() / c.length, 0, (j + 1) * palette_preview.getWidth() / c.length - j * palette_preview.getWidth() / c.length, palette_preview.getHeight()));
+                g.fill(new Rectangle2D.Double(j * palette_preview.getWidth() / ((double)c.length), 0, (j + 1) * palette_preview.getWidth() / ((double)c.length) - j * palette_preview.getWidth() / ((double)c.length), palette_preview.getHeight()));
             } else {
                 g.setColor(c[j]);
                 g.fillRect(j * palette_preview.getWidth() / c.length, 0, (j + 1) * palette_preview.getWidth() / c.length - j * palette_preview.getWidth() / c.length, palette_preview.getHeight());
@@ -2037,9 +2047,9 @@ public class CommonFunctions implements Constants {
         Graphics2D g = palette_preview.createGraphics();
         for (int j = 0; j < c.length; j++) {
             if (s.fns.smoothing) {
-                GradientPaint gp = new GradientPaint(j * palette_preview.getWidth() / c.length, 0, c[j], (j + 1) * palette_preview.getWidth() / c.length, 0, c[(j + 1) % c.length]);
+                GradientPaint gp = new GradientPaint(j * palette_preview.getWidth() / ((float)c.length), 0, c[j], (j + 1) * palette_preview.getWidth() / ((float)c.length), 0, c[(j + 1) % c.length]);
                 g.setPaint(gp);
-                g.fill(new Rectangle2D.Double(j * palette_preview.getWidth() / c.length, 0, (j + 1) * palette_preview.getWidth() / c.length - j * palette_preview.getWidth() / c.length, palette_preview.getHeight()));
+                g.fill(new Rectangle2D.Double(j * palette_preview.getWidth() / ((double)c.length), 0, (j + 1) * palette_preview.getWidth() / ((double)c.length) - j * palette_preview.getWidth() / ((double)c.length), palette_preview.getHeight()));
             } else {
                 g.setColor(c[j]);
                 g.fillRect(j * palette_preview.getWidth() / c.length, 0, (j + 1) * palette_preview.getWidth() / c.length - j * palette_preview.getWidth() / c.length, palette_preview.getHeight());
@@ -2047,11 +2057,6 @@ public class CommonFunctions implements Constants {
         }
 
         return palette_preview;
-    }
-
-    private ImageIcon getIcon(String path) {
-
-        return new ImageIcon(getClass().getResource(path));
     }
 
     public static void setUIFont(javax.swing.plaf.FontUIResource f) {
@@ -2140,26 +2145,5 @@ public class CommonFunctions implements Constants {
 
         new PerturbationTheoryHelpDialog(dialog);
 
-    }
-
-    public static void checkForLostPrecision(String[] inputs) {
-
-        int max = -1;
-        for(int i = 0; i < inputs.length; i++) {
-            String temp = inputs[i].toLowerCase();
-            try {
-                new MyApfloat(temp);
-            }
-            catch (Exception ex) {
-                return;
-            }
-            int eIndex = temp.lastIndexOf('e');
-            int dotIndex = temp.indexOf('.');
-            if(dotIndex != -1) {
-                eIndex = eIndex == - 1 ? temp.length() : eIndex;
-                String digits = temp.substring(dotIndex + 1, eIndex);
-                max = digits.length() > max ? digits.length() : max;
-            }
-        }
     }
 }

@@ -50,7 +50,7 @@ public class ProcessingOrderingFrame extends JFrame {
         int custom_palette_window_width = 580;
         int custom_palette_window_height = 480;
         setTitle("Processing Order");
-        setIconImage(getIcon("/fractalzoomer/icons/list.png").getImage());
+        setIconImage(MainWindow.getIcon("list.png").getImage());
 
         setSize(custom_palette_window_width, custom_palette_window_height);
         setLocation((int) (ptra2.getLocation().getX() + ptra2.getSize().getWidth() / 2) - (custom_palette_window_width / 2), (int) (ptra2.getLocation().getY() + ptra2.getSize().getHeight() / 2) - (custom_palette_window_height / 2));
@@ -99,28 +99,28 @@ public class ProcessingOrderingFrame extends JFrame {
                     boolean isSelected, boolean cellHasFocus) {
                 
                 if(MainWindow.processingAlgorithNames[0].equals(value)) {
-                    icon.setIcon(getIcon("/fractalzoomer/icons/fake_distance_estimation.png"));
+                    icon.setIcon(MainWindow.getIcon("fake_distance_estimation.png"));
                 }
                 else if(MainWindow.processingAlgorithNames[1].equals(value)) {
-                    icon.setIcon(getIcon("/fractalzoomer/icons/entropy_coloring.png"));
+                    icon.setIcon(MainWindow.getIcon("entropy_coloring.png"));
                 }
                 else if(MainWindow.processingAlgorithNames[2].equals(value)) {
-                    icon.setIcon(getIcon("/fractalzoomer/icons/offset_coloring.png"));
+                    icon.setIcon(MainWindow.getIcon("offset_coloring.png"));
                 }
                 else if(MainWindow.processingAlgorithNames[3].equals(value)) {
-                    icon.setIcon(getIcon("/fractalzoomer/icons/rainbow_palette.png"));
+                    icon.setIcon(MainWindow.getIcon("rainbow_palette.png"));
                 }
                 else if(MainWindow.processingAlgorithNames[4].equals(value)) {
-                    icon.setIcon(getIcon("/fractalzoomer/icons/greyscale_coloring.png"));
+                    icon.setIcon(MainWindow.getIcon("greyscale_coloring.png"));
                 }
                 else if(MainWindow.processingAlgorithNames[5].equals(value)) {
-                    icon.setIcon(getIcon("/fractalzoomer/icons/contour_coloring.png"));
+                    icon.setIcon(MainWindow.getIcon("contour_coloring.png"));
                 }
                 else if(MainWindow.processingAlgorithNames[6].equals(value)) {
-                    icon.setIcon(getIcon("/fractalzoomer/icons/bump_map.png"));
+                    icon.setIcon(MainWindow.getIcon("bump_map.png"));
                 }
                 else if(MainWindow.processingAlgorithNames[7].equals(value)) {
-                    icon.setIcon(getIcon("/fractalzoomer/icons/light.png"));
+                    icon.setIcon(MainWindow.getIcon("light.png"));
                 }
                 
                 label.setText(value);
@@ -242,16 +242,11 @@ public class ProcessingOrderingFrame extends JFrame {
         JButton ok = new JButton("Ok");
         getRootPane().setDefaultButton(ok);
         ok.setFocusable(false);
-        ok.addActionListener(new ActionListener() {
+        ok.addActionListener(e -> {
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptra2.setProcessingOrder(getProcessingOrder());
-                ptra2.setEnabled(true);
-                dispose();
-
-            }
+            ptra2.setProcessingOrder(getProcessingOrder());
+            ptra2.setEnabled(true);
+            dispose();
 
         });
 
@@ -270,15 +265,11 @@ public class ProcessingOrderingFrame extends JFrame {
 
         JButton cancel = new JButton("Cancel");
         cancel.setFocusable(false);
-        cancel.addActionListener(new ActionListener() {
+        cancel.addActionListener(e -> {
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
+            ptra2.setEnabled(true);
+            dispose();
 
-                ptra2.setEnabled(true);
-                dispose();
-
-            }
         });
 
         getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
@@ -324,12 +315,6 @@ public class ProcessingOrderingFrame extends JFrame {
         add(scrollPane);
 
         setVisible(true);
-    }
-
-    private ImageIcon getIcon(String path) {
-
-        return new ImageIcon(getClass().getResource(path));
-
     }
     
     public int[] getProcessingOrder() {

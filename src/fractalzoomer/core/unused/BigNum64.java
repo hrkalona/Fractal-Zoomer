@@ -333,7 +333,7 @@ public class BigNum64 {
 
     public void print() {
 
-        Apfloat sum = new MyApfloat(0);
+        Apfloat sum = MyApfloat.ZERO;
         int decimal_bit_count = -1;
 
         if(sign == -1) {

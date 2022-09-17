@@ -29,7 +29,7 @@ public class ScreenBlending extends Blending {
     }
 
     @Override
-    public int blend(int redA, int greenA, int blueA, int redB, int greenB, int blueB, double coef) {
+    public int blendInternal(int redA, int greenA, int blueA, int redB, int greenB, int blueB, double coef) {
 
         int temp_red = (int)(255 - (255 - redA)*(255 - redB) / 255.0 + 0.5);
         int temp_green = (int)(255 - (255 - greenA)*(255 - greenB) / 255.0 + 0.5);

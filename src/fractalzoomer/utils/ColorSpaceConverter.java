@@ -265,7 +265,7 @@ import java.awt.*;
         else if(MAX == g) {
             H = 60 * (2 + (b - r) / (MAX - MIN));
         }
-        else if(MAX == b) {
+        else {//if(MAX == b) {
             H = 60 * (4 + (r - g) / (MAX - MIN));
         }
         

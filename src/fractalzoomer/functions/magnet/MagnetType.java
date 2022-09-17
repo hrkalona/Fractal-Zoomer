@@ -17,11 +17,12 @@
 package fractalzoomer.functions.magnet;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.core.DeepReference;
 import fractalzoomer.core.MantExpComplex;
 import fractalzoomer.core.ThreadDraw;
 import fractalzoomer.fractal_options.iteration_statistics.*;
+import fractalzoomer.functions.Fractal;
 import fractalzoomer.functions.Julia;
-import fractalzoomer.in_coloring_algorithms.*;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
 import fractalzoomer.main.app_settings.StatisticsSettings;
@@ -410,17 +411,23 @@ public abstract class MagnetType extends Julia {
     @Override
     public double iterateFractalWithPerturbationWithoutPeriodicity(Complex[] complex, Complex dpixel) {
 
-        iterations = skippedIterations;
-
         Complex[] deltas = initializePerturbation(dpixel);
         Complex DeltaSubN = deltas[0]; // Delta z
         Complex DeltaSub0 = deltas[1]; // Delta c
 
+        iterations = nanomb1SkippedIterations != 0 ? nanomb1SkippedIterations : skippedIterations;
         int RefIteration = iterations;
+
+        int ReferencePeriod = iterationPeriod;
 
         double norm_squared = 0;
 
         if(iterations != 0 && RefIteration < MaxRefIteration) {
+            complex[0] = getArrayValue(Reference, RefIteration).plus_mutable(DeltaSubN);
+            norm_squared = complex[0].norm_squared();
+        }
+        else if(iterations != 0 && ReferencePeriod != 0) {
+            RefIteration = RefIteration % ReferencePeriod;
             complex[0] = getArrayValue(Reference, RefIteration).plus_mutable(DeltaSubN);
             norm_squared = complex[0].norm_squared();
         }
@@ -437,7 +444,8 @@ public abstract class MagnetType extends Julia {
                 trap.check(complex[0], iterations);
             }
 
-            if ((temp1 = convergent_bailout_algorithm.converged(complex[0], 1, zold, zold2, iterations, complex[1], start, c0, pixel)) || (temp2 = bailout_algorithm2.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, norm_squared, pixel))) {
+            if ((temp1 = convergent_bailout_algorithm.converged(complex[0], 1, zold, zold2, iterations, complex[1], start, c0, pixel))
+                    || (temp2 = bailout_algorithm2.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, norm_squared, pixel))) {
                 escaped = true;
                 converged = temp1;
 
@@ -493,13 +501,14 @@ public abstract class MagnetType extends Julia {
     @Override
     public double iterateFractalWithPerturbationWithoutPeriodicity(Complex[] complex, MantExpComplex dpixel) {
 
-        iterations = skippedIterations;
-
         MantExpComplex[] deltas = initializePerturbation(dpixel);
         MantExpComplex DeltaSubN = deltas[0]; // Delta z
         MantExpComplex DeltaSub0 = deltas[1]; // Delta c
 
+        iterations = nanomb1SkippedIterations != 0 ? nanomb1SkippedIterations : skippedIterations;
         int RefIteration = iterations;
+
+        int ReferencePeriod = iterationPeriod;
 
         int minExp = -1000;
         int reducedExp = minExp / (int)power;
@@ -523,13 +532,20 @@ public abstract class MagnetType extends Julia {
                 z = getArrayDeepValue(ReferenceDeep, RefIteration).plus_mutable(DeltaSubN);
                 complex[0] = z.toComplex();
             }
+            else if(iterations != 0 && ReferencePeriod != 0) {
+                RefIteration = RefIteration % ReferencePeriod;
+                z = getArrayDeepValue(ReferenceDeep, RefIteration).plus_mutable(DeltaSubN);
+                complex[0] = z.toComplex();
+            }
+
             for (; iterations < max_iterations; iterations++) {
                 if (trap != null) {
                     trap.check(complex[0], iterations);
                 }
 
                 if(useFullFloatExp) {
-                    if ((temp1 = convergent_bailout_algorithm.converged(complex[0], 1, zold, zold2, iterations, complex[1], start, c0, pixel)) || (temp2 = bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, 0.0, pixel))) {
+                    if ((temp1 = convergent_bailout_algorithm.converged(complex[0], 1, zold, zold2, iterations, complex[1], start, c0, pixel))
+                            || (temp2 = bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, 0.0, pixel))) {
                         escaped = true;
                         converged = temp1;
 
@@ -587,6 +603,11 @@ public abstract class MagnetType extends Julia {
             if(!usedDeepCode && iterations != 0 && RefIteration < MaxRefIteration) {
                 complex[0] = getArrayValue(Reference, RefIteration).plus_mutable(CDeltaSubN);
             }
+            else if(!usedDeepCode && iterations != 0 && ReferencePeriod != 0) {
+                RefIteration = RefIteration % ReferencePeriod;
+                complex[0] = getArrayValue(Reference, RefIteration).plus_mutable(CDeltaSubN);
+            }
+
             double norm_squared = complex[0].norm_squared();
 
             for (; iterations < max_iterations; iterations++) {
@@ -597,7 +618,8 @@ public abstract class MagnetType extends Julia {
                     trap.check(complex[0], iterations);
                 }
 
-                if ((temp1 = convergent_bailout_algorithm.converged(complex[0], 1, zold, zold2, iterations, complex[1], start, c0, pixel)) || (temp2 = bailout_algorithm2.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, norm_squared, pixel))) {
+                if ((temp1 = convergent_bailout_algorithm.converged(complex[0], 1, zold, zold2, iterations, complex[1], start, c0, pixel))
+                        || (temp2 = bailout_algorithm2.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, norm_squared, pixel))) {
                     escaped = true;
                     converged = temp1;
 
@@ -661,20 +683,23 @@ public abstract class MagnetType extends Julia {
     @Override
     public double iterateJuliaWithPerturbationWithoutPeriodicity(Complex[] complex, Complex dpixel) {
 
-        iterations = skippedIterations;
+        iterations = 0;
+        int RefIteration = iterations;
 
         Complex[] deltas = initializePerturbation(dpixel);
         Complex DeltaSubN = deltas[0]; // Delta z
 
-        int RefIteration = iterations;
 
         boolean temp1 = false, temp2 = false;
 
         converged = false;
 
-        Complex zWithoutInitVal = new Complex();
-
         Complex pixel = dpixel.plus(refPointSmall);
+
+        int MaxRefIteration = Fractal.MaxRefIteration;
+        double[] Reference = Fractal.Reference;
+
+        double norm_squared = complex[0].norm_squared();
 
         for (; iterations < max_iterations; iterations++) {
 
@@ -682,7 +707,8 @@ public abstract class MagnetType extends Julia {
                 trap.check(complex[0], iterations);
             }
 
-            if ((temp1 = convergent_bailout_algorithm.converged(complex[0], 1, zold, zold2, iterations, complex[1], start, c0, pixel)) || (temp2 = bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, 0.0, pixel))) {
+            if ((temp1 = convergent_bailout_algorithm.converged(complex[0], 1, zold, zold2, iterations, complex[1], start, c0, pixel))
+                    || (temp2 = bailout_algorithm2.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, norm_squared, pixel))) {
                 escaped = true;
                 converged = temp1;
 
@@ -698,7 +724,7 @@ public abstract class MagnetType extends Julia {
                 return out;
             }
 
-            DeltaSubN = perturbationFunction(DeltaSubN, RefIteration);
+            DeltaSubN = perturbationFunction(DeltaSubN, Reference, null, null, RefIteration);
 
             RefIteration++;
 
@@ -707,7 +733,6 @@ public abstract class MagnetType extends Julia {
 
 
             if(max_iterations > 1){
-                zWithoutInitVal = getArrayValue(ReferenceSubPixel, RefIteration).plus_mutable(DeltaSubN);
                 complex[0] = getArrayValue(Reference, RefIteration).plus_mutable(DeltaSubN);
             }
 
@@ -715,9 +740,13 @@ public abstract class MagnetType extends Julia {
                 statistic.insert(complex[0], zold, zold2, iterations, complex[1], start, c0);
             }
 
-            if (zWithoutInitVal.norm_squared() < DeltaSubN.norm_squared() || RefIteration >= MaxRefIteration) {
-                DeltaSubN = zWithoutInitVal;
+            norm_squared = complex[0].norm_squared();
+            if (norm_squared < DeltaSubN.norm_squared() || RefIteration >= MaxRefIteration) {
+                DeltaSubN = complex[0];
                 RefIteration = 0;
+
+                MaxRefIteration = Fractal.MaxRef2Iteration;
+                Reference = Fractal.SecondReference;
             }
 
         }
@@ -738,12 +767,12 @@ public abstract class MagnetType extends Julia {
     @Override
     public double iterateJuliaWithPerturbationWithoutPeriodicity(Complex[] complex, MantExpComplex dpixel) {
 
-        iterations = skippedIterations;
+        iterations = 0;
+        int RefIteration = iterations;
 
         MantExpComplex[] deltas = initializePerturbation(dpixel);
         MantExpComplex DeltaSubN = deltas[0]; // Delta z
 
-        int RefIteration = iterations;
 
         int minExp = -1000;
         int reducedExp = minExp / (int)power;
@@ -751,24 +780,21 @@ public abstract class MagnetType extends Julia {
         DeltaSubN.Reduce();
         long exp = DeltaSubN.getExp();
 
-        Complex zWithoutInitVal = new Complex();
-
         boolean temp1 = false, temp2 = false;
 
         converged = false;
 
         Complex pixel = dpixel.plus(refPointSmallDeep).toComplex();
 
+        int MaxRefIteration = Fractal.MaxRefIteration;
+        DeepReference ReferenceDeep = Fractal.ReferenceDeep;
+
+        double[] Reference = Fractal.Reference;
+
         boolean useFullFloatExp = ThreadDraw.USE_FULL_FLOATEXP_FOR_DEEP_ZOOM;
 
-        boolean usedDeepCode = false;
         if(useFullFloatExp || (skippedIterations == 0 && exp <= minExp) || (skippedIterations != 0 && exp <= reducedExp)) {
-            usedDeepCode = true;
-            MantExpComplex z = new MantExpComplex();
-            if(iterations != 0 && RefIteration < MaxRefIteration) {
-                z = getArrayDeepValue(ReferenceSubPixelDeep, RefIteration).plus_mutable(DeltaSubN);
-                complex[0] = getArrayDeepValue(ReferenceDeep, RefIteration).plus_mutable(DeltaSubN).toComplex();
-            }
+            MantExpComplex z = getArrayDeepValue(ReferenceDeep, RefIteration).plus_mutable(DeltaSubN);
             for (; iterations < max_iterations; iterations++) {
                 if (trap != null) {
                     trap.check(complex[0], iterations);
@@ -792,7 +818,7 @@ public abstract class MagnetType extends Julia {
                     }
                 }
 
-                DeltaSubN = perturbationFunction(DeltaSubN, RefIteration);
+                DeltaSubN = perturbationFunction(DeltaSubN, ReferenceDeep, null, null, RefIteration);
 
                 RefIteration++;
 
@@ -800,8 +826,8 @@ public abstract class MagnetType extends Julia {
                 zold.assign(complex[0]);
 
                 if (max_iterations > 1) {
-                    z = getArrayDeepValue(ReferenceSubPixelDeep, RefIteration).plus_mutable(DeltaSubN);
-                    complex[0] = getArrayDeepValue(ReferenceDeep, RefIteration).plus_mutable(DeltaSubN).toComplex();
+                    z = getArrayDeepValue(ReferenceDeep, RefIteration).plus_mutable(DeltaSubN);
+                    complex[0] = z.toComplex();
                 }
 
                 if (statistic != null) {
@@ -811,6 +837,10 @@ public abstract class MagnetType extends Julia {
                 if (z.norm_squared().compareTo(DeltaSubN.norm_squared()) < 0 || RefIteration >= MaxRefIteration) {
                     DeltaSubN = z;
                     RefIteration = 0;
+
+                    ReferenceDeep = Fractal.SecondReferenceDeep;
+                    MaxRefIteration = MaxRef2Iteration;
+                    Reference = Fractal.SecondReference;
                 }
 
                 DeltaSubN.Reduce();
@@ -827,9 +857,7 @@ public abstract class MagnetType extends Julia {
         if(!useFullFloatExp) {
             Complex CDeltaSubN = DeltaSubN.toComplex();
 
-            if(!usedDeepCode && iterations != 0 && RefIteration < MaxRefIteration) {
-                complex[0] = getArrayValue(Reference, RefIteration).plus_mutable(CDeltaSubN);
-            }
+            double norm_squared = complex[0].norm_squared();
 
             for (; iterations < max_iterations; iterations++) {
 
@@ -839,7 +867,8 @@ public abstract class MagnetType extends Julia {
                     trap.check(complex[0], iterations);
                 }
 
-                if ((temp1 = convergent_bailout_algorithm.converged(complex[0], 1, zold, zold2, iterations, complex[1], start, c0, pixel)) || (temp2 = bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, 0.0, pixel))) {
+                if ((temp1 = convergent_bailout_algorithm.converged(complex[0], 1, zold, zold2, iterations, complex[1], start, c0, pixel))
+                        || (temp2 = bailout_algorithm2.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, norm_squared, pixel))) {
                     escaped = true;
                     converged = temp1;
 
@@ -855,7 +884,7 @@ public abstract class MagnetType extends Julia {
                     return out;
                 }
 
-                CDeltaSubN = perturbationFunction(CDeltaSubN, RefIteration);
+                CDeltaSubN = perturbationFunction(CDeltaSubN, Reference, null, null, RefIteration);
 
                 RefIteration++;
 
@@ -865,7 +894,6 @@ public abstract class MagnetType extends Julia {
                 //No Plane influence work
                 //No Pre filters work
                 if (max_iterations > 1) {
-                    zWithoutInitVal = getArrayValue(ReferenceSubPixel, RefIteration).plus_mutable(CDeltaSubN);
                     complex[0] = getArrayValue(Reference, RefIteration).plus_mutable(CDeltaSubN);
                 }
                 //No Post filters work
@@ -874,9 +902,13 @@ public abstract class MagnetType extends Julia {
                     statistic.insert(complex[0], zold, zold2, iterations, complex[1], start, c0);
                 }
 
-                if (zWithoutInitVal.norm_squared() < CDeltaSubN.norm_squared() || RefIteration >= MaxRefIteration) {
-                    CDeltaSubN = zWithoutInitVal;
+                norm_squared = complex[0].norm_squared();
+                if (norm_squared < CDeltaSubN.norm_squared() || RefIteration >= MaxRefIteration) {
+                    CDeltaSubN = complex[0];
                     RefIteration = 0;
+
+                    Reference = Fractal.SecondReference;
+                    MaxRefIteration = Fractal.MaxRef2Iteration;
                 }
 
             }

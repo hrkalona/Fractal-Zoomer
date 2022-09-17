@@ -29,7 +29,7 @@ public class AdditionBlending extends Blending {
     }
 
     @Override
-    public int blend(int redA, int greenA, int blueA, int redB, int greenB, int blueB, double coef) {
+    public int blendInternal(int redA, int greenA, int blueA, int redB, int greenB, int blueB, double coef) {
 
         int temp_red = Math.min(redB + redA, 255);
         int temp_green = Math.min(greenB + greenA, 255);

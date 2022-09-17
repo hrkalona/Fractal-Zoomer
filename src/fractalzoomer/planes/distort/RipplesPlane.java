@@ -24,15 +24,16 @@ import fractalzoomer.planes.Plane;
  * @author hrkalona2
  */
 public class RipplesPlane extends Plane {
-    private double[] plane_transform_scales;
-    private double[] plane_transform_wavelength;
+
+    private Complex scales;
+    private Complex wavelength;
     private int waveType;
 
     public RipplesPlane(double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType) {
 
         super();
-        this.plane_transform_scales = plane_transform_scales;
-        this.plane_transform_wavelength = plane_transform_wavelength;
+        wavelength = new Complex(plane_transform_wavelength[0], plane_transform_wavelength[1]);
+        scales =  new Complex(plane_transform_scales[0], plane_transform_scales[1]);
         this.waveType = waveType;
 
     }
@@ -40,7 +41,7 @@ public class RipplesPlane extends Plane {
     @Override
     public Complex transform(Complex pixel) {
 
-        return pixel.ripples(new Complex(plane_transform_wavelength[0], plane_transform_wavelength[1]), new Complex(plane_transform_scales[0], plane_transform_scales[1]), waveType);
+        return pixel.ripples(wavelength, scales, waveType);
 
     }
 }

@@ -121,7 +121,7 @@ public class Parser {
     boolean found_c0;
     boolean found_pixel;
 
-    boolean found_vars[];
+    boolean[] found_vars;
 
     ArrayList<VariableExpressionNode> z_var;
     ArrayList<VariableExpressionNode> c_var;
@@ -481,14 +481,14 @@ public class Parser {
             int function = Function2ArgumentsExpressionNode.stringToFunction(lookahead.sequence);
 
             nextToken();
-            ExpressionNode expr[] = functionArgument2();
+            ExpressionNode[] expr = functionArgument2();
             return new Function2ArgumentsExpressionNode(function, expr[0], expr[1]);
         } // argument -> FUNCTION_DERIVATIVE_2_ARG function_argument2
         else if(lookahead.token == Token.FUNCTION_DERIVATIVE_2ARGUMENTS) {
             int function = FunctionDerivative2ArgumentsExpressionNode.stringToFunction(lookahead.sequence);
 
             nextToken();
-            ExpressionNode expr[] = functionArgument2();
+            ExpressionNode[] expr = functionArgument2();
 
             if(!(expr[1] instanceof VariableExpressionNode)) {
                 throw new ParserException("The second argument of a derivative function must be a variable.", lookahead);
@@ -515,7 +515,7 @@ public class Parser {
             }
             
             nextToken();
-            ExpressionNode expr[] = functionArgument2();
+            ExpressionNode[] expr = functionArgument2();
             return new FunctionUser2ArgumentExpressionNode(function, expr[0], expr[1]);
         } // argument -> FUNCTION_USER_MULTI_ARG function_max_multi_arg
         else if(lookahead.token == Token.FUNCTION_USER_MULTI_ARGUMENTS) {
@@ -526,7 +526,7 @@ public class Parser {
             }
             
             nextToken();
-            ExpressionNode expr[] = functionUserMultiArguments(FunctionUserMultiArgumentExpressionNode.MAX_ARGUMENTS);
+            ExpressionNode[] expr = functionUserMultiArguments(FunctionUserMultiArgumentExpressionNode.MAX_ARGUMENTS);
             return new FunctionUserMultiArgumentExpressionNode(function, expr);
         } // argument -> FUNCTION_USER_MULTI_2_ARG function_max_multi_arg
         else if(lookahead.token == Token.FUNCTION_USER_MULTI_2_ARGUMENTS) {
@@ -537,7 +537,7 @@ public class Parser {
             }
             
             nextToken();
-            ExpressionNode expr[] = functionUserMultiArguments(FunctionUserMultiArgument2ExpressionNode.MAX_ARGUMENTS);
+            ExpressionNode[] expr = functionUserMultiArguments(FunctionUserMultiArgument2ExpressionNode.MAX_ARGUMENTS);
             return new FunctionUserMultiArgument2ExpressionNode(function, expr);
         }// argument -> OPEN_BRACKET expression CLOSE_BRACKET
         else if(lookahead.token == Token.OPEN_BRACKET) {

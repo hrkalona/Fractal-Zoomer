@@ -22,8 +22,6 @@ import fractalzoomer.main.app_settings.Settings;
 import javax.swing.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 
 import static fractalzoomer.main.Constants.MANDELBROTWTH;
 import static fractalzoomer.main.Constants.MANDELPOLY;
@@ -45,7 +43,7 @@ public class MandelgrassDialog extends JDialog {
 
         setTitle("Mandel Grass");
         setModal(true);
-        setIconImage(getIcon("/fractalzoomer/icons/mandel2.png").getImage());
+        setIconImage(MainWindow.getIcon("mandel2.png").getImage());
 
         final JCheckBox mandelgrass = new JCheckBox("Mandel Grass");
         mandelgrass.setSelected(s.fns.mandel_grass);
@@ -71,67 +69,66 @@ public class MandelgrassDialog extends JDialog {
 
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
+            @Override
             public void windowClosing(WindowEvent we) {
-                optionPane.setValue(new Integer(JOptionPane.CLOSED_OPTION));
+                optionPane.setValue(JOptionPane.CLOSED_OPTION);
             }
         });
 
         optionPane.addPropertyChangeListener(
-                new PropertyChangeListener() {
-            public void propertyChange(PropertyChangeEvent e) {
-                String prop = e.getPropertyName();
+                e -> {
+                    String prop = e.getPropertyName();
 
-                if (isVisible() && (e.getSource() == optionPane) && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
+                    if (isVisible() && (e.getSource() == optionPane) && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
 
-                    Object value = optionPane.getValue();
+                        Object value = optionPane.getValue();
 
-                    if (value == JOptionPane.UNINITIALIZED_VALUE) {
-                        //ignore reset
-                        return;
-                    }
+                        if (value == JOptionPane.UNINITIALIZED_VALUE) {
+                            //ignore reset
+                            return;
+                        }
 
-                    //Reset the JOptionPane's value.
-                    //If you don't do this, then if the user
-                    //presses the same button next time, no
-                    //property change event will be fired.
-                    optionPane.setValue(JOptionPane.UNINITIALIZED_VALUE);
+                        //Reset the JOptionPane's value.
+                        //If you don't do this, then if the user
+                        //presses the same button next time, no
+                        //property change event will be fired.
+                        optionPane.setValue(JOptionPane.UNINITIALIZED_VALUE);
 
-                    if ((Integer) value == JOptionPane.CANCEL_OPTION || (Integer) value == JOptionPane.NO_OPTION || (Integer) value == JOptionPane.CLOSED_OPTION) {
+                        if ((Integer) value == JOptionPane.CANCEL_OPTION || (Integer) value == JOptionPane.NO_OPTION || (Integer) value == JOptionPane.CLOSED_OPTION) {
+                            dispose();
+                            return;
+                        }
+
+                        try {
+                            double temp = Double.parseDouble(field_real.getText());
+                            double temp2 = Double.parseDouble(field_imaginary.getText());
+
+                            s.fns.mandel_grass_vals[0] = temp;
+                            s.fns.mandel_grass_vals[1] = temp2;
+
+                            boolean oldMandelGrass = s.fns.mandel_grass;
+
+                            s.fns.mandel_grass = mandelgrass.isSelected();
+
+                            if(s.fns.mandel_grass && !oldMandelGrass) {
+                                mandel_grass_opt.setIcon(MainWindow.getIcon("check.png"));
+                            }
+                            else if(!s.fns.mandel_grass && oldMandelGrass) {
+                                mandel_grass_opt.setIcon(null);
+                            }
+
+                        } catch (Exception ex) {
+                            JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
+
                         dispose();
-                        return;
-                    }
 
-                    try {
-                        double temp = Double.parseDouble(field_real.getText());
-                        double temp2 = Double.parseDouble(field_imaginary.getText());
-
-                        s.fns.mandel_grass_vals[0] = temp;
-                        s.fns.mandel_grass_vals[1] = temp2;
-
-                        boolean oldMandelGrass = s.fns.mandel_grass;
-
-                        s.fns.mandel_grass = mandelgrass.isSelected();
-
-                        if(s.fns.mandel_grass && !oldMandelGrass) {
-                            mandel_grass_opt.setIcon(getIcon("/fractalzoomer/icons/check.png"));
+                        if (s.fns.function <= 9 || s.fns.function == MANDELPOLY || s.fns.function == MANDELBROTWTH) {
+                            ptra.defaultFractalSettings(true);
                         }
-                        else if(!s.fns.mandel_grass && oldMandelGrass) {
-                            mandel_grass_opt.setIcon(null);
-                        }
-
-                    } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
-                        return;
                     }
-
-                    dispose();
-
-                    if (s.fns.function <= 9 || s.fns.function == MANDELPOLY || s.fns.function == MANDELBROTWTH) {
-                        ptra.defaultFractalSettings(true);
-                    }
-                }
-            }
-        });
+                });
 
         //Make this dialog display it.
         setContentPane(optionPane);
@@ -141,12 +138,6 @@ public class MandelgrassDialog extends JDialog {
         setResizable(false);
         setLocation((int) (ptra.getLocation().getX() + ptra.getSize().getWidth() / 2) - (getWidth() / 2), (int) (ptra.getLocation().getY() + ptra.getSize().getHeight() / 2) - (getHeight() / 2));
         setVisible(true);
-
-    }
-
-    private ImageIcon getIcon(String path) {
-
-        return new ImageIcon(getClass().getResource(path));
 
     }
 

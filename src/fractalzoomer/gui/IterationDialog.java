@@ -22,8 +22,6 @@ import fractalzoomer.main.app_settings.Settings;
 import javax.swing.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 
 /**
  *
@@ -42,7 +40,7 @@ public class IterationDialog extends JDialog {
 
         setTitle("Maximum Iterations Number");
         setModal(true);
-        setIconImage(getIcon("/fractalzoomer/icons/mandel2.png").getImage());
+        setIconImage(MainWindow.getIcon("mandel2.png").getImage());
 
         JTextField field = new JTextField();
         field.addAncestorListener(new RequestFocusListener());
@@ -58,58 +56,57 @@ public class IterationDialog extends JDialog {
 
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
+            @Override
             public void windowClosing(WindowEvent we) {
-                optionPane.setValue(new Integer(JOptionPane.CLOSED_OPTION));
+                optionPane.setValue(JOptionPane.CLOSED_OPTION);
             }
         });
 
         optionPane.addPropertyChangeListener(
-                new PropertyChangeListener() {
-            public void propertyChange(PropertyChangeEvent e) {
-                String prop = e.getPropertyName();
+                e -> {
+                    String prop = e.getPropertyName();
 
-                if (isVisible() && (e.getSource() == optionPane) && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
+                    if (isVisible() && (e.getSource() == optionPane) && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
 
-                    Object value = optionPane.getValue();
+                        Object value = optionPane.getValue();
 
-                    if (value == JOptionPane.UNINITIALIZED_VALUE) {
-                        //ignore reset
-                        return;
-                    }
-
-                    //Reset the JOptionPane's value.
-                    //If you don't do this, then if the user
-                    //presses the same button next time, no
-                    //property change event will be fired.
-                    optionPane.setValue(JOptionPane.UNINITIALIZED_VALUE);
-
-                    if ((Integer) value == JOptionPane.CANCEL_OPTION || (Integer) value == JOptionPane.NO_OPTION || (Integer) value == JOptionPane.CLOSED_OPTION) {
-                        dispose();
-                        return;
-                    }
-
-                    try {
-                        int temp = Integer.parseInt(field.getText());
-
-                        if (temp < 1) {
-                            JOptionPane.showMessageDialog(ptra, "Maximum iterations number must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            return;
-                        } else if (temp >  MainWindow.MAX_ITERATIONS_NUMBER) {
-                            JOptionPane.showMessageDialog(ptra, "Maximum iterations number must be less than 2147483648.", "Error!", JOptionPane.ERROR_MESSAGE);
+                        if (value == JOptionPane.UNINITIALIZED_VALUE) {
+                            //ignore reset
                             return;
                         }
 
-                        s.max_iterations = temp;                      
-                    } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
+                        //Reset the JOptionPane's value.
+                        //If you don't do this, then if the user
+                        //presses the same button next time, no
+                        //property change event will be fired.
+                        optionPane.setValue(JOptionPane.UNINITIALIZED_VALUE);
 
-                    dispose();
-                    ptr.setIterationsPost();
-                }
-            }
-        });
+                        if ((Integer) value == JOptionPane.CANCEL_OPTION || (Integer) value == JOptionPane.NO_OPTION || (Integer) value == JOptionPane.CLOSED_OPTION) {
+                            dispose();
+                            return;
+                        }
+
+                        try {
+                            int temp = Integer.parseInt(field.getText());
+
+                            if (temp < 1) {
+                                JOptionPane.showMessageDialog(ptra, "Maximum iterations number must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            } else if (temp >  MainWindow.MAX_ITERATIONS_NUMBER) {
+                                JOptionPane.showMessageDialog(ptra, "Maximum iterations number must be less than 2147483648.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+
+                            s.max_iterations = temp;
+                        } catch (Exception ex) {
+                            JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
+
+                        dispose();
+                        ptr.setIterationsPost();
+                    }
+                });
 
         //Make this dialog display it.
         setContentPane(optionPane);
@@ -119,12 +116,6 @@ public class IterationDialog extends JDialog {
         setResizable(false);
         setLocation((int) (ptra.getLocation().getX() + ptra.getSize().getWidth() / 2) - (getWidth() / 2), (int) (ptra.getLocation().getY() + ptra.getSize().getHeight() / 2) - (getHeight() / 2));
         setVisible(true);
-
-    }
-
-    private ImageIcon getIcon(String path) {
-
-        return new ImageIcon(getClass().getResource(path));
 
     }
 

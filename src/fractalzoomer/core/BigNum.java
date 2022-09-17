@@ -42,7 +42,7 @@ public class BigNum {
     public static void reinitialize(double digits) {
 
         //Lets always have even fracDigits
-        int temp = (int)((digits / SHIFT));
+        int temp = (int)(digits / SHIFT);
 
         if(temp == 0) {
             temp = 1;
@@ -69,7 +69,7 @@ public class BigNum {
     }
 
     public static void reinitializeTest(double digits) {
-        fracDigits = ((int)((digits / SHIFT)) + 1) * ThreadDraw.BIGNUM_PRECISION_FACTOR;//should be two if comparing with 64version
+        fracDigits = ((int)(digits / SHIFT) + 1) * ThreadDraw.BIGNUM_PRECISION_FACTOR;//should be two if comparing with 64version
 
         fracDigitsm1 = fracDigits - 1;
         fracDigitsp1 = fracDigits + 1;
@@ -290,7 +290,7 @@ public class BigNum {
     public static BigNum getNegative(BigNum other) {
 
         BigNum copy = new BigNum();
-        copy.sign = other.sign;;
+        copy.sign = other.sign;
         copy.isOne = other.isOne;
 
         int[] otherDigits = other.digits;
@@ -371,7 +371,7 @@ public class BigNum {
 
     public void print() {
 
-        Apfloat sum = new MyApfloat(0);
+        Apfloat sum = MyApfloat.ZERO;
         int decimal_bit_count = -1;
 
         if(sign == -1) {
@@ -432,7 +432,7 @@ public class BigNum {
         else if(signA > signB) {
             return 1;
         }
-        else if(signA == signB) {
+        else {//if(signA == signB)
             if (signA == 0) {
                 return 0;
             }
@@ -668,6 +668,93 @@ public class BigNum {
         return result;
     }
 
+
+    public BigNum add(int a) {
+
+        BigNum result = new BigNum();
+
+        int otherSign;
+        if(a == 0) {
+            otherSign = 0;
+        }
+        else if(a < 0) {
+            otherSign = -1;
+        }
+        else {
+            otherSign = 1;
+        }
+
+        int otherDigits = a;
+
+        boolean aIsOne = a == 1 || a == -1;
+
+        int[] resDigits = result.digits;
+
+        int[] digits = this.digits;
+        int sign = this.sign;
+
+        if(sign == 0 || otherSign == 0) {
+            if(sign == 0 && otherSign == 0){
+                return result;
+            }
+            else if(sign == 0) {
+                result.sign = otherSign;
+                result.isOne = aIsOne;
+
+                if(otherSign < 0) {
+                    a = ~a + 1;
+                }
+
+                resDigits[0] = a;
+            }
+            else {
+                result.sign = sign;
+                result.isOne = isOne;
+                System.arraycopy(digits, 0, resDigits, 0, digits.length);
+            }
+            return result;
+        }
+
+        if(sign != otherSign) {
+            if(sign == -1) {
+                BigNum copy = getNegative(this);
+                digits = copy.digits;
+            }
+        }
+        else {
+            if(otherSign < 0) {
+                otherDigits = ~otherDigits + 1;
+            }
+        }
+
+        int isNonZero = 0;
+        int temp;
+        for(int i=fracDigits; i>0; i--) {
+            temp = resDigits[i] = digits[i];
+            isNonZero |= temp;
+        }
+
+        temp = digits[0] + otherDigits;
+        result.isOne = (temp == 1 || temp == -1) && isNonZero == 0;
+        isNonZero |= temp;
+        resDigits[0] = temp;
+
+        if(sign != otherSign) {
+            if(resDigits[0] < 0) {
+                result.sign = -1;
+                result.negSelf();
+            }
+            else {
+                result.sign = isNonZero != 0 ? 1 : 0;
+            }
+        }
+        else {
+            result.sign = isNonZero != 0 ? sign : 0;
+        }
+
+        return result;
+    }
+
     /* When sign was not an extra field
     public BigNum sub(BigNum a) {
         BigNum result = new BigNum();
@@ -748,6 +835,102 @@ public class BigNum {
             s >>>= SHIFT;
         }
         temp = digits[0] + otherDigits[0] + s;
+        result.isOne = (temp == 1 || temp == -1) && isNonZero == 0;
+        isNonZero |= temp;
+        resDigits[0] = temp;
+
+        if(sign == otherSign) {
+            if(resDigits[0] < 0) {
+                result.sign = -1;
+                result.negSelf();
+            }
+            else {
+                result.sign = isNonZero != 0 ? 1 : 0;
+            }
+        }
+        else {
+            result.sign = isNonZero != 0 ? sign : 0;
+        }
+
+        return result;
+    }
+
+    public BigNum sub(int a) {
+
+        BigNum result = new BigNum();
+
+        int otherSign;
+        if(a == 0) {
+            otherSign = 0;
+        }
+        else if(a < 0) {
+            otherSign = -1;
+        }
+        else {
+            otherSign = 1;
+        }
+
+        int otherDigits = a;
+
+        boolean aIsOne = a == 1 || a == -1;
+
+        int[] resDigits = result.digits;
+
+        int[] digits = this.digits;
+        int sign = this.sign;
+
+        if(sign == 0 || otherSign == 0) {
+            if(sign == 0 && otherSign == 0){
+                return result;
+            }
+            else if(sign == 0) {
+                result.sign = -otherSign;
+                result.isOne = aIsOne;
+
+                if(otherSign < 0) {
+                    a = ~a + 1;
+                }
+
+                resDigits[0] = a;
+            }
+            else {
+                result.sign = sign;
+                result.isOne = isOne;
+                System.arraycopy(digits, 0, resDigits, 0, digits.length);
+            }
+            return result;
+        }
+
+        if(sign == otherSign) {
+            // + +   -> + -
+            // - -  -> - +
+            if(sign == -1) {
+                BigNum copy = getNegative(this);
+                digits = copy.digits;
+
+                if(otherSign < 0) {
+                    otherDigits = ~otherDigits + 1;
+                }
+            }
+            else {
+                otherDigits = ~otherDigits + 1;
+            }
+        }
+        else {
+            if(otherSign < 0) {
+                otherDigits = ~otherDigits + 1;
+            }
+        }
+
+
+        int isNonZero = 0;
+        int temp;
+        for(int i=fracDigits; i>0; i--) {
+            temp = resDigits[i] = digits[i];
+            isNonZero |= temp;
+        }
+
+        temp = digits[0] + otherDigits;
         result.isOne = (temp == 1 || temp == -1) && isNonZero == 0;
         isNonZero |= temp;
         resDigits[0] = temp;
@@ -1871,6 +2054,78 @@ public class BigNum {
         }
     }
 
+    /* Sign is positive */
+    public BigNum mult(int value) {
+        BigNum result = new BigNum();
+
+        if(sign == 0 || value == 0) {
+            return result;
+        }
+
+        int[] resDigits = result.digits;
+
+        boolean bIsOne = value == 1 || value == -1;
+
+        int bsign;
+
+        if(value < 0) {
+            bsign = -1;
+            value = ~value + 1;
+        }
+        else {
+            bsign = 1;
+        }
+
+        if(isOne || bIsOne) {
+            if (isOne && bIsOne) {
+                resDigits[0] = 1;
+                result.isOne = true;
+                result.sign = sign * bsign;
+            }
+            else if(isOne) {
+                resDigits[0] = value;
+                result.sign = sign * bsign;
+            }
+            else {
+                System.arraycopy(digits, 0, resDigits, 0, digits.length);
+                result.sign = sign * bsign;
+            }
+            return result;
+        }
+
+        long old_sum = 0;
+        long sum;
+        long carry;
+
+        int isNonZero = 0;
+        for(int i = fracDigits; i > 0; i--) {
+            sum = old_sum; //carry from prev
+            carry = 0;
+
+            sum += (long)digits[i] * (long)value;
+            carry += sum >>> SHIFT;
+            sum = sum & MASK;
+
+            int di = (int) (sum);
+            resDigits[i] = di;
+            isNonZero |= di;
+            old_sum = carry;
+        }
+
+        sum = old_sum;
+
+        sum += (long)digits[0] * (long)value;
+
+        int d0 = (int) (sum);
+        resDigits[0] = d0;
+
+        result.isOne = d0 == 1 && isNonZero == 0;
+
+        result.sign = sign * bsign;
+
+        return result;
+    }
+
     @Deprecated
     public BigNum multFullOLD(BigNum b) {
 
@@ -2966,4 +3221,5 @@ public class BigNum {
     public static BigNum min(BigNum a, BigNum b) {
         return a.compare(b) < 0 ? a : b;
     }
+
 }

@@ -6,7 +6,7 @@ public abstract class BLAGenericStep extends BLA {
 
     public double Bx, By;
 
-    public BLAGenericStep(double r2, Complex A, Complex B) {
+    protected BLAGenericStep(double r2, Complex A, Complex B) {
         super(r2, A);
         this.Bx = B.getRe();
         this.By = B.getIm();

@@ -19,9 +19,6 @@ package fractalzoomer.gui;
 import fractalzoomer.main.MainWindow;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
 
 /**
  *
@@ -61,106 +58,58 @@ public class Toolbar extends JToolBar {
         setBorderPainted(true);
         
         starting_position_button = new JButton();
-        starting_position_button.setIcon(getIcon("/fractalzoomer/icons/starting_position.png"));
+        starting_position_button.setIcon(MainWindow.getIcon("starting_position.png"));
         starting_position_button.setFocusable(false);
         starting_position_button.setToolTipText("Resets the fractal to the default position.");
 
-        starting_position_button.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.startingPosition();
-
-            }
-        });
+        starting_position_button.addActionListener(e -> ptr.startingPosition());
 
         add(starting_position_button);
         
         go_to_button = new JButton();
-        go_to_button.setIcon(getIcon("/fractalzoomer/icons/go_to.png"));
+        go_to_button.setIcon(MainWindow.getIcon("go_to.png"));
         go_to_button.setFocusable(false);
         go_to_button.setToolTipText("Sets the center and size of the fractal, or the julia seed.");
 
-        go_to_button.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.goTo();
-
-            }
-        });
+        go_to_button.addActionListener(e -> ptr.goTo());
 
         add(go_to_button);
              
         zoom_in_button = new JButton();
-        zoom_in_button.setIcon(getIcon("/fractalzoomer/icons/zoom_in.png"));
+        zoom_in_button.setIcon(MainWindow.getIcon("zoom_in.png"));
         zoom_in_button.setFocusable(false);
         zoom_in_button.setToolTipText("Zooms in with a fixed rate to the current center.");
 
-        zoom_in_button.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.zoomIn();
-
-            }
-        });
+        zoom_in_button.addActionListener(e -> ptr.zoomIn());
 
         add(zoom_in_button);
 
         zoom_out_button = new JButton();
-        zoom_out_button.setIcon(getIcon("/fractalzoomer/icons/zoom_out.png"));
+        zoom_out_button.setIcon(MainWindow.getIcon("zoom_out.png"));
         zoom_out_button.setFocusable(false);
         zoom_out_button.setToolTipText("Zooms out with a fixed rate to the current center.");
 
-        zoom_out_button.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.zoomOut();
-
-            }
-        });
+        zoom_out_button.addActionListener(e -> ptr.zoomOut());
 
         add(zoom_out_button);
         
         addSeparator();
 
         save_image_button = new JButton();
-        save_image_button.setIcon(getIcon("/fractalzoomer/icons/save_image.png"));
+        save_image_button.setIcon(MainWindow.getIcon("save_image.png"));
         save_image_button.setFocusable(false);
         save_image_button.setToolTipText("Saves a png image.");
 
-        save_image_button.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.saveImage();
-
-            }
-        });
+        save_image_button.addActionListener(e -> ptr.saveImage());
 
         add(save_image_button);
         
         save_image_and_settings_button = new JButton();
-        save_image_and_settings_button.setIcon(getIcon("/fractalzoomer/icons/save_image_settings.png"));
+        save_image_and_settings_button.setIcon(MainWindow.getIcon("save_image_settings.png"));
         save_image_and_settings_button.setFocusable(false);
         save_image_and_settings_button.setToolTipText("Saves the current settings and a png image.");
 
-        save_image_and_settings_button.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.saveSettingsAndImage();
-
-            }
-        });
+        save_image_and_settings_button.addActionListener(e -> ptr.saveSettingsAndImage());
 
         add(save_image_and_settings_button);
 
@@ -169,292 +118,163 @@ public class Toolbar extends JToolBar {
 
 
         current_function_button = new JButton();
-        current_function_button.setIcon(getIcon("/fractalzoomer/icons/functions.png"));
+        current_function_button.setIcon(MainWindow.getIcon("functions.png"));
         current_function_button.setFocusable(false);
         current_function_button.setToolTipText("Selects the active function for parameterization (if applicable).");
 
-        current_function_button.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                ptr.clickCurrentFunction();
-            }
-        });
+        current_function_button.addActionListener(e -> ptr.clickCurrentFunction());
 
         current_function_button.setMnemonic('e');
 
         add(current_function_button);
 
         current_plane_button = new JButton();
-        current_plane_button.setIcon(getIcon("/fractalzoomer/icons/planes.png"));
+        current_plane_button.setIcon(MainWindow.getIcon("planes.png"));
         current_plane_button.setFocusable(false);
         current_plane_button.setToolTipText("Selects the active plane transformation for parameterization (if applicable).");
 
         current_plane_button.setMnemonic('q');
 
-        current_plane_button.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                ptr.clickCurrentPlane();
-            }
-        });
+        current_plane_button.addActionListener(e -> ptr.clickCurrentPlane());
 
         add(current_plane_button);
 
         addSeparator();
 
         custom_palette_button_out = new JButton();
-        custom_palette_button_out.setIcon(getIcon("/fractalzoomer/icons/palette_outcoloring.png"));
+        custom_palette_button_out.setIcon(MainWindow.getIcon("palette_outcoloring.png"));
         custom_palette_button_out.setFocusable(false);
         custom_palette_button_out.setToolTipText("Loads the custom palette editor for the out-coloring palette.");
 
-        custom_palette_button_out.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                
-                ptr.openCustomPaletteEditor(true);
-                
-            }
-        });
+        custom_palette_button_out.addActionListener(e -> ptr.openCustomPaletteEditor(true));
 
         add(custom_palette_button_out);
         
         custom_palette_button_in = new JButton();
-        custom_palette_button_in.setIcon(getIcon("/fractalzoomer/icons/palette_incoloring.png"));
+        custom_palette_button_in.setIcon(MainWindow.getIcon("palette_incoloring.png"));
         custom_palette_button_in.setFocusable(false);
         custom_palette_button_in.setToolTipText("Loads the custom palette editor for the in-coloring palette.");
 
-        custom_palette_button_in.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                
-                ptr.openCustomPaletteEditor(false);
-                
-            }
-        });
+        custom_palette_button_in.addActionListener(e -> ptr.openCustomPaletteEditor(false));
 
         add(custom_palette_button_in);
 
         random_palette_button = new JButton();
-        random_palette_button.setIcon(getIcon("/fractalzoomer/icons/palette_random.png"));
+        random_palette_button.setIcon(MainWindow.getIcon("palette_random.png"));
         random_palette_button.setFocusable(false);
         random_palette_button.setToolTipText("Randomizes the palette.");
 
-        random_palette_button.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.randomPalette();
-
-            }
-        });
+        random_palette_button.addActionListener(e -> ptr.randomPalette());
 
         add(random_palette_button);
 
         addSeparator();
 
         iterations_button = new JButton();
-        iterations_button.setIcon(getIcon("/fractalzoomer/icons/iterations.png"));
+        iterations_button.setIcon(MainWindow.getIcon("iterations.png"));
         iterations_button.setFocusable(false);
         iterations_button.setToolTipText("Sets the maximum number of iterations.");
 
-        iterations_button.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setIterations();
-
-            }
-        });
+        iterations_button.addActionListener(e -> ptr.setIterations());
 
         add(iterations_button);
 
         rotation_button = new JButton();
-        rotation_button.setIcon(getIcon("/fractalzoomer/icons/rotate.png"));
+        rotation_button.setIcon(MainWindow.getIcon("rotate.png"));
         rotation_button.setFocusable(false);
         rotation_button.setToolTipText("Sets the rotation in degrees.");
 
-        rotation_button.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setRotation();
-
-            }
-        });
+        rotation_button.addActionListener(e -> ptr.setRotation());
 
         add(rotation_button);
 
         addSeparator();
 
         filters_options_button = new JButton();
-        filters_options_button.setIcon(getIcon("/fractalzoomer/icons/filter_options.png"));
+        filters_options_button.setIcon(MainWindow.getIcon("filter_options.png"));
         filters_options_button.setFocusable(false);
         filters_options_button.setToolTipText("Sets the options of the image filters.");
 
-        filters_options_button.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.filtersOptions();
-
-            }
-        });
+        filters_options_button.addActionListener(e -> ptr.filtersOptions());
 
         add(filters_options_button);
 
         addSeparator();
 
         orbit_button = new JButton();
-        orbit_button.setIcon(getIcon("/fractalzoomer/icons/orbit.png"));
+        orbit_button.setIcon(MainWindow.getIcon("orbit.png"));
         orbit_button.setToolTipText("Displays the orbit of a complex number.");
         orbit_button.setFocusable(false);
 
-        orbit_button.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setOrbitButton();
-
-            }
-        });
+        orbit_button.addActionListener(e -> ptr.setOrbitButton());
 
         add(orbit_button);
 
         julia_button = new JButton();
-        julia_button.setIcon(getIcon("/fractalzoomer/icons/julia.png"));
+        julia_button.setIcon(MainWindow.getIcon("julia.png"));
         julia_button.setToolTipText("Generates an image based on a seed (chosen pixel).");
         julia_button.setFocusable(false);
 
-        julia_button.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setJuliaButton();
-
-            }
-        });
+        julia_button.addActionListener(e -> ptr.setJuliaButton());
 
         add(julia_button);
 
         julia_map_button = new JButton();
-        julia_map_button.setIcon(getIcon("/fractalzoomer/icons/julia_map.png"));
+        julia_map_button.setIcon(MainWindow.getIcon("julia_map.png"));
         julia_map_button.setToolTipText("Creates an image of julia sets.");
         julia_map_button.setFocusable(false);
 
-        julia_map_button.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setJuliaMap();
-            }
-        });
+        julia_map_button.addActionListener(e -> ptr.setJuliaMap());
 
         add(julia_map_button);
 
         d3_button = new JButton();
-        d3_button.setIcon(getIcon("/fractalzoomer/icons/3d.png"));
+        d3_button.setIcon(MainWindow.getIcon("3d.png"));
         d3_button.setToolTipText("Creates a 3D version of the image.");
         d3_button.setFocusable(false);
 
-        d3_button.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.set3DOption();
-
-            }
-        });
+        d3_button.addActionListener(e -> ptr.set3DOption());
 
         add(d3_button);
 
         polar_projection_button = new JButton();
-        polar_projection_button.setIcon(getIcon("/fractalzoomer/icons/polar_projection.png"));
+        polar_projection_button.setIcon(MainWindow.getIcon("polar_projection.png"));
         polar_projection_button.setToolTipText("Projects the image into polar coordinates.");
         polar_projection_button.setFocusable(false);
 
-        polar_projection_button.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-               ptr.setPolarProjection();
-
-            }
-        });
+        polar_projection_button.addActionListener(e -> ptr.setPolarProjection());
 
         add(polar_projection_button);
 
         domain_coloring_button = new JButton();
-        domain_coloring_button.setIcon(getIcon("/fractalzoomer/icons/domain_coloring.png"));
+        domain_coloring_button.setIcon(MainWindow.getIcon("domain_coloring.png"));
         domain_coloring_button.setToolTipText("Creates a complex plane domain coloring visualization.");
         domain_coloring_button.setFocusable(false);
 
-        domain_coloring_button.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setDomainColoring();
-
-            }
-        });
+        domain_coloring_button.addActionListener(e -> ptr.setDomainColoring());
 
         add(domain_coloring_button);
 
         color_cycling_button = new JButton();
-        color_cycling_button.setIcon(getIcon("/fractalzoomer/icons/color_cycling.png"));
+        color_cycling_button.setIcon(MainWindow.getIcon("color_cycling.png"));
         color_cycling_button.setToolTipText("Animates the image, cycling through the palette.");
         color_cycling_button.setFocusable(false);
 
-        color_cycling_button.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setColorCyclingButton();
-
-            }
-        });
+        color_cycling_button.addActionListener(e -> ptr.setColorCyclingButton());
 
         add(color_cycling_button);
 
         addSeparator();
 
         help_button = new JButton();
-        help_button.setIcon(getIcon("/fractalzoomer/icons/help.png"));
+        help_button.setIcon(MainWindow.getIcon("help.png"));
         help_button.setFocusable(false);
         help_button.setToolTipText("Loads the help file.");
 
-        help_button.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.showCHMHelpFile();
-
-            }
-        });
+        help_button.addActionListener(e -> ptr.showCHMHelpFile());
 
         add(help_button);
         
-    }
-    
-    private ImageIcon getIcon(String path) {
-
-        return new ImageIcon(getClass().getResource(path));
-
     }
     
     public JButton getStartingPositionButton() {

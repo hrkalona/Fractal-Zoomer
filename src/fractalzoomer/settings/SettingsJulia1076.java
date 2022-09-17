@@ -31,8 +31,8 @@ public class SettingsJulia1076 extends SettingsFractals1076 implements Serializa
     
     public SettingsJulia1076(Settings s) {
         super(s);
-        xJuliaCenter = s.xJuliaCenter;
-        yJuliaCenter = s.yJuliaCenter;
+        xJuliaCenter = s.xJuliaCenter.doubleValue();
+        yJuliaCenter = s.yJuliaCenter.doubleValue();
     }
     
     public double getXJuliaCenter() {

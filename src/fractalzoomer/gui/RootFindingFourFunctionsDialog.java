@@ -23,12 +23,8 @@ import fractalzoomer.main.app_settings.Settings;
 import fractalzoomer.parser.ParserException;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 
 import static fractalzoomer.main.Constants.*;
 
@@ -49,7 +45,7 @@ public class RootFindingFourFunctionsDialog extends JDialog {
 
         setTitle(FractalFunctionsMenu.functionNames[s.fns.function]);
         setModal(true);
-        setIconImage(getIcon("/fractalzoomer/icons/mandel2.png").getImage());
+        setIconImage(MainWindow.getIcon("mandel2.png").getImage());
         
         String f1 = s.fns.user_fz_formula;
         String f2 = s.fns.user_dfz_formula;
@@ -98,12 +94,12 @@ public class RootFindingFourFunctionsDialog extends JDialog {
         JLabel imagelabel41 = new JLabel();
 
         if (s.fns.function == HOUSEHOLDER3FORMULA) {
-            imagelabel41.setIcon(getIcon("/fractalzoomer/icons/householder3.png"));
+            imagelabel41.setIcon(MainWindow.getIcon("householder3.png"));
         } else if (s.fns.function == ABBASBANDYFORMULA) {
-            imagelabel41.setIcon(getIcon("/fractalzoomer/icons/abbasbandy.png"));
+            imagelabel41.setIcon(MainWindow.getIcon("abbasbandy.png"));
         }
         else if (s.fns.function == ABBASBANDY3FORMULA) {
-            imagelabel41.setIcon(getIcon("/fractalzoomer/icons/abbasbandy3.png"));
+            imagelabel41.setIcon(MainWindow.getIcon("abbasbandy3.png"));
         }
 
         JPanel imagepanel41 = new JPanel();
@@ -111,7 +107,7 @@ public class RootFindingFourFunctionsDialog extends JDialog {
         
         JPanel derivativePanel = new JPanel();
         
-        JComboBox derivative_choice = new JComboBox(Constants.derivativeMethod);
+        JComboBox<String> derivative_choice = new JComboBox<>(Constants.derivativeMethod);
         derivative_choice.setSelectedIndex(s.fns.derivative_method);
         derivative_choice.setToolTipText("Selects the derivative method.");
         derivative_choice.setFocusable(false);
@@ -123,15 +119,11 @@ public class RootFindingFourFunctionsDialog extends JDialog {
         formula_ddfz_panel2.setVisible(s.fns.derivative_method == Derivative.DISABLED);
         formula_dddfz_panel2.setVisible(s.fns.derivative_method == Derivative.DISABLED);
         
-        derivative_choice.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                formula_dfz_panel2.setVisible(derivative_choice.getSelectedIndex() == Derivative.DISABLED);
-                formula_ddfz_panel2.setVisible(derivative_choice.getSelectedIndex() == Derivative.DISABLED);
-                formula_dddfz_panel2.setVisible(derivative_choice.getSelectedIndex() == Derivative.DISABLED);
-                pack();
-            }
-            
+        derivative_choice.addActionListener(e -> {
+            formula_dfz_panel2.setVisible(derivative_choice.getSelectedIndex() == Derivative.DISABLED);
+            formula_ddfz_panel2.setVisible(derivative_choice.getSelectedIndex() == Derivative.DISABLED);
+            formula_dddfz_panel2.setVisible(derivative_choice.getSelectedIndex() == Derivative.DISABLED);
+            pack();
         });
 
         Object[] labels41 = ptra.createUserFormulaLabels("z, s, pixel, p, pp, n, maxn, center, size, sizei, v1 - v30, point");
@@ -152,84 +144,83 @@ public class RootFindingFourFunctionsDialog extends JDialog {
 
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
+            @Override
             public void windowClosing(WindowEvent we) {
-                optionPane.setValue(new Integer(JOptionPane.CLOSED_OPTION));
+                optionPane.setValue(JOptionPane.CLOSED_OPTION);
             }
         });
 
         optionPane.addPropertyChangeListener(
-                new PropertyChangeListener() {
-            public void propertyChange(PropertyChangeEvent e) {
-                String prop = e.getPropertyName();
+                e -> {
+                    String prop = e.getPropertyName();
 
-                if (isVisible() && (e.getSource() == optionPane) && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
+                    if (isVisible() && (e.getSource() == optionPane) && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
 
-                    Object value = optionPane.getValue();
+                        Object value = optionPane.getValue();
 
-                    if (value == JOptionPane.UNINITIALIZED_VALUE) {
-                        //ignore reset
-                        return;
-                    }
+                        if (value == JOptionPane.UNINITIALIZED_VALUE) {
+                            //ignore reset
+                            return;
+                        }
 
-                    //Reset the JOptionPane's value.
-                    //If you don't do this, then if the user
-                    //presses the same button next time, no
-                    //property change event will be fired.
-                    optionPane.setValue(JOptionPane.UNINITIALIZED_VALUE);
+                        //Reset the JOptionPane's value.
+                        //If you don't do this, then if the user
+                        //presses the same button next time, no
+                        //property change event will be fired.
+                        optionPane.setValue(JOptionPane.UNINITIALIZED_VALUE);
 
-                    if ((Integer) value == JOptionPane.CANCEL_OPTION || (Integer) value == JOptionPane.NO_OPTION || (Integer) value == JOptionPane.CLOSED_OPTION) {
-                        fractal_functions[oldSelected].setSelected(true);
-                        s.fns.function = oldSelected;
+                        if ((Integer) value == JOptionPane.CANCEL_OPTION || (Integer) value == JOptionPane.NO_OPTION || (Integer) value == JOptionPane.CLOSED_OPTION) {
+                            fractal_functions[oldSelected].setSelected(true);
+                            s.fns.function = oldSelected;
+                            dispose();
+                            return;
+                        }
+
+                        try {
+                            s.parser.parse(field_fz_formula2.getText());
+                            if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundC() || s.parser.foundC0() ||  s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                                JOptionPane.showMessageDialog(ptra, "The variables: c, c0, bail, cbail, r, stat, trap cannot be used in the f(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+
+                            s.parser.parse(field_dfz_formula2.getText());
+
+                            if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundC() ||  s.parser.foundC0() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                                JOptionPane.showMessageDialog(ptra, "The variables: c, c0, bail, cbail, r, stat, trap cannot be used in the f'(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+
+                            s.parser.parse(field_ddfz_formula2.getText());
+
+                            if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundC() || s.parser.foundC0() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                                JOptionPane.showMessageDialog(ptra, "The variables: c, c0, bail, cbail, r, stat, trap cannot be used in the f''(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+
+                            s.parser.parse(field_dddfz_formula2.getText());
+
+                            if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundC() || s.parser.foundC0() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                                JOptionPane.showMessageDialog(ptra, "The variables: c, c0, bail, cbail, r, stat, trap cannot be used in the f'''(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+
+                            s.fns.user_fz_formula = field_fz_formula2.getText();
+                            s.fns.user_dfz_formula = field_dfz_formula2.getText();
+                            s.fns.user_ddfz_formula = field_ddfz_formula2.getText();
+                            s.fns.user_dddfz_formula = field_dddfz_formula2.getText();
+
+                            s.fns.derivative_method = derivative_choice.getSelectedIndex();
+                            Derivative.DERIVATIVE_METHOD = s.fns.derivative_method;
+                        } catch (ParserException ex) {
+                            JOptionPane.showMessageDialog(ptra, ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
+
+                        ptra.optionsEnableShortcut2();
                         dispose();
-                        return;
+                        ptra.setFunctionPost(wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType, wasEscapingOrConvergingType);
                     }
-
-                    try {
-                        s.parser.parse(field_fz_formula2.getText());
-                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundC() || s.parser.foundC0() ||  s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
-                            JOptionPane.showMessageDialog(ptra, "The variables: c, c0, bail, cbail, r, stat, trap cannot be used in the f(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            return;
-                        }
-
-                        s.parser.parse(field_dfz_formula2.getText());
-
-                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundC() ||  s.parser.foundC0() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
-                            JOptionPane.showMessageDialog(ptra, "The variables: c, c0, bail, cbail, r, stat, trap cannot be used in the f'(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            return;
-                        }
-
-                        s.parser.parse(field_ddfz_formula2.getText());
-
-                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundC() || s.parser.foundC0() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
-                            JOptionPane.showMessageDialog(ptra, "The variables: c, c0, bail, cbail, r, stat, trap cannot be used in the f''(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            return;
-                        }
-
-                        s.parser.parse(field_dddfz_formula2.getText());
-
-                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundC() || s.parser.foundC0() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
-                            JOptionPane.showMessageDialog(ptra, "The variables: c, c0, bail, cbail, r, stat, trap cannot be used in the f'''(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            return;
-                        }
-
-                        s.fns.user_fz_formula = field_fz_formula2.getText();
-                        s.fns.user_dfz_formula = field_dfz_formula2.getText();
-                        s.fns.user_ddfz_formula = field_ddfz_formula2.getText();
-                        s.fns.user_dddfz_formula = field_dddfz_formula2.getText();
-                        
-                        s.fns.derivative_method = derivative_choice.getSelectedIndex();
-                        Derivative.DERIVATIVE_METHOD = s.fns.derivative_method;
-                    } catch (ParserException ex) {
-                        JOptionPane.showMessageDialog(ptra, ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-
-                    ptra.optionsEnableShortcut2();
-                    dispose();
-                    ptra.setFunctionPost(wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType, wasEscapingOrConvergingType);
-                }
-            }
-        });
+                });
 
         //Make this dialog display it.
         setContentPane(optionPane);
@@ -239,12 +230,6 @@ public class RootFindingFourFunctionsDialog extends JDialog {
         setResizable(false);
         setLocation((int) (ptra.getLocation().getX() + ptra.getSize().getWidth() / 2) - (getWidth() / 2), (int) (ptra.getLocation().getY() + ptra.getSize().getHeight() / 2) - (getHeight() / 2));
         setVisible(true);
-
-    }
-
-    private ImageIcon getIcon(String path) {
-
-        return new ImageIcon(getClass().getResource(path));
 
     }
 

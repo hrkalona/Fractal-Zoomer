@@ -42,7 +42,7 @@ public abstract class OrbitTrap {
     protected boolean doFirstIterationSkipCheck;
     protected int skipTrapCheckForIterations;
     
-    public OrbitTrap(int checkType, double pointRe, double pointIm, double trapLength, double trapWidth, boolean countTrapIterations) {
+    protected OrbitTrap(int checkType, double pointRe, double pointIm, double trapLength, double trapWidth, boolean countTrapIterations) {
         
         point = new Complex(pointRe, pointIm);
         this.trapLength = trapLength;

@@ -23,12 +23,8 @@ import fractalzoomer.parser.ParserException;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 
 import static fractalzoomer.main.MainWindow.runsOnWindows;
 
@@ -49,7 +45,7 @@ public class InitialValueDialog extends JDialog {
 
         setTitle("Initial Value");
         setModal(true);
-        setIconImage(getIcon("/fractalzoomer/icons/mandel2.png").getImage());
+        setIconImage(MainWindow.getIcon("mandel2.png").getImage());
 
         JPanel panel1 = new JPanel();
         JPanel panel2 = new JPanel();
@@ -154,53 +150,26 @@ public class InitialValueDialog extends JDialog {
         JButton info_user = new JButton("Help");
         info_user.setToolTipText("Shows the details of the user formulas.");
         info_user.setFocusable(false);
-        info_user.setIcon(getIcon("/fractalzoomer/icons/help2.png"));
+        info_user.setIcon(MainWindow.getIcon("help2.png"));
         info_user.setPreferredSize(new Dimension(105, 23));
 
-        info_user.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptra.showUserFormulaHelp();
-
-            }
-
-        });
+        info_user.addActionListener(e -> ptra.showUserFormulaHelp());
 
         JButton code_editor = new JButton("Edit User Code");
         code_editor.setToolTipText("<html>Opens the java code, containing the user defined functions,<br>with a text editor.</html>");
         code_editor.setFocusable(false);
-        code_editor.setIcon(getIcon("/fractalzoomer/icons/code_editor2.png"));
+        code_editor.setIcon(MainWindow.getIcon("code_editor2.png"));
         code_editor.setPreferredSize(new Dimension(160, 23));
 
-        code_editor.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptra.codeEditor();
-
-            }
-
-        });
+        code_editor.addActionListener(e -> ptra.codeEditor());
 
         JButton compile_code = new JButton("Compile User Code");
         compile_code.setToolTipText("Compiles the java code, containing the user defined functions.");
         compile_code.setFocusable(false);
-        compile_code.setIcon(getIcon("/fractalzoomer/icons/compile2.png"));
+        compile_code.setIcon(MainWindow.getIcon("compile2.png"));
         compile_code.setPreferredSize(new Dimension(180, 23));
 
-        compile_code.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptra.compileCode(true);
-
-            }
-
-        });
+        compile_code.addActionListener(e -> ptra.compileCode(true));
 
         JPanel info_panel = new JPanel();
         info_panel.setLayout(new FlowLayout());
@@ -238,115 +207,114 @@ public class InitialValueDialog extends JDialog {
 
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
+            @Override
             public void windowClosing(WindowEvent we) {
-                optionPane.setValue(new Integer(JOptionPane.CLOSED_OPTION));
+                optionPane.setValue(JOptionPane.CLOSED_OPTION);
             }
         });
 
         optionPane.addPropertyChangeListener(
-                new PropertyChangeListener() {
-            public void propertyChange(PropertyChangeEvent e) {
-                String prop = e.getPropertyName();
+                e -> {
+                    String prop = e.getPropertyName();
 
-                if (isVisible() && (e.getSource() == optionPane) && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
+                    if (isVisible() && (e.getSource() == optionPane) && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
 
-                    Object value = optionPane.getValue();
+                        Object value = optionPane.getValue();
 
-                    if (value == JOptionPane.UNINITIALIZED_VALUE) {
-                        //ignore reset
-                        return;
-                    }
-
-                    //Reset the JOptionPane's value.
-                    //If you don't do this, then if the user
-                    //presses the same button next time, no
-                    //property change event will be fired.
-                    optionPane.setValue(JOptionPane.UNINITIALIZED_VALUE);
-
-                    if ((Integer) value == JOptionPane.CANCEL_OPTION || (Integer) value == JOptionPane.NO_OPTION || (Integer) value == JOptionPane.CLOSED_OPTION) {
-                        dispose();
-                        return;
-                    }
-
-                    try {
-                        double temp = 0, temp2 = 0;
-                        if (tabbedPane.getSelectedIndex() == 0) {
-                            temp = Double.parseDouble(field_real.getText());
-                            temp2 = Double.parseDouble(field_imaginary.getText());
-                        } else if (tabbedPane2.getSelectedIndex() == 0) {
-                            s.parser.parse(field_formula.getText());
-                            if (s.parser.foundPixel() || s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundC0() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
-                                JOptionPane.showMessageDialog(ptra, "The variables: z, n, s, c0, pixel, p, pp, bail, cbail, r, stat, trap cannot be used in the z(0) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                return;
-                            }
-                        } else {
-                            s.parser.parse(field_condition.getText());
-
-                            if (s.parser.foundPixel() || s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundC0() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
-                                JOptionPane.showMessageDialog(ptra, "The variables: z, n, s, c0, pixel, p, pp, bail, cbail, r, stat, trap cannot be used in the left condition formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                return;
-                            }
-
-                            s.parser.parse(field_condition2.getText());
-
-                            if (s.parser.foundPixel() || s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundC0() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
-                                JOptionPane.showMessageDialog(ptra, "The variables: z, n, s, c0, pixel, p, pp, bail, cbail, r, stat, trap cannot be used in the right condition formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                return;
-                            }
-
-                            s.parser.parse(field_formula_cond1.getText());
-
-                            if (s.parser.foundPixel() || s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundC0() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
-                                JOptionPane.showMessageDialog(ptra, "The variables: z, n, s, c0, pixel, p, pp, bail, cbail, r, stat, trap cannot be used in the left > right z(0) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                return;
-                            }
-
-                            s.parser.parse(field_formula_cond2.getText());
-
-                            if (s.parser.foundPixel() || s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundC0() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
-                                JOptionPane.showMessageDialog(ptra, "The variables: z, n, s, c0, pixel, p, pp, bail, cbail, r, stat, trap cannot be used in the left < right z(0) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                return;
-                            }
-
-                            s.parser.parse(field_formula_cond3.getText());
-
-                            if (s.parser.foundPixel() || s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundC0() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
-                                JOptionPane.showMessageDialog(ptra, "The variables: z, n, s, c0, pixel, p, pp, bail, cbail, r, stat, trap cannot be used in the left = right z(0) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                return;
-                            }
+                        if (value == JOptionPane.UNINITIALIZED_VALUE) {
+                            //ignore reset
+                            return;
                         }
 
-                        if (tabbedPane.getSelectedIndex() == 0) {
-                            s.fns.initial_vals[0] = temp == 0.0 ? 0.0 : temp;
-                            s.fns.initial_vals[1] = temp2 == 0.0 ? 0.0 : temp2;
-                            s.fns.variable_init_value = false;
-                        } else {
-                            s.fns.variable_init_value = true;
-                            s.fns.user_initial_value_algorithm = tabbedPane2.getSelectedIndex();
+                        //Reset the JOptionPane's value.
+                        //If you don't do this, then if the user
+                        //presses the same button next time, no
+                        //property change event will be fired.
+                        optionPane.setValue(JOptionPane.UNINITIALIZED_VALUE);
 
-                            if (s.fns.user_initial_value_algorithm == 0) {
-                                s.fns.initial_value_user_formula = field_formula.getText();
+                        if ((Integer) value == JOptionPane.CANCEL_OPTION || (Integer) value == JOptionPane.NO_OPTION || (Integer) value == JOptionPane.CLOSED_OPTION) {
+                            dispose();
+                            return;
+                        }
+
+                        try {
+                            double temp = 0, temp2 = 0;
+                            if (tabbedPane.getSelectedIndex() == 0) {
+                                temp = Double.parseDouble(field_real.getText());
+                                temp2 = Double.parseDouble(field_imaginary.getText());
+                            } else if (tabbedPane2.getSelectedIndex() == 0) {
+                                s.parser.parse(field_formula.getText());
+                                if (s.parser.foundPixel() || s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundC0() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                                    JOptionPane.showMessageDialog(ptra, "The variables: z, n, s, c0, pixel, p, pp, bail, cbail, r, stat, trap cannot be used in the z(0) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                    return;
+                                }
                             } else {
-                                s.fns.user_initial_value_conditions[0] = field_condition.getText();
-                                s.fns.user_initial_value_conditions[1] = field_condition2.getText();
-                                s.fns.user_initial_value_condition_formula[0] = field_formula_cond1.getText();
-                                s.fns.user_initial_value_condition_formula[1] = field_formula_cond2.getText();
-                                s.fns.user_initial_value_condition_formula[2] = field_formula_cond3.getText();
-                            }
-                        }
-                    } catch (ParserException ex) {
-                        JOptionPane.showMessageDialog(ptra, ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
+                                s.parser.parse(field_condition.getText());
 
-                    dispose();
-                    ptra.setInitialValuePost(initVal.isSelected());
-                }
-            }
-        });
+                                if (s.parser.foundPixel() || s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundC0() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                                    JOptionPane.showMessageDialog(ptra, "The variables: z, n, s, c0, pixel, p, pp, bail, cbail, r, stat, trap cannot be used in the left condition formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                    return;
+                                }
+
+                                s.parser.parse(field_condition2.getText());
+
+                                if (s.parser.foundPixel() || s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundC0() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                                    JOptionPane.showMessageDialog(ptra, "The variables: z, n, s, c0, pixel, p, pp, bail, cbail, r, stat, trap cannot be used in the right condition formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                    return;
+                                }
+
+                                s.parser.parse(field_formula_cond1.getText());
+
+                                if (s.parser.foundPixel() || s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundC0() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                                    JOptionPane.showMessageDialog(ptra, "The variables: z, n, s, c0, pixel, p, pp, bail, cbail, r, stat, trap cannot be used in the left > right z(0) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                    return;
+                                }
+
+                                s.parser.parse(field_formula_cond2.getText());
+
+                                if (s.parser.foundPixel() || s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundC0() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                                    JOptionPane.showMessageDialog(ptra, "The variables: z, n, s, c0, pixel, p, pp, bail, cbail, r, stat, trap cannot be used in the left < right z(0) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                    return;
+                                }
+
+                                s.parser.parse(field_formula_cond3.getText());
+
+                                if (s.parser.foundPixel() || s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundC0() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                                    JOptionPane.showMessageDialog(ptra, "The variables: z, n, s, c0, pixel, p, pp, bail, cbail, r, stat, trap cannot be used in the left = right z(0) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                    return;
+                                }
+                            }
+
+                            if (tabbedPane.getSelectedIndex() == 0) {
+                                s.fns.initial_vals[0] = temp == 0.0 ? 0.0 : temp;
+                                s.fns.initial_vals[1] = temp2 == 0.0 ? 0.0 : temp2;
+                                s.fns.variable_init_value = false;
+                            } else {
+                                s.fns.variable_init_value = true;
+                                s.fns.user_initial_value_algorithm = tabbedPane2.getSelectedIndex();
+
+                                if (s.fns.user_initial_value_algorithm == 0) {
+                                    s.fns.initial_value_user_formula = field_formula.getText();
+                                } else {
+                                    s.fns.user_initial_value_conditions[0] = field_condition.getText();
+                                    s.fns.user_initial_value_conditions[1] = field_condition2.getText();
+                                    s.fns.user_initial_value_condition_formula[0] = field_formula_cond1.getText();
+                                    s.fns.user_initial_value_condition_formula[1] = field_formula_cond2.getText();
+                                    s.fns.user_initial_value_condition_formula[2] = field_formula_cond3.getText();
+                                }
+                            }
+                        } catch (ParserException ex) {
+                            JOptionPane.showMessageDialog(ptra, ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
+                            return;
+                        } catch (Exception ex) {
+                            JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
+
+                        dispose();
+                        ptra.setInitialValuePost(initVal.isSelected());
+                    }
+                });
 
         //Make this dialog display it.
         setContentPane(optionPane);
@@ -356,12 +324,6 @@ public class InitialValueDialog extends JDialog {
         setResizable(false);
         setLocation((int) (ptra.getLocation().getX() + ptra.getSize().getWidth() / 2) - (getWidth() / 2), (int) (ptra.getLocation().getY() + ptra.getSize().getHeight() / 2) - (getHeight() / 2));
         setVisible(true);
-
-    }
-
-    private ImageIcon getIcon(String path) {
-
-        return new ImageIcon(getClass().getResource(path));
 
     }
 

@@ -20,7 +20,6 @@ import fractalzoomer.main.MainWindow;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 
 /**
@@ -58,39 +57,39 @@ public class FileMenu extends JMenu {
 
         this.ptr = ptr2;
         
-        starting_position = new JMenuItem("Starting Position", getIcon("/fractalzoomer/icons/starting_position.png"));
+        starting_position = new JMenuItem("Starting Position", MainWindow.getIcon("starting_position.png"));
 
-        go_to = new JMenuItem("Go To", getIcon("/fractalzoomer/icons/go_to.png"));
+        go_to = new JMenuItem("Go To", MainWindow.getIcon("go_to.png"));
 
-        zoom_in = new JMenuItem("Zoom In", getIcon("/fractalzoomer/icons/zoom_in.png"));
+        zoom_in = new JMenuItem("Zoom In", MainWindow.getIcon("zoom_in.png"));
 
-        zoom_out = new JMenuItem("Zoom Out", getIcon("/fractalzoomer/icons/zoom_out.png"));
+        zoom_out = new JMenuItem("Zoom Out", MainWindow.getIcon("zoom_out.png"));
         
-        repaint_opt = new JMenuItem("Repaint", getIcon("/fractalzoomer/icons/refresh_image.png"));
+        repaint_opt = new JMenuItem("Repaint", MainWindow.getIcon("refresh_image.png"));
 
-        up = new JMenuItem("Up", getIcon("/fractalzoomer/icons/up.png"));
-        down = new JMenuItem("Down", getIcon("/fractalzoomer/icons/down.png"));
-        left = new JMenuItem("Left", getIcon("/fractalzoomer/icons/left.png"));
-        right = new JMenuItem("Right", getIcon("/fractalzoomer/icons/right.png"));
+        up = new JMenuItem("Up", MainWindow.getIcon("up.png"));
+        down = new JMenuItem("Down", MainWindow.getIcon("down.png"));
+        left = new JMenuItem("Left", MainWindow.getIcon("left.png"));
+        right = new JMenuItem("Right", MainWindow.getIcon("right.png"));
         
-        default_opt = new JMenuItem("Default Settings", getIcon("/fractalzoomer/icons/default.png"));
+        default_opt = new JMenuItem("Default Settings", MainWindow.getIcon("default.png"));
 
-        save_settings = new JMenuItem("Save Settings As...", getIcon("/fractalzoomer/icons/save.png"));
+        save_settings = new JMenuItem("Save Settings As...", MainWindow.getIcon("save.png"));
 
-        load_settings = new JMenuItem("Load Settings", getIcon("/fractalzoomer/icons/load.png"));
+        load_settings = new JMenuItem("Load Settings", MainWindow.getIcon("load.png"));
         
-        save_initial_settings_opt = new JMenuItem("Set Initial Settings", getIcon("/fractalzoomer/icons/init_settings.png"));
+        save_initial_settings_opt = new JMenuItem("Set Initial Settings", MainWindow.getIcon("init_settings.png"));
 
-        save_image = new JMenuItem("Save Image As...", getIcon("/fractalzoomer/icons/save_image.png"));
+        save_image = new JMenuItem("Save Image As...", MainWindow.getIcon("save_image.png"));
         
-        save_settings_image = new JMenuItem("Save Settings and Image As...", getIcon("/fractalzoomer/icons/save_image_settings.png"));
+        save_settings_image = new JMenuItem("Save Settings and Image As...", MainWindow.getIcon("save_image_settings.png"));
 
-        code_editor = new JMenuItem("Edit User Code", getIcon("/fractalzoomer/icons/code_editor.png"));
-        library_code = new JMenuItem("Library Code", getIcon("/fractalzoomer/icons/code_editor.png"));
-        compile_code = new JMenuItem("Compile User Code", getIcon("/fractalzoomer/icons/compile.png"));
+        code_editor = new JMenuItem("Edit User Code", MainWindow.getIcon("code_editor.png"));
+        library_code = new JMenuItem("Library Code", MainWindow.getIcon("code_editor.png"));
+        compile_code = new JMenuItem("Compile User Code", MainWindow.getIcon("compile.png"));
 
-        cancel_operation  = new JMenuItem("Cancel Operation", getIcon("/fractalzoomer/icons/abort.png"));
-        exit = new JMenuItem("Exit", getIcon("/fractalzoomer/icons/exit.png"));
+        cancel_operation  = new JMenuItem("Cancel Operation", MainWindow.getIcon("abort.png"));
+        exit = new JMenuItem("Exit", MainWindow.getIcon("exit.png"));
         
         starting_position.setToolTipText("Resets the fractal to the default position.");
         go_to.setToolTipText("Sets the center and size of the fractal, or the julia seed.");
@@ -133,207 +132,47 @@ public class FileMenu extends JMenu {
         save_initial_settings_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F7, 0));
         cancel_operation.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0));
         
-        default_opt.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.defaultSettings();
-
-            }
-        });
+        default_opt.addActionListener(e -> ptr.defaultSettings());
         
-        save_initial_settings_opt.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setInitialSettings();
-
-            }
-        });
+        save_initial_settings_opt.addActionListener(e -> ptr.setInitialSettings());
 
         
-        starting_position.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.startingPosition();
-
-            }
-        });
+        starting_position.addActionListener(e -> ptr.startingPosition());
         
-        repaint_opt.addActionListener(new ActionListener() {
+        repaint_opt.addActionListener(e -> ptr.redraw());
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        go_to.addActionListener(e -> ptr.goTo());
 
-                ptr.redraw();
+        save_settings.addActionListener(e -> ptr.saveSettings());
 
-            }
-        });
+        load_settings.addActionListener(e -> ptr.loadSettings());
 
-        go_to.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.goTo();
-                
-            }
-        });
-
-        save_settings.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.saveSettings();
-
-            }
-        });
-
-        load_settings.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.loadSettings();
-
-            }
-        });
-
-        save_image.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.saveImage();
-
-            }
-        });
+        save_image.addActionListener(e -> ptr.saveImage());
         
-        save_settings_image.addActionListener(new ActionListener() {
+        save_settings_image.addActionListener(e -> ptr.saveSettingsAndImage());
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        compile_code.addActionListener(e -> ptr.compileCode(true));
 
-                ptr.saveSettingsAndImage();
-
-            }
-        });
-
-        compile_code.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.compileCode(true);
-
-            }
-        });
-
-        code_editor.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.codeEditor();
-
-            }
-        });
+        code_editor.addActionListener(e -> ptr.codeEditor());
 
 
-        library_code.addActionListener(new ActionListener() {
+        library_code.addActionListener(e -> ptr.libraryCode());
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        cancel_operation.addActionListener(e -> ptr.cancelOperation());
 
-                ptr.libraryCode();
-
-            }
-        });
-
-        cancel_operation.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.cancelOperation();
-
-            }
-        });
-
-        exit.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.exit();
-
-            }
-        });
+        exit.addActionListener(e -> ptr.exit());
         
-        zoom_in.addActionListener(new ActionListener() {
+        zoom_in.addActionListener(e -> ptr.zoomIn());
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        zoom_out.addActionListener(e -> ptr.zoomOut());
 
-                ptr.zoomIn();
+        up.addActionListener(e -> ptr.moveTo(MainWindow.UP));
 
-            }
-        });
+        down.addActionListener(e -> ptr.moveTo(MainWindow.DOWN));
 
-        zoom_out.addActionListener(new ActionListener() {
+        left.addActionListener(e -> ptr.moveTo(MainWindow.LEFT));
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.zoomOut();
-
-            }
-        });
-
-        up.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.moveTo(MainWindow.UP);
-
-            }
-        });
-
-        down.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.moveTo(MainWindow.DOWN);
-
-            }
-        });
-
-        left.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.moveTo(MainWindow.LEFT);
-
-            }
-        });
-
-        right.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.moveTo(MainWindow.RIGHT);
-
-            }
-        });
+        right.addActionListener(e -> ptr.moveTo(MainWindow.RIGHT));
         
         add(starting_position);
         add(go_to);
@@ -362,12 +201,6 @@ public class FileMenu extends JMenu {
         addSeparator();
         add(exit);
         
-    }
-    
-    private ImageIcon getIcon(String path) {
-
-        return new ImageIcon(getClass().getResource(path));
-
     }
 
     public JMenuItem getZoomIn() {

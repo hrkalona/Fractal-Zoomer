@@ -52,5 +52,19 @@ public class LambdaPlane extends Plane {
         return  pixel.times(pixel.r_sub(new BigNum(1)));
 
     }
+
+    @Override
+    public MpfrBigNumComplex transform(MpfrBigNumComplex pixel) {
+
+        return pixel.times(pixel.r_sub(1));
+
+    }
+
+    @Override
+    public DDComplex transform(DDComplex pixel) {
+
+        return pixel.times(pixel.r_sub(1));
+
+    }
     
 }

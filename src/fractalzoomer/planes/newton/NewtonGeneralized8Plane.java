@@ -18,6 +18,8 @@
 package fractalzoomer.planes.newton;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.core.DDComplex;
+import fractalzoomer.core.MpfrBigNumComplex;
 import fractalzoomer.planes.Plane;
 
 /**
@@ -34,17 +36,61 @@ public class NewtonGeneralized8Plane extends Plane {
 
     @Override
     public Complex transform(Complex pixel) {
+
+        if(pixel.isZero()) {
+            return pixel;
+        }
         
         Complex temp = pixel;
         
         for(int iterations = 0; iterations < 5; iterations++) {
             Complex fz = temp.eighth().plus_mutable(temp.fourth().times_mutable(15)).sub_mutable(16);
             Complex dfz = temp.seventh().times_mutable(8).plus_mutable(temp.cube().times_mutable(60));
-            
-            temp.sub_mutable(fz.divide_mutable(dfz));
+
+            temp = temp.sub(fz.divide_mutable(dfz));
         }
 
         return temp;
  
+    }
+
+    @Override
+    public MpfrBigNumComplex transform(MpfrBigNumComplex pixel) {
+
+        if(pixel.isZero()) {
+            return pixel;
+        }
+
+        MpfrBigNumComplex temp = pixel;
+
+        for(int iterations = 0; iterations < 5; iterations++) {
+            MpfrBigNumComplex fz = temp.pow(8).plus_mutable(temp.fourth().times_mutable(15)).sub_mutable(16);
+            MpfrBigNumComplex dfz = temp.pow(7).times_mutable(8).plus_mutable(temp.cube().times_mutable(60));
+
+            temp = temp.sub(fz.divide_mutable(dfz));
+        }
+
+        return temp;
+
+    }
+
+    @Override
+    public DDComplex transform(DDComplex pixel) {
+
+        if(pixel.isZero()) {
+            return pixel;
+        }
+
+        DDComplex temp = pixel;
+
+        for(int iterations = 0; iterations < 5; iterations++) {
+            DDComplex fz = temp.pow(8).plus(temp.fourth().times(15)).sub(16);
+            DDComplex dfz = temp.pow(7).times(8).plus(temp.cube().times(60));
+
+            temp = temp.sub(fz.divide(dfz));
+        }
+
+        return temp;
+
     }
 }

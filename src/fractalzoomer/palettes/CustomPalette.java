@@ -16,7 +16,7 @@
  */
 package fractalzoomer.palettes;
 
-import fractalzoomer.core.interpolation.*;
+import fractalzoomer.core.interpolation.InterpolationMethod;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.utils.ColorSpaceConverter;
 import fractalzoomer.utils.MathUtils.BezierSpline;

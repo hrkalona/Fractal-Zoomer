@@ -21,12 +21,8 @@ import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 
 /**
  *
@@ -45,7 +41,7 @@ public class PaletteGradientMergingDialog extends JDialog {
 
         setTitle("Palette/Gradient Merging");
         setModal(true);
-        setIconImage(getIcon("/fractalzoomer/icons/mandel2.png").getImage());
+        setIconImage(MainWindow.getIcon("mandel2.png").getImage());
 
         JTextField palette_blend_factor_field = new JTextField();
         palette_blend_factor_field.setText("" + s.pbs.gradient_intensity);
@@ -64,17 +60,12 @@ public class PaletteGradientMergingDialog extends JDialog {
         color_blend_opt.setFocusable(false);
         color_blend_opt.setPaintLabels(true);
 
-        final JComboBox merging_method_combo = new JComboBox(Constants.colorMethod);
+        final JComboBox<String> merging_method_combo = new JComboBox<>(Constants.colorMethod);
         merging_method_combo.setSelectedIndex(s.pbs.merging_type);
         merging_method_combo.setFocusable(false);
         merging_method_combo.setToolTipText("Sets the palette/gradient merging method.");
 
-        merging_method_combo.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                color_blend_opt.setEnabled(merging_method_combo.getSelectedIndex() == 3);
-            }
-        });
+        merging_method_combo.addActionListener(e -> color_blend_opt.setEnabled(merging_method_combo.getSelectedIndex() == 3));
 
         color_blend_opt.setEnabled(s.pbs.merging_type == 3);
 
@@ -99,65 +90,64 @@ public class PaletteGradientMergingDialog extends JDialog {
 
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
+            @Override
             public void windowClosing(WindowEvent we) {
-                optionPane.setValue(new Integer(JOptionPane.CLOSED_OPTION));
+                optionPane.setValue(JOptionPane.CLOSED_OPTION);
             }
         });
 
         optionPane.addPropertyChangeListener(
-                new PropertyChangeListener() {
-            public void propertyChange(PropertyChangeEvent e) {
-                String prop = e.getPropertyName();
+                e -> {
+                    String prop = e.getPropertyName();
 
-                if (isVisible() && (e.getSource() == optionPane) && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
+                    if (isVisible() && (e.getSource() == optionPane) && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
 
-                    Object value = optionPane.getValue();
+                        Object value = optionPane.getValue();
 
-                    if (value == JOptionPane.UNINITIALIZED_VALUE) {
-                        //ignore reset
-                        return;
-                    }
+                        if (value == JOptionPane.UNINITIALIZED_VALUE) {
+                            //ignore reset
+                            return;
+                        }
 
-                    //Reset the JOptionPane's value.
-                    //If you don't do this, then if the user
-                    //presses the same button next time, no
-                    //property change event will be fired.
-                    optionPane.setValue(JOptionPane.UNINITIALIZED_VALUE);
+                        //Reset the JOptionPane's value.
+                        //If you don't do this, then if the user
+                        //presses the same button next time, no
+                        //property change event will be fired.
+                        optionPane.setValue(JOptionPane.UNINITIALIZED_VALUE);
 
-                    if ((Integer) value == JOptionPane.CANCEL_OPTION || (Integer) value == JOptionPane.NO_OPTION || (Integer) value == JOptionPane.CLOSED_OPTION) {
+                        if ((Integer) value == JOptionPane.CANCEL_OPTION || (Integer) value == JOptionPane.NO_OPTION || (Integer) value == JOptionPane.CLOSED_OPTION) {
+                            dispose();
+                            return;
+                        }
+
+                        try {
+                            double temp = Double.parseDouble(palette_blend_factor_field.getText());
+                            int temp2 = Integer.parseInt(palette_offset_field.getText());
+
+                            if (temp < 0) {
+                                JOptionPane.showMessageDialog(ptra, "The gradient intensity must be greater than -1.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+
+                            if (temp2 < 0) {
+                                JOptionPane.showMessageDialog(ptra, "The gradient offset must be greater than -1.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+
+                            s.pbs.gradient_intensity = temp;
+                            s.pbs.palette_gradient_merge = enable_blend_palette.isSelected();
+                            s.pbs.merging_type = merging_method_combo.getSelectedIndex();
+                            s.pbs.palette_blending = color_blend_opt.getValue() / 100.0;
+                            s.pbs.gradient_offset = temp2;
+                        } catch (Exception ex) {
+                            JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
+
                         dispose();
-                        return;
+                        ptra.setPaletteGradientMergingPost();
                     }
-
-                    try {
-                        double temp = Double.parseDouble(palette_blend_factor_field.getText());
-                        int temp2 = Integer.parseInt(palette_offset_field.getText());
-
-                        if (temp < 0) {
-                            JOptionPane.showMessageDialog(ptra, "The gradient intensity must be greater than -1.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            return;
-                        }
-
-                        if (temp2 < 0) {
-                            JOptionPane.showMessageDialog(ptra, "The gradient offset must be greater than -1.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            return;
-                        }
-
-                        s.pbs.gradient_intensity = temp;
-                        s.pbs.palette_gradient_merge = enable_blend_palette.isSelected();
-                        s.pbs.merging_type = merging_method_combo.getSelectedIndex();
-                        s.pbs.palette_blending = color_blend_opt.getValue() / 100.0;
-                        s.pbs.gradient_offset = temp2;
-                    } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-
-                    dispose();
-                    ptra.setPaletteGradientMergingPost();
-                }
-            }
-        });
+                });
 
         //Make this dialog display it.
         setContentPane(optionPane);
@@ -167,12 +157,6 @@ public class PaletteGradientMergingDialog extends JDialog {
         setResizable(false);
         setLocation((int) (ptra.getLocation().getX() + ptra.getSize().getWidth() / 2) - (getWidth() / 2), (int) (ptra.getLocation().getY() + ptra.getSize().getHeight() / 2) - (getHeight() / 2));
         setVisible(true);
-
-    }
-
-    private ImageIcon getIcon(String path) {
-
-        return new ImageIcon(getClass().getResource(path));
 
     }
 

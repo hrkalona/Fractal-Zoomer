@@ -46,7 +46,7 @@ public class GreedyAlgorithmsFrame extends JFrame {
         int color_window_height = 340;
         setTitle("Greedy Drawing Algorithms");
         setSize(color_window_width, color_window_height);
-        setIconImage(getIcon("/fractalzoomer/icons/greedy_algorithm.png").getImage());
+        setIconImage(MainWindow.getIcon("greedy_algorithm.png").getImage());
         setLocation((int)(ptra2.getLocation().getX() + ptra2.getSize().getWidth() / 2) - (color_window_width / 2), (int)(ptra2.getLocation().getY() + ptra2.getSize().getHeight() / 2) - (color_window_height / 2));
 
         addWindowListener(new WindowAdapter() {
@@ -215,19 +215,14 @@ public class GreedyAlgorithmsFrame extends JFrame {
         JPanel panel3 = new JPanel();
         panel3.setBackground(MainWindow.bg_color);
 
-        JComboBox brute_force_alg_opt = new JComboBox(new String[] {"Chunks", "Grid"});
+        JComboBox<String> brute_force_alg_opt = new JComboBox<>(new String[] {"Chunks", "Thread Split"});
         brute_force_alg_opt.setSelectedIndex(brute_force_alg);
         brute_force_alg_opt.setFocusable(false);
         brute_force_alg_opt.setToolTipText("Sets the brute force algorithm.");
 
         brute_force_alg_opt.setEnabled(!greedy_algorithm_opt.isSelected());
 
-        greedy_algorithm_opt.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                brute_force_alg_opt.setEnabled(!greedy_algorithm_opt.isSelected());
-            }
-        });
+        greedy_algorithm_opt.addActionListener(e -> brute_force_alg_opt.setEnabled(!greedy_algorithm_opt.isSelected()));
 
         panel3.add(new JLabel("Brute Force Algorithm: "));
         panel3.add(brute_force_alg_opt);
@@ -236,47 +231,43 @@ public class GreedyAlgorithmsFrame extends JFrame {
         getRootPane().setDefaultButton(ok);
         ok.setFocusable(false);
 
-        ok.addActionListener(new ActionListener() {
+        ok.addActionListener(e -> {
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ThreadDraw.SKIPPED_PIXELS_COLOR = filter_color_label.getBackground().getRGB();
-                if(original_color.isSelected()) {
-                    ThreadDraw.SKIPPED_PIXELS_ALG = 0;
-                }
-                else if(based_on_thread_id.isSelected()) {
-                    ThreadDraw.SKIPPED_PIXELS_ALG = 1;
-                }
-                else if(user_selected.isSelected()) {
-                    ThreadDraw.SKIPPED_PIXELS_ALG = 2;
-                }
-                else if(based_on_square_size.isSelected()) {
-                    ThreadDraw.SKIPPED_PIXELS_ALG = 3;
-                }
-                else if(grid.isSelected()) {
-                    ThreadDraw.SKIPPED_PIXELS_ALG = 4;
-                }
-
-                int algorithm = MainWindow.BOUNDARY_TRACING;
-                if(boundary_tracing_opt.isSelected()) {
-                    algorithm = MainWindow.BOUNDARY_TRACING;
-                }
-                else if(divide_and_conquer_algorithm.isSelected()) {
-                    algorithm = MainWindow.DIVIDE_AND_CONQUER;
-                }
-
-                if(ptra2 instanceof MainWindow) {
-                    ((MainWindow)ptra2).boundaryTracingOptionsChanged(greedy_algorithm_opt.isSelected(), algorithm, brute_force_alg_opt.getSelectedIndex());
-                }
-                else {
-                    ((ImageExpanderWindow)ptra2).boundaryTracingOptionsChanged(greedy_algorithm_opt.isSelected(), algorithm,  brute_force_alg_opt.getSelectedIndex());
-                }
-
-                ptra2.setEnabled(true);
-                dispose();
-
+            ThreadDraw.SKIPPED_PIXELS_COLOR = filter_color_label.getBackground().getRGB();
+            if(original_color.isSelected()) {
+                ThreadDraw.SKIPPED_PIXELS_ALG = 0;
             }
+            else if(based_on_thread_id.isSelected()) {
+                ThreadDraw.SKIPPED_PIXELS_ALG = 1;
+            }
+            else if(user_selected.isSelected()) {
+                ThreadDraw.SKIPPED_PIXELS_ALG = 2;
+            }
+            else if(based_on_square_size.isSelected()) {
+                ThreadDraw.SKIPPED_PIXELS_ALG = 3;
+            }
+            else if(grid.isSelected()) {
+                ThreadDraw.SKIPPED_PIXELS_ALG = 4;
+            }
+
+            int algorithm = MainWindow.BOUNDARY_TRACING;
+            if(boundary_tracing_opt.isSelected()) {
+                algorithm = MainWindow.BOUNDARY_TRACING;
+            }
+            else if(divide_and_conquer_algorithm.isSelected()) {
+                algorithm = MainWindow.DIVIDE_AND_CONQUER;
+            }
+
+            if(ptra2 instanceof MainWindow) {
+                ((MainWindow)ptra2).boundaryTracingOptionsChanged(greedy_algorithm_opt.isSelected(), algorithm, brute_force_alg_opt.getSelectedIndex());
+            }
+            else {
+                ((ImageExpanderWindow)ptra2).boundaryTracingOptionsChanged(greedy_algorithm_opt.isSelected(), algorithm,  brute_force_alg_opt.getSelectedIndex());
+            }
+
+            ptra2.setEnabled(true);
+            dispose();
+
         });
 
         getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
@@ -292,15 +283,11 @@ public class GreedyAlgorithmsFrame extends JFrame {
 
         JButton close = new JButton("Cancel");
         close.setFocusable(false);
-        close.addActionListener(new ActionListener() {
+        close.addActionListener(e -> {
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
+            ptra2.setEnabled(true);
+            dispose();
 
-                ptra2.setEnabled(true);
-                dispose();
-
-            }
         });
 
         getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
@@ -363,12 +350,6 @@ public class GreedyAlgorithmsFrame extends JFrame {
         add(scrollPane);
 
         setVisible(true);
-    }
-
-    private ImageIcon getIcon(String path) {
-
-        return new ImageIcon(getClass().getResource(path));
-
     }
 
 }

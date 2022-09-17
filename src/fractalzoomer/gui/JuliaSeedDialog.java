@@ -16,16 +16,19 @@
  */
 package fractalzoomer.gui;
 
+import fractalzoomer.core.BigPoint;
+import fractalzoomer.core.MyApfloat;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
 import fractalzoomer.utils.MathUtils;
+import org.apfloat.Apfloat;
 
 import javax.swing.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.geom.Point2D;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
+
+import static fractalzoomer.gui.CenterSizeDialog.TEMPLATE_TFIELD;
 
 /**
  *
@@ -50,24 +53,41 @@ public class JuliaSeedDialog extends JDialog {
         }
 
         setModal(true);
-        setIconImage(getIcon("/fractalzoomer/icons/mandel2.png").getImage());
+        setIconImage(MainWindow.getIcon("mandel2.png").getImage());
 
-        JTextField field_real = new JTextField();
 
-        Point2D.Double p = MathUtils.rotatePointRelativeToPoint(s.xCenter.doubleValue(), s.yCenter.doubleValue(), Settings.fromDDArray(s.fns.rotation_vals), Settings.fromDDArray(s.fns.rotation_center));
+        BigPoint p = MathUtils.rotatePointRelativeToPoint(new BigPoint(s.xCenter, s.yCenter), s.fns.rotation_vals, s.fns.rotation_center);
 
-        if (p.x == 0) {
-            field_real.setText("" + 0.0);
+        JTextArea real_seed = new JTextArea(6, 50);
+        real_seed.setFont(TEMPLATE_TFIELD.getFont());
+        real_seed.setLineWrap(true);
+
+        JScrollPane scrollRealSeed = new JScrollPane (real_seed,
+                JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
+        CenterSizeDialog.disableKeys(real_seed.getInputMap());
+        CenterSizeDialog.disableKeys(real_seed.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT));
+
+        if (p.x.compareTo(MyApfloat.ZERO) == 0) {
+            real_seed.setText("" + 0.0);
         } else {
-            field_real.setText("" + p.x);
+            real_seed.setText("" + p.x.toString(true));
         }
 
-        JTextField field_imaginary = new JTextField();
+        JTextArea imag_seed = new JTextArea(6, 50);
+        imag_seed.setFont(TEMPLATE_TFIELD.getFont());
+        imag_seed.setLineWrap(true);
 
-        if (p.y == 0) {
-            field_imaginary.setText("" + 0.0);
+        JScrollPane scrollImaginarySeed = new JScrollPane (imag_seed,
+                JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
+        CenterSizeDialog.disableKeys(imag_seed.getInputMap());
+        CenterSizeDialog.disableKeys(imag_seed.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT));
+
+        if (p.y.compareTo(MyApfloat.ZERO) == 0) {
+            imag_seed.setText("" + 0.0);
         } else {
-            field_imaginary.setText("" + p.y);
+            imag_seed.setText("" + p.y.toString(true));
         }
 
         Object[] message = null;
@@ -80,12 +100,18 @@ public class JuliaSeedDialog extends JDialog {
         includePreStarting.setFocusable(false);
         includePreStarting.setSelected(s.fns.juliterIncludeInitialIterations);
 
+        SwingUtilities.invokeLater(() -> {
+            scrollRealSeed.getVerticalScrollBar().setValue(0);
+            scrollImaginarySeed.getVerticalScrollBar().setValue(0);
+
+        });
+
         if(s.fns.juliter) {
             Object[] temp = {
                     " ",
                     "Set the real and imaginary part of the Julia seed.",
-                    "Real:", field_real,
-                    "Imaginary:", field_imaginary,
+                    "Real:", scrollRealSeed,
+                    "Imaginary:", scrollImaginarySeed,
                     " ",
                     "Set the starting iterations of Juliter.",
                     "Starting Iterations:",
@@ -100,8 +126,8 @@ public class JuliaSeedDialog extends JDialog {
             Object[] temp = {
                     " ",
                     "Set the real and imaginary part of the Julia seed.",
-                    "Real:", field_real,
-                    "Imaginary:", field_imaginary,
+                    "Real:", scrollRealSeed,
+                    "Imaginary:", scrollImaginarySeed,
                     " ",};
 
             message = temp;
@@ -112,63 +138,62 @@ public class JuliaSeedDialog extends JDialog {
 
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
+            @Override
             public void windowClosing(WindowEvent we) {
-                optionPane.setValue(new Integer(JOptionPane.CLOSED_OPTION));
+                optionPane.setValue(JOptionPane.CLOSED_OPTION);
             }
         });
 
         optionPane.addPropertyChangeListener(
-                new PropertyChangeListener() {
-            public void propertyChange(PropertyChangeEvent e) {
-                String prop = e.getPropertyName();
+                e -> {
+                    String prop = e.getPropertyName();
 
-                if (isVisible() && (e.getSource() == optionPane) && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
+                    if (isVisible() && (e.getSource() == optionPane) && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
 
-                    Object value = optionPane.getValue();
+                        Object value = optionPane.getValue();
 
-                    if (value == JOptionPane.UNINITIALIZED_VALUE) {
-                        //ignore reset
-                        return;
-                    }
-
-                    //Reset the JOptionPane's value.
-                    //If you don't do this, then if the user
-                    //presses the same button next time, no
-                    //property change event will be fired.
-                    optionPane.setValue(JOptionPane.UNINITIALIZED_VALUE);
-
-                    if ((Integer) value == JOptionPane.CANCEL_OPTION || (Integer) value == JOptionPane.NO_OPTION || (Integer) value == JOptionPane.CLOSED_OPTION) {
-                        dispose();
-                        return;
-                    }
-
-                    try {
-                        double tempReal = Double.parseDouble(field_real.getText());
-                        double tempImaginary = Double.parseDouble(field_imaginary.getText());
-                        s.xJuliaCenter = tempReal;
-                        s.yJuliaCenter = tempImaginary;
-
-                        if(s.fns.juliter) {
-                            int temp = Integer.parseInt(juliterIterationsfield.getText());
-
-                            if (temp < 0) {
-                                JOptionPane.showMessageDialog(ptra, "Juliter's starting iterations must be greater than -1.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                return;
-                            }
-
-                            s.fns.juliterIterations = temp;
-                            s.fns.juliterIncludeInitialIterations = includePreStarting.isSelected();
+                        if (value == JOptionPane.UNINITIALIZED_VALUE) {
+                            //ignore reset
+                            return;
                         }
-                    } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
 
-                    dispose();
-                    ptra.setJuliaSeedPost();
-                }
-            }
-        });
+                        //Reset the JOptionPane's value.
+                        //If you don't do this, then if the user
+                        //presses the same button next time, no
+                        //property change event will be fired.
+                        optionPane.setValue(JOptionPane.UNINITIALIZED_VALUE);
+
+                        if ((Integer) value == JOptionPane.CANCEL_OPTION || (Integer) value == JOptionPane.NO_OPTION || (Integer) value == JOptionPane.CLOSED_OPTION) {
+                            dispose();
+                            return;
+                        }
+
+                        try {
+                            Apfloat tempReal = new MyApfloat(real_seed.getText());
+                            Apfloat tempImaginary = new MyApfloat(imag_seed.getText());
+                            s.xJuliaCenter = tempReal;
+                            s.yJuliaCenter = tempImaginary;
+
+                            if(s.fns.juliter) {
+                                int temp = Integer.parseInt(juliterIterationsfield.getText());
+
+                                if (temp < 0) {
+                                    JOptionPane.showMessageDialog(ptra, "Juliter's starting iterations must be greater than -1.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                    return;
+                                }
+
+                                s.fns.juliterIterations = temp;
+                                s.fns.juliterIncludeInitialIterations = includePreStarting.isSelected();
+                            }
+                        } catch (Exception ex) {
+                            JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
+
+                        dispose();
+                        ptra.setJuliaSeedPost();
+                    }
+                });
 
         //Make this dialog display it.
         setContentPane(optionPane);
@@ -178,12 +203,6 @@ public class JuliaSeedDialog extends JDialog {
         setResizable(false);
         setLocation((int) (ptra.getLocation().getX() + ptra.getSize().getWidth() / 2) - (getWidth() / 2), (int) (ptra.getLocation().getY() + ptra.getSize().getHeight() / 2) - (getHeight() / 2));
         setVisible(true);
-
-    }
-
-    private ImageIcon getIcon(String path) {
-
-        return new ImageIcon(getClass().getResource(path));
 
     }
 

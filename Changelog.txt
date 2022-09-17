@@ -1,3 +1,22 @@
+Version 1.0.8.4
+    -Added mpfr lib as an option for the reference calculations which adds a lot of speed-up in very deep zooms
+    -Added and an option to choose the high precision library: Double (53 bits), DoubleDouble(106 Bits), Built-in, Mpfr, Automatic
+    -Added semi-automatic precision setting
+    -Optimized the Complex extended exponent library to increase performance
+    -Optimized the pixel calculation when using high precision libraries
+    -Added the Nanomb1 approximation method for Mandelbrot
+    -Added Normal Map (and distance estimation) Statistical coloring method support for Series Approximation and Nanomb1
+    -Fixed the Julia Perturbation algorithm in order to use a dedicated second reference for glitch checks
+    -Changed the Julia seed to support high precision
+    -Added the multiwave algorithm with some presets under the "Generated Palette option"
+    -Changed the thread mechanism to support different type of splits (Grid, Vertical, Horizontal)
+    -Added a direct palette loader (Map files in rgp triplet format) and included a lot of presets
+    -Added pixel jitter as an option
+    -Added an option to cancel the current render
+    -Modified quick-draw in order to have a configurable delay before the full render, and also added an option to zoom only to current center
+    -Fixed a bug with BLA and period
+    -Bug fixes and stability changes
+
 Version 1.0.8.3
     -Fixed Normal Map (and distance estimation) Statistical coloring method to work correctly with BLA
     -Changed the 1-Step BLA radius which increased the performance

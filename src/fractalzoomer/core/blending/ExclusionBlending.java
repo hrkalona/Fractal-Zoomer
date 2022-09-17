@@ -29,7 +29,7 @@ public class ExclusionBlending extends Blending {
     }
 
     @Override
-    public int blend(int redA, int greenA, int blueA, int redB, int greenB, int blueB, double coef) {
+    public int blendInternal(int redA, int greenA, int blueA, int redB, int greenB, int blueB, double coef) {
 
         int temp_red = (int)(redB + redA - 2 * (redB * redA) / 255.0 + 0.5);
         int temp_green = (int)(greenB + greenA - 2 * (greenB * greenA) / 255.0 + 0.5);

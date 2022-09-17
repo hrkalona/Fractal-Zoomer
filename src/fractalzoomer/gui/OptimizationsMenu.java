@@ -20,7 +20,6 @@ import fractalzoomer.main.MainWindow;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 
 /**
@@ -43,18 +42,18 @@ public class OptimizationsMenu extends JMenu {
 
         this.ptr = ptr2;
         
-        setIcon(getIcon("/fractalzoomer/icons/optimizations.png"));
+        setIcon(MainWindow.getIcon("optimizations.png"));
         
-        thread_number = new JMenuItem("Threads", getIcon("/fractalzoomer/icons/threads.png"));
-        greedy_algorithm_item = new JMenuItem("Greedy Drawing Algorithms", getIcon("/fractalzoomer/icons/greedy_algorithm.png"));
+        thread_number = new JMenuItem("Threads", MainWindow.getIcon("threads.png"));
+        greedy_algorithm_item = new JMenuItem("Greedy Drawing Algorithms", MainWindow.getIcon("greedy_algorithm.png"));
         periodicity_checking_opt = new JCheckBoxMenuItem("Periodicity Checking");
         auto_repaint_image_opt  = new JCheckBoxMenuItem("Show Drawing Progress");
-        perturbation_theory = new JMenuItem("Perturbation Theory", getIcon("/fractalzoomer/icons/perturbation.png"));
+        perturbation_theory = new JMenuItem("Perturbation Theory", MainWindow.getIcon("perturbation.png"));
 
-        quick_draw_opt = new JMenuItem("Quick Draw Tiles", getIcon("/fractalzoomer/icons/quickdraw.png"));
+        quick_draw_opt = new JMenuItem("Quick Draw", MainWindow.getIcon("quickdraw.png"));
         
         thread_number.setToolTipText("Sets the number of parallel drawing threads.");
-        quick_draw_opt.setToolTipText("Sets the tile size for the quick draw method.");
+        quick_draw_opt.setToolTipText("Sets the options for the quick draw method.");
         periodicity_checking_opt.setToolTipText("Renders the image faster when containing a lot of bounded areas.");
         greedy_algorithm_item.setToolTipText("Sets the greedy algorithms options.");
         perturbation_theory.setToolTipText("Sets the perturbation theory settings.");
@@ -66,65 +65,17 @@ public class OptimizationsMenu extends JMenu {
         perturbation_theory.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_1, ActionEvent.ALT_MASK));
         auto_repaint_image_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, ActionEvent.ALT_MASK | ActionEvent.SHIFT_MASK));
         
-        thread_number.addActionListener(new ActionListener() {
+        thread_number.addActionListener(e -> ptr.setThreadsNumber());
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setThreadsNumber();
-
-            }
-        });
-
-        quick_draw_opt.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setQuickDrawTiles();
-
-            }
-        });
+        quick_draw_opt.addActionListener(e -> ptr.setQuickDrawTiles());
         
-        greedy_algorithm_item.addActionListener(new ActionListener() {
+        greedy_algorithm_item.addActionListener(e -> ptr.setGreedyAlgorithms());
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        periodicity_checking_opt.addActionListener(e -> ptr.setPeriodicityChecking());
 
-                ptr.setGreedyAlgorithms();
+        auto_repaint_image_opt.addActionListener(e -> ptr.setAutoRepaintImage());
 
-            }
-        });
-
-        periodicity_checking_opt.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setPeriodicityChecking();
-
-            }
-        });
-
-        auto_repaint_image_opt.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setAutoRepaintImage();
-
-            }
-        });
-
-        perturbation_theory.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setPerturbationTheory();
-
-            }
-        });
+        perturbation_theory.addActionListener(e -> ptr.setPerturbationTheory());
 
         
         add(thread_number);
@@ -138,12 +89,6 @@ public class OptimizationsMenu extends JMenu {
         add(quick_draw_opt);
         addSeparator();
         add(auto_repaint_image_opt);
-    }
-    
-    private ImageIcon getIcon(String path) {
-
-        return new ImageIcon(getClass().getResource(path));
-
     }
     
     public JCheckBoxMenuItem getPeriodicityChecking() {

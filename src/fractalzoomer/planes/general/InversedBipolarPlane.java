@@ -18,6 +18,10 @@
 package fractalzoomer.planes.general;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.core.DDComplex;
+import fractalzoomer.core.MpfrBigNumComplex;
+import fractalzoomer.core.ThreadDraw;
+import fractalzoomer.core.mpfr.LibMpfr;
 import fractalzoomer.planes.Plane;
 
 /**
@@ -26,19 +30,58 @@ import fractalzoomer.planes.Plane;
  */
 public class InversedBipolarPlane extends Plane {
     private Complex focal_point;
-    
+    private MpfrBigNumComplex mpfrbnfocal_point;
+
+    private DDComplex ddfocal_point;
+
     public InversedBipolarPlane(double[] focal_point) {
         
         super();
         this.focal_point = new Complex(focal_point[0], focal_point[1]);
+
+        if(ThreadDraw.PERTURBATION_THEORY) {
+            ddfocal_point = new DDComplex(focal_point[0], focal_point[1]);
+
+            if(ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE) {
+
+                if(LibMpfr.LOAD_ERROR == null) {
+                    mpfrbnfocal_point = new MpfrBigNumComplex(focal_point[0], focal_point[1]);
+                }
+            }
+        }
         
     }
 
     @Override
     public Complex transform(Complex pixel) {
+
+        if(pixel.isZero()) {
+            return pixel;
+        }
         
         return pixel.fromBiPolar(focal_point);
         
     }
-    
+
+    @Override
+    public MpfrBigNumComplex transform(MpfrBigNumComplex pixel) {
+
+        if(pixel.isZero()) {
+            return pixel;
+        }
+
+        return pixel.fromBiPolar(mpfrbnfocal_point);
+
+    }
+
+    @Override
+    public DDComplex transform(DDComplex pixel) {
+
+        if(pixel.isZero()) {
+            return pixel;
+        }
+
+        return pixel.fromBiPolar(ddfocal_point);
+
+    }
 }

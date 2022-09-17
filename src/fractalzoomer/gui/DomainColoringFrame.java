@@ -23,7 +23,10 @@ import fractalzoomer.main.app_settings.Settings;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import static fractalzoomer.main.Constants.CUSTOM_PALETTE_ID;
 import static fractalzoomer.main.Constants.domainAlgNames;
@@ -49,7 +52,7 @@ public class DomainColoringFrame extends JFrame {
         int custom_palette_window_width = 750;
         int custom_palette_window_height = 390;
         setTitle("Domain Coloring");
-        setIconImage(getIcon("/fractalzoomer/icons/domain_coloring.png").getImage());
+        setIconImage(MainWindow.getIcon("domain_coloring.png").getImage());
 
         setSize(custom_palette_window_width, custom_palette_window_height);
         setLocation((int) (ptra2.getLocation().getX() + ptra2.getSize().getWidth() / 2) - (custom_palette_window_width / 2), (int) (ptra2.getLocation().getY() + ptra2.getSize().getHeight() / 2) - (custom_palette_window_height / 2));
@@ -92,7 +95,7 @@ public class DomainColoringFrame extends JFrame {
         settings_panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Settings", TitledBorder.DEFAULT_POSITION, TitledBorder.DEFAULT_POSITION));
 
         String[] color_modes = {"HSB", "Current Palette", "LCH", "Cubehelix", "Cubehelix3"};
-        final JComboBox use_palette_dc = new JComboBox(color_modes);
+        final JComboBox<String> use_palette_dc = new JComboBox<>(color_modes);
         use_palette_dc.setSelectedIndex(s.ds.domain_coloring_mode);
         use_palette_dc.setBackground(MainWindow.bg_color);
         use_palette_dc.setFocusable(false);
@@ -121,12 +124,12 @@ public class DomainColoringFrame extends JFrame {
         s2.setLayout(new FlowLayout());
         s2.setBackground(MainWindow.bg_color);
         
-        final JComboBox domain_processing_transfer_opt = new JComboBox(MainWindow.domainProcessingTransferNames);
+        final JComboBox<String> domain_processing_transfer_opt = new JComboBox<>(MainWindow.domainProcessingTransferNames);
         domain_processing_transfer_opt.setSelectedIndex(s.ds.domainProcessingTransfer);
         domain_processing_transfer_opt.setFocusable(false);
         domain_processing_transfer_opt.setToolTipText("Sets the domain coloring processing transfer function.");
 
-        final JComboBox domain_height_opt = new JComboBox(MainWindow.domainHeightNames);
+        final JComboBox<String> domain_height_opt = new JComboBox<>(MainWindow.domainHeightNames);
         domain_height_opt.setSelectedIndex(s.ds.domain_height_method);
         domain_height_opt.setFocusable(false);
         domain_height_opt.setToolTipText("Sets the domain coloring height method.");
@@ -146,7 +149,7 @@ public class DomainColoringFrame extends JFrame {
         processing_panel.add(s2);
         
 
-        final JComboBox color_domain_algs_opt = new JComboBox(domainAlgNames);
+        final JComboBox<String> color_domain_algs_opt = new JComboBox<>(domainAlgNames);
         color_domain_algs_opt.setSelectedIndex(s.ds.domain_coloring_alg);
         color_domain_algs_opt.setFocusable(false);
         color_domain_algs_opt.setToolTipText("Sets the domain coloring algorithm.");
@@ -167,19 +170,12 @@ public class DomainColoringFrame extends JFrame {
         final JButton custom = new JButton("");
         custom.setToolTipText("Sets the custom domain coloring settings.");
         custom.setPreferredSize(new Dimension(30, 30));
-        custom.setIcon(getIcon("/fractalzoomer/icons/domain_coloring.png"));
+        custom.setIcon(MainWindow.getIcon("domain_coloring.png"));
         custom.setFocusable(false);
 
         CustomDomainColoringFrame.setSettings(new DomainColoringSettings(s.ds));
 
-        custom.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                new CustomDomainColoringFrame(this_frame);
-            }
-
-        });
+        custom.addActionListener(e -> new CustomDomainColoringFrame(this_frame));
 
         if (s.ds.customDomainColoring) {
             customButton.setSelected(true);
@@ -191,34 +187,24 @@ public class DomainColoringFrame extends JFrame {
             color_domain_algs_opt.setEnabled(true);
         }
 
-        customButton.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (customButton.isSelected()) {
-                    custom.setEnabled(true);
-                    color_domain_algs_opt.setEnabled(false);
-                } else {
-                    custom.setEnabled(false);
-                    color_domain_algs_opt.setEnabled(true);
-                }
+        customButton.addActionListener(e -> {
+            if (customButton.isSelected()) {
+                custom.setEnabled(true);
+                color_domain_algs_opt.setEnabled(false);
+            } else {
+                custom.setEnabled(false);
+                color_domain_algs_opt.setEnabled(true);
             }
-
         });
 
-        presetButton.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (presetButton.isSelected()) {
-                    custom.setEnabled(false);
-                    color_domain_algs_opt.setEnabled(true);
-                } else {
-                    custom.setEnabled(true);
-                    color_domain_algs_opt.setEnabled(false);
-                }
+        presetButton.addActionListener(e -> {
+            if (presetButton.isSelected()) {
+                custom.setEnabled(false);
+                color_domain_algs_opt.setEnabled(true);
+            } else {
+                custom.setEnabled(true);
+                color_domain_algs_opt.setEnabled(false);
             }
-
         });
 
         
@@ -245,68 +231,63 @@ public class DomainColoringFrame extends JFrame {
         JButton ok = new JButton("Ok");
         getRootPane().setDefaultButton(ok);
         ok.setFocusable(false);
-        ok.addActionListener(new ActionListener() {
+        ok.addActionListener(e -> {
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                
-                int tempIterations;
-                double tempFactor;
-                int tempOffset;
-                
-                try {
-                    tempIterations = Integer.parseInt(iterations_textfield.getText());
-                    tempFactor = Double.parseDouble(factor_textfield.getText());
-                    tempOffset = Integer.parseInt(offset_textfield.getText());
+            int tempIterations;
+            double tempFactor;
+            int tempOffset;
 
-                    if (tempIterations <= 0) {
-                        JOptionPane.showMessageDialog(this_frame, "Maximum iterations number must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-                    
-                    if(tempFactor <= 0) {
-                        JOptionPane.showMessageDialog(this_frame, "Processing factor must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-                    
-                    if(tempOffset < 0) {
-                        JOptionPane.showMessageDialog(this_frame, "Color offset must be greater than -1.", "Error!", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
+            try {
+                tempIterations = Integer.parseInt(iterations_textfield.getText());
+                tempFactor = Double.parseDouble(factor_textfield.getText());
+                tempOffset = Integer.parseInt(offset_textfield.getText());
 
-                } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(this_frame, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
+                if (tempIterations <= 0) {
+                    JOptionPane.showMessageDialog(this_frame, "Maximum iterations number must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
-                
-                s.ds = CustomDomainColoringFrame.getSettings();
-                
-                s.max_iterations = tempIterations;
-                
-                if (presetButton.isSelected()) {
-                    s.ds.customDomainColoring = false;
-                }
-                else {
-                    s.ds.customDomainColoring = true;
-                }
-                
-                s.ds.domain_coloring_alg = color_domain_algs_opt.getSelectedIndex();
-                s.ds.domain_coloring_mode = use_palette_dc.getSelectedIndex();
-                s.ds.domainProcessingTransfer = domain_processing_transfer_opt.getSelectedIndex();
-                s.ds.domainProcessingHeightFactor = tempFactor;
-                s.ds.domain_height_method = domain_height_opt.getSelectedIndex();
-                
-                s.ps.color_cycling_location = tempOffset;
-                
-                if (s.ps.color_choice == CUSTOM_PALETTE_ID) {
-                    s.temp_color_cycling_location = s.ps.color_cycling_location;
+
+                if(tempFactor <= 0) {
+                    JOptionPane.showMessageDialog(this_frame, "Processing factor must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
+                    return;
                 }
 
-                ptra2.setDomainColoringSettings(domain_coloring.isSelected());
-                ptra2.setEnabled(true);
-                dispose();
+                if(tempOffset < 0) {
+                    JOptionPane.showMessageDialog(this_frame, "Color offset must be greater than -1.", "Error!", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
 
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this_frame, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
+                return;
             }
+
+            s.ds = CustomDomainColoringFrame.getSettings();
+
+            s.max_iterations = tempIterations;
+
+            if (presetButton.isSelected()) {
+                s.ds.customDomainColoring = false;
+            }
+            else {
+                s.ds.customDomainColoring = true;
+            }
+
+            s.ds.domain_coloring_alg = color_domain_algs_opt.getSelectedIndex();
+            s.ds.domain_coloring_mode = use_palette_dc.getSelectedIndex();
+            s.ds.domainProcessingTransfer = domain_processing_transfer_opt.getSelectedIndex();
+            s.ds.domainProcessingHeightFactor = tempFactor;
+            s.ds.domain_height_method = domain_height_opt.getSelectedIndex();
+
+            s.ps.color_cycling_location = tempOffset;
+
+            if (s.ps.color_choice == CUSTOM_PALETTE_ID) {
+                s.temp_color_cycling_location = s.ps.color_cycling_location;
+            }
+
+            ptra2.setDomainColoringSettings(domain_coloring.isSelected());
+            ptra2.setEnabled(true);
+            dispose();
 
         });
 
@@ -325,15 +306,11 @@ public class DomainColoringFrame extends JFrame {
 
         JButton cancel = new JButton("Cancel");
         cancel.setFocusable(false);
-        cancel.addActionListener(new ActionListener() {
+        cancel.addActionListener(e -> {
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
+            ptra2.setEnabled(true);
+            dispose();
 
-                ptra2.setEnabled(true);
-                dispose();
-
-            }
         });
 
         getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
@@ -379,12 +356,6 @@ public class DomainColoringFrame extends JFrame {
         add(scrollPane);
 
         setVisible(true);
-    }
-
-    private ImageIcon getIcon(String path) {
-
-        return new ImageIcon(getClass().getResource(path));
-
     }
 
 }

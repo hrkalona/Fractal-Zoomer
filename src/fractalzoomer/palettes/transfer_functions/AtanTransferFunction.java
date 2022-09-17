@@ -36,14 +36,14 @@ public class AtanTransferFunction extends TransferFunction {
 
         if (result < 0) {
             result *= -1; // transfer to positive
-            result /= paletteLength; //scale to palette multiple        
+            result /= paletteLength; //scale to palette multiple
             result = Math.atan(result * color_intensity);
-            result *= paletteLength; // rescale to palette length   
+            result *= paletteLength; // rescale to palette length
             result *= -1; // transfer to negative
         } else {
-            result /= paletteLength; //scale to palette multiple        
+            result /= paletteLength; //scale to palette multiple
             result = Math.atan(result * color_intensity);
-            result *= paletteLength; // rescale to palette length   
+            result *= paletteLength; // rescale to palette length
         }
 
         return result;

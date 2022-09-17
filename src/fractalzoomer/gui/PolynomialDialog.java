@@ -22,12 +22,8 @@ import fractalzoomer.main.app_settings.Settings;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 
 import static fractalzoomer.main.Constants.*;
 
@@ -48,10 +44,10 @@ public class PolynomialDialog extends JDialog {
 
         setTitle("Polynomial coefficients");
         setModal(true);
-        setIconImage(getIcon("/fractalzoomer/icons/mandel2.png").getImage());
+        setIconImage(MainWindow.getIcon("mandel2.png").getImage());
 
         JLabel polynomial = new JLabel();
-        polynomial.setIcon(getIcon("/fractalzoomer/icons/polynomial.png"));
+        polynomial.setIcon(MainWindow.getIcon("polynomial.png"));
 
         JPanel[] poly_panels = new JPanel[s.fns.coefficients.length];
         JTextField[] poly_re = new JTextField[poly_panels.length];
@@ -62,7 +58,7 @@ public class PolynomialDialog extends JDialog {
             poly_panels[k].setLayout(new FlowLayout());
 
             JLabel poly_label_k = new JLabel();
-            poly_label_k.setIcon(getIcon("/fractalzoomer/icons/a" + (poly_panels.length - 1 - k) + ".png"));
+            poly_label_k.setIcon(MainWindow.getIcon("a" + (poly_panels.length - 1 - k) + ".png"));
             poly_re[k] = new JTextField(30);
             poly_re[k].setText("" + s.fns.coefficients[k]);
 
@@ -80,7 +76,7 @@ public class PolynomialDialog extends JDialog {
         }
 
         JPanel root_init_method_panel = new JPanel();
-        JComboBox method_choice = new JComboBox(Constants.rootInitializationMethod);
+        JComboBox<String> method_choice = new JComboBox<>(Constants.rootInitializationMethod);
         method_choice.setSelectedIndex(s.fns.root_initialization_method);
         method_choice.setToolTipText("Selects the root finding initialization method.");
         method_choice.setFocusable(false);
@@ -101,12 +97,9 @@ public class PolynomialDialog extends JDialog {
         init_val_real.setEnabled(s.fns.root_initialization_method != 1);
         init_val_imag.setEnabled(s.fns.root_initialization_method != 1);
 
-        method_choice.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                init_val_real.setEnabled(method_choice.getSelectedIndex() != 1);
-                init_val_imag.setEnabled(method_choice.getSelectedIndex() != 1);
-            }
+        method_choice.addActionListener(e -> {
+            init_val_real.setEnabled(method_choice.getSelectedIndex() != 1);
+            init_val_imag.setEnabled(method_choice.getSelectedIndex() != 1);
         });
         
         
@@ -146,105 +139,104 @@ public class PolynomialDialog extends JDialog {
 
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
+            @Override
             public void windowClosing(WindowEvent we) {
-                optionPane.setValue(new Integer(JOptionPane.CLOSED_OPTION));
+                optionPane.setValue(JOptionPane.CLOSED_OPTION);
             }
         });
 
         optionPane.addPropertyChangeListener(
-                new PropertyChangeListener() {
-            public void propertyChange(PropertyChangeEvent e) {
-                String prop = e.getPropertyName();
+                e -> {
+                    String prop = e.getPropertyName();
 
-                if (isVisible() && (e.getSource() == optionPane) && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
+                    if (isVisible() && (e.getSource() == optionPane) && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
 
-                    Object value = optionPane.getValue();
+                        Object value = optionPane.getValue();
 
-                    if (value == JOptionPane.UNINITIALIZED_VALUE) {
-                        //ignore reset
-                        return;
-                    }
-
-                    //Reset the JOptionPane's value.
-                    //If you don't do this, then if the user
-                    //presses the same button next time, no
-                    //property change event will be fired.
-                    optionPane.setValue(JOptionPane.UNINITIALIZED_VALUE);
-
-                    if ((Integer) value == JOptionPane.CANCEL_OPTION || (Integer) value == JOptionPane.NO_OPTION || (Integer) value == JOptionPane.CLOSED_OPTION) {
-                        fractal_functions[oldSelected].setSelected(true);
-                        s.fns.function = oldSelected;
-                        dispose();
-                        return;
-                    }
-
-                    try {
-                        double[] temp_coef = new double[11];
-                        double[] temp_coef_im = new double[11];
-
-                        for (int k = 0; k < poly_re.length; k++) {
-                            temp_coef[k] = Double.parseDouble(poly_re[k].getText());
-                            temp_coef_im[k] = Double.parseDouble(poly_im[k].getText());
-                        }
-
-                        double temp_re = Double.parseDouble(init_val_real.getText());
-                        double temp_im = Double.parseDouble(init_val_imag.getText());
-                        
-                        double temp_re2 = Double.parseDouble(k_real.getText());
-                        double temp_im2 = Double.parseDouble(k_imag.getText());
-
-                        boolean non_zero = false;
-                        for (int l = 0; l < s.fns.coefficients.length; l++) {
-                            if (temp_coef[l] != 0 || temp_coef_im[l] != 0) {
-                                non_zero = true;
-                                break;
-                            }
-                        }
-
-                        if (!non_zero) {
-                            JOptionPane.showMessageDialog(ptra, "At least one coefficient must be non zero!", "Error!", JOptionPane.ERROR_MESSAGE);
+                        if (value == JOptionPane.UNINITIALIZED_VALUE) {
+                            //ignore reset
                             return;
                         }
 
-                        for (int l = 0; l < s.fns.coefficients.length; l++) {
-                            s.fns.coefficients[l] = temp_coef[l] == 0.0 ? 0.0 : temp_coef[l];
+                        //Reset the JOptionPane's value.
+                        //If you don't do this, then if the user
+                        //presses the same button next time, no
+                        //property change event will be fired.
+                        optionPane.setValue(JOptionPane.UNINITIALIZED_VALUE);
+
+                        if ((Integer) value == JOptionPane.CANCEL_OPTION || (Integer) value == JOptionPane.NO_OPTION || (Integer) value == JOptionPane.CLOSED_OPTION) {
+                            fractal_functions[oldSelected].setSelected(true);
+                            s.fns.function = oldSelected;
+                            dispose();
+                            return;
                         }
 
-                        for (int l = 0; l < s.fns.coefficients_im.length; l++) {
-                            s.fns.coefficients_im[l] = temp_coef_im[l] == 0.0 ? 0.0 : temp_coef_im[l];
+                        try {
+                            double[] temp_coef = new double[11];
+                            double[] temp_coef_im = new double[11];
+
+                            for (int k = 0; k < poly_re.length; k++) {
+                                temp_coef[k] = Double.parseDouble(poly_re[k].getText());
+                                temp_coef_im[k] = Double.parseDouble(poly_im[k].getText());
+                            }
+
+                            double temp_re = Double.parseDouble(init_val_real.getText());
+                            double temp_im = Double.parseDouble(init_val_imag.getText());
+
+                            double temp_re2 = Double.parseDouble(k_real.getText());
+                            double temp_im2 = Double.parseDouble(k_imag.getText());
+
+                            boolean non_zero = false;
+                            for (int l = 0; l < s.fns.coefficients.length; l++) {
+                                if (temp_coef[l] != 0 || temp_coef_im[l] != 0) {
+                                    non_zero = true;
+                                    break;
+                                }
+                            }
+
+                            if (!non_zero) {
+                                JOptionPane.showMessageDialog(ptra, "At least one coefficient must be non zero!", "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+
+                            for (int l = 0; l < s.fns.coefficients.length; l++) {
+                                s.fns.coefficients[l] = temp_coef[l] == 0.0 ? 0.0 : temp_coef[l];
+                            }
+
+                            for (int l = 0; l < s.fns.coefficients_im.length; l++) {
+                                s.fns.coefficients_im[l] = temp_coef_im[l] == 0.0 ? 0.0 : temp_coef_im[l];
+                            }
+
+                            s.createPoly();
+
+                            if (s.fns.function == DURAND_KERNERPOLY || s.fns.function == ABERTH_EHRLICHPOLY) {
+                                s.fns.durand_kerner_init_val[0] = temp_re;
+                                s.fns.durand_kerner_init_val[1] = temp_im;
+                            }
+
+                            if(s.fns.function == DURAND_KERNERPOLY || s.fns.function == ABERTH_EHRLICHPOLY) {
+                                s.fns.root_initialization_method = method_choice.getSelectedIndex();
+                            }
+
+                            if(s.fns.function == NEWTON_HINESPOLY) {
+                                s.fns.newton_hines_k[0] = temp_re2;
+                                s.fns.newton_hines_k[1] = temp_im2;
+                            }
+
+                            if (s.fns.function == MANDELPOLY) {
+                                ptra.optionsEnableShortcut();
+                            } else {
+                                ptra.optionsEnableShortcut2();
+                            }
+                        } catch (Exception ex) {
+                            JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
+                            return;
                         }
 
-                        s.createPoly();
-
-                        if (s.fns.function == DURAND_KERNERPOLY || s.fns.function == ABERTH_EHRLICHPOLY) {
-                            s.fns.durand_kerner_init_val[0] = temp_re;
-                            s.fns.durand_kerner_init_val[1] = temp_im;
-                        }
-
-                        if(s.fns.function == DURAND_KERNERPOLY || s.fns.function == ABERTH_EHRLICHPOLY) {
-                            s.fns.root_initialization_method = method_choice.getSelectedIndex();
-                        }
-                        
-                        if(s.fns.function == NEWTON_HINESPOLY) {
-                            s.fns.newton_hines_k[0] = temp_re2;
-                            s.fns.newton_hines_k[1] = temp_im2;
-                        }
-
-                        if (s.fns.function == MANDELPOLY) {
-                            ptra.optionsEnableShortcut();
-                        } else {
-                            ptra.optionsEnableShortcut2();
-                        }
-                    } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
-                        return;
+                        dispose();
+                        ptra.setFunctionPost(wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType, wasEscapingOrConvergingType);
                     }
-
-                    dispose();
-                    ptra.setFunctionPost(wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType, wasEscapingOrConvergingType);
-                }
-            }
-        });
+                });
 
         //Make this dialog display it.
         setContentPane(optionPane);
@@ -254,12 +246,6 @@ public class PolynomialDialog extends JDialog {
         setResizable(false);
         setLocation((int) (ptra.getLocation().getX() + ptra.getSize().getWidth() / 2) - (getWidth() / 2), (int) (ptra.getLocation().getY() + ptra.getSize().getHeight() / 2) - (getHeight() / 2));
         setVisible(true);
-
-    }
-
-    private ImageIcon getIcon(String path) {
-
-        return new ImageIcon(getClass().getResource(path));
 
     }
 

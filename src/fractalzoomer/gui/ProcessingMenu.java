@@ -21,7 +21,6 @@ import fractalzoomer.main.app_settings.Settings;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 
 /**
@@ -51,22 +50,22 @@ public class ProcessingMenu extends JMenu {
 
         this.ptr = ptr2;
         
-        setIcon(getIcon("/fractalzoomer/icons/processing.png"));
+        setIcon(MainWindow.getIcon("processing.png"));
         
-        smoothing_opt = new JMenuItem("Smoothing", getIcon("/fractalzoomer/icons/smoothing.png"));
-        exterior_de_opt = new JMenuItem("Distance Estimation", getIcon("/fractalzoomer/icons/distance_estimation.png"));
-        bump_map_opt = new JMenuItem("Bump Mapping", getIcon("/fractalzoomer/icons/bump_map.png"));
-        fake_de_opt = new JMenuItem("Fake Distance Estimation", getIcon("/fractalzoomer/icons/fake_distance_estimation.png"));
-        entropy_coloring_opt = new JMenuItem("Entropy Coloring", getIcon("/fractalzoomer/icons/entropy_coloring.png"));
-        offset_coloring_opt = new JMenuItem("Offset Coloring", getIcon("/fractalzoomer/icons/offset_coloring.png"));
-        greyscale_coloring_opt = new JMenuItem("Greyscale Coloring", getIcon("/fractalzoomer/icons/greyscale_coloring.png"));
-        rainbow_palette_opt = new JMenuItem("Rainbow Palette", getIcon("/fractalzoomer/icons/rainbow_palette.png"));
-        orbit_traps_opt = new JMenuItem("Orbit Traps", getIcon("/fractalzoomer/icons/orbit_traps.png"));
-        contour_coloring_opt = new JMenuItem("Contour Coloring", getIcon("/fractalzoomer/icons/contour_coloring.png"));
-        light_opt = new JMenuItem("Light", getIcon("/fractalzoomer/icons/light.png"));
-        order_opt = new JMenuItem("Processing Order", getIcon("/fractalzoomer/icons/list.png"));
-        statistics_coloring_opt = new JMenuItem("Statistical Coloring", getIcon("/fractalzoomer/icons/statistics_coloring.png"));
-        histogram_coloring_opt = new JMenuItem("Histogram Coloring", getIcon("/fractalzoomer/icons/histogram.png"));
+        smoothing_opt = new JMenuItem("Smoothing", MainWindow.getIcon("smoothing.png"));
+        exterior_de_opt = new JMenuItem("Distance Estimation", MainWindow.getIcon("distance_estimation.png"));
+        bump_map_opt = new JMenuItem("Bump Mapping", MainWindow.getIcon("bump_map.png"));
+        fake_de_opt = new JMenuItem("Fake Distance Estimation", MainWindow.getIcon("fake_distance_estimation.png"));
+        entropy_coloring_opt = new JMenuItem("Entropy Coloring", MainWindow.getIcon("entropy_coloring.png"));
+        offset_coloring_opt = new JMenuItem("Offset Coloring", MainWindow.getIcon("offset_coloring.png"));
+        greyscale_coloring_opt = new JMenuItem("Greyscale Coloring", MainWindow.getIcon("greyscale_coloring.png"));
+        rainbow_palette_opt = new JMenuItem("Rainbow Palette", MainWindow.getIcon("rainbow_palette.png"));
+        orbit_traps_opt = new JMenuItem("Orbit Traps", MainWindow.getIcon("orbit_traps.png"));
+        contour_coloring_opt = new JMenuItem("Contour Coloring", MainWindow.getIcon("contour_coloring.png"));
+        light_opt = new JMenuItem("Light", MainWindow.getIcon("light.png"));
+        order_opt = new JMenuItem("Processing Order", MainWindow.getIcon("list.png"));
+        statistics_coloring_opt = new JMenuItem("Statistical Coloring", MainWindow.getIcon("statistics_coloring.png"));
+        histogram_coloring_opt = new JMenuItem("Histogram Coloring", MainWindow.getIcon("histogram.png"));
                 
         smoothing_opt.setToolTipText("Smooths the image's color transitions.");
         exterior_de_opt.setToolTipText("<html>Sets some points near the boundary of<br>the set to the maximum iterations value.</html>");
@@ -98,121 +97,33 @@ public class ProcessingMenu extends JMenu {
         statistics_coloring_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_1, 0));
         histogram_coloring_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_4, ActionEvent.SHIFT_MASK));
         
-        contour_coloring_opt.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                ptr.setContourColoring();
-            }
-        });
+        contour_coloring_opt.addActionListener(e -> ptr.setContourColoring());
         
-        smoothing_opt.addActionListener(new ActionListener() {
+        smoothing_opt.addActionListener(e -> ptr.setSmoothing());
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                ptr.setSmoothing();
-            }
-        });
+        exterior_de_opt.addActionListener(e -> ptr.setExteriorDistanceEstimation());
 
-        exterior_de_opt.addActionListener(new ActionListener() {
+        bump_map_opt.addActionListener(e -> ptr.setBumpMap());
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                ptr.setExteriorDistanceEstimation();
-            }
-        });
+        rainbow_palette_opt.addActionListener(e -> ptr.setRainbowPalette());
 
-        bump_map_opt.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                ptr.setBumpMap();
-            }
-        });
-
-        rainbow_palette_opt.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                ptr.setRainbowPalette();
-            }
-        });
-
-        fake_de_opt.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                ptr.setFakeDistanceEstimation();
-            }
-        });
+        fake_de_opt.addActionListener(e -> ptr.setFakeDistanceEstimation());
         
-        greyscale_coloring_opt.addActionListener(new ActionListener() {
+        greyscale_coloring_opt.addActionListener(e -> ptr.setGreyScaleColoring());
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                ptr.setGreyScaleColoring();
-            }
-        });
+        entropy_coloring_opt.addActionListener(e -> ptr.setEntropyColoring());
 
-        entropy_coloring_opt.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                ptr.setEntropyColoring();
-            }
-        });
-
-        offset_coloring_opt.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                ptr.setOffsetColoring();
-            }
-        });
+        offset_coloring_opt.addActionListener(e -> ptr.setOffsetColoring());
         
-        orbit_traps_opt.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                ptr.setOrbitTraps();
-            }
-        });
+        orbit_traps_opt.addActionListener(e -> ptr.setOrbitTraps());
         
-        light_opt.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                ptr.setLighting();
-            }
+        light_opt.addActionListener(e -> ptr.setLighting());
         
-        });
+        order_opt.addActionListener(e -> ptr.setProcessingOrder());
         
-        order_opt.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                ptr.setProcessingOrder();
-            }
+        statistics_coloring_opt.addActionListener(e -> ptr.openStatisticsColoringFrame());
         
-        });
-        
-        statistics_coloring_opt.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.openStatisticsColoringFrame();
-
-            }
-        });
-        
-        histogram_coloring_opt.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setHistogramColoring();
-
-            }
-        });
+        histogram_coloring_opt.addActionListener(e -> ptr.setHistogramColoring());
         
         add(smoothing_opt);
         add(statistics_coloring_opt);
@@ -229,12 +140,6 @@ public class ProcessingMenu extends JMenu {
         add(light_opt);
         addSeparator();
         add(order_opt);
-    }
-    
-    private ImageIcon getIcon(String path) {
-
-        return new ImageIcon(getClass().getResource(path));
-
     }
     
     public JMenuItem getEntropyColoring() {
@@ -318,94 +223,94 @@ public class ProcessingMenu extends JMenu {
     public void updateIcons(Settings s) {
         
         if(s.fns.smoothing) {
-            smoothing_opt.setIcon(getIcon("/fractalzoomer/icons/smoothing_enabled.png"));
+            smoothing_opt.setIcon(MainWindow.getIcon("smoothing_enabled.png"));
         }
         else {
-            smoothing_opt.setIcon(getIcon("/fractalzoomer/icons/smoothing.png"));
+            smoothing_opt.setIcon(MainWindow.getIcon("smoothing.png"));
         }
         
         if(s.hss.histogramColoring) {
-            histogram_coloring_opt.setIcon(getIcon("/fractalzoomer/icons/histogram_enabled.png"));
+            histogram_coloring_opt.setIcon(MainWindow.getIcon("histogram_enabled.png"));
         }
         else {
-            histogram_coloring_opt.setIcon(getIcon("/fractalzoomer/icons/histogram.png"));
+            histogram_coloring_opt.setIcon(MainWindow.getIcon("histogram.png"));
         }
         
         if(s.bms.bump_map) {
-            bump_map_opt.setIcon(getIcon("/fractalzoomer/icons/bump_map_enabled.png"));
+            bump_map_opt.setIcon(MainWindow.getIcon("bump_map_enabled.png"));
         }
         else {
-            bump_map_opt.setIcon(getIcon("/fractalzoomer/icons/bump_map.png"));
+            bump_map_opt.setIcon(MainWindow.getIcon("bump_map.png"));
         }
         
         if(s.rps.rainbow_palette) {
-            rainbow_palette_opt.setIcon(getIcon("/fractalzoomer/icons/rainbow_palette_enabled.png"));
+            rainbow_palette_opt.setIcon(MainWindow.getIcon("rainbow_palette_enabled.png"));
         }
         else {
-            rainbow_palette_opt.setIcon(getIcon("/fractalzoomer/icons/rainbow_palette.png"));
+            rainbow_palette_opt.setIcon(MainWindow.getIcon("rainbow_palette.png"));
         }
         
         if(s.ots.useTraps) {
-            orbit_traps_opt.setIcon(getIcon("/fractalzoomer/icons/orbit_traps_enabled.png"));
+            orbit_traps_opt.setIcon(MainWindow.getIcon("orbit_traps_enabled.png"));
         }
         else {
-            orbit_traps_opt.setIcon(getIcon("/fractalzoomer/icons/orbit_traps.png"));
+            orbit_traps_opt.setIcon(MainWindow.getIcon("orbit_traps.png"));
         }
         
         if(s.cns.contour_coloring) {
-            contour_coloring_opt.setIcon(getIcon("/fractalzoomer/icons/contour_coloring_enabled.png"));
+            contour_coloring_opt.setIcon(MainWindow.getIcon("contour_coloring_enabled.png"));
         }
         else {
-            contour_coloring_opt.setIcon(getIcon("/fractalzoomer/icons/contour_coloring.png"));
+            contour_coloring_opt.setIcon(MainWindow.getIcon("contour_coloring.png"));
         }
         
         if(s.gss.greyscale_coloring) {
-            greyscale_coloring_opt.setIcon(getIcon("/fractalzoomer/icons/greyscale_coloring_enabled.png"));
+            greyscale_coloring_opt.setIcon(MainWindow.getIcon("greyscale_coloring_enabled.png"));
         }
         else {
-            greyscale_coloring_opt.setIcon(getIcon("/fractalzoomer/icons/greyscale_coloring.png"));
+            greyscale_coloring_opt.setIcon(MainWindow.getIcon("greyscale_coloring.png"));
         }
         
         if(s.ofs.offset_coloring) {
-            offset_coloring_opt.setIcon(getIcon("/fractalzoomer/icons/offset_coloring_enabled.png"));
+            offset_coloring_opt.setIcon(MainWindow.getIcon("offset_coloring_enabled.png"));
         }
         else {
-            offset_coloring_opt.setIcon(getIcon("/fractalzoomer/icons/offset_coloring.png"));
+            offset_coloring_opt.setIcon(MainWindow.getIcon("offset_coloring.png"));
         }
         
         if(s.fdes.fake_de) {
-            fake_de_opt.setIcon(getIcon("/fractalzoomer/icons/fake_distance_estimation_enabled.png"));
+            fake_de_opt.setIcon(MainWindow.getIcon("fake_distance_estimation_enabled.png"));
         }
         else {
-            fake_de_opt.setIcon(getIcon("/fractalzoomer/icons/fake_distance_estimation.png"));
+            fake_de_opt.setIcon(MainWindow.getIcon("fake_distance_estimation.png"));
         }
         
         if(s.ens.entropy_coloring) {
-            entropy_coloring_opt.setIcon(getIcon("/fractalzoomer/icons/entropy_coloring_enabled.png"));
+            entropy_coloring_opt.setIcon(MainWindow.getIcon("entropy_coloring_enabled.png"));
         }
         else {
-            entropy_coloring_opt.setIcon(getIcon("/fractalzoomer/icons/entropy_coloring.png"));
+            entropy_coloring_opt.setIcon(MainWindow.getIcon("entropy_coloring.png"));
         }
         
         if(s.exterior_de) {
-            exterior_de_opt.setIcon(getIcon("/fractalzoomer/icons/distance_estimation_enabled.png"));
+            exterior_de_opt.setIcon(MainWindow.getIcon("distance_estimation_enabled.png"));
         }
         else {
-            exterior_de_opt.setIcon(getIcon("/fractalzoomer/icons/distance_estimation.png"));
+            exterior_de_opt.setIcon(MainWindow.getIcon("distance_estimation.png"));
         }
         
         if(s.ls.lighting) {
-            light_opt.setIcon(getIcon("/fractalzoomer/icons/light_enabled.png"));
+            light_opt.setIcon(MainWindow.getIcon("light_enabled.png"));
         }
         else {
-            light_opt.setIcon(getIcon("/fractalzoomer/icons/light.png"));
+            light_opt.setIcon(MainWindow.getIcon("light.png"));
         }
         
         if(s.sts.statistic) {
-            statistics_coloring_opt.setIcon(getIcon("/fractalzoomer/icons/statistics_coloring_enabled.png"));
+            statistics_coloring_opt.setIcon(MainWindow.getIcon("statistics_coloring_enabled.png"));
         }
         else {
-            statistics_coloring_opt.setIcon(getIcon("/fractalzoomer/icons/statistics_coloring.png"));
+            statistics_coloring_opt.setIcon(MainWindow.getIcon("statistics_coloring.png"));
         }
         
     }

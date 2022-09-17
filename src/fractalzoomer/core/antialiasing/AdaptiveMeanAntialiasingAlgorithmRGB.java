@@ -16,6 +16,8 @@ public class AdaptiveMeanAntialiasingAlgorithmRGB extends AntialiasingAlgorithm 
     private int MinSamples;
     private double AdaptiveThreshold;
 
+    private double [] sampleCountReciprocals;
+
     public AdaptiveMeanAntialiasingAlgorithmRGB(int totalSamples, int minAdaptiveSteps) {
         super(totalSamples);
         MeanR = 0;
@@ -26,6 +28,14 @@ public class AdaptiveMeanAntialiasingAlgorithmRGB extends AntialiasingAlgorithm 
         VarB = 0;
         sampleCount = 0;
         MinSamples = minAdaptiveSteps;
+
+        sampleCountReciprocals = new double[totalSamples + 1];
+
+        double samplecnt = 1;
+        for(int i = 1; i < sampleCountReciprocals.length; i++) {
+            sampleCountReciprocals[i] = 1 / samplecnt;
+            samplecnt++;
+        }
 
         if(MinSamples == 5) {
             AdaptiveThreshold = 2.5;
@@ -52,9 +62,11 @@ public class AdaptiveMeanAntialiasingAlgorithmRGB extends AntialiasingAlgorithm 
         double blue = color & 0xff;
         sampleCount++;
 
-        double NewMeanR = MeanR + (red - MeanR) / sampleCount;
-        double NewMeanG = MeanG + (green - MeanG) / sampleCount;
-        double NewMeanB = MeanB + (blue - MeanB) / sampleCount;
+        double rec = sampleCountReciprocals[sampleCount];
+
+        double NewMeanR = MeanR + (red - MeanR) * rec;
+        double NewMeanG = MeanG + (green - MeanG) * rec;
+        double NewMeanB = MeanB + (blue - MeanB) * rec;
 
         VarR = VarR + (red - NewMeanR) * (red - MeanR);
         VarG = VarG + (green - NewMeanG) * (green - MeanG);

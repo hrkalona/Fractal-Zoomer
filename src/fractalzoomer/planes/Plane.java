@@ -17,9 +17,7 @@
 
 package fractalzoomer.planes;
 
-import fractalzoomer.core.BigComplex;
-import fractalzoomer.core.BigNumComplex;
-import fractalzoomer.core.Complex;
+import fractalzoomer.core.*;
 
 /**
  *
@@ -27,7 +25,7 @@ import fractalzoomer.core.Complex;
  */
 public abstract class Plane {
 
-    public Plane() {
+    protected Plane() {
 
     }
 
@@ -44,6 +42,40 @@ public abstract class Plane {
     public BigNumComplex transform(BigNumComplex pixel) {
 
         return new BigNumComplex(transform(pixel.toComplex()));
+
+    }
+
+    //Todo fix, erf, gamma, factorial, rzeta, distort
+    public MpfrBigNumComplex transform(MpfrBigNumComplex pixel) {
+
+        return new MpfrBigNumComplex(transform(pixel.toComplex()));
+
+    }
+
+    //Todo fix the low precision ones
+    public DDComplex transform(DDComplex pixel) {
+
+        return new DDComplex(transform(pixel.toComplex()));
+
+    }
+
+    public GenericComplex Transform(GenericComplex pixel) {
+
+        if(pixel instanceof MpfrBigNumComplex) {
+            return transform((MpfrBigNumComplex) pixel);
+        }
+        else if(pixel instanceof BigNumComplex) {
+            return transform((BigNumComplex) pixel);
+        }
+        else if(pixel instanceof BigComplex) {
+            return transform((BigComplex) pixel);
+        }
+        else if(pixel instanceof DDComplex) {
+            return transform((DDComplex) pixel);
+        }
+        else {
+            return transform((Complex) pixel);
+        }
 
     }
 

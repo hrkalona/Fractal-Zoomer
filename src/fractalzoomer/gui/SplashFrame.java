@@ -16,6 +16,8 @@
  */
 package fractalzoomer.gui;
 
+import fractalzoomer.main.MainWindow;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -31,7 +33,7 @@ public class SplashFrame extends JFrame {
 
     public SplashFrame(int version) {
 
-        setIconImage(getIcon("/fractalzoomer/icons/mandel2.png").getImage());
+        setIconImage(MainWindow.getIcon("mandel2.png").getImage());
 
         setSize(400, 260);
         setLocationRelativeTo(null);
@@ -39,7 +41,7 @@ public class SplashFrame extends JFrame {
         setBackground(new Color(0, 0, 0, 0));
         setLayout(new BorderLayout());
         
-        BufferedImage image = convertToBufferedImage(getIcon("/fractalzoomer/icons/splash.png").getImage());
+        BufferedImage image = convertToBufferedImage(MainWindow.getIcon("splash.png").getImage());
     
         SplashLabel l1 = new SplashLabel(400, 260);
 
@@ -47,12 +49,6 @@ public class SplashFrame extends JFrame {
         
         thread = new SplashThread(image, l1, version, 155);
         thread.start();
-    }
-
-    private ImageIcon getIcon(String path) {
-
-        return new ImageIcon(getClass().getResource(path));
-        
     }
     
     public boolean isAnimating() {

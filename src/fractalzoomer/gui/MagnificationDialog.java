@@ -17,17 +17,15 @@
 package fractalzoomer.gui;
 
 import fractalzoomer.core.MyApfloat;
+import fractalzoomer.functions.Fractal;
 import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
-import fractalzoomer.utils.MathUtils;
 import org.apfloat.Apfloat;
 
 import javax.swing.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 
 import static fractalzoomer.gui.CenterSizeDialog.TEMPLATE_TFIELD;
 
@@ -48,11 +46,21 @@ public class MagnificationDialog extends JDialog {
 
         setTitle("Magnification");
         setModal(true);
-        setIconImage(getIcon("/fractalzoomer/icons/mandel2.png").getImage());
+        setIconImage(MainWindow.getIcon("mandel2.png").getImage());
 
         Apfloat tempSize;
         try {
-            tempSize =new MyApfloat(field_size.getText());
+
+            if(MyApfloat.setAutomaticPrecision) {
+                long precision = MyApfloat.getAutomaticPrecision(field_size.getText());
+
+                if (MyApfloat.shouldSetPrecision(precision, false)) {
+                    Fractal.clearReferences(true);
+                    MyApfloat.setPrecision(precision, s);
+                }
+            }
+
+            tempSize = new MyApfloat(field_size.getText());
         } catch (Exception ex) {
             tempSize = s.size;
         }
@@ -72,14 +80,7 @@ public class MagnificationDialog extends JDialog {
 
         magnification.setText("" + magnificationVal);
 
-        SwingUtilities.invokeLater(new Runnable() {
-
-            @Override
-            public void run() {
-                magnScroll.getVerticalScrollBar().setValue(0);
-
-            }
-        });
+        SwingUtilities.invokeLater(() -> magnScroll.getVerticalScrollBar().setValue(0));
 
         Object[] message = {
             " ",
@@ -93,49 +94,48 @@ public class MagnificationDialog extends JDialog {
 
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
+            @Override
             public void windowClosing(WindowEvent we) {
-                optionPane.setValue(new Integer(JOptionPane.CLOSED_OPTION));
+                optionPane.setValue(JOptionPane.CLOSED_OPTION);
             }
         });
 
         optionPane.addPropertyChangeListener(
-                new PropertyChangeListener() {
-            public void propertyChange(PropertyChangeEvent e) {
-                String prop = e.getPropertyName();
+                e -> {
+                    String prop = e.getPropertyName();
 
-                if (isVisible() && (e.getSource() == optionPane) && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
+                    if (isVisible() && (e.getSource() == optionPane) && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
 
-                    Object value = optionPane.getValue();
+                        Object value = optionPane.getValue();
 
-                    if (value == JOptionPane.UNINITIALIZED_VALUE) {
-                        //ignore reset
-                        return;
-                    }
+                        if (value == JOptionPane.UNINITIALIZED_VALUE) {
+                            //ignore reset
+                            return;
+                        }
 
-                    //Reset the JOptionPane's value.
-                    //If you don't do this, then if the user
-                    //presses the same button next time, no
-                    //property change event will be fired.
-                    optionPane.setValue(JOptionPane.UNINITIALIZED_VALUE);
+                        //Reset the JOptionPane's value.
+                        //If you don't do this, then if the user
+                        //presses the same button next time, no
+                        //property change event will be fired.
+                        optionPane.setValue(JOptionPane.UNINITIALIZED_VALUE);
 
-                    if ((Integer) value == JOptionPane.CANCEL_OPTION || (Integer) value == JOptionPane.NO_OPTION || (Integer) value == JOptionPane.CLOSED_OPTION) {
+                        if ((Integer) value == JOptionPane.CANCEL_OPTION || (Integer) value == JOptionPane.NO_OPTION || (Integer) value == JOptionPane.CLOSED_OPTION) {
+                            dispose();
+                            return;
+                        }
+
+                        try {
+                            Apfloat tempMagn = new MyApfloat(magnification.getText());
+
+                            field_size.setText("" + MyApfloat.fp.divide(Constants.DEFAULT_MAGNIFICATION, tempMagn));
+                        } catch (Exception ex) {
+                            JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
+
                         dispose();
-                        return;
                     }
-
-                    try {
-                        Apfloat tempMagn = new MyApfloat(magnification.getText());
-
-                        field_size.setText("" + MyApfloat.fp.divide(Constants.DEFAULT_MAGNIFICATION, tempMagn));
-                    } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-
-                    dispose();
-                }
-            }
-        });
+                });
 
         //Make this dialog display it.
         setContentPane(optionPane);
@@ -145,12 +145,6 @@ public class MagnificationDialog extends JDialog {
         setResizable(false);
         setLocation((int) (ptra.getLocation().getX() + ptra.getSize().getWidth() / 2) - (getWidth() / 2), (int) (ptra.getLocation().getY() + ptra.getSize().getHeight() / 2) - (getHeight() / 2));
         setVisible(true);
-
-    }
-
-    private ImageIcon getIcon(String path) {
-
-        return new ImageIcon(getClass().getResource(path));
 
     }
 

@@ -35,7 +35,7 @@ public abstract class TrueColorAlgorithm {
     public static int[] gradient;
     public static int gradient_offset;
 
-    public TrueColorAlgorithm() {
+    protected TrueColorAlgorithm() {
 
     }
 

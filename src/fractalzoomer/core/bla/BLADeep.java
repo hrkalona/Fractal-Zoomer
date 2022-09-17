@@ -7,7 +7,7 @@ public abstract class BLADeep {
     public double r2, Ax, Ay;
     public long Aexp, r2exp;
 
-    public BLADeep(MantExp r2, MantExpComplex A) {
+    protected BLADeep(MantExp r2, MantExpComplex A) {
         this.r2 = r2.getMantissa();
         this.r2exp = r2.getExp();
         this.Ax = A.getMantissaReal();

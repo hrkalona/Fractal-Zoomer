@@ -30,7 +30,7 @@ public class OverlayBlending extends Blending {
     }
 
     @Override
-    public int blend(int redA, int greenA, int blueA, int redB, int greenB, int blueB, double coef) {
+    public int blendInternal(int redA, int greenA, int blueA, int redB, int greenB, int blueB, double coef) {
       
         int temp_red = 0;
         if(redB < 128) {

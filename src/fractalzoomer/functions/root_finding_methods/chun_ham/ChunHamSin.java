@@ -1,7 +1,6 @@
 package fractalzoomer.functions.root_finding_methods.chun_ham;
 
 import fractalzoomer.core.Complex;
-import fractalzoomer.functions.root_finding_methods.third_order_newton.ThirdOrderNewtonRootFindingMethod;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
 import fractalzoomer.main.app_settings.StatisticsSettings;

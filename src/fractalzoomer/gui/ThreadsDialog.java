@@ -20,10 +20,11 @@ import fractalzoomer.main.ImageExpanderWindow;
 import fractalzoomer.main.MainWindow;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 
 /**
  *
@@ -34,7 +35,7 @@ public class ThreadsDialog extends JDialog {
     private JFrame ptra;
     private JOptionPane optionPane;
 
-    public ThreadsDialog(JFrame ptr, int n) {
+    public ThreadsDialog(JFrame ptr, int n, int grouping) {
 
         super(ptr);
 
@@ -44,80 +45,146 @@ public class ThreadsDialog extends JDialog {
         setModal(true);
         
         if (ptra instanceof MainWindow) {
-            setIconImage(getIcon("/fractalzoomer/icons/mandel2.png").getImage());
+            setIconImage(MainWindow.getIcon("mandel2.png").getImage());
         } else if (ptra instanceof ImageExpanderWindow) {
-            setIconImage(getIcon("/fractalzoomer/icons/mandelExpander.png").getImage());
-        }       
+            setIconImage(MainWindow.getIcon("mandelExpander.png").getImage());
+        }
 
-        JTextField field = new JTextField();
+        JComboBox<String> thread_grouping = new JComboBox<>(new String[]{"Grid Split (nxn)", "Horizontal Split (n)", "Vertical Split (n)"});
+
+        thread_grouping.setSelectedIndex(grouping);
+
+        JTextField field = new JTextField(20);
         field.addAncestorListener(new RequestFocusListener());
         field.setText("" + n);
 
+        int threadNumber = 0;
+
+        switch (thread_grouping.getSelectedIndex()) {
+            case 0:
+                threadNumber = n * n;
+                break;
+            case 1:
+            case 2:
+                threadNumber = n;
+                break;
+        }
+
+        JLabel currentThreads = new JLabel("Current Thread Number: " + threadNumber);
+
+
+        thread_grouping.addActionListener(e -> {
+            handleChange(field, thread_grouping, currentThreads);
+        });
+
+        field.getDocument().addDocumentListener(new DocumentListener() {
+
+            @Override
+            public void insertUpdate(DocumentEvent documentEvent) {
+                handleChange(field, thread_grouping, currentThreads);
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent documentEvent) {
+                handleChange(field, thread_grouping, currentThreads);
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent documentEvent) {
+                handleChange(field, thread_grouping, currentThreads);
+            }
+        });
+
+        JPanel p = new JPanel();
+        p.setLayout(new FlowLayout(FlowLayout.LEFT));
+
+        p.add(new JLabel("n = "));
+        p.add(field);
+
+
         Object[] message3 = {
             " ",
-            "Processor cores: " + Runtime.getRuntime().availableProcessors() + "\nYou are using " + n * n + " threads in a " + n + "x" + n + " 2D grid.\nEnter the first dimension, n, of the nxn 2D grid.",
-            field,
+                "Processor Cores: " + Runtime.getRuntime().availableProcessors() ,
+                currentThreads,
+                " ",
+                "Thread Split:",
+                thread_grouping,
+                " ",
+            "Enter the number of n.",
+                p,
             " ",};
 
         optionPane = new JOptionPane(message3, JOptionPane.QUESTION_MESSAGE, JOptionPane.OK_CANCEL_OPTION, null, null, null);
 
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
+            @Override
             public void windowClosing(WindowEvent we) {
-                optionPane.setValue(new Integer(JOptionPane.CLOSED_OPTION));
+                optionPane.setValue(JOptionPane.CLOSED_OPTION);
             }
         });
 
         optionPane.addPropertyChangeListener(
-                new PropertyChangeListener() {
-            public void propertyChange(PropertyChangeEvent e) {
-                String prop = e.getPropertyName();
+                e -> {
+                    String prop = e.getPropertyName();
 
-                if (isVisible() && (e.getSource() == optionPane) && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
+                    if (isVisible() && (e.getSource() == optionPane) && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
 
-                    Object value = optionPane.getValue();
+                        Object value = optionPane.getValue();
 
-                    if (value == JOptionPane.UNINITIALIZED_VALUE) {
-                        //ignore reset
-                        return;
-                    }
+                        if (value == JOptionPane.UNINITIALIZED_VALUE) {
+                            //ignore reset
+                            return;
+                        }
 
-                    //Reset the JOptionPane's value.
-                    //If you don't do this, then if the user
-                    //presses the same button next time, no
-                    //property change event will be fired.
-                    optionPane.setValue(JOptionPane.UNINITIALIZED_VALUE);
+                        //Reset the JOptionPane's value.
+                        //If you don't do this, then if the user
+                        //presses the same button next time, no
+                        //property change event will be fired.
+                        optionPane.setValue(JOptionPane.UNINITIALIZED_VALUE);
 
-                    if ((Integer) value == JOptionPane.CANCEL_OPTION || (Integer) value == JOptionPane.NO_OPTION || (Integer) value == JOptionPane.CLOSED_OPTION) {
+                        if ((Integer) value == JOptionPane.CANCEL_OPTION || (Integer) value == JOptionPane.NO_OPTION || (Integer) value == JOptionPane.CLOSED_OPTION) {
+                            dispose();
+                            return;
+                        }
+
+                        try {
+                            int temp = Integer.parseInt(field.getText());
+
+                            int tempgrouping = thread_grouping.getSelectedIndex();
+
+                            if(tempgrouping == 0) {
+                                if (temp < 1) {
+                                    JOptionPane.showMessageDialog(ptra, "The first dimension number of the 2D threads\ngrid must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                    return;
+                                } else if (temp > 100) {
+                                    JOptionPane.showMessageDialog(ptra, "The first dimension number of the 2D threads\ngrid must be lower than 101.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                    return;
+                                }
+                            }
+                            else {
+                                if (temp < 1) {
+                                    JOptionPane.showMessageDialog(ptra, "The thread number must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                    return;
+                                } else if (temp > 10000) {
+                                    JOptionPane.showMessageDialog(ptra, "The thread number must be lower than 10001.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                    return;
+                                }
+                            }
+
+                            if (ptra instanceof MainWindow) {
+                                ((MainWindow) ptra).setThreadsNumberPost(tempgrouping, temp);
+                            } else if (ptra instanceof ImageExpanderWindow) {
+                                ((ImageExpanderWindow) ptra).setThreadsNumberPost(tempgrouping, temp);
+                            }
+                        } catch (Exception ex) {
+                            JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
+
                         dispose();
-                        return;
                     }
-
-                    try {
-                        int temp = Integer.parseInt(field.getText());
-
-                        if (temp < 1) {
-                            JOptionPane.showMessageDialog(ptra, "The first dimension number of the 2D threads\ngrid must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            return;
-                        } else if (temp > 100) {
-                            JOptionPane.showMessageDialog(ptra, "The first dimension number of the 2D threads\ngrid must be lower than 101.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            return;
-                        }
-
-                        if (ptra instanceof MainWindow) {
-                            ((MainWindow) ptra).setThreadsNumberPost(temp);
-                        } else if (ptra instanceof ImageExpanderWindow) {
-                            ((ImageExpanderWindow) ptra).setThreadsNumberPost(temp);
-                        }
-                    } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-
-                    dispose();
-                }
-            }
-        });
+                });
 
         //Make this dialog display it.
         setContentPane(optionPane);
@@ -130,10 +197,32 @@ public class ThreadsDialog extends JDialog {
 
     }
 
-    private ImageIcon getIcon(String path) {
+    private void handleChange(JTextField field, JComboBox<String> thread_grouping, JLabel currentThreads) {
+        try {
+            int tempn = Integer.parseInt(field.getText());
 
-        return new ImageIcon(getClass().getResource(path));
+            int threadNumberTemp = 0;
 
+            switch (thread_grouping.getSelectedIndex()) {
+                case 0:
+                    threadNumberTemp = tempn * tempn;
+                    break;
+                case 1:
+                case 2:
+                    threadNumberTemp = tempn;
+                    break;
+            }
+
+            if(threadNumberTemp > 0) {
+                currentThreads.setText("Current Thread Number: " + threadNumberTemp);
+            }
+            else {
+                currentThreads.setText("Current Thread Number: ");
+            }
+        }
+        catch (Exception ex) {
+            currentThreads.setText("Current Thread Number: ");
+        }
     }
 
 }

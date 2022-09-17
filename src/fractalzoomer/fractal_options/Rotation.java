@@ -17,7 +17,8 @@
 
 package fractalzoomer.fractal_options;
 
-import fractalzoomer.core.Complex;
+import fractalzoomer.core.*;
+import fractalzoomer.core.mpfr.MpfrBigNum;
 
 
 /**
@@ -28,6 +29,26 @@ public class Rotation {
   private Complex rotation;
   private Complex inv_rotation;
   private Complex center;
+
+  private BigComplex ddrotation;
+  private BigComplex ddcenter;
+
+  private DDComplex ddcrotation;
+  private DDComplex ddccenter;
+
+  private BigNumComplex bnrotation;
+  private BigNumComplex bncenter;
+
+  private MpfrBigNumComplex mpfrbnrotation;
+  private MpfrBigNumComplex mpfrbncenter;
+
+    private boolean hasRotation = false;
+    private boolean hasRotationCenter = false;
+
+    private MpfrBigNum tempRotationRe;
+    private MpfrBigNum tempRotationIm;
+
+
   
     public Rotation(double cos_theta, double sin_theta, double x, double y) {
         
@@ -36,6 +57,38 @@ public class Rotation {
 
         center = new Complex(x, y);
         
+    }
+
+    public Rotation(Complex rotation, Complex center) {
+        this.rotation = rotation;
+        this.center = center;
+    }
+
+    public Rotation(BigComplex ddrotation, BigComplex ddcenter) {
+        this.ddrotation = ddrotation;
+        this.ddcenter = ddcenter;
+    }
+
+    public Rotation(DDComplex ddrotation, DDComplex ddcenter) {
+        this.ddcrotation = ddrotation;
+        this.ddccenter = ddcenter;
+    }
+
+    public Rotation(BigNumComplex bnrotation, BigNumComplex bncenter) {
+        this.bnrotation = bnrotation;
+        this.bncenter = bncenter;
+    }
+
+    public Rotation(MpfrBigNumComplex mpfrbnrotation, MpfrBigNumComplex mpfrbncenter) {
+        this.mpfrbnrotation = mpfrbnrotation;
+        this.mpfrbncenter = mpfrbncenter;
+        hasRotation = !mpfrbnrotation.isOne();
+        hasRotationCenter = !mpfrbncenter.isZero();
+
+        if(hasRotation) {
+            tempRotationRe = new MpfrBigNum();
+            tempRotationIm = new MpfrBigNum();
+        }
     }
     
     public Complex rotate(Complex pixel) {
@@ -50,6 +103,36 @@ public class Rotation {
          Complex temp = pixel.sub(center);
          return temp.times_mutable(inv_rotation).plus_mutable(center);
          
+    }
+
+    public BigComplex rotate(BigComplex pixel) {
+        BigComplex temp = pixel.sub(ddcenter);
+        return temp.times(ddrotation).plus(ddcenter);
+    }
+
+    public DDComplex rotate(DDComplex pixel) {
+        DDComplex temp = pixel.sub(ddccenter);
+        return temp.times(ddcrotation).plus(ddccenter);
+    }
+
+    public BigNumComplex rotate(BigNumComplex pixel) {
+        BigNumComplex temp = pixel.sub(bncenter);
+        return temp.times(bnrotation).plus(bncenter);
+    }
+
+    public MpfrBigNumComplex rotate(MpfrBigNumComplex pixel) {
+        if(hasRotationCenter) {
+            pixel.sub_mutable(mpfrbncenter);
+        }
+
+        if(hasRotation) {
+            pixel.times_mutable(mpfrbnrotation, tempRotationRe, tempRotationIm);
+        }
+
+        if(hasRotationCenter) {
+            pixel.plus_mutable(mpfrbncenter);
+        }
+        return pixel;
     }
     
 }

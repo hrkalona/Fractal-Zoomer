@@ -18,6 +18,7 @@
 package fractalzoomer.bailout_conditions;
 
 import fractalzoomer.core.*;
+import fractalzoomer.core.mpfr.MpfrBigNum;
 import org.apfloat.Apfloat;
 
 /**
@@ -28,13 +29,15 @@ public abstract class BailoutCondition {
   protected double bound;
   protected Apfloat ddbound;
   protected BigNum bnbound;
+  protected DoubleDouble ddcbound;
   protected int id;
     
-    public BailoutCondition(double bound) {
+    protected BailoutCondition(double bound) {
         
         this.bound = bound;
         if(ThreadDraw.PERTURBATION_THEORY) {
             ddbound = new MyApfloat(bound);
+            ddcbound = new DoubleDouble(bound);
 
             if(ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE) {
                 bnbound = new BigNum(ddbound);
@@ -47,13 +50,25 @@ public abstract class BailoutCondition {
     public abstract boolean escaped(BigComplex z, BigComplex zold, BigComplex zold2, int iterations, BigComplex c, BigComplex start, BigComplex c0, Apfloat norm_squared, BigComplex pixel);
     public abstract boolean escaped(BigNumComplex z, BigNumComplex zold, BigNumComplex zold2, int iterations, BigNumComplex c, BigNumComplex start, BigNumComplex c0, BigNum norm_squared, BigNumComplex pixel);
 
+    public abstract boolean escaped(DDComplex z, DDComplex zold, DDComplex zold2, int iterations, DDComplex c, DDComplex start, DDComplex c0, DoubleDouble norm_squared, DDComplex pixel);
+
+    public abstract boolean escaped(MpfrBigNumComplex z, MpfrBigNumComplex zold, MpfrBigNumComplex zold2, int iterations, MpfrBigNumComplex c, MpfrBigNumComplex start, MpfrBigNumComplex c0, MpfrBigNum norm_squared, MpfrBigNumComplex pixel);
 
     public boolean Escaped(GenericComplex z, GenericComplex zold, GenericComplex zold2, int iterations, GenericComplex c, GenericComplex start, GenericComplex c0, Object norm_squared, GenericComplex pixel) {
         if(z instanceof BigNumComplex) {
            return escaped((BigNumComplex)z, (BigNumComplex)zold, (BigNumComplex)zold2, iterations, (BigNumComplex)c, (BigNumComplex)start, (BigNumComplex)c0, (BigNum) norm_squared, (BigNumComplex)pixel);
         }
-        else {
+        else if(z instanceof MpfrBigNumComplex) {
+            return escaped((MpfrBigNumComplex)z, (MpfrBigNumComplex)zold, (MpfrBigNumComplex)zold2, iterations, (MpfrBigNumComplex)c, (MpfrBigNumComplex)start, (MpfrBigNumComplex)c0, (MpfrBigNum) norm_squared, (MpfrBigNumComplex)pixel);
+        }
+        else if (z instanceof BigComplex) {
             return escaped((BigComplex)z, (BigComplex)zold, (BigComplex)zold2, iterations, (BigComplex)c, (BigComplex)start, (BigComplex)c0, (Apfloat) norm_squared, (BigComplex)pixel);
+        }
+        else if (z instanceof DDComplex) {
+            return escaped((DDComplex)z, (DDComplex)zold, (DDComplex)zold2, iterations, (DDComplex)c, (DDComplex)start, (DDComplex)c0, (DoubleDouble) norm_squared, (DDComplex)pixel);
+        }
+        else {
+            return escaped((Complex) z, (Complex)zold, (Complex)zold2, iterations, (Complex)c, (Complex)start, (Complex)c0, (double) norm_squared, (Complex)pixel);
         }
     }
 

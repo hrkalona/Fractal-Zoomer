@@ -20,7 +20,6 @@ import fractalzoomer.main.MainWindow;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 
 /**
@@ -43,7 +42,7 @@ public class FractalOptionsMenu extends JMenu {
 
         this.ptr = ptr2;
         
-        setIcon(getIcon("/fractalzoomer/icons/fractal_options.png"));
+        setIcon(MainWindow.getIcon("fractal_options.png"));
         
         fractal_functions_menu = new FractalFunctionsMenu(ptr, "Fractal Functions", function);
         
@@ -54,7 +53,7 @@ public class FractalOptionsMenu extends JMenu {
 
         plane_influence_menu = new PlaneInfluenceMenu(ptr, plane_influence);
         
-        perturbation_opt = new JMenuItem("Perturbation");
+        perturbation_opt = new JMenuItem("Initial Perturbation");
         init_val_opt = new JMenuItem("Initial Value");
         
         perturbation_opt.setToolTipText("Adds a complex number to the initial value of the fractal calculation.");
@@ -63,25 +62,9 @@ public class FractalOptionsMenu extends JMenu {
         perturbation_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, ActionEvent.ALT_MASK));      
         init_val_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, ActionEvent.SHIFT_MASK));
         
-        perturbation_opt.addActionListener(new ActionListener() {
+        perturbation_opt.addActionListener(e -> ptr.setPerturbation());
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setPerturbation();
-
-            }
-        });
-
-        init_val_opt.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setInitialValue();
-
-            }
-        });    
+        init_val_opt.addActionListener(e -> ptr.setInitialValue());
         
         add(fractal_functions_menu);
         addSeparator();
@@ -96,12 +79,6 @@ public class FractalOptionsMenu extends JMenu {
         add(init_val_opt);
         addSeparator();
         add(perturbation_opt);
-    }
-    
-    private ImageIcon getIcon(String path) {
-
-        return new ImageIcon(getClass().getResource(path));
-
     }
     
     public FractalFunctionsMenu getFractalFunctionsMenu() {
