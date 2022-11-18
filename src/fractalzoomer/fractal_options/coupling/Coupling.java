@@ -25,7 +25,7 @@ import fractalzoomer.core.Complex;
 public abstract class Coupling {
     protected double coupling;
     
-    public Coupling(double coupling) {
+    protected Coupling(double coupling) {
         
         this.coupling = coupling;
         

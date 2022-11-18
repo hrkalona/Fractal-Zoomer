@@ -29,7 +29,7 @@ public class SoftLightBlending extends Blending {
     }
 
     @Override
-    public int blend(int redA, int greenA, int blueA, int redB, int greenB, int blueB, double coef) {
+    public int blendInternal(int redA, int greenA, int blueA, int redB, int greenB, int blueB, double coef) {
 
         int temp_red = (int)((redB / 255.0) * (redB + ((2 * redA) / 255.0) * (255 - redB)) + 0.5);
         int temp_green = (int)((greenB / 255.0) * (greenB + ((2 * greenA) / 255.0) * (255 - greenB)) + 0.5);

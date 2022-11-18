@@ -17,6 +17,7 @@
 package fractalzoomer.gui;
 
 import fractalzoomer.core.MyApfloat;
+import fractalzoomer.functions.Fractal;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
 import fractalzoomer.utils.MathUtils;
@@ -25,8 +26,6 @@ import org.apfloat.Apfloat;
 import javax.swing.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 
 import static fractalzoomer.gui.CenterSizeDialog.TEMPLATE_TFIELD;
 
@@ -47,10 +46,19 @@ public class CornersDialog extends JDialog {
 
         setTitle("Corners");
         setModal(true);
-        setIconImage(getIcon("/fractalzoomer/icons/mandel2.png").getImage());
+        setIconImage(MainWindow.getIcon("mandel2.png").getImage());
 
         Apfloat tempx, tempy, tempSize;
         try {
+            if(MyApfloat.setAutomaticPrecision) {
+                long precision = MyApfloat.getAutomaticPrecision(field_size.getText());
+
+                if (MyApfloat.shouldSetPrecision(precision, false)) {
+                    Fractal.clearReferences(true);
+                    MyApfloat.setPrecision(precision, s);
+                }
+            }
+
             tempx = new MyApfloat(field_real.getText());
             tempy = new MyApfloat(field_imaginary.getText());
             tempSize =new MyApfloat(field_size.getText());
@@ -125,16 +133,12 @@ public class CornersDialog extends JDialog {
         p2.add(corner2Imag);
 
 
-        SwingUtilities.invokeLater(new Runnable() {
+        SwingUtilities.invokeLater(() -> {
+            corner1Real.getVerticalScrollBar().setValue(0);
+            corner1Imag.getVerticalScrollBar().setValue(0);
+            corner2Real.getVerticalScrollBar().setValue(0);
+            corner2Imag.getVerticalScrollBar().setValue(0);
 
-            @Override
-            public void run() {
-                corner1Real.getVerticalScrollBar().setValue(0);
-                corner1Imag.getVerticalScrollBar().setValue(0);
-                corner2Real.getVerticalScrollBar().setValue(0);
-                corner2Imag.getVerticalScrollBar().setValue(0);
-
-            }
         });
 
         Object[] message = {
@@ -151,55 +155,54 @@ public class CornersDialog extends JDialog {
 
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
+            @Override
             public void windowClosing(WindowEvent we) {
-                optionPane.setValue(new Integer(JOptionPane.CLOSED_OPTION));
+                optionPane.setValue(JOptionPane.CLOSED_OPTION);
             }
         });
 
         optionPane.addPropertyChangeListener(
-                new PropertyChangeListener() {
-            public void propertyChange(PropertyChangeEvent e) {
-                String prop = e.getPropertyName();
+                e -> {
+                    String prop = e.getPropertyName();
 
-                if (isVisible() && (e.getSource() == optionPane) && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
+                    if (isVisible() && (e.getSource() == optionPane) && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
 
-                    Object value = optionPane.getValue();
+                        Object value = optionPane.getValue();
 
-                    if (value == JOptionPane.UNINITIALIZED_VALUE) {
-                        //ignore reset
-                        return;
-                    }
+                        if (value == JOptionPane.UNINITIALIZED_VALUE) {
+                            //ignore reset
+                            return;
+                        }
 
-                    //Reset the JOptionPane's value.
-                    //If you don't do this, then if the user
-                    //presses the same button next time, no
-                    //property change event will be fired.
-                    optionPane.setValue(JOptionPane.UNINITIALIZED_VALUE);
+                        //Reset the JOptionPane's value.
+                        //If you don't do this, then if the user
+                        //presses the same button next time, no
+                        //property change event will be fired.
+                        optionPane.setValue(JOptionPane.UNINITIALIZED_VALUE);
 
-                    if ((Integer) value == JOptionPane.CANCEL_OPTION || (Integer) value == JOptionPane.NO_OPTION || (Integer) value == JOptionPane.CLOSED_OPTION) {
+                        if ((Integer) value == JOptionPane.CANCEL_OPTION || (Integer) value == JOptionPane.NO_OPTION || (Integer) value == JOptionPane.CLOSED_OPTION) {
+                            dispose();
+                            return;
+                        }
+
+                        try {
+                            Apfloat tempc1_re = new MyApfloat(corner1_real.getText());
+                            Apfloat tempc1_im = new MyApfloat(corner1_imag.getText());
+                            Apfloat tempc2_re = new MyApfloat(corner2_real.getText());
+                            Apfloat tempc2_im = new MyApfloat(corner2_imag.getText());
+
+                            Apfloat[] centersize = MathUtils.convertFromCornersToCenterSize(new Apfloat[]{tempc1_re, tempc1_im, tempc2_re, tempc2_im});
+                            field_real.setText("" + centersize[0].toString(true));
+                            field_imaginary.setText("" + centersize[1].toString(true));
+                            field_size.setText("" + centersize[2]);
+                        } catch (Exception ex) {
+                            JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
+
                         dispose();
-                        return;
                     }
-
-                    try {
-                        Apfloat tempc1_re = new MyApfloat(corner1_real.getText());
-                        Apfloat tempc1_im = new MyApfloat(corner1_imag.getText());
-                        Apfloat tempc2_re = new MyApfloat(corner2_real.getText());
-                        Apfloat tempc2_im = new MyApfloat(corner2_imag.getText());
-
-                        Apfloat[] centersize = MathUtils.convertFromCornersToCenterSize(new Apfloat[]{tempc1_re, tempc1_im, tempc2_re, tempc2_im});
-                        field_real.setText("" + centersize[0].toString(true));
-                        field_imaginary.setText("" + centersize[1].toString(true));
-                        field_size.setText("" + centersize[2]);
-                    } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-
-                    dispose();
-                }
-            }
-        });
+                });
 
         //Make this dialog display it.
         setContentPane(optionPane);
@@ -209,12 +212,6 @@ public class CornersDialog extends JDialog {
         setResizable(false);
         setLocation((int) (ptra.getLocation().getX() + ptra.getSize().getWidth() / 2) - (getWidth() / 2), (int) (ptra.getLocation().getY() + ptra.getSize().getHeight() / 2) - (getHeight() / 2));
         setVisible(true);
-
-    }
-
-    private ImageIcon getIcon(String path) {
-
-        return new ImageIcon(getClass().getResource(path));
 
     }
 

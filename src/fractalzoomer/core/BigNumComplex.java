@@ -2,7 +2,6 @@ package fractalzoomer.core;
 
 import fractalzoomer.utils.NormComponents;
 import org.apfloat.Apfloat;
-import org.apfloat.FixedPrecisionApfloatHelper;
 
 public class BigNumComplex extends GenericComplex {
     private BigNum re;
@@ -72,6 +71,7 @@ public class BigNumComplex extends GenericComplex {
 
     }
 
+    @Override
     public final Complex toComplex() {
         return new Complex(re.doubleValue(), im.doubleValue());
     }
@@ -89,6 +89,13 @@ public class BigNumComplex extends GenericComplex {
      *  z + Real
      */
     public final BigNumComplex plus(BigNum number) {
+
+        return new BigNumComplex(re.add(number), im);
+
+    }
+
+    @Override
+    public final BigNumComplex plus(int number) {
 
         return new BigNumComplex(re.add(number), im);
 
@@ -115,17 +122,31 @@ public class BigNumComplex extends GenericComplex {
     /*
      *  z - Real
      */
-    @Override
     public final BigNumComplex sub(BigNum number) {
 
         return  new BigNumComplex(re.sub(number), im);
 
     }
 
+    @Override
+    public final BigNumComplex sub(int number) {
+
+        return  new BigNumComplex(re.sub(number), im);
+
+    }
+
+    /*
+     *  z - Imaginary
+     */
+    public final BigNumComplex sub_i(BigNum number) {
+
+        return new BigNumComplex(re, im.sub(number));
+
+    }
+
     /*
      *  Real - z1
      */
-    @Override
     public final BigNumComplex r_sub(BigNum number) {
 
         return  new BigNumComplex(number.sub(re), im.negate());
@@ -153,8 +174,17 @@ public class BigNumComplex extends GenericComplex {
     /*
      *  z1 * Real
      */
-    @Override
     public final BigNumComplex times(BigNum number) {
+
+        return new BigNumComplex(re.mult(number), im.mult(number));
+
+    }
+
+    /*
+     *  z1 * Real
+     */
+    @Override
+    public final BigNumComplex times(int number) {
 
         return new BigNumComplex(re.mult(number), im.mult(number));
 
@@ -210,9 +240,7 @@ public class BigNumComplex extends GenericComplex {
         BigNum temp = (BigNum)normComponents.reSqr;
         BigNum temp2 = (BigNum)normComponents.imSqr;
 
-        BigNum three = new BigNum(3);
-
-        return new BigNumComplex(re.mult(temp.sub(temp2.mult(three))), im.mult(temp.mult(three).sub(temp2)));
+        return new BigNumComplex(re.mult(temp.sub(temp2.mult(3))), im.mult(temp.mult(3).sub(temp2)));
 
     }
 
@@ -225,7 +253,7 @@ public class BigNumComplex extends GenericComplex {
         BigNum temp = (BigNum)normComponents.reSqr;
         BigNum temp2 = (BigNum)normComponents.imSqr;
 
-        return new BigNumComplex(temp.mult(temp.sub(temp2.mult(new BigNum(6)))).add(temp2.squareFull()), re.mult(im).mult4().mult(temp.sub(temp2)));
+        return new BigNumComplex(temp.mult(temp.sub(temp2.mult(6))).add(temp2.squareFull()), re.mult(im).mult4().mult(temp.sub(temp2)));
 
     }
 
@@ -238,15 +266,12 @@ public class BigNumComplex extends GenericComplex {
         BigNum temp = (BigNum)normComponents.reSqr;
         BigNum temp2 = (BigNum)normComponents.imSqr;
 
-        BigNum five = new BigNum(5);
-        BigNum ten = new BigNum(10);
-
-        return  new BigNumComplex(re.mult(temp.squareFull().add(temp2.mult(temp2.mult(five).sub(temp.mult(ten))))), im.mult(temp2.squareFull().add(temp.mult(temp.mult(five).sub(temp2.mult(ten))))));
+        return  new BigNumComplex(re.mult(temp.squareFull().add(temp2.mult(temp2.mult(5).sub(temp.mult(10))))), im.mult(temp2.squareFull().add(temp.mult(temp.mult(5).sub(temp2.mult(10))))));
 
     }
 
     @Override
-    public NormComponents normSquaredWithComponents() {
+    public NormComponents normSquaredWithComponents(NormComponents n) {
         BigNum reSqr = re.square();
         BigNum imSqr = im.square();
         return new NormComponents(reSqr, imSqr, reSqr.add(imSqr));
@@ -322,6 +347,7 @@ public class BigNumComplex extends GenericComplex {
     /*
      *  -z
      */
+    @Override
     public final BigNumComplex negative() {
 
         return new BigNumComplex(re.negate(), im.negate());
@@ -337,9 +363,7 @@ public class BigNumComplex extends GenericComplex {
         BigNum temp = re.square();
         BigNum temp2 = im.square();
 
-        BigNum three = new BigNum(3);
-
-        return new BigNumComplex(re.mult(temp.sub(temp2.mult(three))), im.mult(temp.mult(three).sub(temp2)));
+        return new BigNumComplex(re.mult(temp.sub(temp2.mult(3))), im.mult(temp.mult(3).sub(temp2)));
 
     }
 
@@ -352,7 +376,7 @@ public class BigNumComplex extends GenericComplex {
         BigNum temp = re.square();
         BigNum temp2 = im.square();
 
-        return new BigNumComplex(temp.mult(temp.sub(temp2.mult(new BigNum(6)))).add(temp2.squareFull()), re.mult(im).mult4().mult(temp.sub(temp2)));
+        return new BigNumComplex(temp.mult(temp.sub(temp2.mult(6))).add(temp2.squareFull()), re.mult(im).mult4().mult(temp.sub(temp2)));
 
     }
 
@@ -365,10 +389,7 @@ public class BigNumComplex extends GenericComplex {
         BigNum temp = re.square();
         BigNum temp2 = im.square();
 
-        BigNum five = new BigNum(5);
-        BigNum ten = new BigNum(10);
-
-        return  new BigNumComplex(re.mult(temp.squareFull().add(temp2.mult(temp2.mult(five).sub(temp.mult(ten))))), im.mult(temp2.squareFull().add(temp.mult(temp.mult(five).sub(temp2.mult(ten))))));
+        return  new BigNumComplex(re.mult(temp.squareFull().add(temp2.mult(temp2.mult(5).sub(temp.mult(10))))), im.mult(temp2.squareFull().add(temp.mult(temp.mult(5).sub(temp2.mult(10))))));
 
     }
 
@@ -424,6 +445,7 @@ public class BigNumComplex extends GenericComplex {
     /*
      * z1 + z2
      */
+    @Override
     public final BigNumComplex plus(GenericComplex zn) {
 
         BigNumComplex z = (BigNumComplex)zn;
@@ -446,6 +468,7 @@ public class BigNumComplex extends GenericComplex {
     /*
      *  z1 * z2
      */
+    @Override
     public final BigNumComplex times(GenericComplex zn) {
 
         BigNumComplex z = (BigNumComplex)zn;
@@ -578,4 +601,30 @@ public class BigNumComplex extends GenericComplex {
         return temp_re.squareFull().add(temp_im.squareFull());
 
     }
+
+    @Override
+    public BigNumComplex times2() {
+        return new BigNumComplex(re.mult2(), im.mult2());
+    }
+
+    @Override
+    public BigNumComplex times4() {
+        return new BigNumComplex(re.mult4(), im.mult4());
+    }
+
+    @Override
+    public MantExpComplex toMantExpComplex() { return new MantExpComplex(this);}
+
+    @Override
+    public void set(GenericComplex za) {
+        BigNumComplex z = (BigNumComplex) za;
+        re = z.re;
+        im = z.im;
+    }
+
+    @Override
+    public GenericComplex sub_mutable(int a) {return sub(a);}
+
+    @Override
+    public GenericComplex times_mutable(GenericComplex a) {return times(a);}
 }

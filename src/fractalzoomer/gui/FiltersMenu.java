@@ -20,9 +20,9 @@ import fractalzoomer.main.MainWindow;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -41,7 +41,7 @@ public class FiltersMenu extends JMenu {
     private static ArrayList<String> texture_list;
     private static ArrayList<String> lighting_list;
 
-    public static String[] filterNames;
+    public static final String[] filterNames;
 
     static {
         filterNames = new String[MainWindow.TOTAL_FILTERS];
@@ -89,13 +89,13 @@ public class FiltersMenu extends JMenu {
         this.ptr = ptr2;
 
         detail_filters_menu = new JMenu("Details");
-        detail_filters_menu.setIcon(getIcon("/fractalzoomer/icons/filter_details.png"));
+        detail_filters_menu.setIcon(MainWindow.getIcon("filter_details.png"));
         color_filters_menu = new JMenu("Colors");
-        color_filters_menu.setIcon(getIcon("/fractalzoomer/icons/filter_colors.png"));
+        color_filters_menu.setIcon(MainWindow.getIcon("filter_colors.png"));
         texture_filters_menu = new JMenu("Texture");
-        texture_filters_menu.setIcon(getIcon("/fractalzoomer/icons/filter_texture.png"));
+        texture_filters_menu.setIcon(MainWindow.getIcon("filter_texture.png"));
         light_filters_menu = new JMenu("Lighting");
-        light_filters_menu.setIcon(getIcon("/fractalzoomer/icons/filter_lighting.png"));
+        light_filters_menu.setIcon(MainWindow.getIcon("filter_lighting.png"));
 
         filters_opt = new JCheckBoxMenuItem[filterNames.length];
 
@@ -207,355 +207,75 @@ public class FiltersMenu extends JMenu {
         filters_opt[MainWindow.LIGHT_EFFECTS].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_1, ActionEvent.CTRL_MASK));
         filters_opt[MainWindow.MIRROR].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_3, ActionEvent.CTRL_MASK));
         
-        filters_opt[MainWindow.ANTIALIASING].addActionListener(new ActionListener() {
+        filters_opt[MainWindow.ANTIALIASING].addActionListener(e -> ptr.setFilter(MainWindow.ANTIALIASING));
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        filters_opt[MainWindow.EDGE_DETECTION].addActionListener(e -> ptr.setFilter(MainWindow.EDGE_DETECTION));
 
-                ptr.setFilter(MainWindow.ANTIALIASING);
+        filters_opt[MainWindow.EDGE_DETECTION2].addActionListener(e -> ptr.setFilter(MainWindow.EDGE_DETECTION2));
 
-            }
-        });
+        filters_opt[MainWindow.INVERT_COLORS].addActionListener(e -> ptr.setFilter(MainWindow.INVERT_COLORS));
 
-        filters_opt[MainWindow.EDGE_DETECTION].addActionListener(new ActionListener() {
+        filters_opt[MainWindow.EMBOSS].addActionListener(e -> ptr.setFilter(MainWindow.EMBOSS));
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        filters_opt[MainWindow.HISTOGRAM_EQUALIZATION].addActionListener(e -> ptr.setFilter(MainWindow.HISTOGRAM_EQUALIZATION));
 
-                ptr.setFilter(MainWindow.EDGE_DETECTION);
+        filters_opt[MainWindow.SHARPNESS].addActionListener(e -> ptr.setFilter(MainWindow.SHARPNESS));
 
-            }
-        });
+        filters_opt[MainWindow.BLURRING].addActionListener(e -> ptr.setFilter(MainWindow.BLURRING));
 
-        filters_opt[MainWindow.EDGE_DETECTION2].addActionListener(new ActionListener() {
+        filters_opt[MainWindow.COLOR_CHANNEL_MASKING].addActionListener(e -> ptr.setFilter(MainWindow.COLOR_CHANNEL_MASKING));
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        filters_opt[MainWindow.FADE_OUT].addActionListener(e -> ptr.setFilter(MainWindow.FADE_OUT));
 
-                ptr.setFilter(MainWindow.EDGE_DETECTION2);
+        filters_opt[MainWindow.COLOR_CHANNEL_SWAPPING].addActionListener(e -> ptr.setFilter(MainWindow.COLOR_CHANNEL_SWAPPING));
 
-            }
-        });
+        filters_opt[MainWindow.CONTRAST_BRIGHTNESS].addActionListener(e -> ptr.setFilter(MainWindow.CONTRAST_BRIGHTNESS));
 
-        filters_opt[MainWindow.INVERT_COLORS].addActionListener(new ActionListener() {
+        filters_opt[MainWindow.GAIN].addActionListener(e -> ptr.setFilter(MainWindow.GAIN));
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        filters_opt[MainWindow.GAMMA].addActionListener(e -> ptr.setFilter(MainWindow.GAMMA));
 
-                ptr.setFilter(MainWindow.INVERT_COLORS);
+        filters_opt[MainWindow.EXPOSURE].addActionListener(e -> ptr.setFilter(MainWindow.EXPOSURE));
 
-            }
-        });
+        filters_opt[MainWindow.GRAYSCALE].addActionListener(e -> ptr.setFilter(MainWindow.GRAYSCALE));
 
-        filters_opt[MainWindow.EMBOSS].addActionListener(new ActionListener() {
+        filters_opt[MainWindow.COLOR_TEMPERATURE].addActionListener(e -> ptr.setFilter(MainWindow.COLOR_TEMPERATURE));
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        filters_opt[MainWindow.COLOR_CHANNEL_SWIZZLING].addActionListener(e -> ptr.setFilter(MainWindow.COLOR_CHANNEL_SWIZZLING));
 
-                ptr.setFilter(MainWindow.EMBOSS);
+        filters_opt[MainWindow.POSTERIZE].addActionListener(e -> ptr.setFilter(MainWindow.POSTERIZE));
 
-            }
-        });
+        filters_opt[MainWindow.DITHER].addActionListener(e -> ptr.setFilter(MainWindow.DITHER));
 
-        filters_opt[MainWindow.HISTOGRAM_EQUALIZATION].addActionListener(new ActionListener() {
+        filters_opt[MainWindow.SOLARIZE].addActionListener(e -> ptr.setFilter(MainWindow.SOLARIZE));
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        filters_opt[MainWindow.COLOR_CHANNEL_ADJUSTING].addActionListener(e -> ptr.setFilter(MainWindow.COLOR_CHANNEL_ADJUSTING));
 
-                ptr.setFilter(MainWindow.HISTOGRAM_EQUALIZATION);
+        filters_opt[MainWindow.COLOR_CHANNEL_HSB_ADJUSTING].addActionListener(e -> ptr.setFilter(MainWindow.COLOR_CHANNEL_HSB_ADJUSTING));
 
-            }
-        });
+        filters_opt[MainWindow.COLOR_CHANNEL_MIXING].addActionListener(e -> ptr.setFilter(MainWindow.COLOR_CHANNEL_MIXING));
 
-        filters_opt[MainWindow.SHARPNESS].addActionListener(new ActionListener() {
+        filters_opt[MainWindow.CRYSTALLIZE].addActionListener(e -> ptr.setFilter(MainWindow.CRYSTALLIZE));
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        filters_opt[MainWindow.POINTILLIZE].addActionListener(e -> ptr.setFilter(MainWindow.POINTILLIZE));
 
-                ptr.setFilter(MainWindow.SHARPNESS);
+        filters_opt[MainWindow.OIL].addActionListener(e -> ptr.setFilter(MainWindow.OIL));
 
-            }
-        });
+        filters_opt[MainWindow.MARBLE].addActionListener(e -> ptr.setFilter(MainWindow.MARBLE));
 
-        filters_opt[MainWindow.BLURRING].addActionListener(new ActionListener() {
+        filters_opt[MainWindow.WEAVE].addActionListener(e -> ptr.setFilter(MainWindow.WEAVE));
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        filters_opt[MainWindow.SPARKLE].addActionListener(e -> ptr.setFilter(MainWindow.SPARKLE));
 
-                ptr.setFilter(MainWindow.BLURRING);
+        filters_opt[MainWindow.GLOW].addActionListener(e -> ptr.setFilter(MainWindow.GLOW));
 
-            }
-        });
+        filters_opt[MainWindow.COLOR_CHANNEL_SCALING].addActionListener(e -> ptr.setFilter(MainWindow.COLOR_CHANNEL_SCALING));
 
-        filters_opt[MainWindow.COLOR_CHANNEL_MASKING].addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setFilter(MainWindow.COLOR_CHANNEL_MASKING);
-
-            }
-        });
-
-        filters_opt[MainWindow.FADE_OUT].addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setFilter(MainWindow.FADE_OUT);
-
-            }
-        });
-
-        filters_opt[MainWindow.COLOR_CHANNEL_SWAPPING].addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setFilter(MainWindow.COLOR_CHANNEL_SWAPPING);
-
-            }
-        });
-
-        filters_opt[MainWindow.CONTRAST_BRIGHTNESS].addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setFilter(MainWindow.CONTRAST_BRIGHTNESS);
-
-            }
-        });
-
-        filters_opt[MainWindow.GAIN].addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setFilter(MainWindow.GAIN);
-
-            }
-        });
-
-        filters_opt[MainWindow.GAMMA].addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setFilter(MainWindow.GAMMA);
-
-            }
-        });
-
-        filters_opt[MainWindow.EXPOSURE].addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setFilter(MainWindow.EXPOSURE);
-
-            }
-        });
-
-        filters_opt[MainWindow.GRAYSCALE].addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setFilter(MainWindow.GRAYSCALE);
-
-            }
-        });
-
-        filters_opt[MainWindow.COLOR_TEMPERATURE].addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setFilter(MainWindow.COLOR_TEMPERATURE);
-
-            }
-        });
-
-        filters_opt[MainWindow.COLOR_CHANNEL_SWIZZLING].addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setFilter(MainWindow.COLOR_CHANNEL_SWIZZLING);
-
-            }
-        });
-
-        filters_opt[MainWindow.POSTERIZE].addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setFilter(MainWindow.POSTERIZE);
-
-            }
-        });
-
-        filters_opt[MainWindow.DITHER].addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setFilter(MainWindow.DITHER);
-
-            }
-        });
-
-        filters_opt[MainWindow.SOLARIZE].addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setFilter(MainWindow.SOLARIZE);
-
-            }
-        });
-
-        filters_opt[MainWindow.COLOR_CHANNEL_ADJUSTING].addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setFilter(MainWindow.COLOR_CHANNEL_ADJUSTING);
-
-            }
-        });
-
-        filters_opt[MainWindow.COLOR_CHANNEL_HSB_ADJUSTING].addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setFilter(MainWindow.COLOR_CHANNEL_HSB_ADJUSTING);
-
-            }
-        });
-
-        filters_opt[MainWindow.COLOR_CHANNEL_MIXING].addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setFilter(MainWindow.COLOR_CHANNEL_MIXING);
-
-            }
-        });
-
-        filters_opt[MainWindow.CRYSTALLIZE].addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setFilter(MainWindow.CRYSTALLIZE);
-
-            }
-        });
-
-        filters_opt[MainWindow.POINTILLIZE].addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setFilter(MainWindow.POINTILLIZE);
-
-            }
-        });
-
-        filters_opt[MainWindow.OIL].addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setFilter(MainWindow.OIL);
-
-            }
-        });
-
-        filters_opt[MainWindow.MARBLE].addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setFilter(MainWindow.MARBLE);
-
-            }
-        });
-
-        filters_opt[MainWindow.WEAVE].addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setFilter(MainWindow.WEAVE);
-
-            }
-        });
-
-        filters_opt[MainWindow.SPARKLE].addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setFilter(MainWindow.SPARKLE);
-
-            }
-        });
-
-        filters_opt[MainWindow.GLOW].addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setFilter(MainWindow.GLOW);
-
-            }
-        });
-
-        filters_opt[MainWindow.COLOR_CHANNEL_SCALING].addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setFilter(MainWindow.COLOR_CHANNEL_SCALING);
-
-            }
-        });
-
-        filters_opt[MainWindow.NOISE].addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setFilter(MainWindow.NOISE);
-
-            }
-        });
+        filters_opt[MainWindow.NOISE].addActionListener(e -> ptr.setFilter(MainWindow.NOISE));
         
-        filters_opt[MainWindow.MIRROR].addActionListener(new ActionListener() {
+        filters_opt[MainWindow.MIRROR].addActionListener(e -> ptr.setFilter(MainWindow.MIRROR));
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setFilter(MainWindow.MIRROR);
-
-            }
-        });
-
-        filters_opt[MainWindow.LIGHT_EFFECTS].addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setFilter(MainWindow.LIGHT_EFFECTS);
-
-            }
-        });
+        filters_opt[MainWindow.LIGHT_EFFECTS].addActionListener(e -> ptr.setFilter(MainWindow.LIGHT_EFFECTS));
 
         detail_filters_menu.add(filters_opt[MainWindow.ANTIALIASING]);
         detail_filters_menu.addSeparator();
@@ -648,12 +368,6 @@ public class FiltersMenu extends JMenu {
 
     }
 
-    private ImageIcon getIcon(String path) {
-
-        return new ImageIcon(getClass().getResource(path));
-
-    }
-
     public void setCheckedFilters(boolean[] filters) {
 
         for(int k = 0; k < filters_opt.length; k++) {
@@ -730,25 +444,25 @@ public class FiltersMenu extends JMenu {
         }
     }
 
-    public static ArrayList<String> getDetailNamesList() {
+    public static List<String> getDetailNamesList() {
 
         return detail_list;
 
     }
 
-    public static ArrayList<String> getColorNamesList() {
+    public static List<String> getColorNamesList() {
 
         return color_list;
 
     }
 
-    public static ArrayList<String> getTextureNamesList() {
+    public static List<String> getTextureNamesList() {
 
         return texture_list;
 
     }
 
-    public static ArrayList<String> getLightingNamesList() {
+    public static List<String> getLightingNamesList() {
 
         return lighting_list;
 

@@ -36,14 +36,14 @@ public class LogLogTransferFunction extends TransferFunction {
 
         if (result < 0) {
             result *= -1; // transfer to positive
-            result /= paletteLength; //scale to palette multiple        
+            result /= paletteLength; //scale to palette multiple
             result = Math.log(Math.log(result * color_intensity + 1) + 1);
-            result *= paletteLength; // rescale to palette length    
+            result *= paletteLength; // rescale to palette length
             result *= -1; // transfer to negative
         } else {
-            result /= paletteLength; //scale to palette multiple        
+            result /= paletteLength; //scale to palette multiple
             result = Math.log(Math.log(result * color_intensity + 1) + 1);
-            result *= paletteLength; // rescale to palette length     
+            result *= paletteLength; // rescale to palette length
         }
 
         return result;

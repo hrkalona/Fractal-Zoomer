@@ -18,10 +18,10 @@ package fractalzoomer.gui;
 
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.PaletteSettings;
+import fractalzoomer.main.app_settings.Settings;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 
 /**
@@ -42,6 +42,8 @@ public class OptionsMenu extends JMenu {
     private JMenuItem filters_options;
     private JMenuItem size_of_image;
     private JMenuItem iterations;
+
+    private JMenuItem jitter_opt;
     private JMenuItem increase_iterations;
     private JMenuItem decrease_iterations;
     private JMenuItem period;
@@ -70,53 +72,55 @@ public class OptionsMenu extends JMenu {
         fractal_options_menu = new FractalOptionsMenu(ptr, "Fractal Options", apply_plane_on_julia, apply_plane_on_julia_seed, function, plane_type, pre_filter, post_filter, plane_influence);
 
         iterations_menu = new JMenu("Iterations");
-        iterations_menu.setIcon(getIcon("/fractalzoomer/icons/iterations.png"));
+        iterations_menu.setIcon(MainWindow.getIcon("iterations.png"));
 
-        increase_iterations = new JMenuItem("Increase Iterations", getIcon("/fractalzoomer/icons/plus.png"));
+        increase_iterations = new JMenuItem("Increase Iterations", MainWindow.getIcon("plus.png"));
 
-        decrease_iterations = new JMenuItem("Decrease Iterations", getIcon("/fractalzoomer/icons/minus.png"));
+        decrease_iterations = new JMenuItem("Decrease Iterations", MainWindow.getIcon("minus.png"));
 
-        iterations = new JMenuItem("Set Iterations", getIcon("/fractalzoomer/icons/iterations.png"));
+        iterations = new JMenuItem("Set Iterations", MainWindow.getIcon("iterations.png"));
 
-        period  = new JMenuItem("Period", getIcon("/fractalzoomer/icons/period.png"));
+        period  = new JMenuItem("Period", MainWindow.getIcon("period.png"));
+
+        jitter_opt = new JMenuItem("Jitter", MainWindow.getIcon("jitter.png"));
 
         bailout_condition_menu = new BailoutConditionsMenu(ptr, "Bailout Condition", bailout_test_algorithm);
 
         convergent_bailout_condition_menu = new ConvergentBailoutConditionsMenu(ptr, "Convergent Bailout Condition", convergent_bailout_test_algorithm);
 
-        bailout_number = new JMenuItem("Bailout", getIcon("/fractalzoomer/icons/bailout.png"));
+        bailout_number = new JMenuItem("Bailout", MainWindow.getIcon("bailout.png"));
 
         rotation_menu = new JMenu("Rotation");
-        rotation_menu.setIcon(getIcon("/fractalzoomer/icons/rotate.png"));
+        rotation_menu.setIcon(MainWindow.getIcon("rotate.png"));
 
-        set_rotation = new JMenuItem("Set Rotation", getIcon("/fractalzoomer/icons/rotate.png"));
+        set_rotation = new JMenuItem("Set Rotation", MainWindow.getIcon("rotate.png"));
 
-        increase_rotation = new JMenuItem("Increase Rotation", getIcon("/fractalzoomer/icons/plus.png"));
+        increase_rotation = new JMenuItem("Increase Rotation", MainWindow.getIcon("plus.png"));
 
-        decrease_rotation = new JMenuItem("Decrease Rotation", getIcon("/fractalzoomer/icons/minus.png"));
+        decrease_rotation = new JMenuItem("Decrease Rotation", MainWindow.getIcon("minus.png"));
 
-        point_opt = new JMenuItem("User Point", getIcon("/fractalzoomer/icons/user_point.png"));
+        point_opt = new JMenuItem("User Point", MainWindow.getIcon("user_point.png"));
 
-        change_zooming_factor = new JMenuItem("Zooming Factor", getIcon("/fractalzoomer/icons/zooming_factor.png"));
+        change_zooming_factor = new JMenuItem("Zooming Factor", MainWindow.getIcon("zooming_factor.png"));
 
-        size_of_image = new JMenuItem("Image Size", getIcon("/fractalzoomer/icons/image_size.png"));
+        size_of_image = new JMenuItem("Image Size", MainWindow.getIcon("image_size.png"));
 
-        height_ratio_number = new JMenuItem("Stretch Factor", getIcon("/fractalzoomer/icons/stretch.png"));
+        height_ratio_number = new JMenuItem("Stretch Factor", MainWindow.getIcon("stretch.png"));
 
         optimizations_menu = new OptimizationsMenu(ptr, "Optimizations");
 
         tools_options_menu = new ToolsOptionsMenu(ptr, "Tools Options", show_orbit_converging_point);
 
-        filters_options = new JMenuItem("Filters Options", getIcon("/fractalzoomer/icons/filter_options.png"));
+        filters_options = new JMenuItem("Filters Options", MainWindow.getIcon("filter_options.png"));
 
         window_menu = new JMenu("Window");
-        window_menu.setIcon(getIcon("/fractalzoomer/icons/window.png"));
+        window_menu.setIcon(MainWindow.getIcon("window.png"));
 
         colors_menu = new ColorsMenu(ptr, "Colors", ps, ps2, smoothing, out_coloring_algorithm, in_coloring_algorithm, color_blending, temp_color_cycling_location, temp_color_cycling_location2);
 
-        overview_opt = new JMenuItem("Options Overview", getIcon("/fractalzoomer/icons/overview.png"));
+        overview_opt = new JMenuItem("Options Overview", MainWindow.getIcon("overview.png"));
 
-        stats_opt = new JMenuItem("Statistics", getIcon("/fractalzoomer/icons/stats.png"));
+        stats_opt = new JMenuItem("Statistics", MainWindow.getIcon("stats.png"));
 
         toolbar_opt = new JCheckBoxMenuItem("Tool Bar");
         statusbar_opt = new JCheckBoxMenuItem("Status Bar");
@@ -142,6 +146,7 @@ public class OptionsMenu extends JMenu {
         statusbar_opt.setToolTipText("Activates the status bar.");
         infobar_opt.setToolTipText("Activates the information bar.");
         fullscreen_opt.setToolTipText("Toggles the application from window mode to full screen.");
+        jitter_opt.setToolTipText("Adds jitter to each pixel.");
 
         size_of_image.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, ActionEvent.CTRL_MASK));
         iterations.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, 0));
@@ -161,188 +166,47 @@ public class OptionsMenu extends JMenu {
         infobar_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, ActionEvent.ALT_MASK));
         fullscreen_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F11, 0));
         stats_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F12, 0));
+        jitter_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_J, ActionEvent.CTRL_MASK | ActionEvent.SHIFT_MASK));
 
         overview_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.SHIFT_MASK));
 
-        size_of_image.addActionListener(new ActionListener() {
+        size_of_image.addActionListener(e -> ptr.setSizeOfImage());
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        iterations.addActionListener(e -> ptr.setIterations());
 
-                ptr.setSizeOfImage();
+        period.addActionListener(e -> ptr.setPeriod());
 
-            }
-        });
+        increase_iterations.addActionListener(e -> ptr.increaseIterations());
 
-        iterations.addActionListener(new ActionListener() {
+        decrease_iterations.addActionListener(e -> ptr.decreaseIterations());
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        bailout_number.addActionListener(e -> ptr.setBailout());
 
-                ptr.setIterations();
+        set_rotation.addActionListener(e -> ptr.setRotation());
 
-            }
-        });
+        increase_rotation.addActionListener(e -> ptr.increaseRotation());
 
-        period.addActionListener(new ActionListener() {
+        decrease_rotation.addActionListener(e -> ptr.decreaseRotation());
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        point_opt.addActionListener(e -> ptr.setPoint());
 
-                ptr.setPeriod();
+        change_zooming_factor.addActionListener(e -> ptr.setZoomingFactor());
 
-            }
-        });
+        height_ratio_number.addActionListener(e -> ptr.setHeightRatio());
 
-        increase_iterations.addActionListener(new ActionListener() {
+        overview_opt.addActionListener(e -> ptr.Overview());
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        stats_opt.addActionListener(e -> ptr.Stats());
 
-                ptr.increaseIterations();
+        toolbar_opt.addActionListener(e -> ptr.setToolbar());
 
-            }
-        });
+        statusbar_opt.addActionListener(e -> ptr.setStatubar());
 
-        decrease_iterations.addActionListener(new ActionListener() {
+        infobar_opt.addActionListener(e -> ptr.setInfobar());
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        fullscreen_opt.addActionListener(e -> ptr.setFullScreen());
 
-                ptr.decreaseIterations();
-
-            }
-        });
-
-        bailout_number.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setBailout();
-
-            }
-        });
-
-        set_rotation.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setRotation();
-
-            }
-        });
-
-        increase_rotation.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.increaseRotation();
-
-            }
-        });
-
-        decrease_rotation.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.decreaseRotation();
-
-            }
-        });
-
-        point_opt.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setPoint();
-
-            }
-        });
-
-        change_zooming_factor.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setZoomingFactor();
-
-            }
-        });
-
-        height_ratio_number.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setHeightRatio();
-
-            }
-        });
-
-        overview_opt.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.Overview();
-
-            }
-        });
-
-        stats_opt.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.Stats();
-
-            }
-        });
-
-        toolbar_opt.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setToolbar();
-
-            }
-        });
-
-        statusbar_opt.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setStatubar();
-
-            }
-        });
-
-        infobar_opt.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setInfobar();
-
-            }
-        });
-
-        fullscreen_opt.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setFullScreen();
-
-            }
-        });
+        jitter_opt.addActionListener(e -> ptr.setJitter());
 
         window_menu.add(toolbar_opt);
         window_menu.add(infobar_opt);
@@ -354,13 +218,7 @@ public class OptionsMenu extends JMenu {
         statusbar_opt.setSelected(true);
         fullscreen_opt.setSelected(false);
 
-        filters_options.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                ptr.filtersOptions();
-            }
-        });
+        filters_options.addActionListener(e -> ptr.filtersOptions());
 
         iterations_menu.add(iterations);
         iterations_menu.add(increase_iterations);
@@ -388,6 +246,8 @@ public class OptionsMenu extends JMenu {
         addSeparator();
         add(height_ratio_number);
         addSeparator();
+        add(jitter_opt);
+        addSeparator();
         add(period);
         addSeparator();
         add(change_zooming_factor);
@@ -405,12 +265,6 @@ public class OptionsMenu extends JMenu {
         add(window_menu);
     }
 
-    private ImageIcon getIcon(String path) {
-
-        return new ImageIcon(getClass().getResource(path));
-
-    }
-
     public JCheckBoxMenuItem getPeriodicityChecking() {
 
         return optimizations_menu.getPeriodicityChecking();
@@ -421,6 +275,10 @@ public class OptionsMenu extends JMenu {
 
         return optimizations_menu.getGreedyAlgorithm();
 
+    }
+
+    public JMenuItem getJitter() {
+        return jitter_opt;
     }
 
     public JRadioButtonMenuItem[] getOutColoringPalette() {
@@ -886,6 +744,17 @@ public class OptionsMenu extends JMenu {
     public JCheckBoxMenuItem getAutoRepaintImage() {
 
         return optimizations_menu.getAutoRepaintImage();
+
+    }
+
+    public void updateIcons(Settings s) {
+
+        if(s.js.enableJitter) {
+            jitter_opt.setIcon(MainWindow.getIcon("jitter_enabled.png"));
+        }
+        else {
+            jitter_opt.setIcon(MainWindow.getIcon("jitter.png"));
+        }
 
     }
 

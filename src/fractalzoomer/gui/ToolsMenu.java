@@ -20,7 +20,6 @@ import fractalzoomer.main.MainWindow;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 
 /**
@@ -49,18 +48,18 @@ public class ToolsMenu extends JMenu {
 
         this.ptr = ptr2;
         
-        orbit_opt = new JCheckBoxMenuItem("Orbit", getIcon("/fractalzoomer/icons/orbit.png"));
-        julia_opt = new JCheckBoxMenuItem("Julia", getIcon("/fractalzoomer/icons/julia.png"));
-        color_cycling_opt = new JCheckBoxMenuItem("Color Cycling", getIcon("/fractalzoomer/icons/color_cycling.png"));
-        d3_opt = new JMenuItem("3D", getIcon("/fractalzoomer/icons/3d.png"));
-        julia_map_opt = new JMenuItem("Julia Map", getIcon("/fractalzoomer/icons/julia_map.png"));
-        juliter_opt = new JMenuItem("Juliter", getIcon("/fractalzoomer/icons/juliter.png"));
-        domain_coloring_opt = new JMenuItem("Domain Coloring", getIcon("/fractalzoomer/icons/domain_coloring.png"));
-        polar_projection_opt = new JMenuItem("Polar Projection", getIcon("/fractalzoomer/icons/polar_projection.png"));
-        grid_opt = new JCheckBoxMenuItem("Show Grid", getIcon("/fractalzoomer/icons/grid.png"));
-        zoom_window_opt = new JCheckBoxMenuItem("Show Zoom Window", getIcon("/fractalzoomer/icons/zoom_window.png"));
-        boundaries_opt = new JCheckBoxMenuItem("Show Boundaries", getIcon("/fractalzoomer/icons/boundaries.png"));
-        plane_visualization_opt = new JMenuItem("Plane Visualization", getIcon("/fractalzoomer/icons/plane_visualization.png"));
+        orbit_opt = new JCheckBoxMenuItem("Orbit", MainWindow.getIcon("orbit.png"));
+        julia_opt = new JCheckBoxMenuItem("Julia", MainWindow.getIcon("julia.png"));
+        color_cycling_opt = new JCheckBoxMenuItem("Color Cycling", MainWindow.getIcon("color_cycling.png"));
+        d3_opt = new JMenuItem("3D", MainWindow.getIcon("3d.png"));
+        julia_map_opt = new JMenuItem("Julia Map", MainWindow.getIcon("julia_map.png"));
+        juliter_opt = new JMenuItem("Juliter", MainWindow.getIcon("juliter.png"));
+        domain_coloring_opt = new JMenuItem("Domain Coloring", MainWindow.getIcon("domain_coloring.png"));
+        polar_projection_opt = new JMenuItem("Polar Projection", MainWindow.getIcon("polar_projection.png"));
+        grid_opt = new JCheckBoxMenuItem("Show Grid", MainWindow.getIcon("grid.png"));
+        zoom_window_opt = new JCheckBoxMenuItem("Show Zoom Window", MainWindow.getIcon("zoom_window.png"));
+        boundaries_opt = new JCheckBoxMenuItem("Show Boundaries", MainWindow.getIcon("boundaries.png"));
+        plane_visualization_opt = new JMenuItem("Plane Visualization", MainWindow.getIcon("plane_visualization.png"));
         
         orbit_opt.setToolTipText("Displays the orbit of a complex number.");
         julia_opt.setToolTipText("Generates an image based on a seed (chosen pixel).");
@@ -88,125 +87,29 @@ public class ToolsMenu extends JMenu {
         zoom_window_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, ActionEvent.SHIFT_MASK));
         boundaries_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, ActionEvent.SHIFT_MASK));
         
-        orbit_opt.addActionListener(new ActionListener() {
+        orbit_opt.addActionListener(e -> ptr.setOrbitOption());
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        julia_opt.addActionListener(e -> ptr.setJuliaOption());
 
-                ptr.setOrbitOption();
+        color_cycling_opt.addActionListener(e -> ptr.setColorCycling());
 
-            }
-        });
+        plane_visualization_opt.addActionListener(e -> ptr.setPlaneVizualization());
 
-        julia_opt.addActionListener(new ActionListener() {
+        grid_opt.addActionListener(e -> ptr.setGrid());
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        zoom_window_opt.addActionListener(e -> ptr.setZoomWindow());
 
-                ptr.setJuliaOption();
+        boundaries_opt.addActionListener(e -> ptr.setBoundaries());
 
-            }
-        });
+        julia_map_opt.addActionListener(e -> ptr.setJuliaMap());
 
-        color_cycling_opt.addActionListener(new ActionListener() {
+        juliter_opt.addActionListener(e -> ptr.setJuliter());
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        domain_coloring_opt.addActionListener(e -> ptr.setDomainColoring());
 
-                ptr.setColorCycling();
+        d3_opt.addActionListener(e -> ptr.set3DOption());
 
-            }
-        });
-
-        plane_visualization_opt.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setPlaneVizualization();
-
-            }
-        });
-
-        grid_opt.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setGrid();
-
-            }
-        });
-
-        zoom_window_opt.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setZoomWindow();
-
-            }
-        });
-
-        boundaries_opt.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setBoundaries();
-
-            }
-        });
-
-        julia_map_opt.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setJuliaMap();
-
-            }
-        });
-
-        juliter_opt.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setJuliter();
-
-            }
-        });
-
-        domain_coloring_opt.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setDomainColoring();
-
-            }
-        });
-
-        d3_opt.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.set3DOption();
-
-            }
-        });
-
-        polar_projection_opt.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setPolarProjection();
-
-            }
-        });
+        polar_projection_opt.addActionListener(e -> ptr.setPolarProjection());
         
         add(orbit_opt);
         addSeparator();
@@ -232,12 +135,6 @@ public class ToolsMenu extends JMenu {
         addSeparator();
         add(boundaries_opt);
         
-    }
-    
-    private ImageIcon getIcon(String path) {
-
-        return new ImageIcon(getClass().getResource(path));
-
     }
     
     public JCheckBoxMenuItem getOrbit() {

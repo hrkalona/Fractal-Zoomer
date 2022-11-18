@@ -17,10 +17,8 @@
 
 package fractalzoomer.bailout_conditions;
 
-import fractalzoomer.core.BigComplex;
-import fractalzoomer.core.BigNum;
-import fractalzoomer.core.BigNumComplex;
-import fractalzoomer.core.Complex;
+import fractalzoomer.core.*;
+import fractalzoomer.core.mpfr.MpfrBigNum;
 import org.apfloat.Apfloat;
 import org.apfloat.ApfloatMath;
 
@@ -63,6 +61,28 @@ public class SquareBailoutCondition extends BailoutCondition {
         BigNum max = absRe.compare(absIm) == 1 ? absRe : absIm;
 
         return max.compare(bnbound) >= 0;
+
+    }
+
+    @Override
+    public boolean escaped(MpfrBigNumComplex z, MpfrBigNumComplex zold, MpfrBigNumComplex zold2, int iterations, MpfrBigNumComplex c, MpfrBigNumComplex start, MpfrBigNumComplex c0, MpfrBigNum norm_squared, MpfrBigNumComplex pixel) {
+        MpfrBigNum absRe = z.getAbsRe();
+        MpfrBigNum absIm = z.getAbsIm();
+
+        MpfrBigNum max = absRe.compare(absIm) == 1 ? absRe : absIm;
+
+        return max.compare(bound) >= 0;
+    }
+
+    @Override
+    public boolean escaped(DDComplex z, DDComplex zold, DDComplex zold2, int iterations, DDComplex c, DDComplex start, DDComplex c0, DoubleDouble norm_squared, DDComplex pixel) {
+
+        DoubleDouble absRe = z.getAbsRe();
+        DoubleDouble absIm = z.getAbsIm();
+
+        DoubleDouble max = absRe.compareTo(absIm) == 1 ? absRe : absIm;
+
+        return max.compareTo(ddcbound) >= 0;
 
     }
     

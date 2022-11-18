@@ -19,8 +19,6 @@ package fractalzoomer.gui;
 import fractalzoomer.main.MainWindow;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 /**
  *
@@ -37,7 +35,7 @@ public class ColorBlendingMenu extends JMenu {
     private JMenu cancelation;
     private JMenu component;
     
-    public static String[] colorBlendingNames;
+    public static final String[] colorBlendingNames;
     
     static {
         colorBlendingNames = new String[MainWindow.TOTAL_COLOR_BLENDING]; 
@@ -79,7 +77,7 @@ public class ColorBlendingMenu extends JMenu {
 
         this.ptr = ptr2;
         
-        setIcon(getIcon("/fractalzoomer/icons/blending.png"));
+        setIcon(MainWindow.getIcon("blending.png"));
         
         darken = new JMenu("Darken");
         lighten = new JMenu("Lighten");
@@ -93,393 +91,153 @@ public class ColorBlendingMenu extends JMenu {
         
         color_blending[MainWindow.NORMAL_BLENDING] = new JRadioButtonMenuItem(colorBlendingNames[MainWindow.NORMAL_BLENDING]);
         color_blending[MainWindow.NORMAL_BLENDING].setToolTipText("Sets the color blending to normal.");
-        color_blending[MainWindow.NORMAL_BLENDING].addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setColorBlending(MainWindow.NORMAL_BLENDING);
-
-            }
-        });
+        color_blending[MainWindow.NORMAL_BLENDING].addActionListener(e -> ptr.setColorBlending(MainWindow.NORMAL_BLENDING));
         add(color_blending[MainWindow.NORMAL_BLENDING]);
         color_transfer_group.add(color_blending[MainWindow.NORMAL_BLENDING]);
         
         color_blending[MainWindow.LIGHTEN_ONLY_BLENDING] = new JRadioButtonMenuItem(colorBlendingNames[MainWindow.LIGHTEN_ONLY_BLENDING]);
         color_blending[MainWindow.LIGHTEN_ONLY_BLENDING].setToolTipText("Sets the color blending to lighten only.");
-        color_blending[MainWindow.LIGHTEN_ONLY_BLENDING].addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setColorBlending(MainWindow.LIGHTEN_ONLY_BLENDING);
-
-            }
-        });
+        color_blending[MainWindow.LIGHTEN_ONLY_BLENDING].addActionListener(e -> ptr.setColorBlending(MainWindow.LIGHTEN_ONLY_BLENDING));
         color_transfer_group.add(color_blending[MainWindow.LIGHTEN_ONLY_BLENDING]);
         
         color_blending[MainWindow.SCREEN_BLENDING] = new JRadioButtonMenuItem(colorBlendingNames[MainWindow.SCREEN_BLENDING]);
         color_blending[MainWindow.SCREEN_BLENDING].setToolTipText("Sets the color blending to screen.");
-        color_blending[MainWindow.SCREEN_BLENDING].addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setColorBlending(MainWindow.SCREEN_BLENDING);
-
-            }
-        });
+        color_blending[MainWindow.SCREEN_BLENDING].addActionListener(e -> ptr.setColorBlending(MainWindow.SCREEN_BLENDING));
         color_transfer_group.add(color_blending[MainWindow.SCREEN_BLENDING]);
         
         color_blending[MainWindow.DODGE_BLENDING] = new JRadioButtonMenuItem(colorBlendingNames[MainWindow.DODGE_BLENDING]);
         color_blending[MainWindow.DODGE_BLENDING].setToolTipText("Sets the color blending to dodge.");
-        color_blending[MainWindow.DODGE_BLENDING].addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setColorBlending(MainWindow.DODGE_BLENDING);
-
-            }
-        });
+        color_blending[MainWindow.DODGE_BLENDING].addActionListener(e -> ptr.setColorBlending(MainWindow.DODGE_BLENDING));
         color_transfer_group.add(color_blending[MainWindow.DODGE_BLENDING]);
         
         color_blending[MainWindow.ADDITION_BLENDING] = new JRadioButtonMenuItem(colorBlendingNames[MainWindow.ADDITION_BLENDING]);
         color_blending[MainWindow.ADDITION_BLENDING].setToolTipText("Sets the color blending to addition.");
-        color_blending[MainWindow.ADDITION_BLENDING].addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setColorBlending(MainWindow.ADDITION_BLENDING);
-
-            }
-        });
+        color_blending[MainWindow.ADDITION_BLENDING].addActionListener(e -> ptr.setColorBlending(MainWindow.ADDITION_BLENDING));
         color_transfer_group.add(color_blending[MainWindow.ADDITION_BLENDING]);
         
         color_blending[MainWindow.DARKEN_ONLY_BLENDING] = new JRadioButtonMenuItem(colorBlendingNames[MainWindow.DARKEN_ONLY_BLENDING]);
         color_blending[MainWindow.DARKEN_ONLY_BLENDING].setToolTipText("Sets the color blending to darken only.");
-        color_blending[MainWindow.DARKEN_ONLY_BLENDING].addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setColorBlending(MainWindow.DARKEN_ONLY_BLENDING);
-
-            }
-        });
+        color_blending[MainWindow.DARKEN_ONLY_BLENDING].addActionListener(e -> ptr.setColorBlending(MainWindow.DARKEN_ONLY_BLENDING));
         color_transfer_group.add(color_blending[MainWindow.DARKEN_ONLY_BLENDING]);
         
         color_blending[MainWindow.MULTIPLY_BLENDING] = new JRadioButtonMenuItem(colorBlendingNames[MainWindow.MULTIPLY_BLENDING]);
         color_blending[MainWindow.MULTIPLY_BLENDING].setToolTipText("Sets the color blending to multiply.");
-        color_blending[MainWindow.MULTIPLY_BLENDING].addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setColorBlending(MainWindow.MULTIPLY_BLENDING);
-
-            }
-        });
+        color_blending[MainWindow.MULTIPLY_BLENDING].addActionListener(e -> ptr.setColorBlending(MainWindow.MULTIPLY_BLENDING));
         color_transfer_group.add(color_blending[MainWindow.MULTIPLY_BLENDING]);
         
         color_blending[MainWindow.BURN_BLENDING] = new JRadioButtonMenuItem(colorBlendingNames[MainWindow.BURN_BLENDING]);
         color_blending[MainWindow.BURN_BLENDING].setToolTipText("Sets the color blending to burn.");
-        color_blending[MainWindow.BURN_BLENDING].addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setColorBlending(MainWindow.BURN_BLENDING);
-
-            }
-        });
+        color_blending[MainWindow.BURN_BLENDING].addActionListener(e -> ptr.setColorBlending(MainWindow.BURN_BLENDING));
         color_transfer_group.add(color_blending[MainWindow.BURN_BLENDING]);
         
         color_blending[MainWindow.LINEAR_BURN_BLENDING] = new JRadioButtonMenuItem(colorBlendingNames[MainWindow.LINEAR_BURN_BLENDING]);
         color_blending[MainWindow.LINEAR_BURN_BLENDING].setToolTipText("Sets the color blending to linear burn.");
-        color_blending[MainWindow.LINEAR_BURN_BLENDING].addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setColorBlending(MainWindow.LINEAR_BURN_BLENDING);
-
-            }
-        });
+        color_blending[MainWindow.LINEAR_BURN_BLENDING].addActionListener(e -> ptr.setColorBlending(MainWindow.LINEAR_BURN_BLENDING));
         color_transfer_group.add(color_blending[MainWindow.LINEAR_BURN_BLENDING]);
         
         color_blending[MainWindow.OVERLAY_BLENDING] = new JRadioButtonMenuItem(colorBlendingNames[MainWindow.OVERLAY_BLENDING]);
         color_blending[MainWindow.OVERLAY_BLENDING].setToolTipText("Sets the color blending to overlay.");
-        color_blending[MainWindow.OVERLAY_BLENDING].addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setColorBlending(MainWindow.OVERLAY_BLENDING);
-
-            }
-        });
+        color_blending[MainWindow.OVERLAY_BLENDING].addActionListener(e -> ptr.setColorBlending(MainWindow.OVERLAY_BLENDING));
         color_transfer_group.add(color_blending[MainWindow.OVERLAY_BLENDING]);
         
         color_blending[MainWindow.SOFT_LIGHT_BLENDING] = new JRadioButtonMenuItem(colorBlendingNames[MainWindow.SOFT_LIGHT_BLENDING]);
         color_blending[MainWindow.SOFT_LIGHT_BLENDING].setToolTipText("Sets the color blending to soft light.");
-        color_blending[MainWindow.SOFT_LIGHT_BLENDING].addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setColorBlending(MainWindow.SOFT_LIGHT_BLENDING);
-
-            }
-        });
+        color_blending[MainWindow.SOFT_LIGHT_BLENDING].addActionListener(e -> ptr.setColorBlending(MainWindow.SOFT_LIGHT_BLENDING));
         color_transfer_group.add(color_blending[MainWindow.SOFT_LIGHT_BLENDING]);
         
         color_blending[MainWindow.HARD_LIGHT_BLENDING] = new JRadioButtonMenuItem(colorBlendingNames[MainWindow.HARD_LIGHT_BLENDING]);
         color_blending[MainWindow.HARD_LIGHT_BLENDING].setToolTipText("Sets the color blending to hard light.");
-        color_blending[MainWindow.HARD_LIGHT_BLENDING].addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setColorBlending(MainWindow.HARD_LIGHT_BLENDING);
-
-            }
-        });
+        color_blending[MainWindow.HARD_LIGHT_BLENDING].addActionListener(e -> ptr.setColorBlending(MainWindow.HARD_LIGHT_BLENDING));
         color_transfer_group.add(color_blending[MainWindow.HARD_LIGHT_BLENDING]);
         
         color_blending[MainWindow.VIVID_LIGHT_BLENDING] = new JRadioButtonMenuItem(colorBlendingNames[MainWindow.VIVID_LIGHT_BLENDING]);
         color_blending[MainWindow.VIVID_LIGHT_BLENDING].setToolTipText("Sets the color blending to vivid light.");
-        color_blending[MainWindow.VIVID_LIGHT_BLENDING].addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setColorBlending(MainWindow.VIVID_LIGHT_BLENDING);
-
-            }
-        });
+        color_blending[MainWindow.VIVID_LIGHT_BLENDING].addActionListener(e -> ptr.setColorBlending(MainWindow.VIVID_LIGHT_BLENDING));
         color_transfer_group.add(color_blending[MainWindow.VIVID_LIGHT_BLENDING]);
         
         color_blending[MainWindow.PIN_LIGHT_BLENDING] = new JRadioButtonMenuItem(colorBlendingNames[MainWindow.PIN_LIGHT_BLENDING]);
         color_blending[MainWindow.PIN_LIGHT_BLENDING].setToolTipText("Sets the color blending to pin light.");
-        color_blending[MainWindow.PIN_LIGHT_BLENDING].addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setColorBlending(MainWindow.PIN_LIGHT_BLENDING);
-
-            }
-        });
+        color_blending[MainWindow.PIN_LIGHT_BLENDING].addActionListener(e -> ptr.setColorBlending(MainWindow.PIN_LIGHT_BLENDING));
         color_transfer_group.add(color_blending[MainWindow.PIN_LIGHT_BLENDING]);
         
         color_blending[MainWindow.LINEAR_LIGHT_BLENDING] = new JRadioButtonMenuItem(colorBlendingNames[MainWindow.LINEAR_LIGHT_BLENDING]);
         color_blending[MainWindow.LINEAR_LIGHT_BLENDING].setToolTipText("Sets the color blending to linear light.");
-        color_blending[MainWindow.LINEAR_LIGHT_BLENDING].addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setColorBlending(MainWindow.LINEAR_LIGHT_BLENDING);
-
-            }
-        });
+        color_blending[MainWindow.LINEAR_LIGHT_BLENDING].addActionListener(e -> ptr.setColorBlending(MainWindow.LINEAR_LIGHT_BLENDING));
         color_transfer_group.add(color_blending[MainWindow.LINEAR_LIGHT_BLENDING]);
         
         color_blending[MainWindow.DIFFERENCE_BLENDING] = new JRadioButtonMenuItem(colorBlendingNames[MainWindow.DIFFERENCE_BLENDING]);
         color_blending[MainWindow.DIFFERENCE_BLENDING].setToolTipText("Sets the color blending to difference.");
-        color_blending[MainWindow.DIFFERENCE_BLENDING].addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setColorBlending(MainWindow.DIFFERENCE_BLENDING);
-
-            }
-        });
+        color_blending[MainWindow.DIFFERENCE_BLENDING].addActionListener(e -> ptr.setColorBlending(MainWindow.DIFFERENCE_BLENDING));
         color_transfer_group.add(color_blending[MainWindow.DIFFERENCE_BLENDING]);
         
         color_blending[MainWindow.EXCLUSION_BLENDING] = new JRadioButtonMenuItem(colorBlendingNames[MainWindow.EXCLUSION_BLENDING]);
         color_blending[MainWindow.EXCLUSION_BLENDING].setToolTipText("Sets the color blending to exclusion.");
-        color_blending[MainWindow.EXCLUSION_BLENDING].addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setColorBlending(MainWindow.EXCLUSION_BLENDING);
-
-            }
-        });
+        color_blending[MainWindow.EXCLUSION_BLENDING].addActionListener(e -> ptr.setColorBlending(MainWindow.EXCLUSION_BLENDING));
         color_transfer_group.add(color_blending[MainWindow.EXCLUSION_BLENDING]);
         
         color_blending[MainWindow.SUBTRACTION_BLENDING] = new JRadioButtonMenuItem(colorBlendingNames[MainWindow.SUBTRACTION_BLENDING]);
         color_blending[MainWindow.SUBTRACTION_BLENDING].setToolTipText("Sets the color blending to subtraction.");
-        color_blending[MainWindow.SUBTRACTION_BLENDING].addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setColorBlending(MainWindow.SUBTRACTION_BLENDING);
-
-            }
-        });
+        color_blending[MainWindow.SUBTRACTION_BLENDING].addActionListener(e -> ptr.setColorBlending(MainWindow.SUBTRACTION_BLENDING));
         color_transfer_group.add(color_blending[MainWindow.SUBTRACTION_BLENDING]);
         
         color_blending[MainWindow.GRAIN_EXTRACT_BLENDING] = new JRadioButtonMenuItem(colorBlendingNames[MainWindow.GRAIN_EXTRACT_BLENDING]);
         color_blending[MainWindow.GRAIN_EXTRACT_BLENDING].setToolTipText("Sets the color blending to grain extract.");
-        color_blending[MainWindow.GRAIN_EXTRACT_BLENDING].addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setColorBlending(MainWindow.GRAIN_EXTRACT_BLENDING);
-
-            }
-        });
+        color_blending[MainWindow.GRAIN_EXTRACT_BLENDING].addActionListener(e -> ptr.setColorBlending(MainWindow.GRAIN_EXTRACT_BLENDING));
         color_transfer_group.add(color_blending[MainWindow.GRAIN_EXTRACT_BLENDING]);
         
         color_blending[MainWindow.GRAIN_MERGE_BLENDING] = new JRadioButtonMenuItem(colorBlendingNames[MainWindow.GRAIN_MERGE_BLENDING]);
         color_blending[MainWindow.GRAIN_MERGE_BLENDING].setToolTipText("Sets the color blending to grain merge.");
-        color_blending[MainWindow.GRAIN_MERGE_BLENDING].addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setColorBlending(MainWindow.GRAIN_MERGE_BLENDING);
-
-            }
-        });
+        color_blending[MainWindow.GRAIN_MERGE_BLENDING].addActionListener(e -> ptr.setColorBlending(MainWindow.GRAIN_MERGE_BLENDING));
         color_transfer_group.add(color_blending[MainWindow.GRAIN_MERGE_BLENDING]);
         
         color_blending[MainWindow.DIVIDE_BLENDING] = new JRadioButtonMenuItem(colorBlendingNames[MainWindow.DIVIDE_BLENDING]);
         color_blending[MainWindow.DIVIDE_BLENDING].setToolTipText("Sets the color blending to divide.");
-        color_blending[MainWindow.DIVIDE_BLENDING].addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setColorBlending(MainWindow.DIVIDE_BLENDING);
-
-            }
-        });
+        color_blending[MainWindow.DIVIDE_BLENDING].addActionListener(e -> ptr.setColorBlending(MainWindow.DIVIDE_BLENDING));
         color_transfer_group.add(color_blending[MainWindow.DIVIDE_BLENDING]);
         
         color_blending[MainWindow.HUE_BLENDING] = new JRadioButtonMenuItem(colorBlendingNames[MainWindow.HUE_BLENDING]);
         color_blending[MainWindow.HUE_BLENDING].setToolTipText("Sets the color blending to hue (hsv).");
-        color_blending[MainWindow.HUE_BLENDING].addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setColorBlending(MainWindow.HUE_BLENDING);
-
-            }
-        });
+        color_blending[MainWindow.HUE_BLENDING].addActionListener(e -> ptr.setColorBlending(MainWindow.HUE_BLENDING));
         color_transfer_group.add(color_blending[MainWindow.HUE_BLENDING]);
         
         color_blending[MainWindow.SATURATION_BLENDING] = new JRadioButtonMenuItem(colorBlendingNames[MainWindow.SATURATION_BLENDING]);
         color_blending[MainWindow.SATURATION_BLENDING].setToolTipText("Sets the color blending to saturation (hsv).");
-        color_blending[MainWindow.SATURATION_BLENDING].addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setColorBlending(MainWindow.SATURATION_BLENDING);
-
-            }
-        });
+        color_blending[MainWindow.SATURATION_BLENDING].addActionListener(e -> ptr.setColorBlending(MainWindow.SATURATION_BLENDING));
         color_transfer_group.add(color_blending[MainWindow.SATURATION_BLENDING]);
         
         color_blending[MainWindow.COLOR_BLENDING] = new JRadioButtonMenuItem(colorBlendingNames[MainWindow.COLOR_BLENDING]);
         color_blending[MainWindow.COLOR_BLENDING].setToolTipText("Sets the color blending to color (hsv).");
-        color_blending[MainWindow.COLOR_BLENDING].addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setColorBlending(MainWindow.COLOR_BLENDING);
-
-            }
-        });
+        color_blending[MainWindow.COLOR_BLENDING].addActionListener(e -> ptr.setColorBlending(MainWindow.COLOR_BLENDING));
         color_transfer_group.add(color_blending[MainWindow.COLOR_BLENDING]);
 
         color_blending[MainWindow.VALUE_BLENDING] = new JRadioButtonMenuItem(colorBlendingNames[MainWindow.VALUE_BLENDING]);
         color_blending[MainWindow.VALUE_BLENDING].setToolTipText("Sets the color blending to value (hsv).");
-        color_blending[MainWindow.VALUE_BLENDING].addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setColorBlending(MainWindow.VALUE_BLENDING);
-
-            }
-        });
+        color_blending[MainWindow.VALUE_BLENDING].addActionListener(e -> ptr.setColorBlending(MainWindow.VALUE_BLENDING));
         color_transfer_group.add(color_blending[MainWindow.VALUE_BLENDING]);
         
         color_blending[MainWindow.LCH_HUE_BLENDING] = new JRadioButtonMenuItem(colorBlendingNames[MainWindow.LCH_HUE_BLENDING]);
         color_blending[MainWindow.LCH_HUE_BLENDING].setToolTipText("Sets the color blending to hue (lab).");
-        color_blending[MainWindow.LCH_HUE_BLENDING].addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setColorBlending(MainWindow.LCH_HUE_BLENDING);
-
-            }
-        });
+        color_blending[MainWindow.LCH_HUE_BLENDING].addActionListener(e -> ptr.setColorBlending(MainWindow.LCH_HUE_BLENDING));
         color_transfer_group.add(color_blending[MainWindow.LCH_HUE_BLENDING]);
         
         color_blending[MainWindow.LCH_CHROMA_BLENDING] = new JRadioButtonMenuItem(colorBlendingNames[MainWindow.LCH_CHROMA_BLENDING]);
         color_blending[MainWindow.LCH_CHROMA_BLENDING].setToolTipText("Sets the color blending to chroma (lab).");
-        color_blending[MainWindow.LCH_CHROMA_BLENDING].addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setColorBlending(MainWindow.LCH_CHROMA_BLENDING);
-
-            }
-        });
+        color_blending[MainWindow.LCH_CHROMA_BLENDING].addActionListener(e -> ptr.setColorBlending(MainWindow.LCH_CHROMA_BLENDING));
         color_transfer_group.add(color_blending[MainWindow.LCH_CHROMA_BLENDING]);
         
         color_blending[MainWindow.LCH_COLOR_BLENDING] = new JRadioButtonMenuItem(colorBlendingNames[MainWindow.LCH_COLOR_BLENDING]);
         color_blending[MainWindow.LCH_COLOR_BLENDING].setToolTipText("Sets the color blending to color (lab).");
-        color_blending[MainWindow.LCH_COLOR_BLENDING].addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setColorBlending(MainWindow.LCH_COLOR_BLENDING);
-
-            }
-        });
+        color_blending[MainWindow.LCH_COLOR_BLENDING].addActionListener(e -> ptr.setColorBlending(MainWindow.LCH_COLOR_BLENDING));
         color_transfer_group.add(color_blending[MainWindow.LCH_COLOR_BLENDING]);
         
         color_blending[MainWindow.LCH_LIGHTNESS_BLENDING] = new JRadioButtonMenuItem(colorBlendingNames[MainWindow.LCH_LIGHTNESS_BLENDING]);
         color_blending[MainWindow.LCH_LIGHTNESS_BLENDING].setToolTipText("Sets the color blending to lightness (lab).");
-        color_blending[MainWindow.LCH_LIGHTNESS_BLENDING].addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setColorBlending(MainWindow.LCH_LIGHTNESS_BLENDING);
-
-            }
-        });
+        color_blending[MainWindow.LCH_LIGHTNESS_BLENDING].addActionListener(e -> ptr.setColorBlending(MainWindow.LCH_LIGHTNESS_BLENDING));
         color_transfer_group.add(color_blending[MainWindow.LCH_LIGHTNESS_BLENDING]);
         
         color_blending[MainWindow.LUMINANCE_BLENDING] = new JRadioButtonMenuItem(colorBlendingNames[MainWindow.LUMINANCE_BLENDING]);
         color_blending[MainWindow.LUMINANCE_BLENDING].setToolTipText("Sets the color blending to luminance.");
-        color_blending[MainWindow.LUMINANCE_BLENDING].addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setColorBlending(MainWindow.LUMINANCE_BLENDING);
-
-            }
-        });
+        color_blending[MainWindow.LUMINANCE_BLENDING].addActionListener(e -> ptr.setColorBlending(MainWindow.LUMINANCE_BLENDING));
         color_transfer_group.add(color_blending[MainWindow.LUMINANCE_BLENDING]);
         
         darken.add(color_blending[MainWindow.DARKEN_ONLY_BLENDING]);
@@ -525,12 +283,6 @@ public class ColorBlendingMenu extends JMenu {
         add(component);
         
         color_blending[selection].setSelected(true);
-    }
-    
-    private ImageIcon getIcon(String path) {
-
-        return new ImageIcon(getClass().getResource(path));
-
     }
     
     public JRadioButtonMenuItem[] getBlendingModes() {

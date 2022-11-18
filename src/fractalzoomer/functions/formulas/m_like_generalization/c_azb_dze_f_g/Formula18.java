@@ -17,7 +17,6 @@
 package fractalzoomer.functions.formulas.m_like_generalization.c_azb_dze_f_g;
 
 import fractalzoomer.core.Complex;
-import fractalzoomer.fractal_options.initial_value.DefaultInitialValue;
 import fractalzoomer.fractal_options.initial_value.InitialValue;
 import fractalzoomer.fractal_options.initial_value.VariableConditionalInitialValue;
 import fractalzoomer.fractal_options.initial_value.VariableInitialValue;

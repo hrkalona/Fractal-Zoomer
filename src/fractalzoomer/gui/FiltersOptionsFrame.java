@@ -71,7 +71,7 @@ public class FiltersOptionsFrame extends JFrame {
         int filters_options_window_width = 1240;
         int filters_options_window_height = 690;
         setTitle("Filters Options");
-        setIconImage(getIcon("/fractalzoomer/icons/filter_options.png").getImage());
+        setIconImage(MainWindow.getIcon("filter_options.png").getImage());
         setSize(filters_options_window_width, filters_options_window_height);
         setLocation((int)(ptra2.getLocation().getX() + ptra2.getSize().getWidth() / 2) - (filters_options_window_width / 2), (int)(ptra2.getLocation().getY() + ptra2.getSize().getHeight() / 2) - (filters_options_window_height / 2));
 
@@ -113,17 +113,17 @@ public class FiltersOptionsFrame extends JFrame {
         tabbedPane.setBackground(MainWindow.bg_color);     
 
         tabbedPane.addTab("Active Filters", panel_filters);
-        tabbedPane.setIconAt(0, getIcon("/fractalzoomer/icons/list2.png"));
+        tabbedPane.setIconAt(0, MainWindow.getIcon("list2.png"));
         tabbedPane.addTab("Order", order_panel);
-        tabbedPane.setIconAt(1, getIcon("/fractalzoomer/icons/list.png"));
+        tabbedPane.setIconAt(1, MainWindow.getIcon("list.png"));
         tabbedPane.addTab("Details", panel_details);
-        tabbedPane.setIconAt(2, getIcon("/fractalzoomer/icons/filter_details.png"));
+        tabbedPane.setIconAt(2, MainWindow.getIcon("filter_details.png"));
         tabbedPane.addTab("Colors", panel_colors);
-        tabbedPane.setIconAt(3, getIcon("/fractalzoomer/icons/filter_colors.png"));
+        tabbedPane.setIconAt(3, MainWindow.getIcon("filter_colors.png"));
         tabbedPane.addTab("Texture", panel_texture);
-        tabbedPane.setIconAt(4, getIcon("/fractalzoomer/icons/filter_texture.png"));
+        tabbedPane.setIconAt(4, MainWindow.getIcon("filter_texture.png"));
         tabbedPane.addTab("Lighting", panel_lighting);
-        tabbedPane.setIconAt(5, getIcon("/fractalzoomer/icons/filter_lighting.png"));     
+        tabbedPane.setIconAt(5, MainWindow.getIcon("filter_lighting.png"));
         
         
         tabbedPane.setSelectedIndex(tab_index);
@@ -140,21 +140,21 @@ public class FiltersOptionsFrame extends JFrame {
         ((JPanel)components_filters[MainWindow.ANTIALIASING]).setBackground(MainWindow.bg_color);
         ((JPanel)components_filters[MainWindow.ANTIALIASING]).setLayout(new GridLayout(5, 1));
 
-        JComboBox aaSamples = new JComboBox(antialiasing_str);
+        JComboBox<String> aaSamples = new JComboBox<>(antialiasing_str);
         aaSamples.setSelectedIndex((filters_options_vals[MainWindow.ANTIALIASING] % 100) % 10);
         aaSamples.setFocusable(false);
         aaSamples.setToolTipText("Sets the sampled pixels number for the anti-aliasing.");
 
         String[] antialiasing_method_str = {"Mean", "Median", "Mid-Point", "Closest to Mean", "Closest To Mid-Point", "Adaptive Mean(Min 5)"};
 
-        JComboBox aaMethod = new JComboBox(antialiasing_method_str);
+        JComboBox<String> aaMethod = new JComboBox<>(antialiasing_method_str);
         aaMethod.setSelectedIndex((filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10);
         aaMethod.setFocusable(false);
         aaMethod.setToolTipText("Sets the anti-aliasing method.");
 
         /*String[] antialiasing_cpsace_str = {"RGB", "Lab"};
 
-        JComboBox aaSpace = new JComboBox(antialiasing_cpsace_str);
+        JComboBox aaSpace = new JComboBox<>(antialiasing_cpsace_str);
         aaSpace.setSelectedIndex((filters_options_vals[MainWindow.ANTIALIASING] / 100));
         aaSpace.setFocusable(false);
         aaSpace.setToolTipText("Sets the anti-aliasing color space.");*/
@@ -167,12 +167,7 @@ public class FiltersOptionsFrame extends JFrame {
 
         aaAvgWithMean.setEnabled(aaMethod.getSelectedIndex() != 0 && aaMethod.getSelectedIndex() != 5);
 
-        aaMethod.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                aaAvgWithMean.setEnabled(aaMethod.getSelectedIndex() != 0 && aaMethod.getSelectedIndex() != 5);
-            }
-        });
+        aaMethod.addActionListener(e -> aaAvgWithMean.setEnabled(aaMethod.getSelectedIndex() != 0 && aaMethod.getSelectedIndex() != 5));
 
 
         JPanel samplesLabel = new JPanel();
@@ -225,7 +220,7 @@ public class FiltersOptionsFrame extends JFrame {
        
         String[] edge_detection_str = {"Thin Edges", "Thick Edges"};
 
-        final JComboBox edge_alg = new JComboBox(edge_detection_str);
+        final JComboBox<String> edge_alg = new JComboBox<>(edge_detection_str);
         edge_alg.setSelectedIndex((int)(filters_options_vals[MainWindow.EDGE_DETECTION] % 100.0));
         edge_alg.setFocusable(false);
         edge_alg.setToolTipText("Sets the thickness of the edge.");
@@ -241,7 +236,7 @@ public class FiltersOptionsFrame extends JFrame {
         edge_sensitivity_slid.setToolTipText("Sets the edge detection sensitivity.");
         edge_sensitivity_slid.setPaintLabels(true);
 
-        Hashtable<Integer, JLabel> table3 = new Hashtable<Integer, JLabel>();
+        Hashtable<Integer, JLabel> table3 = new Hashtable<>();
         table3.put(0, new JLabel("0"));
         table3.put(5, new JLabel("5"));
         table3.put(10, new JLabel("10"));
@@ -315,12 +310,12 @@ public class FiltersOptionsFrame extends JFrame {
        
         String[] horizontal_str = {"Sobel", "Roberts", "Prewitt", "Frei-Chen"};
 
-        final JComboBox horizontal_edge_alg = new JComboBox(horizontal_str);
+        final JComboBox<String> horizontal_edge_alg = new JComboBox<>(horizontal_str);
         horizontal_edge_alg.setSelectedIndex((int)(filters_options_vals[MainWindow.EDGE_DETECTION2] / 10.0));
         horizontal_edge_alg.setFocusable(false);
         horizontal_edge_alg.setToolTipText("Sets the horizontal edge algorithm.");
         
-        final JComboBox vertical_edge_alg = new JComboBox(horizontal_str);
+        final JComboBox<String> vertical_edge_alg = new JComboBox<>(horizontal_str);
         vertical_edge_alg.setSelectedIndex((int)(filters_options_vals[MainWindow.EDGE_DETECTION2] % 10.0));
         vertical_edge_alg.setFocusable(false);
         vertical_edge_alg.setToolTipText("Sets the vertical edge algorithm.");
@@ -346,7 +341,7 @@ public class FiltersOptionsFrame extends JFrame {
         panels[MainWindow.SHARPNESS].setBackground(MainWindow.bg_color);
         String[] sharpness_str = {"Low", "High"};
 
-        components_filters[MainWindow.SHARPNESS] = new JComboBox(sharpness_str);
+        components_filters[MainWindow.SHARPNESS] = new JComboBox<>(sharpness_str);
         ((JComboBox)components_filters[MainWindow.SHARPNESS]).setSelectedIndex(filters_options_vals[MainWindow.SHARPNESS]);
         ((JComboBox)components_filters[MainWindow.SHARPNESS]).setFocusable(false);
         ((JComboBox)components_filters[MainWindow.SHARPNESS]).setToolTipText("Sets the intensity of the sharpness.");
@@ -363,7 +358,7 @@ public class FiltersOptionsFrame extends JFrame {
         
         String[] emboss_str = {"Grayscale", "Colored", "Emboss Edges 1", "Emboss Edges 2"};
 
-        final JComboBox emboss_algorithm = new JComboBox(emboss_str);
+        final JComboBox<String> emboss_algorithm = new JComboBox<>(emboss_str);
         emboss_algorithm.setSelectedIndex((int)(((int)(((int)(filters_options_vals[MainWindow.EMBOSS] % 100000.0)) % 1000.0)) % 10.0));
         emboss_algorithm.setFocusable(false);
         emboss_algorithm.setToolTipText("Sets the color format of the emboss.");
@@ -375,7 +370,7 @@ public class FiltersOptionsFrame extends JFrame {
         emboss_angle_slid.setToolTipText("Sets the emboss's light direction.");
         emboss_angle_slid.setPaintLabels(true);
 
-        table3 = new Hashtable<Integer, JLabel>();
+        table3 = new Hashtable<>();
         table3.put(0, new JLabel("0"));
         table3.put(20, new JLabel("90"));
         table3.put(40, new JLabel("180"));
@@ -390,7 +385,7 @@ public class FiltersOptionsFrame extends JFrame {
         emboss_elevation_slid.setToolTipText("Sets the emboss's light elevation.");
         emboss_elevation_slid.setPaintLabels(true);
 
-        table3 = new Hashtable<Integer, JLabel>();
+        table3 = new Hashtable<>();
         table3.put(0, new JLabel("0"));
         table3.put(40, new JLabel("45"));
         table3.put(80, new JLabel("90"));
@@ -403,7 +398,7 @@ public class FiltersOptionsFrame extends JFrame {
         emboss_bumpheight_slid.setToolTipText("Sets the emboss's bump height.");
         emboss_bumpheight_slid.setPaintLabels(true);
 
-        table3 = new Hashtable<Integer, JLabel>();
+        table3 = new Hashtable<>();
         table3.put(0, new JLabel("0"));
         table3.put(20, new JLabel("25"));
         table3.put(40, new JLabel("50"));
@@ -422,22 +417,18 @@ public class FiltersOptionsFrame extends JFrame {
             emboss_elevation_slid.setEnabled(false);
         }
         
-         emboss_algorithm.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-               if(emboss_algorithm.getSelectedIndex() == 0 || emboss_algorithm.getSelectedIndex() == 1) {
-                    emboss_bumpheight_slid.setEnabled(true);
-                    emboss_angle_slid.setEnabled(true);
-                    emboss_elevation_slid.setEnabled(true);
-                }
-                else {
-                    emboss_bumpheight_slid.setEnabled(false);
-                    emboss_angle_slid.setEnabled(false);
-                    emboss_elevation_slid.setEnabled(false);
-                }
-            }
-            
-        });
+         emboss_algorithm.addActionListener(e -> {
+            if(emboss_algorithm.getSelectedIndex() == 0 || emboss_algorithm.getSelectedIndex() == 1) {
+                 emboss_bumpheight_slid.setEnabled(true);
+                 emboss_angle_slid.setEnabled(true);
+                 emboss_elevation_slid.setEnabled(true);
+             }
+             else {
+                 emboss_bumpheight_slid.setEnabled(false);
+                 emboss_angle_slid.setEnabled(false);
+                 emboss_elevation_slid.setEnabled(false);
+             }
+         });
          
         JPanel emboss_panel1 = new JPanel();
         emboss_panel1.setBackground(MainWindow.bg_color);
@@ -465,7 +456,7 @@ public class FiltersOptionsFrame extends JFrame {
         panels[MainWindow.HISTOGRAM_EQUALIZATION].setBackground(MainWindow.bg_color);
         String[] histogram_str = {"Brightness", "GIMP levels", "Red", "Green", "Blue", "Hue", "Saturation", "Lightness (Lab)"};
 
-        components_filters[MainWindow.HISTOGRAM_EQUALIZATION] = new JComboBox(histogram_str);
+        components_filters[MainWindow.HISTOGRAM_EQUALIZATION] = new JComboBox<>(histogram_str);
         ((JComboBox)components_filters[MainWindow.HISTOGRAM_EQUALIZATION]).setSelectedIndex(filters_options_vals[MainWindow.HISTOGRAM_EQUALIZATION]);
         ((JComboBox)components_filters[MainWindow.HISTOGRAM_EQUALIZATION]).setFocusable(false);
         ((JComboBox)components_filters[MainWindow.HISTOGRAM_EQUALIZATION]).setToolTipText("Sets the histogram algorithm.");
@@ -487,7 +478,7 @@ public class FiltersOptionsFrame extends JFrame {
         
         posterize_slid.setPaintLabels(true);
 
-        table3 = new Hashtable<Integer, JLabel>();
+        table3 = new Hashtable<>();
         table3.put(1, new JLabel("1"));
         table3.put(64, new JLabel("64"));
         table3.put(128, new JLabel("128"));
@@ -524,7 +515,7 @@ public class FiltersOptionsFrame extends JFrame {
         
         contrast_slid.setPaintLabels(true);
 
-        table3 = new Hashtable<Integer, JLabel>();
+        table3 = new Hashtable<>();
         table3.put(0, new JLabel("0.0"));
         table3.put(25, new JLabel("0.5"));
         table3.put(50, new JLabel("1.0"));
@@ -546,7 +537,7 @@ public class FiltersOptionsFrame extends JFrame {
         
         brightness_slid.setPaintLabels(true);
 
-        table3 = new Hashtable<Integer, JLabel>();
+        table3 = new Hashtable<>();
         table3.put(0, new JLabel("0.0"));
         table3.put(25, new JLabel("0.5"));
         table3.put(50, new JLabel("1.0"));
@@ -571,7 +562,7 @@ public class FiltersOptionsFrame extends JFrame {
         
         ((JSlider)components_filters[MainWindow.COLOR_TEMPERATURE]).setPaintLabels(true);
 
-        table3 = new Hashtable<Integer, JLabel>();
+        table3 = new Hashtable<>();
         table3.put(1000, new JLabel("1000"));
         table3.put(10000, new JLabel("10000"));
         table3.put(20000, new JLabel("20000"));
@@ -586,7 +577,7 @@ public class FiltersOptionsFrame extends JFrame {
         panels[MainWindow.INVERT_COLORS].setBackground(MainWindow.bg_color);
         String[] color_invert_str = {"Colors", "Brightness", "Hue", "Saturation", "Red", "Green", "Blue"};
 
-        components_filters[MainWindow.INVERT_COLORS] = new JComboBox(color_invert_str);
+        components_filters[MainWindow.INVERT_COLORS] = new JComboBox<>(color_invert_str);
         ((JComboBox)components_filters[MainWindow.INVERT_COLORS]).setSelectedIndex(filters_options_vals[MainWindow.INVERT_COLORS]);
         ((JComboBox)components_filters[MainWindow.INVERT_COLORS]).setFocusable(false);
         ((JComboBox)components_filters[MainWindow.INVERT_COLORS]).setToolTipText("Sets the color inverting algorithm.");
@@ -597,7 +588,7 @@ public class FiltersOptionsFrame extends JFrame {
         panels[MainWindow.COLOR_CHANNEL_MASKING].setBackground(MainWindow.bg_color);
         String[] mask_color_channel_str = {"Red", "Green", "Blue"};
 
-        components_filters[MainWindow.COLOR_CHANNEL_MASKING] = new JComboBox(mask_color_channel_str);
+        components_filters[MainWindow.COLOR_CHANNEL_MASKING] = new JComboBox<>(mask_color_channel_str);
         ((JComboBox)components_filters[MainWindow.COLOR_CHANNEL_MASKING]).setSelectedIndex(filters_options_vals[MainWindow.COLOR_CHANNEL_MASKING]);
         ((JComboBox)components_filters[MainWindow.COLOR_CHANNEL_MASKING]).setFocusable(false);
         ((JComboBox)components_filters[MainWindow.COLOR_CHANNEL_MASKING]).setToolTipText("Sets the color channel that will be removed.");
@@ -608,7 +599,7 @@ public class FiltersOptionsFrame extends JFrame {
         panels[MainWindow.COLOR_CHANNEL_SWAPPING].setBackground(MainWindow.bg_color);
         String[] color_channel_swapping_str = {"RBG", "GRB", "GBR", "BGR", "BRG"};
 
-        components_filters[MainWindow.COLOR_CHANNEL_SWAPPING] = new JComboBox(color_channel_swapping_str);
+        components_filters[MainWindow.COLOR_CHANNEL_SWAPPING] = new JComboBox<>(color_channel_swapping_str);
         ((JComboBox)components_filters[MainWindow.COLOR_CHANNEL_SWAPPING]).setSelectedIndex(filters_options_vals[MainWindow.COLOR_CHANNEL_SWAPPING]);
         ((JComboBox)components_filters[MainWindow.COLOR_CHANNEL_SWAPPING]).setFocusable(false);
         ((JComboBox)components_filters[MainWindow.COLOR_CHANNEL_SWAPPING]).setToolTipText("Sets the color swapping format.");
@@ -697,7 +688,7 @@ public class FiltersOptionsFrame extends JFrame {
         panels[MainWindow.GRAYSCALE].setBackground(MainWindow.bg_color);
         String[] grayscale_str = {"Luminance NTSC", "Luminance HDTV", "Average", "Lightness", "Lightness Lab"};
 
-        components_filters[MainWindow.GRAYSCALE] = new JComboBox(grayscale_str);
+        components_filters[MainWindow.GRAYSCALE] = new JComboBox<>(grayscale_str);
         ((JComboBox)components_filters[MainWindow.GRAYSCALE]).setSelectedIndex(filters_options_vals[MainWindow.GRAYSCALE]);
         ((JComboBox)components_filters[MainWindow.GRAYSCALE]).setFocusable(false);
         ((JComboBox)components_filters[MainWindow.GRAYSCALE]).setToolTipText("Sets the grayscale format.");
@@ -725,7 +716,7 @@ public class FiltersOptionsFrame extends JFrame {
         
         slid1.setPaintLabels(true);
         
-        table3 = new Hashtable<Integer, JLabel>();
+        table3 = new Hashtable<>();
         table3.put(0, new JLabel("-1.0"));
         table3.put(50, new JLabel(" 0.0"));
         table3.put(100, new JLabel(" 1.0"));
@@ -746,7 +737,7 @@ public class FiltersOptionsFrame extends JFrame {
         
         slid2.setPaintLabels(true);
         
-        table3 = new Hashtable<Integer, JLabel>();
+        table3 = new Hashtable<>();
         table3.put(0, new JLabel("-1.0"));
         table3.put(50, new JLabel(" 0.0"));
         table3.put(100, new JLabel(" 1.0"));
@@ -767,7 +758,7 @@ public class FiltersOptionsFrame extends JFrame {
         
         slid3.setPaintLabels(true);
         
-        table3 = new Hashtable<Integer, JLabel>();
+        table3 = new Hashtable<>();
         table3.put(0, new JLabel("-1.0"));
         table3.put(50, new JLabel(" 0.0"));
         table3.put(100, new JLabel(" 1.0"));
@@ -797,7 +788,7 @@ public class FiltersOptionsFrame extends JFrame {
         
         slid4.setPaintLabels(true);
         
-        table3 = new Hashtable<Integer, JLabel>();
+        table3 = new Hashtable<>();
         table3.put(0, new JLabel("-1.0"));
         table3.put(50, new JLabel(" 0.0"));
         table3.put(100, new JLabel(" 1.0"));
@@ -817,7 +808,7 @@ public class FiltersOptionsFrame extends JFrame {
         
         slid5.setPaintLabels(true);
         
-        table3 = new Hashtable<Integer, JLabel>();
+        table3 = new Hashtable<>();
         table3.put(0, new JLabel("-1.0"));
         table3.put(50, new JLabel(" 0.0"));
         table3.put(100, new JLabel(" 1.0"));
@@ -837,7 +828,7 @@ public class FiltersOptionsFrame extends JFrame {
         
         slid6.setPaintLabels(true);
         
-        table3 = new Hashtable<Integer, JLabel>();
+        table3 = new Hashtable<>();
         table3.put(0, new JLabel("-1.0"));
         table3.put(50, new JLabel(" 0.0"));
         table3.put(100, new JLabel(" 1.0"));
@@ -859,7 +850,7 @@ public class FiltersOptionsFrame extends JFrame {
 
         String[] dither_str = {"2x2 Ordered", "4x4 Ordered", "6x6 Ordered", "8x8 Ordered", "4x4 Magic Square", "Cluster 3", "Cluster 4", "Cluster 8", "4x4 Horizontal Lines", "6x6 90 Degree Halftone"};
 
-        final JComboBox dither_alg = new JComboBox(dither_str);
+        final JComboBox<String> dither_alg = new JComboBox<>(dither_str);
         dither_alg.setSelectedIndex((int)((int)(((int)(filters_options_vals[MainWindow.DITHER] % 100000.0)) % 10000.0) / 1000.0));
         dither_alg.setFocusable(false);
         dither_alg.setToolTipText("Sets the dithering algorithm.");
@@ -878,7 +869,7 @@ public class FiltersOptionsFrame extends JFrame {
         
         dither_slid.setPaintLabels(true);
 
-        table3 = new Hashtable<Integer, JLabel>();
+        table3 = new Hashtable<>();
         table3.put(1, new JLabel("1"));
         table3.put(8, new JLabel("8"));
         table3.put(16, new JLabel("16"));
@@ -906,19 +897,15 @@ public class FiltersOptionsFrame extends JFrame {
             serpentine_box.setSelected(true);
         }
         
-        diffusion_dither_box.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if(diffusion_dither_box.isSelected()) {
-                    dither_alg.setEnabled(false);
-                    serpentine_box.setEnabled(true);
-                }
-                else {
-                    serpentine_box.setEnabled(false);
-                    dither_alg.setEnabled(true);
-                }
+        diffusion_dither_box.addActionListener(e -> {
+            if(diffusion_dither_box.isSelected()) {
+                dither_alg.setEnabled(false);
+                serpentine_box.setEnabled(true);
             }
-            
+            else {
+                serpentine_box.setEnabled(false);
+                dither_alg.setEnabled(true);
+            }
         });
         
         if(diffusion_dither_box.isSelected()) {
@@ -968,7 +955,7 @@ public class FiltersOptionsFrame extends JFrame {
         
         gain_slid.setPaintLabels(true);
 
-        table3 = new Hashtable<Integer, JLabel>();
+        table3 = new Hashtable<>();
         table3.put(0, new JLabel("0"));
         table3.put(25, new JLabel("25"));
         table3.put(50, new JLabel("50"));
@@ -990,7 +977,7 @@ public class FiltersOptionsFrame extends JFrame {
         
         bias_slid.setPaintLabels(true);
 
-        table3 = new Hashtable<Integer, JLabel>();
+        table3 = new Hashtable<>();
         table3.put(0, new JLabel("0"));
         table3.put(25, new JLabel("25"));
         table3.put(50, new JLabel("50"));
@@ -1014,7 +1001,7 @@ public class FiltersOptionsFrame extends JFrame {
 
         ((JSlider)components_filters[MainWindow.GAMMA]).setPaintLabels(true);
 
-        table3 = new Hashtable<Integer, JLabel>();
+        table3 = new Hashtable<>();
         table3.put(0, new JLabel("0.0"));
         table3.put(33, new JLabel("1.0"));
         table3.put(66, new JLabel("2.0"));
@@ -1036,7 +1023,7 @@ public class FiltersOptionsFrame extends JFrame {
 
         ((JSlider)components_filters[MainWindow.EXPOSURE]).setPaintLabels(true);
 
-        table3 = new Hashtable<Integer, JLabel>();
+        table3 = new Hashtable<>();
         table3.put(0, new JLabel("0.0"));
         table3.put(20, new JLabel("1.0"));
         table3.put(40, new JLabel("2.0"));
@@ -1058,7 +1045,7 @@ public class FiltersOptionsFrame extends JFrame {
 
         String[] blurring_str = {"Default", "Gaussian, Radius 3", "Gaussian, Radius 5", "Gaussian, Radius 7", "Gaussian, Radius 9", "Gaussian, Radius 11", "Maximum", "Median", "Minimum", "High Pass"};
 
-        final JComboBox blurring_radius = new JComboBox(blurring_str);
+        final JComboBox<String> blurring_radius = new JComboBox<>(blurring_str);
         blurring_radius.setSelectedIndex((int)(filters_options_vals[MainWindow.BLURRING] / 1000.0));
         blurring_radius.setFocusable(false);
         blurring_radius.setToolTipText("Sets the blurring method.");
@@ -1086,7 +1073,7 @@ public class FiltersOptionsFrame extends JFrame {
         blurring_slid.setToolTipText("Sets the blurring weight.");
         blurring_slid.setPaintLabels(true);
 
-        table3 = new Hashtable<Integer, JLabel>();
+        table3 = new Hashtable<>();
         table3.put(1, new JLabel("1"));
         table3.put(25, new JLabel("25"));
         table3.put(50, new JLabel("50"));
@@ -1094,25 +1081,9 @@ public class FiltersOptionsFrame extends JFrame {
         table3.put(100, new JLabel("100"));
         blurring_slid.setLabelTable(table3);
 
-        blurring_radius.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if(blurring_radius.getSelectedIndex() > 0 && blurring_radius.getSelectedIndex() < 6 || blurring_radius.getSelectedIndex() == 9) {
-                    blurring_slid.setEnabled(true);
-                }
-                else {
-                    blurring_slid.setEnabled(false);
-                }
-            }
+        blurring_radius.addActionListener(e -> blurring_slid.setEnabled(blurring_radius.getSelectedIndex() > 0 && blurring_radius.getSelectedIndex() < 6 || blurring_radius.getSelectedIndex() == 9));
 
-        });
-
-        if(blurring_radius.getSelectedIndex() > 0 && blurring_radius.getSelectedIndex() < 6 || blurring_radius.getSelectedIndex() == 9) {
-            blurring_slid.setEnabled(true);
-        }
-        else {
-            blurring_slid.setEnabled(false);
-        }
+        blurring_slid.setEnabled(blurring_radius.getSelectedIndex() > 0 && blurring_radius.getSelectedIndex() < 6 || blurring_radius.getSelectedIndex() == 9);
 
         ((JPanel)components_filters[MainWindow.BLURRING]).add(blurring_slid);
 
@@ -1137,7 +1108,7 @@ public class FiltersOptionsFrame extends JFrame {
         size_slid.setToolTipText("Sets the crystal's size.");
         size_slid.setPaintLabels(true);
 
-        table3 = new Hashtable<Integer, JLabel>();
+        table3 = new Hashtable<>();
         table3.put(1, new JLabel("1.0"));
         table3.put(40, new JLabel("50.0"));
         table3.put(80, new JLabel("100.0"));
@@ -1150,7 +1121,7 @@ public class FiltersOptionsFrame extends JFrame {
         random_slid.setToolTipText("Sets the crystal's randomness.");
         random_slid.setPaintLabels(true);
 
-        table3 = new Hashtable<Integer, JLabel>();
+        table3 = new Hashtable<>();
         table3.put(0, new JLabel("0"));
         table3.put(40, new JLabel("50"));
         table3.put(80, new JLabel("100"));
@@ -1163,7 +1134,7 @@ public class FiltersOptionsFrame extends JFrame {
         edge_size_slid.setToolTipText("Sets the crystal's edge size.");
         edge_size_slid.setPaintLabels(true);
 
-        table3 = new Hashtable<Integer, JLabel>();
+        table3 = new Hashtable<>();
         table3.put(1, new JLabel("1"));
         table3.put(40, new JLabel("50"));
         table3.put(80, new JLabel("100"));
@@ -1171,7 +1142,7 @@ public class FiltersOptionsFrame extends JFrame {
         
         String[] shape_str = {"Random", "Squares", "Hexagons", "Octagons & Squares", "Triangles"};
 
-        final JComboBox shape_box = new JComboBox(shape_str);
+        final JComboBox<String> shape_box = new JComboBox<>(shape_str);
         shape_box.setSelectedIndex((int)(((int)(filters_options_vals[MainWindow.CRYSTALLIZE] % 10000000.0)) / 1000000.0));
         shape_box.setFocusable(false);
         shape_box.setToolTipText("Sets the crystal's shape.");
@@ -1227,19 +1198,9 @@ public class FiltersOptionsFrame extends JFrame {
         fade_edges.setBackground(MainWindow.bg_color);
         fade_edges.setToolTipText("Fades the edges.");
         
-        fade_edges.addActionListener(new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                original_color_crys.setEnabled(!fade_edges.isSelected());
-            }           
-        });
+        fade_edges.addActionListener(e -> original_color_crys.setEnabled(!fade_edges.isSelected()));
         
-        original_color_crys.addActionListener(new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                fade_edges.setEnabled(!original_color_crys.isSelected());
-            }           
-        });
+        original_color_crys.addActionListener(e -> fade_edges.setEnabled(!original_color_crys.isSelected()));
         
         if((int)(filters_options_vals[MainWindow.CRYSTALLIZE] / 10000000.0) == 1) {
             fade_edges.setSelected(true);
@@ -1289,7 +1250,7 @@ public class FiltersOptionsFrame extends JFrame {
         grid_point_size_slid.setToolTipText("Sets the grid's size.");
         grid_point_size_slid.setPaintLabels(true);
 
-        table3 = new Hashtable<Integer, JLabel>();
+        table3 = new Hashtable<>();
         table3.put(1, new JLabel("1.0"));
         table3.put(40, new JLabel("50.0"));
         table3.put(80, new JLabel("100.0"));
@@ -1302,7 +1263,7 @@ public class FiltersOptionsFrame extends JFrame {
         point_randomness_slid.setToolTipText("Sets the point's randomness.");
         point_randomness_slid.setPaintLabels(true);
 
-        table3 = new Hashtable<Integer, JLabel>();
+        table3 = new Hashtable<>();
         table3.put(0, new JLabel("0"));
         table3.put(40, new JLabel("50"));
         table3.put(80, new JLabel("100"));
@@ -1315,7 +1276,7 @@ public class FiltersOptionsFrame extends JFrame {
         point_fuzziness_slid.setToolTipText("Sets the point's fuzziness.");
         point_fuzziness_slid.setPaintLabels(true);
 
-        table3 = new Hashtable<Integer, JLabel>();
+        table3 = new Hashtable<>();
         table3.put(0, new JLabel("0"));
         table3.put(40, new JLabel("50"));
         table3.put(80, new JLabel("100"));
@@ -1328,7 +1289,7 @@ public class FiltersOptionsFrame extends JFrame {
         point_size_slid.setToolTipText("Sets the point's size.");
         point_size_slid.setPaintLabels(true);
 
-        table3 = new Hashtable<Integer, JLabel>();
+        table3 = new Hashtable<>();
         table3.put(0, new JLabel("0"));
         table3.put(40, new JLabel("50"));
         table3.put(80, new JLabel("100"));
@@ -1336,7 +1297,7 @@ public class FiltersOptionsFrame extends JFrame {
  
         String[] shape_str2 = {"Random", "Squares", "Hexagons", "Octagons & Squares", "Triangles"};
 
-        final JComboBox shape_box2 = new JComboBox(shape_str2);
+        final JComboBox<String> shape_box2 = new JComboBox<>(shape_str2);
         shape_box2.setSelectedIndex((int)(((int)(filters_options_vals[MainWindow.POINTILLIZE] % 1000000000.0)) / 100000000.0));
         shape_box2.setFocusable(false);
         shape_box2.setToolTipText("Sets the point's shape.");
@@ -1356,19 +1317,9 @@ public class FiltersOptionsFrame extends JFrame {
         original_color_point.setBackground(MainWindow.bg_color);
         original_color_point.setToolTipText("Uses the original color pixel color.");
         
-        fill.addActionListener(new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                original_color_point.setEnabled(!fill.isSelected());
-            }           
-        });
+        fill.addActionListener(e -> original_color_point.setEnabled(!fill.isSelected()));
         
-        original_color_point.addActionListener(new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                fill.setEnabled(!original_color_point.isSelected());
-            }           
-        });
+        original_color_point.addActionListener(e -> fill.setEnabled(!original_color_point.isSelected()));
         
         if((int)(filters_options_vals[MainWindow.POINTILLIZE] / 1000000000.0) == 1) {
             fill.setSelected(true);
@@ -1459,7 +1410,7 @@ public class FiltersOptionsFrame extends JFrame {
         oil_range_slid.setToolTipText("Sets the oil's range.");
         oil_range_slid.setPaintLabels(true);
 
-        table3 = new Hashtable<Integer, JLabel>();
+        table3 = new Hashtable<>();
         table3.put(1, new JLabel("1"));
         table3.put(2, new JLabel("2"));
         table3.put(3, new JLabel("3"));
@@ -1474,7 +1425,7 @@ public class FiltersOptionsFrame extends JFrame {
         oil_levels_slid.setToolTipText("Sets the oil's levels.");
         oil_levels_slid.setPaintLabels(true);
 
-        table3 = new Hashtable<Integer, JLabel>();
+        table3 = new Hashtable<>();
         table3.put(1, new JLabel("1"));
         table3.put(64, new JLabel("64"));
         table3.put(128, new JLabel("128"));
@@ -1514,7 +1465,7 @@ public class FiltersOptionsFrame extends JFrame {
         marble_scale_slid.setToolTipText("Sets the marble's scale.");
         marble_scale_slid.setPaintLabels(true);
 
-        table3 = new Hashtable<Integer, JLabel>();
+        table3 = new Hashtable<>();
         table3.put(1, new JLabel("1.0"));
         table3.put(40, new JLabel("150.0"));
         table3.put(80, new JLabel("300.0"));
@@ -1527,7 +1478,7 @@ public class FiltersOptionsFrame extends JFrame {
         marble_angle_slid.setToolTipText("Sets the marble's angle.");
         marble_angle_slid.setPaintLabels(true);
 
-        table3 = new Hashtable<Integer, JLabel>();
+        table3 = new Hashtable<>();
         table3.put(0, new JLabel("0"));
         table3.put(20, new JLabel("90"));
         table3.put(40, new JLabel("180"));
@@ -1542,7 +1493,7 @@ public class FiltersOptionsFrame extends JFrame {
         marble_stretch_slid.setToolTipText("Sets the marble's stretch.");
         marble_stretch_slid.setPaintLabels(true);
 
-        table3 = new Hashtable<Integer, JLabel>();
+        table3 = new Hashtable<>();
         table3.put(1, new JLabel("1.0"));
         table3.put(40, new JLabel("25.0"));
         table3.put(80, new JLabel("50.0"));
@@ -1555,7 +1506,7 @@ public class FiltersOptionsFrame extends JFrame {
         marble_turbulence_slid.setToolTipText("Sets the marble's turbulence.");
         marble_turbulence_slid.setPaintLabels(true);
 
-        table3 = new Hashtable<Integer, JLabel>();
+        table3 = new Hashtable<>();
         table3.put(0, new JLabel("0.0"));
         table3.put(4, new JLabel("4.0"));
         table3.put(8, new JLabel("8.0"));
@@ -1568,7 +1519,7 @@ public class FiltersOptionsFrame extends JFrame {
         marble_turbulence_factor_slid.setToolTipText("Sets the marble's turbulence factor.");
         marble_turbulence_factor_slid.setPaintLabels(true);
 
-        table3 = new Hashtable<Integer, JLabel>();
+        table3 = new Hashtable<>();
         table3.put(0, new JLabel("0"));
         table3.put(40, new JLabel("50"));
         table3.put(80, new JLabel("100"));
@@ -1615,7 +1566,7 @@ public class FiltersOptionsFrame extends JFrame {
         weave_x_width.setToolTipText("Sets the weave's x width.");
         weave_x_width.setPaintLabels(true);
 
-        table3 = new Hashtable<Integer, JLabel>();
+        table3 = new Hashtable<>();
         table3.put(1, new JLabel("1"));
         table3.put(40, new JLabel("128"));
         table3.put(80, new JLabel("256"));
@@ -1628,7 +1579,7 @@ public class FiltersOptionsFrame extends JFrame {
         weave_y_width.setToolTipText("Sets the weave's y width.");
         weave_y_width.setPaintLabels(true);
 
-        table3 = new Hashtable<Integer, JLabel>();
+        table3 = new Hashtable<>();
         table3.put(1, new JLabel("1"));
         table3.put(40, new JLabel("128"));
         table3.put(80, new JLabel("256"));
@@ -1641,7 +1592,7 @@ public class FiltersOptionsFrame extends JFrame {
         weave_x_gap.setToolTipText("Sets the weave's x gap.");
         weave_x_gap.setPaintLabels(true);
 
-        table3 = new Hashtable<Integer, JLabel>();
+        table3 = new Hashtable<>();
         table3.put(1, new JLabel("1"));
         table3.put(40, new JLabel("128"));
         table3.put(80, new JLabel("256"));
@@ -1654,7 +1605,7 @@ public class FiltersOptionsFrame extends JFrame {
         weave_y_gap.setToolTipText("Sets the weave's y gap.");
         weave_y_gap.setPaintLabels(true);
 
-        table3 = new Hashtable<Integer, JLabel>();
+        table3 = new Hashtable<>();
         table3.put(1, new JLabel("1"));
         table3.put(40, new JLabel("128"));
         table3.put(80, new JLabel("256"));
@@ -1771,7 +1722,7 @@ public class FiltersOptionsFrame extends JFrame {
         sparkle_rays_slid.setToolTipText("Sets the sparkle's rays.");
         sparkle_rays_slid.setPaintLabels(true);
 
-        table3 = new Hashtable<Integer, JLabel>();
+        table3 = new Hashtable<>();
         table3.put(0, new JLabel("0"));
         table3.put(40, new JLabel("150"));
         table3.put(80, new JLabel("300"));
@@ -1784,7 +1735,7 @@ public class FiltersOptionsFrame extends JFrame {
         sparkle_radius_slid.setToolTipText("Sets the sparkle's radius.");
         sparkle_radius_slid.setPaintLabels(true);
 
-        table3 = new Hashtable<Integer, JLabel>();
+        table3 = new Hashtable<>();
         table3.put(0, new JLabel("0"));
         table3.put(40, new JLabel("150"));
         table3.put(80, new JLabel("300"));
@@ -1797,7 +1748,7 @@ public class FiltersOptionsFrame extends JFrame {
         sparkle_shine_slid.setToolTipText("Sets the sparkle's shine.");
         sparkle_shine_slid.setPaintLabels(true);
 
-        table3 = new Hashtable<Integer, JLabel>();
+        table3 = new Hashtable<>();
         table3.put(0, new JLabel("0"));
         table3.put(40, new JLabel("50"));
         table3.put(80, new JLabel("100"));
@@ -1810,7 +1761,7 @@ public class FiltersOptionsFrame extends JFrame {
         sparkle_randomness_slid.setToolTipText("Sets the sparkle's randomness.");
         sparkle_randomness_slid.setPaintLabels(true);
 
-        table3 = new Hashtable<Integer, JLabel>();
+        table3 = new Hashtable<>();
         table3.put(0, new JLabel("0"));
         table3.put(40, new JLabel("25"));
         table3.put(80, new JLabel("50"));
@@ -1887,7 +1838,7 @@ public class FiltersOptionsFrame extends JFrame {
         opacity_slid.setToolTipText("Sets the mirror's opacity.");
         opacity_slid.setPaintLabels(true);
 
-        table3 = new Hashtable<Integer, JLabel>();
+        table3 = new Hashtable<>();
         table3.put(0, new JLabel("0"));
         table3.put(25, new JLabel("25"));
         table3.put(50, new JLabel("50"));
@@ -1951,7 +1902,7 @@ public class FiltersOptionsFrame extends JFrame {
         glow_softness_slid.setToolTipText("Sets the glow softness.");
         glow_softness_slid.setPaintLabels(true);
 
-        table3 = new Hashtable<Integer, JLabel>();
+        table3 = new Hashtable<>();
         table3.put(0, new JLabel("0"));
         table3.put(25, new JLabel("25"));
         table3.put(50, new JLabel("50"));
@@ -1966,7 +1917,7 @@ public class FiltersOptionsFrame extends JFrame {
         glow_amount_slid.setToolTipText("Sets the glow amount.");
         glow_amount_slid.setPaintLabels(true);
 
-        table3 = new Hashtable<Integer, JLabel>();
+        table3 = new Hashtable<>();
         table3.put(0, new JLabel("0"));
         table3.put(25, new JLabel("25"));
         table3.put(50, new JLabel("50"));
@@ -2003,7 +1954,7 @@ public class FiltersOptionsFrame extends JFrame {
 
         ((JSlider)components_filters[MainWindow.COLOR_CHANNEL_SCALING]).setPaintLabels(true);
 
-        table3 = new Hashtable<Integer, JLabel>();
+        table3 = new Hashtable<>();
         table3.put(0, new JLabel("0.0"));
         table3.put(20, new JLabel("1.0"));
         table3.put(40, new JLabel("2.0"));
@@ -2032,7 +1983,7 @@ public class FiltersOptionsFrame extends JFrame {
         noise_amount_slid.setToolTipText("Sets the noise amount.");
         noise_amount_slid.setPaintLabels(true);
 
-        table3 = new Hashtable<Integer, JLabel>();
+        table3 = new Hashtable<>();
         table3.put(0, new JLabel("0"));
         table3.put(25, new JLabel("25"));
         table3.put(50, new JLabel("50"));
@@ -2047,7 +1998,7 @@ public class FiltersOptionsFrame extends JFrame {
         noise_density_slid.setToolTipText("Sets the noise density.");
         noise_density_slid.setPaintLabels(true);
 
-        table3 = new Hashtable<Integer, JLabel>();
+        table3 = new Hashtable<>();
         table3.put(0, new JLabel("0"));
         table3.put(25, new JLabel("25"));
         table3.put(50, new JLabel("50"));
@@ -2057,7 +2008,7 @@ public class FiltersOptionsFrame extends JFrame {
         
         String[] distri_str = {"Gaussian", "Uniform"};
 
-        final JComboBox distri_box = new JComboBox(distri_str);
+        final JComboBox<String> distri_box = new JComboBox<>(distri_str);
         distri_box.setSelectedIndex((int)(((int)(filters_options_vals[MainWindow.NOISE] % 10000000.0)) / 1000000.0));
         distri_box.setFocusable(false);
         distri_box.setToolTipText("Sets the noise distribution.");
@@ -2112,7 +2063,7 @@ public class FiltersOptionsFrame extends JFrame {
         
         //blue_green_slid.setPaintLabels(true);
 
-        table3 = new Hashtable<Integer, JLabel>();
+        table3 = new Hashtable<>();
         table3.put(0, new JLabel("0"));
         table3.put(128, new JLabel("128"));
         table3.put(255, new JLabel("255"));
@@ -2127,7 +2078,7 @@ public class FiltersOptionsFrame extends JFrame {
         
         //to_red_slid.setPaintLabels(true);
 
-        table3 = new Hashtable<Integer, JLabel>();
+        table3 = new Hashtable<>();
         table3.put(0, new JLabel("0"));
         table3.put(128, new JLabel("128"));
         table3.put(255, new JLabel("255"));
@@ -2158,7 +2109,7 @@ public class FiltersOptionsFrame extends JFrame {
         
         //red_blue_slid.setPaintLabels(true);
 
-        table3 = new Hashtable<Integer, JLabel>();
+        table3 = new Hashtable<>();
         table3.put(0, new JLabel("0"));
         table3.put(128, new JLabel("128"));
         table3.put(255, new JLabel("255"));
@@ -2196,7 +2147,7 @@ public class FiltersOptionsFrame extends JFrame {
         
         //green_red_slid.setPaintLabels(true);
 
-        table3 = new Hashtable<Integer, JLabel>();
+        table3 = new Hashtable<>();
         table3.put(0, new JLabel("0"));
         table3.put(128, new JLabel("128"));
         table3.put(255, new JLabel("255"));
@@ -2260,7 +2211,7 @@ public class FiltersOptionsFrame extends JFrame {
         
         String[] light_str = {"Point Light", "Distant Light", "Spotlight"};
 
-        final JComboBox light_box = new JComboBox(light_str);
+        final JComboBox<String> light_box = new JComboBox<>(light_str);
         light_box.setSelectedIndex((int)(filters_options_vals[MainWindow.LIGHT_EFFECTS] / 100000000.0));
         light_box.setFocusable(false);
         light_box.setToolTipText("Sets the type of the light.");
@@ -2284,7 +2235,7 @@ public class FiltersOptionsFrame extends JFrame {
         light_direction_slid.setToolTipText("Sets the light's direction.");
         light_direction_slid.setPaintLabels(true);
 
-        table3 = new Hashtable<Integer, JLabel>();
+        table3 = new Hashtable<>();
         table3.put(0, new JLabel("0"));
         table3.put(20, new JLabel("90"));
         table3.put(40, new JLabel("180"));
@@ -2308,7 +2259,7 @@ public class FiltersOptionsFrame extends JFrame {
         light_elevation_slid.setToolTipText("Sets the light's elevation.");
         light_elevation_slid.setPaintLabels(true);
 
-        table3 = new Hashtable<Integer, JLabel>();
+        table3 = new Hashtable<>();
         table3.put(0, new JLabel("0"));
         table3.put(40, new JLabel("45"));
         table3.put(80, new JLabel("90"));
@@ -2331,7 +2282,7 @@ public class FiltersOptionsFrame extends JFrame {
         light_distance_slid.setToolTipText("Sets the light's distance.");
         light_distance_slid.setPaintLabels(true);
         
-        table3 = new Hashtable<Integer, JLabel>();
+        table3 = new Hashtable<>();
         table3.put(0, new JLabel("0.0"));
         table3.put(40, new JLabel("500.0"));
         table3.put(80, new JLabel("1000.0"));
@@ -2353,7 +2304,7 @@ public class FiltersOptionsFrame extends JFrame {
         light_intensity_slid.setToolTipText("Sets the light's intensity.");
         light_intensity_slid.setPaintLabels(true);
 
-        table3 = new Hashtable<Integer, JLabel>();
+        table3 = new Hashtable<>();
         table3.put(0, new JLabel("0.00"));
         table3.put(20, new JLabel("0.25"));
         table3.put(40, new JLabel("0.50"));
@@ -2376,7 +2327,7 @@ public class FiltersOptionsFrame extends JFrame {
         light_x_slid.setToolTipText("Sets the light's x position.");
         light_x_slid.setPaintLabels(true);
         
-        table3 = new Hashtable<Integer, JLabel>();
+        table3 = new Hashtable<>();
         table3.put(0, new JLabel("0"));
         table3.put(20, new JLabel("25"));
         table3.put(40, new JLabel("50"));
@@ -2399,7 +2350,7 @@ public class FiltersOptionsFrame extends JFrame {
         light_y_slid.setToolTipText("Sets the light's y position.");
         light_y_slid.setPaintLabels(true);
         
-        table3 = new Hashtable<Integer, JLabel>();
+        table3 = new Hashtable<>();
         table3.put(0, new JLabel("0"));
         table3.put(20, new JLabel("25"));
         table3.put(40, new JLabel("50"));
@@ -2422,7 +2373,7 @@ public class FiltersOptionsFrame extends JFrame {
         light_cone_angle_slid.setToolTipText("Sets the light's cone angle.");
         light_cone_angle_slid.setPaintLabels(true);
 
-        table3 = new Hashtable<Integer, JLabel>();
+        table3 = new Hashtable<>();
         table3.put(0, new JLabel("0"));
         table3.put(40, new JLabel("45"));
         table3.put(80, new JLabel("90"));
@@ -2443,7 +2394,7 @@ public class FiltersOptionsFrame extends JFrame {
         light_focus_slid.setToolTipText("Sets the light's focus.");
         light_focus_slid.setPaintLabels(true);
 
-        table3 = new Hashtable<Integer, JLabel>();
+        table3 = new Hashtable<>();
         table3.put(0, new JLabel("0.00"));
         table3.put(20, new JLabel("0.25"));
         table3.put(40, new JLabel("0.50"));
@@ -2465,29 +2416,25 @@ public class FiltersOptionsFrame extends JFrame {
             light_y_slid.setEnabled(false);
         }
         
-        light_box.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if(light_box.getSelectedIndex() == 0) {
-                    light_cone_angle_slid.setEnabled(false);
-                    light_focus_slid.setEnabled(false);
-                    light_x_slid.setEnabled(true);
-                    light_y_slid.setEnabled(true);
-                }
-                else if(light_box.getSelectedIndex() == 1) {
-                    light_cone_angle_slid.setEnabled(false);
-                    light_focus_slid.setEnabled(false);
-                    light_x_slid.setEnabled(false);
-                    light_y_slid.setEnabled(false);
-                }
-                else {
-                    light_cone_angle_slid.setEnabled(true);
-                    light_focus_slid.setEnabled(true);
-                    light_x_slid.setEnabled(true);
-                    light_y_slid.setEnabled(true);
-                }
+        light_box.addActionListener(e -> {
+            if(light_box.getSelectedIndex() == 0) {
+                light_cone_angle_slid.setEnabled(false);
+                light_focus_slid.setEnabled(false);
+                light_x_slid.setEnabled(true);
+                light_y_slid.setEnabled(true);
             }
-            
+            else if(light_box.getSelectedIndex() == 1) {
+                light_cone_angle_slid.setEnabled(false);
+                light_focus_slid.setEnabled(false);
+                light_x_slid.setEnabled(false);
+                light_y_slid.setEnabled(false);
+            }
+            else {
+                light_cone_angle_slid.setEnabled(true);
+                light_focus_slid.setEnabled(true);
+                light_x_slid.setEnabled(true);
+                light_y_slid.setEnabled(true);
+            }
         });
         
         final JLabel filter_color_label6 = new JLabel();
@@ -2668,7 +2615,7 @@ public class FiltersOptionsFrame extends JFrame {
         material_shininess_slid.setToolTipText("Sets the material's shininess.");
         material_shininess_slid.setPaintLabels(true);
         
-        table3 = new Hashtable<Integer, JLabel>();
+        table3 = new Hashtable<>();
         table3.put(0, new JLabel("0.0"));
         table3.put(20, new JLabel("2.5"));
         table3.put(40, new JLabel("5.0"));
@@ -2686,7 +2633,7 @@ public class FiltersOptionsFrame extends JFrame {
   
         String[] bump_str = {"Normal", "Outer", "Inner", "Pillow", "Up", "Down"};
 
-        final JComboBox bump_box = new JComboBox(bump_str);
+        final JComboBox<String> bump_box = new JComboBox<>(bump_str);
         bump_box.setSelectedIndex((int)(((int)(((int)(filters_options_extra_vals[1][MainWindow.LIGHT_EFFECTS] % 10000000.0)) % 100000.0)) / 10000.0));
         bump_box.setFocusable(false);
         bump_box.setToolTipText("Sets the bump's shape.");
@@ -2710,7 +2657,7 @@ public class FiltersOptionsFrame extends JFrame {
         bump_height_slid.setToolTipText("Sets the bump's height.");
         bump_height_slid.setPaintLabels(true);
 
-        table3 = new Hashtable<Integer, JLabel>();
+        table3 = new Hashtable<>();
         table3.put(0, new JLabel("-5.0"));
         table3.put(20, new JLabel("-2.5"));
         table3.put(40, new JLabel("0.0"));
@@ -2733,7 +2680,7 @@ public class FiltersOptionsFrame extends JFrame {
         bump_softness_slid.setToolTipText("Sets the bump's softness.");
         bump_softness_slid.setPaintLabels(true);
         
-        table3 = new Hashtable<Integer, JLabel>();
+        table3 = new Hashtable<>();
         table3.put(0, new JLabel("0"));
         table3.put(20, new JLabel("25"));
         table3.put(40, new JLabel("50"));
@@ -2801,131 +2748,127 @@ public class FiltersOptionsFrame extends JFrame {
         JButton ok = new JButton("Ok");
         getRootPane().setDefaultButton(ok);
         ok.setFocusable(false);
-        ok.addActionListener(new ActionListener() {
+        ok.addActionListener(e -> {
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
+            for(int k = 0; k < filters_options_vals.length; k++) {
+                if(components_filters[k] != null) {
+                    if(k == MainWindow.COLOR_TEMPERATURE || k == MainWindow.EXPOSURE || k == MainWindow.GAMMA || k == MainWindow.COLOR_CHANNEL_SCALING) {
+                        filters_options_vals[k] = ((JSlider)components_filters[k]).getValue();
+                    }
+                    else if(k == MainWindow.CONTRAST_BRIGHTNESS) {
+                        filters_options_vals[k] = contrast_slid.getValue() * 1000 + brightness_slid.getValue();
+                    }
+                    else if(k == MainWindow.GAIN) {
+                        filters_options_vals[k] = gain_slid.getValue() * 1000 + bias_slid.getValue();
+                    }
+                    else if(k == MainWindow.COLOR_CHANNEL_ADJUSTING) {
+                        filters_options_vals[k] = slid1.getValue() * 1000000 + slid2.getValue() * 1000 + slid3.getValue();
+                    }
+                    else if(k == MainWindow.COLOR_CHANNEL_HSB_ADJUSTING) {
+                        filters_options_vals[k] = slid4.getValue() * 1000000 + slid5.getValue() * 1000 + slid6.getValue();
+                    }
+                    else if(k == MainWindow.DITHER) {
+                        int db = diffusion_dither_box.isSelected() ? 1 : 0;
+                        int sb = serpentine_box.isSelected() ? 1 : 0;
+                        filters_options_vals[k] = sb * 100000 + db * 10000 + dither_alg.getSelectedIndex() * 1000 + dither_slid.getValue();
+                    }
+                    else if(k == MainWindow.BLURRING) {
+                        filters_options_vals[k] = blurring_radius.getSelectedIndex() * 1000 + blurring_slid.getValue();
+                    }
+                    else if(k == MainWindow.POSTERIZE) {
+                        filters_options_vals[k] = posterize_slid.getValue();
+                    }
+                    else if(k == MainWindow.COLOR_CHANNEL_SWIZZLING) {
 
-                for(int k = 0; k < filters_options_vals.length; k++) {
-                    if(components_filters[k] != null) {
-                        if(k == MainWindow.COLOR_TEMPERATURE || k == MainWindow.EXPOSURE || k == MainWindow.GAMMA || k == MainWindow.COLOR_CHANNEL_SCALING) {
-                            filters_options_vals[k] = ((JSlider)components_filters[k]).getValue();
-                        }
-                        else if(k == MainWindow.CONTRAST_BRIGHTNESS) {
-                            filters_options_vals[k] = contrast_slid.getValue() * 1000 + brightness_slid.getValue();
-                        }
-                        else if(k == MainWindow.GAIN) {
-                            filters_options_vals[k] = gain_slid.getValue() * 1000 + bias_slid.getValue();
-                        }
-                        else if(k == MainWindow.COLOR_CHANNEL_ADJUSTING) {
-                            filters_options_vals[k] = slid1.getValue() * 1000000 + slid2.getValue() * 1000 + slid3.getValue();
-                        }
-                        else if(k == MainWindow.COLOR_CHANNEL_HSB_ADJUSTING) {
-                            filters_options_vals[k] = slid4.getValue() * 1000000 + slid5.getValue() * 1000 + slid6.getValue();
-                        }
-                        else if(k == MainWindow.DITHER) {
-                            int db = diffusion_dither_box.isSelected() ? 1 : 0;
-                            int sb = serpentine_box.isSelected() ? 1 : 0;
-                            filters_options_vals[k] = sb * 100000 + db * 10000 + dither_alg.getSelectedIndex() * 1000 + dither_slid.getValue();
-                        }
-                        else if(k == MainWindow.BLURRING) {
-                            filters_options_vals[k] = blurring_radius.getSelectedIndex() * 1000 + blurring_slid.getValue();
-                        }
-                        else if(k == MainWindow.POSTERIZE) {
-                            filters_options_vals[k] = posterize_slid.getValue();                          
-                        }
-                        else if(k == MainWindow.COLOR_CHANNEL_SWIZZLING) {
-                            
-                            filters_options_vals[k] = 0;
-                            for(int j = 0; j < swizzle_checks.length; j++) {
-                                if(swizzle_checks[j].isSelected()) {
-                                    filters_options_vals[k] = filters_options_vals[k] | (0x1 << j);
-                                }                               
+                        filters_options_vals[k] = 0;
+                        for(int j = 0; j < swizzle_checks.length; j++) {
+                            if(swizzle_checks[j].isSelected()) {
+                                filters_options_vals[k] = filters_options_vals[k] | (0x1 << j);
                             }
                         }
-                        else if(k == MainWindow.CRYSTALLIZE) {
-                            int orig = original_color_crys.isSelected() ? 1 : 0 ;
-                            int fe = fade_edges.isSelected() ? 1 : 0;
-                            filters_options_vals[k] = fe * 10000000 + shape_box.getSelectedIndex() * 1000000 + edge_size_slid.getValue() * 10000 + random_slid.getValue() * 100 + size_slid.getValue();
-                            filters_colors[k] = filter_color_label.getBackground();
-                            filters_options_extra_vals[0][k] = orig;
-                        }
-                        else if(k == MainWindow.POINTILLIZE) {
-                            int fl = fill.isSelected() ? 1 : 0;
-                            int orig = original_color_point.isSelected() ? 1 : 0 ;
-                            filters_options_vals[k] = fl * 1000000000 + shape_box2.getSelectedIndex() * 100000000 + point_size_slid.getValue() * 1000000 + point_fuzziness_slid.getValue() * 10000 + point_randomness_slid.getValue() * 100 + grid_point_size_slid.getValue();
-                            filters_colors[k] = filter_color_label2.getBackground();
-                            filters_options_extra_vals[0][k] = orig;
-                        }
-                        else if(k == MainWindow.GLOW) {
-                            filters_options_vals[k] = glow_softness_slid.getValue() * 1000 + glow_amount_slid.getValue();
-                        }
-                        else if(k == MainWindow.MARBLE) {
-                            filters_options_vals[k] = marble_turbulence_factor_slid.getValue() * 10000000 + marble_turbulence_slid.getValue() * 1000000 + marble_stretch_slid.getValue() * 10000 + marble_angle_slid.getValue() * 100 + marble_scale_slid.getValue();
-                        }
-                        else if(k == MainWindow.WEAVE) {
-                            int rt = round_threads.isSelected() ? 1 : 0;
-                            int sc = shade_crossings.isSelected() ? 1 : 0;
-                            
-                            filters_options_vals[k] = sc * 1000000000 + rt * 100000000 + weave_y_gap.getValue() * 1000000 + weave_x_gap.getValue() * 10000 + weave_y_width.getValue() * 100 + weave_x_width.getValue();
-                            filters_colors[k] = filter_color_label3.getBackground();
-                        }
-                        else if(k == MainWindow.SPARKLE) {
-                            filters_options_vals[k] = sparkle_randomness_slid.getValue() * 1000000 + sparkle_shine_slid.getValue() * 10000 + sparkle_radius_slid.getValue() * 100 + sparkle_rays_slid.getValue();
-                            filters_colors[k] = filter_color_label4.getBackground();
-                        }
-                        else if(k == MainWindow.OIL) {
-                            filters_options_vals[k] = oil_levels_slid.getValue() * 100 + oil_range_slid.getValue();
-                        }
-                        else if(k == MainWindow.EDGE_DETECTION) {
-                            filters_options_vals[k] = (10 - edge_sensitivity_slid.getValue()) * 100 + edge_alg.getSelectedIndex();
-                            filters_colors[k] = filter_color_label5.getBackground();
-                        }
-                        else if(k == MainWindow.NOISE) {
-                            int mc = monochrome.isSelected() ? 1 : 0;
-                            filters_options_vals[k] = mc * 10000000 + distri_box.getSelectedIndex() * 1000000 + noise_density_slid.getValue() * 1000 + noise_amount_slid.getValue();
-                        }
-                        else if(k == MainWindow.EMBOSS) {
-                            filters_options_vals[k] = emboss_bumpheight_slid.getValue() * 100000 + emboss_elevation_slid.getValue() * 1000 + emboss_angle_slid.getValue() * 10 + emboss_algorithm.getSelectedIndex();
-                        }
-                        else if(k == MainWindow.COLOR_CHANNEL_MIXING) {
-                            filters_options_vals[k] = green_red_slid.getValue() * 1000000 + red_blue_slid.getValue() * 1000 + blue_green_slid.getValue();
-                            filters_colors[k] = new Color(to_red_slid.getValue(), to_green_slid.getValue(), to_blue_slid.getValue());
-                        }
-                        else if(k == MainWindow.LIGHT_EFFECTS) {
-                            filters_options_vals[k] = light_box.getSelectedIndex() * 100000000 + light_direction_slid.getValue() * 1000000 + light_elevation_slid.getValue() * 10000 + light_distance_slid.getValue() * 100 + light_intensity_slid.getValue();
-                            filters_options_extra_vals[0][k] = light_x_slid.getValue() * 1000000 + light_y_slid.getValue() * 10000 + light_cone_angle_slid.getValue() * 100 + light_focus_slid.getValue();
-                            int source = source_image.isSelected() ? 0 : 1;
-                            filters_options_extra_vals[1][k] = source * 10000000 + material_shininess_slid.getValue() * 100000 + bump_box.getSelectedIndex() * 10000 + bump_height_slid.getValue() * 100 + bump_softness_slid.getValue();
-                            filters_colors[k] = filter_color_label6.getBackground();
-                            filters_extra_colors[0][MainWindow.LIGHT_EFFECTS] = filter_color_label7.getBackground();
-                            filters_extra_colors[1][MainWindow.LIGHT_EFFECTS] = filter_color_label8.getBackground();
-                        }
-                        else if(k == MainWindow.MIRROR) {
-                            filters_options_vals[k] = 1000000 * opacity_slid.getValue() + 1000 * mirrory_slid.getValue() + mirror_gap_slid.getValue();
-                        }                            
-                        else if(k == MainWindow.EDGE_DETECTION2) {
-                            filters_options_vals[k] = horizontal_edge_alg.getSelectedIndex() * 10 + vertical_edge_alg.getSelectedIndex();
-                        }
-                        else if(k == MainWindow.ANTIALIASING) {
-                            //aaSpace.getSelectedIndex() * 100
-                            filters_options_vals[k] = (aaAvgWithMean.isSelected() ? 100 : 0) + aaMethod.getSelectedIndex() * 10 + aaSamples.getSelectedIndex();
-                        }
-                        else if ( components_filters[k] instanceof JComboBox){
-                            filters_options_vals[k] = ((JComboBox)components_filters[k]).getSelectedIndex();
-                        }
+                    }
+                    else if(k == MainWindow.CRYSTALLIZE) {
+                        int orig = original_color_crys.isSelected() ? 1 : 0 ;
+                        int fe = fade_edges.isSelected() ? 1 : 0;
+                        filters_options_vals[k] = fe * 10000000 + shape_box.getSelectedIndex() * 1000000 + edge_size_slid.getValue() * 10000 + random_slid.getValue() * 100 + size_slid.getValue();
+                        filters_colors[k] = filter_color_label.getBackground();
+                        filters_options_extra_vals[0][k] = orig;
+                    }
+                    else if(k == MainWindow.POINTILLIZE) {
+                        int fl = fill.isSelected() ? 1 : 0;
+                        int orig = original_color_point.isSelected() ? 1 : 0 ;
+                        filters_options_vals[k] = fl * 1000000000 + shape_box2.getSelectedIndex() * 100000000 + point_size_slid.getValue() * 1000000 + point_fuzziness_slid.getValue() * 10000 + point_randomness_slid.getValue() * 100 + grid_point_size_slid.getValue();
+                        filters_colors[k] = filter_color_label2.getBackground();
+                        filters_options_extra_vals[0][k] = orig;
+                    }
+                    else if(k == MainWindow.GLOW) {
+                        filters_options_vals[k] = glow_softness_slid.getValue() * 1000 + glow_amount_slid.getValue();
+                    }
+                    else if(k == MainWindow.MARBLE) {
+                        filters_options_vals[k] = marble_turbulence_factor_slid.getValue() * 10000000 + marble_turbulence_slid.getValue() * 1000000 + marble_stretch_slid.getValue() * 10000 + marble_angle_slid.getValue() * 100 + marble_scale_slid.getValue();
+                    }
+                    else if(k == MainWindow.WEAVE) {
+                        int rt = round_threads.isSelected() ? 1 : 0;
+                        int sc = shade_crossings.isSelected() ? 1 : 0;
+
+                        filters_options_vals[k] = sc * 1000000000 + rt * 100000000 + weave_y_gap.getValue() * 1000000 + weave_x_gap.getValue() * 10000 + weave_y_width.getValue() * 100 + weave_x_width.getValue();
+                        filters_colors[k] = filter_color_label3.getBackground();
+                    }
+                    else if(k == MainWindow.SPARKLE) {
+                        filters_options_vals[k] = sparkle_randomness_slid.getValue() * 1000000 + sparkle_shine_slid.getValue() * 10000 + sparkle_radius_slid.getValue() * 100 + sparkle_rays_slid.getValue();
+                        filters_colors[k] = filter_color_label4.getBackground();
+                    }
+                    else if(k == MainWindow.OIL) {
+                        filters_options_vals[k] = oil_levels_slid.getValue() * 100 + oil_range_slid.getValue();
+                    }
+                    else if(k == MainWindow.EDGE_DETECTION) {
+                        filters_options_vals[k] = (10 - edge_sensitivity_slid.getValue()) * 100 + edge_alg.getSelectedIndex();
+                        filters_colors[k] = filter_color_label5.getBackground();
+                    }
+                    else if(k == MainWindow.NOISE) {
+                        int mc = monochrome.isSelected() ? 1 : 0;
+                        filters_options_vals[k] = mc * 10000000 + distri_box.getSelectedIndex() * 1000000 + noise_density_slid.getValue() * 1000 + noise_amount_slid.getValue();
+                    }
+                    else if(k == MainWindow.EMBOSS) {
+                        filters_options_vals[k] = emboss_bumpheight_slid.getValue() * 100000 + emboss_elevation_slid.getValue() * 1000 + emboss_angle_slid.getValue() * 10 + emboss_algorithm.getSelectedIndex();
+                    }
+                    else if(k == MainWindow.COLOR_CHANNEL_MIXING) {
+                        filters_options_vals[k] = green_red_slid.getValue() * 1000000 + red_blue_slid.getValue() * 1000 + blue_green_slid.getValue();
+                        filters_colors[k] = new Color(to_red_slid.getValue(), to_green_slid.getValue(), to_blue_slid.getValue());
+                    }
+                    else if(k == MainWindow.LIGHT_EFFECTS) {
+                        filters_options_vals[k] = light_box.getSelectedIndex() * 100000000 + light_direction_slid.getValue() * 1000000 + light_elevation_slid.getValue() * 10000 + light_distance_slid.getValue() * 100 + light_intensity_slid.getValue();
+                        filters_options_extra_vals[0][k] = light_x_slid.getValue() * 1000000 + light_y_slid.getValue() * 10000 + light_cone_angle_slid.getValue() * 100 + light_focus_slid.getValue();
+                        int source = source_image.isSelected() ? 0 : 1;
+                        filters_options_extra_vals[1][k] = source * 10000000 + material_shininess_slid.getValue() * 100000 + bump_box.getSelectedIndex() * 10000 + bump_height_slid.getValue() * 100 + bump_softness_slid.getValue();
+                        filters_colors[k] = filter_color_label6.getBackground();
+                        filters_extra_colors[0][MainWindow.LIGHT_EFFECTS] = filter_color_label7.getBackground();
+                        filters_extra_colors[1][MainWindow.LIGHT_EFFECTS] = filter_color_label8.getBackground();
+                    }
+                    else if(k == MainWindow.MIRROR) {
+                        filters_options_vals[k] = 1000000 * opacity_slid.getValue() + 1000 * mirrory_slid.getValue() + mirror_gap_slid.getValue();
+                    }
+                    else if(k == MainWindow.EDGE_DETECTION2) {
+                        filters_options_vals[k] = horizontal_edge_alg.getSelectedIndex() * 10 + vertical_edge_alg.getSelectedIndex();
+                    }
+                    else if(k == MainWindow.ANTIALIASING) {
+                        //aaSpace.getSelectedIndex() * 100
+                        filters_options_vals[k] = (aaAvgWithMean.isSelected() ? 100 : 0) + aaMethod.getSelectedIndex() * 10 + aaSamples.getSelectedIndex();
+                    }
+                    else if ( components_filters[k] instanceof JComboBox){
+                        filters_options_vals[k] = ((JComboBox)components_filters[k]).getSelectedIndex();
                     }
                 }
-
-                ptra2.filtersOptionsChanged(filters_options_vals, filters_options_extra_vals, filters_colors, filters_extra_colors, order_panel.getFilterOrder(), mActiveFilters);
-                
-                tab_index = tabbedPane.getSelectedIndex();
-
-                ptra2.setEnabled(true);
-
-                dispose();
-
             }
+
+            ptra2.filtersOptionsChanged(filters_options_vals, filters_options_extra_vals, filters_colors, filters_extra_colors, order_panel.getFilterOrder(), mActiveFilters);
+
+            tab_index = tabbedPane.getSelectedIndex();
+
+            ptra2.setEnabled(true);
+
+            dispose();
+
         });
 
         getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
@@ -2943,18 +2886,14 @@ public class FiltersOptionsFrame extends JFrame {
 
         JButton cancel = new JButton("Cancel");
         cancel.setFocusable(false);
-        cancel.addActionListener(new ActionListener() {
+        cancel.addActionListener(e -> {
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
+            tab_index = tabbedPane.getSelectedIndex();
 
-                tab_index = tabbedPane.getSelectedIndex();
-                
-                ptra2.setEnabled(true);
+            ptra2.setEnabled(true);
 
-                dispose();
+            dispose();
 
-            }
         });
 
         buttons.add(cancel);
@@ -2972,20 +2911,16 @@ public class FiltersOptionsFrame extends JFrame {
         
         JButton reset = new JButton("Reset");
         reset.setFocusable(false);
-        reset.addActionListener(new ActionListener() {
+        reset.addActionListener(e -> {
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                
-                ptra2.filtersOptionsChanged(null, null, null, null, null, null);
-                
-                tab_index = tabbedPane.getSelectedIndex();
-                
-                ptra2.setEnabled(true);
+            ptra2.filtersOptionsChanged(null, null, null, null, null, null);
 
-                dispose();      
+            tab_index = tabbedPane.getSelectedIndex();
 
-            }
+            ptra2.setEnabled(true);
+
+            dispose();
+
         });
 
         buttons.add(reset);
@@ -3022,12 +2957,6 @@ public class FiltersOptionsFrame extends JFrame {
         requestFocus();
 
         setVisible(true);
-        
-    }
-    
-    private ImageIcon getIcon(String path) {
-
-        return new ImageIcon(getClass().getResource(path));
         
     }
    

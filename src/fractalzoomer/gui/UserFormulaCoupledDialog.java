@@ -22,12 +22,8 @@ import fractalzoomer.parser.ParserException;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.Hashtable;
 
 /**
@@ -47,7 +43,7 @@ public class UserFormulaCoupledDialog extends JDialog {
 
         setTitle("User Formula Coupled");
         setModal(true);
-        setIconImage(getIcon("/fractalzoomer/icons/mandel2.png").getImage());
+        setIconImage(MainWindow.getIcon("mandel2.png").getImage());
 
         JTextField field_formula_coupled = new JTextField(50);
         field_formula_coupled.setText(s.fns.user_formula_coupled[0]);
@@ -78,7 +74,7 @@ public class UserFormulaCoupledDialog extends JDialog {
 
         String[] method5 = {"Escaping Algorithm", "Converging Algorithm", "Escaping or Converging Algorithm"};
 
-        JComboBox method5_choice = new JComboBox(method5);
+        JComboBox<String> method5_choice = new JComboBox<>(method5);
         method5_choice.setSelectedIndex(s.fns.bail_technique);
         method5_choice.setToolTipText("Selects the bailout technique.");
         method5_choice.setFocusable(false);
@@ -99,7 +95,7 @@ public class UserFormulaCoupledDialog extends JDialog {
         coupling_slid.setToolTipText("Sets the percentange of coupling.");
         coupling_slid.setPaintLabels(true);
 
-        Hashtable<Integer, JLabel> table3 = new Hashtable<Integer, JLabel>();
+        Hashtable<Integer, JLabel> table3 = new Hashtable<>();
         table3.put(0, new JLabel("0.0"));
         table3.put(25, new JLabel("0.25"));
         table3.put(50, new JLabel("0.5"));
@@ -122,7 +118,7 @@ public class UserFormulaCoupledDialog extends JDialog {
 
         String[] coupling_method_str = {"Simple", "Cosine", "Random"};
 
-        final JComboBox coupling_method_choice = new JComboBox(coupling_method_str);
+        final JComboBox<String> coupling_method_choice = new JComboBox<>(coupling_method_str);
         coupling_method_choice.setSelectedIndex(s.fns.coupling_method);
         coupling_method_choice.setToolTipText("Selects the coupling method.");
         coupling_method_choice.setFocusable(false);
@@ -179,22 +175,19 @@ public class UserFormulaCoupledDialog extends JDialog {
             field_amplitude.setEnabled(true);
         }
 
-        coupling_method_choice.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (coupling_method_choice.getSelectedIndex() == 0) {
-                    field_seed.setEnabled(false);
-                    field_frequency.setEnabled(false);
-                    field_amplitude.setEnabled(false);
-                } else if (coupling_method_choice.getSelectedIndex() == 1) {
-                    field_seed.setEnabled(false);
-                    field_frequency.setEnabled(true);
-                    field_amplitude.setEnabled(true);
-                } else {
-                    field_seed.setEnabled(true);
-                    field_frequency.setEnabled(false);
-                    field_amplitude.setEnabled(true);
-                }
+        coupling_method_choice.addActionListener(e -> {
+            if (coupling_method_choice.getSelectedIndex() == 0) {
+                field_seed.setEnabled(false);
+                field_frequency.setEnabled(false);
+                field_amplitude.setEnabled(false);
+            } else if (coupling_method_choice.getSelectedIndex() == 1) {
+                field_seed.setEnabled(false);
+                field_frequency.setEnabled(true);
+                field_amplitude.setEnabled(true);
+            } else {
+                field_seed.setEnabled(true);
+                field_frequency.setEnabled(false);
+                field_amplitude.setEnabled(true);
             }
         });
 
@@ -211,97 +204,96 @@ public class UserFormulaCoupledDialog extends JDialog {
 
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
+            @Override
             public void windowClosing(WindowEvent we) {
-                optionPane.setValue(new Integer(JOptionPane.CLOSED_OPTION));
+                optionPane.setValue(JOptionPane.CLOSED_OPTION);
             }
         });
 
         optionPane.addPropertyChangeListener(
-                new PropertyChangeListener() {
-            public void propertyChange(PropertyChangeEvent e) {
-                String prop = e.getPropertyName();
+                e -> {
+                    String prop = e.getPropertyName();
 
-                if (isVisible() && (e.getSource() == optionPane) && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
+                    if (isVisible() && (e.getSource() == optionPane) && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
 
-                    Object value = optionPane.getValue();
+                        Object value = optionPane.getValue();
 
-                    if (value == JOptionPane.UNINITIALIZED_VALUE) {
-                        //ignore reset
-                        return;
-                    }
-
-                    //Reset the JOptionPane's value.
-                    //If you don't do this, then if the user
-                    //presses the same button next time, no
-                    //property change event will be fired.
-                    optionPane.setValue(JOptionPane.UNINITIALIZED_VALUE);
-
-                    if ((Integer) value == JOptionPane.CANCEL_OPTION || (Integer) value == JOptionPane.NO_OPTION || (Integer) value == JOptionPane.CLOSED_OPTION) {
-                        fractal_functions[oldSelected].setSelected(true);
-                        s.fns.function = oldSelected;
-                        dispose();
-                        return;
-                    }
-
-                    try {
-                        s.parser.parse(field_formula_coupled.getText());
-                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
-                            JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r, stat, trap cannot be used in the z formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                        if (value == JOptionPane.UNINITIALIZED_VALUE) {
+                            //ignore reset
                             return;
                         }
 
-                        boolean temp_bool = s.parser.foundC();
+                        //Reset the JOptionPane's value.
+                        //If you don't do this, then if the user
+                        //presses the same button next time, no
+                        //property change event will be fired.
+                        optionPane.setValue(JOptionPane.UNINITIALIZED_VALUE);
 
-                        s.parser.parse(field_formula_coupled2.getText());
-
-                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
-                            JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r, stat, trap cannot be used in the z2 formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                        if ((Integer) value == JOptionPane.CANCEL_OPTION || (Integer) value == JOptionPane.NO_OPTION || (Integer) value == JOptionPane.CLOSED_OPTION) {
+                            fractal_functions[oldSelected].setSelected(true);
+                            s.fns.function = oldSelected;
+                            dispose();
                             return;
                         }
 
-                        temp_bool = temp_bool | s.parser.foundC();
-
-                        s.parser.parse(field_formula_coupled3.getText());
-
-                        if (s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundC0() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
-                            JOptionPane.showMessageDialog(ptra, "The variables: z, n, s, c0, p, pp, bail, cbail, r, stat, trap cannot be used in the z2(0) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            return;
-                        }
-
-                        double temp_amp, temp_freq;
-                        int temp_seed;
                         try {
-                            temp_amp = Double.parseDouble(field_amplitude.getText());
-                            temp_freq = Double.parseDouble(field_frequency.getText());
-                            temp_seed = Integer.parseInt(field_seed.getText());
-                        } catch (Exception ex) {
-                            JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
+                            s.parser.parse(field_formula_coupled.getText());
+                            if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                                JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r, stat, trap cannot be used in the z formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+
+                            boolean temp_bool = s.parser.foundC();
+
+                            s.parser.parse(field_formula_coupled2.getText());
+
+                            if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                                JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r, stat, trap cannot be used in the z2 formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+
+                            temp_bool = temp_bool || s.parser.foundC();
+
+                            s.parser.parse(field_formula_coupled3.getText());
+
+                            if (s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundC0() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                                JOptionPane.showMessageDialog(ptra, "The variables: z, n, s, c0, p, pp, bail, cbail, r, stat, trap cannot be used in the z2(0) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+
+                            double temp_amp, temp_freq;
+                            int temp_seed;
+                            try {
+                                temp_amp = Double.parseDouble(field_amplitude.getText());
+                                temp_freq = Double.parseDouble(field_frequency.getText());
+                                temp_seed = Integer.parseInt(field_seed.getText());
+                            } catch (Exception ex) {
+                                JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+
+                            s.fns.user_formula_coupled[0] = field_formula_coupled.getText();
+                            s.fns.user_formula_coupled[1] = field_formula_coupled2.getText();
+                            s.fns.user_formula_coupled[2] = field_formula_coupled3.getText();
+                            s.userFormulaHasC = temp_bool;
+                            s.fns.bail_technique = method5_choice.getSelectedIndex();
+                            s.fns.coupling = coupling_slid.getValue() / 100.0;
+                            s.fns.coupling_amplitude = temp_amp;
+                            s.fns.coupling_seed = temp_seed;
+                            s.fns.coupling_frequency = temp_freq;
+                            s.fns.coupling_method = coupling_method_choice.getSelectedIndex();
+
+                            ptra.setUserFormulaOptions(true);
+                        } catch (ParserException ex) {
+                            JOptionPane.showMessageDialog(ptra, ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                             return;
                         }
 
-                        s.fns.user_formula_coupled[0] = field_formula_coupled.getText();
-                        s.fns.user_formula_coupled[1] = field_formula_coupled2.getText();
-                        s.fns.user_formula_coupled[2] = field_formula_coupled3.getText();
-                        s.userFormulaHasC = temp_bool;
-                        s.fns.bail_technique = method5_choice.getSelectedIndex();
-                        s.fns.coupling = coupling_slid.getValue() / 100.0;
-                        s.fns.coupling_amplitude = temp_amp;
-                        s.fns.coupling_seed = temp_seed;
-                        s.fns.coupling_frequency = temp_freq;
-                        s.fns.coupling_method = coupling_method_choice.getSelectedIndex();
-
-                        ptra.setUserFormulaOptions(true);
-                    } catch (ParserException ex) {
-                        JOptionPane.showMessageDialog(ptra, ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
-                        return;
+                        ptra.optionsEnableShortcut();
+                        dispose();
+                        ptra.setFunctionPost(wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType, wasEscapingOrConvergingType);
                     }
-
-                    ptra.optionsEnableShortcut();
-                    dispose();
-                    ptra.setFunctionPost(wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType, wasEscapingOrConvergingType);
-                }
-            }
-        });
+                });
 
         //Make this dialog display it.
         setContentPane(optionPane);
@@ -311,12 +303,6 @@ public class UserFormulaCoupledDialog extends JDialog {
         setResizable(false);
         setLocation((int) (ptra.getLocation().getX() + ptra.getSize().getWidth() / 2) - (getWidth() / 2), (int) (ptra.getLocation().getY() + ptra.getSize().getHeight() / 2) - (getHeight() / 2));
         setVisible(true);
-
-    }
-
-    private ImageIcon getIcon(String path) {
-
-        return new ImageIcon(getClass().getResource(path));
 
     }
 

@@ -24,12 +24,8 @@ import fractalzoomer.parser.ParserException;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 
 /**
  *
@@ -48,7 +44,7 @@ public class UserFormulaNovaDialog extends JDialog {
 
         setTitle("User Formula Nova");
         setModal(true);
-        setIconImage(getIcon("/fractalzoomer/icons/mandel2.png").getImage());
+        setIconImage(MainWindow.getIcon("mandel2.png").getImage());
 
         String f1 = s.fns.user_fz_formula;
         String f2 = s.fns.user_dfz_formula;
@@ -135,14 +131,14 @@ public class UserFormulaNovaDialog extends JDialog {
         JLabel root = new JLabel("Root Finding Method:");
         root.setFont(new Font("Arial", Font.BOLD, 11));
 
-        JComboBox method_choice = new JComboBox(Constants.novaMethods);
+        JComboBox<String> method_choice = new JComboBox<>(Constants.novaMethods);
         method_choice.setSelectedIndex(s.fns.nova_method);
         method_choice.setToolTipText("Selects the root finding method for the Nova function.");
         method_choice.setFocusable(false);
         
         JPanel derivativePanel = new JPanel();
         
-        JComboBox derivative_choice = new JComboBox(Constants.derivativeMethod);
+        JComboBox<String> derivative_choice = new JComboBox<>(Constants.derivativeMethod);
         derivative_choice.setSelectedIndex(s.fns.derivative_method);
         derivative_choice.setToolTipText("Selects the derivative method.");
         derivative_choice.setFocusable(false);
@@ -156,65 +152,49 @@ public class UserFormulaNovaDialog extends JDialog {
         formula_ddfz_panel9.setVisible(s.fns.derivative_method == Derivative.DISABLED);
         formula_dddfz_panel9.setVisible(s.fns.derivative_method == Derivative.DISABLED);
         
-        derivative_choice.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        derivative_choice.addActionListener(e -> {
 
-                if (Settings.isFourFunctionsNovaFormula(method_choice.getSelectedIndex())) {
-                    formula_dddfz_panel9.setVisible(derivative_choice.getSelectedIndex() == Derivative.DISABLED);
-                }
-                
-                if (Settings.isFourFunctionsNovaFormula(method_choice.getSelectedIndex()) || Settings.isThreeFunctionsNovaFormula(method_choice.getSelectedIndex())) {
-                    formula_ddfz_panel9.setVisible(derivative_choice.getSelectedIndex() == Derivative.DISABLED);
-                }                
-                
-                if (Settings.isFourFunctionsNovaFormula(method_choice.getSelectedIndex()) || Settings.isThreeFunctionsNovaFormula(method_choice.getSelectedIndex()) || Settings.isTwoFunctionsNovaFormula(method_choice.getSelectedIndex())) {
-                    formula_dfz_panel9.setVisible(derivative_choice.getSelectedIndex() == Derivative.DISABLED);
-                }
-                  
-                pack();
+            if (Settings.isFourFunctionsNovaFormula(method_choice.getSelectedIndex())) {
+                formula_dddfz_panel9.setVisible(derivative_choice.getSelectedIndex() == Derivative.DISABLED);
             }
-            
+
+            if (Settings.isFourFunctionsNovaFormula(method_choice.getSelectedIndex()) || Settings.isThreeFunctionsNovaFormula(method_choice.getSelectedIndex())) {
+                formula_ddfz_panel9.setVisible(derivative_choice.getSelectedIndex() == Derivative.DISABLED);
+            }
+
+            if (Settings.isFourFunctionsNovaFormula(method_choice.getSelectedIndex()) || Settings.isThreeFunctionsNovaFormula(method_choice.getSelectedIndex()) || Settings.isTwoFunctionsNovaFormula(method_choice.getSelectedIndex())) {
+                formula_dfz_panel9.setVisible(derivative_choice.getSelectedIndex() == Derivative.DISABLED);
+            }
+
+            pack();
         });
 
-        method_choice.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (method_choice.getSelectedIndex() != MainWindow.NOVA_LAGUERRE) {
-                    degree_panel.setVisible(false);
-                } else {
-                    degree_panel.setVisible(true);
-                }
-                
-                if (method_choice.getSelectedIndex() != MainWindow.NOVA_NEWTON_HINES) {
-                    k_panel.setVisible(false);
-                } else {
-                    k_panel.setVisible(true);
-                }
+        method_choice.addActionListener(e -> {
+            degree_panel.setVisible(method_choice.getSelectedIndex() == MainWindow.NOVA_LAGUERRE);
+            k_panel.setVisible(method_choice.getSelectedIndex() == MainWindow.NOVA_NEWTON_HINES);
 
-                if (!(Settings.isFourFunctionsNovaFormula(method_choice.getSelectedIndex()))) {
-                    formula_dddfz_panel9.setVisible(false);
-                } else if(derivative_choice.getSelectedIndex() == Derivative.DISABLED) {
-                    formula_dddfz_panel9.setVisible(true);
-                }
 
-                if (!(Settings.isFourFunctionsNovaFormula(method_choice.getSelectedIndex()) || Settings.isThreeFunctionsNovaFormula(method_choice.getSelectedIndex()))) {
-                    formula_ddfz_panel9.setVisible(false);
-                } else if(derivative_choice.getSelectedIndex() == Derivative.DISABLED) {
-                    formula_ddfz_panel9.setVisible(true);
-                }
-
-                if (!(Settings.isFourFunctionsNovaFormula(method_choice.getSelectedIndex()) || Settings.isThreeFunctionsNovaFormula(method_choice.getSelectedIndex()) || Settings.isTwoFunctionsNovaFormula(method_choice.getSelectedIndex()))) {
-                    formula_dfz_panel9.setVisible(false);
-                } else if(derivative_choice.getSelectedIndex() == Derivative.DISABLED) {
-                    formula_dfz_panel9.setVisible(true);
-                }
-                
-                derivativePanel.setVisible(!Settings.isOneFunctionsNovaFormula(method_choice.getSelectedIndex()));
-
-                pack();
+            if (!(Settings.isFourFunctionsNovaFormula(method_choice.getSelectedIndex()))) {
+                formula_dddfz_panel9.setVisible(false);
+            } else if(derivative_choice.getSelectedIndex() == Derivative.DISABLED) {
+                formula_dddfz_panel9.setVisible(true);
             }
 
+            if (!(Settings.isFourFunctionsNovaFormula(method_choice.getSelectedIndex()) || Settings.isThreeFunctionsNovaFormula(method_choice.getSelectedIndex()))) {
+                formula_ddfz_panel9.setVisible(false);
+            } else if(derivative_choice.getSelectedIndex() == Derivative.DISABLED) {
+                formula_ddfz_panel9.setVisible(true);
+            }
+
+            if (!(Settings.isFourFunctionsNovaFormula(method_choice.getSelectedIndex()) || Settings.isThreeFunctionsNovaFormula(method_choice.getSelectedIndex()) || Settings.isTwoFunctionsNovaFormula(method_choice.getSelectedIndex()))) {
+                formula_dfz_panel9.setVisible(false);
+            } else if(derivative_choice.getSelectedIndex() == Derivative.DISABLED) {
+                formula_dfz_panel9.setVisible(true);
+            }
+
+            derivativePanel.setVisible(!Settings.isOneFunctionsNovaFormula(method_choice.getSelectedIndex()));
+
+            pack();
         });
 
         JPanel defaultInitPanel = new JPanel();
@@ -271,12 +251,9 @@ public class UserFormulaNovaDialog extends JDialog {
         global_real.setEnabled(globalMethod.isSelected());
         global_imaginary.setEnabled(globalMethod.isSelected());
 
-        globalMethod.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                global_real.setEnabled(globalMethod.isSelected());
-                global_imaginary.setEnabled(globalMethod.isSelected());
-            }
+        globalMethod.addActionListener(e -> {
+            global_real.setEnabled(globalMethod.isSelected());
+            global_imaginary.setEnabled(globalMethod.isSelected());
         });
 
         Object[] message3 = {
@@ -300,165 +277,164 @@ public class UserFormulaNovaDialog extends JDialog {
 
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
+            @Override
             public void windowClosing(WindowEvent we) {
-                optionPane.setValue(new Integer(JOptionPane.CLOSED_OPTION));
+                optionPane.setValue(JOptionPane.CLOSED_OPTION);
             }
         });
 
         optionPane.addPropertyChangeListener(
-                new PropertyChangeListener() {
-            public void propertyChange(PropertyChangeEvent e) {
-                String prop = e.getPropertyName();
+                e -> {
+                    String prop = e.getPropertyName();
 
-                if (isVisible() && (e.getSource() == optionPane) && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
+                    if (isVisible() && (e.getSource() == optionPane) && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
 
-                    Object value = optionPane.getValue();
+                        Object value = optionPane.getValue();
 
-                    if (value == JOptionPane.UNINITIALIZED_VALUE) {
-                        //ignore reset
-                        return;
-                    }
+                        if (value == JOptionPane.UNINITIALIZED_VALUE) {
+                            //ignore reset
+                            return;
+                        }
 
-                    //Reset the JOptionPane's value.
-                    //If you don't do this, then if the user
-                    //presses the same button next time, no
-                    //property change event will be fired.
-                    optionPane.setValue(JOptionPane.UNINITIALIZED_VALUE);
+                        //Reset the JOptionPane's value.
+                        //If you don't do this, then if the user
+                        //presses the same button next time, no
+                        //property change event will be fired.
+                        optionPane.setValue(JOptionPane.UNINITIALIZED_VALUE);
 
-                    if ((Integer) value == JOptionPane.CANCEL_OPTION || (Integer) value == JOptionPane.NO_OPTION || (Integer) value == JOptionPane.CLOSED_OPTION) {
-                        fractal_functions[oldSelected].setSelected(true);
-                        s.fns.function = oldSelected;
+                        if ((Integer) value == JOptionPane.CANCEL_OPTION || (Integer) value == JOptionPane.NO_OPTION || (Integer) value == JOptionPane.CLOSED_OPTION) {
+                            fractal_functions[oldSelected].setSelected(true);
+                            s.fns.function = oldSelected;
+                            dispose();
+                            return;
+                        }
+
+                        try {
+                            s.parser.parse(field_fz_formula9.getText());
+                            if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                                JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r, stat, trap cannot be used in the f(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+                            boolean temp_bool = s.parser.foundC();
+
+                            if (Settings.isFourFunctionsNovaFormula(method_choice.getSelectedIndex()) || Settings.isThreeFunctionsNovaFormula(method_choice.getSelectedIndex()) || Settings.isTwoFunctionsNovaFormula(method_choice.getSelectedIndex())) {
+                                s.parser.parse(field_dfz_formula9.getText());
+
+                                if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                                    JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r, stat, trap cannot be used in the f'(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                    return;
+                                }
+
+                                temp_bool = temp_bool || s.parser.foundC();
+                            }
+
+                            if (Settings.isFourFunctionsNovaFormula(method_choice.getSelectedIndex()) || Settings.isThreeFunctionsNovaFormula(method_choice.getSelectedIndex())) {
+                                s.parser.parse(field_ddfz_formula9.getText());
+
+                                if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                                    JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r, stat, trap cannot be used in the f''(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                    return;
+                                }
+
+                                temp_bool = temp_bool || s.parser.foundC();
+                            }
+
+                            if (Settings.isFourFunctionsNovaFormula(method_choice.getSelectedIndex())) {
+                                s.parser.parse(field_dddfz_formula9.getText());
+
+                                if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                                    JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r, stat, trap cannot be used in the f'''(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                    return;
+                                }
+
+                                temp_bool = temp_bool || s.parser.foundC();
+                            }
+
+                            s.parser.parse(field_relaxation.getText());
+
+                            if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                                JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r, stat, trap cannot be used in the relaxation formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+
+                            temp_bool = temp_bool || s.parser.foundC();
+
+                            s.parser.parse(field_addend.getText());
+
+                            if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                                JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r, stat, trap cannot be used in the addend formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+
+                            temp_bool = temp_bool || s.parser.foundC();
+
+                            double temp5 = 0, temp6 = 0;
+                            if (method_choice.getSelectedIndex() == MainWindow.NOVA_LAGUERRE) {
+                                temp5 = Double.parseDouble(field_real8.getText());
+                                temp6 = Double.parseDouble(field_imaginary8.getText());
+                            }
+
+                            double temp7 = 0, temp8 = 0;
+                            if (method_choice.getSelectedIndex() == MainWindow.NOVA_NEWTON_HINES) {
+                                temp7 = Double.parseDouble(field_realk.getText());
+                                temp8 = Double.parseDouble(field_imaginaryk.getText());
+                            }
+
+                            if (method_choice.getSelectedIndex() == MainWindow.NOVA_LAGUERRE) {
+                                s.fns.laguerre_deg[0] = temp5;
+                                s.fns.laguerre_deg[1] = temp6;
+                            }
+
+                            if (method_choice.getSelectedIndex() == MainWindow.NOVA_NEWTON_HINES) {
+                                s.fns.newton_hines_k[0] = temp7;
+                                s.fns.newton_hines_k[1] = temp8;
+                            }
+
+                            double temp9 = Double.parseDouble(global_real.getText());
+                            double temp10 = Double.parseDouble(global_imaginary.getText());
+
+                            if (Settings.isFourFunctionsNovaFormula(method_choice.getSelectedIndex()) || Settings.isThreeFunctionsNovaFormula(method_choice.getSelectedIndex()) || Settings.isTwoFunctionsNovaFormula(method_choice.getSelectedIndex())) {
+                                s.fns.user_dfz_formula = field_dfz_formula9.getText();
+                            }
+
+                            if (Settings.isFourFunctionsNovaFormula(method_choice.getSelectedIndex()) || Settings.isThreeFunctionsNovaFormula(method_choice.getSelectedIndex())) {
+                                s.fns.user_ddfz_formula = field_ddfz_formula9.getText();
+                            }
+
+                            if (Settings.isFourFunctionsNovaFormula(method_choice.getSelectedIndex())) {
+                                s.fns.user_dddfz_formula = field_dddfz_formula9.getText();
+                            }
+
+                            s.fns.nova_method = method_choice.getSelectedIndex();
+                            s.fns.user_fz_formula = field_fz_formula9.getText();
+                            s.userFormulaHasC = temp_bool;
+                            s.fns.user_relaxation_formula = field_relaxation.getText();
+                            s.fns.user_nova_addend_formula = field_addend.getText();
+
+                            s.fns.derivative_method = derivative_choice.getSelectedIndex();
+                            Derivative.DERIVATIVE_METHOD = s.fns.derivative_method;
+
+                            s.fns.defaultNovaInitialValue = defaultInit.isSelected();
+
+                            s.fns.useGlobalMethod = globalMethod.isSelected();
+                            s.fns.globalMethodFactor[0] = temp9;
+                            s.fns.globalMethodFactor[1] = temp10;
+
+                            ptra.setUserFormulaOptions(true);
+                        } catch (ParserException ex) {
+                            JOptionPane.showMessageDialog(ptra, ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
+                        catch (Exception ex) {
+                            JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
+
+                        ptra.optionsEnableShortcut();
                         dispose();
-                        return;
+                        ptra.setFunctionPost(wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType, wasEscapingOrConvergingType);
                     }
-
-                    try {
-                        s.parser.parse(field_fz_formula9.getText());
-                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
-                            JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r, stat, trap cannot be used in the f(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            return;
-                        }
-                        boolean temp_bool = s.parser.foundC();
-
-                        if (Settings.isFourFunctionsNovaFormula(method_choice.getSelectedIndex()) || Settings.isThreeFunctionsNovaFormula(method_choice.getSelectedIndex()) || Settings.isTwoFunctionsNovaFormula(method_choice.getSelectedIndex())) {
-                            s.parser.parse(field_dfz_formula9.getText());
-
-                            if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
-                                JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r, stat, trap cannot be used in the f'(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                return;
-                            }
-
-                            temp_bool = temp_bool | s.parser.foundC();
-                        }
-
-                        if (Settings.isFourFunctionsNovaFormula(method_choice.getSelectedIndex()) || Settings.isThreeFunctionsNovaFormula(method_choice.getSelectedIndex())) {
-                            s.parser.parse(field_ddfz_formula9.getText());
-
-                            if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
-                                JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r, stat, trap cannot be used in the f''(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                return;
-                            }
-
-                            temp_bool = temp_bool | s.parser.foundC();
-                        }
-
-                        if (Settings.isFourFunctionsNovaFormula(method_choice.getSelectedIndex())) {
-                            s.parser.parse(field_dddfz_formula9.getText());
-
-                            if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
-                                JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r, stat, trap cannot be used in the f'''(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                return;
-                            }
-
-                            temp_bool = temp_bool | s.parser.foundC();
-                        }
-                        
-                        s.parser.parse(field_relaxation.getText());
-
-                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
-                            JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r, stat, trap cannot be used in the relaxation formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            return;
-                        }
-
-                        temp_bool = temp_bool | s.parser.foundC();
-                        
-                        s.parser.parse(field_addend.getText());
-
-                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
-                            JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r, stat, trap cannot be used in the addend formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            return;
-                        }
-
-                        temp_bool = temp_bool | s.parser.foundC();
-
-                        double temp5 = 0, temp6 = 0;
-                        if (method_choice.getSelectedIndex() == MainWindow.NOVA_LAGUERRE) {
-                            temp5 = Double.parseDouble(field_real8.getText());
-                            temp6 = Double.parseDouble(field_imaginary8.getText());
-                        }
-                        
-                        double temp7 = 0, temp8 = 0;
-                        if (method_choice.getSelectedIndex() == MainWindow.NOVA_NEWTON_HINES) {
-                            temp7 = Double.parseDouble(field_realk.getText());
-                            temp8 = Double.parseDouble(field_imaginaryk.getText());
-                        }
-
-                        if (method_choice.getSelectedIndex() == MainWindow.NOVA_LAGUERRE) {
-                            s.fns.laguerre_deg[0] = temp5;
-                            s.fns.laguerre_deg[1] = temp6;
-                        }
-                        
-                        if (method_choice.getSelectedIndex() == MainWindow.NOVA_NEWTON_HINES) {
-                            s.fns.newton_hines_k[0] = temp7;
-                            s.fns.newton_hines_k[1] = temp8;
-                        }
-
-                        double temp9 = Double.parseDouble(global_real.getText());
-                        double temp10 = Double.parseDouble(global_imaginary.getText());
-
-                        if (Settings.isFourFunctionsNovaFormula(method_choice.getSelectedIndex()) || Settings.isThreeFunctionsNovaFormula(method_choice.getSelectedIndex()) || Settings.isTwoFunctionsNovaFormula(method_choice.getSelectedIndex())) {
-                            s.fns.user_dfz_formula = field_dfz_formula9.getText();
-                        }
-
-                        if (Settings.isFourFunctionsNovaFormula(method_choice.getSelectedIndex()) || Settings.isThreeFunctionsNovaFormula(method_choice.getSelectedIndex())) {
-                            s.fns.user_ddfz_formula = field_ddfz_formula9.getText();
-                        }
-
-                        if (Settings.isFourFunctionsNovaFormula(method_choice.getSelectedIndex())) {
-                            s.fns.user_dddfz_formula = field_dddfz_formula9.getText();
-                        }
-
-                        s.fns.nova_method = method_choice.getSelectedIndex();
-                        s.fns.user_fz_formula = field_fz_formula9.getText();
-                        s.userFormulaHasC = temp_bool;
-                        s.fns.user_relaxation_formula = field_relaxation.getText();
-                        s.fns.user_nova_addend_formula = field_addend.getText();
-                        
-                        s.fns.derivative_method = derivative_choice.getSelectedIndex();
-                        Derivative.DERIVATIVE_METHOD = s.fns.derivative_method;
-
-                        s.fns.defaultNovaInitialValue = defaultInit.isSelected();
-
-                        s.fns.useGlobalMethod = globalMethod.isSelected();
-                        s.fns.globalMethodFactor[0] = temp9;
-                        s.fns.globalMethodFactor[1] = temp10;
-
-                        ptra.setUserFormulaOptions(true);
-                    } catch (ParserException ex) {
-                        JOptionPane.showMessageDialog(ptra, ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-                    catch (Exception ex) {
-                        JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-
-                    ptra.optionsEnableShortcut();
-                    dispose();
-                    ptra.setFunctionPost(wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType, wasEscapingOrConvergingType);
-                }
-            }
-        });
+                });
 
         //Make this dialog display it.
         setContentPane(optionPane);
@@ -468,12 +444,6 @@ public class UserFormulaNovaDialog extends JDialog {
         setResizable(false);
         setLocation((int) (ptra.getLocation().getX() + ptra.getSize().getWidth() / 2) - (getWidth() / 2), (int) (ptra.getLocation().getY() + ptra.getSize().getHeight() / 2) - (getHeight() / 2));
         setVisible(true);
-
-    }
-
-    private ImageIcon getIcon(String path) {
-
-        return new ImageIcon(getClass().getResource(path));
 
     }
 

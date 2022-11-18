@@ -42,7 +42,6 @@ public class ImageFilters {
     private static final float[] sharpness_high = {-0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, 3.4f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f};
     private static float[] sharpness_low = {0.0f, -0.2f, 0.0f, -0.2f, 1.8f, -0.2f, 0.0f, -0.2f, 0.0f};
     private static final float[] EMBOSS = {1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, -1.0f};
-    public static final int IMAGE_SIZE_LIMIT = 4000;
 
     private static void filterEmboss(BufferedImage image, int filter_value) {
 
@@ -121,10 +120,6 @@ public class ImageFilters {
             f.filter(image, image);
         }
 
-        if (image_size > IMAGE_SIZE_LIMIT) {
-            System.gc();
-        }
-
     }
 
     private static void filterEdgeDetection(BufferedImage image, int filter_value, Color filter_color) {
@@ -188,10 +183,6 @@ public class ImageFilters {
         newSource = null;
         newSource2 = null;
 
-        if (image_size > IMAGE_SIZE_LIMIT) {
-            System.gc();
-        }
-
     }
 
     private static void filterSharpness(BufferedImage image, int filter_value) {
@@ -225,9 +216,6 @@ public class ImageFilters {
         cop = null;
         newSource = null;
 
-        if (image_size > IMAGE_SIZE_LIMIT) {
-            System.gc();
-        }
     }
 
     private static void filterBlurring(BufferedImage image, int filter_value) { //OLD antialiasing method (blurring)
@@ -373,11 +361,6 @@ public class ImageFilters {
 
             f.filter(image, image);
         }
-
-        if (image.getHeight() > IMAGE_SIZE_LIMIT) {
-            System.gc();
-        }
-
     }
 
     private static void filterInvertColors(BufferedImage image, int filter_value) {
@@ -467,10 +450,6 @@ public class ImageFilters {
 
         f.filter(image, image);
 
-        if (image.getHeight() > IMAGE_SIZE_LIMIT) {
-            System.gc();
-        }
-
     }
 
     private static void filterFadeOut(BufferedImage image) {
@@ -478,10 +457,6 @@ public class ImageFilters {
         GrayFilter f = new GrayFilter();
 
         f.filter(image, image);
-
-        if (image.getHeight() > IMAGE_SIZE_LIMIT) {
-            System.gc();
-        }
 
     }
 
@@ -529,10 +504,6 @@ public class ImageFilters {
 
         f.filter(image, image);
 
-        if (image.getHeight() > IMAGE_SIZE_LIMIT) {
-            System.gc();
-        }
-
     }
 
     private static void filterColorTemperature(BufferedImage image, int filter_value) {
@@ -542,11 +513,6 @@ public class ImageFilters {
         f.setTemperature((float) filter_value);
 
         f.filter(image, image);
-
-        if (image.getHeight() > IMAGE_SIZE_LIMIT) {
-            System.gc();
-        }
-
     }
 
     private static void filterGrayscale(BufferedImage image, int filter_value) {
@@ -923,10 +889,6 @@ public class ImageFilters {
             });
         }
 
-        if (image.getHeight() > IMAGE_SIZE_LIMIT) {
-            System.gc();
-        }
-
     }
 
     private static void filterColorChannelSwizzling(BufferedImage image, int filter_value) {
@@ -951,10 +913,6 @@ public class ImageFilters {
 
         f.filter(image, image);
 
-        if (image.getHeight() > IMAGE_SIZE_LIMIT) {
-            System.gc();
-        }
-
     }
 
     private static void filterColorChannelAdjusting(BufferedImage image, int filter_value) {
@@ -971,9 +929,6 @@ public class ImageFilters {
 
         f.filter(image, image);
 
-        if (image.getHeight() > IMAGE_SIZE_LIMIT) {
-            System.gc();
-        }
     }
 
     private static void filterDither(BufferedImage image, int filter_value) {
@@ -1035,10 +990,6 @@ public class ImageFilters {
             f.filter(image, image);
         }
 
-        if (image.getHeight() > IMAGE_SIZE_LIMIT) {
-            System.gc();
-        }
-
     }
 
     private static void filterHSBcolorChannelAdjusting(BufferedImage image, int filter_value) {
@@ -1053,10 +1004,6 @@ public class ImageFilters {
         f.setBFactor((float) bFactor);
 
         f.filter(image, image);
-
-        if (image.getHeight() > IMAGE_SIZE_LIMIT) {
-            System.gc();
-        }
     }
 
     private static void filterPosterize(BufferedImage image, int filter_value) {
@@ -1068,10 +1015,6 @@ public class ImageFilters {
 
         f.filter(image, image);
 
-        if (image.getHeight() > IMAGE_SIZE_LIMIT) {
-            System.gc();
-        }
-
     }
 
     private static void filterSolarize(BufferedImage image) {
@@ -1079,10 +1022,6 @@ public class ImageFilters {
         SolarizeFilter f = new SolarizeFilter();
 
         f.filter(image, image);
-
-        if (image.getHeight() > IMAGE_SIZE_LIMIT) {
-            System.gc();
-        }
 
     }
 
@@ -1097,10 +1036,6 @@ public class ImageFilters {
 
         f.filter(image, image);
 
-        if (image.getHeight() > IMAGE_SIZE_LIMIT) {
-            System.gc();
-        }
-
     }
 
     private static void filterGamma(BufferedImage image, int filter_value) {
@@ -1112,10 +1047,6 @@ public class ImageFilters {
 
         f.filter(image, image);
 
-        if (image.getHeight() > IMAGE_SIZE_LIMIT) {
-            System.gc();
-        }
-
     }
 
     private static void filterExposure(BufferedImage image, int filter_value) {
@@ -1126,10 +1057,6 @@ public class ImageFilters {
         f.setExposure((float) exposure);
 
         f.filter(image, image);
-
-        if (image.getHeight() > IMAGE_SIZE_LIMIT) {
-            System.gc();
-        }
 
     }
 
@@ -1164,9 +1091,6 @@ public class ImageFilters {
 
         f.filter(image, image);
 
-        if (image.getHeight() > IMAGE_SIZE_LIMIT) {
-            System.gc();
-        }
     }
 
     private static void filterMarble(BufferedImage image, int filter_value) {
@@ -1187,9 +1111,6 @@ public class ImageFilters {
 
         f.filter(image, image);
 
-        if (image.getHeight() > IMAGE_SIZE_LIMIT) {
-            System.gc();
-        }
 
     }
 
@@ -1226,10 +1147,6 @@ public class ImageFilters {
 
         f.filter(image, image);
 
-        if (image.getHeight() > IMAGE_SIZE_LIMIT) {
-            System.gc();
-        }
-
     }
 
     private static void filterOil(BufferedImage image, int filter_value) {
@@ -1243,10 +1160,6 @@ public class ImageFilters {
         f.setLevels(levels);
 
         f.filter(image, image);
-
-        if (image.getHeight() > IMAGE_SIZE_LIMIT) {
-            System.gc();
-        }
 
     }
 
@@ -1285,10 +1198,6 @@ public class ImageFilters {
 
         f.filter(image, image);
 
-        if (image.getHeight() > IMAGE_SIZE_LIMIT) {
-            System.gc();
-        }
-
     }
 
     private static void filterSparkle(BufferedImage image, int filter_value, Color filter_color) {
@@ -1308,10 +1217,6 @@ public class ImageFilters {
 
         f.filter(image, image);
 
-        if (image.getHeight() > IMAGE_SIZE_LIMIT) {
-            System.gc();
-        }
-
     }
 
     private static void filterGlow(BufferedImage image, int filter_value) {
@@ -1325,10 +1230,6 @@ public class ImageFilters {
         f.setRadius((float) softness);
 
         f.filter(image, image);
-
-        if (image.getHeight() > IMAGE_SIZE_LIMIT) {
-            System.gc();
-        }
 
     }
 
@@ -1353,10 +1254,6 @@ public class ImageFilters {
 
         f.filter(image, image);
 
-        if (image.getHeight() > IMAGE_SIZE_LIMIT) {
-            System.gc();
-        }
-
     }
 
     private static void filterColorChannelScaling(BufferedImage image, int filter_value) {
@@ -1367,10 +1264,6 @@ public class ImageFilters {
         f.setScale((float) scale);
 
         f.filter(image, image);
-
-        if (image.getHeight() > IMAGE_SIZE_LIMIT) {
-            System.gc();
-        }
 
     }
 
@@ -1387,10 +1280,6 @@ public class ImageFilters {
         f.setCentreY(mirrory / 100.0f);
 
         f.filter(image, image);
-
-        if (image.getHeight() > IMAGE_SIZE_LIMIT) {
-            System.gc();
-        }
 
     }
 
@@ -1441,10 +1330,6 @@ public class ImageFilters {
 
         f.filter(image, image);
 
-        if (image.getHeight() > IMAGE_SIZE_LIMIT) {
-            System.gc();
-        }
-
     }
 
     private static void filterColorChannelMixing(BufferedImage image, int filter_value, Color filter_color) {
@@ -1468,10 +1353,6 @@ public class ImageFilters {
 
         f.filter(image, image);
 
-        if (image.getHeight() > IMAGE_SIZE_LIMIT) {
-            System.gc();
-        }
-
     }
 
     private static void filterEdgeDetection2(BufferedImage image, int filter_value) {
@@ -1484,9 +1365,6 @@ public class ImageFilters {
 
         f.filter(image, image);
 
-        if (image.getHeight() > IMAGE_SIZE_LIMIT) {
-            System.gc();
-        }
     }
 
     private static float[] createGaussianKernel(int length, double weight) {

@@ -24,7 +24,7 @@ import fractalzoomer.core.Complex;
  */
 public abstract class AbstractOneArgumentFunction {
     
-    public AbstractOneArgumentFunction() {
+    protected AbstractOneArgumentFunction() {
         
     }
     

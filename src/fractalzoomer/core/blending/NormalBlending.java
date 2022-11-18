@@ -29,7 +29,7 @@ public class NormalBlending extends Blending {
     }
 
     @Override
-    public int blend(int redA, int greenA, int blueA, int redB, int greenB, int blueB, double coef) {
+    public int blendInternal(int redA, int greenA, int blueA, int redB, int greenB, int blueB, double coef) {
 
         return method.interpolate(redB, greenB, blueB, redA, greenA, blueA, coef);
 

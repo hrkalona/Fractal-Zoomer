@@ -20,8 +20,6 @@ import fractalzoomer.main.MainWindow;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 /**
  *
@@ -30,7 +28,6 @@ import java.awt.event.ActionListener;
 public class ActiveFiltersPanel extends JPanel {
 	private static final long serialVersionUID = -6044058667850407342L;
 	private JCheckBox[] filters_opt;
-    private int i;
     private boolean[] mActiveFilters;
     
     public ActiveFiltersPanel(JCheckBoxMenuItem[] filter_names, boolean[] activeFilters) {
@@ -41,28 +38,23 @@ public class ActiveFiltersPanel extends JPanel {
         
         mActiveFilters = activeFilters;
         
-        for(i = 0; i < filters_opt.length; i++) {
+        for(int i = 0; i < filters_opt.length; i++) {
             filters_opt[i] = new JCheckBox(filter_names[i].getText());
             filters_opt[i].setToolTipText(filter_names[i].getToolTipText());
             filters_opt[i].setSelected(activeFilters[i]);
             filters_opt[i].setBackground(MainWindow.bg_color);
             filters_opt[i].setFocusable(false);
+
+            final int k = i;
             
-            filters_opt[i].addActionListener(new ActionListener() {
-                int k = i;
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    mActiveFilters[k] = filters_opt[k].isSelected();
-                }
-                
-            });
+            filters_opt[i].addActionListener(e -> mActiveFilters[k] = filters_opt[k].isSelected());
         }    
         
         JPanel detail_filters = new JPanel();
         JTabbedPane detail_filters_tab = new JTabbedPane();
         
         detail_filters_tab.addTab("Details", detail_filters);
-        detail_filters_tab.setIconAt(0, getIcon("/fractalzoomer/icons/filter_details.png"));
+        detail_filters_tab.setIconAt(0, MainWindow.getIcon("filter_details.png"));
         detail_filters_tab.setFocusable(false);
         detail_filters_tab.setBackground(MainWindow.bg_color);  
         
@@ -84,7 +76,7 @@ public class ActiveFiltersPanel extends JPanel {
         JTabbedPane color_filters_tab = new JTabbedPane();
         
         color_filters_tab.addTab("Colors", color_filters);
-        color_filters_tab.setIconAt(0, getIcon("/fractalzoomer/icons/filter_colors.png"));
+        color_filters_tab.setIconAt(0, MainWindow.getIcon("filter_colors.png"));
         color_filters_tab.setFocusable(false);
         color_filters_tab.setBackground(MainWindow.bg_color);  
         
@@ -115,7 +107,7 @@ public class ActiveFiltersPanel extends JPanel {
         JTabbedPane texture_filters_tab = new JTabbedPane();
         
         texture_filters_tab.addTab("Texture", texture_filters);
-        texture_filters_tab.setIconAt(0, getIcon("/fractalzoomer/icons/filter_texture.png"));
+        texture_filters_tab.setIconAt(0, MainWindow.getIcon("filter_texture.png"));
         texture_filters_tab.setFocusable(false);
         texture_filters_tab.setBackground(MainWindow.bg_color);  
         
@@ -137,7 +129,7 @@ public class ActiveFiltersPanel extends JPanel {
         JTabbedPane lighting_filters_tab = new JTabbedPane();
         
         lighting_filters_tab.addTab("Lighting", lighting_filters);
-        lighting_filters_tab.setIconAt(0, getIcon("/fractalzoomer/icons/filter_lighting.png"));
+        lighting_filters_tab.setIconAt(0, MainWindow.getIcon("filter_lighting.png"));
         lighting_filters_tab.setFocusable(false);
         lighting_filters_tab.setBackground(MainWindow.bg_color); 
         
@@ -152,12 +144,6 @@ public class ActiveFiltersPanel extends JPanel {
         add(color_filters_tab);
         add(texture_filters_tab);
         add(lighting_filters_tab);  
-    }
-    
-    private ImageIcon getIcon(String path) {
-
-        return new ImageIcon(getClass().getResource(path));
-        
     }
     
 }

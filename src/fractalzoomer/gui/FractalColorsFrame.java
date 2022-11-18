@@ -42,7 +42,7 @@ public class FractalColorsFrame extends JFrame {
         int color_window_width = 400;
         int color_window_height = 370;
         setTitle("Fractal Colors");
-        setIconImage(getIcon("/fractalzoomer/icons/color.png").getImage());
+        setIconImage(MainWindow.getIcon("color.png").getImage());
         setSize(color_window_width, color_window_height);
         setLocation((int) (ptra2.getLocation().getX() + ptra2.getSize().getWidth() / 2) - (color_window_width / 2), (int) (ptra2.getLocation().getY() + ptra2.getSize().getHeight() / 2) - (color_window_height / 2));
 
@@ -209,20 +209,12 @@ public class FractalColorsFrame extends JFrame {
         remove_special_increment.setToolTipText("Removes the special offset, applicable in processing algorithms and 3d rendering.");
 
         JButton help_button = new JButton();
-        help_button.setIcon(getIcon("/fractalzoomer/icons/help.png"));
+        help_button.setIcon(MainWindow.getIcon("help.png"));
         help_button.setFocusable(false);
         help_button.setToolTipText("Some info regarding special offset.");
         help_button.setPreferredSize(new Dimension(30, 30));
 
-        help_button.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptra2.displaySpecialHelp();
-
-            }
-        });
+        help_button.addActionListener(e -> ptra2.displaySpecialHelp());
 
         fractal_color_panel.add(new JLabel("Maximum Iterations Color: "));
         fractal_color_panel.add(max_it_color_label);
@@ -261,30 +253,26 @@ public class FractalColorsFrame extends JFrame {
         getRootPane().setDefaultButton(ok);
         ok.setFocusable(false);
 
-        ok.addActionListener(new ActionListener() {
+        ok.addActionListener(e -> {
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                int temp = 0;
-                try {
-                    temp = Integer.parseInt(magnetOffsetopt.getText());
-                }
-                catch (Exception ex) {
-                    JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-
-                if (temp < 0) {
-                    JOptionPane.showMessageDialog(ptra, "The magnet color offset value must be greater than -1.", "Error!", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-       
-                ptra2.fractalColorsChanged(max_it_color_label.getBackground(), dem_color_label.getBackground(), special_color_label.getBackground(), use_palette_color.isSelected(), remove_special_increment.isSelected(), temp);
-                ptra2.setEnabled(true);
-                dispose();
-                
+            int temp = 0;
+            try {
+                temp = Integer.parseInt(magnetOffsetopt.getText());
             }
+            catch (Exception ex) {
+                JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            if (temp < 0) {
+                JOptionPane.showMessageDialog(ptra, "The magnet color offset value must be greater than -1.", "Error!", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            ptra2.fractalColorsChanged(max_it_color_label.getBackground(), dem_color_label.getBackground(), special_color_label.getBackground(), use_palette_color.isSelected(), remove_special_increment.isSelected(), temp);
+            ptra2.setEnabled(true);
+            dispose();
+
         });
 
         getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
@@ -301,15 +289,11 @@ public class FractalColorsFrame extends JFrame {
         JButton close = new JButton("Cancel");
         close.setFocusable(false);
 
-        close.addActionListener(new ActionListener() {
+        close.addActionListener(e -> {
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
+            ptra2.setEnabled(true);
+            dispose();
 
-                ptra2.setEnabled(true);
-                dispose();
-
-            }
         });
 
         getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
@@ -359,12 +343,6 @@ public class FractalColorsFrame extends JFrame {
         add(scrollPane);
 
         setVisible(true);
-    }
-    
-    private ImageIcon getIcon(String path) {
-
-        return new ImageIcon(getClass().getResource(path));
-
     }
     
 }

@@ -45,7 +45,7 @@ public abstract class GenericStatistic {
     protected int iterations;
     protected Apfloat size;
     
-    public GenericStatistic(double statistic_intensity, boolean useSmoothing, boolean useAverage) {
+    protected GenericStatistic(double statistic_intensity, boolean useSmoothing, boolean useAverage) {
         this.statistic_intensity = statistic_intensity;
         z_val = new Complex();
         zold_val = new Complex();

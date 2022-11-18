@@ -24,17 +24,11 @@ import fractalzoomer.utils.MathUtils;
 import org.apfloat.Apfloat;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 
 import static fractalzoomer.gui.CenterSizeDialog.TEMPLATE_TFIELD;
 
@@ -55,7 +49,7 @@ public class RotationDialog extends JDialog {
 
         setTitle("Rotation");
         setModal(true);
-        setIconImage(getIcon("/fractalzoomer/icons/mandel2.png").getImage());
+        setIconImage(MainWindow.getIcon("mandel2.png").getImage());
 
         final JSlider rotation_slid = new JSlider(JSlider.HORIZONTAL, -360, 360, ((int) (s.fns.rotation)));
         rotation_slid.setPreferredSize(new Dimension(300, 35));
@@ -70,14 +64,7 @@ public class RotationDialog extends JDialog {
         final JTextField field_rotation = new JTextField();
         field_rotation.setText("" + s.fns.rotation);
 
-        rotation_slid.addChangeListener(new ChangeListener() {
-
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                field_rotation.setText("" + ((double) rotation_slid.getValue()));
-            }
-
-        });
+        rotation_slid.addChangeListener(e -> field_rotation.setText("" + ((double) rotation_slid.getValue())));
 
         field_rotation.getDocument().addDocumentListener(new DocumentListener() {
 
@@ -153,81 +140,70 @@ public class RotationDialog extends JDialog {
         current_center.setSelected(false);
         current_center.setFocusable(false);
 
-        current_center.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        current_center.addActionListener(e -> {
 
 
-                if (!current_center.isSelected()) {
-                    if (s.fns.rotation_center[0].compareTo(MyApfloat.ZERO) == 0) {
-                        field_real.setText("" + 0.0);
-                    } else {
-                        field_real.setText("" + s.fns.rotation_center[0].toString(true));
-                    }
-
-                    field_real.setEnabled(true);
-
-                    if (s.fns.rotation_center[1].compareTo(MyApfloat.ZERO) == 0) {
-                        field_imaginary.setText("" + 0.0);
-                    } else {
-                        field_imaginary.setText("" + s.fns.rotation_center[1].toString(true));
-                    }
-                    field_imaginary.setEnabled(true);
+            if (!current_center.isSelected()) {
+                if (s.fns.rotation_center[0].compareTo(MyApfloat.ZERO) == 0) {
+                    field_real.setText("" + 0.0);
                 } else {
-                    BigPoint p = MathUtils.rotatePointRelativeToPoint(new BigPoint(s.xCenter, s.yCenter), s.fns.rotation_vals, s.fns.rotation_center);
-
-                    field_real.setText("" + p.x.toString(true));
-                    field_real.setEnabled(false);
-                    field_imaginary.setText("" + p.y.toString(true));
-                    field_imaginary.setEnabled(false);
+                    field_real.setText("" + s.fns.rotation_center[0].toString(true));
                 }
+
+                field_real.setEnabled(true);
+
+                if (s.fns.rotation_center[1].compareTo(MyApfloat.ZERO) == 0) {
+                    field_imaginary.setText("" + 0.0);
+                } else {
+                    field_imaginary.setText("" + s.fns.rotation_center[1].toString(true));
+                }
+                field_imaginary.setEnabled(true);
+            } else {
+                BigPoint p = MathUtils.rotatePointRelativeToPoint(new BigPoint(s.xCenter, s.yCenter), s.fns.rotation_vals, s.fns.rotation_center);
+
+                field_real.setText("" + p.x.toString(true));
+                field_real.setEnabled(false);
+                field_imaginary.setText("" + p.y.toString(true));
+                field_imaginary.setEnabled(false);
             }
         });
 
-        SwingUtilities.invokeLater(new Runnable() {
+        SwingUtilities.invokeLater(() -> {
+            scrollReal.getVerticalScrollBar().setValue(0);
+            scrollImaginary.getVerticalScrollBar().setValue(0);
 
-            @Override
-            public void run() {
-                scrollReal.getVerticalScrollBar().setValue(0);
-                scrollImaginary.getVerticalScrollBar().setValue(0);
-
-            }
         });
 
         JButton resetValues = new JButton("Reset");
         resetValues.setFocusable(false);
-        resetValues.setIcon(getIcon("/fractalzoomer/icons/reset_small.png"));
+        resetValues.setIcon(MainWindow.getIcon("reset_small.png"));
 
         JPanel resetPanel = new JPanel();
         resetPanel.add(resetValues);
 
-        resetValues.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                Settings defaultSettings = new Settings();
+        resetValues.addActionListener(e -> {
+            Settings defaultSettings = new Settings();
 
-                field_rotation.setText("" + defaultSettings.fns.rotation);
+            field_rotation.setText("" + defaultSettings.fns.rotation);
 
-                rotation_slid.setValue((int)defaultSettings.fns.rotation);
+            rotation_slid.setValue((int)defaultSettings.fns.rotation);
 
-                if (defaultSettings.fns.rotation_center[0].compareTo(MyApfloat.ZERO) == 0) {
-                    field_real.setText("" + 0.0);
-                } else {
-                    field_real.setText("" + defaultSettings.fns.rotation_center[0].toString(true));
-                }
-
-                if (defaultSettings.fns.rotation_center[1].compareTo(MyApfloat.ZERO) == 0) {
-                    field_imaginary.setText("" + 0.0);
-                } else {
-                    field_imaginary.setText("" + defaultSettings.fns.rotation_center[1].toString(true));
-                }
-
-                current_center.setSelected(false);
-
-                field_imaginary.setEnabled(true);
-                field_real.setEnabled(true);
+            if (defaultSettings.fns.rotation_center[0].compareTo(MyApfloat.ZERO) == 0) {
+                field_real.setText("" + 0.0);
+            } else {
+                field_real.setText("" + defaultSettings.fns.rotation_center[0].toString(true));
             }
+
+            if (defaultSettings.fns.rotation_center[1].compareTo(MyApfloat.ZERO) == 0) {
+                field_imaginary.setText("" + 0.0);
+            } else {
+                field_imaginary.setText("" + defaultSettings.fns.rotation_center[1].toString(true));
+            }
+
+            current_center.setSelected(false);
+
+            field_imaginary.setEnabled(true);
+            field_real.setEnabled(true);
         });
 
 
@@ -247,75 +223,74 @@ public class RotationDialog extends JDialog {
 
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
+            @Override
             public void windowClosing(WindowEvent we) {
-                optionPane.setValue(new Integer(JOptionPane.CLOSED_OPTION));
+                optionPane.setValue(JOptionPane.CLOSED_OPTION);
             }
         });
 
         optionPane.addPropertyChangeListener(
-                new PropertyChangeListener() {
-            public void propertyChange(PropertyChangeEvent e) {
-                String prop = e.getPropertyName();
+                e -> {
+                    String prop = e.getPropertyName();
 
-                if (isVisible() && (e.getSource() == optionPane) && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
+                    if (isVisible() && (e.getSource() == optionPane) && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
 
-                    Object value = optionPane.getValue();
+                        Object value = optionPane.getValue();
 
-                    if (value == JOptionPane.UNINITIALIZED_VALUE) {
-                        //ignore reset
-                        return;
-                    }
-
-                    //Reset the JOptionPane's value.
-                    //If you don't do this, then if the user
-                    //presses the same button next time, no
-                    //property change event will be fired.
-                    optionPane.setValue(JOptionPane.UNINITIALIZED_VALUE);
-
-                    if ((Integer) value == JOptionPane.CANCEL_OPTION || (Integer) value == JOptionPane.NO_OPTION || (Integer) value == JOptionPane.CLOSED_OPTION) {
-                        dispose();
-                        return;
-                    }
-
-                    try {
-                        double temp = Double.parseDouble(field_rotation.getText());
-                        Apfloat tempReal = new MyApfloat(field_real.getText());
-                        Apfloat tempImaginary = new MyApfloat(field_imaginary.getText());
-
-                        if (temp < -360) {            
-                            JOptionPane.showMessageDialog(ptra, "Rotation angle must be greater than -361.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            return;
-                        } else if (temp > 360) {
-                            JOptionPane.showMessageDialog(ptra, "Rotation angle must be less than 361.", "Error!", JOptionPane.ERROR_MESSAGE);
+                        if (value == JOptionPane.UNINITIALIZED_VALUE) {
+                            //ignore reset
                             return;
                         }
 
-                        s.fns.rotation = temp;
+                        //Reset the JOptionPane's value.
+                        //If you don't do this, then if the user
+                        //presses the same button next time, no
+                        //property change event will be fired.
+                        optionPane.setValue(JOptionPane.UNINITIALIZED_VALUE);
 
-                        Apfloat tempRadians =  MyApfloat.fp.toRadians(new MyApfloat(s.fns.rotation));
-                        s.fns.rotation_vals[0] = MyApfloat.cos(tempRadians);
-                        s.fns.rotation_vals[1] = MyApfloat.sin(tempRadians);
+                        if ((Integer) value == JOptionPane.CANCEL_OPTION || (Integer) value == JOptionPane.NO_OPTION || (Integer) value == JOptionPane.CLOSED_OPTION) {
+                            dispose();
+                            return;
+                        }
 
-                        s.fns.rotation_center[0] = tempReal;
-                        s.fns.rotation_center[1] = tempImaginary;
+                        try {
+                            double temp = Double.parseDouble(field_rotation.getText());
+                            Apfloat tempReal = new MyApfloat(field_real.getText());
+                            Apfloat tempImaginary = new MyApfloat(field_imaginary.getText());
 
-                        Apfloat zero = new MyApfloat(0.0);
+                            if (temp < -360) {
+                                JOptionPane.showMessageDialog(ptra, "Rotation angle must be greater than -361.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            } else if (temp > 360) {
+                                JOptionPane.showMessageDialog(ptra, "Rotation angle must be less than 361.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
 
-                        s.fns.rotation_center[0] = s.fns.rotation_center[0].compareTo(zero) == 0 ? zero : s.fns.rotation_center[0];
-                        s.fns.rotation_center[1] = s.fns.rotation_center[1].compareTo(zero) == 0? zero : s.fns.rotation_center[1];
+                            s.fns.rotation = temp;
 
-                        s.xCenter = s.fns.rotation_center[0];
-                        s.yCenter = s.fns.rotation_center[1];
-                    } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
-                        return;
+                            Apfloat tempRadians =  MyApfloat.fp.toRadians(new MyApfloat(s.fns.rotation));
+                            s.fns.rotation_vals[0] = MyApfloat.cos(tempRadians);
+                            s.fns.rotation_vals[1] = MyApfloat.sin(tempRadians);
+
+                            s.fns.rotation_center[0] = tempReal;
+                            s.fns.rotation_center[1] = tempImaginary;
+
+                            Apfloat zero = MyApfloat.ZERO;
+
+                            s.fns.rotation_center[0] = s.fns.rotation_center[0].compareTo(zero) == 0 ? zero : s.fns.rotation_center[0];
+                            s.fns.rotation_center[1] = s.fns.rotation_center[1].compareTo(zero) == 0? zero : s.fns.rotation_center[1];
+
+                            s.xCenter = s.fns.rotation_center[0];
+                            s.yCenter = s.fns.rotation_center[1];
+                        } catch (Exception ex) {
+                            JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
+
+                        dispose();
+                        ptra.setRotationPost();
                     }
-
-                    dispose();
-                    ptra.setRotationPost();
-                }
-            }
-        });
+                });
 
         //Make this dialog display it.
         setContentPane(optionPane);
@@ -325,12 +300,6 @@ public class RotationDialog extends JDialog {
         setResizable(false);
         setLocation((int) (ptra.getLocation().getX() + ptra.getSize().getWidth() / 2) - (getWidth() / 2), (int) (ptra.getLocation().getY() + ptra.getSize().getHeight() / 2) - (getHeight() / 2));
         setVisible(true);
-
-    }
-
-    private ImageIcon getIcon(String path) {
-
-        return new ImageIcon(getClass().getResource(path));
 
     }
 

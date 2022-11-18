@@ -22,12 +22,8 @@ import fractalzoomer.main.app_settings.Settings;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 
 /**
  *
@@ -46,7 +42,7 @@ public class D3Dialog extends JDialog {
 
         setTitle("3D");
         setModal(true);
-        setIconImage(getIcon("/fractalzoomer/icons/mandel2.png").getImage());
+        setIconImage(MainWindow.getIcon("mandel2.png").getImage());
 
         final JCheckBox d3 = new JCheckBox("3D");
         d3.setSelected(s.d3s.d3);
@@ -94,7 +90,7 @@ public class D3Dialog extends JDialog {
 
         String[] height_options = {"log(x + 1)", "log(log(x + 1) + 1)", "1 / (x + 1)", "e^(-x + 5)", "150 - e^(-x + 5)", "150 / (1 + e^(-3*x+3))", "1 / (log(x + 1) + 1)"};
 
-        JComboBox height_algorithm_opt = new JComboBox(height_options);
+        JComboBox<String> height_algorithm_opt = new JComboBox<>(height_options);
         height_algorithm_opt.setSelectedIndex(s.d3s.height_algorithm);
         height_algorithm_opt.setFocusable(false);
         height_algorithm_opt.setToolTipText("Sets the height algorithm.");
@@ -109,25 +105,20 @@ public class D3Dialog extends JDialog {
         field3.setEnabled(s.d3s.gaussian_scaling);
 
         String[] kernels = {"3", "5", "7", "9", "11"};
-        final JComboBox kernels_size_opt = new JComboBox(kernels);
+        final JComboBox<String> kernels_size_opt = new JComboBox<>(kernels);
         kernels_size_opt.setSelectedIndex(s.d3s.gaussian_kernel);
         kernels_size_opt.setFocusable(false);
         kernels_size_opt.setEnabled(s.d3s.gaussian_scaling);
         kernels_size_opt.setToolTipText("Sets the radius of the gaussian normalization.");
 
-        gaussian_scaling_opt.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (gaussian_scaling_opt.isSelected()) {
-                    field3.setEnabled(true);
-                    kernels_size_opt.setEnabled(true);
-                } else {
-                    field3.setEnabled(false);
-                    kernels_size_opt.setEnabled(false);
-                }
+        gaussian_scaling_opt.addActionListener(e -> {
+            if (gaussian_scaling_opt.isSelected()) {
+                field3.setEnabled(true);
+                kernels_size_opt.setEnabled(true);
+            } else {
+                field3.setEnabled(false);
+                kernels_size_opt.setEnabled(false);
             }
-
         });
 
 
@@ -144,17 +135,12 @@ public class D3Dialog extends JDialog {
         color_blend.setPaintLabels(true);
         color_blend.setFocusable(false);
 
-        JComboBox d3_color_method_combo = new JComboBox(Constants.colorMethod);
+        JComboBox<String> d3_color_method_combo = new JComboBox<>(Constants.colorMethod);
         d3_color_method_combo.setSelectedIndex(s.d3s.d3_color_type);
         d3_color_method_combo.setFocusable(false);
         d3_color_method_combo.setToolTipText("Sets the 3d color method.");
 
-        d3_color_method_combo.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                color_blend.setEnabled(d3_color_method_combo.getSelectedIndex() == 3);
-            }
-        });
+        d3_color_method_combo.addActionListener(e -> color_blend.setEnabled(d3_color_method_combo.getSelectedIndex() == 3));
 
         color_blend.setEnabled(s.d3s.d3_color_type == 3);
 
@@ -178,14 +164,14 @@ public class D3Dialog extends JDialog {
 
         String[] shades = {"White & Black", "White", "Black"};
 
-        final JComboBox shade_choice_box = new JComboBox(shades);
+        final JComboBox<String> shade_choice_box = new JComboBox<>(shades);
         shade_choice_box.setSelectedIndex(s.d3s.shade_choice);
         shade_choice_box.setToolTipText("Selects the shade colors.");
         shade_choice_box.setFocusable(false);
 
         String[] shade_algorithms = {"Linear Interpolation", "Cosine Interpolation", "<10% and >90% Lin. Int.", "<20% and >80% Lin. Int.", "<30% and >70% Lin. Int.", "<40% and >60% Lin. Int."};
 
-        final JComboBox shade_algorithm_box = new JComboBox(shade_algorithms);
+        final JComboBox<String> shade_algorithm_box = new JComboBox<>(shade_algorithms);
         shade_algorithm_box.setSelectedIndex(s.d3s.shade_algorithm);
         shade_algorithm_box.setToolTipText("Selects the shade algorithm.");
         shade_algorithm_box.setFocusable(false);
@@ -205,20 +191,16 @@ public class D3Dialog extends JDialog {
             shade_invert_opt.setEnabled(true);
         }
 
-        height_shading_opt.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (!height_shading_opt.isSelected()) {
-                    shade_choice_box.setEnabled(false);
-                    shade_algorithm_box.setEnabled(false);
-                    shade_invert_opt.setEnabled(false);
-                } else {
-                    shade_choice_box.setEnabled(true);
-                    shade_algorithm_box.setEnabled(true);
-                    shade_invert_opt.setEnabled(true);
-                }
+        height_shading_opt.addActionListener(e -> {
+            if (!height_shading_opt.isSelected()) {
+                shade_choice_box.setEnabled(false);
+                shade_algorithm_box.setEnabled(false);
+                shade_invert_opt.setEnabled(false);
+            } else {
+                shade_choice_box.setEnabled(true);
+                shade_algorithm_box.setEnabled(true);
+                shade_invert_opt.setEnabled(true);
             }
-
         });
 
         JPanel temp_height_color_panel = new JPanel();
@@ -267,19 +249,14 @@ public class D3Dialog extends JDialog {
         temp_p4.add(field_granularity);
         temp_p4.add(field_density);
 
-        histogram_opt.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (histogram_opt.isSelected()) {
-                    field_granularity.setEnabled(true);
-                    field_density.setEnabled(true);
-                } else {
-                    field_granularity.setEnabled(false);
-                    field_density.setEnabled(false);
-                }
+        histogram_opt.addActionListener(e -> {
+            if (histogram_opt.isSelected()) {
+                field_granularity.setEnabled(true);
+                field_density.setEnabled(true);
+            } else {
+                field_granularity.setEnabled(false);
+                field_density.setEnabled(false);
             }
-
         });
 
         Object[] message3 = {
@@ -312,117 +289,116 @@ public class D3Dialog extends JDialog {
 
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
+            @Override
             public void windowClosing(WindowEvent we) {
-                optionPane.setValue(new Integer(JOptionPane.CLOSED_OPTION));
+                optionPane.setValue(JOptionPane.CLOSED_OPTION);
             }
         });
 
         optionPane.addPropertyChangeListener(
-                new PropertyChangeListener() {
-            public void propertyChange(PropertyChangeEvent e) {
-                String prop = e.getPropertyName();
+                e -> {
+                    String prop = e.getPropertyName();
 
-                if (isVisible() && (e.getSource() == optionPane) && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
+                    if (isVisible() && (e.getSource() == optionPane) && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
 
-                    Object value = optionPane.getValue();
+                        Object value = optionPane.getValue();
 
-                    if (value == JOptionPane.UNINITIALIZED_VALUE) {
-                        //ignore reset
-                        return;
-                    }
+                        if (value == JOptionPane.UNINITIALIZED_VALUE) {
+                            //ignore reset
+                            return;
+                        }
 
-                    //Reset the JOptionPane's value.
-                    //If you don't do this, then if the user
-                    //presses the same button next time, no
-                    //property change event will be fired.
-                    optionPane.setValue(JOptionPane.UNINITIALIZED_VALUE);
+                        //Reset the JOptionPane's value.
+                        //If you don't do this, then if the user
+                        //presses the same button next time, no
+                        //property change event will be fired.
+                        optionPane.setValue(JOptionPane.UNINITIALIZED_VALUE);
 
-                    if ((Integer) value == JOptionPane.CANCEL_OPTION || (Integer) value == JOptionPane.NO_OPTION || (Integer) value == JOptionPane.CLOSED_OPTION) {
+                        if ((Integer) value == JOptionPane.CANCEL_OPTION || (Integer) value == JOptionPane.NO_OPTION || (Integer) value == JOptionPane.CLOSED_OPTION) {
+                            dispose();
+                            return;
+                        }
+
+                        try {
+                            int temp = Integer.parseInt(field.getText());
+                            double temp2 = Double.parseDouble(field2.getText());
+                            double temp3 = Double.parseDouble(field3.getText());
+                            double temp4 = Double.parseDouble(size_opt.getText());
+                            int temp5 = Integer.parseInt(field_granularity.getText());
+                            double temp6 = Double.parseDouble(field_density.getText());
+
+                            if (temp < 10) {
+                                JOptionPane.showMessageDialog(ptra, "The 3D detail level must be greater than 9.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            } else if (temp > 2000) {
+                                JOptionPane.showMessageDialog(ptra, "The 3D detail level must be less than 2001.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+
+                            if (temp2 <= 0) {
+                                JOptionPane.showMessageDialog(ptra, "The height scale must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+
+                            if (temp3 <= 0) {
+                                JOptionPane.showMessageDialog(ptra, "The gaussian normalization weight must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+
+                            if (temp4 <= 0) {
+                                JOptionPane.showMessageDialog(ptra, "The size must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+
+                            if(temp5 < 1) {
+                                JOptionPane.showMessageDialog(ptra, "The histogram bin granularity must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+
+                            if(temp5 > 50) {
+                                JOptionPane.showMessageDialog(ptra, "The histogram bin granularity must be lower than 51.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+
+                            if (temp6 <= 0) {
+                                JOptionPane.showMessageDialog(ptra, "The histogram density must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+
+                            s.d3s.detail = temp;
+                            s.d3s.d3_height_scale = temp2;
+                            s.d3s.d3_size_scale = temp4;
+                            s.d3s.height_algorithm = height_algorithm_opt.getSelectedIndex();
+                            s.d3s.gaussian_scaling = gaussian_scaling_opt.isSelected();
+                            s.d3s.gaussian_weight = temp3;
+                            s.d3s.gaussian_kernel = kernels_size_opt.getSelectedIndex();
+                            s.d3s.max_range = scale_range.getUpperValue();
+                            s.d3s.min_range = scale_range.getValue();
+                            s.d3s.max_scaling = scale_max_val_opt.getValue();
+                            s.d3s.d3_color_type = d3_color_method_combo.getSelectedIndex();
+
+                            s.d3s.shade_height = height_shading_opt.isSelected();
+                            s.d3s.shade_choice = shade_choice_box.getSelectedIndex();
+                            s.d3s.shade_algorithm = shade_algorithm_box.getSelectedIndex();
+                            s.d3s.shade_invert = shade_invert_opt.isSelected();
+
+                            //d3_draw_method = draw_choice.getSelectedIndex();
+                            s.d3s.color_3d_blending = color_blend.getValue() / 100.0;
+
+                            s.d3s.histogram_equalization = histogram_opt.isSelected();
+                            s.d3s.histogram_granularity = temp5;
+                            s.d3s.histogram_density = temp6;
+                            s.d3s.preHeightScaling = preHeightScaling.isSelected();
+
+                        } catch (Exception ex) {
+                            JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
+
                         dispose();
-                        return;
+                        ptra.set3DOptionPost(d3.isSelected());
                     }
-
-                    try {
-                        int temp = Integer.parseInt(field.getText());
-                        double temp2 = Double.parseDouble(field2.getText());
-                        double temp3 = Double.parseDouble(field3.getText());
-                        double temp4 = Double.parseDouble(size_opt.getText());
-                        int temp5 = Integer.parseInt(field_granularity.getText());
-                        double temp6 = Double.parseDouble(field_density.getText());
-
-                        if (temp < 10) {
-                            JOptionPane.showMessageDialog(ptra, "The 3D detail level must be greater than 9.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            return;
-                        } else if (temp > 2000) {
-                            JOptionPane.showMessageDialog(ptra, "The 3D detail level must be less than 2001.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            return;
-                        }
-
-                        if (temp2 <= 0) {
-                            JOptionPane.showMessageDialog(ptra, "The height scale must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            return;
-                        }
-
-                        if (temp3 <= 0) {
-                            JOptionPane.showMessageDialog(ptra, "The gaussian normalization weight must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            return;
-                        }
-
-                        if (temp4 <= 0) {
-                            JOptionPane.showMessageDialog(ptra, "The size must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            return;
-                        }
-
-                        if(temp5 < 1) {
-                            JOptionPane.showMessageDialog(ptra, "The histogram bin granularity must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            return;
-                        }
-
-                        if(temp5 > 50) {
-                            JOptionPane.showMessageDialog(ptra, "The histogram bin granularity must be lower than 51.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            return;
-                        }
-
-                        if (temp6 <= 0) {
-                            JOptionPane.showMessageDialog(ptra, "The histogram density must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            return;
-                        }
-
-                        s.d3s.detail = temp;
-                        s.d3s.d3_height_scale = temp2;
-                        s.d3s.d3_size_scale = temp4;
-                        s.d3s.height_algorithm = height_algorithm_opt.getSelectedIndex();
-                        s.d3s.gaussian_scaling = gaussian_scaling_opt.isSelected();
-                        s.d3s.gaussian_weight = temp3;
-                        s.d3s.gaussian_kernel = kernels_size_opt.getSelectedIndex();
-                        s.d3s.max_range = scale_range.getUpperValue();
-                        s.d3s.min_range = scale_range.getValue();
-                        s.d3s.max_scaling = scale_max_val_opt.getValue();
-                        s.d3s.d3_color_type = d3_color_method_combo.getSelectedIndex();
-
-                        s.d3s.shade_height = height_shading_opt.isSelected();
-                        s.d3s.shade_choice = shade_choice_box.getSelectedIndex();
-                        s.d3s.shade_algorithm = shade_algorithm_box.getSelectedIndex();
-                        s.d3s.shade_invert = shade_invert_opt.isSelected();
-
-                        //d3_draw_method = draw_choice.getSelectedIndex();
-                        s.d3s.color_3d_blending = color_blend.getValue() / 100.0;
-
-                        s.d3s.histogram_equalization = histogram_opt.isSelected();
-                        s.d3s.histogram_granularity = temp5;
-                        s.d3s.histogram_density = temp6;
-                        s.d3s.preHeightScaling = preHeightScaling.isSelected();
-
-                    } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-
-                    dispose();
-                    ptra.set3DOptionPost(d3.isSelected());
-                }
-            }
-        });
+                });
 
         //Make this dialog display it.
         setContentPane(optionPane);
@@ -432,12 +408,6 @@ public class D3Dialog extends JDialog {
         setResizable(false);
         setLocation((int) (ptra.getLocation().getX() + ptra.getSize().getWidth() / 2) - (getWidth() / 2), (int) (ptra.getLocation().getY() + ptra.getSize().getHeight() / 2) - (getHeight() / 2));
         setVisible(true);
-
-    }
-
-    private ImageIcon getIcon(String path) {
-
-        return new ImageIcon(getClass().getResource(path));
 
     }
 

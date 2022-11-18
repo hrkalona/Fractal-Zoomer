@@ -29,7 +29,7 @@ public class LightenOnlyBlending extends Blending {
     }
 
     @Override
-    public int blend(int redA, int greenA, int blueA, int redB, int greenB, int blueB, double coef) {
+    public int blendInternal(int redA, int greenA, int blueA, int redB, int greenB, int blueB, double coef) {
 
         int temp_red = Math.max(redB, redA);
         int temp_green = Math.max(greenB, greenA);

@@ -26,7 +26,7 @@ import fractalzoomer.core.Complex;
  */
 public abstract class MandelVariation {
     
-    public MandelVariation() {
+    protected MandelVariation() {
 
     }
 

@@ -19,6 +19,8 @@ package fractalzoomer.gui;
 import fractalzoomer.core.BigNum;
 import fractalzoomer.core.MyApfloat;
 import fractalzoomer.core.ThreadDraw;
+import fractalzoomer.core.mpfr.LibMpfr;
+import fractalzoomer.core.mpfr.MpfrBigNum;
 import fractalzoomer.functions.Fractal;
 import fractalzoomer.main.CommonFunctions;
 import fractalzoomer.main.Constants;
@@ -27,15 +29,9 @@ import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 
 /**
  *
@@ -60,28 +56,20 @@ public class PerturbationTheoryDialog extends JDialog {
         JButton info_user = new JButton("Help");
         info_user.setToolTipText("Shows show info on Perturbation Theory.");
         info_user.setFocusable(false);
-        info_user.setIcon(getIcon("/fractalzoomer/icons/help2.png"));
+        info_user.setIcon(MainWindow.getIcon("help2.png"));
         info_user.setPreferredSize(new Dimension(105, 23));
 
-        info_user.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                CommonFunctions.showPerturbationTheoryHelp(that);
-
-            }
-
-        });
+        info_user.addActionListener(e -> CommonFunctions.showPerturbationTheoryHelp(that));
 
         JPanel SApanel = new JPanel();
         JPanel FloatExpPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JPanel BLApanel = new JPanel();
+        JPanel Nanomb1Panel = new JPanel();
 
         if (ptra instanceof MainWindow) {
-            setIconImage(getIcon("/fractalzoomer/icons/mandel2.png").getImage());
+            setIconImage(MainWindow.getIcon("mandel2.png").getImage());
         } else if (ptra instanceof ImageExpanderWindow) {
-            setIconImage(getIcon("/fractalzoomer/icons/mandelExpander.png").getImage());
+            setIconImage(MainWindow.getIcon("mandelExpander.png").getImage());
         }
 
         final JCheckBox enable_perturbation = new JCheckBox("Perturbation Theory");
@@ -91,6 +79,10 @@ public class PerturbationTheoryDialog extends JDialog {
         final JCheckBox detect_period = new JCheckBox("Display Detected Period in Statistics if possible");
         detect_period.setSelected(ThreadDraw.DETECT_PERIOD);
         detect_period.setFocusable(false);
+
+        final JCheckBox automatic_precision = new JCheckBox("Automatic Precision");
+        automatic_precision.setSelected(MyApfloat.setAutomaticPrecision);
+        automatic_precision.setFocusable(false);
 
         final JCheckBox enable_bignum = new JCheckBox("Use BigNum for Reference calculation if possible");
         enable_bignum.setSelected(ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE);
@@ -122,14 +114,7 @@ public class PerturbationTheoryDialog extends JDialog {
 
         JLabel blaLevel = new JLabel("BLA Starting Level: " + bla_starting_level_slid.getValue());
 
-        bla_starting_level_slid.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                blaLevel.setText("BLA Starting Level: " + bla_starting_level_slid.getValue());
-            }
-        });
-
-        enable_bignum_pixels.setEnabled(enable_bignum.isSelected());
+        bla_starting_level_slid.addChangeListener(e -> blaLevel.setText("BLA Starting Level: " + bla_starting_level_slid.getValue()));
 
         final JCheckBox full_floatexp = new JCheckBox("Use FloatExp For All Iterations In Deep Zooms");
         full_floatexp.setSelected(ThreadDraw.USE_FULL_FLOATEXP_FOR_DEEP_ZOOM);
@@ -146,30 +131,21 @@ public class PerturbationTheoryDialog extends JDialog {
         JTextField bignumPrecision = new JTextField();
         bignumPrecision.setText("" + ThreadDraw.BIGNUM_PRECISION);
 
-        final JComboBox approximation_alg = new JComboBox(new String[] {"No Approximation", "Series Approximation", "Bilinear Approximation"});
+        final JComboBox<String> approximation_alg = new JComboBox<>(new String[] {"No Approximation", "Series Approximation", "Bilinear Approximation", "Nanomb1"});
         approximation_alg.setSelectedIndex(ThreadDraw.APPROXIMATION_ALGORITHM);
         approximation_alg.setFocusable(false);
         approximation_alg.setToolTipText("Sets approximation algorithm.");
 
-        approximation_alg.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                SApanel.setVisible(approximation_alg.getSelectedIndex() == 1);
-                FloatExpPanel.setVisible(approximation_alg.getSelectedIndex() == 0 || approximation_alg.getSelectedIndex() == 1);
-                BLApanel.setVisible(approximation_alg.getSelectedIndex() == 2);
-                pack();
-            }
+        approximation_alg.addActionListener(e -> {
+            SApanel.setVisible(approximation_alg.getSelectedIndex() == 1);
+            FloatExpPanel.setVisible(approximation_alg.getSelectedIndex() == 0 || approximation_alg.getSelectedIndex() == 1 || approximation_alg.getSelectedIndex() == 3);
+            BLApanel.setVisible(approximation_alg.getSelectedIndex() == 2);
+            Nanomb1Panel.setVisible(approximation_alg.getSelectedIndex() == 3);
+            pack();
         });
 
         JTextField maxSkipIter = new JTextField();
         maxSkipIter.setText("" + ThreadDraw.SERIES_APPROXIMATION_MAX_SKIP_ITER);
-
-        enable_bignum.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                enable_bignum_pixels.setEnabled(enable_bignum.isSelected());
-            }
-        });
 
         final JSlider series_terms_slid = new JSlider(JSlider.HORIZONTAL, 2, 257, ThreadDraw.SERIES_APPROXIMATION_TERMS);
 
@@ -189,12 +165,7 @@ public class PerturbationTheoryDialog extends JDialog {
 
         JLabel saTerms = new JLabel("Series Approximation Terms: " + series_terms_slid.getValue());
 
-        series_terms_slid.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                saTerms.setText("Series Approximation Terms: " + series_terms_slid.getValue());
-            }
-        });
+        series_terms_slid.addChangeListener(e -> saTerms.setText("Series Approximation Terms: " + series_terms_slid.getValue()));
 
 
         panel.add(saTerms);
@@ -203,14 +174,51 @@ public class PerturbationTheoryDialog extends JDialog {
         info_panel.setLayout(new FlowLayout());
         info_panel.add(info_user);
 
-        bignumPrecision.setEnabled(!automaticBignumPrecision.isSelected());
 
-        automaticBignumPrecision.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                bignumPrecision.setEnabled(!automaticBignumPrecision.isSelected());
-            }
-        });
+        Nanomb1Panel.setLayout(new BoxLayout(Nanomb1Panel, BoxLayout.Y_AXIS));
+
+        final JSlider nanomb1N = new JSlider(JSlider.HORIZONTAL, 2, 32, ThreadDraw.NANOMB1_N);
+
+        nanomb1N.setPreferredSize(new Dimension(350, 55));
+
+        nanomb1N.setToolTipText("Sets Nanomb1 N value.");
+
+        nanomb1N.setPaintLabels(true);
+        nanomb1N.setFocusable(false);
+        nanomb1N.setPaintTicks(true);
+        nanomb1N.setMajorTickSpacing(2);
+
+
+        final JSlider nanomb1M = new JSlider(JSlider.HORIZONTAL, 2, 32, ThreadDraw.NANOMB1_M);
+
+        nanomb1M.setPreferredSize(new Dimension(350, 55));
+
+        nanomb1M.setToolTipText("Sets Nanomb1 M value.");
+
+        nanomb1M.setPaintLabels(true);
+        nanomb1M.setFocusable(false);
+        nanomb1M.setPaintTicks(true);
+        nanomb1M.setMajorTickSpacing(2);
+
+        JPanel nanopanelN = new JPanel(new FlowLayout(FlowLayout.LEFT));
+
+        JLabel nanolabelN = new JLabel("N: " + nanomb1N.getValue());
+
+        JPanel nanopanelM = new JPanel(new FlowLayout(FlowLayout.LEFT));
+
+        JLabel nanolabelM = new JLabel("M: " + nanomb1M.getValue());
+
+        nanomb1N.addChangeListener(e -> {nanolabelN.setText("N: " + nanomb1N.getValue());});
+        nanomb1M.addChangeListener(e -> {nanolabelM.setText("M: " + nanomb1M.getValue());});
+
+        nanopanelN.add(nanolabelN);
+        nanopanelM.add(nanolabelM);
+
+        Nanomb1Panel.add(nanopanelM);
+        Nanomb1Panel.add(nanomb1M);
+        Nanomb1Panel.add(nanopanelN);
+        Nanomb1Panel.add(nanomb1N);
+        Nanomb1Panel.add(new JLabel(" "));
 
 
         SApanel.setLayout(new BoxLayout(SApanel, BoxLayout.Y_AXIS));
@@ -258,12 +266,7 @@ public class PerturbationTheoryDialog extends JDialog {
 
         JLabel blaBitsLabel = new JLabel("Precision Bits: " + blaBits.getValue());
 
-        blaBits.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                blaBitsLabel.setText("Precision Bits: " + blaBits.getValue());
-            }
-        });
+        blaBits.addChangeListener(e -> blaBitsLabel.setText("Precision Bits: " + blaBits.getValue()));
 
 
         panel2.add(blaBitsLabel);
@@ -291,8 +294,37 @@ public class PerturbationTheoryDialog extends JDialog {
         BLApanel.add(new JLabel(" "));
 
         SApanel.setVisible(approximation_alg.getSelectedIndex() == 1);
-        FloatExpPanel.setVisible(approximation_alg.getSelectedIndex() == 0 || approximation_alg.getSelectedIndex() == 1);
+        FloatExpPanel.setVisible(approximation_alg.getSelectedIndex() == 0 || approximation_alg.getSelectedIndex() == 1 || approximation_alg.getSelectedIndex() == 3);
         BLApanel.setVisible(approximation_alg.getSelectedIndex() == 2);
+        Nanomb1Panel.setVisible(approximation_alg.getSelectedIndex() == 3);
+
+        JComboBox<String> bigNumLibs = new JComboBox<>(new String[] {"Double (53 bits)", "DoubleDouble (106 bits)", "Built-in", "MPFR", "Automatic"});
+        bigNumLibs.setSelectedIndex(ThreadDraw.BIGNUM_LIBRARY);
+        JLabel bnliblabel = new JLabel("BigNum Library:");
+        bigNumLibs.setFocusable(false);
+
+        bigNumLibs.setEnabled(enable_bignum.isSelected());
+
+
+        bignumPrecision.setEnabled(enable_bignum.isSelected() && !automaticBignumPrecision.isSelected() && bigNumLibs.getSelectedIndex() != Constants.BIGNUM_DOUBLE);
+
+        automaticBignumPrecision.addActionListener(e -> bignumPrecision.setEnabled(enable_bignum.isSelected() && !automaticBignumPrecision.isSelected() && bigNumLibs.getSelectedIndex() != Constants.BIGNUM_DOUBLE));
+
+        enable_bignum_pixels.setEnabled(enable_bignum.isSelected());
+
+        automaticBignumPrecision.setEnabled(enable_bignum.isSelected() && bigNumLibs.getSelectedIndex() != Constants.BIGNUM_DOUBLE);
+
+        bigNumLibs.addActionListener(e -> {
+            bignumPrecision.setEnabled(enable_bignum.isSelected() && !automaticBignumPrecision.isSelected() && bigNumLibs.getSelectedIndex() != Constants.BIGNUM_DOUBLE);
+            automaticBignumPrecision.setEnabled(enable_bignum.isSelected()&& bigNumLibs.getSelectedIndex() != Constants.BIGNUM_DOUBLE);
+        });
+
+        enable_bignum.addActionListener(e -> {
+            bigNumLibs.setEnabled(enable_bignum.isSelected());
+            enable_bignum_pixels.setEnabled(enable_bignum.isSelected());
+            bignumPrecision.setEnabled(enable_bignum.isSelected() && !automaticBignumPrecision.isSelected() && bigNumLibs.getSelectedIndex() != Constants.BIGNUM_DOUBLE);
+            automaticBignumPrecision.setEnabled(enable_bignum.isSelected()&& bigNumLibs.getSelectedIndex() != Constants.BIGNUM_DOUBLE);
+        });
 
 
         Object[] message3 = {
@@ -302,7 +334,10 @@ public class PerturbationTheoryDialog extends JDialog {
             " ",
             "Floating point precision:",
             precision,
+                automatic_precision,
             " ",
+                bnliblabel,
+                bigNumLibs,
                 enable_bignum,
                 enable_bignum_pixels,
                 automaticBignumPrecision,
@@ -315,130 +350,152 @@ public class PerturbationTheoryDialog extends JDialog {
                 " ",
                 SApanel,
                 BLApanel,
+                Nanomb1Panel,
                 FloatExpPanel,};
 
         optionPane = new JOptionPane(message3, JOptionPane.QUESTION_MESSAGE, JOptionPane.OK_CANCEL_OPTION, null, null, null);
 
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
+            @Override
             public void windowClosing(WindowEvent we) {
-                optionPane.setValue(new Integer(JOptionPane.CLOSED_OPTION));
+                optionPane.setValue(JOptionPane.CLOSED_OPTION);
             }
         });
 
         optionPane.addPropertyChangeListener(
-                new PropertyChangeListener() {
-            public void propertyChange(PropertyChangeEvent e) {
-                String prop = e.getPropertyName();
+                e -> {
+                    String prop = e.getPropertyName();
 
-                if (isVisible() && (e.getSource() == optionPane) && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
+                    if (isVisible() && (e.getSource() == optionPane) && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
 
-                    Object value = optionPane.getValue();
+                        Object value = optionPane.getValue();
 
-                    if (value == JOptionPane.UNINITIALIZED_VALUE) {
-                        //ignore reset
-                        return;
-                    }
+                        if (value == JOptionPane.UNINITIALIZED_VALUE) {
+                            //ignore reset
+                            return;
+                        }
 
-                    //Reset the JOptionPane's value.
-                    //If you don't do this, then if the user
-                    //presses the same button next time, no
-                    //property change event will be fired.
-                    optionPane.setValue(JOptionPane.UNINITIALIZED_VALUE);
+                        //Reset the JOptionPane's value.
+                        //If you don't do this, then if the user
+                        //presses the same button next time, no
+                        //property change event will be fired.
+                        optionPane.setValue(JOptionPane.UNINITIALIZED_VALUE);
 
-                    if ((Integer) value == JOptionPane.CANCEL_OPTION || (Integer) value == JOptionPane.NO_OPTION || (Integer) value == JOptionPane.CLOSED_OPTION) {
+                        if ((Integer) value == JOptionPane.CANCEL_OPTION || (Integer) value == JOptionPane.NO_OPTION || (Integer) value == JOptionPane.CLOSED_OPTION) {
+                            dispose();
+                            return;
+                        }
+
+                        try {
+                            int tempPrecision = Integer.parseInt(precision.getText());
+                            long temp2 = Long.parseLong(seriesApproximationTolerance.getText());
+                            int temp3 = Integer.parseInt(maxSkipIter.getText());
+                            int temp4 = Integer.parseInt(bignumPrecision.getText());
+
+                            if (tempPrecision < 1) {
+                                JOptionPane.showMessageDialog(ptra, "Precision number must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+
+                            if (temp4 < 1) {
+                                JOptionPane.showMessageDialog(ptra, "BigNum bits Precision number must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+
+                            if (temp3 < 0) {
+                                JOptionPane.showMessageDialog(ptra, "Maximum skipped iterations must be greater than -1.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+
+                            ThreadDraw.PERTURBATION_THEORY = enable_perturbation.isSelected();
+                            boolean tempBigNum = enable_bignum.isSelected();
+                            if(!ThreadDraw.PERTURBATION_THEORY || tempPrecision != MyApfloat.precision || tempBigNum != ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE) {
+                                Fractal.clearReferences(true);
+                            }
+
+                            boolean tempAuto = automaticBignumPrecision.isSelected();
+
+                            if(!tempAuto && tempPrecision == MyApfloat.precision) {
+                                Fractal.clearReferences(true);
+                                BigNum.reinitialize(temp4);
+                                MpfrBigNum.reinitialize(temp4);
+                            }
+                            else if(tempAuto && !ThreadDraw.BIGNUM_AUTOMATIC_PRECISION && tempPrecision == MyApfloat.precision) {
+                                Fractal.clearReferences(true);
+                                MyApfloat.setBigNumPrecision();
+                            }
+
+                            boolean oldDetectedPeriod =  ThreadDraw.DETECT_PERIOD;
+                            ThreadDraw.DETECT_PERIOD = detect_period.isSelected();
+
+                            if(oldDetectedPeriod != ThreadDraw.DETECT_PERIOD && ThreadDraw.DETECT_PERIOD) {
+                                Fractal.clearReferences(true);
+                            }
+
+                            int oldBignumLib = ThreadDraw.BIGNUM_LIBRARY;
+                            ThreadDraw.BIGNUM_LIBRARY = bigNumLibs.getSelectedIndex();
+                            if(oldBignumLib != ThreadDraw.BIGNUM_LIBRARY) {
+                                Fractal.clearReferences(true);
+                            }
+
+                            if(ThreadDraw.PERTURBATION_THEORY && ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE && ThreadDraw.BIGNUM_LIBRARY == Constants.BIGNUM_MPFR && LibMpfr.LOAD_ERROR != null) {
+                                JOptionPane.showMessageDialog(ptra, "The MPFR library is not available, and the engine will fallback to an alternative library.", "Warning!", JOptionPane.WARNING_MESSAGE);
+                            }
+
+                            ThreadDraw.BIGNUM_AUTOMATIC_PRECISION = tempAuto;
+                            ThreadDraw.BIGNUM_PRECISION = temp4;
+
+                            if(tempPrecision != MyApfloat.precision) {
+                                MyApfloat.setPrecision(tempPrecision, s);
+                            }
+
+                            int oldApproximationAlg = ThreadDraw.APPROXIMATION_ALGORITHM;
+                            ThreadDraw.APPROXIMATION_ALGORITHM = approximation_alg.getSelectedIndex();
+
+                            if(oldApproximationAlg != ThreadDraw.APPROXIMATION_ALGORITHM) {
+                                Fractal.clearReferences(true);
+                            }
+
+                            int oldNanomb1N = ThreadDraw.NANOMB1_N;
+                            ThreadDraw.NANOMB1_N = nanomb1N.getValue();
+
+                            int oldNanomb1M = ThreadDraw.NANOMB1_M;
+                            ThreadDraw.NANOMB1_M = nanomb1M.getValue();
+
+                            if(oldNanomb1N != ThreadDraw.NANOMB1_N || oldNanomb1M != ThreadDraw.NANOMB1_M) {
+                                Fractal.clearReferences(true);
+                            }
+
+                            MyApfloat.setAutomaticPrecision = automatic_precision.isSelected();
+
+                            ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE = tempBigNum;
+                            ThreadDraw.APPROXIMATION_ALGORITHM = approximation_alg.getSelectedIndex();
+                            ThreadDraw.SERIES_APPROXIMATION_TERMS = series_terms_slid.getValue();
+                            ThreadDraw.SERIES_APPROXIMATION_OOM_DIFFERENCE = temp2;
+                            ThreadDraw.USE_FULL_FLOATEXP_FOR_DEEP_ZOOM = full_floatexp.isSelected();
+                            ThreadDraw.SERIES_APPROXIMATION_MAX_SKIP_ITER = temp3;
+                            ThreadDraw.USE_BIGNUM_FOR_PIXELS_IF_POSSIBLE = enable_bignum_pixels.isSelected();
+                            ThreadDraw.USE_THREADS_FOR_SA = use_threads_for_sa.isSelected();
+                            ThreadDraw.BLA_BITS = blaBits.getValue();
+                            ThreadDraw.BLA_STARTING_LEVEL = bla_starting_level_slid.getValue();
+                            ThreadDraw.USE_THREADS_FOR_BLA = use_threads_for_bla.isSelected();
+
+                            if(ptra instanceof MainWindow) {
+                                ((MainWindow)ptra).setPerturbationTheoryPost();
+                            }
+                            else if(ptra instanceof ImageExpanderWindow) {
+                                ((ImageExpanderWindow)ptra).setPerturbationTheoryPost();
+                            }
+
+                        } catch (Exception ex) {
+                            JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
+
                         dispose();
-                        return;
                     }
-
-                    try {
-                        int tempPrecision = Integer.parseInt(precision.getText());
-                        long temp2 = Long.parseLong(seriesApproximationTolerance.getText());
-                        int temp3 = Integer.parseInt(maxSkipIter.getText());
-                        int temp4 = Integer.parseInt(bignumPrecision.getText());
-
-                        if (tempPrecision < 1) {
-                            JOptionPane.showMessageDialog(ptra, "Precision number must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            return;
-                        }
-
-                        if (temp4 < 1) {
-                            JOptionPane.showMessageDialog(ptra, "BigNum bits Precision number must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            return;
-                        }
-
-                        if (temp3 < 0) {
-                            JOptionPane.showMessageDialog(ptra, "Maximum skipped iterations must be greater than -1.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            return;
-                        }
-
-                        ThreadDraw.PERTURBATION_THEORY = enable_perturbation.isSelected();
-                        boolean tempBigNum = enable_bignum.isSelected();
-                        if(!ThreadDraw.PERTURBATION_THEORY || tempPrecision != MyApfloat.precision || tempBigNum != ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE) {
-                            Fractal.clearReferences();
-                        }
-
-                        boolean tempAuto = automaticBignumPrecision.isSelected();
-
-                        if(!tempAuto && tempPrecision == MyApfloat.precision) {
-                            Fractal.clearReferences();
-                            BigNum.reinitialize(temp4);
-                        }
-                        else if(tempAuto && (tempAuto != ThreadDraw.BIGNUM_AUTOMATIC_PRECISION) && tempPrecision == MyApfloat.precision) {
-                            Fractal.clearReferences();
-                            MyApfloat.setBigNumPrecision();
-                        }
-
-                        boolean oldDetectedPeriod =  ThreadDraw.DETECT_PERIOD;
-                        ThreadDraw.DETECT_PERIOD = detect_period.isSelected();
-
-                        if(oldDetectedPeriod != ThreadDraw.DETECT_PERIOD) {
-                            Fractal.clearReferences();
-                        }
-
-                        ThreadDraw.BIGNUM_AUTOMATIC_PRECISION = tempAuto;
-                        ThreadDraw.BIGNUM_PRECISION = temp4;
-
-                        if(tempPrecision != MyApfloat.precision) {
-                            MyApfloat.setPrecision(tempPrecision, s);
-                        }
-
-                        int oldApproximationAlg = ThreadDraw.APPROXIMATION_ALGORITHM;
-                        ThreadDraw.APPROXIMATION_ALGORITHM = approximation_alg.getSelectedIndex();
-
-                        if(oldApproximationAlg != ThreadDraw.APPROXIMATION_ALGORITHM) {
-                            Fractal.clearReferences();
-                        }
-
-
-                        ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE = tempBigNum;
-                        ThreadDraw.APPROXIMATION_ALGORITHM = approximation_alg.getSelectedIndex();
-                        ThreadDraw.SERIES_APPROXIMATION_TERMS = series_terms_slid.getValue();
-                        ThreadDraw.SERIES_APPROXIMATION_OOM_DIFFERENCE = temp2;
-                        ThreadDraw.USE_FULL_FLOATEXP_FOR_DEEP_ZOOM = full_floatexp.isSelected();
-                        ThreadDraw.SERIES_APPROXIMATION_MAX_SKIP_ITER = temp3;
-                        ThreadDraw.USE_BIGNUM_FOR_PIXELS_IF_POSSIBLE = enable_bignum_pixels.isSelected();
-                        ThreadDraw.USE_THREADS_FOR_SA = use_threads_for_sa.isSelected();
-                        ThreadDraw.BLA_BITS = blaBits.getValue();
-                        ThreadDraw.BLA_STARTING_LEVEL = bla_starting_level_slid.getValue();
-                        ThreadDraw.USE_THREADS_FOR_BLA = use_threads_for_bla.isSelected();
-
-                        if(ptra instanceof MainWindow) {
-                            ((MainWindow)ptra).setPerturbationTheoryPost();
-                        }
-                        else if(ptra instanceof ImageExpanderWindow) {
-                            ((ImageExpanderWindow)ptra).setPerturbationTheoryPost();
-                        }
-
-                    } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-
-                    dispose();
-                }
-            }
-        });
+                });
 
         //Make this dialog display it.
         setContentPane(optionPane);
@@ -448,12 +505,6 @@ public class PerturbationTheoryDialog extends JDialog {
         setResizable(false);
         setLocation((int) (ptra.getLocation().getX() + ptra.getSize().getWidth() / 2) - (getWidth() / 2), (int) (ptra.getLocation().getY() + ptra.getSize().getHeight() / 2) - (getHeight() / 2));
         setVisible(true);
-
-    }
-
-    private ImageIcon getIcon(String path) {
-
-        return new ImageIcon(getClass().getResource(path));
 
     }
 

@@ -18,6 +18,8 @@
 package fractalzoomer.planes.math.trigonometric;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.core.DDComplex;
+import fractalzoomer.core.MpfrBigNumComplex;
 import fractalzoomer.planes.Plane;
 
 /**
@@ -35,6 +37,20 @@ public class SechPlane extends Plane {
     @Override
     public Complex transform(Complex pixel) {
         
+        return pixel.sech();
+
+    }
+
+    @Override
+    public MpfrBigNumComplex transform(MpfrBigNumComplex pixel) {
+
+        return pixel.sech();
+
+    }
+
+    @Override
+    public DDComplex transform(DDComplex pixel) {
+
         return pixel.sech();
 
     }

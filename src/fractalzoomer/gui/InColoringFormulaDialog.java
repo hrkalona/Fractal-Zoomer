@@ -24,8 +24,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 
 /**
  *
@@ -44,7 +42,7 @@ public class InColoringFormulaDialog extends JDialog {
 
         setTitle("User In Coloring Method");
         setModal(true);
-        setIconImage(getIcon("/fractalzoomer/icons/mandel2.png").getImage());
+        setIconImage(MainWindow.getIcon("mandel2.png").getImage());
 
         JTabbedPane tabbedPane = new JTabbedPane();
         //tabbedPane.setPreferredSize(new Dimension(550, 210));
@@ -125,167 +123,166 @@ public class InColoringFormulaDialog extends JDialog {
 
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
+            @Override
             public void windowClosing(WindowEvent we) {
-                optionPane.setValue(new Integer(JOptionPane.CLOSED_OPTION));
+                optionPane.setValue(JOptionPane.CLOSED_OPTION);
             }
         });
 
         optionPane.addPropertyChangeListener(
-                new PropertyChangeListener() {
-            public void propertyChange(PropertyChangeEvent e) {
-                String prop = e.getPropertyName();
+                e -> {
+                    String prop = e.getPropertyName();
 
-                if (isVisible() && (e.getSource() == optionPane) && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
+                    if (isVisible() && (e.getSource() == optionPane) && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
 
-                    Object value = optionPane.getValue();
+                        Object value = optionPane.getValue();
 
-                    if (value == JOptionPane.UNINITIALIZED_VALUE) {
-                        //ignore reset
-                        return;
-                    }
+                        if (value == JOptionPane.UNINITIALIZED_VALUE) {
+                            //ignore reset
+                            return;
+                        }
 
-                    //Reset the JOptionPane's value.
-                    //If you don't do this, then if the user
-                    //presses the same button next time, no
-                    //property change event will be fired.
-                    optionPane.setValue(JOptionPane.UNINITIALIZED_VALUE);
+                        //Reset the JOptionPane's value.
+                        //If you don't do this, then if the user
+                        //presses the same button next time, no
+                        //property change event will be fired.
+                        optionPane.setValue(JOptionPane.UNINITIALIZED_VALUE);
 
-                    if ((Integer) value == JOptionPane.CANCEL_OPTION || (Integer) value == JOptionPane.NO_OPTION || (Integer) value == JOptionPane.CLOSED_OPTION) {
-                        in_coloring_modes[oldSelected].setSelected(true);
-                        s.fns.in_coloring_algorithm = oldSelected;
+                        if ((Integer) value == JOptionPane.CANCEL_OPTION || (Integer) value == JOptionPane.NO_OPTION || (Integer) value == JOptionPane.CLOSED_OPTION) {
+                            in_coloring_modes[oldSelected].setSelected(true);
+                            s.fns.in_coloring_algorithm = oldSelected;
+                            dispose();
+                            return;
+                        }
+
+                        try {
+                            if (tabbedPane.getSelectedIndex() == 0) {
+                                s.parser.parse(field_formula.getText());
+
+                                if(s.parser.foundR()|| s.parser.foundStat() || s.parser.foundTrap()) {
+                                    JOptionPane.showMessageDialog(ptra, "The variables: r, stat, trap cannot be used in the in formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                    return;
+                                }
+
+                                if (s.isConvergingType()) {
+                                    if (s.parser.foundBail() ) {
+                                        JOptionPane.showMessageDialog(ptra, "The variable: bail can only be used in escaping type fractals.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                        return;
+                                    }
+                                } else if (s.parser.foundCbail()) {
+                                    JOptionPane.showMessageDialog(ptra, "The variable: cbail can only be used in converging type fractals\n(Root finding methods, Nova, User converging formulas).", "Error!", JOptionPane.ERROR_MESSAGE);
+                                    return;
+                                }
+                            } else {
+                                s.parser.parse(field_condition.getText());
+
+                                if(s.parser.foundR()|| s.parser.foundStat() || s.parser.foundTrap()) {
+                                    JOptionPane.showMessageDialog(ptra, "The variables: r, stat, trap cannot be used in the left condition formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                    return;
+                                }
+
+                                if (s.isConvergingType()) {
+                                    if (s.parser.foundBail()) {
+                                        JOptionPane.showMessageDialog(ptra, "The variable: bail can only be used in escaping type fractals.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                        return;
+                                    }
+                                } else if (s.parser.foundCbail()) {
+                                    JOptionPane.showMessageDialog(ptra, "The variable: cbail can only be used in converging type fractals\n(Root finding methods, Nova, User converging formulas).", "Error!", JOptionPane.ERROR_MESSAGE);
+                                    return;
+                                }
+
+                                s.parser.parse(field_condition2.getText());
+
+                                if(s.parser.foundR()|| s.parser.foundStat() || s.parser.foundTrap()) {
+                                    JOptionPane.showMessageDialog(ptra, "The variables: r, stat, trap cannot be used in the right condition formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                    return;
+                                }
+
+                                if (s.isConvergingType()) {
+                                    if (s.parser.foundBail()) {
+                                        JOptionPane.showMessageDialog(ptra, "The variable: bail can only be used in escaping type fractals.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                        return;
+                                    }
+                                } else if (s.parser.foundCbail()) {
+                                    JOptionPane.showMessageDialog(ptra, "The variable: cbail can only be used in converging type fractals\n(Root finding methods, Nova, User converging formulas).", "Error!", JOptionPane.ERROR_MESSAGE);
+                                    return;
+                                }
+
+                                s.parser.parse(field_formula_cond1.getText());
+
+                                if(s.parser.foundR()|| s.parser.foundStat() || s.parser.foundTrap()) {
+                                    JOptionPane.showMessageDialog(ptra, "The variables: r, stat, trap cannot be used in the left > right in formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                    return;
+                                }
+
+                                if (s.isConvergingType()) {
+                                    if (s.parser.foundBail()) {
+                                        JOptionPane.showMessageDialog(ptra, "The variable: bail can only be used in escaping type fractals.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                        return;
+                                    }
+                                } else if (s.parser.foundCbail()) {
+                                    JOptionPane.showMessageDialog(ptra, "The variable: cbail can only be used in converging type fractals\n(Root finding methods, Nova, User converging formulas).", "Error!", JOptionPane.ERROR_MESSAGE);
+                                    return;
+                                }
+
+                                s.parser.parse(field_formula_cond2.getText());
+
+                                if(s.parser.foundR()|| s.parser.foundStat() || s.parser.foundTrap()) {
+                                    JOptionPane.showMessageDialog(ptra, "The variables: r, stat, trap cannot be used in the left < right in formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                    return;
+                                }
+
+                                if (s.isConvergingType()) {
+                                    if (s.parser.foundBail()) {
+                                        JOptionPane.showMessageDialog(ptra, "The variable: bail can only be used in escaping type fractals.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                        return;
+                                    }
+                                } else if (s.parser.foundCbail()) {
+                                    JOptionPane.showMessageDialog(ptra, "The variable: cbail can only be used in converging type fractals\n(Root finding methods, Nova, User converging formulas).", "Error!", JOptionPane.ERROR_MESSAGE);
+                                    return;
+                                }
+
+                                s.parser.parse(field_formula_cond3.getText());
+
+                                if(s.parser.foundR()|| s.parser.foundStat() || s.parser.foundTrap()) {
+                                    JOptionPane.showMessageDialog(ptra, "The variables: r, stat, trap cannot be used in the left = right in formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                    return;
+                                }
+
+                                if (s.isConvergingType()) {
+                                    if (s.parser.foundBail()) {
+                                        JOptionPane.showMessageDialog(ptra, "The variable: bail can only be used in escaping type fractals.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                        return;
+                                    }
+                                } else if (s.parser.foundCbail()) {
+                                    JOptionPane.showMessageDialog(ptra, "The variable: cbail can only be used in converging type fractals\n(Root finding methods, Nova, User converging formulas).", "Error!", JOptionPane.ERROR_MESSAGE);
+                                    return;
+                                }
+                            }
+
+                            s.fns.user_in_coloring_algorithm = tabbedPane.getSelectedIndex();
+
+                            if (s.fns.user_in_coloring_algorithm == 0) {
+                                s.fns.incoloring_formula = field_formula.getText();
+                            } else {
+                                s.fns.user_incoloring_conditions[0] = field_condition.getText();
+                                s.fns.user_incoloring_conditions[1] = field_condition2.getText();
+                                s.fns.user_incoloring_condition_formula[0] = field_formula_cond1.getText();
+                                s.fns.user_incoloring_condition_formula[1] = field_formula_cond2.getText();
+                                s.fns.user_incoloring_condition_formula[2] = field_formula_cond3.getText();
+                            }
+
+                            ptra.setUserInColoringModePost();
+
+                        } catch (ParserException ex) {
+                            JOptionPane.showMessageDialog(ptra, ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
+
                         dispose();
-                        return;
+                        ptra.setInColoringModePost();
                     }
-
-                    try {
-                        if (tabbedPane.getSelectedIndex() == 0) {
-                            s.parser.parse(field_formula.getText());
-                            
-                            if(s.parser.foundR()|| s.parser.foundStat() || s.parser.foundTrap()) {
-                                JOptionPane.showMessageDialog(ptra, "The variables: r, stat, trap cannot be used in the in formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                return;
-                            }
-
-                            if (s.isConvergingType()) {
-                                if (s.parser.foundBail() ) {
-                                    JOptionPane.showMessageDialog(ptra, "The variable: bail can only be used in escaping type fractals.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                    return;
-                                }
-                            } else if (s.parser.foundCbail()) {
-                                JOptionPane.showMessageDialog(ptra, "The variable: cbail can only be used in converging type fractals\n(Root finding methods, Nova, User converging formulas).", "Error!", JOptionPane.ERROR_MESSAGE);
-                                return;
-                            }
-                        } else {
-                            s.parser.parse(field_condition.getText());
-                            
-                            if(s.parser.foundR()|| s.parser.foundStat() || s.parser.foundTrap()) {
-                                JOptionPane.showMessageDialog(ptra, "The variables: r, stat, trap cannot be used in the left condition formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                return;
-                            }
-
-                            if (s.isConvergingType()) {
-                                if (s.parser.foundBail()) {
-                                    JOptionPane.showMessageDialog(ptra, "The variable: bail can only be used in escaping type fractals.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                    return;
-                                }
-                            } else if (s.parser.foundCbail()) {
-                                JOptionPane.showMessageDialog(ptra, "The variable: cbail can only be used in converging type fractals\n(Root finding methods, Nova, User converging formulas).", "Error!", JOptionPane.ERROR_MESSAGE);
-                                return;
-                            }
-
-                            s.parser.parse(field_condition2.getText());
-                            
-                            if(s.parser.foundR()|| s.parser.foundStat() || s.parser.foundTrap()) {
-                                JOptionPane.showMessageDialog(ptra, "The variables: r, stat, trap cannot be used in the right condition formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                return;
-                            }
-
-                            if (s.isConvergingType()) {
-                                if (s.parser.foundBail()) {
-                                    JOptionPane.showMessageDialog(ptra, "The variable: bail can only be used in escaping type fractals.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                    return;
-                                }
-                            } else if (s.parser.foundCbail()) {
-                                JOptionPane.showMessageDialog(ptra, "The variable: cbail can only be used in converging type fractals\n(Root finding methods, Nova, User converging formulas).", "Error!", JOptionPane.ERROR_MESSAGE);
-                                return;
-                            }
-
-                            s.parser.parse(field_formula_cond1.getText());
-                            
-                            if(s.parser.foundR()|| s.parser.foundStat() || s.parser.foundTrap()) {
-                                JOptionPane.showMessageDialog(ptra, "The variables: r, stat, trap cannot be used in the left > right in formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                return;
-                            }
-
-                            if (s.isConvergingType()) {
-                                if (s.parser.foundBail()) {
-                                    JOptionPane.showMessageDialog(ptra, "The variable: bail can only be used in escaping type fractals.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                    return;
-                                }
-                            } else if (s.parser.foundCbail()) {
-                                JOptionPane.showMessageDialog(ptra, "The variable: cbail can only be used in converging type fractals\n(Root finding methods, Nova, User converging formulas).", "Error!", JOptionPane.ERROR_MESSAGE);
-                                return;
-                            }
-
-                            s.parser.parse(field_formula_cond2.getText());
-                            
-                            if(s.parser.foundR()|| s.parser.foundStat() || s.parser.foundTrap()) {
-                                JOptionPane.showMessageDialog(ptra, "The variables: r, stat, trap cannot be used in the left < right in formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                return;
-                            }
-
-                            if (s.isConvergingType()) {
-                                if (s.parser.foundBail()) {
-                                    JOptionPane.showMessageDialog(ptra, "The variable: bail can only be used in escaping type fractals.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                    return;
-                                }
-                            } else if (s.parser.foundCbail()) {
-                                JOptionPane.showMessageDialog(ptra, "The variable: cbail can only be used in converging type fractals\n(Root finding methods, Nova, User converging formulas).", "Error!", JOptionPane.ERROR_MESSAGE);
-                                return;
-                            }
-
-                            s.parser.parse(field_formula_cond3.getText());
-                            
-                            if(s.parser.foundR()|| s.parser.foundStat() || s.parser.foundTrap()) {
-                                JOptionPane.showMessageDialog(ptra, "The variables: r, stat, trap cannot be used in the left = right in formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                return;
-                            }
-
-                            if (s.isConvergingType()) {
-                                if (s.parser.foundBail()) {
-                                    JOptionPane.showMessageDialog(ptra, "The variable: bail can only be used in escaping type fractals.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                    return;
-                                }
-                            } else if (s.parser.foundCbail()) {
-                                JOptionPane.showMessageDialog(ptra, "The variable: cbail can only be used in converging type fractals\n(Root finding methods, Nova, User converging formulas).", "Error!", JOptionPane.ERROR_MESSAGE);
-                                return;
-                            }
-                        }
-
-                        s.fns.user_in_coloring_algorithm = tabbedPane.getSelectedIndex();
-
-                        if (s.fns.user_in_coloring_algorithm == 0) {
-                            s.fns.incoloring_formula = field_formula.getText();
-                        } else {
-                            s.fns.user_incoloring_conditions[0] = field_condition.getText();
-                            s.fns.user_incoloring_conditions[1] = field_condition2.getText();
-                            s.fns.user_incoloring_condition_formula[0] = field_formula_cond1.getText();
-                            s.fns.user_incoloring_condition_formula[1] = field_formula_cond2.getText();
-                            s.fns.user_incoloring_condition_formula[2] = field_formula_cond3.getText();
-                        }
-                        
-                        ptra.setUserInColoringModePost();
-
-                    } catch (ParserException ex) {
-                        JOptionPane.showMessageDialog(ptra, ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-
-                    dispose();
-                    ptra.setInColoringModePost();
-                }
-            }
-        });
+                });
 
         //Make this dialog display it.
         setContentPane(optionPane);
@@ -295,12 +292,6 @@ public class InColoringFormulaDialog extends JDialog {
         setResizable(false);
         setLocation((int) (ptra.getLocation().getX() + ptra.getSize().getWidth() / 2) - (getWidth() / 2), (int) (ptra.getLocation().getY() + ptra.getSize().getHeight() / 2) - (getHeight() / 2));
         setVisible(true);
-
-    }
-
-    private ImageIcon getIcon(String path) {
-
-        return new ImageIcon(getClass().getResource(path));
 
     }
 

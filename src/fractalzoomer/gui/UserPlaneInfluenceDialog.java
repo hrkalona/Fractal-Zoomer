@@ -9,8 +9,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 
 public class UserPlaneInfluenceDialog extends JDialog {
 
@@ -25,7 +23,7 @@ public class UserPlaneInfluenceDialog extends JDialog {
 
         setTitle("User Plane Influence");
         setModal(true);
-        setIconImage(getIcon("/fractalzoomer/icons/mandel2.png").getImage());
+        setIconImage(MainWindow.getIcon("mandel2.png").getImage());
 
         JTabbedPane tabbedPane = new JTabbedPane();
         tabbedPane.setPreferredSize(new Dimension(495, 190));
@@ -105,103 +103,102 @@ public class UserPlaneInfluenceDialog extends JDialog {
 
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
+            @Override
             public void windowClosing(WindowEvent we) {
-                optionPane.setValue(new Integer(JOptionPane.CLOSED_OPTION));
+                optionPane.setValue(JOptionPane.CLOSED_OPTION);
             }
         });
 
         optionPane.addPropertyChangeListener(
-                new PropertyChangeListener() {
-                    public void propertyChange(PropertyChangeEvent e) {
-                        String prop = e.getPropertyName();
+                e -> {
+                    String prop = e.getPropertyName();
 
-                        if (isVisible() && (e.getSource() == optionPane) && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
+                    if (isVisible() && (e.getSource() == optionPane) && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
 
-                            Object value = optionPane.getValue();
+                        Object value = optionPane.getValue();
 
-                            if (value == JOptionPane.UNINITIALIZED_VALUE) {
-                                //ignore reset
-                                return;
-                            }
-
-                            //Reset the JOptionPane's value.
-                            //If you don't do this, then if the user
-                            //presses the same button next time, no
-                            //property change event will be fired.
-                            optionPane.setValue(JOptionPane.UNINITIALIZED_VALUE);
-
-                            if ((Integer) value == JOptionPane.CANCEL_OPTION || (Integer) value == JOptionPane.NO_OPTION || (Integer) value == JOptionPane.CLOSED_OPTION) {
-                                plane_influences[oldSelected].setSelected(true);
-                                ips.influencePlane = oldSelected;
-                                dispose();
-                                return;
-                            }
-
-                            try {
-                                if (tabbedPane.getSelectedIndex() == 0) {
-                                    s.parser.parse(field_formula.getText());
-
-                                    if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
-                                        JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r, stat, trap cannot be used in the z formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                        return;
-                                    }
-                                } else {
-                                    s.parser.parse(field_condition.getText());
-
-                                    if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR()  || s.parser.foundStat() || s.parser.foundTrap()) {
-                                        JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r, stat, trap cannot be used in the left condition formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                        return;
-                                    }
-
-                                    s.parser.parse(field_condition2.getText());
-
-                                    if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
-                                        JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r, stat, trap cannot be used in the right condition formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                        return;
-                                    }
-
-                                    s.parser.parse(field_formula_cond1.getText());
-
-                                    if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
-                                        JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r, stat, trap cannot be used in the left > right z formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                        return;
-                                    }
-
-                                    s.parser.parse(field_formula_cond2.getText());
-
-                                    if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
-                                        JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r, stat, trap cannot be used in the left < right z formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                        return;
-                                    }
-
-                                    s.parser.parse(field_formula_cond3.getText());
-
-                                    if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
-                                        JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r, stat, trap cannot be used in the left = right z formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                        return;
-                                    }
-                                }
-
-                                ips.user_plane_influence_algorithm = tabbedPane.getSelectedIndex();
-
-                                if (ips.user_plane_influence_algorithm == 0) {
-                                    ips.userFormulaPlaneInfluence = field_formula.getText();
-                                } else {
-                                    ips.user_plane_influence_conditions[0] = field_condition.getText();
-                                    ips.user_plane_influence_conditions[1] = field_condition2.getText();
-                                    ips.user_plane_influence_condition_formula[0] = field_formula_cond1.getText();
-                                    ips.user_plane_influence_condition_formula[1] = field_formula_cond2.getText();
-                                    ips.user_plane_influence_condition_formula[2] = field_formula_cond3.getText();
-                                }
-
-                                ptra.defaultFractalSettings(true);
-                            } catch (ParserException ex) {
-                                JOptionPane.showMessageDialog(ptra, ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
-                                return;
-                            }
-
-                            dispose();
+                        if (value == JOptionPane.UNINITIALIZED_VALUE) {
+                            //ignore reset
+                            return;
                         }
+
+                        //Reset the JOptionPane's value.
+                        //If you don't do this, then if the user
+                        //presses the same button next time, no
+                        //property change event will be fired.
+                        optionPane.setValue(JOptionPane.UNINITIALIZED_VALUE);
+
+                        if ((Integer) value == JOptionPane.CANCEL_OPTION || (Integer) value == JOptionPane.NO_OPTION || (Integer) value == JOptionPane.CLOSED_OPTION) {
+                            plane_influences[oldSelected].setSelected(true);
+                            ips.influencePlane = oldSelected;
+                            dispose();
+                            return;
+                        }
+
+                        try {
+                            if (tabbedPane.getSelectedIndex() == 0) {
+                                s.parser.parse(field_formula.getText());
+
+                                if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                                    JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r, stat, trap cannot be used in the z formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                    return;
+                                }
+                            } else {
+                                s.parser.parse(field_condition.getText());
+
+                                if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR()  || s.parser.foundStat() || s.parser.foundTrap()) {
+                                    JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r, stat, trap cannot be used in the left condition formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                    return;
+                                }
+
+                                s.parser.parse(field_condition2.getText());
+
+                                if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                                    JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r, stat, trap cannot be used in the right condition formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                    return;
+                                }
+
+                                s.parser.parse(field_formula_cond1.getText());
+
+                                if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                                    JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r, stat, trap cannot be used in the left > right z formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                    return;
+                                }
+
+                                s.parser.parse(field_formula_cond2.getText());
+
+                                if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                                    JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r, stat, trap cannot be used in the left < right z formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                    return;
+                                }
+
+                                s.parser.parse(field_formula_cond3.getText());
+
+                                if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                                    JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r, stat, trap cannot be used in the left = right z formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                    return;
+                                }
+                            }
+
+                            ips.user_plane_influence_algorithm = tabbedPane.getSelectedIndex();
+
+                            if (ips.user_plane_influence_algorithm == 0) {
+                                ips.userFormulaPlaneInfluence = field_formula.getText();
+                            } else {
+                                ips.user_plane_influence_conditions[0] = field_condition.getText();
+                                ips.user_plane_influence_conditions[1] = field_condition2.getText();
+                                ips.user_plane_influence_condition_formula[0] = field_formula_cond1.getText();
+                                ips.user_plane_influence_condition_formula[1] = field_formula_cond2.getText();
+                                ips.user_plane_influence_condition_formula[2] = field_formula_cond3.getText();
+                            }
+
+                            ptra.defaultFractalSettings(true);
+                        } catch (ParserException ex) {
+                            JOptionPane.showMessageDialog(ptra, ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
+
+                        dispose();
                     }
                 });
 
@@ -213,12 +210,6 @@ public class UserPlaneInfluenceDialog extends JDialog {
         setResizable(false);
         setLocation((int) (ptra.getLocation().getX() + ptra.getSize().getWidth() / 2) - (getWidth() / 2), (int) (ptra.getLocation().getY() + ptra.getSize().getHeight() / 2) - (getHeight() / 2));
         setVisible(true);
-
-    }
-
-    private ImageIcon getIcon(String path) {
-
-        return new ImageIcon(getClass().getResource(path));
 
     }
 }

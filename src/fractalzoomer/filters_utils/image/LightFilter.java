@@ -248,7 +248,7 @@ public class LightFilter extends WholeImageFilter {
 				int bumpWidth = width;
 				int bumpHeight = height;
 				int[] bumpPixels = inPixels;
-				if ( bumpSource == BUMPS_FROM_MAP && bumpFunction instanceof ImageFunction2D ) {
+				if ( bumpSource == BUMPS_FROM_MAP && bumpFunction instanceof ImageFunction2D) {
 					ImageFunction2D if2d = (ImageFunction2D)bumpFunction;
 					bumpWidth = if2d.getWidth();
 					bumpHeight = if2d.getHeight();

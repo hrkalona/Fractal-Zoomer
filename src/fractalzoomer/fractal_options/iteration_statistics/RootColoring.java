@@ -7,11 +7,11 @@ import fractalzoomer.functions.root_finding_methods.RootFindingMethods;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.out_coloring_algorithms.OutColorAlgorithm;
 
-import java.awt.*;
 import java.util.ArrayList;
+import java.util.List;
 
 public class RootColoring extends GenericStatistic {
-    public static ArrayList<Complex> roots;
+    public static List<Complex> roots;
     private double rootTolerance;
     private double highlightTolerance;
     private int[] rootColors;

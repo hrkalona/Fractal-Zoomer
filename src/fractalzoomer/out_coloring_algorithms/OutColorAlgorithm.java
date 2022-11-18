@@ -40,9 +40,8 @@ public abstract class OutColorAlgorithm extends ColorAlgorithm {
         temp2 = temp2 <= 0 ? 1e-33 : temp2;
             
         double a = Math.log(temp2 / log_bailout_squared);
-        double f =  a / Math.log(p);
-            
-        return f;
+        return  a / Math.log(p);
+
     }
     
     public static double fractionalPartConverging(Complex z, Complex zold, Complex zold2, double log_convergent_bailout) {

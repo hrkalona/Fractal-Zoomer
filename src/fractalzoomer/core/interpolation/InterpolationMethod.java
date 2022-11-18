@@ -26,7 +26,7 @@ import java.awt.*;
  */
 public abstract class InterpolationMethod {
     
-    public InterpolationMethod() {
+    protected InterpolationMethod() {
         
     }
 

@@ -22,12 +22,8 @@ import fractalzoomer.main.app_settings.Settings;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.Hashtable;
 
 /**
@@ -47,7 +43,7 @@ public class LightDialog extends JDialog {
 
         setTitle("Light");
         setModal(true);
-        setIconImage(getIcon("/fractalzoomer/icons/mandel2.png").getImage());
+        setIconImage(MainWindow.getIcon("mandel2.png").getImage());
 
         final JCheckBox enable_light = new JCheckBox("Light");
         enable_light.setSelected(s.ls.lighting);
@@ -74,7 +70,7 @@ public class LightDialog extends JDialog {
         //depth.setSnapToTicks(true);
         depth.setFocusable(false);
 
-        Hashtable<Integer, JLabel> table3 = new Hashtable<Integer, JLabel>();
+        Hashtable<Integer, JLabel> table3 = new Hashtable<>();
         table3.put(0, new JLabel("0.0"));
         table3.put(25, new JLabel("0.25"));
         table3.put(50, new JLabel("0.5"));
@@ -82,7 +78,7 @@ public class LightDialog extends JDialog {
         table3.put(99, new JLabel("0.99"));
         depth.setLabelTable(table3);
 
-        final JComboBox light_mode_combo = new JComboBox(Constants.lightModes);
+        final JComboBox<String> light_mode_combo = new JComboBox<>(Constants.lightModes);
         light_mode_combo.setSelectedIndex(s.ls.lightMode);
         light_mode_combo.setFocusable(false);
         light_mode_combo.setToolTipText("Sets the light mode.");
@@ -132,7 +128,7 @@ public class LightDialog extends JDialog {
         p3.add(new JLabel("Color Mode:", SwingConstants.HORIZONTAL));
         p3.add(new JLabel("Color Blending:", SwingConstants.HORIZONTAL));
 
-        JComboBox transfer_combo = new JComboBox(Constants.lightTransfer);
+        JComboBox<String> transfer_combo = new JComboBox<>(Constants.lightTransfer);
         transfer_combo.setSelectedIndex(s.ls.heightTransfer);
         transfer_combo.setFocusable(false);
         transfer_combo.setToolTipText("Sets the height transfer function.");
@@ -140,7 +136,7 @@ public class LightDialog extends JDialog {
         JTextField tranfer_factor_field = new JTextField(20);
         tranfer_factor_field.setText("" + s.ls.heightTransferFactor);
 
-        final JComboBox color_method_combo = new JComboBox(Constants.colorMethod);
+        final JComboBox<String> color_method_combo = new JComboBox<>(Constants.colorMethod);
         color_method_combo.setSelectedIndex(s.ls.colorMode);
         color_method_combo.setFocusable(false);
         color_method_combo.setToolTipText("Sets the color mode.");
@@ -152,12 +148,7 @@ public class LightDialog extends JDialog {
         color_blend_opt.setFocusable(false);
         color_blend_opt.setPaintLabels(true);
 
-        color_method_combo.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                color_blend_opt.setEnabled(color_method_combo.getSelectedIndex() == 3);
-            }
-        });
+        color_method_combo.addActionListener(e -> color_blend_opt.setEnabled(color_method_combo.getSelectedIndex() == 3));
 
         JPanel p4 = new JPanel();
         p4.add(transfer_combo);
@@ -194,87 +185,86 @@ public class LightDialog extends JDialog {
 
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
+            @Override
             public void windowClosing(WindowEvent we) {
-                optionPane.setValue(new Integer(JOptionPane.CLOSED_OPTION));
+                optionPane.setValue(JOptionPane.CLOSED_OPTION);
             }
         });
 
         optionPane.addPropertyChangeListener(
-                new PropertyChangeListener() {
-            public void propertyChange(PropertyChangeEvent e) {
-                String prop = e.getPropertyName();
+                e -> {
+                    String prop = e.getPropertyName();
 
-                if (isVisible() && (e.getSource() == optionPane) && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
+                    if (isVisible() && (e.getSource() == optionPane) && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
 
-                    Object value = optionPane.getValue();
+                        Object value = optionPane.getValue();
 
-                    if (value == JOptionPane.UNINITIALIZED_VALUE) {
-                        //ignore reset
-                        return;
-                    }
-
-                    //Reset the JOptionPane's value.
-                    //If you don't do this, then if the user
-                    //presses the same button next time, no
-                    //property change event will be fired.
-                    optionPane.setValue(JOptionPane.UNINITIALIZED_VALUE);
-
-                    if ((Integer) value == JOptionPane.CANCEL_OPTION || (Integer) value == JOptionPane.NO_OPTION || (Integer) value == JOptionPane.CLOSED_OPTION) {
-                        dispose();
-                        return;
-                    }
-
-                    try {
-                        double temp = Double.parseDouble(noise_factor_field.getText());
-                        double temp2 = Double.parseDouble(light_intensity_field.getText());
-                        double temp3 = Double.parseDouble(ambient_light_field.getText());
-                        double temp4 = Double.parseDouble(specular_intensity_field.getText());
-                        double temp5 = Double.parseDouble(shininess_field.getText());
-                        double temp6 = Double.parseDouble(tranfer_factor_field.getText());
-
-                        if (temp <= 0) {
-                            JOptionPane.showMessageDialog(ptra, "The noise reduction factor must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
+                        if (value == JOptionPane.UNINITIALIZED_VALUE) {
+                            //ignore reset
                             return;
                         }
 
-                        s.ls.lighting = enable_light.isSelected();
-                        s.ls.light_direction = direction_of_light.getValue();
-                        s.ls.light_magnitude = depth.getValue() / 100.0;
-                        s.ls.lightintensity = temp2;
-                        s.ls.ambientlight = temp3;
-                        s.ls.specularintensity = temp4;
-                        s.ls.shininess = temp5;
-                        s.ls.light_blending = color_blend_opt.getValue() / 100.0;
-                        s.ls.colorMode = color_method_combo.getSelectedIndex();
-                        s.ls.heightTransfer = transfer_combo.getSelectedIndex();
-                        s.ls.heightTransferFactor = temp6;
-                        s.ls.lightMode = light_mode_combo.getSelectedIndex();
+                        //Reset the JOptionPane's value.
+                        //If you don't do this, then if the user
+                        //presses the same button next time, no
+                        //property change event will be fired.
+                        optionPane.setValue(JOptionPane.UNINITIALIZED_VALUE);
 
-                        double lightAngleRadians = Math.toRadians(s.ls.light_direction);
-                        s.ls.lightVector[0] = Math.cos(lightAngleRadians) * s.ls.light_magnitude;
-                        s.ls.lightVector[1] = Math.sin(lightAngleRadians) * s.ls.light_magnitude;
+                        if ((Integer) value == JOptionPane.CANCEL_OPTION || (Integer) value == JOptionPane.NO_OPTION || (Integer) value == JOptionPane.CLOSED_OPTION) {
+                            dispose();
+                            return;
+                        }
 
-                        s.ls.l_noise_reducing_factor = temp;
+                        try {
+                            double temp = Double.parseDouble(noise_factor_field.getText());
+                            double temp2 = Double.parseDouble(light_intensity_field.getText());
+                            double temp3 = Double.parseDouble(ambient_light_field.getText());
+                            double temp4 = Double.parseDouble(specular_intensity_field.getText());
+                            double temp5 = Double.parseDouble(shininess_field.getText());
+                            double temp6 = Double.parseDouble(tranfer_factor_field.getText());
 
-                    } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
-                        return;
+                            if (temp <= 0) {
+                                JOptionPane.showMessageDialog(ptra, "The noise reduction factor must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+
+                            s.ls.lighting = enable_light.isSelected();
+                            s.ls.light_direction = direction_of_light.getValue();
+                            s.ls.light_magnitude = depth.getValue() / 100.0;
+                            s.ls.lightintensity = temp2;
+                            s.ls.ambientlight = temp3;
+                            s.ls.specularintensity = temp4;
+                            s.ls.shininess = temp5;
+                            s.ls.light_blending = color_blend_opt.getValue() / 100.0;
+                            s.ls.colorMode = color_method_combo.getSelectedIndex();
+                            s.ls.heightTransfer = transfer_combo.getSelectedIndex();
+                            s.ls.heightTransferFactor = temp6;
+                            s.ls.lightMode = light_mode_combo.getSelectedIndex();
+
+                            double lightAngleRadians = Math.toRadians(s.ls.light_direction);
+                            s.ls.lightVector[0] = Math.cos(lightAngleRadians) * s.ls.light_magnitude;
+                            s.ls.lightVector[1] = Math.sin(lightAngleRadians) * s.ls.light_magnitude;
+
+                            s.ls.l_noise_reducing_factor = temp;
+
+                        } catch (Exception ex) {
+                            JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
+
+                        dispose();
+
+                        if (greedy_algorithm && enable_light.isSelected() && !julia_map && !s.d3s.d3 && !s.ds.domain_coloring) {
+                            JOptionPane.showMessageDialog(ptra, "Greedy Drawing Algorithm is enabled, which creates glitches in the image.\nYou should disable it for a better result.", "Warning!", JOptionPane.WARNING_MESSAGE);
+                        }
+
+                        if (!s.fns.smoothing && s.ls.lighting && !s.ds.domain_coloring) {
+                            JOptionPane.showMessageDialog(ptra, "Smoothing is disabled.\nYou should enable smoothing for a better result.", "Warning!", JOptionPane.WARNING_MESSAGE);
+                        }
+
+                        ptra.setPostProcessingPost();
                     }
-
-                    dispose();
-
-                    if (greedy_algorithm && enable_light.isSelected() && !julia_map && !s.d3s.d3 && !s.ds.domain_coloring) {
-                        JOptionPane.showMessageDialog(ptra, "Greedy Drawing Algorithm is enabled, which creates glitches in the image.\nYou should disable it for a better result.", "Warning!", JOptionPane.WARNING_MESSAGE);
-                    }
-
-                    if (!s.fns.smoothing && s.ls.lighting && !s.ds.domain_coloring) {
-                        JOptionPane.showMessageDialog(ptra, "Smoothing is disabled.\nYou should enable smoothing for a better result.", "Warning!", JOptionPane.WARNING_MESSAGE);
-                    }
-
-                    ptra.setPostProcessingPost();
-                }
-            }
-        });
+                });
 
         //Make this dialog display it.
         setContentPane(optionPane);
@@ -284,12 +274,6 @@ public class LightDialog extends JDialog {
         setResizable(false);
         setLocation((int) (ptra.getLocation().getX() + ptra.getSize().getWidth() / 2) - (getWidth() / 2), (int) (ptra.getLocation().getY() + ptra.getSize().getHeight() / 2) - (getHeight() / 2));
         setVisible(true);
-
-    }
-
-    private ImageIcon getIcon(String path) {
-
-        return new ImageIcon(getClass().getResource(path));
 
     }
 

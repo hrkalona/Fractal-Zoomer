@@ -17,9 +17,7 @@
 
 package fractalzoomer.planes.general;
 
-import fractalzoomer.core.BigComplex;
-import fractalzoomer.core.Complex;
-import fractalzoomer.core.MyApfloat;
+import fractalzoomer.core.*;
 import fractalzoomer.planes.Plane;
 
 /**
@@ -37,6 +35,9 @@ public class InversedMu2Plane extends Plane {
     @Override
     public Complex transform(Complex pixel) {
 
+        if(pixel.isZero()) {
+            return pixel;
+        }
         return pixel.reciprocal().plus_mutable(0.25);
 
     }
@@ -48,6 +49,26 @@ public class InversedMu2Plane extends Plane {
             return pixel;
         }
         return pixel.reciprocal().plus(new MyApfloat(0.25));
+
+    }
+
+    @Override
+    public MpfrBigNumComplex transform(MpfrBigNumComplex pixel) {
+
+        if(pixel.isZero()) {
+            return pixel;
+        }
+        return pixel.reciprocal().plus_mutable(0.25);
+
+    }
+
+    @Override
+    public DDComplex transform(DDComplex pixel) {
+
+        if(pixel.isZero()) {
+            return pixel;
+        }
+        return pixel.reciprocal().plus(0.25);
 
     }
 }

@@ -18,6 +18,8 @@
 package fractalzoomer.bailout_conditions;
 
 import fractalzoomer.core.*;
+import fractalzoomer.core.mpfr.LibMpfr;
+import fractalzoomer.core.mpfr.MpfrBigNum;
 import org.apfloat.Apcomplex;
 import org.apfloat.Apfloat;
 
@@ -28,13 +30,27 @@ import org.apfloat.Apfloat;
 public class NNormBailoutCondition extends BailoutCondition {
   protected double n_norm;
   protected Apfloat ddn_norm;
+  protected MpfrBigNum mpfrbn_norm;
+
+  protected DoubleDouble dddn_norm;
  
     public NNormBailoutCondition(double bound, double n_norm) {
         
         super(bound);
         this.n_norm = n_norm;
-        ddn_norm = new MyApfloat(n_norm);
-        
+
+        if(ThreadDraw.PERTURBATION_THEORY) {
+            ddn_norm = new MyApfloat(n_norm);
+            dddn_norm = new DoubleDouble(n_norm);
+
+            if(ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE) {
+
+                if(LibMpfr.LOAD_ERROR == null) {
+                    mpfrbn_norm = new MpfrBigNum(n_norm);
+                }
+            }
+        }
+
     }
     
      @Override //N norm
@@ -57,7 +73,30 @@ public class NNormBailoutCondition extends BailoutCondition {
 
     @Override
     public boolean escaped(BigNumComplex z, BigNumComplex zold, BigNumComplex zold2, int iterations, BigNumComplex c, BigNumComplex start, BigNumComplex c0, BigNum norm_squared, BigNumComplex pixel) {
+        if(n_norm == 0) {
+            return false;
+        }
         return z.toComplex().nnorm(n_norm) >= bound;
+    }
+
+    @Override
+    public boolean escaped(MpfrBigNumComplex z, MpfrBigNumComplex zold, MpfrBigNumComplex zold2, int iterations, MpfrBigNumComplex c, MpfrBigNumComplex start, MpfrBigNumComplex c0, MpfrBigNum norm_squared, MpfrBigNumComplex pixel) {
+        if(mpfrbn_norm.isZero()) {
+            return false;
+        }
+
+        return z.nnorm(mpfrbn_norm).compare(bound) >= 0;
+    }
+
+    @Override
+    public boolean escaped(DDComplex z, DDComplex zold, DDComplex zold2, int iterations, DDComplex c, DDComplex start, DDComplex c0, DoubleDouble norm_squared, DDComplex pixel) {
+
+        if(dddn_norm.isZero()) {
+            return false;
+        }
+
+        return z.nnorm(dddn_norm).compareTo(ddcbound) >= 0;
+
     }
 }
     

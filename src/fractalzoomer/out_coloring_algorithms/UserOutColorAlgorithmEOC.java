@@ -27,13 +27,11 @@ import fractalzoomer.utils.ColorAlgorithm;
  * @author hrkalona2
  */
 public class UserOutColorAlgorithmEOC extends  UserOutColorAlgorithm {
-    protected int max_iterations;
 
     public UserOutColorAlgorithmEOC(String outcoloring_formula, double bailout, int max_iterations, double xCenter, double yCenter, double size, double[] point, Complex[] globalVars) {
 
         super(outcoloring_formula, bailout, max_iterations, xCenter, yCenter, size, point, globalVars);
-        
-        this.max_iterations = max_iterations;
+
         OutNotUsingIncrement = true;
 
     }

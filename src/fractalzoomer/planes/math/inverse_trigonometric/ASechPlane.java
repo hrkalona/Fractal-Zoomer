@@ -18,6 +18,8 @@
 package fractalzoomer.planes.math.inverse_trigonometric;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.core.DDComplex;
+import fractalzoomer.core.MpfrBigNumComplex;
 import fractalzoomer.planes.Plane;
 
 /**
@@ -34,7 +36,33 @@ public class ASechPlane extends Plane {
 
     @Override
     public Complex transform(Complex pixel) {
-        
+
+        if(pixel.isZero()) {
+            return pixel;
+        }
+
+        return pixel.asech();
+
+    }
+
+    @Override
+    public MpfrBigNumComplex transform(MpfrBigNumComplex pixel) {
+
+        if(pixel.isZero()) {
+            return pixel;
+        }
+
+        return pixel.asech();
+
+    }
+
+    @Override
+    public DDComplex transform(DDComplex pixel) {
+
+        if(pixel.isZero()) {
+            return pixel;
+        }
+
         return pixel.asech();
 
     }

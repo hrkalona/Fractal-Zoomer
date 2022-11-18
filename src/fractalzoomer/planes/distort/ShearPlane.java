@@ -17,10 +17,8 @@
 
 package fractalzoomer.planes.distort;
 
-import fractalzoomer.core.BigComplex;
-import fractalzoomer.core.BigNum;
-import fractalzoomer.core.BigNumComplex;
-import fractalzoomer.core.Complex;
+import fractalzoomer.core.*;
+import fractalzoomer.core.mpfr.LibMpfr;
 import fractalzoomer.planes.Plane;
 
 /**
@@ -29,33 +27,64 @@ import fractalzoomer.planes.Plane;
  */
 public class ShearPlane extends Plane {
 
-    private double[] plane_transform_scales;
+    private Complex scales;
+    private BigComplex ddscales;
+    private BigNumComplex bnscales;
+    private MpfrBigNumComplex mpfrbnscales;
+
+    private DDComplex ddcscales;
 
     public ShearPlane(double[] plane_transform_scales) {
 
         super();
-        this.plane_transform_scales = plane_transform_scales;
+        scales = new Complex(plane_transform_scales[0], plane_transform_scales[1]);
+
+        if(ThreadDraw.PERTURBATION_THEORY) {
+            ddscales = new BigComplex(scales);
+            ddcscales = new DDComplex(scales);
+            if (ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE) {
+                bnscales = new BigNumComplex(scales);
+
+                if(LibMpfr.LOAD_ERROR == null) {
+                    mpfrbnscales = new MpfrBigNumComplex(scales);
+                }
+            }
+        }
 
     }
 
     @Override
     public Complex transform(Complex pixel) {
 
-        return pixel.shear(new Complex(plane_transform_scales[0], plane_transform_scales[1]));
+        return pixel.shear(scales);
 
     }
 
     @Override
     public BigComplex transform(BigComplex pixel) {
 
-        return pixel.shear(new BigComplex(plane_transform_scales[0], plane_transform_scales[1]));
+        return pixel.shear(ddscales);
 
     }
 
     @Override
     public BigNumComplex transform(BigNumComplex pixel) {
 
-        return pixel.shear(new BigNumComplex(plane_transform_scales[0], plane_transform_scales[1]));
+        return pixel.shear(bnscales);
+
+    }
+
+    @Override
+    public MpfrBigNumComplex transform(MpfrBigNumComplex pixel) {
+
+        return pixel.shear(mpfrbnscales);
+
+    }
+
+    @Override
+    public DDComplex transform(DDComplex pixel) {
+
+        return pixel.shear(ddcscales);
 
     }
 }

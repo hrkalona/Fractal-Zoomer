@@ -16,10 +16,11 @@
  */
 package fractalzoomer.core.drawing_algorithms;
 
-import fractalzoomer.core.location.Location;
 import fractalzoomer.core.ThreadDraw;
 import fractalzoomer.core.antialiasing.AntialiasingAlgorithm;
+import fractalzoomer.core.location.Location;
 import fractalzoomer.functions.Fractal;
+import fractalzoomer.main.Constants;
 import fractalzoomer.main.ImageExpanderWindow;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.*;
@@ -35,45 +36,45 @@ import java.util.concurrent.BrokenBarrierException;
  */
 public class BoundaryTracingDraw extends ThreadDraw {
 
-    public BoundaryTracingDraw(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, D3Settings d3s, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, DomainColoringSettings ds, boolean inverse_dem, boolean quickDraw, double color_intensity, int transfer_function, double color_intensity2, int transfer_function2, boolean usePaletteForInColoring, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, int color_blending, OrbitTrapSettings ots, ContourColoringSettings cns, int[] post_processing_order, LightSettings ls, PaletteGradientMergingSettings pbs, StatisticsSettings sts, int gradient_offset, HistogramColoringSettings hss, double contourFactor) {
-        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns, d3s, ptr, fractal_color, dem_color, image, fs, periodicity_checking, color_cycling_location, color_cycling_location2, exterior_de, exterior_de_factor, height_ratio, bms, polar_projection, circle_period, fdes, rps, ds, inverse_dem, quickDraw, color_intensity, transfer_function, color_intensity2, transfer_function2, usePaletteForInColoring, ens, ofs, gss, color_blending, ots, cns, post_processing_order, ls, pbs, sts, gradient_offset, hss, contourFactor);
+    public BoundaryTracingDraw(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, D3Settings d3s, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, DomainColoringSettings ds, boolean inverse_dem, boolean quickDraw, double color_intensity, int transfer_function, double color_intensity2, int transfer_function2, boolean usePaletteForInColoring, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, int color_blending, OrbitTrapSettings ots, ContourColoringSettings cns, int[] post_processing_order, LightSettings ls, PaletteGradientMergingSettings pbs, StatisticsSettings sts, int gradient_offset, HistogramColoringSettings hss, double contourFactor, GeneratedPaletteSettings gps, JitterSettings js) {
+        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns, d3s, ptr, fractal_color, dem_color, image, fs, periodicity_checking, color_cycling_location, color_cycling_location2, exterior_de, exterior_de_factor, height_ratio, bms, polar_projection, circle_period, fdes, rps, ds, inverse_dem, quickDraw, color_intensity, transfer_function, color_intensity2, transfer_function2, usePaletteForInColoring, ens, ofs, gss, color_blending, ots, cns, post_processing_order, ls, pbs, sts, gradient_offset, hss, contourFactor, gps, js);
     }
 
-    public BoundaryTracingDraw(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, ImageExpanderWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, DomainColoringSettings ds, boolean inverse_dem, double color_intensity, int transfer_function, double color_intensity2, int transfer_function2, boolean usePaletteForInColoring, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, int color_blending, OrbitTrapSettings ots, ContourColoringSettings cns, int[] post_processing_order, LightSettings ls, PaletteGradientMergingSettings pbs, StatisticsSettings sts, int gradient_offset, HistogramColoringSettings hss, double contourFactor) {
-        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns, ptr, fractal_color, dem_color, image, fs, periodicity_checking, color_cycling_location, color_cycling_location2, exterior_de, exterior_de_factor, height_ratio, bms, polar_projection, circle_period, fdes, rps, ds, inverse_dem, color_intensity, transfer_function, color_intensity2, transfer_function2, usePaletteForInColoring, ens, ofs, gss, color_blending, ots, cns, post_processing_order, ls, pbs, sts, gradient_offset, hss, contourFactor);
+    public BoundaryTracingDraw(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, ImageExpanderWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, DomainColoringSettings ds, boolean inverse_dem, double color_intensity, int transfer_function, double color_intensity2, int transfer_function2, boolean usePaletteForInColoring, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, int color_blending, OrbitTrapSettings ots, ContourColoringSettings cns, int[] post_processing_order, LightSettings ls, PaletteGradientMergingSettings pbs, StatisticsSettings sts, int gradient_offset, HistogramColoringSettings hss, double contourFactor, GeneratedPaletteSettings gps, JitterSettings js) {
+        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns, ptr, fractal_color, dem_color, image, fs, periodicity_checking, color_cycling_location, color_cycling_location2, exterior_de, exterior_de_factor, height_ratio, bms, polar_projection, circle_period, fdes, rps, ds, inverse_dem, color_intensity, transfer_function, color_intensity2, transfer_function2, usePaletteForInColoring, ens, ofs, gss, color_blending, ots, cns, post_processing_order, ls, pbs, sts, gradient_offset, hss, contourFactor, gps, js);
     }
 
-    public BoundaryTracingDraw(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, D3Settings d3s, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, DomainColoringSettings ds, boolean inverse_dem, boolean quickDraw, double color_intensity, int transfer_function, double color_intensity2, int transfer_function2, boolean usePaletteForInColoring, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, int color_blending, OrbitTrapSettings ots, ContourColoringSettings cns, int[] post_processing_order, LightSettings ls, PaletteGradientMergingSettings pbs, StatisticsSettings sts, int gradient_offset, HistogramColoringSettings hss, double contourFactor, double xJuliaCenter, double yJuliaCenter) {
-        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns, d3s, ptr, fractal_color, dem_color, image, fs, periodicity_checking, color_cycling_location, color_cycling_location2, exterior_de, exterior_de_factor, height_ratio, bms, polar_projection, circle_period, fdes, rps, ds, inverse_dem, quickDraw, color_intensity, transfer_function, color_intensity2, transfer_function2, usePaletteForInColoring, ens, ofs, gss, color_blending, ots, cns, post_processing_order, ls, pbs, sts, gradient_offset, hss, contourFactor, xJuliaCenter, yJuliaCenter);
+    public BoundaryTracingDraw(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, D3Settings d3s, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, DomainColoringSettings ds, boolean inverse_dem, boolean quickDraw, double color_intensity, int transfer_function, double color_intensity2, int transfer_function2, boolean usePaletteForInColoring, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, int color_blending, OrbitTrapSettings ots, ContourColoringSettings cns, int[] post_processing_order, LightSettings ls, PaletteGradientMergingSettings pbs, StatisticsSettings sts, int gradient_offset, HistogramColoringSettings hss, double contourFactor, GeneratedPaletteSettings gps, JitterSettings js, Apfloat xJuliaCenter, Apfloat yJuliaCenter) {
+        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns, d3s, ptr, fractal_color, dem_color, image, fs, periodicity_checking, color_cycling_location, color_cycling_location2, exterior_de, exterior_de_factor, height_ratio, bms, polar_projection, circle_period, fdes, rps, ds, inverse_dem, quickDraw, color_intensity, transfer_function, color_intensity2, transfer_function2, usePaletteForInColoring, ens, ofs, gss, color_blending, ots, cns, post_processing_order, ls, pbs, sts, gradient_offset, hss, contourFactor, gps, js, xJuliaCenter, yJuliaCenter);
     }
 
-    public BoundaryTracingDraw(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, ImageExpanderWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, DomainColoringSettings ds, boolean inverse_dem, double color_intensity, int transfer_function, double color_intensity2, int transfer_function2, boolean usePaletteForInColoring, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, int color_blending, OrbitTrapSettings ots, ContourColoringSettings cns, int[] post_processing_order, LightSettings ls, PaletteGradientMergingSettings pbs, StatisticsSettings sts, int gradient_offset, HistogramColoringSettings hss, double contourFactor, double xJuliaCenter, double yJuliaCenter) {
-        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns, ptr, fractal_color, dem_color, image, fs, periodicity_checking, color_cycling_location, color_cycling_location2, exterior_de, exterior_de_factor, height_ratio, bms, polar_projection, circle_period, fdes, rps, ds, inverse_dem, color_intensity, transfer_function, color_intensity2, transfer_function2, usePaletteForInColoring, ens, ofs, gss, color_blending, ots, cns, post_processing_order, ls, pbs, sts, gradient_offset, hss, contourFactor, xJuliaCenter, yJuliaCenter);
+    public BoundaryTracingDraw(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, ImageExpanderWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, DomainColoringSettings ds, boolean inverse_dem, double color_intensity, int transfer_function, double color_intensity2, int transfer_function2, boolean usePaletteForInColoring, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, int color_blending, OrbitTrapSettings ots, ContourColoringSettings cns, int[] post_processing_order, LightSettings ls, PaletteGradientMergingSettings pbs, StatisticsSettings sts, int gradient_offset, HistogramColoringSettings hss, double contourFactor, GeneratedPaletteSettings gps, JitterSettings js, Apfloat xJuliaCenter, Apfloat yJuliaCenter) {
+        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns, ptr, fractal_color, dem_color, image, fs, periodicity_checking, color_cycling_location, color_cycling_location2, exterior_de, exterior_de_factor, height_ratio, bms, polar_projection, circle_period, fdes, rps, ds, inverse_dem, color_intensity, transfer_function, color_intensity2, transfer_function2, usePaletteForInColoring, ens, ofs, gss, color_blending, ots, cns, post_processing_order, ls, pbs, sts, gradient_offset, hss, contourFactor, gps, js, xJuliaCenter, yJuliaCenter);
     }
 
-    public BoundaryTracingDraw(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, MainWindow ptr, Color fractal_color, Color dem_color, boolean fast_julia_filters, BufferedImage image, boolean periodicity_checking, FiltersSettings fs, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, boolean inverse_dem, double color_intensity, int transfer_function, double color_intensity2, int transfer_function2, boolean usePaletteForInColoring, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, int color_blending, OrbitTrapSettings ots, ContourColoringSettings cns, int[] post_processing_order, LightSettings ls, PaletteGradientMergingSettings pbs, StatisticsSettings sts, int gradient_offset, HistogramColoringSettings hss, double contourFactor, double xJuliaCenter, double yJuliaCenter) {
-        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns, ptr, fractal_color, dem_color, fast_julia_filters, image, periodicity_checking, fs, color_cycling_location, color_cycling_location2, exterior_de, exterior_de_factor, height_ratio, bms, polar_projection, circle_period, fdes, rps, inverse_dem, color_intensity, transfer_function, color_intensity2, transfer_function2, usePaletteForInColoring, ens, ofs, gss, color_blending, ots, cns, post_processing_order, ls, pbs, sts, gradient_offset, hss, contourFactor, xJuliaCenter, yJuliaCenter);
+    public BoundaryTracingDraw(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, MainWindow ptr, Color fractal_color, Color dem_color, boolean fast_julia_filters, BufferedImage image, boolean periodicity_checking, FiltersSettings fs, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, boolean inverse_dem, double color_intensity, int transfer_function, double color_intensity2, int transfer_function2, boolean usePaletteForInColoring, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, int color_blending, OrbitTrapSettings ots, ContourColoringSettings cns, int[] post_processing_order, LightSettings ls, PaletteGradientMergingSettings pbs, StatisticsSettings sts, int gradient_offset, HistogramColoringSettings hss, double contourFactor, GeneratedPaletteSettings gps, JitterSettings js, Apfloat xJuliaCenter, Apfloat yJuliaCenter) {
+        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns, ptr, fractal_color, dem_color, fast_julia_filters, image, periodicity_checking, fs, color_cycling_location, color_cycling_location2, exterior_de, exterior_de_factor, height_ratio, bms, polar_projection, circle_period, fdes, rps, inverse_dem, color_intensity, transfer_function, color_intensity2, transfer_function2, usePaletteForInColoring, ens, ofs, gss, color_blending, ots, cns, post_processing_order, ls, pbs, sts, gradient_offset, hss, contourFactor, gps, js, xJuliaCenter, yJuliaCenter);
     }
 
 
     @Override
     protected void drawIterations(int image_size, boolean polar) {
 
-        Location location = Location.getInstanceForDrawing(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, polar, PERTURBATION_THEORY && fractal.supportsPerturbationTheory());
+        Location location = Location.getInstanceForDrawing(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, js, polar, PERTURBATION_THEORY && fractal.supportsPerturbationTheory());
 
         int pixel_percent = (image_size * image_size) / 100;
 
-        final int dirRight = 0, dirUP = 3, maskDir = 3, culcColor = 0;// borderColor = 1;
+        final int dirRight = 0, dirUP = 3, maskDir = 3, culcColor = Constants.MAGIC_ALPHA;// borderColor = 1;
 
         boolean startEscaped;
         
         int pix, y, x, curDir, curPix, startPix, startColor, nextColor, dir, Dir, nextPix, floodPix, floodColor;
-        int delPix[] = {1, image_size, -1, -image_size};
+        int[] delPix = {1, image_size, -1, -image_size};
         double start_val;
 
         int ix, iy, next_ix, next_iy, temp_ix, temp_iy, flood_ix;
-        int intX[] = {1, 0, -1, 0};
-        int intY[] = {0, 1, 0, -1};
+        int[] intX = {1, 0, -1, 0};
+        int[] intY = {0, 1, 0, -1};
 
         int skippedColor;
 
@@ -107,7 +108,8 @@ public class BoundaryTracingDraw extends ThreadDraw {
             location.precalculateY(y);
             for (x = FROMx, pix = y * image_size + x; x < TOx; x++, pix++) {
 
-                if (rgbs[pix] != culcColor) {
+                //Test if the pixel is not calculated by comparing if the Alpha component has the magic value of 0xFE
+                if (rgbs[pix] >>> 24 != culcColor) {
                     continue;
                 }
 
@@ -148,7 +150,7 @@ public class BoundaryTracingDraw extends ThreadDraw {
 
                         nextPix = curPix + delPix[dir];
 
-                        if ((nextColor = rgbs[nextPix]) == culcColor) {
+                        if ((nextColor = rgbs[nextPix]) >>> 24 == culcColor) {
 
                             image_iterations[nextPix] = f_val = iteration_algorithm.calculate(location2.getComplex(next_ix, next_iy));
                             escaped[nextPix] = escaped_val = iteration_algorithm.escaped();
@@ -204,7 +206,7 @@ public class BoundaryTracingDraw extends ThreadDraw {
 
                                     floodPix++;
 
-                                    if ((floodColor = rgbs[floodPix]) == culcColor) {
+                                    if ((floodColor = rgbs[floodPix]) >>> 24 == culcColor) {
                                         drawing_done++;
                                         rgbs[floodPix] = skippedColor;
                                         image_iterations[floodPix] = start_val;
@@ -265,7 +267,7 @@ public class BoundaryTracingDraw extends ThreadDraw {
     protected void drawFastJuliaAntialiased(int image_size, boolean polar) {
 
         int aaMethod = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
-        Location location = Location.getInstanceForDrawing(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, polar, PERTURBATION_THEORY && fractal.supportsPerturbationTheory());
+        Location location = Location.getInstanceForDrawing(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, js, polar, PERTURBATION_THEORY && fractal.supportsPerturbationTheory());
         location.createAntialiasingSteps(aaMethod == 5);
 
         if(PERTURBATION_THEORY && fractal.supportsPerturbationTheory()) {
@@ -291,14 +293,14 @@ public class BoundaryTracingDraw extends ThreadDraw {
 
         double temp_result;
 
-        final int dirRight = 0, dirUP = 3, maskDir = 3, culcColor = 0;
+        final int dirRight = 0, dirUP = 3, maskDir = 3, culcColor = Constants.MAGIC_ALPHA;
 
         int pix, y, x, curDir, curPix, startPix, startColor, nextColor, dir, Dir, nextPix, floodPix, floodColor;
-        int delPix[] = {1, image_size, -1, -image_size};
+        int[] delPix = {1, image_size, -1, -image_size};
 
         int ix, iy, next_ix, next_iy, temp_ix, temp_iy, flood_ix;
-        int intX[] = {1, 0, -1, 0};
-        int intY[] = {0, 1, 0, -1};
+        int[] intX = {1, 0, -1, 0};
+        int[] intY = {0, 1, 0, -1};
 
         int skippedColor;
 
@@ -318,7 +320,7 @@ public class BoundaryTracingDraw extends ThreadDraw {
             location.precalculateY(y);
             for (x = FROMx, pix = y * image_size + x; x < TOx; x++, pix++) {
 
-                if (rgbs[pix] != culcColor) {
+                if (rgbs[pix] >>> 24 != culcColor) {
                     continue;
                 }
 
@@ -366,7 +368,7 @@ public class BoundaryTracingDraw extends ThreadDraw {
 
                         nextPix = curPix + delPix[dir];
 
-                        if ((nextColor = rgbs[nextPix]) == culcColor) {
+                        if ((nextColor = rgbs[nextPix]) >>> 24 == culcColor) {
 
                             image_iterations_fast_julia[nextPix] = f_val = iteration_algorithm.calculate(location2.getComplex(next_ix, next_iy));
                             escaped_fast_julia[nextPix] = escaped_val = iteration_algorithm.escaped();
@@ -430,7 +432,7 @@ public class BoundaryTracingDraw extends ThreadDraw {
 
                                     floodPix++;
 
-                                    if ((floodColor = rgbs[floodPix]) == culcColor) {
+                                    if ((floodColor = rgbs[floodPix]) >>> 24 == culcColor) {
                                         rgbs[floodPix] = skippedColor;
                                         image_iterations_fast_julia[floodPix] = start_val;
                                         escaped_fast_julia[floodPix] = startEscaped;
@@ -463,7 +465,7 @@ public class BoundaryTracingDraw extends ThreadDraw {
     protected void drawIterationsAntialiased(int image_size, boolean polar) {
 
         int aaMethod = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
-        Location location = Location.getInstanceForDrawing(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, polar, PERTURBATION_THEORY && fractal.supportsPerturbationTheory());
+        Location location = Location.getInstanceForDrawing(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, js, polar, PERTURBATION_THEORY && fractal.supportsPerturbationTheory());
         location.createAntialiasingSteps(aaMethod == 5);
 
         int pixel_percent = (image_size * image_size) / 100;
@@ -472,15 +474,15 @@ public class BoundaryTracingDraw extends ThreadDraw {
 
         double temp_result;
 
-        final int dirRight = 0, dirUP = 3, maskDir = 3, culcColor = 0;
+        final int dirRight = 0, dirUP = 3, maskDir = 3, culcColor = Constants.MAGIC_ALPHA;
 
         int pix, y, x, curDir, curPix, startPix, startColor, nextColor, dir, Dir, nextPix, floodPix, floodColor;
-        int delPix[] = {1, image_size, -1, -image_size};
+        int[] delPix = {1, image_size, -1, -image_size};
         double start_val;
 
         int ix, iy, next_ix, next_iy, temp_ix, temp_iy, flood_ix;
-        int intX[] = {1, 0, -1, 0};
-        int intY[] = {0, 1, 0, -1};
+        int[] intX = {1, 0, -1, 0};
+        int[] intY = {0, 1, 0, -1};
 
         int skippedColor;
         
@@ -521,7 +523,7 @@ public class BoundaryTracingDraw extends ThreadDraw {
             location.precalculateY(y);
             for (x = FROMx, pix = y * image_size + x; x < TOx; x++, pix++) {
 
-                if (rgbs[pix] != culcColor) {
+                if (rgbs[pix] >>> 24 != culcColor) {
                     continue;
                 }
 
@@ -577,7 +579,7 @@ public class BoundaryTracingDraw extends ThreadDraw {
 
                         nextPix = curPix + delPix[dir];
 
-                        if ((nextColor = rgbs[nextPix]) == culcColor) {
+                        if ((nextColor = rgbs[nextPix]) >>> 24 == culcColor) {
                             image_iterations[nextPix] = f_val = iteration_algorithm.calculate(location2.getComplex(next_ix, next_iy));
                             escaped[nextPix] = escaped_val = iteration_algorithm.escaped();
                             color = getFinalColor(f_val, escaped_val);
@@ -647,7 +649,7 @@ public class BoundaryTracingDraw extends ThreadDraw {
 
                                     floodPix++;
 
-                                    if ((floodColor = rgbs[floodPix]) == culcColor) {
+                                    if ((floodColor = rgbs[floodPix]) >>> 24 == culcColor) {
                                         drawing_done++;
                                         rgbs[floodPix] = skippedColor;
                                         image_iterations[floodPix] = start_val;
@@ -707,7 +709,7 @@ public class BoundaryTracingDraw extends ThreadDraw {
     @Override
     protected void drawFastJulia(int image_size, boolean polar) {
 
-        Location location = Location.getInstanceForDrawing(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, polar, PERTURBATION_THEORY && fractal.supportsPerturbationTheory());
+        Location location = Location.getInstanceForDrawing(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, js, polar, PERTURBATION_THEORY && fractal.supportsPerturbationTheory());
 
         if(PERTURBATION_THEORY && fractal.supportsPerturbationTheory()) {
 
@@ -728,14 +730,14 @@ public class BoundaryTracingDraw extends ThreadDraw {
 
         Location location2 = Location.getCopy(location);
 
-        final int dirRight = 0, dirUP = 3, maskDir = 3, culcColor = 0;
+        final int dirRight = 0, dirUP = 3, maskDir = 3, culcColor = Constants.MAGIC_ALPHA;
 
         int pix, y, x, curDir, curPix, startPix, startColor, nextColor, dir, Dir, nextPix, floodPix, floodColor;
-        int delPix[] = {1, image_size, -1, -image_size};
+        int[] delPix = {1, image_size, -1, -image_size};
 
         int ix, iy, next_ix, next_iy, temp_ix, temp_iy, flood_ix;
-        int intX[] = {1, 0, -1, 0};
-        int intY[] = {0, 1, 0, -1};
+        int[] intX = {1, 0, -1, 0};
+        int[] intY = {0, 1, 0, -1};
 
         int skippedColor;
         
@@ -751,7 +753,7 @@ public class BoundaryTracingDraw extends ThreadDraw {
             location.precalculateY(y);
             for (x = FROMx, pix = y * image_size + x; x < TOx; x++, pix++) {
 
-                if (rgbs[pix] != culcColor) {
+                if (rgbs[pix] >>> 24 != culcColor) {
                     continue;
                 }
 
@@ -785,7 +787,7 @@ public class BoundaryTracingDraw extends ThreadDraw {
 
                         nextPix = curPix + delPix[dir];
 
-                        if ((nextColor = rgbs[nextPix]) == culcColor) {
+                        if ((nextColor = rgbs[nextPix]) >>> 24 == culcColor) {
                             image_iterations_fast_julia[nextPix] = f_val = iteration_algorithm.calculate(location2.getComplex(next_ix, next_iy));
                             escaped_fast_julia[nextPix] = escaped_val = iteration_algorithm.escaped();
                             rgbs[nextPix] = nextColor = getFinalColor(f_val, escaped_val);
@@ -833,7 +835,7 @@ public class BoundaryTracingDraw extends ThreadDraw {
 
                                     floodPix++;
 
-                                    if ((floodColor = rgbs[floodPix]) == culcColor) {
+                                    if ((floodColor = rgbs[floodPix]) >>> 24 == culcColor) {
                                         rgbs[floodPix] = skippedColor;
                                         image_iterations_fast_julia[floodPix] = start_val;
                                         escaped_fast_julia[floodPix] = startEscaped;
@@ -885,7 +887,7 @@ public class BoundaryTracingDraw extends ThreadDraw {
         int floodPix;
         int flood_ix;
         int floodColor;
-        final int culcColor = 0;
+        final int culcColor = Constants.MAGIC_ALPHA;
 
         for (int i = 0; i < floodCount; i++) {
             floodPix = currentCache[i];
@@ -900,7 +902,7 @@ public class BoundaryTracingDraw extends ThreadDraw {
 
                 floodPix++;
 
-                if ((floodColor = rgbs[floodPix]) == culcColor) {
+                if ((floodColor = rgbs[floodPix]) >>> 24 == culcColor) {
                     drawing_done++;
                     rgbs[floodPix] = skippedColor;
                     image_iterations[floodPix] = start_val;

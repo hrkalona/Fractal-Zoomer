@@ -4,7 +4,6 @@ import fractalzoomer.core.*;
 import fractalzoomer.core.bla.BLA;
 import fractalzoomer.core.bla.BLADeep;
 import fractalzoomer.core.interpolation.*;
-import fractalzoomer.functions.mandelbrot.Mandelbrot;
 import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.utils.ColorAlgorithm;
@@ -266,6 +265,13 @@ public class NormalMap extends GenericStatistic {
             }
         }
 
+        if(supportsDeepCalculations) {
+            if(useSecondDerivative) {
+                derivative2_m.Reduce();
+            }
+            derivative_m.Reduce();
+        }
+
         samples++;
     }
 
@@ -293,6 +299,7 @@ public class NormalMap extends GenericStatistic {
         if(useSecondDerivative) {
             if(supportsDeepCalculations) {
                 derivative2_m = new MantExpComplex(bla.getValue(derivative2_m.toComplex()));
+                derivative2_m.Reduce();
             }
             else {
                 derivative2 = bla.getValue(derivative2);
@@ -301,6 +308,7 @@ public class NormalMap extends GenericStatistic {
 
         if(supportsDeepCalculations) {
             derivative_m = new MantExpComplex(bla.getValue(derivative_m.toComplex(), 1));
+            derivative_m.Reduce();
         }
         else {
             derivative = bla.getValue(derivative, 1);
@@ -330,9 +338,11 @@ public class NormalMap extends GenericStatistic {
 
         if(useSecondDerivative) {
             derivative2_m = bla.getValue(derivative2_m);
+            derivative2_m.Reduce();
         }
 
         derivative_m = bla.getValue(derivative_m, MantExp.ONE);
+        derivative_m.Reduce();
 
         samples++;
     }
@@ -629,5 +639,16 @@ public class NormalMap extends GenericStatistic {
         super.setSize(size);
         DELimit_m = new MantExp(MyApfloat.fp.multiply(MyApfloat.fp.divide(size, new MyApfloat(ThreadDraw.IMAGE_SIZE)), new MyApfloat(normalMapDEfactor)));
         supportsDeepCalc = (function >= MainWindow.MANDELBROT && function <= MainWindow.MANDELBROTFIFTH  || function == MainWindow.LAMBDA) && ThreadDraw.PERTURBATION_THEORY;
+    }
+
+    public void initializeApproximationDerivatives(MantExpComplex dz, MantExpComplex ddz) {
+        derivative = dz.toComplex();
+        derivative_m = dz;
+        derivative2 = ddz.toComplex();
+        derivative2_m = ddz;
+    }
+
+    public boolean usesSecondDerivative() {
+        return useSecondDerivative;
     }
 }

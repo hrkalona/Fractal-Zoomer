@@ -29,7 +29,7 @@ public class BurnBlending extends Blending {
     }
 
     @Override
-    public int blend(int redA, int greenA, int blueA, int redB, int greenB, int blueB, double coef) {
+    public int blendInternal(int redA, int greenA, int blueA, int redB, int greenB, int blueB, double coef) {
         
         if(redB == 255 && greenB == 255 && blueB == 255) {
             redB = 254;

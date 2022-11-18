@@ -18,6 +18,8 @@
 package fractalzoomer.planes.math;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.core.DDComplex;
+import fractalzoomer.core.MpfrBigNumComplex;
 import fractalzoomer.planes.Plane;
 
 
@@ -36,6 +38,20 @@ public class ExpPlane extends Plane {
     @Override
     public Complex transform(Complex pixel) {
         
+        return pixel.exp();
+
+    }
+
+    @Override
+    public MpfrBigNumComplex transform(MpfrBigNumComplex pixel) {
+
+        return pixel.exp();
+
+    }
+
+    @Override
+    public DDComplex transform(DDComplex pixel) {
+
         return pixel.exp();
 
     }

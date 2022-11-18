@@ -23,10 +23,11 @@ import fractalzoomer.parser.ParserException;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 
 /**
@@ -49,7 +50,7 @@ public class PlaneVisualizationFrame extends JFrame {
         int filters_options_window_width = 1050;
         int filters_options_window_height = 660;
         setTitle("Plane Visualization");
-        setIconImage(getIcon("/fractalzoomer/icons/plane_visualization.png").getImage());
+        setIconImage(MainWindow.getIcon("plane_visualization.png").getImage());
         setSize(filters_options_window_width, filters_options_window_height);
         setLocation((int)(ptra2.getLocation().getX() + ptra2.getSize().getWidth() / 2) - (filters_options_window_width / 2), (int)(ptra2.getLocation().getY() + ptra2.getSize().getHeight() / 2) - (filters_options_window_height / 2));
 
@@ -77,7 +78,7 @@ public class PlaneVisualizationFrame extends JFrame {
         size_slid.setPaintLabels(true);
         size_slid.setBackground(MainWindow.bg_color);
 
-        /*Hashtable<Integer, JLabel> table3 = new Hashtable<Integer, JLabel>();
+        /*Hashtable<Integer, JLabel> table3 = new Hashtable<>();
          table3.put(0, new JLabel("0.0"));
          table3.put(25, new JLabel("0.25"));
          table3.put(50, new JLabel("0.5"));
@@ -88,11 +89,11 @@ public class PlaneVisualizationFrame extends JFrame {
         final BufferedImage new_plane_image = new BufferedImage(402, 402, BufferedImage.TYPE_INT_ARGB);
 
         String[] color_modes_str = {"Re-Im", "Rainbow"};
-        final JComboBox color_modes_opt = new JComboBox(color_modes_str);
+        final JComboBox<String> color_modes_opt = new JComboBox<>(color_modes_str);
         color_modes_opt.setSelectedIndex(0);
         color_modes_opt.setFocusable(false);
 
-        double size = Math.pow(zoom_factor, (size_slid.getMaximum() - size_slid.getValue()) - size_slid.getMaximum() / 2);
+        double size = Math.pow(zoom_factor, (size_slid.getMaximum() - size_slid.getValue()) - size_slid.getMaximum() / 2.0);
         try {
             new PlaneVisualizer(plane_mu_image, new_plane_image, s, size).visualizePlanes(color_modes_opt.getSelectedIndex());
         }
@@ -107,45 +108,36 @@ public class PlaneVisualizationFrame extends JFrame {
         final JLabel l2 = new JLabel();
         l2.setIcon(new ImageIcon(new_plane_image));
 
-        size_slid.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                double size = Math.pow(zoom_factor, (size_slid.getMaximum() - size_slid.getValue()) - size_slid.getMaximum() / 2);
-                try {
-                    new PlaneVisualizer(plane_mu_image, new_plane_image, s, size).visualizePlanes(color_modes_opt.getSelectedIndex());
-                }
-                catch(ParserException ex) {
-                    JOptionPane.showMessageDialog(thiss, ex.getMessage() + "\nThe application will terminate.", "Error!", JOptionPane.ERROR_MESSAGE);
-                    ptra2.savePreferences();
-                    System.exit(-1);
-                }
-                l1.repaint();
-                l2.repaint();
+        size_slid.addChangeListener(e -> {
+            double sizeNew2 = Math.pow(zoom_factor, (size_slid.getMaximum() - size_slid.getValue()) - size_slid.getMaximum() / 2.0);
+            try {
+                new PlaneVisualizer(plane_mu_image, new_plane_image, s, sizeNew2).visualizePlanes(color_modes_opt.getSelectedIndex());
             }
-
+            catch(ParserException ex) {
+                JOptionPane.showMessageDialog(thiss, ex.getMessage() + "\nThe application will terminate.", "Error!", JOptionPane.ERROR_MESSAGE);
+                ptra2.savePreferences();
+                System.exit(-1);
+            }
+            l1.repaint();
+            l2.repaint();
         });
 
-        color_modes_opt.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                double size = Math.pow(zoom_factor, (size_slid.getMaximum() - size_slid.getValue()) - size_slid.getMaximum() / 2);
-                try {                  
-                    new PlaneVisualizer(plane_mu_image, new_plane_image, s, size).visualizePlanes(color_modes_opt.getSelectedIndex());
-                }
-                catch(ParserException ex) {
-                    JOptionPane.showMessageDialog(thiss, ex.getMessage() + "\nThe application will terminate.", "Error!", JOptionPane.ERROR_MESSAGE);
-                    ptra2.savePreferences();
-                    System.exit(-1);
-                }
-                l1.repaint();
-                l2.repaint();
+        color_modes_opt.addActionListener(e -> {
+            double sizeNew = Math.pow(zoom_factor, (size_slid.getMaximum() - size_slid.getValue()) - size_slid.getMaximum() / 2.0);
+            try {
+                new PlaneVisualizer(plane_mu_image, new_plane_image, s, sizeNew).visualizePlanes(color_modes_opt.getSelectedIndex());
             }
-
+            catch(ParserException ex) {
+                JOptionPane.showMessageDialog(thiss, ex.getMessage() + "\nThe application will terminate.", "Error!", JOptionPane.ERROR_MESSAGE);
+                ptra2.savePreferences();
+                System.exit(-1);
+            }
+            l1.repaint();
+            l2.repaint();
         });
 
         JLabel l3 = new JLabel();
-        l3.setIcon(getIcon("/fractalzoomer/icons/transform.png"));
+        l3.setIcon(MainWindow.getIcon("transform.png"));
 
         JPanel mu_panel = new JPanel();
         mu_panel.setBackground(MainWindow.bg_color);
@@ -182,16 +174,12 @@ public class PlaneVisualizationFrame extends JFrame {
         JButton ok = new JButton("Ok");
         getRootPane().setDefaultButton(ok);
         ok.setFocusable(false);
-        ok.addActionListener(new ActionListener() {
+        ok.addActionListener(e -> {
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
+            ptra2.setEnabled(true);
 
-                ptra2.setEnabled(true);
+            dispose();
 
-                dispose();
-
-            }
         });
 
         getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
@@ -250,12 +238,6 @@ public class PlaneVisualizationFrame extends JFrame {
         requestFocus();
 
         setVisible(true);
-    }
-
-    private ImageIcon getIcon(String path) {
-
-        return new ImageIcon(getClass().getResource(path));
-
     }
 
 }

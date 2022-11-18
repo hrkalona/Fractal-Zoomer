@@ -24,8 +24,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 
 import static fractalzoomer.main.Constants.*;
 
@@ -50,7 +48,7 @@ public class UserBailoutConditionDialog extends JDialog {
             setTitle("User Convergent Bailout Condition");
         }
         setModal(true);
-        setIconImage(getIcon("/fractalzoomer/icons/mandel2.png").getImage());
+        setIconImage(MainWindow.getIcon("mandel2.png").getImage());
 
         JPanel formula_panel_cond1 = new JPanel();
         formula_panel_cond1.setLayout(new GridLayout(2, 2));
@@ -80,13 +78,13 @@ public class UserBailoutConditionDialog extends JDialog {
         String[] test_options = {"Escaped", "Not Escaped"};
         String[] test_options2 = {"Converged", "Not Converged"};
 
-        final JComboBox combo_box_greater = new JComboBox(mode ? test_options : test_options2);
-        final JComboBox combo_box_less = new JComboBox(mode ? test_options : test_options2);
+        final JComboBox<String> combo_box_greater = new JComboBox<>(mode ? test_options : test_options2);
+        final JComboBox<String> combo_box_less = new JComboBox<>(mode ? test_options : test_options2);
 
         combo_box_greater.setFocusable(false);
         combo_box_greater.setToolTipText("Sets the test option for the greater than case.");
 
-        final JComboBox combo_box_equal = new JComboBox(mode ? test_options : test_options2);
+        final JComboBox<String> combo_box_equal = new JComboBox<>(mode ? test_options : test_options2);
         combo_box_equal.setFocusable(false);
         combo_box_equal.setToolTipText("Sets the test option for the equal case.");
 
@@ -151,134 +149,133 @@ public class UserBailoutConditionDialog extends JDialog {
 
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
+            @Override
             public void windowClosing(WindowEvent we) {
-                optionPane.setValue(new Integer(JOptionPane.CLOSED_OPTION));
+                optionPane.setValue(JOptionPane.CLOSED_OPTION);
             }
         });
 
         optionPane.addPropertyChangeListener(
-                new PropertyChangeListener() {
-            public void propertyChange(PropertyChangeEvent e) {
-                String prop = e.getPropertyName();
+                e -> {
+                    String prop = e.getPropertyName();
 
-                if (isVisible() && (e.getSource() == optionPane) && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
+                    if (isVisible() && (e.getSource() == optionPane) && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
 
-                    Object value = optionPane.getValue();
+                        Object value = optionPane.getValue();
 
-                    if (value == JOptionPane.UNINITIALIZED_VALUE) {
-                        //ignore reset
-                        return;
-                    }
-
-                    //Reset the JOptionPane's value.
-                    //If you don't do this, then if the user
-                    //presses the same button next time, no
-                    //property change event will be fired.
-                    optionPane.setValue(JOptionPane.UNINITIALIZED_VALUE);
-
-                    if ((Integer) value == JOptionPane.CANCEL_OPTION || (Integer) value == JOptionPane.NO_OPTION || (Integer) value == JOptionPane.CLOSED_OPTION) {
-                        bailout_tests[oldSelected].setSelected(true);
-
-                        if(mode) {
-                            s.fns.bailout_test_algorithm = oldSelected;
-                        }
-                        else {
-                            s.fns.cbs.convergent_bailout_test_algorithm = oldSelected;
-                        }
-                        dispose();
-                        return;
-                    }
-
-                    try {
-                        s.parser.parse(field_condition.getText());
-
-                        if(mode) {
-                            if (s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
-                                JOptionPane.showMessageDialog(ptra, "The variables: cbail, r, stat, trap cannot be used in left condition formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                return;
-                            }
-                        }
-                        else {
-                            if (s.parser.foundBail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
-                                JOptionPane.showMessageDialog(ptra, "The variables: bail, r, stat, trap cannot be used in left condition formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                return;
-                            }
-                        }
-
-                        s.parser.parse(field_condition2.getText());
-
-                        if(mode) {
-                            if (s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
-                                JOptionPane.showMessageDialog(ptra, "The variables: cbail, r, stat, trap cannot be used in the right condition formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                return;
-                            }
-                        }
-                        else {
-                            if (s.parser.foundBail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
-                                JOptionPane.showMessageDialog(ptra, "The variables: bail, r, stat, trap cannot be used in the right condition formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                return;
-                            }
-                        }
-
-                        if ((combo_box_greater.getSelectedIndex() == 0 && combo_box_equal.getSelectedIndex() == 0 && combo_box_less.getSelectedIndex() == 0)
-                                || (combo_box_greater.getSelectedIndex() == 1 && combo_box_equal.getSelectedIndex() == 1 && combo_box_less.getSelectedIndex() == 1)) {
-
-                            if(mode) {
-                                JOptionPane.showMessageDialog(ptra, "You cannot set all the outcomes to Escaped or Not Escaped.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            }
-                            else {
-                                JOptionPane.showMessageDialog(ptra, "You cannot set all the outcomes to Converged or Not Converged.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            }
+                        if (value == JOptionPane.UNINITIALIZED_VALUE) {
+                            //ignore reset
                             return;
                         }
 
+                        //Reset the JOptionPane's value.
+                        //If you don't do this, then if the user
+                        //presses the same button next time, no
+                        //property change event will be fired.
+                        optionPane.setValue(JOptionPane.UNINITIALIZED_VALUE);
 
-                        if(mode) {
-                            s.fns.bailout_test_user_formula = field_condition.getText();
-                            s.fns.bailout_test_user_formula2 = field_condition2.getText();
+                        if ((Integer) value == JOptionPane.CANCEL_OPTION || (Integer) value == JOptionPane.NO_OPTION || (Integer) value == JOptionPane.CLOSED_OPTION) {
+                            bailout_tests[oldSelected].setSelected(true);
 
-                            if (combo_box_greater.getSelectedIndex() == 0 && combo_box_equal.getSelectedIndex() == 1 && combo_box_less.getSelectedIndex() == 1) { // >
-                                s.fns.bailout_test_comparison = GREATER;
-                            } else if (combo_box_greater.getSelectedIndex() == 0 && combo_box_equal.getSelectedIndex() == 0 && combo_box_less.getSelectedIndex() == 1) { // >=
-                                s.fns.bailout_test_comparison = GREATER_EQUAL;
-                            } else if (combo_box_greater.getSelectedIndex() == 1 && combo_box_equal.getSelectedIndex() == 1 && combo_box_less.getSelectedIndex() == 0) { // <
-                                s.fns.bailout_test_comparison = LOWER;
-                            } else if (combo_box_greater.getSelectedIndex() == 1 && combo_box_equal.getSelectedIndex() == 0 && combo_box_less.getSelectedIndex() == 0) { // <=
-                                s.fns.bailout_test_comparison = LOWER_EQUAL;
-                            } else if (combo_box_greater.getSelectedIndex() == 1 && combo_box_equal.getSelectedIndex() == 0 && combo_box_less.getSelectedIndex() == 1) { // ==
-                                s.fns.bailout_test_comparison = EQUAL;
-                            } else if (combo_box_greater.getSelectedIndex() == 0 && combo_box_equal.getSelectedIndex() == 1 && combo_box_less.getSelectedIndex() == 0) { // !=
-                                s.fns.bailout_test_comparison = NOT_EQUAL;
+                            if(mode) {
+                                s.fns.bailout_test_algorithm = oldSelected;
                             }
-                        }
-                        else {
-                            s.fns.cbs.convergent_bailout_test_user_formula = field_condition.getText();
-                            s.fns.cbs.convergent_bailout_test_user_formula2 = field_condition2.getText();
-
-                            if (combo_box_greater.getSelectedIndex() == 0 && combo_box_equal.getSelectedIndex() == 1 && combo_box_less.getSelectedIndex() == 1) { // >
-                                s.fns.cbs.convergent_bailout_test_comparison = GREATER;
-                            } else if (combo_box_greater.getSelectedIndex() == 0 && combo_box_equal.getSelectedIndex() == 0 && combo_box_less.getSelectedIndex() == 1) { // >=
-                                s.fns.cbs.convergent_bailout_test_comparison = GREATER_EQUAL;
-                            } else if (combo_box_greater.getSelectedIndex() == 1 && combo_box_equal.getSelectedIndex() == 1 && combo_box_less.getSelectedIndex() == 0) { // <
-                                s.fns.cbs.convergent_bailout_test_comparison = LOWER;
-                            } else if (combo_box_greater.getSelectedIndex() == 1 && combo_box_equal.getSelectedIndex() == 0 && combo_box_less.getSelectedIndex() == 0) { // <=
-                                s.fns.cbs.convergent_bailout_test_comparison = LOWER_EQUAL;
-                            } else if (combo_box_greater.getSelectedIndex() == 1 && combo_box_equal.getSelectedIndex() == 0 && combo_box_less.getSelectedIndex() == 1) { // ==
-                                s.fns.cbs.convergent_bailout_test_comparison = EQUAL;
-                            } else if (combo_box_greater.getSelectedIndex() == 0 && combo_box_equal.getSelectedIndex() == 1 && combo_box_less.getSelectedIndex() == 0) { // !=
-                                s.fns.cbs.convergent_bailout_test_comparison = NOT_EQUAL;
+                            else {
+                                s.fns.cbs.convergent_bailout_test_algorithm = oldSelected;
                             }
+                            dispose();
+                            return;
                         }
-                    } catch (ParserException ex) {
-                        JOptionPane.showMessageDialog(ptra, ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
-                        return;
+
+                        try {
+                            s.parser.parse(field_condition.getText());
+
+                            if(mode) {
+                                if (s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                                    JOptionPane.showMessageDialog(ptra, "The variables: cbail, r, stat, trap cannot be used in left condition formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                    return;
+                                }
+                            }
+                            else {
+                                if (s.parser.foundBail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                                    JOptionPane.showMessageDialog(ptra, "The variables: bail, r, stat, trap cannot be used in left condition formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                    return;
+                                }
+                            }
+
+                            s.parser.parse(field_condition2.getText());
+
+                            if(mode) {
+                                if (s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                                    JOptionPane.showMessageDialog(ptra, "The variables: cbail, r, stat, trap cannot be used in the right condition formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                    return;
+                                }
+                            }
+                            else {
+                                if (s.parser.foundBail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                                    JOptionPane.showMessageDialog(ptra, "The variables: bail, r, stat, trap cannot be used in the right condition formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                    return;
+                                }
+                            }
+
+                            if ((combo_box_greater.getSelectedIndex() == 0 && combo_box_equal.getSelectedIndex() == 0 && combo_box_less.getSelectedIndex() == 0)
+                                    || (combo_box_greater.getSelectedIndex() == 1 && combo_box_equal.getSelectedIndex() == 1 && combo_box_less.getSelectedIndex() == 1)) {
+
+                                if(mode) {
+                                    JOptionPane.showMessageDialog(ptra, "You cannot set all the outcomes to Escaped or Not Escaped.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                }
+                                else {
+                                    JOptionPane.showMessageDialog(ptra, "You cannot set all the outcomes to Converged or Not Converged.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                }
+                                return;
+                            }
+
+
+                            if(mode) {
+                                s.fns.bailout_test_user_formula = field_condition.getText();
+                                s.fns.bailout_test_user_formula2 = field_condition2.getText();
+
+                                if (combo_box_greater.getSelectedIndex() == 0 && combo_box_equal.getSelectedIndex() == 1 && combo_box_less.getSelectedIndex() == 1) { // >
+                                    s.fns.bailout_test_comparison = GREATER;
+                                } else if (combo_box_greater.getSelectedIndex() == 0 && combo_box_equal.getSelectedIndex() == 0 && combo_box_less.getSelectedIndex() == 1) { // >=
+                                    s.fns.bailout_test_comparison = GREATER_EQUAL;
+                                } else if (combo_box_greater.getSelectedIndex() == 1 && combo_box_equal.getSelectedIndex() == 1 && combo_box_less.getSelectedIndex() == 0) { // <
+                                    s.fns.bailout_test_comparison = LOWER;
+                                } else if (combo_box_greater.getSelectedIndex() == 1 && combo_box_equal.getSelectedIndex() == 0 && combo_box_less.getSelectedIndex() == 0) { // <=
+                                    s.fns.bailout_test_comparison = LOWER_EQUAL;
+                                } else if (combo_box_greater.getSelectedIndex() == 1 && combo_box_equal.getSelectedIndex() == 0 && combo_box_less.getSelectedIndex() == 1) { // ==
+                                    s.fns.bailout_test_comparison = EQUAL;
+                                } else if (combo_box_greater.getSelectedIndex() == 0 && combo_box_equal.getSelectedIndex() == 1 && combo_box_less.getSelectedIndex() == 0) { // !=
+                                    s.fns.bailout_test_comparison = NOT_EQUAL;
+                                }
+                            }
+                            else {
+                                s.fns.cbs.convergent_bailout_test_user_formula = field_condition.getText();
+                                s.fns.cbs.convergent_bailout_test_user_formula2 = field_condition2.getText();
+
+                                if (combo_box_greater.getSelectedIndex() == 0 && combo_box_equal.getSelectedIndex() == 1 && combo_box_less.getSelectedIndex() == 1) { // >
+                                    s.fns.cbs.convergent_bailout_test_comparison = GREATER;
+                                } else if (combo_box_greater.getSelectedIndex() == 0 && combo_box_equal.getSelectedIndex() == 0 && combo_box_less.getSelectedIndex() == 1) { // >=
+                                    s.fns.cbs.convergent_bailout_test_comparison = GREATER_EQUAL;
+                                } else if (combo_box_greater.getSelectedIndex() == 1 && combo_box_equal.getSelectedIndex() == 1 && combo_box_less.getSelectedIndex() == 0) { // <
+                                    s.fns.cbs.convergent_bailout_test_comparison = LOWER;
+                                } else if (combo_box_greater.getSelectedIndex() == 1 && combo_box_equal.getSelectedIndex() == 0 && combo_box_less.getSelectedIndex() == 0) { // <=
+                                    s.fns.cbs.convergent_bailout_test_comparison = LOWER_EQUAL;
+                                } else if (combo_box_greater.getSelectedIndex() == 1 && combo_box_equal.getSelectedIndex() == 0 && combo_box_less.getSelectedIndex() == 1) { // ==
+                                    s.fns.cbs.convergent_bailout_test_comparison = EQUAL;
+                                } else if (combo_box_greater.getSelectedIndex() == 0 && combo_box_equal.getSelectedIndex() == 1 && combo_box_less.getSelectedIndex() == 0) { // !=
+                                    s.fns.cbs.convergent_bailout_test_comparison = NOT_EQUAL;
+                                }
+                            }
+                        } catch (ParserException ex) {
+                            JOptionPane.showMessageDialog(ptra, ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
+
+                        dispose();
+                        ptra.setBailoutTestPost();
                     }
-
-                    dispose();
-                    ptra.setBailoutTestPost();
-                }
-            }
-        });
+                });
 
         //Make this dialog display it.
         setContentPane(optionPane);
@@ -291,10 +288,5 @@ public class UserBailoutConditionDialog extends JDialog {
 
     }
 
-    private ImageIcon getIcon(String path) {
-
-        return new ImageIcon(getClass().getResource(path));
-
-    }
 
 }

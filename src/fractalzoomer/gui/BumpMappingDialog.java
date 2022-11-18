@@ -21,12 +21,8 @@ import fractalzoomer.main.app_settings.Settings;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 
 import static fractalzoomer.main.Constants.bumpProcessingMethod;
 import static fractalzoomer.main.Constants.bumpTransferNames;
@@ -48,7 +44,7 @@ public class BumpMappingDialog extends JDialog {
 
         setTitle("Bump Mapping");
         setModal(true);
-        setIconImage(getIcon("/fractalzoomer/icons/mandel2.png").getImage());
+        setIconImage(MainWindow.getIcon("mandel2.png").getImage());
 
         final JCheckBox enable_bump_map = new JCheckBox("Bump Mapping");
         enable_bump_map.setSelected(s.bms.bump_map);
@@ -87,7 +83,7 @@ public class BumpMappingDialog extends JDialog {
         JTextField noise_factor_field = new JTextField();
         noise_factor_field.setText("" + s.bms.bm_noise_reducing_factor);
 
-        final JComboBox bump_transfer_functions_opt = new JComboBox(bumpTransferNames);
+        final JComboBox<String> bump_transfer_functions_opt = new JComboBox<>(bumpTransferNames);
         bump_transfer_functions_opt.setSelectedIndex(s.bms.bump_transfer_function);
         bump_transfer_functions_opt.setFocusable(false);
         bump_transfer_functions_opt.setToolTipText("Sets the transfer function.");
@@ -99,7 +95,7 @@ public class BumpMappingDialog extends JDialog {
         panel.add(bump_transfer_functions_opt);
         panel.add(bump_transfer_factor_field);
 
-        final JComboBox bump_processing_method_opt = new JComboBox(bumpProcessingMethod);
+        final JComboBox<String> bump_processing_method_opt = new JComboBox<>(bumpProcessingMethod);
         bump_processing_method_opt.setSelectedIndex(s.bms.bumpProcessing);
         bump_processing_method_opt.setFocusable(false);
         bump_processing_method_opt.setToolTipText("Sets the image processing method.");
@@ -114,13 +110,7 @@ public class BumpMappingDialog extends JDialog {
 
         color_blend_opt.setEnabled(s.bms.bumpProcessing == 1 || s.bms.bumpProcessing == 2);
 
-        bump_processing_method_opt.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                color_blend_opt.setEnabled(bump_processing_method_opt.getSelectedIndex() == 1 || bump_processing_method_opt.getSelectedIndex() == 2);
-            }
-
-        });
+        bump_processing_method_opt.addActionListener(e -> color_blend_opt.setEnabled(bump_processing_method_opt.getSelectedIndex() == 1 || bump_processing_method_opt.getSelectedIndex() == 2));
 
         JPanel p2 = new JPanel();
         p2.add(bump_processing_method_opt);
@@ -159,79 +149,78 @@ public class BumpMappingDialog extends JDialog {
 
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
+            @Override
             public void windowClosing(WindowEvent we) {
-                optionPane.setValue(new Integer(JOptionPane.CLOSED_OPTION));
+                optionPane.setValue(JOptionPane.CLOSED_OPTION);
             }
         });
 
         optionPane.addPropertyChangeListener(
-                new PropertyChangeListener() {
-            public void propertyChange(PropertyChangeEvent e) {
-                String prop = e.getPropertyName();
+                e -> {
+                    String prop = e.getPropertyName();
 
-                if (isVisible() && (e.getSource() == optionPane) && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
+                    if (isVisible() && (e.getSource() == optionPane) && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
 
-                    Object value = optionPane.getValue();
+                        Object value = optionPane.getValue();
 
-                    if (value == JOptionPane.UNINITIALIZED_VALUE) {
-                        //ignore reset
-                        return;
-                    }
+                        if (value == JOptionPane.UNINITIALIZED_VALUE) {
+                            //ignore reset
+                            return;
+                        }
 
-                    //Reset the JOptionPane's value.
-                    //If you don't do this, then if the user
-                    //presses the same button next time, no
-                    //property change event will be fired.
-                    optionPane.setValue(JOptionPane.UNINITIALIZED_VALUE);
+                        //Reset the JOptionPane's value.
+                        //If you don't do this, then if the user
+                        //presses the same button next time, no
+                        //property change event will be fired.
+                        optionPane.setValue(JOptionPane.UNINITIALIZED_VALUE);
 
-                    if ((Integer) value == JOptionPane.CANCEL_OPTION || (Integer) value == JOptionPane.NO_OPTION || (Integer) value == JOptionPane.CLOSED_OPTION) {
+                        if ((Integer) value == JOptionPane.CANCEL_OPTION || (Integer) value == JOptionPane.NO_OPTION || (Integer) value == JOptionPane.CLOSED_OPTION) {
+                            dispose();
+                            return;
+                        }
+
+                        try {
+                            double temp = Double.parseDouble(noise_factor_field.getText());
+                            double temp2 = Double.parseDouble(bump_transfer_factor_field.getText());
+
+                            if (temp <= 0) {
+                                JOptionPane.showMessageDialog(ptra, "The noise reduction factor must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+
+                            if (temp2 <= 0) {
+                                JOptionPane.showMessageDialog(ptra, "The transfer factor must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+
+                            s.bms.bump_map = enable_bump_map.isSelected();
+                            s.bms.lightDirectionDegrees = direction_of_light.getValue();
+                            s.bms.bumpMappingDepth = depth.getValue();
+                            s.bms.bumpMappingStrength = strength.getValue();
+                            s.bms.bm_noise_reducing_factor = temp;
+                            s.bms.bump_transfer_function = bump_transfer_functions_opt.getSelectedIndex();
+                            s.bms.bump_transfer_factor = temp2;
+                            s.bms.bumpProcessing = bump_processing_method_opt.getSelectedIndex();
+                            s.bms.bump_blending = color_blend_opt.getValue() / 100.0;
+
+                        } catch (Exception ex) {
+                            JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
+
                         dispose();
-                        return;
-                    }
 
-                    try {
-                        double temp = Double.parseDouble(noise_factor_field.getText());
-                        double temp2 = Double.parseDouble(bump_transfer_factor_field.getText());
-
-                        if (temp <= 0) {
-                            JOptionPane.showMessageDialog(ptra, "The noise reduction factor must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            return;
+                        if (greedy_algorithm && enable_bump_map.isSelected() && !julia_map && !s.d3s.d3 && !s.ds.domain_coloring) {
+                            JOptionPane.showMessageDialog(ptra, "Greedy Drawing Algorithm is enabled, which creates glitches in the image.\nYou should disable it for a better result.", "Warning!", JOptionPane.WARNING_MESSAGE);
                         }
 
-                        if (temp2 <= 0) {
-                            JOptionPane.showMessageDialog(ptra, "The transfer factor must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            return;
+                        if (!s.fns.smoothing && s.bms.bump_map && !s.ds.domain_coloring) {
+                            JOptionPane.showMessageDialog(ptra, "Smoothing is disabled.\nYou should enable smoothing for a better result.", "Warning!", JOptionPane.WARNING_MESSAGE);
                         }
 
-                        s.bms.bump_map = enable_bump_map.isSelected();
-                        s.bms.lightDirectionDegrees = direction_of_light.getValue();
-                        s.bms.bumpMappingDepth = depth.getValue();
-                        s.bms.bumpMappingStrength = strength.getValue();
-                        s.bms.bm_noise_reducing_factor = temp;
-                        s.bms.bump_transfer_function = bump_transfer_functions_opt.getSelectedIndex();
-                        s.bms.bump_transfer_factor = temp2;
-                        s.bms.bumpProcessing = bump_processing_method_opt.getSelectedIndex();
-                        s.bms.bump_blending = color_blend_opt.getValue() / 100.0;
-
-                    } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
-                        return;
+                        ptra.setPostProcessingPost();
                     }
-
-                    dispose();
-                    
-                    if (greedy_algorithm && enable_bump_map.isSelected() && !julia_map && !s.d3s.d3 && !s.ds.domain_coloring) {
-                        JOptionPane.showMessageDialog(ptra, "Greedy Drawing Algorithm is enabled, which creates glitches in the image.\nYou should disable it for a better result.", "Warning!", JOptionPane.WARNING_MESSAGE);
-                    }
-                    
-                    if (!s.fns.smoothing && s.bms.bump_map && !s.ds.domain_coloring) {
-                        JOptionPane.showMessageDialog(ptra, "Smoothing is disabled.\nYou should enable smoothing for a better result.", "Warning!", JOptionPane.WARNING_MESSAGE);
-                    }
-                    
-                    ptra.setPostProcessingPost();
-                }
-            }
-        });
+                });
 
         //Make this dialog display it.
         setContentPane(optionPane);
@@ -241,12 +230,6 @@ public class BumpMappingDialog extends JDialog {
         setResizable(false);
         setLocation((int) (ptra.getLocation().getX() + ptra.getSize().getWidth() / 2) - (getWidth() / 2), (int) (ptra.getLocation().getY() + ptra.getSize().getHeight() / 2) - (getHeight() / 2));
         setVisible(true);
-
-    }
-
-    private ImageIcon getIcon(String path) {
-
-        return new ImageIcon(getClass().getResource(path));
 
     }
 

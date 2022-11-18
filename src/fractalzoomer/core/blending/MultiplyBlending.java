@@ -29,7 +29,7 @@ public class MultiplyBlending extends Blending {
     }
 
     @Override
-    public int blend(int redA, int greenA, int blueA, int redB, int greenB, int blueB, double coef) {
+    public int blendInternal(int redA, int greenA, int blueA, int redB, int greenB, int blueB, double coef) {
 
         int temp_red = (int)((redA * redB) / 255.0 + 0.5);
         int temp_green = (int)((greenA * greenB) / 255.0 + 0.5);

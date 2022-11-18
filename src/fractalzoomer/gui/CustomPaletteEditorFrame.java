@@ -26,8 +26,6 @@ import javax.swing.*;
 import javax.swing.JSpinner.DefaultEditor;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -36,8 +34,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -56,9 +52,8 @@ public class CustomPaletteEditorFrame extends JFrame {
     private static final long serialVersionUID = -5234702415922634911L;
     private CustomPaletteEditorFrame this_frame;
     private MainWindow ptra2;
-    private int k;
-    private int l;
-    private JComboBox combo_box_random_palette_alg;
+
+    private JComboBox<String> combo_box_random_palette_alg;
     private JCheckBox same_hues;
     private JLabel[] labels;
     private JTextField[] textfields;
@@ -68,10 +63,10 @@ public class CustomPaletteEditorFrame extends JFrame {
     private BufferedImage colors2;
     private JLabel gradient;
     private JLabel graph;
-    private JComboBox combo_box_color_space;
-    private JComboBox combo_box_color_interp;
+    private JComboBox<String> combo_box_color_space;
+    private JComboBox<String> combo_box_color_interp;
     private JCheckBox check_box_reveres_palette;
-    private JComboBox combo_box_processing;
+    private JComboBox<String> combo_box_processing;
     private JLabel length_label;
     private JSpinner offset_textfield;
     private JSlider scale_factor_palette_slid;
@@ -152,12 +147,12 @@ public class CustomPaletteEditorFrame extends JFrame {
         int custom_palette_window_width = 990;
         int custom_palette_window_height = 640;
         setTitle("Custom Palette Editor");
-        setIconImage(getIcon("/fractalzoomer/icons/palette.png").getImage());
+        setIconImage(MainWindow.getIcon("palette.png").getImage());
         setSize(custom_palette_window_width, custom_palette_window_height);
         setLocation((int) (ptra2.getLocation().getX() + ptra2.getSize().getWidth() / 2) - (custom_palette_window_width / 2), (int) (ptra2.getLocation().getY() + ptra2.getSize().getHeight() / 2) - (custom_palette_window_height / 2));
 
-        grab_cursor = Toolkit.getDefaultToolkit().createCustomCursor(getIcon("/fractalzoomer/icons/cursor_grab.gif").getImage(), new Point(16, 16), "grab");
-        grabbing_cursor = Toolkit.getDefaultToolkit().createCustomCursor(getIcon("/fractalzoomer/icons/cursor_grabbing.gif").getImage(), new Point(16, 16), "grabbing");
+        grab_cursor = Toolkit.getDefaultToolkit().createCustomCursor(MainWindow.getIcon("cursor_grab.gif").getImage(), new Point(16, 16), "grab");
+        grabbing_cursor = Toolkit.getDefaultToolkit().createCustomCursor(MainWindow.getIcon("cursor_grabbing.gif").getImage(), new Point(16, 16), "grabbing");
 
         final JButton add_palette = new JButton();
         add_palette.setFocusable(false);
@@ -174,18 +169,14 @@ public class CustomPaletteEditorFrame extends JFrame {
             public void windowClosing(WindowEvent e) {
 
                 ptra2.setEnabled(true);
-                if (color_choice != palette_id) {
-                    palette[palette_id].setSelected(false);
-                } else {
-                    palette[palette_id].setSelected(true);
-                }
+                palette[palette_id].setSelected(color_choice == palette_id);
                 dispose();
 
             }
         });
 
         temp_custom_palette = new int[custom_palette.length][custom_palette[0].length];
-        for (k = 0; k < custom_palette.length; k++) {
+        for (int k = 0; k < custom_palette.length; k++) {
             for (int j = 0; j < custom_palette[0].length; j++) {
                 temp_custom_palette[k][j] = custom_palette[k][j];
             }
@@ -211,16 +202,16 @@ public class CustomPaletteEditorFrame extends JFrame {
         labels = new JLabel[32];
         textfields = new JTextField[32];
 
-        for (k = 0; k < labels.length; k++) {
+        for (int k = 0; k < labels.length; k++) {
             labels[k] = new JLabel("");
             labels[k].setPreferredSize(new Dimension(22, 22));
             labels[k].setOpaque(true);
             labels[k].setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
             labels[k].setBackground(new Color(temp_custom_palette[k][1], temp_custom_palette[k][2], temp_custom_palette[k][3]));
             labels[k].setToolTipText("Left click to change this color, add a new slot, remove this color, copy and add a color, or swap this color.");
-            labels[k].addMouseListener(new MouseListener() {
 
-                int temp = k;
+            final int temp = k;
+            labels[k].addMouseListener(new MouseListener() {
 
                 @Override
                 public void mouseClicked(MouseEvent e) {
@@ -250,7 +241,7 @@ public class CustomPaletteEditorFrame extends JFrame {
                         textfields[temp].setText("" + temp_custom_palette[temp][0]);
 
                         try {
-                            Color[] c = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
+                            Color[] c = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2.0) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
 
                             paintGradientAndGraph(c);
                         } catch (ArithmeticException ex) {
@@ -284,7 +275,7 @@ public class CustomPaletteEditorFrame extends JFrame {
                         textfields[temp_custom_palette.length - 1].setText("" + temp_custom_palette[temp_custom_palette.length - 1][0]);
 
                         try {
-                            Color[] c = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
+                            Color[] c = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2.0) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
 
                             paintGradientAndGraph(c);
                         } catch (ArithmeticException ex) {
@@ -330,7 +321,7 @@ public class CustomPaletteEditorFrame extends JFrame {
                         textfields[temp].setText("" + temp_custom_palette[temp][0]);
 
                         try {
-                            Color[] c = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
+                            Color[] c = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2.0) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
 
                             paintGradientAndGraph(c);
                         } catch (ArithmeticException ex) {
@@ -381,7 +372,7 @@ public class CustomPaletteEditorFrame extends JFrame {
                         textfields[temp].setText("" + temp_custom_palette[temp][0]);
                         
                         try {
-                            Color[] c = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
+                            Color[] c = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2.0) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
 
                             paintGradientAndGraph(c);
                         } catch (ArithmeticException ex) {
@@ -417,16 +408,16 @@ public class CustomPaletteEditorFrame extends JFrame {
             palette_colors.add(labels[k]);
         }
 
-        for (k = 0; k < labels.length; k++) {
+        for (int k = 0; k < labels.length; k++) {
 
             textfields[k] = new JTextField();
             textfields[k].setPreferredSize(new Dimension(22, 22));
             textfields[k].setText("" + temp_custom_palette[k][0]);
             textfields[k].setFont(new Font("Arial", Font.PLAIN, 12));
             oldColor = textfields[k].getBackground();
-            textfields[k].getDocument().addDocumentListener(new DocumentListener() {
 
-                int temp2 = k;
+            final int temp2 = k;
+            textfields[k].getDocument().addDocumentListener(new DocumentListener() {
 
                 @Override
                 public void insertUpdate(DocumentEvent e) {
@@ -461,7 +452,7 @@ public class CustomPaletteEditorFrame extends JFrame {
                         temp_custom_palette[temp2][2] = labels[temp2].getBackground().getGreen();
                         temp_custom_palette[temp2][3] = labels[temp2].getBackground().getBlue();
 
-                        Color[] c = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
+                        Color[] c = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2.0) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
 
                         paintGradientAndGraph(c);
                     } catch (ArithmeticException ex) {
@@ -524,7 +515,7 @@ public class CustomPaletteEditorFrame extends JFrame {
                         temp_custom_palette[temp2][2] = labels[temp2].getBackground().getGreen();
                         temp_custom_palette[temp2][3] = labels[temp2].getBackground().getBlue();
 
-                        Color[] c = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
+                        Color[] c = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2.0) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
 
                         paintGradientAndGraph(c);
                     } catch (ArithmeticException ex) {
@@ -564,83 +555,79 @@ public class CustomPaletteEditorFrame extends JFrame {
         JButton palette_ok = new JButton("Ok");
         getRootPane().setDefaultButton(palette_ok);
         palette_ok.setFocusable(false);
-        palette_ok.addActionListener(new ActionListener() {
+        palette_ok.addActionListener(e -> {
+            int temp2 = 0;
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                int temp2 = 0;
+            int[] temp_array = new int[temp_custom_palette.length];
 
-                int[] temp_array = new int[temp_custom_palette.length];
-
-                int zeroes = 0;
-                for (int m = 0; m < textfields.length; m++) {
-                    try {
-                        temp2 = Integer.parseInt(textfields[m].getText());
-                    } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(this_frame, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-
-                    if (temp2 < 0 || temp2 > 99) {
-                        JOptionPane.showMessageDialog(this_frame, "The hues values must between 1 and 99,\nfor that color to be included in the palette,\nor 0 for that color not to be included.", "Error!", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    } else if (temp2 == 0) {
-                        zeroes++;
-                    }
-
-                    temp_array[m] = temp2;
-
-                }
-
-                if (zeroes == textfields.length) {
-                    JOptionPane.showMessageDialog(this_frame, "You need to include at least one color.", "Error!", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-
+            int zeroes = 0;
+            for (int m = 0; m < textfields.length; m++) {
                 try {
-                    temp2 = Integer.parseInt(((DefaultEditor) offset_textfield.getEditor()).getTextField().getText());
+                    temp2 = Integer.parseInt(textfields[m].getText());
                 } catch (Exception ex) {
                     JOptionPane.showMessageDialog(this_frame, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
 
-                if (temp2 < 0) {
-                    JOptionPane.showMessageDialog(this_frame, "Offset must be greater than -1.", "Error!", JOptionPane.ERROR_MESSAGE);
+                if (temp2 < 0 || temp2 > 99) {
+                    JOptionPane.showMessageDialog(this_frame, "The hues values must between 1 and 99,\nfor that color to be included in the palette,\nor 0 for that color not to be included.", "Error!", JOptionPane.ERROR_MESSAGE);
                     return;
+                } else if (temp2 == 0) {
+                    zeroes++;
                 }
 
-                for (int m = 0; m < temp_custom_palette.length; m++) {
-                    temp_custom_palette[m][0] = temp_array[m];
-                }
-
-                Color[] c = null;
-                try {
-                    c = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
-                } catch (Exception ex) {
-                    length_label.setText("0");
-                    Graphics2D g = colors.createGraphics();
-                    g.setColor(Color.LIGHT_GRAY);
-                    g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
-                    gradient.repaint();
-
-                    Graphics2D g2 = colors2.createGraphics();
-                    g2.setColor(Color.WHITE);
-                    g2.fillRect(0, 0, colors2.getWidth(), colors2.getHeight());
-                    graph.repaint();
-
-                    return;
-                }                      
-
-                equal_hues = same_hues.isSelected();
-                random_palette_algorithm = combo_box_random_palette_alg.getSelectedIndex();
-
-                ptra2.customPaletteChanged(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex(), outcoloring_mode);
-
-                ptra2.setEnabled(true);
-                ptra2.setPalette(palette_id, null, outcoloring_mode ? 0 : 1);
-                dispose();
+                temp_array[m] = temp2;
 
             }
+
+            if (zeroes == textfields.length) {
+                JOptionPane.showMessageDialog(this_frame, "You need to include at least one color.", "Error!", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            try {
+                temp2 = Integer.parseInt(((DefaultEditor) offset_textfield.getEditor()).getTextField().getText());
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this_frame, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            if (temp2 < 0) {
+                JOptionPane.showMessageDialog(this_frame, "Offset must be greater than -1.", "Error!", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            for (int m = 0; m < temp_custom_palette.length; m++) {
+                temp_custom_palette[m][0] = temp_array[m];
+            }
+
+            Color[] c = null;
+            try {
+                c = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2.0) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
+            } catch (Exception ex) {
+                length_label.setText("0");
+                Graphics2D g = colors.createGraphics();
+                g.setColor(Color.LIGHT_GRAY);
+                g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
+                gradient.repaint();
+
+                Graphics2D g2 = colors2.createGraphics();
+                g2.setColor(Color.WHITE);
+                g2.fillRect(0, 0, colors2.getWidth(), colors2.getHeight());
+                graph.repaint();
+
+                return;
+            }
+
+            equal_hues = same_hues.isSelected();
+            random_palette_algorithm = combo_box_random_palette_alg.getSelectedIndex();
+
+            ptra2.customPaletteChanged(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2.0) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex(), outcoloring_mode);
+
+            ptra2.setEnabled(true);
+            ptra2.setPalette(palette_id, null, outcoloring_mode ? 0 : 1);
+            dispose();
+
         });
 
 
@@ -659,20 +646,12 @@ public class CustomPaletteEditorFrame extends JFrame {
 
         JButton palette_cancel = new JButton("Cancel");
         palette_cancel.setFocusable(false);
-        palette_cancel.addActionListener(new ActionListener() {
+        palette_cancel.addActionListener(e -> {
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
+            ptra2.setEnabled(true);
+            palette[palette_id].setSelected(color_choice == palette_id);
+            dispose();
 
-                ptra2.setEnabled(true);
-                if (color_choice != palette_id) {
-                    palette[palette_id].setSelected(false);
-                } else {
-                    palette[palette_id].setSelected(true);
-                }
-                dispose();
-
-            }
         });
 
         getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
@@ -701,9 +680,9 @@ public class CustomPaletteEditorFrame extends JFrame {
             Graphics2D g = colors.createGraphics();
             for (int i = 0; i < c.length; i++) {
                 if (smoothing) {
-                    GradientPaint gp = new GradientPaint(i * colors.getWidth() / c.length, 0, c[i], (i + 1) * colors.getWidth() / c.length, 0, c[(i + 1) % c.length]);
+                    GradientPaint gp = new GradientPaint(i * colors.getWidth() / ((float)c.length), 0, c[i], (i + 1) * colors.getWidth() / ((float)c.length), 0, c[(i + 1) % c.length]);
                     g.setPaint(gp);
-                    g.fill(new Rectangle2D.Double(i * colors.getWidth() / c.length, 0, (i + 1) * colors.getWidth() / c.length - i * colors.getWidth() / c.length, colors.getHeight()));
+                    g.fill(new Rectangle2D.Double(i * colors.getWidth() / ((double)c.length), 0, (i + 1) * colors.getWidth() /((double)c.length) - i * colors.getWidth() / ((double)c.length), colors.getHeight()));
                 } else {
                     g.setColor(c[i]);
                     g.fillRect(i * colors.getWidth() / c.length, 0, (i + 1) * colors.getWidth() / c.length - i * colors.getWidth() / c.length, colors.getHeight());
@@ -723,19 +702,19 @@ public class CustomPaletteEditorFrame extends JFrame {
             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             for (int i = 0; i < c.length; i++) {
                 g.setColor(Color.RED);
-                g.drawLine(1 + i * colors2.getWidth() / c.length, 10 + colors2.getHeight() / 5 + 5 - (int) (((colors2.getHeight() / 5) / 255.0) * c[i].getRed()), (i + 1) * colors2.getWidth() / c.length, 10 + colors2.getHeight() / 5 + 5 - (int) (((colors2.getHeight() / 5) / 255.0) * c[(i + 1) % c.length].getRed()));
+                g.drawLine(1 + i * colors2.getWidth() / c.length, 10 + colors2.getHeight() / 5 + 5 - (int) (((colors2.getHeight() / 5.0) / 255.0) * c[i].getRed()), (i + 1) * colors2.getWidth() / c.length, 10 + colors2.getHeight() / 5 + 5 - (int) (((colors2.getHeight() / 5.0) / 255.0) * c[(i + 1) % c.length].getRed()));
 
                 g.setColor(Color.LIGHT_GRAY);
                 g.drawLine(0, 10 + colors2.getHeight() / 5 + 10, colors2.getWidth(), 10 + colors2.getHeight() / 5 + 10);
 
                 g.setColor(Color.GREEN);
-                g.drawLine(1 + i * colors2.getWidth() / c.length, 20 + 2 * (colors2.getHeight() / 5 + 5) - (int) (((colors2.getHeight() / 5) / 255.0) * c[i].getGreen()), (i + 1) * colors2.getWidth() / c.length, 20 + 2 * (colors2.getHeight() / 5 + 5) - (int) (((colors2.getHeight() / 5) / 255.0) * c[(i + 1) % c.length].getGreen()));
+                g.drawLine(1 + i * colors2.getWidth() / c.length, 20 + 2 * (colors2.getHeight() / 5 + 5) - (int) (((colors2.getHeight() / 5.0) / 255.0) * c[i].getGreen()), (i + 1) * colors2.getWidth() / c.length, 20 + 2 * (colors2.getHeight() / 5 + 5) - (int) (((colors2.getHeight() / 5.0) / 255.0) * c[(i + 1) % c.length].getGreen()));
 
                 g.setColor(Color.LIGHT_GRAY);
                 g.drawLine(0, 20 + 2 * (colors2.getHeight() / 5 + 10), colors2.getWidth(), 20 + 2 * (colors2.getHeight() / 5 + 10));
 
                 g.setColor(Color.BLUE);
-                g.drawLine(1 + i * colors2.getWidth() / c.length, 30 + 3 * (colors2.getHeight() / 5 + 5) - (int) (((colors2.getHeight() / 5) / 255.0) * c[i].getBlue()), (i + 1) * colors2.getWidth() / c.length, 30 + 3 * (colors2.getHeight() / 5 + 5) - (int) (((colors2.getHeight() / 5) / 255.0) * c[(i + 1) % c.length].getBlue()));
+                g.drawLine(1 + i * colors2.getWidth() / c.length, 30 + 3 * (colors2.getHeight() / 5 + 5) - (int) (((colors2.getHeight() / 5.0) / 255.0) * c[i].getBlue()), (i + 1) * colors2.getWidth() / c.length, 30 + 3 * (colors2.getHeight() / 5 + 5) - (int) (((colors2.getHeight() / 5.0) / 255.0) * c[(i + 1) % c.length].getBlue()));
             }
         } catch (Exception ex) {
             length_label.setText("0");
@@ -755,26 +734,22 @@ public class CustomPaletteEditorFrame extends JFrame {
         check_box_reveres_palette.setToolTipText("Reverses the current palette.");
         check_box_reveres_palette.setBackground(MainWindow.bg_color);
 
-        check_box_reveres_palette.addActionListener(new ActionListener() {
+        check_box_reveres_palette.addActionListener(e -> {
+            try {
+                Color[] c1 = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2.0) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    Color[] c = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
+                paintGradientAndGraph(c1);
+            } catch (ArithmeticException ex) {
+                length_label.setText("0");
+                Graphics2D g = colors.createGraphics();
+                g.setColor(Color.LIGHT_GRAY);
+                g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
+                gradient.repaint();
 
-                    paintGradientAndGraph(c);
-                } catch (ArithmeticException ex) {
-                    length_label.setText("0");
-                    Graphics2D g = colors.createGraphics();
-                    g.setColor(Color.LIGHT_GRAY);
-                    g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
-                    gradient.repaint();
-
-                    Graphics2D g2 = colors2.createGraphics();
-                    g2.setColor(Color.WHITE);
-                    g2.fillRect(0, 0, colors2.getWidth(), colors2.getHeight());
-                    graph.repaint();
-                }
+                Graphics2D g2 = colors2.createGraphics();
+                g2.setColor(Color.WHITE);
+                g2.fillRect(0, 0, colors2.getWidth(), colors2.getHeight());
+                graph.repaint();
             }
         });
 
@@ -823,7 +798,7 @@ public class CustomPaletteEditorFrame extends JFrame {
 
                     temp_color_cycling_location = temp3;
 
-                    Color[] c = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
+                    Color[] c = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2.0) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
 
                     paintGradientAndGraph(c);
                 } catch (ArithmeticException ex) {
@@ -882,7 +857,7 @@ public class CustomPaletteEditorFrame extends JFrame {
 
                     temp_color_cycling_location = temp3;
 
-                    Color[] c = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
+                    Color[] c = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2.0) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
 
                     paintGradientAndGraph(c);
                 } catch (ArithmeticException ex) {
@@ -937,7 +912,7 @@ public class CustomPaletteEditorFrame extends JFrame {
 
                     temp_color_cycling_location = temp3;
 
-                    Color[] c = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
+                    Color[] c = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2.0) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
 
                     paintGradientAndGraph(c);
                 } catch (ArithmeticException ex) {
@@ -978,31 +953,27 @@ public class CustomPaletteEditorFrame extends JFrame {
 
         String[] color_space_str = {"RGB", "HSB", "Exp", "Square", "Sqrt", "RYB", "LAB", "XYZ", "LCH", "Bezier RGB", "HSL"};
 
-        combo_box_color_space = new JComboBox(color_space_str);
+        combo_box_color_space = new JComboBox<>(color_space_str);
         combo_box_color_space.setSelectedIndex(color_space);
         combo_box_color_space.setFocusable(false);
         combo_box_color_space.setToolTipText("Sets the color space option.");
 
-        combo_box_color_space.addActionListener(new ActionListener() {
+        combo_box_color_space.addActionListener(e -> {
+            try {
+                Color[] c12 = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2.0) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    Color[] c = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
+                paintGradientAndGraph(c12);
+            } catch (ArithmeticException ex) {
+                length_label.setText("0");
+                Graphics2D g = colors.createGraphics();
+                g.setColor(Color.LIGHT_GRAY);
+                g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
+                gradient.repaint();
 
-                    paintGradientAndGraph(c);
-                } catch (ArithmeticException ex) {
-                    length_label.setText("0");
-                    Graphics2D g = colors.createGraphics();
-                    g.setColor(Color.LIGHT_GRAY);
-                    g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
-                    gradient.repaint();
-
-                    Graphics2D g2 = colors2.createGraphics();
-                    g2.setColor(Color.WHITE);
-                    g2.fillRect(0, 0, colors2.getWidth(), colors2.getHeight());
-                    graph.repaint();
-                }
+                Graphics2D g2 = colors2.createGraphics();
+                g2.setColor(Color.WHITE);
+                g2.fillRect(0, 0, colors2.getWidth(), colors2.getHeight());
+                graph.repaint();
             }
         });
 
@@ -1013,31 +984,27 @@ public class CustomPaletteEditorFrame extends JFrame {
         color_interp_panel.setLayout(new FlowLayout());
         color_interp_panel.setBackground(MainWindow.bg_color);
 
-        combo_box_color_interp = new JComboBox(color_interp_str);
+        combo_box_color_interp = new JComboBox<>(color_interp_str);
         combo_box_color_interp.setSelectedIndex(color_interpolation);
         combo_box_color_interp.setFocusable(false);
         combo_box_color_interp.setToolTipText("Sets the color interpolation option.");
 
-        combo_box_color_interp.addActionListener(new ActionListener() {
+        combo_box_color_interp.addActionListener(e -> {
+            try {
+                Color[] c15 = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2.0) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    Color[] c = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
+                paintGradientAndGraph(c15);
+            } catch (ArithmeticException ex) {
+                length_label.setText("0");
+                Graphics2D g = colors.createGraphics();
+                g.setColor(Color.LIGHT_GRAY);
+                g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
+                gradient.repaint();
 
-                    paintGradientAndGraph(c);
-                } catch (ArithmeticException ex) {
-                    length_label.setText("0");
-                    Graphics2D g = colors.createGraphics();
-                    g.setColor(Color.LIGHT_GRAY);
-                    g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
-                    gradient.repaint();
-
-                    Graphics2D g2 = colors2.createGraphics();
-                    g2.setColor(Color.WHITE);
-                    g2.fillRect(0, 0, colors2.getWidth(), colors2.getHeight());
-                    graph.repaint();
-                }
+                Graphics2D g2 = colors2.createGraphics();
+                g2.setColor(Color.WHITE);
+                g2.fillRect(0, 0, colors2.getWidth(), colors2.getHeight());
+                graph.repaint();
             }
         });
 
@@ -1045,7 +1012,7 @@ public class CustomPaletteEditorFrame extends JFrame {
 
         String[] random_palette_alg_str = {"Golden Ratio", "Waves", "Distance", "Triad", "Tetrad", "Google Material", "ColorBrewer 1", "ColorBrewer 2", "Google-ColorBrewer", "Cubehelix", "Cosines"};
 
-        combo_box_random_palette_alg = new JComboBox(random_palette_alg_str);
+        combo_box_random_palette_alg = new JComboBox<>(random_palette_alg_str);
         combo_box_random_palette_alg.setSelectedIndex(random_palette_algorithm);
         combo_box_random_palette_alg.setFocusable(false);
         combo_box_random_palette_alg.setToolTipText("Sets the random palette algorithm.");
@@ -1060,7 +1027,7 @@ public class CustomPaletteEditorFrame extends JFrame {
         processing_palette.setPreferredSize(new Dimension(244, 60));
         processing_palette.setBackground(MainWindow.bg_color);
 
-        scale_factor_palette_slid = new JSlider(JSlider.HORIZONTAL, 0, 100, (int) (scale_factor_palette_val * 100 / 2 + 100 / 2));
+        scale_factor_palette_slid = new JSlider(JSlider.HORIZONTAL, 0, 100, (int) (scale_factor_palette_val * 100.0 / 2 + 100 / 2.0));
         scale_factor_palette_slid.setPreferredSize(new Dimension(90, 35));
         scale_factor_palette_slid.setMajorTickSpacing(25);
         scale_factor_palette_slid.setMinorTickSpacing(1);
@@ -1076,65 +1043,52 @@ public class CustomPaletteEditorFrame extends JFrame {
 
         String[] processing_str = {"None", "Histogram Bright", "Brightness 1", "Brightness 2", "Hue 1", "Hue 2", "Saturation 1", "Saturation 2", "Red 1", "Red 2", "Green 1", "Green 2", "Blue 1", "Blue 2", "RGB 1", "RGB 2", "HSB 1", "HSB 2", "RYB 1", "RYB 2", "Histogram Light", "Brightness 3", "Hues 3", "Saturation 3", "Red 3", "Green 3", "Blue 3", "RGB 3", "HSB 3", "RYB 3"};
 
-        combo_box_processing = new JComboBox(processing_str);
+        combo_box_processing = new JComboBox<>(processing_str);
         combo_box_processing.setSelectedIndex(processing_alg);
         combo_box_processing.setFocusable(false);
         combo_box_processing.setToolTipText("Sets the palette processing option.");
 
-        combo_box_processing.addActionListener(new ActionListener() {
+        combo_box_processing.addActionListener(e -> {
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (combo_box_processing.getSelectedIndex() == MainWindow.PROCESSING_NONE || combo_box_processing.getSelectedIndex() == MainWindow.PROCESSING_HISTOGRAM_BRIGHTNESS || combo_box_processing.getSelectedIndex() == MainWindow.PROCESSING_HISTOGRAM_LIGHTNESS_LAB) {
-                    scale_factor_palette_slid.setEnabled(false);
-                } else {
-                    scale_factor_palette_slid.setEnabled(true);
-                }
+            scale_factor_palette_slid.setEnabled(!(combo_box_processing.getSelectedIndex() == MainWindow.PROCESSING_NONE || combo_box_processing.getSelectedIndex() == MainWindow.PROCESSING_HISTOGRAM_BRIGHTNESS || combo_box_processing.getSelectedIndex() == MainWindow.PROCESSING_HISTOGRAM_LIGHTNESS_LAB));
 
-                scale_factor_palette_slid.setValue(scale_factor_palette_slid.getMaximum() / 2);
+            scale_factor_palette_slid.setValue((int)(scale_factor_palette_slid.getMaximum() / 2.0));
 
-                try {
-                    Color[] c = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
+            try {
+                Color[] c13 = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2.0) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
 
-                    paintGradientAndGraph(c);
-                } catch (ArithmeticException ex) {
-                    length_label.setText("0");
-                    Graphics2D g = colors.createGraphics();
-                    g.setColor(Color.LIGHT_GRAY);
-                    g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
-                    gradient.repaint();
+                paintGradientAndGraph(c13);
+            } catch (ArithmeticException ex) {
+                length_label.setText("0");
+                Graphics2D g = colors.createGraphics();
+                g.setColor(Color.LIGHT_GRAY);
+                g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
+                gradient.repaint();
 
-                    Graphics2D g2 = colors2.createGraphics();
-                    g2.setColor(Color.WHITE);
-                    g2.fillRect(0, 0, colors2.getWidth(), colors2.getHeight());
-                    graph.repaint();
-                }
+                Graphics2D g2 = colors2.createGraphics();
+                g2.setColor(Color.WHITE);
+                g2.fillRect(0, 0, colors2.getWidth(), colors2.getHeight());
+                graph.repaint();
             }
-
         });
 
-        scale_factor_palette_slid.addChangeListener(new ChangeListener() {
+        scale_factor_palette_slid.addChangeListener(e -> {
+            try {
+                Color[] c112 = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2.0) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
 
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                try {
-                    Color[] c = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
+                paintGradientAndGraph(c112);
+            } catch (ArithmeticException ex) {
+                length_label.setText("0");
+                Graphics2D g = colors.createGraphics();
+                g.setColor(Color.LIGHT_GRAY);
+                g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
+                gradient.repaint();
 
-                    paintGradientAndGraph(c);
-                } catch (ArithmeticException ex) {
-                    length_label.setText("0");
-                    Graphics2D g = colors.createGraphics();
-                    g.setColor(Color.LIGHT_GRAY);
-                    g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
-                    gradient.repaint();
-
-                    Graphics2D g2 = colors2.createGraphics();
-                    g2.setColor(Color.WHITE);
-                    g2.fillRect(0, 0, colors2.getWidth(), colors2.getHeight());
-                    graph.repaint();
-                }
+                Graphics2D g2 = colors2.createGraphics();
+                g2.setColor(Color.WHITE);
+                g2.fillRect(0, 0, colors2.getWidth(), colors2.getHeight());
+                graph.repaint();
             }
-
         });
 
         processing_palette.add(combo_box_processing);
@@ -1207,7 +1161,7 @@ public class CustomPaletteEditorFrame extends JFrame {
                     blockUpdate = false;
 
                     try {
-                        Color[] c = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
+                        Color[] c = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2.0) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
 
                         paintGradientAndGraph(c);
                     } catch (ArithmeticException ex) {
@@ -1251,323 +1205,282 @@ public class CustomPaletteEditorFrame extends JFrame {
         });
 
         JButton reset_palette = new JButton();
-        reset_palette.setIcon(getIcon("/fractalzoomer/icons/palette_reset.png"));
+        reset_palette.setIcon(MainWindow.getIcon("palette_reset.png"));
         reset_palette.setFocusable(false);
         reset_palette.setToolTipText("Resets the palette and the options.");
         reset_palette.setPreferredSize(new Dimension(28, 28));
 
-        reset_palette.addActionListener(new ActionListener() {
+        reset_palette.addActionListener(e -> {
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
+            blockUpdate = true;
 
-                blockUpdate = true;
-
-                for (int m = 0; m < labels.length; m++) {
-                    temp_custom_palette[m][0] = default_editor_palette[m][0];
-                    temp_custom_palette[m][1] = default_editor_palette[m][1];
-                    temp_custom_palette[m][2] = default_editor_palette[m][2];
-                    temp_custom_palette[m][3] = default_editor_palette[m][3];
-                    labels[m].setBackground(new Color(temp_custom_palette[m][1], temp_custom_palette[m][2], temp_custom_palette[m][3]));
-                    textfields[m].setText("" + temp_custom_palette[m][0]);
-                }
-                blockUpdate = false;
-
-                combo_box_color_interp.setSelectedIndex(MainWindow.INTERPOLATION_LINEAR);
-                combo_box_color_space.setSelectedIndex(MainWindow.COLOR_SPACE_RGB);
-                check_box_reveres_palette.setSelected(false);
-                temp_color_cycling_location = 0;
-
-                blockUpdate = true;
-                ((DefaultEditor) offset_textfield.getEditor()).getTextField().setText("" + temp_color_cycling_location);
-                blockUpdate = false;
-
-                scale_factor_palette_slid.setValue((int) (scale_factor_palette_slid.getMaximum() / 2));
-                combo_box_processing.setSelectedIndex(MainWindow.PROCESSING_NONE);
-
-                try {
-                    Color[] c = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
-
-                    paintGradientAndGraph(c);
-                } catch (ArithmeticException ex) {
-                    length_label.setText("0");
-                    Graphics2D g = colors.createGraphics();
-                    g.setColor(Color.LIGHT_GRAY);
-                    g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
-                    gradient.repaint();
-
-                    Graphics2D g2 = colors2.createGraphics();
-                    g2.setColor(Color.WHITE);
-                    g2.fillRect(0, 0, colors2.getWidth(), colors2.getHeight());
-                    graph.repaint();
-                }
-
+            for (int m = 0; m < labels.length; m++) {
+                temp_custom_palette[m][0] = default_editor_palette[m][0];
+                temp_custom_palette[m][1] = default_editor_palette[m][1];
+                temp_custom_palette[m][2] = default_editor_palette[m][2];
+                temp_custom_palette[m][3] = default_editor_palette[m][3];
+                labels[m].setBackground(new Color(temp_custom_palette[m][1], temp_custom_palette[m][2], temp_custom_palette[m][3]));
+                textfields[m].setText("" + temp_custom_palette[m][0]);
             }
+            blockUpdate = false;
+
+            combo_box_color_interp.setSelectedIndex(MainWindow.INTERPOLATION_LINEAR);
+            combo_box_color_space.setSelectedIndex(MainWindow.COLOR_SPACE_RGB);
+            check_box_reveres_palette.setSelected(false);
+            temp_color_cycling_location = 0;
+
+            blockUpdate = true;
+            ((DefaultEditor) offset_textfield.getEditor()).getTextField().setText("" + temp_color_cycling_location);
+            blockUpdate = false;
+
+            scale_factor_palette_slid.setValue((int) (scale_factor_palette_slid.getMaximum() / 2.0));
+            combo_box_processing.setSelectedIndex(MainWindow.PROCESSING_NONE);
+
+            try {
+                Color[] c14 = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2.0) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
+
+                paintGradientAndGraph(c14);
+            } catch (ArithmeticException ex) {
+                length_label.setText("0");
+                Graphics2D g = colors.createGraphics();
+                g.setColor(Color.LIGHT_GRAY);
+                g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
+                gradient.repaint();
+
+                Graphics2D g2 = colors2.createGraphics();
+                g2.setColor(Color.WHITE);
+                g2.fillRect(0, 0, colors2.getWidth(), colors2.getHeight());
+                graph.repaint();
+            }
+
         });
 
         tools.add(reset_palette);
 
         JButton clear_palette = new JButton();
-        clear_palette.setIcon(getIcon("/fractalzoomer/icons/palette_clear.png"));
+        clear_palette.setIcon(MainWindow.getIcon("palette_clear.png"));
         clear_palette.setFocusable(false);
         clear_palette.setToolTipText("Clears the palette.");
         clear_palette.setPreferredSize(new Dimension(28, 28));
 
-        clear_palette.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                blockUpdate = true;
-                for (int m = 0; m < labels.length; m++) {
-                    temp_custom_palette[m][0] = 0;
-                    temp_custom_palette[m][1] = 0;
-                    temp_custom_palette[m][2] = 0;
-                    temp_custom_palette[m][3] = 0;
-                    labels[m].setBackground(new Color(temp_custom_palette[m][1], temp_custom_palette[m][2], temp_custom_palette[m][3]));
-                    textfields[m].setText("" + temp_custom_palette[m][0]);
-                }
-                blockUpdate = false;
-
-                try {
-                    Color[] c = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
-
-                    paintGradientAndGraph(c);
-                } catch (ArithmeticException ex) {
-                    length_label.setText("0");
-                    Graphics2D g = colors.createGraphics();
-                    g.setColor(Color.LIGHT_GRAY);
-                    g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
-                    gradient.repaint();
-
-                    Graphics2D g2 = colors2.createGraphics();
-                    g2.setColor(Color.WHITE);
-                    g2.fillRect(0, 0, colors2.getWidth(), colors2.getHeight());
-                    graph.repaint();
-                }
+        clear_palette.addActionListener(e -> {
+            blockUpdate = true;
+            for (int m = 0; m < labels.length; m++) {
+                temp_custom_palette[m][0] = 0;
+                temp_custom_palette[m][1] = 0;
+                temp_custom_palette[m][2] = 0;
+                temp_custom_palette[m][3] = 0;
+                labels[m].setBackground(new Color(temp_custom_palette[m][1], temp_custom_palette[m][2], temp_custom_palette[m][3]));
+                textfields[m].setText("" + temp_custom_palette[m][0]);
             }
+            blockUpdate = false;
 
+            try {
+                Color[] c16 = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2.0) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
+
+                paintGradientAndGraph(c16);
+            } catch (ArithmeticException ex) {
+                length_label.setText("0");
+                Graphics2D g = colors.createGraphics();
+                g.setColor(Color.LIGHT_GRAY);
+                g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
+                gradient.repaint();
+
+                Graphics2D g2 = colors2.createGraphics();
+                g2.setColor(Color.WHITE);
+                g2.fillRect(0, 0, colors2.getWidth(), colors2.getHeight());
+                graph.repaint();
+            }
         });
 
         tools.add(clear_palette);
 
         JButton save_palette = new JButton();
-        save_palette.setIcon(getIcon("/fractalzoomer/icons/palette_save.png"));
+        save_palette.setIcon(MainWindow.getIcon("palette_save.png"));
         save_palette.setFocusable(false);
         save_palette.setToolTipText("Saves a user made palette.");
         save_palette.setPreferredSize(new Dimension(28, 28));
 
-        save_palette.addActionListener(new ActionListener() {
+        save_palette.addActionListener(e -> {
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
+            for (int m = 0; m < textfields.length; m++) {
+                int temp2;
+                try {
+                    temp2 = Integer.parseInt(textfields[m].getText());
 
-                for (int m = 0; m < textfields.length; m++) {
-                    int temp2;
-                    try {
-                        temp2 = Integer.parseInt(textfields[m].getText());
-
-                        if (temp2 > 0 && temp2 < 100) {
-                            temp_custom_palette[m][0] = temp2;
-                        } else {
-                            temp_custom_palette[m][0] = 0;
-                        }
-                    } catch (Exception ex) {
+                    if (temp2 > 0 && temp2 < 100) {
+                        temp_custom_palette[m][0] = temp2;
+                    } else {
                         temp_custom_palette[m][0] = 0;
                     }
-                }
-
-                try {
-                    temp_color_cycling_location = Integer.parseInt(((DefaultEditor) offset_textfield.getEditor()).getTextField().getText());
                 } catch (Exception ex) {
-                    temp_color_cycling_location = 0;
+                    temp_custom_palette[m][0] = 0;
                 }
-
-                savePalette();
-
             }
+
+            try {
+                temp_color_cycling_location = Integer.parseInt(((DefaultEditor) offset_textfield.getEditor()).getTextField().getText());
+            } catch (Exception ex) {
+                temp_color_cycling_location = 0;
+            }
+
+            savePalette();
+
         });
 
         tools.add(save_palette);
 
         JButton load_palette = new JButton();
-        load_palette.setIcon(getIcon("/fractalzoomer/icons/palette_load.png"));
+        load_palette.setIcon(MainWindow.getIcon("palette_load.png"));
         load_palette.setFocusable(false);
         load_palette.setToolTipText("Loads a user made palette.");
         load_palette.setPreferredSize(new Dimension(28, 28));
 
-        load_palette.addActionListener(new ActionListener() {
+        load_palette.addActionListener(e -> {
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
+            loadPalette();
+            try {
+                Color[] c17 = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2.0) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
 
-                loadPalette();
-                try {
-                    Color[] c = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
+                paintGradientAndGraph(c17);
+            } catch (ArithmeticException ex) {
+                length_label.setText("0");
+                Graphics2D g = colors.createGraphics();
+                g.setColor(Color.LIGHT_GRAY);
+                g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
+                gradient.repaint();
 
-                    paintGradientAndGraph(c);
-                } catch (ArithmeticException ex) {
-                    length_label.setText("0");
-                    Graphics2D g = colors.createGraphics();
-                    g.setColor(Color.LIGHT_GRAY);
-                    g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
-                    gradient.repaint();
-
-                    Graphics2D g2 = colors2.createGraphics();
-                    g2.setColor(Color.WHITE);
-                    g2.fillRect(0, 0, colors2.getWidth(), colors2.getHeight());
-                    graph.repaint();
-                }
-
+                Graphics2D g2 = colors2.createGraphics();
+                g2.setColor(Color.WHITE);
+                g2.fillRect(0, 0, colors2.getWidth(), colors2.getHeight());
+                graph.repaint();
             }
+
         });
 
         tools.add(load_palette);
 
         JButton random_palette = new JButton();
-        random_palette.setIcon(getIcon("/fractalzoomer/icons/palette_random.png"));
+        random_palette.setIcon(MainWindow.getIcon("palette_random.png"));
         random_palette.setFocusable(false);
         random_palette.setToolTipText("Randomizes the palette.");
         random_palette.setPreferredSize(new Dimension(28, 28));
 
-        random_palette.addActionListener(new ActionListener() {
+        random_palette.addActionListener(e -> {
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
+            Color[] c18 = randomPalette(temp_custom_palette, combo_box_random_palette_alg.getSelectedIndex(), same_hues.isSelected(), combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2.0) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
 
-                Color[] c = randomPalette(temp_custom_palette, combo_box_random_palette_alg.getSelectedIndex(), same_hues.isSelected(), combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
-
-                if (c == null) {
-                    JOptionPane.showMessageDialog(this_frame, "Please select a valid palette offset.", "Error!", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-
-                blockUpdate = true;
-                for (int m = 0; m < labels.length; m++) {
-                    labels[m].setBackground(new Color(temp_custom_palette[m][1], temp_custom_palette[m][2], temp_custom_palette[m][3]));
-                    textfields[m].setText("" + temp_custom_palette[m][0]);
-                }
-                blockUpdate = false;
-
-                paintGradientAndGraph(c);
+            if (c18 == null) {
+                JOptionPane.showMessageDialog(this_frame, "Please select a valid palette offset.", "Error!", JOptionPane.ERROR_MESSAGE);
+                return;
             }
+
+            blockUpdate = true;
+            for (int m = 0; m < labels.length; m++) {
+                labels[m].setBackground(new Color(temp_custom_palette[m][1], temp_custom_palette[m][2], temp_custom_palette[m][3]));
+                textfields[m].setText("" + temp_custom_palette[m][0]);
+            }
+            blockUpdate = false;
+
+            paintGradientAndGraph(c18);
         });
 
         tools.add(random_palette);
 
-        add_palette.setIcon(getIcon("/fractalzoomer/icons/palette_add.png"));
+        add_palette.setIcon(MainWindow.getIcon("palette_add.png"));
         add_palette.setFocusable(false);
         add_palette.setToolTipText("Inserts an empty slot to the selected location.");
         add_palette.setPreferredSize(new Dimension(28, 28));
 
-        add_palette.addActionListener(new ActionListener() {
+        add_palette.addActionListener(e -> {
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                if (add_palette.isSelected()) {
-                    add_palette.setSelected(false);
-                    minus_palette.setEnabled(true);
-                    swap_palette.setEnabled(true);
-                    copy_palette.setEnabled(true);
-                } else {
-                    add_palette.setSelected(true);
-                    minus_palette.setEnabled(false);
-                    swap_palette.setEnabled(false);
-                    copy_palette.setEnabled(false);
-                }
-
+            if (add_palette.isSelected()) {
+                add_palette.setSelected(false);
+                minus_palette.setEnabled(true);
+                swap_palette.setEnabled(true);
+                copy_palette.setEnabled(true);
+            } else {
+                add_palette.setSelected(true);
+                minus_palette.setEnabled(false);
+                swap_palette.setEnabled(false);
+                copy_palette.setEnabled(false);
             }
 
         });
 
         tools.add(add_palette);
 
-        minus_palette.setIcon(getIcon("/fractalzoomer/icons/palette_minus.png"));
+        minus_palette.setIcon(MainWindow.getIcon("palette_minus.png"));
         minus_palette.setFocusable(false);
         minus_palette.setToolTipText("Removes the color in the selected location.");
         minus_palette.setPreferredSize(new Dimension(28, 28));
 
-        minus_palette.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (minus_palette.isSelected()) {
-                    minus_palette.setSelected(false);
-                    add_palette.setEnabled(true);
-                    swap_palette.setEnabled(true);
-                    copy_palette.setEnabled(true);
-                } else {
-                    minus_palette.setSelected(true);
-                    add_palette.setEnabled(false);
-                    swap_palette.setEnabled(false);
-                    copy_palette.setEnabled(false);
-                }
+        minus_palette.addActionListener(e -> {
+            if (minus_palette.isSelected()) {
+                minus_palette.setSelected(false);
+                add_palette.setEnabled(true);
+                swap_palette.setEnabled(true);
+                copy_palette.setEnabled(true);
+            } else {
+                minus_palette.setSelected(true);
+                add_palette.setEnabled(false);
+                swap_palette.setEnabled(false);
+                copy_palette.setEnabled(false);
             }
-
         });
 
         tools.add(minus_palette);
         
-        copy_palette.setIcon(getIcon("/fractalzoomer/icons/palette_copy.png"));
+        copy_palette.setIcon(MainWindow.getIcon("palette_copy.png"));
         copy_palette.setFocusable(false);
         copy_palette.setToolTipText("Copies and inserts a color to the selected location.");
         copy_palette.setPreferredSize(new Dimension(28, 28));
 
-        copy_palette.addActionListener(new ActionListener() {
+        copy_palette.addActionListener(e -> {
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
+            if (copy_palette.isSelected()) {
+                copy_palette.setSelected(false);
+                minus_palette.setEnabled(true);
+                swap_palette.setEnabled(true);
+                add_palette.setEnabled(true);
+            } else {
+                copy_palette.setSelected(true);
+                minus_palette.setEnabled(false);
+                swap_palette.setEnabled(false);
+                add_palette.setEnabled(false);
+            }
 
-                if (copy_palette.isSelected()) {
-                    copy_palette.setSelected(false);
-                    minus_palette.setEnabled(true);
-                    swap_palette.setEnabled(true);
-                    add_palette.setEnabled(true);
-                } else {
-                    copy_palette.setSelected(true);
-                    minus_palette.setEnabled(false);
-                    swap_palette.setEnabled(false);
-                    add_palette.setEnabled(false);
-                }
-                
-                selectedIndex = -1;
-                for(int k = 0; k < textfields.length; k++) {
-                    textfields[k].setBackground(oldColor);
-                }
-
+            selectedIndex = -1;
+            for(int k = 0; k < textfields.length; k++) {
+                textfields[k].setBackground(oldColor);
             }
 
         });
 
         tools.add(copy_palette);
         
-        swap_palette.setIcon(getIcon("/fractalzoomer/icons/shift_palette.png"));
+        swap_palette.setIcon(MainWindow.getIcon("shift_palette.png"));
         swap_palette.setFocusable(false);
         swap_palette.setToolTipText("Swaps two colors.");
         swap_palette.setPreferredSize(new Dimension(28, 28));
 
-        swap_palette.addActionListener(new ActionListener() {
+        swap_palette.addActionListener(e -> {
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
+            if (swap_palette.isSelected()) {
+                swap_palette.setSelected(false);
+                add_palette.setEnabled(true);
+                minus_palette.setEnabled(true);
+                copy_palette.setEnabled(true);
+            } else {
+                swap_palette.setSelected(true);
+                add_palette.setEnabled(false);
+                minus_palette.setEnabled(false);
+                copy_palette.setEnabled(false);
+            }
 
-                if (swap_palette.isSelected()) {
-                    swap_palette.setSelected(false);
-                    add_palette.setEnabled(true);
-                    minus_palette.setEnabled(true);
-                    copy_palette.setEnabled(true);
-                } else {
-                    swap_palette.setSelected(true);
-                    add_palette.setEnabled(false);
-                    minus_palette.setEnabled(false);
-                    copy_palette.setEnabled(false);
-                }
-                
-                selectedIndex = -1;
-                for(int k = 0; k < textfields.length; k++) {
-                    textfields[k].setBackground(oldColor);
-                }
-
+            selectedIndex = -1;
+            for(int k = 0; k < textfields.length; k++) {
+                textfields[k].setBackground(oldColor);
             }
 
         });
@@ -1575,189 +1488,184 @@ public class CustomPaletteEditorFrame extends JFrame {
         tools.add(swap_palette);
 
         JButton color_picker = new JButton();
-        color_picker.setIcon(getIcon("/fractalzoomer/icons/color_picker.png"));
+        color_picker.setIcon(MainWindow.getIcon("color_picker.png"));
         color_picker.setFocusable(false);
         color_picker.setToolTipText("Picks a color from the screen and imports it to the palette.");
         color_picker.setPreferredSize(new Dimension(28, 28));
 
-        color_picker.addActionListener(new ActionListener() {
+        color_picker.addActionListener(e -> {
+            setEnabled(false);
+            int color_picker_window_width = 440;
+            int color_picker_window_height = 250;
+            color_picker_frame = new JFrame("Color Picker");
+            color_picker_frame.setIconImage(MainWindow.getIcon("color_picker.png").getImage());
+            color_picker_frame.setSize(color_picker_window_width, color_picker_window_height);
+            color_picker_frame.setLocation((int) (getLocation().getX() + getSize().getWidth() / 2) - (color_picker_window_width / 2), (int) (getLocation().getY() + getSize().getHeight() / 2) - (color_picker_window_height / 2));
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                setEnabled(false);
-                int color_picker_window_width = 440;
-                int color_picker_window_height = 250;
-                color_picker_frame = new JFrame("Color Picker");
-                color_picker_frame.setIconImage(getIcon("/fractalzoomer/icons/color_picker.png").getImage());
-                color_picker_frame.setSize(color_picker_window_width, color_picker_window_height);
-                color_picker_frame.setLocation((int) (getLocation().getX() + getSize().getWidth() / 2) - (color_picker_window_width / 2), (int) (getLocation().getY() + getSize().getHeight() / 2) - (color_picker_window_height / 2));
+            color_picker_frame.addWindowListener(new WindowAdapter() {
 
-                color_picker_frame.addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosing(WindowEvent e) {
 
-                    @Override
-                    public void windowClosing(WindowEvent e) {
+                    ptra2.setVisible(true);
+                    setVisible(true);
+                    setEnabled(true);
+                    color_picker_frame.dispose();
 
-                        ptra2.setVisible(true);
-                        setVisible(true);
-                        setEnabled(true);
-                        color_picker_frame.dispose();
+                }
+            });
 
-                    }
-                });
+            JPanel panel1 = new JPanel();
+            panel1.setLayout(new GridLayout(8, 1));
+            panel1.setBackground(MainWindow.bg_color);
+            panel1.add(new JLabel("Move your mouse to the desired color."));
+            panel1.add(new JLabel("Press ENTER to capture the color."));
+            panel1.add(new JLabel("Press ESC to cancel."));
+            panel1.add(new JLabel(""));
+            panel1.add(new JLabel("The first empty color slot in the palette"));
+            panel1.add(new JLabel("will be used for the imported color."));
+            panel1.add(new JLabel(""));
 
-                JPanel panel1 = new JPanel();
-                panel1.setLayout(new GridLayout(8, 1));
-                panel1.setBackground(MainWindow.bg_color);
-                panel1.add(new JLabel("Move your mouse to the desired color."));
-                panel1.add(new JLabel("Press ENTER to capture the color."));
-                panel1.add(new JLabel("Press ESC to cancel."));
-                panel1.add(new JLabel(""));
-                panel1.add(new JLabel("The first empty color slot in the palette"));
-                panel1.add(new JLabel("will be used for the imported color."));
-                panel1.add(new JLabel(""));
+            JLabel label1 = new JLabel();
+            panel1.add(label1);
 
-                JLabel label1 = new JLabel();
-                panel1.add(label1);
+            final RoundedPanel panel2 = new RoundedPanel(true, true, true, 10);
+            panel2.setPreferredSize(new Dimension(120, 120));
 
-                final RoundedPanel panel2 = new RoundedPanel(true, true, true, 10);
-                panel2.setPreferredSize(new Dimension(120, 120));
+            RoundedPanel round_panel = new RoundedPanel(true, true, true, 15);
+            round_panel.setBackground(MainWindow.bg_color);
+            round_panel.setPreferredSize(new Dimension(370, 160));
+            round_panel.setLayout(new GridBagLayout());
 
-                RoundedPanel round_panel = new RoundedPanel(true, true, true, 15);
-                round_panel.setBackground(MainWindow.bg_color);
-                round_panel.setPreferredSize(new Dimension(370, 160));
-                round_panel.setLayout(new GridBagLayout());
+            GridBagConstraints con = new GridBagConstraints();
 
-                GridBagConstraints con = new GridBagConstraints();
+            con.fill = GridBagConstraints.CENTER;
+            con.gridx = 0;
+            con.gridy = 0;
 
-                con.fill = GridBagConstraints.CENTER;
-                con.gridx = 0;
-                con.gridy = 0;
+            round_panel.add(panel1, con);
 
-                round_panel.add(panel1, con);
+            con.fill = GridBagConstraints.CENTER;
+            con.gridx = 1;
+            con.gridy = 0;
 
-                con.fill = GridBagConstraints.CENTER;
-                con.gridx = 1;
-                con.gridy = 0;
+            round_panel.add(new JLabel("   "), con);
 
-                round_panel.add(new JLabel("   "), con);
+            con.fill = GridBagConstraints.CENTER;
+            con.gridx = 2;
+            con.gridy = 0;
 
-                con.fill = GridBagConstraints.CENTER;
-                con.gridx = 2;
-                con.gridy = 0;
+            round_panel.add(panel2, con);
 
-                round_panel.add(panel2, con);
+            JPanel main_panel = new JPanel();
+            main_panel.setLayout(new GridBagLayout());
+            con.fill = GridBagConstraints.CENTER;
+            con.gridx = 0;
+            con.gridy = 0;
+            main_panel.add(round_panel, con);
 
-                JPanel main_panel = new JPanel();
-                main_panel.setLayout(new GridBagLayout());
-                con.fill = GridBagConstraints.CENTER;
-                con.gridx = 0;
-                con.gridy = 0;
-                main_panel.add(round_panel, con);
+            JScrollPane scrollPane = new JScrollPane(main_panel);
+            color_picker_frame.add(scrollPane);
 
-                JScrollPane scrollPane = new JScrollPane(main_panel);
-                color_picker_frame.add(scrollPane);
+            final PixelColor color_picker_thread = new PixelColor(panel2, label1);
 
-                final PixelColor color_picker_thread = new PixelColor(panel2, label1);
+            color_picker_frame.addKeyListener(new KeyListener() {
 
-                color_picker_frame.addKeyListener(new KeyListener() {
+                @Override
+                public void keyTyped(KeyEvent e) {
 
-                    @Override
-                    public void keyTyped(KeyEvent e) {
+                }
 
-                    }
+                @Override
+                public void keyPressed(KeyEvent e) {
+                    switch (e.getKeyCode()) {
+                        case KeyEvent.VK_ENTER:
+                            color_picker_thread.terminate();
 
-                    @Override
-                    public void keyPressed(KeyEvent e) {
-                        switch (e.getKeyCode()) {
-                            case KeyEvent.VK_ENTER:
-                                color_picker_thread.terminate();
+                            try {
+                                color_picker_thread.join();
+                            } catch (InterruptedException ex) {
+                            }
+
+                            int m;
+                            for (m = 0; m < labels.length; m++) {
+                                try {
+                                    if (Double.parseDouble(textfields[m].getText()) == 0) {
+                                        break;
+                                    }
+                                } catch (Exception ex) {
+
+                                }
+                            }
+
+                            if (m != labels.length) {
+                                temp_custom_palette[m][0] = 12;
+                                temp_custom_palette[m][1] = panel2.getBackground().getRed();
+                                temp_custom_palette[m][2] = panel2.getBackground().getGreen();
+                                temp_custom_palette[m][3] = panel2.getBackground().getBlue();
+
+                                blockUpdate = true;
+                                labels[m].setBackground(new Color(temp_custom_palette[m][1], temp_custom_palette[m][2], temp_custom_palette[m][3]));
+                                textfields[m].setText("" + temp_custom_palette[m][0]);
+                                blockUpdate = false;
 
                                 try {
-                                    color_picker_thread.join();
-                                } catch (InterruptedException ex) {
-                                }
+                                    Color[] c19 = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2.0) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
 
-                                int m;
-                                for (m = 0; m < labels.length; m++) {
-                                    try {
-                                        if (Double.parseDouble(textfields[m].getText()) == 0) {
-                                            break;
-                                        }
-                                    } catch (Exception ex) {
+                                    paintGradientAndGraph(c19);
+                                } catch (ArithmeticException ex) {
+                                    length_label.setText("0");
+                                    Graphics2D g = colors.createGraphics();
+                                    g.setColor(Color.LIGHT_GRAY);
+                                    g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
+                                    gradient.repaint();
 
-                                    }
-                                }
-
-                                if (m != labels.length) {
-                                    temp_custom_palette[m][0] = 12;
-                                    temp_custom_palette[m][1] = panel2.getBackground().getRed();
-                                    temp_custom_palette[m][2] = panel2.getBackground().getGreen();
-                                    temp_custom_palette[m][3] = panel2.getBackground().getBlue();
-
-                                    blockUpdate = true;
-                                    labels[m].setBackground(new Color(temp_custom_palette[m][1], temp_custom_palette[m][2], temp_custom_palette[m][3]));
-                                    textfields[m].setText("" + temp_custom_palette[m][0]);
-                                    blockUpdate = false;
-
-                                    try {
-                                        Color[] c = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
-
-                                        paintGradientAndGraph(c);
-                                    } catch (ArithmeticException ex) {
-                                        length_label.setText("0");
-                                        Graphics2D g = colors.createGraphics();
-                                        g.setColor(Color.LIGHT_GRAY);
-                                        g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
-                                        gradient.repaint();
-
-                                        Graphics2D g2 = colors2.createGraphics();
-                                        g2.setColor(Color.WHITE);
-                                        g2.fillRect(0, 0, colors2.getWidth(), colors2.getHeight());
-                                        graph.repaint();
-                                    }
-
-                                    ptra2.setVisible(true);
-                                    setVisible(true);
-                                    setEnabled(true);
-                                    color_picker_frame.dispose();
-                                } else {
-                                    ptra2.setVisible(true);
-                                    setVisible(true);
-                                    setEnabled(true);
-                                    color_picker_frame.dispose();
-                                    JOptionPane.showMessageDialog(this_frame, "The palette is full.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                }
-                                break;
-                            case KeyEvent.VK_ESCAPE:
-                                color_picker_thread.terminate();
-
-                                try {
-                                    color_picker_thread.join();
-                                } catch (InterruptedException ex) {
+                                    Graphics2D g2 = colors2.createGraphics();
+                                    g2.setColor(Color.WHITE);
+                                    g2.fillRect(0, 0, colors2.getWidth(), colors2.getHeight());
+                                    graph.repaint();
                                 }
 
                                 ptra2.setVisible(true);
                                 setVisible(true);
                                 setEnabled(true);
                                 color_picker_frame.dispose();
-                                break;
-                        }
+                            } else {
+                                ptra2.setVisible(true);
+                                setVisible(true);
+                                setEnabled(true);
+                                color_picker_frame.dispose();
+                                JOptionPane.showMessageDialog(this_frame, "The palette is full.", "Error!", JOptionPane.ERROR_MESSAGE);
+                            }
+                            break;
+                        case KeyEvent.VK_ESCAPE:
+                            color_picker_thread.terminate();
+
+                            try {
+                                color_picker_thread.join();
+                            } catch (InterruptedException ex) {
+                            }
+
+                            ptra2.setVisible(true);
+                            setVisible(true);
+                            setEnabled(true);
+                            color_picker_frame.dispose();
+                            break;
                     }
+                }
 
-                    @Override
-                    public void keyReleased(KeyEvent e) {
+                @Override
+                public void keyReleased(KeyEvent e) {
 
-                    }
+                }
 
-                });
+            });
 
-                ptra2.setVisible(false);
-                setVisible(false);
-                color_picker_frame.setVisible(true);
+            ptra2.setVisible(false);
+            setVisible(false);
+            color_picker_frame.setVisible(true);
 
-                color_picker_thread.start();
-            }
-
+            color_picker_thread.start();
         });
 
         tools.add(color_picker);
@@ -1765,7 +1673,7 @@ public class CustomPaletteEditorFrame extends JFrame {
         JMenu presets_menu = new JMenu("Presets");
         
         int count = 0;
-        for(l = 0; l < palette.length; l++) {
+        for(int l = 0; l < palette.length; l++) {
             if(l < MainWindow.CUSTOM_PALETTE_ID && l != MainWindow.CUSTOM_PALETTE_ID && l != MainWindow.DIRECT_PALETTE_ID) {
                 count++;
             }
@@ -1775,7 +1683,7 @@ public class CustomPaletteEditorFrame extends JFrame {
         
         palette_indexing = new int[preset_palettes_str.length];
 
-        for (l = 0; l < preset_palettes_str.length; l++) {
+        for (int l = 0; l < preset_palettes_str.length; l++) {
             if(l < MainWindow.CUSTOM_PALETTE_ID && l != MainWindow.CUSTOM_PALETTE_ID && l != MainWindow.DIRECT_PALETTE_ID) {
                 preset_palettes_str[l + 1] = palette[l].getText();
                 palette_indexing[l + 1] = l;
@@ -1787,7 +1695,7 @@ public class CustomPaletteEditorFrame extends JFrame {
 
         preset_palettes = new JMenuItem[preset_palettes_str.length];
 
-        for (l = 0; l < palette_indexing.length; l++) {
+        for (int l = 0; l < palette_indexing.length; l++) {
 
             if (palette_indexing[l] == -1) {
                 c = CustomPalette.getPalette(default_editor_palette, color_interpolation, color_space, reversed_palette, temp_color_cycling_location, scale_factor_palette_val, processing_alg);
@@ -1799,9 +1707,9 @@ public class CustomPaletteEditorFrame extends JFrame {
             Graphics2D g = palette_preview.createGraphics();
             for (int j = 0; j < c.length; j++) {
                 if (smoothing) {
-                    GradientPaint gp = new GradientPaint(j * palette_preview.getWidth() / c.length, 0, c[j], (j + 1) * palette_preview.getWidth() / c.length, 0, c[(j + 1) % c.length]);
+                    GradientPaint gp = new GradientPaint(j * palette_preview.getWidth() / ((float)c.length), 0, c[j], (j + 1) * palette_preview.getWidth() / ((float)c.length), 0, c[(j + 1) % c.length]);
                     g.setPaint(gp);
-                    g.fill(new Rectangle2D.Double(j * palette_preview.getWidth() / c.length, 0, (j + 1) * palette_preview.getWidth() / c.length - j * palette_preview.getWidth() / c.length, palette_preview.getHeight()));
+                    g.fill(new Rectangle2D.Double(j * palette_preview.getWidth() / ((double)c.length), 0, (j + 1) * palette_preview.getWidth() / ((double)c.length) - j * palette_preview.getWidth() / ((double)c.length), palette_preview.getHeight()));
                 } else {
                     g.setColor(c[j]);
                     g.fillRect(j * palette_preview.getWidth() / c.length, 0, (j + 1) * palette_preview.getWidth() / c.length - j * palette_preview.getWidth() / c.length, palette_preview.getHeight());
@@ -1810,52 +1718,47 @@ public class CustomPaletteEditorFrame extends JFrame {
 
             preset_palettes[l] = new JMenuItem(preset_palettes_str[l], new ImageIcon(palette_preview));
 
-            preset_palettes[l].addActionListener(new ActionListener() {
-
-                int temp = l;
-
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    if (temp == 0) {
-                        blockUpdate = true;
-                        for (int m = 0; m < labels.length; m++) {
-                            temp_custom_palette[m][0] = default_editor_palette[m][0];
-                            temp_custom_palette[m][1] = default_editor_palette[m][1];
-                            temp_custom_palette[m][2] = default_editor_palette[m][2];
-                            temp_custom_palette[m][3] = default_editor_palette[m][3];
-                            labels[m].setBackground(new Color(temp_custom_palette[m][1], temp_custom_palette[m][2], temp_custom_palette[m][3]));
-                            textfields[m].setText("" + temp_custom_palette[m][0]);
-                        }
-                        blockUpdate = false;
-                    } else {
-                        blockUpdate = true;
-                        for (int m = 0; m < labels.length; m++) {
-                            temp_custom_palette[m][0] = editor_default_palettes[temp - 1][m][0];
-                            temp_custom_palette[m][1] = editor_default_palettes[temp - 1][m][1];
-                            temp_custom_palette[m][2] = editor_default_palettes[temp - 1][m][2];
-                            temp_custom_palette[m][3] = editor_default_palettes[temp - 1][m][3];
-                            labels[m].setBackground(new Color(temp_custom_palette[m][1], temp_custom_palette[m][2], temp_custom_palette[m][3]));
-                            textfields[m].setText("" + temp_custom_palette[m][0]);
-                        }
-                        blockUpdate = false;
+            final int temp = l;
+            preset_palettes[l].addActionListener(e -> {
+                if (temp == 0) {
+                    blockUpdate = true;
+                    for (int m = 0; m < labels.length; m++) {
+                        temp_custom_palette[m][0] = default_editor_palette[m][0];
+                        temp_custom_palette[m][1] = default_editor_palette[m][1];
+                        temp_custom_palette[m][2] = default_editor_palette[m][2];
+                        temp_custom_palette[m][3] = default_editor_palette[m][3];
+                        labels[m].setBackground(new Color(temp_custom_palette[m][1], temp_custom_palette[m][2], temp_custom_palette[m][3]));
+                        textfields[m].setText("" + temp_custom_palette[m][0]);
                     }
-
-                    try {
-                        Color[] c = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
-
-                        paintGradientAndGraph(c);
-                    } catch (ArithmeticException ex) {
-                        length_label.setText("0");
-                        Graphics2D g = colors.createGraphics();
-                        g.setColor(Color.LIGHT_GRAY);
-                        g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
-                        gradient.repaint();
-
-                        Graphics2D g2 = colors2.createGraphics();
-                        g2.setColor(Color.WHITE);
-                        g2.fillRect(0, 0, colors2.getWidth(), colors2.getHeight());
-                        graph.repaint();
+                    blockUpdate = false;
+                } else {
+                    blockUpdate = true;
+                    for (int m = 0; m < labels.length; m++) {
+                        temp_custom_palette[m][0] = editor_default_palettes[temp - 1][m][0];
+                        temp_custom_palette[m][1] = editor_default_palettes[temp - 1][m][1];
+                        temp_custom_palette[m][2] = editor_default_palettes[temp - 1][m][2];
+                        temp_custom_palette[m][3] = editor_default_palettes[temp - 1][m][3];
+                        labels[m].setBackground(new Color(temp_custom_palette[m][1], temp_custom_palette[m][2], temp_custom_palette[m][3]));
+                        textfields[m].setText("" + temp_custom_palette[m][0]);
                     }
+                    blockUpdate = false;
+                }
+
+                try {
+                    Color[] c113 = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2.0) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
+
+                    paintGradientAndGraph(c113);
+                } catch (ArithmeticException ex) {
+                    length_label.setText("0");
+                    Graphics2D g1 = colors.createGraphics();
+                    g1.setColor(Color.LIGHT_GRAY);
+                    g1.fillRect(0, 0, colors.getWidth(), colors.getHeight());
+                    gradient.repaint();
+
+                    Graphics2D g2 = colors2.createGraphics();
+                    g2.setColor(Color.WHITE);
+                    g2.fillRect(0, 0, colors2.getWidth(), colors2.getHeight());
+                    graph.repaint();
                 }
             });
             presets_menu.add(preset_palettes[l]);
@@ -1872,28 +1775,23 @@ public class CustomPaletteEditorFrame extends JFrame {
         check_box_preview_smooth_color.setToolTipText("Previews the palette for color smoothing.");
         check_box_preview_smooth_color.setBackground(MainWindow.bg_color);
 
-        check_box_preview_smooth_color.addActionListener(new ActionListener() {
+        check_box_preview_smooth_color.addActionListener(e -> {
+            try {
+                Color[] c111 = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2.0) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    Color[] c = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
+                paintGradientAndGraph(c111);
+            } catch (ArithmeticException ex) {
+                length_label.setText("0");
+                Graphics2D g = colors.createGraphics();
+                g.setColor(Color.LIGHT_GRAY);
+                g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
+                gradient.repaint();
 
-                    paintGradientAndGraph(c);
-                } catch (ArithmeticException ex) {
-                    length_label.setText("0");
-                    Graphics2D g = colors.createGraphics();
-                    g.setColor(Color.LIGHT_GRAY);
-                    g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
-                    gradient.repaint();
-
-                    Graphics2D g2 = colors2.createGraphics();
-                    g2.setColor(Color.WHITE);
-                    g2.fillRect(0, 0, colors2.getWidth(), colors2.getHeight());
-                    graph.repaint();
-                }
+                Graphics2D g2 = colors2.createGraphics();
+                g2.setColor(Color.WHITE);
+                g2.fillRect(0, 0, colors2.getWidth(), colors2.getHeight());
+                graph.repaint();
             }
-
         });
 
         JPanel p1 = new JPanel();
@@ -1907,58 +1805,55 @@ public class CustomPaletteEditorFrame extends JFrame {
 
         tools.add(new JLabel("Preset: "));
 
-        JComboBox extra_presets_box = new JComboBox(extraPalettes.getNames());
+        JComboBox<String> extra_presets_box = new JComboBox<>(extraPalettes.getNames());
         extra_presets_box.setToolTipText("Loads additional presets to the editor.");
 
         tools.add(extra_presets_box);
 
-        extra_presets_box.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                blockUpdate = true;
+        extra_presets_box.addActionListener(e -> {
+            blockUpdate = true;
 
-                ArrayList<ArrayList<Integer>> palette = extraPalettes.getPalette(extra_presets_box.getSelectedIndex(), labels.length);
+            ArrayList<ArrayList<Integer>> palette1 = extraPalettes.getPalette(extra_presets_box.getSelectedIndex(), labels.length);
 
-                for (int m = 0; m < labels.length; m++) {
-                    if(m < palette.size()) {
-                        ArrayList<Integer> rgb = palette.get(m);
-                        if (rgb.size() == 3) {
-                            temp_custom_palette[m][0] = 16;
-                            temp_custom_palette[m][1] = rgb.get(0);
-                            temp_custom_palette[m][2] = rgb.get(1);
-                            temp_custom_palette[m][3] = rgb.get(2);
+            for (int m = 0; m < labels.length; m++) {
+                if(m < palette1.size()) {
+                    ArrayList<Integer> rgb = palette1.get(m);
+                    if (rgb.size() == 3) {
+                        temp_custom_palette[m][0] = 16;
+                        temp_custom_palette[m][1] = rgb.get(0);
+                        temp_custom_palette[m][2] = rgb.get(1);
+                        temp_custom_palette[m][3] = rgb.get(2);
 
-                        }
                     }
-                    else {
-                        temp_custom_palette[m][0] = 0;
-                        temp_custom_palette[m][1] = 0;
-                        temp_custom_palette[m][2] = 0;
-                        temp_custom_palette[m][3] = 0;
-                    }
-
-                    labels[m].setBackground(new Color(temp_custom_palette[m][1], temp_custom_palette[m][2], temp_custom_palette[m][3]));
-                    textfields[m].setText("" + temp_custom_palette[m][0]);
+                }
+                else {
+                    temp_custom_palette[m][0] = 0;
+                    temp_custom_palette[m][1] = 0;
+                    temp_custom_palette[m][2] = 0;
+                    temp_custom_palette[m][3] = 0;
                 }
 
-                blockUpdate = false;
+                labels[m].setBackground(new Color(temp_custom_palette[m][1], temp_custom_palette[m][2], temp_custom_palette[m][3]));
+                textfields[m].setText("" + temp_custom_palette[m][0]);
+            }
 
-                try {
-                    Color[] c = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
+            blockUpdate = false;
 
-                    paintGradientAndGraph(c);
-                } catch (ArithmeticException ex) {
-                    length_label.setText("0");
-                    Graphics2D g = colors.createGraphics();
-                    g.setColor(Color.LIGHT_GRAY);
-                    g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
-                    gradient.repaint();
+            try {
+                Color[] c110 = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2.0) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
 
-                    Graphics2D g2 = colors2.createGraphics();
-                    g2.setColor(Color.WHITE);
-                    g2.fillRect(0, 0, colors2.getWidth(), colors2.getHeight());
-                    graph.repaint();
-                }
+                paintGradientAndGraph(c110);
+            } catch (ArithmeticException ex) {
+                length_label.setText("0");
+                Graphics2D g = colors.createGraphics();
+                g.setColor(Color.LIGHT_GRAY);
+                g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
+                gradient.repaint();
+
+                Graphics2D g2 = colors2.createGraphics();
+                g2.setColor(Color.WHITE);
+                g2.fillRect(0, 0, colors2.getWidth(), colors2.getHeight());
+                graph.repaint();
             }
         });
 
@@ -2033,12 +1928,6 @@ public class CustomPaletteEditorFrame extends JFrame {
 
     }
 
-    private ImageIcon getIcon(String path) {
-
-        return new ImageIcon(getClass().getResource(path));
-
-    }
-
     private void paintGradientAndGraph(Color[] c) {
 
         try {
@@ -2046,9 +1935,9 @@ public class CustomPaletteEditorFrame extends JFrame {
             Graphics2D g = colors.createGraphics();
             for (int i = 0; i < c.length; i++) {
                 if (check_box_preview_smooth_color.isSelected()) {
-                    GradientPaint gp = new GradientPaint(i * colors.getWidth() / c.length, 0, c[i], (i + 1) * colors.getWidth() / c.length, 0, c[(i + 1) % c.length]);
+                    GradientPaint gp = new GradientPaint(i * colors.getWidth() / ((float)c.length), 0, c[i], (i + 1) * colors.getWidth() / ((float)c.length), 0, c[(i + 1) % c.length]);
                     g.setPaint(gp);
-                    g.fill(new Rectangle2D.Double(i * colors.getWidth() / c.length, 0, (i + 1) * colors.getWidth() / c.length - i * colors.getWidth() / c.length, colors.getHeight()));
+                    g.fill(new Rectangle2D.Double(i * colors.getWidth() / ((double)c.length), 0, (i + 1) * colors.getWidth() / ((double)c.length) - i * colors.getWidth() / ((double)c.length), colors.getHeight()));
                 } else {
                     g.setColor(c[i]);
                     g.fillRect(i * colors.getWidth() / c.length, 0, (i + 1) * colors.getWidth() / c.length - i * colors.getWidth() / c.length, colors.getHeight());
@@ -2070,19 +1959,19 @@ public class CustomPaletteEditorFrame extends JFrame {
             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             for (int i = 0; i < c.length; i++) {
                 g.setColor(Color.RED);
-                g.drawLine(1 + i * colors2.getWidth() / c.length, 10 + colors2.getHeight() / 5 + 5 - (int) (((colors2.getHeight() / 5) / 255.0) * c[i].getRed()), (i + 1) * colors2.getWidth() / c.length, 10 + colors2.getHeight() / 5 + 5 - (int) (((colors2.getHeight() / 5) / 255.0) * c[(i + 1) % c.length].getRed()));
+                g.drawLine(1 + i * colors2.getWidth() / c.length, 10 + colors2.getHeight() / 5 + 5 - (int) (((colors2.getHeight() / 5.0) / 255.0) * c[i].getRed()), (i + 1) * colors2.getWidth() / c.length, 10 + colors2.getHeight() / 5 + 5 - (int) (((colors2.getHeight() / 5.0) / 255.0) * c[(i + 1) % c.length].getRed()));
 
                 g.setColor(Color.LIGHT_GRAY);
                 g.drawLine(0, 10 + colors2.getHeight() / 5 + 10, colors2.getWidth(), 10 + colors2.getHeight() / 5 + 10);
 
                 g.setColor(Color.GREEN);
-                g.drawLine(1 + i * colors2.getWidth() / c.length, 20 + 2 * (colors2.getHeight() / 5 + 5) - (int) (((colors2.getHeight() / 5) / 255.0) * c[i].getGreen()), (i + 1) * colors2.getWidth() / c.length, 20 + 2 * (colors2.getHeight() / 5 + 5) - (int) (((colors2.getHeight() / 5) / 255.0) * c[(i + 1) % c.length].getGreen()));
+                g.drawLine(1 + i * colors2.getWidth() / c.length, 20 + 2 * (colors2.getHeight() / 5 + 5) - (int) (((colors2.getHeight() / 5.0) / 255.0) * c[i].getGreen()), (i + 1) * colors2.getWidth() / c.length, 20 + 2 * (colors2.getHeight() / 5 + 5) - (int) (((colors2.getHeight() / 5.0) / 255.0) * c[(i + 1) % c.length].getGreen()));
 
                 g.setColor(Color.LIGHT_GRAY);
                 g.drawLine(0, 20 + 2 * (colors2.getHeight() / 5 + 10), colors2.getWidth(), 20 + 2 * (colors2.getHeight() / 5 + 10));
 
                 g.setColor(Color.BLUE);
-                g.drawLine(1 + i * colors2.getWidth() / c.length, 30 + 3 * (colors2.getHeight() / 5 + 5) - (int) (((colors2.getHeight() / 5) / 255.0) * c[i].getBlue()), (i + 1) * colors2.getWidth() / c.length, 30 + 3 * (colors2.getHeight() / 5 + 5) - (int) (((colors2.getHeight() / 5) / 255.0) * c[(i + 1) % c.length].getBlue()));
+                g.drawLine(1 + i * colors2.getWidth() / c.length, 30 + 3 * (colors2.getHeight() / 5 + 5) - (int) (((colors2.getHeight() / 5.0) / 255.0) * c[i].getBlue()), (i + 1) * colors2.getWidth() / c.length, 30 + 3 * (colors2.getHeight() / 5 + 5) - (int) (((colors2.getHeight() / 5.0) / 255.0) * c[(i + 1) % c.length].getBlue()));
             }
         } catch (Exception ex) {
             length_label.setText("0");
@@ -2108,24 +1997,20 @@ public class CustomPaletteEditorFrame extends JFrame {
         String name = "palette " + DateTimeFormatter.ofPattern("yyyy-MM-dd HH;mm;ss").format(LocalDateTime.now()) + ".fzp";
         file_chooser.setSelectedFile(new File(name));
 
-        file_chooser.addPropertyChangeListener(JFileChooser.FILE_FILTER_CHANGED_PROPERTY, new PropertyChangeListener() {
+        file_chooser.addPropertyChangeListener(JFileChooser.FILE_FILTER_CHANGED_PROPERTY, evt -> {
+            FileNameExtensionFilter filter = (FileNameExtensionFilter) evt.getNewValue();
 
-            @Override
-            public void propertyChange(PropertyChangeEvent evt) {
-                FileNameExtensionFilter filter = (FileNameExtensionFilter) evt.getNewValue();
+            String extension = filter.getExtensions()[0];
 
-                String extension = filter.getExtensions()[0];
+            String file_name = ((BasicFileChooserUI) file_chooser.getUI()).getFileName();
 
-                String file_name = ((BasicFileChooserUI) file_chooser.getUI()).getFileName();
+            int index = file_name.lastIndexOf(".");
 
-                int index = file_name.lastIndexOf(".");
-
-                if (index != -1) {
-                    file_name = file_name.substring(0, index);
-                }
-
-                file_chooser.setSelectedFile(new File(file_name + "." + extension));
+            if (index != -1) {
+                file_name = file_name.substring(0, index);
             }
+
+            file_chooser.setSelectedFile(new File(file_name + "." + extension));
         });
 
         int returnVal = file_chooser.showDialog(this_frame, "Save Palette");
@@ -2142,21 +2027,23 @@ public class CustomPaletteEditorFrame extends JFrame {
 
                 try {
                     file_temp = new ObjectOutputStream(new FileOutputStream(file.toString()));
-                    SettingsPalette1062 settings_palette = new SettingsPalette1062(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, combo_box_processing.getSelectedIndex(), (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2) / (scale_factor_palette_slid.getMaximum() / 2.0));
+                    SettingsPalette1062 settings_palette = new SettingsPalette1062(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, combo_box_processing.getSelectedIndex(), (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2.0) / (scale_factor_palette_slid.getMaximum() / 2.0));
                     file_temp.writeObject(settings_palette);
                     file_temp.flush();
                 } catch (IOException ex) {
                 }
 
                 try {
-                    file_temp.close();
+                    if(file_temp != null) {
+                        file_temp.close();
+                    }
                 } catch (Exception ex) {
                 }
             } else if (extension.equalsIgnoreCase("txt")) {
 
                 Color[] c = null;
                 try {
-                    c = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
+                    c = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2.0) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
                 } catch (ArithmeticException ex) {
                     JOptionPane.showMessageDialog(this_frame, "The palette cannot be empty.", "Error!", JOptionPane.ERROR_MESSAGE);
                     return;
@@ -2192,24 +2079,20 @@ public class CustomPaletteEditorFrame extends JFrame {
 
         file_chooser.addChoosableFileFilter(new FileNameExtensionFilter("Fractal Zoomer Palette (*.fzp)", "fzp"));
 
-        file_chooser.addPropertyChangeListener(JFileChooser.FILE_FILTER_CHANGED_PROPERTY, new PropertyChangeListener() {
+        file_chooser.addPropertyChangeListener(JFileChooser.FILE_FILTER_CHANGED_PROPERTY, evt -> {
+            FileNameExtensionFilter filter = (FileNameExtensionFilter) evt.getNewValue();
 
-            @Override
-            public void propertyChange(PropertyChangeEvent evt) {
-                FileNameExtensionFilter filter = (FileNameExtensionFilter) evt.getNewValue();
+            String extension = filter.getExtensions()[0];
 
-                String extension = filter.getExtensions()[0];
+            String file_name = ((BasicFileChooserUI) file_chooser.getUI()).getFileName();
 
-                String file_name = ((BasicFileChooserUI) file_chooser.getUI()).getFileName();
+            int index = file_name.lastIndexOf(".");
 
-                int index = file_name.lastIndexOf(".");
-
-                if (index != -1) {
-                    file_name = file_name.substring(0, index);
-                }
-
-                file_chooser.setSelectedFile(new File(file_name + "." + extension));
+            if (index != -1) {
+                file_name = file_name.substring(0, index);
             }
+
+            file_chooser.setSelectedFile(new File(file_name + "." + extension));
         });
 
         int returnVal = file_chooser.showDialog(this_frame, "Load Palette");
@@ -2241,15 +2124,15 @@ public class CustomPaletteEditorFrame extends JFrame {
                 blockUpdate = false;
 
                 if (version < 1062) {
-                    scale_factor_palette_slid.setValue((int) (scale_factor_palette_slid.getMaximum() / 2));
+                    scale_factor_palette_slid.setValue((int) (scale_factor_palette_slid.getMaximum() / 2.0));
                     combo_box_processing.setSelectedIndex(MainWindow.PROCESSING_NONE);
                 } else {
                     combo_box_processing.setSelectedIndex(((SettingsPalette1062) settings_palette).getProcessingAlgorithm());
 
                     if (combo_box_processing.getSelectedIndex() == MainWindow.PROCESSING_NONE || combo_box_processing.getSelectedIndex() == MainWindow.PROCESSING_HISTOGRAM_BRIGHTNESS || combo_box_processing.getSelectedIndex() == MainWindow.PROCESSING_HISTOGRAM_LIGHTNESS_LAB) {
-                        scale_factor_palette_slid.setValue(scale_factor_palette_slid.getMaximum() / 2);
+                        scale_factor_palette_slid.setValue((int)(scale_factor_palette_slid.getMaximum() / 2.0));
                     } else {
-                        scale_factor_palette_slid.setValue((int) (((SettingsPalette1062) settings_palette).getScaleFactorPaletteValue() * scale_factor_palette_slid.getMaximum() / 2 + scale_factor_palette_slid.getMaximum() / 2));
+                        scale_factor_palette_slid.setValue((int) (((SettingsPalette1062) settings_palette).getScaleFactorPaletteValue() * scale_factor_palette_slid.getMaximum() / 2 + scale_factor_palette_slid.getMaximum() / 2.0));
                     }
                 }
             } catch (IOException ex) {
@@ -2261,7 +2144,9 @@ public class CustomPaletteEditorFrame extends JFrame {
             }
 
             try {
-                file_temp.close();
+                if(file_temp != null) {
+                    file_temp.close();
+                }
             } catch (Exception ex) {
             }
         }
@@ -2645,23 +2530,23 @@ public class CustomPaletteEditorFrame extends JFrame {
 
     private void updateColorPalettesMenu() {
 
-        for (l = 0; l < preset_palettes.length; l++) {
+        for (int l = 0; l < preset_palettes.length; l++) {
 
             Color[] c = null;
 
             if (l == 0) { // the current activated palette
-                c = CustomPalette.getPalette(default_editor_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
+                c = CustomPalette.getPalette(default_editor_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2.0) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
             } else {
-                c = CustomPalette.getPalette(editor_default_palettes[l - 1], combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
+                c = CustomPalette.getPalette(editor_default_palettes[l - 1], combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2.0) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
             }
 
             BufferedImage palette_preview = new BufferedImage(250, 24, BufferedImage.TYPE_INT_ARGB);
             Graphics2D g = palette_preview.createGraphics();
             for (int j = 0; j < c.length; j++) {
                 if (check_box_preview_smooth_color.isSelected()) {
-                    GradientPaint gp = new GradientPaint(j * palette_preview.getWidth() / c.length, 0, c[j], (j + 1) * palette_preview.getWidth() / c.length, 0, c[(j + 1) % c.length]);
+                    GradientPaint gp = new GradientPaint(j * palette_preview.getWidth() / ((float)c.length), 0, c[j], (j + 1) * palette_preview.getWidth() / ((float)c.length), 0, c[(j + 1) % c.length]);
                     g.setPaint(gp);
-                    g.fill(new Rectangle2D.Double(j * palette_preview.getWidth() / c.length, 0, (j + 1) * palette_preview.getWidth() / c.length - j * palette_preview.getWidth() / c.length, palette_preview.getHeight()));
+                    g.fill(new Rectangle2D.Double(j * palette_preview.getWidth() / ((double)c.length), 0, (j + 1) * palette_preview.getWidth() / ((double)c.length) - j * palette_preview.getWidth() / ((double)c.length), palette_preview.getHeight()));
                 } else {
                     g.setColor(c[j]);
                     g.fillRect(j * palette_preview.getWidth() / c.length, 0, (j + 1) * palette_preview.getWidth() / c.length - j * palette_preview.getWidth() / c.length, palette_preview.getHeight());
@@ -2680,7 +2565,7 @@ public class CustomPaletteEditorFrame extends JFrame {
         temp_custom_palette[id][3] = labels[id].getBackground().getBlue();
 
         try {
-            Color[] c = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
+            Color[] c = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2.0) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
 
             paintGradientAndGraph(c);
         } catch (ArithmeticException ex) {

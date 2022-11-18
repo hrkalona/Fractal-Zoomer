@@ -21,12 +21,8 @@ import fractalzoomer.main.app_settings.Settings;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 
 /**
  *
@@ -45,7 +41,7 @@ public class InertiaGravityDialog extends JDialog {
 
         setTitle("Modified Inertia/Gravity");
         setModal(true);
-        setIconImage(getIcon("/fractalzoomer/icons/mandel2.png").getImage());
+        setIconImage(MainWindow.getIcon("mandel2.png").getImage());
 
         JPanel p1 = new JPanel();
         p1.setLayout(new FlowLayout());
@@ -70,7 +66,7 @@ public class InertiaGravityDialog extends JDialog {
         init_inertia_im.setText("" + s.fns.igs.initial_inertia[1]);
         p1.add(init_inertia_im);
         
-        JComboBox pull_choice = new JComboBox(MainWindow.inertiaGravityPullFunction);
+        JComboBox<String> pull_choice = new JComboBox<>(MainWindow.inertiaGravityPullFunction);
         pull_choice.setSelectedIndex(s.fns.igs.pull_scaling_function);
         pull_choice.setToolTipText("Sets the pull scaling function.");
         pull_choice.setFocusable(false);
@@ -98,13 +94,7 @@ public class InertiaGravityDialog extends JDialog {
         
         exponent.setEnabled(s.fns.igs.pull_scaling_function == MainWindow.PULL_EXP);
         
-        pull_choice.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                exponent.setEnabled(pull_choice.getSelectedIndex() == MainWindow.PULL_EXP);
-            }
-            
-        });
+        pull_choice.addActionListener(e -> exponent.setEnabled(pull_choice.getSelectedIndex() == MainWindow.PULL_EXP));
 
         JPanel[] inertia_panels = new JPanel[s.fns.igs.bodyLocation.length];
         JTextField[] body_re = new JTextField[inertia_panels.length];
@@ -160,81 +150,80 @@ public class InertiaGravityDialog extends JDialog {
 
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
+            @Override
             public void windowClosing(WindowEvent we) {
-                optionPane.setValue(new Integer(JOptionPane.CLOSED_OPTION));
+                optionPane.setValue(JOptionPane.CLOSED_OPTION);
             }
         });
 
         optionPane.addPropertyChangeListener(
-                new PropertyChangeListener() {
-            public void propertyChange(PropertyChangeEvent e) {
-                String prop = e.getPropertyName();
+                e -> {
+                    String prop = e.getPropertyName();
 
-                if (isVisible() && (e.getSource() == optionPane) && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
+                    if (isVisible() && (e.getSource() == optionPane) && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
 
-                    Object value = optionPane.getValue();
+                        Object value = optionPane.getValue();
 
-                    if (value == JOptionPane.UNINITIALIZED_VALUE) {
-                        //ignore reset
-                        return;
-                    }
-
-                    //Reset the JOptionPane's value.
-                    //If you don't do this, then if the user
-                    //presses the same button next time, no
-                    //property change event will be fired.
-                    optionPane.setValue(JOptionPane.UNINITIALIZED_VALUE);
-
-                    if ((Integer) value == JOptionPane.CANCEL_OPTION || (Integer) value == JOptionPane.NO_OPTION || (Integer) value == JOptionPane.CLOSED_OPTION) {
-                        fractal_functions[oldSelected].setSelected(true);
-                        s.fns.function = oldSelected;
-                        dispose();
-                        return;
-                    }
-
-                    try {
-                        double[][] temp_bodies = new double[inertia_panels.length][2];
-                        double[][] temp_bodies_gravity = new double[inertia_panels.length][2];
-                        double[] temp_timestep = new double[2];
-                        double[] temp_inertia_contribution = new double[2];
-                        double[] temp_init_inertia = new double[2];
-
-                        for (int k = 0; k < inertia_panels.length; k++) {
-                            temp_bodies[k][0] = Double.parseDouble(body_re[k].getText());
-                            temp_bodies[k][1] = Double.parseDouble(body_im[k].getText());
-                            temp_bodies_gravity[k][0] = Double.parseDouble(body_gravity_re[k].getText());
-                            temp_bodies_gravity[k][1] = Double.parseDouble(body_gravity_im[k].getText());
+                        if (value == JOptionPane.UNINITIALIZED_VALUE) {
+                            //ignore reset
+                            return;
                         }
-                        
-                        temp_inertia_contribution[0] = Double.parseDouble(inertia_contribution_re.getText());
-                        temp_inertia_contribution[1] = Double.parseDouble(inertia_contribution_im.getText());
 
-                        temp_init_inertia[0] = Double.parseDouble(init_inertia_re.getText());
-                        temp_init_inertia[1] = Double.parseDouble(init_inertia_im.getText());
-                        
-                        temp_timestep[0] = Double.parseDouble(timestep_re.getText());
-                        temp_timestep[1] = Double.parseDouble(timestep_im.getText());
-                       
-                        double temp_exponent = Double.parseDouble(exponent.getText());
+                        //Reset the JOptionPane's value.
+                        //If you don't do this, then if the user
+                        //presses the same button next time, no
+                        //property change event will be fired.
+                        optionPane.setValue(JOptionPane.UNINITIALIZED_VALUE);
 
-                        s.fns.igs.bodyLocation = temp_bodies;
-                        s.fns.igs.bodyGravity = temp_bodies_gravity;
-                        s.fns.igs.inertia_contribution = temp_inertia_contribution;
-                        s.fns.igs.initial_inertia = temp_init_inertia;
-                        s.fns.igs.pull_scaling_function = pull_choice.getSelectedIndex();
-                        s.fns.igs.inertia_exponent = temp_exponent;
-                        s.fns.igs.time_step = temp_timestep;
-                    } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
-                        return;
+                        if ((Integer) value == JOptionPane.CANCEL_OPTION || (Integer) value == JOptionPane.NO_OPTION || (Integer) value == JOptionPane.CLOSED_OPTION) {
+                            fractal_functions[oldSelected].setSelected(true);
+                            s.fns.function = oldSelected;
+                            dispose();
+                            return;
+                        }
+
+                        try {
+                            double[][] temp_bodies = new double[inertia_panels.length][2];
+                            double[][] temp_bodies_gravity = new double[inertia_panels.length][2];
+                            double[] temp_timestep = new double[2];
+                            double[] temp_inertia_contribution = new double[2];
+                            double[] temp_init_inertia = new double[2];
+
+                            for (int k = 0; k < inertia_panels.length; k++) {
+                                temp_bodies[k][0] = Double.parseDouble(body_re[k].getText());
+                                temp_bodies[k][1] = Double.parseDouble(body_im[k].getText());
+                                temp_bodies_gravity[k][0] = Double.parseDouble(body_gravity_re[k].getText());
+                                temp_bodies_gravity[k][1] = Double.parseDouble(body_gravity_im[k].getText());
+                            }
+
+                            temp_inertia_contribution[0] = Double.parseDouble(inertia_contribution_re.getText());
+                            temp_inertia_contribution[1] = Double.parseDouble(inertia_contribution_im.getText());
+
+                            temp_init_inertia[0] = Double.parseDouble(init_inertia_re.getText());
+                            temp_init_inertia[1] = Double.parseDouble(init_inertia_im.getText());
+
+                            temp_timestep[0] = Double.parseDouble(timestep_re.getText());
+                            temp_timestep[1] = Double.parseDouble(timestep_im.getText());
+
+                            double temp_exponent = Double.parseDouble(exponent.getText());
+
+                            s.fns.igs.bodyLocation = temp_bodies;
+                            s.fns.igs.bodyGravity = temp_bodies_gravity;
+                            s.fns.igs.inertia_contribution = temp_inertia_contribution;
+                            s.fns.igs.initial_inertia = temp_init_inertia;
+                            s.fns.igs.pull_scaling_function = pull_choice.getSelectedIndex();
+                            s.fns.igs.inertia_exponent = temp_exponent;
+                            s.fns.igs.time_step = temp_timestep;
+                        } catch (Exception ex) {
+                            JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
+
+                        ptra.setInertiaGravitySierpinskiPost();
+                        dispose();
+                        ptra.setFunctionPost(wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType, wasEscapingOrConvergingType);
                     }
-
-                    ptra.setInertiaGravitySierpinskiPost();
-                    dispose();
-                    ptra.setFunctionPost(wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType, wasEscapingOrConvergingType);
-                }
-            }
-        });
+                });
 
         //Make this dialog display it.
         setContentPane(optionPane);
@@ -244,12 +233,6 @@ public class InertiaGravityDialog extends JDialog {
         setResizable(false);
         setLocation((int) (ptra.getLocation().getX() + ptra.getSize().getWidth() / 2) - (getWidth() / 2), (int) (ptra.getLocation().getY() + ptra.getSize().getHeight() / 2) - (getHeight() / 2));
         setVisible(true);
-
-    }
-
-    private ImageIcon getIcon(String path) {
-
-        return new ImageIcon(getClass().getResource(path));
 
     }
 

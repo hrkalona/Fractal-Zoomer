@@ -24,10 +24,13 @@ public class PerturbationTheoryHelpDialog {
                 "You need to do that before you set the coordinates in the zoom window, because if the precision is lower, then " +
                 "the coordinates will be truncated to meet the current precision value. The higher the precision the slower the calculation " +
                 "of the reference point will be.<br><br>" +
-                "BigNum is a fixed precision floating point implementation, which is faster than Apfloat arbitrary precision library. " +
-                "BigNum can be used for reference point calculation and pixel to coordinate mapping. " +
-                "Apfloat is still being used for its extensive math functions and parsing. " +
-                "The division is not yet implemented in BigNum, so fractals that support perturbation theory and use division will still use Apfloat.<br><br>" +
+                "Built-in BigNum is a fixed precision floating point implementation, which is faster than Apfloat arbitrary precision library. " +
+                "Mpfr BigNum is a wrapper for the MPFR library, it is faster than both Built-in BigNum (After a specific bit precision) and Apfloat. " +
+                "Currently its only supported in Windows and Linux. " +
+                "Double works only for zooms up until 1e-13. " +
+                "The automatic option will try to pick the best library depending on the depth and bit precision. " +
+                "BigNum Libraries can be used for reference point calculation and pixel to coordinate mapping. " +
+                "If you are not using any BigNum library, then Apfloat will be used.<br><br>" +
                 "Currently perturbation theory is implemented for the following functions and their Julia sets:<br>" +
                 "<ul>" +
                 "<li>Mandelbrot (2-5) powers and their burning ship variants</li>" +
@@ -38,7 +41,7 @@ public class PerturbationTheoryHelpDialog {
                 "<li>Newton Third Degree Parameter Space</li>" +
                 "<li>Newton 3</li>" +
                 "</ul>" +
-                "The Julia sets are still on an experimental phase as the glitch detection is not yet complete.<br><br>"+
+                "<br><br>"+
                 "Series Approximation is another useful feature of perturbation theory as it can approximate the iteration values for " +
                 "a number of iterations and skip them. This feature is only implemented for the Mandelbrot (2-5) powers. " +
                 "Mandelbrot (2) can use up to 257 terms, and there rest of the available powers can use up to 5 terms. " +
@@ -52,7 +55,8 @@ public class PerturbationTheoryHelpDialog {
                 "Bilinear (Bivariate) Approximation is a new development in perturbation theory optimization and its goal is to create a look-up table of coefficients " +
                 "in order to used during the fractal iteration and approximate the iteration value by applying multiple iterations at one step, in the form of a linear " +
                 "function. Currently it is only implemented for the Mandelbrot (2-5) powers.<br><br>" +
-                "Using Series Approximation or Bilinear Approximation with statistical coloring will not produce accurate images, as those approximations skip or merge a number of iterations " +
+                "Nanomb1 or Super Series Approximation can skip multiples of the period, and its only implemented for Mandelbrot.<br><br>" +
+                "Using Series Approximation or Bilinear Approximation or Nanomb1 with statistical coloring will not produce accurate images, as those approximations skip or merge a number of iterations " +
                 "together, so their corresponding statistical data are not accumulated." +
                 "</font>"
                 + "</font>";

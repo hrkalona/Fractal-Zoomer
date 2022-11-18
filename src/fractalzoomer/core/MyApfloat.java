@@ -1,62 +1,112 @@
 package fractalzoomer.core;
 
+import fractalzoomer.core.mpfr.MpfrBigNum;
 import fractalzoomer.main.app_settings.Settings;
 import org.apfloat.Apfloat;
 import org.apfloat.ApfloatMath;
+import org.apfloat.Apint;
 import org.apfloat.FixedPrecisionApfloatHelper;
 
+import java.math.BigDecimal;
+
 public class MyApfloat extends Apfloat {
-    public static int precision;
+    public static long precision;
     public static Apfloat PI;
     public static Apfloat TWO_PI;
-    public static Apfloat TWO;
-    public static Apfloat ONE;
-    public static Apfloat ZERO;
+    public static Apint TWO;
+    public static Apint ONE;
+    public static Apint THREE;
+    public static Apint FOUR;
+    public static Apint FIVE;
+    public static Apint SIX;
+    public static Apint SEVEN;
+    public static Apint EIGHT;
+    public static Apint TEN;
+    public static Apint TWELVE;
+    public static Apint SIXTEEN;
+    public static Apint TWENTYFOUR;
+    public static Apint THIRTYTWO;
+    public static Apint ZERO;
     public static Apfloat SQRT_TWO;
+    public static Apfloat LOG_TWO;
     public static Apfloat RECIPROCAL_LOG_TWO_BASE_TEN;
     public static Apfloat E;
     public static Apfloat MAX_DOUBLE_SIZE;
     public static Apfloat MIN_DOUBLE_SIZE;
+    public static Apfloat MIN_DOUBLE_DOUBLE_SIZE;
     public static Apfloat SA_START_SIZE;
     public static Apfloat NEGATIVE_INFINITY = new Apfloat("-1e5000000000");
     public static FixedPrecisionApfloatHelper fp;
+    public static long precHeadRoom = 30;
 
+    public static boolean setAutomaticPrecision = true;
+
+    public static long getAutomaticPrecision(String value) {
+        Apfloat val = new Apfloat(value, 10000); //Hopefully that is enough
+        return Math.abs(val.scale()) + precHeadRoom + 1; // + 30 for some headroom
+    }
+
+    public static long getAutomaticPrecision(double value) {
+        Apfloat val = new Apfloat(new BigDecimal(value), 10000); //Hopefully that is enough
+        return Math.abs(val.scale()) + precHeadRoom + 1; // + 30 for some headroom
+    }
+
+    public static boolean shouldSetPrecision(long newPrecision, boolean checkForDecrease) {
+        return (newPrecision > precision) || (checkForDecrease && newPrecision < (precision - (precHeadRoom << 1)));
+    }
+
+    public static boolean shouldIncreasePrecision(Apfloat val) {
+        return Math.abs(val.scale()) + 1 > precision - 10;
+    }
+
+    public static void increasePrecision(Settings s) {
+        setPrecision(precision + precHeadRoom, s);
+    }
 
     static {
         precision = 300;
         fp = new FixedPrecisionApfloatHelper(precision);
         PI = fp.pi();
-        TWO = new MyApfloat(2);
-        ONE = new MyApfloat(1);
-        ZERO = new MyApfloat(0);
+        TWO = new Apint(2);
+        ONE = Apint.ONE;
+        THREE = new Apint(3);
+        SIX = new Apint(6);
+        FOUR = new Apint(4);
+        FIVE = new Apint(5);
+        SEVEN = new Apint(7);
+        EIGHT = new Apint(8);
+        TEN = new Apint(10);
+        ZERO = Apint.ZERO;
+        TWELVE = new Apint(12);
+        SIXTEEN = new Apint(16);
+        TWENTYFOUR = new Apint(24);
+        THIRTYTWO = new Apint(32);
         E = fp.exp(ONE);
         TWO_PI = fp.multiply(PI, TWO);
         SQRT_TWO = fp.sqrt(TWO);
-        Apfloat logTwo = fp.log(TWO);
-        Apfloat ten = new MyApfloat(10.0);
-        RECIPROCAL_LOG_TWO_BASE_TEN = MyApfloat.reciprocal(fp.divide(logTwo, fp.log(ten)));
-        MAX_DOUBLE_SIZE = new MyApfloat("1.0e-304");
-        MIN_DOUBLE_SIZE = new MyApfloat("1.0e-13");
-        SA_START_SIZE = new MyApfloat("1.0e-5");
-        BigNum.reinitialize(ThreadDraw.BIGNUM_AUTOMATIC_PRECISION ? fp.divide(fp.log(fp.pow(ten, precision)), logTwo).doubleValue() : ThreadDraw.BIGNUM_PRECISION);
+        LOG_TWO = fp.log(TWO);
+        RECIPROCAL_LOG_TWO_BASE_TEN = MyApfloat.reciprocal(fp.divide(LOG_TWO, fp.log(TEN)));
+        MAX_DOUBLE_SIZE = new MyApfloat(1.0e-304);
+        MIN_DOUBLE_SIZE = new MyApfloat(1.0e-13);
+        MIN_DOUBLE_DOUBLE_SIZE = new MyApfloat(1.0e-28);
+        SA_START_SIZE = new MyApfloat(1.0e-5);
+        BigNum.reinitialize(ThreadDraw.BIGNUM_AUTOMATIC_PRECISION ? fp.divide(fp.log(fp.pow(TEN, precision)), LOG_TWO).doubleValue() : ThreadDraw.BIGNUM_PRECISION);
+        MpfrBigNum.reinitialize(ThreadDraw.BIGNUM_AUTOMATIC_PRECISION ? fp.divide(fp.log(fp.pow(TEN, precision)), LOG_TWO).doubleValue() : ThreadDraw.BIGNUM_PRECISION);
     }
 
-    public static void setPrecision(int prec, Settings s) {
+    public static void setPrecision(long prec, Settings s) {
         precision = prec;
         fp = new FixedPrecisionApfloatHelper(precision);
         PI = fp.pi();
-        TWO = new MyApfloat(2);
-        ONE = new MyApfloat(1);
-        ZERO = new MyApfloat(0);
         E = fp.exp(ONE);
         TWO_PI = fp.multiply(PI, TWO);
         SQRT_TWO = fp.sqrt(TWO);
-        Apfloat logTwo = fp.log(TWO);
-        Apfloat ten = new MyApfloat(10);
-        RECIPROCAL_LOG_TWO_BASE_TEN = MyApfloat.reciprocal(fp.divide(logTwo, fp.log(ten)));
-        MAX_DOUBLE_SIZE = new MyApfloat("1.0e-304");
-        MIN_DOUBLE_SIZE = new MyApfloat("1.0e-13");
-        SA_START_SIZE = new MyApfloat("1.0e-5");
+        LOG_TWO = fp.log(TWO);
+        RECIPROCAL_LOG_TWO_BASE_TEN = MyApfloat.reciprocal(fp.divide(LOG_TWO, fp.log(TEN)));
+        MAX_DOUBLE_SIZE = new MyApfloat(1.0e-304);
+        MIN_DOUBLE_SIZE = new MyApfloat(1.0e-13);
+        MIN_DOUBLE_DOUBLE_SIZE = new MyApfloat(1.0e-28);
+        SA_START_SIZE = new MyApfloat(1.0e-5);
 
         s.xCenter = s.xCenter.precision(MyApfloat.precision);
         s.yCenter = s.yCenter.precision(MyApfloat.precision);
@@ -66,34 +116,25 @@ public class MyApfloat extends Apfloat {
         s.fns.rotation_vals[0] = s.fns.rotation_vals[0].precision(MyApfloat.precision);
         s.fns.rotation_vals[1] = s.fns.rotation_vals[1].precision(MyApfloat.precision);
 
-        BigNum.reinitialize(ThreadDraw.BIGNUM_AUTOMATIC_PRECISION ? fp.divide(fp.log(fp.pow(ten, precision)), logTwo).doubleValue() : ThreadDraw.BIGNUM_PRECISION);
+        BigNum.reinitialize(ThreadDraw.BIGNUM_AUTOMATIC_PRECISION ? fp.divide(fp.log(fp.pow(TEN, precision)), LOG_TWO).doubleValue() : ThreadDraw.BIGNUM_PRECISION);
+        MpfrBigNum.reinitialize(ThreadDraw.BIGNUM_AUTOMATIC_PRECISION ? fp.divide(fp.log(fp.pow(TEN, precision)), LOG_TWO).doubleValue() : ThreadDraw.BIGNUM_PRECISION);
     }
 
     public static void setBigNumPrecision() {
-        TWO = new MyApfloat(2);
-        Apfloat logTwo = fp.log(TWO);
-        Apfloat ten = new MyApfloat(10.0);
-        BigNum.reinitialize(fp.divide(fp.log(fp.pow(ten, precision)), logTwo).doubleValue());
+        BigNum.reinitialize(fp.divide(fp.log(fp.pow(TEN, precision)), LOG_TWO).doubleValue());
+        MpfrBigNum.reinitialize(fp.divide(fp.log(fp.pow(TEN, precision)), LOG_TWO).doubleValue());
     }
 
     public MyApfloat(double value) {
-       super(value, precision);
+       super(new BigDecimal(value), precision);
+    }
+
+    public MyApfloat(long value) {
+        super(value, precision);
     }
 
     public MyApfloat(int value) {
-        super((double)value, precision);
-    }
-
-    public MyApfloat(String value, int radix) {
-        super(value.trim(), precision, radix);
-    }
-
-    public MyApfloat(double value, int radix) {
-        super(value, precision, radix);
-    }
-
-    public MyApfloat(int value, int radix) {
-        super((double)value, precision, radix);
+        super(value, precision);
     }
 
     public MyApfloat(String value) {
@@ -279,7 +320,7 @@ public class MyApfloat extends Apfloat {
             baseVal = reciprocal(fp.pow(E, -intX));
         }
         Apfloat fractionX = fp.subtract(x, new MyApfloat(intX));
-        if (x.compareTo(new MyApfloat(0.0)) < 0) {
+        if (x.compareTo(ZERO) < 0) {
             // Much greater precision if all numbers in the series have the same sign.
             fractionX = fractionX.negate();
             invert = true;
@@ -421,6 +462,10 @@ public class MyApfloat extends Apfloat {
         //return "" + val.doubleValue();
     }
 
+    public static String toStringPretty(Apfloat val) {
+        return val.toString(true);
+    }
+
     public static String truncateString(String s, int beginChars, int endChars) {
         int l = s.length();
         if(l>beginChars+endChars) return s.substring(0,beginChars)+"..."+s.substring(l-endChars,l);
@@ -446,6 +491,8 @@ public class MyApfloat extends Apfloat {
 
         MyApfloat.precision = 1200;
         MyApfloat.fp = new FixedPrecisionApfloatHelper(MyApfloat.precision);
+
+        System.out.println(getAutomaticPrecision("1.26e-200"));
 
         //Apfloat a = new MyApfloat("-1.99996619445037030418434688506350579675531241540724851511761922944801584242342684381376129778868913812287046406560949864353810575744772166485672496092803920095332");
         //Apfloat b = new MyApfloat("+0.00000000000000000000000000000000030013824367909383240724973039775924987346831190773335270174257280120474975614823581185647299288414075519224186504978181625478529");
@@ -487,7 +534,7 @@ public class MyApfloat extends Apfloat {
         System.out.println(System.currentTimeMillis() - time);*/
 
 
-        /*Apfloat a = new MyApfloat("-1.99996619445037030418434688506350579675531241540724851511761922944801584242342684381376129778868913812287046406560949864353810575744772166485672496092803920095332");
+       /* Apfloat a = new MyApfloat("-1.99996619445037030418434688506350579675531241540724851511761922944801584242342684381376129778868913812287046406560949864353810575744772166485672496092803920095332");
         Apfloat b = new MyApfloat("+0.00000000000000000000000000000000030013824367909383240724973039775924987346831190773335270174257280120474975614823581185647299288414075519224186504978181625478529");
 
         Apfloat c = new MyApfloat("8.99996619445037030418434688506350579675531241540724851511761922944801584242342684381376129778868913812287046406560949864353810575744772166485672496092803920095332");
@@ -499,26 +546,26 @@ public class MyApfloat extends Apfloat {
 
 
         for(long i = 0; i < runs; i++) {
-            fp.pow(c, d);
-            MyApfloat.pow(c, d);
+            fp.exp(c);
+            MyApfloat.exp(c);
         }
 
 
         for(long i = 0; i < runs; i++) {
-            fp.pow(c, d);
-            MyApfloat.pow(c, d);
+            fp.exp(c);
+            MyApfloat.exp(c);
         }
 
         long time = System.currentTimeMillis();
         for(long i = 0; i < runs; i++) {
-            fp.pow(c, d);
+            fp.exp(c);
         }
         System.out.println(System.currentTimeMillis() - time);
 
 
         time = System.currentTimeMillis();
         for(long i = 0; i < runs; i++) {
-            MyApfloat.pow(c, d);;
+            MyApfloat.exp(c);
         }
         System.out.println(System.currentTimeMillis() - time);*/
 

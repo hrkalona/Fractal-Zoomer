@@ -16,8 +16,7 @@
  */
 package fractalzoomer.core.blending;
 
-import fractalzoomer.core.interpolation.*;
-import fractalzoomer.main.MainWindow;
+import fractalzoomer.core.interpolation.InterpolationMethod;
 
 /**
  *
@@ -25,12 +24,33 @@ import fractalzoomer.main.MainWindow;
  */
 public abstract class Blending {
     protected InterpolationMethod method;
+    protected boolean reverseColors;
     
-    public Blending(int color_interpolation) {
+    protected Blending(int color_interpolation) {
         
         method = InterpolationMethod.create(color_interpolation);
+        reverseColors = false;
 
     }
+
+    public int blend(int redA, int greenA, int blueA, int redB, int greenB, int blueB, double coef) {
+
+        if(reverseColors) {
+            int tempRed = redA;
+            int tempGreen = greenA;
+            int tempBlue = blueA;
+
+            redA = redB;
+            greenA = greenB;
+            blueA = blueB;
+
+            redB = tempRed;
+            greenB = tempGreen;
+            blueB = tempBlue;
+        }
+
+        return blendInternal(redA, greenA, blueA, redB, greenB, blueB, coef);
+    }
     
-    public abstract int blend(int redA, int greenA, int blueA, int redB, int greenB, int blueB, double coef);
+    protected abstract int blendInternal(int redA, int greenA, int blueA, int redB, int greenB, int blueB, double coef);
 }

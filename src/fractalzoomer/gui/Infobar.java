@@ -25,7 +25,10 @@ import fractalzoomer.palettes.PresetPalette;
 import javax.swing.*;
 import javax.swing.border.EtchedBorder;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
@@ -55,7 +58,6 @@ public class Infobar extends JToolBar {
     public static int GRADIENT_PREVIEW_WIDTH = 80;
     public static int GRADIENT_PREVIEW_HEIGHT = 24;
     public static int SQUARE_TILE_SIZE = 24;
-    private int i;
     private Infobar this_toolbar;
 
     public Infobar(MainWindow ptr2, Settings s) {
@@ -261,49 +263,25 @@ public class Infobar extends JToolBar {
         add(max_it_color_preview);
 
         overview_button = new JButton();
-        overview_button.setIcon(getIcon("/fractalzoomer/icons/overview.png"));
+        overview_button.setIcon(MainWindow.getIcon("overview.png"));
         overview_button.setFocusable(false);
         overview_button.setToolTipText("Creates a report of all the active fractal options.");
 
-        overview_button.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.Overview();
-
-            }
-        });
+        overview_button.addActionListener(e -> ptr.Overview());
 
         stats_button = new JButton();
-        stats_button.setIcon(getIcon("/fractalzoomer/icons/stats.png"));
+        stats_button.setIcon(MainWindow.getIcon("stats.png"));
         stats_button.setFocusable(false);
         stats_button.setToolTipText("Displays the statistics of last rendered fractal.");
 
-        stats_button.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.Stats();
-
-            }
-        });
+        stats_button.addActionListener(e -> ptr.Stats());
 
         cancel_button= new JButton();
-        cancel_button.setIcon(getIcon("/fractalzoomer/icons/abort.png"));
+        cancel_button.setIcon(MainWindow.getIcon("abort.png"));
         cancel_button.setFocusable(false);
         cancel_button.setToolTipText("Cancels the current rendering operation and resets.");
 
-        cancel_button.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.cancelOperation();
-
-            }
-        });
+        cancel_button.addActionListener(e -> ptr.cancelOperation());
 
 
         add(Box.createHorizontalGlue());
@@ -316,12 +294,6 @@ public class Infobar extends JToolBar {
 
         palette_toolbar_preview_lbl2.setVisible(false);
         incoloring_palette_toolbar_preview.setVisible(false);
-    }
-
-    private ImageIcon getIcon(String path) {
-
-        return new ImageIcon(getClass().getResource(path));
-
     }
 
     public JButton getOverview() {
@@ -396,9 +368,9 @@ public class Infobar extends JToolBar {
         ButtonGroup palettes_group = new ButtonGroup();
         
         JMenu paletteLegacyFractintMenu = new JMenu("Legacy/FractInt Maps");
-        paletteLegacyFractintMenu.setIcon(getIcon("/fractalzoomer/icons/palette.png"));
+        paletteLegacyFractintMenu.setIcon(MainWindow.getIcon("palette.png"));
 
-        for (i = 0; i < palette.length; i++) {
+        for (int i = 0; i < palette.length; i++) {
 
             if (i != MainWindow.DIRECT_PALETTE_ID) {
                 Color[] c = null;
@@ -427,9 +399,9 @@ public class Infobar extends JToolBar {
 
                 for (int j = 0; j < c.length; j++) {
                     if (smoothing) {
-                        GradientPaint gp = new GradientPaint(j * palette_preview.getWidth() / c.length, 0, c[j], (j + 1) * palette_preview.getWidth() / c.length, 0, c[(j + 1) % c.length]);
+                        GradientPaint gp = new GradientPaint(j * palette_preview.getWidth() / ((float)c.length), 0, c[j], (j + 1) * palette_preview.getWidth() / ((float)c.length), 0, c[(j + 1) % c.length]);
                         g.setPaint(gp);
-                        g.fill(new Rectangle2D.Double(j * palette_preview.getWidth() / c.length, 0, (j + 1) * palette_preview.getWidth() / c.length - j * palette_preview.getWidth() / c.length, palette_preview.getHeight()));
+                        g.fill(new Rectangle2D.Double(j * palette_preview.getWidth() / ((double)c.length), 0, (j + 1) * palette_preview.getWidth() / ((double)c.length) - j * palette_preview.getWidth() / ((double)c.length), palette_preview.getHeight()));
                     } else {
                         g.setColor(c[j]);
                         g.fillRect(j * palette_preview.getWidth() / c.length, 0, (j + 1) * palette_preview.getWidth() / c.length - j * palette_preview.getWidth() / c.length, palette_preview.getHeight());
@@ -439,21 +411,13 @@ public class Infobar extends JToolBar {
                 palette[i] = new JRadioButtonMenuItem(PaletteMenu.paletteNames[i], new ImageIcon(palette_preview));
             }
             else {
-                palette[i] = new JRadioButtonMenuItem(PaletteMenu.paletteNames[i], getIcon("/fractalzoomer/icons/palette_load.png"));
+                palette[i] = new JRadioButtonMenuItem(PaletteMenu.paletteNames[i], MainWindow.getIcon("palette_load.png"));
             }
 
+            final int temp = i;
+
             if (i == MainWindow.DIRECT_PALETTE_ID) {
-                palette[i].addActionListener(new ActionListener() {
-
-                    int temp = i;
-
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        
-                        ptr.chooseDirectPalette(temp, outcoloring_mode);
-
-                    }
-                });
+                palette[i].addActionListener(e1 -> ptr.chooseDirectPalette(temp, outcoloring_mode));
                 
                 if (outcoloring_mode) {
                     palette[i].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_INSERT, 0));
@@ -465,19 +429,13 @@ public class Infobar extends JToolBar {
                 popup.add(palette[i]);        
             }
             else if (i < MainWindow.CUSTOM_PALETTE_ID) {
-                palette[i].addActionListener(new ActionListener() {
+                palette[i].addActionListener(e12 -> {
 
-                    int temp = i;
-
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-
-                        if (!this_toolbar.isVisible()) {
-                            return;
-                        }
-                        ptr.setPalette(temp, null, outcoloring_mode ? 0 : 1);
-
+                    if (!this_toolbar.isVisible()) {
+                        return;
                     }
+                    ptr.setPalette(temp, null, outcoloring_mode ? 0 : 1);
+
                 });
                 
                 popup.add(palette[i]);
@@ -486,19 +444,13 @@ public class Infobar extends JToolBar {
                 popup.addSeparator();
                 popup.add(paletteLegacyFractintMenu);
                 
-                palette[i].addActionListener(new ActionListener() {
+                palette[i].addActionListener(e13 -> {
 
-                    int temp = i;
-
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-
-                        if (!this_toolbar.isVisible()) {
-                            return;
-                        }
-                        ptr.openCustomPaletteEditor(temp, outcoloring_mode);
-
+                    if (!this_toolbar.isVisible()) {
+                        return;
                     }
+                    ptr.openCustomPaletteEditor(temp, outcoloring_mode);
+
                 });
 
                 if (outcoloring_mode) {
@@ -511,19 +463,13 @@ public class Infobar extends JToolBar {
                 popup.add(palette[i]);
             }
             else {
-                palette[i].addActionListener(new ActionListener() {
+                palette[i].addActionListener(e14 -> {
 
-                    int temp = i;
-
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-
-                        if (!this_toolbar.isVisible()) {
-                            return;
-                        }
-                        ptr.setPalette(temp, null, outcoloring_mode ? 0 : 1);
-
+                    if (!this_toolbar.isVisible()) {
+                        return;
                     }
+                    ptr.setPalette(temp, null, outcoloring_mode ? 0 : 1);
+
                 });
                 
                 paletteLegacyFractintMenu.add(palette[i]);
@@ -532,6 +478,18 @@ public class Infobar extends JToolBar {
             palettes_group.add(palette[i]);
 
         }
+
+        JMenuItem colorMapframe = new JMenuItem("Direct Palette Loader", MainWindow.getIcon("palette_load.png"));
+        if (outcoloring_mode) {
+            colorMapframe.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, ActionEvent.CTRL_MASK | ActionEvent.SHIFT_MASK));
+        } else {
+            colorMapframe.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, ActionEvent.CTRL_MASK | ActionEvent.SHIFT_MASK));
+        }
+        colorMapframe.setToolTipText("Loads all color maps from the " + ColorMapFrame.DirName + " directory.");
+        colorMapframe.addActionListener(ev -> {ptr.setColorMap(color_cycling_location, outcoloring_mode);});
+
+        popup.addSeparator();
+        popup.add(colorMapframe);
 
         palette[0].setToolTipText("The default palette.");
         palette[1].setToolTipText("A palette based on color spectrum based.");

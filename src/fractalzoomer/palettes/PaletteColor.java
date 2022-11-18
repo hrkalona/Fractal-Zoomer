@@ -16,6 +16,9 @@
  */
 package fractalzoomer.palettes;
 
+import fractalzoomer.main.app_settings.GeneratedPaletteSettings;
+import fractalzoomer.utils.Multiwave;
+
 import java.awt.*;
 
 public abstract class PaletteColor {
@@ -24,6 +27,8 @@ public abstract class PaletteColor {
     protected int[] special_colors;
     protected int special_color;
     protected boolean special_use_palette_color;
+    protected int generatedPaletteLength;
+    protected boolean useGeneratedPalette;
     
 
     public PaletteColor(int[] palette, Color special_color, boolean special_use_palette_color) {
@@ -54,9 +59,20 @@ public abstract class PaletteColor {
 
     public abstract int getPaletteColor(double result);
 
+    public void setGeneratedPaletteSettings(boolean outcoloring, GeneratedPaletteSettings gps) {
+       if(outcoloring) {
+           useGeneratedPalette = gps.useGeneratedPaletteOutColoring;
+           generatedPaletteLength = gps.restartGeneratedOutColoringPaletteAt;
+       }
+       else {
+           useGeneratedPalette = gps.useGeneratedPaletteInColoring;
+           generatedPaletteLength = gps.restartGeneratedInColoringPaletteAt;
+       }
+    }
+
     public int getPaletteLength() {
 
-        return palette.length;
+        return useGeneratedPalette ? generatedPaletteLength : palette.length;
 
     }
     
@@ -64,6 +80,22 @@ public abstract class PaletteColor {
         
         return special_color;
         
+    }
+
+    public abstract int calculateColor(double result, int paletteId,  int color_cycling_location, int cycle);
+
+    protected static int getGeneratedColor(double result, int id, int color_cycling_location, int cycle) {
+        double value = (Math.abs(result) + color_cycling_location) % cycle;
+        switch (id) {
+            case 0:
+                return Multiwave.multiwave_default(value);
+            case 1:
+                return Multiwave.g_spdz2(value);
+            case 2:
+                return Multiwave.g_spdz2_custom(value);
+        }
+
+        return 0;
     }
 
 }

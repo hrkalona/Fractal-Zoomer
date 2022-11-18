@@ -292,7 +292,7 @@ public class BLAS {
             BLA x = b[src][mx];
             BLA y = b[src][my];
 
-            b[dest][m] = mergeTwoBlas(x, y, blaSize);;
+            b[dest][m] = mergeTwoBlas(x, y, blaSize);
         } else {
             b[dest][m] = b[src][mx];
         }

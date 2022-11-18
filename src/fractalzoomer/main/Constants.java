@@ -25,7 +25,7 @@ import java.awt.*;
  * @author hrkalona2
  */
 public interface Constants {
-    public static final int VERSION = 1083;
+    public static final int VERSION = 1084;
     public static final boolean beta = false;
     public static final int FAST_JULIA_IMAGE_SIZE = 252;
     public static final int TOTAL_PALETTES = 41;
@@ -45,6 +45,8 @@ public interface Constants {
     public static final int MAX_ITERATIONS_NUMBER = Integer.MAX_VALUE;
 
     public static final String SA_CALCULATION_STR = "SA Calculation:";
+
+    public static final String NANOMB1_CALCULATION_STR = "Nanomb1 Calculation:";
     public static final String BLA_CALCULATION_STR = "BLA Calculation:";
     public static final String REFERENCE_CALCULATION_STR = "Reference Calculation:";
     
@@ -69,6 +71,8 @@ public interface Constants {
     public static final String[] lightTransfer = {"x * factor", "sqrt(x * factor)", "(x * factor)^2"};
     public static final String[] lightModes = {"Mode 1", "Mode 2", "Mode 3"};
 
+    public static final String[] jitterShape = {"Uniform", "Gaussian"};
+
     public static final String[] deFadeAlgs = {"Linear", "Square Root", "Cube Root", "Fourth Root", "Cosine", "Square", "Sine", "Deceleration", "3rd Degree Poly", "5th Degree Poly", "Exponential", "Smooth Transition"};
     public static final String[] statisticalColoringName = {"Stripe Average(Sum)", "Curvature Average(Sum)", "Triange Inequality Average(Sum)", "cos(density * arg(z)) / norm(z) Average(Sum)", "cos(density * (arg(z - p) + pi)) / (factor + 1 / norm(z - p)) Sum", "Atom Domain (bof60/bof61)", "Discrete Lagrangian Descriptors", "Twin Lamps"};
     public static final String[] domainProcessingTransferNames = {"x * factor", "1 / (x * factor)"};
@@ -92,6 +96,8 @@ public interface Constants {
     public static final String[] langNormTypes = {"Norm Squared", "Norm", "Rhombus-Norm", "Square-Norm", "N-Norm"};
     public static final String[] atomNormTypes = {"Norm", "Rhombus-Norm", "Square-Norm", "N-Norm"};
     public static final String[] histogramMapping = {"Histogram", "Linear", "Square Root", "Cube Root", "Fourth Root", "Logarithmic"};
+
+    public static final String[] generatedPalettes = {"Multiwave: default", "Multiwave: g_spdz2", "Multiwave: g_spdz2_custom"};
     /**
      * ** FUNCTION ***
      */
@@ -1253,8 +1259,23 @@ public interface Constants {
     public static final Color progress_d3_color = new Color(76, 139, 245);
     public static final Color progress_ref_color = new Color(100, 100, 100);
     public static final Color progress_sa_color = new Color(30, 90, 255);
+
+    public static final Color progress_nanomb1_color = new Color(255, 170, 51);
     public static final Color progress_bla_color = new Color(24, 201, 85);
 
     public static final Apint DEFAULT_MAGNIFICATION = new Apint(4);
+
+    public static final int MAGIC_ALPHA = 0xFE;
+
+    public static final int MAGIC_ALPHA_OFFSETED = 0xFE << 24;
+    public static final int EMPTY_COLOR = MAGIC_ALPHA_OFFSETED | 0xFFFFFF;
+
+    public static final int BIGNUM_DOUBLE = 0;
+    public static final int BIGNUM_DOUBLEDOUBLE = 1;
+    public static final int BIGNUM_BUILT_IN = 2;
+    public static final int BIGNUM_MPFR = 3;
+    public static final int BIGNUM_AUTOMATIC = 4;
+    public static final int BIGNUM_APFLOAT = 5;
+
 
 }

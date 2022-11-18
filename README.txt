@@ -1,12 +1,11 @@
-Fractal Zoomer 1.0.8.3
+Fractal Zoomer 1.0.8.4
 
 The most complete fractal generating software using java!
 
 Optimizations:
 Boundary Tracing
 Divide and Conquer
-Pertubation Theory
-Periodicity Checking
+Perturbation Theory
 
 Functions:
 Over 200 different fractal generating functions
@@ -16,7 +15,7 @@ User Formulas
 Custom user functions (code written by the user)
 Plane transformations
 Rotation
-Perturbation
+Initial Perturbation
 Initial Value
 Bailout Tests
 Palette editor

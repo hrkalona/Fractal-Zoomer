@@ -24,8 +24,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,7 +44,7 @@ public class MagneticPendulumDialog extends JDialog {
 
         setTitle("Magnetic Pendulum");
         setModal(true);
-        setIconImage(getIcon("/fractalzoomer/icons/mandel2.png").getImage());
+        setIconImage(MainWindow.getIcon("mandel2.png").getImage());
 
         JPanel magnet_p1 = new JPanel();
         magnet_p1.setLayout(new FlowLayout());
@@ -140,7 +138,7 @@ public class MagneticPendulumDialog extends JDialog {
         String[] variablesArr = new String[variables.size()];
         variablesArr = variables.toArray(variablesArr);
 
-        JComboBox variable_choice = new JComboBox(variablesArr);
+        JComboBox<String> variable_choice = new JComboBox<>(variablesArr);
         variable_choice.setSelectedIndex(s.fns.mps.magnetPendVariableId);
         variable_choice.setToolTipText("Exposes the magnetic pendulum accumulated length to the selected variable.");
         variable_choice.setFocusable(false);
@@ -171,84 +169,83 @@ public class MagneticPendulumDialog extends JDialog {
 
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
+            @Override
             public void windowClosing(WindowEvent we) {
-                optionPane.setValue(new Integer(JOptionPane.CLOSED_OPTION));
+                optionPane.setValue(JOptionPane.CLOSED_OPTION);
             }
         });
 
         optionPane.addPropertyChangeListener(
-                new PropertyChangeListener() {
-            public void propertyChange(PropertyChangeEvent e) {
-                String prop = e.getPropertyName();
+                e -> {
+                    String prop = e.getPropertyName();
 
-                if (isVisible() && (e.getSource() == optionPane) && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
+                    if (isVisible() && (e.getSource() == optionPane) && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
 
-                    Object value = optionPane.getValue();
+                        Object value = optionPane.getValue();
 
-                    if (value == JOptionPane.UNINITIALIZED_VALUE) {
-                        //ignore reset
-                        return;
-                    }
-
-                    //Reset the JOptionPane's value.
-                    //If you don't do this, then if the user
-                    //presses the same button next time, no
-                    //property change event will be fired.
-                    optionPane.setValue(JOptionPane.UNINITIALIZED_VALUE);
-
-                    if ((Integer) value == JOptionPane.CANCEL_OPTION || (Integer) value == JOptionPane.NO_OPTION || (Integer) value == JOptionPane.CLOSED_OPTION) {
-                        fractal_functions[oldSelected].setSelected(true);
-                        s.fns.function = oldSelected;
-                        dispose();
-                        return;
-                    }
-
-                    try {
-                        double[][] temp_magnet = new double[magnet_panels.length][2];
-                        double[][] temp_magnet_strength = new double[magnet_panels.length][2];
-                        double[] temp_gravity = new double[2];
-                        double[] temp_friction = new double[2];
-                        double[] temp_pendulum = new double[2];
-
-                        for (int k = 0; k < magnet_panels.length; k++) {
-                            temp_magnet[k][0] = Double.parseDouble(magnet_re[k].getText());
-                            temp_magnet[k][1] = Double.parseDouble(magnet_im[k].getText());
-                            temp_magnet_strength[k][0] = Double.parseDouble(magnet_strength_re[k].getText());
-                            temp_magnet_strength[k][1] = Double.parseDouble(magnet_strength_im[k].getText());
+                        if (value == JOptionPane.UNINITIALIZED_VALUE) {
+                            //ignore reset
+                            return;
                         }
 
-                        temp_gravity[0] = Double.parseDouble(gravity_re.getText());
-                        temp_gravity[1] = Double.parseDouble(gravity_im.getText());
+                        //Reset the JOptionPane's value.
+                        //If you don't do this, then if the user
+                        //presses the same button next time, no
+                        //property change event will be fired.
+                        optionPane.setValue(JOptionPane.UNINITIALIZED_VALUE);
 
-                        temp_friction[0] = Double.parseDouble(friction_re.getText());
-                        temp_friction[1] = Double.parseDouble(friction_im.getText());
+                        if ((Integer) value == JOptionPane.CANCEL_OPTION || (Integer) value == JOptionPane.NO_OPTION || (Integer) value == JOptionPane.CLOSED_OPTION) {
+                            fractal_functions[oldSelected].setSelected(true);
+                            s.fns.function = oldSelected;
+                            dispose();
+                            return;
+                        }
 
-                        temp_pendulum[0] = Double.parseDouble(pendulum_re.getText());
-                        temp_pendulum[1] = Double.parseDouble(pendulum_im.getText());
-                        double temp_height = Double.parseDouble(pendulum_height.getText());
-                        double temp_stepsize = Double.parseDouble(pendulum_stepsize_re.getText());
-                        double temp_stepsize_im = Double.parseDouble(pendulum_stepsize_im.getText());
+                        try {
+                            double[][] temp_magnet = new double[magnet_panels.length][2];
+                            double[][] temp_magnet_strength = new double[magnet_panels.length][2];
+                            double[] temp_gravity = new double[2];
+                            double[] temp_friction = new double[2];
+                            double[] temp_pendulum = new double[2];
 
-                        s.fns.mps.magnetLocation = temp_magnet;
-                        s.fns.mps.magnetStrength = temp_magnet_strength;
-                        s.fns.mps.gravity = temp_gravity;
-                        s.fns.mps.friction = temp_friction;
-                        s.fns.mps.pendulum = temp_pendulum;
-                        s.fns.mps.height = temp_height;
-                        s.fns.mps.stepsize = temp_stepsize;
-                        s.fns.mps.stepsize_im = temp_stepsize_im;
-                        s.fns.mps.magnetPendVariableId = variable_choice.getSelectedIndex();
-                    } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
-                        return;
+                            for (int k = 0; k < magnet_panels.length; k++) {
+                                temp_magnet[k][0] = Double.parseDouble(magnet_re[k].getText());
+                                temp_magnet[k][1] = Double.parseDouble(magnet_im[k].getText());
+                                temp_magnet_strength[k][0] = Double.parseDouble(magnet_strength_re[k].getText());
+                                temp_magnet_strength[k][1] = Double.parseDouble(magnet_strength_im[k].getText());
+                            }
+
+                            temp_gravity[0] = Double.parseDouble(gravity_re.getText());
+                            temp_gravity[1] = Double.parseDouble(gravity_im.getText());
+
+                            temp_friction[0] = Double.parseDouble(friction_re.getText());
+                            temp_friction[1] = Double.parseDouble(friction_im.getText());
+
+                            temp_pendulum[0] = Double.parseDouble(pendulum_re.getText());
+                            temp_pendulum[1] = Double.parseDouble(pendulum_im.getText());
+                            double temp_height = Double.parseDouble(pendulum_height.getText());
+                            double temp_stepsize = Double.parseDouble(pendulum_stepsize_re.getText());
+                            double temp_stepsize_im = Double.parseDouble(pendulum_stepsize_im.getText());
+
+                            s.fns.mps.magnetLocation = temp_magnet;
+                            s.fns.mps.magnetStrength = temp_magnet_strength;
+                            s.fns.mps.gravity = temp_gravity;
+                            s.fns.mps.friction = temp_friction;
+                            s.fns.mps.pendulum = temp_pendulum;
+                            s.fns.mps.height = temp_height;
+                            s.fns.mps.stepsize = temp_stepsize;
+                            s.fns.mps.stepsize_im = temp_stepsize_im;
+                            s.fns.mps.magnetPendVariableId = variable_choice.getSelectedIndex();
+                        } catch (Exception ex) {
+                            JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
+
+                        ptra.optionsEnableShortcut2();
+                        dispose();
+                        ptra.setFunctionPost(wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType, wasEscapingOrConvergingType);
                     }
-
-                    ptra.optionsEnableShortcut2();
-                    dispose();
-                    ptra.setFunctionPost(wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType, wasEscapingOrConvergingType);
-                }
-            }
-        });
+                });
 
         //Make this dialog display it.
         setContentPane(optionPane);
@@ -258,12 +255,6 @@ public class MagneticPendulumDialog extends JDialog {
         setResizable(false);
         setLocation((int) (ptra.getLocation().getX() + ptra.getSize().getWidth() / 2) - (getWidth() / 2), (int) (ptra.getLocation().getY() + ptra.getSize().getHeight() / 2) - (getHeight() / 2));
         setVisible(true);
-
-    }
-
-    private ImageIcon getIcon(String path) {
-
-        return new ImageIcon(getClass().getResource(path));
 
     }
 

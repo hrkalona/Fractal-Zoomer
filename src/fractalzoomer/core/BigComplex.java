@@ -3,7 +3,6 @@ package fractalzoomer.core;
 import fractalzoomer.utils.NormComponents;
 import org.apfloat.Apfloat;
 import org.apfloat.ApfloatMath;
-import org.apfloat.FixedPrecisionApfloatHelper;
 
 public class BigComplex extends GenericComplex {
     private Apfloat re;
@@ -47,6 +46,9 @@ public class BigComplex extends GenericComplex {
     @Override
     public BigNumComplex toBigNumComplex() { return new BigNumComplex(this); }
 
+    @Override
+    public MpfrBigNumComplex toMpfrBigNumComplex() { return new MpfrBigNumComplex(this);}
+
     public final Apfloat getRe() {
 
         return re;
@@ -71,8 +73,9 @@ public class BigComplex extends GenericComplex {
 
     }
 
+    @Override
     public final Complex toComplex() {
-        return new Complex(re.doubleValue(), im.doubleValue());
+        return new Complex(this);
     }
 
     /*
@@ -87,6 +90,7 @@ public class BigComplex extends GenericComplex {
     /*
      *  z + Real
      */
+    @Override
     public final BigComplex plus(Apfloat number) {
 
         return new BigComplex(MyApfloat.fp.add(re, number), im);
@@ -122,9 +126,17 @@ public class BigComplex extends GenericComplex {
     }
 
     /*
+     *  z - Imaginary
+     */
+    public final BigComplex sub_i(Apfloat number) {
+
+        return new BigComplex(re, MyApfloat.fp.subtract(im , number));
+
+    }
+
+    /*
      *  Real - z1
      */
-    @Override
     public final BigComplex r_sub(Apfloat number) {
 
         return  new BigComplex(MyApfloat.fp.subtract(number, re), im.negate());
@@ -184,6 +196,7 @@ public class BigComplex extends GenericComplex {
     /*
      *  z / Real
      */
+    @Override
     public final BigComplex divide(Apfloat number) {
 
         return new BigComplex(MyApfloat.fp.divide(re, number), MyApfloat.fp.divide(im, number));
@@ -241,9 +254,8 @@ public class BigComplex extends GenericComplex {
 
         Apfloat temp = MyApfloat.fp.multiply(re, re);
         Apfloat temp2 = MyApfloat.fp.multiply(im, im);
-        Apfloat three = new MyApfloat(3.0);
 
-        return new BigComplex(MyApfloat.fp.multiply(re, MyApfloat.fp.subtract(temp, MyApfloat.fp.multiply(temp2, three))), MyApfloat.fp.multiply(im, MyApfloat.fp.subtract(MyApfloat.fp.multiply(temp, three), temp2)));
+        return new BigComplex(MyApfloat.fp.multiply(re, MyApfloat.fp.subtract(temp, MyApfloat.fp.multiply(temp2, MyApfloat.THREE))), MyApfloat.fp.multiply(im, MyApfloat.fp.subtract(MyApfloat.fp.multiply(temp, MyApfloat.THREE), temp2)));
 
     }
 
@@ -256,7 +268,7 @@ public class BigComplex extends GenericComplex {
         Apfloat temp = MyApfloat.fp.multiply(re, re);
         Apfloat temp2 = MyApfloat.fp.multiply(im, im);
 
-        return new BigComplex(MyApfloat.fp.add(MyApfloat.fp.multiply(temp, MyApfloat.fp.subtract(temp, MyApfloat.fp.multiply(new MyApfloat(6), temp2))), MyApfloat.fp.multiply(temp2, temp2)), MyApfloat.fp.multiply(new MyApfloat(4), MyApfloat.fp.multiply(re, MyApfloat.fp.multiply(im, MyApfloat.fp.subtract(temp, temp2)))));
+        return new BigComplex(MyApfloat.fp.add(MyApfloat.fp.multiply(temp, MyApfloat.fp.subtract(temp, MyApfloat.fp.multiply(MyApfloat.SIX, temp2))), MyApfloat.fp.multiply(temp2, temp2)), MyApfloat.fp.multiply(MyApfloat.FOUR, MyApfloat.fp.multiply(re, MyApfloat.fp.multiply(im, MyApfloat.fp.subtract(temp, temp2)))));
 
     }
 
@@ -269,10 +281,7 @@ public class BigComplex extends GenericComplex {
         Apfloat temp = MyApfloat.fp.multiply(re, re);
         Apfloat temp2 = MyApfloat.fp.multiply(im, im);
 
-        Apfloat five = new MyApfloat(5);
-        Apfloat ten = new MyApfloat(10);
-
-        return new BigComplex(MyApfloat.fp.multiply(re, MyApfloat.fp.add(MyApfloat.fp.multiply(temp, temp), MyApfloat.fp.multiply(temp2, MyApfloat.fp.subtract(MyApfloat.fp.multiply(temp2, five), MyApfloat.fp.multiply(temp, ten))))), MyApfloat.fp.multiply(im, MyApfloat.fp.add(MyApfloat.fp.multiply(temp2, temp2), MyApfloat.fp.multiply(temp, MyApfloat.fp.subtract(MyApfloat.fp.multiply(temp, five), MyApfloat.fp.multiply(temp2, ten))))));
+        return new BigComplex(MyApfloat.fp.multiply(re, MyApfloat.fp.add(MyApfloat.fp.multiply(temp, temp), MyApfloat.fp.multiply(temp2, MyApfloat.fp.subtract(MyApfloat.fp.multiply(temp2, MyApfloat.FIVE), MyApfloat.fp.multiply(temp, MyApfloat.TEN))))), MyApfloat.fp.multiply(im, MyApfloat.fp.add(MyApfloat.fp.multiply(temp2, temp2), MyApfloat.fp.multiply(temp, MyApfloat.fp.subtract(MyApfloat.fp.multiply(temp, MyApfloat.FIVE), MyApfloat.fp.multiply(temp2, MyApfloat.TEN))))));
     }
 
 
@@ -286,7 +295,7 @@ public class BigComplex extends GenericComplex {
     }
 
     @Override
-    public NormComponents normSquaredWithComponents() {
+    public NormComponents normSquaredWithComponents(NormComponents n) {
         Apfloat reSqr = MyApfloat.fp.multiply(re, re);
         Apfloat imSqr = MyApfloat.fp.multiply(im, im);
         return new NormComponents(reSqr, imSqr, MyApfloat.fp.add(reSqr, imSqr));
@@ -392,6 +401,7 @@ public class BigComplex extends GenericComplex {
     /*
      *  -z
      */
+    @Override
     public final BigComplex negative() {
 
         return new BigComplex(re.negate(), im.negate());
@@ -649,6 +659,20 @@ public class BigComplex extends GenericComplex {
         return temp;
     }
 
+    public static final String toString2Pretty(Apfloat real, Apfloat imaginary) {
+        String temp = "";
+
+        real = real.compareTo(MyApfloat.ZERO) == 0 ? MyApfloat.ZERO : real;
+        imaginary = imaginary.compareTo(MyApfloat.ZERO) == 0 ? MyApfloat.ZERO : imaginary;
+
+        if (imaginary.compareTo(MyApfloat.ZERO) >= 0) {
+            temp = MyApfloat.toStringPretty(real) + "+" + MyApfloat.toStringPretty(imaginary) + "i";
+        } else {
+            temp = MyApfloat.toStringPretty(real) + "" + MyApfloat.toStringPretty(imaginary) + "i";
+        }
+        return temp;
+    }
+
     /* more efficient z^2 + c */
     public final BigComplex square_plus_c(BigComplex c) {
 
@@ -699,16 +723,7 @@ public class BigComplex extends GenericComplex {
     }
 
 
-    /* more efficient z^2 + c */
-    @Override
-    public final BigComplex square_plus_c(GenericComplex cn) {
-        BigComplex c = (BigComplex)cn;
 
-        Apfloat temp = MyApfloat.fp.multiply(re, im);
-
-        return new BigComplex(MyApfloat.fp.add(MyApfloat.fp.multiply(MyApfloat.fp.add(re, im), MyApfloat.fp.subtract(re, im)), c.re), MyApfloat.fp.add(MyApfloat.fp.add(temp, temp), c.im));
-
-    }
 
     /*
      *  z^2 + c
@@ -743,9 +758,8 @@ public class BigComplex extends GenericComplex {
 
         Apfloat temp = (Apfloat) normComponents.reSqr;
         Apfloat temp2 = (Apfloat) normComponents.imSqr;
-        Apfloat three = new MyApfloat(3.0);
 
-        return new BigComplex(MyApfloat.fp.multiply(re, MyApfloat.fp.subtract(temp, MyApfloat.fp.multiply(temp2, three))), MyApfloat.fp.multiply(im, MyApfloat.fp.subtract(MyApfloat.fp.multiply(temp, three), temp2)));
+        return new BigComplex(MyApfloat.fp.multiply(re, MyApfloat.fp.subtract(temp, MyApfloat.fp.multiply(temp2, MyApfloat.THREE))), MyApfloat.fp.multiply(im, MyApfloat.fp.subtract(MyApfloat.fp.multiply(temp, MyApfloat.THREE), temp2)));
 
     }
 
@@ -758,7 +772,7 @@ public class BigComplex extends GenericComplex {
         Apfloat temp = (Apfloat) normComponents.reSqr;
         Apfloat temp2 = (Apfloat) normComponents.imSqr;
 
-        return new BigComplex(MyApfloat.fp.add(MyApfloat.fp.multiply(temp, MyApfloat.fp.subtract(temp, MyApfloat.fp.multiply(new MyApfloat(6), temp2))), MyApfloat.fp.multiply(temp2, temp2)), MyApfloat.fp.multiply(new MyApfloat(4), MyApfloat.fp.multiply(re, MyApfloat.fp.multiply(im, MyApfloat.fp.subtract(temp, temp2)))));
+        return new BigComplex(MyApfloat.fp.add(MyApfloat.fp.multiply(temp, MyApfloat.fp.subtract(temp, MyApfloat.fp.multiply(MyApfloat.SIX, temp2))), MyApfloat.fp.multiply(temp2, temp2)), MyApfloat.fp.multiply(MyApfloat.FOUR, MyApfloat.fp.multiply(re, MyApfloat.fp.multiply(im, MyApfloat.fp.subtract(temp, temp2)))));
 
     }
 
@@ -771,10 +785,7 @@ public class BigComplex extends GenericComplex {
         Apfloat temp = (Apfloat) normComponents.reSqr;
         Apfloat temp2 = (Apfloat) normComponents.imSqr;
 
-        Apfloat five = new MyApfloat(5);
-        Apfloat ten = new MyApfloat(10);
-
-        return new BigComplex(MyApfloat.fp.multiply(re, MyApfloat.fp.add(MyApfloat.fp.multiply(temp, temp), MyApfloat.fp.multiply(temp2, MyApfloat.fp.subtract(MyApfloat.fp.multiply(temp2, five), MyApfloat.fp.multiply(temp, ten))))), MyApfloat.fp.multiply(im, MyApfloat.fp.add(MyApfloat.fp.multiply(temp2, temp2), MyApfloat.fp.multiply(temp, MyApfloat.fp.subtract(MyApfloat.fp.multiply(temp, five), MyApfloat.fp.multiply(temp2, ten))))));
+        return new BigComplex(MyApfloat.fp.multiply(re, MyApfloat.fp.add(MyApfloat.fp.multiply(temp, temp), MyApfloat.fp.multiply(temp2, MyApfloat.fp.subtract(MyApfloat.fp.multiply(temp2, MyApfloat.FIVE), MyApfloat.fp.multiply(temp, MyApfloat.TEN))))), MyApfloat.fp.multiply(im, MyApfloat.fp.add(MyApfloat.fp.multiply(temp2, temp2), MyApfloat.fp.multiply(temp, MyApfloat.fp.subtract(MyApfloat.fp.multiply(temp, MyApfloat.FIVE), MyApfloat.fp.multiply(temp2, MyApfloat.TEN))))));
     }
 
     /*
@@ -833,63 +844,57 @@ public class BigComplex extends GenericComplex {
 
     }
 
+    @Override
+    public BigComplex times2() {
+        return new BigComplex(re.multiply(MyApfloat.TWO), im.multiply(MyApfloat.TWO));
+    }
 
-    public static void main(String[] args) {
+    @Override
+    public BigComplex times4() {
+        return new BigComplex(re.multiply(MyApfloat.FOUR), im.multiply(MyApfloat.FOUR));
+    }
 
+    @Override
+    public MantExpComplex toMantExpComplex() { return new MantExpComplex(this);}
 
-        MyApfloat.precision = 1500;
-        MyApfloat.fp = new FixedPrecisionApfloatHelper( MyApfloat.precision);
-        BigComplex c1 = new BigComplex(new MyApfloat("-1.76856539435366368125259371293453236892641782036550238084035683278139847516020579836940755448093853806358532335622720215954860387925973462676210264185332619249622446097144464301696263314670575799470331597794419853481280083049813344714412669978249805531445637915677921147242961218729448326140934509447244923346834491904750058368493978125046376837105104088610590469955376290684019988563370767077290823529345255614107999427775332199891983963556882307645602243231590462852451961554663143998042396613582745038196155573683320524468218885621413135815233178922623800880270744324820393949165276400291219551742132035215660506960425009699199467178686542633858457116215710847955765911389610660640760093031838759495011431952174690031733085134861830812337744591371152885478077354772622020072507170087102831622232514924494081112032259257747492310876060757910257868803734144196405678120512443001786915069999243567634982118143679073365001032947680409484031048637779321233465936777391817115730373775376125971055725674328445312481196980698269861097741754301242350002619529351486080897755930259555714557011668880546952923003933637167679746220379199085840523329826374660"), new MyApfloat("0.00149693415390767795776818884840489556855946301445691471574014563855527433886417969977385819538260268120841953162872636930325763746322273045770475720864573841501787930094585669029854545526055550254240550601638349230447392478835897915689588386917873306732459133130195499040290663241163281171562214964938877814041525983714426684720617999806166857035264185620487882712073265176954914054913266203287997924901540871019242527521230712886590484380712839459054394699971951683593643432733875864612142164058384584027531954686991700717520592706134315477867770419967332102686480959769035927998828366145957010260008071330081671951130257876517738836139132327131150083875547829353693231330986024536074662266149266972020406424662729505261246207754916338512723205243386084554727716044392705072728590247105881028092304993724655676823686703579759639901910397135711042548453158584111749222905493046484296618244721966973379997931675069363108125568864266991641443350605262290076130999673222331940884558082142583551902556005768303536299446355536559649684565312212482597275388117026700207573378170627060834006934127513560312023382257072757055987599151386137785304306581858"));
-        //Apcomplex c3 = new Apcomplex(new Apfloat("-1.76856539435366368125259371293453236892641782036550238084035683278139847516020579836940755448093853806358532335622720215954860387925973462676210264185332619249622446097144464301696263314670575799470331597794419853481280083049813344714412669978249805531445637915677921147242961218729448326140934509447244923346834491904750058368493978125046376837105104088610590469955376290684019988563370767077290823529345255614107999427775332199891983963556882307645602243231590462852451961554663143998042396613582745038196155573683320524468218885621413135815233178922623800880270744324820393949165276400291219551742132035215660506960425009699199467178686542633858457116215710847955765911389610660640760093031838759495011431952174690031733085134861830812337744591371152885478077354772622020072507170087102831622232514924494081112032259257747492310876060757910257868803734144196405678120512443001786915069999243567634982118143679073365001032947680409484031048637779321233465936777391817115730373775376125971055725674328445312481196980698269861097741754301242350002619529351486080897755930259555714557011668880546952923003933637167679746220379199085840523329826374660", 1200), new Apfloat("0.00149693415390767795776818884840489556855946301445691471574014563855527433886417969977385819538260268120841953162872636930325763746322273045770475720864573841501787930094585669029854545526055550254240550601638349230447392478835897915689588386917873306732459133130195499040290663241163281171562214964938877814041525983714426684720617999806166857035264185620487882712073265176954914054913266203287997924901540871019242527521230712886590484380712839459054394699971951683593643432733875864612142164058384584027531954686991700717520592706134315477867770419967332102686480959769035927998828366145957010260008071330081671951130257876517738836139132327131150083875547829353693231330986024536074662266149266972020406424662729505261246207754916338512723205243386084554727716044392705072728590247105881028092304993724655676823686703579759639901910397135711042548453158584111749222905493046484296618244721966973379997931675069363108125568864266991641443350605262290076130999673222331940884558082142583551902556005768303536299446355536559649684565312212482597275388117026700207573378170627060834006934127513560312023382257072757055987599151386137785304306581858", 1200));
+    @Override
+    public void set(GenericComplex za) {
+        BigComplex z = (BigComplex) za;
+        re = z.re;
+        im = z.im;
+    }
 
+    /* more efficient z^2 + c */
+    @Override
+    public final BigComplex square_plus_c(GenericComplex cn) {
 
-        long runs = 100000;
-
-
-        BigComplex z;
-
-        z = new BigComplex();
-        for(long i = 0; i < runs; i++) {
-            z = z.square_plus_c(c1);
-        }
-
-        z = new BigComplex();
-        for(long i = 0; i < runs; i++) {
-           // z = z.square_plus_c2(c1);
-        }
-
-        z = new BigComplex();
-        for(long i = 0; i < runs; i++) {
-            z = z.square_plus_c(c1);
-        }
-
-        z = new BigComplex();
-        for(long i = 0; i < runs; i++) {
-            //z = z.square_plus_c2(c1);
-        }
-
-
-        z = new BigComplex();
-        long time = System.currentTimeMillis();
-        for(long i = 0; i < runs; i++) {
-            z = z.square_plus_c(c1);
-        }
-        System.out.println(System.currentTimeMillis() - time);
-        System.out.println(z.getRe().precision() + " " + z.getIm().precision());
-        System.out.println(z);
-
-        z = new BigComplex();
-        time = System.currentTimeMillis();
-        for(long i = 0; i < runs; i++) {
-            //z = z.square_plus_c2(c1);
-        }
-
-        System.out.println(System.currentTimeMillis() - time);
-        System.out.println(z.getRe().precision() + " " + z.getIm().precision());
-        System.out.println(z);
-
-
-
+        BigComplex c = (BigComplex)cn;
+        Apfloat temp = MyApfloat.fp.multiply(re, im);
+        return new BigComplex(MyApfloat.fp.add(MyApfloat.fp.multiply(MyApfloat.fp.add(re, im), MyApfloat.fp.subtract(re, im)), c.re), MyApfloat.fp.add(MyApfloat.fp.add(temp, temp), c.im));
 
     }
+
+    /*
+     *  z1 / z2
+     */
+    @Override
+    public final BigComplex divide(GenericComplex za) {
+
+        BigComplex z = (BigComplex)za;
+        Apfloat temp = z.re;
+        Apfloat temp2 = z.im;
+        Apfloat temp3 = MyApfloat.fp.add(MyApfloat.fp.multiply(temp, temp), MyApfloat.fp.multiply(temp2, temp2));
+
+        return new BigComplex(MyApfloat.fp.divide(MyApfloat.fp.add(MyApfloat.fp.multiply(re, temp), MyApfloat.fp.multiply(im, temp2)), temp3), MyApfloat.fp.divide(MyApfloat.fp.subtract(MyApfloat.fp.multiply(im, temp), MyApfloat.fp.multiply(re, temp2)), temp3));
+
+    }
+
+    @Override
+    public DDComplex toDDComplex() { return new DDComplex(this); }
+
+    @Override
+    public GenericComplex times_mutable(GenericComplex a) {return times(a);}
+
+    @Override
+    public GenericComplex sub_mutable(GenericComplex v) { return sub(v); }
 }

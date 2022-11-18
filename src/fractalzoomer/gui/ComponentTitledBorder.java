@@ -36,10 +36,10 @@ package fractalzoomer.gui;
 
 import javax.swing.*;
 import javax.swing.border.Border;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 
 public class ComponentTitledBorder implements Border, MouseListener, MouseMotionListener, SwingConstants {
 
@@ -76,25 +76,22 @@ public class ComponentTitledBorder implements Border, MouseListener, MouseMotion
     }
 
     private void setCheckBoxListener(JCheckBox element) {
-        element.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                boolean enable = element.isSelected();
-                Component components[] = container.getComponents();
-                
-                for (int i = 0; i < components.length; i++) {
-                    setComponentState(components[i], enable);
-                }
+        element.addActionListener(e -> {
+            boolean enable = element.isSelected();
+            Component[] components = container.getComponents();
 
-                if (parentFrame instanceof OrbitTrapsFrame) {
-                    ((OrbitTrapsFrame) parentFrame).toggled(element.isSelected());
-                }
-                else if(parentFrame instanceof CustomDomainColoringFrame) {
-                    ((CustomDomainColoringFrame) parentFrame).toggled(element.isSelected());
-                }
-                else if(parentFrame instanceof StatisticsColoringFrame) {
-                    ((StatisticsColoringFrame) parentFrame).toggled(element.isSelected());
-                }
+            for (int i = 0; i < components.length; i++) {
+                setComponentState(components[i], enable);
+            }
+
+            if (parentFrame instanceof OrbitTrapsFrame) {
+                ((OrbitTrapsFrame) parentFrame).toggled(element.isSelected());
+            }
+            else if(parentFrame instanceof CustomDomainColoringFrame) {
+                ((CustomDomainColoringFrame) parentFrame).toggled(element.isSelected());
+            }
+            else if(parentFrame instanceof StatisticsColoringFrame) {
+                ((StatisticsColoringFrame) parentFrame).toggled(element.isSelected());
             }
         });
 
@@ -102,30 +99,25 @@ public class ComponentTitledBorder implements Border, MouseListener, MouseMotion
     
     private void setRadioButtonListener(JRadioButton element) {
         
-        element.addChangeListener(new ChangeListener() {
+        element.addChangeListener(e -> {
+            boolean enable = element.isSelected();
+            Component[] components = container.getComponents();
 
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                boolean enable = element.isSelected();
-                Component components[] = container.getComponents();
-                
-                for (int i = 0; i < components.length; i++) {
-                    setComponentState(components[i], enable);
-                }
-
-                if (parentFrame instanceof StatisticsColoringFrame) {
-                    ((StatisticsColoringFrame) parentFrame).toggled(element.isSelected());
-                }
-                
-                container.repaint();
+            for (int i = 0; i < components.length; i++) {
+                setComponentState(components[i], enable);
             }
-            
+
+            if (parentFrame instanceof StatisticsColoringFrame) {
+                ((StatisticsColoringFrame) parentFrame).toggled(element.isSelected());
+            }
+
+            container.repaint();
         });
 
     }
 
     public void setState(boolean state) {
-        Component comp[] = container.getComponents();
+        Component[] comp = container.getComponents();
         for (int i = 0; i < comp.length; i++) {
             setComponentState(comp[i], state);
         }
@@ -135,7 +127,7 @@ public class ComponentTitledBorder implements Border, MouseListener, MouseMotion
         component.setEnabled(state);
         if (component instanceof JComponent) {
             JComponent a = (JComponent) component;
-            Component comp[] = a.getComponents();
+            Component[] comp = a.getComponents();
             for (int i = 0; i < comp.length; i++) {
                 setComponentState(comp[i], state);
             }
@@ -217,11 +209,11 @@ public class ComponentTitledBorder implements Border, MouseListener, MouseMotion
             return;
         }
 
-        if (mouseEntered == false && rect.contains(me.getX(), me.getY())) {
+        if (!mouseEntered && rect.contains(me.getX(), me.getY())) {
             mouseEntered = true;
             dispatchEvent(me, MouseEvent.MOUSE_ENTERED);
-        } else if (mouseEntered == true) {
-            if (rect.contains(me.getX(), me.getY()) == false) {
+        } else if (mouseEntered) {
+            if (!rect.contains(me.getX(), me.getY())) {
                 mouseEntered = false;
                 dispatchEvent(me, MouseEvent.MOUSE_EXITED);
             } else {

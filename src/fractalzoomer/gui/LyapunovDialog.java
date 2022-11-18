@@ -26,8 +26,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,7 +46,7 @@ public class LyapunovDialog extends JDialog {
 
         setTitle("Lyapunov");
         setModal(true);
-        setIconImage(getIcon("/fractalzoomer/icons/mandel2.png").getImage());
+        setIconImage(MainWindow.getIcon("mandel2.png").getImage());
 
         JTextField field_formula_a = new JTextField(25);
         field_formula_a.setText(s.fns.lpns.lyapunovA);
@@ -115,7 +113,7 @@ public class LyapunovDialog extends JDialog {
         String[] variablesArr = new String[variables.size()];
         variablesArr = variables.toArray(variablesArr);
 
-        JComboBox variable_choice = new JComboBox(variablesArr);
+        JComboBox<String> variable_choice = new JComboBox<>(variablesArr);
         variable_choice.setSelectedIndex(s.fns.lpns.lyapunovVariableId);
         variable_choice.setToolTipText("Exposes the lyapunov exponent to the selected variable.");
         variable_choice.setFocusable(false);
@@ -191,164 +189,163 @@ public class LyapunovDialog extends JDialog {
 
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
+            @Override
             public void windowClosing(WindowEvent we) {
-                optionPane.setValue(new Integer(JOptionPane.CLOSED_OPTION));
+                optionPane.setValue(JOptionPane.CLOSED_OPTION);
             }
         });
 
         optionPane.addPropertyChangeListener(
-                new PropertyChangeListener() {
-            public void propertyChange(PropertyChangeEvent e) {
-                String prop = e.getPropertyName();
+                e -> {
+                    String prop = e.getPropertyName();
 
-                if (isVisible() && (e.getSource() == optionPane) && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
+                    if (isVisible() && (e.getSource() == optionPane) && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
 
-                    Object value = optionPane.getValue();
+                        Object value = optionPane.getValue();
 
-                    if (value == JOptionPane.UNINITIALIZED_VALUE) {
-                        //ignore reset
-                        return;
-                    }
-
-                    //Reset the JOptionPane's value.
-                    //If you don't do this, then if the user
-                    //presses the same button next time, no
-                    //property change event will be fired.
-                    optionPane.setValue(JOptionPane.UNINITIALIZED_VALUE);
-
-                    if ((Integer) value == JOptionPane.CANCEL_OPTION || (Integer) value == JOptionPane.NO_OPTION || (Integer) value == JOptionPane.CLOSED_OPTION) {
-                        fractal_functions[oldSelected].setSelected(true);
-                        s.fns.function = oldSelected;
-                        dispose();
-                        return;
-                    }
-
-                    try {
-                        boolean temp_bool = false;
-                        
-                        s.parser.parse(field_formula_a.getText());
-
-                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
-                            JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r, stat, trap cannot be used in the A formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                        if (value == JOptionPane.UNINITIALIZED_VALUE) {
+                            //ignore reset
                             return;
                         }
 
-                        s.parser.parse(field_formula_b.getText());
+                        //Reset the JOptionPane's value.
+                        //If you don't do this, then if the user
+                        //presses the same button next time, no
+                        //property change event will be fired.
+                        optionPane.setValue(JOptionPane.UNINITIALIZED_VALUE);
 
-                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
-                            JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r, stat, trap cannot be used in the B formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                        if ((Integer) value == JOptionPane.CANCEL_OPTION || (Integer) value == JOptionPane.NO_OPTION || (Integer) value == JOptionPane.CLOSED_OPTION) {
+                            fractal_functions[oldSelected].setSelected(true);
+                            s.fns.function = oldSelected;
+                            dispose();
                             return;
                         }
 
-                        s.parser.parse(field_formula_c.getText());
+                        try {
+                            boolean temp_bool = false;
 
-                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
-                            JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r, stat, trap cannot be used in the C formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            return;
-                        }
-
-                        s.parser.parse(field_formula_d.getText());
-
-                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
-                            JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r, stat, trap cannot be used in the D formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            return;
-                        }
-
-                        String expression = field_expression.getText();
-
-                        String[] subExpressions = LyapunovSettings.getTokens(expression);
-
-                        if (subExpressions == null) {
-                            JOptionPane.showMessageDialog(ptra, "The expression does not contain any sub-expressions.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            return;
-                        }
-
-                        subExpressions = LyapunovSettings.flatten(subExpressions, "$A", field_formula_a.getText());
-                        subExpressions = LyapunovSettings.flatten(subExpressions, "$B", field_formula_b.getText());
-                        subExpressions = LyapunovSettings.flatten(subExpressions, "$C", field_formula_c.getText());
-                        subExpressions = LyapunovSettings.flatten(subExpressions, "$D", field_formula_d.getText());
-
-                        for (String subExpression : subExpressions) {
-                            s.parser.parse(subExpression);
+                            s.parser.parse(field_formula_a.getText());
 
                             if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
-                                JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r, stat, trap cannot be used in the Expression formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r, stat, trap cannot be used in the A formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                                 return;
                             }
 
-                            temp_bool = temp_bool | s.parser.foundC();
-                        }
-                        
-                        s.parser.parse(field_function.getText());
+                            s.parser.parse(field_formula_b.getText());
 
-                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundStat() || s.parser.foundTrap()) {
-                            JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, stat, trap cannot be used in the A formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                            if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                                JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r, stat, trap cannot be used in the B formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+
+                            s.parser.parse(field_formula_c.getText());
+
+                            if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                                JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r, stat, trap cannot be used in the C formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+
+                            s.parser.parse(field_formula_d.getText());
+
+                            if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                                JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r, stat, trap cannot be used in the D formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+
+                            String expression = field_expression.getText();
+
+                            String[] subExpressions = LyapunovSettings.getTokens(expression);
+
+                            if (subExpressions == null) {
+                                JOptionPane.showMessageDialog(ptra, "The expression does not contain any sub-expressions.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+
+                            subExpressions = LyapunovSettings.flatten(subExpressions, "$A", field_formula_a.getText());
+                            subExpressions = LyapunovSettings.flatten(subExpressions, "$B", field_formula_b.getText());
+                            subExpressions = LyapunovSettings.flatten(subExpressions, "$C", field_formula_c.getText());
+                            subExpressions = LyapunovSettings.flatten(subExpressions, "$D", field_formula_d.getText());
+
+                            for (String subExpression : subExpressions) {
+                                s.parser.parse(subExpression);
+
+                                if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                                    JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r, stat, trap cannot be used in the Expression formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                    return;
+                                }
+
+                                temp_bool = temp_bool || s.parser.foundC();
+                            }
+
+                            s.parser.parse(field_function.getText());
+
+                            if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundStat() || s.parser.foundTrap()) {
+                                JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, stat, trap cannot be used in the A formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+
+                            temp_bool = temp_bool || s.parser.foundC();
+
+                            s.parser.parse(field_exponent_function.getText());
+
+                            if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundStat() || s.parser.foundTrap()) {
+                                JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, stat, trap cannot be used in the A formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+
+                            temp_bool = temp_bool || s.parser.foundC();
+
+
+                            s.parser.parse(initial_value.getText());
+
+                            if (s.parser.foundPixel() || s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundC0() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                                JOptionPane.showMessageDialog(ptra, "The variables: z, n, s, c0, pixel, p, pp, bail, cbail, r, stat, trap cannot be used in the initial value formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+
+                            int temp;
+                            try {
+                                temp = Integer.parseInt(initial_iterations.getText());
+                            } catch (Exception ex) {
+                                JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+
+                            if (temp < 0) {
+                                JOptionPane.showMessageDialog(ptra, "Initial iterations number must be greater than -1.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            } else if (temp > MainWindow.MAX_ITERATIONS_NUMBER) {
+                                JOptionPane.showMessageDialog(ptra, "Initial iterations number must be less than 2147483648.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+
+                            s.fns.lpns.lyapunovA = field_formula_a.getText();
+                            s.fns.lpns.lyapunovB = field_formula_b.getText();
+                            s.fns.lpns.lyapunovC = field_formula_c.getText();
+                            s.fns.lpns.lyapunovD = field_formula_d.getText();
+                            s.fns.lpns.lyapunovExpression = field_expression.getText();
+                            s.fns.lpns.lyapunovFinalExpression = subExpressions;
+                            s.fns.lpns.useLyapunovExponent = useLyapExponentCheck.isSelected();
+                            s.fns.lpns.lyapunovFunction = field_function.getText();
+                            s.fns.lpns.lyapunovExponentFunction = field_exponent_function.getText();
+                            s.fns.lpns.lyapunovVariableId = variable_choice.getSelectedIndex();
+                            s.fns.lpns.lyapunovInitialValue = initial_value.getText();
+                            s.fns.lpns.lyapunovskipBailoutCheck = skipBailout.isSelected();
+                            s.fns.lpns.lyapunovInitializationIteratons = temp;
+
+                            s.userFormulaHasC = temp_bool;
+
+                            ptra.setUserFormulaOptions(false);
+                        } catch (ParserException ex) {
+                            JOptionPane.showMessageDialog(ptra, ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                             return;
                         }
-                        
-                        temp_bool = temp_bool | s.parser.foundC();
-                        
-                        s.parser.parse(field_exponent_function.getText());
 
-                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundStat() || s.parser.foundTrap()) {
-                            JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, stat, trap cannot be used in the A formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            return;
-                        }
-                        
-                        temp_bool = temp_bool | s.parser.foundC();
-                        
-                        
-                        s.parser.parse(initial_value.getText());
-
-                        if (s.parser.foundPixel() || s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundC0() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
-                            JOptionPane.showMessageDialog(ptra, "The variables: z, n, s, c0, pixel, p, pp, bail, cbail, r, stat, trap cannot be used in the initial value formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            return;
-                        }
-                        
-                        int temp;
-                        try {
-                            temp = Integer.parseInt(initial_iterations.getText());
-                        } catch (Exception ex) {
-                            JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
-                            return;
-                        }
-                        
-                        if (temp < 0) {
-                            JOptionPane.showMessageDialog(ptra, "Initial iterations number must be greater than -1.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            return;
-                        } else if (temp > MainWindow.MAX_ITERATIONS_NUMBER) {
-                            JOptionPane.showMessageDialog(ptra, "Initial iterations number must be less than 2147483648.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            return;
-                        }
-
-                        s.fns.lpns.lyapunovA = field_formula_a.getText();
-                        s.fns.lpns.lyapunovB = field_formula_b.getText();
-                        s.fns.lpns.lyapunovC = field_formula_c.getText();
-                        s.fns.lpns.lyapunovD = field_formula_d.getText();
-                        s.fns.lpns.lyapunovExpression = field_expression.getText();
-                        s.fns.lpns.lyapunovFinalExpression = subExpressions;
-                        s.fns.lpns.useLyapunovExponent = useLyapExponentCheck.isSelected();
-                        s.fns.lpns.lyapunovFunction = field_function.getText();
-                        s.fns.lpns.lyapunovExponentFunction = field_exponent_function.getText();
-                        s.fns.lpns.lyapunovVariableId = variable_choice.getSelectedIndex();
-                        s.fns.lpns.lyapunovInitialValue = initial_value.getText();
-                        s.fns.lpns.lyapunovskipBailoutCheck = skipBailout.isSelected();
-                        s.fns.lpns.lyapunovInitializationIteratons = temp;
-
-                        s.userFormulaHasC = temp_bool;
-
-                        ptra.setUserFormulaOptions(false);
-                    } catch (ParserException ex) {
-                        JOptionPane.showMessageDialog(ptra, ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
-                        return;
+                        ptra.optionsEnableShortcut();
+                        dispose();
+                        ptra.setFunctionPost(wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType, wasEscapingOrConvergingType);
                     }
-
-                    ptra.optionsEnableShortcut();
-                    dispose();
-                    ptra.setFunctionPost(wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType, wasEscapingOrConvergingType);
-                }
-            }
-        });
+                });
 
         //Make this dialog display it.
         setContentPane(optionPane);
@@ -358,12 +355,6 @@ public class LyapunovDialog extends JDialog {
         setResizable(false);
         setLocation((int) (ptra.getLocation().getX() + ptra.getSize().getWidth() / 2) - (getWidth() / 2), (int) (ptra.getLocation().getY() + ptra.getSize().getHeight() / 2) - (getHeight() / 2));
         setVisible(true);
-
-    }
-
-    private ImageIcon getIcon(String path) {
-
-        return new ImageIcon(getClass().getResource(path));
 
     }
 

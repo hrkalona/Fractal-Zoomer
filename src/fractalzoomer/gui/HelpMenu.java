@@ -19,8 +19,6 @@ package fractalzoomer.gui;
 import fractalzoomer.main.MainWindow;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 
 /**
@@ -41,13 +39,13 @@ public class HelpMenu extends JMenu {
 
         this.ptr = ptr2;
         
-        help_contents = new JMenuItem("Help Contents", getIcon("/fractalzoomer/icons/help.png"));
+        help_contents = new JMenuItem("Help Contents", MainWindow.getIcon("help.png"));
 
-        about = new JMenuItem("About", getIcon("/fractalzoomer/icons/about.png"));
+        about = new JMenuItem("About", MainWindow.getIcon("about.png"));
 
-        useful_links = new JMenuItem("Useful Links", getIcon("/fractalzoomer/icons/useful_links.png"));
+        useful_links = new JMenuItem("Useful Links", MainWindow.getIcon("useful_links.png"));
 
-        update = new JMenuItem("Software Update", getIcon("/fractalzoomer/icons/update.png"));
+        update = new JMenuItem("Software Update", MainWindow.getIcon("update.png"));
         
         help_contents.setToolTipText("Loads the help file.");
         update.setToolTipText("Checks for software update.");
@@ -57,45 +55,13 @@ public class HelpMenu extends JMenu {
         help_contents.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, 0));
         update.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_U, 0));
         
-        help_contents.addActionListener(new ActionListener() {
+        help_contents.addActionListener(e -> ptr.showCHMHelpFile());
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        useful_links.addActionListener(e -> ptr.showUsefulLinks());
 
-                ptr.showCHMHelpFile();
+        about.addActionListener(e -> ptr.displayAboutInfo());
 
-            }
-        });
-
-        useful_links.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.showUsefulLinks();
-
-            }
-        });
-
-        about.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.displayAboutInfo();
-
-            }
-        });
-
-        update.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.checkForUpdate(true);
-
-            }
-        });
+        update.addActionListener(e -> ptr.checkForUpdate(true));
         
         add(help_contents);
         addSeparator();
@@ -105,12 +71,6 @@ public class HelpMenu extends JMenu {
         addSeparator();
         add(about);
         
-    }
-    
-    private ImageIcon getIcon(String path) {
-
-        return new ImageIcon(getClass().getResource(path));
-
     }
     
 }

@@ -23,7 +23,6 @@ import fractalzoomer.main.app_settings.Settings;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 
 /**
@@ -54,17 +53,17 @@ public class ColorsMenu extends JMenu {
 
         this.ptr = ptr2;
         
-        setIcon(getIcon("/fractalzoomer/icons/colors_menu.png"));
+        setIcon(MainWindow.getIcon("colors_menu.png"));
         
-        fract_color = new JMenuItem("Fractal Colors", getIcon("/fractalzoomer/icons/color.png"));
+        fract_color = new JMenuItem("Fractal Colors", MainWindow.getIcon("color.png"));
         
         outcolor_palette_menu = new OutColoringPaletteMenu(ptr, "Out Coloring Palette", ps, smoothing, temp_color_cycling_location);
         incolor_palette_menu = new InColoringPaletteMenu(ptr, "In Coloring Palette", ps2, smoothing, temp_color_cycling_location2);
         
         
 
-        random_palette = new JMenuItem("Random Palette", getIcon("/fractalzoomer/icons/palette_random.png"));
-        blend_palette_opt = new JMenuItem("Palette/Gradient Merging", getIcon("/fractalzoomer/icons/palette_blending.png"));
+        random_palette = new JMenuItem("Random Palette", MainWindow.getIcon("palette_random.png"));
+        blend_palette_opt = new JMenuItem("Palette/Gradient Merging", MainWindow.getIcon("palette_blending.png"));
 
         out_coloring_mode_menu = new OutColoringModesMenu(ptr, "Out Coloring Mode", out_coloring_algorithm);
         
@@ -72,16 +71,16 @@ public class ColorsMenu extends JMenu {
         
         direct_color_opt = new JCheckBoxMenuItem("Direct Color");
         
-        out_true_color_opt = new JMenuItem("Out True Coloring Mode", getIcon("/fractalzoomer/icons/true_color_out.png"));
-        in_true_color_opt = new JMenuItem("In True Coloring Mode", getIcon("/fractalzoomer/icons/true_color_in.png"));
+        out_true_color_opt = new JMenuItem("Out True Coloring Mode", MainWindow.getIcon("true_color_out.png"));
+        in_true_color_opt = new JMenuItem("In True Coloring Mode", MainWindow.getIcon("true_color_in.png"));
                
         processing = new ProcessingMenu(ptr, "Processing");      
         
         color_blending_menu = new ColorBlendingMenu(ptr, "Blending", color_blending);
         
-        gradient = new JMenuItem("Gradient", getIcon("/fractalzoomer/icons/gradient.png"));
+        gradient = new JMenuItem("Gradient", MainWindow.getIcon("gradient.png"));
 
-        contour_factor = new JMenuItem("Contour Factor", getIcon("/fractalzoomer/icons/contour.png"));
+        contour_factor = new JMenuItem("Contour Factor", MainWindow.getIcon("contour.png"));
      
         fract_color.setToolTipText("Sets the colors for maximum iterations, distance estimation and some color algorithms.");
         random_palette.setToolTipText("Randomizes the palette.");        
@@ -101,85 +100,21 @@ public class ColorsMenu extends JMenu {
         in_true_color_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_3, ActionEvent.ALT_MASK));
         contour_factor.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_6, ActionEvent.SHIFT_MASK));
 
-        fract_color.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setFractalColor();
-
-            }
-        });
+        fract_color.addActionListener(e -> ptr.setFractalColor());
         
-        direct_color_opt.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setDirectColor();
-
-            }
-        });
+        direct_color_opt.addActionListener(e -> ptr.setDirectColor());
         
-        out_true_color_opt.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setOutTrueColor();
-
-            }
-        });
+        out_true_color_opt.addActionListener(e -> ptr.setOutTrueColor());
         
-        in_true_color_opt.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setInTrueColor();
-
-            }
-        });
+        in_true_color_opt.addActionListener(e -> ptr.setInTrueColor());
         
-        random_palette.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.randomPalette();
-
-            }
-        });
+        random_palette.addActionListener(e -> ptr.randomPalette());
         
-        blend_palette_opt.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setPaletteGradientMerging();
-
-            }
-        });
+        blend_palette_opt.addActionListener(e -> ptr.setPaletteGradientMerging());
         
-        gradient.addActionListener(new ActionListener() {
+        gradient.addActionListener(e -> ptr.setGradient());
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setGradient();
-
-            }
-        });
-
-        contour_factor.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setContourFactor();
-
-            }
-        });
+        contour_factor.addActionListener(e -> ptr.setContourFactor());
 
         direct_color_opt.setSelected(ThreadDraw.USE_DIRECT_COLOR);
         
@@ -203,12 +138,6 @@ public class ColorsMenu extends JMenu {
         add(blend_palette_opt);
         add(random_palette);
         
-    }
-    
-    private ImageIcon getIcon(String path) {
-
-        return new ImageIcon(getClass().getResource(path));
-
     }
     
     public JRadioButtonMenuItem[] getOutColoringPalette() {
@@ -426,24 +355,24 @@ public class ColorsMenu extends JMenu {
     public void updateIcons(Settings s) {
 
         if(s.pbs.palette_gradient_merge) {
-            blend_palette_opt.setIcon(getIcon("/fractalzoomer/icons/palette_blending_enabled.png"));
+            blend_palette_opt.setIcon(MainWindow.getIcon("palette_blending_enabled.png"));
         }
         else {
-            blend_palette_opt.setIcon(getIcon("/fractalzoomer/icons/palette_blending.png"));
+            blend_palette_opt.setIcon(MainWindow.getIcon("palette_blending.png"));
         }
         
         if(s.fns.tcs.trueColorOut) {
-            out_true_color_opt.setIcon(getIcon("/fractalzoomer/icons/true_color_out_enabled.png"));
+            out_true_color_opt.setIcon(MainWindow.getIcon("true_color_out_enabled.png"));
         }
         else {
-            out_true_color_opt.setIcon(getIcon("/fractalzoomer/icons/true_color_out.png"));
+            out_true_color_opt.setIcon(MainWindow.getIcon("true_color_out.png"));
         }
         
         if(s.fns.tcs.trueColorIn) {
-            in_true_color_opt.setIcon(getIcon("/fractalzoomer/icons/true_color_in_enabled.png"));
+            in_true_color_opt.setIcon(MainWindow.getIcon("true_color_in_enabled.png"));
         }
         else {
-            in_true_color_opt.setIcon(getIcon("/fractalzoomer/icons/true_color_in.png"));
+            in_true_color_opt.setIcon(MainWindow.getIcon("true_color_in.png"));
         }
   
     }

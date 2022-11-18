@@ -20,7 +20,6 @@ import fractalzoomer.main.MainWindow;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 
 /**
@@ -56,43 +55,43 @@ public class ToolsOptionsMenu extends JMenu {
 
         this.ptr = ptr2;
         
-        setIcon(getIcon("/fractalzoomer/icons/tools_options.png"));
+        setIcon(MainWindow.getIcon("tools_options.png"));
         
         show_orbit_converging_point_opt = new JCheckBoxMenuItem("Show Converging Point");
 
         fast_julia_filters_opt = new JCheckBoxMenuItem("Julia Preview Image Filters");
 
-        color_cycling_options_opt = new JMenuItem("Color Cycling Options", getIcon("/fractalzoomer/icons/color_cycling_options.png"));
+        color_cycling_options_opt = new JMenuItem("Color Cycling Options", MainWindow.getIcon("color_cycling_options.png"));
         
         orbit_menu = new JMenu("Orbit");
-        orbit_menu.setIcon(getIcon("/fractalzoomer/icons/orbit_options.png"));
+        orbit_menu.setIcon(MainWindow.getIcon("orbit_options.png"));
 
         grid_menu = new JMenu("Grid");
-        grid_menu.setIcon(getIcon("/fractalzoomer/icons/grid_options.png"));
+        grid_menu.setIcon(MainWindow.getIcon("grid_options.png"));
 
         boundaries_menu = new JMenu("Boundaries");
-        boundaries_menu.setIcon(getIcon("/fractalzoomer/icons/boundaries_options.png"));
+        boundaries_menu.setIcon(MainWindow.getIcon("boundaries_options.png"));
 
-        orbit_color_opt = new JMenuItem("Orbit Color", getIcon("/fractalzoomer/icons/color.png"));
+        orbit_color_opt = new JMenuItem("Orbit Color", MainWindow.getIcon("color.png"));
 
         orbit_style_menu = new JMenu("Orbit Style");
-        orbit_style_menu.setIcon(getIcon("/fractalzoomer/icons/orbit_style.png"));
+        orbit_style_menu.setIcon(MainWindow.getIcon("orbit_style.png"));
         
-        grid_color_opt = new JMenuItem("Grid Color", getIcon("/fractalzoomer/icons/color.png"));
+        grid_color_opt = new JMenuItem("Grid Color", MainWindow.getIcon("color.png"));
 
-        grid_tiles_opt = new JMenuItem("Grid Tiles", getIcon("/fractalzoomer/icons/grid_tiles.png"));
+        grid_tiles_opt = new JMenuItem("Grid Tiles", MainWindow.getIcon("grid_tiles.png"));
 
-        zoom_window_color_opt = new JMenuItem("Zoom Window Color", getIcon("/fractalzoomer/icons/color.png"));
+        zoom_window_color_opt = new JMenuItem("Zoom Window Color", MainWindow.getIcon("color.png"));
 
         zoom_window_menu = new JMenu("Zoom Window");
-        zoom_window_menu.setIcon(getIcon("/fractalzoomer/icons/zoom_window_options.png"));
+        zoom_window_menu.setIcon(MainWindow.getIcon("zoom_window_options.png"));
 
         zoom_window_style_menu = new JMenu("Zoom Window Style");
-        zoom_window_style_menu.setIcon(getIcon("/fractalzoomer/icons/orbit_style.png"));
+        zoom_window_style_menu.setIcon(MainWindow.getIcon("orbit_style.png"));
 
-        boundaries_color_opt = new JMenuItem("Boundaries Color", getIcon("/fractalzoomer/icons/color.png"));
+        boundaries_color_opt = new JMenuItem("Boundaries Color", MainWindow.getIcon("color.png"));
 
-        boundaries_number_opt = new JMenuItem("Boundaries Options", getIcon("/fractalzoomer/icons/boundaries_settings.png"));
+        boundaries_number_opt = new JMenuItem("Boundaries Options", MainWindow.getIcon("boundaries_settings.png"));
         
         grid_color_opt.setToolTipText("Sets the color of the grid.");
         grid_tiles_opt.setToolTipText("Sets the number of the grid tiles.");
@@ -110,35 +109,11 @@ public class ToolsOptionsMenu extends JMenu {
         
         show_orbit_converging_point_opt.setSelected(show_orbit_converging_point);
         
-        fast_julia_filters_opt.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setFastJuliaFilters();
-
-            }
-        });
+        fast_julia_filters_opt.addActionListener(e -> ptr.setFastJuliaFilters());
         
-        orbit_color_opt.addActionListener(new ActionListener() {
+        orbit_color_opt.addActionListener(e -> ptr.setOrbitColor());
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setOrbitColor();
-
-            }
-        });
-
-        color_cycling_options_opt.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setColorCyclingOptions();
-
-            }
-        });
+        color_cycling_options_opt.addActionListener(e -> ptr.setColorCyclingOptions());
         
         zoom_window_dashed_line = new JRadioButtonMenuItem("Dashed Line");
         zoom_window_dashed_line.setToolTipText("Sets the zooming window style to dashed line.");
@@ -146,25 +121,9 @@ public class ToolsOptionsMenu extends JMenu {
         zoom_window_line = new JRadioButtonMenuItem("Solid Line");
         zoom_window_line.setToolTipText("Sets the zooming window style to solid line.");
         
-        zoom_window_dashed_line.addActionListener(new ActionListener() {
+        zoom_window_dashed_line.addActionListener(e -> ptr.setZoomWindowDashedLine());
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setZoomWindowDashedLine();
-
-            }
-        });
-
-        zoom_window_line.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setZoomWindowLine();
-
-            }
-        });
+        zoom_window_line.addActionListener(e -> ptr.setZoomWindowLine());
 
         zoom_window_dashed_line.setSelected(true);
 
@@ -180,35 +139,11 @@ public class ToolsOptionsMenu extends JMenu {
         dot = new JRadioButtonMenuItem("Dot");
         dot.setToolTipText("Sets the orbit style to dot.");
 
-        line.addActionListener(new ActionListener() {
+        line.addActionListener(e -> ptr.setLine());
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setLine();
-
-            }
-        });
-
-        dot.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setDot();
-
-            }
-        });
+        dot.addActionListener(e -> ptr.setDot());
         
-        show_orbit_converging_point_opt.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setShowOrbitConvergingPoint();
-
-            }
-        });
+        show_orbit_converging_point_opt.addActionListener(e -> ptr.setShowOrbitConvergingPoint());
         
         orbit_style_menu.add(line);
         orbit_style_menu.add(dot);
@@ -237,55 +172,15 @@ public class ToolsOptionsMenu extends JMenu {
         boundaries_menu.addSeparator();
         boundaries_menu.add(boundaries_number_opt);
 
-        grid_color_opt.addActionListener(new ActionListener() {
+        grid_color_opt.addActionListener(e -> ptr.setGridColor());
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        zoom_window_color_opt.addActionListener(e -> ptr.setZoomWindowColor());
 
-               ptr.setGridColor();
+        boundaries_color_opt.addActionListener(e -> ptr.setBoundariesColor());
 
-            }
-        });
+        boundaries_number_opt.addActionListener(e -> ptr.setBoundariesNumber());
 
-        zoom_window_color_opt.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setZoomWindowColor();
-
-            }
-        });
-
-        boundaries_color_opt.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setBoundariesColor();
-
-            }
-        });
-
-        boundaries_number_opt.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setBoundariesNumber();
-
-            }
-        });
-
-        grid_tiles_opt.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setGridTiles();
-
-            }
-        });
+        grid_tiles_opt.addActionListener(e -> ptr.setGridTiles());
         
         
         add(orbit_menu);
@@ -300,12 +195,6 @@ public class ToolsOptionsMenu extends JMenu {
         addSeparator();
         add(boundaries_menu);
         
-    }
-    
-    private ImageIcon getIcon(String path) {
-
-        return new ImageIcon(getClass().getResource(path));
-
     }
     
     public JCheckBoxMenuItem getShowOrbitConvergingPoint() {

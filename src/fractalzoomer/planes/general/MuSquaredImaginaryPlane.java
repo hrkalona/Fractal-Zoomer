@@ -18,6 +18,10 @@
 package fractalzoomer.planes.general;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.core.DDComplex;
+import fractalzoomer.core.MpfrBigNumComplex;
+import fractalzoomer.core.ThreadDraw;
+import fractalzoomer.core.mpfr.LibMpfr;
 import fractalzoomer.planes.Plane;
 
 /**
@@ -26,18 +30,56 @@ import fractalzoomer.planes.Plane;
  */
 public class MuSquaredImaginaryPlane extends Plane {
     private Complex exponent;
-    
+    private MpfrBigNumComplex mpfrbnexponent;
+
+    private DDComplex ddcexponent;
+
     public MuSquaredImaginaryPlane() {
 
         super();
         exponent = new Complex(0, 2);
+
+        if(ThreadDraw.PERTURBATION_THEORY) {
+
+            ddcexponent = new DDComplex(0, 2);
+
+            if(ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE) {
+
+                if(LibMpfr.LOAD_ERROR == null) {
+                    mpfrbnexponent = new MpfrBigNumComplex(0, 2);
+                }
+            }
+        }
 
     }
 
     @Override
     public Complex transform(Complex pixel) {
 
+        if(pixel.isZero()) {
+            return pixel;
+        }
         return pixel.pow(exponent);
+
+    }
+
+    @Override
+    public MpfrBigNumComplex transform(MpfrBigNumComplex pixel) {
+        if(pixel.isZero()) {
+            return pixel;
+        }
+
+        return pixel.pow(mpfrbnexponent);
+
+    }
+
+    @Override
+    public DDComplex transform(DDComplex pixel) {
+        if(pixel.isZero()) {
+            return pixel;
+        }
+
+        return pixel.pow(ddcexponent);
 
     }
     

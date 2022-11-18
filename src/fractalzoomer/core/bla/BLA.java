@@ -5,7 +5,7 @@ import fractalzoomer.core.Complex;
 public abstract class BLA {
     public double r2, Ax, Ay;
 
-    public BLA(double r2, Complex A) {
+    protected BLA(double r2, Complex A) {
         this.r2 = r2;
         this.Ax = A.getRe();
         this.Ay = A.getIm();

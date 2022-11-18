@@ -16,10 +16,7 @@
  */
 package fractalzoomer.functions.root_finding_methods;
 
-import fractalzoomer.core.Complex;
-import fractalzoomer.core.GenericComplex;
-import fractalzoomer.core.MantExpComplex;
-import fractalzoomer.core.ThreadDraw;
+import fractalzoomer.core.*;
 import fractalzoomer.fractal_options.initial_value.DefaultInitialValue;
 import fractalzoomer.fractal_options.iteration_statistics.*;
 import fractalzoomer.functions.Fractal;
@@ -432,9 +429,11 @@ public abstract class RootFindingMethods extends Fractal {
 
         Complex pixel = dpixel.plus(refPointSmall);
 
-        if(iterations != 0 && RefIteration < MaxRefIteration) {
-            complex[0] = getArrayValue(Reference, RefIteration).plus_mutable(DeltaSubN);
-        }
+        int MaxRefIteration = Fractal.MaxRefIteration;
+        double[] Reference = Fractal.Reference;
+        double[] ReferenceSubCp = Fractal.ReferenceSubCp;
+        double[] PrecalculatedTerms = Fractal.PrecalculatedTerms;
+        double[] PrecalculatedTerms2 = Fractal.PrecalculatedTerms2;
 
         for (; iterations < max_iterations; iterations++) {
 
@@ -459,7 +458,7 @@ public abstract class RootFindingMethods extends Fractal {
                 return res;
             }
 
-            DeltaSubN = perturbationFunction(DeltaSubN, RefIteration);
+            DeltaSubN = perturbationFunction(DeltaSubN, Reference, PrecalculatedTerms, PrecalculatedTerms2, RefIteration);
 
             RefIteration++;
 
@@ -469,7 +468,7 @@ public abstract class RootFindingMethods extends Fractal {
             //No Plane influence work
             //No Pre filters work
             if(max_iterations > 1){
-                zWithoutInitVal = getArrayValue(ReferenceSubPixel, RefIteration).plus_mutable(DeltaSubN);
+                zWithoutInitVal = getArrayValue(ReferenceSubCp, RefIteration).plus_mutable(DeltaSubN);
                 complex[0] = getArrayValue(Reference, RefIteration).plus_mutable(DeltaSubN);
             }
             //No Post filters work
@@ -481,6 +480,12 @@ public abstract class RootFindingMethods extends Fractal {
             if (zWithoutInitVal.norm_squared() < DeltaSubN.norm_squared() || RefIteration >= MaxRefIteration) {
                 DeltaSubN = zWithoutInitVal;
                 RefIteration = 0;
+
+                MaxRefIteration = Fractal.MaxRef2Iteration;
+                Reference = Fractal.SecondReference;
+                ReferenceSubCp = Fractal.SecondReferenceSubCp;
+                PrecalculatedTerms = Fractal.SecondPrecalculatedTerms;
+                PrecalculatedTerms2 = Fractal.SecondPrecalculatedTerms2;
             }
 
         }
@@ -519,17 +524,22 @@ public abstract class RootFindingMethods extends Fractal {
         DeltaSubN.Reduce();
         long exp = DeltaSubN.getExp();
 
+        int MaxRefIteration = Fractal.MaxRefIteration;
+        DeepReference ReferenceDeep = Fractal.ReferenceDeep;
+        DeepReference ReferenceSubCpDeep = Fractal.ReferenceSubCpDeep;
+        DeepReference PrecalculatedTermsDeep = Fractal.PrecalculatedTermsDeep;
+        DeepReference PrecalculatedTerms2Deep = Fractal.PrecalculatedTerms2Deep;
+
+        double[] Reference = Fractal.Reference;
+        double[] ReferenceSubCp = Fractal.ReferenceSubCp;
+        double[] PrecalculatedTerms = Fractal.PrecalculatedTerms;
+        double[] PrecalculatedTerms2 = Fractal.PrecalculatedTerms2;
+
         boolean useFullFloatExp = ThreadDraw.USE_FULL_FLOATEXP_FOR_DEEP_ZOOM;
 
-        boolean usedDeepCode = false;
         if(useFullFloatExp || (skippedIterations == 0 && exp <= minExp) || (skippedIterations != 0 && exp <= reducedExp)) {
-            usedDeepCode = true;
 
-            MantExpComplex z = new MantExpComplex();
-            if(iterations != 0 && RefIteration < MaxRefIteration) {
-                z = getArrayDeepValue(ReferenceSubPixelDeep, RefIteration).plus_mutable(DeltaSubN);
-                complex[0] = getArrayDeepValue(ReferenceDeep, RefIteration).plus_mutable(DeltaSubN).toComplex();;
-            }
+            MantExpComplex z = getArrayDeepValue(ReferenceSubCpDeep, RefIteration).plus_mutable(DeltaSubN);
 
             for (; iterations < max_iterations; iterations++) {
                 if (trap != null) {
@@ -551,7 +561,7 @@ public abstract class RootFindingMethods extends Fractal {
                     return res;
                 }
 
-                DeltaSubN = perturbationFunction(DeltaSubN, RefIteration);
+                DeltaSubN = perturbationFunction(DeltaSubN, ReferenceDeep, PrecalculatedTermsDeep, PrecalculatedTerms2Deep, RefIteration);
 
                 RefIteration++;
 
@@ -559,7 +569,7 @@ public abstract class RootFindingMethods extends Fractal {
                 zold.assign(complex[0]);
 
                 if (max_iterations > 1) {
-                    z = getArrayDeepValue(ReferenceSubPixelDeep, RefIteration).plus_mutable(DeltaSubN);
+                    z = getArrayDeepValue(ReferenceSubCpDeep, RefIteration).plus_mutable(DeltaSubN);
                     complex[0] = getArrayDeepValue(ReferenceDeep, RefIteration).plus_mutable(DeltaSubN).toComplex();
                 }
 
@@ -570,6 +580,18 @@ public abstract class RootFindingMethods extends Fractal {
                 if (z.norm_squared().compareTo(DeltaSubN.norm_squared()) < 0 || RefIteration >= MaxRefIteration) {
                     DeltaSubN = z;
                     RefIteration = 0;
+
+                    ReferenceDeep = Fractal.SecondReferenceDeep;
+                    ReferenceSubCpDeep = Fractal.SecondReferenceSubCpDeep;
+                    PrecalculatedTermsDeep = Fractal.SecondPrecalculatedTermsDeep;
+                    PrecalculatedTerms2Deep = Fractal.SecondPrecalculatedTerms2Deep;
+
+                    MaxRefIteration = MaxRef2Iteration;
+
+                    Reference = Fractal.SecondReference;
+                    ReferenceSubCp = Fractal.SecondReferenceSubCp;
+                    PrecalculatedTerms = Fractal.SecondPrecalculatedTerms;
+                    PrecalculatedTerms2 = Fractal.SecondPrecalculatedTerms2;
                 }
 
                 DeltaSubN.Reduce();
@@ -585,10 +607,6 @@ public abstract class RootFindingMethods extends Fractal {
 
         if(!useFullFloatExp) {
             Complex CDeltaSubN = DeltaSubN.toComplex();
-
-            if(!usedDeepCode && iterations != 0 && RefIteration < MaxRefIteration) {
-                complex[0] = getArrayValue(Reference, RefIteration).plus_mutable(CDeltaSubN);
-            }
 
             for (; iterations < max_iterations; iterations++) {
 
@@ -613,7 +631,7 @@ public abstract class RootFindingMethods extends Fractal {
                     return res;
                 }
 
-                CDeltaSubN = perturbationFunction(CDeltaSubN, RefIteration);
+                CDeltaSubN = perturbationFunction(CDeltaSubN, Reference, PrecalculatedTerms, PrecalculatedTerms2, RefIteration);
 
                 RefIteration++;
 
@@ -623,7 +641,7 @@ public abstract class RootFindingMethods extends Fractal {
                 //No Plane influence work
                 //No Pre filters work
                 if (max_iterations > 1) {
-                    zWithoutInitVal = getArrayValue(ReferenceSubPixel, RefIteration).plus_mutable(CDeltaSubN);
+                    zWithoutInitVal = getArrayValue(ReferenceSubCp, RefIteration).plus_mutable(CDeltaSubN);
                     complex[0] = getArrayValue(Reference, RefIteration).plus_mutable(CDeltaSubN);
                 }
                 //No Post filters work
@@ -635,6 +653,12 @@ public abstract class RootFindingMethods extends Fractal {
                 if (zWithoutInitVal.norm_squared() < CDeltaSubN.norm_squared() || RefIteration >= MaxRefIteration) {
                     CDeltaSubN = zWithoutInitVal;
                     RefIteration = 0;
+
+                    Reference = Fractal.SecondReference;
+                    ReferenceSubCp = Fractal.SecondReferenceSubCp;
+                    PrecalculatedTerms = Fractal.SecondPrecalculatedTerms;
+                    PrecalculatedTerms2 = Fractal.SecondPrecalculatedTerms2;
+                    MaxRefIteration = Fractal.MaxRef2Iteration;
                 }
 
             }

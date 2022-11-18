@@ -1,11 +1,9 @@
 package fractalzoomer.core.antialiasing;
 
-import java.util.Random;
-
 public abstract class AntialiasingAlgorithm {
     protected int totalSamples;
 
-    public AntialiasingAlgorithm(int totalSamples) {
+    protected AntialiasingAlgorithm(int totalSamples) {
         this.totalSamples = totalSamples;
     }
 

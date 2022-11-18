@@ -16,8 +16,7 @@
  */
 package fractalzoomer.palettes;
 
-import fractalzoomer.core.interpolation.*;
-import fractalzoomer.main.MainWindow;
+import fractalzoomer.core.interpolation.InterpolationMethod;
 
 import java.awt.*;
 
@@ -67,4 +66,30 @@ public class PaletteColorSmooth extends PaletteColor {
 
     }
 
+    @Override
+    public int calculateColor(double result, int paletteId,  int color_cycling_location, int cycle) {
+
+        int color;
+        int color2;
+
+        if(result == 0) {
+            color = color2 = getGeneratedColor(((int)result), paletteId, color_cycling_location, cycle);
+        }
+        else {
+            color = getGeneratedColor(((int)result - 1), paletteId, color_cycling_location, cycle);
+            color2 = getGeneratedColor(((int)result), paletteId, color_cycling_location, cycle);
+        }
+
+        int color_red = (color >> 16) & 0xff;
+        int color_green = (color >> 8) & 0xff;
+        int color_blue = color & 0xff;
+
+        int color2_red = (color2 >> 16) & 0xff;
+        int color2_green = (color2 >> 8) & 0xff;
+        int color2_blue = color2 & 0xff;
+
+        double coef = result - (int)result; //fractional part
+
+        return interpolator.interpolate(color_red, color_green, color_blue, color2_red, color2_green, color2_blue, coef);
+    }
 }

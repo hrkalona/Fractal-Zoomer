@@ -1,6 +1,5 @@
 package fractalzoomer.core.bla;
 
-import fractalzoomer.core.Complex;
 import fractalzoomer.core.MantExp;
 import fractalzoomer.core.MantExpComplex;
 
@@ -9,7 +8,7 @@ public abstract class BLADeepGenericStep extends BLADeep {
     public double Bx, By;
     public long Bexp;
 
-    public BLADeepGenericStep(MantExp r2, MantExpComplex A, MantExpComplex B) {
+    protected BLADeepGenericStep(MantExp r2, MantExpComplex A, MantExpComplex B) {
         super(r2, A);
         this.Bx = B.getMantissaReal();
         this.By = B.getMantissaImag();

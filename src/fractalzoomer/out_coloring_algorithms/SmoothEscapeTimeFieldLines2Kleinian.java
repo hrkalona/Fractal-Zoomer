@@ -22,13 +22,11 @@ import fractalzoomer.core.Complex;
 public class SmoothEscapeTimeFieldLines2Kleinian extends OutColorAlgorithm {
     private double u;
     private double log_bailout_squared;
-    private double pi2;
 
     public SmoothEscapeTimeFieldLines2Kleinian(double u, double log_bailout_squared) {
 
         super();
         this.u = u * 0.5;
-        pi2 = Math.PI * 2;
         this.log_bailout_squared = log_bailout_squared;
         OutNotUsingIncrement = false;
 
