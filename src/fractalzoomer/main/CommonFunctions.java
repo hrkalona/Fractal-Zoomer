@@ -1671,6 +1671,9 @@ public class CommonFunctions implements Constants {
                             if (s.cns.contourColorMethod == 3) {
                                 overview += tab2 + "Color Blending = " + s.cns.cn_blending + "<br>";
                             }
+                            if(s.cns.contourColorMethod == 0 || s.cns.contourColorMethod == 2 || s.cns.contourColorMethod == 3) {
+                                overview += tab + "Min Contour Factor = " + s.cns.min_contour + "<br>";
+                            }
                             overview += tab + "Noise Reduction Factor = " + s.cns.cn_noise_reducing_factor + "<br><br>";
                         }
                         break;
@@ -1695,7 +1698,7 @@ public class CommonFunctions implements Constants {
         }
 
         if (!s.useDirectColor) {
-            overview += "<b><font color='red'>Color Blending:</font></b> " + ColorBlendingMenu.colorBlendingNames[s.color_blending] + "<br>";
+            overview += "<b><font color='red'>Color Blending:</font></b> " + ColorBlendingMenu.colorBlendingNames[s.color_blending.color_blending] + "<br>";
             overview += tab + "Interpolation = " + color_interp_str[s.color_smoothing_method] + "<br><br>";
 
 
@@ -1861,19 +1864,8 @@ public class CommonFunctions implements Constants {
                     file_chooser.setSelectedFile(new File(name));
 
                     file_chooser.addPropertyChangeListener(JFileChooser.FILE_FILTER_CHANGED_PROPERTY, evt -> {
-                        FileNameExtensionFilter filter = (FileNameExtensionFilter) evt.getNewValue();
-
-                        String extension = filter.getExtensions()[0];
-
                         String file_name = ((BasicFileChooserUI) file_chooser.getUI()).getFileName();
-
-                        int index = file_name.lastIndexOf(".");
-
-                        if (index != -1) {
-                            file_name = file_name.substring(0, index);
-                        }
-
-                        file_chooser.setSelectedFile(new File(file_name + "." + extension));
+                        file_chooser.setSelectedFile(new File(file_name));
                     });
 
                     int returnVal = file_chooser.showDialog(parent, "Save Image");

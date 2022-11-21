@@ -335,7 +335,7 @@ public class PaletteMenu extends JMenu {
   
     }
 
-    public static int[] choosePaletteFiler(Component parent) {
+    public static int[] choosePaletteFile(Component parent) {
 
         JFileChooser file_chooser = new JFileChooser(MainWindow.SaveSettingsPath.isEmpty() ? "." : MainWindow.SaveSettingsPath);
 

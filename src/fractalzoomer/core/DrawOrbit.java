@@ -361,7 +361,7 @@ public class DrawOrbit extends Thread {
                 f0 = f0 < 0 ? f0 + 2 * Math.PI : f0;
                 
                 x0 = (int)((Math.log(r0) - start) / mulx + 0.5);
-                y0 = (int)((f0 / muly + 0.5));
+                y0 = (int)(f0 / muly + 0.5);
                 
                 Complex n1 = complex_orbit.get(i + 1).sub(new Complex(xcenter, ycenter));
                 r1 = n1.norm();
@@ -369,7 +369,7 @@ public class DrawOrbit extends Thread {
                 
                 f1 = f1 < 0 ? f1 + 2 * Math.PI : f1;
                 x1 = (int)((Math.log(r1) - start) / mulx + 0.5);
-                y1 = (int)((f1 / muly + 0.5));
+                y1 = (int)(f1 / muly + 0.5);
                 
             }
             else {
@@ -467,7 +467,7 @@ public class DrawOrbit extends Thread {
                 f0 = f0 < 0 ? f0 + 2 * Math.PI : f0;
                 
                 x0 = (int)((Math.log(r0) - start) / mulx + 0.5);
-                y0 = (int)((f0 / muly + 0.5));
+                y0 = (int)(f0 / muly + 0.5);
             }
             else {
                 x0 = (int)((complex_orbit.get(i).getRe() - temp_xcenter_size) / temp_size_image_size_x + 0.5);

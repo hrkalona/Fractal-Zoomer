@@ -167,7 +167,10 @@ public class BigNumComplex extends GenericComplex {
      */
     public final BigNumComplex times(BigNumComplex z) {
 
-        return new BigNumComplex(re.mult(z.re).sub(im.mult(z.im)),  re.mult(z.im).add(im.mult(z.re)));
+        //return new BigNumComplex(re.mult(z.re).sub(im.mult(z.im)),  re.mult(z.im).add(im.mult(z.re)));
+        BigNum ac = re.mult(z.re);
+        BigNum bd = im.mult(z.im);
+        return new BigNumComplex(ac.sub(bd), re.add(im).mult(z.re.add(z.im)).sub(ac).sub(bd));
 
     }
 
@@ -472,7 +475,10 @@ public class BigNumComplex extends GenericComplex {
     public final BigNumComplex times(GenericComplex zn) {
 
         BigNumComplex z = (BigNumComplex)zn;
-        return new BigNumComplex(re.mult(z.re).sub(im.mult(z.im)),  re.mult(z.im).add(im.mult(z.re)));
+        //return new BigNumComplex(re.mult(z.re).sub(im.mult(z.im)),  re.mult(z.im).add(im.mult(z.re)));
+        BigNum ac = re.mult(z.re);
+        BigNum bd = im.mult(z.im);
+        return new BigNumComplex(ac.sub(bd), re.add(im).mult(z.re.add(z.im)).sub(ac).sub(bd));
 
     }
 
@@ -627,4 +633,12 @@ public class BigNumComplex extends GenericComplex {
 
     @Override
     public GenericComplex times_mutable(GenericComplex a) {return times(a);}
+
+    public boolean isZero() {
+        return re.isZero() && im.isZero();
+    }
+
+    public boolean isOne() {
+        return re.isOne() && im.isZero();
+    }
 }

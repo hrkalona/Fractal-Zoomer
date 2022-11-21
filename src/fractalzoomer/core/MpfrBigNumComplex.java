@@ -402,7 +402,7 @@ public class MpfrBigNumComplex extends GenericComplex {
      */
     public final MpfrBigNumComplex times(MpfrBigNumComplex z) {
 
-        MpfrBigNum tempRe = re.mult(z.re);
+        /*MpfrBigNum tempRe = re.mult(z.re);
         MpfrBigNum tempRe2 = im.mult(z.im);
         tempRe.sub(tempRe2, tempRe);
 
@@ -410,24 +410,45 @@ public class MpfrBigNumComplex extends GenericComplex {
         MpfrBigNum tempIm2 = im.mult(z.re);
         tempIm.add(tempIm2, tempIm);
 
-        return new MpfrBigNumComplex(tempRe, tempIm);
+        return new MpfrBigNumComplex(tempRe, tempIm);*/
+
+        MpfrBigNum ac = re.mult(z.re);
+        MpfrBigNum bd = im.mult(z.im);
+
+        MpfrBigNum tempIm = re.add(im);
+        MpfrBigNum tempIm2 = z.re.add(z.im);
+        tempIm.mult(tempIm2, tempIm);
+        tempIm.sub(ac, tempIm);
+        tempIm.sub(bd, tempIm);
+
+        return new MpfrBigNumComplex(ac.sub(bd, ac), tempIm);
 
     }
 
     public final MpfrBigNumComplex times_mutable(MpfrBigNumComplex z) {
 
-        MpfrBigNum tempRe = new MpfrBigNum(re);
-        MpfrBigNum tempIm = new MpfrBigNum(im);
+//        MpfrBigNum tempRe = new MpfrBigNum(re);
+//        MpfrBigNum tempIm = new MpfrBigNum(im);
+//
+//        tempRe = tempRe.mult(z.re, tempRe);
+//        tempIm = tempIm.mult(z.im, tempIm);
+//        tempRe = tempRe.sub(tempIm, tempRe);
+//
+//        re.mult(z.im, re);
+//        im.mult(z.re, im);
+//        im.add(re, im);
+//
+//        re = tempRe;
 
-        tempRe = tempRe.mult(z.re, tempRe);
-        tempIm = tempIm.mult(z.im, tempIm);
-        tempRe = tempRe.sub(tempIm, tempRe);
+        MpfrBigNum ac = re.mult(z.re);
+        MpfrBigNum bd = im.mult(z.im);
 
-        re.mult(z.im, re);
-        im.mult(z.re, im);
-        im.add(re, im);
-
-        re = tempRe;
+        MpfrBigNum tempIm = re.add(im);
+        MpfrBigNum tempIm2 = z.re.add(z.im);
+        tempIm.mult(tempIm2, tempIm);
+        tempIm.sub(ac, tempIm);
+        tempIm.sub(bd, im);
+        ac.sub(bd, re);
 
         return this;
 
@@ -1266,34 +1287,26 @@ public class MpfrBigNumComplex extends GenericComplex {
     public final MpfrBigNumComplex times(GenericComplex zn) {
         MpfrBigNumComplex z = (MpfrBigNumComplex)zn;
 
-        MpfrBigNum tempRe = re.mult(z.re);
-        MpfrBigNum tempRe2 = im.mult(z.im);
-        tempRe.sub(tempRe2, tempRe);
+//        MpfrBigNum tempRe = re.mult(z.re);
+//        MpfrBigNum tempRe2 = im.mult(z.im);
+//        tempRe.sub(tempRe2, tempRe);
+//
+//        MpfrBigNum tempIm = re.mult(z.im);
+//        MpfrBigNum tempIm2 = im.mult(z.re);
+//        tempIm.add(tempIm2, tempIm);
+//
+//        return new MpfrBigNumComplex(tempRe, tempIm);
 
-        MpfrBigNum tempIm = re.mult(z.im);
-        MpfrBigNum tempIm2 = im.mult(z.re);
-        tempIm.add(tempIm2, tempIm);
+        MpfrBigNum ac = re.mult(z.re);
+        MpfrBigNum bd = im.mult(z.im);
 
-        return new MpfrBigNumComplex(tempRe, tempIm);
+        MpfrBigNum tempIm = re.add(im);
+        MpfrBigNum tempIm2 = z.re.add(z.im);
+        tempIm.mult(tempIm2, tempIm);
+        tempIm.sub(ac, tempIm);
+        tempIm.sub(bd, tempIm);
 
-    }
-
-    /*
-     *  z1 = z1 * z2
-     */
-    public final MpfrBigNumComplex times_mutable(MpfrBigNumComplex z, MpfrBigNum tempRe, MpfrBigNum tempIm) {
-
-        re.mult(z.re, tempRe);
-        im.mult(z.im, tempIm);
-        tempRe.sub(tempIm, tempRe);
-
-        re.mult(z.im, re);
-        im.mult(z.re, im);
-        im.add(re, im);
-
-        re.set(tempRe);
-
-        return this;
+        return new MpfrBigNumComplex(ac.sub(bd, ac), tempIm);
 
     }
 
@@ -2736,18 +2749,28 @@ public class MpfrBigNumComplex extends GenericComplex {
     public final MpfrBigNumComplex times_mutable(GenericComplex za) {
         MpfrBigNumComplex z = (MpfrBigNumComplex)za;
 
-        MpfrBigNum tempRe = new MpfrBigNum(re);
-        MpfrBigNum tempIm = new MpfrBigNum(im);
+//        MpfrBigNum tempRe = new MpfrBigNum(re);
+//        MpfrBigNum tempIm = new MpfrBigNum(im);
+//
+//        tempRe = tempRe.mult(z.re, tempRe);
+//        tempIm = tempIm.mult(z.im, tempIm);
+//        tempRe = tempRe.sub(tempIm, tempRe);
+//
+//        re.mult(z.im, re);
+//        im.mult(z.re, im);
+//        im.add(re, im);
+//
+//        re = tempRe;
 
-        tempRe = tempRe.mult(z.re, tempRe);
-        tempIm = tempIm.mult(z.im, tempIm);
-        tempRe = tempRe.sub(tempIm, tempRe);
+        MpfrBigNum ac = re.mult(z.re);
+        MpfrBigNum bd = im.mult(z.im);
 
-        re.mult(z.im, re);
-        im.mult(z.re, im);
-        im.add(re, im);
-
-        re = tempRe;
+        MpfrBigNum tempIm = re.add(im);
+        MpfrBigNum tempIm2 = z.re.add(z.im);
+        tempIm.mult(tempIm2, tempIm);
+        tempIm.sub(ac, tempIm);
+        tempIm.sub(bd, im);
+        ac.sub(bd, re);
 
         return this;
 

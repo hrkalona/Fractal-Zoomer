@@ -47,7 +47,7 @@ public class ColorsMenu extends JMenu {
     private JMenuItem out_true_color_opt;
     private JMenuItem in_true_color_opt;
     
-    public ColorsMenu(MainWindow ptr2, String name, PaletteSettings ps, PaletteSettings ps2, boolean smoothing, int out_coloring_algorithm, int in_coloring_algorithm, int color_blending, int temp_color_cycling_location, int temp_color_cycling_location2) {
+    public ColorsMenu(MainWindow ptr2, String name, PaletteSettings ps, PaletteSettings ps2, boolean smoothing, int out_coloring_algorithm, int in_coloring_algorithm, int color_blending, boolean color_blending_reverse_order, int temp_color_cycling_location, int temp_color_cycling_location2) {
 
         super(name);
 
@@ -76,7 +76,7 @@ public class ColorsMenu extends JMenu {
                
         processing = new ProcessingMenu(ptr, "Processing");      
         
-        color_blending_menu = new ColorBlendingMenu(ptr, "Blending", color_blending);
+        color_blending_menu = new ColorBlendingMenu(ptr, "Blending", color_blending, color_blending_reverse_order);
         
         gradient = new JMenuItem("Gradient", MainWindow.getIcon("gradient.png"));
 

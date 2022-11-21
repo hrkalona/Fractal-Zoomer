@@ -5,7 +5,8 @@ import fractalzoomer.core.MantExpComplex;
 
 public abstract class BLADeepGenericStep extends BLADeep {
 
-    public double Bx, By;
+    public double Bx;
+    public double By;
     public long Bexp;
 
     protected BLADeepGenericStep(MantExp r2, MantExpComplex A, MantExpComplex B) {
@@ -37,7 +38,7 @@ public abstract class BLADeepGenericStep extends BLADeep {
 
     @Override
     public MantExp hypotB() {
-        return MantExp.hypot(Bx, By, Bexp);
+        return MantExpComplex.hypot(Bx, By, Bexp);
     }
 
     @Override

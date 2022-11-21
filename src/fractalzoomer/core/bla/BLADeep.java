@@ -4,8 +4,11 @@ import fractalzoomer.core.MantExp;
 import fractalzoomer.core.MantExpComplex;
 
 public abstract class BLADeep {
-    public double r2, Ax, Ay;
-    public long Aexp, r2exp;
+    public double r2;
+    public double Ax;
+    public double Ay;
+    public long Aexp;
+    public long r2exp;
 
     protected BLADeep(MantExp r2, MantExpComplex A) {
         this.r2 = r2.getMantissa();
@@ -24,7 +27,7 @@ public abstract class BLADeep {
     }
 
     public MantExp hypotA() {
-        return MantExp.hypot(Ax, Ay, Aexp);
+        return MantExpComplex.hypot(Ax, Ay, Aexp);
     }
 
     public abstract MantExp hypotB();

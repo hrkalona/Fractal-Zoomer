@@ -207,7 +207,7 @@ public class MagneticPendulum extends FractalWithoutConstant {
         iterationData = object;
         double out = out_color_algorithm.getResult(object);
 
-        out = getFinalValueOut(out);
+        out = getFinalValueOut(out, complex[0]);
 
         if (outTrueColorAlgorithm != null) {
             setTrueColorOut(complex[0], zold, zold2, iterations, pixel, start, c0, pixel);
@@ -255,9 +255,9 @@ public class MagneticPendulum extends FractalWithoutConstant {
     public double getFractal3DHeight(double value) {
 
         if (escaped) {
-            double res = out_color_algorithm.getResult3D(iterationData);
+            double res = out_color_algorithm.getResult3D(iterationData, value);
 
-            res = getFinalValueOut(res);
+            res = getFinalValueOut(res, (Complex) iterationData[1]);
 
             return ColorAlgorithm.transformResultToHeight(res, max_iterations);
         }

@@ -40,12 +40,16 @@ public class PolarLocationNormalDoubleDoubleArbitrary extends Location {
 
     private JitterSettings js;
 
-    public PolarLocationNormalDoubleDoubleArbitrary(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int image_size, double circle_period, Apfloat[] rotation_center, Apfloat[] rotation_vals, Fractal fractal, JitterSettings js) {
+    private boolean requiresVariablePixelSize;
+
+    public PolarLocationNormalDoubleDoubleArbitrary(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int image_size_in, double circle_period, Apfloat[] rotation_center, Apfloat[] rotation_vals, Fractal fractal, JitterSettings js) {
 
         super();
 
         this.fractal = fractal;
-        this.image_size = image_size;
+        this.image_size = offset.getImageSize(image_size_in);
+
+        requiresVariablePixelSize = fractal.requiresVariablePixelSize();
 
         ddxcenter = new DoubleDouble(xCenter);
         ddycenter = new DoubleDouble(yCenter);
@@ -100,12 +104,17 @@ public class PolarLocationNormalDoubleDoubleArbitrary extends Location {
         ddantialiasing_x = other.ddantialiasing_x;
 
         js = other.js;
+        requiresVariablePixelSize = other.requiresVariablePixelSize;
 
+    }
+
+    public void setVariablePixelSize(DoubleDouble expValue) {
+        fractal.setVariablePixelSize(expValue.multiply(ddmulx).getMantExp());
     }
 
     @Override
     public GenericComplex getComplex(int x, int y) {
-        return getComplexBase(x, y);
+        return getComplexBase(offset.getX(x), offset.getY(y));
     }
 
     protected DDComplex getComplexBase(int x, int y) {
@@ -152,6 +161,10 @@ public class PolarLocationNormalDoubleDoubleArbitrary extends Location {
 
         //As alternative as it works with low prec as well sin/cos
 
+        if(requiresVariablePixelSize) {
+            setVariablePixelSize(temp_ddr);
+        }
+
         DDComplex temp = new DDComplex(ddxcenter.add(temp_ddr.multiply(temp_ddcf)), ddycenter.add(temp_ddr.multiply(temp_ddsf)));
 
         temp = rotation.rotate(temp);
@@ -163,6 +176,8 @@ public class PolarLocationNormalDoubleDoubleArbitrary extends Location {
 
     @Override
     public void precalculateY(int y) {
+
+        y = offset.getY(y);
 
         if(!js.enableJitter) {
             if (y == indexY + 1) {
@@ -191,6 +206,8 @@ public class PolarLocationNormalDoubleDoubleArbitrary extends Location {
     @Override
     public void precalculateX(int x) {
 
+        x = offset.getX(x);
+
         if(!js.enableJitter) {
             if (x == indexX + 1) {
                 temp_ddr = temp_ddr.multiply(ddemulx);
@@ -201,13 +218,17 @@ public class PolarLocationNormalDoubleDoubleArbitrary extends Location {
             }
         }
 
+        if(requiresVariablePixelSize) {
+            setVariablePixelSize(temp_ddr);
+        }
+
         indexX = x;
 
     }
 
     @Override
     public GenericComplex getComplexWithX(int x) {
-        return getComplexWithXBase(x);
+        return getComplexWithXBase(offset.getX(x));
     }
 
     protected DDComplex getComplexWithXBase(int x) {
@@ -226,6 +247,10 @@ public class PolarLocationNormalDoubleDoubleArbitrary extends Location {
 
         indexX = x;
 
+        if(requiresVariablePixelSize) {
+            setVariablePixelSize(temp_ddr);
+        }
+
         DDComplex temp = new DDComplex(ddxcenter.add(temp_ddr.multiply(temp_ddcf)), ddycenter.add(temp_ddr.multiply(temp_ddsf)));
 
         temp = rotation.rotate(temp);
@@ -240,7 +265,7 @@ public class PolarLocationNormalDoubleDoubleArbitrary extends Location {
 
     @Override
     public GenericComplex getComplexWithY(int y) {
-        return getComplexWithYBase(y);
+        return getComplexWithYBase(offset.getY(y));
     }
 
     protected DDComplex getComplexWithYBase(int y) {
@@ -297,6 +322,10 @@ public class PolarLocationNormalDoubleDoubleArbitrary extends Location {
         DoubleDouble ddcf2 = temp_ddcf.multiply(ddantialiasing_y_cos[sample]).subtract(temp_ddsf.multiply(ddantialiasing_y_sin[sample]));
 
         DoubleDouble ddr2 = temp_ddr.multiply(ddantialiasing_x[sample]);
+
+        if(requiresVariablePixelSize) {
+            setVariablePixelSize(ddr2);
+        }
 
         DDComplex temp = new DDComplex(ddxcenter.add(ddr2.multiply(ddcf2)), ddycenter.add(ddr2.multiply(ddsf2)));
 

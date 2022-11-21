@@ -482,4 +482,7 @@ public class Newton3 extends NewtonRootFindingMethod {
         return true;
     }
 
+    @Override
+    public boolean requiresDifferentDoubleOrDoubleDoubleLimits() { return true; }
+
 }

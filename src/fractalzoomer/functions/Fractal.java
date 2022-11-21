@@ -142,6 +142,20 @@ public abstract class Fractal {
     protected long bla_iterations;
     protected long perturb_iterations;
 
+    protected long float_exp_iterations;
+
+    protected long double_iterations;
+    protected long scaled_iterations;
+
+    protected long rebases;
+
+    public static LongAdder total_float_exp_iterations;
+    public static LongAdder total_double_iterations;
+    public static LongAdder total_scaled_iterations;
+
+    public static LongAdder total_rebases;
+
+
     public static LongAdder total_bla_iterations;
     public static LongAdder total_bla_steps;
     public static LongAdder total_perturb_iterations;
@@ -183,6 +197,8 @@ public abstract class Fractal {
     public static Object minValue;
     public static String RefType = "";
     public static int skippedIterations;
+
+    protected static final double scaledE = 2.2250738585072014e-308;
     protected static final int skippedThreshold = 3;
     protected double power = 0;
     protected boolean burning_ship = false;
@@ -204,6 +220,7 @@ public abstract class Fractal {
     public static Nanomb1 nanomb1;
 
     public static ArrayList<Integer> tinyRefPts = new ArrayList<>();
+    public static int[] tinyRefPtsArray;
 
     public Fractal() {
         plane = new MuPlane();
@@ -246,7 +263,7 @@ public abstract class Fractal {
         point = plane_transform_center;
 
         //skippedIterations = 0;
-        
+
     }
 
     //orbit
@@ -263,7 +280,7 @@ public abstract class Fractal {
         this.complex_orbit = complex_orbit;
         pixel_orbit = this.complex_orbit.get(0);
 
-        defaultInitVal = new InitialValue(0,0);
+        defaultInitVal = new InitialValue(0, 0);
 
         globalVars = createGlobalVars();
 
@@ -278,19 +295,23 @@ public abstract class Fractal {
     }
 
     public abstract void function(Complex[] complex);
-    public void function(BigComplex[] complex) {}
-    public void function(BigNumComplex[] complex) {}
+
+    public void function(BigComplex[] complex) {
+    }
+
+    public void function(BigNumComplex[] complex) {
+    }
 
     public Complex perturbationFunction(Complex dz, Complex dc, int RefIteration) {
-        return  new Complex();
+        return new Complex();
     }
 
     public Complex perturbationFunctionScaled(Complex dz, Complex dc, double s, int RefIteration) {
-        return  new Complex();
+        return new Complex();
     }
 
     public Complex perturbationFunctionScaled(Complex dz, double s, int RefIteration) {
-        return  new Complex();
+        return new Complex();
     }
 
     public MantExpComplex perturbationFunction(MantExpComplex dz, MantExpComplex dc, int RefIteration) {
@@ -298,7 +319,7 @@ public abstract class Fractal {
     }
 
     public Complex perturbationFunction(Complex dz, int RefIteration) {
-        return  new Complex();
+        return new Complex();
     }
 
     public MantExpComplex perturbationFunction(MantExpComplex dz, int RefIteration) {
@@ -306,7 +327,7 @@ public abstract class Fractal {
     }
 
     public Complex perturbationFunction(Complex dz, double[] Reference, double[] PrecalculatedTerms, double[] PrecalculatedTerms2, int RefIteration) {
-        return  new Complex();
+        return new Complex();
     }
 
     public MantExpComplex perturbationFunction(MantExpComplex dz, DeepReference ReferenceDeep, DeepReference PrecalculatedTermsDeep, DeepReference PrecalculatedTerms2Deep, int RefIteration) {
@@ -348,7 +369,7 @@ public abstract class Fractal {
 
     public Complex getTransformedPixel(Complex pixel) {
 
-        if(ThreadDraw.PERTURBATION_THEORY && supportsPerturbationTheory() && !isOrbit && !isDomain) {
+        if (ThreadDraw.PERTURBATION_THEORY && supportsPerturbationTheory() && !isOrbit && !isDomain) {
             return pixel;
         }
 
@@ -364,11 +385,10 @@ public abstract class Fractal {
 
     public Complex getPlaneTransformedPixel(Complex pixel) {
 
-        if(!isJulia || (isJulia && applyPlaneOnJulia())) {
+        if (!isJulia || applyPlaneOnJulia()) {
             try {
                 return plane.transform(pixel);
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 return pixel;
             }
         }
@@ -378,11 +398,10 @@ public abstract class Fractal {
 
     public BigComplex getPlaneTransformedPixel(BigComplex pixel) {
 
-        if(!isJulia || (isJulia && applyPlaneOnJulia())) {
+        if (!isJulia || applyPlaneOnJulia()) {
             try {
                 return plane.transform(pixel);
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 return pixel;
             }
         }
@@ -392,11 +411,10 @@ public abstract class Fractal {
 
     public DDComplex getPlaneTransformedPixel(DDComplex pixel) {
 
-        if(!isJulia || (isJulia && applyPlaneOnJulia())) {
+        if (!isJulia || applyPlaneOnJulia()) {
             try {
                 return plane.transform(pixel);
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 return pixel;
             }
         }
@@ -406,11 +424,10 @@ public abstract class Fractal {
 
     public MpfrBigNumComplex getPlaneTransformedPixel(MpfrBigNumComplex pixel) {
 
-        if(!isJulia || (isJulia && applyPlaneOnJulia())) {
+        if (!isJulia || applyPlaneOnJulia()) {
             try {
                 return plane.transform(pixel);
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 return pixel;
             }
         }
@@ -420,11 +437,10 @@ public abstract class Fractal {
 
     public BigNumComplex getPlaneTransformedPixel(BigNumComplex pixel) {
 
-        if(!isJulia || (isJulia && applyPlaneOnJulia())) {
+        if (!isJulia || applyPlaneOnJulia()) {
             try {
                 return plane.transform(pixel);
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 return pixel;
             }
         }
@@ -442,11 +458,11 @@ public abstract class Fractal {
 
         resetGlobalVars();
 
-        if(gpixel instanceof Complex) {
+        if (gpixel instanceof Complex) {
 
-            Complex pixel = (Complex)gpixel;
+            Complex pixel = (Complex) gpixel;
 
-            if(ThreadDraw.PERTURBATION_THEORY && supportsPerturbationTheory()) {
+            if (ThreadDraw.PERTURBATION_THEORY && supportsPerturbationTheory()) {
 
                 Complex pixelWithoutDelta = pixel.plus(refPointSmall);
 
@@ -460,12 +476,10 @@ public abstract class Fractal {
 
                 try {
                     return ThreadDraw.APPROXIMATION_ALGORITHM == 2 && supportsBilinearApproximation() ? iterateFractalWithPerturbationBLAWithoutPeriodicity(initialize(pixel), pixel) : iterateFractalWithPerturbationWithoutPeriodicity(initialize(pixel), pixel);
-                }
-                catch (Exception ex) {
+                } catch (Exception ex) {
                     return 0;
                 }
-            }
-            else {
+            } else {
                 Complex transformed = getTransformedPixel(pixel);
 
                 if (statistic != null) {
@@ -478,8 +492,7 @@ public abstract class Fractal {
 
                 return periodicity_checking ? iterateFractalWithPeriodicity(initialize(transformed), transformed) : iterateFractalWithoutPeriodicity(initialize(transformed), transformed);
             }
-        }
-        else {
+        } else {
             MantExpComplex pixel = (MantExpComplex) gpixel;
 
             Complex pix = pixel.toComplex();
@@ -496,18 +509,14 @@ public abstract class Fractal {
 
             try {
 
-                if(ThreadDraw.APPROXIMATION_ALGORITHM == 2 && supportsBilinearApproximation()) {
+                if (ThreadDraw.APPROXIMATION_ALGORITHM == 2 && supportsBilinearApproximation()) {
                     return iterateFractalWithPerturbationBLAWithoutPeriodicity(initialize(pix), pixel);
-                }
-//                else if(ThreadDraw.SCALED_ITERATIONS && supportsScaledIterations())
-//                {
-//                    return iterateFractalWithPerturbationWithoutPeriodicityScaled(initialize(pix), pixel);
-//                }
-                else {
+                } else if (ThreadDraw.PERTUBATION_PIXEL_ALGORITHM == 1 && supportsScaledIterations()) {
+                    return iterateFractalWithPerturbationWithoutPeriodicityScaled(initialize(pix), pixel);
+                } else {
                     return iterateFractalWithPerturbationWithoutPeriodicity(initialize(pix), pixel);
                 }
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 return 0;
             }
         }
@@ -569,18 +578,16 @@ public abstract class Fractal {
 
         Complex[] complex = new Complex[2];
 
-        if(ThreadDraw.PERTURBATION_THEORY && supportsPerturbationTheory()) {
-            if(!isOrbit && !isDomain) {
+        if (ThreadDraw.PERTURBATION_THEORY && supportsPerturbationTheory()) {
+            if (!isOrbit && !isDomain) {
                 Complex temp = pixel.plus(refPointSmall);
                 complex[0] = new Complex(defaultInitVal.getValue(temp));
                 complex[1] = new Complex(temp);
-            }
-            else {
+            } else {
                 complex[0] = new Complex(defaultInitVal.getValue(pixel));
                 complex[1] = new Complex(pixel);
             }
-        }
-        else {
+        } else {
             complex[0] = new Complex(pertur_val.getValue(init_val.getValue(pixel)));//z
             complex[1] = new Complex(pixel);//c
         }
@@ -626,45 +633,49 @@ public abstract class Fractal {
 
     }
 
-    public BigNumComplex[] initializeSeed(BigNumComplex pixel) {return null;}
+    public BigNumComplex[] initializeSeed(BigNumComplex pixel) {
+        return null;
+    }
 
-    public BigComplex[] initializeSeed(BigComplex pixel) {return null;}
+    public BigComplex[] initializeSeed(BigComplex pixel) {
+        return null;
+    }
 
-    public Complex[] initializeSeed(Complex pixel) {return null;}
+    public Complex[] initializeSeed(Complex pixel) {
+        return null;
+    }
 
     public Complex[] initializePerturbation(Complex dpixel) {
 
         Complex[] complex = new Complex[2];
 
-        if(isJulia) {
+        if (isJulia) {
             complex[0] = new Complex(dpixel);
             complex[1] = null;
-        }
-        else {
+        } else {
             complex[0] = new Complex();
             complex[1] = new Complex(dpixel);
 
-            if(skippedIterations != 0 && ThreadDraw.APPROXIMATION_ALGORITHM == 1 && supportsSeriesApproximation()) {
+            if (skippedIterations != 0 && ThreadDraw.APPROXIMATION_ALGORITHM == 1 && supportsSeriesApproximation()) {
 
                 GenericComplex[] result = initializeFromSeries(dpixel);
                 complex[0] = (Complex) result[0];
 
-                if(statistic != null && statistic instanceof NormalMap) {
-                    ((NormalMap)statistic).initializeApproximationDerivatives(
+                if (statistic != null && statistic instanceof NormalMap) {
+                    ((NormalMap) statistic).initializeApproximationDerivatives(
                             new MantExpComplex(getArrayValue(Reference, skippedIterations)).plus_mutable((MantExpComplex) result[1]),
                             new MantExpComplex(getArrayValue(Reference, skippedIterations)).plus_mutable((MantExpComplex) result[2])
-                            );
+                    );
                 }
 
-            }
-            else if(ThreadDraw.APPROXIMATION_ALGORITHM == 3 && supportsNanomb1()) {
+            } else if (ThreadDraw.APPROXIMATION_ALGORITHM == 3 && supportsNanomb1()) {
                 GenericComplex[] result = initializeFromNanomb1(dpixel);
 
-                complex[0] = new Complex((Complex)result[1]);
-                complex[1] = new Complex((Complex)result[0]);
+                complex[0] = new Complex((Complex) result[1]);
+                complex[1] = new Complex((Complex) result[0]);
 
-                if(statistic != null && statistic instanceof NormalMap && nanomb1SkippedIterations < max_iterations) {
-                    ((NormalMap)statistic).initializeApproximationDerivatives(
+                if (statistic != null && statistic instanceof NormalMap && nanomb1SkippedIterations < max_iterations) {
+                    ((NormalMap) statistic).initializeApproximationDerivatives(
                             new MantExpComplex(getArrayValue(Reference, nanomb1SkippedIterations % iterationPeriod)).plus_mutable((MantExpComplex) result[2]),
                             new MantExpComplex(getArrayValue(Reference, nanomb1SkippedIterations % iterationPeriod)).plus_mutable((MantExpComplex) result[3])
                     );
@@ -680,11 +691,10 @@ public abstract class Fractal {
 
         MantExpComplex[] complex = new MantExpComplex[2];
 
-        if(isJulia) {
+        if (isJulia) {
             complex[0] = new MantExpComplex(dpixel);
             complex[1] = null;
-        }
-        else {
+        } else {
             complex[0] = new MantExpComplex();
             complex[1] = new MantExpComplex(dpixel);
 
@@ -700,14 +710,13 @@ public abstract class Fractal {
                     );
                 }
 
-            }
-            else if(ThreadDraw.APPROXIMATION_ALGORITHM == 3 && supportsNanomb1()) {
+            } else if (ThreadDraw.APPROXIMATION_ALGORITHM == 3 && supportsNanomb1()) {
                 GenericComplex[] result = initializeFromNanomb1(dpixel);
 
-                complex[0] = new MantExpComplex((MantExpComplex)result[1]);
-                complex[1] = new MantExpComplex((MantExpComplex)result[0]);
+                complex[0] = new MantExpComplex((MantExpComplex) result[1]);
+                complex[1] = new MantExpComplex((MantExpComplex) result[0]);
 
-                if(statistic != null && statistic instanceof NormalMap && nanomb1SkippedIterations < max_iterations) {
+                if (statistic != null && statistic instanceof NormalMap && nanomb1SkippedIterations < max_iterations) {
                     ((NormalMap) statistic).initializeApproximationDerivatives(
                             getArrayDeepValue(ReferenceDeep, nanomb1SkippedIterations % iterationPeriod).plus_mutable((MantExpComplex) result[2]),
                             getArrayDeepValue(ReferenceDeep, nanomb1SkippedIterations % iterationPeriod).plus_mutable((MantExpComplex) result[3])
@@ -728,7 +737,7 @@ public abstract class Fractal {
     public void calculateSeriesWrapper(Apfloat dsize, boolean deepZoom, Location externalLocation, JProgressBar progress) {
 
         long time = System.currentTimeMillis();
-        if(progress != null) {
+        if (progress != null) {
             progress.setMaximum(Fractal.MaxRefIteration);
             progress.setValue(0);
             progress.setForeground(MainWindow.progress_sa_color);
@@ -737,7 +746,7 @@ public abstract class Fractal {
         SAOOMDiff = ThreadDraw.SERIES_APPROXIMATION_OOM_DIFFERENCE;
         SAMaxSkip = ThreadDraw.SERIES_APPROXIMATION_MAX_SKIP_ITER;
         calculateSeries(dsize, deepZoom, externalLocation, progress);
-        if(progress != null) {
+        if (progress != null) {
             progress.setValue(progress.getMaximum());
             progress.setString(SA_CALCULATION_STR + " 100%");
         }
@@ -751,14 +760,14 @@ public abstract class Fractal {
     public void calculateNanomb1Wrapper(boolean deepZoom, JProgressBar progress) {
 
         long time = System.currentTimeMillis();
-        if(progress != null) {
+        if (progress != null) {
             progress.setMaximum(getReferenceMaxIterations() * 2 - 1);
             progress.setValue(0);
             progress.setForeground(MainWindow.progress_nanomb1_color);
             progress.setString(NANOMB1_CALCULATION_STR + " " + String.format("%3d", 0) + "%");
         }
         calculateNanomb1(deepZoom, progress);
-        if(progress != null) {
+        if (progress != null) {
             progress.setValue(progress.getMaximum());
             progress.setString(NANOMB1_CALCULATION_STR + " 100%");
         }
@@ -769,7 +778,7 @@ public abstract class Fractal {
     public void calculateBLAWrapper(boolean deepZoom, Location externalLocation, JProgressBar progress) {
 
         long time = System.currentTimeMillis();
-        if(progress != null) {
+        if (progress != null) {
             progress.setValue(0);
             progress.setForeground(MainWindow.progress_bla_color);
             progress.setString(BLA_CALCULATION_STR + " " + String.format("%3d", 0) + "%");
@@ -778,7 +787,7 @@ public abstract class Fractal {
         BLAStartingLevel = ThreadDraw.BLA_STARTING_LEVEL;
         calculateBLA(deepZoom, externalLocation, progress);
 
-        if(progress != null) {
+        if (progress != null) {
             progress.setValue(progress.getMaximum());
             progress.setString(BLA_CALCULATION_STR + " 100%");
         }
@@ -807,10 +816,9 @@ public abstract class Fractal {
 
         BLASize = externalLocation.getMaxSizeInImage();
 
-        if(deepZoom) {
+        if (deepZoom) {
             B.init(getBLALength(), ReferenceDeep, BLASize, progress);
-        }
-        else {
+        } else {
             B.init(getBLALength(), Reference, BLASize.toDouble(), progress);
         }
     }
@@ -841,7 +849,7 @@ public abstract class Fractal {
                 Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0, pixel};
                 double out = out_color_algorithm.getResult(object);
 
-                out = getFinalValueOut(out);
+                out = getFinalValueOut(out, complex[0]);
 
                 if (outTrueColorAlgorithm != null) {
                     setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
@@ -888,7 +896,7 @@ public abstract class Fractal {
                 Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0, pixel};
                 double out = out_color_algorithm.getResult(object);
 
-                out = getFinalValueOut(out);
+                out = getFinalValueOut(out, complex[0]);
 
                 if (outTrueColorAlgorithm != null) {
                     setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
@@ -913,7 +921,7 @@ public abstract class Fractal {
         Object[] object = {complex[0], zold, zold2, complex[1], start, c0, pixel};
         double in = in_color_algorithm.getResult(object);
 
-        in = getFinalValueIn(in);
+        in = getFinalValueIn(in, complex[0]);
 
         if (inTrueColorAlgorithm != null) {
             setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
@@ -1089,38 +1097,34 @@ public abstract class Fractal {
 
         MantExpComplex d0;
 
-        if(dpixel instanceof Complex) {
+        if (dpixel instanceof Complex) {
             d0 = new MantExpComplex((Complex) dpixel);
-        }
-        else {
+        } else {
             d0 = new MantExpComplex((MantExpComplex) dpixel);
         }
 
         int ReferencePeriod = iterationPeriod;
 
-        if(d0.norm().compareTo(nanomb1.Bout) < 0) {
+        if (d0.norm().compareToBothPositive(nanomb1.Bout) < 0) {
 
             uniPoly up;
             int derivatives = 0;
-            if(statistic != null && statistic instanceof NormalMap) {
-                if(((NormalMap) statistic).usesSecondDerivative()) {
+            if (statistic != null && statistic instanceof NormalMap) {
+                if (((NormalMap) statistic).usesSecondDerivative()) {
                     derivatives = 2;
-                }
-                else {
+                } else {
                     derivatives = 1;
                 }
             }
 
             up = new uniPoly(nanomb1.SSA, d0, derivatives);
 
-            while(iteration < max_iterations && d.norm_squared().compareTo(nanomb1.Bout) < 0){
-                if(derivatives == 0) {
+            while (iteration < max_iterations && d.norm_squared().compareToBothPositive(nanomb1.Bout) < 0) {
+                if (derivatives == 0) {
                     up.eval(d);
-                }
-                else if(derivatives == 1) {
+                } else if (derivatives == 1) {
                     up.eval(d, dd);
-                }
-                else {
+                } else {
                     up.eval(d, dd, ddd);
                 }
                 iteration += ReferencePeriod;
@@ -1129,22 +1133,23 @@ public abstract class Fractal {
 
         nanomb1SkippedIterations = iteration;
 
-        total_nanomb1_skipped_iterations.add(nanomb1SkippedIterations > max_iterations ? max_iterations : nanomb1SkippedIterations);
+        if(ThreadDraw.GATHER_PERTURBATION_STATISTICS) {
+            total_nanomb1_skipped_iterations.add(nanomb1SkippedIterations > max_iterations ? max_iterations : nanomb1SkippedIterations);
+        }
 
         MantExpComplex d0_ = d0.sub(nanomb1.nucleusPos);
 
-        if(dpixel instanceof Complex) {
-            return new GenericComplex[] {d0_.toComplex(), d.toComplex(), dd, ddd};
-        }
-        else {
-            return new GenericComplex[] {d0_, d, dd, ddd};
+        if (dpixel instanceof Complex) {
+            return new GenericComplex[]{d0_.toComplex(), d.toComplex(), dd, ddd};
+        } else {
+            return new GenericComplex[]{d0_, d, dd, ddd};
         }
 
     }
 
     protected GenericComplex[] initializeFromSeries(GenericComplex pixel) {
 
-        if(power == 0) {
+        if (power == 0) {
             return null;
         }
 
@@ -1158,11 +1163,10 @@ public abstract class Fractal {
 
         DeltaSub0ToThe[0] = new MantExpComplex(MantExp.ONE, MantExp.ZERO);
 
-        if(pixel instanceof Complex) {
+        if (pixel instanceof Complex) {
             DeltaSub0ToThe[1] = new MantExpComplex((Complex) pixel);
-        }
-        else if(pixel instanceof MantExpComplex) {
-            DeltaSub0ToThe[1] = new MantExpComplex((MantExpComplex)pixel);
+        } else if (pixel instanceof MantExpComplex) {
+            DeltaSub0ToThe[1] = new MantExpComplex((MantExpComplex) pixel);
         }
 
         MantExpComplex DeltaSub0ToThe1 = DeltaSub0ToThe[1];
@@ -1182,12 +1186,12 @@ public abstract class Fractal {
             temp.Reduce();
             DeltaSubNMant = DeltaSubNMant.plus_mutable(temp);
 
-            if(statistic != null && statistic instanceof NormalMap) {
+            if (statistic != null && statistic instanceof NormalMap) {
                 temp2 = tempCoef.times(DeltaSub0ToThe[i]).times_mutable(new MantExp(i + 1));
                 temp2.Reduce();
                 DDeltaSubNMant = DDeltaSubNMant.plus_mutable(temp2);
 
-                if(((NormalMap) statistic).usesSecondDerivative() && i > 0) {
+                if (((NormalMap) statistic).usesSecondDerivative() && i > 0) {
                     temp3 = tempCoef.times(DeltaSub0ToThe[i - 1]).times_mutable(new MantExp(i * (i + 1)));
                     temp3.Reduce();
                     DDDeltaSubNMant = DDDeltaSubNMant.plus_mutable(temp3);
@@ -1196,7 +1200,7 @@ public abstract class Fractal {
 
         }
 
-        if(pixel instanceof Complex) {
+        if (pixel instanceof Complex) {
             Complex DeltaZn = DeltaSubNMant.toComplex();
             /*skipC = false;
 
@@ -1207,10 +1211,9 @@ public abstract class Fractal {
                 }
             }*/
 
-            return new GenericComplex[] {DeltaZn, DDeltaSubNMant, DDDeltaSubNMant};
-        }
-        else {
-            return new GenericComplex[] {DeltaSubNMant, DDeltaSubNMant, DDDeltaSubNMant};
+            return new GenericComplex[]{DeltaZn, DDeltaSubNMant, DDDeltaSubNMant};
+        } else {
+            return new GenericComplex[]{DeltaSubNMant, DDeltaSubNMant, DDDeltaSubNMant};
         }
 
     }
@@ -1223,23 +1226,62 @@ public abstract class Fractal {
         return 0;
     }
 
-    public double getAndAccumulateStats(double val) {
+    public double getAndAccumulateStatsBLA(double val) {
 
 
-        total_bla_iterations.add(bla_iterations);
-        total_bla_steps.add(bla_steps);
-        total_perturb_iterations.add(perturb_iterations);
+        if(ThreadDraw.GATHER_PERTURBATION_STATISTICS) {
+            total_bla_iterations.add(bla_iterations);
+            total_bla_steps.add(bla_steps);
+            total_perturb_iterations.add(perturb_iterations);
+            total_rebases.add(rebases);
+        }
 
 
         return val;
     }
 
+    public double getAndAccumulateStatsScaled(double val) {
+
+
+        if(ThreadDraw.GATHER_PERTURBATION_STATISTICS) {
+            total_scaled_iterations.add(scaled_iterations);
+            total_double_iterations.add(double_iterations);
+            total_float_exp_iterations.add(float_exp_iterations);
+            total_rebases.add(rebases);
+        }
+
+        return val;
+    }
+
+    public double getAndAccumulateStatsNotScaled(double val) {
+
+
+        if(ThreadDraw.GATHER_PERTURBATION_STATISTICS) {
+            total_double_iterations.add(double_iterations);
+            total_float_exp_iterations.add(float_exp_iterations);
+            total_rebases.add(rebases);
+        }
+
+        return val;
+    }
+
+    public double getAndAccumulateStatsNotDeep(double val) {
+
+
+        if(ThreadDraw.GATHER_PERTURBATION_STATISTICS) {
+            total_double_iterations.add(double_iterations);
+            total_rebases.add(rebases);
+        }
+
+        return val;
+    }
 
     public double iterateFractalWithPerturbationBLAWithoutPeriodicity(Complex[] complex, Complex dpixel) {
 
         bla_steps = 0;
         bla_iterations = 0;
         perturb_iterations = 0;
+        rebases = 0;
         iterations = 0;
 
         int RefIteration = iterations;
@@ -1269,13 +1311,13 @@ public abstract class Fractal {
                 Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0, pixel};
                 double res = out_color_algorithm.getResult(object);
 
-                res = getFinalValueOut(res);
+                res = getFinalValueOut(res, complex[0]);
 
                 if (outTrueColorAlgorithm != null) {
                     setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
                 }
 
-                return getAndAccumulateStats(res);
+                return getAndAccumulateStatsBLA(res);
             }
 
             // bla steps
@@ -1287,7 +1329,7 @@ public abstract class Fractal {
                 bla_steps++;
                 bla_iterations += l;
 
-                if(iterations >= max_iterations) {
+                if (iterations >= max_iterations) {
                     break;
                 }
 
@@ -1311,6 +1353,7 @@ public abstract class Fractal {
                     DeltaSubN = complex[0];
                     RefIteration = 0;
                     DeltaNormSquared = normSquared;
+                    rebases++;
                 }
 
                 if (statistic != null) {
@@ -1328,17 +1371,17 @@ public abstract class Fractal {
                     Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0, pixel};
                     double res = out_color_algorithm.getResult(object);
 
-                    res = getFinalValueOut(res);
+                    res = getFinalValueOut(res, complex[0]);
 
                     if (outTrueColorAlgorithm != null) {
                         setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
                     }
 
-                    return getAndAccumulateStats(res);
+                    return getAndAccumulateStatsBLA(res);
                 }
             }
 
-            if(iterations >= max_iterations) {
+            if (iterations >= max_iterations) {
                 break;
             }
 
@@ -1365,6 +1408,7 @@ public abstract class Fractal {
                 DeltaSubN = complex[0];
                 DeltaNormSquared = normSquared;
                 RefIteration = 0;
+                rebases++;
             }
 
             if (statistic != null) {
@@ -1376,13 +1420,13 @@ public abstract class Fractal {
         Object[] object = {complex[0], zold, zold2, complex[1], start, c0, pixel};
         double in = in_color_algorithm.getResult(object);
 
-        in = getFinalValueIn(in);
+        in = getFinalValueIn(in, complex[0]);
 
         if (inTrueColorAlgorithm != null) {
             setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
         }
 
-        return getAndAccumulateStats(in);
+        return getAndAccumulateStatsBLA(in);
 
     }
 
@@ -1391,6 +1435,7 @@ public abstract class Fractal {
         bla_steps = 0;
         bla_iterations = 0;
         perturb_iterations = 0;
+        rebases = 0;
 
         iterations = 0;
 
@@ -1423,13 +1468,13 @@ public abstract class Fractal {
                 Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0, pixel};
                 double res = out_color_algorithm.getResult(object);
 
-                res = getFinalValueOut(res);
+                res = getFinalValueOut(res, complex[0]);
 
                 if (outTrueColorAlgorithm != null) {
                     setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
                 }
 
-                return getAndAccumulateStats(res);
+                return getAndAccumulateStatsBLA(res);
             }
 
             // bla steps
@@ -1442,7 +1487,7 @@ public abstract class Fractal {
                 bla_steps++;
                 bla_iterations += l;
 
-                if(iterations >= max_iterations) {
+                if (iterations >= max_iterations) {
                     break;
                 }
 
@@ -1463,10 +1508,11 @@ public abstract class Fractal {
                 //No Post filters work
                 normSquared = z.norm_squared();
 
-                if (normSquared.compareTo(DeltaNormSquared) < 0 || (RefIteration >= MaxRefIteration)) {
+                if (normSquared.compareToBothPositive(DeltaNormSquared) < 0 || (RefIteration >= MaxRefIteration)) {
                     DeltaSubN = z;
                     RefIteration = 0;
                     DeltaNormSquared = normSquared;
+                    rebases++;
                 }
 
                 DeltaSubN.Reduce();
@@ -1486,17 +1532,17 @@ public abstract class Fractal {
                     Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0, pixel};
                     double res = out_color_algorithm.getResult(object);
 
-                    res = getFinalValueOut(res);
+                    res = getFinalValueOut(res, complex[0]);
 
                     if (outTrueColorAlgorithm != null) {
                         setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
                     }
 
-                    return getAndAccumulateStats(res);
+                    return getAndAccumulateStatsBLA(res);
                 }
             }
 
-            if(iterations >= max_iterations) {
+            if (iterations >= max_iterations) {
                 break;
             }
 
@@ -1520,10 +1566,11 @@ public abstract class Fractal {
             //No Post filters work
             normSquared = z.norm_squared();
 
-            if (normSquared.compareTo(DeltaNormSquared) < 0 || (RefIteration >= MaxRefIteration)) {
+            if (normSquared.compareToBothPositive(DeltaNormSquared) < 0 || (RefIteration >= MaxRefIteration)) {
                 DeltaSubN = z;
                 DeltaNormSquared = normSquared;
                 RefIteration = 0;
+                rebases++;
             }
 
             DeltaSubN.Reduce();
@@ -1537,18 +1584,20 @@ public abstract class Fractal {
         Object[] object = {complex[0], zold, zold2, complex[1], start, c0, pixel};
         double in = in_color_algorithm.getResult(object);
 
-        in = getFinalValueIn(in);
+        in = getFinalValueIn(in, complex[0]);
 
         if (inTrueColorAlgorithm != null) {
             setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
         }
 
-        return getAndAccumulateStats(in);
+        return getAndAccumulateStatsBLA(in);
 
     }
 
     public double iterateFractalWithPerturbationWithoutPeriodicity(Complex[] complex, Complex dpixel) {
 
+        double_iterations = 0;
+        rebases = 0;
 
         Complex[] deltas = initializePerturbation(dpixel);
         Complex DeltaSubN = deltas[0]; // Delta z
@@ -1562,11 +1611,10 @@ public abstract class Fractal {
 
         double norm_squared = 0;
 
-        if(iterations != 0 && RefIteration < MaxRefIteration) {
+        if (iterations != 0 && RefIteration < MaxRefIteration) {
             complex[0] = getArrayValue(Reference, RefIteration).plus_mutable(DeltaSubN);
             norm_squared = complex[0].norm_squared();
-        }
-        else if(iterations != 0 && ReferencePeriod != 0) {
+        } else if (iterations != 0 && ReferencePeriod != 0) {
             RefIteration = RefIteration % ReferencePeriod;
             complex[0] = getArrayValue(Reference, RefIteration).plus_mutable(DeltaSubN);
             norm_squared = complex[0].norm_squared();
@@ -1588,25 +1636,26 @@ public abstract class Fractal {
                 Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0, pixel};
                 double res = out_color_algorithm.getResult(object);
 
-                res = getFinalValueOut(res);
+                res = getFinalValueOut(res, complex[0]);
 
                 if (outTrueColorAlgorithm != null) {
                     setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
                 }
 
-                return res;
+                return getAndAccumulateStatsNotDeep(res);
             }
 
             DeltaSubN = perturbationFunction(DeltaSubN, DeltaSub0, RefIteration);
 
             RefIteration++;
+            double_iterations++;
 
             zold2.assign(zold);
             zold.assign(complex[0]);
 
             //No Plane influence work
             //No Pre filters work
-            if(max_iterations > 1){
+            if (max_iterations > 1) {
                 complex[0] = getArrayValue(Reference, RefIteration).plus_mutable(DeltaSubN);
             }
             //No Post filters work
@@ -1619,6 +1668,7 @@ public abstract class Fractal {
             if (norm_squared < DeltaSubN.norm_squared() || RefIteration >= MaxRefIteration) {
                 DeltaSubN = complex[0];
                 RefIteration = 0;
+                rebases++;
             }
 
         }
@@ -1626,344 +1676,295 @@ public abstract class Fractal {
         Object[] object = {complex[0], zold, zold2, complex[1], start, c0, pixel};
         double in = in_color_algorithm.getResult(object);
 
-        in = getFinalValueIn(in);
+        in = getFinalValueIn(in, complex[0]);
 
         if (inTrueColorAlgorithm != null) {
             setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
         }
 
-        return in;
+        return getAndAccumulateStatsNotDeep(in);
 
     }
 
-
-    //Todo add this at some point
     public double iterateFractalWithPerturbationWithoutPeriodicityScaled(Complex[] complex, MantExpComplex dpixel) {
 
-        double reAlignThreshold = 1e300 / power;
+        float_exp_iterations = 0;
+        double_iterations = 0;
+        scaled_iterations = 0;
+        rebases = 0;
+
+        double reAlignThreshold = Math.exp(Math.log(1e300) / power);
 
         MantExpComplex[] deltas = initializePerturbation(dpixel);
         MantExpComplex DeltaSubN = deltas[0]; // Delta z
         MantExpComplex DeltaSub0 = deltas[1]; // Delta c
 
-        iterations = nanomb1SkippedIterations != 0 ? nanomb1SkippedIterations : skippedIterations;
+        int totalSkippedIterations = nanomb1SkippedIterations != 0 ? nanomb1SkippedIterations : skippedIterations;
+        iterations = totalSkippedIterations;
 
         int RefIteration = iterations;
 
         int ReferencePeriod = iterationPeriod;
-
-        MantExpComplex z = new MantExpComplex();
-        double norm_squared  = 0;
-        if(iterations != 0 && RefIteration < MaxRefIteration) {
-            z = getArrayDeepValue(ReferenceDeep, RefIteration).plus_mutable(DeltaSubN);
-            complex[0] = z.toComplex();
-            norm_squared = complex[0].norm_squared();
-        }
-        else if(iterations != 0 && ReferencePeriod != 0) {
-            RefIteration = RefIteration % ReferencePeriod;
-            z = getArrayDeepValue(ReferenceDeep, RefIteration).plus_mutable(DeltaSubN);
-            complex[0] = z.toComplex();
-            norm_squared = complex[0].norm_squared();
-        }
-
-        Complex pixel = dpixel.plus(refPointSmallDeep).toComplex();
-
-        MantExp S = DeltaSubN.norm();
-        double s = S.toDouble();
-        double ss = s * s;
-        Complex DeltaSubNscaled = DeltaSubN.divide(S).toComplex();
-        Complex DeltaSub0scaled = DeltaSub0.divide(S).toComplex();
-
-        boolean isDeltaSub0Zero = DeltaSub0scaled.isZero();
-
-        int nextTinyRefIndex = 0;
-        int nextTinyRefIteration = 0;
-        int tinyRefPtsLength = tinyRefPts.size();
-        do { //find the next tiny ref iteration which is after the skipped iterations
-            if(nextTinyRefIndex < tinyRefPtsLength) {
-                nextTinyRefIteration = tinyRefPts.get(nextTinyRefIndex);
-                nextTinyRefIndex++;
-            }
-            else {
-                nextTinyRefIteration = max_iterations;
-            }
-
-        }while (nextTinyRefIteration < RefIteration);
-
-        for (; iterations < max_iterations; iterations++) {
-
-            if(RefIteration == nextTinyRefIteration) {
-                //No update values
-
-                if(iterations != 0) {
-                    DeltaSubN = new MantExpComplex(S.multiply(DeltaSubNscaled.getRe()), S.multiply(DeltaSubNscaled.getIm()));
-                }
-
-                if (trap != null) {
-                    trap.check(complex[0], iterations);
-                }
-
-                if (bailout_algorithm2.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, norm_squared, pixel)) {
-                    escaped = true;
-
-                    Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0, pixel};
-                    double res = out_color_algorithm.getResult(object);
-
-                    res = getFinalValueOut(res);
-
-                    if (outTrueColorAlgorithm != null) {
-                        setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
-                    }
-
-                    return res;
-                }
-
-                DeltaSubN = perturbationFunction(DeltaSubN, DeltaSub0, RefIteration);
-
-                RefIteration++;
-
-                zold2.assign(zold);
-                zold.assign(complex[0]);
-
-                //No Plane influence work
-                //No Pre filters work
-                if (max_iterations > 1) {
-                    z = getArrayDeepValue(ReferenceDeep, RefIteration).plus_mutable(DeltaSubN);
-                    complex[0] = z.toComplex();
-                    norm_squared = complex[0].norm_squared();
-                }
-                //No Post filters work
-
-                if (statistic != null) {
-                    statistic.insert(complex[0], zold, zold2, iterations, complex[1], start, c0);
-                }
-
-                if (z.norm_squared().compareTo(DeltaSubN.norm_squared()) < 0 || RefIteration >= MaxRefIteration) {
-                    DeltaSubN = z;
-                    RefIteration = 0;
-                    nextTinyRefIndex = 0;
-                }
-
-                DeltaSubN.Reduce();
-
-                // rescale
-                S = DeltaSubN.norm();
-                s = S.toDouble();
-                ss = s * s;
-                DeltaSubNscaled = DeltaSubN.divide(S).toComplex();
-                DeltaSub0scaled = DeltaSub0.divide(S).toComplex();
-
-                isDeltaSub0Zero = DeltaSub0scaled.isZero();
-
-                if(nextTinyRefIndex < tinyRefPtsLength) {
-                    nextTinyRefIteration = tinyRefPts.get(nextTinyRefIndex);
-                    nextTinyRefIndex++;
-                }
-                else {
-                    nextTinyRefIteration = max_iterations;
-                }
-            }
-            else {
-                //No update values
-
-                if (trap != null) {
-                    trap.check(complex[0], iterations);
-                }
-
-                if (bailout_algorithm2.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, norm_squared, pixel)) {
-                    escaped = true;
-
-                    Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0, pixel};
-                    double res = out_color_algorithm.getResult(object);
-
-                    res = getFinalValueOut(res);
-
-                    if (outTrueColorAlgorithm != null) {
-                        setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
-                    }
-
-                    return res;
-                }
-
-                Complex DeltaSubNscaledNew = isDeltaSub0Zero ? perturbationFunctionScaled(DeltaSubNscaled, s, RefIteration) : perturbationFunctionScaled(DeltaSubNscaled, DeltaSub0scaled, s, RefIteration);
-
-                double DeltaSubNscaledNormSqr = DeltaSubNscaledNew.norm_squared();
-                if(DeltaSubNscaledNormSqr < reAlignThreshold) {
-                    DeltaSubNscaled = DeltaSubNscaledNew;
-                }
-                else {
-                    DeltaSubN = new MantExpComplex(S.multiply(DeltaSubNscaledNew.getRe()), S.multiply(DeltaSubNscaledNew.getIm()));
-                    S = DeltaSubN.norm();
-                    s = S.toDouble();
-                    ss = s * s;
-                    DeltaSubNscaled = DeltaSubN.divide(S).toComplex();
-                    DeltaSub0scaled = DeltaSub0.divide(S).toComplex();
-
-                    isDeltaSub0Zero = DeltaSub0scaled.isZero();
-
-                    DeltaSubNscaledNormSqr = DeltaSubNscaled.norm_squared();
-                }
-
-
-                RefIteration++;
-
-                zold2.assign(zold);
-                zold.assign(complex[0]);
-
-                //No Plane influence work
-                //No Pre filters work
-                if (max_iterations > 1) {
-                    complex[0] = getArrayValue(Reference, RefIteration).plus_mutable(DeltaSubNscaled.times(s));
-                }
-                //No Post filters work
-
-                if (statistic != null) {
-                    statistic.insert(complex[0], zold, zold2, iterations, complex[1], start, c0);
-                }
-
-                norm_squared = complex[0].norm_squared();
-                if (norm_squared < DeltaSubNscaledNormSqr * ss || RefIteration >= MaxRefIteration) {
-                    DeltaSubNscaled = complex[0];
-                    RefIteration = 0;
-                    DeltaSubN = new MantExpComplex(DeltaSubNscaled);
-
-                    // rescale
-                    S = DeltaSubN.norm();
-                    s = S.toDouble();
-                    ss = s * s;
-                    DeltaSubNscaled = DeltaSubN.divide(S).toComplex();
-                    DeltaSub0scaled = DeltaSub0.divide(S).toComplex();
-
-                    isDeltaSub0Zero = DeltaSub0scaled.isZero();
-
-                    //u = DeltaSub0.norm().divide(S).toDouble();
-                    nextTinyRefIndex = 0;
-                    if(nextTinyRefIndex < tinyRefPtsLength) {
-                        nextTinyRefIteration = tinyRefPts.get(nextTinyRefIndex);
-                        nextTinyRefIndex++;
-                    }
-                    else {
-                        nextTinyRefIteration = max_iterations;
-                    }
-
-                }
-
-            }
-
-        }
-
-        Object[] object = {complex[0], zold, zold2, complex[1], start, c0, pixel};
-        double in = in_color_algorithm.getResult(object);
-
-        in = getFinalValueIn(in);
-
-        if (inTrueColorAlgorithm != null) {
-            setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
-        }
-
-        return in;
-
-    }
-
-    public double iterateFractalWithPerturbationWithoutPeriodicity(Complex[] complex, MantExpComplex dpixel) {
-
-        MantExpComplex[] deltas = initializePerturbation(dpixel);
-        MantExpComplex DeltaSubN = deltas[0]; // Delta z
-        MantExpComplex DeltaSub0 = deltas[1]; // Delta c
-
-        iterations = nanomb1SkippedIterations != 0 ? nanomb1SkippedIterations : skippedIterations;
-
-        int RefIteration = iterations;
-
-        int ReferencePeriod = iterationPeriod;
-
-        Complex pixel = dpixel.plus(refPointSmallDeep).toComplex();
 
         int minExp = -1000;
-        int reducedExp = minExp / (int)power;
+        int reducedExp = minExp / (int) power;
 
         DeltaSubN.Reduce();
         long exp = DeltaSubN.getExp();
 
         boolean useFullFloatExp = ThreadDraw.USE_FULL_FLOATEXP_FOR_DEEP_ZOOM;
 
+        boolean doBailCheck = useFullFloatExp || ThreadDraw.CHECK_BAILOUT_DURING_DEEP_NOT_FULL_FLOATEXP_MODE;
+
+        Complex pixel = dpixel.plus(refPointSmallDeep).toComplex();
+
         boolean usedDeepCode = false;
-        if(useFullFloatExp || (skippedIterations == 0 && exp <= minExp) || (skippedIterations != 0 && exp <= reducedExp)) {
+        if (useFullFloatExp || (totalSkippedIterations == 0 && exp <= minExp) || (totalSkippedIterations != 0 && exp <= reducedExp)) {
             usedDeepCode = true;
 
             MantExpComplex z = new MantExpComplex();
-            if(iterations != 0 && RefIteration < MaxRefIteration) {
+            double norm_squared = 0;
+            if (iterations != 0 && RefIteration < MaxRefIteration) {
                 z = getArrayDeepValue(ReferenceDeep, RefIteration).plus_mutable(DeltaSubN);
                 complex[0] = z.toComplex();
-            }
-            else if(iterations != 0 && ReferencePeriod != 0) {
+                norm_squared = complex[0].norm_squared();
+            } else if (iterations != 0 && ReferencePeriod != 0) {
                 RefIteration = RefIteration % ReferencePeriod;
                 z = getArrayDeepValue(ReferenceDeep, RefIteration).plus_mutable(DeltaSubN);
                 complex[0] = z.toComplex();
+                norm_squared = complex[0].norm_squared();
             }
+
+            MantExp S = DeltaSubN.norm();
+            double s = S.toDouble();
+            double ss = s * s;
+            Complex DeltaSubNscaled = DeltaSubN.divide(S).toComplex();
+            Complex DeltaSub0scaled = DeltaSub0.divide(S).toComplex();
+
+            boolean isDeltaSub0Zero = DeltaSub0scaled.isZero();
+
+            int nextTinyRefIndex = 0;
+            int nextTinyRefIteration = 0;
+            int tinyRefPtsLength = tinyRefPtsArray.length;
+            do { //find the next tiny ref iteration which is after the skipped iterations
+                if (nextTinyRefIndex < tinyRefPtsLength) {
+                    nextTinyRefIteration = tinyRefPtsArray[nextTinyRefIndex];
+                    nextTinyRefIndex++;
+                } else {
+                    nextTinyRefIteration = max_iterations;
+                }
+
+            } while (nextTinyRefIteration < RefIteration);
 
             for (; iterations < max_iterations; iterations++) {
-                if (trap != null) {
-                    trap.check(complex[0], iterations);
-                }
 
-                if (useFullFloatExp && bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, 0.0, pixel)) {
-                    escaped = true;
+                if (RefIteration == nextTinyRefIteration) {
+                    //No update values
 
-                    Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0, pixel};
-                    double res = out_color_algorithm.getResult(object);
-
-                    res = getFinalValueOut(res);
-
-                    if (outTrueColorAlgorithm != null) {
-                        setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+                    if (RefIteration != 0) {
+                        DeltaSubN = new MantExpComplex(DeltaSubNscaled).times_mutable(S);
                     }
 
-                    return res;
-                }
-
-                DeltaSubN = perturbationFunction(DeltaSubN, DeltaSub0, RefIteration);
-
-                RefIteration++;
-
-                zold2.assign(zold);
-                zold.assign(complex[0]);
-
-                if (max_iterations > 1) {
-                    z = getArrayDeepValue(ReferenceDeep, RefIteration).plus_mutable(DeltaSubN);
-                    complex[0] = z.toComplex();
-                }
-
-                if (statistic != null) {
-                    statistic.insert(complex[0], zold, zold2, iterations, complex[1], start, c0);
-                }
-
-                if (z.norm_squared().compareTo(DeltaSubN.norm_squared()) < 0 || RefIteration >= MaxRefIteration) {
-                    DeltaSubN = z;
-                    RefIteration = 0;
-                }
-
-                DeltaSubN.Reduce();
-
-                if(!useFullFloatExp) {
-                    if (DeltaSubN.getExp() > reducedExp) {
-                        iterations++;
-                        break;
+                    if (trap != null) {
+                        trap.check(complex[0], iterations);
                     }
+
+                    if (doBailCheck && bailout_algorithm2.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, norm_squared, pixel)) {
+                        escaped = true;
+
+                        Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0, pixel};
+                        double res = out_color_algorithm.getResult(object);
+
+                        res = getFinalValueOut(res, complex[0]);
+
+                        if (outTrueColorAlgorithm != null) {
+                            setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+                        }
+
+                        return getAndAccumulateStatsScaled(res);
+                    }
+
+                    DeltaSubN = perturbationFunction(DeltaSubN, DeltaSub0, RefIteration);
+
+                    RefIteration++;
+
+                    float_exp_iterations++;
+
+                    zold2.assign(zold);
+                    zold.assign(complex[0]);
+
+                    //No Plane influence work
+                    //No Pre filters work
+                    if (max_iterations > 1) {
+                        z = getArrayDeepValue(ReferenceDeep, RefIteration).plus_mutable(DeltaSubN);
+                        complex[0] = z.toComplex();
+                    }
+
+                    if(doBailCheck) {
+                        norm_squared = complex[0].norm_squared();
+                    }
+                    //No Post filters work
+
+                    if (statistic != null) {
+                        statistic.insert(complex[0], zold, zold2, iterations, complex[1], start, c0);
+                    }
+
+                    MantExp normSquared = z.norm_squared();
+                    MantExp deltaNormSquared = DeltaSubN.norm_squared();
+                    MantExp rescaledNorm = deltaNormSquared;
+                    if (normSquared.compareToBothPositive(deltaNormSquared) < 0 || RefIteration >= MaxRefIteration) {
+                        DeltaSubN = z;
+                        RefIteration = 0;
+                        nextTinyRefIndex = 0;
+                        rescaledNorm = normSquared;
+                        rebases++;
+                    }
+
+                    DeltaSubN.Reduce();
+
+                    if (!useFullFloatExp) {
+                        if (DeltaSubN.getExp() > reducedExp) {
+                            iterations++;
+                            break;
+                        }
+                    }
+
+                    if (nextTinyRefIndex < tinyRefPtsLength) {
+                        nextTinyRefIteration = tinyRefPtsArray[nextTinyRefIndex];
+                        nextTinyRefIndex++;
+                    } else {
+                        nextTinyRefIteration = max_iterations;
+                    }
+
+                    if(nextTinyRefIteration == 0) {
+                        continue;
+                    }
+
+                    // rescale
+                    S = rescaledNorm.sqrt();
+                    s = S.toDouble();
+                    ss = s * s;
+                    DeltaSubNscaled = DeltaSubN.divide(S).toComplex();
+                    DeltaSub0scaled = DeltaSub0.divide(S).toComplex();
+
+                    isDeltaSub0Zero = DeltaSub0scaled.isZero();
+
+                } else {
+                    //No update values
+
+                    if (trap != null) {
+                        trap.check(complex[0], iterations);
+                    }
+
+                    if (doBailCheck && bailout_algorithm2.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, norm_squared, pixel)) {
+                        escaped = true;
+
+                        Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0, pixel};
+                        double res = out_color_algorithm.getResult(object);
+
+                        res = getFinalValueOut(res, complex[0]);
+
+                        if (outTrueColorAlgorithm != null) {
+                            setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+                        }
+
+                        return getAndAccumulateStatsScaled(res);
+                    }
+
+                    DeltaSubNscaled = isDeltaSub0Zero ? perturbationFunctionScaled(DeltaSubNscaled, s, RefIteration) : perturbationFunctionScaled(DeltaSubNscaled, DeltaSub0scaled, s, RefIteration);
+
+                    RefIteration++;
+
+                    scaled_iterations++;
+
+                    zold2.assign(zold);
+                    zold.assign(complex[0]);
+
+                    //No Plane influence work
+                    //No Pre filters work
+                    if (max_iterations > 1) {
+                        complex[0] = getArrayValue(Reference, RefIteration).plus_mutable(DeltaSubNscaled.times(s));
+                    }
+                    //No Post filters work
+
+                    if (statistic != null) {
+                        statistic.insert(complex[0], zold, zold2, iterations, complex[1], start, c0);
+                    }
+
+                    double DeltaSubNscaledNormSqr = DeltaSubNscaled.norm_squared();
+                    norm_squared = complex[0].norm_squared();
+                    if (norm_squared < DeltaSubNscaledNormSqr * ss || RefIteration >= MaxRefIteration) {
+                        RefIteration = 0;
+                        DeltaSubN = new MantExpComplex(complex[0]);
+                        rebases++;
+
+                        if (!useFullFloatExp) {
+                            if (DeltaSubN.getExp() > reducedExp) {
+                                iterations++;
+                                break;
+                            }
+                        }
+
+                        // rescale
+//                        S = DeltaSubN.norm();
+//                        s = S.toDouble();
+//                        ss = s * s;
+                        ss = norm_squared;
+                        s = Math.sqrt(ss);
+                        S = new MantExp(s);
+
+                        DeltaSubNscaled = DeltaSubN.divide(S).toComplex();
+                        DeltaSub0scaled = DeltaSub0.divide(S).toComplex();
+
+                        isDeltaSub0Zero = DeltaSub0scaled.isZero();
+
+                        nextTinyRefIndex = 0;
+                        if (nextTinyRefIndex < tinyRefPtsLength) {
+                            nextTinyRefIteration = tinyRefPtsArray[nextTinyRefIndex];
+                            nextTinyRefIndex++;
+                        } else {
+                            nextTinyRefIteration = max_iterations;
+                        }
+
+                        continue;
+                    }
+
+
+                    if (DeltaSubNscaledNormSqr >= reAlignThreshold) {
+                        DeltaSubN = new MantExpComplex(DeltaSubNscaled).times_mutable(S);
+                        DeltaSubN.Reduce();
+
+                        if (!useFullFloatExp) {
+                            if (DeltaSubN.getExp() > reducedExp) {
+                                iterations++;
+                                break;
+                            }
+                        }
+
+                        S = DeltaSubN.norm();
+                        s = S.toDouble();
+                        ss = s * s;
+                        DeltaSubNscaled = DeltaSubN.divide(S).toComplex();
+                        DeltaSub0scaled = DeltaSub0.divide(S).toComplex();
+
+                        isDeltaSub0Zero = DeltaSub0scaled.isZero();
+
+                    }
+
                 }
             }
-        }
+       }
 
-        if(!useFullFloatExp) {
+
+       if (!useFullFloatExp) {
             Complex CDeltaSubN = DeltaSubN.toComplex();
             Complex CDeltaSub0 = DeltaSub0.toComplex();
 
             boolean isZero = CDeltaSub0.isZero();
 
-            if(!usedDeepCode && iterations != 0 && RefIteration < MaxRefIteration) {
+            if (!usedDeepCode && iterations != 0 && RefIteration < MaxRefIteration) {
                 complex[0] = getArrayValue(Reference, RefIteration).plus_mutable(CDeltaSubN);
-            }
-            else if(!usedDeepCode && iterations != 0 && ReferencePeriod != 0) {
+            } else if (!usedDeepCode && iterations != 0 && ReferencePeriod != 0) {
                 RefIteration = RefIteration % ReferencePeriod;
                 complex[0] = getArrayValue(Reference, RefIteration).plus_mutable(CDeltaSubN);
             }
@@ -1984,13 +1985,13 @@ public abstract class Fractal {
                     Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0, pixel};
                     double res = out_color_algorithm.getResult(object);
 
-                    res = getFinalValueOut(res);
+                    res = getFinalValueOut(res, complex[0]);
 
                     if (outTrueColorAlgorithm != null) {
                         setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
                     }
 
-                    return res;
+                    return getAndAccumulateStatsScaled(res);
                 }
 
                 if (isZero) {
@@ -2000,6 +2001,7 @@ public abstract class Fractal {
                 }
 
                 RefIteration++;
+                double_iterations++;
 
                 zold2.assign(zold);
                 zold.assign(complex[0]);
@@ -2028,13 +2030,195 @@ public abstract class Fractal {
         Object[] object = {complex[0], zold, zold2, complex[1], start, c0, pixel};
         double in = in_color_algorithm.getResult(object);
 
-        in = getFinalValueIn(in);
+        in = getFinalValueIn(in, complex[0]);
 
         if (inTrueColorAlgorithm != null) {
             setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
         }
 
-        return in;
+        return getAndAccumulateStatsScaled(in);
+
+    }
+
+    public double iterateFractalWithPerturbationWithoutPeriodicity(Complex[] complex, MantExpComplex dpixel) {
+
+        float_exp_iterations = 0;
+        double_iterations = 0;
+        rebases = 0;
+
+        MantExpComplex[] deltas = initializePerturbation(dpixel);
+        MantExpComplex DeltaSubN = deltas[0]; // Delta z
+        MantExpComplex DeltaSub0 = deltas[1]; // Delta c
+
+        int totalSkippedIterations = nanomb1SkippedIterations != 0 ? nanomb1SkippedIterations : skippedIterations;
+        iterations = totalSkippedIterations;
+
+        int RefIteration = iterations;
+
+        int ReferencePeriod = iterationPeriod;
+
+        Complex pixel = dpixel.plus(refPointSmallDeep).toComplex();
+
+        int minExp = -1000;
+        int reducedExp = minExp / (int) power;
+
+        DeltaSubN.Reduce();
+        long exp = DeltaSubN.getExp();
+
+        boolean useFullFloatExp = ThreadDraw.USE_FULL_FLOATEXP_FOR_DEEP_ZOOM;
+        boolean doBailCheck = useFullFloatExp || ThreadDraw.CHECK_BAILOUT_DURING_DEEP_NOT_FULL_FLOATEXP_MODE;
+
+        boolean usedDeepCode = false;
+        if (useFullFloatExp || (totalSkippedIterations == 0 && exp <= minExp) || (totalSkippedIterations != 0 && exp <= reducedExp)) {
+            usedDeepCode = true;
+
+            MantExpComplex z = new MantExpComplex();
+            if (iterations != 0 && RefIteration < MaxRefIteration) {
+                z = getArrayDeepValue(ReferenceDeep, RefIteration).plus_mutable(DeltaSubN);
+                complex[0] = z.toComplex();
+            } else if (iterations != 0 && ReferencePeriod != 0) {
+                RefIteration = RefIteration % ReferencePeriod;
+                z = getArrayDeepValue(ReferenceDeep, RefIteration).plus_mutable(DeltaSubN);
+                complex[0] = z.toComplex();
+            }
+
+            for (; iterations < max_iterations; iterations++) {
+                if (trap != null) {
+                    trap.check(complex[0], iterations);
+                }
+
+                if (doBailCheck && bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, 0.0, pixel)) {
+                    escaped = true;
+
+                    Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0, pixel};
+                    double res = out_color_algorithm.getResult(object);
+
+                    res = getFinalValueOut(res, complex[0]);
+
+                    if (outTrueColorAlgorithm != null) {
+                        setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+                    }
+
+                    return getAndAccumulateStatsNotScaled(res);
+                }
+
+                DeltaSubN = perturbationFunction(DeltaSubN, DeltaSub0, RefIteration);
+
+                RefIteration++;
+
+                float_exp_iterations++;
+
+                zold2.assign(zold);
+                zold.assign(complex[0]);
+
+                if (max_iterations > 1) {
+                    z = getArrayDeepValue(ReferenceDeep, RefIteration).plus_mutable(DeltaSubN);
+                    complex[0] = z.toComplex();
+                }
+
+                if (statistic != null) {
+                    statistic.insert(complex[0], zold, zold2, iterations, complex[1], start, c0);
+                }
+
+                if (z.norm_squared().compareToBothPositive(DeltaSubN.norm_squared()) < 0 || RefIteration >= MaxRefIteration) {
+                    DeltaSubN = z;
+                    RefIteration = 0;
+                    rebases++;
+                }
+
+                DeltaSubN.Reduce();
+
+                if (!useFullFloatExp) {
+                    if (DeltaSubN.getExp() > reducedExp) {
+                        iterations++;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (!useFullFloatExp) {
+            Complex CDeltaSubN = DeltaSubN.toComplex();
+            Complex CDeltaSub0 = DeltaSub0.toComplex();
+
+            boolean isZero = CDeltaSub0.isZero();
+
+            if (!usedDeepCode && iterations != 0 && RefIteration < MaxRefIteration) {
+                complex[0] = getArrayValue(Reference, RefIteration).plus_mutable(CDeltaSubN);
+            } else if (!usedDeepCode && iterations != 0 && ReferencePeriod != 0) {
+                RefIteration = RefIteration % ReferencePeriod;
+                complex[0] = getArrayValue(Reference, RefIteration).plus_mutable(CDeltaSubN);
+            }
+
+            double norm_squared = complex[0].norm_squared();
+
+            for (; iterations < max_iterations; iterations++) {
+
+                //No update values
+
+                if (trap != null) {
+                    trap.check(complex[0], iterations);
+                }
+
+                if (bailout_algorithm2.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, norm_squared, pixel)) {
+                    escaped = true;
+
+                    Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0, pixel};
+                    double res = out_color_algorithm.getResult(object);
+
+                    res = getFinalValueOut(res, complex[0]);
+
+                    if (outTrueColorAlgorithm != null) {
+                        setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+                    }
+
+                    return getAndAccumulateStatsNotScaled(res);
+                }
+
+                if (isZero) {
+                    CDeltaSubN = perturbationFunction(CDeltaSubN, RefIteration);
+                } else {
+                    CDeltaSubN = perturbationFunction(CDeltaSubN, CDeltaSub0, RefIteration);
+                }
+
+                RefIteration++;
+                double_iterations++;
+
+                zold2.assign(zold);
+                zold.assign(complex[0]);
+
+                //No Plane influence work
+                //No Pre filters work
+                if (max_iterations > 1) {
+                    complex[0] = getArrayValue(Reference, RefIteration).plus_mutable(CDeltaSubN);
+                }
+                //No Post filters work
+
+                if (statistic != null) {
+                    statistic.insert(complex[0], zold, zold2, iterations, complex[1], start, c0);
+                }
+
+                norm_squared = complex[0].norm_squared();
+
+                if (norm_squared < CDeltaSubN.norm_squared() || RefIteration >= MaxRefIteration) {
+                    CDeltaSubN = complex[0];
+                    RefIteration = 0;
+                    rebases++;
+                }
+
+            }
+        }
+
+        Object[] object = {complex[0], zold, zold2, complex[1], start, c0, pixel};
+        double in = in_color_algorithm.getResult(object);
+
+        in = getFinalValueIn(in, complex[0]);
+
+        if (inTrueColorAlgorithm != null) {
+            setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+        }
+
+        return getAndAccumulateStatsNotScaled(in);
 
     }
 
@@ -2053,7 +2237,7 @@ public abstract class Fractal {
 
             //if (trap != null) {
             //    trap.check(complex[0], iterations);
-           // }
+            // }
 
             if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, MyApfloat.ZERO, pixel)) {
                 escaped = true;
@@ -2061,7 +2245,7 @@ public abstract class Fractal {
                 /*Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0, pixel};
                 double out = out_color_algorithm.getResult(object);
 
-                out = getFinalValueOut(out);
+                out = getFinalValueOut(out, complex[0]);
 
                 if (outTrueColorAlgorithm != null) {
                     setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
@@ -2078,8 +2262,7 @@ public abstract class Fractal {
             //complex[0] = preFilter.getValue(complex[0], iterations, complex[1], start, c0, pixel);
             try {
                 function(complex);
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 return ColorAlgorithm.MAXIMUM_ITERATIONS;
             }
             //complex[0] = postFilter.getValue(complex[0], iterations, complex[1], start, c0, pixel);
@@ -2092,7 +2275,7 @@ public abstract class Fractal {
         /*Object[] object = {complex[0], zold, zold2, complex[1], start, c0, pixel};
         double in = in_color_algorithm.getResult(object);
 
-        in = getFinalValueIn(in);
+        in = getFinalValueIn(in, complex[0]);
 
         if (inTrueColorAlgorithm != null) {
             setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
@@ -2126,7 +2309,7 @@ public abstract class Fractal {
                 /*Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0, pixel};
                 double out = out_color_algorithm.getResult(object);
 
-                out = getFinalValueOut(out);
+                out = getFinalValueOut(out, complex[0]);
 
                 if (outTrueColorAlgorithm != null) {
                     setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
@@ -2143,8 +2326,7 @@ public abstract class Fractal {
             //complex[0] = preFilter.getValue(complex[0], iterations, complex[1], start, c0, pixel);
             try {
                 function(complex);
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 return ColorAlgorithm.MAXIMUM_ITERATIONS;
             }
             //complex[0] = postFilter.getValue(complex[0], iterations, complex[1], start, c0, pixel);
@@ -2157,7 +2339,7 @@ public abstract class Fractal {
         /*Object[] object = {complex[0], zold, zold2, complex[1], start, c0, pixel};
         double in = in_color_algorithm.getResult(object);
 
-        in = getFinalValueIn(in);
+        in = getFinalValueIn(in, complex[0]);
 
         if (inTrueColorAlgorithm != null) {
             setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
@@ -2175,11 +2357,11 @@ public abstract class Fractal {
 
     public String getInitialValue() {
 
-        if(ThreadDraw.PERTURBATION_THEORY && supportsPerturbationTheory()) {
-            if(isJulia) {
+        if (ThreadDraw.PERTURBATION_THEORY && supportsPerturbationTheory()) {
+            if (isJulia) {
                 return "c";
             }
-            if(defaultInitVal != null) {
+            if (defaultInitVal != null) {
                 return defaultInitVal.toString();
             }
             return "0.0 + 0.0i";
@@ -2200,11 +2382,10 @@ public abstract class Fractal {
         switch (bailout_test_algorithm) {
 
             case MainWindow.BAILOUT_CONDITION_CIRCLE:
-                if(ThreadDraw.PERTURBATION_THEORY && supportsPerturbationTheory()) {
+                if (ThreadDraw.PERTURBATION_THEORY && supportsPerturbationTheory()) {
                     bailout_algorithm2 = new CircleBailoutPreCalcNormCondition(bailout_squared);
                     bailout_algorithm = new CircleBailoutCondition(bailout_squared);
-                }
-                else {
+                } else {
                     bailout_algorithm2 = bailout_algorithm = new CircleBailoutCondition(bailout_squared);
                 }
                 break;
@@ -2654,22 +2835,20 @@ public abstract class Fractal {
         if (sts.statisticGroup == 1) {
             statistic = new UserStatisticColoring(sts.statistic_intensity, sts.user_statistic_formula, xCenter, yCenter, max_iterations, size, bailout, plane_transform_center, globalVars, sts.useAverage, sts.user_statistic_init_value, sts.reductionFunction, sts.useIterations, sts.useSmoothing);
             return;
-        }
-        else if(sts.statisticGroup == 2) {
-            if(ThreadDraw.PERTURBATION_THEORY && supportsPerturbationTheory()) {
+        } else if (sts.statisticGroup == 2) {
+            if (ThreadDraw.PERTURBATION_THEORY && supportsPerturbationTheory()) {
                 return;
             }
             statistic = new Equicontinuity(sts.statistic_intensity, sts.useSmoothing, sts.useAverage, log_bailout_squared, false, 0, sts.equicontinuityDenominatorFactor, sts.equicontinuityInvertFactor, sts.equicontinuityDelta);
             return;
-        }
-        else if(sts.statisticGroup == 3) {
-            statistic = new NormalMap(sts.statistic_intensity, power, sts.normalMapHeight, sts.normalMapAngle, sts.normalMapUseSecondDerivative, size, sts.normalMapDEfactor, isJulia, sts.normalMapUseDE, sts.normalMapInvertDE, sts.normalMapColoring, sts.useNormalMap, sts.normalMapDEUpperLimitFactor, sts.normalMapDEAAEffect, sts.normalMapOverrideColoring, sts.normalMapDeFadeAlgorithm);
+        } else if (sts.statisticGroup == 3) {
+            statistic = new NormalMap(sts.statistic_intensity, power, sts.normalMapHeight, sts.normalMapAngle, sts.normalMapUseSecondDerivative, sts.normalMapDEfactor, isJulia, sts.normalMapUseDE, sts.normalMapInvertDE, sts.normalMapColoring, sts.useNormalMap, sts.normalMapDEUpperLimitFactor, sts.normalMapDEAAEffect, sts.normalMapOverrideColoring, sts.normalMapDeFadeAlgorithm);
             return;
         }
 
         switch (sts.statistic_type) {
             case MainWindow.STRIPE_AVERAGE:
-                statistic = new StripeAverage(sts.statistic_intensity, sts.stripeAvgStripeDensity, log_bailout_squared, sts.useSmoothing , sts.useAverage);
+                statistic = new StripeAverage(sts.statistic_intensity, sts.stripeAvgStripeDensity, log_bailout_squared, sts.useSmoothing, sts.useAverage);
                 break;
             case MainWindow.CURVATURE_AVERAGE:
                 statistic = new CurvatureAverage(sts.statistic_intensity, log_bailout_squared, sts.useSmoothing, sts.useAverage);
@@ -2690,33 +2869,35 @@ public abstract class Fractal {
         }
     }
 
-    protected double getStatistic(double result, boolean escaped) {
+    protected double getStatistic(double result, Complex z, boolean escaped) {
+
+        if (statistic.getSamples() == 0) {
+            statistic.setZValue(z);
+        }
 
         statValue = escaped ? statistic.getValue() : statistic.getValueNotEscaped();
 
         if (Math.abs(result) == ColorAlgorithm.MAXIMUM_ITERATIONS) {
 
-            if(statistic.getIntensity() == 0) {
-                if(statValue == 0) {
+            if (statistic.getIntensity() == 0) {
+                if (statValue == 0) {
                     return result;
-                }
-                else if(Math.abs(statValue) == ColorAlgorithm.MAXIMUM_ITERATIONS) {
+                } else if (Math.abs(statValue) == ColorAlgorithm.MAXIMUM_ITERATIONS) {
                     return statValue;
                 }
             }
 
-            if(Math.abs(statValue) == ColorAlgorithm.MAXIMUM_ITERATIONS) {
+            if (Math.abs(statValue) == ColorAlgorithm.MAXIMUM_ITERATIONS) {
                 return max_iterations;
             }
 
             return max_iterations + statValue;
         }
 
-        if(Math.abs(statValue) == ColorAlgorithm.MAXIMUM_ITERATIONS) {
-            if(statistic.getIntensity() == 0 || (escaped && !statisticIncludeNotEscaped)) {
+        if (Math.abs(statValue) == ColorAlgorithm.MAXIMUM_ITERATIONS) {
+            if (statistic.getIntensity() == 0 || (escaped && !statisticIncludeNotEscaped)) {
                 return statValue;
-            }
-            else {
+            } else {
                 return max_iterations;
             }
         }
@@ -2726,11 +2907,11 @@ public abstract class Fractal {
     }
 
     protected double getTrap(double result) {
- 
+
         if (trapIntesity == 0 || trap.hasColor()) {
             return result;
         }
-        
+
         double distance = trap.getDistance();
 
         if (distance == Double.MAX_VALUE) {
@@ -2740,9 +2921,9 @@ public abstract class Fractal {
         double maxVal = trap.getMaxValue();
         distance = maxVal - distance;
         distance /= maxVal;
-        
+
         //Function
-        switch(trapHeightFunction) {
+        switch (trapHeightFunction) {
             case 1:
                 distance = CosineInterpolation.getCoefficient(distance);
                 break;
@@ -2759,7 +2940,7 @@ public abstract class Fractal {
                 distance = FrthrootInterpolation.getCoefficient(distance);
                 break;
             case 6:
-                distance  = AccelerationInterpolation.getCoefficient(distance);
+                distance = AccelerationInterpolation.getCoefficient(distance);
                 break;
             case 7:
                 distance = SineInterpolation.getCoefficient(distance);
@@ -2780,45 +2961,45 @@ public abstract class Fractal {
             default:
                 break;
         }
-        
+
         distance = invertTrapHeight ? 1 - distance : distance;
         distance *= trapIntesity;
 
         trapValue = distance;
-        
+
         if (Math.abs(result) == ColorAlgorithm.MAXIMUM_ITERATIONS) {
-            if(trapValue == 0) {
+            if (trapValue == 0) {
                 return result;
             }
             return max_iterations + trapValue;
         }
-        
+
         return result < 0 ? result - trapValue : result + trapValue;
 
     }
 
-    protected double getFinalValueOut(double result) {
+    protected double getFinalValueOut(double result, Complex z) {
 
         if (trap != null && trapIncludeEscaped) {
             result = getTrap(result);
         }
 
         if (statistic != null && statisticIncludeEscaped) {
-            result = getStatistic(result, true);
+            result = getStatistic(result, z, true);
         }
 
         return result;
 
     }
 
-    protected double getFinalValueIn(double result) {
+    protected double getFinalValueIn(double result, Complex z) {
 
         if (trap != null && trapIncludeNotEscaped) {
             result = getTrap(result);
         }
 
         if (statistic != null && statisticIncludeNotEscaped) {
-            result = getStatistic(result, false);
+            result = getStatistic(result, z, false);
         }
 
         return result;
@@ -2847,10 +3028,9 @@ public abstract class Fractal {
             case MainWindow.LOG_FUNCTION_FILTER:
                 return new LogFunctionFilter();
             case MainWindow.USER_FUNCTION_FILTER:
-                if(ffs.user_function_filter_algorithm == 0) {
+                if (ffs.user_function_filter_algorithm == 0) {
                     return new UserFunctionFilter(ffs.userFormulaFunctionFilter, max_iterations, xCenter, yCenter, size, point, globalVars);
-                }
-                else {
+                } else {
                     return new UserConditionalFunctionFilter(ffs.user_function_filter_conditions, ffs.user_function_filter_condition_formula, max_iterations, xCenter, yCenter, size, point, globalVars);
                 }
         }
@@ -2880,10 +3060,9 @@ public abstract class Fractal {
                 planeInfluence = new NoPlaneInfluence();
                 break;
             case MainWindow.USER_PLANE_INFLUENCE:
-                if(ips.user_plane_influence_algorithm == 0) {
+                if (ips.user_plane_influence_algorithm == 0) {
                     planeInfluence = new UserPlaneInfluence(ips.userFormulaPlaneInfluence, max_iterations, xCenter, yCenter, size, point, globalVars);
-                }
-                else {
+                } else {
                     planeInfluence = new UserConditionalPlaneInfluence(ips.user_plane_influence_conditions, ips.user_plane_influence_condition_formula, max_iterations, xCenter, yCenter, size, point, globalVars);
                 }
                 break;
@@ -2894,134 +3073,134 @@ public abstract class Fractal {
     private void TrapFactory(OrbitTrapSettings ots) {
 
         switch (ots.trapType) {
-            case MainWindow.POINT_TRAP:        
+            case MainWindow.POINT_TRAP:
                 trap = new PointOrbitTrap(ots.checkType, ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.countTrapIterations);
                 break;
             case MainWindow.POINT_SQUARE_TRAP:
-                trap = new PointSquareOrbitTrap(ots.checkType,ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.countTrapIterations);
+                trap = new PointSquareOrbitTrap(ots.checkType, ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.countTrapIterations);
                 break;
             case MainWindow.POINT_RHOMBUS_TRAP:
-                trap = new PointRhombusOrbitTrap(ots.checkType,ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.countTrapIterations);
+                trap = new PointRhombusOrbitTrap(ots.checkType, ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.countTrapIterations);
                 break;
             case MainWindow.CROSS_TRAP:
-                trap = new CrossOrbitTrap(ots.checkType,ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.lineType, ots.countTrapIterations);
+                trap = new CrossOrbitTrap(ots.checkType, ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.lineType, ots.countTrapIterations);
                 break;
             case MainWindow.CIRCLE_TRAP:
-                trap = new CircleOrbitTrap(ots.checkType,ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.countTrapIterations);
+                trap = new CircleOrbitTrap(ots.checkType, ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.countTrapIterations);
                 break;
             case MainWindow.SQUARE_TRAP:
-                trap = new SquareOrbitTrap(ots.checkType,ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.countTrapIterations);
+                trap = new SquareOrbitTrap(ots.checkType, ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.countTrapIterations);
                 break;
             case MainWindow.RHOMBUS_TRAP:
-                trap = new RhombusOrbitTrap(ots.checkType,ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.countTrapIterations);
+                trap = new RhombusOrbitTrap(ots.checkType, ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.countTrapIterations);
                 break;
             case MainWindow.POINT_N_NORM_TRAP:
-                trap = new PointNNormOrbitTrap(ots.checkType,ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapNorm, ots.countTrapIterations);
+                trap = new PointNNormOrbitTrap(ots.checkType, ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapNorm, ots.countTrapIterations);
                 break;
             case MainWindow.N_NORM_TRAP:
-                trap = new NNormOrbitTrap(ots.checkType,ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.trapNorm, ots.countTrapIterations);
+                trap = new NNormOrbitTrap(ots.checkType, ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.trapNorm, ots.countTrapIterations);
                 break;
             case MainWindow.RE_TRAP:
-                trap = new ReOrbitTrap(ots.checkType,ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.lineType, ots.countTrapIterations);
+                trap = new ReOrbitTrap(ots.checkType, ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.lineType, ots.countTrapIterations);
                 break;
             case MainWindow.IM_TRAP:
-                trap = new ImOrbitTrap(ots.checkType,ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.lineType, ots.countTrapIterations);
+                trap = new ImOrbitTrap(ots.checkType, ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.lineType, ots.countTrapIterations);
                 break;
             case MainWindow.CIRCLE_CROSS_TRAP:
-                trap = new CircleCrossOrbitTrap(ots.checkType,ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.lineType, ots.countTrapIterations);
+                trap = new CircleCrossOrbitTrap(ots.checkType, ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.lineType, ots.countTrapIterations);
                 break;
             case MainWindow.SQUARE_CROSS_TRAP:
-                trap = new SquareCrossOrbitTrap(ots.checkType,ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.lineType, ots.countTrapIterations);
+                trap = new SquareCrossOrbitTrap(ots.checkType, ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.lineType, ots.countTrapIterations);
                 break;
             case MainWindow.RHOMBUS_CROSS_TRAP:
-                trap = new RhombusCrossOrbitTrap(ots.checkType,ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.lineType, ots.countTrapIterations);
+                trap = new RhombusCrossOrbitTrap(ots.checkType, ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.lineType, ots.countTrapIterations);
                 break;
             case MainWindow.N_NORM_CROSS_TRAP:
-                trap = new NNormCrossOrbitTrap(ots.checkType,ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.trapNorm, ots.lineType, ots.countTrapIterations);
+                trap = new NNormCrossOrbitTrap(ots.checkType, ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.trapNorm, ots.lineType, ots.countTrapIterations);
                 break;
             case MainWindow.CIRCLE_POINT_TRAP:
-                trap = new CirclePointOrbitTrap(ots.checkType,ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.countTrapIterations);
+                trap = new CirclePointOrbitTrap(ots.checkType, ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.countTrapIterations);
                 break;
             case MainWindow.SQUARE_POINT_TRAP:
-                trap = new SquarePointOrbitTrap(ots.checkType,ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.countTrapIterations);
+                trap = new SquarePointOrbitTrap(ots.checkType, ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.countTrapIterations);
                 break;
             case MainWindow.RHOMBUS_POINT_TRAP:
-                trap = new RhombusPointOrbitTrap(ots.checkType,ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.countTrapIterations);
+                trap = new RhombusPointOrbitTrap(ots.checkType, ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.countTrapIterations);
                 break;
             case MainWindow.N_NORM_POINT_TRAP:
-                trap = new NNormPointOrbitTrap(ots.checkType,ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.trapNorm, ots.countTrapIterations);
+                trap = new NNormPointOrbitTrap(ots.checkType, ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.trapNorm, ots.countTrapIterations);
                 break;
             case MainWindow.N_NORM_POINT_N_NORM_TRAP:
-                trap = new NNormPointNNormOrbitTrap(ots.checkType,ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.trapNorm, ots.countTrapIterations);
+                trap = new NNormPointNNormOrbitTrap(ots.checkType, ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.trapNorm, ots.countTrapIterations);
                 break;
             case MainWindow.GOLDEN_RATIO_SPIRAL_TRAP:
-                trap = new GoldenRatioSpiralOrbitTrap(ots.checkType,ots.trapPoint[0], ots.trapPoint[1], ots.trapWidth, ots.countTrapIterations);
+                trap = new GoldenRatioSpiralOrbitTrap(ots.checkType, ots.trapPoint[0], ots.trapPoint[1], ots.trapWidth, ots.countTrapIterations);
                 break;
             case MainWindow.GOLDEN_RATIO_SPIRAL_POINT_TRAP:
-                trap = new GoldenRatioSpiralPointOrbitTrap(ots.checkType,ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.countTrapIterations);
+                trap = new GoldenRatioSpiralPointOrbitTrap(ots.checkType, ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.countTrapIterations);
                 break;
             case MainWindow.GOLDEN_RATIO_SPIRAL_POINT_N_NORM_TRAP:
-                trap = new GoldenRatioSpiralPointNNormOrbitTrap(ots.checkType,ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.trapNorm, ots.countTrapIterations);
+                trap = new GoldenRatioSpiralPointNNormOrbitTrap(ots.checkType, ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.trapNorm, ots.countTrapIterations);
                 break;
             case MainWindow.GOLDEN_RATIO_SPIRAL_CROSS_TRAP:
-                trap = new GoldenRatioSpiralCrossOrbitTrap(ots.checkType,ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.lineType, ots.countTrapIterations);
+                trap = new GoldenRatioSpiralCrossOrbitTrap(ots.checkType, ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.lineType, ots.countTrapIterations);
                 break;
             case MainWindow.GOLDEN_RATIO_SPIRAL_CIRCLE_TRAP:
-                trap = new GoldenRatioSpiralCircleOrbitTrap(ots.checkType,ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.countTrapIterations);
+                trap = new GoldenRatioSpiralCircleOrbitTrap(ots.checkType, ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.countTrapIterations);
                 break;
             case MainWindow.GOLDEN_RATIO_SPIRAL_SQUARE_TRAP:
-                trap = new GoldenRatioSpiralSquareOrbitTrap(ots.checkType,ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.countTrapIterations);
+                trap = new GoldenRatioSpiralSquareOrbitTrap(ots.checkType, ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.countTrapIterations);
                 break;
             case MainWindow.GOLDEN_RATIO_SPIRAL_RHOMBUS_TRAP:
-                trap = new GoldenRatioSpiralRhombusOrbitTrap(ots.checkType,ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.countTrapIterations);
+                trap = new GoldenRatioSpiralRhombusOrbitTrap(ots.checkType, ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.countTrapIterations);
                 break;
             case MainWindow.GOLDEN_RATIO_SPIRAL_N_NORM_TRAP:
-                trap = new GoldenRatioSpiralNNormOrbitTrap(ots.checkType,ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.trapNorm, ots.countTrapIterations);
-                break;              
+                trap = new GoldenRatioSpiralNNormOrbitTrap(ots.checkType, ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.trapNorm, ots.countTrapIterations);
+                break;
             case MainWindow.STALKS_TRAP:
-                trap = new StalksOrbitTrap(ots.checkType,ots.trapPoint[0], ots.trapPoint[1], ots.trapWidth, ots.countTrapIterations);
+                trap = new StalksOrbitTrap(ots.checkType, ots.trapPoint[0], ots.trapPoint[1], ots.trapWidth, ots.countTrapIterations);
                 break;
             case MainWindow.STALKS_POINT_TRAP:
-                trap = new StalksPointOrbitTrap(ots.checkType,ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.countTrapIterations);
+                trap = new StalksPointOrbitTrap(ots.checkType, ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.countTrapIterations);
                 break;
             case MainWindow.STALKS_POINT_N_NORM_TRAP:
-                trap = new StalksPointNNormOrbitTrap(ots.checkType,ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.trapNorm, ots.countTrapIterations);
+                trap = new StalksPointNNormOrbitTrap(ots.checkType, ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.trapNorm, ots.countTrapIterations);
                 break;
             case MainWindow.STALKS_CROSS_TRAP:
-                trap = new StalksCrossOrbitTrap(ots.checkType,ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.lineType, ots.countTrapIterations);
+                trap = new StalksCrossOrbitTrap(ots.checkType, ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.lineType, ots.countTrapIterations);
                 break;
             case MainWindow.STALKS_CIRCLE_TRAP:
-                trap = new StalksCircleOrbitTrap(ots.checkType,ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.countTrapIterations);
+                trap = new StalksCircleOrbitTrap(ots.checkType, ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.countTrapIterations);
                 break;
             case MainWindow.STALKS_SQUARE_TRAP:
-                trap = new StalksSquareOrbitTrap(ots.checkType,ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.countTrapIterations);
+                trap = new StalksSquareOrbitTrap(ots.checkType, ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.countTrapIterations);
                 break;
             case MainWindow.STALKS_RHOMBUS_TRAP:
-                trap = new StalksRhombusOrbitTrap(ots.checkType,ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.countTrapIterations);
+                trap = new StalksRhombusOrbitTrap(ots.checkType, ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.countTrapIterations);
                 break;
             case MainWindow.STALKS_N_NORM_TRAP:
-                trap = new StalksNNormOrbitTrap(ots.checkType,ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.trapNorm, ots.countTrapIterations);
+                trap = new StalksNNormOrbitTrap(ots.checkType, ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.trapNorm, ots.countTrapIterations);
                 break;
             case MainWindow.IMAGE_TRAP:
-                trap = new ImageOrbitTrap(ots.checkType,ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth);
-                break;             
+                trap = new ImageOrbitTrap(ots.checkType, ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth);
+                break;
             case MainWindow.ATOM_DOMAIN_TRAP:
-                trap = new AtomDomainOrbitTrap(ots.checkType,ots.trapPoint[0], ots.trapPoint[1], ots.countTrapIterations);
+                trap = new AtomDomainOrbitTrap(ots.checkType, ots.trapPoint[0], ots.trapPoint[1], ots.countTrapIterations);
                 break;
             case MainWindow.SQUARE_ATOM_DOMAIN_TRAP:
-                trap = new SquareAtomDomainOrbitTrap(ots.checkType,ots.trapPoint[0], ots.trapPoint[1], ots.countTrapIterations);
+                trap = new SquareAtomDomainOrbitTrap(ots.checkType, ots.trapPoint[0], ots.trapPoint[1], ots.countTrapIterations);
                 break;
             case MainWindow.RHOMBUS_ATOM_DOMAIN_TRAP:
-                trap = new RhombusAtomDomainOrbitTrap(ots.checkType,ots.trapPoint[0], ots.trapPoint[1], ots.countTrapIterations);
+                trap = new RhombusAtomDomainOrbitTrap(ots.checkType, ots.trapPoint[0], ots.trapPoint[1], ots.countTrapIterations);
                 break;
             case MainWindow.NNORM_ATOM_DOMAIN_TRAP:
-                trap = new NNormAtomDomainOrbitTrap(ots.checkType,ots.trapPoint[0], ots.trapPoint[1], ots.trapNorm, ots.countTrapIterations);
+                trap = new NNormAtomDomainOrbitTrap(ots.checkType, ots.trapPoint[0], ots.trapPoint[1], ots.trapNorm, ots.countTrapIterations);
                 break;
             case MainWindow.TEAR_DROP_ORBIT_TRAP:
-                trap = new TearDropOrbitTrap(ots.checkType,ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.countTrapIterations);
+                trap = new TearDropOrbitTrap(ots.checkType, ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.countTrapIterations);
                 break;
             case MainWindow.SUPER_FORMULA_ORBIT_TRAP:
-                trap = new SuperFormulaOrbitTrap(ots.checkType,ots.trapPoint[0], ots.trapPoint[1], ots.trapWidth, ots.sfm1, ots.sfm2, ots.sfn1, ots.sfn2, ots.sfn3, ots.sfa, ots.sfb, ots.countTrapIterations);
+                trap = new SuperFormulaOrbitTrap(ots.checkType, ots.trapPoint[0], ots.trapPoint[1], ots.trapWidth, ots.sfm1, ots.sfm2, ots.sfn1, ots.sfn2, ots.sfn3, ots.sfa, ots.sfb, ots.countTrapIterations);
                 break;
 
         }
@@ -3119,7 +3298,7 @@ public abstract class Fractal {
 
     protected void setTrueColorOut(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0, Complex pixel) {
 
-        trueColorValue = outTrueColorAlgorithm.createColor(z, zold, zold2, iterations, c, start, c0, pixel, statValue, trapValue,true);
+        trueColorValue = outTrueColorAlgorithm.createColor(z, zold, zold2, iterations, c, start, c0, pixel, statValue, trapValue, true);
         hasTrueColor = true;
 
     }
@@ -3134,7 +3313,7 @@ public abstract class Fractal {
     public boolean hasTrueColor() {
         return hasTrueColor;
     }
-    
+
     public void resetTrueColor() {
         hasTrueColor = false;
     }
@@ -3192,21 +3371,29 @@ public abstract class Fractal {
         return zold2;
     }
 
-    public FunctionFilter getPreFilter() {return preFilter;}
-    public FunctionFilter getPostFilter() {return postFilter;}
-    public PlaneInfluence getPlaneInfluence() {return planeInfluence;}
+    public FunctionFilter getPreFilter() {
+        return preFilter;
+    }
+
+    public FunctionFilter getPostFilter() {
+        return postFilter;
+    }
+
+    public PlaneInfluence getPlaneInfluence() {
+        return planeInfluence;
+    }
 
     public void setJuliterOptions(boolean juliter, int juliterIterations, boolean juliterIncludeInitialIterations) {
         this.juliter = juliter;
         this.juliterIterations = juliterIterations;
         this.juliterIncludeInitialIterations = juliterIncludeInitialIterations;
 
-        if(!juliter && !(init_val instanceof DefaultInitialValue)) {
+        if (!juliter && !(init_val instanceof DefaultInitialValue)) {
             init_val = new DefaultInitialValue();
         }
 
-        if(statistic != null && statistic instanceof NormalMap) {
-            ((NormalMap)statistic).setJuliterOptions(juliter, juliterIterations);
+        if (statistic != null && statistic instanceof NormalMap) {
+            ((NormalMap) statistic).setJuliterOptions(juliter, juliterIterations);
         }
     }
 
@@ -3216,7 +3403,7 @@ public abstract class Fractal {
 
     public static void clearApproximation() {
         coefficients = null;
-        if(B != null) {
+        if (B != null) {
             B.b = null;
             B.bdeep = null;
             B = null;
@@ -3229,50 +3416,50 @@ public abstract class Fractal {
 
     public static void clearUnusedReferences(boolean isDeep, boolean supportsBla) {
 
-        if(!isDeep) {
-            if(ReferenceDeep != null) {
+        if (!isDeep) {
+            if (ReferenceDeep != null) {
                 ReferenceDeep.clear();
             }
             ReferenceDeep = null;
 
-            if(SecondReferenceDeep != null) {
+            if (SecondReferenceDeep != null) {
                 SecondReferenceDeep.clear();
             }
             SecondReferenceDeep = null;
 
-            if(ReferenceSubCpDeep != null) {
+            if (ReferenceSubCpDeep != null) {
                 ReferenceSubCpDeep.clear();
             }
             ReferenceSubCpDeep = null;
 
-            if(SecondReferenceSubCpDeep != null) {
+            if (SecondReferenceSubCpDeep != null) {
                 SecondReferenceSubCpDeep.clear();
             }
             SecondReferenceSubCpDeep = null;
 
-            if(PrecalculatedTerms2Deep != null) {
+            if (PrecalculatedTerms2Deep != null) {
                 PrecalculatedTerms2Deep.clear();
             }
             PrecalculatedTerms2Deep = null;
 
-            if(SecondPrecalculatedTermsDeep != null) {
+            if (SecondPrecalculatedTermsDeep != null) {
                 SecondPrecalculatedTermsDeep.clear();
             }
             SecondPrecalculatedTermsDeep = null;
 
-            if(SecondPrecalculatedTerms2Deep != null) {
+            if (SecondPrecalculatedTerms2Deep != null) {
                 SecondPrecalculatedTerms2Deep.clear();
             }
             SecondPrecalculatedTerms2Deep = null;
 
-            if(PrecalculatedTermsDeep != null) {
+            if (PrecalculatedTermsDeep != null) {
                 PrecalculatedTermsDeep.clear();
             }
             PrecalculatedTermsDeep = null;
 
         }
 
-        if((isDeep && ThreadDraw.APPROXIMATION_ALGORITHM == 2 && supportsBla)) {
+        if ((isDeep && ThreadDraw.APPROXIMATION_ALGORITHM == 2 && supportsBla)) {
             Reference = null;
         }
     }
@@ -3293,14 +3480,14 @@ public abstract class Fractal {
         Reference = null;
         MaxRefIteration = 0;
 
-        if(clearJuliaReference) {
+        if (clearJuliaReference) {
             lastZ2Value = null;
             secondTolastZ2Value = null;
             thirdTolastZ2Value = null;
             MaxRef2Iteration = 0;
         }
 
-        if(clearJuliaReference) {
+        if (clearJuliaReference) {
             SecondReference = null;
             SecondReferenceSubCp = null;
             SecondPrecalculatedTerms = null;
@@ -3311,12 +3498,12 @@ public abstract class Fractal {
         PrecalculatedTerms = null;
         PrecalculatedTerms2 = null;
 
-        if(ReferenceDeep != null) {
+        if (ReferenceDeep != null) {
             ReferenceDeep.clear();
         }
         ReferenceDeep = null;
 
-        if(clearJuliaReference) {
+        if (clearJuliaReference) {
             if (SecondReferenceDeep != null) {
                 SecondReferenceDeep.clear();
             }
@@ -3338,22 +3525,23 @@ public abstract class Fractal {
             SecondPrecalculatedTerms2Deep = null;
         }
 
-        if(ReferenceSubCpDeep != null) {
+        if (ReferenceSubCpDeep != null) {
             ReferenceSubCpDeep.clear();
         }
         ReferenceSubCpDeep = null;
 
-        if(PrecalculatedTerms2Deep != null) {
+        if (PrecalculatedTerms2Deep != null) {
             PrecalculatedTerms2Deep.clear();
         }
         PrecalculatedTerms2Deep = null;
 
-        if(PrecalculatedTermsDeep != null) {
+        if (PrecalculatedTermsDeep != null) {
             PrecalculatedTermsDeep.clear();
         }
         PrecalculatedTermsDeep = null;
 
         tinyRefPts.clear();
+        tinyRefPtsArray = null;
 
         nanomb1 = null;
     }
@@ -3376,8 +3564,8 @@ public abstract class Fractal {
     protected static boolean isLastTermNotNegligible(long[] magCoeff, long magDiffThreshold, int lastIndex) {
         long magLast = magCoeff[lastIndex];
 
-        for(int k=0; k < lastIndex; k++) {
-            if (magCoeff[k]-magLast<magDiffThreshold) return true;
+        for (int k = 0; k < lastIndex; k++) {
+            if (magCoeff[k] - magLast < magDiffThreshold) return true;
         }
         return false;
     }
@@ -3415,7 +3603,7 @@ public abstract class Fractal {
             }
         }
 
-        if(trap != null && init_val != null) {
+        if (trap != null && init_val != null) {
             trap.setUsesStaticInitVal(init_val.isStatic());
         }
     }
@@ -3478,8 +3666,8 @@ public abstract class Fractal {
     public void setFunctionId(int functionId) {
         this.functionId = functionId;
 
-        if(statistic != null && statistic instanceof NormalMap) {
-            ((NormalMap)statistic).setFunctionId(functionId);
+        if (statistic != null && statistic instanceof NormalMap) {
+            ((NormalMap) statistic).setFunctionId(functionId);
         }
 
     }
@@ -3492,10 +3680,21 @@ public abstract class Fractal {
         this.isJuliaMap = isJuliaMap;
     }
 
-    public boolean supportsBignum() { return false;}
-    public boolean supportsMpfrBignum() { return false;}
+    public boolean supportsBignum() {
+        return false;
+    }
 
-    public boolean supportsScaledIterations() { return false;}
+    public boolean requiresDifferentDoubleOrDoubleDoubleLimits() {
+        return isJulia;
+    }
+
+    public boolean supportsMpfrBignum() {
+        return false;
+    }
+
+    public boolean supportsScaledIterations() {
+        return false;
+    }
 
     public void setPeriod(int period) {
         iterationPeriod = period;
@@ -3505,10 +3704,9 @@ public abstract class Fractal {
         boolean isBLAInUse = ThreadDraw.APPROXIMATION_ALGORITHM == 2 && supportsBilinearApproximation();
         boolean isNanoMb1InUse = ThreadDraw.APPROXIMATION_ALGORITHM == 3 && supportsNanomb1();
 
-        if(isBLAInUse) {
+        if (isBLAInUse) {
             return iterationPeriod != 0 ? iterationPeriod + 1 : max_iterations;
-        }
-        else if(isNanoMb1InUse) {
+        } else if (isNanoMb1InUse) {
             return iterationPeriod + 1;
         }
 
@@ -3516,11 +3714,11 @@ public abstract class Fractal {
     }
 
     public int getReferenceLength() {
-        if(Reference != null) {
+        if (Reference != null) {
             return Reference.length >> 1;
         }
 
-        if(ReferenceDeep != null) {
+        if (ReferenceDeep != null) {
             return ReferenceDeep.length();
         }
 
@@ -3528,11 +3726,11 @@ public abstract class Fractal {
     }
 
     public int getSecondReferenceLength() {
-        if(SecondReference != null) {
+        if (SecondReference != null) {
             return SecondReference.length >> 1;
         }
 
-        if(SecondReferenceDeep != null) {
+        if (SecondReferenceDeep != null) {
             return SecondReferenceDeep.length();
         }
 
@@ -3544,7 +3742,7 @@ public abstract class Fractal {
     }
 
     public void updateTrapsWithInitValData() {
-        if(trap != null && init_val != null) {
+        if (trap != null && init_val != null) {
             trap.setUsesStaticInitVal(init_val.isStatic());
         }
     }
@@ -3553,4 +3751,22 @@ public abstract class Fractal {
 
     }
 
+    public boolean requiresVariablePixelSize() {
+        return statistic != null && statistic instanceof NormalMap && ((NormalMap) statistic).hasDEenabled();
+    }
+
+    public void setVariablePixelSize(MantExp pixelSize) {
+        if (statistic != null && statistic instanceof NormalMap) {
+            ((NormalMap) statistic).setVariablePixelSize(pixelSize);
+        }
+    }
+
+    public void finalizeReference() {
+        if(!tinyRefPts.isEmpty()) {
+            tinyRefPtsArray = tinyRefPts.stream().mapToInt(i -> i).toArray();
+        }
+        else {
+            tinyRefPtsArray = new int[0];
+        }
+    }
 }

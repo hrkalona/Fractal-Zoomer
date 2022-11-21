@@ -33,15 +33,18 @@ public class MyApfloat extends Apfloat {
     public static Apfloat E;
     public static Apfloat MAX_DOUBLE_SIZE;
     public static Apfloat MIN_DOUBLE_SIZE;
+    public static Apfloat MIN_DOUBLE_SIZE_2;
     public static Apfloat MIN_DOUBLE_DOUBLE_SIZE;
+    public static Apfloat MIN_DOUBLE_DOUBLE_SIZE_2;
     public static Apfloat SA_START_SIZE;
     public static Apfloat NEGATIVE_INFINITY = new Apfloat("-1e5000000000");
     public static FixedPrecisionApfloatHelper fp;
     public static long precHeadRoom = 30;
+    public static long precHeadRoomSmall = 4;
 
     public static boolean setAutomaticPrecision = true;
 
-    public static long getAutomaticPrecision(String value) {
+    /*public static long getAutomaticPrecision(String value) {
         Apfloat val = new Apfloat(value, 10000); //Hopefully that is enough
         return Math.abs(val.scale()) + precHeadRoom + 1; // + 30 for some headroom
     }
@@ -49,6 +52,90 @@ public class MyApfloat extends Apfloat {
     public static long getAutomaticPrecision(double value) {
         Apfloat val = new Apfloat(new BigDecimal(value), 10000); //Hopefully that is enough
         return Math.abs(val.scale()) + precHeadRoom + 1; // + 30 for some headroom
+    }*/
+
+    public static long getAutomaticPrecision(String[] values, boolean[] preferExponent) {
+
+        long maxValue = Long.MIN_VALUE;
+        long maxValueForExponentPreferal = Long.MIN_VALUE;
+        for(int j = 0; j < values.length; j++) {
+            String value = values[j].trim();
+            Apfloat val = new Apfloat(value, 10000); // try to parse this first
+
+            long digitsBeforeDot = 0;
+            long digitsAfterDot = 0;
+            boolean foundExp = false;
+            boolean foundDot = false;
+            long lastNonZeroAfterDot = -1;
+            long firstNonZeroBeforeDot = -1;
+            String exp = "";
+            for (int i = 0; i < value.length(); i++) {
+                if (foundExp) {
+                    if (Character.isDigit(value.charAt(i))) {
+                        exp += value.charAt(i);
+                    }
+                } else {
+                    if (value.charAt(i) == 'e' || value.charAt(i) == 'E') {
+                        foundExp = true;
+                    }
+                    if (value.charAt(i) == '.') {
+                        foundDot = true;
+                    }
+                    else if (Character.isDigit(value.charAt(i))) {
+                        if(foundDot) {
+                            digitsAfterDot++;
+                            if(value.charAt(i) != '0') {
+                                lastNonZeroAfterDot = digitsAfterDot;
+                            }
+                        }
+                        else {
+                            digitsBeforeDot++;
+                            if(firstNonZeroBeforeDot == -1 && value.charAt(i) != '0') {
+                                firstNonZeroBeforeDot = digitsBeforeDot;
+                            }
+                        }
+                    }
+                }
+            }
+            long expDigitsCount = 0;
+
+            if (foundExp && exp.length() > 0) {
+                expDigitsCount = Long.parseLong(exp);
+            }
+
+            long total = 0;
+            if(preferExponent[j] && expDigitsCount != 0) {
+                total = expDigitsCount;
+            }
+            else {
+                total = (firstNonZeroBeforeDot == -1 ? 0 : digitsBeforeDot - firstNonZeroBeforeDot + 1)
+                        + (lastNonZeroAfterDot == -1 ? 0 : lastNonZeroAfterDot)
+                        + expDigitsCount;
+            }
+
+            if(preferExponent[j]) {
+                maxValueForExponentPreferal = Math.max(maxValueForExponentPreferal, total);
+            }
+            else {
+                maxValue = Math.max(maxValue, total);
+            }
+        }
+
+        if(maxValueForExponentPreferal != Long.MIN_VALUE) {
+
+            if(maxValue <= precision && maxValueForExponentPreferal + precHeadRoom <= precision) {
+                return Math.max(maxValue, maxValueForExponentPreferal + precHeadRoom);
+            }
+            if(maxValue > precision && maxValueForExponentPreferal + precHeadRoom <= maxValue) {
+                return maxValue + precHeadRoomSmall;
+            }
+            else {
+                return maxValueForExponentPreferal + precHeadRoom;
+            }
+        }
+        else {
+            return maxValue <= precision ? maxValue : maxValue + precHeadRoomSmall;
+        }
     }
 
     public static boolean shouldSetPrecision(long newPrecision, boolean checkForDecrease) {
@@ -89,12 +176,14 @@ public class MyApfloat extends Apfloat {
         MAX_DOUBLE_SIZE = new MyApfloat(1.0e-304);
         MIN_DOUBLE_SIZE = new MyApfloat(1.0e-13);
         MIN_DOUBLE_DOUBLE_SIZE = new MyApfloat(1.0e-28);
+        MIN_DOUBLE_SIZE_2 = new MyApfloat(1.0e-5);
+        MIN_DOUBLE_DOUBLE_SIZE_2 = new MyApfloat(1.0e-20);
         SA_START_SIZE = new MyApfloat(1.0e-5);
         BigNum.reinitialize(ThreadDraw.BIGNUM_AUTOMATIC_PRECISION ? fp.divide(fp.log(fp.pow(TEN, precision)), LOG_TWO).doubleValue() : ThreadDraw.BIGNUM_PRECISION);
         MpfrBigNum.reinitialize(ThreadDraw.BIGNUM_AUTOMATIC_PRECISION ? fp.divide(fp.log(fp.pow(TEN, precision)), LOG_TWO).doubleValue() : ThreadDraw.BIGNUM_PRECISION);
     }
 
-    public static void setPrecision(long prec, Settings s) {
+    public static void setPrecision(long prec) {
         precision = prec;
         fp = new FixedPrecisionApfloatHelper(precision);
         PI = fp.pi();
@@ -106,7 +195,16 @@ public class MyApfloat extends Apfloat {
         MAX_DOUBLE_SIZE = new MyApfloat(1.0e-304);
         MIN_DOUBLE_SIZE = new MyApfloat(1.0e-13);
         MIN_DOUBLE_DOUBLE_SIZE = new MyApfloat(1.0e-28);
+        MIN_DOUBLE_SIZE_2 = new MyApfloat(1.0e-5);
+        MIN_DOUBLE_DOUBLE_SIZE_2 = new MyApfloat(1.0e-20);
         SA_START_SIZE = new MyApfloat(1.0e-5);
+
+        BigNum.reinitialize(ThreadDraw.BIGNUM_AUTOMATIC_PRECISION ? fp.divide(fp.log(fp.pow(TEN, precision)), LOG_TWO).doubleValue() : ThreadDraw.BIGNUM_PRECISION);
+        MpfrBigNum.reinitialize(ThreadDraw.BIGNUM_AUTOMATIC_PRECISION ? fp.divide(fp.log(fp.pow(TEN, precision)), LOG_TWO).doubleValue() : ThreadDraw.BIGNUM_PRECISION);
+    }
+
+    public static void setPrecision(long prec, Settings s) {
+        setPrecision(prec);
 
         s.xCenter = s.xCenter.precision(MyApfloat.precision);
         s.yCenter = s.yCenter.precision(MyApfloat.precision);
@@ -116,8 +214,6 @@ public class MyApfloat extends Apfloat {
         s.fns.rotation_vals[0] = s.fns.rotation_vals[0].precision(MyApfloat.precision);
         s.fns.rotation_vals[1] = s.fns.rotation_vals[1].precision(MyApfloat.precision);
 
-        BigNum.reinitialize(ThreadDraw.BIGNUM_AUTOMATIC_PRECISION ? fp.divide(fp.log(fp.pow(TEN, precision)), LOG_TWO).doubleValue() : ThreadDraw.BIGNUM_PRECISION);
-        MpfrBigNum.reinitialize(ThreadDraw.BIGNUM_AUTOMATIC_PRECISION ? fp.divide(fp.log(fp.pow(TEN, precision)), LOG_TWO).doubleValue() : ThreadDraw.BIGNUM_PRECISION);
     }
 
     public static void setBigNumPrecision() {
@@ -489,10 +585,10 @@ public class MyApfloat extends Apfloat {
 
     public static void main(String[] args) {
 
-        MyApfloat.precision = 1200;
+        MyApfloat.precision = 50;
         MyApfloat.fp = new FixedPrecisionApfloatHelper(MyApfloat.precision);
 
-        System.out.println(getAutomaticPrecision("1.26e-200"));
+        System.out.println(getAutomaticPrecision(new String[]{"0.003236469856558749616219364295756151228386738578675", "-0.8421534199886435385336059377278168189344067258883", "6.82121026329696178436279296875e-13" }, new boolean[] {false, false, true}));
 
         //Apfloat a = new MyApfloat("-1.99996619445037030418434688506350579675531241540724851511761922944801584242342684381376129778868913812287046406560949864353810575744772166485672496092803920095332");
         //Apfloat b = new MyApfloat("+0.00000000000000000000000000000000030013824367909383240724973039775924987346831190773335270174257280120474975614823581185647299288414075519224186504978181625478529");

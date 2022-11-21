@@ -63,7 +63,7 @@ public class OptionsMenu extends JMenu {
     private JCheckBoxMenuItem infobar_opt;
     private JCheckBoxMenuItem fullscreen_opt;
 
-    public OptionsMenu(MainWindow ptr2, String name, PaletteSettings ps, PaletteSettings ps2, boolean smoothing, boolean show_orbit_converging_point, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, int out_coloring_algorithm, int in_coloring_algorithm, int function, int plane_type, int bailout_test_algorithm, int color_blending, int temp_color_cycling_location, int temp_color_cycling_location2, int pre_filter, int post_filter, int plane_influence, int convergent_bailout_test_algorithm) {
+    public OptionsMenu(MainWindow ptr2, String name, PaletteSettings ps, PaletteSettings ps2, boolean smoothing, boolean show_orbit_converging_point, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, int out_coloring_algorithm, int in_coloring_algorithm, int function, int plane_type, int bailout_test_algorithm, int color_blending, boolean color_blending_reverse_order, int temp_color_cycling_location, int temp_color_cycling_location2, int pre_filter, int post_filter, int plane_influence, int convergent_bailout_test_algorithm) {
 
         super(name);
 
@@ -116,7 +116,7 @@ public class OptionsMenu extends JMenu {
         window_menu = new JMenu("Window");
         window_menu.setIcon(MainWindow.getIcon("window.png"));
 
-        colors_menu = new ColorsMenu(ptr, "Colors", ps, ps2, smoothing, out_coloring_algorithm, in_coloring_algorithm, color_blending, temp_color_cycling_location, temp_color_cycling_location2);
+        colors_menu = new ColorsMenu(ptr, "Colors", ps, ps2, smoothing, out_coloring_algorithm, in_coloring_algorithm, color_blending, color_blending_reverse_order, temp_color_cycling_location, temp_color_cycling_location2);
 
         overview_opt = new JMenuItem("Options Overview", MainWindow.getIcon("overview.png"));
 

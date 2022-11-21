@@ -157,8 +157,11 @@ public class BigComplex extends GenericComplex {
      */
     public final BigComplex times(BigComplex z) {
 
-        return new BigComplex(MyApfloat.fp.subtract(MyApfloat.fp.multiply(re, z.re), MyApfloat.fp.multiply(im, z.im)), MyApfloat.fp.add(MyApfloat.fp.multiply(re, z.im), MyApfloat.fp.multiply(im, z.re)));
+        //return new BigComplex(MyApfloat.fp.subtract(MyApfloat.fp.multiply(re, z.re), MyApfloat.fp.multiply(im, z.im)), MyApfloat.fp.add(MyApfloat.fp.multiply(re, z.im), MyApfloat.fp.multiply(im, z.re)));
 
+        Apfloat ac = MyApfloat.fp.multiply(re, z.re);
+        Apfloat bd = MyApfloat.fp.multiply(im, z.im);
+        return new BigComplex(MyApfloat.fp.subtract(ac, bd), MyApfloat.fp.subtract(MyApfloat.fp.subtract(MyApfloat.fp.multiply(MyApfloat.fp.add(re, im), MyApfloat.fp.add(z.re, z.im)), ac), bd));
     }
 
     /*
@@ -722,7 +725,9 @@ public class BigComplex extends GenericComplex {
         return re.compareTo(Apfloat.ZERO) == 0 && im.compareTo(Apfloat.ZERO) == 0;
     }
 
-
+    public final boolean isOne() {
+        return re.compareTo(Apfloat.ONE) == 0 && im.compareTo(Apfloat.ZERO) == 0;
+    }
 
 
     /*
@@ -818,7 +823,11 @@ public class BigComplex extends GenericComplex {
     public final BigComplex times(GenericComplex zn) {
 
         BigComplex z = (BigComplex)zn;
-        return new BigComplex(MyApfloat.fp.subtract(MyApfloat.fp.multiply(re, z.re), MyApfloat.fp.multiply(im, z.im)), MyApfloat.fp.add(MyApfloat.fp.multiply(re, z.im), MyApfloat.fp.multiply(im, z.re)));
+        //return new BigComplex(MyApfloat.fp.subtract(MyApfloat.fp.multiply(re, z.re), MyApfloat.fp.multiply(im, z.im)), MyApfloat.fp.add(MyApfloat.fp.multiply(re, z.im), MyApfloat.fp.multiply(im, z.re)));
+
+        Apfloat ac = MyApfloat.fp.multiply(re, z.re);
+        Apfloat bd = MyApfloat.fp.multiply(im, z.im);
+        return new BigComplex(MyApfloat.fp.subtract(ac, bd), MyApfloat.fp.subtract(MyApfloat.fp.subtract(MyApfloat.fp.multiply(MyApfloat.fp.add(re, im), MyApfloat.fp.add(z.re, z.im)), ac), bd));
 
     }
 

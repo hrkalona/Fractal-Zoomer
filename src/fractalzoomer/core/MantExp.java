@@ -514,6 +514,58 @@ public class MantExp {
         return this;
     }
 
+    public int compareToBothPositiveReduced(MantExp compareTo) {
+
+//        if(mantissa == 0 && compareTo.mantissa == 0) {
+//            return 0;
+//        }
+
+        if(exp > compareTo.exp) {
+            return 1;
+        }
+        else if(exp < compareTo.exp){
+            return -1;
+        }
+        else {
+            if(mantissa > compareTo.mantissa) {
+                return 1;
+            }
+            else if(mantissa < compareTo.mantissa) {
+                return - 1;
+            }
+            else {
+                return 0;
+            }
+        }
+    }
+
+    public int compareToBothPositive(MantExp compareTo) {
+        Reduce();
+        compareTo.Reduce();
+
+//        if(mantissa == 0 && compareTo.mantissa == 0) {
+//            return 0;
+//        }
+
+        if(exp > compareTo.exp) {
+            return 1;
+        }
+        else if(exp < compareTo.exp){
+            return -1;
+        }
+        else {
+            if(mantissa > compareTo.mantissa) {
+                return 1;
+            }
+            else if(mantissa < compareTo.mantissa) {
+                return - 1;
+            }
+            else {
+                return 0;
+            }
+        }
+    }
+
     public int compareTo(MantExp compareTo) {
 
         Reduce();
@@ -666,12 +718,6 @@ public class MantExp {
 
         return this;
     }
-
-    public static MantExp hypot(MantExp a, MantExp b) {
-        return a.square().add_mutable(b.square()).sqrt_mutable();
-    }
-
-    public static MantExp hypot(double mRe, double mIm, long exp) {return new MantExp(exp, Math.hypot(mRe, mIm));}
 
     public static MantExp max(MantExp a, MantExp b) {
         return a.compareTo(b) > 0 ? a : b;

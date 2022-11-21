@@ -988,19 +988,23 @@ public class StatisticsColoringFrame extends JFrame {
 
         colorsLength = new JLabel("Root Color(s): " + list.getModel().getSize());
 
+        list.addKeyListener(new KeyListener() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_DELETE) {
+                    delete();
+                }
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) { }
+
+            @Override
+            public void keyTyped(KeyEvent e) { }
+        });
+
         removeColor.addActionListener(e -> {
-            int[] indx = list.getSelectedIndices();
-
-            if(indx == null || indx.length == 0) {
-                return;
-            }
-            DefaultListModel model = (DefaultListModel) list.getModel();
-
-            for (int i = indx.length-1; i >=0; i--) {
-                model.remove(indx[i]);
-            }
-
-            colorsLength.setText("Root Color(s): " + list.getModel().getSize());
+            delete();
         });
 
         editColor.addActionListener(e -> {
@@ -1528,7 +1532,7 @@ public class StatisticsColoringFrame extends JFrame {
             sts.statistic_escape_type = escape_type.getSelectedIndex();
             sts.showAtomDomains = showAtomDomain.isSelected();
 
-            if(!s.fns.smoothing && sts.statistic && sts.statisticGroup != 4) {
+            if(!s.fns.smoothing && sts.statistic && sts.statisticGroup != 4 && (sts.statisticGroup != 3 || sts.useNormalMap)) {
                 JOptionPane.showMessageDialog(this_frame, "Smoothing is disabled.\nYou should enable smoothing for a better result.", "Warning!", JOptionPane.WARNING_MESSAGE);
             }
 
@@ -1659,6 +1663,21 @@ public class StatisticsColoringFrame extends JFrame {
         }
         else {
             model.setElementAt("" + color.getRGB(), index);
+        }
+
+        colorsLength.setText("Root Color(s): " + list.getModel().getSize());
+    }
+
+    private void delete() {
+        int[] indx = list.getSelectedIndices();
+
+        if(indx == null || indx.length == 0) {
+            return;
+        }
+        DefaultListModel model = (DefaultListModel) list.getModel();
+
+        for (int i = indx.length-1; i >=0; i--) {
+            model.remove(indx[i]);
         }
 
         colorsLength.setText("Root Color(s): " + list.getModel().getSize());

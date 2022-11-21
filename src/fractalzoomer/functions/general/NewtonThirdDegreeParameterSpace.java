@@ -162,7 +162,7 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
             return false;
         }
 
-        return !isJulia || (isJulia && !juliter);
+        return !isJulia || !juliter;
     }
 
     @Override

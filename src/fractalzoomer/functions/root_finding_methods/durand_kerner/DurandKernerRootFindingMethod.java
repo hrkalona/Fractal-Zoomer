@@ -172,7 +172,7 @@ public abstract class DurandKernerRootFindingMethod extends RootFindingMethods {
                 iterationData = object;
                 double out = out_color_algorithm.getResult(object);
 
-                out = getFinalValueOut(out);
+                out = getFinalValueOut(out, complex[0]);
 
                 if (outTrueColorAlgorithm != null) {
                     setTrueColorOut(complex[0], zold, zold2, iterations, pixel, start, c0, pixel);
@@ -197,7 +197,7 @@ public abstract class DurandKernerRootFindingMethod extends RootFindingMethods {
         iterationData = object;
         double in = in_color_algorithm.getResult(object);
 
-        in = getFinalValueIn(in);
+        in = getFinalValueIn(in, complex[0]);
 
         if (inTrueColorAlgorithm != null) {
             setTrueColorIn(complex[0], zold, zold2, iterations, pixel, start, c0, pixel);

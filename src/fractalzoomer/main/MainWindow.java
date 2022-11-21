@@ -147,6 +147,9 @@ public class MainWindow extends JFrame implements Constants {
     private boolean cycle_colors;
     private boolean cycle_lights;
     private boolean cycle_gradient;
+
+    private int color_cycling_adjusting_value;
+
     public static boolean runsOnWindows;
     private boolean grid;
     private boolean old_grid;
@@ -155,7 +158,6 @@ public class MainWindow extends JFrame implements Constants {
     private boolean zoom_window;
     private boolean old_polar_projection;
     private boolean old_d3;
-    private boolean greedy_algorithm;
     private ThreadDraw[][] threads;
     private DrawOrbit pixels_orbit;
     private Apfloat old_xCenter;
@@ -266,12 +268,11 @@ public class MainWindow extends JFrame implements Constants {
         boundaries_spacing_method = 0;
         boundaries_type = 0;
 
-        greedy_algorithm = false;
-
         color_cycling_speed = 140;
         cycle_colors = true;
         cycle_lights = false;
         cycle_gradient = false;
+        color_cycling_adjusting_value = 1;
 
         old_rotation_vals = new Apfloat[2];
 
@@ -383,7 +384,7 @@ public class MainWindow extends JFrame implements Constants {
 
         file_menu = new FileMenu(ptr, "File");
 
-        options_menu = new OptionsMenu(ptr, "Options", s.ps, s.ps2, s.fns.smoothing, show_orbit_converging_point, s.fns.apply_plane_on_julia, s.fns.apply_plane_on_julia_seed, s.fns.out_coloring_algorithm, s.fns.in_coloring_algorithm, s.fns.function, s.fns.plane_type, s.fns.bailout_test_algorithm, s.color_blending, s.temp_color_cycling_location, s.temp_color_cycling_location_second_palette, s.fns.preffs.functionFilter, s.fns.postffs.functionFilter, s.fns.ips.influencePlane, s.fns.cbs.convergent_bailout_test_algorithm);
+        options_menu = new OptionsMenu(ptr, "Options", s.ps, s.ps2, s.fns.smoothing, show_orbit_converging_point, s.fns.apply_plane_on_julia, s.fns.apply_plane_on_julia_seed, s.fns.out_coloring_algorithm, s.fns.in_coloring_algorithm, s.fns.function, s.fns.plane_type, s.fns.bailout_test_algorithm, s.color_blending.color_blending, s.color_blending.blending_reversed_colors, s.temp_color_cycling_location, s.temp_color_cycling_location_second_palette, s.fns.preffs.functionFilter, s.fns.postffs.functionFilter, s.fns.ips.influencePlane, s.fns.cbs.convergent_bailout_test_algorithm);
 
         fractal_functions = options_menu.getFractalFunctions();
 
@@ -638,21 +639,26 @@ public class MainWindow extends JFrame implements Constants {
                     return;
                 }
 
-                if (e.getOldState() == NORMAL && e.getNewState() == MAXIMIZED_BOTH) {
-                    image_size = getWidth() - 35;
-                } else if (e.getNewState() == NORMAL && e.getOldState() == MAXIMIZED_BOTH) {
+                int temp_image_size;
+                if (e.getNewState() == NORMAL && e.getOldState() == MAXIMIZED_BOTH) {
                     if (getHeight() > getWidth()) {
-                        image_size = getHeight() - 61;
+                        temp_image_size = getHeight() - 61;
                     } else {
-                        image_size = getWidth() - 35;
+                        temp_image_size = getWidth() - 35;
                     }
                 } else {
                     return;
                 }
 
-                if (image_size > 6000) {
-                    image_size = 6000;
+                if (temp_image_size > 6000) {
+                    temp_image_size = 6000;
                 }
+
+                if(temp_image_size == image_size) {
+                    return;
+                }
+
+                image_size = temp_image_size;
 
                 whole_image_done = false;
 
@@ -1389,7 +1395,7 @@ public class MainWindow extends JFrame implements Constants {
                     }
 
                     if (s.fns.julia) {
-                        if (greedy_algorithm) {
+                        if (ThreadDraw.GREEDY_ALGORITHM) {
                             if (greedy_algorithm_selection == BOUNDARY_TRACING) {
                                 threads[i][j] = new BoundaryTracingDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, quickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js, s.xJuliaCenter, s.yJuliaCenter);
                             } else if (greedy_algorithm_selection == DIVIDE_AND_CONQUER) {
@@ -1403,7 +1409,7 @@ public class MainWindow extends JFrame implements Constants {
                                 threads[i][j] = new BruteForce2Draw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, quickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js, s.xJuliaCenter, s.yJuliaCenter);
                             }
                         }
-                    } else if (greedy_algorithm) {
+                    } else if (ThreadDraw.GREEDY_ALGORITHM) {
                         if (greedy_algorithm_selection == BOUNDARY_TRACING) {
                             threads[i][j] = new BoundaryTracingDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, quickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js);
                         } else if (greedy_algorithm_selection == DIVIDE_AND_CONQUER) {
@@ -1460,19 +1466,8 @@ public class MainWindow extends JFrame implements Constants {
         file_chooser.setSelectedFile(new File(name));
 
         file_chooser.addPropertyChangeListener(JFileChooser.FILE_FILTER_CHANGED_PROPERTY, evt -> {
-            FileNameExtensionFilter filter = (FileNameExtensionFilter) evt.getNewValue();
-
-            String extension = filter.getExtensions()[0];
-
             String file_name = ((BasicFileChooserUI) file_chooser.getUI()).getFileName();
-
-            int index = file_name.lastIndexOf(".");
-
-            if (index != -1) {
-                file_name = file_name.substring(0, index);
-            }
-
-            file_chooser.setSelectedFile(new File(file_name + "." + extension));
+            file_chooser.setSelectedFile(new File(file_name));
         });
 
         int returnVal = file_chooser.showDialog(ptr, "Save Settings");
@@ -1610,33 +1605,7 @@ public class MainWindow extends JFrame implements Constants {
             ThreadDraw.USE_DIRECT_COLOR = s.useDirectColor = false;
 
             if(!(s.sts.statistic && s.sts.statisticGroup == 4)){
-                if (!s.ds.domain_coloring) {
-                    if (s.usePaletteForInColoring) {
-                        if(!s.gps.useGeneratedPaletteInColoring) {
-                            infobar.getInColoringPalettePreview().setVisible(true);
-                            infobar.getInColoringPalettePreviewLabel().setVisible(true);
-                        }
-                        else {
-                            infobar.getInColoringPalettePreview().setVisible(false);
-                            infobar.getInColoringPalettePreviewLabel().setVisible(false);
-                        }
-                        infobar.getMaxIterationsColorPreview().setVisible(false);
-                        infobar.getMaxIterationsColorPreviewLabel().setVisible(false);
-                    } else {
-                        infobar.getMaxIterationsColorPreview().setVisible(true);
-                        infobar.getMaxIterationsColorPreviewLabel().setVisible(true);
-                        infobar.getInColoringPalettePreview().setVisible(false);
-                        infobar.getInColoringPalettePreviewLabel().setVisible(false);
-                    }
-                }
-                if(!s.gps.useGeneratedPaletteOutColoring || (s.ds.domain_coloring && s.ds.domain_coloring_mode != 1)) {
-                    infobar.getOutColoringPalettePreview().setVisible(true);
-                    infobar.getOutColoringPalettePreviewLabel().setVisible(true);
-                }
-                else {
-                    infobar.getOutColoringPalettePreview().setVisible(false);
-                    infobar.getOutColoringPalettePreviewLabel().setVisible(false);
-                }
+                setPalettePreviewsVisible();
             }
 
             infobar.getGradientPreviewLabel().setVisible(true);
@@ -1647,34 +1616,7 @@ public class MainWindow extends JFrame implements Constants {
             options_menu.getDirectColor().setSelected(false);
 
             if(!(s.sts.statistic && s.sts.statisticGroup == 4)) {
-                if (!s.ds.domain_coloring) {
-                    if (s.usePaletteForInColoring) {
-                        if(!s.gps.useGeneratedPaletteInColoring) {
-                            infobar.getInColoringPalettePreview().setVisible(true);
-                            infobar.getInColoringPalettePreviewLabel().setVisible(true);
-                        }
-                        else {
-                            infobar.getInColoringPalettePreview().setVisible(false);
-                            infobar.getInColoringPalettePreviewLabel().setVisible(false);
-                        }
-                        infobar.getMaxIterationsColorPreview().setVisible(false);
-                        infobar.getMaxIterationsColorPreviewLabel().setVisible(false);
-                    } else {
-                        infobar.getMaxIterationsColorPreview().setVisible(true);
-                        infobar.getMaxIterationsColorPreviewLabel().setVisible(true);
-                        infobar.getInColoringPalettePreview().setVisible(false);
-                        infobar.getInColoringPalettePreviewLabel().setVisible(false);
-                    }
-                }
-
-                if(!s.gps.useGeneratedPaletteOutColoring || (s.ds.domain_coloring && s.ds.domain_coloring_mode != 1)) {
-                    infobar.getOutColoringPalettePreview().setVisible(true);
-                    infobar.getOutColoringPalettePreviewLabel().setVisible(true);
-                }
-                else {
-                    infobar.getOutColoringPalettePreview().setVisible(false);
-                    infobar.getOutColoringPalettePreviewLabel().setVisible(false);
-                }
+                setPalettePreviewsVisible();
             }
 
             infobar.getGradientPreviewLabel().setVisible(true);
@@ -1719,7 +1661,7 @@ public class MainWindow extends JFrame implements Constants {
             infobar.getInColoringPalettePreviewLabel().setVisible(false);
         }
 
-        options_menu.getBlendingModes()[s.color_blending].setSelected(true);
+        options_menu.getBlendingModes()[s.color_blending.color_blending].setSelected(true);
         options_menu.getOutColoringTranferFunctions()[s.ps.transfer_function].setSelected(true);
         options_menu.getInColoringTranferFunctions()[s.ps2.transfer_function].setSelected(true);
 
@@ -1778,14 +1720,8 @@ public class MainWindow extends JFrame implements Constants {
             infobar.getGradientPreviewLabel().setVisible(true);
             infobar.getGradientPreview().setVisible(true);
 
-            if(!s.gps.useGeneratedPaletteOutColoring || (s.ds.domain_coloring && s.ds.domain_coloring_mode != 1)) {
-                infobar.getOutColoringPalettePreview().setVisible(true);
-                infobar.getOutColoringPalettePreviewLabel().setVisible(true);
-            }
-            else {
-                infobar.getOutColoringPalettePreview().setVisible(false);
-                infobar.getOutColoringPalettePreviewLabel().setVisible(false);
-            }
+            infobar.getOutColoringPalettePreview().setVisible(!s.gps.useGeneratedPaletteOutColoring || (s.ds.domain_coloring && s.ds.domain_coloring_mode != 1));
+            infobar.getOutColoringPalettePreviewLabel().setVisible(!s.gps.useGeneratedPaletteOutColoring || (s.ds.domain_coloring && s.ds.domain_coloring_mode != 1));
 
             if (s.ds.domain_coloring_mode != 1) {
                 toolbar.getOutCustomPaletteButton().setEnabled(false);
@@ -1870,35 +1806,9 @@ public class MainWindow extends JFrame implements Constants {
         }
         else {
             if (!s.useDirectColor) {
-                if (!s.ds.domain_coloring) {
-                    if (s.usePaletteForInColoring) {
-                        if(!s.gps.useGeneratedPaletteInColoring) {
-                            infobar.getInColoringPalettePreview().setVisible(true);
-                            infobar.getInColoringPalettePreviewLabel().setVisible(true);
-                        }
-                        else {
-                            infobar.getInColoringPalettePreview().setVisible(false);
-                            infobar.getInColoringPalettePreviewLabel().setVisible(false);
-                        }
-                        infobar.getMaxIterationsColorPreview().setVisible(false);
-                        infobar.getMaxIterationsColorPreviewLabel().setVisible(false);
-                    } else {
-                        infobar.getMaxIterationsColorPreview().setVisible(true);
-                        infobar.getMaxIterationsColorPreviewLabel().setVisible(true);
-                        infobar.getInColoringPalettePreview().setVisible(false);
-                        infobar.getInColoringPalettePreviewLabel().setVisible(false);
-                    }
-                }
+                setPalettePreviewsVisible();
                 infobar.getGradientPreviewLabel().setVisible(true);
                 infobar.getGradientPreview().setVisible(true);
-                if(!s.gps.useGeneratedPaletteOutColoring || (s.ds.domain_coloring && s.ds.domain_coloring_mode != 1)) {
-                    infobar.getOutColoringPalettePreview().setVisible(true);
-                    infobar.getOutColoringPalettePreviewLabel().setVisible(true);
-                }
-                else {
-                    infobar.getOutColoringPalettePreview().setVisible(false);
-                    infobar.getOutColoringPalettePreviewLabel().setVisible(false);
-                }
             }
         }
 
@@ -2119,19 +2029,8 @@ public class MainWindow extends JFrame implements Constants {
         file_chooser.addChoosableFileFilter(new FileNameExtensionFilter("Fractal Zoomer Settings (*.fzs)", "fzs"));
 
         file_chooser.addPropertyChangeListener(JFileChooser.FILE_FILTER_CHANGED_PROPERTY, evt -> {
-            FileNameExtensionFilter filter = (FileNameExtensionFilter) evt.getNewValue();
-
-            String extension = filter.getExtensions()[0];
-
             String file_name = ((BasicFileChooserUI) file_chooser.getUI()).getFileName();
-
-            int index = file_name.lastIndexOf(".");
-
-            if (index != -1) {
-                file_name = file_name.substring(0, index);
-            }
-
-            file_chooser.setSelectedFile(new File(file_name + "." + extension));
+            file_chooser.setSelectedFile(new File(file_name));
         });
 
         int returnVal = file_chooser.showDialog(ptr, "Load Settings");
@@ -2200,19 +2099,8 @@ public class MainWindow extends JFrame implements Constants {
         file_chooser.setSelectedFile(new File(name));
 
         file_chooser.addPropertyChangeListener(JFileChooser.FILE_FILTER_CHANGED_PROPERTY, evt -> {
-            FileNameExtensionFilter filter = (FileNameExtensionFilter) evt.getNewValue();
-
-            String extension = filter.getExtensions()[0];
-
             String file_name = ((BasicFileChooserUI) file_chooser.getUI()).getFileName();
-
-            int index = file_name.lastIndexOf(".");
-
-            if (index != -1) {
-                file_name = file_name.substring(0, index);
-            }
-
-            file_chooser.setSelectedFile(new File(file_name + "." + extension));
+            file_chooser.setSelectedFile(new File(file_name));
         });
 
         int returnVal = file_chooser.showDialog(ptr, "Save Settings and Image");
@@ -2289,19 +2177,8 @@ public class MainWindow extends JFrame implements Constants {
         file_chooser.setSelectedFile(new File(name));
 
         file_chooser.addPropertyChangeListener(JFileChooser.FILE_FILTER_CHANGED_PROPERTY, evt -> {
-            FileNameExtensionFilter filter = (FileNameExtensionFilter) evt.getNewValue();
-
-            String extension = filter.getExtensions()[0];
-
             String file_name = ((BasicFileChooserUI) file_chooser.getUI()).getFileName();
-
-            int index = file_name.lastIndexOf(".");
-
-            if (index != -1) {
-                file_name = file_name.substring(0, index);
-            }
-
-            file_chooser.setSelectedFile(new File(file_name + "." + extension));
+            file_chooser.setSelectedFile(new File(file_name));
         });
 
         int returnVal = file_chooser.showDialog(ptr, "Save Image");
@@ -2699,7 +2576,7 @@ public class MainWindow extends JFrame implements Constants {
             resetOrbit();
             options_menu.getOutColoringPalette()[s.ps.color_choice].setSelected(true); // reselect the old palette
 
-            int[] res = PaletteMenu.choosePaletteFiler(ptr);
+            int[] res = PaletteMenu.choosePaletteFile(ptr);
             if (res != null) {
                 ptr.setPalette(temp, res, outcoloring_mode ? 0 : 1);
             } else if (s.ps.color_choice != temp) {
@@ -2711,7 +2588,7 @@ public class MainWindow extends JFrame implements Constants {
             resetOrbit();
             options_menu.getInColoringPalette()[s.ps2.color_choice].setSelected(true); // reselect the old palette
 
-            int[] res = PaletteMenu.choosePaletteFiler(ptr);
+            int[] res = PaletteMenu.choosePaletteFile(ptr);
             if (res != null) {
                 ptr.setPalette(temp, res, outcoloring_mode ? 0 : 1);
             } else if (s.ps2.color_choice != temp) {
@@ -2818,7 +2695,7 @@ public class MainWindow extends JFrame implements Constants {
                     ArraysFillColor(image, Color.BLACK.getRGB());
                 }
 
-                if ((greedy_algorithm && greedy_algorithm_selection == DIVIDE_AND_CONQUER) || s.ots.useTraps || s.fns.tcs.trueColorOut || s.fns.tcs.trueColorIn || (s.sts.statistic && s.sts.statisticGroup == 2 && s.sts.equicontinuityOverrideColoring)
+                if ((ThreadDraw.GREEDY_ALGORITHM && greedy_algorithm_selection == DIVIDE_AND_CONQUER) || s.ots.useTraps || s.fns.tcs.trueColorOut || s.fns.tcs.trueColorIn || (s.sts.statistic && s.sts.statisticGroup == 2 && s.sts.equicontinuityOverrideColoring)
                         || (s.sts.statistic && s.sts.statisticGroup == 3) || (s.sts.statistic && s.sts.statisticGroup == 4)) {
                     if (s.d3s.d3) {
                         createThreadsPaletteAndFilter3DModel();
@@ -5054,7 +4931,7 @@ public class MainWindow extends JFrame implements Constants {
 
                     ThreadSplitCoordinates tsc = ThreadSplitCoordinates.get(j, i, thread_grouping, n, FAST_JULIA_IMAGE_SIZE);
 
-                    if (greedy_algorithm) {
+                    if (ThreadDraw.GREEDY_ALGORITHM) {
                         if (greedy_algorithm_selection == BOUNDARY_TRACING) {
                             threads[i][j] = new BoundaryTracingDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, fast_julia_filters, fast_julia_image, periodicity_checking, s.fs, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js, temp_xJuliaCenter, temp_yJuliaCenter);
                         } else if (greedy_algorithm_selection == DIVIDE_AND_CONQUER) {
@@ -5188,7 +5065,7 @@ public class MainWindow extends JFrame implements Constants {
         for (int i = 0; i < threads.length; i++) {
             for (int j = 0; j < threads[i].length; j++) {
                 ThreadSplitCoordinates tsc = ThreadSplitCoordinates.get(j, i, thread_grouping, n, image_size);
-                threads[i][j] = new BruteForceDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, s.fractal_color, s.dem_color, image, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.bms, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.fdes, s.rps, color_cycling_speed, s.fs, s.ens, s.ofs, s.gss, s.color_blending, s.cns, s.post_processing_order, s.ls, s.pbs, s.ots, cycle_colors, cycle_lights, cycle_gradient, s.ds, s.gs.gradient_offset, s.hss, s.contourFactor, s.fns.smoothing, s.gps);
+                threads[i][j] = new BruteForceDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, s.fractal_color, s.dem_color, image, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.bms, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.fdes, s.rps, color_cycling_speed, s.fs, s.ens, s.ofs, s.gss, s.color_blending, s.cns, s.post_processing_order, s.ls, s.pbs, s.ots, cycle_colors, cycle_lights, cycle_gradient, color_cycling_adjusting_value, s.ds, s.gs.gradient_offset, s.hss, s.contourFactor, s.fns.smoothing, s.gps);
                 threads[i][j].setThreadId(i * threads.length + j);
             }
         }
@@ -5418,33 +5295,7 @@ public class MainWindow extends JFrame implements Constants {
             ThreadDraw.USE_DIRECT_COLOR = s.useDirectColor = false;
 
             if(!(s.sts.statistic && s.sts.statisticGroup == 4)) {
-                if (!s.ds.domain_coloring) {
-                    if (s.usePaletteForInColoring) {
-                        if(!s.gps.useGeneratedPaletteInColoring) {
-                            infobar.getInColoringPalettePreview().setVisible(true);
-                            infobar.getInColoringPalettePreviewLabel().setVisible(true);
-                        }
-                        else {
-                            infobar.getInColoringPalettePreview().setVisible(false);
-                            infobar.getInColoringPalettePreviewLabel().setVisible(false);
-                        }
-                        infobar.getMaxIterationsColorPreview().setVisible(false);
-                        infobar.getMaxIterationsColorPreviewLabel().setVisible(false);
-                    } else {
-                        infobar.getMaxIterationsColorPreview().setVisible(true);
-                        infobar.getMaxIterationsColorPreviewLabel().setVisible(true);
-                        infobar.getInColoringPalettePreview().setVisible(false);
-                        infobar.getInColoringPalettePreviewLabel().setVisible(false);
-                    }
-                }
-                if(!s.gps.useGeneratedPaletteOutColoring || (s.ds.domain_coloring && s.ds.domain_coloring_mode != 1)) {
-                    infobar.getOutColoringPalettePreview().setVisible(true);
-                    infobar.getOutColoringPalettePreviewLabel().setVisible(true);
-                }
-                else {
-                    infobar.getOutColoringPalettePreview().setVisible(false);
-                    infobar.getOutColoringPalettePreviewLabel().setVisible(false);
-                }
+                setPalettePreviewsVisible();
             }
             infobar.getGradientPreviewLabel().setVisible(true);
             infobar.getGradientPreview().setVisible(true);
@@ -5503,33 +5354,7 @@ public class MainWindow extends JFrame implements Constants {
             ThreadDraw.USE_DIRECT_COLOR = s.useDirectColor = false;
 
             if(!(s.sts.statistic && s.sts.statisticGroup == 4)) {
-                if (!s.ds.domain_coloring) {
-                    if (s.usePaletteForInColoring) {
-                        if(!s.gps.useGeneratedPaletteInColoring) {
-                            infobar.getInColoringPalettePreview().setVisible(true);
-                            infobar.getInColoringPalettePreviewLabel().setVisible(true);
-                        }
-                        else {
-                            infobar.getInColoringPalettePreview().setVisible(false);
-                            infobar.getInColoringPalettePreviewLabel().setVisible(false);
-                        }
-                        infobar.getMaxIterationsColorPreview().setVisible(false);
-                        infobar.getMaxIterationsColorPreviewLabel().setVisible(false);
-                    } else {
-                        infobar.getMaxIterationsColorPreview().setVisible(true);
-                        infobar.getMaxIterationsColorPreviewLabel().setVisible(true);
-                        infobar.getInColoringPalettePreview().setVisible(false);
-                        infobar.getInColoringPalettePreviewLabel().setVisible(false);
-                    }
-                }
-                if(!s.gps.useGeneratedPaletteOutColoring || (s.ds.domain_coloring && s.ds.domain_coloring_mode != 1)) {
-                    infobar.getOutColoringPalettePreview().setVisible(true);
-                    infobar.getOutColoringPalettePreviewLabel().setVisible(true);
-                }
-                else {
-                    infobar.getOutColoringPalettePreview().setVisible(false);
-                    infobar.getOutColoringPalettePreviewLabel().setVisible(false);
-                }
+                setPalettePreviewsVisible();
             }
             infobar.getGradientPreviewLabel().setVisible(true);
             infobar.getGradientPreview().setVisible(true);
@@ -5612,42 +5437,42 @@ public class MainWindow extends JFrame implements Constants {
     public void setBumpMap() {
 
         resetOrbit();
-        new BumpMappingDialog(ptr, s, greedy_algorithm, s.julia_map);
+        new BumpMappingDialog(ptr, s, ThreadDraw.GREEDY_ALGORITHM, s.julia_map);
 
     }
 
     public void setRainbowPalette() {
 
         resetOrbit();
-        new RainbowPaletteDialog(ptr, s, greedy_algorithm, s.julia_map);
+        new RainbowPaletteDialog(ptr, s, ThreadDraw.GREEDY_ALGORITHM, s.julia_map);
 
     }
 
     public void setFakeDistanceEstimation() {
 
         resetOrbit();
-        new FakeDistanceEstimationDialog(ptr, s, greedy_algorithm, s.julia_map);
+        new FakeDistanceEstimationDialog(ptr, s, ThreadDraw.GREEDY_ALGORITHM, s.julia_map);
 
     }
 
     public void setGreyScaleColoring() {
 
         resetOrbit();
-        new GreyscaleColoringDialog(ptr, s, greedy_algorithm, s.julia_map);
+        new GreyscaleColoringDialog(ptr, s, ThreadDraw.GREEDY_ALGORITHM, s.julia_map);
 
     }
 
     public void setEntropyColoring() {
 
         resetOrbit();
-        new EntropyColoringDialog(ptr, s, greedy_algorithm, s.julia_map);
+        new EntropyColoringDialog(ptr, s, ThreadDraw.GREEDY_ALGORITHM, s.julia_map);
 
     }
 
     public void setOffsetColoring() {
 
         resetOrbit();
-        new OffsetColoringDialog(ptr, s, greedy_algorithm, s.julia_map);
+        new OffsetColoringDialog(ptr, s, ThreadDraw.GREEDY_ALGORITHM, s.julia_map);
 
     }
 
@@ -6850,14 +6675,8 @@ public class MainWindow extends JFrame implements Constants {
 
                     infobar.getGradientPreviewLabel().setVisible(true);
                     infobar.getGradientPreview().setVisible(true);
-                    if(!s.gps.useGeneratedPaletteOutColoring || (s.ds.domain_coloring && s.ds.domain_coloring_mode != 1)) {
-                        infobar.getOutColoringPalettePreview().setVisible(true);
-                        infobar.getOutColoringPalettePreviewLabel().setVisible(true);
-                    }
-                    else {
-                        infobar.getOutColoringPalettePreview().setVisible(false);
-                        infobar.getOutColoringPalettePreviewLabel().setVisible(false);
-                    }
+                    infobar.getOutColoringPalettePreview().setVisible(!s.gps.useGeneratedPaletteOutColoring || (s.ds.domain_coloring && s.ds.domain_coloring_mode != 1));
+                    infobar.getOutColoringPalettePreviewLabel().setVisible(!s.gps.useGeneratedPaletteOutColoring || (s.ds.domain_coloring && s.ds.domain_coloring_mode != 1));
                     infobar.getInColoringPalettePreview().setVisible(false);
                     infobar.getInColoringPalettePreviewLabel().setVisible(false);
 
@@ -6897,14 +6716,8 @@ public class MainWindow extends JFrame implements Constants {
                         options_menu.getOutColoringPaletteMenu().setEnabled(true);
                     }
 
-                    if(!s.gps.useGeneratedPaletteOutColoring || (s.ds.domain_coloring && s.ds.domain_coloring_mode != 1)) {
-                        infobar.getOutColoringPalettePreview().setVisible(true);
-                        infobar.getOutColoringPalettePreviewLabel().setVisible(true);
-                    }
-                    else {
-                        infobar.getOutColoringPalettePreview().setVisible(false);
-                        infobar.getOutColoringPalettePreviewLabel().setVisible(false);
-                    }
+                    infobar.getOutColoringPalettePreview().setVisible(!s.gps.useGeneratedPaletteOutColoring || (s.ds.domain_coloring && s.ds.domain_coloring_mode != 1));
+                    infobar.getOutColoringPalettePreviewLabel().setVisible(!s.gps.useGeneratedPaletteOutColoring || (s.ds.domain_coloring && s.ds.domain_coloring_mode != 1));
 
                     updatePalettePreview(s.ps.color_cycling_location, s.ps2.color_cycling_location);
                 }
@@ -6962,14 +6775,8 @@ public class MainWindow extends JFrame implements Constants {
                         infobar.getInColoringPalettePreviewLabel().setVisible(false);
                     }
 
-                    if(!s.gps.useGeneratedPaletteOutColoring || (s.ds.domain_coloring && s.ds.domain_coloring_mode != 1)) {
-                        infobar.getOutColoringPalettePreview().setVisible(true);
-                        infobar.getOutColoringPalettePreviewLabel().setVisible(true);
-                    }
-                    else {
-                        infobar.getOutColoringPalettePreview().setVisible(false);
-                        infobar.getOutColoringPalettePreviewLabel().setVisible(false);
-                    }
+                    infobar.getOutColoringPalettePreview().setVisible(!s.gps.useGeneratedPaletteOutColoring || (s.ds.domain_coloring && s.ds.domain_coloring_mode != 1));
+                    infobar.getOutColoringPalettePreviewLabel().setVisible(!s.gps.useGeneratedPaletteOutColoring || (s.ds.domain_coloring && s.ds.domain_coloring_mode != 1));
                 }
                 else {
                     infobar.getMaxIterationsColorPreview().setVisible(false);
@@ -7112,14 +6919,8 @@ public class MainWindow extends JFrame implements Constants {
                                 infobar.getInColoringPalettePreviewLabel().setVisible(false);
                             }
                         }
-                        if(!s.gps.useGeneratedPaletteOutColoring || (s.ds.domain_coloring && s.ds.domain_coloring_mode != 1)) {
-                            infobar.getOutColoringPalettePreview().setVisible(true);
-                            infobar.getOutColoringPalettePreviewLabel().setVisible(true);
-                        }
-                        else {
-                            infobar.getOutColoringPalettePreview().setVisible(false);
-                            infobar.getOutColoringPalettePreviewLabel().setVisible(false);
-                        }
+                        infobar.getOutColoringPalettePreview().setVisible(!s.gps.useGeneratedPaletteOutColoring || (s.ds.domain_coloring && s.ds.domain_coloring_mode != 1));
+                        infobar.getOutColoringPalettePreviewLabel().setVisible(!s.gps.useGeneratedPaletteOutColoring || (s.ds.domain_coloring && s.ds.domain_coloring_mode != 1));
                     }
 
                     infobar.getGradientPreviewLabel().setVisible(true);
@@ -7308,17 +7109,18 @@ public class MainWindow extends JFrame implements Constants {
 
     }
 
-    public void setColorCyclingOptionsPost(boolean cycle_colors, boolean cycle_gradient, boolean cycle_lights, int color_cycling_speed) {
+    public void setColorCyclingOptionsPost(boolean cycle_colors, boolean cycle_gradient, boolean cycle_lights, int color_cycling_speed, int color_cycling_adjusting_value) {
         this.cycle_colors = cycle_colors;
         this.cycle_gradient = cycle_gradient;
         this.cycle_lights = cycle_lights;
         this.color_cycling_speed = color_cycling_speed;
+        this.color_cycling_adjusting_value = color_cycling_adjusting_value;
     }
 
     public void setColorCyclingOptions() {
 
         resetOrbit();
-        new ColorCyclingDialog(ptr, cycle_colors, cycle_gradient, cycle_lights, color_cycling_speed);
+        new ColorCyclingDialog(ptr, cycle_colors, cycle_gradient, cycle_lights, color_cycling_speed, color_cycling_adjusting_value);
 
     }
 
@@ -7573,7 +7375,7 @@ public class MainWindow extends JFrame implements Constants {
             writer.println("[Optimizations]");
             writer.println("thread_dim " + n);
             writer.println("thread_grouping " + thread_grouping);
-            writer.println("greedy_drawing_algorithm " + greedy_algorithm);
+            writer.println("greedy_drawing_algorithm " + ThreadDraw.GREEDY_ALGORITHM);
             writer.println("greedy_drawing_algorithm_id " + greedy_algorithm_selection);
             writer.println("skipped_pixels_coloring " + ThreadDraw.SKIPPED_PIXELS_ALG);
             int color = ThreadDraw.SKIPPED_PIXELS_COLOR;
@@ -7602,6 +7404,10 @@ public class MainWindow extends JFrame implements Constants {
             writer.println("automatic_precision " + MyApfloat.setAutomaticPrecision);
             writer.println("nanomb1_n " + ThreadDraw.NANOMB1_N);
             writer.println("nanomb1_m " + ThreadDraw.NANOMB1_M);
+            writer.println("perturbation_pixel_algorithm " + ThreadDraw.PERTUBATION_PIXEL_ALGORITHM);
+            writer.println("gather_perturbation_statistics " + ThreadDraw.GATHER_PERTURBATION_STATISTICS);
+            writer.println("check_bailout_during_deep_not_full_floatexp_mode " + ThreadDraw.CHECK_BAILOUT_DURING_DEEP_NOT_FULL_FLOATEXP_MODE);
+            writer.println("gather_tiny_ref_indexes " + ThreadDraw.GATHER_TINY_REF_INDEXES);
 
 
             writer.println();
@@ -7654,6 +7460,8 @@ public class MainWindow extends JFrame implements Constants {
             writer.println("cycle_colors " + cycle_colors);
             writer.println("cycle_lights " + cycle_lights);
             writer.println("cycle_gradient " + cycle_gradient);
+            writer.println("color_cycling_adjusting_value " + color_cycling_adjusting_value);
+
 
             writer.println();
             writer.println("[Zoom]");
@@ -7753,6 +7561,28 @@ public class MainWindow extends JFrame implements Constants {
                         } catch (Exception ex) {
                         }
                     }
+                    else if(token.equals("check_bailout_during_deep_not_full_floatexp_mode") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if(token.equals("false")) {
+                            ThreadDraw.CHECK_BAILOUT_DURING_DEEP_NOT_FULL_FLOATEXP_MODE = false;
+                        }
+                        else if(token.equals("true")) {
+                            ThreadDraw.CHECK_BAILOUT_DURING_DEEP_NOT_FULL_FLOATEXP_MODE = true;
+                        }
+                    }
+                    else if (token.equals("perturbation_pixel_algorithm") && tokenizer.countTokens() == 1) {
+
+                        try {
+                            int temp = Integer.parseInt(tokenizer.nextToken());
+
+                            if (temp >= 0 && temp <= 1) {
+                                ThreadDraw.PERTUBATION_PIXEL_ALGORITHM = temp;
+                            }
+                        } catch (Exception ex) {
+                        }
+                    }
                     else if (token.equals("nanomb1_m") && tokenizer.countTokens() == 1) {
 
                         try {
@@ -7811,9 +7641,9 @@ public class MainWindow extends JFrame implements Constants {
                         token = tokenizer.nextToken();
 
                         if (token.equals("false")) {
-                            greedy_algorithm = false;
+                            ThreadDraw.GREEDY_ALGORITHM = false;
                         } else if (token.equals("true")) {
-                            greedy_algorithm = true;
+                            ThreadDraw.GREEDY_ALGORITHM = true;
                         }
                     }
                     else if (token.equals("quickdraw_zoom_to_center") && tokenizer.countTokens() == 1) {
@@ -7826,7 +7656,28 @@ public class MainWindow extends JFrame implements Constants {
                             ThreadDraw.QUICK_DRAW_ZOOM_TO_CURRENT_CENTER = true;
                         }
                     }
+                    else if(token.equals("gather_perturbation_statistics") && tokenizer.countTokens() == 1) {
 
+                        token = tokenizer.nextToken();
+
+                        if(token.equals("false")) {
+                            ThreadDraw.GATHER_PERTURBATION_STATISTICS = false;
+                        }
+                        else if(token.equals("true")) {
+                            ThreadDraw.GATHER_PERTURBATION_STATISTICS = true;
+                        }
+                    }
+                    else if(token.equals("gather_tiny_ref_indexes") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if(token.equals("false")) {
+                            ThreadDraw.GATHER_TINY_REF_INDEXES = false;
+                        }
+                        else if(token.equals("true")) {
+                            ThreadDraw.GATHER_TINY_REF_INDEXES = true;
+                        }
+                    }
                     else if(token.equals("automatic_precision") && tokenizer.countTokens() == 1) {
 
                         token = tokenizer.nextToken();
@@ -8344,7 +8195,20 @@ public class MainWindow extends JFrame implements Constants {
                         } else if (token.equals("true")) {
                             cycle_gradient = true;
                         }
-                    } else if (token.equals("tiles") && tokenizer.countTokens() == 1) {
+                    }
+                    else if (token.equals("color_cycling_adjusting_value") && tokenizer.countTokens() == 1) {
+
+                        try {
+                            int temp = Integer.parseInt(tokenizer.nextToken());
+
+                            if (temp >= 1 && color_cycling_adjusting_value <= 50) {
+                                color_cycling_adjusting_value = temp;
+                            }
+
+                        } catch (Exception ex) {
+                        }
+                    }
+                    else if (token.equals("tiles") && tokenizer.countTokens() == 1) {
                         try {
                             int temp = Integer.parseInt(tokenizer.nextToken());
 
@@ -8419,7 +8283,7 @@ public class MainWindow extends JFrame implements Constants {
 
         whole_image_done = false;
 
-        if ((oldAAValue && greedy_algorithm && greedy_algorithm_selection == DIVIDE_AND_CONQUER) || s.fs.filters[ANTIALIASING] || s.ds.domain_coloring || s.ots.useTraps || s.fns.tcs.trueColorOut || s.fns.tcs.trueColorIn || (s.sts.statistic && s.sts.statisticGroup == 2 && s.sts.equicontinuityOverrideColoring)
+        if ((oldAAValue && ThreadDraw.GREEDY_ALGORITHM && greedy_algorithm_selection == DIVIDE_AND_CONQUER) || s.fs.filters[ANTIALIASING] || s.ds.domain_coloring || s.ots.useTraps || s.fns.tcs.trueColorOut || s.fns.tcs.trueColorIn || (s.sts.statistic && s.sts.statisticGroup == 2 && s.sts.equicontinuityOverrideColoring)
                 || (s.sts.statistic && s.sts.statisticGroup == 3) || (s.sts.statistic && s.sts.statisticGroup == 4)) {
 
             if (s.d3s.d3) {
@@ -8624,7 +8488,7 @@ public class MainWindow extends JFrame implements Constants {
         info_panel.add(code_editor);
         info_panel.add(compile_code);
 
-        Object[] labels = {info_panel,
+        return new Object[] {info_panel,
             variables,
             new JLabel(supported_vars + ", rand"),
             operations,
@@ -8646,8 +8510,6 @@ public class MainWindow extends JFrame implements Constants {
             multi_arg,
             new JLabel("m1, ... m60, k1, ... k60")
         };
-
-        return labels;
 
     }
 
@@ -8783,7 +8645,7 @@ public class MainWindow extends JFrame implements Constants {
 
     public void boundaryTracingOptionsChanged(boolean greedy_algorithm, int algorithm, int brute_force_alg) {
 
-        this.greedy_algorithm = greedy_algorithm;
+        ThreadDraw.GREEDY_ALGORITHM = greedy_algorithm;
         greedy_algorithm_selection = algorithm;
         this.brute_force_alg = brute_force_alg;
 
@@ -8863,14 +8725,14 @@ public class MainWindow extends JFrame implements Constants {
             versionStr += " beta";
         }
 
-        JOptionPane.showMessageDialog(scroll_pane, "<html><center><font size='5' face='arial' color='blue'><b><u>Fractal Zoomer</u></b></font><br><br><font size='4' face='arial'><img src=\"" + getClass().getResource("mandel2.png") + "\"><br><br>Version: <b>" + versionStr + "</b><br><br>Author: <b>Christos Kalonakis</b><br><br>Contact: <a href=\"mailto:hrkalona@gmail.com\">hrkalona@gmail.com</a><br><br></center></font></html>", "About", JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(scroll_pane, "<html><center><font size='5' face='arial' color='blue'><b><u>Fractal Zoomer</u></b></font><br><br><font size='4' face='arial'>Version: <b>" + versionStr + "</b><br><br>Author: <b>Christos Kalonakis</b><br><br>Contact: <a href=\"mailto:hrkalona@gmail.com\">hrkalona@gmail.com</a><br><br></center></font></html>", "About", JOptionPane.INFORMATION_MESSAGE, MainWindow.getIcon("mandel2.png"));
 
     }
 
     public void setGreedyAlgorithms() {
 
         resetOrbit();
-        new GreedyAlgorithmsFrame(ptr, greedy_algorithm, greedy_algorithm_selection, brute_force_alg);
+        new GreedyAlgorithmsFrame(ptr, ThreadDraw.GREEDY_ALGORITHM, greedy_algorithm_selection, brute_force_alg);
 
     }
 
@@ -8928,7 +8790,7 @@ public class MainWindow extends JFrame implements Constants {
         image = last_used;
         last_used = temp;
 
-        if(!d3 && (!greedy_algorithm || (greedy_algorithm && (greedy_algorithm_selection == DIVIDE_AND_CONQUER || greedy_algorithm_selection == BOUNDARY_TRACING)))) {
+        if(!d3 && (!ThreadDraw.GREEDY_ALGORITHM || (ThreadDraw.GREEDY_ALGORITHM && (greedy_algorithm_selection == DIVIDE_AND_CONQUER || greedy_algorithm_selection == BOUNDARY_TRACING)))) {
             int[] dataDest = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
             int[] dataSrc = ((DataBufferInt) last_used.getRaster().getDataBuffer()).getData();
             int total = dataDest.length;
@@ -8989,7 +8851,15 @@ public class MainWindow extends JFrame implements Constants {
 
         resetOrbit();
 
-        s.color_blending = val;
+        s.color_blending.color_blending = val;
+
+        updateColors();
+    }
+
+    public void setColorBlendingRevertColors(boolean val) {
+        resetOrbit();
+
+        s.color_blending.blending_reversed_colors = val;
 
         updateColors();
     }
@@ -9083,39 +8953,37 @@ public class MainWindow extends JFrame implements Constants {
         startThreads();
     }
 
+    private void setPalettePreviewsVisible() {
+        if (!s.ds.domain_coloring) {
+            if (s.usePaletteForInColoring) {
+                if(!s.gps.useGeneratedPaletteInColoring) {
+                    infobar.getInColoringPalettePreview().setVisible(true);
+                    infobar.getInColoringPalettePreviewLabel().setVisible(true);
+                }
+                else {
+                    infobar.getInColoringPalettePreview().setVisible(false);
+                    infobar.getInColoringPalettePreviewLabel().setVisible(false);
+                }
+                infobar.getMaxIterationsColorPreview().setVisible(false);
+                infobar.getMaxIterationsColorPreviewLabel().setVisible(false);
+            } else {
+                infobar.getMaxIterationsColorPreview().setVisible(true);
+                infobar.getMaxIterationsColorPreviewLabel().setVisible(true);
+                infobar.getInColoringPalettePreview().setVisible(false);
+                infobar.getInColoringPalettePreviewLabel().setVisible(false);
+            }
+        }
+        infobar.getOutColoringPalettePreview().setVisible(!s.gps.useGeneratedPaletteOutColoring || (s.ds.domain_coloring && s.ds.domain_coloring_mode != 1));
+        infobar.getOutColoringPalettePreviewLabel().setVisible(!s.gps.useGeneratedPaletteOutColoring || (s.ds.domain_coloring && s.ds.domain_coloring_mode != 1));
+    }
+
     public void setDirectColor() {
 
         if (!options_menu.getDirectColor().isSelected()) {
             ThreadDraw.USE_DIRECT_COLOR = s.useDirectColor = false;
 
             if(!(s.sts.statistic && s.sts.statisticGroup == 4)) {
-                if (!s.ds.domain_coloring) {
-                    if (s.usePaletteForInColoring) {
-                        if(!s.gps.useGeneratedPaletteInColoring) {
-                            infobar.getInColoringPalettePreview().setVisible(true);
-                            infobar.getInColoringPalettePreviewLabel().setVisible(true);
-                        }
-                        else {
-                            infobar.getInColoringPalettePreview().setVisible(false);
-                            infobar.getInColoringPalettePreviewLabel().setVisible(false);
-                        }
-                        infobar.getMaxIterationsColorPreview().setVisible(false);
-                        infobar.getMaxIterationsColorPreviewLabel().setVisible(false);
-                    } else {
-                        infobar.getMaxIterationsColorPreview().setVisible(true);
-                        infobar.getMaxIterationsColorPreviewLabel().setVisible(true);
-                        infobar.getInColoringPalettePreview().setVisible(false);
-                        infobar.getInColoringPalettePreviewLabel().setVisible(false);
-                    }
-                }
-                if(!s.gps.useGeneratedPaletteOutColoring || (s.ds.domain_coloring && s.ds.domain_coloring_mode != 1)) {
-                    infobar.getOutColoringPalettePreview().setVisible(true);
-                    infobar.getOutColoringPalettePreviewLabel().setVisible(true);
-                }
-                else {
-                    infobar.getOutColoringPalettePreview().setVisible(false);
-                    infobar.getOutColoringPalettePreviewLabel().setVisible(false);
-                }
+                setPalettePreviewsVisible();
             }
 
             infobar.getGradientPreviewLabel().setVisible(true);
@@ -9192,7 +9060,7 @@ public class MainWindow extends JFrame implements Constants {
     public void setContourColoring() {
 
         resetOrbit();
-        new ContourColoringDialog(ptr, s, greedy_algorithm, s.julia_map);
+        new ContourColoringDialog(ptr, s, ThreadDraw.GREEDY_ALGORITHM, s.julia_map);
 
     }
 
@@ -9297,7 +9165,7 @@ public class MainWindow extends JFrame implements Constants {
 
         resetOrbit();
 
-        new LightDialog(ptr, s, greedy_algorithm, s.julia_map);
+        new LightDialog(ptr, s, ThreadDraw.GREEDY_ALGORITHM, s.julia_map);
 
     }
 
@@ -9319,13 +9187,11 @@ public class MainWindow extends JFrame implements Constants {
         if(s.gps.useGeneratedPaletteOutColoring && !(s.ds.domain_coloring && s.ds.domain_coloring_mode != 1)) {
             infobar.getOutColoringPalettePreview().setVisible(false);
             infobar.getOutColoringPalettePreviewLabel().setVisible(false);
-        } else {
-
-            if (!s.useDirectColor && !(s.sts.statistic && s.sts.statisticGroup == 4)) {
+        } else if (!s.useDirectColor && !(s.sts.statistic && s.sts.statisticGroup == 4)) {
                 infobar.getOutColoringPalettePreview().setVisible(true);
                 infobar.getOutColoringPalettePreviewLabel().setVisible(true);
-            }
         }
+
 
         if(s.gps.useGeneratedPaletteInColoring) {
             infobar.getInColoringPalettePreview().setVisible(false);
@@ -9396,7 +9262,7 @@ public class MainWindow extends JFrame implements Constants {
 
     public void setHistogramColoring() {
         resetOrbit();
-        new HistogramColoringDialog(ptr, s, greedy_algorithm, s.julia_map);
+        new HistogramColoringDialog(ptr, s, ThreadDraw.GREEDY_ALGORITHM, s.julia_map);
     }
 
     public void statisticsColorAlgorithmChanged(StatisticsSettings sts) {
@@ -9425,35 +9291,9 @@ public class MainWindow extends JFrame implements Constants {
         }
         else {
             if (!s.useDirectColor) {
-                if (!s.ds.domain_coloring) {
-                    if (s.usePaletteForInColoring) {
-                        if(!s.gps.useGeneratedPaletteInColoring) {
-                            infobar.getInColoringPalettePreview().setVisible(true);
-                            infobar.getInColoringPalettePreviewLabel().setVisible(true);
-                        }
-                        else {
-                            infobar.getInColoringPalettePreview().setVisible(false);
-                            infobar.getInColoringPalettePreviewLabel().setVisible(false);
-                        }
-                        infobar.getMaxIterationsColorPreview().setVisible(false);
-                        infobar.getMaxIterationsColorPreviewLabel().setVisible(false);
-                    } else {
-                        infobar.getMaxIterationsColorPreview().setVisible(true);
-                        infobar.getMaxIterationsColorPreviewLabel().setVisible(true);
-                        infobar.getInColoringPalettePreview().setVisible(false);
-                        infobar.getInColoringPalettePreviewLabel().setVisible(false);
-                    }
-                }
+                setPalettePreviewsVisible();
                 infobar.getGradientPreviewLabel().setVisible(true);
                 infobar.getGradientPreview().setVisible(true);
-                if(!s.gps.useGeneratedPaletteOutColoring || (s.ds.domain_coloring && s.ds.domain_coloring_mode != 1)) {
-                    infobar.getOutColoringPalettePreview().setVisible(true);
-                    infobar.getOutColoringPalettePreviewLabel().setVisible(true);
-                }
-                else {
-                    infobar.getOutColoringPalettePreview().setVisible(false);
-                    infobar.getOutColoringPalettePreviewLabel().setVisible(false);
-                }
             }
         }
 

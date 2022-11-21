@@ -326,9 +326,10 @@ public abstract class ExtendedConvergentType extends Julia {
                 escaped = true;
 
                 Object[] object = {iterations, complex[0], convergent_bailout_algorithm.getDistance(), zold, zold2, complex[1], start, c0, pixel};
+                iterationData = object;
                 double out = out_color_algorithm.getResult(object);
 
-                out = getFinalValueOut(out);
+                out = getFinalValueOut(out, complex[0]);
 
                 if (outTrueColorAlgorithm != null) {
                     setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
@@ -351,9 +352,10 @@ public abstract class ExtendedConvergentType extends Julia {
         }
 
         Object[] object = {complex[0], zold, zold2, complex[1], start, c0, pixel};
+        iterationData = object;
         double in = in_color_algorithm.getResult(object);
 
-        in = getFinalValueIn(in);
+        in = getFinalValueIn(in, complex[0]);
 
         if (inTrueColorAlgorithm != null) {
             setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
@@ -365,17 +367,32 @@ public abstract class ExtendedConvergentType extends Julia {
     
     @Override
     public double getJulia3DHeight(double value) {
-        
-        if(escaped) {           
-            double res = out_color_algorithm.getResult3D(iterationData);
 
-            res = getFinalValueOut(res);
-            
+        if (escaped) {
+            double res = out_color_algorithm.getResult3D(iterationData, value);
+
+            res = getFinalValueOut(res, (Complex) iterationData[1]);
+
             return ColorAlgorithm.transformResultToHeight(res, max_iterations);
         }
-        
+
         return ColorAlgorithm.transformResultToHeight(value, max_iterations);
         
+    }
+
+    @Override
+    public double getFractal3DHeight(double value) {
+
+        if (escaped) {
+            double res = out_color_algorithm.getResult3D(iterationData, value);
+
+            res = getFinalValueOut(res, (Complex) iterationData[1]);
+
+            return ColorAlgorithm.transformResultToHeight(res, max_iterations);
+        }
+
+        return ColorAlgorithm.transformResultToHeight(value, max_iterations);
+
     }
     
     @Override
@@ -410,7 +427,7 @@ public abstract class ExtendedConvergentType extends Julia {
                 /*Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0, pixel};
                 double out = out_color_algorithm.getResult(object);
 
-                out = getFinalValueOut(out);
+                out = getFinalValueOut(out, complex[0]);
 
                 if (outTrueColorAlgorithm != null) {
                     setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
@@ -441,7 +458,7 @@ public abstract class ExtendedConvergentType extends Julia {
         /*Object[] object = {complex[0], zold, zold2, complex[1], start, c0, pixel};
         double in = in_color_algorithm.getResult(object);
 
-        in = getFinalValueIn(in);
+        in = getFinalValueIn(in, complex[0]);
 
         if (inTrueColorAlgorithm != null) {
             setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
@@ -454,11 +471,16 @@ public abstract class ExtendedConvergentType extends Julia {
     @Override
     public double iterateFractalWithPerturbationWithoutPeriodicity(Complex[] complex, MantExpComplex dpixel) {
 
+        float_exp_iterations = 0;
+        double_iterations = 0;
+        rebases = 0;
+
         MantExpComplex[] deltas = initializePerturbation(dpixel);
         MantExpComplex DeltaSubN = deltas[0]; // Delta z
         MantExpComplex DeltaSub0 = deltas[1]; // Delta c
 
-        iterations = nanomb1SkippedIterations != 0 ? nanomb1SkippedIterations : skippedIterations;
+        int totalSkippedIterations = nanomb1SkippedIterations != 0 ? nanomb1SkippedIterations : skippedIterations;
+        iterations = totalSkippedIterations;
 
         int RefIteration = iterations;
 
@@ -473,9 +495,10 @@ public abstract class ExtendedConvergentType extends Julia {
         Complex pixel = dpixel.plus(refPointSmallDeep).toComplex();
 
         boolean useFullFloatExp = ThreadDraw.USE_FULL_FLOATEXP_FOR_DEEP_ZOOM;
+        boolean doBailCheck = useFullFloatExp || ThreadDraw.CHECK_BAILOUT_DURING_DEEP_NOT_FULL_FLOATEXP_MODE;
 
         boolean usedDeepCode = false;
-        if(useFullFloatExp || (skippedIterations == 0 && exp <= minExp) || (skippedIterations != 0 && exp <= reducedExp)) {
+        if(useFullFloatExp || (totalSkippedIterations == 0 && exp <= minExp) || (totalSkippedIterations != 0 && exp <= reducedExp)) {
             usedDeepCode = true;
             MantExpComplex z = new MantExpComplex();
             if(iterations != 0 && RefIteration < MaxRefIteration) {
@@ -493,24 +516,25 @@ public abstract class ExtendedConvergentType extends Julia {
                     trap.check(complex[0], iterations);
                 }
 
-                if (useFullFloatExp && iterations > 0 && convergent_bailout_algorithm.converged(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel)) {
+                if (doBailCheck && iterations > 0 && convergent_bailout_algorithm.converged(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel)) {
                     escaped = true;
 
                     Object[] object = {iterations, complex[0], convergent_bailout_algorithm.getDistance(), zold, zold2, complex[1], start, c0, pixel};
                     double res = out_color_algorithm.getResult(object);
 
-                    res = getFinalValueOut(res);
+                    res = getFinalValueOut(res, complex[0]);
 
                     if (outTrueColorAlgorithm != null) {
                         setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
                     }
 
-                    return res;
+                    return getAndAccumulateStatsNotScaled(res);
                 }
 
                 DeltaSubN = perturbationFunction(DeltaSubN, DeltaSub0, RefIteration);
 
                 RefIteration++;
+                float_exp_iterations++;
 
                 zold2.assign(zold);
                 zold.assign(complex[0]);
@@ -524,9 +548,10 @@ public abstract class ExtendedConvergentType extends Julia {
                     statistic.insert(complex[0], zold, zold2, iterations, complex[1], start, c0);
                 }
 
-                if (z.norm_squared().compareTo(DeltaSubN.norm_squared()) < 0 || RefIteration >= MaxRefIteration) {
+                if (z.norm_squared().compareToBothPositive(DeltaSubN.norm_squared()) < 0 || RefIteration >= MaxRefIteration) {
                     DeltaSubN = z;
                     RefIteration = 0;
+                    rebases++;
                 }
 
                 DeltaSubN.Reduce();
@@ -573,13 +598,13 @@ public abstract class ExtendedConvergentType extends Julia {
                     Object[] object = {iterations, complex[0], convergent_bailout_algorithm.getDistance(), zold, zold2, complex[1], start, c0, pixel};
                     double res = out_color_algorithm.getResult(object);
 
-                    res = getFinalValueOut(res);
+                    res = getFinalValueOut(res, complex[0]);
 
                     if (outTrueColorAlgorithm != null) {
                         setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
                     }
 
-                    return res;
+                    return getAndAccumulateStatsNotScaled(res);
                 }
 
                 if (isZero) {
@@ -589,6 +614,7 @@ public abstract class ExtendedConvergentType extends Julia {
                 }
 
                 RefIteration++;
+                double_iterations++;
 
                 zold2.assign(zold);
                 zold.assign(complex[0]);
@@ -608,6 +634,7 @@ public abstract class ExtendedConvergentType extends Julia {
                 if (zWithoutInitVal.norm_squared() < CDeltaSubN.norm_squared() || RefIteration >= MaxRefIteration) {
                     CDeltaSubN = zWithoutInitVal;
                     RefIteration = 0;
+                    rebases++;
                 }
 
             }
@@ -616,19 +643,22 @@ public abstract class ExtendedConvergentType extends Julia {
         Object[] object = {complex[0], zold, zold2, complex[1], start, c0, pixel};
         double in = in_color_algorithm.getResult(object);
 
-        in = getFinalValueIn(in);
+        in = getFinalValueIn(in, complex[0]);
 
         if (inTrueColorAlgorithm != null) {
             setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
         }
 
-        return in;
+        return getAndAccumulateStatsNotScaled(in);
 
     }
 
 
     @Override
     public double iterateFractalWithPerturbationWithoutPeriodicity(Complex[] complex, Complex dpixel) {
+
+        double_iterations = 0;
+        rebases = 0;
 
         Complex[] deltas = initializePerturbation(dpixel);
         Complex DeltaSubN = deltas[0]; // Delta z
@@ -666,18 +696,19 @@ public abstract class ExtendedConvergentType extends Julia {
                 Object[] object = {iterations, complex[0], convergent_bailout_algorithm.getDistance(), zold, zold2, complex[1], start, c0, pixel};
                 double res = out_color_algorithm.getResult(object);
 
-                res = getFinalValueOut(res);
+                res = getFinalValueOut(res, complex[0]);
 
                 if (outTrueColorAlgorithm != null) {
                     setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
                 }
 
-                return res;
+                return getAndAccumulateStatsNotDeep(res);
             }
 
             DeltaSubN = perturbationFunction(DeltaSubN, DeltaSub0, RefIteration);
 
             RefIteration++;
+            double_iterations++;
 
             zold2.assign(zold);
             zold.assign(complex[0]);
@@ -698,6 +729,7 @@ public abstract class ExtendedConvergentType extends Julia {
             if(zWithoutInitVal.norm_squared() < DeltaSubN.norm_squared() || RefIteration >= MaxRefIteration) {
                 DeltaSubN = zWithoutInitVal;
                 RefIteration = 0;
+                rebases++;
             }
 
         }
@@ -705,18 +737,21 @@ public abstract class ExtendedConvergentType extends Julia {
         Object[] object = {complex[0], zold, zold2, complex[1], start, c0, pixel};
         double in = in_color_algorithm.getResult(object);
 
-        in = getFinalValueIn(in);
+        in = getFinalValueIn(in, complex[0]);
 
         if (inTrueColorAlgorithm != null) {
             setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
         }
 
-        return in;
+        return getAndAccumulateStatsNotDeep(in);
 
     }
 
     @Override
     public double iterateJuliaWithPerturbationWithoutPeriodicity(Complex[] complex, Complex dpixel) {
+
+        double_iterations = 0;
+        rebases = 0;
 
         iterations = 0;
 
@@ -749,18 +784,19 @@ public abstract class ExtendedConvergentType extends Julia {
                 Object[] object = {iterations, complex[0], convergent_bailout_algorithm.getDistance(), zold, zold2, complex[1], start, c0, pixel};
                 double res = out_color_algorithm.getResult(object);
 
-                res = getFinalValueOut(res);
+                res = getFinalValueOut(res, complex[0]);
 
                 if (outTrueColorAlgorithm != null) {
                     setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
                 }
 
-                return res;
+                return getAndAccumulateStatsNotDeep(res);
             }
 
             DeltaSubN = perturbationFunction(DeltaSubN, Reference, PrecalculatedTerms, PrecalculatedTerms2, RefIteration);
 
             RefIteration++;
+            double_iterations++;
 
             zold2.assign(zold);
             zold.assign(complex[0]);
@@ -786,6 +822,7 @@ public abstract class ExtendedConvergentType extends Julia {
                 ReferenceSubCp = Fractal.SecondReferenceSubCp;
                 PrecalculatedTerms = Fractal.SecondPrecalculatedTerms;
                 PrecalculatedTerms2 = Fractal.SecondPrecalculatedTerms2;
+                rebases++;
             }
 
         }
@@ -793,19 +830,25 @@ public abstract class ExtendedConvergentType extends Julia {
         Object[] object = {complex[0], zold, zold2, complex[1], start, c0, pixel};
         double in = in_color_algorithm.getResult(object);
 
-        in = getFinalValueIn(in);
+        in = getFinalValueIn(in, complex[0]);
 
         if (inTrueColorAlgorithm != null) {
             setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
         }
 
-        return in;
+        return getAndAccumulateStatsNotDeep(in);
 
     }
 
     @Override
     public double iterateJuliaWithPerturbationWithoutPeriodicity(Complex[] complex, MantExpComplex dpixel) {
 
+
+        float_exp_iterations = 0;
+        double_iterations = 0;
+        rebases = 0;
+
+        int totalSkippedIterations = 0;
 
         iterations = 0;
 
@@ -825,6 +868,7 @@ public abstract class ExtendedConvergentType extends Julia {
         long exp = DeltaSubN.getExp();
 
         boolean useFullFloatExp = ThreadDraw.USE_FULL_FLOATEXP_FOR_DEEP_ZOOM;
+        boolean doBailCheck = useFullFloatExp || ThreadDraw.CHECK_BAILOUT_DURING_DEEP_NOT_FULL_FLOATEXP_MODE;
 
         int MaxRefIteration = Fractal.MaxRefIteration;
         DeepReference ReferenceDeep = Fractal.ReferenceDeep;
@@ -837,7 +881,7 @@ public abstract class ExtendedConvergentType extends Julia {
         double[] PrecalculatedTerms = Fractal.PrecalculatedTerms;
         double[] PrecalculatedTerms2 = Fractal.PrecalculatedTerms2;
 
-        if(useFullFloatExp || (skippedIterations == 0 && exp <= minExp) || (skippedIterations != 0 && exp <= reducedExp)) {
+        if(useFullFloatExp || (totalSkippedIterations == 0 && exp <= minExp) || (totalSkippedIterations != 0 && exp <= reducedExp)) {
             MantExpComplex z = getArrayDeepValue(ReferenceSubCpDeep, RefIteration).plus_mutable(DeltaSubN);
 
             for (; iterations < max_iterations; iterations++) {
@@ -845,24 +889,25 @@ public abstract class ExtendedConvergentType extends Julia {
                     trap.check(complex[0], iterations);
                 }
 
-                if (useFullFloatExp && iterations > 0 && convergent_bailout_algorithm.converged(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel)) {
+                if (doBailCheck && iterations > 0 && convergent_bailout_algorithm.converged(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel)) {
                     escaped = true;
 
                     Object[] object = {iterations, complex[0], convergent_bailout_algorithm.getDistance(), zold, zold2, complex[1], start, c0, pixel};
                     double res = out_color_algorithm.getResult(object);
 
-                    res = getFinalValueOut(res);
+                    res = getFinalValueOut(res, complex[0]);
 
                     if (outTrueColorAlgorithm != null) {
                         setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
                     }
 
-                    return res;
+                    return getAndAccumulateStatsNotScaled(res);
                 }
 
                 DeltaSubN = perturbationFunction(DeltaSubN, ReferenceDeep, PrecalculatedTermsDeep, PrecalculatedTerms2Deep, RefIteration);
 
                 RefIteration++;
+                float_exp_iterations++;
 
                 zold2.assign(zold);
                 zold.assign(complex[0]);
@@ -876,7 +921,7 @@ public abstract class ExtendedConvergentType extends Julia {
                     statistic.insert(complex[0], zold, zold2, iterations, complex[1], start, c0);
                 }
 
-                if (z.norm_squared().compareTo(DeltaSubN.norm_squared()) < 0 || RefIteration >= MaxRefIteration) {
+                if (z.norm_squared().compareToBothPositive(DeltaSubN.norm_squared()) < 0 || RefIteration >= MaxRefIteration) {
                     DeltaSubN = z;
                     RefIteration = 0;
 
@@ -891,6 +936,7 @@ public abstract class ExtendedConvergentType extends Julia {
                     ReferenceSubCp = Fractal.SecondReferenceSubCp;
                     PrecalculatedTerms = Fractal.SecondPrecalculatedTerms;
                     PrecalculatedTerms2 = Fractal.SecondPrecalculatedTerms2;
+                    rebases++;
                 }
 
                 DeltaSubN.Reduce();
@@ -921,18 +967,19 @@ public abstract class ExtendedConvergentType extends Julia {
                     Object[] object = {iterations, complex[0], convergent_bailout_algorithm.getDistance(), zold, zold2, complex[1], start, c0, pixel};
                     double res = out_color_algorithm.getResult(object);
 
-                    res = getFinalValueOut(res);
+                    res = getFinalValueOut(res, complex[0]);
 
                     if (outTrueColorAlgorithm != null) {
                         setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
                     }
 
-                    return res;
+                    return getAndAccumulateStatsNotScaled(res);
                 }
 
                 CDeltaSubN = perturbationFunction(CDeltaSubN, Reference, PrecalculatedTerms, PrecalculatedTerms2, RefIteration);
 
                 RefIteration++;
+                double_iterations++;
 
                 zold2.assign(zold);
                 zold.assign(complex[0]);
@@ -957,6 +1004,7 @@ public abstract class ExtendedConvergentType extends Julia {
                     PrecalculatedTerms = Fractal.SecondPrecalculatedTerms;
                     PrecalculatedTerms2 = Fractal.SecondPrecalculatedTerms2;
                     MaxRefIteration = Fractal.MaxRef2Iteration;
+                    rebases++;
                 }
 
             }
@@ -965,13 +1013,13 @@ public abstract class ExtendedConvergentType extends Julia {
         Object[] object = {complex[0], zold, zold2, complex[1], start, c0, pixel};
         double in = in_color_algorithm.getResult(object);
 
-        in = getFinalValueIn(in);
+        in = getFinalValueIn(in, complex[0]);
 
         if (inTrueColorAlgorithm != null) {
             setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
         }
 
-        return in;
+        return getAndAccumulateStatsNotScaled(in);
 
     }
 

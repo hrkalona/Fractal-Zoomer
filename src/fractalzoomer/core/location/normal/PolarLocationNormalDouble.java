@@ -2,6 +2,7 @@ package fractalzoomer.core.location.normal;
 
 import fractalzoomer.core.Complex;
 import fractalzoomer.core.GenericComplex;
+import fractalzoomer.core.MantExp;
 import fractalzoomer.core.location.Location;
 import fractalzoomer.functions.Fractal;
 import fractalzoomer.main.app_settings.JitterSettings;
@@ -38,13 +39,17 @@ public class PolarLocationNormalDouble extends Location {
 
     private JitterSettings js;
 
+    private boolean requiresVariablePixelSize;
 
-    public PolarLocationNormalDouble(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int image_size, double circle_period, Fractal fractal, JitterSettings js) {
+
+    public PolarLocationNormalDouble(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int image_size_in, double circle_period, Fractal fractal, JitterSettings js) {
 
         super();
 
         this.fractal = fractal;
-        this.image_size = image_size;
+        this.image_size = offset.getImageSize(image_size_in);
+
+        requiresVariablePixelSize = fractal.requiresVariablePixelSize();
 
         xcenter = xCenter.doubleValue();
         ycenter = yCenter.doubleValue();
@@ -95,11 +100,15 @@ public class PolarLocationNormalDouble extends Location {
         antialiasing_x = other.antialiasing_x;
 
         js = other.js;
+
+        requiresVariablePixelSize = other.requiresVariablePixelSize;
     }
 
-    @Override
-    public GenericComplex getComplex(int x, int y) {
+    public void setVariablePixelSize(double expValue) {
+        fractal.setVariablePixelSize(new MantExp(mulx * expValue));
+    }
 
+    private Complex getComplexBase(int x, int y) {
         if(js.enableJitter) {
             double[] res = GetPixelOffset(y, x, js.jitterSeed, js.jitterShape, js.jitterScale);
 
@@ -140,11 +149,23 @@ public class PolarLocationNormalDouble extends Location {
         indexX = x;
         indexY = y;
 
+        if(requiresVariablePixelSize) {
+            setVariablePixelSize(temp_r);
+        }
+
         return new Complex(xcenter + temp_r * temp_cf, ycenter + temp_r * temp_sf);
+    }
+    @Override
+    public GenericComplex getComplex(int x, int y) {
+
+        return getComplexBase(offset.getX(x), offset.getY(y));
+
     }
 
     @Override
     public void precalculateY(int y) {
+
+        y = offset.getY(y);
 
         if(!js.enableJitter) {
             if (y == indexY + 1) {
@@ -173,6 +194,8 @@ public class PolarLocationNormalDouble extends Location {
     @Override
     public void precalculateX(int x) {
 
+        x = offset.getX(x);
+
         if(!js.enableJitter) {
             if (x == indexX + 1) {
                 temp_r = temp_r * emulx;
@@ -183,15 +206,18 @@ public class PolarLocationNormalDouble extends Location {
             }
         }
 
+        if(requiresVariablePixelSize) {
+            setVariablePixelSize(temp_r);
+        }
+
         indexX = x;
 
     }
 
-    @Override
-    public GenericComplex getComplexWithX(int x) {
 
+    private Complex getComplexWithXBase(int x) {
         if(js.enableJitter) {
-            return getComplex(x, indexY);
+            return getComplexBase(x, indexY);
         }
 
         if(x == indexX + 1) {
@@ -204,18 +230,26 @@ public class PolarLocationNormalDouble extends Location {
             temp_r = Math.exp(x * mulx + start);
         }
 
+        if(requiresVariablePixelSize) {
+            setVariablePixelSize(temp_r);
+        }
+
         indexX = x;
         return new Complex(xcenter + temp_r * temp_cf, ycenter + temp_r * temp_sf);
+    }
+    @Override
+    public GenericComplex getComplexWithX(int x) {
+
+        return getComplexWithXBase(offset.getX(x));
+
     }
 
     @Override
     public boolean isPolar() {return true;}
 
-    @Override
-    public GenericComplex getComplexWithY(int y) {
-
+    private Complex getComplexWithYBase(int y) {
         if(js.enableJitter) {
-            return getComplex(indexX, y);
+            return getComplexBase(indexX, y);
         }
 
         if(y == indexY + 1) {
@@ -244,6 +278,13 @@ public class PolarLocationNormalDouble extends Location {
     }
 
     @Override
+    public GenericComplex getComplexWithY(int y) {
+
+        return getComplexWithYBase(offset.getY(y));
+
+    }
+
+    @Override
     public void createAntialiasingSteps(boolean adaptive) {
         double[][] steps = createAntialiasingPolarStepsDouble(mulx, muly, adaptive);
         antialiasing_x = steps[0];
@@ -257,6 +298,11 @@ public class PolarLocationNormalDouble extends Location {
         double cf2 = temp_cf * antialiasing_y_cos[sample] - temp_sf * antialiasing_y_sin[sample];
 
         double r2 = temp_r * antialiasing_x[sample];
+
+        if(requiresVariablePixelSize) {
+            setVariablePixelSize(r2);
+        }
+
         return new Complex(xcenter + r2 * cf2, ycenter + r2 * sf2);
     }
 }

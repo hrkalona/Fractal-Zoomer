@@ -1024,6 +1024,10 @@ public final class Complex extends GenericComplex {
 
     }
 
+    public double hypot() {
+        return Math.hypot(re, im);
+    }
+
     /*
      * n-norm
      */
@@ -2559,18 +2563,23 @@ public final class Complex extends GenericComplex {
     public static double DiffAbs(double c, double d)
     {
         double cd = c + d;
-        if (c >= 0.0)
-            if (cd >= 0.0)      return d;
-            else      return -d - 2.0 * c;
-        else
-            if (cd > 0.0)      return d + 2.0 * c;
-            else      return -d;
+        if (c >= 0.0) {
+            if (cd >= 0.0) {
+                return d;
+            }
+            else {
+                return -d - 2.0 * c;
+            }
+        }
+        else {
+            if (cd > 0.0) {
+                return d + 2.0 * c;
+            }
+            else  {
+                return -d;
+            }
+        }
     }
-
-    public double hypot() {
-        return Math.hypot(re, im);
-    }
-
     /*
      *  A*X + B*Y
      */
@@ -2864,6 +2873,7 @@ public final class Complex extends GenericComplex {
     /*
      *  z1 = z1 / z2
      */
+    @Override
     public final Complex divide_mutable(GenericComplex za) {
         Complex z = (Complex) za;
 
@@ -2882,6 +2892,7 @@ public final class Complex extends GenericComplex {
     /*
      *  z1 = z1 - z2
      */
+    @Override
     public final Complex sub_mutable(GenericComplex za) {
         Complex z = (Complex) za;
 

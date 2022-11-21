@@ -63,7 +63,7 @@ public class Settings implements Constants {
     public Color dem_color;
     public Color special_color;
     public boolean special_use_palette_color;
-    public int color_blending;
+    public BlendingSettings color_blending;
     public int temp_color_cycling_location;
     public int temp_color_cycling_location_second_palette;
     public D3Settings d3s;
@@ -109,6 +109,9 @@ public class Settings implements Constants {
         xCenter = new MyApfloat(0.0);
         yCenter = new MyApfloat(0.0);
 
+        xJuliaCenter = new MyApfloat(0.0);
+        yJuliaCenter = new MyApfloat(0.0);
+
         size = new MyApfloat(6);
 
         height_ratio = 1;
@@ -141,7 +144,7 @@ public class Settings implements Constants {
 
         usePaletteForInColoring = false;
 
-        color_blending = NORMAL_BLENDING;
+        color_blending = new BlendingSettings();
 
         temp_color_cycling_location = ps.color_cycling_location;
         temp_color_cycling_location_second_palette = ps2.color_cycling_location;
@@ -195,114 +198,163 @@ public class Settings implements Constants {
 
         Settings defaults = new Settings();
 
+        String xCenterStr;
+        String yCenterStr;
+        String sizeStr;
+
+        if(version < 1078) {
+            xCenterStr = "" + settings.getXCenter();
+            yCenterStr = "" + settings.getYCenter();
+            sizeStr = "" + settings.getSize();
+        }
+        else {
+            xCenterStr = ((SettingsFractals1078) settings).getxCenterStr();
+            yCenterStr = ((SettingsFractals1078) settings).getyCenterStr();
+            sizeStr = ((SettingsFractals1078) settings).getSizeStr();
+        }
+
         if (settings.isJulia()) {
+
+            String xJuliaCenterStr = "";
+            String yJuliaCenterStr = "";
+            double xJuliaCenterD = 0;
+            double yJuliaCenterD = 0;
+
             if (version == 1048) {
-                xJuliaCenter = new MyApfloat(((SettingsJulia) settings).getXJuliaCenter());
-                yJuliaCenter = new MyApfloat(((SettingsJulia) settings).getYJuliaCenter());
+                xJuliaCenterD = ((SettingsJulia) settings).getXJuliaCenter();
+                yJuliaCenterD = ((SettingsJulia) settings).getYJuliaCenter();
             } else if (version == 1049) {
-                xJuliaCenter = new MyApfloat(((SettingsJulia1049) settings).getXJuliaCenter());
-                yJuliaCenter = new MyApfloat(((SettingsJulia1049) settings).getYJuliaCenter());
+                xJuliaCenterD = ((SettingsJulia1049) settings).getXJuliaCenter();
+                yJuliaCenterD = ((SettingsJulia1049) settings).getYJuliaCenter();
             } else if (version == 1050) {
-                xJuliaCenter = new MyApfloat(((SettingsJulia1050) settings).getXJuliaCenter());
-                yJuliaCenter = new MyApfloat(((SettingsJulia1050) settings).getYJuliaCenter());
+                xJuliaCenterD = ((SettingsJulia1050) settings).getXJuliaCenter();
+                yJuliaCenterD = ((SettingsJulia1050) settings).getYJuliaCenter();
             } else if (version == 1053) {
-                xJuliaCenter = new MyApfloat(((SettingsJulia1053) settings).getXJuliaCenter());
-                yJuliaCenter = new MyApfloat(((SettingsJulia1053) settings).getYJuliaCenter());
+                xJuliaCenterD = ((SettingsJulia1053) settings).getXJuliaCenter();
+                yJuliaCenterD = ((SettingsJulia1053) settings).getYJuliaCenter();
             } else if (version == 1054) {
-                xJuliaCenter = new MyApfloat(((SettingsJulia1054) settings).getXJuliaCenter());
-                yJuliaCenter = new MyApfloat(((SettingsJulia1054) settings).getYJuliaCenter());
+                xJuliaCenterD = ((SettingsJulia1054) settings).getXJuliaCenter();
+                yJuliaCenterD = ((SettingsJulia1054) settings).getYJuliaCenter();
             } else if (version == 1055) {
-                xJuliaCenter = new MyApfloat(((SettingsJulia1055) settings).getXJuliaCenter());
-                yJuliaCenter = new MyApfloat(((SettingsJulia1055) settings).getYJuliaCenter());
+                xJuliaCenterD = ((SettingsJulia1055) settings).getXJuliaCenter();
+                yJuliaCenterD = ((SettingsJulia1055) settings).getYJuliaCenter();
             } else if (version == 1056) {
-                xJuliaCenter = new MyApfloat(((SettingsJulia1056) settings).getXJuliaCenter());
-                yJuliaCenter = new MyApfloat(((SettingsJulia1056) settings).getYJuliaCenter());
+                xJuliaCenterD = ((SettingsJulia1056) settings).getXJuliaCenter();
+                yJuliaCenterD = ((SettingsJulia1056) settings).getYJuliaCenter();
             } else if (version == 1057) {
-                xJuliaCenter = new MyApfloat(((SettingsJulia1057) settings).getXJuliaCenter());
-                yJuliaCenter = new MyApfloat(((SettingsJulia1057) settings).getYJuliaCenter());
+                xJuliaCenterD = ((SettingsJulia1057) settings).getXJuliaCenter();
+                yJuliaCenterD = ((SettingsJulia1057) settings).getYJuliaCenter();
             } else if (version == 1058) {
-                xJuliaCenter = new MyApfloat(((SettingsJulia1058) settings).getXJuliaCenter());
-                yJuliaCenter = new MyApfloat(((SettingsJulia1058) settings).getYJuliaCenter());
+                xJuliaCenterD = ((SettingsJulia1058) settings).getXJuliaCenter();
+                yJuliaCenterD = ((SettingsJulia1058) settings).getYJuliaCenter();
             } else if (version == 1061) {
-                xJuliaCenter = new MyApfloat(((SettingsJulia1061) settings).getXJuliaCenter());
-                yJuliaCenter = new MyApfloat(((SettingsJulia1061) settings).getYJuliaCenter());
+                xJuliaCenterD = ((SettingsJulia1061) settings).getXJuliaCenter();
+                yJuliaCenterD = ((SettingsJulia1061) settings).getYJuliaCenter();
             } else if (version == 1062) {
-                xJuliaCenter = new MyApfloat(((SettingsJulia1062) settings).getXJuliaCenter());
-                yJuliaCenter = new MyApfloat(((SettingsJulia1062) settings).getYJuliaCenter());
+                xJuliaCenterD = ((SettingsJulia1062) settings).getXJuliaCenter();
+                yJuliaCenterD = ((SettingsJulia1062) settings).getYJuliaCenter();
             } else if (version == 1063) {
-                xJuliaCenter = new MyApfloat(((SettingsJulia1063) settings).getXJuliaCenter());
-                yJuliaCenter = new MyApfloat(((SettingsJulia1063) settings).getYJuliaCenter());
+                xJuliaCenterD = ((SettingsJulia1063) settings).getXJuliaCenter();
+                yJuliaCenterD = ((SettingsJulia1063) settings).getYJuliaCenter();
             } else if (version == 1064) {
-                xJuliaCenter = new MyApfloat(((SettingsJulia1064) settings).getXJuliaCenter());
-                yJuliaCenter = new MyApfloat(((SettingsJulia1064) settings).getYJuliaCenter());
+                xJuliaCenterD = ((SettingsJulia1064) settings).getXJuliaCenter();
+                yJuliaCenterD = ((SettingsJulia1064) settings).getYJuliaCenter();
             } else if (version == 1065) {
-                xJuliaCenter = new MyApfloat(((SettingsJulia1065) settings).getXJuliaCenter());
-                yJuliaCenter = new MyApfloat(((SettingsJulia1065) settings).getYJuliaCenter());
+                xJuliaCenterD = ((SettingsJulia1065) settings).getXJuliaCenter();
+                yJuliaCenterD = ((SettingsJulia1065) settings).getYJuliaCenter();
             } else if (version == 1066) {
-                xJuliaCenter = new MyApfloat(((SettingsJulia1066) settings).getXJuliaCenter());
-                yJuliaCenter = new MyApfloat(((SettingsJulia1066) settings).getYJuliaCenter());
+                xJuliaCenterD = ((SettingsJulia1066) settings).getXJuliaCenter();
+                yJuliaCenterD = ((SettingsJulia1066) settings).getYJuliaCenter();
             } else if (version == 1067) {
-                xJuliaCenter = new MyApfloat(((SettingsJulia1067) settings).getXJuliaCenter());
-                yJuliaCenter = new MyApfloat(((SettingsJulia1067) settings).getYJuliaCenter());
+                xJuliaCenterD = ((SettingsJulia1067) settings).getXJuliaCenter();
+                yJuliaCenterD = ((SettingsJulia1067) settings).getYJuliaCenter();
             } else if (version == 1068) {
-                xJuliaCenter = new MyApfloat(((SettingsJulia1068) settings).getXJuliaCenter());
-                yJuliaCenter = new MyApfloat(((SettingsJulia1068) settings).getYJuliaCenter());
+                xJuliaCenterD = ((SettingsJulia1068) settings).getXJuliaCenter();
+                yJuliaCenterD = ((SettingsJulia1068) settings).getYJuliaCenter();
             } else if (version == 1069) {
-                xJuliaCenter = new MyApfloat(((SettingsJulia1069) settings).getXJuliaCenter());
-                yJuliaCenter = new MyApfloat(((SettingsJulia1069) settings).getYJuliaCenter());
+                xJuliaCenterD = ((SettingsJulia1069) settings).getXJuliaCenter();
+                yJuliaCenterD = ((SettingsJulia1069) settings).getYJuliaCenter();
             } else if (version == 1070) {
-                xJuliaCenter = new MyApfloat(((SettingsJulia1070) settings).getXJuliaCenter());
-                yJuliaCenter = new MyApfloat(((SettingsJulia1070) settings).getYJuliaCenter());
+                xJuliaCenterD = ((SettingsJulia1070) settings).getXJuliaCenter();
+                yJuliaCenterD = ((SettingsJulia1070) settings).getYJuliaCenter();
             } else if (version == 1071) {
-                xJuliaCenter = new MyApfloat(((SettingsJulia1071) settings).getXJuliaCenter());
-                yJuliaCenter = new MyApfloat(((SettingsJulia1071) settings).getYJuliaCenter());
+                xJuliaCenterD = ((SettingsJulia1071) settings).getXJuliaCenter();
+                yJuliaCenterD = ((SettingsJulia1071) settings).getYJuliaCenter();
             } else if (version == 1072) {
-                xJuliaCenter = new MyApfloat(((SettingsJulia1072) settings).getXJuliaCenter());
-                yJuliaCenter = new MyApfloat(((SettingsJulia1072) settings).getYJuliaCenter());
+                xJuliaCenterD = ((SettingsJulia1072) settings).getXJuliaCenter();
+                yJuliaCenterD = ((SettingsJulia1072) settings).getYJuliaCenter();
             } else if (version == 1073) {
-                xJuliaCenter = new MyApfloat(((SettingsJulia1073) settings).getXJuliaCenter());
-                yJuliaCenter = new MyApfloat(((SettingsJulia1073) settings).getYJuliaCenter());
+                xJuliaCenterD = ((SettingsJulia1073) settings).getXJuliaCenter();
+                yJuliaCenterD = ((SettingsJulia1073) settings).getYJuliaCenter();
             } else if (version == 1074) {
-                xJuliaCenter = new MyApfloat(((SettingsJulia1074) settings).getXJuliaCenter());
-                yJuliaCenter = new MyApfloat(((SettingsJulia1074) settings).getYJuliaCenter());
+                xJuliaCenterD = ((SettingsJulia1074) settings).getXJuliaCenter();
+                yJuliaCenterD = ((SettingsJulia1074) settings).getYJuliaCenter();
             }
             else if (version == 1075) {
-                xJuliaCenter = new MyApfloat(((SettingsJulia1075) settings).getXJuliaCenter());
-                yJuliaCenter = new MyApfloat(((SettingsJulia1075) settings).getYJuliaCenter());
+                xJuliaCenterD = ((SettingsJulia1075) settings).getXJuliaCenter();
+                yJuliaCenterD = ((SettingsJulia1075) settings).getYJuliaCenter();
             }
             else if (version == 1076) {
-                xJuliaCenter = new MyApfloat(((SettingsJulia1076) settings).getXJuliaCenter());
-                yJuliaCenter = new MyApfloat(((SettingsJulia1076) settings).getYJuliaCenter());
+                xJuliaCenterD = ((SettingsJulia1076) settings).getXJuliaCenter();
+                yJuliaCenterD = ((SettingsJulia1076) settings).getYJuliaCenter();
             }
             else if (version == 1077) {
-                xJuliaCenter = new MyApfloat(((SettingsJulia1077) settings).getXJuliaCenter());
-                yJuliaCenter = new MyApfloat(((SettingsJulia1077) settings).getYJuliaCenter());
+                xJuliaCenterD = ((SettingsJulia1077) settings).getXJuliaCenter();
+                yJuliaCenterD = ((SettingsJulia1077) settings).getYJuliaCenter();
             }
             else if (version == 1078) {
-                xJuliaCenter = new MyApfloat(((SettingsJulia1078) settings).getXJuliaCenter());
-                yJuliaCenter = new MyApfloat(((SettingsJulia1078) settings).getYJuliaCenter());
+                xJuliaCenterD = ((SettingsJulia1078) settings).getXJuliaCenter();
+                yJuliaCenterD = ((SettingsJulia1078) settings).getYJuliaCenter();
             }
             else if (version == 1079) {
-                xJuliaCenter = new MyApfloat(((SettingsJulia1079) settings).getXJuliaCenter());
-                yJuliaCenter = new MyApfloat(((SettingsJulia1079) settings).getYJuliaCenter());
+                xJuliaCenterD = ((SettingsJulia1079) settings).getXJuliaCenter();
+                yJuliaCenterD = ((SettingsJulia1079) settings).getYJuliaCenter();
             }
             else if (version == 1080) {
-                xJuliaCenter = new MyApfloat(((SettingsJulia1080) settings).getXJuliaCenter());
-                yJuliaCenter = new MyApfloat(((SettingsJulia1080) settings).getYJuliaCenter());
+                xJuliaCenterD = ((SettingsJulia1080) settings).getXJuliaCenter();
+                yJuliaCenterD = ((SettingsJulia1080) settings).getYJuliaCenter();
             }
             else if (version == 1081) {
-                xJuliaCenter = new MyApfloat(((SettingsJulia1081) settings).getXJuliaCenter());
-                yJuliaCenter = new MyApfloat(((SettingsJulia1081) settings).getYJuliaCenter());
+                xJuliaCenterD = ((SettingsJulia1081) settings).getXJuliaCenter();
+                yJuliaCenterD = ((SettingsJulia1081) settings).getYJuliaCenter();
             }
             else if (version == 1083) {
-                xJuliaCenter = new MyApfloat(((SettingsJulia1083) settings).getXJuliaCenter());
-                yJuliaCenter = new MyApfloat(((SettingsJulia1083) settings).getYJuliaCenter());
+                xJuliaCenterD = ((SettingsJulia1083) settings).getXJuliaCenter();
+                yJuliaCenterD = ((SettingsJulia1083) settings).getYJuliaCenter();
             }
             else if (version == 1084) {
-                xJuliaCenter = new MyApfloat(((SettingsJulia1084) settings).getXJuliaCenterStr());
-                yJuliaCenter = new MyApfloat(((SettingsJulia1084) settings).getYJuliaCenterStr());
+                xJuliaCenterStr = ((SettingsJulia1084) settings).getXJuliaCenterStr();
+                yJuliaCenterStr = ((SettingsJulia1084) settings).getYJuliaCenterStr();
             }
-            //Todo in the next version just move the julia in settings in the fractals class
+            else if (version >= 1085) {
+                xJuliaCenterStr = ((SettingsFractals1085) settings).getXJuliaCenterStr();
+                yJuliaCenterStr = ((SettingsFractals1085) settings).getYJuliaCenterStr();
+            }
+
+
+            if(version < 1084) {
+                xJuliaCenterStr = "" + xJuliaCenterD;
+                yJuliaCenterStr = "" + yJuliaCenterD;
+            }
+
+            if(MyApfloat.setAutomaticPrecision) {
+
+                long precision = MyApfloat.getAutomaticPrecision(new String[]{sizeStr, xCenterStr, yCenterStr, xJuliaCenterStr, yJuliaCenterStr}, new boolean[] {true, false, false, false, false});
+
+                if (MyApfloat.shouldSetPrecision(precision, true)) {
+                    Fractal.clearReferences(true);
+                    MyApfloat.setPrecision(precision, this);
+                }
+            }
+
+            if(version < 1084) {
+                xJuliaCenter = new MyApfloat(xJuliaCenterD);
+                yJuliaCenter = new MyApfloat(yJuliaCenterD);
+            }
+            else {
+                xJuliaCenter = new MyApfloat(xJuliaCenterStr);
+                yJuliaCenter = new MyApfloat(yJuliaCenterStr);
+            }
 
             fns.julia = true;
 
@@ -366,34 +418,24 @@ public class Settings implements Constants {
                     }
                 }
             }
-        }
-
-        if(version < 1078) {
 
             if(MyApfloat.setAutomaticPrecision) {
-                long precision = MyApfloat.getAutomaticPrecision(settings.getSize());
+
+                long precision = MyApfloat.getAutomaticPrecision(new String[]{sizeStr, xCenterStr, yCenterStr}, new boolean[] {true, false, false});
 
                 if (MyApfloat.shouldSetPrecision(precision, true)) {
                     Fractal.clearReferences(true);
                     MyApfloat.setPrecision(precision, this);
                 }
             }
+        }
 
+        if(version < 1078) {
             xCenter = new MyApfloat(settings.getXCenter());
             yCenter = new MyApfloat(settings.getYCenter());
             size = new MyApfloat(settings.getSize());
         }
         else {
-
-            if(MyApfloat.setAutomaticPrecision) {
-                long precision = MyApfloat.getAutomaticPrecision(((SettingsFractals1078) settings).getSizeStr());
-
-                if (MyApfloat.shouldSetPrecision(precision, true)) {
-                    Fractal.clearReferences(true);
-                    MyApfloat.setPrecision(precision, this);
-                }
-            }
-
             xCenter = new MyApfloat(((SettingsFractals1078) settings).getxCenterStr());
             yCenter = new MyApfloat(((SettingsFractals1078) settings).getyCenterStr());
             size = new MyApfloat(((SettingsFractals1078) settings).getSizeStr());
@@ -660,7 +702,7 @@ public class Settings implements Constants {
 
         if (version < 1067) {
             ps.transfer_function = defaults.ps.transfer_function;
-            color_blending = defaults.color_blending;
+            color_blending.color_blending = defaults.color_blending.color_blending;
 
             bms.bump_transfer_function = defaults.bms.bump_transfer_function;
             bms.bump_transfer_factor = defaults.bms.bump_transfer_factor;
@@ -695,7 +737,7 @@ public class Settings implements Constants {
             ds.contourType = defaults.ds.contourType;
         } else {
             ps.transfer_function = ((SettingsFractals1067) settings).getTransferFunction();
-            color_blending = ((SettingsFractals1067) settings).getColorBlending();
+            color_blending.color_blending = ((SettingsFractals1067) settings).getColorBlending();
 
             bms.bump_transfer_function = ((SettingsFractals1067) settings).getBumpTransferFunction();
             bms.bump_transfer_factor = ((SettingsFractals1067) settings).getBumpTransferFactor();
@@ -1346,6 +1388,17 @@ public class Settings implements Constants {
             js.jitterShape = ((SettingsFractals1084) settings).getJitterShape();
         }
 
+        if(version < 1085) {
+            cns.min_contour = defaults.cns.min_contour;
+            color_blending.blending_reversed_colors = defaults.color_blending.blending_reversed_colors;
+        }
+        else {
+            cns.min_contour = ((SettingsFractals1085) settings).getMinContour();
+            color_blending.blending_reversed_colors = ((SettingsFractals1085) settings).getBlendingReversedColors();
+            ThreadDraw.PERTURBATION_THEORY = ((SettingsFractals1085) settings).getPerturbationTheory();
+            ThreadDraw.GREEDY_ALGORITHM = ((SettingsFractals1085) settings).getGreedyDrawingAlgorithm();
+        }
+
         if (fns.plane_type == USER_PLANE) {
             if (version < 1058) {
                 fns.user_plane_algorithm = defaults.fns.user_plane_algorithm;
@@ -1703,7 +1756,7 @@ public class Settings implements Constants {
 
                 for (int m = 0; m < fns.user_formula_condition_formula.length; m++) {
                     parser.parse(fns.user_formula_condition_formula[m]);
-                    temp_bool2 = temp_bool2 | parser.foundC();
+                    temp_bool2 = temp_bool2 || parser.foundC();
                 }
 
                 userFormulaHasC = temp_bool2;
@@ -1813,12 +1866,7 @@ public class Settings implements Constants {
 
         try {
             file_temp = new ObjectOutputStream(new FileOutputStream(filename));
-            SettingsFractals settings;
-            if (fns.julia) {
-                settings = new SettingsJulia1084(this);
-            } else {
-                settings = new SettingsFractals1084(this);
-            }
+            SettingsFractals settings = new SettingsFractals1085(this, ThreadDraw.PERTURBATION_THEORY, ThreadDraw.GREEDY_ALGORITHM);
             file_temp.writeObject(settings);
             file_temp.flush();
         } catch (IOException ex) {
@@ -2448,7 +2496,7 @@ public class Settings implements Constants {
 
     public static boolean isRoot4Function(int function) {
 
-        return function == NEWTON4 || function == HALLEY4 || function == HOUSEHOLDER4 || function == SCHRODER4 || function == SECANT4 || function == STEFFENSEN4 || function == MULLER4 || function == PARHALLEY4 || function == LAGUERRE4 || function == DURAND_KERNER4 | function == BAIRSTOW4 || function == NEWTON_HINES4 || function == WHITTAKER4 || function == WHITTAKERDOUBLECONVEX4 || function == SUPERHALLEY4 || function == TRAUB_OSTROWSKI4 || function == STIRLING4 || function == MIDPOINT4
+        return function == NEWTON4 || function == HALLEY4 || function == HOUSEHOLDER4 || function == SCHRODER4 || function == SECANT4 || function == STEFFENSEN4 || function == MULLER4 || function == PARHALLEY4 || function == LAGUERRE4 || function == DURAND_KERNER4 || function == BAIRSTOW4 || function == NEWTON_HINES4 || function == WHITTAKER4 || function == WHITTAKERDOUBLECONVEX4 || function == SUPERHALLEY4 || function == TRAUB_OSTROWSKI4 || function == STIRLING4 || function == MIDPOINT4
                 || function == ABERTH_EHRLICH4 || function == JARATT4 || function == JARATT24 || function == THIRDORDERNEWTON4 || function == WEERAKOON_FERNANDO4
                 || function == HOUSEHOLDER34 || function == ABBASBANDY4
                 || function == CONTRA_HARMONIC_NEWTON4 || function == CHUN_HAM4|| function == CHUN_KIM4
@@ -2525,7 +2573,7 @@ public class Settings implements Constants {
         return  nova_method == NOVA_HALLEY
                 || nova_method == NOVA_PARHALLEY
                 || nova_method == NOVA_SCHRODER
-                || nova_method == NOVA_HOUSEHOLDER
+                ||nova_method == NOVA_HOUSEHOLDER
                 || nova_method == NOVA_HOUSEHOLDER
                 || nova_method == NOVA_LAGUERRE
                 || nova_method == NOVA_WHITTAKER

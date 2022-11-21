@@ -18,6 +18,7 @@ package fractalzoomer.gui;
 
 import fractalzoomer.core.BigPoint;
 import fractalzoomer.core.MyApfloat;
+import fractalzoomer.functions.Fractal;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
 import fractalzoomer.utils.MathUtils;
@@ -254,6 +255,15 @@ public class RotationDialog extends JDialog {
                         }
 
                         try {
+                            if(MyApfloat.setAutomaticPrecision) {
+                                long precision = MyApfloat.getAutomaticPrecision(new String[]{field_real.getText(), field_imaginary.getText()}, new boolean[] {false, false});
+
+                                if (MyApfloat.shouldSetPrecision(precision, false)) {
+                                    Fractal.clearReferences(true);
+                                    MyApfloat.setPrecision(precision, s);
+                                }
+                            }
+
                             double temp = Double.parseDouble(field_rotation.getText());
                             Apfloat tempReal = new MyApfloat(field_real.getText());
                             Apfloat tempImaginary = new MyApfloat(field_imaginary.getText());
@@ -280,8 +290,10 @@ public class RotationDialog extends JDialog {
                             s.fns.rotation_center[0] = s.fns.rotation_center[0].compareTo(zero) == 0 ? zero : s.fns.rotation_center[0];
                             s.fns.rotation_center[1] = s.fns.rotation_center[1].compareTo(zero) == 0? zero : s.fns.rotation_center[1];
 
-                            s.xCenter = s.fns.rotation_center[0];
-                            s.yCenter = s.fns.rotation_center[1];
+                            if(s.fns.rotation != 0 && s.fns.rotation != 360.0 && s.fns.rotation != -360.0) {
+                                s.xCenter = s.fns.rotation_center[0];
+                                s.yCenter = s.fns.rotation_center[1];
+                            }
                         } catch (Exception ex) {
                             JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                             return;

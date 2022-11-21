@@ -25,7 +25,7 @@ import java.awt.*;
  * @author hrkalona2
  */
 public interface Constants {
-    public static final int VERSION = 1084;
+    public static final int VERSION = 1085;
     public static final boolean beta = false;
     public static final int FAST_JULIA_IMAGE_SIZE = 252;
     public static final int TOTAL_PALETTES = 41;

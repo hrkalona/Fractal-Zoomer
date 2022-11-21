@@ -642,6 +642,7 @@ public class Multiwave {
         }
         else {
             Blending blending = blendingFactory(color_interpolation, fz_blending_method);
+            blending.setReverseColors(false);
 
             int[] rgb1 = hslToRgb(hsl1);
             int[] rgb2 = hslToRgb(hsl2);

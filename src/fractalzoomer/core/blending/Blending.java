@@ -29,10 +29,12 @@ public abstract class Blending {
     protected Blending(int color_interpolation) {
         
         method = InterpolationMethod.create(color_interpolation);
-        reverseColors = false;
 
     }
 
+    public void setReverseColors(boolean reverseColors) {
+        this.reverseColors = reverseColors;
+    }
     public int blend(int redA, int greenA, int blueA, int redB, int greenB, int blueB, double coef) {
 
         if(reverseColors) {

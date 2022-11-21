@@ -234,6 +234,10 @@ public class DDComplex extends GenericComplex {
 
         return new DDComplex(re.multiply(z.re).subtract(im.multiply(z.im)),  re.multiply(z.im).add(im.multiply(z.re)));
 
+        //DoubleDouble ac = re.multiply(z.re);
+        //DoubleDouble bd = im.multiply(z.im);
+        //return new DDComplex(ac.subtract(bd), re.add(im).multiply(z.re.add(z.im)).subtract(ac).subtract(bd));
+
     }
 
     /*
@@ -665,7 +669,7 @@ public class DDComplex extends GenericComplex {
      */
     public final DDComplex cos() {
 
-        DoubleDouble temp = im.negate().exp();;
+        DoubleDouble temp = im.negate().exp();
 
         DoubleDouble cos_re = re.cos();
         DoubleDouble sin_re = re.sin();
@@ -777,7 +781,7 @@ public class DDComplex extends GenericComplex {
      */
     public final DDComplex tan() {
 
-        DoubleDouble temp = im.multiply(2).exp();;
+        DoubleDouble temp = im.multiply(2).exp();
 
         DoubleDouble temp3 = re.multiply(2);
 
@@ -1194,6 +1198,7 @@ public class DDComplex extends GenericComplex {
 
     }
 
+    @Override
     public final DDComplex divide(int number) {
 
         DoubleDouble num = new DoubleDouble(number);
@@ -1402,6 +1407,9 @@ public class DDComplex extends GenericComplex {
 
         DDComplex z = (DDComplex)zn;
         return new DDComplex(re.multiply(z.re).subtract(im.multiply(z.im)),  re.multiply(z.im).add(im.multiply(z.re)));
+        //DoubleDouble ac = re.multiply(z.re);
+        //DoubleDouble bd = im.multiply(z.im);
+        //return new DDComplex(ac.subtract(bd), re.add(im).multiply(z.re.add(z.im)).subtract(ac).subtract(bd));
 
     }
 
@@ -1481,6 +1489,10 @@ public class DDComplex extends GenericComplex {
 
     public boolean isZero() {
         return re.isZero() && im.isZero();
+    }
+
+    public boolean isOne() {
+        return re.isOne() && im.isZero();
     }
 
     @Override

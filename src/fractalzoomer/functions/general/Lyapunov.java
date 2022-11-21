@@ -393,7 +393,7 @@ public class Lyapunov extends Julia {
                 Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0, pixel};
                 double out = out_color_algorithm.getResult(object);
 
-                out = getFinalValueOut(out);
+                out = getFinalValueOut(out, complex[0]);
 
                 if (outTrueColorAlgorithm != null) {
                     setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
@@ -423,10 +423,10 @@ public class Lyapunov extends Julia {
 
             double value;
             if (res > 0) {
-                value = getFinalValueOut(ColorAlgorithm.MAXIMUM_ITERATIONS);
+                value = getFinalValueOut(ColorAlgorithm.MAXIMUM_ITERATIONS, complex[0]);
             }
             else {
-                value = getFinalValueIn(Math.abs(res) + max_iterations);
+                value = getFinalValueIn(Math.abs(res) + max_iterations, complex[0]);
             }
 
             if (inTrueColorAlgorithm != null) {
@@ -439,7 +439,7 @@ public class Lyapunov extends Julia {
         Object[] object = {complex[0], zold, zold2, complex[1], start, c0, pixel};
         double in = in_color_algorithm.getResult(object);
 
-        in = getFinalValueIn(in);
+        in = getFinalValueIn(in, complex[0]);
 
         if (inTrueColorAlgorithm != null) {
             setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
@@ -490,7 +490,7 @@ public class Lyapunov extends Julia {
                 Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0, pixel};
                 double out = out_color_algorithm.getResult(object);
 
-                out = getFinalValueOut(out);
+                out = getFinalValueOut(out, complex[0]);
 
                 if (outTrueColorAlgorithm != null) {
                     setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
