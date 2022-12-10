@@ -74,7 +74,7 @@ public abstract class EscapingOrConverging extends Julia {
                 Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0, pixel, temp2};
                 double res = out_color_algorithm.getResult(object);
 
-                res = getFinalValueOut(res);
+                res = getFinalValueOut(res, complex[0]);
 
                 if (outTrueColorAlgorithm != null) {
                     setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
@@ -126,7 +126,7 @@ public abstract class EscapingOrConverging extends Julia {
                 Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0, pixel, temp2};
                 double res = out_color_algorithm.getResult(object);
 
-                res = getFinalValueOut(res);
+                res = getFinalValueOut(res, complex[0]);
 
                 if (outTrueColorAlgorithm != null) {
                     setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
@@ -152,7 +152,7 @@ public abstract class EscapingOrConverging extends Julia {
         Object[] object = {complex[0], zold, zold2, complex[1], start, c0, pixel};
         double in = in_color_algorithm.getResult(object);
 
-        in = getFinalValueIn(in);
+        in = getFinalValueIn(in, complex[0]);
 
         if (inTrueColorAlgorithm != null) {
             setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
@@ -365,7 +365,7 @@ public abstract class EscapingOrConverging extends Julia {
     }
 
     @Override
-    protected double getStatistic(double result, boolean escaped) {
+    protected double getStatistic(double result, Complex z, boolean escaped) {
 
         if ((converged && statistic.getType() == MainWindow.ESCAPING) || (!converged && statistic.getType() == MainWindow.CONVERGING)) {
             return result;
@@ -375,7 +375,7 @@ public abstract class EscapingOrConverging extends Julia {
             statistic.setMode(GenericStatistic.NORMAL_CONVERGE);
         }
 
-        double res = super.getStatistic(result, escaped);
+        double res = super.getStatistic(result, z, escaped);
 
         statistic.setMode(GenericStatistic.NORMAL_ESCAPE);
 

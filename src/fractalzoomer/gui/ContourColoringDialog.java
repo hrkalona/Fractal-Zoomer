@@ -84,6 +84,15 @@ public class ContourColoringDialog extends JDialog {
         p1.add(p2);
         p1.add(color_blend_opt);
 
+        JTextField min_contour = new JTextField();
+        min_contour.setText("" + s.cns.min_contour);
+
+        min_contour.setEnabled(contour_coloring_algorithm_opt.getSelectedIndex() == 0
+        || contour_coloring_algorithm_opt.getSelectedIndex() == 2 || contour_coloring_algorithm_opt.getSelectedIndex() == 3);
+
+        contour_coloring_algorithm_opt.addActionListener(e -> {min_contour.setEnabled(contour_coloring_algorithm_opt.getSelectedIndex() == 0
+                || contour_coloring_algorithm_opt.getSelectedIndex() == 2 || contour_coloring_algorithm_opt.getSelectedIndex() == 3);});
+
         Object[] message = {
             " ",
             enable_contour_coloring,
@@ -93,6 +102,10 @@ public class ContourColoringDialog extends JDialog {
             " ",
             "Set the color method and blending percentage.",
             p1,
+                " ",
+                "Set the minimum contour factor.",
+                "Minimum Contour Factor:",
+                min_contour,
             " ",
             "Set the image noise reduction factor.",
             "Noise Reduction Factor:",
@@ -135,9 +148,19 @@ public class ContourColoringDialog extends JDialog {
 
                         try {
                             double temp2 = Double.parseDouble(noise_factor_field.getText());
+                            double temp3 = Double.parseDouble(min_contour.getText());
 
                             if (temp2 <= 0) {
                                 JOptionPane.showMessageDialog(ptra, "The noise reduction factor must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+
+                            if(temp3 <= 0) {
+                                JOptionPane.showMessageDialog(ptra, "The min contour factor must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+                            else if (temp3 > 0.5) {
+                                JOptionPane.showMessageDialog(ptra, "The min contour factor must be less or equal to 0.5.", "Error!", JOptionPane.ERROR_MESSAGE);
                                 return;
                             }
 
@@ -146,6 +169,7 @@ public class ContourColoringDialog extends JDialog {
                             s.cns.cn_blending = color_blend_opt.getValue() / 100.0;
                             s.cns.contour_algorithm = contour_coloring_algorithm_opt.getSelectedIndex();
                             s.cns.contourColorMethod = color_method_combo.getSelectedIndex();
+                            s.cns.min_contour = temp3;
 
                         } catch (Exception ex) {
                             JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);

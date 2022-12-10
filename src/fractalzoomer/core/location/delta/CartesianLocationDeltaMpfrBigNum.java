@@ -20,17 +20,17 @@ public class CartesianLocationDeltaMpfrBigNum extends CartesianLocationDeltaGene
 
     @Override
     public GenericComplex getComplex(int x, int y) {
-        return getComplexInternal(x, y).toComplex();
+        return getComplexInternal(offset.getX(x), offset.getY(y)).toComplex();
     }
 
     @Override
     public GenericComplex getComplexWithX(int x) {
-        return getComplexWithXInternal(x).toComplex();
+        return getComplexWithXInternal(offset.getX(x)).toComplex();
     }
 
     @Override
     public GenericComplex getComplexWithY(int y) {
-        return getComplexWithYInternal(y).toComplex();
+        return getComplexWithYInternal(offset.getY(y)).toComplex();
     }
 
     @Override

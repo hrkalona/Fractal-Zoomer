@@ -1825,6 +1825,12 @@ public class CustomPaletteEditorFrame extends JFrame {
                         temp_custom_palette[m][3] = rgb.get(2);
 
                     }
+                    else if(rgb.size() == 4) {
+                        temp_custom_palette[m][0] = rgb.get(0);
+                        temp_custom_palette[m][1] = rgb.get(1);
+                        temp_custom_palette[m][2] = rgb.get(2);
+                        temp_custom_palette[m][3] = rgb.get(3);
+                    }
                 }
                 else {
                     temp_custom_palette[m][0] = 0;
@@ -2072,7 +2078,7 @@ public class CustomPaletteEditorFrame extends JFrame {
 
     private void loadPalette() {
 
-        file_chooser = new JFileChooser(".");
+        file_chooser = new JFileChooser(MainWindow.SaveSettingsPath.isEmpty() ? "." : MainWindow.SaveSettingsPath);
 
         file_chooser.setAcceptAllFileFilterUsed(false);
         file_chooser.setDialogType(JFileChooser.OPEN_DIALOG);
@@ -2080,19 +2086,8 @@ public class CustomPaletteEditorFrame extends JFrame {
         file_chooser.addChoosableFileFilter(new FileNameExtensionFilter("Fractal Zoomer Palette (*.fzp)", "fzp"));
 
         file_chooser.addPropertyChangeListener(JFileChooser.FILE_FILTER_CHANGED_PROPERTY, evt -> {
-            FileNameExtensionFilter filter = (FileNameExtensionFilter) evt.getNewValue();
-
-            String extension = filter.getExtensions()[0];
-
             String file_name = ((BasicFileChooserUI) file_chooser.getUI()).getFileName();
-
-            int index = file_name.lastIndexOf(".");
-
-            if (index != -1) {
-                file_name = file_name.substring(0, index);
-            }
-
-            file_chooser.setSelectedFile(new File(file_name + "." + extension));
+            file_chooser.setSelectedFile(new File(file_name));
         });
 
         int returnVal = file_chooser.showDialog(this_frame, "Load Palette");

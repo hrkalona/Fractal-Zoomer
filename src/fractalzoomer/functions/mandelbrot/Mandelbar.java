@@ -147,7 +147,7 @@ public class Mandelbar extends Julia {
         if(isJuliaMap) {
             return false;
         }
-        return !isJulia || (isJulia && !juliter);
+        return !isJulia || !juliter;
     }
 
     @Override

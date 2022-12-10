@@ -33,7 +33,7 @@ public class CartesianLocationNormalApfloatArbitrary extends Location {
 
     private JitterSettings js;
 
-    public CartesianLocationNormalApfloatArbitrary(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int image_size, Apfloat[] rotation_center, Apfloat[] rotation_vals, Fractal fractal, JitterSettings js) {
+    public CartesianLocationNormalApfloatArbitrary(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int image_size_in, Apfloat[] rotation_center, Apfloat[] rotation_vals, Fractal fractal, JitterSettings js) {
 
         super();
 
@@ -43,6 +43,8 @@ public class CartesianLocationNormalApfloatArbitrary extends Location {
         ddycenter = yCenter;
 
         ddsize = size;
+
+        int image_size = offset.getImageSize(image_size_in);
 
         point5 = new MyApfloat(0.5);
         Apfloat size_2_x = MyApfloat.fp.multiply(size, point5);
@@ -67,7 +69,7 @@ public class CartesianLocationNormalApfloatArbitrary extends Location {
         ddsize = size;
         ddxcenter = xCenter;
         ddycenter = yCenter;
-        Apfloat point5 = new MyApfloat(0.5);
+        point5 = new MyApfloat(0.5);
         Apfloat size_2_x = MyApfloat.fp.multiply(size, point5);
         Apfloat ddimage_size = new MyApfloat(image_size);
         Apfloat ddiheight_ratio = new MyApfloat(height_ratio);
@@ -108,7 +110,7 @@ public class CartesianLocationNormalApfloatArbitrary extends Location {
     @Override
     public GenericComplex getComplex(int x, int y) {
 
-       return getComplexBase(x, y);
+       return getComplexBase(offset.getX(x), offset.getY(y));
 
     }
 
@@ -151,6 +153,8 @@ public class CartesianLocationNormalApfloatArbitrary extends Location {
     @Override
     public void precalculateY(int y) {
 
+        y = offset.getY(y);
+
         if(!js.enableJitter) {
             if (y == indexY + 1) {
                 ddtempY = MyApfloat.fp.subtract(ddtempY, ddtemp_size_image_size_y);
@@ -167,6 +171,8 @@ public class CartesianLocationNormalApfloatArbitrary extends Location {
 
     @Override
     public void precalculateX(int x) {
+
+        x = offset.getX(x);
 
         if(!js.enableJitter) {
             if (x == indexX + 1) {
@@ -185,7 +191,7 @@ public class CartesianLocationNormalApfloatArbitrary extends Location {
     @Override
     public GenericComplex getComplexWithX(int x) {
 
-        return getComplexWithXBase(x);
+        return getComplexWithXBase(offset.getX(x));
 
     }
 
@@ -215,7 +221,7 @@ public class CartesianLocationNormalApfloatArbitrary extends Location {
     @Override
     public GenericComplex getComplexWithY(int y) {
 
-        return getComplexWithYBase(y);
+        return getComplexWithYBase(offset.getY(y));
 
     }
 
@@ -272,9 +278,9 @@ public class CartesianLocationNormalApfloatArbitrary extends Location {
     }
 
     public Complex getComplexOrbit(int x, int y) {
-        Apfloat ddtempX = MyApfloat.fp.add(ddtemp_xcenter_size, MyApfloat.fp.multiply(ddtemp_size_image_size_x, new MyApfloat(x)));
-        Apfloat ddtempY = MyApfloat.fp.subtract(ddtemp_ycenter_size, MyApfloat.fp.multiply(ddtemp_size_image_size_y, new MyApfloat(y)));
-        BigComplex temp = new BigComplex(ddtempX, ddtempY);
+        Apfloat ddtempXO = MyApfloat.fp.add(ddtemp_xcenter_size, MyApfloat.fp.multiply(ddtemp_size_image_size_x, new MyApfloat(x)));
+        Apfloat ddtempYO = MyApfloat.fp.subtract(ddtemp_ycenter_size, MyApfloat.fp.multiply(ddtemp_size_image_size_y, new MyApfloat(y)));
+        BigComplex temp = new BigComplex(ddtempXO, ddtempYO);
         return temp.toComplex();
     }
 

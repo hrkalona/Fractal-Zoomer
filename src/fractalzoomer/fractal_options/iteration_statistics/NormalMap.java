@@ -44,13 +44,12 @@ public class NormalMap extends GenericStatistic {
     private int deFadeAlgorithm = 0;
 
 
-    public NormalMap(double statistic_intensity, double power, double height, double angle, boolean useSecondDerivative, double size, double normalMapDEfactor, boolean isJulia, boolean normalMapUseDE, boolean normalMapInvertDE, int normalMapColoring, boolean useNormalMap, double DEUpperLimit, boolean normalMapDEAAEffect, boolean normalMapOverrideColoring, int deFadeAlgorithm) {
+    public NormalMap(double statistic_intensity, double power, double height, double angle, boolean useSecondDerivative, double normalMapDEfactor, boolean isJulia, boolean normalMapUseDE, boolean normalMapInvertDE, int normalMapColoring, boolean useNormalMap, double DEUpperLimit, boolean normalMapDEAAEffect, boolean normalMapOverrideColoring, int deFadeAlgorithm) {
         super(statistic_intensity, false, false);
         this.power = power;
         h2 = height;
         v = new Complex(0, angle*2*Math.PI/360).exp();
         this.useSecondDerivative = useSecondDerivative;
-        DELimit = (size / ThreadDraw.IMAGE_SIZE) * normalMapDEfactor;
         this.normalMapDEfactor = normalMapDEfactor;
         this.isJulia = isJulia;
         this.normalMapUseDE = normalMapUseDE;
@@ -83,14 +82,14 @@ public class NormalMap extends GenericStatistic {
             return;
         }
 
-        if(iterations == 0) {
+        if(samples == 0) {
 
             if(function == Constants.LAMBDA && isJulia && !isJuliter) {
                 derivative = new Complex(0.25, 0);
                 derivative_m = new MantExpComplex(derivative);
             }
             else if ((function >= MainWindow.MANDELBROT && function <= MainWindow.MANDELBROTNTH)){
-                if (zold.compare(new Complex()) != 0) {
+                if (isJulia || zold.compare(new Complex()) != 0) {
                     derivative = new Complex(1, 0);
                     derivative_m = new MantExpComplex(derivative);
                 }
@@ -283,7 +282,7 @@ public class NormalMap extends GenericStatistic {
             return;
         }
 
-        if(iterations == 0) {
+        if(samples == 0) {
 
             if ((function >= MainWindow.MANDELBROT && function <= MainWindow.MANDELBROTNTH)){
                 if (zold.compare(new Complex()) != 0) {
@@ -314,7 +313,7 @@ public class NormalMap extends GenericStatistic {
             derivative = bla.getValue(derivative, 1);
         }
 
-        samples++;
+        samples += bla.getL();
     }
 
     @Override
@@ -325,7 +324,7 @@ public class NormalMap extends GenericStatistic {
             return;
         }
 
-        if(iterations == 0) {
+        if(samples == 0) {
 
             if ((function >= MainWindow.MANDELBROT && function <= MainWindow.MANDELBROTNTH)){
                 if (zold.compare(new Complex()) != 0) {
@@ -344,7 +343,7 @@ public class NormalMap extends GenericStatistic {
         derivative_m = bla.getValue(derivative_m, MantExp.ONE);
         derivative_m.Reduce();
 
-        samples++;
+        samples += bla.getL();
     }
 
     @Override
@@ -376,17 +375,17 @@ public class NormalMap extends GenericStatistic {
                 u_m = z_val_m.divide(derivative_m);
 
             }
-            u = u_m.divide(u_m.norm()).toComplex();  // normal vector: (u.re,u.im,1)
+            u = u_m.divide(u_m.hypot()).toComplex();  // normal vector: (u.re,u.im,1)
         }
         else {
             if(useSecondDerivative) {
-                double lo = 0.5 * Math.log(z_val.norm());
+                double lo = 0.5 * Math.log(z_val.hypot());
                 u = z_val.times(derivative).times_mutable(derivative.square().conjugate_mutable().times_mutable(1 + lo).sub_mutable(z_val.times(derivative2).conjugate_mutable().times_mutable(lo)));
             }
             else {
                 u = z_val.divide(derivative);
             }
-            u = u.divide(u.norm());  // normal vector: (u.re,u.im,1)
+            u = u.divide(u.hypot());  // normal vector: (u.re,u.im,1)
         }
 
         double reflection = u.getRe() * v.getRe() + u.getIm() * v.getIm() + h2;  // dot product with the incoming light
@@ -634,10 +633,21 @@ public class NormalMap extends GenericStatistic {
     }
 
     @Override
-    //Todo: Find a way to fix polar variable size
-    public void setSize(Apfloat size) {
-        super.setSize(size);
-        DELimit_m = new MantExp(MyApfloat.fp.multiply(MyApfloat.fp.divide(size, new MyApfloat(ThreadDraw.IMAGE_SIZE)), new MyApfloat(normalMapDEfactor)));
+    public void setSize(Apfloat size, double height_ratio) {
+        super.setSize(size, height_ratio);
+
+        if(height_ratio == 1) {
+            DELimit_m = new MantExp(MyApfloat.fp.multiply(MyApfloat.fp.divide(size, new MyApfloat(ThreadDraw.IMAGE_SIZE)), new MyApfloat(normalMapDEfactor)));
+        }
+        else {
+            Apfloat a = MyApfloat.fp.divide(size, new MyApfloat(ThreadDraw.IMAGE_SIZE));
+            Apfloat b = MyApfloat.fp.multiply(a, new MyApfloat(height_ratio));
+            Apfloat c = MyApfloat.fp.sqrt(MyApfloat.fp.add(MyApfloat.fp.multiply(a, a), MyApfloat.fp.multiply(b, b)));
+            DELimit_m = new MantExp(MyApfloat.fp.multiply(c, new MyApfloat(normalMapDEfactor)));
+        }
+
+        DELimit = DELimit_m.toDouble();
+
         supportsDeepCalc = (function >= MainWindow.MANDELBROT && function <= MainWindow.MANDELBROTFIFTH  || function == MainWindow.LAMBDA) && ThreadDraw.PERTURBATION_THEORY;
     }
 
@@ -650,5 +660,31 @@ public class NormalMap extends GenericStatistic {
 
     public boolean usesSecondDerivative() {
         return useSecondDerivative;
+    }
+
+    public void setVariablePixelSize(MantExp pixelSize) {
+        DELimit_m = pixelSize.multiply(normalMapDEfactor);
+        DELimit = pixelSize.toDouble() *  normalMapDEfactor;
+    }
+
+    public boolean hasDEenabled() {
+        return normalMapUseDE;
+    }
+
+    @Override
+    public void setZValue(Complex z) {
+        super.setZValue(z);
+        if(samples == 0) {
+            if(function == Constants.LAMBDA && isJulia && !isJuliter) {
+                derivative = new Complex(0.25, 0);
+                derivative_m = new MantExpComplex(derivative);
+            }
+            else if ((function >= MainWindow.MANDELBROT && function <= MainWindow.MANDELBROTNTH)){
+                if(isJulia || z.compare(new Complex()) != 0) {
+                    derivative = new Complex(1, 0);
+                    derivative_m = new MantExpComplex(derivative);
+                }
+            }
+        }
     }
 }

@@ -33,7 +33,7 @@ public class ColorCyclingDialog extends JDialog {
     private MainWindow ptra;
     private JOptionPane optionPane;
 
-    public ColorCyclingDialog(MainWindow ptr, boolean cycle_colors, boolean cycle_gradient, boolean cycle_lights, int color_cycling_speed) {
+    public ColorCyclingDialog(MainWindow ptr, boolean cycle_colors, boolean cycle_gradient, boolean cycle_lights, int color_cycling_speed, int color_cycling_adjusting_value) {
 
         super(ptr);
         
@@ -73,15 +73,25 @@ public class ColorCyclingDialog extends JDialog {
         labelTable.put(speed_slid.getMaximum(), new JLabel("Fast"));
         speed_slid.setLabelTable(labelTable);
 
+        JTextField field = new JTextField();
+        field.addAncestorListener(new RequestFocusListener());
+        field.setText("" + color_cycling_adjusting_value);
+
         Object[] message3 = {
             " ",
             "Set the cycling modes.",
+                "Modes:",
             cycleColors,
             cycleGradient,
             cycleLights,
             " ",
             "Set the color cycling speed.",
+                "Speed:",
             speed_slid,
+                " ",
+                "Set the color cycling adjusting value.",
+                "Adjusting Value:",
+                field,
             " ",};
 
         optionPane = new JOptionPane(message3, JOptionPane.QUESTION_MESSAGE, JOptionPane.OK_CANCEL_OPTION, null, null, null);
@@ -119,7 +129,14 @@ public class ColorCyclingDialog extends JDialog {
                         }
 
                         try {
-                            ptra.setColorCyclingOptionsPost(cycleColors.isSelected(), cycleGradient.isSelected(), cycleLights.isSelected(), speed_slid.getMaximum() - speed_slid.getValue());
+                            int temp = Integer.parseInt(field.getText());
+
+                            if(temp < 1 || temp > 50) {
+                                JOptionPane.showMessageDialog(ptra, "The color cycling adjusting value must be in the range of [1, 50].", "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+
+                            ptra.setColorCyclingOptionsPost(cycleColors.isSelected(), cycleGradient.isSelected(), cycleLights.isSelected(), speed_slid.getMaximum() - speed_slid.getValue(), temp);
                         } catch (Exception ex) {
                             JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                             return;

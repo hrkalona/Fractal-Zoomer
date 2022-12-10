@@ -66,7 +66,7 @@ public class SmoothEscapeTimeColorDecompositionRootFindingMethod extends EscapeT
     }
 
     @Override
-    public double getResult3D(Object[] object) {
+    public double getResult3D(Object[] object, double result) {
 
         if(algorithm == 0) {
             double temp = Math.log(((Complex)object[3]).distance_squared((Complex)object[4]));

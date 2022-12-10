@@ -58,9 +58,9 @@ public class SquareBailoutCondition extends BailoutCondition {
         BigNum absRe = z.getAbsRe();
         BigNum absIm = z.getAbsIm();
 
-        BigNum max = absRe.compare(absIm) == 1 ? absRe : absIm;
+        BigNum max = absRe.compareBothPositive(absIm) == 1 ? absRe : absIm;
 
-        return max.compare(bnbound) >= 0;
+        return max.compareBothPositive(bnbound) >= 0;
 
     }
 

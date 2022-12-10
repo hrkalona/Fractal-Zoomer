@@ -129,7 +129,7 @@ public class Kleinian extends FractalWithoutConstant {
                 Object[] object = {iterations, complex[0], zold, zold2, pixel, start, c0, pixel};
                 double out = out_color_algorithm.getResult(object);
 
-                out = getFinalValueOut(out);
+                out = getFinalValueOut(out, complex[0]);
 
                 if (outTrueColorAlgorithm != null) {
                     setTrueColorOut(complex[0], zold, zold2, iterations, pixel, start, c0, pixel);
@@ -144,7 +144,7 @@ public class Kleinian extends FractalWithoutConstant {
                 Object[] object = {complex[0], zold, zold2, pixel, start, c0, pixel};
                 double in = in_color_algorithm.getResult(object);
 
-                in = getFinalValueIn(in);
+                in = getFinalValueIn(in, complex[0]);
 
                 if (inTrueColorAlgorithm != null) {
                     setTrueColorIn(complex[0], zold, zold2, iterations, pixel, start, c0, pixel);
@@ -169,7 +169,7 @@ public class Kleinian extends FractalWithoutConstant {
         Object[] object = {complex[0], zold, zold2, pixel, start, c0, pixel};
         double in = in_color_algorithm.getResult(object);
 
-        in = getFinalValueIn(in);
+        in = getFinalValueIn(in, complex[0]);
 
         if (inTrueColorAlgorithm != null) {
             setTrueColorIn(complex[0], zold, zold2, iterations, pixel, start, c0, pixel);

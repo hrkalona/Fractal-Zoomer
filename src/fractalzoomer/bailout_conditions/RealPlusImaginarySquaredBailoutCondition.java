@@ -51,7 +51,7 @@ public class RealPlusImaginarySquaredBailoutCondition extends BailoutCondition {
     @Override
     public boolean escaped(BigNumComplex z, BigNumComplex zold, BigNumComplex zold2, int iterations, BigNumComplex c, BigNumComplex start, BigNumComplex c0, BigNum norm_squared, BigNumComplex pixel) {
         BigNum temp = z.getRe().add(z.getIm());
-        return temp.squareFull().compare(bnbound) >= 0;
+        return temp.squareFull().compareBothPositive(bnbound) >= 0;
     }
 
     @Override

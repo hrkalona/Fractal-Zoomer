@@ -36,13 +36,15 @@ public class CartesianLocationNormalBigNumArbitrary extends Location {
 
     private JitterSettings js;
 
-    public CartesianLocationNormalBigNumArbitrary(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int image_size, Apfloat[] rotation_center, Apfloat[] rotation_vals, Fractal fractal, JitterSettings js) {
+    public CartesianLocationNormalBigNumArbitrary(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int image_size_in, Apfloat[] rotation_center, Apfloat[] rotation_vals, Fractal fractal, JitterSettings js) {
 
         super();
 
         this.fractal = fractal;
 
         this.height_ratio = new MyApfloat(height_ratio);
+
+        int image_size = offset.getImageSize(image_size_in);
 
         point5 = new MyApfloat(0.5);
         Apfloat size_2_x = MyApfloat.fp.multiply(size, point5);
@@ -96,7 +98,7 @@ public class CartesianLocationNormalBigNumArbitrary extends Location {
 
     @Override
     public GenericComplex getComplex(int x, int y) {
-        return getComplexBase(x, y);
+        return getComplexBase(offset.getX(x), offset.getY(y));
     }
 
     protected BigNumComplex getComplexBase(int x, int y) {
@@ -139,6 +141,8 @@ public class CartesianLocationNormalBigNumArbitrary extends Location {
     @Override
     public void precalculateY(int y) {
 
+        y = offset.getY(y);
+
         if(!js.enableJitter) {
             if (y == indexY + 1) {
                 bntempY = bntempY.sub(bntemp_size_image_size_y);
@@ -156,6 +160,8 @@ public class CartesianLocationNormalBigNumArbitrary extends Location {
     @Override
     public void precalculateX(int x) {
 
+        x = offset.getX(x);
+
         if(!js.enableJitter) {
             if (x == indexX + 1) {
                 bntempX = bntempX.add(bntemp_size_image_size_x);
@@ -172,7 +178,7 @@ public class CartesianLocationNormalBigNumArbitrary extends Location {
 
     @Override
     public GenericComplex getComplexWithX(int x) {
-        return getComplexWithXBase(x);
+        return getComplexWithXBase(offset.getX(x));
     }
 
     protected BigNumComplex getComplexWithXBase(int x) {
@@ -201,7 +207,7 @@ public class CartesianLocationNormalBigNumArbitrary extends Location {
 
     @Override
     public GenericComplex getComplexWithY(int y) {
-        return getComplexWithYBase(y);
+        return getComplexWithYBase(offset.getY(y));
     }
 
     protected BigNumComplex getComplexWithYBase(int y) {

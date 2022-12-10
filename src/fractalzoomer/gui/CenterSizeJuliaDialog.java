@@ -253,7 +253,7 @@ public class CenterSizeJuliaDialog extends JDialog {
 
                         try {
                             if(MyApfloat.setAutomaticPrecision) {
-                                long precision = MyApfloat.getAutomaticPrecision(field_size.getText());
+                                long precision = MyApfloat.getAutomaticPrecision(new String[] {field_size.getText(), field_real.getText(), field_imaginary.getText(), real_seed.getText(), imag_seed.getText()}, new boolean[] {true, false, false, false, false});
 
                                 if (MyApfloat.shouldSetPrecision(precision, false)) {
                                     Fractal.clearReferences(true);
@@ -265,7 +265,6 @@ public class CenterSizeJuliaDialog extends JDialog {
                             Apfloat tempImaginary =  MyApfloat.fp.subtract(new MyApfloat(field_imaginary.getText()), s.fns.rotation_center[1]);
                             Apfloat tempSize =  new MyApfloat(field_size.getText());
 
-                            //Todo check the precision at some point
                             Apfloat tempJuliaReal = new MyApfloat(real_seed.getText());
                             Apfloat tempJuliaImaginary = new MyApfloat(imag_seed.getText());
 

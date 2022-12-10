@@ -41,12 +41,16 @@ public class PolarLocationNormalApfloatArbitrary extends Location {
     //private Apfloat ddcosmuly;
     //private Apfloat ddsinmuly;
 
-    public PolarLocationNormalApfloatArbitrary(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int image_size, double circle_period, Apfloat[] rotation_center, Apfloat[] rotation_vals, Fractal fractal, JitterSettings js) {
+    private boolean requiresVariablePixelSize;
+
+    public PolarLocationNormalApfloatArbitrary(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int image_size_in, double circle_period, Apfloat[] rotation_center, Apfloat[] rotation_vals, Fractal fractal, JitterSettings js) {
 
         super();
 
         this.fractal = fractal;
-        this.image_size = image_size;
+        this.image_size = offset.getImageSize(image_size_in);
+
+        requiresVariablePixelSize = fractal.requiresVariablePixelSize();
 
         ddxcenter = xCenter;
         ddycenter = yCenter;
@@ -100,6 +104,8 @@ public class PolarLocationNormalApfloatArbitrary extends Location {
         point5 = other.point5;
         js = other.js;
 
+        requiresVariablePixelSize = other.requiresVariablePixelSize;
+
         //ddcosmuly = other.ddcosmuly;
         //ddsinmuly = other.ddsinmuly;
     }
@@ -116,9 +122,13 @@ public class PolarLocationNormalApfloatArbitrary extends Location {
         ddstart = MyApfloat.fp.subtract(ddcenter, MyApfloat.fp.multiply(MyApfloat.fp.multiply(ddmulx, ddimage_size), new MyApfloat(0.5)));
     }
 
+    public void setVariablePixelSize(Apfloat expValue) {
+        fractal.setVariablePixelSize(getMantExp(MyApfloat.fp.multiply(expValue, ddmulx)));
+    }
+
     @Override
     public GenericComplex getComplex(int x, int y) {
-        return getComplexBase(x, y);
+        return getComplexBase(offset.getX(x), offset.getY(y));
     }
 
     protected BigComplex getComplexBase(int x, int y) {
@@ -168,6 +178,10 @@ public class PolarLocationNormalApfloatArbitrary extends Location {
         indexX = x;
         indexY = y;
 
+        if(requiresVariablePixelSize) {
+            setVariablePixelSize(temp_ddr);
+        }
+
         BigComplex temp = new BigComplex(MyApfloat.fp.add(ddxcenter, MyApfloat.fp.multiply(temp_ddr, temp_ddcf)), MyApfloat.fp.add(ddycenter, MyApfloat.fp.multiply(temp_ddr, temp_ddsf)));
 
         temp = rotation.rotate(temp);
@@ -179,6 +193,8 @@ public class PolarLocationNormalApfloatArbitrary extends Location {
 
     @Override
     public void precalculateY(int y) {
+
+        y = offset.getY(y);
 
         if(!js.enableJitter) {
             Apfloat f = MyApfloat.fp.multiply(ddmuly, new MyApfloat(y));
@@ -192,6 +208,8 @@ public class PolarLocationNormalApfloatArbitrary extends Location {
     @Override
     public void precalculateX(int x) {
 
+        x = offset.getX(x);
+
         if(!js.enableJitter) {
             if (x == indexX + 1) {
                 temp_ddr = MyApfloat.fp.multiply(temp_ddr, ddemulx);
@@ -202,13 +220,17 @@ public class PolarLocationNormalApfloatArbitrary extends Location {
             }
         }
 
+        if(requiresVariablePixelSize) {
+            setVariablePixelSize(temp_ddr);
+        }
+
         indexX = x;
 
     }
 
     @Override
     public GenericComplex getComplexWithX(int x) {
-        return getComplexWithXBase(x);
+        return getComplexWithXBase(offset.getX(x));
     }
 
     protected BigComplex getComplexWithXBase(int x) {
@@ -229,6 +251,10 @@ public class PolarLocationNormalApfloatArbitrary extends Location {
 
         indexX = x;
 
+        if(requiresVariablePixelSize) {
+            setVariablePixelSize(temp_ddr);
+        }
+
         BigComplex temp = new BigComplex(MyApfloat.fp.add(ddxcenter, MyApfloat.fp.multiply(temp_ddr, temp_ddcf)), MyApfloat.fp.add(ddycenter, MyApfloat.fp.multiply(temp_ddr, temp_ddsf)));
         temp = rotation.rotate(temp);
         temp = fractal.getPlaneTransformedPixel(temp);
@@ -237,7 +263,7 @@ public class PolarLocationNormalApfloatArbitrary extends Location {
 
     @Override
     public GenericComplex getComplexWithY(int y) {
-        return getComplexWithYBase(y);
+        return getComplexWithYBase(offset.getY(y));
     }
 
     protected BigComplex getComplexWithYBase(int y) {
@@ -275,6 +301,10 @@ public class PolarLocationNormalApfloatArbitrary extends Location {
 
         Apfloat r2 = MyApfloat.fp.multiply(temp_ddr, ddantialiasing_x[sample]);
 
+        if(requiresVariablePixelSize) {
+            setVariablePixelSize(r2);
+        }
+
         BigComplex temp = new BigComplex(MyApfloat.fp.add(ddxcenter, MyApfloat.fp.multiply(r2, cf2)), MyApfloat.fp.add(ddycenter, MyApfloat.fp.multiply(r2, sf2)));
 
         temp = rotation.rotate(temp);
@@ -296,10 +326,10 @@ public class PolarLocationNormalApfloatArbitrary extends Location {
 
     public Complex getComplexOrbit(int x, int y) {
         Apfloat f = MyApfloat.fp.multiply(ddmuly, new MyApfloat(y));
-        Apfloat temp_ddsf = MyApfloat.fastSin(f);
-        Apfloat temp_ddcf = MyApfloat.fastCos(f);
-        Apfloat temp_ddr = MyApfloat.exp(MyApfloat.fp.add(MyApfloat.fp.multiply(ddmulx, new MyApfloat(x)), ddstart));
-        BigComplex temp = new BigComplex(MyApfloat.fp.add(ddxcenter, MyApfloat.fp.multiply(temp_ddr, temp_ddcf)), MyApfloat.fp.add(ddycenter, MyApfloat.fp.multiply(temp_ddr, temp_ddsf)));
+        Apfloat temp_ddsfO = MyApfloat.fastSin(f);
+        Apfloat temp_ddcfO = MyApfloat.fastCos(f);
+        Apfloat temp_ddrO = MyApfloat.exp(MyApfloat.fp.add(MyApfloat.fp.multiply(ddmulx, new MyApfloat(x)), ddstart));
+        BigComplex temp = new BigComplex(MyApfloat.fp.add(ddxcenter, MyApfloat.fp.multiply(temp_ddrO, temp_ddcfO)), MyApfloat.fp.add(ddycenter, MyApfloat.fp.multiply(temp_ddrO, temp_ddsfO)));
         return temp.toComplex();
     }
 

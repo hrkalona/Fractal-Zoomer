@@ -12,7 +12,7 @@ import static fractalzoomer.main.Constants.BLA_CALCULATION_STR;
 public class BLAS {
     public int M;
     public int L;
-    private int LM1;
+    private int LM2;//Level -1 is not attainable due to Zero R
     public BLA[][] b;
     public BLADeep[][] bdeep;
     private Fractal fractal;
@@ -531,7 +531,7 @@ public class BLAS {
 
         L = count;
         b = new BLA[count][];
-        LM1 = L - 1;
+        LM2 = L - 2;
 
         if(firstLevel >= elementsPerLevel.length){
             return;
@@ -604,7 +604,7 @@ public class BLAS {
 
         L = count;
         bdeep = new BLADeep[count][];
-        LM1 = L - 1;
+        LM2 = L - 2;
 
         if(firstLevel >= elementsPerLevel.length){
             return;
@@ -663,17 +663,21 @@ public class BLAS {
         }
 
         int zeros;
+        int ix;
         if(k == 0) {
+            if (z2 >= b[firstLevel][0].r2) { //k >>> firstLevel, This could be done for all K values, but it was shown through statistics that most effort is done on k == 0
+                return null;
+            }
             zeros = 32;
+            ix = 0;
         }
         else {
             float v = (k & -k);
             zeros = (Float.floatToRawIntBits(v) >>> 23) - 0x7f;
+            ix = k >>> zeros;
         }
 
-        int ix = k >>> zeros;
-
-        int startLevel = zeros <= LM1 ? zeros : LM1;
+        int startLevel = zeros <= LM2 ? zeros : LM2;
         for (int level = startLevel; level >= firstLevel; --level) {
             if (z2 < (tempB = b[level][ix]).r2) {
                 return tempB;
@@ -694,7 +698,7 @@ public class BLAS {
         int ix = (m - 1) >>> firstLevel;
         for (int level = firstLevel; level < L; ++level) {
             int ixm = (ix << level) + 1;
-            if (m == ixm && z2.compareToReduced((tempB = bdeep[level][ix]).getR2()) < 0) {
+            if (m == ixm && z2.compareToBothPositiveReduced((tempB = bdeep[level][ix]).getR2()) < 0) {
                 B = tempB;
             } else {
                 break;
@@ -715,26 +719,31 @@ public class BLAS {
         int k = m - 1;
 
         if((k & 1) == 1) { // m - 1 is odd
-            if (returnL1 && z2.compareToReduced((tempB = bdeep[0][k]).getR2()) < 0) {
+            if (returnL1 && z2.compareToBothPositiveReduced((tempB = bdeep[0][k]).getR2()) < 0) {
                 return tempB;
             }
             return null;
         }
 
         int zeros;
+        int ix;
         if(k == 0) {
+            if(z2.compareToBothPositiveReduced(bdeep[firstLevel][0].getR2()) >= 0) { //k >>> firstLevel, This could be done for all K values, but it was shown through statistics that most effort is done on k == 0
+                return null;
+            }
+
             zeros = 32;
+            ix = 0;
         }
         else {
             float v = (k & -k);
             zeros = (Float.floatToRawIntBits(v) >>> 23) - 0x7f;
+            ix = k >>> zeros;
         }
 
-        int ix = k >>> zeros;
-
-        int startLevel = zeros <= LM1 ? zeros : LM1;
+        int startLevel = zeros <= LM2 ? zeros : LM2;
         for (int level = startLevel; level >= firstLevel; --level) {
-            if (z2.compareToReduced((tempB = bdeep[level][ix]).getR2()) < 0) {
+            if (z2.compareToBothPositiveReduced((tempB = bdeep[level][ix]).getR2()) < 0) {
                 return tempB;
             }
             ix = ix << 1;

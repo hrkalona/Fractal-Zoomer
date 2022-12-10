@@ -54,7 +54,7 @@ public class PerturbationTheoryDialog extends JDialog {
         setModal(true);
 
         JButton info_user = new JButton("Help");
-        info_user.setToolTipText("Shows show info on Perturbation Theory.");
+        info_user.setToolTipText("Shows info on Perturbation Theory.");
         info_user.setFocusable(false);
         info_user.setIcon(MainWindow.getIcon("help2.png"));
         info_user.setPreferredSize(new Dimension(105, 23));
@@ -128,6 +128,10 @@ public class PerturbationTheoryDialog extends JDialog {
         automaticBignumPrecision.setSelected(ThreadDraw.BIGNUM_AUTOMATIC_PRECISION);
         automaticBignumPrecision.setFocusable(false);
 
+        final JCheckBox gatherPerturbationStatistics = new JCheckBox("Display Perturbation Statistics");
+        gatherPerturbationStatistics.setSelected(ThreadDraw.GATHER_PERTURBATION_STATISTICS);
+        gatherPerturbationStatistics.setFocusable(false);
+
         JTextField bignumPrecision = new JTextField();
         bignumPrecision.setText("" + ThreadDraw.BIGNUM_PRECISION);
 
@@ -136,9 +140,20 @@ public class PerturbationTheoryDialog extends JDialog {
         approximation_alg.setFocusable(false);
         approximation_alg.setToolTipText("Sets approximation algorithm.");
 
+        final JComboBox<String> pixelAlgorithm = new JComboBox<>(new String[] {"Not Scaled", "Scaled"});
+        pixelAlgorithm.setSelectedIndex(ThreadDraw.PERTUBATION_PIXEL_ALGORITHM);
+        pixelAlgorithm.setFocusable(false);
+        pixelAlgorithm.setToolTipText("Sets the deep zoom pixel calculation algorithm.");
+
+        JLabel pixelLabel = new JLabel("Deep Zoom Pixel Calculation Algorithm:");
+        JLabel pixelLabel2 = new JLabel(" ");
+
         approximation_alg.addActionListener(e -> {
             SApanel.setVisible(approximation_alg.getSelectedIndex() == 1);
             FloatExpPanel.setVisible(approximation_alg.getSelectedIndex() == 0 || approximation_alg.getSelectedIndex() == 1 || approximation_alg.getSelectedIndex() == 3);
+            pixelAlgorithm.setVisible(approximation_alg.getSelectedIndex() == 0 || approximation_alg.getSelectedIndex() == 1 || approximation_alg.getSelectedIndex() == 3);
+            pixelLabel.setVisible(approximation_alg.getSelectedIndex() == 0 || approximation_alg.getSelectedIndex() == 1 || approximation_alg.getSelectedIndex() == 3);
+            pixelLabel2.setVisible(approximation_alg.getSelectedIndex() == 0 || approximation_alg.getSelectedIndex() == 1 || approximation_alg.getSelectedIndex() == 3);
             BLApanel.setVisible(approximation_alg.getSelectedIndex() == 2);
             Nanomb1Panel.setVisible(approximation_alg.getSelectedIndex() == 3);
             pack();
@@ -243,12 +258,11 @@ public class PerturbationTheoryDialog extends JDialog {
         JPanel saThreadsPAnel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         saThreadsPAnel.add(use_threads_for_sa);
         SApanel.add(saThreadsPAnel);
-
         SApanel.add(new JLabel(" "));
 
         FloatExpPanel.add(full_floatexp);
-
         FloatExpPanel.add(new JLabel(" "));
+
 
         final JSlider blaBits = new JSlider(JSlider.HORIZONTAL, 1, 63, ThreadDraw.BLA_BITS);
 
@@ -295,6 +309,9 @@ public class PerturbationTheoryDialog extends JDialog {
 
         SApanel.setVisible(approximation_alg.getSelectedIndex() == 1);
         FloatExpPanel.setVisible(approximation_alg.getSelectedIndex() == 0 || approximation_alg.getSelectedIndex() == 1 || approximation_alg.getSelectedIndex() == 3);
+        pixelAlgorithm.setVisible(approximation_alg.getSelectedIndex() == 0 || approximation_alg.getSelectedIndex() == 1 || approximation_alg.getSelectedIndex() == 3);
+        pixelLabel.setVisible(approximation_alg.getSelectedIndex() == 0 || approximation_alg.getSelectedIndex() == 1 || approximation_alg.getSelectedIndex() == 3);
+        pixelLabel2.setVisible(approximation_alg.getSelectedIndex() == 0 || approximation_alg.getSelectedIndex() == 1 || approximation_alg.getSelectedIndex() == 3);
         BLApanel.setVisible(approximation_alg.getSelectedIndex() == 2);
         Nanomb1Panel.setVisible(approximation_alg.getSelectedIndex() == 3);
 
@@ -327,6 +344,7 @@ public class PerturbationTheoryDialog extends JDialog {
         });
 
 
+
         Object[] message3 = {
             info_panel,
             " ",
@@ -345,13 +363,19 @@ public class PerturbationTheoryDialog extends JDialog {
                 bignumPrecision,
                 " ",
                 detect_period,
+                gatherPerturbationStatistics,
                 " ",
+                "Approximation:",
                 approximation_alg,
                 " ",
                 SApanel,
                 BLApanel,
                 Nanomb1Panel,
-                FloatExpPanel,};
+                FloatExpPanel,
+                pixelLabel2,
+                pixelLabel,
+                pixelAlgorithm,
+        " "};
 
         optionPane = new JOptionPane(message3, JOptionPane.QUESTION_MESSAGE, JOptionPane.OK_CANCEL_OPTION, null, null, null);
 
@@ -433,6 +457,13 @@ public class PerturbationTheoryDialog extends JDialog {
                                 Fractal.clearReferences(true);
                             }
 
+                            boolean oldGatherStatistics = ThreadDraw.GATHER_PERTURBATION_STATISTICS;
+                            ThreadDraw.GATHER_PERTURBATION_STATISTICS = gatherPerturbationStatistics.isSelected();
+
+                            if(oldGatherStatistics != ThreadDraw.GATHER_PERTURBATION_STATISTICS && ThreadDraw.GATHER_PERTURBATION_STATISTICS) {
+                                Fractal.clearReferences(true);
+                            }
+
                             int oldBignumLib = ThreadDraw.BIGNUM_LIBRARY;
                             ThreadDraw.BIGNUM_LIBRARY = bigNumLibs.getSelectedIndex();
                             if(oldBignumLib != ThreadDraw.BIGNUM_LIBRARY) {
@@ -464,6 +495,12 @@ public class PerturbationTheoryDialog extends JDialog {
                             ThreadDraw.NANOMB1_M = nanomb1M.getValue();
 
                             if(oldNanomb1N != ThreadDraw.NANOMB1_N || oldNanomb1M != ThreadDraw.NANOMB1_M) {
+                                Fractal.clearReferences(true);
+                            }
+
+                            int oldPixelAlgorithm = ThreadDraw.PERTUBATION_PIXEL_ALGORITHM;
+                            ThreadDraw.PERTUBATION_PIXEL_ALGORITHM = pixelAlgorithm.getSelectedIndex();
+                            if(oldPixelAlgorithm != ThreadDraw.PERTUBATION_PIXEL_ALGORITHM) {
                                 Fractal.clearReferences(true);
                             }
 

@@ -51,7 +51,7 @@ public class CornersDialog extends JDialog {
         Apfloat tempx, tempy, tempSize;
         try {
             if(MyApfloat.setAutomaticPrecision) {
-                long precision = MyApfloat.getAutomaticPrecision(field_size.getText());
+                long precision = MyApfloat.getAutomaticPrecision(new String[] {field_size.getText(), field_real.getText(), field_imaginary.getText()}, new boolean[] {true, false, false});
 
                 if (MyApfloat.shouldSetPrecision(precision, false)) {
                     Fractal.clearReferences(true);
@@ -186,6 +186,16 @@ public class CornersDialog extends JDialog {
                         }
 
                         try {
+
+                            if(MyApfloat.setAutomaticPrecision) {
+                                long precision = MyApfloat.getAutomaticPrecision(new String[] {corner1_real.getText(), corner1_imag.getText(), corner2_real.getText(), corner2_imag.getText()}, new boolean[] {false, false, false, false});
+
+                                if (MyApfloat.shouldSetPrecision(precision, false)) {
+                                    Fractal.clearReferences(true);
+                                    MyApfloat.setPrecision(precision, s);
+                                }
+                            }
+
                             Apfloat tempc1_re = new MyApfloat(corner1_real.getText());
                             Apfloat tempc1_im = new MyApfloat(corner1_imag.getText());
                             Apfloat tempc2_re = new MyApfloat(corner2_real.getText());

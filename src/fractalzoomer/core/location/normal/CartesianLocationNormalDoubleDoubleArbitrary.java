@@ -32,7 +32,7 @@ public class CartesianLocationNormalDoubleDoubleArbitrary extends Location {
 
     private JitterSettings js;
 
-    public CartesianLocationNormalDoubleDoubleArbitrary(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int image_size, Apfloat[] rotation_center, Apfloat[] rotation_vals, Fractal fractal, JitterSettings js) {
+    public CartesianLocationNormalDoubleDoubleArbitrary(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int image_size_in, Apfloat[] rotation_center, Apfloat[] rotation_vals, Fractal fractal, JitterSettings js) {
 
         super();
 
@@ -41,6 +41,8 @@ public class CartesianLocationNormalDoubleDoubleArbitrary extends Location {
         this.height_ratio = height_ratio;
 
         ddsize = new DoubleDouble(size);
+
+        int image_size = offset.getImageSize(image_size_in);
 
         DoubleDouble size_2_x = ddsize.multiply(0.5);
         DoubleDouble ddimage_size = new DoubleDouble(image_size);
@@ -88,7 +90,7 @@ public class CartesianLocationNormalDoubleDoubleArbitrary extends Location {
 
     @Override
     public GenericComplex getComplex(int x, int y) {
-        return getComplexBase(x, y);
+        return getComplexBase(offset.getX(x), offset.getY(y));
     }
 
     protected DDComplex getComplexBase(int x, int y) {
@@ -131,6 +133,8 @@ public class CartesianLocationNormalDoubleDoubleArbitrary extends Location {
     @Override
     public void precalculateY(int y) {
 
+        y = offset.getY(y);
+
         if(!js.enableJitter) {
             if (y == indexY + 1) {
                 ddtempY = ddtempY.subtract(ddtemp_size_image_size_y);
@@ -148,6 +152,8 @@ public class CartesianLocationNormalDoubleDoubleArbitrary extends Location {
     @Override
     public void precalculateX(int x) {
 
+        x = offset.getX(x);
+
         if(!js.enableJitter) {
             if (x == indexX + 1) {
                 ddtempX = ddtempX.add(ddtemp_size_image_size_x);
@@ -164,7 +170,7 @@ public class CartesianLocationNormalDoubleDoubleArbitrary extends Location {
 
     @Override
     public GenericComplex getComplexWithX(int x) {
-        return getComplexWithXBase(x);
+        return getComplexWithXBase(offset.getX(x));
     }
 
     protected DDComplex getComplexWithXBase(int x) {
@@ -193,7 +199,7 @@ public class CartesianLocationNormalDoubleDoubleArbitrary extends Location {
 
     @Override
     public GenericComplex getComplexWithY(int y) {
-        return getComplexWithYBase(y);
+        return getComplexWithYBase(offset.getY(y));
     }
 
     protected DDComplex getComplexWithYBase(int y) {

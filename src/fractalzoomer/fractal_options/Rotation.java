@@ -19,6 +19,7 @@ package fractalzoomer.fractal_options;
 
 import fractalzoomer.core.*;
 import fractalzoomer.core.mpfr.MpfrBigNum;
+import org.apfloat.Apfloat;
 
 
 /**
@@ -30,24 +31,32 @@ public class Rotation {
   private Complex inv_rotation;
   private Complex center;
 
-  private BigComplex ddrotation;
+  private Apfloat ddrotationA;
+  private Apfloat ddrotationApB;
+  private Apfloat ddrotationAsB;
   private BigComplex ddcenter;
 
-  private DDComplex ddcrotation;
+  private DoubleDouble ddcrotationA;
+  private DoubleDouble ddcrotationApB;
+  private DoubleDouble ddcrotationAsB;
   private DDComplex ddccenter;
 
-  private BigNumComplex bnrotation;
+  private BigNum bnRotationA;
+  private BigNum bnrotationApB;
+  private BigNum bnrotationAsB;
   private BigNumComplex bncenter;
 
-  private MpfrBigNumComplex mpfrbnrotation;
+  private MpfrBigNum mpfrbnrotationA;
+  private MpfrBigNum mpfrbnrotationApB;
+  private MpfrBigNum mpfrbnrotationAsB;
+
+  private MpfrBigNum F;
+  private MpfrBigNum tempRe;
+    private MpfrBigNum tempIm;
   private MpfrBigNumComplex mpfrbncenter;
 
     private boolean hasRotation = false;
     private boolean hasRotationCenter = false;
-
-    private MpfrBigNum tempRotationRe;
-    private MpfrBigNum tempRotationIm;
-
 
   
     public Rotation(double cos_theta, double sin_theta, double x, double y) {
@@ -65,29 +74,54 @@ public class Rotation {
     }
 
     public Rotation(BigComplex ddrotation, BigComplex ddcenter) {
-        this.ddrotation = ddrotation;
         this.ddcenter = ddcenter;
+        hasRotation = !ddrotation.isOne();
+        hasRotationCenter = !ddcenter.isZero();
+
+        if(hasRotation) {
+            ddrotationA = ddrotation.getRe();
+            ddrotationApB = ddrotationA.add(ddrotation.getIm());
+            ddrotationAsB = ddrotationA.subtract(ddrotation.getIm());
+        }
     }
 
     public Rotation(DDComplex ddrotation, DDComplex ddcenter) {
-        this.ddcrotation = ddrotation;
         this.ddccenter = ddcenter;
+        hasRotation = !ddrotation.isOne();
+        hasRotationCenter = !ddcenter.isZero();
+
+        if(hasRotation) {
+            ddcrotationA = ddrotation.getRe();
+            ddcrotationApB = ddcrotationA.add(ddrotation.getIm());
+            ddcrotationAsB = ddcrotationA.subtract(ddrotation.getIm());
+        }
     }
 
     public Rotation(BigNumComplex bnrotation, BigNumComplex bncenter) {
-        this.bnrotation = bnrotation;
         this.bncenter = bncenter;
+        hasRotation = !bnrotation.isOne();
+        hasRotationCenter = !bncenter.isZero();
+
+        if(hasRotation) {
+            bnRotationA = bnrotation.getRe();
+            bnrotationApB = bnRotationA.add(bnrotation.getIm());
+            bnrotationAsB = bnRotationA.sub(bnrotation.getIm());
+        }
     }
 
     public Rotation(MpfrBigNumComplex mpfrbnrotation, MpfrBigNumComplex mpfrbncenter) {
-        this.mpfrbnrotation = mpfrbnrotation;
+
         this.mpfrbncenter = mpfrbncenter;
         hasRotation = !mpfrbnrotation.isOne();
         hasRotationCenter = !mpfrbncenter.isZero();
 
         if(hasRotation) {
-            tempRotationRe = new MpfrBigNum();
-            tempRotationIm = new MpfrBigNum();
+            mpfrbnrotationA = mpfrbnrotation.getRe();
+            mpfrbnrotationApB = mpfrbnrotationA.add(mpfrbnrotation.getIm());
+            mpfrbnrotationAsB = mpfrbnrotationA.sub(mpfrbnrotation.getIm());
+            F = new MpfrBigNum();
+            tempRe = new MpfrBigNum();
+            tempIm = new MpfrBigNum();
         }
     }
     
@@ -106,18 +140,60 @@ public class Rotation {
     }
 
     public BigComplex rotate(BigComplex pixel) {
-        BigComplex temp = pixel.sub(ddcenter);
-        return temp.times(ddrotation).plus(ddcenter);
+        if(hasRotationCenter) {
+            pixel = pixel.sub(ddcenter);
+        }
+
+        if(hasRotation) { //pixel * rotation but more efficient
+            Apfloat X = pixel.getRe();
+            Apfloat Y = pixel.getIm();
+            Apfloat F = MyApfloat.fp.multiply(ddrotationA, MyApfloat.fp.subtract(X, Y));
+            pixel = new BigComplex(MyApfloat.fp.add(MyApfloat.fp.multiply(ddrotationAsB, Y), F), MyApfloat.fp.subtract(MyApfloat.fp.multiply(ddrotationApB, X), F));
+        }
+
+        if(hasRotationCenter) {
+            pixel = pixel.plus(ddcenter);
+        }
+        return pixel;
     }
 
     public DDComplex rotate(DDComplex pixel) {
-        DDComplex temp = pixel.sub(ddccenter);
-        return temp.times(ddcrotation).plus(ddccenter);
+        if(hasRotationCenter) {
+            pixel = pixel.sub(ddccenter);
+        }
+
+        if(hasRotation) { //pixel * rotation but more efficient
+            DoubleDouble X = pixel.getRe();
+            DoubleDouble Y = pixel.getIm();
+            DoubleDouble F = ddcrotationA.multiply(X.subtract(Y));
+            pixel = new DDComplex(ddcrotationAsB.multiply(Y).add(F), ddcrotationApB.multiply(X).subtract(F));
+        }
+
+        if(hasRotationCenter) {
+            pixel = pixel.plus(ddccenter);
+        }
+
+        return pixel;
     }
 
     public BigNumComplex rotate(BigNumComplex pixel) {
-        BigNumComplex temp = pixel.sub(bncenter);
-        return temp.times(bnrotation).plus(bncenter);
+
+        if(hasRotationCenter) {
+            pixel = pixel.sub(bncenter);
+        }
+
+        if(hasRotation) { //pixel * rotation but more efficient
+            BigNum X = pixel.getRe();
+            BigNum Y = pixel.getIm();
+            BigNum F = bnRotationA.mult(X.sub(Y));
+            pixel = new BigNumComplex(bnrotationAsB.mult(Y).add(F), bnrotationApB.mult(X).sub(F));
+        }
+
+        if(hasRotationCenter) {
+            pixel = pixel.plus(bncenter);
+        }
+
+        return pixel;
     }
 
     public MpfrBigNumComplex rotate(MpfrBigNumComplex pixel) {
@@ -125,8 +201,18 @@ public class Rotation {
             pixel.sub_mutable(mpfrbncenter);
         }
 
-        if(hasRotation) {
-            pixel.times_mutable(mpfrbnrotation, tempRotationRe, tempRotationIm);
+        if(hasRotation) { //pixel * rotation but more efficient
+            MpfrBigNum X = pixel.getRe();
+            MpfrBigNum Y = pixel.getIm();
+
+            X.sub(Y, F);
+            mpfrbnrotationA.mult(F, F);
+
+            mpfrbnrotationAsB.mult(Y, tempRe);
+            mpfrbnrotationApB.mult(X, tempIm);
+
+            tempRe.add(F, X);
+            tempIm.sub(F, Y);
         }
 
         if(hasRotationCenter) {

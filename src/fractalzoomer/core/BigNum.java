@@ -276,7 +276,7 @@ public class BigNum {
         long v = digit;
         double d = v & ~(v >>> 1);
         //int r = (int)(((Double.doubleToRawLongBits(d) >> 52) & 0x7ff) - 1023); //Fix for the 64 bit, not needed here
-        bitOffset = (int)(((Double.doubleToRawLongBits(d) >> 52)) - 1023);
+        bitOffset = (int)((Double.doubleToRawLongBits(d) >> 52) - 1023);
         //r |= (r >> 31); //Fix for zero, not needed here
 
         //bitOffset = 31 - Integer.numberOfLeadingZeros(digit);
@@ -408,7 +408,7 @@ public class BigNum {
             }
         }
 
-        sum = MyApfloat.fp.multiply(sum, new MyApfloat(sign));
+        //sum = MyApfloat.fp.multiply(sum, new MyApfloat(sign));
 
         System.out.println();
         //System.out.println(sum.toRadix(2).toString(true));
@@ -465,6 +465,31 @@ public class BigNum {
 
     }
 
+    public int compareBothPositive(BigNum other) {
+
+        int signA = sign;
+        int signB = other.sign;
+
+        if(signA == 0 && signB == 0) {
+            return 0;
+        }
+
+        int[] otherDigits = other.digits;
+
+        for (int i = 0; i < digits.length; i++) {
+            int digit = digits[i];
+            int otherDigit = otherDigits[i];
+            if (digit < otherDigit) {
+                return -1;
+            } else if (digit > otherDigit) {
+                return 1;
+            }
+        }
+
+        return 0;
+
+    }
+
     public double doubleValue2() {
 
         int[] digits = this.digits;
@@ -493,7 +518,7 @@ public class BigNum {
         long v = digit;
         double d = v & ~(v >>> 1);
         //int r = (int)(((Double.doubleToRawLongBits(d) >> 52) & 0x7ff) - 1023); //Fix for the 64 bit, not needed here
-        bitOffset = (int)(((Double.doubleToRawLongBits(d) >> 52)) - 1023);
+        bitOffset = (int)((Double.doubleToRawLongBits(d) >> 52) - 1023);
         //r |= (r >> 31); //Fix for zero, not needed here
         //bitOffset = 31 - Integer.numberOfLeadingZeros(digit);
 
@@ -2975,6 +3000,11 @@ public class BigNum {
     public boolean isZero() {
         return sign == 0;
     }
+
+    public boolean isOne() {
+        return sign == 1 && isOne;
+    }
+
     public boolean isNegative() {
         return sign == -1;
         //return  digits[0] < 0;
@@ -3020,7 +3050,7 @@ public class BigNum {
 
         BigNum oldVal = null;
 
-        int iterations = 0;
+        //int iterations = 0;
 
         while (true) {
             BigNum mid = low.add(high.sub(low).divide2());
@@ -3044,7 +3074,7 @@ public class BigNum {
             else {
                 high = mid;
             }
-            iterations++;
+            //iterations++;
         }
 
 
@@ -3140,7 +3170,7 @@ public class BigNum {
             long v = digit;
             double d = v & ~(v >>> 1);
             //int r = (int)(((Double.doubleToRawLongBits(d) >> 52) & 0x7ff) - 1023); //Fix for the 64 bit, not needed here
-            bitOffset = (int) (((Double.doubleToRawLongBits(d) >> 52)) - 1023);
+            bitOffset = (int) ((Double.doubleToRawLongBits(d) >> 52) - 1023);
             //r |= (r >> 31); //Fix for zero, not needed here
 
             //bitOffset = 31 - Integer.numberOfLeadingZeros(digit);

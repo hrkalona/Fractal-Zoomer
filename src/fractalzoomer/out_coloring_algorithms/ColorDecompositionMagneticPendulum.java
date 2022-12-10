@@ -51,7 +51,7 @@ public class ColorDecompositionMagneticPendulum extends ColorDecomposition {
     }
     
     @Override
-    public double getResult3D(Object[] object) {
+    public double getResult3D(Object[] object, double result) {
   
         return ((Complex)object[7]).getRe();
 

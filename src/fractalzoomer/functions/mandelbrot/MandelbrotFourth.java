@@ -233,7 +233,7 @@ public class MandelbrotFourth extends Julia {
         if(isJuliaMap) {
             return false;
         }
-        return !isJulia || (isJulia && !juliter);
+        return !isJulia || !juliter;
     }
 
     @Override
@@ -380,7 +380,7 @@ public class MandelbrotFourth extends Julia {
             if(detectPeriod) {
                 if(useBignum) {
                     if(bigNumLib == Constants.BIGNUM_BUILT_IN) {
-                        if (iterations > 0 && ((BigNum) normSquared).compare((BigNum) minValue) < 0) {
+                        if (iterations > 0 && ((BigNum) normSquared).compareBothPositive((BigNum) minValue) < 0) {
                             DetectedPeriod = iterations;
                             minValue = normSquared;
                         }

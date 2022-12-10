@@ -18,6 +18,7 @@ package fractalzoomer.gui;
 
 import fractalzoomer.core.BigPoint;
 import fractalzoomer.core.MyApfloat;
+import fractalzoomer.functions.Fractal;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
 import fractalzoomer.utils.MathUtils;
@@ -169,6 +170,16 @@ public class JuliaSeedDialog extends JDialog {
                         }
 
                         try {
+
+                            if(MyApfloat.setAutomaticPrecision) {
+                                long precision = MyApfloat.getAutomaticPrecision(new String[]{real_seed.getText(), imag_seed.getText()}, new boolean[] {false, false});
+
+                                if (MyApfloat.shouldSetPrecision(precision, false)) {
+                                    Fractal.clearReferences(true);
+                                    MyApfloat.setPrecision(precision, s);
+                                }
+                            }
+
                             Apfloat tempReal = new MyApfloat(real_seed.getText());
                             Apfloat tempImaginary = new MyApfloat(imag_seed.getText());
                             s.xJuliaCenter = tempReal;

@@ -22,17 +22,17 @@ public class PolarLocationDeltaDeepMpfrBigNum extends PolarLocationDeltaGenericM
 
     @Override
     public GenericComplex getComplex(int x, int y) {
-        return getComplexInternal(x, y).toMantExpComplex();
+        return getComplexInternal(offset.getX(x), offset.getY(y)).toMantExpComplex();
     }
 
     @Override
     public GenericComplex getComplexWithX(int x) {
-        return getComplexWithXInternal(x).toMantExpComplex();
+        return getComplexWithXInternal(offset.getX(x)).toMantExpComplex();
     }
 
     @Override
     public GenericComplex getComplexWithY(int y) {
-        return getComplexWithYInternal(y).toMantExpComplex();
+        return getComplexWithYInternal(offset.getY(y)).toMantExpComplex();
     }
 
     @Override

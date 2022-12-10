@@ -182,7 +182,7 @@ public class PolarProjectionDialog extends JDialog {
 
                         try {
                             if(MyApfloat.setAutomaticPrecision) {
-                                long precision = MyApfloat.getAutomaticPrecision(field_size.getText());
+                                long precision = MyApfloat.getAutomaticPrecision(new String[]{field_size.getText(), field_real.getText(), field_imaginary.getText()}, new boolean[] {true, false, false});
 
                                 if (MyApfloat.shouldSetPrecision(precision, false)) {
                                     Fractal.clearReferences(true);

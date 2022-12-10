@@ -212,7 +212,7 @@ public class Magnet1 extends MagnetType {
         if(isJuliaMap) {
             return false;
         }
-        return !isJulia || (isJulia && !juliter);
+        return !isJulia || !juliter;
     }
 
     @Override

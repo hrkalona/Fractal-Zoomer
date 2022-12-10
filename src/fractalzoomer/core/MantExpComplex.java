@@ -730,9 +730,12 @@ public class MantExpComplex extends GenericComplex {
         return new MantExp(exp, Math.sqrt(mantissaReal * mantissaReal + mantissaImag * mantissaImag));
     }
 
+
     public MantExp hypot() {
         return new MantExp(exp, Math.hypot(mantissaReal, mantissaImag));
     }
+
+    public static MantExp hypot(double mRe, double mIm, long exp) {return new MantExp(exp, Math.hypot(mRe, mIm));}
 
     public final MantExpComplex divide(MantExpComplex factor) {
 
@@ -899,12 +902,22 @@ public class MantExpComplex extends GenericComplex {
     public static MantExp DiffAbs(MantExp c, MantExp d)
     {
         MantExp cd = c.add(d);
-        if (c.compareTo(MantExp.ZERO) >= 0.0)
-            if (cd.compareTo(MantExp.ZERO) >= 0.0)      return d;
-            else      return d.negate().subtract_mutable(c.multiply2());
-        else
-            if (cd.compareTo(MantExp.ZERO) > 0.0)      return d.add(c.multiply2());
-            else      return d.negate();
+        if (c.compareTo(MantExp.ZERO) >= 0.0) {
+            if (cd.compareTo(MantExp.ZERO) >= 0.0) {
+                return d;
+            }
+            else {
+                return d.negate().subtract_mutable(c.multiply2());
+            }
+        }
+        else {
+            if (cd.compareTo(MantExp.ZERO) > 0.0)  {
+                return d.add(c.multiply2());
+            }
+            else {
+                return d.negate();
+            }
+        }
     }
 
     public long log2normApprox() {

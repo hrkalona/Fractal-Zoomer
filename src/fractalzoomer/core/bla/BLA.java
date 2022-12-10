@@ -3,7 +3,9 @@ package fractalzoomer.core.bla;
 import fractalzoomer.core.Complex;
 
 public abstract class BLA {
-    public double r2, Ax, Ay;
+    public double r2;
+    public double Ax;
+    public double Ay;
 
     protected BLA(double r2, Complex A) {
         this.r2 = r2;

@@ -23,7 +23,8 @@ public class PerturbationTheoryHelpDialog {
                 "for instance to e-400 then you have to set the precision to be in the 400s for instance 410. " +
                 "You need to do that before you set the coordinates in the zoom window, because if the precision is lower, then " +
                 "the coordinates will be truncated to meet the current precision value. The higher the precision the slower the calculation " +
-                "of the reference point will be.<br><br>" +
+                "of the reference point will be. An automatic way of setting the precision currently exists,<br>" +
+                "but keep in mind the above behavior.<br><br>" +
                 "Built-in BigNum is a fixed precision floating point implementation, which is faster than Apfloat arbitrary precision library. " +
                 "Mpfr BigNum is a wrapper for the MPFR library, it is faster than both Built-in BigNum (After a specific bit precision) and Apfloat. " +
                 "Currently its only supported in Windows and Linux. " +
@@ -39,11 +40,11 @@ public class PerturbationTheoryHelpDialog {
                 "<li>Magnet 1</li>" +
                 "<li>Nova (power 3 + 0i, relaxation 1 + 0i)</li>" +
                 "<li>Newton Third Degree Parameter Space</li>" +
-                "<li>Newton 3</li>" +
+                "<li>Newton 3 (No Julia Set available)</li>" +
                 "</ul>" +
                 "<br><br>"+
                 "Series Approximation is another useful feature of perturbation theory as it can approximate the iteration values for " +
-                "a number of iterations and skip them. This feature is only implemented for the Mandelbrot (2-5) powers. " +
+                "a number of iterations and skip them. This feature is only implemented for the Mandelbrot (2-5) powers (Not supported with burning ship or Julia sets). " +
                 "Mandelbrot (2) can use up to 257 terms, and there rest of the available powers can use up to 5 terms. " +
                 "You can also set how aggressive the series approximation can be by changing the orders of magnitude difference to a lower value.<br><br>" +
                 "If you zoom deeper than e-300, doubles cannot store the differences anymore so a custom type of FloatExp is used " +
@@ -54,8 +55,12 @@ public class PerturbationTheoryHelpDialog {
                 "The thread option for Series Approximation is only supported by Mandelbrot. It may or may not decrease the SA completion time, and it is based on your system and number of coefficients selected.<br><br>" +
                 "Bilinear (Bivariate) Approximation is a new development in perturbation theory optimization and its goal is to create a look-up table of coefficients " +
                 "in order to used during the fractal iteration and approximate the iteration value by applying multiple iterations at one step, in the form of a linear " +
-                "function. Currently it is only implemented for the Mandelbrot (2-5) powers.<br><br>" +
-                "Nanomb1 or Super Series Approximation can skip multiples of the period, and its only implemented for Mandelbrot.<br><br>" +
+                "function. Currently it is only implemented for the Mandelbrot (2-5) powers (Not with burning ship or Julia sets).<br><br>" +
+                "Nanomb1 or Super Series Approximation can skip multiples of the period, and its only implemented for Mandelbrot (2) (Not supported with burning ship or Julia sets).<br><br>" +
+                "The deep zoom pixel calculation algorithm is using FloatExp for Non Scaled, and scaling between FloatExp and doubles for Scaled.<br>" +
+                "Currently it is only supported for Mandelbrot (2) and its burning ship variant (Not supported with Julia sets).<br><br>" +
+                "If an approximation method or deep zoom pixel calculation method is not supported for a specific fractal,<br>" +
+                "then a No Approximation/Not Scaled configuration will be used.<br><br>" +
                 "Using Series Approximation or Bilinear Approximation or Nanomb1 with statistical coloring will not produce accurate images, as those approximations skip or merge a number of iterations " +
                 "together, so their corresponding statistical data are not accumulated." +
                 "</font>"

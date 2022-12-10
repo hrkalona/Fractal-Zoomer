@@ -33,7 +33,7 @@ public class ColorMapFrame extends JFrame {
         int filters_options_window_width = 810;
         int filters_options_window_height = 690;
         setTitle("Direct Palette Loader");
-        setIconImage(MainWindow.getIcon("filter_options.png").getImage());
+        setIconImage(MainWindow.getIcon("palette.png").getImage());
         setSize(filters_options_window_width, filters_options_window_height);
         setLocation((int)(ptra2.getLocation().getX() + ptra2.getSize().getWidth() / 2) - (filters_options_window_width / 2), (int)(ptra2.getLocation().getY() + ptra2.getSize().getHeight() / 2) - (filters_options_window_height / 2));
 

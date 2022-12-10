@@ -1,3 +1,13 @@
+Version 1.0.8.5
+    -Added a scaled iterations perturbation implementation for Mandelbrot (No Approximation/Series Approximation/Nanomb1)
+    -Fixed distance estimation with Polar Projection
+    -Fixed a bug with julia sets and perturbation theory
+    -Added the option to render a batch of parameters to Image Expander tool
+    -Added the option to create zoom sequences (Images) to Image Expander tool
+    -Added the option to split the loaded parameters into multiple images to Image Expander tool
+    -Added the option to render large polar projection images (Mercator maps) to Image Expander tool
+    -Bug fixes and stability changes
+
 Version 1.0.8.4
     -Added mpfr lib as an option for the reference calculations which adds a lot of speed-up in very deep zooms
     -Added and an option to choose the high precision library: Double (53 bits), DoubleDouble(106 Bits), Built-in, Mpfr, Automatic
@@ -10,7 +20,7 @@ Version 1.0.8.4
     -Changed the Julia seed to support high precision
     -Added the multiwave algorithm with some presets under the "Generated Palette option"
     -Changed the thread mechanism to support different type of splits (Grid, Vertical, Horizontal)
-    -Added a direct palette loader (Map files in rgp triplet format) and included a lot of presets
+    -Added a direct palette loader (Map files in rgb triplet format) and included a lot of presets
     -Added pixel jitter as an option
     -Added an option to cancel the current render
     -Modified quick-draw in order to have a configurable delay before the full render, and also added an option to zoom only to current center

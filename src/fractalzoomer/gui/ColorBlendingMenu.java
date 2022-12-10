@@ -34,6 +34,8 @@ public class ColorBlendingMenu extends JMenu {
     private JMenu inversion;
     private JMenu cancelation;
     private JMenu component;
+
+    private JCheckBoxMenuItem revertOrderOfColors;
     
     public static final String[] colorBlendingNames;
     
@@ -71,7 +73,7 @@ public class ColorBlendingMenu extends JMenu {
         colorBlendingNames[MainWindow.LINEAR_BURN_BLENDING] = "Linear Burn";
     }
 
-    public ColorBlendingMenu(MainWindow ptr2, String name, int selection) {
+    public ColorBlendingMenu(MainWindow ptr2, String name, int selection, boolean color_blending_revert_colors) {
 
         super(name);
 
@@ -239,6 +241,13 @@ public class ColorBlendingMenu extends JMenu {
         color_blending[MainWindow.LUMINANCE_BLENDING].setToolTipText("Sets the color blending to luminance.");
         color_blending[MainWindow.LUMINANCE_BLENDING].addActionListener(e -> ptr.setColorBlending(MainWindow.LUMINANCE_BLENDING));
         color_transfer_group.add(color_blending[MainWindow.LUMINANCE_BLENDING]);
+
+        revertOrderOfColors = new JCheckBoxMenuItem("Reverse Order of Colors");
+        revertOrderOfColors.setToolTipText("Reverts the order of colors in the blending operation");
+        revertOrderOfColors.setSelected(color_blending_revert_colors);
+        revertOrderOfColors.addActionListener(e -> {
+            ptr2.setColorBlendingRevertColors(revertOrderOfColors.isSelected());
+        });
         
         darken.add(color_blending[MainWindow.DARKEN_ONLY_BLENDING]);
         darken.add(color_blending[MainWindow.MULTIPLY_BLENDING]);
@@ -281,6 +290,8 @@ public class ColorBlendingMenu extends JMenu {
         add(inversion);
         add(cancelation);
         add(component);
+        addSeparator();
+        add(revertOrderOfColors);
         
         color_blending[selection].setSelected(true);
     }

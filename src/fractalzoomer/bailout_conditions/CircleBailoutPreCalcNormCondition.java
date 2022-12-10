@@ -28,7 +28,7 @@ public class CircleBailoutPreCalcNormCondition extends BailoutCondition {
 
     @Override
     public boolean escaped(BigNumComplex z, BigNumComplex zold, BigNumComplex zold2, int iterations, BigNumComplex c, BigNumComplex start, BigNumComplex c0, BigNum norm_squared, BigNumComplex pixel) {
-        return norm_squared.compare(bnbound) >= 0;
+        return norm_squared.compareBothPositive(bnbound) >= 0;
     }
 
     @Override

@@ -363,21 +363,6 @@ public class UserFormulaConverging extends ExtendedConvergentType {
     }
 
     @Override
-    public double getFractal3DHeight(double value) {
-
-        if (escaped) {
-            double res = out_color_algorithm.getResult3D(iterationData);
-
-            res = getFinalValueOut(res);
-
-            return ColorAlgorithm.transformResultToHeight(res, max_iterations);
-        }
-
-        return ColorAlgorithm.transformResultToHeight(value, max_iterations);
-
-    }
-
-    @Override
     public Complex evaluateFunction(Complex z, Complex c) {
         return null;
     }

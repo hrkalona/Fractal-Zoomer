@@ -23,9 +23,9 @@ import fractalzoomer.utils.ColorAlgorithm;
 public abstract class OutColorAlgorithm extends ColorAlgorithm {
     public abstract double getResult(Object[] object);
     
-    public double getResult3D(Object[] object) {
+    public double getResult3D(Object[] object, double result) {
         
-        return  getResult(object);
+        return result;
         
     }
     

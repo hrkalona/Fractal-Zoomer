@@ -22,12 +22,16 @@ import fractalzoomer.core.drawing_algorithms.BoundaryTracingDraw;
 import fractalzoomer.core.drawing_algorithms.BruteForce2Draw;
 import fractalzoomer.core.drawing_algorithms.BruteForceDraw;
 import fractalzoomer.core.drawing_algorithms.DivideAndConquerDraw;
+import fractalzoomer.core.location.Location;
 import fractalzoomer.core.mpfr.LibMpfr;
 import fractalzoomer.gui.*;
 import fractalzoomer.main.app_settings.Settings;
 import fractalzoomer.parser.ParserException;
+import fractalzoomer.utils.PixelOffset;
 import fractalzoomer.utils.RefreshMemoryTask;
+import fractalzoomer.utils.SplitImagePixelOffset;
 import fractalzoomer.utils.ThreadSplitCoordinates;
+import org.apfloat.Apfloat;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -37,15 +41,18 @@ import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.Timer;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.stream.IntStream;
 
 /**
  *
@@ -60,7 +67,15 @@ public class ImageExpanderWindow extends JFrame implements Constants {
     boolean runsOnWindows;
     private int image_size;
     private JButton loadButton;
+
+    private JButton batchRenderButton;
+
+    private JButton sequenceRenderButton;
     private JButton renderButton;
+
+    private JButton polarLargeRenderButton;
+
+    private JButton splitImageRenderButton;
     private JButton compileButton;
     private JButton threadsButton;
     private JButton imageSizeButton;
@@ -70,12 +85,15 @@ public class ImageExpanderWindow extends JFrame implements Constants {
     private JButton helpButton;
     private JButton overviewButton;
     private JProgressBar progress;
+    private JProgressBar totalprogress;
     private JFileChooser file_chooser;
+
+    private JButton outputDirectoryButton;
     private ImageExpanderWindow ptr;
     private ThreadDraw[][] threads;
     private BufferedImage image;
+    private BufferedImage largePolarImage;
     private long calculation_time;
-    private boolean greedy_algorithm;
     private int greedy_algorithm_selection;
     private boolean periodicity_checking;
     private JLabel settings_label;
@@ -83,6 +101,42 @@ public class ImageExpanderWindow extends JFrame implements Constants {
     private Timer timer;
     private CommonFunctions common;
     private int brute_force_alg;
+    private boolean runsOnBatchingMode;
+    private boolean runsOnSequenceMode;
+
+    private boolean runsOnLargePolarImageMode;
+
+    private boolean runsOnSplitImageMode;
+    private int batchIndex;
+    private int sequenceIndex;
+
+    private int numberOfSequenceSteps;
+
+    private String outputDirectory = ".";
+
+    private double zoom_factor = 2.0;
+    private int zooming_mode = 0;
+    private double rotation_adjusting_value = 0;
+    private int color_cycling_adjusting_value = 0;
+
+    private int gradient_color_cycling_adjusting_value = 0;
+
+    private double light_light_direction_adjusting_value = 0;
+    private double bump_light_direction_adjusting_value = 0;
+
+    private int zoom_every_n_frame = 1;
+
+    private int number_of_polar_images = 5;
+    private int polar_orientation = 0;
+
+    private int split_image_grid_dimension = 2;
+
+    private int gridI;
+    private int gridJ;
+
+    private Apfloat size = Constants.DEFAULT_MAGNIFICATION;
+
+    private String settingsName;
 
     public ImageExpanderWindow() {
         super();
@@ -97,14 +151,13 @@ public class ImageExpanderWindow extends JFrame implements Constants {
         n = 2;
         thread_grouping = 0;
 
-        greedy_algorithm = true;
         greedy_algorithm_selection = BOUNDARY_TRACING;
         periodicity_checking = false;
 
         Locale.setDefault(Locale.US);
 
         image_size = 1000;
-        setSize(540, 420);
+        setSize(540, 550);
         setTitle("Fractal Zoomer Image Expander");
         
         loadPreferences();
@@ -143,7 +196,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
         setResizable(false);
 
         JPanel main_panel = new JPanel();
-        main_panel.setLayout(new GridLayout(7, 1));
+        main_panel.setLayout(new GridLayout(9, 1));
         main_panel.setBackground(Constants.bg_color);
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
@@ -184,19 +237,28 @@ public class ImageExpanderWindow extends JFrame implements Constants {
 
         loadButton.addActionListener(e -> loadSettings());
 
-        JPanel p2 = new JPanel();
-        p2.setBackground(Constants.bg_color);
-        p2.add(loadButton);
+        batchRenderButton = new JButton("Batch Render", MainWindow.getIcon("batch_render.png"));
+        batchRenderButton.setFocusable(false);
+        batchRenderButton.setPreferredSize(buttonDimension);
+        batchRenderButton.setToolTipText("Renders a batch of parameters.");
+
+        batchRenderButton.addActionListener(e -> batchRender());
+
+        sequenceRenderButton = new JButton("Zoom Sequence Render", MainWindow.getIcon("sequence.png"));
+        sequenceRenderButton.setFocusable(false);
+        sequenceRenderButton.setPreferredSize(buttonDimension);
+        sequenceRenderButton.setToolTipText("Renders a zoom sequence.");
+        sequenceRenderButton.setEnabled(false);
+        sequenceRenderButton.addActionListener(e -> sequenceRender());
+
 
         imageSizeButton = new JButton("Image Size", MainWindow.getIcon("image_size.png"));
         imageSizeButton.setFocusable(false);
         imageSizeButton.setPreferredSize(buttonDimension);
         imageSizeButton.setToolTipText("Sets the image size.");
-        imageSizeButton.setEnabled(false);
 
         imageSizeButton.addActionListener(e -> setSizeOfImage());
 
-        p2.add(imageSizeButton);
 
         threadsButton = new JButton("Threads", MainWindow.getIcon("threads.png"));
         threadsButton.setFocusable(false);
@@ -205,19 +267,15 @@ public class ImageExpanderWindow extends JFrame implements Constants {
 
         threadsButton.addActionListener(e -> setThreadsNumber());
 
-        JPanel p3 = new JPanel();
-        p3.setBackground(Constants.bg_color);
-        p3.add(threadsButton);
+
 
         greedyAlgorithmsButton = new JButton("Greedy Drawing Algorithms", MainWindow.getIcon("greedy_algorithm.png"));
         greedyAlgorithmsButton.setFocusable(false);
         greedyAlgorithmsButton.setPreferredSize(buttonDimension);
         greedyAlgorithmsButton.setToolTipText("Sets the greedy algorithms options.");
-        greedyAlgorithmsButton.setEnabled(false);
 
         greedyAlgorithmsButton.addActionListener(e -> setGreedyAlgorithms());
 
-        p3.add(greedyAlgorithmsButton);
 
         renderButton = new JButton("Render Image", MainWindow.getIcon("save_image.png"));
         renderButton.setFocusable(false);
@@ -227,18 +285,39 @@ public class ImageExpanderWindow extends JFrame implements Constants {
 
         renderButton.addActionListener(e -> render());
 
-        JPanel p6 = new JPanel();
-        p6.setBackground(Constants.bg_color);
+        polarLargeRenderButton = new JButton("Large Polar Image", MainWindow.getIcon("polar_projection.png"));
+        polarLargeRenderButton.setFocusable(false);
+        polarLargeRenderButton.setEnabled(false);
+        polarLargeRenderButton.setPreferredSize(buttonDimension);
+        polarLargeRenderButton.setToolTipText("Renders a large polar projection image and saves it to disk.");
+
+        polarLargeRenderButton.addActionListener(e -> polarLargeRender());
+
+        splitImageRenderButton = new JButton("Split Image Render", MainWindow.getIcon("split_image.png"));
+        splitImageRenderButton.setFocusable(false);
+        splitImageRenderButton.setEnabled(false);
+        splitImageRenderButton.setPreferredSize(buttonDimension);
+        splitImageRenderButton.setToolTipText("Renders a grid of images.");
+
+        splitImageRenderButton.addActionListener(e -> splitImageRender());
+
 
         perturbationTheoryButton = new JButton("Perturbation Theory", MainWindow.getIcon("perturbation.png"));
         perturbationTheoryButton.setFocusable(false);
         perturbationTheoryButton.setPreferredSize(buttonDimension);
         perturbationTheoryButton.setToolTipText("Sets the perturbation theory settings.");
-        perturbationTheoryButton.setEnabled(false);
 
         perturbationTheoryButton.addActionListener(e -> setPerturbationTheory());
 
-        p6.add(perturbationTheoryButton);
+        outputDirectoryButton = new JButton("Output Directory");
+        outputDirectoryButton.setIcon(MainWindow.getIcon("output_directory.png"));
+        outputDirectoryButton.setFocusable(false);
+        outputDirectoryButton.setPreferredSize(buttonDimension);
+        outputDirectoryButton.setToolTipText("Set the output directory.");
+
+
+        outputDirectoryButton.addActionListener(e -> setOutputDirectory());
+
 
         compileButton = new JButton("Compile User Code", MainWindow.getIcon("compile.png"));
         compileButton.setFocusable(false);
@@ -246,11 +325,6 @@ public class ImageExpanderWindow extends JFrame implements Constants {
         compileButton.setToolTipText("Compiles the java code, containing the user defined functions.");
 
         compileButton.addActionListener(e -> common.compileCode(true));
-
-        JPanel p4 = new JPanel();
-        p4.setBackground(Constants.bg_color);
-        p4.add(compileButton);
-        p4.add(renderButton);
 
         aboutButton = new JButton("About", MainWindow.getIcon("about.png"));
         aboutButton.setFocusable(false);
@@ -264,12 +338,6 @@ public class ImageExpanderWindow extends JFrame implements Constants {
 
         helpButton.addActionListener(e -> displayHelp());
 
-        JPanel p5 = new JPanel();
-        p5.setBackground(Constants.bg_color);
-        p5.add(helpButton);
-        p5.add(aboutButton);
-
-        progress = new JProgressBar();
         progress = new JProgressBar();
         progress.setPreferredSize(new Dimension(220, 22));
         progress.setMaximumSize(progress.getPreferredSize());
@@ -280,6 +348,17 @@ public class ImageExpanderWindow extends JFrame implements Constants {
 
         progress.setVisible(false);
 
+
+        totalprogress = new JProgressBar();
+        totalprogress.setPreferredSize(new Dimension(445, 22));
+        totalprogress.setMaximumSize(progress.getPreferredSize());
+        //progress.setMinimumSize(progress.getPreferredSize());
+        totalprogress.setStringPainted(true);
+        totalprogress.setForeground(Constants.progress_filters_color);
+        totalprogress.setValue(0);
+
+        totalprogress.setVisible(false);
+
         memory_label = new MemoryLabel(220);
         memory_label.setVisible(false);
 
@@ -288,17 +367,59 @@ public class ImageExpanderWindow extends JFrame implements Constants {
         stats.add(memory_label);
         stats.add(progress);
 
+        JPanel p2 = new JPanel();
+        p2.setBackground(Constants.bg_color);
+        p2.add(loadButton);
+        p2.add(outputDirectoryButton);
+
+        JPanel p3 = new JPanel();
+        p3.setBackground(Constants.bg_color);
+        p3.add(compileButton);
+        p3.add(threadsButton);
+
+        JPanel p7 = new JPanel();
+        p7.setBackground(Constants.bg_color);
+        p7.add(greedyAlgorithmsButton);
+        p7.add(perturbationTheoryButton);
+
+        JPanel p6 = new JPanel();
+        p6.setBackground(Constants.bg_color);
+        p6.add(imageSizeButton);
+        p6.add(batchRenderButton);
+
+
+        JPanel p4 = new JPanel();
+        p4.setBackground(Constants.bg_color);
+        p4.add(sequenceRenderButton);
+        p4.add(renderButton);
+
+        JPanel p8 = new JPanel();
+        p8.setBackground(Constants.bg_color);
+        p8.add(polarLargeRenderButton);
+        p8.add(splitImageRenderButton);
+
+        JPanel p5 = new JPanel();
+        p5.setBackground(Constants.bg_color);
+        p5.add(helpButton);
+        p5.add(aboutButton);
+
         main_panel.add(p1);
         main_panel.add(p2);
         main_panel.add(p3);
+        main_panel.add(p7);
         main_panel.add(p6);
         main_panel.add(p4);
+        main_panel.add(p8);
         main_panel.add(p5);
         main_panel.add(stats);
 
+        JPanel overallProgressPanel = new JPanel();
+        overallProgressPanel.setBackground(Constants.bg_color);
+        overallProgressPanel.add(totalprogress);
+
         RoundedPanel round_panel = new RoundedPanel(true, true, true, 15);
         round_panel.setBackground(Constants.bg_color);
-        round_panel.setPreferredSize(new Dimension(490, 330));
+        round_panel.setPreferredSize(new Dimension(490, 460));
         round_panel.setLayout(new GridBagLayout());
 
         GridBagConstraints con = new GridBagConstraints();
@@ -308,6 +429,12 @@ public class ImageExpanderWindow extends JFrame implements Constants {
         con.gridy = 0;
 
         round_panel.add(main_panel, con);
+
+        con.fill = GridBagConstraints.CENTER;
+        con.gridx = 0;
+        con.gridy = 1;
+
+        round_panel.add(overallProgressPanel, con);
 
         setLayout(new GridBagLayout());
         con.fill = GridBagConstraints.CENTER;
@@ -321,14 +448,31 @@ public class ImageExpanderWindow extends JFrame implements Constants {
 
     public void setOptions(boolean opt) {
 
-        loadButton.setEnabled(opt);
-        perturbationTheoryButton.setEnabled(opt);
-        renderButton.setEnabled(opt);
-        compileButton.setEnabled(opt);
-        threadsButton.setEnabled(opt);
-        imageSizeButton.setEnabled(opt);
-        greedyAlgorithmsButton.setEnabled(opt);
+        if(!runsOnBatchingMode && !runsOnSequenceMode && !runsOnLargePolarImageMode && !runsOnSplitImageMode) {
+            loadButton.setEnabled(opt);
+            perturbationTheoryButton.setEnabled(opt);
+            renderButton.setEnabled(opt);
+            compileButton.setEnabled(opt);
+            threadsButton.setEnabled(opt);
+            imageSizeButton.setEnabled(opt);
+            greedyAlgorithmsButton.setEnabled(opt);
+            batchRenderButton.setEnabled(opt);
+            sequenceRenderButton.setEnabled(opt);
+            outputDirectoryButton.setEnabled(opt);
+            if(s.polar_projection) {
+                polarLargeRenderButton.setEnabled(opt);
+            }
+            splitImageRenderButton.setEnabled(opt);
+        }
 
+    }
+
+    public void batchRender() {
+        new BatchRenderFrame(ptr);
+    }
+
+    public void sequenceRender() {
+        new SequenceRenderDialog(ptr, s, zoom_factor, zooming_mode, size, rotation_adjusting_value, color_cycling_adjusting_value, light_light_direction_adjusting_value, bump_light_direction_adjusting_value, zoom_every_n_frame, gradient_color_cycling_adjusting_value);
     }
 
     public void loadSettings() {
@@ -341,19 +485,8 @@ public class ImageExpanderWindow extends JFrame implements Constants {
         file_chooser.addChoosableFileFilter(new FileNameExtensionFilter("Fractal Zoomer Settings (*.fzs)", "fzs"));
 
         file_chooser.addPropertyChangeListener(JFileChooser.FILE_FILTER_CHANGED_PROPERTY, evt -> {
-            FileNameExtensionFilter filter = (FileNameExtensionFilter)evt.getNewValue();
-
-            String extension = filter.getExtensions()[0];
-
-            String file_name = ((BasicFileChooserUI)file_chooser.getUI()).getFileName();
-
-            int index = file_name.lastIndexOf(".");
-
-            if(index != -1) {
-                file_name = file_name.substring(0, index);
-            }
-
-            file_chooser.setSelectedFile(new File(file_name + "." + extension));
+            String file_name = ((BasicFileChooserUI) file_chooser.getUI()).getFileName();
+            file_chooser.setSelectedFile(new File(file_name));
         });
 
         int returnVal = file_chooser.showDialog(ptr, "Load Settings");
@@ -371,12 +504,14 @@ public class ImageExpanderWindow extends JFrame implements Constants {
                 settings_label.setText("Loaded: " + fname);
                 settings_label.setVisible(true);
                 renderButton.setEnabled(true);
+                sequenceRenderButton.setEnabled(true);
                 overviewButton.setVisible(true);
-                imageSizeButton.setEnabled(true);
-                greedyAlgorithmsButton.setEnabled(true);
-                perturbationTheoryButton.setEnabled(true);
+                polarLargeRenderButton.setEnabled(s.polar_projection);
+                splitImageRenderButton.setEnabled(true);
 
                 MainWindow.SaveSettingsPath = file.getParent();
+
+                settingsName = file.getName().substring(0, file.getName().lastIndexOf("."));
             }
             catch(IOException ex) {
                 JOptionPane.showMessageDialog(ptr, "Error while loading the file.", "Error!", JOptionPane.ERROR_MESSAGE);
@@ -408,6 +543,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
 
     private void cleanUp() {
         image = null;
+        largePolarImage = null;
 
         clearThreads();
 
@@ -419,7 +555,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
         try {
             if(timer == null) {
                 timer = new Timer();
-                timer.schedule(new RefreshMemoryTask(memory_label), 2000, 2000);
+                timer.schedule(new RefreshMemoryTask(memory_label), 30000, 30000);
             }
 
             ThreadDraw.setArraysExpander(image_size);
@@ -466,7 +602,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
 
                     ThreadSplitCoordinates tsc = ThreadSplitCoordinates.get(j, i, thread_grouping, n, image_size);
                     if(s.fns.julia) {
-                        if(greedy_algorithm) {
+                        if(ThreadDraw.GREEDY_ALGORITHM) {
                             if(greedy_algorithm_selection == BOUNDARY_TRACING) {
                                 threads[i][j] = new BoundaryTracingDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js, s.xJuliaCenter, s.yJuliaCenter);
                             }
@@ -484,7 +620,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
                         }
                     }
                     else {
-                        if(greedy_algorithm) {
+                        if(ThreadDraw.GREEDY_ALGORITHM) {
                             if(greedy_algorithm_selection == BOUNDARY_TRACING) {
                                 threads[i][j] = new BoundaryTracingDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js);
                             }
@@ -527,15 +663,83 @@ public class ImageExpanderWindow extends JFrame implements Constants {
 
     }
 
-    public void writeImageToDisk() {
+    private void writeLargePolarImageToDisk() {
         try {
-            String name = "fractal " + DateTimeFormatter.ofPattern("yyyy-MM-dd HH;mm;ss").format(LocalDateTime.now()) + ".png";
+            String name;
+
+            Path path = Paths.get(outputDirectory);
+            if (Files.exists(path) && Files.isDirectory(path)) {
+                name = path.resolve(settingsName + " - polar -.png").toString();
+
+                int counter = 1;
+                while (Files.exists(Paths.get(name))) {
+                    name = path.resolve( settingsName + " - polar - (" + counter + ").png").toString();
+                    counter++;
+                }
+            }
+            else {
+                name = settingsName + " - polar -.png";
+            }
+
+            File file = new File(name);
+            ImageIO.write(largePolarImage, "png", file);
+        }
+        catch(IOException ex) {
+        }
+    }
+
+    public void writeImageToDisk() {
+
+        if(runsOnLargePolarImageMode) {
+            return;
+        }
+
+        try {
+            String name;
+            if (runsOnSequenceMode) {
+                Path path = Paths.get(outputDirectory);
+
+                if (Files.exists(path) && Files.isDirectory(path)) {
+                    name = path.resolve(settingsName + " - zoom sequence - " + " (" + sequenceIndex + ")" + ".png").toString();
+                }
+                else {
+                    name = settingsName + " - zoom sequence - " + " (" + sequenceIndex + ")" + ".png";
+                }
+            }
+            else if(runsOnSplitImageMode) {
+                Path path = Paths.get(outputDirectory);
+
+                if (Files.exists(path) && Files.isDirectory(path)) {
+                    name = path.resolve(settingsName + " (" + String.format("%03d", gridI) + ", " + String.format("%03d", gridJ) + ")" + ".png").toString();
+                }
+                else {
+                    name = settingsName + " (" + String.format("%03d", gridI) + ", " + String.format("%03d", gridJ) + ")" + ".png";
+                }
+            }
+            else {
+                Path path = Paths.get(outputDirectory);
+                if (Files.exists(path) && Files.isDirectory(path)) {
+                    name = path.resolve(settingsName + ".png").toString();
+
+                    int counter = 1;
+                    while (Files.exists(Paths.get(name))) {
+                        name = path.resolve( settingsName + " (" + counter + ").png").toString();
+                        counter++;
+                    }
+                }
+                else {
+                    name = settingsName + ".png";
+                }
+
+            }
             File file = new File(name);
             ImageIO.write(image, "png", file);
         }
         catch(IOException ex) {
         }
-        cleanUp();
+        if(!runsOnBatchingMode && !runsOnSequenceMode && !runsOnSplitImageMode) {
+            cleanUp();
+        }
     }
 
     public void setThreadsNumberPost(int grouping, int n) {
@@ -581,7 +785,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
 
     public void setGreedyAlgorithms() {
 
-        new GreedyAlgorithmsFrame(ptr, greedy_algorithm, greedy_algorithm_selection, brute_force_alg);
+        new GreedyAlgorithmsFrame(ptr, ThreadDraw.GREEDY_ALGORITHM, greedy_algorithm_selection, brute_force_alg);
 
     }
 
@@ -591,7 +795,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
 
     public void boundaryTracingOptionsChanged(boolean greedy_algorithm, int algorithm, int brute_force_alg) {
 
-        this.greedy_algorithm = greedy_algorithm;
+        ThreadDraw.GREEDY_ALGORITHM = greedy_algorithm;
         greedy_algorithm_selection = algorithm;
         this.brute_force_alg = brute_force_alg;
 
@@ -616,7 +820,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
             versionStr += " beta";
         }
 
-        JOptionPane.showMessageDialog(ptr, "<html><center><font size='5' face='arial' color='blue'><b><u>Fractal Zoomer Image Expander</u></b></font><br><br><font size='4' face='arial'><img src=\"" + getClass().getResource("mandelExpander.png") + "\"><br><br>Version: <b>" + versionStr + "</b><br><br>Author: <b>Christos Kalonakis</b><br><br>Contact: <a href=\"mailto:hrkalona@gmail.com\">hrkalona@gmail.com</a><br><br></center></font></html>", "About", JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(ptr, "<html><center><font size='5' face='arial' color='blue'><b><u>Fractal Zoomer Image Expander</u></b></font><br><br><font size='4' face='arial'>Version: <b>" + versionStr + "</b><br><br>Author: <b>Christos Kalonakis</b><br><br>Contact: <a href=\"mailto:hrkalona@gmail.com\">hrkalona@gmail.com</a><br><br></center></font></html>", "About", JOptionPane.INFORMATION_MESSAGE, MainWindow.getIcon("mandelExpander.png"));
 
     }
 
@@ -643,7 +847,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
                 + "<b>FZImageExpander.l4j.ini</b> and add <b>-Xmx2000m</b> or any other memory size<br>"
                 + "value into the *.ini file. The *.ini file name must match the name of the executable.<br><br>"
                 
-                + "If you dont set the maximum heap, the JVM's default will be used,<br>"
+                + "If you do not set the maximum heap, the JVM's default will be used,<br>"
                 + "which scales based on your memory, and it might be lower than the main application.</font></html>";
 
         textArea.setText(help);
@@ -679,12 +883,14 @@ public class ImageExpanderWindow extends JFrame implements Constants {
 
             writer.println("[General]");
             writer.println("save_settings_path \"" + MainWindow.SaveSettingsPath + "\"");
-            writer.println("save_image_path \"" + MainWindow.SaveImagesPath + "\"");
+            writer.println("output_directory \"" + outputDirectory + "\"");
+
+            writer.println();
 
             writer.println("[Optimizations]");
             writer.println("thread_dim " + n);
             writer.println("thread_grouping " + thread_grouping);
-            writer.println("greedy_drawing_algorithm " + greedy_algorithm);
+            writer.println("greedy_drawing_algorithm " + ThreadDraw.GREEDY_ALGORITHM);
             writer.println("greedy_drawing_algorithm_id " + greedy_algorithm_selection);
             writer.println("skipped_pixels_coloring " + ThreadDraw.SKIPPED_PIXELS_ALG);
             int color = ThreadDraw.SKIPPED_PIXELS_COLOR;
@@ -712,6 +918,10 @@ public class ImageExpanderWindow extends JFrame implements Constants {
             writer.println("automatic_precision " + MyApfloat.setAutomaticPrecision);
             writer.println("nanomb1_n " + ThreadDraw.NANOMB1_N);
             writer.println("nanomb1_m " + ThreadDraw.NANOMB1_M);
+            writer.println("perturbation_pixel_algorithm " + ThreadDraw.PERTUBATION_PIXEL_ALGORITHM);
+            writer.println("gather_perturbation_statistics " + ThreadDraw.GATHER_PERTURBATION_STATISTICS);
+            writer.println("check_bailout_during_deep_not_full_floatexp_mode " + ThreadDraw.CHECK_BAILOUT_DURING_DEEP_NOT_FULL_FLOATEXP_MODE);
+            writer.println("gather_tiny_ref_indexes " + ThreadDraw.GATHER_TINY_REF_INDEXES);
             
             writer.println();
             
@@ -740,7 +950,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
 
                 StringTokenizer tokenizer;
 
-                if(str_line.startsWith("save_settings_path") || str_line.startsWith("save_image_path")) {
+                if(str_line.startsWith("save_settings_path") || str_line.startsWith("output_directory")) {
                     tokenizer = new StringTokenizer(str_line, "\"");
                 }
                 else {
@@ -771,6 +981,17 @@ public class ImageExpanderWindow extends JFrame implements Constants {
                         } catch (Exception ex) {
                         }
                     }
+                    else if (token.equals("perturbation_pixel_algorithm") && tokenizer.countTokens() == 1) {
+
+                        try {
+                            int temp = Integer.parseInt(tokenizer.nextToken());
+
+                            if (temp >= 0 && temp <= 1) {
+                                ThreadDraw.PERTUBATION_PIXEL_ALGORITHM = temp;
+                            }
+                        } catch (Exception ex) {
+                        }
+                    }
                     else if(token.equals("thread_dim") && tokenizer.countTokens() == 1) {
                         try {
                             int temp = Integer.parseInt(tokenizer.nextToken());
@@ -794,10 +1015,43 @@ public class ImageExpanderWindow extends JFrame implements Constants {
                         token = tokenizer.nextToken();
 
                         if(token.equals("false")) {
-                            greedy_algorithm = false;
+                            ThreadDraw.GREEDY_ALGORITHM = false;
                         }
                         else if(token.equals("true")) {
-                            greedy_algorithm = true;
+                            ThreadDraw.GREEDY_ALGORITHM = true;
+                        }
+                    }
+                    else if(token.equals("check_bailout_during_deep_not_full_floatexp_mode") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if(token.equals("false")) {
+                            ThreadDraw.CHECK_BAILOUT_DURING_DEEP_NOT_FULL_FLOATEXP_MODE = false;
+                        }
+                        else if(token.equals("true")) {
+                            ThreadDraw.CHECK_BAILOUT_DURING_DEEP_NOT_FULL_FLOATEXP_MODE = true;
+                        }
+                    }
+                    else if(token.equals("gather_perturbation_statistics") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if(token.equals("false")) {
+                            ThreadDraw.GATHER_PERTURBATION_STATISTICS = false;
+                        }
+                        else if(token.equals("true")) {
+                            ThreadDraw.GATHER_PERTURBATION_STATISTICS = true;
+                        }
+                    }
+                    else if(token.equals("gather_tiny_ref_indexes") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if(token.equals("false")) {
+                            ThreadDraw.GATHER_TINY_REF_INDEXES = false;
+                        }
+                        else if(token.equals("true")) {
+                            ThreadDraw.GATHER_TINY_REF_INDEXES = true;
                         }
                     }
                     else if(token.equals("automatic_precision") && tokenizer.countTokens() == 1) {
@@ -824,16 +1078,16 @@ public class ImageExpanderWindow extends JFrame implements Constants {
                         }
 
                     }
-                    else if (token.startsWith("save_image_path") && tokenizer.countTokens() == 1) {
+                    else if (token.startsWith("output_directory") && tokenizer.countTokens() == 1) {
 
-                        MainWindow.SaveImagesPath = tokenizer.nextToken();
+                        outputDirectory = tokenizer.nextToken();
 
                         try {
-                            Path path = Paths.get(MainWindow.SaveImagesPath);
-                            MainWindow.SaveImagesPath = Files.notExists(path) || !Files.isDirectory(path) ? "" : MainWindow.SaveImagesPath;
+                            Path path = Paths.get(outputDirectory);
+                            outputDirectory = Files.notExists(path) || !Files.isDirectory(path) ? "." : outputDirectory;
                         }
                         catch (Exception ex) {
-                            MainWindow.SaveImagesPath = "";
+                            outputDirectory = ".";
                         }
 
                     }
@@ -1151,7 +1405,410 @@ public class ImageExpanderWindow extends JFrame implements Constants {
 
     }
 
-    /*public static void main(String[] args) throws Exception {
+    private void polarLargeRender() {
+        new PolarLargeRenderDialog(ptr, number_of_polar_images, polar_orientation);
+    }
+
+    private void splitImageRender() {
+        new SplitImageRenderDialog(ptr, split_image_grid_dimension);
+    }
+
+    public void startSplitImageRender(int split_image_grid_dimension) {
+
+        this.split_image_grid_dimension = split_image_grid_dimension;
+
+        ExecutorService executor = Executors.newFixedThreadPool(1);
+
+        executor.submit(() -> {
+
+
+            int total = split_image_grid_dimension * split_image_grid_dimension;
+            totalprogress.setMaximum(total);
+            totalprogress.setValue(0);
+            totalprogress.setString("Image: " + totalprogress.getValue() + "/" + totalprogress.getMaximum());
+            totalprogress.setVisible(true);
+            overviewButton.setVisible(true);
+            overviewButton.setEnabled(false);
+            setOptions(false);
+            runsOnSplitImageMode = true;
+
+            for(int k = 0; k < total; k++) {
+
+                gridI = k / split_image_grid_dimension;
+                gridJ = k % split_image_grid_dimension;
+
+                Location.offset = new SplitImagePixelOffset(image_size * split_image_grid_dimension, gridJ * image_size, gridI * image_size);
+
+                render();
+
+
+                try {
+                    for (int i = 0; i < threads.length; i++) {
+                        for (int j = 0; j < threads[i].length; j++) {
+                            threads[i][j].join();
+                        }
+                    }
+                } catch (InterruptedException ex) {
+                }
+
+
+                totalprogress.setValue(k + 1);
+                totalprogress.setString("Image: " + totalprogress.getValue() + "/" + totalprogress.getMaximum());
+            }
+
+            runsOnSplitImageMode = false;
+            Location.offset = new PixelOffset();
+            cleanUp();
+            setOptions(true);
+            totalprogress.setVisible(false);
+            overviewButton.setEnabled(true);
+        });
+    }
+
+    public void startLargePolarImageRender(int number_of_polar_images, int polar_orientation) {
+
+        this.number_of_polar_images = number_of_polar_images;
+        this.polar_orientation = polar_orientation;
+
+        final int largeDimension = image_size * number_of_polar_images;
+        if(polar_orientation == 0) {
+            largePolarImage = new BufferedImage(largeDimension, image_size, BufferedImage.TYPE_INT_ARGB);
+        }
+        else {
+            largePolarImage = new BufferedImage(image_size, largeDimension, BufferedImage.TYPE_INT_ARGB);
+        }
+
+        ExecutorService executor = Executors.newFixedThreadPool(1);
+
+        executor.submit(() -> {
+
+
+            totalprogress.setMaximum(number_of_polar_images);
+            totalprogress.setValue(0);
+            totalprogress.setString("Image: " + totalprogress.getValue() + "/" + totalprogress.getMaximum());
+            totalprogress.setVisible(true);
+            overviewButton.setVisible(true);
+            overviewButton.setEnabled(false);
+            setOptions(false);
+            runsOnLargePolarImageMode = true;
+
+            Apfloat originalSize = s.size;
+
+            for(int k = 0; k < number_of_polar_images; k++) {
+                render();
+
+                Apfloat start =  MyApfloat.fp.log(s.size);
+
+                Apfloat ddimage_size = new MyApfloat(image_size);
+
+                Apfloat ddmuly = MyApfloat.fp.divide(MyApfloat.fp.multiply(MyApfloat.fp.multiply(new MyApfloat(s.circle_period), MyApfloat.TWO), MyApfloat.getPi()), ddimage_size);
+
+                Apfloat ddmulx = MyApfloat.fp.multiply(ddmuly, new MyApfloat(s.height_ratio));
+
+                Apfloat end = MyApfloat.fp.add(MyApfloat.fp.multiply(ddmulx, ddimage_size), start);
+
+                s.size = MyApfloat.exp(end);
+
+                try {
+                    for (int i = 0; i < threads.length; i++) {
+                        for (int j = 0; j < threads[i].length; j++) {
+                            threads[i][j].join();
+                        }
+                    }
+                } catch (InterruptedException ex) {
+                }
+
+                int [] rgbs = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
+                int [] large_rgsbs = ((DataBufferInt) largePolarImage.getRaster().getDataBuffer()).getData();
+
+                int total = image_size * image_size;
+                final int offsetJ = polar_orientation == 0 ? k * image_size : k * total;
+                IntStream.range(0, total)
+                        .parallel().forEach(p -> {
+                                    int i = p / image_size;
+                                    int j = p % image_size;
+                                    if(polar_orientation == 0) {
+                                        large_rgsbs[i * largeDimension + j + offsetJ] = rgbs[p];
+                                    }
+                                    else {
+                                        large_rgsbs[i * image_size + j + offsetJ] = rgbs[j * image_size + i];
+                                    }
+                                });
+
+
+                totalprogress.setValue(k + 1);
+                totalprogress.setString("Image: " + totalprogress.getValue() + "/" + totalprogress.getMaximum());
+            }
+
+            writeLargePolarImageToDisk();
+            runsOnLargePolarImageMode = false;
+
+            s.size = originalSize;
+
+            cleanUp();
+            setOptions(true);
+            totalprogress.setVisible(false);
+            overviewButton.setEnabled(true);
+        });
+    }
+
+    public void startBatchRender(ArrayList<String> files, DefaultListModel<String> fileNames) {
+
+        ExecutorService executor = Executors.newFixedThreadPool(1);
+
+        executor.submit(() -> {
+
+
+            totalprogress.setMaximum(files.size());
+            totalprogress.setValue(0);
+            totalprogress.setString("Files: " + totalprogress.getValue() + "/" + totalprogress.getMaximum());
+            totalprogress.setVisible(true);
+            overviewButton.setVisible(true);
+            overviewButton.setEnabled(false);
+            setOptions(false);
+            runsOnBatchingMode = true;
+            batchIndex = 1;
+
+            for(int k = 0; k < files.size(); k++) {
+                try {
+                    s.readSettings(files.get(k), ptr, true);
+                    String fname = fileNames.get(k);
+
+                    if(fname.length() > 45) {
+                        fname = fname.substring(0, 45) + "...";
+                    }
+                    settings_label.setText("Loaded: " + fname);
+                    settings_label.setVisible(true);
+
+                    settingsName = fileNames.get(k).substring(0, fileNames.get(k).lastIndexOf("."));
+
+                    render();
+                }
+                catch(IOException ex) {
+
+                }
+                catch(ClassNotFoundException ex) {
+
+                }
+                catch(Exception ex) {
+
+                }
+
+                try {
+                    for (int i = 0; i < threads.length; i++) {
+                        for (int j = 0; j < threads[i].length; j++) {
+                            threads[i][j].join();
+                        }
+                    }
+                } catch (InterruptedException ex) {
+                }
+                batchIndex++;
+                totalprogress.setValue(batchIndex - 1);
+                totalprogress.setString("Files: " + totalprogress.getValue() + "/" + totalprogress.getMaximum());
+            }
+
+            runsOnBatchingMode = false;
+            cleanUp();
+            setOptions(true);
+            totalprogress.setVisible(false);
+            overviewButton.setEnabled(true);
+        });
+
+
+    }
+
+    public void startSequenceRender(Apfloat size, double zoom_factor, int zooming_mode, double rotation_adjusting_value, int color_cycling_adjusting_value, double light_light_direction_adjusting_value, double bump_light_direction_adjusting_value, int zoom_every_n_frame, int gradient_color_cycling_adjusting_value) {
+
+        ExecutorService executor = Executors.newFixedThreadPool(1);
+
+        numberOfSequenceSteps = 0;
+
+        Apfloat temp = zooming_mode == 0 ? size : s.size;
+        while ((zooming_mode == 0 && temp.compareTo(s.size) > 0) || (zooming_mode == 1 && temp.compareTo(size) < 0)) {
+            if(zooming_mode == 0) {
+                temp = MyApfloat.fp.divide(temp, new MyApfloat(zoom_factor));
+            }
+            else {
+                temp = MyApfloat.fp.multiply(temp, new MyApfloat(zoom_factor));
+            }
+            numberOfSequenceSteps++;
+        }
+
+        numberOfSequenceSteps++;
+
+        this.zoom_factor = zoom_factor;
+        this.zooming_mode = zooming_mode;
+        this.size = size;
+        this.rotation_adjusting_value = rotation_adjusting_value;
+        this.color_cycling_adjusting_value = color_cycling_adjusting_value;
+        this.light_light_direction_adjusting_value = light_light_direction_adjusting_value;
+        this.bump_light_direction_adjusting_value = bump_light_direction_adjusting_value;
+        this.zoom_every_n_frame = zoom_every_n_frame;
+        this.gradient_color_cycling_adjusting_value = gradient_color_cycling_adjusting_value;
+
+        numberOfSequenceSteps *= zoom_every_n_frame;
+
+        executor.submit(() -> {
+
+            totalprogress.setMaximum(numberOfSequenceSteps);
+            totalprogress.setValue(0);
+            totalprogress.setString("Zoom Sequence: " + totalprogress.getValue() + "/" + totalprogress.getMaximum());
+            totalprogress.setVisible(true);
+            overviewButton.setVisible(true);
+            overviewButton.setEnabled(false);
+            setOptions(false);
+            runsOnSequenceMode = true;
+            sequenceIndex = 1;
+
+            Apfloat originalSize = s.size;
+            Apfloat[] originalRotCenter = new Apfloat[2];
+            originalRotCenter[0] = s.fns.rotation_center[0];
+            originalRotCenter[1] = s.fns.rotation_center[1];
+            double originalRotation = s.fns.rotation;
+            Apfloat[] originalRotVals = new Apfloat[2];
+            originalRotVals[0] = s.fns.rotation_vals[0];
+            originalRotVals[1] = s.fns.rotation_vals[1];
+            int originalColorCyclingLocation = s.ps.color_cycling_location;
+            int originalColorCyclingLocation2 = s.ps2.color_cycling_location;
+            double originalBmsLightDirection = s.bms.lightDirectionDegrees;
+            double originalLightDirection = s.ls.light_direction;
+            double [] originalLightVector = new double[2];
+            originalLightVector[0] = s.ls.lightVector[0];
+            originalLightVector[1] = s.ls.lightVector[1];
+            int originalGradientColorCyclingLocation = s.gs.gradient_offset;
+
+            if(rotation_adjusting_value != 0) {
+                s.fns.rotation_center[0] = s.xCenter;
+                s.fns.rotation_center[1] = s.yCenter;
+            }
+
+            s.size = zooming_mode == 0 ? size : s.size;
+            for(int k = 1; k <= numberOfSequenceSteps; k++) {
+                render();
+                try {
+                    for (int i = 0; i < threads.length; i++) {
+                        for (int j = 0; j < threads[i].length; j++) {
+                            threads[i][j].join();
+                        }
+                    }
+                } catch (InterruptedException ex) {
+                }
+                sequenceIndex++;
+                totalprogress.setValue(sequenceIndex - 1);
+                totalprogress.setString("Zoom Sequence: " + totalprogress.getValue() + "/" + totalprogress.getMaximum());
+
+                if(k >= zoom_every_n_frame && k % zoom_every_n_frame == 0) {
+                    if (zooming_mode == 0) {
+                        s.size = MyApfloat.fp.divide(s.size, new MyApfloat(zoom_factor));
+                    } else {
+                        s.size = MyApfloat.fp.multiply(s.size, new MyApfloat(zoom_factor));
+                    }
+                }
+
+                if(rotation_adjusting_value != 0) {
+                    s.fns.rotation += rotation_adjusting_value;
+                    if (rotation_adjusting_value > 0) {
+                        s.fns.rotation = s.fns.rotation % 360.0;
+                    } else if (rotation_adjusting_value < 0) {
+                        if (s.fns.rotation <= -360) {
+                            s.fns.rotation += 360;
+                        }
+                    }
+
+                    Apfloat tempRadians =  MyApfloat.fp.toRadians(new MyApfloat(s.fns.rotation));
+                    s.fns.rotation_vals[0] = MyApfloat.cos(tempRadians);
+                    s.fns.rotation_vals[1] = MyApfloat.sin(tempRadians);
+                }
+
+                if(color_cycling_adjusting_value != 0) {
+                    s.ps.color_cycling_location += color_cycling_adjusting_value;
+
+                    s.ps.color_cycling_location = s.ps.color_cycling_location > Integer.MAX_VALUE - 40000 ? 0 : s.ps.color_cycling_location;
+
+                    s.ps2.color_cycling_location += color_cycling_adjusting_value;
+
+                    s.ps2.color_cycling_location = s.ps2.color_cycling_location > Integer.MAX_VALUE - 40000 ? 0 : s.ps2.color_cycling_location;
+
+                }
+
+                if(gradient_color_cycling_adjusting_value != 0) {
+                    s.gs.gradient_offset += gradient_color_cycling_adjusting_value;
+                    s.gs.gradient_offset = s.gs.gradient_offset > Integer.MAX_VALUE - 40000 ? 0 : s.gs.gradient_offset;
+                }
+
+                if (s.bms.bump_map && bump_light_direction_adjusting_value != 0) {
+                    s.bms.lightDirectionDegrees += bump_light_direction_adjusting_value;
+                    if (bump_light_direction_adjusting_value > 0) {
+                        s.bms.lightDirectionDegrees = s.bms.lightDirectionDegrees % 360.0;
+                    }
+                    else {
+                        if (s.bms.lightDirectionDegrees <= -360) {
+                            s.bms.lightDirectionDegrees += 360;
+                        }
+                    }
+                }
+
+                if (s.ls.lighting && light_light_direction_adjusting_value != 0) {
+                    s.ls.light_direction += light_light_direction_adjusting_value;
+
+                    if(light_light_direction_adjusting_value > 0) {
+                        s.ls.light_direction = s.ls.light_direction % 360.0;
+                    }
+                    else {
+                        if (s.ls.light_direction < 0) {
+                            s.ls.light_direction += 360;
+                        }
+                    }
+
+                    double lightAngleRadians = Math.toRadians(s.ls.light_direction);
+                    s.ls.lightVector[0] = Math.cos(lightAngleRadians) * s.ls.light_magnitude;
+                    s.ls.lightVector[1] = Math.sin(lightAngleRadians) * s.ls.light_magnitude;
+                }
+            }
+
+            runsOnSequenceMode = false;
+            cleanUp();
+
+            //Rollback
+            s.size = originalSize;
+            s.fns.rotation_center[0] = originalRotCenter[0];
+            s.fns.rotation_center[1] = originalRotCenter[1];
+            s.fns.rotation =  originalRotation;
+            s.fns.rotation_vals[0] = originalRotVals[0];
+            s.fns.rotation_vals[1] = originalRotVals[1];
+            s.ps.color_cycling_location = originalColorCyclingLocation;
+            s.ps2.color_cycling_location = originalColorCyclingLocation2;
+            s.bms.lightDirectionDegrees =  originalBmsLightDirection;
+            s.ls.light_direction =  originalLightDirection;
+            s.ls.lightVector[0] = originalLightVector[0];
+            s.ls.lightVector[1] = originalLightVector[1];
+            s.gs.gradient_offset = originalGradientColorCyclingLocation;
+
+            setOptions(true);
+            totalprogress.setVisible(false);
+            overviewButton.setEnabled(true);
+        });
+
+
+    }
+
+    public void setOutputDirectory() {
+
+        file_chooser = new JFileChooser(outputDirectory);
+
+        file_chooser.setAcceptAllFileFilterUsed(false);
+        file_chooser.setDialogType(JFileChooser.OPEN_DIALOG);
+        file_chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+
+        int returnVal = file_chooser.showDialog(this, "Set Output Directory");
+
+        if(returnVal == JFileChooser.APPROVE_OPTION) {
+            File file = file_chooser.getSelectedFile();
+            outputDirectory = file.toString();
+        }
+    }
+
+    public static void main(String[] args) throws Exception {
 
         ImageExpanderWindow mw = new ImageExpanderWindow();
         mw.setVisible(true);
@@ -1165,5 +1822,5 @@ public class ImageExpanderWindow extends JFrame implements Constants {
         
         mw.getCommonFunctions().checkForUpdate(false);
 
-    }*/
+    }
 }

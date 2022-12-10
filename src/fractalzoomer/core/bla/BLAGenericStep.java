@@ -4,7 +4,8 @@ import fractalzoomer.core.Complex;
 
 public abstract class BLAGenericStep extends BLA {
 
-    public double Bx, By;
+    public double Bx;
+    public double By;
 
     protected BLAGenericStep(double r2, Complex A, Complex B) {
         super(r2, A);

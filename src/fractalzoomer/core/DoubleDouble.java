@@ -1687,6 +1687,11 @@ public strictfp class DoubleDouble
         return hi == 0.0 && lo == 0.0;
     }
 
+    public boolean isOne()
+    {
+        return hi == 1.0 && lo == 0.0;
+    }
+
     /**
      * Tests whether this value is less than 0.
      *

@@ -33,7 +33,7 @@ public class CartesianLocationDeltaDouble extends Location {
 
     private JitterSettings js;
 
-    public CartesianLocationDeltaDouble(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int image_size, Apfloat[] rotation_center, Apfloat[] rotation_vals, Fractal fractal, JitterSettings js) {
+    public CartesianLocationDeltaDouble(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int image_size_in, Apfloat[] rotation_center, Apfloat[] rotation_vals, Fractal fractal, JitterSettings js) {
 
         super();
 
@@ -47,6 +47,8 @@ public class CartesianLocationDeltaDouble extends Location {
         double dsize = size.doubleValue();
 
         this.size = dsize;
+
+        int image_size = offset.getImageSize(image_size_in);
 
         double size_2_x = dsize * 0.5;
         double temp = dsize * height_ratio;
@@ -87,8 +89,8 @@ public class CartesianLocationDeltaDouble extends Location {
         js = other.js;
     }
 
-    @Override
-    public GenericComplex getComplex(int x, int y) {
+    private Complex getComplexBase(int x, int y) {
+
         //No need to do the index optimization as adding some ifs wont really improve the performance
         if(js.enableJitter) {
             double[] res = GetPixelOffset(y, x, js.jitterSeed, js.jitterShape, js.jitterScale);
@@ -113,8 +115,16 @@ public class CartesianLocationDeltaDouble extends Location {
     }
 
     @Override
+    public GenericComplex getComplex(int x, int y) {
+
+        return getComplexBase(offset.getX(x), offset.getY(y));
+
+    }
+
+    @Override
     public void precalculateY(int y) {
 
+        y = offset.getY(y);
         if(!js.enableJitter) {
             tempY = temp_ycenter_size - temp_size_image_size_y * y;
         }
@@ -125,6 +135,7 @@ public class CartesianLocationDeltaDouble extends Location {
     @Override
     public void precalculateX(int x) {
 
+        x = offset.getX(x);
         if(!js.enableJitter) {
             tempX = temp_xcenter_size + temp_size_image_size_x * x;
         }
@@ -132,11 +143,9 @@ public class CartesianLocationDeltaDouble extends Location {
 
     }
 
-    @Override
-    public GenericComplex getComplexWithX(int x) {
-
+    private Complex getComplexWithXBase(int x) {
         if(js.enableJitter) {
-            return getComplex(x, indexY);
+            return getComplexBase(x, indexY);
         }
 
         tempX = temp_xcenter_size + temp_size_image_size_x * x;
@@ -151,10 +160,15 @@ public class CartesianLocationDeltaDouble extends Location {
     }
 
     @Override
-    public GenericComplex getComplexWithY(int y) {
+    public GenericComplex getComplexWithX(int x) {
 
+        return getComplexWithXBase(offset.getX(x));
+
+    }
+
+    private Complex getComplexWithYBase(int y) {
         if(js.enableJitter) {
-            return getComplex(indexX, y);
+            return getComplexBase(indexX, y);
         }
 
         tempY = temp_ycenter_size - temp_size_image_size_y * y;
@@ -166,6 +180,13 @@ public class CartesianLocationDeltaDouble extends Location {
         temp = fractal.getPlaneTransformedPixel(temp);
 
         return temp.sub(reference);
+    }
+
+    @Override
+    public GenericComplex getComplexWithY(int y) {
+
+        return getComplexWithYBase(offset.getY(y));
+
     }
 
     @Override

@@ -83,11 +83,7 @@ public class AdaptiveMeanAntialiasingAlgorithmRGB extends AntialiasingAlgorithm 
         //The three variances need to be divided by sampleCount, but instead we multiply the test with sampleCount
         double VarianceSum = VarR + VarG + VarB;
 
-        if(VarianceSum < AdaptiveThreshold * sampleCount * sampleCount) {
-            return false;
-        }
-
-        return true;
+        return VarianceSum >= AdaptiveThreshold * sampleCount * sampleCount;
     }
 
     @Override

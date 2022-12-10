@@ -83,8 +83,6 @@ public class CenterSizeDialog extends JDialog {
         disableKeys(field_imaginary.getInputMap());
         disableKeys(scrollImaginary.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT));
 
-        scrollImaginary.getInputMap().put(KeyStroke.getKeyStroke("ENTER"),"doNothing");
-
 
         if (p.y.compareTo(MyApfloat.ZERO) == 0) {
             field_imaginary.setText("" + 0.0);
@@ -102,8 +100,6 @@ public class CenterSizeDialog extends JDialog {
         disableKeys(field_size.getInputMap());
         disableKeys(scrollSize.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT));
 
-
-        scrollSize.getInputMap().put(KeyStroke.getKeyStroke("ENTER"),"doNothing");
 
         field_size.setText("" + s.size);
 
@@ -179,7 +175,7 @@ public class CenterSizeDialog extends JDialog {
 
                         try {
                             if(MyApfloat.setAutomaticPrecision) {
-                                long precision = MyApfloat.getAutomaticPrecision(field_size.getText());
+                                long precision = MyApfloat.getAutomaticPrecision(new String[]{field_size.getText(), field_real.getText(), field_imaginary.getText()}, new boolean[] {true, false, false});
 
                                 if (MyApfloat.shouldSetPrecision(precision, false)) {
                                     Fractal.clearReferences(true);

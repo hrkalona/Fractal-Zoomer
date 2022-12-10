@@ -48,7 +48,7 @@ public class CrossBailoutCondition extends BailoutCondition {
 
     @Override
     public boolean escaped(BigNumComplex z, BigNumComplex zold, BigNumComplex zold2, int iterations, BigNumComplex c, BigNumComplex start, BigNumComplex c0, BigNum norm_squared, BigNumComplex pixel) {
-        return z.getAbsRe().compare(bnbound) >= 0 && z.getAbsIm().compare(bnbound) >= 0;
+        return z.getAbsRe().compareBothPositive(bnbound) >= 0 && z.getAbsIm().compareBothPositive(bnbound) >= 0;
     }
 
     @Override

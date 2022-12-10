@@ -41,7 +41,7 @@ public class EscapeTimeColorDecompositionRootFindingMethod extends EscapeTimeCol
     }
     
     @Override
-    public double getResult3D(Object[] object) {
+    public double getResult3D(Object[] object, double result) {
         
         return  ((Integer)object[0]);
         

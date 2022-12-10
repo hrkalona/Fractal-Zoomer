@@ -7,6 +7,7 @@ import fractalzoomer.core.mpfr.MpfrBigNum;
 import fractalzoomer.functions.Fractal;
 import fractalzoomer.main.Constants;
 import fractalzoomer.main.app_settings.JitterSettings;
+import fractalzoomer.utils.PixelOffset;
 import org.apfloat.Apfloat;
 
 import java.util.HashMap;
@@ -19,6 +20,12 @@ public class Location {
 
     protected int indexX;
     protected int indexY;
+
+    public static PixelOffset offset;
+
+    static {
+        offset = new PixelOffset();
+    }
 
     public Location() {
         indexX = Integer.MIN_VALUE;
@@ -658,7 +665,7 @@ public class Location {
         DoubleDouble ddy_antialiasing_size = ddmuly.multiply(point25);
         DoubleDouble ddx_antialiasing_size = ddmulx.multiply(point25);
 
-        DoubleDouble exp_x_antialiasing_size = ddx_antialiasing_size.exp();;
+        DoubleDouble exp_x_antialiasing_size = ddx_antialiasing_size.exp();
         DoubleDouble exp_inv_x_antialiasing_size = exp_x_antialiasing_size.reciprocal();
 
         DoubleDouble exp_x_antialiasing_size_x2 = exp_x_antialiasing_size.sqr();
@@ -843,9 +850,9 @@ public class Location {
     }
 
     protected double[] GetPixelOffset(int i, int j, int jitterSeed, int jitterShape, double s) {
-        int offset = jitterSeed << 1;
-        double u = dither(i, j, offset);
-        double v = dither(i, j, offset + 1);
+        int jitteroffset = jitterSeed << 1;
+        double u = dither(i, j, jitteroffset);
+        double v = dither(i, j, jitteroffset + 1);
         switch (jitterShape)
         {
             default:

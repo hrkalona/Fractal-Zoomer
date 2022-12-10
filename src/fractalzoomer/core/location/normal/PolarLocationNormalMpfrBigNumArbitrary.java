@@ -49,12 +49,16 @@ public class PolarLocationNormalMpfrBigNumArbitrary extends Location {
 
     private JitterSettings js;
 
-    public PolarLocationNormalMpfrBigNumArbitrary(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int image_size, double circle_period, Apfloat[] rotation_center, Apfloat[] rotation_vals, Fractal fractal, JitterSettings js) {
+    private boolean requiresVariablePixelSize;
+
+    public PolarLocationNormalMpfrBigNumArbitrary(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int image_size_in, double circle_period, Apfloat[] rotation_center, Apfloat[] rotation_vals, Fractal fractal, JitterSettings js) {
 
         super();
 
         this.fractal = fractal;
-        this.image_size = image_size;
+        this.image_size = offset.getImageSize(image_size_in);
+
+        requiresVariablePixelSize = fractal.requiresVariablePixelSize();
 
         ddxcenter = new MpfrBigNum(xCenter);
         ddycenter = new MpfrBigNum(yCenter);
@@ -135,12 +139,18 @@ public class PolarLocationNormalMpfrBigNumArbitrary extends Location {
         tempResultY = other.tempResultY;
 
         js = other.js;
+        requiresVariablePixelSize = other.requiresVariablePixelSize;
 
+    }
+
+    public void setVariablePixelSize(MpfrBigNum expValue) {
+        expValue.mult(ddmulx, tempResult);
+        fractal.setVariablePixelSize(tempResult.getMantExp());
     }
 
     @Override
     public GenericComplex getComplex(int x, int y) {
-        return getComplexBase(x, y);
+        return getComplexBase(offset.getX(x), offset.getY(y));
     }
 
     protected MpfrBigNumComplex getComplexBase(int x, int y) {
@@ -215,6 +225,9 @@ public class PolarLocationNormalMpfrBigNumArbitrary extends Location {
         temp_ddr.mult(temp_ddsf, tempResultY);
         tempResultY.add(ddycenter, tempResultY);
 
+        if(requiresVariablePixelSize) {
+            setVariablePixelSize(temp_ddr);
+        }
 
         MpfrBigNumComplex temp = new MpfrBigNumComplex(tempResultX, tempResultY);
 
@@ -227,6 +240,8 @@ public class PolarLocationNormalMpfrBigNumArbitrary extends Location {
 
     @Override
     public void precalculateY(int y) {
+
+        y = offset.getY(y);
 
         if(!js.enableJitter) {
             if (y == indexY + 1) {
@@ -270,6 +285,8 @@ public class PolarLocationNormalMpfrBigNumArbitrary extends Location {
     @Override
     public void precalculateX(int x) {
 
+        x = offset.getX(x);
+
         if(!js.enableJitter) {
             if (x == indexX + 1) {
                 temp_ddr.mult(ddemulx, temp_ddr);
@@ -282,13 +299,17 @@ public class PolarLocationNormalMpfrBigNumArbitrary extends Location {
             }
         }
 
+        if(requiresVariablePixelSize) {
+            setVariablePixelSize(temp_ddr);
+        }
+
         indexX = x;
 
     }
 
     @Override
     public GenericComplex getComplexWithX(int x) {
-        return getComplexWithXBase(x);
+        return getComplexWithXBase(offset.getX(x));
     }
 
     protected MpfrBigNumComplex getComplexWithXBase(int x) {
@@ -317,6 +338,9 @@ public class PolarLocationNormalMpfrBigNumArbitrary extends Location {
         temp_ddr.mult(temp_ddsf, tempResultY);
         tempResultY.add(ddycenter, tempResultY);
 
+        if(requiresVariablePixelSize) {
+            setVariablePixelSize(temp_ddr);
+        }
 
         MpfrBigNumComplex temp = new MpfrBigNumComplex(tempResultX, tempResultY);
 
@@ -332,7 +356,7 @@ public class PolarLocationNormalMpfrBigNumArbitrary extends Location {
 
     @Override
     public GenericComplex getComplexWithY(int y) {
-        return getComplexWithYBase(y);
+        return getComplexWithYBase(offset.getY(y));
     }
 
     protected MpfrBigNumComplex getComplexWithYBase(int y) {
@@ -424,6 +448,10 @@ public class PolarLocationNormalMpfrBigNumArbitrary extends Location {
 
         tempResult2.mult(tempResult, tempResultY);
         tempResultY.add(ddycenter, tempResultY); //ddycenter + r2 * sf2
+
+        if(requiresVariablePixelSize) {
+            setVariablePixelSize(tempResult2);
+        }
 
         MpfrBigNumComplex temp = new MpfrBigNumComplex(tempResultX, tempResultY);
 

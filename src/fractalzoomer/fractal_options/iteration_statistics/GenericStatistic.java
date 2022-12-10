@@ -153,8 +153,12 @@ public abstract class GenericStatistic {
 
     public int getIterations() { return iterations;}
 
-    public void setSize(Apfloat size) {
+    public void setSize(Apfloat size, double height_ratio) {
         this.size = size;
+    }
+
+    public void setZValue(Complex z) {
+        z_val = z;
     }
     
 }
