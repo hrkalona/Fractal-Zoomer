@@ -79,9 +79,9 @@ public class DivideAndConquer2Draw extends ThreadDraw {
     @Override
     protected void drawIterations(int image_size, boolean polar) {
 
-        Location location = Location.getInstanceForDrawing(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, js, polar, PERTURBATION_THEORY && fractal.supportsPerturbationTheory());
+        Location location = Location.getInstanceForDrawing(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
 
-        if(PERTURBATION_THEORY && fractal.supportsPerturbationTheory()) {
+        if(PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && !HIGH_PRECISION_CALCULATION) {
             if (reference_calc_sync.getAndIncrement() == 0) {
                 calculateReference(location);
             }

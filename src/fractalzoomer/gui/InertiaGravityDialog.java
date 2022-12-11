@@ -47,23 +47,19 @@ public class InertiaGravityDialog extends JDialog {
         p1.setLayout(new FlowLayout());
 
         p1.add(new JLabel("Inertia Contribution Re: "));
-        JTextField inertia_contribution_re = new JTextField(10);
-        inertia_contribution_re.setText("" + s.fns.igs.inertia_contribution[0]);
+        MyJSpinner inertia_contribution_re = new MyJSpinner(10, new SpinnerNumberModel(s.fns.igs.inertia_contribution[0], -Double.MAX_VALUE, Double.MAX_VALUE, 0.1));
         p1.add(inertia_contribution_re);
 
         p1.add(new JLabel(" Im: "));
-        JTextField inertia_contribution_im = new JTextField(10);
-        inertia_contribution_im.setText("" + s.fns.igs.inertia_contribution[1]);
+        MyJSpinner inertia_contribution_im = new MyJSpinner(10, new SpinnerNumberModel(s.fns.igs.inertia_contribution[1], -Double.MAX_VALUE, Double.MAX_VALUE, 0.1));
         p1.add(inertia_contribution_im);
 
         p1.add(new JLabel(" Initial Inertia Re: "));
-        JTextField init_inertia_re = new JTextField(10);
-        init_inertia_re.setText("" + s.fns.igs.initial_inertia[0]);
+        MyJSpinner init_inertia_re = new MyJSpinner(10, new SpinnerNumberModel(s.fns.igs.initial_inertia[0], -Double.MAX_VALUE, Double.MAX_VALUE, 0.1));
         p1.add(init_inertia_re);
 
         p1.add(new JLabel(" Im: "));
-        JTextField init_inertia_im = new JTextField(10);
-        init_inertia_im.setText("" + s.fns.igs.initial_inertia[1]);
+        MyJSpinner init_inertia_im = new MyJSpinner(10, new SpinnerNumberModel(s.fns.igs.initial_inertia[1], -Double.MAX_VALUE, Double.MAX_VALUE, 0.1));
         p1.add(init_inertia_im);
         
         JComboBox<String> pull_choice = new JComboBox<>(MainWindow.inertiaGravityPullFunction);
@@ -78,18 +74,15 @@ public class InertiaGravityDialog extends JDialog {
         p2.add(pull_choice);
         
         p2.add(new JLabel(" Exponent: "));
-        JTextField exponent = new JTextField(10);
-        exponent.setText("" + s.fns.igs.inertia_exponent);
+        MyJSpinner exponent = new MyJSpinner(10, new SpinnerNumberModel(s.fns.igs.inertia_exponent, -Double.MAX_VALUE, Double.MAX_VALUE, 0.1));
         p2.add(exponent);
         
         p2.add(new JLabel(" Timestep Re: "));
-        JTextField timestep_re = new JTextField(10);
-        timestep_re.setText("" + s.fns.igs.time_step[0]);
+        MyJSpinner timestep_re = new MyJSpinner(10, new SpinnerNumberModel(s.fns.igs.time_step[0], -Double.MAX_VALUE, Double.MAX_VALUE, 0.1));
         p2.add(timestep_re);
 
         p2.add(new JLabel(" Im: "));
-        JTextField timestep_im = new JTextField(10);
-        timestep_im.setText("" + s.fns.igs.time_step[1]);
+        MyJSpinner timestep_im = new MyJSpinner(10, new SpinnerNumberModel( s.fns.igs.time_step[1], -Double.MAX_VALUE, Double.MAX_VALUE, 0.1));
         p2.add(timestep_im);
         
         exponent.setEnabled(s.fns.igs.pull_scaling_function == MainWindow.PULL_EXP);
@@ -97,10 +90,10 @@ public class InertiaGravityDialog extends JDialog {
         pull_choice.addActionListener(e -> exponent.setEnabled(pull_choice.getSelectedIndex() == MainWindow.PULL_EXP));
 
         JPanel[] inertia_panels = new JPanel[s.fns.igs.bodyLocation.length];
-        JTextField[] body_re = new JTextField[inertia_panels.length];
-        JTextField[] body_im = new JTextField[inertia_panels.length];
-        JTextField[] body_gravity_re = new JTextField[inertia_panels.length];
-        JTextField[] body_gravity_im = new JTextField[inertia_panels.length];
+        MyJSpinner[] body_re = new MyJSpinner[inertia_panels.length];
+        MyJSpinner[] body_im = new MyJSpinner[inertia_panels.length];
+        MyJSpinner[] body_gravity_re = new MyJSpinner[inertia_panels.length];
+        MyJSpinner[] body_gravity_im = new MyJSpinner[inertia_panels.length];
 
         for (int k = 0; k < inertia_panels.length; k++) {
             inertia_panels[k] = new JPanel();
@@ -108,23 +101,19 @@ public class InertiaGravityDialog extends JDialog {
 
             inertia_panels[k].add(new JLabel("[Body " + String.format("%02d", (k + 1)) + "] "));
             inertia_panels[k].add(new JLabel("Strength Re: "));
-            body_gravity_re[k] = new JTextField(10);
-            body_gravity_re[k].setText("" + s.fns.igs.bodyGravity[k][0]);
+            body_gravity_re[k] = new MyJSpinner(10, new SpinnerNumberModel( s.fns.igs.bodyGravity[k][0], -Double.MAX_VALUE, Double.MAX_VALUE, 0.1));
             inertia_panels[k].add(body_gravity_re[k]);
 
             inertia_panels[k].add(new JLabel(" Im: "));
-            body_gravity_im[k] = new JTextField(10);
-            body_gravity_im[k].setText("" + s.fns.igs.bodyGravity[k][1]);
+            body_gravity_im[k] = new MyJSpinner(10, new SpinnerNumberModel( s.fns.igs.bodyGravity[k][1], -Double.MAX_VALUE, Double.MAX_VALUE, 0.1));
             inertia_panels[k].add(body_gravity_im[k]);
 
             inertia_panels[k].add(new JLabel(" Location Re: "));
-            body_re[k] = new JTextField(10);
-            body_re[k].setText("" + s.fns.igs.bodyLocation[k][0]);
+            body_re[k] = new MyJSpinner(10, new SpinnerNumberModel( s.fns.igs.bodyLocation[k][0], -Double.MAX_VALUE, Double.MAX_VALUE, 0.1));
             inertia_panels[k].add(body_re[k]);
 
             inertia_panels[k].add(new JLabel(" Im: "));
-            body_im[k] = new JTextField(10);
-            body_im[k].setText("" + s.fns.igs.bodyLocation[k][1]);
+            body_im[k] = new MyJSpinner(10, new SpinnerNumberModel( s.fns.igs.bodyLocation[k][1], -Double.MAX_VALUE, Double.MAX_VALUE, 0.1));
             inertia_panels[k].add(body_im[k]);
         }
         

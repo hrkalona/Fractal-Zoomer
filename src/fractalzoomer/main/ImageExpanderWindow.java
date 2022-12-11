@@ -18,10 +18,7 @@ package fractalzoomer.main;
 
 import com.sun.jna.Platform;
 import fractalzoomer.core.*;
-import fractalzoomer.core.drawing_algorithms.BoundaryTracingDraw;
-import fractalzoomer.core.drawing_algorithms.BruteForce2Draw;
-import fractalzoomer.core.drawing_algorithms.BruteForceDraw;
-import fractalzoomer.core.drawing_algorithms.DivideAndConquerDraw;
+import fractalzoomer.core.drawing_algorithms.*;
 import fractalzoomer.core.location.Location;
 import fractalzoomer.core.mpfr.LibMpfr;
 import fractalzoomer.gui.*;
@@ -94,13 +91,11 @@ public class ImageExpanderWindow extends JFrame implements Constants {
     private BufferedImage image;
     private BufferedImage largePolarImage;
     private long calculation_time;
-    private int greedy_algorithm_selection;
     private boolean periodicity_checking;
     private JLabel settings_label;
     private MemoryLabel memory_label;
     private Timer timer;
     private CommonFunctions common;
-    private int brute_force_alg;
     private boolean runsOnBatchingMode;
     private boolean runsOnSequenceMode;
 
@@ -146,12 +141,9 @@ public class ImageExpanderWindow extends JFrame implements Constants {
         s = new Settings();
         s.applyStaticSettings();
 
-        brute_force_alg = 0;
+        n = Runtime.getRuntime().availableProcessors();
+        thread_grouping = 1;
 
-        n = 2;
-        thread_grouping = 0;
-
-        greedy_algorithm_selection = BOUNDARY_TRACING;
         periodicity_checking = false;
 
         Locale.setDefault(Locale.US);
@@ -283,7 +275,10 @@ public class ImageExpanderWindow extends JFrame implements Constants {
         renderButton.setPreferredSize(buttonDimension);
         renderButton.setToolTipText("Renders the image and saves it to disk.");
 
-        renderButton.addActionListener(e -> render());
+        renderButton.addActionListener(e -> {
+            Location.offset = new PixelOffset();
+            render();
+        });
 
         polarLargeRenderButton = new JButton("Large Polar Image", MainWindow.getIcon("polar_projection.png"));
         polarLargeRenderButton.setFocusable(false);
@@ -446,6 +441,10 @@ public class ImageExpanderWindow extends JFrame implements Constants {
 
     }
 
+    public Settings getSettings() {
+        return s;
+    }
+
     public void setOptions(boolean opt) {
 
         if(!runsOnBatchingMode && !runsOnSequenceMode && !runsOnLargePolarImageMode && !runsOnSplitImageMode) {
@@ -553,6 +552,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
     private void render() {
 
         try {
+
             if(timer == null) {
                 timer = new Timer();
                 timer.schedule(new RefreshMemoryTask(memory_label), 30000, 30000);
@@ -603,15 +603,23 @@ public class ImageExpanderWindow extends JFrame implements Constants {
                     ThreadSplitCoordinates tsc = ThreadSplitCoordinates.get(j, i, thread_grouping, n, image_size);
                     if(s.fns.julia) {
                         if(ThreadDraw.GREEDY_ALGORITHM) {
-                            if(greedy_algorithm_selection == BOUNDARY_TRACING) {
-                                threads[i][j] = new BoundaryTracingDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js, s.xJuliaCenter, s.yJuliaCenter);
+                            if(ThreadDraw.GREEDY_ALGORITHM_SELECTION == BOUNDARY_TRACING) {
+                                if (ThreadDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA) {
+                                    threads[i][j] = new BoundaryTracingColorsAndIterationDataDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js, s.xJuliaCenter, s.yJuliaCenter);
+                                } else {
+                                    threads[i][j] = new BoundaryTracingDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js, s.xJuliaCenter, s.yJuliaCenter);
+                                }
                             }
-                            else if(greedy_algorithm_selection == DIVIDE_AND_CONQUER) {
-                                threads[i][j] = new DivideAndConquerDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js, s.xJuliaCenter, s.yJuliaCenter);
+                            else if(ThreadDraw.GREEDY_ALGORITHM_SELECTION == DIVIDE_AND_CONQUER) {
+                                if (ThreadDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA) {
+                                    threads[i][j] = new DivideAndConquerColorsAndIterationDataDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js, s.xJuliaCenter, s.yJuliaCenter);
+                                } else {
+                                    threads[i][j] = new DivideAndConquerDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js, s.xJuliaCenter, s.yJuliaCenter);
+                                }
                             }
                         }
                         else {
-                            if (brute_force_alg == 0) {
+                            if (ThreadDraw.BRUTE_FORCE_ALG == 0) {
                                 threads[i][j] = new BruteForceDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js, s.xJuliaCenter, s.yJuliaCenter);
                             }
                             else {
@@ -621,15 +629,23 @@ public class ImageExpanderWindow extends JFrame implements Constants {
                     }
                     else {
                         if(ThreadDraw.GREEDY_ALGORITHM) {
-                            if(greedy_algorithm_selection == BOUNDARY_TRACING) {
-                                threads[i][j] = new BoundaryTracingDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js);
+                            if(ThreadDraw.GREEDY_ALGORITHM_SELECTION == BOUNDARY_TRACING) {
+                                if (ThreadDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA) {
+                                    threads[i][j] = new BoundaryTracingColorsAndIterationDataDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js);
+                                } else {
+                                    threads[i][j] = new BoundaryTracingDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js);
+                                }
                             }
-                            else if(greedy_algorithm_selection == DIVIDE_AND_CONQUER) {
-                                threads[i][j] = new DivideAndConquerDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js);
+                            else if(ThreadDraw.GREEDY_ALGORITHM_SELECTION == DIVIDE_AND_CONQUER) {
+                                if (ThreadDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA) {
+                                    threads[i][j] = new DivideAndConquerColorsAndIterationDataDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js);
+                                } else {
+                                    threads[i][j] = new DivideAndConquerDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js);
+                                }
                             }
                         }
                         else {
-                            if (brute_force_alg == 0) {
+                            if (ThreadDraw.BRUTE_FORCE_ALG == 0) {
                                 threads[i][j] = new BruteForceDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js);
                             }
                             else {
@@ -785,7 +801,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
 
     public void setGreedyAlgorithms() {
 
-        new GreedyAlgorithmsFrame(ptr, ThreadDraw.GREEDY_ALGORITHM, greedy_algorithm_selection, brute_force_alg);
+        new GreedyAlgorithmsFrame(ptr, ThreadDraw.GREEDY_ALGORITHM, ThreadDraw.GREEDY_ALGORITHM_SELECTION, ThreadDraw.BRUTE_FORCE_ALG);
 
     }
 
@@ -796,8 +812,8 @@ public class ImageExpanderWindow extends JFrame implements Constants {
     public void boundaryTracingOptionsChanged(boolean greedy_algorithm, int algorithm, int brute_force_alg) {
 
         ThreadDraw.GREEDY_ALGORITHM = greedy_algorithm;
-        greedy_algorithm_selection = algorithm;
-        this.brute_force_alg = brute_force_alg;
+        ThreadDraw.GREEDY_ALGORITHM_SELECTION = algorithm;
+        ThreadDraw.BRUTE_FORCE_ALG = brute_force_alg;
 
     }
 
@@ -836,8 +852,6 @@ public class ImageExpanderWindow extends JFrame implements Constants {
 
         String help = "<html><center><font size='5' face='arial' color='blue'><b><u>Help</u></b></font></center><br>"
                 + "<font size='4' face='arial'>This tool lets you create larger images than the main application.<br><br>"
-                + "Basically the main application was set to reach maximum 1.1Gb of heap.<br>"
-                + "For that reason a limit size of 6000x6000 was set.<br><br>"
                 + "In order to use this tool the right way you must set the JVM's heap size, through<br>"
                 + "command line. For instance to execute it using the jar file, use<br>"
                 + "<b>java -jar -Xmx2000m FZImageExpander.jar</b> in order to request maximum 2Gb<br>"
@@ -848,7 +862,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
                 + "value into the *.ini file. The *.ini file name must match the name of the executable.<br><br>"
                 
                 + "If you do not set the maximum heap, the JVM's default will be used,<br>"
-                + "which scales based on your memory, and it might be lower than the main application.</font></html>";
+                + "which scales based on your memory.</font></html>";
 
         textArea.setText(help);
 
@@ -884,6 +898,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
             writer.println("[General]");
             writer.println("save_settings_path \"" + MainWindow.SaveSettingsPath + "\"");
             writer.println("output_directory \"" + outputDirectory + "\"");
+            writer.println("use_smoothing_for_processing_algs " + ThreadDraw.USE_SMOOTHING_FOR_PROCESSING_ALGS);
 
             writer.println();
 
@@ -891,7 +906,8 @@ public class ImageExpanderWindow extends JFrame implements Constants {
             writer.println("thread_dim " + n);
             writer.println("thread_grouping " + thread_grouping);
             writer.println("greedy_drawing_algorithm " + ThreadDraw.GREEDY_ALGORITHM);
-            writer.println("greedy_drawing_algorithm_id " + greedy_algorithm_selection);
+            writer.println("greedy_drawing_algorithm_id " + ThreadDraw.GREEDY_ALGORITHM_SELECTION);
+            writer.println("greedy_drawing_algorithm_use_iter_data " + ThreadDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA);
             writer.println("skipped_pixels_coloring " + ThreadDraw.SKIPPED_PIXELS_ALG);
             int color = ThreadDraw.SKIPPED_PIXELS_COLOR;
             writer.println("skipped_pixels_user_color " + ((color >> 16) & 0xff) + " " + ((color >> 8) & 0xff) + " " + (color & 0xff));
@@ -912,7 +928,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
             writer.println("use_threads_for_bla " + ThreadDraw.USE_THREADS_FOR_BLA);
             writer.println("bla_starting_level " + ThreadDraw.BLA_STARTING_LEVEL);
             writer.println("detect_period " + ThreadDraw.DETECT_PERIOD);
-            writer.println("brute_force_alg " + brute_force_alg);
+            writer.println("brute_force_alg " + ThreadDraw.BRUTE_FORCE_ALG);
             writer.println("exponent_diff_ignored " + MantExp.EXPONENT_DIFF_IGNORED);
             writer.println("bignum_library " + ThreadDraw.BIGNUM_LIBRARY);
             writer.println("automatic_precision " + MyApfloat.setAutomaticPrecision);
@@ -927,6 +943,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
             
             writer.println("[Window]");
             writer.println("image_size " + image_size);
+            writer.println("window_location " + (int) getLocation().getX() + " " + (int) getLocation().getY());
 
             writer.println();
             writer.println("[Core]");
@@ -975,9 +992,18 @@ public class ImageExpanderWindow extends JFrame implements Constants {
                         try {
                             int temp = Integer.parseInt(tokenizer.nextToken());
 
-                            if (temp >= 0 && temp <= 3) {
+                            if (temp >= 0 && temp <= 4) {
                                 ThreadDraw.BIGNUM_LIBRARY = temp;
                             }
+                        } catch (Exception ex) {
+                        }
+                    }
+                    else if (token.equals("window_location") && tokenizer.countTokens() == 2) {
+                        try {
+                            int x = Integer.parseInt(tokenizer.nextToken());
+                            int y = Integer.parseInt(tokenizer.nextToken());
+
+                            setLocation(x, y);
                         } catch (Exception ex) {
                         }
                     }
@@ -1019,6 +1045,28 @@ public class ImageExpanderWindow extends JFrame implements Constants {
                         }
                         else if(token.equals("true")) {
                             ThreadDraw.GREEDY_ALGORITHM = true;
+                        }
+                    }
+                    else if(token.equals("use_smoothing_for_processing_algs") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if(token.equals("false")) {
+                            ThreadDraw.USE_SMOOTHING_FOR_PROCESSING_ALGS = false;
+                        }
+                        else if(token.equals("true")) {
+                            ThreadDraw.USE_SMOOTHING_FOR_PROCESSING_ALGS = true;
+                        }
+                    }
+                    else if(token.equals("greedy_drawing_algorithm_use_iter_data") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if(token.equals("false")) {
+                            ThreadDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA = false;
+                        }
+                        else if(token.equals("true")) {
+                            ThreadDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA = true;
                         }
                     }
                     else if(token.equals("check_bailout_during_deep_not_full_floatexp_mode") && tokenizer.countTokens() == 1) {
@@ -1097,7 +1145,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
                             int temp = Integer.parseInt(tokenizer.nextToken());
 
                             if(temp == BOUNDARY_TRACING || temp == DIVIDE_AND_CONQUER) {
-                                greedy_algorithm_selection = temp;
+                                ThreadDraw.GREEDY_ALGORITHM_SELECTION = temp;
                             }
                         }
                         catch(Exception ex) {
@@ -1109,7 +1157,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
                             int temp = Integer.parseInt(tokenizer.nextToken());
 
                             if (temp >= 0 && temp <= 1) {
-                                brute_force_alg = temp;
+                                ThreadDraw.BRUTE_FORCE_ALG = temp;
                             }
                         } catch (Exception ex) {
                         }
@@ -1119,7 +1167,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
                         try {
                             int temp = Integer.parseInt(tokenizer.nextToken());
 
-                            if (temp >= 2 && temp <= 32) {
+                            if (temp >= 2 && temp <= 48) {
                                 ThreadDraw.NANOMB1_N = temp;
                             }
                         } catch (Exception ex) {
@@ -1130,7 +1178,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
                         try {
                             int temp = Integer.parseInt(tokenizer.nextToken());
 
-                            if (temp >= 2 && temp <= 32) {
+                            if (temp >= 2 && temp <= 48) {
                                 ThreadDraw.NANOMB1_M = temp;
                             }
                         } catch (Exception ex) {
@@ -1392,7 +1440,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
 
         MyApfloat.setPrecision(MyApfloat.precision, s);
 
-        if(ThreadDraw.PERTURBATION_THEORY) {
+        if(ThreadDraw.PERTURBATION_THEORY || ThreadDraw.HIGH_PRECISION_CALCULATION) {
             periodicity_checking = false;
         }
     }
@@ -1480,6 +1528,8 @@ public class ImageExpanderWindow extends JFrame implements Constants {
 
         ExecutorService executor = Executors.newFixedThreadPool(1);
 
+        Location.offset = new PixelOffset();
+
         executor.submit(() -> {
 
 
@@ -1556,6 +1606,8 @@ public class ImageExpanderWindow extends JFrame implements Constants {
 
         ExecutorService executor = Executors.newFixedThreadPool(1);
 
+        Location.offset = new PixelOffset();
+
         executor.submit(() -> {
 
 
@@ -1620,6 +1672,8 @@ public class ImageExpanderWindow extends JFrame implements Constants {
     public void startSequenceRender(Apfloat size, double zoom_factor, int zooming_mode, double rotation_adjusting_value, int color_cycling_adjusting_value, double light_light_direction_adjusting_value, double bump_light_direction_adjusting_value, int zoom_every_n_frame, int gradient_color_cycling_adjusting_value) {
 
         ExecutorService executor = Executors.newFixedThreadPool(1);
+
+        Location.offset = new PixelOffset();
 
         numberOfSequenceSteps = 0;
 

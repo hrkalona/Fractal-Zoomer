@@ -37,7 +37,7 @@ public abstract class OrbitTrap {
     protected boolean countTrapIterations;
     protected int checkType;
     protected boolean isJulia;
-    protected boolean usesPerturbation;
+    protected boolean usesHighPrecision;
     protected boolean usesStaticInitVal;
     protected boolean doFirstIterationSkipCheck;
     protected int skipTrapCheckForIterations;
@@ -60,7 +60,7 @@ public abstract class OrbitTrap {
         extraIterations = 0;
         trappedPoint = new Complex();
         trapped = false;
-        doFirstIterationSkipCheck = !isJulia && (usesPerturbation || usesStaticInitVal);
+        doFirstIterationSkipCheck = !isJulia && (usesHighPrecision || usesStaticInitVal);
         
     }
 
@@ -181,8 +181,8 @@ public abstract class OrbitTrap {
         isJulia = julia;
     }
 
-    public void setUsesPerturbation(boolean usesPerturbation) {
-        this.usesPerturbation = usesPerturbation;
+    public void setUsesHighPrecision(boolean usesHighPrecision) {
+        this.usesHighPrecision = usesHighPrecision;
     }
 
     public void setUsesStaticInitVal(boolean usesStaticInitVal) {

@@ -18,6 +18,7 @@
 package fractalzoomer.bailout_conditions;
 
 import fractalzoomer.core.*;
+import fractalzoomer.core.mpfr.LibMpfr;
 import fractalzoomer.core.mpfr.MpfrBigNum;
 import org.apfloat.Apfloat;
 import org.apfloat.ApfloatMath;
@@ -27,10 +28,19 @@ import org.apfloat.ApfloatMath;
  * @author hrkalona2
  */
 public class SquareBailoutCondition extends BailoutCondition {
+    private MpfrBigNum temp1;
+    private MpfrBigNum temp2;
  
     public SquareBailoutCondition(double bound) {
         
         super(bound);
+
+        if((ThreadDraw.PERTURBATION_THEORY && ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE) || ThreadDraw.HIGH_PRECISION_CALCULATION) {
+            if(LibMpfr.LOAD_ERROR == null) {
+                temp1 = new MpfrBigNum();
+                temp2 = new MpfrBigNum();
+            }
+        }
         
     }
     
@@ -66,10 +76,10 @@ public class SquareBailoutCondition extends BailoutCondition {
 
     @Override
     public boolean escaped(MpfrBigNumComplex z, MpfrBigNumComplex zold, MpfrBigNumComplex zold2, int iterations, MpfrBigNumComplex c, MpfrBigNumComplex start, MpfrBigNumComplex c0, MpfrBigNum norm_squared, MpfrBigNumComplex pixel) {
-        MpfrBigNum absRe = z.getAbsRe();
-        MpfrBigNum absIm = z.getAbsIm();
+        z.getAbsRe(temp1);
+        z.getAbsIm(temp2);
 
-        MpfrBigNum max = absRe.compare(absIm) == 1 ? absRe : absIm;
+        MpfrBigNum max = temp1.compare(temp2) == 1 ? temp1 : temp2;
 
         return max.compare(bound) >= 0;
     }

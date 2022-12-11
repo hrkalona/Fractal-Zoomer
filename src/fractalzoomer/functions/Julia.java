@@ -23,13 +23,15 @@ import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
 import fractalzoomer.utils.ColorAlgorithm;
 import fractalzoomer.utils.NormComponents;
+import fractalzoomer.utils.WorkSpaceData;
 import org.apfloat.Apfloat;
 
 import javax.swing.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import static fractalzoomer.main.Constants.REFERENCE_CALCULATION_STR;
+import static fractalzoomer.main.Constants.*;
+import static fractalzoomer.main.Constants.ARBITRARY_DOUBLEDOUBLE;
 
 /**
  *
@@ -101,10 +103,6 @@ public abstract class Julia extends Fractal {
     @Override
     public Complex getTransformedPixelJulia(Complex pixel) {
 
-        if(ThreadDraw.PERTURBATION_THEORY && supportsPerturbationTheory() && !isOrbit && !isDomain) {//orbit?
-            return pixel;
-        }
-
         if (apply_plane_on_julia) {
             return plane.transform(rotation.rotate(pixel));
         } else {
@@ -162,7 +160,7 @@ public abstract class Julia extends Fractal {
                 return periodicity_checking ? iterateFractalWithPeriodicity(juliter ? initialize(transformed) : initializeSeed(transformed), transformed) : iterateFractalWithoutPeriodicity(juliter ? initialize(transformed) : initializeSeed(transformed), transformed);
             }
         }
-        else {
+        else if (gpixel instanceof MantExpComplex){
             MantExpComplex pixel = (MantExpComplex) gpixel;
 
             Complex pix = pixel.toComplex();
@@ -184,15 +182,23 @@ public abstract class Julia extends Fractal {
                 return 0;
             }
         }
-        /*else {
-            BigNumComplex pixel = (BigNumComplex) gpixel;
-            return iterateFractalArbitraryPrecisionWithoutPeriodicity(initializeSeed(pixel), pixel);
-        }*/
-        /*else {
-            BigComplex pixel = (BigComplex) gpixel;
-            return iterateFractalArbitraryPrecisionWithoutPeriodicity(initializeSeed(pixel), pixel);
-        }*/
+         else {
+            Complex pix = gpixel.toComplex();
 
+            if (statistic != null) {
+                statistic.initialize(pix, null);
+            }
+
+            if (trap != null) {
+                trap.initialize(pix);
+            }
+
+            try {
+                return iterateFractalArbitraryPrecisionWithoutPeriodicity(initializeSeed(gpixel), gpixel);
+            } catch (Exception ex) {
+                return 0;
+            }
+        }
 
     }
 
@@ -228,36 +234,58 @@ public abstract class Julia extends Fractal {
     }
 
     @Override
-    public BigComplex[] initializeSeed(BigComplex pixel) {
+    public GenericComplex[] initializeSeed(GenericComplex pixel) {
 
-        BigComplex[] complex = new BigComplex[2];
+        GenericComplex[] complex = new GenericComplex[2];
 
-        complex[0] = new BigComplex(pixel);//z
-        complex[1] = new BigComplex(seed);//c
+        int lib = ThreadDraw.getHighPrecisionLibrary(dsize, this);
 
+        if(lib == ARBITRARY_MPFR) {
+            workSpaceData.z.set(pixel);
+            complex[0] = workSpaceData.z;//z
 
-        //zold = new Complex();
-        //zold2 = new Complex();
-        //start = new Complex(complex[0]);
-        //c0 = new Complex(complex[1]);
+            workSpaceData.c.set(getHighPrecisionSeed(lib));
+            complex[1] = workSpaceData.c;//c
 
-        return complex;
+            workSpaceData.zold.reset();
+            gzold = workSpaceData.zold;
 
-    }
+            workSpaceData.zold2.reset();
+            gzold2 = workSpaceData.zold2;
 
-    @Override
-    public BigNumComplex[] initializeSeed(BigNumComplex pixel) {
+            workSpaceData.start.set(complex[0]);
+            gstart = workSpaceData.start;
 
-        BigNumComplex[] complex = new BigNumComplex[2];
+            workSpaceData.c0.set(complex[1]);
+            gc0 = workSpaceData.c0;
+        }
+        else if (lib == ARBITRARY_BUILT_IN) {
+            complex[0] = pixel;//z
+            complex[1] = getHighPrecisionSeed(lib);//c
 
-        complex[0] = new BigNumComplex(pixel);//z
-        complex[1] = new BigNumComplex(seed);//c
+            gzold = new BigNumComplex();
+            gzold2 = new BigNumComplex();
+            gstart = complex[0];
+            gc0 = complex[1];
+        }
+        else if(lib == ARBITRARY_DOUBLEDOUBLE) {
+            complex[0] = pixel;//z
+            complex[1] = getHighPrecisionSeed(lib);//c
 
+            gzold = new DDComplex();
+            gzold2 = new DDComplex();
+            gstart = complex[0];
+            gc0 = complex[1];
+        }
+        else {
+            complex[0] = pixel;//z
+            complex[1] = getHighPrecisionSeed(lib);//c
 
-        //zold = new Complex();
-        //zold2 = new Complex();
-        //start = new Complex(complex[0]);
-        //c0 = new Complex(complex[1]);
+            gzold = new BigComplex();
+            gzold2 = new BigComplex();
+            gstart = complex[0];
+            gc0 = complex[1];
+        }
 
         return complex;
 
@@ -321,7 +349,7 @@ public abstract class Julia extends Fractal {
         Complex pixel = dpixel.plus(refPointSmall);
 
         int MaxRefIteration = Fractal.MaxRefIteration;
-        double[] Reference = Fractal.Reference;
+        DoubleReference Reference = Fractal.Reference;
 
         double norm_squared = complex[0].norm_squared();
 
@@ -412,7 +440,7 @@ public abstract class Julia extends Fractal {
 
         int MaxRefIteration = Fractal.MaxRefIteration;
         DeepReference ReferenceDeep = Fractal.ReferenceDeep;
-        double[] Reference = Fractal.Reference;
+        DoubleReference Reference = Fractal.Reference;
 
         int minExp = -1000;
         int reducedExp = minExp / (int)power;
@@ -579,13 +607,13 @@ public abstract class Julia extends Fractal {
         }
 
         if (iterations == 0) {
-            SecondReference = new double[max_ref_iterations << 1];
+            SecondReference = new DoubleReference(max_ref_iterations);
 
             if (deepZoom) {
                 SecondReferenceDeep = new DeepReference(max_ref_iterations);
             }
         } else if (max_ref_iterations > getSecondReferenceLength()) {
-            SecondReference = Arrays.copyOf(SecondReference, max_ref_iterations << 1);
+            SecondReference.resize(max_ref_iterations);
 
             if (deepZoom) {
                 SecondReferenceDeep.resize(max_ref_iterations);
@@ -742,6 +770,36 @@ public abstract class Julia extends Fractal {
             }
         }
         else { //Apfloat
+            tseed = bigSeed;
+        }
+
+        if (apply_plane_on_julia_seed) {
+            try {
+                return plane.Transform(tseed);
+            }
+            catch (Exception ex) {
+                return tseed;
+            }
+        }
+
+        return tseed;
+    }
+
+    public GenericComplex getHighPrecisionSeed(int bigNumLib) {
+
+        GenericComplex tseed = null;
+
+        if(bigNumLib == ARBITRARY_BUILT_IN) { //BigNumComplex
+            tseed = bigSeed.toBigNumComplex();
+        }
+        else if(bigNumLib == ARBITRARY_MPFR) { //MpfrBigNumComplex
+            workSpaceData.seed.set(bigSeed);
+            tseed = workSpaceData.seed;
+        }
+        else if(bigNumLib == ARBITRARY_DOUBLEDOUBLE) { //DDComplex
+            tseed = bigSeed.toDDComplex();
+        }
+        else { //BigComplex
             tseed = bigSeed;
         }
 

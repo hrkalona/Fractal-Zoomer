@@ -171,9 +171,12 @@ public abstract class ThreadDraw extends Thread {
     protected int FROMy;
     protected int TOy;
 
+    protected boolean started;
+
     protected static final int THREAD_CHUNK_SIZE = 5000;
     protected static final int QUICKDRAW_THREAD_CHUNK_SIZE = 50;
 
+    public static int FAST_JULIA_IMAGE_SIZE = 252;
     protected static int randomNumber;
 
     public static boolean USE_DIRECT_COLOR;
@@ -188,6 +191,9 @@ public abstract class ThreadDraw extends Thread {
     protected static int[] algorithm_colors2;
 
     protected int threadId;
+
+    private boolean createPreview;
+    private boolean createFullImageAfterPreview;
     private static AtomicInteger finalize_sync;
     private static CyclicBarrier normalize_find_ranges_sync;
     private static CyclicBarrier normalize_sync;
@@ -344,7 +350,6 @@ public abstract class ThreadDraw extends Thread {
      * ** Statistics ***
      */
     private StatisticsSettings sts;
-    private boolean color_smoothing;
     /**
      * **********************
      */
@@ -408,6 +413,7 @@ public abstract class ThreadDraw extends Thread {
     public static int SKIPPED_PIXELS_ALG = 0;
     public static int SKIPPED_PIXELS_COLOR = 0xFFFFFFFF;
     public static int[] gradient;
+    public static boolean HIGH_PRECISION_CALCULATION = false;
     public static boolean PERTURBATION_THEORY = false;
     public static int APPROXIMATION_ALGORITHM = 2;
     public static int SERIES_APPROXIMATION_TERMS = 5;
@@ -420,6 +426,7 @@ public abstract class ThreadDraw extends Thread {
     public static int BIGNUM_PRECISION = 996;
     public static int BIGNUM_PRECISION_FACTOR = 1;
     public static int BIGNUM_LIBRARY = Constants.BIGNUM_AUTOMATIC;
+    public static int HIGH_PRECISION_LIB = Constants.ARBITRARY_AUTOMATIC;
     public static boolean USE_THREADS_FOR_SA = false;
     public static int BLA_BITS = 23;
     public static boolean USE_THREADS_FOR_BLA = true;
@@ -430,9 +437,16 @@ public abstract class ThreadDraw extends Thread {
     public static int NANOMB1_M = 16;
     public static boolean GATHER_PERTURBATION_STATISTICS = false;
     public static boolean CHECK_BAILOUT_DURING_DEEP_NOT_FULL_FLOATEXP_MODE = false;
-    public static boolean GREEDY_ALGORITHM = false;
+    public static boolean GREEDY_ALGORITHM = true;
+    public static boolean GREEDY_ALGORITHM_CHECK_ITER_DATA = true;
     public static boolean GATHER_TINY_REF_INDEXES = true;
+    public static int GREEDY_ALGORITHM_SELECTION = Constants.BOUNDARY_TRACING;
+    public static int BRUTE_FORCE_ALG = 0;
+    public static boolean USE_SMOOTHING_FOR_PROCESSING_ALGS = true;
+    public static boolean DRAW_IMAGE_PREVIEW = false;
     public static final Random random = new Random();
+
+    public static boolean SMOOTH_DATA = false;
     
 
     static {
@@ -457,58 +471,54 @@ public abstract class ThreadDraw extends Thread {
 
     public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, D3Settings d3s, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, DomainColoringSettings ds, boolean inverse_dem, boolean quickDraw, double color_intensity, int transfer_function, double color_intensity2, int transfer_function2, boolean usePaletteForInColoring, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, BlendingSettings color_blending, OrbitTrapSettings ots, ContourColoringSettings cns, int[] post_processing_order, LightSettings ls, PaletteGradientMergingSettings pbs, StatisticsSettings sts, int gradient_offset, HistogramColoringSettings hss, double contourFactor, GeneratedPaletteSettings gps, JitterSettings js) {
         this.contourFactor = contourFactor;
-        this.color_smoothing = fns.smoothing;
+        SMOOTH_DATA = fns.smoothing || ((ls.lighting || bms.bump_map || cns.contour_coloring || ens.entropy_coloring || rps.rainbow_palette || fdes.fake_de || sts.statistic) && USE_SMOOTHING_FOR_PROCESSING_ALGS);
         this.gps = gps;
         this.js = js;
-        settingsFractal(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns.bailout_test_algorithm, fns.bailout, fns.bailout_test_user_formula, fns.bailout_test_user_formula2, fns.bailout_test_comparison, fns.n_norm, d3s, ptr, fractal_color, dem_color, image, fs, fns.out_coloring_algorithm, fns.user_out_coloring_algorithm, fns.outcoloring_formula, fns.user_outcoloring_conditions, fns.user_outcoloring_condition_formula, fns.in_coloring_algorithm, fns.user_in_coloring_algorithm, fns.incoloring_formula, fns.user_incoloring_conditions, fns.user_incoloring_condition_formula, fns.smoothing, periodicity_checking, fns.plane_type, fns.burning_ship, fns.mandel_grass, fns.mandel_grass_vals, fns.function, fns.z_exponent, fns.z_exponent_complex, color_cycling_location, color_cycling_location2, fns.rotation_vals, fns.rotation_center, fns.perturbation, fns.perturbation_vals, fns.variable_perturbation, fns.user_perturbation_algorithm, fns.user_perturbation_conditions, fns.user_perturbation_condition_formula, fns.perturbation_user_formula, fns.init_val, fns.initial_vals, fns.variable_init_value, fns.user_initial_value_algorithm, fns.user_initial_value_conditions, fns.user_initial_value_condition_formula, fns.initial_value_user_formula, fns.coefficients, fns.z_exponent_nova, fns.relaxation, fns.nova_method, fns.user_formula, fns.user_formula2, fns.bail_technique, fns.user_plane, fns.user_plane_algorithm, fns.user_plane_conditions, fns.user_plane_condition_formula, fns.user_formula_iteration_based, fns.user_formula_conditions, fns.user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, fns.plane_transform_center, fns.plane_transform_angle, fns.plane_transform_radius, fns.plane_transform_scales, fns.plane_transform_wavelength, fns.waveType, fns.plane_transform_angle2, fns.plane_transform_sides, fns.plane_transform_amount, fns.escaping_smooth_algorithm, fns.converging_smooth_algorithm, bms, polar_projection, circle_period, fdes, rps, fns.user_fz_formula, fns.user_dfz_formula, fns.user_ddfz_formula, fns.user_dddfz_formula, fns.coupling, fns.user_formula_coupled, fns.coupling_method, fns.coupling_amplitude, fns.coupling_frequency, fns.coupling_seed, ds, inverse_dem, quickDraw, color_intensity, transfer_function, color_intensity2, transfer_function2, usePaletteForInColoring, ens, ofs, gss, fns.laguerre_deg, color_blending, ots, cns, fns.kleinianLine, fns.kleinianK, fns.kleinianM, post_processing_order, ls, pbs, sts, fns.gcs, fns.durand_kerner_init_val, fns.mps, fns.coefficients_im, fns.lpns.lyapunovFinalExpression, fns.lpns.useLyapunovExponent, gradient_offset, fns.lpns.lyapunovFunction, fns.lpns.lyapunovExponentFunction, fns.lpns.lyapunovVariableId, fns.user_relaxation_formula, fns.user_nova_addend_formula, fns.gcps, fns.igs, fns.lfns, fns.newton_hines_k, fns.tcs, fns.lpns.lyapunovInitialValue, hss, fns.lpns.lyapunovInitializationIteratons, fns.lpns.lyapunovskipBailoutCheck, fns.root_initialization_method, fns.preffs, fns.postffs, fns.ips, fns.defaultNovaInitialValue, fns.cbs, fns.useGlobalMethod, fns.globalMethodFactor, fns.period);
+        settingsFractal(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns.bailout_test_algorithm, fns.bailout, fns.bailout_test_user_formula, fns.bailout_test_user_formula2, fns.bailout_test_comparison, fns.n_norm, d3s, ptr, fractal_color, dem_color, image, fs, fns.out_coloring_algorithm, fns.user_out_coloring_algorithm, fns.outcoloring_formula, fns.user_outcoloring_conditions, fns.user_outcoloring_condition_formula, fns.in_coloring_algorithm, fns.user_in_coloring_algorithm, fns.incoloring_formula, fns.user_incoloring_conditions, fns.user_incoloring_condition_formula, SMOOTH_DATA, periodicity_checking, fns.plane_type, fns.burning_ship, fns.mandel_grass, fns.mandel_grass_vals, fns.function, fns.z_exponent, fns.z_exponent_complex, color_cycling_location, color_cycling_location2, fns.rotation_vals, fns.rotation_center, fns.perturbation, fns.perturbation_vals, fns.variable_perturbation, fns.user_perturbation_algorithm, fns.user_perturbation_conditions, fns.user_perturbation_condition_formula, fns.perturbation_user_formula, fns.init_val, fns.initial_vals, fns.variable_init_value, fns.user_initial_value_algorithm, fns.user_initial_value_conditions, fns.user_initial_value_condition_formula, fns.initial_value_user_formula, fns.coefficients, fns.z_exponent_nova, fns.relaxation, fns.nova_method, fns.user_formula, fns.user_formula2, fns.bail_technique, fns.user_plane, fns.user_plane_algorithm, fns.user_plane_conditions, fns.user_plane_condition_formula, fns.user_formula_iteration_based, fns.user_formula_conditions, fns.user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, fns.plane_transform_center, fns.plane_transform_angle, fns.plane_transform_radius, fns.plane_transform_scales, fns.plane_transform_wavelength, fns.waveType, fns.plane_transform_angle2, fns.plane_transform_sides, fns.plane_transform_amount, fns.escaping_smooth_algorithm, fns.converging_smooth_algorithm, bms, polar_projection, circle_period, fdes, rps, fns.user_fz_formula, fns.user_dfz_formula, fns.user_ddfz_formula, fns.user_dddfz_formula, fns.coupling, fns.user_formula_coupled, fns.coupling_method, fns.coupling_amplitude, fns.coupling_frequency, fns.coupling_seed, ds, inverse_dem, quickDraw, color_intensity, transfer_function, color_intensity2, transfer_function2, usePaletteForInColoring, ens, ofs, gss, fns.laguerre_deg, color_blending, ots, cns, fns.kleinianLine, fns.kleinianK, fns.kleinianM, post_processing_order, ls, pbs, sts, fns.gcs, fns.durand_kerner_init_val, fns.mps, fns.coefficients_im, fns.lpns.lyapunovFinalExpression, fns.lpns.useLyapunovExponent, gradient_offset, fns.lpns.lyapunovFunction, fns.lpns.lyapunovExponentFunction, fns.lpns.lyapunovVariableId, fns.user_relaxation_formula, fns.user_nova_addend_formula, fns.gcps, fns.igs, fns.lfns, fns.newton_hines_k, fns.tcs, fns.lpns.lyapunovInitialValue, hss, fns.lpns.lyapunovInitializationIteratons, fns.lpns.lyapunovskipBailoutCheck, fns.root_initialization_method, fns.preffs, fns.postffs, fns.ips, fns.defaultNovaInitialValue, fns.cbs, fns.useGlobalMethod, fns.globalMethodFactor, fns.period);
     }
 
     public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, ImageExpanderWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, DomainColoringSettings ds, boolean inverse_dem, double color_intensity, int transfer_function, double color_intensity2, int transfer_function2, boolean usePaletteForInColoring, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, BlendingSettings color_blending, OrbitTrapSettings ots, ContourColoringSettings cns, int[] post_processing_order, LightSettings ls, PaletteGradientMergingSettings pbs, StatisticsSettings sts, int gradient_offset, HistogramColoringSettings hss, double contourFactor, GeneratedPaletteSettings gps, JitterSettings js) {
         this.contourFactor = contourFactor;
-        this.color_smoothing = fns.smoothing;
+        SMOOTH_DATA = fns.smoothing || ((ls.lighting || bms.bump_map || cns.contour_coloring || ens.entropy_coloring || rps.rainbow_palette || fdes.fake_de || sts.statistic) && USE_SMOOTHING_FOR_PROCESSING_ALGS);
         this.gps = gps;
         this.js = js;
-        settingsFractalExpander(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns.bailout_test_algorithm, fns.bailout, fns.bailout_test_user_formula, fns.bailout_test_user_formula2, fns.bailout_test_comparison, fns.n_norm, ptr, fractal_color, dem_color, image, fs, fns.out_coloring_algorithm, fns.user_out_coloring_algorithm, fns.outcoloring_formula, fns.user_outcoloring_conditions, fns.user_outcoloring_condition_formula, fns.in_coloring_algorithm, fns.user_in_coloring_algorithm, fns.incoloring_formula, fns.user_incoloring_conditions, fns.user_incoloring_condition_formula, fns.smoothing, periodicity_checking, fns.plane_type, fns.burning_ship, fns.mandel_grass, fns.mandel_grass_vals, fns.function, fns.z_exponent, fns.z_exponent_complex, color_cycling_location, color_cycling_location2, fns.rotation_vals, fns.rotation_center, fns.perturbation, fns.perturbation_vals, fns.variable_perturbation, fns.user_perturbation_algorithm, fns.user_perturbation_conditions, fns.user_perturbation_condition_formula, fns.perturbation_user_formula, fns.init_val, fns.initial_vals, fns.variable_init_value, fns.user_initial_value_algorithm, fns.user_initial_value_conditions, fns.user_initial_value_condition_formula, fns.initial_value_user_formula, fns.coefficients, fns.z_exponent_nova, fns.relaxation, fns.nova_method, fns.user_formula, fns.user_formula2, fns.bail_technique, fns.user_plane, fns.user_plane_algorithm, fns.user_plane_conditions, fns.user_plane_condition_formula, fns.user_formula_iteration_based, fns.user_formula_conditions, fns.user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, fns.plane_transform_center, fns.plane_transform_angle, fns.plane_transform_radius, fns.plane_transform_scales, fns.plane_transform_wavelength, fns.waveType, fns.plane_transform_angle2, fns.plane_transform_sides, fns.plane_transform_amount, fns.escaping_smooth_algorithm, fns.converging_smooth_algorithm, bms, polar_projection, circle_period, fdes, rps, fns.user_fz_formula, fns.user_dfz_formula, fns.user_ddfz_formula, fns.user_dddfz_formula, fns.coupling, fns.user_formula_coupled, fns.coupling_method, fns.coupling_amplitude, fns.coupling_frequency, fns.coupling_seed, ds, inverse_dem, color_intensity, transfer_function, color_intensity2, transfer_function2, usePaletteForInColoring, ens, ofs, gss, fns.laguerre_deg, color_blending, ots, cns, fns.kleinianLine, fns.kleinianK, fns.kleinianM, post_processing_order, ls, pbs, sts, fns.gcs, fns.durand_kerner_init_val, fns.mps, fns.coefficients_im, fns.lpns.lyapunovFinalExpression, fns.lpns.useLyapunovExponent, gradient_offset, fns.lpns.lyapunovFunction, fns.lpns.lyapunovExponentFunction, fns.lpns.lyapunovVariableId, fns.user_relaxation_formula, fns.user_nova_addend_formula, fns.gcps, fns.igs, fns.lfns, fns.newton_hines_k, fns.tcs, fns.lpns.lyapunovInitialValue, hss, fns.lpns.lyapunovInitializationIteratons, fns.lpns.lyapunovskipBailoutCheck, fns.root_initialization_method, fns.preffs, fns.postffs, fns.ips, fns.defaultNovaInitialValue, fns.cbs, fns.useGlobalMethod, fns.globalMethodFactor, fns.period);
+        settingsFractalExpander(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns.bailout_test_algorithm, fns.bailout, fns.bailout_test_user_formula, fns.bailout_test_user_formula2, fns.bailout_test_comparison, fns.n_norm, ptr, fractal_color, dem_color, image, fs, fns.out_coloring_algorithm, fns.user_out_coloring_algorithm, fns.outcoloring_formula, fns.user_outcoloring_conditions, fns.user_outcoloring_condition_formula, fns.in_coloring_algorithm, fns.user_in_coloring_algorithm, fns.incoloring_formula, fns.user_incoloring_conditions, fns.user_incoloring_condition_formula, SMOOTH_DATA, periodicity_checking, fns.plane_type, fns.burning_ship, fns.mandel_grass, fns.mandel_grass_vals, fns.function, fns.z_exponent, fns.z_exponent_complex, color_cycling_location, color_cycling_location2, fns.rotation_vals, fns.rotation_center, fns.perturbation, fns.perturbation_vals, fns.variable_perturbation, fns.user_perturbation_algorithm, fns.user_perturbation_conditions, fns.user_perturbation_condition_formula, fns.perturbation_user_formula, fns.init_val, fns.initial_vals, fns.variable_init_value, fns.user_initial_value_algorithm, fns.user_initial_value_conditions, fns.user_initial_value_condition_formula, fns.initial_value_user_formula, fns.coefficients, fns.z_exponent_nova, fns.relaxation, fns.nova_method, fns.user_formula, fns.user_formula2, fns.bail_technique, fns.user_plane, fns.user_plane_algorithm, fns.user_plane_conditions, fns.user_plane_condition_formula, fns.user_formula_iteration_based, fns.user_formula_conditions, fns.user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, fns.plane_transform_center, fns.plane_transform_angle, fns.plane_transform_radius, fns.plane_transform_scales, fns.plane_transform_wavelength, fns.waveType, fns.plane_transform_angle2, fns.plane_transform_sides, fns.plane_transform_amount, fns.escaping_smooth_algorithm, fns.converging_smooth_algorithm, bms, polar_projection, circle_period, fdes, rps, fns.user_fz_formula, fns.user_dfz_formula, fns.user_ddfz_formula, fns.user_dddfz_formula, fns.coupling, fns.user_formula_coupled, fns.coupling_method, fns.coupling_amplitude, fns.coupling_frequency, fns.coupling_seed, ds, inverse_dem, color_intensity, transfer_function, color_intensity2, transfer_function2, usePaletteForInColoring, ens, ofs, gss, fns.laguerre_deg, color_blending, ots, cns, fns.kleinianLine, fns.kleinianK, fns.kleinianM, post_processing_order, ls, pbs, sts, fns.gcs, fns.durand_kerner_init_val, fns.mps, fns.coefficients_im, fns.lpns.lyapunovFinalExpression, fns.lpns.useLyapunovExponent, gradient_offset, fns.lpns.lyapunovFunction, fns.lpns.lyapunovExponentFunction, fns.lpns.lyapunovVariableId, fns.user_relaxation_formula, fns.user_nova_addend_formula, fns.gcps, fns.igs, fns.lfns, fns.newton_hines_k, fns.tcs, fns.lpns.lyapunovInitialValue, hss, fns.lpns.lyapunovInitializationIteratons, fns.lpns.lyapunovskipBailoutCheck, fns.root_initialization_method, fns.preffs, fns.postffs, fns.ips, fns.defaultNovaInitialValue, fns.cbs, fns.useGlobalMethod, fns.globalMethodFactor, fns.period);
     }
 
     public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, D3Settings d3s, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, DomainColoringSettings ds, boolean inverse_dem, boolean quickDraw, double color_intensity, int transfer_function, double color_intensity2, int transfer_function2, boolean usePaletteForInColoring, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, BlendingSettings color_blending, OrbitTrapSettings ots, ContourColoringSettings cns, int[] post_processing_order, LightSettings ls, PaletteGradientMergingSettings pbs, StatisticsSettings sts, int gradient_offset, HistogramColoringSettings hss, double contourFactor, GeneratedPaletteSettings gps, JitterSettings js, Apfloat xJuliaCenter, Apfloat yJuliaCenter) {
         this.contourFactor = contourFactor;
-        this.color_smoothing = fns.smoothing;
+        SMOOTH_DATA = fns.smoothing || ((ls.lighting || bms.bump_map || cns.contour_coloring || ens.entropy_coloring || rps.rainbow_palette || fdes.fake_de || sts.statistic) && USE_SMOOTHING_FOR_PROCESSING_ALGS);
         this.gps = gps;
         this.js = js;
-        settingsJulia(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns.bailout_test_algorithm, fns.bailout, fns.bailout_test_user_formula, fns.bailout_test_user_formula2, fns.bailout_test_comparison, fns.n_norm, d3s, ptr, fractal_color, dem_color, image, fs, fns.out_coloring_algorithm, fns.user_out_coloring_algorithm, fns.outcoloring_formula, fns.user_outcoloring_conditions, fns.user_outcoloring_condition_formula, fns.in_coloring_algorithm, fns.user_in_coloring_algorithm, fns.incoloring_formula, fns.user_incoloring_conditions, fns.user_incoloring_condition_formula, fns.smoothing, periodicity_checking, fns.plane_type, fns.apply_plane_on_julia, fns.apply_plane_on_julia_seed, fns.burning_ship, fns.mandel_grass, fns.mandel_grass_vals, fns.function, fns.z_exponent, fns.z_exponent_complex, color_cycling_location, color_cycling_location2, fns.rotation_vals, fns.rotation_center, fns.coefficients, fns.z_exponent_nova, fns.relaxation, fns.nova_method, fns.user_formula, fns.user_formula2, fns.bail_technique, fns.user_plane, fns.user_plane_algorithm, fns.user_plane_conditions, fns.user_plane_condition_formula, fns.user_formula_iteration_based, fns.user_formula_conditions, fns.user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, fns.plane_transform_center, fns.plane_transform_angle, fns.plane_transform_radius, fns.plane_transform_scales, fns.plane_transform_wavelength, fns.waveType, fns.plane_transform_angle2, fns.plane_transform_sides, fns.plane_transform_amount, fns.escaping_smooth_algorithm, fns.converging_smooth_algorithm, bms, polar_projection, circle_period, fdes, rps, fns.coupling, fns.user_formula_coupled, fns.coupling_method, fns.coupling_amplitude, fns.coupling_frequency, fns.coupling_seed, ds, inverse_dem, quickDraw, color_intensity, transfer_function, color_intensity2, transfer_function2, usePaletteForInColoring, ens, ofs, gss, color_blending, ots, cns, post_processing_order, ls, pbs, sts, fns.gcs, fns.coefficients_im, fns.lpns.lyapunovFinalExpression, fns.lpns.useLyapunovExponent, gradient_offset, fns.lpns.lyapunovFunction, fns.lpns.lyapunovExponentFunction, fns.lpns.lyapunovVariableId, fns.user_fz_formula, fns.user_dfz_formula, fns.user_ddfz_formula, fns.user_dddfz_formula, fns.user_relaxation_formula, fns.user_nova_addend_formula, fns.laguerre_deg, fns.gcps, fns.lfns, fns.newton_hines_k, fns.tcs, hss, fns.lpns.lyapunovInitialValue, fns.lpns.lyapunovInitializationIteratons, fns.lpns.lyapunovskipBailoutCheck, fns.preffs, fns.postffs, fns.ips, fns.juliter, fns.juliterIterations, fns.juliterIncludeInitialIterations, fns.defaultNovaInitialValue, fns.perturbation, fns.perturbation_vals, fns.variable_perturbation, fns.user_perturbation_algorithm, fns.perturbation_user_formula, fns.user_perturbation_conditions, fns.user_perturbation_condition_formula, fns.init_val, fns.initial_vals, fns.variable_init_value, fns.user_initial_value_algorithm, fns.initial_value_user_formula, fns.user_initial_value_conditions, fns.user_initial_value_condition_formula, fns.cbs, fns.useGlobalMethod, fns.globalMethodFactor, xJuliaCenter, yJuliaCenter);
+        settingsJulia(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns.bailout_test_algorithm, fns.bailout, fns.bailout_test_user_formula, fns.bailout_test_user_formula2, fns.bailout_test_comparison, fns.n_norm, d3s, ptr, fractal_color, dem_color, image, fs, fns.out_coloring_algorithm, fns.user_out_coloring_algorithm, fns.outcoloring_formula, fns.user_outcoloring_conditions, fns.user_outcoloring_condition_formula, fns.in_coloring_algorithm, fns.user_in_coloring_algorithm, fns.incoloring_formula, fns.user_incoloring_conditions, fns.user_incoloring_condition_formula, SMOOTH_DATA, periodicity_checking, fns.plane_type, fns.apply_plane_on_julia, fns.apply_plane_on_julia_seed, fns.burning_ship, fns.mandel_grass, fns.mandel_grass_vals, fns.function, fns.z_exponent, fns.z_exponent_complex, color_cycling_location, color_cycling_location2, fns.rotation_vals, fns.rotation_center, fns.coefficients, fns.z_exponent_nova, fns.relaxation, fns.nova_method, fns.user_formula, fns.user_formula2, fns.bail_technique, fns.user_plane, fns.user_plane_algorithm, fns.user_plane_conditions, fns.user_plane_condition_formula, fns.user_formula_iteration_based, fns.user_formula_conditions, fns.user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, fns.plane_transform_center, fns.plane_transform_angle, fns.plane_transform_radius, fns.plane_transform_scales, fns.plane_transform_wavelength, fns.waveType, fns.plane_transform_angle2, fns.plane_transform_sides, fns.plane_transform_amount, fns.escaping_smooth_algorithm, fns.converging_smooth_algorithm, bms, polar_projection, circle_period, fdes, rps, fns.coupling, fns.user_formula_coupled, fns.coupling_method, fns.coupling_amplitude, fns.coupling_frequency, fns.coupling_seed, ds, inverse_dem, quickDraw, color_intensity, transfer_function, color_intensity2, transfer_function2, usePaletteForInColoring, ens, ofs, gss, color_blending, ots, cns, post_processing_order, ls, pbs, sts, fns.gcs, fns.coefficients_im, fns.lpns.lyapunovFinalExpression, fns.lpns.useLyapunovExponent, gradient_offset, fns.lpns.lyapunovFunction, fns.lpns.lyapunovExponentFunction, fns.lpns.lyapunovVariableId, fns.user_fz_formula, fns.user_dfz_formula, fns.user_ddfz_formula, fns.user_dddfz_formula, fns.user_relaxation_formula, fns.user_nova_addend_formula, fns.laguerre_deg, fns.gcps, fns.lfns, fns.newton_hines_k, fns.tcs, hss, fns.lpns.lyapunovInitialValue, fns.lpns.lyapunovInitializationIteratons, fns.lpns.lyapunovskipBailoutCheck, fns.preffs, fns.postffs, fns.ips, fns.juliter, fns.juliterIterations, fns.juliterIncludeInitialIterations, fns.defaultNovaInitialValue, fns.perturbation, fns.perturbation_vals, fns.variable_perturbation, fns.user_perturbation_algorithm, fns.perturbation_user_formula, fns.user_perturbation_conditions, fns.user_perturbation_condition_formula, fns.init_val, fns.initial_vals, fns.variable_init_value, fns.user_initial_value_algorithm, fns.initial_value_user_formula, fns.user_initial_value_conditions, fns.user_initial_value_condition_formula, fns.cbs, fns.useGlobalMethod, fns.globalMethodFactor, xJuliaCenter, yJuliaCenter);
     }
 
     public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, ImageExpanderWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, DomainColoringSettings ds, boolean inverse_dem, double color_intensity, int transfer_function, double color_intensity2, int transfer_function2, boolean usePaletteForInColoring, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, BlendingSettings color_blending, OrbitTrapSettings ots, ContourColoringSettings cns, int[] post_processing_order, LightSettings ls, PaletteGradientMergingSettings pbs, StatisticsSettings sts, int gradient_offset, HistogramColoringSettings hss, double contourFactor, GeneratedPaletteSettings gps, JitterSettings js, Apfloat xJuliaCenter, Apfloat yJuliaCenter) {
         this.contourFactor = contourFactor;
-        this.color_smoothing = fns.smoothing;
+        SMOOTH_DATA = fns.smoothing || ((ls.lighting || bms.bump_map || cns.contour_coloring || ens.entropy_coloring || rps.rainbow_palette || fdes.fake_de || sts.statistic) && USE_SMOOTHING_FOR_PROCESSING_ALGS);
         this.gps = gps;
         this.js = js;
-        settingsJuliaExpander(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns.bailout_test_algorithm, fns.bailout, fns.bailout_test_user_formula, fns.bailout_test_user_formula2, fns.bailout_test_comparison, fns.n_norm, ptr, fractal_color, dem_color, image, fs, fns.out_coloring_algorithm, fns.user_out_coloring_algorithm, fns.outcoloring_formula, fns.user_outcoloring_conditions, fns.user_outcoloring_condition_formula, fns.in_coloring_algorithm, fns.user_in_coloring_algorithm, fns.incoloring_formula, fns.user_incoloring_conditions, fns.user_incoloring_condition_formula, fns.smoothing, periodicity_checking, fns.plane_type, fns.apply_plane_on_julia, fns.apply_plane_on_julia_seed, fns.burning_ship, fns.mandel_grass, fns.mandel_grass_vals, fns.function, fns.z_exponent, fns.z_exponent_complex, color_cycling_location, color_cycling_location2, fns.rotation_vals, fns.rotation_center, fns.coefficients, fns.z_exponent_nova, fns.relaxation, fns.nova_method, fns.user_formula, fns.user_formula2, fns.bail_technique, fns.user_plane, fns.user_plane_algorithm, fns.user_plane_conditions, fns.user_plane_condition_formula, fns.user_formula_iteration_based, fns.user_formula_conditions, fns.user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, fns.plane_transform_center, fns.plane_transform_angle, fns.plane_transform_radius, fns.plane_transform_scales, fns.plane_transform_wavelength, fns.waveType, fns.plane_transform_angle2, fns.plane_transform_sides, fns.plane_transform_amount, fns.escaping_smooth_algorithm, fns.converging_smooth_algorithm, bms, polar_projection, circle_period, fdes, rps, fns.coupling, fns.user_formula_coupled, fns.coupling_method, fns.coupling_amplitude, fns.coupling_frequency, fns.coupling_seed, ds, inverse_dem, color_intensity, transfer_function, color_intensity2, transfer_function2, usePaletteForInColoring, ens, ofs, gss, color_blending, ots, cns, post_processing_order, ls, pbs, sts, fns.gcs, fns.coefficients_im, fns.lpns.lyapunovFinalExpression, fns.lpns.useLyapunovExponent, gradient_offset, fns.lpns.lyapunovFunction, fns.lpns.lyapunovExponentFunction, fns.lpns.lyapunovVariableId, fns.user_fz_formula, fns.user_dfz_formula, fns.user_ddfz_formula, fns.user_dddfz_formula, fns.user_relaxation_formula, fns.user_nova_addend_formula, fns.laguerre_deg, fns.gcps, fns.lfns, fns.newton_hines_k, fns.tcs, hss, fns.lpns.lyapunovInitialValue, fns.lpns.lyapunovInitializationIteratons, fns.lpns.lyapunovskipBailoutCheck, fns.preffs, fns.postffs, fns.ips, fns.juliter, fns.juliterIterations, fns.juliterIncludeInitialIterations, fns.defaultNovaInitialValue, fns.perturbation, fns.perturbation_vals, fns.variable_perturbation, fns.user_perturbation_algorithm, fns.perturbation_user_formula, fns.user_perturbation_conditions, fns.user_perturbation_condition_formula, fns.init_val, fns.initial_vals, fns.variable_init_value, fns.user_initial_value_algorithm, fns.initial_value_user_formula, fns.user_initial_value_conditions, fns.user_initial_value_condition_formula, fns.cbs, fns.useGlobalMethod, fns.globalMethodFactor, xJuliaCenter, yJuliaCenter);
+        settingsJuliaExpander(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns.bailout_test_algorithm, fns.bailout, fns.bailout_test_user_formula, fns.bailout_test_user_formula2, fns.bailout_test_comparison, fns.n_norm, ptr, fractal_color, dem_color, image, fs, fns.out_coloring_algorithm, fns.user_out_coloring_algorithm, fns.outcoloring_formula, fns.user_outcoloring_conditions, fns.user_outcoloring_condition_formula, fns.in_coloring_algorithm, fns.user_in_coloring_algorithm, fns.incoloring_formula, fns.user_incoloring_conditions, fns.user_incoloring_condition_formula, SMOOTH_DATA, periodicity_checking, fns.plane_type, fns.apply_plane_on_julia, fns.apply_plane_on_julia_seed, fns.burning_ship, fns.mandel_grass, fns.mandel_grass_vals, fns.function, fns.z_exponent, fns.z_exponent_complex, color_cycling_location, color_cycling_location2, fns.rotation_vals, fns.rotation_center, fns.coefficients, fns.z_exponent_nova, fns.relaxation, fns.nova_method, fns.user_formula, fns.user_formula2, fns.bail_technique, fns.user_plane, fns.user_plane_algorithm, fns.user_plane_conditions, fns.user_plane_condition_formula, fns.user_formula_iteration_based, fns.user_formula_conditions, fns.user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, fns.plane_transform_center, fns.plane_transform_angle, fns.plane_transform_radius, fns.plane_transform_scales, fns.plane_transform_wavelength, fns.waveType, fns.plane_transform_angle2, fns.plane_transform_sides, fns.plane_transform_amount, fns.escaping_smooth_algorithm, fns.converging_smooth_algorithm, bms, polar_projection, circle_period, fdes, rps, fns.coupling, fns.user_formula_coupled, fns.coupling_method, fns.coupling_amplitude, fns.coupling_frequency, fns.coupling_seed, ds, inverse_dem, color_intensity, transfer_function, color_intensity2, transfer_function2, usePaletteForInColoring, ens, ofs, gss, color_blending, ots, cns, post_processing_order, ls, pbs, sts, fns.gcs, fns.coefficients_im, fns.lpns.lyapunovFinalExpression, fns.lpns.useLyapunovExponent, gradient_offset, fns.lpns.lyapunovFunction, fns.lpns.lyapunovExponentFunction, fns.lpns.lyapunovVariableId, fns.user_fz_formula, fns.user_dfz_formula, fns.user_ddfz_formula, fns.user_dddfz_formula, fns.user_relaxation_formula, fns.user_nova_addend_formula, fns.laguerre_deg, fns.gcps, fns.lfns, fns.newton_hines_k, fns.tcs, hss, fns.lpns.lyapunovInitialValue, fns.lpns.lyapunovInitializationIteratons, fns.lpns.lyapunovskipBailoutCheck, fns.preffs, fns.postffs, fns.ips, fns.juliter, fns.juliterIterations, fns.juliterIncludeInitialIterations, fns.defaultNovaInitialValue, fns.perturbation, fns.perturbation_vals, fns.variable_perturbation, fns.user_perturbation_algorithm, fns.perturbation_user_formula, fns.user_perturbation_conditions, fns.user_perturbation_condition_formula, fns.init_val, fns.initial_vals, fns.variable_init_value, fns.user_initial_value_algorithm, fns.initial_value_user_formula, fns.user_initial_value_conditions, fns.user_initial_value_condition_formula, fns.cbs, fns.useGlobalMethod, fns.globalMethodFactor, xJuliaCenter, yJuliaCenter);
     }
 
     public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, boolean inverse_dem, double color_intensity, int transfer_function, double color_intensity2, int transfer_function2, boolean usePaletteForInColoring, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, BlendingSettings color_blending, OrbitTrapSettings ots, ContourColoringSettings cns, int[] post_processing_order, LightSettings ls, PaletteGradientMergingSettings pbs, StatisticsSettings sts, int gradient_offset, HistogramColoringSettings hss, double contourFactor, GeneratedPaletteSettings gps, JitterSettings js) {
         this.contourFactor = contourFactor;
-        this.color_smoothing = fns.smoothing;
+        SMOOTH_DATA = fns.smoothing || ((ls.lighting || bms.bump_map || cns.contour_coloring || ens.entropy_coloring || rps.rainbow_palette || fdes.fake_de || sts.statistic) && USE_SMOOTHING_FOR_PROCESSING_ALGS);
         this.gps = gps;
         this.js = js;
-        settingsJuliaMap(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns.bailout_test_algorithm, fns.bailout, fns.bailout_test_user_formula, fns.bailout_test_user_formula2, fns.bailout_test_comparison, fns.n_norm, ptr, fractal_color, dem_color, image, fs, fns.out_coloring_algorithm, fns.user_out_coloring_algorithm, fns.outcoloring_formula, fns.user_outcoloring_conditions, fns.user_outcoloring_condition_formula, fns.in_coloring_algorithm, fns.user_in_coloring_algorithm, fns.incoloring_formula, fns.user_incoloring_conditions, fns.user_incoloring_condition_formula, fns.smoothing, periodicity_checking, fns.plane_type, fns.apply_plane_on_julia, fns.apply_plane_on_julia_seed, fns.burning_ship, fns.mandel_grass, fns.mandel_grass_vals, fns.function, fns.z_exponent, fns.z_exponent_complex, color_cycling_location, color_cycling_location2, fns.rotation_vals, fns.rotation_center, fns.coefficients, fns.z_exponent_nova, fns.relaxation, fns.nova_method, fns.user_formula, fns.user_formula2, fns.bail_technique, fns.user_plane, fns.user_plane_algorithm, fns.user_plane_conditions, fns.user_plane_condition_formula, fns.user_formula_iteration_based, fns.user_formula_conditions, fns.user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, fns.plane_transform_center, fns.plane_transform_angle, fns.plane_transform_radius, fns.plane_transform_scales, fns.plane_transform_wavelength, fns.waveType, fns.plane_transform_angle2, fns.plane_transform_sides, fns.plane_transform_amount, fns.escaping_smooth_algorithm, fns.converging_smooth_algorithm, bms, polar_projection, circle_period, fdes, rps, fns.coupling, fns.user_formula_coupled, fns.coupling_method, fns.coupling_amplitude, fns.coupling_frequency, fns.coupling_seed, inverse_dem, color_intensity, transfer_function, color_intensity2, transfer_function2, usePaletteForInColoring, ens, ofs, gss, color_blending, ots, cns, post_processing_order, ls, pbs, sts, fns.gcs, fns.coefficients_im, fns.lpns.lyapunovFinalExpression, fns.lpns.useLyapunovExponent, gradient_offset, fns.lpns.lyapunovFunction, fns.lpns.lyapunovExponentFunction, fns.lpns.lyapunovVariableId, fns.user_fz_formula, fns.user_dfz_formula, fns.user_ddfz_formula, fns.user_dddfz_formula, fns.user_relaxation_formula, fns.user_nova_addend_formula, fns.laguerre_deg, fns.gcps, fns.lfns, fns.newton_hines_k, fns.tcs, hss, fns.lpns.lyapunovInitialValue, fns.lpns.lyapunovInitializationIteratons, fns.lpns.lyapunovskipBailoutCheck, fns.preffs, fns.postffs, fns.ips, fns.juliter, fns.juliterIterations, fns.juliterIncludeInitialIterations, fns.defaultNovaInitialValue, fns.perturbation, fns.perturbation_vals, fns.variable_perturbation, fns.user_perturbation_algorithm, fns.perturbation_user_formula, fns.user_perturbation_conditions, fns.user_perturbation_condition_formula, fns.init_val, fns.initial_vals, fns.variable_init_value, fns.user_initial_value_algorithm, fns.initial_value_user_formula, fns.user_initial_value_conditions, fns.user_initial_value_condition_formula, fns.cbs, fns.useGlobalMethod, fns.globalMethodFactor);
+        settingsJuliaMap(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns.bailout_test_algorithm, fns.bailout, fns.bailout_test_user_formula, fns.bailout_test_user_formula2, fns.bailout_test_comparison, fns.n_norm, ptr, fractal_color, dem_color, image, fs, fns.out_coloring_algorithm, fns.user_out_coloring_algorithm, fns.outcoloring_formula, fns.user_outcoloring_conditions, fns.user_outcoloring_condition_formula, fns.in_coloring_algorithm, fns.user_in_coloring_algorithm, fns.incoloring_formula, fns.user_incoloring_conditions, fns.user_incoloring_condition_formula, SMOOTH_DATA, periodicity_checking, fns.plane_type, fns.apply_plane_on_julia, fns.apply_plane_on_julia_seed, fns.burning_ship, fns.mandel_grass, fns.mandel_grass_vals, fns.function, fns.z_exponent, fns.z_exponent_complex, color_cycling_location, color_cycling_location2, fns.rotation_vals, fns.rotation_center, fns.coefficients, fns.z_exponent_nova, fns.relaxation, fns.nova_method, fns.user_formula, fns.user_formula2, fns.bail_technique, fns.user_plane, fns.user_plane_algorithm, fns.user_plane_conditions, fns.user_plane_condition_formula, fns.user_formula_iteration_based, fns.user_formula_conditions, fns.user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, fns.plane_transform_center, fns.plane_transform_angle, fns.plane_transform_radius, fns.plane_transform_scales, fns.plane_transform_wavelength, fns.waveType, fns.plane_transform_angle2, fns.plane_transform_sides, fns.plane_transform_amount, fns.escaping_smooth_algorithm, fns.converging_smooth_algorithm, bms, polar_projection, circle_period, fdes, rps, fns.coupling, fns.user_formula_coupled, fns.coupling_method, fns.coupling_amplitude, fns.coupling_frequency, fns.coupling_seed, inverse_dem, color_intensity, transfer_function, color_intensity2, transfer_function2, usePaletteForInColoring, ens, ofs, gss, color_blending, ots, cns, post_processing_order, ls, pbs, sts, fns.gcs, fns.coefficients_im, fns.lpns.lyapunovFinalExpression, fns.lpns.useLyapunovExponent, gradient_offset, fns.lpns.lyapunovFunction, fns.lpns.lyapunovExponentFunction, fns.lpns.lyapunovVariableId, fns.user_fz_formula, fns.user_dfz_formula, fns.user_ddfz_formula, fns.user_dddfz_formula, fns.user_relaxation_formula, fns.user_nova_addend_formula, fns.laguerre_deg, fns.gcps, fns.lfns, fns.newton_hines_k, fns.tcs, hss, fns.lpns.lyapunovInitialValue, fns.lpns.lyapunovInitializationIteratons, fns.lpns.lyapunovskipBailoutCheck, fns.preffs, fns.postffs, fns.ips, fns.juliter, fns.juliterIterations, fns.juliterIncludeInitialIterations, fns.defaultNovaInitialValue, fns.perturbation, fns.perturbation_vals, fns.variable_perturbation, fns.user_perturbation_algorithm, fns.perturbation_user_formula, fns.user_perturbation_conditions, fns.user_perturbation_condition_formula, fns.init_val, fns.initial_vals, fns.variable_init_value, fns.user_initial_value_algorithm, fns.initial_value_user_formula, fns.user_initial_value_conditions, fns.user_initial_value_condition_formula, fns.cbs, fns.useGlobalMethod, fns.globalMethodFactor);
     }
 
     public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, MainWindow ptr, Color fractal_color, Color dem_color, boolean fast_julia_filters, BufferedImage image, boolean periodicity_checking, FiltersSettings fs, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, boolean inverse_dem, double color_intensity, int transfer_function, double color_intensity2, int transfer_function2, boolean usePaletteForInColoring, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, BlendingSettings color_blending, OrbitTrapSettings ots, ContourColoringSettings cns, int[] post_processing_order, LightSettings ls, PaletteGradientMergingSettings pbs, StatisticsSettings sts, int gradient_offset, HistogramColoringSettings hss, double contourFactor, GeneratedPaletteSettings gps, JitterSettings js, Apfloat xJuliaCenter, Apfloat yJuliaCenter) {
         this.contourFactor = contourFactor;
-        this.color_smoothing = fns.smoothing;
+        SMOOTH_DATA = fns.smoothing || ((ls.lighting || bms.bump_map || cns.contour_coloring || ens.entropy_coloring || rps.rainbow_palette || fdes.fake_de || sts.statistic) && USE_SMOOTHING_FOR_PROCESSING_ALGS);
         this.gps = gps;
         this.js = js;
-        settingsJuliaPreview(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns.bailout_test_algorithm, fns.bailout, fns.bailout_test_user_formula, fns.bailout_test_user_formula2, fns.bailout_test_comparison, fns.n_norm, ptr, fractal_color, dem_color, fast_julia_filters, image, periodicity_checking, fns.plane_type, fns.apply_plane_on_julia, fns.apply_plane_on_julia_seed, fns.out_coloring_algorithm, fns.user_out_coloring_algorithm, fns.outcoloring_formula, fns.user_outcoloring_conditions, fns.user_outcoloring_condition_formula, fns.in_coloring_algorithm, fns.user_in_coloring_algorithm, fns.incoloring_formula, fns.user_incoloring_conditions, fns.user_incoloring_condition_formula, fns.smoothing, fs, fns.burning_ship, fns.mandel_grass, fns.mandel_grass_vals, fns.function, fns.z_exponent, fns.z_exponent_complex, color_cycling_location, color_cycling_location2, fns.rotation_vals, fns.rotation_center, fns.coefficients, fns.z_exponent_nova, fns.relaxation, fns.nova_method, fns.user_formula, fns.user_formula2, fns.bail_technique, fns.user_plane, fns.user_plane_algorithm, fns.user_plane_conditions, fns.user_plane_condition_formula, fns.user_formula_iteration_based, fns.user_formula_conditions, fns.user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, fns.plane_transform_center, fns.plane_transform_angle, fns.plane_transform_radius, fns.plane_transform_scales, fns.plane_transform_wavelength, fns.waveType, fns.plane_transform_angle2, fns.plane_transform_sides, fns.plane_transform_amount, fns.escaping_smooth_algorithm, fns.converging_smooth_algorithm, bms, polar_projection, circle_period, fdes, rps, fns.coupling, fns.user_formula_coupled, fns.coupling_method, fns.coupling_amplitude, fns.coupling_frequency, fns.coupling_seed, inverse_dem, color_intensity, transfer_function, color_intensity2, transfer_function2, usePaletteForInColoring, ens, ofs, gss, color_blending, ots, cns, post_processing_order, ls, pbs, sts, fns.gcs, fns.coefficients_im, fns.lpns.lyapunovFinalExpression, fns.lpns.useLyapunovExponent, gradient_offset, fns.lpns.lyapunovFunction, fns.lpns.lyapunovExponentFunction, fns.lpns.lyapunovVariableId, fns.user_fz_formula, fns.user_dfz_formula, fns.user_ddfz_formula, fns.user_dddfz_formula, fns.user_relaxation_formula, fns.user_nova_addend_formula, fns.laguerre_deg, fns.gcps, fns.lfns, fns.newton_hines_k, fns.tcs, hss, fns.lpns.lyapunovInitialValue, fns.lpns.lyapunovInitializationIteratons, fns.lpns.lyapunovskipBailoutCheck, fns.preffs, fns.postffs, fns.ips, fns.juliter, fns.juliterIterations, fns.juliterIncludeInitialIterations, fns.defaultNovaInitialValue, fns.perturbation, fns.perturbation_vals, fns.variable_perturbation, fns.user_perturbation_algorithm, fns.perturbation_user_formula, fns.user_perturbation_conditions, fns.user_perturbation_condition_formula, fns.init_val, fns.initial_vals, fns.variable_init_value, fns.user_initial_value_algorithm, fns.initial_value_user_formula, fns.user_initial_value_conditions, fns.user_initial_value_condition_formula, fns.cbs, fns.useGlobalMethod, fns.globalMethodFactor, xJuliaCenter, yJuliaCenter);
+        settingsJuliaPreview(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns.bailout_test_algorithm, fns.bailout, fns.bailout_test_user_formula, fns.bailout_test_user_formula2, fns.bailout_test_comparison, fns.n_norm, ptr, fractal_color, dem_color, fast_julia_filters, image, periodicity_checking, fns.plane_type, fns.apply_plane_on_julia, fns.apply_plane_on_julia_seed, fns.out_coloring_algorithm, fns.user_out_coloring_algorithm, fns.outcoloring_formula, fns.user_outcoloring_conditions, fns.user_outcoloring_condition_formula, fns.in_coloring_algorithm, fns.user_in_coloring_algorithm, fns.incoloring_formula, fns.user_incoloring_conditions, fns.user_incoloring_condition_formula, SMOOTH_DATA, fs, fns.burning_ship, fns.mandel_grass, fns.mandel_grass_vals, fns.function, fns.z_exponent, fns.z_exponent_complex, color_cycling_location, color_cycling_location2, fns.rotation_vals, fns.rotation_center, fns.coefficients, fns.z_exponent_nova, fns.relaxation, fns.nova_method, fns.user_formula, fns.user_formula2, fns.bail_technique, fns.user_plane, fns.user_plane_algorithm, fns.user_plane_conditions, fns.user_plane_condition_formula, fns.user_formula_iteration_based, fns.user_formula_conditions, fns.user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, fns.plane_transform_center, fns.plane_transform_angle, fns.plane_transform_radius, fns.plane_transform_scales, fns.plane_transform_wavelength, fns.waveType, fns.plane_transform_angle2, fns.plane_transform_sides, fns.plane_transform_amount, fns.escaping_smooth_algorithm, fns.converging_smooth_algorithm, bms, polar_projection, circle_period, fdes, rps, fns.coupling, fns.user_formula_coupled, fns.coupling_method, fns.coupling_amplitude, fns.coupling_frequency, fns.coupling_seed, inverse_dem, color_intensity, transfer_function, color_intensity2, transfer_function2, usePaletteForInColoring, ens, ofs, gss, color_blending, ots, cns, post_processing_order, ls, pbs, sts, fns.gcs, fns.coefficients_im, fns.lpns.lyapunovFinalExpression, fns.lpns.useLyapunovExponent, gradient_offset, fns.lpns.lyapunovFunction, fns.lpns.lyapunovExponentFunction, fns.lpns.lyapunovVariableId, fns.user_fz_formula, fns.user_dfz_formula, fns.user_ddfz_formula, fns.user_dddfz_formula, fns.user_relaxation_formula, fns.user_nova_addend_formula, fns.laguerre_deg, fns.gcps, fns.lfns, fns.newton_hines_k, fns.tcs, hss, fns.lpns.lyapunovInitialValue, fns.lpns.lyapunovInitializationIteratons, fns.lpns.lyapunovskipBailoutCheck, fns.preffs, fns.postffs, fns.ips, fns.juliter, fns.juliterIterations, fns.juliterIncludeInitialIterations, fns.defaultNovaInitialValue, fns.perturbation, fns.perturbation_vals, fns.variable_perturbation, fns.user_perturbation_algorithm, fns.perturbation_user_formula, fns.user_perturbation_conditions, fns.user_perturbation_condition_formula, fns.init_val, fns.initial_vals, fns.variable_init_value, fns.user_initial_value_algorithm, fns.initial_value_user_formula, fns.user_initial_value_conditions, fns.user_initial_value_condition_formula, fns.cbs, fns.useGlobalMethod, fns.globalMethodFactor, xJuliaCenter, yJuliaCenter);
     }
 
     //Fractal
     private void settingsFractal(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, D3Settings d3s, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, int plane_type, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, int color_cycling_location2, Apfloat[] rotation_vals, Apfloat[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_val, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, boolean exterior_de, double exterior_de_factor, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, int converging_smooth_algorithm, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, String user_fz_formula, String user_dfz_formula, String user_ddfz_formula, String user_dddfz_formula, double coupling, String[] user_formula_coupled, int coupling_method, double coupling_amplitude, double coupling_frequency, int coupling_seed, DomainColoringSettings ds, boolean inverse_dem, boolean quickDraw, double color_intensity, int transfer_function, double color_intensity2, int transfer_function2, boolean usePaletteForInColoring, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, double[] laguerre_deg, BlendingSettings color_blending, OrbitTrapSettings ots, ContourColoringSettings cns, double[] kleinianLine, double kleinianK, double kleinianM, int[] post_processing_order, LightSettings ls, PaletteGradientMergingSettings pbs, StatisticsSettings sts, GenericCaZbdZeSettings gcs, double[] durand_kernel_init_val, MagneticPendulumSettings mps, double[] coefficients_im, String[] lyapunovExpression, boolean useLyapunovExponent, int gradient_offset, String lyapunovFunction, String lyapunovExponentFunction, int lyapunovVariableId, String user_relaxation_formula, String user_nova_addend_formula, GenericCpAZpBCSettings gcps, InertiaGravityFractalSettings igs, LambdaFnFnSettings lfns, double[] newton_hines_k, TrueColorSettings tcs, String lyapunovInitialValue, HistogramColoringSettings hss, int lyapunovInitializationIteratons, boolean lyapunovskipBailoutCheck, int root_initialization_method, FunctionFilterSettings preffs, FunctionFilterSettings postffs, PlaneInfluenceSettings ips, boolean defaultNovaInitialValue, ConvergentBailoutConditionSettings cbs,  boolean useGlobalMethod, double[] globalMethodFactor, int period) {
-
-        if (quickDraw && size.compareTo(MyApfloat.MIN_DOUBLE_SIZE) > 0 && max_iterations > 3000) {
-            max_iterations = 3000;
-        }
 
         this.xCenter = xCenter;
         this.yCenter = yCenter;
@@ -742,10 +752,6 @@ public abstract class ThreadDraw extends Thread {
 
     //Julia
     private void settingsJulia(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, D3Settings d3s, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, int color_cycling_location2, Apfloat[] rotation_vals, Apfloat[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, boolean exterior_de, double exterior_de_factor, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, int converging_smooth_algorithm, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, double coupling, String[] user_formula_coupled, int coupling_method, double coupling_amplitude, double coupling_frequency, int coupling_seed, DomainColoringSettings ds, boolean inverse_dem, boolean quickDraw, double color_intensity, int transfer_function, double color_intensity2, int transfer_function2, boolean usePaletteForInColoring, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, BlendingSettings color_blending, OrbitTrapSettings ots, ContourColoringSettings cns, int[] post_processing_order, LightSettings ls, PaletteGradientMergingSettings pbs, StatisticsSettings sts, GenericCaZbdZeSettings gcs, double[] coefficients_im, String[] lyapunovExpression, boolean useLyapunovExponent, int gradient_offset, String lyapunovFunction, String lyapunovExponentFunction, int lyapunovVariableId, String user_fz_formula, String user_dfz_formula, String user_ddfz_formula, String user_dddfz_formula, String user_relaxation_formula, String user_nova_addend_formula, double[] laguerre_deg, GenericCpAZpBCSettings gcps, LambdaFnFnSettings lfns, double[] newton_hines_k, TrueColorSettings tcs, HistogramColoringSettings hss, String lyapunovInitialValue, int lyapunovInitializationIteratons, boolean lyapunovskipBailoutCheck, FunctionFilterSettings preffs, FunctionFilterSettings postffs, PlaneInfluenceSettings ips, boolean juliter, int juliterIterations, boolean juliterIncludeInitialIterations, boolean defaultNovaInitialValue, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String perturbation_user_formula, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String initial_value_user_formula, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, ConvergentBailoutConditionSettings cbs,  boolean useGlobalMethod, double[] globalMethodFactor, Apfloat xJuliaCenter, Apfloat yJuliaCenter) {
-
-        if (quickDraw && size.compareTo(MyApfloat.MIN_DOUBLE_SIZE) > 0 && max_iterations > 3000) {
-            max_iterations = 3000;
-        }
 
         this.xCenter = xCenter;
         this.yCenter = yCenter;
@@ -1205,7 +1211,6 @@ public abstract class ThreadDraw extends Thread {
         this.filters_options_vals = fs.filters_options_vals;
         this.filters_options_extra_vals = fs.filters_options_extra_vals;
         this.contourFactor = contourFactor;
-        this.color_smoothing = smoothing;
         this.gps = gps;
 
         action = COLOR_CYCLING;
@@ -1273,7 +1278,6 @@ public abstract class ThreadDraw extends Thread {
         this.filters_options_vals = fs.filters_options_vals;
         this.filters_options_extra_vals = fs.filters_options_extra_vals;
         this.contourFactor = contourFactor;
-        this.color_smoothing = smoothing;
         action = APPLY_PALETTE_AND_FILTER;
         this.gps = gps;
 
@@ -1336,7 +1340,6 @@ public abstract class ThreadDraw extends Thread {
         //this.d3_draw_method = d3_draw_method;
         this.color_3d_blending = d3s.color_3d_blending;
         this.contourFactor = contourFactor;
-        this.color_smoothing = smoothing;
 
         this.color_blending = color_blending;
 
@@ -1360,9 +1363,14 @@ public abstract class ThreadDraw extends Thread {
 
     }
 
+    public boolean started() {
+        return started;
+    }
+
     @Override
     public void run() {
 
+        started = true;
         try {
             switch (action) {
 
@@ -1444,6 +1452,9 @@ public abstract class ThreadDraw extends Thread {
         catch (IllegalMonitorStateException ex) {
 
         }
+        catch (Exception ex) {
+
+        }
 
     }
 
@@ -1498,62 +1509,87 @@ public abstract class ThreadDraw extends Thread {
 
         int bigNumLib = getBignumLibrary(size, fractal);
 
+        int arbitraryLib = getHighPrecisionLibrary(size, fractal);
+
         boolean isDeep = size.compareTo(MyApfloat.MAX_DOUBLE_SIZE) < 0;
+
+        String oldValue = "";
+        if(createFullImageAfterPreview) {
+            oldValue = progress.getToolTipText();
+            oldValue = oldValue.replace("<html>", "");
+            oldValue = oldValue.replace("</html>", "");
+        }
 
         progress.setToolTipText("<html><li>Total Elapsed Time: <b>" + total_time + " ms</b><br>" +
                 "<li>Pixels Calculated: <b>" + String.format("%6.2f", ((double) total_calculated_pixels) / (total) * 100) + "%</b><br>" +
                 "<li>Image Size: <b>" + IMAGE_SIZE + "x" +  IMAGE_SIZE + "</b><br>" +
-                (filters[MainWindow.ANTIALIASING] ? "<li>Anti-Aliasing Samples: <b>" +  supersampling_num + "x</b><br>" : "") +
+                (!quickDraw && filters[MainWindow.ANTIALIASING] ? "<li>Anti-Aliasing Samples: <b>" +  supersampling_num + "x</b><br>" : "") +
                 "<li>Threads used: <b>" + threads + "</b><br>" +
-                (PERTURBATION_THEORY && fractal.supportsPerturbationTheory() ? "<li>Arbitrary Precision: <b>" + MyApfloat.precision + " digits</b><br>" : "") +
+                ((PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory() ? "<li>Arbitrary Precision: <b>" + MyApfloat.precision + " digits</b><br>" : "") +
 
-                (PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && USE_BIGNUM_FOR_REF_IF_POSSIBLE && (bigNumLib == Constants.BIGNUM_BUILT_IN || bigNumLib == Constants.BIGNUM_MPFR) ? "<li>BigNum Library: <b>" + (bigNumLib == Constants.BIGNUM_BUILT_IN ? "Built-in" : "MPFR " + LibMpfr.mpfr_version) + "</b><br>" : "") +
-                (PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && USE_BIGNUM_FOR_REF_IF_POSSIBLE && (bigNumLib == Constants.BIGNUM_BUILT_IN || bigNumLib == Constants.BIGNUM_MPFR) ? "<li>BigNum Precision: <b>" + (bigNumLib == Constants.BIGNUM_MPFR && fractal.supportsMpfrBignum() ? MpfrBigNum.precision : BigNum.fracDigits * BigNum.SHIFT) + " bits</b><br>" : "") +
+                (HIGH_PRECISION_CALCULATION && fractal.supportsPerturbationTheory() && (arbitraryLib == Constants.ARBITRARY_BUILT_IN || arbitraryLib == Constants.ARBITRARY_MPFR) ? "<li>BigNum Library: <b>" + (arbitraryLib == Constants.ARBITRARY_BUILT_IN ? "Built-in" : "MPFR " + LibMpfr.mpfr_version) + "</b><br>" : "") +
+                (HIGH_PRECISION_CALCULATION && fractal.supportsPerturbationTheory() && (arbitraryLib == Constants.ARBITRARY_BUILT_IN || arbitraryLib == Constants.ARBITRARY_MPFR) ? "<li>BigNum Precision: <b>" + (arbitraryLib == Constants.ARBITRARY_MPFR && fractal.supportsMpfrBignum() ? MpfrBigNum.precision : BigNum.fracDigits * BigNum.SHIFT) + " bits</b><br>" : "") +
+                (HIGH_PRECISION_CALCULATION && fractal.supportsPerturbationTheory() && arbitraryLib == Constants.ARBITRARY_DOUBLEDOUBLE ? "<li>BigNum Library: <b>DoubleDouble</b><br>" : "") +
+                (HIGH_PRECISION_CALCULATION && fractal.supportsPerturbationTheory() && arbitraryLib == Constants.ARBITRARY_DOUBLEDOUBLE ? "<li>BigNum Precision: <b>" + (106) + " bits</b><br>" : "") +
+                (HIGH_PRECISION_CALCULATION && fractal.supportsPerturbationTheory() && arbitraryLib == Constants.ARBITRARY_APFLOAT ? "<li>BigNum Library: <b>Apfloat</b><br>" : "") +
 
-                (PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && USE_BIGNUM_FOR_REF_IF_POSSIBLE && bigNumLib == Constants.BIGNUM_DOUBLE ? "<li>BigNum Library: <b>Double</b><br>" : "") +
-                (PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && USE_BIGNUM_FOR_REF_IF_POSSIBLE && bigNumLib == Constants.BIGNUM_DOUBLE ? "<li>BigNum Precision: <b>" + (MpfrBigNum.doublePrec) + " bits</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && USE_BIGNUM_FOR_REF_IF_POSSIBLE && (bigNumLib == Constants.BIGNUM_BUILT_IN || bigNumLib == Constants.BIGNUM_MPFR) ? "<li>BigNum Library: <b>" + (bigNumLib == Constants.BIGNUM_BUILT_IN ? "Built-in" : "MPFR " + LibMpfr.mpfr_version) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && USE_BIGNUM_FOR_REF_IF_POSSIBLE && (bigNumLib == Constants.BIGNUM_BUILT_IN || bigNumLib == Constants.BIGNUM_MPFR) ? "<li>BigNum Precision: <b>" + (bigNumLib == Constants.BIGNUM_MPFR && fractal.supportsMpfrBignum() ? MpfrBigNum.precision : BigNum.fracDigits * BigNum.SHIFT) + " bits</b><br>" : "") +
 
-                (PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && USE_BIGNUM_FOR_REF_IF_POSSIBLE && bigNumLib == Constants.BIGNUM_DOUBLEDOUBLE ? "<li>BigNum Library: <b>DoubleDouble</b><br>" : "") +
-                (PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && USE_BIGNUM_FOR_REF_IF_POSSIBLE && bigNumLib == Constants.BIGNUM_DOUBLEDOUBLE ? "<li>BigNum Precision: <b>" + (106) + " bits</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && USE_BIGNUM_FOR_REF_IF_POSSIBLE && bigNumLib == Constants.BIGNUM_DOUBLE ? "<li>BigNum Library: <b>Double</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && USE_BIGNUM_FOR_REF_IF_POSSIBLE && bigNumLib == Constants.BIGNUM_DOUBLE ? "<li>BigNum Precision: <b>" + (MpfrBigNum.doublePrec) + " bits</b><br>" : "") +
+
+                (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && USE_BIGNUM_FOR_REF_IF_POSSIBLE && bigNumLib == Constants.BIGNUM_DOUBLEDOUBLE ? "<li>BigNum Library: <b>DoubleDouble</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && USE_BIGNUM_FOR_REF_IF_POSSIBLE && bigNumLib == Constants.BIGNUM_DOUBLEDOUBLE ? "<li>BigNum Precision: <b>" + (106) + " bits</b><br>" : "") +
 
 
-                (PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && (!USE_BIGNUM_FOR_REF_IF_POSSIBLE || bigNumLib == Constants.BIGNUM_APFLOAT) ? "<li>BigNum Library: <b>Apfloat</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && (!USE_BIGNUM_FOR_REF_IF_POSSIBLE || bigNumLib == Constants.BIGNUM_APFLOAT) ? "<li>BigNum Library: <b>Apfloat</b><br>" : "") +
                 "<li>Pixel Calculation Elapsed Time: <b>" + getPixelCalculationTime(total_time) + " ms</b><br>" +
-                "<li>Post Processing Elapsed Time: <b>" + PostProcessingCalculationTime + " ms</b><br>" +
-                "<li>Image Filters Elapsed Time: <b>" + FilterCalculationTime + " ms</b><br>" +
+                (!quickDraw ? "<li>Post Processing Elapsed Time: <b>" + PostProcessingCalculationTime + " ms</b><br>" : "") +
+                (!quickDraw ? "<li>Image Filters Elapsed Time: <b>" + FilterCalculationTime + " ms</b><br>" : "")+
                 (d3 ? "<li>3D Rendering Elapsed Time: <b>" + D3RenderingCalculationTime + " ms</b><br>" : "") +
-                (PERTURBATION_THEORY && fractal.supportsPerturbationTheory()  ? "<li>Reference Calculation Elapsed Time: <b>" + Fractal.ReferenceCalculationTime + " ms</b><br>" : "") +
-                (PERTURBATION_THEORY && fractal.supportsPerturbationTheory()  ? "<li>Reference Point Iterations: <b>" + (fractal.getReferenceFinalIterationNumber() + 1) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && fractal.supportsPerturbationTheory()  ? "<li>Reference Calculation Elapsed Time: <b>" + Fractal.ReferenceCalculationTime + " ms</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && fractal.supportsPerturbationTheory()  ? "<li>Reference Point Iterations: <b>" + (fractal.getReferenceFinalIterationNumber(false) + 1) + "</b><br>" : "") +
 
-                (PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && fractal.needsSecondReference() ? "<li>Second Reference Calculation Elapsed Time: <b>" + Fractal.SecondReferenceCalculationTime + " ms</b><br>" : "") +
-                (PERTURBATION_THEORY && fractal.supportsPerturbationTheory()  && fractal.needsSecondReference() ? "<li>Second Reference Point Iterations: <b>" + (fractal.MaxRef2Iteration + 1) + "</b><br>" : "") +
-                (PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && APPROXIMATION_ALGORITHM == 1 && fractal.supportsSeriesApproximation() && Fractal.skippedIterations != 0 && Fractal.SATerms != 0 ? "<li>SA Calculation Elapsed Time: <b>" + Fractal.SACalculationTime + " ms</b><br>" : "") +
-                (PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && APPROXIMATION_ALGORITHM == 1 && fractal.supportsSeriesApproximation() && Fractal.skippedIterations != 0 && Fractal.SATerms != 0 ? "<li>SA Terms Used: <b>" + Fractal.SATerms + "</b><br>" : "") +
-                (PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && APPROXIMATION_ALGORITHM == 1 && fractal.supportsSeriesApproximation() && Fractal.skippedIterations != 0 && Fractal.SATerms != 0 ? "<li>SA Skipped Iterations: <b>" + Fractal.skippedIterations + "</b><br>": "") +
+                (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && fractal.needsSecondReference() ? "<li>Second Reference Calculation Elapsed Time: <b>" + Fractal.SecondReferenceCalculationTime + " ms</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && fractal.supportsPerturbationTheory()  && fractal.needsSecondReference() ? "<li>Second Reference Point Iterations: <b>" + (fractal.MaxRef2Iteration + 1) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && DETECT_PERIOD && fractal.supportsPeriod()  ? "<li>Detected Atom Period: <b>" + Fractal.DetectedAtomPeriod + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && fractal.supportsPeriod() && fractal.getPeriod()  != 0 ? "<li>Used Period: <b>" + fractal.getPeriod() + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && APPROXIMATION_ALGORITHM == 1 && fractal.supportsSeriesApproximation() && Fractal.skippedIterations != 0 && Fractal.SATerms != 0 ? "<li>SA Calculation Elapsed Time: <b>" + Fractal.SACalculationTime + " ms</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && APPROXIMATION_ALGORITHM == 1 && fractal.supportsSeriesApproximation() && Fractal.skippedIterations != 0 && Fractal.SATerms != 0 ? "<li>SA Terms Used: <b>" + Fractal.SATerms + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && APPROXIMATION_ALGORITHM == 1 && fractal.supportsSeriesApproximation() && Fractal.skippedIterations != 0 && Fractal.SATerms != 0 ? "<li>SA Skipped Iterations: <b>" + Fractal.skippedIterations + "</b><br>": "") +
 
-                (PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && APPROXIMATION_ALGORITHM == 3 && fractal.supportsNanomb1() ? "<li>Nanomb1 Calculation Elapsed Time: <b>" + Fractal.Nanomb1CalculationTime + " ms</b><br>" : "") +
-                (PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && APPROXIMATION_ALGORITHM == 3 && fractal.supportsNanomb1() ? "<li>Nanomb1 M: <b>" + NANOMB1_M + "</b><br>" : "") +
-                (PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && APPROXIMATION_ALGORITHM == 3 && fractal.supportsNanomb1() ? "<li>Nanomb1 N: <b>" + NANOMB1_N + "</b><br>" : "") +
-                (GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && APPROXIMATION_ALGORITHM == 3 && fractal.supportsNanomb1() ? "<li>Nanomb1 Skipped Iterations Per Pixel: <b>" + String.format("%.2f", Fractal.total_nanomb1_skipped_iterations.sum() / ((double) total_calculated_pixels * (supersampling_num + 1))) + "</b><br>": "") +
-                (PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && APPROXIMATION_ALGORITHM == 2 && fractal.supportsBilinearApproximation()  ? "<li>BLA Calculation Elapsed Time: <b>" + Fractal.BLACalculationTime + " ms</b><br>" : "") +
-                (PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && APPROXIMATION_ALGORITHM == 2 && fractal.supportsBilinearApproximation()  ? "<li>BLA Precision: <b>" + ThreadDraw.BLA_BITS + " bits</b><br>" : "") +
-                (PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && APPROXIMATION_ALGORITHM == 2 && fractal.supportsBilinearApproximation()  ? "<li>BLA Starting Level: <b>" + ThreadDraw.BLA_STARTING_LEVEL + "</b><br>" : "") +
-                (GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && APPROXIMATION_ALGORITHM == 2 && fractal.supportsBilinearApproximation()  ? "<li>BLA Iterations Per Pixel: <b>" +  String.format("%.2f", Fractal.total_bla_iterations.sum() / ((double) total_calculated_pixels * (supersampling_num + 1))) + "</b><br>" : "") +
-                (GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && APPROXIMATION_ALGORITHM == 2 && fractal.supportsBilinearApproximation()  ? "<li>BLA Iterations Per BLA Step: <b>" +  (Fractal.total_bla_steps.sum() == 0 ? "N/A" : String.format("%.2f", Fractal.total_bla_iterations.sum() / ((double)Fractal.total_bla_steps.sum()))) + "</b><br>" : "") +
-                (GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && APPROXIMATION_ALGORITHM == 2 && fractal.supportsBilinearApproximation()  ? "<li>Perturbation Iterations Per Pixel: <b>" +  String.format("%.2f", Fractal.total_perturb_iterations.sum() / ((double) total_calculated_pixels * (supersampling_num + 1))) + "</b><br>" : "") +
-                (GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && APPROXIMATION_ALGORITHM == 2 && fractal.supportsBilinearApproximation()  ? "<li>BLA Steps Per Pixel: <b>" + String.format("%.2f", Fractal.total_bla_steps.sum() / ((double) total_calculated_pixels * (supersampling_num + 1))) + "</b><br>" : "") +
-                (GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && APPROXIMATION_ALGORITHM == 2 && fractal.supportsBilinearApproximation()  ? "<li>Total Steps Per Pixel: <b>" + String.format("%.2f", (Fractal.total_bla_steps.sum() + Fractal.total_perturb_iterations.sum()) / ((double) total_calculated_pixels * (supersampling_num + 1))) + "</b><br>" : "") +
-                (GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && (APPROXIMATION_ALGORITHM != 2 || !fractal.supportsBilinearApproximation()) && ThreadDraw.PERTUBATION_PIXEL_ALGORITHM == 1 && fractal.supportsScaledIterations() && isDeep ? "<li>FloatExp Iterations Per Pixel: <b>" +  (String.format("%.2f", Fractal.total_float_exp_iterations.sum() / ((double) total_calculated_pixels * (supersampling_num + 1)))) + "</b><br>" : "") +
-                (GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && (APPROXIMATION_ALGORITHM != 2 || !fractal.supportsBilinearApproximation()) && ThreadDraw.PERTUBATION_PIXEL_ALGORITHM == 1 && fractal.supportsScaledIterations() && isDeep ? "<li>Scaled Double Iterations Per Pixel: <b>" +  (String.format("%.2f", Fractal.total_scaled_iterations.sum() / ((double) total_calculated_pixels * (supersampling_num + 1)))) + "</b><br>" : "") +
-                (GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && (APPROXIMATION_ALGORITHM != 2 || !fractal.supportsBilinearApproximation()) && ThreadDraw.PERTUBATION_PIXEL_ALGORITHM == 1 && fractal.supportsScaledIterations() && isDeep ? "<li>Normal Double Iterations Per Pixel: <b>" +  (String.format("%.2f", Fractal.total_double_iterations.sum() / ((double) total_calculated_pixels * (supersampling_num + 1)))) + "</b><br>" : "") +
-                (GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && (APPROXIMATION_ALGORITHM != 2 || !fractal.supportsBilinearApproximation()) && (ThreadDraw.PERTUBATION_PIXEL_ALGORITHM == 0 || !fractal.supportsScaledIterations()) && isDeep ? "<li>FloatExp Iterations Per Pixel: <b>" +  (String.format("%.2f", Fractal.total_float_exp_iterations.sum() / ((double) total_calculated_pixels * (supersampling_num + 1)))) + "</b><br>" : "") +
-                (GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && (APPROXIMATION_ALGORITHM != 2 || !fractal.supportsBilinearApproximation()) && (ThreadDraw.PERTUBATION_PIXEL_ALGORITHM == 0 || !fractal.supportsScaledIterations()) && isDeep ? "<li>Normal Double Iterations Per Pixel: <b>" +  (String.format("%.2f", Fractal.total_double_iterations.sum() / ((double) total_calculated_pixels * (supersampling_num + 1)))) + "</b><br>" : "") +
-                (GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && (APPROXIMATION_ALGORITHM != 2 || !fractal.supportsBilinearApproximation()) && !isDeep ? "<li>Normal Double Iterations Per Pixel: <b>" +  (String.format("%.2f", Fractal.total_double_iterations.sum() / ((double) total_calculated_pixels * (supersampling_num + 1)))) + "</b><br>" : "") +
-                (GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && fractal.supportsPerturbationTheory() ? "<li>Rebases Per Pixel: <b>" +  String.format("%.2f", Fractal.total_rebases.sum() / ((double) total_calculated_pixels * (supersampling_num + 1))) + "</b><br>" : "") +
-                (GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && fractal.supportsPerturbationTheory() ? "<li>Total Iterations Per Pixel: <b>" +  String.format("%.2f", ( Fractal.total_double_iterations.sum() + Fractal.total_scaled_iterations.sum() + Fractal.total_float_exp_iterations.sum() + Fractal.total_perturb_iterations.sum() + Fractal.total_bla_iterations.sum())/ ((double) total_calculated_pixels * (supersampling_num + 1))) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && APPROXIMATION_ALGORITHM == 3 && fractal.supportsNanomb1() ? "<li>Nanomb1 Calculation Elapsed Time: <b>" + Fractal.Nanomb1CalculationTime + " ms</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && APPROXIMATION_ALGORITHM == 3 && fractal.supportsNanomb1() ? "<li>Nanomb1 M: <b>" + NANOMB1_M + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && APPROXIMATION_ALGORITHM == 3 && fractal.supportsNanomb1() ? "<li>Nanomb1 N: <b>" + NANOMB1_N + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && APPROXIMATION_ALGORITHM == 3 && fractal.supportsNanomb1() ? "<li>Nanomb1 Skipped Iterations Per Pixel: <b>" + String.format("%.2f", Fractal.total_nanomb1_skipped_iterations.sum() / ((double) total_calculated_pixels * (supersampling_num + 1))) + "</b><br>": "") +
+                (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && APPROXIMATION_ALGORITHM == 2 && fractal.supportsBilinearApproximation()  ? "<li>BLA Calculation Elapsed Time: <b>" + Fractal.BLACalculationTime + " ms</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && APPROXIMATION_ALGORITHM == 2 && fractal.supportsBilinearApproximation()  ? "<li>BLA Precision: <b>" + ThreadDraw.BLA_BITS + " bits</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && APPROXIMATION_ALGORITHM == 2 && fractal.supportsBilinearApproximation()  ? "<li>BLA Starting Level: <b>" + ThreadDraw.BLA_STARTING_LEVEL + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && APPROXIMATION_ALGORITHM == 2 && fractal.supportsBilinearApproximation()  ? "<li>BLA Iterations Per Pixel: <b>" +  String.format("%.2f", Fractal.total_bla_iterations.sum() / ((double) total_calculated_pixels * (supersampling_num + 1))) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && APPROXIMATION_ALGORITHM == 2 && fractal.supportsBilinearApproximation()  ? "<li>BLA Iterations Per BLA Step: <b>" +  (Fractal.total_bla_steps.sum() == 0 ? "N/A" : String.format("%.2f", Fractal.total_bla_iterations.sum() / ((double)Fractal.total_bla_steps.sum()))) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && APPROXIMATION_ALGORITHM == 2 && fractal.supportsBilinearApproximation()  ? "<li>Perturbation Iterations Per Pixel: <b>" +  String.format("%.2f", Fractal.total_perturb_iterations.sum() / ((double) total_calculated_pixels * (supersampling_num + 1))) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && APPROXIMATION_ALGORITHM == 2 && fractal.supportsBilinearApproximation()  ? "<li>BLA Steps Per Pixel: <b>" + String.format("%.2f", Fractal.total_bla_steps.sum() / ((double) total_calculated_pixels * (supersampling_num + 1))) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && APPROXIMATION_ALGORITHM == 2 && fractal.supportsBilinearApproximation()  ? "<li>Total Steps Per Pixel: <b>" + String.format("%.2f", (Fractal.total_bla_steps.sum() + Fractal.total_perturb_iterations.sum()) / ((double) total_calculated_pixels * (supersampling_num + 1))) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && (APPROXIMATION_ALGORITHM != 2 || !fractal.supportsBilinearApproximation()) && ThreadDraw.PERTUBATION_PIXEL_ALGORITHM == 1 && fractal.supportsScaledIterations() && isDeep ? "<li>FloatExp Iterations Per Pixel: <b>" +  (String.format("%.2f", Fractal.total_float_exp_iterations.sum() / ((double) total_calculated_pixels * (supersampling_num + 1)))) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && (APPROXIMATION_ALGORITHM != 2 || !fractal.supportsBilinearApproximation()) && ThreadDraw.PERTUBATION_PIXEL_ALGORITHM == 1 && fractal.supportsScaledIterations() && isDeep ? "<li>Scaled Double Iterations Per Pixel: <b>" +  (String.format("%.2f", Fractal.total_scaled_iterations.sum() / ((double) total_calculated_pixels * (supersampling_num + 1)))) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && (APPROXIMATION_ALGORITHM != 2 || !fractal.supportsBilinearApproximation()) && ThreadDraw.PERTUBATION_PIXEL_ALGORITHM == 1 && fractal.supportsScaledIterations() && isDeep ? "<li>Normal Double Iterations Per Pixel: <b>" +  (String.format("%.2f", Fractal.total_double_iterations.sum() / ((double) total_calculated_pixels * (supersampling_num + 1)))) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && (APPROXIMATION_ALGORITHM != 2 || !fractal.supportsBilinearApproximation()) && (ThreadDraw.PERTUBATION_PIXEL_ALGORITHM == 0 || !fractal.supportsScaledIterations()) && isDeep ? "<li>FloatExp Iterations Per Pixel: <b>" +  (String.format("%.2f", Fractal.total_float_exp_iterations.sum() / ((double) total_calculated_pixels * (supersampling_num + 1)))) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && (APPROXIMATION_ALGORITHM != 2 || !fractal.supportsBilinearApproximation()) && (ThreadDraw.PERTUBATION_PIXEL_ALGORITHM == 0 || !fractal.supportsScaledIterations()) && isDeep ? "<li>Normal Double Iterations Per Pixel: <b>" +  (String.format("%.2f", Fractal.total_double_iterations.sum() / ((double) total_calculated_pixels * (supersampling_num + 1)))) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && (APPROXIMATION_ALGORITHM != 2 || !fractal.supportsBilinearApproximation()) && !isDeep ? "<li>Normal Double Iterations Per Pixel: <b>" +  (String.format("%.2f", Fractal.total_double_iterations.sum() / ((double) total_calculated_pixels * (supersampling_num + 1)))) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && (APPROXIMATION_ALGORITHM != 2 || !fractal.supportsBilinearApproximation()) && ThreadDraw.PERTUBATION_PIXEL_ALGORITHM == 1 && fractal.supportsScaledIterations() && isDeep ? "<li>Re-Aligns Per Pixel: <b>" +  (String.format("%.2f", Fractal.total_realigns.sum() / ((double) total_calculated_pixels * (supersampling_num + 1)))) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && fractal.supportsPerturbationTheory() ? "<li>Rebases Per Pixel: <b>" +  String.format("%.2f", Fractal.total_rebases.sum() / ((double) total_calculated_pixels * (supersampling_num + 1))) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && fractal.supportsPerturbationTheory() ? "<li>Total Iterations Per Pixel: <b>" +  String.format("%.2f", ( Fractal.total_double_iterations.sum() + Fractal.total_scaled_iterations.sum() + Fractal.total_float_exp_iterations.sum() + Fractal.total_perturb_iterations.sum() + Fractal.total_bla_iterations.sum())/ ((double) total_calculated_pixels * (supersampling_num + 1))) + "</b><br>" : "") +
 
-                (PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && DETECT_PERIOD && fractal.supportsPeriod()  ? "<li>Detected Period: <b>" + Fractal.DetectedPeriod + "</b><br>" : "") +
+
                 "</html>");
+
+        if(createFullImageAfterPreview) {
+            String newValue =  progress.getToolTipText();
+            newValue = newValue.replace("<html>", "");
+            newValue = newValue.replace("</html>", "");
+            progress.setToolTipText("<html><center><b><u>First Pass</u></b></center><br>" + oldValue + "<br><center><b><u>Second Pass</u></b></center><br>" + newValue + "</html>");
+        }
 
 
     }
@@ -1756,7 +1792,7 @@ public abstract class ThreadDraw extends Thread {
 
             setFullToolTipMessage(image_size * image_size);
 
-            ptr.createCompleteImage(QUICK_DRAW_DELAY, false);
+            ptr.createCompleteImage(createPreview ? 0 : QUICK_DRAW_DELAY, false);
         }
     }
 
@@ -1781,7 +1817,7 @@ public abstract class ThreadDraw extends Thread {
 
             setFullToolTipMessage(image_size * image_size);
 
-            ptr.createCompleteImage(QUICK_DRAW_DELAY, false);
+            ptr.createCompleteImage(createPreview ? 0 : QUICK_DRAW_DELAY, false);
         }
     }
 
@@ -1847,7 +1883,7 @@ public abstract class ThreadDraw extends Thread {
 
             setFullToolTipMessage(image_size * image_size);
 
-            ptr.createCompleteImage(QUICK_DRAW_DELAY, false);
+            ptr.createCompleteImage(createPreview ? 0 : QUICK_DRAW_DELAY, false);
         }
     }
 
@@ -1868,7 +1904,7 @@ public abstract class ThreadDraw extends Thread {
 
             setFullToolTipMessage(image_size * image_size);
 
-            ptr.createCompleteImage(QUICK_DRAW_DELAY, false);
+            ptr.createCompleteImage(createPreview ? 0 : QUICK_DRAW_DELAY, false);
         }
     }
 
@@ -2621,9 +2657,9 @@ public abstract class ThreadDraw extends Thread {
 
     private void quickDrawIterations(int image_size, boolean polar) {
 
-        Location location = Location.getInstanceForDrawing(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, js, polar, PERTURBATION_THEORY && fractal.supportsPerturbationTheory());
+        Location location = Location.getInstanceForDrawing(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
 
-        if(PERTURBATION_THEORY && fractal.supportsPerturbationTheory()) {
+        if(PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && !HIGH_PRECISION_CALCULATION) {
             if (reference_calc_sync.getAndIncrement() == 0) {
                 calculateReference(location);
             }
@@ -2808,9 +2844,9 @@ public abstract class ThreadDraw extends Thread {
 
     private void drawIterations3D(int image_size, boolean polar) {
 
-        Location location = Location.getInstanceForDrawing(xCenter, yCenter, size, height_ratio, detail, circle_period, rotation_center, rotation_vals, fractal, js, polar, PERTURBATION_THEORY && fractal.supportsPerturbationTheory());
+        Location location = Location.getInstanceForDrawing(xCenter, yCenter, size, height_ratio, detail, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
 
-        if(PERTURBATION_THEORY && fractal.supportsPerturbationTheory()) {
+        if(PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && !HIGH_PRECISION_CALCULATION) {
             if (reference_calc_sync.getAndIncrement() == 0) {
                 calculateReference(location);
             }
@@ -2943,10 +2979,10 @@ public abstract class ThreadDraw extends Thread {
     private void drawIterations3DAntialiased(int image_size, boolean polar) {
 
         int aaMethod = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
-        Location location = Location.getInstanceForDrawing(xCenter, yCenter, size, height_ratio, detail, circle_period, rotation_center, rotation_vals, fractal, js, polar, PERTURBATION_THEORY && fractal.supportsPerturbationTheory());
+        Location location = Location.getInstanceForDrawing(xCenter, yCenter, size, height_ratio, detail, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
         location.createAntialiasingSteps(aaMethod == 5);
 
-        if(PERTURBATION_THEORY && fractal.supportsPerturbationTheory()) {
+        if(PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && !HIGH_PRECISION_CALCULATION) {
             if (reference_calc_sync.getAndIncrement() == 0) {
                 calculateReference(location);
             }
@@ -3263,7 +3299,7 @@ public abstract class ThreadDraw extends Thread {
     private int contourColoring(double[] image_iterations, int i, int j, int image_size, int color, boolean[] escaped) {
 
         int loc = i * image_size + j;
-        if ((!ots.useTraps || (ots.useTraps && !ots.trapIncludeNotEscaped)) && !usesTrueColorIn && Math.abs(image_iterations[loc]) == ColorAlgorithm.MAXIMUM_ITERATIONS) {
+        if ((!ots.useTraps || !ots.trapIncludeNotEscaped) && !usesTrueColorIn && Math.abs(image_iterations[loc]) == ColorAlgorithm.MAXIMUM_ITERATIONS) {
             return getStandardColor(image_iterations[loc], escaped[loc]);
         }
 
@@ -3353,7 +3389,7 @@ public abstract class ThreadDraw extends Thread {
     private int offsetColoring(double[] image_iterations, int i, int j, int image_size, int color, boolean[] escaped) {
 
         int loc = i * image_size + j;
-        if ((!ots.useTraps || (ots.useTraps && !ots.trapIncludeNotEscaped)) && !usesTrueColorIn && Math.abs(image_iterations[loc]) == ColorAlgorithm.MAXIMUM_ITERATIONS) {
+        if ((!ots.useTraps || !ots.trapIncludeNotEscaped) && !usesTrueColorIn && Math.abs(image_iterations[loc]) == ColorAlgorithm.MAXIMUM_ITERATIONS) {
             return getStandardColor(image_iterations[loc], escaped[loc]);
         }
 
@@ -3377,7 +3413,7 @@ public abstract class ThreadDraw extends Thread {
     private int greyscaleColoring(double[] image_iterations, int i, int j, int image_size, int color, boolean[] escaped) {
 
         int loc = i * image_size + j;
-        if ((!ots.useTraps || (ots.useTraps && !ots.trapIncludeNotEscaped)) && !usesTrueColorIn && Math.abs(image_iterations[loc]) == ColorAlgorithm.MAXIMUM_ITERATIONS) {
+        if ((!ots.useTraps || !ots.trapIncludeNotEscaped) && !usesTrueColorIn && Math.abs(image_iterations[loc]) == ColorAlgorithm.MAXIMUM_ITERATIONS) {
             return getStandardColor(image_iterations[loc], escaped[loc]);
         }
 
@@ -3394,7 +3430,7 @@ public abstract class ThreadDraw extends Thread {
     private int entropyColoring(double[] image_iterations, int i, int j, int image_size, int color, boolean[] escaped) {
 
         int loc = i * image_size + j;
-        if ((!ots.useTraps || (ots.useTraps && !ots.trapIncludeNotEscaped)) && !usesTrueColorIn && Math.abs(image_iterations[loc]) == ColorAlgorithm.MAXIMUM_ITERATIONS) {
+        if ((!ots.useTraps || !ots.trapIncludeNotEscaped) && !usesTrueColorIn && Math.abs(image_iterations[loc]) == ColorAlgorithm.MAXIMUM_ITERATIONS) {
             return getStandardColor(image_iterations[loc], escaped[loc]);
         }
 
@@ -3503,7 +3539,7 @@ public abstract class ThreadDraw extends Thread {
         double zx2 = 0;
         double zy2 = 0;
 
-        if ((!ots.useTraps || (ots.useTraps && !ots.trapIncludeNotEscaped)) && !usesTrueColorIn && Math.abs(image_iterations[k0]) == ColorAlgorithm.MAXIMUM_ITERATIONS) {
+        if ((!ots.useTraps || !ots.trapIncludeNotEscaped) && !usesTrueColorIn && Math.abs(image_iterations[k0]) == ColorAlgorithm.MAXIMUM_ITERATIONS) {
             return getStandardColor(image_iterations[k0], escaped[k0]);
         }
 
@@ -3847,9 +3883,6 @@ public abstract class ThreadDraw extends Thread {
         do {
             color_cycling_toggle_lock.readLock().lock();
 
-            boolean cached_color_cycling = color_cycling;
-
-            color_cycling_toggle_lock.readLock().unlock();
 
             try {
                 color_cycling_restart_sync.await();
@@ -3858,6 +3891,10 @@ public abstract class ThreadDraw extends Thread {
             } catch (BrokenBarrierException ex) {
 
             }
+
+            boolean cached_color_cycling = color_cycling;
+
+            color_cycling_toggle_lock.readLock().unlock();
 
             if (!cached_color_cycling) {
                 return;
@@ -3911,7 +3948,7 @@ public abstract class ThreadDraw extends Thread {
                 }
             }
 
-            postProcess(image_size);
+            postProcessColorCycling(image_size);
 
             try {
                 if (color_cycling_filters_sync.await() == 0) {
@@ -4976,6 +5013,22 @@ public abstract class ThreadDraw extends Thread {
             }
 
             applyPostProcessing(image_size, image_iterations_fast_julia, escaped_fast_julia);
+        }
+    }
+
+    protected void postProcessColorCycling(int image_size) {
+
+        if ((hss.histogramColoring || ls.lighting || bms.bump_map || fdes.fake_de || rps.rainbow_palette || ens.entropy_coloring || ofs.offset_coloring || gss.greyscale_coloring || cns.contour_coloring) && !USE_DIRECT_COLOR) {
+            try {
+                post_processing_sync.await();
+            } catch (InterruptedException ex) {
+
+            } catch (BrokenBarrierException ex) {
+
+            }
+
+            applyPostProcessing(image_size, image_iterations, escaped);
+
         }
     }
 
@@ -6185,8 +6238,8 @@ public abstract class ThreadDraw extends Thread {
 
         image_iterations = new double[image_size * image_size];
         escaped = new boolean[image_size * image_size];
-        image_iterations_fast_julia = new double[MainWindow.FAST_JULIA_IMAGE_SIZE * MainWindow.FAST_JULIA_IMAGE_SIZE];
-        escaped_fast_julia = new boolean[MainWindow.FAST_JULIA_IMAGE_SIZE * MainWindow.FAST_JULIA_IMAGE_SIZE];
+        image_iterations_fast_julia = new double[FAST_JULIA_IMAGE_SIZE * FAST_JULIA_IMAGE_SIZE];
+        escaped_fast_julia = new boolean[FAST_JULIA_IMAGE_SIZE * FAST_JULIA_IMAGE_SIZE];
 
         if (usesDomainColoring) {
             domain_image_data = new double[(image_size * image_size) << 1];
@@ -6273,6 +6326,14 @@ public abstract class ThreadDraw extends Thread {
 
         this.threadId = threadId;
 
+    }
+
+    public void setCreatePreview(boolean val) {
+        createPreview = val;
+    }
+
+    public void setCreateFullImageAfterPreview(boolean val) {
+        createFullImageAfterPreview = val;
     }
 
     public void colorTransferFactory(int transfer_function_out, int transfer_function_in, double color_intensity_out, double color_intensity_in) {
@@ -7933,9 +7994,25 @@ public abstract class ThreadDraw extends Thread {
         fractal.postFilterFactory(postffs);
         fractal.influencePlaneFactory(ips);
         fractal.setFunctionId(function);
-        fractal.ConvergentBailoutConditionFactory(cbs.convergent_bailout_test_algorithm, fractal.getConvergentBailout(), cbs.convergent_bailout_test_user_formula, cbs.convergent_bailout_test_user_formula2, cbs.convergent_bailout_test_comparison, cbs.convergent_n_norm, plane_transform_center);
+
+        if(ptr != null) {
+            if(ptr.getSettings().hasConvergentBailoutCondition()) {
+                fractal.ConvergentBailoutConditionFactory(cbs.convergent_bailout_test_algorithm, fractal.getConvergentBailout(), cbs.convergent_bailout_test_user_formula, cbs.convergent_bailout_test_user_formula2, cbs.convergent_bailout_test_comparison, cbs.convergent_n_norm, plane_transform_center);
+            }
+        }
+        else if(ptrExpander != null) {
+            if(ptrExpander.getSettings().hasConvergentBailoutCondition()) {
+                fractal.ConvergentBailoutConditionFactory(cbs.convergent_bailout_test_algorithm, fractal.getConvergentBailout(), cbs.convergent_bailout_test_user_formula, cbs.convergent_bailout_test_user_formula2, cbs.convergent_bailout_test_comparison, cbs.convergent_n_norm, plane_transform_center);
+            }
+        }
+        else {
+            fractal.ConvergentBailoutConditionFactory(cbs.convergent_bailout_test_algorithm, fractal.getConvergentBailout(), cbs.convergent_bailout_test_user_formula, cbs.convergent_bailout_test_user_formula2, cbs.convergent_bailout_test_comparison, cbs.convergent_n_norm, plane_transform_center);
+        }
+
         fractal.updateTrapsWithInitValData();
         fractal.setPeriod(period);
+        fractal.setSize(dsize);
+        fractal.setPolar(polar_projection);
 
         GenericStatistic statistic = fractal.getStatisticInstance();
         if(statistic != null) {
@@ -8303,7 +8380,23 @@ public abstract class ThreadDraw extends Thread {
         fractal.preFilterFactory(preffs);
         fractal.postFilterFactory(postffs);
         fractal.influencePlaneFactory(ips);
-        fractal.ConvergentBailoutConditionFactory(cbs.convergent_bailout_test_algorithm, fractal.getConvergentBailout(), cbs.convergent_bailout_test_user_formula, cbs.convergent_bailout_test_user_formula2, cbs.convergent_bailout_test_comparison, cbs.convergent_n_norm, plane_transform_center);
+
+        if(ptr != null) {
+            if(ptr.getSettings().hasConvergentBailoutCondition()) {
+                fractal.ConvergentBailoutConditionFactory(cbs.convergent_bailout_test_algorithm, fractal.getConvergentBailout(), cbs.convergent_bailout_test_user_formula, cbs.convergent_bailout_test_user_formula2, cbs.convergent_bailout_test_comparison, cbs.convergent_n_norm, plane_transform_center);
+            }
+        }
+        else if(ptrExpander != null) {
+            if(ptrExpander.getSettings().hasConvergentBailoutCondition()) {
+                fractal.ConvergentBailoutConditionFactory(cbs.convergent_bailout_test_algorithm, fractal.getConvergentBailout(), cbs.convergent_bailout_test_user_formula, cbs.convergent_bailout_test_user_formula2, cbs.convergent_bailout_test_comparison, cbs.convergent_n_norm, plane_transform_center);
+            }
+        }
+        else {
+            fractal.ConvergentBailoutConditionFactory(cbs.convergent_bailout_test_algorithm, fractal.getConvergentBailout(), cbs.convergent_bailout_test_user_formula, cbs.convergent_bailout_test_user_formula2, cbs.convergent_bailout_test_comparison, cbs.convergent_n_norm, plane_transform_center);
+        }
+
+        fractal.setSize(dsize);
+        fractal.setPolar(polar_projection);
 
         GenericStatistic statistic = fractal.getStatisticInstance();
         if(statistic != null) {
@@ -8358,6 +8451,65 @@ public abstract class ThreadDraw extends Thread {
         Fractal.clearReferences(true);
         fractal.calculateReferencePoint(temp, size,size.compareTo(MyApfloat.MAX_DOUBLE_SIZE) < 0, 0, 0, loc, null);
 
+    }
+
+    public static int getHighPrecisionLibrary(Apfloat size, Fractal f) {
+
+        if(ThreadDraw.HIGH_PRECISION_LIB == Constants.ARBITRARY_DOUBLEDOUBLE) {
+            return Constants.ARBITRARY_DOUBLEDOUBLE;
+        }
+        else if(ThreadDraw.HIGH_PRECISION_LIB == Constants.ARBITRARY_BUILT_IN && !f.isPolar()) {
+            if(f.supportsBignum()) {
+                return Constants.ARBITRARY_BUILT_IN;
+            }
+
+            if(size.compareTo(MyApfloat.MIN_DOUBLE_DOUBLE_SIZE) > 0) {
+                return Constants.ARBITRARY_DOUBLEDOUBLE;
+            }
+
+            return Constants.ARBITRARY_APFLOAT;
+        }
+        else if(ThreadDraw.HIGH_PRECISION_LIB == Constants.ARBITRARY_MPFR && LibMpfr.LOAD_ERROR == null) {
+            if(f.supportsMpfrBignum()) {
+                return Constants.ARBITRARY_MPFR;
+            }
+
+            if(size.compareTo(MyApfloat.MIN_DOUBLE_DOUBLE_SIZE) > 0) {
+                return Constants.ARBITRARY_DOUBLEDOUBLE;
+            }
+
+            return Constants.ARBITRARY_APFLOAT;
+        }
+        else if(ThreadDraw.HIGH_PRECISION_LIB == Constants.ARBITRARY_MPFR && LibMpfr.LOAD_ERROR != null) {
+
+            if(size.compareTo(MyApfloat.MIN_DOUBLE_DOUBLE_SIZE) > 0) {
+                return Constants.ARBITRARY_DOUBLEDOUBLE;
+            }
+
+            if(f.supportsBignum() && !f.isPolar()) {
+                return Constants.ARBITRARY_BUILT_IN;
+            }
+
+            return Constants.ARBITRARY_APFLOAT;
+        }
+        else if(ThreadDraw.HIGH_PRECISION_LIB == Constants.ARBITRARY_AUTOMATIC) {
+
+            if(size.compareTo(MyApfloat.MIN_DOUBLE_DOUBLE_SIZE) > 0) {
+                return Constants.ARBITRARY_DOUBLEDOUBLE;
+            }
+
+            if(LibMpfr.LOAD_ERROR == null && f.supportsMpfrBignum() && (MpfrBigNum.precision >= 2000 || !f.supportsBignum())) {
+                return Constants.ARBITRARY_MPFR;
+            }
+
+            if(f.supportsBignum() && !f.isPolar()) {
+                return Constants.ARBITRARY_BUILT_IN;
+            }
+
+            return Constants.ARBITRARY_APFLOAT;
+        }
+
+        return Constants.ARBITRARY_APFLOAT;
     }
 
     public static int getBignumLibrary(Apfloat size, Fractal f) {
@@ -8430,7 +8582,7 @@ public abstract class ThreadDraw extends Thread {
                 return Constants.BIGNUM_DOUBLEDOUBLE;
             }
 
-            if(LibMpfr.LOAD_ERROR == null && f.supportsMpfrBignum() && (MpfrBigNum.precision >= 2500 || !f.supportsBignum())) {
+            if(LibMpfr.LOAD_ERROR == null && f.supportsMpfrBignum() && (MpfrBigNum.precision >= 2000 || !f.supportsBignum())) {
                 return Constants.BIGNUM_MPFR;
             }
 
@@ -8460,6 +8612,7 @@ public abstract class ThreadDraw extends Thread {
         Fractal.total_scaled_iterations = new LongAdder();
         Fractal.total_float_exp_iterations = new LongAdder();
         Fractal.total_rebases = new LongAdder();
+        Fractal.total_realigns = new LongAdder();
 
         int old_max = progress.getMaximum();
         int cur_val = progress.getValue();

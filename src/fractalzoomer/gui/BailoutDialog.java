@@ -41,9 +41,9 @@ public class BailoutDialog extends JDialog {
         setModal(true);
         setIconImage(MainWindow.getIcon("mandel2.png").getImage());
 
-        JTextField field = new JTextField();
-        field.addAncestorListener(new RequestFocusListener());
+        JTextField field = new JTextField(10);
         field.setText("" + s.fns.bailout);
+        field.addAncestorListener(new RequestFocusListener());
 
         Object[] message3 = {
             " ",

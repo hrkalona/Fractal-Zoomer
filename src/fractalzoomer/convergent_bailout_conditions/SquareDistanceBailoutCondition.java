@@ -1,13 +1,23 @@
 package fractalzoomer.convergent_bailout_conditions;
 
 import fractalzoomer.core.*;
+import fractalzoomer.core.mpfr.LibMpfr;
 import fractalzoomer.core.mpfr.MpfrBigNum;
 import org.apfloat.Apfloat;
 import org.apfloat.ApfloatMath;
 
 public class SquareDistanceBailoutCondition extends ConvergentBailoutCondition {
+    private MpfrBigNum temp1;
+    private MpfrBigNum temp2;
     public SquareDistanceBailoutCondition(double convergent_bailout) {
         super(convergent_bailout);
+
+        if((ThreadDraw.PERTURBATION_THEORY && ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE) || ThreadDraw.HIGH_PRECISION_CALCULATION) {
+            if(LibMpfr.LOAD_ERROR == null) {
+                temp1 = new MpfrBigNum();
+                temp2 = new MpfrBigNum();
+            }
+        }
     }
 
     @Override
@@ -16,7 +26,7 @@ public class SquareDistanceBailoutCondition extends ConvergentBailoutCondition {
         Complex diff = z.sub(zold);
         boolean result = Math.max(diff.getAbsRe(), diff.getAbsIm()) <= convergent_bailout;
 
-        if(result) {
+        if(calculateDistance && result) {
             distance = z.distance_squared(zold);
         }
 
@@ -25,16 +35,16 @@ public class SquareDistanceBailoutCondition extends ConvergentBailoutCondition {
 
     @Override
     public boolean converged(MpfrBigNumComplex z, MpfrBigNumComplex zold, MpfrBigNumComplex zold2, int iterations, MpfrBigNumComplex c, MpfrBigNumComplex start, MpfrBigNumComplex c0, MpfrBigNumComplex pixel) {
-        MpfrBigNumComplex diff = z.sub(zold);
-        MpfrBigNum absRe = diff.getAbsRe();
-        MpfrBigNum absIm = diff.getAbsIm();
+        MpfrBigNumComplex diff = z.sub(zold, temp1, temp2);
+        MpfrBigNum absRe = diff.getAbsRe(temp1);
+        MpfrBigNum absIm = diff.getAbsIm(temp2);
 
         MpfrBigNum max = MpfrBigNum.max(absRe, absIm);
 
         boolean result =  max.compare(convergent_bailout) <= 0;
 
-        if(result) {
-            distance = z.distance_squared(zold).doubleValue();
+        if(calculateDistance && result) {
+            distance = z.distance_squared(zold, temp1, temp2).doubleValue();
         }
 
         return result;
@@ -51,7 +61,7 @@ public class SquareDistanceBailoutCondition extends ConvergentBailoutCondition {
 
         boolean result =  max.compareTo(ddconvergent_bailout) <= 0;
 
-        if(result) {
+        if(calculateDistance && result) {
             distance = z.distance_squared(zold).doubleValue();
         }
 
@@ -69,7 +79,7 @@ public class SquareDistanceBailoutCondition extends ConvergentBailoutCondition {
 
         boolean result =  max.compareTo(ddcconvergent_bailout) <= 0;
 
-        if(result) {
+        if(calculateDistance && result) {
             distance = z.distance_squared(zold).doubleValue();
         }
 
@@ -82,7 +92,7 @@ public class SquareDistanceBailoutCondition extends ConvergentBailoutCondition {
         Complex diff = z.sub(root);
         boolean result = Math.max(diff.getAbsRe(), diff.getAbsIm()) <= convergent_bailout;
 
-        if(result) {
+        if(calculateDistance && result) {
             distance = z.distance_squared(root);
         }
 
@@ -100,7 +110,7 @@ public class SquareDistanceBailoutCondition extends ConvergentBailoutCondition {
 
         boolean result =  max.compareTo(ddconvergent_bailout) <= 0;
 
-        if(result) {
+        if(calculateDistance && result) {
             distance = z.distance_squared(root).doubleValue();
         }
 
@@ -118,7 +128,7 @@ public class SquareDistanceBailoutCondition extends ConvergentBailoutCondition {
 
         boolean result =  max.compareTo(ddcconvergent_bailout) <= 0;
 
-        if(result) {
+        if(calculateDistance && result) {
             distance = z.distance_squared(root).doubleValue();
         }
 
@@ -127,16 +137,16 @@ public class SquareDistanceBailoutCondition extends ConvergentBailoutCondition {
 
     @Override
     public boolean converged(MpfrBigNumComplex z, MpfrBigNum root, MpfrBigNumComplex zold, MpfrBigNumComplex zold2, int iterations, MpfrBigNumComplex c, MpfrBigNumComplex start, MpfrBigNumComplex c0, MpfrBigNumComplex pixel) {
-        MpfrBigNumComplex diff = z.sub(root);
-        MpfrBigNum absRe = diff.getAbsRe();
-        MpfrBigNum absIm = diff.getAbsIm();
+        MpfrBigNumComplex diff = z.sub(root, temp1, temp2);
+        MpfrBigNum absRe = diff.getAbsRe(temp1);
+        MpfrBigNum absIm = diff.getAbsIm(temp2);
 
         MpfrBigNum max = MpfrBigNum.max(absRe, absIm);
 
         boolean result =  max.compare(convergent_bailout) <= 0;
 
-        if(result) {
-            distance = z.distance_squared(root).doubleValue();
+        if(calculateDistance && result) {
+            distance = z.distance_squared(root, temp1, temp2).doubleValue();
         }
 
         return result;
@@ -148,7 +158,7 @@ public class SquareDistanceBailoutCondition extends ConvergentBailoutCondition {
         Complex diff = z.sub(root);
         boolean result = Math.max(diff.getAbsRe(), diff.getAbsIm()) <= convergent_bailout;
 
-        if(result) {
+        if(calculateDistance && result) {
             distance = z.distance_squared(root);
         }
 
@@ -166,7 +176,7 @@ public class SquareDistanceBailoutCondition extends ConvergentBailoutCondition {
 
         boolean result =  max.compareTo(ddconvergent_bailout) <= 0;
 
-        if(result) {
+        if(calculateDistance && result) {
             distance = z.distance_squared(root).doubleValue();
         }
 
@@ -184,7 +194,7 @@ public class SquareDistanceBailoutCondition extends ConvergentBailoutCondition {
 
         boolean result =  max.compareTo(ddcconvergent_bailout) <= 0;
 
-        if(result) {
+        if(calculateDistance && result) {
             distance = z.distance_squared(root).doubleValue();
         }
 
@@ -193,16 +203,16 @@ public class SquareDistanceBailoutCondition extends ConvergentBailoutCondition {
 
     @Override
     public boolean converged(MpfrBigNumComplex z, MpfrBigNumComplex root, MpfrBigNumComplex zold, MpfrBigNumComplex zold2, int iterations, MpfrBigNumComplex c, MpfrBigNumComplex start, MpfrBigNumComplex c0, MpfrBigNumComplex pixel) {
-        MpfrBigNumComplex diff = z.sub(root);
-        MpfrBigNum absRe = diff.getAbsRe();
-        MpfrBigNum absIm = diff.getAbsIm();
+        MpfrBigNumComplex diff = z.sub(root, temp1, temp2);
+        MpfrBigNum absRe = diff.getAbsRe(temp1);
+        MpfrBigNum absIm = diff.getAbsIm(temp2);
 
         MpfrBigNum max = MpfrBigNum.max(absRe, absIm);
 
         boolean result =  max.compare(convergent_bailout) <= 0;
 
-        if(result) {
-            distance = z.distance_squared(root).doubleValue();
+        if(calculateDistance && result) {
+            distance = z.distance_squared(root, temp1, temp2).doubleValue();
         }
 
         return result;

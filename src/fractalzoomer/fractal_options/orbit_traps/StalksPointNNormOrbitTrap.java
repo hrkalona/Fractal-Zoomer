@@ -29,11 +29,13 @@ public class StalksPointNNormOrbitTrap extends OrbitTrap {
     private double stalksradiuslow;
     private double cnorm;
     private double n_norm;
+    private double n_norm_reciprocal;
     
     public StalksPointNNormOrbitTrap(int checkType, double pointRe, double pointIm, double trapLength, double trapWidth, double n_norm, boolean countTrapIterations) {
         
         super(checkType, pointRe, pointIm, trapLength, trapWidth, countTrapIterations);
         this.n_norm = n_norm;
+        n_norm_reciprocal = 1 / n_norm;
         
     }
 
@@ -53,7 +55,7 @@ public class StalksPointNNormOrbitTrap extends OrbitTrap {
         }
         
         Complex temp = val.sub(point);
-        dist = temp.nnorm(n_norm);
+        dist = temp.nnorm(n_norm, n_norm_reciprocal);
 
         if(dist < trapLength && (checkType == TRAP_CHECK_TYPE_TRAPPED_FIRST || checkType == TRAP_CHECK_TYPE_TRAPPED_LAST ||  checkType == TRAP_CHECK_TYPE_TRAPPED_MIN_DISTANCE && dist < distance)) {
             distance = dist;

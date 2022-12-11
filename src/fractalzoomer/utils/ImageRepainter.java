@@ -37,18 +37,21 @@ public class ImageRepainter extends Thread {
 
     public boolean threadsAvailable() {
 
-        try {
-            for (int i = 0; i < drawThreads.length; i++) {
-                for (int j = 0; j < drawThreads[i].length; j++) {
-                    if (drawThreads[i][j].isAlive()) {
-                        return false;
+        synchronized(ptr) {
+            try {
+                for (int i = 0; i < drawThreads.length; i++) {
+                    for (int j = 0; j < drawThreads[i].length; j++) {
+                        if (drawThreads[i][j].isAlive() || !drawThreads[i][j].started()) {
+                            return false;
+                        }
                     }
                 }
+            } catch (Exception ex) {
+                return false;
             }
-        } catch (Exception ex) {
-        }
 
-        return true;
+            return true;
+        }
 
     }
 }

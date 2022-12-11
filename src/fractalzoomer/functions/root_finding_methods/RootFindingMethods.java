@@ -31,6 +31,8 @@ import fractalzoomer.utils.ColorAlgorithm;
 
 import java.util.ArrayList;
 
+import static fractalzoomer.main.Constants.*;
+
 /**
  *
  * @author hrkalona2
@@ -80,6 +82,122 @@ public abstract class RootFindingMethods extends Fractal {
         c0 = new Complex(complex[0]);
 
         return complex;
+
+    }
+
+    @Override
+    public GenericComplex[] initialize(GenericComplex pixel) {
+
+        GenericComplex[] complex = new GenericComplex[1];
+
+        int lib = ThreadDraw.getHighPrecisionLibrary(dsize, this);
+
+        if(lib == ARBITRARY_MPFR) {
+
+            workSpaceData.z.set(pixel);
+            complex[0] = workSpaceData.z;//z
+
+            workSpaceData.zold.reset();
+            gzold = workSpaceData.zold;
+
+            workSpaceData.zold2.reset();
+            gzold2 = workSpaceData.zold2;
+
+            workSpaceData.start.set(complex[0]);
+            gstart = workSpaceData.start;
+
+            workSpaceData.c0.set(complex[0]);
+            gc0 = workSpaceData.c0;
+        }
+        else if (lib == ARBITRARY_BUILT_IN) {
+            complex[0] = pixel;//z
+
+            gzold = new BigNumComplex();
+            gzold2 = new BigNumComplex();
+            gstart = complex[0];
+            gc0 = complex[0];
+        }
+        else if(lib == ARBITRARY_DOUBLEDOUBLE) {
+            complex[0] = pixel;//z
+
+            gzold = new DDComplex();
+            gzold2 = new DDComplex();
+            gstart = complex[0];
+            gc0 = complex[0];
+        }
+        else {
+            complex[0] = pixel;//z
+
+            gzold = new BigComplex();
+            gzold2 = new BigComplex();
+            gstart = complex[0];
+            gc0 = complex[0];
+        }
+
+        return complex;
+
+    }
+
+    @Override
+    public double iterateFractalArbitraryPrecisionWithoutPeriodicity(GenericComplex[] complex, GenericComplex pixel) {
+
+        iterations = 0;
+
+        Complex start = gstart.toComplex();
+        Complex c0 = gc0.toComplex();
+        Complex pixelC = pixel.toComplex();
+
+        for (; iterations < max_iterations; iterations++) {
+
+            if (trap != null) {
+                trap.check(complex[0].toComplex(), iterations);
+            }
+
+            if (iterations > 0 && convergent_bailout_algorithm.Converged(complex[0], gzold, gzold2, iterations, pixel, gstart, gc0, pixel)) {
+                escaped = true;
+
+                Complex z = complex[0].toComplex();
+                Complex zold = gzold.toComplex();
+                Complex zold2 = gzold2.toComplex();
+
+                Object[] object = {iterations, z, convergent_bailout_algorithm.getDistance(), zold, zold2, pixelC, start, c0, pixelC};
+                iterationData = object;
+                double out = out_color_algorithm.getResult(object);
+
+                out = getFinalValueOut(out, z);
+
+                if (outTrueColorAlgorithm != null) {
+                    setTrueColorOut(z, zold, zold2, iterations, pixelC, start, c0, pixelC);
+                }
+
+                return out;
+            }
+
+            gzold2.set(gzold);
+            gzold.set(complex[0]);
+
+            function(complex);
+
+            if (statistic != null) {
+                statistic.insert(complex[0].toComplex(), gzold.toComplex(), gzold2.toComplex(), iterations, pixelC, start, c0);
+            }
+        }
+
+        Complex z = complex[0].toComplex();
+        Complex zold = gzold.toComplex();
+        Complex zold2 = gzold2.toComplex();
+
+        Object[] object = {z, zold, zold2, pixelC, start, c0, pixelC};
+        iterationData = object;
+        double in = in_color_algorithm.getResult(object);
+
+        in = getFinalValueIn(in, z);
+
+        if (inTrueColorAlgorithm != null) {
+            setTrueColorIn(z, zold, zold2, iterations, pixelC, start, c0, pixelC);
+        }
+
+        return in;
 
     }
 
@@ -433,10 +551,10 @@ public abstract class RootFindingMethods extends Fractal {
         Complex pixel = dpixel.plus(refPointSmall);
 
         int MaxRefIteration = Fractal.MaxRefIteration;
-        double[] Reference = Fractal.Reference;
-        double[] ReferenceSubCp = Fractal.ReferenceSubCp;
-        double[] PrecalculatedTerms = Fractal.PrecalculatedTerms;
-        double[] PrecalculatedTerms2 = Fractal.PrecalculatedTerms2;
+        DoubleReference Reference = Fractal.Reference;
+        DoubleReference ReferenceSubCp = Fractal.ReferenceSubCp;
+        DoubleReference PrecalculatedTerms = Fractal.PrecalculatedTerms;
+        DoubleReference PrecalculatedTerms2 = Fractal.PrecalculatedTerms2;
 
         for (; iterations < max_iterations; iterations++) {
 
@@ -541,10 +659,10 @@ public abstract class RootFindingMethods extends Fractal {
         DeepReference PrecalculatedTermsDeep = Fractal.PrecalculatedTermsDeep;
         DeepReference PrecalculatedTerms2Deep = Fractal.PrecalculatedTerms2Deep;
 
-        double[] Reference = Fractal.Reference;
-        double[] ReferenceSubCp = Fractal.ReferenceSubCp;
-        double[] PrecalculatedTerms = Fractal.PrecalculatedTerms;
-        double[] PrecalculatedTerms2 = Fractal.PrecalculatedTerms2;
+        DoubleReference Reference = Fractal.Reference;
+        DoubleReference ReferenceSubCp = Fractal.ReferenceSubCp;
+        DoubleReference PrecalculatedTerms = Fractal.PrecalculatedTerms;
+        DoubleReference PrecalculatedTerms2 = Fractal.PrecalculatedTerms2;
 
         boolean useFullFloatExp = ThreadDraw.USE_FULL_FLOATEXP_FOR_DEEP_ZOOM;
         boolean doBailCheck = useFullFloatExp || ThreadDraw.CHECK_BAILOUT_DURING_DEEP_NOT_FULL_FLOATEXP_MODE;

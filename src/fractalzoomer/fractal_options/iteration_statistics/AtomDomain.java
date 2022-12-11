@@ -29,12 +29,14 @@ public class AtomDomain extends GenericStatistic {
     private boolean showAtomDomains;
     private int normtType;
     private double atomNorm;
+    private double atomNormReciprocal;
     
     public AtomDomain(boolean showAtomDomains, double statistic_intensity, int normtType, double atomNorm) {
         super(statistic_intensity, false, false);
         this.showAtomDomains = showAtomDomains;
         this.normtType = normtType;
         this.atomNorm = atomNorm;
+        atomNormReciprocal = 1 / atomNorm;
     }
 
     @Override
@@ -55,7 +57,7 @@ public class AtomDomain extends GenericStatistic {
                 currentNorm = Math.max(z.getAbsRe(), z.getAbsIm());
                 break;
             case 3:
-                currentNorm = z.nnorm(atomNorm);
+                currentNorm = z.nnorm(atomNorm, atomNormReciprocal);
                 break;
         }
 

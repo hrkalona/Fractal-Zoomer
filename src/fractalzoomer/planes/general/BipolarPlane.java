@@ -39,11 +39,11 @@ public class BipolarPlane extends Plane {
         super();
         this.focal_point = new Complex(focal_point[0], focal_point[1]);
 
-        if(ThreadDraw.PERTURBATION_THEORY) {
+        if(ThreadDraw.PERTURBATION_THEORY || ThreadDraw.HIGH_PRECISION_CALCULATION) {
 
             ddfocal_point = new DDComplex(focal_point[0], focal_point[1]);
 
-            if(ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE) {
+            if(ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE || ThreadDraw.HIGH_PRECISION_CALCULATION) {
 
                 if(LibMpfr.LOAD_ERROR == null) {
                     mpfrbnfocal_point = new MpfrBigNumComplex(focal_point[0], focal_point[1]);

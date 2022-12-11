@@ -60,7 +60,7 @@ public class BoundaryTracingDraw extends ThreadDraw {
     @Override
     protected void drawIterations(int image_size, boolean polar) {
 
-        Location location = Location.getInstanceForDrawing(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, js, polar, PERTURBATION_THEORY && fractal.supportsPerturbationTheory());
+        Location location = Location.getInstanceForDrawing(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, js, polar, (HIGH_PRECISION_CALCULATION || PERTURBATION_THEORY) && fractal.supportsPerturbationTheory());
 
         int pixel_percent = (image_size * image_size) / 100;
 
@@ -81,7 +81,7 @@ public class BoundaryTracingDraw extends ThreadDraw {
         int last_drawing_done = 0;
         int totalPixels = (TOx - FROMx) * (TOy - FROMy);
 
-        if(PERTURBATION_THEORY && fractal.supportsPerturbationTheory()) {
+        if(PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && !HIGH_PRECISION_CALCULATION) {
             if (reference_calc_sync.getAndIncrement() == 0) {
                 calculateReference(location);
             }
@@ -150,7 +150,7 @@ public class BoundaryTracingDraw extends ThreadDraw {
 
                         nextPix = curPix + delPix[dir];
 
-                        if ((nextColor = rgbs[nextPix]) >>> 24 == culcColor) {
+                        if ((nextColor = rgbs[nextPix]) >>> 24 == culcColor) {//Todo some exception here for index, cant reproduce
 
                             image_iterations[nextPix] = f_val = iteration_algorithm.calculate(location2.getComplex(next_ix, next_iy));
                             escaped[nextPix] = escaped_val = iteration_algorithm.escaped();
@@ -267,10 +267,10 @@ public class BoundaryTracingDraw extends ThreadDraw {
     protected void drawFastJuliaAntialiased(int image_size, boolean polar) {
 
         int aaMethod = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
-        Location location = Location.getInstanceForDrawing(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, js, polar, PERTURBATION_THEORY && fractal.supportsPerturbationTheory());
+        Location location = Location.getInstanceForDrawing(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
         location.createAntialiasingSteps(aaMethod == 5);
 
-        if(PERTURBATION_THEORY && fractal.supportsPerturbationTheory()) {
+        if(PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && !HIGH_PRECISION_CALCULATION) {
 
             if (reference_calc_sync.getAndIncrement() == 0) {
                 calculateReferenceFastJulia(location);
@@ -465,7 +465,7 @@ public class BoundaryTracingDraw extends ThreadDraw {
     protected void drawIterationsAntialiased(int image_size, boolean polar) {
 
         int aaMethod = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
-        Location location = Location.getInstanceForDrawing(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, js, polar, PERTURBATION_THEORY && fractal.supportsPerturbationTheory());
+        Location location = Location.getInstanceForDrawing(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
         location.createAntialiasingSteps(aaMethod == 5);
 
         int pixel_percent = (image_size * image_size) / 100;
@@ -488,7 +488,7 @@ public class BoundaryTracingDraw extends ThreadDraw {
         
         boolean startEscaped;
 
-        if(PERTURBATION_THEORY  && fractal.supportsPerturbationTheory()) {
+        if(PERTURBATION_THEORY  && fractal.supportsPerturbationTheory() && !HIGH_PRECISION_CALCULATION) {
             if (reference_calc_sync.getAndIncrement() == 0) {
                 calculateReference(location);
             }
@@ -709,9 +709,9 @@ public class BoundaryTracingDraw extends ThreadDraw {
     @Override
     protected void drawFastJulia(int image_size, boolean polar) {
 
-        Location location = Location.getInstanceForDrawing(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, js, polar, PERTURBATION_THEORY && fractal.supportsPerturbationTheory());
+        Location location = Location.getInstanceForDrawing(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
 
-        if(PERTURBATION_THEORY && fractal.supportsPerturbationTheory()) {
+        if(PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && !HIGH_PRECISION_CALCULATION) {
 
             if (reference_calc_sync.getAndIncrement() == 0) {
                 calculateReferenceFastJulia(location);

@@ -177,9 +177,18 @@ public class MantExp {
         return mantissa * getMultiplier(exp);
     }
 
+    public double toDoubleSub(long exponent)
+    {
+        return mantissa * getMultiplier(exp - exponent);
+    }
+
     public double getMantissa() {return  mantissa;}
 
     public long getExp() { return exp;}
+
+    public void setExp(long exp) {
+        this.exp = exp;
+    }
 
 
     /*

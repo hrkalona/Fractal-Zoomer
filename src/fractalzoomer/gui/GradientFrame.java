@@ -409,6 +409,11 @@ public class GradientFrame extends JFrame {
                 1);
 
         offset_textfield = new JSpinner(spinnerModel);
+
+        JSpinner.NumberEditor editor = new JSpinner.NumberEditor(offset_textfield);
+        editor.getFormat().setGroupingUsed(false);
+        offset_textfield.setEditor(editor);
+
         offset_textfield.setPreferredSize(new Dimension(70, 26));
         offset_textfield.setToolTipText("Adds an offset to the current gradient.");
         ((DefaultEditor) offset_textfield.getEditor()).getTextField().getDocument().addDocumentListener(new DocumentListener() {

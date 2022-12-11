@@ -41,9 +41,9 @@ public class SplitImageRenderDialog extends JDialog {
         setModal(true);
         setIconImage(MainWindow.getIcon("mandel2.png").getImage());
 
-        JTextField field = new JTextField();
+
+        MyJSpinner field = new MyJSpinner(new SpinnerNumberModel(split_image_grid_dimension, 1, 1000, 1));
         field.addAncestorListener(new RequestFocusListener());
-        field.setText("" + split_image_grid_dimension);
 
         Object[] message3 = {
             " ",

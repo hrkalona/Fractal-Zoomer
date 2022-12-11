@@ -50,58 +50,49 @@ public class MagneticPendulumDialog extends JDialog {
         magnet_p1.setLayout(new FlowLayout());
 
         magnet_p1.add(new JLabel("Gravity Re: "));
-        JTextField gravity_re = new JTextField(10);
-        gravity_re.setText("" + s.fns.mps.gravity[0]);
+        MyJSpinner gravity_re = new MyJSpinner(10, new SpinnerNumberModel(s.fns.mps.gravity[0], -Double.MAX_VALUE, Double.MAX_VALUE, 0.1));
         magnet_p1.add(gravity_re);
 
         magnet_p1.add(new JLabel(" Im: "));
-        JTextField gravity_im = new JTextField(10);
-        gravity_im.setText("" + s.fns.mps.gravity[1]);
+        MyJSpinner gravity_im = new MyJSpinner(10, new SpinnerNumberModel(s.fns.mps.gravity[1], -Double.MAX_VALUE, Double.MAX_VALUE, 0.1));
         magnet_p1.add(gravity_im);
 
         magnet_p1.add(new JLabel(" Friction Re: "));
-        JTextField friction_re = new JTextField(10);
-        friction_re.setText("" + s.fns.mps.friction[0]);
+        MyJSpinner friction_re = new MyJSpinner(10, new SpinnerNumberModel(s.fns.mps.friction[0], -Double.MAX_VALUE, Double.MAX_VALUE, 0.1));
         magnet_p1.add(friction_re);
 
         magnet_p1.add(new JLabel(" Im: "));
-        JTextField friction_im = new JTextField(10);
-        friction_im.setText("" + s.fns.mps.friction[1]);
+        MyJSpinner friction_im = new MyJSpinner(10, new SpinnerNumberModel(s.fns.mps.friction[1], -Double.MAX_VALUE, Double.MAX_VALUE, 0.1));
         magnet_p1.add(friction_im);
 
         JPanel magnet_p2 = new JPanel();
         magnet_p2.setLayout(new FlowLayout());
 
         magnet_p2.add(new JLabel("Pendulum Re: "));
-        JTextField pendulum_re = new JTextField(10);
-        pendulum_re.setText("" + s.fns.mps.pendulum[0]);
+        MyJSpinner pendulum_re = new MyJSpinner(10, new SpinnerNumberModel(s.fns.mps.pendulum[0], -Double.MAX_VALUE, Double.MAX_VALUE, 0.1));
         magnet_p2.add(pendulum_re);
 
         magnet_p2.add(new JLabel(" Im: "));
-        JTextField pendulum_im = new JTextField(10);
-        pendulum_im.setText("" + s.fns.mps.pendulum[1]);
+        MyJSpinner pendulum_im = new MyJSpinner(10, new SpinnerNumberModel(s.fns.mps.pendulum[1], -Double.MAX_VALUE, Double.MAX_VALUE, 0.1));
         magnet_p2.add(pendulum_im);
 
         magnet_p2.add(new JLabel(" Height: "));
-        JTextField pendulum_height = new JTextField(10);
-        pendulum_height.setText("" + s.fns.mps.height);
+        MyJSpinner pendulum_height = new MyJSpinner(10, new SpinnerNumberModel(s.fns.mps.height, -Double.MAX_VALUE, Double.MAX_VALUE, 0.1));
         magnet_p2.add(pendulum_height);
 
         magnet_p2.add(new JLabel(" Stepsize Re: "));
-        JTextField pendulum_stepsize_re = new JTextField(10);
-        pendulum_stepsize_re.setText("" + s.fns.mps.stepsize);
+        MyJSpinner pendulum_stepsize_re = new MyJSpinner(10, new SpinnerNumberModel(s.fns.mps.stepsize, -Double.MAX_VALUE, Double.MAX_VALUE, 0.1));
         magnet_p2.add(pendulum_stepsize_re);
         
         magnet_p2.add(new JLabel(" Im: "));
-        JTextField pendulum_stepsize_im = new JTextField(10);
-        pendulum_stepsize_im.setText("" + s.fns.mps.stepsize_im);
+        MyJSpinner pendulum_stepsize_im = new MyJSpinner(10, new SpinnerNumberModel(s.fns.mps.stepsize_im, -Double.MAX_VALUE, Double.MAX_VALUE, 0.1));
         magnet_p2.add(pendulum_stepsize_im);
 
         JPanel[] magnet_panels = new JPanel[s.fns.mps.magnetLocation.length];
-        JTextField[] magnet_re = new JTextField[magnet_panels.length];
-        JTextField[] magnet_im = new JTextField[magnet_panels.length];
-        JTextField[] magnet_strength_re = new JTextField[magnet_panels.length];
-        JTextField[] magnet_strength_im = new JTextField[magnet_panels.length];
+        MyJSpinner[] magnet_re = new MyJSpinner[magnet_panels.length];
+        MyJSpinner[] magnet_im = new MyJSpinner[magnet_panels.length];
+        MyJSpinner[] magnet_strength_re = new MyJSpinner[magnet_panels.length];
+        MyJSpinner[] magnet_strength_im = new MyJSpinner[magnet_panels.length];
 
         for (int k = 0; k < magnet_panels.length; k++) {
             magnet_panels[k] = new JPanel();
@@ -109,23 +100,19 @@ public class MagneticPendulumDialog extends JDialog {
 
             magnet_panels[k].add(new JLabel("[Magnet " + String.format("%02d", (k + 1)) + "] "));
             magnet_panels[k].add(new JLabel("Strength Re: "));
-            magnet_strength_re[k] = new JTextField(10);
-            magnet_strength_re[k].setText("" + s.fns.mps.magnetStrength[k][0]);
+            magnet_strength_re[k] = new MyJSpinner(10, new SpinnerNumberModel(s.fns.mps.magnetStrength[k][0], -Double.MAX_VALUE, Double.MAX_VALUE, 0.1));
             magnet_panels[k].add(magnet_strength_re[k]);
 
             magnet_panels[k].add(new JLabel(" Im: "));
-            magnet_strength_im[k] = new JTextField(10);
-            magnet_strength_im[k].setText("" + s.fns.mps.magnetStrength[k][1]);
+            magnet_strength_im[k] = new MyJSpinner(10, new SpinnerNumberModel(s.fns.mps.magnetStrength[k][1], -Double.MAX_VALUE, Double.MAX_VALUE, 0.1));
             magnet_panels[k].add(magnet_strength_im[k]);
 
             magnet_panels[k].add(new JLabel(" Location Re: "));
-            magnet_re[k] = new JTextField(10);
-            magnet_re[k].setText("" + s.fns.mps.magnetLocation[k][0]);
+            magnet_re[k] = new MyJSpinner(10, new SpinnerNumberModel(s.fns.mps.magnetLocation[k][0], -Double.MAX_VALUE, Double.MAX_VALUE, 0.1));
             magnet_panels[k].add(magnet_re[k]);
 
             magnet_panels[k].add(new JLabel(" Im: "));
-            magnet_im[k] = new JTextField(10);
-            magnet_im[k].setText("" + s.fns.mps.magnetLocation[k][1]);
+            magnet_im[k] = new MyJSpinner(10, new SpinnerNumberModel(s.fns.mps.magnetLocation[k][1], -Double.MAX_VALUE, Double.MAX_VALUE, 0.1));
             magnet_panels[k].add(magnet_im[k]);
         }
         

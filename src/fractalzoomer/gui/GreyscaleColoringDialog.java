@@ -16,6 +16,8 @@
  */
 package fractalzoomer.gui;
 
+import fractalzoomer.core.ThreadDraw;
+import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
 
@@ -109,8 +111,8 @@ public class GreyscaleColoringDialog extends JDialog {
 
                         dispose();
 
-                        if (greedy_algorithm && enable_greyscale_coloring.isSelected() && !julia_map && !s.d3s.d3) {
-                            JOptionPane.showMessageDialog(ptra, "Greedy Drawing Algorithm is enabled, which creates glitches in the image.\nYou should disable it for a better result.", "Warning!", JOptionPane.WARNING_MESSAGE);
+                        if (greedy_algorithm && !ThreadDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA && enable_greyscale_coloring.isSelected() && !julia_map && !s.d3s.d3) {
+                            JOptionPane.showMessageDialog(ptra, Constants.greedyWarning, "Warning!", JOptionPane.WARNING_MESSAGE);
                         }
 
                         ptra.setPostProcessingPost();

@@ -19,6 +19,8 @@ package fractalzoomer.gui;
 import fractalzoomer.main.MainWindow;
 
 import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 
 /**
  *
@@ -124,7 +126,19 @@ public class Toolbar extends JToolBar {
 
         current_function_button.addActionListener(e -> ptr.clickCurrentFunction());
 
-        current_function_button.setMnemonic('e');
+
+        KeyStroke keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_U, ActionEvent.CTRL_MASK);
+        int condition = JComponent.WHEN_IN_FOCUSED_WINDOW;
+        InputMap inputMap = current_function_button.getInputMap(condition);
+        ActionMap actionMap = current_function_button.getActionMap();
+        inputMap.put(keyStroke, keyStroke.toString());
+        actionMap.put(keyStroke.toString(), new AbstractAction() {
+
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                current_function_button.doClick();
+            }
+        });
 
         add(current_function_button);
 
@@ -133,7 +147,18 @@ public class Toolbar extends JToolBar {
         current_plane_button.setFocusable(false);
         current_plane_button.setToolTipText("Selects the active plane transformation for parameterization (if applicable).");
 
-        current_plane_button.setMnemonic('q');
+        keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_Q, ActionEvent.ALT_MASK);
+        condition = JComponent.WHEN_IN_FOCUSED_WINDOW;
+        inputMap = current_plane_button.getInputMap(condition);
+        actionMap = current_plane_button.getActionMap();
+        inputMap.put(keyStroke, keyStroke.toString());
+        actionMap.put(keyStroke.toString(), new AbstractAction() {
+
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                current_plane_button.doClick();
+            }
+        });
 
         current_plane_button.addActionListener(e -> ptr.clickCurrentPlane());
 

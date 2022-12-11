@@ -19,7 +19,8 @@ import javax.swing.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import static fractalzoomer.main.Constants.REFERENCE_CALCULATION_STR;
+import static fractalzoomer.main.Constants.*;
+import static fractalzoomer.main.Constants.ARBITRARY_DOUBLEDOUBLE;
 
 public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
 
@@ -174,48 +175,51 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
     public void calculateReferencePoint(GenericComplex inputPixel, Apfloat size, boolean deepZoom, int iterations, int iterations2, Location externalLocation, JProgressBar progress) {
 
         long time = System.currentTimeMillis();
+
+        int max_ref_iterations = getReferenceMaxIterations();
+
         int initIterations = iterations;
 
         if(progress != null) {
-            progress.setMaximum(max_iterations - initIterations);
+            progress.setMaximum(max_ref_iterations - initIterations);
             progress.setValue(0);
             progress.setForeground(MainWindow.progress_ref_color);
             progress.setString(REFERENCE_CALCULATION_STR + " " + String.format("%3d", 0) + "%");
         }
 
         if(iterations == 0) {
-            Reference = new double[max_iterations << 1];
-            ReferenceSubCp = new double[max_iterations << 1];
+            Reference = new DoubleReference(max_ref_iterations);
+            ReferenceSubCp = new DoubleReference(max_ref_iterations);
 
             if(!isJulia) {
-                PrecalculatedTerms = new double[max_iterations << 1];
+                PrecalculatedTerms = new DoubleReference(max_ref_iterations);
             }
-            PrecalculatedTerms2 = new double[max_iterations << 1];
+            PrecalculatedTerms2 = new DoubleReference(max_ref_iterations);
 
             if (deepZoom) {
-                ReferenceDeep = new DeepReference(max_iterations);
-                ReferenceSubCpDeep = new DeepReference(max_iterations);
+                ReferenceDeep = new DeepReference(max_ref_iterations);
+                ReferenceSubCpDeep = new DeepReference(max_ref_iterations);
                 if(!isJulia) {
-                    PrecalculatedTermsDeep = new DeepReference(max_iterations);
+                    PrecalculatedTermsDeep = new DeepReference(max_ref_iterations);
                 }
-                PrecalculatedTerms2Deep = new DeepReference(max_iterations);
+                PrecalculatedTerms2Deep = new DeepReference(max_ref_iterations);
             }
         }
-        else if (max_iterations > getReferenceLength()){
-            Reference = Arrays.copyOf(Reference, max_iterations << 1);
-            ReferenceSubCp = Arrays.copyOf(ReferenceSubCp, max_iterations << 1);
+        else if (max_ref_iterations > getReferenceLength()){
+            Reference.resize(max_ref_iterations);
+            ReferenceSubCp.resize(max_ref_iterations);
             if(!isJulia) {
-                PrecalculatedTerms = Arrays.copyOf(PrecalculatedTerms, max_iterations << 1);
+                PrecalculatedTerms.resize(max_ref_iterations);
             }
-            PrecalculatedTerms2 = Arrays.copyOf(PrecalculatedTerms2, max_iterations << 1);
+            PrecalculatedTerms2.resize(max_ref_iterations);
 
             if (deepZoom) {
-                ReferenceDeep.resize(max_iterations);
-                ReferenceSubCpDeep.resize(max_iterations);
+                ReferenceDeep.resize(max_ref_iterations);
+                ReferenceSubCpDeep.resize(max_ref_iterations);
                 if(!isJulia) {
-                    PrecalculatedTermsDeep.resize(max_iterations);
+                    PrecalculatedTermsDeep.resize(max_ref_iterations);
                 }
-                PrecalculatedTerms2Deep.resize(max_iterations);
+                PrecalculatedTerms2Deep.resize(max_ref_iterations);
             }
         }
 
@@ -323,7 +327,9 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
 
         RefType = getRefType();
 
-        for (; iterations < max_iterations; iterations++) {
+        convergent_bailout_algorithm.setReferenceMode(true);
+
+        for (; iterations < max_ref_iterations; iterations++) {
 
             Complex cz = z.toComplex();
             if(cz.isInfinite()) {
@@ -407,6 +413,8 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
 
         }
 
+        convergent_bailout_algorithm.setReferenceMode(false);
+
         lastZValue = z;
         secondTolastZValue = zold;
         thirdTolastZValue = zold2;
@@ -448,9 +456,9 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
         }
 
         if (iterations == 0) {
-            SecondReference = new double[max_ref_iterations << 1];
-            SecondReferenceSubCp = new double[max_ref_iterations << 1];
-            SecondPrecalculatedTerms2 = new double[max_ref_iterations << 1];
+            SecondReference = new DoubleReference(max_ref_iterations);
+            SecondReferenceSubCp = new DoubleReference(max_ref_iterations);
+            SecondPrecalculatedTerms2 = new DoubleReference(max_ref_iterations);
 
             if (deepZoom) {
                 SecondReferenceDeep = new DeepReference(max_ref_iterations);
@@ -458,9 +466,9 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
                 SecondPrecalculatedTerms2Deep = new DeepReference(max_ref_iterations);
             }
         } else if (max_ref_iterations > getSecondReferenceLength()) {
-            SecondReference = Arrays.copyOf(SecondReference, max_ref_iterations << 1);
-            SecondReferenceSubCp = Arrays.copyOf(SecondReferenceSubCp, max_ref_iterations << 1);
-            SecondPrecalculatedTerms2 = Arrays.copyOf(SecondPrecalculatedTerms2, max_ref_iterations << 1);
+            SecondReference.resize(max_ref_iterations);
+            SecondReferenceSubCp.resize(max_ref_iterations);
+            SecondPrecalculatedTerms2.resize(max_ref_iterations);
 
             if (deepZoom) {
                 SecondReferenceDeep.resize(max_ref_iterations);
@@ -522,6 +530,8 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
             c0 = c;
             pixel = inputPixel;
         }
+
+        convergent_bailout_algorithm.setReferenceMode(true);
 
         for (; iterations < max_ref_iterations; iterations++) {
 
@@ -590,6 +600,8 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
             }
 
         }
+
+        convergent_bailout_algorithm.setReferenceMode(false);
 
         lastZ2Value = z;
         secondTolastZ2Value = zold;
@@ -749,7 +761,7 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
     }
 
     @Override
-    public Complex perturbationFunction(Complex DeltaSubN, double[] Reference, double[] PrecalculatedTerms, double[] PrecalculatedTerms2, int RefIteration) {
+    public Complex perturbationFunction(Complex DeltaSubN, DoubleReference Reference, DoubleReference PrecalculatedTerms, DoubleReference PrecalculatedTerms2, int RefIteration) {
         Complex Z = getArrayValue(Reference, RefIteration);
         Complex z = DeltaSubN;
 
@@ -841,6 +853,66 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
         else {
             complex[0] = dpixel.divide(MantExp.THREE);
             complex[1] = new MantExpComplex(dpixel);
+        }
+
+        return complex;
+
+    }
+
+    @Override
+    public void function(GenericComplex[] complex) {
+        if(complex[0] instanceof BigComplex) {
+            complex[0] = complex[0].sub(complex[0].sub(MyApfloat.ONE).times(complex[0].plus(MyApfloat.ONE)).times(complex[0].sub(complex[1])).divide(complex[1].times(complex[0]).times2().negative().plus(complex[0].square().times(MyApfloat.THREE)).sub(MyApfloat.ONE)));
+        }
+        else {
+            complex[0] = complex[0].sub_mutable(complex[0].sub(1).times_mutable(complex[0].plus(1)).times_mutable(complex[0].sub(complex[1])).divide_mutable(complex[1].times(complex[0]).times2_mutable().negative_mutable().plus_mutable(complex[0].square().times_mutable(3)).sub_mutable(1)));
+        }
+    }
+
+    @Override
+    public GenericComplex[] initialize(GenericComplex pixel) {
+
+        GenericComplex[] complex = new GenericComplex[2];
+
+        int lib = ThreadDraw.getHighPrecisionLibrary(dsize, this);
+
+        if(lib == ARBITRARY_MPFR) {
+
+            workSpaceData.z.set(((MpfrBigNumComplex) pixel).divide(3));
+            complex[0] = workSpaceData.z;//z
+
+            workSpaceData.c.set(pixel);
+            complex[1] = workSpaceData.c;//c
+
+            workSpaceData.zold.reset();
+            gzold = workSpaceData.zold;
+
+            workSpaceData.zold2.reset();
+            gzold2 = workSpaceData.zold2;
+
+            workSpaceData.start.set(complex[0]);
+            gstart = workSpaceData.start;
+
+            workSpaceData.c0.set(complex[1]);
+            gc0 = workSpaceData.c0;
+        }
+        else if(lib == ARBITRARY_DOUBLEDOUBLE) {
+            complex[0] = ((DDComplex) pixel).divide(3);//z
+            complex[1] = pixel;//c
+
+            gzold = new DDComplex();
+            gzold2 = new DDComplex();
+            gstart = complex[0];
+            gc0 = complex[1];
+        }
+        else {
+            complex[0] = ((BigComplex) pixel).divide(MyApfloat.THREE);//z
+            complex[1] = pixel;//c
+
+            gzold = new BigComplex();
+            gzold2 = new BigComplex();
+            gstart = complex[0];
+            gc0 = complex[1];
         }
 
         return complex;

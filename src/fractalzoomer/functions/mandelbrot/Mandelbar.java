@@ -29,6 +29,7 @@ import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
 import fractalzoomer.main.app_settings.StatisticsSettings;
 import fractalzoomer.utils.NormComponents;
+import fractalzoomer.utils.WorkSpaceData;
 import org.apfloat.Apfloat;
 
 import javax.swing.*;
@@ -166,13 +167,13 @@ public class Mandelbar extends Julia {
         }
 
         if (iterations == 0) {
-            Reference = new double[max_iterations << 1];
+            Reference = new DoubleReference(max_iterations );
 
             if (deepZoom) {
                 ReferenceDeep = new DeepReference(max_iterations);
             }
         } else if (max_iterations > getReferenceLength()) {
-            Reference = Arrays.copyOf(Reference, max_iterations << 1);
+            Reference.resize(max_iterations);
 
             if (deepZoom) {
                 ReferenceDeep.resize(max_iterations);
@@ -254,6 +255,8 @@ public class Mandelbar extends Julia {
         boolean preCalcNormData = bailout_algorithm2.getId() == MainWindow.BAILOUT_CONDITION_CIRCLE;
         NormComponents normData = null;
 
+        boolean isMpfrComplex = z instanceof MpfrBigNumComplex;
+
         for (; iterations < max_iterations; iterations++) {
 
             Complex cz = z.toComplex();
@@ -282,10 +285,15 @@ public class Mandelbar extends Julia {
 
             try {
                 if(preCalcNormData) {
-                    z = z.conjugate().squareFast_plus_c(normData, c);
+                    z = z.conjugate_mutable().squareFast_plus_c_mutable(normData, c);
                 }
                 else {
-                    z = z.conjugate().square_plus_c(c);
+                    if(isMpfrComplex) {
+                        z = z.conjugate_mutable().square_plus_c_mutable(c, workSpaceData.temp1, workSpaceData.temp2);
+                    }
+                    else {
+                        z = z.conjugate_mutable().square_plus_c_mutable(c);
+                    }
                 }
             }
             catch (Exception ex) {
@@ -320,12 +328,27 @@ public class Mandelbar extends Julia {
     }
 
     @Override
-    protected GenericComplex juliaReferenceFunction(GenericComplex z, GenericComplex c, NormComponents normData) {
-        if(normData != null) {
-            z = z.conjugate().squareFast_plus_c(normData, c);
+    public void function(GenericComplex[] complex) {
+        if(complex[0] instanceof MpfrBigNumComplex) {
+            complex[0] = complex[0].conjugate_mutable().square_plus_c_mutable(complex[1], workSpaceData.temp1, workSpaceData.temp2);
         }
         else {
-            z = z.conjugate().square_plus_c(c);
+            complex[0] = complex[0].conjugate_mutable().square_plus_c_mutable(complex[1]);
+        }
+    }
+
+    @Override
+    protected GenericComplex juliaReferenceFunction(GenericComplex z, GenericComplex c, NormComponents normData) {
+        if(normData != null) {
+            z = z.conjugate_mutable().squareFast_plus_c_mutable(normData, c);
+        }
+        else {
+            if(z instanceof MpfrBigNumComplex) {
+                z = z.conjugate_mutable().square_plus_c_mutable(c, workSpaceData.temp1, workSpaceData.temp2);
+            }
+            else {
+                z = z.conjugate_mutable().square_plus_c_mutable(c);
+            }
         }
 
         return z;
@@ -397,7 +420,7 @@ public class Mandelbar extends Julia {
     }
 
     @Override
-    public Complex perturbationFunction(Complex DeltaSubN, double[] Reference, double[] PrecalculatedTerms, double[] PrecalculatedTerms2, int RefIteration) {
+    public Complex perturbationFunction(Complex DeltaSubN, DoubleReference Reference, DoubleReference PrecalculatedTerms, DoubleReference PrecalculatedTerms2, int RefIteration) {
         Complex X = getArrayValue(Reference, RefIteration);
 
         double r = X.getRe();

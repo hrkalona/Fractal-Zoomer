@@ -61,6 +61,13 @@ public class QuickDrawDialog extends JDialog {
         JCheckBox zoomToCurrentCenter = new JCheckBox("Zoom to center");
         zoomToCurrentCenter.setSelected(ThreadDraw.QUICK_DRAW_ZOOM_TO_CURRENT_CENTER);
         zoomToCurrentCenter.setFocusable(false);
+        zoomToCurrentCenter.setToolTipText("Locks the zooming to the current center, when zooming in or out with the mouse wheel.");
+
+        JCheckBox drawPreview = new JCheckBox("Always Use Quick Draw");
+        drawPreview.setSelected(ThreadDraw.DRAW_IMAGE_PREVIEW);
+        drawPreview.setFocusable(false);
+        drawPreview.setToolTipText("Create a preview image in low resolution using quick draw on every render (First Pass/Second Pass).");
+
 
         Object[] message3 = {
             " ",
@@ -71,6 +78,8 @@ public class QuickDrawDialog extends JDialog {
                 "Set the delay until the complete image calculation.",
                 "Delay (milliseconds):",
                 delay,
+                " ",
+                drawPreview,
                 " ",
                 zoomToCurrentCenter,
             " ",};
@@ -120,6 +129,7 @@ public class QuickDrawDialog extends JDialog {
                             }
 
                             ThreadDraw.QUICK_DRAW_ZOOM_TO_CURRENT_CENTER = zoomToCurrentCenter.isSelected();
+                            ThreadDraw.DRAW_IMAGE_PREVIEW = drawPreview.isSelected();
 
                             ThreadDraw.QUICK_DRAW_DELAY = temp;
                         } catch (Exception ex) {

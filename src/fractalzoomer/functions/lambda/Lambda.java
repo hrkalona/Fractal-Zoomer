@@ -35,7 +35,7 @@ import javax.swing.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import static fractalzoomer.main.Constants.REFERENCE_CALCULATION_STR;
+import static fractalzoomer.main.Constants.*;
 
 /**
  *
@@ -167,49 +167,51 @@ public class Lambda extends Julia {
 
         long time = System.currentTimeMillis();
 
+        int max_ref_iterations = getReferenceMaxIterations();
+
         int initIterations = iterations;
 
         if(progress != null) {
-            progress.setMaximum(max_iterations - initIterations);
+            progress.setMaximum(max_ref_iterations - initIterations);
             progress.setValue(0);
             progress.setForeground(MainWindow.progress_ref_color);
             progress.setString(REFERENCE_CALCULATION_STR + " " + String.format("%3d", 0) + "%");
         }
 
         if (iterations == 0) {
-            Reference = new double[max_iterations << 1];
-            ReferenceSubCp = new double[max_iterations << 1];
-            PrecalculatedTerms = new double[max_iterations << 1];
+            Reference = new DoubleReference(max_ref_iterations);
+            ReferenceSubCp = new DoubleReference(max_ref_iterations);
+            PrecalculatedTerms = new DoubleReference(max_ref_iterations);
 
             if(!isJulia) {
-                PrecalculatedTerms2 = new double[max_iterations << 1];
+                PrecalculatedTerms2 = new DoubleReference(max_ref_iterations);
             }
 
             if (deepZoom) {
-                ReferenceDeep = new DeepReference(max_iterations);
-                ReferenceSubCpDeep = new DeepReference(max_iterations);
-                PrecalculatedTermsDeep = new DeepReference(max_iterations);
+                ReferenceDeep = new DeepReference(max_ref_iterations);
+                ReferenceSubCpDeep = new DeepReference(max_ref_iterations);
+                PrecalculatedTermsDeep = new DeepReference(max_ref_iterations);
 
                 if(!isJulia) {
-                    PrecalculatedTerms2Deep = new DeepReference(max_iterations);
+                    PrecalculatedTerms2Deep = new DeepReference(max_ref_iterations);
                 }
             }
-        } else if (max_iterations > getReferenceLength()) {
-            Reference = Arrays.copyOf(Reference, max_iterations << 1);
-            ReferenceSubCp = Arrays.copyOf(ReferenceSubCp, max_iterations << 1);
-            PrecalculatedTerms = Arrays.copyOf(PrecalculatedTerms, max_iterations << 1);
+        } else if (max_ref_iterations > getReferenceLength()) {
+            Reference.resize(max_ref_iterations);
+            ReferenceSubCp.resize(max_ref_iterations);
+            PrecalculatedTerms.resize(max_ref_iterations);
 
             if(!isJulia) {
-                PrecalculatedTerms2 = Arrays.copyOf(PrecalculatedTerms2, max_iterations << 1);
+                PrecalculatedTerms2.resize(max_ref_iterations);
             }
 
             if (deepZoom) {
-                ReferenceDeep.resize(max_iterations);
-                ReferenceSubCpDeep.resize(max_iterations);
-                PrecalculatedTermsDeep.resize(max_iterations);
+                ReferenceDeep.resize(max_ref_iterations);
+                ReferenceSubCpDeep.resize(max_ref_iterations);
+                PrecalculatedTermsDeep.resize(max_ref_iterations);
 
                 if(!isJulia) {
-                    PrecalculatedTerms2Deep.resize(max_iterations);
+                    PrecalculatedTerms2Deep.resize(max_ref_iterations);
                 }
             }
         }
@@ -302,7 +304,7 @@ public class Lambda extends Julia {
         boolean preCalcNormData = bailout_algorithm2.getId() == MainWindow.BAILOUT_CONDITION_CIRCLE;
         NormComponents normData = null;
 
-        for (; iterations < max_iterations; iterations++) {
+        for (; iterations < max_ref_iterations; iterations++) {
 
             Complex cz = z.toComplex();
             if(cz.isInfinite()) {
@@ -331,12 +333,7 @@ public class Lambda extends Julia {
             GenericComplex preCalc2 = null;
 
             if(preCalcNormData) {
-                if(useBignum && bigNumLib == Constants.BIGNUM_MPFR) {
-                    preCalc2 = z.sub(z.squareFast_non_mutable(normData)); //Z-Z^2 for catastrophic cancelation
-                }
-                else {
-                    preCalc2 = z.sub(z.squareFast(normData)); //Z-Z^2 for catastrophic cancelation
-                }
+                preCalc2 = z.sub(z.squareFast(normData)); //Z-Z^2 for catastrophic cancelation
             }
             else {
                 preCalc2 = z.sub(z.square()); //Z-Z^2 for catastrophic cancelation
@@ -420,9 +417,9 @@ public class Lambda extends Julia {
         }
 
         if (iterations == 0) {
-            SecondReference = new double[max_ref_iterations << 1];
-            SecondReferenceSubCp = new double[max_ref_iterations << 1];
-            SecondPrecalculatedTerms = new double[max_ref_iterations << 1];
+            SecondReference = new DoubleReference(max_ref_iterations);
+            SecondReferenceSubCp = new DoubleReference(max_ref_iterations);
+            SecondPrecalculatedTerms = new DoubleReference(max_ref_iterations);
 
             if (deepZoom) {
                 SecondReferenceDeep = new DeepReference(max_ref_iterations);
@@ -430,9 +427,9 @@ public class Lambda extends Julia {
                 SecondPrecalculatedTermsDeep = new DeepReference(max_ref_iterations);
             }
         } else if (max_ref_iterations > getSecondReferenceLength()) {
-            SecondReference = Arrays.copyOf(SecondReference, max_ref_iterations << 1);
-            SecondReferenceSubCp = Arrays.copyOf(SecondReferenceSubCp, max_ref_iterations << 1);
-            SecondPrecalculatedTerms = Arrays.copyOf(SecondPrecalculatedTerms, max_ref_iterations << 1);
+            SecondReference.resize(max_ref_iterations);
+            SecondReferenceSubCp.resize(max_ref_iterations);
+            SecondPrecalculatedTerms.resize(max_ref_iterations);
 
             if (deepZoom) {
                 SecondReferenceDeep.resize(max_ref_iterations);
@@ -546,12 +543,7 @@ public class Lambda extends Julia {
             GenericComplex preCalc2 = null;
 
             if(preCalcNormData) {
-                if(useBignum && bigNumLib == Constants.BIGNUM_MPFR) {
-                    preCalc2 = z.sub(z.squareFast_non_mutable(normData));
-                }
-                else {
-                    preCalc2 = z.sub(z.squareFast(normData));
-                }
+                preCalc2 = z.sub(z.squareFast(normData));
             }
             else {
                 preCalc2 = z.sub(z.square());
@@ -600,6 +592,17 @@ public class Lambda extends Julia {
         SecondReferenceCalculationTime = System.currentTimeMillis() - time;
     }
 
+    @Override
+    public void function(GenericComplex[] complex) {
+
+        if(complex[0] instanceof BigComplex) {
+            complex[0] = complex[0].times(complex[1].times(complex[0].r_sub(MyApfloat.ONE)));
+        }
+        else {
+            complex[0] = complex[0].times(complex[1].times(complex[0].r_sub(1)));
+        }
+
+    }
 
     //(-z^2 - (2*Z - 1)*z)*C + (-z^2 - Z^2 + Z - (2*Z-1)*z) * c
     @Override
@@ -655,7 +658,7 @@ public class Lambda extends Julia {
     }
 
     @Override
-    public Complex perturbationFunction(Complex DeltaSubN, double[] Reference, double[] PrecalculatedTerms, double[] PrecalculatedTerms2, int RefIteration) {
+    public Complex perturbationFunction(Complex DeltaSubN, DoubleReference Reference, DoubleReference PrecalculatedTerms, DoubleReference PrecalculatedTerms2, int RefIteration) {
 
         Complex z = DeltaSubN;
 
@@ -690,7 +693,9 @@ public class Lambda extends Julia {
         iterations = nanomb1SkippedIterations != 0 ? nanomb1SkippedIterations : skippedIterations;
         int RefIteration = iterations;
 
-        int ReferencePeriod = iterationPeriod;
+        int ReferencePeriod = getPeriod();
+
+        int MaxRefIteration = getReferenceFinalIterationNumber(true);
 
         Complex zWithoutInitVal = new Complex();
 
@@ -783,7 +788,9 @@ public class Lambda extends Julia {
         iterations = totalSkippedIterations;
         int RefIteration = iterations;
 
-        int ReferencePeriod = iterationPeriod;
+        int ReferencePeriod = getPeriod();
+
+        int MaxRefIteration = getReferenceFinalIterationNumber(true);
 
         int minExp = -1000;
         int reducedExp = minExp / (int)power;
@@ -964,9 +971,9 @@ public class Lambda extends Julia {
         Complex pixel = dpixel.plus(refPointSmall);
 
         int MaxRefIteration = Fractal.MaxRefIteration;
-        double[] Reference = Fractal.Reference;
-        double[] ReferenceSubCp = Fractal.ReferenceSubCp;
-        double[] PrecalculatedTerms = Fractal.PrecalculatedTerms;
+        DoubleReference Reference = Fractal.Reference;
+        DoubleReference ReferenceSubCp = Fractal.ReferenceSubCp;
+        DoubleReference PrecalculatedTerms = Fractal.PrecalculatedTerms;
 
         Complex zWithoutInitVal = new Complex();
 
@@ -1061,9 +1068,9 @@ public class Lambda extends Julia {
         DeepReference ReferenceSubCpDeep = Fractal.ReferenceSubCpDeep;
         DeepReference PrecalculatedTermsDeep = Fractal.PrecalculatedTermsDeep;
 
-        double[] Reference = Fractal.Reference;
-        double[] ReferenceSubCp = Fractal.ReferenceSubCp;
-        double[] PrecalculatedTerms = Fractal.PrecalculatedTerms;
+        DoubleReference Reference = Fractal.Reference;
+        DoubleReference ReferenceSubCp = Fractal.ReferenceSubCp;
+        DoubleReference PrecalculatedTerms = Fractal.PrecalculatedTerms;
 
         int minExp = -1000;
         int reducedExp = minExp / (int)power;

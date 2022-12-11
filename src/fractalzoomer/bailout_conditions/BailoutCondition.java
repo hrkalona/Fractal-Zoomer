@@ -35,11 +35,11 @@ public abstract class BailoutCondition {
     protected BailoutCondition(double bound) {
         
         this.bound = bound;
-        if(ThreadDraw.PERTURBATION_THEORY) {
+        if(ThreadDraw.PERTURBATION_THEORY || ThreadDraw.HIGH_PRECISION_CALCULATION) {
             ddbound = new MyApfloat(bound);
             ddcbound = new DoubleDouble(bound);
 
-            if(ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE) {
+            if(ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE || ThreadDraw.HIGH_PRECISION_CALCULATION) {
                 bnbound = new BigNum(ddbound);
             }
         }

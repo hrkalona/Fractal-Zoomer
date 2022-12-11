@@ -271,6 +271,16 @@ public final class Complex extends GenericComplex {
     }
 
     /*
+     *  Real - z1
+     */
+    @Override
+    public final Complex r_sub(int number) {
+
+        return new Complex(number - re, -im);
+
+    }
+
+    /*
      *  z1 = Real - z1
      */
     public final Complex r_sub_mutable(double number) {
@@ -1049,6 +1059,15 @@ public final class Complex extends GenericComplex {
     /*
      * n-norm
      */
+    public final double nnorm(double n, double nreciprocal) {
+
+        return Math.pow(Math.pow(Math.abs(re), n) + Math.pow(Math.abs(im), n), nreciprocal);
+
+    }
+
+    /*
+     * n-norm
+     */
     public final double nnorm(double n) {
 
         return Math.pow(Math.pow(Math.abs(re), n) + Math.pow(Math.abs(im), n), 1 / n);
@@ -1131,7 +1150,6 @@ public final class Complex extends GenericComplex {
     /*
      *  abs(z)
      */
-    @Override
     public final Complex abs() {
 
         return new Complex(re >= 0 ? re : -re, im >= 0 ? im : -im);
@@ -1141,6 +1159,7 @@ public final class Complex extends GenericComplex {
     /*
      *  z = abs(z)
      */
+    @Override
     public final Complex abs_mutable() {
 
         re = re >= 0 ? re : -re;
@@ -1193,7 +1212,6 @@ public final class Complex extends GenericComplex {
     /*
      *  Real -Imaginary i
      */
-    @Override
     public final Complex conjugate() {
 
         return new Complex(re, -im);
@@ -1203,6 +1221,7 @@ public final class Complex extends GenericComplex {
     /*
      *  z = Real -Imaginary i
      */
+    @Override
     public final Complex conjugate_mutable() {
 
         im = -im;
@@ -2754,7 +2773,6 @@ public final class Complex extends GenericComplex {
     /*
      *  z^2 + c
      */
-    @Override
     public final Complex squareFast_plus_c(NormComponents normComponents, GenericComplex ca) {
         double reSqr = (double) normComponents.reSqr;
         double imSqr = (double) normComponents.imSqr;
@@ -2779,7 +2797,6 @@ public final class Complex extends GenericComplex {
     /*
      *  z^3
      */
-    @Override
     public final Complex cubeFast(NormComponents normComponents) {
 
         double temp = (double) normComponents.reSqr;
@@ -2791,7 +2808,6 @@ public final class Complex extends GenericComplex {
     /*
      *  z^4
      */
-    @Override
     public final Complex fourthFast(NormComponents normComponents) {
 
         double temp = (double) normComponents.reSqr;
@@ -2803,7 +2819,6 @@ public final class Complex extends GenericComplex {
     /*
      *  z^5
      */
-    @Override
     public final Complex fifthFast(NormComponents normComponents) {
 
         double temp = (double) normComponents.reSqr;
@@ -2813,7 +2828,6 @@ public final class Complex extends GenericComplex {
     }
 
     /* more efficient z^2 + c */
-    @Override
     public final Complex square_plus_c(GenericComplex cn) {
 
         Complex c = (Complex)cn;
@@ -2905,4 +2919,61 @@ public final class Complex extends GenericComplex {
 
     @Override
     public DDComplex toDDComplex() { return new DDComplex(this); }
+
+    /*
+     *  z^3
+     */
+    @Override
+    public final Complex cubeFast_mutable(NormComponents normComponents) {
+
+        return cubeFast(normComponents);
+
+    }
+
+    /*
+     *  z^4
+     */
+    @Override
+    public final Complex fourthFast_mutable(NormComponents normComponents) {
+
+        return fourthFast(normComponents);
+
+    }
+
+    /*
+     *  z^5
+     */
+    @Override
+    public final Complex fifthFast_mutable(NormComponents normComponents) {
+
+        return fifthFast(normComponents);
+
+    }
+
+    /*
+     *  z^2 + c
+     */
+    @Override
+    public final Complex squareFast_plus_c_mutable(NormComponents normComponents, GenericComplex ca) {
+        return squareFast_plus_c(normComponents, ca);
+    }
+
+    /* more efficient z^2 + c */
+    @Override
+    public final Complex square_plus_c_mutable(GenericComplex cn) {
+
+        return square_plus_c(cn);
+
+    }
+
+    public static int sign(double value) {
+        if(value < 0) {
+            return -1;
+        }
+        if(value > 0) {
+            return 1;
+        }
+        return 0;
+    }
+
 }

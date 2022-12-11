@@ -137,6 +137,7 @@ public class BigComplex extends GenericComplex {
     /*
      *  Real - z1
      */
+    @Override
     public final BigComplex r_sub(Apfloat number) {
 
         return  new BigComplex(MyApfloat.fp.subtract(number, re), im.negate());
@@ -394,7 +395,6 @@ public class BigComplex extends GenericComplex {
     /*
      *  Real -Imaginary i
      */
-    @Override
     public final BigComplex conjugate() {
 
         return new BigComplex(re, im.negate());
@@ -441,9 +441,15 @@ public class BigComplex extends GenericComplex {
     }
 
     /*
+     * n-norm
+     */
+    public final Apfloat nnorm(Apfloat n, Apfloat n_reciprocal) {
+        return MyApfloat.fp.pow(MyApfloat.fp.add(MyApfloat.fp.pow(ApfloatMath.abs(re), n), MyApfloat.fp.pow(ApfloatMath.abs(im), n)), n_reciprocal);
+    }
+
+    /*
      *  abs(z)
      */
-    @Override
     public final BigComplex abs() {
 
         return new BigComplex(ApfloatMath.abs(re), ApfloatMath.abs(im));
@@ -733,7 +739,6 @@ public class BigComplex extends GenericComplex {
     /*
      *  z^2 + c
      */
-    @Override
     public final BigComplex squareFast_plus_c(NormComponents normComponents, GenericComplex ca) {
         Apfloat reSqr = (Apfloat) normComponents.reSqr;
         Apfloat imSqr = (Apfloat) normComponents.imSqr;
@@ -758,7 +763,6 @@ public class BigComplex extends GenericComplex {
     /*
      *  z^3
      */
-    @Override
     public final BigComplex cubeFast(NormComponents normComponents) {
 
         Apfloat temp = (Apfloat) normComponents.reSqr;
@@ -771,7 +775,6 @@ public class BigComplex extends GenericComplex {
     /*
      *  z^4
      */
-    @Override
     public final BigComplex fourthFast(NormComponents normComponents) {
 
         Apfloat temp = (Apfloat) normComponents.reSqr;
@@ -784,7 +787,6 @@ public class BigComplex extends GenericComplex {
     /*
      *  z^5
      */
-    @Override
     public final BigComplex fifthFast(NormComponents normComponents) {
 
         Apfloat temp = (Apfloat) normComponents.reSqr;
@@ -874,7 +876,6 @@ public class BigComplex extends GenericComplex {
     }
 
     /* more efficient z^2 + c */
-    @Override
     public final BigComplex square_plus_c(GenericComplex cn) {
 
         BigComplex c = (BigComplex)cn;
@@ -906,4 +907,66 @@ public class BigComplex extends GenericComplex {
 
     @Override
     public GenericComplex sub_mutable(GenericComplex v) { return sub(v); }
+
+    @Override
+    public GenericComplex plus_mutable(GenericComplex v) { return plus(v); }
+
+    @Override
+    public GenericComplex abs_mutable() { return abs(); }
+
+    /*
+     *  z^3
+     */
+    @Override
+    public final BigComplex cubeFast_mutable(NormComponents normComponents) {
+
+       return cubeFast(normComponents);
+
+    }
+
+    /*
+      *  z^4
+            */
+    @Override
+    public final BigComplex fourthFast_mutable(NormComponents normComponents) {
+
+       return fourthFast(normComponents);
+
+    }
+
+    /*
+     *  z^5
+     */
+    @Override
+    public final BigComplex fifthFast_mutable(NormComponents normComponents) {
+
+       return fifthFast(normComponents);
+
+    }
+
+    /*
+     *  z^2 + c
+     */
+    @Override
+    public final BigComplex squareFast_plus_c_mutable(NormComponents normComponents, GenericComplex ca) {
+        return squareFast_plus_c(normComponents, ca);
+    }
+
+    /* more efficient z^2 + c */
+    @Override
+    public final BigComplex square_plus_c_mutable(GenericComplex cn) {
+
+        return square_plus_c(cn);
+
+    }
+
+    /*
+     *  Real -Imaginary i
+     */
+    @Override
+    public final BigComplex conjugate_mutable() {
+
+        return conjugate();
+
+    }
 }

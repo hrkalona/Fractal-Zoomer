@@ -1,3 +1,14 @@
+Version 1.0.8.6
+    -The contents of UserDefinedFunctions can now be saved as part of the settings, and then loaded into a new file (SavedUserDefinedFunctions) upon settings load
+    -Added a new high-precision module which renders all functions that support perturbation theory with full precision for every pixel calculation (It should be used only for debug as it has very bad performance)
+    -Optimized the reference calculation for some functions when using MPFR
+    -The detected period can now be used in BLA and Nanomb1 calculations (Disclaimer, it was found that the current implementation calculates the atom period. It will be changed on the next update)
+    -Added an option for greedy drawing algorithms that take into account the iteration data and the color
+    -Processing algorithms and statistical coloring methods will use smoothing by default
+    -Added an image preview option (Always Use Quick Draw) in Quick Draw options, that creates an image in low resolution before the full render.
+    -Fixed a bug on the scaled iterations algorithm, which caused some deep zoom images to render incorrectly.
+    -Bug fixes and stability changes
+
 Version 1.0.8.5
     -Added a scaled iterations perturbation implementation for Mandelbrot (No Approximation/Series Approximation/Nanomb1)
     -Fixed distance estimation with Polar Projection

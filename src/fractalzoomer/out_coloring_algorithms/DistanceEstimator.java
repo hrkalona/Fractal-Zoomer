@@ -35,7 +35,7 @@ public class DistanceEstimator  extends OutColorAlgorithm {
 
          double temp2 = (((Complex)object[1]).norm_squared());
          double temp3 = Math.log(temp2);      
-         double temp = -2.0 * Math.log(temp3 * temp3 * temp2 / ((Complex)object[2]).norm_squared());
+         double temp = -2.0 * Math.log(temp3 * temp3 * temp2 / ((Complex)object[2]).norm_squared()); //Todo add offset? 0.01
          
          return temp < 0 ? 0 : temp;
 

@@ -50,7 +50,7 @@ public class AbsPlane extends Plane {
     @Override
     public MpfrBigNumComplex transform(MpfrBigNumComplex pixel) {
 
-        return pixel.abs_non_mutable();
+        return pixel.abs();
 
     }
 

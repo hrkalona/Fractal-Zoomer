@@ -38,6 +38,7 @@ public class CustomDomainColoring extends DomainColoring {
     private int colorType;
     private int contourType;
     private double normType;
+    private double normTypeReciprocal;
     private int[] order;
 
     public CustomDomainColoring(DomainColoringSettings ds, PaletteColor palette, TransferFunction color_transfer, int color_cycling_location, GeneratedPaletteSettings gps, Blending blending, int[] gradient, int interpolation, int gradient_offset, double countourFactor) {
@@ -125,6 +126,7 @@ public class CustomDomainColoring extends DomainColoring {
         contourType = ds.contourType;
 
         normType = ds.normType;
+        normTypeReciprocal = 1 / normType;
         
         combineType = ds.combineType;
 
@@ -143,7 +145,7 @@ public class CustomDomainColoring extends DomainColoring {
             norm = res.norm();
         }
         else {
-            norm = res.nnorm(normType);
+            norm = res.nnorm(normType, normTypeReciprocal);
         }
 
         double arg = res.arg();

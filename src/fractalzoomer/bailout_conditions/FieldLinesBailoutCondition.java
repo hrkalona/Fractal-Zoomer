@@ -17,6 +17,7 @@
 package fractalzoomer.bailout_conditions;
 
 import fractalzoomer.core.*;
+import fractalzoomer.core.mpfr.LibMpfr;
 import fractalzoomer.core.mpfr.MpfrBigNum;
 import org.apfloat.Apfloat;
 
@@ -25,10 +26,20 @@ import org.apfloat.Apfloat;
  * @author hrkalona2
  */
 public class FieldLinesBailoutCondition extends BailoutCondition {
- 
+    private MpfrBigNum temp1;
+    private MpfrBigNum temp2;
+
+
     public FieldLinesBailoutCondition(double bound) {
         
         super(bound);
+
+        if((ThreadDraw.PERTURBATION_THEORY && ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE) || ThreadDraw.HIGH_PRECISION_CALCULATION) {
+            if(LibMpfr.LOAD_ERROR == null) {
+                temp1 = new MpfrBigNum();
+                temp2 = new MpfrBigNum();
+            }
+        }
         
     }
     
@@ -74,7 +85,7 @@ public class FieldLinesBailoutCondition extends BailoutCondition {
             return false;
         }
 
-        return iterations > 1 && z.getRe().divide(zoldRe).compare(bound) >= 0 && z.getIm().divide(zoldIm).compare(bound) >= 0;
+        return iterations > 1 && z.getRe().divide(zoldRe, temp1).compare(bound) >= 0 && z.getIm().divide(zoldIm, temp2).compare(bound) >= 0;
     }
 
     @Override

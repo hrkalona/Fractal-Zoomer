@@ -8,24 +8,43 @@ import org.apfloat.Apfloat;
 
 public class NNormDistanceBailoutCondition extends ConvergentBailoutCondition {
     protected double n_norm;
+    protected double n_norm_reciprocal;
     protected Apfloat ddn_norm;
+    protected Apfloat ddn_norm_reciprocal;
     protected MpfrBigNum mpfrbn_norm;
 
+    private MpfrBigNum temp1;
+    private MpfrBigNum temp2;
+    private MpfrBigNum mpfrbn_norm_reciprocal;
+
     protected DoubleDouble ddcn_norm;
+    protected DoubleDouble ddcn_norm_reciprocal;
 
     public NNormDistanceBailoutCondition(double convergent_bailout, double n_norm) {
         super(convergent_bailout);
         this.n_norm = n_norm;
+        n_norm_reciprocal = 1 / n_norm;
 
 
-        if(ThreadDraw.PERTURBATION_THEORY) {
+        if(ThreadDraw.PERTURBATION_THEORY || ThreadDraw.HIGH_PRECISION_CALCULATION) {
             ddn_norm = new MyApfloat(n_norm);
             ddcn_norm = new DoubleDouble(n_norm);
 
-            if(ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE) {
+            if(n_norm != 0) {
+                ddn_norm_reciprocal = MyApfloat.reciprocal(ddn_norm);
+                ddcn_norm_reciprocal = ddcn_norm.reciprocal();
+            }
+
+            if(ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE || ThreadDraw.HIGH_PRECISION_CALCULATION) {
 
                 if(LibMpfr.LOAD_ERROR == null) {
                     mpfrbn_norm = new MpfrBigNum(n_norm);
+                    temp1 = new MpfrBigNum();
+                    temp2 = new MpfrBigNum();
+
+                    if(n_norm != 0) {
+                        mpfrbn_norm_reciprocal = mpfrbn_norm.reciprocal();
+                    }
                 }
             }
         }
@@ -39,9 +58,9 @@ public class NNormDistanceBailoutCondition extends ConvergentBailoutCondition {
         }
 
         Complex diff = z.sub(zold);
-        boolean result = diff.nnorm(n_norm) <= convergent_bailout;
+        boolean result = diff.nnorm(n_norm, n_norm_reciprocal) <= convergent_bailout;
 
-        if(result) {
+        if(calculateDistance && result) {
             distance = z.distance_squared(zold);
         }
 
@@ -57,9 +76,9 @@ public class NNormDistanceBailoutCondition extends ConvergentBailoutCondition {
 
         BigComplex diff = z.sub(zold);
 
-        boolean result = diff.nnorm(ddn_norm).compareTo(ddconvergent_bailout) <= 0;
+        boolean result = diff.nnorm(ddn_norm, ddn_norm_reciprocal).compareTo(ddconvergent_bailout) <= 0;
 
-        if(result) {
+        if(calculateDistance && result) {
             distance = z.distance_squared(zold).doubleValue();
         }
 
@@ -75,9 +94,9 @@ public class NNormDistanceBailoutCondition extends ConvergentBailoutCondition {
 
         DDComplex diff = z.sub(zold);
 
-        boolean result = diff.nnorm(ddcn_norm).compareTo(ddcconvergent_bailout) <= 0;
+        boolean result = diff.nnorm(ddcn_norm, ddcn_norm_reciprocal).compareTo(ddcconvergent_bailout) <= 0;
 
-        if(result) {
+        if(calculateDistance && result) {
             distance = z.distance_squared(zold).doubleValue();
         }
 
@@ -91,12 +110,12 @@ public class NNormDistanceBailoutCondition extends ConvergentBailoutCondition {
             return false;
         }
 
-        MpfrBigNumComplex diff = z.sub(zold);
+        MpfrBigNumComplex diff = z.sub(zold, temp1, temp2);
 
-        boolean result = diff.nnorm(mpfrbn_norm).compare(convergent_bailout) <= 0;
+        boolean result = diff.nnorm(mpfrbn_norm, temp1, temp2, mpfrbn_norm_reciprocal).compare(convergent_bailout) <= 0;
 
-        if(result) {
-            distance = z.distance_squared(zold).doubleValue();
+        if(calculateDistance && result) {
+            distance = z.distance_squared(zold, temp1, temp2).doubleValue();
         }
 
         return result;
@@ -110,9 +129,9 @@ public class NNormDistanceBailoutCondition extends ConvergentBailoutCondition {
         }
 
         Complex diff = z.sub(root);
-        boolean result = diff.nnorm(n_norm) <= convergent_bailout;
+        boolean result = diff.nnorm(n_norm, n_norm_reciprocal) <= convergent_bailout;
 
-        if(result) {
+        if(calculateDistance && result) {
             distance = z.distance_squared(root);
         }
 
@@ -125,12 +144,12 @@ public class NNormDistanceBailoutCondition extends ConvergentBailoutCondition {
             return false;
         }
 
-        MpfrBigNumComplex diff = z.sub(root);
+        MpfrBigNumComplex diff = z.sub(root, temp1, temp2);
 
-        boolean result = diff.nnorm(mpfrbn_norm).compare(convergent_bailout) <= 0;
+        boolean result = diff.nnorm(mpfrbn_norm, temp1, temp2, mpfrbn_norm_reciprocal).compare(convergent_bailout) <= 0;
 
-        if(result) {
-            distance = z.distance_squared(root).doubleValue();
+        if(calculateDistance && result) {
+            distance = z.distance_squared(root, temp1, temp2).doubleValue();
         }
 
         return result;
@@ -145,9 +164,9 @@ public class NNormDistanceBailoutCondition extends ConvergentBailoutCondition {
 
         BigComplex diff = z.sub(root);
 
-        boolean result = diff.nnorm(ddn_norm).compareTo(ddconvergent_bailout) <= 0;
+        boolean result = diff.nnorm(ddn_norm, ddn_norm_reciprocal).compareTo(ddconvergent_bailout) <= 0;
 
-        if(result) {
+        if(calculateDistance && result) {
             distance = z.distance_squared(root).doubleValue();
         }
 
@@ -163,9 +182,9 @@ public class NNormDistanceBailoutCondition extends ConvergentBailoutCondition {
 
         DDComplex diff = z.sub(root);
 
-        boolean result = diff.nnorm(ddcn_norm).compareTo(ddcconvergent_bailout) <= 0;
+        boolean result = diff.nnorm(ddcn_norm, ddcn_norm_reciprocal).compareTo(ddcconvergent_bailout) <= 0;
 
-        if(result) {
+        if(calculateDistance && result) {
             distance = z.distance_squared(root).doubleValue();
         }
 
@@ -180,9 +199,9 @@ public class NNormDistanceBailoutCondition extends ConvergentBailoutCondition {
         }
 
         Complex diff = z.sub(root);
-        boolean result = diff.nnorm(n_norm) <= convergent_bailout;
+        boolean result = diff.nnorm(n_norm, n_norm_reciprocal) <= convergent_bailout;
 
-        if(result) {
+        if(calculateDistance && result) {
             distance = z.distance_squared(root);
         }
 
@@ -198,9 +217,9 @@ public class NNormDistanceBailoutCondition extends ConvergentBailoutCondition {
 
         BigComplex diff = z.sub(root);
 
-        boolean result = diff.nnorm(ddn_norm).compareTo(ddconvergent_bailout) <= 0;
+        boolean result = diff.nnorm(ddn_norm, ddn_norm_reciprocal).compareTo(ddconvergent_bailout) <= 0;
 
-        if(result) {
+        if(calculateDistance && result) {
             distance = z.distance_squared(root).doubleValue();
         }
 
@@ -216,9 +235,9 @@ public class NNormDistanceBailoutCondition extends ConvergentBailoutCondition {
 
         DDComplex diff = z.sub(root);
 
-        boolean result = diff.nnorm(ddcn_norm).compareTo(ddcconvergent_bailout) <= 0;
+        boolean result = diff.nnorm(ddcn_norm, ddcn_norm_reciprocal).compareTo(ddcconvergent_bailout) <= 0;
 
-        if(result) {
+        if(calculateDistance && result) {
             distance = z.distance_squared(root).doubleValue();
         }
 
@@ -231,12 +250,12 @@ public class NNormDistanceBailoutCondition extends ConvergentBailoutCondition {
             return false;
         }
 
-        MpfrBigNumComplex diff = z.sub(root);
+        MpfrBigNumComplex diff = z.sub(root, temp1, temp2);
 
-        boolean result = diff.nnorm(mpfrbn_norm).compare(convergent_bailout) <= 0;
+        boolean result = diff.nnorm(mpfrbn_norm, temp1, temp2, mpfrbn_norm_reciprocal).compare(convergent_bailout) <= 0;
 
-        if(result) {
-            distance = z.distance_squared(root).doubleValue();
+        if(calculateDistance && result) {
+            distance = z.distance_squared(root, temp1, temp2).doubleValue();
         }
 
         return result;

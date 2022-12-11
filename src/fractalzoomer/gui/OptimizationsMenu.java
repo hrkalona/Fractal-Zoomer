@@ -34,6 +34,8 @@ public class OptimizationsMenu extends JMenu {
     private JMenuItem quick_draw_opt;
     private JMenuItem thread_number;
     private JMenuItem perturbation_theory;
+
+    private JMenuItem high_precision;
     private JCheckBoxMenuItem auto_repaint_image_opt;
     
     public OptimizationsMenu(MainWindow ptr2, String name) {
@@ -49,6 +51,7 @@ public class OptimizationsMenu extends JMenu {
         periodicity_checking_opt = new JCheckBoxMenuItem("Periodicity Checking");
         auto_repaint_image_opt  = new JCheckBoxMenuItem("Show Drawing Progress");
         perturbation_theory = new JMenuItem("Perturbation Theory", MainWindow.getIcon("perturbation.png"));
+        high_precision = new JMenuItem("High Precision", MainWindow.getIcon("high_precision.png"));
 
         quick_draw_opt = new JMenuItem("Quick Draw", MainWindow.getIcon("quickdraw.png"));
         
@@ -57,6 +60,7 @@ public class OptimizationsMenu extends JMenu {
         periodicity_checking_opt.setToolTipText("Renders the image faster when containing a lot of bounded areas.");
         greedy_algorithm_item.setToolTipText("Sets the greedy algorithms options.");
         perturbation_theory.setToolTipText("Sets the perturbation theory settings.");
+        high_precision.setToolTipText("Sets the use of high precision calculation for all pixels and for only for supported fractals.");
         
         thread_number.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, ActionEvent.CTRL_MASK));
         quick_draw_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, ActionEvent.SHIFT_MASK));
@@ -64,6 +68,7 @@ public class OptimizationsMenu extends JMenu {
         greedy_algorithm_item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, ActionEvent.ALT_MASK));
         perturbation_theory.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_1, ActionEvent.ALT_MASK));
         auto_repaint_image_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, ActionEvent.ALT_MASK | ActionEvent.SHIFT_MASK));
+        high_precision.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_1, ActionEvent.ALT_MASK | ActionEvent.SHIFT_MASK));
         
         thread_number.addActionListener(e -> ptr.setThreadsNumber());
 
@@ -77,12 +82,16 @@ public class OptimizationsMenu extends JMenu {
 
         perturbation_theory.addActionListener(e -> ptr.setPerturbationTheory());
 
+        high_precision.addActionListener(e -> ptr.setHighPrecision());
+
         
         add(thread_number);
         addSeparator();
         add(greedy_algorithm_item);
         addSeparator();
         add(perturbation_theory);
+        addSeparator();
+        add(high_precision);
         addSeparator();
         add(periodicity_checking_opt);
         addSeparator();

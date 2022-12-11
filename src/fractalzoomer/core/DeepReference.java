@@ -3,25 +3,32 @@ package fractalzoomer.core;
 import java.util.Arrays;
 
 public class DeepReference {
-    public double[] mants;
+    public double[] mantsRe;
+    public double[] mantsIm;
     public long[] exps;
 
+    private int lengthOverride;
+
     public DeepReference(int length) {
-        mants = new double[length << 1];
+        mantsRe = new double[length];
+        mantsIm = new double[length];
         exps = new long[length];
     }
 
+    public DeepReference(int length, int lengthOverride) {
+        mantsRe = new double[length];
+        mantsIm = new double[length];
+        exps = new long[length];
+        this.lengthOverride = lengthOverride;
+    }
+
     public void resize(int length) {
-        mants = Arrays.copyOf(mants, length << 1);
+        mantsRe = Arrays.copyOf(mantsRe, length);
+        mantsIm = Arrays.copyOf(mantsIm, length);
         exps = Arrays.copyOf(exps, length);
     }
 
-    public void clear() {
-        mants = null;
-        exps = null;
-    }
-
     public int length() {
-        return exps.length;
+        return lengthOverride != 0 ? lengthOverride : mantsRe.length;
     }
 }

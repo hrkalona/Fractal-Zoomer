@@ -1274,7 +1274,7 @@ public class FractalFunctionsMenu extends JMenu {
 
         fractal_functions[MainWindow.USER_FORMULA] = new JRadioButtonMenuItem(functionNames[MainWindow.USER_FORMULA]);
         fractal_functions[MainWindow.USER_FORMULA].addActionListener(e -> ptr.setFunction(MainWindow.USER_FORMULA));
-        fractal_functions[MainWindow.USER_FORMULA].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_U, ActionEvent.CTRL_MASK));
+        fractal_functions[MainWindow.USER_FORMULA].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_U, 0));
         user_formulas_type_functions.add(fractal_functions[MainWindow.USER_FORMULA]);
         functions_button_group.add(fractal_functions[MainWindow.USER_FORMULA]);
 

@@ -197,6 +197,7 @@ public class DDComplex extends GenericComplex {
 
     }
 
+    @Override
     public final DDComplex r_sub(int number) {
 
         DoubleDouble num = new DoubleDouble(number);
@@ -302,7 +303,6 @@ public class DDComplex extends GenericComplex {
     /*
      *  z^2 + c
      */
-    @Override
     public final DDComplex squareFast_plus_c(NormComponents normComponents, GenericComplex ca) {
         DoubleDouble reSqr = (DoubleDouble) normComponents.reSqr;
         DoubleDouble imSqr = (DoubleDouble) normComponents.imSqr;
@@ -325,7 +325,6 @@ public class DDComplex extends GenericComplex {
     /*
      *  z^3
      */
-    @Override
     public final DDComplex cubeFast(NormComponents normComponents) {
 
         DoubleDouble temp = (DoubleDouble)normComponents.reSqr;
@@ -339,7 +338,6 @@ public class DDComplex extends GenericComplex {
     /*
      *  z^4
      */
-    @Override
     public final DDComplex fourthFast(NormComponents normComponents) {
 
         DoubleDouble temp = (DoubleDouble)normComponents.reSqr;
@@ -355,7 +353,6 @@ public class DDComplex extends GenericComplex {
     /*
      *  z^5
      */
-    @Override
     public final DDComplex fifthFast(NormComponents normComponents) {
 
         DoubleDouble temp = (DoubleDouble)normComponents.reSqr;
@@ -425,6 +422,13 @@ public class DDComplex extends GenericComplex {
     }
 
     /*
+     * n-norm
+     */
+    public final DoubleDouble nnorm(DoubleDouble n, DoubleDouble n_reciprocal) {
+        return re.abs().pow(n).add(im.abs().pow(n)).pow(n_reciprocal);
+    }
+
+    /*
      *  |z1 - z2|^2
      */
     public final DoubleDouble distance_squared(DoubleDouble rootRe) {
@@ -483,7 +487,6 @@ public class DDComplex extends GenericComplex {
     /*
      *  Real -Imaginary i
      */
-    @Override
     public final DDComplex conjugate() {
 
         return new DDComplex(re, im.negate());
@@ -551,7 +554,6 @@ public class DDComplex extends GenericComplex {
     /*
      *  abs(z)
      */
-    @Override
     public final DDComplex abs() {
 
         return new DDComplex(re.abs(), im.abs());
@@ -1388,7 +1390,6 @@ public class DDComplex extends GenericComplex {
     }
 
     /* more efficient z^2 + c */
-    @Override
     public final DDComplex square_plus_c(GenericComplex cn) {
 
         DDComplex c = (DDComplex)cn;
@@ -1540,4 +1541,63 @@ public class DDComplex extends GenericComplex {
 
     @Override
     public GenericComplex square_mutable() {return square();}
+
+    @Override
+    public GenericComplex abs_mutable() { return abs(); }
+
+    /*
+     *  z^3
+     */
+    @Override
+    public final DDComplex cubeFast_mutable(NormComponents normComponents) {
+
+        return cubeFast(normComponents);
+
+    }
+
+    /*
+     *  z^4
+     */
+    @Override
+    public final DDComplex fourthFast_mutable(NormComponents normComponents) {
+
+        return fourthFast(normComponents);
+
+    }
+
+    /*
+     *  z^5
+     */
+    @Override
+    public final DDComplex fifthFast_mutable(NormComponents normComponents) {
+
+        return fifthFast(normComponents);
+
+    }
+
+    /*
+     *  z^2 + c
+     */
+    @Override
+    public final DDComplex squareFast_plus_c_mutable(NormComponents normComponents, GenericComplex ca) {
+        return squareFast_plus_c(normComponents, ca);
+    }
+
+    /* more efficient z^2 + c */
+    @Override
+    public final DDComplex square_plus_c_mutable(GenericComplex cn) {
+
+        return square_plus_c(cn);
+
+    }
+
+    /*
+     *  Real -Imaginary i
+     */
+    @Override
+    public final DDComplex conjugate_mutable() {
+
+        return conjugate();
+
+    }
 }

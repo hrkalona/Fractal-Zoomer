@@ -51,6 +51,8 @@ public class ThreadsDialog extends JDialog {
         }
 
         JComboBox<String> thread_grouping = new JComboBox<>(new String[]{"Grid Split (nxn)", "Horizontal Split (n)", "Vertical Split (n)"});
+        thread_grouping.setFocusable(false);
+        thread_grouping.setToolTipText("Sets the thread grouping method.");
 
         thread_grouping.setSelectedIndex(grouping);
 

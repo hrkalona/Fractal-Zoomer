@@ -16,6 +16,8 @@
  */
 package fractalzoomer.gui;
 
+import fractalzoomer.core.ThreadDraw;
+import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
 
@@ -116,12 +118,8 @@ public class FakeDistanceEstimationDialog extends JDialog {
 
                         dispose();
 
-                        if (greedy_algorithm && enable_fake_de.isSelected() && !julia_map && !s.d3s.d3) {
-                            JOptionPane.showMessageDialog(ptra, "Greedy Drawing Algorithm is enabled, which creates glitches in the image.\nYou should disable it for a better result.", "Warning!", JOptionPane.WARNING_MESSAGE);
-                        }
-
-                        if (!s.fns.smoothing && s.fdes.fake_de) {
-                            JOptionPane.showMessageDialog(ptra, "Smoothing is disabled.\nYou should enable smoothing for a better result.", "Warning!", JOptionPane.WARNING_MESSAGE);
+                        if (greedy_algorithm && !ThreadDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA && enable_fake_de.isSelected() && !julia_map && !s.d3s.d3) {
+                            JOptionPane.showMessageDialog(ptra, Constants.greedyWarning, "Warning!", JOptionPane.WARNING_MESSAGE);
                         }
 
                         ptra.setPostProcessingPost();

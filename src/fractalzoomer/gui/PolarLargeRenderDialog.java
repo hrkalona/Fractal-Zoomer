@@ -48,9 +48,9 @@ public class PolarLargeRenderDialog extends JDialog {
         orientation.setFocusable(false);
         orientation.setToolTipText("Sets the final image orientation.");
 
-        JTextField field = new JTextField();
+
+        MyJSpinner field = new MyJSpinner(new SpinnerNumberModel(polar_large_image_tiles, 1, Integer.MAX_VALUE, 1));
         field.addAncestorListener(new RequestFocusListener());
-        field.setText("" + polar_large_image_tiles);
 
         Object[] message3 = {
             " ",

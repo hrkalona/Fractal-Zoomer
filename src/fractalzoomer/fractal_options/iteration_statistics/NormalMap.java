@@ -82,7 +82,7 @@ public class NormalMap extends GenericStatistic {
             return;
         }
 
-        if(samples == 0) {
+        if(iterations == 0) {
 
             if(function == Constants.LAMBDA && isJulia && !isJuliter) {
                 derivative = new Complex(0.25, 0);
@@ -282,7 +282,7 @@ public class NormalMap extends GenericStatistic {
             return;
         }
 
-        if(samples == 0) {
+        if(iterations == 0) {
 
             if ((function >= MainWindow.MANDELBROT && function <= MainWindow.MANDELBROTNTH)){
                 if (zold.compare(new Complex()) != 0) {
@@ -324,7 +324,7 @@ public class NormalMap extends GenericStatistic {
             return;
         }
 
-        if(samples == 0) {
+        if(iterations == 0) {
 
             if ((function >= MainWindow.MANDELBROT && function <= MainWindow.MANDELBROTNTH)){
                 if (zold.compare(new Complex()) != 0) {
@@ -648,14 +648,18 @@ public class NormalMap extends GenericStatistic {
 
         DELimit = DELimit_m.toDouble();
 
-        supportsDeepCalc = (function >= MainWindow.MANDELBROT && function <= MainWindow.MANDELBROTFIFTH  || function == MainWindow.LAMBDA) && ThreadDraw.PERTURBATION_THEORY;
+        supportsDeepCalc = (function >= MainWindow.MANDELBROT && function <= MainWindow.MANDELBROTFIFTH  || function == MainWindow.LAMBDA) && (ThreadDraw.PERTURBATION_THEORY || ThreadDraw.HIGH_PRECISION_CALCULATION);
     }
 
-    public void initializeApproximationDerivatives(MantExpComplex dz, MantExpComplex ddz) {
+    public void initializeApproximationDerivatives(MantExpComplex dz, MantExpComplex ddz, int iterations) {
+        dz.Reduce();
+        ddz.Reduce();
         derivative = dz.toComplex();
         derivative_m = dz;
         derivative2 = ddz.toComplex();
         derivative2_m = ddz;
+        samples = iterations;
+        this.iterations = iterations;
     }
 
     public boolean usesSecondDerivative() {

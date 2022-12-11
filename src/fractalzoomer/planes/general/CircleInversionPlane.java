@@ -46,7 +46,7 @@ public class CircleInversionPlane extends Plane {
         center = new Complex(plane_transform_center[0], plane_transform_center[1]);
         this.plane_transform_radius = plane_transform_radius;
 
-        if(ThreadDraw.PERTURBATION_THEORY) {
+        if(ThreadDraw.PERTURBATION_THEORY || ThreadDraw.HIGH_PRECISION_CALCULATION) {
             ddplane_transform_radius = new MyApfloat(plane_transform_radius);
             ddcenter = new BigComplex(center);
 
@@ -54,7 +54,7 @@ public class CircleInversionPlane extends Plane {
             ddcplane_transform_radius = new DoubleDouble(plane_transform_radius);
 
 
-            if(ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE) {
+            if(ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE || ThreadDraw.HIGH_PRECISION_CALCULATION) {
 
                 if(LibMpfr.LOAD_ERROR == null) {
                     mpfrbncenter = new MpfrBigNumComplex(center);

@@ -95,7 +95,9 @@ public class MpfrBigNumComplex extends GenericComplex {
 
     @Override
     public final Complex toComplex() {
-        return new Complex(re.doubleValue(), im.doubleValue());
+        double[] res = MpfrBigNum.get_d(re, im);
+        return new Complex(res[0], res[1]);
+        //return new Complex(re.doubleValue(), im.doubleValue());
     }
 
     /*
@@ -110,8 +112,9 @@ public class MpfrBigNumComplex extends GenericComplex {
 
     public final MpfrBigNumComplex plus_mutable(MpfrBigNumComplex z) {
 
-        re.add(z.re, re);
-        im.add(z.im, im);
+        //re.add(z.re, re);
+        //im.add(z.im, im);
+        MpfrBigNum.self_add(re, im, z.re, z.im);
 
         return this;
 
@@ -212,10 +215,20 @@ public class MpfrBigNumComplex extends GenericComplex {
 
     }
 
+    /*
+     *  z1 - z2
+     */
+    public final MpfrBigNumComplex sub(MpfrBigNumComplex z, MpfrBigNum temp1, MpfrBigNum temp2) {
+
+        return  new MpfrBigNumComplex(re.sub(z.re, temp1), im.sub(z.im, temp2));
+
+    }
+
     public final MpfrBigNumComplex sub_mutable(MpfrBigNumComplex z) {
 
-        re.sub(z.re, re);
-        im.sub(z.im, im);
+        //re.sub(z.re, re);
+        //im.sub(z.im, im);
+        MpfrBigNum.self_sub(re, im, z.re, z.im);
         return this;
 
     }
@@ -308,6 +321,16 @@ public class MpfrBigNumComplex extends GenericComplex {
     }
 
     /*
+     *  z - Real
+     */
+    public final MpfrBigNumComplex sub(MpfrBigNum number, MpfrBigNum temp1, MpfrBigNum temp2) {
+
+        temp2.set(im);
+        return  new MpfrBigNumComplex(re.sub(number, temp1), temp2);
+
+    }
+
+    /*
      *  Real - z1
      */
     public final MpfrBigNumComplex r_sub(MpfrBigNum number) {
@@ -338,6 +361,7 @@ public class MpfrBigNumComplex extends GenericComplex {
 
     }
 
+    @Override
     public final MpfrBigNumComplex r_sub(int number) {
 
         return new MpfrBigNumComplex(re.r_sub(number), im.negate());
@@ -596,7 +620,7 @@ public class MpfrBigNumComplex extends GenericComplex {
     /*
      *  z^2 + c
      */
-    public final MpfrBigNumComplex squareFast_plus_c_non_mutable(NormComponents normComponents, GenericComplex ca) {
+    public final MpfrBigNumComplex squareFast_plus_c(NormComponents normComponents, GenericComplex ca) {
         MpfrBigNum reSqr = (MpfrBigNum) normComponents.reSqr;
         MpfrBigNum imSqr = (MpfrBigNum) normComponents.imSqr;
         MpfrBigNum normSquared = (MpfrBigNum) normComponents.normSquared;
@@ -619,45 +643,28 @@ public class MpfrBigNumComplex extends GenericComplex {
      *  z^2 + c, Mutable for performance
      */
     @Override
-    public final MpfrBigNumComplex squareFast_plus_c(NormComponents normComponents, GenericComplex ca) {
+    public final MpfrBigNumComplex squareFast_plus_c_mutable(NormComponents normComponents, GenericComplex ca) {
+//        MpfrBigNum reSqr = (MpfrBigNum) normComponents.reSqr;
+//        MpfrBigNum imSqr = (MpfrBigNum) normComponents.imSqr;
+//        MpfrBigNum normSquared = (MpfrBigNum) normComponents.normSquared;
+//        MpfrBigNumComplex c = (MpfrBigNumComplex) ca;
+//
+//        MpfrBigNum tempIm = (MpfrBigNum) normComponents.tempIm;
+//        re.add(im, tempIm); // x + y
+//        tempIm.square(tempIm); // (x + y)^2
+//        tempIm.sub(normSquared, tempIm); // (x + y)^2 - x^2 - y^2
+//        tempIm.add(c.im, im);
+//
+//        reSqr.sub(imSqr, re); //x^2 - y^2
+//        re.add(c.re, re);
+
         MpfrBigNum reSqr = (MpfrBigNum) normComponents.reSqr;
         MpfrBigNum imSqr = (MpfrBigNum) normComponents.imSqr;
         MpfrBigNum normSquared = (MpfrBigNum) normComponents.normSquared;
         MpfrBigNumComplex c = (MpfrBigNumComplex) ca;
-
-        MpfrBigNum tempRe = (MpfrBigNum) normComponents.tempRe;
-        reSqr.sub(imSqr, tempRe);
-        tempRe.add(c.re, tempRe);
-
         MpfrBigNum tempIm = (MpfrBigNum) normComponents.tempIm;
-        re.add(im, tempIm);
-        tempIm.square(tempIm);
-        tempIm.sub(normSquared, tempIm);
-        tempIm.add(c.im, im);
 
-        re.set(tempRe);
-
-        return this;
-    }
-
-    /*
-     *  z^2 , Mutable for performance
-     */
-    @Override
-    public final MpfrBigNumComplex squareFast(NormComponents normComponents) {
-        MpfrBigNum reSqr = (MpfrBigNum) normComponents.reSqr;
-        MpfrBigNum imSqr = (MpfrBigNum) normComponents.imSqr;
-        MpfrBigNum normSquared = (MpfrBigNum) normComponents.normSquared;
-
-        MpfrBigNum tempRe = (MpfrBigNum) normComponents.tempRe;
-        reSqr.sub(imSqr, tempRe);
-
-        MpfrBigNum tempIm = (MpfrBigNum) normComponents.tempIm;
-        re.add(im, tempIm);
-        tempIm.square(tempIm);
-        tempIm.sub(normSquared, im);
-
-        re.set(tempRe);
+        MpfrBigNum.z_sqr_p_c(re, im, tempIm, reSqr, imSqr, normSquared, c.re, c.im);
 
         return this;
     }
@@ -666,7 +673,7 @@ public class MpfrBigNumComplex extends GenericComplex {
      *  z^2
      */
     @Override
-    public final MpfrBigNumComplex squareFast_non_mutable(NormComponents normComponents) {
+    public final MpfrBigNumComplex squareFast(NormComponents normComponents) {
         MpfrBigNum reSqr = (MpfrBigNum) normComponents.reSqr;
         MpfrBigNum imSqr = (MpfrBigNum) normComponents.imSqr;
         MpfrBigNum normSquared = (MpfrBigNum) normComponents.normSquared;
@@ -683,10 +690,35 @@ public class MpfrBigNumComplex extends GenericComplex {
     }
 
     /*
+     *  z^2
+     */
+    public final MpfrBigNumComplex squareFast_mutable(NormComponents normComponents) {
+        /*MpfrBigNum reSqr = (MpfrBigNum) normComponents.reSqr;
+        MpfrBigNum imSqr = (MpfrBigNum) normComponents.imSqr;
+        MpfrBigNum normSquared = (MpfrBigNum) normComponents.normSquared;
+
+        MpfrBigNum tempIm = (MpfrBigNum) normComponents.tempIm;
+        re.add(im, tempIm);
+        tempIm.square(tempIm);
+        tempIm.sub(normSquared, im);
+
+        reSqr.sub(imSqr, re);*/
+
+        MpfrBigNum reSqr = (MpfrBigNum) normComponents.reSqr;
+        MpfrBigNum imSqr = (MpfrBigNum) normComponents.imSqr;
+        MpfrBigNum normSquared = (MpfrBigNum) normComponents.normSquared;
+        MpfrBigNum tempIm = (MpfrBigNum) normComponents.tempIm;
+
+        MpfrBigNum.z_sqr(re, im, tempIm, reSqr, imSqr, normSquared);
+
+        return this;
+    }
+
+    /*
      *  z^3, Mutable
      */
     @Override
-    public final MpfrBigNumComplex cubeFast(NormComponents normComponents) {
+    public final MpfrBigNumComplex cubeFast_mutable(NormComponents normComponents) {
 
         MpfrBigNum temp = (MpfrBigNum)normComponents.reSqr;
         MpfrBigNum temp2 = (MpfrBigNum)normComponents.imSqr;
@@ -694,20 +726,18 @@ public class MpfrBigNumComplex extends GenericComplex {
         MpfrBigNum tempRe = (MpfrBigNum) normComponents.tempRe;
         temp2.mult(3, tempRe);
         temp.sub(tempRe, tempRe);
-        re.mult(tempRe, tempRe);
+        re.mult(tempRe, re);
 
         MpfrBigNum tempIm = (MpfrBigNum) normComponents.tempIm;
         temp.mult(3, tempIm);
         tempIm.sub(temp2, tempIm);
         im.mult(tempIm, im);
 
-        re.set(tempRe);
-
         return this;
 
     }
 
-    public final MpfrBigNumComplex cubeFast_non_mutable(NormComponents normComponents) {
+    public final MpfrBigNumComplex cubeFast(NormComponents normComponents) {
 
         MpfrBigNum temp = (MpfrBigNum)normComponents.reSqr;
         MpfrBigNum temp2 = (MpfrBigNum)normComponents.imSqr;
@@ -728,7 +758,7 @@ public class MpfrBigNumComplex extends GenericComplex {
      *  z^4
      */
     @Override
-    public final MpfrBigNumComplex fourthFast(NormComponents normComponents) {
+    public final MpfrBigNumComplex fourthFast_mutable(NormComponents normComponents) {
 
         MpfrBigNum temp = (MpfrBigNum)normComponents.reSqr;
         MpfrBigNum temp2 = (MpfrBigNum)normComponents.imSqr;
@@ -756,7 +786,7 @@ public class MpfrBigNumComplex extends GenericComplex {
 
     }
 
-    public final MpfrBigNumComplex fourthFast_non_mutable(NormComponents normComponents) {
+    public final MpfrBigNumComplex fourthFast(NormComponents normComponents) {
 
         MpfrBigNum temp = (MpfrBigNum)normComponents.reSqr;
         MpfrBigNum temp2 = (MpfrBigNum)normComponents.imSqr;
@@ -781,7 +811,7 @@ public class MpfrBigNumComplex extends GenericComplex {
      *  z^5
      */
     @Override
-    public final MpfrBigNumComplex fifthFast(NormComponents normComponents) {
+    public final MpfrBigNumComplex fifthFast_mutable(NormComponents normComponents) {
 
         MpfrBigNum temp = (MpfrBigNum)normComponents.reSqr;
         MpfrBigNum temp2 = (MpfrBigNum)normComponents.imSqr;
@@ -810,7 +840,7 @@ public class MpfrBigNumComplex extends GenericComplex {
 
     }
 
-    public final MpfrBigNumComplex fifthFast_non_mutable(NormComponents normComponents) {
+    public final MpfrBigNumComplex fifthFast(NormComponents normComponents) {
 
         MpfrBigNum temp = (MpfrBigNum)normComponents.reSqr;
         MpfrBigNum temp2 = (MpfrBigNum)normComponents.imSqr;
@@ -834,21 +864,31 @@ public class MpfrBigNumComplex extends GenericComplex {
     public NormComponents normSquaredWithComponents(NormComponents n) {
 
         if(n == null) {
-            MpfrBigNum reSqr = re.square();
-            MpfrBigNum imSqr = im.square();
+            //MpfrBigNum reSqr = re.square();
+            //MpfrBigNum imSqr = im.square();
+
+            MpfrBigNum reSqr = new MpfrBigNum();
+            MpfrBigNum imSqr = new MpfrBigNum();
+            MpfrBigNum normSquared = new MpfrBigNum();
+
             MpfrBigNum tempRe = new MpfrBigNum();
             MpfrBigNum tempIm = new MpfrBigNum();
             MpfrBigNum temp1 = new MpfrBigNum();
-            return new NormComponents(reSqr, imSqr, reSqr.add(imSqr), tempRe, tempIm, temp1);
+
+            MpfrBigNum.norm_sqr_with_components(reSqr, imSqr, normSquared, re, im);
+            return new NormComponents(reSqr, imSqr, normSquared, tempRe, tempIm, temp1);
+
+            //return new NormComponents(reSqr, imSqr, reSqr.add(imSqr), tempRe, tempIm, temp1);
         }
 
         MpfrBigNum reSqr = (MpfrBigNum)n.reSqr;
         MpfrBigNum imSqr = (MpfrBigNum)n.imSqr;
         MpfrBigNum normSquared = (MpfrBigNum)n.normSquared;
 
-        re.square(reSqr);
-        im.square(imSqr);
-        reSqr.add(imSqr, normSquared);
+        //re.square(reSqr);
+        //im.square(imSqr);
+        //reSqr.add(imSqr, normSquared);
+        MpfrBigNum.norm_sqr_with_components(reSqr, imSqr, normSquared, re, im);
 
         return n;
     }
@@ -869,6 +909,21 @@ public class MpfrBigNumComplex extends GenericComplex {
     }
 
     /*
+     *  |z|, euclidean norm
+     */
+    public final MpfrBigNum norm(MpfrBigNum temp1, MpfrBigNum temp2) {
+
+        re.square(temp1);
+        im.square(temp2);
+
+        temp1.add(temp2, temp1);
+        temp1.sqrt(temp1);
+
+        return temp1;
+
+    }
+
+    /*
      *  |z|^2
      */
     public final MpfrBigNum norm_squared() {
@@ -879,6 +934,21 @@ public class MpfrBigNumComplex extends GenericComplex {
         reSqr.add(imSqr, reSqr);
 
         return reSqr;
+
+    }
+
+    /*
+     *  |z|^2
+     */
+    public final MpfrBigNum norm_squared(MpfrBigNum temp1, MpfrBigNum temp2) {
+
+//        re.square(temp1);
+//        im.square(temp2);
+//
+//        temp1.add(temp2, temp1);
+        MpfrBigNum.norm_sqr(temp1, temp2, re, im);
+
+        return temp1;
 
     }
 
@@ -899,12 +969,38 @@ public class MpfrBigNumComplex extends GenericComplex {
     /*
      *  |z1 - z2|^2
      */
+    public final MpfrBigNum distance_squared(MpfrBigNumComplex z, MpfrBigNum temp1, MpfrBigNum temp2) {
+
+        re.sub(z.re, temp1);
+        im.sub(z.im, temp2);
+        temp1.square(temp1);
+        temp2.square(temp2);
+        temp1.add(temp2, temp1);
+        return temp1;
+
+    }
+
+    /*
+     *  |z1 - z2|^2
+     */
     public final MpfrBigNum distance_squared(MpfrBigNum rootRe) {
 
         MpfrBigNum temp_re = re.sub(rootRe);
         temp_re.square(temp_re);
         temp_re.add(im.square(), temp_re);
         return temp_re;
+
+    }
+
+    /*
+     *  |z1 - z2|^2
+     */
+    public final MpfrBigNum distance_squared(MpfrBigNum rootRe, MpfrBigNum temp1, MpfrBigNum temp2) {
+
+        re.sub(rootRe, temp1);
+        temp1.square(temp1);
+        temp1.add(im.square(temp2), temp1);
+        return temp1;
 
     }
 
@@ -946,11 +1042,29 @@ public class MpfrBigNumComplex extends GenericComplex {
     }
 
     /*
+     *  |Real|
+     */
+    public final MpfrBigNum getAbsRe(MpfrBigNum temp1) {
+
+        return re.abs(temp1);
+
+    }
+
+    /*
      *  |Imaginary|
      */
     public final MpfrBigNum getAbsIm() {
 
         return im.abs();
+
+    }
+
+    /*
+     *  |Imaginary|
+     */
+    public final MpfrBigNum getAbsIm(MpfrBigNum temp2) {
+
+        return im.abs(temp2);
 
     }
 
@@ -987,19 +1101,20 @@ public class MpfrBigNumComplex extends GenericComplex {
     }
 
     /*
-     *  Real -Imaginary i, mutable
+     *  Real -Imaginary i
      */
-    @Override
     public final MpfrBigNumComplex conjugate() {
 
-        im.negate(im);
-        return this;
+
+        return new MpfrBigNumComplex(new MpfrBigNum(re), im.negate());
 
     }
 
-    public final MpfrBigNumComplex conjugate_non_mutable() {
+    @Override
+    public final MpfrBigNumComplex conjugate_mutable() {
 
-        return new MpfrBigNumComplex(new MpfrBigNum(re), im.negate());
+        im.negate(im);
+        return this;
 
     }
 
@@ -1053,6 +1168,24 @@ public class MpfrBigNumComplex extends GenericComplex {
         tempRe.mult(re, re);
 
         MpfrBigNum tempIm = temp.mult(3);
+        tempIm.sub(temp2, tempIm);
+        tempIm.mult(im, im);
+
+        return this;
+
+    }
+
+    @Override
+    public final MpfrBigNumComplex cube_mutable(MpfrBigNum temp, MpfrBigNum temp2, MpfrBigNum temp3, MpfrBigNum temp4) {
+
+        re.square(temp);
+        im.square(temp2);
+
+        MpfrBigNum tempRe = temp2.mult(3, temp3);
+        temp.sub(tempRe, tempRe);
+        tempRe.mult(re, re);
+
+        MpfrBigNum tempIm = temp.mult(3, temp4);
         tempIm.sub(temp2, tempIm);
         tempIm.mult(im, im);
 
@@ -1160,17 +1293,8 @@ public class MpfrBigNumComplex extends GenericComplex {
     /*
      *  abs(z)
      */
-    public final MpfrBigNumComplex abs_non_mutable() {
-
-        return new MpfrBigNumComplex(re.abs(), im.abs());
-
-    }
-
-    /*
-     *  abs(z), mutable
-     */
     @Override
-    public final MpfrBigNumComplex abs() {
+    public final MpfrBigNumComplex abs_mutable() {
 
         re.abs(re);
         im.abs(im);
@@ -1178,12 +1302,32 @@ public class MpfrBigNumComplex extends GenericComplex {
 
     }
 
+    /*
+     *  abs(z)
+     */
+    public final MpfrBigNumComplex abs() {
+
+        return new MpfrBigNumComplex(re.abs(), im.abs());
+
+    }
+
     /* more efficient z^2 + c */
     public final MpfrBigNumComplex square_plus_c(MpfrBigNumComplex c) {
 
         MpfrBigNum temp = re.mult(im);
+        temp.mult2(temp);
+        temp.add(c.im, temp);
 
-        return new MpfrBigNumComplex(re.add(im).mult(re.sub(im)).add(c.re), temp.mult2().add(c.im));
+
+        MpfrBigNum temp2 = new MpfrBigNum(re);
+        temp2.add(im, temp2);
+
+        MpfrBigNum temp3 = re.sub(im);
+
+        temp2.mult(temp3, temp2);
+        temp2.add(c.re, temp2);
+
+        return new MpfrBigNumComplex(temp2, temp);
 
     }
 
@@ -1224,8 +1368,9 @@ public class MpfrBigNumComplex extends GenericComplex {
     public final MpfrBigNumComplex sub_mutable(GenericComplex zn) {
         MpfrBigNumComplex z = (MpfrBigNumComplex)zn;
 
-        re = re.sub(z.re, re);
-        im = im.sub(z.im, im);
+        //re = re.sub(z.re, re);
+        //im = im.sub(z.im, im);
+        MpfrBigNum.self_sub(re, im, z.re, z.im);
 
         return this;
 
@@ -1250,15 +1395,14 @@ public class MpfrBigNumComplex extends GenericComplex {
 
         MpfrBigNumComplex z = (MpfrBigNumComplex)zn;
 
-        re = re.add(z.re, re);
-        im = im.add(z.im, im);
+        //re = re.add(z.re, re);
+        //im = im.add(z.im, im);
+        MpfrBigNum.self_add(re, im, z.re, z.im);
 
         return this;
 
     }
 
-    /* more efficient z^2 + c, Mutable for performance */
-    @Override
     public final MpfrBigNumComplex square_plus_c(GenericComplex cn) {
 
         MpfrBigNumComplex c = (MpfrBigNumComplex)cn;
@@ -1277,6 +1421,27 @@ public class MpfrBigNumComplex extends GenericComplex {
         temp2.add(c.re, temp2);
 
         return new MpfrBigNumComplex(temp2, temp);
+
+    }
+
+    @Override
+    public final MpfrBigNumComplex square_plus_c_mutable(GenericComplex ca, MpfrBigNum temp1, MpfrBigNum temp2) {
+        MpfrBigNumComplex c = (MpfrBigNumComplex)ca;
+
+        /*re.add(im, temp1);
+
+        re.sub(im, temp2);
+
+        temp2.mult(temp1, temp2);
+
+        re.mult(im, im);
+        temp2.add(c.re, re);
+
+        im.mult2(im);
+        im.add(c.im, im);*/
+        MpfrBigNum.z_sqr_p_c(re, im, temp1, temp2, c.re, c.im);
+
+        return this;
 
     }
 
@@ -1927,6 +2092,38 @@ public class MpfrBigNumComplex extends GenericComplex {
     }
 
     /*
+     * n-norm
+     */
+    public final MpfrBigNum nnorm(MpfrBigNum n, MpfrBigNum n_reciprocal) {
+
+        MpfrBigNum tempRe = re.abs();
+        tempRe.pow(n, tempRe);
+        MpfrBigNum tempIm = im.abs();
+        tempIm.pow(n, tempIm);
+
+        tempRe.add(tempIm, tempRe);
+        tempRe.pow(n_reciprocal, tempRe);
+        return tempRe;
+
+    }
+
+    /*
+     * n-norm
+     */
+    public final MpfrBigNum nnorm(MpfrBigNum n, MpfrBigNum temp1, MpfrBigNum temp2, MpfrBigNum n_reciprocal) {
+
+        re.abs(temp1);
+        temp1.pow(n, temp1);
+        im.abs(temp2);
+        temp2.pow(n, temp2);
+
+        temp1.add(temp2, temp1);
+        temp1.pow(n_reciprocal, temp1);
+        return temp1;
+
+    }
+
+    /*
      *  exp(z) = exp(Re(z)) * (cos(Im(z)) + sin(Im(z))i)
      */
     public final MpfrBigNumComplex exp() {
@@ -2410,8 +2607,24 @@ public class MpfrBigNumComplex extends GenericComplex {
     @Override
     public void set(GenericComplex za) {
         MpfrBigNumComplex z = (MpfrBigNumComplex) za;
-        re.set(z.re);
-        im.set(z.im);
+        //re.set(z.re);
+        //im.set(z.im);
+        MpfrBigNum.set(re, im, z.re, z.im);
+    }
+
+    public void set(BigComplex z) {
+        re.set(z.getRe().toString(true));
+        im.set(z.getIm().toString(true));
+    }
+
+    public void set(Complex z) {
+        re.set(z.getRe());
+        im.set(z.getIm());
+    }
+
+    public void reset() {
+        re.set(0);
+        im.set(0);
     }
 
     /*
@@ -2773,6 +2986,14 @@ public class MpfrBigNumComplex extends GenericComplex {
         ac.sub(bd, re);
 
         return this;
+
+    }
+
+    /* more efficient z^2 + c */
+    @Override
+    public final MpfrBigNumComplex square_plus_c_mutable(GenericComplex cn) {
+
+        return square_plus_c(cn);
 
     }
 

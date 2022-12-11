@@ -49,8 +49,7 @@ public class GenericCaZbdZeDialog extends JDialog {
         JPanel alpha_panel = new JPanel();
         JLabel alpha_label = new JLabel();
         alpha_label.setIcon(MainWindow.getIcon("alpha.png"));
-        JTextField alpha_filed = new JTextField(30);
-        alpha_filed.setText("" + s.fns.gcs.alpha);
+        MyJSpinner alpha_filed = new MyJSpinner(30, new SpinnerNumberModel(s.fns.gcs.alpha, -Double.MAX_VALUE, Double.MAX_VALUE, 0.1));
         alpha_panel.setLayout(new FlowLayout());
         alpha_panel.add(alpha_label);
         alpha_panel.add(new JLabel(""));
@@ -59,8 +58,7 @@ public class GenericCaZbdZeDialog extends JDialog {
         JPanel beta_panel = new JPanel();
         JLabel beta_label = new JLabel();
         beta_label.setIcon(MainWindow.getIcon("beta.png"));
-        JTextField beta_filed = new JTextField(30);
-        beta_filed.setText("" + s.fns.gcs.beta);
+        MyJSpinner beta_filed = new MyJSpinner(30, new SpinnerNumberModel(s.fns.gcs.beta, -Double.MAX_VALUE, Double.MAX_VALUE, 0.1));
         beta_panel.setLayout(new FlowLayout());
         beta_panel.add(beta_label);
         beta_panel.add(new JLabel(""));
@@ -69,8 +67,7 @@ public class GenericCaZbdZeDialog extends JDialog {
         JPanel delta_panel = new JPanel();
         JLabel delta_label = new JLabel();
         delta_label.setIcon(MainWindow.getIcon("delta.png"));
-        JTextField delta_filed = new JTextField(30);
-        delta_filed.setText("" + s.fns.gcs.delta);
+        MyJSpinner delta_filed = new MyJSpinner(30, new SpinnerNumberModel(s.fns.gcs.delta, -Double.MAX_VALUE, Double.MAX_VALUE, 0.1));
         delta_panel.setLayout(new FlowLayout());
         delta_panel.add(delta_label);
         delta_panel.add(new JLabel(""));
@@ -79,8 +76,7 @@ public class GenericCaZbdZeDialog extends JDialog {
         JPanel epsilon_panel = new JPanel();
         JLabel epsilon_label = new JLabel();
         epsilon_label.setIcon(MainWindow.getIcon("epsilon.png"));
-        JTextField epsilon_filed = new JTextField(30);
-        epsilon_filed.setText("" + s.fns.gcs.epsilon);
+        MyJSpinner epsilon_filed = new MyJSpinner(30, new SpinnerNumberModel(s.fns.gcs.epsilon, -Double.MAX_VALUE, Double.MAX_VALUE, 0.1));
         epsilon_panel.setLayout(new FlowLayout());
         epsilon_panel.add(epsilon_label);
         epsilon_panel.add(new JLabel(""));

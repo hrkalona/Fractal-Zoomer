@@ -1532,10 +1532,6 @@ public class StatisticsColoringFrame extends JFrame {
             sts.statistic_escape_type = escape_type.getSelectedIndex();
             sts.showAtomDomains = showAtomDomain.isSelected();
 
-            if(!s.fns.smoothing && sts.statistic && sts.statisticGroup != 4 && (sts.statisticGroup != 3 || sts.useNormalMap)) {
-                JOptionPane.showMessageDialog(this_frame, "Smoothing is disabled.\nYou should enable smoothing for a better result.", "Warning!", JOptionPane.WARNING_MESSAGE);
-            }
-
             ptra2.setEnabled(true);
             ptra2.statisticsColorAlgorithmChanged(sts);
             dispose();
