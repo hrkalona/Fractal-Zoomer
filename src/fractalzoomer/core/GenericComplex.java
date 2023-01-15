@@ -1,6 +1,8 @@
 package fractalzoomer.core;
 
+import fractalzoomer.core.mpfr.MpfrBigNum;
 import fractalzoomer.utils.NormComponents;
+import fractalzoomer.utils.WorkSpaceData;
 import org.apfloat.Apfloat;
 
 public class GenericComplex {
@@ -9,17 +11,21 @@ public class GenericComplex {
 
     public MantExpComplex toMantExpComplex() {return null;}
 
-    public GenericComplex square_plus_c(GenericComplex c) { return null;}
+    public GenericComplex square_plus_c_mutable(GenericComplex c) { return null;}
 
-    public GenericComplex squareFast_plus_c(NormComponents normComponents, GenericComplex c) { return null;}
+    public GenericComplex squareFast_plus_c_mutable(NormComponents normComponents, GenericComplex c) { return null;}
+
+    public GenericComplex square_plus_c_mutable(GenericComplex c, MpfrBigNum temp, MpfrBigNum temp2) {return null;}
+
+    public GenericComplex cube_mutable(MpfrBigNum temp, MpfrBigNum temp2, MpfrBigNum temp3, MpfrBigNum temp4) { return null;}
+
     public GenericComplex squareFast(NormComponents normComponents) { return null;}
-    public GenericComplex cubeFast(NormComponents normComponents) { return null;}
-    public GenericComplex fourthFast(NormComponents normComponents) { return null;}
-    public GenericComplex fifthFast(NormComponents normComponents) { return null;}
+    public GenericComplex cubeFast_mutable(NormComponents normComponents) { return null;}
+    public GenericComplex fourthFast_mutable(NormComponents normComponents) { return null;}
+    public GenericComplex fifthFast_mutable(NormComponents normComponents) { return null;}
 
-    public GenericComplex squareFast_non_mutable(NormComponents normComponents) { return null;}
 
-    public GenericComplex abs() {return null;}
+    public GenericComplex abs_mutable() { return null; }
 
     public GenericComplex sub(GenericComplex v) { return null; }
 
@@ -41,7 +47,7 @@ public class GenericComplex {
 
     public GenericComplex plus_mutable(GenericComplex z2) {return null;}
 
-    public GenericComplex conjugate() {return null;}
+    public GenericComplex conjugate_mutable() {return null;}
 
     public GenericComplex times2() {return null;}
 
@@ -68,6 +74,10 @@ public class GenericComplex {
     public GenericComplex sub(Apfloat a) {return null;}
 
     public GenericComplex sub(int a) {return null;}
+
+    public GenericComplex r_sub(int a) {return null;}
+
+    public GenericComplex r_sub(Apfloat a) {return null;}
     public GenericComplex sub_mutable(int a) {return null;}
 
     public GenericComplex times(GenericComplex c) {return null;}

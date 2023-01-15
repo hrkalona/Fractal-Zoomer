@@ -25,9 +25,8 @@ import java.awt.*;
  * @author hrkalona2
  */
 public interface Constants {
-    public static final int VERSION = 1085;
+    public static final int VERSION = 1086;
     public static final boolean beta = false;
-    public static final int FAST_JULIA_IMAGE_SIZE = 252;
     public static final int TOTAL_PALETTES = 41;
     public static final int TOTAL_INCOLORING_ALGORITHMS = 11;
     public static final int TOTAL_OUTCOLORING_ALGORITHMS = 25;
@@ -90,7 +89,7 @@ public interface Constants {
     public static final String[] rootInitializationMethod = {"(a^i) * z", "z's circle", "z * cos(a * i)", "z * e^(a * i)"};
     public static final String[] equicontinuityColorMethods = {"HSL", "HSB", "LCH", "Arg-Palette", "Palette"};
     public static final String[] equicontinuityArgs = {"Final Z value", "Start Z value", "Pixel Value", "C Value"};
-    public static final String[] normalMapColoringMethods = {"Original Color", "Rainbow Palette", "Distance Estimator", "Original + Distance Estimator"};
+    public static final String[] normalMapColoringMethods = {"Original Color", "Rainbow Palette", "Distance Estimator", "Distance Estimator Variation"};
     public static final String[] rootShadingFunction = {"Linear", "Square Root", "Cube Root", "Cosine", "Exponential", "Constant", "Square", "Sine", "Deceleration", "3rd Degree Poly", "5th Degree Poly", "Fourth Root", "Smooth Transition"};
     public static final String[] twinLampsFunction = {"Linear", "Sqrt"};
     public static final String[] langNormTypes = {"Norm Squared", "Norm", "Rhombus-Norm", "Square-Norm", "N-Norm"};
@@ -1276,6 +1275,14 @@ public interface Constants {
     public static final int BIGNUM_MPFR = 3;
     public static final int BIGNUM_AUTOMATIC = 4;
     public static final int BIGNUM_APFLOAT = 5;
+
+    public static final int ARBITRARY_DOUBLEDOUBLE = 0;
+    public static final int ARBITRARY_BUILT_IN = 1;
+    public static final int ARBITRARY_MPFR = 2;
+    public static final int ARBITRARY_APFLOAT = 3;
+    public static final int ARBITRARY_AUTOMATIC = 4;
+
+    public static final String greedyWarning = "Greedy Drawing Algorithm is enabled, which creates glitches in the image.\nYou should disable it for a better result, or check the \"Use Iteration Data\" option.";
 
 
 }

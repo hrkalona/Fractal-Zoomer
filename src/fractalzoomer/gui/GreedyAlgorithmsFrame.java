@@ -101,6 +101,12 @@ public class GreedyAlgorithmsFrame extends JFrame {
         divide_and_conquer_algorithm.setToolTipText("Divides the image in halves and skips rectangles with the same boundary.");
         divide_and_conquer_algorithm.setBackground(MainWindow.bg_color);
 
+        final JCheckBox trace_iter_data = new JCheckBox("Use Iteration Data");
+        trace_iter_data.setFocusable(false);
+        trace_iter_data.setToolTipText("By enabling this option, the greedy algorithms will trace the iteration data and the image's colors.");
+        trace_iter_data.setBackground(MainWindow.bg_color);
+        trace_iter_data.setSelected(ThreadDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA);
+
         greedy_algorithm_button_group.add(boundary_tracing_opt);
         greedy_algorithm_button_group.add(divide_and_conquer_algorithm);
 
@@ -113,6 +119,7 @@ public class GreedyAlgorithmsFrame extends JFrame {
 
         greedy_algorithm_panel.add(boundary_tracing_opt);
         greedy_algorithm_panel.add(divide_and_conquer_algorithm);
+        greedy_algorithm_panel.add(trace_iter_data);
 
         JPanel coloring_option_panel = new JPanel();
         coloring_option_panel.setBackground(MainWindow.bg_color);
@@ -257,6 +264,8 @@ public class GreedyAlgorithmsFrame extends JFrame {
             else if(divide_and_conquer_algorithm.isSelected()) {
                 algorithm = MainWindow.DIVIDE_AND_CONQUER;
             }
+
+            ThreadDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA = trace_iter_data.isSelected();
 
             if(ptra2 instanceof MainWindow) {
                 ((MainWindow)ptra2).boundaryTracingOptionsChanged(greedy_algorithm_opt.isSelected(), algorithm, brute_force_alg_opt.getSelectedIndex());

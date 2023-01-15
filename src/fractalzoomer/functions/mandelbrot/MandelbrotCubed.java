@@ -38,7 +38,6 @@ import org.apfloat.Apfloat;
 
 import javax.swing.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import static fractalzoomer.main.Constants.REFERENCE_CALCULATION_STR;
 import static fractalzoomer.main.Constants.SA_CALCULATION_STR;
@@ -241,6 +240,8 @@ public class MandelbrotCubed extends Julia {
 
         long time = System.currentTimeMillis();
 
+        int max_ref_iterations = getReferenceMaxIterations();
+
         int initIterations = iterations;
 
         if(progress != null) {
@@ -254,19 +255,19 @@ public class MandelbrotCubed extends Julia {
 
         if (iterations == 0) {
             if(lowPrecReferenceOrbitNeeded) {
-                Reference = new double[max_iterations << 1];
+                Reference = new DoubleReference(max_ref_iterations);
             }
 
             if (deepZoom) {
-                ReferenceDeep = new DeepReference(max_iterations);
+                ReferenceDeep = new DeepReference(max_ref_iterations);
             }
-        } else if (max_iterations > getReferenceLength()) {
+        } else if (max_ref_iterations > getReferenceLength()) {
             if(lowPrecReferenceOrbitNeeded) {
-                Reference = Arrays.copyOf(Reference, max_iterations << 1);
+                Reference.resize(max_ref_iterations);
             }
 
             if (deepZoom) {
-                ReferenceDeep.resize(max_iterations);
+                ReferenceDeep.resize(max_ref_iterations);
             }
         }
 
@@ -274,7 +275,7 @@ public class MandelbrotCubed extends Julia {
         Object normSquared;
 
         if(iterations == 0) {
-            DetectedPeriod = 0;
+            DetectedAtomPeriod = 0;
         }
 
         int bigNumLib = ThreadDraw.getBignumLibrary(size, this);
@@ -356,7 +357,9 @@ public class MandelbrotCubed extends Julia {
         boolean preCalcNormData = detectPeriod || bailout_algorithm2.getId() == MainWindow.BAILOUT_CONDITION_CIRCLE;
         NormComponents normData = null;
 
-        for (; iterations < max_iterations; iterations++) {
+        boolean isMpfrComplex = z instanceof MpfrBigNumComplex;
+
+        for (; iterations < max_ref_iterations; iterations++) {
 
             if(lowPrecReferenceOrbitNeeded) {
                 Complex cz = z.toComplex();
@@ -381,32 +384,32 @@ public class MandelbrotCubed extends Julia {
                 if(useBignum) {
                     if(bigNumLib == Constants.BIGNUM_BUILT_IN) {
                         if (iterations > 0 && ((BigNum) normSquared).compareBothPositive((BigNum) minValue) < 0) {
-                            DetectedPeriod = iterations;
+                            DetectedAtomPeriod = iterations;
                             minValue = normSquared;
                         }
                     }
                     else if (bigNumLib == Constants.BIGNUM_MPFR){
                         if (iterations > 0 && ((MpfrBigNum) normSquared).compare((MpfrBigNum) minValue) < 0) {
-                            DetectedPeriod = iterations;
+                            DetectedAtomPeriod = iterations;
                             ((MpfrBigNum) minValue).set((MpfrBigNum)normSquared);
                         }
                     }
                     else if (bigNumLib == Constants.BIGNUM_DOUBLEDOUBLE){
                         if (iterations > 0 && ((DoubleDouble) normSquared).compareTo(minValue) < 0) {
-                            DetectedPeriod = iterations;
+                            DetectedAtomPeriod = iterations;
                             minValue = normSquared;
                         }
                     }
                     else {
                         if (iterations > 0 && ((double) normSquared) < ((double) minValue)){
-                            DetectedPeriod = iterations;
+                            DetectedAtomPeriod = iterations;
                             minValue = normSquared;
                         }
                     }
                 }
                 else {
                     if(iterations > 0 && ((Apfloat)normSquared).compareTo((Apfloat)minValue) < 0) {
-                        DetectedPeriod = iterations;
+                        DetectedAtomPeriod = iterations;
                         minValue = normSquared;
                     }
                 }
@@ -422,16 +425,26 @@ public class MandelbrotCubed extends Julia {
             try {
                 if(preCalcNormData) {
                     if (burning_ship) {
-                        z = z.abs().cubeFast(normData).plus(c);
+                        z = z.abs_mutable().cubeFast_mutable(normData).plus_mutable(c);
                     } else {
-                        z = z.cubeFast(normData).plus(c);
+                        z = z.cubeFast_mutable(normData).plus_mutable(c);
                     }
                 }
                 else {
-                    if (burning_ship) {
-                        z = z.abs().cube().plus(c);
-                    } else {
-                        z = z.cube().plus(c);
+                    if(isMpfrComplex) {
+                        if (burning_ship) {
+                            z = z.abs_mutable().cube_mutable(workSpaceData.temp1, workSpaceData.temp2, workSpaceData.temp3, workSpaceData.temp4).plus_mutable(c);
+                        }
+                        else {
+                            z = z.cube_mutable(workSpaceData.temp1, workSpaceData.temp2, workSpaceData.temp3, workSpaceData.temp4).plus_mutable(c);
+                        }
+                    }
+                    else {
+                        if (burning_ship) {
+                            z = z.abs_mutable().cube().plus_mutable(c);
+                        } else {
+                            z = z.cube().plus_mutable(c);
+                        }
                     }
                 }
             }
@@ -477,16 +490,25 @@ public class MandelbrotCubed extends Julia {
     protected GenericComplex juliaReferenceFunction(GenericComplex z, GenericComplex c, NormComponents normData) {
         if(normData != null) {
             if (burning_ship) {
-                z = z.abs().cubeFast(normData).plus(c);
+                z = z.abs_mutable().cubeFast_mutable(normData).plus_mutable(c);
             } else {
-                z = z.cubeFast(normData).plus(c);
+                z = z.cubeFast_mutable(normData).plus_mutable(c);
             }
         }
         else {
-            if (burning_ship) {
-                z = z.abs().cube().plus(c);
-            } else {
-                z = z.cube().plus(c);
+            if(z instanceof MpfrBigNumComplex) {
+                if (burning_ship) {
+                    z = z.abs_mutable().cube_mutable(workSpaceData.temp1, workSpaceData.temp2, workSpaceData.temp3, workSpaceData.temp4).plus_mutable(c);
+                } else {
+                    z = z.cube_mutable(workSpaceData.temp1, workSpaceData.temp2, workSpaceData.temp3, workSpaceData.temp4).plus_mutable(c);
+                }
+            }
+            else {
+                if (burning_ship) {
+                    z = z.abs_mutable().cube().plus_mutable(c);
+                } else {
+                    z = z.cube().plus_mutable(c);
+                }
             }
         }
 
@@ -657,7 +679,7 @@ public class MandelbrotCubed extends Julia {
     }
 
     @Override
-    public Complex perturbationFunction(Complex DeltaSubN, double[] Reference, double[] PrecalculatedTerms, double[] PrecalculatedTerms2, int RefIteration) {
+    public Complex perturbationFunction(Complex DeltaSubN, DoubleReference Reference, DoubleReference PrecalculatedTerms, DoubleReference PrecalculatedTerms2, int RefIteration) {
         Complex X = getArrayValue(Reference, RefIteration);
 
         if(not_burning_ship) {
@@ -773,7 +795,7 @@ public class MandelbrotCubed extends Julia {
         long oomDiff = ThreadDraw.SERIES_APPROXIMATION_OOM_DIFFERENCE;
         int SAMaxSkipIter = ThreadDraw.SERIES_APPROXIMATION_MAX_SKIP_ITER;
 
-        int length = deepZoom ? ReferenceDeep.length() : (Reference.length >> 1);
+        int length = deepZoom ? ReferenceDeep.length() : Reference.length();
 
         int lastIndex = numCoefficients - 1;
 
@@ -885,6 +907,25 @@ public class MandelbrotCubed extends Julia {
 
         i = length - 1;
         skippedIterations = i <= skippedThreshold ? 0 : i - skippedThreshold;
+    }
+
+    @Override
+    public void function(GenericComplex[] complex) {
+        if(complex[0] instanceof MpfrBigNumComplex) {
+            if(not_burning_ship) {
+                complex[0] = complex[0].cube_mutable(workSpaceData.temp1, workSpaceData.temp2, workSpaceData.temp3, workSpaceData.temp4).plus_mutable(complex[1]);
+            }
+            else {
+                complex[0] = complex[0].abs_mutable().cube_mutable(workSpaceData.temp1, workSpaceData.temp2, workSpaceData.temp3, workSpaceData.temp4).plus_mutable(complex[1]);
+            }
+        }
+        else {
+            if (not_burning_ship) {
+                complex[0] = complex[0].cube().plus_mutable(complex[1]);
+            } else {
+                complex[0] = complex[0].abs_mutable().cube().plus_mutable(complex[1]);
+            }
+        }
     }
 
     @Override

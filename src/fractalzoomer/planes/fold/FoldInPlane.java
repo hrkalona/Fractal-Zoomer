@@ -39,10 +39,10 @@ public class FoldInPlane extends Plane {
         super();
         center = new Complex(plane_transform_radius, 0);
 
-        if(ThreadDraw.PERTURBATION_THEORY) {
+        if(ThreadDraw.PERTURBATION_THEORY || ThreadDraw.HIGH_PRECISION_CALCULATION) {
             ddcenter = new BigComplex(center);
             ddccenter = new DDComplex(center);
-            if (ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE) {
+            if (ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE || ThreadDraw.HIGH_PRECISION_CALCULATION) {
 
                 if(LibMpfr.LOAD_ERROR == null) {
                     mpfrbncenter = new MpfrBigNumComplex(center);

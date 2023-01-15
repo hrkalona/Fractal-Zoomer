@@ -198,7 +198,7 @@ public class UserConvergentBailoutCondition extends ConvergentBailoutCondition {
                 break;
         }
 
-        if(result) {
+        if(calculateDistance && result) {
             distance = z.distance_squared(zold);
         }
 

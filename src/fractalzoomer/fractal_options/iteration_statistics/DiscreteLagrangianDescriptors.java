@@ -16,6 +16,7 @@ public class DiscreteLagrangianDescriptors extends GenericStatistic {
     private Complex root;
     private int normtType;
     private double langNorm;
+    private double langNormReciprocal;
 
     public DiscreteLagrangianDescriptors(double statistic_intensity, double power, double log_bailout_squared, boolean useSmoothing, boolean useAverage, boolean rootFindingMode, double log_convergent_bailout, int normtType, double langNorm) {
         super(statistic_intensity, useSmoothing, useAverage);
@@ -38,6 +39,7 @@ public class DiscreteLagrangianDescriptors extends GenericStatistic {
         root = new Complex(1, 0);
         this.normtType = normtType;
         this.langNorm = langNorm;
+        langNormReciprocal = 1 / langNorm;
     }
 
     @Override
@@ -60,7 +62,7 @@ public class DiscreteLagrangianDescriptors extends GenericStatistic {
                 d = Math.max(z.getAbsRe(), z.getAbsIm());
                 break;
             case 4:
-                d = z.nnorm(langNorm);
+                d = z.nnorm(langNorm, langNormReciprocal);
                 break;
         }
 

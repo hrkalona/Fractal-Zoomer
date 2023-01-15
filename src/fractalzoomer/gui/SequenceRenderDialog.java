@@ -39,8 +39,6 @@ public class SequenceRenderDialog extends JDialog {
     private ImageExpanderWindow ptra;
     private JOptionPane optionPane;
 
-    private JFileChooser file_chooser;
-
     public SequenceRenderDialog(ImageExpanderWindow ptr, Settings s, double zoom_factor, int zooming_mode, Apfloat size, double rotation_adjusting_value, int color_cycling_adjusting_value, double light_light_direction_adjusting_value, double bump_light_direction_adjusting_value, int zoom_every_n_frame, int gradient_color_cycling_adjusting_value) {
 
         super(ptr);
@@ -59,7 +57,7 @@ public class SequenceRenderDialog extends JDialog {
 
 
 
-        JTextArea field_size = new JTextArea(6, 50);
+        JTextArea field_size = new JTextArea(3, 50);
         field_size.setLineWrap(true);
         field_size.setFont(TEMPLATE_TFIELD.getFont());
         field_size.setText("" + size);
@@ -71,7 +69,7 @@ public class SequenceRenderDialog extends JDialog {
         disableKeys(scrollSize.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT));
 
 
-        JTextArea settings_size = new JTextArea(6, 50);
+        JTextArea settings_size = new JTextArea(3, 50);
         settings_size.setLineWrap(true);
         settings_size.setFont(TEMPLATE_TFIELD.getFont());
         settings_size.setEditable(false);
@@ -89,26 +87,20 @@ public class SequenceRenderDialog extends JDialog {
             scrollSettingsSize.getVerticalScrollBar().setValue(0);
         });
 
-        JTextField fieldZoom = new JTextField();
-        fieldZoom.setText("" + zoom_factor);
 
-        JTextField fieldRotation = new JTextField();
-        fieldRotation.setText("" + rotation_adjusting_value);
+        MyJSpinner fieldZoom = new MyJSpinner(new SpinnerNumberModel(zoom_factor, 1.05, 32.0, 0.5));
 
-        JTextField fieldColorCycling = new JTextField();
-        fieldColorCycling.setText("" + color_cycling_adjusting_value);
+        MyJSpinner fieldRotation = new MyJSpinner(new SpinnerNumberModel(rotation_adjusting_value, -90.0, 90.0, 1));
 
-        JTextField fieldGradientColorCycling = new JTextField();
-        fieldGradientColorCycling.setText("" + gradient_color_cycling_adjusting_value);
+        MyJSpinner fieldColorCycling = new MyJSpinner(new SpinnerNumberModel(color_cycling_adjusting_value, 0, 10000, 1));
 
-        JTextField fieldLightCycling = new JTextField();
-        fieldLightCycling.setText("" + light_light_direction_adjusting_value);
+        MyJSpinner fieldGradientColorCycling = new MyJSpinner(new SpinnerNumberModel(gradient_color_cycling_adjusting_value, 0, 10000, 1));
 
-        JTextField filedBumpLightCycling = new JTextField();
-        filedBumpLightCycling.setText("" + bump_light_direction_adjusting_value);
+        MyJSpinner fieldLightCycling = new MyJSpinner(new SpinnerNumberModel(light_light_direction_adjusting_value, -90.0, 90.0, 1));
 
-        JTextField fieldZoomEveryNFrame = new JTextField();
-        fieldZoomEveryNFrame.setText("" + zoom_every_n_frame);
+        MyJSpinner filedBumpLightCycling = new MyJSpinner(new SpinnerNumberModel(bump_light_direction_adjusting_value, -90.0, 90.0, 1));
+
+        MyJSpinner fieldZoomEveryNFrame = new MyJSpinner(new SpinnerNumberModel(zoom_every_n_frame, 1, 20, 1));
 
 
         Object[] message = {
@@ -123,32 +115,20 @@ public class SequenceRenderDialog extends JDialog {
                 "Settings Size:",
                 scrollSettingsSize,
                 " ",
-                "Set the zooming factor.",
+                "Set the zoom sequence parameters.",
                 "Zooming Factor:",
                 fieldZoom,
-                " ",
-                "Set the zoom frequency.",
                 "Zoom Every N Frame:",
                 fieldZoomEveryNFrame,
-                " ",
-                "Set the rotation adjusting value in degrees.",
-                "Rotation Adjusting Value:",
+                "Rotation Adjusting Value (in degrees):",
                 fieldRotation,
-                " ",
-                "Set the color cycling adjusting value.",
                 "Color Cycling Adjusting Value:",
                 fieldColorCycling,
-                " ",
-                "Set the gradient color cycling adjusting value.",
                 "Gradient Color Cycling Adjusting Value:",
                 fieldGradientColorCycling,
-                " ",
-                "Set the light direction adjusting value in degrees. (When Light is Enabled)",
-                "Light Direction Adjusting Value:",
+                "Light Direction Adjusting Value (When Light is Enabled):",
                 fieldLightCycling,
-                " ",
-                "Set the bump mapping light direction adjusting value in degrees. (When Bump Mapping is Enabled)",
-                "Bump Mapping Light Direction Adjusting Value:",
+                "Bump Mapping Light Direction Adjusting Value (When Bump Mapping is Enabled):",
                 filedBumpLightCycling,
 
             " "};
@@ -195,6 +175,7 @@ public class SequenceRenderDialog extends JDialog {
                             double tempBumpLight = Double.parseDouble(filedBumpLightCycling.getText());
                             int tempZoomNFrame = Integer.parseInt(fieldZoomEveryNFrame.getText());
                             int tempGradientColorCycling = Integer.parseInt(fieldGradientColorCycling.getText());
+
                             if(MyApfloat.setAutomaticPrecision) {
                                 long precision = MyApfloat.getAutomaticPrecision(new String[]{field_size.getText()}, new boolean[]{true});
 
@@ -211,11 +192,8 @@ public class SequenceRenderDialog extends JDialog {
                                 return;
                             }
 
-                            if (tempZoomFactor <= 1.05) {
-                                JOptionPane.showMessageDialog(ptra, "Zooming factor must be greater than 1.05.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                return;
-                            } else if (tempZoomFactor > 32) {
-                                JOptionPane.showMessageDialog(ptra, "Zooming factor must be less than 33.", "Error!", JOptionPane.ERROR_MESSAGE);
+                            if (tempZoomFactor < 1.05 || tempZoomFactor > 32) {
+                                JOptionPane.showMessageDialog(ptra, "Zooming factor must be in the range [1.05, 32].", "Error!", JOptionPane.ERROR_MESSAGE);
                                 return;
                             }
 

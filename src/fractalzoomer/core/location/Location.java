@@ -47,17 +47,35 @@ public class Location {
 
     public static Location getInstanceForDrawing(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int image_size, double circle_period, Apfloat[] rotation_center, Apfloat[] rotation_vals, Fractal fractal, JitterSettings js, boolean polar, boolean highPresicion) {
 
-        /*if(polar) {
-            return new PolarLocationNormalApfloatArbitrary(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal);
-        }
-        else {
-            if(fractal.supportsBignum() && ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE && ThreadDraw.USE_BIGNUM_FOR_PIXELS_IF_POSSIBLE) {
-                return new CartesianLocationNormalBigNumArbitrary(xCenter, yCenter, size, height_ratio, image_size, rotation_center, rotation_vals, fractal);
+
+        if(highPresicion && ThreadDraw.HIGH_PRECISION_CALCULATION) {
+            int lib = ThreadDraw.getHighPrecisionLibrary(size, fractal);
+            if(polar) {
+                if(lib == Constants.ARBITRARY_MPFR) {
+                    return new PolarLocationNormalMpfrBigNumArbitrary(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, js);
+                }
+                else if(lib == Constants.ARBITRARY_DOUBLEDOUBLE) {
+                    return new PolarLocationNormalDoubleDoubleArbitrary(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, js);
+                }
+                else {
+                    return new PolarLocationNormalApfloatArbitrary(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, js);
+                }
             }
             else {
-                return new CartesianLocationNormalApfloatArbitrary(xCenter, yCenter, size, height_ratio, image_size, rotation_center, rotation_vals, fractal);
+                if(lib == Constants.ARBITRARY_MPFR) {
+                    return new CartesianLocationNormalMpfrBigNumArbitrary(xCenter, yCenter, size, height_ratio, image_size, rotation_center, rotation_vals, fractal, js);
+                }
+                else if(lib == Constants.ARBITRARY_BUILT_IN) {
+                    return new CartesianLocationNormalBigNumArbitrary(xCenter, yCenter, size, height_ratio, image_size, rotation_center, rotation_vals, fractal, js);
+                }
+                else if(lib == Constants.ARBITRARY_DOUBLEDOUBLE) {
+                    return new CartesianLocationNormalDoubleDoubleArbitrary(xCenter, yCenter, size, height_ratio, image_size, rotation_center, rotation_vals, fractal, js);
+                }
+                else {
+                    return new CartesianLocationNormalApfloatArbitrary(xCenter, yCenter, size, height_ratio, image_size, rotation_center, rotation_vals, fractal, js);
+                }
             }
-        }*/
+        }
 
         int bignumLib = ThreadDraw.getBignumLibrary(size, fractal);
 

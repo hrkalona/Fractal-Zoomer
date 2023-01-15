@@ -86,7 +86,7 @@ public class DomainColoringFrame extends JFrame {
         domain_coloring_panel.setLayout(new GridLayout(4, 1));
         domain_coloring_panel.setBackground(MainWindow.bg_color);
 
-        final JTextField iterations_textfield = new JTextField(10);
+        final JTextField iterations_textfield = new JTextField(8);
         iterations_textfield.setText("" + s.max_iterations);
 
         JPanel settings_panel = new JPanel();
@@ -101,8 +101,7 @@ public class DomainColoringFrame extends JFrame {
         use_palette_dc.setFocusable(false);
         use_palette_dc.setToolTipText("Sets the coloring mode.");
         
-        final JTextField offset_textfield = new JTextField(10);
-        offset_textfield.setText("" + s.ps.color_cycling_location);
+        final MyJSpinner offset_textfield = new MyJSpinner(8, new SpinnerNumberModel( s.ps.color_cycling_location, 0, Integer.MAX_VALUE, 1));
 
         JPanel s1 = new JPanel();
         s1.setLayout(new FlowLayout());

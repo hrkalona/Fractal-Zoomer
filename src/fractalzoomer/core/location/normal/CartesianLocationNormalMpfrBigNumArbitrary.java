@@ -110,10 +110,11 @@ public class CartesianLocationNormalMpfrBigNumArbitrary extends Location {
 
         if(js.enableJitter) {
             double[] res = GetPixelOffset(y, x, js.jitterSeed, js.jitterShape, js.jitterScale);
-            ddtemp_size_image_size_x.mult(x + res[1], ddtempX);
-            ddtemp_xcenter_size.add(ddtempX, ddtempX);
-            ddtemp_size_image_size_y.mult(y + res[0], ddtempY);
-            ddtemp_ycenter_size.sub(ddtempY, ddtempY);
+//            ddtemp_size_image_size_x.mult(x + res[1], ddtempX);
+//            ddtemp_xcenter_size.add(ddtempX, ddtempX);
+//            ddtemp_size_image_size_y.mult(y + res[0], ddtempY);
+//            ddtemp_ycenter_size.sub(ddtempY, ddtempY);
+            MpfrBigNum.ApBmC_DsEmG(ddtempX, ddtempY, ddtemp_xcenter_size, ddtemp_size_image_size_x, x + res[1], ddtemp_ycenter_size, ddtemp_size_image_size_y, y + res[0]);
         }
         else {
             if (x == indexX + 1) {
@@ -121,8 +122,9 @@ public class CartesianLocationNormalMpfrBigNumArbitrary extends Location {
             } else if (x == indexX - 1) {
                 ddtempX.sub(ddtemp_size_image_size_x, ddtempX);
             } else {
-                ddtemp_size_image_size_x.mult(x, ddtempX);
-                ddtemp_xcenter_size.add(ddtempX, ddtempX);
+                //ddtemp_size_image_size_x.mult(x, ddtempX);
+                //ddtemp_xcenter_size.add(ddtempX, ddtempX);
+                MpfrBigNum.ApBmC(ddtempX, ddtemp_xcenter_size, ddtemp_size_image_size_x, x);
             }
 
             if (y == indexY + 1) {
@@ -130,16 +132,18 @@ public class CartesianLocationNormalMpfrBigNumArbitrary extends Location {
             } else if (y == indexY - 1) {
                 ddtempY.add(ddtemp_size_image_size_y, ddtempY);
             } else {
-                ddtemp_size_image_size_y.mult(y, ddtempY);
-                ddtemp_ycenter_size.sub(ddtempY, ddtempY);
+                //ddtemp_size_image_size_y.mult(y, ddtempY);
+                //ddtemp_ycenter_size.sub(ddtempY, ddtempY);
+                MpfrBigNum.AsBmC(ddtempY, ddtemp_ycenter_size, ddtemp_size_image_size_y, y);
             }
         }
 
         indexX = x;
         indexY = y;
 
-        tempResultX.set(ddtempX);
-        tempResultY.set(ddtempY);
+        //tempResultX.set(ddtempX);
+        //tempResultY.set(ddtempY);
+        MpfrBigNum.set(tempResultX, tempResultY, ddtempX, ddtempY);
 
         MpfrBigNumComplex temp = new MpfrBigNumComplex(tempResultX, tempResultY);
 
@@ -161,8 +165,9 @@ public class CartesianLocationNormalMpfrBigNumArbitrary extends Location {
             } else if (y == indexY - 1) {
                 ddtempY.add(ddtemp_size_image_size_y, ddtempY);
             } else {
-                ddtemp_size_image_size_y.mult(y, ddtempY);
-                ddtemp_ycenter_size.sub(ddtempY, ddtempY);
+                //ddtemp_size_image_size_y.mult(y, ddtempY);
+                //ddtemp_ycenter_size.sub(ddtempY, ddtempY);
+                MpfrBigNum.AsBmC(ddtempY, ddtemp_ycenter_size, ddtemp_size_image_size_y, y);
             }
         }
 
@@ -181,8 +186,9 @@ public class CartesianLocationNormalMpfrBigNumArbitrary extends Location {
             } else if (x == indexX - 1) {
                 ddtempX.sub(ddtemp_size_image_size_x, ddtempX);
             } else {
-                ddtemp_size_image_size_x.mult(x, ddtempX);
-                ddtemp_xcenter_size.add(ddtempX, ddtempX);
+                //ddtemp_size_image_size_x.mult(x, ddtempX);
+                //ddtemp_xcenter_size.add(ddtempX, ddtempX);
+                MpfrBigNum.ApBmC(ddtempX, ddtemp_xcenter_size, ddtemp_size_image_size_x, x);
             }
         }
 
@@ -208,15 +214,17 @@ public class CartesianLocationNormalMpfrBigNumArbitrary extends Location {
             ddtempX.sub(ddtemp_size_image_size_x, ddtempX);
         }
         else {
-            ddtemp_size_image_size_x.mult(x, ddtempX);
-            ddtemp_xcenter_size.add(ddtempX, ddtempX);
+            //ddtemp_size_image_size_x.mult(x, ddtempX);
+            //ddtemp_xcenter_size.add(ddtempX, ddtempX);
+            MpfrBigNum.ApBmC(ddtempX, ddtemp_xcenter_size, ddtemp_size_image_size_x, x);
         }
 
         indexX = x;
 
 
-        tempResultX.set(ddtempX);
-        tempResultY.set(ddtempY);
+        //tempResultX.set(ddtempX);
+        //tempResultY.set(ddtempY);
+        MpfrBigNum.set(tempResultX, tempResultY, ddtempX, ddtempY);
 
         MpfrBigNumComplex temp = new MpfrBigNumComplex(tempResultX, tempResultY);
 
@@ -245,14 +253,16 @@ public class CartesianLocationNormalMpfrBigNumArbitrary extends Location {
             ddtempY.add(ddtemp_size_image_size_y, ddtempY);
         }
         else {
-            ddtemp_size_image_size_y.mult(y, ddtempY);
-            ddtemp_ycenter_size.sub(ddtempY, ddtempY);
+            //ddtemp_size_image_size_y.mult(y, ddtempY);
+            //ddtemp_ycenter_size.sub(ddtempY, ddtempY);
+            MpfrBigNum.AsBmC(ddtempY, ddtemp_ycenter_size, ddtemp_size_image_size_y, y);
         }
 
         indexY = y;
 
-        tempResultX.set(ddtempX);
-        tempResultY.set(ddtempY);
+        //tempResultX.set(ddtempX);
+        //tempResultY.set(ddtempY);
+        MpfrBigNum.set(tempResultX, tempResultY, ddtempX, ddtempY);
 
         MpfrBigNumComplex temp = new MpfrBigNumComplex(tempResultX, tempResultY);
 
@@ -272,10 +282,14 @@ public class CartesianLocationNormalMpfrBigNumArbitrary extends Location {
 
     protected MpfrBigNumComplex getAntialiasingComplexBase(int sample) {
 
-        tempResultX.set(ddtempX);
-        tempResultY.set(ddtempY);
+        //tempResultX.set(ddtempX);
+        //tempResultY.set(ddtempY);
+        MpfrBigNum.set(tempResultX, tempResultY, ddtempX, ddtempY);
 
-        MpfrBigNumComplex temp = new MpfrBigNumComplex(tempResultX.add(ddantialiasing_x[sample], tempResultX), tempResultY.add(ddantialiasing_y[sample], tempResultY));
+        MpfrBigNum.self_add(tempResultX, tempResultY, ddantialiasing_x[sample], ddantialiasing_y[sample]);
+
+        MpfrBigNumComplex temp = new MpfrBigNumComplex(tempResultX, tempResultY);
+        //MpfrBigNumComplex temp = new MpfrBigNumComplex(tempResultX.add(ddantialiasing_x[sample], tempResultX), tempResultY.add(ddantialiasing_y[sample], tempResultY));
 
         temp = rotation.rotate(temp);
 

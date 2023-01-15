@@ -173,7 +173,7 @@ public class CommonFunctions implements Constants {
 
 
             InputStream src = getClass().getResourceAsStream("/fractalzoomer/parser/code/UserDefinedFunctions.javacode");
-            Files.copy(src, Paths.get("UserDefinedFunctions.java"));
+            Files.copy(src, Paths.get(Parser.DEFAULT_USER_CODE_FILE));
 
             Path path = Paths.get("Derivative.java");
             Files.deleteIfExists(path);
@@ -195,6 +195,9 @@ public class CommonFunctions implements Constants {
         } catch (ParserException ex) {
             return new Object[]{2, ex.getMessage()};
         }
+        catch (Exception ex) {
+            return new Object[]{2, ex.getMessage()};
+        }
 
         return new Object[]{0, ""};
 
@@ -208,6 +211,9 @@ public class CommonFunctions implements Constants {
                 JOptionPane.showMessageDialog(parent, "Compilation was successful!", "Success!", JOptionPane.INFORMATION_MESSAGE, MainWindow.getIcon("compile_sucess.png"));
             }
         } catch (ParserException ex) {
+            JOptionPane.showMessageDialog(parent, ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE, MainWindow.getIcon("compile_error.png"));
+        }
+        catch (Exception ex) {
             JOptionPane.showMessageDialog(parent, ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE, MainWindow.getIcon("compile_error.png"));
         }
 
@@ -581,7 +587,7 @@ public class CommonFunctions implements Constants {
             overview += tab2 + "z = abs(z), applied before the function evaluation<br>";
         }
 
-        if ((s.fns.function <= 9 || s.fns.function == MANDELPOLY || s.fns.function == MANDELBROTWTH) && s.fns.mandel_grass && !s.isPertubationTheoryInUse()) {
+        if ((s.fns.function <= 9 || s.fns.function == MANDELPOLY || s.fns.function == MANDELBROTWTH) && s.fns.mandel_grass && !s.isPertubationTheoryInUse() && !s.isHighPrecisionInUse()) {
             overview += tab + "Mandel Grass = " + Complex.toString2(s.fns.mandel_grass_vals[0], s.fns.mandel_grass_vals[1]) + "<br>";
             overview += tab2 + "z = z + (MG * z)/(norm(z)), applied after the function evaluation<br>";
         }
@@ -656,7 +662,7 @@ public class CommonFunctions implements Constants {
             }
         }
 
-        if (s.functionSupportsC() && !s.isPertubationTheoryInUse()) {
+        if (s.functionSupportsC() && !s.isPertubationTheoryInUse() && !s.isHighPrecisionInUse()) {
             if (s.fns.ips.influencePlane == USER_PLANE_INFLUENCE) {
                 if (s.fns.ips.user_plane_influence_algorithm == 0) {
                     overview += "<b><font color='red'>Plane Influence:</font></b> User Plane Influence<br>";
@@ -673,7 +679,7 @@ public class CommonFunctions implements Constants {
             }
         }
 
-        if (!s.fns.init_val || s.isPertubationTheoryInUse()) {
+        if (!s.fns.init_val || s.isPertubationTheoryInUse() || s.isHighPrecisionInUse()) {
             String res = ThreadDraw.getDefaultInitialValue();
 
             if (!res.equals("")) {
@@ -719,7 +725,7 @@ public class CommonFunctions implements Constants {
 
         }
 
-        if (s.fns.perturbation && !s.isPertubationTheoryInUse()) {
+        if (s.fns.perturbation && !s.isPertubationTheoryInUse() && !s.isHighPrecisionInUse()) {
             if (s.fns.variable_perturbation) {
                 if (s.fns.user_perturbation_algorithm == 0) {
                     overview += "<b><font color='red'>Initial Perturbation:</font></b> Variable Value<br>";
@@ -738,7 +744,7 @@ public class CommonFunctions implements Constants {
         }
 
 
-        if(!s.isPertubationTheoryInUse()) {
+        if(!s.isPertubationTheoryInUse() && !s.isHighPrecisionInUse()) {
             if (s.fns.preffs.functionFilter == USER_FUNCTION_FILTER) {
                 if (s.fns.preffs.user_function_filter_algorithm == 0) {
                     overview += "<b><font color='red'>Pre Function Filter:</font></b> User Filter<br>";
@@ -1076,7 +1082,7 @@ public class CommonFunctions implements Constants {
 
         if (!s.ds.domain_coloring) {
 
-            if(s.isPertubationTheoryInUse() && s.fns.out_coloring_algorithm == MainWindow.DISTANCE_ESTIMATOR) {
+            if((s.isPertubationTheoryInUse() || s.isHighPrecisionInUse()) && s.fns.out_coloring_algorithm == MainWindow.DISTANCE_ESTIMATOR) {
                 overview += "<b><font color='red'>Out Coloring Mode:</font></b> " + OutColoringModesMenu.outColoringNames[0] + "<br>";
             }
             else {
@@ -1152,7 +1158,7 @@ public class CommonFunctions implements Constants {
                         overview += tab + (s.sts.statistic_escape_type == ESCAPING ? "Escaping" : "Converging") + "<br>";
                     }
                 }
-                else if (!s.isPertubationTheoryInUse() && s.sts.statisticGroup == 2) {
+                else if (!s.isPertubationTheoryInUse() && !s.isHighPrecisionInUse() && s.sts.statisticGroup == 2) {
                     overview += "<b><font color='red'>Statistical Coloring:</font></b><br>";
                     overview += tab + "Equicontinuity<br>";
                     overview += tab2 + "Delta = " + s.sts.equicontinuityDelta + "<br>";
@@ -1262,7 +1268,7 @@ public class CommonFunctions implements Constants {
                     }
                 }
 
-                if(s.sts.statisticGroup != 2 || !s.isPertubationTheoryInUse()) {
+                if(s.sts.statisticGroup != 2 || (!s.isPertubationTheoryInUse() && !s.isHighPrecisionInUse())) {
                     if (s.sts.statisticIncludeEscaped) {
                         overview += tab + "Includes escaped points<br>";
                     }
@@ -1477,7 +1483,7 @@ public class CommonFunctions implements Constants {
                 overview += tab + "Gradient Intensity = " + s.pbs.gradient_intensity + "<br><br>";
             }
 
-            if (s.exterior_de && !s.isPertubationTheoryInUse()) {
+            if (s.exterior_de && !s.isPertubationTheoryInUse() && !s.isHighPrecisionInUse()) {
                 overview += "<b><font color='red'>Distance Estimation:</font></b><br>";
 
                 if (s.inverse_dem) {
@@ -2122,7 +2128,7 @@ public class CommonFunctions implements Constants {
                 + "hcvcos, exsec, excsc, avsin, avcos, acvsin, acvcos, ahvsin, ahvcos, ahcvsin, ahcvcos, aexsec, aexcsc<br>"
                 + "<b>Other Functions: f(z)</b><br>"
                 + "exp, log, log10, log2, sqrt, abs, absre, absim, conj, re, im, norm, arg, gamma, fact, erf, rzeta, gi, rec, flip, round,<br>"
-                + "ceil, floor, trunc, deta, snorm, fib, f1, ... f60<br>"
+                + "ceil, floor, trunc, deta, snorm, fib, hypot, f1, ... f60<br>"
                 + "<b>Two Argument Functions: f(z, w)</b><br>"
                 + "logn, bipol, ibipol, inflect, foldu, foldd, foldl, foldr, foldi, foldo, shear, cmp, fuzz, normn, rot, dist, sdist, root, f',<br>"
                 + "f'', f''', g1, ... g60<br>"
@@ -2137,5 +2143,9 @@ public class CommonFunctions implements Constants {
 
         new PerturbationTheoryHelpDialog(dialog);
 
+    }
+
+    public static void showHighPrecisionHelp(JDialog dialog) {
+        new HighPrecisionHelpDialog(dialog);
     }
 }

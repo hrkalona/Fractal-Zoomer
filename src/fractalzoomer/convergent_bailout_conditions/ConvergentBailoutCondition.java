@@ -30,16 +30,23 @@ public abstract class ConvergentBailoutCondition {
   protected Apfloat ddconvergent_bailout;
   protected DoubleDouble ddcconvergent_bailout;
   protected double distance;
+  protected boolean calculateDistance;
 
     protected ConvergentBailoutCondition(double convergent_bailout) {
         
         this.convergent_bailout = convergent_bailout;
 
-        if(ThreadDraw.PERTURBATION_THEORY) {
+        if(ThreadDraw.PERTURBATION_THEORY || ThreadDraw.HIGH_PRECISION_CALCULATION) {
           ddconvergent_bailout = new MyApfloat(convergent_bailout);
             ddcconvergent_bailout = new DoubleDouble(convergent_bailout);
         }
+
+        calculateDistance = true;
         
+    }
+
+    public void setReferenceMode(boolean ReferenceMode) {
+        this.calculateDistance = !ReferenceMode;
     }
     
     public abstract boolean converged(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0, Complex pixel);

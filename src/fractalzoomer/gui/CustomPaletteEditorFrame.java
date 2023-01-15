@@ -765,6 +765,11 @@ public class CustomPaletteEditorFrame extends JFrame {
                 1);
 
         offset_textfield = new JSpinner(spinnerModel);
+
+        JSpinner.NumberEditor editor = new JSpinner.NumberEditor(offset_textfield);
+        editor.getFormat().setGroupingUsed(false);
+        offset_textfield.setEditor(editor);
+
         offset_textfield.setPreferredSize(new Dimension(70, 26));
         offset_textfield.setToolTipText("Adds an offset to the current palette.");
         ((DefaultEditor) offset_textfield.getEditor()).getTextField().getDocument().addDocumentListener(new DocumentListener() {
@@ -1998,7 +2003,7 @@ public class CustomPaletteEditorFrame extends JFrame {
         file_chooser.setDialogType(JFileChooser.SAVE_DIALOG);
 
         file_chooser.addChoosableFileFilter(new FileNameExtensionFilter("Fractal Zoomer Palette (*.fzp)", "fzp"));
-        file_chooser.addChoosableFileFilter(new FileNameExtensionFilter("RGB Triplets (*.txt)", "txt"));
+        file_chooser.addChoosableFileFilter(new FileNameExtensionFilter("RGB Triplets (*.map)", "map"));
 
         String name = "palette " + DateTimeFormatter.ofPattern("yyyy-MM-dd HH;mm;ss").format(LocalDateTime.now()) + ".fzp";
         file_chooser.setSelectedFile(new File(name));

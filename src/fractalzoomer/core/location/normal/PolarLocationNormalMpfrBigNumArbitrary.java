@@ -165,8 +165,9 @@ public class PolarLocationNormalMpfrBigNumArbitrary extends Location {
             ddmuly.mult(y + res[0], tempResult);
             tempResult.sin_cos(tempResult, tempResult3);
 
-            temp_ddsf.set(tempResult);
-            temp_ddcf.set(tempResult3);
+            //temp_ddsf.set(tempResult);
+            //temp_ddcf.set(tempResult3);
+            MpfrBigNum.set(temp_ddsf, temp_ddcf, tempResult, tempResult3);
         }
         else {
             if (x == indexX + 1) {
@@ -190,8 +191,10 @@ public class PolarLocationNormalMpfrBigNumArbitrary extends Location {
                 tempResult3.sub(tempResult4, tempResult3);
 
 
-                temp_ddsf.set(tempResult);
-                temp_ddcf.set(tempResult3);
+                //temp_ddsf.set(tempResult);
+                //temp_ddcf.set(tempResult3);
+
+                MpfrBigNum.set(temp_ddsf, temp_ddcf, tempResult, tempResult3);
             } else if (y == indexY - 1) {
                 temp_ddsf.mult(ddcosmuly, tempResult);
                 temp_ddcf.mult(ddsinmuly, tempResult2);
@@ -201,14 +204,16 @@ public class PolarLocationNormalMpfrBigNumArbitrary extends Location {
                 temp_ddsf.mult(ddsinmuly, tempResult4);
                 tempResult3.add(tempResult4, tempResult3);
 
-                temp_ddsf.set(tempResult);
-                temp_ddcf.set(tempResult3);
+                //temp_ddsf.set(tempResult);
+                //temp_ddcf.set(tempResult3);
+                MpfrBigNum.set(temp_ddsf, temp_ddcf, tempResult, tempResult3);
             } else {
                 ddmuly.mult(y, tempResult);
                 tempResult.sin_cos(tempResult, tempResult3);
 
-                temp_ddsf.set(tempResult);
-                temp_ddcf.set(tempResult3);
+                //temp_ddsf.set(tempResult);
+                //temp_ddcf.set(tempResult3);
+                MpfrBigNum.set(temp_ddsf, temp_ddcf, tempResult, tempResult3);
             }
         }
 
@@ -219,11 +224,13 @@ public class PolarLocationNormalMpfrBigNumArbitrary extends Location {
         //temp_ddsf.set(Math.sin(tempResult.doubleValue()));
         //temp_ddcf.set(Math.cos(tempResult.doubleValue()));
 
-        temp_ddr.mult(temp_ddcf, tempResultX);
-        tempResultX.add(ddxcenter, tempResultX);
+//        temp_ddr.mult(temp_ddcf, tempResultX);
+//        tempResultX.add(ddxcenter, tempResultX);
+//
+//        temp_ddr.mult(temp_ddsf, tempResultY);
+//        tempResultY.add(ddycenter, tempResultY);
 
-        temp_ddr.mult(temp_ddsf, tempResultY);
-        tempResultY.add(ddycenter, tempResultY);
+        MpfrBigNum.ApBmC_DpEmG(tempResultX, tempResultY, ddxcenter, temp_ddr, temp_ddcf, ddycenter, temp_ddr, temp_ddsf);
 
         if(requiresVariablePixelSize) {
             setVariablePixelSize(temp_ddr);
@@ -255,8 +262,9 @@ public class PolarLocationNormalMpfrBigNumArbitrary extends Location {
                 tempResult3.sub(tempResult4, tempResult3);
 
 
-                temp_ddsf.set(tempResult);
-                temp_ddcf.set(tempResult3);
+                //temp_ddsf.set(tempResult);
+                //temp_ddcf.set(tempResult3);
+                MpfrBigNum.set(temp_ddsf, temp_ddcf, tempResult, tempResult3);
             } else if (y == indexY - 1) {
                 temp_ddsf.mult(ddcosmuly, tempResult);
                 temp_ddcf.mult(ddsinmuly, tempResult2);
@@ -266,15 +274,17 @@ public class PolarLocationNormalMpfrBigNumArbitrary extends Location {
                 temp_ddsf.mult(ddsinmuly, tempResult4);
                 tempResult3.add(tempResult4, tempResult3);
 
-                temp_ddsf.set(tempResult);
-                temp_ddcf.set(tempResult3);
+                //temp_ddsf.set(tempResult);
+                //temp_ddcf.set(tempResult3);
+                MpfrBigNum.set(temp_ddsf, temp_ddcf, tempResult, tempResult3);
             } else {
 
                 ddmuly.mult(y, tempResult);
                 tempResult.sin_cos(tempResult, tempResult3);
 
-                temp_ddsf.set(tempResult);
-                temp_ddcf.set(tempResult3);
+                //temp_ddsf.set(tempResult);
+                //temp_ddcf.set(tempResult3);
+                MpfrBigNum.set(temp_ddsf, temp_ddcf, tempResult, tempResult3);
             }
         }
 
@@ -332,11 +342,13 @@ public class PolarLocationNormalMpfrBigNumArbitrary extends Location {
 
         indexX = x;
 
-        temp_ddr.mult(temp_ddcf, tempResultX);
-        tempResultX.add(ddxcenter, tempResultX);
+//        temp_ddr.mult(temp_ddcf, tempResultX);
+//        tempResultX.add(ddxcenter, tempResultX);
+//
+//        temp_ddr.mult(temp_ddsf, tempResultY);
+//        tempResultY.add(ddycenter, tempResultY);
 
-        temp_ddr.mult(temp_ddsf, tempResultY);
-        tempResultY.add(ddycenter, tempResultY);
+        MpfrBigNum.ApBmC_DpEmG(tempResultX, tempResultY, ddxcenter, temp_ddr, temp_ddcf, ddycenter, temp_ddr, temp_ddsf);
 
         if(requiresVariablePixelSize) {
             setVariablePixelSize(temp_ddr);
@@ -376,8 +388,9 @@ public class PolarLocationNormalMpfrBigNumArbitrary extends Location {
             tempResult3.sub(tempResult4, tempResult3);
 
 
-            temp_ddsf.set(tempResult);
-            temp_ddcf.set(tempResult3);
+            //temp_ddsf.set(tempResult);
+            //temp_ddcf.set(tempResult3);
+            MpfrBigNum.set(temp_ddsf, temp_ddcf, tempResult, tempResult3);
         }
         else if(y == indexY - 1) {
             temp_ddsf.mult(ddcosmuly, tempResult);
@@ -388,25 +401,29 @@ public class PolarLocationNormalMpfrBigNumArbitrary extends Location {
             temp_ddsf.mult(ddsinmuly, tempResult4);
             tempResult3.add(tempResult4, tempResult3);
 
-            temp_ddsf.set(tempResult);
-            temp_ddcf.set(tempResult3);
+            //temp_ddsf.set(tempResult);
+            //temp_ddcf.set(tempResult3);
+            MpfrBigNum.set(temp_ddsf, temp_ddcf, tempResult, tempResult3);
         }
         else {
 
             ddmuly.mult(y, tempResult);
             tempResult.sin_cos(tempResult, tempResult3);
 
-            temp_ddsf.set(tempResult);
-            temp_ddcf.set(tempResult3);
+            //temp_ddsf.set(tempResult);
+            //temp_ddcf.set(tempResult3);
+            MpfrBigNum.set(temp_ddsf, temp_ddcf, tempResult, tempResult3);
         }
 
         indexY = y;
 
-        temp_ddr.mult(temp_ddcf, tempResultX);
-        tempResultX.add(ddxcenter, tempResultX);
+//        temp_ddr.mult(temp_ddcf, tempResultX);
+//        tempResultX.add(ddxcenter, tempResultX);
+//
+//        temp_ddr.mult(temp_ddsf, tempResultY);
+//        tempResultY.add(ddycenter, tempResultY);
 
-        temp_ddr.mult(temp_ddsf, tempResultY);
-        tempResultY.add(ddycenter, tempResultY);
+        MpfrBigNum.ApBmC_DpEmG(tempResultX, tempResultY, ddxcenter, temp_ddr, temp_ddcf, ddycenter, temp_ddr, temp_ddsf);
 
 
         MpfrBigNumComplex temp = new MpfrBigNumComplex(tempResultX, tempResultY);
@@ -443,11 +460,13 @@ public class PolarLocationNormalMpfrBigNumArbitrary extends Location {
 
         temp_ddr.mult(ddantialiasing_x[sample], tempResult2); //r2
 
-        tempResult2.mult(tempResult3, tempResultX);
-        tempResultX.add(ddxcenter, tempResultX); //ddxcenter + r2 * cf2
+//        tempResult2.mult(tempResult3, tempResultX);
+//        tempResultX.add(ddxcenter, tempResultX); //ddxcenter + r2 * cf2
+//
+//        tempResult2.mult(tempResult, tempResultY);
+//        tempResultY.add(ddycenter, tempResultY); //ddycenter + r2 * sf2
 
-        tempResult2.mult(tempResult, tempResultY);
-        tempResultY.add(ddycenter, tempResultY); //ddycenter + r2 * sf2
+        MpfrBigNum.ApBmC_DpEmG(tempResultX, tempResultY, ddxcenter, tempResult2, tempResult3, ddycenter, tempResult2, tempResult);
 
         if(requiresVariablePixelSize) {
             setVariablePixelSize(tempResult2);

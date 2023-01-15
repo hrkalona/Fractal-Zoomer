@@ -16,10 +16,7 @@
  */
 package fractalzoomer.functions.magnet;
 
-import fractalzoomer.core.Complex;
-import fractalzoomer.core.DeepReference;
-import fractalzoomer.core.MantExpComplex;
-import fractalzoomer.core.ThreadDraw;
+import fractalzoomer.core.*;
 import fractalzoomer.fractal_options.iteration_statistics.*;
 import fractalzoomer.functions.Fractal;
 import fractalzoomer.functions.Julia;
@@ -30,6 +27,8 @@ import fractalzoomer.out_coloring_algorithms.*;
 import fractalzoomer.utils.ColorAlgorithm;
 
 import java.util.ArrayList;
+
+import static fractalzoomer.main.Constants.*;
 
 /**
  *
@@ -182,6 +181,116 @@ public abstract class MagnetType extends Julia {
 
         if (inTrueColorAlgorithm != null) {
             setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+        }
+
+        return in;
+
+    }
+
+    @Override
+    public GenericComplex[] initialize(GenericComplex pixel) {
+
+        GenericComplex[] complex = super.initialize(pixel);
+
+        int lib = ThreadDraw.getHighPrecisionLibrary(dsize, this);
+
+        if(lib == ARBITRARY_MPFR) {
+            workSpaceData.root.set(1);
+            groot = workSpaceData.root;
+        }
+        else if(lib == ARBITRARY_DOUBLEDOUBLE) {
+            groot = new DoubleDouble(1);
+        }
+        else {
+            groot = MyApfloat.ONE;
+        }
+
+        return complex;
+
+    }
+
+    @Override
+    public GenericComplex[] initializeSeed(GenericComplex pixel) {
+
+        GenericComplex[] complex = super.initializeSeed(pixel);
+
+        int lib = ThreadDraw.getHighPrecisionLibrary(dsize, this);
+
+        if(lib == ARBITRARY_MPFR) {
+            workSpaceData.root.set(1);
+            groot = workSpaceData.root;
+        }
+        else if(lib == ARBITRARY_DOUBLEDOUBLE) {
+            groot = new DoubleDouble(1);
+        }
+        else {
+            groot = MyApfloat.ONE;
+        }
+
+        return complex;
+
+    }
+
+    @Override
+    public double iterateFractalArbitraryPrecisionWithoutPeriodicity(GenericComplex[] complex, GenericComplex pixel) {
+
+        iterations = 0;
+
+        Complex start = gstart.toComplex();
+        Complex c0 = gc0.toComplex();
+        Complex pixelC = pixel.toComplex();
+
+        boolean temp1 = false, temp2 = false;
+
+        for (; iterations < max_iterations; iterations++) {
+
+            if (trap != null) {
+                trap.check(complex[0].toComplex(), iterations);
+            }
+
+            if ((temp1 = convergent_bailout_algorithm.Converged(complex[0], groot, gzold, gzold2, iterations, complex[1], gstart, gc0, pixel)) || (temp2 = bailout_algorithm.Escaped(complex[0], gzold, gzold2, iterations, complex[1], gstart, gc0, null, pixel))) {
+                escaped = true;
+                converged = temp1;
+
+                Complex z = complex[0].toComplex();
+                Complex zold = gzold.toComplex();
+                Complex zold2 = gzold2.toComplex();
+                Complex c = complex[1].toComplex();
+
+                Object[] object = {iterations, z, temp2, convergent_bailout_algorithm.getDistance(), zold, zold2, c, start, c0, pixelC};
+                double out = out_color_algorithm.getResult(object);
+
+                out = getFinalValueOut(out, z);
+
+                if (outTrueColorAlgorithm != null) {
+                    setTrueColorOut(z, zold, zold2, iterations, c, start, c0, pixelC);
+                }
+
+                return out;
+            }
+
+            gzold2.set(gzold);
+            gzold.set(complex[0]);
+
+            function(complex);
+
+            if (statistic != null) {
+                statistic.insert(complex[0].toComplex(), gzold.toComplex(), gzold2.toComplex(), iterations, complex[1].toComplex(), start, c0);
+            }
+        }
+
+        Complex z = complex[0].toComplex();
+        Complex zold = gzold.toComplex();
+        Complex zold2 = gzold2.toComplex();
+        Complex c = complex[1].toComplex();
+
+        Object[] object = {z, zold, zold2, c, start, c0, pixelC};
+        double in = in_color_algorithm.getResult(object);
+
+        in = getFinalValueIn(in, z);
+
+        if (inTrueColorAlgorithm != null) {
+            setTrueColorIn(z, zold, zold2, iterations, c, start, c0, pixelC);
         }
 
         return in;
@@ -421,7 +530,9 @@ public abstract class MagnetType extends Julia {
         iterations = nanomb1SkippedIterations != 0 ? nanomb1SkippedIterations : skippedIterations;
         int RefIteration = iterations;
 
-        int ReferencePeriod = iterationPeriod;
+        int ReferencePeriod = getPeriod();
+
+        int MaxRefIteration = getReferenceFinalIterationNumber(true);
 
         double norm_squared = 0;
 
@@ -518,7 +629,9 @@ public abstract class MagnetType extends Julia {
         iterations = totalSkippedIterations;
         int RefIteration = iterations;
 
-        int ReferencePeriod = iterationPeriod;
+        int ReferencePeriod = getPeriod();
+
+        int MaxRefIteration = getReferenceFinalIterationNumber(true);
 
         int minExp = -1000;
         int reducedExp = minExp / (int)power;
@@ -715,7 +828,7 @@ public abstract class MagnetType extends Julia {
         Complex pixel = dpixel.plus(refPointSmall);
 
         int MaxRefIteration = Fractal.MaxRefIteration;
-        double[] Reference = Fractal.Reference;
+        DoubleReference Reference = Fractal.Reference;
 
         double norm_squared = complex[0].norm_squared();
 
@@ -814,7 +927,7 @@ public abstract class MagnetType extends Julia {
         int MaxRefIteration = Fractal.MaxRefIteration;
         DeepReference ReferenceDeep = Fractal.ReferenceDeep;
 
-        double[] Reference = Fractal.Reference;
+        DoubleReference Reference = Fractal.Reference;
 
         boolean useFullFloatExp = ThreadDraw.USE_FULL_FLOATEXP_FOR_DEEP_ZOOM;
         boolean doBailCheck = useFullFloatExp || ThreadDraw.CHECK_BAILOUT_DURING_DEEP_NOT_FULL_FLOATEXP_MODE;

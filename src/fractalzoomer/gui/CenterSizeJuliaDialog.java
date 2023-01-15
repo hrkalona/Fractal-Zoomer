@@ -55,7 +55,7 @@ public class CenterSizeJuliaDialog extends JDialog {
         setModal(true);
         setIconImage(MainWindow.getIcon("mandel2.png").getImage());
 
-        JTextArea field_real = new JTextArea(6, 50);
+        JTextArea field_real = new JTextArea(4, 50);
         field_real.setFont(TEMPLATE_TFIELD.getFont());
         field_real.setLineWrap(true);
 
@@ -74,7 +74,7 @@ public class CenterSizeJuliaDialog extends JDialog {
             field_real.setText("" + p.x.toString(true));
         }
 
-        JTextArea field_imaginary = new JTextArea(6, 50);
+        JTextArea field_imaginary = new JTextArea(4, 50);
         field_imaginary.setFont(TEMPLATE_TFIELD.getFont());
         field_imaginary.setLineWrap(true);
 
@@ -90,7 +90,7 @@ public class CenterSizeJuliaDialog extends JDialog {
             field_imaginary.setText("" + p.y.toString(true));
         }
 
-        JTextArea field_size = new JTextArea(6, 50);
+        JTextArea field_size = new JTextArea(4, 50);
         field_size.setFont(TEMPLATE_TFIELD.getFont());
         field_size.setLineWrap(true);
 
@@ -102,7 +102,7 @@ public class CenterSizeJuliaDialog extends JDialog {
 
         field_size.setText("" + s.size);
 
-        JTextArea real_seed = new JTextArea(6, 50);
+        JTextArea real_seed = new JTextArea(4, 50);
         real_seed.setFont(TEMPLATE_TFIELD.getFont());
         real_seed.setLineWrap(true);
 
@@ -118,7 +118,7 @@ public class CenterSizeJuliaDialog extends JDialog {
             real_seed.setText("" + s.xJuliaCenter.toString(true));
         }
 
-        JTextArea imag_seed = new JTextArea(6, 50);
+        JTextArea imag_seed = new JTextArea(4, 50);
         imag_seed.setFont(TEMPLATE_TFIELD.getFont());
         imag_seed.setLineWrap(true);
 

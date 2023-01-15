@@ -205,14 +205,15 @@ public class Rotation {
             MpfrBigNum X = pixel.getRe();
             MpfrBigNum Y = pixel.getIm();
 
-            X.sub(Y, F);
-            mpfrbnrotationA.mult(F, F);
-
-            mpfrbnrotationAsB.mult(Y, tempRe);
-            mpfrbnrotationApB.mult(X, tempIm);
-
-            tempRe.add(F, X);
-            tempIm.sub(F, Y);
+//            X.sub(Y, F);
+//            mpfrbnrotationA.mult(F, F);
+//
+//            mpfrbnrotationAsB.mult(Y, tempRe);
+//            mpfrbnrotationApB.mult(X, tempIm);
+//
+//            tempRe.add(F, X);
+//            tempIm.sub(F, Y);
+            MpfrBigNum.rotation(X, Y, tempRe, tempIm, F, mpfrbnrotationA, mpfrbnrotationAsB, mpfrbnrotationApB);
         }
 
         if(hasRotationCenter) {

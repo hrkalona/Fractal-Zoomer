@@ -895,6 +895,16 @@ public class Nova extends ExtendedConvergentType {
     }
 
     @Override
+    public void function(GenericComplex[] complex) {
+        if(complex[0] instanceof BigComplex) {
+            complex[0] = complex[0].sub(complex[0].cube().sub(MyApfloat.ONE).divide(complex[0].square().times(MyApfloat.THREE))).plus(complex[1]);
+        }
+        else {
+            complex[0] = complex[0].sub_mutable(complex[0].cube().sub_mutable(1).divide_mutable(complex[0].square().times_mutable(3))).plus_mutable(complex[1]);
+        }
+    }
+
+    @Override
     public boolean supportsPerturbationTheory() {
 
         if(isJuliaMap) {
@@ -913,35 +923,37 @@ public class Nova extends ExtendedConvergentType {
 
         long time = System.currentTimeMillis();
 
+        int max_ref_iterations = getReferenceMaxIterations();
+
         int initIterations = iterations;
 
         if(progress != null) {
-            progress.setMaximum(max_iterations - initIterations);
+            progress.setMaximum(max_ref_iterations - initIterations);
             progress.setValue(0);
             progress.setForeground(MainWindow.progress_ref_color);
             progress.setString(REFERENCE_CALCULATION_STR + " " + String.format("%3d", 0) + "%");
         }
 
         if(iterations == 0) {
-            Reference = new double[max_iterations << 1];
-            ReferenceSubCp = new double[max_iterations << 1];
-            PrecalculatedTerms = new double[max_iterations << 1];
+            Reference = new DoubleReference(max_ref_iterations);
+            ReferenceSubCp = new DoubleReference(max_ref_iterations);
+            PrecalculatedTerms = new DoubleReference(max_ref_iterations);
 
             if (deepZoom) {
-                ReferenceDeep = new DeepReference(max_iterations);
-                ReferenceSubCpDeep = new DeepReference(max_iterations);
-                PrecalculatedTermsDeep = new DeepReference(max_iterations);
+                ReferenceDeep = new DeepReference(max_ref_iterations);
+                ReferenceSubCpDeep = new DeepReference(max_ref_iterations);
+                PrecalculatedTermsDeep = new DeepReference(max_ref_iterations);
             }
         }
-        else if (max_iterations > getReferenceLength()){
-            Reference = Arrays.copyOf(Reference, max_iterations << 1);
-            ReferenceSubCp = Arrays.copyOf(ReferenceSubCp, max_iterations << 1);
-            PrecalculatedTerms = Arrays.copyOf(PrecalculatedTerms, max_iterations << 1);
+        else if (max_ref_iterations > getReferenceLength()){
+            Reference.resize(max_ref_iterations);
+            ReferenceSubCp.resize(max_ref_iterations);
+            PrecalculatedTerms.resize(max_ref_iterations);
 
             if (deepZoom) {
-                ReferenceDeep.resize(max_iterations);
-                ReferenceSubCpDeep.resize(max_iterations);
-                PrecalculatedTermsDeep.resize(max_iterations);
+                ReferenceDeep.resize(max_ref_iterations);
+                ReferenceSubCpDeep.resize(max_ref_iterations);
+                PrecalculatedTermsDeep.resize(max_ref_iterations);
             }
         }
 
@@ -1032,6 +1044,8 @@ public class Nova extends ExtendedConvergentType {
 
         RefType = getRefType();
 
+        convergent_bailout_algorithm.setReferenceMode(true);
+
         for (; iterations < max_iterations; iterations++) {
 
             Complex cz = z.toComplex();
@@ -1081,6 +1095,8 @@ public class Nova extends ExtendedConvergentType {
 
         }
 
+        convergent_bailout_algorithm.setReferenceMode(false);
+
         lastZValue = z;
         secondTolastZValue = zold;
         thirdTolastZValue = zold2;
@@ -1122,9 +1138,9 @@ public class Nova extends ExtendedConvergentType {
         }
 
         if (iterations == 0) {
-            SecondReference = new double[max_ref_iterations << 1];
-            SecondReferenceSubCp = new double[max_ref_iterations << 1];
-            SecondPrecalculatedTerms = new double[max_ref_iterations << 1];
+            SecondReference = new DoubleReference(max_ref_iterations);
+            SecondReferenceSubCp = new DoubleReference(max_ref_iterations);
+            SecondPrecalculatedTerms = new DoubleReference(max_ref_iterations);
 
             if (deepZoom) {
                 SecondReferenceDeep = new DeepReference(max_ref_iterations);
@@ -1132,9 +1148,9 @@ public class Nova extends ExtendedConvergentType {
                 SecondPrecalculatedTermsDeep = new DeepReference(max_ref_iterations);
             }
         } else if (max_ref_iterations > getSecondReferenceLength()) {
-            SecondReference = Arrays.copyOf(SecondReference, max_ref_iterations << 1);
-            SecondReferenceSubCp = Arrays.copyOf(SecondReferenceSubCp, max_ref_iterations << 1);
-            SecondPrecalculatedTerms = Arrays.copyOf(SecondPrecalculatedTerms, max_ref_iterations << 1);
+            SecondReference.resize(max_ref_iterations);
+            SecondReferenceSubCp.resize(max_ref_iterations);
+            SecondPrecalculatedTerms.resize(max_ref_iterations);
 
             if (deepZoom) {
                 SecondReferenceDeep.resize(max_ref_iterations);
@@ -1204,6 +1220,8 @@ public class Nova extends ExtendedConvergentType {
         }
 
 
+        convergent_bailout_algorithm.setReferenceMode(true);
+
         for (; iterations < max_ref_iterations; iterations++) {
 
             Complex cz = z.toComplex();
@@ -1252,6 +1270,8 @@ public class Nova extends ExtendedConvergentType {
             }
 
         }
+
+        convergent_bailout_algorithm.setReferenceMode(false);
 
         lastZ2Value = z;
         secondTolastZ2Value = zold;
@@ -1332,7 +1352,7 @@ public class Nova extends ExtendedConvergentType {
     }
 
     @Override
-    public Complex perturbationFunction(Complex DeltaSubN, double[] Reference, double[] PrecalculatedTerms,  double[] PrecalculatedTerms2, int RefIteration) {
+    public Complex perturbationFunction(Complex DeltaSubN, DoubleReference Reference, DoubleReference PrecalculatedTerms,  DoubleReference PrecalculatedTerms2, int RefIteration) {
 
         Complex Z = getArrayValue(Reference, RefIteration);
         Complex z = DeltaSubN;
@@ -1355,28 +1375,6 @@ public class Nova extends ExtendedConvergentType {
     @Override
     public String getRefType() {
         return super.getRefType() + "-" + z_exponent.toString() + "-" + relaxation.toString() + (isJulia ? "-Julia-" + bigSeed.toStringPretty() : "");
-    }
-
-    @Override
-    public void function(BigComplex[] complex) {
-        complex[0] = complex[0].sub(complex[0].cube().sub(MyApfloat.ONE).divide(complex[0].square().times(MyApfloat.THREE))).plus(complex[1]);
-    }
-
-    @Override
-    public BigComplex[] initialize(BigComplex pixel) {
-
-        BigComplex[] complex = new BigComplex[2];
-
-        complex[0] = new BigComplex(new BigComplex(1, 0));//z
-        complex[1] = new BigComplex(pixel);//c
-
-        //zold = new Complex();
-        //zold2 = new Complex();
-        //start = new Complex(complex[0]);
-        //c0 = new Complex(complex[1]);
-
-        return complex;
-
     }
 
     @Override

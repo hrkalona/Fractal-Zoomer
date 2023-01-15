@@ -46,23 +46,17 @@ public class NovaDialog extends JDialog {
         JLabel novazw = new JLabel();
         novazw.setIcon(MainWindow.getIcon("novazw.png"));
 
-        JTextField field_real = new JTextField();
-        field_real.setText("" + s.fns.z_exponent_nova[0]);
+        MyJSpinner field_real = new MyJSpinner(30, new SpinnerNumberModel(s.fns.z_exponent_nova[0], -Double.MAX_VALUE, Double.MAX_VALUE, 0.1));
 
-        JTextField field_imaginary = new JTextField();
-        field_imaginary.setText("" + s.fns.z_exponent_nova[1]);
+        MyJSpinner field_imaginary = new MyJSpinner(30, new SpinnerNumberModel(s.fns.z_exponent_nova[1], -Double.MAX_VALUE, Double.MAX_VALUE, 0.1));
 
-        JTextField field_real2 = new JTextField();
-        field_real2.setText("" + s.fns.relaxation[0]);
+        MyJSpinner field_real2 = new MyJSpinner(30, new SpinnerNumberModel(s.fns.relaxation[0], -Double.MAX_VALUE, Double.MAX_VALUE, 0.1));
 
-        JTextField field_imaginary2 = new JTextField();
-        field_imaginary2.setText("" + s.fns.relaxation[1]);
-        
-        JTextField field_realk = new JTextField(20);
-        field_realk.setText("" + s.fns.newton_hines_k[0]);
+        MyJSpinner field_imaginary2 = new MyJSpinner(30, new SpinnerNumberModel(s.fns.relaxation[1], -Double.MAX_VALUE, Double.MAX_VALUE, 0.1));
 
-        JTextField field_imaginaryk = new JTextField(20);
-        field_imaginaryk.setText("" + s.fns.newton_hines_k[1]);
+        MyJSpinner field_realk = new MyJSpinner(10, new SpinnerNumberModel(s.fns.newton_hines_k[0], -Double.MAX_VALUE, Double.MAX_VALUE, 0.1));
+
+        MyJSpinner field_imaginaryk = new MyJSpinner(10, new SpinnerNumberModel(s.fns.newton_hines_k[1], -Double.MAX_VALUE, Double.MAX_VALUE, 0.1));
 
         JPanel k_panel = new JPanel();
         k_panel.add(new JLabel("k = "));

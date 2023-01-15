@@ -46,10 +46,7 @@ import com.sun.jna.Platform;
 import fractalzoomer.bailout_conditions.SkipBailoutCondition;
 import fractalzoomer.convergent_bailout_conditions.SkipConvergentBailoutCondition;
 import fractalzoomer.core.*;
-import fractalzoomer.core.drawing_algorithms.BoundaryTracingDraw;
-import fractalzoomer.core.drawing_algorithms.BruteForce2Draw;
-import fractalzoomer.core.drawing_algorithms.BruteForceDraw;
-import fractalzoomer.core.drawing_algorithms.DivideAndConquerDraw;
+import fractalzoomer.core.drawing_algorithms.*;
 import fractalzoomer.core.location.normal.CartesianLocationNormalApfloatArbitrary;
 import fractalzoomer.core.location.normal.PolarLocationNormalApfloatArbitrary;
 import fractalzoomer.core.mpfr.LibMpfr;
@@ -83,6 +80,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Timer;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Stream;
 
 /**
@@ -178,7 +177,6 @@ public class MainWindow extends JFrame implements Constants {
     private boolean first_seed;
     private int n;
     private int thread_grouping;
-    private int greedy_algorithm_selection;
     private int julia_grid_first_dimension;
     private double zoom_factor;
     private int image_size;
@@ -224,7 +222,6 @@ public class MainWindow extends JFrame implements Constants {
     private int i;
     private Object[] compilationStatus;
     private boolean auto_repaint_image;
-    private int brute_force_alg;
 
 
     /**
@@ -238,7 +235,6 @@ public class MainWindow extends JFrame implements Constants {
         s.applyStaticSettings();
 
         auto_repaint_image = false;
-        brute_force_alg = 0;
 
         runsOnWindows = false;
 
@@ -251,8 +247,8 @@ public class MainWindow extends JFrame implements Constants {
         old_size = s.size;
         old_height_ratio = s.height_ratio;
 
-        n = 2;
-        thread_grouping = 0;
+        n = Runtime.getRuntime().availableProcessors();
+        thread_grouping = 1;
         julia_grid_first_dimension = 2;
 
         grid_tiles = 6;
@@ -307,8 +303,6 @@ public class MainWindow extends JFrame implements Constants {
         old_boundaries = boundaries;
         zoom_window = false;
         show_orbit_converging_point = true;
-
-        greedy_algorithm_selection = BOUNDARY_TRACING;
 
         orbit_color = Color.WHITE;
         grid_color = Color.WHITE;
@@ -718,7 +712,7 @@ public class MainWindow extends JFrame implements Constants {
                 if (s.julia_map) {
                     createThreadsJuliaMap();
                 } else {
-                    createThreads(false);
+                    createThreads(false, false);
                 }
 
                 calculation_time = System.currentTimeMillis();
@@ -894,11 +888,11 @@ public class MainWindow extends JFrame implements Constants {
 
         ArraysFillColor(image, EMPTY_COLOR);
 
-        fast_julia_image = new BufferedImage(FAST_JULIA_IMAGE_SIZE, FAST_JULIA_IMAGE_SIZE, BufferedImage.TYPE_INT_ARGB);
+        fast_julia_image = new BufferedImage(ThreadDraw.FAST_JULIA_IMAGE_SIZE, ThreadDraw.FAST_JULIA_IMAGE_SIZE, BufferedImage.TYPE_INT_ARGB);
 
         whole_image_done = false;
 
-        createThreads(false);
+        createThreads(false, true);
 
         calculation_time = System.currentTimeMillis();
 
@@ -920,18 +914,21 @@ public class MainWindow extends JFrame implements Constants {
 
     public boolean threadsAvailable() {
 
-        try {
-            for (int i = 0; i < threads.length; i++) {
-                for (int j = 0; j < threads[i].length; j++) {
-                    if (threads[i][j].isAlive()) {
-                        return false;
+        synchronized (this) {
+            try {
+                for (int i = 0; i < threads.length; i++) {
+                    for (int j = 0; j < threads[i].length; j++) {
+                        if (threads[i][j].isAlive() || !threads[i][j].started()) {
+                            return false;
+                        }
                     }
                 }
+            } catch (Exception ex) {
+                return false;
             }
-        } catch (Exception ex) {
-        }
 
-        return true;
+            return true;
+        }
 
     }
 
@@ -1369,80 +1366,114 @@ public class MainWindow extends JFrame implements Constants {
         }
     }
 
-    private void createThreads(boolean quickDraw) {
+    private void createThreads(boolean quickDraw, boolean skipPreview) {
 
-        if(thread_grouping == 0) {
-            threads = new ThreadDraw[n][n];
-            ThreadDraw.resetThreadData(n * n);
-        }
-        else {
-            threads = new ThreadDraw[1][n];
-            ThreadDraw.resetThreadData(n);
-        }
+        synchronized (this) {
+            boolean createPreview = false;
 
-        Parser.usesUserCode = false;
+            if(s.d3s.d3) {
+                skipPreview = true;
+            }
 
-        try {
-            for (int i = 0; i < threads.length; i++) {
-                for (int j = 0; j < threads[i].length; j++) {
-
-                    ThreadSplitCoordinates tsc;
-
-                    if (s.d3s.d3) {
-                        tsc = ThreadSplitCoordinates.get(j, i, thread_grouping, n, s.d3s.detail);
-                    } else {
-                        tsc = ThreadSplitCoordinates.get(j, i, thread_grouping, n, image_size);
-                    }
-
-                    if (s.fns.julia) {
-                        if (ThreadDraw.GREEDY_ALGORITHM) {
-                            if (greedy_algorithm_selection == BOUNDARY_TRACING) {
-                                threads[i][j] = new BoundaryTracingDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, quickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js, s.xJuliaCenter, s.yJuliaCenter);
-                            } else if (greedy_algorithm_selection == DIVIDE_AND_CONQUER) {
-                                threads[i][j] = new DivideAndConquerDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, quickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js, s.xJuliaCenter, s.yJuliaCenter);
-                            }
-                        } else {
-                            if(brute_force_alg == 0) {
-                                threads[i][j] = new BruteForceDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, quickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js, s.xJuliaCenter, s.yJuliaCenter);
-                            }
-                            else {
-                                threads[i][j] = new BruteForce2Draw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, quickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js, s.xJuliaCenter, s.yJuliaCenter);
-                            }
-                        }
-                    } else if (ThreadDraw.GREEDY_ALGORITHM) {
-                        if (greedy_algorithm_selection == BOUNDARY_TRACING) {
-                            threads[i][j] = new BoundaryTracingDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, quickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js);
-                        } else if (greedy_algorithm_selection == DIVIDE_AND_CONQUER) {
-                            threads[i][j] = new DivideAndConquerDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, quickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js);
-                        }
-                    } else {
-                        if (brute_force_alg == 0) {
-                            threads[i][j] = new BruteForceDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, quickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js);
-                        }
-                        else {
-                            threads[i][j] = new BruteForce2Draw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, quickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js);
-                        }
-                    }
-                    threads[i][j].setThreadId(i * threads.length + j);
+            if (!skipPreview) {
+                if (!quickDraw) {
+                    quickDraw = ThreadDraw.DRAW_IMAGE_PREVIEW;
+                    createPreview = quickDraw;
                 }
             }
-        } catch (ParserException e) {
-            JOptionPane.showMessageDialog(scroll_pane, e.getMessage() + "\nThe application will terminate.", "Error!", JOptionPane.ERROR_MESSAGE);
-            exit(-1);
+
+            if (thread_grouping == 0) {
+                threads = new ThreadDraw[n][n];
+                ThreadDraw.resetThreadData(n * n);
+            } else {
+                threads = new ThreadDraw[1][n];
+                ThreadDraw.resetThreadData(n);
+            }
+
+            Parser.usesUserCode = false;
+
+            try {
+                for (int i = 0; i < threads.length; i++) {
+                    for (int j = 0; j < threads[i].length; j++) {
+
+                        ThreadSplitCoordinates tsc;
+
+                        if (s.d3s.d3) {
+                            tsc = ThreadSplitCoordinates.get(j, i, thread_grouping, n, s.d3s.detail);
+                        } else {
+                            tsc = ThreadSplitCoordinates.get(j, i, thread_grouping, n, image_size);
+                        }
+
+                        if (s.fns.julia) {
+                            if (ThreadDraw.GREEDY_ALGORITHM) {
+                                if (ThreadDraw.GREEDY_ALGORITHM_SELECTION == BOUNDARY_TRACING) {
+                                    if (ThreadDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA) {
+                                        threads[i][j] = new BoundaryTracingColorsAndIterationDataDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, quickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js, s.xJuliaCenter, s.yJuliaCenter);
+                                    } else {
+                                        threads[i][j] = new BoundaryTracingDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, quickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js, s.xJuliaCenter, s.yJuliaCenter);
+                                    }
+                                } else if (ThreadDraw.GREEDY_ALGORITHM_SELECTION == DIVIDE_AND_CONQUER) {
+                                    if (ThreadDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA) {
+                                        threads[i][j] = new DivideAndConquerColorsAndIterationDataDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, quickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js, s.xJuliaCenter, s.yJuliaCenter);
+                                    } else {
+                                        threads[i][j] = new DivideAndConquerDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, quickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js, s.xJuliaCenter, s.yJuliaCenter);
+                                    }
+                                }
+                            } else {
+                                if (ThreadDraw.BRUTE_FORCE_ALG == 0) {
+                                    threads[i][j] = new BruteForceDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, quickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js, s.xJuliaCenter, s.yJuliaCenter);
+                                } else {
+                                    threads[i][j] = new BruteForce2Draw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, quickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js, s.xJuliaCenter, s.yJuliaCenter);
+                                }
+                            }
+                        } else if (ThreadDraw.GREEDY_ALGORITHM) {
+                            if (ThreadDraw.GREEDY_ALGORITHM_SELECTION == BOUNDARY_TRACING) {
+                                if (ThreadDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA) {
+                                    threads[i][j] = new BoundaryTracingColorsAndIterationDataDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, quickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js);
+                                } else {
+                                    threads[i][j] = new BoundaryTracingDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, quickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js);
+                                }
+                            } else if (ThreadDraw.GREEDY_ALGORITHM_SELECTION == DIVIDE_AND_CONQUER) {
+                                if (ThreadDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA) {
+                                    threads[i][j] = new DivideAndConquerColorsAndIterationDataDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, quickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js);
+                                } else {
+                                    threads[i][j] = new DivideAndConquerDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, quickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js);
+                                }
+                            }
+                        } else {
+                            if (ThreadDraw.BRUTE_FORCE_ALG == 0) {
+                                threads[i][j] = new BruteForceDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, quickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js);
+                            } else {
+                                threads[i][j] = new BruteForce2Draw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, quickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js);
+                            }
+                        }
+                        threads[i][j].setThreadId(i * threads.length + j);
+                        threads[i][j].setCreatePreview(createPreview);
+                    }
+                }
+            } catch (ParserException e) {
+                JOptionPane.showMessageDialog(scroll_pane, e.getMessage() + "\nThe application will terminate.", "Error!", JOptionPane.ERROR_MESSAGE);
+                exit(-1);
+            }
         }
     }
 
     private void startThreads() {
 
-        boolean isQuickDraw = threads[0][0].isQuickDraw();
-        boolean isFastJulia = threads[0][0].isFastJulia();
-        for (int i = 0; i < threads.length; i++) {
-            for (int j = 0; j < threads[i].length; j++) {
-                threads[i][j].start();
+        boolean isQuickDraw = false;
+        boolean isFastJulia = false;
+        synchronized (this) {
+
+            isQuickDraw = threads[0][0].isQuickDraw();
+            isFastJulia = threads[0][0].isFastJulia();
+            for (int i = 0; i < threads.length; i++) {
+                for (int j = 0; j < threads[i].length; j++) {
+                    threads[i][j].start();
+                }
             }
         }
 
-        if(auto_repaint_image && !s.d3s.d3 && !isQuickDraw && !isFastJulia && !color_cycling) {
+        if (auto_repaint_image && !s.d3s.d3 && !isQuickDraw && !isFastJulia && !color_cycling) {
             ImageRepainter ir = new ImageRepainter(ptr, threads);
             ir.init();
             ir.start();
@@ -1478,10 +1509,6 @@ public class MainWindow extends JFrame implements Constants {
             SaveSettingsPath = file.getParent();
 
             s.save(file.toString());
-
-            if (Parser.usesUserCode) {
-                JOptionPane.showMessageDialog(scroll_pane, "The saved settings use functions that are included inside the file UserDefinedFunctions.java.\nYou must also save this file if you want recreate the saved settings.", "Information!", JOptionPane.INFORMATION_MESSAGE);
-            }
         }
 
         main_panel.repaint();
@@ -2063,7 +2090,7 @@ public class MainWindow extends JFrame implements Constants {
                     ArraysFillColor(image, Color.BLACK.getRGB());
                 }
 
-                createThreads(false);
+                createThreads(false, false);
 
                 calculation_time = System.currentTimeMillis();
 
@@ -2149,10 +2176,6 @@ public class MainWindow extends JFrame implements Constants {
                     s.save(file2.toString());
 
                     SaveSettingsPath = file.getParent();
-
-                    if (Parser.usesUserCode) {
-                        JOptionPane.showMessageDialog(scroll_pane, "The saved settings use functions that are included inside the file UserDefinedFunctions.java.\nYou must also save this file if you want recreate the saved settings.", "Information!", JOptionPane.INFORMATION_MESSAGE);
-                    }
                 } else {
                     JOptionPane.showMessageDialog(scroll_pane, "Unsupported image format.", "Error!", JOptionPane.ERROR_MESSAGE);
                 }
@@ -2278,7 +2301,7 @@ public class MainWindow extends JFrame implements Constants {
         if (s.julia_map) {
             createThreadsJuliaMap();
         } else {
-            createThreads(false);
+            createThreads(false, false);
         }
 
         calculation_time = System.currentTimeMillis();
@@ -2312,7 +2335,7 @@ public class MainWindow extends JFrame implements Constants {
         if(s.julia_map) {
             createThreadsJuliaMap();
         } else {
-            createThreads(false);
+            createThreads(false, false);
         }
 
         calculation_time = System.currentTimeMillis();
@@ -2443,7 +2466,7 @@ public class MainWindow extends JFrame implements Constants {
         if(s.julia_map) {
             createThreadsJuliaMap();
         } else {
-            createThreads(false);
+            createThreads(false, false);
         }
 
         calculation_time = System.currentTimeMillis();
@@ -2486,7 +2509,7 @@ public class MainWindow extends JFrame implements Constants {
         if(s.julia_map) {
             createThreadsJuliaMap();
         } else {
-            createThreads(false);
+            createThreads(false, false);
         }
 
         calculation_time = System.currentTimeMillis();
@@ -2525,7 +2548,7 @@ public class MainWindow extends JFrame implements Constants {
         if(s.julia_map) {
             createThreadsJuliaMap();
         } else {
-            createThreads(false);
+            createThreads(false, false);
         }
 
         calculation_time = System.currentTimeMillis();
@@ -2695,19 +2718,19 @@ public class MainWindow extends JFrame implements Constants {
                     ArraysFillColor(image, Color.BLACK.getRGB());
                 }
 
-                if ((ThreadDraw.GREEDY_ALGORITHM && greedy_algorithm_selection == DIVIDE_AND_CONQUER) || s.ots.useTraps || s.fns.tcs.trueColorOut || s.fns.tcs.trueColorIn || (s.sts.statistic && s.sts.statisticGroup == 2 && s.sts.equicontinuityOverrideColoring)
+                if ((ThreadDraw.GREEDY_ALGORITHM && ThreadDraw.GREEDY_ALGORITHM_SELECTION == DIVIDE_AND_CONQUER) || s.ots.useTraps || s.fns.tcs.trueColorOut || s.fns.tcs.trueColorIn || (s.sts.statistic && s.sts.statisticGroup == 2 && s.sts.equicontinuityOverrideColoring)
                         || (s.sts.statistic && s.sts.statisticGroup == 3) || (s.sts.statistic && s.sts.statisticGroup == 4)) {
                     if (s.d3s.d3) {
                         createThreadsPaletteAndFilter3DModel();
                     } else {
-                        createThreads(false);
+                        createThreads(false, false);
                     }
 
                     calculation_time = System.currentTimeMillis();
                     startThreads();
                 } else {
                     if (s.d3s.d3 || s.ds.domain_coloring) {
-                        createThreads(false);
+                        createThreads(false, false);
                     } else {
                         createThreadsPaletteAndFilter();
                     }
@@ -2734,7 +2757,7 @@ public class MainWindow extends JFrame implements Constants {
                 if(s.julia_map) {
                     createThreadsJuliaMap();
                 } else {
-                    createThreads(false);
+                    createThreads(false, false);
                 }
 
                 calculation_time = System.currentTimeMillis();
@@ -2769,7 +2792,7 @@ public class MainWindow extends JFrame implements Constants {
                 else if (s.d3s.d3) {
                     createThreadsPaletteAndFilter3DModel();
                 } else {
-                    createThreads(false);
+                    createThreads(false, false);
                 }
 
                 calculation_time = System.currentTimeMillis();
@@ -2989,7 +3012,7 @@ public class MainWindow extends JFrame implements Constants {
         if(s.julia_map) {
             createThreadsJuliaMap();
         } else {
-            createThreads(false);
+            createThreads(false, false);
         }
 
         calculation_time = System.currentTimeMillis();
@@ -3061,7 +3084,7 @@ public class MainWindow extends JFrame implements Constants {
 
         whole_image_done = false;
 
-        createThreads(true);
+        createThreads(true, false);
 
         calculation_time = System.currentTimeMillis();
 
@@ -3113,7 +3136,7 @@ public class MainWindow extends JFrame implements Constants {
 
         whole_image_done = false;
 
-        createThreads(true);
+        createThreads(true, false);
 
         calculation_time = System.currentTimeMillis();
 
@@ -3164,7 +3187,7 @@ public class MainWindow extends JFrame implements Constants {
 
         whole_image_done = false;
 
-        createThreads(true);
+        createThreads(true, false);
 
         calculation_time = System.currentTimeMillis();
 
@@ -3245,7 +3268,7 @@ public class MainWindow extends JFrame implements Constants {
 
         whole_image_done = false;
 
-        createThreads(true);
+        createThreads(true, false);
 
         calculation_time = System.currentTimeMillis();
 
@@ -3306,7 +3329,7 @@ public class MainWindow extends JFrame implements Constants {
 
         whole_image_done = false;
 
-        createThreads(true);
+        createThreads(true, false);
 
         calculation_time = System.currentTimeMillis();
 
@@ -3417,7 +3440,7 @@ public class MainWindow extends JFrame implements Constants {
 
             whole_image_done = false;
 
-            createThreads(false);
+            createThreads(false, false);
 
             calculation_time = System.currentTimeMillis();
 
@@ -3487,7 +3510,7 @@ public class MainWindow extends JFrame implements Constants {
         if(s.julia_map) {
             createThreadsJuliaMap();
         } else {
-            createThreads(false);
+            createThreads(false, false);
         }
 
         calculation_time = System.currentTimeMillis();
@@ -3717,7 +3740,7 @@ public class MainWindow extends JFrame implements Constants {
     
      whole_image_done = false;
     
-     createThreads(false);
+     createThreads(false, false);
     
      calculation_time = System.currentTimeMillis();
     
@@ -3762,7 +3785,7 @@ public class MainWindow extends JFrame implements Constants {
         if(s.julia_map) {
             createThreadsJuliaMap();
         } else {
-            createThreads(false);
+            createThreads(false, false);
         }
 
         calculation_time = System.currentTimeMillis();
@@ -3800,7 +3823,7 @@ public class MainWindow extends JFrame implements Constants {
         if(s.julia_map) {
             createThreadsJuliaMap();
         } else {
-            createThreads(false);
+            createThreads(false, false);
         }
 
         calculation_time = System.currentTimeMillis();
@@ -3877,13 +3900,17 @@ public class MainWindow extends JFrame implements Constants {
         if(s.julia_map) {
             createThreadsJuliaMap();
         } else {
-            createThreads(false);
+            createThreads(false, false);
         }
 
         calculation_time = System.currentTimeMillis();
 
         startThreads();
 
+    }
+
+    public Settings getSettings() {
+        return s;
     }
 
     public void setOptions(boolean option) {
@@ -3946,7 +3973,7 @@ public class MainWindow extends JFrame implements Constants {
             options_menu.getBailoutConditionMenu().setEnabled(option);
         }
 
-        if (!s.ds.domain_coloring && (s.isConvergingType() || s.isMagnetType() || s.isEscapingOrConvergingType()) && s.fns.function != MAGNETIC_PENDULUM) {
+        if (!s.ds.domain_coloring && s.hasConvergentBailoutCondition()) {
             options_menu.getConvergentBailoutConditionMenu().setEnabled(option);
         }
 
@@ -3957,7 +3984,7 @@ public class MainWindow extends JFrame implements Constants {
             options_menu.getDirectColor().setEnabled(option);
         }
 
-        if (!s.ds.domain_coloring && !s.isConvergingType() && s.fns.function != KLEINIAN && s.fns.function != SIERPINSKI_GASKET && s.fns.function != INERTIA_GRAVITY && !s.ots.useTraps && !s.fns.tcs.trueColorIn && !(s.sts.statistic && s.sts.statisticGroup == 2 && s.sts.equicontinuityOverrideColoring) && !(s.sts.statistic && s.sts.statisticGroup == 3) && !(s.sts.statistic && s.sts.statisticGroup == 4) && !ThreadDraw.PERTURBATION_THEORY) {
+        if (!s.ds.domain_coloring && !s.isConvergingType() && s.fns.function != KLEINIAN && s.fns.function != SIERPINSKI_GASKET && s.fns.function != INERTIA_GRAVITY && !s.ots.useTraps && !s.fns.tcs.trueColorIn && !(s.sts.statistic && s.sts.statisticGroup == 2 && s.sts.equicontinuityOverrideColoring) && !(s.sts.statistic && s.sts.statisticGroup == 3) && !(s.sts.statistic && s.sts.statisticGroup == 4) && !ThreadDraw.PERTURBATION_THEORY && !ThreadDraw.HIGH_PRECISION_CALCULATION) {
             options_menu.getPeriodicityChecking().setEnabled(option);
         }
 
@@ -4454,7 +4481,7 @@ public class MainWindow extends JFrame implements Constants {
         if(s.julia_map) {
             createThreadsJuliaMap();
         } else {
-            createThreads(false);
+            createThreads(false, false);
         }
 
         calculation_time = System.currentTimeMillis();
@@ -4502,7 +4529,7 @@ public class MainWindow extends JFrame implements Constants {
         if(s.julia_map) {
             createThreadsJuliaMap();
         } else {
-            createThreads(false);
+            createThreads(false, false);
         }
 
         calculation_time = System.currentTimeMillis();
@@ -4547,7 +4574,7 @@ public class MainWindow extends JFrame implements Constants {
         if(s.julia_map) {
             createThreadsJuliaMap();
         } else {
-            createThreads(false);
+            createThreads(false, false);
         }
 
         calculation_time = System.currentTimeMillis();
@@ -4593,7 +4620,7 @@ public class MainWindow extends JFrame implements Constants {
         if(s.julia_map) {
             createThreadsJuliaMap();
         } else {
-            createThreads(false);
+            createThreads(false, false);
         }
 
         calculation_time = System.currentTimeMillis();
@@ -4659,7 +4686,7 @@ public class MainWindow extends JFrame implements Constants {
         if(s.julia_map) {
             createThreadsJuliaMap();
         } else {
-            createThreads(false);
+            createThreads(false, false);
         }
 
         calculation_time = System.currentTimeMillis();
@@ -4726,7 +4753,7 @@ public class MainWindow extends JFrame implements Constants {
         if(s.julia_map) {
             createThreadsJuliaMap();
         } else {
-            createThreads(false);
+            createThreads(false, false);
         }
 
         calculation_time = System.currentTimeMillis();
@@ -4913,44 +4940,52 @@ public class MainWindow extends JFrame implements Constants {
                 break;
         }
 
-        if(thread_grouping == 0) {
-            threads = new ThreadDraw[n][n];
-            ThreadDraw.resetThreadData(n * n);
-        }
-        else {
-            threads = new ThreadDraw[1][n];
-            ThreadDraw.resetThreadData(n);
-        }
-
-        Parser.usesUserCode = false;
-
-        try {
-
-            for (int i = 0; i < threads.length; i++) {
-                for (int j = 0; j < threads[i].length; j++) {
-
-                    ThreadSplitCoordinates tsc = ThreadSplitCoordinates.get(j, i, thread_grouping, n, FAST_JULIA_IMAGE_SIZE);
-
-                    if (ThreadDraw.GREEDY_ALGORITHM) {
-                        if (greedy_algorithm_selection == BOUNDARY_TRACING) {
-                            threads[i][j] = new BoundaryTracingDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, fast_julia_filters, fast_julia_image, periodicity_checking, s.fs, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js, temp_xJuliaCenter, temp_yJuliaCenter);
-                        } else if (greedy_algorithm_selection == DIVIDE_AND_CONQUER) {
-                            threads[i][j] = new DivideAndConquerDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, fast_julia_filters, fast_julia_image, periodicity_checking, s.fs, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js, temp_xJuliaCenter, temp_yJuliaCenter);
-                        }
-                    } else {
-                        if (brute_force_alg == 0) {
-                            threads[i][j] = new BruteForceDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, fast_julia_filters, fast_julia_image, periodicity_checking, s.fs, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js, temp_xJuliaCenter, temp_yJuliaCenter);
-                        }
-                        else {
-                            threads[i][j] = new BruteForce2Draw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, fast_julia_filters, fast_julia_image, periodicity_checking, s.fs, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js, temp_xJuliaCenter, temp_yJuliaCenter);
-                        }
-                    }
-                    threads[i][j].setThreadId(i * threads.length + j);
-                }
+        synchronized (this) {
+            if (thread_grouping == 0) {
+                threads = new ThreadDraw[n][n];
+                ThreadDraw.resetThreadData(n * n);
+            } else {
+                threads = new ThreadDraw[1][n];
+                ThreadDraw.resetThreadData(n);
             }
-        } catch (ParserException e) {
-            JOptionPane.showMessageDialog(scroll_pane, e.getMessage() + "\nThe application will terminate.", "Error!", JOptionPane.ERROR_MESSAGE);
-            exit(-1);
+
+            Parser.usesUserCode = false;
+
+            try {
+
+                for (int i = 0; i < threads.length; i++) {
+                    for (int j = 0; j < threads[i].length; j++) {
+
+                        ThreadSplitCoordinates tsc = ThreadSplitCoordinates.get(j, i, thread_grouping, n, ThreadDraw.FAST_JULIA_IMAGE_SIZE);
+
+                        if (ThreadDraw.GREEDY_ALGORITHM) {
+                            if (ThreadDraw.GREEDY_ALGORITHM_SELECTION == BOUNDARY_TRACING) {
+                                if (ThreadDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA) {
+                                    threads[i][j] = new BoundaryTracingColorsAndIterationDataDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, fast_julia_filters, fast_julia_image, periodicity_checking, s.fs, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js, temp_xJuliaCenter, temp_yJuliaCenter);
+                                } else {
+                                    threads[i][j] = new BoundaryTracingDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, fast_julia_filters, fast_julia_image, periodicity_checking, s.fs, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js, temp_xJuliaCenter, temp_yJuliaCenter);
+                                }
+                            } else if (ThreadDraw.GREEDY_ALGORITHM_SELECTION == DIVIDE_AND_CONQUER) {
+                                if (ThreadDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA) {
+                                    threads[i][j] = new DivideAndConquerColorsAndIterationDataDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, fast_julia_filters, fast_julia_image, periodicity_checking, s.fs, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js, temp_xJuliaCenter, temp_yJuliaCenter);
+                                } else {
+                                    threads[i][j] = new DivideAndConquerDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, fast_julia_filters, fast_julia_image, periodicity_checking, s.fs, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js, temp_xJuliaCenter, temp_yJuliaCenter);
+                                }
+                            }
+                        } else {
+                            if (ThreadDraw.BRUTE_FORCE_ALG == 0) {
+                                threads[i][j] = new BruteForceDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, fast_julia_filters, fast_julia_image, periodicity_checking, s.fs, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js, temp_xJuliaCenter, temp_yJuliaCenter);
+                            } else {
+                                threads[i][j] = new BruteForce2Draw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, fast_julia_filters, fast_julia_image, periodicity_checking, s.fs, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js, temp_xJuliaCenter, temp_yJuliaCenter);
+                            }
+                        }
+                        threads[i][j].setThreadId(i * threads.length + j);
+                    }
+                }
+            } catch (ParserException e) {
+                JOptionPane.showMessageDialog(scroll_pane, e.getMessage() + "\nThe application will terminate.", "Error!", JOptionPane.ERROR_MESSAGE);
+                exit(-1);
+            }
         }
 
         startThreads();
@@ -4962,58 +4997,62 @@ public class MainWindow extends JFrame implements Constants {
         resetOrbit();
         if (!tools_menu.getColorCycling().isSelected()) {
 
-            color_cycling = false;
-            toolbar.getColorCyclingButton().setSelected(false);
+            ExecutorService executor = Executors.newFixedThreadPool(1);
 
-            ThreadDraw.terminateColorCycling();
+            executor.submit(() -> {
+                color_cycling = false;
+                toolbar.getColorCyclingButton().setSelected(false);
 
-            try {
-                for (int i = 0; i < threads.length; i++) {
-                    for (int j = 0; j < threads[i].length; j++) {
-                        threads[i][j].join();
+                ThreadDraw.terminateColorCycling();
+
+                try {
+                    for (int i = 0; i < threads.length; i++) {
+                        for (int j = 0; j < threads[i].length; j++) {
+                            threads[i][j].join();
+                        }
                     }
+                } catch (InterruptedException ex) {
                 }
-            } catch (InterruptedException ex) {
-            }
 
-            s.ps.color_cycling_location = threads[0][0].getColorCyclingLocationOutColoring();
-            s.ps2.color_cycling_location = threads[0][0].getColorCyclingLocationInColoring();
-            s.bms = new BumpMapSettings(threads[0][0].getBumpMapSettings());
-            s.ls = new LightSettings(threads[0][0].getLightSettings());
-            s.gs.gradient_offset = threads[0][0].getGradientOffset();
+                s.ps.color_cycling_location = threads[0][0].getColorCyclingLocationOutColoring();
+                s.ps2.color_cycling_location = threads[0][0].getColorCyclingLocationInColoring();
+                s.bms = new BumpMapSettings(threads[0][0].getBumpMapSettings());
+                s.ls = new LightSettings(threads[0][0].getLightSettings());
+                s.gs.gradient_offset = threads[0][0].getGradientOffset();
 
-            if (s.ps.color_choice == CUSTOM_PALETTE_ID) {
-                s.temp_color_cycling_location = s.ps.color_cycling_location;
-            }
+                if (s.ps.color_choice == CUSTOM_PALETTE_ID) {
+                    s.temp_color_cycling_location = s.ps.color_cycling_location;
+                }
 
-            if (s.ps2.color_choice == CUSTOM_PALETTE_ID) {
-                s.temp_color_cycling_location_second_palette = s.ps2.color_cycling_location;
-            }
+                if (s.ps2.color_choice == CUSTOM_PALETTE_ID) {
+                    s.temp_color_cycling_location_second_palette = s.ps2.color_cycling_location;
+                }
 
-            updateColorPalettesMenu();
+                updateColorPalettesMenu();
 
-            if (s.fs.filters[ANTIALIASING]) {
-                setOptions(false);
+                if (s.fs.filters[ANTIALIASING]) {
+                    setOptions(false);
 
-                progress.setValue(0);
+                    progress.setValue(0);
 
-                resetImageAndCopy(s.d3s.d3);
+                    resetImageAndCopy(s.d3s.d3);
 
-                whole_image_done = false;
+                    whole_image_done = false;
 
-                if(s.julia_map) {
-                    createThreadsJuliaMap();
+                    if (s.julia_map) {
+                        createThreadsJuliaMap();
+                    } else {
+                        createThreads(false, false);
+                    }
+
+                    calculation_time = System.currentTimeMillis();
+
+                    startThreads();
                 } else {
-                    createThreads(false);
+                    //last_used = null;
+                    setOptions(true);
                 }
-
-                calculation_time = System.currentTimeMillis();
-
-                startThreads();
-            } else {
-                //last_used = null;
-                setOptions(true);
-            }
+            });
         } else {
             color_cycling = true;
             toolbar.getColorCyclingButton().setSelected(true);
@@ -5033,62 +5072,65 @@ public class MainWindow extends JFrame implements Constants {
 
     private void createThreadsPaletteAndFilter() {
 
-        if(thread_grouping == 0) {
-            threads = new ThreadDraw[n][n];
-            ThreadDraw.resetThreadData(n * n);
-        }
-        else {
-            threads = new ThreadDraw[1][n];
-            ThreadDraw.resetThreadData(n);
-        }
+        synchronized (this) {
+            if (thread_grouping == 0) {
+                threads = new ThreadDraw[n][n];
+                ThreadDraw.resetThreadData(n * n);
+            } else {
+                threads = new ThreadDraw[1][n];
+                ThreadDraw.resetThreadData(n);
+            }
 
-        for (int i = 0; i < threads.length; i++) {
-            for (int j = 0; j < threads[i].length; j++) {
-                ThreadSplitCoordinates tsc = ThreadSplitCoordinates.get(j, i, thread_grouping, n, image_size);
-                threads[i][j] = new BruteForceDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs, s.bms, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.fdes, s.rps, s.ens, s.ofs, s.gss, s.color_blending, s.cns, s.post_processing_order, s.ls, s.pbs, s.ots, s.ds, s.gs.gradient_offset, s.hss, s.contourFactor, s.fns.smoothing, s.gps);
-                threads[i][j].setThreadId(i * threads.length + j);
+            for (int i = 0; i < threads.length; i++) {
+                for (int j = 0; j < threads[i].length; j++) {
+                    ThreadSplitCoordinates tsc = ThreadSplitCoordinates.get(j, i, thread_grouping, n, image_size);
+                    threads[i][j] = new BruteForceDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs, s.bms, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.fdes, s.rps, s.ens, s.ofs, s.gss, s.color_blending, s.cns, s.post_processing_order, s.ls, s.pbs, s.ots, s.ds, s.gs.gradient_offset, s.hss, s.contourFactor, s.fns.smoothing, s.gps);
+                    threads[i][j].setThreadId(i * threads.length + j);
+                }
             }
         }
     }
 
     private void createThreadsColorCycling() {
 
-        if(thread_grouping == 0) {
-            threads = new ThreadDraw[n][n];
-            ThreadDraw.resetThreadData(n * n);
-        }
-        else {
-            threads = new ThreadDraw[1][n];
-            ThreadDraw.resetThreadData(n);
-        }
+        synchronized (this) {
+            if (thread_grouping == 0) {
+                threads = new ThreadDraw[n][n];
+                ThreadDraw.resetThreadData(n * n);
+            } else {
+                threads = new ThreadDraw[1][n];
+                ThreadDraw.resetThreadData(n);
+            }
 
-        for (int i = 0; i < threads.length; i++) {
-            for (int j = 0; j < threads[i].length; j++) {
-                ThreadSplitCoordinates tsc = ThreadSplitCoordinates.get(j, i, thread_grouping, n, image_size);
-                threads[i][j] = new BruteForceDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, s.fractal_color, s.dem_color, image, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.bms, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.fdes, s.rps, color_cycling_speed, s.fs, s.ens, s.ofs, s.gss, s.color_blending, s.cns, s.post_processing_order, s.ls, s.pbs, s.ots, cycle_colors, cycle_lights, cycle_gradient, color_cycling_adjusting_value, s.ds, s.gs.gradient_offset, s.hss, s.contourFactor, s.fns.smoothing, s.gps);
-                threads[i][j].setThreadId(i * threads.length + j);
+            for (int i = 0; i < threads.length; i++) {
+                for (int j = 0; j < threads[i].length; j++) {
+                    ThreadSplitCoordinates tsc = ThreadSplitCoordinates.get(j, i, thread_grouping, n, image_size);
+                    threads[i][j] = new BruteForceDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, s.fractal_color, s.dem_color, image, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.bms, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.fdes, s.rps, color_cycling_speed, s.fs, s.ens, s.ofs, s.gss, s.color_blending, s.cns, s.post_processing_order, s.ls, s.pbs, s.ots, cycle_colors, cycle_lights, cycle_gradient, color_cycling_adjusting_value, s.ds, s.gs.gradient_offset, s.hss, s.contourFactor, s.fns.smoothing, s.gps);
+                    threads[i][j].setThreadId(i * threads.length + j);
+                }
             }
         }
     }
 
     private void createThreadsRotate3DModel() {
 
-        if(thread_grouping == 0) {
-            threads = new ThreadDraw[n][n];
-            ThreadDraw.resetThreadData(n * n);
-        }
-        else {
-            threads = new ThreadDraw[1][n];
-            ThreadDraw.resetThreadData(n);
-        }
+        synchronized (this) {
+            if (thread_grouping == 0) {
+                threads = new ThreadDraw[n][n];
+                ThreadDraw.resetThreadData(n * n);
+            } else {
+                threads = new ThreadDraw[1][n];
+                ThreadDraw.resetThreadData(n);
+            }
 
-        int tile = ThreadDraw.TILE_SIZE;
+            int tile = ThreadDraw.TILE_SIZE;
 
-        for (int i = 0; i < threads.length; i++) {
-            for (int j = 0; j < threads[i].length; j++) {
-                ThreadSplitCoordinates tsc = ThreadSplitCoordinates.get(j, i, thread_grouping, n, s.d3s.detail / tile);
-                threads[i][j] = new BruteForceDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.d3s, true, ptr, image, s.fs, s.color_blending, s.contourFactor, s.fns.smoothing, s.gps);
-                threads[i][j].setThreadId(i * threads.length + j);
+            for (int i = 0; i < threads.length; i++) {
+                for (int j = 0; j < threads[i].length; j++) {
+                    ThreadSplitCoordinates tsc = ThreadSplitCoordinates.get(j, i, thread_grouping, n, s.d3s.detail / tile);
+                    threads[i][j] = new BruteForceDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.d3s, true, ptr, image, s.fs, s.color_blending, s.contourFactor, s.fns.smoothing, s.gps);
+                    threads[i][j].setThreadId(i * threads.length + j);
+                }
             }
         }
 
@@ -5096,20 +5138,21 @@ public class MainWindow extends JFrame implements Constants {
 
     private void createThreadsPaletteAndFilter3DModel() {
 
-        if(thread_grouping == 0) {
-            threads = new ThreadDraw[n][n];
-            ThreadDraw.resetThreadData(n * n);
-        }
-        else {
-            threads = new ThreadDraw[1][n];
-            ThreadDraw.resetThreadData(n);
-        }
+        synchronized (this) {
+            if (thread_grouping == 0) {
+                threads = new ThreadDraw[n][n];
+                ThreadDraw.resetThreadData(n * n);
+            } else {
+                threads = new ThreadDraw[1][n];
+                ThreadDraw.resetThreadData(n);
+            }
 
-        for (int i = 0; i < threads.length; i++) {
-            for (int j = 0; j < threads[i].length; j++) {
-                ThreadSplitCoordinates tsc = ThreadSplitCoordinates.get(j, i, thread_grouping, n, s.d3s.detail);
-                threads[i][j] = new BruteForceDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.d3s, false, ptr, image, s.fs, s.color_blending, s.contourFactor, s.fns.smoothing, s.gps);
-                threads[i][j].setThreadId(i * threads.length + j);
+            for (int i = 0; i < threads.length; i++) {
+                for (int j = 0; j < threads[i].length; j++) {
+                    ThreadSplitCoordinates tsc = ThreadSplitCoordinates.get(j, i, thread_grouping, n, s.d3s.detail);
+                    threads[i][j] = new BruteForceDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.d3s, false, ptr, image, s.fs, s.color_blending, s.contourFactor, s.fns.smoothing, s.gps);
+                    threads[i][j].setThreadId(i * threads.length + j);
+                }
             }
         }
 
@@ -5224,7 +5267,7 @@ public class MainWindow extends JFrame implements Constants {
         if(s.julia_map) {
             createThreadsJuliaMap();
         } else {
-            createThreads(false);
+            createThreads(false, false);
         }
 
         calculation_time = System.currentTimeMillis();
@@ -5316,7 +5359,7 @@ public class MainWindow extends JFrame implements Constants {
         if(s.julia_map) {
             createThreadsJuliaMap();
         } else {
-            createThreads(false);
+            createThreads(false, false);
         }
 
         calculation_time = System.currentTimeMillis();
@@ -5333,7 +5376,7 @@ public class MainWindow extends JFrame implements Constants {
 
         if (s.fns.in_coloring_algorithm == MAX_ITERATIONS) {
             if (!s.ds.domain_coloring && !s.isConvergingType() && s.fns.function != KLEINIAN && s.fns.function != SIERPINSKI_GASKET && s.fns.function != INERTIA_GRAVITY && !s.ots.useTraps && !s.fns.tcs.trueColorIn && !(s.sts.statistic && s.sts.statisticGroup == 2 && s.sts.equicontinuityOverrideColoring)
-                    && !(s.sts.statistic && s.sts.statisticGroup == 3) && !(s.sts.statistic && s.sts.statisticGroup == 4) && !ThreadDraw.PERTURBATION_THEORY) {
+                    && !(s.sts.statistic && s.sts.statisticGroup == 3) && !(s.sts.statistic && s.sts.statisticGroup == 4) && !ThreadDraw.PERTURBATION_THEORY && !ThreadDraw.HIGH_PRECISION_CALCULATION) {
                 options_menu.getPeriodicityChecking().setEnabled(true);
             }
         } else if (s.fns.in_coloring_algorithm == USER_INCOLORING_ALGORITHM) {
@@ -5375,7 +5418,7 @@ public class MainWindow extends JFrame implements Constants {
         if(s.julia_map) {
             createThreadsJuliaMap();
         } else {
-            createThreads(false);
+            createThreads(false, false);
         }
 
         calculation_time = System.currentTimeMillis();
@@ -5419,7 +5462,7 @@ public class MainWindow extends JFrame implements Constants {
         if(s.julia_map) {
             createThreadsJuliaMap();
         } else {
-            createThreads(false);
+            createThreads(false, false);
         }
 
         calculation_time = System.currentTimeMillis();
@@ -5514,7 +5557,7 @@ public class MainWindow extends JFrame implements Constants {
         if(s.julia_map) {
             createThreadsJuliaMap();
         } else {
-            createThreads(false);
+            createThreads(false, false);
         }
 
         calculation_time = System.currentTimeMillis();
@@ -5609,7 +5652,7 @@ public class MainWindow extends JFrame implements Constants {
 
             whole_image_done = false;
 
-            createThreads(false);
+            createThreads(false, false);
 
             calculation_time = System.currentTimeMillis();
 
@@ -5672,7 +5715,7 @@ public class MainWindow extends JFrame implements Constants {
             if(s.julia_map) {
                 createThreadsJuliaMap();
             } else {
-                createThreads(false);
+                createThreads(false, false);
             }
 
             calculation_time = System.currentTimeMillis();
@@ -5701,7 +5744,7 @@ public class MainWindow extends JFrame implements Constants {
             if(s.julia_map) {
                 createThreadsJuliaMap();
             } else {
-                createThreads(false);
+                createThreads(false, false);
             }
 
             calculation_time = System.currentTimeMillis();
@@ -6128,23 +6171,25 @@ public class MainWindow extends JFrame implements Constants {
 
     private void createThreadsJuliaMap() {
 
-        threads = new ThreadDraw[julia_grid_first_dimension][julia_grid_first_dimension];
+        synchronized (this) {
+            threads = new ThreadDraw[julia_grid_first_dimension][julia_grid_first_dimension];
 
-        ThreadDraw.resetThreadData(julia_grid_first_dimension * julia_grid_first_dimension);
-        Parser.usesUserCode = false;
+            ThreadDraw.resetThreadData(julia_grid_first_dimension * julia_grid_first_dimension);
+            Parser.usesUserCode = false;
 
-        int n = julia_grid_first_dimension;
+            int n = julia_grid_first_dimension;
 
-        try {
-            for (int i = 0; i < threads.length; i++) {
-                for (int j = 0; j < threads[i].length; j++) {
-                    threads[i][j] = new BruteForceDraw(j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js);
-                    threads[i][j].setThreadId(i * threads.length + j);
+            try {
+                for (int i = 0; i < threads.length; i++) {
+                    for (int j = 0; j < threads[i].length; j++) {
+                        threads[i][j] = new BruteForceDraw(j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js);
+                        threads[i][j].setThreadId(i * threads.length + j);
+                    }
                 }
+            } catch (ParserException e) {
+                JOptionPane.showMessageDialog(scroll_pane, e.getMessage() + "\nThe application will terminate.", "Error!", JOptionPane.ERROR_MESSAGE);
+                exit(-1);
             }
-        } catch (ParserException e) {
-            JOptionPane.showMessageDialog(scroll_pane, e.getMessage() + "\nThe application will terminate.", "Error!", JOptionPane.ERROR_MESSAGE);
-            exit(-1);
         }
 
     }
@@ -6172,7 +6217,7 @@ public class MainWindow extends JFrame implements Constants {
         if(s.julia_map) {
             createThreadsJuliaMap();
         } else {
-            createThreads(false);
+            createThreads(false, false);
         }
 
         calculation_time = System.currentTimeMillis();
@@ -6205,7 +6250,7 @@ public class MainWindow extends JFrame implements Constants {
         if(s.julia_map) {
             createThreadsJuliaMap();
         } else {
-            createThreads(false);
+            createThreads(false, false);
         }
 
         calculation_time = System.currentTimeMillis();
@@ -6457,6 +6502,28 @@ public class MainWindow extends JFrame implements Constants {
 
     }
 
+    public void showFractIntHelpFile() {
+
+        try {
+            InputStream src = getClass().getResource("/fractalzoomer/help/FractInt.pdf").openStream();
+            File TempFile = File.createTempFile("fractint", ".pdf");
+            FileOutputStream out = new FileOutputStream(TempFile);
+            byte[] temp = new byte[32768];
+            int rc;
+
+            while ((rc = src.read(temp)) > 0) {
+                out.write(temp, 0, rc);
+            }
+
+            src.close();
+            out.close();
+            TempFile.deleteOnExit();
+            Desktop.getDesktop().open(TempFile);
+        } catch (Exception ex) {
+        }
+
+    }
+
     public void randomPalette() {
 
         resetOrbit();
@@ -6576,7 +6643,7 @@ public class MainWindow extends JFrame implements Constants {
             if(s.julia_map) {
                 createThreadsJuliaMap();
             } else {
-                createThreads(false);
+                createThreads(false, false);
             }
 
             calculation_time = System.currentTimeMillis();
@@ -6616,7 +6683,7 @@ public class MainWindow extends JFrame implements Constants {
             if(s.julia_map) {
                 createThreadsJuliaMap();
             } else {
-                createThreads(false);
+                createThreads(false, false);
             }
 
             calculation_time = System.currentTimeMillis();
@@ -6737,7 +6804,7 @@ public class MainWindow extends JFrame implements Constants {
 
                 whole_image_done = false;
 
-                createThreads(false);
+                createThreads(false, false);
 
                 calculation_time = System.currentTimeMillis();
 
@@ -6811,7 +6878,7 @@ public class MainWindow extends JFrame implements Constants {
                 ArraysFillColor(image, Color.BLACK.getRGB());
             }
 
-            createThreads(false);
+            createThreads(false, false);
 
             calculation_time = System.currentTimeMillis();
 
@@ -6863,7 +6930,7 @@ public class MainWindow extends JFrame implements Constants {
 
                 whole_image_done = false;
 
-                createThreads(false);
+                createThreads(false, false);
 
                 calculation_time = System.currentTimeMillis();
 
@@ -6949,7 +7016,7 @@ public class MainWindow extends JFrame implements Constants {
 
                 whole_image_done = false;
 
-                createThreads(false);
+                createThreads(false, false);
 
                 calculation_time = System.currentTimeMillis();
 
@@ -7175,7 +7242,7 @@ public class MainWindow extends JFrame implements Constants {
 
             textArea.setEditable(false);
             textArea.setContentType("text/html");
-            textArea.setPreferredSize(new Dimension(450, 450));
+            textArea.setPreferredSize(new Dimension(450, 500));
             //textArea.setLineWrap(false);
             //textArea.setWrapStyleWord(false);
 
@@ -7376,7 +7443,8 @@ public class MainWindow extends JFrame implements Constants {
             writer.println("thread_dim " + n);
             writer.println("thread_grouping " + thread_grouping);
             writer.println("greedy_drawing_algorithm " + ThreadDraw.GREEDY_ALGORITHM);
-            writer.println("greedy_drawing_algorithm_id " + greedy_algorithm_selection);
+            writer.println("greedy_drawing_algorithm_id " + ThreadDraw.GREEDY_ALGORITHM_SELECTION);
+            writer.println("greedy_drawing_algorithm_use_iter_data " + ThreadDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA);
             writer.println("skipped_pixels_coloring " + ThreadDraw.SKIPPED_PIXELS_ALG);
             int color = ThreadDraw.SKIPPED_PIXELS_COLOR;
             writer.println("skipped_pixels_user_color " + ((color >> 16) & 0xff) + " " + ((color >> 8) & 0xff) + " " + (color & 0xff));
@@ -7398,7 +7466,7 @@ public class MainWindow extends JFrame implements Constants {
             writer.println("bla_starting_level " + ThreadDraw.BLA_STARTING_LEVEL);
             writer.println("use_threads_for_bla " + ThreadDraw.USE_THREADS_FOR_BLA);
             writer.println("detect_period " + ThreadDraw.DETECT_PERIOD);
-            writer.println("brute_force_alg " + brute_force_alg);
+            writer.println("brute_force_alg " + ThreadDraw.BRUTE_FORCE_ALG);
             writer.println("exponent_diff_ignored " + MantExp.EXPONENT_DIFF_IGNORED);
             writer.println("bignum_library " + ThreadDraw.BIGNUM_LIBRARY);
             writer.println("automatic_precision " + MyApfloat.setAutomaticPrecision);
@@ -7408,6 +7476,9 @@ public class MainWindow extends JFrame implements Constants {
             writer.println("gather_perturbation_statistics " + ThreadDraw.GATHER_PERTURBATION_STATISTICS);
             writer.println("check_bailout_during_deep_not_full_floatexp_mode " + ThreadDraw.CHECK_BAILOUT_DURING_DEEP_NOT_FULL_FLOATEXP_MODE);
             writer.println("gather_tiny_ref_indexes " + ThreadDraw.GATHER_TINY_REF_INDEXES);
+            //writer.println("high_precision " + ThreadDraw.HIGH_PRECISION_CALCULATION);
+            writer.println("high_precision_lib " + ThreadDraw.HIGH_PRECISION_LIB);
+            writer.println("draw_image_preview " + ThreadDraw.DRAW_IMAGE_PREVIEW);
 
 
             writer.println();
@@ -7415,6 +7486,7 @@ public class MainWindow extends JFrame implements Constants {
             writer.println("save_settings_path \"" + SaveSettingsPath + "\"");
             writer.println("save_image_path \"" + SaveImagesPath + "\"");
             writer.println("auto_repaint_image " + auto_repaint_image);
+            writer.println("use_smoothing_for_processing_algs " + ThreadDraw.USE_SMOOTHING_FOR_PROCESSING_ALGS);
 
             writer.println();
             writer.println("[Window]");
@@ -7453,6 +7525,7 @@ public class MainWindow extends JFrame implements Constants {
             writer.println();
             writer.println("[Julia]");
             writer.println("julia_preview_filters " + fast_julia_filters);
+            writer.println("julia_preview_image_size " + ThreadDraw.FAST_JULIA_IMAGE_SIZE);
 
             writer.println();
             writer.println("[Color Cycling]");
@@ -7534,8 +7607,51 @@ public class MainWindow extends JFrame implements Constants {
                         try {
                             int temp = Integer.parseInt(tokenizer.nextToken());
 
-                            if (temp >= 0 && temp <= 3) {
+                            if (temp >= 0 && temp <= 4) {
                                 ThreadDraw.BIGNUM_LIBRARY = temp;
+                            }
+                        } catch (Exception ex) {
+                        }
+                    }
+                    else if(token.equals("use_smoothing_for_processing_algs") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if(token.equals("false")) {
+                            ThreadDraw.USE_SMOOTHING_FOR_PROCESSING_ALGS = false;
+                        }
+                        else if(token.equals("true")) {
+                            ThreadDraw.USE_SMOOTHING_FOR_PROCESSING_ALGS = true;
+                        }
+                    }
+                    else if(token.equals("draw_image_preview") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if(token.equals("false")) {
+                            ThreadDraw.DRAW_IMAGE_PREVIEW = false;
+                        }
+                        else if(token.equals("true")) {
+                            ThreadDraw.DRAW_IMAGE_PREVIEW = true;
+                        }
+                    }
+                    else if(token.equals("greedy_drawing_algorithm_use_iter_data") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if(token.equals("false")) {
+                            ThreadDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA = false;
+                        }
+                        else if(token.equals("true")) {
+                            ThreadDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA = true;
+                        }
+                    }
+                    else if (token.equals("high_precision_lib") && tokenizer.countTokens() == 1) {
+                        try {
+                            int temp = Integer.parseInt(tokenizer.nextToken());
+
+                            if (temp >= 0 && temp <= 4) {
+                                ThreadDraw.HIGH_PRECISION_LIB = temp;
                             }
                         } catch (Exception ex) {
                         }
@@ -7550,12 +7666,22 @@ public class MainWindow extends JFrame implements Constants {
                         } catch (Exception ex) {
                         }
                     }
+                    else if (token.equals("julia_preview_image_size") && tokenizer.countTokens() == 1) {
+                        try {
+                            int temp = Integer.parseInt(tokenizer.nextToken());
+
+                            if (temp >= 100 && temp <= 1000) {
+                                ThreadDraw.FAST_JULIA_IMAGE_SIZE = temp;
+                            }
+                        } catch (Exception ex) {
+                        }
+                    }
                     else if (token.equals("nanomb1_n") && tokenizer.countTokens() == 1) {
 
                         try {
                             int temp = Integer.parseInt(tokenizer.nextToken());
 
-                            if (temp >= 2 && temp <= 32) {
+                            if (temp >= 2 && temp <= 48) {
                                 ThreadDraw.NANOMB1_N = temp;
                             }
                         } catch (Exception ex) {
@@ -7588,7 +7714,7 @@ public class MainWindow extends JFrame implements Constants {
                         try {
                             int temp = Integer.parseInt(tokenizer.nextToken());
 
-                            if (temp >= 2 && temp <= 32) {
+                            if (temp >= 2 && temp <= 48) {
                                 ThreadDraw.NANOMB1_M = temp;
                             }
                         } catch (Exception ex) {
@@ -7667,6 +7793,17 @@ public class MainWindow extends JFrame implements Constants {
                             ThreadDraw.GATHER_PERTURBATION_STATISTICS = true;
                         }
                     }
+//                    else if(token.equals("high_precision") && tokenizer.countTokens() == 1) {
+//
+//                        token = tokenizer.nextToken();
+//
+//                        if(token.equals("false")) {
+//                            ThreadDraw.HIGH_PRECISION_CALCULATION = false;
+//                        }
+//                        else if(token.equals("true")) {
+//                            ThreadDraw.HIGH_PRECISION_CALCULATION = true;
+//                        }
+//                    }
                     else if(token.equals("gather_tiny_ref_indexes") && tokenizer.countTokens() == 1) {
 
                         token = tokenizer.nextToken();
@@ -7695,7 +7832,7 @@ public class MainWindow extends JFrame implements Constants {
                             int temp = Integer.parseInt(tokenizer.nextToken());
 
                             if (temp == BOUNDARY_TRACING || temp == DIVIDE_AND_CONQUER) {
-                                greedy_algorithm_selection = temp;
+                                ThreadDraw.GREEDY_ALGORITHM_SELECTION = temp;
                             }
                         } catch (Exception ex) {
                         }
@@ -7706,7 +7843,7 @@ public class MainWindow extends JFrame implements Constants {
                             int temp = Integer.parseInt(tokenizer.nextToken());
 
                             if (temp >= 0 && temp <= 1) {
-                                brute_force_alg = temp;
+                                ThreadDraw.BRUTE_FORCE_ALG = temp;
                             }
                         } catch (Exception ex) {
                         }
@@ -8135,7 +8272,7 @@ public class MainWindow extends JFrame implements Constants {
                         try {
                             double temp = Double.parseDouble(tokenizer.nextToken());
 
-                            if (temp > 1.05 && temp <= 32) {
+                            if (temp >= 1.05 && temp <= 32) {
                                 zoom_factor = temp;
                             }
 
@@ -8245,7 +8382,7 @@ public class MainWindow extends JFrame implements Constants {
 
         MyApfloat.setPrecision(MyApfloat.precision, s);
 
-        if(ThreadDraw.PERTURBATION_THEORY) {
+        if(ThreadDraw.PERTURBATION_THEORY || ThreadDraw.HIGH_PRECISION_CALCULATION) {
             periodicity_checking = false;
             options_menu.getPeriodicityChecking().setSelected(false);
             options_menu.getPeriodicityChecking().setEnabled(false);
@@ -8283,7 +8420,7 @@ public class MainWindow extends JFrame implements Constants {
 
         whole_image_done = false;
 
-        if ((oldAAValue && ThreadDraw.GREEDY_ALGORITHM && greedy_algorithm_selection == DIVIDE_AND_CONQUER) || s.fs.filters[ANTIALIASING] || s.ds.domain_coloring || s.ots.useTraps || s.fns.tcs.trueColorOut || s.fns.tcs.trueColorIn || (s.sts.statistic && s.sts.statisticGroup == 2 && s.sts.equicontinuityOverrideColoring)
+        if ((oldAAValue && ThreadDraw.GREEDY_ALGORITHM && ThreadDraw.GREEDY_ALGORITHM_SELECTION == DIVIDE_AND_CONQUER) || s.fs.filters[ANTIALIASING] || s.ds.domain_coloring || s.ots.useTraps || s.fns.tcs.trueColorOut || s.fns.tcs.trueColorIn || (s.sts.statistic && s.sts.statisticGroup == 2 && s.sts.equicontinuityOverrideColoring)
                 || (s.sts.statistic && s.sts.statisticGroup == 3) || (s.sts.statistic && s.sts.statisticGroup == 4)) {
 
             if (s.d3s.d3) {
@@ -8293,7 +8430,7 @@ public class MainWindow extends JFrame implements Constants {
             if(s.julia_map) {
                 createThreadsJuliaMap();
             } else {
-                createThreads(false);
+                createThreads(false, false);
             }
 
             calculation_time = System.currentTimeMillis();
@@ -8503,7 +8640,7 @@ public class MainWindow extends JFrame implements Constants {
             new JLabel("hcvcos, exsec, excsc, avsin, avcos, acvsin, acvcos, ahvsin, ahvcos, ahcvsin, ahcvcos, aexsec, aexcsc"),
             other,
             new JLabel("exp, log, log10, log2, sqrt, abs, absre, absim, conj, re, im, norm, arg, gamma, fact, erf, rzeta, gi, rec, flip, round,"),
-            new JLabel("ceil, floor, trunc, deta, snorm, fib, f1, ... f60"),
+            new JLabel("ceil, floor, trunc, deta, snorm, fib, hypot, f1, ... f60"),
             two_arg,
             new JLabel("logn, bipol, ibipol, inflect, foldu, foldd, foldl, foldr, foldi, foldo, shear, cmp, fuzz, normn, rot, dist, sdist, root, f',"),
             new JLabel("f'', f''', g1, ... g60"),
@@ -8531,7 +8668,7 @@ public class MainWindow extends JFrame implements Constants {
 
         resetOrbit();
         try {
-            File UserDefinedFunctionsFile = new File("UserDefinedFunctions.java");
+            File UserDefinedFunctionsFile = new File(Parser.CURRENT_USER_CODE_FILE);
 
             if (UserDefinedFunctionsFile.exists()) {
                 Desktop.getDesktop().open(UserDefinedFunctionsFile);
@@ -8571,9 +8708,11 @@ public class MainWindow extends JFrame implements Constants {
 
         resetOrbit();
 
-        for (int i = 0; i < threads.length; i++) {
-            for (int j = 0; j < threads[i].length; j++) {
-                threads[i][j].stop();
+        synchronized (this) {
+            for (int i = 0; i < threads.length; i++) {
+                for (int j = 0; j < threads[i].length; j++) {
+                    threads[i][j].stop();
+                }
             }
         }
 
@@ -8590,6 +8729,7 @@ public class MainWindow extends JFrame implements Constants {
         progress.setForeground(MainWindow.progress_color);
         progress.setString(null);
 
+        Fractal.clearReferences(true);
         s.max_iterations = s.max_iterations > 500 ? 500 : s.max_iterations;
         defaultFractalSettings(false);
 
@@ -8609,7 +8749,7 @@ public class MainWindow extends JFrame implements Constants {
             timer.cancel();
             timer = null;
 
-            createCompleteImage(50, d3);
+            createCompleteImage(1, d3);
             return;
         }
 
@@ -8628,7 +8768,15 @@ public class MainWindow extends JFrame implements Constants {
             createThreadsPaletteAndFilter3DModel();
         }
         else {
-            createThreads(false);
+            createThreads(false, true);
+        }
+
+        synchronized (this) {
+            for (int i = 0; i < threads.length; i++) {
+                for (int j = 0; j < threads[i].length; j++) {
+                    threads[i][j].setCreateFullImageAfterPreview(true);
+                }
+            }
         }
 
         calculation_time = System.currentTimeMillis();
@@ -8646,8 +8794,8 @@ public class MainWindow extends JFrame implements Constants {
     public void boundaryTracingOptionsChanged(boolean greedy_algorithm, int algorithm, int brute_force_alg) {
 
         ThreadDraw.GREEDY_ALGORITHM = greedy_algorithm;
-        greedy_algorithm_selection = algorithm;
-        this.brute_force_alg = brute_force_alg;
+        ThreadDraw.GREEDY_ALGORITHM_SELECTION = algorithm;
+        ThreadDraw.BRUTE_FORCE_ALG = brute_force_alg;
 
         setOptions(false);
 
@@ -8657,7 +8805,7 @@ public class MainWindow extends JFrame implements Constants {
 
         whole_image_done = false;
 
-        createThreads(false);
+        createThreads(false, false);
 
         calculation_time = System.currentTimeMillis();
 
@@ -8682,7 +8830,7 @@ public class MainWindow extends JFrame implements Constants {
         if(s.julia_map) {
             createThreadsJuliaMap();
         } else {
-            createThreads(false);
+            createThreads(false, false);
         }
 
         calculation_time = System.currentTimeMillis();
@@ -8732,7 +8880,7 @@ public class MainWindow extends JFrame implements Constants {
     public void setGreedyAlgorithms() {
 
         resetOrbit();
-        new GreedyAlgorithmsFrame(ptr, ThreadDraw.GREEDY_ALGORITHM, greedy_algorithm_selection, brute_force_alg);
+        new GreedyAlgorithmsFrame(ptr, ThreadDraw.GREEDY_ALGORITHM, ThreadDraw.GREEDY_ALGORITHM_SELECTION, ThreadDraw.BRUTE_FORCE_ALG);
 
     }
 
@@ -8741,6 +8889,28 @@ public class MainWindow extends JFrame implements Constants {
         resetOrbit();
         new PerturbationTheoryDialog(ptr, s);
 
+    }
+
+    public void setHighPrecision() {
+        resetOrbit();
+        new HighPrecisionDialog(ptr, s);
+    }
+
+    public void setHighPrecisionPost() {
+        if(ThreadDraw.HIGH_PRECISION_CALCULATION) {
+            periodicity_checking = false;
+            options_menu.getPeriodicityChecking().setSelected(false);
+            options_menu.getPeriodicityChecking().setEnabled(false);
+        }
+        else {
+            if (s.fns.in_coloring_algorithm == MAX_ITERATIONS) {
+                if (!s.ds.domain_coloring && !s.isConvergingType() && s.fns.function != KLEINIAN && s.fns.function != SIERPINSKI_GASKET && s.fns.function != INERTIA_GRAVITY && !s.ots.useTraps && !s.fns.tcs.trueColorIn && !(s.sts.statistic && s.sts.statisticGroup == 2 && s.sts.equicontinuityOverrideColoring)
+                        && !(s.sts.statistic && s.sts.statisticGroup == 3) && !(s.sts.statistic && s.sts.statisticGroup == 4) && !ThreadDraw.PERTURBATION_THEORY && !ThreadDraw.HIGH_PRECISION_CALCULATION) {
+                    options_menu.getPeriodicityChecking().setEnabled(true);
+                }
+            }
+        }
+        redraw();
     }
 
     public void setPerturbationTheoryPost() {
@@ -8753,7 +8923,7 @@ public class MainWindow extends JFrame implements Constants {
         else {
             if (s.fns.in_coloring_algorithm == MAX_ITERATIONS) {
                 if (!s.ds.domain_coloring && !s.isConvergingType() && s.fns.function != KLEINIAN && s.fns.function != SIERPINSKI_GASKET && s.fns.function != INERTIA_GRAVITY && !s.ots.useTraps && !s.fns.tcs.trueColorIn && !(s.sts.statistic && s.sts.statisticGroup == 2 && s.sts.equicontinuityOverrideColoring)
-                        && !(s.sts.statistic && s.sts.statisticGroup == 3) && !(s.sts.statistic && s.sts.statisticGroup == 4) && !ThreadDraw.PERTURBATION_THEORY) {
+                        && !(s.sts.statistic && s.sts.statisticGroup == 3) && !(s.sts.statistic && s.sts.statisticGroup == 4) && !ThreadDraw.PERTURBATION_THEORY && !ThreadDraw.HIGH_PRECISION_CALCULATION) {
                     options_menu.getPeriodicityChecking().setEnabled(true);
                 }
             }
@@ -8790,7 +8960,7 @@ public class MainWindow extends JFrame implements Constants {
         image = last_used;
         last_used = temp;
 
-        if(!d3 && (!ThreadDraw.GREEDY_ALGORITHM || (ThreadDraw.GREEDY_ALGORITHM && (greedy_algorithm_selection == DIVIDE_AND_CONQUER || greedy_algorithm_selection == BOUNDARY_TRACING)))) {
+        if(!d3 && (!ThreadDraw.GREEDY_ALGORITHM || (ThreadDraw.GREEDY_ALGORITHM && (ThreadDraw.GREEDY_ALGORITHM_SELECTION == DIVIDE_AND_CONQUER || ThreadDraw.GREEDY_ALGORITHM_SELECTION == BOUNDARY_TRACING)))) {
             int[] dataDest = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
             int[] dataSrc = ((DataBufferInt) last_used.getRaster().getDataBuffer()).getData();
             int total = dataDest.length;
@@ -8835,13 +9005,15 @@ public class MainWindow extends JFrame implements Constants {
 
     private void clearThreads() {
 
-        if (threads == null) {
-            return;
-        }
+        synchronized (this) {
+            if (threads == null) {
+                return;
+            }
 
-        for (int i = 0; i < threads.length; i++) {
-            for (int j = 0; j < threads[i].length; j++) {
-                threads[i][j] = null;
+            for (int i = 0; i < threads.length; i++) {
+                for (int j = 0; j < threads[i].length; j++) {
+                    threads[i][j] = null;
+                }
             }
         }
 
@@ -8945,7 +9117,7 @@ public class MainWindow extends JFrame implements Constants {
         if(s.julia_map) {
             createThreadsJuliaMap();
         } else {
-            createThreads(false);
+            createThreads(false, false);
         }
 
         calculation_time = System.currentTimeMillis();
@@ -9048,7 +9220,7 @@ public class MainWindow extends JFrame implements Constants {
         if(s.julia_map) {
             createThreadsJuliaMap();
         } else {
-            createThreads(false);
+            createThreads(false, false);
         }
 
         calculation_time = System.currentTimeMillis();
@@ -9105,7 +9277,7 @@ public class MainWindow extends JFrame implements Constants {
             if(s.julia_map) {
                 createThreadsJuliaMap();
             } else {
-                createThreads(false);
+                createThreads(false, false);
             }
 
             calculation_time = System.currentTimeMillis();
@@ -9152,7 +9324,7 @@ public class MainWindow extends JFrame implements Constants {
         if(s.julia_map) {
             createThreadsJuliaMap();
         } else {
-            createThreads(false);
+            createThreads(false, false);
         }
 
         calculation_time = System.currentTimeMillis();
@@ -9231,12 +9403,12 @@ public class MainWindow extends JFrame implements Constants {
 
         whole_image_done = false;
 
-        if (s.fs.filters[ANTIALIASING] || s.ots.useTraps || s.fns.tcs.trueColorOut || s.fns.tcs.trueColorIn || (s.sts.statistic && s.sts.statisticGroup == 2 && s.sts.equicontinuityOverrideColoring)
+        if (s.fs.filters[ANTIALIASING] || s.needSmoothing() || s.ots.useTraps || s.fns.tcs.trueColorOut || s.fns.tcs.trueColorIn || (s.sts.statistic && s.sts.statisticGroup == 2 && s.sts.equicontinuityOverrideColoring)
                 || (s.sts.statistic && s.sts.statisticGroup == 3) || (s.sts.statistic && s.sts.statisticGroup == 4)) {
             if(s.julia_map) {
                 createThreadsJuliaMap();
             } else {
-                createThreads(false);
+                createThreads(false, false);
             }
 
             calculation_time = System.currentTimeMillis();
@@ -9244,7 +9416,7 @@ public class MainWindow extends JFrame implements Constants {
             startThreads();
         } else {
             if (s.d3s.d3) {
-                createThreads(false);
+                createThreads(false, false);
             } else {
                 createThreadsPaletteAndFilter();
             }
@@ -9312,7 +9484,7 @@ public class MainWindow extends JFrame implements Constants {
         if(s.julia_map) {
             createThreadsJuliaMap();
         } else {
-            createThreads(false);
+            createThreads(false, false);
         }
 
         calculation_time = System.currentTimeMillis();
@@ -9325,7 +9497,8 @@ public class MainWindow extends JFrame implements Constants {
 
         String filename = "autoload.fzs";
         try {
-            if (new File(filename).exists()) {
+            Path path = Paths.get(filename);
+            if (Files.exists(path) && Files.isRegularFile(path)) {
                 s.readSettings(filename, scroll_pane, true);
                 prepareUI();
                 return true;
@@ -9402,7 +9575,7 @@ public class MainWindow extends JFrame implements Constants {
         if(s.julia_map) {
             createThreadsJuliaMap();
         } else {
-            createThreads(false);
+            createThreads(false, false);
         }
 
         calculation_time = System.currentTimeMillis();
@@ -9513,7 +9686,7 @@ public class MainWindow extends JFrame implements Constants {
         if(s.julia_map) {
             createThreadsJuliaMap();
         } else {
-            createThreads(false);
+            createThreads(false, false);
         }
 
         calculation_time = System.currentTimeMillis();

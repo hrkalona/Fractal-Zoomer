@@ -1,6 +1,7 @@
 package fractalzoomer.core;
 
 
+import fractalzoomer.core.mpfr.MpfrBigNum;
 import org.apfloat.Apfloat;
 
 public class MantExpComplex extends GenericComplex {
@@ -33,6 +34,12 @@ public class MantExpComplex extends GenericComplex {
         this.exp = other.exp;
     }
 
+    public MantExpComplex(MantExpComplex other, int exp) {
+        this.mantissaReal = other.mantissaReal;
+        this.mantissaImag = other.mantissaImag;
+        this.exp = exp;
+    }
+
     public MantExpComplex(Complex c) {
         setMantexp(new MantExp(c.getRe()), new MantExp(c.getIm()));
     }
@@ -50,7 +57,10 @@ public class MantExpComplex extends GenericComplex {
     }
 
     public MantExpComplex(MpfrBigNumComplex c) {
-        setMantexp(c.getRe().getMantExp(), c.getIm().getMantExp());
+
+        //setMantexp(c.getRe().getMantExp(), c.getIm().getMantExp());
+        MantExp[] res = MpfrBigNum.get_d_2exp(c.getRe(), c.getIm());
+        setMantexp(res[0], res[1]);
     }
 
     public MantExpComplex(Apfloat re, Apfloat im) {
@@ -525,11 +535,11 @@ public class MantExpComplex extends GenericComplex {
             return;
         }
 
-        long bits = Double.doubleToRawLongBits(mantissaReal);
-        long expDiffRe = ((bits & 0x7FF0000000000000L) >> 52);
+        long bitsRe = Double.doubleToRawLongBits(mantissaReal);
+        long expDiffRe = ((bitsRe & 0x7FF0000000000000L) >> 52);
 
-        bits = Double.doubleToRawLongBits(mantissaImag);
-        long expDiffIm = ((bits & 0x7FF0000000000000L) >> 52);
+        long bitsIm = Double.doubleToRawLongBits(mantissaImag);
+        long expDiffIm = ((bitsIm & 0x7FF0000000000000L) >> 52);
 
         long expDiff = Math.max(expDiffRe, expDiffIm) + MantExp.MIN_SMALL_EXPONENT;
 
@@ -831,13 +841,13 @@ public class MantExpComplex extends GenericComplex {
 
     }
 
-    @Override
     public MantExpComplex abs() {
 
         return new MantExpComplex(exp, Math.abs(mantissaReal), Math.abs(mantissaImag));
 
     }
 
+    @Override
     public MantExpComplex abs_mutable() {
 
         mantissaReal = Math.abs(mantissaReal);
@@ -846,13 +856,13 @@ public class MantExpComplex extends GenericComplex {
 
     }
 
-    @Override
     public MantExpComplex conjugate() {
 
         return new MantExpComplex(exp, mantissaReal, -mantissaImag);
 
     }
 
+    @Override
     public MantExpComplex conjugate_mutable() {
 
         mantissaImag = -mantissaImag;
@@ -897,6 +907,18 @@ public class MantExpComplex extends GenericComplex {
 
         return exp;
 
+    }
+
+    public void setExp(long exp) {
+        this.exp = exp;
+    }
+    public void addExp(long exp) {
+        this.exp += exp;
+    }
+
+    public void subExp(long exp) {
+        this.exp -= exp;
+        this.exp = this.exp < MantExp.MIN_BIG_EXPONENT ? MantExp.MIN_BIG_EXPONENT : this.exp;
     }
 
     public static MantExp DiffAbs(MantExp c, MantExp d)
@@ -991,6 +1013,38 @@ public class MantExpComplex extends GenericComplex {
         mantissaReal = z.mantissaReal;
         mantissaImag = z.mantissaImag;
         exp = z.exp;
+    }
+
+    @Override
+    public MantExpComplex plus_mutable(GenericComplex v) {
+
+        MantExpComplex value = (MantExpComplex) v;
+
+        long expDiff = exp - value.exp;
+
+        if(expDiff >= MantExp.EXPONENT_DIFF_IGNORED) {
+            return this;
+        } else if(expDiff >= 0) {
+            double mul = MantExp.getMultiplier(-expDiff);
+            mantissaReal = mantissaReal + value.mantissaReal * mul;
+            mantissaImag = mantissaImag + value.mantissaImag * mul;
+        }
+        /*else if(expDiff == 0) {
+            mantissaReal = mantissaReal + value.mantissaReal;
+            mantissaImag = mantissaImag + value.mantissaImag;
+        }*/
+        else if(expDiff > MantExp.MINUS_EXPONENT_DIFF_IGNORED) {
+            double mul = MantExp.getMultiplier(expDiff);
+            exp = value.exp;
+            mantissaReal = mantissaReal * mul + value.mantissaReal;
+            mantissaImag =  mantissaImag * mul + value.mantissaImag;
+        } else {
+            exp = value.exp;
+            mantissaReal = value.mantissaReal;
+            mantissaImag = value.mantissaImag;
+        }
+        return this;
+
     }
 }
 

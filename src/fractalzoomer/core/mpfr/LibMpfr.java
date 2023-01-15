@@ -335,4 +335,23 @@ public class LibMpfr {
     public static native int mpfr_const_pi (mpfr_t rop, int rnd);
     public static native int mpfr_const_euler (mpfr_t rop, int rnd);
     public static native int mpfr_const_catalan (mpfr_t rop, int rnd);
+
+
+    //Custom functions implemented for better performance
+    public static native void mpfr_fz_square_plus_c (mpfr_t re, mpfr_t im, mpfr_t temp, mpfr_t re_sqr, mpfr_t im_sqr, mpfr_t norm_sqr, mpfr_t cre, mpfr_t cim, int rnd);
+    public static native void mpfr_fz_square (mpfr_t re, mpfr_t im, mpfr_t temp, mpfr_t re_sqr, mpfr_t im_sqr, mpfr_t norm_sqr, int rnd);
+    public static native void mpfr_fz_norm_square_with_components (mpfr_t re_sqr, mpfr_t im_sqr, mpfr_t norm_sqr, mpfr_t re, mpfr_t im, int rnd);
+    public static native void mpfr_fz_get_d (double[] valRe, double[] valIm, mpfr_t re, mpfr_t im, int rnd);
+    public static native int mpfr_fz_get_d_2exp (double[] valRe, double[] valIm, long[] expRe, long[] expIm, mpfr_t re, mpfr_t im, int rnd);
+    public static native int mpfr_fz_get_d_2exp (double[] valRe, double[] valIm, int[] expRe, int[] expIm, mpfr_t re, mpfr_t im, int rnd);
+    public static native void mpfr_fz_square_plus_c_simple (mpfr_t re, mpfr_t im, mpfr_t temp1, mpfr_t temp2, mpfr_t cre, mpfr_t cim, int rnd);
+    public static native void mpfr_fz_set (mpfr_t destre, mpfr_t destim, mpfr_t srcre, mpfr_t srcim, int rnd);
+    public static native void mpfr_fz_norm_square (mpfr_t norm_sqr, mpfr_t temp1, mpfr_t re, mpfr_t im, int rnd);
+    public static native void mpfr_fz_self_add (mpfr_t re, mpfr_t im, mpfr_t val_re, mpfr_t val_im, int rnd);
+    public static native void mpfr_fz_self_sub (mpfr_t re, mpfr_t im, mpfr_t val_re, mpfr_t val_im, int rnd);
+    public static native void mpfr_fz_rotation (mpfr_t x, mpfr_t y, mpfr_t temp_re, mpfr_t temp_im, mpfr_t f, mpfr_t a, mpfr_t asb, mpfr_t apb, int rnd);
+    public static native void mpfr_fz_AsBmC (mpfr_t temp, mpfr_t a, mpfr_t b, int c, int rnd);
+    public static native void mpfr_fz_ApBmC (mpfr_t temp, mpfr_t a, mpfr_t b, int c, int rnd);
+    public static native void mpfr_fz_ApBmC_DsEmG (mpfr_t temp, mpfr_t temp2, mpfr_t a, mpfr_t b, double c, mpfr_t d, mpfr_t e, double g, int rnd);
+    public static native void mpfr_fz_ApBmC_DpEmG (mpfr_t temp, mpfr_t temp2, mpfr_t a, mpfr_t b, mpfr_t c, mpfr_t d, mpfr_t e, mpfr_t g, int rnd);
 }

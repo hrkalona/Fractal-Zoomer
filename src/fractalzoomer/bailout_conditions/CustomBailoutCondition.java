@@ -1,14 +1,24 @@
 package fractalzoomer.bailout_conditions;
 
 import fractalzoomer.core.*;
+import fractalzoomer.core.mpfr.LibMpfr;
 import fractalzoomer.core.mpfr.MpfrBigNum;
 import org.apfloat.Apfloat;
 
 public class CustomBailoutCondition extends BailoutCondition {
+    private MpfrBigNum temp1;
+    private MpfrBigNum temp2;
 
     public CustomBailoutCondition(double bound) {
 
         super(Math.pow(bound, 1 / Math.sqrt(bound)));
+
+        if((ThreadDraw.PERTURBATION_THEORY && ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE) || ThreadDraw.HIGH_PRECISION_CALCULATION) {
+            if(LibMpfr.LOAD_ERROR == null) {
+                temp1 = new MpfrBigNum();
+                temp2 = new MpfrBigNum();
+            }
+        }
 
     }
 
@@ -33,7 +43,7 @@ public class CustomBailoutCondition extends BailoutCondition {
 
     @Override
     public boolean escaped(MpfrBigNumComplex z, MpfrBigNumComplex zold, MpfrBigNumComplex zold2, int iterations, MpfrBigNumComplex c, MpfrBigNumComplex start, MpfrBigNumComplex c0, MpfrBigNum norm_squared, MpfrBigNumComplex pixel) {
-        return z.norm().compare(bound) >= 0;
+        return z.norm(temp1, temp2).compare(bound) >= 0;
     }
 
     @Override

@@ -204,6 +204,7 @@ public class UserFormulasHelpDialog {
                 + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>deta</b></font>: dirichlet eta function.<br>"
                 + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>snorm</b></font>: norm squared function.<br>"
                 + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>fib</b></font>: fibonacci function.<br>"
+                + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>hypot</b></font>: hypot function (similar to norm but cannot overflow).<br>"
                 + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>f1</b></font>: user function f1 which can be changed in UserDefinedFunctions.java (Compilation is required).<br>"
                 + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>f2</b></font>: user function f2 which can be changed in UserDefinedFunctions.java (Compilation is required).<br>"
                 + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>f3</b></font>: user function f3 which can be changed in UserDefinedFunctions.java (Compilation is required).<br>"

@@ -39,10 +39,10 @@ public class ShearPlane extends Plane {
         super();
         scales = new Complex(plane_transform_scales[0], plane_transform_scales[1]);
 
-        if(ThreadDraw.PERTURBATION_THEORY) {
+        if(ThreadDraw.PERTURBATION_THEORY || ThreadDraw.HIGH_PRECISION_CALCULATION) {
             ddscales = new BigComplex(scales);
             ddcscales = new DDComplex(scales);
-            if (ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE) {
+            if (ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE || ThreadDraw.HIGH_PRECISION_CALCULATION) {
                 bnscales = new BigNumComplex(scales);
 
                 if(LibMpfr.LOAD_ERROR == null) {

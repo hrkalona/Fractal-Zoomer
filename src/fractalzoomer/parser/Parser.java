@@ -27,6 +27,9 @@ import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.NoSuchElementException;
@@ -79,6 +82,14 @@ value -> VARIABLE
 public class Parser {
 
     public static URLClassLoader loader;
+    public static final String DEFAULT_USER_CODE_FILE = "UserDefinedFunctions.java";
+    public static final String DEFAULT_USER_CODE_CLASS = "UserDefinedFunctions";
+
+    public static final String SAVED_USER_CODE_FILE = "SavedUserDefinedFunctions.java";
+    public static final String SAVED_USER_CODE_CLASS = "SavedUserDefinedFunctions";
+
+    public static String CURRENT_USER_CODE_FILE = DEFAULT_USER_CODE_FILE;
+    public static String CURRENT_USER_CODE_CLASS = DEFAULT_USER_CODE_CLASS;
     public static Class<?> userClass;
     public static boolean usesUserCode = false;
     private boolean parseOnlyMode;
@@ -846,17 +857,17 @@ public class Parser {
         }
     }
 
-    public static void compileUserFunctions() {
+    public static void compileUserFunctions() throws Exception {
 
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 
         if(compiler != null) {
             OutputStream out = new ByteArrayOutputStream();
 
-            int compilationResult = compiler.run(null, null, out, "UserDefinedFunctions.java");
+            int compilationResult = compiler.run(null, null, out, CURRENT_USER_CODE_FILE);
 
             if(compilationResult != 0) {
-                throw new ParserException("Compilation error: " + out.toString());
+                throw new ParserException("Compilation error: " + out);
             }
 
             try {
@@ -869,7 +880,13 @@ public class Parser {
                 }
 
                 loader = new URLClassLoader(new URL[] {url});
-                userClass = loader.loadClass("UserDefinedFunctions");
+                userClass = loader.loadClass(CURRENT_USER_CODE_CLASS);
+
+                Path path = Paths.get(CURRENT_USER_CODE_CLASS + ".class");
+
+                if(Files.exists(path) && Files.isRegularFile(path)) {
+                    path.toFile().deleteOnExit();
+                }
             }
             catch(ClassNotFoundException ex) {
                 throw new ParserException("Class not found error: " + ex.getMessage());
@@ -888,7 +905,7 @@ public class Parser {
             }
         }
         else {
-            throw new ParserException("Java Compiler was not found.\nUser code cannot be compiled.\nMake sure that you have a JDK installed.");
+            throw new Exception("Java Compiler was not found.\nUser code cannot be compiled.\nMake sure that you have a JDK installed.");
         }
     }
 

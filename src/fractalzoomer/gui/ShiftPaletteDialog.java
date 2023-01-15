@@ -44,9 +44,8 @@ public class ShiftPaletteDialog extends JDialog {
         setModal(true);
         setIconImage(MainWindow.getIcon("mandel2.png").getImage());
 
-        JTextField field = new JTextField();
+        MyJSpinner field = new MyJSpinner(new SpinnerNumberModel((outcoloring ? s.ps.color_cycling_location : s.ps2.color_cycling_location), 0, Integer.MAX_VALUE, 1));
         field.addAncestorListener(new RequestFocusListener());
-        field.setText("" + (outcoloring ? s.ps.color_cycling_location : s.ps2.color_cycling_location));
 
         Object[] message3 = {
             " ",

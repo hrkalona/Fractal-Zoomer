@@ -19,6 +19,7 @@ package fractalzoomer.gui;
 import fractalzoomer.main.MainWindow;
 
 import javax.swing.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
 /**
@@ -29,6 +30,8 @@ public class HelpMenu extends JMenu {
 	private static final long serialVersionUID = 4789486723955292724L;
 	private MainWindow ptr;
     private JMenuItem help_contents;
+
+    private JMenuItem fractInt_help;
     private JMenuItem about;
     private JMenuItem update;
     private JMenuItem useful_links;
@@ -41,6 +44,8 @@ public class HelpMenu extends JMenu {
         
         help_contents = new JMenuItem("Help Contents", MainWindow.getIcon("help.png"));
 
+        fractInt_help = new JMenuItem("FractInt Help", MainWindow.getIcon("help.png"));
+
         about = new JMenuItem("About", MainWindow.getIcon("about.png"));
 
         useful_links = new JMenuItem("Useful Links", MainWindow.getIcon("useful_links.png"));
@@ -48,22 +53,27 @@ public class HelpMenu extends JMenu {
         update = new JMenuItem("Software Update", MainWindow.getIcon("update.png"));
         
         help_contents.setToolTipText("Loads the help file.");
+        fractInt_help.setToolTipText("Loads a help file for FractInt users.");
         update.setToolTipText("Checks for software update.");
         useful_links.setToolTipText("Provides some useful links about fractals.");
         
         about.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, 0));
         help_contents.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, 0));
-        update.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_U, 0));
+        update.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_U, ActionEvent.CTRL_MASK | ActionEvent.SHIFT_MASK));
         
         help_contents.addActionListener(e -> ptr.showCHMHelpFile());
 
         useful_links.addActionListener(e -> ptr.showUsefulLinks());
+
+        fractInt_help.addActionListener(e -> ptr.showFractIntHelpFile());
 
         about.addActionListener(e -> ptr.displayAboutInfo());
 
         update.addActionListener(e -> ptr.checkForUpdate(true));
         
         add(help_contents);
+        addSeparator();
+        add(fractInt_help);
         addSeparator();
         add(useful_links);
         addSeparator();

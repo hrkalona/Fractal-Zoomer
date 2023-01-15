@@ -48,13 +48,8 @@ public class SkipBailoutDialog extends JDialog {
         setIconImage(MainWindow.getIcon("skip_bailout.png").getImage());
 
         JTextField field = new JTextField();
+        field.setText("" + (mode ? s.fns.skip_bailout_iterations : s.fns.skip_convergent_bailout_iterations));
         field.addAncestorListener(new RequestFocusListener());
-        if(mode) {
-            field.setText("" + s.fns.skip_bailout_iterations);
-        }
-        else {
-            field.setText("" + s.fns.skip_convergent_bailout_iterations);
-        }
 
         String message = mode ? ("You are using " + s.fns.skip_bailout_iterations + " skip bailout condition iterations.\nEnter the new skip bailout condition iterations number." ) :
                 ("You are using " + s.fns.skip_convergent_bailout_iterations + " skip convergent bailout condition iterations.\nEnter the new skip convergent bailout condition iterations number." );

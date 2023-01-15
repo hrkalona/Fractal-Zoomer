@@ -26,11 +26,13 @@ import static fractalzoomer.main.Constants.*;
  */
 public class PointNNormOrbitTrap extends OrbitTrap {
     private double n_norm;
+    private double n_norm_reciprocal;
 
     public PointNNormOrbitTrap(int checkType, double pointRe, double pointIm, double trapLength, double n_norm, boolean countTrapIterations) {
 
         super(checkType, pointRe, pointIm, trapLength, 0.0, countTrapIterations);
         this.n_norm = n_norm;
+        n_norm_reciprocal = 1 / n_norm;
     }
 
     @Override
@@ -42,7 +44,7 @@ public class PointNNormOrbitTrap extends OrbitTrap {
 
         Complex diff = val.sub(point);
         
-        double dist = diff.nnorm(n_norm);
+        double dist = diff.nnorm(n_norm, n_norm_reciprocal);
 
         if(dist < trapLength && (checkType == TRAP_CHECK_TYPE_TRAPPED_FIRST || checkType == TRAP_CHECK_TYPE_TRAPPED_LAST ||  checkType == TRAP_CHECK_TYPE_TRAPPED_MIN_DISTANCE && dist < distance)) {
             distance = dist;

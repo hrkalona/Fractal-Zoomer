@@ -29,6 +29,7 @@ import fractalzoomer.main.MainWindow;
 import fractalzoomer.palettes.CustomPalette;
 import fractalzoomer.palettes.PresetPalette;
 import fractalzoomer.parser.Parser;
+import fractalzoomer.parser.ParserException;
 import fractalzoomer.settings.*;
 import fractalzoomer.utils.ColorAlgorithm;
 import org.apfloat.Apfloat;
@@ -36,6 +37,11 @@ import org.apfloat.Apfloat;
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  *
@@ -101,7 +107,19 @@ public class Settings implements Constants {
 
     public void defaultValues() {
 
+        Parser.CURRENT_USER_CODE_FILE = Parser.DEFAULT_USER_CODE_FILE;
+        Parser.CURRENT_USER_CODE_CLASS = Parser.DEFAULT_USER_CODE_CLASS;
+
         parser = new Parser(true);
+
+        try {
+            Parser.compileUserFunctions();
+        }
+        catch (ParserException ex) {
+
+        }
+        catch (Exception ex) {}
+
         userFormulaHasC = true;
         useDirectColor = false;
         globalIncrementBypass = false;
@@ -1399,6 +1417,47 @@ public class Settings implements Constants {
             ThreadDraw.GREEDY_ALGORITHM = ((SettingsFractals1085) settings).getGreedyDrawingAlgorithm();
         }
 
+        if(version < 1086) {
+            Parser.CURRENT_USER_CODE_FILE = Parser.DEFAULT_USER_CODE_FILE;
+            Parser.CURRENT_USER_CODE_CLASS = Parser.DEFAULT_USER_CODE_CLASS;
+
+            try {
+                Parser.compileUserFunctions();
+            }
+            catch (ParserException ex) {
+                JOptionPane.showMessageDialog(parent, ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE, MainWindow.getIcon("compile_error.png"));
+            }
+            catch (Exception ex) {}
+        }
+        else {
+            ThreadDraw.BRUTE_FORCE_ALG = ((SettingsFractals1086) settings).getBruteForceAlg();
+            ThreadDraw.GREEDY_ALGORITHM_SELECTION = ((SettingsFractals1086) settings).getGreedyDrawingAlgorithmId();
+            ThreadDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA = ((SettingsFractals1086) settings).getGreedyAlgorithmCheckIterData();
+
+            String userCode = ((SettingsFractals1086) settings).getUserDefinedCode();
+
+            if(!userCode.isEmpty()) {
+                Path path = Paths.get(Parser.SAVED_USER_CODE_FILE);
+                byte[] strToBytes = userCode.getBytes();
+                Files.write(path, strToBytes);
+                path.toFile().deleteOnExit();
+                Parser.CURRENT_USER_CODE_FILE = Parser.SAVED_USER_CODE_FILE;
+                Parser.CURRENT_USER_CODE_CLASS = Parser.SAVED_USER_CODE_CLASS;
+            }
+            else {
+                Parser.CURRENT_USER_CODE_FILE = Parser.DEFAULT_USER_CODE_FILE;
+                Parser.CURRENT_USER_CODE_CLASS = Parser.DEFAULT_USER_CODE_CLASS;
+            }
+
+            try {
+                Parser.compileUserFunctions();
+            }
+            catch (ParserException ex) {
+                JOptionPane.showMessageDialog(parent, ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE, MainWindow.getIcon("compile_error.png"));
+            }
+            catch (Exception ex) {}
+        }
+
         if (fns.plane_type == USER_PLANE) {
             if (version < 1058) {
                 fns.user_plane_algorithm = defaults.fns.user_plane_algorithm;
@@ -1866,7 +1925,21 @@ public class Settings implements Constants {
 
         try {
             file_temp = new ObjectOutputStream(new FileOutputStream(filename));
-            SettingsFractals settings = new SettingsFractals1085(this, ThreadDraw.PERTURBATION_THEORY, ThreadDraw.GREEDY_ALGORITHM);
+
+            String userCode = "";
+
+            if(Parser.usesUserCode) {
+                Path path = Paths.get(Parser.CURRENT_USER_CODE_FILE);
+                if(Files.exists(path) && Files.isRegularFile(path)) {
+                    Stream<String> lines = Files.lines(path);
+                    userCode = lines.collect(Collectors.joining("\r\n"));
+                    lines.close();
+                }
+
+                userCode = userCode.replaceAll("\\b" + Parser.DEFAULT_USER_CODE_CLASS + "\\b", Parser.SAVED_USER_CODE_CLASS);
+            }
+
+            SettingsFractals settings = new SettingsFractals1086(this, ThreadDraw.PERTURBATION_THEORY, ThreadDraw.GREEDY_ALGORITHM, ThreadDraw.BRUTE_FORCE_ALG, ThreadDraw.GREEDY_ALGORITHM_SELECTION, ThreadDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA, userCode);
             file_temp.writeObject(settings);
             file_temp.flush();
         } catch (IOException ex) {
@@ -2297,6 +2370,8 @@ public class Settings implements Constants {
                 }
                 break;
         }
+
+        fns.period = 0;
     }
 
     public void createPoly() {
@@ -2332,6 +2407,10 @@ public class Settings implements Constants {
             }
 
         }
+    }
+
+    public boolean hasConvergentBailoutCondition() {
+        return (isConvergingType() || isMagnetType() || isEscapingOrConvergingType()) && fns.function != MAGNETIC_PENDULUM;
     }
 
     public boolean isConvergingType() {
@@ -2731,6 +2810,10 @@ public class Settings implements Constants {
         return ThreadDraw.PERTURBATION_THEORY && supportsPerturbationTheory();
     }
 
+    public boolean isHighPrecisionInUse() {
+        return ThreadDraw.HIGH_PRECISION_CALCULATION && supportsPerturbationTheory();
+    }
+
     public boolean isPeriodInUse() {
         return isPertubationTheoryInUse() && (ThreadDraw.APPROXIMATION_ALGORITHM == 2
                 || (ThreadDraw.APPROXIMATION_ALGORITHM == 3 && supportsNanomb1())
@@ -2743,6 +2826,10 @@ public class Settings implements Constants {
 
     public boolean supportsNanomb1() {
         return fns.function == MANDELBROT;
+    }
+
+    public boolean needSmoothing() {
+        return !ThreadDraw.SMOOTH_DATA && (fns.smoothing || ((ls.lighting || bms.bump_map || cns.contour_coloring || ens.entropy_coloring || rps.rainbow_palette || fdes.fake_de || sts.statistic) && ThreadDraw.USE_SMOOTHING_FOR_PROCESSING_ALGS));
     }
 
     public boolean supportsBilinearApproximation() {

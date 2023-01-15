@@ -119,6 +119,11 @@ public class BigNum {
     public BigNum(double val) {
 
         digits = new int[fracDigitsp1];
+
+        scale = 0;
+        offset = -1;
+        bitOffset = -1;
+
         if(val == 0 ) {
             sign = 0;
             isOne = false;
@@ -281,7 +286,7 @@ public class BigNum {
 
         //bitOffset = 31 - Integer.numberOfLeadingZeros(digit);
 
-        scale = digits[0] != 0 ? ((long)i) * SHIFT + bitOffset : -(((long)i) * SHIFT) + bitOffset;
+        scale = i == 0 ? bitOffset : -(((long)i) * SHIFT) + bitOffset;
 
         return scale;
 
@@ -522,7 +527,7 @@ public class BigNum {
         //r |= (r >> 31); //Fix for zero, not needed here
         //bitOffset = 31 - Integer.numberOfLeadingZeros(digit);
 
-        scale = digits[0] != 0 ? ((long)i) * SHIFT + bitOffset : -(((long)i) * SHIFT) + bitOffset;
+        scale = i == 0 ? bitOffset : -(((long)i) * SHIFT) + bitOffset;
 
         if (scale < Double.MIN_EXPONENT) { //accounting for +1
             return 0.0;
@@ -543,12 +548,12 @@ public class BigNum {
 
             if(temp > SHIFT) {
                 mantissa |= val << (temp - SHIFT);
-                mantissa = mantissa & 0xFFFFFFFFFFFFFL;
+                mantissa &= 0xFFFFFFFFFFFFFL;
             }
             else {
                 int temp2 = k + SHIFTM52;
                 mantissa |= val >>> temp2;
-                mantissa = mantissa & 0xFFFFFFFFFFFFFL;
+                mantissa &= 0xFFFFFFFFFFFFFL;
 
                 if(temp2 == 0 && i + 1 < digits.length) {
                     long val2 = digits[i + 1];
@@ -1025,25 +1030,25 @@ public class BigNum {
 
             sum += bj * ak;
             carry += sum >>> SHIFT;
-            sum = sum & MASK;
+            sum &= MASK;
         }
 
-        carry = carry << 1;
+        carry <<=  1;
 
         if(j == k) {
             bj = digits[j];
-            sum = sum << 1;
+            sum <<= 1;
             sum += bj * bj;
         }
         else  {
             bj = digits[j];
             ak = digits[k];
             sum += bj * ak;
-            sum = sum << 1;
+            sum <<= 1;
         }
 
         carry += sum >>> SHIFT;
-        sum = sum & MASK;
+        sum &= MASK;
 
 
 
@@ -1065,26 +1070,26 @@ public class BigNum {
                 ak = digits[k];
                 temp_sum += bj * ak;
                 carry += temp_sum >>> SHIFT;
-                temp_sum = temp_sum & MASK;
+                temp_sum &= MASK;
             }
 
-            carry = carry << 1;
+            carry <<= 1;
 
             if(j == k) {
                 bj = digits[j];
-                temp_sum = temp_sum << 1;
+                temp_sum <<= 1;
                 temp_sum += bj * bj;
             }
             else  {
                 bj = digits[j];
                 ak = digits[k];
                 temp_sum += bj * ak;
-                temp_sum = temp_sum << 1;
+                temp_sum <<= 1;
             }
 
             sum += temp_sum;
             carry += sum >>> SHIFT;
-            sum = sum & MASK;
+            sum &= MASK;
 
 
             resDigits[i] = (int) (sum);
@@ -1143,25 +1148,25 @@ public class BigNum {
 
             sum += bj * ak;
             carry += sum >>> SHIFT;
-            sum = sum & MASK;
+            sum &= MASK;
         }
 
-        carry = carry << 1;
+        carry <<= 1;
 
         if(j == k) {
             bj = digits[j];
-            sum = sum << 1;
+            sum <<= 1;
             sum += bj * bj;
         }
         else  {
             bj = digits[j];
             ak = digits[k];
             sum += bj * ak;
-            sum = sum << 1;
+            sum <<= 1;
         }
 
         carry += sum >>> SHIFT;
-        sum = sum & MASK;
+        sum &= MASK;
 
         old_sum = carry + (sum >>> (SHIFTM1)); // Roundish
 
@@ -1179,26 +1184,26 @@ public class BigNum {
                 ak = digits[k];
                 temp_sum += bj * ak;
                 carry += temp_sum >>> SHIFT;
-                temp_sum = temp_sum & MASK;
+                temp_sum &= MASK;
             }
 
-            carry = carry << 1;
+            carry <<= 1;
 
             if(j == k) {
                 bj = digits[j];
-                temp_sum = temp_sum << 1;
+                temp_sum <<= 1;
                 temp_sum += bj * bj;
             }
             else  {
                 bj = digits[j];
                 ak = digits[k];
                 temp_sum += bj * ak;
-                temp_sum = temp_sum << 1;
+                temp_sum <<= 1;
             }
 
             sum += temp_sum;
             carry += sum >>> SHIFT;
-            sum = sum & MASK;
+            sum &= MASK;
 
 
             resDigits[i] = (int) (sum);
@@ -1254,25 +1259,25 @@ public class BigNum {
 
             sum += bj * ak;
             carry += sum >>> SHIFT;
-            sum = sum & MASK;
+            sum &= MASK;
         }
 
-        carry = carry << 1;
+        carry <<= 1;
 
         if(j == k) {
             bj = digits[j];
-            sum = sum << 1;
+            sum <<= 1;
             sum += bj * bj;
         }
         else  {
             bj = digits[j];
             ak = digits[k];
             sum += bj * ak;
-            sum = sum << 1;
+            sum <<= 1;
         }
 
         carry += sum >>> SHIFT;
-        sum = sum & MASK;
+        sum &= MASK;
 
         old_sum = carry + (sum >>> (SHIFTM1)); // Roundish
 
@@ -1295,7 +1300,7 @@ public class BigNum {
 
                 temp_sum1 += prevDigit * bj;
                 carry1 += temp_sum1 >>> SHIFT;
-                temp_sum1 = temp_sum1 & MASK;
+                temp_sum1 &= MASK;
 
                 k--;
 
@@ -1303,41 +1308,41 @@ public class BigNum {
 
                 temp_sum2 += prevDigit * bj;
                 carry2 += temp_sum2 >>> SHIFT;
-                temp_sum2 = temp_sum2 & MASK;
+                temp_sum2 &= MASK;
             }
 
             if(evenFracDigits) {
-                temp_sum1 = temp_sum1 << 1;
+                temp_sum1 <<= 1;
                 temp_sum1 += prevDigit * prevDigit;
 
-                temp_sum2 = temp_sum2 << 1;
+                temp_sum2 <<= 1;
             }
             else {
                 bj = digits[length];
 
                 temp_sum1 += prevDigit * bj;
                 carry1 += temp_sum1 >>> SHIFT;
-                temp_sum1 = temp_sum1 & MASK;
+                temp_sum1 &= MASK;
 
-                temp_sum2 = temp_sum2 << 1;
+                temp_sum2 <<= 1;
                 temp_sum2 += bj * bj;
 
-                temp_sum1 = temp_sum1 << 1;
+                temp_sum1 <<= 1;
             }
 
-            carry1 = carry1 << 1;
-            carry2 = carry2 << 1;
+            carry1 <<= 1;
+            carry2 <<= 1;
 
             sum1 += temp_sum1;
             carry1 += sum1 >>> SHIFT;
-            sum1 = sum1 & MASK;
+            sum1 &= MASK;
 
             sum2 += temp_sum2 + carry1;
 
 
             if(i > 1) {
                 carry2 += sum2 >>> SHIFT;
-                sum2 = sum2 & MASK;
+                sum2 &= MASK;
                 old_sum = carry2;
             }
 
@@ -1391,7 +1396,7 @@ public class BigNum {
             PartialSum += p;
 
             PartialCarry += PartialSum >>> SHIFT;
-            PartialSum = PartialSum & MASK;
+            PartialSum &= MASK;
 
             partialSums[i] = PartialSum;
             partialCarries[i] = PartialCarry;
@@ -1424,7 +1429,7 @@ public class BigNum {
 
             sum += temp * temp;
             carry += sum >>> SHIFT;
-            sum = sum & MASK;
+            sum &= MASK;
 
             //System.out.println("a" + j + " * " + "a " + k);
         }
@@ -1446,11 +1451,11 @@ public class BigNum {
         }
 
         carry += sum >>> SHIFT;
-        sum = sum & MASK;
+        sum &= MASK;
 
         sum -= PartialSum;
         carry -= ((sum & MASK31) >>> SHIFT) + PartialCarry;
-        sum = sum & MASK;
+        sum &= MASK;
 
         old_sum = carry + (sum >>> (SHIFTM1)); // Roundish
 
@@ -1470,7 +1475,7 @@ public class BigNum {
 
                 sum += temp * temp;
                 carry += sum >>> SHIFT;
-                sum = sum & MASK;
+                sum &= MASK;
                 //System.out.println("a" + j + " * " + "a " + k);
             }
 
@@ -1493,11 +1498,11 @@ public class BigNum {
             }
 
             carry += sum >>> SHIFT;
-            sum = sum & MASK;
+            sum &= MASK;
 
             sum -= PartialSum;
             carry -= ((sum & MASK31) >>> SHIFT) + PartialCarry;
-            sum = sum & MASK;
+            sum &= MASK;
 
             if(i > 1) {
 //                long partialI = partials[i];
@@ -1505,7 +1510,7 @@ public class BigNum {
 //                PartialCarry -= ((PartialSum & MASK31) + partialI) >>> SHIFT;
 //                //PartialCarry -= (PartialSum & MASK31)>>> SHIFT;
 //                //PartialCarry -= partialI >>> SHIFT;
-//                PartialSum = PartialSum & MASK;
+//                PartialSum &= MASK;
                 int im1 = i - 1;
                 PartialSum = partialSums[im1];
                 PartialCarry = partialCarries[im1];
@@ -1556,7 +1561,7 @@ public class BigNum {
             PartialSum += p;
 
             PartialCarry += PartialSum >>> SHIFT;
-            PartialSum = PartialSum & MASK;
+            PartialSum &= MASK;
         }
 
         long old_sum = 0;
@@ -1586,7 +1591,7 @@ public class BigNum {
 
             sum += temp * temp;
             carry += sum >>> SHIFT;
-            sum = sum & MASK;
+            sum &= MASK;
 
             //System.out.println("a" + j + " * " + "a " + k);
         }
@@ -1608,11 +1613,11 @@ public class BigNum {
         }
 
         carry += sum >>> SHIFT;
-        sum = sum & MASK;
+        sum &= MASK;
 
         sum -= PartialSum;
         carry -= ((sum & MASK31) >>> SHIFT) + PartialCarry;
-        sum = sum & MASK;
+        sum &= MASK;
 
         old_sum = carry + (sum >>> (SHIFTM1)); // Roundish
 
@@ -1637,7 +1642,7 @@ public class BigNum {
 
                 sum1 += temp * temp;
                 carry1 += sum1 >>> SHIFT;
-                sum1 = sum1 & MASK;
+                sum1 &= MASK;
 
                 k--;
 
@@ -1648,7 +1653,7 @@ public class BigNum {
                 temp = prevDigit + aj;
                 sum2 += temp * temp;
                 carry2 += sum2 >>> SHIFT;
-                sum2 = sum2 & MASK;
+                sum2 &= MASK;
             }
 
             if(evenFracDigits) {
@@ -1665,25 +1670,25 @@ public class BigNum {
 
                 sum2 += (partials[length] << 1);
                 carry2 += sum2 >>> SHIFT;
-                sum2 = sum2 & MASK;
+                sum2 &= MASK;
             }
 
             carry1 += sum1 >>> SHIFT;
-            sum1 = sum1 & MASK;
+            sum1 &= MASK;
 
             sum1 -= PartialSum;
             carry1 -= ((sum1 & MASK31) >>> SHIFT) + PartialCarry;
-            sum1 = sum1 & MASK;
+            sum1 &= MASK;
 
             long partialI = partials[i];
 
             PartialSum -= partialI & MASK;
             PartialCarry -= ((PartialSum & MASK31) + partialI) >>> SHIFT;
-            PartialSum = PartialSum & MASK;
+            PartialSum &= MASK;
 
             sum2 += carry1;
             carry2 += sum2 >>> SHIFT;
-            sum2 = sum2 & MASK;
+            sum2 &= MASK;
 
 
             sum2 -= PartialSum;
@@ -1694,20 +1699,20 @@ public class BigNum {
 
                 int im1 = i - 1;
                 carry2 -= ((sum2 & MASK31) >>> SHIFT) + PartialCarry;
-                sum2 = sum2 & MASK;
+                sum2 &= MASK;
 
                 partialI = partials[im1];
 
                 PartialSum -= partialI & MASK;
                 PartialCarry -= ((PartialSum & MASK31) + partialI) >>> SHIFT;
-                PartialSum = PartialSum & MASK;
+                PartialSum &= MASK;
 
                 old_sum = carry2;
 
                 resDigits[im1] = (int) (sum2);
             }
             else {
-                sum2 = sum2 & MASK;
+                sum2 &= MASK;
                 resDigits[0] = (int) (sum2);
             }
         }
@@ -1763,25 +1768,25 @@ public class BigNum {
 
             sum += bj * ak;
             carry += sum >>> SHIFT;
-            sum = sum & MASK;
+            sum &= MASK;
         }
 
-        carry = carry << 1;
+        carry <<= 1;
 
         if(j == k) {
             bj = digits[j];
-            sum = sum << 1;
+            sum <<= 1;
             sum += bj * bj;
         }
         else  {
             bj = digits[j];
             ak = digits[k];
             sum += bj * ak;
-            sum = sum << 1;
+            sum <<= 1;
         }
 
         carry += sum >>> SHIFT;
-        sum = sum & MASK;
+        sum &= MASK;
 
         old_sum = carry + (sum >>> (SHIFTM1)); // Roundish
 
@@ -1806,7 +1811,7 @@ public class BigNum {
 
                 temp_sum2 += prevDigit * bj;
                 carry2 += temp_sum2 >>> SHIFT;
-                temp_sum2 = temp_sum2 & MASK;
+                temp_sum2 &= MASK;
 
                 k++;
 
@@ -1814,41 +1819,41 @@ public class BigNum {
 
                 temp_sum1 += prevDigit * bj;
                 carry1 += temp_sum1 >>> SHIFT;
-                temp_sum1 = temp_sum1 & MASK;
+                temp_sum1 &= MASK;
             }
 
             if(evenFracDigits) {
-                temp_sum1 = temp_sum1 << 1;
+                temp_sum1 <<= 1;
                 temp_sum1 += startDigit * startDigit;
 
-                temp_sum2 = temp_sum2 << 1;
+                temp_sum2 <<= 1;
             }
             else {
                 bj = digits[length];
 
                 temp_sum1 += startDigit * bj;
                 carry1 += temp_sum1 >>> SHIFT;
-                temp_sum1 = temp_sum1 & MASK;
+                temp_sum1 &= MASK;
 
-                temp_sum2 = temp_sum2 << 1;
+                temp_sum2 <<= 1;
                 temp_sum2 += bj * bj;
 
-                temp_sum1 = temp_sum1 << 1;
+                temp_sum1 <<= 1;
             }
 
-            carry1 = carry1 << 1;
-            carry2 = carry2 << 1;
+            carry1 <<= 1;
+            carry2 <<= 1;
 
             sum1 += temp_sum1;
             carry1 += sum1 >>> SHIFT;
-            sum1 = sum1 & MASK;
+            sum1 &= MASK;
 
             sum2 += temp_sum2 + carry1;
 
 
             if(i > 1) {
                 carry2 += sum2 >>> SHIFT;
-                sum2 = sum2 & MASK;
+                sum2 &= MASK;
                 old_sum = carry2;
             }
 
@@ -1900,7 +1905,7 @@ public class BigNum {
             PartialSum += p;
 
             PartialCarry += PartialSum >>> SHIFT;
-            PartialSum = PartialSum & MASK;
+            PartialSum &= MASK;
         }
 
         long old_sum = 0;
@@ -1930,7 +1935,7 @@ public class BigNum {
 
             sum += temp * temp;
             carry += sum >>> SHIFT;
-            sum = sum & MASK;
+            sum &= MASK;
 
             //System.out.println("a" + j + " * " + "a " + k);
         }
@@ -1952,11 +1957,11 @@ public class BigNum {
         }
 
         carry += sum >>> SHIFT;
-        sum = sum & MASK;
+        sum &= MASK;
 
         sum -= PartialSum;
         carry -= ((sum & MASK31) >>> SHIFT) + PartialCarry;
-        sum = sum & MASK;
+        sum &= MASK;
 
         old_sum = carry + (sum >>> (SHIFTM1)); // Roundish
 
@@ -1982,7 +1987,7 @@ public class BigNum {
                 temp = prevDigit + aj;
                 sum2 += temp * temp;
                 carry2 += sum2 >>> SHIFT;
-                sum2 = sum2 & MASK;
+                sum2 &= MASK;
 
                 k++;
 
@@ -1993,7 +1998,7 @@ public class BigNum {
                 temp = prevDigit + aj;
                 sum1 += temp * temp;
                 carry1 += sum1 >>> SHIFT;
-                sum1 = sum1 & MASK;
+                sum1 &= MASK;
             }
 
             if(evenFracDigits) {
@@ -2010,25 +2015,25 @@ public class BigNum {
 
                 sum2 += (partials[length] << 1);
                 carry2 += sum2 >>> SHIFT;
-                sum2 = sum2 & MASK;
+                sum2 &= MASK;
             }
 
             carry1 += sum1 >>> SHIFT;
-            sum1 = sum1 & MASK;
+            sum1 &= MASK;
 
             sum1 -= PartialSum;
             carry1 -= ((sum1 & MASK31) >>> SHIFT) + PartialCarry;
-            sum1 = sum1 & MASK;
+            sum1 &= MASK;
 
             long partialI = partials[i];
 
             PartialSum -= partialI & MASK;
             PartialCarry -= ((PartialSum & MASK31) + partialI) >>> SHIFT;
-            PartialSum = PartialSum & MASK;
+            PartialSum &= MASK;
 
             sum2 += carry1;
             carry2 += sum2 >>> SHIFT;
-            sum2 = sum2 & MASK;
+            sum2 &= MASK;
 
 
             sum2 -= PartialSum;
@@ -2039,20 +2044,20 @@ public class BigNum {
 
                 int im1 = i - 1;
                 carry2 -= ((sum2 & MASK31) >>> SHIFT) + PartialCarry;
-                sum2 = sum2 & MASK;
+                sum2 &= MASK;
 
                 partialI = partials[im1];
 
                 PartialSum -= partialI & MASK;
                 PartialCarry -= ((PartialSum & MASK31) + partialI) >>> SHIFT;
-                PartialSum = PartialSum & MASK;
+                PartialSum &= MASK;
 
                 old_sum = carry2;
 
                 resDigits[im1] = (int) (sum2);
             }
             else {
-                sum2 = sum2 & MASK;
+                sum2 &= MASK;
                 resDigits[0] = (int) (sum2);
             }
         }
@@ -2129,7 +2134,7 @@ public class BigNum {
 
             sum += (long)digits[i] * (long)value;
             carry += sum >>> SHIFT;
-            sum = sum & MASK;
+            sum &= MASK;
 
             int di = (int) (sum);
             resDigits[i] = di;
@@ -2197,7 +2202,7 @@ public class BigNum {
 
             sum += bj * ak;
             carry += sum >>> SHIFT;
-            sum = sum & MASK;
+            sum &= MASK;
 
         }
 
@@ -2217,7 +2222,7 @@ public class BigNum {
 
                 sum += bj * ak;
                 carry += sum >>> SHIFT;
-                sum = sum & MASK;
+                sum &= MASK;
 
                // System.out.println("b" + j + " * " + "a " + k);
             }
@@ -2295,7 +2300,7 @@ public class BigNum {
 
             sum += bj * ak;
             carry += sum >>> SHIFT;
-            sum = sum & MASK;
+            sum &= MASK;
 
         }
 
@@ -2324,7 +2329,7 @@ public class BigNum {
 
                 temp_sum1 += prevDigit * bj;
                 carry1 += temp_sum1 >>> SHIFT;
-                temp_sum1 = temp_sum1 & MASK;
+                temp_sum1 &= MASK;
 
                 k--;
 
@@ -2332,7 +2337,7 @@ public class BigNum {
 
                 temp_sum2 += prevDigit * bj;
                 carry2 += temp_sum2 >>> SHIFT;
-                temp_sum2 = temp_sum2 & MASK;
+                temp_sum2 &= MASK;
             }
 
 
@@ -2341,7 +2346,7 @@ public class BigNum {
 
             temp_sum1 += prevDigit * bj;
             carry1 += temp_sum1 >>> SHIFT;
-            temp_sum1 = temp_sum1 & MASK;
+            temp_sum1 &= MASK;
 
             prevDigit = a0; //ak
 
@@ -2355,11 +2360,11 @@ public class BigNum {
 
             temp_sum1 += prevDigit * bj;
             carry1 += temp_sum1 >>> SHIFT;
-            temp_sum1 = temp_sum1 & MASK;
+            temp_sum1 &= MASK;
 
             sum1 += temp_sum1;
             carry1 += sum1 >>> SHIFT;
-            sum1 = sum1 & MASK;
+            sum1 &= MASK;
 
 
             int di = (int) (sum1);
@@ -2369,12 +2374,12 @@ public class BigNum {
 
             if(i > 1) {
                 carry2 += temp_sum2 >>> SHIFT;
-                temp_sum2 = temp_sum2 & MASK;
+                temp_sum2 &= MASK;
 
                 sum2 += temp_sum2 + carry1;
 
                 carry2 += sum2 >>> SHIFT;
-                sum2 = sum2 & MASK;
+                sum2 &= MASK;
                 old_sum = carry2;
 
                 di = (int) (sum2);
@@ -2450,7 +2455,7 @@ public class BigNum {
             PartialSum += p;
 
             PartialCarry += PartialSum >>> SHIFT;
-            PartialSum = PartialSum & MASK;
+            PartialSum &= MASK;
 
             partialSums[i] = PartialSum;
             partialCarries[i] = PartialCarry;
@@ -2477,7 +2482,7 @@ public class BigNum {
 
             sum += (bk + bj) * (ak + aj);
             carry += sum >>> SHIFT;
-            sum = sum & MASK;
+            sum &= MASK;
 
             //System.out.println("partials " + k + " partials " + j);
 
@@ -2510,11 +2515,11 @@ public class BigNum {
         }
 
         carry += sum >>> SHIFT;
-        sum = sum & MASK;
+        sum &= MASK;
 
         sum -= PartialSum;
         carry -= ((sum & MASK31) >>> SHIFT) + PartialCarry;
-        sum = sum & MASK;
+        sum &= MASK;
 
         //sum += (1 - branchlessCheck) * partials[k] + branchlessCheck * ((bk + bj) * (ak + aj) - partials[k] - partials[j]);
 
@@ -2538,7 +2543,7 @@ public class BigNum {
                 sum += (bk + bj) * (ak + aj);
 
                 carry += sum >>> SHIFT;
-                sum = sum & MASK;
+                sum &= MASK;
                 //System.out.println("partials " + k + " partials " + j);
                 //System.out.println("b " + j + " b " + k + " a " + j + " a " + k);
 
@@ -2559,11 +2564,11 @@ public class BigNum {
             //System.out.println("NEXT");
 
             carry += sum >>> SHIFT;
-            sum = sum & MASK;
+            sum &= MASK;
 
             sum -= PartialSum;
             carry -= ((sum & MASK31) >>> SHIFT) + PartialCarry;
-            sum = sum & MASK;
+            sum &= MASK;
 
             if(i > 1) {
                 int im1 = i - 1;
@@ -2574,7 +2579,7 @@ public class BigNum {
 
                 //PartialSum -= partialI & MASK;
                 //PartialCarry -= ((PartialSum & MASK31) + partialI) >>> SHIFT;
-                //PartialSum = PartialSum & MASK;
+                //PartialSum &= MASK;
             }
 
 
@@ -2643,7 +2648,7 @@ public class BigNum {
             PartialSum += p;
 
             PartialCarry += PartialSum >>> SHIFT;
-            PartialSum = PartialSum & MASK;
+            PartialSum &= MASK;
         }
 
         long old_sum = 0;
@@ -2666,7 +2671,7 @@ public class BigNum {
 
             sum += (bk + bj) * (ak + aj);
             carry += sum >>> SHIFT;
-            sum = sum & MASK;
+            sum &= MASK;
 
             //System.out.println("partials " + k + " partials " + j);
 
@@ -2684,11 +2689,11 @@ public class BigNum {
         }
 
         carry += sum >>> SHIFT;
-        sum = sum & MASK;
+        sum &= MASK;
 
         sum -= PartialSum;
         carry -= ((sum & MASK31) >>> SHIFT) + PartialCarry;
-        sum = sum & MASK;
+        sum &= MASK;
 
         old_sum = carry + (sum >>> (SHIFTM1)); // Roundish, adds bias because 10000 is always shifted upwards
 
@@ -2719,7 +2724,7 @@ public class BigNum {
 
                 sum2 += (prevDigit2 + bj) * (prevDigit + aj);
                 carry2 += sum2 >>> SHIFT;
-                sum2 = sum2 & MASK;
+                sum2 &= MASK;
 
                 k++;
 
@@ -2730,7 +2735,7 @@ public class BigNum {
 
                 sum1 += (prevDigit2 + bj) * (prevDigit + aj);
                 carry1 += sum1 >>> SHIFT;
-                sum1 = sum1 & MASK;
+                sum1 &= MASK;
 
             }
 
@@ -2747,27 +2752,27 @@ public class BigNum {
 
                 sum2 += (partials[length] << 1);
                 carry2 += sum2 >>> SHIFT;
-                sum2 = sum2 & MASK;
+                sum2 &= MASK;
             }
 
             //System.out.println("NEXT");
 
             carry1 += sum1 >>> SHIFT;
-            sum1 = sum1 & MASK;
+            sum1 &= MASK;
 
             sum1 -= PartialSum;
             carry1 -= ((sum1 & MASK31) >>> SHIFT) + PartialCarry;
-            sum1 = sum1 & MASK;
+            sum1 &= MASK;
 
             long partialI = partials[i];
 
             PartialSum -= partialI & MASK;
             PartialCarry -= ((PartialSum & MASK31) + partialI) >>> SHIFT;
-            PartialSum = PartialSum & MASK;
+            PartialSum &= MASK;
 
             sum2 += carry1;
             carry2 += sum2 >>> SHIFT;
-            sum2 = sum2 & MASK;
+            sum2 &= MASK;
 
 
             sum2 -= PartialSum;
@@ -2780,13 +2785,13 @@ public class BigNum {
 
                 int im1 = i - 1;
                 carry2 -= ((sum2 & MASK31) >>> SHIFT) + PartialCarry;
-                sum2 = sum2 & MASK;
+                sum2 &= MASK;
 
                 partialI = partials[im1];
 
                 PartialSum -= partialI & MASK;
                 PartialCarry -= ((PartialSum & MASK31) + partialI) >>> SHIFT;
-                PartialSum = PartialSum & MASK;
+                PartialSum &= MASK;
 
                 old_sum = carry2;
 
@@ -2795,7 +2800,7 @@ public class BigNum {
                 resDigits[im1] = di;
             }
             else {
-                sum2 = sum2 & MASK;
+                sum2 &= MASK;
                 int d0 = (int) (sum2);
                 resDigits[0] = d0;
                 result.isOne = d0 == 1 && isNonZero == 0;
@@ -2892,7 +2897,7 @@ public class BigNum {
             temp = digits[i];
             temp |= (bit << SHIFT);
             bit = temp & 0x1;
-            temp = temp >>> 1;
+            temp >>>= 1;
             val = temp & MASKINT;
             resDigits[i] = val;
             isNonZero |= val;
@@ -2900,7 +2905,7 @@ public class BigNum {
 
         temp = digits[fracDigits];
         temp |= (bit << SHIFT);
-        temp = temp >>> 1;
+        temp >>>= 1;
         resDigits[fracDigits] = temp & MASKINT;
         res.sign = sign;
         res.isOne = temp == 1 && isNonZero == 0;
@@ -2939,7 +2944,7 @@ public class BigNum {
             temp = digits[i];
             temp |= (bits << SHIFT);
             bits = temp & 0x3;
-            temp = temp >>> 2;
+            temp >>>= 2;
             val = temp & MASKINT;
             resDigits[i] = val;
             isNonZero |= val;
@@ -2947,7 +2952,7 @@ public class BigNum {
 
         temp = digits[fracDigits];
         temp |= (bits << SHIFT);
-        temp = temp >>> 2;
+        temp >>>= 2;
         resDigits[fracDigits] = temp & MASKINT;
         res.sign = sign;
         res.isOne = temp == 1 && isNonZero == 0;
@@ -3175,7 +3180,7 @@ public class BigNum {
 
             //bitOffset = 31 - Integer.numberOfLeadingZeros(digit);
 
-            scale = digits[0] != 0 ? ((long) i) * SHIFT + bitOffset : -(((long) i) * SHIFT) + bitOffset;
+            scale = i == 0 ? bitOffset : -(((long) i) * SHIFT) + bitOffset;
         }
 
         int i = offset;
@@ -3183,7 +3188,7 @@ public class BigNum {
 
         int temp = 52 - bitOffset;
         mantissa |= ((long)digits[i]) << temp; //Will always be positive
-        mantissa = mantissa & 0xFFFFFFFFFFFFFL;
+        mantissa &= 0xFFFFFFFFFFFFFL;
 
         //System.out.println(digits[i]);
 
@@ -3196,12 +3201,12 @@ public class BigNum {
 
             if(temp > SHIFT) {
                 mantissa |= val << (temp - SHIFT);
-                mantissa = mantissa & 0xFFFFFFFFFFFFFL;
+                mantissa &= 0xFFFFFFFFFFFFFL;
             }
             else {
                 int temp2 = k + SHIFTM52;
                 mantissa |= val >>> temp2;
-                mantissa = mantissa & 0xFFFFFFFFFFFFFL;
+                mantissa &= 0xFFFFFFFFFFFFFL;
 
                 if(temp2 == 0 && i + 1 < digits.length) {
                     long val2 = digits[i + 1];

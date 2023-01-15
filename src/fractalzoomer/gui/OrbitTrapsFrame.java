@@ -140,10 +140,8 @@ public class OrbitTrapsFrame extends JFrame {
         p1.add(new JLabel("Shape: "));
         p1.add(orbit_traps_combo);
         p1.add(load_image_button);
-        p1.add(new JLabel("  Norm: "));
+        p1.add(new JLabel(" Norm: "));
         p1.add(trap_norm_field);
-        p1.add(new JLabel("  Lines: "));
-        p1.add(lines_function_combo);
 
         final JTextField real_textfield = new JTextField(16);
         real_textfield.setText("" + ots.trapPoint[0]);
@@ -162,7 +160,9 @@ public class OrbitTrapsFrame extends JFrame {
         JPanel p2 = new JPanel();
         p2.setBackground(MainWindow.bg_color);
 
-        p2.add(new JLabel("Check: "));
+        p2.add(new JLabel("Lines: "));
+        p2.add(lines_function_combo);
+        p2.add(new JLabel(" Check: "));
         p2.add(checkType);
         p2.add(new JLabel(" Skip Fist Iterations: "));
         p2.add(skipCheck);
@@ -173,7 +173,7 @@ public class OrbitTrapsFrame extends JFrame {
 
         p12.add(new JLabel("Center Re: "));
         p12.add(real_textfield);
-        p12.add(new JLabel("  Center Im: "));
+        p12.add(new JLabel(" Center Im: "));
         p12.add(imaginary_textfield);
 
         trap_length_field = new JTextField(9);
@@ -193,9 +193,9 @@ public class OrbitTrapsFrame extends JFrame {
 
         p3.add(new JLabel("Length: "));
         p3.add(trap_length_field);
-        p3.add(new JLabel("  Width: "));
+        p3.add(new JLabel(" Width: "));
         p3.add(trap_width_field);
-        p3.add(new JLabel("  Max Distance: "));
+        p3.add(new JLabel(" Max Distance: "));
         p3.add(trap_threshold_field);
 
         blend_opt = new JSlider(JSlider.HORIZONTAL, 0, 100, 0);
@@ -219,7 +219,7 @@ public class OrbitTrapsFrame extends JFrame {
 
         p4.add(new JLabel("Color Method: "));
         p4.add(color_method_combo);
-        p4.add(new JLabel("  Trap Blending: "));
+        p4.add(new JLabel(" Trap Blending: "));
         p4.add(blend_opt);
         
         final JCheckBox include_escaped_opt = new JCheckBox("Include Escaped");
@@ -266,7 +266,7 @@ public class OrbitTrapsFrame extends JFrame {
         
         p9.add(new JLabel("Intensity: "));
         p9.add(trap_intensity_field);
-        p9.add(new JLabel("  Height Function: "));
+        p9.add(new JLabel(" Height Function: "));
         p9.add(heightFunction);
         p9.add(invert_height_opt);
 
@@ -493,11 +493,11 @@ public class OrbitTrapsFrame extends JFrame {
         
         p6.add(new JLabel("Trap 1: "));
         p6.add(trap1_color_label);
-        p6.add(new JLabel("  Trap 2: "));
+        p6.add(new JLabel(" Trap 2: "));
         p6.add(trap2_color_label);
-        p6.add(new JLabel("  Trap 3: "));
+        p6.add(new JLabel(" Trap 3: "));
         p6.add(trap3_color_label);
-        p6.add(new JLabel("  Interpolation: "));
+        p6.add(new JLabel(" Interpolation: "));
         p6.add(interpolation_opt);
         
         JPanel p7 = new JPanel();
@@ -510,7 +510,7 @@ public class OrbitTrapsFrame extends JFrame {
 
         p7.add(showOnlyTraps);
 
-        JLabel bgLabel = new JLabel("  Background: ");
+        JLabel bgLabel = new JLabel(" Background: ");
         p7.add(bgLabel);
         p7.add(background_label);
         p7.add(new JLabel(" Color Filling Method: "));
@@ -588,9 +588,9 @@ public class OrbitTrapsFrame extends JFrame {
         
         p8.add(trap_cellular_opt);
         p8.add(invert_trap_cellular_opt);
-        p8.add(new JLabel("  Color: "));
+        p8.add(new JLabel(" Color: "));
         p8.add(cellular_color_label);
-        p8.add(new JLabel("  Size: "));
+        p8.add(new JLabel(" Size: "));
         p8.add(cellular_size_opt);
         
               

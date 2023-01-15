@@ -230,13 +230,13 @@ public class Magnet1 extends MagnetType {
         }
 
         if (iterations == 0) {
-            Reference = new double[max_iterations << 1];
+            Reference = new DoubleReference(max_iterations );
 
             if (deepZoom) {
                 ReferenceDeep = new DeepReference(max_iterations);
             }
         } else if (max_iterations > getReferenceLength()) {
-            Reference = Arrays.copyOf(Reference, max_iterations << 1);
+            Reference.resize(max_iterations);
 
             if (deepZoom) {
                 ReferenceDeep.resize(max_iterations);
@@ -576,6 +576,8 @@ public class Magnet1 extends MagnetType {
         boolean preCalcNormData = bailout_algorithm2.getId() == MainWindow.BAILOUT_CONDITION_CIRCLE;
         NormComponents normData = null;
 
+        convergent_bailout_algorithm.setReferenceMode(true);
+
         for (; iterations < max_iterations; iterations++) {
 
             Complex cz = z.toComplex();
@@ -606,12 +608,7 @@ public class Magnet1 extends MagnetType {
 
                 if(useBignum) {
                     if(preCalcNormData) {
-                        if (bigNumLib == Constants.BIGNUM_MPFR){
-                            z = (z.squareFast_non_mutable(normData).plus_mutable(c.sub(1))).divide_mutable(z.times2().plus_mutable(c.sub(2))).square_mutable();
-                        }
-                        else {
-                            z = (z.squareFast(normData).plus_mutable(c.sub(1))).divide_mutable(z.times2().plus_mutable(c.sub(2))).square_mutable();
-                        }
+                        z = (z.squareFast(normData).plus_mutable(c.sub(1))).divide_mutable(z.times2().plus_mutable(c.sub(2))).square_mutable();
                     }
                     else {
                         z = (z.square().plus_mutable(c.sub(1))).divide_mutable(z.times2().plus_mutable(c.sub(2))).square_mutable();
@@ -637,6 +634,8 @@ public class Magnet1 extends MagnetType {
             }
 
         }
+
+        convergent_bailout_algorithm.setReferenceMode(false);
 
         lastZValue = z;
         secondTolastZValue = zold;
@@ -680,13 +679,13 @@ public class Magnet1 extends MagnetType {
         }
 
         if (iterations == 0) {
-            SecondReference = new double[max_ref_iterations << 1];
+            SecondReference = new DoubleReference(max_ref_iterations);
 
             if (deepZoom) {
                 SecondReferenceDeep = new DeepReference(max_ref_iterations);
             }
         } else if (max_ref_iterations > getSecondReferenceLength()) {
-            SecondReference = Arrays.copyOf(SecondReference, max_ref_iterations << 1);
+            SecondReference.resize(max_ref_iterations);
 
             if (deepZoom) {
                 SecondReferenceDeep.resize(max_ref_iterations);
@@ -751,6 +750,7 @@ public class Magnet1 extends MagnetType {
         boolean preCalcNormData = bailout_algorithm2.getId() == MainWindow.BAILOUT_CONDITION_CIRCLE;
         NormComponents normData = null;
 
+        convergent_bailout_algorithm.setReferenceMode(true);
 
         for (; iterations < max_ref_iterations; iterations++) {
 
@@ -782,12 +782,7 @@ public class Magnet1 extends MagnetType {
 
                 if(useBignum) {
                     if(preCalcNormData) {
-                        if (bigNumLib == Constants.BIGNUM_MPFR){
-                            z = (z.squareFast_non_mutable(normData).plus_mutable(c.sub(1))).divide_mutable(z.times2().plus_mutable(c.sub(2))).square_mutable();
-                        }
-                        else {
-                            z = (z.squareFast(normData).plus_mutable(c.sub(1))).divide_mutable(z.times2().plus_mutable(c.sub(2))).square_mutable();
-                        }
+                        z = (z.squareFast(normData).plus_mutable(c.sub(1))).divide_mutable(z.times2().plus_mutable(c.sub(2))).square_mutable();
                     }
                     else {
                         z = (z.square().plus_mutable(c.sub(1))).divide_mutable(z.times2().plus_mutable(c.sub(2))).square_mutable();
@@ -814,6 +809,8 @@ public class Magnet1 extends MagnetType {
 
         }
 
+        convergent_bailout_algorithm.setReferenceMode(false);
+
         lastZ2Value = z;
         secondTolastZ2Value = zold;
         thirdTolastZ2Value = zold2;
@@ -826,6 +823,16 @@ public class Magnet1 extends MagnetType {
         }
 
         SecondReferenceCalculationTime = System.currentTimeMillis() - time;
+    }
+
+    @Override
+    public void function(GenericComplex[] complex) {
+        if(complex[0] instanceof BigComplex) {
+            complex[0] = (complex[0].square().plus(complex[1].sub(MyApfloat.ONE))).divide(complex[0].times2().plus(complex[1].sub(MyApfloat.TWO))).square();
+        }
+        else {
+            complex[0] = (complex[0].square().plus_mutable(complex[1].sub(1))).divide_mutable(complex[0].times2().plus_mutable(complex[1].sub(2))).square_mutable();
+        }
     }
 
 
@@ -1164,7 +1171,7 @@ public class Magnet1 extends MagnetType {
     }
 
     @Override
-    public Complex perturbationFunction(Complex DeltaSubN, double[] Reference, double[] PrecalculatedTerms,  double[] PrecalculatedTerms2, int RefIteration) {
+    public Complex perturbationFunction(Complex DeltaSubN, DoubleReference Reference, DoubleReference PrecalculatedTerms,  DoubleReference PrecalculatedTerms2, int RefIteration) {
 
         Complex Z = getArrayValue(Reference, RefIteration);
         Complex z = DeltaSubN;

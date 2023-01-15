@@ -29,24 +29,44 @@ import org.apfloat.Apfloat;
  */
 public class NNormBailoutCondition extends BailoutCondition {
   protected double n_norm;
+  protected double n_norm_reciprocal;
   protected Apfloat ddn_norm;
+    protected Apfloat ddn_norm_reciprocal;
   protected MpfrBigNum mpfrbn_norm;
 
+  private MpfrBigNum temp1;
+  private MpfrBigNum temp2;
+  private MpfrBigNum mpfrbn_norm_reciprocal;
+
   protected DoubleDouble dddn_norm;
+    protected DoubleDouble dddn_norm_reciprocal;
  
     public NNormBailoutCondition(double bound, double n_norm) {
         
         super(bound);
         this.n_norm = n_norm;
+        n_norm_reciprocal = 1 / n_norm;
 
-        if(ThreadDraw.PERTURBATION_THEORY) {
+        if(ThreadDraw.PERTURBATION_THEORY || ThreadDraw.HIGH_PRECISION_CALCULATION) {
             ddn_norm = new MyApfloat(n_norm);
             dddn_norm = new DoubleDouble(n_norm);
 
-            if(ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE) {
+            if(n_norm != 0) {
+                ddn_norm_reciprocal = MyApfloat.reciprocal(ddn_norm);
+                dddn_norm_reciprocal = dddn_norm.reciprocal();
+            }
+
+
+            if(ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE || ThreadDraw.HIGH_PRECISION_CALCULATION) {
 
                 if(LibMpfr.LOAD_ERROR == null) {
                     mpfrbn_norm = new MpfrBigNum(n_norm);
+                    temp1 = new MpfrBigNum();
+                    temp2 = new MpfrBigNum();
+
+                    if(n_norm != 0) {
+                        mpfrbn_norm_reciprocal = mpfrbn_norm.reciprocal();
+                    }
                 }
             }
         }
@@ -56,7 +76,7 @@ public class NNormBailoutCondition extends BailoutCondition {
      @Override //N norm
      public boolean escaped(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0, double norm_squared, Complex pixel) {
          
-        return z.nnorm(n_norm) >= bound;
+        return z.nnorm(n_norm, n_norm_reciprocal) >= bound;
          
      }
 
@@ -67,7 +87,7 @@ public class NNormBailoutCondition extends BailoutCondition {
             return false;
         }
 
-        return z.nnorm(ddn_norm).compareTo(ddbound) >= 0;
+        return z.nnorm(ddn_norm, ddn_norm_reciprocal).compareTo(ddbound) >= 0;
 
     }
 
@@ -76,7 +96,7 @@ public class NNormBailoutCondition extends BailoutCondition {
         if(n_norm == 0) {
             return false;
         }
-        return z.toComplex().nnorm(n_norm) >= bound;
+        return z.toComplex().nnorm(n_norm, n_norm_reciprocal) >= bound;
     }
 
     @Override
@@ -85,7 +105,7 @@ public class NNormBailoutCondition extends BailoutCondition {
             return false;
         }
 
-        return z.nnorm(mpfrbn_norm).compare(bound) >= 0;
+        return z.nnorm(mpfrbn_norm, temp1, temp2, mpfrbn_norm_reciprocal).compare(bound) >= 0;
     }
 
     @Override
@@ -95,7 +115,7 @@ public class NNormBailoutCondition extends BailoutCondition {
             return false;
         }
 
-        return z.nnorm(dddn_norm).compareTo(ddcbound) >= 0;
+        return z.nnorm(dddn_norm, dddn_norm_reciprocal).compareTo(ddcbound) >= 0;
 
     }
 }

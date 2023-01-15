@@ -46,7 +46,7 @@ public class BLAS {
         return new BLADeep1Step(r2, A);
     }
 
-    private void initLStep(int level, int m, double[] Ref, double blaSize, double epsilon) {
+    private void initLStep(int level, int m, DoubleReference Ref, double blaSize, double epsilon) {
 
         b[level][m - 1] = createLStep(level, m, Ref, blaSize, epsilon);
 
@@ -90,7 +90,7 @@ public class BLAS {
         return BLADeepGenericStep.getGenericStep(r2, A, B, l);
     }
 
-    private BLA createLStep(int level, int m, double[] Ref, double blaSize, double epsilon) {
+    private BLA createLStep(int level, int m, DoubleReference Ref, double blaSize, double epsilon) {
 
         if(level == 0) {
             return createOneStep(Ref, m, blaSize, epsilon);
@@ -134,7 +134,7 @@ public class BLAS {
         }
     }
 
-    private BLA createOneStep(double[] Ref, int m, double blaSize, double epsilon) {
+    private BLA createOneStep(DoubleReference Ref, int m, double blaSize, double epsilon) {
         Complex Z = Fractal.getArrayValue(Ref, m);
         Complex A = fractal.getBlaA(Z);
         //Complex B = new Complex(1, 0);
@@ -155,7 +155,7 @@ public class BLAS {
 
     private int done;
     private int old_chunk;
-    private void init(double[] Ref, double blaSize, double epsilon, JProgressBar progress) {
+    private void init(DoubleReference Ref, double blaSize, double epsilon, JProgressBar progress) {
 
         int elements = elementsPerLevel[firstLevel] + 1;
         if(ThreadDraw.USE_THREADS_FOR_BLA) {
@@ -480,7 +480,7 @@ public class BLAS {
 
     }
 
-    public void init(int M, double[] Ref, double blaSize, JProgressBar progress) {
+    public void init(int M, DoubleReference Ref, double blaSize, JProgressBar progress) {
         double precision = 1 / ((double)(1L << ThreadDraw.BLA_BITS));
         firstLevel = ThreadDraw.BLA_STARTING_LEVEL - 1;
 
