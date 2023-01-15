@@ -1,6 +1,7 @@
 package fractalzoomer.core;
 
 import fractalzoomer.core.mpfr.MpfrBigNum;
+import fractalzoomer.core.mpir.MpirBigNum;
 import fractalzoomer.main.app_settings.Settings;
 import org.apfloat.Apfloat;
 import org.apfloat.ApfloatMath;
@@ -21,6 +22,7 @@ public class MyApfloat extends Apfloat {
     public static Apint SIX;
     public static Apint SEVEN;
     public static Apint EIGHT;
+    public static Apint NINE;
     public static Apint TEN;
     public static Apint TWELVE;
     public static Apint SIXTEEN;
@@ -33,9 +35,7 @@ public class MyApfloat extends Apfloat {
     public static Apfloat E;
     public static Apfloat MAX_DOUBLE_SIZE;
     public static Apfloat MIN_DOUBLE_SIZE;
-    public static Apfloat MIN_DOUBLE_SIZE_2;
-    public static Apfloat MIN_DOUBLE_DOUBLE_SIZE;
-    public static Apfloat MIN_DOUBLE_DOUBLE_SIZE_2;
+
     public static Apfloat SA_START_SIZE;
     public static Apfloat NEGATIVE_INFINITY = new Apfloat("-1e5000000000");
     public static FixedPrecisionApfloatHelper fp;
@@ -54,7 +54,7 @@ public class MyApfloat extends Apfloat {
         return Math.abs(val.scale()) + precHeadRoom + 1; // + 30 for some headroom
     }*/
 
-    public static long getAutomaticPrecision(String[] values, boolean[] preferExponent) {
+    public static long getAutomaticPrecision(String[] values, boolean[] preferExponent, boolean ignoreLargeExponentDiffs) {
 
         long maxValue = Long.MIN_VALUE;
         long maxValueForExponentPreferal = Long.MIN_VALUE;
@@ -124,9 +124,15 @@ public class MyApfloat extends Apfloat {
         if(maxValueForExponentPreferal != Long.MIN_VALUE) {
 
             if(maxValue <= precision && maxValueForExponentPreferal + precHeadRoom <= precision) {
+                if(maxValueForExponentPreferal + precHeadRoom <= maxValue && maxValue - maxValueForExponentPreferal >  2.5 * precHeadRoom) {
+                    return maxValueForExponentPreferal + precHeadRoom;
+                }
                 return Math.max(maxValue, maxValueForExponentPreferal + precHeadRoom);
             }
             if(maxValue > precision && maxValueForExponentPreferal + precHeadRoom <= maxValue) {
+                if(maxValue - maxValueForExponentPreferal > 2.5 * precHeadRoom) {
+                    return maxValueForExponentPreferal + precHeadRoom;
+                }
                 return maxValue + precHeadRoomSmall;
             }
             else {
@@ -162,6 +168,7 @@ public class MyApfloat extends Apfloat {
         FIVE = new Apint(5);
         SEVEN = new Apint(7);
         EIGHT = new Apint(8);
+        NINE = new Apint(9);
         TEN = new Apint(10);
         ZERO = Apint.ZERO;
         TWELVE = new Apint(12);
@@ -174,13 +181,21 @@ public class MyApfloat extends Apfloat {
         LOG_TWO = fp.log(TWO);
         RECIPROCAL_LOG_TWO_BASE_TEN = MyApfloat.reciprocal(fp.divide(LOG_TWO, fp.log(TEN)));
         MAX_DOUBLE_SIZE = new MyApfloat(1.0e-304);
-        MIN_DOUBLE_SIZE = new MyApfloat(1.0e-13);
-        MIN_DOUBLE_DOUBLE_SIZE = new MyApfloat(1.0e-28);
-        MIN_DOUBLE_SIZE_2 = new MyApfloat(1.0e-5);
-        MIN_DOUBLE_DOUBLE_SIZE_2 = new MyApfloat(1.0e-20);
+        MIN_DOUBLE_SIZE = new MyApfloat(5.0e-13);
         SA_START_SIZE = new MyApfloat(1.0e-5);
-        BigNum.reinitialize(ThreadDraw.BIGNUM_AUTOMATIC_PRECISION ? fp.divide(fp.log(fp.pow(TEN, precision)), LOG_TWO).doubleValue() : ThreadDraw.BIGNUM_PRECISION);
-        MpfrBigNum.reinitialize(ThreadDraw.BIGNUM_AUTOMATIC_PRECISION ? fp.divide(fp.log(fp.pow(TEN, precision)), LOG_TWO).doubleValue() : ThreadDraw.BIGNUM_PRECISION);
+
+        if(ThreadDraw.BIGNUM_AUTOMATIC_PRECISION) {
+            double temp = fp.divide(fp.log(fp.pow(TEN, precision)), LOG_TWO).doubleValue();
+
+            BigNum.reinitialize(temp);
+            MpfrBigNum.reinitialize(temp);
+            MpirBigNum.reinitialize(temp);
+        }
+        else {
+            BigNum.reinitialize(ThreadDraw.BIGNUM_PRECISION);
+            MpfrBigNum.reinitialize(ThreadDraw.BIGNUM_PRECISION);
+            MpirBigNum.reinitialize(ThreadDraw.BIGNUM_PRECISION);
+        }
     }
 
     public static void setPrecision(long prec) {
@@ -193,14 +208,21 @@ public class MyApfloat extends Apfloat {
         LOG_TWO = fp.log(TWO);
         RECIPROCAL_LOG_TWO_BASE_TEN = MyApfloat.reciprocal(fp.divide(LOG_TWO, fp.log(TEN)));
         MAX_DOUBLE_SIZE = new MyApfloat(1.0e-304);
-        MIN_DOUBLE_SIZE = new MyApfloat(1.0e-13);
-        MIN_DOUBLE_DOUBLE_SIZE = new MyApfloat(1.0e-28);
-        MIN_DOUBLE_SIZE_2 = new MyApfloat(1.0e-5);
-        MIN_DOUBLE_DOUBLE_SIZE_2 = new MyApfloat(1.0e-20);
+        MIN_DOUBLE_SIZE = new MyApfloat(5.0e-13);
         SA_START_SIZE = new MyApfloat(1.0e-5);
 
-        BigNum.reinitialize(ThreadDraw.BIGNUM_AUTOMATIC_PRECISION ? fp.divide(fp.log(fp.pow(TEN, precision)), LOG_TWO).doubleValue() : ThreadDraw.BIGNUM_PRECISION);
-        MpfrBigNum.reinitialize(ThreadDraw.BIGNUM_AUTOMATIC_PRECISION ? fp.divide(fp.log(fp.pow(TEN, precision)), LOG_TWO).doubleValue() : ThreadDraw.BIGNUM_PRECISION);
+        if(ThreadDraw.BIGNUM_AUTOMATIC_PRECISION) {
+            double temp = fp.divide(fp.log(fp.pow(TEN, precision)), LOG_TWO).doubleValue();
+
+            BigNum.reinitialize(temp);
+            MpfrBigNum.reinitialize(temp);
+            MpirBigNum.reinitialize(temp);
+        }
+        else {
+            BigNum.reinitialize(ThreadDraw.BIGNUM_PRECISION);
+            MpfrBigNum.reinitialize(ThreadDraw.BIGNUM_PRECISION);
+            MpirBigNum.reinitialize(ThreadDraw.BIGNUM_PRECISION);
+        }
     }
 
     public static void setPrecision(long prec, Settings s) {
@@ -217,8 +239,10 @@ public class MyApfloat extends Apfloat {
     }
 
     public static void setBigNumPrecision() {
-        BigNum.reinitialize(fp.divide(fp.log(fp.pow(TEN, precision)), LOG_TWO).doubleValue());
-        MpfrBigNum.reinitialize(fp.divide(fp.log(fp.pow(TEN, precision)), LOG_TWO).doubleValue());
+        double temp = fp.divide(fp.log(fp.pow(TEN, precision)), LOG_TWO).doubleValue();
+        BigNum.reinitialize(temp);
+        MpfrBigNum.reinitialize(temp);
+        MpirBigNum.reinitialize(temp);
     }
 
     public MyApfloat(double value) {
@@ -588,7 +612,7 @@ public class MyApfloat extends Apfloat {
         MyApfloat.precision = 50;
         MyApfloat.fp = new FixedPrecisionApfloatHelper(MyApfloat.precision);
 
-        System.out.println(getAutomaticPrecision(new String[]{"0.003236469856558749616219364295756151228386738578675", "-0.8421534199886435385336059377278168189344067258883", "6.82121026329696178436279296875e-13" }, new boolean[] {false, false, true}));
+        System.out.println(getAutomaticPrecision(new String[]{"0.003236469856558749616219364295756151228386738578675", "-0.8421534199886435385336059377278168189344067258883", "6.82121026329696178436279296875e-13" }, new boolean[] {false, false, true}, true));
 
         //Apfloat a = new MyApfloat("-1.99996619445037030418434688506350579675531241540724851511761922944801584242342684381376129778868913812287046406560949864353810575744772166485672496092803920095332");
         //Apfloat b = new MyApfloat("+0.00000000000000000000000000000000030013824367909383240724973039775924987346831190773335270174257280120474975614823581185647299288414075519224186504978181625478529");

@@ -108,7 +108,7 @@ public class GradientFrame extends JFrame {
             @Override
             public void mousePressed(MouseEvent e) {
 
-                new ColorChooserFrame(this_frame, "First Color", color_a_label, -1);
+                new ColorChooserFrame(this_frame, "First Color", color_a_label, -1, -1);
 
             }
 
@@ -146,7 +146,7 @@ public class GradientFrame extends JFrame {
             @Override
             public void mousePressed(MouseEvent e) {
 
-                new ColorChooserFrame(this_frame, "Second Color", color_b_label, -1);
+                new ColorChooserFrame(this_frame, "Second Color", color_b_label, -1, -1);
 
             }
 
@@ -225,7 +225,7 @@ public class GradientFrame extends JFrame {
 
         color_interp_panel.add(combo_box_color_interp);
 
-        String[] color_space_str = {"RGB", "HSB", "Exp", "Square", "Sqrt", "RYB", "LAB", "XYZ", "LCH", "Bezier RGB", "HSL"};
+        String[] color_space_str = {"RGB", "HSB", "Exp", "Square", "Sqrt", "RYB", "Lab", "XYZ", "LCH_ab", "Bezier RGB", "HSL", "Luv", "LCH_uv", "OKLab", "LCH_oklab", "JzAzBz", "LCH_JzAzBz", "HSL_uv", "HPL_uv", "HWB", "Linear sRGB"};
 
         combo_box_color_space = new JComboBox<>(color_space_str);
         combo_box_color_space.setSelectedIndex(gs.gradient_color_space);

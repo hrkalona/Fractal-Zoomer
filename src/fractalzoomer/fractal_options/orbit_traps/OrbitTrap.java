@@ -18,6 +18,8 @@ package fractalzoomer.fractal_options.orbit_traps;
 
 import fractalzoomer.core.Complex;
 
+import java.util.Arrays;
+
 
 /**
  *
@@ -41,14 +43,28 @@ public abstract class OrbitTrap {
     protected boolean usesStaticInitVal;
     protected boolean doFirstIterationSkipCheck;
     protected int skipTrapCheckForIterations;
+
+    protected OrbitSample[] sampleItems;
+    protected int sampleItem;
+    protected int lastXItems;
+    protected boolean keepLastXItems;
+    protected boolean processedLastItems;
     
-    protected OrbitTrap(int checkType, double pointRe, double pointIm, double trapLength, double trapWidth, boolean countTrapIterations) {
+    protected OrbitTrap(int checkType, double pointRe, double pointIm, double trapLength, double trapWidth, boolean countTrapIterations, int lastXItems) {
         
         point = new Complex(pointRe, pointIm);
         this.trapLength = trapLength;
         this.trapWidth = trapWidth;
         this.countTrapIterations = countTrapIterations;
         this.checkType = checkType;
+        this.lastXItems = lastXItems;
+
+        if(lastXItems > 0) {
+            keepLastXItems = true;
+            sampleItems = new OrbitSample[lastXItems];
+            sampleItem = 0;
+            processedLastItems = false;
+        }
     }
     
     public void initialize(Complex pixel) {
@@ -61,10 +77,27 @@ public abstract class OrbitTrap {
         trappedPoint = new Complex();
         trapped = false;
         doFirstIterationSkipCheck = !isJulia && (usesHighPrecision || usesStaticInitVal);
+
+        if(keepLastXItems) {
+            Arrays.fill(sampleItems, 0, sampleItems.length, null);
+            sampleItem = 0;
+            processedLastItems = false;
+        }
         
     }
 
     public void check(Complex val, int iteration) {
+
+        if(keepLastXItems) {
+            sampleItems[sampleItem % sampleItems.length] = new OrbitSample(val, iteration);
+            sampleItem++;
+            return;
+        }
+
+        process(val, iteration);
+    }
+
+    private void process(Complex val, int iteration) {
         if((doFirstIterationSkipCheck && iteration == 0) || (iteration < skipTrapCheckForIterations)) {
             return;
         }
@@ -72,11 +105,27 @@ public abstract class OrbitTrap {
     }
 
     protected abstract void checkInternal(Complex val, int iteration);
+
+    protected void processLastItems() {
+        int start = sampleItem >= sampleItems.length ? sampleItem % sampleItems.length : 0;
+        for(int i = start, count = 0; count < sampleItems.length; i++, count++) {
+            OrbitSample sam = sampleItems[i % sampleItems.length];
+
+            if(sam != null) {
+                process(sam.z_val, sam.iterations);
+            }
+        }
+        processedLastItems = true;
+    }
     
     public double getDistance() {
-        
+
+        if(keepLastXItems && !processedLastItems) {
+            processLastItems();
+        }
+
         return distance;
-        
+
     }
     
     public abstract double getMaxValue();

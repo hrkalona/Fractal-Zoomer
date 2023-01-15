@@ -16,10 +16,13 @@
  */
 package fractalzoomer.core.drawing_algorithms;
 
+import fractalzoomer.core.Complex;
+import fractalzoomer.core.PixelExtraData;
 import fractalzoomer.core.ThreadDraw;
 import fractalzoomer.core.antialiasing.AntialiasingAlgorithm;
 import fractalzoomer.core.location.Location;
 import fractalzoomer.functions.Fractal;
+import fractalzoomer.main.Constants;
 import fractalzoomer.main.ImageExpanderWindow;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.*;
@@ -116,32 +119,33 @@ public class BruteForceDraw extends ThreadDraw {
                 x = loc % image_size;
                 y = loc / image_size;
 
-                image_iterations[loc] = f_val = iteration_algorithm.calculate(location.getComplex(x, y));
-                escaped[loc] = escaped_val = iteration_algorithm.escaped();
-                rgbs[loc] = getFinalColor(f_val, escaped_val);
+                if(rgbs[loc] >>> 24 != Constants.NORMAL_ALPHA) {
+                    image_iterations[loc] = f_val = iteration_algorithm.calculate(location.getComplex(x, y));
+                    escaped[loc] = escaped_val = iteration_algorithm.escaped();
+                    rgbs[loc] = getFinalColor(f_val, escaped_val);
+                    thread_calculated++;
+                }
 
                 drawing_done++;
             }
 
             if(drawing_done / pixel_percent >= 1) {
                 update(drawing_done);
-                thread_calculated += drawing_done;
                 drawing_done = 0;
             }
 
         } while(true);
 
-        thread_calculated += drawing_done;
-
-        postProcess(image_size);
+        postProcess(image_size, null, location);
     }
 
     @Override
     protected void drawIterationsAntialiased(int image_size, boolean polar) {
 
         int aaMethod = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
+        boolean useJitter = aaMethod != 6 && ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x4) == 4;
         Location location = Location.getInstanceForDrawing(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
-        location.createAntialiasingSteps(aaMethod == 5);
+        location.createAntialiasingSteps(aaMethod == 5, useJitter);
 
         int pixel_percent = (image_size * image_size) / 100;
 
@@ -154,10 +158,11 @@ public class BruteForceDraw extends ThreadDraw {
         int condition = image_size * image_size;
 
         int aaSamplesIndex = (filters_options_vals[MainWindow.ANTIALIASING] % 100) % 10;
-        boolean aaAvgWithMean = filters_options_vals[MainWindow.ANTIALIASING] / 100 == 1;
+        boolean aaAvgWithMean = ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x1) == 1;
+        int colorSpace = filters_options_extra_vals[0][MainWindow.ANTIALIASING];
         int supersampling_num = (aaSamplesIndex == 0 ? 4 : 8 * aaSamplesIndex);
-
-        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(supersampling_num + 1, aaMethod, aaAvgWithMean);
+        int totalSamples = supersampling_num + 1;
+        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(totalSamples, aaMethod, aaAvgWithMean, colorSpace, location);
 
         if(PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && !HIGH_PRECISION_CALCULATION) {
             if (reference_calc_sync.getAndIncrement() == 0) {
@@ -177,6 +182,9 @@ public class BruteForceDraw extends ThreadDraw {
         boolean escaped_val;
         double f_val;
 
+        boolean needsPostProcessing = needsPostProcessing();
+        aa.setNeedsPostProcessing(needsPostProcessing);
+
         do {
 
             loc = THREAD_CHUNK_SIZE * normal_drawing_algorithm_pixel.getAndIncrement();
@@ -193,12 +201,21 @@ public class BruteForceDraw extends ThreadDraw {
                 escaped[loc] = escaped_val = iteration_algorithm.escaped();
                 color = getFinalColor(f_val, escaped_val);
 
+                if(needsPostProcessing) {
+                    pixelData[loc].set(0, color, f_val, escaped_val, totalSamples);
+                }
+
                 aa.initialize(color);
 
                 //Supersampling
                 for(int i = 0; i < supersampling_num; i++) {
-                    temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i));
-                    color = getFinalColor(temp_result, iteration_algorithm.escaped());
+                    temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i, loc));
+                    escaped_val = iteration_algorithm.escaped();
+                    color = getFinalColor(temp_result, escaped_val);
+
+                    if(needsPostProcessing) {
+                        pixelData[loc].set(i + 1, color, temp_result, escaped_val, totalSamples);
+                    }
 
                     if(!aa.addSample(color)) {
                         break;
@@ -220,7 +237,7 @@ public class BruteForceDraw extends ThreadDraw {
 
         thread_calculated += drawing_done;
 
-        postProcess(image_size);
+        postProcess(image_size, aa, location);
     }
 
     @Override
@@ -270,7 +287,7 @@ public class BruteForceDraw extends ThreadDraw {
 
         } while(true);
 
-        postProcessFastJulia(image_size);
+        postProcessFastJulia(image_size, null, location);
 
     }
 
@@ -278,8 +295,9 @@ public class BruteForceDraw extends ThreadDraw {
     protected void drawFastJuliaAntialiased(int image_size, boolean polar) {
 
         int aaMethod = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
+        boolean useJitter = aaMethod != 6 && ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x4) == 4;
         Location location = Location.getInstanceForDrawing(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
-        location.createAntialiasingSteps(aaMethod == 5);
+        location.createAntialiasingSteps(aaMethod == 5, useJitter);
 
         if(PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && !HIGH_PRECISION_CALCULATION) {
 
@@ -305,13 +323,18 @@ public class BruteForceDraw extends ThreadDraw {
         int condition = image_size * image_size;
 
         int aaSamplesIndex = (filters_options_vals[MainWindow.ANTIALIASING] % 100) % 10;
-        boolean aaAvgWithMean = filters_options_vals[MainWindow.ANTIALIASING] / 100 == 1;
+        boolean aaAvgWithMean = ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x1) == 1;
+        int colorSpace = filters_options_extra_vals[0][MainWindow.ANTIALIASING];
         int supersampling_num = (aaSamplesIndex == 0 ? 4 : 8 * aaSamplesIndex);
+        int totalSamples = supersampling_num + 1;
 
-        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(supersampling_num + 1, aaMethod, aaAvgWithMean);
+        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(totalSamples, aaMethod, aaAvgWithMean, colorSpace, location);
 
         boolean escaped_val;
         double f_val;
+
+        boolean needsPostProcessing = needsPostProcessing();
+        aa.setNeedsPostProcessing(needsPostProcessing);
 
         do {
 
@@ -329,12 +352,21 @@ public class BruteForceDraw extends ThreadDraw {
                 escaped_fast_julia[loc] = escaped_val = iteration_algorithm.escaped();
                 color = getFinalColor(f_val, escaped_val);
 
+                if(needsPostProcessing) {
+                    pixelData_fast_julia[loc].set(0, color, f_val, escaped_val, totalSamples);
+                }
+
                 aa.initialize(color);
 
                 //Supersampling
                 for(int i = 0; i < supersampling_num; i++) {
-                    temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i));
-                    color = getFinalColor(temp_result, iteration_algorithm.escaped());
+                    temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i, loc));
+                    escaped_val = iteration_algorithm.escaped();
+                    color = getFinalColor(temp_result, escaped_val);
+
+                    if(needsPostProcessing) {
+                        pixelData_fast_julia[loc].set(i + 1, color, temp_result, escaped_val, totalSamples);
+                    }
 
                     if(!aa.addSample(color)) {
                         break;
@@ -345,6 +377,208 @@ public class BruteForceDraw extends ThreadDraw {
             }
         } while(true);
 
-        postProcessFastJulia(image_size);
+        postProcessFastJulia(image_size, aa, location);
+    }
+
+    @Override
+    protected void applyPostProcessingPointFilter(int image_size, double[] image_iterations, boolean[] escaped, PixelExtraData[] pixelData, AntialiasingAlgorithm aa, Location location) {
+
+        if(action == COLOR_CYCLING) {
+            super.applyPostProcessingPointFilter(image_size, image_iterations, escaped, pixelData, aa, location);
+            return;
+        }
+
+        double sizeCorr = 0, lightx = 0, lighty = 0;
+
+        if (bms.bump_map) {
+            double gradCorr = Math.pow(2, (bms.bumpMappingStrength - DEFAULT_BUMP_MAPPING_STRENGTH) * 0.05);
+            sizeCorr = image_size / Math.pow(2, (MAX_BUMP_MAPPING_DEPTH - bms.bumpMappingDepth) * 0.16);
+            double lightAngleRadians = Math.toRadians(bms.lightDirectionDegrees);
+            lightx = Math.cos(lightAngleRadians) * gradCorr;
+            lighty = Math.sin(lightAngleRadians) * gradCorr;
+        }
+
+
+        int[] modified = new int[1];
+
+        if(aa != null) {
+            modified = new int[aa.getTotalSamples()];
+            aa.setNeedsPostProcessing(false);
+        }
+
+        int x, y, loc;
+        int condition = image_size * image_size;
+
+        do {
+
+            loc = THREAD_CHUNK_SIZE * normal_drawing_algorithm_post_processing.getAndIncrement();
+
+            if(loc >= condition) {
+                break;
+            }
+
+            for(int count = 0; count < THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
+                x = loc % image_size;
+                y = loc / image_size;
+
+                applyPostProcessingOnPixel(loc, x, y, image_size, image_iterations, escaped, pixelData, aa, modified, sizeCorr, lightx, lighty, location);
+
+            }
+
+        } while(true);
+    }
+
+    @Override
+    protected void changePalette(int image_size) {
+
+        int pixel_percent = (image_size * image_size) / 100;
+
+        int loc;
+        int condition = image_size * image_size;
+
+        do {
+
+            loc = THREAD_CHUNK_SIZE * normal_drawing_algorithm_apply_palette.getAndIncrement();
+
+            if(loc >= condition) {
+                break;
+            }
+
+            for(int count = 0; count < THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
+                if (domain_coloring) {
+                    rgbs[loc] = domain_color.getDomainColor(new Complex(domain_image_data_re[loc], domain_image_data_im[loc]));
+                } else {
+                    rgbs[loc] = getStandardColor(image_iterations[loc], escaped[loc]);
+                }
+
+                drawing_done++;
+            }
+
+            if (drawing_done / pixel_percent >= 1) {
+                update(drawing_done);
+                drawing_done = 0;
+            }
+
+        } while(true);
+
+        postProcess(image_size, null, null);
+
+    }
+
+    @Override
+    protected void applyHistogram(PixelExtraData[] data, int image_size, int maxCount, int histogramGranularity, double histogramDensity, Location location, AntialiasingAlgorithm aa) {
+
+        if(action == COLOR_CYCLING) {
+            super.applyHistogram(data, image_size, maxCount, histogramGranularity, histogramDensity, location, aa);
+            return;
+        }
+
+        int x, y, loc;
+        int condition = image_size * image_size;
+
+        do {
+
+            loc = THREAD_CHUNK_SIZE * normal_drawing_algorithm_histogram.getAndIncrement();
+
+            if(loc >= condition) {
+                break;
+            }
+
+            for(int count = 0; count < THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
+                x = loc % image_size;
+                y = loc / image_size;
+
+                applyHistogramToPixel(loc, x, y, image_size, data, maxCount, histogramGranularity, histogramDensity, location, aa);
+            }
+
+        } while(true);
+
+    }
+
+    @Override
+    protected void applyHistogram(double[] image_iterations, boolean[] escaped, int image_size, int maxCount, int histogramGranularity, double histogramDensity, Location location, AntialiasingAlgorithm aa) {
+
+        if(action == COLOR_CYCLING) {
+            super.applyHistogram(image_iterations, escaped, image_size, maxCount, histogramGranularity, histogramDensity, location, aa);
+            return;
+        }
+
+        int x, y, loc;
+        int condition = image_size * image_size;
+
+        do {
+
+            loc = THREAD_CHUNK_SIZE * normal_drawing_algorithm_histogram.getAndIncrement();
+
+            if(loc >= condition) {
+                break;
+            }
+
+            for(int count = 0; count < THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
+                x = loc % image_size;
+                y = loc / image_size;
+
+                applyHistogramToPixel(loc, x, y, image_size, image_iterations, escaped, maxCount, histogramGranularity, histogramDensity, location, aa);
+            }
+
+        } while(true);
+    }
+
+    @Override
+    protected void applyScaling(double[] image_iterations, boolean[] escaped, int mapping, int image_size, Location location, AntialiasingAlgorithm aa) {
+
+        if(action == COLOR_CYCLING) {
+            super.applyScaling(image_iterations, escaped, mapping, image_size, location, aa);
+            return;
+        }
+
+        int x, y, loc;
+        int condition = image_size * image_size;
+
+        do {
+
+            loc = THREAD_CHUNK_SIZE * normal_drawing_algorithm_histogram.getAndIncrement();
+
+            if(loc >= condition) {
+                break;
+            }
+
+            for(int count = 0; count < THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
+                x = loc % image_size;
+                y = loc / image_size;
+
+                applyScalingToPixel(loc, x, y, image_size, image_iterations, escaped, mapping, location, aa);
+            }
+
+        } while(true);
+    }
+
+    @Override
+    protected void applyScaling(PixelExtraData[] data, int mapping, int image_size, Location location, AntialiasingAlgorithm aa) {
+
+        if(action == COLOR_CYCLING) {
+            super.applyScaling(data, mapping, image_size, location, aa);
+            return;
+        }
+
+        int x, y, loc;
+        int condition = image_size * image_size;
+
+        do {
+
+            loc = THREAD_CHUNK_SIZE * normal_drawing_algorithm_histogram.getAndIncrement();
+
+            if(loc >= condition) {
+                break;
+            }
+
+            for(int count = 0; count < THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
+                x = loc % image_size;
+                y = loc / image_size;
+
+                applyScalingToPixel(loc, x, y, image_size, data, mapping, location, aa);
+            }
+
+        } while(true);
     }
 }

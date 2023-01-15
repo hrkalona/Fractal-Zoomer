@@ -486,10 +486,22 @@ public class Infobar extends JToolBar {
             colorMapframe.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, ActionEvent.CTRL_MASK | ActionEvent.SHIFT_MASK));
         }
         colorMapframe.setToolTipText("Loads all color maps from the " + ColorMapFrame.DirName + " directory.");
-        colorMapframe.addActionListener(ev -> {ptr.setColorMap(color_cycling_location, outcoloring_mode);});
+        colorMapframe.addActionListener(ev -> {ptr.setColorMap(outcoloring_mode);});
 
         popup.addSeparator();
         popup.add(colorMapframe);
+
+        JMenuItem alternativeCustomDirectPalette  = new JMenuItem("Custom Direct Palette", MainWindow.getIcon("palette.png"));
+        alternativeCustomDirectPalette.setToolTipText("Creates a custom direct palette.");
+        if (outcoloring_mode) {
+            alternativeCustomDirectPalette.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, ActionEvent.CTRL_MASK | ActionEvent.SHIFT_MASK));
+        } else {
+            alternativeCustomDirectPalette.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.CTRL_MASK | ActionEvent.SHIFT_MASK));
+        }
+        alternativeCustomDirectPalette.addActionListener(ev -> {ptr.setCustomDirectPalette(outcoloring_mode);});
+
+        popup.addSeparator();
+        popup.add(alternativeCustomDirectPalette);
 
         palette[0].setToolTipText("The default palette.");
         palette[1].setToolTipText("A palette based on color spectrum based.");

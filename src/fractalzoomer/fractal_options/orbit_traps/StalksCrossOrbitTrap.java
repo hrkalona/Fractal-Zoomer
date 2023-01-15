@@ -30,9 +30,9 @@ public class StalksCrossOrbitTrap extends OrbitTrap {
     private double cnorm;
     private int lineType;
     
-    public StalksCrossOrbitTrap(int checkType, double pointRe, double pointIm, double trapLength, double trapWidth, int lineType, boolean countTrapIterations) {
+    public StalksCrossOrbitTrap(int checkType, double pointRe, double pointIm, double trapLength, double trapWidth, int lineType, boolean countTrapIterations, int lastXItems) {
         
-        super(checkType, pointRe, pointIm, trapLength, trapWidth, countTrapIterations);
+        super(checkType, pointRe, pointIm, trapLength, trapWidth, countTrapIterations, lastXItems);
         this.lineType = lineType;
         
     }
@@ -70,6 +70,10 @@ public class StalksCrossOrbitTrap extends OrbitTrap {
 
     @Override
     public double getDistance() {
+
+        if(keepLastXItems && !processedLastItems) {
+            processLastItems();
+        }
 
         return trapId == 0 ? (distance != Double.MAX_VALUE ? Math.abs(trapWidth - 2 * (distance - cnorm + trapWidth * 0.5)) : distance) : distance;
 

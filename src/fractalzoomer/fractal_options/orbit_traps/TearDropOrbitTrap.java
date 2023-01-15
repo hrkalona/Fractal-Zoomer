@@ -26,9 +26,9 @@ import static fractalzoomer.main.Constants.*;
  */
 public class TearDropOrbitTrap extends OrbitTrap {
 
-    public TearDropOrbitTrap(int checkType, double pointRe, double pointIm, double trapLength, double trapWidth, boolean countTrapIterations) {
+    public TearDropOrbitTrap(int checkType, double pointRe, double pointIm, double trapLength, double trapWidth, boolean countTrapIterations, int lastXItems) {
 
-        super(checkType, pointRe, pointIm, trapLength, trapWidth, countTrapIterations);
+        super(checkType, pointRe, pointIm, trapLength, trapWidth, countTrapIterations, lastXItems);
 
     }
 

@@ -17,10 +17,7 @@
 
 package fractalzoomer.planes.general;
 
-import fractalzoomer.core.Complex;
-import fractalzoomer.core.DDComplex;
-import fractalzoomer.core.MpfrBigNumComplex;
-import fractalzoomer.core.ThreadDraw;
+import fractalzoomer.core.*;
 import fractalzoomer.core.mpfr.LibMpfr;
 import fractalzoomer.planes.Plane;
 
@@ -45,7 +42,7 @@ public class MuSquaredImaginaryPlane extends Plane {
 
             if(ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE || ThreadDraw.HIGH_PRECISION_CALCULATION) {
 
-                if(LibMpfr.LOAD_ERROR == null) {
+                if(!LibMpfr.hasError()) {
                     mpfrbnexponent = new MpfrBigNumComplex(0, 2);
                 }
             }
@@ -70,6 +67,26 @@ public class MuSquaredImaginaryPlane extends Plane {
         }
 
         return pixel.pow(mpfrbnexponent);
+
+    }
+
+    @Override
+    public MpirBigNumComplex transform(MpirBigNumComplex pixel) {
+        if(pixel.isZero()) {
+            return pixel;
+        }
+
+        return new MpirBigNumComplex(transform(pixel.toComplex()));
+
+    }
+
+    @Override
+    public BigComplex transform(BigComplex pixel) {
+        if(pixel.isZero()) {
+            return pixel;
+        }
+
+        return new BigComplex(transform(pixel.toComplex()));
 
     }
 

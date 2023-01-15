@@ -6,7 +6,7 @@ import fractalzoomer.main.MainWindow;
 public class ImageRepainter extends Thread {
     private MainWindow ptr;
     private ThreadDraw [][] drawThreads;
-    private static final int sleepTime = 300;
+    public static int REPAINT_SLEEP_TIME = 300;
 
     public ImageRepainter(MainWindow ptr,  ThreadDraw [][] drawThreads) {
         super();
@@ -26,7 +26,7 @@ public class ImageRepainter extends Thread {
         while (!threadsAvailable()) {
             ptr.repaint();
             try {
-                sleep(sleepTime);
+                sleep(REPAINT_SLEEP_TIME);
             }
             catch (Exception ex) {
 

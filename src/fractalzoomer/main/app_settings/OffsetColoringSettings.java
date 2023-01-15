@@ -29,7 +29,7 @@ public class OffsetColoringSettings {
     public OffsetColoringSettings() {
         offset_coloring = false;
         post_process_offset = 300;
-        of_noise_reducing_factor = 0.4;
+        of_noise_reducing_factor = 1e-10;
         of_blending = 0.7; 
     }
 }

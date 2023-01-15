@@ -34,8 +34,8 @@ public class CartesianLocationDeltaBigNum extends CartesianLocationDeltaGenericB
         return getComplexWithYInternal(offset.getY(y)).toComplex();
     }
     @Override
-    public GenericComplex getAntialiasingComplex(int sample) {
-        return getAntialiasingComplexInternal(sample).toComplex();
+    public GenericComplex getAntialiasingComplex(int sample, int loc) {
+        return getAntialiasingComplexInternal(sample, loc).toComplex();
     }
 
 }

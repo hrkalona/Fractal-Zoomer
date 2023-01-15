@@ -18,6 +18,7 @@
 package fractalzoomer.planes.general;
 
 import fractalzoomer.core.*;
+import fractalzoomer.core.mpir.MpirBigNum;
 import fractalzoomer.planes.Plane;
 
 /**
@@ -25,10 +26,15 @@ import fractalzoomer.planes.Plane;
  * @author hrkalona2
  */
 public class MuVariationPlane extends Plane {
+    private MpirBigNum _025;
     
     public MuVariationPlane() {
 
         super();
+
+        if (ThreadDraw.allocateMPIR()) {
+            _025 = new MpirBigNum(0.25);
+        }
 
     }
 
@@ -50,6 +56,13 @@ public class MuVariationPlane extends Plane {
     public MpfrBigNumComplex transform(MpfrBigNumComplex pixel) {
 
         return pixel.square().divide_mutable(pixel.fourth().sub_mutable(0.25));
+
+    }
+
+    @Override
+    public MpirBigNumComplex transform(MpirBigNumComplex pixel) {
+
+        return pixel.square().divide_mutable(pixel.fourth().sub_mutable(_025));
 
     }
 

@@ -44,19 +44,10 @@ public class SmoothEscapeTimePlusReEOC extends OutColorAlgorithm {
         double temp3 = 0;
         if(!(Boolean)object[8]) {
             if(algorithm == 0) {
-                double temp = Math.log(((Complex)object[2]).distance_squared((Complex)object[3]));
-                temp3 = (log_convergent_bailout - temp) / (Math.log(((Complex)object[1]).distance_squared((Complex)object[2])) - temp);
+                temp3 = SmoothEscapeTimeEOC.getConvSmoothing1(object, log_convergent_bailout);
             }
             else {
-                double temp4 = Math.log(((Complex)object[1]).distance_squared((Complex)object[2]) + 1e-33);
-
-                double power = temp4 / Math.log(((Complex)object[2]).distance_squared(((Complex)object[3])));
-
-                power = power <= 0 ? 1e-33 : power;
-
-                double f = Math.log(log_convergent_bailout / temp4) / Math.log(power);
-
-                temp3 = f;
+                temp3 = SmoothEscapeTimeEOC.getConvSmoothing2(object, log_convergent_bailout);
             }
         }
 

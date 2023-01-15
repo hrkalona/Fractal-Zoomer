@@ -1367,19 +1367,23 @@ public class ImageFilters {
 
     }
 
-    private static float[] createGaussianKernel(int length, double weight) {
+    public static float[] createGaussianKernel(int length, double weight) {
         float[] gaussian_kernel = new float[length * length];
         double sumTotal = 0;
 
+        //OpenCv
+        //weight=0.3*((length-1)*0.5 - 1) + 0.8;
         int kernelRadius = length / 2;
         double distance = 0;
 
-        double calculatedEuler = 1.0 / (2.0 * Math.PI * weight * weight);
+        double weightSqr2 =  2.0 * weight * weight;
+        double calculatedEuler = 1.0 / (weightSqr2 * Math.PI);
+
 
         float temp;
         for (int filterY = -kernelRadius; filterY <= kernelRadius; filterY++) {
             for (int filterX = -kernelRadius; filterX <= kernelRadius; filterX++) {
-                distance = ((filterX * filterX) + (filterY * filterY)) / (2 * (weight * weight));
+                distance = ((filterX * filterX) + (filterY * filterY)) / (weightSqr2);
                 temp = gaussian_kernel[(filterY + kernelRadius) * length + filterX + kernelRadius] = (float) (calculatedEuler * Math.exp(-distance));
                 sumTotal += temp;
             }
@@ -1387,7 +1391,7 @@ public class ImageFilters {
 
         for (int y = 0; y < length; y++) {
             for (int x = 0; x < length; x++) {
-                gaussian_kernel[y * length + x] = (float) (gaussian_kernel[y * length + x] * (1.0 / sumTotal));
+                gaussian_kernel[y * length + x] = (float) (gaussian_kernel[y * length + x] / sumTotal);
             }
         }
 

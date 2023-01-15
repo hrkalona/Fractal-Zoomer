@@ -1,3 +1,25 @@
+Version 1.0.8.7
+    -Implemented a period detection algorithm based on derivative for Mandelbrot 2-5 powers
+    -Added new functions Magnet Pataki 2-5 and N powers
+    -Implemented perturbation theory for Magnet Pataki 2-5 powers
+    -Added MPIR as a BigNum library for some intel cpu variants (It is assembly optimized and supports AVX2 instructions). This will decrease the reference calculation time.
+    -Implemented Zhuoran's BLA method.
+    -Refactored Magnet 1 and Newton Parameter Space perturbation implementation (disclaimer Newton Parameter Space has glitches on some locations. A multiple ref implementation will be investigated in the future)
+    -Implemented Anti-Aliasing for all post processing algorithms.
+    -Added a new "zoom on mouse cursor" option (thanks claude)
+    -A subsequent render after quick draw will reuse the calculated points
+    -Added a color spaces for Anti-Aliasing (thanks claude)
+    -Added an option for some Statistical Coloring algorithms to take into account only the last X samples (thanks claude)
+    -Added an option for Orbit Traps to take into account only the last X samples (thanks claude)
+    -Added an option to use jittered grid for Anti-Aliasing
+    -Added outlier detection option on Histogram Coloring and on 3d rendering.
+    -Added a new 3d render tool using Processing (https://processing.org/)
+    -Added a new custom direct palette editor
+    -Added a new drawing algorithm which renders the image on a circular pattern. (It is only visible if Show Drawing Progress is enabled)
+    -Added more color spaces
+    -Windows OS executables will export a l4jini for configurable JVM max heap
+    -Fixed a bug on Distance Estimation calculation, from Statistical Coloring methods, in deep locations.
+
 Version 1.0.8.6
     -The contents of UserDefinedFunctions can now be saved as part of the settings, and then loaded into a new file (SavedUserDefinedFunctions) upon settings load
     -Added a new high-precision module which renders all functions that support perturbation theory with full precision for every pixel calculation (It should be used only for debug as it has very bad performance)

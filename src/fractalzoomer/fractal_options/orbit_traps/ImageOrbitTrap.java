@@ -31,9 +31,9 @@ public class ImageOrbitTrap extends OrbitTrap {
     private int color;
     public static BufferedImage image;
 
-    public ImageOrbitTrap(int checkType, double pointRe, double pointIm, double trapLength, double trapWidth) {
+    public ImageOrbitTrap(int checkType, double pointRe, double pointIm, double trapLength, double trapWidth, int lastXItems) {
 
-        super(checkType, pointRe, pointIm, trapLength, trapWidth, false);
+        super(checkType, pointRe, pointIm, trapLength, trapWidth, false, lastXItems);
         if(checkType == TRAP_CHECK_TYPE_TRAPPED_MIN_DISTANCE) {
             this.checkType = TRAP_CHECK_TYPE_TRAPPED_FIRST;
         }

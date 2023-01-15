@@ -36,7 +36,7 @@ public class RootFindingTwoFunctionsDialog extends JDialog {
     private MainWindow ptra;
     private JOptionPane optionPane;
 
-    public RootFindingTwoFunctionsDialog(MainWindow ptr, Settings s, int oldSelected, JRadioButtonMenuItem[] fractal_functions, boolean wasMagnetType, boolean wasConvergingType, boolean wasSimpleType, boolean wasMagneticPendulumType, boolean wasEscapingOrConvergingType) {
+    public RootFindingTwoFunctionsDialog(MainWindow ptr, Settings s, int oldSelected, JRadioButtonMenuItem[] fractal_functions, boolean wasMagnetType, boolean wasConvergingType, boolean wasSimpleType, boolean wasMagneticPendulumType, boolean wasEscapingOrConvergingType, boolean wasMagnetPatakiType) {
 
         super(ptr);
         
@@ -281,7 +281,7 @@ public class RootFindingTwoFunctionsDialog extends JDialog {
 
                         ptra.optionsEnableShortcut2();
                         dispose();
-                        ptra.setFunctionPost(wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType, wasEscapingOrConvergingType);
+                        ptra.setFunctionPost(oldSelected, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType, wasEscapingOrConvergingType, wasMagnetPatakiType);
                     }
                 });
 

@@ -1,19 +1,25 @@
 package fractalzoomer.convergent_bailout_conditions;
 
 import fractalzoomer.core.*;
-import fractalzoomer.core.mpfr.LibMpfr;
 import fractalzoomer.core.mpfr.MpfrBigNum;
+import fractalzoomer.core.mpir.MpirBigNum;
 import org.apfloat.Apfloat;
 
 public class RhombusDistanceBailoutCondition extends ConvergentBailoutCondition {
     private MpfrBigNum temp1;
     private MpfrBigNum temp2;
+
+    private MpirBigNum temp1p;
+    private MpirBigNum temp2p;
     public RhombusDistanceBailoutCondition(double convergent_bailout) {
         super(convergent_bailout);
         if((ThreadDraw.PERTURBATION_THEORY && ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE) || ThreadDraw.HIGH_PRECISION_CALCULATION) {
-            if(LibMpfr.LOAD_ERROR == null) {
+            if (ThreadDraw.allocateMPFR()) {
                 temp1 = new MpfrBigNum();
                 temp2 = new MpfrBigNum();
+            } else if (ThreadDraw.allocateMPIR()) {
+                temp1p = new MpirBigNum();
+                temp2p = new MpirBigNum();
             }
         }
     }
@@ -41,6 +47,21 @@ public class RhombusDistanceBailoutCondition extends ConvergentBailoutCondition 
 
         if(calculateDistance && result) {
             distance = z.distance_squared(zold, temp1, temp2).doubleValue();
+        }
+
+        return result;
+    }
+
+    @Override
+    public boolean converged(MpirBigNumComplex z, MpirBigNumComplex zold, MpirBigNumComplex zold2, int iterations, MpirBigNumComplex c, MpirBigNumComplex start, MpirBigNumComplex c0, MpirBigNumComplex pixel) {
+        MpirBigNumComplex diff = z.sub(zold, temp1p, temp2p);
+
+        MpirBigNum tempRe = diff.getAbsRe(temp1p);
+        tempRe.add(diff.getAbsIm(temp2p), tempRe);
+        boolean result =  tempRe.compare(convergent_bailout) <= 0;
+
+        if(calculateDistance && result) {
+            distance = z.distance_squared(zold, temp1p, temp2p).doubleValue();
         }
 
         return result;
@@ -105,6 +126,21 @@ public class RhombusDistanceBailoutCondition extends ConvergentBailoutCondition 
     }
 
     @Override
+    public boolean converged(MpirBigNumComplex z, MpirBigNum root, MpirBigNumComplex zold, MpirBigNumComplex zold2, int iterations, MpirBigNumComplex c, MpirBigNumComplex start, MpirBigNumComplex c0, MpirBigNumComplex pixel) {
+        MpirBigNumComplex diff = z.sub(root, temp1p, temp2p);
+
+        MpirBigNum tempRe = diff.getAbsRe(temp1p);
+        tempRe.add(diff.getAbsIm(temp2p), tempRe);
+        boolean result =  tempRe.compare(convergent_bailout) <= 0;
+
+        if(calculateDistance && result) {
+            distance = z.distance_squared(root, temp1p, temp2p).doubleValue();
+        }
+
+        return result;
+    }
+
+    @Override
     public boolean converged(BigComplex z, Apfloat root, BigComplex zold, BigComplex zold2, int iterations, BigComplex c, BigComplex start, BigComplex c0, BigComplex pixel) {
 
         BigComplex diff = z.sub(root);
@@ -155,6 +191,21 @@ public class RhombusDistanceBailoutCondition extends ConvergentBailoutCondition 
 
         if(calculateDistance && result) {
             distance = z.distance_squared(root, temp1, temp2).doubleValue();
+        }
+
+        return result;
+    }
+
+    @Override
+    public boolean converged(MpirBigNumComplex z, MpirBigNumComplex root, MpirBigNumComplex zold, MpirBigNumComplex zold2, int iterations, MpirBigNumComplex c, MpirBigNumComplex start, MpirBigNumComplex c0, MpirBigNumComplex pixel) {
+        MpirBigNumComplex diff = z.sub(root, temp1p, temp2p);
+
+        MpirBigNum tempRe = diff.getAbsRe(temp1p);
+        tempRe.add(diff.getAbsIm(temp2p), tempRe);
+        boolean result =  tempRe.compare(convergent_bailout) <= 0;
+
+        if(calculateDistance && result) {
+            distance = z.distance_squared(root, temp1p, temp2p).doubleValue();
         }
 
         return result;

@@ -20,6 +20,7 @@ import fractalzoomer.fractal_options.orbit_traps.ImageOrbitTrap;
 import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
+import fractalzoomer.main.app_settings.Settings;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -61,7 +62,7 @@ public class OrbitTrapsFrame extends JFrame {
     private JTextField a;
     private JTextField b;
 
-    public OrbitTrapsFrame(MainWindow ptra, OrbitTrapSettings ots) {
+    public OrbitTrapsFrame(MainWindow ptra, OrbitTrapSettings ots, Settings s) {
 
         super();
         ptra2 = ptra;
@@ -69,7 +70,7 @@ public class OrbitTrapsFrame extends JFrame {
 
         ptra2.setEnabled(false);
         int color_window_width = 700;
-        int color_window_height = 710;
+        int color_window_height = 740;
         setTitle("Orbit Traps");
         setSize(color_window_width, color_window_height);
         setIconImage(MainWindow.getIcon("orbit_traps.png").getImage());
@@ -87,7 +88,7 @@ public class OrbitTrapsFrame extends JFrame {
         });
 
         JPanel options_panel = new JPanel();
-        options_panel.setPreferredSize(new Dimension(600, 565));
+        options_panel.setPreferredSize(new Dimension(600, 595));
         options_panel.setBackground(MainWindow.bg_color);
         options_panel.setLayout(new FlowLayout());
 
@@ -143,37 +144,43 @@ public class OrbitTrapsFrame extends JFrame {
         p1.add(new JLabel(" Norm: "));
         p1.add(trap_norm_field);
 
-        final JTextField real_textfield = new JTextField(16);
+        final JTextField real_textfield = new JTextField(10);
         real_textfield.setText("" + ots.trapPoint[0]);
 
-        final JTextField imaginary_textfield = new JTextField(16);
+        final JTextField imaginary_textfield = new JTextField(10);
         imaginary_textfield.setText("" + ots.trapPoint[1]);
+
+        JTextField useLastX = new JTextField(4);
+        useLastX.setToolTipText("Takes into account only the last X samples (0: use all samples).");
+        useLastX.setText("" + ots.lastXItems);
 
         JComboBox<String> checkType = new JComboBox<>(Constants.orbitTrapCheckTypes);
         checkType.setSelectedIndex(ots.checkType);
         checkType.setFocusable(false);
         checkType.setToolTipText("Sets the trap finding method.");
 
-        final JTextField skipCheck = new JTextField(9);
+        final JTextField skipCheck = new JTextField(4);
         skipCheck.setText("" + ots.skipTrapCheckForIterations);
 
         JPanel p2 = new JPanel();
         p2.setBackground(MainWindow.bg_color);
 
-        p2.add(new JLabel("Lines: "));
-        p2.add(lines_function_combo);
         p2.add(new JLabel(" Check: "));
         p2.add(checkType);
-        p2.add(new JLabel(" Skip Fist Iterations: "));
+        p2.add(new JLabel(" Use Last X Samples: "));
+        p2.add(useLastX);
+        p2.add(new JLabel(" Skip Fist X Samples: "));
         p2.add(skipCheck);
 
 
         JPanel p12 = new JPanel();
         p12.setBackground(MainWindow.bg_color);
 
-        p12.add(new JLabel("Center Re: "));
+        p12.add(new JLabel("Lines: "));
+        p12.add(lines_function_combo);
+        p12.add(new JLabel(" Center Re: "));
         p12.add(real_textfield);
-        p12.add(new JLabel(" Center Im: "));
+        p12.add(new JLabel(" Im: "));
         p12.add(imaginary_textfield);
 
         trap_length_field = new JTextField(9);
@@ -273,25 +280,25 @@ public class OrbitTrapsFrame extends JFrame {
         JPanel p10 = new JPanel();
         p10.setBackground(MainWindow.bg_color);
 
-        m1 = new JTextField(9);
+        m1 = new JTextField(7);
         m1.setText("" + ots.sfm1);
 
-        m2 = new JTextField(9);
+        m2 = new JTextField(7);
         m2.setText("" + ots.sfm2);
 
-        n1 = new JTextField(9);
+        n1 = new JTextField(7);
         n1.setText("" + ots.sfn1);
 
-        n2 = new JTextField(9);
+        n2 = new JTextField(7);
         n2.setText("" + ots.sfn2);
 
-        n3 = new JTextField(9);
+        n3 = new JTextField(7);
         n3.setText("" + ots.sfn3);
 
-        a = new JTextField(9);
+        a = new JTextField(7);
         a.setText("" + ots.sfa);
 
-        b = new JTextField(9);
+        b = new JTextField(7);
         b.setText("" + ots.sfb);
 
         p10.add(new JLabel("m1: "));
@@ -334,7 +341,7 @@ public class OrbitTrapsFrame extends JFrame {
                     return;
                 }
 
-                new ColorChooserFrame(this_frame, "Trap Color", trap1_color_label, -1);
+                new ColorChooserFrame(this_frame, "Trap Color", trap1_color_label, -1, -1);
             }
 
             @Override
@@ -375,7 +382,7 @@ public class OrbitTrapsFrame extends JFrame {
                     return;
                 }
 
-                new ColorChooserFrame(this_frame, "Trap Color", trap2_color_label, -1);
+                new ColorChooserFrame(this_frame, "Trap Color", trap2_color_label, -1, -1);
             }
 
             @Override
@@ -416,7 +423,7 @@ public class OrbitTrapsFrame extends JFrame {
                     return;
                 }
 
-                new ColorChooserFrame(this_frame, "Trap Color", trap3_color_label, -1);
+                new ColorChooserFrame(this_frame, "Trap Color", trap3_color_label, -1, -1);
             }
 
             @Override
@@ -459,7 +466,7 @@ public class OrbitTrapsFrame extends JFrame {
                     return;
                 }
 
-                new ColorChooserFrame(this_frame, "Background Color", background_label, -1);
+                new ColorChooserFrame(this_frame, "Background Color", background_label, -1, -1);
             }
 
             @Override
@@ -503,7 +510,7 @@ public class OrbitTrapsFrame extends JFrame {
         JPanel p7 = new JPanel();
         p7.setBackground(MainWindow.bg_color);
         
-        JComboBox<String> colors = new JComboBox<>(new String[] {"Per Trap", "Random", "Hue/Arg HSB", "Hue/Arg LCH", "Random HSB", "Random Palette", "Arg Palette", "Trap Iterations HSB", "Trap Iterations LCH"});
+        JComboBox<String> colors = new JComboBox<>(new String[] {"Per Trap", "Random", "Hue/Arg HSB", "Hue/Arg LCH_ab", "Random HSB", "Random Palette", "Arg Palette", "Trap Iterations HSB", "Trap Iterations LCH_ab", "Hue/Arg LCH_uv", "Trap Iterations LCH_uv"});
         colors.setFocusable(false);
         colors.setSelectedIndex(ots.trapColorFillingMethod);
         colors.setToolTipText("Sets the trap color filling method.");
@@ -550,7 +557,7 @@ public class OrbitTrapsFrame extends JFrame {
                     return;
                 }
 
-                new ColorChooserFrame(this_frame, "Cellular Border Color", cellular_color_label, -1);
+                new ColorChooserFrame(this_frame, "Cellular Border Color", cellular_color_label, -1, -1);
             }
 
             @Override
@@ -603,9 +610,9 @@ public class OrbitTrapsFrame extends JFrame {
         ignoreComponents.add(color_options_panel);
         
         JPanel trap_options_panel = new JPanel();
-        trap_options_panel.setPreferredSize(new Dimension(580, 325));
+        trap_options_panel.setPreferredSize(new Dimension(580, 355));
         trap_options_panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Trap Options", TitledBorder.DEFAULT_POSITION, TitledBorder.DEFAULT_POSITION));
-        trap_options_panel.setLayout(new GridLayout(8, 1));
+       // trap_options_panel.setLayout(new GridLayout(8, 1));
         trap_options_panel.setBackground(MainWindow.bg_color);
         
         color_options_panel.add(p4);
@@ -613,12 +620,19 @@ public class OrbitTrapsFrame extends JFrame {
         color_options_panel.add(p6);
         color_options_panel.add(p8);
 
+        JPanel superformula_panel = new JPanel();
+        superformula_panel.setPreferredSize(new Dimension(560, 90));
+        superformula_panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Super-formula Options", TitledBorder.DEFAULT_POSITION, TitledBorder.DEFAULT_POSITION));
+        superformula_panel.setBackground(MainWindow.bg_color);
+
+        superformula_panel.add(p10);
+        superformula_panel.add(p11);
+
         trap_options_panel.add(p1);
         trap_options_panel.add(p2);
         trap_options_panel.add(p12);
         trap_options_panel.add(p3);
-        trap_options_panel.add(p10);
-        trap_options_panel.add(p11);
+        trap_options_panel.add(superformula_panel);
         trap_options_panel.add(p9);
         trap_options_panel.add(p5);
         
@@ -634,7 +648,7 @@ public class OrbitTrapsFrame extends JFrame {
 
             double temp, temp2, temp3, temp4, temp5, temp6, temp7;
             double tempM1, tempM2, tempN1, tempN2, tempN3, tempA, tempB;
-            int skipTrapIterations;
+            int skipTrapIterations, temp21;
             try {
                 temp = Double.parseDouble(trap_norm_field.getText());
                 temp2 = Double.parseDouble(real_textfield.getText());
@@ -651,8 +665,14 @@ public class OrbitTrapsFrame extends JFrame {
                 tempA = Double.parseDouble(a.getText());
                 tempB = Double.parseDouble(b.getText());
                 skipTrapIterations = Integer.parseInt(skipCheck.getText());
+                temp21 = Integer.parseInt(useLastX.getText());
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(this_frame, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            if(temp21 < 0) {
+                JOptionPane.showMessageDialog(this_frame, "The last x samples value must be greater than -1.", "Error!", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
@@ -720,6 +740,8 @@ public class OrbitTrapsFrame extends JFrame {
             ots.sfa = tempA;
             ots.sfb = tempB;
 
+            ots.lastXItems = temp21;
+
             if(image != null) {
                 ots.trapImage = image;
                 ImageOrbitTrap.image = ots.trapImage;
@@ -728,9 +750,16 @@ public class OrbitTrapsFrame extends JFrame {
             ots.showOnlyTraps = showOnlyTraps.isSelected();
             ots.background = background_label.getBackground();
 
-            ptra2.setOrbitTrapSettings();
+
             ptra2.setEnabled(true);
             dispose();
+
+            if (ots.useTraps && ots.lastXItems == 0
+                    && s.isPertubationTheoryInUse()) {
+                JOptionPane.showMessageDialog(ptra, "Using all samples will not work correctly while using Perturbation Theory.", "Warning!", JOptionPane.WARNING_MESSAGE);
+            }
+
+            ptra2.setOrbitTrapSettings();
 
         });
 
@@ -776,7 +805,7 @@ public class OrbitTrapsFrame extends JFrame {
 
         RoundedPanel round_panel = new RoundedPanel(true, true, true, 15);
         round_panel.setBackground(MainWindow.bg_color);
-        round_panel.setPreferredSize(new Dimension(630, 625));
+        round_panel.setPreferredSize(new Dimension(630, 655));
         round_panel.setLayout(new GridBagLayout());
 
         GridBagConstraints con = new GridBagConstraints();

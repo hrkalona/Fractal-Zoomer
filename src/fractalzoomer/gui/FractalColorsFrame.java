@@ -78,7 +78,7 @@ public class FractalColorsFrame extends JFrame {
             @Override
             public void mousePressed(MouseEvent e) {
 
-                new ColorChooserFrame(this_frame, "Maximum Iterations Color", max_it_color_label, -1);
+                new ColorChooserFrame(this_frame, "Maximum Iterations Color", max_it_color_label, -1, -1);
 
             }
 
@@ -122,7 +122,7 @@ public class FractalColorsFrame extends JFrame {
             @Override
             public void mousePressed(MouseEvent e) {
 
-                new ColorChooserFrame(this_frame, "Distance Estimation Color", dem_color_label, -1);
+                new ColorChooserFrame(this_frame, "Distance Estimation Color", dem_color_label, -1, -1);
 
             }
 
@@ -181,7 +181,7 @@ public class FractalColorsFrame extends JFrame {
             @Override
             public void mousePressed(MouseEvent e) {
 
-                new ColorChooserFrame(this_frame, "Special Color", special_color_label, -1);
+                new ColorChooserFrame(this_frame, "Special Color", special_color_label, -1, -1);
 
             }
 

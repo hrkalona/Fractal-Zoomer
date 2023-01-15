@@ -177,9 +177,9 @@ public class SequenceRenderDialog extends JDialog {
                             int tempGradientColorCycling = Integer.parseInt(fieldGradientColorCycling.getText());
 
                             if(MyApfloat.setAutomaticPrecision) {
-                                long precision = MyApfloat.getAutomaticPrecision(new String[]{field_size.getText()}, new boolean[]{true});
+                                long precision = MyApfloat.getAutomaticPrecision(new String[]{field_size.getText()}, new boolean[]{true}, true);
 
-                                if (MyApfloat.shouldSetPrecision(precision, false)) {
+                                if (MyApfloat.shouldSetPrecision(precision, true)) {
                                     Fractal.clearReferences(true);
                                     MyApfloat.setPrecision(precision, s);
                                 }

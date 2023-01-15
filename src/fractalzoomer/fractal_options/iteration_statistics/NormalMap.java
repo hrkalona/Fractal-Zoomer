@@ -3,7 +3,7 @@ package fractalzoomer.fractal_options.iteration_statistics;
 import fractalzoomer.core.*;
 import fractalzoomer.core.bla.BLA;
 import fractalzoomer.core.bla.BLADeep;
-import fractalzoomer.core.interpolation.*;
+import fractalzoomer.core.la.LAstep;
 import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.utils.ColorAlgorithm;
@@ -21,6 +21,8 @@ public class NormalMap extends GenericStatistic {
     private Complex v;
     private double DELimit;
     private MantExp DELimit_m;
+
+    private double normalMapDistanceEstimatorfactor;
 
     private double DEUpperLimit;
     private MantExp DEUpperLimit_m;
@@ -44,8 +46,8 @@ public class NormalMap extends GenericStatistic {
     private int deFadeAlgorithm = 0;
 
 
-    public NormalMap(double statistic_intensity, double power, double height, double angle, boolean useSecondDerivative, double normalMapDEfactor, boolean isJulia, boolean normalMapUseDE, boolean normalMapInvertDE, int normalMapColoring, boolean useNormalMap, double DEUpperLimit, boolean normalMapDEAAEffect, boolean normalMapOverrideColoring, int deFadeAlgorithm) {
-        super(statistic_intensity, false, false);
+    public NormalMap(double statistic_intensity, double power, double height, double angle, boolean useSecondDerivative, double normalMapDEfactor, boolean isJulia, boolean normalMapUseDE, boolean normalMapInvertDE, int normalMapColoring, boolean useNormalMap, double DEUpperLimit, boolean normalMapDEAAEffect, boolean normalMapOverrideColoring, int deFadeAlgorithm, double normalMapDistanceEstimatorfactor) {
+        super(statistic_intensity, false, false, 0);
         this.power = power;
         h2 = height;
         v = new Complex(0, angle*2*Math.PI/360).exp();
@@ -63,6 +65,7 @@ public class NormalMap extends GenericStatistic {
         juliterIterations = 0;
         this.normalMapOverrideColoring = normalMapOverrideColoring;
         this.deFadeAlgorithm = deFadeAlgorithm;
+        this.normalMapDistanceEstimatorfactor = normalMapDistanceEstimatorfactor;
     }
 
     public void setJuliterOptions(boolean isJuliter, int juliterIterations) {
@@ -74,10 +77,42 @@ public class NormalMap extends GenericStatistic {
         this.function = function;
     }
 
+
     @Override
     public void insert(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0) {
-        super.insert(z, zold, zold2, iterations, c, start, c0);
 
+        MantExpComplex zDeep = null;
+        MantExpComplex zoldDeep = null;
+        MantExpComplex cDeep = null;
+
+        boolean supportsDeepCalculations = supportsDeepCalculations();
+
+        if(supportsDeepCalculations) {
+            zDeep = new MantExpComplex(z);
+            zoldDeep = new MantExpComplex(zold);
+
+            if(function == Constants.LAMBDA) {
+                cDeep = new MantExpComplex(c);
+            }
+        }
+
+        super.insert(z, zold, zold2, iterations, c, start, c0, zDeep, zoldDeep, cDeep);
+        insertInternal( z, zold, zold2, iterations, c, start, c0);
+    }
+
+    @Override
+    public void insert(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0, MantExpComplex zDeep, MantExpComplex zoldDeep, MantExpComplex cDeep) {
+        super.insert(z, zold, zold2, iterations, c, start, c0, zDeep, zoldDeep, cDeep);
+        insertInternal( z, zold, zold2, iterations, c, start, c0);
+    }
+
+    @Override
+    public void insert(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0, GenericComplex zDeep, GenericComplex zoldDeep, GenericComplex cDeep) {
+        super.insert(z, zold, zold2, iterations, c, start, c0, zDeep, zoldDeep, cDeep);
+        insertInternal( z, zold, zold2, iterations, c, start, c0);
+    }
+
+    private void insertInternal(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0) {
         if(power == 0) {
             return;
         }
@@ -96,20 +131,12 @@ public class NormalMap extends GenericStatistic {
             }
         }
 
-        MantExpComplex zold_m = null;
-        MantExpComplex c_val_m = null;
-
-        boolean supportsDeepCalculations = supportsDeepCalculations();
-
-        if(supportsDeepCalculations) {
-            zold_m = new MantExpComplex(zold);
-            c_val_m = new MantExpComplex(c_val);
-        }
+        boolean supportsDeepCalculations = zold_val_deep != null;
 
         if(useSecondDerivative) {
             if(function == Constants.MANDELBROT) {
                 if(supportsDeepCalculations) {
-                    derivative2_m = (derivative2_m.times(zold_m).plus_mutable(derivative_m.square())).times_mutable(power); // 2ddc * z + 2dc^2
+                    derivative2_m = (derivative2_m.times(zold_val_deep).plus_mutable(derivative_m.square())).times_mutable(power); // 2ddc * z + 2dc^2
                 }
                 else {
                     derivative2 = (derivative2.times(zold).plus_mutable(derivative.square())).times_mutable(power); // 2ddc * z + 2dc^2
@@ -119,7 +146,7 @@ public class NormalMap extends GenericStatistic {
                 //Hopefully my math are correct
                 //ddc = 3*ddc*z^2 + 6*z*dc^2
                 if(supportsDeepCalculations) {
-                    derivative2_m = derivative2_m.times(power).times_mutable(zold_m.square()).plus_mutable(derivative_m.square().times_mutable(power * (power - 1)).times_mutable(zold_m));
+                    derivative2_m = derivative2_m.times(power).times_mutable(zold_val_deep.square()).plus_mutable(derivative_m.square().times_mutable(power * (power - 1)).times_mutable(zold_val_deep));
                 }
                 else {
                     derivative2 = derivative2.times(power).times_mutable(zold.square()).plus_mutable(derivative.square().times_mutable(power * (power - 1)).times_mutable(zold));
@@ -127,7 +154,7 @@ public class NormalMap extends GenericStatistic {
             }
             else if(function == Constants.MANDELBROTFOURTH) {
                 if(supportsDeepCalculations) {
-                    derivative2_m = derivative2_m.times(power).times_mutable(zold_m.cube()).plus_mutable(derivative_m.square().times_mutable(power * (power - 1)).times_mutable(zold_m.square()));
+                    derivative2_m = derivative2_m.times(power).times_mutable(zold_val_deep.cube()).plus_mutable(derivative_m.square().times_mutable(power * (power - 1)).times_mutable(zold_val_deep.square()));
                 }
                 else {
                     derivative2 = derivative2.times(power).times_mutable(zold.cube()).plus_mutable(derivative.square().times_mutable(power * (power - 1)).times_mutable(zold.square()));
@@ -135,7 +162,7 @@ public class NormalMap extends GenericStatistic {
             }
             else if(function == Constants.MANDELBROTFIFTH) {
                 if(supportsDeepCalculations) {
-                    derivative2_m = derivative2_m.times(power).times_mutable(zold_m.fourth()).plus_mutable(derivative_m.square().times_mutable(power * (power - 1)).times_mutable(zold_m.cube()));
+                    derivative2_m = derivative2_m.times(power).times_mutable(zold_val_deep.fourth()).plus_mutable(derivative_m.square().times_mutable(power * (power - 1)).times_mutable(zold_val_deep.cube()));
                 }
                 else {
                     derivative2 = derivative2.times(power).times_mutable(zold.fourth()).plus_mutable(derivative.square().times_mutable(power * (power - 1)).times_mutable(zold.cube()));
@@ -166,7 +193,7 @@ public class NormalMap extends GenericStatistic {
             }
             else if(function == Constants.LAMBDA) {
                 if (supportsDeepCalculations) {
-                    derivative2_m = (derivative2_m.times(new MantExpComplex(1, 0).sub_mutable(zold_m.times2())).sub_mutable(derivative_m.square().times2_mutable())).times_mutable(c_val_m);
+                    derivative2_m = (derivative2_m.times(new MantExpComplex(1, 0).sub_mutable(zold_val_deep.times2())).sub_mutable(derivative_m.square().times2_mutable())).times_mutable(c_val_deep);
                 } else {
                     derivative2 = (derivative2.times(zold.times(2).r_sub_mutable(1)).sub_mutable(derivative.square().times_mutable(2))).times_mutable(c_val);
                 }
@@ -174,7 +201,7 @@ public class NormalMap extends GenericStatistic {
 
             if(function == Constants.LAMBDA && (!isJulia || (isJulia && isJuliter && iterations < juliterIterations))) {
                 if (supportsDeepCalculations) {
-                    derivative2_m.plus_mutable((new MantExpComplex(2, 0).sub_mutable(zold_m.times4())).times_mutable(derivative_m));
+                    derivative2_m.plus_mutable((new MantExpComplex(2, 0).sub_mutable(zold_val_deep.times4())).times_mutable(derivative_m));
                 }
                 else {
                     derivative2.plus_mutable((zold.times(4).r_sub_mutable(2)).times_mutable(derivative));
@@ -184,7 +211,7 @@ public class NormalMap extends GenericStatistic {
 
         if(function == Constants.MANDELBROT) {
             if(supportsDeepCalculations) {
-                derivative_m = derivative_m.times(power).times_mutable(zold_m);
+                derivative_m = derivative_m.times(power).times_mutable(zold_val_deep);
             }
             else {
                 derivative = derivative.times(power).times_mutable(zold);
@@ -192,7 +219,7 @@ public class NormalMap extends GenericStatistic {
         }
         else if(function == Constants.MANDELBROTCUBED) {
             if(supportsDeepCalculations) {
-                derivative_m = derivative_m.times(power).times_mutable(zold_m.square());
+                derivative_m = derivative_m.times(power).times_mutable(zold_val_deep.square());
             }
             else {
                 derivative = derivative.times(power).times_mutable(zold.square());
@@ -200,7 +227,7 @@ public class NormalMap extends GenericStatistic {
         }
         else if(function == Constants.MANDELBROTFOURTH) {
             if(supportsDeepCalculations) {
-                derivative_m = derivative_m.times(power).times_mutable(zold_m.cube());
+                derivative_m = derivative_m.times(power).times_mutable(zold_val_deep.cube());
             }
             else {
                 derivative = derivative.times(power).times_mutable(zold.cube());
@@ -208,7 +235,7 @@ public class NormalMap extends GenericStatistic {
         }
         else if(function == Constants.MANDELBROTFIFTH) {
             if(supportsDeepCalculations) {
-                derivative_m = derivative_m.times(power).times_mutable(zold_m.fourth());
+                derivative_m = derivative_m.times(power).times_mutable(zold_val_deep.fourth());
             }
             else {
                 derivative = derivative.times(power).times_mutable(zold.fourth());
@@ -239,7 +266,7 @@ public class NormalMap extends GenericStatistic {
         }
         else if (function == Constants.LAMBDA) {
             if(supportsDeepCalculations) {
-                derivative_m = derivative_m.times(new MantExpComplex(1, 0).sub_mutable(zold_m.times2())).times_mutable(c_val_m);
+                derivative_m = derivative_m.times(new MantExpComplex(1, 0).sub_mutable(zold_val_deep.times2())).times_mutable(c_val_deep);
             }
             else {
                 derivative = derivative.times(zold.times(2).r_sub_mutable(1)).times_mutable(c_val);
@@ -257,7 +284,7 @@ public class NormalMap extends GenericStatistic {
         }
         else if(function == Constants.LAMBDA && (!isJulia || (isJulia && isJuliter && iterations < juliterIterations))) {
             if(supportsDeepCalculations) {
-                derivative_m.sub_mutable(zold_m.square()).plus_mutable(zold_m);
+                derivative_m.sub_mutable(zold_val_deep.square()).plus_mutable(zold_val_deep);
             }
             else {
                 derivative.sub_mutable(zold.square()).plus_mutable(zold);
@@ -347,6 +374,62 @@ public class NormalMap extends GenericStatistic {
     }
 
     @Override
+    public void insert(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0, LAstep las, MantExpComplex zDeep, MantExpComplex zoldDeep) {
+        super.insert(z, zold, zold2, iterations, c, start, c0, zDeep, zoldDeep, null);
+
+        if(power == 0) {
+            return;
+        }
+
+        if(samples == 0) {
+            if (function == MainWindow.MANDELBROT){
+                if (zold.compare(new Complex()) != 0) {
+                    derivative = new Complex(1, 0);
+                    derivative_m = new MantExpComplex(derivative);
+                }
+            }
+        }
+
+        if(useSecondDerivative) {
+            derivative2_m = las.EvaluateDzdc2Deep(zold_val_deep, derivative2_m, derivative_m);
+            derivative2_m.Reduce();
+        }
+
+        derivative_m = las.EvaluateDzdcDeep(zold_val_deep, derivative_m);
+        derivative_m.Reduce();
+
+        samples += las.step;
+    }
+
+    @Override
+    public void insert(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0, LAstep las) {
+        super.insert(z, zold, zold2, iterations, c, start, c0, new MantExpComplex(z), new MantExpComplex(zold), null);
+
+        if(power == 0) {
+            return;
+        }
+
+        if(samples == 0) {
+            if (function == MainWindow.MANDELBROT){
+                if (zold.compare(new Complex()) != 0) {
+                    derivative = new Complex(1, 0);
+                    derivative_m = new MantExpComplex(derivative);
+                }
+            }
+        }
+
+        if(useSecondDerivative) {
+            derivative2_m = las.EvaluateDzdc2(zold_val_deep, derivative2_m, derivative_m);
+            derivative2_m.Reduce();
+        }
+
+        derivative_m = las.EvaluateDzdc(zold_val_deep, derivative_m);
+        derivative_m.Reduce();
+
+        samples += las.step;
+    }
+
+    @Override
     public void initialize(Complex pixel, Complex untransformedPixel) {
         super.initialize(pixel, untransformedPixel);
         samples = 0;
@@ -366,26 +449,27 @@ public class NormalMap extends GenericStatistic {
         if(supportsDeepCalculations()) {
             MantExpComplex u_m = null;
             if(useSecondDerivative) {
-                double lo = 0.5 * Math.log(z_val.hypot());
-                MantExpComplex z_val_m = new MantExpComplex(z_val);
-                u_m = z_val_m.times(derivative_m).times_mutable(derivative_m.square().conjugate_mutable().times_mutable(1 + lo).sub_mutable(z_val_m.times(derivative2_m).conjugate_mutable().times_mutable(lo)));
+                double lo = 0.5 * Math.log(z_val_deep.norm().toDouble());
+                u_m = z_val_deep.times(derivative_m).times_mutable(derivative_m.square().conjugate_mutable().times_mutable(1 + lo).sub_mutable(z_val_deep.times(derivative2_m).conjugate_mutable().times_mutable(lo)));
             }
             else {
-                MantExpComplex z_val_m = new MantExpComplex(z_val);
-                u_m = z_val_m.divide(derivative_m);
+                if(z_val_deep == null) {
+                    int a = 0;
+                }
+                u_m = z_val_deep.divide(derivative_m);
 
             }
-            u = u_m.divide(u_m.hypot()).toComplex();  // normal vector: (u.re,u.im,1)
+            u = u_m.divide(u_m.norm()).toComplex();  // normal vector: (u.re,u.im,1)
         }
         else {
             if(useSecondDerivative) {
-                double lo = 0.5 * Math.log(z_val.hypot());
+                double lo = 0.5 * Math.log(z_val.norm());
                 u = z_val.times(derivative).times_mutable(derivative.square().conjugate_mutable().times_mutable(1 + lo).sub_mutable(z_val.times(derivative2).conjugate_mutable().times_mutable(lo)));
             }
             else {
                 u = z_val.divide(derivative);
             }
-            u = u.divide(u.hypot());  // normal vector: (u.re,u.im,1)
+            u = u.divide(u.norm());  // normal vector: (u.re,u.im,1)
         }
 
         double reflection = u.getRe() * v.getRe() + u.getIm() * v.getIm() + h2;  // dot product with the incoming light
@@ -412,11 +496,11 @@ public class NormalMap extends GenericStatistic {
         if(normalMapUseDE && !normalMapDEAAEffect) {
 
             if(supportsDeepCalculations()) {
-                double temp2 = z_val.hypot();
+                double temp2 = z_val_deep.norm().toDouble();
                 double temp3 = Math.log(temp2);
 
                 MantExp left = new MantExp(temp2).multiply(new MantExp(temp3));
-                MantExp right = (derivative_m.hypot().multiply(DELimit_m));
+                MantExp right = (derivative_m.norm().multiply(DELimit_m));
 
                 if(normalMapInvertDE) {
                     if (left.compareTo(right) > 0) {
@@ -449,11 +533,11 @@ public class NormalMap extends GenericStatistic {
                 }
             }
             else {
-                double temp2 = z_val.hypot();
+                double temp2 = z_val.norm();
                 double temp3 = Math.log(temp2);
 
                 double left = temp2 * temp3;
-                double right = (derivative.hypot() * DELimit);
+                double right = (derivative.norm() * DELimit);
 
                 if(normalMapInvertDE) {
                     if (!Double.isNaN(left) && !Double.isNaN(right) && left > right) {
@@ -528,14 +612,14 @@ public class NormalMap extends GenericStatistic {
 
             if(supportsDeepCalculations()) {
 
-                double norm_z = z_val.hypot();
-                MantExpComplex u = new MantExpComplex(z_val).divide(derivative_m);
+                double norm_z = z_val_deep.norm().toDouble();
+                MantExpComplex u = z_val_deep.divide(derivative_m);
                 MantExpComplex temp = u.times(Math.log(norm_z)).times(MantExp.TWO);
                 return ((1 + temp.toComplex().arg() / (2 * Math.PI)) % 1.0);//Todo: Bug here
 
             }
             else {
-                double norm_z = z_val.hypot();
+                double norm_z = z_val.norm();
                 Complex u = z_val.divide(derivative);
 
                 Complex temp = u.times(Math.log(norm_z)).times(2);
@@ -550,18 +634,18 @@ public class NormalMap extends GenericStatistic {
             //return 1 / Math.tanh(temp.norm());
 
             if(supportsDeepCalculations()) {
-                double temp2 = z_val.hypot();
+                double temp2 = z_val_deep.norm().toDouble();
                 double temp3 = Math.log(temp2);
-                MantExp temp4 = new MantExp(temp2).divide(derivative_m.hypot());
-                double temp = -4.0 * new MantExp(temp3).multiply(temp4).multiply_mutable(MantExp.TWO).log();
+                MantExp temp4 = new MantExp(temp2).divide(derivative_m.norm());
+                double temp = -4.0 * new MantExp(temp3 * normalMapDistanceEstimatorfactor).multiply(temp4).multiply_mutable(MantExp.TWO).log();
 
                 return temp < 0 ? 0 : temp;
             }
             else {
-                double temp2 = z_val.hypot();
+                double temp2 = z_val.norm();
                 double temp3 = Math.log(temp2);
-                double temp4 = temp2 / derivative.hypot();
-                double temp = -4.0 * Math.log(2 * temp3 * temp4);
+                double temp4 = temp2 / derivative.norm();
+                double temp = -4.0 * Math.log(2 * temp3 * temp4 * normalMapDistanceEstimatorfactor);
 
                 return temp < 0 ? 0 : temp;
             }
@@ -576,18 +660,18 @@ public class NormalMap extends GenericStatistic {
 
         double t;
         if(supportsDeepCalculations()) {
-            double temp2 = z_val.hypot();
+            double temp2 = z_val_deep.norm().toDouble();
             double temp3 = Math.log(temp2);
 
-            MantExp d = new MantExp(temp2).multiply(new MantExp(temp3)).divide_mutable(derivative_m.hypot());
+            MantExp d = new MantExp(temp2).multiply(new MantExp(temp3)).divide_mutable(derivative_m.norm());
             MantExp t_m = d.divide(DELimit_m);
             t = t_m.toDouble();
         }
         else {
-            double temp2 = z_val.hypot();
+            double temp2 = z_val.norm();
             double temp3 = Math.log(temp2);
 
-            double d = temp2 * temp3 / derivative.hypot();
+            double d = temp2 * temp3 / derivative.norm();
             t = d / DELimit;
         }
 
@@ -598,33 +682,7 @@ public class NormalMap extends GenericStatistic {
             t = t > 1 ? 1 : t;
         }
 
-        switch (deFadeAlgorithm) {
-            case 1:
-                return SqrtInterpolation.getCoefficient(t);
-            case 2:
-                return CbrtInterpolation.getCoefficient(t);
-            case 3:
-                return FrthrootInterpolation.getCoefficient(t);
-            case 4:
-                return CosineInterpolation.getCoefficient(t);
-            case 5:
-                return AccelerationInterpolation.getCoefficient(t);
-            case 6:
-                return SineInterpolation.getCoefficient(t);
-            case 7:
-                return DecelerationInterpolation.getCoefficient(t);
-            case 8:
-                return ThirdPolynomialInterpolation.getCoefficient(t);
-            case 9:
-                return FifthPolynomialInterpolation.getCoefficient(t);
-            case 10:
-                return Exponential2Interpolation.getCoefficient(t);
-            case 11:
-                return SmoothTransitionFunctionInterpolation.getCoefficient(t);
-            default:
-                return t;
-        }
-
+        return ThreadDraw.fade(deFadeAlgorithm, t);
 
     }
 
@@ -678,6 +736,7 @@ public class NormalMap extends GenericStatistic {
     @Override
     public void setZValue(Complex z) {
         super.setZValue(z);
+        z_val_deep = new MantExpComplex(z);
         if(samples == 0) {
             if(function == Constants.LAMBDA && isJulia && !isJuliter) {
                 derivative = new Complex(0.25, 0);
@@ -690,5 +749,17 @@ public class NormalMap extends GenericStatistic {
                 }
             }
         }
+    }
+
+    @Override
+    public boolean isAdditive() {
+        if(normalMapOverrideColoring && normalMapColoring == 2) {
+            return false;
+        }
+        return true;
+    }
+
+    public double getSizeOffset() {
+        return mSize.getExp() + mSize.getMantissa() * 0.5;
     }
 }

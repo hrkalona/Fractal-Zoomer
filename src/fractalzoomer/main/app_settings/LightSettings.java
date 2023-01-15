@@ -78,7 +78,7 @@ public class LightSettings {
         heightTransfer = 0;
         lightMode = 0;
         colorMode = 0;
-        l_noise_reducing_factor = 0.4;
+        l_noise_reducing_factor = 1e-10;
         light_blending = 0.5;
         heightTransferFactor = 10;
         

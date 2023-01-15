@@ -80,7 +80,6 @@ import fractalzoomer.main.app_settings.Settings;
 import fractalzoomer.main.app_settings.StatisticsSettings;
 import fractalzoomer.parser.ExpressionNode;
 import fractalzoomer.parser.Parser;
-import fractalzoomer.utils.ColorAlgorithm;
 
 import java.util.ArrayList;
 

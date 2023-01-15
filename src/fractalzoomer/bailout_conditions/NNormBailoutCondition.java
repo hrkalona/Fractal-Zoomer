@@ -20,6 +20,7 @@ package fractalzoomer.bailout_conditions;
 import fractalzoomer.core.*;
 import fractalzoomer.core.mpfr.LibMpfr;
 import fractalzoomer.core.mpfr.MpfrBigNum;
+import fractalzoomer.core.mpir.MpirBigNum;
 import org.apfloat.Apcomplex;
 import org.apfloat.Apfloat;
 
@@ -59,7 +60,7 @@ public class NNormBailoutCondition extends BailoutCondition {
 
             if(ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE || ThreadDraw.HIGH_PRECISION_CALCULATION) {
 
-                if(LibMpfr.LOAD_ERROR == null) {
+                if(!LibMpfr.hasError()) {
                     mpfrbn_norm = new MpfrBigNum(n_norm);
                     temp1 = new MpfrBigNum();
                     temp2 = new MpfrBigNum();
@@ -106,6 +107,14 @@ public class NNormBailoutCondition extends BailoutCondition {
         }
 
         return z.nnorm(mpfrbn_norm, temp1, temp2, mpfrbn_norm_reciprocal).compare(bound) >= 0;
+    }
+
+    @Override
+    public boolean escaped(MpirBigNumComplex z, MpirBigNumComplex zold, MpirBigNumComplex zold2, int iterations, MpirBigNumComplex c, MpirBigNumComplex start, MpirBigNumComplex c0, MpirBigNum norm_squared, MpirBigNumComplex pixel) {
+        if(n_norm == 0) {
+            return false;
+        }
+        return z.toComplex().nnorm(n_norm, n_norm_reciprocal) >= bound;
     }
 
     @Override

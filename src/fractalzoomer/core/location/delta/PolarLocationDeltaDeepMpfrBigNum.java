@@ -36,7 +36,7 @@ public class PolarLocationDeltaDeepMpfrBigNum extends PolarLocationDeltaGenericM
     }
 
     @Override
-    public GenericComplex getAntialiasingComplex(int sample) {
-        return getAntialiasingComplexInternal(sample).toMantExpComplex();
+    public GenericComplex getAntialiasingComplex(int sample, int loc) {
+        return getAntialiasingComplexInternal(sample, loc).toMantExpComplex();
     }
 }

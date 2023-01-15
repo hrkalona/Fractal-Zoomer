@@ -18,6 +18,8 @@
 package fractalzoomer.planes.general;
 
 import fractalzoomer.core.*;
+import fractalzoomer.core.mpfr.MpfrBigNum;
+import fractalzoomer.core.mpir.MpirBigNum;
 import fractalzoomer.planes.Plane;
 
 /**
@@ -25,11 +27,45 @@ import fractalzoomer.planes.Plane;
  * @author hrkalona2
  */
 public class LambdaPlane extends Plane {
+    private MpfrBigNum tempRe;
+    private MpfrBigNum tempIm;
+    private MpfrBigNum temp1;
+    private MpfrBigNum temp2;
+    private MpfrBigNum temp3;
+    private MpfrBigNum temp4;
+
+    private MpirBigNum tempRep;
+    private MpirBigNum tempImp;
+    private MpirBigNum temp1p;
+    private MpirBigNum temp2p;
+    private MpirBigNum temp3p;
+    private MpirBigNum temp4p;
     
     public LambdaPlane() {
         
         super();
-        
+
+        if(ThreadDraw.PERTURBATION_THEORY || ThreadDraw.HIGH_PRECISION_CALCULATION) {
+            if (ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE || ThreadDraw.HIGH_PRECISION_CALCULATION) {
+
+                if (ThreadDraw.allocateMPFR()) {
+                    tempRe = new MpfrBigNum();
+                    tempIm = new MpfrBigNum();
+                    temp1 = new MpfrBigNum();
+                    temp2 = new MpfrBigNum();
+                    temp3 = new MpfrBigNum();
+                    temp4 = new MpfrBigNum();
+                } else if (ThreadDraw.allocateMPIR()) {
+                    tempRep = new MpirBigNum();
+                    tempImp = new MpirBigNum();
+                    temp1p = new MpirBigNum();
+                    temp2p = new MpirBigNum();
+                    temp3p = new MpirBigNum();
+                    temp4p = new MpirBigNum();
+                }
+            }
+        }
+
     }
 
     @Override
@@ -56,7 +92,14 @@ public class LambdaPlane extends Plane {
     @Override
     public MpfrBigNumComplex transform(MpfrBigNumComplex pixel) {
 
-        return pixel.times(pixel.r_sub(1));
+        return pixel.times_mutable(pixel.r_sub(1, tempRe, tempIm), temp1, temp2, temp3, temp4);
+
+    }
+
+    @Override
+    public MpirBigNumComplex transform(MpirBigNumComplex pixel) {
+
+        return pixel.times_mutable(pixel.r_sub(1, tempRep, tempImp), temp1p, temp2p, temp3p, temp4p);
 
     }
 

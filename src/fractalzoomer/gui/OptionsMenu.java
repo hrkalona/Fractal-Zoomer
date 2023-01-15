@@ -39,6 +39,8 @@ public class OptionsMenu extends JMenu {
     private JMenu rotation_menu;
     private OptimizationsMenu optimizations_menu;
     private ToolsOptionsMenu tools_options_menu;
+
+    private JMenu general_options_menu;
     private JMenuItem filters_options;
     private JMenuItem size_of_image;
     private JMenuItem iterations;
@@ -46,6 +48,8 @@ public class OptionsMenu extends JMenu {
     private JMenuItem jitter_opt;
     private JMenuItem increase_iterations;
     private JMenuItem decrease_iterations;
+
+    private JMenuItem double_iterations;
     private JMenuItem period;
     private JMenuItem height_ratio_number;
     private JMenuItem set_rotation;
@@ -63,6 +67,12 @@ public class OptionsMenu extends JMenu {
     private JCheckBoxMenuItem infobar_opt;
     private JCheckBoxMenuItem fullscreen_opt;
 
+    private JCheckBoxMenuItem auto_repaint_image_opt;
+
+    private JCheckBoxMenuItem zoom_on_cursor_opt;
+
+    private JMenuItem quick_draw_opt;
+
     public OptionsMenu(MainWindow ptr2, String name, PaletteSettings ps, PaletteSettings ps2, boolean smoothing, boolean show_orbit_converging_point, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, int out_coloring_algorithm, int in_coloring_algorithm, int function, int plane_type, int bailout_test_algorithm, int color_blending, boolean color_blending_reverse_order, int temp_color_cycling_location, int temp_color_cycling_location2, int pre_filter, int post_filter, int plane_influence, int convergent_bailout_test_algorithm) {
 
         super(name);
@@ -77,6 +87,8 @@ public class OptionsMenu extends JMenu {
         increase_iterations = new JMenuItem("Increase Iterations", MainWindow.getIcon("plus.png"));
 
         decrease_iterations = new JMenuItem("Decrease Iterations", MainWindow.getIcon("minus.png"));
+
+        double_iterations = new JMenuItem("Double Iterations", MainWindow.getIcon("x2.png"));
 
         iterations = new JMenuItem("Set Iterations", MainWindow.getIcon("iterations.png"));
 
@@ -111,6 +123,9 @@ public class OptionsMenu extends JMenu {
 
         tools_options_menu = new ToolsOptionsMenu(ptr, "Tools Options", show_orbit_converging_point);
 
+        general_options_menu = new JMenu("General Options");
+        general_options_menu.setIcon(MainWindow.getIcon("general_options.png"));
+
         filters_options = new JMenuItem("Filters Options", MainWindow.getIcon("filter_options.png"));
 
         window_menu = new JMenu("Window");
@@ -127,11 +142,16 @@ public class OptionsMenu extends JMenu {
         infobar_opt = new JCheckBoxMenuItem("Information Bar");
         fullscreen_opt = new JCheckBoxMenuItem("Full Screen");
 
+        auto_repaint_image_opt  = new JCheckBoxMenuItem("Show Drawing Progress");
+        zoom_on_cursor_opt = new JCheckBoxMenuItem("Zoom on Mouse Cursor");
+        quick_draw_opt = new JMenuItem("Quick Draw", MainWindow.getIcon("quickdraw.png"));
+
         size_of_image.setToolTipText("Sets the image size.");
         period.setToolTipText("Sets the period for the reference calculation.");
         iterations.setToolTipText("Sets the maximum number of iterations.");
         increase_iterations.setToolTipText("Increases the maximum iteterations number by one.");
         decrease_iterations.setToolTipText("Decreases the maximum iteterations number by one.");
+        double_iterations.setToolTipText("Doubles the maximum iteterations.");
         bailout_number.setToolTipText("Sets the bailout. Above this number the norm of a complex numbers is not bounded.");
         set_rotation.setToolTipText("Sets the rotation in degrees.");
         point_opt.setToolTipText("A point picked by the user, for the point variable.");
@@ -147,12 +167,16 @@ public class OptionsMenu extends JMenu {
         infobar_opt.setToolTipText("Activates the information bar.");
         fullscreen_opt.setToolTipText("Toggles the application from window mode to full screen.");
         jitter_opt.setToolTipText("Adds jitter to each pixel.");
+        zoom_on_cursor_opt.setToolTipText("Changes the zooming mechanism, so the zooming stays around the mouse cursor.");
+        auto_repaint_image_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, ActionEvent.ALT_MASK | ActionEvent.SHIFT_MASK));
+        quick_draw_opt.setToolTipText("Sets the options for the quick draw method.");
 
         size_of_image.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, ActionEvent.CTRL_MASK));
         iterations.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, 0));
         period.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_PERIOD, 0));
         increase_iterations.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, ActionEvent.ALT_MASK));
         decrease_iterations.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, ActionEvent.ALT_MASK));
+        double_iterations.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_2, ActionEvent.CTRL_MASK));
         bailout_number.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_U, ActionEvent.ALT_MASK));
         set_rotation.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, ActionEvent.ALT_MASK));
         increase_rotation.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, ActionEvent.CTRL_MASK));
@@ -167,6 +191,7 @@ public class OptionsMenu extends JMenu {
         fullscreen_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F11, 0));
         stats_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F12, 0));
         jitter_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_J, ActionEvent.CTRL_MASK | ActionEvent.SHIFT_MASK));
+        quick_draw_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, ActionEvent.SHIFT_MASK));
 
         overview_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.SHIFT_MASK));
 
@@ -179,6 +204,8 @@ public class OptionsMenu extends JMenu {
         increase_iterations.addActionListener(e -> ptr.increaseIterations());
 
         decrease_iterations.addActionListener(e -> ptr.decreaseIterations());
+
+        double_iterations.addActionListener(e -> ptr.doubleIterations());
 
         bailout_number.addActionListener(e -> ptr.setBailout());
 
@@ -208,6 +235,10 @@ public class OptionsMenu extends JMenu {
 
         jitter_opt.addActionListener(e -> ptr.setJitter());
 
+        auto_repaint_image_opt.addActionListener(e -> ptr.setAutoRepaintImage());
+        zoom_on_cursor_opt.addActionListener(e -> ptr.setZoomOnCursor());
+        quick_draw_opt.addActionListener(e -> ptr.setQuickDrawTiles());
+
         window_menu.add(toolbar_opt);
         window_menu.add(infobar_opt);
         window_menu.add(statusbar_opt);
@@ -223,10 +254,17 @@ public class OptionsMenu extends JMenu {
         iterations_menu.add(iterations);
         iterations_menu.add(increase_iterations);
         iterations_menu.add(decrease_iterations);
+        iterations_menu.add(double_iterations);
 
         rotation_menu.add(set_rotation);
         rotation_menu.add(increase_rotation);
         rotation_menu.add(decrease_rotation);
+
+        general_options_menu.add(quick_draw_opt);
+        general_options_menu.addSeparator();
+        general_options_menu.add(auto_repaint_image_opt);
+        general_options_menu.addSeparator();
+        general_options_menu.add(zoom_on_cursor_opt);
 
         add(fractal_options_menu);
         addSeparator();
@@ -255,6 +293,8 @@ public class OptionsMenu extends JMenu {
         add(optimizations_menu);
         addSeparator();
         add(tools_options_menu);
+        addSeparator();
+        add(general_options_menu);
         addSeparator();
         add(filters_options);
         addSeparator();
@@ -599,6 +639,12 @@ public class OptionsMenu extends JMenu {
 
     }
 
+    public JMenu getGeneralOptionsMenu() {
+
+        return general_options_menu;
+
+    }
+
     public JMenuItem getRandomPalette() {
 
         return colors_menu.getRandomPalette();
@@ -743,8 +789,18 @@ public class OptionsMenu extends JMenu {
 
     public JCheckBoxMenuItem getAutoRepaintImage() {
 
-        return optimizations_menu.getAutoRepaintImage();
+        return auto_repaint_image_opt;
 
+    }
+
+    public JCheckBoxMenuItem getZoomOnCursor() {
+
+        return zoom_on_cursor_opt;
+
+    }
+
+    public JMenuItem getZoomFactor() {
+        return change_zooming_factor;
     }
 
     public void updateIcons(Settings s) {

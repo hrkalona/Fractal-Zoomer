@@ -36,8 +36,8 @@ public class PolarLocationDeltaDoubleDouble extends PolarLocationNormalDoubleDou
         return getComplexWithYBase(y).sub(reference);
     }
 
-    protected DDComplex getAntialiasingComplexInternal(int sample) {
-        return getAntialiasingComplexBase(sample).sub(reference);
+    protected DDComplex getAntialiasingComplexInternal(int sample, int loc) {
+        return getAntialiasingComplexBase(sample, loc).sub(reference);
     }
 
     @Override
@@ -56,8 +56,8 @@ public class PolarLocationDeltaDoubleDouble extends PolarLocationNormalDoubleDou
     }
 
     @Override
-    public GenericComplex getAntialiasingComplex(int sample) {
-        return getAntialiasingComplexInternal(sample).toComplex();
+    public GenericComplex getAntialiasingComplex(int sample, int loc) {
+        return getAntialiasingComplexInternal(sample, loc).toComplex();
     }
 
     @Override
@@ -69,8 +69,17 @@ public class PolarLocationDeltaDoubleDouble extends PolarLocationNormalDoubleDou
     @Override
     public GenericComplex getReferencePoint() {
         DDComplex tempbc = new DDComplex(ddxcenter, ddycenter);
-        tempbc = rotation.rotate(tempbc);
+
+        if(rotation.shouldRotate(ddxcenter, ddycenter)) {
+            tempbc = rotation.rotate(tempbc);
+        }
+
         tempbc = fractal.getPlaneTransformedPixel(tempbc);
         return tempbc;
+    }
+
+    @Override
+    public MantExp getSize() {
+        return getMaxSizeInImage();
     }
 }

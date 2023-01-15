@@ -256,9 +256,9 @@ public class RotationDialog extends JDialog {
 
                         try {
                             if(MyApfloat.setAutomaticPrecision) {
-                                long precision = MyApfloat.getAutomaticPrecision(new String[]{field_real.getText(), field_imaginary.getText()}, new boolean[] {false, false});
+                                long precision = MyApfloat.getAutomaticPrecision(new String[]{field_real.getText(), field_imaginary.getText()}, new boolean[] {false, false}, false);
 
-                                if (MyApfloat.shouldSetPrecision(precision, false)) {
+                                if (MyApfloat.shouldSetPrecision(precision, true)) {
                                     Fractal.clearReferences(true);
                                     MyApfloat.setPrecision(precision, s);
                                 }

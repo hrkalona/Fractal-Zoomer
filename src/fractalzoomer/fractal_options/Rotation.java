@@ -19,6 +19,7 @@ package fractalzoomer.fractal_options;
 
 import fractalzoomer.core.*;
 import fractalzoomer.core.mpfr.MpfrBigNum;
+import fractalzoomer.core.mpir.MpirBigNum;
 import org.apfloat.Apfloat;
 
 
@@ -55,6 +56,15 @@ public class Rotation {
     private MpfrBigNum tempIm;
   private MpfrBigNumComplex mpfrbncenter;
 
+    private MpirBigNumComplex mpirbncenter;
+
+    private MpirBigNum Fp;
+    private MpirBigNum tempRep;
+    private MpirBigNum tempImp;
+
+    private MpirBigNum mpirbnrotationA;
+    private MpirBigNum mpirbnrotationApB;
+    private MpirBigNum mpirbnrotationAsB;
     private boolean hasRotation = false;
     private boolean hasRotationCenter = false;
 
@@ -122,6 +132,22 @@ public class Rotation {
             F = new MpfrBigNum();
             tempRe = new MpfrBigNum();
             tempIm = new MpfrBigNum();
+        }
+    }
+
+    public Rotation(MpirBigNumComplex mpirbnrotation, MpirBigNumComplex mpirbncenter) {
+
+        this.mpirbncenter = mpirbncenter;
+        hasRotation = !mpirbnrotation.isOne();
+        hasRotationCenter = !mpirbncenter.isZero();
+
+        if(hasRotation) {
+            mpirbnrotationA = mpirbnrotation.getRe();
+            mpirbnrotationApB = mpirbnrotationA.add(mpirbnrotation.getIm());
+            mpirbnrotationAsB = mpirbnrotationA.sub(mpirbnrotation.getIm());
+            Fp = new MpirBigNum();
+            tempRep = new MpirBigNum();
+            tempImp = new MpirBigNum();
         }
     }
     
@@ -220,6 +246,57 @@ public class Rotation {
             pixel.plus_mutable(mpfrbncenter);
         }
         return pixel;
+    }
+
+
+    public MpirBigNumComplex rotate(MpirBigNumComplex pixel) {
+        if(hasRotationCenter) {
+            pixel.sub_mutable(mpirbncenter);
+        }
+
+        if(hasRotation) { //pixel * rotation but more efficient
+            MpirBigNum X = pixel.getRe();
+            MpirBigNum Y = pixel.getIm();
+
+//            X.sub(Y, Fp);
+//            mpirbnrotationA.mult(Fp, Fp);
+//
+//            mpirbnrotationAsB.mult(Y, tempRep);
+//            mpirbnrotationApB.mult(X, tempImp);
+//
+//            tempRep.add(Fp, X);
+//            tempImp.sub(Fp, Y);
+            MpirBigNum.rotation(X, Y, tempRep, tempImp, Fp, mpirbnrotationA, mpirbnrotationAsB, mpirbnrotationApB);
+        }
+
+        if(hasRotationCenter) {
+            pixel.plus_mutable(mpirbncenter);
+        }
+        return pixel;
+    }
+
+    public boolean shouldRotate(double xCenter, double yCenter) {
+        return xCenter != center.getRe() || yCenter != center.getIm();
+    }
+
+    public boolean shouldRotate(DoubleDouble xCenter, DoubleDouble yCenter) {
+        return xCenter.compareTo(ddccenter.getRe()) != 0 || yCenter.compareTo(ddccenter.getIm()) != 0;
+    }
+
+    public boolean shouldRotate(BigNum xCenter, BigNum yCenter) {
+        return xCenter.compare(bncenter.getRe()) != 0 || yCenter.compare(bncenter.getIm()) != 0;
+    }
+
+    public boolean shouldRotate(MpirBigNum xCenter, MpirBigNum yCenter) {
+        return xCenter.compare(mpirbncenter.getRe()) != 0 || yCenter.compare(mpirbncenter.getIm()) != 0;
+    }
+
+    public boolean shouldRotate(MpfrBigNum xCenter, MpfrBigNum yCenter) {
+        return xCenter.compare(mpfrbncenter.getRe()) != 0 || yCenter.compare(mpfrbncenter.getIm()) != 0;
+    }
+
+    public boolean shouldRotate(Apfloat xCenter, Apfloat yCenter) {
+        return xCenter.compareTo(ddcenter.getRe()) != 0 || yCenter.compareTo(ddcenter.getIm()) != 0;
     }
     
 }

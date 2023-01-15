@@ -27,9 +27,9 @@ import static fractalzoomer.main.Constants.*;
 public class CrossOrbitTrap extends OrbitTrap {
     private int lineType;
 
-    public CrossOrbitTrap(int checkType, double pointRe, double pointIm, double trapLength, double trapWidth, int lineType, boolean countTrapIterations) {
+    public CrossOrbitTrap(int checkType, double pointRe, double pointIm, double trapLength, double trapWidth, int lineType, boolean countTrapIterations, int lastXItems) {
 
-        super(checkType, pointRe, pointIm, trapLength, trapWidth, countTrapIterations);
+        super(checkType, pointRe, pointIm, trapLength, trapWidth, countTrapIterations, lastXItems);
         this.lineType = lineType;
 
     }

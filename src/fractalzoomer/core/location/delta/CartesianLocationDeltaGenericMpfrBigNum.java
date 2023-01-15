@@ -36,14 +36,18 @@ public abstract class CartesianLocationDeltaGenericMpfrBigNum extends CartesianL
         return getComplexWithYBase(y).sub_mutable(reference);
     }
 
-    protected MpfrBigNumComplex getAntialiasingComplexInternal(int sample) {
-        return getAntialiasingComplexBase(sample).sub_mutable(reference);
+    protected MpfrBigNumComplex getAntialiasingComplexInternal(int sample, int loc) {
+        return getAntialiasingComplexBase(sample, loc).sub_mutable(reference);
     }
 
     @Override
     public GenericComplex getReferencePoint() {
         MpfrBigNumComplex tempbn = new MpfrBigNumComplex(ddxcenter, ddycenter);
-        tempbn = rotation.rotate(tempbn);
+
+        if(rotation.shouldRotate(ddxcenter, ddycenter)) {
+            tempbn = rotation.rotate(tempbn);
+        }
+
         tempbn = fractal.getPlaneTransformedPixel(tempbn);
         return tempbn;
     }
@@ -61,6 +65,11 @@ public abstract class CartesianLocationDeltaGenericMpfrBigNum extends CartesianL
             temp.add(temp2.square(temp2), temp);
             return temp.sqrt(temp).getMantExp();
         }
+    }
+
+    @Override
+    public MantExp getSize() {
+        return ddsize.getMantExp();
     }
 
 }

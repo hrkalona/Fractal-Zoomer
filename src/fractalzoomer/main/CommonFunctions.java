@@ -304,6 +304,21 @@ public class CommonFunctions implements Constants {
         else if (s.fns.function == MAGNET24) {
             overview += tab + "z = ((z^3 + 3(c - 1)z + (c - 1)(c - 2))/(3z^2 + 3(c - 2)z + (c - 1)(c - 2))))^4" + "<br>";
         }
+        else if (s.fns.function == MAGNET_PATAKI2) {
+            overview += tab + "z = (z^2 + c)/(z^2 - 1)" + "<br>";
+        }
+        else if (s.fns.function == MAGNET_PATAKI3) {
+            overview += tab + "z = (z^3 + c)/(z^3 - 1)" + "<br>";
+        }
+        else if (s.fns.function == MAGNET_PATAKI4) {
+            overview += tab + "z = (z^4 + c)/(z^4 - 1)" + "<br>";
+        }
+        else if (s.fns.function == MAGNET_PATAKI5) {
+            overview += tab + "z = (z^5 + c)/(z^5 - 1)" + "<br>";
+        }
+        else if (s.fns.function == MAGNET_PATAKIK) {
+            overview += tab + "z = (z^" + s.fns.z_exponent + " + c)/(z^" + s.fns.z_exponent + " - 1)" + "<br>";
+        }
         else if (s.fns.function == FROTHY_BASIN) {
             overview += tab + "z = z^2 - (1 + 1.028713768218725i)conj(z) + c<br>";
         } else if (s.fns.function == SPIDER) {
@@ -1225,12 +1240,21 @@ public class CommonFunctions implements Constants {
                         }
 
                         if(s.sts.normalMapDEAAEffect) {
-                            overview += tab2 + "Fade Method = " + Constants.deFadeAlgs[s.sts.normalMapDeFadeAlgorithm] + "<br>";
+                            overview += tab2 + "Fade Method = " + Constants.FadeAlgs[s.sts.normalMapDeFadeAlgorithm] + "<br>";
+                            if(s.sts.normalMapDEUseColorPerDepth) {
+                                overview += tab2 + "Coloring Per-Depth<br>";
+                                overview += tab3 + "Factor = " + s.sts.normalMapDEOffsetFactor + "<br>";
+                                overview += tab3 + "Offset = " + s.sts.normalMapDEOffset + "<br>";
+                            }
                         }
                     }
 
                     if(s.sts.normalMapOverrideColoring) {
                         overview += tab + "Coloring Algorithm = " + normalMapColoringMethods[s.sts.normalMapColoring] + "<br>";
+
+                        if(s.sts.normalMapColoring == 2 || s.sts.normalMapColoring == 3) {
+                            overview += tab2 + "Distance Estimator Factor = " + s.sts.normalMapDistanceEstimatorfactor + "<br>";
+                        }
                     }
 
                 }
@@ -1277,20 +1301,28 @@ public class CommonFunctions implements Constants {
                     }
 
                     if (s.sts.statisticGroup == 1) {
-                        if (s.sts.useSmoothing && s.sts.reductionFunction == Constants.REDUCTION_SUM) {
+                        if (s.sts.useSmoothing && (s.sts.reductionFunction == Constants.REDUCTION_SUM || s.sts.reductionFunction == Constants.REDUCTION_SUB)) {
                             overview += tab + "Smooth Sum<br>";
                         }
 
-                        if (s.sts.useAverage && s.sts.reductionFunction == Constants.REDUCTION_SUM) {
+                        if (s.sts.useAverage && (s.sts.reductionFunction == Constants.REDUCTION_SUM || s.sts.reductionFunction == Constants.REDUCTION_SUB)) {
                             overview += tab + "Using Average<br>";
                         }
+
+                        if(s.sts.lastXItems > 0) {
+                            overview += tab + "Using only last "  + s.sts.lastXItems +" samples<br>";
+                        }
                     } else if (s.sts.statisticGroup == 0) {
-                        if (s.sts.useSmoothing && s.sts.statistic_type != Constants.ATOM_DOMAIN_BOF60_BOF61 && s.sts.statistic_type != Constants.COS_ARG_DIVIDE_INVERSE_NORM && s.sts.statistic_type != Constants.TWIN_LAMPS) {
+                        if (s.sts.useSmoothing && s.sts.statistic_type != Constants.ATOM_DOMAIN_BOF60_BOF61 && s.sts.statistic_type != Constants.COS_ARG_DIVIDE_INVERSE_NORM) {
                             overview += tab + "Smooth Sum<br>";
                         }
 
                         if (s.sts.useAverage && s.sts.statistic_type != Constants.ATOM_DOMAIN_BOF60_BOF61 && s.sts.statistic_type != Constants.COS_ARG_DIVIDE_INVERSE_NORM && s.sts.statistic_type != Constants.TWIN_LAMPS) {
                             overview += tab + "Using Average<br>";
+                        }
+
+                        if(s.sts.lastXItems > 0) {
+                            overview += tab + "Using only last "  + s.sts.lastXItems +" samples<br>";
                         }
                     } else if (s.sts.statisticGroup == 2) {
                         if (s.sts.useSmoothing) {
@@ -1381,6 +1413,11 @@ public class CommonFunctions implements Constants {
                             overview += tab2 + "S = " + s.fns.tcs.outTcComponent2 + "<br>";
                             overview += tab2 + "B = " + s.fns.tcs.outTcComponent3 + "<br>";
                             break;
+                        case ColorSpaceConverter.HWB:
+                            overview += tab2 + "H = " + s.fns.tcs.outTcComponent1 + "<br>";
+                            overview += tab2 + "W = " + s.fns.tcs.outTcComponent2 + "<br>";
+                            overview += tab2 + "B = " + s.fns.tcs.outTcComponent3 + "<br>";
+                            break;
                         case ColorSpaceConverter.HSL:
                             overview += tab2 + "H = " + s.fns.tcs.outTcComponent1 + "<br>";
                             overview += tab2 + "S = " + s.fns.tcs.outTcComponent2 + "<br>";
@@ -1396,7 +1433,7 @@ public class CommonFunctions implements Constants {
                             overview += tab2 + "A = " + s.fns.tcs.outTcComponent2 + "<br>";
                             overview += tab2 + "B = " + s.fns.tcs.outTcComponent3 + "<br>";
                             break;
-                        case ColorSpaceConverter.LCH:
+                        case ColorSpaceConverter.LCH_ab:
                             overview += tab2 + "L = " + s.fns.tcs.outTcComponent1 + "<br>";
                             overview += tab2 + "C = " + s.fns.tcs.outTcComponent2 + "<br>";
                             overview += tab2 + "H = " + s.fns.tcs.outTcComponent3 + "<br>";
@@ -1438,6 +1475,11 @@ public class CommonFunctions implements Constants {
                             overview += tab2 + "S = " + s.fns.tcs.inTcComponent2 + "<br>";
                             overview += tab2 + "B = " + s.fns.tcs.inTcComponent3 + "<br>";
                             break;
+                        case ColorSpaceConverter.HWB:
+                            overview += tab2 + "H = " + s.fns.tcs.inTcComponent1 + "<br>";
+                            overview += tab2 + "W = " + s.fns.tcs.inTcComponent2 + "<br>";
+                            overview += tab2 + "B = " + s.fns.tcs.inTcComponent3 + "<br>";
+                            break;
                         case ColorSpaceConverter.HSL:
                             overview += tab2 + "H = " + s.fns.tcs.inTcComponent1 + "<br>";
                             overview += tab2 + "S = " + s.fns.tcs.inTcComponent2 + "<br>";
@@ -1453,7 +1495,7 @@ public class CommonFunctions implements Constants {
                             overview += tab2 + "A = " + s.fns.tcs.inTcComponent2 + "<br>";
                             overview += tab2 + "B = " + s.fns.tcs.inTcComponent3 + "<br>";
                             break;
-                        case ColorSpaceConverter.LCH:
+                        case ColorSpaceConverter.LCH_ab:
                             overview += tab2 + "L = " + s.fns.tcs.inTcComponent1 + "<br>";
                             overview += tab2 + "C = " + s.fns.tcs.inTcComponent2 + "<br>";
                             overview += tab2 + "H = " + s.fns.tcs.inTcComponent3 + "<br>";
@@ -1575,6 +1617,10 @@ public class CommonFunctions implements Constants {
                     }
                 }
 
+                if(s.ots.lastXItems > 0) {
+                    overview += tab + "Using only last "  + s.ots.lastXItems +" samples<br>";
+                }
+
                 overview += "<br>";
             }
 
@@ -1621,9 +1667,11 @@ public class CommonFunctions implements Constants {
 
                             if (s.fdes.inverse_fake_dem) {
                                 overview += tab + "Factor = " + s.fdes.fake_de_factor + "<br>";
+                                overview += tab + "Fade Method = " + Constants.FadeAlgs[s.fdes.fade_algorithm] + "<br>";
                                 overview += tab + "Inverted Coloring<br><br>";
                             } else {
-                                overview += tab + "Factor = " + s.fdes.fake_de_factor + "<br><br>";
+                                overview += tab + "Factor = " + s.fdes.fake_de_factor + "<br>";
+                                overview += tab + "Fade Method = " + Constants.FadeAlgs[s.fdes.fade_algorithm] + "<br><br>";
                             }
                         }
                         break;
@@ -1979,10 +2027,20 @@ public class CommonFunctions implements Constants {
 
             for (int i = 0; i < c.length; i++) {
                 double h = ((double) i) / (c.length - 1);
-                c[i] = new Color(DomainColoring.LCHcolor(h, color_cycling_location));
+                c[i] = new Color(DomainColoring.LCHabcolor(h, color_cycling_location));
             }
             isSmooth = true;
-        } else if (s.ds.domain_coloring && s.ds.domain_coloring_mode == 3) {
+        }
+        else if (s.ds.domain_coloring && s.ds.domain_coloring_mode == 5) {
+            c = new Color[width];
+
+            for (int i = 0; i < c.length; i++) {
+                double h = ((double) i) / (c.length - 1);
+                c[i] = new Color(DomainColoring.LCHuvcolor(h, color_cycling_location));
+            }
+            isSmooth = true;
+        }
+        else if (s.ds.domain_coloring && s.ds.domain_coloring_mode == 3) {
             c = new Color[width];
 
             for (int i = 0; i < c.length; i++) {
@@ -2147,5 +2205,18 @@ public class CommonFunctions implements Constants {
 
     public static void showHighPrecisionHelp(JDialog dialog) {
         new HighPrecisionHelpDialog(dialog);
+    }
+
+    public static void exportL4jIni(String fileName, String contents) {
+
+        Path path = Paths.get(fileName + ".l4j.ini");
+
+        if(!Files.exists(path)) {
+            try {
+                byte[] strToBytes = contents.getBytes();
+                Files.write(path, strToBytes);
+            }
+            catch (Exception ex) {}
+        }
     }
 }

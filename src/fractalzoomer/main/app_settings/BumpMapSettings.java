@@ -53,7 +53,7 @@ public class BumpMapSettings {
         lightDirectionDegrees = 0;
         bump_transfer_function = 0;
         bump_transfer_factor = 1.0;
-        bm_noise_reducing_factor = 0.4;
+        bm_noise_reducing_factor = 1e-10;
         bumpProcessing = 0;
         bump_blending = 0.5;
         

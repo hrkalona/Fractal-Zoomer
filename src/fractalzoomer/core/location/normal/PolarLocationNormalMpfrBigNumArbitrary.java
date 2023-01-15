@@ -102,7 +102,7 @@ public class PolarLocationNormalMpfrBigNumArbitrary extends Location {
 
     public PolarLocationNormalMpfrBigNumArbitrary(PolarLocationNormalMpfrBigNumArbitrary other) {
 
-        super();
+        super(other);
 
         fractal = other.fractal;
 
@@ -436,29 +436,50 @@ public class PolarLocationNormalMpfrBigNumArbitrary extends Location {
     }
 
     @Override
-    public void createAntialiasingSteps(boolean adaptive) {
-        MpfrBigNum[][] steps = createAntialiasingPolarStepsMpfrBigNum(ddmulx, ddmuly, adaptive);
+    public void createAntialiasingSteps(boolean adaptive, boolean jitter) {
+        super.createAntialiasingSteps(adaptive, jitter);
+        MpfrBigNum[][] steps = createAntialiasingPolarStepsMpfrBigNum(ddmulx, ddmuly, adaptive, jitter);
         ddantialiasing_x = steps[0];
         ddantialiasing_y_sin = steps[1];
         ddantialiasing_y_cos = steps[2];
     }
 
     @Override
-    public GenericComplex getAntialiasingComplex(int sample) {
-        return getAntialiasingComplexBase(sample);
+    public GenericComplex getAntialiasingComplex(int sample, int loc) {
+        return getAntialiasingComplexBase(sample, loc);
     }
 
-    protected MpfrBigNumComplex getAntialiasingComplexBase(int sample) {
+    protected MpfrBigNumComplex getAntialiasingComplexBase(int sample, int loc) {
 
-        temp_ddsf.mult(ddantialiasing_y_cos[sample], tempResult);
-        temp_ddcf.mult(ddantialiasing_y_sin[sample], tempResult2);
-        tempResult.add(tempResult2, tempResult); //sf2
 
-        temp_ddcf.mult(ddantialiasing_y_cos[sample], tempResult3);
-        temp_ddsf.mult(ddantialiasing_y_sin[sample], tempResult4);
-        tempResult3.sub(tempResult4, tempResult3); //cf2
 
-        temp_ddr.mult(ddantialiasing_x[sample], tempResult2); //r2
+        if(aaJitter) {
+            int r = (int)(hash(loc) % NUMBER_OF_AA_JITTER_KERNELS);
+            MpfrBigNum[] ddantialiasing_x = precalculatedJitterDataPolarMpfrBigNum[r][0];
+            MpfrBigNum[] ddantialiasing_y_sin = precalculatedJitterDataPolarMpfrBigNum[r][1];
+            MpfrBigNum[] ddantialiasing_y_cos = precalculatedJitterDataPolarMpfrBigNum[r][2];
+
+            temp_ddsf.mult(ddantialiasing_y_cos[sample], tempResult);
+            temp_ddcf.mult(ddantialiasing_y_sin[sample], tempResult2);
+            tempResult.add(tempResult2, tempResult); //sf2
+
+            temp_ddcf.mult(ddantialiasing_y_cos[sample], tempResult3);
+            temp_ddsf.mult(ddantialiasing_y_sin[sample], tempResult4);
+            tempResult3.sub(tempResult4, tempResult3); //cf2
+
+            temp_ddr.mult(ddantialiasing_x[sample], tempResult2); //r2
+        }
+        else {
+            temp_ddsf.mult(ddantialiasing_y_cos[sample], tempResult);
+            temp_ddcf.mult(ddantialiasing_y_sin[sample], tempResult2);
+            tempResult.add(tempResult2, tempResult); //sf2
+
+            temp_ddcf.mult(ddantialiasing_y_cos[sample], tempResult3);
+            temp_ddsf.mult(ddantialiasing_y_sin[sample], tempResult4);
+            tempResult3.sub(tempResult4, tempResult3); //cf2
+
+            temp_ddr.mult(ddantialiasing_x[sample], tempResult2); //r2
+        }
 
 //        tempResult2.mult(tempResult3, tempResultX);
 //        tempResultX.add(ddxcenter, tempResultX); //ddxcenter + r2 * cf2

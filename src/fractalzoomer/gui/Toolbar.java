@@ -37,6 +37,9 @@ public class Toolbar extends JToolBar {
     private JButton save_image_and_settings_button;
     private JButton custom_palette_button_out;
     private JButton custom_palette_button_in;
+
+    private JButton custom_palette_button2_out;
+    private JButton custom_palette_button2_in;
     private JButton random_palette_button;
     private JButton iterations_button;
     private JButton rotation_button;
@@ -48,7 +51,6 @@ public class Toolbar extends JToolBar {
     private JButton d3_button;
     private JButton julia_map_button;
     private JButton domain_coloring_button;
-    private JButton help_button;
     private JButton current_function_button;
     private JButton current_plane_button;
     
@@ -195,6 +197,26 @@ public class Toolbar extends JToolBar {
 
         addSeparator();
 
+        custom_palette_button2_out = new JButton();
+        custom_palette_button2_out.setIcon(MainWindow.getIcon("palette_outcoloring_direct.png"));
+        custom_palette_button2_out.setFocusable(false);
+        custom_palette_button2_out.setToolTipText("Loads the direct custom palette editor for the out-coloring palette.");
+
+        custom_palette_button2_out.addActionListener(e -> ptr.setCustomDirectPalette(true));
+
+        add(custom_palette_button2_out);
+
+        custom_palette_button2_in = new JButton();
+        custom_palette_button2_in.setIcon(MainWindow.getIcon("palette_incoloring_direct.png"));
+        custom_palette_button2_in.setFocusable(false);
+        custom_palette_button2_in.setToolTipText("Loads the direct custom palette editor for the in-coloring palette.");
+
+        custom_palette_button2_in.addActionListener(e -> ptr.setCustomDirectPalette(false));
+
+        add(custom_palette_button2_in);
+
+        addSeparator();
+
         iterations_button = new JButton();
         iterations_button.setIcon(MainWindow.getIcon("iterations.png"));
         iterations_button.setFocusable(false);
@@ -289,16 +311,6 @@ public class Toolbar extends JToolBar {
 
         add(color_cycling_button);
 
-        addSeparator();
-
-        help_button = new JButton();
-        help_button.setIcon(MainWindow.getIcon("help.png"));
-        help_button.setFocusable(false);
-        help_button.setToolTipText("Loads the help file.");
-
-        help_button.addActionListener(e -> ptr.showCHMHelpFile());
-
-        add(help_button);
         
     }
     
@@ -372,6 +384,18 @@ public class Toolbar extends JToolBar {
         
         return custom_palette_button_in;
         
+    }
+
+    public JButton getOutCustomPalette2Button() {
+
+        return custom_palette_button2_out;
+
+    }
+
+    public JButton getInCustomPalette2Button() {
+
+        return custom_palette_button2_in;
+
     }
     
     public JButton getRandomPaletteButton() {

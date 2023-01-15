@@ -17,6 +17,7 @@
 package fractalzoomer.core;
 
 import fractalzoomer.filters_utils.math.Noise;
+import fractalzoomer.utils.NormComponents;
 
 public class Derivative {
     public static final int DISABLED = 0;
@@ -112,6 +113,8 @@ public class Derivative {
 
     }
 }
+
+
 
 public final class Complex extends GenericComplex {
     public static final double HALF_PI = Math.PI * 0.5;
@@ -365,6 +368,16 @@ public final class Complex extends GenericComplex {
     }
 
     /*
+     *  Real - z1
+     */
+    @Override
+    public final Complex r_sub(int number) {
+
+        return new Complex(number - re, -im);
+
+    }
+
+    /*
      *  z1 = Real - z1
      */
     public final Complex r_sub_mutable(double number) {
@@ -528,9 +541,9 @@ public final class Complex extends GenericComplex {
 
         double temp = z.re;
         double temp2 = z.im;
-        double temp3 = temp * temp + temp2 * temp2;
+        double temp3 = 1.0 / (temp * temp + temp2 * temp2);
 
-        return new Complex((re * temp + im * temp2) / temp3, (im * temp - re * temp2) / temp3);
+        return new Complex((re * temp + im * temp2) * temp3, (im * temp - re * temp2) * temp3);
 
     }
 
@@ -541,10 +554,10 @@ public final class Complex extends GenericComplex {
 
         double temp = z.re;
         double temp2 = z.im;
-        double temp3 = temp * temp + temp2 * temp2;
+        double temp3 = 1.0 / (temp * temp + temp2 * temp2);
 
-        double temp4 = (re * temp + im * temp2) / temp3;
-        im = (im * temp - re * temp2) / temp3;
+        double temp4 = (re * temp + im * temp2) * temp3;
+        im = (im * temp - re * temp2) * temp3;
         re = temp4;
 
         return this;
@@ -556,7 +569,8 @@ public final class Complex extends GenericComplex {
      */
     public final Complex divide(double number) {
 
-        return new Complex(re / number, im / number);
+        double temp = 1.0 / number;
+        return new Complex(re * temp, im * temp);
 
     }
 
@@ -565,8 +579,9 @@ public final class Complex extends GenericComplex {
      */
     public final Complex divide_mutable(double number) {
 
-        re = re / number;
-        im = im / number;
+        double temp = 1.0 / number;
+        re = re * temp;
+        im = im * temp;
 
         return this;
 
@@ -578,7 +593,8 @@ public final class Complex extends GenericComplex {
     @Override
     public final Complex divide(int number) {
 
-        return new Complex(re / number, im / number);
+        double temp = 1.0 / number;
+        return new Complex(re * temp, im * temp);
 
     }
 
@@ -587,8 +603,9 @@ public final class Complex extends GenericComplex {
      */
     public final Complex divide_mutable(int number) {
 
-        re = re / number;
-        im = im / number;
+        double temp = 1.0 / number;
+        re = re * temp;
+        im = im * temp;
 
         return this;
 
@@ -599,9 +616,9 @@ public final class Complex extends GenericComplex {
      */
     public final Complex divide_i(double number) {
 
-        double temp3 = number * number;
+        double temp3 = 1.0 / (number * number);
 
-        return new Complex((re + im * number) / temp3, (im - re * number) / temp3);
+        return new Complex((re + im * number) * temp3, (im - re * number) * temp3);
 
     }
 
@@ -610,10 +627,10 @@ public final class Complex extends GenericComplex {
      */
     public final Complex divide_i_mutable(double number) {
 
-        double temp3 = number * number;
+        double temp3 = 1.0 / (number * number);
 
-        double temp4 = (re + im * number) / temp3;
-        im = (im - re * number) / temp3;
+        double temp4 = (re + im * number) * temp3;
+        im = (im - re * number) * temp3;
         re = temp4;
 
         return this;
@@ -809,9 +826,9 @@ public final class Complex extends GenericComplex {
      */
     public final Complex reciprocal() {
 
-        double temp = re * re + im * im;
+        double temp = 1.0 / (re * re + im * im);
 
-        return new Complex(re / temp, (-im) / temp);
+        return new Complex(re * temp, (-im) * temp);
 
     }
 
@@ -820,10 +837,10 @@ public final class Complex extends GenericComplex {
      */
     public final Complex reciprocal_mutable() {
 
-        double temp = re * re + im * im;
+        double temp = 1.0 / (re * re + im * im);
 
-        re = re / temp;
-        im = (-im) / temp;
+        re = re * temp;
+        im = (-im) * temp;
 
         return this;
 
@@ -1118,6 +1135,10 @@ public final class Complex extends GenericComplex {
 
     }
 
+    public double hypot() {
+        return Math.hypot(re, im);
+    }
+
     /*
      * n-norm
      */
@@ -1133,6 +1154,15 @@ public final class Complex extends GenericComplex {
         Complex b = new Complex(tempIm, 0);
 
         return (a.pow(n).plus_mutable(b.pow(n))).pow(n.reciprocal());
+
+    }
+
+    /*
+     * n-norm
+     */
+    public final double nnorm(double n, double nreciprocal) {
+
+        return Math.pow(Math.pow(Math.abs(re), n) + Math.pow(Math.abs(im), n), nreciprocal);
 
     }
 
@@ -1221,7 +1251,6 @@ public final class Complex extends GenericComplex {
     /*
      *  abs(z)
      */
-    @Override
     public final Complex abs() {
 
         return new Complex(re >= 0 ? re : -re, im >= 0 ? im : -im);
@@ -1231,6 +1260,7 @@ public final class Complex extends GenericComplex {
     /*
      *  z = abs(z)
      */
+    @Override
     public final Complex abs_mutable() {
 
         re = re >= 0 ? re : -re;
@@ -1283,7 +1313,6 @@ public final class Complex extends GenericComplex {
     /*
      *  Real -Imaginary i
      */
-    @Override
     public final Complex conjugate() {
 
         return new Complex(re, -im);
@@ -1293,6 +1322,7 @@ public final class Complex extends GenericComplex {
     /*
      *  z = Real -Imaginary i
      */
+    @Override
     public final Complex conjugate_mutable() {
 
         im = -im;
@@ -2653,18 +2683,23 @@ public final class Complex extends GenericComplex {
     public static double DiffAbs(double c, double d)
     {
         double cd = c + d;
-        if (c >= 0.0)
-            if (cd >= 0.0)      return d;
-            else      return -d - 2.0 * c;
-        else
-            if (cd > 0.0)      return d + 2.0 * c;
-            else      return -d;
+        if (c >= 0.0) {
+            if (cd >= 0.0) {
+                return d;
+            }
+            else {
+                return -d - 2.0 * c;
+            }
+        }
+        else {
+            if (cd > 0.0) {
+                return d + 2.0 * c;
+            }
+            else  {
+                return -d;
+            }
+        }
     }
-
-    public double hypot() {
-        return Math.hypot(re, im);
-    }
-
     /*
      *  A*X + B*Y
      */
@@ -2839,7 +2874,6 @@ public final class Complex extends GenericComplex {
     /*
      *  z^2 + c
      */
-    @Override
     public final Complex squareFast_plus_c(NormComponents normComponents, GenericComplex ca) {
         double reSqr = (double) normComponents.reSqr;
         double imSqr = (double) normComponents.imSqr;
@@ -2864,7 +2898,6 @@ public final class Complex extends GenericComplex {
     /*
      *  z^3
      */
-    @Override
     public final Complex cubeFast(NormComponents normComponents) {
 
         double temp = (double) normComponents.reSqr;
@@ -2876,7 +2909,6 @@ public final class Complex extends GenericComplex {
     /*
      *  z^4
      */
-    @Override
     public final Complex fourthFast(NormComponents normComponents) {
 
         double temp = (double) normComponents.reSqr;
@@ -2888,7 +2920,6 @@ public final class Complex extends GenericComplex {
     /*
      *  z^5
      */
-    @Override
     public final Complex fifthFast(NormComponents normComponents) {
 
         double temp = (double) normComponents.reSqr;
@@ -2898,7 +2929,6 @@ public final class Complex extends GenericComplex {
     }
 
     /* more efficient z^2 + c */
-    @Override
     public final Complex square_plus_c(GenericComplex cn) {
 
         Complex c = (Complex)cn;
@@ -2916,9 +2946,9 @@ public final class Complex extends GenericComplex {
 
         double temp = z.re;
         double temp2 = z.im;
-        double temp3 = temp * temp + temp2 * temp2;
+        double temp3 = 1.0 / (temp * temp + temp2 * temp2);
 
-        return new Complex((re * temp + im * temp2) / temp3, (im * temp - re * temp2) / temp3);
+        return new Complex((re * temp + im * temp2) * temp3, (im * temp - re * temp2) * temp3);
 
     }
 
@@ -2958,15 +2988,16 @@ public final class Complex extends GenericComplex {
     /*
      *  z1 = z1 / z2
      */
+    @Override
     public final Complex divide_mutable(GenericComplex za) {
         Complex z = (Complex) za;
 
         double temp = z.re;
         double temp2 = z.im;
-        double temp3 = temp * temp + temp2 * temp2;
+        double temp3 = 1.0 / (temp * temp + temp2 * temp2);
 
-        double temp4 = (re * temp + im * temp2) / temp3;
-        im = (im * temp - re * temp2) / temp3;
+        double temp4 = (re * temp + im * temp2) * temp3;
+        im = (im * temp - re * temp2) * temp3;
         re = temp4;
 
         return this;
@@ -2976,6 +3007,7 @@ public final class Complex extends GenericComplex {
     /*
      *  z1 = z1 - z2
      */
+    @Override
     public final Complex sub_mutable(GenericComplex za) {
         Complex z = (Complex) za;
 
@@ -2988,4 +3020,61 @@ public final class Complex extends GenericComplex {
 
     @Override
     public DDComplex toDDComplex() { return new DDComplex(this); }
+
+    /*
+     *  z^3
+     */
+    @Override
+    public final Complex cubeFast_mutable(NormComponents normComponents) {
+
+        return cubeFast(normComponents);
+
+    }
+
+    /*
+     *  z^4
+     */
+    @Override
+    public final Complex fourthFast_mutable(NormComponents normComponents) {
+
+        return fourthFast(normComponents);
+
+    }
+
+    /*
+     *  z^5
+     */
+    @Override
+    public final Complex fifthFast_mutable(NormComponents normComponents) {
+
+        return fifthFast(normComponents);
+
+    }
+
+    /*
+     *  z^2 + c
+     */
+    @Override
+    public final Complex squareFast_plus_c_mutable(NormComponents normComponents, GenericComplex ca) {
+        return squareFast_plus_c(normComponents, ca);
+    }
+
+    /* more efficient z^2 + c */
+    @Override
+    public final Complex square_plus_c_mutable(GenericComplex cn) {
+
+        return square_plus_c(cn);
+
+    }
+
+    public static int sign(double value) {
+        if(value < 0) {
+            return -1;
+        }
+        if(value > 0) {
+            return 1;
+        }
+        return 0;
+    }
+
 }

@@ -37,14 +37,18 @@ public class PolarLocationDeltaGenericMpfrBigNum extends PolarLocationNormalMpfr
         return getComplexWithYBase(y).sub_mutable(reference);
     }
 
-    protected MpfrBigNumComplex getAntialiasingComplexInternal(int sample) {
-        return getAntialiasingComplexBase(sample).sub_mutable(reference);
+    protected MpfrBigNumComplex getAntialiasingComplexInternal(int sample, int loc) {
+        return getAntialiasingComplexBase(sample, loc).sub_mutable(reference);
     }
 
     @Override
     public GenericComplex getReferencePoint() {
         MpfrBigNumComplex tempbn = new MpfrBigNumComplex(new MpfrBigNum(ddxcenter), new MpfrBigNum(ddycenter));
-        tempbn = rotation.rotate(tempbn);
+
+        if(rotation.shouldRotate(ddxcenter, ddycenter)) {
+            tempbn = rotation.rotate(tempbn);
+        }
+
         tempbn = fractal.getPlaneTransformedPixel(tempbn);
         return tempbn;
     }
@@ -57,5 +61,10 @@ public class PolarLocationDeltaGenericMpfrBigNum extends PolarLocationNormalMpfr
         temp.exp(temp);
         return temp.getMantExp();
 
+    }
+
+    @Override
+    public MantExp getSize() {
+        return getMaxSizeInImage();
     }
 }

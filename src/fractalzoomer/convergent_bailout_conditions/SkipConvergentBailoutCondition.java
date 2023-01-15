@@ -18,6 +18,7 @@ package fractalzoomer.convergent_bailout_conditions;
 
 import fractalzoomer.core.*;
 import fractalzoomer.core.mpfr.MpfrBigNum;
+import fractalzoomer.core.mpir.MpirBigNum;
 import org.apfloat.Apfloat;
 
 /**
@@ -73,6 +74,15 @@ public class SkipConvergentBailoutCondition extends ConvergentBailoutCondition {
     }
 
     @Override
+    public boolean converged(MpirBigNumComplex z, MpirBigNumComplex zold, MpirBigNumComplex zold2, int iterations, MpirBigNumComplex c, MpirBigNumComplex start, MpirBigNumComplex c0, MpirBigNumComplex pixel) {
+        if(iterations < SKIPPED_ITERATION_COUNT) {
+            return false;
+        }
+
+        return wrappedCondition.converged(z, zold, zold2, iterations, c, start, c0, pixel);
+    }
+
+    @Override
     public boolean converged(Complex z, double root, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0, Complex pixel) {
         if(iterations < SKIPPED_ITERATION_COUNT) {
             return false;
@@ -109,6 +119,16 @@ public class SkipConvergentBailoutCondition extends ConvergentBailoutCondition {
     }
 
     @Override
+    public boolean converged(MpirBigNumComplex z, MpirBigNum root, MpirBigNumComplex zold, MpirBigNumComplex zold2, int iterations, MpirBigNumComplex c, MpirBigNumComplex start, MpirBigNumComplex c0, MpirBigNumComplex pixel) {
+        if(iterations < SKIPPED_ITERATION_COUNT) {
+            return false;
+        }
+
+        return wrappedCondition.converged(z, root, zold, zold2, iterations, c, start, c0, pixel);
+    }
+
+
+    @Override
     public boolean converged(Complex z, Complex root, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0, Complex pixel) {
         if(iterations < SKIPPED_ITERATION_COUNT) {
             return false;
@@ -119,6 +139,15 @@ public class SkipConvergentBailoutCondition extends ConvergentBailoutCondition {
 
     @Override
     public boolean converged(MpfrBigNumComplex z, MpfrBigNumComplex root, MpfrBigNumComplex zold, MpfrBigNumComplex zold2, int iterations, MpfrBigNumComplex c, MpfrBigNumComplex start, MpfrBigNumComplex c0, MpfrBigNumComplex pixel) {
+        if(iterations < SKIPPED_ITERATION_COUNT) {
+            return false;
+        }
+
+        return wrappedCondition.converged(z, root, zold, zold2, iterations, c, start, c0, pixel);
+    }
+
+    @Override
+    public boolean converged(MpirBigNumComplex z, MpirBigNumComplex root, MpirBigNumComplex zold, MpirBigNumComplex zold2, int iterations, MpirBigNumComplex c, MpirBigNumComplex start, MpirBigNumComplex c0, MpirBigNumComplex pixel) {
         if(iterations < SKIPPED_ITERATION_COUNT) {
             return false;
         }

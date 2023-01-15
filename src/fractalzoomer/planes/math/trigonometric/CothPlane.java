@@ -17,9 +17,7 @@
 
 package fractalzoomer.planes.math.trigonometric;
 
-import fractalzoomer.core.Complex;
-import fractalzoomer.core.DDComplex;
-import fractalzoomer.core.MpfrBigNumComplex;
+import fractalzoomer.core.*;
 import fractalzoomer.planes.Plane;
 
 /**
@@ -57,6 +55,17 @@ public class CothPlane extends Plane {
     }
 
     @Override
+    public MpirBigNumComplex transform(MpirBigNumComplex pixel) {
+
+        if(pixel.isZero()) {
+            return pixel;
+        }
+
+        return new MpirBigNumComplex(transform(pixel.toComplex()));
+
+    }
+
+    @Override
     public DDComplex transform(DDComplex pixel) {
 
         if(pixel.isZero()) {
@@ -64,6 +73,17 @@ public class CothPlane extends Plane {
         }
 
         return pixel.coth();
+
+    }
+
+    @Override
+    public BigComplex transform(BigComplex pixel) {
+
+        if(pixel.isZero()) {
+            return pixel;
+        }
+
+        return new BigComplex(transform(pixel.toComplex()));
 
     }
     

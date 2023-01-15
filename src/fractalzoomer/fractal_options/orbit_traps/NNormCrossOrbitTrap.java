@@ -25,9 +25,9 @@ public class NNormCrossOrbitTrap extends OrbitTrap {
     private double n_norm_reciprocal;
     private int lineType;
 
-    public NNormCrossOrbitTrap(int checkType, double pointRe, double pointIm, double trapLength, double trapWidth, double n_norm, int lineType, boolean countTrapIterations) {
+    public NNormCrossOrbitTrap(int checkType, double pointRe, double pointIm, double trapLength, double trapWidth, double n_norm, int lineType, boolean countTrapIterations, int lastXItems) {
 
-        super(checkType, pointRe, pointIm, trapLength, trapWidth, countTrapIterations);
+        super(checkType, pointRe, pointIm, trapLength, trapWidth, countTrapIterations, lastXItems);
         this.n_norm = n_norm;
         this.lineType = lineType;
         n_norm_reciprocal = 1 / n_norm;

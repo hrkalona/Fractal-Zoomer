@@ -27,9 +27,9 @@ import static fractalzoomer.main.Constants.*;
 public class AtomDomainOrbitTrap extends OrbitTrap {
     private double old_distance;
 
-    public AtomDomainOrbitTrap(int checkType, double pointRe, double pointIm, boolean countTrapIterations) {
+    public AtomDomainOrbitTrap(int checkType, double pointRe, double pointIm, boolean countTrapIterations, int lastXItems) {
 
-        super(checkType, pointRe, pointIm, 0.0, 0.0, countTrapIterations);
+        super(checkType, pointRe, pointIm, 0.0, 0.0, countTrapIterations, lastXItems);
 
     }
     

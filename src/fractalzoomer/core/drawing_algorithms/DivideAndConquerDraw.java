@@ -16,10 +16,12 @@
  */
 package fractalzoomer.core.drawing_algorithms;
 
+import fractalzoomer.core.PixelExtraData;
 import fractalzoomer.core.ThreadDraw;
 import fractalzoomer.core.antialiasing.AntialiasingAlgorithm;
 import fractalzoomer.core.location.Location;
 import fractalzoomer.functions.Fractal;
+import fractalzoomer.main.Constants;
 import fractalzoomer.main.ImageExpanderWindow;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.*;
@@ -95,11 +97,14 @@ public class DivideAndConquerDraw extends ThreadDraw {
         location.precalculateX(x);
         for (int y = FROMy; y < TOy; y++) {
             loc = y * image_size + x;
-            image_iterations[loc] = f_val = iteration_algorithm.calculate(location.getComplexWithY(y));
-            escaped[loc] = escaped_val = iteration_algorithm.escaped();
-            rgbs[loc] = getFinalColor(f_val, escaped_val);
+
+            if(rgbs[loc] >>> 24 != Constants.NORMAL_ALPHA) {
+                image_iterations[loc] = f_val = iteration_algorithm.calculate(location.getComplexWithY(y));
+                escaped[loc] = escaped_val = iteration_algorithm.escaped();
+                rgbs[loc] = getFinalColor(f_val, escaped_val);
+                thread_calculated++;
+            }
             drawing_done++;
-            thread_calculated++;
 
         }
 
@@ -108,22 +113,30 @@ public class DivideAndConquerDraw extends ThreadDraw {
             location.precalculateX(x);
             for (int y = FROMy + 1; y < TOy; y++) {
                 loc = y * image_size + x;
-                image_iterations[loc] = f_val = iteration_algorithm.calculate(location.getComplexWithY(y));
-                escaped[loc] = escaped_val = iteration_algorithm.escaped();
-                rgbs[loc] = getFinalColor(f_val, escaped_val);
+
+                if(rgbs[loc] >>> 24 != Constants.NORMAL_ALPHA) {
+                    image_iterations[loc] = f_val = iteration_algorithm.calculate(location.getComplexWithY(y));
+                    escaped[loc] = escaped_val = iteration_algorithm.escaped();
+                    rgbs[loc] = getFinalColor(f_val, escaped_val);
+                    thread_calculated++;
+                }
                 drawing_done++;
-                thread_calculated++;
+
             }
         }
 
         int y = FROMy;
         location.precalculateY(y);
         for (x = FROMx + 1, loc = y * image_size + x; x < TOx; x++, loc++) {
-            image_iterations[loc] = f_val = iteration_algorithm.calculate(location.getComplexWithX(x));
-            escaped[loc] = escaped_val = iteration_algorithm.escaped();
-            rgbs[loc] = getFinalColor(f_val, escaped_val);
+
+            if(rgbs[loc] >>> 24 != Constants.NORMAL_ALPHA) {
+                image_iterations[loc] = f_val = iteration_algorithm.calculate(location.getComplexWithX(x));
+                escaped[loc] = escaped_val = iteration_algorithm.escaped();
+                rgbs[loc] = getFinalColor(f_val, escaped_val);
+                thread_calculated++;
+            }
             drawing_done++;
-            thread_calculated++;
+
         }
 
         if (TOy == image_size) {
@@ -137,11 +150,15 @@ public class DivideAndConquerDraw extends ThreadDraw {
 
             location.precalculateY(y);
             for (x = FROMx + 1, loc = y * image_size + x; x < xLimit; x++, loc++) {
-                image_iterations[loc] = f_val = iteration_algorithm.calculate(location.getComplexWithX(x));
-                escaped[loc] = escaped_val = iteration_algorithm.escaped();
-                rgbs[loc] = getFinalColor(f_val, escaped_val);
+
+                if(rgbs[loc] >>> 24 != Constants.NORMAL_ALPHA) {
+                    image_iterations[loc] = f_val = iteration_algorithm.calculate(location.getComplexWithX(x));
+                    escaped[loc] = escaped_val = iteration_algorithm.escaped();
+                    rgbs[loc] = getFinalColor(f_val, escaped_val);
+                    thread_calculated++;
+                }
                 drawing_done++;
-                thread_calculated++;
+
             }
         }
 
@@ -233,17 +250,20 @@ public class DivideAndConquerDraw extends ThreadDraw {
                 int yLength = slice_TOy - slice_FROMy + 1;
 
                 if (xLength >= MAX_TILE_SIZE && yLength >= MAX_TILE_SIZE) {
-                    int halfY = slice_FROMy + yLength / 2;
-                    int halfX = slice_FROMx + xLength / 2;
+                    int halfY = slice_FROMy + (yLength >>> 1);
+                    int halfX = slice_FROMx + (xLength >>> 1);
                     
                     y = halfY;
                     location.precalculateY(y);
                     for (x = slice_FROMx + 1, loc = y * image_size + x; x < slice_TOx; x++, loc++) {
-                        image_iterations[loc] = f_val = iteration_algorithm.calculate(location.getComplexWithX(x));
-                        escaped[loc] = escaped_val = iteration_algorithm.escaped();
-                        rgbs[loc] = getFinalColor(f_val, escaped_val);
+
+                        if(rgbs[loc] >>> 24 != Constants.NORMAL_ALPHA) {
+                            image_iterations[loc] = f_val = iteration_algorithm.calculate(location.getComplexWithX(x));
+                            escaped[loc] = escaped_val = iteration_algorithm.escaped();
+                            rgbs[loc] = getFinalColor(f_val, escaped_val);
+                            thread_calculated++;
+                        }
                         drawing_done++;
-                        thread_calculated++;
                     }
 
                     x = halfX;
@@ -251,11 +271,13 @@ public class DivideAndConquerDraw extends ThreadDraw {
                     for (y = slice_FROMy + 1; y < slice_TOy; y++) {
                         if (y != halfY) {
                             loc = y * image_size + x;
-                            image_iterations[loc] = f_val = iteration_algorithm.calculate(location.getComplexWithY(y));
-                            escaped[loc] = escaped_val = iteration_algorithm.escaped();
-                            rgbs[loc] = getFinalColor(f_val, escaped_val);
+                            if(rgbs[loc] >>> 24 != Constants.NORMAL_ALPHA) {
+                                image_iterations[loc] = f_val = iteration_algorithm.calculate(location.getComplexWithY(y));
+                                escaped[loc] = escaped_val = iteration_algorithm.escaped();
+                                rgbs[loc] = getFinalColor(f_val, escaped_val);
+                                thread_calculated++;
+                            }
                             drawing_done++;
-                            thread_calculated++;
                         }
                     }
 
@@ -278,11 +300,13 @@ public class DivideAndConquerDraw extends ThreadDraw {
                     //calculate the rest with the normal way
                     for (y = slice_FROMy + 1; y < slice_TOy; y++) {
                         for (x = slice_FROMx + 1, loc = y * image_size + x; x < slice_TOx; x++, loc++) {
-                            image_iterations[loc] = f_val = iteration_algorithm.calculate(location.getComplex(x, y));
-                            escaped[loc] = escaped_val = iteration_algorithm.escaped();
-                            rgbs[loc] = getFinalColor(f_val, escaped_val);
+                            if(rgbs[loc] >>> 24 != Constants.NORMAL_ALPHA) {
+                                image_iterations[loc] = f_val = iteration_algorithm.calculate(location.getComplex(x, y));
+                                escaped[loc] = escaped_val = iteration_algorithm.escaped();
+                                rgbs[loc] = getFinalColor(f_val, escaped_val);
+                                thread_calculated++;
+                            }
                             drawing_done++;
-                            thread_calculated++;
                         }
                     }
 
@@ -328,7 +352,7 @@ public class DivideAndConquerDraw extends ThreadDraw {
             drawSquares(image_size);
         }
 
-        postProcess(image_size);
+        postProcess(image_size, null, location);
     }
 
 
@@ -336,8 +360,9 @@ public class DivideAndConquerDraw extends ThreadDraw {
     protected void drawIterationsAntialiased(int image_size, boolean polar) {
 
         int aaMethod = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
+        boolean useJitter = aaMethod != 6 && ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x4) == 4;
         Location location = Location.getInstanceForDrawing(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, js, polar, PERTURBATION_THEORY  && fractal.supportsPerturbationTheory());
-        location.createAntialiasingSteps(aaMethod == 5);
+        location.createAntialiasingSteps(aaMethod == 5, useJitter);
 
         if(PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && !HIGH_PRECISION_CALCULATION) {
             if (reference_calc_sync.getAndIncrement() == 0) {
@@ -359,10 +384,16 @@ public class DivideAndConquerDraw extends ThreadDraw {
         int loc;
 
         int aaSamplesIndex = (filters_options_vals[MainWindow.ANTIALIASING] % 100) % 10;
-        boolean aaAvgWithMean = filters_options_vals[MainWindow.ANTIALIASING] / 100 == 1;
+        boolean aaAvgWithMean = ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x1) == 1;
+        int colorSpace = filters_options_extra_vals[0][MainWindow.ANTIALIASING];
         int supersampling_num = (aaSamplesIndex == 0 ? 4 : 8 * aaSamplesIndex);
+        int totalSamples = supersampling_num + 1;
 
-        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(supersampling_num + 1, aaMethod, aaAvgWithMean);
+        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(totalSamples, aaMethod, aaAvgWithMean, colorSpace, location);
+
+
+        boolean needsPostProcessing = needsPostProcessing();
+        aa.setNeedsPostProcessing(needsPostProcessing);
 
         int color;
         double temp_result;
@@ -379,12 +410,21 @@ public class DivideAndConquerDraw extends ThreadDraw {
             escaped[loc] = escaped_val = iteration_algorithm.escaped();
             color = getFinalColor(f_val, escaped_val);
 
+            if(needsPostProcessing) {
+                pixelData[loc].set(0, color, f_val, escaped_val, totalSamples);
+            }
+
             aa.initialize(color);
 
             //Supersampling
             for (int i = 0; i < supersampling_num; i++) {
-                temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i));
-                color = getFinalColor(temp_result, iteration_algorithm.escaped());
+                temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i, loc));
+                escaped_val = iteration_algorithm.escaped();
+                color = getFinalColor(temp_result, escaped_val);
+
+                if(needsPostProcessing) {
+                    pixelData[loc].set(i + 1, color, temp_result, escaped_val, totalSamples);
+                }
 
                 if(!aa.addSample(color)) {
                     break;
@@ -407,12 +447,21 @@ public class DivideAndConquerDraw extends ThreadDraw {
                 escaped[loc] = escaped_val = iteration_algorithm.escaped();
                 color = getFinalColor(f_val, escaped_val);
 
+                if(needsPostProcessing) {
+                    pixelData[loc].set(0, color, f_val, escaped_val, totalSamples);
+                }
+
                 aa.initialize(color);
 
                 //Supersampling
                 for (int i = 0; i < supersampling_num; i++) {
-                    temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i));
-                    color = getFinalColor(temp_result, iteration_algorithm.escaped());
+                    temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i, loc));
+                    escaped_val = iteration_algorithm.escaped();
+                    color = getFinalColor(temp_result, escaped_val);
+
+                    if(needsPostProcessing) {
+                        pixelData[loc].set(i + 1, color, temp_result, escaped_val, totalSamples);
+                    }
 
                     if(!aa.addSample(color)) {
                         break;
@@ -435,12 +484,21 @@ public class DivideAndConquerDraw extends ThreadDraw {
             escaped[loc] = escaped_val = iteration_algorithm.escaped();
             color = getFinalColor(f_val, escaped_val);
 
+            if(needsPostProcessing) {
+                pixelData[loc].set(0, color, f_val, escaped_val, totalSamples);
+            }
+
             aa.initialize(color);
 
             //Supersampling
             for (int i = 0; i < supersampling_num; i++) {
-                temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i));
-                color = getFinalColor(temp_result, iteration_algorithm.escaped());
+                temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i, loc));
+                escaped_val = iteration_algorithm.escaped();
+                color = getFinalColor(temp_result, escaped_val);
+
+                if(needsPostProcessing) {
+                    pixelData[loc].set(i + 1, color, temp_result, escaped_val, totalSamples);
+                }
 
                 if(!aa.addSample(color)) {
                     break;
@@ -469,12 +527,21 @@ public class DivideAndConquerDraw extends ThreadDraw {
                 escaped[loc] = escaped_val = iteration_algorithm.escaped();
                 color = getFinalColor(f_val, escaped_val);
 
+                if(needsPostProcessing) {
+                    pixelData[loc].set(0, color, f_val, escaped_val, totalSamples);
+                }
+
                 aa.initialize(color);
 
                 //Supersampling
                 for (int i = 0; i < supersampling_num; i++) {
-                    temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i));
-                    color = getFinalColor(temp_result, iteration_algorithm.escaped());
+                    temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i, loc));
+                    escaped_val = iteration_algorithm.escaped();
+                    color = getFinalColor(temp_result, escaped_val);
+
+                    if(needsPostProcessing) {
+                        pixelData[loc].set(i + 1, color, temp_result, escaped_val, totalSamples);
+                    }
 
                     if(!aa.addSample(color)) {
                         break;
@@ -516,6 +583,7 @@ public class DivideAndConquerDraw extends ThreadDraw {
         int temp_starting_pixel_color;
         double temp_starting_value;
         boolean temp_starting_escaped;
+        PixelExtraData temp_starting_pixel_extra_data = null;
 
         int skippedColor;
 
@@ -552,6 +620,9 @@ public class DivideAndConquerDraw extends ThreadDraw {
             temp_starting_value = image_iterations[loc];
             temp_starting_pixel_color = rgbs[loc];
             temp_starting_escaped = escaped[loc];
+            if(needsPostProcessing) {
+                temp_starting_pixel_extra_data = pixelData[loc];
+            }
 
             int loc2;
             for (loc = slice_FROMy * image_size + x, loc2 = slice_TOy * image_size + x; x <= slice_TOx; x++, loc++, loc2++) {
@@ -576,8 +647,8 @@ public class DivideAndConquerDraw extends ThreadDraw {
                 int yLength = slice_TOy - slice_FROMy + 1;
 
                 if (xLength >= MAX_TILE_SIZE && yLength >= MAX_TILE_SIZE) {
-                    int halfY = slice_FROMy + yLength / 2;
-                    int halfX = slice_FROMx + xLength / 2;
+                    int halfY = slice_FROMy + (yLength >>> 1);
+                    int halfX = slice_FROMx + (xLength >>> 1);
                     
                     y = halfY;
                     location.precalculateY(y);
@@ -587,12 +658,21 @@ public class DivideAndConquerDraw extends ThreadDraw {
                         escaped[loc] = escaped_val = iteration_algorithm.escaped();
                         color = getFinalColor(f_val, escaped_val);
 
+                        if(needsPostProcessing) {
+                            pixelData[loc].set(0, color, f_val, escaped_val, totalSamples);
+                        }
+
                         aa.initialize(color);
 
                         //Supersampling
                         for (int i = 0; i < supersampling_num; i++) {
-                            temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i));
-                            color = getFinalColor(temp_result, iteration_algorithm.escaped());
+                            temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i, loc));
+                            escaped_val = iteration_algorithm.escaped();
+                            color = getFinalColor(temp_result, escaped_val);
+
+                            if(needsPostProcessing) {
+                                pixelData[loc].set(i + 1, color, temp_result, escaped_val, totalSamples);
+                            }
 
                             if(!aa.addSample(color)) {
                                 break;
@@ -615,12 +695,21 @@ public class DivideAndConquerDraw extends ThreadDraw {
                             escaped[loc] = escaped_val = iteration_algorithm.escaped();
                             color = getFinalColor(f_val, escaped_val);
 
+                            if(needsPostProcessing) {
+                                pixelData[loc].set(0, color, f_val, escaped_val, totalSamples);
+                            }
+
                             aa.initialize(color);
 
                             //Supersampling
                             for (int i = 0; i < supersampling_num; i++) {
-                                temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i));
-                                color = getFinalColor(temp_result, iteration_algorithm.escaped());
+                                temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i, loc));
+                                escaped_val = iteration_algorithm.escaped();
+                                color = getFinalColor(temp_result, escaped_val);
+
+                                if(needsPostProcessing) {
+                                    pixelData[loc].set(i + 1, color, temp_result, escaped_val, totalSamples);
+                                }
 
                                 if(!aa.addSample(color)) {
                                     break;
@@ -658,12 +747,21 @@ public class DivideAndConquerDraw extends ThreadDraw {
                             escaped[loc] = escaped_val = iteration_algorithm.escaped();
                             color = getFinalColor(f_val, escaped_val);
 
+                            if(needsPostProcessing) {
+                                pixelData[loc].set(0, color, f_val, escaped_val, totalSamples);
+                            }
+
                             aa.initialize(color);
 
                             //Supersampling
                             for (int i = 0; i < supersampling_num; i++) {
-                                temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i));
-                                color = getFinalColor(temp_result, iteration_algorithm.escaped());
+                                temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i, loc));
+                                escaped_val = iteration_algorithm.escaped();
+                                color = getFinalColor(temp_result, escaped_val);
+
+                                if(needsPostProcessing) {
+                                    pixelData[loc].set(i + 1, color, temp_result, escaped_val, totalSamples);
+                                }
 
                                 if(!aa.addSample(color)) {
                                     break;
@@ -697,6 +795,11 @@ public class DivideAndConquerDraw extends ThreadDraw {
                     Arrays.fill(rgbs, loc3, loc4, skippedColor);
                     Arrays.fill(image_iterations, loc3, loc4, temp_starting_value);
                     Arrays.fill(escaped, loc3, loc4, temp_starting_escaped);
+                    if(needsPostProcessing) {
+                        for(int n = loc3; n < loc4; n++) {
+                            pixelData[n] = new PixelExtraData(temp_starting_pixel_extra_data, skippedColor);
+                        }
+                    }
                     drawing_done += chunk;
                 }
 
@@ -713,7 +816,7 @@ public class DivideAndConquerDraw extends ThreadDraw {
             drawSquares(image_size);
         }
 
-        postProcess(image_size);
+        postProcess(image_size, aa, location);
     }
 
     @Override
@@ -871,8 +974,8 @@ public class DivideAndConquerDraw extends ThreadDraw {
                 int yLength = slice_TOy - slice_FROMy + 1;
 
                 if (xLength >= MAX_TILE_SIZE && yLength >= MAX_TILE_SIZE) {
-                    int halfY = slice_FROMy + yLength / 2;
-                    int halfX = slice_FROMx + xLength / 2;
+                    int halfY = slice_FROMy + (yLength >>> 1);
+                    int halfX = slice_FROMx + (xLength >>> 1);
                     
                     y = halfY;
                     location.precalculateY(y);
@@ -941,7 +1044,7 @@ public class DivideAndConquerDraw extends ThreadDraw {
             drawSquares(image_size);
         }
 
-        postProcessFastJulia(image_size);
+        postProcessFastJulia(image_size, null, location);
 
     }
 
@@ -949,8 +1052,9 @@ public class DivideAndConquerDraw extends ThreadDraw {
     protected void drawFastJuliaAntialiased(int image_size, boolean polar) {
 
         int aaMethod = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
+        boolean useJitter = aaMethod != 6 && ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x4) == 4;
         Location location = Location.getInstanceForDrawing(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
-        location.createAntialiasingSteps(aaMethod == 5);
+        location.createAntialiasingSteps(aaMethod == 5, useJitter);
 
         if(PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && !HIGH_PRECISION_CALCULATION) {
 
@@ -976,13 +1080,18 @@ public class DivideAndConquerDraw extends ThreadDraw {
         double temp_result;
 
         int aaSamplesIndex = (filters_options_vals[MainWindow.ANTIALIASING] % 100) % 10;
-        boolean aaAvgWithMean = filters_options_vals[MainWindow.ANTIALIASING] / 100 == 1;
+        boolean aaAvgWithMean = ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x1) == 1;
+        int colorSpace = filters_options_extra_vals[0][MainWindow.ANTIALIASING];
         int supersampling_num = (aaSamplesIndex == 0 ? 4 : 8 * aaSamplesIndex);
+        int totalSamples = supersampling_num + 1;
 
-        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(supersampling_num + 1, aaMethod, aaAvgWithMean);
+        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(totalSamples, aaMethod, aaAvgWithMean, colorSpace, location);
 
         boolean escaped_val;
         double f_val;
+
+        boolean needsPostProcessing = needsPostProcessing();
+        aa.setNeedsPostProcessing(needsPostProcessing);
 
         int x = FROMx;
         location.precalculateX(x);
@@ -992,12 +1101,21 @@ public class DivideAndConquerDraw extends ThreadDraw {
             escaped_fast_julia[loc] = escaped_val = iteration_algorithm.escaped();
             color = getFinalColor(f_val, escaped_val);
 
+            if(needsPostProcessing) {
+                pixelData_fast_julia[loc].set(0, color, f_val, escaped_val, totalSamples);
+            }
+
             aa.initialize(color);
 
             //Supersampling
             for (int i = 0; i < supersampling_num; i++) {
-                temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i));
-                color = getFinalColor(temp_result, iteration_algorithm.escaped());
+                temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i, loc));
+                escaped_val = iteration_algorithm.escaped();
+                color = getFinalColor(temp_result, escaped_val);
+
+                if(needsPostProcessing) {
+                    pixelData_fast_julia[loc].set(i + 1, color, temp_result, escaped_val, totalSamples);
+                }
 
                 if(!aa.addSample(color)) {
                     break;
@@ -1017,12 +1135,21 @@ public class DivideAndConquerDraw extends ThreadDraw {
                 escaped_fast_julia[loc] = escaped_val = iteration_algorithm.escaped();
                 color = getFinalColor(f_val, escaped_val);
 
+                if(needsPostProcessing) {
+                    pixelData_fast_julia[loc].set(0, color, f_val, escaped_val, totalSamples);
+                }
+
                 aa.initialize(color);
 
                 //Supersampling
                 for (int i = 0; i < supersampling_num; i++) {
-                    temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i));
-                    color = getFinalColor(temp_result, iteration_algorithm.escaped());
+                    temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i, loc));
+                    escaped_val = iteration_algorithm.escaped();
+                    color = getFinalColor(temp_result, escaped_val);
+
+                    if(needsPostProcessing) {
+                        pixelData_fast_julia[loc].set(i + 1, color, temp_result, escaped_val, totalSamples);
+                    }
 
                     if(!aa.addSample(color)) {
                         break;
@@ -1040,12 +1167,21 @@ public class DivideAndConquerDraw extends ThreadDraw {
             escaped_fast_julia[loc] = escaped_val = iteration_algorithm.escaped();
             color = getFinalColor(f_val, escaped_val);
 
+            if(needsPostProcessing) {
+                pixelData_fast_julia[loc].set(0, color, f_val, escaped_val, totalSamples);
+            }
+
             aa.initialize(color);
 
             //Supersampling
             for (int i = 0; i < supersampling_num; i++) {
-                temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i));
-                color = getFinalColor(temp_result, iteration_algorithm.escaped());
+                temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i, loc));
+                escaped_val = iteration_algorithm.escaped();
+                color = getFinalColor(temp_result, escaped_val);
+
+                if(needsPostProcessing) {
+                    pixelData_fast_julia[loc].set(i + 1, color, temp_result, escaped_val, totalSamples);
+                }
 
                 if(!aa.addSample(color)) {
                     break;
@@ -1070,12 +1206,21 @@ public class DivideAndConquerDraw extends ThreadDraw {
                 escaped_fast_julia[loc] = escaped_val = iteration_algorithm.escaped();
                 color = getFinalColor(f_val, escaped_val);
 
+                if(needsPostProcessing) {
+                    pixelData_fast_julia[loc].set(0, color, f_val, escaped_val, totalSamples);
+                }
+
                 aa.initialize(color);
 
                 //Supersampling
                 for (int i = 0; i < supersampling_num; i++) {
-                    temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i));
-                    color = getFinalColor(temp_result, iteration_algorithm.escaped());
+                    temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i, loc));
+                    escaped_val = iteration_algorithm.escaped();
+                    color = getFinalColor(temp_result, escaped_val);
+
+                    if(needsPostProcessing) {
+                        pixelData_fast_julia[loc].set(i + 1, color, temp_result, escaped_val, totalSamples);
+                    }
 
                     if(!aa.addSample(color)) {
                         break;
@@ -1109,6 +1254,7 @@ public class DivideAndConquerDraw extends ThreadDraw {
         int temp_starting_pixel_color;
         double temp_starting_value;
         boolean temp_starting_escaped;
+        PixelExtraData temp_starting_pixel_extra_data = null;
 
         int skippedColor;
 
@@ -1145,6 +1291,9 @@ public class DivideAndConquerDraw extends ThreadDraw {
             temp_starting_value = image_iterations_fast_julia[loc];
             temp_starting_pixel_color = rgbs[loc];
             temp_starting_escaped = escaped_fast_julia[loc];
+            if(needsPostProcessing) {
+                temp_starting_pixel_extra_data = pixelData_fast_julia[loc];
+            }
             
             int loc2;
             for (loc = slice_FROMy * image_size + x, loc2 = slice_TOy * image_size + x; x <= slice_TOx; x++, loc++, loc2++) {
@@ -1169,8 +1318,8 @@ public class DivideAndConquerDraw extends ThreadDraw {
                 int yLength = slice_TOy - slice_FROMy + 1;
 
                 if (xLength >= MAX_TILE_SIZE && yLength >= MAX_TILE_SIZE) {
-                    int halfY = slice_FROMy + yLength / 2;
-                    int halfX = slice_FROMx + xLength / 2;
+                    int halfY = slice_FROMy + (yLength >>> 1);
+                    int halfX = slice_FROMx + (xLength >>> 1);
                     
                     y = halfY;
                     location.precalculateY(y);
@@ -1180,12 +1329,21 @@ public class DivideAndConquerDraw extends ThreadDraw {
                         escaped_fast_julia[loc] = escaped_val = iteration_algorithm.escaped();
                         color = getFinalColor(f_val, escaped_val);
 
+                        if(needsPostProcessing) {
+                            pixelData_fast_julia[loc].set(0, color, f_val, escaped_val, totalSamples);
+                        }
+
                         aa.initialize(color);
 
                         //Supersampling
                         for (int i = 0; i < supersampling_num; i++) {
-                            temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i));
-                            color = getFinalColor(temp_result, iteration_algorithm.escaped());
+                            temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i, loc));
+                            escaped_val = iteration_algorithm.escaped();
+                            color = getFinalColor(temp_result, escaped_val);
+
+                            if(needsPostProcessing) {
+                                pixelData_fast_julia[loc].set(i + 1, color, temp_result, escaped_val, totalSamples);
+                            }
 
                             if(!aa.addSample(color)) {
                                 break;
@@ -1205,12 +1363,21 @@ public class DivideAndConquerDraw extends ThreadDraw {
                             escaped_fast_julia[loc] = escaped_val = iteration_algorithm.escaped();
                             color = getFinalColor(f_val, escaped_val);
 
+                            if(needsPostProcessing) {
+                                pixelData_fast_julia[loc].set(0, color, f_val, escaped_val, totalSamples);
+                            }
+
                             aa.initialize(color);
 
                             //Supersampling
                             for (int i = 0; i < supersampling_num; i++) {
-                                temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i));
-                                color = getFinalColor(temp_result, iteration_algorithm.escaped());
+                                temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i, loc));
+                                escaped_val = iteration_algorithm.escaped();
+                                color = getFinalColor(temp_result, escaped_val);
+
+                                if(needsPostProcessing) {
+                                    pixelData_fast_julia[loc].set(i + 1, color, temp_result, escaped_val, totalSamples);
+                                }
 
                                 if(!aa.addSample(color)) {
                                     break;
@@ -1244,12 +1411,21 @@ public class DivideAndConquerDraw extends ThreadDraw {
                             escaped_fast_julia[loc] = escaped_val = iteration_algorithm.escaped();
                             color = getFinalColor(f_val, escaped_val);
 
+                            if(needsPostProcessing) {
+                                pixelData_fast_julia[loc].set(0, color, f_val, escaped_val, totalSamples);
+                            }
+
                             aa.initialize(color);
 
                             //Supersampling
                             for (int i = 0; i < supersampling_num; i++) {
-                                temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i));
-                                color = getFinalColor(temp_result, iteration_algorithm.escaped());
+                                temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i, loc));
+                                escaped_val = iteration_algorithm.escaped();
+                                color = getFinalColor(temp_result, escaped_val);
+
+                                if(needsPostProcessing) {
+                                    pixelData_fast_julia[loc].set(i + 1, color, temp_result, escaped_val, totalSamples);
+                                }
 
                                 if(!aa.addSample(color)) {
                                     break;
@@ -1274,6 +1450,11 @@ public class DivideAndConquerDraw extends ThreadDraw {
                     Arrays.fill(rgbs, loc3, loc4, skippedColor);
                     Arrays.fill(image_iterations_fast_julia, loc3, loc4, temp_starting_value);
                     Arrays.fill(escaped_fast_julia, loc3, loc4, temp_starting_escaped);
+                    if(needsPostProcessing) {
+                        for(int n = loc3; n < loc4; n++) {
+                            pixelData_fast_julia[n] = new PixelExtraData(temp_starting_pixel_extra_data, skippedColor);
+                        }
+                    }
                 }
             }
 
@@ -1283,7 +1464,7 @@ public class DivideAndConquerDraw extends ThreadDraw {
             drawSquares(image_size);
         }
 
-        postProcessFastJulia(image_size);
+        postProcessFastJulia(image_size, aa, location);
 
     }
 

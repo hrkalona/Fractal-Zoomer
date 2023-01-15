@@ -31,7 +31,7 @@ public class EntropyColoringSettings {
     public EntropyColoringSettings() {
         entropy_coloring = false;
         entropy_palette_factor = 50;
-        en_noise_reducing_factor = 0.4;
+        en_noise_reducing_factor = 1e-10;
         en_blending = 0.7;
         entropy_offset = 0;
         entropy_algorithm = 0;

@@ -59,9 +59,18 @@ public abstract class Plane {
 
     }
 
+    public MpirBigNumComplex transform(MpirBigNumComplex pixel) {
+
+        return new MpirBigNumComplex(transform(pixel.toComplex()));
+
+    }
+
     public GenericComplex Transform(GenericComplex pixel) {
 
         if(pixel instanceof MpfrBigNumComplex) {
+            return transform((MpfrBigNumComplex) pixel);
+        }
+        else if(pixel instanceof MpfrBigNumComplex) {
             return transform((MpfrBigNumComplex) pixel);
         }
         else if(pixel instanceof BigNumComplex) {

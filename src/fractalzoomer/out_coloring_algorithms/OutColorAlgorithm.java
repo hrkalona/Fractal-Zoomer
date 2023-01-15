@@ -29,7 +29,7 @@ public abstract class OutColorAlgorithm extends ColorAlgorithm {
         
     }
     
-    public static double fractionalPartEscaping(Complex z, Complex zold, double log_bailout_squared) {
+    public static double fractionalPartEscaping2(Complex z, Complex zold, double log_bailout_squared) {
         double temp = zold.norm_squared();
         double temp2 = z.norm_squared();
             
@@ -43,8 +43,30 @@ public abstract class OutColorAlgorithm extends ColorAlgorithm {
         return  a / Math.log(p);
 
     }
+
+    public static double fractionalPartEscaping1(Complex z, Complex zold, double log_bailout_squared) {
+        double temp = zold.norm_squared();
+
+        if(temp == 0) {
+            temp += 0.000000001;
+        }
+        temp = Math.log(temp);
+
+        return 1.0 - (log_bailout_squared - temp) / (Math.log(z.norm_squared()) - temp);
+
+    }
+
+    public static double fractionalPartEscapingWithPower(Complex z, double log_bailout_squared, double log_power) {
+        double temp2 = z.norm_squared();
+        temp2 = Math.log(temp2);
+
+        temp2 = temp2 <= 0 ? 1e-33 : temp2;
+
+        double a = Math.log(temp2 / log_bailout_squared);
+        return  a / log_power;
+    }
     
-    public static double fractionalPartConverging(Complex z, Complex zold, Complex zold2, double log_convergent_bailout) {
+    public static double fractionalPartConverging2(Complex z, Complex zold, Complex zold2, double log_convergent_bailout) {
     
         double temp4 = Math.log(z.distance_squared(zold) + 1e-33);
 
@@ -57,8 +79,15 @@ public abstract class OutColorAlgorithm extends ColorAlgorithm {
         return 1 - f;
         
     }
+
+    public static double fractionalPartConverging1(Complex z, Complex zold, Complex zold2, double log_convergent_bailout) {
+
+        double temp = Math.log(zold.distance_squared(zold2));
+        return 1 - (log_convergent_bailout - temp) / (Math.log(z.distance_squared(zold)) - temp);
+
+    }
     
-    public static double fractionalPartMagnetConverging(Complex z, Complex zold, Complex root, double log_convergent_bailout) {
+    public static double fractionalPartMagnetConverging2(Complex z, Complex zold, Complex root, double log_convergent_bailout) {
     
         double temp4 = Math.log(z.distance_squared(root));
 
@@ -68,6 +97,13 @@ public abstract class OutColorAlgorithm extends ColorAlgorithm {
 
         return 1 - f;
         
+    }
+
+    public static double fractionalPartMagnetConverging1(Complex z, Complex zold, Complex root, double log_convergent_bailout) {
+
+        double temp = Math.log(zold.distance_squared(root));
+        return 1 - (log_convergent_bailout - temp) / (Math.log(z.distance_squared(root)) - temp);
+
     }
  
 }

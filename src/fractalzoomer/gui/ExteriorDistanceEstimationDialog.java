@@ -114,6 +114,12 @@ public class ExteriorDistanceEstimationDialog extends JDialog {
                         }
 
                         dispose();
+
+                        if (s.exterior_de
+                                && s.isPertubationTheoryInUse()) {
+                            JOptionPane.showMessageDialog(ptra, "Distance Estimation will not work while using Perturbation Theory.\nYou should use it via the Statistical Coloring methods (under Normal Map).", "Warning!", JOptionPane.WARNING_MESSAGE);
+                        }
+
                         ptra.setExteriorDistanceEstimationPost();
                     }
                 });

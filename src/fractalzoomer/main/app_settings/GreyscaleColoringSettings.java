@@ -26,6 +26,6 @@ public class GreyscaleColoringSettings {
     
     public GreyscaleColoringSettings() {
         greyscale_coloring = false;
-        gs_noise_reducing_factor = 0.4;
+        gs_noise_reducing_factor = 1e-10;
     }
 }

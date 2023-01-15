@@ -618,9 +618,9 @@ public class DDComplex extends GenericComplex {
      */
     public final DDComplex reciprocal() {
 
-        DoubleDouble temp = re.sqr().add(im.sqr());
+        DoubleDouble temp = new DoubleDouble(1.0).divide(re.sqr().add(im.sqr()));
 
-        return new DDComplex(re.divide(temp), im.negate().divide(temp));
+        return new DDComplex(re.multiply(temp), im.negate().multiply(temp));
 
     }
 
@@ -1186,9 +1186,9 @@ public class DDComplex extends GenericComplex {
 
         DoubleDouble temp = z.re;
         DoubleDouble temp2 = z.im;
-        DoubleDouble temp3 = temp.sqr().add(temp2.sqr());
+        DoubleDouble temp3 = new DoubleDouble(1.0).divide(temp.sqr().add(temp2.sqr()));
 
-        return new DDComplex(re.multiply(temp).add(im.multiply(temp2)).divide(temp3), im.multiply(temp).subtract(re.multiply(temp2)).divide(temp3));
+        return new DDComplex(re.multiply(temp).add(im.multiply(temp2)).multiply(temp3), im.multiply(temp).subtract(re.multiply(temp2)).multiply(temp3));
     }
 
     /*
@@ -1196,22 +1196,23 @@ public class DDComplex extends GenericComplex {
      */
     public final DDComplex divide(DoubleDouble number) {
 
-        return new DDComplex(re.divide(number), im.divide(number));
+        DoubleDouble temp = new DoubleDouble(1.0).divide(number);
+        return new DDComplex(re.multiply(temp), im.multiply(temp));
 
     }
 
     @Override
     public final DDComplex divide(int number) {
 
-        DoubleDouble num = new DoubleDouble(number);
-        return new DDComplex(re.divide(num), im.divide(num));
+        DoubleDouble num = new DoubleDouble(1.0).divide(new DoubleDouble(number));
+        return new DDComplex(re.multiply(num), im.multiply(num));
 
     }
 
     public final DDComplex divide(double number) {
 
-        DoubleDouble num = new DoubleDouble(number);
-        return new DDComplex(re.divide(num), im.divide(num));
+        DoubleDouble num = new DoubleDouble(1.0).divide(new DoubleDouble(number));
+        return new DDComplex(re.multiply(num), im.multiply(num));
 
     }
 
@@ -1220,24 +1221,24 @@ public class DDComplex extends GenericComplex {
      */
     public final DDComplex divide_i(DoubleDouble number) {
 
-        DoubleDouble temp3 = number.sqr();
-        return new DDComplex(re.add(im.multiply(number)).divide(temp3), im.subtract(re.multiply(number)).divide(temp3));
+        DoubleDouble temp3 = new DoubleDouble(1.0).divide(number.sqr());
+        return new DDComplex(re.add(im.multiply(number)).multiply(temp3), im.subtract(re.multiply(number)).multiply(temp3));
 
     }
 
     public final DDComplex divide_i(int number) {
 
         DoubleDouble num = new DoubleDouble(number);
-        DoubleDouble temp3 = num.sqr();
-        return new DDComplex(re.add(im.multiply(number)).divide(temp3), im.subtract(re.multiply(number)).divide(temp3));
+        DoubleDouble temp3 = new DoubleDouble(1.0).divide(num.sqr());
+        return new DDComplex(re.add(im.multiply(number)).multiply(temp3), im.subtract(re.multiply(number)).multiply(temp3));
 
     }
 
     public final DDComplex divide_i(double number) {
 
         DoubleDouble num = new DoubleDouble(number);
-        DoubleDouble temp3 = num.sqr();
-        return new DDComplex(re.add(im.multiply(number)).divide(temp3), im.subtract(re.multiply(number)).divide(temp3));
+        DoubleDouble temp3 = new DoubleDouble(1.0).divide(num.sqr());
+        return new DDComplex(re.add(im.multiply(number)).multiply(temp3), im.subtract(re.multiply(number)).multiply(temp3));
 
     }
 
@@ -1505,9 +1506,9 @@ public class DDComplex extends GenericComplex {
         DDComplex z = (DDComplex)za;
         DoubleDouble temp = z.re;
         DoubleDouble temp2 = z.im;
-        DoubleDouble temp3 = temp.sqr().add(temp2.sqr());
+        DoubleDouble temp3 = new DoubleDouble(1.0).divide(temp.sqr().add(temp2.sqr()));
 
-        return new DDComplex(re.multiply(temp).add(im.multiply(temp2)).divide(temp3), im.multiply(temp).subtract(re.multiply(temp2)).divide(temp3));
+        return new DDComplex(re.multiply(temp).add(im.multiply(temp2)).multiply(temp3), im.multiply(temp).subtract(re.multiply(temp2)).multiply(temp3));
     }
 
     @Override
@@ -1544,6 +1545,16 @@ public class DDComplex extends GenericComplex {
 
     @Override
     public GenericComplex abs_mutable() { return abs(); }
+
+    /*
+     *  z^3
+     */
+    @Override
+    public final DDComplex squareFast_mutable(NormComponents normComponents) {
+
+        return squareFast(normComponents);
+
+    }
 
     /*
      *  z^3

@@ -23,7 +23,7 @@ public class Equicontinuity extends GenericStatistic {
     private boolean isFractalWithoutConstant;
 
     public Equicontinuity(double statistic_intensity, boolean useSmoothing, boolean useAverage, double log_bailout_squared, boolean rootFindingMode, double log_convergent_bailout, double denominatorFactor, boolean invertFactor, double delta) {
-        super(statistic_intensity, useSmoothing, useAverage);
+        super(statistic_intensity, useSmoothing, useAverage, 0);
         sum = 0;
         sum2 = 0;
 
@@ -112,16 +112,31 @@ public class Equicontinuity extends GenericStatistic {
         double smoothing;
 
         if(mode == NORMAL_ESCAPE) {
-            smoothing = OutColorAlgorithm.fractionalPartEscaping(z_val, zold_val, log_bailout_squared);
+            if(escaping_smoothing_algorithm == 0 && !usePower) {
+                smoothing = OutColorAlgorithm.fractionalPartEscaping1(z_val, zold_val, log_bailout_squared);
+            }
+            else {
+                smoothing = usePower ? OutColorAlgorithm.fractionalPartEscapingWithPower(z_val, log_bailout_squared, log_power) : OutColorAlgorithm.fractionalPartEscaping2(z_val, zold_val, log_bailout_squared);
+            }
         }
         else if (mode == NORMAL_CONVERGE){
-            smoothing = OutColorAlgorithm.fractionalPartConverging(z_val, zold_val, zold2_val, log_convergent_bailout);
+            if(converging_smoothing_algorithm == 0) {
+                smoothing = OutColorAlgorithm.fractionalPartConverging1(z_val, zold_val, zold2_val, log_convergent_bailout);
+            }
+            else {
+                smoothing = OutColorAlgorithm.fractionalPartConverging2(z_val, zold_val, zold2_val, log_convergent_bailout);
+            }
         }
         else {
-            smoothing = OutColorAlgorithm.fractionalPartMagnetConverging(z_val, zold_val, root, log_convergent_bailout);
+            if(converging_smoothing_algorithm == 0) {
+                smoothing = OutColorAlgorithm.fractionalPartMagnetConverging1(z_val, zold_val, root, log_convergent_bailout);
+            }
+            else {
+                smoothing = OutColorAlgorithm.fractionalPartMagnetConverging2(z_val, zold_val, root, log_convergent_bailout);
+            }
         }
 
-        double temp = (sum + (sum2 - sum) * smoothing) * denominatorFactor;
+        double temp =  method.interpolate(sum, sum2, smoothing) * denominatorFactor;
 
         return  invertFactor ? (1 / (1 + temp)) : (1 - 1 / (1 + temp));
     }

@@ -65,7 +65,7 @@ public class CartesianLocationDeltaDouble extends Location {
 
     public CartesianLocationDeltaDouble(CartesianLocationDeltaDouble other) {
 
-        super();
+        super(other);
 
         fractal = other.fractal;
 
@@ -190,15 +190,27 @@ public class CartesianLocationDeltaDouble extends Location {
     }
 
     @Override
-    public void createAntialiasingSteps(boolean adaptive) {
-        double[][] steps = createAntialiasingStepsDouble(temp_size_image_size_x, temp_size_image_size_y, adaptive);
+    public void createAntialiasingSteps(boolean adaptive, boolean jitter) {
+        super.createAntialiasingSteps(adaptive, jitter);
+        double[][] steps = createAntialiasingStepsDouble(temp_size_image_size_x, temp_size_image_size_y, adaptive, jitter);
         antialiasing_x = steps[0];
         antialiasing_y = steps[1];
     }
 
     @Override
-    public GenericComplex getAntialiasingComplex(int sample) {
-        Complex temp = new Complex(tempX + antialiasing_x[sample], tempY + antialiasing_y[sample]);
+    public GenericComplex getAntialiasingComplex(int sample, int loc) {
+
+        Complex temp;
+        if(aaJitter) {
+            int r = (int)(hash(loc) % NUMBER_OF_AA_JITTER_KERNELS);
+            double[] antialiasing_x = precalculatedJitterDataDouble[r][0];
+            double[] antialiasing_y = precalculatedJitterDataDouble[r][1];
+            temp = new Complex(tempX + antialiasing_x[sample], tempY + antialiasing_y[sample]);
+        }
+        else {
+            temp = new Complex(tempX + antialiasing_x[sample], tempY + antialiasing_y[sample]);
+        }
+
         temp = rotation.rotate(temp);
 
         temp = fractal.getPlaneTransformedPixel(temp);
@@ -209,7 +221,11 @@ public class CartesianLocationDeltaDouble extends Location {
     @Override
     public GenericComplex getReferencePoint() {
         Complex tempbn = new Complex(xCenter, yCenter);
-        tempbn = rotation.rotate(tempbn);
+
+        if(rotation.shouldRotate(xCenter, yCenter)) {
+            tempbn = rotation.rotate(tempbn);
+        }
+
         tempbn = fractal.getPlaneTransformedPixel(tempbn);
         return tempbn;
     }
@@ -225,5 +241,10 @@ public class CartesianLocationDeltaDouble extends Location {
             double temp2 = temp * height_ratio;
             return new MantExp(Math.sqrt(temp * temp + temp2 * temp2));
         }
+    }
+
+    @Override
+    public MantExp getSize() {
+        return new MantExp(size);
     }
 }

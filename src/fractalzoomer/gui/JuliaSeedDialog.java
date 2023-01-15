@@ -27,7 +27,6 @@ import org.apfloat.Apfloat;
 import javax.swing.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.geom.Point2D;
 
 import static fractalzoomer.gui.CenterSizeDialog.TEMPLATE_TFIELD;
 
@@ -172,9 +171,9 @@ public class JuliaSeedDialog extends JDialog {
                         try {
 
                             if(MyApfloat.setAutomaticPrecision) {
-                                long precision = MyApfloat.getAutomaticPrecision(new String[]{real_seed.getText(), imag_seed.getText()}, new boolean[] {false, false});
+                                long precision = MyApfloat.getAutomaticPrecision(new String[]{real_seed.getText(), imag_seed.getText()}, new boolean[] {false, false}, false);
 
-                                if (MyApfloat.shouldSetPrecision(precision, false)) {
+                                if (MyApfloat.shouldSetPrecision(precision, true)) {
                                     Fractal.clearReferences(true);
                                     MyApfloat.setPrecision(precision, s);
                                 }

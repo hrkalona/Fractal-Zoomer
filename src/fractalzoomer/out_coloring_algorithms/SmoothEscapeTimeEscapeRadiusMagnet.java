@@ -55,38 +55,18 @@ public class SmoothEscapeTimeEscapeRadiusMagnet extends OutColorAlgorithm {
 
         if((Boolean)object[2]) {
             if(algorithm == 0) {
-                double temp = ((Complex)object[4]).norm_squared();
-                temp += 0.000000001;
-                temp = Math.log(temp);
-                return temp3 + (log_bailout_squared - temp) / (temp2 - temp) + MAGNET_INCREMENT;
+                return temp3 + SmoothEscapeTimeMagnet.getEscSmoothing1(object, temp2, log_bailout_squared) + MAGNET_INCREMENT;
             }
             else {
-                double temp = ((Complex)object[4]).norm_squared();
-
-                double p = temp2 / Math.log(temp);
-                
-                p = p <= 0 ? 1e-33 : p;
-                temp2 = temp2 <= 0 ? 1e-33 : temp2;
-
-                double a = Math.log(temp2 / log_bailout_squared);
-                double f = a / Math.log(p);
-
-                return temp3 + 1 - f + MAGNET_INCREMENT;
+                return temp3 + SmoothEscapeTimeMagnet.getEscSmoothing2(object, temp2, log_bailout_squared) + MAGNET_INCREMENT;
             }
         }
         else {
             if(algorithm2 == 0) {
-                double temp = Math.log(((Complex)object[4]).distance_squared(1));
-                return temp3 + (log_convergent_bailout - temp) / (Math.log((Double)object[3]) - temp);
+                return temp3 + SmoothEscapeTimeMagnet.getConvSmoothing1(object, log_convergent_bailout);
             }
             else {
-                double temp4 = Math.log(((Double)object[3]));
-
-                double power = temp4 / Math.log(((Complex)object[4]).distance_squared(1));
-
-                double f = Math.log(log_convergent_bailout / temp4) / Math.log(power);
-
-                return temp3 + f;
+                return temp3 + SmoothEscapeTimeMagnet.getConvSmoothing2(object, log_convergent_bailout);
             }
         }
 

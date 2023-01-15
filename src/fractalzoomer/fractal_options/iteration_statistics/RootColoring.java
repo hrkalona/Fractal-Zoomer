@@ -28,7 +28,7 @@ public class RootColoring extends GenericStatistic {
     }
 
     public RootColoring(double log_convergent_bailout, double scaling, int max_iterations, int[] rootColors, boolean rootSmooting, Fractal fractal, int unmmaped_root_color) {
-        super(0, false, false);
+        super(0, false, false, 0);
         rootTolerance = 1e-10;
         highlightTolerance = 1e-3;
         this.log_convergent_bailout = log_convergent_bailout;
@@ -109,7 +109,16 @@ public class RootColoring extends GenericStatistic {
 
     public double getDepthFactor() {
         if(rootSmooting) {
-            double val = (iterations + 1 - OutColorAlgorithm.fractionalPartConverging(z_val, zold_val, zold2_val, log_convergent_bailout)) / scaling;
+            double smoothing;
+
+            if(converging_smoothing_algorithm == 0) {
+                smoothing = OutColorAlgorithm.fractionalPartConverging1(z_val, zold_val, zold2_val, log_convergent_bailout);
+            }
+            else {
+                smoothing = OutColorAlgorithm.fractionalPartConverging2(z_val, zold_val, zold2_val, log_convergent_bailout);
+            }
+
+            double val = (iterations + 1 - smoothing) / scaling;
             return val > 1 ? 1 : val;
         }
         else {

@@ -27,6 +27,8 @@ public class SmoothEscapeTime extends OutColorAlgorithm {
 
     protected double log_bailout_squared;
     protected int algorithm;
+    protected double log_power;
+    protected boolean usePower;
 
     public SmoothEscapeTime(double log_bailout_squared, int algorithm) {
 
@@ -34,41 +36,68 @@ public class SmoothEscapeTime extends OutColorAlgorithm {
         this.log_bailout_squared = log_bailout_squared;
         this.algorithm = algorithm;
         OutNotUsingIncrement = true;
+        usePower = false;
+
+    }
+
+    public SmoothEscapeTime(double log_bailout_squared, int algorithm, double log_power) {
+
+        super();
+        this.log_bailout_squared = log_bailout_squared;
+        this.algorithm = algorithm;
+        OutNotUsingIncrement = true;
+        this.log_power = log_power;
+        usePower = true;
 
     }
 
     @Override
     public double getResult(Object[] object) {
         
-        if(algorithm == 0) {
-            double temp = ((Complex)object[2]).norm_squared();
-            double temp2 = ((Complex)object[1]).norm_squared();
-
-            temp += 0.000000001;
-            temp = Math.log(temp);
-
-            return (Integer)object[0] + (log_bailout_squared - temp) / (Math.log(temp2) - temp);         
-            
+        if(algorithm == 0 && !usePower) {
+            return (Integer)object[0] + getSmoothing1(object, Math.log(((Complex)object[1]).norm_squared()), log_bailout_squared);
         }
         else {
             //double temp2 = ((Complex)object[1]).norm_squared();
             //return (Integer)object[0] + 1 - Math.log(Math.log(temp2) / log_bailout_squared) / log_power;
-            
-            
-            double temp = ((Complex)object[2]).norm_squared();
-            double temp2 = ((Complex)object[1]).norm_squared();
-            
-            temp2 = Math.log(temp2);
-            double p = temp2 / Math.log(temp);
-           
-            p = p <= 0 ? 1e-33 : p;
-            temp2 = temp2 <= 0 ? 1e-33 : temp2;
-            
-            double a = Math.log(temp2 / log_bailout_squared);
-            double f =  a / Math.log(p);
-            
-            return (Integer)object[0] + 1 - f;
+
+            return (Integer)object[0] + getSmoothing2(object, Math.log(((Complex)object[1]).norm_squared()), log_bailout_squared, usePower, log_power);
+
         }
+
+    }
+
+    public static double getSmoothing1(Object[] object, double log_znnormsqr, double log_bailout_squared) {
+
+        double temp = ((Complex)object[2]).norm_squared();
+
+        if(temp == 0) {
+            temp += 0.000000001;
+        }
+        temp = Math.log(temp);
+
+        return (log_bailout_squared - temp) / (log_znnormsqr - temp);
+
+    }
+
+    public static double getSmoothing2(Object[] object, double log_znnormsqr, double log_bailout_squared, boolean usePower, double log_power) {
+
+        double p;
+        if(usePower) {
+            p = log_power;
+        }
+        else {
+            double temp = ((Complex)object[2]).norm_squared();
+            p = log_znnormsqr / Math.log(temp);
+            p = p <= 0 ? 1e-33 : p;
+            p = Math.log(p);
+        }
+
+
+        log_znnormsqr = log_znnormsqr <= 0 ? 1e-33 : log_znnormsqr;
+
+        double a = Math.log(log_znnormsqr / log_bailout_squared);
+        return  1 - a / p;
 
     }
 }

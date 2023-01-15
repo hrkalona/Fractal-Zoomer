@@ -47,6 +47,7 @@ public class PaletteMenu extends JMenu {
     private JMenu paletteLegacyFractintMenu;
 
     private JMenuItem colorMapframe;
+    private JMenuItem alternativeCustomDirectPalette;
 
     static {
         paletteNames = new String[MainWindow.TOTAL_PALETTES];
@@ -209,10 +210,22 @@ public class PaletteMenu extends JMenu {
         } else {
             colorMapframe.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, ActionEvent.CTRL_MASK | ActionEvent.SHIFT_MASK));
         }
-        colorMapframe.addActionListener(e -> {ptr.setColorMap(color_cycling_location, outcoloring_mode);});
+        colorMapframe.addActionListener(e -> {ptr.setColorMap(outcoloring_mode);});
 
         addSeparator();
         add(colorMapframe);
+
+        alternativeCustomDirectPalette  = new JMenuItem("Custom Direct Palette", MainWindow.getIcon("palette.png"));
+        alternativeCustomDirectPalette.setToolTipText("Creates a custom direct palette.");
+        if (outcoloring_mode) {
+            alternativeCustomDirectPalette.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, ActionEvent.CTRL_MASK | ActionEvent.SHIFT_MASK));
+        } else {
+            alternativeCustomDirectPalette.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.CTRL_MASK | ActionEvent.SHIFT_MASK));
+        }
+        alternativeCustomDirectPalette.addActionListener(e -> {ptr.setCustomDirectPalette(outcoloring_mode);});
+
+        addSeparator();
+        add(alternativeCustomDirectPalette);
 
         palette[color_choice].setSelected(true);
 

@@ -199,7 +199,7 @@ public class GreedyAlgorithmsFrame extends JFrame {
                 if(!filter_color_label.isEnabled()) {
                     return;
                 }
-                new ColorChooserFrame(this_frame, "Skipped Pixels Color", filter_color_label, -1);
+                new ColorChooserFrame(this_frame, "Skipped Pixels Color", filter_color_label, -1, -1);
             }
 
             @Override
@@ -222,7 +222,7 @@ public class GreedyAlgorithmsFrame extends JFrame {
         JPanel panel3 = new JPanel();
         panel3.setBackground(MainWindow.bg_color);
 
-        JComboBox<String> brute_force_alg_opt = new JComboBox<>(new String[] {"Chunks", "Thread Split"});
+        JComboBox<String> brute_force_alg_opt = new JComboBox<>(new String[] {"Chunks", "Thread Split", "Circular Chunks"});
         brute_force_alg_opt.setSelectedIndex(brute_force_alg);
         brute_force_alg_opt.setFocusable(false);
         brute_force_alg_opt.setToolTipText("Sets the brute force algorithm.");

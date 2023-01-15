@@ -18,8 +18,8 @@
 package fractalzoomer.planes.general;
 
 import fractalzoomer.core.*;
-import fractalzoomer.core.mpfr.LibMpfr;
 import fractalzoomer.core.mpfr.MpfrBigNum;
+import fractalzoomer.core.mpir.MpirBigNum;
 import fractalzoomer.planes.Plane;
 import org.apfloat.Apfloat;
 
@@ -40,6 +40,9 @@ public class CircleInversionPlane extends Plane {
     private DDComplex ddccenter;
     private DoubleDouble ddcplane_transform_radius;
 
+    private MpirBigNumComplex mpirbncenter;
+    private MpirBigNum mpirbnplane_transform_radius;
+
     public CircleInversionPlane(double[] plane_transform_center, double plane_transform_radius) {
 
         super();
@@ -53,12 +56,14 @@ public class CircleInversionPlane extends Plane {
             ddccenter = new DDComplex(center);
             ddcplane_transform_radius = new DoubleDouble(plane_transform_radius);
 
-
             if(ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE || ThreadDraw.HIGH_PRECISION_CALCULATION) {
 
-                if(LibMpfr.LOAD_ERROR == null) {
+                if (ThreadDraw.allocateMPFR()) {
                     mpfrbncenter = new MpfrBigNumComplex(center);
                     mpfrbnplane_transform_radius = new MpfrBigNum(plane_transform_radius);
+                } else if (ThreadDraw.allocateMPIR()) {
+                    mpirbncenter = new MpirBigNumComplex(center);
+                    mpirbnplane_transform_radius = new MpirBigNum(plane_transform_radius);
                 }
             }
         }
@@ -67,6 +72,10 @@ public class CircleInversionPlane extends Plane {
 
     @Override
     public Complex transform(Complex pixel) {
+
+        if(pixel.compare(center) == 0) {
+            return pixel;
+        }
         
         return pixel.circle_inversion(center, plane_transform_radius);
         
@@ -75,6 +84,10 @@ public class CircleInversionPlane extends Plane {
     @Override
     public BigComplex transform(BigComplex pixel) {
 
+        if(pixel.compare(ddcenter) == 0) {
+            return pixel;
+        }
+
         return pixel.circle_inversion(ddcenter, ddplane_transform_radius);
 
     }
@@ -82,12 +95,31 @@ public class CircleInversionPlane extends Plane {
     @Override
     public MpfrBigNumComplex transform(MpfrBigNumComplex pixel) {
 
+        if(pixel.compare(mpfrbncenter) == 0) {
+            return pixel;
+        }
+
         return pixel.circle_inversion(mpfrbncenter, mpfrbnplane_transform_radius);
 
     }
 
     @Override
+    public MpirBigNumComplex transform(MpirBigNumComplex pixel) {
+
+        if(pixel.compare(mpirbncenter) == 0) {
+            return pixel;
+        }
+
+        return pixel.circle_inversion(mpirbncenter, mpirbnplane_transform_radius);
+
+    }
+
+    @Override
     public DDComplex transform(DDComplex pixel) {
+
+        if(pixel.compare(ddccenter) == 0) {
+            return pixel;
+        }
 
         return pixel.circle_inversion(ddccenter, ddcplane_transform_radius);
 

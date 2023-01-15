@@ -79,7 +79,7 @@ public class PolarLocationNormalApfloatArbitrary extends Location {
 
     public PolarLocationNormalApfloatArbitrary(PolarLocationNormalApfloatArbitrary other) {
 
-        super();
+        super(other);
 
         fractal = other.fractal;
 
@@ -283,23 +283,40 @@ public class PolarLocationNormalApfloatArbitrary extends Location {
     }
 
     @Override
-    public void createAntialiasingSteps(boolean adaptive) {
-        Apfloat[][] steps = createAntialiasingPolarStepsApfloat(ddmulx, ddmuly, adaptive);
+    public void createAntialiasingSteps(boolean adaptive, boolean jitter) {
+        super.createAntialiasingSteps(adaptive, jitter);
+        Apfloat[][] steps = createAntialiasingPolarStepsApfloat(ddmulx, ddmuly, adaptive, jitter);
         ddantialiasing_x = steps[0];
         ddantialiasing_y_sin = steps[1];
         ddantialiasing_y_cos = steps[2];
     }
 
     @Override
-    public GenericComplex getAntialiasingComplex(int sample) {
-        return getAntialiasingComplexBase(sample);
+    public GenericComplex getAntialiasingComplex(int sample, int loc) {
+        return getAntialiasingComplexBase(sample, loc);
     }
 
-    protected BigComplex getAntialiasingComplexBase(int sample) {
-        Apfloat sf2 = MyApfloat.fp.add(MyApfloat.fp.multiply(temp_ddsf, ddantialiasing_y_cos[sample]), MyApfloat.fp.multiply(temp_ddcf, ddantialiasing_y_sin[sample]));
-        Apfloat cf2 = MyApfloat.fp.subtract(MyApfloat.fp.multiply(temp_ddcf, ddantialiasing_y_cos[sample]), MyApfloat.fp.multiply(temp_ddsf, ddantialiasing_y_sin[sample]));
+    protected BigComplex getAntialiasingComplexBase(int sample, int loc) {
+        Apfloat sf2, cf2, r2;
 
-        Apfloat r2 = MyApfloat.fp.multiply(temp_ddr, ddantialiasing_x[sample]);
+        if(aaJitter) {
+
+            int r = (int)(hash(loc) % NUMBER_OF_AA_JITTER_KERNELS);
+            Apfloat[] ddantialiasing_x = precalculatedJitterDataPolarApfloat[r][0];
+            Apfloat[] ddantialiasing_y_sin = precalculatedJitterDataPolarApfloat[r][1];
+            Apfloat[] ddantialiasing_y_cos = precalculatedJitterDataPolarApfloat[r][2];
+
+            sf2 = MyApfloat.fp.add(MyApfloat.fp.multiply(temp_ddsf, ddantialiasing_y_cos[sample]), MyApfloat.fp.multiply(temp_ddcf, ddantialiasing_y_sin[sample]));
+            cf2 = MyApfloat.fp.subtract(MyApfloat.fp.multiply(temp_ddcf, ddantialiasing_y_cos[sample]), MyApfloat.fp.multiply(temp_ddsf, ddantialiasing_y_sin[sample]));
+
+            r2 = MyApfloat.fp.multiply(temp_ddr, ddantialiasing_x[sample]);
+        }
+        else {
+            sf2 = MyApfloat.fp.add(MyApfloat.fp.multiply(temp_ddsf, ddantialiasing_y_cos[sample]), MyApfloat.fp.multiply(temp_ddcf, ddantialiasing_y_sin[sample]));
+            cf2 = MyApfloat.fp.subtract(MyApfloat.fp.multiply(temp_ddcf, ddantialiasing_y_cos[sample]), MyApfloat.fp.multiply(temp_ddsf, ddantialiasing_y_sin[sample]));
+
+            r2 = MyApfloat.fp.multiply(temp_ddr, ddantialiasing_x[sample]);
+        }
 
         if(requiresVariablePixelSize) {
             setVariablePixelSize(r2);

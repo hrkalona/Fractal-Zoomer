@@ -20,6 +20,7 @@ import fractalzoomer.core.ThreadDraw;
 import fractalzoomer.core.antialiasing.AntialiasingAlgorithm;
 import fractalzoomer.core.location.Location;
 import fractalzoomer.functions.Fractal;
+import fractalzoomer.main.Constants;
 import fractalzoomer.main.ImageExpanderWindow;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.*;
@@ -99,12 +100,14 @@ public class BruteForce2Draw extends ThreadDraw {
             location.precalculateY(y);
             for(x = FROMx, loc = y * image_size + x; x < TOx; x++, loc++) {
 
-                image_iterations[loc] = iteration_algorithm.calculate(location.getComplexWithX(x));
-                escaped[loc] = iteration_algorithm.escaped();
-                rgbs[loc] = getFinalColor(image_iterations[loc], escaped[loc]);
-
+                if(rgbs[loc] >>> 24 != Constants.NORMAL_ALPHA) {
+                    image_iterations[loc] = iteration_algorithm.calculate(location.getComplexWithX(x));
+                    escaped[loc] = iteration_algorithm.escaped();
+                    rgbs[loc] = getFinalColor(image_iterations[loc], escaped[loc]);
+                    thread_calculated++;
+                }
                 drawing_done++;
-                thread_calculated++;
+
             }
 
             if(drawing_done / pixel_percent >= 1) {
@@ -114,15 +117,16 @@ public class BruteForce2Draw extends ThreadDraw {
 
         }
 
-        postProcess(image_size);
+        postProcess(image_size, null, location);
     }
 
     @Override
     protected void drawIterationsAntialiased(int image_size, boolean polar) {
 
         int aaMethod = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
+        boolean useJitter = aaMethod != 6 && ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x4) == 4;
         Location location = Location.getInstanceForDrawing(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
-        location.createAntialiasingSteps(aaMethod == 5);
+        location.createAntialiasingSteps(aaMethod == 5, useJitter);
 
         int pixel_percent = (image_size * image_size) / 100;
 
@@ -133,10 +137,12 @@ public class BruteForce2Draw extends ThreadDraw {
         double temp_result;
 
         int aaSamplesIndex = (filters_options_vals[MainWindow.ANTIALIASING] % 100) % 10;
-        boolean aaAvgWithMean = filters_options_vals[MainWindow.ANTIALIASING] / 100 == 1;
+        boolean aaAvgWithMean = ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x1) == 1;
+        int colorSpace = filters_options_extra_vals[0][MainWindow.ANTIALIASING];
         int supersampling_num = (aaSamplesIndex == 0 ? 4 : 8 * aaSamplesIndex);
+        int totalSamples = supersampling_num + 1;
 
-        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(supersampling_num + 1, aaMethod, aaAvgWithMean);
+        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(totalSamples, aaMethod, aaAvgWithMean, colorSpace, location);
 
         if(PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && !HIGH_PRECISION_CALCULATION) {
             if (reference_calc_sync.getAndIncrement() == 0) {
@@ -153,20 +159,35 @@ public class BruteForce2Draw extends ThreadDraw {
             location.setReference(Fractal.refPoint);
         }
 
+        boolean needsPostProcessing = needsPostProcessing();
+        aa.setNeedsPostProcessing(needsPostProcessing);
+
+        double f_val;
+        boolean escaped_val;
+
         for(y = FROMy; y < TOy; y++) {
             location.precalculateY(y);
             for(x = FROMx, loc = y * image_size + x; x < TOx; x++, loc++) {
 
-                image_iterations[loc] = iteration_algorithm.calculate(location.getComplexWithX(x));
-                escaped[loc] = iteration_algorithm.escaped();
-                color = getFinalColor(image_iterations[loc], escaped[loc]);
+                image_iterations[loc] = f_val = iteration_algorithm.calculate(location.getComplexWithX(x));
+                escaped[loc] = escaped_val = iteration_algorithm.escaped();
+                color = getFinalColor(f_val, escaped_val);
+
+                if(needsPostProcessing) {
+                    pixelData[loc].set(0, color, f_val, escaped_val, totalSamples);
+                }
 
                 aa.initialize(color);
 
                 //Supersampling
                 for(int i = 0; i < supersampling_num; i++) {
-                    temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i));
-                    color = getFinalColor(temp_result, iteration_algorithm.escaped());
+                    temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i, loc));
+                    escaped_val = iteration_algorithm.escaped();
+                    color = getFinalColor(temp_result, escaped_val);
+
+                    if(needsPostProcessing) {
+                        pixelData[loc].set(i + 1, color, temp_result, escaped_val, totalSamples);
+                    }
 
                     if(!aa.addSample(color)) {
                         break;
@@ -186,7 +207,7 @@ public class BruteForce2Draw extends ThreadDraw {
 
         }
 
-        postProcess(image_size);
+        postProcess(image_size, aa, location);
         
     }
 
@@ -224,7 +245,7 @@ public class BruteForce2Draw extends ThreadDraw {
 
         }
 
-        postProcessFastJulia(image_size);
+        postProcessFastJulia(image_size, null, location);
         
     }
 
@@ -232,8 +253,9 @@ public class BruteForce2Draw extends ThreadDraw {
     protected void drawFastJuliaAntialiased(int image_size, boolean polar) {
 
         int aaMethod = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
+        boolean useJitter = aaMethod != 6 && ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x4) == 4;
         Location location = Location.getInstanceForDrawing(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
-        location.createAntialiasingSteps(aaMethod == 5);
+        location.createAntialiasingSteps(aaMethod == 5, useJitter);
 
         if(PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && !HIGH_PRECISION_CALCULATION) {
 
@@ -257,25 +279,42 @@ public class BruteForce2Draw extends ThreadDraw {
         double temp_result;
 
         int aaSamplesIndex = (filters_options_vals[MainWindow.ANTIALIASING] % 100) % 10;
-        boolean aaAvgWithMean = filters_options_vals[MainWindow.ANTIALIASING] / 100 == 1;
+        boolean aaAvgWithMean = ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x1) == 1;
+        int colorSpace = filters_options_extra_vals[0][MainWindow.ANTIALIASING];
         int supersampling_num = (aaSamplesIndex == 0 ? 4 : 8 * aaSamplesIndex);
+        int totalSamples = supersampling_num + 1;
 
-        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(supersampling_num + 1, aaMethod, aaAvgWithMean);
+        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(totalSamples, aaMethod, aaAvgWithMean, colorSpace, location);
+
+        boolean needsPostProcessing = needsPostProcessing();
+        aa.setNeedsPostProcessing(needsPostProcessing);
+
+        double f_val;
+        boolean escaped_val;
 
         for(y = FROMy; y < TOy; y++) {
             location.precalculateY(y);
             for(x = FROMx, loc = y * image_size + x; x < TOx; x++, loc++) {
 
-                image_iterations_fast_julia[loc] = iteration_algorithm.calculate(location.getComplexWithX(x));
-                escaped_fast_julia[loc] = iteration_algorithm.escaped();
-                color = getFinalColor(image_iterations_fast_julia[loc], escaped_fast_julia[loc]);
+                image_iterations_fast_julia[loc] = f_val = iteration_algorithm.calculate(location.getComplexWithX(x));
+                escaped_fast_julia[loc] = escaped_val = iteration_algorithm.escaped();
+                color = getFinalColor(f_val, escaped_val);
+
+                if(needsPostProcessing) {
+                    pixelData_fast_julia[loc].set(0, color, f_val, escaped_val, totalSamples);
+                }
 
                 aa.initialize(color);
 
                 //Supersampling
                 for(int i = 0; i < supersampling_num; i++) {
-                    temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i));
-                    color = getFinalColor(temp_result, iteration_algorithm.escaped());
+                    temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i, loc));
+                    escaped_val = iteration_algorithm.escaped();
+                    color = getFinalColor(temp_result, escaped_val);
+
+                    if(needsPostProcessing) {
+                        pixelData_fast_julia[loc].set(i + 1, color, temp_result, escaped_val, totalSamples);
+                    }
 
                     if(!aa.addSample(color)) {
                         break;
@@ -287,7 +326,7 @@ public class BruteForce2Draw extends ThreadDraw {
 
         }
 
-        postProcessFastJulia(image_size);
+        postProcessFastJulia(image_size, aa, location);
         
     }
 }

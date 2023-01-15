@@ -145,66 +145,76 @@ public class FiltersOptionsFrame extends JFrame {
         aaSamples.setFocusable(false);
         aaSamples.setToolTipText("Sets the sampled pixels number for the anti-aliasing.");
 
-        String[] antialiasing_method_str = {"Mean", "Median", "Mid-Point", "Closest to Mean", "Closest To Mid-Point", "Adaptive Mean(Min 5)"};
+        String[] antialiasing_method_str = {"Mean", "Median", "Mid-Point", "Closest to Mean", "Closest To Mid-Point", "Adaptive Mean(Min 5)", "Gaussian", "Mean Without Outliers"};
 
         JComboBox<String> aaMethod = new JComboBox<>(antialiasing_method_str);
         aaMethod.setSelectedIndex((filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10);
         aaMethod.setFocusable(false);
         aaMethod.setToolTipText("Sets the anti-aliasing method.");
 
-        /*String[] antialiasing_cpsace_str = {"RGB", "Lab"};
 
-        JComboBox aaSpace = new JComboBox<>(antialiasing_cpsace_str);
-        aaSpace.setSelectedIndex((filters_options_vals[MainWindow.ANTIALIASING] / 100));
-        aaSpace.setFocusable(false);
-        aaSpace.setToolTipText("Sets the anti-aliasing color space.");*/
-
-        final JCheckBox aaAvgWithMean = new JCheckBox("Average Method & Mean");
+        final JCheckBox aaAvgWithMean = new JCheckBox("AA Method & Mean");
         aaAvgWithMean.setFocusable(false);
         aaAvgWithMean.setBackground(MainWindow.bg_color);
         aaAvgWithMean.setToolTipText("Computes the mean value and the method's value and then averages them.");
-        aaAvgWithMean.setSelected((filters_options_vals[MainWindow.ANTIALIASING] / 100) == 1);
+        aaAvgWithMean.setSelected(((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x1) == 1);
 
-        aaAvgWithMean.setEnabled(aaMethod.getSelectedIndex() != 0 && aaMethod.getSelectedIndex() != 5);
-
-        aaMethod.addActionListener(e -> aaAvgWithMean.setEnabled(aaMethod.getSelectedIndex() != 0 && aaMethod.getSelectedIndex() != 5));
+        aaAvgWithMean.setEnabled(aaMethod.getSelectedIndex() != 0 && aaMethod.getSelectedIndex() != 5 && aaMethod.getSelectedIndex() != 7);
 
 
-        JPanel samplesLabel = new JPanel();
-        samplesLabel.setBackground(MainWindow.bg_color);
-        samplesLabel.add(new JLabel("Samples:"));
+        String[] antialiasing_color_space_str = {"RGB", "XYZ", "Lab", "RYB", "Luv", "OKLab", "JzAzBz", "Linear sRGB"};//, "HSB", "HSL", "LCH"};
+
+        JComboBox<String> antialiasing_color_space = new JComboBox<>(antialiasing_color_space_str);
+        antialiasing_color_space.setSelectedIndex((filters_options_extra_vals[0][MainWindow.ANTIALIASING]));
+        antialiasing_color_space.setFocusable(false);
+        antialiasing_color_space.setToolTipText("Sets the anti-aliasing color space.");
+
+        final JCheckBox useJitter = new JCheckBox("Jitter");
+        useJitter.setFocusable(false);
+        useJitter.setBackground(MainWindow.bg_color);
+        useJitter.setToolTipText("Adds jitter to the sampling.");
+        useJitter.setSelected(((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x4) == 4);
+
+        useJitter.setEnabled(aaMethod.getSelectedIndex() != 6);
+
+        antialiasing_color_space.setEnabled(aaMethod.getSelectedIndex() == 0 || aaMethod.getSelectedIndex() == 1 || aaMethod.getSelectedIndex() == 2 || aaMethod.getSelectedIndex() == 6 || aaMethod.getSelectedIndex() == 7);
+
+        aaMethod.addActionListener(e -> {
+            aaAvgWithMean.setEnabled(aaMethod.getSelectedIndex() != 0 && aaMethod.getSelectedIndex() != 5 && aaMethod.getSelectedIndex() != 7);
+            antialiasing_color_space.setEnabled(aaMethod.getSelectedIndex() == 0 || aaMethod.getSelectedIndex() == 1 || aaMethod.getSelectedIndex() == 2 || aaMethod.getSelectedIndex() == 6 || aaMethod.getSelectedIndex() == 7);
+            useJitter.setEnabled(aaMethod.getSelectedIndex() != 6);
+        });
+
 
         JPanel samples = new JPanel();
         samples.setBackground(MainWindow.bg_color);
+        samples.add(new JLabel("Samples:"));
         samples.add(aaSamples);
-
-        JPanel methodLabel = new JPanel();
-        methodLabel.setBackground(MainWindow.bg_color);
-        methodLabel.add(new JLabel("Method:"));
 
         JPanel method = new JPanel();
         method.setBackground(MainWindow.bg_color);
+        method.add(new JLabel("Method:"));
         method.add(aaMethod);
 
         JPanel avg = new JPanel();
         avg.setBackground(MainWindow.bg_color);
         avg.add(aaAvgWithMean);
 
-        /*JPanel spaceLabel = new JPanel();
-        spaceLabel.setBackground(MainWindow.bg_color);
-        spaceLabel.add(new JLabel("Color Space:"));
+        JPanel jitterPanel = new JPanel();
+        jitterPanel.setBackground(MainWindow.bg_color);
+        jitterPanel.add(useJitter);
+
 
         JPanel space = new JPanel();
         space.setBackground(MainWindow.bg_color);
-        space.add(aaSpace);*/
+        space.add(new JLabel("Color Space:"));
+        space.add(antialiasing_color_space);
 
-        ((JPanel)components_filters[MainWindow.ANTIALIASING]).add(samplesLabel);
         ((JPanel)components_filters[MainWindow.ANTIALIASING]).add(samples);
-        ((JPanel)components_filters[MainWindow.ANTIALIASING]).add(methodLabel);
         ((JPanel)components_filters[MainWindow.ANTIALIASING]).add(method);
         ((JPanel)components_filters[MainWindow.ANTIALIASING]).add(avg);
-        //((JPanel)components_filters[MainWindow.ANTIALIASING]).add(spaceLabel);
-        //((JPanel)components_filters[MainWindow.ANTIALIASING]).add(space);
+        ((JPanel)components_filters[MainWindow.ANTIALIASING]).add(jitterPanel);
+        ((JPanel)components_filters[MainWindow.ANTIALIASING]).add(space);
 
         panels[MainWindow.ANTIALIASING].add(((JPanel)components_filters[MainWindow.ANTIALIASING]));
         panels[MainWindow.ANTIALIASING].setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Anti-Aliasing", TitledBorder.DEFAULT_POSITION, TitledBorder.DEFAULT_POSITION));
@@ -266,7 +276,7 @@ public class FiltersOptionsFrame extends JFrame {
 
             @Override
             public void mousePressed(MouseEvent e) {
-                new ColorChooserFrame(this_frame, "Edge Detection Color", filter_color_label5, -1);
+                new ColorChooserFrame(this_frame, "Edge Detection Color", filter_color_label5, -1, -1);
             }
 
             @Override
@@ -1168,7 +1178,7 @@ public class FiltersOptionsFrame extends JFrame {
 
             @Override
             public void mousePressed(MouseEvent e) {
-                new ColorChooserFrame(this_frame, "Crystallize Color", filter_color_label, -1);
+                new ColorChooserFrame(this_frame, "Crystallize Color", filter_color_label, -1, -1);
             }
 
             @Override
@@ -1353,7 +1363,7 @@ public class FiltersOptionsFrame extends JFrame {
 
             @Override
             public void mousePressed(MouseEvent e) {           
-                new ColorChooserFrame(this_frame, "Pointillize Color", filter_color_label2, -1);
+                new ColorChooserFrame(this_frame, "Pointillize Color", filter_color_label2, -1, -1);
             }
 
             @Override
@@ -1645,7 +1655,7 @@ public class FiltersOptionsFrame extends JFrame {
 
             @Override
             public void mousePressed(MouseEvent e) {           
-                new ColorChooserFrame(this_frame, "Weave Color", filter_color_label3, -1);
+                new ColorChooserFrame(this_frame, "Weave Color", filter_color_label3, -1, -1);
             }
 
             @Override
@@ -1783,7 +1793,7 @@ public class FiltersOptionsFrame extends JFrame {
 
             @Override
             public void mousePressed(MouseEvent e) {           
-                new ColorChooserFrame(this_frame, "Sparkle Color", filter_color_label4, -1);
+                new ColorChooserFrame(this_frame, "Sparkle Color", filter_color_label4, -1, -1);
             }
 
             @Override
@@ -2453,7 +2463,7 @@ public class FiltersOptionsFrame extends JFrame {
 
             @Override
             public void mousePressed(MouseEvent e) {           
-                new ColorChooserFrame(this_frame, "Light Color", filter_color_label6, -1);
+                new ColorChooserFrame(this_frame, "Light Color", filter_color_label6, -1, -1);
             }
 
             @Override
@@ -2533,7 +2543,7 @@ public class FiltersOptionsFrame extends JFrame {
 
             @Override
             public void mousePressed(MouseEvent e) {           
-                new ColorChooserFrame(this_frame, "Diffuse Color", filter_color_label7, -1);
+                new ColorChooserFrame(this_frame, "Diffuse Color", filter_color_label7, -1, -1);
             }
 
             @Override
@@ -2574,7 +2584,7 @@ public class FiltersOptionsFrame extends JFrame {
 
             @Override
             public void mousePressed(MouseEvent e) {           
-                new ColorChooserFrame(this_frame, "Specular Color", filter_color_label8, -1);
+                new ColorChooserFrame(this_frame, "Specular Color", filter_color_label8, -1, -1);
             }
 
             @Override
@@ -2750,6 +2760,14 @@ public class FiltersOptionsFrame extends JFrame {
         ok.setFocusable(false);
         ok.addActionListener(e -> {
 
+//            if(aaMethod.getSelectedIndex() != 0) {
+//                int cspace = antialiasing_color_space.getSelectedIndex();
+//                if(cspace == 4 || cspace == 5 || cspace == 6) {
+//                    JOptionPane.showMessageDialog(ptra, "The color spaces HSB, HSL, LCH can only be used with Mean AA Method.", "Error!", JOptionPane.ERROR_MESSAGE);
+//                    return;
+//                }
+//            }
+
             for(int k = 0; k < filters_options_vals.length; k++) {
                 if(components_filters[k] != null) {
                     if(k == MainWindow.COLOR_TEMPERATURE || k == MainWindow.EXPOSURE || k == MainWindow.GAMMA || k == MainWindow.COLOR_CHANNEL_SCALING) {
@@ -2852,8 +2870,21 @@ public class FiltersOptionsFrame extends JFrame {
                         filters_options_vals[k] = horizontal_edge_alg.getSelectedIndex() * 10 + vertical_edge_alg.getSelectedIndex();
                     }
                     else if(k == MainWindow.ANTIALIASING) {
-                        //aaSpace.getSelectedIndex() * 100
-                        filters_options_vals[k] = (aaAvgWithMean.isSelected() ? 100 : 0) + aaMethod.getSelectedIndex() * 10 + aaSamples.getSelectedIndex();
+                        int flag = 0;
+
+                        if(aaAvgWithMean.isSelected()) {
+                            flag |= 1;
+                        }
+
+                        filters_options_extra_vals[0][k] = antialiasing_color_space.getSelectedIndex();
+
+                        if(useJitter.isSelected()) {
+                            flag |= (1 << 2);
+                        }
+
+                        flag *= 100;
+
+                        filters_options_vals[k] = flag + aaMethod.getSelectedIndex() * 10 + aaSamples.getSelectedIndex();
                     }
                     else if ( components_filters[k] instanceof JComboBox){
                         filters_options_vals[k] = ((JComboBox)components_filters[k]).getSelectedIndex();

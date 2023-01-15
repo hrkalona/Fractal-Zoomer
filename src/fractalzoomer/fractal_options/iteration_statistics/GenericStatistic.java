@@ -17,9 +17,16 @@
 package fractalzoomer.fractal_options.iteration_statistics;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.core.GenericComplex;
+import fractalzoomer.core.MantExp;
+import fractalzoomer.core.MantExpComplex;
 import fractalzoomer.core.bla.BLA;
 import fractalzoomer.core.bla.BLADeep;
+import fractalzoomer.core.interpolation.InterpolationMethod;
+import fractalzoomer.core.la.LAstep;
 import org.apfloat.Apfloat;
+
+import java.util.Arrays;
 
 /**
  *
@@ -30,6 +37,10 @@ public abstract class GenericStatistic {
     public static final int NORMAL_CONVERGE = 1;
     public static final int MAGNET_ROOT = 2;
 
+    protected StatisticSample[] sampleItems;
+    protected int sampleItem;
+    protected int lastXItems;
+    protected boolean keepLastXItems;
     protected int samples;
     protected double statistic_intensity;
     protected Complex z_val;
@@ -39,13 +50,24 @@ public abstract class GenericStatistic {
     protected Complex c_val;
     protected Complex c0_val;
     protected Complex pixel_val;
+
+    protected MantExpComplex z_val_deep;
+    protected MantExpComplex zold_val_deep;
+    protected MantExpComplex c_val_deep;
     protected boolean useSmoothing;
     protected boolean useAverage;
     protected int mode;
     protected int iterations;
     protected Apfloat size;
+    protected MantExp mSize;
+    protected double log_power;
+    protected boolean usePower;
+    protected InterpolationMethod method;
+    private boolean hasData;
+    protected int escaping_smoothing_algorithm;
+    protected int converging_smoothing_algorithm;
     
-    protected GenericStatistic(double statistic_intensity, boolean useSmoothing, boolean useAverage) {
+    protected GenericStatistic(double statistic_intensity, boolean useSmoothing, boolean useAverage, int lastXItems) {
         this.statistic_intensity = statistic_intensity;
         z_val = new Complex();
         zold_val = new Complex();
@@ -58,6 +80,14 @@ public abstract class GenericStatistic {
         this.useSmoothing = useSmoothing;
         this.useAverage = useAverage;
         mode = NORMAL_ESCAPE;
+        hasData = false;
+        this.lastXItems = lastXItems;
+
+        if(lastXItems > 0) {
+            keepLastXItems = true;
+            sampleItems = new StatisticSample[lastXItems];
+            sampleItem = 0;
+        }
     }
     
     public void insert(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0) {
@@ -68,6 +98,70 @@ public abstract class GenericStatistic {
         c_val.assign(c);
         c0_val.assign(c0);
         this.iterations = iterations;
+        hasData = true;
+
+        if(keepLastXItems) {
+            sampleItems[sampleItem % sampleItems.length] = new StatisticSample(z, zold, zold2, iterations, c, start, c0);
+            sampleItem++;
+        }
+    }
+
+    public void insert(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0, MantExpComplex zDeep, MantExpComplex zoldDeep, MantExpComplex cDeep) {
+        z_val.assign(z);
+        zold_val.assign(zold);
+        zold2_val.assign(zold2);
+        start_val.assign(start);
+        c_val.assign(c);
+        c0_val.assign(c0);
+        this.iterations = iterations;
+        z_val_deep = zDeep;
+        zold_val_deep = zoldDeep;
+        c_val_deep = cDeep;
+        hasData = true;
+
+        if(keepLastXItems) {
+            sampleItems[sampleItem % sampleItems.length] = new StatisticSample(z, zold, zold2, iterations, c, start, c0);
+            sampleItem++;
+        }
+    }
+
+    public void insert(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0, GenericComplex zDeep, GenericComplex zoldDeep, GenericComplex cDeep) {
+        z_val.assign(z);
+        zold_val.assign(zold);
+        zold2_val.assign(zold2);
+        start_val.assign(start);
+        c_val.assign(c);
+        c0_val.assign(c0);
+        this.iterations = iterations;
+
+        if(zDeep instanceof MantExpComplex) {
+            z_val_deep = (MantExpComplex) zDeep;
+        }
+        else {
+            z_val_deep = new MantExpComplex((Complex)zDeep);
+        }
+
+        if(zoldDeep instanceof MantExpComplex) {
+            zold_val_deep = (MantExpComplex) zoldDeep;
+        }
+        else {
+            zold_val_deep = new MantExpComplex((Complex)zoldDeep);
+        }
+
+        if(cDeep != null) {
+            if(cDeep instanceof MantExpComplex) {
+                c_val_deep = (MantExpComplex) cDeep;
+            }
+            else {
+                c_val_deep = new MantExpComplex((Complex) cDeep);
+            }
+        }
+        hasData = true;
+
+        if(keepLastXItems) {
+            sampleItems[sampleItem % sampleItems.length] = new StatisticSample(z, zold, zold2, iterations, c, start, c0);
+            sampleItem++;
+        }
     }
 
     public void insert(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0, BLA bla) {
@@ -75,6 +169,14 @@ public abstract class GenericStatistic {
     }
 
     public void insert(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0, BLADeep bla) {
+        insert(z, zold, zold2, iterations, c, start, c0);
+    }
+
+    public void insert(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0, LAstep las, MantExpComplex zDeep, MantExpComplex zoldDeep) {
+        insert(z, zold, zold2, iterations, c, start, c0);
+    }
+
+    public void insert(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0, LAstep las) {
         insert(z, zold, zold2, iterations, c, start, c0);
     }
 
@@ -87,6 +189,64 @@ public abstract class GenericStatistic {
         c0_val.reset();
         pixel_val.assign(pixel);
         iterations = 0;
+        zold_val_deep = null;
+        z_val_deep = null;
+        c_val_deep = null;
+        hasData = false;
+
+        if(keepLastXItems) {
+            Arrays.fill(sampleItems, 0, sampleItems.length, null);
+            sampleItem = 0;
+        }
+    }
+
+    protected void addSample(StatisticSample sam, double[] data) {
+
+    }
+
+    protected double[][] calculateLastX() {
+        int length = sampleItems.length;
+
+        double[] common_data = new double[2];
+        double[] data1 = new double[2];
+        double[] data2 = new double[2];
+
+        //Common part
+
+        int start = (sampleItem + 1) % sampleItems.length;
+        int lenm1 = length - 1;
+        int i = start;
+        for(int count = 1; count < lenm1; i++, count++) {
+            StatisticSample sam = sampleItems[i % sampleItems.length];
+
+            if(sam != null) {
+                addSample(sam, common_data);
+            }
+        }
+
+        //sum2
+        data2[0] = common_data[0];
+        data2[1] = common_data[1];
+
+        StatisticSample sam = sampleItems[sampleItem % sampleItems.length];
+
+        if(sam != null) {
+            addSample(sam, data2);
+        }
+
+        //sum
+        data1[0] = common_data[0];
+        data1[1] = common_data[1];
+
+        sam = sampleItems[i % sampleItems.length];
+
+        if(sam != null) {
+            addSample(sam, data1);
+        }
+
+
+        return new double[][] {data1, data2};
+
     }
 
     public abstract double getValue();
@@ -129,6 +289,10 @@ public abstract class GenericStatistic {
         return samples;
     }
 
+    public boolean hasData() {
+        return hasData;
+    }
+
     public Complex getStart() {
         return start_val;
     }
@@ -155,10 +319,33 @@ public abstract class GenericStatistic {
 
     public void setSize(Apfloat size, double height_ratio) {
         this.size = size;
+        this.mSize = new MantExp(size);
+        mSize.Reduce();
     }
 
     public void setZValue(Complex z) {
         z_val = z;
+    }
+
+    public void setLogPower(double log_power) {
+        this.log_power = log_power;
+        usePower = true;
+    }
+
+    public boolean isAdditive() {
+        return true;
+    }
+
+    public void setInterpolationMethod(InterpolationMethod method) {
+        this.method = method;
+    }
+
+    public void setEscapingSmoothingAlgorithm(int escaping_smoothing_algorithm) {
+        this.escaping_smoothing_algorithm = escaping_smoothing_algorithm;
+    }
+
+    public void setConvergingSmoothingAlgorithm(int converging_smoothing_algorithm) {
+        this.converging_smoothing_algorithm = converging_smoothing_algorithm;
     }
     
 }

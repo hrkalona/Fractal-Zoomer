@@ -32,7 +32,7 @@ public class MandelbrotNthDialog extends JDialog {
     private MainWindow ptra;
     private JOptionPane optionPane;
 
-    public MandelbrotNthDialog(MainWindow ptr, Settings s, int oldSelected, JRadioButtonMenuItem[] fractal_functions, boolean wasMagnetType, boolean wasConvergingType, boolean wasSimpleType, boolean wasMagneticPendulumType, boolean wasEscapingOrConvergingType) {
+    public MandelbrotNthDialog(MainWindow ptr, Settings s, int oldSelected, JRadioButtonMenuItem[] fractal_functions, boolean wasMagnetType, boolean wasConvergingType, boolean wasSimpleType, boolean wasMagneticPendulumType, boolean wasEscapingOrConvergingType, boolean wasMagnetPatakiType) {
 
         super(ptr);
         
@@ -41,9 +41,6 @@ public class MandelbrotNthDialog extends JDialog {
         setTitle("Exponent");
         setModal(true);
         setIconImage(MainWindow.getIcon("mandel2.png").getImage());
-
-        JLabel zw = new JLabel();
-        zw.setIcon(MainWindow.getIcon("zw.png"));
 
         JTextField field = new JTextField();
         field.setText("" + s.fns.z_exponent);
@@ -100,7 +97,7 @@ public class MandelbrotNthDialog extends JDialog {
 
                         ptra.optionsEnableShortcut();
                         dispose();
-                        ptra.setFunctionPost(wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType, wasEscapingOrConvergingType);
+                        ptra.setFunctionPost(oldSelected, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType, wasEscapingOrConvergingType, wasMagnetPatakiType);
                     }
                 });
 

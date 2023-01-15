@@ -68,7 +68,7 @@ public class CustomDomainColoringFrame extends JFrame {
         this_frame = this;
 
         ptra2.setEnabled(false);
-        int custom_palette_window_width = 890;
+        int custom_palette_window_width = 920;
         int custom_palette_window_height = 660;
         setTitle("Custom Domain Coloring");
         setIconImage(MainWindow.getIcon("domain_coloring.png").getImage());
@@ -88,7 +88,7 @@ public class CustomDomainColoringFrame extends JFrame {
 
         JPanel domain_coloring_panel = new JPanel();
 
-        domain_coloring_panel.setPreferredSize(new Dimension(790, 525));
+        domain_coloring_panel.setPreferredSize(new Dimension(820, 525));
         domain_coloring_panel.setLayout(new FlowLayout());
         domain_coloring_panel.setBackground(MainWindow.bg_color);
 
@@ -225,7 +225,7 @@ public class CustomDomainColoringFrame extends JFrame {
         JPanel p7 = new JPanel();
         p7.setLayout(new FlowLayout());
         p7.setBackground(MainWindow.bg_color);
-        p7.setPreferredSize(new Dimension(300, 30));
+        p7.setPreferredSize(new Dimension(500, 30));
    
         p7.add(new JLabel("Combine Algorithm: "));
         p7.add(combineAlgorithm_opt);
@@ -352,7 +352,7 @@ public class CustomDomainColoringFrame extends JFrame {
                     return;
                 }
 
-                new ColorChooserFrame(this_frame, "Grid Color", grid_color_label, -1);
+                new ColorChooserFrame(this_frame, "Grid Color", grid_color_label, -1, -1);
             }
 
             @Override
@@ -397,9 +397,9 @@ public class CustomDomainColoringFrame extends JFrame {
 
         grid_panel.add(new JLabel("Width: "));
         grid_panel.add(grid_lines_factor_opt);
-        grid_panel.add(new JLabel(" Fading: "));
+        grid_panel.add(new JLabel(" Fade: "));
         grid_panel.add(grid_fade_combo);
-        grid_panel.add(new JLabel(" Strength: "));
+        grid_panel.add(new JLabel(" Weight: "));
         grid_panel.add(grid_coef_opt);
         grid_panel.add(new JLabel(" Color: "));
         grid_panel.add(grid_color_label);
@@ -443,7 +443,7 @@ public class CustomDomainColoringFrame extends JFrame {
                     return;
                 }
 
-                new ColorChooserFrame(this_frame, "Circles Color", circles_color_label, -1);
+                new ColorChooserFrame(this_frame, "Circles Color", circles_color_label, -1, -1);
             }
 
             @Override
@@ -488,9 +488,9 @@ public class CustomDomainColoringFrame extends JFrame {
 
         circles_panel.add(new JLabel("Width: "));
         circles_panel.add(circle_lines_factor_opt);
-        circles_panel.add(new JLabel(" Fading: "));
+        circles_panel.add(new JLabel(" Fade: "));
         circles_panel.add(circle_fade_combo);
-        circles_panel.add(new JLabel(" Strength: "));
+        circles_panel.add(new JLabel(" Weight: "));
         circles_panel.add(circles_coef_opt);
         circles_panel.add(new JLabel(" Color: "));
         circles_panel.add(circles_color_label);
@@ -526,7 +526,7 @@ public class CustomDomainColoringFrame extends JFrame {
         iso_lines_coef_opt.setBackground(MainWindow.bg_color);
         iso_lines_coef_opt.setMajorTickSpacing(25);
         iso_lines_coef_opt.setMinorTickSpacing(1);
-        iso_lines_coef_opt.setToolTipText("Sets the iso-argument lines strentgh percentage.");
+        iso_lines_coef_opt.setToolTipText("Sets the iso-argument lines strength percentage.");
         iso_lines_coef_opt.setFocusable(false);
         iso_lines_coef_opt.setPaintLabels(true);
 
@@ -550,7 +550,7 @@ public class CustomDomainColoringFrame extends JFrame {
                     return;
                 }
 
-                new ColorChooserFrame(this_frame, "Iso-Argument Lines Color", iso_lines_color_label, -1);
+                new ColorChooserFrame(this_frame, "Iso-Argument Lines Color", iso_lines_color_label, -1, -1);
             }
 
             @Override
@@ -572,7 +572,7 @@ public class CustomDomainColoringFrame extends JFrame {
 
         iso_lines_panel.add(new JLabel("Width: "));
         iso_lines_panel.add(iso_lines_factor_opt);
-        iso_lines_panel.add(new JLabel(" Strength: "));
+        iso_lines_panel.add(new JLabel(" Weight: "));
         iso_lines_panel.add(iso_lines_coef_opt);
         iso_lines_panel.add(new JLabel(" Color: "));
         iso_lines_panel.add(iso_lines_color_label);
@@ -591,7 +591,7 @@ public class CustomDomainColoringFrame extends JFrame {
         JPanel p4 = new JPanel();
         p4.setLayout(new GridLayout(1, 1));
         p4.setBackground(MainWindow.bg_color);
-        p4.setPreferredSize(new Dimension(790, 150));
+        p4.setPreferredSize(new Dimension(820, 150));
         
         p4.add(general_settings_panel);
 
@@ -600,7 +600,7 @@ public class CustomDomainColoringFrame extends JFrame {
         JPanel p3 = new JPanel();
         p3.setLayout(new GridLayout(5, 1));
         p3.setBackground(MainWindow.bg_color);
-        p3.setPreferredSize(new Dimension(790, 360));
+        p3.setPreferredSize(new Dimension(820, 360));
         
         p3.add(color_panel);
         p3.add(contours_panel);
@@ -732,7 +732,7 @@ public class CustomDomainColoringFrame extends JFrame {
 
         RoundedPanel round_panel = new RoundedPanel(true, true, true, 15);
         round_panel.setBackground(MainWindow.bg_color);
-        round_panel.setPreferredSize(new Dimension(830, 580));
+        round_panel.setPreferredSize(new Dimension(860, 580));
         round_panel.setLayout(new GridBagLayout());
 
         GridBagConstraints con = new GridBagConstraints();

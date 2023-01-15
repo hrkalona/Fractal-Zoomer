@@ -20,6 +20,7 @@ import fractalzoomer.core.GenericComplex;
 import fractalzoomer.core.ThreadDraw;
 import fractalzoomer.core.location.Location;
 import fractalzoomer.functions.Fractal;
+import fractalzoomer.main.Constants;
 import fractalzoomer.main.ImageExpanderWindow;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.*;
@@ -78,7 +79,7 @@ public class BoundaryTracing2Draw extends ThreadDraw {
     }
 
     private int calculate(int loc, GenericComplex pixel) {
-        if(rgbs[loc] == 0) {
+        if(rgbs[loc] == Constants.EMPTY_COLOR) {
             image_iterations[loc] = iteration_algorithm.calculate(pixel);
             escaped[loc] = iteration_algorithm.escaped();
             rgbs[loc] = getFinalColor(image_iterations[loc], escaped[loc]);
@@ -102,7 +103,7 @@ public class BoundaryTracing2Draw extends ThreadDraw {
 
     private void floodFill(int image_size, int pixel_percent) {
          
-        int notCalculated = 0;
+        int notCalculated = Constants.EMPTY_COLOR;
         int x, y, loc;
         
         for(y = FROMy + 1; y < TOy - 1; y++) {          
@@ -238,7 +239,7 @@ public class BoundaryTracing2Draw extends ThreadDraw {
             drawSquares(image_size);
         }
         
-        postProcess(image_size);
+        postProcess(image_size, null, location);
     }
 
 

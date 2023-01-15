@@ -35,14 +35,18 @@ public abstract class CartesianLocationDeltaGenericBigNum extends CartesianLocat
         return getComplexWithYBase(y).sub(reference);
     }
 
-    protected BigNumComplex getAntialiasingComplexInternal(int sample) {
-        return getAntialiasingComplexBase(sample).sub(reference);
+    protected BigNumComplex getAntialiasingComplexInternal(int sample, int loc) {
+        return getAntialiasingComplexBase(sample, loc).sub(reference);
     }
 
     @Override
     public GenericComplex getReferencePoint() {
         BigNumComplex tempbn = new BigNumComplex(ddxcenter, ddycenter);
-        tempbn = rotation.rotate(tempbn);
+
+        if(rotation.shouldRotate(ddxcenter, ddycenter)) {
+            tempbn = rotation.rotate(tempbn);
+        }
+
         tempbn = fractal.getPlaneTransformedPixel(tempbn);
         return tempbn;
     }
@@ -57,5 +61,10 @@ public abstract class CartesianLocationDeltaGenericBigNum extends CartesianLocat
             Apfloat temp2 = MyApfloat.fp.multiply(temp, height_ratio);
             return new MantExp(MyApfloat.fp.sqrt(MyApfloat.fp.add(MyApfloat.fp.multiply(temp, temp), MyApfloat.fp.multiply(temp2, temp2))));
         }
+    }
+
+    @Override
+    public MantExp getSize() {
+        return bnsize.getMantExp();
     }
 }

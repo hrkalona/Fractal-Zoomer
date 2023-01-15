@@ -31,8 +31,8 @@ public class AtomDomain extends GenericStatistic {
     private double atomNorm;
     private double atomNormReciprocal;
     
-    public AtomDomain(boolean showAtomDomains, double statistic_intensity, int normtType, double atomNorm) {
-        super(statistic_intensity, false, false);
+    public AtomDomain(boolean showAtomDomains, double statistic_intensity, int normtType, double atomNorm, int lastXItems) {
+        super(statistic_intensity, false, false, lastXItems);
         this.showAtomDomains = showAtomDomains;
         this.normtType = normtType;
         this.atomNorm = atomNorm;
@@ -44,6 +44,30 @@ public class AtomDomain extends GenericStatistic {
 
         super.insert(z, zold, zold2, iterations, c, start, c0);
 
+        if(keepLastXItems) {
+            return;
+        }
+
+        addSample(z);
+
+    }
+
+    private void sampleLastX() {
+        minNorm = Double.MAX_VALUE;
+        minIteration = 0;
+        samples = 0;
+
+        int start = sampleItem >= sampleItems.length ? sampleItem % sampleItems.length : 0;
+        for(int i = start, count = 0; count < sampleItems.length; i++, count++) {
+            StatisticSample sam = sampleItems[i % sampleItems.length];
+
+            if(sam != null) {
+                addSample(sam.z_val);
+            }
+        }
+    }
+
+    private void addSample(Complex z) {
         double currentNorm = 0;
 
         switch (normtType) {
@@ -65,7 +89,8 @@ public class AtomDomain extends GenericStatistic {
             minNorm = currentNorm;
             minIteration = iterations;
         }
-        
+
+        samples++;
     }
 
     @Override
@@ -77,7 +102,11 @@ public class AtomDomain extends GenericStatistic {
 
     @Override
     public double getValue() {
- 
+
+        if(keepLastXItems) {
+            sampleLastX();
+        }
+
         return showAtomDomains ? statistic_intensity * minIteration : statistic_intensity * minNorm;
         
     }

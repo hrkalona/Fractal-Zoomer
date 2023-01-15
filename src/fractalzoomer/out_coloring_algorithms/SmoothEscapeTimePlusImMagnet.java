@@ -44,17 +44,10 @@ public class SmoothEscapeTimePlusImMagnet extends OutColorAlgorithm {
         double temp3 = 0;
         if(!(Boolean)object[2]) {
             if(algorithm == 0) {
-                double temp = Math.log(((Complex)object[4]).distance_squared(1));
-                temp3 = (log_convergent_bailout - temp) / (Math.log((Double)object[3]) - temp);
+                temp3 = SmoothEscapeTimeMagnet.getConvSmoothing1(object, log_convergent_bailout);
             }
             else {
-                double temp4 = Math.log(((Double)object[3]));
-
-                double power = temp4 / Math.log(((Complex)object[4]).distance_squared(1));
-
-                double f = Math.log(log_convergent_bailout / temp4) / Math.log(power);
-
-                temp3 = f;
+                temp3 = SmoothEscapeTimeMagnet.getConvSmoothing2(object, log_convergent_bailout);
             }
         }
         

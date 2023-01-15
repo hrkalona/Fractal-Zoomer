@@ -94,7 +94,7 @@ public class DomainColoringFrame extends JFrame {
         settings_panel.setBackground(MainWindow.bg_color);
         settings_panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Settings", TitledBorder.DEFAULT_POSITION, TitledBorder.DEFAULT_POSITION));
 
-        String[] color_modes = {"HSB", "Current Palette", "LCH", "Cubehelix", "Cubehelix3"};
+        String[] color_modes = {"HSB", "Current Palette", "LCH_ab", "Cubehelix", "Cubehelix3", "LCH_uv"};
         final JComboBox<String> use_palette_dc = new JComboBox<>(color_modes);
         use_palette_dc.setSelectedIndex(s.ds.domain_coloring_mode);
         use_palette_dc.setBackground(MainWindow.bg_color);

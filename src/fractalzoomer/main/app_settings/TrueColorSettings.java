@@ -57,7 +57,7 @@ public class TrueColorSettings {
         inTcComponent3 = "(arg(s) + pi) / (2*pi)";
         
         outTcColorSpace = ColorSpaceConverter.HSB;
-        inTcColorSpace = ColorSpaceConverter.LCH;
+        inTcColorSpace = ColorSpaceConverter.LCH_ab;
     }
     
 }

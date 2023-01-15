@@ -35,9 +35,9 @@ public class CartesianLocationDeltaDeepMpfrBigNum extends CartesianLocationDelta
     }
 
     @Override
-    public GenericComplex getAntialiasingComplex(int sample) {
+    public GenericComplex getAntialiasingComplex(int sample, int loc) {
 
-        return getAntialiasingComplexInternal(sample).toMantExpComplex();
+        return getAntialiasingComplexInternal(sample, loc).toMantExpComplex();
 
     }
 

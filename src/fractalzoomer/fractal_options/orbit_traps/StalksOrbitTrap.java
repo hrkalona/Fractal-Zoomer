@@ -29,8 +29,8 @@ public class StalksOrbitTrap extends OrbitTrap {
     private double stalksradiuslow;
     private double cnorm;
     
-    public StalksOrbitTrap(int checkType, double pointRe, double pointIm, double trapWidth, boolean countTrapIterations) {
-        super(checkType, pointRe, pointIm, 0.0, trapWidth, countTrapIterations);
+    public StalksOrbitTrap(int checkType, double pointRe, double pointIm, double trapWidth, boolean countTrapIterations, int lastXItems) {
+        super(checkType, pointRe, pointIm, 0.0, trapWidth, countTrapIterations, lastXItems);
     }
 
     @Override
@@ -52,6 +52,10 @@ public class StalksOrbitTrap extends OrbitTrap {
 
     @Override
     public double getDistance() {
+
+        if(keepLastXItems && !processedLastItems) {
+            processLastItems();
+        }
 
         return distance != Double.MAX_VALUE ? Math.abs(trapWidth - 2 * (distance - cnorm + trapWidth * 0.5)) : distance;
 

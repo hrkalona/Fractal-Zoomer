@@ -77,7 +77,7 @@ public class PolarLocationNormalDoubleDoubleArbitrary extends Location {
 
     public PolarLocationNormalDoubleDoubleArbitrary(PolarLocationNormalDoubleDoubleArbitrary other) {
 
-        super();
+        super(other);
 
         fractal = other.fractal;
 
@@ -304,24 +304,40 @@ public class PolarLocationNormalDoubleDoubleArbitrary extends Location {
     }
 
     @Override
-    public void createAntialiasingSteps(boolean adaptive) {
-        DoubleDouble[][] steps = createAntialiasingPolarStepsDoubleDouble(ddmulx, ddmuly, adaptive);
+    public void createAntialiasingSteps(boolean adaptive, boolean jitter) {
+        super.createAntialiasingSteps(adaptive, jitter);
+        DoubleDouble[][] steps = createAntialiasingPolarStepsDoubleDouble(ddmulx, ddmuly, adaptive, jitter);
         ddantialiasing_x = steps[0];
         ddantialiasing_y_sin = steps[1];
         ddantialiasing_y_cos = steps[2];
     }
 
     @Override
-    public GenericComplex getAntialiasingComplex(int sample) {
-        return getAntialiasingComplexBase(sample);
+    public GenericComplex getAntialiasingComplex(int sample, int loc) {
+        return getAntialiasingComplexBase(sample, loc);
     }
 
-    protected DDComplex getAntialiasingComplexBase(int sample) {
+    protected DDComplex getAntialiasingComplexBase(int sample, int loc) {
 
-        DoubleDouble ddsf2 = temp_ddsf.multiply(ddantialiasing_y_cos[sample]).add(temp_ddcf.multiply(ddantialiasing_y_sin[sample]));
-        DoubleDouble ddcf2 = temp_ddcf.multiply(ddantialiasing_y_cos[sample]).subtract(temp_ddsf.multiply(ddantialiasing_y_sin[sample]));
+        DoubleDouble ddsf2, ddcf2, ddr2;
 
-        DoubleDouble ddr2 = temp_ddr.multiply(ddantialiasing_x[sample]);
+        if(aaJitter) {
+            int r = (int)(hash(loc) % NUMBER_OF_AA_JITTER_KERNELS);
+            DoubleDouble[] ddantialiasing_x = precalculatedJitterDataPolarDoubleDouble[r][0];
+            DoubleDouble[] ddantialiasing_y_sin = precalculatedJitterDataPolarDoubleDouble[r][1];
+            DoubleDouble[] ddantialiasing_y_cos = precalculatedJitterDataPolarDoubleDouble[r][2];
+
+            ddsf2 = temp_ddsf.multiply(ddantialiasing_y_cos[sample]).add(temp_ddcf.multiply(ddantialiasing_y_sin[sample]));
+            ddcf2 = temp_ddcf.multiply(ddantialiasing_y_cos[sample]).subtract(temp_ddsf.multiply(ddantialiasing_y_sin[sample]));
+
+            ddr2 = temp_ddr.multiply(ddantialiasing_x[sample]);
+        }
+        else {
+            ddsf2 = temp_ddsf.multiply(ddantialiasing_y_cos[sample]).add(temp_ddcf.multiply(ddantialiasing_y_sin[sample]));
+            ddcf2 = temp_ddcf.multiply(ddantialiasing_y_cos[sample]).subtract(temp_ddsf.multiply(ddantialiasing_y_sin[sample]));
+
+            ddr2 = temp_ddr.multiply(ddantialiasing_x[sample]);
+        }
 
         if(requiresVariablePixelSize) {
             setVariablePixelSize(ddr2);

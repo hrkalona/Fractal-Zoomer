@@ -19,6 +19,7 @@ package fractalzoomer.functions.mandelbrot;
 import fractalzoomer.core.*;
 import fractalzoomer.core.location.Location;
 import fractalzoomer.core.mpfr.MpfrBigNum;
+import fractalzoomer.core.mpir.MpirBigNum;
 import fractalzoomer.core.nanomb1.Nanomb1;
 import fractalzoomer.core.nanomb1.biPoly;
 import fractalzoomer.core.nanomb1.tmpPoly;
@@ -30,7 +31,6 @@ import fractalzoomer.fractal_options.initial_value.DefaultInitialValue;
 import fractalzoomer.fractal_options.initial_value.InitialValue;
 import fractalzoomer.fractal_options.initial_value.VariableConditionalInitialValue;
 import fractalzoomer.fractal_options.initial_value.VariableInitialValue;
-import fractalzoomer.fractal_options.iteration_statistics.*;
 import fractalzoomer.fractal_options.perturbation.DefaultPerturbation;
 import fractalzoomer.functions.Julia;
 import fractalzoomer.main.Constants;
@@ -42,6 +42,7 @@ import fractalzoomer.out_coloring_algorithms.EscapeTime;
 import fractalzoomer.out_coloring_algorithms.SmoothEscapeTime;
 import fractalzoomer.utils.ColorAlgorithm;
 import fractalzoomer.utils.NormComponents;
+import fractalzoomer.utils.WorkSpaceData;
 import org.apfloat.Apfloat;
 
 import javax.swing.*;
@@ -831,60 +832,15 @@ public class Mandelbrot extends Julia {
     }
 
     @Override
-    protected void StatisticFactory(StatisticsSettings sts, double[] plane_transform_center) {
+    public void calculateReferencePoint(GenericComplex inputPixel, Apfloat size, boolean deepZoom, int[] Iterations, int[] juliaIterations, Location externalLocation, JProgressBar progress) {
 
-        statisticIncludeEscaped = sts.statisticIncludeEscaped;
-        statisticIncludeNotEscaped = sts.statisticIncludeNotEscaped;
-
-        if (sts.statisticGroup == 1) {
-            statistic = new UserStatisticColoring(sts.statistic_intensity, sts.user_statistic_formula, xCenter, yCenter, max_iterations, size, bailout, plane_transform_center, globalVars, sts.useAverage, sts.user_statistic_init_value, sts.reductionFunction, sts.useIterations, sts.useSmoothing);
-            return;
-        }
-        else if(sts.statisticGroup == 2) {
-            if((ThreadDraw.PERTURBATION_THEORY || ThreadDraw.HIGH_PRECISION_CALCULATION) && supportsPerturbationTheory()) {
-                return;
-            }
-            statistic = new Equicontinuity(sts.statistic_intensity, sts.useSmoothing, sts.useAverage, log_bailout_squared, false, 0, sts.equicontinuityDenominatorFactor, sts.equicontinuityInvertFactor, sts.equicontinuityDelta);
-            return;
-        }
-        else if(sts.statisticGroup == 3) {
-            statistic = new NormalMap(sts.statistic_intensity, power, sts.normalMapHeight, sts.normalMapAngle, sts.normalMapUseSecondDerivative, sts.normalMapDEfactor, isJulia, sts.normalMapUseDE, sts.normalMapInvertDE, sts.normalMapColoring, sts.useNormalMap, sts.normalMapDEUpperLimitFactor, sts.normalMapDEAAEffect, sts.normalMapOverrideColoring, sts.normalMapDeFadeAlgorithm);
-            return;
-        }
-
-        switch (sts.statistic_type) {
-            case MainWindow.STRIPE_AVERAGE:
-                statistic = new StripeAverage(sts.statistic_intensity, sts.stripeAvgStripeDensity, log_bailout_squared, sts.useSmoothing, sts.useAverage);
-                break;
-            case MainWindow.CURVATURE_AVERAGE:
-                statistic = new CurvatureAverage(sts.statistic_intensity, log_bailout_squared, sts.useSmoothing, sts.useAverage);
-                break;
-            case MainWindow.COS_ARG_DIVIDE_NORM_AVERAGE:
-                statistic = new CosArgDivideNormAverage(sts.statistic_intensity, sts.cosArgStripeDensity, log_bailout_squared, sts.useSmoothing, sts.useAverage);
-                break;
-            case MainWindow.TRIANGLE_INEQUALITY_AVERAGE:
-                statistic = new TriangleInequalityAverage(sts.statistic_intensity, log_bailout_squared, sts.useSmoothing, sts.useAverage);
-                break;
-            case MainWindow.ATOM_DOMAIN_BOF60_BOF61:
-                statistic = new AtomDomain(sts.showAtomDomains, sts.statistic_intensity, sts.atomNormType, sts.atomNNorm);
-                break;
-            case MainWindow.DISCRETE_LAGRANGIAN_DESCRIPTORS:
-                statistic = new DiscreteLagrangianDescriptors(sts.statistic_intensity, sts.lagrangianPower, log_bailout_squared, sts.useSmoothing, sts.useAverage, false, 0, sts.langNormType, sts.langNNorm);
-                break;
-            case MainWindow.TWIN_LAMPS:
-                statistic = new TwinLamps(sts.statistic_intensity, sts.twlFunction, sts.twlPoint);
-                break;
-
-        }
-    }
-
-    @Override
-    public void calculateReferencePoint(GenericComplex inputPixel, Apfloat size, boolean deepZoom, int iterations, int iterations2, Location externalLocation, JProgressBar progress) {
+        LastCalculationSize = size;
 
         long time = System.currentTimeMillis();
 
         int max_ref_iterations = getReferenceMaxIterations();
 
+        int iterations = Iterations[0];
         int initIterations = iterations;
 
         if(progress != null) {
@@ -894,27 +850,36 @@ public class Mandelbrot extends Julia {
             progress.setString(REFERENCE_CALCULATION_STR + " " + String.format("%3d", 0) + "%");
         }
 
-        boolean lowPrecReferenceOrbitNeeded = !(deepZoom && ThreadDraw.APPROXIMATION_ALGORITHM == 2 && supportsBilinearApproximation());
+        boolean detectPeriod = ThreadDraw.DETECT_PERIOD && supportsPeriod() && getUserPeriod() == 0;
+        boolean lowPrecReferenceOrbitNeeded = !needsOnlyExtendedReferenceOrbit(deepZoom, detectPeriod);
 
         if (iterations == 0) {
             if(lowPrecReferenceOrbitNeeded) {
-                Reference = new DoubleReference(max_ref_iterations);
+                referenceData.createAndSetShortcut(max_ref_iterations,false, 0);
             }
-            if (deepZoom) {
-                ReferenceDeep = new DeepReference(max_ref_iterations);
-            }
-        } else if (max_ref_iterations > getReferenceLength()) {
-            if(lowPrecReferenceOrbitNeeded) {
-                Reference.resize(max_ref_iterations);
+            else {
+                referenceData.deallocate();
             }
 
             if (deepZoom) {
-                ReferenceDeep.resize(max_ref_iterations);
+                referenceDeepData.createAndSetShortcut(max_ref_iterations,false, 0);
+            }
+        } else if (max_ref_iterations > getReferenceLength()) {
+            if(lowPrecReferenceOrbitNeeded) {
+                referenceData.resize(max_ref_iterations);
+            }
+            else {
+                referenceData.deallocate();
+            }
+
+            if (deepZoom) {
+                referenceDeepData.resize(max_ref_iterations);
             }
         }
 
         if(iterations == 0) {
-            DetectedAtomPeriod = 0;
+            //DetectedAtomPeriod = 0;
+            DetectedPeriod = 0;
         }
 
         boolean gatherTinyRefPts = ThreadDraw.PERTUBATION_PIXEL_ALGORITHM == 1 && supportsScaledIterations() && deepZoom && ThreadDraw.GATHER_TINY_REF_INDEXES;
@@ -922,72 +887,102 @@ public class Mandelbrot extends Julia {
         Location loc = new Location();
 
         GenericComplex z, c, zold, zold2, start, c0, pixel;
-        Object normSquared;
+        Object normSquared, r = null, r0 = null, norm = null;
 
         int bigNumLib = ThreadDraw.getBignumLibrary(size, this);
         boolean useBignum = ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE  && bigNumLib != Constants.BIGNUM_APFLOAT;
+        int detectPeriodAlgorithm = getPeriodDetectionAlgorithm();
 
         if(useBignum) {
             if(bigNumLib == Constants.BIGNUM_BUILT_IN) {
                 BigNumComplex bn = inputPixel.toBigNumComplex();
-                z = iterations == 0 ? (isJulia ? bn : new BigNumComplex()) : lastZValue;
+                z = iterations == 0 ? (isJulia ? bn : new BigNumComplex()) : referenceData.lastZValue;
                 c = isJulia ? getSeed(useBignum, bigNumLib) : bn;
-                zold = iterations == 0 ? new BigNumComplex() : secondTolastZValue;
-                zold2 = iterations == 0 ? new BigNumComplex() : thirdTolastZValue;
+                zold = iterations == 0 ? new BigNumComplex() : referenceData.secondTolastZValue;
+                zold2 = iterations == 0 ? new BigNumComplex() : referenceData.thirdTolastZValue;
                 start = isJulia ? bn : new BigNumComplex();
                 c0 = c;
                 pixel = bn;
-                minValue = iterations == 0 ? BigNum.getMax() : minValue;
+                if(detectPeriod && detectPeriodAlgorithm == 0) {
+                    r0 = new BigNum(size);
+                    r = iterations == 0 ? new BigNum((BigNum) r0) : referenceData.lastRValue;
+                }
             }
             else if(bigNumLib == Constants.BIGNUM_MPFR) {
                 MpfrBigNumComplex bn = new MpfrBigNumComplex(inputPixel.toMpfrBigNumComplex());
-                z = iterations == 0 ? (isJulia ? bn : new MpfrBigNumComplex()) : lastZValue;
+                z = iterations == 0 ? (isJulia ? bn : new MpfrBigNumComplex()) : referenceData.lastZValue;
                 c = isJulia ? getSeed(useBignum, bigNumLib) : bn;
-                zold = iterations == 0 ? new MpfrBigNumComplex() : secondTolastZValue;
-                zold2 = iterations == 0 ? new MpfrBigNumComplex() : thirdTolastZValue;
+                zold = iterations == 0 ? new MpfrBigNumComplex() : referenceData.secondTolastZValue;
+                zold2 = iterations == 0 ? new MpfrBigNumComplex() : referenceData.thirdTolastZValue;
                 start = isJulia ? new MpfrBigNumComplex(bn) : new MpfrBigNumComplex();
                 c0 = new MpfrBigNumComplex((MpfrBigNumComplex)c);
                 pixel = new MpfrBigNumComplex(bn);
-                minValue = iterations == 0 ? MpfrBigNum.getMax() : minValue;
+                if(detectPeriod && detectPeriodAlgorithm == 0) {
+//                    referenceData.minValue = iterations == 0 ? MpfrBigNum.getMax() : referenceData.minValue;
+                    r0 = new MpfrBigNum(size);
+                    r = iterations == 0 ? new MpfrBigNum((MpfrBigNum) r0) : referenceData.lastRValue;
+                }
+            }
+            else if(bigNumLib == Constants.BIGNUM_MPIR) {
+                MpirBigNumComplex bn = new MpirBigNumComplex(inputPixel.toMpirBigNumComplex());
+                z = iterations == 0 ? (isJulia ? bn : new MpirBigNumComplex()) : referenceData.lastZValue;
+                c = isJulia ? getSeed(useBignum, bigNumLib) : bn;
+                zold = iterations == 0 ? new MpirBigNumComplex() : referenceData.secondTolastZValue;
+                zold2 = iterations == 0 ? new MpirBigNumComplex() : referenceData.thirdTolastZValue;
+                start = isJulia ? new MpirBigNumComplex(bn) : new MpirBigNumComplex();
+                c0 = new MpirBigNumComplex((MpirBigNumComplex)c);
+                pixel = new MpirBigNumComplex(bn);
+
+                if(detectPeriod && detectPeriodAlgorithm == 0) {
+                    r0 = new MpirBigNum(size);
+                    r = iterations == 0 ? new MpirBigNum((MpirBigNum) r0) : referenceData.lastRValue;
+                }
             }
             else if(bigNumLib == Constants.BIGNUM_DOUBLEDOUBLE) {
                 DDComplex ddn = inputPixel.toDDComplex();
-                z = iterations == 0 ? (isJulia ? ddn : new DDComplex()) : lastZValue;
+                z = iterations == 0 ? (isJulia ? ddn : new DDComplex()) : referenceData.lastZValue;
                 c = isJulia ? getSeed(useBignum, bigNumLib) : ddn;
-                zold = iterations == 0 ? new DDComplex() : secondTolastZValue;
-                zold2 = iterations == 0 ? new DDComplex() : thirdTolastZValue;
+                zold = iterations == 0 ? new DDComplex() : referenceData.secondTolastZValue;
+                zold2 = iterations == 0 ? new DDComplex() : referenceData.thirdTolastZValue;
                 start = isJulia ? ddn : new DDComplex();
                 c0 = c;
                 pixel = ddn;
-                minValue = iterations == 0 ? new DoubleDouble(Double.MAX_VALUE) : minValue;
+                if(detectPeriod && detectPeriodAlgorithm == 0) {
+//                    referenceData.minValue = iterations == 0 ? new DoubleDouble(Double.MAX_VALUE) : referenceData.minValue;
+                    r0 = new DoubleDouble(size);
+                    r = iterations == 0 ? new DoubleDouble((DoubleDouble) r0) : referenceData.lastRValue;
+                }
             }
             else {
                 Complex bn = inputPixel.toComplex();
-                z = iterations == 0 ? (isJulia ? bn : new Complex()) : lastZValue;
+                z = iterations == 0 ? (isJulia ? bn : new Complex()) : referenceData.lastZValue;
                 c = isJulia ? getSeed(useBignum, bigNumLib) : bn;
-                zold = iterations == 0 ? new Complex() : secondTolastZValue;
-                zold2 = iterations == 0 ? new Complex() : thirdTolastZValue;
+                zold = iterations == 0 ? new Complex() : referenceData.secondTolastZValue;
+                zold2 = iterations == 0 ? new Complex() : referenceData.thirdTolastZValue;
                 start = isJulia ? new Complex(bn) : new Complex();
                 c0 = new Complex((Complex) c);
                 pixel = new Complex(bn);
-                minValue = iterations == 0 ? Double.MAX_VALUE : minValue;
+                if(detectPeriod && detectPeriodAlgorithm == 0) {
+                   // referenceData.minValue = iterations == 0 ? Double.MAX_VALUE : referenceData.minValue;
+                    r0 = size.doubleValue();
+                    r = iterations == 0 ? r0 : referenceData.lastRValue;
+                }
             }
         }
         else {
-            z = iterations == 0 ? (isJulia ? inputPixel : new BigComplex()) : lastZValue;
+            z = iterations == 0 ? (isJulia ? inputPixel : new BigComplex()) : referenceData.lastZValue;
             c = isJulia ? getSeed(useBignum, bigNumLib) : inputPixel;
-            zold = iterations == 0 ? new BigComplex() : secondTolastZValue;
-            zold2 = iterations == 0 ? new BigComplex() : thirdTolastZValue;
+            zold = iterations == 0 ? new BigComplex() : referenceData.secondTolastZValue;
+            zold2 = iterations == 0 ? new BigComplex() : referenceData.thirdTolastZValue;
             start = isJulia ? inputPixel : new BigComplex();
             c0 = c;
             pixel = inputPixel;
-            minValue = iterations == 0 ? new MyApfloat(Double.MAX_VALUE) : minValue;
+            if(detectPeriod && detectPeriodAlgorithm == 0) {
+//                referenceData.minValue = iterations == 0 ? new MyApfloat(Double.MAX_VALUE) : referenceData.minValue;
+                r0 = size;
+                r = iterations == 0 ? r0 : referenceData.lastRValue;
+            }
         }
-
-//        MpfrBigNumComplex seedBug = new MpfrBigNumComplex(new MyApfloat("-1.99996619445037030418434688506350579675531241540724851511761922944801584242342684381376129778868913812287046406560949864353810575744772166485672496092803920095332"), new MyApfloat("+0.00000000000000000000000000000000030013824367909383240724973039775924987346831190773335270174257280120474975614823581185647299288414075519224186504978181625478529"));
-//        if(isJulia) {
-//            c = seedBug;
-//        }
 
         normSquared = z.normSquared();
 
@@ -1003,22 +998,58 @@ public class Mandelbrot extends Julia {
         boolean isNanoMb1InUse = ThreadDraw.APPROXIMATION_ALGORITHM == 3 && supportsNanomb1();
         boolean isSeriesInUse = ThreadDraw.APPROXIMATION_ALGORITHM == 1 && supportsSeriesApproximation();
         boolean isBLAInUse = ThreadDraw.APPROXIMATION_ALGORITHM == 2 && supportsBilinearApproximation();
-        boolean detectPeriod = ThreadDraw.DETECT_PERIOD && supportsPeriod();
+        boolean isBLA2InUse = ThreadDraw.APPROXIMATION_ALGORITHM == 4 && supportsBilinearApproximation2();
 
-        boolean preCalcNormData = detectPeriod || bailout_algorithm2.getId() == MainWindow.BAILOUT_CONDITION_CIRCLE;
+        boolean usesCircleBail = bailout_algorithm2.getId() == MainWindow.BAILOUT_CONDITION_CIRCLE;
+        boolean preCalcNormData = (detectPeriod && detectPeriodAlgorithm == 0) || usesCircleBail;
         NormComponents normData = null;
 
         boolean isMpfrComplex = z instanceof MpfrBigNumComplex;
+        boolean isMpirComplex = z instanceof MpirBigNumComplex;
+
+        boolean stopReferenceCalculationOnDetectedPeriod = detectPeriod && ThreadDraw.STOP_REFERENCE_CALCULATION_AFTER_DETECTED_PERIOD && userPeriod == 0 && canStopOnDetectedPeriod();
+
+        Complex dzdc = null;
+        MantExpComplex mdzdc = null;
+
+        MantExp mradius = null;
+        double radius = 0;
+
+        if(detectPeriod && DetectedPeriod == 0 && detectPeriodAlgorithm == 1) {
+            if (iterations == 0) {
+                if (deepZoom) {
+                    mdzdc = new MantExpComplex(1, 0);
+                } else {
+                    dzdc = new Complex(1, 0);
+                }
+            } else {
+                if (deepZoom) {
+                    mdzdc = referenceData.mdzdc;
+                } else {
+                    dzdc = referenceData.dzdc;
+                }
+            }
+
+            if(deepZoom) {
+                mradius = externalLocation.getSize().multiply2_mutable();
+            }
+            else {
+                radius = this.size * 2;
+            }
+        }
+
+        Complex cz = null;
+        MantExpComplex mcz = null;
 
         for (; iterations < max_ref_iterations; iterations++) {
 
             if(lowPrecReferenceOrbitNeeded) {
-                Complex cz = z.toComplex();
+                cz = z.toComplex();
 
                 if (cz.isInfinite()) {
                     break;
                 }
-                setArrayValue(Reference, iterations, cz);
+                setArrayValue(reference, iterations, cz);
 
                 if(gatherTinyRefPts) {
                     if (burning_ship) {
@@ -1034,7 +1065,12 @@ public class Mandelbrot extends Julia {
             }
 
             if(deepZoom) {
-                setArrayDeepValue(ReferenceDeep, iterations, loc.getMantExpComplex(z));
+                mcz = loc.getMantExpComplex(z);
+                setArrayDeepValue(referenceDeep, iterations, mcz);
+            }
+
+            if(stopReferenceCalculationOnDetectedPeriod && DetectedPeriod != 0) {
+                break;
             }
 
             if(preCalcNormData) {
@@ -1043,48 +1079,102 @@ public class Mandelbrot extends Julia {
             }
 
             if(detectPeriod) {
-                if(useBignum) {
-                    if(bigNumLib == Constants.BIGNUM_BUILT_IN) {
-                        if (iterations > 0 && ((BigNum) normSquared).compareBothPositive((BigNum) minValue) < 0) {
-                            DetectedAtomPeriod = iterations;
-                            minValue = normSquared;
-                        }
-                    }
-                    else if (bigNumLib == Constants.BIGNUM_MPFR){
-                        if (iterations > 0 && ((MpfrBigNum) normSquared).compare((MpfrBigNum) minValue) < 0) {
-                            DetectedAtomPeriod = iterations;
-                            ((MpfrBigNum) minValue).set((MpfrBigNum)normSquared);
-                        }
-                    }
-                    else if (bigNumLib == Constants.BIGNUM_DOUBLEDOUBLE){
-                        if (iterations > 0 && ((DoubleDouble) normSquared).compareTo(minValue) < 0) {
-                            DetectedAtomPeriod = iterations;
-                            minValue = normSquared;
-                        }
-                    }
-                    else {
-                        if (iterations > 0 && ((double) normSquared) < ((double) minValue)){
-                            DetectedAtomPeriod = iterations;
-                            minValue = normSquared;
-                        }
-                    }
-                }
-                else {
-                    if(iterations > 0 && ((Apfloat)normSquared).compareTo((Apfloat)minValue) < 0) {
-                        DetectedAtomPeriod = iterations;
-                        minValue = normSquared;
-                    }
-                }
+               if(detectPeriodAlgorithm == 0) {
+                   if (useBignum) {
+                       if (bigNumLib == Constants.BIGNUM_BUILT_IN) {
+//                        if (iterations > 0 && ((BigNum) normSquared).compareBothPositive((BigNum) referenceData.minValue) < 0) {
+//                            DetectedAtomPeriod = iterations;
+//                            referenceData.minValue = normSquared;
+//                        }
+
+                           if (DetectedPeriod == 0 && ((BigNum) r).compare((BigNum) (norm = ((BigNum) normSquared).sqrt())) > 0 && iterations > 0) {
+                               DetectedPeriod = iterations;
+                           }
+                       } else if (bigNumLib == Constants.BIGNUM_MPFR) {
+//                        if (iterations > 0 && ((MpfrBigNum) normSquared).compare((MpfrBigNum) referenceData.minValue) < 0) {
+//                            DetectedAtomPeriod = iterations;
+//                            ((MpfrBigNum) referenceData.minValue).set((MpfrBigNum)normSquared);
+//                        }
+
+                           if (DetectedPeriod == 0 && ((MpfrBigNum) r).compare((MpfrBigNum) (norm = ((MpfrBigNum) normSquared).sqrt(workSpaceData.tempPvar2))) > 0 && iterations > 0) {
+                               DetectedPeriod = iterations;
+                           }
+                       }
+                       else if (bigNumLib == Constants.BIGNUM_MPIR) {
+
+                           if (DetectedPeriod == 0 && ((MpirBigNum) r).compare((MpirBigNum) (norm = ((MpirBigNum) normSquared).sqrt(workSpaceData.tempPvar2p))) > 0 && iterations > 0) {
+                               DetectedPeriod = iterations;
+                           }
+                       }
+                       else if (bigNumLib == Constants.BIGNUM_DOUBLEDOUBLE) {
+//                        if (iterations > 0 && ((DoubleDouble) normSquared).compareTo(referenceData.minValue) < 0) {
+//                            DetectedAtomPeriod = iterations;
+//                            referenceData.minValue = normSquared;
+//                        }
+
+                           if (DetectedPeriod == 0 && ((DoubleDouble) r).compareTo(norm = ((DoubleDouble) normSquared).sqrt()) > 0 && iterations > 0) {
+                               DetectedPeriod = iterations;
+                           }
+                       } else {
+//                        if (iterations > 0 && ((double) normSquared) < ((double) referenceData.minValue)){
+//                            DetectedAtomPeriod = iterations;
+//                            referenceData.minValue = normSquared;
+//                        }
+
+                           if (DetectedPeriod == 0 && ((double) r) > (double) (norm = Math.sqrt((double) normSquared)) && iterations > 0) {
+                               DetectedPeriod = iterations;
+                           }
+                       }
+                   } else {
+//                    if(iterations > 0 && ((Apfloat)normSquared).compareTo((Apfloat)referenceData.minValue) < 0) {
+//                        DetectedAtomPeriod = iterations;
+//                        referenceData.minValue = normSquared;
+//                    }
+
+                       if (DetectedPeriod == 0 && ((Apfloat) r).compareTo((Apfloat) (norm = MyApfloat.fp.sqrt((Apfloat) normSquared))) > 0 && iterations > 0) {
+                           DetectedPeriod = iterations;
+                       }
+                   }
+               }
+               else {
+                   if (DetectedPeriod == 0 && iterations > 0) {
+                       if (deepZoom) {
+                           if (mradius.multiply(mdzdc.chebychevNorm()).compareToBothPositive(mcz.chebychevNorm()) > 0) {
+                               DetectedPeriod = iterations;
+                           }
+                       } else {
+                           if (radius * dzdc.chebychevNorm() > cz.chebychevNorm()) {
+                               DetectedPeriod = iterations;
+                           }
+                       }
+                   }
+               }
             }
 
             if (iterations > 0 && bailout_algorithm2.Escaped(z, zold, zold2, iterations, c, start, c0, normSquared, pixel)) {
                 break;
             }
 
-            zold2.set(zold);
-            zold.set(z);
+            if(!usesCircleBail) {
+                zold2.set(zold);
+                zold.set(z);
+            }
 
             try {
+                if(detectPeriod && DetectedPeriod == 0) {
+                    if (detectPeriodAlgorithm == 1) {
+                        if (deepZoom) {
+                            mdzdc = mcz.times2().times_mutable(mdzdc).plus_mutable(MantExp.ONE);
+                            mdzdc.Reduce();
+                        } else {
+                            dzdc = cz.times2().times_mutable(dzdc).plus_mutable(1);
+                        }
+                    }
+                    else {
+                        r = calculateR(r, r0, normSquared, norm, workSpaceData);
+                    }
+                }
+
                 if(preCalcNormData) {
                     if (burning_ship) {
                         z = z.abs_mutable().squareFast_plus_c_mutable(normData, c);
@@ -1099,6 +1189,14 @@ public class Mandelbrot extends Julia {
                         }
                         else {
                             z = z.square_plus_c_mutable(c, workSpaceData.temp1, workSpaceData.temp2);
+                        }
+                    }
+                    else if(isMpirComplex) {
+                        if (burning_ship) {
+                            z = z.abs_mutable().square_plus_c_mutable(c, workSpaceData.temp1p, workSpaceData.temp2p);
+                        }
+                        else {
+                            z = z.square_plus_c_mutable(c, workSpaceData.temp1p, workSpaceData.temp2p);
                         }
                     }
                     else {
@@ -1122,11 +1220,14 @@ public class Mandelbrot extends Julia {
 
         }
 
-        lastZValue = z;
-        secondTolastZValue = zold;
-        thirdTolastZValue = zold2;
+        referenceData.lastRValue = r;
+        referenceData.lastZValue = z;
+        referenceData.secondTolastZValue = zold;
+        referenceData.thirdTolastZValue = zold2;
+        referenceData.dzdc = dzdc;
+        referenceData.mdzdc = mdzdc;
 
-        MaxRefIteration = iterations - 1;
+        referenceData.MaxRefIteration = iterations - 1;
 
         if(progress != null) {
             progress.setValue(progress.getMaximum());
@@ -1136,7 +1237,7 @@ public class Mandelbrot extends Julia {
         ReferenceCalculationTime = System.currentTimeMillis() - time;
 
         if(isJulia) {
-            calculateJuliaReferencePoint(inputPixel, size, deepZoom, iterations2, progress);
+            calculateJuliaReferencePoint(inputPixel, size, deepZoom, juliaIterations, progress);
         }
 
         skippedIterations = 0;
@@ -1149,6 +1250,10 @@ public class Mandelbrot extends Julia {
         else if(isBLAInUse) {
             calculateBLAWrapper(deepZoom, externalLocation, progress);
         }
+        else if(isBLA2InUse) {
+            calculateBLA2Wrapper(deepZoom, externalLocation, progress);
+        }
+
 
         if(gatherTinyRefPts) {
             tinyRefPtsArray = tinyRefPts.stream().mapToInt(i -> i).toArray();
@@ -1159,7 +1264,71 @@ public class Mandelbrot extends Julia {
     }
 
     @Override
-    protected GenericComplex juliaReferenceFunction(GenericComplex z, GenericComplex c, NormComponents normData) {
+    public Object calculateR(Object rIn, Object r0In, Object normSquared, Object norm, WorkSpaceData workSpaceData) {
+
+        if(rIn instanceof BigNum) {
+            BigNum r = (BigNum)rIn;
+            BigNum r0 = (BigNum)r0In;
+            BigNum az = ((BigNum)norm);
+            BigNum azsquare = (BigNum)normSquared;
+
+            return az.add(r).squareFull().sub(azsquare).add(r0);
+        }
+        else if(rIn instanceof MpfrBigNum) {
+            MpfrBigNum r = (MpfrBigNum)rIn;
+            MpfrBigNum r0 = (MpfrBigNum)r0In;
+            MpfrBigNum az = (MpfrBigNum)norm;
+            MpfrBigNum azsquare = (MpfrBigNum)normSquared;
+
+            MpfrBigNum.r_ball_pow2(r, az, r0, azsquare);
+            return r;
+        }
+        else if(rIn instanceof MpirBigNum) {
+            MpirBigNum r = (MpirBigNum)rIn;
+            MpirBigNum r0 = (MpirBigNum)r0In;
+            MpirBigNum az = (MpirBigNum)norm;
+            MpirBigNum azsquare = (MpirBigNum)normSquared;
+
+            MpirBigNum.r_ball_pow2(r, az, r0, azsquare);
+            return r;
+        }
+        else if(rIn instanceof MpirBigNum) {
+            MpirBigNum r = (MpirBigNum)rIn;
+            MpirBigNum r0 = (MpirBigNum)r0In;
+            MpirBigNum az = (MpirBigNum)norm;
+            MpirBigNum azsquare = (MpirBigNum)normSquared;
+
+            MpirBigNum.r_ball_pow2(r, az, r0, azsquare);
+            return r;
+        }
+        else if(rIn instanceof DoubleDouble) {
+            DoubleDouble r = (DoubleDouble)rIn;
+            DoubleDouble r0 = (DoubleDouble)r0In;
+            DoubleDouble az = ((DoubleDouble)norm);
+            DoubleDouble azsquare = (DoubleDouble)normSquared;
+            return az.add(r).sqr().subtract(azsquare).add(r0);
+        }
+        else if(rIn instanceof Double) {
+            double r = (double)rIn;
+            double r0 = (double)r0In;
+            double az = (double)norm;
+            double azsquare = (double)normSquared;
+
+            double temp = az + r;
+            return temp * temp - azsquare + r0;
+        }
+        else {
+            Apfloat r = (Apfloat)rIn;
+            Apfloat r0 = (Apfloat)r0In;
+            Apfloat az = (Apfloat)norm;
+            Apfloat azsquare = (Apfloat)normSquared;
+            Apfloat temp = MyApfloat.fp.add(az, r);
+            return MyApfloat.fp.add(MyApfloat.fp.subtract(MyApfloat.fp.multiply(temp, temp), azsquare), r0);
+        }
+    }
+
+    @Override
+    protected GenericComplex referenceFunction(GenericComplex z, GenericComplex c, NormComponents normData, GenericComplex[] initialPrecal, GenericComplex[] precalc) {
         if(normData != null) {
             if (burning_ship) {
                 z = z.abs_mutable().squareFast_plus_c_mutable(normData, c);
@@ -1174,6 +1343,14 @@ public class Mandelbrot extends Julia {
                 }
                 else {
                     z = z.square_plus_c_mutable(c, workSpaceData.temp1, workSpaceData.temp2);
+                }
+            }
+            else if(z instanceof MpirBigNumComplex) {
+                if (burning_ship) {
+                    z = z.abs_mutable().square_plus_c_mutable(c, workSpaceData.temp1p, workSpaceData.temp2p);
+                }
+                else {
+                    z = z.square_plus_c_mutable(c, workSpaceData.temp1p, workSpaceData.temp2p);
                 }
             }
             else {
@@ -1191,22 +1368,26 @@ public class Mandelbrot extends Julia {
     @Override
     protected void calculateNanomb1(boolean deepZoom, JProgressBar progress) {
 
+        long value = ((long)getNanomb1MaxIterations() * 2 - 1);
+        long divisor = value > Constants.MAX_PROGRESS_VALUE ? value / 100 : 1;
+
         int m = ThreadDraw.NANOMB1_M;
         int n = ThreadDraw.NANOMB1_N;
         biPoly fp = new biPoly(m, n);
         int max_ref_iterations_period = getNanomb1MaxIterations();
-        int total = 1;
+        long total = 1;
         for(int iteration = 1; iteration < max_ref_iterations_period; iteration++, total++) {
             if(deepZoom) {
-                fp.cstep(getArrayDeepValue(ReferenceDeep, iteration));
+                fp.cstep(getArrayDeepValue(referenceDeep, iteration));
             }
             else {
-                fp.cstep(new MantExpComplex(getArrayValue(Reference, iteration)));
+                fp.cstep(new MantExpComplex(getArrayValue(reference, iteration)));
             }
 
             if(progress != null && total % 50 == 0) {
-                progress.setValue(total);
-                progress.setString(NANOMB1_CALCULATION_STR + " " + String.format("%3d",(int) ((double) (total) / progress.getMaximum() * 100)) + "%");
+                int val = (int)(total / divisor);
+                progress.setValue(val);
+                progress.setString(NANOMB1_CALCULATION_STR + " " + String.format("%3d",(int) ((double) (val) / progress.getMaximum() * 100)) + "%");
             }
         }
 
@@ -1244,7 +1425,7 @@ public class Mandelbrot extends Julia {
         for(int iteration = 0; iteration < max_ref_iterations_period; iteration++, total++){
 
             if(deepZoom) {
-                zlo = getArrayDeepValue(ReferenceDeep, iteration);
+                zlo = getArrayDeepValue(referenceDeep, iteration);
                 temp = zlo.plus(zlo1);
                 setArrayDeepValue(ref1Deep, iteration, temp);
 
@@ -1256,7 +1437,7 @@ public class Mandelbrot extends Julia {
                 }
             }
             else {
-                zlo = new MantExpComplex(getArrayValue(Reference, iteration));
+                zlo = new MantExpComplex(getArrayValue(reference, iteration));
                 setArrayValue(ref1, iteration, zlo.plus(zlo1).toComplex());
             }
 
@@ -1264,15 +1445,16 @@ public class Mandelbrot extends Julia {
             zlo1.Reduce();
 
             if(progress != null && total % 50 == 0) {
-                progress.setValue(total);
-                progress.setString(NANOMB1_CALCULATION_STR + " " + String.format("%3d",(int) ((double) (total) / progress.getMaximum() * 100)) + "%");
+                int val = (int)(total / divisor);
+                progress.setValue(val);
+                progress.setString(NANOMB1_CALCULATION_STR + " " + String.format("%3d",(int) ((double) (val) / progress.getMaximum() * 100)) + "%");
             }
         }
 
-        Reference = ref1;
+        referenceData.setReference(ref1);
 
         if(deepZoom) {
-            ReferenceDeep = ref1Deep;
+            referenceDeepData.setReference(ref1Deep);
         }
 
         nanomb1 = new Nanomb1(fp, nucleusPos, Bout);
@@ -1282,14 +1464,14 @@ public class Mandelbrot extends Julia {
     public Complex perturbationFunctionScaled(Complex DeltaSubN, Complex DeltaSub0, double s, int RefIteration) {
         if(not_burning_ship) {
             if(s == 0) {
-                return getArrayValue(Reference, RefIteration).times_mutable(2).times_mutable(DeltaSubN).plus_mutable(DeltaSub0);
+                return getArrayValue(reference, RefIteration).times_mutable(2).times_mutable(DeltaSubN).plus_mutable(DeltaSub0);
             }
             else {
-                return getArrayValue(Reference, RefIteration).times_mutable(2).plus_mutable(DeltaSubN.times(s)).times_mutable(DeltaSubN).plus_mutable(DeltaSub0);
+                return getArrayValue(reference, RefIteration).times_mutable(2).plus_mutable(DeltaSubN.times(s)).times_mutable(DeltaSubN).plus_mutable(DeltaSub0);
             }
         }
         else {
-            Complex X = getArrayValue(Reference, RefIteration);
+            Complex X = getArrayValue(reference, RefIteration);
             double r = X.getRe();
             double i = X.getIm();
             double a = DeltaSubN.getRe();
@@ -1310,14 +1492,14 @@ public class Mandelbrot extends Julia {
     public Complex perturbationFunctionScaled(Complex DeltaSubN, double s, int RefIteration) {
         if(not_burning_ship) {
             if(s == 0) {
-                return getArrayValue(Reference, RefIteration).times_mutable(2).times_mutable(DeltaSubN);
+                return getArrayValue(reference, RefIteration).times_mutable(2).times_mutable(DeltaSubN);
             }
             else {
-                return getArrayValue(Reference, RefIteration).times_mutable(2).plus_mutable(DeltaSubN.times(s)).times_mutable(DeltaSubN);
+                return getArrayValue(reference, RefIteration).times_mutable(2).plus_mutable(DeltaSubN.times(s)).times_mutable(DeltaSubN);
             }
         }
         else {
-            Complex X = getArrayValue(Reference, RefIteration);
+            Complex X = getArrayValue(reference, RefIteration);
             double r = X.getRe();
             double i = X.getIm();
             double a = DeltaSubN.getRe();
@@ -1339,10 +1521,10 @@ public class Mandelbrot extends Julia {
 
         if(not_burning_ship) {
             //return DeltaSubN.times(getArrayValue(Reference, RefIteration).times_mutable(2)).plus_mutable(DeltaSubN.square()).plus_mutable(DeltaSub0);
-            return getArrayValue(Reference, RefIteration).times_mutable(2).plus_mutable(DeltaSubN).times_mutable(DeltaSubN).plus_mutable(DeltaSub0);
+            return getArrayValue(reference, RefIteration).times_mutable(2).plus_mutable(DeltaSubN).times_mutable(DeltaSubN).plus_mutable(DeltaSub0);
         }
         else {
-            Complex X = getArrayValue(Reference, RefIteration);
+            Complex X = getArrayValue(reference, RefIteration);
             double r = X.getRe();
             double i = X.getIm();
             double a = DeltaSubN.getRe();
@@ -1357,10 +1539,10 @@ public class Mandelbrot extends Julia {
 
         if(not_burning_ship) {
             //return DeltaSubN.times(getArrayDeepValue(ReferenceDeep, RefIteration).times2_mutable()).plus_mutable(DeltaSubN.square()).plus_mutable(DeltaSub0);
-            return getArrayDeepValue(ReferenceDeep, RefIteration).times2_mutable().plus_mutable(DeltaSubN).times_mutable(DeltaSubN).plus_mutable(DeltaSub0);
+            return getArrayDeepValue(referenceDeep, RefIteration).times2_mutable().plus_mutable(DeltaSubN).times_mutable(DeltaSubN).plus_mutable(DeltaSub0);
         }
         else {
-            MantExpComplex X = getArrayDeepValue(ReferenceDeep, RefIteration);
+            MantExpComplex X = getArrayDeepValue(referenceDeep, RefIteration);
             MantExp r = X.getRe();
             MantExp i = X.getIm();
             MantExp a = DeltaSubN.getRe();
@@ -1376,10 +1558,10 @@ public class Mandelbrot extends Julia {
 
         if(not_burning_ship) {
             //return DeltaSubN.times(getArrayValue(Reference, RefIteration).times_mutable(2)).plus_mutable(DeltaSubN.square());
-            return getArrayValue(Reference, RefIteration).times_mutable(2).plus_mutable(DeltaSubN).times_mutable(DeltaSubN);
+            return getArrayValue(reference, RefIteration).times_mutable(2).plus_mutable(DeltaSubN).times_mutable(DeltaSubN);
         }
         else {
-            Complex X = getArrayValue(Reference, RefIteration);
+            Complex X = getArrayValue(reference, RefIteration);
             double r = X.getRe();
             double i = X.getIm();
             double a = DeltaSubN.getRe();
@@ -1393,10 +1575,10 @@ public class Mandelbrot extends Julia {
 
         if(not_burning_ship) {
             //return DeltaSubN.times(getArrayDeepValue(ReferenceDeep, RefIteration).times2_mutable()).plus_mutable(DeltaSubN.square());
-            return getArrayDeepValue(ReferenceDeep, RefIteration).times2_mutable().plus_mutable(DeltaSubN).times_mutable(DeltaSubN);
+            return getArrayDeepValue(referenceDeep, RefIteration).times2_mutable().plus_mutable(DeltaSubN).times_mutable(DeltaSubN);
         }
         else {
-            MantExpComplex X = getArrayDeepValue(ReferenceDeep, RefIteration);
+            MantExpComplex X = getArrayDeepValue(referenceDeep, RefIteration);
             MantExp r = X.getRe();
             MantExp i = X.getIm();
             MantExp a = DeltaSubN.getRe();
@@ -1456,7 +1638,7 @@ public class Mandelbrot extends Julia {
 
         //int length = max_iterations;
         //int dataLength = deepZoom ? ReferenceDeep.length() : (Reference.length >> 1);
-        int length = deepZoom ? ReferenceDeep.length() : Reference.length();
+        int length = deepZoom ? referenceDeep.length() : reference.length();
 
         //int batches = 8;
         //int batchSize = numCoefficients / batches;
@@ -1484,7 +1666,7 @@ public class Mandelbrot extends Julia {
                 index = (i - 1);
             }*/
 
-            if(i - 1 > MaxRefIteration) {
+            if(i - 1 > referenceData.MaxRefIteration) {
                 skippedIterations = i - 1 <= skippedThreshold ? 0 : i - 1 - skippedThreshold;
                 return;
             }
@@ -1492,10 +1674,10 @@ public class Mandelbrot extends Julia {
             MantExpComplex twoRef = null;
 
             if(deepZoom) {
-                twoRef = getArrayDeepValue(ReferenceDeep, i - 1).times2_mutable();
+                twoRef = getArrayDeepValue(referenceDeep, i - 1).times2_mutable();
             }
             else {
-               twoRef = new MantExpComplex(getArrayValue(Reference, i - 1).times_mutable(2));
+               twoRef = new MantExpComplex(getArrayValue(reference, i - 1).times_mutable(2));
             }
 
             //MantExpComplex twoAn = null;
@@ -1702,6 +1884,11 @@ public class Mandelbrot extends Julia {
         return !burning_ship && !isJulia;
     }
 
+    @Override
+    public boolean supportsBilinearApproximation2() {
+        return !burning_ship && !isJulia;
+    }
+
     /*protected boolean mandelbrotOptimization(Complex pixel) {
     
      //if(!burning_ship) {
@@ -1816,6 +2003,14 @@ public class Mandelbrot extends Julia {
                 complex[0] = complex[0].abs_mutable().square_plus_c_mutable(complex[1], workSpaceData.temp1, workSpaceData.temp2);
             }
         }
+        else if(complex[0] instanceof MpirBigNumComplex) {
+            if(not_burning_ship) {
+                complex[0] = complex[0].square_plus_c_mutable(complex[1], workSpaceData.temp1p, workSpaceData.temp2p);
+            }
+            else {
+                complex[0] = complex[0].abs_mutable().square_plus_c_mutable(complex[1], workSpaceData.temp1p, workSpaceData.temp2p);
+            }
+        }
         else {
             if(not_burning_ship) {
                 complex[0] = complex[0].square_plus_c_mutable(complex[1]);
@@ -1834,6 +2029,11 @@ public class Mandelbrot extends Julia {
     public boolean supportsMpfrBignum() { return true;}
 
     @Override
+    public boolean supportsMpirBignum() {
+        return true;
+    }
+
+    @Override
     public boolean supportsPeriod() {
         return !burning_ship && !isJulia;
     }
@@ -1843,17 +2043,17 @@ public class Mandelbrot extends Julia {
 
     @Override
     public boolean supportsNanomb1() {
-        return !burning_ship && !isJulia && (getPeriod() != 0 || ThreadDraw.DETECT_PERIOD && supportsPeriod());
+        return !burning_ship && !isJulia && (getPeriod() != 0 || ThreadDraw.DETECT_PERIOD && supportsPeriod()) && size < 0x1.0p-32;
     }
 
     @Override
-    public Complex perturbationFunction(Complex DeltaSubN, DoubleReference Reference, DoubleReference PrecalculatedTerms, DoubleReference PrecalculatedTerms2, int RefIteration) {
+    public Complex perturbationFunction(Complex DeltaSubN, ReferenceData data, int RefIteration) {
         if(not_burning_ship) {
             //return DeltaSubN.times(getArrayValue(Reference, RefIteration).times_mutable(2)).plus_mutable(DeltaSubN.square());
-            return getArrayValue(Reference, RefIteration).times_mutable(2).plus_mutable(DeltaSubN).times_mutable(DeltaSubN);
+            return getArrayValue(data.Reference, RefIteration).times_mutable(2).plus_mutable(DeltaSubN).times_mutable(DeltaSubN);
         }
         else {
-            Complex X = getArrayValue(Reference, RefIteration);
+            Complex X = getArrayValue(data.Reference, RefIteration);
             double r = X.getRe();
             double i = X.getIm();
             double a = DeltaSubN.getRe();
@@ -1863,13 +2063,13 @@ public class Mandelbrot extends Julia {
     }
 
     @Override
-    public MantExpComplex perturbationFunction(MantExpComplex DeltaSubN, DeepReference ReferenceDeep, DeepReference PrecalculatedTermsDeep, DeepReference PrecalculatedTerms2Deep, int RefIteration) {
+    public MantExpComplex perturbationFunction(MantExpComplex DeltaSubN, ReferenceDeepData data, int RefIteration) {
         if(not_burning_ship) {
             //return DeltaSubN.times(getArrayDeepValue(ReferenceDeep, RefIteration).times2_mutable()).plus_mutable(DeltaSubN.square());
-            return getArrayDeepValue(ReferenceDeep, RefIteration).times2_mutable().plus_mutable(DeltaSubN).times_mutable(DeltaSubN);
+            return getArrayDeepValue(data.Reference, RefIteration).times2_mutable().plus_mutable(DeltaSubN).times_mutable(DeltaSubN);
         }
         else {
-            MantExpComplex X = getArrayDeepValue(ReferenceDeep, RefIteration);
+            MantExpComplex X = getArrayDeepValue(data.Reference, RefIteration);
             MantExp r = X.getRe();
             MantExp i = X.getIm();
             MantExp a = DeltaSubN.getRe();
@@ -1893,8 +2093,8 @@ public class Mandelbrot extends Julia {
         super.setVariablePixelSize(pixelSize);
     }
 
-    /*
-    public static int secondOrderBallPeriod(Complex c0, double  size, int n) {
+
+    /*public static int secondOrderBallPeriod(Complex c0, double  size, int n) {
         double dx = size, dy = size;
         double r0 = Math.min(Math.abs(dx),Math.abs(dy));
         Complex z = new Complex();
@@ -1962,11 +2162,5 @@ public class Mandelbrot extends Julia {
         }
 
         return 0;
-    }
-    public static void main(String[] srg) {
-        double size = 7.5e-14;
-        System.out.println(firstOrderBallPeriod(new Complex(-0.228169130661599203455085294972, 1.11517763104924153191528917433), size, 10000));
-        System.out.println(secondOrderBallPeriod(new Complex(-0.228169130661599203455085294972, 1.11517763104924153191528917433), size, 10000));
-
     }*/
 }

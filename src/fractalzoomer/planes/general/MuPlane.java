@@ -61,6 +61,13 @@ public class MuPlane extends Plane {
     }
 
     @Override
+    public MpirBigNumComplex transform(MpirBigNumComplex pixel) {
+
+        return pixel;
+
+    }
+
+    @Override
     public DDComplex transform(DDComplex pixel) {
 
         return pixel;

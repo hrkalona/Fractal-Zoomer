@@ -1,11 +1,14 @@
 package fractalzoomer.utils;
 
 import fractalzoomer.core.MpfrBigNumComplex;
+import fractalzoomer.core.MpirBigNumComplex;
 import fractalzoomer.core.ThreadDraw;
-import fractalzoomer.core.mpfr.LibMpfr;
 import fractalzoomer.core.mpfr.MpfrBigNum;
+import fractalzoomer.core.mpir.MpirBigNum;
 import fractalzoomer.functions.Fractal;
-import fractalzoomer.functions.mandelbrot.MandelbrotCubed;;
+import fractalzoomer.functions.mandelbrot.MandelbrotCubed;
+
+;
 
 public class WorkSpaceData {
     //This is currently implemented for some fractals
@@ -13,6 +16,8 @@ public class WorkSpaceData {
     public MpfrBigNum temp2;
     public MpfrBigNum temp3;
     public MpfrBigNum temp4;
+    public MpfrBigNum tempPvar;
+    public MpfrBigNum tempPvar2;
 
     public MpfrBigNumComplex z;
     public MpfrBigNumComplex c;
@@ -24,11 +29,33 @@ public class WorkSpaceData {
     public MpfrBigNum root;
 
 
+    public MpirBigNum temp1p;
+    public MpirBigNum temp2p;
+    public MpirBigNum temp3p;
+    public MpirBigNum temp4p;
+    public MpirBigNum tempPvarp;
+    public MpirBigNum tempPvar2p;
+
+    public MpirBigNumComplex zp;
+    public MpirBigNumComplex cp;
+    public MpirBigNumComplex zoldp;
+    public MpirBigNumComplex zold2p;
+    public MpirBigNumComplex startp;
+    public MpirBigNumComplex c0p;
+    public MpirBigNumComplex seedp;
+    public MpirBigNum rootp;
+
+
     public WorkSpaceData(Fractal f) {
 
-        if(LibMpfr.LOAD_ERROR == null) {
+        if(ThreadDraw.allocateMPFR()) {
             temp1 = new MpfrBigNum();
             temp2 = new MpfrBigNum();
+
+            if(f.supportsPeriod() && ThreadDraw.DETECT_PERIOD) {
+                tempPvar = new MpfrBigNum();
+                tempPvar2 = new MpfrBigNum();
+            }
             if(f instanceof MandelbrotCubed) {
                 temp3 = new MpfrBigNum();
                 temp4 = new MpfrBigNum();
@@ -44,6 +71,30 @@ public class WorkSpaceData {
                 seed = new MpfrBigNumComplex();
                 root = new MpfrBigNum();
             }
+        } else if (ThreadDraw.allocateMPIR()) {
+            temp1p = new MpirBigNum();
+            temp2p = new MpirBigNum();
+
+            if(f.supportsPeriod() && ThreadDraw.DETECT_PERIOD) {
+                tempPvarp = new MpirBigNum();
+                tempPvar2p = new MpirBigNum();
+            }
+            if(f instanceof MandelbrotCubed) {
+                temp3p = new MpirBigNum();
+                temp4p = new MpirBigNum();
+            }
+
+            if(ThreadDraw.HIGH_PRECISION_CALCULATION) {
+                zp = new MpirBigNumComplex();
+                cp = new MpirBigNumComplex();
+                zoldp = new MpirBigNumComplex();
+                zold2p = new MpirBigNumComplex();
+                startp = new MpirBigNumComplex();
+                c0p = new MpirBigNumComplex();
+                seedp = new MpirBigNumComplex();
+                rootp = new MpirBigNum();
+            }
         }
+
     }
 }

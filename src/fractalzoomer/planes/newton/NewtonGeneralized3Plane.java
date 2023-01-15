@@ -111,4 +111,24 @@ public class NewtonGeneralized3Plane extends Plane {
         return temp;
 
     }
+
+    @Override
+    public MpirBigNumComplex transform(MpirBigNumComplex pixel) {
+
+        if(pixel.isZero()) {
+            return pixel;
+        }
+
+        MpirBigNumComplex temp = pixel;
+
+        for(int iterations = 0; iterations < 5; iterations++) {
+            MpirBigNumComplex fz = temp.cube().sub_mutable(temp.times2()).plus_mutable(2);
+            MpirBigNumComplex dfz = temp.square().times_mutable(3).sub_mutable(2);
+
+            temp = temp.sub(fz.divide_mutable(dfz));
+        }
+
+        return temp;
+
+    }
 }

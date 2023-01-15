@@ -73,6 +73,26 @@ public class Newton3Plane extends Plane {
     }
 
     @Override
+    public MpirBigNumComplex transform(MpirBigNumComplex pixel) {
+
+        if(pixel.isZero()) {
+            return pixel;
+        }
+
+        MpirBigNumComplex temp = pixel;
+
+        for(int iterations = 0; iterations < 5; iterations++) {
+            MpirBigNumComplex fz = temp.cube().sub_mutable(1);
+            MpirBigNumComplex dfz = temp.square().times_mutable(3);
+
+            temp = temp.sub(fz.divide_mutable(dfz));
+        }
+
+        return temp;
+
+    }
+
+    @Override
     public MpfrBigNumComplex transform(MpfrBigNumComplex pixel) {
 
         if(pixel.isZero()) {

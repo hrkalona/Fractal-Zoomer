@@ -109,6 +109,23 @@ public abstract class RootFindingMethods extends Fractal {
             workSpaceData.c0.set(complex[0]);
             gc0 = workSpaceData.c0;
         }
+        else if(lib == ARBITRARY_MPIR) {
+
+            workSpaceData.zp.set(pixel);
+            complex[0] = workSpaceData.zp;//z
+
+            workSpaceData.zoldp.reset();
+            gzold = workSpaceData.zoldp;
+
+            workSpaceData.zold2p.reset();
+            gzold2 = workSpaceData.zold2p;
+
+            workSpaceData.startp.set(complex[0]);
+            gstart = workSpaceData.startp;
+
+            workSpaceData.c0p.set(complex[0]);
+            gc0 = workSpaceData.c0p;
+        }
         else if (lib == ARBITRARY_BUILT_IN) {
             complex[0] = pixel;//z
 
@@ -463,7 +480,7 @@ public abstract class RootFindingMethods extends Fractal {
         statisticIncludeNotEscaped = sts.statisticIncludeNotEscaped;
 
         if (sts.statisticGroup == 1) {
-            statistic = new UserStatisticColoringRootFindingMethod(sts.statistic_intensity, sts.user_statistic_formula, xCenter, yCenter, max_iterations, size, convergent_bailout, plane_transform_center, globalVars, sts.useAverage, sts.user_statistic_init_value, sts.reductionFunction, sts.useIterations, sts.useSmoothing);
+            statistic = new UserStatisticColoringRootFindingMethod(sts.statistic_intensity, sts.user_statistic_formula, xCenter, yCenter, max_iterations, size, convergent_bailout, plane_transform_center, globalVars, sts.useAverage, sts.user_statistic_init_value, sts.reductionFunction, sts.useIterations, sts.useSmoothing, sts.lastXItems);
             return;
         }
         else if(sts.statisticGroup == 2) {
@@ -478,13 +495,13 @@ public abstract class RootFindingMethods extends Fractal {
         switch (sts.statistic_type) {
 
             case MainWindow.COS_ARG_DIVIDE_INVERSE_NORM:
-                statistic = new CosArgDivideInverseNorm(sts.statistic_intensity, sts.cosArgInvStripeDensity, sts.StripeDenominatorFactor);
+                statistic = new CosArgDivideInverseNorm(sts.statistic_intensity, sts.cosArgInvStripeDensity, sts.StripeDenominatorFactor, sts.useSmoothing, Math.log(convergent_bailout), 0, sts.lastXItems);
                 break;
             case MainWindow.ATOM_DOMAIN_BOF60_BOF61:
-                statistic = new AtomDomain(sts.showAtomDomains, sts.statistic_intensity, sts.atomNormType, sts.atomNNorm);
+                statistic = new AtomDomain(sts.showAtomDomains, sts.statistic_intensity, sts.atomNormType, sts.atomNNorm, sts.lastXItems);
                 break;
             case MainWindow.DISCRETE_LAGRANGIAN_DESCRIPTORS:
-                statistic = new DiscreteLagrangianDescriptors(sts.statistic_intensity, sts.lagrangianPower, 0, sts.useSmoothing, sts.useAverage, true, Math.log(convergent_bailout), sts.langNormType, sts.langNNorm);
+                statistic = new DiscreteLagrangianDescriptors(sts.statistic_intensity, sts.lagrangianPower, 0, sts.useSmoothing, sts.useAverage, true, Math.log(convergent_bailout), sts.langNormType, sts.langNNorm, sts.lastXItems);
                 break;
         }
     }
@@ -550,11 +567,8 @@ public abstract class RootFindingMethods extends Fractal {
 
         Complex pixel = dpixel.plus(refPointSmall);
 
-        int MaxRefIteration = Fractal.MaxRefIteration;
-        DoubleReference Reference = Fractal.Reference;
-        DoubleReference ReferenceSubCp = Fractal.ReferenceSubCp;
-        DoubleReference PrecalculatedTerms = Fractal.PrecalculatedTerms;
-        DoubleReference PrecalculatedTerms2 = Fractal.PrecalculatedTerms2;
+        ReferenceData data = referenceData;
+        int MaxRefIteration = data.MaxRefIteration;
 
         for (; iterations < max_iterations; iterations++) {
 
@@ -568,6 +582,8 @@ public abstract class RootFindingMethods extends Fractal {
                 escaped = true;
 
                 Object[] object = {iterations, complex[0], convergent_bailout_algorithm.getDistance(), zold, zold2, pixel, start, c0, pixel};
+                iterationData = object;
+
                 double res = out_color_algorithm.getResult(object);
 
                 res = getFinalValueOut(res, complex[0]);
@@ -579,7 +595,7 @@ public abstract class RootFindingMethods extends Fractal {
                 return getAndAccumulateStatsNotDeep(res);
             }
 
-            DeltaSubN = perturbationFunction(DeltaSubN, Reference, PrecalculatedTerms, PrecalculatedTerms2, RefIteration);
+            DeltaSubN = perturbationFunction(DeltaSubN, data, RefIteration);
 
             RefIteration++;
             double_iterations++;
@@ -590,8 +606,8 @@ public abstract class RootFindingMethods extends Fractal {
             //No Plane influence work
             //No Pre filters work
             if(max_iterations > 1){
-                zWithoutInitVal = getArrayValue(ReferenceSubCp, RefIteration).plus_mutable(DeltaSubN);
-                complex[0] = getArrayValue(Reference, RefIteration).plus_mutable(DeltaSubN);
+                zWithoutInitVal = getArrayValue(data.ReferenceSubCp, RefIteration).plus_mutable(DeltaSubN);
+                complex[0] = getArrayValue(data.Reference, RefIteration).plus_mutable(DeltaSubN);
             }
             //No Post filters work
 
@@ -603,17 +619,17 @@ public abstract class RootFindingMethods extends Fractal {
                 DeltaSubN = zWithoutInitVal;
                 RefIteration = 0;
 
-                MaxRefIteration = Fractal.MaxRef2Iteration;
-                Reference = Fractal.SecondReference;
-                ReferenceSubCp = Fractal.SecondReferenceSubCp;
-                PrecalculatedTerms = Fractal.SecondPrecalculatedTerms;
-                PrecalculatedTerms2 = Fractal.SecondPrecalculatedTerms2;
+                data = secondReferenceData;
+                MaxRefIteration = data.MaxRefIteration;
+
                 rebases++;
             }
 
         }
 
         Object[] object = {complex[0], zold, zold2, pixel, start, c0, pixel};
+        iterationData = object;
+
         double in = in_color_algorithm.getResult(object);
 
         in = getFinalValueIn(in, complex[0]);
@@ -653,23 +669,18 @@ public abstract class RootFindingMethods extends Fractal {
         DeltaSubN.Reduce();
         long exp = DeltaSubN.getExp();
 
-        int MaxRefIteration = Fractal.MaxRefIteration;
-        DeepReference ReferenceDeep = Fractal.ReferenceDeep;
-        DeepReference ReferenceSubCpDeep = Fractal.ReferenceSubCpDeep;
-        DeepReference PrecalculatedTermsDeep = Fractal.PrecalculatedTermsDeep;
-        DeepReference PrecalculatedTerms2Deep = Fractal.PrecalculatedTerms2Deep;
+        ReferenceDeepData deepData = referenceDeepData;
+        ReferenceData data = referenceData;
+        int MaxRefIteration = data.MaxRefIteration;
 
-        DoubleReference Reference = Fractal.Reference;
-        DoubleReference ReferenceSubCp = Fractal.ReferenceSubCp;
-        DoubleReference PrecalculatedTerms = Fractal.PrecalculatedTerms;
-        DoubleReference PrecalculatedTerms2 = Fractal.PrecalculatedTerms2;
-
-        boolean useFullFloatExp = ThreadDraw.USE_FULL_FLOATEXP_FOR_DEEP_ZOOM;
+        boolean useFullFloatExp = useFullFloatExp();
         boolean doBailCheck = useFullFloatExp || ThreadDraw.CHECK_BAILOUT_DURING_DEEP_NOT_FULL_FLOATEXP_MODE;
 
         if(useFullFloatExp || (totalSkippedIterations == 0 && exp <= minExp) || (totalSkippedIterations != 0 && exp <= reducedExp)) {
 
-            MantExpComplex z = getArrayDeepValue(ReferenceSubCpDeep, RefIteration).plus_mutable(DeltaSubN);
+            MantExpComplex z = getArrayDeepValue(deepData.ReferenceSubCp, RefIteration).plus_mutable(DeltaSubN);
+
+            MantExpComplex zoldDeep;
 
             for (; iterations < max_iterations; iterations++) {
                 if (trap != null) {
@@ -680,6 +691,8 @@ public abstract class RootFindingMethods extends Fractal {
                     escaped = true;
 
                     Object[] object = {iterations, complex[0], convergent_bailout_algorithm.getDistance(), zold, zold2, pixel, start, c0, pixel};
+                    iterationData = object;
+
                     double res = out_color_algorithm.getResult(object);
 
                     res = getFinalValueOut(res, complex[0]);
@@ -691,38 +704,33 @@ public abstract class RootFindingMethods extends Fractal {
                     return getAndAccumulateStatsNotScaled(res);
                 }
 
-                DeltaSubN = perturbationFunction(DeltaSubN, ReferenceDeep, PrecalculatedTermsDeep, PrecalculatedTerms2Deep, RefIteration);
+                DeltaSubN = perturbationFunction(DeltaSubN, deepData, RefIteration);
 
                 RefIteration++;
                 float_exp_iterations++;
 
                 zold2.assign(zold);
                 zold.assign(complex[0]);
+                zoldDeep = z;
 
                 if (max_iterations > 1) {
-                    z = getArrayDeepValue(ReferenceSubCpDeep, RefIteration).plus_mutable(DeltaSubN);
-                    complex[0] = getArrayDeepValue(ReferenceDeep, RefIteration).plus_mutable(DeltaSubN).toComplex();
+                    z = getArrayDeepValue(deepData.ReferenceSubCp, RefIteration).plus_mutable(DeltaSubN);
+                    complex[0] = getArrayDeepValue(deepData.Reference, RefIteration).plus_mutable(DeltaSubN).toComplex();
                 }
 
                 if (statistic != null) {
-                    statistic.insert(complex[0], zold, zold2, iterations, pixel, start, c0);
+                    statistic.insert(complex[0], zold, zold2, iterations, pixel, start, c0, z , zoldDeep, null);
                 }
 
                 if (z.norm_squared().compareToBothPositive(DeltaSubN.norm_squared()) < 0 || RefIteration >= MaxRefIteration) {
                     DeltaSubN = z;
                     RefIteration = 0;
 
-                    ReferenceDeep = Fractal.SecondReferenceDeep;
-                    ReferenceSubCpDeep = Fractal.SecondReferenceSubCpDeep;
-                    PrecalculatedTermsDeep = Fractal.SecondPrecalculatedTermsDeep;
-                    PrecalculatedTerms2Deep = Fractal.SecondPrecalculatedTerms2Deep;
+                    deepData = secondReferenceDeepData;
+                    data = secondReferenceData;
 
-                    MaxRefIteration = MaxRef2Iteration;
+                    MaxRefIteration = data.MaxRefIteration;
 
-                    Reference = Fractal.SecondReference;
-                    ReferenceSubCp = Fractal.SecondReferenceSubCp;
-                    PrecalculatedTerms = Fractal.SecondPrecalculatedTerms;
-                    PrecalculatedTerms2 = Fractal.SecondPrecalculatedTerms2;
                     rebases++;
                 }
 
@@ -752,6 +760,8 @@ public abstract class RootFindingMethods extends Fractal {
                     escaped = true;
 
                     Object[] object = {iterations, complex[0], convergent_bailout_algorithm.getDistance(), zold, zold2, pixel, start, c0, pixel};
+                    iterationData = object;
+
                     double res = out_color_algorithm.getResult(object);
 
                     res = getFinalValueOut(res, complex[0]);
@@ -763,7 +773,7 @@ public abstract class RootFindingMethods extends Fractal {
                     return getAndAccumulateStatsNotScaled(res);
                 }
 
-                CDeltaSubN = perturbationFunction(CDeltaSubN, Reference, PrecalculatedTerms, PrecalculatedTerms2, RefIteration);
+                CDeltaSubN = perturbationFunction(CDeltaSubN, data, RefIteration);
 
                 RefIteration++;
                 double_iterations++;
@@ -774,8 +784,8 @@ public abstract class RootFindingMethods extends Fractal {
                 //No Plane influence work
                 //No Pre filters work
                 if (max_iterations > 1) {
-                    zWithoutInitVal = getArrayValue(ReferenceSubCp, RefIteration).plus_mutable(CDeltaSubN);
-                    complex[0] = getArrayValue(Reference, RefIteration).plus_mutable(CDeltaSubN);
+                    zWithoutInitVal = getArrayValue(data.ReferenceSubCp, RefIteration).plus_mutable(CDeltaSubN);
+                    complex[0] = getArrayValue(data.Reference, RefIteration).plus_mutable(CDeltaSubN);
                 }
                 //No Post filters work
 
@@ -787,11 +797,8 @@ public abstract class RootFindingMethods extends Fractal {
                     CDeltaSubN = zWithoutInitVal;
                     RefIteration = 0;
 
-                    Reference = Fractal.SecondReference;
-                    ReferenceSubCp = Fractal.SecondReferenceSubCp;
-                    PrecalculatedTerms = Fractal.SecondPrecalculatedTerms;
-                    PrecalculatedTerms2 = Fractal.SecondPrecalculatedTerms2;
-                    MaxRefIteration = Fractal.MaxRef2Iteration;
+                    data = secondReferenceData;
+                    MaxRefIteration = data.MaxRefIteration;
                     rebases++;
                 }
 
@@ -799,6 +806,8 @@ public abstract class RootFindingMethods extends Fractal {
         }
 
         Object[] object = {complex[0], zold, zold2, pixel, start, c0, pixel};
+        iterationData = object;
+
         double in = in_color_algorithm.getResult(object);
 
         in = getFinalValueIn(in, complex[0]);

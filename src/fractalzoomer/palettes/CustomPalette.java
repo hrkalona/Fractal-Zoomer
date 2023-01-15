@@ -269,10 +269,10 @@ public class CustomPalette extends Palette {
                     res[2] = ColorSpaceConverter.clamp(res[2]);
 
                     palette[(n + k) % palette.length] = 0xff000000 | ((int) (res[0]) << 16) | ((int) (res[1]) << 8) | (int) (res[2]);
-                } else if (color_space == MainWindow.COLOR_SPACE_LCH) {
-                    double[] from = ColorSpaceConverter.RGBtoLCH(c1[1], c1[2], c1[3]);
+                } else if (color_space == MainWindow.COLOR_SPACE_LCH_ab) {
+                    double[] from = ColorSpaceConverter.RGBtoLCH_ab(c1[1], c1[2], c1[3]);
 
-                    double[] to = ColorSpaceConverter.RGBtoLCH(c2[1], c2[2], c2[3]);
+                    double[] to = ColorSpaceConverter.RGBtoLCH_ab(c2[1], c2[2], c2[3]);
 
                     double L = method.interpolate(from[0], to[0], coef);
                     double C = method.interpolate(from[1], to[1], coef);
@@ -296,7 +296,7 @@ public class CustomPalette extends Palette {
                         H = method.interpolate(from[2], to[2], coef);
                     }
 
-                    int[] res = ColorSpaceConverter.LCHtoRGB(L, C, H);
+                    int[] res = ColorSpaceConverter.LCH_abtoRGB(L, C, H);
 
                     res[0] = ColorSpaceConverter.clamp(res[0]);
                     res[1] = ColorSpaceConverter.clamp(res[1]);
@@ -310,6 +310,269 @@ public class CustomPalette extends Palette {
                     blue = ColorSpaceConverter.clamp((int) evaluateBezier(a, c1[3], bezierControlPoints_blue[0][i].y, bezierControlPoints_blue[1][i].y, c2[3]));
 
                     palette[(n + k) % palette.length] = 0xff000000 | (red << 16) | (green << 8) | blue;
+                }
+                else if (color_space == MainWindow.COLOR_SPACE_LUV) {
+                    double[] from = ColorSpaceConverter.RGBtoLUV(c1[1], c1[2], c1[3]);
+
+                    double[] to = ColorSpaceConverter.RGBtoLUV(c2[1], c2[2], c2[3]);
+
+                    double L = method.interpolate(from[0], to[0], coef);
+                    double a = method.interpolate(from[1], to[1], coef);
+                    double b = method.interpolate(from[2], to[2], coef);
+
+                    int[] res = ColorSpaceConverter.LUVtoRGB(L, a, b);
+
+                    res[0] = ColorSpaceConverter.clamp(res[0]);
+                    res[1] = ColorSpaceConverter.clamp(res[1]);
+                    res[2] = ColorSpaceConverter.clamp(res[2]);
+
+                    palette[(n + k) % palette.length] = 0xff000000 | ((int) (res[0]) << 16) | ((int) (res[1]) << 8) | (int) (res[2]);
+                }
+                else if (color_space == MainWindow.COLOR_SPACE_LCH_uv) {
+                    double[] from = ColorSpaceConverter.RGBtoLCH_uv(c1[1], c1[2], c1[3]);
+
+                    double[] to = ColorSpaceConverter.RGBtoLCH_uv(c2[1], c2[2], c2[3]);
+
+                    double L = method.interpolate(from[0], to[0], coef);
+                    double C = method.interpolate(from[1], to[1], coef);
+                    double H;
+
+                    double d = to[2] - from[2];
+
+                    double temp;
+                    if (from[2] > to[2]) {
+                        temp = from[2];
+                        from[2] = to[2];
+                        to[2] = temp;
+                        d = -d;
+                        coef = 1 - coef;
+                    }
+
+                    if (d > 180) {
+                        from[2] += 360;
+                        H = method.interpolate(from[2], to[2], coef) % 360.0;
+                    } else {
+                        H = method.interpolate(from[2], to[2], coef);
+                    }
+
+                    int[] res = ColorSpaceConverter.LCH_uvtoRGB(L, C, H);
+
+                    res[0] = ColorSpaceConverter.clamp(res[0]);
+                    res[1] = ColorSpaceConverter.clamp(res[1]);
+                    res[2] = ColorSpaceConverter.clamp(res[2]);
+
+                    palette[(n + k) % palette.length] = 0xff000000 | ((int) (res[0]) << 16) | ((int) (res[1]) << 8) | (int) (res[2]);
+                }
+                else if (color_space == MainWindow.COLOR_SPACE_OKLAB) {
+                    double[] from = ColorSpaceConverter.RGBtoOKLAB(c1[1], c1[2], c1[3]);
+
+                    double[] to = ColorSpaceConverter.RGBtoOKLAB(c2[1], c2[2], c2[3]);
+
+                    double L = method.interpolate(from[0], to[0], coef);
+                    double a = method.interpolate(from[1], to[1], coef);
+                    double b = method.interpolate(from[2], to[2], coef);
+
+                    int[] res = ColorSpaceConverter.OKLABtoRGB(L, a, b);
+
+                    res[0] = ColorSpaceConverter.clamp(res[0]);
+                    res[1] = ColorSpaceConverter.clamp(res[1]);
+                    res[2] = ColorSpaceConverter.clamp(res[2]);
+
+                    palette[(n + k) % palette.length] = 0xff000000 | ((int) (res[0]) << 16) | ((int) (res[1]) << 8) | (int) (res[2]);
+                }
+                else if (color_space == MainWindow.COLOR_SPACE_LCH_oklab) {
+                    double[] from = ColorSpaceConverter.RGBtoLCH_oklab(c1[1], c1[2], c1[3]);
+
+                    double[] to = ColorSpaceConverter.RGBtoLCH_oklab(c2[1], c2[2], c2[3]);
+
+                    double L = method.interpolate(from[0], to[0], coef);
+                    double C = method.interpolate(from[1], to[1], coef);
+                    double H;
+
+                    double d = to[2] - from[2];
+
+                    double temp;
+                    if (from[2] > to[2]) {
+                        temp = from[2];
+                        from[2] = to[2];
+                        to[2] = temp;
+                        d = -d;
+                        coef = 1 - coef;
+                    }
+
+                    if (d > 180) {
+                        from[2] += 360;
+                        H = method.interpolate(from[2], to[2], coef) % 360.0;
+                    } else {
+                        H = method.interpolate(from[2], to[2], coef);
+                    }
+
+                    int[] res = ColorSpaceConverter.LCH_oklabtoRGB(L, C, H);
+
+                    res[0] = ColorSpaceConverter.clamp(res[0]);
+                    res[1] = ColorSpaceConverter.clamp(res[1]);
+                    res[2] = ColorSpaceConverter.clamp(res[2]);
+
+                    palette[(n + k) % palette.length] = 0xff000000 | ((int) (res[0]) << 16) | ((int) (res[1]) << 8) | (int) (res[2]);
+                }
+                else if (color_space == MainWindow.COLOR_SPACE_JZAZBZ) {
+                    double[] from = ColorSpaceConverter.RGBtoJzAzBz(c1[1], c1[2], c1[3]);
+
+                    double[] to = ColorSpaceConverter.RGBtoJzAzBz(c2[1], c2[2], c2[3]);
+
+                    double L = method.interpolate(from[0], to[0], coef);
+                    double a = method.interpolate(from[1], to[1], coef);
+                    double b = method.interpolate(from[2], to[2], coef);
+
+                    int[] res = ColorSpaceConverter.JzAzBztoRGB(L, a, b);
+
+                    res[0] = ColorSpaceConverter.clamp(res[0]);
+                    res[1] = ColorSpaceConverter.clamp(res[1]);
+                    res[2] = ColorSpaceConverter.clamp(res[2]);
+
+                    palette[(n + k) % palette.length] = 0xff000000 | ((int) (res[0]) << 16) | ((int) (res[1]) << 8) | (int) (res[2]);
+                }
+                else if (color_space == MainWindow.COLOR_SPACE_LCH_JzAzBz) {
+                    double[] from = ColorSpaceConverter.RGBtoLCH_JzAzBz(c1[1], c1[2], c1[3]);
+
+                    double[] to = ColorSpaceConverter.RGBtoLCH_JzAzBz(c2[1], c2[2], c2[3]);
+
+                    double L = method.interpolate(from[0], to[0], coef);
+                    double C = method.interpolate(from[1], to[1], coef);
+                    double H;
+
+                    double d = to[2] - from[2];
+
+                    double temp;
+                    if (from[2] > to[2]) {
+                        temp = from[2];
+                        from[2] = to[2];
+                        to[2] = temp;
+                        d = -d;
+                        coef = 1 - coef;
+                    }
+
+                    if (d > 180) {
+                        from[2] += 360;
+                        H = method.interpolate(from[2], to[2], coef) % 360.0;
+                    } else {
+                        H = method.interpolate(from[2], to[2], coef);
+                    }
+
+                    int[] res = ColorSpaceConverter.LCH_JzAzBztoRGB(L, C, H);
+
+                    res[0] = ColorSpaceConverter.clamp(res[0]);
+                    res[1] = ColorSpaceConverter.clamp(res[1]);
+                    res[2] = ColorSpaceConverter.clamp(res[2]);
+
+                    palette[(n + k) % palette.length] = 0xff000000 | ((int) (res[0]) << 16) | ((int) (res[1]) << 8) | (int) (res[2]);
+                }
+                else if (color_space == MainWindow.COLOR_SPACE_HSL_uv) {
+                    double[] c1_hsl = ColorSpaceConverter.RGBtoHSL_uv(c1[1], c1[2], c1[3]);
+                    double[] c2_hsl = ColorSpaceConverter.RGBtoHSL_uv(c2[1], c2[2], c2[3]);
+
+                    double h;
+                    double s = method.interpolate(c1_hsl[1], c2_hsl[1], coef);
+                    double l = method.interpolate(c1_hsl[2], c2_hsl[2], coef);
+
+                    double d = c2_hsl[0] - c1_hsl[0];
+
+                    double temp;
+                    if (c1_hsl[0] > c2_hsl[0]) {
+                        temp = c1_hsl[0];
+                        c1_hsl[0] = c2_hsl[0];
+                        c2_hsl[0] = temp;
+                        d = -d;
+                        coef = 1 - coef;
+                    }
+
+                    if (d > 180) {
+                        c1_hsl[0] += 360;
+                        h = method.interpolate(c1_hsl[0], c2_hsl[0], coef) % 360.0;
+                    } else {
+                        h = method.interpolate(c1_hsl[0], c2_hsl[0], coef);
+                    }
+
+                    int[] res = ColorSpaceConverter.HSL_uvtoRGB(h, s, l);
+
+                    palette[(n + k) % palette.length] = 0xff000000 | (res[0] << 16) | (res[1] << 8) | res[2];
+                }
+                else if (color_space == MainWindow.COLOR_SPACE_HPL_uv) {
+                    double[] c1_hsl = ColorSpaceConverter.RGBtoHPL_uv(c1[1], c1[2], c1[3]);
+                    double[] c2_hsl = ColorSpaceConverter.RGBtoHPL_uv(c2[1], c2[2], c2[3]);
+
+                    double h;
+                    double s = method.interpolate(c1_hsl[1], c2_hsl[1], coef);
+                    double l = method.interpolate(c1_hsl[2], c2_hsl[2], coef);
+
+                    double d = c2_hsl[0] - c1_hsl[0];
+
+                    double temp;
+                    if (c1_hsl[0] > c2_hsl[0]) {
+                        temp = c1_hsl[0];
+                        c1_hsl[0] = c2_hsl[0];
+                        c2_hsl[0] = temp;
+                        d = -d;
+                        coef = 1 - coef;
+                    }
+
+                    if (d > 180) {
+                        c1_hsl[0] += 360;
+                        h = method.interpolate(c1_hsl[0], c2_hsl[0], coef) % 360.0;
+                    } else {
+                        h = method.interpolate(c1_hsl[0], c2_hsl[0], coef);
+                    }
+
+                    int[] res = ColorSpaceConverter.HPL_uvtoRGB(h, s, l);
+
+                    palette[(n + k) % palette.length] = 0xff000000 | (res[0] << 16) | (res[1] << 8) | res[2];
+                }
+                else if (color_space == MainWindow.COLOR_SPACE_HWB) {
+                    double[] c1_hsb = ColorSpaceConverter.RGBtoHWB(c1[1], c1[2], c1[3]);
+                    double[] c2_hsb = ColorSpaceConverter.RGBtoHWB(c2[1], c2[2], c2[3]);
+
+                    double h;
+                    double s = method.interpolate(c1_hsb[1], c2_hsb[1], coef);
+                    double b = method.interpolate(c1_hsb[2], c2_hsb[2], coef);
+
+                    double d = c2_hsb[0] - c1_hsb[0];
+
+                    double temp;
+                    if (c1_hsb[0] > c2_hsb[0]) {
+                        temp = c1_hsb[0];
+                        c1_hsb[0] = c2_hsb[0];
+                        c2_hsb[0] = temp;
+                        d = -d;
+                        coef = 1 - coef;
+                    }
+
+                    if (d > 0.5) {
+                        c1_hsb[0] += 1;
+                        h = method.interpolate(c1_hsb[0], c2_hsb[0], coef) % 1.0;
+                    } else {
+                        h = method.interpolate(c1_hsb[0], c2_hsb[0], coef);
+                    }
+
+                    int[] res = ColorSpaceConverter.HWBtoRGB(h, s, b);
+
+                    palette[(n + k) % palette.length] = 0xff000000 | (res[0] << 16) | (res[1] << 8) | res[2];
+                }
+                else if (color_space == MainWindow.COLOR_SPACE_LINEAR_RGB) {
+                    double[] from = ColorSpaceConverter.RGBtoLinearRGB(c1[1], c1[2], c1[3]);
+
+                    double[] to = ColorSpaceConverter.RGBtoLinearRGB(c2[1], c2[2], c2[3]);
+
+                    double L = method.interpolate(from[0], to[0], coef);
+                    double a = method.interpolate(from[1], to[1], coef);
+                    double b = method.interpolate(from[2], to[2], coef);
+
+                    int[] res = ColorSpaceConverter.LinearRGBtoRGB(L, a, b);
+
+                    res[0] = ColorSpaceConverter.clamp(res[0]);
+                    res[1] = ColorSpaceConverter.clamp(res[1]);
+                    res[2] = ColorSpaceConverter.clamp(res[2]);
+
+                    palette[(n + k) % palette.length] = 0xff000000 | ((int) (res[0]) << 16) | ((int) (res[1]) << 8) | (int) (res[2]);
                 }
             }
         }
@@ -550,10 +813,10 @@ public class CustomPalette extends Palette {
                     res[2] = ColorSpaceConverter.clamp(res[2]);
 
                     palette[(n + k) % palette.length] = 0xff000000 | ((int) (res[0]) << 16) | ((int) (res[1]) << 8) | (int) (res[2]);
-                } else if (color_space == MainWindow.COLOR_SPACE_LCH) {
-                    double[] from = ColorSpaceConverter.RGBtoLCH(c1[1], c1[2], c1[3]);
+                } else if (color_space == MainWindow.COLOR_SPACE_LCH_ab) {
+                    double[] from = ColorSpaceConverter.RGBtoLCH_ab(c1[1], c1[2], c1[3]);
 
-                    double[] to = ColorSpaceConverter.RGBtoLCH(c2[1], c2[2], c2[3]);
+                    double[] to = ColorSpaceConverter.RGBtoLCH_ab(c2[1], c2[2], c2[3]);
 
                     double L = method.interpolate(from[0], to[0], coef);
                     double C = method.interpolate(from[1], to[1], coef);
@@ -577,7 +840,7 @@ public class CustomPalette extends Palette {
                         H = method.interpolate(from[2], to[2], coef);
                     }
 
-                    int[] res = ColorSpaceConverter.LCHtoRGB(L, C, H);
+                    int[] res = ColorSpaceConverter.LCH_abtoRGB(L, C, H);
 
                     res[0] = ColorSpaceConverter.clamp(res[0]);
                     res[1] = ColorSpaceConverter.clamp(res[1]);
@@ -591,6 +854,264 @@ public class CustomPalette extends Palette {
                     blue = ColorSpaceConverter.clamp((int) evaluateBezier(a, c1[3], bezierControlPoints_blue[0][i].y, bezierControlPoints_blue[1][i].y, c2[3]));
 
                     palette[(n + k) % palette.length] = 0xff000000 | (red << 16) | (green << 8) | blue;
+                }
+                else if (color_space == MainWindow.COLOR_SPACE_LUV) {
+                    double[] from = ColorSpaceConverter.RGBtoLUV(c1[1], c1[2], c1[3]);
+
+                    double[] to = ColorSpaceConverter.RGBtoLUV(c2[1], c2[2], c2[3]);
+
+                    double L = method.interpolate(from[0], to[0], coef);
+                    double a = method.interpolate(from[1], to[1], coef);
+                    double b = method.interpolate(from[2], to[2], coef);
+
+                    int[] res = ColorSpaceConverter.LUVtoRGB(L, a, b);
+
+                    res[0] = ColorSpaceConverter.clamp(res[0]);
+                    res[1] = ColorSpaceConverter.clamp(res[1]);
+                    res[2] = ColorSpaceConverter.clamp(res[2]);
+
+                    palette[(n + k) % palette.length] = 0xff000000 | ((int) (res[0]) << 16) | ((int) (res[1]) << 8) | (int) (res[2]);
+                }
+                else if (color_space == MainWindow.COLOR_SPACE_LCH_uv) {
+                    double[] from = ColorSpaceConverter.RGBtoLCH_uv(c1[1], c1[2], c1[3]);
+
+                    double[] to = ColorSpaceConverter.RGBtoLCH_uv(c2[1], c2[2], c2[3]);
+
+                    double L = method.interpolate(from[0], to[0], coef);
+                    double C = method.interpolate(from[1], to[1], coef);
+                    double H;
+
+                    double d = to[2] - from[2];
+
+                    double temp;
+                    if (from[2] > to[2]) {
+                        temp = from[2];
+                        from[2] = to[2];
+                        to[2] = temp;
+                        d = -d;
+                        coef = 1 - coef;
+                    }
+
+                    if (d > 180) {
+                        from[2] += 360;
+                        H = method.interpolate(from[2], to[2], coef) % 360.0;
+                    } else {
+                        H = method.interpolate(from[2], to[2], coef);
+                    }
+
+                    int[] res = ColorSpaceConverter.LCH_uvtoRGB(L, C, H);
+
+                    res[0] = ColorSpaceConverter.clamp(res[0]);
+                    res[1] = ColorSpaceConverter.clamp(res[1]);
+                    res[2] = ColorSpaceConverter.clamp(res[2]);
+
+                    palette[(n + k) % palette.length] = 0xff000000 | ((int) (res[0]) << 16) | ((int) (res[1]) << 8) | (int) (res[2]);
+                }
+                else if (color_space == MainWindow.COLOR_SPACE_OKLAB) {
+                    double[] from = ColorSpaceConverter.RGBtoOKLAB(c1[1], c1[2], c1[3]);
+
+                    double[] to = ColorSpaceConverter.RGBtoOKLAB(c2[1], c2[2], c2[3]);
+
+                    double L = method.interpolate(from[0], to[0], coef);
+                    double a = method.interpolate(from[1], to[1], coef);
+                    double b = method.interpolate(from[2], to[2], coef);
+
+                    int[] res = ColorSpaceConverter.OKLABtoRGB(L, a, b);
+
+                    res[0] = ColorSpaceConverter.clamp(res[0]);
+                    res[1] = ColorSpaceConverter.clamp(res[1]);
+                    res[2] = ColorSpaceConverter.clamp(res[2]);
+
+                    palette[(n + k) % palette.length] = 0xff000000 | ((int) (res[0]) << 16) | ((int) (res[1]) << 8) | (int) (res[2]);
+                }
+                else if (color_space == MainWindow.COLOR_SPACE_LCH_oklab) {
+                    double[] from = ColorSpaceConverter.RGBtoLCH_oklab(c1[1], c1[2], c1[3]);
+
+                    double[] to = ColorSpaceConverter.RGBtoLCH_oklab(c2[1], c2[2], c2[3]);
+
+                    double L = method.interpolate(from[0], to[0], coef);
+                    double C = method.interpolate(from[1], to[1], coef);
+                    double H;
+
+                    double d = to[2] - from[2];
+
+                    double temp;
+                    if (from[2] > to[2]) {
+                        temp = from[2];
+                        from[2] = to[2];
+                        to[2] = temp;
+                        d = -d;
+                        coef = 1 - coef;
+                    }
+
+                    if (d > 180) {
+                        from[2] += 360;
+                        H = method.interpolate(from[2], to[2], coef) % 360.0;
+                    } else {
+                        H = method.interpolate(from[2], to[2], coef);
+                    }
+
+                    int[] res = ColorSpaceConverter.LCH_oklabtoRGB(L, C, H);
+
+                    res[0] = ColorSpaceConverter.clamp(res[0]);
+                    res[1] = ColorSpaceConverter.clamp(res[1]);
+                    res[2] = ColorSpaceConverter.clamp(res[2]);
+
+                    palette[(n + k) % palette.length] = 0xff000000 | ((int) (res[0]) << 16) | ((int) (res[1]) << 8) | (int) (res[2]);
+                }
+                else if (color_space == MainWindow.COLOR_SPACE_JZAZBZ) {
+                    double[] from = ColorSpaceConverter.RGBtoJzAzBz(c1[1], c1[2], c1[3]);
+
+                    double[] to = ColorSpaceConverter.RGBtoJzAzBz(c2[1], c2[2], c2[3]);
+
+                    double L = method.interpolate(from[0], to[0], coef);
+                    double a = method.interpolate(from[1], to[1], coef);
+                    double b = method.interpolate(from[2], to[2], coef);
+
+                    int[] res = ColorSpaceConverter.JzAzBztoRGB(L, a, b);
+
+                    res[0] = ColorSpaceConverter.clamp(res[0]);
+                    res[1] = ColorSpaceConverter.clamp(res[1]);
+                    res[2] = ColorSpaceConverter.clamp(res[2]);
+
+                    palette[(n + k) % palette.length] = 0xff000000 | ((int) (res[0]) << 16) | ((int) (res[1]) << 8) | (int) (res[2]);
+                }
+                else if (color_space == MainWindow.COLOR_SPACE_LCH_JzAzBz) {
+                    double[] from = ColorSpaceConverter.RGBtoLCH_JzAzBz(c1[1], c1[2], c1[3]);
+
+                    double[] to = ColorSpaceConverter.RGBtoLCH_JzAzBz(c2[1], c2[2], c2[3]);
+
+                    double L = method.interpolate(from[0], to[0], coef);
+                    double C = method.interpolate(from[1], to[1], coef);
+                    double H;
+
+                    double d = to[2] - from[2];
+
+                    double temp;
+                    if (from[2] > to[2]) {
+                        temp = from[2];
+                        from[2] = to[2];
+                        to[2] = temp;
+                        d = -d;
+                        coef = 1 - coef;
+                    }
+
+                    if (d > 180) {
+                        from[2] += 360;
+                        H = method.interpolate(from[2], to[2], coef) % 360.0;
+                    } else {
+                        H = method.interpolate(from[2], to[2], coef);
+                    }
+
+                    int[] res = ColorSpaceConverter.LCH_JzAzBztoRGB(L, C, H);
+
+                    res[0] = ColorSpaceConverter.clamp(res[0]);
+                    res[1] = ColorSpaceConverter.clamp(res[1]);
+                    res[2] = ColorSpaceConverter.clamp(res[2]);
+
+                    palette[(n + k) % palette.length] = 0xff000000 | ((int) (res[0]) << 16) | ((int) (res[1]) << 8) | (int) (res[2]);
+                }
+                else if (color_space == MainWindow.COLOR_SPACE_HSL_uv) {
+                    double[] c1_hsl = ColorSpaceConverter.RGBtoHSL_uv(c1[1], c1[2], c1[3]);
+                    double[] c2_hsl = ColorSpaceConverter.RGBtoHSL_uv(c2[1], c2[2], c2[3]);
+
+                    double h;
+                    double s = method.interpolate(c1_hsl[1], c2_hsl[1], coef);
+                    double l = method.interpolate(c1_hsl[2], c2_hsl[2], coef);
+
+                    double d = c2_hsl[0] - c1_hsl[0];
+
+                    double temp;
+                    if (c1_hsl[0] > c2_hsl[0]) {
+                        temp = c1_hsl[0];
+                        c1_hsl[0] = c2_hsl[0];
+                        c2_hsl[0] = temp;
+                        d = -d;
+                        coef = 1 - coef;
+                    }
+
+                    if (d > 180) {
+                        c1_hsl[0] += 360;
+                        h = method.interpolate(c1_hsl[0], c2_hsl[0], coef) % 360.0;
+                    } else {
+                        h = method.interpolate(c1_hsl[0], c2_hsl[0], coef);
+                    }
+
+                    int[] res = ColorSpaceConverter.HSL_uvtoRGB(h, s, l);
+
+                    palette[(n + k) % palette.length] = 0xff000000 | (res[0] << 16) | (res[1] << 8) | res[2];
+                }
+                else if (color_space == MainWindow.COLOR_SPACE_HPL_uv) {
+                    double[] c1_hsl = ColorSpaceConverter.RGBtoHPL_uv(c1[1], c1[2], c1[3]);
+                    double[] c2_hsl = ColorSpaceConverter.RGBtoHPL_uv(c2[1], c2[2], c2[3]);
+
+                    double h;
+                    double s = method.interpolate(c1_hsl[1], c2_hsl[1], coef);
+                    double l = method.interpolate(c1_hsl[2], c2_hsl[2], coef);
+
+                    double d = c2_hsl[0] - c1_hsl[0];
+
+                    double temp;
+                    if (c1_hsl[0] > c2_hsl[0]) {
+                        temp = c1_hsl[0];
+                        c1_hsl[0] = c2_hsl[0];
+                        c2_hsl[0] = temp;
+                        d = -d;
+                        coef = 1 - coef;
+                    }
+
+                    if (d > 180) {
+                        c1_hsl[0] += 360;
+                        h = method.interpolate(c1_hsl[0], c2_hsl[0], coef) % 360.0;
+                    } else {
+                        h = method.interpolate(c1_hsl[0], c2_hsl[0], coef);
+                    }
+
+                    int[] res = ColorSpaceConverter.HPL_uvtoRGB(h, s, l);
+
+                    palette[(n + k) % palette.length] = 0xff000000 | (res[0] << 16) | (res[1] << 8) | res[2];
+                }
+                else if (color_space == MainWindow.COLOR_SPACE_HWB) {
+                    double[] c1_hsb = ColorSpaceConverter.RGBtoHWB(c1[1], c1[2], c1[3]);
+                    double[] c2_hsb = ColorSpaceConverter.RGBtoHWB(c2[1], c2[2], c2[3]);
+
+                    double h;
+                    double s = method.interpolate(c1_hsb[1], c2_hsb[1], coef);
+                    double b = method.interpolate(c1_hsb[2], c2_hsb[2], coef);
+
+                    double d = c2_hsb[0] - c1_hsb[0];
+
+                    double temp;
+                    if (c1_hsb[0] > c2_hsb[0]) {
+                        temp = c1_hsb[0];
+                        c1_hsb[0] = c2_hsb[0];
+                        c2_hsb[0] = temp;
+                        d = -d;
+                        coef = 1 - coef;
+                    }
+
+                    if (d > 0.5) {
+                        c1_hsb[0] += 1;
+                        h = method.interpolate(c1_hsb[0], c2_hsb[0], coef) % 1.0;
+                    } else {
+                        h = method.interpolate(c1_hsb[0], c2_hsb[0], coef);
+                    }
+
+                    int[] res = ColorSpaceConverter.HWBtoRGB(h, s, b);
+
+                    palette[(n + k) % palette.length] = 0xff000000 | (res[0] << 16) | (res[1] << 8) | res[2];
+                }
+                else if (color_space == MainWindow.COLOR_SPACE_LINEAR_RGB) {
+                    double[] ryb_from = ColorSpaceConverter.RGBtoLinearRGB(c1[1], c1[2], c1[3]);
+                    double[] ryb_to = ColorSpaceConverter.RGBtoLinearRGB(c2[1], c2[2], c2[3]);
+
+                    double r = method.interpolate(ryb_from[0], ryb_to[0], coef);
+                    double y = method.interpolate(ryb_from[1], ryb_to[1], coef);
+                    double b = method.interpolate(ryb_from[2], ryb_to[2], coef);
+
+                    int[] rgb = ColorSpaceConverter.LinearRGBtoRGB(r, y, b);
+
+                    palette[(n + k) % palette.length] = 0xff000000 | ((int) (rgb[0]) << 16) | ((int) (rgb[1]) << 8) | (int) (rgb[2]);
                 }
                 //System.out.print(palette[(n + k) % palette.length] + ", ");
                 //System.out.println(red + " " + green + " " + blue);
