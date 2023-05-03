@@ -342,6 +342,9 @@ public class UserTrueColorAlgorithm extends TrueColorAlgorithm {
             case ColorSpaceConverter.HSB:
                 res = ColorSpaceConverter.HSBtoRGB(c1, c2, c3);
                 return 0xFF000000 | res[0] << 16 | res[1] << 8 | res[2];
+            case ColorSpaceConverter.HWB:
+                res = ColorSpaceConverter.HWBtoRGB(c1, c2, c3);
+                return 0xFF000000 | res[0] << 16 | res[1] << 8 | res[2];
             case ColorSpaceConverter.HSL:
                 res = ColorSpaceConverter.HSLtoRGB(c1, c2, c3);
                 return 0xFF000000 | res[0] << 16 | res[1] << 8 | res[2];
@@ -351,8 +354,8 @@ public class UserTrueColorAlgorithm extends TrueColorAlgorithm {
             case ColorSpaceConverter.LAB:
                 res = ColorSpaceConverter.LABtoRGB(c1 * 100, (2 * c2 - 1) * 100, (2 * c3 - 1) * 100);
                 return 0xFF000000 | res[0] << 16 | res[1] << 8 | res[2];
-            case ColorSpaceConverter.LCH:
-                res = ColorSpaceConverter.LCHtoRGB(c1 * 100, c2 * 140, c3 * 360);
+            case ColorSpaceConverter.LCH_ab:
+                res = ColorSpaceConverter.LCH_abtoRGB(c1 * 100, c2 * 140, c3 * 360);
                 return 0xFF000000 | res[0] << 16 | res[1] << 8 | res[2];
             case ColorSpaceConverter.DIRECT:
                 return 0xFF000000 | (0x00FFFFFF & (int) c1);

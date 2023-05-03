@@ -17,10 +17,7 @@
 
 package fractalzoomer.planes.general;
 
-import fractalzoomer.core.Complex;
-import fractalzoomer.core.DDComplex;
-import fractalzoomer.core.MpfrBigNumComplex;
-import fractalzoomer.core.ThreadDraw;
+import fractalzoomer.core.*;
 import fractalzoomer.core.mpfr.LibMpfr;
 import fractalzoomer.planes.Plane;
 
@@ -45,7 +42,7 @@ public class BipolarPlane extends Plane {
 
             if(ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE || ThreadDraw.HIGH_PRECISION_CALCULATION) {
 
-                if(LibMpfr.LOAD_ERROR == null) {
+                if(!LibMpfr.hasError()) {
                     mpfrbnfocal_point = new MpfrBigNumComplex(focal_point[0], focal_point[1]);
                 }
             }
@@ -64,6 +61,17 @@ public class BipolarPlane extends Plane {
     }
 
     @Override
+    public BigComplex transform(BigComplex pixel) {
+
+        if(pixel.isZero()) {
+            return pixel;
+        }
+
+        return new BigComplex(transform(pixel.toComplex()));
+
+    }
+
+    @Override
     public MpfrBigNumComplex transform(MpfrBigNumComplex pixel) {
 
         if(pixel.isZero()) {
@@ -71,6 +79,17 @@ public class BipolarPlane extends Plane {
         }
 
         return pixel.toBiPolar(mpfrbnfocal_point);
+
+    }
+
+    @Override
+    public MpirBigNumComplex transform(MpirBigNumComplex pixel) {
+
+        if(pixel.isZero()) {
+            return pixel;
+        }
+
+        return new MpirBigNumComplex(transform(pixel.toComplex()));
 
     }
 

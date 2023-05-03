@@ -18,7 +18,6 @@
 package fractalzoomer.planes.fold;
 
 import fractalzoomer.core.*;
-import fractalzoomer.core.mpfr.LibMpfr;
 import fractalzoomer.planes.Plane;
 
 /**
@@ -32,6 +31,8 @@ public class FoldInPlane extends Plane {
 
     private MpfrBigNumComplex mpfrbncenter;
 
+    private MpirBigNumComplex mpirbncenter;
+
     private DDComplex ddccenter;
 
     public FoldInPlane(double plane_transform_radius) {
@@ -44,8 +45,10 @@ public class FoldInPlane extends Plane {
             ddccenter = new DDComplex(center);
             if (ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE || ThreadDraw.HIGH_PRECISION_CALCULATION) {
 
-                if(LibMpfr.LOAD_ERROR == null) {
+                if (ThreadDraw.allocateMPFR()) {
                     mpfrbncenter = new MpfrBigNumComplex(center);
+                } else if (ThreadDraw.allocateMPIR()) {
+                    mpirbncenter = new MpirBigNumComplex(center);
                 }
             }
         }
@@ -54,13 +57,21 @@ public class FoldInPlane extends Plane {
 
     @Override
     public Complex transform(Complex pixel) {
-        
+
+        if(pixel.isZero()) {
+            return pixel;
+        }
+
         return pixel.fold_in(center);
   
     }
 
     @Override
     public BigComplex transform(BigComplex pixel) {
+
+        if(pixel.isZero()) {
+            return pixel;
+        }
 
         return pixel.fold_in(ddcenter);
 
@@ -69,12 +80,31 @@ public class FoldInPlane extends Plane {
     @Override
     public MpfrBigNumComplex transform(MpfrBigNumComplex pixel) {
 
+        if(pixel.isZero()) {
+            return pixel;
+        }
+
         return pixel.fold_in(mpfrbncenter);
 
     }
 
     @Override
+    public MpirBigNumComplex transform(MpirBigNumComplex pixel) {
+
+        if(pixel.isZero()) {
+            return pixel;
+        }
+
+        return pixel.fold_in(mpirbncenter);
+
+    }
+
+    @Override
     public DDComplex transform(DDComplex pixel) {
+
+        if(pixel.isZero()) {
+            return pixel;
+        }
 
         return pixel.fold_in(ddccenter);
 

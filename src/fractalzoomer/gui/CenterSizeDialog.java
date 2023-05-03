@@ -175,9 +175,9 @@ public class CenterSizeDialog extends JDialog {
 
                         try {
                             if(MyApfloat.setAutomaticPrecision) {
-                                long precision = MyApfloat.getAutomaticPrecision(new String[]{field_size.getText(), field_real.getText(), field_imaginary.getText()}, new boolean[] {true, false, false});
+                                long precision = MyApfloat.getAutomaticPrecision(new String[]{field_size.getText(), field_real.getText(), field_imaginary.getText()}, new boolean[] {true, false, false}, true);
 
-                                if (MyApfloat.shouldSetPrecision(precision, false)) {
+                                if (MyApfloat.shouldSetPrecision(precision, true)) {
                                     Fractal.clearReferences(true);
                                     MyApfloat.setPrecision(precision, s);
                                 }

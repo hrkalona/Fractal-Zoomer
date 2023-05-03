@@ -19,7 +19,6 @@ package fractalzoomer.gui;
 import fractalzoomer.main.MainWindow;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
 /**
@@ -464,6 +463,12 @@ public class FractalFunctionsMenu extends JMenu {
         for(int i = 0; i < rootPostfixes.length; i++) {
             functionNames[i + MainWindow.SIMPSON_NEWTON3] = "Simpson-Newton " + rootPostfixes[i];
         }
+
+        functionNames[MainWindow.MAGNET_PATAKI2] = "Magnet Pataki";
+        functionNames[MainWindow.MAGNET_PATAKI3] = "Magnet Pataki 3";
+        functionNames[MainWindow.MAGNET_PATAKI4] = "Magnet Pataki 4";
+        functionNames[MainWindow.MAGNET_PATAKI5] = "Magnet Pataki 5";
+        functionNames[MainWindow.MAGNET_PATAKIK] = "Magnet Pataki K";
     }
 
     public FractalFunctionsMenu(MainWindow ptr2, String name, int function) {
@@ -899,6 +904,31 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.MAGNET24].addActionListener(e -> ptr.setFunction(MainWindow.MAGNET24));
         magnet_type_functions.add(fractal_functions[MainWindow.MAGNET24]);
         functions_button_group.add(fractal_functions[MainWindow.MAGNET24]);
+
+        fractal_functions[MainWindow.MAGNET_PATAKI2] = new JRadioButtonMenuItem(functionNames[MainWindow.MAGNET_PATAKI2]);
+        fractal_functions[MainWindow.MAGNET_PATAKI2].addActionListener(e -> ptr.setFunction(MainWindow.MAGNET_PATAKI2));
+        magnet_type_functions.add(fractal_functions[MainWindow.MAGNET_PATAKI2]);
+        functions_button_group.add(fractal_functions[MainWindow.MAGNET_PATAKI2]);
+
+        fractal_functions[MainWindow.MAGNET_PATAKI3] = new JRadioButtonMenuItem(functionNames[MainWindow.MAGNET_PATAKI3]);
+        fractal_functions[MainWindow.MAGNET_PATAKI3].addActionListener(e -> ptr.setFunction(MainWindow.MAGNET_PATAKI3));
+        magnet_type_functions.add(fractal_functions[MainWindow.MAGNET_PATAKI3]);
+        functions_button_group.add(fractal_functions[MainWindow.MAGNET_PATAKI3]);
+
+        fractal_functions[MainWindow.MAGNET_PATAKI4] = new JRadioButtonMenuItem(functionNames[MainWindow.MAGNET_PATAKI4]);
+        fractal_functions[MainWindow.MAGNET_PATAKI4].addActionListener(e -> ptr.setFunction(MainWindow.MAGNET_PATAKI4));
+        magnet_type_functions.add(fractal_functions[MainWindow.MAGNET_PATAKI4]);
+        functions_button_group.add(fractal_functions[MainWindow.MAGNET_PATAKI4]);
+
+        fractal_functions[MainWindow.MAGNET_PATAKI5] = new JRadioButtonMenuItem(functionNames[MainWindow.MAGNET_PATAKI5]);
+        fractal_functions[MainWindow.MAGNET_PATAKI5].addActionListener(e -> ptr.setFunction(MainWindow.MAGNET_PATAKI5));
+        magnet_type_functions.add(fractal_functions[MainWindow.MAGNET_PATAKI5]);
+        functions_button_group.add(fractal_functions[MainWindow.MAGNET_PATAKI5]);
+
+        fractal_functions[MainWindow.MAGNET_PATAKIK] = new JRadioButtonMenuItem(functionNames[MainWindow.MAGNET_PATAKIK]);
+        fractal_functions[MainWindow.MAGNET_PATAKIK].addActionListener(e -> ptr.setFunction(MainWindow.MAGNET_PATAKIK));
+        magnet_type_functions.add(fractal_functions[MainWindow.MAGNET_PATAKIK]);
+        functions_button_group.add(fractal_functions[MainWindow.MAGNET_PATAKIK]);
 
         add(magnet_type_functions);
         addSeparator();

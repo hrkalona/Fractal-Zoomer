@@ -2,6 +2,7 @@ package fractalzoomer.core.bla;
 
 import fractalzoomer.core.*;
 import fractalzoomer.functions.Fractal;
+import fractalzoomer.main.Constants;
 
 import javax.swing.*;
 import java.util.ArrayList;
@@ -15,6 +16,7 @@ public class BLAS {
     private int LM2;//Level -1 is not attainable due to Zero R
     public BLA[][] b;
     public BLADeep[][] bdeep;
+    public boolean isValid;
     private Fractal fractal;
 
     private int[] elementsPerLevel;
@@ -28,16 +30,14 @@ public class BLAS {
         this.fractal = fractal;
     }
 
-    private BLADeep createOneStep(DeepReference Ref, int m, MantExp blaSize, MantExp epsilon) {
+    private BLADeep createOneStep(DeepReference Ref, int m, MantExp epsilon) {
         MantExpComplex Z = Fractal.getArrayDeepValue(Ref, m);
         MantExpComplex A = fractal.getBlaA(Z);
-        //MantExpComplex B = new MantExpComplex(1, 0);
 
         MantExp mA = A.hypot();
-        //MantExp mB = B.hypot(); //assume that B is 1 + 0i
 
-        MantExp r_nonliner = mA.multiply(epsilon).subtract_mutable(blaSize.divide(mA));
-        MantExp r = MantExp.max(MantExp.ZERO, r_nonliner);
+        MantExp r = mA.multiply(epsilon);
+
         MantExp r2 = r.square();
 
         A.Reduce();
@@ -93,7 +93,7 @@ public class BLAS {
     private BLA createLStep(int level, int m, DoubleReference Ref, double blaSize, double epsilon) {
 
         if(level == 0) {
-            return createOneStep(Ref, m, blaSize, epsilon);
+            return createOneStep(Ref, m, epsilon);
         }
 
         int m2 = m << 1;
@@ -116,7 +116,7 @@ public class BLAS {
     private BLADeep createLStep(int level, int m, DeepReference Ref, MantExp blaSize, MantExp epsilon) {
 
         if(level == 0) {
-            return createOneStep(Ref, m, blaSize, epsilon);
+            return createOneStep(Ref, m, epsilon);
         }
 
         int m2 = m << 1;
@@ -134,35 +134,29 @@ public class BLAS {
         }
     }
 
-    private BLA createOneStep(DoubleReference Ref, int m, double blaSize, double epsilon) {
+    private BLA createOneStep(DoubleReference Ref, int m, double epsilon) {
         Complex Z = Fractal.getArrayValue(Ref, m);
         Complex A = fractal.getBlaA(Z);
-        //Complex B = new Complex(1, 0);
 
         double mA = A.hypot();
-        //double mB = B.hypot(); //assume that B is 1 + 0i
 
-
-        //epsilon * mA - (mB  * blaSize) / mA;
-        double r_nonliner = mA * epsilon - blaSize / mA;
-
-        double r = Math.max(0, r_nonliner);
+        double r = mA * epsilon;
 
         double r2 = r * r;
 
         return new BLA1Step(r2, A);
     }
 
-    private int done;
-    private int old_chunk;
-    private void init(DoubleReference Ref, double blaSize, double epsilon, JProgressBar progress) {
+    private long done;
+    private long old_chunk;
+    private void init(DoubleReference Ref, double blaSize, double epsilon, JProgressBar progress, long divisor) {
 
         int elements = elementsPerLevel[firstLevel] + 1;
         if(ThreadDraw.USE_THREADS_FOR_BLA) {
             done = 0; //we dont care fore race condition
             long mainId = Thread.currentThread().getId();
 
-            int expectedVal = done + elements;
+            long expectedVal = done + elements;
 
             old_chunk = 0;
             IntStream.range(1, elements).
@@ -171,13 +165,12 @@ public class BLAS {
                         if (progress != null) {
                             if (Thread.currentThread().getId() == mainId) {
                                 done++;
-                                int val = done;
+                                long val = done;
 
-                                int new_chunk = val / 1000;
+                                long new_chunk = val / 1000;
 
                                 if(old_chunk != new_chunk) {
-                                    progress.setValue(val);
-                                    progress.setString(BLA_CALCULATION_STR + " " + String.format("%3d", (int) ((double) (val) / progress.getMaximum() * 100)) + "%");
+                                    setProgress(progress, val, divisor);
                                     old_chunk = new_chunk;
                                 }
                             } else {
@@ -188,8 +181,7 @@ public class BLAS {
 
             //Fix for thread race condition
             if (progress != null && expectedVal > done) {
-                progress.setValue(expectedVal);
-                progress.setString(BLA_CALCULATION_STR + " " + String.format("%3d", (int) ((double) (expectedVal) / progress.getMaximum() * 100)) + "%");
+                setProgress(progress, expectedVal, divisor);
                 done = expectedVal;
                 old_chunk = done / 1000;
             }
@@ -200,27 +192,30 @@ public class BLAS {
                 initLStep(firstLevel, m, Ref, blaSize, epsilon);
                 if (progress != null) {
                     done++;
-                    int val = done;
+                    long val = done;
 
                     if(val % 1000 == 0) {
-                        progress.setValue(val);
-                        progress.setString(BLA_CALCULATION_STR + " " + String.format("%3d", (int) ((double) (val) / progress.getMaximum() * 100)) + "%");
+                        setProgress(progress, val, divisor);
                     }
                 }
             }
         }
 
         if (progress != null) {
-            int val = done;
-            progress.setValue(val);
-            progress.setString(BLA_CALCULATION_STR + " " + String.format("%3d", (int) ((double) (val) / progress.getMaximum() * 100)) + "%");
+            long val = done;
+            setProgress(progress, val, divisor);
         }
-
 
 
     }
 
-    private void init(DeepReference Ref, MantExp blaSize, MantExp epsilon, JProgressBar progress) {
+    private void setProgress(JProgressBar progress, long val, long divisor) {
+        int progres_val = (int)(val / divisor);
+        progress.setValue(progres_val);
+        progress.setString(BLA_CALCULATION_STR + " " + String.format("%3d", (int) ((double) (progres_val) / progress.getMaximum() * 100)) + "%");
+    }
+
+    private void init(DeepReference Ref, MantExp blaSize, MantExp epsilon, JProgressBar progress, long divisor) {
 
         int elements = elementsPerLevel[firstLevel] + 1;
         if(ThreadDraw.USE_THREADS_FOR_BLA) {
@@ -230,7 +225,7 @@ public class BLAS {
 
             old_chunk = 0;
 
-            int expectedVal = done + elements;
+            long expectedVal = done + elements;
 
             IntStream.range(1, elements).
                     parallel().forEach(m -> {
@@ -238,12 +233,11 @@ public class BLAS {
                         if (progress != null) {
                             if (Thread.currentThread().getId() == mainId) {
                                 done++;
-                                int val = done;
-                                int new_chunk = val / 1000;
+                                long val = done;
+                                long new_chunk = val / 1000;
 
                                 if(old_chunk != new_chunk) {
-                                    progress.setValue(val);
-                                    progress.setString(BLA_CALCULATION_STR + " " + String.format("%3d", (int) ((double) (val) / progress.getMaximum() * 100)) + "%");
+                                    setProgress(progress, val, divisor);
                                     old_chunk = new_chunk;
                                 }
                             } else {
@@ -255,8 +249,7 @@ public class BLAS {
 
             //Fix for thread race condition
             if (progress != null && expectedVal > done) {
-                progress.setValue(expectedVal);
-                progress.setString(BLA_CALCULATION_STR + " " + String.format("%3d", (int) ((double) (expectedVal) / progress.getMaximum() * 100)) + "%");
+                setProgress(progress, expectedVal, divisor);
                 done = expectedVal;
                 old_chunk = done / 1000;
             }
@@ -267,20 +260,18 @@ public class BLAS {
                 initLStep(firstLevel, m , Ref, blaSize, epsilon);
                 if (progress != null) {
                     done++;
-                    int val = done;
+                    long val = done;
 
                     if(val % 1000 == 0) {
-                        progress.setValue(val);
-                        progress.setString(BLA_CALCULATION_STR + " " + String.format("%3d", (int) ((double) (val) / progress.getMaximum() * 100)) + "%");
+                        setProgress(progress, val, divisor);
                     }
                 }
             }
         }
 
         if (progress != null) {
-            int val = done;
-            progress.setValue(val);
-            progress.setString(BLA_CALCULATION_STR + " " + String.format("%3d", (int) ((double) (val) / progress.getMaximum() * 100)) + "%");
+            long val = done;
+            setProgress(progress, val, divisor);
         }
 
     }
@@ -311,15 +302,11 @@ public class BLAS {
         }
     }
 
-    private void merge(double blaSize, JProgressBar progress) {
+    private void merge(double blaSize, JProgressBar progress, long divisor) {
 
         boolean useThreadsForBla = ThreadDraw.USE_THREADS_FOR_BLA;
 
         long mainId = Thread.currentThread().getId();
-        if(progress != null) {
-            done = progress.getValue();
-            old_chunk = done / 1000;
-        }
 
         int elementsDst = 0;
         int src = firstLevel;
@@ -336,7 +323,7 @@ public class BLAS {
 
             if(useThreadsForBla) {
 
-                int expectedVal = done + elementsDst;
+                long expectedVal = done + elementsDst;
 
                 IntStream.range(0, elementsDst).
                     parallel().forEach(m -> {
@@ -345,12 +332,11 @@ public class BLAS {
                             if (progress != null) {
                                 if (Thread.currentThread().getId() == mainId) {
                                     done++;
-                                    int val = done;
-                                    int new_chunk = val / 1000;
+                                    long val = done;
+                                    long new_chunk = val / 1000;
 
                                     if(old_chunk != new_chunk) {
-                                        progress.setValue(val);
-                                        progress.setString(BLA_CALCULATION_STR + " " + String.format("%3d", (int) ((double) (val) / progress.getMaximum() * 100)) + "%");
+                                        setProgress(progress, val, divisor);
                                         old_chunk = new_chunk;
                                     }
                                 } else {
@@ -362,8 +348,7 @@ public class BLAS {
 
                 //Fix for thread race condition
                 if (progress != null && expectedVal > done) {
-                    progress.setValue(expectedVal);
-                    progress.setString(BLA_CALCULATION_STR + " " + String.format("%3d", (int) ((double) (expectedVal) / progress.getMaximum() * 100)) + "%");
+                    setProgress(progress, expectedVal, divisor);
                     done = expectedVal;
                     old_chunk = done / 1000;
                 }
@@ -374,11 +359,10 @@ public class BLAS {
 
                    if (progress != null) {
                        done++;
-                       int val = done;
+                       long val = done;
 
                        if(val % 1000 == 0) {
-                           progress.setValue(val);
-                           progress.setString(BLA_CALCULATION_STR + " " + String.format("%3d", (int) ((double) (val) / progress.getMaximum() * 100)) + "%");
+                           setProgress(progress, val, divisor);
                        }
                    }
                 }
@@ -388,22 +372,17 @@ public class BLAS {
         }
 
         if (progress != null) {
-            int val = done;
-            progress.setValue(val);
-            progress.setString(BLA_CALCULATION_STR + " " + String.format("%3d", (int) ((double) (val) / progress.getMaximum() * 100)) + "%");
+            long val = done;
+            setProgress(progress, val, divisor);
         }
 
     }
 
-    private void merge(MantExp blaSize, JProgressBar progress) {
+    private void merge(MantExp blaSize, JProgressBar progress, long divisor) {
 
         boolean useThreadsForBla = ThreadDraw.USE_THREADS_FOR_BLA;
 
         long mainId = Thread.currentThread().getId();
-        if(progress != null) {
-            done = progress.getValue();
-            old_chunk = done / 1000;
-        }
 
         int elementsDst = 0;
         int src = firstLevel;
@@ -420,7 +399,7 @@ public class BLAS {
 
             if(useThreadsForBla) {
 
-                int expectedVal = done + elementsDst;
+                long expectedVal = done + elementsDst;
 
                 IntStream.range(0, elementsDst).
                     parallel().forEach(m -> {
@@ -429,12 +408,11 @@ public class BLAS {
                             if (progress != null) {
                                 if (Thread.currentThread().getId() == mainId) {
                                     done++;
-                                    int val = done;
-                                    int new_chunk = val / 1000;
+                                    long val = done;
+                                    long new_chunk = val / 1000;
 
                                     if(old_chunk != new_chunk) {
-                                        progress.setValue(val);
-                                        progress.setString(BLA_CALCULATION_STR + " " + String.format("%3d", (int) ((double) (val) / progress.getMaximum() * 100)) + "%");
+                                        setProgress(progress, val, divisor);
                                         old_chunk = new_chunk;
                                     }
                                 } else {
@@ -446,8 +424,7 @@ public class BLAS {
 
                 //Fix for thread race condition
                 if (progress != null && expectedVal > done) {
-                    progress.setValue(expectedVal);
-                    progress.setString(BLA_CALCULATION_STR + " " + String.format("%3d", (int) ((double) (expectedVal) / progress.getMaximum() * 100)) + "%");
+                    setProgress(progress, expectedVal, divisor);
                     done = expectedVal;
                     old_chunk = done / 1000;
                 }
@@ -459,11 +436,10 @@ public class BLAS {
 
                     if (progress != null) {
                         done++;
-                        int val = done;
+                        long val = done;
 
                         if(val % 1000 == 0) {
-                            progress.setValue(val);
-                            progress.setString(BLA_CALCULATION_STR + " " + String.format("%3d", (int) ((double) (val) / progress.getMaximum() * 100)) + "%");
+                            setProgress(progress, val, divisor);
                         }
                     }
                 }
@@ -473,9 +449,8 @@ public class BLAS {
         }
 
         if (progress != null) {
-            int val = done;
-            progress.setValue(val);
-            progress.setString(BLA_CALCULATION_STR + " " + String.format("%3d", (int) ((double) (val) / progress.getMaximum() * 100)) + "%");
+            long val = done;
+            setProgress(progress, val, divisor);
         }
 
     }
@@ -483,6 +458,7 @@ public class BLAS {
     public void init(int M, DoubleReference Ref, double blaSize, JProgressBar progress) {
         double precision = 1 / ((double)(1L << ThreadDraw.BLA_BITS));
         firstLevel = ThreadDraw.BLA_STARTING_LEVEL - 1;
+        isValid = false;
 
         if(M >= MEM_PACKING_LIMIT) {
             MEMORY_PACKING = true;
@@ -501,7 +477,7 @@ public class BLAS {
 
         ArrayList<Integer> elemPerLevel = new ArrayList<>();
 
-        int total = 1;
+        long total = 1;
         int count = 1;
         for (; m > 1; m = (m + 1) >>> 1) {
             elemPerLevel.add(m);
@@ -513,8 +489,8 @@ public class BLAS {
 
         elementsPerLevel = elemPerLevel.stream().mapToInt(i -> i).toArray();
 
-        int finalTotal = total;
-        int removedTotal = 0;
+        long finalTotal = total;
+        long removedTotal = 0;
 
         if(firstLevel > 0) {
             for(int i = 0; i < firstLevel && i < elementsPerLevel.length; i++) {
@@ -525,8 +501,10 @@ public class BLAS {
 
         returnL1 = firstLevel == 0;
 
+
+        long divisor = finalTotal > Constants.MAX_PROGRESS_VALUE ? finalTotal / 100 : 1;
         if(progress != null) {
-            progress.setMaximum(finalTotal);
+            progress.setMaximum((int)(finalTotal > Constants.MAX_PROGRESS_VALUE ? 100 : finalTotal));
         }
 
         L = count;
@@ -541,9 +519,9 @@ public class BLAS {
             b[l] = new BLA[elementsPerLevel[l]];
         }
 
-        init(Ref, blaSize, precision, progress);
+        init(Ref, blaSize, precision, progress, divisor);
 
-        merge(blaSize, progress);
+        merge(blaSize, progress, divisor);
 
 
 //        for (int i = 0; i < L; ++i) {
@@ -551,11 +529,13 @@ public class BLAS {
 //                System.out.println(b[i][0].getL() + "\t" + Math.sqrt(b[i][0].r2));
 //            }
 //        }
+        isValid = true;
     }
 
     public void init(int M, DeepReference Ref, MantExp blaSize, JProgressBar progress) {
         MantExp precision = new MantExp(1 / ((double)(1L << ThreadDraw.BLA_BITS)));
         firstLevel = ThreadDraw.BLA_STARTING_LEVEL - 1;
+        isValid = false;
 
         if(M >= MEM_PACKING_LIMIT) {
             MEMORY_PACKING = true;
@@ -574,7 +554,7 @@ public class BLAS {
 
         ArrayList<Integer> elemPerLevel = new ArrayList<>();
 
-        int total = 1;
+        long total = 1;
         int count = 1;
         for (; m > 1; m = (m + 1) >>> 1) {
             elemPerLevel.add(m);
@@ -586,8 +566,8 @@ public class BLAS {
 
         elementsPerLevel = elemPerLevel.stream().mapToInt(i -> i).toArray();
 
-        int finalTotal = total;
-        int removedTotal = 0;
+        long finalTotal = total;
+        long removedTotal = 0;
 
         if(firstLevel > 0) {
             for(int i = 0; i < firstLevel && i < elementsPerLevel.length; i++) {
@@ -598,8 +578,9 @@ public class BLAS {
 
         returnL1 = firstLevel == 0;
 
+        long divisor = finalTotal > Constants.MAX_PROGRESS_VALUE ? finalTotal / 100 : 1;
         if(progress != null) {
-            progress.setMaximum(finalTotal);
+            progress.setMaximum((int)(finalTotal > Constants.MAX_PROGRESS_VALUE ? 100 : finalTotal));
         }
 
         L = count;
@@ -614,15 +595,16 @@ public class BLAS {
             bdeep[l] = new BLADeep[elementsPerLevel[l]];
         }
 
-        init(Ref, blaSize, precision, progress);
+        init(Ref, blaSize, precision, progress, divisor);
 
-        merge(blaSize, progress);
+        merge(blaSize, progress, divisor);
 
 //        for (int i = 0; i < L; ++i) {
 //            if(bdeep[i] != null) {
 //                System.out.println(bdeep[i][0].getL() + "\t" + bdeep[i][0].getR2().sqrt_mutable());
 //            }
 //        }
+        isValid = true;
     }
 
     public BLA lookup(int m, double z2) {

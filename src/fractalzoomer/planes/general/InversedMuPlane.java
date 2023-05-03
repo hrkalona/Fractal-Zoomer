@@ -17,10 +17,9 @@
 
 package fractalzoomer.planes.general;
 
-import fractalzoomer.core.BigComplex;
-import fractalzoomer.core.Complex;
-import fractalzoomer.core.DDComplex;
-import fractalzoomer.core.MpfrBigNumComplex;
+import fractalzoomer.core.*;
+import fractalzoomer.core.mpfr.MpfrBigNum;
+import fractalzoomer.core.mpir.MpirBigNum;
 import fractalzoomer.planes.Plane;
 
 
@@ -29,10 +28,28 @@ import fractalzoomer.planes.Plane;
  * @author hrkalona
  */
 public class InversedMuPlane extends Plane {
+    private MpfrBigNum tempRe;
+    private MpfrBigNum tempIm;
+
+    private MpirBigNum tempRep;
+    private MpirBigNum tempImp;
 
     public InversedMuPlane() {
 
         super();
+
+        if(ThreadDraw.PERTURBATION_THEORY || ThreadDraw.HIGH_PRECISION_CALCULATION) {
+            if (ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE || ThreadDraw.HIGH_PRECISION_CALCULATION) {
+
+                if (ThreadDraw.allocateMPFR()) {
+                    tempRe = new MpfrBigNum();
+                    tempIm = new MpfrBigNum();
+                } else if (ThreadDraw.allocateMPIR()) {
+                    tempRep = new MpirBigNum();
+                    tempImp = new MpirBigNum();
+                }
+            }
+        }
 
     }
 
@@ -62,7 +79,17 @@ public class InversedMuPlane extends Plane {
         if(pixel.isZero()) {
             return pixel;
         }
-        return pixel.reciprocal();
+        return pixel.reciprocal_mutable(tempRe, tempIm);
+
+    }
+
+    @Override
+    public MpirBigNumComplex transform(MpirBigNumComplex pixel) {
+
+        if(pixel.isZero()) {
+            return pixel;
+        }
+        return pixel.reciprocal_mutable(tempRep, tempImp);
 
     }
 

@@ -17,7 +17,7 @@
 //__MPFR_DECLSPEC void mpfr_fz_ApBmC (mpfr_ptr temp, mpfr_srcptr a, mpfr_srcptr b, int c, mpfr_rnd_t rnd_mode);
 //__MPFR_DECLSPEC void mpfr_fz_ApBmC_DsEmG (mpfr_ptr temp, mpfr_ptr temp2, mpfr_srcptr a, mpfr_srcptr b, double c, mpfr_srcptr d, mpfr_srcptr e, double g, mpfr_rnd_t rnd_mode);
 //__MPFR_DECLSPEC void mpfr_fz_ApBmC_DpEmG (mpfr_ptr temp, mpfr_ptr temp2, mpfr_srcptr a, mpfr_srcptr b, mpfr_srcptr c, mpfr_srcptr d, mpfr_srcptr e, mpfr_srcptr g, mpfr_rnd_t rnd_mode);
-
+//_MPFR_DECLSPEC void mpfr_fz_r_ball_pow2 (mpfr_ptr r, mpfr_ptr az, mpfr_srcptr r0, mpfr_srcptr azsquare, mpfr_rnd_t rnd_mode);
 //Also dont forget to modify the Makefiles in src/ and add custom_mpfr to every place required
 
 MPFR_HOT_FUNCTION_ATTR void
@@ -171,4 +171,13 @@ mpfr_fz_ApBmC_DpEmG (mpfr_ptr temp, mpfr_ptr temp2, mpfr_srcptr a, mpfr_srcptr b
 	
 	mpfr_mul(temp2, e, g, rnd_mode);
 	mpfr_add(temp2, d, temp2, rnd_mode);
+}
+
+MPFR_HOT_FUNCTION_ATTR void
+mpfr_fz_r_ball_pow2 (mpfr_ptr r, mpfr_ptr az, mpfr_srcptr r0, mpfr_srcptr azsquare, mpfr_rnd_t rnd_mode)
+{
+    mpfr_add(az, r, az, rnd_mode); // az = az + r
+    mpfr_sqr(r, az, rnd_mode); // r = (az + r)^2
+    mpfr_sub(r, r, azsquare, rnd_mode);
+    mpfr_add(r, r, r0, rnd_mode);
 }

@@ -1,13 +1,14 @@
 package fractalzoomer.core.mpfr;
 
 import com.sun.jna.Memory;
+import fractalzoomer.core.mpir.MpfMemory;
+import fractalzoomer.core.mpir.mpf_t;
 import org.apfloat.Apfloat;
 
 import static fractalzoomer.core.mpfr.LibMpfr.*;
 
 public class MpfrMemory extends Memory {
-    public final mpfr_t peer;
-
+    public mpfr_t peer;
 
     public MpfrMemory(boolean noinit) {
         super(mpfr_t.SIZE);
@@ -26,6 +27,13 @@ public class MpfrMemory extends Memory {
         peer = new mpfr_t(this);
         mpfr_init2(peer, MpfrBigNum.precision);
         mpfr_set(peer, op, MpfrBigNum.rounding);
+    }
+
+    public MpfrMemory(mpf_t op) {
+        super(mpfr_t.SIZE);
+        peer = new mpfr_t(this);
+        mpfr_init2(peer, MpfrBigNum.precision);
+        mpfr_set_f(peer, op, MpfrBigNum.rounding);
     }
 
     public MpfrMemory(double value) {
@@ -60,6 +68,10 @@ public class MpfrMemory extends Memory {
         mpfr_set(peer, memory.peer, MpfrBigNum.rounding);
     }
 
+    public void set(MpfMemory memory) {
+        mpfr_set_f(peer, memory.peer, MpfrBigNum.rounding);
+    }
+
     public void set(double number) {
         mpfr_set_d(peer, number, MpfrBigNum.rounding);
     }
@@ -73,7 +85,19 @@ public class MpfrMemory extends Memory {
     }
 
     @Override protected void finalize() throws Throwable {
-        mpfr_clear(peer);
+        if(peer != null) {
+            mpfr_clear(peer);
+            peer = null;
+        }
         super.finalize();
+    }
+
+    @Override
+    public void close() {
+        if(peer != null) {
+            mpfr_clear(peer);
+            peer = null;
+        }
+        super.close();
     }
 }

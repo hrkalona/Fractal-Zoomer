@@ -27,9 +27,9 @@ import static fractalzoomer.main.Constants.*;
 public class GoldenRatioSpiralOrbitTrap extends OrbitTrap {
     private double phi;
 
-    public GoldenRatioSpiralOrbitTrap(int checkType, double pointRe, double pointIm, double trapWidth, boolean countTrapIterations) {
+    public GoldenRatioSpiralOrbitTrap(int checkType, double pointRe, double pointIm, double trapWidth, boolean countTrapIterations, int lastXItems) {
 
-        super(checkType, pointRe, pointIm, 0, trapWidth, countTrapIterations);
+        super(checkType, pointRe, pointIm, 0, trapWidth, countTrapIterations, lastXItems);
         phi = 0.5 * (1 + Math.sqrt(5));
 
     }

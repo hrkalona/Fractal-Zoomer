@@ -249,6 +249,10 @@ public class MagneticPendulum extends FractalWithoutConstant {
                 break;
 
         }
+
+        if(out_color_algorithm == null) {
+            super.OutColoringAlgorithmFactory(out_coloring_algorithm, smoothing, converging_smooth_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, plane_transform_center);
+        }
     }
 
     @Override
@@ -280,7 +284,7 @@ public class MagneticPendulum extends FractalWithoutConstant {
         statisticIncludeNotEscaped = sts.statisticIncludeNotEscaped;
 
         if (sts.statisticGroup == 1) {
-            statistic = new UserStatisticColoringRootFindingMethod(sts.statistic_intensity, sts.user_statistic_formula, xCenter, yCenter, max_iterations, size, 1e-8, plane_transform_center, globalVars, sts.useAverage, sts.user_statistic_init_value, sts.reductionFunction, sts.useIterations, sts.useSmoothing);
+            statistic = new UserStatisticColoringRootFindingMethod(sts.statistic_intensity, sts.user_statistic_formula, xCenter, yCenter, max_iterations, size, 1e-8, plane_transform_center, globalVars, sts.useAverage, sts.user_statistic_init_value, sts.reductionFunction, sts.useIterations, sts.useSmoothing, sts.lastXItems);
             return;
         }
         else if(sts.statisticGroup == 2) {
@@ -291,13 +295,13 @@ public class MagneticPendulum extends FractalWithoutConstant {
         switch (sts.statistic_type) {
 
             case MainWindow.COS_ARG_DIVIDE_INVERSE_NORM:
-                statistic = new CosArgDivideInverseNorm(sts.statistic_intensity, sts.cosArgInvStripeDensity, sts.StripeDenominatorFactor);
+                statistic = new CosArgDivideInverseNorm(sts.statistic_intensity, sts.cosArgInvStripeDensity, sts.StripeDenominatorFactor, sts.useSmoothing, Math.log(1e-8), 0, sts.lastXItems);
                 break;
             case MainWindow.ATOM_DOMAIN_BOF60_BOF61:
-                statistic = new AtomDomain(sts.showAtomDomains, sts.statistic_intensity, sts.atomNormType, sts.atomNNorm);
+                statistic = new AtomDomain(sts.showAtomDomains, sts.statistic_intensity, sts.atomNormType, sts.atomNNorm, sts.lastXItems);
                 break;
             case MainWindow.DISCRETE_LAGRANGIAN_DESCRIPTORS:
-                statistic = new DiscreteLagrangianDescriptors(sts.statistic_intensity, sts.lagrangianPower, 0, sts.useSmoothing, sts.useAverage, true, Math.log(1e-8), sts.langNormType, sts.langNNorm);
+                statistic = new DiscreteLagrangianDescriptors(sts.statistic_intensity, sts.lagrangianPower, 0, sts.useSmoothing, sts.useAverage, true, Math.log(1e-8), sts.langNormType, sts.langNNorm, sts.lastXItems);
                 break;
 
         }

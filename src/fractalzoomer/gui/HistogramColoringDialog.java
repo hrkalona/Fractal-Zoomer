@@ -22,6 +22,7 @@ import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -57,9 +58,29 @@ public class HistogramColoringDialog extends JDialog {
         density_field.setText("" + s.hss.histogramDensity);
         density_field.setEnabled(mapping.getSelectedIndex() == 0);
 
+        JPanel temp_p4 = new JPanel();
+        temp_p4.setLayout(new GridLayout(2, 2));
+        temp_p4.add(new JLabel("Bin Granularity:", SwingConstants.HORIZONTAL));
+        temp_p4.add(new JLabel("Density:", SwingConstants.HORIZONTAL));
+        temp_p4.add(granularity_field);
+        temp_p4.add(density_field);
+
         final JCheckBox enable_histogram_coloring = new JCheckBox("Histogram Coloring");
         enable_histogram_coloring.setSelected(s.hss.histogramColoring);
         enable_histogram_coloring.setFocusable(false);
+
+        final JCheckBox removeOutliers = new JCheckBox("Remove Outliers");
+        removeOutliers.setSelected(s.hss.hs_remove_outliers);
+        removeOutliers.setFocusable(false);
+
+        JComboBox<String> outliersAlgorithm = new JComboBox<>(new String[] {"Tukey's Fences", "Z-score"});
+        outliersAlgorithm.setSelectedIndex(s.hss.hs_outliers_method);
+        outliersAlgorithm.setFocusable(false);
+        outliersAlgorithm.setToolTipText("Sets the outlier removal method.");
+
+        outliersAlgorithm.setEnabled(removeOutliers.isSelected());
+
+        removeOutliers.addActionListener(e -> outliersAlgorithm.setEnabled(removeOutliers.isSelected()));
 
         JSlider color_blend_opt = new JSlider(JSlider.HORIZONTAL, 0, 100, (int) (s.hss.hs_blending * 100));
         color_blend_opt.setMajorTickSpacing(25);
@@ -96,18 +117,17 @@ public class HistogramColoringDialog extends JDialog {
             "Set the color blending percentage.",
             "Color Blending:", color_blend_opt,
             " ",
-            "Set the histogram bin granularity.",
-            "Bin Granularity:",
-            granularity_field,
-            " ",            
-            "Set the histogram density.",
-            "Density:",
-            density_field,
+            "Set the histogram bin granularity/density.",
+                temp_p4,
             " ",
             "Set the scaling range.",
             "Scaling Range:",
             scale_range,
             " ",
+                removeOutliers,
+                "Outliers Removal Method:",
+                outliersAlgorithm,
+                " ",
             "Set the image noise reduction factor.",
             "Noise Reduction Factor:",
             noise_factor_field,
@@ -180,6 +200,8 @@ public class HistogramColoringDialog extends JDialog {
                             s.hss.histogramScaleMax = scale_range.getUpperValue() / 100.0;
                             s.hss.histogramScaleMin = scale_range.getValue() / 100.0;
                             s.hss.hmapping = mapping.getSelectedIndex();
+                            s.hss.hs_remove_outliers = removeOutliers.isSelected();
+                            s.hss.hs_outliers_method = outliersAlgorithm.getSelectedIndex();
                         } catch (Exception ex) {
                             JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                             return;

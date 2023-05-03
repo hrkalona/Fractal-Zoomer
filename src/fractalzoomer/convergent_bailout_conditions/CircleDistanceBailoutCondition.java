@@ -1,20 +1,25 @@
 package fractalzoomer.convergent_bailout_conditions;
 
 import fractalzoomer.core.*;
-import fractalzoomer.core.mpfr.LibMpfr;
 import fractalzoomer.core.mpfr.MpfrBigNum;
+import fractalzoomer.core.mpir.MpirBigNum;
 import org.apfloat.Apfloat;
 
 public class CircleDistanceBailoutCondition extends ConvergentBailoutCondition {
     private MpfrBigNum temp1;
     private MpfrBigNum temp2;
+    private MpirBigNum temp1p;
+    private MpirBigNum temp2p;
     public CircleDistanceBailoutCondition(double convergent_bailout) {
         super(convergent_bailout);
 
         if((ThreadDraw.PERTURBATION_THEORY && ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE) || ThreadDraw.HIGH_PRECISION_CALCULATION) {
-            if(LibMpfr.LOAD_ERROR == null) {
+            if (ThreadDraw.allocateMPFR()) {
                 temp1 = new MpfrBigNum();
                 temp2 = new MpfrBigNum();
+            } else if (ThreadDraw.allocateMPIR()) {
+                temp1p = new MpirBigNum();
+                temp2p = new MpirBigNum();
             }
         }
     }
@@ -47,6 +52,13 @@ public class CircleDistanceBailoutCondition extends ConvergentBailoutCondition {
     }
 
     @Override
+    public boolean converged(MpirBigNumComplex z, MpirBigNumComplex zold, MpirBigNumComplex zold2, int iterations, MpirBigNumComplex c, MpirBigNumComplex start, MpirBigNumComplex c0, MpirBigNumComplex pixel) {
+        MpirBigNum distance = z.distance_squared(zold, temp1p, temp2p);
+        this.distance = distance.doubleValue();
+        return distance.compare(convergent_bailout) <= 0;
+    }
+
+    @Override
     public boolean converged(Complex z, double root, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0, Complex pixel) {
         distance = z.distance_squared(root);
         return distance <= convergent_bailout;
@@ -74,6 +86,13 @@ public class CircleDistanceBailoutCondition extends ConvergentBailoutCondition {
     }
 
     @Override
+    public boolean converged(MpirBigNumComplex z, MpirBigNum root, MpirBigNumComplex zold, MpirBigNumComplex zold2, int iterations, MpirBigNumComplex c, MpirBigNumComplex start, MpirBigNumComplex c0, MpirBigNumComplex pixel) {
+        MpirBigNum distance = z.distance_squared(root, temp1p, temp2p);
+        this.distance = distance.doubleValue();
+        return distance.compare(convergent_bailout) <= 0;
+    }
+
+    @Override
     public boolean converged(Complex z, Complex root, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0, Complex pixel) {
         distance = z.distance_squared(root);
         return distance <= convergent_bailout;
@@ -96,6 +115,13 @@ public class CircleDistanceBailoutCondition extends ConvergentBailoutCondition {
     @Override
     public boolean converged(MpfrBigNumComplex z, MpfrBigNumComplex root, MpfrBigNumComplex zold, MpfrBigNumComplex zold2, int iterations, MpfrBigNumComplex c, MpfrBigNumComplex start, MpfrBigNumComplex c0, MpfrBigNumComplex pixel) {
         MpfrBigNum distance = z.distance_squared(root, temp1, temp2);
+        this.distance = distance.doubleValue();
+        return distance.compare(convergent_bailout) <= 0;
+    }
+
+    @Override
+    public boolean converged(MpirBigNumComplex z, MpirBigNumComplex root, MpirBigNumComplex zold, MpirBigNumComplex zold2, int iterations, MpirBigNumComplex c, MpirBigNumComplex start, MpirBigNumComplex c0, MpirBigNumComplex pixel) {
+        MpirBigNum distance = z.distance_squared(root, temp1p, temp2p);
         this.distance = distance.doubleValue();
         return distance.compare(convergent_bailout) <= 0;
     }

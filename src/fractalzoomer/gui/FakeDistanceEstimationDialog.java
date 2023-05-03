@@ -55,12 +55,20 @@ public class FakeDistanceEstimationDialog extends JDialog {
         invert_fake_de.setSelected(s.fdes.inverse_fake_dem);
         invert_fake_de.setFocusable(false);
 
+        final JComboBox<String> de_fade_method_combo = new JComboBox<>(Constants.FadeAlgs);
+        de_fade_method_combo.setSelectedIndex(s.fdes.fade_algorithm);
+        de_fade_method_combo.setFocusable(false);
+        de_fade_method_combo.setToolTipText("Sets the fading method.");
+
         Object[] message = {
             " ",
             enable_fake_de,
             " ",
             "Set the fake distance estimation factor.",
             "Fake Distance Estimation factor:", fake_de_factor_field,
+                " ",
+                "Set the fading algorithm.",
+                "Fading algorithm:", de_fade_method_combo,
             " ",
             invert_fake_de,
             " ",};
@@ -110,6 +118,7 @@ public class FakeDistanceEstimationDialog extends JDialog {
                             s.fdes.fake_de = enable_fake_de.isSelected();
                             s.fdes.fake_de_factor = temp;
                             s.fdes.inverse_fake_dem = invert_fake_de.isSelected();
+                            s.fdes.fade_algorithm = de_fade_method_combo.getSelectedIndex();
 
                         } catch (Exception ex) {
                             JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);

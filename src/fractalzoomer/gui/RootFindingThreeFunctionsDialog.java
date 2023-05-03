@@ -37,7 +37,7 @@ public class RootFindingThreeFunctionsDialog extends JDialog {
     private MainWindow ptra;
     private JOptionPane optionPane;
 
-    public RootFindingThreeFunctionsDialog(MainWindow ptr, Settings s, int oldSelected, JRadioButtonMenuItem[] fractal_functions, boolean wasMagnetType, boolean wasConvergingType, boolean wasSimpleType, boolean wasMagneticPendulumType, boolean wasEscapingOrConvergingType) {
+    public RootFindingThreeFunctionsDialog(MainWindow ptr, Settings s, int oldSelected, JRadioButtonMenuItem[] fractal_functions, boolean wasMagnetType, boolean wasConvergingType, boolean wasSimpleType, boolean wasMagneticPendulumType, boolean wasEscapingOrConvergingType, boolean wasMagnetPatakiType) {
 
         super(ptr);
         
@@ -219,7 +219,7 @@ public class RootFindingThreeFunctionsDialog extends JDialog {
 
                         ptra.optionsEnableShortcut2();
                         dispose();
-                        ptra.setFunctionPost(wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType, wasEscapingOrConvergingType);
+                        ptra.setFunctionPost(oldSelected, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType, wasEscapingOrConvergingType, wasMagnetPatakiType);
                     }
                 });
 

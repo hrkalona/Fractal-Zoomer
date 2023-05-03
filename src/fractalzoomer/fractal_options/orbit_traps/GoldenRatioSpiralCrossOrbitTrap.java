@@ -28,9 +28,9 @@ public class GoldenRatioSpiralCrossOrbitTrap extends OrbitTrap {
     private int lineType;
     private double phi;
 
-    public GoldenRatioSpiralCrossOrbitTrap(int checkType, double pointRe, double pointIm, double trapLength, double trapWidth, int lineType, boolean countTrapIterations) {
+    public GoldenRatioSpiralCrossOrbitTrap(int checkType, double pointRe, double pointIm, double trapLength, double trapWidth, int lineType, boolean countTrapIterations, int lastXItems) {
 
-        super(checkType, pointRe, pointIm, trapLength, trapWidth, countTrapIterations);
+        super(checkType, pointRe, pointIm, trapLength, trapWidth, countTrapIterations, lastXItems);
         this.lineType = lineType;
         phi = 0.5 * (1 + Math.sqrt(5));
 

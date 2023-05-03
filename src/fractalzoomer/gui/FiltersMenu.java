@@ -173,7 +173,7 @@ public class FiltersMenu extends JMenu {
         
         filters_opt[MainWindow.ANTIALIASING].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G, 0));
         filters_opt[MainWindow.EDGE_DETECTION].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, ActionEvent.CTRL_MASK));
-        filters_opt[MainWindow.EDGE_DETECTION2].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_2, ActionEvent.CTRL_MASK));
+        filters_opt[MainWindow.EDGE_DETECTION2].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_2, ActionEvent.CTRL_MASK | ActionEvent.SHIFT_MASK));
         filters_opt[MainWindow.SHARPNESS].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, ActionEvent.ALT_MASK));
         filters_opt[MainWindow.EMBOSS].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M, ActionEvent.CTRL_MASK));
         filters_opt[MainWindow.INVERT_COLORS].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, ActionEvent.ALT_MASK));

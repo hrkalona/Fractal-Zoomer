@@ -74,7 +74,7 @@ public class CartesianLocationNormalMpfrBigNumArbitrary extends Location {
 
     public CartesianLocationNormalMpfrBigNumArbitrary(CartesianLocationNormalMpfrBigNumArbitrary other) {
 
-        super();
+        super(other);
 
         fractal = other.fractal;
 
@@ -274,19 +274,28 @@ public class CartesianLocationNormalMpfrBigNumArbitrary extends Location {
     }
 
     @Override
-    public void createAntialiasingSteps(boolean adaptive) {
-        MpfrBigNum[][] steps = createAntialiasingStepsMpfrBigNum(ddtemp_size_image_size_x, ddtemp_size_image_size_y, adaptive);
+    public void createAntialiasingSteps(boolean adaptive, boolean jitter) {
+        super.createAntialiasingSteps(adaptive, jitter);
+        MpfrBigNum[][] steps = createAntialiasingStepsMpfrBigNum(ddtemp_size_image_size_x, ddtemp_size_image_size_y, adaptive, jitter);
         ddantialiasing_x = steps[0];
         ddantialiasing_y = steps[1];
     }
 
-    protected MpfrBigNumComplex getAntialiasingComplexBase(int sample) {
+    protected MpfrBigNumComplex getAntialiasingComplexBase(int sample, int loc) {
 
         //tempResultX.set(ddtempX);
         //tempResultY.set(ddtempY);
         MpfrBigNum.set(tempResultX, tempResultY, ddtempX, ddtempY);
 
-        MpfrBigNum.self_add(tempResultX, tempResultY, ddantialiasing_x[sample], ddantialiasing_y[sample]);
+        if(aaJitter) {
+            int r = (int)(hash(loc) % NUMBER_OF_AA_JITTER_KERNELS);
+            MpfrBigNum[] ddantialiasing_x = precalculatedJitterDataMpfrBigNum[r][0];
+            MpfrBigNum[] ddantialiasing_y = precalculatedJitterDataMpfrBigNum[r][1];
+            MpfrBigNum.self_add(tempResultX, tempResultY, ddantialiasing_x[sample], ddantialiasing_y[sample]);
+        }
+        else {
+            MpfrBigNum.self_add(tempResultX, tempResultY, ddantialiasing_x[sample], ddantialiasing_y[sample]);
+        }
 
         MpfrBigNumComplex temp = new MpfrBigNumComplex(tempResultX, tempResultY);
         //MpfrBigNumComplex temp = new MpfrBigNumComplex(tempResultX.add(ddantialiasing_x[sample], tempResultX), tempResultY.add(ddantialiasing_y[sample], tempResultY));
@@ -300,7 +309,7 @@ public class CartesianLocationNormalMpfrBigNumArbitrary extends Location {
     }
 
     @Override
-    public GenericComplex getAntialiasingComplex(int sample) {
-        return getAntialiasingComplexBase(sample);
+    public GenericComplex getAntialiasingComplex(int sample, int loc) {
+        return getAntialiasingComplexBase(sample, loc);
     }
 }

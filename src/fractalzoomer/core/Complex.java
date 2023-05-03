@@ -82,6 +82,9 @@ public final class Complex extends GenericComplex {
     @Override
     public MpfrBigNumComplex toMpfrBigNumComplex() { return new MpfrBigNumComplex(this);}
 
+    @Override
+    public MpirBigNumComplex toMpirBigNumComplex() { return new MpirBigNumComplex(this);}
+
     public final void setRe(double re) {
 
         this.re = re;
@@ -444,9 +447,9 @@ public final class Complex extends GenericComplex {
 
         double temp = z.re;
         double temp2 = z.im;
-        double temp3 = temp * temp + temp2 * temp2;
+        double temp3 = 1.0 / (temp * temp + temp2 * temp2);
 
-        return new Complex((re * temp + im * temp2) / temp3, (im * temp - re * temp2) / temp3);
+        return new Complex((re * temp + im * temp2) * temp3, (im * temp - re * temp2) * temp3);
 
     }
 
@@ -457,10 +460,10 @@ public final class Complex extends GenericComplex {
 
         double temp = z.re;
         double temp2 = z.im;
-        double temp3 = temp * temp + temp2 * temp2;
+        double temp3 = 1.0 / (temp * temp + temp2 * temp2);
 
-        double temp4 = (re * temp + im * temp2) / temp3;
-        im = (im * temp - re * temp2) / temp3;
+        double temp4 = (re * temp + im * temp2) * temp3;
+        im = (im * temp - re * temp2) * temp3;
         re = temp4;
 
         return this;
@@ -472,7 +475,8 @@ public final class Complex extends GenericComplex {
      */
     public final Complex divide(double number) {
 
-        return new Complex(re / number, im / number);
+        double temp = 1.0 / number;
+        return new Complex(re * temp, im * temp);
 
     }
 
@@ -481,8 +485,9 @@ public final class Complex extends GenericComplex {
      */
     public final Complex divide_mutable(double number) {
 
-        re = re / number;
-        im = im / number;
+        double temp = 1.0 / number;
+        re = re * temp;
+        im = im * temp;
 
         return this;
 
@@ -494,7 +499,8 @@ public final class Complex extends GenericComplex {
     @Override
     public final Complex divide(int number) {
 
-        return new Complex(re / number, im / number);
+        double temp = 1.0 / number;
+        return new Complex(re * temp, im * temp);
 
     }
 
@@ -503,8 +509,9 @@ public final class Complex extends GenericComplex {
      */
     public final Complex divide_mutable(int number) {
 
-        re = re / number;
-        im = im / number;
+        double temp = 1.0 / number;
+        re = re * temp;
+        im = im * temp;
 
         return this;
 
@@ -515,9 +522,9 @@ public final class Complex extends GenericComplex {
      */
     public final Complex divide_i(double number) {
 
-        double temp3 = number * number;
+        double temp3 = 1.0 / (number * number);
 
-        return new Complex((re + im * number) / temp3, (im - re * number) / temp3);
+        return new Complex((re + im * number) * temp3, (im - re * number) * temp3);
 
     }
 
@@ -526,10 +533,10 @@ public final class Complex extends GenericComplex {
      */
     public final Complex divide_i_mutable(double number) {
 
-        double temp3 = number * number;
+        double temp3 = 1.0 / (number * number);
 
-        double temp4 = (re + im * number) / temp3;
-        im = (im - re * number) / temp3;
+        double temp4 = (re + im * number) * temp3;
+        im = (im - re * number) * temp3;
         re = temp4;
 
         return this;
@@ -725,9 +732,9 @@ public final class Complex extends GenericComplex {
      */
     public final Complex reciprocal() {
 
-        double temp = re * re + im * im;
+        double temp = 1.0 / (re * re + im * im);
 
-        return new Complex(re / temp, (-im) / temp);
+        return new Complex(re * temp, (-im) * temp);
 
     }
 
@@ -736,10 +743,10 @@ public final class Complex extends GenericComplex {
      */
     public final Complex reciprocal_mutable() {
 
-        double temp = re * re + im * im;
+        double temp = 1.0 / (re * re + im * im);
 
-        re = re / temp;
-        im = (-im) / temp;
+        re = re * temp;
+        im = (-im) * temp;
 
         return this;
 
@@ -2845,9 +2852,9 @@ public final class Complex extends GenericComplex {
 
         double temp = z.re;
         double temp2 = z.im;
-        double temp3 = temp * temp + temp2 * temp2;
+        double temp3 = 1.0 / (temp * temp + temp2 * temp2);
 
-        return new Complex((re * temp + im * temp2) / temp3, (im * temp - re * temp2) / temp3);
+        return new Complex((re * temp + im * temp2) * temp3, (im * temp - re * temp2) * temp3);
 
     }
 
@@ -2893,10 +2900,10 @@ public final class Complex extends GenericComplex {
 
         double temp = z.re;
         double temp2 = z.im;
-        double temp3 = temp * temp + temp2 * temp2;
+        double temp3 = 1.0 / (temp * temp + temp2 * temp2);
 
-        double temp4 = (re * temp + im * temp2) / temp3;
-        im = (im * temp - re * temp2) / temp3;
+        double temp4 = (re * temp + im * temp2) * temp3;
+        im = (im * temp - re * temp2) * temp3;
         re = temp4;
 
         return this;
@@ -2919,6 +2926,16 @@ public final class Complex extends GenericComplex {
 
     @Override
     public DDComplex toDDComplex() { return new DDComplex(this); }
+
+    /*
+     *  z^3
+     */
+    @Override
+    public final Complex squareFast_mutable(NormComponents normComponents) {
+
+        return squareFast(normComponents);
+
+    }
 
     /*
      *  z^3
@@ -2974,6 +2991,10 @@ public final class Complex extends GenericComplex {
             return 1;
         }
         return 0;
+    }
+
+    public double chebychevNorm() {
+        return Math.max(Math.abs(re), Math.abs(im));
     }
 
 }

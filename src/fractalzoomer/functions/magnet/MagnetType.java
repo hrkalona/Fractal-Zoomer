@@ -18,7 +18,6 @@ package fractalzoomer.functions.magnet;
 
 import fractalzoomer.core.*;
 import fractalzoomer.fractal_options.iteration_statistics.*;
-import fractalzoomer.functions.Fractal;
 import fractalzoomer.functions.Julia;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
@@ -198,6 +197,10 @@ public abstract class MagnetType extends Julia {
             workSpaceData.root.set(1);
             groot = workSpaceData.root;
         }
+        else if(lib == ARBITRARY_MPIR) {
+            workSpaceData.rootp.set(1);
+            groot = workSpaceData.rootp;
+        }
         else if(lib == ARBITRARY_DOUBLEDOUBLE) {
             groot = new DoubleDouble(1);
         }
@@ -219,6 +222,10 @@ public abstract class MagnetType extends Julia {
         if(lib == ARBITRARY_MPFR) {
             workSpaceData.root.set(1);
             groot = workSpaceData.root;
+        }
+        else if(lib == ARBITRARY_MPIR) {
+            workSpaceData.rootp.set(1);
+            groot = workSpaceData.rootp;
         }
         else if(lib == ARBITRARY_DOUBLEDOUBLE) {
             groot = new DoubleDouble(1);
@@ -461,9 +468,9 @@ public abstract class MagnetType extends Julia {
 
         if (sts.statisticGroup == 1) {
             if (sts.statistic_escape_type == MainWindow.ESCAPING) {
-                statistic = new UserStatisticColoring(sts.statistic_intensity, sts.user_statistic_formula, xCenter, yCenter, max_iterations, size, bailout, plane_transform_center, globalVars, sts.useAverage, sts.user_statistic_init_value, sts.reductionFunction, sts.useIterations, sts.useSmoothing);
+                statistic = new UserStatisticColoring(sts.statistic_intensity, sts.user_statistic_formula, xCenter, yCenter, max_iterations, size, bailout, plane_transform_center, globalVars, sts.useAverage, sts.user_statistic_init_value, sts.reductionFunction, sts.useIterations, sts.useSmoothing, sts.lastXItems);
             } else {
-                statistic = new UserStatisticColoringMagnetConverging(sts.statistic_intensity, sts.user_statistic_formula, xCenter, yCenter, max_iterations, size, convergent_bailout, bailout, plane_transform_center, globalVars, sts.useAverage, sts.user_statistic_init_value, sts.reductionFunction, sts.useIterations, sts.useSmoothing);
+                statistic = new UserStatisticColoringMagnetConverging(sts.statistic_intensity, sts.user_statistic_formula, xCenter, yCenter, max_iterations, size, convergent_bailout, bailout, plane_transform_center, globalVars, sts.useAverage, sts.user_statistic_init_value, sts.reductionFunction, sts.useIterations, sts.useSmoothing, sts.lastXItems);
             }
             return;
         }
@@ -474,25 +481,28 @@ public abstract class MagnetType extends Julia {
 
         switch (sts.statistic_type) {
             case MainWindow.STRIPE_AVERAGE:
-                statistic = new StripeAverage(sts.statistic_intensity, sts.stripeAvgStripeDensity, log_bailout_squared, sts.useSmoothing, sts.useAverage);
+                statistic = new StripeAverage(sts.statistic_intensity, sts.stripeAvgStripeDensity, log_bailout_squared, sts.useSmoothing, sts.useAverage, sts.lastXItems);
                 break;
             case MainWindow.CURVATURE_AVERAGE:
-                statistic = new CurvatureAverage(sts.statistic_intensity, log_bailout_squared, sts.useSmoothing, sts.useAverage);
+                statistic = new CurvatureAverage(sts.statistic_intensity, log_bailout_squared, sts.useSmoothing, sts.useAverage, sts.lastXItems);
+                break;
+            case MainWindow.TRIANGLE_INEQUALITY_AVERAGE:
+                statistic = new TriangleInequalityAverage(sts.statistic_intensity, log_bailout_squared, sts.useSmoothing, sts.useAverage, sts.lastXItems);
                 break;
             case MainWindow.COS_ARG_DIVIDE_NORM_AVERAGE:
-                statistic = new CosArgDivideNormAverage(sts.statistic_intensity, sts.cosArgStripeDensity, log_bailout_squared, sts.useSmoothing, sts.useAverage);
+                statistic = new CosArgDivideNormAverage(sts.statistic_intensity, sts.cosArgStripeDensity, log_bailout_squared, sts.useSmoothing, sts.useAverage, sts.lastXItems);
                 break;
             case MainWindow.COS_ARG_DIVIDE_INVERSE_NORM:
-                statistic = new CosArgDivideInverseNorm(sts.statistic_intensity, sts.cosArgInvStripeDensity, sts.StripeDenominatorFactor);
+                statistic = new CosArgDivideInverseNorm(sts.statistic_intensity, sts.cosArgInvStripeDensity, sts.StripeDenominatorFactor, sts.useSmoothing, Math.log(convergent_bailout), log_bailout_squared, sts.lastXItems);
                 break;
             case MainWindow.ATOM_DOMAIN_BOF60_BOF61:
-                statistic = new AtomDomain(sts.showAtomDomains, sts.statistic_intensity, sts.atomNormType, sts.atomNNorm);
+                statistic = new AtomDomain(sts.showAtomDomains, sts.statistic_intensity, sts.atomNormType, sts.atomNNorm, sts.lastXItems);
                 break;
             case MainWindow.DISCRETE_LAGRANGIAN_DESCRIPTORS:
-                statistic = new DiscreteLagrangianDescriptors(sts.statistic_intensity, sts.lagrangianPower, log_bailout_squared, sts.useSmoothing, sts.useAverage, false, Math.log(convergent_bailout), sts.langNormType, sts.langNNorm);
+                statistic = new DiscreteLagrangianDescriptors(sts.statistic_intensity, sts.lagrangianPower, log_bailout_squared, sts.useSmoothing, sts.useAverage, false, Math.log(convergent_bailout), sts.langNormType, sts.langNNorm, sts.lastXItems);
                 break;
             case MainWindow.TWIN_LAMPS:
-                statistic = new TwinLamps(sts.statistic_intensity, sts.twlFunction, sts.twlPoint);
+                statistic = new TwinLamps(sts.statistic_intensity, sts.twlFunction, sts.twlPoint, log_bailout_squared, sts.useSmoothing, sts.lastXItems);
                 break;
 
         }
@@ -532,17 +542,17 @@ public abstract class MagnetType extends Julia {
 
         int ReferencePeriod = getPeriod();
 
-        int MaxRefIteration = getReferenceFinalIterationNumber(true);
+        int MaxRefIteration = getReferenceFinalIterationNumber(true, referenceData);
 
         double norm_squared = 0;
 
         if(iterations != 0 && RefIteration < MaxRefIteration) {
-            complex[0] = getArrayValue(Reference, RefIteration).plus_mutable(DeltaSubN);
+            complex[0] = getArrayValue(reference, RefIteration).plus_mutable(DeltaSubN);
             norm_squared = complex[0].norm_squared();
         }
         else if(iterations != 0 && ReferencePeriod != 0) {
             RefIteration = RefIteration % ReferencePeriod;
-            complex[0] = getArrayValue(Reference, RefIteration).plus_mutable(DeltaSubN);
+            complex[0] = getArrayValue(reference, RefIteration).plus_mutable(DeltaSubN);
             norm_squared = complex[0].norm_squared();
         }
 
@@ -585,7 +595,7 @@ public abstract class MagnetType extends Julia {
 
 
             if(max_iterations > 1){
-                complex[0] = getArrayValue(Reference, RefIteration).plus_mutable(DeltaSubN);
+                complex[0] = getArrayValue(reference, RefIteration).plus_mutable(DeltaSubN);
             }
 
             if (statistic != null) {
@@ -631,7 +641,7 @@ public abstract class MagnetType extends Julia {
 
         int ReferencePeriod = getPeriod();
 
-        int MaxRefIteration = getReferenceFinalIterationNumber(true);
+        int MaxRefIteration = getReferenceFinalIterationNumber(true, referenceData);
 
         int minExp = -1000;
         int reducedExp = minExp / (int)power;
@@ -645,7 +655,7 @@ public abstract class MagnetType extends Julia {
 
         Complex pixel = dpixel.plus(refPointSmallDeep).toComplex();
 
-        boolean useFullFloatExp = ThreadDraw.USE_FULL_FLOATEXP_FOR_DEEP_ZOOM;
+        boolean useFullFloatExp = useFullFloatExp();
         boolean doBailCheck = useFullFloatExp || ThreadDraw.CHECK_BAILOUT_DURING_DEEP_NOT_FULL_FLOATEXP_MODE;
 
         boolean usedDeepCode = false;
@@ -653,14 +663,16 @@ public abstract class MagnetType extends Julia {
             usedDeepCode = true;
             MantExpComplex z = new MantExpComplex();
             if(iterations != 0 && RefIteration < MaxRefIteration) {
-                z = getArrayDeepValue(ReferenceDeep, RefIteration).plus_mutable(DeltaSubN);
+                z = getArrayDeepValue(referenceDeep, RefIteration).plus_mutable(DeltaSubN);
                 complex[0] = z.toComplex();
             }
             else if(iterations != 0 && ReferencePeriod != 0) {
                 RefIteration = RefIteration % ReferencePeriod;
-                z = getArrayDeepValue(ReferenceDeep, RefIteration).plus_mutable(DeltaSubN);
+                z = getArrayDeepValue(referenceDeep, RefIteration).plus_mutable(DeltaSubN);
                 complex[0] = z.toComplex();
             }
+
+            MantExpComplex zoldDeep;
 
             for (; iterations < max_iterations; iterations++) {
                 if (trap != null) {
@@ -693,14 +705,15 @@ public abstract class MagnetType extends Julia {
 
                 zold2.assign(zold);
                 zold.assign(complex[0]);
+                zoldDeep = z;
 
                 if (max_iterations > 1) {
-                    z = getArrayDeepValue(ReferenceDeep, RefIteration).plus_mutable(DeltaSubN);
+                    z = getArrayDeepValue(referenceDeep, RefIteration).plus_mutable(DeltaSubN);
                     complex[0] = z.toComplex();
                 }
 
                 if (statistic != null) {
-                    statistic.insert(complex[0], zold, zold2, iterations, complex[1], start, c0);
+                    statistic.insert(complex[0], zold, zold2, iterations, complex[1], start, c0, z, zoldDeep, null);
                 }
 
                 if (z.norm_squared().compareToBothPositive(DeltaSubN.norm_squared()) < 0 || RefIteration >= MaxRefIteration) {
@@ -727,11 +740,11 @@ public abstract class MagnetType extends Julia {
             boolean isZero = CDeltaSub0.isZero();
 
             if(!usedDeepCode && iterations != 0 && RefIteration < MaxRefIteration) {
-                complex[0] = getArrayValue(Reference, RefIteration).plus_mutable(CDeltaSubN);
+                complex[0] = getArrayValue(reference, RefIteration).plus_mutable(CDeltaSubN);
             }
             else if(!usedDeepCode && iterations != 0 && ReferencePeriod != 0) {
                 RefIteration = RefIteration % ReferencePeriod;
-                complex[0] = getArrayValue(Reference, RefIteration).plus_mutable(CDeltaSubN);
+                complex[0] = getArrayValue(reference, RefIteration).plus_mutable(CDeltaSubN);
             }
 
             double norm_squared = complex[0].norm_squared();
@@ -776,7 +789,7 @@ public abstract class MagnetType extends Julia {
                 //No Plane influence work
                 //No Pre filters work
                 if (max_iterations > 1) {
-                    complex[0] = getArrayValue(Reference, RefIteration).plus_mutable(CDeltaSubN);
+                    complex[0] = getArrayValue(reference, RefIteration).plus_mutable(CDeltaSubN);
                 }
                 //No Post filters work
 
@@ -827,8 +840,8 @@ public abstract class MagnetType extends Julia {
 
         Complex pixel = dpixel.plus(refPointSmall);
 
-        int MaxRefIteration = Fractal.MaxRefIteration;
-        DoubleReference Reference = Fractal.Reference;
+        ReferenceData data = referenceData;
+        int MaxRefIteration = data.MaxRefIteration;
 
         double norm_squared = complex[0].norm_squared();
 
@@ -855,7 +868,7 @@ public abstract class MagnetType extends Julia {
                 return getAndAccumulateStatsNotDeep(out);
             }
 
-            DeltaSubN = perturbationFunction(DeltaSubN, Reference, null, null, RefIteration);
+            DeltaSubN = perturbationFunction(DeltaSubN, data, RefIteration);
 
             RefIteration++;
             double_iterations++;
@@ -865,7 +878,7 @@ public abstract class MagnetType extends Julia {
 
 
             if(max_iterations > 1){
-                complex[0] = getArrayValue(Reference, RefIteration).plus_mutable(DeltaSubN);
+                complex[0] = getArrayValue(data.Reference, RefIteration).plus_mutable(DeltaSubN);
             }
 
             if (statistic != null) {
@@ -877,8 +890,9 @@ public abstract class MagnetType extends Julia {
                 DeltaSubN = complex[0];
                 RefIteration = 0;
 
-                MaxRefIteration = Fractal.MaxRef2Iteration;
-                Reference = Fractal.SecondReference;
+                data = secondReferenceData;
+                MaxRefIteration = data.MaxRefIteration;
+
                 rebases++;
             }
 
@@ -924,16 +938,15 @@ public abstract class MagnetType extends Julia {
 
         Complex pixel = dpixel.plus(refPointSmallDeep).toComplex();
 
-        int MaxRefIteration = Fractal.MaxRefIteration;
-        DeepReference ReferenceDeep = Fractal.ReferenceDeep;
+        ReferenceDeepData deepData = referenceDeepData;
+        ReferenceData data = referenceData;
+        int MaxRefIteration = data.MaxRefIteration;
 
-        DoubleReference Reference = Fractal.Reference;
-
-        boolean useFullFloatExp = ThreadDraw.USE_FULL_FLOATEXP_FOR_DEEP_ZOOM;
+        boolean useFullFloatExp = useFullFloatExp();
         boolean doBailCheck = useFullFloatExp || ThreadDraw.CHECK_BAILOUT_DURING_DEEP_NOT_FULL_FLOATEXP_MODE;
 
         if(useFullFloatExp || (totalSkippedIterations == 0 && exp <= minExp) || (totalSkippedIterations != 0 && exp <= reducedExp)) {
-            MantExpComplex z = getArrayDeepValue(ReferenceDeep, RefIteration).plus_mutable(DeltaSubN);
+            MantExpComplex z = getArrayDeepValue(deepData.Reference, RefIteration).plus_mutable(DeltaSubN);
             for (; iterations < max_iterations; iterations++) {
                 if (trap != null) {
                     trap.check(complex[0], iterations);
@@ -957,7 +970,7 @@ public abstract class MagnetType extends Julia {
                     }
                 }
 
-                DeltaSubN = perturbationFunction(DeltaSubN, ReferenceDeep, null, null, RefIteration);
+                DeltaSubN = perturbationFunction(DeltaSubN, deepData, RefIteration);
 
                 RefIteration++;
                 float_exp_iterations++;
@@ -966,7 +979,7 @@ public abstract class MagnetType extends Julia {
                 zold.assign(complex[0]);
 
                 if (max_iterations > 1) {
-                    z = getArrayDeepValue(ReferenceDeep, RefIteration).plus_mutable(DeltaSubN);
+                    z = getArrayDeepValue(deepData.Reference, RefIteration).plus_mutable(DeltaSubN);
                     complex[0] = z.toComplex();
                 }
 
@@ -978,9 +991,10 @@ public abstract class MagnetType extends Julia {
                     DeltaSubN = z;
                     RefIteration = 0;
 
-                    ReferenceDeep = Fractal.SecondReferenceDeep;
-                    MaxRefIteration = MaxRef2Iteration;
-                    Reference = Fractal.SecondReference;
+                    deepData = secondReferenceDeepData;
+                    data = secondReferenceData;
+                    MaxRefIteration = data.MaxRefIteration;
+
                     rebases++;
                 }
 
@@ -1025,7 +1039,7 @@ public abstract class MagnetType extends Julia {
                     return getAndAccumulateStatsNotScaled(out);
                 }
 
-                CDeltaSubN = perturbationFunction(CDeltaSubN, Reference, null, null, RefIteration);
+                CDeltaSubN = perturbationFunction(CDeltaSubN, data, RefIteration);
 
                 RefIteration++;
                 double_iterations++;
@@ -1036,7 +1050,7 @@ public abstract class MagnetType extends Julia {
                 //No Plane influence work
                 //No Pre filters work
                 if (max_iterations > 1) {
-                    complex[0] = getArrayValue(Reference, RefIteration).plus_mutable(CDeltaSubN);
+                    complex[0] = getArrayValue(data.Reference, RefIteration).plus_mutable(CDeltaSubN);
                 }
                 //No Post filters work
 
@@ -1049,8 +1063,8 @@ public abstract class MagnetType extends Julia {
                     CDeltaSubN = complex[0];
                     RefIteration = 0;
 
-                    Reference = Fractal.SecondReference;
-                    MaxRefIteration = Fractal.MaxRef2Iteration;
+                    data = secondReferenceData;
+                    MaxRefIteration = data.MaxRefIteration;
                     rebases++;
                 }
 

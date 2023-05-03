@@ -20,7 +20,18 @@ package fractalzoomer.utils;
  *
  * @author hrkalona2
  */
-public class Pixel {
+public class Pixel implements Comparable<Pixel> {
+    public static int customX;
+    public static int customY;
+
+    public static boolean useCustom;
+
+    public static int midX;
+    public static int midY;
+    public static int COMPARE_ALG;
+    public static double n;
+    public static double nreciprocal;
+
     public final int x;
     public final int y;
     
@@ -28,5 +39,30 @@ public class Pixel {
         this.x = x;
         this.y = y;
     }
-    
+
+    @Override
+    public int compareTo(Pixel o) {
+
+        int aX = x + (useCustom ? customX : midX);
+        int aY = y + (useCustom ? customY : midY);
+
+        int bX = o.x + (useCustom ? customX : midX);
+        int bY = o.y + (useCustom ? customY : midY);
+
+        if(COMPARE_ALG == 0) {
+            return Integer.compare(aX * aX + aY * aY, bX * bX + bY * bY);
+        }
+        else if(COMPARE_ALG == 1) {
+            return Integer.compare(Math.max(Math.abs(aX), Math.abs(aY)), Math.max(Math.abs(bX), Math.abs(bY)));
+        }
+        else if(COMPARE_ALG == 2) {
+            return Integer.compare(Math.abs(aX) + Math.abs(aY), Math.abs(bX) + Math.abs(bY));
+        }
+        else {
+            return Double.compare(Math.pow(Math.pow(Math.abs(aX), n) + Math.pow(Math.abs(aY), n), nreciprocal),
+                    Math.pow(Math.pow(Math.abs(bX), n) + Math.pow(Math.abs(bY), n), nreciprocal)
+                    );
+        }
+
+    }
 }

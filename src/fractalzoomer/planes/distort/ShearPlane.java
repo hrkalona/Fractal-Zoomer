@@ -18,7 +18,6 @@
 package fractalzoomer.planes.distort;
 
 import fractalzoomer.core.*;
-import fractalzoomer.core.mpfr.LibMpfr;
 import fractalzoomer.planes.Plane;
 
 /**
@@ -31,6 +30,8 @@ public class ShearPlane extends Plane {
     private BigComplex ddscales;
     private BigNumComplex bnscales;
     private MpfrBigNumComplex mpfrbnscales;
+
+    private MpirBigNumComplex mpirbnscales;
 
     private DDComplex ddcscales;
 
@@ -45,8 +46,10 @@ public class ShearPlane extends Plane {
             if (ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE || ThreadDraw.HIGH_PRECISION_CALCULATION) {
                 bnscales = new BigNumComplex(scales);
 
-                if(LibMpfr.LOAD_ERROR == null) {
+                if (ThreadDraw.allocateMPFR()) {
                     mpfrbnscales = new MpfrBigNumComplex(scales);
+                } else if (ThreadDraw.allocateMPIR()) {
+                    mpirbnscales = new MpirBigNumComplex(scales);
                 }
             }
         }
@@ -78,6 +81,13 @@ public class ShearPlane extends Plane {
     public MpfrBigNumComplex transform(MpfrBigNumComplex pixel) {
 
         return pixel.shear(mpfrbnscales);
+
+    }
+
+    @Override
+    public MpirBigNumComplex transform(MpirBigNumComplex pixel) {
+
+        return pixel.shear(mpirbnscales);
 
     }
 

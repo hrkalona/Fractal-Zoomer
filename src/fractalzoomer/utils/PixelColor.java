@@ -28,7 +28,7 @@ import java.awt.*;
 public class PixelColor extends Thread {
     private RoundedPanel ptr;
     private JLabel ptr2;
-    private boolean running;
+    private volatile boolean running;
     
     public PixelColor(RoundedPanel ptr, JLabel ptr2) {
         this.ptr = ptr;
@@ -42,6 +42,17 @@ public class PixelColor extends Thread {
     
     @Override
     public void run() {
+
+        GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+        int width = gd.getDisplayMode().getWidth();
+        int height = gd.getDisplayMode().getHeight();
+
+        Dimension screenDimension = Toolkit.getDefaultToolkit().getScreenSize();
+
+        double scaleX = ((double)width) / screenDimension.width;
+        double scaleY = ((double)height) / screenDimension.height;
+
+
         try {
 
             while(running) {
@@ -51,7 +62,7 @@ public class PixelColor extends Thread {
                 }*/
                 
                 
-                Color color = new Robot().getPixelColor((int)MouseInfo.getPointerInfo().getLocation().getX(), (int)MouseInfo.getPointerInfo().getLocation().getY());
+                Color color = new Robot().getPixelColor((int)(MouseInfo.getPointerInfo().getLocation().getX() * scaleX), (int)(MouseInfo.getPointerInfo().getLocation().getY() * scaleY));
 
                 ptr.setBackground(color);
                 ptr2.setText("R: " + String.format("%3d", color.getRed()) + " G: " + String.format("%3d", color.getGreen()) + " B: " + String.format("%3d", color.getBlue()));

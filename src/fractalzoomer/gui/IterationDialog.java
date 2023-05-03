@@ -16,7 +16,6 @@
  */
 package fractalzoomer.gui;
 
-import fractalzoomer.core.MyApfloat;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
 

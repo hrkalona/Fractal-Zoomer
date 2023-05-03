@@ -13,9 +13,9 @@ public class SuperFormulaOrbitTrap extends OrbitTrap {
     private double sfb;
     private double invsfn1;
 
-    public SuperFormulaOrbitTrap(int checkType, double pointRe, double pointIm, double trapWidth, double sfm1, double sfm2, double sfn1, double sfn2, double sfn3, double sfa, double sfb, boolean countTrapIterations) {
+    public SuperFormulaOrbitTrap(int checkType, double pointRe, double pointIm, double trapWidth, double sfm1, double sfm2, double sfn1, double sfn2, double sfn3, double sfa, double sfb, boolean countTrapIterations, int lastXItems) {
 
-        super(checkType, pointRe, pointIm, 0.0, trapWidth, countTrapIterations);
+        super(checkType, pointRe, pointIm, 0.0, trapWidth, countTrapIterations, lastXItems);
 
         this.sfm1 = sfm1;
         this.sfm2 = sfm2;
@@ -60,6 +60,10 @@ public class SuperFormulaOrbitTrap extends OrbitTrap {
 
     @Override
     public double getDistance() {
+
+        if(keepLastXItems && !processedLastItems) {
+            processLastItems();
+        }
 
         if(!Double.isFinite(distance)) {
             return 0;

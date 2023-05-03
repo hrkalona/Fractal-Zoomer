@@ -30,7 +30,7 @@ public class ContourColoringSettings {
  
     public ContourColoringSettings() {
         contour_coloring = false;
-        cn_noise_reducing_factor = 0.4;
+        cn_noise_reducing_factor = 1e-10;
         cn_blending = 0.7;
         contour_algorithm = 0;
         contourColorMethod = 3;

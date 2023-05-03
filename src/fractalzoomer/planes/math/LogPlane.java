@@ -17,6 +17,7 @@
 
 package fractalzoomer.planes.math;
 
+import fractalzoomer.core.BigComplex;
 import fractalzoomer.core.Complex;
 import fractalzoomer.core.DDComplex;
 import fractalzoomer.core.MpfrBigNumComplex;
@@ -61,6 +62,16 @@ public class LogPlane extends Plane {
             return pixel;
         }
         return pixel.log();
+
+    }
+
+    @Override
+    public BigComplex transform(BigComplex pixel) {
+
+        if(pixel.isZero()) {
+            return pixel;
+        }
+        return new BigComplex(transform(pixel.toComplex()));
 
     }
     

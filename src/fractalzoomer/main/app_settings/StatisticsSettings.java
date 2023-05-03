@@ -70,6 +70,10 @@ public class StatisticsSettings implements Constants {
     public double normalMapDEUpperLimitFactor;
     public int normalMapColoring;
     public boolean normalMapDEAAEffect;
+    public double normalMapDistanceEstimatorfactor;
+    public int normalMapDEOffset;
+    public double normalMapDEOffsetFactor;
+    public boolean normalMapDEUseColorPerDepth;
 
     public double rootIterationsScaling;
     public boolean rootShading;
@@ -92,6 +96,8 @@ public class StatisticsSettings implements Constants {
 
     public Color unmmapedRootColor;
     public Color rootShadingColor;
+
+    public int lastXItems;
     
     public StatisticsSettings(StatisticsSettings copy) {
         statistic = copy.statistic;
@@ -136,6 +142,10 @@ public class StatisticsSettings implements Constants {
         normalMapColoring = copy.normalMapColoring;
         useNormalMap = copy.useNormalMap;
         normalMapDeFadeAlgorithm = copy.normalMapDeFadeAlgorithm;
+        normalMapDistanceEstimatorfactor = copy.normalMapDistanceEstimatorfactor;
+        normalMapDEOffset = copy.normalMapDEOffset;
+        normalMapDEOffsetFactor = copy.normalMapDEOffsetFactor;
+        normalMapDEUseColorPerDepth = copy.normalMapDEUseColorPerDepth;
 
         rootIterationsScaling = copy.rootIterationsScaling;
         rootContourColorMethod = copy.rootContourColorMethod;
@@ -163,6 +173,8 @@ public class StatisticsSettings implements Constants {
         rootShadingColor = copy.rootShadingColor;
         normalMapDEUpperLimitFactor = copy.normalMapDEUpperLimitFactor;
         normalMapDEAAEffect = copy.normalMapDEAAEffect;
+
+        lastXItems = copy.lastXItems;
 
     }
     
@@ -210,8 +222,12 @@ public class StatisticsSettings implements Constants {
         normalMapInvertDE = false;
         normalMapColoring = 0;
         useNormalMap = true;
-        normalMapDEAAEffect = false;
+        normalMapDEAAEffect = true;
         normalMapDeFadeAlgorithm = 0;
+        normalMapDistanceEstimatorfactor = 1;
+        normalMapDEOffset = 0;
+        normalMapDEOffsetFactor = 1;
+        normalMapDEUseColorPerDepth = false;
 
         rootIterationsScaling = 30;
         rootContourColorMethod = 0;
@@ -239,5 +255,6 @@ public class StatisticsSettings implements Constants {
 
         unmmapedRootColor = Color.BLACK;
         rootShadingColor = Color.BLACK;
+        lastXItems = 20;
     }
 }

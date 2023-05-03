@@ -2,6 +2,7 @@ package fractalzoomer.bailout_conditions;
 
 import fractalzoomer.core.*;
 import fractalzoomer.core.mpfr.MpfrBigNum;
+import fractalzoomer.core.mpir.MpirBigNum;
 import org.apfloat.Apfloat;
 
 public class NoBailoutCondition extends BailoutCondition {
@@ -33,6 +34,11 @@ public class NoBailoutCondition extends BailoutCondition {
 
     @Override
     public boolean escaped(MpfrBigNumComplex z, MpfrBigNumComplex zold, MpfrBigNumComplex zold2, int iterations, MpfrBigNumComplex c, MpfrBigNumComplex start, MpfrBigNumComplex c0, MpfrBigNum norm_squared, MpfrBigNumComplex pixel) {
+        return false;
+    }
+
+    @Override
+    public boolean escaped(MpirBigNumComplex z, MpirBigNumComplex zold, MpirBigNumComplex zold2, int iterations, MpirBigNumComplex c, MpirBigNumComplex start, MpirBigNumComplex c0, MpirBigNum norm_squared, MpirBigNumComplex pixel) {
         return false;
     }
 

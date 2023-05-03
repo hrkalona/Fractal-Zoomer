@@ -37,8 +37,8 @@ public class PolarLocationDeltaGenericApfloat extends PolarLocationNormalApfloat
         return getComplexWithYBase(y).sub(reference);
     }
 
-    protected BigComplex getAntialiasingComplexInternal(int sample) {
-        return getAntialiasingComplexBase(sample).sub(reference);
+    protected BigComplex getAntialiasingComplexInternal(int sample, int loc) {
+        return getAntialiasingComplexBase(sample, loc).sub(reference);
     }
 
 
@@ -51,8 +51,17 @@ public class PolarLocationDeltaGenericApfloat extends PolarLocationNormalApfloat
     @Override
     public GenericComplex getReferencePoint() {
         BigComplex tempbc = new BigComplex(ddxcenter, ddycenter);
-        tempbc = rotation.rotate(tempbc);
+
+        if(rotation.shouldRotate(ddxcenter, ddycenter)) {
+            tempbc = rotation.rotate(tempbc);
+        }
+
         tempbc = fractal.getPlaneTransformedPixel(tempbc);
         return tempbc;
+    }
+
+    @Override
+    public MantExp getSize() {
+        return getMaxSizeInImage();
     }
 }

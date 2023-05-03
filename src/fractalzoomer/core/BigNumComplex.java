@@ -37,6 +37,11 @@ public class BigNumComplex extends GenericComplex {
         this.im = new BigNum(im);
     }
 
+    public BigNumComplex(String re, String im) {
+        this.re = new BigNum(re);
+        this.im = new BigNum(im);
+    }
+
     public BigNumComplex() {
 
         re = new BigNum();
@@ -297,6 +302,15 @@ public class BigNumComplex extends GenericComplex {
     }
 
     /*
+     *  |z|
+     */
+    public final BigNum norm() {
+
+        return re.square().add(im.square()).sqrt();
+
+    }
+
+    /*
      *  |z1 - z2|^2
      */
     public final BigNum distance_squared(BigNumComplex z) {
@@ -304,6 +318,17 @@ public class BigNumComplex extends GenericComplex {
         BigNum temp_re = re.sub(z.re);
         BigNum temp_im = im.sub(z.im);
         return temp_re.squareFull().add(temp_im.squareFull());
+
+    }
+
+    /*
+     *  |z1 - z2|
+     */
+    public final BigNum distance(BigNumComplex z) {
+
+        BigNum temp_re = re.sub(z.re);
+        BigNum temp_im = im.sub(z.im);
+        return temp_re.squareFull().add(temp_im.squareFull()).sqrt();
 
     }
 
@@ -649,6 +674,16 @@ public class BigNumComplex extends GenericComplex {
 
     public boolean isOne() {
         return re.isOne() && im.isZero();
+    }
+
+    /*
+     *  z^3
+     */
+    @Override
+    public final BigNumComplex squareFast_mutable(NormComponents normComponents) {
+
+        return squareFast(normComponents);
+
     }
 
     /*

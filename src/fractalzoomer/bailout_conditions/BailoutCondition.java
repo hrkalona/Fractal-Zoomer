@@ -19,6 +19,7 @@ package fractalzoomer.bailout_conditions;
 
 import fractalzoomer.core.*;
 import fractalzoomer.core.mpfr.MpfrBigNum;
+import fractalzoomer.core.mpir.MpirBigNum;
 import org.apfloat.Apfloat;
 
 /**
@@ -54,9 +55,14 @@ public abstract class BailoutCondition {
 
     public abstract boolean escaped(MpfrBigNumComplex z, MpfrBigNumComplex zold, MpfrBigNumComplex zold2, int iterations, MpfrBigNumComplex c, MpfrBigNumComplex start, MpfrBigNumComplex c0, MpfrBigNum norm_squared, MpfrBigNumComplex pixel);
 
+    public abstract boolean escaped(MpirBigNumComplex z, MpirBigNumComplex zold, MpirBigNumComplex zold2, int iterations, MpirBigNumComplex c, MpirBigNumComplex start, MpirBigNumComplex c0, MpirBigNum norm_squared, MpirBigNumComplex pixel);
+
     public boolean Escaped(GenericComplex z, GenericComplex zold, GenericComplex zold2, int iterations, GenericComplex c, GenericComplex start, GenericComplex c0, Object norm_squared, GenericComplex pixel) {
         if(z instanceof BigNumComplex) {
            return escaped((BigNumComplex)z, (BigNumComplex)zold, (BigNumComplex)zold2, iterations, (BigNumComplex)c, (BigNumComplex)start, (BigNumComplex)c0, (BigNum) norm_squared, (BigNumComplex)pixel);
+        }
+        else if(z instanceof MpirBigNumComplex) {
+            return escaped((MpirBigNumComplex)z, (MpirBigNumComplex)zold, (MpirBigNumComplex)zold2, iterations, (MpirBigNumComplex)c, (MpirBigNumComplex)start, (MpirBigNumComplex)c0, (MpirBigNum) norm_squared, (MpirBigNumComplex)pixel);
         }
         else if(z instanceof MpfrBigNumComplex) {
             return escaped((MpfrBigNumComplex)z, (MpfrBigNumComplex)zold, (MpfrBigNumComplex)zold2, iterations, (MpfrBigNumComplex)c, (MpfrBigNumComplex)start, (MpfrBigNumComplex)c0, (MpfrBigNum) norm_squared, (MpfrBigNumComplex)pixel);

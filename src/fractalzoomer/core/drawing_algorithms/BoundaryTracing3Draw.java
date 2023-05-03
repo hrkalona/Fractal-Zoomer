@@ -97,8 +97,12 @@ public class BoundaryTracing3Draw extends ThreadDraw {
 
         int skippedColor = getColorForSkippedPixels(startColor, randomNumber);
 
-        while (y - 1 >= FROMy && rgbs[pix - image_size] == startColor) {   // looking for boundary
-            pix = pix - image_size;
+        while (y - 1 >= FROMy) {   // looking for boundary
+            int startPix_image_size = pix - image_size;
+            if(rgbs[startPix_image_size] != startColor) {
+                break;
+            }
+            pix = startPix_image_size;
             y--;
         }
 
@@ -462,14 +466,14 @@ public class BoundaryTracing3Draw extends ThreadDraw {
 
         int totalPixels = (TOx - FROMx) * (TOy - FROMy);
 
-        final int culcColor = Constants.MAGIC_ALPHA;
+        final int culcColor = Constants.EMPTY_ALPHA;
 
         int last_drawing_done = 0;
 
         stop:
         for(int y = FROMy; y < TOy; y++) {
             for (int x = FROMx, loc = y * image_size + x; x < TOx; x++, loc++) {
-                if (rgbs[loc] != culcColor) {
+                if (rgbs[loc] >>> 24 != culcColor) {
                     continue;
                 }
                 Trace(x,y, loc, location, image_size, culcColor);
@@ -496,7 +500,7 @@ public class BoundaryTracing3Draw extends ThreadDraw {
             drawSquares(image_size);
         }
         
-        postProcess(image_size);
+        postProcess(image_size, null, location);
     }
 
 

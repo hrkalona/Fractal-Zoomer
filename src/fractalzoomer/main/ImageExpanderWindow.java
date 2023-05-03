@@ -19,15 +19,13 @@ package fractalzoomer.main;
 import com.sun.jna.Platform;
 import fractalzoomer.core.*;
 import fractalzoomer.core.drawing_algorithms.*;
+import fractalzoomer.core.la.LAInfo;
+import fractalzoomer.core.la.LAInfoDeep;
 import fractalzoomer.core.location.Location;
-import fractalzoomer.core.mpfr.LibMpfr;
 import fractalzoomer.gui.*;
 import fractalzoomer.main.app_settings.Settings;
 import fractalzoomer.parser.ParserException;
-import fractalzoomer.utils.PixelOffset;
-import fractalzoomer.utils.RefreshMemoryTask;
-import fractalzoomer.utils.SplitImagePixelOffset;
-import fractalzoomer.utils.ThreadSplitCoordinates;
+import fractalzoomer.utils.*;
 import org.apfloat.Apfloat;
 
 import javax.imageio.ImageIO;
@@ -43,10 +41,8 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Locale;
-import java.util.StringTokenizer;
 import java.util.Timer;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.IntStream;
@@ -136,6 +132,10 @@ public class ImageExpanderWindow extends JFrame implements Constants {
     public ImageExpanderWindow() {
         super();
 
+        preloadPreferences();
+
+        NativeLoader.init();
+
         ptr = this;
 
         s = new Settings();
@@ -173,6 +173,11 @@ public class ImageExpanderWindow extends JFrame implements Constants {
             runsOnWindows = false;
             CommonFunctions.setUIFont(new javax.swing.plaf.FontUIResource("Arial", Font.PLAIN, 11));
         }
+
+        UIManager.put("OptionPane.errorIcon", MainWindow.getIcon("error_64.png"));
+        UIManager.put("OptionPane.informationIcon", MainWindow.getIcon("info_64.png"));
+        UIManager.put("OptionPane.warningIcon", MainWindow.getIcon("warning_64.png"));
+        UIManager.put("OptionPane.questionIcon", MainWindow.getIcon("question_64.png"));
 
         Toolkit toolkit = Toolkit.getDefaultToolkit();
         // Get the current screen size
@@ -558,7 +563,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
                 timer.schedule(new RefreshMemoryTask(memory_label), 30000, 30000);
             }
 
-            ThreadDraw.setArraysExpander(image_size);
+            ThreadDraw.setArraysExpander(image_size, s.needsExtraData());
 
             progress.setMaximum((image_size * image_size) + ((image_size * image_size) / 100));
 
@@ -589,11 +594,11 @@ public class ImageExpanderWindow extends JFrame implements Constants {
 
         if(thread_grouping == 0) {
             threads = new ThreadDraw[n][n];
-            ThreadDraw.resetThreadData(n * n);
+            ThreadDraw.resetThreadData(n * n, false);
         }
         else {
             threads = new ThreadDraw[1][n];
-            ThreadDraw.resetThreadData(n);
+            ThreadDraw.resetThreadData(n, false);
         }
 
         try {
@@ -622,8 +627,11 @@ public class ImageExpanderWindow extends JFrame implements Constants {
                             if (ThreadDraw.BRUTE_FORCE_ALG == 0) {
                                 threads[i][j] = new BruteForceDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js, s.xJuliaCenter, s.yJuliaCenter);
                             }
-                            else {
+                            else if (ThreadDraw.BRUTE_FORCE_ALG == 1) {
                                 threads[i][j] = new BruteForce2Draw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js, s.xJuliaCenter, s.yJuliaCenter);
+                            }
+                            else {
+                                threads[i][j] = new CircularBruteForceDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js, s.xJuliaCenter, s.yJuliaCenter);
                             }
                         }
                     }
@@ -648,13 +656,23 @@ public class ImageExpanderWindow extends JFrame implements Constants {
                             if (ThreadDraw.BRUTE_FORCE_ALG == 0) {
                                 threads[i][j] = new BruteForceDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js);
                             }
-                            else {
+                            else if (ThreadDraw.BRUTE_FORCE_ALG == 1) {
                                 threads[i][j] = new BruteForce2Draw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js);
+                            }
+                            else {
+                                threads[i][j] = new CircularBruteForceDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js);
                             }
                         }
                     }
                     threads[i][j].setThreadId(i * threads.length + j);
                 }
+            }
+
+            if(threads[0][0] instanceof CircularBruteForceDraw) {
+                CircularBruteForceDraw.initCoordinates(image_size, false, true);
+            }
+            else {
+                CircularBruteForceDraw.clear();
             }
         }
         catch(ParserException e) {
@@ -851,14 +869,15 @@ public class ImageExpanderWindow extends JFrame implements Constants {
         JScrollPane scroll_pane_2 = new JScrollPane(textArea);
 
         String help = "<html><center><font size='5' face='arial' color='blue'><b><u>Help</u></b></font></center><br>"
-                + "<font size='4' face='arial'>This tool lets you create larger images than the main application.<br><br>"
+                + "<font size='4' face='arial'>This tool lets you create larger images than the main application,<br>"
+                + "which has a limit of 6000x6000 as an image size.<br><br>"
                 + "In order to use this tool the right way you must set the JVM's heap size, through<br>"
                 + "command line. For instance to execute it using the jar file, use<br>"
-                + "<b>java -jar -Xmx2000m FZImageExpander.jar</b> in order to request maximum 2Gb<br>"
+                + "<b>java -jar -Xmx4000m FZImageExpander.jar</b> in order to request maximum 4Gb<br>"
                 + "of Heap from the JVM.<br><br>"
                 + "Please check some online java tutorials for more thorough heap size allocation!<br><br>"
                 + "If you are using the *.exe version of the application please edit<br>"
-                + "<b>FZImageExpander.l4j.ini</b> and add <b>-Xmx2000m</b> or any other memory size<br>"
+                + "<b>FZImageExpander.l4j.ini</b> and add <b>-Xmx4000m</b> or any other memory size<br>"
                 + "value into the *.ini file. The *.ini file name must match the name of the executable.<br><br>"
                 
                 + "If you do not set the maximum heap, the JVM's default will be used,<br>"
@@ -917,7 +936,8 @@ public class ImageExpanderWindow extends JFrame implements Constants {
             writer.println("series_approximation_terms " + ThreadDraw.SERIES_APPROXIMATION_TERMS);
             writer.println("series_approximation_oom_diff " + ThreadDraw.SERIES_APPROXIMATION_OOM_DIFFERENCE);
             writer.println("series_approximation_max_skip " + ThreadDraw.SERIES_APPROXIMATION_MAX_SKIP_ITER);
-            writer.println("use_full_floatexp " + ThreadDraw.USE_FULL_FLOATEXP_FOR_DEEP_ZOOM);
+            writer.println("use_full_floatexp_for_deep_zoom " + ThreadDraw.USE_FULL_FLOATEXP_FOR_DEEP_ZOOM);
+            writer.println("use_full_floatexp_for_all_zoom " + ThreadDraw.USE_FULL_FLOATEXP_FOR_ALL_ZOOM);
             writer.println("use_bignum_for_ref " + ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE);
             writer.println("use_bignum_for_pixels " + ThreadDraw.USE_BIGNUM_FOR_PIXELS_IF_POSSIBLE);
             writer.println("automatic_bignum_precision " + ThreadDraw.BIGNUM_AUTOMATIC_PRECISION);
@@ -938,6 +958,24 @@ public class ImageExpanderWindow extends JFrame implements Constants {
             writer.println("gather_perturbation_statistics " + ThreadDraw.GATHER_PERTURBATION_STATISTICS);
             writer.println("check_bailout_during_deep_not_full_floatexp_mode " + ThreadDraw.CHECK_BAILOUT_DURING_DEEP_NOT_FULL_FLOATEXP_MODE);
             writer.println("gather_tiny_ref_indexes " + ThreadDraw.GATHER_TINY_REF_INDEXES);
+            writer.println("bignum_sqrt_max_iterations " + BigNum.SQRT_MAX_ITERATIONS);
+            writer.println("stop_reference_calculation_after_detected_period " + ThreadDraw.STOP_REFERENCE_CALCULATION_AFTER_DETECTED_PERIOD);
+            writer.println("use_custom_floatexp_requirement " + ThreadDraw.USE_CUSTOM_FLOATEXP_REQUIREMENT);
+            writer.println("load_mpfr " + ThreadDraw.LOAD_MPFR);
+            writer.println("load_mpir " + ThreadDraw.LOAD_MPIR);
+            writer.println("#available libs: " + String.join(", ", ThreadDraw.mpirWinLibs));
+            writer.println("mpir_lib " + ThreadDraw.MPIR_LIB);
+            writer.println("period_detection_algorithm " + ThreadDraw.PERIOD_DETECTION_ALGORITHM);
+            writer.println("circular_brute_force_compare_alg " + ThreadDraw.CIRCULAR_BRUTE_FORCE_COMPARE_ALG);
+            writer.println("circular_brute_force_n " + ThreadDraw.CIRCULAR_BRUTE_FORCE_N);
+            writer.println("load_drawing_algorithm_from_saves " + ThreadDraw.LOAD_DRAWING_ALGORITHM_FROM_SAVES);
+            writer.println("bla2_detection_method " + LAInfo.DETECTION_METHOD);
+            writer.println("bla2_stage0_period_detection_threshold " + LAInfo.Stage0PeriodDetectionThreshold);
+            writer.println("bla2_stage0_period_detection_threshold2 " + LAInfo.Stage0PeriodDetectionThreshold2);
+            writer.println("bla2_period_detection_threshold " + LAInfo.PeriodDetectionThreshold);
+            writer.println("bla2_period_detection_threshold2 " + LAInfo.PeriodDetectionThreshold2);
+            writer.println("bla2_la_threshold_scale " + LAInfo.LAThresholdScale);
+            writer.println("bla2_la_threshold_c_scale " + LAInfo.LAThresholdCScale);
             
             writer.println();
             
@@ -948,10 +986,83 @@ public class ImageExpanderWindow extends JFrame implements Constants {
             writer.println();
             writer.println("[Core]");
             writer.println("derivative_step " + Derivative.DZ.getRe());
+            writer.println("aa_jitter_size " + Location.AA_JITTER_SIZE);
+            writer.println("aa_number_of_jitter_kernels " + Location.NUMBER_OF_AA_JITTER_KERNELS);
+            writer.println("whitepoint " + ColorSpaceConverter.whitePointId);
 
             writer.close();
         }
         catch(FileNotFoundException ex) {
+
+        }
+    }
+
+    private void preloadPreferences() {
+        BufferedReader br = null;
+
+        try {
+            br = new BufferedReader(new FileReader("IEpreferences.ini"));
+
+            String str_line;
+
+            while ((str_line = br.readLine()) != null) {
+
+                StringTokenizer tokenizer = new StringTokenizer(str_line, " ");
+
+                if (tokenizer.hasMoreTokens()) {
+
+                    String token = tokenizer.nextToken();
+                    if(token.equals("load_mpir") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if(token.equals("false")) {
+                            ThreadDraw.LOAD_MPIR = false;
+                        }
+                        else if(token.equals("true")) {
+                            ThreadDraw.LOAD_MPIR = true;
+                        }
+                    }
+                    else if(token.equals("load_mpfr") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if(token.equals("false")) {
+                            ThreadDraw.LOAD_MPFR = false;
+                        }
+                        else if(token.equals("true")) {
+                            ThreadDraw.LOAD_MPFR = true;
+                        }
+                    }
+                    else if(token.equals("load_drawing_algorithm_from_saves") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if(token.equals("false")) {
+                            ThreadDraw.LOAD_DRAWING_ALGORITHM_FROM_SAVES = false;
+                        }
+                        else if(token.equals("true")) {
+                            ThreadDraw.LOAD_DRAWING_ALGORITHM_FROM_SAVES = true;
+                        }
+                    }
+                    else if(token.equals("mpir_lib") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if(Arrays.asList(ThreadDraw.mpirWinLibs).contains(token)) {
+                            ThreadDraw.MPIR_LIB = token;
+                        }
+                    }
+                    else {
+                        continue;
+                    }
+                }
+
+            }
+
+        } catch (FileNotFoundException ex) {
+
+        } catch (IOException ex) {
 
         }
     }
@@ -992,7 +1103,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
                         try {
                             int temp = Integer.parseInt(tokenizer.nextToken());
 
-                            if (temp >= 0 && temp <= 4) {
+                            if (temp >= 0 && temp <= 6) {
                                 ThreadDraw.BIGNUM_LIBRARY = temp;
                             }
                         } catch (Exception ex) {
@@ -1016,6 +1127,102 @@ public class ImageExpanderWindow extends JFrame implements Constants {
                                 ThreadDraw.PERTUBATION_PIXEL_ALGORITHM = temp;
                             }
                         } catch (Exception ex) {
+                        }
+                    }
+                    else if (token.equals("whitepoint") && tokenizer.countTokens() == 1) {
+
+                        try {
+                            int temp = Integer.parseInt(tokenizer.nextToken());
+
+                            if (temp >= 0 && temp <= 3) {
+                                ColorSpaceConverter.whitePointId = temp;
+                            }
+                        } catch (Exception ex) {
+                        }
+                    }
+                    else if (token.equals("circular_brute_force_compare_alg") && tokenizer.countTokens() == 1) {
+
+                        try {
+                            int temp = Integer.parseInt(tokenizer.nextToken());
+
+                            if (temp >= 0 && temp <= 3) {
+                                ThreadDraw.CIRCULAR_BRUTE_FORCE_COMPARE_ALG = temp;
+                            }
+                        } catch (Exception ex) {
+                        }
+                    }
+                    else if (token.equals("circular_brute_force_n") && tokenizer.countTokens() == 1) {
+
+                        try {
+                            double temp = Double.parseDouble(tokenizer.nextToken());
+
+                            if (temp != 0) {
+                                ThreadDraw.CIRCULAR_BRUTE_FORCE_N = temp;
+                            }
+                        } catch (Exception ex) {
+                        }
+                    }
+                    else if (token.equals("period_detection_algorithm") && tokenizer.countTokens() == 1) {
+
+                        try {
+                            int temp = Integer.parseInt(tokenizer.nextToken());
+
+                            if (temp >= 0 && temp <= 2) {
+                                ThreadDraw.PERIOD_DETECTION_ALGORITHM = temp;
+                            }
+                        } catch (Exception ex) {
+                        }
+                    }
+                    else if (token.equals("bignum_sqrt_max_iterations") && tokenizer.countTokens() == 1) {
+                        try {
+                            int temp = Integer.parseInt(tokenizer.nextToken());
+
+                            if (temp > 0) {
+                                BigNum.SQRT_MAX_ITERATIONS = temp;
+                            }
+                        } catch (Exception ex) {
+                        }
+                    }
+                    else if(token.equals("stop_reference_calculation_after_detected_period") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if(token.equals("false")) {
+                            ThreadDraw.STOP_REFERENCE_CALCULATION_AFTER_DETECTED_PERIOD = false;
+                        }
+                        else if(token.equals("true")) {
+                            ThreadDraw.STOP_REFERENCE_CALCULATION_AFTER_DETECTED_PERIOD = true;
+                        }
+                    }
+                    else if (token.equals("aa_jitter_size") && tokenizer.countTokens() == 1) {
+                        try {
+                            double temp = Double.parseDouble(tokenizer.nextToken());
+
+                            if (temp > 0) {
+                                Location.AA_JITTER_SIZE = temp;
+                            }
+                        } catch (Exception ex) {
+                        }
+                    }
+                    else if (token.equals("aa_number_of_jitter_kernels") && tokenizer.countTokens() == 1) {
+                        try {
+                            int temp = Integer.parseInt(tokenizer.nextToken());
+
+                            if (temp > 0 && temp < 100) {
+                                Location.NUMBER_OF_AA_JITTER_KERNELS = temp;
+                            }
+                        } catch (Exception ex) {
+                        }
+                    }
+                    else if(token.equals("use_custom_floatexp_requirement") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if(token.equals("false")) {
+                            ThreadDraw.USE_CUSTOM_FLOATEXP_REQUIREMENT = false;
+                        }
+                        else if(token.equals("true")) {
+                            ThreadDraw.USE_CUSTOM_FLOATEXP_REQUIREMENT = true;
                         }
                     }
                     else if(token.equals("thread_dim") && tokenizer.countTokens() == 1) {
@@ -1156,8 +1363,92 @@ public class ImageExpanderWindow extends JFrame implements Constants {
                         try {
                             int temp = Integer.parseInt(tokenizer.nextToken());
 
-                            if (temp >= 0 && temp <= 1) {
+                            if (temp >= 0 && temp <= 2) {
                                 ThreadDraw.BRUTE_FORCE_ALG = temp;
+                            }
+                        } catch (Exception ex) {
+                        }
+                    }
+                    else if (token.equals("bla2_detection_method") && tokenizer.countTokens() == 1) {
+
+                        try {
+                            int temp = Integer.parseInt(tokenizer.nextToken());
+
+                            if (temp >= 0 && temp <= 1) {
+                                LAInfo.DETECTION_METHOD = temp;
+                            }
+                        } catch (Exception ex) {
+                        }
+                    }
+                    else if (token.equals("bla2_stage0_period_detection_threshold") && tokenizer.countTokens() == 1) {
+
+                        try {
+                            double temp = Double.parseDouble(tokenizer.nextToken());
+
+                            if (temp > 0 && temp <= 2.5) {
+                                LAInfo.Stage0PeriodDetectionThreshold = temp;
+                                LAInfoDeep.Stage0PeriodDetectionThreshold = new MantExp(temp);
+                            }
+                        } catch (Exception ex) {
+                        }
+                    }
+                    else if (token.equals("bla2_stage0_period_detection_threshold2") && tokenizer.countTokens() == 1) {
+
+                        try {
+                            double temp = Double.parseDouble(tokenizer.nextToken());
+
+                            if (temp > 0 && temp <= 2.5) {
+                                LAInfo.Stage0PeriodDetectionThreshold2 = temp;
+                                LAInfoDeep.Stage0PeriodDetectionThreshold2 = new MantExp(temp);
+                            }
+                        } catch (Exception ex) {
+                        }
+                    }
+
+                    else if (token.equals("bla2_period_detection_threshold") && tokenizer.countTokens() == 1) {
+
+                        try {
+                            double temp = Double.parseDouble(tokenizer.nextToken());
+
+                            if (temp > 0 && temp <= 2.5) {
+                                LAInfo.PeriodDetectionThreshold = temp;
+                                LAInfoDeep.PeriodDetectionThreshold = new MantExp(temp);
+                            }
+                        } catch (Exception ex) {
+                        }
+                    }
+                    else if (token.equals("bla2_period_detection_threshold2") && tokenizer.countTokens() == 1) {
+
+                        try {
+                            double temp = Double.parseDouble(tokenizer.nextToken());
+
+                            if (temp > 0 && temp <= 2.5) {
+                                LAInfo.PeriodDetectionThreshold2 = temp;
+                                LAInfoDeep.PeriodDetectionThreshold2 = new MantExp(temp);
+                            }
+                        } catch (Exception ex) {
+                        }
+                    }
+                    else if (token.equals("bla2_la_threshold_scale") && tokenizer.countTokens() == 1) {
+
+                        try {
+                            double temp = Double.parseDouble(tokenizer.nextToken());
+
+                            if (temp > 0) {
+                                LAInfo.LAThresholdScale = temp;
+                                LAInfoDeep.LAThresholdScale = new MantExp(temp);
+                            }
+                        } catch (Exception ex) {
+                        }
+                    }
+                    else if (token.equals("bla2_la_threshold_c_scale") && tokenizer.countTokens() == 1) {
+
+                        try {
+                            double temp = Double.parseDouble(tokenizer.nextToken());
+
+                            if (temp > 0) {
+                                LAInfo.LAThresholdCScale = temp;
+                                LAInfoDeep.LAThresholdCScale = new MantExp(temp);
                             }
                         } catch (Exception ex) {
                         }
@@ -1353,13 +1644,13 @@ public class ImageExpanderWindow extends JFrame implements Constants {
                         try {
                             int temp = Integer.parseInt(tokenizer.nextToken());
 
-                            if (temp >= 0 && temp <= 3) {
+                            if (temp >= 0 && temp <= 4) {
                                 ThreadDraw.APPROXIMATION_ALGORITHM = temp;
                             }
                         } catch (Exception ex) {
                         }
                     }
-                    else if (token.equals("use_full_floatexp") && tokenizer.countTokens() == 1) {
+                    else if (token.equals("use_full_floatexp_for_deep_zoom") && tokenizer.countTokens() == 1) {
 
                         token = tokenizer.nextToken();
 
@@ -1367,6 +1658,16 @@ public class ImageExpanderWindow extends JFrame implements Constants {
                             ThreadDraw.USE_FULL_FLOATEXP_FOR_DEEP_ZOOM = false;
                         } else if (token.equals("true")) {
                             ThreadDraw.USE_FULL_FLOATEXP_FOR_DEEP_ZOOM = true;
+                        }
+                    }
+                    else if (token.equals("use_full_floatexp_for_all_zoom") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if (token.equals("false")) {
+                            ThreadDraw.USE_FULL_FLOATEXP_FOR_ALL_ZOOM = false;
+                        } else if (token.equals("true")) {
+                            ThreadDraw.USE_FULL_FLOATEXP_FOR_ALL_ZOOM = true;
                         }
                     }
                     else if (token.equals("series_approximation_oom_diff") && tokenizer.countTokens() == 1) {
@@ -1440,6 +1741,10 @@ public class ImageExpanderWindow extends JFrame implements Constants {
 
         MyApfloat.setPrecision(MyApfloat.precision, s);
 
+        Location.setJitter(2);
+
+        ColorSpaceConverter.init();
+
         if(ThreadDraw.PERTURBATION_THEORY || ThreadDraw.HIGH_PRECISION_CALCULATION) {
             periodicity_checking = false;
         }
@@ -1447,8 +1752,15 @@ public class ImageExpanderWindow extends JFrame implements Constants {
 
     public void exit(int val) {
 
-        LibMpfr.delete();
         savePreferences();
+        ThreadDraw.deleteLibs();
+
+        new Timer().schedule(new TimerTask() {
+            public void run() {
+                Runtime.getRuntime().halt(-1);
+            }
+        }, 8000);
+
         System.exit(val);
 
     }
@@ -1863,6 +2175,10 @@ public class ImageExpanderWindow extends JFrame implements Constants {
     }
 
     public static void main(String[] args) throws Exception {
+
+        if(args.length > 0 && args[0].equals("l4jini")) {
+            CommonFunctions.exportL4jIni("FZImageExpander", Constants.IEL4j);
+        }
 
         ImageExpanderWindow mw = new ImageExpanderWindow();
         mw.setVisible(true);

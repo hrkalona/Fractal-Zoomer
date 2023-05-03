@@ -3,6 +3,7 @@ package fractalzoomer.convergent_bailout_conditions;
 import fractalzoomer.core.*;
 import fractalzoomer.core.mpfr.LibMpfr;
 import fractalzoomer.core.mpfr.MpfrBigNum;
+import fractalzoomer.core.mpir.MpirBigNum;
 import org.apfloat.Apcomplex;
 import org.apfloat.Apfloat;
 
@@ -37,7 +38,7 @@ public class NNormDistanceBailoutCondition extends ConvergentBailoutCondition {
 
             if(ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE || ThreadDraw.HIGH_PRECISION_CALCULATION) {
 
-                if(LibMpfr.LOAD_ERROR == null) {
+                if(!LibMpfr.hasError()) {
                     mpfrbn_norm = new MpfrBigNum(n_norm);
                     temp1 = new MpfrBigNum();
                     temp2 = new MpfrBigNum();
@@ -122,6 +123,24 @@ public class NNormDistanceBailoutCondition extends ConvergentBailoutCondition {
     }
 
     @Override
+    public boolean converged(MpirBigNumComplex z, MpirBigNumComplex zold, MpirBigNumComplex zold2, int iterations, MpirBigNumComplex c, MpirBigNumComplex start, MpirBigNumComplex c0, MpirBigNumComplex pixel) {
+        if(n_norm == 0) {
+            return false;
+        }
+
+        Complex cz = z.toComplex();
+        Complex czold = zold.toComplex();
+        Complex diff = cz.sub(czold);
+        boolean result = diff.nnorm(n_norm, n_norm_reciprocal) <= convergent_bailout;
+
+        if(calculateDistance && result) {
+            distance = cz.distance_squared(czold);
+        }
+
+        return result;
+    }
+
+    @Override
     public boolean converged(Complex z, double root, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0, Complex pixel) {
 
         if(n_norm == 0) {
@@ -150,6 +169,24 @@ public class NNormDistanceBailoutCondition extends ConvergentBailoutCondition {
 
         if(calculateDistance && result) {
             distance = z.distance_squared(root, temp1, temp2).doubleValue();
+        }
+
+        return result;
+    }
+
+    @Override
+    public boolean converged(MpirBigNumComplex z, MpirBigNum root, MpirBigNumComplex zold, MpirBigNumComplex zold2, int iterations, MpirBigNumComplex c, MpirBigNumComplex start, MpirBigNumComplex c0, MpirBigNumComplex pixel) {
+        if(n_norm == 0) {
+            return false;
+        }
+
+        Complex cz = z.toComplex();
+        double droot = root.doubleValue();
+        Complex diff = cz.sub(droot);
+        boolean result = diff.nnorm(n_norm, n_norm_reciprocal) <= convergent_bailout;
+
+        if(calculateDistance && result) {
+            distance = cz.distance_squared(droot);
         }
 
         return result;
@@ -256,6 +293,24 @@ public class NNormDistanceBailoutCondition extends ConvergentBailoutCondition {
 
         if(calculateDistance && result) {
             distance = z.distance_squared(root, temp1, temp2).doubleValue();
+        }
+
+        return result;
+    }
+
+    @Override
+    public boolean converged(MpirBigNumComplex z, MpirBigNumComplex root, MpirBigNumComplex zold, MpirBigNumComplex zold2, int iterations, MpirBigNumComplex c, MpirBigNumComplex start, MpirBigNumComplex c0, MpirBigNumComplex pixel) {
+        if(n_norm == 0) {
+            return false;
+        }
+
+        Complex cz = z.toComplex();
+        Complex croot = root.toComplex();
+        Complex diff = cz.sub(croot);
+        boolean result = diff.nnorm(n_norm, n_norm_reciprocal) <= convergent_bailout;
+
+        if(calculateDistance && result) {
+            distance = cz.distance_squared(croot);
         }
 
         return result;

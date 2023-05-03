@@ -82,7 +82,7 @@ public class CartesianLocationNormalApfloatArbitrary extends Location {
 
     public CartesianLocationNormalApfloatArbitrary(CartesianLocationNormalApfloatArbitrary other) {
 
-        super();
+        super(other);
 
         fractal = other.fractal;
 
@@ -249,14 +249,26 @@ public class CartesianLocationNormalApfloatArbitrary extends Location {
     }
 
     @Override
-    public void createAntialiasingSteps(boolean adaptive) {
-        Apfloat[][] steps = createAntialiasingStepsApfloat(ddtemp_size_image_size_x, ddtemp_size_image_size_y, adaptive);
+    public void createAntialiasingSteps(boolean adaptive, boolean jitter) {
+        super.createAntialiasingSteps(adaptive, jitter);
+        Apfloat[][] steps = createAntialiasingStepsApfloat(ddtemp_size_image_size_x, ddtemp_size_image_size_y, adaptive, jitter);
         ddantialiasing_x = steps[0];
         ddantialiasing_y = steps[1];
     }
 
-    protected BigComplex getAntialiasingComplexBase(int sample) {
-        BigComplex temp = new BigComplex(MyApfloat.fp.add(ddtempX, ddantialiasing_x[sample]), MyApfloat.fp.add(ddtempY, ddantialiasing_y[sample]));
+    protected BigComplex getAntialiasingComplexBase(int sample, int loc) {
+
+        BigComplex temp;
+
+        if(aaJitter) {
+            int r = (int)(hash(loc) % NUMBER_OF_AA_JITTER_KERNELS);
+            Apfloat[] ddantialiasing_x = precalculatedJitterDataApfloat[r][0];
+            Apfloat[] ddantialiasing_y = precalculatedJitterDataApfloat[r][1];
+            temp = new BigComplex(MyApfloat.fp.add(ddtempX, ddantialiasing_x[sample]), MyApfloat.fp.add(ddtempY, ddantialiasing_y[sample]));
+        }
+        else {
+            temp = new BigComplex(MyApfloat.fp.add(ddtempX, ddantialiasing_x[sample]), MyApfloat.fp.add(ddtempY, ddantialiasing_y[sample]));
+        }
 
         temp = rotation.rotate(temp);
 
@@ -266,13 +278,21 @@ public class CartesianLocationNormalApfloatArbitrary extends Location {
     }
 
     @Override
-    public GenericComplex getAntialiasingComplex(int sample) {
-        return getAntialiasingComplexBase(sample);
+    public GenericComplex getAntialiasingComplex(int sample, int loc) {
+        return getAntialiasingComplexBase(sample, loc);
     }
 
     public BigPoint getPoint(int x, int y) {
         return new BigPoint(MyApfloat.fp.add(ddtemp_xcenter_size, MyApfloat.fp.multiply(ddtemp_size_image_size_x, new MyApfloat(x))), MyApfloat.fp.subtract(ddtemp_ycenter_size, MyApfloat.fp.multiply(ddtemp_size_image_size_y, new MyApfloat(y))));
     }
+
+    public BigPoint getPointRelativeToPoint(int x, int y, BigPoint refPoint) {
+        Apfloat size05 = MyApfloat.fp.multiply(ddsize, point5);
+        Apfloat newX = MyApfloat.fp.add(MyApfloat.fp.subtract(size05, MyApfloat.fp.multiply(ddtemp_size_image_size_x, new MyApfloat(x))), refPoint.x);
+        Apfloat newY = MyApfloat.fp.add(MyApfloat.fp.add(size05.negate(), MyApfloat.fp.multiply(ddtemp_size_image_size_y, new MyApfloat(y))), refPoint.y);
+        return new BigPoint(newX, newY);
+    }
+
     public BigPoint getDragPoint(int x, int y) {
         return new BigPoint(MyApfloat.fp.subtract(ddxcenter, MyApfloat.fp.multiply(ddtemp_size_image_size_x, new MyApfloat(x))), MyApfloat.fp.add(ddycenter, MyApfloat.fp.multiply(ddtemp_size_image_size_y, new MyApfloat(y))));
     }

@@ -2,9 +2,12 @@ package fractalzoomer.core.mpfr;
 
 import fractalzoomer.core.MantExp;
 import fractalzoomer.core.ThreadDraw;
+import fractalzoomer.core.mpir.MpirBigNum;
+import fractalzoomer.core.mpir.mpf_t;
 import org.apfloat.Apfloat;
 
 import static fractalzoomer.core.mpfr.LibMpfr.*;
+import static fractalzoomer.core.mpir.LibMpir.LOAD_ERROR;
 
 
 public class MpfrBigNum {
@@ -22,20 +25,32 @@ public class MpfrBigNum {
 
     static {
 
-           LibMpfr.init();
+        try {
+            if (!hasError()) {
+                SQRT_TWO = new MpfrBigNum(2).sqrt();
+                PI = MpfrBigNum.getPi();
+                HALF_PI = PI.divide2();
 
-           if(LOAD_ERROR == null) {
-               SQRT_TWO = new MpfrBigNum(2).sqrt();
-               PI = MpfrBigNum.getPi();
-               HALF_PI = PI.divide2();
-           }
+                //Test
+                MpfrBigNum a = SQRT_TWO.add(10000);
+                a = SQRT_TWO.sub(10000);
+                a = SQRT_TWO.mult(SQRT_TWO);
+                a = SQRT_TWO.divide(10000);
+            }
+        }
+        catch (Error ex) {
+            LibMpfr.delete();
+            LOAD_ERROR = new Exception(ex.getMessage());
+            System.out.println("Cannot load mpfr: " + LOAD_ERROR.getMessage());
+        }
+
 
     }
 
     public static void reinitialize(double digits) {
         precision = (int)(digits * ThreadDraw.BIGNUM_PRECISION_FACTOR + 0.5);
 
-        if(LOAD_ERROR == null) {
+        if(!hasError()) {
             SQRT_TWO = new MpfrBigNum(2).sqrt();
             PI = MpfrBigNum.getPi();
             HALF_PI = PI.divide2();
@@ -50,6 +65,14 @@ public class MpfrBigNum {
 
     public MpfrBigNum(mpfr_t op) {
         mpfrMemory = new MpfrMemory(op);
+    }
+
+    public MpfrBigNum(mpf_t op) {
+        mpfrMemory = new MpfrMemory(op);
+    }
+
+    public MpfrBigNum(MpirBigNum val) {
+        mpfrMemory = new MpfrMemory(val.getPeer());
     }
 
     public MpfrBigNum(Apfloat number) {
@@ -255,6 +278,17 @@ public class MpfrBigNum {
         return result;
     }
 
+    public MpfrBigNum sqrt_reciprocal() {
+        MpfrBigNum result = new MpfrBigNum();
+        mpfr_rec_sqrt(result.mpfrMemory.peer, mpfrMemory.peer, rounding);
+        return result;
+    }
+
+    public MpfrBigNum sqrt_reciprocal(MpfrBigNum result) {
+        mpfr_rec_sqrt(result.mpfrMemory.peer, mpfrMemory.peer, rounding);
+        return result;
+    }
+
     public MpfrBigNum sqrt(MpfrBigNum result) {
         mpfr_sqrt(result.mpfrMemory.peer, mpfrMemory.peer, rounding);
         return result;
@@ -439,8 +473,7 @@ public class MpfrBigNum {
     }
 
     public boolean isPositive() {
-        int sign = mpfr_sgn(mpfrMemory.peer);
-        return sign > 0;
+        return mpfr_sgn(mpfrMemory.peer) > 0;
     }
 
     public boolean isZero() {
@@ -452,13 +485,11 @@ public class MpfrBigNum {
     }
 
     public boolean isOne() {
-        int sign = mpfr_cmp_ui(mpfrMemory.peer, 1);
-        return sign == 0;
+        return mpfr_cmp_ui(mpfrMemory.peer, 1) == 0;
     }
 
     public boolean isNegative() {
-        int sign = mpfr_sgn(mpfrMemory.peer);
-        return sign < 0;
+        return mpfr_sgn(mpfrMemory.peer) < 0;
     }
 
     public int compare(MpfrBigNum other) {
@@ -521,6 +552,14 @@ public class MpfrBigNum {
         }
     }
 
+    public static MpfrBigNum min(MpfrBigNum x, MpfrBigNum y) {
+        if(mpfr_cmp(x.mpfrMemory.peer, y.mpfrMemory.peer) <= 0) {
+            return x;
+        }
+        else {
+            return y;
+        }
+    }
     public static void set(MpfrBigNum destre, MpfrBigNum destim, MpfrBigNum srcre, MpfrBigNum srcim) {
         mpfr_fz_set(destre.mpfrMemory.peer, destim.mpfrMemory.peer, srcre.mpfrMemory.peer, srcim.mpfrMemory.peer, rounding);
     }
@@ -633,6 +672,12 @@ public class MpfrBigNum {
 
     public static void ApBmC_DpEmG(MpfrBigNum temp, MpfrBigNum temp2, MpfrBigNum A, MpfrBigNum B, MpfrBigNum C, MpfrBigNum D, MpfrBigNum E, MpfrBigNum G) {
         mpfr_fz_ApBmC_DpEmG(temp.mpfrMemory.peer, temp2.mpfrMemory.peer, A.mpfrMemory.peer, B.mpfrMemory.peer, C.mpfrMemory.peer, D.mpfrMemory.peer, E.mpfrMemory.peer, G.mpfrMemory.peer, rounding);
+    }
+
+    public static void r_ball_pow2(MpfrBigNum r, MpfrBigNum az, MpfrBigNum r0, MpfrBigNum azsquare) {
+
+        mpfr_fz_r_ball_pow2(r.mpfrMemory.peer, az.mpfrMemory.peer, r0.mpfrMemory.peer, azsquare.mpfrMemory.peer, rounding);
+
     }
 
     @Override

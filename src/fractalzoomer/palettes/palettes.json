@@ -8098,6 +8098,141 @@
 		  ,  [2, 248, 126, 84]
 		  ,  [2, 185, 95, 63]
 		  ]
+	  },
+	  {
+		  "name": "S_RISING_DEEP_PURPLE",
+		  "values_hex": [
+			  "0xff49006a",
+			  "0xff8a0179",
+			  "0xffcd238e",
+			  "0xfff667a0",
+			  "0xfffaabb8",
+			  "0xfffcd6d2",
+			  "0xfffff7f3"
+		  ]
+	  },
+	  {
+		  "name": "S_COPPER",
+		  "values_hex": [
+			  "0xff000000",
+			  "0xff330000",
+			  "0xff660000",
+			  "0xff993322",
+			  "0xffcc6644",
+			  "0xffff9966",
+			  "0xffffcc88"
+		  ]
+	  },
+	  {
+		  "name": "S_PLASMA",
+		  "values_hex": [
+			  "0xff0c0786",
+			  "0xff5c00a5",
+			  "0xff9b179e",
+			  "0xffca4677",
+			  "0xffec7853",
+			  "0xfffdb22e",
+			  "0xffeff821"
+		  ]
+	  },
+	  {
+		  "name": "S_VIRIDIS",
+		  "values_hex": [
+			  "0xff440154",
+			  "0xff433982",
+			  "0xff30678d",
+			  "0xff208f8c",
+			  "0xff35b778",
+			  "0xff8fd643",
+			  "0xfffde724"
+		  ]
+	  },
+	  {
+		  "name": "S_BEACH",
+		  "values_hex": [
+			  "0xff24419a",
+			  "0xff1e80b8",
+			  "0xff40b5c3",
+			  "0xff97d6b8",
+			  "0xffdff2b2",
+			  "0xffffffd9"
+		  ]
+	  },
+	  {
+		  "name": "S_RAINBOW",
+		  "values_hex": [
+			  "0xffdd00dd",
+			  "0xff8800ee",
+			  "0xff0000ff",
+			  "0xff0088ee",
+			  "0xff00dddd",
+			  "0xff00ee88",
+			  "0xff00ff00",
+			  "0xff88ee00",
+			  "0xffdddd00",
+			  "0xffee8800",
+			  "0xffff0000"
+		  ]
+	  },
+	  {
+		  "name": "S_TERRAIN",
+		  "values_hex": [
+			  "0xff333399",
+			  "0xff1075db",
+			  "0xff00b1b4",
+			  "0xff31d56f",
+			  "0xff95e983",
+			  "0xfffdfe98",
+			  "0xffccbd7d",
+			  "0xff9a7d62",
+			  "0xff977a74",
+			  "0xffcabbb8",
+			  "0xfffdfcfc"
+		  ]
+	  },
+	  {
+		  "name": "D_COOL_WARM",
+		  "values_hex": [
+			  "0xff3b4cc0",
+			  "0xff6688ee",
+			  "0xff88bbff",
+			  "0xffb8d0f9",
+			  "0xffdddddd",
+			  "0xfff5c4ad",
+			  "0xffff9977",
+			  "0xffdd6644",
+			  "0xffb40426"
+		  ]
+	  },
+	  {
+		  "name": "D_BLUE_WHITE_RED",
+		  "values_hex": [
+			  "0xff0000ff", "0xffeeeeee", "0xffff0000"
+		  ]
+	  },
+	  {
+		  "name": "D_FRANCE",
+		  "values_hex": [
+			  "0xff002395", "0xffffffff", "0xffed2939"
+		  ]
+	  },
+	  {
+		  "name": "D_IRELAND",
+		  "values_hex": [
+			  "0xff169b62", "0xffffffff", "0xffff883e"
+		  ]
+	  },
+	  {
+		  "name": "D_SPECTRAL",
+		  "values_hex": [
+			  "0xff9e0142",
+			  "0xffe95d46",
+			  "0xfffdbe6e",
+			  "0xfffefebd",
+			  "0xffbee5a0",
+			  "0xff54aeac",
+			  "0xff5e4fa2"
+		  ]
 	  }
   ]
 }

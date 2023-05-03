@@ -44,8 +44,7 @@ public class SmoothEscapeTimeColorDecompositionRootFindingMethod extends EscapeT
             double temp = Math.floor(1000 * ((Complex)object[1]).getRe() + 0.5) / 1000;
             double temp2 = Math.floor(1000 * ((Complex)object[1]).getIm() + 0.5) / 1000;
 
-            double temp3 = Math.log(((Complex)object[3]).distance_squared((Complex)object[4]));
-            double temp4 = (log_convergent_bailout - temp3) / (Math.log((Double)object[2]) - temp3);
+            double temp4 = SmoothEscapeTimeRootFindingMethod.getSmoothing1(object, log_convergent_bailout);
 
             return Math.abs(((Integer)object[0]) + (long)(((Math.atan2(temp2, temp) / (pi2) + 0.75) * pi59) + (temp * temp + temp2 * temp2) * 2.5) + temp4);
         }
@@ -53,13 +52,7 @@ public class SmoothEscapeTimeColorDecompositionRootFindingMethod extends EscapeT
             double temp = Math.floor(1000 * ((Complex)object[1]).getRe() + 0.5) / 1000;
             double temp2 = Math.floor(1000 * ((Complex)object[1]).getIm() + 0.5) / 1000;
 
-            double temp4 = Math.log(((Double)object[2]) + 1e-33);
-
-            double power = temp4 / Math.log(((Complex)object[3]).distance_squared(((Complex)object[4])));
-            
-            power = power <= 0 ? 1e-33 : power;
-
-            double f = Math.log(log_convergent_bailout / temp4) / Math.log(power);
+            double f = SmoothEscapeTimeRootFindingMethod.getSmoothing2(object, log_convergent_bailout);
 
             return Math.abs(((Integer)object[0]) + (long)(((Math.atan2(temp2, temp) / (pi2) + 0.75) * pi59) + (temp * temp + temp2 * temp2) * 2.5) + f);
         }
@@ -69,17 +62,10 @@ public class SmoothEscapeTimeColorDecompositionRootFindingMethod extends EscapeT
     public double getResult3D(Object[] object, double result) {
 
         if(algorithm == 0) {
-            double temp = Math.log(((Complex)object[3]).distance_squared((Complex)object[4]));
-            return (Integer)object[0] + (log_convergent_bailout - temp) / (Math.log((Double)object[2]) - temp);
+            return (Integer)object[0] + SmoothEscapeTimeRootFindingMethod.getSmoothing1(object, log_convergent_bailout);
         }
         else {
-            double temp4 = Math.log(((Double)object[2]) + 1e-33);
-
-            double power = temp4 / Math.log(((Complex)object[3]).distance_squared(((Complex)object[4])));
-
-            double f = Math.log(log_convergent_bailout / temp4) / Math.log(power);
-
-            return (Integer)object[0] + f;
+            return (Integer)object[0] + SmoothEscapeTimeRootFindingMethod.getSmoothing2(object, log_convergent_bailout);
         }
 
     }

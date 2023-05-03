@@ -42,41 +42,18 @@ public class SmoothBinaryDecomposition2Magnet extends SmoothBinaryDecomposition2
         double temp3;
         if((Boolean)object[2]) {
             if(algorithm == 0) {
-                double temp = ((Complex)object[4]).norm_squared();
-                double temp2 = ((Complex)object[1]).norm_squared();
-                temp += 0.000000001;
-                temp = Math.log(temp);
-                temp3 = (Integer)object[0] + (log_bailout_squared - temp) / (Math.log(temp2) - temp) + MAGNET_INCREMENT;
+                temp3 = SmoothEscapeTimeMagnet.getEscSmoothing1(object, Math.log(((Complex)object[1]).norm_squared()), log_bailout_squared) + MAGNET_INCREMENT;
             }
             else {
-                double temp = ((Complex)object[4]).norm_squared();
-                double temp2 = ((Complex)object[1]).norm_squared();
-
-                temp2 = Math.log(temp2);
-                double p = temp2 / Math.log(temp);
-                
-                p = p <= 0 ? 1e-33 : p;
-                temp2 = temp2 <= 0 ? 1e-33 : temp2;
-
-                double a = Math.log(temp2 / log_bailout_squared);
-                double f = a / Math.log(p);
-
-                temp3 = (Integer)object[0] + 1 - f + MAGNET_INCREMENT;
+                temp3 = (Integer)object[0] + SmoothEscapeTimeMagnet.getEscSmoothing2(object, Math.log(((Complex)object[1]).norm_squared()), log_bailout_squared) + MAGNET_INCREMENT;
             }
         }
         else {
             if(algorithm2 == 0) {
-                double temp = Math.log(((Complex)object[4]).distance_squared(1));
-                temp3 = (Integer)object[0] + (log_convergent_bailout - temp) / (Math.log((Double)object[3]) - temp);
+                temp3 = (Integer)object[0] + SmoothEscapeTimeMagnet.getConvSmoothing1(object, log_convergent_bailout);
             }
             else {
-                double temp4 = Math.log(((Double)object[3]));
-
-                double power = temp4 / Math.log(((Complex)object[4]).distance_squared(1));
-
-                double f = Math.log(log_convergent_bailout / temp4) / Math.log(power);
-
-                temp3 = (Integer)object[0] + f;
+                temp3 = (Integer)object[0] + SmoothEscapeTimeMagnet.getConvSmoothing2(object, log_convergent_bailout);
             }
         }
         

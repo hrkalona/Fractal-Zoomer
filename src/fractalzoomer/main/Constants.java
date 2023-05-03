@@ -25,7 +25,7 @@ import java.awt.*;
  * @author hrkalona2
  */
 public interface Constants {
-    public static final int VERSION = 1086;
+    public static final int VERSION = 1087;
     public static final boolean beta = false;
     public static final int TOTAL_PALETTES = 41;
     public static final int TOTAL_INCOLORING_ALGORITHMS = 11;
@@ -33,7 +33,7 @@ public interface Constants {
     public static final int TOTAL_BAILOUT_CONDITIONS = 13;
     public static final int TOTAL_CONVERGENT_BAILOUT_CONDITIONS = 6;
     public static final int TOTAL_PLANES = 64;
-    public static final int TOTAL_FUNCTIONS = 501;
+    public static final int TOTAL_FUNCTIONS = 506;
     public static final int TOTAL_FILTERS = 35;
     public static final int TOTAL_COLOR_TRANSFER_FILTERS = 7;
     public static final int TOTAL_COLOR_BLENDING = 30;
@@ -47,6 +47,8 @@ public interface Constants {
 
     public static final String NANOMB1_CALCULATION_STR = "Nanomb1 Calculation:";
     public static final String BLA_CALCULATION_STR = "BLA Calculation:";
+
+    public static final String BLA_CALCULATION_STR2 = "BLA Calculation";
     public static final String REFERENCE_CALCULATION_STR = "Reference Calculation:";
     
     public static final String[] domainAlgNames = {"Black Grid, White Circles log2", "White Grid, Black Circles log2", "Black Grid", "White Grid", "Black Grid, Bright Contours log2", "White Grid, Dark Contours log2", "Norm, Black Grid, White Circles log2", "Norm, White Grid, Black Circles log2", "Norm, Black Grid", "Norm, White Grid", "Norm, Black Grid, Bright Contours log2", "Norm, White Grid, Dark Contours log2", "White Circles log2", "Black Circles log2", "Bright Contours log2", "Dark Contours log2", "Norm, White Circles log2", "Norm, Black Circles log2", "Norm, Bright Contours log2", "Norm, Dark Contours log2",
@@ -55,7 +57,7 @@ public interface Constants {
     public static final String[] waveTypes = {"Sine", "Sawtooth", "Triangle", "Noise"};
     public static final String[] bumpTransferNames = {"1.5 / (x * factor + 1.5)", "1 / sqrt(x * factor + 1)", "1 / cbrt(x * factor + 1)", "2^(-x * factor)"};
     public static final String[] color_interp_str = {"Linear", "Cosine", "Acceleration", "Deceleration", "Exponential", "Catmull-Rom", "Catmull-Rom 2", "Sigmoid", "Quadratic", "Cubic", "Sqrt Values", "Sine", "Square Root", "3rd Degree Poly", "5th Degree Poly", "Exponential 2", "Cube Root", "Fourth Root", "Smooth Transition"};
-    public static final String[] bumpProcessingMethod = {"RGB Scaling", "Blending", "Blending Alternative", "Lab", "HSB", "HSL"};
+    public static final String[] bumpProcessingMethod = {"RGB Scaling", "Blending", "Blending Alternative", "Lab", "HSB", "HSL", "OKLab"};
     public static final String[] entropyMethod = {"Palette Coloring", "Gradient Coloring"};
     public static final String[] rainbowMethod = {"Palette Coloring", "Gradient Coloring"};
     public static final String[] domainColors = {"Argument", "Norm", "Re", "Im"};
@@ -66,20 +68,20 @@ public interface Constants {
     public static final String[] orbitTrapCheckTypes = {"Minimum Distance", "Trapped First", "Trapped Last"};
     public static final String[] contourColorAlgorithmNames = {"Non-smooth Transitions", "Smooth Transitions", "Boundaries", "Boundaries/Non-Smooth Colors"};
     public static final String[] circleAndGridFadeNames = {"Square Root", "Cube Root", "Fourth Root", "Linear", "Saturate", "Cosine", "Square", "Sine", "Deceleration", "3rd Degree Poly", "5th Degree Poly", "Exponential", "Smooth Transition"};
-    public static final String[] colorMethod = {"Lab", "HSB", "HSL", "Blending", "RGB Scaling"};
+    public static final String[] colorMethod = {"Lab", "HSB", "HSL", "Blending", "RGB Scaling", "OKLab"};
     public static final String[] lightTransfer = {"x * factor", "sqrt(x * factor)", "(x * factor)^2"};
     public static final String[] lightModes = {"Mode 1", "Mode 2", "Mode 3"};
 
     public static final String[] jitterShape = {"Uniform", "Gaussian"};
 
-    public static final String[] deFadeAlgs = {"Linear", "Square Root", "Cube Root", "Fourth Root", "Cosine", "Square", "Sine", "Deceleration", "3rd Degree Poly", "5th Degree Poly", "Exponential", "Smooth Transition"};
+    public static final String[] FadeAlgs = {"Linear", "Square Root", "Cube Root", "Fourth Root", "Cosine", "Square", "Sine", "Deceleration", "3rd Degree Poly", "5th Degree Poly", "Exponential", "Smooth Transition"};
     public static final String[] statisticalColoringName = {"Stripe Average(Sum)", "Curvature Average(Sum)", "Triange Inequality Average(Sum)", "cos(density * arg(z)) / norm(z) Average(Sum)", "cos(density * (arg(z - p) + pi)) / (factor + 1 / norm(z - p)) Sum", "Atom Domain (bof60/bof61)", "Discrete Lagrangian Descriptors", "Twin Lamps"};
     public static final String[] domainProcessingTransferNames = {"x * factor", "1 / (x * factor)"};
     public static final String[] domainHeightNames = {"Norm", "Re", "Im", "Re + Im"};
     public static final String[] inertiaGravityPullFunction = {"Exponential", "Linear", "Oddball"};
     public static final String[] reductionMethod = {"sum", "min", "max", "assign", "sub", "multiply"};
     public static final String[] trueColorModes = {"Xaos true color 1", "Xaos true color 2", "Xaos true color 3", "Xaos true color 4", "Xaos true color 5", "Xaos true color 6", "Xaos true color 7", "Xaos true color 8", "Xaos true color 9", "Xaos true color 10"};
-    public static final String[] trueColorSpaces = {"RGB", "XYZ", "HSB", "HSL", "RYB", "LAB", "LCH", "Palette", "Gradient", "Direct"};
+    public static final String[] trueColorSpaces = {"RGB", "XYZ", "HSB", "HSL", "RYB", "Lab", "LCH_ab", "Palette", "Gradient", "Direct", "HWB"};
     public static final String[] derivativeMethod = {"Provided", "Numerical Forward", "Numerical Central", "Numerical Backward"};
     public static final String[] gridAlgorithms = {"sin", "mod"};
     public static final String[] combineAlgorithms = {"Multiply", "Average"};
@@ -87,7 +89,7 @@ public interface Constants {
     public static final String[] novaMethods = {"Newton Method", "Halley Method", "Schroder Method", "Householder Method", "Secant Method", "Steffensen Method", "Muller Method", "Parhalley Method", "Laguerre Method", "Newton-Hines Method", "Whittaker Method", "Whittaker Double Convex Method", "Super Halley Method",  "Midpoint Method", "Traub-Ostrowski Method", "Stirling Method", "Jaratt Method", "Jaratt 2 Method", "Weerakoon-Fernando Method", "Third Order Newton Method", "Abbasbandy Method", "Householder3 Method", "Contra Harmonic Newton", "Chun-Ham", "Chun-Kim", "Euler-Chebyshev Method", "Ezzati-Saleki 2 Method", "Homeier Method", "Abbasbandy 2 Method", "Abbasbandy 3 Method", "Popovski Method", "Changbum-Chun Method", "Changbum-Chun 2 Method", "King 3 Method", "Homeier 2 Method", "Kou-Li-Wang Method", "Kim-Chun Method", "Maheshweri Method", "Rafiullah Method", "Rafis-Rafiuallah Method", "Changbum-Chun 3 Method", "Ezzati-Saleki Method", "Feng Method", "King Method"
     , "Noor-Gupta Method", "Harmonic-Simpson-Newton Method", "Nedzhibov Method", "Simpson-Newton Method"};
     public static final String[] rootInitializationMethod = {"(a^i) * z", "z's circle", "z * cos(a * i)", "z * e^(a * i)"};
-    public static final String[] equicontinuityColorMethods = {"HSL", "HSB", "LCH", "Arg-Palette", "Palette"};
+    public static final String[] equicontinuityColorMethods = {"HSL", "HSB", "LCH_ab", "Arg-Palette", "Palette"};
     public static final String[] equicontinuityArgs = {"Final Z value", "Start Z value", "Pixel Value", "C Value"};
     public static final String[] normalMapColoringMethods = {"Original Color", "Rainbow Palette", "Distance Estimator", "Distance Estimator Variation"};
     public static final String[] rootShadingFunction = {"Linear", "Square Root", "Cube Root", "Cosine", "Exponential", "Constant", "Square", "Sine", "Deceleration", "3rd Degree Poly", "5th Degree Poly", "Fourth Root", "Smooth Transition"};
@@ -631,6 +633,12 @@ public interface Constants {
     public static final int SIMPSON_NEWTONCOS = 498;
     public static final int SIMPSON_NEWTONPOLY = 499;
     public static final int SIMPSON_NEWTONFORMULA = 500;
+
+    public static final int MAGNET_PATAKI2 = 501;
+    public static final int MAGNET_PATAKI3 = 502;
+    public static final int MAGNET_PATAKI4 = 503;
+    public static final int MAGNET_PATAKI5 = 504;
+    public static final int MAGNET_PATAKIK = 505;
     /**
      * ***************
      */
@@ -960,9 +968,29 @@ public interface Constants {
     public static final int COLOR_SPACE_RYB = 5;
     public static final int COLOR_SPACE_LAB = 6;
     public static final int COLOR_SPACE_XYZ = 7;
-    public static final int COLOR_SPACE_LCH = 8;
+    public static final int COLOR_SPACE_LCH_ab = 8;
     public static final int COLOR_SPACE_BEZIER_RGB = 9;
     public static final int COLOR_SPACE_HSL = 10;
+
+    public static final int COLOR_SPACE_LUV = 11;
+
+    public static final int COLOR_SPACE_LCH_uv = 12;
+
+    public static final int COLOR_SPACE_OKLAB = 13;
+
+    public static final int COLOR_SPACE_LCH_oklab = 14;
+
+    public static final int COLOR_SPACE_JZAZBZ = 15;
+
+    public static final int COLOR_SPACE_LCH_JzAzBz = 16;
+
+    public static final int COLOR_SPACE_HSL_uv = 17;
+
+    public static final int COLOR_SPACE_HPL_uv = 18;
+
+    public static final int COLOR_SPACE_HWB = 19;
+
+    public static final int COLOR_SPACE_LINEAR_RGB = 20;
     /**
      * *******************
      */
@@ -1207,12 +1235,14 @@ public interface Constants {
     public static final int TRAP_COLOR_PER_TRAP = 0;
     public static final int TRAP_COLOR_RANDOM = 1;
     public static final int TRAP_COLOR_ARG_HUE_HSB = 2;
-    public static final int TRAP_COLOR_ARG_HUE_LCH = 3;
+    public static final int TRAP_COLOR_ARG_HUE_LCH_ab = 3;
     public static final int TRAP_COLOR_RANDOM_HSB = 4;
     public static final int TRAP_COLOR_RANDOM_PALETTE = 5;
     public static final int TRAP_COLOR_ARG_PALETTE = 6;
     public static final int TRAP_COLOR_ITER_HSB = 7;
-    public static final int TRAP_COLOR_ITER_LCH = 8;
+    public static final int TRAP_COLOR_ITER_LCH_ab = 8;
+    public static final int TRAP_COLOR_ARG_HUE_LCH_uv = 9;
+    public static final int TRAP_COLOR_ITER_LCH_uv = 10;
 
 
     public static final int TRAP_CHECK_TYPE_TRAPPED_MIN_DISTANCE = 0;
@@ -1255,6 +1285,8 @@ public interface Constants {
     public static final Color bg_color = Color.white;
     public static final Color progress_color = new Color(222, 81, 69);//new Color(255, 185, 15);
     public static final Color progress_filters_color = new Color(24, 161, 95);
+    public static final Color indeterminant_color = new Color(24, 201, 85);
+
     public static final Color progress_d3_color = new Color(76, 139, 245);
     public static final Color progress_ref_color = new Color(100, 100, 100);
     public static final Color progress_sa_color = new Color(30, 90, 255);
@@ -1264,17 +1296,25 @@ public interface Constants {
 
     public static final Apint DEFAULT_MAGNIFICATION = new Apint(4);
 
-    public static final int MAGIC_ALPHA = 0xFE;
+    public static final int EMPTY_ALPHA = 0xFD;
+    public static final int QUICKDRAW_CALCULATED_ALPHA = 0xFE;
+    public static final int NORMAL_ALPHA = 0xFF;
 
-    public static final int MAGIC_ALPHA_OFFSETED = 0xFE << 24;
-    public static final int EMPTY_COLOR = MAGIC_ALPHA_OFFSETED | 0xFFFFFF;
+    public static final int SKIPPED_PIXELS_SPECIAL_COLOR = 0x00ffffff;
+
+    public static final int EMPTY_ALPHA_OFFSETED = EMPTY_ALPHA << 24;
+    public static final int EMPTY_COLOR = EMPTY_ALPHA_OFFSETED | 0xFFFFFF;
+    public static final int QUICKDRAW_CALCULATED_ALPHA_OFFSETED = QUICKDRAW_CALCULATED_ALPHA << 24;
+    public static final int NORMAL_ALPHA_OFFSETED = NORMAL_ALPHA << 24;
 
     public static final int BIGNUM_DOUBLE = 0;
     public static final int BIGNUM_DOUBLEDOUBLE = 1;
     public static final int BIGNUM_BUILT_IN = 2;
     public static final int BIGNUM_MPFR = 3;
     public static final int BIGNUM_AUTOMATIC = 4;
-    public static final int BIGNUM_APFLOAT = 5;
+    public static final int BIGNUM_MPIR = 5;
+    public static final int BIGNUM_AUTOMATIC_ONLY_BIGNUM = 6;
+    public static final int BIGNUM_APFLOAT = 7;//always last
 
     public static final int ARBITRARY_DOUBLEDOUBLE = 0;
     public static final int ARBITRARY_BUILT_IN = 1;
@@ -1282,7 +1322,23 @@ public interface Constants {
     public static final int ARBITRARY_APFLOAT = 3;
     public static final int ARBITRARY_AUTOMATIC = 4;
 
+    public static final int ARBITRARY_MPIR = 5;
+
     public static final String greedyWarning = "Greedy Drawing Algorithm is enabled, which creates glitches in the image.\nYou should disable it for a better result, or check the \"Use Iteration Data\" option.";
 
+    public static final String FZL4j = "# Launch4j runtime config\n" +
+            "# This file must be named as the executable. If the executable is AAA.exe, then this file must be named AAA.l4j.ini\n" +
+            "# Configure the JVM Heap size.\n" +
+            "-Xmx2200m";
+
+    public static final String IEL4j = "# Launch4j runtime config\n" +
+            "# This file must be named as the executable. If the executable is AAA.exe, then this file must be named AAA.l4j.ini\n" +
+            "# Configure the JVM Heap size.\n" +
+            "-Xmx4000m";
+
+    public static final long MAX_PROGRESS_VALUE = Integer.MAX_VALUE;
+
+    public static final double LCH_CONSTANT_L = 50;
+    public static final double LCH_CONSTANT_C = 100;
 
 }

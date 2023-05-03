@@ -26,6 +26,9 @@ public class D3Settings {
     public boolean gaussian_scaling;
     public double gaussian_weight;
     public int gaussian_kernel;
+    public boolean remove_outliers_pre;
+    public boolean remove_outliers_post;
+    public int outliers_method;
     public double fiX;
     public double fiY;
     public int d3_color_type;
@@ -74,11 +77,16 @@ public class D3Settings {
         d3 = false;
         detail = 400;
 
+        remove_outliers_pre = true;
+        remove_outliers_post = false;
+
         histogram_equalization = false;
         histogram_granularity = 10;
         histogram_density = 3;
 
         preHeightScaling = false;
+
+        outliers_method = 0;
         
     }
 }

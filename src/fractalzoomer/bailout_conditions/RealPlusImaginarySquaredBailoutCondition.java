@@ -17,8 +17,8 @@
 package fractalzoomer.bailout_conditions;
 
 import fractalzoomer.core.*;
-import fractalzoomer.core.mpfr.LibMpfr;
 import fractalzoomer.core.mpfr.MpfrBigNum;
+import fractalzoomer.core.mpir.MpirBigNum;
 import org.apfloat.Apfloat;
 
 /**
@@ -27,14 +27,18 @@ import org.apfloat.Apfloat;
  */
 public class RealPlusImaginarySquaredBailoutCondition extends BailoutCondition {
     private MpfrBigNum temp1;
+    private MpirBigNum temp1p;
  
     public RealPlusImaginarySquaredBailoutCondition(double bound) {
         
         super(bound);
 
         if((ThreadDraw.PERTURBATION_THEORY && ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE) || ThreadDraw.HIGH_PRECISION_CALCULATION) {
-            if(LibMpfr.LOAD_ERROR == null) {
+            if(ThreadDraw.allocateMPFR()) {
                 temp1 = new MpfrBigNum();
+            }
+            else if(ThreadDraw.allocateMPIR()) {
+                temp1p = new MpirBigNum();
             }
         }
         
@@ -67,6 +71,13 @@ public class RealPlusImaginarySquaredBailoutCondition extends BailoutCondition {
         z.getRe().add(z.getIm(), temp1);
         temp1.square(temp1);
         return temp1.compare(bound) >= 0;
+    }
+
+    @Override
+    public boolean escaped(MpirBigNumComplex z, MpirBigNumComplex zold, MpirBigNumComplex zold2, int iterations, MpirBigNumComplex c, MpirBigNumComplex start, MpirBigNumComplex c0, MpirBigNum norm_squared, MpirBigNumComplex pixel) {
+        z.getRe().add(z.getIm(), temp1p);
+        temp1p.square(temp1p);
+        return temp1p.compare(bound) >= 0;
     }
 
     @Override

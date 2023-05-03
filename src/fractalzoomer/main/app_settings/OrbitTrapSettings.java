@@ -65,6 +65,7 @@ public class OrbitTrapSettings {
     public double sfb;
 
     public int skipTrapCheckForIterations;
+    public int lastXItems;
     
     public OrbitTrapSettings() {
 
@@ -113,6 +114,7 @@ public class OrbitTrapSettings {
         showOnlyTraps = false;
         background = Color.BLACK;
         skipTrapCheckForIterations = 0;
+        lastXItems = 20;
         
     }
     

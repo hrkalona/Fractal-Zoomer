@@ -27,6 +27,8 @@ public class SmoothEscapeTimeFieldLines extends OutColorAlgorithm {
     protected double log_bailout_squared;
     protected double pi2;
     protected int algorithm;
+    protected double log_power;
+    protected boolean usePower;
 
     public SmoothEscapeTimeFieldLines(double log_bailout_squared, int algorithm) {
 
@@ -36,19 +38,28 @@ public class SmoothEscapeTimeFieldLines extends OutColorAlgorithm {
         this.algorithm = algorithm;
 
         OutNotUsingIncrement = false;
+        usePower = false;
+    }
+
+    public SmoothEscapeTimeFieldLines(double log_bailout_squared, int algorithm, double log_power) {
+
+        super();
+        this.log_bailout_squared = log_bailout_squared;
+        pi2 = Math.PI * 2;
+        this.algorithm = algorithm;
+
+        OutNotUsingIncrement = false;
+        usePower = true;
+        this.log_power = log_power;
     }
     
     @Override
     public double getResult(Object[] object) {
 
-        if(algorithm == 0) {
+        if(algorithm == 0 && !usePower) {
             double temp2 = Math.log(((Complex)object[1]).norm_squared());
-            double temp = ((Complex)object[2]).norm_squared();
 
-            temp += 0.000000001;
-            temp = Math.log(temp);
-
-            double temp3 = (Integer)object[0] + (log_bailout_squared - temp) / (temp2 - temp);
+            double temp3 = (Integer)object[0] + SmoothEscapeTime.getSmoothing1(object, temp2, log_bailout_squared);
             
             double lineWidth = 0.008;  // freely adjustable
             double fx = ((Complex)object[1]).arg() / (pi2);  // angle within cell
@@ -62,17 +73,7 @@ public class SmoothEscapeTimeFieldLines extends OutColorAlgorithm {
         else {
             double temp2 = Math.log(((Complex)object[1]).norm_squared());
 
-            double temp = ((Complex)object[2]).norm_squared();
-
-            double p = temp2 / Math.log(temp);
-            
-            p = p <= 0 ? 1e-33 : p;
-            temp2 = temp2 <= 0 ? 1e-33 : temp2;
-
-            double a = Math.log(temp2 / log_bailout_squared);
-            double f = a / Math.log(p);
-
-            double temp3 = (Integer)object[0] + 1 - f;
+            double temp3 = (Integer)object[0] + SmoothEscapeTime.getSmoothing2(object, temp2, log_bailout_squared, usePower, log_power);
             
             double lineWidth = 0.008;  // freely adjustable
             double fx = ((Complex)object[1]).arg() / (pi2);  // angle within cell

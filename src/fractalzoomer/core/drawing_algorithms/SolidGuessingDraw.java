@@ -19,6 +19,7 @@ package fractalzoomer.core.drawing_algorithms;
 import fractalzoomer.core.ThreadDraw;
 import fractalzoomer.core.location.Location;
 import fractalzoomer.functions.Fractal;
+import fractalzoomer.main.Constants;
 import fractalzoomer.main.ImageExpanderWindow;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.*;
@@ -114,7 +115,7 @@ public class SolidGuessingDraw extends ThreadDraw {
         int slice_TOy;
         int loc;
 
-        int notCalculated = 0;
+        int notCalculated = Constants.EMPTY_COLOR;
 
         int skippedColor;
 
@@ -243,7 +244,7 @@ public class SolidGuessingDraw extends ThreadDraw {
             }
         }
 
-        postProcess(image_size);
+        postProcess(image_size, null, location);
 
     }
 

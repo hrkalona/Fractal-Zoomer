@@ -15,6 +15,21 @@ public class MyJSpinner extends JSpinner {
         ((JSpinner.NumberEditor)this.getEditor()).getTextField().setColumns(length);
     }
 
+    public MyJSpinner(int length, SpinnerModel var1, int digitslen) {
+        super(var1);
+        String pos = "#.";
+        for(int i = 0 ; i < digitslen; i++) {
+            pos += "#";
+        }
+
+        String neg = "-#.";
+        for(int i = 0 ; i < digitslen; i++) {
+            neg += "#";
+        }
+        this.setEditor(new JSpinner.NumberEditor(this,pos + ";" + neg));
+        ((JSpinner.NumberEditor)this.getEditor()).getTextField().setColumns(length);
+    }
+
     public String getText() {
        return  ((JSpinner.DefaultEditor) this.getEditor()).getTextField().getText();
     }

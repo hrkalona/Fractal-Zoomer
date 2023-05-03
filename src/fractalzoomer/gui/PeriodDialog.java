@@ -48,13 +48,20 @@ public class PeriodDialog extends JDialog {
         field.addAncestorListener(new RequestFocusListener());
         field.setText("" + s.fns.period);
 
+        JTextField field2 = new JTextField(10);
+        field2.setText("" + s.max_iterations);
+
+
         Object[] message3 = {
             " ",
              "Period is only meant to be used along with Perturbation Theory\nand Bilinear Approximation or Nanomb1.",
                 " ",
             "You are using " + s.fns.period + " as period.\nEnter the new period number.",
             field,
-            " ",};
+                " ",
+                "You are using maximum " + s.max_iterations + " iterations.\nEnter the new maximum iterations number.",
+                field2,
+                " ",};
 
         optionPane = new JOptionPane(message3, JOptionPane.QUESTION_MESSAGE, JOptionPane.OK_CANCEL_OPTION, null, null, null);
 
@@ -92,6 +99,7 @@ public class PeriodDialog extends JDialog {
 
                         try {
                             int temp = Integer.parseInt(field.getText());
+                            int temp2 = Integer.parseInt(field2.getText());
 
                             if (temp < 0) {
                                 JOptionPane.showMessageDialog(ptra, "Period number must be greater than -1.", "Error!", JOptionPane.ERROR_MESSAGE);
@@ -101,7 +109,17 @@ public class PeriodDialog extends JDialog {
                                 return;
                             }
 
-                            if(s.fns.period != temp && ThreadDraw.APPROXIMATION_ALGORITHM == 3) {
+                            if (temp2 < 1) {
+                                JOptionPane.showMessageDialog(ptra, "Maximum iterations number must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            } else if (temp2 >  MainWindow.MAX_ITERATIONS_NUMBER) {
+                                JOptionPane.showMessageDialog(ptra, "Maximum iterations number must be less than 2147483648.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+
+                            s.max_iterations = temp2;
+                            
+                            if(s.fns.period != temp && s.supportsPeriod() && (ThreadDraw.APPROXIMATION_ALGORITHM == 3 || (ThreadDraw.DETECT_PERIOD && ThreadDraw.STOP_REFERENCE_CALCULATION_AFTER_DETECTED_PERIOD))) {
                                 Fractal.clearReferences(true);
                             }
 

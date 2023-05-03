@@ -31,9 +31,9 @@ public class StalksNNormOrbitTrap extends OrbitTrap {
     private double n_norm;
     private double n_norm_reciprocal;
     
-    public StalksNNormOrbitTrap(int checkType, double pointRe, double pointIm, double trapLength, double trapWidth, double n_norm, boolean countTrapIterations) {
+    public StalksNNormOrbitTrap(int checkType, double pointRe, double pointIm, double trapLength, double trapWidth, double n_norm, boolean countTrapIterations, int lastXItems) {
         
-        super(checkType, pointRe, pointIm, trapLength, trapWidth, countTrapIterations);
+        super(checkType, pointRe, pointIm, trapLength, trapWidth, countTrapIterations, lastXItems);
         this.n_norm = n_norm;
         n_norm_reciprocal = 1 / n_norm;
         
@@ -67,6 +67,10 @@ public class StalksNNormOrbitTrap extends OrbitTrap {
 
     @Override
     public double getDistance() {
+
+        if(keepLastXItems && !processedLastItems) {
+            processLastItems();
+        }
 
         return trapId == 0 ? (distance != Double.MAX_VALUE ? Math.abs(trapWidth - 2 * (distance - cnorm + trapWidth * 0.5)) : distance) : distance;
 

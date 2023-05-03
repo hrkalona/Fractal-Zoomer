@@ -27,7 +27,7 @@ public class CartesianLocationNormalBigNumArbitrary extends Location {
     private BigNum bntempX;
     private BigNum bntempY;
 
-    private BigNum bnsize;
+    protected BigNum bnsize;
     protected Apfloat ddsize;
 
     protected Apfloat height_ratio;
@@ -71,7 +71,7 @@ public class CartesianLocationNormalBigNumArbitrary extends Location {
 
     public CartesianLocationNormalBigNumArbitrary(CartesianLocationNormalBigNumArbitrary other) {
 
-        super();
+        super(other);
 
         fractal = other.fractal;
 
@@ -235,19 +235,30 @@ public class CartesianLocationNormalBigNumArbitrary extends Location {
     }
 
     @Override
-    public void createAntialiasingSteps(boolean adaptive) {
-        BigNum[][] steps = createAntialiasingStepsBigNum(bntemp_size_image_size_x, bntemp_size_image_size_y, adaptive);
+    public void createAntialiasingSteps(boolean adaptive, boolean jitter) {
+        super.createAntialiasingSteps(adaptive, jitter);
+        BigNum[][] steps = createAntialiasingStepsBigNum(bntemp_size_image_size_x, bntemp_size_image_size_y, adaptive, jitter);
         bnantialiasing_x = steps[0];
         bnantialiasing_y = steps[1];
     }
 
     @Override
-    public GenericComplex getAntialiasingComplex(int sample) {
-        return getAntialiasingComplexBase(sample);
+    public GenericComplex getAntialiasingComplex(int sample, int loc) {
+        return getAntialiasingComplexBase(sample, loc);
     }
 
-    protected BigNumComplex getAntialiasingComplexBase(int sample) {
-        BigNumComplex temp = new BigNumComplex(bntempX.add(bnantialiasing_x[sample]), bntempY.add(bnantialiasing_y[sample]));
+    protected BigNumComplex getAntialiasingComplexBase(int sample, int loc) {
+        BigNumComplex temp;
+
+        if(aaJitter) {
+            int r = (int)(hash(loc) % NUMBER_OF_AA_JITTER_KERNELS);
+            BigNum[] bnantialiasing_x = precalculatedJitterDataBigNum[r][0];
+            BigNum[] bnantialiasing_y = precalculatedJitterDataBigNum[r][1];
+            temp = new BigNumComplex(bntempX.add(bnantialiasing_x[sample]), bntempY.add(bnantialiasing_y[sample]));
+        }
+        else {
+            temp = new BigNumComplex(bntempX.add(bnantialiasing_x[sample]), bntempY.add(bnantialiasing_y[sample]));
+        }
 
         temp = rotation.rotate(temp);
 

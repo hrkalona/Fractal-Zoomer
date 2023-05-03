@@ -49,6 +49,9 @@ public class BigComplex extends GenericComplex {
     @Override
     public MpfrBigNumComplex toMpfrBigNumComplex() { return new MpfrBigNumComplex(this);}
 
+    @Override
+    public MpirBigNumComplex toMpirBigNumComplex() { return new MpirBigNumComplex(this);}
+
     public final Apfloat getRe() {
 
         return re;
@@ -191,9 +194,9 @@ public class BigComplex extends GenericComplex {
 
         Apfloat temp = z.re;
         Apfloat temp2 = z.im;
-        Apfloat temp3 = MyApfloat.fp.add(MyApfloat.fp.multiply(temp, temp), MyApfloat.fp.multiply(temp2, temp2));
+        Apfloat temp3 = MyApfloat.fp.divide(MyApfloat.ONE, MyApfloat.fp.add(MyApfloat.fp.multiply(temp, temp), MyApfloat.fp.multiply(temp2, temp2)));
 
-        return new BigComplex(MyApfloat.fp.divide(MyApfloat.fp.add(MyApfloat.fp.multiply(re, temp), MyApfloat.fp.multiply(im, temp2)), temp3), MyApfloat.fp.divide(MyApfloat.fp.subtract(MyApfloat.fp.multiply(im, temp), MyApfloat.fp.multiply(re, temp2)), temp3));
+        return new BigComplex(MyApfloat.fp.multiply(MyApfloat.fp.add(MyApfloat.fp.multiply(re, temp), MyApfloat.fp.multiply(im, temp2)), temp3), MyApfloat.fp.multiply(MyApfloat.fp.subtract(MyApfloat.fp.multiply(im, temp), MyApfloat.fp.multiply(re, temp2)), temp3));
 
     }
 
@@ -203,7 +206,8 @@ public class BigComplex extends GenericComplex {
     @Override
     public final BigComplex divide(Apfloat number) {
 
-        return new BigComplex(MyApfloat.fp.divide(re, number), MyApfloat.fp.divide(im, number));
+        Apfloat temp = MyApfloat.fp.divide(MyApfloat.ONE, number);
+        return new BigComplex(MyApfloat.fp.multiply(re, temp), MyApfloat.fp.multiply(im, temp));
 
     }
 
@@ -212,9 +216,9 @@ public class BigComplex extends GenericComplex {
      */
     public final BigComplex divide_i(Apfloat number) {
 
-        Apfloat temp3 = MyApfloat.fp.multiply(number, number);
+        Apfloat temp3 =  MyApfloat.fp.divide(MyApfloat.ONE, MyApfloat.fp.multiply(number, number));
 
-        return new BigComplex(MyApfloat.fp.divide(MyApfloat.fp.add(re, MyApfloat.fp.multiply(im, number)), temp3), MyApfloat.fp.divide(MyApfloat.fp.subtract(im, MyApfloat.fp.multiply(re, number)), temp3));
+        return new BigComplex(MyApfloat.fp.multiply(MyApfloat.fp.add(re, MyApfloat.fp.multiply(im, number)), temp3), MyApfloat.fp.multiply(MyApfloat.fp.subtract(im, MyApfloat.fp.multiply(re, number)), temp3));
 
     }
 
@@ -428,8 +432,8 @@ public class BigComplex extends GenericComplex {
      */
     public final BigComplex reciprocal() {
 
-        Apfloat temp = MyApfloat.fp.add(MyApfloat.fp.multiply(re, re), MyApfloat.fp.multiply(im, im));
-        return new BigComplex(MyApfloat.fp.divide(re, temp), MyApfloat.fp.divide(im.negate(), temp));
+        Apfloat temp = MyApfloat.fp.divide(MyApfloat.ONE, MyApfloat.fp.add(MyApfloat.fp.multiply(re, re), MyApfloat.fp.multiply(im, im)));
+        return new BigComplex(MyApfloat.fp.multiply(re, temp), MyApfloat.fp.multiply(im.negate(), temp));
 
     }
 
@@ -893,9 +897,9 @@ public class BigComplex extends GenericComplex {
         BigComplex z = (BigComplex)za;
         Apfloat temp = z.re;
         Apfloat temp2 = z.im;
-        Apfloat temp3 = MyApfloat.fp.add(MyApfloat.fp.multiply(temp, temp), MyApfloat.fp.multiply(temp2, temp2));
+        Apfloat temp3 =  MyApfloat.fp.divide(MyApfloat.ONE, MyApfloat.fp.add(MyApfloat.fp.multiply(temp, temp), MyApfloat.fp.multiply(temp2, temp2)));
 
-        return new BigComplex(MyApfloat.fp.divide(MyApfloat.fp.add(MyApfloat.fp.multiply(re, temp), MyApfloat.fp.multiply(im, temp2)), temp3), MyApfloat.fp.divide(MyApfloat.fp.subtract(MyApfloat.fp.multiply(im, temp), MyApfloat.fp.multiply(re, temp2)), temp3));
+        return new BigComplex(MyApfloat.fp.multiply(MyApfloat.fp.add(MyApfloat.fp.multiply(re, temp), MyApfloat.fp.multiply(im, temp2)), temp3), MyApfloat.fp.multiply(MyApfloat.fp.subtract(MyApfloat.fp.multiply(im, temp), MyApfloat.fp.multiply(re, temp2)), temp3));
 
     }
 
@@ -906,6 +910,9 @@ public class BigComplex extends GenericComplex {
     public GenericComplex times_mutable(GenericComplex a) {return times(a);}
 
     @Override
+    public GenericComplex divide_mutable(GenericComplex a) {return divide(a);}
+
+    @Override
     public GenericComplex sub_mutable(GenericComplex v) { return sub(v); }
 
     @Override
@@ -913,6 +920,19 @@ public class BigComplex extends GenericComplex {
 
     @Override
     public GenericComplex abs_mutable() { return abs(); }
+
+    @Override
+    public GenericComplex square_mutable() { return square(); }
+
+    /*
+     *  z^3
+     */
+    @Override
+    public final BigComplex squareFast_mutable(NormComponents normComponents) {
+
+        return squareFast(normComponents);
+
+    }
 
     /*
      *  z^3

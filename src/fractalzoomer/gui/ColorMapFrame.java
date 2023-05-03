@@ -23,7 +23,7 @@ public class ColorMapFrame extends JFrame {
 
     public static final String DirName = "ColorMaps";
 
-    public ColorMapFrame(MainWindow ptra, boolean smoothing, int color_cycling_location, boolean outcoloring_mode, JRadioButtonMenuItem[] palettes) {
+    public ColorMapFrame(MainWindow ptra, boolean smoothing, boolean outcoloring_mode, JRadioButtonMenuItem[] palettes) {
 
         super();
 
@@ -108,7 +108,7 @@ public class ColorMapFrame extends JFrame {
                     boolean isSelected, boolean cellHasFocus) {
 
                 if(index < colorMaps.size()) {
-                    Color[] c = PresetPalette.getPalette(colorMaps.get(index), color_cycling_location);
+                    Color[] c = PresetPalette.getPalette(colorMaps.get(index), 0);
 
                     BufferedImage palette_preview = new BufferedImage(250, 24, BufferedImage.TYPE_INT_ARGB);
                     Graphics2D g = palette_preview.createGraphics();

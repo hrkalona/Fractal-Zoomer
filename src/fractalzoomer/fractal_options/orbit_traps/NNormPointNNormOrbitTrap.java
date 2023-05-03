@@ -24,9 +24,9 @@ public class NNormPointNNormOrbitTrap extends OrbitTrap {
     private double n_norm;
     private double n_norm_reciprocal;
 
-    public NNormPointNNormOrbitTrap(int checkType, double pointRe, double pointIm, double trapLength, double trapWidth, double n_norm, boolean countTrapIterations) {
+    public NNormPointNNormOrbitTrap(int checkType, double pointRe, double pointIm, double trapLength, double trapWidth, double n_norm, boolean countTrapIterations, int lastXItems) {
 
-        super(checkType, pointRe, pointIm, trapLength, trapWidth, countTrapIterations);
+        super(checkType, pointRe, pointIm, trapLength, trapWidth, countTrapIterations, lastXItems);
         this.n_norm = n_norm;
         n_norm_reciprocal = 1 / n_norm;
         

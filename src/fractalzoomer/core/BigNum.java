@@ -39,6 +39,8 @@ public class BigNum {
 
     private static final double TWO_TO_SHIFT = Math.pow(2,-SHIFT);
 
+    public static int SQRT_MAX_ITERATIONS = 30;
+
     public static void reinitialize(double digits) {
 
         //Lets always have even fracDigits
@@ -194,6 +196,105 @@ public class BigNum {
 
         }
 
+    }
+
+    //Has similarities with the double constructor
+    public BigNum(MantExp inputVal) {
+
+        digits = new int[fracDigitsp1];
+
+        scale = 0;
+        offset = -1;
+        bitOffset = -1;
+
+        inputVal.Reduce();
+        double doubleMantissa = inputVal.getMantissa();
+        long inputExp = inputVal.getExp();
+
+        if(doubleMantissa == 0 || inputExp == MantExp.MIN_BIG_EXPONENT) {
+            sign = 0;
+            isOne = false;
+            return;
+        }
+        else if(Math.abs(doubleMantissa) == 1 && inputExp == 0) {
+            isOne = true;
+            sign = (int)doubleMantissa;
+            digits[0] = 1;
+            return;
+        }
+
+        sign = (int)Math.signum(doubleMantissa);
+        double val = Math.abs(doubleMantissa);
+
+
+        long bits = Double.doubleToRawLongBits(val);
+        long f_exp = ((bits & 0x7FF0000000000000L) >>> 52) - Double.MAX_EXPONENT;
+        long mantissa = (bits & 0xFFFFFFFFFFFFFL) | (0x10000000000000L);
+
+
+        long totalExp = f_exp + inputExp;
+
+        int index;
+        int bitOffset;
+        if(totalExp < 0) {
+            long posExp = Math.abs(totalExp);
+            index = (int) (posExp / SHIFT) + 1;
+            bitOffset = (int) (posExp % SHIFT);
+        }
+        else {
+            index = (int) (-totalExp / SHIFT);
+            bitOffset = (int) (totalExp % SHIFT);
+        }
+
+
+        int k;
+        int i = index;
+        for (k = 53; k > 0 && i < digits.length; i++) {
+            int r;
+
+            if (k > SHIFT) {
+
+                if(i == -1) {
+                    i = 0;
+                    r = MSHIFTP52;
+                    k -= 53 - r;
+                    digits[i] = (int) ((mantissa >>> r) & MASKD0);
+                }
+                else if(i == 0) {
+                    r = 52 - bitOffset;
+                    k -= 53 - r;
+                    digits[i] = (int) ((mantissa >>> r) & MASKD0);
+                }
+                else if (i > 0) {
+                    if (k == 53) {
+                        r = MSHIFTP52 + bitOffset;
+                        k -= 53 - r;
+                    } else {
+                        r = k - SHIFT;
+                        k -= SHIFT;
+                    }
+
+                    digits[i] = (int) ((mantissa >>> r) & MASK);
+                }
+            } else {
+
+                r = SHIFT - k;
+                k -= k;
+
+
+                //if(r >= 0) {
+                digits[i] = (int) ((mantissa << r) & MASK);
+                //}
+                //else {
+                //   digits[i] = (int) ((mantissa >>> (-r)) & MASK);
+                // }
+            }
+
+        }
+    }
+
+    public BigNum(String val) {
+        this(new MyApfloat(val));
     }
 
     public BigNum(Apfloat val) {
@@ -364,6 +465,15 @@ public class BigNum {
         return res;
     }
 
+    public BigNum abs_mutable() {
+
+        if(sign == -1) {
+            sign = 1;
+        }
+
+        return this;
+    }
+
     @Override
     public String toString() {
         StringBuilder ret = new StringBuilder((sign == -1 ? "-" : "") + toHexString(digits[0]));
@@ -371,7 +481,7 @@ public class BigNum {
             ret.append(i==1 ? "." : " ");
             ret.append(toHexString(digits[i]));
         }
-        return ret.toString();
+        return doubleValue() + " " + ret.toString();
     }
 
     public void print() {
@@ -2860,7 +2970,7 @@ public class BigNum {
         }
 
         temp = (digits[0] << 1) | (temp >>> SHIFT);
-        resDigits[0] = temp;
+        resDigits[0] = (int)(temp & MASKD0);
         res.sign = sign;
         res.isOne = temp == 1 && isNonZero == 0;
         return res;
@@ -2885,7 +2995,8 @@ public class BigNum {
 
         int isNonZero = 0;
 
-        int temp = digits[0];
+        int d0 = digits[0];
+        int temp = d0;
         int val = temp >>> 1;
 
         int bit = temp & 0x1;
@@ -2908,7 +3019,7 @@ public class BigNum {
         temp >>>= 1;
         resDigits[fracDigits] = temp & MASKINT;
         res.sign = sign;
-        res.isOne = temp == 1 && isNonZero == 0;
+        res.isOne = d0 == 1 && isNonZero == 0;
         return res;
 
     }
@@ -2931,8 +3042,8 @@ public class BigNum {
 
         int isNonZero = 0;
 
-
-        int temp = digits[0];
+        int d0 = digits[0];
+        int temp = d0;
         int val = temp >>> 2;
 
         int bits = temp & 0x3;
@@ -2955,7 +3066,7 @@ public class BigNum {
         temp >>>= 2;
         resDigits[fracDigits] = temp & MASKINT;
         res.sign = sign;
-        res.isOne = temp == 1 && isNonZero == 0;
+        res.isOne = d0 == 1 && isNonZero == 0;
         return res;
 
     }
@@ -2991,7 +3102,7 @@ public class BigNum {
         }
 
         temp = (digits[0] << 2) | (temp >>> SHIFT);
-        resDigits[0] = temp;
+        resDigits[0] = (int)(temp & MASKD0);
         res.sign = sign;
         res.isOne = temp == 1 && isNonZero == 0;
         return res;
@@ -3257,4 +3368,373 @@ public class BigNum {
         return a.compare(b) < 0 ? a : b;
     }
 
+    public BigNum mult2to30(int times) {
+
+        BigNum result = new BigNum(this);
+
+        if(times <= 0) {
+            return result;
+        }
+
+        int[] digits = result.digits;
+        int total = digits.length + times;
+        int isNonZero = 0;
+
+        for(int i = times, location = 0; i < total; i++, location++) {
+            if(i < digits.length) {
+                if(location == 0) {
+                    int value = digits[i - 1];
+                    int finalValue = digits[i];
+                    finalValue |= (value & 0x1) << SHIFT;
+                    digits[location] = finalValue;
+                }
+                else {
+                    digits[location] = digits[i];
+                }
+            }
+            else {
+                int im1 = i - 1;
+                if(location == 0 && im1 < digits.length) {
+                    int value = digits[im1];
+                    int finalValue = (value & 0x1) << SHIFT;
+                    digits[location] = finalValue;
+                }
+                else {
+                    digits[location] = 0;
+                }
+            }
+
+            if(location != 0) {
+                isNonZero |= digits[location];
+            }
+        }
+
+        result.isOne = digits[0] == 1 && isNonZero == 0;
+        return result;
+    }
+
+    public BigNum div2toi(long power) {
+        BigNum result = new BigNum(this);
+
+        if(power <= 0) {
+            return result;
+        }
+
+        int times = (int)(power / SHIFT);
+
+        int internalShift = (int)(power % SHIFT);
+
+        int[] digits = result.digits;
+        int total = -times;
+        int isNonZero = 0;
+
+        for(int i = digits.length - 1 - times, location = digits.length - 1; i >= total; i--, location--) {
+            if(i >= 0) {
+                int value = digits[i] >>> internalShift;
+
+                if(value > MASKINT) {
+                    if(location != 0) {
+                        digits[location] = value & MASKINT;
+                    }
+                    else {
+                        digits[location] = value;
+                    }
+
+                    i--;
+                    location--;
+                    if(location >= 0) {
+                        digits[location] = 0x1;
+                    }
+                }
+                else {
+                    int finalValue = value;
+                    int im1 = i - 1;
+                    if(im1 >= 0) {
+                        int diff = SHIFT - internalShift;
+                        finalValue |= (digits[im1] & (0xFFFFFFFF >>> diff)) << diff;
+                    }
+                    if(location == 0) {
+                        digits[location] = (int) (finalValue & MASKD0);
+                    }
+                    else {
+                        digits[location] = finalValue & MASKINT;
+                    }
+                }
+            }
+            else {
+                int ip1 = i + 1;
+                if(ip1 == 0 && (digits[ip1] >>> internalShift) > MASKINT) {
+                    digits[location] = 0x1;
+                }
+                else {
+                    digits[location] = 0;
+                }
+            }
+
+            if(location != 0) {
+                isNonZero |= digits[location];
+            }
+        }
+
+        result.isOne = digits[0] == 1 && isNonZero == 0;
+        return result;
+    }
+
+    public BigNum mult2toi(long power) {
+
+        BigNum result = new BigNum(this);
+
+        if(power <= 0) {
+            return result;
+        }
+
+        int times = (int)(power / SHIFT);
+
+        int internalShift = (int)(power % SHIFT);
+
+        int[] digits = result.digits;
+        int total = digits.length + times;
+        int isNonZero = 0;
+
+        for(int i = times, location = 0; i < total; i++, location++) {
+            if(i < digits.length) {
+
+                int value = digits[i] << internalShift;
+
+                int im1 = i - 1;
+                if(location == 0 && im1 >= 0 && internalShift == 0) {
+                    value |= (digits[im1] & 0x1) << SHIFT;
+                }
+
+                int ip1 = i + 1;
+                if(ip1 < digits.length) {
+                    value |= digits[ip1] >>> (SHIFT - internalShift);
+                }
+                if(location == 0) {
+                    digits[location] = (int)(value & MASKD0);
+                }
+                else {
+                    digits[location] = value & MASKINT;
+                }
+
+            }
+            else {
+                int im1 = i - 1;
+                if(location == 0 && im1 < digits.length && internalShift == 0) {
+                    int value = (digits[im1] & 0x1) << SHIFT;
+                    digits[location] = (int)(value & MASKD0);
+                }
+                else {
+                    digits[location] = 0;
+                }
+            }
+
+            if(location != 0) {
+                isNonZero |= digits[location];
+            }
+        }
+
+        result.isOne = digits[0] == 1 && isNonZero == 0;
+        return result;
+    }
+
+    public BigNum divide2to30(int times) {
+
+        BigNum result = new BigNum(this);
+
+        if(times <= 0) {
+            return result;
+        }
+
+        int[] digits = result.digits;
+        int total = -times;
+        int isNonZero = 0;
+        
+        for(int i = digits.length - 1 - times, location = digits.length - 1; i >= total; i--, location--) {
+            if(i >= 0) {
+                int value = digits[i];
+
+                if(value > MASKINT) {
+                    digits[location] = value & MASKINT;
+                    i--;
+                    location--;
+                    digits[location] = 0x1;
+                }
+                else {
+                    digits[location] = value;
+                }
+            }
+            else {
+                int ip1 = i + 1;
+                if(ip1 == 0 && digits[ip1]  > MASKINT) {
+                    digits[location] = 0x1;
+                }
+                else {
+                    digits[location] = 0;
+                }
+            }
+
+            if(location != 0) {
+                isNonZero |= digits[location];
+            }
+        }
+
+        result.isOne = digits[0] == 1 && isNonZero == 0;
+        return result;
+    }
+
+    public BigNum shift2to30(int times) {
+        if(times > 0) {
+            return mult2to30(times);
+        }
+        else if(times < 0) {
+            return divide2to30(-times);
+        }
+
+        return new BigNum(this);
+    }
+
+    public BigNum shift2toi(long power) {
+        if(power > 0) {
+            return mult2toi(power);
+        }
+        else if(power < 0) {
+            return div2toi(-power);
+        }
+
+        return new BigNum(this);
+    }
+
+    public BigNum sqrt() {
+        if(sign == 0 || isOne) {
+            return new BigNum(this);
+        }
+        if(sign < 0) {
+            return new BigNum();
+        }
+        BigNum one = new BigNum(1);
+        BigNum oneFourth = new BigNum(0.25);
+
+        BigNum a = new BigNum(this);
+        long divisions = 0;
+        long multiplications = 0;
+        if(a.compare(one) > 0) { //scale it down between 1 and 1/4
+            do {
+                a = a.divide4();
+                divisions++;
+            } while (a.compare(one) > 0);
+        }
+        else if(a.compare(oneFourth) < 0) {
+
+            int i;
+
+            int[] digits = a.digits;
+            for(i = 2; i < digits.length; i++) {
+                if(digits[i] != 0) {
+                    break;
+                }
+            }
+
+            int numberOfLimbs = i - 2;
+            int multiplesOfTwo = numberOfLimbs >>> 1;
+
+            if(multiplesOfTwo > 0) {
+                int temp = multiplesOfTwo << 1;
+                multiplications += ((long)temp * SHIFT) >>> 1;
+                a = a.mult2to30(temp);
+            }
+
+            do {
+                a = a.mult4();
+                multiplications++;
+            } while (a.compare(oneFourth) < 0);
+        }
+
+        BigNum oneHalf = new BigNum(1.5);
+        BigNum aHalf = a.divide2(); // a / 2
+
+        BigNum x = new BigNum(1 / Math.sqrt(a.doubleValue())); // set the initial value to an approximation of 1 /sqrt(a)
+
+        //Newton steps
+        BigNum newX = x.mult(oneHalf.sub(aHalf.mult(x.squareFull()))); // x = (3/2 - (a/2)*x^2)*x
+
+        BigNum epsilon = new BigNum(1);
+        epsilon.digits[epsilon.digits.length - 1] = 0x1F;
+        epsilon.digits[0] = 0;
+
+        int iter = 0;
+        while (newX.sub(x).abs_mutable().compare(epsilon) >= 0 && iter < SQRT_MAX_ITERATIONS) {
+            x = newX;
+            newX = x.mult(oneHalf.sub(aHalf.mult(x.squareFull())));
+            iter++;
+        }
+
+        BigNum sqrta = newX.mult(a); //sqrt(a) = a * (1 /sqrt(a));
+        if(multiplications > 0) { //scale it up again
+            sqrta = sqrta.div2toi(multiplications);
+        }
+        else if(divisions > 0) {
+            sqrta = sqrta.mult2toi(divisions);
+        }
+
+        return sqrta;
+    }
+
+    //bisection, too slow
+    /*public BigNum sqrt() {
+        if(sign == 0 || isOne) {
+            return new BigNum(this);
+        }
+        if(sign < 0) {
+            return new BigNum();
+        }
+        BigNum high;
+        BigNum low;
+        if(digits[0] != 0) {
+//            high  = new BigNum(1);
+//
+//            while (high.squareFull().compare(this) < 0) {
+//                high  = high .mult2();
+//            }
+//
+//            low = high.divide2();
+            MantExp m = getMantExp();
+            low = new BigNum(m.sqrt().divide2());
+            high = low.mult4();
+        }
+        else {
+//            low = new BigNum(1);
+//
+//            while (low.squareFull().compare(this) > 0) {
+//                low = low.divide2();
+//            }
+//
+//
+//            high = low.mult2();
+            MantExp m = getMantExp();
+            low = new BigNum(m.sqrt().divide2());
+            high = low.mult4();
+        }
+
+        BigNum mid = null;
+        int iterations = 0;
+        while (low.compare(high) < 0 && iterations < SQRT_MAX_ITERATIONS) {
+            mid = low.add(high).divide2();
+            BigNum midSqr = mid.squareFull();
+            int res = midSqr.compare(this);
+            if(res < 0 && low.compare(mid) < 0) {
+                low = mid;
+            }
+            else if(res > 0 && high.compare(mid) > 0) {
+                high = mid;
+            }
+            else {
+                return mid;
+            }
+            iterations++;
+        }
+
+       return mid;
+
+    }*/
 }

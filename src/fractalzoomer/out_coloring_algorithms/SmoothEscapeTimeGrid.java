@@ -28,6 +28,8 @@ public class SmoothEscapeTimeGrid extends OutColorAlgorithm {
     protected double log_bailout_squared;
     protected double pi2;
     protected int algorithm;
+    protected double log_power;
+    protected boolean usePower;
 
     public SmoothEscapeTimeGrid(double log_bailout_squared, int algorithm) {
 
@@ -35,6 +37,19 @@ public class SmoothEscapeTimeGrid extends OutColorAlgorithm {
         this.log_bailout_squared = log_bailout_squared;
         pi2 = Math.PI * 2;
         this.algorithm = algorithm;
+        usePower = false;
+
+        OutNotUsingIncrement = false;
+    }
+
+    public SmoothEscapeTimeGrid(double log_bailout_squared, int algorithm, double log_power) {
+
+        super();
+        this.log_bailout_squared = log_bailout_squared;
+        pi2 = Math.PI * 2;
+        this.algorithm = algorithm;
+        usePower = true;
+        this.log_power = log_power;
 
         OutNotUsingIncrement = false;
     }
@@ -42,7 +57,7 @@ public class SmoothEscapeTimeGrid extends OutColorAlgorithm {
     @Override
     public double getResult(Object[] object) {
 
-        if(algorithm == 0) {
+        if(algorithm == 0 && !usePower) {
             double temp2 = Math.log(((Complex)object[1]).norm_squared());
 
             double zabs = temp2 / log_bailout_squared - 1.0f;
@@ -54,12 +69,8 @@ public class SmoothEscapeTimeGrid extends OutColorAlgorithm {
 
             boolean grid = grid_weight < zabs && zabs < (1.0 - grid_weight) && (grid_weight * k) < zarg && zarg < (1.0 - grid_weight * k);
 
-            double temp = ((Complex)object[2]).norm_squared();
 
-            temp += 0.000000001;
-            temp = Math.log(temp);
-
-            double temp3 = (Integer)object[0] + (log_bailout_squared - temp) / (temp2 - temp);
+            double temp3 = (Integer)object[0] + SmoothEscapeTime.getSmoothing1(object, temp2, log_bailout_squared);
 
             return grid ? temp3 : -(temp3 + INCREMENT);
         }
@@ -74,18 +85,8 @@ public class SmoothEscapeTimeGrid extends OutColorAlgorithm {
             double grid_weight = 0.05;
 
             boolean grid = grid_weight < zabs && zabs < (1.0 - grid_weight) && (grid_weight * k) < zarg && zarg < (1.0 - grid_weight * k);
-            
-            double temp = ((Complex)object[2]).norm_squared();
 
-            double p = temp2 / Math.log(temp);
-            
-            p = p <= 0 ? 1e-33 : p;
-            temp2 = temp2 <= 0 ? 1e-33 : temp2;
-
-            double a = Math.log(temp2 / log_bailout_squared);
-            double f = a / Math.log(p);
-
-            double temp3 = (Integer)object[0] + 1 - f;
+            double temp3 = (Integer)object[0] + SmoothEscapeTime.getSmoothing2(object, temp2, log_bailout_squared, usePower, log_power);
             
             return grid ? temp3 : -(temp3 + INCREMENT);
         }

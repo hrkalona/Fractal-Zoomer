@@ -33,7 +33,7 @@ public class RainbowPaletteSettings {
         rainbow_palette_factor = 1;
         rp_blending = 0.7;
         rainbow_offset = 0;
-        rp_noise_reducing_factor = 0.4;
+        rp_noise_reducing_factor = 1e-10;
         rainbow_algorithm = 0;
     }
 

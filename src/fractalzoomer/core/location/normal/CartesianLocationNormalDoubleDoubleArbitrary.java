@@ -65,7 +65,7 @@ public class CartesianLocationNormalDoubleDoubleArbitrary extends Location {
 
     public CartesianLocationNormalDoubleDoubleArbitrary(CartesianLocationNormalDoubleDoubleArbitrary other) {
 
-        super();
+        super(other);
 
         fractal = other.fractal;
 
@@ -227,19 +227,30 @@ public class CartesianLocationNormalDoubleDoubleArbitrary extends Location {
     }
 
     @Override
-    public void createAntialiasingSteps(boolean adaptive) {
-        DoubleDouble[][] steps = createAntialiasingStepsDoubleDouble(ddtemp_size_image_size_x, ddtemp_size_image_size_y, adaptive);
+    public void createAntialiasingSteps(boolean adaptive, boolean jitter) {
+        super.createAntialiasingSteps(adaptive, jitter);
+        DoubleDouble[][] steps = createAntialiasingStepsDoubleDouble(ddtemp_size_image_size_x, ddtemp_size_image_size_y, adaptive, jitter);
         ddantialiasing_x = steps[0];
         ddantialiasing_y = steps[1];
     }
 
     @Override
-    public GenericComplex getAntialiasingComplex(int sample) {
-        return getAntialiasingComplexBase(sample);
+    public GenericComplex getAntialiasingComplex(int sample, int loc) {
+        return getAntialiasingComplexBase(sample, loc);
     }
 
-    protected DDComplex getAntialiasingComplexBase(int sample) {
-        DDComplex temp = new DDComplex(ddtempX.add(ddantialiasing_x[sample]), ddtempY.add(ddantialiasing_y[sample]));
+    protected DDComplex getAntialiasingComplexBase(int sample, int loc) {
+        DDComplex temp;
+
+        if(aaJitter) {
+            int r = (int)(hash(loc) % NUMBER_OF_AA_JITTER_KERNELS);
+            DoubleDouble[] ddantialiasing_x = precalculatedJitterDataDoubleDouble[r][0];
+            DoubleDouble[] ddantialiasing_y = precalculatedJitterDataDoubleDouble[r][1];
+            temp = new DDComplex(ddtempX.add(ddantialiasing_x[sample]), ddtempY.add(ddantialiasing_y[sample]));
+        }
+        else {
+            temp = new DDComplex(ddtempX.add(ddantialiasing_x[sample]), ddtempY.add(ddantialiasing_y[sample]));
+        }
 
         temp = rotation.rotate(temp);
 

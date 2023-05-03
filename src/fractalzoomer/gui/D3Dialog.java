@@ -16,6 +16,7 @@
  */
 package fractalzoomer.gui;
 
+import fractalzoomer.core.ThreadDraw;
 import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
@@ -83,12 +84,42 @@ public class D3Dialog extends JDialog {
         temp_p3.add(scale_max_val_opt);
         temp_p3.add(scale_range);
 
+
+        JPanel temp_p5 = new JPanel();
+        temp_p5.setLayout(new GridLayout(1, 3));
         final JCheckBox preHeightScaling = new JCheckBox("Pre-Scaling");
         preHeightScaling.setSelected(s.d3s.preHeightScaling);
         preHeightScaling.setFocusable(false);
         preHeightScaling.setToolTipText("Enables the pre-scaling of height values.");
 
-        String[] height_options = {"log(x + 1)", "log(log(x + 1) + 1)", "1 / (x + 1)", "e^(-x + 5)", "150 - e^(-x + 5)", "150 / (1 + e^(-3*x+3))", "1 / (log(x + 1) + 1)"};
+        final JCheckBox removeOutliers = new JCheckBox("Pre-Remove Outliers");
+        removeOutliers.setSelected(s.d3s.remove_outliers_pre);
+        removeOutliers.setFocusable(false);
+        removeOutliers.setToolTipText("Removes outliers from the values (Pre function application step).");
+
+        final JCheckBox removeOutliersPost = new JCheckBox("Post-Remove Outliers");
+        removeOutliersPost.setSelected(s.d3s.remove_outliers_post);
+        removeOutliersPost.setFocusable(false);
+        removeOutliersPost.setToolTipText("Removes outliers from the values (Post function application step).");
+
+        temp_p5.add(removeOutliers);
+        temp_p5.add(removeOutliersPost);
+        temp_p5.add(preHeightScaling);
+
+        JComboBox<String> outliersAlgorithm = new JComboBox<>(new String[] {"Tukey's Fences", "Z-score"});
+        outliersAlgorithm.setSelectedIndex(s.d3s.outliers_method);
+        outliersAlgorithm.setFocusable(false);
+        outliersAlgorithm.setToolTipText("Sets the outlier removal method.");
+
+        outliersAlgorithm.setEnabled(removeOutliers.isSelected() || removeOutliersPost.isSelected());
+
+        removeOutliersPost.addActionListener(e -> outliersAlgorithm.setEnabled(removeOutliers.isSelected() || removeOutliersPost.isSelected()));
+
+        removeOutliers.addActionListener(e -> outliersAlgorithm.setEnabled(removeOutliers.isSelected() || removeOutliersPost.isSelected()));
+
+        removeOutliers.addActionListener(e -> outliersAlgorithm.setEnabled(removeOutliers.isSelected()));
+
+        String[] height_options = {"log(x + 1)", "log(log(x + 1) + 1)", "1 / (x + 1)", "1 / (log(x + 1) + 1)", "x"};
 
         JComboBox<String> height_algorithm_opt = new JComboBox<>(height_options);
         height_algorithm_opt.setSelectedIndex(s.d3s.height_algorithm);
@@ -122,10 +153,10 @@ public class D3Dialog extends JDialog {
         });
 
 
-        final JCheckBox histogram_opt = new JCheckBox("Histogram Equalization");
+        /*final JCheckBox histogram_opt = new JCheckBox("Histogram Equalization");
         histogram_opt.setSelected(s.d3s.histogram_equalization);
         histogram_opt.setFocusable(false);
-        histogram_opt.setToolTipText("Enables the histogram equalization.");
+        histogram_opt.setToolTipText("Enables the histogram equalization.");*/
 
         JSlider color_blend = new JSlider(JSlider.HORIZONTAL, 0, 100, ((int) (s.d3s.color_3d_blending * 100)));
         color_blend.setPreferredSize(new Dimension(270, 35));
@@ -162,6 +193,10 @@ public class D3Dialog extends JDialog {
         height_color_panel.setLayout(new GridLayout(3, 1));
         height_color_panel.add(new JLabel("Set the height shading."));
 
+        JPanel triangle_color_panel = new JPanel();
+        triangle_color_panel.setLayout(new GridLayout(2, 1));
+        triangle_color_panel.add(new JLabel("Set the triangle coloring method."));
+
         String[] shades = {"White & Black", "White", "Black"};
 
         final JComboBox<String> shade_choice_box = new JComboBox<>(shades);
@@ -180,6 +215,15 @@ public class D3Dialog extends JDialog {
         shade_invert_opt.setSelected(s.d3s.shade_invert);
         shade_invert_opt.setFocusable(false);
         shade_invert_opt.setToolTipText("Inverts the height shading.");
+
+        JComboBox<String> triangle_coloring = new JComboBox<>(new String[]{"Simple", "Barycentric Gradient", "Average"});
+        triangle_coloring.setSelectedIndex(ThreadDraw.D3_APPLY_AVERAGE_TO_TRIANGLE_COLORS);
+        triangle_coloring.setFocusable(false);
+        triangle_coloring.setToolTipText("Sets the triangle coloring method.");
+
+        JPanel pp = new JPanel();
+        pp.add(triangle_coloring);
+        triangle_color_panel.add(pp);
 
         if (!height_shading_opt.isSelected()) {
             shade_choice_box.setEnabled(false);
@@ -218,6 +262,7 @@ public class D3Dialog extends JDialog {
 
         tabbedPane.addTab("Color", cblend_panel);
         tabbedPane.addTab("Height Shading", height_color_panel);
+        tabbedPane.addTab("Triangle Coloring", triangle_color_panel);
 
         JPanel temp_p2 = new JPanel();
         temp_p2.setLayout(new GridLayout(2, 2));
@@ -234,22 +279,22 @@ public class D3Dialog extends JDialog {
         temp_p.add(kernels_size_opt);
 
 
-        final JTextField field_granularity = new JTextField();
+        /*final JTextField field_granularity = new JTextField();
         field_granularity.setText("" + s.d3s.histogram_granularity);
         field_granularity.setEnabled(s.d3s.histogram_equalization);
 
         final JTextField field_density = new JTextField();
         field_density.setText("" + s.d3s.histogram_density);
-        field_density.setEnabled(s.d3s.histogram_equalization);
+        field_density.setEnabled(s.d3s.histogram_equalization);*/
 
-        JPanel temp_p4 = new JPanel();
+        /*JPanel temp_p4 = new JPanel();
         temp_p4.setLayout(new GridLayout(2, 2));
         temp_p4.add(new JLabel("Bin Granularity:", SwingConstants.HORIZONTAL));
         temp_p4.add(new JLabel("Density:", SwingConstants.HORIZONTAL));
         temp_p4.add(field_granularity);
-        temp_p4.add(field_density);
+        temp_p4.add(field_density);*/
 
-        histogram_opt.addActionListener(e -> {
+        /*histogram_opt.addActionListener(e -> {
             if (histogram_opt.isSelected()) {
                 field_granularity.setEnabled(true);
                 field_density.setEnabled(true);
@@ -257,11 +302,21 @@ public class D3Dialog extends JDialog {
                 field_granularity.setEnabled(false);
                 field_density.setEnabled(false);
             }
-        });
+        });*/
+
+        JButton d3Pbutton = new JButton("Processing 3D");
+        d3Pbutton.setFocusable(false);
+        d3Pbutton.setIcon(MainWindow.getIcon("3d.png"));
+
+        d3Pbutton.addActionListener(e->ptr.showP3D());
+
+        JPanel d3p = new JPanel();
+        d3p.add(d3);
+        d3p.add(d3Pbutton);
 
         Object[] message3 = {
                 " ",
-                d3,
+                d3p,
                 " ",
             "Set the 3D detail level and size.",
             temp_p2,
@@ -274,14 +329,16 @@ public class D3Dialog extends JDialog {
             "Height Algorithm:",
             height_algorithm_opt,
                 " ",
-                preHeightScaling,
+                temp_p5,
+                "Outliers Removal Method:",
+                outliersAlgorithm,
             " ",
             "Select the gaussian normalization weight and radius.",
             gaussian_scaling_opt,
             temp_p,
-            "Select histogram height equalization parameters.",
-            histogram_opt,
-            temp_p4,
+            //"Select histogram height equalization parameters.",
+            //histogram_opt,
+            //temp_p4,
             " ",
             tabbedPane,};
 
@@ -316,6 +373,7 @@ public class D3Dialog extends JDialog {
 
                         if ((Integer) value == JOptionPane.CANCEL_OPTION || (Integer) value == JOptionPane.NO_OPTION || (Integer) value == JOptionPane.CLOSED_OPTION) {
                             dispose();
+                            ptra.bring3dTofront();
                             return;
                         }
 
@@ -324,14 +382,14 @@ public class D3Dialog extends JDialog {
                             double temp2 = Double.parseDouble(field2.getText());
                             double temp3 = Double.parseDouble(field3.getText());
                             double temp4 = Double.parseDouble(size_opt.getText());
-                            int temp5 = Integer.parseInt(field_granularity.getText());
-                            double temp6 = Double.parseDouble(field_density.getText());
+                            //int temp5 = Integer.parseInt(field_granularity.getText());
+                            //double temp6 = Double.parseDouble(field_density.getText());
 
                             if (temp < 10) {
                                 JOptionPane.showMessageDialog(ptra, "The 3D detail level must be greater than 9.", "Error!", JOptionPane.ERROR_MESSAGE);
                                 return;
-                            } else if (temp > 2000) {
-                                JOptionPane.showMessageDialog(ptra, "The 3D detail level must be less than 2001.", "Error!", JOptionPane.ERROR_MESSAGE);
+                            } else if (temp > 4000) {
+                                JOptionPane.showMessageDialog(ptra, "The 3D detail level must be less than 4001.", "Error!", JOptionPane.ERROR_MESSAGE);
                                 return;
                             }
 
@@ -350,7 +408,7 @@ public class D3Dialog extends JDialog {
                                 return;
                             }
 
-                            if(temp5 < 1) {
+                            /*if(temp5 < 1) {
                                 JOptionPane.showMessageDialog(ptra, "The histogram bin granularity must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
                                 return;
                             }
@@ -363,7 +421,7 @@ public class D3Dialog extends JDialog {
                             if (temp6 <= 0) {
                                 JOptionPane.showMessageDialog(ptra, "The histogram density must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
                                 return;
-                            }
+                            }*/
 
                             s.d3s.detail = temp;
                             s.d3s.d3_height_scale = temp2;
@@ -376,19 +434,25 @@ public class D3Dialog extends JDialog {
                             s.d3s.min_range = scale_range.getValue();
                             s.d3s.max_scaling = scale_max_val_opt.getValue();
                             s.d3s.d3_color_type = d3_color_method_combo.getSelectedIndex();
+                            s.d3s.remove_outliers_pre = removeOutliers.isSelected();
+                            s.d3s.remove_outliers_post = removeOutliersPost.isSelected();
 
                             s.d3s.shade_height = height_shading_opt.isSelected();
                             s.d3s.shade_choice = shade_choice_box.getSelectedIndex();
                             s.d3s.shade_algorithm = shade_algorithm_box.getSelectedIndex();
                             s.d3s.shade_invert = shade_invert_opt.isSelected();
 
+                            s.d3s.outliers_method = outliersAlgorithm.getSelectedIndex();
+
                             //d3_draw_method = draw_choice.getSelectedIndex();
                             s.d3s.color_3d_blending = color_blend.getValue() / 100.0;
 
-                            s.d3s.histogram_equalization = histogram_opt.isSelected();
-                            s.d3s.histogram_granularity = temp5;
-                            s.d3s.histogram_density = temp6;
+                            //s.d3s.histogram_equalization = histogram_opt.isSelected();
+                            //s.d3s.histogram_granularity = temp5;
+                            //s.d3s.histogram_density = temp6;
                             s.d3s.preHeightScaling = preHeightScaling.isSelected();
+
+                            ThreadDraw.D3_APPLY_AVERAGE_TO_TRIANGLE_COLORS = triangle_coloring.getSelectedIndex();
 
                         } catch (Exception ex) {
                             JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);

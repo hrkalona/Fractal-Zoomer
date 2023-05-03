@@ -43,46 +43,65 @@ public class SmoothEscapeTimeMagnet extends SmoothEscapeTime {
         if((Boolean)object[2]) {
 
             if(algorithm == 0) {
-                double temp = ((Complex)object[4]).norm_squared();
-                double temp2 = ((Complex)object[1]).norm_squared();
-                temp += 0.000000001;
-                temp = Math.log(temp);
-                return (Integer)object[0] + (log_bailout_squared - temp) / (Math.log(temp2) - temp) + MAGNET_INCREMENT;
+                return (Integer)object[0] + getEscSmoothing1(object, Math.log(((Complex)object[1]).norm_squared()), log_bailout_squared) + MAGNET_INCREMENT;
             }
             else {
                 //double temp2 = ((Complex)object[1]).norm_squared();
                 //return (Integer)object[0] + 1 - Math.log((Math.log(temp2)) / log_bailout_squared) / log_power + MAGNET_INCREMENT;
 
-                double temp = ((Complex)object[4]).norm_squared();
-                double temp2 = ((Complex)object[1]).norm_squared();
-
-                temp2 = Math.log(temp2);
-                double p = temp2 / Math.log(temp);
-                
-                p = p <= 0 ? 1e-33 : p;
-                temp2 = temp2 <= 0 ? 1e-33 : temp2;
-
-                double a = Math.log(temp2 / log_bailout_squared);
-                double f = a / Math.log(p);
-
-                return (Integer)object[0] + 1 - f + MAGNET_INCREMENT;
+                return (Integer)object[0] + getEscSmoothing2(object, Math.log(((Complex)object[1]).norm_squared()), log_bailout_squared) + MAGNET_INCREMENT;
             }
         }
         else {
             if(algorithm2 == 0) {
-                double temp = Math.log(((Complex)object[4]).distance_squared(1));
-                return (Integer)object[0] + (log_convergent_bailout - temp) / (Math.log((Double)object[3]) - temp);
+                return (Integer)object[0] + getConvSmoothing1(object, log_convergent_bailout);
             }
             else {
-                double temp4 = Math.log(((Double)object[3]));
-
-                double power = temp4 / Math.log(((Complex)object[4]).distance_squared(1));
-
-                double f = Math.log(log_convergent_bailout / temp4) / Math.log(power);
-
-                return (Integer)object[0] + f;
+                return (Integer)object[0] + getConvSmoothing2(object, log_convergent_bailout);
             }
         }
+
+    }
+
+    public static double getConvSmoothing1(Object[] object, double log_convergent_bailout) {
+
+        double temp = Math.log(((Complex)object[4]).distance_squared(1));
+        return (log_convergent_bailout - temp) / (Math.log((Double)object[3]) - temp);
+
+    }
+
+    public static double getConvSmoothing2(Object[] object, double log_convergent_bailout) {
+
+        double temp4 = Math.log(((Double)object[3]));
+
+        double power = temp4 / Math.log(((Complex)object[4]).distance_squared(1));
+
+        return Math.log(log_convergent_bailout / temp4) / Math.log(power);
+
+    }
+
+    public static double getEscSmoothing1(Object[] object, double log_znnormsqr, double log_bailout_squared) {
+
+        double temp = ((Complex)object[4]).norm_squared();
+        if(temp == 0) {
+            temp += 0.000000001;
+        }
+        temp = Math.log(temp);
+        return (log_bailout_squared - temp) / (log_znnormsqr - temp);
+
+    }
+
+    public static double getEscSmoothing2(Object[] object, double log_znnormsqr, double log_bailout_squared) {
+
+        double temp = ((Complex)object[4]).norm_squared();
+
+        double p = log_znnormsqr / Math.log(temp);
+
+        p = p <= 0 ? 1e-33 : p;
+        log_znnormsqr = log_znnormsqr <= 0 ? 1e-33 : log_znnormsqr;
+
+        double a = Math.log(log_znnormsqr / log_bailout_squared);
+        return 1 - a / Math.log(p);
 
     }
 }

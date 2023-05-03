@@ -40,8 +40,8 @@ public class PolarLocationDeltaDeepApfloat extends PolarLocationDeltaGenericApfl
     }
 
     @Override
-    public GenericComplex getAntialiasingComplex(int sample) {
-        BigComplex temp = getAntialiasingComplexInternal(sample);
+    public GenericComplex getAntialiasingComplex(int sample, int loc) {
+        BigComplex temp = getAntialiasingComplexInternal(sample, loc);
         return new MantExpComplex(getMantExp(temp.getRe()), getMantExp(temp.getIm()));
     }
 

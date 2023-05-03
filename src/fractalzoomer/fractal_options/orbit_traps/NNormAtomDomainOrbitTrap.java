@@ -29,9 +29,9 @@ public class NNormAtomDomainOrbitTrap extends OrbitTrap {
     private double n_norm;
     private double n_norm_reciprocal;
 
-    public NNormAtomDomainOrbitTrap(int checkType, double pointRe, double pointIm, double n_norm, boolean countTrapIterations) {
+    public NNormAtomDomainOrbitTrap(int checkType, double pointRe, double pointIm, double n_norm, boolean countTrapIterations, int lastXItems) {
 
-        super(checkType, pointRe, pointIm, 0.0, 0.0, countTrapIterations);
+        super(checkType, pointRe, pointIm, 0.0, 0.0, countTrapIterations, lastXItems);
         this.n_norm = n_norm;
         n_norm_reciprocal = 1 / n_norm;
 

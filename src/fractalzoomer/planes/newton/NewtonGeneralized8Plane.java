@@ -17,9 +17,7 @@
 
 package fractalzoomer.planes.newton;
 
-import fractalzoomer.core.Complex;
-import fractalzoomer.core.DDComplex;
-import fractalzoomer.core.MpfrBigNumComplex;
+import fractalzoomer.core.*;
 import fractalzoomer.planes.Plane;
 
 /**
@@ -91,6 +89,28 @@ public class NewtonGeneralized8Plane extends Plane {
         }
 
         return temp;
+
+    }
+
+    @Override
+    public BigComplex transform(BigComplex pixel) {
+
+        if(pixel.isZero()) {
+            return pixel;
+        }
+
+        return new BigComplex(transform(pixel.toComplex()));
+
+    }
+
+    @Override
+    public MpirBigNumComplex transform(MpirBigNumComplex pixel) {
+
+        if(pixel.isZero()) {
+            return pixel;
+        }
+
+        return new MpirBigNumComplex(transform(pixel.toComplex()));
 
     }
 }

@@ -18,7 +18,6 @@
 package fractalzoomer.planes.fold;
 
 import fractalzoomer.core.*;
-import fractalzoomer.core.mpfr.LibMpfr;
 import fractalzoomer.planes.Plane;
 
 /**
@@ -32,6 +31,8 @@ public class FoldOutPlane extends Plane {
 
     private MpfrBigNumComplex mpfrbncenter;
 
+    private MpirBigNumComplex mpirbncenter;
+
     private DDComplex ddccenter;
 
     public FoldOutPlane(double plane_transform_radius) {
@@ -43,8 +44,10 @@ public class FoldOutPlane extends Plane {
             ddccenter = new DDComplex(center);
             if (ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE || ThreadDraw.HIGH_PRECISION_CALCULATION) {
 
-                if(LibMpfr.LOAD_ERROR == null) {
+                if (ThreadDraw.allocateMPFR()) {
                     mpfrbncenter = new MpfrBigNumComplex(center);
+                } else if (ThreadDraw.allocateMPIR()) {
+                    mpirbncenter = new MpirBigNumComplex(center);
                 }
             }
         }
@@ -69,6 +72,13 @@ public class FoldOutPlane extends Plane {
     public MpfrBigNumComplex transform(MpfrBigNumComplex pixel) {
 
         return pixel.fold_out(mpfrbncenter);
+
+    }
+
+    @Override
+    public MpirBigNumComplex transform(MpirBigNumComplex pixel) {
+
+        return pixel.fold_out(mpirbncenter);
 
     }
 

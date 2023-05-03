@@ -111,4 +111,24 @@ public class Newton4Plane extends Plane {
         return temp;
 
     }
+
+    @Override
+    public MpirBigNumComplex transform(MpirBigNumComplex pixel) {
+
+        if(pixel.isZero()) {
+            return pixel;
+        }
+
+        MpirBigNumComplex temp = pixel;
+
+        for(int iterations = 0; iterations < 5; iterations++) {
+            MpirBigNumComplex fz = temp.fourth().sub_mutable(1);
+            MpirBigNumComplex dfz = temp.cube().times4_mutable();
+
+            temp = temp.sub(fz.divide_mutable(dfz));
+        }
+
+        return temp;
+
+    }
 }

@@ -19,6 +19,7 @@ package fractalzoomer.core.domain_coloring;
 import fractalzoomer.core.Complex;
 import fractalzoomer.core.blending.Blending;
 import fractalzoomer.core.interpolation.*;
+import fractalzoomer.main.Constants;
 import fractalzoomer.main.app_settings.GeneratedPaletteSettings;
 import fractalzoomer.palettes.PaletteColor;
 import fractalzoomer.palettes.transfer_functions.TransferFunction;
@@ -153,13 +154,16 @@ public abstract class DomainColoring {
             return HSBcolor(h, color_cycling_location);
         }
         else if (coloring_mode == 2){
-            return LCHcolor(h, color_cycling_location);
+            return LCHabcolor(h, color_cycling_location);
         }
         else if (coloring_mode == 3){
             return Cubehelix1(h, color_cycling_location);
         }
         else if (coloring_mode == 4){
             return Cubehelix3(h, color_cycling_location);
+        }
+        else if (coloring_mode == 5){
+            return LCHuvcolor(h, color_cycling_location);
         }
 
         return 0;
@@ -172,11 +176,18 @@ public abstract class DomainColoring {
         
     }
     
-    public static int LCHcolor(double h, int color_cycling_location) {
+    public static int LCHabcolor(double h, int color_cycling_location) {
         
-        int [] res = ColorSpaceConverter.LCHtoRGB(50, 100, ((h + color_cycling_location * 0.01) % 1.0) * 360);
+        int [] res = ColorSpaceConverter.LCH_abtoRGB(Constants.LCH_CONSTANT_L, Constants.LCH_CONSTANT_C, ((h + color_cycling_location * 0.01) % 1.0) * 360);
         return 0xFF000000 | res[0] << 16 | res[1] << 8 | res[2];
         
+    }
+
+    public static int LCHuvcolor(double h, int color_cycling_location) {
+
+        int [] res = ColorSpaceConverter.LCH_uvtoRGB(Constants.LCH_CONSTANT_L, Constants.LCH_CONSTANT_C, ((h + color_cycling_location * 0.01) % 1.0) * 360);
+        return 0xFF000000 | res[0] << 16 | res[1] << 8 | res[2];
+
     }
 
     public static int Cubehelix1(double h, int color_cycling_location) {
@@ -791,7 +802,7 @@ public abstract class DomainColoring {
 
              return blending.blend(temp_red, temp_green, temp_blue, red, green, blue, 1 - contourBlending);
          }
-         else { //scale
+         else if(contourMethod == 4) { //scale
             red = (int)(countourFactor * coef * red + 0.5);
             green = (int)(countourFactor * coef * green + 0.5);
             blue = (int)(countourFactor * coef * blue + 0.5);
@@ -799,6 +810,13 @@ public abstract class DomainColoring {
             green = green > 255 ? 255 : green;
             blue = blue > 255 ? 255 : blue;
             return 0xff000000 | (red << 16) | (green << 8) | blue;
+         }
+         else {
+             double[] res = ColorSpaceConverter.RGBtoOKLAB(red, green, blue);
+             double val = countourFactor * coef * res[0];
+             val = val > 1 ? 1 : val;
+             int[] rgb = ColorSpaceConverter.OKLABtoRGB(val, res[1], res[2]);
+             return 0xff000000 | (rgb[0] << 16) | (rgb[1] << 8) | rgb[2];
          }
       
      }

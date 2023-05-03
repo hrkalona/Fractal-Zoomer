@@ -41,19 +41,12 @@ public class SmoothBinaryDecomposition2RootFindingMethod extends OutColorAlgorit
     public double getResult(Object[] object) {
 
         if(algorithm == 0) {
-            double temp = Math.log(((Complex)object[3]).distance_squared((Complex)object[4]));
-            double temp3 = (Integer)object[0] + (log_convergent_bailout - temp) / (Math.log((Double)object[2]) - temp);
+            double temp3 = (Integer)object[0] + SmoothEscapeTimeRootFindingMethod.getSmoothing1(object, log_convergent_bailout);
 
             return ((Complex)object[1]).getRe() < 0 ? -(temp3 + INCREMENT) : temp3;
         }
         else {
-            double temp4 = Math.log(((Double)object[2]) + 1e-33);
-
-            double power = temp4 / Math.log(((Complex)object[3]).distance_squared(((Complex)object[4])));
-            
-            power = power <= 0 ? 1e-33 : power;
-
-            double temp3 = (Integer)object[0] + Math.log(log_convergent_bailout / temp4) / Math.log(power);
+            double temp3 = (Integer)object[0] + SmoothEscapeTimeRootFindingMethod.getSmoothing2(object, log_convergent_bailout);
             
             return ((Complex)object[1]).getRe() < 0 ? -(temp3 + INCREMENT) : temp3;
         }

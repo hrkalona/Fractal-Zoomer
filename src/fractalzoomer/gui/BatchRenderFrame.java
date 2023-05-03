@@ -2,7 +2,6 @@ package fractalzoomer.gui;
 
 import fractalzoomer.main.ImageExpanderWindow;
 import fractalzoomer.main.MainWindow;
-import fractalzoomer.palettes.PresetPalette;
 import fractalzoomer.settings.SettingsFractals;
 
 import javax.swing.*;
@@ -10,18 +9,10 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.plaf.basic.BasicFileChooserUI;
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.geom.Rectangle2D;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.stream.Collectors;
 
 public class BatchRenderFrame extends JFrame {
     private static final long serialVersionUID = 8403887235484988L;

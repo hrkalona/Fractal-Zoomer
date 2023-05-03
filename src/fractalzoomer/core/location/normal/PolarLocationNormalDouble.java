@@ -75,7 +75,7 @@ public class PolarLocationNormalDouble extends Location {
 
     public PolarLocationNormalDouble(PolarLocationNormalDouble other) {
 
-        super();
+        super(other);
 
         fractal = other.fractal;
 
@@ -285,19 +285,36 @@ public class PolarLocationNormalDouble extends Location {
     }
 
     @Override
-    public void createAntialiasingSteps(boolean adaptive) {
-        double[][] steps = createAntialiasingPolarStepsDouble(mulx, muly, adaptive);
+    public void createAntialiasingSteps(boolean adaptive, boolean jitter) {
+        super.createAntialiasingSteps(adaptive, jitter);
+        double[][] steps = createAntialiasingPolarStepsDouble(mulx, muly, adaptive, jitter);
         antialiasing_x = steps[0];
         antialiasing_y_sin = steps[1];
         antialiasing_y_cos = steps[2];
     }
 
     @Override
-    public GenericComplex getAntialiasingComplex(int sample) {
-        double sf2 = temp_sf * antialiasing_y_cos[sample] + temp_cf * antialiasing_y_sin[sample];
-        double cf2 = temp_cf * antialiasing_y_cos[sample] - temp_sf * antialiasing_y_sin[sample];
+    public GenericComplex getAntialiasingComplex(int sample, int loc) {
+        double r2, sf2, cf2;
 
-        double r2 = temp_r * antialiasing_x[sample];
+        if(aaJitter) {
+            int r = (int)(hash(loc) % NUMBER_OF_AA_JITTER_KERNELS);
+            double[] antialiasing_x = precalculatedJitterDataPolarDouble[r][0];
+            double[] antialiasing_y_sin = precalculatedJitterDataPolarDouble[r][1];
+            double[] antialiasing_y_cos = precalculatedJitterDataPolarDouble[r][2];
+
+            sf2 = temp_sf * antialiasing_y_cos[sample] + temp_cf * antialiasing_y_sin[sample];
+            cf2 = temp_cf * antialiasing_y_cos[sample] - temp_sf * antialiasing_y_sin[sample];
+
+            r2 = temp_r * antialiasing_x[sample];
+        }
+        else {
+            sf2 = temp_sf * antialiasing_y_cos[sample] + temp_cf * antialiasing_y_sin[sample];
+            cf2 = temp_cf * antialiasing_y_cos[sample] - temp_sf * antialiasing_y_sin[sample];
+
+            r2 = temp_r * antialiasing_x[sample];
+        }
+
 
         if(requiresVariablePixelSize) {
             setVariablePixelSize(r2);

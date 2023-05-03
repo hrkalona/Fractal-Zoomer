@@ -17,8 +17,7 @@
 
 package fractalzoomer.planes.math;
 
-import fractalzoomer.core.Complex;
-import fractalzoomer.core.MpfrBigNumComplex;
+import fractalzoomer.core.*;
 import fractalzoomer.planes.Plane;
 
 /**
@@ -50,6 +49,36 @@ public class RiemannZetaPlane extends Plane {
         }
 
         return new MpfrBigNumComplex(transform(pixel.toComplex()));
+
+    }
+
+    @Override
+    public MpirBigNumComplex transform(MpirBigNumComplex pixel) {
+        if(pixel.isZero()) {
+            return pixel;
+        }
+
+        return new MpirBigNumComplex(transform(pixel.toComplex()));
+
+    }
+
+    @Override
+    public DDComplex transform(DDComplex pixel) {
+        if(pixel.isZero()) {
+            return pixel;
+        }
+
+        return new DDComplex(transform(pixel.toComplex()));
+
+    }
+
+    @Override
+    public BigComplex transform(BigComplex pixel) {
+        if(pixel.isZero()) {
+            return pixel;
+        }
+
+        return new BigComplex(transform(pixel.toComplex()));
 
     }
     

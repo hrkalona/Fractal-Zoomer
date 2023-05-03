@@ -40,19 +40,10 @@ public class SmoothBiomorphsNova extends SmoothBiomorphs {
 
         double temp3;
         if(algorithm == 0) {
-            double temp2 = Math.log(((Complex)object[3]).distance_squared((Complex)object[4]));
-            temp3 = (Integer)object[0] + (log_convergent_bailout - temp2) / (Math.log((Double)object[2]) - temp2);
+            temp3 = (Integer)object[0] + SmoothEscapeTimeRootFindingMethod.getSmoothing1(object, log_convergent_bailout);
         }
         else {
-            double temp4 = Math.log(((Double)object[2]) + 1e-33);
-
-            double power = temp4 / Math.log(((Complex)object[3]).distance_squared(((Complex)object[4])));
-            
-            power = power <= 0 ? 1e-33 : power;
-
-            double f = Math.log(log_convergent_bailout / temp4) / Math.log(power);
-
-            temp3 = (Integer)object[0] + f;
+            temp3 = (Integer)object[0] + SmoothEscapeTimeRootFindingMethod.getSmoothing2(object, log_convergent_bailout);
         }
 
         double temp4 = ((Complex)object[1]).getRe();

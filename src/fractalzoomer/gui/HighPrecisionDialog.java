@@ -21,10 +21,11 @@ import fractalzoomer.core.MyApfloat;
 import fractalzoomer.core.ThreadDraw;
 import fractalzoomer.core.mpfr.LibMpfr;
 import fractalzoomer.core.mpfr.MpfrBigNum;
+import fractalzoomer.core.mpir.LibMpir;
+import fractalzoomer.core.mpir.MpirBigNum;
 import fractalzoomer.functions.Fractal;
 import fractalzoomer.main.CommonFunctions;
 import fractalzoomer.main.Constants;
-import fractalzoomer.main.ImageExpanderWindow;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
 
@@ -88,7 +89,7 @@ public class HighPrecisionDialog extends JDialog {
         JTextField bignumPrecision = new JTextField();
         bignumPrecision.setText("" + ThreadDraw.BIGNUM_PRECISION);
 
-        JComboBox<String> arbitraryLibs = new JComboBox<>(new String[] {"DoubleDouble (106 bits)", "Built-in", "MPFR", "Apfloat", "Automatic"});
+        JComboBox<String> arbitraryLibs = new JComboBox<>(new String[] {"DoubleDouble (106 bits)", "Built-in", "MPFR", "Apfloat", "Automatic", "MPIR"});
         arbitraryLibs.setSelectedIndex(ThreadDraw.HIGH_PRECISION_LIB);
         arbitraryLibs.setFocusable(false);
 
@@ -175,6 +176,7 @@ public class HighPrecisionDialog extends JDialog {
                                 Fractal.clearReferences(true);
                                 BigNum.reinitialize(temp4);
                                 MpfrBigNum.reinitialize(temp4);
+                                MpirBigNum.reinitialize(temp4);
                             }
                             else if(tempAuto && !ThreadDraw.BIGNUM_AUTOMATIC_PRECISION && tempPrecision == MyApfloat.precision) {
                                 Fractal.clearReferences(true);
@@ -194,6 +196,14 @@ public class HighPrecisionDialog extends JDialog {
 
 
                             ThreadDraw.HIGH_PRECISION_LIB = arbitraryLibs.getSelectedIndex();
+
+                            if(ThreadDraw.HIGH_PRECISION_CALCULATION  && ThreadDraw.HIGH_PRECISION_LIB == Constants.ARBITRARY_MPFR && LibMpfr.hasError()) {
+                                JOptionPane.showMessageDialog(ptra, "The MPFR library is not available, and the engine will fallback to an alternative library.", "Warning!", JOptionPane.WARNING_MESSAGE);
+                            }
+
+                            if(ThreadDraw.HIGH_PRECISION_CALCULATION && ThreadDraw.HIGH_PRECISION_LIB == Constants.ARBITRARY_MPIR && LibMpir.hasError()) {
+                                JOptionPane.showMessageDialog(ptra, "The MPIR library is not available, and the engine will fallback to an alternative library.", "Warning!", JOptionPane.WARNING_MESSAGE);
+                            }
 
 
                             ((MainWindow)ptra).setHighPrecisionPost();

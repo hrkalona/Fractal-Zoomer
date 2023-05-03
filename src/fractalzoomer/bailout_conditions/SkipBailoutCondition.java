@@ -18,6 +18,7 @@ package fractalzoomer.bailout_conditions;
 
 import fractalzoomer.core.*;
 import fractalzoomer.core.mpfr.MpfrBigNum;
+import fractalzoomer.core.mpir.MpirBigNum;
 import org.apfloat.Apfloat;
 
 /**
@@ -79,6 +80,15 @@ public class SkipBailoutCondition extends BailoutCondition {
 
     @Override
     public boolean escaped(MpfrBigNumComplex z, MpfrBigNumComplex zold, MpfrBigNumComplex zold2, int iterations, MpfrBigNumComplex c, MpfrBigNumComplex start, MpfrBigNumComplex c0, MpfrBigNum norm_squared, MpfrBigNumComplex pixel) {
+        if(iterations < SKIPPED_ITERATION_COUNT) {
+            return false;
+        }
+
+        return wrappedCondition.escaped(z, zold, zold2, iterations, c, start, c0, norm_squared, pixel);
+    }
+
+    @Override
+    public boolean escaped(MpirBigNumComplex z, MpirBigNumComplex zold, MpirBigNumComplex zold2, int iterations, MpirBigNumComplex c, MpirBigNumComplex start, MpirBigNumComplex c0, MpirBigNum norm_squared, MpirBigNumComplex pixel) {
         if(iterations < SKIPPED_ITERATION_COUNT) {
             return false;
         }

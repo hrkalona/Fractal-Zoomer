@@ -1,26 +1,15 @@
 package fractalzoomer.core.mpfr;
 
 
+import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.NativeLibrary;
 import com.sun.jna.Platform;
-
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import fractalzoomer.core.ThreadDraw;
+import fractalzoomer.core.mpir.mpf_t;
+import fractalzoomer.utils.NativeLoader;
 
 public class LibMpfr {
-    private static final String linuxLib = "libmpfr.so";
-
-    //When using mingw
-    private static final String windowsLib = "libmpfr-6.dll";
-    private static final String[] winLibs = new String[] {windowsLib, "libgmp-10.dll", "libwinpthread-1.dll"};
-
-    //Will not work
-    //private static final String windowsLib = "cygmpfr-6.dll";
-    //private static final String[] winLibs = new String[] {windowsLib, "cyggmp-10.dll", "cygwin1.dll"};
-    private static final String[] linuxLibs = new String[] {linuxLib};
 
     public static Exception LOAD_ERROR = null;
 
@@ -35,6 +24,12 @@ public class LibMpfr {
     public static final int MPFR_RNDNA	= -1;//	Round to nearest, with ties away from zero (mpfr_lib.mpfr_round).
 
     private static final Class SIZE_T_CLASS;
+
+    private static NativeLibrary library;
+
+    public static boolean hasError() {
+        return LOAD_ERROR != null;
+    }
 
     static {
         if (Native.SIZE_T_SIZE == 4) {
@@ -51,7 +46,10 @@ public class LibMpfr {
 
     static {
 
-        if(!Platform.isWindows() && !Platform.isLinux()) {
+        if(!ThreadDraw.LOAD_MPFR) {
+            LOAD_ERROR = new Exception("Disabled loading of mpfr");
+        }
+        else if(!Platform.isWindows() && !Platform.isLinux()) {
             LOAD_ERROR = new Exception("Cannot load mpfr if the platform is not windows or linux");
         }
         else {
@@ -60,51 +58,45 @@ public class LibMpfr {
             } catch (Exception ex) {
                 LOAD_ERROR = ex;
             }
+            catch (Error ex) {
+                LOAD_ERROR = new Exception(ex.getMessage());
+            }
         }
 
-        if(LOAD_ERROR != null) {
+        if(hasError()) {
             System.out.println("Cannot load mpfr: " + LOAD_ERROR.getMessage());
         }
 
     }
 
+
+
     private static void loadLibMpfr() throws Exception {
 
-        String libName = Platform.isWindows() ? windowsLib : linuxLib;
-        String resourcesDir = "/fractalzoomer/native/" + Platform.RESOURCE_PREFIX;
+        String libName = Platform.isWindows() ? NativeLoader.mpfrWindowsLib : NativeLoader.mpfrLinuxLib;
 
         try {
-
-            String tmpDirsLocation = System.getProperty("java.io.tmpdir");
-            Path tmpdir = Files.createTempDirectory(Paths.get(tmpDirsLocation), "fzNativeLibs");
-            tmpdir.toFile().deleteOnExit();
-
-            String[] libs = Platform.isWindows() ? winLibs : linuxLibs;
-
-            for(String lib : libs) {
-                InputStream in = LibMpfr.class.getResourceAsStream(resourcesDir + "/" + lib);
-                Path tgt = tmpdir.resolve(lib);
-                Files.copy(in, tgt);
-                tgt.toFile().deleteOnExit();
-            }
-
-            load(tmpdir.resolve(libName).toAbsolutePath().toString());
+            load(NativeLoader.tmpdir.resolve(libName).toAbsolutePath().toString());
             return;
-        } catch (Exception ignored) {
-            System.out.println(ignored.getMessage());
-        } catch (UnsatisfiedLinkError ignored) {
-            System.out.println(ignored.getMessage());
+        }
+        catch (UnsatisfiedLinkError e) {
+            System.out.println(e.getMessage());
+            LOAD_ERROR = new Exception(e.getMessage());
+        }
+        catch (Exception e) {
+            System.out.println(e.getMessage());
+            LOAD_ERROR = e;
         }
         // Fall back to system-wide search.
-        try {
-            load(libName);
-        }
-        catch (Exception ex) {
-            throw new Exception("Cannot load the library: " + ex.getMessage());
-        }
-        catch (UnsatisfiedLinkError ex) {
-            throw new Exception("Cannot load the library: " + ex.getMessage());
-        }
+//        try {
+//            load(libName);
+//        }
+//        catch (UnsatisfiedLinkError ex) {
+//            throw new Exception("Cannot load the library: " + ex.getMessage());
+//        }
+//        catch (Exception ex) {
+//            throw new Exception("Cannot load the library: " + ex.getMessage());
+//        }
 
     }
 
@@ -113,17 +105,19 @@ public class LibMpfr {
     }
 
     private static void load(String name) {
-        NativeLibrary library = NativeLibrary.getInstance(name, LibMpfr.class.getClassLoader());
+        library = NativeLibrary.getInstance(name, LibMpfr.class.getClassLoader());
         Native.register(LibMpfr.class, library);
         Native.register(SIZE_T_CLASS, library);
-
-
     }
 
     public static void delete() {
-        if(LOAD_ERROR == null) {
+
+        if(!hasError()) {
+            Memory.disposeAll();
             Native.unregister(LibMpfr.class);
             Native.unregister(SIZE_T_CLASS);
+            library.close();
+            //library = null;
         }
     }
 
@@ -138,7 +132,7 @@ public class LibMpfr {
 
     static {
 
-        if(LOAD_ERROR == null) {
+        if(!hasError()) {
 
             if(Platform.isWindows()) {
                 __gmp_version = NativeLibrary.getProcess() // library is already loaded and linked.
@@ -185,6 +179,7 @@ public class LibMpfr {
     public static native int mpfr_set_ui (mpfr_t rop, long op, int rnd);
     public static native int mpfr_set_si (mpfr_t rop, long  op, int rnd);
     public static native int mpfr_set_flt (mpfr_t rop, float op, int rnd);
+    public static native int mpfr_set_f (mpfr_t rop, mpf_t op, int rnd);
     //public static native int mpfr_set_z (mpfr_t rop, mpz_t op, int rnd);
 
     public static native void mpfr_set_zero (mpfr_t x, int sign);
@@ -198,10 +193,15 @@ public class LibMpfr {
 
     public static native double mpfr_get_d(mpfr_t op, int rnd);
 
+    public static native long mpfr_get_si (mpfr_t op, int rnd);
+    public static native long mpfr_get_ui (mpfr_t op, int rnd);
+
     public static native double mpfr_get_d_2exp (long[] exp, mpfr_t op, int rnd);
     public static native double mpfr_get_d_2exp (int[] exp, mpfr_t op, int rnd);
 
     public static native float mpfr_get_flt (mpfr_t op, int rnd);
+
+    public static native int mpfr_get_f (mpf_t rop, mpfr_t op, int rnd);
 
     public static native int mpfr_sqr(mpfr_t rop, mpfr_t op, int rnd);
 
@@ -258,6 +258,7 @@ public class LibMpfr {
     public static native int mpfr_cmp_ui (mpfr_t op1, long op2);
     public static native int mpfr_cmp_si (mpfr_t op1, long op2);
     public static native int mpfr_cmp_d (mpfr_t op1, double op2);
+    public static native int mpfr_cmp_f (mpfr_t op1, mpf_t op2);
     //public static native int mpfr_cmp_z (mpfr_t op1, mpz_t op2);
 
     public static native int mpfr_cmpabs (mpfr_t op1, mpfr_t op2);
@@ -336,6 +337,13 @@ public class LibMpfr {
     public static native int mpfr_const_euler (mpfr_t rop, int rnd);
     public static native int mpfr_const_catalan (mpfr_t rop, int rnd);
 
+    public static native int mpfr_rint (mpfr_t rop, mpfr_t op, int rnd);
+    public static native int mpfr_ceil (mpfr_t rop, mpfr_t op);
+    public static native int mpfr_floor (mpfr_t rop, mpfr_t op);
+    public static native int mpfr_round (mpfr_t rop, mpfr_t op);
+    public static native int mpfr_roundeven (mpfr_t rop, mpfr_t op);
+    public static native int mpfr_trunc (mpfr_t rop, mpfr_t op);
+
 
     //Custom functions implemented for better performance
     public static native void mpfr_fz_square_plus_c (mpfr_t re, mpfr_t im, mpfr_t temp, mpfr_t re_sqr, mpfr_t im_sqr, mpfr_t norm_sqr, mpfr_t cre, mpfr_t cim, int rnd);
@@ -354,4 +362,5 @@ public class LibMpfr {
     public static native void mpfr_fz_ApBmC (mpfr_t temp, mpfr_t a, mpfr_t b, int c, int rnd);
     public static native void mpfr_fz_ApBmC_DsEmG (mpfr_t temp, mpfr_t temp2, mpfr_t a, mpfr_t b, double c, mpfr_t d, mpfr_t e, double g, int rnd);
     public static native void mpfr_fz_ApBmC_DpEmG (mpfr_t temp, mpfr_t temp2, mpfr_t a, mpfr_t b, mpfr_t c, mpfr_t d, mpfr_t e, mpfr_t g, int rnd);
+    public static native void mpfr_fz_r_ball_pow2 (mpfr_t r, mpfr_t az, mpfr_t r0, mpfr_t azsquare, int rnd);
 }

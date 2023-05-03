@@ -18,10 +18,8 @@ package fractalzoomer.gui;
 
 import fractalzoomer.main.ImageExpanderWindow;
 import fractalzoomer.main.MainWindow;
-import fractalzoomer.main.app_settings.Settings;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 

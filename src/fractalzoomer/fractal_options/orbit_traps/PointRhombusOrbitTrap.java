@@ -26,9 +26,9 @@ import static fractalzoomer.main.Constants.*;
  */
 public class PointRhombusOrbitTrap extends OrbitTrap {
 
-    public PointRhombusOrbitTrap(int checkType, double pointRe, double pointIm, double trapLength, boolean countTrapIterations) {
+    public PointRhombusOrbitTrap(int checkType, double pointRe, double pointIm, double trapLength, boolean countTrapIterations, int lastXItems) {
 
-        super(checkType, pointRe, pointIm, trapLength, 0.0, countTrapIterations);
+        super(checkType, pointRe, pointIm, trapLength, 0.0, countTrapIterations, lastXItems);
 
     }
 
