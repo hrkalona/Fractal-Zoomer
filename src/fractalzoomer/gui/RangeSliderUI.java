@@ -461,6 +461,8 @@ class RangeSliderUI extends BasicSliderUI {
                 slider.setValueIsAdjusting(true);
                 moveUpperThumb();
             }
+
+            slider.repaint();
         }
         
         @Override

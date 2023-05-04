@@ -91,6 +91,23 @@ public class SquareDistanceBailoutCondition extends ConvergentBailoutCondition {
     }
 
     @Override
+    public boolean converged(BigIntNumComplex z, BigIntNumComplex zold, BigIntNumComplex zold2, int iterations, BigIntNumComplex c, BigIntNumComplex start, BigIntNumComplex c0, BigIntNumComplex pixel) {
+        BigIntNumComplex diff = z.sub(zold);
+        BigIntNum absRe = diff.getAbsRe();
+        BigIntNum absIm = diff.getAbsIm();
+
+        BigIntNum max = BigIntNum.max(absRe, absIm);
+
+        boolean result = max.compare(binddconvergent_bailout) <= 0;
+
+        if(calculateDistance && result) {
+            distance = z.distance_squared(zold).doubleValue();
+        }
+
+        return result;
+    }
+
+    @Override
     public boolean converged(DDComplex z, DDComplex zold, DDComplex zold2, int iterations, DDComplex c, DDComplex start, DDComplex c0, DDComplex pixel) {
 
         DDComplex diff = z.sub(zold);
@@ -131,6 +148,23 @@ public class SquareDistanceBailoutCondition extends ConvergentBailoutCondition {
         Apfloat max = ApfloatMath.max(absRe, absIm);
 
         boolean result =  max.compareTo(ddconvergent_bailout) <= 0;
+
+        if(calculateDistance && result) {
+            distance = z.distance_squared(root).doubleValue();
+        }
+
+        return result;
+    }
+
+    @Override
+    public boolean converged(BigIntNumComplex z, BigIntNum root, BigIntNumComplex zold, BigIntNumComplex zold2, int iterations, BigIntNumComplex c, BigIntNumComplex start, BigIntNumComplex c0, BigIntNumComplex pixel) {
+        BigIntNumComplex diff = z.sub(root);
+        BigIntNum absRe = diff.getAbsRe();
+        BigIntNum absIm = diff.getAbsIm();
+
+        BigIntNum max = BigIntNum.max(absRe, absIm);
+
+        boolean result =  max.compare(binddconvergent_bailout) <= 0;
 
         if(calculateDistance && result) {
             distance = z.distance_squared(root).doubleValue();
@@ -214,6 +248,23 @@ public class SquareDistanceBailoutCondition extends ConvergentBailoutCondition {
         Apfloat max = ApfloatMath.max(absRe, absIm);
 
         boolean result =  max.compareTo(ddconvergent_bailout) <= 0;
+
+        if(calculateDistance && result) {
+            distance = z.distance_squared(root).doubleValue();
+        }
+
+        return result;
+    }
+
+    @Override
+    public boolean converged(BigIntNumComplex z, BigIntNumComplex root, BigIntNumComplex zold, BigIntNumComplex zold2, int iterations, BigIntNumComplex c, BigIntNumComplex start, BigIntNumComplex c0, BigIntNumComplex pixel) {
+        BigIntNumComplex diff = z.sub(root);
+        BigIntNum absRe = diff.getAbsRe();
+        BigIntNum absIm = diff.getAbsIm();
+
+        BigIntNum max = BigIntNum.max(absRe, absIm);
+
+        boolean result =  max.compare(binddconvergent_bailout) <= 0;
 
         if(calculateDistance && result) {
             distance = z.distance_squared(root).doubleValue();

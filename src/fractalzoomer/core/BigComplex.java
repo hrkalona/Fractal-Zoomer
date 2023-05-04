@@ -4,6 +4,8 @@ import fractalzoomer.utils.NormComponents;
 import org.apfloat.Apfloat;
 import org.apfloat.ApfloatMath;
 
+import java.util.concurrent.Future;
+
 public class BigComplex extends GenericComplex {
     private Apfloat re;
     private Apfloat im;
@@ -45,6 +47,9 @@ public class BigComplex extends GenericComplex {
 
     @Override
     public BigNumComplex toBigNumComplex() { return new BigNumComplex(this); }
+
+    @Override
+    public BigIntNumComplex toBigIntNumComplex() { return new BigIntNumComplex(this); }
 
     @Override
     public MpfrBigNumComplex toMpfrBigNumComplex() { return new MpfrBigNumComplex(this);}
@@ -297,6 +302,24 @@ public class BigComplex extends GenericComplex {
      *  |z|^2
      */
     public final Apfloat norm_squared() {
+
+        if(MyApfloat.use_threads) {
+            Future<Apfloat> temp1 = ThreadDraw.executor.submit(() -> MyApfloat.fp.multiply(re, re));
+            Future<Apfloat> temp2 = ThreadDraw.executor.submit(() -> MyApfloat.fp.multiply(im, im));
+
+            try {
+                return temp1.get().add(temp2.get());
+            }
+            catch (Exception ex) {
+                return new MyApfloat(0);
+            }
+        }
+        else {
+            return MyApfloat.fp.add(MyApfloat.fp.multiply(re, re), MyApfloat.fp.multiply(im, im));
+        }
+    }
+
+    public final Apfloat norm_squared_no_threads() {
 
         return MyApfloat.fp.add(MyApfloat.fp.multiply(re, re), MyApfloat.fp.multiply(im, im));
 
@@ -554,10 +577,9 @@ public class BigComplex extends GenericComplex {
 
     }
 
-    public final BigComplex circle_inversion(BigComplex center, Apfloat radius) {
+    public final BigComplex circle_inversion(BigComplex center, Apfloat radius2) {
 
         Apfloat distance = this.distance_squared(center);
-        Apfloat radius2 = MyApfloat.fp.multiply(radius, radius);
 
         Apfloat temp = MyApfloat.fp.divide(radius2, distance);
 
@@ -690,7 +712,6 @@ public class BigComplex extends GenericComplex {
     public final BigComplex square_plus_c(BigComplex c) {
 
         Apfloat temp = MyApfloat.fp.multiply(re, im);
-
         return new BigComplex(MyApfloat.fp.add(MyApfloat.fp.multiply(MyApfloat.fp.add(re, im), MyApfloat.fp.subtract(re, im)), c.re), MyApfloat.fp.add(MyApfloat.fp.add(temp, temp), c.im));
 
     }
@@ -883,6 +904,31 @@ public class BigComplex extends GenericComplex {
     public final BigComplex square_plus_c(GenericComplex cn) {
 
         BigComplex c = (BigComplex)cn;
+
+        if(MyApfloat.use_threads) {
+            Future<Apfloat> temp1 = ThreadDraw.executor.submit(() -> MyApfloat.fp.add(MyApfloat.fp.multiply(MyApfloat.fp.add(re, im), MyApfloat.fp.subtract(re, im)), c.re));
+            Future<Apfloat> temp2 = ThreadDraw.executor.submit(() -> {
+                Apfloat temp = MyApfloat.fp.multiply(re, im);
+                return MyApfloat.fp.add(MyApfloat.fp.add(temp, temp), c.im);
+            });
+
+            try {
+                return new BigComplex(temp1.get(), temp2.get());
+            }
+            catch (Exception ex) {
+                return new BigComplex();
+            }
+        }
+        else {
+            Apfloat temp = MyApfloat.fp.multiply(re, im);
+            return new BigComplex(MyApfloat.fp.add(MyApfloat.fp.multiply(MyApfloat.fp.add(re, im), MyApfloat.fp.subtract(re, im)), c.re), MyApfloat.fp.add(MyApfloat.fp.add(temp, temp), c.im));
+        }
+    }
+
+    public final BigComplex square_plus_c_no_threads(GenericComplex cn) {
+
+        BigComplex c = (BigComplex)cn;
+
         Apfloat temp = MyApfloat.fp.multiply(re, im);
         return new BigComplex(MyApfloat.fp.add(MyApfloat.fp.multiply(MyApfloat.fp.add(re, im), MyApfloat.fp.subtract(re, im)), c.re), MyApfloat.fp.add(MyApfloat.fp.add(temp, temp), c.im));
 
@@ -977,6 +1023,13 @@ public class BigComplex extends GenericComplex {
     public final BigComplex square_plus_c_mutable(GenericComplex cn) {
 
         return square_plus_c(cn);
+
+    }
+
+    @Override
+    public final BigComplex square_plus_c_mutable_no_threads(GenericComplex cn) {
+
+        return square_plus_c_no_threads(cn);
 
     }
 

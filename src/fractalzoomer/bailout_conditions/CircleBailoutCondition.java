@@ -61,13 +61,37 @@ public class CircleBailoutCondition extends BailoutCondition {
     @Override
     public boolean escaped(BigComplex z, BigComplex zold, BigComplex zold2, int iterations, BigComplex c, BigComplex start, BigComplex c0, Apfloat norm_squared, BigComplex pixel) {
 
-        return z.norm_squared().compareTo(ddbound) >= 0;
+        if(useThreads) {
+            return z.norm_squared().compareTo(ddbound) >= 0;
+        }
+        else {
+            return z.norm_squared_no_threads().compareTo(ddbound) >= 0;
+        }
 
     }
 
     @Override
     public boolean escaped(BigNumComplex z, BigNumComplex zold, BigNumComplex zold2, int iterations, BigNumComplex c, BigNumComplex start, BigNumComplex c0, BigNum norm_squared, BigNumComplex pixel) {
-        return z.norm_squared().compareBothPositive(bnbound) >= 0;
+
+        if(useThreads) {
+            return z.norm_squared().compareBothPositive(bnbound) >= 0;
+        }
+        else {
+            return z.norm_squared_no_threads().compareBothPositive(bnbound) >= 0;
+        }
+
+    }
+
+    @Override
+    public boolean escaped(BigIntNumComplex z, BigIntNumComplex zold, BigIntNumComplex zold2, int iterations, BigIntNumComplex c, BigIntNumComplex start, BigIntNumComplex c0, BigIntNum norm_squared, BigIntNumComplex pixel) {
+
+        if(useThreads) {
+            return z.norm_squared().compare(binbound) >= 0;
+        }
+        else {
+            return z.norm_squared_no_threads().compare(binbound) >= 0;
+        }
+
     }
 
     @Override
@@ -77,7 +101,12 @@ public class CircleBailoutCondition extends BailoutCondition {
 
     @Override
     public boolean escaped(MpirBigNumComplex z, MpirBigNumComplex zold, MpirBigNumComplex zold2, int iterations, MpirBigNumComplex c, MpirBigNumComplex start, MpirBigNumComplex c0, MpirBigNum norm_squared, MpirBigNumComplex pixel) {
-        return z.norm_squared(temp1p, temp2p).compare(bound) >= 0;
+        if(useThreads) {
+            return z.norm_squared(temp1p, temp2p).compare(bound) >= 0;
+        }
+        else {
+            return z.norm_squared_no_threads(temp1p, temp2p).compare(bound) >= 0;
+        }
     }
 
     @Override

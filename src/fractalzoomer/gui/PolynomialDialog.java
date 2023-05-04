@@ -59,10 +59,10 @@ public class PolynomialDialog extends JDialog {
 
             JLabel poly_label_k = new JLabel();
             poly_label_k.setIcon(MainWindow.getIcon("a" + (poly_panels.length - 1 - k) + ".png"));
-            poly_re[k] = new JTextField(30);
+            poly_re[k] = new JTextField(20);
             poly_re[k].setText("" + s.fns.coefficients[k]);
 
-            poly_im[k] = new JTextField(30);
+            poly_im[k] = new JTextField(20);
             poly_im[k].setText("" + s.fns.coefficients_im[k]);
 
             poly_panels[k].add(poly_label_k);
@@ -84,9 +84,9 @@ public class PolynomialDialog extends JDialog {
         root_init_method_panel.add(method_choice);
 
         JPanel init_val_panel = new JPanel();
-        JTextField init_val_real = new JTextField(30);
+        JTextField init_val_real = new JTextField(20);
         init_val_real.setText("" + s.fns.durand_kerner_init_val[0]);
-        JTextField init_val_imag = new JTextField(30);
+        JTextField init_val_imag = new JTextField(20);
         init_val_imag.setText("" + s.fns.durand_kerner_init_val[1]);
         init_val_panel.setLayout(new FlowLayout());
         init_val_panel.add(new JLabel("Initial Value (a),  Re: "));
@@ -104,9 +104,9 @@ public class PolynomialDialog extends JDialog {
         
         
         JPanel k_panel = new JPanel();
-        JTextField k_real = new JTextField(30);
+        JTextField k_real = new JTextField(20);
         k_real.setText("" + s.fns.newton_hines_k[0]);
-        JTextField k_imag = new JTextField(30);
+        JTextField k_imag = new JTextField(20);
         k_imag.setText("" + s.fns.newton_hines_k[1]);
         k_panel.setLayout(new FlowLayout());
         k_panel.add(new JLabel("Newton-Hines k,  Re: "));
@@ -116,7 +116,7 @@ public class PolynomialDialog extends JDialog {
 
         Object[] poly_poly = {
             " ",
-            "Enter the coefficients of the polynomial,",
+            "Enter the coefficients of the polynomial.",
             polynomial,
             " ",
             poly_panels[0],

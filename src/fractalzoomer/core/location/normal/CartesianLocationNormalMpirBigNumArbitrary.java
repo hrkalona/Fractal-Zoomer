@@ -162,7 +162,7 @@ public class CartesianLocationNormalMpirBigNumArbitrary extends Location {
                 ddtempX.add(ddtemp_size_image_size_x, ddtempX);
             } else if (x == indexX - 1) {
                 ddtempX.sub(ddtemp_size_image_size_x, ddtempX);
-            } else {
+            } else if (x != indexX) {
                 //ddtemp_size_image_size_x.mult(x, ddtempX);
                 //ddtemp_xcenter_size.add(ddtempX, ddtempX);
 
@@ -178,7 +178,7 @@ public class CartesianLocationNormalMpirBigNumArbitrary extends Location {
                 ddtempY.sub(ddtemp_size_image_size_y, ddtempY);
             } else if (y == indexY - 1) {
                 ddtempY.add(ddtemp_size_image_size_y, ddtempY);
-            } else {
+            } else if (y != indexY) {
                 //ddtemp_size_image_size_y.mult(y, ddtempY);
                 //ddtemp_ycenter_size.sub(ddtempY, ddtempY);
                 if(y < 0) {
@@ -216,7 +216,7 @@ public class CartesianLocationNormalMpirBigNumArbitrary extends Location {
                 ddtempY.sub(ddtemp_size_image_size_y, ddtempY);
             } else if (y == indexY - 1) {
                 ddtempY.add(ddtemp_size_image_size_y, ddtempY);
-            } else {
+            } else if (y != indexY) {
                 //ddtemp_size_image_size_y.mult(y, ddtempY);
                 //ddtemp_ycenter_size.sub(ddtempY, ddtempY);
                 if(y < 0) {
@@ -242,7 +242,7 @@ public class CartesianLocationNormalMpirBigNumArbitrary extends Location {
                 ddtempX.add(ddtemp_size_image_size_x, ddtempX);
             } else if (x == indexX - 1) {
                 ddtempX.sub(ddtemp_size_image_size_x, ddtempX);
-            } else {
+            } else if (x != indexX) {
                 //ddtemp_size_image_size_x.mult(x, ddtempX);
                 //ddtemp_xcenter_size.add(ddtempX, ddtempX);
                 if(x < 0) {
@@ -275,7 +275,7 @@ public class CartesianLocationNormalMpirBigNumArbitrary extends Location {
         else if(x == indexX - 1) {
             ddtempX.sub(ddtemp_size_image_size_x, ddtempX);
         }
-        else {
+        else if (x != indexX) {
             //ddtemp_size_image_size_x.mult(x, ddtempX);
             //ddtemp_xcenter_size.add(ddtempX, ddtempX);
             if(x < 0) {
@@ -319,7 +319,7 @@ public class CartesianLocationNormalMpirBigNumArbitrary extends Location {
         else if(y == indexY - 1) {
             ddtempY.add(ddtemp_size_image_size_y, ddtempY);
         }
-        else {
+        else if (y != indexY) {
             //ddtemp_size_image_size_y.mult(y, ddtempY);
             //ddtemp_ycenter_size.sub(ddtempY, ddtempY);
             if(y < 0) {

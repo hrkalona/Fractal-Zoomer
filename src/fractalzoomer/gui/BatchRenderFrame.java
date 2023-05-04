@@ -96,7 +96,7 @@ public class BatchRenderFrame extends JFrame {
 
         list.setCellRenderer(new ListCellRenderer<String>() {
             private final JPanel p = new JPanel(new BorderLayout());
-            private final JLabel icon = new JLabel((Icon)null, JLabel.LEFT);
+            private final ImageLabel icon = new ImageLabel(null, JLabel.LEFT);
             private final JLabel label = new JLabel("", JLabel.LEFT);
 
             @Override
@@ -129,12 +129,12 @@ public class BatchRenderFrame extends JFrame {
         JScrollPane scroll_pane = new JScrollPane(list, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scroll_pane.setPreferredSize(new Dimension(680, 470));
 
-        JButton  loadButton = new JButton("Load", MainWindow.getIcon("load.png"));
+        JButton  loadButton = new MyButton("Load", MainWindow.getIcon("load.png"));
         loadButton.setFocusable(false);
         loadButton.setToolTipText("<html>Loads the function, plane, center, size, color options, iterations,<br> rotation, perturbation, initial value, bailout, julia settings,<br>and image filters.</html>");
         loadButton.addActionListener(e -> loadSettings());
 
-        JButton removeSettings = new JButton("Delete");
+        JButton removeSettings = new MyButton("Delete");
         removeSettings.setIcon(MainWindow.getIcon("delete_small.png"));
         removeSettings.setFocusable(false);
         removeSettings.setToolTipText("Remove settings.");
@@ -159,7 +159,7 @@ public class BatchRenderFrame extends JFrame {
         JPanel buttons = new JPanel();
         buttons.setBackground(MainWindow.bg_color);
 
-        ok = new JButton("Render");
+        ok = new MyButton("Render");
         getRootPane().setDefaultButton(ok);
         ok.setFocusable(false);
         ok.addActionListener(e -> {
@@ -188,7 +188,7 @@ public class BatchRenderFrame extends JFrame {
 
         buttons.add(ok);
 
-        JButton cancel = new JButton("Cancel");
+        JButton cancel = new MyButton("Cancel");
         cancel.setFocusable(false);
         cancel.addActionListener(e -> {
 

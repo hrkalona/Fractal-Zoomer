@@ -496,6 +496,36 @@ public class BruteForceDraw extends ThreadDraw {
     }
 
     @Override
+    protected void applyRankOrderMapping(PixelExtraData[] data, int image_size, Location location, AntialiasingAlgorithm aa) {
+
+        if(action == COLOR_CYCLING) {
+            super.applyRankOrderMapping(data, image_size, location, aa);
+            return;
+        }
+
+        int x, y, loc;
+        int condition = image_size * image_size;
+
+        do {
+
+            loc = THREAD_CHUNK_SIZE * normal_drawing_algorithm_histogram.getAndIncrement();
+
+            if(loc >= condition) {
+                break;
+            }
+
+            for(int count = 0; count < THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
+                x = loc % image_size;
+                y = loc / image_size;
+
+                applyRankOrderMappingToPixel(loc, x, y, image_size, data, location, aa);
+            }
+
+        } while(true);
+
+    }
+
+    @Override
     protected void applyHistogram(double[] image_iterations, boolean[] escaped, int image_size, int maxCount, int histogramGranularity, double histogramDensity, Location location, AntialiasingAlgorithm aa) {
 
         if(action == COLOR_CYCLING) {
@@ -519,6 +549,35 @@ public class BruteForceDraw extends ThreadDraw {
                 y = loc / image_size;
 
                 applyHistogramToPixel(loc, x, y, image_size, image_iterations, escaped, maxCount, histogramGranularity, histogramDensity, location, aa);
+            }
+
+        } while(true);
+    }
+
+    @Override
+    protected void applyRankOrderMapping(double[] image_iterations, boolean[] escaped, int image_size, Location location, AntialiasingAlgorithm aa) {
+
+        if(action == COLOR_CYCLING) {
+            super.applyRankOrderMapping(image_iterations, escaped, image_size, location, aa);
+            return;
+        }
+
+        int x, y, loc;
+        int condition = image_size * image_size;
+
+        do {
+
+            loc = THREAD_CHUNK_SIZE * normal_drawing_algorithm_histogram.getAndIncrement();
+
+            if(loc >= condition) {
+                break;
+            }
+
+            for(int count = 0; count < THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
+                x = loc % image_size;
+                y = loc / image_size;
+
+                applyRankOrderMappingToPixel(loc, x, y, image_size, image_iterations, escaped, location, aa);
             }
 
         } while(true);

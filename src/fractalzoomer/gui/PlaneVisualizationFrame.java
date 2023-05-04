@@ -102,13 +102,14 @@ public class PlaneVisualizationFrame extends JFrame {
             JOptionPane.showMessageDialog(thiss, e.getMessage() + "\nThe application will terminate.", "Error!", JOptionPane.ERROR_MESSAGE);
             ptra2.savePreferences();
             ThreadDraw.deleteLibs();
+            if(ThreadDraw.executor != null) {
+                ThreadDraw.executor.shutdown();
+            }
             System.exit(-1);
         }
 
-        final JLabel l1 = new JLabel();
-        l1.setIcon(new ImageIcon(plane_mu_image));
-        final JLabel l2 = new JLabel();
-        l2.setIcon(new ImageIcon(new_plane_image));
+        final JLabel l1 = new ImageLabel(new ImageIcon(plane_mu_image));
+        final JLabel l2 = new ImageLabel(new ImageIcon(new_plane_image));
 
         size_slid.addChangeListener(e -> {
             double sizeNew2 = Math.pow(zoom_factor, (size_slid.getMaximum() - size_slid.getValue()) - size_slid.getMaximum() / 2.0);
@@ -119,6 +120,9 @@ public class PlaneVisualizationFrame extends JFrame {
                 JOptionPane.showMessageDialog(thiss, ex.getMessage() + "\nThe application will terminate.", "Error!", JOptionPane.ERROR_MESSAGE);
                 ptra2.savePreferences();
                 ThreadDraw.deleteLibs();
+                if(ThreadDraw.executor != null) {
+                    ThreadDraw.executor.shutdown();
+                }
                 System.exit(-1);
             }
             l1.repaint();
@@ -134,6 +138,9 @@ public class PlaneVisualizationFrame extends JFrame {
                 JOptionPane.showMessageDialog(thiss, ex.getMessage() + "\nThe application will terminate.", "Error!", JOptionPane.ERROR_MESSAGE);
                 ptra2.savePreferences();
                 ThreadDraw.deleteLibs();
+                if(ThreadDraw.executor != null) {
+                    ThreadDraw.executor.shutdown();
+                }
                 System.exit(-1);
             }
             l1.repaint();
@@ -175,7 +182,7 @@ public class PlaneVisualizationFrame extends JFrame {
         JPanel buttons = new JPanel();
         buttons.setBackground(MainWindow.bg_color);
 
-        JButton ok = new JButton("Ok");
+        JButton ok = new MyButton("Ok");
         getRootPane().setDefaultButton(ok);
         ok.setFocusable(false);
         ok.addActionListener(e -> {

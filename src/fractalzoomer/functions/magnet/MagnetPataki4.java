@@ -310,5 +310,10 @@ public class MagnetPataki4 extends MagnetPatakiType {
         return new GenericComplex[] {zfourth, preCalc};
     }
 
+    @Override
+    public boolean supportsBigIntnum() {
+        return true;
+    }
+
 
 }

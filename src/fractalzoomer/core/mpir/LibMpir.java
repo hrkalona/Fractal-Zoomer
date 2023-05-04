@@ -213,13 +213,13 @@ public class LibMpir {
 
     public static native void mpir_fz_square_plus_c (mpf_t re, mpf_t im, mpf_t temp, mpf_t re_sqr, mpf_t im_sqr, mpf_t norm_sqr, mpf_t cre, mpf_t cim);
     public static native void mpir_fz_square (mpf_t re, mpf_t im, mpf_t temp, mpf_t re_sqr, mpf_t im_sqr, mpf_t norm_sqr);
-    public static native void mpir_fz_norm_square_with_components (mpf_t re_sqr, mpf_t im_sqr, mpf_t norm_sqr, mpf_t re, mpf_t im);
+    public static native void mpir_fz_norm_square_with_components (mpf_t re_sqr, mpf_t im_sqr, mpf_t norm_sqr, mpf_t re, mpf_t im, int use_threads);
     public static native void mpir_fz_get_d (double[] valRe, double[] valIm, mpf_t re, mpf_t im);
     public static native int mpir_fz_get_d_2exp (double[] valRe, double[] valIm, long[] expRe, long[] expIm, mpf_t re, mpf_t im);
     public static native int mpir_fz_get_d_2exp (double[] valRe, double[] valIm, int[] expRe, int[] expIm, mpf_t re, mpf_t im);
-    public static native void mpir_fz_square_plus_c_simple (mpf_t re, mpf_t im, mpf_t temp1, mpf_t temp2, mpf_t cre, mpf_t cim);
+    public static native void mpir_fz_square_plus_c_simple (mpf_t re, mpf_t im, mpf_t temp1, mpf_t temp2, mpf_t temp3, mpf_t cre, mpf_t cim, int algorithm, int use_threads);
     public static native void mpir_fz_set (mpf_t destre, mpf_t destim, mpf_t srcre, mpf_t srcim);
-    public static native void mpir_fz_norm_square (mpf_t norm_sqr, mpf_t temp1, mpf_t re, mpf_t im);
+    public static native void mpir_fz_norm_square (mpf_t norm_sqr, mpf_t temp1, mpf_t re, mpf_t im, int use_threads);
     public static native void mpir_fz_self_add (mpf_t re, mpf_t im, mpf_t val_re, mpf_t val_im);
     public static native void mpir_fz_self_sub (mpf_t re, mpf_t im, mpf_t val_re, mpf_t val_im);
     public static native void mpir_fz_rotation (mpf_t x, mpf_t y, mpf_t temp_re, mpf_t temp_im, mpf_t f, mpf_t a, mpf_t asb, mpf_t apb);

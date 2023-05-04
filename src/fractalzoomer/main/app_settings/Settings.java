@@ -357,7 +357,7 @@ public class Settings implements Constants {
 
             if(MyApfloat.setAutomaticPrecision) {
 
-                long precision = MyApfloat.getAutomaticPrecision(new String[]{sizeStr, xCenterStr, yCenterStr, xJuliaCenterStr, yJuliaCenterStr}, new boolean[] {true, false, false, false, false}, false);
+                long precision = MyApfloat.getAutomaticPrecision(new String[]{sizeStr, xCenterStr, yCenterStr, xJuliaCenterStr, yJuliaCenterStr}, new boolean[] {true, false, false, false, false});
 
                 if (MyApfloat.shouldSetPrecision(precision, true)) {
                     Fractal.clearReferences(true);
@@ -439,7 +439,7 @@ public class Settings implements Constants {
 
             if(MyApfloat.setAutomaticPrecision) {
 
-                long precision = MyApfloat.getAutomaticPrecision(new String[]{sizeStr, xCenterStr, yCenterStr}, new boolean[] {true, false, false}, true);
+                long precision = MyApfloat.getAutomaticPrecision(new String[]{sizeStr, xCenterStr, yCenterStr}, new boolean[] {true, false, false});
 
                 if (MyApfloat.shouldSetPrecision(precision, true)) {
                     Fractal.clearReferences(true);
@@ -1501,6 +1501,17 @@ public class Settings implements Constants {
             fdes.fade_algorithm = ((SettingsFractals1087)settings).getFakeDEfadingAlgorithm();
         }
 
+        if(version < 1088) {
+            fns.variable_re = defaults.fns.variable_re;
+            fns.variable_im = defaults.fns.variable_im;
+            sts.normalMapCombineWithOtherStatistics = defaults.sts.normalMapCombineWithOtherStatistics;
+        }
+        else {
+            fns.variable_re = ((SettingsFractals1088) settings).getVariableRe();
+            fns.variable_im = ((SettingsFractals1088) settings).getVariableIm();
+            sts.normalMapCombineWithOtherStatistics = ((SettingsFractals1088) settings).getNormalMapCombineWithOtherStatistics();
+        }
+
         if (fns.plane_type == USER_PLANE) {
             if (version < 1058) {
                 fns.user_plane_algorithm = defaults.fns.user_plane_algorithm;
@@ -1982,7 +1993,7 @@ public class Settings implements Constants {
                 userCode = userCode.replaceAll("\\b" + Parser.DEFAULT_USER_CODE_CLASS + "\\b", Parser.SAVED_USER_CODE_CLASS);
             }
 
-            SettingsFractals settings = new SettingsFractals1087(this, ThreadDraw.PERTURBATION_THEORY, ThreadDraw.GREEDY_ALGORITHM, ThreadDraw.BRUTE_FORCE_ALG, ThreadDraw.GREEDY_ALGORITHM_SELECTION, ThreadDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA, userCode);
+            SettingsFractals settings = new SettingsFractals1088(this, ThreadDraw.PERTURBATION_THEORY, ThreadDraw.GREEDY_ALGORITHM, ThreadDraw.BRUTE_FORCE_ALG, ThreadDraw.GREEDY_ALGORITHM_SELECTION, ThreadDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA, userCode);
             file_temp.writeObject(settings);
             file_temp.flush();
         } catch (IOException ex) {
@@ -2899,9 +2910,8 @@ public class Settings implements Constants {
                 || fns.function == MANDELBAR || fns.function == LAMBDA
                 || fns.function == MAGNET1 || fns.function == NEWTON_THIRD_DEGREE_PARAMETER_SPACE
                 || fns.function == NEWTON3 || (fns.function == NOVA && fns.nova_method == NOVA_NEWTON && fns.defaultNovaInitialValue && fns.z_exponent_nova[0] == 3 &&  fns.z_exponent_nova[1] == 0 && fns.relaxation[0] == 1 && fns.relaxation[1] == 0)
-        || fns.function == MAGNET_PATAKI2 || fns.function == MAGNET_PATAKI3
-                || fns.function == MAGNET_PATAKI4 || fns.function == MAGNET_PATAKI4
-                || fns.function == MAGNET_PATAKI5);
+                || fns.function == MAGNET_PATAKI2 || fns.function == MAGNET_PATAKI3
+                || fns.function == MAGNET_PATAKI4 || fns.function == MAGNET_PATAKI5);
     }
 
     public boolean isPertubationTheoryInUse() {

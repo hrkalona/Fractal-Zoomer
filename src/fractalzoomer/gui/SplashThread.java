@@ -31,19 +31,19 @@ public class SplashThread extends Thread {
     private SplashLabel l1;
     private int skip_end;
     private int version;
-    
+
     public SplashThread(BufferedImage image, SplashLabel l1, int version, int skip_end) {
-        
+
         this.image = image;
         this.l1 = l1;
         this.skip_end = skip_end;
         this.version = version;
-        
+
     }
-    
+
     @Override
     public void run() {
-        
+
         int width = l1.getCustomWidth();
         int height = l1.getCustomHeight();
         for(int i = 0; i + width + skip_end < image.getWidth(); i+= 1) {
@@ -54,10 +54,10 @@ public class SplashThread extends Thread {
                 Thread.sleep(2);
             }
             catch(InterruptedException ex) {
-                
+
             }
         }
-    
+
 
         if(Constants.beta) {
             l1.drawText("version " + AppUpdater.convertVersion(version) + " beta", width - 115, 50, new Color(27, 32, 99), 13);
@@ -67,16 +67,16 @@ public class SplashThread extends Thread {
         }
         l1.drawText("Fractal Zoomer", width - 180, 30, Color.BLACK, 26);
         l1.repaint();
-            
+
         try {
             Thread.sleep(2000);
         }
         catch(InterruptedException ex) {
-                
+
         }
 
     }
-    
-    
-    
+
+
+
 }

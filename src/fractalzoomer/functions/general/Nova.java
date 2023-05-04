@@ -967,6 +967,9 @@ public class Nova extends ExtendedConvergentType {
             if(inputPixel instanceof BigComplex && ((BigComplex)inputPixel).norm().compareTo(new MyApfloat(1e-4)) < 0) {
                 inputPixel = new BigComplex(1e-4, 1e-4);
             }
+            else if(inputPixel instanceof BigIntNumComplex && ((BigIntNumComplex)inputPixel).norm().compare(new BigIntNum(1e-4)) < 0) {
+                inputPixel = new BigIntNumComplex(1e-4, 1e-4);
+            }
             else if(inputPixel instanceof MpfrBigNumComplex && ((MpfrBigNumComplex)inputPixel).norm().compare(1e-4) < 0) {
                 inputPixel = new MpfrBigNumComplex(1e-4, 1e-4);
             }
@@ -1014,6 +1017,18 @@ public class Nova extends ExtendedConvergentType {
                 start = isJulia ? new MpirBigNumComplex(bn) : new MpirBigNumComplex((MpirBigNumComplex)initVal);
                 c0 = new MpirBigNumComplex((MpirBigNumComplex)c);
                 pixel = new MpirBigNumComplex(bn);
+            }
+            else if(bigNumLib == Constants.BIGNUM_BIGINT) {
+                initVal = new BigIntNumComplex(defaultInitVal.getValue(null));
+
+                BigIntNumComplex bin = inputPixel.toBigIntNumComplex();
+                z = iterations == 0 ? (isJulia ? bin : initVal) : referenceData.lastZValue;
+                c = isJulia ? getSeed(useBignum, bigNumLib) : bin;
+                zold = iterations == 0 ? new BigIntNumComplex() : referenceData.secondTolastZValue;
+                zold2 = iterations == 0 ? new BigIntNumComplex() : referenceData.thirdTolastZValue;
+                start = isJulia ? bin : initVal;
+                c0 = c;
+                pixel = bin;
             }
             else if(bigNumLib == Constants.BIGNUM_DOUBLEDOUBLE) {
                 initVal = new DDComplex(defaultInitVal.getValue(null));
@@ -1261,6 +1276,18 @@ public class Nova extends ExtendedConvergentType {
                 start = initVal;
                 c0 = c;
                 pixel = ddn;
+            }
+            else if(bigNumLib == Constants.BIGNUM_BIGINT) {
+                initVal = new BigIntNumComplex(defaultInitVal.getValue(null));
+
+                BigIntNumComplex bin = inputPixel.toBigIntNumComplex();
+                z = iterations == 0 ? initVal : secondReferenceData.lastZValue;
+                c = getSeed(useBignum, bigNumLib);
+                zold = iterations == 0 ? new BigIntNumComplex() : secondReferenceData.secondTolastZValue;
+                zold2 = iterations == 0 ? new BigIntNumComplex() : secondReferenceData.thirdTolastZValue;
+                start = initVal;
+                c0 = c;
+                pixel = bin;
             }
             else {
                 initVal = defaultInitVal.getValue(null);
@@ -1511,6 +1538,11 @@ public class Nova extends ExtendedConvergentType {
     @Override
     public boolean needsExtendedRange() {
         return ThreadDraw.USE_FULL_FLOATEXP_FOR_ALL_ZOOM || (ThreadDraw.USE_CUSTOM_FLOATEXP_REQUIREMENT && isJulia && size < 1.0e-14);
+    }
+
+    @Override
+    public boolean supportsBigIntnum() {
+        return true;
     }
 
 }

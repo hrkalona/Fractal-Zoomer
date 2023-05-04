@@ -105,7 +105,7 @@ public class LAInfo extends GenericLAInfo {
     }
 
     @Override
-    protected boolean Step(LAInfo out, Complex z) {
+    protected boolean Step(LAInfo out, Complex z) throws InvalidCalculationException {
         double ChebyMagz = z.chebychevNorm();
 
         Complex ZCoeff = new Complex(ZCoeffRe, ZCoeffIm);
@@ -131,6 +131,12 @@ public class LAInfo extends GenericLAInfo {
         out.CCoeffRe = outCCoeff.getRe();
         out.CCoeffIm = outCCoeff.getIm();
 
+        if(!Double.isFinite(out.ZCoeffRe) || !Double.isFinite(out.ZCoeffIm)
+                || !Double.isFinite(out.CCoeffRe) || !Double.isFinite(out.CCoeffIm)
+        || !Double.isFinite(out.LAThreshold) || !Double.isFinite(out.LAThresholdC)) {
+            throw new InvalidCalculationException("Invalid calculations");
+        }
+
         out.RefRe = RefRe;
         out.RefIm = RefIm;
 
@@ -153,7 +159,7 @@ public class LAInfo extends GenericLAInfo {
     }
 
     @Override
-    protected GenericLAInfo Step(Complex z)  {
+    protected GenericLAInfo Step(Complex z) throws InvalidCalculationException {
         LAInfo Result = new LAInfo();
 
         Step(Result, z);
@@ -166,7 +172,7 @@ public class LAInfo extends GenericLAInfo {
     }
 
     @Override
-    protected boolean Composite(LAInfo out, LAInfo LA) {
+    protected boolean Composite(LAInfo out, LAInfo LA) throws InvalidCalculationException {
         Complex z = new Complex(LA.RefRe, LA.RefIm);
         Complex ZCoeff = new Complex(ZCoeffRe, ZCoeffIm);
         Complex CCoeff = new Complex(CCoeffRe, CCoeffIm);
@@ -208,6 +214,12 @@ public class LAInfo extends GenericLAInfo {
         out.CCoeffRe = outCCoeff.getRe();
         out.CCoeffIm = outCCoeff.getIm();
 
+        if(!Double.isFinite(out.ZCoeffRe) || !Double.isFinite(out.ZCoeffIm)
+        || !Double.isFinite(out.CCoeffRe) || !Double.isFinite(out.CCoeffIm)
+                || !Double.isFinite(out.LAThreshold) || !Double.isFinite(out.LAThresholdC)) {
+            throw new InvalidCalculationException("Invalid calculations");
+        }
+
         if(DETECTION_METHOD == 1) {
             temp = Math.min (ChebyMagz, MinMag);
             out.MinMag = Math.min (temp, LA.MinMag);
@@ -230,7 +242,7 @@ public class LAInfo extends GenericLAInfo {
     }
 
     @Override
-    protected LAInfo Composite(LAInfo LA)  {
+    protected LAInfo Composite(LAInfo LA) throws InvalidCalculationException {
         LAInfo Result = new LAInfo();
 
         Composite(Result, LA);

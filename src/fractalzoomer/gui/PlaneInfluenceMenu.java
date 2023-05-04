@@ -6,7 +6,7 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
-public class PlaneInfluenceMenu extends JMenu {
+public class PlaneInfluenceMenu extends MyMenu {
 
     private static final long serialVersionUID = -794450943243L;
     private MainWindow ptr;

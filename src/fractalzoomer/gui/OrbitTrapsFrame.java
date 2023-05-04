@@ -119,7 +119,7 @@ public class OrbitTrapsFrame extends JFrame {
         ignoreComponents.add(showOnlyTraps);
 
 
-        load_image_button = new JButton();
+        load_image_button = new MyButton();
         load_image_button.setIcon(MainWindow.getIcon("load_image.png"));
         load_image_button.setFocusable(false);
         load_image_button.setToolTipText("Loads an image to be used as a pattern, with the Image based Trap");
@@ -639,7 +639,7 @@ public class OrbitTrapsFrame extends JFrame {
         options_panel.add(trap_options_panel);
         options_panel.add(color_options_panel);
 
-        JButton ok = new JButton("Ok");
+        JButton ok = new MyButton("Ok");
         ok.setFocusable(false);
         
         getRootPane().setDefaultButton( ok );
@@ -774,7 +774,7 @@ public class OrbitTrapsFrame extends JFrame {
             }
         });
 
-        JButton close = new JButton("Cancel");
+        JButton close = new MyButton("Cancel");
         close.setFocusable(false);
         close.addActionListener(e -> {
 

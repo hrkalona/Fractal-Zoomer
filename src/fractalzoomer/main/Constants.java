@@ -25,7 +25,7 @@ import java.awt.*;
  * @author hrkalona2
  */
 public interface Constants {
-    public static final int VERSION = 1087;
+    public static final int VERSION = 1088;
     public static final boolean beta = false;
     public static final int TOTAL_PALETTES = 41;
     public static final int TOTAL_INCOLORING_ALGORITHMS = 11;
@@ -96,7 +96,7 @@ public interface Constants {
     public static final String[] twinLampsFunction = {"Linear", "Sqrt"};
     public static final String[] langNormTypes = {"Norm Squared", "Norm", "Rhombus-Norm", "Square-Norm", "N-Norm"};
     public static final String[] atomNormTypes = {"Norm", "Rhombus-Norm", "Square-Norm", "N-Norm"};
-    public static final String[] histogramMapping = {"Histogram", "Linear", "Square Root", "Cube Root", "Fourth Root", "Logarithmic"};
+    public static final String[] histogramMapping = {"Histogram", "Linear", "Square Root", "Cube Root", "Fourth Root", "Logarithmic", "Rank Order"};
 
     public static final String[] generatedPalettes = {"Multiwave: default", "Multiwave: g_spdz2", "Multiwave: g_spdz2_custom"};
     /**
@@ -1283,12 +1283,11 @@ public interface Constants {
     public static final int GRADIENT_LENGTH = 512;
     
     public static final Color bg_color = Color.white;
-    public static final Color progress_color = new Color(222, 81, 69);//new Color(255, 185, 15);
-    public static final Color progress_filters_color = new Color(24, 161, 95);
-    public static final Color indeterminant_color = new Color(24, 201, 85);
+    public static final Color progress_color = new Color(190, 81, 69);//new Color(255, 185, 15);
+    public static final Color progress_filters_color = new Color(24, 161, 110);
 
     public static final Color progress_d3_color = new Color(76, 139, 245);
-    public static final Color progress_ref_color = new Color(100, 100, 100);
+    public static final Color progress_ref_color = new Color(90, 90, 90);
     public static final Color progress_sa_color = new Color(30, 90, 255);
 
     public static final Color progress_nanomb1_color = new Color(255, 170, 51);
@@ -1314,7 +1313,8 @@ public interface Constants {
     public static final int BIGNUM_AUTOMATIC = 4;
     public static final int BIGNUM_MPIR = 5;
     public static final int BIGNUM_AUTOMATIC_ONLY_BIGNUM = 6;
-    public static final int BIGNUM_APFLOAT = 7;//always last
+    public static final int BIGNUM_BIGINT = 7;
+    public static final int BIGNUM_APFLOAT = 8;//always last
 
     public static final int ARBITRARY_DOUBLEDOUBLE = 0;
     public static final int ARBITRARY_BUILT_IN = 1;
@@ -1323,6 +1323,7 @@ public interface Constants {
     public static final int ARBITRARY_AUTOMATIC = 4;
 
     public static final int ARBITRARY_MPIR = 5;
+    public static final int ARBITRARY_BIGINT = 6;
 
     public static final String greedyWarning = "Greedy Drawing Algorithm is enabled, which creates glitches in the image.\nYou should disable it for a better result, or check the \"Use Iteration Data\" option.";
 
@@ -1340,5 +1341,8 @@ public interface Constants {
 
     public static final double LCH_CONSTANT_L = 50;
     public static final double LCH_CONSTANT_C = 100;
+
+    public static final int MIN_QUICK_DRAW_TILES = 2;
+    public static final int MAX_QUICK_DRAW_TILES = 20;
 
 }

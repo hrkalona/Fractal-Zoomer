@@ -27,8 +27,8 @@ import java.io.IOException;
  * @author hrkalona2
  */
 public class SplashLabel extends JLabel {
-	private static final long serialVersionUID = 2790857258734510057L;
-	private BufferedImage image;
+    private static final long serialVersionUID = 2790857258734510057L;
+    private BufferedImage image;
     protected int strokeSize;
     protected Color _shadowColor;
     protected boolean shadowed;
@@ -40,7 +40,7 @@ public class SplashLabel extends JLabel {
     private int custom_width;
     private int custom_height;
     private Font font;
- 
+
 
     public SplashLabel(int custom_width, int custom_height) {
 
@@ -54,11 +54,11 @@ public class SplashLabel extends JLabel {
         shadowed = false;
         strokeSize = 0;
         _shadowColor = Color.BLACK;
-        
+
         try {
             GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
             font = Font.createFont(Font.TRUETYPE_FONT, getClass().getResourceAsStream("/fractalzoomer/fonts/Blenda Script.otf"));
-            ge.registerFont(font);           
+            ge.registerFont(font);
         }
         catch(IOException | FontFormatException e) {
             font = new Font("Arial", Font.BOLD, 25);
@@ -76,7 +76,7 @@ public class SplashLabel extends JLabel {
     }
 
     public void drawText(String str, int x, int y, Color col, int size) {
-        
+
         Graphics2D g = image.createGraphics();
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
@@ -117,6 +117,7 @@ public class SplashLabel extends JLabel {
 
         if(_highQuality) {
             graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            graphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
         }
 
         if(shadowed) {

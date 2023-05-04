@@ -46,6 +46,13 @@ public class MuVariationPlane extends Plane {
     }
 
     @Override
+    public BigIntNumComplex transform(BigIntNumComplex pixel) {
+
+        return pixel.square().divide(pixel.fourth().sub(0.25));
+
+    }
+
+    @Override
     public BigComplex transform(BigComplex pixel) {
 
         return pixel.square().divide(pixel.fourth().sub(new MyApfloat(0.25)));

@@ -142,6 +142,14 @@ public abstract class RootFindingMethods extends Fractal {
             gstart = complex[0];
             gc0 = complex[0];
         }
+        else if(lib == ARBITRARY_BIGINT) {
+            complex[0] = pixel;//z
+
+            gzold = new BigIntNumComplex();
+            gzold2 = new BigIntNumComplex();
+            gstart = complex[0];
+            gc0 = complex[0];
+        }
         else {
             complex[0] = pixel;//z
 

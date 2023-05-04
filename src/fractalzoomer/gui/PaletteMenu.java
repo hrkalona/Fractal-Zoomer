@@ -38,7 +38,7 @@ import java.util.StringTokenizer;
  *
  * @author hrkalona2
  */
-public class PaletteMenu extends JMenu {
+public class PaletteMenu extends MyMenu {
 
     private static final long serialVersionUID = 3271849856447452259L;
     private MainWindow ptr;
@@ -105,7 +105,7 @@ public class PaletteMenu extends JMenu {
 
         setIcon(MainWindow.getIcon("palette.png"));
         
-        paletteLegacyFractintMenu = new JMenu("Other Paletttes/Maps");
+        paletteLegacyFractintMenu = new MyMenu("Other Paletttes/Maps");
         paletteLegacyFractintMenu.setIcon(MainWindow.getIcon("palette.png"));
         
         palette = new JRadioButtonMenuItem[paletteNames.length];
@@ -150,7 +150,7 @@ public class PaletteMenu extends JMenu {
                     }
                 }
 
-                palette[i] = new JRadioButtonMenuItem(paletteNames[i], new ImageIcon(palette_preview));
+                palette[i] = new ImageRadioButtonMenuItem(paletteNames[i], new ImageIcon(palette_preview));
             } else {
                 palette[i] = new JRadioButtonMenuItem(paletteNames[i], MainWindow.getIcon("palette_load.png"));
             }
@@ -203,7 +203,7 @@ public class PaletteMenu extends JMenu {
             palettes_group.add(palette[i]);
         }
 
-        colorMapframe = new JMenuItem("Direct Palette Loader", MainWindow.getIcon("palette_load.png"));
+        colorMapframe = new MyMenuItem("Direct Palette Loader", MainWindow.getIcon("palette_load.png"));
         colorMapframe.setToolTipText("Loads all color maps from the " + ColorMapFrame.DirName + " directory.");
         if (outcoloring_mode) {
             colorMapframe.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, ActionEvent.CTRL_MASK | ActionEvent.SHIFT_MASK));
@@ -215,7 +215,7 @@ public class PaletteMenu extends JMenu {
         addSeparator();
         add(colorMapframe);
 
-        alternativeCustomDirectPalette  = new JMenuItem("Custom Direct Palette", MainWindow.getIcon("palette.png"));
+        alternativeCustomDirectPalette  = new MyMenuItem("Custom Direct Palette", MainWindow.getIcon("palette.png"));
         alternativeCustomDirectPalette.setToolTipText("Creates a custom direct palette.");
         if (outcoloring_mode) {
             alternativeCustomDirectPalette.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, ActionEvent.CTRL_MASK | ActionEvent.SHIFT_MASK));

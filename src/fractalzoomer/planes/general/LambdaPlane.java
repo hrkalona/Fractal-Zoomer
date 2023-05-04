@@ -76,6 +76,13 @@ public class LambdaPlane extends Plane {
     }
 
     @Override
+    public BigIntNumComplex transform(BigIntNumComplex pixel) {
+
+        return  pixel.times(pixel.r_sub(1));
+
+    }
+
+    @Override
     public BigComplex transform(BigComplex pixel) {
 
         return  pixel.times(pixel.r_sub(MyApfloat.ONE));

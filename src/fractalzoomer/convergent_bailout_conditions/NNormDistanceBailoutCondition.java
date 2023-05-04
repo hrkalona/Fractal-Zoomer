@@ -87,6 +87,11 @@ public class NNormDistanceBailoutCondition extends ConvergentBailoutCondition {
     }
 
     @Override
+    public boolean converged(BigIntNumComplex z, BigIntNumComplex zold, BigIntNumComplex zold2, int iterations, BigIntNumComplex c, BigIntNumComplex start, BigIntNumComplex c0, BigIntNumComplex pixel) {
+        return converged(z.toComplex(), zold.toComplex(), zold2.toComplex(), iterations, c.toComplex(), start.toComplex(), c0.toComplex(), pixel.toComplex());
+    }
+
+    @Override
     public boolean converged(DDComplex z, DDComplex zold, DDComplex zold2, int iterations, DDComplex c, DDComplex start, DDComplex c0, DDComplex pixel) {
 
         if(ddcn_norm.isZero()) {
@@ -211,6 +216,11 @@ public class NNormDistanceBailoutCondition extends ConvergentBailoutCondition {
     }
 
     @Override
+    public boolean converged(BigIntNumComplex z, BigIntNum root, BigIntNumComplex zold, BigIntNumComplex zold2, int iterations, BigIntNumComplex c, BigIntNumComplex start, BigIntNumComplex c0, BigIntNumComplex pixel) {
+        return converged(z.toComplex(), zold.toComplex(), zold2.toComplex(), iterations, c.toComplex(), start.toComplex(), c0.toComplex(), pixel.toComplex());
+    }
+
+    @Override
     public boolean converged(DDComplex z, DoubleDouble root, DDComplex zold, DDComplex zold2, int iterations, DDComplex c, DDComplex start, DDComplex c0, DDComplex pixel) {
 
         if(ddcn_norm.isZero()) {
@@ -261,6 +271,11 @@ public class NNormDistanceBailoutCondition extends ConvergentBailoutCondition {
         }
 
         return result;
+    }
+
+    @Override
+    public boolean converged(BigIntNumComplex z, BigIntNumComplex root, BigIntNumComplex zold, BigIntNumComplex zold2, int iterations, BigIntNumComplex c, BigIntNumComplex start, BigIntNumComplex c0, BigIntNumComplex pixel) {
+        return converged(z.toComplex(), zold.toComplex(), zold2.toComplex(), iterations, c.toComplex(), start.toComplex(), c0.toComplex(), pixel.toComplex());
     }
 
     @Override

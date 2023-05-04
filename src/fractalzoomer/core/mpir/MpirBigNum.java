@@ -14,6 +14,8 @@ import static fractalzoomer.core.mpir.LibMpir.*;
 
 public class MpirBigNum {
     public static long precision = ThreadDraw.BIGNUM_PRECISION;
+    public static int THREADS_THRESHOLD = 3820; // bits of precision
+    private static int use_threads = 0;
 
     public static final long doublePrec = MpfrBigNum.doublePrec;
     public static final int base = MpfrBigNum.base;
@@ -57,6 +59,8 @@ public class MpirBigNum {
         if(!hasError()) {
             SQRT_TWO = new MpirBigNum(2).sqrt();
         }
+
+        use_threads = ThreadDraw.USE_THREADS_IN_BIGNUM_LIBS && precision >= THREADS_THRESHOLD && Runtime.getRuntime().availableProcessors() >= 2 ? 1 : 0;
     }
 
     private MpfMemory mpfMemory;
@@ -475,9 +479,15 @@ public class MpirBigNum {
 
     }
 
-    public static void z_sqr_p_c(MpirBigNum re, MpirBigNum im, MpirBigNum temp1, MpirBigNum temp2, MpirBigNum cre, MpirBigNum cim) {
+    public static void z_sqr_p_c(MpirBigNum re, MpirBigNum im, MpirBigNum temp1, MpirBigNum temp2, MpirBigNum temp3, MpirBigNum cre, MpirBigNum cim) {
 
-        mpir_fz_square_plus_c_simple(re.mpfMemory.peer, im.mpfMemory.peer, temp1.mpfMemory.peer, temp2.mpfMemory.peer, cre.mpfMemory.peer, cim.mpfMemory.peer);
+        mpir_fz_square_plus_c_simple(re.mpfMemory.peer, im.mpfMemory.peer, temp1.mpfMemory.peer, temp2.mpfMemory.peer, temp3.mpfMemory.peer, cre.mpfMemory.peer, cim.mpfMemory.peer, 1, use_threads);
+
+    }
+
+    public static void z_sqr_p_c_no_threads(MpirBigNum re, MpirBigNum im, MpirBigNum temp1, MpirBigNum temp2, MpirBigNum temp3, MpirBigNum cre, MpirBigNum cim) {
+
+        mpir_fz_square_plus_c_simple(re.mpfMemory.peer, im.mpfMemory.peer, temp1.mpfMemory.peer, temp2.mpfMemory.peer, temp3.mpfMemory.peer, cre.mpfMemory.peer, cim.mpfMemory.peer, 1, 0);
 
     }
 
@@ -489,13 +499,19 @@ public class MpirBigNum {
 
     public static void norm_sqr_with_components( MpirBigNum reSqr, MpirBigNum imSqr, MpirBigNum normSqr, MpirBigNum re, MpirBigNum im) {
 
-        mpir_fz_norm_square_with_components(reSqr.mpfMemory.peer, imSqr.mpfMemory.peer, normSqr.mpfMemory.peer, re.mpfMemory.peer, im.mpfMemory.peer);
+        mpir_fz_norm_square_with_components(reSqr.mpfMemory.peer, imSqr.mpfMemory.peer, normSqr.mpfMemory.peer, re.mpfMemory.peer, im.mpfMemory.peer, use_threads);
 
     }
 
     public static void norm_sqr( MpirBigNum normSqr, MpirBigNum temp1, MpirBigNum re, MpirBigNum im) {
 
-        mpir_fz_norm_square(normSqr.mpfMemory.peer, temp1.mpfMemory.peer, re.mpfMemory.peer, im.mpfMemory.peer);
+        mpir_fz_norm_square(normSqr.mpfMemory.peer, temp1.mpfMemory.peer, re.mpfMemory.peer, im.mpfMemory.peer, use_threads);
+
+    }
+
+    public static void norm_sqr_no_threads( MpirBigNum normSqr, MpirBigNum temp1, MpirBigNum re, MpirBigNum im) {
+
+        mpir_fz_norm_square(normSqr.mpfMemory.peer, temp1.mpfMemory.peer, re.mpfMemory.peer, im.mpfMemory.peer, 0);
 
     }
 

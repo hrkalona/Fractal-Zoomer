@@ -78,10 +78,22 @@ public class ATInfo {
         Complex dzdc = new Complex();
         Complex dzdc2 = new Complex();
 
+        double norm_squared = 0;
+        double re_sqr = 0;
+        double im_sqr = 0;
+        double re = 0;
+        double im = 0;
+
         int i;
         for(i = 0; i < ATMaxIt; i++) {
 
-            if(z.norm_squared() > SqrEscapeRadius) {
+            re = z.getRe();
+            re_sqr = re * re;
+            im = z.getIm();
+            im_sqr = im * im;
+            norm_squared = re_sqr + im_sqr;
+
+            if(norm_squared > SqrEscapeRadius) {
                 break;
             }
 
@@ -92,7 +104,7 @@ public class ATInfo {
                 dzdc = dzdc.times2().times_mutable(z).plus_mutable(1);
             }
 
-            z = z.square_mutable_plus_c_mutable(c);
+            z = z.square_mutable_plus_c_mutable(c, re_sqr, im_sqr, norm_squared);
         }
 
         ATResult res = new ATResult();

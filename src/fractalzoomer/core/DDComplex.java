@@ -1356,10 +1356,9 @@ public class DDComplex extends GenericComplex {
 
     }
 
-    public final DDComplex circle_inversion(DDComplex center, DoubleDouble radius) {
+    public final DDComplex circle_inversion(DDComplex center, DoubleDouble radius2) {
 
         DoubleDouble distance = this.distance_squared(center);
-        DoubleDouble radius2 = radius.sqr();
 
         DoubleDouble temp = radius2.divide(distance);
 
@@ -1597,6 +1596,13 @@ public class DDComplex extends GenericComplex {
     /* more efficient z^2 + c */
     @Override
     public final DDComplex square_plus_c_mutable(GenericComplex cn) {
+
+        return square_plus_c(cn);
+
+    }
+
+    @Override
+    public final DDComplex square_plus_c_mutable_no_threads(GenericComplex cn) {
 
         return square_plus_c(cn);
 

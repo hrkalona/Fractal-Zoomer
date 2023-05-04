@@ -29,8 +29,6 @@ public class BigNum {
     public static final int SHIFTM1 = SHIFT - 1;
     public static final int SHIFTM52 = SHIFT - 52;
     public static final int MSHIFTP52 = 52 - SHIFT;
-
-    public static int fracDigitsShift = fracDigits * SHIFT;
     public static boolean useToDouble2 = fracDigits > 120;
     public static boolean useKaratsuba = fracDigits > 40;
     public static int initialLength = (fracDigits >> 1) - ((fracDigitsp1) % 2);
@@ -40,6 +38,9 @@ public class BigNum {
     private static final double TWO_TO_SHIFT = Math.pow(2,-SHIFT);
 
     public static int SQRT_MAX_ITERATIONS = 30;
+
+    public static int THREADS_THRESHOLD = 283;
+    public static boolean use_threads = false;
 
     public static void reinitialize(double digits) {
 
@@ -62,12 +63,13 @@ public class BigNum {
 
         fracDigitsm1 = fracDigits - 1;
         fracDigitsp1 = fracDigits + 1;
-        fracDigitsShift = fracDigits * SHIFT;
         useToDouble2 = fracDigits > 120;
         useKaratsuba = fracDigits > 40;
         fracDigitsHalf = fracDigits >> 1;
         initialLength = fracDigitsHalf - ((fracDigitsp1) % 2);
         evenFracDigits = (fracDigits & 1) == 0;
+
+        use_threads = ThreadDraw.USE_THREADS_IN_BIGNUM_LIBS && fracDigits >= THREADS_THRESHOLD && Runtime.getRuntime().availableProcessors() >= 2;
     }
 
     public static void reinitializeTest(double digits) {
@@ -75,7 +77,6 @@ public class BigNum {
 
         fracDigitsm1 = fracDigits - 1;
         fracDigitsp1 = fracDigits + 1;
-        fracDigitsShift = fracDigits * SHIFT;
         useToDouble2 = fracDigits > 120;
         useKaratsuba = fracDigits > 40;
         fracDigitsHalf = fracDigits >> 1;
@@ -299,6 +300,10 @@ public class BigNum {
 
     public BigNum(Apfloat val) {
 
+        scale = 0;
+        this.offset = -1;
+        bitOffset = -1;
+
         Apfloat baseTwo = val.toRadix(2);
 
         sign = baseTwo.getImpl().signum();
@@ -331,20 +336,22 @@ public class BigNum {
             offset++;
         }
 
-        int length = (data.length - offset) * base_digits;
-        int length2 = fracDigitsShift;
         int dataOffset = exponent < 0 ? Math.abs(exponent) * base_digits : 0;
 
-        for(int i = dataOffset, j = 0; i <  length2 && i < length; i++, j++) {
+        for(int i = dataOffset, j = 0; ; i++, j++) {
+
+            int index2 = (i / SHIFT) + 1;
+            int index = j / base_digits + offset;
+
+            if(index2 >= digits.length || index >= data.length) {
+                break;
+            }
+
             int shift = base_digits - (j % base_digits) - 1;
-            int bit =  (int) ((data[j / base_digits + offset] >>> shift) & 0x1);
+            int bit =  (int) ((data[index] >>> shift) & 0x1);
 
-            digits[(i / SHIFT) + 1] |= bit << (SHIFT - (i % SHIFT) - 1);
+            digits[index2] |= bit << (SHIFT - (i % SHIFT) - 1);
         }
-
-        scale = 0;
-        this.offset = -1;
-        bitOffset = -1;
 
     }
 
@@ -3618,13 +3625,13 @@ public class BigNum {
         BigNum a = new BigNum(this);
         long divisions = 0;
         long multiplications = 0;
-        if(a.compare(one) > 0) { //scale it down between 1 and 1/4
+        if(a.compareBothPositive(one) > 0) { //scale it down between 1 and 1/4
             do {
                 a = a.divide4();
                 divisions++;
-            } while (a.compare(one) > 0);
+            } while (a.compareBothPositive(one) > 0);
         }
-        else if(a.compare(oneFourth) < 0) {
+        else if(a.compareBothPositive(oneFourth) < 0) {
 
             int i;
 
@@ -3647,7 +3654,7 @@ public class BigNum {
             do {
                 a = a.mult4();
                 multiplications++;
-            } while (a.compare(oneFourth) < 0);
+            } while (a.compareBothPositive(oneFourth) < 0);
         }
 
         BigNum oneHalf = new BigNum(1.5);
@@ -3663,7 +3670,7 @@ public class BigNum {
         epsilon.digits[0] = 0;
 
         int iter = 0;
-        while (newX.sub(x).abs_mutable().compare(epsilon) >= 0 && iter < SQRT_MAX_ITERATIONS) {
+        while (newX.sub(x).abs_mutable().compareBothPositive(epsilon) >= 0 && iter < SQRT_MAX_ITERATIONS) {
             x = newX;
             newX = x.mult(oneHalf.sub(aHalf.mult(x.squareFull())));
             iter++;
@@ -3679,62 +3686,4 @@ public class BigNum {
 
         return sqrta;
     }
-
-    //bisection, too slow
-    /*public BigNum sqrt() {
-        if(sign == 0 || isOne) {
-            return new BigNum(this);
-        }
-        if(sign < 0) {
-            return new BigNum();
-        }
-        BigNum high;
-        BigNum low;
-        if(digits[0] != 0) {
-//            high  = new BigNum(1);
-//
-//            while (high.squareFull().compare(this) < 0) {
-//                high  = high .mult2();
-//            }
-//
-//            low = high.divide2();
-            MantExp m = getMantExp();
-            low = new BigNum(m.sqrt().divide2());
-            high = low.mult4();
-        }
-        else {
-//            low = new BigNum(1);
-//
-//            while (low.squareFull().compare(this) > 0) {
-//                low = low.divide2();
-//            }
-//
-//
-//            high = low.mult2();
-            MantExp m = getMantExp();
-            low = new BigNum(m.sqrt().divide2());
-            high = low.mult4();
-        }
-
-        BigNum mid = null;
-        int iterations = 0;
-        while (low.compare(high) < 0 && iterations < SQRT_MAX_ITERATIONS) {
-            mid = low.add(high).divide2();
-            BigNum midSqr = mid.squareFull();
-            int res = midSqr.compare(this);
-            if(res < 0 && low.compare(mid) < 0) {
-                low = mid;
-            }
-            else if(res > 0 && high.compare(mid) > 0) {
-                high = mid;
-            }
-            else {
-                return mid;
-            }
-            iterations++;
-        }
-
-       return mid;
-
-    }*/
 }

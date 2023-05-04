@@ -121,7 +121,7 @@ public class CartesianLocationNormalMpfrBigNumArbitrary extends Location {
                 ddtempX.add(ddtemp_size_image_size_x, ddtempX);
             } else if (x == indexX - 1) {
                 ddtempX.sub(ddtemp_size_image_size_x, ddtempX);
-            } else {
+            } else if (x != indexX) {
                 //ddtemp_size_image_size_x.mult(x, ddtempX);
                 //ddtemp_xcenter_size.add(ddtempX, ddtempX);
                 MpfrBigNum.ApBmC(ddtempX, ddtemp_xcenter_size, ddtemp_size_image_size_x, x);
@@ -131,7 +131,7 @@ public class CartesianLocationNormalMpfrBigNumArbitrary extends Location {
                 ddtempY.sub(ddtemp_size_image_size_y, ddtempY);
             } else if (y == indexY - 1) {
                 ddtempY.add(ddtemp_size_image_size_y, ddtempY);
-            } else {
+            } else if (y != indexY) {
                 //ddtemp_size_image_size_y.mult(y, ddtempY);
                 //ddtemp_ycenter_size.sub(ddtempY, ddtempY);
                 MpfrBigNum.AsBmC(ddtempY, ddtemp_ycenter_size, ddtemp_size_image_size_y, y);
@@ -164,7 +164,7 @@ public class CartesianLocationNormalMpfrBigNumArbitrary extends Location {
                 ddtempY.sub(ddtemp_size_image_size_y, ddtempY);
             } else if (y == indexY - 1) {
                 ddtempY.add(ddtemp_size_image_size_y, ddtempY);
-            } else {
+            } else if (y != indexY) {
                 //ddtemp_size_image_size_y.mult(y, ddtempY);
                 //ddtemp_ycenter_size.sub(ddtempY, ddtempY);
                 MpfrBigNum.AsBmC(ddtempY, ddtemp_ycenter_size, ddtemp_size_image_size_y, y);
@@ -185,7 +185,7 @@ public class CartesianLocationNormalMpfrBigNumArbitrary extends Location {
                 ddtempX.add(ddtemp_size_image_size_x, ddtempX);
             } else if (x == indexX - 1) {
                 ddtempX.sub(ddtemp_size_image_size_x, ddtempX);
-            } else {
+            } else if (x != indexX) {
                 //ddtemp_size_image_size_x.mult(x, ddtempX);
                 //ddtemp_xcenter_size.add(ddtempX, ddtempX);
                 MpfrBigNum.ApBmC(ddtempX, ddtemp_xcenter_size, ddtemp_size_image_size_x, x);
@@ -213,7 +213,7 @@ public class CartesianLocationNormalMpfrBigNumArbitrary extends Location {
         else if(x == indexX - 1) {
             ddtempX.sub(ddtemp_size_image_size_x, ddtempX);
         }
-        else {
+        else if (x != indexX) {
             //ddtemp_size_image_size_x.mult(x, ddtempX);
             //ddtemp_xcenter_size.add(ddtempX, ddtempX);
             MpfrBigNum.ApBmC(ddtempX, ddtemp_xcenter_size, ddtemp_size_image_size_x, x);
@@ -252,7 +252,7 @@ public class CartesianLocationNormalMpfrBigNumArbitrary extends Location {
         else if(y == indexY - 1) {
             ddtempY.add(ddtemp_size_image_size_y, ddtempY);
         }
-        else {
+        else if (y != indexY) {
             //ddtemp_size_image_size_y.mult(y, ddtempY);
             //ddtemp_ycenter_size.sub(ddtempY, ddtempY);
             MpfrBigNum.AsBmC(ddtempY, ddtemp_ycenter_size, ddtemp_size_image_size_y, y);

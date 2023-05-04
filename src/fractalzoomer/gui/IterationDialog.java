@@ -104,7 +104,7 @@ public class IterationDialog extends JDialog {
                         }
 
                         dispose();
-                        ptr.setIterationsPost();
+                        ptr.redraw();
                     }
                 });
 

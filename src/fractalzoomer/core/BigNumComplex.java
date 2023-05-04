@@ -3,6 +3,8 @@ package fractalzoomer.core;
 import fractalzoomer.utils.NormComponents;
 import org.apfloat.Apfloat;
 
+import java.util.concurrent.Future;
+
 public class BigNumComplex extends GenericComplex {
     private BigNum re;
     private BigNum im;
@@ -222,8 +224,7 @@ public class BigNumComplex extends GenericComplex {
      */
     @Override
     public final BigNumComplex square() {
-        BigNum temp = re.mult(im);
-        return new BigNumComplex(re.add(im).mult(re.sub(im)), temp.mult2());
+        return new BigNumComplex(re.add(im).mult(re.sub(im)), re.mult(im).mult2());
     }
 
     /*
@@ -296,8 +297,26 @@ public class BigNumComplex extends GenericComplex {
      */
     public final BigNum norm_squared() {
 
+        if(BigNum.use_threads) {
+            Future<BigNum> temp1 = ThreadDraw.executor.submit(() -> re.square());
+            Future<BigNum> temp2 = ThreadDraw.executor.submit(() -> im.square());
+
+            try {
+                return temp1.get().add(temp2.get());
+            }
+            catch (Exception ex) {
+                return new BigNum();
+            }
+        }
+        else {
+            return re.square().add(im.square());
+        }
+
+    }
+
+    public final BigNum norm_squared_no_threads() {
+
         return re.square().add(im.square());
-        //return re.mult(re).add(im.mult(im));
 
     }
 
@@ -439,9 +458,7 @@ public class BigNumComplex extends GenericComplex {
     /* more efficient z^2 + c */
     public final BigNumComplex square_plus_c(BigNumComplex c) {
 
-        BigNum temp = re.mult(im);
-
-        return new BigNumComplex(re.add(im).mult(re.sub(im)).add(c.re), temp.mult2().add(c.im));
+        return new BigNumComplex(re.add(im).mult(re.sub(im)).add(c.re), re.mult(im).mult2().add(c.im));
 
     }
 
@@ -490,9 +507,28 @@ public class BigNumComplex extends GenericComplex {
 
         BigNumComplex c = (BigNumComplex)cn;
 
-        BigNum temp = re.mult(im);
+        if(BigNum.use_threads) {
+            Future<BigNum> temp1 = ThreadDraw.executor.submit(() -> re.add(im).mult(re.sub(im)).add(c.re));
+            Future<BigNum> temp2 = ThreadDraw.executor.submit(() -> re.mult(im).mult2().add(c.im));
 
-        return new BigNumComplex(re.add(im).mult(re.sub(im)).add(c.re), temp.mult2().add(c.im));
+            try {
+                return new BigNumComplex(temp1.get(), temp2.get());
+            }
+            catch (Exception ex) {
+                return new BigNumComplex();
+            }
+        }
+        else {
+            return new BigNumComplex(re.add(im).mult(re.sub(im)).add(c.re), re.mult(im).mult2().add(c.im));
+        }
+
+    }
+
+    public final BigNumComplex square_plus_c_no_threads(GenericComplex cn) {
+
+        BigNumComplex c = (BigNumComplex)cn;
+
+        return new BigNumComplex(re.add(im).mult(re.sub(im)).add(c.re), re.mult(im).mult2().add(c.im));
 
     }
 
@@ -660,6 +696,9 @@ public class BigNumComplex extends GenericComplex {
     public GenericComplex sub_mutable(int a) {return sub(a);}
 
     @Override
+    public GenericComplex plus_mutable(int a) {return plus(a);}
+
+    @Override
     public GenericComplex times_mutable(GenericComplex a) {return times(a);}
 
     @Override
@@ -732,6 +771,13 @@ public class BigNumComplex extends GenericComplex {
 
     }
 
+    @Override
+    public final BigNumComplex square_plus_c_mutable_no_threads(GenericComplex cn) {
+
+        return square_plus_c_no_threads(cn);
+
+    }
+
     /*
      *  Real -Imaginary i
      */
@@ -747,5 +793,57 @@ public class BigNumComplex extends GenericComplex {
 
         return times(number);
 
+    }
+
+    @Override
+    public GenericComplex sub_mutable(GenericComplex v) { return sub(v); }
+
+    @Override
+    public BigNumComplex times2_mutable() {
+        return times2();
+    }
+
+    @Override
+    public BigNumComplex negative_mutable() {
+
+        return negative();
+
+    }
+
+    @Override
+    public BigNumComplex square_mutable() {
+
+        return square();
+
+    }
+
+    public static void main(String[] args) {
+
+        MyApfloat.setPrecision(3000);
+        MyApfloat re = new MyApfloat("-1.7685653943536636812525937129345323689264178203655023808403568327813984751602057983694075544809385380635853233562272021595486038792597346267621026418533261924962244609714446430169626331467057579947033159779441985348128008304981334471441266997824980553144563791567792114724296121872944832614093450944724492334683449190475005836849397812504637683710510408861059046995537629068401998856337076707729082352934525561410799942777533219989198396355688230764560224323159046285245196155466314399804239661358274503819615557368332052446821888562141313581523317892262380088027074432482039394916527640029121955174213203521566050696042500969919946717868654263385845711621571084795576591138961066064076009303183875949501143195217469003173308513486183081233774459137115288547807735477262202007250717008710283162223251492449408111203225925774749231087606075791025786880373414419640567812051244300178691506999924356763498211814367907336500103294768040948403104863777932123346593677739181711573037377537612597105572567432844531248119698069826986109774175430124235000261952935148608089775593025955571455701166888054695292300393363716767974622037919908584052332982637466");
+        MyApfloat im = new MyApfloat("0.00149693415390767795776818884840489556855946301445691471574014563855527433886417969977385819538260268120841953162872636930325763746322273045770475720864573841501787930094585669029854545526055550254240550601638349230447392478835897915689588386917873306732459133130195499040290663241163281171562214964938877814041525983714426684720617999806166857035264185620487882712073265176954914054913266203287997924901540871019242527521230712886590484380712839459054394699971951683593643432733875864612142164058384584027531954686991700717520592706134315477867770419967332102686480959769035927998828366145957010260008071330081671951130257876517738836139132327131150083875547829353693231330986024536074662266149266972020406424662729505261246207754916338512723205243386084554727716044392705072728590247105881028092304993724655676823686703579759639901910397135711042548453158584111749222905493046484296618244721966973379997931675069363108125568864266991641443350605262290076130999673222331940884558082142583551902556005768303536299446355536559649684565312212482597275388117026700207573378170627060834006934127513560312023382257072757055987599151386137785304306581858");
+
+        BigNumComplex z = new BigNumComplex();
+        BigNumComplex c = new BigNumComplex(re, im);
+
+        int iterations = 1500000;
+
+        long time = System.currentTimeMillis();
+
+        int i;
+        for(i = 0; i < iterations ; i++) {
+
+            if(z.toComplex().norm_squared() >= 4) {
+                break;
+            }
+
+            z = z.square_plus_c(c);
+
+        }
+
+        System.out.println(System.currentTimeMillis() - time);
+        System.out.println(i);
+
+        ThreadDraw.executor.shutdown();
     }
 }

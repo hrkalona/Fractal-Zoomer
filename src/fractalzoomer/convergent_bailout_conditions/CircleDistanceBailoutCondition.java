@@ -38,6 +38,13 @@ public class CircleDistanceBailoutCondition extends ConvergentBailoutCondition {
     }
 
     @Override
+    public boolean converged(BigIntNumComplex z, BigIntNumComplex zold, BigIntNumComplex zold2, int iterations, BigIntNumComplex c, BigIntNumComplex start, BigIntNumComplex c0, BigIntNumComplex pixel) {
+        BigIntNum distance = z.distance_squared(zold);
+        this.distance = distance.doubleValue();
+        return distance.compare(binddconvergent_bailout) <= 0;
+    }
+
+    @Override
     public boolean converged(DDComplex z, DDComplex zold, DDComplex zold2, int iterations, DDComplex c, DDComplex start, DDComplex c0, DDComplex pixel) {
         DoubleDouble distance = z.distance_squared(zold);
         this.distance = distance.doubleValue();
@@ -72,6 +79,13 @@ public class CircleDistanceBailoutCondition extends ConvergentBailoutCondition {
     }
 
     @Override
+    public boolean converged(BigIntNumComplex z, BigIntNum root, BigIntNumComplex zold, BigIntNumComplex zold2, int iterations, BigIntNumComplex c, BigIntNumComplex start, BigIntNumComplex c0, BigIntNumComplex pixel) {
+        BigIntNum distance = z.distance_squared(root);
+        this.distance = distance.doubleValue();
+        return distance.compare(binddconvergent_bailout) <= 0;
+    }
+
+    @Override
     public boolean converged(DDComplex z, DoubleDouble root, DDComplex zold, DDComplex zold2, int iterations, DDComplex c, DDComplex start, DDComplex c0, DDComplex pixel) {
         DoubleDouble distance = z.distance_squared(root);
         this.distance = distance.doubleValue();
@@ -103,6 +117,13 @@ public class CircleDistanceBailoutCondition extends ConvergentBailoutCondition {
         Apfloat distance = z.distance_squared(root);
         this.distance = distance.doubleValue();
         return distance.compareTo(ddconvergent_bailout) <= 0;
+    }
+
+    @Override
+    public boolean converged(BigIntNumComplex z, BigIntNumComplex root, BigIntNumComplex zold, BigIntNumComplex zold2, int iterations, BigIntNumComplex c, BigIntNumComplex start, BigIntNumComplex c0, BigIntNumComplex pixel) {
+        BigIntNum distance = z.distance_squared(root);
+        this.distance = distance.doubleValue();
+        return distance.compare(binddconvergent_bailout) <= 0;
     }
 
     @Override

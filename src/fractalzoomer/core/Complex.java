@@ -80,6 +80,9 @@ public final class Complex extends GenericComplex {
     public BigNumComplex toBigNumComplex() { return new BigNumComplex(this); }
 
     @Override
+    public BigIntNumComplex toBigIntNumComplex() { return new BigIntNumComplex(this); }
+
+    @Override
     public MpfrBigNumComplex toMpfrBigNumComplex() { return new MpfrBigNumComplex(this);}
 
     @Override
@@ -2425,10 +2428,9 @@ public final class Complex extends GenericComplex {
         }
     }
 
-    public final Complex circle_inversion(Complex center, double radius) {
+    public final Complex circle_inversion(Complex center, double radius2) {
 
         double distance = this.distance_squared(center);
-        double radius2 = radius * radius;
 
         double temp = radius2 / distance;
 
@@ -2544,6 +2546,17 @@ public final class Complex extends GenericComplex {
 
         re = (re + im) * (re - im) + c.re;
         im = temp + temp + c.im;
+
+        return this;
+
+    }
+
+    public final Complex square_mutable_plus_c_mutable(Complex c, double re_sqr, double im_sqr, double norm_sqr) {
+
+        double temp = re + im;
+
+        re = re_sqr - im_sqr + c.re;
+        im = temp * temp - norm_sqr + c.im;
 
         return this;
 
@@ -2978,6 +2991,13 @@ public final class Complex extends GenericComplex {
     /* more efficient z^2 + c */
     @Override
     public final Complex square_plus_c_mutable(GenericComplex cn) {
+
+        return square_plus_c(cn);
+
+    }
+
+    @Override
+    public final Complex square_plus_c_mutable_no_threads(GenericComplex cn) {
 
         return square_plus_c(cn);
 

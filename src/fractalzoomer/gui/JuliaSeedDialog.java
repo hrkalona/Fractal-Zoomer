@@ -171,9 +171,9 @@ public class JuliaSeedDialog extends JDialog {
                         try {
 
                             if(MyApfloat.setAutomaticPrecision) {
-                                long precision = MyApfloat.getAutomaticPrecision(new String[]{real_seed.getText(), imag_seed.getText()}, new boolean[] {false, false}, false);
+                                long precision = MyApfloat.getAutomaticPrecision(new String[]{real_seed.getText(), imag_seed.getText()}, new boolean[] {false, false});
 
-                                if (MyApfloat.shouldSetPrecision(precision, true)) {
+                                if (MyApfloat.shouldSetPrecision(precision, MyApfloat.alwaysCheckForDecrease)) {
                                     Fractal.clearReferences(true);
                                     MyApfloat.setPrecision(precision, s);
                                 }

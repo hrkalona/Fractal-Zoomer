@@ -60,5 +60,10 @@ public class FractalIterationAlgorithm extends IterationAlgorithm {
         return new double[] {fractal.getFractal3DHeight(value), value};
         
     }
+
+    @Override
+    public boolean isJulia() {
+        return false;
+    }
     
 }

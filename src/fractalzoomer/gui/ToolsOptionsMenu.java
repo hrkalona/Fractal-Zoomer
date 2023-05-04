@@ -26,7 +26,7 @@ import java.awt.event.KeyEvent;
  *
  * @author kaloch
  */
-public class ToolsOptionsMenu extends JMenu {
+public class ToolsOptionsMenu extends MyMenu {
 	private static final long serialVersionUID = 841026734035473828L;
 	private MainWindow ptr;
     private JMenu orbit_menu;
@@ -57,41 +57,41 @@ public class ToolsOptionsMenu extends JMenu {
         
         setIcon(MainWindow.getIcon("tools_options.png"));
         
-        show_orbit_converging_point_opt = new JCheckBoxMenuItem("Show Converging Point");
+        show_orbit_converging_point_opt = new MyCheckBoxMenuItem("Show Converging Point");
 
-        fast_julia_filters_opt = new JCheckBoxMenuItem("Julia Preview Image Filters");
+        fast_julia_filters_opt = new MyCheckBoxMenuItem("Julia Preview Image Filters");
 
-        color_cycling_options_opt = new JMenuItem("Color Cycling Options", MainWindow.getIcon("color_cycling_options.png"));
+        color_cycling_options_opt = new MyMenuItem("Color Cycling Options", MainWindow.getIcon("color_cycling_options.png"));
         
-        orbit_menu = new JMenu("Orbit");
+        orbit_menu = new MyMenu("Orbit");
         orbit_menu.setIcon(MainWindow.getIcon("orbit_options.png"));
 
-        grid_menu = new JMenu("Grid");
+        grid_menu = new MyMenu("Grid");
         grid_menu.setIcon(MainWindow.getIcon("grid_options.png"));
 
-        boundaries_menu = new JMenu("Boundaries");
+        boundaries_menu = new MyMenu("Boundaries");
         boundaries_menu.setIcon(MainWindow.getIcon("boundaries_options.png"));
 
-        orbit_color_opt = new JMenuItem("Orbit Color", MainWindow.getIcon("color.png"));
+        orbit_color_opt = new MyMenuItem("Orbit Color", MainWindow.getIcon("color.png"));
 
-        orbit_style_menu = new JMenu("Orbit Style");
+        orbit_style_menu = new MyMenu("Orbit Style");
         orbit_style_menu.setIcon(MainWindow.getIcon("orbit_style.png"));
         
-        grid_color_opt = new JMenuItem("Grid Color", MainWindow.getIcon("color.png"));
+        grid_color_opt = new MyMenuItem("Grid Color", MainWindow.getIcon("color.png"));
 
-        grid_tiles_opt = new JMenuItem("Grid Tiles", MainWindow.getIcon("grid_tiles.png"));
+        grid_tiles_opt = new MyMenuItem("Grid Tiles", MainWindow.getIcon("grid_tiles.png"));
 
-        zoom_window_color_opt = new JMenuItem("Zoom Window Color", MainWindow.getIcon("color.png"));
+        zoom_window_color_opt = new MyMenuItem("Zoom Window Color", MainWindow.getIcon("color.png"));
 
-        zoom_window_menu = new JMenu("Zoom Window");
+        zoom_window_menu = new MyMenu("Zoom Window");
         zoom_window_menu.setIcon(MainWindow.getIcon("zoom_window_options.png"));
 
-        zoom_window_style_menu = new JMenu("Zoom Window Style");
+        zoom_window_style_menu = new MyMenu("Zoom Window Style");
         zoom_window_style_menu.setIcon(MainWindow.getIcon("orbit_style.png"));
 
-        boundaries_color_opt = new JMenuItem("Boundaries Color", MainWindow.getIcon("color.png"));
+        boundaries_color_opt = new MyMenuItem("Boundaries Color", MainWindow.getIcon("color.png"));
 
-        boundaries_number_opt = new JMenuItem("Boundaries Options", MainWindow.getIcon("boundaries_settings.png"));
+        boundaries_number_opt = new MyMenuItem("Boundaries Options", MainWindow.getIcon("boundaries_settings.png"));
         
         grid_color_opt.setToolTipText("Sets the color of the grid.");
         grid_tiles_opt.setToolTipText("Sets the number of the grid tiles.");

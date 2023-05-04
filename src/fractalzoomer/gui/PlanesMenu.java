@@ -26,7 +26,7 @@ import java.awt.event.KeyEvent;
  *
  * @author hrkalona2
  */
-public class PlanesMenu extends JMenu {
+public class PlanesMenu extends MyMenu {
 	private static final long serialVersionUID = -4578443676894540517L;
 	private JMenu planes_general_menu;
     private JMenu planes_fold_menu;
@@ -122,21 +122,21 @@ public class PlanesMenu extends JMenu {
 
         ButtonGroup planes_button_group = new ButtonGroup();
 
-        planes_general_menu = new JMenu("General Planes");
-        planes_fold_menu = new JMenu("Fold Planes");
-        planes_distort_menu = new JMenu("Distort Planes");
-        planes_newton_menu = new JMenu("Newton Planes");
-        planes_math_menu = new JMenu("Math Planes");
-        planes_math_trigonometric_menu = new JMenu("Trigonometric Planes");
-        planes_math_inverse_trigonometric_menu = new JMenu("Inverse Trigonometric Planes");
+        planes_general_menu = new MyMenu("General Planes");
+        planes_fold_menu = new MyMenu("Fold Planes");
+        planes_distort_menu = new MyMenu("Distort Planes");
+        planes_newton_menu = new MyMenu("Newton Planes");
+        planes_math_menu = new MyMenu("Math Planes");
+        planes_math_trigonometric_menu = new MyMenu("Trigonometric Planes");
+        planes_math_inverse_trigonometric_menu = new MyMenu("Inverse Trigonometric Planes");
 
-        apply_plane_on_whole_julia_opt = new JCheckBoxMenuItem("Apply Planes on Julia Plane");
+        apply_plane_on_whole_julia_opt = new MyCheckBoxMenuItem("Apply Planes on Julia Plane");
 
         apply_plane_on_whole_julia_opt.setToolTipText("Enables the application of the plane transformation to the julia set plane.");
 
         apply_plane_on_whole_julia_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_2, ActionEvent.ALT_MASK));
 
-        apply_plane_on_julia_seed_opt = new JCheckBoxMenuItem("Apply Planes on Julia Seed");
+        apply_plane_on_julia_seed_opt = new MyCheckBoxMenuItem("Apply Planes on Julia Seed");
 
         apply_plane_on_julia_seed_opt.setToolTipText("Enables the application of the plane transformation to the julia set seed.");
 

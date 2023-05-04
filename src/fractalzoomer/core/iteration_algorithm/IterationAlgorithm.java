@@ -41,5 +41,7 @@ public abstract class IterationAlgorithm {
         return fractal.escaped();
         
     }
+
+    public abstract boolean isJulia();
       
 }

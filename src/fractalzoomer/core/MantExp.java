@@ -563,23 +563,23 @@ public class MantExp {
         return this;
     }
 
-    public int compareToBothPositiveReduced(MantExp compareTo) {
+    public int compareToBothPositiveReduced(MantExp compareToReduced) {
 
-//        if(mantissa == 0 && compareTo.mantissa == 0) {
+//        if(mantissa == 0 && compareToReduced.mantissa == 0) {
 //            return 0;
 //        }
 
-        if(exp > compareTo.exp) {
+        if(exp > compareToReduced.exp) {
             return 1;
         }
-        else if(exp < compareTo.exp){
+        else if(exp < compareToReduced.exp){
             return -1;
         }
         else {
-            if(mantissa > compareTo.mantissa) {
+            if(mantissa > compareToReduced.mantissa) {
                 return 1;
             }
-            else if(mantissa < compareTo.mantissa) {
+            else if(mantissa < compareToReduced.mantissa) {
                 return - 1;
             }
             else {

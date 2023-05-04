@@ -26,7 +26,7 @@ import java.awt.event.KeyEvent;
  *
  * @author kaloch
  */
-public class HelpMenu extends JMenu {
+public class HelpMenu extends MyMenu {
 	private static final long serialVersionUID = 4789486723955292724L;
 	private MainWindow ptr;
     private JMenuItem help_contents;
@@ -42,15 +42,15 @@ public class HelpMenu extends JMenu {
 
         this.ptr = ptr2;
         
-        help_contents = new JMenuItem("Help Contents", MainWindow.getIcon("help.png"));
+        help_contents = new MyMenuItem("Help Contents", MainWindow.getIcon("help.png"));
 
-        fractInt_help = new JMenuItem("FractInt Help", MainWindow.getIcon("help.png"));
+        fractInt_help = new MyMenuItem("FractInt Help", MainWindow.getIcon("help.png"));
 
-        about = new JMenuItem("About", MainWindow.getIcon("about.png"));
+        about = new MyMenuItem("About", MainWindow.getIcon("about.png"));
 
-        useful_links = new JMenuItem("Useful Links", MainWindow.getIcon("useful_links.png"));
+        useful_links = new MyMenuItem("Useful Links", MainWindow.getIcon("useful_links.png"));
 
-        update = new JMenuItem("Software Update", MainWindow.getIcon("update.png"));
+        update = new MyMenuItem("Software Update", MainWindow.getIcon("update.png"));
         
         help_contents.setToolTipText("Loads the help file.");
         fractInt_help.setToolTipText("Loads a help file for FractInt users.");

@@ -285,6 +285,17 @@ public class Magnet1 extends MagnetType {
                 pixel = ddn;
                 root = new DoubleDouble(1.0);
             }
+            else if(bigNumLib == Constants.BIGNUM_BIGINT) {
+                BigIntNumComplex bin = inputPixel.toBigIntNumComplex();
+                z = iterations == 0 ? (isJulia ? bin : new BigIntNumComplex()) : referenceData.lastZValue;
+                c = isJulia ? getSeed(useBignum, bigNumLib) : bin;
+                zold = iterations == 0 ? new BigIntNumComplex() : referenceData.secondTolastZValue;
+                zold2 = iterations == 0 ? new BigIntNumComplex() : referenceData.thirdTolastZValue;
+                start = isJulia ? bin : new BigIntNumComplex();
+                c0 = c;
+                pixel = bin;
+                root = new BigIntNum(1.0);
+            }
             else {
                 Complex bn = inputPixel.toComplex();
                 z = iterations == 0 ? (isJulia ? bn : new Complex()) : referenceData.lastZValue;
@@ -802,6 +813,17 @@ public class Magnet1 extends MagnetType {
                 c0 = c;
                 pixel = ddn;
                 root = new DoubleDouble(1.0);
+            }
+            else if(bigNumLib == Constants.BIGNUM_BIGINT) {
+                BigIntNumComplex bin = inputPixel.toBigIntNumComplex();
+                z = iterations == 0 ? new BigIntNumComplex() : secondReferenceData.lastZValue;
+                c = getSeed(useBignum, bigNumLib);
+                zold = iterations == 0 ? new BigIntNumComplex() : secondReferenceData.secondTolastZValue;
+                zold2 = iterations == 0 ? new BigIntNumComplex() : secondReferenceData.thirdTolastZValue;
+                start = new BigIntNumComplex();
+                c0 = c;
+                pixel = bin;
+                root = new BigIntNum(1.0);
             }
             else {
                 Complex bn = inputPixel.toComplex();
@@ -1371,6 +1393,11 @@ public class Magnet1 extends MagnetType {
 
     @Override
     public boolean supportsMpfrBignum() { return true;}
+
+    @Override
+    public boolean supportsBigIntnum() {
+        return true;
+    }
 
     @Override
     public boolean supportsMpirBignum() { return true;}

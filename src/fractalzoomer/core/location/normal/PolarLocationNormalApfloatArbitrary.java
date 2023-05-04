@@ -145,7 +145,7 @@ public class PolarLocationNormalApfloatArbitrary extends Location {
                 temp_ddr = MyApfloat.fp.multiply(temp_ddr, ddemulx);
             } else if (x == indexX - 1) {
                 temp_ddr = MyApfloat.fp.multiply(temp_ddr, ddInvemulx);
-            } else {
+            } else if (x != indexX) {
                 temp_ddr = expFunction(MyApfloat.fp.add(MyApfloat.fp.multiply(ddmulx, new MyApfloat(x)), ddstart));
             }
 
@@ -169,7 +169,7 @@ public class PolarLocationNormalApfloatArbitrary extends Location {
 //                temp_ddsf = tempSin;
 //                temp_ddcf = tempCos;
 //            }
-//            else {
+//            else if (y != indexY) {
 //                Apfloat f = MyApfloat.fp.multiply(ddmuly, new MyApfloat(y));
 //                temp_ddsf = MyApfloat.fastSin(f);
 //                temp_ddcf = MyApfloat.fastCos(f);
@@ -215,7 +215,7 @@ public class PolarLocationNormalApfloatArbitrary extends Location {
                 temp_ddr = MyApfloat.fp.multiply(temp_ddr, ddemulx);
             } else if (x == indexX - 1) {
                 temp_ddr = MyApfloat.fp.multiply(temp_ddr, ddInvemulx);
-            } else {
+            } else if (x != indexX) {
                 temp_ddr = expFunction(MyApfloat.fp.add(MyApfloat.fp.multiply(ddmulx, new MyApfloat(x)), ddstart));
             }
         }
@@ -245,7 +245,7 @@ public class PolarLocationNormalApfloatArbitrary extends Location {
         else if(x == indexX - 1) {
             temp_ddr = MyApfloat.fp.multiply(temp_ddr, ddInvemulx);
         }
-        else {
+        else if (x != indexX) {
             temp_ddr = expFunction(MyApfloat.fp.add(MyApfloat.fp.multiply(ddmulx, new MyApfloat(x)), ddstart));
         }
 

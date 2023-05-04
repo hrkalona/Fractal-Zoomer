@@ -13,12 +13,15 @@ public class GenericComplex {
 
     public GenericComplex square_plus_c_mutable(GenericComplex c) { return null;}
 
+    public GenericComplex square_plus_c_mutable_no_threads(GenericComplex c) { return null;}
+
     public GenericComplex squareFast_plus_c_mutable(NormComponents normComponents, GenericComplex c) { return null;}
 
     public GenericComplex square_plus_c_mutable(GenericComplex c, MpfrBigNum temp, MpfrBigNum temp2) {return null;}
 
-    public GenericComplex square_plus_c_mutable(GenericComplex c, MpirBigNum temp, MpirBigNum temp2) {return null;}
+    public GenericComplex square_plus_c_mutable(GenericComplex c, MpirBigNum temp, MpirBigNum temp2, MpirBigNum temp3) {return null;}
 
+    public GenericComplex square_plus_c_mutable_no_threads(GenericComplex c, MpirBigNum temp, MpirBigNum temp2, MpirBigNum temp3) {return null;}
     public GenericComplex sub(GenericComplex v, MpfrBigNum temp, MpfrBigNum temp2) {return null;}
 
     public GenericComplex sub(GenericComplex v, MpirBigNum temp, MpirBigNum temp2) {return null;}
@@ -102,6 +105,8 @@ public class GenericComplex {
     public NormComponents normSquaredWithComponents(NormComponents n) {return null;}
 
     public BigNumComplex toBigNumComplex() { return null; }
+
+    public BigIntNumComplex toBigIntNumComplex() { return null; }
 
     public MpfrBigNumComplex toMpfrBigNumComplex() { return null; }
 

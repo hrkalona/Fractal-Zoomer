@@ -65,6 +65,16 @@ public class InversedMu2Plane extends Plane {
     }
 
     @Override
+    public BigIntNumComplex transform(BigIntNumComplex pixel) {
+
+        if(pixel.isZero()) {
+            return pixel;
+        }
+        return pixel.reciprocal().plus(0.25);
+
+    }
+
+    @Override
     public BigComplex transform(BigComplex pixel) {
 
         if(pixel.isZero()) {

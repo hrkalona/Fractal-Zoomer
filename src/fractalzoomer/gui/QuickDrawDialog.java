@@ -17,6 +17,7 @@
 package fractalzoomer.gui;
 
 import fractalzoomer.core.ThreadDraw;
+import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
 
 import javax.swing.*;
@@ -43,7 +44,7 @@ public class QuickDrawDialog extends JDialog {
         setModal(true);
         setIconImage(MainWindow.getIcon("mandel2.png").getImage());
 
-        final JSlider tiles_slid = new JSlider(JSlider.HORIZONTAL, 2, 20, ThreadDraw.TILE_SIZE);
+        final JSlider tiles_slid = new JSlider(JSlider.HORIZONTAL, Constants.MIN_QUICK_DRAW_TILES, Constants.MAX_QUICK_DRAW_TILES, ThreadDraw.TILE_SIZE);
 
         tiles_slid.setPreferredSize(new Dimension(350, 55));
 
@@ -57,6 +58,12 @@ public class QuickDrawDialog extends JDialog {
         JTextField delay = new JTextField();
         delay.addAncestorListener(new RequestFocusListener());
         delay.setText("" + ThreadDraw.QUICK_DRAW_DELAY);
+
+        JCheckBox successiveRefinement = new JCheckBox("Successive Refinement");
+        successiveRefinement.setSelected(ThreadDraw.SUCCESSIVE_REFINEMENT);
+        successiveRefinement.setFocusable(false);
+        successiveRefinement.setToolTipText("Starts the quickdraw by largest available tile and reduces the tile size gradually.");
+
 
         JCheckBox zoomToCurrentCenter = new JCheckBox("Zoom to center");
         zoomToCurrentCenter.setSelected(MainWindow.QUICK_DRAW_ZOOM_TO_CURRENT_CENTER);
@@ -78,6 +85,8 @@ public class QuickDrawDialog extends JDialog {
                 "Set the delay until the complete image calculation.",
                 "Delay (milliseconds):",
                 delay,
+                " ",
+                successiveRefinement,
                 " ",
                 drawPreview,
                 " ",
@@ -132,6 +141,7 @@ public class QuickDrawDialog extends JDialog {
                             ThreadDraw.DRAW_IMAGE_PREVIEW = drawPreview.isSelected();
 
                             ThreadDraw.QUICK_DRAW_DELAY = temp;
+                            ThreadDraw.SUCCESSIVE_REFINEMENT = successiveRefinement.isSelected();
                         } catch (Exception ex) {
                             JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                             return;

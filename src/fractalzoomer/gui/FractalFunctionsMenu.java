@@ -25,7 +25,7 @@ import java.awt.event.KeyEvent;
  *
  * @author hrkalona2
  */
-public class FractalFunctionsMenu extends JMenu {
+public class FractalFunctionsMenu extends MyMenu {
 	private static final long serialVersionUID = -2045979247578434919L;
 	private MainWindow ptr;
     private JRadioButtonMenuItem[] fractal_functions;
@@ -479,91 +479,91 @@ public class FractalFunctionsMenu extends JMenu {
 
         setIcon(MainWindow.getIcon("functions.png"));
 
-        mandelbrot_type_functions = new JMenu("Mandelbrot Type");
-        magnet_type_functions = new JMenu("Magnet Type");
+        mandelbrot_type_functions = new MyMenu("Mandelbrot Type");
+        magnet_type_functions = new MyMenu("Magnet Type");
 
-        root_finding_functions = new JMenu("Root Finding Methods");
-        newton_type_functions = new JMenu("Newton Method");
-        halley_type_functions = new JMenu("Halley Method");
-        schroder_type_functions = new JMenu("Schroder Method");
-        householder_type_functions = new JMenu("Householder Method");
-        secant_type_functions = new JMenu("Secant Method");
-        steffensen_type_functions = new JMenu("Steffensen Method");
-        muller_type_functions = new JMenu("Muller Method");
-        parhalley_type_functions = new JMenu("Parhalley Method");
-        laguerre_type_functions = new JMenu("Laguerre Method");
-        durand_kerner_type_functions = new JMenu("Durand/Kerner Method");
-        bairstow_type_functions = new JMenu("Bairstow Method");
-        newton_hines_type_functions = new JMenu("Newton-Hines Method");
-        aberth_ehrlich_type_functions = new JMenu("Aberth/Ehrlich Method");
-        jaratt_type_functions = new JMenu("Jaratt Method");
-        jaratt2_type_functions = new JMenu("Jaratt 2 Method");
-        third_order_newtton_type_functions = new JMenu("Third Order Newton Method");
-        weerakoon_fernando_type_functions = new JMenu("Weerakoon/Fernando Method");
-        householder3_type_functions = new JMenu("Householder 3 Method");
-        abbasbandy_type_functions = new JMenu("Abbasbandy Method");
-        contra_harmonic_newton_type_functions = new JMenu("Contra Harmonic Newton Method");
-        chun_ham_type_functions = new JMenu("Chun-Ham Method");
-        chun_kim_type_functions = new JMenu("Chun-Kim Method");
-        euler_chebyshev_type_functions = new JMenu("Euler-Chebyshev Method");
-        ezzati_saleki2_type_functions = new JMenu("Ezzati-Saleki 2 Method");
-        homeier1_type_functions = new JMenu("Homeier Method");
-        abbasbandy2_type_functions = new JMenu("Abbasbandy 2 Method");
-        abbasbandy3_type_functions = new JMenu("Abbasbandy 3 Method");
-        popovski1_type_functions = new JMenu("Popovski Method");
-        changbum_chun1_type_functions = new JMenu("Changbum-Chun Method");
-        changbum_chun2_type_functions = new JMenu("Changbum-Chun 2 Method");
-        king3_type_functions = new JMenu("King 3 Method");
-        homeier2_type_functions = new JMenu("Homeier 2 Method");
-        kim_chun_type_functions = new JMenu("Kim-Chun Method");
-        kou_li_wang1_type_functions = new JMenu("Kou-Li-Wang Method");
-        maheshweri_type_functions = new JMenu("Maheshweri Method");
-        rafiullah1_type_functions = new JMenu("Rafiullah Method");
-        rafis_rafiullah_type_functions = new JMenu("Rafis-Rafiullah Method");
-        changbum_chun3_type_functions = new JMenu("Changbum-Chun 3 Method");
-        ezzati_saleki1_type_functions = new JMenu("Ezzati-Saleki Method");
-        feng_type_functions = new JMenu("Feng Method");
-        king1_type_functions = new JMenu("King Method");
-        noor_gupta_type_functions = new JMenu("Noor-Gupta Method");
-        harmonic_simpson_newton_type_functions = new JMenu("Harmonic-Simpson-Newton Method");
-        nedzhibov_type_functions = new JMenu("Nedzhibov Method");
-        simpson_newton_type_functions = new JMenu("Simpson-Newton Method");
+        root_finding_functions = new MyMenu("Root Finding Methods");
+        newton_type_functions = new MyMenu("Newton Method");
+        halley_type_functions = new MyMenu("Halley Method");
+        schroder_type_functions = new MyMenu("Schroder Method");
+        householder_type_functions = new MyMenu("Householder Method");
+        secant_type_functions = new MyMenu("Secant Method");
+        steffensen_type_functions = new MyMenu("Steffensen Method");
+        muller_type_functions = new MyMenu("Muller Method");
+        parhalley_type_functions = new MyMenu("Parhalley Method");
+        laguerre_type_functions = new MyMenu("Laguerre Method");
+        durand_kerner_type_functions = new MyMenu("Durand/Kerner Method");
+        bairstow_type_functions = new MyMenu("Bairstow Method");
+        newton_hines_type_functions = new MyMenu("Newton-Hines Method");
+        aberth_ehrlich_type_functions = new MyMenu("Aberth/Ehrlich Method");
+        jaratt_type_functions = new MyMenu("Jaratt Method");
+        jaratt2_type_functions = new MyMenu("Jaratt 2 Method");
+        third_order_newtton_type_functions = new MyMenu("Third Order Newton Method");
+        weerakoon_fernando_type_functions = new MyMenu("Weerakoon/Fernando Method");
+        householder3_type_functions = new MyMenu("Householder 3 Method");
+        abbasbandy_type_functions = new MyMenu("Abbasbandy Method");
+        contra_harmonic_newton_type_functions = new MyMenu("Contra Harmonic Newton Method");
+        chun_ham_type_functions = new MyMenu("Chun-Ham Method");
+        chun_kim_type_functions = new MyMenu("Chun-Kim Method");
+        euler_chebyshev_type_functions = new MyMenu("Euler-Chebyshev Method");
+        ezzati_saleki2_type_functions = new MyMenu("Ezzati-Saleki 2 Method");
+        homeier1_type_functions = new MyMenu("Homeier Method");
+        abbasbandy2_type_functions = new MyMenu("Abbasbandy 2 Method");
+        abbasbandy3_type_functions = new MyMenu("Abbasbandy 3 Method");
+        popovski1_type_functions = new MyMenu("Popovski Method");
+        changbum_chun1_type_functions = new MyMenu("Changbum-Chun Method");
+        changbum_chun2_type_functions = new MyMenu("Changbum-Chun 2 Method");
+        king3_type_functions = new MyMenu("King 3 Method");
+        homeier2_type_functions = new MyMenu("Homeier 2 Method");
+        kim_chun_type_functions = new MyMenu("Kim-Chun Method");
+        kou_li_wang1_type_functions = new MyMenu("Kou-Li-Wang Method");
+        maheshweri_type_functions = new MyMenu("Maheshweri Method");
+        rafiullah1_type_functions = new MyMenu("Rafiullah Method");
+        rafis_rafiullah_type_functions = new MyMenu("Rafis-Rafiullah Method");
+        changbum_chun3_type_functions = new MyMenu("Changbum-Chun 3 Method");
+        ezzati_saleki1_type_functions = new MyMenu("Ezzati-Saleki Method");
+        feng_type_functions = new MyMenu("Feng Method");
+        king1_type_functions = new MyMenu("King Method");
+        noor_gupta_type_functions = new MyMenu("Noor-Gupta Method");
+        harmonic_simpson_newton_type_functions = new MyMenu("Harmonic-Simpson-Newton Method");
+        nedzhibov_type_functions = new MyMenu("Nedzhibov Method");
+        simpson_newton_type_functions = new MyMenu("Simpson-Newton Method");
         
-        root_finding_functions2 = new JMenu("Root Finding Methods (2)");
-        root_finding_functions3 = new JMenu("Root Finding Methods (3)");
-        whittaker_type_functions = new JMenu("Whittaker Method");
-        whittaker_double_convex_type_functions = new JMenu("Whittaker Double Convex Method");
-        super_halley_type_functions = new JMenu("Super Halley Method");
-        traub_ostrowski_type_functions = new JMenu("Traub/Ostrowski Method");
-        stirling_type_functions = new JMenu("Stirling Method");
-        midpoint_type_functions = new JMenu("Midpoint Method");
+        root_finding_functions2 = new MyMenu("Root Finding Methods (2)");
+        root_finding_functions3 = new MyMenu("Root Finding Methods (3)");
+        whittaker_type_functions = new MyMenu("Whittaker Method");
+        whittaker_double_convex_type_functions = new MyMenu("Whittaker Double Convex Method");
+        super_halley_type_functions = new MyMenu("Super Halley Method");
+        traub_ostrowski_type_functions = new MyMenu("Traub/Ostrowski Method");
+        stirling_type_functions = new MyMenu("Stirling Method");
+        midpoint_type_functions = new MyMenu("Midpoint Method");
 
-        barnsley_type_functions = new JMenu("Barnsley Type");
+        barnsley_type_functions = new MyMenu("Barnsley Type");
         
-        lambda_type_functions = new JMenu("Lambda Type");
+        lambda_type_functions = new MyMenu("Lambda Type");
 
-        szegedi_butterfly_type_functions = new JMenu("Szegedi Butterfly Type");
+        szegedi_butterfly_type_functions = new MyMenu("Szegedi Butterfly Type");
 
-        math_type_functions = new JMenu("Math Library Type");
+        math_type_functions = new MyMenu("Math Library Type");
 
-        formulas_type_functions = new JMenu("Formulas");
+        formulas_type_functions = new MyMenu("Formulas");
 
-        kaliset_type_functions = new JMenu("Kaliset Type");
-        m_like_generalizations_type_functions = new JMenu("M-Like Type");
-        general_type_functions = new JMenu("General Type");
-        general_math_type_functions = new JMenu("Math Library Type");
-        general_newton_variant_functions = new JMenu("z = z - (z^n + c)/(nz^(n - 2))");
-        c_azb_dze_type_functions = new JMenu("z = c(az^b + dz^e)");
-        c_azb_dze_f_g_type_functions = new JMenu("z = (c(az^b + dz^e) + f)^g");
+        kaliset_type_functions = new MyMenu("Kaliset Type");
+        m_like_generalizations_type_functions = new MyMenu("M-Like Type");
+        general_type_functions = new MyMenu("General Type");
+        general_math_type_functions = new MyMenu("Math Library Type");
+        general_newton_variant_functions = new MyMenu("z = z - (z^n + c)/(nz^(n - 2))");
+        c_azb_dze_type_functions = new MyMenu("z = c(az^b + dz^e)");
+        c_azb_dze_f_g_type_functions = new MyMenu("z = (c(az^b + dz^e) + f)^g");
 
-        coupled_type_functions = new JMenu("Coupled Type");
+        coupled_type_functions = new MyMenu("Coupled Type");
 
-        zab_zde_fg_type_functions = new JMenu("z = (z^a + b)/(z^d + e) + f + g");
+        zab_zde_fg_type_functions = new MyMenu("z = (z^a + b)/(z^d + e) + f + g");
 
-        user_formulas_type_functions = new JMenu("User Formulas");
+        user_formulas_type_functions = new MyMenu("User Formulas");
 
-        burning_ship_opt = new JCheckBoxMenuItem("Burning Ship");
-        mandel_grass_opt = new JMenuItem("Mandel Grass");
+        burning_ship_opt = new MyCheckBoxMenuItem("Burning Ship");
+        mandel_grass_opt = new MyMenuItem("Mandel Grass");
 
         burning_ship_opt.setToolTipText("Enables the burning ship variation.");
         mandel_grass_opt.setToolTipText("Enables the mandel grass variation.");

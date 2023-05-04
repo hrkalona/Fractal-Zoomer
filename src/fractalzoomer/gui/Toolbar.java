@@ -61,7 +61,7 @@ public class Toolbar extends JToolBar {
         
         setBorderPainted(true);
         
-        starting_position_button = new JButton();
+        starting_position_button = new MyButton();
         starting_position_button.setIcon(MainWindow.getIcon("starting_position.png"));
         starting_position_button.setFocusable(false);
         starting_position_button.setToolTipText("Resets the fractal to the default position.");
@@ -70,7 +70,7 @@ public class Toolbar extends JToolBar {
 
         add(starting_position_button);
         
-        go_to_button = new JButton();
+        go_to_button = new MyButton();
         go_to_button.setIcon(MainWindow.getIcon("go_to.png"));
         go_to_button.setFocusable(false);
         go_to_button.setToolTipText("Sets the center and size of the fractal, or the julia seed.");
@@ -79,7 +79,7 @@ public class Toolbar extends JToolBar {
 
         add(go_to_button);
              
-        zoom_in_button = new JButton();
+        zoom_in_button = new MyButton();
         zoom_in_button.setIcon(MainWindow.getIcon("zoom_in.png"));
         zoom_in_button.setFocusable(false);
         zoom_in_button.setToolTipText("Zooms in with a fixed rate to the current center.");
@@ -88,7 +88,7 @@ public class Toolbar extends JToolBar {
 
         add(zoom_in_button);
 
-        zoom_out_button = new JButton();
+        zoom_out_button = new MyButton();
         zoom_out_button.setIcon(MainWindow.getIcon("zoom_out.png"));
         zoom_out_button.setFocusable(false);
         zoom_out_button.setToolTipText("Zooms out with a fixed rate to the current center.");
@@ -99,7 +99,7 @@ public class Toolbar extends JToolBar {
         
         addSeparator();
 
-        save_image_button = new JButton();
+        save_image_button = new MyButton();
         save_image_button.setIcon(MainWindow.getIcon("save_image.png"));
         save_image_button.setFocusable(false);
         save_image_button.setToolTipText("Saves a png image.");
@@ -108,7 +108,7 @@ public class Toolbar extends JToolBar {
 
         add(save_image_button);
         
-        save_image_and_settings_button = new JButton();
+        save_image_and_settings_button = new MyButton();
         save_image_and_settings_button.setIcon(MainWindow.getIcon("save_image_settings.png"));
         save_image_and_settings_button.setFocusable(false);
         save_image_and_settings_button.setToolTipText("Saves the current settings and a png image.");
@@ -121,7 +121,7 @@ public class Toolbar extends JToolBar {
 
 
 
-        current_function_button = new JButton();
+        current_function_button = new MyButton();
         current_function_button.setIcon(MainWindow.getIcon("functions.png"));
         current_function_button.setFocusable(false);
         current_function_button.setToolTipText("Selects the active function for parameterization (if applicable).");
@@ -144,7 +144,7 @@ public class Toolbar extends JToolBar {
 
         add(current_function_button);
 
-        current_plane_button = new JButton();
+        current_plane_button = new MyButton();
         current_plane_button.setIcon(MainWindow.getIcon("planes.png"));
         current_plane_button.setFocusable(false);
         current_plane_button.setToolTipText("Selects the active plane transformation for parameterization (if applicable).");
@@ -168,7 +168,7 @@ public class Toolbar extends JToolBar {
 
         addSeparator();
 
-        custom_palette_button_out = new JButton();
+        custom_palette_button_out = new MyButton();
         custom_palette_button_out.setIcon(MainWindow.getIcon("palette_outcoloring.png"));
         custom_palette_button_out.setFocusable(false);
         custom_palette_button_out.setToolTipText("Loads the custom palette editor for the out-coloring palette.");
@@ -177,7 +177,7 @@ public class Toolbar extends JToolBar {
 
         add(custom_palette_button_out);
         
-        custom_palette_button_in = new JButton();
+        custom_palette_button_in = new MyButton();
         custom_palette_button_in.setIcon(MainWindow.getIcon("palette_incoloring.png"));
         custom_palette_button_in.setFocusable(false);
         custom_palette_button_in.setToolTipText("Loads the custom palette editor for the in-coloring palette.");
@@ -186,7 +186,7 @@ public class Toolbar extends JToolBar {
 
         add(custom_palette_button_in);
 
-        random_palette_button = new JButton();
+        random_palette_button = new MyButton();
         random_palette_button.setIcon(MainWindow.getIcon("palette_random.png"));
         random_palette_button.setFocusable(false);
         random_palette_button.setToolTipText("Randomizes the palette.");
@@ -197,7 +197,7 @@ public class Toolbar extends JToolBar {
 
         addSeparator();
 
-        custom_palette_button2_out = new JButton();
+        custom_palette_button2_out = new MyButton();
         custom_palette_button2_out.setIcon(MainWindow.getIcon("palette_outcoloring_direct.png"));
         custom_palette_button2_out.setFocusable(false);
         custom_palette_button2_out.setToolTipText("Loads the direct custom palette editor for the out-coloring palette.");
@@ -206,7 +206,7 @@ public class Toolbar extends JToolBar {
 
         add(custom_palette_button2_out);
 
-        custom_palette_button2_in = new JButton();
+        custom_palette_button2_in = new MyButton();
         custom_palette_button2_in.setIcon(MainWindow.getIcon("palette_incoloring_direct.png"));
         custom_palette_button2_in.setFocusable(false);
         custom_palette_button2_in.setToolTipText("Loads the direct custom palette editor for the in-coloring palette.");
@@ -217,7 +217,7 @@ public class Toolbar extends JToolBar {
 
         addSeparator();
 
-        iterations_button = new JButton();
+        iterations_button = new MyButton();
         iterations_button.setIcon(MainWindow.getIcon("iterations.png"));
         iterations_button.setFocusable(false);
         iterations_button.setToolTipText("Sets the maximum number of iterations.");
@@ -226,7 +226,7 @@ public class Toolbar extends JToolBar {
 
         add(iterations_button);
 
-        rotation_button = new JButton();
+        rotation_button = new MyButton();
         rotation_button.setIcon(MainWindow.getIcon("rotate.png"));
         rotation_button.setFocusable(false);
         rotation_button.setToolTipText("Sets the rotation in degrees.");
@@ -237,7 +237,7 @@ public class Toolbar extends JToolBar {
 
         addSeparator();
 
-        filters_options_button = new JButton();
+        filters_options_button = new MyButton();
         filters_options_button.setIcon(MainWindow.getIcon("filter_options.png"));
         filters_options_button.setFocusable(false);
         filters_options_button.setToolTipText("Sets the options of the image filters.");
@@ -248,7 +248,7 @@ public class Toolbar extends JToolBar {
 
         addSeparator();
 
-        orbit_button = new JButton();
+        orbit_button = new MyButton();
         orbit_button.setIcon(MainWindow.getIcon("orbit.png"));
         orbit_button.setToolTipText("Displays the orbit of a complex number.");
         orbit_button.setFocusable(false);
@@ -257,7 +257,7 @@ public class Toolbar extends JToolBar {
 
         add(orbit_button);
 
-        julia_button = new JButton();
+        julia_button = new MyButton();
         julia_button.setIcon(MainWindow.getIcon("julia.png"));
         julia_button.setToolTipText("Generates an image based on a seed (chosen pixel).");
         julia_button.setFocusable(false);
@@ -266,7 +266,7 @@ public class Toolbar extends JToolBar {
 
         add(julia_button);
 
-        julia_map_button = new JButton();
+        julia_map_button = new MyButton();
         julia_map_button.setIcon(MainWindow.getIcon("julia_map.png"));
         julia_map_button.setToolTipText("Creates an image of julia sets.");
         julia_map_button.setFocusable(false);
@@ -275,7 +275,7 @@ public class Toolbar extends JToolBar {
 
         add(julia_map_button);
 
-        d3_button = new JButton();
+        d3_button = new MyButton();
         d3_button.setIcon(MainWindow.getIcon("3d.png"));
         d3_button.setToolTipText("Creates a 3D version of the image.");
         d3_button.setFocusable(false);
@@ -284,7 +284,7 @@ public class Toolbar extends JToolBar {
 
         add(d3_button);
 
-        polar_projection_button = new JButton();
+        polar_projection_button = new MyButton();
         polar_projection_button.setIcon(MainWindow.getIcon("polar_projection.png"));
         polar_projection_button.setToolTipText("Projects the image into polar coordinates.");
         polar_projection_button.setFocusable(false);
@@ -293,7 +293,7 @@ public class Toolbar extends JToolBar {
 
         add(polar_projection_button);
 
-        domain_coloring_button = new JButton();
+        domain_coloring_button = new MyButton();
         domain_coloring_button.setIcon(MainWindow.getIcon("domain_coloring.png"));
         domain_coloring_button.setToolTipText("Creates a complex plane domain coloring visualization.");
         domain_coloring_button.setFocusable(false);
@@ -302,7 +302,7 @@ public class Toolbar extends JToolBar {
 
         add(domain_coloring_button);
 
-        color_cycling_button = new JButton();
+        color_cycling_button = new MyButton();
         color_cycling_button.setIcon(MainWindow.getIcon("color_cycling.png"));
         color_cycling_button.setToolTipText("Animates the image, cycling through the palette.");
         color_cycling_button.setFocusable(false);

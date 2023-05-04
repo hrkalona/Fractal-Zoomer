@@ -16,6 +16,7 @@
  */
 package fractalzoomer.gui;
 
+import fractalzoomer.core.BigIntNum;
 import fractalzoomer.core.BigNum;
 import fractalzoomer.core.MyApfloat;
 import fractalzoomer.core.ThreadDraw;
@@ -54,7 +55,7 @@ public class HighPrecisionDialog extends JDialog {
         setTitle("High Precision");
         setModal(true);
 
-        JButton info_user = new JButton("Help");
+        JButton info_user = new MyButton("Help");
         info_user.setToolTipText("Shows info on High Precision.");
         info_user.setFocusable(false);
         info_user.setIcon(MainWindow.getIcon("help2.png"));
@@ -89,7 +90,7 @@ public class HighPrecisionDialog extends JDialog {
         JTextField bignumPrecision = new JTextField();
         bignumPrecision.setText("" + ThreadDraw.BIGNUM_PRECISION);
 
-        JComboBox<String> arbitraryLibs = new JComboBox<>(new String[] {"DoubleDouble (106 bits)", "Built-in", "MPFR", "Apfloat", "Automatic", "MPIR"});
+        JComboBox<String> arbitraryLibs = new JComboBox<>(new String[] {"DoubleDouble (106 bits)", "Built-in", "MPFR", "Apfloat", "Automatic", "MPIR", "Fixed Point BigInteger"});
         arbitraryLibs.setSelectedIndex(ThreadDraw.HIGH_PRECISION_LIB);
         arbitraryLibs.setFocusable(false);
 
@@ -177,6 +178,7 @@ public class HighPrecisionDialog extends JDialog {
                                 BigNum.reinitialize(temp4);
                                 MpfrBigNum.reinitialize(temp4);
                                 MpirBigNum.reinitialize(temp4);
+                                BigIntNum.reinitialize(temp4);
                             }
                             else if(tempAuto && !ThreadDraw.BIGNUM_AUTOMATIC_PRECISION && tempPrecision == MyApfloat.precision) {
                                 Fractal.clearReferences(true);

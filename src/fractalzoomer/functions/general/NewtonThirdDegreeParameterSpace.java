@@ -260,6 +260,17 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
                 c0 = c;
                 pixel = ddn;
             }
+            else if(bigNumLib == Constants.BIGNUM_BIGINT) {
+                BigIntNumComplex bni = inputPixel.toBigIntNumComplex();
+                initVal = bni.divide(3);
+                z = iterations == 0 ? (isJulia ? bni : initVal) : referenceData.lastZValue;
+                c = isJulia ? getSeed(useBignum, bigNumLib) : bni;
+                zold = iterations == 0 ? new BigIntNumComplex() : referenceData.secondTolastZValue;
+                zold2 = iterations == 0 ? new BigIntNumComplex() : referenceData.thirdTolastZValue;
+                start = isJulia ? bni : initVal;
+                c0 = c;
+                pixel = bni;
+            }
             else {
                 Complex bn = inputPixel.toComplex();
                 initVal = bn.divide(3);
@@ -624,6 +635,17 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
                 start = initVal;
                 c0 = c;
                 pixel = ddn;
+            }
+            else if(bigNumLib == Constants.BIGNUM_BIGINT) {
+                BigIntNumComplex bni = inputPixel.toBigIntNumComplex();
+                initVal = bni.divide(3);
+                z = iterations == 0 ? initVal : secondReferenceData.lastZValue;
+                c = getSeed(useBignum, bigNumLib);
+                zold = iterations == 0 ? new BigIntNumComplex() : secondReferenceData.secondTolastZValue;
+                zold2 = iterations == 0 ? new BigIntNumComplex() : secondReferenceData.thirdTolastZValue;
+                start = initVal;
+                c0 = c;
+                pixel = bni;
             }
             else {
                 Complex bn = inputPixel.toComplex();
@@ -1106,6 +1128,15 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
             workSpaceData.c0p.set(complex[1]);
             gc0 = workSpaceData.c0p;
         }
+        else if(lib == ARBITRARY_BIGINT) {
+            complex[0] = ((BigIntNumComplex) pixel).divide(3);//z
+            complex[1] = pixel;//c
+
+            gzold = new BigIntNumComplex();
+            gzold2 = new BigIntNumComplex();
+            gstart = complex[0];
+            gc0 = complex[1];
+        }
         else if(lib == ARBITRARY_DOUBLEDOUBLE) {
             complex[0] = ((DDComplex) pixel).divide(3);//z
             complex[1] = pixel;//c
@@ -1162,6 +1193,11 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
     @Override
     public boolean needsExtendedRange() {
         return ThreadDraw.USE_FULL_FLOATEXP_FOR_ALL_ZOOM || (ThreadDraw.USE_CUSTOM_FLOATEXP_REQUIREMENT && size < 1e-30);
+    }
+
+    @Override
+    public boolean supportsBigIntnum() {
+        return true;
     }
 
      /*

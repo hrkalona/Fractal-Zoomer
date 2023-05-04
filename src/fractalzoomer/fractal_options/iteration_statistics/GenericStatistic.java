@@ -347,5 +347,29 @@ public abstract class GenericStatistic {
     public void setConvergingSmoothingAlgorithm(int converging_smoothing_algorithm) {
         this.converging_smoothing_algorithm = converging_smoothing_algorithm;
     }
+
+    public void initializeApproximationDerivatives(MantExpComplex dz, MantExpComplex ddz, int iterations) {
+
+    }
+
+    public boolean usesSecondDerivative() {
+        return false;
+    }
+
+    public void setJuliterOptions(boolean isJuliter, int juliterIterations) {
+
+    }
+
+    public void setFunctionId(int function) {
+
+    }
+
+    public boolean hasDEenabled() {
+        return false;
+    }
+
+    public void setVariablePixelSize(MantExp pixelSize) {
+
+    }
     
 }

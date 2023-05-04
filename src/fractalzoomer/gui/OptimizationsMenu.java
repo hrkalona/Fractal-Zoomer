@@ -26,7 +26,7 @@ import java.awt.event.KeyEvent;
  *
  * @author kaloch
  */
-public class OptimizationsMenu extends JMenu {
+public class OptimizationsMenu extends MyMenu {
 	private static final long serialVersionUID = 6482967865390038590L;
 	private MainWindow ptr;
     private JMenuItem greedy_algorithm_item;
@@ -44,11 +44,11 @@ public class OptimizationsMenu extends JMenu {
         
         setIcon(MainWindow.getIcon("optimizations.png"));
         
-        thread_number = new JMenuItem("Threads", MainWindow.getIcon("threads.png"));
-        greedy_algorithm_item = new JMenuItem("Greedy Drawing Algorithms", MainWindow.getIcon("greedy_algorithm.png"));
-        periodicity_checking_opt = new JCheckBoxMenuItem("Periodicity Checking");
-        perturbation_theory = new JMenuItem("Perturbation Theory", MainWindow.getIcon("perturbation.png"));
-        high_precision = new JMenuItem("High Precision", MainWindow.getIcon("high_precision.png"));
+        thread_number = new MyMenuItem("Threads", MainWindow.getIcon("threads.png"));
+        greedy_algorithm_item = new MyMenuItem("Greedy Drawing Algorithms", MainWindow.getIcon("greedy_algorithm.png"));
+        periodicity_checking_opt = new MyCheckBoxMenuItem("Periodicity Checking");
+        perturbation_theory = new MyMenuItem("Perturbation Theory", MainWindow.getIcon("perturbation.png"));
+        high_precision = new MyMenuItem("High Precision", MainWindow.getIcon("high_precision.png"));
 
         
         thread_number.setToolTipText("Sets the number of parallel drawing threads.");

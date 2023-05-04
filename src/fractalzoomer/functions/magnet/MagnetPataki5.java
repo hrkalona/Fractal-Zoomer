@@ -316,4 +316,9 @@ public class MagnetPataki5 extends MagnetPatakiType {
         return new GenericComplex[] {zfifth, preCalc};
     }
 
+    @Override
+    public boolean supportsBigIntnum() {
+        return true;
+    }
+
 }

@@ -32,6 +32,7 @@ import fractalzoomer.fractal_options.initial_value.InitialValue;
 import fractalzoomer.fractal_options.initial_value.VariableConditionalInitialValue;
 import fractalzoomer.fractal_options.initial_value.VariableInitialValue;
 import fractalzoomer.fractal_options.perturbation.DefaultPerturbation;
+import fractalzoomer.functions.Fractal;
 import fractalzoomer.functions.Julia;
 import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
@@ -908,6 +909,20 @@ public class Mandelbrot extends Julia {
                     r = iterations == 0 ? new BigNum((BigNum) r0) : referenceData.lastRValue;
                 }
             }
+            else if(bigNumLib == BIGNUM_BIGINT) {
+                BigIntNumComplex bn = inputPixel.toBigIntNumComplex();
+                z = iterations == 0 ? (isJulia ? bn : new BigIntNumComplex()) : referenceData.lastZValue;
+                c = isJulia ? getSeed(useBignum, bigNumLib) : bn;
+                zold = iterations == 0 ? new BigIntNumComplex() : referenceData.secondTolastZValue;
+                zold2 = iterations == 0 ? new BigIntNumComplex() : referenceData.thirdTolastZValue;
+                start = isJulia ? bn : new BigIntNumComplex();
+                c0 = c;
+                pixel = bn;
+                if(detectPeriod && detectPeriodAlgorithm == 0) {
+                    r0 = new BigIntNum(size);
+                    r = iterations == 0 ? new BigIntNum((BigIntNum) r0) : referenceData.lastRValue;
+                }
+            }
             else if(bigNumLib == Constants.BIGNUM_MPFR) {
                 MpfrBigNumComplex bn = new MpfrBigNumComplex(inputPixel.toMpfrBigNumComplex());
                 z = iterations == 0 ? (isJulia ? bn : new MpfrBigNumComplex()) : referenceData.lastZValue;
@@ -1001,7 +1016,7 @@ public class Mandelbrot extends Julia {
         boolean isBLA2InUse = ThreadDraw.APPROXIMATION_ALGORITHM == 4 && supportsBilinearApproximation2();
 
         boolean usesCircleBail = bailout_algorithm2.getId() == MainWindow.BAILOUT_CONDITION_CIRCLE;
-        boolean preCalcNormData = (detectPeriod && detectPeriodAlgorithm == 0) || usesCircleBail;
+        boolean preCalcNormData = (detectPeriod && detectPeriodAlgorithm == 0);
         NormComponents normData = null;
 
         boolean isMpfrComplex = z instanceof MpfrBigNumComplex;
@@ -1090,7 +1105,13 @@ public class Mandelbrot extends Julia {
                            if (DetectedPeriod == 0 && ((BigNum) r).compare((BigNum) (norm = ((BigNum) normSquared).sqrt())) > 0 && iterations > 0) {
                                DetectedPeriod = iterations;
                            }
-                       } else if (bigNumLib == Constants.BIGNUM_MPFR) {
+                       }
+                       else if (bigNumLib == Constants.BIGNUM_BIGINT) {
+                           if (DetectedPeriod == 0 && ((BigIntNum) r).compare((BigIntNum) (norm = ((BigIntNum) normSquared).sqrt())) > 0 && iterations > 0) {
+                               DetectedPeriod = iterations;
+                           }
+                       }
+                       else if (bigNumLib == Constants.BIGNUM_MPFR) {
 //                        if (iterations > 0 && ((MpfrBigNum) normSquared).compare((MpfrBigNum) referenceData.minValue) < 0) {
 //                            DetectedAtomPeriod = iterations;
 //                            ((MpfrBigNum) referenceData.minValue).set((MpfrBigNum)normSquared);
@@ -1151,7 +1172,7 @@ public class Mandelbrot extends Julia {
                }
             }
 
-            if (iterations > 0 && bailout_algorithm2.Escaped(z, zold, zold2, iterations, c, start, c0, normSquared, pixel)) {
+            if (iterations > 0 && bailout_algorithm2.Escaped(z, zold, zold2, iterations, c, start, c0, normSquared, pixel, cz, mcz)) {
                 break;
             }
 
@@ -1193,10 +1214,10 @@ public class Mandelbrot extends Julia {
                     }
                     else if(isMpirComplex) {
                         if (burning_ship) {
-                            z = z.abs_mutable().square_plus_c_mutable(c, workSpaceData.temp1p, workSpaceData.temp2p);
+                            z = z.abs_mutable().square_plus_c_mutable(c, workSpaceData.temp1p, workSpaceData.temp2p, workSpaceData.temp3p);
                         }
                         else {
-                            z = z.square_plus_c_mutable(c, workSpaceData.temp1p, workSpaceData.temp2p);
+                            z = z.square_plus_c_mutable(c, workSpaceData.temp1p, workSpaceData.temp2p, workSpaceData.temp3p);
                         }
                     }
                     else {
@@ -1274,6 +1295,14 @@ public class Mandelbrot extends Julia {
 
             return az.add(r).squareFull().sub(azsquare).add(r0);
         }
+        else if(rIn instanceof BigIntNum) {
+            BigIntNum r = (BigIntNum)rIn;
+            BigIntNum r0 = (BigIntNum)r0In;
+            BigIntNum az = ((BigIntNum)norm);
+            BigIntNum azsquare = (BigIntNum)normSquared;
+
+            return az.add(r).square().sub(azsquare).add(r0);
+        }
         else if(rIn instanceof MpfrBigNum) {
             MpfrBigNum r = (MpfrBigNum)rIn;
             MpfrBigNum r0 = (MpfrBigNum)r0In;
@@ -1281,15 +1310,6 @@ public class Mandelbrot extends Julia {
             MpfrBigNum azsquare = (MpfrBigNum)normSquared;
 
             MpfrBigNum.r_ball_pow2(r, az, r0, azsquare);
-            return r;
-        }
-        else if(rIn instanceof MpirBigNum) {
-            MpirBigNum r = (MpirBigNum)rIn;
-            MpirBigNum r0 = (MpirBigNum)r0In;
-            MpirBigNum az = (MpirBigNum)norm;
-            MpirBigNum azsquare = (MpirBigNum)normSquared;
-
-            MpirBigNum.r_ball_pow2(r, az, r0, azsquare);
             return r;
         }
         else if(rIn instanceof MpirBigNum) {
@@ -1347,10 +1367,10 @@ public class Mandelbrot extends Julia {
             }
             else if(z instanceof MpirBigNumComplex) {
                 if (burning_ship) {
-                    z = z.abs_mutable().square_plus_c_mutable(c, workSpaceData.temp1p, workSpaceData.temp2p);
+                    z = z.abs_mutable().square_plus_c_mutable(c, workSpaceData.temp1p, workSpaceData.temp2p, workSpaceData.temp3p);
                 }
                 else {
-                    z = z.square_plus_c_mutable(c, workSpaceData.temp1p, workSpaceData.temp2p);
+                    z = z.square_plus_c_mutable(c, workSpaceData.temp1p, workSpaceData.temp2p, workSpaceData.temp3p);
                 }
             }
             else {
@@ -2005,18 +2025,18 @@ public class Mandelbrot extends Julia {
         }
         else if(complex[0] instanceof MpirBigNumComplex) {
             if(not_burning_ship) {
-                complex[0] = complex[0].square_plus_c_mutable(complex[1], workSpaceData.temp1p, workSpaceData.temp2p);
+                complex[0] = complex[0].square_plus_c_mutable_no_threads(complex[1], workSpaceData.temp1p, workSpaceData.temp2p, workSpaceData.temp3p);
             }
             else {
-                complex[0] = complex[0].abs_mutable().square_plus_c_mutable(complex[1], workSpaceData.temp1p, workSpaceData.temp2p);
+                complex[0] = complex[0].abs_mutable().square_plus_c_mutable_no_threads(complex[1], workSpaceData.temp1p, workSpaceData.temp2p, workSpaceData.temp3p);
             }
         }
         else {
             if(not_burning_ship) {
-                complex[0] = complex[0].square_plus_c_mutable(complex[1]);
+                complex[0] = complex[0].square_plus_c_mutable_no_threads(complex[1]);
             }
             else {
-                complex[0] = complex[0].abs_mutable().square_plus_c_mutable(complex[1]);
+                complex[0] = complex[0].abs_mutable().square_plus_c_mutable_no_threads(complex[1]);
             }
         }
 
@@ -2024,6 +2044,11 @@ public class Mandelbrot extends Julia {
 
     @Override
     public boolean supportsBignum() { return true;}
+
+    @Override
+    public boolean supportsBigIntnum() {
+        return true;
+    }
 
     @Override
     public boolean supportsMpfrBignum() { return true;}
@@ -2163,4 +2188,18 @@ public class Mandelbrot extends Julia {
 
         return 0;
     }*/
+
+    @Override
+    public void createLowPrecisionOrbit(int maxRefIteration, ReferenceData refData, ReferenceDeepData refDeepData) {
+        int length = maxRefIteration + 1;
+        refData.createAndSetShortcut(length, false, 0);
+        DoubleReference reference = refData.Reference;
+        DeepReference deepReference = refDeepData.Reference;
+
+        for (int i = 0; i < length; i++) {
+            Fractal.setArrayValue(reference, i, Fractal.getArrayDeepValue(deepReference, i).toComplex());
+        }
+
+        reference.setLengthOverride(deepReference.length());
+    }
 }

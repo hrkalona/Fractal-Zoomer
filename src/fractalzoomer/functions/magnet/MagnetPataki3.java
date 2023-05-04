@@ -302,5 +302,10 @@ public class MagnetPataki3 extends MagnetPatakiType {
         return new GenericComplex[] {zcube, preCalc};
     }
 
+    @Override
+    public boolean supportsBigIntnum() {
+        return true;
+    }
+
 
 }

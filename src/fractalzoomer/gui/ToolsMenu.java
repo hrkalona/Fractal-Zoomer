@@ -26,7 +26,7 @@ import java.awt.event.KeyEvent;
  *
  * @author kaloch
  */
-public class ToolsMenu extends JMenu {
+public class ToolsMenu extends MyMenu {
 	private static final long serialVersionUID = -5712056897405241065L;
 	private MainWindow ptr;
     private JCheckBoxMenuItem orbit_opt;
@@ -48,18 +48,18 @@ public class ToolsMenu extends JMenu {
 
         this.ptr = ptr2;
         
-        orbit_opt = new JCheckBoxMenuItem("Orbit", MainWindow.getIcon("orbit.png"));
-        julia_opt = new JCheckBoxMenuItem("Julia", MainWindow.getIcon("julia.png"));
-        color_cycling_opt = new JCheckBoxMenuItem("Color Cycling", MainWindow.getIcon("color_cycling.png"));
-        d3_opt = new JMenuItem("3D", MainWindow.getIcon("3d.png"));
-        julia_map_opt = new JMenuItem("Julia Map", MainWindow.getIcon("julia_map.png"));
-        juliter_opt = new JMenuItem("Juliter", MainWindow.getIcon("juliter.png"));
-        domain_coloring_opt = new JMenuItem("Domain Coloring", MainWindow.getIcon("domain_coloring.png"));
-        polar_projection_opt = new JMenuItem("Polar Projection", MainWindow.getIcon("polar_projection.png"));
-        grid_opt = new JCheckBoxMenuItem("Show Grid", MainWindow.getIcon("grid.png"));
-        zoom_window_opt = new JCheckBoxMenuItem("Show Zoom Window", MainWindow.getIcon("zoom_window.png"));
-        boundaries_opt = new JCheckBoxMenuItem("Show Boundaries", MainWindow.getIcon("boundaries.png"));
-        plane_visualization_opt = new JMenuItem("Plane Visualization", MainWindow.getIcon("plane_visualization.png"));
+        orbit_opt = new MyCheckBoxMenuItem("Orbit", MainWindow.getIcon("orbit.png"));
+        julia_opt = new MyCheckBoxMenuItem("Julia", MainWindow.getIcon("julia.png"));
+        color_cycling_opt = new MyCheckBoxMenuItem("Color Cycling", MainWindow.getIcon("color_cycling.png"));
+        d3_opt = new MyMenuItem("3D", MainWindow.getIcon("3d.png"));
+        julia_map_opt = new MyMenuItem("Julia Map", MainWindow.getIcon("julia_map.png"));
+        juliter_opt = new MyMenuItem("Juliter", MainWindow.getIcon("juliter.png"));
+        domain_coloring_opt = new MyMenuItem("Domain Coloring", MainWindow.getIcon("domain_coloring.png"));
+        polar_projection_opt = new MyMenuItem("Polar Projection", MainWindow.getIcon("polar_projection.png"));
+        grid_opt = new MyCheckBoxMenuItem("Show Grid", MainWindow.getIcon("grid.png"));
+        zoom_window_opt = new MyCheckBoxMenuItem("Show Zoom Window", MainWindow.getIcon("zoom_window.png"));
+        boundaries_opt = new MyCheckBoxMenuItem("Show Boundaries", MainWindow.getIcon("boundaries.png"));
+        plane_visualization_opt = new MyMenuItem("Plane Visualization", MainWindow.getIcon("plane_visualization.png"));
         
         orbit_opt.setToolTipText("Displays the orbit of a complex number.");
         julia_opt.setToolTipText("Generates an image based on a seed (chosen pixel).");

@@ -74,10 +74,20 @@ public class SquareBailoutCondition extends BailoutCondition {
         BigNum absRe = z.getAbsRe();
         BigNum absIm = z.getAbsIm();
 
-        BigNum max = absRe.compareBothPositive(absIm) == 1 ? absRe : absIm;
+        BigNum max = BigNum.max(absRe, absIm);
 
         return max.compareBothPositive(bnbound) >= 0;
 
+    }
+
+    @Override
+    public boolean escaped(BigIntNumComplex z, BigIntNumComplex zold, BigIntNumComplex zold2, int iterations, BigIntNumComplex c, BigIntNumComplex start, BigIntNumComplex c0, BigIntNum norm_squared, BigIntNumComplex pixel) {
+        BigIntNum absRe = z.getAbsRe();
+        BigIntNum absIm = z.getAbsIm();
+
+        BigIntNum max = BigIntNum.max(absRe, absIm);
+
+        return max.compare(binbound) >= 0;
     }
 
     @Override

@@ -1,3 +1,12 @@
+Version 1.0.8.8
+    -Added a new BigNum type based on BigInteger which is faster than the built-in type in low zoom levels
+    -Added Rank Order in histogram coloring
+    -Implemented multi-threaded reference calculation for Mandelbrot for very high precisions (excluding MPFR)
+    -Added an option for Normal Map to be combinable with other statistical coloring methods
+    -Fixed some bugs related to rotation
+    -Added interpolation mode in custom direct palette editor
+    -Refactored some code after doing some tests with java 20 version
+
 Version 1.0.8.7
     -Implemented a period detection algorithm based on derivative for Mandelbrot 2-5 powers
     -Added new functions Magnet Pataki 2-5 and N powers

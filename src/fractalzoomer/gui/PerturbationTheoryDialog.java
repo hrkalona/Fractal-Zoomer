@@ -16,10 +16,7 @@
  */
 package fractalzoomer.gui;
 
-import fractalzoomer.core.BigNum;
-import fractalzoomer.core.MantExp;
-import fractalzoomer.core.MyApfloat;
-import fractalzoomer.core.ThreadDraw;
+import fractalzoomer.core.*;
 import fractalzoomer.core.la.LAInfo;
 import fractalzoomer.core.la.LAInfoDeep;
 import fractalzoomer.core.mpfr.LibMpfr;
@@ -48,6 +45,7 @@ public class PerturbationTheoryDialog extends JDialog {
     private Component ptra;
     private JOptionPane optionPane;
     private PerturbationTheoryDialog that;
+    private final JScrollPane scrollPane;
 
     public PerturbationTheoryDialog(Component ptr, Settings s) {
         
@@ -56,10 +54,13 @@ public class PerturbationTheoryDialog extends JDialog {
         ptra = ptr;
         that = this;
 
+        scrollPane = new JScrollPane();
+        scrollPane.setPreferredSize(new Dimension(700, 700));
+
         setTitle("Perturbation Theory");
         setModal(true);
 
-        JButton info_user = new JButton("Help");
+        JButton info_user = new MyButton("Help");
         info_user.setToolTipText("Shows info on Perturbation Theory.");
         info_user.setFocusable(false);
         info_user.setIcon(MainWindow.getIcon("help2.png"));
@@ -67,7 +68,7 @@ public class PerturbationTheoryDialog extends JDialog {
 
         info_user.addActionListener(e -> CommonFunctions.showPerturbationTheoryHelp(that));
 
-        JButton reset_approximation = new JButton();
+        JButton reset_approximation = new MyButton();
         reset_approximation.setToolTipText("Resets the approximation values.");
         reset_approximation.setFocusable(false);
         reset_approximation.setIcon(MainWindow.getIcon("reset_small.png"));
@@ -97,6 +98,11 @@ public class PerturbationTheoryDialog extends JDialog {
         final JCheckBox automatic_precision = new JCheckBox("Automatic Precision");
         automatic_precision.setSelected(MyApfloat.setAutomaticPrecision);
         automatic_precision.setFocusable(false);
+
+        final JCheckBox alwaysCheckForPrecisionDecrease = new JCheckBox("Check for Reduction");
+        alwaysCheckForPrecisionDecrease.setSelected(MyApfloat.alwaysCheckForDecrease);
+        alwaysCheckForPrecisionDecrease.setFocusable(false);
+        alwaysCheckForPrecisionDecrease.setToolTipText("Checks if the precision should be reduced when you modify coordinates in dialogs.");
 
         final JCheckBox enable_bignum = new JCheckBox("Use BigNum for Reference calculation if possible");
         enable_bignum.setSelected(ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE);
@@ -328,7 +334,7 @@ public class PerturbationTheoryDialog extends JDialog {
         BLA2panel.setVisible(approximation_alg.getSelectedIndex() == 4);
         Nanomb1Panel.setVisible(approximation_alg.getSelectedIndex() == 3);
 
-        JComboBox<String> bigNumLibs = new JComboBox<>(new String[] {"Double (53 bits)", "DoubleDouble (106 bits)", "Built-in", "MPFR", "Automatic", "MPIR", "Automatic (No Double/DoubleDouble)"});
+        JComboBox<String> bigNumLibs = new JComboBox<>(new String[] {"Double (53 bits)", "DoubleDouble (106 bits)", "Built-in", "MPFR", "Automatic", "MPIR", "Automatic (No Double/DoubleDouble)", "Fixed Point BigInteger"});
         bigNumLibs.setSelectedIndex(ThreadDraw.BIGNUM_LIBRARY);
         JLabel bnliblabel = new JLabel("BigNum Library:");
         bigNumLibs.setFocusable(false);
@@ -455,9 +461,16 @@ public class PerturbationTheoryDialog extends JDialog {
 
         JPanel appr = new JPanel(new FlowLayout(FlowLayout.LEFT));
         appr.add(new JLabel("Approximation:"));
-        appr.add(Box.createRigidArea(new Dimension(300, 10)));
+        appr.add(Box.createRigidArea(new Dimension(350, 10)));
         appr.add(reset_approximation);
 
+        JPanel panel_auto_prec = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        panel_auto_prec.add(automatic_precision);
+        panel_auto_prec.add(alwaysCheckForPrecisionDecrease);
+
+        alwaysCheckForPrecisionDecrease.setEnabled(automatic_precision.isSelected());
+
+        automatic_precision.addActionListener(e -> alwaysCheckForPrecisionDecrease.setEnabled(automatic_precision.isSelected()));
 
         Object[] message3 = {
             info_panel,
@@ -466,7 +479,7 @@ public class PerturbationTheoryDialog extends JDialog {
             " ",
             "Floating point precision:",
             precision,
-                automatic_precision,
+                panel_auto_prec,
             " ",
                 enable_bignum_panel,
                 bnliblabel,
@@ -540,8 +553,8 @@ public class PerturbationTheoryDialog extends JDialog {
                                 return;
                             }
 
-                            if(temp5 > 2.5 || temp6 > 2.5 || temp7 > 2.5 || temp8 > 2.5) {
-                                JOptionPane.showMessageDialog(ptra, "The stage 0 period limit and period limit values must less than 2.5.", "Error!", JOptionPane.ERROR_MESSAGE);
+                            if(temp5 > 10 || temp6 > 10 || temp7 > 10 || temp8 > 10) {
+                                JOptionPane.showMessageDialog(ptra, "The stage 0 period limit and period limit values must less than 10.", "Error!", JOptionPane.ERROR_MESSAGE);
                                 return;
                             }
 
@@ -578,6 +591,7 @@ public class PerturbationTheoryDialog extends JDialog {
                                 BigNum.reinitialize(temp4);
                                 MpfrBigNum.reinitialize(temp4);
                                 MpirBigNum.reinitialize(temp4);
+                                BigIntNum.reinitialize(temp4);
                             }
                             else if(tempAuto && !ThreadDraw.BIGNUM_AUTOMATIC_PRECISION && tempPrecision == MyApfloat.precision) {
                                 Fractal.clearReferences(true);
@@ -609,12 +623,7 @@ public class PerturbationTheoryDialog extends JDialog {
                                 }
                             }
 
-                            boolean oldGatherStatistics = ThreadDraw.GATHER_PERTURBATION_STATISTICS;
                             ThreadDraw.GATHER_PERTURBATION_STATISTICS = gatherPerturbationStatistics.isSelected();
-
-                            if(oldGatherStatistics != ThreadDraw.GATHER_PERTURBATION_STATISTICS && ThreadDraw.GATHER_PERTURBATION_STATISTICS) {
-                                Fractal.clearReferences(true);
-                            }
 
                             int oldBignumLib = ThreadDraw.BIGNUM_LIBRARY;
                             ThreadDraw.BIGNUM_LIBRARY = bigNumLibs.getSelectedIndex();
@@ -660,6 +669,7 @@ public class PerturbationTheoryDialog extends JDialog {
                             }
 
                             MyApfloat.setAutomaticPrecision = automatic_precision.isSelected();
+                            MyApfloat.alwaysCheckForDecrease = alwaysCheckForPrecisionDecrease.isSelected();
 
                             ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE = tempBigNum;
                             ThreadDraw.APPROXIMATION_ALGORITHM = approximation_alg.getSelectedIndex();
@@ -705,11 +715,12 @@ public class PerturbationTheoryDialog extends JDialog {
                 });
 
         //Make this dialog display it.
-        setContentPane(optionPane);
+        scrollPane.setViewportView(optionPane);
+        setContentPane(scrollPane);
 
         pack();
 
-        setResizable(false);
+        setResizable(true);
         setLocation((int) (ptra.getLocation().getX() + ptra.getSize().getWidth() / 2) - (getWidth() / 2), (int) (ptra.getLocation().getY() + ptra.getSize().getHeight() / 2) - (getHeight() / 2));
         setVisible(true);
 

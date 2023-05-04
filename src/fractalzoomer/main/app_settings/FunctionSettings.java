@@ -19,6 +19,7 @@ package fractalzoomer.main.app_settings;
 import fractalzoomer.core.Derivative;
 import fractalzoomer.core.MyApfloat;
 import fractalzoomer.main.Constants;
+import fractalzoomer.parser.Parser;
 import org.apfloat.Apfloat;
 
 
@@ -137,6 +138,8 @@ public class FunctionSettings implements Constants {
     public boolean useGlobalMethod;
     public double[] globalMethodFactor;
     public int period;
+    public double[] variable_re;
+    public double[] variable_im;
     
     public FunctionSettings() {
         period = 0;
@@ -162,6 +165,9 @@ public class FunctionSettings implements Constants {
         plane_type = MU_PLANE;
         
         rotation_vals = new Apfloat[2];
+
+        variable_re = new double[Parser.EXTRA_VARS];
+        variable_im = new double[Parser.EXTRA_VARS];
 
         rotation = 0;
 

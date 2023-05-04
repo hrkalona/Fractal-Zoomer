@@ -25,6 +25,7 @@ import fractalzoomer.utils.MathUtils;
 import org.apfloat.Apfloat;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -38,12 +39,16 @@ public class CenterSizeJuliaDialog extends JDialog {
 
     private MainWindow ptra;
     private JOptionPane optionPane;
+    private final JScrollPane scrollPane;
 
     public CenterSizeJuliaDialog(MainWindow ptr, Settings s) {
 
         super(ptr);
         
         ptra = ptr;
+
+        scrollPane = new JScrollPane();
+        scrollPane.setPreferredSize(new Dimension(700, 700));
 
         if(s.fns.juliter) {
             setTitle("Center, Size, Julia Seed, and Juliter");
@@ -134,12 +139,12 @@ public class CenterSizeJuliaDialog extends JDialog {
             imag_seed.setText("" + s.yJuliaCenter.toString(true));
         }
 
-        JButton corners = new JButton("Set Corners");
+        JButton corners = new MyButton("Set Corners");
         corners.setToolTipText("An alternative center/size selection option.");
         corners.setFocusable(false);
         corners.setIcon(MainWindow.getIcon("corners.png"));
 
-        JButton magnification = new JButton("Set Magnification");
+        JButton magnification = new MyButton("Set Magnification");
         magnification.setToolTipText("An alternative size option.");
         magnification.setFocusable(false);
         magnification.setIcon(MainWindow.getIcon("magnification.png"));
@@ -253,9 +258,9 @@ public class CenterSizeJuliaDialog extends JDialog {
 
                         try {
                             if(MyApfloat.setAutomaticPrecision) {
-                                long precision = MyApfloat.getAutomaticPrecision(new String[] {field_size.getText(), field_real.getText(), field_imaginary.getText(), real_seed.getText(), imag_seed.getText()}, new boolean[] {true, false, false, false, false}, false);
+                                long precision = MyApfloat.getAutomaticPrecision(new String[] {field_size.getText(), field_real.getText(), field_imaginary.getText(), real_seed.getText(), imag_seed.getText()}, new boolean[] {true, false, false, false, false});
 
-                                if (MyApfloat.shouldSetPrecision(precision, true)) {
+                                if (MyApfloat.shouldSetPrecision(precision, MyApfloat.alwaysCheckForDecrease)) {
                                     Fractal.clearReferences(true);
                                     MyApfloat.setPrecision(precision, s);
                                 }
@@ -304,11 +309,12 @@ public class CenterSizeJuliaDialog extends JDialog {
                 });
 
         //Make this dialog display it.
-        setContentPane(optionPane);
+        scrollPane.setViewportView(optionPane);
+        setContentPane(scrollPane);
 
         pack();
 
-        setResizable(false);
+        setResizable(true);
         setLocation((int) (ptra.getLocation().getX() + ptra.getSize().getWidth() / 2) - (getWidth() / 2), (int) (ptra.getLocation().getY() + ptra.getSize().getHeight() / 2) - (getHeight() / 2));
         setVisible(true);
 

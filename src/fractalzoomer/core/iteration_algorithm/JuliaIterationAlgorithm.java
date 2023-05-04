@@ -61,4 +61,9 @@ public class JuliaIterationAlgorithm extends IterationAlgorithm {
         
     }
 
+    @Override
+    public boolean isJulia() {
+        return true;
+    }
+
 }

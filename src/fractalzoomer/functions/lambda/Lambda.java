@@ -374,12 +374,17 @@ public class Lambda extends Julia {
 
             MantExpComplex zoldDeep;
 
+            MantExp norm_squared_m = null;
+            if(doBailCheck) {
+                norm_squared_m = z.norm_squared();
+            }
+
             for (; iterations < max_iterations; iterations++) {
                 if (trap != null) {
                     trap.check(complex[0], iterations);
                 }
 
-                if (doBailCheck && bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, 0.0, pixel)) {
+                if (doBailCheck && bailout_algorithm2.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, norm_squared_m.toDouble(), pixel)) {
                     escaped = true;
 
                     Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0, pixel};
@@ -412,7 +417,8 @@ public class Lambda extends Julia {
                     statistic.insert(complex[0], zold, zold2, iterations, complex[1], start, c0, z, zoldDeep, cDeep);
                 }
 
-                if (z.norm_squared().compareToBothPositive(DeltaSubN.norm_squared()) < 0 || RefIteration >= MaxRefIteration) {
+                norm_squared_m = z.norm_squared();
+                if (norm_squared_m.compareToBothPositive(DeltaSubN.norm_squared()) < 0 || RefIteration >= MaxRefIteration) {
                     DeltaSubN = z;
                     RefIteration = 0;
                     rebases++;
@@ -767,6 +773,11 @@ public class Lambda extends Julia {
 
     @Override
     public boolean supportsBignum() { return true;}
+
+    @Override
+    public boolean supportsBigIntnum() {
+        return true;
+    }
 
     @Override
     public boolean supportsMpfrBignum() { return true;}

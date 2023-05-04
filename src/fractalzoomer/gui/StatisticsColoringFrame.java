@@ -247,6 +247,10 @@ public class StatisticsColoringFrame extends JFrame {
             tabbedPane.setEnabledAt(4, false);
         }
 
+        if(s.isHighPrecisionInUse() || s.isPertubationTheoryInUse()) {
+            tabbedPane.setEnabledAt(2, false);
+        }
+
         JPanel panel21 = new JPanel();
         panel21.setLayout(new FlowLayout());
         panel21.setBackground(MainWindow.bg_color);
@@ -356,7 +360,7 @@ public class StatisticsColoringFrame extends JFrame {
             panel23.add(escape_type);
         }
 
-        JButton info_user = new JButton("Help");
+        JButton info_user = new MyButton("Help");
         info_user.setToolTipText("Shows the details of the user formulas.");
         info_user.setFocusable(false);
         info_user.setIcon(MainWindow.getIcon("help2.png"));
@@ -364,7 +368,7 @@ public class StatisticsColoringFrame extends JFrame {
 
         info_user.addActionListener(e -> ptra.showUserFormulaHelp());
 
-        JButton code_editor = new JButton("Edit User Code");
+        JButton code_editor = new MyButton("Edit User Code");
         code_editor.setToolTipText("<html>Opens the java code, containing the user defined functions,<br>with a text editor.</html>");
         code_editor.setFocusable(false);
         code_editor.setIcon(MainWindow.getIcon("code_editor2.png"));
@@ -372,7 +376,7 @@ public class StatisticsColoringFrame extends JFrame {
 
         code_editor.addActionListener(e -> ptra.codeEditor());
 
-        JButton compile_code = new JButton("Compile User Code");
+        JButton compile_code = new MyButton("Compile User Code");
         compile_code.setToolTipText("Compiles the java code, containing the user defined functions.");
         compile_code.setFocusable(false);
         compile_code.setIcon(MainWindow.getIcon("compile2.png"));
@@ -441,6 +445,7 @@ public class StatisticsColoringFrame extends JFrame {
         panel71.add(new JLabel(" Argument: "));
         panel71.add(argValue);
         panel71.add(Box.createRigidArea(new Dimension(70, 10)));
+
 
         JPanel panel72 = new JPanel();
         panel72.setBackground(MainWindow.bg_color);
@@ -706,6 +711,12 @@ public class StatisticsColoringFrame extends JFrame {
         JPanel panel84 = new JPanel();
         panel84.setBackground(MainWindow.bg_color);
 
+        JCheckBox combineNormalMap = new JCheckBox("Combine With Other Statistics");
+        combineNormalMap.setToolTipText("Combines the usage of normal map with other statistical algorithms.");
+        combineNormalMap.setBackground(MainWindow.bg_color);
+        combineNormalMap.setSelected(sts.normalMapCombineWithOtherStatistics);
+        combineNormalMap.setFocusable(false);
+
         normalMapOverrideColoring = new JCheckBox("Override Coloring");
         normalMapOverrideColoring.setToolTipText("Overrides the normal coloring is order to use the normal map coloring.");
         normalMapOverrideColoring.setBackground(MainWindow.bg_color);
@@ -728,6 +739,10 @@ public class StatisticsColoringFrame extends JFrame {
         panel84.add(new JLabel( " DEM Factor: "));
         panel84.add(demFactor);
 
+        JPanel panel89 = new JPanel();
+        panel89.setBackground(MainWindow.bg_color);
+        panel89.add(combineNormalMap);
+
         demFactor.setEnabled(sts.normalMapOverrideColoring && (normal_map_color_method_combo.getSelectedIndex() == 2 || normal_map_color_method_combo.getSelectedIndex() == 3));
 
         normal_map_color_method_combo.setEnabled(sts.normalMapOverrideColoring);
@@ -744,6 +759,7 @@ public class StatisticsColoringFrame extends JFrame {
         });
 
         panel8.add(panel84);
+        panel8.add(panel89);
         panel8.add(panel83);
         panel8.add(panel81);
 
@@ -972,7 +988,7 @@ public class StatisticsColoringFrame extends JFrame {
 
         list.setCellRenderer(new ListCellRenderer<String>() {
             private final JPanel p = new JPanel(new BorderLayout());
-            private final JLabel icon = new JLabel((Icon)null, JLabel.CENTER);
+            private final ImageLabel icon = new ImageLabel(null, JLabel.CENTER);
 
             @Override
             public Component getListCellRendererComponent(
@@ -1026,25 +1042,25 @@ public class StatisticsColoringFrame extends JFrame {
         JPanel panel95 = new JPanel();
         panel95.setBackground(MainWindow.bg_color);
 
-        JButton addColor = new JButton();
+        JButton addColor = new MyButton();
         addColor.setIcon(MainWindow.getIcon("add.png"));
         addColor.setPreferredSize(new Dimension(32, 32));
         addColor.setFocusable(false);
         addColor.setToolTipText("Add Color");
 
-        JButton editColor = new JButton();
+        JButton editColor = new MyButton();
         editColor.setIcon(MainWindow.getIcon("edit.png"));
         editColor.setPreferredSize(new Dimension(32, 32));
         editColor.setFocusable(false);
         editColor.setToolTipText("Edit Color");
 
-        JButton removeColor = new JButton();
+        JButton removeColor = new MyButton();
         removeColor.setIcon(MainWindow.getIcon("delete.png"));
         removeColor.setPreferredSize(new Dimension(32, 32));
         removeColor.setFocusable(false);
         removeColor.setToolTipText("Remove Color");
 
-        JButton resetColor = new JButton();
+        JButton resetColor = new MyButton();
         resetColor.setIcon(MainWindow.getIcon("reset.png"));
         resetColor.setPreferredSize(new Dimension(32, 32));
         resetColor.setFocusable(false);
@@ -1400,7 +1416,7 @@ public class StatisticsColoringFrame extends JFrame {
         buttons.setLayout(new FlowLayout());
         buttons.setBackground(MainWindow.bg_color);
 
-        JButton ok = new JButton("Ok");
+        JButton ok = new MyButton("Ok");
         getRootPane().setDefaultButton(ok);
         ok.setFocusable(false);
         ok.addActionListener(e -> {
@@ -1573,6 +1589,7 @@ public class StatisticsColoringFrame extends JFrame {
             sts.normalMapDEUseColorPerDepth = cperDepth.isSelected();
             sts.normalMapDEOffsetFactor = temp19;
             sts.normalMapDEOffset = temp20;
+            sts.normalMapCombineWithOtherStatistics = combineNormalMap.isSelected();
 
             sts.rootShading = rootShading.isSelected();
             sts.revertRootShading = invertShading.isSelected();
@@ -1655,7 +1672,7 @@ public class StatisticsColoringFrame extends JFrame {
 
         buttons.add(ok);
 
-        JButton cancel = new JButton("Cancel");
+        JButton cancel = new MyButton("Cancel");
         cancel.setFocusable(false);
         cancel.addActionListener(e -> {
 

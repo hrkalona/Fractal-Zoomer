@@ -2,7 +2,9 @@ package fractalzoomer.utils;
 
 import com.jogamp.nativewindow.WindowClosingProtocol;
 import fractalzoomer.core.ThreadDraw;
+import fractalzoomer.gui.MyButton;
 import fractalzoomer.gui.MyJSpinner;
+import fractalzoomer.main.CommonFunctions;
 import fractalzoomer.main.MainWindow;
 import processing.core.PApplet;
 import processing.event.MouseEvent;
@@ -118,7 +120,18 @@ public class P3DHeightMap extends PApplet {
     public P3DHeightMap(MainWindow ptra, int window_size, int image_size, int details, boolean aa, int aa_size) {
         super();
         this.image_size = image_size;
+
         this.window_size = window_size;
+
+        if(CommonFunctions.getJavaVersion() > 8) {
+            GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+            int width = gd.getDisplayMode().getWidth();
+            Dimension screenDimension = Toolkit.getDefaultToolkit().getScreenSize();
+
+            double scaleX = ((double)width) / screenDimension.width;
+            this.window_size = (int)(window_size * scaleX + 0.5);
+        }
+
         this.details = details;
         this.aa = aa;
         isValid = true;
@@ -243,14 +256,34 @@ public class P3DHeightMap extends PApplet {
         }
 
         surface.setTitle("Processing 3D");
-        surface.setCursor(Cursor.MOVE_CURSOR);
-        surface.setLocation((int)(ptra.getLocation().getX() + ptra.getSize().getWidth() / 2) - (width / 2), (int)(ptra.getLocation().getY() + ptra.getSize().getHeight() / 2) - (height / 2));
+        //surface.setCursor(Cursor.MOVE_CURSOR);
+
+        if(CommonFunctions.getJavaVersion() > 8) {
+            GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+            int width = gd.getDisplayMode().getWidth();
+            int height = gd.getDisplayMode().getHeight();
+
+            Dimension screenDimension = Toolkit.getDefaultToolkit().getScreenSize();
+
+            double scaleX = ((double)width) / screenDimension.width;
+            double scaleY = ((double)height) / screenDimension.height;
+            if(scaleX != 1) {
+                surface.setLocation(200 + (int) ((ptra.getLocation().getX() + (ptra.getSize().getWidth() / 2)) * scaleX) - this.width/2, (int) ((ptra.getLocation().getY() + (ptra.getSize().getHeight() / 2)) * scaleY) - this.height/2);
+            }
+            else {
+                surface.setLocation(200 + (int) (ptra.getLocation().getX() + ptra.getSize().getWidth() / 2) - (width / 2), (int) (ptra.getLocation().getY() + ptra.getSize().getHeight() / 2) - (height / 2));
+            }
+        }
+        else {
+            surface.setLocation(200 + (int) (ptra.getLocation().getX() + ptra.getSize().getWidth() / 2) - (width / 2), (int) (ptra.getLocation().getY() + ptra.getSize().getHeight() / 2) - (height / 2));
+        }
+        surface.setResizable(true);
 
         optionsframe = new JFrame("3D Options");
-        optionsframe.setSize(470 + 30 + (MainWindow.runsOnWindows ? 0 : 40), 320);
+        optionsframe.setSize(470 + 30 + (MainWindow.runsOnWindows ? 0 : 40), 360);
         optionsframe.setPreferredSize(new Dimension(470 + 30 + (MainWindow.runsOnWindows ? 0 : 40), 320));
         optionsframe.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        optionsframe.setLocation((int)(ptra.getLocation().getX() + ptra.getSize().getWidth() / 2) - (optionsframe.getWidth() / 2), (int)(ptra.getLocation().getY() + ptra.getSize().getHeight() / 2) - (optionsframe.getHeight() / 2));
+        optionsframe.setLocation((int) (-200 + ptra.getLocation().getX() + ptra.getSize().getWidth() / 2) - (optionsframe.getWidth() / 2), (int) (ptra.getLocation().getY() + ptra.getSize().getHeight() / 2) - (optionsframe.getHeight() / 2));
         optionsframe.setIconImage(MainWindow.getIcon("mandel2.png").getImage());
         optionsframe.setResizable(false);
 
@@ -630,8 +663,9 @@ public class P3DHeightMap extends PApplet {
         optionsPanel.add(p8);
 
         JPanel top_panel = new JPanel();
+        JPanel top_panel2 = new JPanel();
 
-        JButton defaults = new JButton("Defaults");
+        JButton defaults = new MyButton("Defaults");
         defaults.setFocusable(true);
         defaults.setIcon(MainWindow.getIcon("reset_small.png"));
 
@@ -702,19 +736,33 @@ public class P3DHeightMap extends PApplet {
 //            emmisive_slid_v3.setValue(emmisiveV3);
         });
 
-        JButton save_image = new JButton("Save Image", MainWindow.getIcon("save_image_small.png"));
+        JButton save_image = new MyButton("Save Image", MainWindow.getIcon("save_image_small.png"));
         save_image.setFocusable(false);
         save_image.setToolTipText("Saves a png image.");
 
         save_image.addActionListener(e->saveImage());
 
+
+        JButton topdown = new MyButton("Top Down");
+        topdown.setFocusable(false);
+        topdown.setIcon(MainWindow.getIcon("corners.png"));
+
+        topdown.addActionListener(e-> {
+            rotZ = 0;
+            rotX = 0;
+            scale = (float)(1 + scale_change);
+        });
+
+
         top_panel.add(invertcb);
         top_panel.add(new JLabel(" Scaling: "));
         top_panel.add(scaling);
         top_panel.add(new JLabel(" "));
-        top_panel.add(defaults);
+        top_panel2.add(defaults);
         top_panel.add(save_image);
+        top_panel2.add(topdown);
         contentPanel.add(top_panel);
+        contentPanel.add(top_panel2);
         contentPanel.add(tabbedPane);
 
 
@@ -836,25 +884,34 @@ public class P3DHeightMap extends PApplet {
         rotX = PI / 3;
         rotZ = -PI / 4;
         scale = 0.8f;
+
+        if(CommonFunctions.getJavaVersion() > 8) {
+            GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+            int width = gd.getDisplayMode().getWidth();
+            Dimension screenDimension = Toolkit.getDefaultToolkit().getScreenSize();
+
+            double scaleX = ((double)width) / screenDimension.width;
+            scale *= scaleX;
+        }
     }
 
     public void bringToFront() {
 
 
         try {
-            if (getGraphics().isGL()) {
-                final com.jogamp.newt.Window w = (com.jogamp.newt.Window) getSurface().getNative();
-                w.requestFocus();
-            }
+            surface.setAlwaysOnTop(true);
 
             optionsframe.requestFocus();
             optionsframe.toFront();
-            surface.setCursor(Cursor.MOVE_CURSOR);
+            //surface.setCursor(Cursor.MOVE_CURSOR);
         }
         catch (Exception ex) {}
 
     }
 
+    public void bringToBack() {
+        surface.setAlwaysOnTop(false);
+    }
 
     @Override
     public void draw() {

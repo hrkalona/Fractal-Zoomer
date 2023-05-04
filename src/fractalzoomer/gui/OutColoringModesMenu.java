@@ -26,7 +26,7 @@ import java.awt.event.KeyEvent;
  *
  * @author hrkalona2
  */
-public class OutColoringModesMenu extends JMenu {
+public class OutColoringModesMenu extends MyMenu {
 	private static final long serialVersionUID = -1025728538507111408L;
 	private MainWindow ptr;
     private JRadioButtonMenuItem[] out_coloring_modes;

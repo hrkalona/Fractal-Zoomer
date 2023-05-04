@@ -234,7 +234,7 @@ public class GreedyAlgorithmsFrame extends JFrame {
         panel3.add(new JLabel("Brute Force Algorithm: "));
         panel3.add(brute_force_alg_opt);
 
-        JButton ok = new JButton("Ok");
+        JButton ok = new MyButton("Ok");
         getRootPane().setDefaultButton(ok);
         ok.setFocusable(false);
 
@@ -290,7 +290,7 @@ public class GreedyAlgorithmsFrame extends JFrame {
             }
         });
 
-        JButton close = new JButton("Cancel");
+        JButton close = new MyButton("Cancel");
         close.setFocusable(false);
         close.addActionListener(e -> {
 

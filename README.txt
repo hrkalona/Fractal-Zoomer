@@ -1,4 +1,4 @@
-Fractal Zoomer 1.0.8.7
+Fractal Zoomer 1.0.8.8
 
 The most complete fractal generating software using java!
 
@@ -28,3 +28,7 @@ Many Color Algorithms
 Color Cycling
 Orbits
 Image filters
+
+
+Acknowledgments:
+I want to thank Eleftheria Karaferi, without her love, support and patience this project would not have come so far.

@@ -29,7 +29,7 @@ import java.awt.event.KeyEvent;
  *
  * @author kaloch
  */
-public class ColorsMenu extends JMenu {
+public class ColorsMenu extends MyMenu {
 	private static final long serialVersionUID = -6910654944774874305L;
 	private MainWindow ptr;
     private JMenuItem fract_color;
@@ -55,32 +55,32 @@ public class ColorsMenu extends JMenu {
         
         setIcon(MainWindow.getIcon("colors_menu.png"));
         
-        fract_color = new JMenuItem("Fractal Colors", MainWindow.getIcon("color.png"));
+        fract_color = new MyMenuItem("Fractal Colors", MainWindow.getIcon("color.png"));
         
         outcolor_palette_menu = new OutColoringPaletteMenu(ptr, "Out Coloring Palette", ps, smoothing, temp_color_cycling_location);
         incolor_palette_menu = new InColoringPaletteMenu(ptr, "In Coloring Palette", ps2, smoothing, temp_color_cycling_location2);
         
         
 
-        random_palette = new JMenuItem("Random Palette", MainWindow.getIcon("palette_random.png"));
-        blend_palette_opt = new JMenuItem("Palette/Gradient Merging", MainWindow.getIcon("palette_blending.png"));
+        random_palette = new MyMenuItem("Random Palette", MainWindow.getIcon("palette_random.png"));
+        blend_palette_opt = new MyMenuItem("Palette/Gradient Merging", MainWindow.getIcon("palette_blending.png"));
 
         out_coloring_mode_menu = new OutColoringModesMenu(ptr, "Out Coloring Mode", out_coloring_algorithm);
         
         in_coloring_mode_menu = new InColoringModesMenu(ptr, "In Coloring Mode", in_coloring_algorithm);
         
-        direct_color_opt = new JCheckBoxMenuItem("Direct Color");
+        direct_color_opt = new MyCheckBoxMenuItem("Direct Color");
         
-        out_true_color_opt = new JMenuItem("Out True Coloring Mode", MainWindow.getIcon("true_color_out.png"));
-        in_true_color_opt = new JMenuItem("In True Coloring Mode", MainWindow.getIcon("true_color_in.png"));
+        out_true_color_opt = new MyMenuItem("Out True Coloring Mode", MainWindow.getIcon("true_color_out.png"));
+        in_true_color_opt = new MyMenuItem("In True Coloring Mode", MainWindow.getIcon("true_color_in.png"));
                
         processing = new ProcessingMenu(ptr, "Processing");      
         
         color_blending_menu = new ColorBlendingMenu(ptr, "Blending", color_blending, color_blending_reverse_order);
         
-        gradient = new JMenuItem("Gradient", MainWindow.getIcon("gradient.png"));
+        gradient = new MyMenuItem("Gradient", MainWindow.getIcon("gradient.png"));
 
-        contour_factor = new JMenuItem("Contour Factor", MainWindow.getIcon("contour.png"));
+        contour_factor = new MyMenuItem("Contour Factor", MainWindow.getIcon("contour.png"));
      
         fract_color.setToolTipText("Sets the colors for maximum iterations, distance estimation and some color algorithms.");
         random_palette.setToolTipText("Randomizes the palette.");        
