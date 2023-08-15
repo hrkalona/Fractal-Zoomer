@@ -27,7 +27,7 @@ import java.awt.event.KeyEvent;
  *
  * @author hrkalona2
  */
-public class ProcessingMenu extends JMenu {
+public class ProcessingMenu extends MyMenu {
 	private static final long serialVersionUID = 880061806683700045L;
 	private MainWindow ptr;
     private JMenuItem light_opt;
@@ -52,20 +52,20 @@ public class ProcessingMenu extends JMenu {
         
         setIcon(MainWindow.getIcon("processing.png"));
         
-        smoothing_opt = new JMenuItem("Smoothing", MainWindow.getIcon("smoothing.png"));
-        exterior_de_opt = new JMenuItem("Distance Estimation", MainWindow.getIcon("distance_estimation.png"));
-        bump_map_opt = new JMenuItem("Bump Mapping", MainWindow.getIcon("bump_map.png"));
-        fake_de_opt = new JMenuItem("Fake Distance Estimation", MainWindow.getIcon("fake_distance_estimation.png"));
-        entropy_coloring_opt = new JMenuItem("Entropy Coloring", MainWindow.getIcon("entropy_coloring.png"));
-        offset_coloring_opt = new JMenuItem("Offset Coloring", MainWindow.getIcon("offset_coloring.png"));
-        greyscale_coloring_opt = new JMenuItem("Greyscale Coloring", MainWindow.getIcon("greyscale_coloring.png"));
-        rainbow_palette_opt = new JMenuItem("Rainbow Palette", MainWindow.getIcon("rainbow_palette.png"));
-        orbit_traps_opt = new JMenuItem("Orbit Traps", MainWindow.getIcon("orbit_traps.png"));
-        contour_coloring_opt = new JMenuItem("Contour Coloring", MainWindow.getIcon("contour_coloring.png"));
-        light_opt = new JMenuItem("Light", MainWindow.getIcon("light.png"));
-        order_opt = new JMenuItem("Processing Order", MainWindow.getIcon("list.png"));
-        statistics_coloring_opt = new JMenuItem("Statistical Coloring", MainWindow.getIcon("statistics_coloring.png"));
-        histogram_coloring_opt = new JMenuItem("Histogram Coloring", MainWindow.getIcon("histogram.png"));
+        smoothing_opt = new MyMenuItem("Smoothing", MainWindow.getIcon("smoothing.png"));
+        exterior_de_opt = new MyMenuItem("Distance Estimation", MainWindow.getIcon("distance_estimation.png"));
+        bump_map_opt = new MyMenuItem("Bump Mapping", MainWindow.getIcon("bump_map.png"));
+        fake_de_opt = new MyMenuItem("Fake Distance Estimation", MainWindow.getIcon("fake_distance_estimation.png"));
+        entropy_coloring_opt = new MyMenuItem("Entropy Coloring", MainWindow.getIcon("entropy_coloring.png"));
+        offset_coloring_opt = new MyMenuItem("Offset Coloring", MainWindow.getIcon("offset_coloring.png"));
+        greyscale_coloring_opt = new MyMenuItem("Greyscale Coloring", MainWindow.getIcon("greyscale_coloring.png"));
+        rainbow_palette_opt = new MyMenuItem("Rainbow Palette", MainWindow.getIcon("rainbow_palette.png"));
+        orbit_traps_opt = new MyMenuItem("Orbit Traps", MainWindow.getIcon("orbit_traps.png"));
+        contour_coloring_opt = new MyMenuItem("Contour Coloring", MainWindow.getIcon("contour_coloring.png"));
+        light_opt = new MyMenuItem("Light", MainWindow.getIcon("light.png"));
+        order_opt = new MyMenuItem("Processing Order", MainWindow.getIcon("list.png"));
+        statistics_coloring_opt = new MyMenuItem("Statistical Coloring", MainWindow.getIcon("statistics_coloring.png"));
+        histogram_coloring_opt = new MyMenuItem("Histogram Coloring", MainWindow.getIcon("histogram.png"));
                 
         smoothing_opt.setToolTipText("Smooths the image's color transitions.");
         exterior_de_opt.setToolTipText("<html>Sets some points near the boundary of<br>the set to the maximum iterations value.</html>");

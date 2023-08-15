@@ -63,6 +63,11 @@ public class ImaginaryStripBailoutCondition extends BailoutCondition {
     }
 
     @Override
+    public boolean escaped(BigIntNumComplex z, BigIntNumComplex zold, BigIntNumComplex zold2, int iterations, BigIntNumComplex c, BigIntNumComplex start, BigIntNumComplex c0, BigIntNum norm_squared, BigIntNumComplex pixel) {
+        return z.getAbsIm().compare(binbound) >= 0;
+    }
+
+    @Override
     public boolean escaped(MpfrBigNumComplex z, MpfrBigNumComplex zold, MpfrBigNumComplex zold2, int iterations, MpfrBigNumComplex c, MpfrBigNumComplex start, MpfrBigNumComplex c0, MpfrBigNum norm_squared, MpfrBigNumComplex pixel) {
         return z.getAbsIm(temp1).compare(bound) >= 0;
     }

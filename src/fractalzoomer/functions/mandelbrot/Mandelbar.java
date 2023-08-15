@@ -152,7 +152,7 @@ public class Mandelbar extends Julia {
                 z = z.conjugate_mutable().square_plus_c_mutable(c, workSpaceData.temp1, workSpaceData.temp2);
             }
             else if(z instanceof MpirBigNumComplex) {
-                z = z.conjugate_mutable().square_plus_c_mutable(c, workSpaceData.temp1p, workSpaceData.temp2p);
+                z = z.conjugate_mutable().square_plus_c_mutable(c, workSpaceData.temp1p, workSpaceData.temp2p, workSpaceData.temp3p);
             }
             else {
                 z = z.conjugate_mutable().square_plus_c_mutable(c);
@@ -168,10 +168,10 @@ public class Mandelbar extends Julia {
             complex[0] = complex[0].conjugate_mutable().square_plus_c_mutable(complex[1], workSpaceData.temp1, workSpaceData.temp2);
         }
         else if(complex[0] instanceof MpirBigNumComplex) {
-            complex[0] = complex[0].conjugate_mutable().square_plus_c_mutable(complex[1], workSpaceData.temp1p, workSpaceData.temp2p);
+            complex[0] = complex[0].conjugate_mutable().square_plus_c_mutable_no_threads(complex[1], workSpaceData.temp1p, workSpaceData.temp2p, workSpaceData.temp3p);
         }
         else {
-            complex[0] = complex[0].conjugate_mutable().square_plus_c_mutable(complex[1]);
+            complex[0] = complex[0].conjugate_mutable().square_plus_c_mutable_no_threads(complex[1]);
         }
     }
 
@@ -277,6 +277,11 @@ public class Mandelbar extends Julia {
 
     @Override
     public boolean supportsBignum() { return true;}
+
+    @Override
+    public boolean supportsBigIntnum() {
+        return true;
+    }
 
     @Override
     public boolean supportsMpfrBignum() { return true;}

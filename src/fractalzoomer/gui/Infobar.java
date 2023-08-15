@@ -87,7 +87,7 @@ public class Infobar extends JToolBar {
         g.setColor(s.fractal_color);
         g.fillRect(0, 0, max_it_preview.getWidth(), max_it_preview.getHeight());
 
-        outcoloring_palette_toolbar_preview = new JLabel();
+        outcoloring_palette_toolbar_preview = new ImageLabel();
         outcoloring_palette_toolbar_preview.setToolTipText("Displays the active out-coloring palette.");
         outcoloring_palette_toolbar_preview.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
         outcoloring_palette_toolbar_preview.setIcon(new ImageIcon(palette_preview));
@@ -129,7 +129,7 @@ public class Infobar extends JToolBar {
 
         });
 
-        incoloring_palette_toolbar_preview = new JLabel();
+        incoloring_palette_toolbar_preview = new ImageLabel();
         incoloring_palette_toolbar_preview.setToolTipText("Displays the active in-coloring palette.");
         incoloring_palette_toolbar_preview.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
         incoloring_palette_toolbar_preview.setIcon(new ImageIcon(palette_in_preview));
@@ -167,7 +167,7 @@ public class Infobar extends JToolBar {
 
         });
 
-        gradient_toolbar_preview = new JLabel();
+        gradient_toolbar_preview = new ImageLabel();
         gradient_toolbar_preview.setToolTipText("Displays the active gradient.");
         gradient_toolbar_preview.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
         gradient_toolbar_preview.setIcon(new ImageIcon(gradient_preview));
@@ -206,7 +206,7 @@ public class Infobar extends JToolBar {
 
         });
 
-        max_it_color_preview = new JLabel();
+        max_it_color_preview = new ImageLabel();
         max_it_color_preview.setToolTipText("Displays the color coresponding to the max iterations.");
         max_it_color_preview.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
         max_it_color_preview.setIcon(new ImageIcon(max_it_preview));
@@ -262,21 +262,21 @@ public class Infobar extends JToolBar {
         add(max_it_color_preview_lbl);
         add(max_it_color_preview);
 
-        overview_button = new JButton();
+        overview_button = new MyButton();
         overview_button.setIcon(MainWindow.getIcon("overview.png"));
         overview_button.setFocusable(false);
         overview_button.setToolTipText("Creates a report of all the active fractal options.");
 
         overview_button.addActionListener(e -> ptr.Overview());
 
-        stats_button = new JButton();
+        stats_button = new MyButton();
         stats_button.setIcon(MainWindow.getIcon("stats.png"));
         stats_button.setFocusable(false);
         stats_button.setToolTipText("Displays the statistics of last rendered fractal.");
 
         stats_button.addActionListener(e -> ptr.Stats());
 
-        cancel_button= new JButton();
+        cancel_button= new MyButton();
         cancel_button.setIcon(MainWindow.getIcon("abort.png"));
         cancel_button.setFocusable(false);
         cancel_button.setToolTipText("Cancels the current rendering operation and resets.");
@@ -286,8 +286,12 @@ public class Infobar extends JToolBar {
 
         add(Box.createHorizontalGlue());
         addSeparator();
-        add(cancel_button);
-        addSeparator();
+
+        if(CommonFunctions.getJavaVersion() == 8) {
+            add(cancel_button);
+            addSeparator();
+        }
+
         add(overview_button);
         addSeparator();
         add(stats_button);
@@ -367,7 +371,7 @@ public class Infobar extends JToolBar {
 
         ButtonGroup palettes_group = new ButtonGroup();
         
-        JMenu paletteLegacyFractintMenu = new JMenu("Legacy/FractInt Maps");
+        JMenu paletteLegacyFractintMenu = new MyMenu("Legacy/FractInt Maps");
         paletteLegacyFractintMenu.setIcon(MainWindow.getIcon("palette.png"));
 
         for (int i = 0; i < palette.length; i++) {
@@ -408,7 +412,7 @@ public class Infobar extends JToolBar {
                     }
                 }
 
-                palette[i] = new JRadioButtonMenuItem(PaletteMenu.paletteNames[i], new ImageIcon(palette_preview));
+                palette[i] = new ImageRadioButtonMenuItem(PaletteMenu.paletteNames[i], new ImageIcon(palette_preview));
             }
             else {
                 palette[i] = new JRadioButtonMenuItem(PaletteMenu.paletteNames[i], MainWindow.getIcon("palette_load.png"));
@@ -479,7 +483,7 @@ public class Infobar extends JToolBar {
 
         }
 
-        JMenuItem colorMapframe = new JMenuItem("Direct Palette Loader", MainWindow.getIcon("palette_load.png"));
+        JMenuItem colorMapframe = new MyMenuItem("Direct Palette Loader", MainWindow.getIcon("palette_load.png"));
         if (outcoloring_mode) {
             colorMapframe.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, ActionEvent.CTRL_MASK | ActionEvent.SHIFT_MASK));
         } else {
@@ -491,7 +495,7 @@ public class Infobar extends JToolBar {
         popup.addSeparator();
         popup.add(colorMapframe);
 
-        JMenuItem alternativeCustomDirectPalette  = new JMenuItem("Custom Direct Palette", MainWindow.getIcon("palette.png"));
+        JMenuItem alternativeCustomDirectPalette  = new MyMenuItem("Custom Direct Palette", MainWindow.getIcon("palette.png"));
         alternativeCustomDirectPalette.setToolTipText("Creates a custom direct palette.");
         if (outcoloring_mode) {
             alternativeCustomDirectPalette.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, ActionEvent.CTRL_MASK | ActionEvent.SHIFT_MASK));

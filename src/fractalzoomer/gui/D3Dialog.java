@@ -34,12 +34,16 @@ public class D3Dialog extends JDialog {
 
     private MainWindow ptra;
     private JOptionPane optionPane;
+    private final JScrollPane scrollPane;
 
     public D3Dialog(MainWindow ptr, Settings s) {
 
         super(ptr);
         
         ptra = ptr;
+
+        scrollPane = new JScrollPane();
+        scrollPane.setPreferredSize(new Dimension(700, 700));
 
         setTitle("3D");
         setModal(true);
@@ -304,7 +308,7 @@ public class D3Dialog extends JDialog {
             }
         });*/
 
-        JButton d3Pbutton = new JButton("Processing 3D");
+        JButton d3Pbutton = new MyButton("Processing 3D");
         d3Pbutton.setFocusable(false);
         d3Pbutton.setIcon(MainWindow.getIcon("3d.png"));
 
@@ -460,16 +464,18 @@ public class D3Dialog extends JDialog {
                         }
 
                         dispose();
+                        ptra.bring3dTofront();
                         ptra.set3DOptionPost(d3.isSelected());
                     }
                 });
 
         //Make this dialog display it.
-        setContentPane(optionPane);
+        scrollPane.setViewportView(optionPane);
+        setContentPane(scrollPane);
 
         pack();
 
-        setResizable(false);
+        setResizable(true);
         setLocation((int) (ptra.getLocation().getX() + ptra.getSize().getWidth() / 2) - (getWidth() / 2), (int) (ptra.getLocation().getY() + ptra.getSize().getHeight() / 2) - (getHeight() / 2));
         setVisible(true);
 

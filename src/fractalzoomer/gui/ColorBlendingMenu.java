@@ -24,7 +24,7 @@ import javax.swing.*;
  *
  * @author hrkalona2
  */
-public class ColorBlendingMenu extends JMenu {
+public class ColorBlendingMenu extends MyMenu {
 	private static final long serialVersionUID = 4186992298757883317L;
 	private MainWindow ptr;
     private JRadioButtonMenuItem[] color_blending;
@@ -81,12 +81,12 @@ public class ColorBlendingMenu extends JMenu {
         
         setIcon(MainWindow.getIcon("blending.png"));
         
-        darken = new JMenu("Darken");
-        lighten = new JMenu("Lighten");
-        contrast = new JMenu("Contrast");
-        inversion = new JMenu("Inversion");
-        cancelation = new JMenu("Cancelation");
-        component = new JMenu("Component");
+        darken = new MyMenu("Darken");
+        lighten = new MyMenu("Lighten");
+        contrast = new MyMenu("Contrast");
+        inversion = new MyMenu("Inversion");
+        cancelation = new MyMenu("Cancelation");
+        component = new MyMenu("Component");
         
         color_blending = new JRadioButtonMenuItem[colorBlendingNames.length];
         ButtonGroup color_transfer_group = new ButtonGroup();
@@ -242,7 +242,7 @@ public class ColorBlendingMenu extends JMenu {
         color_blending[MainWindow.LUMINANCE_BLENDING].addActionListener(e -> ptr.setColorBlending(MainWindow.LUMINANCE_BLENDING));
         color_transfer_group.add(color_blending[MainWindow.LUMINANCE_BLENDING]);
 
-        revertOrderOfColors = new JCheckBoxMenuItem("Reverse Order of Colors");
+        revertOrderOfColors = new MyCheckBoxMenuItem("Reverse Order of Colors");
         revertOrderOfColors.setToolTipText("Reverts the order of colors in the blending operation");
         revertOrderOfColors.setSelected(color_blending_revert_colors);
         revertOrderOfColors.addActionListener(e -> {

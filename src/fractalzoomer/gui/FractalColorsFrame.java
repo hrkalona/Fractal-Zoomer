@@ -208,7 +208,7 @@ public class FractalColorsFrame extends JFrame {
         remove_special_increment.setSelected(special_bypass);
         remove_special_increment.setToolTipText("Removes the special offset, applicable in processing algorithms and 3d rendering.");
 
-        JButton help_button = new JButton();
+        JButton help_button = new MyButton();
         help_button.setIcon(MainWindow.getIcon("help.png"));
         help_button.setFocusable(false);
         help_button.setToolTipText("Some info regarding special offset.");
@@ -249,7 +249,7 @@ public class FractalColorsFrame extends JFrame {
         color_panel.add(magnet_color_panel);
         color_panel.add(special_color_panel2);
 
-        JButton ok = new JButton("Ok");
+        JButton ok = new MyButton("Ok");
         getRootPane().setDefaultButton(ok);
         ok.setFocusable(false);
 
@@ -286,7 +286,7 @@ public class FractalColorsFrame extends JFrame {
             }
         });
 
-        JButton close = new JButton("Cancel");
+        JButton close = new MyButton("Cancel");
         close.setFocusable(false);
 
         close.addActionListener(e -> {

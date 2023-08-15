@@ -147,7 +147,7 @@ public class CustomDomainColoringFrame extends JFrame {
 
         list.setCellRenderer(new ListCellRenderer<String>() {
             private final JPanel p = new JPanel(new BorderLayout());
-            private final JLabel icon = new JLabel((Icon)null, JLabel.CENTER);
+            private final ImageLabel icon = new ImageLabel(null, JLabel.CENTER);
             //private final JLabel label = new JLabel("", JLabel.LEFT);
 
             @Override
@@ -617,7 +617,7 @@ public class CustomDomainColoringFrame extends JFrame {
         max_value_textfield.setEnabled(ds.colorType != 0);
         contour_blend_opt.setEnabled(ds.contourMethod == 3);
 
-        JButton ok = new JButton("Ok");
+        JButton ok = new MyButton("Ok");
         ok.setFocusable(false);
         getRootPane().setDefaultButton(ok);
         ok.addActionListener(e -> {
@@ -708,7 +708,7 @@ public class CustomDomainColoringFrame extends JFrame {
 
         buttons.add(ok);
 
-        JButton cancel = new JButton("Cancel");
+        JButton cancel = new MyButton("Cancel");
         cancel.setFocusable(false);
         cancel.addActionListener(e -> {
 

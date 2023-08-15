@@ -71,9 +71,9 @@ public class RootFindingTwoFunctionsDialog extends JDialog {
         formula_dfz_panel.add(field_dfz_formula);
         
         JPanel k_panel = new JPanel();
-        JTextField k_real = new JTextField(30);
+        JTextField k_real = new JTextField(20);
         k_real.setText("" + s.fns.newton_hines_k[0]);
-        JTextField k_imag = new JTextField(30);
+        JTextField k_imag = new JTextField(20);
         k_imag.setText("" + s.fns.newton_hines_k[1]);
         k_panel.setLayout(new FlowLayout());
         k_panel.add(new JLabel("Newton-Hines k,  Re: "));

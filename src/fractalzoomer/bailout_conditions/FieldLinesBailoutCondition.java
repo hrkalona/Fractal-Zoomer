@@ -51,8 +51,15 @@ public class FieldLinesBailoutCondition extends BailoutCondition {
     @Override
      public boolean escaped(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0, double norm_squared, Complex pixel) {
 
-        return iterations > 1 && z.getRe() / zold.getRe() >= bound && z.getIm() / zold.getIm() >= bound;
-         
+        if(iterations > 1) {
+
+            if(zold.getRe() == 0 || zold.getIm() == 0) {
+                return false;
+            }
+
+            return z.getRe() / zold.getRe() >= bound && z.getIm() / zold.getIm() >= bound;
+        }
+        return false;
      }
 
     @Override
@@ -75,9 +82,27 @@ public class FieldLinesBailoutCondition extends BailoutCondition {
         if(iterations > 1) {
             Complex temp = z.toComplex();
             Complex temp2 = zold.toComplex();
+
+            if(temp2.getRe() == 0 || temp2.getIm() == 0) {
+                return false;
+            }
+
             return temp.getRe() / temp2.getRe() >= bound && temp.getIm() / temp2.getIm() >= bound;
         }
         return false;
+
+    }
+
+    @Override
+    public boolean escaped(BigIntNumComplex z, BigIntNumComplex zold, BigIntNumComplex zold2, int iterations, BigIntNumComplex c, BigIntNumComplex start, BigIntNumComplex c0, BigIntNum norm_squared, BigIntNumComplex pixel) {
+        BigIntNum zoldRe = zold.getRe();
+        BigIntNum zoldIm = zold.getIm();
+
+        if(iterations > 1 && (zoldRe.isZero() || zoldIm.isZero())) {
+            return false;
+        }
+
+        return iterations > 1 && z.getRe().divide(zoldRe).compare(binbound) >= 0 && z.getIm().divide(zoldIm).compare(binbound) >= 0;
 
     }
 

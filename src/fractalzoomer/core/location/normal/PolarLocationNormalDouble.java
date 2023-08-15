@@ -131,7 +131,7 @@ public class PolarLocationNormalDouble extends Location {
 
                 temp_sf = tempSin;
                 temp_cf = tempCos;
-            } else {
+            } else if (y != indexY) {
                 double f = y * muly;
                 temp_sf = Math.sin(f);
                 temp_cf = Math.cos(f);
@@ -141,7 +141,7 @@ public class PolarLocationNormalDouble extends Location {
                 temp_r = temp_r * emulx;
             } else if (x == indexX - 1) {
                 temp_r = temp_r * Invemulx;
-            } else {
+            } else if (x != indexX) {
                 temp_r = Math.exp(x * mulx + start);
             }
         }
@@ -180,7 +180,7 @@ public class PolarLocationNormalDouble extends Location {
 
                 temp_sf = tempSin;
                 temp_cf = tempCos;
-            } else {
+            } else if (y != indexY) {
                 double f = y * muly;
                 temp_sf = Math.sin(f);
                 temp_cf = Math.cos(f);
@@ -201,7 +201,7 @@ public class PolarLocationNormalDouble extends Location {
                 temp_r = temp_r * emulx;
             } else if (x == indexX - 1) {
                 temp_r = temp_r * Invemulx;
-            } else {
+            } else if (x != indexX) {
                 temp_r = Math.exp(x * mulx + start);
             }
         }
@@ -226,7 +226,7 @@ public class PolarLocationNormalDouble extends Location {
         else if(x == indexX - 1) {
             temp_r = temp_r * Invemulx;
         }
-        else {
+        else if (x != indexX) {
             temp_r = Math.exp(x * mulx + start);
         }
 
@@ -266,7 +266,7 @@ public class PolarLocationNormalDouble extends Location {
             temp_sf = tempSin;
             temp_cf = tempCos;
         }
-        else {
+        else if (y != indexY) {
             double f = y * muly;
             temp_sf = Math.sin(f);
             temp_cf = Math.cos(f);

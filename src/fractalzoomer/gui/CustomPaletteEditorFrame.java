@@ -154,13 +154,13 @@ public class CustomPaletteEditorFrame extends JFrame {
         grab_cursor = Toolkit.getDefaultToolkit().createCustomCursor(MainWindow.getIcon("cursor_grab.gif").getImage(), new Point(16, 16), "grab");
         grabbing_cursor = Toolkit.getDefaultToolkit().createCustomCursor(MainWindow.getIcon("cursor_grabbing.gif").getImage(), new Point(16, 16), "grabbing");
 
-        final JButton add_palette = new JButton();
+        final JButton add_palette = new MyButton();
         add_palette.setFocusable(false);
-        final JButton minus_palette = new JButton();
+        final JButton minus_palette = new MyButton();
         minus_palette.setFocusable(false);
-        final JButton swap_palette = new JButton();
+        final JButton swap_palette = new MyButton();
         swap_palette.setFocusable(false);
-        final JButton copy_palette = new JButton();
+        final JButton copy_palette = new MyButton();
         copy_palette.setFocusable(false);
 
         addWindowListener(new WindowAdapter() {
@@ -552,7 +552,7 @@ public class CustomPaletteEditorFrame extends JFrame {
             palette_colors.add(textfields[k]);
         }
 
-        JButton palette_ok = new JButton("Ok");
+        JButton palette_ok = new MyButton("Ok");
         getRootPane().setDefaultButton(palette_ok);
         palette_ok.setFocusable(false);
         palette_ok.addActionListener(e -> {
@@ -644,7 +644,7 @@ public class CustomPaletteEditorFrame extends JFrame {
 
         buttons.add(palette_ok);
 
-        JButton palette_cancel = new JButton("Cancel");
+        JButton palette_cancel = new MyButton("Cancel");
         palette_cancel.setFocusable(false);
         palette_cancel.addActionListener(e -> {
 
@@ -1099,7 +1099,7 @@ public class CustomPaletteEditorFrame extends JFrame {
         processing_palette.add(combo_box_processing);
         processing_palette.add(scale_factor_palette_slid);
 
-        gradient = new JLabel(new ImageIcon(colors));
+        gradient = new ImageLabel(new ImageIcon(colors));
         gradient.setPreferredSize(new Dimension(colors.getWidth(), colors.getHeight()));
         gradient.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
 
@@ -1209,7 +1209,7 @@ public class CustomPaletteEditorFrame extends JFrame {
             }
         });
 
-        JButton reset_palette = new JButton();
+        JButton reset_palette = new MyButton();
         reset_palette.setIcon(MainWindow.getIcon("palette_reset.png"));
         reset_palette.setFocusable(false);
         reset_palette.setToolTipText("Resets the palette and the options.");
@@ -1262,7 +1262,7 @@ public class CustomPaletteEditorFrame extends JFrame {
 
         tools.add(reset_palette);
 
-        JButton clear_palette = new JButton();
+        JButton clear_palette = new MyButton();
         clear_palette.setIcon(MainWindow.getIcon("palette_clear.png"));
         clear_palette.setFocusable(false);
         clear_palette.setToolTipText("Clears the palette.");
@@ -1300,7 +1300,7 @@ public class CustomPaletteEditorFrame extends JFrame {
 
         tools.add(clear_palette);
 
-        JButton save_palette = new JButton();
+        JButton save_palette = new MyButton();
         save_palette.setIcon(MainWindow.getIcon("palette_save.png"));
         save_palette.setFocusable(false);
         save_palette.setToolTipText("Saves a user made palette.");
@@ -1335,7 +1335,7 @@ public class CustomPaletteEditorFrame extends JFrame {
 
         tools.add(save_palette);
 
-        JButton load_palette = new JButton();
+        JButton load_palette = new MyButton();
         load_palette.setIcon(MainWindow.getIcon("palette_load.png"));
         load_palette.setFocusable(false);
         load_palette.setToolTipText("Loads a user made palette.");
@@ -1365,7 +1365,7 @@ public class CustomPaletteEditorFrame extends JFrame {
 
         tools.add(load_palette);
 
-        JButton random_palette = new JButton();
+        JButton random_palette = new MyButton();
         random_palette.setIcon(MainWindow.getIcon("palette_random.png"));
         random_palette.setFocusable(false);
         random_palette.setToolTipText("Randomizes the palette.");
@@ -1492,7 +1492,7 @@ public class CustomPaletteEditorFrame extends JFrame {
 
         tools.add(swap_palette);
 
-        JButton color_picker = new JButton();
+        JButton color_picker = new MyButton();
         color_picker.setIcon(MainWindow.getIcon("color_picker.png"));
         color_picker.setFocusable(false);
         color_picker.setToolTipText("Picks a color from the screen and imports it to the palette.");
@@ -1677,7 +1677,7 @@ public class CustomPaletteEditorFrame extends JFrame {
 
         tools.add(color_picker);
 
-        JMenu presets_menu = new JMenu("Presets");
+        JMenu presets_menu = new MyMenu("Presets");
         
         int count = 0;
         for(int l = 0; l < palette.length; l++) {
@@ -1700,7 +1700,7 @@ public class CustomPaletteEditorFrame extends JFrame {
         preset_palettes_str[0] = "Editor Default";
         palette_indexing[0] = -1;
 
-        preset_palettes = new JMenuItem[preset_palettes_str.length];
+        preset_palettes = new MyMenuItem[preset_palettes_str.length];
 
         for (int l = 0; l < palette_indexing.length; l++) {
 
@@ -1723,7 +1723,7 @@ public class CustomPaletteEditorFrame extends JFrame {
                 }
             }
 
-            preset_palettes[l] = new JMenuItem(preset_palettes_str[l], new ImageIcon(palette_preview));
+            preset_palettes[l] = new MyMenuItem(preset_palettes_str[l], new ImageIcon(palette_preview));
 
             final int temp = l;
             preset_palettes[l].addActionListener(e -> {
@@ -1887,7 +1887,8 @@ public class CustomPaletteEditorFrame extends JFrame {
         tools.add(Box.createRigidArea(new Dimension(5, 10)));
         tools.add(check_box_preview_smooth_color);
 
-        graph = new JLabel(new ImageIcon(colors2));
+        graph = new ImageLabel(new ImageIcon(colors2));
+
         graph.setPreferredSize(new Dimension(colors2.getWidth(), colors2.getHeight()));
         graph.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
 

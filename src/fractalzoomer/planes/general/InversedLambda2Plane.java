@@ -76,6 +76,17 @@ public class InversedLambda2Plane extends Plane {
     }
 
     @Override
+    public BigIntNumComplex transform(BigIntNumComplex pixel) {
+
+        if(pixel.isZero()) {
+            return pixel;
+        }
+
+        return pixel.square().reciprocal().r_sub(0.25);
+
+    }
+
+    @Override
     public MpfrBigNumComplex transform(MpfrBigNumComplex pixel) {
 
         if(pixel.isZero()) {

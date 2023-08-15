@@ -24,9 +24,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -91,6 +93,7 @@ public class Parser {
     public static String CURRENT_USER_CODE_FILE = DEFAULT_USER_CODE_FILE;
     public static String CURRENT_USER_CODE_CLASS = DEFAULT_USER_CODE_CLASS;
     public static Class<?> userClass;
+    public static MethodHandles.Lookup lookup;
     public static boolean usesUserCode = false;
     private boolean parseOnlyMode;
     
@@ -857,6 +860,16 @@ public class Parser {
         }
     }
 
+    static byte[] gimmeLookupClassDef() {
+        return ( "\u00CA\u00FE\u00BA\u00BE\0\0\0001\0\21\1\0\13GimmeLookup\7\0\1\1\0\20"
+                +"java/lang/Object\7\0\3\1\0\10<clinit>\1\0\3()V\1\0\4Code\1\0\6lookup\1\0'Ljav"
+                +"a/lang/invoke/MethodHandles$Lookup;\14\0\10\0\11\11\0\2\0\12\1\0)()Ljava/lang"
+                +"/invoke/MethodHandles$Lookup;\1\0\36java/lang/invoke/MethodHandles\7\0\15\14\0"
+                +"\10\0\14\12\0\16\0\17\26\1\0\2\0\4\0\0\0\1\20\31\0\10\0\11\0\0\0\1\20\11\0\5\0"
+                +"\6\0\1\0\7\0\0\0\23\0\3\0\3\0\0\0\7\u00B8\0\20\u00B3\0\13\u00B1\0\0\0\0\0\0" )
+                .getBytes(StandardCharsets.ISO_8859_1);
+    }
+
     public static void compileUserFunctions() throws Exception {
 
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
@@ -879,7 +892,14 @@ public class Parser {
                     loader = null;
                 }
 
-                loader = new URLClassLoader(new URL[] {url});
+                loader = new URLClassLoader(new URL[] {url}) {
+                    { byte[] code = gimmeLookupClassDef();
+                        defineClass("GimmeLookup", code, 0, code.length);
+                    }
+                };
+
+
+                lookup = (MethodHandles.Lookup) loader.loadClass("GimmeLookup").getField("lookup").get(null);
                 userClass = loader.loadClass(CURRENT_USER_CODE_CLASS);
 
                 Path path = Paths.get(CURRENT_USER_CODE_CLASS + ".class");

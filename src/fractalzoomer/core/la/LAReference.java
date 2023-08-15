@@ -40,6 +40,8 @@ public class LAReference {
 
     public boolean DoublePrecisionPT;
 
+    public boolean calculatedForDeep;
+
     private static final int MaxLAStages = 512;
     private static final int DEFAULT_SIZE = 10000;
     private GenericLAInfo[] LAs;
@@ -51,6 +53,7 @@ public class LAReference {
 
     private void init(boolean deepZoom) {
 
+        calculatedForDeep = deepZoom;
         isValid = false;
         LAStages = new LAStageInfo[MaxLAStages];
         LAcurrentIndex = 0;
@@ -106,7 +109,7 @@ public class LAReference {
     }
 
 
-    private boolean CreateLAFromOrbit(DoubleReference ref, DeepReference refDeep, int maxRefIteration, boolean deepZoom) {
+    private boolean CreateLAFromOrbit(DoubleReference ref, DeepReference refDeep, int maxRefIteration, boolean deepZoom) throws Exception {
 
         init(deepZoom);
 
@@ -515,7 +518,7 @@ public class LAReference {
 
     }
 
-    public void GenerateApproximationData(MantExp radius, ReferenceData refData, ReferenceDeepData refDeepData, int maxRefIteration, boolean deepZoom, Fractal f, int period) {
+    public void GenerateApproximationData(MantExp radius, ReferenceData refData, ReferenceDeepData refDeepData, int maxRefIteration, boolean deepZoom, Fractal f) {
 
         try {
             if(maxRefIteration == 0) {
@@ -523,7 +526,15 @@ public class LAReference {
                 return;
             }
 
-            boolean PeriodDetected = CreateLAFromOrbit(refData.Reference, refDeepData.Reference, maxRefIteration, deepZoom);
+            boolean PeriodDetected;
+            try {
+                PeriodDetected = CreateLAFromOrbit(refData.Reference, refDeepData.Reference, maxRefIteration, deepZoom);
+            }
+            catch (InvalidCalculationException ex) {
+                PeriodDetected = false;
+            }
+
+            if (!PeriodDetected) return;
 
             if (deepZoom && !f.useFullFloatExp()) {
                 if (DoubleUsableAtPrevStage(0, radius)) {
@@ -531,15 +542,19 @@ public class LAReference {
                 }
             }
 
-            if (!PeriodDetected) return;
-
             boolean convertedToDouble = false;
 
             while (true) {
                 int PrevStage = LAStageCount - 1;
                 int CurrentStage = LAStageCount;
 
-                PeriodDetected = CreateNewLAStage(refData.Reference, refDeepData.Reference, maxRefIteration, deepZoom);
+                try {
+                    PeriodDetected = CreateNewLAStage(refData.Reference, refDeepData.Reference, maxRefIteration, deepZoom);
+
+                }
+                catch (InvalidCalculationException ex) {
+                    PeriodDetected = false;
+                }
 
                 if (deepZoom && !f.useFullFloatExp()) {
                     if (DoubleUsableAtPrevStage(CurrentStage, radius)) {
@@ -562,16 +577,7 @@ public class LAReference {
 
             //Recreate data to save memory
             if (deepZoom && refData.Reference == null && (convertedToDouble || DoublePrecisionPT)) {
-                int length = maxRefIteration + 1;
-                refData.createAndSetShortcut(length, false, 0);
-                DoubleReference reference = refData.Reference;
-                DeepReference deepReference = refDeepData.Reference;
-
-                for (int i = 0; i < length; i++) {
-                    Fractal.setArrayValue(reference, i, Fractal.getArrayDeepValue(deepReference, i).toComplex());
-                }
-
-                reference.setLengthOverride(deepReference.length());
+                f.createLowPrecisionOrbit(maxRefIteration, refData, refDeepData);
             }
         }
         catch (Exception ex) {
@@ -617,8 +623,16 @@ public class LAReference {
         return (dc.chebychevNorm() >= ((LAInfo)LAs[LAIndex]).LAThresholdC);
     }
 
+    public boolean isLAStageInvalid(int LAIndex, double dcChebychevNorm) {
+        return (dcChebychevNorm >= ((LAInfo)LAs[LAIndex]).LAThresholdC);
+    }
+
     public boolean isLAStageInvalid(int LAIndex, MantExpComplex dc) {
         return (dc.chebychevNorm().compareToBothPositiveReduced((LAs[LAIndex]).getLAThresholdC()) >= 0);
+    }
+
+    public boolean isLAStageInvalid(int LAIndex, MantExp dcChebychevNorm) {
+        return (dcChebychevNorm.compareToBothPositiveReduced((LAs[LAIndex]).getLAThresholdC()) >= 0);
     }
 
     public boolean useDoublePrecisionAtStage(int stage) {

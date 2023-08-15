@@ -68,11 +68,13 @@ public class NormalMap extends GenericStatistic {
         this.normalMapDistanceEstimatorfactor = normalMapDistanceEstimatorfactor;
     }
 
+    @Override
     public void setJuliterOptions(boolean isJuliter, int juliterIterations) {
         this.isJuliter = isJuliter;
         this.juliterIterations = juliterIterations;
     }
 
+    @Override
     public void setFunctionId(int function) {
         this.function = function;
     }
@@ -709,6 +711,7 @@ public class NormalMap extends GenericStatistic {
         supportsDeepCalc = (function >= MainWindow.MANDELBROT && function <= MainWindow.MANDELBROTFIFTH  || function == MainWindow.LAMBDA) && (ThreadDraw.PERTURBATION_THEORY || ThreadDraw.HIGH_PRECISION_CALCULATION);
     }
 
+    @Override
     public void initializeApproximationDerivatives(MantExpComplex dz, MantExpComplex ddz, int iterations) {
         dz.Reduce();
         ddz.Reduce();
@@ -720,15 +723,18 @@ public class NormalMap extends GenericStatistic {
         this.iterations = iterations;
     }
 
+    @Override
     public boolean usesSecondDerivative() {
         return useSecondDerivative;
     }
 
+    @Override
     public void setVariablePixelSize(MantExp pixelSize) {
         DELimit_m = pixelSize.multiply(normalMapDEfactor);
         DELimit = pixelSize.toDouble() *  normalMapDEfactor;
     }
 
+    @Override
     public boolean hasDEenabled() {
         return normalMapUseDE;
     }

@@ -40,6 +40,9 @@ public class CircleInversionPlane extends Plane {
     private DDComplex ddccenter;
     private DoubleDouble ddcplane_transform_radius;
 
+    private BigIntNumComplex bnicenter;
+    private BigIntNum bniplane_transform_radius;
+
     private MpirBigNumComplex mpirbncenter;
     private MpirBigNum mpirbnplane_transform_radius;
 
@@ -47,23 +50,26 @@ public class CircleInversionPlane extends Plane {
 
         super();
         center = new Complex(plane_transform_center[0], plane_transform_center[1]);
-        this.plane_transform_radius = plane_transform_radius;
+        this.plane_transform_radius = plane_transform_radius * plane_transform_radius;
 
         if(ThreadDraw.PERTURBATION_THEORY || ThreadDraw.HIGH_PRECISION_CALCULATION) {
-            ddplane_transform_radius = new MyApfloat(plane_transform_radius);
+            ddplane_transform_radius = new MyApfloat(this.plane_transform_radius);
             ddcenter = new BigComplex(center);
-
-            ddccenter = new DDComplex(center);
-            ddcplane_transform_radius = new DoubleDouble(plane_transform_radius);
 
             if(ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE || ThreadDraw.HIGH_PRECISION_CALCULATION) {
 
+                bnicenter = new BigIntNumComplex(center);
+                bniplane_transform_radius = new BigIntNum(this.plane_transform_radius);
+
+                ddccenter = new DDComplex(center);
+                ddcplane_transform_radius = new DoubleDouble(this.plane_transform_radius);
+
                 if (ThreadDraw.allocateMPFR()) {
                     mpfrbncenter = new MpfrBigNumComplex(center);
-                    mpfrbnplane_transform_radius = new MpfrBigNum(plane_transform_radius);
+                    mpfrbnplane_transform_radius = new MpfrBigNum(this.plane_transform_radius);
                 } else if (ThreadDraw.allocateMPIR()) {
                     mpirbncenter = new MpirBigNumComplex(center);
-                    mpirbnplane_transform_radius = new MpirBigNum(plane_transform_radius);
+                    mpirbnplane_transform_radius = new MpirBigNum(this.plane_transform_radius);
                 }
             }
         }
@@ -89,6 +95,17 @@ public class CircleInversionPlane extends Plane {
         }
 
         return pixel.circle_inversion(ddcenter, ddplane_transform_radius);
+
+    }
+
+    @Override
+    public BigIntNumComplex transform(BigIntNumComplex pixel) {
+
+        if(pixel.compare(bnicenter) == 0) {
+            return pixel;
+        }
+
+        return pixel.circle_inversion(bnicenter, bniplane_transform_radius);
 
     }
 

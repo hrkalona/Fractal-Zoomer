@@ -1,5 +1,7 @@
 package fractalzoomer.gui;
 
+import fractalzoomer.core.interpolation.*;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -15,9 +17,9 @@ public class ColorComponent extends JPanel {
     private boolean wrapAround;
 
     Color color;
+    Color secondColor;
     private ColorPaletteEditorPanel editor;
     private int circleSize = 8;
-    private int mode;
 
     public void setEditor(ColorPaletteEditorPanel editor) {
         this.editor = editor;
@@ -33,11 +35,12 @@ public class ColorComponent extends JPanel {
         Collections.sort(this.colorPoints);
     }
 
-    public ColorComponent(Color color, String name, int width, int height, int[][] data, ColorPaletteEditorPanel editor) {
+    public ColorComponent(Color color, Color secondColor, String name, int width, int height, int[][] data, ColorPaletteEditorPanel editor) {
         this.width = width;
         this.height = height;
         this.editor = editor;
         this.color = color;
+        this.secondColor = secondColor;
         setPreferredSize(new Dimension(width, height));
         colorPoints = new ArrayList<>();
 
@@ -48,16 +51,6 @@ public class ColorComponent extends JPanel {
         }
         else {
             colorPoints.add(new ColorPoint(0, 0, true));
-        }
-
-        if(color.equals(Color.RED)) {
-            mode = 0;
-        }
-        else if(color.equals(Color.GREEN)) {
-            mode = 1;
-        }
-        else {
-            mode = 2;
         }
 
         for(int i = 0; i < data.length; i++) {
@@ -161,12 +154,16 @@ public class ColorComponent extends JPanel {
                     }
                 }
 
+                repaint();
+                
                 if(closestIndex != -1) {
                     setToolTipText(name + ": " + (int)(((colorPoints.get(closestIndex).getY() / (double)height)) * 255 + 0.5));
                 }
                 else {
-                    setToolTipText(null);
+                    setToolTipText(name + ": " + (int)(((y / (double)height)) * 255 + 0.5));
                 }
+
+
             }
 
         });
@@ -179,48 +176,155 @@ public class ColorComponent extends JPanel {
 
         Graphics2D g2d = (Graphics2D) g;
 
-        g.setColor(new Color(240, 240, 240));
-        g.fillRect(0, 0, width, height);
-
-        g.setColor(Color.BLACK);
-        g.drawRect(0, 0, getWidth() - 1, getHeight() - 1);
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
         g2d.setStroke(new BasicStroke(2));
 
-        if(mode == 0) {
-            g.setColor(new Color(110, 70, 70));
+        if(editor.getBackgroundMode() == 1) {
+            GradientPaint gradient = new GradientPaint(0, 0, color, 0, height, Color.black);
+
+            g2d.setPaint(gradient);
+            g2d.fillRect(0, 0, width, height);
+
+            g.setColor(Color.BLACK);
+            g.drawRect(0, 0, getWidth() - 1, getHeight() - 1);
+
+            g.setColor(Color.GRAY);
+
+
+            if(editor.getInterpolationMode() == 0) {
+                for (int i = 0; i < colorPoints.size() - 1; i++) {
+                    g.drawLine(colorPoints.get(i).getX(), height - colorPoints.get(i).getY(), colorPoints.get(i + 1).getX(), height - colorPoints.get(i + 1).getY());
+                }
+            }
+            else {
+                g2d.setStroke(new BasicStroke(1.5f));
+                for (int i = 0; i < colorPoints.size() - 1; i++) {
+                    int x = colorPoints.get(i).getX();
+                    int xp1 = colorPoints.get(i + 1).getX();
+
+                    for(int curx = x; curx < xp1; curx++) {
+                        int val1 = getValue(curx, false, 0);
+                        int val2 = getValue(curx + 1, false, 0);
+                        g.drawLine(curx, height - (int)((val1 / 255.0) * height + 0.5), curx + 1, height - (int)((val2 / 255.0) * height + 0.5));
+                    }
+                }
+                g2d.setStroke(new BasicStroke(2));
+            }
+
+            if (colorPoints.size() > 1 && wrapAround) {
+                float[] dash1 = {5.0f};
+                BasicStroke dashed
+                        = new BasicStroke(2.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 5.0f, dash1, 0.0f);
+                g2d.setStroke(dashed);
+                g.drawLine(colorPoints.get(colorPoints.size() - 1).getX(), height - colorPoints.get(colorPoints.size() - 1).getY(), colorPoints.get(0).getX(), height - colorPoints.get(0).getY());
+            }
+
+            // Draw color points
+
+            g2d.setStroke(new BasicStroke(2));
+            for (ColorPoint colorPoint : colorPoints) {
+                g.setColor(Color.LIGHT_GRAY);
+                g.fillOval(colorPoint.getX() - circleSize / 2, (height - colorPoint.getY()) - circleSize / 2, circleSize, circleSize);
+                g.setColor(Color.GRAY);
+                g.drawOval(colorPoint.getX() - circleSize / 2, (height - colorPoint.getY()) - circleSize / 2, circleSize, circleSize);
+            }
+
         }
-        else if(mode == 1) {
-            g.setColor(new Color(70, 110, 70));
-        }
-        else if(mode == 2) {
-            g.setColor(new Color(70, 70, 110));
+        else {
+
+            g.setColor(new Color(240, 240, 240));
+            g.fillRect(0, 0, width, height);
+
+            g.setColor(Color.BLACK);
+            g.drawRect(0, 0, getWidth() - 1, getHeight() - 1);
+
+            g.setColor(secondColor);
+            if(editor.getInterpolationMode() == 0) {
+                for (int i = 0; i < colorPoints.size() - 1; i++) {
+                    g.drawLine(colorPoints.get(i).getX(), height - colorPoints.get(i).getY(), colorPoints.get(i + 1).getX(), height - colorPoints.get(i + 1).getY());
+                }
+            }
+            else {
+                g2d.setStroke(new BasicStroke(1.5f));
+                for (int i = 0; i < colorPoints.size() - 1; i++) {
+                    int x = colorPoints.get(i).getX();
+                    int xp1 = colorPoints.get(i + 1).getX();
+
+                    for(int curx = x; curx < xp1; curx++) {
+                        int val1 = getValue(curx, false, 0);
+                        int val2 = getValue(curx + 1, false, 0);
+                        g.drawLine(curx, height - (int)((val1 / 255.0) * height + 0.5), curx + 1, height - (int)((val2 / 255.0) * height + 0.5));
+                    }
+                }
+                g2d.setStroke(new BasicStroke(2));
+            }
+
+            if (colorPoints.size() > 1 && wrapAround) {
+                float[] dash1 = {5.0f};
+                BasicStroke dashed
+                        = new BasicStroke(2.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 5.0f, dash1, 0.0f);
+                g2d.setStroke(dashed);
+                g.drawLine(colorPoints.get(colorPoints.size() - 1).getX(), height - colorPoints.get(colorPoints.size() - 1).getY(), colorPoints.get(0).getX(), height - colorPoints.get(0).getY());
+            }
+
+            // Draw color points
+            g2d.setStroke(new BasicStroke(2));
+            for (ColorPoint colorPoint : colorPoints) {
+                g.setColor(color);
+                g.fillOval(colorPoint.getX() - circleSize / 2, (height - colorPoint.getY()) - circleSize / 2, circleSize, circleSize);
+                g.setColor(secondColor);
+                g.drawOval(colorPoint.getX() - circleSize / 2, (height - colorPoint.getY()) - circleSize / 2, circleSize, circleSize);
+            }
         }
 
-        for (int i = 0; i < colorPoints.size() - 1; i++) {
-            g.drawLine(colorPoints.get(i).getX(), height - colorPoints.get(i).getY(), colorPoints.get(i + 1).getX(), height - colorPoints.get(i + 1).getY());
-        }
+    }
 
-        if(colorPoints.size() > 1 && wrapAround) {
-            float[] dash1 = {5.0f};
-            BasicStroke dashed
-                    = new BasicStroke(2.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 5.0f, dash1, 0.0f);
-            g2d.setStroke(dashed);
-            g.drawLine(colorPoints.get(colorPoints.size() - 1).getX(), height - colorPoints.get(colorPoints.size() - 1).getY(), colorPoints.get(0).getX(), height - colorPoints.get(0).getY());
-        }
+    private double getCoef(double coef) {
 
-        // Draw color points
-        for (ColorPoint colorPoint : colorPoints) {
-            g.setColor(color);
-            g.fillOval(colorPoint.getX()  - circleSize / 2, (height - colorPoint.getY()) - circleSize / 2, circleSize, circleSize);
-        }
+        switch (editor.getInterpolationMode()) {
+            case 0:
+                return LinearInterpolation.getCoefficient(coef);
+            case 1:
+                return CosineInterpolation.getCoefficient(coef);
+            case 2:
+                return AccelerationInterpolation.getCoefficient(coef);
+            case 3:
+                return DecelerationInterpolation.getCoefficient(coef);
+            case 4:
+                return ExponentialInterpolation.getCoefficient(coef);
+            case 5:
+                return CatmullRomInterpolation.getCoefficient(coef);
+            case 6:
+                return CatmullRom2Interpolation.getCoefficient(coef);
+            case 7:
+                return SigmoidInterpolation.getCoefficient(coef);
+            case 8:
+                return SineInterpolation.getCoefficient(coef);
+            case 9:
+                return SqrtInterpolation.getCoefficient(coef);
+            case 10:
+                return ThirdPolynomialInterpolation.getCoefficient(coef);
+            case 11:
+                return FifthPolynomialInterpolation.getCoefficient(coef);
+            case 12:
+                return Exponential2Interpolation.getCoefficient(coef);
+            case 13:
+                return CbrtInterpolation.getCoefficient(coef);
+            case 14:
+                return FrthrootInterpolation.getCoefficient(coef);
+            case 15:
+                return SmoothTransitionFunctionInterpolation.getCoefficient(coef);
+            default:
+                return coef;
 
+        }
     }
 
     public int getValue(double x, boolean wrapAround, int stepWrap) {
         for(int i = 0; i < colorPoints.size() - 1; i++) {
             if(x >= colorPoints.get(i).getX() && x < colorPoints.get(i + 1).getX()) {
-                double newY = colorPoints.get(i).getY() + (x - (double)colorPoints.get(i).getX()) * ((((double)colorPoints.get(i + 1).getY() - (double)colorPoints.get(i).getY())) / ((double)colorPoints.get(i + 1).getX() - (double)colorPoints.get(i).getX()));
+                double newY = colorPoints.get(i).getY() + getCoef((x - (double)colorPoints.get(i).getX()) / ((double)colorPoints.get(i + 1).getX() - (double)colorPoints.get(i).getX())) * ((double)colorPoints.get(i + 1).getY() - (double)colorPoints.get(i).getY());
                 return (int)((newY / (double)height) * 255 + 0.5);
             }
         }
@@ -230,7 +334,7 @@ public class ColorComponent extends JPanel {
             double lastX = colorPoints.get(index).getX() + stepWrap;
 
             if(x <= lastX) {
-                double newY = colorPoints.get(index).getY() + (x - (double) colorPoints.get(index).getX()) * ((((double) colorPoints.get(0).getY() - (double) colorPoints.get(index).getY())) / (lastX - (double) colorPoints.get(index).getX()));
+                double newY = colorPoints.get(index).getY() + getCoef((x - (double) colorPoints.get(index).getX()) / (lastX - (double) colorPoints.get(index).getX())) * ((double) colorPoints.get(0).getY() - (double) colorPoints.get(index).getY());
                 return (int) ((newY / (double) height) * 255 + 0.5);
             }
             else {

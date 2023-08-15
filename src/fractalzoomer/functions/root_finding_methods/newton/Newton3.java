@@ -198,6 +198,9 @@ public class Newton3 extends NewtonRootFindingMethod {
         else if(inputPixel instanceof DDComplex && ((DDComplex)inputPixel).norm().compareTo(new DoubleDouble(1e-4)) < 0) {
             inputPixel = new DDComplex(1e-4, 1e-4);
         }
+        else if(inputPixel instanceof BigIntNumComplex && ((BigIntNumComplex)inputPixel).norm().compare(new BigIntNum(1e-4)) < 0) {
+            inputPixel = new BigIntNumComplex(1e-4, 1e-4);
+        }
         else if(inputPixel instanceof Complex && ((Complex)inputPixel).norm() < 1e-4) {
             inputPixel = new Complex(1e-4, 1e-4);
         }
@@ -235,6 +238,15 @@ public class Newton3 extends NewtonRootFindingMethod {
                 zold2 = iterations == 0 ? new DDComplex() : referenceData.thirdTolastZValue;
                 start = ddn;
                 pixel = ddn;
+            }
+            else if(bigNumLib == Constants.BIGNUM_BIGINT) {
+                initVal = new BigIntNumComplex(1, 0);
+                BigIntNumComplex bin = inputPixel.toBigIntNumComplex();
+                z = iterations == 0 ? bin : referenceData.lastZValue;
+                zold = iterations == 0 ? new BigIntNumComplex() : referenceData.secondTolastZValue;
+                zold2 = iterations == 0 ? new BigIntNumComplex() : referenceData.thirdTolastZValue;
+                start = bin;
+                pixel = bin;
             }
             else {
                 initVal = new Complex(1, 0);
@@ -447,6 +459,15 @@ public class Newton3 extends NewtonRootFindingMethod {
                 start = initVal;
                 pixel = ddn;
             }
+            else if(bigNumLib == Constants.BIGNUM_BIGINT) {
+                initVal = new BigIntNumComplex(1, 0);
+                BigIntNumComplex bin = inputPixel.toBigIntNumComplex();
+                z = iterations == 0 ? initVal : secondReferenceData.lastZValue;
+                zold = iterations == 0 ? new BigIntNumComplex() : secondReferenceData.secondTolastZValue;
+                zold2 = iterations == 0 ? new BigIntNumComplex() : secondReferenceData.thirdTolastZValue;
+                start = initVal;
+                pixel = bin;
+            }
             else {
                 initVal = new Complex(1, 0);
                 Complex bn = inputPixel.toComplex();
@@ -594,6 +615,11 @@ public class Newton3 extends NewtonRootFindingMethod {
     @Override
     public boolean needsExtendedRange() {
         return ThreadDraw.USE_FULL_FLOATEXP_FOR_ALL_ZOOM || (ThreadDraw.USE_CUSTOM_FLOATEXP_REQUIREMENT && size < 1.0e-14);
+    }
+
+    @Override
+    public boolean supportsBigIntnum() {
+        return true;
     }
 
 }

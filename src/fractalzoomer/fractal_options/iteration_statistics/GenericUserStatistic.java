@@ -33,10 +33,6 @@ public abstract class GenericUserStatistic extends GenericStatistic {
         parser = new Parser();
         expr = parser.parse(user_statistic_formula);
 
-//        if (parser.foundBail()) {
-//            parser.setBailvalue(new Complex(bailout, 0));
-//        }
-
         if (parser.foundMaxn()) {
             parser.setMaxnvalue(new Complex(max_iterations, 0));
         }

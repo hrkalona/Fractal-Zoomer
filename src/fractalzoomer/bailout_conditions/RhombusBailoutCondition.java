@@ -69,6 +69,11 @@ public class RhombusBailoutCondition extends BailoutCondition {
     }
 
     @Override
+    public boolean escaped(BigIntNumComplex z, BigIntNumComplex zold, BigIntNumComplex zold2, int iterations, BigIntNumComplex c, BigIntNumComplex start, BigIntNumComplex c0, BigIntNum norm_squared, BigIntNumComplex pixel) {
+        return z.getAbsRe().add(z.getAbsIm()).compare(binbound) >= 0;
+    }
+
+    @Override
     public boolean escaped(MpfrBigNumComplex z, MpfrBigNumComplex zold, MpfrBigNumComplex zold2, int iterations, MpfrBigNumComplex c, MpfrBigNumComplex start, MpfrBigNumComplex c0, MpfrBigNum norm_squared, MpfrBigNumComplex pixel) {
         return z.getAbsRe(temp1).add(z.getAbsIm(temp2), temp1).compare(bound) >= 0;
     }

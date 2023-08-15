@@ -28,6 +28,8 @@ public class InflectionPlane extends Plane {
     private BigComplex ddcenter;
     private BigNumComplex bncenter;
 
+    private BigIntNumComplex bnicenter;
+
     private DDComplex ddccenter;
 
     private MpfrBigNumComplex mpfrbncenter;
@@ -39,10 +41,12 @@ public class InflectionPlane extends Plane {
         center = new Complex(plane_transform_center[0], plane_transform_center[1]);
         if(ThreadDraw.PERTURBATION_THEORY || ThreadDraw.HIGH_PRECISION_CALCULATION) {
             ddcenter = new BigComplex(center);
-            ddccenter = new DDComplex(center);
+
 
             if(ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE || ThreadDraw.HIGH_PRECISION_CALCULATION) {
                 bncenter = new BigNumComplex(center);
+                bnicenter = new BigIntNumComplex(center);
+                ddccenter = new DDComplex(center);
 
                 if (ThreadDraw.allocateMPFR()) {
                     mpfrbncenter = new MpfrBigNumComplex(center);
@@ -72,6 +76,13 @@ public class InflectionPlane extends Plane {
     public BigNumComplex transform(BigNumComplex pixel) {
 
         return  pixel.inflection(bncenter);
+
+    }
+
+    @Override
+    public BigIntNumComplex transform(BigIntNumComplex pixel) {
+
+        return  pixel.inflection(bnicenter);
 
     }
 

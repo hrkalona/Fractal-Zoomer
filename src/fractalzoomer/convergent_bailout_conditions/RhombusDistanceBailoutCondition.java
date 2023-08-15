@@ -82,6 +82,19 @@ public class RhombusDistanceBailoutCondition extends ConvergentBailoutCondition 
     }
 
     @Override
+    public boolean converged(BigIntNumComplex z, BigIntNumComplex zold, BigIntNumComplex zold2, int iterations, BigIntNumComplex c, BigIntNumComplex start, BigIntNumComplex c0, BigIntNumComplex pixel) {
+        BigIntNumComplex diff = z.sub(zold);
+
+        boolean result = diff.getAbsRe().add(diff.getAbsIm()).compare(binddconvergent_bailout) <= 0;
+
+        if(calculateDistance && result) {
+            distance = z.distance_squared(zold).doubleValue();
+        }
+
+        return result;
+    }
+
+    @Override
     public boolean converged(DDComplex z, DDComplex zold, DDComplex zold2, int iterations, DDComplex c, DDComplex start, DDComplex c0, DDComplex pixel) {
 
         DDComplex diff = z.sub(zold);
@@ -155,6 +168,19 @@ public class RhombusDistanceBailoutCondition extends ConvergentBailoutCondition 
     }
 
     @Override
+    public boolean converged(BigIntNumComplex z, BigIntNum root, BigIntNumComplex zold, BigIntNumComplex zold2, int iterations, BigIntNumComplex c, BigIntNumComplex start, BigIntNumComplex c0, BigIntNumComplex pixel) {
+        BigIntNumComplex diff = z.sub(root);
+
+        boolean result = diff.getAbsRe().add(diff.getAbsIm()).compare(binddconvergent_bailout) <= 0;
+
+        if(calculateDistance && result) {
+            distance = z.distance_squared(root).doubleValue();
+        }
+
+        return result;
+    }
+
+    @Override
     public boolean converged(DDComplex z, DoubleDouble root, DDComplex zold, DDComplex zold2, int iterations, DDComplex c, DDComplex start, DDComplex c0, DDComplex pixel) {
 
         DDComplex diff = z.sub(root);
@@ -217,6 +243,19 @@ public class RhombusDistanceBailoutCondition extends ConvergentBailoutCondition 
         BigComplex diff = z.sub(root);
 
         boolean result =  MyApfloat.fp.add(diff.getAbsRe(), diff.getAbsIm()).compareTo(ddconvergent_bailout) <= 0;
+
+        if(calculateDistance && result) {
+            distance = z.distance_squared(root).doubleValue();
+        }
+
+        return result;
+    }
+
+    @Override
+    public boolean converged(BigIntNumComplex z, BigIntNumComplex root, BigIntNumComplex zold, BigIntNumComplex zold2, int iterations, BigIntNumComplex c, BigIntNumComplex start, BigIntNumComplex c0, BigIntNumComplex pixel) {
+        BigIntNumComplex diff = z.sub(root);
+
+        boolean result = diff.getAbsRe().add(diff.getAbsIm()).compare(binddconvergent_bailout) <= 0;
 
         if(calculateDistance && result) {
             distance = z.distance_squared(root).doubleValue();

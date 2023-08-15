@@ -50,7 +50,7 @@ public class ColorPaletteEditorFrame extends JFrame {
         JPanel buttons = new JPanel();
         buttons.setBackground(MainWindow.bg_color);
 
-        JButton ok = new JButton("Ok");
+        JButton ok = new MyButton("Ok");
         getRootPane().setDefaultButton(ok);
         ok.setFocusable(false);
         ok.addActionListener(e -> {
@@ -89,7 +89,7 @@ public class ColorPaletteEditorFrame extends JFrame {
 
         buttons.add(ok);
 
-        JButton cancel = new JButton("Cancel");
+        JButton cancel = new MyButton("Cancel");
         cancel.setFocusable(false);
         cancel.addActionListener(e -> {
 

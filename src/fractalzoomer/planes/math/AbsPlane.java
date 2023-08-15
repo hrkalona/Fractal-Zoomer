@@ -45,6 +45,20 @@ public class AbsPlane extends Plane {
     }
 
     @Override
+    public BigIntNumComplex transform(BigIntNumComplex pixel) {
+
+        return pixel.abs();
+
+    }
+
+    @Override
+    public BigNumComplex transform(BigNumComplex pixel) {
+
+        return pixel.abs();
+
+    }
+
+    @Override
     public MpfrBigNumComplex transform(MpfrBigNumComplex pixel) {
 
         return pixel.abs();

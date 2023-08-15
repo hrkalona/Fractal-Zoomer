@@ -153,7 +153,7 @@ public class FunctionUser1ArgumentExpressionNode implements ExpressionNode {
                 throw new ParserException("Return type error: Method " + method.getName() + " must have a Complex return type.");
             }
 
-            lambda = LambdaFactory.create(method, UserDefinedFunctionsInterface.class, FUNC_NAME);
+            lambda = LambdaFactory.create(Parser.lookup, method, UserDefinedFunctionsInterface.class, FUNC_NAME);
         } catch (NoSuchMethodException ex) {
             throw new ParserException("Method not found error: " + Parser.sanitizeMessage(ex.getMessage()) + ".\n"
                     + "If the function is missing from UserDefinedFunctions.java\nrename the old file, for backup, and restart the application.");

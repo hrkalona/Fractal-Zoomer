@@ -204,6 +204,9 @@ public abstract class MagnetType extends Julia {
         else if(lib == ARBITRARY_DOUBLEDOUBLE) {
             groot = new DoubleDouble(1);
         }
+        else if(lib == ARBITRARY_BIGINT) {
+            groot = new BigIntNum(1);
+        }
         else {
             groot = MyApfloat.ONE;
         }
@@ -230,6 +233,9 @@ public abstract class MagnetType extends Julia {
         else if(lib == ARBITRARY_DOUBLEDOUBLE) {
             groot = new DoubleDouble(1);
         }
+        else if(lib == ARBITRARY_BIGINT) {
+            groot = new BigIntNum(1);
+        }
         else {
             groot = MyApfloat.ONE;
         }
@@ -242,6 +248,8 @@ public abstract class MagnetType extends Julia {
     public double iterateFractalArbitraryPrecisionWithoutPeriodicity(GenericComplex[] complex, GenericComplex pixel) {
 
         iterations = 0;
+
+        bailout_algorithm.setUseThreads(false);
 
         Complex start = gstart.toComplex();
         Complex c0 = gc0.toComplex();
@@ -673,6 +681,10 @@ public abstract class MagnetType extends Julia {
             }
 
             MantExpComplex zoldDeep;
+            MantExp norm_squared_m = null;
+            if(doBailCheck) {
+                norm_squared_m = z.norm_squared();
+            }
 
             for (; iterations < max_iterations; iterations++) {
                 if (trap != null) {
@@ -681,7 +693,7 @@ public abstract class MagnetType extends Julia {
 
                 if(doBailCheck) {
                     if ((temp1 = convergent_bailout_algorithm.converged(complex[0], 1, zold, zold2, iterations, complex[1], start, c0, pixel))
-                            || (temp2 = bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, 0.0, pixel))) {
+                            || (temp2 = bailout_algorithm2.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, norm_squared_m.toDouble(), pixel))) {
                         escaped = true;
                         converged = temp1;
 
@@ -716,7 +728,8 @@ public abstract class MagnetType extends Julia {
                     statistic.insert(complex[0], zold, zold2, iterations, complex[1], start, c0, z, zoldDeep, null);
                 }
 
-                if (z.norm_squared().compareToBothPositive(DeltaSubN.norm_squared()) < 0 || RefIteration >= MaxRefIteration) {
+                norm_squared_m = z.norm_squared();
+                if (norm_squared_m.compareToBothPositive(DeltaSubN.norm_squared()) < 0 || RefIteration >= MaxRefIteration) {
                     DeltaSubN = z;
                     RefIteration = 0;
                     rebases++;

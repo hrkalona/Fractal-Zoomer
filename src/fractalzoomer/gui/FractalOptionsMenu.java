@@ -26,7 +26,7 @@ import java.awt.event.KeyEvent;
  *
  * @author kaloch
  */
-public class FractalOptionsMenu extends JMenu {
+public class FractalOptionsMenu extends MyMenu {
 	private static final long serialVersionUID = 3353731296448038687L;
 	private MainWindow ptr;
     private FractalFunctionsMenu fractal_functions_menu;
@@ -53,8 +53,8 @@ public class FractalOptionsMenu extends JMenu {
 
         plane_influence_menu = new PlaneInfluenceMenu(ptr, plane_influence);
         
-        perturbation_opt = new JMenuItem("Initial Perturbation");
-        init_val_opt = new JMenuItem("Initial Value");
+        perturbation_opt = new MyMenuItem("Initial Perturbation");
+        init_val_opt = new MyMenuItem("Initial Value");
         
         perturbation_opt.setToolTipText("Adds a complex number to the initial value of the fractal calculation.");
         init_val_opt.setToolTipText("Changes the initial value of the fractal calculation.");
@@ -144,6 +144,18 @@ public class FractalOptionsMenu extends JMenu {
     public JRadioButtonMenuItem[] getPreFunctionFilters() {
 
         return pre_function_filters.getFunctionFilters();
+
+    }
+
+    public JMenu getPostFunctionFiltersMenu() {
+
+        return post_function_filters;
+
+    }
+
+    public JMenu getPreFunctionFiltersMenu() {
+
+        return pre_function_filters;
 
     }
 

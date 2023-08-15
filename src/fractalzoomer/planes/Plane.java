@@ -45,6 +45,12 @@ public abstract class Plane {
 
     }
 
+    public BigIntNumComplex transform(BigIntNumComplex pixel) {
+
+        return new BigIntNumComplex(transform(pixel.toComplex()));
+
+    }
+
     //Todo fix, erf, gamma, factorial, rzeta, distort
     public MpfrBigNumComplex transform(MpfrBigNumComplex pixel) {
 
@@ -70,11 +76,14 @@ public abstract class Plane {
         if(pixel instanceof MpfrBigNumComplex) {
             return transform((MpfrBigNumComplex) pixel);
         }
-        else if(pixel instanceof MpfrBigNumComplex) {
-            return transform((MpfrBigNumComplex) pixel);
+        else if(pixel instanceof MpirBigNumComplex) {
+            return transform((MpirBigNumComplex) pixel);
         }
         else if(pixel instanceof BigNumComplex) {
             return transform((BigNumComplex) pixel);
+        }
+        else if(pixel instanceof BigIntNumComplex) {
+            return transform((BigIntNumComplex) pixel);
         }
         else if(pixel instanceof BigComplex) {
             return transform((BigComplex) pixel);

@@ -38,9 +38,9 @@ public class MuSquaredImaginaryPlane extends Plane {
 
         if(ThreadDraw.PERTURBATION_THEORY || ThreadDraw.HIGH_PRECISION_CALCULATION) {
 
-            ddcexponent = new DDComplex(0, 2);
-
             if(ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE || ThreadDraw.HIGH_PRECISION_CALCULATION) {
+
+                ddcexponent = new DDComplex(0, 2);
 
                 if(!LibMpfr.hasError()) {
                     mpfrbnexponent = new MpfrBigNumComplex(0, 2);

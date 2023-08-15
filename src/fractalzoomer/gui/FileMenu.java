@@ -16,6 +16,7 @@
  */
 package fractalzoomer.gui;
 
+import fractalzoomer.main.CommonFunctions;
 import fractalzoomer.main.MainWindow;
 
 import javax.swing.*;
@@ -26,7 +27,7 @@ import java.awt.event.KeyEvent;
  *
  * @author kaloch
  */
-public class FileMenu extends JMenu {
+public class FileMenu extends MyMenu {
 	private static final long serialVersionUID = -3961782140061944788L;
 	private MainWindow ptr;
     private JMenuItem exit;
@@ -57,39 +58,39 @@ public class FileMenu extends JMenu {
 
         this.ptr = ptr2;
         
-        starting_position = new JMenuItem("Starting Position", MainWindow.getIcon("starting_position.png"));
+        starting_position = new MyMenuItem("Starting Position", MainWindow.getIcon("starting_position.png"));
 
-        go_to = new JMenuItem("Go To", MainWindow.getIcon("go_to.png"));
+        go_to = new MyMenuItem("Go To", MainWindow.getIcon("go_to.png"));
 
-        zoom_in = new JMenuItem("Zoom In", MainWindow.getIcon("zoom_in.png"));
+        zoom_in = new MyMenuItem("Zoom In", MainWindow.getIcon("zoom_in.png"));
 
-        zoom_out = new JMenuItem("Zoom Out", MainWindow.getIcon("zoom_out.png"));
+        zoom_out = new MyMenuItem("Zoom Out", MainWindow.getIcon("zoom_out.png"));
         
-        repaint_opt = new JMenuItem("Repaint", MainWindow.getIcon("refresh_image.png"));
+        repaint_opt = new MyMenuItem("Repaint", MainWindow.getIcon("refresh_image.png"));
 
-        up = new JMenuItem("Up", MainWindow.getIcon("up.png"));
-        down = new JMenuItem("Down", MainWindow.getIcon("down.png"));
-        left = new JMenuItem("Left", MainWindow.getIcon("left.png"));
-        right = new JMenuItem("Right", MainWindow.getIcon("right.png"));
+        up = new MyMenuItem("Up", MainWindow.getIcon("up.png"));
+        down = new MyMenuItem("Down", MainWindow.getIcon("down.png"));
+        left = new MyMenuItem("Left", MainWindow.getIcon("left.png"));
+        right = new MyMenuItem("Right", MainWindow.getIcon("right.png"));
         
-        default_opt = new JMenuItem("Default Settings", MainWindow.getIcon("default.png"));
+        default_opt = new MyMenuItem("Default Settings", MainWindow.getIcon("default.png"));
 
-        save_settings = new JMenuItem("Save Settings As...", MainWindow.getIcon("save.png"));
+        save_settings = new MyMenuItem("Save Settings As...", MainWindow.getIcon("save.png"));
 
-        load_settings = new JMenuItem("Load Settings", MainWindow.getIcon("load.png"));
+        load_settings = new MyMenuItem("Load Settings", MainWindow.getIcon("load.png"));
         
-        save_initial_settings_opt = new JMenuItem("Set Initial Settings", MainWindow.getIcon("init_settings.png"));
+        save_initial_settings_opt = new MyMenuItem("Set Initial Settings", MainWindow.getIcon("init_settings.png"));
 
-        save_image = new JMenuItem("Save Image As...", MainWindow.getIcon("save_image.png"));
+        save_image = new MyMenuItem("Save Image As...", MainWindow.getIcon("save_image.png"));
         
-        save_settings_image = new JMenuItem("Save Settings and Image As...", MainWindow.getIcon("save_image_settings.png"));
+        save_settings_image = new MyMenuItem("Save Settings and Image As...", MainWindow.getIcon("save_image_settings.png"));
 
-        code_editor = new JMenuItem("Edit User Code", MainWindow.getIcon("code_editor.png"));
-        library_code = new JMenuItem("Library Code", MainWindow.getIcon("code_editor.png"));
-        compile_code = new JMenuItem("Compile User Code", MainWindow.getIcon("compile.png"));
+        code_editor = new MyMenuItem("Edit User Code", MainWindow.getIcon("code_editor.png"));
+        library_code = new MyMenuItem("Library Code", MainWindow.getIcon("code_editor.png"));
+        compile_code = new MyMenuItem("Compile User Code", MainWindow.getIcon("compile.png"));
 
-        cancel_operation  = new JMenuItem("Cancel Operation", MainWindow.getIcon("abort.png"));
-        exit = new JMenuItem("Exit", MainWindow.getIcon("exit.png"));
+        cancel_operation  = new MyMenuItem("Cancel Operation", MainWindow.getIcon("abort.png"));
+        exit = new MyMenuItem("Exit", MainWindow.getIcon("exit.png"));
         
         starting_position.setToolTipText("Resets the fractal to the default position.");
         go_to.setToolTipText("Sets the center and size of the fractal, or the julia seed.");
@@ -197,8 +198,12 @@ public class FileMenu extends JMenu {
         add(library_code);
         add(compile_code);
         addSeparator();
-        add(cancel_operation);
-        addSeparator();
+
+        if(CommonFunctions.getJavaVersion() == 8) {
+            add(cancel_operation);
+            addSeparator();
+        }
+
         add(exit);
         
     }

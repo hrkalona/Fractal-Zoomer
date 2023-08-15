@@ -28,7 +28,7 @@ import java.awt.event.KeyEvent;
  *
  * @author kaloch
  */
-public class OptionsMenu extends JMenu {
+public class OptionsMenu extends MyMenu {
 
     private static final long serialVersionUID = -7875948962252862696L;
     private MainWindow ptr;
@@ -58,6 +58,7 @@ public class OptionsMenu extends JMenu {
     private JMenuItem bailout_number;
     private JMenuItem change_zooming_factor;
     private JMenuItem point_opt;
+    private JMenuItem variables_opt;
     private JMenuItem overview_opt;
     private JMenuItem stats_opt;
     private FractalOptionsMenu fractal_options_menu;
@@ -81,70 +82,71 @@ public class OptionsMenu extends JMenu {
 
         fractal_options_menu = new FractalOptionsMenu(ptr, "Fractal Options", apply_plane_on_julia, apply_plane_on_julia_seed, function, plane_type, pre_filter, post_filter, plane_influence);
 
-        iterations_menu = new JMenu("Iterations");
+        iterations_menu = new MyMenu("Iterations");
         iterations_menu.setIcon(MainWindow.getIcon("iterations.png"));
 
-        increase_iterations = new JMenuItem("Increase Iterations", MainWindow.getIcon("plus.png"));
+        increase_iterations = new MyMenuItem("Increase Iterations", MainWindow.getIcon("plus.png"));
 
-        decrease_iterations = new JMenuItem("Decrease Iterations", MainWindow.getIcon("minus.png"));
+        decrease_iterations = new MyMenuItem("Decrease Iterations", MainWindow.getIcon("minus.png"));
 
-        double_iterations = new JMenuItem("Double Iterations", MainWindow.getIcon("x2.png"));
+        double_iterations = new MyMenuItem("Double Iterations", MainWindow.getIcon("x2.png"));
 
-        iterations = new JMenuItem("Set Iterations", MainWindow.getIcon("iterations.png"));
+        iterations = new MyMenuItem("Set Iterations", MainWindow.getIcon("iterations.png"));
 
-        period  = new JMenuItem("Period", MainWindow.getIcon("period.png"));
+        period  = new MyMenuItem("Period", MainWindow.getIcon("period.png"));
 
-        jitter_opt = new JMenuItem("Jitter", MainWindow.getIcon("jitter.png"));
+        jitter_opt = new MyMenuItem("Jitter", MainWindow.getIcon("jitter.png"));
 
         bailout_condition_menu = new BailoutConditionsMenu(ptr, "Bailout Condition", bailout_test_algorithm);
 
         convergent_bailout_condition_menu = new ConvergentBailoutConditionsMenu(ptr, "Convergent Bailout Condition", convergent_bailout_test_algorithm);
 
-        bailout_number = new JMenuItem("Bailout", MainWindow.getIcon("bailout.png"));
+        bailout_number = new MyMenuItem("Bailout", MainWindow.getIcon("bailout.png"));
 
-        rotation_menu = new JMenu("Rotation");
+        rotation_menu = new MyMenu("Rotation");
         rotation_menu.setIcon(MainWindow.getIcon("rotate.png"));
 
-        set_rotation = new JMenuItem("Set Rotation", MainWindow.getIcon("rotate.png"));
+        set_rotation = new MyMenuItem("Set Rotation", MainWindow.getIcon("rotate.png"));
 
-        increase_rotation = new JMenuItem("Increase Rotation", MainWindow.getIcon("plus.png"));
+        increase_rotation = new MyMenuItem("Increase Rotation", MainWindow.getIcon("plus.png"));
 
-        decrease_rotation = new JMenuItem("Decrease Rotation", MainWindow.getIcon("minus.png"));
+        decrease_rotation = new MyMenuItem("Decrease Rotation", MainWindow.getIcon("minus.png"));
 
-        point_opt = new JMenuItem("User Point", MainWindow.getIcon("user_point.png"));
+        point_opt = new MyMenuItem("User Point", MainWindow.getIcon("user_point.png"));
+        variables_opt = new MyMenuItem("User Variables", MainWindow.getIcon("variables.png"));
 
-        change_zooming_factor = new JMenuItem("Zooming Factor", MainWindow.getIcon("zooming_factor.png"));
+        change_zooming_factor = new MyMenuItem("Zooming Factor", MainWindow.getIcon("zooming_factor.png"));
 
-        size_of_image = new JMenuItem("Image Size", MainWindow.getIcon("image_size.png"));
+        size_of_image = new MyMenuItem("Image Size", MainWindow.getIcon("image_size.png"));
 
-        height_ratio_number = new JMenuItem("Stretch Factor", MainWindow.getIcon("stretch.png"));
+        height_ratio_number = new MyMenuItem("Stretch Factor", MainWindow.getIcon("stretch.png"));
 
         optimizations_menu = new OptimizationsMenu(ptr, "Optimizations");
 
         tools_options_menu = new ToolsOptionsMenu(ptr, "Tools Options", show_orbit_converging_point);
 
-        general_options_menu = new JMenu("General Options");
+        general_options_menu = new MyMenu("General Options");
         general_options_menu.setIcon(MainWindow.getIcon("general_options.png"));
 
-        filters_options = new JMenuItem("Filters Options", MainWindow.getIcon("filter_options.png"));
+        filters_options = new MyMenuItem("Filters Options", MainWindow.getIcon("filter_options.png"));
 
-        window_menu = new JMenu("Window");
+        window_menu = new MyMenu("Window");
         window_menu.setIcon(MainWindow.getIcon("window.png"));
 
         colors_menu = new ColorsMenu(ptr, "Colors", ps, ps2, smoothing, out_coloring_algorithm, in_coloring_algorithm, color_blending, color_blending_reverse_order, temp_color_cycling_location, temp_color_cycling_location2);
 
-        overview_opt = new JMenuItem("Options Overview", MainWindow.getIcon("overview.png"));
+        overview_opt = new MyMenuItem("Options Overview", MainWindow.getIcon("overview.png"));
 
-        stats_opt = new JMenuItem("Statistics", MainWindow.getIcon("stats.png"));
+        stats_opt = new MyMenuItem("Statistics", MainWindow.getIcon("stats.png"));
 
-        toolbar_opt = new JCheckBoxMenuItem("Tool Bar");
-        statusbar_opt = new JCheckBoxMenuItem("Status Bar");
-        infobar_opt = new JCheckBoxMenuItem("Information Bar");
-        fullscreen_opt = new JCheckBoxMenuItem("Full Screen");
+        toolbar_opt = new MyCheckBoxMenuItem("Tool Bar");
+        statusbar_opt = new MyCheckBoxMenuItem("Status Bar");
+        infobar_opt = new MyCheckBoxMenuItem("Information Bar");
+        fullscreen_opt = new MyCheckBoxMenuItem("Full Screen");
 
-        auto_repaint_image_opt  = new JCheckBoxMenuItem("Show Drawing Progress");
-        zoom_on_cursor_opt = new JCheckBoxMenuItem("Zoom on Mouse Cursor");
-        quick_draw_opt = new JMenuItem("Quick Draw", MainWindow.getIcon("quickdraw.png"));
+        auto_repaint_image_opt  = new MyCheckBoxMenuItem("Show Drawing Progress");
+        zoom_on_cursor_opt = new MyCheckBoxMenuItem("Zoom on Mouse Cursor");
+        quick_draw_opt = new MyMenuItem("Quick Draw", MainWindow.getIcon("quickdraw.png"));
 
         size_of_image.setToolTipText("Sets the image size.");
         period.setToolTipText("Sets the period for the reference calculation.");
@@ -155,6 +157,7 @@ public class OptionsMenu extends JMenu {
         bailout_number.setToolTipText("Sets the bailout. Above this number the norm of a complex numbers is not bounded.");
         set_rotation.setToolTipText("Sets the rotation in degrees.");
         point_opt.setToolTipText("A point picked by the user, for the point variable.");
+        variables_opt.setToolTipText("Sets the values for the variables v1-v30.");
         increase_rotation.setToolTipText("Increases the rotation by one degree.");
         decrease_rotation.setToolTipText("Decreases the rotation by one degree.");
         change_zooming_factor.setToolTipText("Sets the rate of each zoom.");
@@ -182,6 +185,7 @@ public class OptionsMenu extends JMenu {
         increase_rotation.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, ActionEvent.CTRL_MASK));
         decrease_rotation.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, ActionEvent.CTRL_MASK));
         point_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_COMMA, 0));
+        variables_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_COMMA, ActionEvent.CTRL_MASK));
         change_zooming_factor.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, ActionEvent.CTRL_MASK));
         height_ratio_number.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, ActionEvent.SHIFT_MASK));
         filters_options.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, ActionEvent.SHIFT_MASK));
@@ -216,6 +220,8 @@ public class OptionsMenu extends JMenu {
         decrease_rotation.addActionListener(e -> ptr.decreaseRotation());
 
         point_opt.addActionListener(e -> ptr.setPoint());
+
+        variables_opt.addActionListener(e -> ptr.setVariables());
 
         change_zooming_factor.addActionListener(e -> ptr.setZoomingFactor());
 
@@ -279,6 +285,7 @@ public class OptionsMenu extends JMenu {
         add(rotation_menu);
         addSeparator();
         add(point_opt);
+        add(variables_opt);
         addSeparator();
         add(size_of_image);
         addSeparator();
@@ -573,6 +580,12 @@ public class OptionsMenu extends JMenu {
 
     }
 
+    public JMenuItem getVariables() {
+
+        return variables_opt;
+
+    }
+
     public FractalFunctionsMenu getFractalFunctionsMenu() {
 
         return fractal_options_menu.getFractalFunctionsMenu();
@@ -588,6 +601,18 @@ public class OptionsMenu extends JMenu {
     public FractalOptionsMenu getFractalOptionsMenu() {
 
         return fractal_options_menu;
+
+    }
+
+    public JMenu getPostFunctionFiltersMenu() {
+
+        return fractal_options_menu.getPostFunctionFiltersMenu();
+
+    }
+
+    public JMenu getPreFunctionFiltersMenu() {
+
+        return fractal_options_menu.getPreFunctionFiltersMenu();
 
     }
 

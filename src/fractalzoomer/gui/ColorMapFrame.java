@@ -99,7 +99,7 @@ public class ColorMapFrame extends JFrame {
 
         list.setCellRenderer(new ListCellRenderer<String>() {
             private final JPanel p = new JPanel(new BorderLayout());
-            private final JLabel icon = new JLabel((Icon)null, JLabel.LEFT);
+            private final ImageLabel icon = new ImageLabel(null, JLabel.LEFT);
             private final JLabel label = new JLabel("", JLabel.LEFT);
 
             @Override
@@ -153,7 +153,7 @@ public class ColorMapFrame extends JFrame {
         JPanel buttons = new JPanel();
         buttons.setBackground(MainWindow.bg_color);
 
-        JButton ok = new JButton("Ok");
+        JButton ok = new MyButton("Ok");
         getRootPane().setDefaultButton(ok);
         ok.setFocusable(false);
         ok.addActionListener(e -> {
@@ -190,7 +190,7 @@ public class ColorMapFrame extends JFrame {
 
         buttons.add(ok);
 
-        JButton cancel = new JButton("Cancel");
+        JButton cancel = new MyButton("Cancel");
         cancel.setFocusable(false);
         cancel.addActionListener(e -> {
 

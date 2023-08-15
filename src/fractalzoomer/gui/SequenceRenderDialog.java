@@ -39,11 +39,16 @@ public class SequenceRenderDialog extends JDialog {
     private ImageExpanderWindow ptra;
     private JOptionPane optionPane;
 
-    public SequenceRenderDialog(ImageExpanderWindow ptr, Settings s, double zoom_factor, int zooming_mode, Apfloat size, double rotation_adjusting_value, int color_cycling_adjusting_value, double light_light_direction_adjusting_value, double bump_light_direction_adjusting_value, int zoom_every_n_frame, int gradient_color_cycling_adjusting_value) {
+    private final JScrollPane scrollPane;
+
+    public SequenceRenderDialog(ImageExpanderWindow ptr, Settings s, double zoom_factor, int zooming_mode, Apfloat size, double rotation_adjusting_value, int color_cycling_adjusting_value, double light_light_direction_adjusting_value, double bump_light_direction_adjusting_value, int zoom_every_n_frame, int gradient_color_cycling_adjusting_value, boolean flipSequenceIndexing) {
 
         super(ptr);
         
         ptra = ptr;
+
+        scrollPane = new JScrollPane();
+        scrollPane.setPreferredSize(new Dimension(700, 700));
 
         setTitle("Zoom Sequence Render");
         setModal(true);
@@ -102,6 +107,11 @@ public class SequenceRenderDialog extends JDialog {
 
         MyJSpinner fieldZoomEveryNFrame = new MyJSpinner(new SpinnerNumberModel(zoom_every_n_frame, 1, 20, 1));
 
+        JCheckBox flipIndex = new JCheckBox("Flip Sequence Indexing");
+        flipIndex.setFocusable(false);
+        flipIndex.setSelected(flipSequenceIndexing);
+        flipIndex.setToolTipText("Changes the indexing of the name to start backwards.");
+
 
         Object[] message = {
             " ",
@@ -130,6 +140,8 @@ public class SequenceRenderDialog extends JDialog {
                 fieldLightCycling,
                 "Bump Mapping Light Direction Adjusting Value (When Bump Mapping is Enabled):",
                 filedBumpLightCycling,
+                " ",
+                flipIndex,
 
             " "};
 
@@ -177,9 +189,9 @@ public class SequenceRenderDialog extends JDialog {
                             int tempGradientColorCycling = Integer.parseInt(fieldGradientColorCycling.getText());
 
                             if(MyApfloat.setAutomaticPrecision) {
-                                long precision = MyApfloat.getAutomaticPrecision(new String[]{field_size.getText()}, new boolean[]{true}, true);
+                                long precision = MyApfloat.getAutomaticPrecision(new String[]{field_size.getText(), s.size.toString()}, new boolean[]{true, true});
 
-                                if (MyApfloat.shouldSetPrecision(precision, true)) {
+                                if (MyApfloat.shouldSetPrecision(precision, MyApfloat.alwaysCheckForDecrease)) {
                                     Fractal.clearReferences(true);
                                     MyApfloat.setPrecision(precision, s);
                                 }
@@ -227,7 +239,7 @@ public class SequenceRenderDialog extends JDialog {
                                 return;
                             }
 
-                            ptr.startSequenceRender(tempSize, tempZoomFactor, zoooming_mode.getSelectedIndex(), tempRotation, tempColorCycling, tempLight, tempBumpLight, tempZoomNFrame, tempGradientColorCycling);
+                            ptr.startSequenceRender(tempSize, tempZoomFactor, zoooming_mode.getSelectedIndex(), tempRotation, tempColorCycling, tempLight, tempBumpLight, tempZoomNFrame, tempGradientColorCycling, flipIndex.isSelected());
 
                         } catch (Exception ex) {
                             JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
@@ -240,11 +252,12 @@ public class SequenceRenderDialog extends JDialog {
                 });
 
         //Make this dialog display it.
-        setContentPane(optionPane);
+        scrollPane.setViewportView(optionPane);
+        setContentPane(scrollPane);
 
         pack();
 
-        setResizable(false);
+        setResizable(true);
         setLocation((int) (ptra.getLocation().getX() + ptra.getSize().getWidth() / 2) - (getWidth() / 2), (int) (ptra.getLocation().getY() + ptra.getSize().getHeight() / 2) - (getHeight() / 2));
         setVisible(true);
 

@@ -17,6 +17,8 @@
 package fractalzoomer.utils;
 
 import fractalzoomer.gui.RoundedPanel;
+import fractalzoomer.main.CommonFunctions;
+import fractalzoomer.main.MainWindow;
 
 import javax.swing.*;
 import java.awt.*;
@@ -52,8 +54,17 @@ public class PixelColor extends Thread {
         double scaleX = ((double)width) / screenDimension.width;
         double scaleY = ((double)height) / screenDimension.height;
 
+        int v = CommonFunctions.getJavaVersion();
+
+        if(v > 8) {
+            scaleX = 1;
+            scaleY = 1;
+        }
+
+
 
         try {
+            Robot robot = new Robot();
 
             while(running) {
                 /*long time = System.currentTimeMillis();
@@ -62,7 +73,7 @@ public class PixelColor extends Thread {
                 }*/
                 
                 
-                Color color = new Robot().getPixelColor((int)(MouseInfo.getPointerInfo().getLocation().getX() * scaleX), (int)(MouseInfo.getPointerInfo().getLocation().getY() * scaleY));
+                Color color = robot.getPixelColor((int)(MouseInfo.getPointerInfo().getLocation().getX() * scaleX), (int)(MouseInfo.getPointerInfo().getLocation().getY() * scaleY));
 
                 ptr.setBackground(color);
                 ptr2.setText("R: " + String.format("%3d", color.getRed()) + " G: " + String.format("%3d", color.getGreen()) + " B: " + String.format("%3d", color.getBlue()));

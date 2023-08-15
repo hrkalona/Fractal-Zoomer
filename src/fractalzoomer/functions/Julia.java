@@ -181,6 +181,8 @@ public abstract class Julia extends Fractal {
             }
         }
          else {
+            gpixel = sanitize(gpixel);
+
             Complex pix = gpixel.toComplex();
 
             if (statistic != null) {
@@ -285,6 +287,15 @@ public abstract class Julia extends Fractal {
             gstart = complex[0];
             gc0 = complex[1];
         }
+        else if (lib == ARBITRARY_BIGINT) {
+            complex[0] = pixel;//z
+            complex[1] = getHighPrecisionSeed(lib);//c
+
+            gzold = new BigIntNumComplex();
+            gzold2 = new BigIntNumComplex();
+            gstart = complex[0];
+            gc0 = complex[1];
+        }
         else if(lib == ARBITRARY_DOUBLEDOUBLE) {
             complex[0] = pixel;//z
             complex[1] = getHighPrecisionSeed(lib);//c
@@ -323,6 +334,7 @@ public abstract class Julia extends Fractal {
     @Override
     public final void calculateJuliaOrbit() {
 
+        resetGlobalVars();
         Complex[] complex = juliter ? initialize(pixel_orbit) : initializeSeed(pixel_orbit);
         iterateFractalOrbit(complex, pixel_orbit);
 
@@ -673,6 +685,18 @@ public abstract class Julia extends Fractal {
                 c0 = c;
                 pixel = bn;
             }
+            else if(bigNumLib == Constants.BIGNUM_BIGINT) {
+                initVal = new BigIntNumComplex(defaultInitVal.getValue(null));
+
+                BigIntNumComplex bn = inputPixel.toBigIntNumComplex();
+                z = iterations == 0 ? initVal : secondReferenceData.lastZValue;
+                c = getSeed(useBignum, bigNumLib);
+                zold = iterations == 0 ? new BigIntNumComplex() : secondReferenceData.secondTolastZValue;
+                zold2 = iterations == 0 ? new BigIntNumComplex() : secondReferenceData.thirdTolastZValue;
+                start = initVal;
+                c0 = c;
+                pixel = bn;
+            }
             else if(bigNumLib == Constants.BIGNUM_MPFR) {
                 initVal = new MpfrBigNumComplex(defaultInitVal.getValue(null));
 
@@ -817,6 +841,9 @@ public abstract class Julia extends Fractal {
             if(bigNumLib == Constants.BIGNUM_BUILT_IN) { //BigNumComplex
                 tseed = bigSeed.toBigNumComplex();
             }
+            else if(bigNumLib == BIGNUM_BIGINT) { //BigIntNumComplex
+                tseed = bigSeed.toBigIntNumComplex();
+            }
             else if(bigNumLib == Constants.BIGNUM_MPFR) { //MpfrBigNumComplex
                 tseed = bigSeed.toMpfrBigNumComplex();
             }
@@ -862,6 +889,9 @@ public abstract class Julia extends Fractal {
 
         if(bigNumLib == ARBITRARY_BUILT_IN) { //BigNumComplex
             tseed = bigSeed.toBigNumComplex();
+        }
+        else if(bigNumLib == ARBITRARY_BIGINT) { //BigIntNumComplex
+            tseed = bigSeed.toBigIntNumComplex();
         }
         else if(bigNumLib == ARBITRARY_MPFR) { //MpfrBigNumComplex
             workSpaceData.seed.set(bigSeed);

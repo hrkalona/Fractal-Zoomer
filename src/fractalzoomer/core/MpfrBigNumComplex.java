@@ -2600,10 +2600,9 @@ public class MpfrBigNumComplex extends GenericComplex {
 
     }
 
-    public final MpfrBigNumComplex circle_inversion(MpfrBigNumComplex center, MpfrBigNum radius) {
+    public final MpfrBigNumComplex circle_inversion(MpfrBigNumComplex center, MpfrBigNum radius2) {
 
         MpfrBigNum distance = this.distance_squared(center);
-        MpfrBigNum radius2 = radius.square();
 
         radius2.divide(distance, radius2);
 

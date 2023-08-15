@@ -70,7 +70,7 @@ public class FilterOrderSelectionPanel extends JPanel {
 
         list.setCellRenderer(new ListCellRenderer<String>() {
             private final JPanel p = new JPanel(new BorderLayout());
-            private final JLabel icon = new JLabel((Icon)null, JLabel.LEFT);
+            private final ImageLabel icon = new ImageLabel(null, JLabel.LEFT);
             private final JLabel label = new JLabel("", JLabel.LEFT);
 
             @Override

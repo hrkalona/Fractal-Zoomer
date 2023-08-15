@@ -82,6 +82,10 @@ public class ImageOrbitTrap extends OrbitTrap {
     @Override
     public int getColor() {
 
+        if(keepLastXItems && !processedLastItems) {
+            processLastItems();
+        }
+
         return color;
 
     }

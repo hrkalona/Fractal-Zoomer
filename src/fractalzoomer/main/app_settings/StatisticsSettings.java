@@ -74,6 +74,7 @@ public class StatisticsSettings implements Constants {
     public int normalMapDEOffset;
     public double normalMapDEOffsetFactor;
     public boolean normalMapDEUseColorPerDepth;
+    public boolean normalMapCombineWithOtherStatistics;
 
     public double rootIterationsScaling;
     public boolean rootShading;
@@ -146,6 +147,7 @@ public class StatisticsSettings implements Constants {
         normalMapDEOffset = copy.normalMapDEOffset;
         normalMapDEOffsetFactor = copy.normalMapDEOffsetFactor;
         normalMapDEUseColorPerDepth = copy.normalMapDEUseColorPerDepth;
+        normalMapCombineWithOtherStatistics = copy.normalMapCombineWithOtherStatistics;
 
         rootIterationsScaling = copy.rootIterationsScaling;
         rootContourColorMethod = copy.rootContourColorMethod;
@@ -228,6 +230,7 @@ public class StatisticsSettings implements Constants {
         normalMapDEOffset = 0;
         normalMapDEOffsetFactor = 1;
         normalMapDEUseColorPerDepth = false;
+        normalMapCombineWithOtherStatistics = false;
 
         rootIterationsScaling = 30;
         rootContourColorMethod = 0;

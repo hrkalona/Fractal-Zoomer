@@ -2,22 +2,22 @@
 #include "gmp-impl.h"
 
 //Add to gmp-h.in
-//__GMP_DECLSPEC void mpir_fz_square_plus_c(mpf_ptr re, mpf_ptr im, mpf_ptr temp, mpf_srcptr re_sqr, mpf_srcptr im_sqr, mpf_srcptr norm_sqr, mpf_srcptr cre, mpf_srcptr cim);
-//__GMP_DECLSPEC void mpir_fz_square(mpf_ptr re, mpf_ptr im, mpf_ptr temp, mpf_srcptr re_sqr, mpf_srcptr im_sqr, mpf_srcptr norm_sqr);
-//__GMP_DECLSPEC void mpir_fz_square_plus_c_simple(mpf_ptr re, mpf_ptr im, mpf_ptr temp1, mpf_ptr temp2, mpf_srcptr cre, mpf_srcptr cim);
-//__GMP_DECLSPEC void mpir_fz_norm_square_with_components(mpf_ptr re_sqr, mpf_ptr im_sqr, mpf_ptr norm_sqr, mpf_srcptr re, mpf_srcptr im);
-//__GMP_DECLSPEC void mpir_fz_norm_square(mpf_ptr norm_sqr, mpf_ptr temp1, mpf_srcptr re, mpf_srcptr im);
-//__GMP_DECLSPEC void mpir_fz_get_d(double* valRe, double* valIm, mpf_srcptr re, mpf_srcptr im);
-//__GMP_DECLSPEC int mpir_fz_get_d_2exp(double* valRe, double* valIm, long* expRe, long* expIm, mpf_srcptr re, mpf_srcptr im);
-//__GMP_DECLSPEC void mpir_fz_set(mpf_ptr destre, mpf_ptr destim, mpf_srcptr srcre, mpf_srcptr srcim);
-//__GMP_DECLSPEC void mpir_fz_self_add(mpf_ptr re, mpf_ptr im, mpf_srcptr val_re, mpf_srcptr val_im);
-//__GMP_DECLSPEC void mpir_fz_self_sub(mpf_ptr re, mpf_ptr im, mpf_srcptr val_re, mpf_srcptr val_im);
-//__GMP_DECLSPEC void mpir_fz_rotation(mpf_ptr x, mpf_ptr y, mpf_ptr temp_re, mpf_ptr temp_im, mpf_ptr f, mpf_srcptr a, mpf_srcptr asb, mpf_srcptr apb);
-//__GMP_DECLSPEC void mpir_fz_AsBmC(mpf_ptr temp, mpf_srcptr a, mpf_srcptr b, int c);
-//__GMP_DECLSPEC void mpir_fz_ApBmC(mpf_ptr temp, mpf_srcptr a, mpf_srcptr b, int c);
-//__GMP_DECLSPEC void mpir_fz_ApBmC_DsEmG(mpf_ptr temp, mpf_ptr temp2, mpf_srcptr a, mpf_srcptr b, mpf_srcptr c, mpf_srcptr d, mpf_srcptr e, mpf_srcptr g);
-//__GMP_DECLSPEC void mpir_fz_ApBmC_DpEmG(mpf_ptr temp, mpf_ptr temp2, mpf_srcptr a, mpf_srcptr b, mpf_srcptr c, mpf_srcptr d, mpf_srcptr e, mpf_srcptr g);
-//__GMP_DECLSPEC void mpir_fz_r_ball_pow2(mpf_ptr r, mpf_ptr az, mpf_srcptr r0, mpf_srcptr azsquare);
+/*__GMP_DECLSPEC void mpir_fz_square_plus_c(mpf_ptr re, mpf_ptr im, mpf_ptr temp, mpf_srcptr re_sqr, mpf_srcptr im_sqr, mpf_srcptr norm_sqr, mpf_srcptr cre, mpf_srcptr cim);
+__GMP_DECLSPEC void mpir_fz_square(mpf_ptr re, mpf_ptr im, mpf_ptr temp, mpf_srcptr re_sqr, mpf_srcptr im_sqr, mpf_srcptr norm_sqr);
+__GMP_DECLSPEC void mpir_fz_square_plus_c_simple(mpf_ptr re, mpf_ptr im, mpf_ptr temp1, mpf_ptr temp2, mpf_ptr temp3, mpf_srcptr cre, mpf_srcptr cim, int use_threads);
+__GMP_DECLSPEC void mpir_fz_norm_square_with_components(mpf_ptr re_sqr, mpf_ptr im_sqr, mpf_ptr norm_sqr, mpf_srcptr re, mpf_srcptr im, int algorithm, int use_threads);
+__GMP_DECLSPEC void mpir_fz_norm_square(mpf_ptr norm_sqr, mpf_ptr temp1, mpf_srcptr re, mpf_srcptr im, int use_threads);
+__GMP_DECLSPEC void mpir_fz_get_d(double* valRe, double* valIm, mpf_srcptr re, mpf_srcptr im);
+__GMP_DECLSPEC int mpir_fz_get_d_2exp(double* valRe, double* valIm, long* expRe, long* expIm, mpf_srcptr re, mpf_srcptr im);
+__GMP_DECLSPEC void mpir_fz_set(mpf_ptr destre, mpf_ptr destim, mpf_srcptr srcre, mpf_srcptr srcim);
+__GMP_DECLSPEC void mpir_fz_self_add(mpf_ptr re, mpf_ptr im, mpf_srcptr val_re, mpf_srcptr val_im);
+__GMP_DECLSPEC void mpir_fz_self_sub(mpf_ptr re, mpf_ptr im, mpf_srcptr val_re, mpf_srcptr val_im);
+__GMP_DECLSPEC void mpir_fz_rotation(mpf_ptr x, mpf_ptr y, mpf_ptr temp_re, mpf_ptr temp_im, mpf_ptr f, mpf_srcptr a, mpf_srcptr asb, mpf_srcptr apb);
+__GMP_DECLSPEC void mpir_fz_AsBmC(mpf_ptr temp, mpf_srcptr a, mpf_srcptr b, int c);
+__GMP_DECLSPEC void mpir_fz_ApBmC(mpf_ptr temp, mpf_srcptr a, mpf_srcptr b, int c);
+__GMP_DECLSPEC void mpir_fz_ApBmC_DsEmG(mpf_ptr temp, mpf_ptr temp2, mpf_srcptr a, mpf_srcptr b, mpf_srcptr c, mpf_srcptr d, mpf_srcptr e, mpf_srcptr g);
+__GMP_DECLSPEC void mpir_fz_ApBmC_DpEmG(mpf_ptr temp, mpf_ptr temp2, mpf_srcptr a, mpf_srcptr b, mpf_srcptr c, mpf_srcptr d, mpf_srcptr e, mpf_srcptr g);
+__GMP_DECLSPEC void mpir_fz_r_ball_pow2(mpf_ptr r, mpf_ptr az, mpf_srcptr r0, mpf_srcptr azsquare);*/
 
 void mpir_fz_square_plus_c(mpf_ptr re, mpf_ptr im, mpf_ptr temp, mpf_srcptr re_sqr, mpf_srcptr im_sqr, mpf_srcptr norm_sqr, mpf_srcptr cre, mpf_srcptr cim)
 {
@@ -39,30 +39,120 @@ void mpir_fz_square(mpf_ptr re, mpf_ptr im, mpf_ptr temp, mpf_srcptr re_sqr, mpf
 }
 
 
-void mpir_fz_square_plus_c_simple(mpf_ptr re, mpf_ptr im, mpf_ptr temp1, mpf_ptr temp2, mpf_srcptr cre, mpf_srcptr cim)
+void mpir_fz_square_plus_c_simple(mpf_ptr re, mpf_ptr im, mpf_ptr temp1, mpf_ptr temp2, mpf_ptr temp3, mpf_srcptr cre, mpf_srcptr cim, int algorithm, int use_threads)
 {
-    mpf_add(temp1, re, im); // temp1 = re + im
-    mpf_sub(temp2, re, im); // temp2 = re - im
-    mpf_mul(temp2, temp1, temp2); // temp2 = (re + im) * (re - im)
 
-    mpf_mul(im, re, im); // im = re * im
+    if (algorithm == 0) {
+        if (use_threads) {
+            #pragma omp parallel sections num_threads(2)
+            {
+                #pragma omp section
+                {
+                    mpf_add(temp1, re, im); // temp1 = re + im
+                    mpf_sub(temp2, re, im); // temp2 = re - im
+                    mpf_mul(temp2, temp1, temp2); // temp2 = (re + im) * (re - im)
+                }
+                #pragma omp section
+                {
+                    mpf_mul(temp3, re, im); // temp3 = re * im
+                    mpf_mul_2exp(temp3, temp3, 1); // temp3 = 2 * re * im
+                }
+            }
+        }
+        else {
+            mpf_add(temp1, re, im); // temp1 = re + im
+            mpf_sub(temp2, re, im); // temp2 = re - im
+            mpf_mul(temp2, temp1, temp2); // temp2 = (re + im) * (re - im)
 
-    mpf_add(re, temp2, cre); // re = (re + im) * (re - im) + cre
-    mpf_mul_2exp(im, im, 1); // im = 2 * re * im
-    mpf_add(im, im, cim); // im = 2 * re * im + cim
+            mpf_mul(temp3, re, im); // temp3 = re * im
+            mpf_mul_2exp(temp3, temp3, 1); // temp3 = 2 * re * im
+        }
+
+        mpf_add(re, temp2, cre); // re = (re + im) * (re - im) + cre
+        mpf_add(im, temp3, cim); // im = 2 * re * im + cim
+    }
+    else {
+        if (use_threads) {
+
+            #pragma omp parallel sections num_threads(3)
+            {
+                #pragma omp section
+                {
+                    mpf_mul(temp1, re, re); // re^2
+                }
+                #pragma omp section
+                {
+                    mpf_mul(temp2, im, im); // im^2
+                }
+                #pragma omp section
+                {
+                    mpf_add(temp3, re, im); // temp3 = re + im
+                    mpf_mul(temp3, temp3, temp3); // temp3 = (re + im)^2
+                }
+            }
+        }
+        else {
+            mpf_mul(temp1, re, re); // re^2
+            mpf_mul(temp2, im, im); // im^2
+
+            mpf_add(temp3, re, im); // temp3 = re + im
+            mpf_mul(temp3, temp3, temp3); // temp3 = (re + im)^2
+        }
+
+
+        mpf_sub(re, temp1, temp2); // re = re^2 - im^2
+        mpf_add(re, re, cre); // re = re^2 - im^2 + cre
+
+
+        mpf_add(temp1, temp1, temp2); // temp1 = re^2 + im^2
+
+        mpf_sub(im, temp3, temp1); // im = (re + im)^2 - re^2 - im^2
+        mpf_add(im, im, cim); // im = (re + im)^2 - re^2 - im^2 + cim
+    }
+    
 }
 
-void mpir_fz_norm_square_with_components(mpf_ptr re_sqr, mpf_ptr im_sqr, mpf_ptr norm_sqr, mpf_srcptr re, mpf_srcptr im)
+void mpir_fz_norm_square_with_components(mpf_ptr re_sqr, mpf_ptr im_sqr, mpf_ptr norm_sqr, mpf_srcptr re, mpf_srcptr im, int use_threads)
 {
-    mpf_mul(re_sqr, re, re); // re^2
-    mpf_mul(im_sqr, im, im); // im^2
+    if (use_threads) {
+        #pragma omp parallel sections num_threads(2)
+        {
+            #pragma omp section
+            {
+                mpf_mul(re_sqr, re, re); // re^2
+            }
+            #pragma omp section
+            {
+                mpf_mul(im_sqr, im, im); // im^2
+            }
+        }
+    }
+    else {
+        mpf_mul(re_sqr, re, re); // re^2
+        mpf_mul(im_sqr, im, im); // im^2
+    }
     mpf_add(norm_sqr, re_sqr, im_sqr); // re^2 + im^2
 }
 
-void mpir_fz_norm_square(mpf_ptr norm_sqr, mpf_ptr temp1, mpf_srcptr re, mpf_srcptr im)
+void mpir_fz_norm_square(mpf_ptr norm_sqr, mpf_ptr temp1, mpf_srcptr re, mpf_srcptr im, int use_threads)
 {
-    mpf_mul(norm_sqr, re, re); // re^2
-    mpf_mul(temp1, im, im); // im^2
+    if (use_threads) {
+        #pragma omp parallel sections num_threads(2)
+        {
+            #pragma omp section
+            {
+                mpf_mul(norm_sqr, re, re); // re^2
+            }
+            #pragma omp section
+            {
+                mpf_mul(temp1, im, im); // im^2
+            }
+        }
+    }
+    else {
+        mpf_mul(norm_sqr, re, re); // re^2
+        mpf_mul(temp1, im, im); // im^2
+    }
     mpf_add(norm_sqr, norm_sqr, temp1); // re^2 + im^2
 }
 
@@ -147,7 +237,7 @@ void mpir_fz_ApBmC_DsEmG(mpf_ptr temp, mpf_ptr temp2, mpf_srcptr a, mpf_srcptr b
 
 
 void mpir_fz_ApBmC_DpEmG(mpf_ptr temp, mpf_ptr temp2, mpf_srcptr a, mpf_srcptr b, mpf_srcptr c, mpf_srcptr d, mpf_srcptr e, mpf_srcptr g)
-{
+{ 
     mpf_mul(temp, b, c);
     mpf_add(temp, a, temp);
 

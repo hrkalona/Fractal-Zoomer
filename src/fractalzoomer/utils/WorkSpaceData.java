@@ -74,13 +74,13 @@ public class WorkSpaceData {
         } else if (ThreadDraw.allocateMPIR()) {
             temp1p = new MpirBigNum();
             temp2p = new MpirBigNum();
+            temp3p = new MpirBigNum();
 
             if(f.supportsPeriod() && ThreadDraw.DETECT_PERIOD) {
                 tempPvarp = new MpirBigNum();
                 tempPvar2p = new MpirBigNum();
             }
             if(f instanceof MandelbrotCubed) {
-                temp3p = new MpirBigNum();
                 temp4p = new MpirBigNum();
             }
 

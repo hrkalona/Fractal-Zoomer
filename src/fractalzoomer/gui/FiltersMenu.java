@@ -28,7 +28,7 @@ import java.util.List;
  *
  * @author hrkalona2
  */
-public class FiltersMenu extends JMenu {
+public class FiltersMenu extends MyMenu {
 	private static final long serialVersionUID = 2385174283291846647L;
 	private JMenu detail_filters_menu;
     private JMenu color_filters_menu;
@@ -88,52 +88,52 @@ public class FiltersMenu extends JMenu {
 
         this.ptr = ptr2;
 
-        detail_filters_menu = new JMenu("Details");
+        detail_filters_menu = new MyMenu("Details");
         detail_filters_menu.setIcon(MainWindow.getIcon("filter_details.png"));
-        color_filters_menu = new JMenu("Colors");
+        color_filters_menu = new MyMenu("Colors");
         color_filters_menu.setIcon(MainWindow.getIcon("filter_colors.png"));
-        texture_filters_menu = new JMenu("Texture");
+        texture_filters_menu = new MyMenu("Texture");
         texture_filters_menu.setIcon(MainWindow.getIcon("filter_texture.png"));
-        light_filters_menu = new JMenu("Lighting");
+        light_filters_menu = new MyMenu("Lighting");
         light_filters_menu.setIcon(MainWindow.getIcon("filter_lighting.png"));
 
-        filters_opt = new JCheckBoxMenuItem[filterNames.length];
+        filters_opt = new MyCheckBoxMenuItem[filterNames.length];
 
-        filters_opt[MainWindow.ANTIALIASING] = new JCheckBoxMenuItem(filterNames[MainWindow.ANTIALIASING]);
-        filters_opt[MainWindow.EDGE_DETECTION] = new JCheckBoxMenuItem(filterNames[MainWindow.EDGE_DETECTION]);
-        filters_opt[MainWindow.EDGE_DETECTION2] = new JCheckBoxMenuItem(filterNames[MainWindow.EDGE_DETECTION2]);
-        filters_opt[MainWindow.SHARPNESS] = new JCheckBoxMenuItem(filterNames[MainWindow.SHARPNESS]);
-        filters_opt[MainWindow.BLURRING] = new JCheckBoxMenuItem(filterNames[MainWindow.BLURRING]);
-        filters_opt[MainWindow.EMBOSS] = new JCheckBoxMenuItem(filterNames[MainWindow.EMBOSS]);
-        filters_opt[MainWindow.HISTOGRAM_EQUALIZATION] = new JCheckBoxMenuItem(filterNames[MainWindow.HISTOGRAM_EQUALIZATION]);
-        filters_opt[MainWindow.CONTRAST_BRIGHTNESS] = new JCheckBoxMenuItem(filterNames[MainWindow.CONTRAST_BRIGHTNESS]);
-        filters_opt[MainWindow.COLOR_TEMPERATURE] = new JCheckBoxMenuItem(filterNames[MainWindow.COLOR_TEMPERATURE]);
-        filters_opt[MainWindow.POSTERIZE] = new JCheckBoxMenuItem(filterNames[MainWindow.POSTERIZE]);
-        filters_opt[MainWindow.SOLARIZE] = new JCheckBoxMenuItem(filterNames[MainWindow.SOLARIZE]);
-        filters_opt[MainWindow.FADE_OUT] = new JCheckBoxMenuItem(filterNames[MainWindow.FADE_OUT]);
-        filters_opt[MainWindow.INVERT_COLORS] = new JCheckBoxMenuItem(filterNames[MainWindow.INVERT_COLORS]);
-        filters_opt[MainWindow.COLOR_CHANNEL_MASKING] = new JCheckBoxMenuItem(filterNames[MainWindow.COLOR_CHANNEL_MASKING]);
-        filters_opt[MainWindow.COLOR_CHANNEL_SWAPPING] = new JCheckBoxMenuItem(filterNames[MainWindow.COLOR_CHANNEL_SWAPPING]);
-        filters_opt[MainWindow.COLOR_CHANNEL_SWIZZLING] = new JCheckBoxMenuItem(filterNames[MainWindow.COLOR_CHANNEL_SWIZZLING]);
-        filters_opt[MainWindow.COLOR_CHANNEL_ADJUSTING] = new JCheckBoxMenuItem(filterNames[MainWindow.COLOR_CHANNEL_ADJUSTING]);
-        filters_opt[MainWindow.COLOR_CHANNEL_HSB_ADJUSTING] = new JCheckBoxMenuItem(filterNames[MainWindow.COLOR_CHANNEL_HSB_ADJUSTING]);
-        filters_opt[MainWindow.COLOR_CHANNEL_MIXING] = new JCheckBoxMenuItem(filterNames[MainWindow.COLOR_CHANNEL_MIXING]);
-        filters_opt[MainWindow.GRAYSCALE] = new JCheckBoxMenuItem(filterNames[MainWindow.GRAYSCALE]);
-        filters_opt[MainWindow.DITHER] = new JCheckBoxMenuItem(filterNames[MainWindow.DITHER]);
-        filters_opt[MainWindow.GAIN] = new JCheckBoxMenuItem(filterNames[MainWindow.GAIN]);
-        filters_opt[MainWindow.GAMMA] = new JCheckBoxMenuItem(filterNames[MainWindow.GAMMA]);
-        filters_opt[MainWindow.EXPOSURE] = new JCheckBoxMenuItem(filterNames[MainWindow.EXPOSURE]);
-        filters_opt[MainWindow.CRYSTALLIZE] = new JCheckBoxMenuItem(filterNames[MainWindow.CRYSTALLIZE]);
-        filters_opt[MainWindow.POINTILLIZE] = new JCheckBoxMenuItem(filterNames[MainWindow.POINTILLIZE]);
-        filters_opt[MainWindow.OIL] = new JCheckBoxMenuItem(filterNames[MainWindow.OIL]);
-        filters_opt[MainWindow.MARBLE] = new JCheckBoxMenuItem(filterNames[MainWindow.MARBLE]);
-        filters_opt[MainWindow.WEAVE] = new JCheckBoxMenuItem(filterNames[MainWindow.WEAVE]);
-        filters_opt[MainWindow.SPARKLE] = new JCheckBoxMenuItem(filterNames[MainWindow.SPARKLE]);
-        filters_opt[MainWindow.GLOW] = new JCheckBoxMenuItem(filterNames[MainWindow.GLOW]);
-        filters_opt[MainWindow.COLOR_CHANNEL_SCALING] = new JCheckBoxMenuItem(filterNames[MainWindow.COLOR_CHANNEL_SCALING]);
-        filters_opt[MainWindow.NOISE] = new JCheckBoxMenuItem(filterNames[MainWindow.NOISE]);
-        filters_opt[MainWindow.LIGHT_EFFECTS] = new JCheckBoxMenuItem(filterNames[MainWindow.LIGHT_EFFECTS]);
-        filters_opt[MainWindow.MIRROR] = new JCheckBoxMenuItem(filterNames[MainWindow.MIRROR]);
+        filters_opt[MainWindow.ANTIALIASING] = new MyCheckBoxMenuItem(filterNames[MainWindow.ANTIALIASING]);
+        filters_opt[MainWindow.EDGE_DETECTION] = new MyCheckBoxMenuItem(filterNames[MainWindow.EDGE_DETECTION]);
+        filters_opt[MainWindow.EDGE_DETECTION2] = new MyCheckBoxMenuItem(filterNames[MainWindow.EDGE_DETECTION2]);
+        filters_opt[MainWindow.SHARPNESS] = new MyCheckBoxMenuItem(filterNames[MainWindow.SHARPNESS]);
+        filters_opt[MainWindow.BLURRING] = new MyCheckBoxMenuItem(filterNames[MainWindow.BLURRING]);
+        filters_opt[MainWindow.EMBOSS] = new MyCheckBoxMenuItem(filterNames[MainWindow.EMBOSS]);
+        filters_opt[MainWindow.HISTOGRAM_EQUALIZATION] = new MyCheckBoxMenuItem(filterNames[MainWindow.HISTOGRAM_EQUALIZATION]);
+        filters_opt[MainWindow.CONTRAST_BRIGHTNESS] = new MyCheckBoxMenuItem(filterNames[MainWindow.CONTRAST_BRIGHTNESS]);
+        filters_opt[MainWindow.COLOR_TEMPERATURE] = new MyCheckBoxMenuItem(filterNames[MainWindow.COLOR_TEMPERATURE]);
+        filters_opt[MainWindow.POSTERIZE] = new MyCheckBoxMenuItem(filterNames[MainWindow.POSTERIZE]);
+        filters_opt[MainWindow.SOLARIZE] = new MyCheckBoxMenuItem(filterNames[MainWindow.SOLARIZE]);
+        filters_opt[MainWindow.FADE_OUT] = new MyCheckBoxMenuItem(filterNames[MainWindow.FADE_OUT]);
+        filters_opt[MainWindow.INVERT_COLORS] = new MyCheckBoxMenuItem(filterNames[MainWindow.INVERT_COLORS]);
+        filters_opt[MainWindow.COLOR_CHANNEL_MASKING] = new MyCheckBoxMenuItem(filterNames[MainWindow.COLOR_CHANNEL_MASKING]);
+        filters_opt[MainWindow.COLOR_CHANNEL_SWAPPING] = new MyCheckBoxMenuItem(filterNames[MainWindow.COLOR_CHANNEL_SWAPPING]);
+        filters_opt[MainWindow.COLOR_CHANNEL_SWIZZLING] = new MyCheckBoxMenuItem(filterNames[MainWindow.COLOR_CHANNEL_SWIZZLING]);
+        filters_opt[MainWindow.COLOR_CHANNEL_ADJUSTING] = new MyCheckBoxMenuItem(filterNames[MainWindow.COLOR_CHANNEL_ADJUSTING]);
+        filters_opt[MainWindow.COLOR_CHANNEL_HSB_ADJUSTING] = new MyCheckBoxMenuItem(filterNames[MainWindow.COLOR_CHANNEL_HSB_ADJUSTING]);
+        filters_opt[MainWindow.COLOR_CHANNEL_MIXING] = new MyCheckBoxMenuItem(filterNames[MainWindow.COLOR_CHANNEL_MIXING]);
+        filters_opt[MainWindow.GRAYSCALE] = new MyCheckBoxMenuItem(filterNames[MainWindow.GRAYSCALE]);
+        filters_opt[MainWindow.DITHER] = new MyCheckBoxMenuItem(filterNames[MainWindow.DITHER]);
+        filters_opt[MainWindow.GAIN] = new MyCheckBoxMenuItem(filterNames[MainWindow.GAIN]);
+        filters_opt[MainWindow.GAMMA] = new MyCheckBoxMenuItem(filterNames[MainWindow.GAMMA]);
+        filters_opt[MainWindow.EXPOSURE] = new MyCheckBoxMenuItem(filterNames[MainWindow.EXPOSURE]);
+        filters_opt[MainWindow.CRYSTALLIZE] = new MyCheckBoxMenuItem(filterNames[MainWindow.CRYSTALLIZE]);
+        filters_opt[MainWindow.POINTILLIZE] = new MyCheckBoxMenuItem(filterNames[MainWindow.POINTILLIZE]);
+        filters_opt[MainWindow.OIL] = new MyCheckBoxMenuItem(filterNames[MainWindow.OIL]);
+        filters_opt[MainWindow.MARBLE] = new MyCheckBoxMenuItem(filterNames[MainWindow.MARBLE]);
+        filters_opt[MainWindow.WEAVE] = new MyCheckBoxMenuItem(filterNames[MainWindow.WEAVE]);
+        filters_opt[MainWindow.SPARKLE] = new MyCheckBoxMenuItem(filterNames[MainWindow.SPARKLE]);
+        filters_opt[MainWindow.GLOW] = new MyCheckBoxMenuItem(filterNames[MainWindow.GLOW]);
+        filters_opt[MainWindow.COLOR_CHANNEL_SCALING] = new MyCheckBoxMenuItem(filterNames[MainWindow.COLOR_CHANNEL_SCALING]);
+        filters_opt[MainWindow.NOISE] = new MyCheckBoxMenuItem(filterNames[MainWindow.NOISE]);
+        filters_opt[MainWindow.LIGHT_EFFECTS] = new MyCheckBoxMenuItem(filterNames[MainWindow.LIGHT_EFFECTS]);
+        filters_opt[MainWindow.MIRROR] = new MyCheckBoxMenuItem(filterNames[MainWindow.MIRROR]);
 
         filters_opt[MainWindow.ANTIALIASING].setToolTipText("Smooths the jagged look of the image.");
         filters_opt[MainWindow.EDGE_DETECTION].setToolTipText("Detects the edges of the image.");

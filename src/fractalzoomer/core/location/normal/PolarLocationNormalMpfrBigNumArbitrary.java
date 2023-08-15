@@ -174,7 +174,7 @@ public class PolarLocationNormalMpfrBigNumArbitrary extends Location {
                 temp_ddr.mult(ddemulx, temp_ddr);
             } else if (x == indexX - 1) {
                 temp_ddr.mult(ddInvemulx, temp_ddr);
-            } else {
+            } else if (x != indexX) {
                 ddmulx.mult(x, temp_ddr);
                 temp_ddr.add(ddstart, temp_ddr);
                 temp_ddr.exp(temp_ddr);
@@ -207,7 +207,7 @@ public class PolarLocationNormalMpfrBigNumArbitrary extends Location {
                 //temp_ddsf.set(tempResult);
                 //temp_ddcf.set(tempResult3);
                 MpfrBigNum.set(temp_ddsf, temp_ddcf, tempResult, tempResult3);
-            } else {
+            } else if (y != indexY) {
                 ddmuly.mult(y, tempResult);
                 tempResult.sin_cos(tempResult, tempResult3);
 
@@ -277,7 +277,7 @@ public class PolarLocationNormalMpfrBigNumArbitrary extends Location {
                 //temp_ddsf.set(tempResult);
                 //temp_ddcf.set(tempResult3);
                 MpfrBigNum.set(temp_ddsf, temp_ddcf, tempResult, tempResult3);
-            } else {
+            } else if (y != indexY) {
 
                 ddmuly.mult(y, tempResult);
                 tempResult.sin_cos(tempResult, tempResult3);
@@ -302,7 +302,7 @@ public class PolarLocationNormalMpfrBigNumArbitrary extends Location {
                 temp_ddr.mult(ddemulx, temp_ddr);
             } else if (x == indexX - 1) {
                 temp_ddr.mult(ddInvemulx, temp_ddr);
-            } else {
+            } else if (x != indexX) {
                 ddmulx.mult(x, temp_ddr);
                 temp_ddr.add(ddstart, temp_ddr);
                 temp_ddr.exp(temp_ddr);
@@ -334,7 +334,7 @@ public class PolarLocationNormalMpfrBigNumArbitrary extends Location {
         else if(x == indexX - 1) {
             temp_ddr.mult(ddInvemulx, temp_ddr);
         }
-        else {
+        else if (x != indexX) {
             ddmulx.mult(x, temp_ddr);
             temp_ddr.add(ddstart, temp_ddr);
             temp_ddr.exp(temp_ddr);
@@ -405,7 +405,7 @@ public class PolarLocationNormalMpfrBigNumArbitrary extends Location {
             //temp_ddcf.set(tempResult3);
             MpfrBigNum.set(temp_ddsf, temp_ddcf, tempResult, tempResult3);
         }
-        else {
+        else if (y != indexY) {
 
             ddmuly.mult(y, tempResult);
             tempResult.sin_cos(tempResult, tempResult3);

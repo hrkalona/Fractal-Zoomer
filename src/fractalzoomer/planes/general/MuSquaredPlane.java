@@ -59,6 +59,13 @@ public class MuSquaredPlane extends Plane {
     }
 
     @Override
+    public BigIntNumComplex transform(BigIntNumComplex pixel) {
+
+        return pixel.square();
+
+    }
+
+    @Override
     public BigComplex transform(BigComplex pixel) {
 
         return pixel.square();

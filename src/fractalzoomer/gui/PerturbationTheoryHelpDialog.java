@@ -26,7 +26,8 @@ public class PerturbationTheoryHelpDialog {
                 "of the reference point will be. An automatic way of setting the precision currently exists,<br>" +
                 "but keep in mind the above behavior.<br><br>" +
                 "Built-in BigNum is a fixed precision floating point implementation, which is faster than Apfloat arbitrary precision library. " +
-                "Mpfr BigNum is a wrapper for the MPFR library, it is faster than both Built-in BigNum (After a specific bit precision) and Apfloat. " +
+                "Fixed Point BigInteger BigNum is a fixed precision floating point implementation, which is faster the the built-in type. " +
+                "Mpfr BigNum is a wrapper for the MPFR library, it is faster than Built-in BigNum/Fixed Point BigInteger BigNum (After a specific bit precision) and Apfloat. " +
                 "Mpir BigNum is a wrapper for the MPIR library, it is faster than MPFR (Currently it only works for intel cpus from Skylake architecture and onwards). " +
                 "Currently MPFR library is only supported in Windows and Linux, while MPIR library is only supported in Windows." +
                 "The automatic option will try to pick the best library depending on the depth and bit precision. " +
@@ -61,7 +62,7 @@ public class PerturbationTheoryHelpDialog {
                 "Nanomb1 or Super Series Approximation can skip multiples of the period, and its only implemented for Mandelbrot (2) (Not supported with burning ship or Julia sets).<br><br>" +
                 "The deep zoom pixel calculation algorithm is using FloatExp for Non Scaled, and scaling between FloatExp and doubles for Scaled.<br>" +
                 "Currently it is only supported for Mandelbrot (2) and its burning ship variant (Not supported with Julia sets).<br><br>" +
-                "If an approximation method or deep zoom pixel calculation method is not supported for a specific fractal," +
+                "If an approximation method or deep zoom pixel calculation method is not supported for a specific fractal, " +
                 "then a No Approximation/Not Scaled configuration will be used.<br><br>" +
                 "Period detection, and period usage currently only works for Mandelbrot (2-5) powers, excluding burning ship variants and julia sets.<br><br>" +
                 "Using Series Approximation or Bilinear Approximation or Nanomb1 with Statistical Coloring  or Orbit Traps will not produce accurate images, as those approximations skip or merge a number of iterations " +

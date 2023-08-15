@@ -175,7 +175,7 @@ public class RotationDialog extends JDialog {
 
         });
 
-        JButton resetValues = new JButton("Reset");
+        JButton resetValues = new MyButton("Reset");
         resetValues.setFocusable(false);
         resetValues.setIcon(MainWindow.getIcon("reset_small.png"));
 
@@ -256,9 +256,9 @@ public class RotationDialog extends JDialog {
 
                         try {
                             if(MyApfloat.setAutomaticPrecision) {
-                                long precision = MyApfloat.getAutomaticPrecision(new String[]{field_real.getText(), field_imaginary.getText()}, new boolean[] {false, false}, false);
+                                long precision = MyApfloat.getAutomaticPrecision(new String[]{field_real.getText(), field_imaginary.getText()}, new boolean[] {false, false});
 
-                                if (MyApfloat.shouldSetPrecision(precision, true)) {
+                                if (MyApfloat.shouldSetPrecision(precision, MyApfloat.alwaysCheckForDecrease)) {
                                     Fractal.clearReferences(true);
                                     MyApfloat.setPrecision(precision, s);
                                 }

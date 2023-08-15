@@ -125,7 +125,7 @@ public class CartesianLocationNormalApfloatArbitrary extends Location {
                 ddtempX = MyApfloat.fp.add(ddtempX, ddtemp_size_image_size_x);
             } else if (x == indexX - 1) {
                 ddtempX = MyApfloat.fp.subtract(ddtempX, ddtemp_size_image_size_x);
-            } else {
+            } else if (x != indexX) {
                 ddtempX = MyApfloat.fp.add(ddtemp_xcenter_size, MyApfloat.fp.multiply(ddtemp_size_image_size_x, new MyApfloat(x)));
             }
 
@@ -133,7 +133,7 @@ public class CartesianLocationNormalApfloatArbitrary extends Location {
                 ddtempY = MyApfloat.fp.subtract(ddtempY, ddtemp_size_image_size_y);
             } else if (y == indexY - 1) {
                 ddtempY = MyApfloat.fp.add(ddtempY, ddtemp_size_image_size_y);
-            } else {
+            } else if (y != indexY) {
                 ddtempY = MyApfloat.fp.subtract(ddtemp_ycenter_size, MyApfloat.fp.multiply(ddtemp_size_image_size_y, new MyApfloat(y)));
             }
         }
@@ -160,7 +160,7 @@ public class CartesianLocationNormalApfloatArbitrary extends Location {
                 ddtempY = MyApfloat.fp.subtract(ddtempY, ddtemp_size_image_size_y);
             } else if (y == indexY - 1) {
                 ddtempY = MyApfloat.fp.add(ddtempY, ddtemp_size_image_size_y);
-            } else {
+            } else if (y != indexY) {
                 ddtempY = MyApfloat.fp.subtract(ddtemp_ycenter_size, MyApfloat.fp.multiply(ddtemp_size_image_size_y, new MyApfloat(y)));
             }
         }
@@ -179,7 +179,7 @@ public class CartesianLocationNormalApfloatArbitrary extends Location {
                 ddtempX = MyApfloat.fp.add(ddtempX, ddtemp_size_image_size_x);
             } else if (x == indexX - 1) {
                 ddtempX = MyApfloat.fp.subtract(ddtempX, ddtemp_size_image_size_x);
-            } else {
+            } else if (x != indexX) {
                 ddtempX = MyApfloat.fp.add(ddtemp_xcenter_size, MyApfloat.fp.multiply(ddtemp_size_image_size_x, new MyApfloat(x)));
             }
         }
@@ -206,7 +206,7 @@ public class CartesianLocationNormalApfloatArbitrary extends Location {
         else if(x == indexX - 1) {
             ddtempX = MyApfloat.fp.subtract(ddtempX, ddtemp_size_image_size_x);
         }
-        else {
+        else if (x != indexX) {
             ddtempX = MyApfloat.fp.add(ddtemp_xcenter_size, MyApfloat.fp.multiply(ddtemp_size_image_size_x, new MyApfloat(x)));
         }
 
@@ -236,7 +236,7 @@ public class CartesianLocationNormalApfloatArbitrary extends Location {
         else if(y == indexY - 1) {
             ddtempY = MyApfloat.fp.add(ddtempY, ddtemp_size_image_size_y);
         }
-        else {
+        else if (y != indexY) {
             ddtempY = MyApfloat.fp.subtract(ddtemp_ycenter_size, MyApfloat.fp.multiply(ddtemp_size_image_size_y, new MyApfloat(y)));
         }
 

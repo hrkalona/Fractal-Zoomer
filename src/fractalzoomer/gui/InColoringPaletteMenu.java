@@ -28,7 +28,7 @@ import java.awt.event.KeyEvent;
  *
  * @author kaloch
  */
-public class InColoringPaletteMenu extends JMenu {
+public class InColoringPaletteMenu extends MyMenu {
     private static final long serialVersionUID = -6910423535L;
     private MainWindow ptr;
     private PaletteMenu palette_menu;
@@ -51,22 +51,22 @@ public class InColoringPaletteMenu extends JMenu {
         
         palette_menu = new PaletteMenu(ptr, "Palette", ps.color_choice, smoothing, ps.custom_palette, ps.color_interpolation, ps.color_space, ps.reversed_palette, ps.color_cycling_location, ps.scale_factor_palette_val, ps.processing_alg, false, temp_color_cycling_location);
         
-        roll_palette_menu = new JMenu("Palette Shifting");
+        roll_palette_menu = new MyMenu("Palette Shifting");
         roll_palette_menu.setIcon(MainWindow.getIcon("shift_palette.png"));
         
-        roll_palette = new JMenuItem("Shift Palette", MainWindow.getIcon("shift_palette.png"));
+        roll_palette = new MyMenuItem("Shift Palette", MainWindow.getIcon("shift_palette.png"));
 
-        increase_roll_palette = new JMenuItem("Shift Palette Forward", MainWindow.getIcon("plus.png"));
+        increase_roll_palette = new MyMenuItem("Shift Palette Forward", MainWindow.getIcon("plus.png"));
 
-        decrease_roll_palette = new JMenuItem("Shift Palette Backward", MainWindow.getIcon("minus.png"));
+        decrease_roll_palette = new MyMenuItem("Shift Palette Backward", MainWindow.getIcon("minus.png"));
         
         color_transfer_menu = new ColorTransferMenu(ptr, "Transfer Functions", ps.transfer_function, false);
         
-        color_intensity_opt = new JMenuItem("Color Intensity", MainWindow.getIcon("color_intensity.png"));
+        color_intensity_opt = new MyMenuItem("Color Intensity", MainWindow.getIcon("color_intensity.png"));
 
-        generated_palette_opt = new JMenuItem("Generated Palette", MainWindow.getIcon("palette.png"));
+        generated_palette_opt = new MyMenuItem("Generated Palette", MainWindow.getIcon("palette.png"));
         
-        usePaletteForInColoring_opt = new JCheckBoxMenuItem("Use In-Coloring Palette");
+        usePaletteForInColoring_opt = new MyCheckBoxMenuItem("Use In-Coloring Palette");
         
         roll_palette.setToolTipText("Shifts the chosen palette by a number.");
         increase_roll_palette.setToolTipText("Shifts the chosen palette forward by one.");

@@ -57,6 +57,10 @@ public class MantExpComplex extends GenericComplex {
         setMantexp(c.getRe().getMantExp(), c.getIm().getMantExp());
     }
 
+    public MantExpComplex(BigIntNumComplex c) {
+        setMantexp(c.getRe().getMantExp(), c.getIm().getMantExp());
+    }
+
     public MantExpComplex(MpfrBigNumComplex c) {
 
         //setMantexp(c.getRe().getMantExp(), c.getIm().getMantExp());

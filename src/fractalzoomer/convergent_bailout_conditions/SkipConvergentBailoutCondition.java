@@ -56,6 +56,15 @@ public class SkipConvergentBailoutCondition extends ConvergentBailoutCondition {
     }
 
     @Override
+    public boolean converged(BigIntNumComplex z, BigIntNumComplex zold, BigIntNumComplex zold2, int iterations, BigIntNumComplex c, BigIntNumComplex start, BigIntNumComplex c0, BigIntNumComplex pixel) {
+        if(iterations < SKIPPED_ITERATION_COUNT) {
+            return false;
+        }
+
+        return wrappedCondition.converged(z, zold, zold2, iterations, c, start, c0, pixel);
+    }
+
+    @Override
     public boolean converged(DDComplex z, DDComplex zold, DDComplex zold2, int iterations, DDComplex c, DDComplex start, DDComplex c0, DDComplex pixel) {
         if(iterations < SKIPPED_ITERATION_COUNT) {
             return false;
@@ -93,6 +102,15 @@ public class SkipConvergentBailoutCondition extends ConvergentBailoutCondition {
 
     @Override
     public boolean converged(BigComplex z, Apfloat root, BigComplex zold, BigComplex zold2, int iterations, BigComplex c, BigComplex start, BigComplex c0, BigComplex pixel) {
+        if(iterations < SKIPPED_ITERATION_COUNT) {
+            return false;
+        }
+
+        return wrappedCondition.converged(z, root, zold, zold2, iterations, c, start, c0, pixel);
+    }
+
+    @Override
+    public boolean converged(BigIntNumComplex z, BigIntNum root, BigIntNumComplex zold, BigIntNumComplex zold2, int iterations, BigIntNumComplex c, BigIntNumComplex start, BigIntNumComplex c0, BigIntNumComplex pixel) {
         if(iterations < SKIPPED_ITERATION_COUNT) {
             return false;
         }
@@ -157,6 +175,15 @@ public class SkipConvergentBailoutCondition extends ConvergentBailoutCondition {
 
     @Override
     public boolean converged(BigComplex z, BigComplex root, BigComplex zold, BigComplex zold2, int iterations, BigComplex c, BigComplex start, BigComplex c0, BigComplex pixel) {
+        if(iterations < SKIPPED_ITERATION_COUNT) {
+            return false;
+        }
+
+        return wrappedCondition.converged(z, root, zold, zold2, iterations, c, start, c0, pixel);
+    }
+
+    @Override
+    public boolean converged(BigIntNumComplex z, BigIntNumComplex root, BigIntNumComplex zold, BigIntNumComplex zold2, int iterations, BigIntNumComplex c, BigIntNumComplex start, BigIntNumComplex c0, BigIntNumComplex pixel) {
         if(iterations < SKIPPED_ITERATION_COUNT) {
             return false;
         }

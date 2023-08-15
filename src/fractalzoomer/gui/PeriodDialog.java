@@ -130,7 +130,7 @@ public class PeriodDialog extends JDialog {
                         }
 
                         dispose();
-                        ptr.setIterationsPost();
+                        ptr.redraw();
                     }
                 });
 

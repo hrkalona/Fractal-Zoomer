@@ -77,7 +77,7 @@ public class ColorChooserFrame extends JFrame {
             }
         });
 
-        JButton ok = new JButton("Ok");
+        JButton ok = new MyButton("Ok");
         ok.setFocusable(false);
         
         getRootPane().setDefaultButton(ok);
@@ -125,7 +125,7 @@ public class ColorChooserFrame extends JFrame {
             }
         });
 
-        JButton close = new JButton("Cancel");
+        JButton close = new MyButton("Cancel");
         close.setFocusable(false);
         close.addActionListener(e -> {
 

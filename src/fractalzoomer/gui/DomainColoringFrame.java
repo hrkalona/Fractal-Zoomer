@@ -166,7 +166,7 @@ public class DomainColoringFrame extends JFrame {
         color_transfer_group.add(presetButton);
         color_transfer_group.add(customButton);
 
-        final JButton custom = new JButton("");
+        final JButton custom = new MyButton("");
         custom.setToolTipText("Sets the custom domain coloring settings.");
         custom.setPreferredSize(new Dimension(30, 30));
         custom.setIcon(MainWindow.getIcon("domain_coloring.png"));
@@ -227,7 +227,7 @@ public class DomainColoringFrame extends JFrame {
         buttons.setLayout(new FlowLayout());
         buttons.setBackground(MainWindow.bg_color);
 
-        JButton ok = new JButton("Ok");
+        JButton ok = new MyButton("Ok");
         getRootPane().setDefaultButton(ok);
         ok.setFocusable(false);
         ok.addActionListener(e -> {
@@ -303,7 +303,7 @@ public class DomainColoringFrame extends JFrame {
 
         buttons.add(ok);
 
-        JButton cancel = new JButton("Cancel");
+        JButton cancel = new MyButton("Cancel");
         cancel.setFocusable(false);
         cancel.addActionListener(e -> {
 

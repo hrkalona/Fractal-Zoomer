@@ -845,6 +845,14 @@ public class MpirBigNumComplex extends GenericComplex {
 
     }
 
+    public final MpirBigNum norm_squared_no_threads(MpirBigNum temp1, MpirBigNum temp2) {
+
+        MpirBigNum.norm_sqr_no_threads(temp1, temp2, re, im);
+
+        return temp1;
+
+    }
+
     /*
      *  |z1 - z2|^2
      */
@@ -1318,7 +1326,7 @@ public class MpirBigNumComplex extends GenericComplex {
     }
 
     @Override
-    public final MpirBigNumComplex square_plus_c_mutable(GenericComplex ca, MpirBigNum temp1, MpirBigNum temp2) {
+    public final MpirBigNumComplex square_plus_c_mutable(GenericComplex ca, MpirBigNum temp1, MpirBigNum temp2, MpirBigNum temp3) {
         MpirBigNumComplex c = (MpirBigNumComplex)ca;
 
 //        re.add(im, temp1);
@@ -1332,7 +1340,17 @@ public class MpirBigNumComplex extends GenericComplex {
 //
 //        im.mult2(im);
 //        im.add(c.im, im);
-        MpirBigNum.z_sqr_p_c(re, im, temp1, temp2, c.re, c.im);
+        MpirBigNum.z_sqr_p_c(re, im, temp1, temp2, temp3, c.re, c.im);
+
+        return this;
+
+    }
+
+    @Override
+    public final MpirBigNumComplex square_plus_c_mutable_no_threads(GenericComplex ca, MpirBigNum temp1, MpirBigNum temp2, MpirBigNum temp3) {
+        MpirBigNumComplex c = (MpirBigNumComplex)ca;
+
+        MpirBigNum.z_sqr_p_c_no_threads(re, im, temp1, temp2, temp3, c.re, c.im);
 
         return this;
 
@@ -1937,10 +1955,9 @@ public class MpirBigNumComplex extends GenericComplex {
 
     }
 
-    public final MpirBigNumComplex circle_inversion(MpirBigNumComplex center, MpirBigNum radius) {
+    public final MpirBigNumComplex circle_inversion(MpirBigNumComplex center, MpirBigNum radius2) {
 
         MpirBigNum distance = this.distance_squared(center);
-        MpirBigNum radius2 = radius.square();
 
         radius2.divide(distance, radius2);
 
@@ -2079,6 +2096,13 @@ public class MpirBigNumComplex extends GenericComplex {
     /* more efficient z^2 + c */
     @Override
     public final MpirBigNumComplex square_plus_c_mutable(GenericComplex cn) {
+
+        return square_plus_c(cn);
+
+    }
+
+    @Override
+    public final MpirBigNumComplex square_plus_c_mutable_no_threads(GenericComplex cn) {
 
         return square_plus_c(cn);
 

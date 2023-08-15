@@ -84,15 +84,18 @@ class ColorPoint implements Comparable<ColorPoint> {
         private int offset;
         @JsonProperty("wrapAround")
         private boolean wrapAround;
+        @JsonProperty("interpolation")
+        private int interpolation;
 
         public ColorDataPoints() {}
-        public ColorDataPoints(ArrayList<ColorPoint> dataPointsRed, ArrayList<ColorPoint> dataPointsGreen, ArrayList<ColorPoint> dataPointsBlue, int factor, boolean reversedPalette, int offset, boolean wrapAround) {
+        public ColorDataPoints(ArrayList<ColorPoint> dataPointsRed, ArrayList<ColorPoint> dataPointsGreen, ArrayList<ColorPoint> dataPointsBlue, int factor, boolean reversedPalette, int offset, boolean wrapAround, int interpolation) {
             this.dataPointsRed = new ArrayList<>();
             this.dataPointsGreen = new ArrayList<>();
             this.dataPointsBlue = new ArrayList<>();
             this.reversedPalette = reversedPalette;
             this.offset = offset;
             this.wrapAround = wrapAround;
+            this.interpolation = interpolation;
 
             for(int i = 0; i < dataPointsRed.size(); i++) {
                 this.dataPointsRed.add(new ColorPoint(dataPointsRed.get(i).getX(), (int)((dataPointsRed.get(i).getY() / ((double)factor)) * 255 + 0.5), dataPointsRed.get(i).isAnchor()));
@@ -210,6 +213,14 @@ class ColorPoint implements Comparable<ColorPoint> {
            this.wrapAround = wrapAround;
        }
 
+       public int getInterpolation() {
+           return interpolation;
+       }
+
+       public void setInterpolation(int interpolation) {
+           this.interpolation = interpolation;
+       }
+
 
    }
 
@@ -231,9 +242,13 @@ class ColorPoint implements Comparable<ColorPoint> {
 
         private volatile static JCheckBox addOnAllComponents;
 
+        private volatile static JComboBox<String> backgroundMode;
+
+        private volatile static JComboBox<String> interpolationMode;
+
         private volatile static JLabel paletteLength;
 
-        private volatile static JLabel im;
+        private volatile static ImageLabel im;
 
         private static int mouse_color_label_x;
 
@@ -254,6 +269,7 @@ class ColorPoint implements Comparable<ColorPoint> {
             addAnchorAtTheEnd.setSelected(false);
             check_box_reveres_palette.setSelected(false);
             offset_textfield.setValue(0);
+            interpolationMode.setSelectedIndex(0);
             wrapAround.setSelected(false);
             redComponent.setWrapAround(false);
             greenComponent.setWrapAround(false);
@@ -298,9 +314,9 @@ class ColorPoint implements Comparable<ColorPoint> {
 
             this.frame = frame;
             if(redComponent == null) {
-                redComponent = new ColorComponent(Color.RED, "R", width, height, reds, this);
-                greenComponent = new ColorComponent(Color.GREEN, "G", width, height, greens, this);
-                blueComponent = new ColorComponent(Color.BLUE, "B", width, height, blues, this);
+                redComponent = new ColorComponent(Color.RED, new Color(110, 70, 70), "R", width, height, reds, this);
+                greenComponent = new ColorComponent(Color.GREEN, new Color(70, 110, 70), "G", width, height, greens, this);
+                blueComponent = new ColorComponent(Color.BLUE, new Color(70, 70, 110), "B", width, height, blues, this);
             }
             else {
                 redComponent.setEditor(this);
@@ -324,7 +340,7 @@ class ColorPoint implements Comparable<ColorPoint> {
             }
 
             if(lockPoints == null) {
-                lockPoints = new JCheckBox("Add boundaries");
+                lockPoints = new JCheckBox("Add bounds");
                 lockPoints.setFocusable(false);
                 lockPoints.setSelected(false);
                 lockPoints.setToolTipText("Points can no longer move past other points.");
@@ -351,11 +367,40 @@ class ColorPoint implements Comparable<ColorPoint> {
             }
 
             if(addOnAllComponents == null) {
-                addOnAllComponents = new JCheckBox("Add on all components");
+                addOnAllComponents = new JCheckBox("Add to all");
                 addOnAllComponents.setFocusable(false);
                 addOnAllComponents.setSelected(false);
-                addOnAllComponents.setToolTipText("When clicking to add on one component, the same value will be added to all components.");
+                addOnAllComponents.setToolTipText("When clicking to add on one color channel, the same value will be added to all channels.");
                 addOnAllComponents.setBackground(MainWindow.bg_color);
+            }
+
+            if(backgroundMode == null) {
+                String[] bg_mode = {"White", "Gradient"};
+                backgroundMode = new JComboBox<>(bg_mode);
+                backgroundMode.setSelectedIndex(0);
+                backgroundMode.setFocusable(false);
+                backgroundMode.setToolTipText("Changes the color channel background.");
+
+                backgroundMode.addActionListener( e -> {
+                    redComponent.repaint();
+                    greenComponent.repaint();
+                    blueComponent.repaint();
+                });
+            }
+
+            if(interpolationMode == null) {
+                String[] color_interp_str = {"Linear", "Cosine", "Acceleration", "Deceleration", "Exponential", "Catmull-Rom", "Catmull-Rom 2", "Sigmoid", "Sine", "Square Root", "3rd Degree Poly", "5th Degree Poly", "Exponential 2", "Cube Root", "Fourth Root", "Smooth Transition"};
+                interpolationMode = new JComboBox<>(color_interp_str);
+                interpolationMode.setSelectedIndex(0);
+                interpolationMode.setFocusable(false);
+                interpolationMode.setToolTipText("Sets the color interpolation method.");
+
+                interpolationMode.addActionListener( e -> {
+                    redComponent.repaint();
+                    greenComponent.repaint();
+                    blueComponent.repaint();
+                    paintPalette();
+                });
             }
 
             if(check_box_reveres_palette == null) {
@@ -393,7 +438,7 @@ class ColorPoint implements Comparable<ColorPoint> {
             same_hues.setToolTipText("Every color will have the same numbers of hues.");
             same_hues.setBackground(MainWindow.bg_color);
 
-            JButton help = new JButton();
+            JButton help = new MyButton();
             help.setIcon(MainWindow.getIcon("palette_help.png"));
             help.setFocusable(false);
             help.setPreferredSize(new Dimension(28, 28));
@@ -402,7 +447,7 @@ class ColorPoint implements Comparable<ColorPoint> {
 
             tools.add(help);
 
-            JButton reset = new JButton();
+            JButton reset = new MyButton();
             reset.setIcon(MainWindow.getIcon("palette_reset.png"));
             reset.setFocusable(false);
             reset.setPreferredSize(new Dimension(28, 28));
@@ -412,7 +457,7 @@ class ColorPoint implements Comparable<ColorPoint> {
             tools.add(reset);
 
 
-            JButton clear_palette = new JButton();
+            JButton clear_palette = new MyButton();
             clear_palette.setIcon(MainWindow.getIcon("palette_clear.png"));
             clear_palette.setFocusable(false);
             clear_palette.setToolTipText("Clears the palette.");
@@ -435,7 +480,7 @@ class ColorPoint implements Comparable<ColorPoint> {
 
             tools.add(clear_palette);
 
-            JButton save_palette = new JButton();
+            JButton save_palette = new MyButton();
             save_palette.setIcon(MainWindow.getIcon("palette_save.png"));
             save_palette.setFocusable(false);
             save_palette.setToolTipText("Saves a user made palette.");
@@ -512,7 +557,7 @@ class ColorPoint implements Comparable<ColorPoint> {
                             offset = offset < 0 ? 0 : offset;
                         }
                         catch (Exception ex) {}
-                        ColorDataPoints d = new ColorDataPoints(redComponent.getColorPoints(), greenComponent.getColorPoints(), blueComponent.getColorPoints(), height, check_box_reveres_palette.isSelected(), offset, wrapAround.isSelected());
+                        ColorDataPoints d = new ColorDataPoints(redComponent.getColorPoints(), greenComponent.getColorPoints(), blueComponent.getColorPoints(), height, check_box_reveres_palette.isSelected(), offset, wrapAround.isSelected(), interpolationMode.getSelectedIndex());
 
                         ObjectMapper objectMapper = new ObjectMapper();
                         try {
@@ -529,7 +574,7 @@ class ColorPoint implements Comparable<ColorPoint> {
 
             tools.add(save_palette);
 
-            JButton load_palette = new JButton();
+            JButton load_palette = new MyButton();
             load_palette.setIcon(MainWindow.getIcon("palette_load.png"));
             load_palette.setFocusable(false);
             load_palette.setToolTipText("Loads a user made palette.");
@@ -579,6 +624,8 @@ class ColorPoint implements Comparable<ColorPoint> {
                             offset_textfield.setValue(0);
                         }
 
+                        interpolationMode.setSelectedIndex(dp.getInterpolation());
+
                         redComponent.repaint();
                         greenComponent.repaint();
                         blueComponent.repaint();
@@ -591,7 +638,7 @@ class ColorPoint implements Comparable<ColorPoint> {
 
             tools.add(load_palette);
 
-            JButton random_palette = new JButton();
+            JButton random_palette = new MyButton();
             random_palette.setIcon(MainWindow.getIcon("palette_random.png"));
             random_palette.setFocusable(false);
             random_palette.setToolTipText("Randomizes the palette.");
@@ -724,7 +771,7 @@ class ColorPoint implements Comparable<ColorPoint> {
             options_panel.add(offset_label);
 
             if(offset_textfield == null) {
-                offset_textfield = new MyJSpinner(9, new SpinnerNumberModel( 0, 0, Integer.MAX_VALUE, 1));
+                offset_textfield = new MyJSpinner(5, new SpinnerNumberModel( 0, 0, Integer.MAX_VALUE, 1));
                 offset_textfield.setToolTipText("Adds an offset to the current palette.");
 
                 ((JSpinner.DefaultEditor) offset_textfield.getEditor()).getTextField().getDocument().addDocumentListener(new DocumentListener() {
@@ -753,9 +800,15 @@ class ColorPoint implements Comparable<ColorPoint> {
 
             options_panel.add(offset_textfield);
 
-            add(Box.createRigidArea(new Dimension(50, 10)));
+            JPanel color_interp_panel = new JPanel();
+            color_interp_panel.setLayout(new FlowLayout());
+            color_interp_panel.setBackground(MainWindow.bg_color);
+            color_interp_panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Color Interpolation", TitledBorder.DEFAULT_POSITION, TitledBorder.DEFAULT_POSITION));
+
+            color_interp_panel.add(interpolationMode);
+
             add(tools);
-            add(Box.createRigidArea(new Dimension(50, 10)));
+            add(color_interp_panel);
             add(options_panel);
 
             JPanel p3 = new JPanel();
@@ -766,6 +819,8 @@ class ColorPoint implements Comparable<ColorPoint> {
             p3.add(addAnchorAtTheEnd);
             p3.add(addOnAllComponents);
             p3.add(lockPoints);
+            p3.add(new JLabel(" Background: "));
+            p3.add(backgroundMode);
 
 
             add(p3);
@@ -781,7 +836,7 @@ class ColorPoint implements Comparable<ColorPoint> {
             p4.add(blueComponent);
 
             if(im == null) {
-                im = new JLabel();
+                im = new ImageLabel();
 
                 im.addMouseListener(new MouseAdapter() {
                     @Override
@@ -998,4 +1053,9 @@ class ColorPoint implements Comparable<ColorPoint> {
             greenComponent.update();
             blueComponent.update();
         }
+
+        public int getBackgroundMode() {
+            return backgroundMode.getSelectedIndex();
+        }
+        public int getInterpolationMode() { return interpolationMode.getSelectedIndex();}
 }

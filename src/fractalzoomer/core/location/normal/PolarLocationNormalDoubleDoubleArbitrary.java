@@ -133,7 +133,7 @@ public class PolarLocationNormalDoubleDoubleArbitrary extends Location {
                 temp_ddr = temp_ddr.multiply(ddemulx);
             } else if (x == indexX - 1) {
                 temp_ddr = temp_ddr.multiply(ddInvemulx);
-            } else {
+            } else if (x != indexX) {
                 temp_ddr = ddstart.add(ddmulx.multiply(x)).exp();
             }
 
@@ -149,7 +149,7 @@ public class PolarLocationNormalDoubleDoubleArbitrary extends Location {
 
                 temp_ddsf = tempSin;
                 temp_ddcf = tempCos;
-            } else {
+            } else if (y != indexY) {
                 DoubleDouble f = ddmuly.multiply(y);
                 temp_ddsf = f.sin();
                 temp_ddcf = f.cos();
@@ -192,7 +192,7 @@ public class PolarLocationNormalDoubleDoubleArbitrary extends Location {
 
                 temp_ddsf = tempSin;
                 temp_ddcf = tempCos;
-            } else {
+            } else if (y != indexY) {
                 DoubleDouble f = ddmuly.multiply(y);
                 temp_ddsf = f.sin();
                 temp_ddcf = f.cos();
@@ -213,7 +213,7 @@ public class PolarLocationNormalDoubleDoubleArbitrary extends Location {
                 temp_ddr = temp_ddr.multiply(ddemulx);
             } else if (x == indexX - 1) {
                 temp_ddr = temp_ddr.multiply(ddInvemulx);
-            } else {
+            } else if (x != indexX) {
                 temp_ddr = ddstart.add(ddmulx.multiply(x)).exp();
             }
         }
@@ -241,7 +241,7 @@ public class PolarLocationNormalDoubleDoubleArbitrary extends Location {
             temp_ddr = temp_ddr.multiply(ddemulx);
         } else if (x == indexX - 1) {
             temp_ddr = temp_ddr.multiply(ddInvemulx);
-        } else {
+        } else if (x != indexX) {
             temp_ddr = ddstart.add(ddmulx.multiply(x)).exp();
         }
 
@@ -286,7 +286,7 @@ public class PolarLocationNormalDoubleDoubleArbitrary extends Location {
 
             temp_ddsf = tempSin;
             temp_ddcf = tempCos;
-        } else {
+        } else if (y != indexY) {
             DoubleDouble f = ddmuly.multiply(y);
             temp_ddsf = f.sin();
             temp_ddcf = f.cos();

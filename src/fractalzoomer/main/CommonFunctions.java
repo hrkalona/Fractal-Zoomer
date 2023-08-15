@@ -101,13 +101,12 @@ public class CommonFunctions implements Constants {
             return new Object[]{0, ""};
         }
 
-        String path = System.getProperty("java.home");
-        String file_separator = System.getProperty("file.separator");
-        String version = System.getProperty("java.version");
-
-        if(!version.startsWith("1.8")) {
+        if(getJavaVersion() != 8) {
             return new Object[]{0, ""};
         }
+
+        String path = System.getProperty("java.home");
+        String file_separator = System.getProperty("file.separator");
 
         if (!path.isEmpty() && !file_separator.isEmpty()) {
             path += file_separator + "lib" + file_separator;
@@ -791,9 +790,28 @@ public class CommonFunctions implements Constants {
             }
         }
 
+        overview += "<b><font color='red'>Maximum Iterations:</font></b> " + s.max_iterations + "<br><br>";
+
         overview += "<b><font color='red'>User Point:</font></b> " + Complex.toString2(s.fns.plane_transform_center[0], s.fns.plane_transform_center[1]) + "<br><br>";
 
-        overview += "<b><font color='red'>Maximum Iterations:</font></b> " + s.max_iterations + "<br><br>";
+        boolean hasUserVariables = false;
+        for(int i = 0; i < s.fns.variable_re.length; i++) {
+            if (s.fns.variable_re[i] != 0 || s.fns.variable_im[i] != 0) {
+                overview += "<b><font color='red'>User Variables:</font></b> <br>";
+                hasUserVariables = true;
+                break;
+            }
+        }
+
+        if(hasUserVariables) {
+            for (int i = 0; i < s.fns.variable_re.length; i++) {
+                if (s.fns.variable_re[i] != 0 || s.fns.variable_im[i] != 0) {
+                    overview += tab + "v" + (i + 1) + " = " + Complex.toString2(s.fns.variable_re[i], s.fns.variable_im[i]) + "<br>";
+                }
+            }
+
+            overview += "<br>";
+        }
 
         if(s.isPeriodInUse()) {
             overview += "<b><font color='red'>Period:</font></b> " + s.fns.period + "<br><br>";
@@ -1202,8 +1220,45 @@ public class CommonFunctions implements Constants {
 
 
                 }
-                else if (s.sts.statisticGroup == 3){
+                else if (s.sts.statisticGroup == 4){
                     overview += "<b><font color='red'>Statistical Coloring:</font></b><br>";
+                    overview += tab + "Root Coloring<br>";
+
+                    if(s.sts.rootShading) {
+                        overview += tab + "Root Contouring<br>";
+
+                        overview += tab2 + "Iterations Scaling = " + s.sts.rootIterationsScaling + "<br>";
+                        overview += tab2 + "Contour Function = " + rootShadingFunction[s.sts.rootShadingFunction] + "<br>";
+
+                        if(s.sts.rootShadingFunction != 5) {
+                            overview += tab2 + "Contour Color Mode = " + colorMethod[s.sts.rootContourColorMethod] + "<br>";
+                        }
+
+                        if(s.sts.revertRootShading) {
+                            overview += tab2 + "Inverted Coloring" + "<br>";
+                        }
+
+                        if(s.sts.highlightRoots) {
+                            overview += tab2 + "Root highlighting" + "<br>";
+                        }
+
+                        if(s.sts.rootShadingFunction != 5) {
+                            if (s.sts.rootContourColorMethod == 3) {
+                                overview += tab3 + "Color Blending = " + s.sts.rootBlending + "<br>";
+                            }
+
+                            if (s.sts.rootSmooting) {
+                                overview += tab2 + "Uses Contour Smoothing" + "<br>";
+                            }
+                        }
+                    }
+                }
+
+                if(s.sts.statisticGroup == 3) {
+                    overview += "<b><font color='red'>Statistical Coloring:</font></b><br>";
+                }
+
+                if (s.sts.statisticGroup == 3 || s.sts.normalMapCombineWithOtherStatistics){
                     if(s.sts.useNormalMap) {
                         overview += tab + "Normal Map<br>";
                         overview += tab2 + "Height = " + s.sts.normalMapHeight + "<br>";
@@ -1257,39 +1312,6 @@ public class CommonFunctions implements Constants {
                         }
                     }
 
-                }
-                else if (s.sts.statisticGroup == 4){
-                    overview += "<b><font color='red'>Statistical Coloring:</font></b><br>";
-                    overview += tab + "Root Coloring<br>";
-
-                    if(s.sts.rootShading) {
-                        overview += tab + "Root Contouring<br>";
-
-                        overview += tab2 + "Iterations Scaling = " + s.sts.rootIterationsScaling + "<br>";
-                        overview += tab2 + "Contour Function = " + rootShadingFunction[s.sts.rootShadingFunction] + "<br>";
-
-                        if(s.sts.rootShadingFunction != 5) {
-                            overview += tab2 + "Contour Color Mode = " + colorMethod[s.sts.rootContourColorMethod] + "<br>";
-                        }
-
-                        if(s.sts.revertRootShading) {
-                            overview += tab2 + "Inverted Coloring" + "<br>";
-                        }
-
-                        if(s.sts.highlightRoots) {
-                            overview += tab2 + "Root highlighting" + "<br>";
-                        }
-
-                        if(s.sts.rootShadingFunction != 5) {
-                            if (s.sts.rootContourColorMethod == 3) {
-                                overview += tab3 + "Color Blending = " + s.sts.rootBlending + "<br>";
-                            }
-
-                            if (s.sts.rootSmooting) {
-                                overview += tab2 + "Uses Contour Smoothing" + "<br>";
-                            }
-                        }
-                    }
                 }
 
                 if(s.sts.statisticGroup != 2 || (!s.isPertubationTheoryInUse() && !s.isHighPrecisionInUse())) {
@@ -1854,20 +1876,17 @@ public class CommonFunctions implements Constants {
         if (!s.useDirectColor) {
 
             if (!s.ds.domain_coloring && s.usePaletteForInColoring) {
-                JLabel palette_label = new JLabel();
-                palette_label.setIcon(new ImageIcon(getOutColoringPalettePreview(s, s.ps.color_cycling_location, 800, 36)));
+                JLabel palette_label = new ImageLabel(new ImageIcon(getOutColoringPalettePreview(s, s.ps.color_cycling_location, 800, 36)));
                 palette_label.setToolTipText("Displays the active out-coloring palette.");
 
                 JLabel palette_text_label = new JLabel("Palette(Out): (Length = " + paletteOutLength + ")");
 
-                JLabel palette_in_label = new JLabel();
-                palette_in_label.setIcon(new ImageIcon(getInColoringPalettePreview(s, s.ps2.color_cycling_location, 800, 36)));
+                JLabel palette_in_label = new ImageLabel(new ImageIcon(getInColoringPalettePreview(s, s.ps2.color_cycling_location, 800, 36)));
                 palette_in_label.setToolTipText("Displays the active in-coloring palette.");
 
                 JLabel palette_in_text_label = new JLabel("Palette(In): (Length = " + paletteInLength + ")");
 
-                JLabel gradient_label = new JLabel();
-                gradient_label.setIcon(new ImageIcon(getGradientPreview(s.gs, s.gs.gradient_offset, 800, 36)));
+                JLabel gradient_label = new ImageLabel(new ImageIcon(getGradientPreview(s.gs, s.gs.gradient_offset, 800, 36)));
                 gradient_label.setToolTipText("Displays the active gradient.");
 
                 JLabel gradient_text_label = new JLabel("Gradient: (Length = " + gradientLength + ")");
@@ -1886,20 +1905,18 @@ public class CommonFunctions implements Constants {
 
                 JOptionPane.showMessageDialog(parent, message, "Options Overview", JOptionPane.INFORMATION_MESSAGE);
             } else {
-                JLabel palette_label = new JLabel();
-                palette_label.setIcon(new ImageIcon(getOutColoringPalettePreview(s, s.ps.color_cycling_location, 800, 36)));
+                JLabel palette_label = new ImageLabel(new ImageIcon(getOutColoringPalettePreview(s, s.ps.color_cycling_location, 800, 36)));
                 palette_label.setToolTipText("Displays the active out-coloring palette.");
 
                 JLabel palette_text_label = new JLabel("Palette(Out): (Length = " + paletteOutLength + ")");
 
-                JLabel gradient_label = new JLabel();
-                gradient_label.setIcon(new ImageIcon(getGradientPreview(s.gs, s.gs.gradient_offset, 800, 36)));
+                JLabel gradient_label = new ImageLabel(new ImageIcon(getGradientPreview(s.gs, s.gs.gradient_offset, 800, 36)));
                 gradient_label.setToolTipText("Displays the active gradient.");
 
                 JLabel gradient_text_label = new JLabel("Gradient: (Length = " + gradientLength + ")");
 
 
-                JButton saveOverview = new JButton("Save Overview");
+                JButton saveOverview = new MyButton("Save Overview");
 
                 saveOverview.setToolTipText("Saves the overview as an html file.");
                 saveOverview.setFocusable(false);
@@ -2124,6 +2141,27 @@ public class CommonFunctions implements Constants {
                 UIManager.put(key, f);
             }
         }
+    }
+
+    public static void setUIFontSize(int size) {
+        java.util.Enumeration keys = UIManager.getDefaults().keys();
+        while (keys.hasMoreElements()) {
+            Object key = keys.nextElement();
+            Object value = UIManager.get(key);
+            if (value != null && value instanceof javax.swing.plaf.FontUIResource) {
+                UIManager.put(key, ((javax.swing.plaf.FontUIResource)value).deriveFont((float) size));
+            }
+        }
+    }
+
+    public static int getJavaVersion() {
+        String version = System.getProperty("java.version");
+        if(version.startsWith("1.")) {
+            version = version.substring(2, 3);
+        } else {
+            int dot = version.indexOf(".");
+            if(dot != -1) { version = version.substring(0, dot); }
+        } return Integer.parseInt(version);
     }
 
     public void displaySpecialHelp(Component ptr) {

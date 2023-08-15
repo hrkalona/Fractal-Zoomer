@@ -27,7 +27,7 @@ import java.awt.event.KeyEvent;
  *
  * @author hrkalona2
  */
-public class ConvergentBailoutConditionsMenu extends JMenu {
+public class ConvergentBailoutConditionsMenu extends MyMenu {
 	private static final long serialVersionUID = -7944508537305034413L;
 	private MainWindow ptr;
     private JRadioButtonMenuItem[] convergent_bailout_conditions;
@@ -97,7 +97,7 @@ public class ConvergentBailoutConditionsMenu extends JMenu {
 
         convergent_bailout_conditions[bailout_test_algorithm].setSelected(true);
         
-        JMenuItem skip_bailout_iterations_opt = new JMenuItem("Skip Convergent Bailout Condition Iterations", MainWindow.getIcon("skip_bailout.png"));
+        JMenuItem skip_bailout_iterations_opt = new MyMenuItem("Skip Convergent Bailout Condition Iterations", MainWindow.getIcon("skip_bailout.png"));
 
         skip_bailout_iterations_opt.setToolTipText("Skips the convergent bailout condition for the first N iterations.");
                 

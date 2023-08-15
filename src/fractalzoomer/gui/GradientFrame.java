@@ -297,7 +297,7 @@ public class GradientFrame extends JFrame {
             g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
         }
 
-        gradient_label = new JLabel(new ImageIcon(colors));
+        gradient_label = new ImageLabel(new ImageIcon(colors));
         gradient_label.setPreferredSize(new Dimension(colors.getWidth(), colors.getHeight()));
         gradient_label.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
         
@@ -493,7 +493,7 @@ public class GradientFrame extends JFrame {
         buttons.setLayout(new FlowLayout());
         buttons.setBackground(MainWindow.bg_color);
 
-        JButton ok = new JButton("Ok");
+        JButton ok = new MyButton("Ok");
         getRootPane().setDefaultButton(ok);
         ok.setFocusable(false);
         ok.addActionListener(e -> {
@@ -530,7 +530,7 @@ public class GradientFrame extends JFrame {
 
         buttons.add(ok);
 
-        JButton cancel = new JButton("Cancel");
+        JButton cancel = new MyButton("Cancel");
         cancel.setFocusable(false);
         cancel.addActionListener(e -> {
 

@@ -589,6 +589,40 @@ public class CircularBruteForceDraw extends ThreadDraw {
     }
 
     @Override
+    protected void applyRankOrderMapping(PixelExtraData[] data, int image_size, Location location, AntialiasingAlgorithm aa) {
+
+        if(d3 || action == COLOR_CYCLING) {
+            super.applyRankOrderMapping(data, image_size, location, aa);
+            return;
+        }
+
+        int x, y, loc, coordinatesLoc;
+        int condition = image_size * image_size;
+        Pixel[] coord = condition == coordinates.length ? coordinates : coordinatesFastJulia;
+
+        do {
+
+            coordinatesLoc = THREAD_CHUNK_SIZE * normal_drawing_algorithm_histogram.getAndIncrement();
+
+            if(coordinatesLoc >= condition) {
+                break;
+            }
+
+            for(int count = 0; count < THREAD_CHUNK_SIZE && coordinatesLoc < condition; count++, coordinatesLoc++) {
+                Pixel pix = coord[coordinatesLoc];
+                x = pix.x;
+                y = pix.y;
+
+                loc = y * image_size + x;
+
+                applyRankOrderMappingToPixel(loc, x, y, image_size, data, location, aa);
+            }
+
+        } while(true);
+
+    }
+
+    @Override
     protected void applyHistogram(double[] image_iterations, boolean[] escaped, int image_size, int maxCount, int histogramGranularity, double histogramDensity, Location location, AntialiasingAlgorithm aa) {
 
         if(d3 || action == COLOR_CYCLING) {
@@ -616,6 +650,39 @@ public class CircularBruteForceDraw extends ThreadDraw {
                 loc = y * image_size + x;
 
                 applyHistogramToPixel(loc, x, y, image_size, image_iterations, escaped, maxCount, histogramGranularity, histogramDensity, location, aa);
+            }
+
+        } while(true);
+    }
+
+    @Override
+    protected void applyRankOrderMapping(double[] image_iterations, boolean[] escaped, int image_size, Location location, AntialiasingAlgorithm aa) {
+
+        if(d3 || action == COLOR_CYCLING) {
+            super.applyRankOrderMapping(image_iterations, escaped, image_size, location, aa);
+            return;
+        }
+
+        int x, y, loc, coordinatesLoc;
+        int condition = image_size * image_size;
+        Pixel[] coord = condition == coordinates.length ? coordinates : coordinatesFastJulia;
+
+        do {
+
+            coordinatesLoc = THREAD_CHUNK_SIZE * normal_drawing_algorithm_histogram.getAndIncrement();
+
+            if(coordinatesLoc >= condition) {
+                break;
+            }
+
+            for(int count = 0; count < THREAD_CHUNK_SIZE && coordinatesLoc < condition; count++, coordinatesLoc++) {
+                Pixel pix = coord[coordinatesLoc];
+                x = pix.x;
+                y = pix.y;
+
+                loc = y * image_size + x;
+
+                applyRankOrderMappingToPixel(loc, x, y, image_size, image_iterations, escaped, location, aa);
             }
 
         } while(true);

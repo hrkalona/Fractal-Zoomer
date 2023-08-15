@@ -2755,7 +2755,7 @@ public class FiltersOptionsFrame extends JFrame {
         JPanel buttons = new JPanel();
         buttons.setBackground(MainWindow.bg_color);
 
-        JButton ok = new JButton("Ok");
+        JButton ok = new MyButton("Ok");
         getRootPane().setDefaultButton(ok);
         ok.setFocusable(false);
         ok.addActionListener(e -> {
@@ -2915,7 +2915,7 @@ public class FiltersOptionsFrame extends JFrame {
 
         buttons.add(ok);
 
-        JButton cancel = new JButton("Cancel");
+        JButton cancel = new MyButton("Cancel");
         cancel.setFocusable(false);
         cancel.addActionListener(e -> {
 
@@ -2940,7 +2940,7 @@ public class FiltersOptionsFrame extends JFrame {
             }
         });
         
-        JButton reset = new JButton("Reset");
+        JButton reset = new MyButton("Reset");
         reset.setFocusable(false);
         reset.addActionListener(e -> {
 

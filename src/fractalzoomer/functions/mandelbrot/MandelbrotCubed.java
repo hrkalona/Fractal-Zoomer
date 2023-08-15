@@ -41,8 +41,7 @@ import org.apfloat.Apfloat;
 import javax.swing.*;
 import java.util.ArrayList;
 
-import static fractalzoomer.main.Constants.REFERENCE_CALCULATION_STR;
-import static fractalzoomer.main.Constants.SA_CALCULATION_STR;
+import static fractalzoomer.main.Constants.*;
 
 /**
  *
@@ -312,6 +311,20 @@ public class MandelbrotCubed extends Julia {
                     r = iterations == 0 ? new BigNum((BigNum) r0) : referenceData.lastRValue;
                 }
             }
+            else if(bigNumLib == BIGNUM_BIGINT) {
+                BigIntNumComplex bn = inputPixel.toBigIntNumComplex();
+                z = iterations == 0 ? (isJulia ? bn : new BigIntNumComplex()) : referenceData.lastZValue;
+                c = isJulia ? getSeed(useBignum, bigNumLib) : bn;
+                zold = iterations == 0 ? new BigIntNumComplex() : referenceData.secondTolastZValue;
+                zold2 = iterations == 0 ? new BigIntNumComplex() : referenceData.thirdTolastZValue;
+                start = isJulia ? bn : new BigIntNumComplex();
+                c0 = c;
+                pixel = bn;
+                if(detectPeriod && detectPeriodAlgorithm == 0) {
+                    r0 = new BigIntNum(size);
+                    r = iterations == 0 ? new BigIntNum((BigIntNum) r0) : referenceData.lastRValue;
+                }
+            }
             else if(bigNumLib == Constants.BIGNUM_MPFR) {
                 MpfrBigNumComplex bn = new MpfrBigNumComplex(inputPixel.toMpfrBigNumComplex());
                 z = iterations == 0 ? (isJulia ? bn : new MpfrBigNumComplex()) : referenceData.lastZValue;
@@ -481,7 +494,13 @@ public class MandelbrotCubed extends Julia {
                             if (DetectedPeriod == 0 && ((BigNum) r).compare((BigNum) (norm = ((BigNum) normSquared).sqrt())) > 0 && iterations > 0) {
                                 DetectedPeriod = iterations;
                             }
-                        } else if (bigNumLib == Constants.BIGNUM_MPFR) {
+                        }
+                        else if (bigNumLib == Constants.BIGNUM_BIGINT) {
+                            if (DetectedPeriod == 0 && ((BigIntNum) r).compare((BigIntNum) (norm = ((BigIntNum) normSquared).sqrt())) > 0 && iterations > 0) {
+                                DetectedPeriod = iterations;
+                            }
+                        }
+                        else if (bigNumLib == Constants.BIGNUM_MPFR) {
 //                        if (iterations > 0 && ((MpfrBigNum) normSquared).compare((MpfrBigNum) referenceData.minValue) < 0) {
 //                            DetectedAtomPeriod = iterations;
 //                            ((MpfrBigNum) referenceData.minValue).set((MpfrBigNum)normSquared);
@@ -652,6 +671,15 @@ public class MandelbrotCubed extends Julia {
 
             BigNum temp = az.add(r);
             return temp.squareFull().mult(temp).sub(azcube).add(r0);
+        }
+        else if(rIn instanceof BigIntNum) {
+            BigIntNum r = (BigIntNum)rIn;
+            BigIntNum r0 = (BigIntNum)r0In;
+            BigIntNum az = ((BigIntNum)norm);
+            BigIntNum azcube = az.mult((BigIntNum)normSquared);
+
+            BigIntNum temp = az.add(r);
+            return temp.square().mult(temp).sub(azcube).add(r0);
         }
         else if(rIn instanceof MpfrBigNum) {
             MpfrBigNum r = (MpfrBigNum)rIn;
@@ -1192,6 +1220,11 @@ public class MandelbrotCubed extends Julia {
 
     @Override
     public boolean supportsBignum() { return true;}
+
+    @Override
+    public boolean supportsBigIntnum() {
+        return true;
+    }
 
     @Override
     public boolean supportsPeriod() {

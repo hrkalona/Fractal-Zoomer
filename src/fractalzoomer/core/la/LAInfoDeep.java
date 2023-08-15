@@ -37,6 +37,7 @@ public class LAInfoDeep extends GenericLAInfo {
     }
 
     public LAInfoDeep(MantExpComplex z) {
+        z.Reduce();
         RefRe = z.getMantissaReal();
         RefIm = z.getMantissaImag();
         RefExp = z.getExp();

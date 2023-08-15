@@ -47,6 +47,8 @@ public class Location {
 
     protected BigNum[][][] precalculatedJitterDataBigNum;
 
+    protected BigIntNum[][][] precalculatedJitterDataBigIntNum;
+
     private static final int MAX_AA_SAMPLES = 24;
     public static double AA_JITTER_SIZE = 0.25;
 
@@ -92,6 +94,7 @@ public class Location {
         precalculatedJitterDataMpfrBigNum = other.precalculatedJitterDataMpfrBigNum;
         precalculatedJitterDataMpirBigNum = other.precalculatedJitterDataMpirBigNum;
         precalculatedJitterDataBigNum = other.precalculatedJitterDataBigNum;
+        precalculatedJitterDataBigIntNum = other.precalculatedJitterDataBigIntNum;
         precalculatedJitterDataPolarDouble = other.precalculatedJitterDataPolarDouble;
         precalculatedJitterDataPolarApfloat = other.precalculatedJitterDataPolarApfloat;
         precalculatedJitterDataPolarDoubleDouble = other.precalculatedJitterDataPolarDoubleDouble;
@@ -139,6 +142,9 @@ public class Location {
                 else if(lib == Constants.ARBITRARY_BUILT_IN) {
                     return new CartesianLocationNormalBigNumArbitrary(xCenter, yCenter, size, height_ratio, image_size, rotation_center, rotation_vals, fractal, js);
                 }
+                else if(lib == Constants.ARBITRARY_BIGINT) {
+                    return new CartesianLocationNormalBigIntNumArbitrary(xCenter, yCenter, size, height_ratio, image_size, rotation_center, rotation_vals, fractal, js);
+                }
                 else if(lib == Constants.ARBITRARY_DOUBLEDOUBLE) {
                     return new CartesianLocationNormalDoubleDoubleArbitrary(xCenter, yCenter, size, height_ratio, image_size, rotation_center, rotation_vals, fractal, js);
                 }
@@ -185,10 +191,13 @@ public class Location {
         }
         else {
             if(highPresicion && isDeep) {
-                if((bignumLib == Constants.BIGNUM_BUILT_IN || bignumLib == Constants.BIGNUM_MPFR || bignumLib == Constants.BIGNUM_MPIR)
+                if((bignumLib == Constants.BIGNUM_BUILT_IN || bignumLib == Constants.BIGNUM_MPFR || bignumLib == Constants.BIGNUM_MPIR || bignumLib == Constants.BIGNUM_BIGINT)
                         && ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE && ThreadDraw.USE_BIGNUM_FOR_PIXELS_IF_POSSIBLE) {
                     if(bignumLib == Constants.BIGNUM_BUILT_IN) {
                         return new CartesianLocationDeltaDeepBigNum(xCenter, yCenter, size, height_ratio, image_size, rotation_center, rotation_vals, fractal, js);
+                    }
+                    else if(bignumLib == Constants.BIGNUM_BIGINT) {
+                        return new CartesianLocationDeltaDeepBigIntNum(xCenter, yCenter, size, height_ratio, image_size, rotation_center, rotation_vals, fractal, js);
                     }
                     else if(bignumLib == Constants.BIGNUM_MPIR) {
                         return new CartesianLocationDeltaDeepMpirBigNum(xCenter, yCenter, size, height_ratio, image_size, rotation_center, rotation_vals, fractal, js);
@@ -202,10 +211,13 @@ public class Location {
                 }
             }
             else if(highPresicion) {
-                if((bignumLib == Constants.BIGNUM_BUILT_IN || bignumLib == Constants.BIGNUM_MPFR || bignumLib == Constants.BIGNUM_MPIR || bignumLib == Constants.BIGNUM_DOUBLE || bignumLib == Constants.BIGNUM_DOUBLEDOUBLE)
+                if((bignumLib == Constants.BIGNUM_BUILT_IN || bignumLib == Constants.BIGNUM_MPFR || bignumLib == Constants.BIGNUM_MPIR || bignumLib == Constants.BIGNUM_DOUBLE || bignumLib == Constants.BIGNUM_DOUBLEDOUBLE || bignumLib == Constants.BIGNUM_BIGINT)
                         && ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE && ThreadDraw.USE_BIGNUM_FOR_PIXELS_IF_POSSIBLE) {
                     if(bignumLib == Constants.BIGNUM_BUILT_IN) {
                         return new CartesianLocationDeltaBigNum(xCenter, yCenter, size, height_ratio, image_size, rotation_center, rotation_vals, fractal, js);
+                    }
+                    else if(bignumLib == Constants.BIGNUM_BIGINT) {
+                        return new CartesianLocationDeltaBigIntNum(xCenter, yCenter, size, height_ratio, image_size, rotation_center, rotation_vals, fractal, js);
                     }
                     else if (bignumLib == Constants.BIGNUM_MPFR){
                         return new CartesianLocationDeltaMpfrBigNum(xCenter, yCenter, size, height_ratio, image_size, rotation_center, rotation_vals, fractal, js);
@@ -248,6 +260,12 @@ public class Location {
         }
         else if(loc instanceof CartesianLocationDeltaDeepBigNum) {
             return new CartesianLocationDeltaDeepBigNum((CartesianLocationDeltaDeepBigNum)loc);
+        }
+        else if(loc instanceof CartesianLocationDeltaBigIntNum) {
+            return new CartesianLocationDeltaBigIntNum((CartesianLocationDeltaBigIntNum)loc);
+        }
+        else if(loc instanceof CartesianLocationDeltaDeepBigIntNum) {
+            return new CartesianLocationDeltaDeepBigIntNum((CartesianLocationDeltaDeepBigIntNum)loc);
         }
         else if(loc instanceof CartesianLocationNormalDouble) {
             return new CartesianLocationNormalDouble((CartesianLocationNormalDouble)loc);
@@ -297,6 +315,9 @@ public class Location {
         }
         else if(loc instanceof CartesianLocationNormalBigNumArbitrary) {
             return new CartesianLocationNormalBigNumArbitrary((CartesianLocationNormalBigNumArbitrary)loc);
+        }
+        else if(loc instanceof CartesianLocationNormalBigIntNumArbitrary) {
+            return new CartesianLocationNormalBigIntNumArbitrary((CartesianLocationNormalBigIntNumArbitrary)loc);
         }
         else if(loc instanceof CartesianLocationNormalMpfrBigNumArbitrary) {
             return new CartesianLocationNormalMpfrBigNumArbitrary((CartesianLocationNormalMpfrBigNumArbitrary)loc);
@@ -378,6 +399,10 @@ public class Location {
             BigNumComplex cn = (BigNumComplex)c;
             return new MantExpComplex(cn);
         }
+        else if(c instanceof BigIntNumComplex) {
+            BigIntNumComplex cn = (BigIntNumComplex)c;
+            return new MantExpComplex(cn);
+        }
         else if (c instanceof BigComplex){
             BigComplex cn = (BigComplex)c;
             return new MantExpComplex(getMantExp(cn.getRe()), getMantExp(cn.getIm()));
@@ -420,19 +445,51 @@ public class Location {
 
     }
 
-    public BigNum[][] createAntialiasingStepsBigNum(BigNum bntemp_size_image_size_x, BigNum bntemp_size_image_size_y, boolean adaptive, boolean jitter) {
-        BigNum point25 = new BigNum(0.25);
+    private void precalculateJitterToAntialiasingStepsBigIntNum(BigIntNum[][] steps, BigIntNum ddx_antialiasing_size, BigIntNum ddy_antialiasing_size) {
 
-        BigNum ddx_antialiasing_size = bntemp_size_image_size_x.mult(point25);
+        BigIntNum[] temp_x = steps[0];
+        BigIntNum[] temp_y = steps[1];
+
+        precalculatedJitterDataBigIntNum = new BigIntNum[NUMBER_OF_AA_JITTER_KERNELS][steps.length][temp_x.length];
+
+        for(int k = 0; k < NUMBER_OF_AA_JITTER_KERNELS; k++) {
+            for (int i = 0; i < temp_x.length; i++) {
+                precalculatedJitterDataBigIntNum[k][0][i] = temp_x[i].add(ddx_antialiasing_size.mult(aaJitterKernelX[k][i]));
+                precalculatedJitterDataBigIntNum[k][1][i] = temp_y[i].add(ddy_antialiasing_size.mult(aaJitterKernelY[k][i]));
+            }
+        }
+
+    }
+
+    public BigNum[][] createAntialiasingStepsBigNum(BigNum bntemp_size_image_size_x, BigNum bntemp_size_image_size_y, boolean adaptive, boolean jitter) {
+
+        BigNum ddx_antialiasing_size = bntemp_size_image_size_x.divide4();
         BigNum ddx_antialiasing_size_x2 = ddx_antialiasing_size.mult2();
 
-        BigNum ddy_antialiasing_size = bntemp_size_image_size_y.mult(point25);
+        BigNum ddy_antialiasing_size = bntemp_size_image_size_y.divide4();
         BigNum ddy_antialiasing_size_x2 = ddy_antialiasing_size.mult2();
 
         BigNum[][] steps = createAntialiasingStepsBigNumGrid(ddx_antialiasing_size, ddy_antialiasing_size, ddx_antialiasing_size_x2, ddy_antialiasing_size_x2, adaptive);
 
         if(jitter) {
             precalculateJitterToAntialiasingStepsBigNum(steps, ddx_antialiasing_size, ddy_antialiasing_size);
+        }
+
+        return steps;
+    }
+
+    public BigIntNum[][] createAntialiasingStepsBigNum(BigIntNum bntemp_size_image_size_x, BigIntNum bntemp_size_image_size_y, boolean adaptive, boolean jitter) {
+
+        BigIntNum ddx_antialiasing_size = bntemp_size_image_size_x.divide4();
+        BigIntNum ddx_antialiasing_size_x2 = ddx_antialiasing_size.mult2();
+
+        BigIntNum ddy_antialiasing_size = bntemp_size_image_size_y.divide4();
+        BigIntNum ddy_antialiasing_size_x2 = ddy_antialiasing_size.mult2();
+
+        BigIntNum[][] steps = createAntialiasingStepsBigIntNumGrid(ddx_antialiasing_size, ddy_antialiasing_size, ddx_antialiasing_size_x2, ddy_antialiasing_size_x2, adaptive);
+
+        if(jitter) {
+            precalculateJitterToAntialiasingStepsBigIntNum(steps, ddx_antialiasing_size, ddy_antialiasing_size);
         }
 
         return steps;
@@ -474,6 +531,45 @@ public class Location {
             };
 
             return new BigNum[][] {temp_x, temp_y};
+        }
+    }
+
+    public BigIntNum[][] createAntialiasingStepsBigIntNumGrid(BigIntNum ddx_antialiasing_size, BigIntNum ddy_antialiasing_size, BigIntNum ddx_antialiasing_size_x2, BigIntNum ddy_antialiasing_size_x2, boolean adaptive) {
+
+        BigIntNum zero = new BigIntNum();
+
+        if(!adaptive) {
+
+            BigIntNum[] temp_x = {ddx_antialiasing_size.negate(), ddx_antialiasing_size, ddx_antialiasing_size, ddx_antialiasing_size.negate(),
+                    ddx_antialiasing_size.negate(), ddx_antialiasing_size, zero, zero,
+                    ddx_antialiasing_size_x2.negate(), ddx_antialiasing_size_x2.negate(), ddx_antialiasing_size_x2.negate(), zero, zero, ddx_antialiasing_size_x2, ddx_antialiasing_size_x2, ddx_antialiasing_size_x2,
+                    ddx_antialiasing_size_x2.negate(), ddx_antialiasing_size_x2.negate(), ddx_antialiasing_size.negate(), ddx_antialiasing_size.negate(), ddx_antialiasing_size, ddx_antialiasing_size, ddx_antialiasing_size_x2, ddx_antialiasing_size_x2};
+            BigIntNum[] temp_y = {ddy_antialiasing_size.negate(), ddy_antialiasing_size.negate(), ddy_antialiasing_size, ddy_antialiasing_size,
+                    zero, zero, ddy_antialiasing_size.negate(), ddy_antialiasing_size,
+                    ddy_antialiasing_size_x2.negate(), zero, ddy_antialiasing_size_x2, ddy_antialiasing_size_x2.negate(), ddy_antialiasing_size_x2, ddy_antialiasing_size_x2.negate(), zero, ddy_antialiasing_size_x2,
+                    ddy_antialiasing_size.negate(), ddy_antialiasing_size, ddy_antialiasing_size_x2.negate(), ddy_antialiasing_size_x2, ddy_antialiasing_size_x2.negate(), ddy_antialiasing_size_x2, ddy_antialiasing_size.negate(), ddy_antialiasing_size};
+
+            return new BigIntNum[][] {temp_x, temp_y};
+        }
+        else {
+
+            BigIntNum[] temp_x = {ddx_antialiasing_size_x2.negate(), ddx_antialiasing_size_x2, ddx_antialiasing_size_x2, ddx_antialiasing_size_x2.negate(),
+                    ddx_antialiasing_size_x2.negate(), ddx_antialiasing_size_x2, zero, zero,
+                    ddx_antialiasing_size_x2.negate(), ddx_antialiasing_size_x2.negate(), ddx_antialiasing_size_x2, ddx_antialiasing_size_x2, ddx_antialiasing_size.negate(), ddx_antialiasing_size, ddx_antialiasing_size.negate(), ddx_antialiasing_size,
+                    ddx_antialiasing_size.negate(), ddx_antialiasing_size, ddx_antialiasing_size, ddx_antialiasing_size.negate(), ddx_antialiasing_size.negate(), ddx_antialiasing_size, zero, zero
+
+            };
+
+
+            BigIntNum[] temp_y = {ddy_antialiasing_size_x2.negate(), ddy_antialiasing_size_x2.negate(), ddy_antialiasing_size_x2, ddy_antialiasing_size_x2,
+                    zero, zero, ddy_antialiasing_size_x2.negate(), ddy_antialiasing_size_x2,
+                    ddy_antialiasing_size.negate(), ddy_antialiasing_size, ddy_antialiasing_size.negate(), ddy_antialiasing_size, ddy_antialiasing_size_x2.negate(), ddy_antialiasing_size_x2.negate(), ddy_antialiasing_size_x2, ddy_antialiasing_size_x2,
+                    ddy_antialiasing_size.negate(), ddy_antialiasing_size.negate(), ddy_antialiasing_size, ddy_antialiasing_size, zero, zero, ddy_antialiasing_size.negate(), ddy_antialiasing_size
+
+
+            };
+
+            return new BigIntNum[][] {temp_x, temp_y};
         }
     }
 

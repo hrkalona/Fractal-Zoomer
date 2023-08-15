@@ -104,12 +104,12 @@ public class PolarProjectionDialog extends JDialog {
         JTextField field_circle_period = new JTextField();
         field_circle_period.setText("" + s.circle_period);
 
-        JButton corners = new JButton("Set Corners");
+        JButton corners = new MyButton("Set Corners");
         corners.setToolTipText("An alternative center/size selection option.");
         corners.setFocusable(false);
         corners.setIcon(MainWindow.getIcon("corners.png"));
 
-        JButton magnification = new JButton("Set Magnification");
+        JButton magnification = new MyButton("Set Magnification");
         magnification.setToolTipText("An alternative size option.");
         magnification.setFocusable(false);
         magnification.setIcon(MainWindow.getIcon("magnification.png"));
@@ -182,9 +182,9 @@ public class PolarProjectionDialog extends JDialog {
 
                         try {
                             if(MyApfloat.setAutomaticPrecision) {
-                                long precision = MyApfloat.getAutomaticPrecision(new String[]{field_size.getText(), field_real.getText(), field_imaginary.getText()}, new boolean[] {true, false, false}, true);
+                                long precision = MyApfloat.getAutomaticPrecision(new String[]{field_size.getText(), field_real.getText(), field_imaginary.getText()}, new boolean[] {true, false, false});
 
-                                if (MyApfloat.shouldSetPrecision(precision, true)) {
+                                if (MyApfloat.shouldSetPrecision(precision, MyApfloat.alwaysCheckForDecrease)) {
                                     Fractal.clearReferences(true);
                                     MyApfloat.setPrecision(precision, s);
                                 }

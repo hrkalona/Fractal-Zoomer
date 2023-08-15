@@ -147,7 +147,7 @@ public class InitialValueDialog extends JDialog {
 
         tabbedPane2.addTab("Conditional", panel_cond);
 
-        JButton info_user = new JButton("Help");
+        JButton info_user = new MyButton("Help");
         info_user.setToolTipText("Shows the details of the user formulas.");
         info_user.setFocusable(false);
         info_user.setIcon(MainWindow.getIcon("help2.png"));
@@ -155,7 +155,7 @@ public class InitialValueDialog extends JDialog {
 
         info_user.addActionListener(e -> ptra.showUserFormulaHelp());
 
-        JButton code_editor = new JButton("Edit User Code");
+        JButton code_editor = new MyButton("Edit User Code");
         code_editor.setToolTipText("<html>Opens the java code, containing the user defined functions,<br>with a text editor.</html>");
         code_editor.setFocusable(false);
         code_editor.setIcon(MainWindow.getIcon("code_editor2.png"));
@@ -163,7 +163,7 @@ public class InitialValueDialog extends JDialog {
 
         code_editor.addActionListener(e -> ptra.codeEditor());
 
-        JButton compile_code = new JButton("Compile User Code");
+        JButton compile_code = new MyButton("Compile User Code");
         compile_code.setToolTipText("Compiles the java code, containing the user defined functions.");
         compile_code.setFocusable(false);
         compile_code.setIcon(MainWindow.getIcon("compile2.png"));

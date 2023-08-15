@@ -94,6 +94,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
     private CommonFunctions common;
     private boolean runsOnBatchingMode;
     private boolean runsOnSequenceMode;
+    private boolean flipSequenceIndexing;
 
     private boolean runsOnLargePolarImageMode;
 
@@ -214,7 +215,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
         settings_label.setVisible(false);
         settings_label.setPreferredSize(new Dimension(380, 32));
 
-        overviewButton = new JButton("", MainWindow.getIcon("overview.png"));
+        overviewButton = new MyButton("", MainWindow.getIcon("overview.png"));
         overviewButton.setFocusable(false);
         overviewButton.setToolTipText("Creates a report of all the active fractal options.");
         overviewButton.setVisible(false);
@@ -227,21 +228,21 @@ public class ImageExpanderWindow extends JFrame implements Constants {
 
         Dimension buttonDimension = new Dimension(220, 32);
 
-        loadButton = new JButton("Load", MainWindow.getIcon("load.png"));
+        loadButton = new MyButton("Load", MainWindow.getIcon("load.png"));
         loadButton.setFocusable(false);
         loadButton.setPreferredSize(buttonDimension);
         loadButton.setToolTipText("<html>Loads the function, plane, center, size, color options, iterations,<br> rotation, perturbation, initial value, bailout, julia settings,<br>and image filters.</html>");
 
         loadButton.addActionListener(e -> loadSettings());
 
-        batchRenderButton = new JButton("Batch Render", MainWindow.getIcon("batch_render.png"));
+        batchRenderButton = new MyButton("Batch Render", MainWindow.getIcon("batch_render.png"));
         batchRenderButton.setFocusable(false);
         batchRenderButton.setPreferredSize(buttonDimension);
         batchRenderButton.setToolTipText("Renders a batch of parameters.");
 
         batchRenderButton.addActionListener(e -> batchRender());
 
-        sequenceRenderButton = new JButton("Zoom Sequence Render", MainWindow.getIcon("sequence.png"));
+        sequenceRenderButton = new MyButton("Zoom Sequence Render", MainWindow.getIcon("sequence.png"));
         sequenceRenderButton.setFocusable(false);
         sequenceRenderButton.setPreferredSize(buttonDimension);
         sequenceRenderButton.setToolTipText("Renders a zoom sequence.");
@@ -249,7 +250,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
         sequenceRenderButton.addActionListener(e -> sequenceRender());
 
 
-        imageSizeButton = new JButton("Image Size", MainWindow.getIcon("image_size.png"));
+        imageSizeButton = new MyButton("Image Size", MainWindow.getIcon("image_size.png"));
         imageSizeButton.setFocusable(false);
         imageSizeButton.setPreferredSize(buttonDimension);
         imageSizeButton.setToolTipText("Sets the image size.");
@@ -257,7 +258,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
         imageSizeButton.addActionListener(e -> setSizeOfImage());
 
 
-        threadsButton = new JButton("Threads", MainWindow.getIcon("threads.png"));
+        threadsButton = new MyButton("Threads", MainWindow.getIcon("threads.png"));
         threadsButton.setFocusable(false);
         threadsButton.setPreferredSize(buttonDimension);
         threadsButton.setToolTipText("Sets the number of parallel drawing threads.");
@@ -266,7 +267,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
 
 
 
-        greedyAlgorithmsButton = new JButton("Greedy Drawing Algorithms", MainWindow.getIcon("greedy_algorithm.png"));
+        greedyAlgorithmsButton = new MyButton("Greedy Drawing Algorithms", MainWindow.getIcon("greedy_algorithm.png"));
         greedyAlgorithmsButton.setFocusable(false);
         greedyAlgorithmsButton.setPreferredSize(buttonDimension);
         greedyAlgorithmsButton.setToolTipText("Sets the greedy algorithms options.");
@@ -274,7 +275,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
         greedyAlgorithmsButton.addActionListener(e -> setGreedyAlgorithms());
 
 
-        renderButton = new JButton("Render Image", MainWindow.getIcon("save_image.png"));
+        renderButton = new MyButton("Render Image", MainWindow.getIcon("save_image.png"));
         renderButton.setFocusable(false);
         renderButton.setEnabled(false);
         renderButton.setPreferredSize(buttonDimension);
@@ -285,7 +286,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
             render();
         });
 
-        polarLargeRenderButton = new JButton("Large Polar Image", MainWindow.getIcon("polar_projection.png"));
+        polarLargeRenderButton = new MyButton("Large Polar Image", MainWindow.getIcon("polar_projection.png"));
         polarLargeRenderButton.setFocusable(false);
         polarLargeRenderButton.setEnabled(false);
         polarLargeRenderButton.setPreferredSize(buttonDimension);
@@ -293,7 +294,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
 
         polarLargeRenderButton.addActionListener(e -> polarLargeRender());
 
-        splitImageRenderButton = new JButton("Split Image Render", MainWindow.getIcon("split_image.png"));
+        splitImageRenderButton = new MyButton("Split Image Render", MainWindow.getIcon("split_image.png"));
         splitImageRenderButton.setFocusable(false);
         splitImageRenderButton.setEnabled(false);
         splitImageRenderButton.setPreferredSize(buttonDimension);
@@ -302,14 +303,14 @@ public class ImageExpanderWindow extends JFrame implements Constants {
         splitImageRenderButton.addActionListener(e -> splitImageRender());
 
 
-        perturbationTheoryButton = new JButton("Perturbation Theory", MainWindow.getIcon("perturbation.png"));
+        perturbationTheoryButton = new MyButton("Perturbation Theory", MainWindow.getIcon("perturbation.png"));
         perturbationTheoryButton.setFocusable(false);
         perturbationTheoryButton.setPreferredSize(buttonDimension);
         perturbationTheoryButton.setToolTipText("Sets the perturbation theory settings.");
 
         perturbationTheoryButton.addActionListener(e -> setPerturbationTheory());
 
-        outputDirectoryButton = new JButton("Output Directory");
+        outputDirectoryButton = new MyButton("Output Directory");
         outputDirectoryButton.setIcon(MainWindow.getIcon("output_directory.png"));
         outputDirectoryButton.setFocusable(false);
         outputDirectoryButton.setPreferredSize(buttonDimension);
@@ -319,20 +320,20 @@ public class ImageExpanderWindow extends JFrame implements Constants {
         outputDirectoryButton.addActionListener(e -> setOutputDirectory());
 
 
-        compileButton = new JButton("Compile User Code", MainWindow.getIcon("compile.png"));
+        compileButton = new MyButton("Compile User Code", MainWindow.getIcon("compile.png"));
         compileButton.setFocusable(false);
         compileButton.setPreferredSize(buttonDimension);
         compileButton.setToolTipText("Compiles the java code, containing the user defined functions.");
 
         compileButton.addActionListener(e -> common.compileCode(true));
 
-        aboutButton = new JButton("About", MainWindow.getIcon("about.png"));
+        aboutButton = new MyButton("About", MainWindow.getIcon("about.png"));
         aboutButton.setFocusable(false);
         aboutButton.setPreferredSize(buttonDimension);
 
         aboutButton.addActionListener(e -> displayAboutInfo());
 
-        helpButton = new JButton("Help", MainWindow.getIcon("help.png"));
+        helpButton = new MyButton("Help", MainWindow.getIcon("help.png"));
         helpButton.setFocusable(false);
         helpButton.setPreferredSize(buttonDimension);
 
@@ -476,7 +477,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
     }
 
     public void sequenceRender() {
-        new SequenceRenderDialog(ptr, s, zoom_factor, zooming_mode, size, rotation_adjusting_value, color_cycling_adjusting_value, light_light_direction_adjusting_value, bump_light_direction_adjusting_value, zoom_every_n_frame, gradient_color_cycling_adjusting_value);
+        new SequenceRenderDialog(ptr, s, zoom_factor, zooming_mode, size, rotation_adjusting_value, color_cycling_adjusting_value, light_light_direction_adjusting_value, bump_light_direction_adjusting_value, zoom_every_n_frame, gradient_color_cycling_adjusting_value, flipSequenceIndexing);
     }
 
     public void loadSettings() {
@@ -854,7 +855,12 @@ public class ImageExpanderWindow extends JFrame implements Constants {
             versionStr += " beta";
         }
 
-        JOptionPane.showMessageDialog(ptr, "<html><center><font size='5' face='arial' color='blue'><b><u>Fractal Zoomer Image Expander</u></b></font><br><br><font size='4' face='arial'>Version: <b>" + versionStr + "</b><br><br>Author: <b>Christos Kalonakis</b><br><br>Contact: <a href=\"mailto:hrkalona@gmail.com\">hrkalona@gmail.com</a><br><br></center></font></html>", "About", JOptionPane.INFORMATION_MESSAGE, MainWindow.getIcon("mandelExpander.png"));
+        String javaVersion = System.getProperty("java.version");
+
+        JOptionPane.showMessageDialog(ptr, "<html><center><font size='5' face='arial' color='blue'><b><u>Fractal Zoomer Image Expander</u></b></font><br><br><font size='4' face='arial'>Version: <b>" + versionStr + "</b><br><br>" +
+                "Java Version: <b>" + javaVersion + "</b><br><br>" +
+                "Author: <b>Christos Kalonakis</b><br><br>Contact: <a href=\"mailto:hrkalona@gmail.com\">hrkalona@gmail.com</a><br><br></center></font></html>", "About", JOptionPane.INFORMATION_MESSAGE, MainWindow.getIcon("mandelExpander.png"));
+
 
     }
 
@@ -976,6 +982,8 @@ public class ImageExpanderWindow extends JFrame implements Constants {
             writer.println("bla2_period_detection_threshold2 " + LAInfo.PeriodDetectionThreshold2);
             writer.println("bla2_la_threshold_scale " + LAInfo.LAThresholdScale);
             writer.println("bla2_la_threshold_c_scale " + LAInfo.LAThresholdCScale);
+            writer.println("always_check_for_precision_decrease " + MyApfloat.alwaysCheckForDecrease);
+            writer.println("use_threads_in_bignum_libs " + ThreadDraw.USE_THREADS_IN_BIGNUM_LIBS);
             
             writer.println();
             
@@ -1045,6 +1053,17 @@ public class ImageExpanderWindow extends JFrame implements Constants {
                             ThreadDraw.LOAD_DRAWING_ALGORITHM_FROM_SAVES = true;
                         }
                     }
+                    else if(token.equals("use_threads_in_bignum_libs") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if(token.equals("false")) {
+                            ThreadDraw.USE_THREADS_IN_BIGNUM_LIBS = false;
+                        }
+                        else if(token.equals("true")) {
+                            ThreadDraw.USE_THREADS_IN_BIGNUM_LIBS = true;
+                        }
+                    }
                     else if(token.equals("mpir_lib") && tokenizer.countTokens() == 1) {
 
                         token = tokenizer.nextToken();
@@ -1103,7 +1122,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
                         try {
                             int temp = Integer.parseInt(tokenizer.nextToken());
 
-                            if (temp >= 0 && temp <= 6) {
+                            if (temp >= 0 && temp <= 7) {
                                 ThreadDraw.BIGNUM_LIBRARY = temp;
                             }
                         } catch (Exception ex) {
@@ -1192,6 +1211,17 @@ public class ImageExpanderWindow extends JFrame implements Constants {
                         }
                         else if(token.equals("true")) {
                             ThreadDraw.STOP_REFERENCE_CALCULATION_AFTER_DETECTED_PERIOD = true;
+                        }
+                    }
+                    else if(token.equals("always_check_for_precision_decrease") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if(token.equals("false")) {
+                            MyApfloat.alwaysCheckForDecrease = false;
+                        }
+                        else if(token.equals("true")) {
+                            MyApfloat.alwaysCheckForDecrease = true;
                         }
                     }
                     else if (token.equals("aa_jitter_size") && tokenizer.countTokens() == 1) {
@@ -1385,7 +1415,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
                         try {
                             double temp = Double.parseDouble(tokenizer.nextToken());
 
-                            if (temp > 0 && temp <= 2.5) {
+                            if (temp > 0 && temp <= 10) {
                                 LAInfo.Stage0PeriodDetectionThreshold = temp;
                                 LAInfoDeep.Stage0PeriodDetectionThreshold = new MantExp(temp);
                             }
@@ -1397,7 +1427,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
                         try {
                             double temp = Double.parseDouble(tokenizer.nextToken());
 
-                            if (temp > 0 && temp <= 2.5) {
+                            if (temp > 0 && temp <= 10) {
                                 LAInfo.Stage0PeriodDetectionThreshold2 = temp;
                                 LAInfoDeep.Stage0PeriodDetectionThreshold2 = new MantExp(temp);
                             }
@@ -1410,7 +1440,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
                         try {
                             double temp = Double.parseDouble(tokenizer.nextToken());
 
-                            if (temp > 0 && temp <= 2.5) {
+                            if (temp > 0 && temp <= 10) {
                                 LAInfo.PeriodDetectionThreshold = temp;
                                 LAInfoDeep.PeriodDetectionThreshold = new MantExp(temp);
                             }
@@ -1422,7 +1452,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
                         try {
                             double temp = Double.parseDouble(tokenizer.nextToken());
 
-                            if (temp > 0 && temp <= 2.5) {
+                            if (temp > 0 && temp <= 10) {
                                 LAInfo.PeriodDetectionThreshold2 = temp;
                                 LAInfoDeep.PeriodDetectionThreshold2 = new MantExp(temp);
                             }
@@ -1761,6 +1791,10 @@ public class ImageExpanderWindow extends JFrame implements Constants {
             }
         }, 8000);
 
+        if(ThreadDraw.executor != null) {
+            ThreadDraw.executor.shutdown();
+        }
+
         System.exit(val);
 
     }
@@ -1981,7 +2015,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
 
     }
 
-    public void startSequenceRender(Apfloat size, double zoom_factor, int zooming_mode, double rotation_adjusting_value, int color_cycling_adjusting_value, double light_light_direction_adjusting_value, double bump_light_direction_adjusting_value, int zoom_every_n_frame, int gradient_color_cycling_adjusting_value) {
+    public void startSequenceRender(Apfloat size, double zoom_factor, int zooming_mode, double rotation_adjusting_value, int color_cycling_adjusting_value, double light_light_direction_adjusting_value, double bump_light_direction_adjusting_value, int zoom_every_n_frame, int gradient_color_cycling_adjusting_value, boolean flipSequenceIndexing) {
 
         ExecutorService executor = Executors.newFixedThreadPool(1);
 
@@ -2011,6 +2045,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
         this.bump_light_direction_adjusting_value = bump_light_direction_adjusting_value;
         this.zoom_every_n_frame = zoom_every_n_frame;
         this.gradient_color_cycling_adjusting_value = gradient_color_cycling_adjusting_value;
+        this.flipSequenceIndexing = flipSequenceIndexing;
 
         numberOfSequenceSteps *= zoom_every_n_frame;
 
@@ -2024,7 +2059,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
             overviewButton.setEnabled(false);
             setOptions(false);
             runsOnSequenceMode = true;
-            sequenceIndex = 1;
+            sequenceIndex = flipSequenceIndexing ? numberOfSequenceSteps : 1;
 
             Apfloat originalSize = s.size;
             Apfloat[] originalRotCenter = new Apfloat[2];
@@ -2059,8 +2094,14 @@ public class ImageExpanderWindow extends JFrame implements Constants {
                     }
                 } catch (InterruptedException ex) {
                 }
-                sequenceIndex++;
-                totalprogress.setValue(sequenceIndex - 1);
+
+                if(flipSequenceIndexing) {
+                    sequenceIndex--;
+                }
+                else {
+                    sequenceIndex++;
+                }
+                totalprogress.setValue(k);
                 totalprogress.setString("Zoom Sequence: " + totalprogress.getValue() + "/" + totalprogress.getMaximum());
 
                 if(k >= zoom_every_n_frame && k % zoom_every_n_frame == 0) {

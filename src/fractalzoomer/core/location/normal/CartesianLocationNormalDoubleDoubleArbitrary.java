@@ -105,7 +105,7 @@ public class CartesianLocationNormalDoubleDoubleArbitrary extends Location {
                 ddtempX = ddtempX.add(ddtemp_size_image_size_x);
             } else if (x == indexX - 1) {
                 ddtempX = ddtempX.subtract(ddtemp_size_image_size_x);
-            } else {
+            } else if (x != indexX) {
                 ddtempX = ddtemp_xcenter_size.add(ddtemp_size_image_size_x.multiply(x));
             }
 
@@ -113,7 +113,7 @@ public class CartesianLocationNormalDoubleDoubleArbitrary extends Location {
                 ddtempY = ddtempY.subtract(ddtemp_size_image_size_y);
             } else if (y == indexY - 1) {
                 ddtempY = ddtempY.add(ddtemp_size_image_size_y);
-            } else {
+            } else if (y != indexY) {
                 ddtempY = ddtemp_ycenter_size.subtract(ddtemp_size_image_size_y.multiply(y));
             }
         }
@@ -140,7 +140,7 @@ public class CartesianLocationNormalDoubleDoubleArbitrary extends Location {
                 ddtempY = ddtempY.subtract(ddtemp_size_image_size_y);
             } else if (y == indexY - 1) {
                 ddtempY = ddtempY.add(ddtemp_size_image_size_y);
-            } else {
+            } else if (y != indexY) {
                 ddtempY = ddtemp_ycenter_size.subtract(ddtemp_size_image_size_y.multiply(y));
             }
         }
@@ -159,7 +159,7 @@ public class CartesianLocationNormalDoubleDoubleArbitrary extends Location {
                 ddtempX = ddtempX.add(ddtemp_size_image_size_x);
             } else if (x == indexX - 1) {
                 ddtempX = ddtempX.subtract(ddtemp_size_image_size_x);
-            } else {
+            } else if (x != indexX) {
                 ddtempX = ddtemp_xcenter_size.add(ddtemp_size_image_size_x.multiply(x));
             }
         }
@@ -185,7 +185,7 @@ public class CartesianLocationNormalDoubleDoubleArbitrary extends Location {
         else if(x == indexX - 1) {
             ddtempX = ddtempX.subtract(ddtemp_size_image_size_x);
         }
-        else {
+        else if (x != indexX) {
             ddtempX = ddtemp_xcenter_size.add(ddtemp_size_image_size_x.multiply(x));
         }
 
@@ -214,7 +214,7 @@ public class CartesianLocationNormalDoubleDoubleArbitrary extends Location {
         else if(y == indexY - 1) {
             ddtempY = ddtempY.add(ddtemp_size_image_size_y);
         }
-        else {
+        else if (y != indexY) {
             ddtempY = ddtemp_ycenter_size.subtract(ddtemp_size_image_size_y.multiply(y));
         }
 

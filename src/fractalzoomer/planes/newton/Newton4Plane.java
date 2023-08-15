@@ -53,6 +53,26 @@ public class Newton4Plane extends Plane {
     }
 
     @Override
+    public BigIntNumComplex transform(BigIntNumComplex pixel) {
+
+        if(pixel.isZero()) {
+            return pixel;
+        }
+
+        BigIntNumComplex temp = pixel;
+
+        for(int iterations = 0; iterations < 5; iterations++) {
+            BigIntNumComplex fz = temp.fourth().sub(1);
+            BigIntNumComplex dfz = temp.cube().times(4);
+
+            temp = temp.sub(fz.divide(dfz));
+        }
+
+        return temp;
+
+    }
+
+    @Override
     public BigComplex transform(BigComplex pixel) {
 
         if(pixel.isZero()) {

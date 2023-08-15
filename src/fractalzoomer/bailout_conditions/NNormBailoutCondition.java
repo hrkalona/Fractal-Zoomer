@@ -101,6 +101,14 @@ public class NNormBailoutCondition extends BailoutCondition {
     }
 
     @Override
+    public boolean escaped(BigIntNumComplex z, BigIntNumComplex zold, BigIntNumComplex zold2, int iterations, BigIntNumComplex c, BigIntNumComplex start, BigIntNumComplex c0, BigIntNum norm_squared, BigIntNumComplex pixel) {
+        if(n_norm == 0) {
+            return false;
+        }
+        return z.toComplex().nnorm(n_norm, n_norm_reciprocal) >= bound;
+    }
+
+    @Override
     public boolean escaped(MpfrBigNumComplex z, MpfrBigNumComplex zold, MpfrBigNumComplex zold2, int iterations, MpfrBigNumComplex c, MpfrBigNumComplex start, MpfrBigNumComplex c0, MpfrBigNum norm_squared, MpfrBigNumComplex pixel) {
         if(mpfrbn_norm.isZero()) {
             return false;

@@ -41,9 +41,17 @@ public class MainPanel extends JPanel {
     public void paintComponent(Graphics g) {
         
         super.paintComponent(g);
-        
+
+        Graphics2D g2d = ((Graphics2D)g);
+        //if(ptr.getOrbit()) {
+            g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        //}
+        //else {
+        //    g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+        //}
+
         if(!ptr.getFirstPaint()) {
-            ptr.getMainPanel().getGraphics().drawImage(new BufferedImage(ThreadDraw.FAST_JULIA_IMAGE_SIZE, ThreadDraw.FAST_JULIA_IMAGE_SIZE, BufferedImage.TYPE_INT_ARGB), ptr.getScrollPane().getHorizontalScrollBar().getValue(), ptr.getScrollPane().getVerticalScrollBar().getValue(), null);
+            g.drawImage(new BufferedImage(ThreadDraw.FAST_JULIA_IMAGE_SIZE, ThreadDraw.FAST_JULIA_IMAGE_SIZE, BufferedImage.TYPE_INT_ARGB), ptr.getScrollPane().getHorizontalScrollBar().getValue(), ptr.getScrollPane().getVerticalScrollBar().getValue(), null);
             ptr.getScrollPane().getHorizontalScrollBar().setValue((int)(ptr.getScrollPane().getHorizontalScrollBar().getMaximum() / 2.0 - ptr.getScrollPane().getHorizontalScrollBar().getSize().getWidth() / 2.0));
             ptr.getScrollPane().getVerticalScrollBar().setValue((int)(ptr.getScrollPane().getVerticalScrollBar().getMaximum() / 2.0 - ptr.getScrollPane().getVerticalScrollBar().getSize().getHeight() / 2.0));
             ptr.setFirstPaint();

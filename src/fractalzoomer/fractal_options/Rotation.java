@@ -45,7 +45,13 @@ public class Rotation {
   private BigNum bnRotationA;
   private BigNum bnrotationApB;
   private BigNum bnrotationAsB;
+
+  private BigIntNum binRotationA;
+  private BigIntNum binrotationApB;
+  private BigIntNum binrotationAsB;
   private BigNumComplex bncenter;
+
+  private BigIntNumComplex bincenter;
 
   private MpfrBigNum mpfrbnrotationA;
   private MpfrBigNum mpfrbnrotationApB;
@@ -116,6 +122,18 @@ public class Rotation {
             bnRotationA = bnrotation.getRe();
             bnrotationApB = bnRotationA.add(bnrotation.getIm());
             bnrotationAsB = bnRotationA.sub(bnrotation.getIm());
+        }
+    }
+
+    public Rotation(BigIntNumComplex bnrotation, BigIntNumComplex bincenter) {
+        this.bincenter = bincenter;
+        hasRotation = !bnrotation.isOne();
+        hasRotationCenter = !bincenter.isZero();
+
+        if(hasRotation) {
+            binRotationA = bnrotation.getRe();
+            binrotationApB = binRotationA.add(bnrotation.getIm());
+            binrotationAsB = binRotationA.sub(bnrotation.getIm());
         }
     }
 
@@ -222,6 +240,26 @@ public class Rotation {
         return pixel;
     }
 
+    public BigIntNumComplex rotate(BigIntNumComplex pixel) {
+
+        if(hasRotationCenter) {
+            pixel = pixel.sub(bincenter);
+        }
+
+        if(hasRotation) { //pixel * rotation but more efficient
+            BigIntNum X = pixel.getRe();
+            BigIntNum Y = pixel.getIm();
+            BigIntNum F = binRotationA.mult(X.sub(Y));
+            pixel = new BigIntNumComplex(binrotationAsB.mult(Y).add(F), binrotationApB.mult(X).sub(F));
+        }
+
+        if(hasRotationCenter) {
+            pixel = pixel.plus(bincenter);
+        }
+
+        return pixel;
+    }
+
     public MpfrBigNumComplex rotate(MpfrBigNumComplex pixel) {
         if(hasRotationCenter) {
             pixel.sub_mutable(mpfrbncenter);
@@ -285,6 +323,10 @@ public class Rotation {
 
     public boolean shouldRotate(BigNum xCenter, BigNum yCenter) {
         return xCenter.compare(bncenter.getRe()) != 0 || yCenter.compare(bncenter.getIm()) != 0;
+    }
+
+    public boolean shouldRotate(BigIntNum xCenter, BigIntNum yCenter) {
+        return xCenter.compare(bincenter.getRe()) != 0 || yCenter.compare(bincenter.getIm()) != 0;
     }
 
     public boolean shouldRotate(MpirBigNum xCenter, MpirBigNum yCenter) {

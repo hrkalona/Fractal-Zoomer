@@ -47,22 +47,24 @@ public class CartesianLocationNormalBigNumArbitrary extends Location {
         int image_size = offset.getImageSize(image_size_in);
 
         point5 = new MyApfloat(0.5);
-        Apfloat size_2_x = MyApfloat.fp.multiply(size, point5);
-        Apfloat ddimage_size = new MyApfloat(image_size);
 
         bnsize = new BigNum(size);
+        
+        BigNum size_2_x = bnsize.divide2();
+        Apfloat ddimage_size = new MyApfloat(image_size);
+
         ddsize = size;
 
         ddxcenter = new BigNum(xCenter);
         ddycenter = new BigNum(yCenter);
 
         Apfloat temp = MyApfloat.fp.multiply(size, this.height_ratio);
-        Apfloat size_2_y = MyApfloat.fp.multiply(temp, point5);
+        BigNum size_2_y = new BigNum(temp).divide2();
         bntemp_size_image_size_x = new BigNum(MyApfloat.fp.divide(size, ddimage_size));
         bntemp_size_image_size_y = new BigNum(MyApfloat.fp.divide(temp, ddimage_size));
 
-        bntemp_xcenter_size = new BigNum(MyApfloat.fp.subtract(xCenter, size_2_x));
-        bntemp_ycenter_size =  new BigNum(MyApfloat.fp.add(yCenter, size_2_y));
+        bntemp_xcenter_size = ddxcenter.sub(size_2_x);
+        bntemp_ycenter_size = ddycenter.add(size_2_y);
 
         rotation = new Rotation(new BigNumComplex(rotation_vals[0], rotation_vals[1]), new BigNumComplex(rotation_center[0], rotation_center[1]));
         this.js = js;
@@ -113,7 +115,7 @@ public class CartesianLocationNormalBigNumArbitrary extends Location {
                 bntempX = bntempX.add(bntemp_size_image_size_x);
             } else if (x == indexX - 1) {
                 bntempX = bntempX.sub(bntemp_size_image_size_x);
-            } else {
+            } else if (x != indexX) {
                 bntempX = bntemp_xcenter_size.add(bntemp_size_image_size_x.mult(x));
             }
 
@@ -121,7 +123,7 @@ public class CartesianLocationNormalBigNumArbitrary extends Location {
                 bntempY = bntempY.sub(bntemp_size_image_size_y);
             } else if (y == indexY - 1) {
                 bntempY = bntempY.add(bntemp_size_image_size_y);
-            } else {
+            } else if (y != indexY) {
                 bntempY = bntemp_ycenter_size.sub(bntemp_size_image_size_y.mult(y));
             }
         }
@@ -148,7 +150,7 @@ public class CartesianLocationNormalBigNumArbitrary extends Location {
                 bntempY = bntempY.sub(bntemp_size_image_size_y);
             } else if (y == indexY - 1) {
                 bntempY = bntempY.add(bntemp_size_image_size_y);
-            } else {
+            } else if (y != indexY) {
                 bntempY = bntemp_ycenter_size.sub(bntemp_size_image_size_y.mult(y));
             }
         }
@@ -167,7 +169,7 @@ public class CartesianLocationNormalBigNumArbitrary extends Location {
                 bntempX = bntempX.add(bntemp_size_image_size_x);
             } else if (x == indexX - 1) {
                 bntempX = bntempX.sub(bntemp_size_image_size_x);
-            } else {
+            } else if (x != indexX) {
                 bntempX = bntemp_xcenter_size.add(bntemp_size_image_size_x.mult(x));
             }
         }
@@ -193,7 +195,7 @@ public class CartesianLocationNormalBigNumArbitrary extends Location {
         else if(x == indexX - 1) {
             bntempX = bntempX.sub(bntemp_size_image_size_x);
         }
-        else {
+        else if (x != indexX) {
             bntempX = bntemp_xcenter_size.add(bntemp_size_image_size_x.mult(x));
         }
 
@@ -222,7 +224,7 @@ public class CartesianLocationNormalBigNumArbitrary extends Location {
         else if(y == indexY - 1) {
             bntempY = bntempY.add(bntemp_size_image_size_y);
         }
-        else {
+        else if (y != indexY) {
             bntempY = bntemp_ycenter_size.sub(bntemp_size_image_size_y.mult(y));
         }
 
