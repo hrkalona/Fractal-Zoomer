@@ -2,6 +2,7 @@ package fractalzoomer.core;
 
 import fractalzoomer.utils.NormComponents;
 import org.apfloat.Apfloat;
+import org.apfloat.ApfloatMath;
 
 import java.util.concurrent.Future;
 
@@ -410,8 +411,8 @@ public class BigIntNumComplex extends GenericComplex {
     public final BigIntNum norm_squared() {
 
         if(BigIntNum.use_threads) {
-            Future<BigIntNum> temp1 = ThreadDraw.executor.submit(() -> re.square());
-            Future<BigIntNum> temp2 = ThreadDraw.executor.submit(() -> im.square());
+            Future<BigIntNum> temp1 = TaskDraw.reference_thread_executor.submit(() -> re.square());
+            Future<BigIntNum> temp2 = TaskDraw.reference_thread_executor.submit(() -> im.square());
 
             try {
                 return temp1.get().add(temp2.get());
@@ -634,8 +635,8 @@ public class BigIntNumComplex extends GenericComplex {
         BigIntNumComplex c = (BigIntNumComplex)cn;
 
         if(BigIntNum.use_threads) {
-            Future<BigIntNum> temp1 = ThreadDraw.executor.submit(() -> re.add(im).mult(re.sub(im)).add(c.re));
-            Future<BigIntNum> temp2 = ThreadDraw.executor.submit(() -> re.mult(im).mult2().add(c.im));
+            Future<BigIntNum> temp1 = TaskDraw.reference_thread_executor.submit(() -> re.add(im).mult(re.sub(im)).add(c.re));
+            Future<BigIntNum> temp2 = TaskDraw.reference_thread_executor.submit(() -> re.mult(im).mult2().add(c.im));
 
             try {
                 return new BigIntNumComplex(temp1.get(), temp2.get());
@@ -785,6 +786,28 @@ public class BigIntNumComplex extends GenericComplex {
 
     }
 
+    public final BigIntNumComplex inflectionPower(BigIntNumComplex inf, double power) {
+
+        if(power == 1) {
+            return plus(inf);
+        }
+        else if(power == 2) {
+            return square().plus(inf);
+        }
+        else if(power == 3) {
+            return cube().plus(inf);
+        }
+        else if(power == 4) {
+            return fourth().plus(inf);
+        }
+        if(power == 5) {
+            return fifth().plus(inf);
+        }
+
+        return new BigIntNumComplex();
+
+    }
+
     public final BigIntNumComplex shear(BigIntNumComplex sh) {
 
         return new BigIntNumComplex(re.add(im.mult(sh.re)), im.add(re.mult(sh.im)));
@@ -834,7 +857,8 @@ public class BigIntNumComplex extends GenericComplex {
     }
 
     @Override
-    public MantExpComplex toMantExpComplex() { return new MantExpComplex(this);}
+    public MantExpComplex toMantExpComplex() { return MantExpComplex.create(this);}
+
 
     @Override
     public void set(GenericComplex za) {
@@ -970,4 +994,17 @@ public class BigIntNumComplex extends GenericComplex {
         return square();
 
     }
+
+    @Override
+    public BigIntNumComplex absNegateRe_mutable() {
+        return new BigIntNumComplex(re.abs().negate(), im);
+    }
+
+    @Override
+    public BigIntNumComplex absNegateIm_mutable() {
+        return new BigIntNumComplex(re, im.abs().negate());
+    }
+
+    @Override
+    public BigIntNumComplex absre_mutable() { return  absre(); }
 }

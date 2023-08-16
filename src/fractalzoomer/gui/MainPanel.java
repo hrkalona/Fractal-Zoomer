@@ -17,7 +17,7 @@
 
 package fractalzoomer.gui;
 
-import fractalzoomer.core.ThreadDraw;
+import fractalzoomer.core.TaskDraw;
 import fractalzoomer.main.MainWindow;
 
 import javax.swing.*;
@@ -51,7 +51,7 @@ public class MainPanel extends JPanel {
         //}
 
         if(!ptr.getFirstPaint()) {
-            g.drawImage(new BufferedImage(ThreadDraw.FAST_JULIA_IMAGE_SIZE, ThreadDraw.FAST_JULIA_IMAGE_SIZE, BufferedImage.TYPE_INT_ARGB), ptr.getScrollPane().getHorizontalScrollBar().getValue(), ptr.getScrollPane().getVerticalScrollBar().getValue(), null);
+            g.drawImage(new BufferedImage(TaskDraw.FAST_JULIA_IMAGE_SIZE, TaskDraw.FAST_JULIA_IMAGE_SIZE, BufferedImage.TYPE_INT_ARGB), ptr.getScrollPane().getHorizontalScrollBar().getValue(), ptr.getScrollPane().getVerticalScrollBar().getValue(), null);
             ptr.getScrollPane().getHorizontalScrollBar().setValue((int)(ptr.getScrollPane().getHorizontalScrollBar().getMaximum() / 2.0 - ptr.getScrollPane().getHorizontalScrollBar().getSize().getWidth() / 2.0));
             ptr.getScrollPane().getVerticalScrollBar().setValue((int)(ptr.getScrollPane().getVerticalScrollBar().getMaximum() / 2.0 - ptr.getScrollPane().getVerticalScrollBar().getSize().getHeight() / 2.0));
             ptr.setFirstPaint();
@@ -95,6 +95,37 @@ public class MainPanel extends JPanel {
            }
        }
             
+    }
+
+    public Color getColor(int x, int y) {
+        try {
+            if (ptr.getWholeImageDone()) {
+                return new Color(ptr.getImage().getRGB(x, y));
+            } else {
+                return new Color(ptr.getLastUsed().getRGB(x, y));
+            }
+        }
+        catch (Exception ex) {
+            return new Color(0);
+        }
+    }
+
+    public String getIterationData(int x, int y, int image_size, boolean domain_coloring, boolean d3) {
+
+        if(domain_coloring || d3) {
+            return "N/A";
+        }
+
+        try {
+            if (TaskDraw.DONE) {
+                return "" + TaskDraw.image_iterations[y * image_size + x];
+            } else {
+                return "N/A";
+            }
+        }
+        catch (Exception ex) {
+            return "N/A";
+        }
     }
   
 }

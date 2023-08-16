@@ -33,7 +33,7 @@ public class SmoothEscapeTimeColorDecompositionEOC extends ColorDecomposition {
         super();
         this.log_convergent_bailout = log_convergent_bailout;
         this.algorithm = algorithm;
-        OutNotUsingIncrement = true;
+        OutUsingIncrement = false;
 
     }
 

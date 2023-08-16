@@ -90,11 +90,11 @@ public class NormalMap extends GenericStatistic {
         boolean supportsDeepCalculations = supportsDeepCalculations();
 
         if(supportsDeepCalculations) {
-            zDeep = new MantExpComplex(z);
-            zoldDeep = new MantExpComplex(zold);
+            zDeep = MantExpComplex.create(z);
+            zoldDeep = MantExpComplex.create(zold);
 
             if(function == Constants.LAMBDA) {
-                cDeep = new MantExpComplex(c);
+                cDeep = MantExpComplex.create(c);
             }
         }
 
@@ -123,12 +123,12 @@ public class NormalMap extends GenericStatistic {
 
             if(function == Constants.LAMBDA && isJulia && !isJuliter) {
                 derivative = new Complex(0.25, 0);
-                derivative_m = new MantExpComplex(derivative);
+                derivative_m = MantExpComplex.create(derivative);
             }
             else if ((function >= MainWindow.MANDELBROT && function <= MainWindow.MANDELBROTNTH)){
                 if (isJulia || zold.compare(new Complex()) != 0) {
                     derivative = new Complex(1, 0);
-                    derivative_m = new MantExpComplex(derivative);
+                    derivative_m = MantExpComplex.create(derivative);
                 }
             }
         }
@@ -195,18 +195,18 @@ public class NormalMap extends GenericStatistic {
             }
             else if(function == Constants.LAMBDA) {
                 if (supportsDeepCalculations) {
-                    derivative2_m = (derivative2_m.times(new MantExpComplex(1, 0).sub_mutable(zold_val_deep.times2())).sub_mutable(derivative_m.square().times2_mutable())).times_mutable(c_val_deep);
+                    derivative2_m = (derivative2_m.times(MantExpComplex.create(1, 0).sub_mutable(zold_val_deep.times2())).sub_mutable(derivative_m.square().times2_mutable())).times_mutable(c_val_deep);
                 } else {
-                    derivative2 = (derivative2.times(zold.times(2).r_sub_mutable(1)).sub_mutable(derivative.square().times_mutable(2))).times_mutable(c_val);
+                    derivative2 = (derivative2.times(zold.times2().r_sub_mutable(1)).sub_mutable(derivative.square().times2_mutable())).times_mutable(c_val);
                 }
             }
 
             if(function == Constants.LAMBDA && (!isJulia || (isJulia && isJuliter && iterations < juliterIterations))) {
                 if (supportsDeepCalculations) {
-                    derivative2_m.plus_mutable((new MantExpComplex(2, 0).sub_mutable(zold_val_deep.times4())).times_mutable(derivative_m));
+                    derivative2_m.plus_mutable((MantExpComplex.create(2, 0).sub_mutable(zold_val_deep.times4())).times_mutable(derivative_m));
                 }
                 else {
-                    derivative2.plus_mutable((zold.times(4).r_sub_mutable(2)).times_mutable(derivative));
+                    derivative2.plus_mutable((zold.times4().r_sub_mutable(2)).times_mutable(derivative));
                 }
             }
         }
@@ -268,10 +268,10 @@ public class NormalMap extends GenericStatistic {
         }
         else if (function == Constants.LAMBDA) {
             if(supportsDeepCalculations) {
-                derivative_m = derivative_m.times(new MantExpComplex(1, 0).sub_mutable(zold_val_deep.times2())).times_mutable(c_val_deep);
+                derivative_m = derivative_m.times(MantExpComplex.create(1, 0).sub_mutable(zold_val_deep.times2())).times_mutable(c_val_deep);
             }
             else {
-                derivative = derivative.times(zold.times(2).r_sub_mutable(1)).times_mutable(c_val);
+                derivative = derivative.times(zold.times2().r_sub_mutable(1)).times_mutable(c_val);
             }
         }
 
@@ -295,9 +295,9 @@ public class NormalMap extends GenericStatistic {
 
         if(supportsDeepCalculations) {
             if(useSecondDerivative) {
-                derivative2_m.Reduce();
+                derivative2_m.Normalize();
             }
-            derivative_m.Reduce();
+            derivative_m.Normalize();
         }
 
         samples++;
@@ -316,7 +316,7 @@ public class NormalMap extends GenericStatistic {
             if ((function >= MainWindow.MANDELBROT && function <= MainWindow.MANDELBROTNTH)){
                 if (zold.compare(new Complex()) != 0) {
                     derivative = new Complex(1, 0);
-                    derivative_m = new MantExpComplex(derivative);
+                    derivative_m = MantExpComplex.create(derivative);
                 }
             }
 
@@ -326,8 +326,8 @@ public class NormalMap extends GenericStatistic {
 
         if(useSecondDerivative) {
             if(supportsDeepCalculations) {
-                derivative2_m = new MantExpComplex(bla.getValue(derivative2_m.toComplex()));
-                derivative2_m.Reduce();
+                derivative2_m = MantExpComplex.create(bla.getValue(derivative2_m.toComplex()));
+                derivative2_m.Normalize();
             }
             else {
                 derivative2 = bla.getValue(derivative2);
@@ -335,8 +335,8 @@ public class NormalMap extends GenericStatistic {
         }
 
         if(supportsDeepCalculations) {
-            derivative_m = new MantExpComplex(bla.getValue(derivative_m.toComplex(), 1));
-            derivative_m.Reduce();
+            derivative_m = MantExpComplex.create(bla.getValue(derivative_m.toComplex(), 1));
+            derivative_m.Normalize();
         }
         else {
             derivative = bla.getValue(derivative, 1);
@@ -358,7 +358,7 @@ public class NormalMap extends GenericStatistic {
             if ((function >= MainWindow.MANDELBROT && function <= MainWindow.MANDELBROTNTH)){
                 if (zold.compare(new Complex()) != 0) {
                     derivative = new Complex(1, 0);
-                    derivative_m = new MantExpComplex(derivative);
+                    derivative_m = MantExpComplex.create(derivative);
                 }
             }
 
@@ -366,11 +366,11 @@ public class NormalMap extends GenericStatistic {
 
         if(useSecondDerivative) {
             derivative2_m = bla.getValue(derivative2_m);
-            derivative2_m.Reduce();
+            derivative2_m.Normalize();
         }
 
         derivative_m = bla.getValue(derivative_m, MantExp.ONE);
-        derivative_m.Reduce();
+        derivative_m.Normalize();
 
         samples += bla.getL();
     }
@@ -387,25 +387,25 @@ public class NormalMap extends GenericStatistic {
             if (function == MainWindow.MANDELBROT){
                 if (zold.compare(new Complex()) != 0) {
                     derivative = new Complex(1, 0);
-                    derivative_m = new MantExpComplex(derivative);
+                    derivative_m = MantExpComplex.create(derivative);
                 }
             }
         }
 
         if(useSecondDerivative) {
             derivative2_m = las.EvaluateDzdc2Deep(zold_val_deep, derivative2_m, derivative_m);
-            derivative2_m.Reduce();
+            derivative2_m.Normalize();
         }
 
         derivative_m = las.EvaluateDzdcDeep(zold_val_deep, derivative_m);
-        derivative_m.Reduce();
+        derivative_m.Normalize();
 
         samples += las.step;
     }
 
     @Override
     public void insert(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0, LAstep las) {
-        super.insert(z, zold, zold2, iterations, c, start, c0, new MantExpComplex(z), new MantExpComplex(zold), null);
+        super.insert(z, zold, zold2, iterations, c, start, c0, MantExpComplex.create(z), MantExpComplex.create(zold), null);
 
         if(power == 0) {
             return;
@@ -415,18 +415,18 @@ public class NormalMap extends GenericStatistic {
             if (function == MainWindow.MANDELBROT){
                 if (zold.compare(new Complex()) != 0) {
                     derivative = new Complex(1, 0);
-                    derivative_m = new MantExpComplex(derivative);
+                    derivative_m = MantExpComplex.create(derivative);
                 }
             }
         }
 
         if(useSecondDerivative) {
             derivative2_m = las.EvaluateDzdc2(zold_val_deep, derivative2_m, derivative_m);
-            derivative2_m.Reduce();
+            derivative2_m.Normalize();
         }
 
         derivative_m = las.EvaluateDzdc(zold_val_deep, derivative_m);
-        derivative_m.Reduce();
+        derivative_m.Normalize();
 
         samples += las.step;
     }
@@ -437,8 +437,8 @@ public class NormalMap extends GenericStatistic {
         samples = 0;
         derivative = new Complex();
         derivative2 = new Complex();
-        derivative_m = new MantExpComplex();
-        derivative2_m = new MantExpComplex();
+        derivative_m = MantExpComplex.create();
+        derivative2_m = MantExpComplex.create();
     }
 
     private double getValueInternal() {
@@ -455,11 +455,7 @@ public class NormalMap extends GenericStatistic {
                 u_m = z_val_deep.times(derivative_m).times_mutable(derivative_m.square().conjugate_mutable().times_mutable(1 + lo).sub_mutable(z_val_deep.times(derivative2_m).conjugate_mutable().times_mutable(lo)));
             }
             else {
-                if(z_val_deep == null) {
-                    int a = 0;
-                }
                 u_m = z_val_deep.divide(derivative_m);
-
             }
             u = u_m.divide(u_m.norm()).toComplex();  // normal vector: (u.re,u.im,1)
         }
@@ -507,11 +503,11 @@ public class NormalMap extends GenericStatistic {
                 if(normalMapInvertDE) {
                     if (left.compareTo(right) > 0) {
                         if(DEUpperLimit == 0) {
-                            return -ColorAlgorithm.MAXIMUM_ITERATIONS;
+                            return ColorAlgorithm.MAXIMUM_ITERATIONS_DE;
                         }
 
                         if(left.compareTo(right.multiply(DEUpperLimit_m)) < 0) {
-                            return -ColorAlgorithm.MAXIMUM_ITERATIONS;
+                            return ColorAlgorithm.MAXIMUM_ITERATIONS_DE;
                         }
                         else {
                             return ColorAlgorithm.MAXIMUM_ITERATIONS;
@@ -522,11 +518,11 @@ public class NormalMap extends GenericStatistic {
                     if (left.compareTo(right) <= 0 ) {
 
                         if(DEUpperLimit == 0) {
-                            return -ColorAlgorithm.MAXIMUM_ITERATIONS;
+                            return ColorAlgorithm.MAXIMUM_ITERATIONS_DE;
                         }
 
                         if(left.compareTo(right.divide(DEUpperLimit_m)) > 0) {
-                            return -ColorAlgorithm.MAXIMUM_ITERATIONS;
+                            return ColorAlgorithm.MAXIMUM_ITERATIONS_DE;
                         }
                         else {
                             return ColorAlgorithm.MAXIMUM_ITERATIONS;
@@ -544,11 +540,11 @@ public class NormalMap extends GenericStatistic {
                 if(normalMapInvertDE) {
                     if (!Double.isNaN(left) && !Double.isNaN(right) && left > right) {
                         if(DEUpperLimit == 0) {
-                            return -ColorAlgorithm.MAXIMUM_ITERATIONS;
+                            return ColorAlgorithm.MAXIMUM_ITERATIONS_DE;
                         }
 
                         if(left < right * DEUpperLimit) {
-                            return -ColorAlgorithm.MAXIMUM_ITERATIONS;
+                            return ColorAlgorithm.MAXIMUM_ITERATIONS_DE;
                         }
                         else {
                             return ColorAlgorithm.MAXIMUM_ITERATIONS;
@@ -559,11 +555,11 @@ public class NormalMap extends GenericStatistic {
                     if (!Double.isNaN(left) && !Double.isNaN(right) && left <= right ) {
 
                         if(DEUpperLimit == 0) {
-                            return -ColorAlgorithm.MAXIMUM_ITERATIONS;
+                            return ColorAlgorithm.MAXIMUM_ITERATIONS_DE;
                         }
 
                         if(left > right / DEUpperLimit) {
-                            return -ColorAlgorithm.MAXIMUM_ITERATIONS;
+                            return ColorAlgorithm.MAXIMUM_ITERATIONS_DE;
                         }
                         else {
                             return ColorAlgorithm.MAXIMUM_ITERATIONS;
@@ -624,7 +620,7 @@ public class NormalMap extends GenericStatistic {
                 double norm_z = z_val.norm();
                 Complex u = z_val.divide(derivative);
 
-                Complex temp = u.times(Math.log(norm_z)).times(2);
+                Complex temp = u.times(Math.log(norm_z)).times2();
 
                 return ((1 + temp.arg() / (2 * Math.PI)) % 1.0);
             }
@@ -632,7 +628,7 @@ public class NormalMap extends GenericStatistic {
         }
         else if(normalMapColoring == 2 || normalMapColoring == 3){
             //double norm_z = z_val.norm();
-            //Complex temp = z_val.times(Math.log(norm_z)).times(2).divide(derivative);
+            //Complex temp = z_val.times(Math.log(norm_z)).times2().divide(derivative);
             //return 1 / Math.tanh(temp.norm());
 
             if(supportsDeepCalculations()) {
@@ -684,7 +680,7 @@ public class NormalMap extends GenericStatistic {
             t = t > 1 ? 1 : t;
         }
 
-        return ThreadDraw.fade(deFadeAlgorithm, t);
+        return TaskDraw.fade(deFadeAlgorithm, t);
 
     }
 
@@ -697,10 +693,10 @@ public class NormalMap extends GenericStatistic {
         super.setSize(size, height_ratio);
 
         if(height_ratio == 1) {
-            DELimit_m = new MantExp(MyApfloat.fp.multiply(MyApfloat.fp.divide(size, new MyApfloat(ThreadDraw.IMAGE_SIZE)), new MyApfloat(normalMapDEfactor)));
+            DELimit_m = new MantExp(MyApfloat.fp.multiply(MyApfloat.fp.divide(size, new MyApfloat(TaskDraw.IMAGE_SIZE)), new MyApfloat(normalMapDEfactor)));
         }
         else {
-            Apfloat a = MyApfloat.fp.divide(size, new MyApfloat(ThreadDraw.IMAGE_SIZE));
+            Apfloat a = MyApfloat.fp.divide(size, new MyApfloat(TaskDraw.IMAGE_SIZE));
             Apfloat b = MyApfloat.fp.multiply(a, new MyApfloat(height_ratio));
             Apfloat c = MyApfloat.fp.sqrt(MyApfloat.fp.add(MyApfloat.fp.multiply(a, a), MyApfloat.fp.multiply(b, b)));
             DELimit_m = new MantExp(MyApfloat.fp.multiply(c, new MyApfloat(normalMapDEfactor)));
@@ -708,13 +704,13 @@ public class NormalMap extends GenericStatistic {
 
         DELimit = DELimit_m.toDouble();
 
-        supportsDeepCalc = (function >= MainWindow.MANDELBROT && function <= MainWindow.MANDELBROTFIFTH  || function == MainWindow.LAMBDA) && (ThreadDraw.PERTURBATION_THEORY || ThreadDraw.HIGH_PRECISION_CALCULATION);
+        supportsDeepCalc = (function >= MainWindow.MANDELBROT && function <= MainWindow.MANDELBROTFIFTH  || function == MainWindow.LAMBDA) && (TaskDraw.PERTURBATION_THEORY || TaskDraw.HIGH_PRECISION_CALCULATION);
     }
 
     @Override
     public void initializeApproximationDerivatives(MantExpComplex dz, MantExpComplex ddz, int iterations) {
-        dz.Reduce();
-        ddz.Reduce();
+        dz.Normalize();
+        ddz.Normalize();
         derivative = dz.toComplex();
         derivative_m = dz;
         derivative2 = ddz.toComplex();
@@ -742,16 +738,16 @@ public class NormalMap extends GenericStatistic {
     @Override
     public void setZValue(Complex z) {
         super.setZValue(z);
-        z_val_deep = new MantExpComplex(z);
+        z_val_deep = MantExpComplex.create(z);
         if(samples == 0) {
             if(function == Constants.LAMBDA && isJulia && !isJuliter) {
                 derivative = new Complex(0.25, 0);
-                derivative_m = new MantExpComplex(derivative);
+                derivative_m = MantExpComplex.create(derivative);
             }
             else if ((function >= MainWindow.MANDELBROT && function <= MainWindow.MANDELBROTNTH)){
                 if(isJulia || z.compare(new Complex()) != 0) {
                     derivative = new Complex(1, 0);
-                    derivative_m = new MantExpComplex(derivative);
+                    derivative_m = MantExpComplex.create(derivative);
                 }
             }
         }
@@ -767,5 +763,10 @@ public class NormalMap extends GenericStatistic {
 
     public double getSizeOffset() {
         return mSize.getExp() + mSize.getMantissa() * 0.5;
+    }
+
+    @Override
+    public boolean hasNormalMap() {
+        return true;
     }
 }

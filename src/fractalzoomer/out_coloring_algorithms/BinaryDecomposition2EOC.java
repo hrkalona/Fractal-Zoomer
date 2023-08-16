@@ -28,7 +28,7 @@ public class BinaryDecomposition2EOC extends BinaryDecomposition2 {
     public BinaryDecomposition2EOC() {
 
         super();
-        OutNotUsingIncrement = false;
+        OutUsingIncrement = true;
         
     }
 

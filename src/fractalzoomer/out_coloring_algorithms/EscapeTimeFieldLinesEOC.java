@@ -27,7 +27,7 @@ public class EscapeTimeFieldLinesEOC extends EscapeTimeFieldLines {
     public EscapeTimeFieldLinesEOC(double log_bailout_squared) {
 
         super(log_bailout_squared);
-        OutNotUsingIncrement = false;
+        OutUsingIncrement = true;
 
     }
 

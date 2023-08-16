@@ -99,6 +99,10 @@ public class StatisticsSettings implements Constants {
     public Color rootShadingColor;
 
     public int lastXItems;
+
+    public double patternScale;
+    public int checkerNormType;
+    public double checkerNormValue;
     
     public StatisticsSettings(StatisticsSettings copy) {
         statistic = copy.statistic;
@@ -177,6 +181,10 @@ public class StatisticsSettings implements Constants {
         normalMapDEAAEffect = copy.normalMapDEAAEffect;
 
         lastXItems = copy.lastXItems;
+
+        patternScale = copy.patternScale;
+        checkerNormType = copy.checkerNormType;
+        checkerNormValue = copy.checkerNormValue;
 
     }
     
@@ -259,5 +267,9 @@ public class StatisticsSettings implements Constants {
         unmmapedRootColor = Color.BLACK;
         rootShadingColor = Color.BLACK;
         lastXItems = 20;
+
+        patternScale = 5;
+        checkerNormType = 0;
+        checkerNormValue = 2;
     }
 }

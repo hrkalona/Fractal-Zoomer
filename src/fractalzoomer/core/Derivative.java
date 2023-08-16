@@ -40,7 +40,7 @@ public class Derivative {
     }
 
     public static void calculateConstants() {
-        DZ_2 = DZ.times(2);
+        DZ_2 = DZ.times2();
         DZ_3 = DZ.times(3);
 
         INV_DZ = DZ.r_divide(1);
@@ -75,21 +75,21 @@ public class Derivative {
     //Parameters: f(z), f(z + dz), f(z + 2 * dz)
     public static Complex numericalForwardDerivativeSecondOrder(Complex fz, Complex fzdz, Complex fz2dz) {
 
-        return fz.sub(fzdz.times(2)).plus_mutable(fz2dz).times_mutable(INV_DZ_SQUARED);
+        return fz.sub(fzdz.times2()).plus_mutable(fz2dz).times_mutable(INV_DZ_SQUARED);
 
     }
 
     //Parameters: f(z), f(z + dz), f(z - dz)
     public static Complex numericalCentralDerivativeSecondOrder(Complex fz, Complex fzdz, Complex fzmdz) {
 
-        return fzdz.sub(fz.times(2)).plus_mutable(fzmdz).times_mutable(INV_DZ_SQUARED);
+        return fzdz.sub(fz.times2()).plus_mutable(fzmdz).times_mutable(INV_DZ_SQUARED);
 
     }
 
     //Parameters: f(z), f(z - dz), f(z - 2 * dz)
     public static Complex numericalBackwardDerivativeSecondOrder(Complex fz, Complex fzmdz, Complex fzm2dz) {
 
-        return fz.sub(fzmdz.times(2)).plus_mutable(fzm2dz).times_mutable(INV_DZ_SQUARED);
+        return fz.sub(fzmdz.times2()).plus_mutable(fzm2dz).times_mutable(INV_DZ_SQUARED);
 
     }
 

@@ -16,7 +16,7 @@
  */
 package fractalzoomer.gui;
 
-import fractalzoomer.core.ThreadDraw;
+import fractalzoomer.core.TaskDraw;
 import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
@@ -45,16 +45,16 @@ public class EntropyColoringDialog extends JDialog {
         setIconImage(MainWindow.getIcon("mandel2.png").getImage());
 
         JTextField entropy_factor_field = new JTextField();
-        entropy_factor_field.setText("" + s.ens.entropy_palette_factor);
+        entropy_factor_field.setText("" + s.pps.ens.entropy_palette_factor);
 
         final JCheckBox enable_entropy_coloring = new JCheckBox("Entropy Coloring");
-        enable_entropy_coloring.setSelected(s.ens.entropy_coloring);
+        enable_entropy_coloring.setSelected(s.pps.ens.entropy_coloring);
         enable_entropy_coloring.setFocusable(false);
 
         JTextField entropy_offset_field = new JTextField();
-        entropy_offset_field.setText("" + s.ens.entropy_offset);
+        entropy_offset_field.setText("" + s.pps.ens.entropy_offset);
 
-        JSlider color_blend_opt = new JSlider(JSlider.HORIZONTAL, 0, 100, (int) (s.ens.en_blending * 100));
+        JSlider color_blend_opt = new JSlider(JSlider.HORIZONTAL, 0, 100, (int) (s.pps.ens.en_blending * 100));
         color_blend_opt.setMajorTickSpacing(25);
         color_blend_opt.setMinorTickSpacing(1);
         color_blend_opt.setToolTipText("Sets the color blending percentage.");
@@ -62,14 +62,14 @@ public class EntropyColoringDialog extends JDialog {
         color_blend_opt.setPaintLabels(true);
 
         JTextField noise_factor_field = new JTextField();
-        noise_factor_field.setText("" + s.ens.en_noise_reducing_factor);
+        noise_factor_field.setText("" + s.pps.ens.en_noise_reducing_factor);
 
         final JComboBox<String> entropy_coloring_method_opt = new JComboBox<>(Constants.entropyMethod);
-        entropy_coloring_method_opt.setSelectedIndex(s.ens.entropy_algorithm);
+        entropy_coloring_method_opt.setSelectedIndex(s.pps.ens.entropy_algorithm);
         entropy_coloring_method_opt.setFocusable(false);
         entropy_coloring_method_opt.setToolTipText("Sets the color transfer method.");
 
-        if (s.ens.entropy_algorithm != 0) {
+        if (s.pps.ens.entropy_algorithm != 0) {
             entropy_offset_field.setEnabled(false);
         }
 
@@ -152,12 +152,12 @@ public class EntropyColoringDialog extends JDialog {
                                 return;
                             }
 
-                            s.ens.entropy_coloring = enable_entropy_coloring.isSelected();
-                            s.ens.entropy_palette_factor = temp;
-                            s.ens.en_noise_reducing_factor = temp2;
-                            s.ens.entropy_offset = temp3;
-                            s.ens.en_blending = color_blend_opt.getValue() / 100.0;
-                            s.ens.entropy_algorithm = entropy_coloring_method_opt.getSelectedIndex();
+                            s.pps.ens.entropy_coloring = enable_entropy_coloring.isSelected();
+                            s.pps.ens.entropy_palette_factor = temp;
+                            s.pps.ens.en_noise_reducing_factor = temp2;
+                            s.pps.ens.entropy_offset = temp3;
+                            s.pps.ens.en_blending = color_blend_opt.getValue() / 100.0;
+                            s.pps.ens.entropy_algorithm = entropy_coloring_method_opt.getSelectedIndex();
                         } catch (Exception ex) {
                             JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                             return;
@@ -165,7 +165,7 @@ public class EntropyColoringDialog extends JDialog {
 
                         dispose();
 
-                        if (greedy_algorithm && !ThreadDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA && enable_entropy_coloring.isSelected() && !julia_map && !s.d3s.d3) {
+                        if (greedy_algorithm && !TaskDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA && enable_entropy_coloring.isSelected() && !julia_map && !s.d3s.d3) {
                             JOptionPane.showMessageDialog(ptra, Constants.greedyWarning, "Warning!", JOptionPane.WARNING_MESSAGE);
                         }
 

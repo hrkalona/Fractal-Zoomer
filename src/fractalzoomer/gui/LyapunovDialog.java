@@ -303,9 +303,9 @@ public class LyapunovDialog extends JDialog {
                                 return;
                             }
 
-                            int temp;
+                            long temp;
                             try {
-                                temp = Integer.parseInt(initial_iterations.getText());
+                                temp = Long.parseLong(initial_iterations.getText());
                             } catch (Exception ex) {
                                 JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                                 return;
@@ -331,7 +331,7 @@ public class LyapunovDialog extends JDialog {
                             s.fns.lpns.lyapunovVariableId = variable_choice.getSelectedIndex();
                             s.fns.lpns.lyapunovInitialValue = initial_value.getText();
                             s.fns.lpns.lyapunovskipBailoutCheck = skipBailout.isSelected();
-                            s.fns.lpns.lyapunovInitializationIteratons = temp;
+                            s.fns.lpns.lyapunovInitializationIteratons = (int) temp;
 
                             s.userFormulaHasC = temp_bool;
 

@@ -57,9 +57,9 @@ public class BlackGridWhiteCirclesLog2DomainColoring extends DomainColoring {
 
         int color = applyArgColor(res.arg());
         
-        color = applyGrid(color, res.getRe(), res.getIm());
+        color = applyGrid(color, res.getRe(), res.getIm(), 0, 0);
         
-        return applyCircles(color, res.norm());
+        return applyCircles(color, res.norm(), 0);
         
     }
 

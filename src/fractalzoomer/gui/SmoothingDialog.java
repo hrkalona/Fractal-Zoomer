@@ -16,6 +16,7 @@
  */
 package fractalzoomer.gui;
 
+import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
 
@@ -48,19 +49,23 @@ public class SmoothingDialog extends JDialog {
         enable_smoothing.setSelected(s.fns.smoothing);
         enable_smoothing.setFocusable(false);
 
+        JComboBox<String> fractional_transfer = new JComboBox<>(Constants.smoothingFractionalTransfer);
+        fractional_transfer.setSelectedIndex(s.fns.smoothing_fractional_transfer_method);
+        fractional_transfer.setFocusable(false);
+
         String[] escaping_algorithm_str = {"Algorithm 1", "Algorithm 2"};
 
         JComboBox<String> escaping_alg_combo = new JComboBox<>(escaping_algorithm_str);
         escaping_alg_combo.setSelectedIndex(s.fns.escaping_smooth_algorithm);
         escaping_alg_combo.setFocusable(false);
-        escaping_alg_combo.setToolTipText("Sets the smooting algorithm for escaping functions.");
+        escaping_alg_combo.setToolTipText("Sets the smoothing algorithm for escaping functions.");
 
         String[] converging_algorithm_str = {"Algorithm 1", "Algorithm 2"};
 
         JComboBox<String> converging_alg_combo = new JComboBox<>(converging_algorithm_str);
         converging_alg_combo.setSelectedIndex(s.fns.converging_smooth_algorithm);
         converging_alg_combo.setFocusable(false);
-        converging_alg_combo.setToolTipText("Sets the smooting algorithm for converging functions.");
+        converging_alg_combo.setToolTipText("Sets the smoothing algorithm for converging functions.");
 
         final JComboBox<String> combo_box_color_interp = new JComboBox<>(color_interp_str);
         combo_box_color_interp.setSelectedIndex(s.color_smoothing_method);
@@ -74,12 +79,16 @@ public class SmoothingDialog extends JDialog {
 
         if (s.ds.domain_coloring && s.ds.domain_coloring_mode != 1) {
             enable_smoothing.setEnabled(false);
+            fractional_transfer.setEnabled(false);
         }
 
         Object[] message = {
             " ",
             enable_smoothing,
             " ",
+                "Fractional Transfer:",
+                fractional_transfer,
+                " ",
             "Set the smoothing algorithm for escaping and converging functions.",
             "Escaping:", escaping_alg_combo,
             "Converging:", converging_alg_combo,
@@ -122,18 +131,26 @@ public class SmoothingDialog extends JDialog {
                             return;
                         }
 
+                        boolean recalculate = false;
                         try {
                             s.fns.smoothing = enable_smoothing.isSelected();
+
+                            if(s.fns.escaping_smooth_algorithm != escaping_alg_combo.getSelectedIndex()
+                             || s.fns.converging_smooth_algorithm != converging_alg_combo.getSelectedIndex()) {
+                                recalculate = true;
+                            }
+
                             s.fns.escaping_smooth_algorithm = escaping_alg_combo.getSelectedIndex();
                             s.fns.converging_smooth_algorithm = converging_alg_combo.getSelectedIndex();
                             s.color_smoothing_method = combo_box_color_interp.getSelectedIndex();
+                            s.fns.smoothing_fractional_transfer_method = fractional_transfer.getSelectedIndex();
                         } catch (Exception ex) {
                             JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                             return;
                         }
 
                         dispose();
-                        ptra.setSmoothingPost();
+                        ptra.setSmoothingPost(recalculate);
                     }
                 });
 

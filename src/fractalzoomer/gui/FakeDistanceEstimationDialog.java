@@ -16,7 +16,7 @@
  */
 package fractalzoomer.gui;
 
-import fractalzoomer.core.ThreadDraw;
+import fractalzoomer.core.TaskDraw;
 import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
@@ -45,18 +45,18 @@ public class FakeDistanceEstimationDialog extends JDialog {
         setIconImage(MainWindow.getIcon("mandel2.png").getImage());
 
         JTextField fake_de_factor_field = new JTextField();
-        fake_de_factor_field.setText("" + s.fdes.fake_de_factor);
+        fake_de_factor_field.setText("" + s.pps.fdes.fake_de_factor);
 
         final JCheckBox enable_fake_de = new JCheckBox("Fake Distance Estimation");
-        enable_fake_de.setSelected(s.fdes.fake_de);
+        enable_fake_de.setSelected(s.pps.fdes.fake_de);
         enable_fake_de.setFocusable(false);
 
         final JCheckBox invert_fake_de = new JCheckBox("Invert Coloring");
-        invert_fake_de.setSelected(s.fdes.inverse_fake_dem);
+        invert_fake_de.setSelected(s.pps.fdes.inverse_fake_dem);
         invert_fake_de.setFocusable(false);
 
         final JComboBox<String> de_fade_method_combo = new JComboBox<>(Constants.FadeAlgs);
-        de_fade_method_combo.setSelectedIndex(s.fdes.fade_algorithm);
+        de_fade_method_combo.setSelectedIndex(s.pps.fdes.fade_algorithm);
         de_fade_method_combo.setFocusable(false);
         de_fade_method_combo.setToolTipText("Sets the fading method.");
 
@@ -115,10 +115,10 @@ public class FakeDistanceEstimationDialog extends JDialog {
                                 return;
                             }
 
-                            s.fdes.fake_de = enable_fake_de.isSelected();
-                            s.fdes.fake_de_factor = temp;
-                            s.fdes.inverse_fake_dem = invert_fake_de.isSelected();
-                            s.fdes.fade_algorithm = de_fade_method_combo.getSelectedIndex();
+                            s.pps.fdes.fake_de = enable_fake_de.isSelected();
+                            s.pps.fdes.fake_de_factor = temp;
+                            s.pps.fdes.inverse_fake_dem = invert_fake_de.isSelected();
+                            s.pps.fdes.fade_algorithm = de_fade_method_combo.getSelectedIndex();
 
                         } catch (Exception ex) {
                             JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
@@ -127,7 +127,7 @@ public class FakeDistanceEstimationDialog extends JDialog {
 
                         dispose();
 
-                        if (greedy_algorithm && !ThreadDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA && enable_fake_de.isSelected() && !julia_map && !s.d3s.d3) {
+                        if (greedy_algorithm && !TaskDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA && enable_fake_de.isSelected() && !julia_map && !s.d3s.d3) {
                             JOptionPane.showMessageDialog(ptra, Constants.greedyWarning, "Warning!", JOptionPane.WARNING_MESSAGE);
                         }
 

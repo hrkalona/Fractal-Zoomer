@@ -32,7 +32,7 @@ public class EscapeTimeFieldLines extends OutColorAlgorithm {
         super();
         this.log_bailout_squared = log_bailout_squared;
         pi2 = Math.PI * 2;
-        OutNotUsingIncrement = false;
+        OutUsingIncrement = true;
 
     }
 

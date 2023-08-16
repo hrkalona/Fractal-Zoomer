@@ -29,7 +29,7 @@ public class BiomorphsMagnet extends Biomorphs {
     public BiomorphsMagnet(double bailout) {
 
         super(bailout);
-        OutNotUsingIncrement = false;
+        OutUsingIncrement = true;
 
     }
 

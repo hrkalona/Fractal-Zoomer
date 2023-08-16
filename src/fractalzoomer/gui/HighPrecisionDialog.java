@@ -16,10 +16,7 @@
  */
 package fractalzoomer.gui;
 
-import fractalzoomer.core.BigIntNum;
-import fractalzoomer.core.BigNum;
-import fractalzoomer.core.MyApfloat;
-import fractalzoomer.core.ThreadDraw;
+import fractalzoomer.core.*;
 import fractalzoomer.core.mpfr.LibMpfr;
 import fractalzoomer.core.mpfr.MpfrBigNum;
 import fractalzoomer.core.mpir.LibMpir;
@@ -69,7 +66,7 @@ public class HighPrecisionDialog extends JDialog {
 
 
         final JCheckBox enable_high_precision = new JCheckBox("High Precision");
-        enable_high_precision.setSelected(ThreadDraw.HIGH_PRECISION_CALCULATION);
+        enable_high_precision.setSelected(TaskDraw.HIGH_PRECISION_CALCULATION);
         enable_high_precision.setFocusable(false);
 
         final JCheckBox automatic_precision = new JCheckBox("Automatic Precision");
@@ -83,15 +80,15 @@ public class HighPrecisionDialog extends JDialog {
         precision.addAncestorListener(new RequestFocusListener());
 
         final JCheckBox automaticBignumPrecision = new JCheckBox("Automatic BigNum Precision");
-        automaticBignumPrecision.setSelected(ThreadDraw.BIGNUM_AUTOMATIC_PRECISION);
+        automaticBignumPrecision.setSelected(TaskDraw.BIGNUM_AUTOMATIC_PRECISION);
         automaticBignumPrecision.setFocusable(false);
 
 
         JTextField bignumPrecision = new JTextField();
-        bignumPrecision.setText("" + ThreadDraw.BIGNUM_PRECISION);
+        bignumPrecision.setText("" + TaskDraw.BIGNUM_PRECISION);
 
         JComboBox<String> arbitraryLibs = new JComboBox<>(new String[] {"DoubleDouble (106 bits)", "Built-in", "MPFR", "Apfloat", "Automatic", "MPIR", "Fixed Point BigInteger"});
-        arbitraryLibs.setSelectedIndex(ThreadDraw.HIGH_PRECISION_LIB);
+        arbitraryLibs.setSelectedIndex(TaskDraw.HIGH_PRECISION_LIB);
         arbitraryLibs.setFocusable(false);
 
         automaticBignumPrecision.addActionListener(e -> bignumPrecision.setEnabled(!automaticBignumPrecision.isSelected() && arbitraryLibs.getSelectedIndex() != Constants.ARBITRARY_DOUBLEDOUBLE && arbitraryLibs.getSelectedIndex() != Constants.ARBITRARY_APFLOAT));
@@ -174,19 +171,19 @@ public class HighPrecisionDialog extends JDialog {
                             boolean tempAuto = automaticBignumPrecision.isSelected();
 
                             if(!tempAuto && tempPrecision == MyApfloat.precision) {
-                                Fractal.clearReferences(true);
+                                Fractal.clearReferences(true, true);
                                 BigNum.reinitialize(temp4);
                                 MpfrBigNum.reinitialize(temp4);
                                 MpirBigNum.reinitialize(temp4);
                                 BigIntNum.reinitialize(temp4);
                             }
-                            else if(tempAuto && !ThreadDraw.BIGNUM_AUTOMATIC_PRECISION && tempPrecision == MyApfloat.precision) {
-                                Fractal.clearReferences(true);
+                            else if(tempAuto && !TaskDraw.BIGNUM_AUTOMATIC_PRECISION && tempPrecision == MyApfloat.precision) {
+                                Fractal.clearReferences(true, true);
                                 MyApfloat.setBigNumPrecision();
                             }
 
-                            ThreadDraw.BIGNUM_AUTOMATIC_PRECISION = tempAuto;
-                            ThreadDraw.BIGNUM_PRECISION = temp4;
+                            TaskDraw.BIGNUM_AUTOMATIC_PRECISION = tempAuto;
+                            TaskDraw.BIGNUM_PRECISION = temp4;
 
                             if(tempPrecision != MyApfloat.precision) {
                                 MyApfloat.setPrecision(tempPrecision, s);
@@ -194,16 +191,16 @@ public class HighPrecisionDialog extends JDialog {
 
                             MyApfloat.setAutomaticPrecision = automatic_precision.isSelected();
 
-                            ThreadDraw.HIGH_PRECISION_CALCULATION = enable_high_precision.isSelected();
+                            TaskDraw.HIGH_PRECISION_CALCULATION = enable_high_precision.isSelected();
 
 
-                            ThreadDraw.HIGH_PRECISION_LIB = arbitraryLibs.getSelectedIndex();
+                            TaskDraw.HIGH_PRECISION_LIB = arbitraryLibs.getSelectedIndex();
 
-                            if(ThreadDraw.HIGH_PRECISION_CALCULATION  && ThreadDraw.HIGH_PRECISION_LIB == Constants.ARBITRARY_MPFR && LibMpfr.hasError()) {
+                            if(TaskDraw.HIGH_PRECISION_CALCULATION  && TaskDraw.HIGH_PRECISION_LIB == Constants.ARBITRARY_MPFR && LibMpfr.hasError()) {
                                 JOptionPane.showMessageDialog(ptra, "The MPFR library is not available, and the engine will fallback to an alternative library.", "Warning!", JOptionPane.WARNING_MESSAGE);
                             }
 
-                            if(ThreadDraw.HIGH_PRECISION_CALCULATION && ThreadDraw.HIGH_PRECISION_LIB == Constants.ARBITRARY_MPIR && LibMpir.hasError()) {
+                            if(TaskDraw.HIGH_PRECISION_CALCULATION && TaskDraw.HIGH_PRECISION_LIB == Constants.ARBITRARY_MPIR && LibMpir.hasError()) {
                                 JOptionPane.showMessageDialog(ptra, "The MPIR library is not available, and the engine will fallback to an alternative library.", "Warning!", JOptionPane.WARNING_MESSAGE);
                             }
 

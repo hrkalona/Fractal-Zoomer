@@ -47,7 +47,7 @@ public class GridTilesDialog extends JDialog {
 
         Object[] message3 = {
             " ",
-            "You are using " + grid_tiles + " grid tiles\nin each dimension.\nEnter the new grid tiles number.",
+            "You are using " + grid_tiles + " grid tiles\nin each dimension.\nInsert the new grid tiles number.",
             field,
             " ",};
 

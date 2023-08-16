@@ -93,6 +93,9 @@ public class ColorChooserFrame extends JFrame {
                 else if(ptr2 instanceof CustomPaletteEditorFrame) {
                     ((CustomPaletteEditorFrame)ptr2).colorChanged(num);
                 }
+                else if(ptr2 instanceof  ColorPaletteEditorFrame) {
+                    ((ColorPaletteEditorFrame)ptr2).colorChanged();
+                }
             }
             else if(obj2 instanceof Color) {
                 if(ptr2 instanceof MainWindow) {

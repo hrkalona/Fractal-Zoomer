@@ -16,7 +16,7 @@
  */
 package fractalzoomer.gui;
 
-import fractalzoomer.core.ThreadDraw;
+import fractalzoomer.core.TaskDraw;
 import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
@@ -46,16 +46,16 @@ public class HistogramColoringDialog extends JDialog {
         setIconImage(MainWindow.getIcon("mandel2.png").getImage());
 
         JComboBox<String> mapping = new JComboBox<>(Constants.histogramMapping);
-        mapping.setSelectedIndex(s.hss.hmapping);
+        mapping.setSelectedIndex(s.pps.hss.hmapping);
         mapping.setFocusable(false);
         mapping.setToolTipText("Sets the value mapping method.");
 
         JTextField granularity_field = new JTextField();
-        granularity_field.setText("" + s.hss.histogramBinGranularity);
+        granularity_field.setText("" + s.pps.hss.histogramBinGranularity);
         granularity_field.setEnabled(mapping.getSelectedIndex() == 0);
         
         JTextField density_field = new JTextField();
-        density_field.setText("" + s.hss.histogramDensity);
+        density_field.setText("" + s.pps.hss.histogramDensity);
         density_field.setEnabled(mapping.getSelectedIndex() == 0);
 
         JPanel temp_p4 = new JPanel();
@@ -66,15 +66,15 @@ public class HistogramColoringDialog extends JDialog {
         temp_p4.add(density_field);
 
         final JCheckBox enable_histogram_coloring = new JCheckBox("Histogram Coloring");
-        enable_histogram_coloring.setSelected(s.hss.histogramColoring);
+        enable_histogram_coloring.setSelected(s.pps.hss.histogramColoring);
         enable_histogram_coloring.setFocusable(false);
 
         final JCheckBox removeOutliers = new JCheckBox("Remove Outliers");
-        removeOutliers.setSelected(s.hss.hs_remove_outliers);
+        removeOutliers.setSelected(s.pps.hss.hs_remove_outliers);
         removeOutliers.setFocusable(false);
 
         JComboBox<String> outliersAlgorithm = new JComboBox<>(new String[] {"Tukey's Fences", "Z-score"});
-        outliersAlgorithm.setSelectedIndex(s.hss.hs_outliers_method);
+        outliersAlgorithm.setSelectedIndex(s.pps.hss.hs_outliers_method);
         outliersAlgorithm.setFocusable(false);
         outliersAlgorithm.setToolTipText("Sets the outlier removal method.");
 
@@ -82,7 +82,7 @@ public class HistogramColoringDialog extends JDialog {
 
         removeOutliers.addActionListener(e -> outliersAlgorithm.setEnabled(removeOutliers.isSelected()));
 
-        JSlider color_blend_opt = new JSlider(JSlider.HORIZONTAL, 0, 100, (int) (s.hss.hs_blending * 100));
+        JSlider color_blend_opt = new JSlider(JSlider.HORIZONTAL, 0, 100, (int) (s.pps.hss.hs_blending * 100));
         color_blend_opt.setMajorTickSpacing(25);
         color_blend_opt.setMinorTickSpacing(1);
         color_blend_opt.setToolTipText("Sets the color blending percentage.");
@@ -90,8 +90,8 @@ public class HistogramColoringDialog extends JDialog {
         color_blend_opt.setPaintLabels(true);
 
         RangeSlider scale_range = new RangeSlider(0, 100);
-        scale_range.setValue((int)(s.hss.histogramScaleMin * 100));
-        scale_range.setUpperValue((int)(s.hss.histogramScaleMax * 100));
+        scale_range.setValue((int)(s.pps.hss.histogramScaleMin * 100));
+        scale_range.setUpperValue((int)(s.pps.hss.histogramScaleMax * 100));
         scale_range.setMajorTickSpacing(25);
         scale_range.setMinorTickSpacing(1);
         scale_range.setToolTipText("Sets the scaling range.");
@@ -99,7 +99,7 @@ public class HistogramColoringDialog extends JDialog {
         scale_range.setPaintLabels(true);
 
         JTextField noise_factor_field = new JTextField();
-        noise_factor_field.setText("" + s.hss.hs_noise_reducing_factor);
+        noise_factor_field.setText("" + s.pps.hss.hs_noise_reducing_factor);
 
         mapping.addActionListener(e -> {
             density_field.setEnabled(mapping.getSelectedIndex() == 0);
@@ -192,16 +192,16 @@ public class HistogramColoringDialog extends JDialog {
                                 return;
                             }
 
-                            s.hss.histogramColoring = enable_histogram_coloring.isSelected();
-                            s.hss.hs_noise_reducing_factor = temp2;
-                            s.hss.hs_blending = color_blend_opt.getValue() / 100.0;
-                            s.hss.histogramDensity = temp3;
-                            s.hss.histogramBinGranularity = temp;
-                            s.hss.histogramScaleMax = scale_range.getUpperValue() / 100.0;
-                            s.hss.histogramScaleMin = scale_range.getValue() / 100.0;
-                            s.hss.hmapping = mapping.getSelectedIndex();
-                            s.hss.hs_remove_outliers = removeOutliers.isSelected();
-                            s.hss.hs_outliers_method = outliersAlgorithm.getSelectedIndex();
+                            s.pps.hss.histogramColoring = enable_histogram_coloring.isSelected();
+                            s.pps.hss.hs_noise_reducing_factor = temp2;
+                            s.pps.hss.hs_blending = color_blend_opt.getValue() / 100.0;
+                            s.pps.hss.histogramDensity = temp3;
+                            s.pps.hss.histogramBinGranularity = temp;
+                            s.pps.hss.histogramScaleMax = scale_range.getUpperValue() / 100.0;
+                            s.pps.hss.histogramScaleMin = scale_range.getValue() / 100.0;
+                            s.pps.hss.hmapping = mapping.getSelectedIndex();
+                            s.pps.hss.hs_remove_outliers = removeOutliers.isSelected();
+                            s.pps.hss.hs_outliers_method = outliersAlgorithm.getSelectedIndex();
                         } catch (Exception ex) {
                             JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                             return;
@@ -209,7 +209,7 @@ public class HistogramColoringDialog extends JDialog {
 
                         dispose();
 
-                        if (greedy_algorithm && !ThreadDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA && enable_histogram_coloring.isSelected() && !julia_map && !s.d3s.d3) {
+                        if (greedy_algorithm && !TaskDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA && enable_histogram_coloring.isSelected() && !julia_map && !s.d3s.d3) {
                             JOptionPane.showMessageDialog(ptra, Constants.greedyWarning, "Warning!", JOptionPane.WARNING_MESSAGE);
                         }
 

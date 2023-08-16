@@ -31,7 +31,7 @@ public class AtanReTimesImTimesAbsReTimesAbsIm extends InColorAlgorithm {
         
         super();
         
-        InNotUsingIncrement = true;
+        InUsingIncrement = false;
         this.max_iterations = max_iterations;
         
     }

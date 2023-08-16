@@ -85,7 +85,7 @@ public class SettingsFractals1071 extends SettingsFractals1070 implements Serial
     
     public SettingsFractals1071(Settings s) {
         
-        super(s.xCenter.doubleValue(), s.yCenter.doubleValue(), s.size.doubleValue(), s.max_iterations, s.ps.color_choice, s.fractal_color, s.fns.out_coloring_algorithm, s.fns.user_out_coloring_algorithm, s.fns.outcoloring_formula, s.fns.user_outcoloring_conditions, s.fns.user_outcoloring_condition_formula, s.fns.in_coloring_algorithm, s.fns.user_in_coloring_algorithm, s.fns.incoloring_formula, s.fns.user_incoloring_conditions, s.fns.user_incoloring_condition_formula, s.fns.smoothing, s.fns.function, s.fns.bailout_test_algorithm, s.fns.bailout, s.fns.bailout_test_user_formula, s.fns.bailout_test_user_formula2, s.fns.bailout_test_comparison, s.fns.n_norm, s.fns.plane_type, s.fns.apply_plane_on_julia, s.fns.burning_ship, s.fns.z_exponent, s.fns.z_exponent_complex, s.ps.color_cycling_location, s.fns.coefficients, s.ps.custom_palette, s.ps.color_interpolation, s.ps.color_space, s.ps.reversed_palette, s.fns.rotation, Settings.fromDDArray(s.fns.rotation_center), s.fns.perturbation, s.fns.perturbation_vals, s.fns.variable_perturbation, s.fns.user_perturbation_algorithm, s.fns.user_perturbation_conditions, s.fns.user_perturbation_condition_formula, s.fns.perturbation_user_formula, s.fns.init_val, s.fns.initial_vals, s.fns.variable_init_value, s.fns.user_initial_value_algorithm, s.fns.user_initial_value_conditions, s.fns.user_initial_value_condition_formula, s.fns.initial_value_user_formula, s.fns.mandel_grass, s.fns.mandel_grass_vals, s.fns.z_exponent_nova, s.fns.relaxation, s.fns.nova_method, s.fns.user_formula, s.fns.user_formula2, s.fns.bail_technique, s.fns.user_plane, s.fns.user_plane_algorithm, s.fns.user_plane_conditions, s.fns.user_plane_condition_formula, s.fns.user_formula_iteration_based, s.fns.user_formula_conditions, s.fns.user_formula_condition_formula, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.fns.plane_transform_center, s.fns.plane_transform_angle, s.fns.plane_transform_radius, s.fns.plane_transform_scales, s.fns.plane_transform_angle2, s.fns.plane_transform_sides, s.fns.plane_transform_amount, s.ps.color_intensity, s.fns.escaping_smooth_algorithm, s.fns.converging_smooth_algorithm, s.bms.bump_map, s.bms.bumpMappingStrength, s.bms.bumpMappingDepth, s.bms.lightDirectionDegrees, s.polar_projection, s.circle_period, s.fdes.fake_de, s.fdes.fake_de_factor, s.fns.user_fz_formula, s.fns.user_dfz_formula, s.fns.user_ddfz_formula, s.dem_color, s.special_color, s.special_use_palette_color, s.rps.rainbow_palette, s.rps.rainbow_palette_factor, s.fs.filters, s.fs.filters_options_vals, s.ps.scale_factor_palette_val, s.ps.processing_alg, s.fs.filters_colors, s.fns.coupling, s.fns.user_formula_coupled, s.fns.coupling_method, s.fns.coupling_amplitude, s.fns.coupling_frequency, s.fns.coupling_seed, s.ds.domain_coloring, false, s.ds.domain_coloring_alg, s.inverse_dem, s.fdes.inverse_fake_dem, s.fs.filters_options_extra_vals, s.fs.filters_extra_colors, s.color_smoothing_method, s.fs.filters_order, s.bms.bm_noise_reducing_factor, s.rps.rp_noise_reducing_factor, s.ens.entropy_coloring, s.ens.entropy_palette_factor, s.ens.en_noise_reducing_factor, s.fns.apply_plane_on_julia_seed, s.ofs.offset_coloring, s.ofs.post_process_offset, s.ofs.of_noise_reducing_factor, s.ens.en_blending, s.rps.rp_blending, s.ofs.of_blending, s.ens.entropy_offset, s.rps.rainbow_offset, s.gss.greyscale_coloring, s.gss.gs_noise_reducing_factor, s.ps.transfer_function, s.color_blending.color_blending, s.bms.bump_transfer_function, s.bms.bump_transfer_factor, s.bms.bump_blending, s.bms.bumpProcessing, s.globalIncrementBypass, s.fns.waveType, s.fns.plane_transform_wavelength, s.fns.laguerre_deg, s.ds.iso_distance, s.ds.iso_factor, s.ds.logBase, s.ds.normType, s.ds.gridFactor, s.ds.circlesBlending, s.ds.isoLinesBlendingFactor, s.ds.gridBlending, s.ds.gridColor, s.ds.circlesColor, s.ds.isoLinesColor, s.ds.contourBlending, s.ds.drawColor, s.ds.drawContour, s.ds.drawGrid, s.ds.drawCircles, s.ds.drawIsoLines, s.ds.customDomainColoring, s.ds.colorType, s.ds.contourType, s.ens.entropy_algorithm, s.ds.domainOrder, s.gs.colorA, s.gs.colorB, s.gs.gradient_color_space, s.gs.gradient_interpolation, s.gs.gradient_reversed, s.rps.rainbow_algorithm, s.ots.useTraps, s.ots.trapPoint, s.ots.trapLength, s.ots.trapWidth, s.ots.trapType, s.ots.trapMaxDistance, s.ots.trapBlending, s.ots.trapNorm, false, s.ots.lineType, s.cns.contour_coloring, s.cns.cn_noise_reducing_factor, s.cns.cn_blending, s.cns.contour_algorithm, s.useDirectColor, s.fns.kleinianLine, s.fns.kleinianK, s.fns.kleinianM, s.post_processing_order);
+        super(s.xCenter.doubleValue(), s.yCenter.doubleValue(), s.size.doubleValue(), s.max_iterations, s.ps.color_choice, s.fractal_color, s.fns.out_coloring_algorithm, s.fns.user_out_coloring_algorithm, s.fns.outcoloring_formula, s.fns.user_outcoloring_conditions, s.fns.user_outcoloring_condition_formula, s.fns.in_coloring_algorithm, s.fns.user_in_coloring_algorithm, s.fns.incoloring_formula, s.fns.user_incoloring_conditions, s.fns.user_incoloring_condition_formula, s.fns.smoothing, s.fns.function, s.fns.bailout_test_algorithm, s.fns.bailout, s.fns.bailout_test_user_formula, s.fns.bailout_test_user_formula2, s.fns.bailout_test_comparison, s.fns.n_norm, s.fns.plane_type, s.fns.apply_plane_on_julia, s.fns.burning_ship, s.fns.z_exponent, s.fns.z_exponent_complex, s.ps.color_cycling_location, s.fns.coefficients, s.ps.custom_palette, s.ps.color_interpolation, s.ps.color_space, s.ps.reversed_palette, s.fns.rotation, Settings.fromDDArray(s.fns.rotation_center), s.fns.perturbation, s.fns.perturbation_vals, s.fns.variable_perturbation, s.fns.user_perturbation_algorithm, s.fns.user_perturbation_conditions, s.fns.user_perturbation_condition_formula, s.fns.perturbation_user_formula, s.fns.init_val, s.fns.initial_vals, s.fns.variable_init_value, s.fns.user_initial_value_algorithm, s.fns.user_initial_value_conditions, s.fns.user_initial_value_condition_formula, s.fns.initial_value_user_formula, s.fns.mandel_grass, s.fns.mandel_grass_vals, s.fns.z_exponent_nova, s.fns.relaxation, s.fns.nova_method, s.fns.user_formula, s.fns.user_formula2, s.fns.bail_technique, s.fns.user_plane, s.fns.user_plane_algorithm, s.fns.user_plane_conditions, s.fns.user_plane_condition_formula, s.fns.user_formula_iteration_based, s.fns.user_formula_conditions, s.fns.user_formula_condition_formula, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.fns.plane_transform_center, s.fns.plane_transform_angle, s.fns.plane_transform_radius, s.fns.plane_transform_scales, s.fns.plane_transform_angle2, s.fns.plane_transform_sides, s.fns.plane_transform_amount, s.ps.color_intensity, s.fns.escaping_smooth_algorithm, s.fns.converging_smooth_algorithm, s.pps.bms.bump_map, s.pps.bms.bumpMappingStrength, s.pps.bms.bumpMappingDepth, s.pps.bms.lightDirectionDegrees, s.polar_projection, s.circle_period, s.pps.fdes.fake_de, s.pps.fdes.fake_de_factor, s.fns.user_fz_formula, s.fns.user_dfz_formula, s.fns.user_ddfz_formula, s.dem_color, s.special_color, s.special_use_palette_color, s.pps.rps.rainbow_palette, s.pps.rps.rainbow_palette_factor, s.fs.filters, s.fs.filters_options_vals, s.ps.scale_factor_palette_val, s.ps.processing_alg, s.fs.filters_colors, s.fns.coupling, s.fns.user_formula_coupled, s.fns.coupling_method, s.fns.coupling_amplitude, s.fns.coupling_frequency, s.fns.coupling_seed, s.ds.domain_coloring, false, s.ds.domain_coloring_alg, s.inverse_dem, s.pps.fdes.inverse_fake_dem, s.fs.filters_options_extra_vals, s.fs.filters_extra_colors, s.color_smoothing_method, s.fs.filters_order, s.pps.bms.bm_noise_reducing_factor, s.pps.rps.rp_noise_reducing_factor, s.pps.ens.entropy_coloring, s.pps.ens.entropy_palette_factor, s.pps.ens.en_noise_reducing_factor, s.fns.apply_plane_on_julia_seed, s.pps.ofs.offset_coloring, s.pps.ofs.post_process_offset, s.pps.ofs.of_noise_reducing_factor, s.pps.ens.en_blending, s.pps.rps.rp_blending, s.pps.ofs.of_blending, s.pps.ens.entropy_offset, s.pps.rps.rainbow_offset, s.pps.gss.greyscale_coloring, s.pps.gss.gs_noise_reducing_factor, s.ps.transfer_function, s.color_blending.color_blending, s.pps.bms.bump_transfer_function, s.pps.bms.bump_transfer_factor, s.pps.bms.bump_blending, s.pps.bms.bumpProcessing, s.globalIncrementBypass, s.fns.waveType, s.fns.plane_transform_wavelength, s.fns.laguerre_deg, s.ds.iso_distance, s.ds.iso_factor, s.ds.logBase, s.ds.normType, s.ds.gridFactor, s.ds.circlesBlending, s.ds.isoLinesBlendingFactor, s.ds.gridBlending, s.ds.gridColor, s.ds.circlesColor, s.ds.isoLinesColor, s.ds.contourBlending, s.ds.drawColor, s.ds.drawContour, s.ds.drawGrid, s.ds.drawCircles, s.ds.drawIsoLines, s.ds.customDomainColoring, s.ds.colorType, s.ds.contourType, s.pps.ens.entropy_algorithm, s.ds.domainOrder, s.gs.colorA, s.gs.colorB, s.gs.gradient_color_space, s.gs.gradient_interpolation, s.gs.gradient_reversed, s.pps.rps.rainbow_algorithm, s.pps.ots.useTraps, s.pps.ots.trapPoint, s.pps.ots.trapLength, s.pps.ots.trapWidth, s.pps.ots.trapType, s.pps.ots.trapMaxDistance, s.pps.ots.trapBlending, s.pps.ots.trapNorm, false, s.pps.ots.lineType, s.pps.cns.contour_coloring, s.pps.cns.cn_noise_reducing_factor, s.pps.cns.cn_blending, s.pps.cns.contour_algorithm, s.useDirectColor, s.fns.kleinianLine, s.fns.kleinianK, s.fns.kleinianM, s.post_processing_order);
         
         color_choice2 = s.ps2.color_choice;
         color_cycling_location2 = s.ps2.color_cycling_location;
@@ -113,36 +113,36 @@ public class SettingsFractals1071 extends SettingsFractals1070 implements Serial
         gradient_offset = s.pbs.gradient_offset;
         merging_type = s.pbs.merging_type;
         
-        contourColorMethod = s.cns.contourColorMethod;
+        contourColorMethod = s.pps.cns.contourColorMethod;
         
-        trapColorMethod = s.ots.trapColorMethod;
-        trapIntensity = s.ots.trapIntensity;
+        trapColorMethod = s.pps.ots.trapColorMethod;
+        trapIntensity = s.pps.ots.trapIntensity;
         
-        statistic = s.sts.statistic;
-        statistic_type = s.sts.statistic_type;
-        statistic_intensity = s.sts.statistic_intensity;
-        stripeAvgStripeDensity = s.sts.stripeAvgStripeDensity;
-        cosArgStripeDensity = s.sts.cosArgStripeDensity;
-        cosArgInvStripeDensity = s.sts.cosArgInvStripeDensity;
-        StripeDenominatorFactor = s.sts.StripeDenominatorFactor;
-        statisticGroup = s.sts.statisticGroup;
-        user_statistic_formula = s.sts.user_statistic_formula;
-        useAverage = s.sts.useAverage;
-        statistic_escape_type = s.sts.statistic_escape_type;
+        statistic = s.pps.sts.statistic;
+        statistic_type = s.pps.sts.statistic_type;
+        statistic_intensity = s.pps.sts.statistic_intensity;
+        stripeAvgStripeDensity = s.pps.sts.stripeAvgStripeDensity;
+        cosArgStripeDensity = s.pps.sts.cosArgStripeDensity;
+        cosArgInvStripeDensity = s.pps.sts.cosArgInvStripeDensity;
+        StripeDenominatorFactor = s.pps.sts.StripeDenominatorFactor;
+        statisticGroup = s.pps.sts.statisticGroup;
+        user_statistic_formula = s.pps.sts.user_statistic_formula;
+        useAverage = s.pps.sts.useAverage;
+        statistic_escape_type = s.pps.sts.statistic_escape_type;
         
-        lighting = s.ls.lighting;
-        lightintensity = s.ls.lightintensity;
-        ambientlight = s.ls.ambientlight;
-        specularintensity = s.ls.specularintensity;
-        shininess = s.ls.shininess;
-        lightHeightTransfer = s.ls.heightTransfer;
-        lightHeightTransferFactor = s.ls.heightTransferFactor;
-        lightMode = s.ls.lightMode;
-        lightColorMode = s.ls.colorMode;
-        l_noise_reducing_factor = s.ls.l_noise_reducing_factor;
-        light_blending = s.ls.light_blending;
-        light_direction = s.ls.light_direction;
-        light_magnitude = s.ls.light_magnitude;
+        lighting = s.pps.ls.lighting;
+        lightintensity = s.pps.ls.lightintensity;
+        ambientlight = s.pps.ls.ambientlight;
+        specularintensity = s.pps.ls.specularintensity;
+        shininess = s.pps.ls.shininess;
+        lightHeightTransfer = s.pps.ls.heightTransfer;
+        lightHeightTransferFactor = s.pps.ls.heightTransferFactor;
+        lightMode = s.pps.ls.lightMode;
+        lightColorMode = s.pps.ls.colorMode;
+        l_noise_reducing_factor = s.pps.ls.l_noise_reducing_factor;
+        light_blending = s.pps.ls.light_blending;
+        light_direction = s.pps.ls.light_direction;
+        light_magnitude = s.pps.ls.light_magnitude;
         
     }
  

@@ -50,7 +50,7 @@ public class NormBlackCirclesLog2DomainColoring extends DomainColoring {
         
         int color = applyNormColor(norm);
         
-        return applyCircles(color, norm);
+        return applyCircles(color, norm, 0);
     }
 
 }

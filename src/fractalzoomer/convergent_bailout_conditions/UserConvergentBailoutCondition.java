@@ -70,7 +70,7 @@ public class UserConvergentBailoutCondition extends ConvergentBailoutCondition {
             parser[1].setSizevalue(c_size);
         }
 
-        Complex c_isize = new Complex(ThreadDraw.IMAGE_SIZE, 0);
+        Complex c_isize = new Complex(TaskDraw.IMAGE_SIZE, 0);
         if (parser[0].foundISize()) {
             parser[0].setISizevalue(c_isize);
         }

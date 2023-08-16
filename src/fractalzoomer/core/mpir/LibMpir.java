@@ -4,7 +4,7 @@ import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.NativeLibrary;
 import com.sun.jna.Platform;
-import fractalzoomer.core.ThreadDraw;
+import fractalzoomer.core.TaskDraw;
 import fractalzoomer.utils.NativeLoader;
 
 public class LibMpir {
@@ -32,7 +32,7 @@ public class LibMpir {
 
     static {
 
-        if(!ThreadDraw.LOAD_MPIR) {
+        if(!TaskDraw.LOAD_MPIR) {
             LOAD_ERROR = new Exception("Disabled loading of mpir");
         }
         else if(!Platform.isWindows()) {
@@ -41,7 +41,7 @@ public class LibMpir {
         else if(Native.SIZE_T_SIZE  == 4) {
             LOAD_ERROR = new Exception("Cannot load mpir if the OS is 32 bit");
         }
-        else if(ThreadDraw.MPIR_LIB.isEmpty()) {
+        else if(TaskDraw.MPIR_LIB.isEmpty()) {
             LOAD_ERROR = new Exception("Cannot load mpir, no available library was found");
         }
         else {
@@ -63,7 +63,7 @@ public class LibMpir {
 
     private static void loadLibMpir() throws Exception {
 
-        String libName = ThreadDraw.MPIR_LIB;
+        String libName = TaskDraw.MPIR_LIB;
 
         System.out.println("Loading " + libName);
 

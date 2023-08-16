@@ -133,7 +133,7 @@ public class FileMenu extends MyMenu {
         save_initial_settings_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F7, 0));
         cancel_operation.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0));
         
-        default_opt.addActionListener(e -> ptr.defaultSettings());
+        default_opt.addActionListener(e -> ptr.resetSettings());
         
         save_initial_settings_opt.addActionListener(e -> ptr.setInitialSettings());
 
@@ -159,7 +159,7 @@ public class FileMenu extends MyMenu {
 
         library_code.addActionListener(e -> ptr.libraryCode());
 
-        cancel_operation.addActionListener(e -> ptr.cancelOperation());
+        //cancel_operation.addActionListener(e -> ptr.cancelOperation());
 
         exit.addActionListener(e -> ptr.exit());
         
@@ -199,10 +199,8 @@ public class FileMenu extends MyMenu {
         add(compile_code);
         addSeparator();
 
-        if(CommonFunctions.getJavaVersion() == 8) {
-            add(cancel_operation);
-            addSeparator();
-        }
+//        add(cancel_operation);
+//        addSeparator();
 
         add(exit);
         

@@ -100,9 +100,9 @@ public class Nova extends ExtendedConvergentType {
         super();
     }
 
-    public Nova(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, double[] z_exponent, double[] relaxation, int nova_method, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int converging_smooth_algorithm, OrbitTrapSettings ots, StatisticsSettings sts, double[] newton_hines_k, boolean defaultNovaInitialValue) {
+    public Nova(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, double[] z_exponent, double[] relaxation, int nova_method, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower, int converging_smooth_algorithm, OrbitTrapSettings ots, StatisticsSettings sts, double[] newton_hines_k, boolean defaultNovaInitialValue) {
 
-        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, false, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, ots);
+        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, false, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, ots);
         
         if(nova_method == MainWindow.NOVA_TRAUB_OSTROWSKI) {
             convergent_bailout = 1E-8;
@@ -164,9 +164,9 @@ public class Nova extends ExtendedConvergentType {
         }
     }
 
-    public Nova(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, double[] z_exponent, double[] relaxation, int nova_method, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int converging_smooth_algorithm, OrbitTrapSettings ots, StatisticsSettings sts, double[] newton_hines_k, boolean defaultNovaInitialValue, double xJuliaCenter, double yJuliaCenter) {
+    public Nova(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, double[] z_exponent, double[] relaxation, int nova_method, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower, int converging_smooth_algorithm, OrbitTrapSettings ots, StatisticsSettings sts, double[] newton_hines_k, boolean defaultNovaInitialValue, double xJuliaCenter, double yJuliaCenter) {
 
-        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, false, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, ots, xJuliaCenter, yJuliaCenter);
+        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, false, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, ots, xJuliaCenter, yJuliaCenter);
 
         //Todo: Check which other methods need this
         if(nova_method == MainWindow.NOVA_TRAUB_OSTROWSKI) {
@@ -227,9 +227,9 @@ public class Nova extends ExtendedConvergentType {
     }
 
     //orbit
-    public Nova(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, double[] z_exponent, double[] relaxation, int nova_method, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double[] newton_hines_k, boolean defaultNovaInitialValue) {
+    public Nova(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, double[] z_exponent, double[] relaxation, int nova_method, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower, double[] newton_hines_k, boolean defaultNovaInitialValue) {
 
-        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower);
 
         this.nova_method = nova_method;
 
@@ -270,9 +270,9 @@ public class Nova extends ExtendedConvergentType {
 
     }
 
-    public Nova(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, double[] z_exponent, double[] relaxation, int nova_method, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double[] newton_hines_k, boolean defaultNovaInitialValue, double xJuliaCenter, double yJuliaCenter) {
+    public Nova(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, double[] z_exponent, double[] relaxation, int nova_method, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower, double[] newton_hines_k, boolean defaultNovaInitialValue, double xJuliaCenter, double yJuliaCenter) {
 
-        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, xJuliaCenter, yJuliaCenter);
 
         this.nova_method = nova_method;
 
@@ -363,11 +363,11 @@ public class Nova extends ExtendedConvergentType {
 
         if (z_exponent.getIm() == 0) {
             if (z_exponent.getRe() == 2) {
-                combined_dfz = temp.times(2);
+                combined_dfz = temp.times2();
             } else if (z_exponent.getRe() == 3) {
                 combined_dfz = temp.square().times_mutable(3);
             } else if (z_exponent.getRe() == 4) {
-                combined_dfz = temp.cube().times_mutable(4);
+                combined_dfz = temp.cube().times4_mutable();
             } else if (z_exponent.getRe() == 5) {
                 combined_dfz = temp.fourth().times_mutable(5);
             } else if (z_exponent.getRe() == 6) {
@@ -392,11 +392,11 @@ public class Nova extends ExtendedConvergentType {
 
             if (z_exponent.getIm() == 0) {
                 if (z_exponent.getRe() == 2) {
-                    combined_dfz2 = temp2.times_mutable(2);
+                    combined_dfz2 = temp2.times2_mutable();
                 } else if (z_exponent.getRe() == 3) {
                     combined_dfz2 = temp2.square_mutable().times_mutable(3);
                 } else if (z_exponent.getRe() == 4) {
-                    combined_dfz2 = temp2.cube_mutable().times_mutable(4);
+                    combined_dfz2 = temp2.cube_mutable().times4_mutable();
                 } else if (z_exponent.getRe() == 5) {
                     combined_dfz2 = temp2.fourth_mutable().times_mutable(5);
                 } else if (z_exponent.getRe() == 6) {
@@ -577,11 +577,11 @@ public class Nova extends ExtendedConvergentType {
         if (!Settings.isOneFunctionsNovaFormula(nova_method) && nova_method != MainWindow.NOVA_STIRLING) {
             if (z_exponent.getIm() == 0) {
                 if (z_exponent.getRe() == 2) {
-                    dfz = complex[0].times(2);
+                    dfz = complex[0].times2();
                 } else if (z_exponent.getRe() == 3) {
                     dfz = complex[0].square().times_mutable(3);
                 } else if (z_exponent.getRe() == 4) {
-                    dfz = complex[0].cube().times_mutable(4);
+                    dfz = complex[0].cube().times4_mutable();
                 } else if (z_exponent.getRe() == 5) {
                     dfz = complex[0].fourth().times_mutable(5);
                 } else if (z_exponent.getRe() == 6) {
@@ -827,7 +827,7 @@ public class Nova extends ExtendedConvergentType {
 
         Complex[] complex = new Complex[6];
 
-        if(ThreadDraw.PERTURBATION_THEORY && supportsPerturbationTheory()) {
+        if(TaskDraw.PERTURBATION_THEORY && supportsPerturbationTheory()) {
             if(!isOrbit && !isDomain) {
                 Complex temp = pixel.plus(refPointSmall);
                 complex[0] = new Complex(defaultInitVal.getValue(temp));
@@ -862,7 +862,7 @@ public class Nova extends ExtendedConvergentType {
 
         Complex[] complex = new Complex[6];
 
-        if(ThreadDraw.PERTURBATION_THEORY && supportsPerturbationTheory()) {
+        if(TaskDraw.PERTURBATION_THEORY && supportsPerturbationTheory()) {
 
             if(!isOrbit && !isDomain) {
                 complex[0] = pixel.plus(refPointSmall);
@@ -937,6 +937,7 @@ public class Nova extends ExtendedConvergentType {
         }
 
         boolean lowPrecReferenceOrbitNeeded = !needsOnlyExtendedReferenceOrbit(deepZoom, false);
+        DoubleReference.SHOULD_SAVE_MEMORY = false;
 
         if(iterations == 0) {
             if(lowPrecReferenceOrbitNeeded) {
@@ -985,82 +986,79 @@ public class Nova extends ExtendedConvergentType {
         }
 
 
-        int bigNumLib = ThreadDraw.getBignumLibrary(size, this);
-        boolean useBignum = ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE  && bigNumLib != Constants.BIGNUM_APFLOAT;
+        int bigNumLib = TaskDraw.getBignumLibrary(size, this);
 
         GenericComplex z, c, zold, zold2, start, c0, initVal, pixel;
-        if(useBignum) {
-            if(bigNumLib == Constants.BIGNUM_MPFR) {
+        if(bigNumLib == Constants.BIGNUM_MPFR) {
 
-                initVal = new MpfrBigNumComplex(defaultInitVal.getValue(null));
+            initVal = new MpfrBigNumComplex(defaultInitVal.getValue(null));
 
-                MpfrBigNumComplex bn = new MpfrBigNumComplex(inputPixel.toMpfrBigNumComplex());
+            MpfrBigNumComplex bn = new MpfrBigNumComplex(inputPixel.toMpfrBigNumComplex());
 
-                z = iterations == 0 ? (isJulia ? bn : new MpfrBigNumComplex((MpfrBigNumComplex)initVal)) : referenceData.lastZValue;
-                c = isJulia ? getSeed(useBignum, bigNumLib) : bn;
-                zold = iterations == 0 ? new MpfrBigNumComplex() : referenceData.secondTolastZValue;
-                zold2 = iterations == 0 ? new MpfrBigNumComplex() : referenceData.thirdTolastZValue;
-                start = isJulia ? new MpfrBigNumComplex(bn) : new MpfrBigNumComplex((MpfrBigNumComplex)initVal);
-                c0 = new MpfrBigNumComplex((MpfrBigNumComplex)c);
-                pixel = new MpfrBigNumComplex(bn);
-            }
-            else if(bigNumLib == Constants.BIGNUM_MPIR) {
+            z = iterations == 0 ? (isJulia ? bn : new MpfrBigNumComplex((MpfrBigNumComplex)initVal)) : referenceData.lastZValue;
+            c = isJulia ? getSeed(bigNumLib) : bn;
+            zold = iterations == 0 ? new MpfrBigNumComplex() : referenceData.secondTolastZValue;
+            zold2 = iterations == 0 ? new MpfrBigNumComplex() : referenceData.thirdTolastZValue;
+            start = isJulia ? new MpfrBigNumComplex(bn) : new MpfrBigNumComplex((MpfrBigNumComplex)initVal);
+            c0 = new MpfrBigNumComplex((MpfrBigNumComplex)c);
+            pixel = new MpfrBigNumComplex(bn);
+        }
+        else if(bigNumLib == Constants.BIGNUM_MPIR) {
 
-                initVal = new MpirBigNumComplex(defaultInitVal.getValue(null));
+            initVal = new MpirBigNumComplex(defaultInitVal.getValue(null));
 
-                MpirBigNumComplex bn = new MpirBigNumComplex(inputPixel.toMpirBigNumComplex());
+            MpirBigNumComplex bn = new MpirBigNumComplex(inputPixel.toMpirBigNumComplex());
 
-                z = iterations == 0 ? (isJulia ? bn : new MpirBigNumComplex((MpirBigNumComplex)initVal)) : referenceData.lastZValue;
-                c = isJulia ? getSeed(useBignum, bigNumLib) : bn;
-                zold = iterations == 0 ? new MpirBigNumComplex() : referenceData.secondTolastZValue;
-                zold2 = iterations == 0 ? new MpirBigNumComplex() : referenceData.thirdTolastZValue;
-                start = isJulia ? new MpirBigNumComplex(bn) : new MpirBigNumComplex((MpirBigNumComplex)initVal);
-                c0 = new MpirBigNumComplex((MpirBigNumComplex)c);
-                pixel = new MpirBigNumComplex(bn);
-            }
-            else if(bigNumLib == Constants.BIGNUM_BIGINT) {
-                initVal = new BigIntNumComplex(defaultInitVal.getValue(null));
+            z = iterations == 0 ? (isJulia ? bn : new MpirBigNumComplex((MpirBigNumComplex)initVal)) : referenceData.lastZValue;
+            c = isJulia ? getSeed(bigNumLib) : bn;
+            zold = iterations == 0 ? new MpirBigNumComplex() : referenceData.secondTolastZValue;
+            zold2 = iterations == 0 ? new MpirBigNumComplex() : referenceData.thirdTolastZValue;
+            start = isJulia ? new MpirBigNumComplex(bn) : new MpirBigNumComplex((MpirBigNumComplex)initVal);
+            c0 = new MpirBigNumComplex((MpirBigNumComplex)c);
+            pixel = new MpirBigNumComplex(bn);
+        }
+        else if(bigNumLib == Constants.BIGNUM_BIGINT) {
+            initVal = new BigIntNumComplex(defaultInitVal.getValue(null));
 
-                BigIntNumComplex bin = inputPixel.toBigIntNumComplex();
-                z = iterations == 0 ? (isJulia ? bin : initVal) : referenceData.lastZValue;
-                c = isJulia ? getSeed(useBignum, bigNumLib) : bin;
-                zold = iterations == 0 ? new BigIntNumComplex() : referenceData.secondTolastZValue;
-                zold2 = iterations == 0 ? new BigIntNumComplex() : referenceData.thirdTolastZValue;
-                start = isJulia ? bin : initVal;
-                c0 = c;
-                pixel = bin;
-            }
-            else if(bigNumLib == Constants.BIGNUM_DOUBLEDOUBLE) {
-                initVal = new DDComplex(defaultInitVal.getValue(null));
+            BigIntNumComplex bin = inputPixel.toBigIntNumComplex();
+            z = iterations == 0 ? (isJulia ? bin : initVal) : referenceData.lastZValue;
+            c = isJulia ? getSeed(bigNumLib) : bin;
+            zold = iterations == 0 ? new BigIntNumComplex() : referenceData.secondTolastZValue;
+            zold2 = iterations == 0 ? new BigIntNumComplex() : referenceData.thirdTolastZValue;
+            start = isJulia ? bin : initVal;
+            c0 = c;
+            pixel = bin;
+        }
+        else if(bigNumLib == Constants.BIGNUM_DOUBLEDOUBLE) {
+            initVal = new DDComplex(defaultInitVal.getValue(null));
 
-                DDComplex ddn = inputPixel.toDDComplex();
-                z = iterations == 0 ? (isJulia ? ddn : initVal) : referenceData.lastZValue;
-                c = isJulia ? getSeed(useBignum, bigNumLib) : ddn;
-                zold = iterations == 0 ? new DDComplex() : referenceData.secondTolastZValue;
-                zold2 = iterations == 0 ? new DDComplex() : referenceData.thirdTolastZValue;
-                start = isJulia ? ddn : initVal;
-                c0 = c;
-                pixel = ddn;
-            }
-            else {
-                initVal = defaultInitVal.getValue(null);
+            DDComplex ddn = inputPixel.toDDComplex();
+            z = iterations == 0 ? (isJulia ? ddn : initVal) : referenceData.lastZValue;
+            c = isJulia ? getSeed(bigNumLib) : ddn;
+            zold = iterations == 0 ? new DDComplex() : referenceData.secondTolastZValue;
+            zold2 = iterations == 0 ? new DDComplex() : referenceData.thirdTolastZValue;
+            start = isJulia ? ddn : initVal;
+            c0 = c;
+            pixel = ddn;
+        }
+        else if(bigNumLib == Constants.BIGNUM_DOUBLE) {
+            initVal = defaultInitVal.getValue(null);
 
-                Complex bn = inputPixel.toComplex();
+            Complex bn = inputPixel.toComplex();
 
-                z = iterations == 0 ? (isJulia ? bn : new Complex((Complex)initVal)) : referenceData.lastZValue;
-                c = isJulia ? getSeed(useBignum, bigNumLib) : bn;
-                zold = iterations == 0 ? new Complex() : referenceData.secondTolastZValue;
-                zold2 = iterations == 0 ? new Complex() : referenceData.thirdTolastZValue;
-                start = isJulia ? new Complex(bn) : new Complex((Complex)initVal);
-                c0 = new Complex((Complex) c);
-                pixel = new Complex(bn);
-            }
+            z = iterations == 0 ? (isJulia ? bn : new Complex((Complex)initVal)) : referenceData.lastZValue;
+            c = isJulia ? getSeed(bigNumLib) : bn;
+            zold = iterations == 0 ? new Complex() : referenceData.secondTolastZValue;
+            zold2 = iterations == 0 ? new Complex() : referenceData.thirdTolastZValue;
+            start = isJulia ? new Complex(bn) : new Complex((Complex)initVal);
+            c0 = new Complex((Complex) c);
+            pixel = new Complex(bn);
         }
         else {
             initVal = new BigComplex(defaultInitVal.getValue(null));
 
             z = iterations == 0 ? (isJulia ? inputPixel : initVal) : referenceData.lastZValue;
-            c = isJulia ? getSeed(useBignum, bigNumLib) : inputPixel;
+            c = isJulia ? getSeed(bigNumLib) : inputPixel;
             zold = iterations == 0 ? new BigComplex() : referenceData.secondTolastZValue;
             zold2 = iterations == 0 ? new BigComplex() : referenceData.thirdTolastZValue;
             start = isJulia ? inputPixel : initVal;
@@ -1084,7 +1082,9 @@ public class Nova extends ExtendedConvergentType {
 
         convergent_bailout_algorithm.setReferenceMode(true);
 
-        for (; iterations < max_iterations; iterations++) {
+        calculatedReferenceIterations = 0;
+
+        for (; iterations < max_iterations; iterations++, calculatedReferenceIterations++) {
 
             if(lowPrecReferenceOrbitNeeded) {
                 Complex cz = z.toComplex();
@@ -1096,10 +1096,10 @@ public class Nova extends ExtendedConvergentType {
             }
 
             GenericComplex zsubcp;
-            if(useBignum && bigNumLib == Constants.BIGNUM_MPFR) {
+            if(bigNumLib == Constants.BIGNUM_MPFR) {
                 zsubcp = z.sub(initVal, workSpaceData.temp1, workSpaceData.temp2);
             }
-            else if(useBignum && bigNumLib == Constants.BIGNUM_MPIR) {
+            else if(bigNumLib == Constants.BIGNUM_MPIR) {
                 zsubcp = z.sub(initVal, workSpaceData.temp1p, workSpaceData.temp2p);
             }
             else {
@@ -1115,7 +1115,7 @@ public class Nova extends ExtendedConvergentType {
 
             GenericComplex zcubes1;
 
-            if(useBignum) {
+            if(bigNumLib != BIGNUM_APFLOAT) {
                 zcubes1 = z.cube().sub_mutable(1);
             }
             else {
@@ -1142,7 +1142,7 @@ public class Nova extends ExtendedConvergentType {
             zold.set(z);
 
             try {
-                if(useBignum) {
+                if(bigNumLib != BIGNUM_APFLOAT) {
                     z = z.sub_mutable(zcubes1.divide_mutable(z.square().times_mutable(3))).plus_mutable(c);
                 }
                 else {
@@ -1168,7 +1168,7 @@ public class Nova extends ExtendedConvergentType {
 
         referenceData.MaxRefIteration = iterations - 1;
 
-        skippedIterations = 0;
+        SAskippedIterations = 0;
 
         if(progress != null) {
             progress.setValue(progress.getMaximum());
@@ -1204,6 +1204,7 @@ public class Nova extends ExtendedConvergentType {
         }
 
         boolean lowPrecReferenceOrbitNeeded = !needsOnlyExtendedReferenceOrbit(deepZoom, false);
+        DoubleReference.SHOULD_SAVE_MEMORY = false;
 
         if (iterations == 0) {
             if(lowPrecReferenceOrbitNeeded) {
@@ -1233,81 +1234,78 @@ public class Nova extends ExtendedConvergentType {
 
         GenericComplex z, c, zold, zold2, start, c0, pixel, initVal;
 
-        int bigNumLib = ThreadDraw.getBignumLibrary(size, this);
-        boolean useBignum = ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE  && bigNumLib != Constants.BIGNUM_APFLOAT;
+        int bigNumLib = TaskDraw.getBignumLibrary(size, this);
 
-        if(useBignum) {
-            if(bigNumLib == Constants.BIGNUM_MPFR) {
+        if(bigNumLib == Constants.BIGNUM_MPFR) {
 
-                initVal = new MpfrBigNumComplex(defaultInitVal.getValue(null));
+            initVal = new MpfrBigNumComplex(defaultInitVal.getValue(null));
 
-                MpfrBigNumComplex bn = new MpfrBigNumComplex(inputPixel.toMpfrBigNumComplex());
+            MpfrBigNumComplex bn = new MpfrBigNumComplex(inputPixel.toMpfrBigNumComplex());
 
-                z = iterations == 0 ? new MpfrBigNumComplex((MpfrBigNumComplex)initVal) : secondReferenceData.lastZValue;
-                c = getSeed(useBignum, bigNumLib);
-                zold = iterations == 0 ? new MpfrBigNumComplex() : secondReferenceData.secondTolastZValue;
-                zold2 = iterations == 0 ? new MpfrBigNumComplex() : secondReferenceData.thirdTolastZValue;
-                start = new MpfrBigNumComplex((MpfrBigNumComplex)initVal);
-                c0 = new MpfrBigNumComplex((MpfrBigNumComplex)c);
-                pixel = new MpfrBigNumComplex(bn);
-            }
-            else if(bigNumLib == Constants.BIGNUM_MPIR) {
+            z = iterations == 0 ? new MpfrBigNumComplex((MpfrBigNumComplex)initVal) : secondReferenceData.lastZValue;
+            c = getSeed(bigNumLib);
+            zold = iterations == 0 ? new MpfrBigNumComplex() : secondReferenceData.secondTolastZValue;
+            zold2 = iterations == 0 ? new MpfrBigNumComplex() : secondReferenceData.thirdTolastZValue;
+            start = new MpfrBigNumComplex((MpfrBigNumComplex)initVal);
+            c0 = new MpfrBigNumComplex((MpfrBigNumComplex)c);
+            pixel = new MpfrBigNumComplex(bn);
+        }
+        else if(bigNumLib == Constants.BIGNUM_MPIR) {
 
-                initVal = new MpirBigNumComplex(defaultInitVal.getValue(null));
+            initVal = new MpirBigNumComplex(defaultInitVal.getValue(null));
 
-                MpirBigNumComplex bn = new MpirBigNumComplex(inputPixel.toMpirBigNumComplex());
+            MpirBigNumComplex bn = new MpirBigNumComplex(inputPixel.toMpirBigNumComplex());
 
-                z = iterations == 0 ? new MpirBigNumComplex((MpirBigNumComplex)initVal) : secondReferenceData.lastZValue;
-                c = getSeed(useBignum, bigNumLib);
-                zold = iterations == 0 ? new MpirBigNumComplex() : secondReferenceData.secondTolastZValue;
-                zold2 = iterations == 0 ? new MpirBigNumComplex() : secondReferenceData.thirdTolastZValue;
-                start = new MpirBigNumComplex((MpirBigNumComplex)initVal);
-                c0 = new MpirBigNumComplex((MpirBigNumComplex)c);
-                pixel = new MpirBigNumComplex(bn);
-            }
-            else if(bigNumLib == Constants.BIGNUM_DOUBLEDOUBLE) {
-                initVal = new DDComplex(defaultInitVal.getValue(null));
+            z = iterations == 0 ? new MpirBigNumComplex((MpirBigNumComplex)initVal) : secondReferenceData.lastZValue;
+            c = getSeed(bigNumLib);
+            zold = iterations == 0 ? new MpirBigNumComplex() : secondReferenceData.secondTolastZValue;
+            zold2 = iterations == 0 ? new MpirBigNumComplex() : secondReferenceData.thirdTolastZValue;
+            start = new MpirBigNumComplex((MpirBigNumComplex)initVal);
+            c0 = new MpirBigNumComplex((MpirBigNumComplex)c);
+            pixel = new MpirBigNumComplex(bn);
+        }
+        else if(bigNumLib == Constants.BIGNUM_DOUBLEDOUBLE) {
+            initVal = new DDComplex(defaultInitVal.getValue(null));
 
-                DDComplex ddn = inputPixel.toDDComplex();
-                z = iterations == 0 ? initVal : secondReferenceData.lastZValue;
-                c = getSeed(useBignum, bigNumLib);
-                zold = iterations == 0 ? new DDComplex() : secondReferenceData.secondTolastZValue;
-                zold2 = iterations == 0 ? new DDComplex() : secondReferenceData.thirdTolastZValue;
-                start = initVal;
-                c0 = c;
-                pixel = ddn;
-            }
-            else if(bigNumLib == Constants.BIGNUM_BIGINT) {
-                initVal = new BigIntNumComplex(defaultInitVal.getValue(null));
+            DDComplex ddn = inputPixel.toDDComplex();
+            z = iterations == 0 ? initVal : secondReferenceData.lastZValue;
+            c = getSeed(bigNumLib);
+            zold = iterations == 0 ? new DDComplex() : secondReferenceData.secondTolastZValue;
+            zold2 = iterations == 0 ? new DDComplex() : secondReferenceData.thirdTolastZValue;
+            start = initVal;
+            c0 = c;
+            pixel = ddn;
+        }
+        else if(bigNumLib == Constants.BIGNUM_BIGINT) {
+            initVal = new BigIntNumComplex(defaultInitVal.getValue(null));
 
-                BigIntNumComplex bin = inputPixel.toBigIntNumComplex();
-                z = iterations == 0 ? initVal : secondReferenceData.lastZValue;
-                c = getSeed(useBignum, bigNumLib);
-                zold = iterations == 0 ? new BigIntNumComplex() : secondReferenceData.secondTolastZValue;
-                zold2 = iterations == 0 ? new BigIntNumComplex() : secondReferenceData.thirdTolastZValue;
-                start = initVal;
-                c0 = c;
-                pixel = bin;
-            }
-            else {
-                initVal = defaultInitVal.getValue(null);
+            BigIntNumComplex bin = inputPixel.toBigIntNumComplex();
+            z = iterations == 0 ? initVal : secondReferenceData.lastZValue;
+            c = getSeed(bigNumLib);
+            zold = iterations == 0 ? new BigIntNumComplex() : secondReferenceData.secondTolastZValue;
+            zold2 = iterations == 0 ? new BigIntNumComplex() : secondReferenceData.thirdTolastZValue;
+            start = initVal;
+            c0 = c;
+            pixel = bin;
+        }
+        else if(bigNumLib == Constants.BIGNUM_DOUBLE) {
+            initVal = defaultInitVal.getValue(null);
 
-                Complex bn = inputPixel.toComplex();
+            Complex bn = inputPixel.toComplex();
 
-                z = iterations == 0 ? new Complex((Complex)initVal) : secondReferenceData.lastZValue;
-                c = getSeed(useBignum, bigNumLib);
-                zold = iterations == 0 ? new Complex() : secondReferenceData.secondTolastZValue;
-                zold2 = iterations == 0 ? new Complex() : secondReferenceData.thirdTolastZValue;
-                start = new Complex((Complex)initVal);
-                c0 = new Complex((Complex) c);
-                pixel = new Complex(bn);
-            }
+            z = iterations == 0 ? new Complex((Complex)initVal) : secondReferenceData.lastZValue;
+            c = getSeed(bigNumLib);
+            zold = iterations == 0 ? new Complex() : secondReferenceData.secondTolastZValue;
+            zold2 = iterations == 0 ? new Complex() : secondReferenceData.thirdTolastZValue;
+            start = new Complex((Complex)initVal);
+            c0 = new Complex((Complex) c);
+            pixel = new Complex(bn);
         }
         else {
             initVal = new BigComplex(defaultInitVal.getValue(null));
 
             z = iterations == 0 ? initVal : secondReferenceData.lastZValue;
-            c = getSeed(useBignum, bigNumLib);
+            c = getSeed(bigNumLib);
             zold = iterations == 0 ? new BigComplex() : secondReferenceData.secondTolastZValue;
             zold2 = iterations == 0 ? new BigComplex() : secondReferenceData.thirdTolastZValue;
             start = initVal;
@@ -1318,7 +1316,9 @@ public class Nova extends ExtendedConvergentType {
 
         convergent_bailout_algorithm.setReferenceMode(true);
 
-        for (; iterations < max_ref_iterations; iterations++) {
+        calculatedSecondReferenceIterations = 0;
+
+        for (; iterations < max_ref_iterations; iterations++, calculatedSecondReferenceIterations++) {
 
             if(lowPrecReferenceOrbitNeeded) {
                 Complex cz = z.toComplex();
@@ -1330,10 +1330,10 @@ public class Nova extends ExtendedConvergentType {
             }
 
             GenericComplex zsubcp;
-            if(useBignum && bigNumLib == Constants.BIGNUM_MPFR) {
+            if(bigNumLib == Constants.BIGNUM_MPFR) {
                 zsubcp = z.sub(initVal, workSpaceData.temp1, workSpaceData.temp2);
             }
-            else if(useBignum && bigNumLib == Constants.BIGNUM_MPIR) {
+            else if(bigNumLib == Constants.BIGNUM_MPIR) {
                 zsubcp = z.sub(initVal, workSpaceData.temp1p, workSpaceData.temp2p);
             }
             else {
@@ -1349,7 +1349,7 @@ public class Nova extends ExtendedConvergentType {
 
             GenericComplex zcubes1;
 
-            if(useBignum) {
+            if(bigNumLib != Constants.BIGNUM_APFLOAT) {
                 zcubes1 = z.cube().sub_mutable(1);
             }
             else {
@@ -1376,7 +1376,7 @@ public class Nova extends ExtendedConvergentType {
             zold.set(z);
 
             try {
-                if(useBignum) {
+                if(bigNumLib != Constants.BIGNUM_APFLOAT) {
                     z = z.sub_mutable(zcubes1.divide_mutable(z.square().times_mutable(3))).plus_mutable(c);
                 }
                 else {
@@ -1417,10 +1417,10 @@ public class Nova extends ExtendedConvergentType {
 
        /* Complex X = Reference[RefIteration];
 
-        Complex twoX = X.times(2);
+        Complex twoX = X.times2();
         Complex Xp1 = X.plus(1);
         Complex XA = (twoX.plus(4)).times_mutable(X).plus_mutable(2);
-        Complex XB = ((X.times(4).plus_mutable(12)).times_mutable(X).plus_mutable(12)).times_mutable(X).plus_mutable(3);
+        Complex XB = ((X.times4().plus_mutable(12)).times_mutable(X).plus_mutable(12)).times_mutable(X).plus_mutable(3);
         Complex XC = (((twoX.plus(8)).times_mutable(X).plus_mutable(12)).times_mutable(X).plus_mutable(6)).times_mutable(X);
         Complex XD = (Xp1.square()).times_mutable(3);
 
@@ -1436,7 +1436,7 @@ public class Nova extends ExtendedConvergentType {
 
         Complex Z = getArrayValue(reference, RefIteration);
 
-        Complex temp = Z.times(2).plus_mutable(z).times_mutable(z).times_mutable(Z.square());
+        Complex temp = Z.times2().plus_mutable(z).times_mutable(z).times_mutable(Z.square());
         return temp.plus(getArrayValue(referenceData.PrecalculatedTerms[0], RefIteration)).sub_mutable(z.times(0.5)).times_mutable(z).divide_mutable(temp.plus(Z.fourth()).times_mutable(1.5)).plus_mutable(c);
     }
 
@@ -1454,7 +1454,7 @@ public class Nova extends ExtendedConvergentType {
 
         Complex Z = getArrayValue(reference, RefIteration);
 
-        Complex temp = Z.times(2).plus_mutable(z).times_mutable(z).times_mutable(Z.square());
+        Complex temp = Z.times2().plus_mutable(z).times_mutable(z).times_mutable(Z.square());
         return temp.plus(getArrayValue(referenceData.PrecalculatedTerms[0], RefIteration)).sub_mutable(z.times(0.5)).times_mutable(z).divide_mutable(temp.plus(Z.fourth()).times_mutable(1.5));
 
     }
@@ -1473,7 +1473,7 @@ public class Nova extends ExtendedConvergentType {
 
         Complex Z = getArrayValue(data.Reference, RefIteration);
 
-        Complex temp = Z.times(2).plus_mutable(z).times_mutable(z).times_mutable(Z.square());
+        Complex temp = Z.times2().plus_mutable(z).times_mutable(z).times_mutable(Z.square());
         return temp.plus(getArrayValue(data.PrecalculatedTerms[0], RefIteration)).sub_mutable(z.times(0.5)).times_mutable(z).divide_mutable(temp.plus(Z.fourth()).times_mutable(1.5));
 
     }
@@ -1537,7 +1537,7 @@ public class Nova extends ExtendedConvergentType {
 
     @Override
     public boolean needsExtendedRange() {
-        return ThreadDraw.USE_FULL_FLOATEXP_FOR_ALL_ZOOM || (ThreadDraw.USE_CUSTOM_FLOATEXP_REQUIREMENT && isJulia && size < 1.0e-14);
+        return TaskDraw.USE_FULL_FLOATEXP_FOR_ALL_ZOOM || (TaskDraw.USE_CUSTOM_FLOATEXP_REQUIREMENT && isJulia && size < 1.0e-14);
     }
 
     @Override

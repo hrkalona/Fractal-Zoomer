@@ -47,7 +47,7 @@ public class BailoutDialog extends JDialog {
 
         Object[] message3 = {
             " ",
-            "You are using " + s.fns.bailout + " for bailout number.\nEnter the new bailout number.",
+            "You are using " + s.fns.bailout + " for bailout number.\nInsert the new bailout number.",
             field,
             " ",};
 
@@ -89,10 +89,10 @@ public class BailoutDialog extends JDialog {
                             double temp = Double.parseDouble(field.getText());
 
                             if (temp <= 0) {
-                                JOptionPane.showMessageDialog(ptra, "Bailout value must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                JOptionPane.showMessageDialog(ptra, "The bailout value must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
                                 return;
                             } else if (temp > 1e70) {
-                                JOptionPane.showMessageDialog(ptra, "Bailout value must be less than 1e70.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                JOptionPane.showMessageDialog(ptra, "The bailout value must be less than 1e70.", "Error!", JOptionPane.ERROR_MESSAGE);
                                 return;
                             }
                             s.fns.bailout = temp;

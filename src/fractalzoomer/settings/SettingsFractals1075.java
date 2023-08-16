@@ -42,12 +42,12 @@ public class SettingsFractals1075 extends SettingsFractals1074 implements Serial
         
         super(s);
         
-        if(s.ots.trapType == MainWindow.IMAGE_TRAP && s.ots.trapImage != null) {
-            trapImageWidth = s.ots.trapImage.getWidth();
-            trapImageHeight = s.ots.trapImage.getHeight();
-            trapImageData = s.ots.trapImage.getRGB(0, 0, trapImageWidth, trapImageHeight, null, 0, trapImageWidth);
+        if((s.pps.ots.trapType == MainWindow.IMAGE_TRAP || s.pps.ots.trapType == MainWindow.IMAGE_TRANSPARENT_TRAP) && s.pps.ots.trapImage != null) {
+            trapImageWidth = s.pps.ots.trapImage.getWidth();
+            trapImageHeight = s.pps.ots.trapImage.getHeight();
+            trapImageData = s.pps.ots.trapImage.getRGB(0, 0, trapImageWidth, trapImageHeight, null, 0, trapImageWidth);
         }
-        trapColorFillingMethod = s.ots.trapColorFillingMethod;
+        trapColorFillingMethod = s.pps.ots.trapColorFillingMethod;
         derivative_method = s.fns.derivative_method;
         gridAlgorithm = s.ds.gridAlgorithm;
         circleWidth = s.ds.circleWidth;

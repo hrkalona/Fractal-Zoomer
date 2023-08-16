@@ -146,8 +146,65 @@ public class ColorMapFrame extends JFrame {
 
         JPanel p = new JPanel();
         p.setBackground(MainWindow.bg_color);
-        p.setPreferredSize(new Dimension(700, 520));
-        p.add(new JLabel("Loaded Color Maps: " + colorMaps.size()));
+        p.setPreferredSize(new Dimension(700, 540));
+        JLabel total = new JLabel("Loaded Color Maps: " + colorMaps.size());
+        p.add(total);
+
+
+        JButton loadInExplorer = new JButton();
+        loadInExplorer.setIcon(MainWindow.getIcon("folder.png"));
+        loadInExplorer.setPreferredSize(new Dimension(32, 32));
+        loadInExplorer.setFocusable(false);
+        loadInExplorer.setToolTipText("Open map directory in explorer.");
+
+        loadInExplorer.addActionListener( e -> {
+            try {
+                Desktop.getDesktop().open(dir.toFile());
+            } catch (IOException ex) {
+
+            }
+        });
+
+        JButton reload = new JButton();
+        reload.setIcon(MainWindow.getIcon("reset.png"));
+        reload.setPreferredSize(new Dimension(32, 32));
+        reload.setFocusable(false);
+        reload.setToolTipText("Reloads the directory contents.");
+
+        reload.addActionListener( e -> {
+            m.clear();
+            colorMaps.clear();
+
+            try {
+                if(!dir.toFile().exists()) {
+                    Files.createDirectory(dir);
+                }
+
+                if(dir.toFile().exists() && dir.toFile().isDirectory()) {
+                    Files.walk(dir).filter(path -> path.toFile().isFile()).sorted().forEach(path -> {
+                        String name = path.toString();
+                        name = name.replace(DirName + "/", "");
+                        name = name.replace(DirName + "\\", "");
+                        name = name.length() > 60 ? name.substring(0, 59) + "..." : name;
+                        int[] res = PaletteMenu.loadDirectPalette(path.toAbsolutePath().toString(), ptra, false);
+
+                        if (res != null) {
+                            m.addElement(name);
+                            colorMaps.add(res);
+                        }
+                    });
+                }
+            } catch (IOException ex) {
+
+            }
+
+            total.setText("Loaded Color Maps: " + colorMaps.size());
+        });
+
+        p.add(Box.createRigidArea(new Dimension(30,0)));
+        p.add(loadInExplorer);
+        p.add(reload);
+
         p.add(scroll_pane);
 
         JPanel buttons = new JPanel();

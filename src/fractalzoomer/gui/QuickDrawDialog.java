@@ -16,7 +16,7 @@
  */
 package fractalzoomer.gui;
 
-import fractalzoomer.core.ThreadDraw;
+import fractalzoomer.core.TaskDraw;
 import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
 
@@ -44,7 +44,7 @@ public class QuickDrawDialog extends JDialog {
         setModal(true);
         setIconImage(MainWindow.getIcon("mandel2.png").getImage());
 
-        final JSlider tiles_slid = new JSlider(JSlider.HORIZONTAL, Constants.MIN_QUICK_DRAW_TILES, Constants.MAX_QUICK_DRAW_TILES, ThreadDraw.TILE_SIZE);
+        final JSlider tiles_slid = new JSlider(JSlider.HORIZONTAL, Constants.MIN_QUICK_DRAW_TILES, Constants.MAX_QUICK_DRAW_TILES, TaskDraw.TILE_SIZE);
 
         tiles_slid.setPreferredSize(new Dimension(350, 55));
 
@@ -57,10 +57,10 @@ public class QuickDrawDialog extends JDialog {
 
         JTextField delay = new JTextField();
         delay.addAncestorListener(new RequestFocusListener());
-        delay.setText("" + ThreadDraw.QUICK_DRAW_DELAY);
+        delay.setText("" + TaskDraw.QUICK_DRAW_DELAY);
 
         JCheckBox successiveRefinement = new JCheckBox("Successive Refinement");
-        successiveRefinement.setSelected(ThreadDraw.SUCCESSIVE_REFINEMENT);
+        successiveRefinement.setSelected(TaskDraw.QUICKDRAW_SUCCESSIVE_REFINEMENT);
         successiveRefinement.setFocusable(false);
         successiveRefinement.setToolTipText("Starts the quickdraw by largest available tile and reduces the tile size gradually.");
 
@@ -71,9 +71,15 @@ public class QuickDrawDialog extends JDialog {
         zoomToCurrentCenter.setToolTipText("Locks the zooming to the current center, when zooming in or out with the mouse wheel.");
 
         JCheckBox drawPreview = new JCheckBox("Always Use Quick Draw");
-        drawPreview.setSelected(ThreadDraw.DRAW_IMAGE_PREVIEW);
+        drawPreview.setSelected(TaskDraw.DRAW_IMAGE_PREVIEW);
         drawPreview.setFocusable(false);
         drawPreview.setToolTipText("Create a preview image in low resolution using quick draw on every render (First Pass/Second Pass).");
+
+        JCheckBox useQuickDrawOnGreedySucRef = new JCheckBox("Use Non-Blocking Quick Draw on Greedy Successive Refinement");
+        useQuickDrawOnGreedySucRef.setSelected(TaskDraw.USE_QUICKDRAW_ON_GREEDY_SUCCESSIVE_REFINEMENT);
+        useQuickDrawOnGreedySucRef.setFocusable(false);
+        useQuickDrawOnGreedySucRef.setToolTipText("Enables the use of quick draw on the greedy successive refinement algorithms.");
+
 
 
         Object[] message3 = {
@@ -87,6 +93,8 @@ public class QuickDrawDialog extends JDialog {
                 delay,
                 " ",
                 successiveRefinement,
+                " ",
+                useQuickDrawOnGreedySucRef,
                 " ",
                 drawPreview,
                 " ",
@@ -128,7 +136,7 @@ public class QuickDrawDialog extends JDialog {
                         }
 
                         try {
-                            ThreadDraw.TILE_SIZE = tiles_slid.getValue();
+                            TaskDraw.TILE_SIZE = tiles_slid.getValue();
 
                             int temp = Integer.parseInt(delay.getText());
 
@@ -138,10 +146,11 @@ public class QuickDrawDialog extends JDialog {
                             }
 
                             MainWindow.QUICK_DRAW_ZOOM_TO_CURRENT_CENTER = zoomToCurrentCenter.isSelected();
-                            ThreadDraw.DRAW_IMAGE_PREVIEW = drawPreview.isSelected();
+                            TaskDraw.DRAW_IMAGE_PREVIEW = drawPreview.isSelected();
 
-                            ThreadDraw.QUICK_DRAW_DELAY = temp;
-                            ThreadDraw.SUCCESSIVE_REFINEMENT = successiveRefinement.isSelected();
+                            TaskDraw.QUICK_DRAW_DELAY = temp;
+                            TaskDraw.QUICKDRAW_SUCCESSIVE_REFINEMENT = successiveRefinement.isSelected();
+                            TaskDraw.USE_QUICKDRAW_ON_GREEDY_SUCCESSIVE_REFINEMENT = useQuickDrawOnGreedySucRef.isSelected();
                         } catch (Exception ex) {
                             JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                             return;

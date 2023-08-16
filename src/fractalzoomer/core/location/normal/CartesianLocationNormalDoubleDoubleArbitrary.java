@@ -227,9 +227,9 @@ public class CartesianLocationNormalDoubleDoubleArbitrary extends Location {
     }
 
     @Override
-    public void createAntialiasingSteps(boolean adaptive, boolean jitter) {
-        super.createAntialiasingSteps(adaptive, jitter);
-        DoubleDouble[][] steps = createAntialiasingStepsDoubleDouble(ddtemp_size_image_size_x, ddtemp_size_image_size_y, adaptive, jitter);
+    public void createAntialiasingSteps(boolean adaptive, boolean jitter, int numberOfExtraSamples) {
+        super.createAntialiasingSteps(adaptive, jitter, numberOfExtraSamples);
+        DoubleDouble[][] steps = createAntialiasingStepsDoubleDouble(ddtemp_size_image_size_x, ddtemp_size_image_size_y, adaptive, jitter, numberOfExtraSamples);
         ddantialiasing_x = steps[0];
         ddantialiasing_y = steps[1];
     }

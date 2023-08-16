@@ -17,7 +17,7 @@
 package fractalzoomer.true_coloring_algorithms;
 
 import fractalzoomer.core.Complex;
-import fractalzoomer.core.ThreadDraw;
+import fractalzoomer.core.TaskDraw;
 import fractalzoomer.parser.ExpressionNode;
 import fractalzoomer.parser.Parser;
 import fractalzoomer.utils.ColorSpaceConverter;
@@ -121,7 +121,7 @@ public class UserTrueColorAlgorithm extends TrueColorAlgorithm {
             parser3.setSizevalue(c_size);
         }
 
-        Complex c_isize = new Complex(ThreadDraw.IMAGE_SIZE, 0);
+        Complex c_isize = new Complex(TaskDraw.IMAGE_SIZE, 0);
         if (parser1.foundISize()) {
             parser1.setISizevalue(c_isize);
         }
@@ -356,6 +356,15 @@ public class UserTrueColorAlgorithm extends TrueColorAlgorithm {
                 return 0xFF000000 | res[0] << 16 | res[1] << 8 | res[2];
             case ColorSpaceConverter.LCH_ab:
                 res = ColorSpaceConverter.LCH_abtoRGB(c1 * 100, c2 * 140, c3 * 360);
+                return 0xFF000000 | res[0] << 16 | res[1] << 8 | res[2];
+            case ColorSpaceConverter.HSL_uv:
+                res = ColorSpaceConverter.HSL_uvtoRGB(c1 * 360, c2 * 128, c3 * 100);
+                return 0xFF000000 | res[0] << 16 | res[1] << 8 | res[2];
+            case ColorSpaceConverter.LCH_uv:
+                res = ColorSpaceConverter.LCH_uvtoRGB(c1 * 100, c2 * 179.08, c3 * 360);
+                return 0xFF000000 | res[0] << 16 | res[1] << 8 | res[2];
+            case ColorSpaceConverter.LCH_oklab:
+                res = ColorSpaceConverter.LCH_oklabtoRGB(c1, c2 * 0.3224, c3 * 360);
                 return 0xFF000000 | res[0] << 16 | res[1] << 8 | res[2];
             case ColorSpaceConverter.DIRECT:
                 return 0xFF000000 | (0x00FFFFFF & (int) c1);

@@ -21,7 +21,7 @@ import fractalzoomer.convergent_bailout_conditions.SkipConvergentBailoutConditio
 import fractalzoomer.core.Complex;
 import fractalzoomer.core.Derivative;
 import fractalzoomer.core.MyApfloat;
-import fractalzoomer.core.ThreadDraw;
+import fractalzoomer.core.TaskDraw;
 import fractalzoomer.fractal_options.orbit_traps.ImageOrbitTrap;
 import fractalzoomer.functions.Fractal;
 import fractalzoomer.main.Constants;
@@ -49,6 +49,7 @@ import java.util.stream.Stream;
  */
 public class Settings implements Constants {
 
+    public PostProcessSettings pps;
     public PaletteSettings ps;
     public PaletteSettings ps2;
     public boolean exterior_de;
@@ -73,21 +74,10 @@ public class Settings implements Constants {
     public int temp_color_cycling_location;
     public int temp_color_cycling_location_second_palette;
     public D3Settings d3s;
-    public BumpMapSettings bms;
-    public EntropyColoringSettings ens;
-    public RainbowPaletteSettings rps;
-    public OffsetColoringSettings ofs;
-    public GreyscaleColoringSettings gss;
-    public FakeDistanceEstimationSettings fdes;
     public FiltersSettings fs;
     public GradientSettings gs;
-    public OrbitTrapSettings ots;
-    public ContourColoringSettings cns;
     public FunctionSettings fns;
-    public LightSettings ls;
     public PaletteGradientMergingSettings pbs;
-    public StatisticsSettings sts;
-    public HistogramColoringSettings hss;
     public boolean usePaletteForInColoring;
     public int[] post_processing_order;
     public String poly;
@@ -100,6 +90,13 @@ public class Settings implements Constants {
     public int MagnetColorOffset;
     public GeneratedPaletteSettings gps;
     public JitterSettings js;
+    public float hsb_constant_b;
+    public float hsb_constant_s;
+    public double lchab_constant_l;
+    public double lchab_constant_c;
+    public double lchuv_constant_l;
+    public double lchuv_constant_c;
+
 
     public Settings() {
         defaultValues();
@@ -120,6 +117,14 @@ public class Settings implements Constants {
         }
         catch (Exception ex) {}
 
+        hsb_constant_b = 1;
+        hsb_constant_s = 1;
+        lchab_constant_l = 50;
+        lchab_constant_c = 100;
+        lchuv_constant_l = 50;
+        lchuv_constant_c = 130;
+
+
         userFormulaHasC = true;
         useDirectColor = false;
         globalIncrementBypass = false;
@@ -139,26 +144,16 @@ public class Settings implements Constants {
 
         fns = new FunctionSettings();
         ds = new DomainColoringSettings();
-        bms = new BumpMapSettings();
-        ens = new EntropyColoringSettings();
-        rps = new RainbowPaletteSettings();
-        ofs = new OffsetColoringSettings();
-        gss = new GreyscaleColoringSettings();
-        fdes = new FakeDistanceEstimationSettings();
         fs = new FiltersSettings();
         gs = new GradientSettings();
-        ots = new OrbitTrapSettings();
-        cns = new ContourColoringSettings();
-        ls = new LightSettings();
         pbs = new PaletteGradientMergingSettings();
-        sts = new StatisticsSettings();
-        hss = new HistogramColoringSettings();
 
         ps = new PaletteSettings();
         ps2 = new PaletteSettings();
 
         gps = new GeneratedPaletteSettings();
         js = new JitterSettings();
+        pps = new PostProcessSettings();
 
         usePaletteForInColoring = false;
 
@@ -195,14 +190,17 @@ public class Settings implements Constants {
 
     private void defaultProcessingOrder() {
 
-        post_processing_order[0] = OFFSET_COLORING;
-        post_processing_order[1] = ENTROPY_COLORING;
-        post_processing_order[2] = RAINBOW_PALETTE;
-        post_processing_order[3] = CONTOUR_COLORING;
-        post_processing_order[4] = GREYSCALE_COLORING;
-        post_processing_order[5] = BUMP_MAPPING;
-        post_processing_order[6] = LIGHT;
-        post_processing_order[7] = FAKE_DISTANCE_ESTIMATION;
+        post_processing_order[0] = HISTOGRAM_COLORING;
+        post_processing_order[1] = OFFSET_COLORING;
+        post_processing_order[2] = ENTROPY_COLORING;
+        post_processing_order[3] = RAINBOW_PALETTE;
+        post_processing_order[4] = NUMERICAL_DISTANCE_ESTIMATOR;
+        post_processing_order[5] = CONTOUR_COLORING;
+        post_processing_order[6] = GREYSCALE_COLORING;
+        post_processing_order[7] = BUMP_MAPPING;
+        post_processing_order[8] = LIGHT;
+        post_processing_order[9] = SLOPES;
+        post_processing_order[10] = FAKE_DISTANCE_ESTIMATION;
 
     }
 
@@ -215,6 +213,7 @@ public class Settings implements Constants {
         int version = settings.getVersion();
 
         Settings defaults = new Settings();
+        julia_map = false;
 
         String xCenterStr;
         String yCenterStr;
@@ -360,7 +359,7 @@ public class Settings implements Constants {
                 long precision = MyApfloat.getAutomaticPrecision(new String[]{sizeStr, xCenterStr, yCenterStr, xJuliaCenterStr, yJuliaCenterStr}, new boolean[] {true, false, false, false, false});
 
                 if (MyApfloat.shouldSetPrecision(precision, true)) {
-                    Fractal.clearReferences(true);
+                    Fractal.clearReferences(true, true);
                     MyApfloat.setPrecision(precision, this);
                 }
             }
@@ -442,7 +441,7 @@ public class Settings implements Constants {
                 long precision = MyApfloat.getAutomaticPrecision(new String[]{sizeStr, xCenterStr, yCenterStr}, new boolean[] {true, false, false});
 
                 if (MyApfloat.shouldSetPrecision(precision, true)) {
-                    Fractal.clearReferences(true);
+                    Fractal.clearReferences(true, true);
                     MyApfloat.setPrecision(precision, this);
                 }
             }
@@ -475,8 +474,8 @@ public class Settings implements Constants {
         }
 
         if (version < 1062) {
-            rps.rainbow_palette = defaults.rps.rainbow_palette;
-            rps.rainbow_palette_factor = defaults.rps.rainbow_palette_factor;
+            pps.rps.rainbow_palette = defaults.pps.rps.rainbow_palette;
+            pps.rps.rainbow_palette_factor = defaults.pps.rps.rainbow_palette_factor;
 
             boolean active_filter = false;
             for (int i = 0; i < fs.filters.length; i++) {
@@ -493,8 +492,8 @@ public class Settings implements Constants {
                 }
             }
         } else {
-            rps.rainbow_palette = ((SettingsFractals1062) settings).getRainbowPalette();
-            rps.rainbow_palette_factor = ((SettingsFractals1062) settings).getRainbowPaletteFactor();
+            pps.rps.rainbow_palette = ((SettingsFractals1062) settings).getRainbowPalette();
+            pps.rps.rainbow_palette_factor = ((SettingsFractals1062) settings).getRainbowPaletteFactor();
 
             fs.defaultFilters(true);
 
@@ -599,10 +598,10 @@ public class Settings implements Constants {
         }
 
         if (version < 1069) {
-            cns.contour_coloring = defaults.cns.contour_coloring;
-            cns.cn_noise_reducing_factor = defaults.cns.cn_noise_reducing_factor;
-            cns.cn_blending = defaults.cns.cn_blending;
-            cns.contour_algorithm = defaults.cns.contour_algorithm;
+            pps.cns.contour_coloring = defaults.pps.cns.contour_coloring;
+            pps.cns.cn_noise_reducing_factor = defaults.pps.cns.cn_noise_reducing_factor;
+            pps.cns.cn_blending = defaults.pps.cns.cn_blending;
+            pps.cns.contour_algorithm = defaults.pps.cns.contour_algorithm;
 
             useDirectColor = defaults.useDirectColor;
 
@@ -611,12 +610,12 @@ public class Settings implements Constants {
             fns.kleinianK = defaults.fns.kleinianK;
             fns.kleinianM = defaults.fns.kleinianM;
 
-            ots.lineType = defaults.ots.lineType;
+            pps.ots.lineType = defaults.pps.ots.lineType;
         } else {
-            cns.contour_coloring = ((SettingsFractals1069) settings).getContourColoring();
-            cns.cn_noise_reducing_factor = ((SettingsFractals1069) settings).getContourColoringNoiseReducingFactor();
-            cns.cn_blending = ((SettingsFractals1069) settings).getContourColoringBlending();
-            cns.contour_algorithm = ((SettingsFractals1069) settings).getContourColoringAlgorithm();
+            pps.cns.contour_coloring = ((SettingsFractals1069) settings).getContourColoring();
+            pps.cns.cn_noise_reducing_factor = ((SettingsFractals1069) settings).getContourColoringNoiseReducingFactor();
+            pps.cns.cn_blending = ((SettingsFractals1069) settings).getContourColoringBlending();
+            pps.cns.contour_algorithm = ((SettingsFractals1069) settings).getContourColoringAlgorithm();
 
             useDirectColor = ((SettingsFractals1069) settings).getDirectColor();
 
@@ -624,7 +623,7 @@ public class Settings implements Constants {
             fns.kleinianK = ((SettingsFractals1069) settings).getKleinianK();
             fns.kleinianM = ((SettingsFractals1069) settings).getKleinianM();
 
-            ots.lineType = ((SettingsFractals1069) settings).getLineType();
+            pps.ots.lineType = ((SettingsFractals1069) settings).getLineType();
         }
 
         if (version < 1070) {
@@ -672,7 +671,7 @@ public class Settings implements Constants {
         }
 
         if (version < 1068) {
-            ens.entropy_algorithm = defaults.ens.entropy_algorithm;
+            pps.ens.entropy_algorithm = defaults.pps.ens.entropy_algorithm;
 
             ds.domainOrder[0] = defaults.ds.domainOrder[0];
             ds.domainOrder[1] = defaults.ds.domainOrder[1];
@@ -684,19 +683,19 @@ public class Settings implements Constants {
             gs.gradient_interpolation = defaults.gs.gradient_interpolation;
             gs.gradient_reversed = defaults.gs.gradient_reversed;
 
-            rps.rainbow_algorithm = defaults.rps.rainbow_algorithm;
+            pps.rps.rainbow_algorithm = defaults.pps.rps.rainbow_algorithm;
 
-            ots.useTraps = defaults.ots.useTraps;
-            ots.trapType = defaults.ots.trapType;
-            ots.trapPoint[0] = defaults.ots.trapPoint[0];
-            ots.trapPoint[1] = defaults.ots.trapPoint[1];
-            ots.trapLength = defaults.ots.trapLength;
-            ots.trapWidth = defaults.ots.trapWidth;
-            ots.trapBlending = defaults.ots.trapBlending;
-            ots.trapNorm = defaults.ots.trapNorm;
-            ots.trapMaxDistance = defaults.ots.trapMaxDistance;
+            pps.ots.useTraps = defaults.pps.ots.useTraps;
+            pps.ots.trapType = defaults.pps.ots.trapType;
+            pps.ots.trapPoint[0] = defaults.pps.ots.trapPoint[0];
+            pps.ots.trapPoint[1] = defaults.pps.ots.trapPoint[1];
+            pps.ots.trapLength = defaults.pps.ots.trapLength;
+            pps.ots.trapWidth = defaults.pps.ots.trapWidth;
+            pps.ots.trapBlending = defaults.pps.ots.trapBlending;
+            pps.ots.trapNorm = defaults.pps.ots.trapNorm;
+            pps.ots.trapMaxDistance = defaults.pps.ots.trapMaxDistance;
         } else {
-            ens.entropy_algorithm = ((SettingsFractals1068) settings).getEntropyAlgorithm();
+            pps.ens.entropy_algorithm = ((SettingsFractals1068) settings).getEntropyAlgorithm();
 
             ds.domainOrder = ((SettingsFractals1068) settings).getDomainOrder();
 
@@ -706,26 +705,26 @@ public class Settings implements Constants {
             gs.gradient_interpolation = ((SettingsFractals1068) settings).getGradientInterpolation();
             gs.gradient_reversed = ((SettingsFractals1068) settings).getGradientReversed();
 
-            rps.rainbow_algorithm = ((SettingsFractals1068) settings).getRainbowAlgorithm();
+            pps.rps.rainbow_algorithm = ((SettingsFractals1068) settings).getRainbowAlgorithm();
 
-            ots.useTraps = ((SettingsFractals1068) settings).getUseTraps();
-            ots.trapType = ((SettingsFractals1068) settings).getTrapType();
-            ots.trapPoint = ((SettingsFractals1068) settings).getTrapPoint();
-            ots.trapLength = ((SettingsFractals1068) settings).getTrapLength();
-            ots.trapWidth = ((SettingsFractals1068) settings).getTrapWidth();
-            ots.trapBlending = ((SettingsFractals1068) settings).getTrapBlending();
-            ots.trapNorm = ((SettingsFractals1068) settings).getTrapNorm();
-            ots.trapMaxDistance = ((SettingsFractals1068) settings).getTrapMaxDistance();
+            pps.ots.useTraps = ((SettingsFractals1068) settings).getUseTraps();
+            pps.ots.trapType = ((SettingsFractals1068) settings).getTrapType();
+            pps.ots.trapPoint = ((SettingsFractals1068) settings).getTrapPoint();
+            pps.ots.trapLength = ((SettingsFractals1068) settings).getTrapLength();
+            pps.ots.trapWidth = ((SettingsFractals1068) settings).getTrapWidth();
+            pps.ots.trapBlending = ((SettingsFractals1068) settings).getTrapBlending();
+            pps.ots.trapNorm = ((SettingsFractals1068) settings).getTrapNorm();
+            pps.ots.trapMaxDistance = ((SettingsFractals1068) settings).getTrapMaxDistance();
         }
 
         if (version < 1067) {
             ps.transfer_function = defaults.ps.transfer_function;
             color_blending.color_blending = defaults.color_blending.color_blending;
 
-            bms.bump_transfer_function = defaults.bms.bump_transfer_function;
-            bms.bump_transfer_factor = defaults.bms.bump_transfer_factor;
-            bms.bump_blending = defaults.bms.bump_blending;
-            bms.bumpProcessing = defaults.bms.bumpProcessing;
+            pps.bms.bump_transfer_function = defaults.pps.bms.bump_transfer_function;
+            pps.bms.bump_transfer_factor = defaults.pps.bms.bump_transfer_factor;
+            pps.bms.bump_blending = defaults.pps.bms.bump_blending;
+            pps.bms.bumpProcessing = defaults.pps.bms.bumpProcessing;
 
             globalIncrementBypass = defaults.globalIncrementBypass;
 
@@ -757,10 +756,10 @@ public class Settings implements Constants {
             ps.transfer_function = ((SettingsFractals1067) settings).getTransferFunction();
             color_blending.color_blending = ((SettingsFractals1067) settings).getColorBlending();
 
-            bms.bump_transfer_function = ((SettingsFractals1067) settings).getBumpTransferFunction();
-            bms.bump_transfer_factor = ((SettingsFractals1067) settings).getBumpTransferFactor();
-            bms.bump_blending = ((SettingsFractals1067) settings).getBumpBlending();
-            bms.bumpProcessing = ((SettingsFractals1067) settings).getBumpProcessing();
+            pps.bms.bump_transfer_function = ((SettingsFractals1067) settings).getBumpTransferFunction();
+            pps.bms.bump_transfer_factor = ((SettingsFractals1067) settings).getBumpTransferFactor();
+            pps.bms.bump_blending = ((SettingsFractals1067) settings).getBumpBlending();
+            pps.bms.bumpProcessing = ((SettingsFractals1067) settings).getBumpProcessing();
 
             globalIncrementBypass = ((SettingsFractals1067) settings).getGlobalIncrementBypass();
 
@@ -790,35 +789,35 @@ public class Settings implements Constants {
         }
 
         if (version < 1066) {
-            ens.entropy_coloring = defaults.ens.entropy_coloring;
-            ens.entropy_palette_factor = defaults.ens.entropy_palette_factor;
-            ens.en_noise_reducing_factor = defaults.ens.en_noise_reducing_factor;
+            pps.ens.entropy_coloring = defaults.pps.ens.entropy_coloring;
+            pps.ens.entropy_palette_factor = defaults.pps.ens.entropy_palette_factor;
+            pps.ens.en_noise_reducing_factor = defaults.pps.ens.en_noise_reducing_factor;
             fns.apply_plane_on_julia_seed = defaults.fns.apply_plane_on_julia_seed;
-            ofs.offset_coloring = defaults.ofs.offset_coloring;
-            ofs.post_process_offset = defaults.ofs.post_process_offset;
-            ofs.of_noise_reducing_factor = defaults.ofs.of_noise_reducing_factor;
-            ens.en_blending = defaults.ens.en_blending;
-            ofs.of_blending = defaults.ofs.of_blending;
-            rps.rp_blending = defaults.rps.rp_blending;
-            ens.entropy_offset = defaults.ens.entropy_offset;
-            rps.rainbow_offset = defaults.rps.rainbow_offset;
-            gss.greyscale_coloring = defaults.gss.greyscale_coloring;
-            gss.gs_noise_reducing_factor = defaults.gss.gs_noise_reducing_factor;
+            pps.ofs.offset_coloring = defaults.pps.ofs.offset_coloring;
+            pps.ofs.post_process_offset = defaults.pps.ofs.post_process_offset;
+            pps.ofs.of_noise_reducing_factor = defaults.pps.ofs.of_noise_reducing_factor;
+            pps.ens.en_blending = defaults.pps.ens.en_blending;
+            pps.ofs.of_blending = defaults.pps.ofs.of_blending;
+            pps.rps.rp_blending = defaults.pps.rps.rp_blending;
+            pps.ens.entropy_offset = defaults.pps.ens.entropy_offset;
+            pps.rps.rainbow_offset = defaults.pps.rps.rainbow_offset;
+            pps.gss.greyscale_coloring = defaults.pps.gss.greyscale_coloring;
+            pps.gss.gs_noise_reducing_factor = defaults.pps.gss.gs_noise_reducing_factor;
         } else {
-            ens.entropy_coloring = ((SettingsFractals1066) settings).getEntropyColoring();
-            ens.entropy_palette_factor = ((SettingsFractals1066) settings).getEntropyPaletteFactor();
-            ens.en_noise_reducing_factor = ((SettingsFractals1066) settings).getEntropyColoringNoiseReducingFactor();
+            pps.ens.entropy_coloring = ((SettingsFractals1066) settings).getEntropyColoring();
+            pps.ens.entropy_palette_factor = ((SettingsFractals1066) settings).getEntropyPaletteFactor();
+            pps.ens.en_noise_reducing_factor = ((SettingsFractals1066) settings).getEntropyColoringNoiseReducingFactor();
             fns.apply_plane_on_julia_seed = ((SettingsFractals1066) settings).getApplyPlaneOnJuliaSeed();
-            ofs.offset_coloring = ((SettingsFractals1066) settings).getOffsetColoring();
-            ofs.post_process_offset = ((SettingsFractals1066) settings).getPostProcessOffset();
-            ofs.of_noise_reducing_factor = ((SettingsFractals1066) settings).getOffsetColoringNoiseReducingFactor();
-            ens.en_blending = ((SettingsFractals1066) settings).getEntropyColoringBlending();
-            ofs.of_blending = ((SettingsFractals1066) settings).getOffsetColoringBlending();
-            rps.rp_blending = ((SettingsFractals1066) settings).getRainbowPaletteBlending();
-            ens.entropy_offset = ((SettingsFractals1066) settings).getEntropyColoringOffset();
-            rps.rainbow_offset = ((SettingsFractals1066) settings).getRainbowPaletteOffset();
-            gss.greyscale_coloring = ((SettingsFractals1066) settings).getGreyscaleColoring();
-            gss.gs_noise_reducing_factor = ((SettingsFractals1066) settings).getGreyscaleColoringNoiseReducingFactor();
+            pps.ofs.offset_coloring = ((SettingsFractals1066) settings).getOffsetColoring();
+            pps.ofs.post_process_offset = ((SettingsFractals1066) settings).getPostProcessOffset();
+            pps.ofs.of_noise_reducing_factor = ((SettingsFractals1066) settings).getOffsetColoringNoiseReducingFactor();
+            pps.ens.en_blending = ((SettingsFractals1066) settings).getEntropyColoringBlending();
+            pps.ofs.of_blending = ((SettingsFractals1066) settings).getOffsetColoringBlending();
+            pps.rps.rp_blending = ((SettingsFractals1066) settings).getRainbowPaletteBlending();
+            pps.ens.entropy_offset = ((SettingsFractals1066) settings).getEntropyColoringOffset();
+            pps.rps.rainbow_offset = ((SettingsFractals1066) settings).getRainbowPaletteOffset();
+            pps.gss.greyscale_coloring = ((SettingsFractals1066) settings).getGreyscaleColoring();
+            pps.gss.gs_noise_reducing_factor = ((SettingsFractals1066) settings).getGreyscaleColoringNoiseReducingFactor();
         }
 
         if (version < 1053) {
@@ -919,40 +918,40 @@ public class Settings implements Constants {
             pbs.gradient_offset = defaults.pbs.gradient_offset;
             pbs.merging_type = defaults.pbs.merging_type;
 
-            cns.contourColorMethod = defaults.cns.contourColorMethod;
+            pps.cns.contourColorMethod = defaults.pps.cns.contourColorMethod;
 
-            ots.trapColorMethod = defaults.ots.trapColorMethod;
-            ots.trapIntensity = defaults.ots.trapIntensity;
+            pps.ots.trapColorMethod = defaults.pps.ots.trapColorMethod;
+            pps.ots.trapIntensity = defaults.pps.ots.trapIntensity;
 
-            sts.statistic = defaults.sts.statistic;
-            sts.statistic_type = defaults.sts.statistic_type;
-            sts.statistic_intensity = defaults.sts.statistic_intensity;
-            sts.stripeAvgStripeDensity = defaults.sts.stripeAvgStripeDensity;
-            sts.cosArgStripeDensity = defaults.sts.cosArgStripeDensity;
-            sts.cosArgInvStripeDensity = defaults.sts.cosArgInvStripeDensity;
-            sts.StripeDenominatorFactor = defaults.sts.StripeDenominatorFactor;
-            sts.statisticGroup = defaults.sts.statisticGroup;
-            sts.user_statistic_formula = defaults.sts.user_statistic_formula;
-            sts.useAverage = defaults.sts.useAverage;
-            sts.statistic_escape_type = defaults.sts.statistic_escape_type;
+            pps.sts.statistic = defaults.pps.sts.statistic;
+            pps.sts.statistic_type = defaults.pps.sts.statistic_type;
+            pps.sts.statistic_intensity = defaults.pps.sts.statistic_intensity;
+            pps.sts.stripeAvgStripeDensity = defaults.pps.sts.stripeAvgStripeDensity;
+            pps.sts.cosArgStripeDensity = defaults.pps.sts.cosArgStripeDensity;
+            pps.sts.cosArgInvStripeDensity = defaults.pps.sts.cosArgInvStripeDensity;
+            pps.sts.StripeDenominatorFactor = defaults.pps.sts.StripeDenominatorFactor;
+            pps.sts.statisticGroup = defaults.pps.sts.statisticGroup;
+            pps.sts.user_statistic_formula = defaults.pps.sts.user_statistic_formula;
+            pps.sts.useAverage = defaults.pps.sts.useAverage;
+            pps.sts.statistic_escape_type = defaults.pps.sts.statistic_escape_type;
 
-            ls.lighting = defaults.ls.lighting;
-            ls.lightintensity = defaults.ls.lightintensity;
-            ls.ambientlight = defaults.ls.ambientlight;
-            ls.specularintensity = defaults.ls.specularintensity;
-            ls.shininess = defaults.ls.shininess;
-            ls.heightTransfer = defaults.ls.heightTransfer;
-            ls.heightTransferFactor = defaults.ls.heightTransferFactor;
-            ls.lightMode = defaults.ls.lightMode;
-            ls.colorMode = defaults.ls.colorMode;
-            ls.l_noise_reducing_factor = defaults.ls.l_noise_reducing_factor;
-            ls.light_blending = defaults.ls.light_blending;
-            ls.light_direction = defaults.ls.light_direction;
-            ls.light_magnitude = defaults.ls.light_magnitude;
+            pps.ls.lighting = defaults.pps.ls.lighting;
+            pps.ls.lightintensity = defaults.pps.ls.lightintensity;
+            pps.ls.ambientlight = defaults.pps.ls.ambientlight;
+            pps.ls.specularintensity = defaults.pps.ls.specularintensity;
+            pps.ls.shininess = defaults.pps.ls.shininess;
+            pps.ls.heightTransfer = defaults.pps.ls.heightTransfer;
+            pps.ls.heightTransferFactor = defaults.pps.ls.heightTransferFactor;
+            pps.ls.lightMode = defaults.pps.ls.lightMode;
+            pps.ls.colorMode = defaults.pps.ls.colorMode;
+            pps.ls.l_noise_reducing_factor = defaults.pps.ls.l_noise_reducing_factor;
+            pps.ls.light_blending = defaults.pps.ls.light_blending;
+            pps.ls.light_direction = defaults.pps.ls.light_direction;
+            pps.ls.light_magnitude = defaults.pps.ls.light_magnitude;
 
-            double lightAngleRadians = Math.toRadians(ls.light_direction);
-            ls.lightVector[0] = Math.cos(lightAngleRadians) * ls.light_magnitude;
-            ls.lightVector[1] = Math.sin(lightAngleRadians) * ls.light_magnitude;
+            double lightAngleRadians = Math.toRadians(pps.ls.light_direction);
+            pps.ls.lightVector[0] = Math.cos(lightAngleRadians) * pps.ls.light_magnitude;
+            pps.ls.lightVector[1] = Math.sin(lightAngleRadians) * pps.ls.light_magnitude;
         } else {
             ps2.color_choice = ((SettingsFractals1071) settings).getColorChoice2();
             ps2.color_cycling_location = ((SettingsFractals1071) settings).getColorCyclingLocation2();
@@ -985,65 +984,65 @@ public class Settings implements Constants {
             pbs.gradient_offset = ((SettingsFractals1071) settings).getGradientOffset();
             pbs.merging_type = ((SettingsFractals1071) settings).getMergingType();
 
-            cns.contourColorMethod = ((SettingsFractals1071) settings).getContourColorMethod();
+            pps.cns.contourColorMethod = ((SettingsFractals1071) settings).getContourColorMethod();
 
-            ots.trapColorMethod = ((SettingsFractals1071) settings).getTrapColorMethod();
-            ots.trapIntensity = ((SettingsFractals1071) settings).getTrapIntesity();
+            pps.ots.trapColorMethod = ((SettingsFractals1071) settings).getTrapColorMethod();
+            pps.ots.trapIntensity = ((SettingsFractals1071) settings).getTrapIntesity();
 
-            sts.statistic = ((SettingsFractals1071) settings).getStatistic();
-            sts.statistic_type = ((SettingsFractals1071) settings).getStatisticType();
-            sts.statistic_intensity = ((SettingsFractals1071) settings).getStatisticIntensity();
-            sts.stripeAvgStripeDensity = ((SettingsFractals1071) settings).getStripeAvgStripeDensity();
-            sts.cosArgStripeDensity = ((SettingsFractals1071) settings).getCosArgStripeDensity();
-            sts.cosArgInvStripeDensity = ((SettingsFractals1071) settings).getCosArgInvStripeDensity();
-            sts.StripeDenominatorFactor = ((SettingsFractals1071) settings).getStripeDenominatorFactor();
-            sts.statisticGroup = ((SettingsFractals1071) settings).getStatisticGroup();
-            sts.user_statistic_formula = ((SettingsFractals1071) settings).getUserStatisticFormula();
-            sts.useAverage = ((SettingsFractals1071) settings).getUseAverage();
-            sts.statistic_escape_type = ((SettingsFractals1071) settings).getStatisticEscapeType();
+            pps.sts.statistic = ((SettingsFractals1071) settings).getStatistic();
+            pps.sts.statistic_type = ((SettingsFractals1071) settings).getStatisticType();
+            pps.sts.statistic_intensity = ((SettingsFractals1071) settings).getStatisticIntensity();
+            pps.sts.stripeAvgStripeDensity = ((SettingsFractals1071) settings).getStripeAvgStripeDensity();
+            pps.sts.cosArgStripeDensity = ((SettingsFractals1071) settings).getCosArgStripeDensity();
+            pps.sts.cosArgInvStripeDensity = ((SettingsFractals1071) settings).getCosArgInvStripeDensity();
+            pps.sts.StripeDenominatorFactor = ((SettingsFractals1071) settings).getStripeDenominatorFactor();
+            pps.sts.statisticGroup = ((SettingsFractals1071) settings).getStatisticGroup();
+            pps.sts.user_statistic_formula = ((SettingsFractals1071) settings).getUserStatisticFormula();
+            pps.sts.useAverage = ((SettingsFractals1071) settings).getUseAverage();
+            pps.sts.statistic_escape_type = ((SettingsFractals1071) settings).getStatisticEscapeType();
 
-            ls.lighting = ((SettingsFractals1071) settings).getLighting();
-            ls.lightintensity = ((SettingsFractals1071) settings).getLightintensity();
-            ls.ambientlight = ((SettingsFractals1071) settings).getAmbientlight();
-            ls.specularintensity = ((SettingsFractals1071) settings).getSpecularintensity();
-            ls.shininess = ((SettingsFractals1071) settings).getShininess();
-            ls.heightTransfer = ((SettingsFractals1071) settings).getLightHeightTransfer();
-            ls.heightTransferFactor = ((SettingsFractals1071) settings).getLightHeightTransferFactor();
-            ls.lightMode = ((SettingsFractals1071) settings).getLightMode();
-            ls.colorMode = ((SettingsFractals1071) settings).getLightColorMode();
-            ls.l_noise_reducing_factor = ((SettingsFractals1071) settings).getLightNoiseReducingFactor();
-            ls.light_blending = ((SettingsFractals1071) settings).getLightBlending();
-            ls.light_direction = ((SettingsFractals1071) settings).getLightDirection();
-            ls.light_magnitude = ((SettingsFractals1071) settings).getLightMagnitude();
+            pps.ls.lighting = ((SettingsFractals1071) settings).getLighting();
+            pps.ls.lightintensity = ((SettingsFractals1071) settings).getLightintensity();
+            pps.ls.ambientlight = ((SettingsFractals1071) settings).getAmbientlight();
+            pps.ls.specularintensity = ((SettingsFractals1071) settings).getSpecularintensity();
+            pps.ls.shininess = ((SettingsFractals1071) settings).getShininess();
+            pps.ls.heightTransfer = ((SettingsFractals1071) settings).getLightHeightTransfer();
+            pps.ls.heightTransferFactor = ((SettingsFractals1071) settings).getLightHeightTransferFactor();
+            pps.ls.lightMode = ((SettingsFractals1071) settings).getLightMode();
+            pps.ls.colorMode = ((SettingsFractals1071) settings).getLightColorMode();
+            pps.ls.l_noise_reducing_factor = ((SettingsFractals1071) settings).getLightNoiseReducingFactor();
+            pps.ls.light_blending = ((SettingsFractals1071) settings).getLightBlending();
+            pps.ls.light_direction = ((SettingsFractals1071) settings).getLightDirection();
+            pps.ls.light_magnitude = ((SettingsFractals1071) settings).getLightMagnitude();
 
-            double lightAngleRadians = Math.toRadians(ls.light_direction);
-            ls.lightVector[0] = Math.cos(lightAngleRadians) * ls.light_magnitude;
-            ls.lightVector[1] = Math.sin(lightAngleRadians) * ls.light_magnitude;
+            double lightAngleRadians = Math.toRadians(pps.ls.light_direction);
+            pps.ls.lightVector[0] = Math.cos(lightAngleRadians) * pps.ls.light_magnitude;
+            pps.ls.lightVector[1] = Math.sin(lightAngleRadians) * pps.ls.light_magnitude;
         }
 
         if (version < 1072) {
-            ots.trapColor1 = defaults.ots.trapColor1;
-            ots.trapColor2 = defaults.ots.trapColor2;
-            ots.trapColor3 = defaults.ots.trapColor3;
-            ots.trapColorInterpolation = defaults.ots.trapColorInterpolation;
-            ots.trapIncludeNotEscaped = defaults.ots.trapIncludeNotEscaped;
-            ots.trapIncludeEscaped = defaults.ots.trapIncludeEscaped;
+            pps.ots.trapColor1 = defaults.pps.ots.trapColor1;
+            pps.ots.trapColor2 = defaults.pps.ots.trapColor2;
+            pps.ots.trapColor3 = defaults.pps.ots.trapColor3;
+            pps.ots.trapColorInterpolation = defaults.pps.ots.trapColorInterpolation;
+            pps.ots.trapIncludeNotEscaped = defaults.pps.ots.trapIncludeNotEscaped;
+            pps.ots.trapIncludeEscaped = defaults.pps.ots.trapIncludeEscaped;
 
-            sts.statisticIncludeEscaped = defaults.sts.statisticIncludeEscaped;
-            sts.statisticIncludeNotEscaped = defaults.sts.statisticIncludeNotEscaped;
+            pps.sts.statisticIncludeEscaped = defaults.pps.sts.statisticIncludeEscaped;
+            pps.sts.statisticIncludeNotEscaped = defaults.pps.sts.statisticIncludeNotEscaped;
 
             ps.direct_palette = defaults.ps.direct_palette;
             ps2.direct_palette = defaults.ps2.direct_palette;
         } else {
-            ots.trapColor1 = ((SettingsFractals1072) settings).getTrapColor1();
-            ots.trapColor2 = ((SettingsFractals1072) settings).getTrapColor2();
-            ots.trapColor3 = ((SettingsFractals1072) settings).getTrapColor3();
-            ots.trapColorInterpolation = ((SettingsFractals1072) settings).getTrapColorInterpolation();
-            ots.trapIncludeNotEscaped = ((SettingsFractals1072) settings).getTrapIncludeNotEscaped();
-            ots.trapIncludeEscaped = ((SettingsFractals1072) settings).getTrapIncludeEscaped();
+            pps.ots.trapColor1 = ((SettingsFractals1072) settings).getTrapColor1();
+            pps.ots.trapColor2 = ((SettingsFractals1072) settings).getTrapColor2();
+            pps.ots.trapColor3 = ((SettingsFractals1072) settings).getTrapColor3();
+            pps.ots.trapColorInterpolation = ((SettingsFractals1072) settings).getTrapColorInterpolation();
+            pps.ots.trapIncludeNotEscaped = ((SettingsFractals1072) settings).getTrapIncludeNotEscaped();
+            pps.ots.trapIncludeEscaped = ((SettingsFractals1072) settings).getTrapIncludeEscaped();
 
-            sts.statisticIncludeEscaped = ((SettingsFractals1072) settings).getStatisticIncludeEscaped();
-            sts.statisticIncludeNotEscaped = ((SettingsFractals1072) settings).getStatisticIncludeNotEscaped();
+            pps.sts.statisticIncludeEscaped = ((SettingsFractals1072) settings).getStatisticIncludeEscaped();
+            pps.sts.statisticIncludeNotEscaped = ((SettingsFractals1072) settings).getStatisticIncludeNotEscaped();
 
             if (ps.color_choice == DIRECT_PALETTE_ID) {
                 ps.direct_palette = ((SettingsFractals1072) settings).getDirectPalette();
@@ -1055,11 +1054,11 @@ public class Settings implements Constants {
         }
 
         if (version < 1073) {
-            sts.user_statistic_init_value = defaults.sts.user_statistic_init_value;
+            pps.sts.user_statistic_init_value = defaults.pps.sts.user_statistic_init_value;
             fns.skip_bailout_iterations = defaults.fns.skip_bailout_iterations;
             gs.gradient_offset = defaults.gs.gradient_offset;
         } else {
-            sts.user_statistic_init_value = ((SettingsFractals1073) settings).getUserStatisticInitValue();
+            pps.sts.user_statistic_init_value = ((SettingsFractals1073) settings).getUserStatisticInitValue();
             fns.skip_bailout_iterations = ((SettingsFractals1073) settings).getSkipBailoutIterations();
             gs.gradient_offset = ((SettingsFractals1073) settings).getGradientOffset();
         }
@@ -1079,10 +1078,10 @@ public class Settings implements Constants {
             fns.tcs.inTcComponent3 = defaults.fns.tcs.inTcComponent3;
             fns.tcs.outTcColorSpace = defaults.fns.tcs.outTcColorSpace;
             fns.tcs.inTcColorSpace = defaults.fns.tcs.inTcColorSpace;
-            sts.showAtomDomains = defaults.sts.showAtomDomains;
-            sts.reductionFunction = defaults.sts.reductionFunction;
-            sts.useIterations = defaults.sts.useIterations;
-            sts.useSmoothing = defaults.sts.useSmoothing;
+            pps.sts.showAtomDomains = defaults.pps.sts.showAtomDomains;
+            pps.sts.reductionFunction = defaults.pps.sts.reductionFunction;
+            pps.sts.useIterations = defaults.pps.sts.useIterations;
+            pps.sts.useSmoothing = defaults.pps.sts.useSmoothing;
         } else {
             fns.tcs.trueColorOut = ((SettingsFractals1074) settings).getTrueColorOut();
             fns.tcs.trueColorIn = ((SettingsFractals1074) settings).getTrueColorIn();
@@ -1098,69 +1097,69 @@ public class Settings implements Constants {
             fns.tcs.inTcComponent3 = ((SettingsFractals1074) settings).getInTcComponent3();
             fns.tcs.outTcColorSpace = ((SettingsFractals1074) settings).getOutTcColorSpace();
             fns.tcs.inTcColorSpace = ((SettingsFractals1074) settings).getInTcColorSpace();
-            sts.showAtomDomains = ((SettingsFractals1074) settings).getShowAtomDomains();
-            sts.reductionFunction = ((SettingsFractals1074) settings).getReductionFunction();
-            sts.useIterations = ((SettingsFractals1074) settings).getUseIterations();
-            sts.useSmoothing = ((SettingsFractals1074) settings).getUseSmoothing();
+            pps.sts.showAtomDomains = ((SettingsFractals1074) settings).getShowAtomDomains();
+            pps.sts.reductionFunction = ((SettingsFractals1074) settings).getReductionFunction();
+            pps.sts.useIterations = ((SettingsFractals1074) settings).getUseIterations();
+            pps.sts.useSmoothing = ((SettingsFractals1074) settings).getUseSmoothing();
         }
         
         if(version < 1075) {
             fns.derivative_method = defaults.fns.derivative_method;
-            ots.trapColorFillingMethod = defaults.ots.trapColorFillingMethod;
+            pps.ots.trapColorFillingMethod = defaults.pps.ots.trapColorFillingMethod;
             ds.gridAlgorithm = defaults.ds.gridAlgorithm;
             ds.circleWidth = defaults.ds.circleWidth;
             ds.gridWidth = defaults.ds.gridWidth;
-            ots.trapImage = defaults.ots.trapImage;
+            pps.ots.trapImage = defaults.pps.ots.trapImage;
         }
         else {
             fns.derivative_method = ((SettingsFractals1075) settings).getDerivativeMethod();
-            ots.trapColorFillingMethod = ((SettingsFractals1075) settings).getTrapColorFillingMethod();
+            pps.ots.trapColorFillingMethod = ((SettingsFractals1075) settings).getTrapColorFillingMethod();
             ds.gridAlgorithm = ((SettingsFractals1075) settings).getGridAlgorithm();
             ds.circleWidth = ((SettingsFractals1075) settings).getCircleWidth();
             ds.gridWidth = ((SettingsFractals1075) settings).getGridWidth();
             
-            if(ots.trapType == IMAGE_TRAP) {
-                ots.trapImage = ((SettingsFractals1075) settings).getTrapImage();
+            if(pps.ots.trapType == IMAGE_TRAP || pps.ots.trapType == IMAGE_TRANSPARENT_TRAP) {
+                pps.ots.trapImage = ((SettingsFractals1075) settings).getTrapImage();
             }
         }
         
         if(version < 1076) {
-            hss.histogramColoring = defaults.hss.histogramColoring;
-            hss.histogramDensity = defaults.hss.histogramDensity;
-            hss.hs_noise_reducing_factor = defaults.hss.hs_noise_reducing_factor;
-            hss.histogramBinGranularity = defaults.hss.histogramBinGranularity;
-            hss.hs_blending = defaults.hss.hs_blending;
-            hss.histogramScaleMin = defaults.hss.histogramScaleMin;
-            hss.histogramScaleMax = defaults.hss.histogramScaleMax;
+            pps.hss.histogramColoring = defaults.pps.hss.histogramColoring;
+            pps.hss.histogramDensity = defaults.pps.hss.histogramDensity;
+            pps.hss.hs_noise_reducing_factor = defaults.pps.hss.hs_noise_reducing_factor;
+            pps.hss.histogramBinGranularity = defaults.pps.hss.histogramBinGranularity;
+            pps.hss.hs_blending = defaults.pps.hss.hs_blending;
+            pps.hss.histogramScaleMin = defaults.pps.hss.histogramScaleMin;
+            pps.hss.histogramScaleMax = defaults.pps.hss.histogramScaleMax;
             fns.lpns.lyapunovInitializationIteratons = defaults.fns.lpns.lyapunovInitializationIteratons;
             fns.lpns.lyapunovskipBailoutCheck = defaults.fns.lpns.lyapunovskipBailoutCheck;
-            ots.trapCellularStructure = defaults.ots.trapCellularStructure;
-            ots.trapCellularInverseColor = defaults.ots.trapCellularInverseColor;
-            ots.trapCellularColor = defaults.ots.trapCellularColor;
-            ots.countTrapIterations = defaults.ots.countTrapIterations;
-            ots.trapCellularSize = defaults.ots.trapCellularSize;
+            pps.ots.trapCellularStructure = defaults.pps.ots.trapCellularStructure;
+            pps.ots.trapCellularInverseColor = defaults.pps.ots.trapCellularInverseColor;
+            pps.ots.trapCellularColor = defaults.pps.ots.trapCellularColor;
+            pps.ots.countTrapIterations = defaults.pps.ots.countTrapIterations;
+            pps.ots.trapCellularSize = defaults.pps.ots.trapCellularSize;
             ds.combineType = defaults.ds.combineType;
-            ots.trapHeightFunction = defaults.ots.trapHeightFunction;
-            ots.invertTrapHeight = defaults.ots.invertTrapHeight;
+            pps.ots.trapHeightFunction = defaults.pps.ots.trapHeightFunction;
+            pps.ots.invertTrapHeight = defaults.pps.ots.invertTrapHeight;
         }
         else {
-            hss.histogramColoring = ((SettingsFractals1076) settings).getHistogramColoring();
-            hss.histogramDensity = ((SettingsFractals1076) settings).getHistogramDensity();
-            hss.hs_noise_reducing_factor = ((SettingsFractals1076) settings).getHsNoiseReducingFactor();
-            hss.histogramBinGranularity = ((SettingsFractals1076) settings).getHistogramBinGranularity();
-            hss.hs_blending = ((SettingsFractals1076) settings).getHsBlending();
-            hss.histogramScaleMin = ((SettingsFractals1076) settings).getHistogramScaleMin();
-            hss.histogramScaleMax = ((SettingsFractals1076) settings).getHistogramScaleMax();
+            pps.hss.histogramColoring = ((SettingsFractals1076) settings).getHistogramColoring();
+            pps.hss.histogramDensity = ((SettingsFractals1076) settings).getHistogramDensity();
+            pps.hss.hs_noise_reducing_factor = ((SettingsFractals1076) settings).getHsNoiseReducingFactor();
+            pps.hss.histogramBinGranularity = ((SettingsFractals1076) settings).getHistogramBinGranularity();
+            pps.hss.hs_blending = ((SettingsFractals1076) settings).getHsBlending();
+            pps.hss.histogramScaleMin = ((SettingsFractals1076) settings).getHistogramScaleMin();
+            pps.hss.histogramScaleMax = ((SettingsFractals1076) settings).getHistogramScaleMax();
             fns.lpns.lyapunovInitializationIteratons = ((SettingsFractals1076) settings).getLyapunovInitializationIteratons();
             fns.lpns.lyapunovskipBailoutCheck = ((SettingsFractals1076) settings).getLyapunovskipBailoutCheck();
-            ots.trapCellularStructure = ((SettingsFractals1076) settings).getTrapCellularStructure();
-            ots.trapCellularInverseColor = ((SettingsFractals1076) settings).getTrapCellularInverseColor();
-            ots.trapCellularColor = ((SettingsFractals1076) settings).getTrapCellularColor();
-            ots.countTrapIterations = ((SettingsFractals1076) settings).getCountTrapIterations();
-            ots.trapCellularSize = ((SettingsFractals1076) settings).getTrapCellularSize();
+            pps.ots.trapCellularStructure = ((SettingsFractals1076) settings).getTrapCellularStructure();
+            pps.ots.trapCellularInverseColor = ((SettingsFractals1076) settings).getTrapCellularInverseColor();
+            pps.ots.trapCellularColor = ((SettingsFractals1076) settings).getTrapCellularColor();
+            pps.ots.countTrapIterations = ((SettingsFractals1076) settings).getCountTrapIterations();
+            pps.ots.trapCellularSize = ((SettingsFractals1076) settings).getTrapCellularSize();
             ds.combineType = ((SettingsFractals1076) settings).getCombineType();
-            ots.trapHeightFunction = ((SettingsFractals1076) settings).getTrapHeightFunction();
-            ots.invertTrapHeight = ((SettingsFractals1076) settings).getInvertTrapHeight();
+            pps.ots.trapHeightFunction = ((SettingsFractals1076) settings).getTrapHeightFunction();
+            pps.ots.invertTrapHeight = ((SettingsFractals1076) settings).getInvertTrapHeight();
         }
 
         if(version < 1077) {
@@ -1178,16 +1177,16 @@ public class Settings implements Constants {
 
             fns.root_initialization_method = defaults.fns.root_initialization_method;
 
-            sts.lagrangianPower = defaults.sts.lagrangianPower;
-            sts.equicontinuityDenominatorFactor = defaults.sts.equicontinuityDenominatorFactor;
-            sts.equicontinuityColorMethod = defaults.sts.equicontinuityColorMethod;
-            sts.equicontinuityMixingMethod = defaults.sts.equicontinuityMixingMethod;
-            sts.equicontinuityBlending = defaults.sts.equicontinuityBlending;
-            sts.equicontinuitySatChroma = defaults.sts.equicontinuitySatChroma;
-            sts.equicontinuityArgValue = defaults.sts.equicontinuityArgValue;
-            sts.equicontinuityInvertFactor = defaults.sts.equicontinuityInvertFactor;
-            sts.equicontinuityOverrideColoring = defaults.sts.equicontinuityOverrideColoring;
-            sts.equicontinuityDelta = defaults.sts.equicontinuityDelta;
+            pps.sts.lagrangianPower = defaults.pps.sts.lagrangianPower;
+            pps.sts.equicontinuityDenominatorFactor = defaults.pps.sts.equicontinuityDenominatorFactor;
+            pps.sts.equicontinuityColorMethod = defaults.pps.sts.equicontinuityColorMethod;
+            pps.sts.equicontinuityMixingMethod = defaults.pps.sts.equicontinuityMixingMethod;
+            pps.sts.equicontinuityBlending = defaults.pps.sts.equicontinuityBlending;
+            pps.sts.equicontinuitySatChroma = defaults.pps.sts.equicontinuitySatChroma;
+            pps.sts.equicontinuityArgValue = defaults.pps.sts.equicontinuityArgValue;
+            pps.sts.equicontinuityInvertFactor = defaults.pps.sts.equicontinuityInvertFactor;
+            pps.sts.equicontinuityOverrideColoring = defaults.pps.sts.equicontinuityOverrideColoring;
+            pps.sts.equicontinuityDelta = defaults.pps.sts.equicontinuityDelta;
         }
         else {
             fns.preffs.functionFilter = ((SettingsFractals1077) settings).getPreFunctionFilter();
@@ -1204,16 +1203,16 @@ public class Settings implements Constants {
 
             fns.root_initialization_method = ((SettingsFractals1077) settings).getRootInitialization_method();
 
-            sts.lagrangianPower = ((SettingsFractals1077) settings).getLagrangianPower();
-            sts.equicontinuityDenominatorFactor = ((SettingsFractals1077) settings).getEquicontinuityDenominatorFactor();
-            sts.equicontinuityColorMethod = ((SettingsFractals1077) settings).getEquicontinuityColorMethod();
-            sts.equicontinuityMixingMethod = ((SettingsFractals1077) settings).getEquicontinuityMixingMethod();
-            sts.equicontinuityBlending = ((SettingsFractals1077) settings).getEquicontinuityBlending();
-            sts.equicontinuitySatChroma = ((SettingsFractals1077) settings).getEquicontinuitySatChroma();
-            sts.equicontinuityArgValue = ((SettingsFractals1077) settings).getEquicontinuityArgValue();
-            sts.equicontinuityInvertFactor = ((SettingsFractals1077) settings).isEquicontinuityInvertFactor();
-            sts.equicontinuityOverrideColoring = ((SettingsFractals1077) settings).isEquicontinuityOverrideColoring();
-            sts.equicontinuityDelta = ((SettingsFractals1077) settings).getEquicontinuityDelta();
+            pps.sts.lagrangianPower = ((SettingsFractals1077) settings).getLagrangianPower();
+            pps.sts.equicontinuityDenominatorFactor = ((SettingsFractals1077) settings).getEquicontinuityDenominatorFactor();
+            pps.sts.equicontinuityColorMethod = ((SettingsFractals1077) settings).getEquicontinuityColorMethod();
+            pps.sts.equicontinuityMixingMethod = ((SettingsFractals1077) settings).getEquicontinuityMixingMethod();
+            pps.sts.equicontinuityBlending = ((SettingsFractals1077) settings).getEquicontinuityBlending();
+            pps.sts.equicontinuitySatChroma = ((SettingsFractals1077) settings).getEquicontinuitySatChroma();
+            pps.sts.equicontinuityArgValue = ((SettingsFractals1077) settings).getEquicontinuityArgValue();
+            pps.sts.equicontinuityInvertFactor = ((SettingsFractals1077) settings).isEquicontinuityInvertFactor();
+            pps.sts.equicontinuityOverrideColoring = ((SettingsFractals1077) settings).isEquicontinuityOverrideColoring();
+            pps.sts.equicontinuityDelta = ((SettingsFractals1077) settings).getEquicontinuityDelta();
         }
 
         if(version < 1078) {
@@ -1238,57 +1237,57 @@ public class Settings implements Constants {
         }
 
         if(version < 1079) {
-            sts.useNormalMap = defaults.sts.useNormalMap;
-            sts.normalMapColorMode = defaults.sts.normalMapColorMode;
-            sts.normalMapOverrideColoring = defaults.sts.normalMapOverrideColoring;
-            sts.normalMapLightFactor = defaults.sts.normalMapLightFactor;
-            sts.normalMapBlending = defaults.sts.normalMapBlending;
-            sts.normalMapHeight = defaults.sts.normalMapHeight;
-            sts.normalMapAngle = defaults.sts.normalMapAngle;
-            sts.normalMapUseSecondDerivative = defaults.sts.normalMapUseSecondDerivative;
-            sts.normalMapUseDE = defaults.sts.normalMapUseDE;
-            sts.normalMapDEfactor = defaults.sts.normalMapDEfactor;
-            sts.normalMapInvertDE = defaults.sts.normalMapInvertDE;
-            sts.normalMapColoring = defaults.sts.normalMapColoring;
+            pps.sts.useNormalMap = defaults.pps.sts.useNormalMap;
+            pps.sts.normalMapColorMode = defaults.pps.sts.normalMapColorMode;
+            pps.sts.normalMapOverrideColoring = defaults.pps.sts.normalMapOverrideColoring;
+            pps.sts.normalMapLightFactor = defaults.pps.sts.normalMapLightFactor;
+            pps.sts.normalMapBlending = defaults.pps.sts.normalMapBlending;
+            pps.sts.normalMapHeight = defaults.pps.sts.normalMapHeight;
+            pps.sts.normalMapAngle = defaults.pps.sts.normalMapAngle;
+            pps.sts.normalMapUseSecondDerivative = defaults.pps.sts.normalMapUseSecondDerivative;
+            pps.sts.normalMapUseDE = defaults.pps.sts.normalMapUseDE;
+            pps.sts.normalMapDEfactor = defaults.pps.sts.normalMapDEfactor;
+            pps.sts.normalMapInvertDE = defaults.pps.sts.normalMapInvertDE;
+            pps.sts.normalMapColoring = defaults.pps.sts.normalMapColoring;
             fns.defaultNovaInitialValue = false;
             contourFactor = defaults.contourFactor;
         }
         else {
-            sts.useNormalMap = ((SettingsFractals1079) settings).getUseNormalMap();
-            sts.normalMapColorMode = ((SettingsFractals1079) settings).getNormalMapColorMode();
-            sts.normalMapOverrideColoring = ((SettingsFractals1079) settings).getNormalMapOverrideColoring();
-            sts.normalMapLightFactor = ((SettingsFractals1079) settings).getNormalMapLightFactor();
-            sts.normalMapBlending = ((SettingsFractals1079) settings).getNormalMapBlending();
-            sts.normalMapHeight = ((SettingsFractals1079) settings).getNormalMapHeight();
-            sts.normalMapAngle = ((SettingsFractals1079) settings).getNormalMapAngle();
-            sts.normalMapUseSecondDerivative = ((SettingsFractals1079) settings).getNormalMapUseSecondDerivative();
-            sts.normalMapUseDE = ((SettingsFractals1079) settings).getNormalMapUseDE();
-            sts.normalMapDEfactor = ((SettingsFractals1079) settings).getNormalMapDEfactor();
-            sts.normalMapInvertDE = ((SettingsFractals1079) settings).getNormalMapInvertDE();
-            sts.normalMapColoring = ((SettingsFractals1079) settings).getNormalMapColoring();
+            pps.sts.useNormalMap = ((SettingsFractals1079) settings).getUseNormalMap();
+            pps.sts.normalMapColorMode = ((SettingsFractals1079) settings).getNormalMapColorMode();
+            pps.sts.normalMapOverrideColoring = ((SettingsFractals1079) settings).getNormalMapOverrideColoring();
+            pps.sts.normalMapLightFactor = ((SettingsFractals1079) settings).getNormalMapLightFactor();
+            pps.sts.normalMapBlending = ((SettingsFractals1079) settings).getNormalMapBlending();
+            pps.sts.normalMapHeight = ((SettingsFractals1079) settings).getNormalMapHeight();
+            pps.sts.normalMapAngle = ((SettingsFractals1079) settings).getNormalMapAngle();
+            pps.sts.normalMapUseSecondDerivative = ((SettingsFractals1079) settings).getNormalMapUseSecondDerivative();
+            pps.sts.normalMapUseDE = ((SettingsFractals1079) settings).getNormalMapUseDE();
+            pps.sts.normalMapDEfactor = ((SettingsFractals1079) settings).getNormalMapDEfactor();
+            pps.sts.normalMapInvertDE = ((SettingsFractals1079) settings).getNormalMapInvertDE();
+            pps.sts.normalMapColoring = ((SettingsFractals1079) settings).getNormalMapColoring();
             fns.defaultNovaInitialValue = ((SettingsFractals1079) settings).getDefaultNovaInitialValue();
             contourFactor = ((SettingsFractals1079) settings).getContourFactor();
         }
 
         if(version < 1080) {
-            ots.checkType = defaults.ots.checkType;
-            ots.sfm1 = defaults.ots.sfm1;
-            ots.sfm2 = defaults.ots.sfm2;
-            ots.sfn1 = defaults.ots.sfn1;
-            ots.sfn2 = defaults.ots.sfn2;
-            ots.sfn3 = defaults.ots.sfn3;
-            ots.sfa = defaults.ots.sfa;
-            ots.sfb = defaults.ots.sfb;
+            pps.ots.checkType = defaults.pps.ots.checkType;
+            pps.ots.sfm1 = defaults.pps.ots.sfm1;
+            pps.ots.sfm2 = defaults.pps.ots.sfm2;
+            pps.ots.sfn1 = defaults.pps.ots.sfn1;
+            pps.ots.sfn2 = defaults.pps.ots.sfn2;
+            pps.ots.sfn3 = defaults.pps.ots.sfn3;
+            pps.ots.sfa = defaults.pps.ots.sfa;
+            pps.ots.sfb = defaults.pps.ots.sfb;
 
-            sts.rootIterationsScaling = defaults.sts.rootIterationsScaling;
-            sts.rootShading = defaults.sts.rootShading;
-            sts.rootContourColorMethod = defaults.sts.rootContourColorMethod;
-            sts.rootBlending = defaults.sts.rootBlending;
-            sts.rootShadingFunction = defaults.sts.rootShadingFunction;
-            sts.revertRootShading = defaults.sts.revertRootShading;
-            sts.highlightRoots = defaults.sts.highlightRoots;
-            sts.rootSmooting = defaults.sts.rootSmooting;
-            sts.rootColors = defaults.sts.rootColors;
+            pps.sts.rootIterationsScaling = defaults.pps.sts.rootIterationsScaling;
+            pps.sts.rootShading = defaults.pps.sts.rootShading;
+            pps.sts.rootContourColorMethod = defaults.pps.sts.rootContourColorMethod;
+            pps.sts.rootBlending = defaults.pps.sts.rootBlending;
+            pps.sts.rootShadingFunction = defaults.pps.sts.rootShadingFunction;
+            pps.sts.revertRootShading = defaults.pps.sts.revertRootShading;
+            pps.sts.highlightRoots = defaults.pps.sts.highlightRoots;
+            pps.sts.rootSmooting = defaults.pps.sts.rootSmooting;
+            pps.sts.rootColors = defaults.pps.sts.rootColors;
 
             MagnetColorOffset = defaults.MagnetColorOffset;
 
@@ -1300,28 +1299,28 @@ public class Settings implements Constants {
 
             fns.skip_convergent_bailout_iterations = defaults.fns.skip_convergent_bailout_iterations;
 
-            sts.twlPoint = defaults.sts.twlPoint;
-            sts.twlFunction = defaults.sts.twlFunction;
+            pps.sts.twlPoint = defaults.pps.sts.twlPoint;
+            pps.sts.twlFunction = defaults.pps.sts.twlFunction;
         }
         else {
-            ots.checkType = ((SettingsFractals1080) settings).getCheckType();
-            ots.sfm1 = ((SettingsFractals1080) settings).getSfm1();
-            ots.sfm2 = ((SettingsFractals1080) settings).getSfm2();
-            ots.sfn1 = ((SettingsFractals1080) settings).getSfn1();
-            ots.sfn2 = ((SettingsFractals1080) settings).getSfn2();
-            ots.sfn3 = ((SettingsFractals1080) settings).getSfn3();
-            ots.sfa = ((SettingsFractals1080) settings).getSfa();
-            ots.sfb = ((SettingsFractals1080) settings).getSfb();
+            pps.ots.checkType = ((SettingsFractals1080) settings).getCheckType();
+            pps.ots.sfm1 = ((SettingsFractals1080) settings).getSfm1();
+            pps.ots.sfm2 = ((SettingsFractals1080) settings).getSfm2();
+            pps.ots.sfn1 = ((SettingsFractals1080) settings).getSfn1();
+            pps.ots.sfn2 = ((SettingsFractals1080) settings).getSfn2();
+            pps.ots.sfn3 = ((SettingsFractals1080) settings).getSfn3();
+            pps.ots.sfa = ((SettingsFractals1080) settings).getSfa();
+            pps.ots.sfb = ((SettingsFractals1080) settings).getSfb();
 
-            sts.rootIterationsScaling = ((SettingsFractals1080) settings).getRootIterationsScaling();
-            sts.rootShading = ((SettingsFractals1080) settings).getRootShading();
-            sts.rootContourColorMethod = ((SettingsFractals1080) settings).getRootContourColorMethod();
-            sts.rootBlending = ((SettingsFractals1080) settings).getRootBlending();
-            sts.rootShadingFunction = ((SettingsFractals1080) settings).getRootShadingFunction();
-            sts.revertRootShading = ((SettingsFractals1080) settings).getRevertRootShading();
-            sts.highlightRoots = ((SettingsFractals1080) settings).getHighlightRoots();
-            sts.rootSmooting = ((SettingsFractals1080) settings).getRootSmooting();
-            sts.rootColors = ((SettingsFractals1080) settings).getRootColors();
+            pps.sts.rootIterationsScaling = ((SettingsFractals1080) settings).getRootIterationsScaling();
+            pps.sts.rootShading = ((SettingsFractals1080) settings).getRootShading();
+            pps.sts.rootContourColorMethod = ((SettingsFractals1080) settings).getRootContourColorMethod();
+            pps.sts.rootBlending = ((SettingsFractals1080) settings).getRootBlending();
+            pps.sts.rootShadingFunction = ((SettingsFractals1080) settings).getRootShadingFunction();
+            pps.sts.revertRootShading = ((SettingsFractals1080) settings).getRevertRootShading();
+            pps.sts.highlightRoots = ((SettingsFractals1080) settings).getHighlightRoots();
+            pps.sts.rootSmooting = ((SettingsFractals1080) settings).getRootSmooting();
+            pps.sts.rootColors = ((SettingsFractals1080) settings).getRootColors();
 
             MagnetColorOffset = ((SettingsFractals1080) settings).getMagnetColorOffset();
 
@@ -1333,50 +1332,50 @@ public class Settings implements Constants {
 
             fns.skip_convergent_bailout_iterations = ((SettingsFractals1080) settings).getSkipConvergentBailoutIterations();
 
-            sts.twlPoint = ((SettingsFractals1080) settings).getTwlPoint();
-            sts.twlFunction = ((SettingsFractals1080) settings).getTwlFunction();
+            pps.sts.twlPoint = ((SettingsFractals1080) settings).getTwlPoint();
+            pps.sts.twlFunction = ((SettingsFractals1080) settings).getTwlFunction();
         }
 
         if(version < 1081) {
             fns.period = defaults.fns.period;
-            sts.langNormType = defaults.sts.langNormType;
-            sts.langNNorm = defaults.sts.langNNorm;
-            sts.atomNormType = defaults.sts.atomNormType;
-            sts.atomNNorm = defaults.sts.atomNNorm;
-            hss.hmapping = defaults.hss.hmapping;
+            pps.sts.langNormType = defaults.pps.sts.langNormType;
+            pps.sts.langNNorm = defaults.pps.sts.langNNorm;
+            pps.sts.atomNormType = defaults.pps.sts.atomNormType;
+            pps.sts.atomNNorm = defaults.pps.sts.atomNNorm;
+            pps.hss.hmapping = defaults.pps.hss.hmapping;
             fns.useGlobalMethod = defaults.fns.useGlobalMethod;
             fns.globalMethodFactor = defaults.fns.globalMethodFactor;
-            ots.showOnlyTraps = defaults.ots.showOnlyTraps;
-            ots.background = defaults.ots.background;
+            pps.ots.showOnlyTraps = defaults.pps.ots.showOnlyTraps;
+            pps.ots.background = defaults.pps.ots.background;
             ds.domain_height_method = defaults.ds.domain_height_method;
         }
         else {
             fns.period = ((SettingsFractals1081) settings).getPeriod();
-            sts.langNormType = ((SettingsFractals1081) settings).getLangNormType();
-            sts.langNNorm = ((SettingsFractals1081) settings).getLangNNorm();
-            sts.atomNormType = ((SettingsFractals1081) settings).getAtomNormType();
-            sts.atomNNorm = ((SettingsFractals1081) settings).getAtomNNorm();
-            hss.hmapping = ((SettingsFractals1081) settings).getHmapping();
+            pps.sts.langNormType = ((SettingsFractals1081) settings).getLangNormType();
+            pps.sts.langNNorm = ((SettingsFractals1081) settings).getLangNNorm();
+            pps.sts.atomNormType = ((SettingsFractals1081) settings).getAtomNormType();
+            pps.sts.atomNNorm = ((SettingsFractals1081) settings).getAtomNNorm();
+            pps.hss.hmapping = ((SettingsFractals1081) settings).getHmapping();
             fns.useGlobalMethod = ((SettingsFractals1081) settings).getUseGlobalMethod();
             fns.globalMethodFactor = ((SettingsFractals1081) settings).getGlobalMethodFactor();
-            ots.showOnlyTraps = ((SettingsFractals1081) settings).getShowOnlyTraps();
-            ots.background = ((SettingsFractals1081) settings).getTrapBgColor();
+            pps.ots.showOnlyTraps = ((SettingsFractals1081) settings).getShowOnlyTraps();
+            pps.ots.background = ((SettingsFractals1081) settings).getTrapBgColor();
             ds.domain_height_method = ((SettingsFractals1081) settings).getDomainHeightMethod();
         }
 
         if(version < 1083) {
-            sts.normalMapDeFadeAlgorithm = defaults.sts.normalMapDeFadeAlgorithm;
-            sts.normalMapDEUpperLimitFactor = defaults.sts.normalMapDEUpperLimitFactor;
-            sts.normalMapDEAAEffect = defaults.sts.normalMapDEAAEffect;
-            sts.unmmapedRootColor = defaults.sts.unmmapedRootColor;
-            sts.rootShadingColor = defaults.sts.rootShadingColor;
+            pps.sts.normalMapDeFadeAlgorithm = defaults.pps.sts.normalMapDeFadeAlgorithm;
+            pps.sts.normalMapDEUpperLimitFactor = defaults.pps.sts.normalMapDEUpperLimitFactor;
+            pps.sts.normalMapDEAAEffect = defaults.pps.sts.normalMapDEAAEffect;
+            pps.sts.unmmapedRootColor = defaults.pps.sts.unmmapedRootColor;
+            pps.sts.rootShadingColor = defaults.pps.sts.rootShadingColor;
         }
         else {
-            sts.normalMapDeFadeAlgorithm = ((SettingsFractals1083) settings).getNormalMapDeFadeAlgorithm();
-            sts.normalMapDEUpperLimitFactor = ((SettingsFractals1083) settings).getNormalMapDEUpperLimitFactor();
-            sts.normalMapDEAAEffect = ((SettingsFractals1083) settings).getNormalMapDEAAEffect();
-            sts.unmmapedRootColor = ((SettingsFractals1083) settings).getUnmmapedRootColor();
-            sts.rootShadingColor = ((SettingsFractals1083) settings).getRootShadingColor();
+            pps.sts.normalMapDeFadeAlgorithm = ((SettingsFractals1083) settings).getNormalMapDeFadeAlgorithm();
+            pps.sts.normalMapDEUpperLimitFactor = ((SettingsFractals1083) settings).getNormalMapDEUpperLimitFactor();
+            pps.sts.normalMapDEAAEffect = ((SettingsFractals1083) settings).getNormalMapDEAAEffect();
+            pps.sts.unmmapedRootColor = ((SettingsFractals1083) settings).getUnmmapedRootColor();
+            pps.sts.rootShadingColor = ((SettingsFractals1083) settings).getRootShadingColor();
         }
 
         if(version < 1084) {
@@ -1407,16 +1406,16 @@ public class Settings implements Constants {
         }
 
         if(version < 1085) {
-            cns.min_contour = defaults.cns.min_contour;
+            pps.cns.min_contour = defaults.pps.cns.min_contour;
             color_blending.blending_reversed_colors = defaults.color_blending.blending_reversed_colors;
         }
         else {
-            cns.min_contour = ((SettingsFractals1085) settings).getMinContour();
+            pps.cns.min_contour = ((SettingsFractals1085) settings).getMinContour();
             color_blending.blending_reversed_colors = ((SettingsFractals1085) settings).getBlendingReversedColors();
-            ThreadDraw.PERTURBATION_THEORY = ((SettingsFractals1085) settings).getPerturbationTheory();
+            TaskDraw.PERTURBATION_THEORY = ((SettingsFractals1085) settings).getPerturbationTheory();
 
-            if(ThreadDraw.LOAD_DRAWING_ALGORITHM_FROM_SAVES) {
-                ThreadDraw.GREEDY_ALGORITHM = ((SettingsFractals1085) settings).getGreedyDrawingAlgorithm();
+            if(TaskDraw.LOAD_DRAWING_ALGORITHM_FROM_SAVES) {
+                TaskDraw.GREEDY_ALGORITHM = ((SettingsFractals1085) settings).getGreedyDrawingAlgorithm();
             }
         }
 
@@ -1433,10 +1432,10 @@ public class Settings implements Constants {
             catch (Exception ex) {}
         }
         else {
-            if(ThreadDraw.LOAD_DRAWING_ALGORITHM_FROM_SAVES) {
-                ThreadDraw.BRUTE_FORCE_ALG = ((SettingsFractals1086) settings).getBruteForceAlg();
-                ThreadDraw.GREEDY_ALGORITHM_SELECTION = ((SettingsFractals1086) settings).getGreedyDrawingAlgorithmId();
-                ThreadDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA = ((SettingsFractals1086) settings).getGreedyAlgorithmCheckIterData();
+            if(TaskDraw.LOAD_DRAWING_ALGORITHM_FROM_SAVES) {
+                TaskDraw.BRUTE_FORCE_ALG = ((SettingsFractals1086) settings).getBruteForceAlg();
+                TaskDraw.GREEDY_ALGORITHM_SELECTION = ((SettingsFractals1086) settings).getGreedyDrawingAlgorithmId();
+                TaskDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA = ((SettingsFractals1086) settings).getGreedyAlgorithmCheckIterData();
             }
 
             String userCode = ((SettingsFractals1086) settings).getUserDefinedCode();
@@ -1464,52 +1463,216 @@ public class Settings implements Constants {
         }
 
         if(version < 1087) {
-            sts.normalMapDistanceEstimatorfactor = defaults.sts.normalMapDistanceEstimatorfactor;
-            hss.hs_outliers_method = defaults.hss.hs_outliers_method;
-            hss.hs_remove_outliers = defaults.hss.hs_remove_outliers;
+            pps.sts.normalMapDistanceEstimatorfactor = defaults.pps.sts.normalMapDistanceEstimatorfactor;
+            pps.hss.hs_outliers_method = defaults.pps.hss.hs_outliers_method;
+            pps.hss.hs_remove_outliers = defaults.pps.hss.hs_remove_outliers;
 
-            sts.normalMapDEUseColorPerDepth = defaults.sts.normalMapDEUseColorPerDepth;
-            sts.normalMapDEOffset = defaults.sts.normalMapDEOffset;
-            sts.normalMapDEOffsetFactor = defaults.sts.normalMapDEOffsetFactor;
+            pps.sts.normalMapDEUseColorPerDepth = defaults.pps.sts.normalMapDEUseColorPerDepth;
+            pps.sts.normalMapDEOffset = defaults.pps.sts.normalMapDEOffset;
+            pps.sts.normalMapDEOffsetFactor = defaults.pps.sts.normalMapDEOffsetFactor;
 
-            if(sts.statistic) {
-                sts.lastXItems = 0;
+            if(pps.sts.statistic) {
+                pps.sts.lastXItems = 0;
             }
             else {
-                sts.lastXItems = defaults.sts.lastXItems;
+                pps.sts.lastXItems = defaults.pps.sts.lastXItems;
             }
 
-            if(ots.useTraps) {
-                ots.lastXItems = 0;
+            if(pps.ots.useTraps) {
+                pps.ots.lastXItems = 0;
             }
             else {
-                ots.lastXItems = defaults.ots.lastXItems;
+                pps.ots.lastXItems = defaults.pps.ots.lastXItems;
             }
 
-            fdes.fade_algorithm = defaults.fdes.fade_algorithm;
+            pps.fdes.fade_algorithm = defaults.pps.fdes.fade_algorithm;
         }
         else {
-            sts.normalMapDistanceEstimatorfactor = ((SettingsFractals1087) settings).getNormalMapDistanceEstimatorfactor();
-            hss.hs_outliers_method = ((SettingsFractals1087) settings).getHsOutliersMethod();
-            hss.hs_remove_outliers = ((SettingsFractals1087) settings).getHsRemoveOutliers();
-            sts.lastXItems = ((SettingsFractals1087) settings).getStatisticlastXItems();
-            ots.lastXItems = ((SettingsFractals1087) settings).getTraplastXItems();
+            pps.sts.normalMapDistanceEstimatorfactor = ((SettingsFractals1087) settings).getNormalMapDistanceEstimatorfactor();
+            pps.hss.hs_outliers_method = ((SettingsFractals1087) settings).getHsOutliersMethod();
+            pps.hss.hs_remove_outliers = ((SettingsFractals1087) settings).getHsRemoveOutliers();
+            pps.sts.lastXItems = ((SettingsFractals1087) settings).getStatisticlastXItems();
+            pps.ots.lastXItems = ((SettingsFractals1087) settings).getTraplastXItems();
 
-            sts.normalMapDEUseColorPerDepth = ((SettingsFractals1087) settings).getNormalMapDEUseColorPerDepth();
-            sts.normalMapDEOffset = ((SettingsFractals1087) settings).getNormalMapDEOffset();
-            sts.normalMapDEOffsetFactor = ((SettingsFractals1087) settings).getNormalMapDEOffsetFactor();
-            fdes.fade_algorithm = ((SettingsFractals1087)settings).getFakeDEfadingAlgorithm();
+            pps.sts.normalMapDEUseColorPerDepth = ((SettingsFractals1087) settings).getNormalMapDEUseColorPerDepth();
+            pps.sts.normalMapDEOffset = ((SettingsFractals1087) settings).getNormalMapDEOffset();
+            pps.sts.normalMapDEOffsetFactor = ((SettingsFractals1087) settings).getNormalMapDEOffsetFactor();
+            pps.fdes.fade_algorithm = ((SettingsFractals1087)settings).getFakeDEfadingAlgorithm();
         }
 
         if(version < 1088) {
             fns.variable_re = defaults.fns.variable_re;
             fns.variable_im = defaults.fns.variable_im;
-            sts.normalMapCombineWithOtherStatistics = defaults.sts.normalMapCombineWithOtherStatistics;
+            pps.sts.normalMapCombineWithOtherStatistics = defaults.pps.sts.normalMapCombineWithOtherStatistics;
         }
         else {
             fns.variable_re = ((SettingsFractals1088) settings).getVariableRe();
             fns.variable_im = ((SettingsFractals1088) settings).getVariableIm();
-            sts.normalMapCombineWithOtherStatistics = ((SettingsFractals1088) settings).getNormalMapCombineWithOtherStatistics();
+            pps.sts.normalMapCombineWithOtherStatistics = ((SettingsFractals1088) settings).getNormalMapCombineWithOtherStatistics();
+        }
+
+        if(version < 1089) {
+
+            pps.bms.fractionalTransfer = defaults.pps.bms.fractionalTransfer;
+            pps.bms.fractionalSmoothing = defaults.pps.bms.fractionalSmoothing;
+            pps.bms.fractionalTransferMode = defaults.pps.bms.fractionalTransferMode;
+            pps.cns.fractionalTransfer = defaults.pps.cns.fractionalTransfer;
+            pps.cns.fractionalSmoothing = defaults.pps.cns.fractionalSmoothing;
+            gps.inColoringIQ = defaults.gps.inColoringIQ;
+            gps.outColoringIQ = defaults.gps.outColoringIQ;
+            ds.iso_color_type = defaults.ds.iso_color_type;
+            ds.grid_color_type = defaults.ds.grid_color_type;
+            ds.circle_color_type = defaults.ds.circle_color_type;
+
+            fns.inflections_re = defaults.fns.inflections_re;
+            fns.inflections_im = defaults.fns.inflections_im;
+            fns.inflectionsPower = defaults.fns.inflectionsPower;
+            fns.smoothing_fractional_transfer_method = defaults.fns.smoothing_fractional_transfer_method;
+
+            pps.ls.specularReflectionMethod = defaults.pps.ls.specularReflectionMethod;
+            pps.ls.fractionalTransfer = defaults.pps.ls.fractionalTransfer;
+            pps.ls.fractionalSmoothing = defaults.pps.ls.fractionalSmoothing;
+            pps.ls.fractionalTransferMode = defaults.pps.ls.fractionalTransferMode;
+
+            pps.ndes.useNumericalDem = defaults.pps.ndes.useNumericalDem;
+            pps.ndes.distanceFactor = defaults.pps.ndes.distanceFactor;
+            pps.ndes.distanceOffset = defaults.pps.ndes.distanceOffset;
+            pps.ndes.differencesMethod = defaults.pps.ndes.differencesMethod;
+
+            pps.ndes.n_noise_reducing_factor = defaults.pps.ndes.n_noise_reducing_factor;
+            pps.ndes.numerical_blending = defaults.pps.ndes.numerical_blending;
+            pps.ndes.cap_to_palette_length = defaults.pps.ndes.cap_to_palette_length;
+            ps.color_density = defaults.ps.color_density;
+            ps2.color_density = defaults.ps2.color_density;
+
+            pps.ss.slopes = defaults.pps.ss.slopes;
+            pps.ss.SlopeAngle = defaults.pps.ss.SlopeAngle;
+            pps.ss.SlopePower = defaults.pps.ss.SlopePower;
+            pps.ss.SlopeRatio = defaults.pps.ss.SlopeRatio;
+
+            double lightAngleRadians = Math.toRadians(pps.ss.SlopeAngle);
+            pps.ss.lightVector[0] = Math.cos(lightAngleRadians);
+            pps.ss.lightVector[1] = Math.sin(lightAngleRadians);
+
+            pps.ss.s_noise_reducing_factor = defaults.pps.ss.s_noise_reducing_factor;
+            pps.ss.colorMode = defaults.pps.ss.colorMode;
+            pps.ss.slope_blending = defaults.pps.ss.slope_blending;
+            pps.ss.fractionalTransfer = defaults.pps.ss.fractionalTransfer;
+            pps.ss.fractionalSmoothing = defaults.pps.ss.fractionalSmoothing;
+            pps.ss.fractionalTransferMode = defaults.pps.ss.fractionalTransferMode;
+
+            pps.ss.heightTransfer = defaults.pps.ss.heightTransfer;
+            pps.ss.heightTransferFactor = defaults.pps.ss.heightTransferFactor;
+
+            ds.mapNormReImWithAbsScale = false;
+            ds.applyShading = defaults.ds.applyShading;
+            ds.saturation_adjustment = defaults.ds.saturation_adjustment;
+            ds.shadingType = defaults.ds.shadingType;
+            ds.shadingColorAlgorithm = defaults.ds.shadingColorAlgorithm;
+
+            hsb_constant_b = defaults.hsb_constant_b;
+            hsb_constant_s = defaults.hsb_constant_s;
+            lchab_constant_l = defaults.lchab_constant_l;
+            lchab_constant_c = defaults.lchab_constant_c;
+            lchuv_constant_l = defaults.lchuv_constant_l;
+            lchuv_constant_c = defaults.lchuv_constant_c;
+
+            ds.domain_height_normalization_method = defaults.ds.domain_height_normalization_method;
+            ds.invertShading = defaults.ds.invertShading;
+            ds.shadingPercent = defaults.ds.shadingPercent;
+
+            pps.sts.patternScale = defaults.pps.sts.patternScale;
+            pps.sts.checkerNormType = defaults.pps.sts.checkerNormType;
+            pps.sts.checkerNormValue = defaults.pps.sts.checkerNormValue;
+
+            fs.aaSigmaR = defaults.fs.aaSigmaR;
+            fs.aaSigmaS = defaults.fs.aaSigmaS;
+            fs.bluringSigmaS = defaults.fs.bluringSigmaS;
+            fs.bluringSigmaR = defaults.fs.bluringSigmaR;
+            fs.blurringKernelSelection = defaults.fs.blurringKernelSelection;
+        }
+        else {
+            if(TaskDraw.LOAD_DRAWING_ALGORITHM_FROM_SAVES) {
+                TaskDraw.GUESS_BLOCKS_SELECTION = ((SettingsFractals1089) settings).getGuessBlocks();
+            }
+
+            pps.bms.fractionalTransfer = ((SettingsFractals1089) settings).getBumpfractionalTransfer();
+            pps.bms.fractionalSmoothing = ((SettingsFractals1089) settings).getBumpfractionalSmoothing();
+            pps.bms.fractionalTransferMode = ((SettingsFractals1089) settings).getBumpfractionalTransferMode();
+            pps.cns.fractionalTransfer = ((SettingsFractals1089) settings).getContourfractionalTransfer();
+            pps.cns.fractionalSmoothing = ((SettingsFractals1089) settings).getContourfractionalSmoothing();
+            gps.inColoringIQ = ((SettingsFractals1089) settings).getInColoringIQ();
+            gps.outColoringIQ = ((SettingsFractals1089) settings).getOutColoringIQ();
+            ds.iso_color_type = ((SettingsFractals1089) settings).getIsoColorType();
+            ds.grid_color_type = ((SettingsFractals1089) settings).getGridColorType();
+            ds.circle_color_type = ((SettingsFractals1089) settings).getCircleColorType();
+
+            fns.inflections_re = ((SettingsFractals1089) settings).getInflectionsRe();
+            fns.inflections_im = ((SettingsFractals1089) settings).getInflectionsIm();
+            fns.inflectionsPower = ((SettingsFractals1089) settings).getInflectionsPower();
+            fns.smoothing_fractional_transfer_method = ((SettingsFractals1089) settings).getSmoothingFractionalTransferMethod();
+
+            pps.ls.specularReflectionMethod = ((SettingsFractals1089) settings).getSpecularReflectionMethod();
+            pps.ls.fractionalTransfer = ((SettingsFractals1089) settings).getLightfractionalTransfer();
+            pps.ls.fractionalSmoothing = ((SettingsFractals1089) settings).getLightfractionalSmoothing();
+            pps.ls.fractionalTransferMode = ((SettingsFractals1089) settings).getLightfractionalTransferMode();
+
+            pps.ndes.useNumericalDem = ((SettingsFractals1089) settings).getUseNumericalDem();
+            pps.ndes.distanceFactor = ((SettingsFractals1089) settings).getDistanceFactor();
+            pps.ndes.distanceOffset = ((SettingsFractals1089) settings).getDistanceOffset();
+            pps.ndes.differencesMethod = ((SettingsFractals1089) settings).getDifferencesMethod();
+
+            pps.ndes.n_noise_reducing_factor = ((SettingsFractals1089) settings).getNdesNoiseReducingFactor();
+            pps.ndes.numerical_blending = ((SettingsFractals1089) settings).getNumericalBlending();
+            pps.ndes.cap_to_palette_length = ((SettingsFractals1089) settings).getCapToPaletteLength();
+            ps.color_density = ((SettingsFractals1089) settings).getOutColorDensity();
+            ps2.color_density = ((SettingsFractals1089) settings).getInColorDensity();
+
+            pps.ss.slopes = ((SettingsFractals1089) settings).getSlopes();
+            pps.ss.SlopeAngle = ((SettingsFractals1089) settings).getSlopeAngle();
+            pps.ss.SlopePower = ((SettingsFractals1089) settings).getSlopePower();
+            pps.ss.SlopeRatio = ((SettingsFractals1089) settings).getSlopeRatio();
+
+            double lightAngleRadians = Math.toRadians(pps.ss.SlopeAngle);
+            pps.ss.lightVector[0] = Math.cos(lightAngleRadians);
+            pps.ss.lightVector[1] = Math.sin(lightAngleRadians);
+
+            pps.ss.s_noise_reducing_factor = ((SettingsFractals1089) settings).getSlopesNoiseReducingFactor();
+            pps.ss.colorMode = ((SettingsFractals1089) settings).getSlopescolorMode();
+            pps.ss.slope_blending = ((SettingsFractals1089) settings).getSlopeBlending();
+            pps.ss.fractionalTransfer = ((SettingsFractals1089) settings).getSlopesfractionalTransfer();
+            pps.ss.fractionalSmoothing = ((SettingsFractals1089) settings).getSlopesfractionalSmoothing();
+            pps.ss.fractionalTransferMode = ((SettingsFractals1089) settings).getSlopesfractionalTransferMode();
+
+            pps.ss.heightTransfer = ((SettingsFractals1089) settings).getSlopesheightTransfer();
+            pps.ss.heightTransferFactor = ((SettingsFractals1089) settings).getSlopesheightTransferFactor();
+
+            ds.mapNormReImWithAbsScale = ((SettingsFractals1089) settings).getMapNormReImWithAbsScale();
+            ds.applyShading = ((SettingsFractals1089) settings).getApplyShading();
+            ds.saturation_adjustment = ((SettingsFractals1089) settings).getSaturationAdjustment();
+            ds.shadingType = ((SettingsFractals1089) settings).getShadingType();
+            ds.shadingColorAlgorithm = ((SettingsFractals1089) settings).getShadingColorAlgorithm();
+
+            hsb_constant_b = ((SettingsFractals1089) settings).getHsbConstantB();
+            hsb_constant_s = ((SettingsFractals1089) settings).getHsbConstantS();
+            lchab_constant_l = ((SettingsFractals1089) settings).getLchabConstantL();
+            lchab_constant_c = ((SettingsFractals1089) settings).getLchabConstantC();
+            lchuv_constant_l = ((SettingsFractals1089) settings).getLchuvConstantL();
+            lchuv_constant_c = ((SettingsFractals1089) settings).getLchuvConstantC();
+
+            ds.domain_height_normalization_method = ((SettingsFractals1089) settings).getDomainHeightNormalizationMethod();
+            ds.invertShading = ((SettingsFractals1089) settings).getInvertShading();
+            ds.shadingPercent = ((SettingsFractals1089) settings).getShadingPercent();
+
+            pps.sts.patternScale = ((SettingsFractals1089) settings).getPatternScale();
+            pps.sts.checkerNormType = ((SettingsFractals1089) settings).getCheckerNormType();
+            pps.sts.checkerNormValue = ((SettingsFractals1089) settings).getCheckerNormValue();
+
+            fs.aaSigmaR = ((SettingsFractals1089) settings).getAaSigmaR();
+            fs.aaSigmaS = ((SettingsFractals1089) settings).getAaSigmaS();
+            fs.bluringSigmaS = ((SettingsFractals1089) settings).getBluringSigmaS();
+            fs.bluringSigmaR = ((SettingsFractals1089) settings).getBluringSigmaR();
+            fs.blurringKernelSelection = ((SettingsFractals1089) settings).getBlurringKernelSelection();
         }
 
         if (fns.plane_type == USER_PLANE) {
@@ -1600,10 +1763,10 @@ public class Settings implements Constants {
 
         if (version < 1064) {
             inverse_dem = defaults.inverse_dem;
-            fdes.inverse_fake_dem = defaults.fdes.inverse_fake_dem;
+            pps.fdes.inverse_fake_dem = defaults.pps.fdes.inverse_fake_dem;
         } else {
             inverse_dem = ((SettingsFractals1064) settings).getInverseDe();
-            fdes.inverse_fake_dem = ((SettingsFractals1064) settings).getInverseFakeDe();
+            pps.fdes.inverse_fake_dem = ((SettingsFractals1064) settings).getInverseFakeDe();
             if (version == 1064) {
                 boolean[] user_outcoloring_special_color = ((SettingsFractals1064) settings).getUserOutColoringSpecialColor();
                 boolean[] user_incoloring_special_color = ((SettingsFractals1064) settings).getUserInColoringSpecialColor();
@@ -1634,30 +1797,30 @@ public class Settings implements Constants {
 
         if (version < 1065) {
             color_smoothing_method = defaults.color_smoothing_method;
-            bms.bm_noise_reducing_factor = defaults.bms.bm_noise_reducing_factor;
-            rps.rp_noise_reducing_factor = defaults.rps.rp_noise_reducing_factor;
+            pps.bms.bm_noise_reducing_factor = defaults.pps.bms.bm_noise_reducing_factor;
+            pps.rps.rp_noise_reducing_factor = defaults.pps.rps.rp_noise_reducing_factor;
         } else {
             color_smoothing_method = ((SettingsFractals1065) settings).getColorSmoothingMethod();
-            bms.bm_noise_reducing_factor = ((SettingsFractals1065) settings).getBumpMappingNoiseReducingFactor();
-            rps.rp_noise_reducing_factor = ((SettingsFractals1065) settings).getRainbowPaletteNoiseReducingFactor();
+            pps.bms.bm_noise_reducing_factor = ((SettingsFractals1065) settings).getBumpMappingNoiseReducingFactor();
+            pps.rps.rp_noise_reducing_factor = ((SettingsFractals1065) settings).getRainbowPaletteNoiseReducingFactor();
         }
 
         if (version < 1054) {
             fns.escaping_smooth_algorithm = defaults.fns.escaping_smooth_algorithm;
             fns.converging_smooth_algorithm = defaults.fns.converging_smooth_algorithm;
 
-            bms.bump_map = defaults.bms.bump_map;
+            pps.bms.bump_map = defaults.pps.bms.bump_map;
             polar_projection = defaults.polar_projection;
             ps.color_intensity = defaults.ps.color_intensity;
         } else {
             fns.escaping_smooth_algorithm = ((SettingsFractals1054) settings).getEscapingSmoothAgorithm();
             fns.converging_smooth_algorithm = ((SettingsFractals1054) settings).getConvergingSmoothAgorithm();
 
-            bms.bump_map = ((SettingsFractals1054) settings).getBumpMap();
+            pps.bms.bump_map = ((SettingsFractals1054) settings).getBumpMap();
 
-            bms.bumpMappingStrength = ((SettingsFractals1054) settings).getBumpMapStrength();
-            bms.bumpMappingDepth = ((SettingsFractals1054) settings).getBumpMapDepth();
-            bms.lightDirectionDegrees = ((SettingsFractals1054) settings).getLightDirectionDegrees();
+            pps.bms.bumpMappingStrength = ((SettingsFractals1054) settings).getBumpMapStrength();
+            pps.bms.bumpMappingDepth = ((SettingsFractals1054) settings).getBumpMapDepth();
+            pps.bms.lightDirectionDegrees = ((SettingsFractals1054) settings).getLightDirectionDegrees();
 
             polar_projection = ((SettingsFractals1054) settings).getPolarProjection();
 
@@ -1667,10 +1830,10 @@ public class Settings implements Constants {
         }
 
         if (version < 1055) {
-            fdes.fake_de = defaults.fdes.fake_de;
+            pps.fdes.fake_de = defaults.pps.fdes.fake_de;
         } else {
-            fdes.fake_de = ((SettingsFractals1055) settings).getFakeDe();
-            fdes.fake_de_factor = ((SettingsFractals1055) settings).getFakeDeFactor();
+            pps.fdes.fake_de = ((SettingsFractals1055) settings).getFakeDe();
+            pps.fdes.fake_de_factor = ((SettingsFractals1055) settings).getFakeDeFactor();
         }
 
         switch (fns.function) {
@@ -1947,16 +2110,16 @@ public class Settings implements Constants {
             resetUserOutColoringFormulas();
         }
 
-        if (sts.statisticGroup != 1) {
+        if (pps.sts.statisticGroup != 1) {
             resetStatisticalColoringFormulas();
         }
 
         if(fns.function >= MainWindow.MANDELBROT && fns.function <= MainWindow.MANDELBROTNTH && fns.burning_ship) {
-            sts.useNormalMap = false;
-            sts.normalMapOverrideColoring = false;
+            pps.sts.useNormalMap = false;
+            pps.sts.normalMapOverrideColoring = false;
         }
 
-        Fractal.clearReferences(true);
+        Fractal.clearReferences(true, true);
 
         applyStaticSettings();
 
@@ -1966,11 +2129,11 @@ public class Settings implements Constants {
             loadedSettings(filename, parent, version);
         }
 
-        if (supportsPerturbationTheory() && !ThreadDraw.PERTURBATION_THEORY && size.compareTo(MyApfloat.MIN_DOUBLE_SIZE) <= 0) {
-            ThreadDraw.PERTURBATION_THEORY = true;
+        if (supportsPerturbationTheory() && !TaskDraw.PERTURBATION_THEORY && size.compareTo(MyApfloat.MIN_DOUBLE_SIZE) <= 0) {
+            TaskDraw.PERTURBATION_THEORY = true;
         }
-        else if(!supportsPerturbationTheory() && ThreadDraw.PERTURBATION_THEORY) {
-            ThreadDraw.PERTURBATION_THEORY = false;
+        else if(!supportsPerturbationTheory() && TaskDraw.PERTURBATION_THEORY) {
+            TaskDraw.PERTURBATION_THEORY = false;
         }
     }
 
@@ -1993,7 +2156,7 @@ public class Settings implements Constants {
                 userCode = userCode.replaceAll("\\b" + Parser.DEFAULT_USER_CODE_CLASS + "\\b", Parser.SAVED_USER_CODE_CLASS);
             }
 
-            SettingsFractals settings = new SettingsFractals1088(this, ThreadDraw.PERTURBATION_THEORY, ThreadDraw.GREEDY_ALGORITHM, ThreadDraw.BRUTE_FORCE_ALG, ThreadDraw.GREEDY_ALGORITHM_SELECTION, ThreadDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA, userCode);
+            SettingsFractals settings = new SettingsFractals1089(this, TaskDraw.PERTURBATION_THEORY, TaskDraw.GREEDY_ALGORITHM, TaskDraw.BRUTE_FORCE_ALG, TaskDraw.GREEDY_ALGORITHM_SELECTION, TaskDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA, userCode, TaskDraw.GUESS_BLOCKS_SELECTION);
             file_temp.writeObject(settings);
             file_temp.flush();
         } catch (IOException ex) {
@@ -2226,14 +2389,14 @@ public class Settings implements Constants {
     public void resetStatisticalColoringFormulas() {
 
         if (isConvergingType()) {
-            sts.user_statistic_formula = "(0.5 * cos(6 * (arg(z-p) + pi)) + 0.5) / (12 + 1 / norm(z-p))";
-            sts.useAverage = false;
+            pps.sts.user_statistic_formula = "(0.5 * cos(6 * (arg(z-p) + pi)) + 0.5) / (12 + 1 / norm(z-p))";
+            pps.sts.useAverage = false;
         } else {
-            sts.user_statistic_formula = "(0.5 * cos(12 * arg(z)) + 0.5) / norm(z)";
-            sts.useAverage = true;
+            pps.sts.user_statistic_formula = "(0.5 * cos(12 * arg(z)) + 0.5) / norm(z)";
+            pps.sts.useAverage = true;
         }
-        sts.reductionFunction = REDUCTION_SUM;
-        sts.user_statistic_init_value = "0.0";
+        pps.sts.reductionFunction = REDUCTION_SUM;
+        pps.sts.user_statistic_init_value = "0.0";
     }
 
     public void defaultFractalSettings() {
@@ -2836,33 +2999,33 @@ public class Settings implements Constants {
                 || plane == KALEIDOSCOPE_PLANE || plane == PINCH_PLANE || plane == FOLDUP_PLANE
                 || plane == FOLDDOWN_PLANE || plane == FOLDRIGHT_PLANE || plane == FOLDLEFT_PLANE || plane == INFLECTION_PLANE
                 || plane == BIPOLAR_PLANE || plane == INVERSED_BIPOLAR_PLANE || plane == FOLDIN_PLANE || plane == FOLDOUT_PLANE
-                || plane == CIRCLEINVERSION_PLANE || plane == SKEW_PLANE;
+                || plane == CIRCLEINVERSION_PLANE || plane == SKEW_PLANE || plane == INFLECTIONS_PLANE;
     }
 
     public void applyStaticSettings() {
 
         if (ps.color_choice == CUSTOM_PALETTE_ID) {
-            ThreadDraw.palette_outcoloring = new CustomPalette(ps.custom_palette, ps.color_interpolation, ps.color_space, ps.reversed_palette, ps.scale_factor_palette_val, ps.processing_alg, fns.smoothing, special_color, color_smoothing_method, special_use_palette_color).getRawPalette();
+            TaskDraw.palette_outcoloring = new CustomPalette(ps.custom_palette, ps.color_interpolation, ps.color_space, ps.reversed_palette, ps.scale_factor_palette_val, ps.processing_alg, fns.smoothing, special_color, color_smoothing_method, special_use_palette_color, fns.smoothing_fractional_transfer_method).getRawPalette();
         } else {
-            ThreadDraw.palette_outcoloring = new PresetPalette(ps.color_choice, ps.direct_palette, fns.smoothing, special_color, color_smoothing_method, special_use_palette_color).getRawPalette();
+            TaskDraw.palette_outcoloring = new PresetPalette(ps.color_choice, ps.direct_palette, fns.smoothing, special_color, color_smoothing_method, special_use_palette_color, fns.smoothing_fractional_transfer_method).getRawPalette();
         }
 
         if (ps2.color_choice == CUSTOM_PALETTE_ID) {
-            ThreadDraw.palette_incoloring = new CustomPalette(ps2.custom_palette, ps2.color_interpolation, ps2.color_space, ps2.reversed_palette, ps2.scale_factor_palette_val, ps2.processing_alg, fns.smoothing, special_color, color_smoothing_method, special_use_palette_color).getRawPalette();
+            TaskDraw.palette_incoloring = new CustomPalette(ps2.custom_palette, ps2.color_interpolation, ps2.color_space, ps2.reversed_palette, ps2.scale_factor_palette_val, ps2.processing_alg, fns.smoothing, special_color, color_smoothing_method, special_use_palette_color, fns.smoothing_fractional_transfer_method).getRawPalette();
         } else {
-            ThreadDraw.palette_incoloring = new PresetPalette(ps2.color_choice, ps2.direct_palette, fns.smoothing, special_color, color_smoothing_method, special_use_palette_color).getRawPalette();
+            TaskDraw.palette_incoloring = new PresetPalette(ps2.color_choice, ps2.direct_palette, fns.smoothing, special_color, color_smoothing_method, special_use_palette_color, fns.smoothing_fractional_transfer_method).getRawPalette();
         }
 
-        ThreadDraw.palette_outcoloring.setGeneratedPaletteSettings(true, gps);
-        ThreadDraw.palette_incoloring.setGeneratedPaletteSettings(false, gps);
+        TaskDraw.palette_outcoloring.setGeneratedPaletteSettings(true, gps);
+        TaskDraw.palette_incoloring.setGeneratedPaletteSettings(false, gps);
 
-        ThreadDraw.USE_DIRECT_COLOR = useDirectColor;
+        TaskDraw.USE_DIRECT_COLOR = useDirectColor;
 
-        ColorAlgorithm.GlobalIncrementBypass = globalIncrementBypass;
+        ColorAlgorithm.GlobalUsingIncrement = globalIncrementBypass;
 
-        ThreadDraw.gradient = CustomPalette.createGradient(gs.colorA.getRGB(), gs.colorB.getRGB(), Constants.GRADIENT_LENGTH, gs.gradient_interpolation, gs.gradient_color_space, gs.gradient_reversed, 0);
+        TaskDraw.gradient = CustomPalette.createGradient(gs.colorA.getRGB(), gs.colorB.getRGB(), Constants.GRADIENT_LENGTH, gs.gradient_interpolation, gs.gradient_color_space, gs.gradient_reversed, 0);
 
-        ThreadDraw.COLOR_SMOOTHING_METHOD = color_smoothing_method;
+        TaskDraw.COLOR_SMOOTHING_METHOD = color_smoothing_method;
 
         SkipBailoutCondition.SKIPPED_ITERATION_COUNT = fns.skip_bailout_iterations;
 
@@ -2870,17 +3033,26 @@ public class Settings implements Constants {
         
         Derivative.DERIVATIVE_METHOD = fns.derivative_method;
 
-        ImageOrbitTrap.image = ots.trapImage;
+        ImageOrbitTrap.image = pps.ots.trapImage;
 
         ColorAlgorithm.MAGNET_INCREMENT = MagnetColorOffset;
 
         if(d3s.d3) {
-            ThreadDraw.setExtraDataArrays(needsExtraData(), d3s.detail);
+            TaskDraw.setExtraDataArrays(needsExtraData(), d3s.detail);
         }
         else {
-            ThreadDraw.setExtraDataArrays(needsExtraData(), ThreadDraw.IMAGE_SIZE);
+            TaskDraw.setExtraDataArrays(needsExtraData(), TaskDraw.IMAGE_SIZE);
         }
 
+        TaskDraw.loadWindowImage(pps.ls.specularReflectionMethod);
+
+        TaskDraw.HSB_CONSTANT_B = hsb_constant_b;
+        TaskDraw.HSB_CONSTANT_S = hsb_constant_s;
+        TaskDraw.LCHab_CONSTANT_L = lchab_constant_l;
+        TaskDraw.LCHab_CONSTANT_C = lchab_constant_c;
+        TaskDraw.LCHuv_CONSTANT_L = lchuv_constant_l;
+        TaskDraw.LCHuv_CONSTANT_C = lchuv_constant_c;
+        TaskDraw.setAlgorithmColors();
     }
 
     public boolean supportsPeriod() {
@@ -2897,6 +3069,10 @@ public class Settings implements Constants {
     }
     public boolean supportsPerturbationTheory() {
 
+        if(ds.domain_coloring) {
+            return false;
+        }
+
         if(julia_map) {
             return false;
         }
@@ -2911,34 +3087,47 @@ public class Settings implements Constants {
                 || fns.function == MAGNET1 || fns.function == NEWTON_THIRD_DEGREE_PARAMETER_SPACE
                 || fns.function == NEWTON3 || (fns.function == NOVA && fns.nova_method == NOVA_NEWTON && fns.defaultNovaInitialValue && fns.z_exponent_nova[0] == 3 &&  fns.z_exponent_nova[1] == 0 && fns.relaxation[0] == 1 && fns.relaxation[1] == 0)
                 || fns.function == MAGNET_PATAKI2 || fns.function == MAGNET_PATAKI3
-                || fns.function == MAGNET_PATAKI4 || fns.function == MAGNET_PATAKI5);
+                || fns.function == MAGNET_PATAKI4 || fns.function == MAGNET_PATAKI5 || fns.function == FORMULA47
+                || fns.function ==  PERPENDICULAR_MANDELBROT || fns.function == BUFFALO_MANDELBROT || fns.function == CELTIC_MANDELBROT
+                || fns.function ==  PERPENDICULAR_BURNING_SHIP || fns.function == PERPENDICULAR_CELTIC_MANDELBROT || fns.function == PERPENDICULAR_BUFFALO_MANDELBROT);
     }
 
     public boolean isPertubationTheoryInUse() {
-        return ThreadDraw.PERTURBATION_THEORY && supportsPerturbationTheory();
+        return TaskDraw.PERTURBATION_THEORY && supportsPerturbationTheory();
     }
 
     public boolean isHighPrecisionInUse() {
-        return ThreadDraw.HIGH_PRECISION_CALCULATION && supportsPerturbationTheory();
+        return TaskDraw.HIGH_PRECISION_CALCULATION && supportsPerturbationTheory();
     }
 
     public boolean isPeriodInUse() {
-        return isPertubationTheoryInUse() && ((ThreadDraw.APPROXIMATION_ALGORITHM == 2 && supportsBilinearApproximation())
-                || (ThreadDraw.APPROXIMATION_ALGORITHM == 4 && supportsBilinearApproximation2())
-                || (ThreadDraw.APPROXIMATION_ALGORITHM == 3 && supportsNanomb1())
+        return isPertubationTheoryInUse() && ((TaskDraw.APPROXIMATION_ALGORITHM == 2 && supportsBilinearApproximation())
+                || (TaskDraw.APPROXIMATION_ALGORITHM == 4 && supportsBilinearApproximation2())
+                || (TaskDraw.APPROXIMATION_ALGORITHM == 3 && supportsNanomb1())
         ) && supportsPeriod() && fns.period != 0;
     }
 
     public boolean isNanomb1InUse() {
-        return isPertubationTheoryInUse() && ThreadDraw.APPROXIMATION_ALGORITHM == 3 && supportsNanomb1() && supportsPeriod();
+        return isPertubationTheoryInUse() && TaskDraw.APPROXIMATION_ALGORITHM == 3 && supportsNanomb1() && supportsPeriod();
     }
 
     public boolean supportsNanomb1() {
         return fns.function == MANDELBROT;
     }
 
-    public boolean needSmoothing() {
-        return !ThreadDraw.SMOOTH_DATA && (fns.smoothing || ((ls.lighting || bms.bump_map || cns.contour_coloring || ens.entropy_coloring || rps.rainbow_palette || fdes.fake_de || sts.statistic) && ThreadDraw.USE_SMOOTHING_FOR_PROCESSING_ALGS));
+    private boolean needsSmoothing() {
+        return (fns.smoothing || ((pps.ndes.useNumericalDem || pps.ls.lighting || pps.ss.slopes || pps.bms.bump_map || pps.cns.contour_coloring || pps.ens.entropy_coloring || pps.rps.rainbow_palette || pps.fdes.fake_de || pps.sts.statistic) && TaskDraw.USE_SMOOTHING_FOR_PROCESSING_ALGS));
+    }
+    private boolean requiresSmoothingCalculation() {
+        return !TaskDraw.SMOOTH_DATA && needsSmoothing();
+    }
+
+    private boolean requiresUnSmoothingCalculation() {
+        return TaskDraw.SMOOTH_DATA && !needsSmoothing();
+    }
+
+    public boolean needsChangeOfSmoothing() {
+        return requiresSmoothingCalculation() || requiresUnSmoothingCalculation();
     }
 
     public boolean supportsBilinearApproximation() {
@@ -2950,11 +3139,11 @@ public class Settings implements Constants {
     }
 
     public boolean isBilinearApproximationInUse() {
-        return ThreadDraw.APPROXIMATION_ALGORITHM == 2 && supportsBilinearApproximation();
+        return TaskDraw.APPROXIMATION_ALGORITHM == 2 && supportsBilinearApproximation();
     }
 
     public boolean isBilinearApproximation2InUse() {
-        return ThreadDraw.APPROXIMATION_ALGORITHM == 4 && supportsBilinearApproximation2();
+        return TaskDraw.APPROXIMATION_ALGORITHM == 4 && supportsBilinearApproximation2();
     }
 
     public void loadedSettings(String file, Component parent, int version) {
@@ -2980,18 +3169,24 @@ public class Settings implements Constants {
     }
 
     public boolean needsPostProcessing() {
-        return (hss.histogramColoring
-                || ls.lighting
-                || bms.bump_map
-                || fdes.fake_de
-                || rps.rainbow_palette
-                || ens.entropy_coloring
-                || ofs.offset_coloring
-                || gss.greyscale_coloring
-                || cns.contour_coloring) && !useDirectColor;
+        return (
+                (!ds.domain_coloring && (pps.hss.histogramColoring
+                || pps.ls.lighting
+                || pps.bms.bump_map
+                || pps.ss.slopes
+                || pps.fdes.fake_de
+                || pps.ndes.useNumericalDem
+                || pps.rps.rainbow_palette
+                || pps.ens.entropy_coloring
+                || pps.ofs.offset_coloring
+                || pps.gss.greyscale_coloring
+                || pps.cns.contour_coloring))
+                ||
+                (ds.domain_coloring && (pps.ls.lighting || pps.bms.bump_map || pps.ss.slopes))
+        ) && !useDirectColor;
     }
     public boolean needsExtraData() {
-        return fs.filters[Constants.ANTIALIASING]  && needsPostProcessing();
+        return fs.filters[Constants.ANTIALIASING]  && (needsPostProcessing() || TaskDraw.ALWAYS_SAVE_EXTRA_PIXEL_DATA_ON_AA);
     }
 
 }

@@ -28,8 +28,6 @@ public abstract class PointFilter extends AbstractBufferedImageOp {
 
 	protected boolean canFilterIndexColorModel = false;
 
-	protected boolean supportsThreadsWithFullLoop() { return true;}
-
         @Override
     public BufferedImage filter( BufferedImage src, BufferedImage dst ) {
         int width = src.getWidth();
@@ -43,14 +41,14 @@ public abstract class PointFilter extends AbstractBufferedImageOp {
 
         setDimensions( width, height);
 
-		if(supportsThreadsWithFullLoop() && srcRaster.getDataBuffer() instanceof DataBufferInt && dstRaster.getDataBuffer() instanceof  DataBufferInt) {
+		if(srcRaster.getDataBuffer() instanceof DataBufferInt && dstRaster.getDataBuffer() instanceof  DataBufferInt) {
 
 			int[] srcrgbs = ((DataBufferInt) srcRaster.getDataBuffer()).getData();
 			int[] dstrgbs = ((DataBufferInt) dstRaster.getDataBuffer()).getData();
 			IntStream.range(0, srcrgbs.length)
 					.parallel().forEach(p -> {
-						int y = p / srcrgbs.length;
-						int x = p % srcrgbs.length;
+						int y = p / width;
+						int x = p % width;
 
 						dstrgbs[p] = filterRGB(y, x, srcrgbs[p]);
 					});

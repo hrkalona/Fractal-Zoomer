@@ -163,4 +163,20 @@ public class Mipmap {
 
         return blendedColor;
     }
+
+    /*
+     Mipmap m = new Mipmap();
+        m.m_mipmap_new(image);
+
+
+        int loc = 0;
+        int x;
+        for(int y = FROMy; y < TOy; y++) {
+            for (x = FROMx, loc = y * image_size + x; x < TOx; x++, loc++) {
+                rgbs[loc] = m.getPixelColor(x / ((double)(image_size - 1)), y / ((double)(image_size - 1)), 1 - (ColorAlgorithm.transformResultToHeight(image_iterations[loc], max_iterations) - Fractal.total_min_iterations.get()) / (Fractal.total_max_iterations.get() - Fractal.total_min_iterations.get()));
+            }
+        }
+
+
+     */
 }

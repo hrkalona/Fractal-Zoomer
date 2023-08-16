@@ -37,7 +37,7 @@ public class SmoothEscapeTimeFieldLines extends OutColorAlgorithm {
         pi2 = Math.PI * 2;
         this.algorithm = algorithm;
 
-        OutNotUsingIncrement = false;
+        OutUsingIncrement = true;
         usePower = false;
     }
 
@@ -48,7 +48,7 @@ public class SmoothEscapeTimeFieldLines extends OutColorAlgorithm {
         pi2 = Math.PI * 2;
         this.algorithm = algorithm;
 
-        OutNotUsingIncrement = false;
+        OutUsingIncrement = true;
         usePower = true;
         this.log_power = log_power;
     }

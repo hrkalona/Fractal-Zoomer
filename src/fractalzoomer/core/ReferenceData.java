@@ -22,6 +22,9 @@ public class ReferenceData {
     public Complex dzdc;
     public MantExpComplex mdzdc;
 
+    public Complex period_dzdc;
+    public MantExpComplex period_mdzdc;
+
     public ReferenceData() {
         PrecalculatedTerms = new DoubleReference[MAX_PRECALCULATED_TERMS];
     }
@@ -35,6 +38,22 @@ public class ReferenceData {
         lastRValue = null;
         dzdc = null;
         mdzdc = null;
+        period_dzdc = null;
+        period_mdzdc = null;
+        //minValue = null;
+
+    }
+
+    public void clearWithoutDeallocation() {
+        MaxRefIteration = 0;
+        secondTolastZValue = null;
+        thirdTolastZValue = null;
+        lastZValue = null;
+        lastRValue = null;
+        dzdc = null;
+        mdzdc = null;
+        period_dzdc = null;
+        period_mdzdc = null;
         //minValue = null;
 
     }
@@ -92,32 +111,73 @@ public class ReferenceData {
     }
 
     public void create(int max_iterations, boolean needsRefSubCp, int[] indexes) {
-        Reference = new DoubleReference(max_iterations);
+        if(Reference == null || Reference.shouldCreateNew(max_iterations)) {
+            Reference = new DoubleReference(max_iterations);
+        }
+        else {
+            Reference.reset();
+        }
 
         if(needsRefSubCp) {
-            ReferenceSubCp = new DoubleReference(max_iterations);
+            if(ReferenceSubCp == null || ReferenceSubCp.shouldCreateNew(max_iterations)) {
+                ReferenceSubCp = new DoubleReference(max_iterations);
+            }
+            else {
+                ReferenceSubCp.reset();
+            }
         }
 
         for(int i = 0; i < indexes.length; i++) {
-            if(indexes[i] < PrecalculatedTerms.length) {
-                PrecalculatedTerms[indexes[i]] = new DoubleReference(max_iterations);
+            int index = indexes[i];
+            if(index < PrecalculatedTerms.length) {
+                if( PrecalculatedTerms[index] == null ||  PrecalculatedTerms[index].shouldCreateNew(max_iterations)) {
+                    PrecalculatedTerms[index] = new DoubleReference(max_iterations);
+                }
+                else {
+                    PrecalculatedTerms[index].reset();
+                }
             }
         }
     }
 
     public void create(int max_iterations, int cpsCount, int[] indexes) {
-        Reference = new DoubleReference(max_iterations);
+        if(Reference == null || Reference.shouldCreateNew(max_iterations)) {
+            Reference = new DoubleReference(max_iterations);
+        }
+        else {
+            Reference.reset();
+        }
 
         for(int i = 0; i < indexes.length; i++) {
-            if(indexes[i] < PrecalculatedTerms.length) {
-                PrecalculatedTerms[indexes[i]] = new DoubleReference(max_iterations);
+            int index = indexes[i];
+            if(index < PrecalculatedTerms.length) {
+                if( PrecalculatedTerms[index] == null ||  PrecalculatedTerms[index].shouldCreateNew(max_iterations)) {
+                    PrecalculatedTerms[index] = new DoubleReference(max_iterations);
+                }
+                else {
+                    PrecalculatedTerms[index].reset();
+                }
             }
         }
 
-        ReferenceSubCps = new DoubleReference[cpsCount];
-        for(int i = 0; i < ReferenceSubCps.length; i++) {
-            ReferenceSubCps[i] = new DoubleReference(max_iterations);
+        if(ReferenceSubCps == null || cpsCount != ReferenceSubCps.length) {
+            ReferenceSubCps = new DoubleReference[cpsCount];
+
+            for(int i = 0; i < ReferenceSubCps.length; i++) {
+                ReferenceSubCps[i] = new DoubleReference(max_iterations);
+            }
         }
+        else {
+            for(int i = 0; i < ReferenceSubCps.length; i++) {
+                if( ReferenceSubCps[i] == null ||  ReferenceSubCps[i].shouldCreateNew(max_iterations)) {
+                    ReferenceSubCps[i] = new DoubleReference(max_iterations);
+                }
+                else {
+                    ReferenceSubCps[i].reset();
+                }
+            }
+        }
+
     }
 
     public void setReference(DoubleReference Reference) {

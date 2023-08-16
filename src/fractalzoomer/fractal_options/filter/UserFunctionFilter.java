@@ -1,7 +1,7 @@
 package fractalzoomer.fractal_options.filter;
 
 import fractalzoomer.core.Complex;
-import fractalzoomer.core.ThreadDraw;
+import fractalzoomer.core.TaskDraw;
 import fractalzoomer.parser.ExpressionNode;
 import fractalzoomer.parser.Parser;
 
@@ -29,7 +29,7 @@ public class UserFunctionFilter extends FunctionFilter {
         }
 
         if (parser.foundISize()) {
-            parser.setISizevalue(new Complex(ThreadDraw.IMAGE_SIZE, 0));
+            parser.setISizevalue(new Complex(TaskDraw.IMAGE_SIZE, 0));
         }
 
         if (parser.foundPoint()) {

@@ -14,11 +14,11 @@ public class SquareDistanceBailoutCondition extends ConvergentBailoutCondition {
     public SquareDistanceBailoutCondition(double convergent_bailout) {
         super(convergent_bailout);
 
-        if((ThreadDraw.PERTURBATION_THEORY && ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE) || ThreadDraw.HIGH_PRECISION_CALCULATION) {
-            if (ThreadDraw.allocateMPFR()) {
+        if(TaskDraw.PERTURBATION_THEORY || TaskDraw.HIGH_PRECISION_CALCULATION) {
+            if (TaskDraw.allocateMPFR()) {
                 temp1 = new MpfrBigNum();
                 temp2 = new MpfrBigNum();
-            } else if (ThreadDraw.allocateMPIR()) {
+            } else if (TaskDraw.allocateMPIR()) {
                 temp1p = new MpirBigNum();
                 temp2p = new MpirBigNum();
             }

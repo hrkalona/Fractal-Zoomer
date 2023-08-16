@@ -17,7 +17,7 @@
 package fractalzoomer.in_coloring_algorithms;
 
 import fractalzoomer.core.Complex;
-import fractalzoomer.core.ThreadDraw;
+import fractalzoomer.core.TaskDraw;
 import fractalzoomer.parser.ExpressionNode;
 import fractalzoomer.parser.Parser;
 import fractalzoomer.utils.ColorAlgorithm;
@@ -143,7 +143,7 @@ public class UserConditionalInColorAlgorithm extends InColorAlgorithm {
             parser2[2].setSizevalue(c_size);
         }
         
-        Complex c_isize = new Complex(ThreadDraw.IMAGE_SIZE, 0);
+        Complex c_isize = new Complex(TaskDraw.IMAGE_SIZE, 0);
         if (parser[0].foundISize()) {
             parser[0].setISizevalue(c_isize);
         }
@@ -228,7 +228,7 @@ public class UserConditionalInColorAlgorithm extends InColorAlgorithm {
         }
 
         this.max_iterations = max_iterations;
-        InNotUsingIncrement = true;
+        InUsingIncrement = false;
 
     }
 
@@ -345,12 +345,16 @@ public class UserConditionalInColorAlgorithm extends InColorAlgorithm {
 
             double result2 = expr2[0].getValue().getRe();
             
-            if(ThreadDraw.USE_DIRECT_COLOR) {
+            if(TaskDraw.USE_DIRECT_COLOR) {
                 return result2;
             }
  
             if(Math.abs(result2) == max_iterations) {
                 return result2 < 0 ? -ColorAlgorithm.MAXIMUM_ITERATIONS : ColorAlgorithm.MAXIMUM_ITERATIONS;
+            }
+
+            if(Math.abs(result2) == ColorAlgorithm.MAXIMUM_ITERATIONS_DE) {
+                return result2 < 0 ? -ColorAlgorithm.MAXIMUM_ITERATIONS_DE : ColorAlgorithm.MAXIMUM_ITERATIONS_DE;
             }
         
             return result2 < 0 ? result2 - max_iterations : result2 + max_iterations;        
@@ -392,12 +396,16 @@ public class UserConditionalInColorAlgorithm extends InColorAlgorithm {
 
             double result2 = expr2[1].getValue().getRe();
             
-            if(ThreadDraw.USE_DIRECT_COLOR) {
+            if(TaskDraw.USE_DIRECT_COLOR) {
                 return result2;
             }
  
             if(Math.abs(result2) == max_iterations) {
                 return result2 < 0 ? -ColorAlgorithm.MAXIMUM_ITERATIONS : ColorAlgorithm.MAXIMUM_ITERATIONS;
+            }
+
+            if(Math.abs(result2) == ColorAlgorithm.MAXIMUM_ITERATIONS_DE) {
+                return result2 < 0 ? -ColorAlgorithm.MAXIMUM_ITERATIONS_DE : ColorAlgorithm.MAXIMUM_ITERATIONS_DE;
             }
         
             return result2 < 0 ? result2 - max_iterations : result2 + max_iterations;   
@@ -439,12 +447,16 @@ public class UserConditionalInColorAlgorithm extends InColorAlgorithm {
 
             double result2 = expr2[2].getValue().getRe();
             
-            if(ThreadDraw.USE_DIRECT_COLOR) {
+            if(TaskDraw.USE_DIRECT_COLOR) {
                 return result2;
             }
  
             if(Math.abs(result2) == max_iterations) {
                 return result2 < 0 ? -ColorAlgorithm.MAXIMUM_ITERATIONS : ColorAlgorithm.MAXIMUM_ITERATIONS;
+            }
+
+            if(Math.abs(result2) == ColorAlgorithm.MAXIMUM_ITERATIONS_DE) {
+                return result2 < 0 ? -ColorAlgorithm.MAXIMUM_ITERATIONS_DE : ColorAlgorithm.MAXIMUM_ITERATIONS_DE;
             }
         
             return result2 < 0 ? result2 - max_iterations : result2 + max_iterations;   

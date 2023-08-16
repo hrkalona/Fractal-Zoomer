@@ -30,7 +30,7 @@ public class SinReSquaredMinusImSquared extends InColorAlgorithm {
     public SinReSquaredMinusImSquared(int max_iterations) { 
        
         super();
-        InNotUsingIncrement = true;
+        InUsingIncrement = false;
         this.max_iterations = max_iterations;
 
     }

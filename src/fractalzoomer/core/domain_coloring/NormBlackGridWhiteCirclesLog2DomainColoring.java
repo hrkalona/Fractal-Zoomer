@@ -58,9 +58,9 @@ public class NormBlackGridWhiteCirclesLog2DomainColoring extends DomainColoring 
         
         int color = applyNormColor(norm);
         
-        color = applyGrid(color, res.getRe(), res.getIm());
+        color = applyGrid(color, res.getRe(), res.getIm(), 0, 0);
         
-        return applyCircles(color, norm);
+        return applyCircles(color, norm, 0);
         
     }
 

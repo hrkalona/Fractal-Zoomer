@@ -25,7 +25,6 @@ import fractalzoomer.functions.Fractal;
  * @author hrkalona2
  */
 public class FractalIterationAlgorithm extends IterationAlgorithm {
-    
     public FractalIterationAlgorithm(Fractal fractal) {
         
         super(fractal);

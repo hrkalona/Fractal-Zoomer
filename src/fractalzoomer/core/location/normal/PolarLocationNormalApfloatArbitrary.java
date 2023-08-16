@@ -283,9 +283,9 @@ public class PolarLocationNormalApfloatArbitrary extends Location {
     }
 
     @Override
-    public void createAntialiasingSteps(boolean adaptive, boolean jitter) {
-        super.createAntialiasingSteps(adaptive, jitter);
-        Apfloat[][] steps = createAntialiasingPolarStepsApfloat(ddmulx, ddmuly, adaptive, jitter);
+    public void createAntialiasingSteps(boolean adaptive, boolean jitter, int numberOfExtraSamples) {
+        super.createAntialiasingSteps(adaptive, jitter, numberOfExtraSamples);
+        Apfloat[][] steps = createAntialiasingPolarStepsApfloat(ddmulx, ddmuly, adaptive, jitter, numberOfExtraSamples);
         ddantialiasing_x = steps[0];
         ddantialiasing_y_sin = steps[1];
         ddantialiasing_y_cos = steps[2];

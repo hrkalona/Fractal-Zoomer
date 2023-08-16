@@ -51,6 +51,8 @@ public class Infobar extends JToolBar {
     private JButton overview_button;
     private JButton stats_button;
 
+    private JButton thread_stats_button;
+
     private JButton cancel_button;
     private boolean listenerEnabled;
     public static int PALETTE_PREVIEW_WIDTH = 175;
@@ -207,7 +209,7 @@ public class Infobar extends JToolBar {
         });
 
         max_it_color_preview = new ImageLabel();
-        max_it_color_preview.setToolTipText("Displays the color coresponding to the max iterations.");
+        max_it_color_preview.setToolTipText("Displays the color corresponding to the max iterations.");
         max_it_color_preview.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
         max_it_color_preview.setIcon(new ImageIcon(max_it_preview));
         max_it_color_preview.setMaximumSize(new Dimension(max_it_preview.getWidth(), max_it_preview.getHeight()));
@@ -276,25 +278,32 @@ public class Infobar extends JToolBar {
 
         stats_button.addActionListener(e -> ptr.Stats());
 
+
+        thread_stats_button = new MyButton();
+        thread_stats_button.setIcon(MainWindow.getIcon("stats_tasks.png"));
+        thread_stats_button.setFocusable(false);
+        thread_stats_button.setToolTipText("Displays the task statistics of last rendered fractal.");
+
+        thread_stats_button.addActionListener(e -> ptr.ThreadStats());
+
         cancel_button= new MyButton();
         cancel_button.setIcon(MainWindow.getIcon("abort.png"));
         cancel_button.setFocusable(false);
         cancel_button.setToolTipText("Cancels the current rendering operation and resets.");
 
-        cancel_button.addActionListener(e -> ptr.cancelOperation());
+        //cancel_button.addActionListener(e -> ptr.cancelOperation());
 
 
         add(Box.createHorizontalGlue());
         addSeparator();
 
-        if(CommonFunctions.getJavaVersion() == 8) {
-            add(cancel_button);
-            addSeparator();
-        }
+//        add(cancel_button);
+//        addSeparator();
 
         add(overview_button);
         addSeparator();
         add(stats_button);
+        add(thread_stats_button);
 
         palette_toolbar_preview_lbl2.setVisible(false);
         incoloring_palette_toolbar_preview.setVisible(false);
@@ -309,6 +318,12 @@ public class Infobar extends JToolBar {
     public JButton getStats() {
 
         return stats_button;
+
+    }
+
+    public JButton getStatsTasks() {
+
+        return thread_stats_button;
 
     }
 
@@ -371,8 +386,19 @@ public class Infobar extends JToolBar {
 
         ButtonGroup palettes_group = new ButtonGroup();
         
-        JMenu paletteLegacyFractintMenu = new MyMenu("Legacy/FractInt Maps");
-        paletteLegacyFractintMenu.setIcon(MainWindow.getIcon("palette.png"));
+        JMenu paletteLegacyFractintMen = new MyMenu("Other Palettes/Maps");
+        paletteLegacyFractintMen.setIcon(MainWindow.getIcon("palette.png"));
+
+        JMenu p1 = new MyMenu("(1)");
+        p1.setIcon(MainWindow.getIcon("palette.png"));
+
+        JMenu p2 = new MyMenu("(2)");
+        p2.setIcon(MainWindow.getIcon("palette.png"));
+
+        paletteLegacyFractintMen.add(p1);
+        paletteLegacyFractintMen.add(p2);
+
+        int count = 0;
 
         for (int i = 0; i < palette.length; i++) {
 
@@ -446,7 +472,7 @@ public class Infobar extends JToolBar {
             }
             else if (i == MainWindow.CUSTOM_PALETTE_ID) {                
                 popup.addSeparator();
-                popup.add(paletteLegacyFractintMenu);
+                popup.add(paletteLegacyFractintMen);
                 
                 palette[i].addActionListener(e13 -> {
 
@@ -475,8 +501,15 @@ public class Infobar extends JToolBar {
                     ptr.setPalette(temp, null, outcoloring_mode ? 0 : 1);
 
                 });
-                
-                paletteLegacyFractintMenu.add(palette[i]);
+
+                count++;
+
+                if(count < 13) {
+                    p1.add(palette[i]);
+                }
+                else {
+                    p2.add(palette[i]);
+                }
             }
 
             palettes_group.add(palette[i]);
@@ -549,6 +582,10 @@ public class Infobar extends JToolBar {
         palette[38].setToolTipText("A palette from QFractal.");
         palette[39].setToolTipText("A palette from QFractal.");
         palette[40].setToolTipText("A palette from QFractal.");
+        palette[41].setToolTipText("A palette from Fractal Extreme.");
+        palette[42].setToolTipText("A palette from Fractal Extreme.");
+        palette[43].setToolTipText("A palette from Fractal Extreme.");
+        palette[44].setToolTipText("A palette from Fractal Extreme.");
         
         palette[color_choice].setSelected(true);
         popup.show(e.getComponent(), e.getX(), e.getY());

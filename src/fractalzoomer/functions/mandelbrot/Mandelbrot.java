@@ -17,6 +17,8 @@
 package fractalzoomer.functions.mandelbrot;
 
 import fractalzoomer.core.*;
+import fractalzoomer.core.bla.BLA;
+import fractalzoomer.core.la.LAstep;
 import fractalzoomer.core.location.Location;
 import fractalzoomer.core.mpfr.MpfrBigNum;
 import fractalzoomer.core.mpir.MpirBigNum;
@@ -27,11 +29,13 @@ import fractalzoomer.fractal_options.BurningShip;
 import fractalzoomer.fractal_options.MandelGrass;
 import fractalzoomer.fractal_options.MandelVariation;
 import fractalzoomer.fractal_options.NormalMandel;
+import fractalzoomer.fractal_options.filter.NoFunctionFilter;
 import fractalzoomer.fractal_options.initial_value.DefaultInitialValue;
 import fractalzoomer.fractal_options.initial_value.InitialValue;
 import fractalzoomer.fractal_options.initial_value.VariableConditionalInitialValue;
 import fractalzoomer.fractal_options.initial_value.VariableInitialValue;
 import fractalzoomer.fractal_options.perturbation.DefaultPerturbation;
+import fractalzoomer.fractal_options.plane_influence.NoPlaneInfluence;
 import fractalzoomer.functions.Fractal;
 import fractalzoomer.functions.Julia;
 import fractalzoomer.main.Constants;
@@ -48,6 +52,7 @@ import org.apfloat.Apfloat;
 
 import javax.swing.*;
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static fractalzoomer.main.Constants.*;
@@ -68,6 +73,7 @@ public class Mandelbrot extends Julia {
     private double exterior_de_factor;
 
     private boolean not_burning_ship;
+    protected boolean mandel_grass;
 
     public Mandelbrot(boolean burning_ship) {
         super();
@@ -75,12 +81,13 @@ public class Mandelbrot extends Julia {
         not_burning_ship = !burning_ship;
     }
 
-    public Mandelbrot(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, boolean exterior_de, double exterior_de_factor, boolean inverse_dem, int escaping_smooth_algorithm, OrbitTrapSettings ots, StatisticsSettings sts, double height_ratio) {
+    public Mandelbrot(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower, boolean exterior_de, double exterior_de_factor, boolean inverse_dem, int escaping_smooth_algorithm, OrbitTrapSettings ots, StatisticsSettings sts, double height_ratio) {
 
-        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, ots);
+        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, ots);
 
         this.burning_ship = burning_ship;
         not_burning_ship = !burning_ship;
+        this.mandel_grass = mandel_grass;
 
         power = 2;
 
@@ -118,10 +125,10 @@ public class Mandelbrot extends Julia {
 
         if (exterior_de) {
             if(height_ratio == 1) {
-                limit = (size / ThreadDraw.IMAGE_SIZE) * exterior_de_factor;
+                limit = (size / TaskDraw.IMAGE_SIZE) * exterior_de_factor;
             }
             else {
-                double a = size / ThreadDraw.IMAGE_SIZE;
+                double a = size / TaskDraw.IMAGE_SIZE;
                 double b = a * height_ratio;
                 double c = Math.sqrt(a * a + b * b);
                 limit = c * exterior_de_factor;
@@ -132,7 +139,7 @@ public class Mandelbrot extends Julia {
         OutColoringAlgorithmFactory(out_coloring_algorithm, smoothing, escaping_smooth_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, plane_transform_center);
 
 
-        if((ThreadDraw.PERTURBATION_THEORY || ThreadDraw.HIGH_PRECISION_CALCULATION) && out_coloring_algorithm == MainWindow.DISTANCE_ESTIMATOR) {
+        if((TaskDraw.PERTURBATION_THEORY || TaskDraw.HIGH_PRECISION_CALCULATION) && out_coloring_algorithm == MainWindow.DISTANCE_ESTIMATOR) {
             if (!smoothing) {
                 out_color_algorithm = new EscapeTime();
             } else {
@@ -159,12 +166,13 @@ public class Mandelbrot extends Julia {
         }
     }
 
-    public Mandelbrot(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, boolean exterior_de, double exterior_de_factor, boolean inverse_dem, int escaping_smooth_algorithm, OrbitTrapSettings ots, StatisticsSettings sts, double height_ratio, double xJuliaCenter, double yJuliaCenter) {
+    public Mandelbrot(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower, boolean exterior_de, double exterior_de_factor, boolean inverse_dem, int escaping_smooth_algorithm, OrbitTrapSettings ots, StatisticsSettings sts, double height_ratio, double xJuliaCenter, double yJuliaCenter) {
 
-        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, periodicity_checking, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, ots, xJuliaCenter, yJuliaCenter);
+        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, periodicity_checking, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, ots, xJuliaCenter, yJuliaCenter);
 
         this.burning_ship = burning_ship;
         not_burning_ship = !burning_ship;
+        this.mandel_grass = mandel_grass;
 
         power = 2;
 
@@ -186,10 +194,10 @@ public class Mandelbrot extends Julia {
 
         if (exterior_de) {
             if(height_ratio == 1) {
-                limit = (size / ThreadDraw.IMAGE_SIZE) * exterior_de_factor;
+                limit = (size / TaskDraw.IMAGE_SIZE) * exterior_de_factor;
             }
             else {
-                double a = size / ThreadDraw.IMAGE_SIZE;
+                double a = size / TaskDraw.IMAGE_SIZE;
                 double b = a * height_ratio;
                 double c = Math.sqrt(a * a + b * b);
                 limit = c * exterior_de_factor;
@@ -221,12 +229,13 @@ public class Mandelbrot extends Julia {
     }
 
     //orbit
-    public Mandelbrot(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount) {
+    public Mandelbrot(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower) {
 
-        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower);
 
         this.burning_ship = burning_ship;
         not_burning_ship = !burning_ship;
+        this.mandel_grass = mandel_grass;
 
         power = 2;
 
@@ -260,12 +269,13 @@ public class Mandelbrot extends Julia {
 
     }
 
-    public Mandelbrot(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double xJuliaCenter, double yJuliaCenter) {
+    public Mandelbrot(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower, double xJuliaCenter, double yJuliaCenter) {
 
-        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, xJuliaCenter, yJuliaCenter);
 
         this.burning_ship = burning_ship;
         not_burning_ship = !burning_ship;
+        this.mandel_grass = mandel_grass;
 
         power = 2;
 
@@ -295,7 +305,7 @@ public class Mandelbrot extends Julia {
 
     }
 
-    private double mandel_2d_np_de_normal(Complex[] complex, Complex pixel) {
+    private double mandel_np_de_normal(Complex[] complex, Complex pixel) {
 
         iterations = 0;
 
@@ -329,7 +339,7 @@ public class Mandelbrot extends Julia {
 
                     return res;
                 } else {
-                    return -ColorAlgorithm.MAXIMUM_ITERATIONS;
+                    return ColorAlgorithm.MAXIMUM_ITERATIONS_DE;
                 }
 
             }
@@ -337,10 +347,10 @@ public class Mandelbrot extends Julia {
             zold2.assign(zold);
             zold.assign(complex[0]);
             if(isJulia && (!juliter || juliter && iterations >= juliterIterations)) {
-                dc.times_mutable(complex[0]).times_mutable(2);
+                dc.times_mutable(complex[0]).times2_mutable();
             }
             else {
-                dc.times_mutable(complex[0]).times_mutable(2).plus_mutable(1);
+                dc.times_mutable(complex[0]).times2_mutable().plus_mutable(1);
             }
 
             complex[1] = planeInfluence.getValue(complex[0], iterations, complex[1], start, zold, zold2, c0, pixel);
@@ -366,7 +376,7 @@ public class Mandelbrot extends Julia {
         return in;
     }
 
-    private double mandel_2d_np_de_dem(Complex[] complex, Complex pixel) {
+    private double mandel_np_de_dem(Complex[] complex, Complex pixel) {
 
         iterations = 0;
 
@@ -400,15 +410,15 @@ public class Mandelbrot extends Julia {
 
                     return res;
                 } else {
-                    return -ColorAlgorithm.MAXIMUM_ITERATIONS;
+                    return ColorAlgorithm.MAXIMUM_ITERATIONS_DE;
                 }
             }
 
             if(isJulia && (!juliter || juliter && iterations >= juliterIterations)) {
-                dc.times_mutable(complex[0]).times_mutable(2);
+                dc.times_mutable(complex[0]).times2_mutable();
             }
             else {
-                dc.times_mutable(complex[0]).times_mutable(2).plus_mutable(1);
+                dc.times_mutable(complex[0]).times2_mutable().plus_mutable(1);
             }
 
             zold2.assign(zold);
@@ -437,7 +447,12 @@ public class Mandelbrot extends Julia {
         return in;
     }
 
-    private double mandel_2d_np_nde_normal(Complex[] complex, Complex pixel) {
+    private boolean useOptimizedPath() {
+        return not_burning_ship && !juliter && !mandel_grass && planeInfluence instanceof NoPlaneInfluence
+        && preFilter instanceof NoFunctionFilter && postFilter instanceof NoFunctionFilter;
+    }
+
+    private double mandel_np_nde_normal(Complex[] complex, Complex pixel) {
 
         iterations = 0;
 
@@ -489,7 +504,66 @@ public class Mandelbrot extends Julia {
         return in;
     }
 
-    private double mandel_2d_np_nde_dem(Complex[] complex, Complex pixel) {
+    private double mandel_optimized(Complex[] complex, Complex pixel) {
+
+        iterations = 0;
+        double zre = complex[0].getRe(), zim = complex[0].getIm();
+        double cre = complex[1].getRe(), cim = complex[1].getIm();
+        double norm_squared, zre_sqr, zim_sqr;
+        double temp;
+
+
+        for (; iterations < max_iterations; iterations++) {
+
+            if (trap != null) {
+                trap.check(complex[0], iterations);
+            }
+
+            zre_sqr = zre * zre;
+            zim_sqr = zim * zim;
+            norm_squared = zre_sqr + zim_sqr;
+
+            if (bailout_algorithm2.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, norm_squared, pixel)) {
+                escaped = true;
+
+                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0, pixel};
+                double res = out_color_algorithm.getResult(object);
+
+                res = getFinalValueOut(res, complex[0]);
+
+                if (outTrueColorAlgorithm != null) {
+                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+                }
+
+                return res;
+            }
+            zold2.assign(zold);
+            zold.assign(complex[0]);
+
+            temp = zre + zim;
+            zre = zre_sqr - zim_sqr + cre;
+            zim = temp * temp - norm_squared + cim;
+            complex[0].assign(zre, zim);
+
+            if (statistic != null) {
+                statistic.insert(complex[0], zold, zold2, iterations, complex[1], start, c0);
+            }
+
+        }
+
+        Object[] object = {complex[0], zold, zold2, complex[1], start, c0, pixel};
+        double in = in_color_algorithm.getResult(object);
+
+        in = getFinalValueIn(in, complex[0]);
+
+        if (inTrueColorAlgorithm != null) {
+            setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+        }
+
+        return in;
+    }
+
+    private double mandel_np_nde_dem(Complex[] complex, Complex pixel) {
 
         iterations = 0;
 
@@ -522,10 +596,10 @@ public class Mandelbrot extends Julia {
             zold.assign(complex[0]);
 
             if(isJulia && (!juliter || juliter && iterations >= juliterIterations)) {
-                dc.times_mutable(complex[0]).times_mutable(2);
+                dc.times_mutable(complex[0]).times2_mutable();
             }
             else {
-                dc.times_mutable(complex[0]).times_mutable(2).plus_mutable(1);
+                dc.times_mutable(complex[0]).times2_mutable().plus_mutable(1);
             }
 
             complex[1] = planeInfluence.getValue(complex[0], iterations, complex[1], start, zold, zold2, c0, pixel);
@@ -556,19 +630,22 @@ public class Mandelbrot extends Julia {
 
         if (exterior_de) {
             if (special_alg == 0) {
-                return mandel_2d_np_de_normal(complex, pixel);
+                return mandel_np_de_normal(complex, pixel);
             } else {
-                return mandel_2d_np_de_dem(complex, pixel);
+                return mandel_np_de_dem(complex, pixel);
             }
         } else if (special_alg == 0) {
-            return mandel_2d_np_nde_normal(complex, pixel);
+            if(useOptimizedPath()) {
+                return mandel_optimized(complex, pixel);
+            }
+            return mandel_np_nde_normal(complex, pixel);
         } else {
-            return mandel_2d_np_nde_dem(complex, pixel);
+            return mandel_np_nde_dem(complex, pixel);
         }
 
     }
 
-    private double mandel_2d_p_de_normal(Complex[] complex, Complex pixel) {
+    private double mandel_p_de_normal(Complex[] complex, Complex pixel) {
 
         iterations = 0;
 
@@ -606,16 +683,16 @@ public class Mandelbrot extends Julia {
 
                     return res;
                 } else {
-                    return -ColorAlgorithm.MAXIMUM_ITERATIONS;
+                    return ColorAlgorithm.MAXIMUM_ITERATIONS_DE;
                 }
             }
             zold2.assign(zold);
             zold.assign(complex[0]);
             if(isJulia && (!juliter || juliter && iterations >= juliterIterations)) {
-                dc.times_mutable(complex[0]).times_mutable(2);
+                dc.times_mutable(complex[0]).times2_mutable();
             }
             else {
-                dc.times_mutable(complex[0]).times_mutable(2).plus_mutable(1);
+                dc.times_mutable(complex[0]).times2_mutable().plus_mutable(1);
             }
 
             complex[1] = planeInfluence.getValue(complex[0], iterations, complex[1], start, zold, zold2, c0, pixel);
@@ -636,7 +713,7 @@ public class Mandelbrot extends Julia {
         return ColorAlgorithm.MAXIMUM_ITERATIONS;
     }
 
-    private double mandel_2d_p_de_dem(Complex[] complex, Complex pixel) {
+    private double mandel_p_de_dem(Complex[] complex, Complex pixel) {
 
         iterations = 0;
 
@@ -674,15 +751,15 @@ public class Mandelbrot extends Julia {
 
                     return res;
                 } else {
-                    return -ColorAlgorithm.MAXIMUM_ITERATIONS;
+                    return ColorAlgorithm.MAXIMUM_ITERATIONS_DE;
                 }
             }
 
             if(isJulia && (!juliter || juliter && iterations >= juliterIterations)) {
-                dc.times_mutable(complex[0]).times_mutable(2);
+                dc.times_mutable(complex[0]).times2_mutable();
             }
             else {
-                dc.times_mutable(complex[0]).times_mutable(2).plus_mutable(1);
+                dc.times_mutable(complex[0]).times2_mutable().plus_mutable(1);
             }
             zold2.assign(zold);
             zold.assign(complex[0]);
@@ -705,7 +782,7 @@ public class Mandelbrot extends Julia {
         return ColorAlgorithm.MAXIMUM_ITERATIONS;
     }
 
-    private double mandel_2d_p_nde_normal(Complex[] complex, Complex pixel) {
+    private double mandel_p_nde_normal(Complex[] complex, Complex pixel) {
 
         iterations = 0;
 
@@ -756,7 +833,7 @@ public class Mandelbrot extends Julia {
         return ColorAlgorithm.MAXIMUM_ITERATIONS;
     }
 
-    private double mandel_2d_p_nde_dem(Complex[] complex, Complex pixel) {
+    private double mandel_p_nde_dem(Complex[] complex, Complex pixel) {
 
         iterations = 0;
 
@@ -792,10 +869,10 @@ public class Mandelbrot extends Julia {
             zold2.assign(zold);
             zold.assign(complex[0]);
             if(isJulia && (!juliter || juliter && iterations >= juliterIterations)) {
-                dc.times_mutable(complex[0]).times_mutable(2);
+                dc.times_mutable(complex[0]).times2_mutable();
             }
             else {
-                dc.times_mutable(complex[0]).times_mutable(2).plus_mutable(1);
+                dc.times_mutable(complex[0]).times2_mutable().plus_mutable(1);
             }
 
             complex[1] = planeInfluence.getValue(complex[0], iterations, complex[1], start, zold, zold2, c0, pixel);
@@ -821,15 +898,49 @@ public class Mandelbrot extends Julia {
 
         if (exterior_de) {
             if (special_alg == 0) {
-                return mandel_2d_p_de_normal(complex, pixel);
+                return mandel_p_de_normal(complex, pixel);
             } else {
-                return mandel_2d_p_de_dem(complex, pixel);
+                return mandel_p_de_dem(complex, pixel);
             }
         } else if (special_alg == 0) {
-            return mandel_2d_p_nde_normal(complex, pixel);
+            return mandel_p_nde_normal(complex, pixel);
         } else {
-            return mandel_2d_p_nde_dem(complex, pixel);
+            return mandel_p_nde_dem(complex, pixel);
         }
+    }
+
+    @Override
+    public boolean shouldRecalculateForPeriodDetection(boolean deepZoom, Location externalLocation) {
+        if(getPeriodDetectionAlgorithm() == 0 || DetectedPeriod == 0 || (TaskDraw.APPROXIMATION_ALGORITHM == 3 && supportsNanomb1())) {
+            return true;
+        }
+
+        if (deepZoom) {
+            if(referenceData.period_mdzdc == null) {
+                return true;
+            }
+
+            MantExpComplex mdzdc = referenceData.period_mdzdc;
+            MantExp mradius = externalLocation.getSize().multiply2_mutable();
+
+            if (mradius.multiply(mdzdc.chebychevNorm()).compareToBothPositive(getArrayDeepValue(referenceDeep, DetectedPeriod).chebychevNorm()) > 0) {
+                return false;
+            }
+        } else {
+            if(referenceData.period_dzdc == null) {
+                return true;
+            }
+
+            Complex dzdc = referenceData.period_dzdc;
+            double radius = this.size * 2;
+
+            if (radius * dzdc.chebychevNorm() > getArrayValue(reference, DetectedPeriod).chebychevNorm()) {
+                return false;
+            }
+        }
+
+        return true;
+
     }
 
     @Override
@@ -851,8 +962,11 @@ public class Mandelbrot extends Julia {
             progress.setString(REFERENCE_CALCULATION_STR + " " + String.format("%3d", 0) + "%");
         }
 
-        boolean detectPeriod = ThreadDraw.DETECT_PERIOD && supportsPeriod() && getUserPeriod() == 0;
+        boolean detectPeriod = TaskDraw.DETECT_PERIOD && supportsPeriod() && getUserPeriod() == 0;
         boolean lowPrecReferenceOrbitNeeded = !needsOnlyExtendedReferenceOrbit(deepZoom, detectPeriod);
+        boolean stopReferenceCalculationOnDetectedPeriod = detectPeriod && TaskDraw.STOP_REFERENCE_CALCULATION_AFTER_DETECTED_PERIOD && userPeriod == 0 && canStopOnDetectedPeriod();
+
+        DoubleReference.SHOULD_SAVE_MEMORY = stopReferenceCalculationOnDetectedPeriod;
 
         if (iterations == 0) {
             if(lowPrecReferenceOrbitNeeded) {
@@ -883,110 +997,107 @@ public class Mandelbrot extends Julia {
             DetectedPeriod = 0;
         }
 
-        boolean gatherTinyRefPts = ThreadDraw.PERTUBATION_PIXEL_ALGORITHM == 1 && supportsScaledIterations() && deepZoom && ThreadDraw.GATHER_TINY_REF_INDEXES;
+        boolean gatherTinyRefPts = TaskDraw.PERTUBATION_PIXEL_ALGORITHM == 1 && supportsScaledIterations() && deepZoom && TaskDraw.GATHER_TINY_REF_INDEXES;
 
         Location loc = new Location();
 
         GenericComplex z, c, zold, zold2, start, c0, pixel;
         Object normSquared, r = null, r0 = null, norm = null;
 
-        int bigNumLib = ThreadDraw.getBignumLibrary(size, this);
-        boolean useBignum = ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE  && bigNumLib != Constants.BIGNUM_APFLOAT;
+        int bigNumLib = TaskDraw.getBignumLibrary(size, this);
         int detectPeriodAlgorithm = getPeriodDetectionAlgorithm();
 
-        if(useBignum) {
-            if(bigNumLib == Constants.BIGNUM_BUILT_IN) {
-                BigNumComplex bn = inputPixel.toBigNumComplex();
-                z = iterations == 0 ? (isJulia ? bn : new BigNumComplex()) : referenceData.lastZValue;
-                c = isJulia ? getSeed(useBignum, bigNumLib) : bn;
-                zold = iterations == 0 ? new BigNumComplex() : referenceData.secondTolastZValue;
-                zold2 = iterations == 0 ? new BigNumComplex() : referenceData.thirdTolastZValue;
-                start = isJulia ? bn : new BigNumComplex();
-                c0 = c;
-                pixel = bn;
-                if(detectPeriod && detectPeriodAlgorithm == 0) {
-                    r0 = new BigNum(size);
-                    r = iterations == 0 ? new BigNum((BigNum) r0) : referenceData.lastRValue;
-                }
+        if(bigNumLib == Constants.BIGNUM_BUILT_IN) {
+            BigNumComplex bn = inputPixel.toBigNumComplex();
+            z = iterations == 0 ? (isJulia ? bn : new BigNumComplex()) : referenceData.lastZValue;
+            c = isJulia ? getSeed(bigNumLib) : bn;
+            zold = iterations == 0 ? new BigNumComplex() : referenceData.secondTolastZValue;
+            zold2 = iterations == 0 ? new BigNumComplex() : referenceData.thirdTolastZValue;
+            start = isJulia ? bn : new BigNumComplex();
+            c0 = c;
+            pixel = bn;
+            if(detectPeriod && detectPeriodAlgorithm == 0) {
+                r0 = new BigNum(size);
+                r = iterations == 0 ? new BigNum((BigNum) r0) : referenceData.lastRValue;
             }
-            else if(bigNumLib == BIGNUM_BIGINT) {
-                BigIntNumComplex bn = inputPixel.toBigIntNumComplex();
-                z = iterations == 0 ? (isJulia ? bn : new BigIntNumComplex()) : referenceData.lastZValue;
-                c = isJulia ? getSeed(useBignum, bigNumLib) : bn;
-                zold = iterations == 0 ? new BigIntNumComplex() : referenceData.secondTolastZValue;
-                zold2 = iterations == 0 ? new BigIntNumComplex() : referenceData.thirdTolastZValue;
-                start = isJulia ? bn : new BigIntNumComplex();
-                c0 = c;
-                pixel = bn;
-                if(detectPeriod && detectPeriodAlgorithm == 0) {
-                    r0 = new BigIntNum(size);
-                    r = iterations == 0 ? new BigIntNum((BigIntNum) r0) : referenceData.lastRValue;
-                }
+        }
+        else if(bigNumLib == BIGNUM_BIGINT) {
+            BigIntNumComplex bn = inputPixel.toBigIntNumComplex();
+            z = iterations == 0 ? (isJulia ? bn : new BigIntNumComplex()) : referenceData.lastZValue;
+            c = isJulia ? getSeed(bigNumLib) : bn;
+            zold = iterations == 0 ? new BigIntNumComplex() : referenceData.secondTolastZValue;
+            zold2 = iterations == 0 ? new BigIntNumComplex() : referenceData.thirdTolastZValue;
+            start = isJulia ? bn : new BigIntNumComplex();
+            c0 = c;
+            pixel = bn;
+            if(detectPeriod && detectPeriodAlgorithm == 0) {
+                r0 = new BigIntNum(size);
+                r = iterations == 0 ? new BigIntNum((BigIntNum) r0) : referenceData.lastRValue;
             }
-            else if(bigNumLib == Constants.BIGNUM_MPFR) {
-                MpfrBigNumComplex bn = new MpfrBigNumComplex(inputPixel.toMpfrBigNumComplex());
-                z = iterations == 0 ? (isJulia ? bn : new MpfrBigNumComplex()) : referenceData.lastZValue;
-                c = isJulia ? getSeed(useBignum, bigNumLib) : bn;
-                zold = iterations == 0 ? new MpfrBigNumComplex() : referenceData.secondTolastZValue;
-                zold2 = iterations == 0 ? new MpfrBigNumComplex() : referenceData.thirdTolastZValue;
-                start = isJulia ? new MpfrBigNumComplex(bn) : new MpfrBigNumComplex();
-                c0 = new MpfrBigNumComplex((MpfrBigNumComplex)c);
-                pixel = new MpfrBigNumComplex(bn);
-                if(detectPeriod && detectPeriodAlgorithm == 0) {
+        }
+        else if(bigNumLib == Constants.BIGNUM_MPFR) {
+            MpfrBigNumComplex bn = new MpfrBigNumComplex(inputPixel.toMpfrBigNumComplex());
+            z = iterations == 0 ? (isJulia ? bn : new MpfrBigNumComplex()) : referenceData.lastZValue;
+            c = isJulia ? getSeed(bigNumLib) : bn;
+            zold = iterations == 0 ? new MpfrBigNumComplex() : referenceData.secondTolastZValue;
+            zold2 = iterations == 0 ? new MpfrBigNumComplex() : referenceData.thirdTolastZValue;
+            start = isJulia ? new MpfrBigNumComplex(bn) : new MpfrBigNumComplex();
+            c0 = new MpfrBigNumComplex((MpfrBigNumComplex)c);
+            pixel = new MpfrBigNumComplex(bn);
+            if(detectPeriod && detectPeriodAlgorithm == 0) {
 //                    referenceData.minValue = iterations == 0 ? MpfrBigNum.getMax() : referenceData.minValue;
-                    r0 = new MpfrBigNum(size);
-                    r = iterations == 0 ? new MpfrBigNum((MpfrBigNum) r0) : referenceData.lastRValue;
-                }
+                r0 = new MpfrBigNum(size);
+                r = iterations == 0 ? new MpfrBigNum((MpfrBigNum) r0) : referenceData.lastRValue;
             }
-            else if(bigNumLib == Constants.BIGNUM_MPIR) {
-                MpirBigNumComplex bn = new MpirBigNumComplex(inputPixel.toMpirBigNumComplex());
-                z = iterations == 0 ? (isJulia ? bn : new MpirBigNumComplex()) : referenceData.lastZValue;
-                c = isJulia ? getSeed(useBignum, bigNumLib) : bn;
-                zold = iterations == 0 ? new MpirBigNumComplex() : referenceData.secondTolastZValue;
-                zold2 = iterations == 0 ? new MpirBigNumComplex() : referenceData.thirdTolastZValue;
-                start = isJulia ? new MpirBigNumComplex(bn) : new MpirBigNumComplex();
-                c0 = new MpirBigNumComplex((MpirBigNumComplex)c);
-                pixel = new MpirBigNumComplex(bn);
+        }
+        else if(bigNumLib == Constants.BIGNUM_MPIR) {
+            MpirBigNumComplex bn = new MpirBigNumComplex(inputPixel.toMpirBigNumComplex());
+            z = iterations == 0 ? (isJulia ? bn : new MpirBigNumComplex()) : referenceData.lastZValue;
+            c = isJulia ? getSeed(bigNumLib) : bn;
+            zold = iterations == 0 ? new MpirBigNumComplex() : referenceData.secondTolastZValue;
+            zold2 = iterations == 0 ? new MpirBigNumComplex() : referenceData.thirdTolastZValue;
+            start = isJulia ? new MpirBigNumComplex(bn) : new MpirBigNumComplex();
+            c0 = new MpirBigNumComplex((MpirBigNumComplex)c);
+            pixel = new MpirBigNumComplex(bn);
 
-                if(detectPeriod && detectPeriodAlgorithm == 0) {
-                    r0 = new MpirBigNum(size);
-                    r = iterations == 0 ? new MpirBigNum((MpirBigNum) r0) : referenceData.lastRValue;
-                }
+            if(detectPeriod && detectPeriodAlgorithm == 0) {
+                r0 = new MpirBigNum(size);
+                r = iterations == 0 ? new MpirBigNum((MpirBigNum) r0) : referenceData.lastRValue;
             }
-            else if(bigNumLib == Constants.BIGNUM_DOUBLEDOUBLE) {
-                DDComplex ddn = inputPixel.toDDComplex();
-                z = iterations == 0 ? (isJulia ? ddn : new DDComplex()) : referenceData.lastZValue;
-                c = isJulia ? getSeed(useBignum, bigNumLib) : ddn;
-                zold = iterations == 0 ? new DDComplex() : referenceData.secondTolastZValue;
-                zold2 = iterations == 0 ? new DDComplex() : referenceData.thirdTolastZValue;
-                start = isJulia ? ddn : new DDComplex();
-                c0 = c;
-                pixel = ddn;
-                if(detectPeriod && detectPeriodAlgorithm == 0) {
+        }
+        else if(bigNumLib == Constants.BIGNUM_DOUBLEDOUBLE) {
+            DDComplex ddn = inputPixel.toDDComplex();
+            z = iterations == 0 ? (isJulia ? ddn : new DDComplex()) : referenceData.lastZValue;
+            c = isJulia ? getSeed(bigNumLib) : ddn;
+            zold = iterations == 0 ? new DDComplex() : referenceData.secondTolastZValue;
+            zold2 = iterations == 0 ? new DDComplex() : referenceData.thirdTolastZValue;
+            start = isJulia ? ddn : new DDComplex();
+            c0 = c;
+            pixel = ddn;
+            if(detectPeriod && detectPeriodAlgorithm == 0) {
 //                    referenceData.minValue = iterations == 0 ? new DoubleDouble(Double.MAX_VALUE) : referenceData.minValue;
-                    r0 = new DoubleDouble(size);
-                    r = iterations == 0 ? new DoubleDouble((DoubleDouble) r0) : referenceData.lastRValue;
-                }
+                r0 = new DoubleDouble(size);
+                r = iterations == 0 ? new DoubleDouble((DoubleDouble) r0) : referenceData.lastRValue;
             }
-            else {
-                Complex bn = inputPixel.toComplex();
-                z = iterations == 0 ? (isJulia ? bn : new Complex()) : referenceData.lastZValue;
-                c = isJulia ? getSeed(useBignum, bigNumLib) : bn;
-                zold = iterations == 0 ? new Complex() : referenceData.secondTolastZValue;
-                zold2 = iterations == 0 ? new Complex() : referenceData.thirdTolastZValue;
-                start = isJulia ? new Complex(bn) : new Complex();
-                c0 = new Complex((Complex) c);
-                pixel = new Complex(bn);
-                if(detectPeriod && detectPeriodAlgorithm == 0) {
-                   // referenceData.minValue = iterations == 0 ? Double.MAX_VALUE : referenceData.minValue;
-                    r0 = size.doubleValue();
-                    r = iterations == 0 ? r0 : referenceData.lastRValue;
-                }
+        }
+        else if(bigNumLib == Constants.BIGNUM_DOUBLE) {
+            Complex bn = inputPixel.toComplex();
+            z = iterations == 0 ? (isJulia ? bn : new Complex()) : referenceData.lastZValue;
+            c = isJulia ? getSeed(bigNumLib) : bn;
+            zold = iterations == 0 ? new Complex() : referenceData.secondTolastZValue;
+            zold2 = iterations == 0 ? new Complex() : referenceData.thirdTolastZValue;
+            start = isJulia ? new Complex(bn) : new Complex();
+            c0 = new Complex((Complex) c);
+            pixel = new Complex(bn);
+            if(detectPeriod && detectPeriodAlgorithm == 0) {
+                // referenceData.minValue = iterations == 0 ? Double.MAX_VALUE : referenceData.minValue;
+                r0 = size.doubleValue();
+                r = iterations == 0 ? r0 : referenceData.lastRValue;
             }
         }
         else {
             z = iterations == 0 ? (isJulia ? inputPixel : new BigComplex()) : referenceData.lastZValue;
-            c = isJulia ? getSeed(useBignum, bigNumLib) : inputPixel;
+            c = isJulia ? getSeed(bigNumLib) : inputPixel;
             zold = iterations == 0 ? new BigComplex() : referenceData.secondTolastZValue;
             zold2 = iterations == 0 ? new BigComplex() : referenceData.thirdTolastZValue;
             start = isJulia ? inputPixel : new BigComplex();
@@ -1010,10 +1121,10 @@ public class Mandelbrot extends Julia {
 
         RefType = getRefType();
 
-        boolean isNanoMb1InUse = ThreadDraw.APPROXIMATION_ALGORITHM == 3 && supportsNanomb1();
-        boolean isSeriesInUse = ThreadDraw.APPROXIMATION_ALGORITHM == 1 && supportsSeriesApproximation();
-        boolean isBLAInUse = ThreadDraw.APPROXIMATION_ALGORITHM == 2 && supportsBilinearApproximation();
-        boolean isBLA2InUse = ThreadDraw.APPROXIMATION_ALGORITHM == 4 && supportsBilinearApproximation2();
+        boolean isNanoMb1InUse = TaskDraw.APPROXIMATION_ALGORITHM == 3 && supportsNanomb1();
+        boolean isSeriesInUse = TaskDraw.APPROXIMATION_ALGORITHM == 1 && supportsSeriesApproximation();
+        boolean isBLAInUse = TaskDraw.APPROXIMATION_ALGORITHM == 2 && supportsBilinearApproximation();
+        boolean isBLA2InUse = TaskDraw.APPROXIMATION_ALGORITHM == 4 && supportsBilinearApproximation2();
 
         boolean usesCircleBail = bailout_algorithm2.getId() == MainWindow.BAILOUT_CONDITION_CIRCLE;
         boolean preCalcNormData = (detectPeriod && detectPeriodAlgorithm == 0);
@@ -1021,8 +1132,6 @@ public class Mandelbrot extends Julia {
 
         boolean isMpfrComplex = z instanceof MpfrBigNumComplex;
         boolean isMpirComplex = z instanceof MpirBigNumComplex;
-
-        boolean stopReferenceCalculationOnDetectedPeriod = detectPeriod && ThreadDraw.STOP_REFERENCE_CALCULATION_AFTER_DETECTED_PERIOD && userPeriod == 0 && canStopOnDetectedPeriod();
 
         Complex dzdc = null;
         MantExpComplex mdzdc = null;
@@ -1033,7 +1142,7 @@ public class Mandelbrot extends Julia {
         if(detectPeriod && DetectedPeriod == 0 && detectPeriodAlgorithm == 1) {
             if (iterations == 0) {
                 if (deepZoom) {
-                    mdzdc = new MantExpComplex(1, 0);
+                    mdzdc = MantExpComplex.create(1, 0);
                 } else {
                     dzdc = new Complex(1, 0);
                 }
@@ -1056,7 +1165,12 @@ public class Mandelbrot extends Julia {
         Complex cz = null;
         MantExpComplex mcz = null;
 
-        for (; iterations < max_ref_iterations; iterations++) {
+        Complex period_dzdc = null;
+        MantExpComplex period_mdzdc = null;
+
+        calculatedReferenceIterations = 0;
+
+        for (; iterations < max_ref_iterations; iterations++, calculatedReferenceIterations++) {
 
             if(lowPrecReferenceOrbitNeeded) {
                 cz = z.toComplex();
@@ -1095,56 +1209,54 @@ public class Mandelbrot extends Julia {
 
             if(detectPeriod) {
                if(detectPeriodAlgorithm == 0) {
-                   if (useBignum) {
-                       if (bigNumLib == Constants.BIGNUM_BUILT_IN) {
+                   if (bigNumLib == Constants.BIGNUM_BUILT_IN) {
 //                        if (iterations > 0 && ((BigNum) normSquared).compareBothPositive((BigNum) referenceData.minValue) < 0) {
 //                            DetectedAtomPeriod = iterations;
 //                            referenceData.minValue = normSquared;
 //                        }
 
-                           if (DetectedPeriod == 0 && ((BigNum) r).compare((BigNum) (norm = ((BigNum) normSquared).sqrt())) > 0 && iterations > 0) {
-                               DetectedPeriod = iterations;
-                           }
+                       if (DetectedPeriod == 0 && ((BigNum) r).compare((BigNum) (norm = ((BigNum) normSquared).sqrt())) > 0 && iterations > 0) {
+                           DetectedPeriod = iterations;
                        }
-                       else if (bigNumLib == Constants.BIGNUM_BIGINT) {
-                           if (DetectedPeriod == 0 && ((BigIntNum) r).compare((BigIntNum) (norm = ((BigIntNum) normSquared).sqrt())) > 0 && iterations > 0) {
-                               DetectedPeriod = iterations;
-                           }
+                   }
+                   else if (bigNumLib == Constants.BIGNUM_BIGINT) {
+                       if (DetectedPeriod == 0 && ((BigIntNum) r).compare((BigIntNum) (norm = ((BigIntNum) normSquared).sqrt())) > 0 && iterations > 0) {
+                           DetectedPeriod = iterations;
                        }
-                       else if (bigNumLib == Constants.BIGNUM_MPFR) {
+                   }
+                   else if (bigNumLib == Constants.BIGNUM_MPFR) {
 //                        if (iterations > 0 && ((MpfrBigNum) normSquared).compare((MpfrBigNum) referenceData.minValue) < 0) {
 //                            DetectedAtomPeriod = iterations;
 //                            ((MpfrBigNum) referenceData.minValue).set((MpfrBigNum)normSquared);
 //                        }
 
-                           if (DetectedPeriod == 0 && ((MpfrBigNum) r).compare((MpfrBigNum) (norm = ((MpfrBigNum) normSquared).sqrt(workSpaceData.tempPvar2))) > 0 && iterations > 0) {
-                               DetectedPeriod = iterations;
-                           }
+                       if (DetectedPeriod == 0 && ((MpfrBigNum) r).compare((MpfrBigNum) (norm = ((MpfrBigNum) normSquared).sqrt(workSpaceData.tempPvar2))) > 0 && iterations > 0) {
+                           DetectedPeriod = iterations;
                        }
-                       else if (bigNumLib == Constants.BIGNUM_MPIR) {
+                   }
+                   else if (bigNumLib == Constants.BIGNUM_MPIR) {
 
-                           if (DetectedPeriod == 0 && ((MpirBigNum) r).compare((MpirBigNum) (norm = ((MpirBigNum) normSquared).sqrt(workSpaceData.tempPvar2p))) > 0 && iterations > 0) {
-                               DetectedPeriod = iterations;
-                           }
+                       if (DetectedPeriod == 0 && ((MpirBigNum) r).compare((MpirBigNum) (norm = ((MpirBigNum) normSquared).sqrt(workSpaceData.tempPvar2p))) > 0 && iterations > 0) {
+                           DetectedPeriod = iterations;
                        }
-                       else if (bigNumLib == Constants.BIGNUM_DOUBLEDOUBLE) {
+                   }
+                   else if (bigNumLib == Constants.BIGNUM_DOUBLEDOUBLE) {
 //                        if (iterations > 0 && ((DoubleDouble) normSquared).compareTo(referenceData.minValue) < 0) {
 //                            DetectedAtomPeriod = iterations;
 //                            referenceData.minValue = normSquared;
 //                        }
 
-                           if (DetectedPeriod == 0 && ((DoubleDouble) r).compareTo(norm = ((DoubleDouble) normSquared).sqrt()) > 0 && iterations > 0) {
-                               DetectedPeriod = iterations;
-                           }
-                       } else {
+                       if (DetectedPeriod == 0 && ((DoubleDouble) r).compareTo(norm = ((DoubleDouble) normSquared).sqrt()) > 0 && iterations > 0) {
+                           DetectedPeriod = iterations;
+                       }
+                   } else if (bigNumLib == Constants.BIGNUM_DOUBLE) {
 //                        if (iterations > 0 && ((double) normSquared) < ((double) referenceData.minValue)){
 //                            DetectedAtomPeriod = iterations;
 //                            referenceData.minValue = normSquared;
 //                        }
 
-                           if (DetectedPeriod == 0 && ((double) r) > (double) (norm = Math.sqrt((double) normSquared)) && iterations > 0) {
-                               DetectedPeriod = iterations;
-                           }
+                       if (DetectedPeriod == 0 && ((double) r) > (double) (norm = Math.sqrt((double) normSquared)) && iterations > 0) {
+                           DetectedPeriod = iterations;
                        }
                    } else {
 //                    if(iterations > 0 && ((Apfloat)normSquared).compareTo((Apfloat)referenceData.minValue) < 0) {
@@ -1162,10 +1274,12 @@ public class Mandelbrot extends Julia {
                        if (deepZoom) {
                            if (mradius.multiply(mdzdc.chebychevNorm()).compareToBothPositive(mcz.chebychevNorm()) > 0) {
                                DetectedPeriod = iterations;
+                               period_mdzdc = MantExpComplex.copy(mdzdc);
                            }
                        } else {
                            if (radius * dzdc.chebychevNorm() > cz.chebychevNorm()) {
                                DetectedPeriod = iterations;
+                               period_dzdc = new Complex(dzdc);
                            }
                        }
                    }
@@ -1182,11 +1296,11 @@ public class Mandelbrot extends Julia {
             }
 
             try {
-                if(detectPeriod && DetectedPeriod == 0) {
+                if(detectPeriod && (DetectedPeriod == 0 || stopReferenceCalculationOnDetectedPeriod)) {
                     if (detectPeriodAlgorithm == 1) {
                         if (deepZoom) {
                             mdzdc = mcz.times2().times_mutable(mdzdc).plus_mutable(MantExp.ONE);
-                            mdzdc.Reduce();
+                            mdzdc.Normalize();
                         } else {
                             dzdc = cz.times2().times_mutable(dzdc).plus_mutable(1);
                         }
@@ -1247,6 +1361,8 @@ public class Mandelbrot extends Julia {
         referenceData.thirdTolastZValue = zold2;
         referenceData.dzdc = dzdc;
         referenceData.mdzdc = mdzdc;
+        referenceData.period_dzdc = period_dzdc;
+        referenceData.period_mdzdc = period_mdzdc;
 
         referenceData.MaxRefIteration = iterations - 1;
 
@@ -1255,13 +1371,19 @@ public class Mandelbrot extends Julia {
             progress.setString(REFERENCE_CALCULATION_STR + " 100%");
         }
 
+        if(gatherTinyRefPts) {
+            tinyRefPts = tinyRefPts.stream()
+                    .distinct()
+                    .collect(Collectors.toList());
+        }
+
         ReferenceCalculationTime = System.currentTimeMillis() - time;
 
         if(isJulia) {
             calculateJuliaReferencePoint(inputPixel, size, deepZoom, juliaIterations, progress);
         }
 
-        skippedIterations = 0;
+        SAskippedIterations = 0;
         if(isSeriesInUse) {
             calculateSeriesWrapper(size, deepZoom, externalLocation, progress);
         }
@@ -1388,11 +1510,15 @@ public class Mandelbrot extends Julia {
     @Override
     protected void calculateNanomb1(boolean deepZoom, JProgressBar progress) {
 
+        if(size >= 0x1.0p-32) {
+            return;
+        }
+
         long value = ((long)getNanomb1MaxIterations() * 2 - 1);
         long divisor = value > Constants.MAX_PROGRESS_VALUE ? value / 100 : 1;
 
-        int m = ThreadDraw.NANOMB1_M;
-        int n = ThreadDraw.NANOMB1_N;
+        int m = TaskDraw.NANOMB1_M;
+        int n = TaskDraw.NANOMB1_N;
         biPoly fp = new biPoly(m, n);
         int max_ref_iterations_period = getNanomb1MaxIterations();
         long total = 1;
@@ -1401,7 +1527,7 @@ public class Mandelbrot extends Julia {
                 fp.cstep(getArrayDeepValue(referenceDeep, iteration));
             }
             else {
-                fp.cstep(new MantExpComplex(getArrayValue(reference, iteration)));
+                fp.cstep(MantExpComplex.create(getArrayValue(reference, iteration)));
             }
 
             if(progress != null && total % 50 == 0) {
@@ -1422,12 +1548,14 @@ public class Mandelbrot extends Julia {
 
         //System.out.println("Root == " + nucleusPos);
 
-        MantExpComplex zlo1 = new MantExpComplex();
+        MantExpComplex zlo1 = MantExpComplex.create();
         MantExpComplex zlo;
 
         DeepReference ref1Deep = null;
 
         int max_ref_iterations = getReferenceMaxIterations();
+
+        DoubleReference.SHOULD_SAVE_MEMORY = false;
 
         DoubleReference ref1 = new DoubleReference(max_ref_iterations_period, max_ref_iterations);
 
@@ -1435,17 +1563,20 @@ public class Mandelbrot extends Julia {
             ref1Deep = new DeepReference(max_ref_iterations_period, max_ref_iterations);
         }
 
-        boolean gatherTinyRefPts = ThreadDraw.PERTUBATION_PIXEL_ALGORITHM == 1 && supportsScaledIterations() && deepZoom && ThreadDraw.GATHER_TINY_REF_INDEXES;
+        boolean gatherTinyRefPts = TaskDraw.PERTUBATION_PIXEL_ALGORITHM == 1 && supportsScaledIterations() && deepZoom && TaskDraw.GATHER_TINY_REF_INDEXES;
 
         if(gatherTinyRefPts && !tinyRefPts.isEmpty()) {
             tinyRefPts.clear();
         }
 
+        MantExpComplex workSpaceDeep = MantExpComplex.create();
+        Complex workSpace = new Complex();
+
         MantExpComplex temp;
         for(int iteration = 0; iteration < max_ref_iterations_period; iteration++, total++){
 
             if(deepZoom) {
-                zlo = getArrayDeepValue(referenceDeep, iteration);
+                zlo = getArrayDeepValue(referenceDeep, iteration, workSpaceDeep);
                 temp = zlo.plus(zlo1);
                 setArrayDeepValue(ref1Deep, iteration, temp);
 
@@ -1457,12 +1588,12 @@ public class Mandelbrot extends Julia {
                 }
             }
             else {
-                zlo = new MantExpComplex(getArrayValue(reference, iteration));
+                zlo = MantExpComplex.create(getArrayValue(reference, iteration, workSpace));
                 setArrayValue(ref1, iteration, zlo.plus(zlo1).toComplex());
             }
 
             zlo1 = zlo1.times(zlo1.plus(zlo.times2())).plus_mutable(nucleusPos);
-            zlo1.Reduce();
+            zlo1.Normalize();
 
             if(progress != null && total % 50 == 0) {
                 int val = (int)(total / divisor);
@@ -1484,10 +1615,10 @@ public class Mandelbrot extends Julia {
     public Complex perturbationFunctionScaled(Complex DeltaSubN, Complex DeltaSub0, double s, int RefIteration) {
         if(not_burning_ship) {
             if(s == 0) {
-                return getArrayValue(reference, RefIteration).times_mutable(2).times_mutable(DeltaSubN).plus_mutable(DeltaSub0);
+                return getArrayValue(reference, RefIteration).times2_mutable().times_mutable(DeltaSubN).plus_mutable(DeltaSub0);
             }
             else {
-                return getArrayValue(reference, RefIteration).times_mutable(2).plus_mutable(DeltaSubN.times(s)).times_mutable(DeltaSubN).plus_mutable(DeltaSub0);
+                return getArrayValue(reference, RefIteration).times2_mutable().plus_mutable(DeltaSubN.times(s)).times_mutable(DeltaSubN).plus_mutable(DeltaSub0);
             }
         }
         else {
@@ -1512,10 +1643,10 @@ public class Mandelbrot extends Julia {
     public Complex perturbationFunctionScaled(Complex DeltaSubN, double s, int RefIteration) {
         if(not_burning_ship) {
             if(s == 0) {
-                return getArrayValue(reference, RefIteration).times_mutable(2).times_mutable(DeltaSubN);
+                return getArrayValue(reference, RefIteration).times2_mutable().times_mutable(DeltaSubN);
             }
             else {
-                return getArrayValue(reference, RefIteration).times_mutable(2).plus_mutable(DeltaSubN.times(s)).times_mutable(DeltaSubN);
+                return getArrayValue(reference, RefIteration).times2_mutable().plus_mutable(DeltaSubN.times(s)).times_mutable(DeltaSubN);
             }
         }
         else {
@@ -1540,8 +1671,8 @@ public class Mandelbrot extends Julia {
     public Complex perturbationFunction(Complex DeltaSubN, Complex DeltaSub0, int RefIteration) {
 
         if(not_burning_ship) {
-            //return DeltaSubN.times(getArrayValue(Reference, RefIteration).times_mutable(2)).plus_mutable(DeltaSubN.square()).plus_mutable(DeltaSub0);
-            return getArrayValue(reference, RefIteration).times_mutable(2).plus_mutable(DeltaSubN).times_mutable(DeltaSubN).plus_mutable(DeltaSub0);
+            //return DeltaSubN.times(getArrayValue(Reference, RefIteration).times2_mutable()).plus_mutable(DeltaSubN.square()).plus_mutable(DeltaSub0);
+            return getArrayValue(reference, RefIteration).times2_mutable().plus_mutable(DeltaSubN).times_mutable(DeltaSubN).plus_mutable(DeltaSub0);
         }
         else {
             Complex X = getArrayValue(reference, RefIteration);
@@ -1569,7 +1700,7 @@ public class Mandelbrot extends Julia {
             MantExp b = DeltaSubN.getIm();
 
 
-            return new MantExpComplex(r.multiply2().add_mutable(a).multiply_mutable(a).subtract_mutable(i.multiply2().add_mutable(b).multiply_mutable(b)), MantExpComplex.DiffAbs(r.multiply(i), r.multiply(b).add_mutable(i.add(b).multiply_mutable(a))).multiply2_mutable()).plus_mutable(DeltaSub0);
+            return MantExpComplex.create(r.multiply2().add_mutable(a).multiply_mutable(a).subtract_mutable(i.multiply2().add_mutable(b).multiply_mutable(b)), MantExpComplex.DiffAbs(r.multiply(i), r.multiply(b).add_mutable(i.add(b).multiply_mutable(a))).multiply2_mutable()).plus_mutable(DeltaSub0);
         }
     }
 
@@ -1577,8 +1708,8 @@ public class Mandelbrot extends Julia {
     public Complex perturbationFunction(Complex DeltaSubN, int RefIteration) {
 
         if(not_burning_ship) {
-            //return DeltaSubN.times(getArrayValue(Reference, RefIteration).times_mutable(2)).plus_mutable(DeltaSubN.square());
-            return getArrayValue(reference, RefIteration).times_mutable(2).plus_mutable(DeltaSubN).times_mutable(DeltaSubN);
+            //return DeltaSubN.times(getArrayValue(Reference, RefIteration).times2_mutable()).plus_mutable(DeltaSubN.square());
+            return getArrayValue(reference, RefIteration).times2_mutable().plus_mutable(DeltaSubN).times_mutable(DeltaSubN);
         }
         else {
             Complex X = getArrayValue(reference, RefIteration);
@@ -1604,16 +1735,16 @@ public class Mandelbrot extends Julia {
             MantExp a = DeltaSubN.getRe();
             MantExp b = DeltaSubN.getIm();
 
-            return new MantExpComplex(r.multiply2().add_mutable(a).multiply_mutable(a).subtract_mutable(i.multiply2().add_mutable(b).multiply_mutable(b)), MantExpComplex.DiffAbs(r.multiply(i), r.multiply(b).add_mutable(i.add(b).multiply_mutable(a))).multiply2_mutable());
+            return MantExpComplex.create(r.multiply2().add_mutable(a).multiply_mutable(a).subtract_mutable(i.multiply2().add_mutable(b).multiply_mutable(b)), MantExpComplex.DiffAbs(r.multiply(i), r.multiply(b).add_mutable(i.add(b).multiply_mutable(a))).multiply2_mutable());
         }
     }
 
     @Override
     protected void calculateSeries(Apfloat dsize, boolean deepZoom, Location loc, JProgressBar progress) {
 
-        skippedIterations = 0;
+        SAskippedIterations = 0;
 
-        int numCoefficients = ThreadDraw.SERIES_APPROXIMATION_TERMS;
+        int numCoefficients = TaskDraw.SERIES_APPROXIMATION_TERMS;
 
         if (numCoefficients < 2 || dsize.compareTo(MyApfloat.SA_START_SIZE) > 0) {
             return;
@@ -1645,16 +1776,16 @@ public class Mandelbrot extends Julia {
 
         coefficients = new DeepReference(numCoefficients * max_data);
 
-        setSACoefficient(0, 0, new MantExpComplex(1, 0));
+        setSACoefficient(0, 0, MantExpComplex.create(1, 0));
 
         for(int i = 1; i < numCoefficients; i++){
-            setSACoefficient(i, 0, new MantExpComplex());
+            setSACoefficient(i, 0, MantExpComplex.create());
         }
 
         //MantExp limit = DeltaSub0ToThe[numCoefficients].norm_squared().multiply_mutable(new MantExp(MyApfloat.reciprocal(ThreadDraw.SERIES_APPROXIMATION_TOLERANCE.multiply(ThreadDraw.SERIES_APPROXIMATION_TOLERANCE))));
 
-        long oomDiff = ThreadDraw.SERIES_APPROXIMATION_OOM_DIFFERENCE;
-        int SAMaxSkipIter = ThreadDraw.SERIES_APPROXIMATION_MAX_SKIP_ITER;
+        long oomDiff = TaskDraw.SERIES_APPROXIMATION_OOM_DIFFERENCE;
+        int SAMaxSkipIter = TaskDraw.SERIES_APPROXIMATION_MAX_SKIP_ITER;
 
         //int length = max_iterations;
         //int dataLength = deepZoom ? ReferenceDeep.length() : (Reference.length >> 1);
@@ -1667,7 +1798,7 @@ public class Mandelbrot extends Julia {
         int lastIndex = numCoefficients - 1;
         //boolean doExtra = batchSize % 2 == 1;
         //int batchLoopLength = batchSize >> 1;
-        boolean useThreads = ThreadDraw.USE_THREADS_FOR_SA;//numCoefficients > 32;
+        boolean useThreads = TaskDraw.USE_THREADS_FOR_SA;//numCoefficients > 32;
 
 
         int i;
@@ -1687,7 +1818,7 @@ public class Mandelbrot extends Julia {
             }*/
 
             if(i - 1 > referenceData.MaxRefIteration) {
-                skippedIterations = i - 1 <= skippedThreshold ? 0 : i - 1 - skippedThreshold;
+                SAskippedIterations = i - 1 <= skippedThreshold ? 0 : i - 1 - skippedThreshold;
                 return;
             }
 
@@ -1697,7 +1828,7 @@ public class Mandelbrot extends Julia {
                 twoRef = getArrayDeepValue(referenceDeep, i - 1).times2_mutable();
             }
             else {
-               twoRef = new MantExpComplex(getArrayValue(reference, i - 1).times_mutable(2));
+               twoRef = MantExpComplex.create(getArrayValue(reference, i - 1).times2_mutable());
             }
 
             //MantExpComplex twoAn = null;
@@ -1716,7 +1847,7 @@ public class Mandelbrot extends Julia {
                 coef0i = getSACoefficient(0, old_i);
                 MantExpComplex temp = coef0i.times(twoRef).plus_mutable(MantExp.ONE); // An+1 = 2XnAn + 1
                 temp.Reduce();
-                magCoeff[0] = temp.log2normApprox() + logwToThe[1];
+                magCoeff[0] = calculateSAmagnitude(temp.log2normApprox(), logwToThe[1]);
                 setSACoefficient(0, new_i, temp);
             }
             if (numCoefficients >= 2) {
@@ -1724,7 +1855,7 @@ public class Mandelbrot extends Julia {
                 coef1i = getSACoefficient(1, old_i);
                 MantExpComplex temp = coef1i.times(twoRef).plus_mutable(coef0i.square()); // Bn+1 = 2XnBn + An^2
                 temp.Reduce();
-                magCoeff[1] = temp.log2normApprox() + logwToThe[2];
+                magCoeff[1] = calculateSAmagnitude(temp.log2normApprox(), logwToThe[2]);
                 setSACoefficient(1, new_i, temp);
             }
             if (numCoefficients >= 3) {
@@ -1733,7 +1864,7 @@ public class Mandelbrot extends Julia {
                 twoAn = coef0i.times2();
                 MantExpComplex temp = coef2i.times(twoRef).plus_mutable(coef1i.times(twoAn)); // Cn+1 = 2XnCn + 2AnBn
                 temp.Reduce();
-                magCoeff[2] = temp.log2normApprox() + logwToThe[3];
+                magCoeff[2] = calculateSAmagnitude(temp.log2normApprox(), logwToThe[3]);
                 setSACoefficient(2, new_i, temp);
             }
             if (numCoefficients >= 4) {
@@ -1741,7 +1872,7 @@ public class Mandelbrot extends Julia {
                 coef3i = getSACoefficient(3, old_i);
                 MantExpComplex temp = coef3i.times(twoRef).plus_mutable(twoAn.times(coef2i)).plus_mutable(coef1i.square()); //Dn+1 = 2XnCn + 2AnCn + Bn^2
                 temp.Reduce();
-                magCoeff[3] = temp.log2normApprox() + logwToThe[4];
+                magCoeff[3] = calculateSAmagnitude(temp.log2normApprox(), logwToThe[4]);
                 setSACoefficient(3, new_i, temp);
             }
             if (numCoefficients >= 5) {
@@ -1749,14 +1880,14 @@ public class Mandelbrot extends Julia {
                 coef4i = getSACoefficient(4, old_i);
                 MantExpComplex temp = coef4i.times(twoRef).plus_mutable(twoAn.times(coef3i)).plus_mutable(coef1i.times(coef2i).times2_mutable()); //En+1 = 2XnEn + 2AnDn + 2BnCn
                 temp.Reduce();
-                magCoeff[4] = temp.log2normApprox() + logwToThe[5];
+                magCoeff[4] = calculateSAmagnitude(temp.log2normApprox(), logwToThe[5]);
                 setSACoefficient(4, new_i, temp);
             }*/
 
             //if(numCoefficients >= 6) {
             /*//k = 5
             for(int k = 0; k < numCoefficients; k++) {
-                MantExpComplex sum = k == 0 ? new MantExpComplex(1, 0) : new MantExpComplex();
+                MantExpComplex sum = k == 0 ? MantExpComplex.create(1, 0) : MantExpComplex.create();
 
                 int calcLength = (k >> 1);
 
@@ -1777,7 +1908,7 @@ public class Mandelbrot extends Julia {
                 MantExpComplex temp = getSACoefficient(k, old_i).times(twoRef).plus_mutable(sum);
 
                 temp.Reduce();
-                magCoeff[k] = temp.log2normApprox() + logwToThe[k + 1];
+                magCoeff[k] = calculateSAmagnitude(temp.log2normApprox(), logwToThe[k + 1]);
                 setSACoefficient(k, new_i, temp);
             }*/
 
@@ -1833,7 +1964,7 @@ public class Mandelbrot extends Julia {
             //if(i > 1 && isLastTermNotNegligible(coefficients, DeltaSub0ToThe, limit, new_i, numCoefficients)) {
                 //|Bn+1 * d^2 * tolerance| < |Cn+1 * d^3|
                 //When we're breaking here, it means that we've found a point where the approximation no longer works. Returning that would create a messed up image. We should move a little further back to get an approximation that is good.
-                skippedIterations = i <= skippedThreshold ? 0 : i - skippedThreshold;
+                SAskippedIterations = i <= skippedThreshold ? 0 : i - skippedThreshold;
                 return;
             }
 
@@ -1845,11 +1976,11 @@ public class Mandelbrot extends Julia {
         }
 
         i = length - 1;
-        skippedIterations = i <= skippedThreshold ? 0 : i - skippedThreshold;
+        SAskippedIterations = i <= skippedThreshold ? 0 : i - skippedThreshold;
     }
 
     public static void calcCoeffs(int k, int old_i, int new_i, MantExpComplex twoRef, long[] magCoeff, long[] logwToThe) {
-        MantExpComplex sum = k == 0 ? new MantExpComplex(1, 0) : new MantExpComplex();
+        MantExpComplex sum = k == 0 ? MantExpComplex.create(1, 0) : MantExpComplex.create();
 
         int calcLength = (k >> 1);
 
@@ -1870,14 +2001,14 @@ public class Mandelbrot extends Julia {
 
         MantExpComplex temp = getSACoefficient(k, old_i).times_mutable(twoRef).plus_mutable(sum);
 
-        temp.Reduce();
-        magCoeff[k] = temp.log2normApprox() + logwToThe[k + 1];
+        temp.Normalize();
+        magCoeff[k] = calculateSAmagnitude(temp.log2normApprox(), logwToThe[k + 1]);
         setSACoefficient(k, new_i, temp);
     }
 
     @Override
     public Complex getBlaA(Complex Z) {
-        return Z.times(2);
+        return Z.times2();
     }
 
     @Override
@@ -1968,7 +2099,7 @@ public class Mandelbrot extends Julia {
      Complex dz = new Complex(1, 0);
     
      for (int i = 0; i < period; ++i) {
-     dz = z.times(dz).times(2);//2 * z * dz;
+     dz = z.times(dz).times2();//2 * z * dz;
      z = z.square().plus(c);//z * z + c;
      }
     
@@ -1995,10 +2126,10 @@ public class Mandelbrot extends Julia {
      Complex dcdz = new Complex();
     
      for (int p = 0; p < per; ++p) {
-     dcdz = (z.times(dcdz).plus(dz.times(dc))).times(2);//2 * (z * dcdz + dz * dc);
-     dc = z.times(dc).times(2).plus(1);//2 * z * dc + 1;
-     dzdz = (dz.times(dz).plus(z.times(dzdz))).times(2);//2 * (dz * dz + z * dzdz);
-     dz = z.times(dz).times(2);//2 * z * dz;
+     dcdz = (z.times(dcdz).plus(dz.times(dc))).times2();//2 * (z * dcdz + dz * dc);
+     dc = z.times(dc).times2().plus(1);//2 * z * dc + 1;
+     dzdz = (dz.times(dz).plus(z.times(dzdz))).times2();//2 * (dz * dz + z * dzdz);
+     dz = z.times(dz).times2();//2 * z * dz;
      z = z.square().plus(c);//z * z + c;
      }
     
@@ -2064,18 +2195,20 @@ public class Mandelbrot extends Julia {
     }
 
     @Override
-    public boolean supportsScaledIterations() { return !isJulia; }
+    public boolean supportsScaledIterations() {
+        return !isJulia;
+    }
 
     @Override
     public boolean supportsNanomb1() {
-        return !burning_ship && !isJulia && (getPeriod() != 0 || ThreadDraw.DETECT_PERIOD && supportsPeriod()) && size < 0x1.0p-32;
+        return !burning_ship && !isJulia && (getPeriod() != 0 || TaskDraw.DETECT_PERIOD && supportsPeriod());
     }
 
     @Override
     public Complex perturbationFunction(Complex DeltaSubN, ReferenceData data, int RefIteration) {
         if(not_burning_ship) {
-            //return DeltaSubN.times(getArrayValue(Reference, RefIteration).times_mutable(2)).plus_mutable(DeltaSubN.square());
-            return getArrayValue(data.Reference, RefIteration).times_mutable(2).plus_mutable(DeltaSubN).times_mutable(DeltaSubN);
+            //return DeltaSubN.times(getArrayValue(Reference, RefIteration).times2_mutable()).plus_mutable(DeltaSubN.square());
+            return getArrayValue(data.Reference, RefIteration).times2_mutable().plus_mutable(DeltaSubN).times_mutable(DeltaSubN);
         }
         else {
             Complex X = getArrayValue(data.Reference, RefIteration);
@@ -2100,7 +2233,7 @@ public class Mandelbrot extends Julia {
             MantExp a = DeltaSubN.getRe();
             MantExp b = DeltaSubN.getIm();
 
-            return new MantExpComplex(r.multiply2().add_mutable(a).multiply_mutable(a).subtract_mutable(i.multiply2().add_mutable(b).multiply_mutable(b)), MantExpComplex.DiffAbs(r.multiply(i), r.multiply(b).add_mutable(i.add(b).multiply_mutable(a))).multiply2_mutable());
+            return MantExpComplex.create(r.multiply2().add_mutable(a).multiply_mutable(a).subtract_mutable(i.multiply2().add_mutable(b).multiply_mutable(b)), MantExpComplex.DiffAbs(r.multiply(i), r.multiply(b).add_mutable(i.add(b).multiply_mutable(a))).multiply2_mutable());
         }
     }
 
@@ -2190,16 +2323,1651 @@ public class Mandelbrot extends Julia {
     }*/
 
     @Override
-    public void createLowPrecisionOrbit(int maxRefIteration, ReferenceData refData, ReferenceDeepData refDeepData) {
-        int length = maxRefIteration + 1;
+    public void createLowPrecisionOrbit(int length, ReferenceData refData, ReferenceDeepData refDeepData) {
+        DoubleReference.SHOULD_SAVE_MEMORY = false;
         refData.createAndSetShortcut(length, false, 0);
         DoubleReference reference = refData.Reference;
         DeepReference deepReference = refDeepData.Reference;
 
+        MantExpComplex output = MantExpComplex.create();
         for (int i = 0; i < length; i++) {
-            Fractal.setArrayValue(reference, i, Fractal.getArrayDeepValue(deepReference, i).toComplex());
+            Fractal.setArrayValue(reference, i, Fractal.getArrayDeepValue(deepReference, i, output).toComplex());
         }
 
         reference.setLengthOverride(deepReference.length());
+    }
+
+    @Override
+    public double iterateFractalWithPerturbation(Complex[] complex, Complex dpixel) {
+
+        if(burning_ship) {
+            super.iterateFractalWithPerturbation(complex, dpixel);
+        }
+
+        double_iterations = 0;
+        rebases = 0;
+
+        Complex[] deltas = initializePerturbation(dpixel);
+        Complex DeltaSubN = deltas[0]; // Delta z
+        Complex DeltaSub0 = deltas[1]; // Delta c
+
+        iterations = nanomb1SkippedIterations != 0 ? nanomb1SkippedIterations : SAskippedIterations;
+
+        int RefIteration = iterations;
+
+        int ReferencePeriod = getPeriod();
+
+        int MaxRefIteration = getReferenceFinalIterationNumber(true, referenceData);
+
+        double norm_squared = 0;
+
+        double dre = DeltaSubN.getRe(), dim = DeltaSubN.getIm();
+        double tempre, tempim, d0re = DeltaSub0.getRe(), d0im = DeltaSub0.getIm();
+        double temp, zre = 0, zim = 0;
+
+        double[] RefRe = reference.re;
+        double[] RefIm = reference.im;
+
+        if (iterations != 0 && RefIteration < MaxRefIteration) {
+            zre = RefRe[RefIteration] + dre;
+            zim = RefIm[RefIteration] + dim;
+            norm_squared = zre * zre + zim * zim;
+            complex[0].assign(zre, zim);
+        } else if (iterations != 0 && ReferencePeriod != 0) {
+            RefIteration = RefIteration % ReferencePeriod;
+            zre = RefRe[RefIteration] + dre;
+            zim = RefIm[RefIteration] + dim;
+            norm_squared = zre * zre + zim * zim;
+            complex[0].assign(zre, zim);
+        }
+
+        Complex pixel = dpixel.plus(refPointSmall);
+
+        for (; iterations < max_iterations; iterations++) {
+
+            //No update values
+
+            if (trap != null) {
+                trap.check(complex[0], iterations);
+            }
+
+            if (bailout_algorithm2.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, norm_squared, pixel)) {
+                escaped = true;
+
+                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0, pixel};
+                double res = out_color_algorithm.getResult(object);
+
+                res = getFinalValueOut(res, complex[0]);
+
+                if (outTrueColorAlgorithm != null) {
+                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+                }
+
+                return getAndAccumulateStatsNotDeep(res);
+            }
+
+            tempre = 2 * RefRe[RefIteration] + dre;
+            tempim = 2 * RefIm[RefIteration] + dim;
+
+            temp = tempre * dre - tempim * dim;
+            tempim = tempre * dim + tempim * dre;
+            tempre = temp;
+
+            dre = tempre + d0re;
+            dim = tempim + d0im;
+
+            RefIteration++;
+            double_iterations++;
+
+            zold2.assign(zold);
+            zold.assign(complex[0]);
+
+            //No Plane influence work
+            //No Pre filters work
+            if (max_iterations > 1) {
+                zre = RefRe[RefIteration] + dre;
+                zim = RefIm[RefIteration] + dim;
+                complex[0].assign(zre, zim);
+            }
+            //No Post filters work
+
+            if (statistic != null) {
+                statistic.insert(complex[0], zold, zold2, iterations, complex[1], start, c0);
+            }
+
+            norm_squared = zre * zre + zim * zim;
+            if (norm_squared < dre * dre + dim * dim || RefIteration >= MaxRefIteration) {
+                dre = zre;
+                dim = zim;
+                RefIteration = 0;
+                rebases++;
+            }
+
+        }
+
+        Object[] object = {complex[0], zold, zold2, complex[1], start, c0, pixel};
+        double in = in_color_algorithm.getResult(object);
+
+        in = getFinalValueIn(in, complex[0]);
+
+        if (inTrueColorAlgorithm != null) {
+            setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+        }
+
+        return getAndAccumulateStatsNotDeep(in);
+
+    }
+
+    @Override
+    public double iterateFractalWithPerturbationBLA(Complex[] complex, Complex dpixel) {
+
+        bla_steps = 0;
+        bla_iterations = 0;
+        perturb_iterations = 0;
+        rebases = 0;
+        iterations = 0;
+
+        int RefIteration = iterations;
+
+        int MaxRefIteration = getReferenceFinalIterationNumber(true, referenceData);
+
+        Complex[] deltas = initializePerturbation(dpixel);
+        Complex DeltaSubN = deltas[0]; // Delta z
+        Complex DeltaSub0 = deltas[1]; // Delta c
+
+        precalculatePerturbationData(DeltaSub0);
+
+        double normSquared = 0;
+        double DeltaNormSquared = 0;
+
+        double dre = DeltaSubN.getRe(), dim = DeltaSubN.getIm();
+        double tempre, tempim, d0re = DeltaSub0.getRe(), d0im = DeltaSub0.getIm();
+        double temp, zre = 0, zim = 0;
+
+        Complex pixel = dpixel.plus(refPointSmall);
+
+        double[] RefRe = reference.re;
+        double[] RefIm = reference.im;
+
+        for (; iterations < max_iterations; iterations++) {//&& perturb_iterations < PerturbIterations;
+
+            //No update values
+
+            if (trap != null) {
+                trap.check(complex[0], iterations);
+            }
+
+            if (bailout_algorithm2.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, normSquared, pixel)) {
+                escaped = true;
+
+                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0, pixel};
+                double res = out_color_algorithm.getResult(object);
+
+                res = getFinalValueOut(res, complex[0]);
+
+                if (outTrueColorAlgorithm != null) {
+                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+                }
+
+                return getAndAccumulateStatsBLA(res);
+            }
+
+            // bla steps
+            BLA b = null;
+            while (B.isValid && iterations < max_iterations && (b = B.lookupBackwards(RefIteration, DeltaNormSquared, iterations, max_iterations)) != null) {
+
+                int l = b.getL();
+
+//                if(iterations + l > max_iterations) {
+//                    break;
+//                }
+
+                iterations += l;
+                bla_steps++;
+                bla_iterations += l;
+
+//                if (iterations >= max_iterations) {//problems on interior coloring
+//                    break;
+//                }
+
+                DeltaSubN = b.getValue(dre, dim, d0re, d0im);
+                dre = DeltaSubN.getRe();
+                dim = DeltaSubN.getIm();
+
+                DeltaNormSquared = dre * dre + dim * dim;
+
+                RefIteration += l;
+
+                // rebase
+
+                zold2.assign(zold);
+                zold.assign(complex[0]);
+
+                //No Plane influence work
+                //No Pre filters work
+                zre = RefRe[RefIteration] + dre;
+                zim = RefIm[RefIteration] + dim;
+                complex[0].assign(zre, zim);
+                //No Post filters work
+                normSquared = zre * zre + zim * zim;
+
+                if (normSquared < DeltaNormSquared || (RefIteration >= MaxRefIteration)) {
+                    dre = zre;
+                    dim = zim;
+                    RefIteration = 0;
+                    DeltaNormSquared = normSquared;
+                    rebases++;
+                }
+
+                if (statistic != null) {
+                    statistic.insert(complex[0], zold, zold2, iterations, complex[1], start, c0, b);
+                }
+
+
+                if (trap != null) {
+                    trap.check(complex[0], iterations);
+                }
+
+                if (bailout_algorithm2.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, normSquared, pixel)) {
+                    escaped = true;
+
+                    Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0, pixel};
+                    double res = out_color_algorithm.getResult(object);
+
+                    res = getFinalValueOut(res, complex[0]);
+
+                    if (outTrueColorAlgorithm != null) {
+                        setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+                    }
+
+                    return getAndAccumulateStatsBLA(res);
+                }
+            }
+
+            if (iterations >= max_iterations) {
+                break;
+            }
+
+            // perturbation iteration
+            tempre = 2 * RefRe[RefIteration] + dre;
+            tempim = 2 * RefIm[RefIteration] + dim;
+
+            temp = tempre * dre - tempim * dim;
+            tempim = tempre * dim + tempim * dre;
+            tempre = temp;
+
+            dre = tempre + d0re;
+            dim = tempim + d0im;
+
+            DeltaNormSquared = dre * dre + dim * dim;
+
+            RefIteration++;
+            perturb_iterations++;
+
+            // rebase
+            zold2.assign(zold);
+            zold.assign(complex[0]);
+
+            //No Plane influence work
+            //No Pre filters work
+            if (max_iterations > 1) {
+                zre = RefRe[RefIteration] + dre;
+                zim = RefIm[RefIteration] + dim;
+                complex[0].assign(zre, zim);
+            }
+            //No Post filters work
+            normSquared = zre * zre + zim * zim;
+
+            if (normSquared < DeltaNormSquared || (RefIteration >= MaxRefIteration)) {
+                dre = zre;
+                dim = zim;
+                DeltaNormSquared = normSquared;
+                RefIteration = 0;
+                rebases++;
+            }
+
+            if (statistic != null) {
+                statistic.insert(complex[0], zold, zold2, iterations, complex[1], start, c0);
+            }
+
+        }
+
+        Object[] object = {complex[0], zold, zold2, complex[1], start, c0, pixel};
+        double in = in_color_algorithm.getResult(object);
+
+        in = getFinalValueIn(in, complex[0]);
+
+        if (inTrueColorAlgorithm != null) {
+            setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+        }
+
+        return getAndAccumulateStatsBLA(in);
+
+    }
+
+
+    @Override
+    public double iterateFractalWithPerturbationBLA2(Complex[] complex, Complex dpixel) {
+
+        bla_steps = 0;
+        bla_iterations = 0;
+        perturb_iterations = 0;
+        rebases = 0;
+        iterations = 0;
+
+        int MaxRefIteration = getReferenceFinalIterationNumber(true, referenceData);
+
+        Complex[] deltas = initializePerturbation(dpixel);
+        Complex DeltaSubN = deltas[0]; // Delta z
+        Complex DeltaSub0 = deltas[1]; // Delta c
+
+        precalculatePerturbationData(DeltaSub0);
+
+        iterations = BLA2SkippedIterations;
+        bla_iterations = BLA2SkippedIterations;
+        bla_steps = BLA2SkippedSteps;
+
+        int RefIteration = iterations;
+
+        Complex pixel = dpixel.plus(refPointSmall);
+
+        int ReferencePeriod = getPeriod();
+
+        double dre = DeltaSubN.getRe(), dim = DeltaSubN.getIm();
+        double d0re = DeltaSub0.getRe(), d0im = DeltaSub0.getIm();
+        double zre = 0, zim = 0;
+        Complex Z;
+
+        double[] RefRe = reference.re;
+        double[] RefIm = reference.im;
+
+        if (iterations != 0 && RefIteration < MaxRefIteration) {
+            zre = RefRe[RefIteration] + dre;
+            zim = RefIm[RefIteration] + dim;
+            complex[0].assign(zre, zim);
+        } else if (iterations != 0 && ReferencePeriod != 0) {
+            RefIteration = RefIteration % ReferencePeriod;
+            zre = RefRe[RefIteration] + dre;
+            zim = RefIm[RefIteration] + dim;
+            complex[0].assign(zre, zim);
+        }
+
+        double CDeltaSub0ChebyshevNorm = Math.max(Math.abs(d0re), Math.abs(d0im));
+
+        RefIteration = 0;
+
+        int CurrentLAStage = laReference.isValid ? laReference.LAStageCount : 0;
+
+
+        while (CurrentLAStage > 0) {
+
+            CurrentLAStage--;
+
+            int LAIndex = laReference.getLAIndex(CurrentLAStage);
+
+            if(laReference.isLAStageInvalid(LAIndex, CDeltaSub0ChebyshevNorm)) {
+                continue;
+            }
+
+            int MacroItCount = laReference.getMacroItCount(CurrentLAStage);
+
+
+            while(iterations < max_iterations) {
+
+                LAstep las = laReference.getLA(LAIndex, dre, dim, RefIteration, iterations, max_iterations);
+
+                if(las.unusable) {
+                    RefIteration = las.nextStageLAindex;
+                    break;
+                }
+
+                //No update values
+
+                if (trap != null) {
+                    trap.check(complex[0], iterations);
+                }
+
+                int l = las.step;
+                iterations += l;
+                bla_steps++;
+                bla_iterations += l;
+
+                DeltaSubN = las.Evaluate(d0re, d0im);
+                dre = DeltaSubN.getRe();
+                dim = DeltaSubN.getIm();
+
+                RefIteration++;
+
+                zold2.assign(zold);
+                zold.assign(complex[0]);
+
+                //No Plane influence work
+                //No Pre filters work
+                Z = las.getRefp1();
+                zre = Z.getRe() + dre;
+                zim = Z.getIm() + dim;
+                complex[0].assign(zre, zim);
+                //No Post filters work
+
+                // rebase
+
+                if(Math.max(Math.abs(zre), Math.abs(zim)) < Math.max(Math.abs(dre), Math.abs(dim)) || RefIteration >= MacroItCount) {
+                    dre = zre;
+                    dim = zim;
+                    RefIteration = 0;
+                    rebases++;
+                }
+
+                if (statistic != null) {
+                    statistic.insert(complex[0], zold, zold2, iterations, complex[1], start, c0, las);
+                }
+            }
+
+            if (iterations >= max_iterations) {
+                break;
+            }
+        }
+
+        return PerturbationAfterBLA2(complex, pixel, zre, zim, dre, dim, d0re, d0im, RefIteration, MaxRefIteration, false);
+
+    }
+
+    private double PerturbationAfterBLA2(Complex[] complex, Complex pixel, double zre, double zim, double dre, double dim, double d0re, double d0im, int RefIteration, int MaxRefIteration, boolean isZero) {
+        double normSquared =  0;
+        double tempre, tempim, temp;
+
+        if(iterations < max_iterations) {
+            normSquared = zre * zre + zim * zim;
+        }
+
+        boolean isNonZero = !isZero;
+
+        double[] RefRe = reference.re;
+        double[] RefIm = reference.im;
+
+        for (; iterations < max_iterations; iterations++) {
+
+            //No update values
+
+            if (trap != null) {
+                trap.check(complex[0], iterations);
+            }
+
+            if (bailout_algorithm2.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, normSquared, pixel)) {
+                escaped = true;
+
+                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0, pixel};
+                double res = out_color_algorithm.getResult(object);
+
+                res = getFinalValueOut(res, complex[0]);
+
+                if (outTrueColorAlgorithm != null) {
+                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+                }
+
+                return getAndAccumulateStatsBLA(res);
+            }
+
+            // perturbation iteration
+            tempre = 2 * RefRe[RefIteration] + dre;
+            tempim = 2 * RefIm[RefIteration] + dim;
+
+            temp = tempre * dre - tempim * dim;
+            dim = tempre * dim + tempim * dre;
+            dre = temp;
+
+            if(isNonZero) {
+                dre += d0re;
+                dim += d0im;
+            }
+
+            RefIteration++;
+            perturb_iterations++;
+
+            // rebase
+            zold2.assign(zold);
+            zold.assign(complex[0]);
+
+            //No Plane influence work
+            //No Pre filters work
+            if (max_iterations > 1) {
+                zre = RefRe[RefIteration] + dre;
+                zim = RefIm[RefIteration] + dim;
+                complex[0].assign(zre, zim);
+            }
+            //No Post filters work
+            normSquared = zre * zre + zim * zim;
+
+            if (normSquared < dre * dre + dim * dim  || (RefIteration >= MaxRefIteration)) { //* 64
+                dre = zre;
+                dim = zim;
+                RefIteration = 0;
+                rebases++;
+            }
+
+            if (statistic != null) {
+                statistic.insert(complex[0], zold, zold2, iterations, complex[1], start, c0);
+            }
+        }
+
+        Object[] object = {complex[0], zold, zold2, complex[1], start, c0, pixel};
+        double in = in_color_algorithm.getResult(object);
+
+        in = getFinalValueIn(in, complex[0]);
+
+        if (inTrueColorAlgorithm != null) {
+            setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+        }
+
+        return getAndAccumulateStatsBLA(in);
+    }
+
+    @Override
+    public double iterateFractalWithPerturbationBLA2(Complex[] complex, MantExpComplex dpixel) {
+
+        bla_steps = 0;
+        bla_iterations = 0;
+        perturb_iterations = 0;
+        rebases = 0;
+
+        iterations = 0;
+
+        int MaxRefIteration = getReferenceFinalIterationNumber(true, referenceData);
+
+        MantExpComplex[] deltas = initializePerturbation(dpixel);
+        MantExpComplex DeltaSubN = deltas[0]; // Delta z
+        MantExpComplex DeltaSub0 = deltas[1]; // Delta c
+
+        precalculatePerturbationData(DeltaSub0);
+
+        MantExp DeltaSub0ChebyshevNorm = DeltaSub0.chebychevNorm();
+
+        iterations = BLA2SkippedIterations;
+        bla_iterations = BLA2SkippedIterations;
+        bla_steps = BLA2SkippedSteps;
+
+        int RefIteration = iterations;
+
+        Complex pixel = dpixel.plus(refPointSmallDeep).toComplex();
+
+        MantExpComplex z = MantExpComplex.create();
+
+        MantExpComplex zoldDeep = MantExpComplex.create();
+        MantExpComplex zoldDeep2 = MantExpComplex.create();
+
+        int ReferencePeriod = getPeriod();
+        if (iterations != 0 && RefIteration < MaxRefIteration) {
+            z = getArrayDeepValue(referenceDeep, RefIteration).plus_mutable(DeltaSubN);
+            complex[0] = z.toComplex();
+        } else if (iterations != 0 && ReferencePeriod != 0) {
+            RefIteration = RefIteration % ReferencePeriod;
+            z = getArrayDeepValue(referenceDeep, RefIteration).plus_mutable(DeltaSubN);
+            complex[0] = z.toComplex();
+        }
+
+        RefIteration = 0;
+
+        int CurrentLAStage = laReference.isValid ? laReference.LAStageCount : 0;
+
+        boolean DPEvaluation = false;
+
+        boolean needsComplexZ = trap != null || statistic != null;
+
+        while (CurrentLAStage > 0) {
+            if (laReference.useDoublePrecisionAtStage(CurrentLAStage - 1)) {
+                DPEvaluation = true;
+                break;
+            }
+
+            CurrentLAStage--;
+
+            int LAIndex = laReference.getLAIndex(CurrentLAStage);
+
+            if(laReference.isLAStageInvalid(LAIndex, DeltaSub0ChebyshevNorm)) {
+                continue;
+            }
+
+            int MacroItCount = laReference.getMacroItCount(CurrentLAStage);
+
+
+            while(iterations < max_iterations) {
+
+                LAstep las = laReference.getLA(LAIndex, DeltaSubN, RefIteration, iterations, max_iterations);
+
+                if(las.unusable) {
+                    RefIteration = las.nextStageLAindex;
+                    break;
+                }
+
+                //No update values
+
+                if (trap != null) {
+                    trap.check(complex[0], iterations);
+                }
+
+                int l = las.step;
+                iterations += l;
+                bla_steps++;
+                bla_iterations += l;
+
+                DeltaSubN = las.Evaluate(DeltaSub0);
+
+                RefIteration++;
+
+                if(needsComplexZ) {
+                    zold2.assign(zold);
+                    zold.assign(complex[0]);
+                    zoldDeep = z;
+                }
+                else {
+                    zoldDeep2 = zoldDeep;
+                    zoldDeep = z;
+                }
+
+                //No Plane influence work
+                //No Pre filters work
+                z = las.getZ(DeltaSubN);
+
+                if(needsComplexZ) {
+                    complex[0] = z.toComplex();
+                }
+                //No Post filters work
+
+                // rebase
+
+                if(z.chebychevNorm().compareToBothPositiveReduced(DeltaSubN.chebychevNorm()) < 0|| RefIteration >= MacroItCount) {
+                    DeltaSubN = z;
+                    RefIteration = 0;
+                    rebases++;
+                }
+
+                DeltaSubN.Normalize();
+
+                if (statistic != null) {
+                    statistic.insert(complex[0], zold, zold2, iterations, complex[1], start, c0, las, z, zoldDeep);
+                }
+            }
+
+            if (iterations >= max_iterations) {
+                break;
+            }
+        }
+
+        if(!needsComplexZ) {
+            complex[0] = z.toComplex();
+            zold = zoldDeep.toComplex();
+            zold2 = zoldDeep2.toComplex();
+        }
+
+        DPEvaluation = DPEvaluation || laReference.performDoublePrecisionSimplePerturbation;
+
+        if(!DPEvaluation) {
+
+            MantExp norm_squared_m = z.norm_squared();
+
+            for (; iterations < max_iterations; iterations++) {
+
+                //No update values
+
+                if (trap != null) {
+                    trap.check(complex[0], iterations);
+                }
+
+                if (bailout_algorithm2.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, norm_squared_m.toDouble(), pixel)) {
+                    escaped = true;
+
+                    Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0, pixel};
+                    double res = out_color_algorithm.getResult(object);
+
+                    res = getFinalValueOut(res, complex[0]);
+
+                    if (outTrueColorAlgorithm != null) {
+                        setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+                    }
+
+                    return getAndAccumulateStatsBLA(res);
+                }
+
+                // perturbation iteration
+                DeltaSubN = perturbationFunction(DeltaSubN, DeltaSub0, RefIteration);
+
+                RefIteration++;
+                perturb_iterations++;
+
+                // rebase
+                zold2.assign(zold);
+                zold.assign(complex[0]);
+                zoldDeep = z;
+
+                //No Plane influence work
+                //No Pre filters work
+                if (max_iterations > 1) {
+                    z = getArrayDeepValue(referenceDeep, RefIteration).plus_mutable(DeltaSubN);
+                    complex[0] = z.toComplex();
+                }
+                //No Post filters work
+
+                norm_squared_m = z.norm_squared();
+                if (norm_squared_m.compareToBothPositive(DeltaSubN.norm_squared()) < 0 || (RefIteration >= MaxRefIteration)) { //* 64
+                    DeltaSubN = z;
+                    RefIteration = 0;
+                    rebases++;
+                }
+
+                DeltaSubN.Normalize();
+
+                if (statistic != null) {
+                    statistic.insert(complex[0], zold, zold2, iterations, complex[1], start, c0, z, zoldDeep, null);
+                }
+            }
+        }
+
+        if(DPEvaluation && iterations < max_iterations) {
+            Complex CDeltaSubN = DeltaSubN.toComplex();
+            Complex CDeltaSub0 = DeltaSub0.toComplex();
+            double zre = complex[0].getRe(), zim = complex[0].getIm();
+            double dre = CDeltaSubN.getRe(), dim = CDeltaSubN.getIm();
+            double d0re = CDeltaSub0.getRe(), d0im = CDeltaSub0.getIm();
+            Complex Z;
+
+            boolean isZero = CDeltaSub0.isZero();
+
+            double CDeltaSub0ChebyshevNorm = DeltaSub0ChebyshevNorm.toDouble();
+
+            while (CurrentLAStage > 0) {
+                CurrentLAStage--;
+
+                int LAIndex = laReference.getLAIndex(CurrentLAStage);
+
+                if(laReference.isLAStageInvalid(LAIndex, CDeltaSub0ChebyshevNorm)) {
+                    continue;
+                }
+
+                int MacroItCount = laReference.getMacroItCount(CurrentLAStage);
+
+
+                while(iterations < max_iterations) {
+
+                    LAstep las = laReference.getLA(LAIndex, dre, dim, RefIteration, iterations, max_iterations);
+
+                    if(las.unusable) {
+                        RefIteration = las.nextStageLAindex;
+                        break;
+                    }
+
+                    //No update values
+
+                    if (trap != null) {
+                        trap.check(complex[0], iterations);
+                    }
+
+                    int l = las.step;
+                    iterations += l;
+                    bla_steps++;
+                    bla_iterations += l;
+
+                    if(isZero) {
+                        CDeltaSubN = las.EvaluateWithZeroD0(d0re, d0im);
+                    }
+                    else {
+                        CDeltaSubN = las.Evaluate(d0re, d0im);
+                    }
+                    dre = CDeltaSubN.getRe();
+                    dim = CDeltaSubN.getIm();
+
+                    RefIteration++;
+
+                    zold2.assign(zold);
+                    zold.assign(complex[0]);
+
+                    //No Plane influence work
+                    //No Pre filters work
+                    Z = las.getRefp1();
+                    zre = Z.getRe() + dre;
+                    zim = Z.getIm() + dim;
+                    complex[0].assign(zre, zim);
+                    //No Post filters work
+
+                    // rebase
+
+                    if(Math.max(Math.abs(zre), Math.abs(zim)) < Math.max(Math.abs(dre), Math.abs(dim)) || RefIteration >= MacroItCount) {
+                        dre = zre;
+                        dim = zim;
+                        RefIteration = 0;
+                        rebases++;
+                    }
+
+                    if (statistic != null) {
+                        statistic.insert(complex[0], zold, zold2, iterations, complex[1], start, c0, las);
+                    }
+                }
+
+                if (iterations >= max_iterations) {
+                    break;
+                }
+            }
+
+            return PerturbationAfterBLA2(complex, pixel, zre, zim, dre, dim, d0re, d0im, RefIteration, MaxRefIteration, isZero);
+        }
+
+
+        Object[] object = {complex[0], zold, zold2, complex[1], start, c0, pixel};
+        double in = in_color_algorithm.getResult(object);
+
+        in = getFinalValueIn(in, complex[0]);
+
+        if (inTrueColorAlgorithm != null) {
+            setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+        }
+
+        return getAndAccumulateStatsBLA(in);
+
+
+    }
+
+    @Override
+    protected double PerturbationAfterExtendedRange(Complex[] complex, Complex pixel, MantExpComplex DeltaSubN, MantExpComplex DeltaSub0, int RefIteration, int MaxRefIteration, int ReferencePeriod, boolean usedDeepCode) {
+        if(burning_ship) {
+            super.PerturbationAfterExtendedRange(complex, pixel, DeltaSubN, DeltaSub0, RefIteration, MaxRefIteration, ReferencePeriod, usedDeepCode);
+        }
+
+        Complex CDeltaSubN = DeltaSubN.toComplex();
+        Complex CDeltaSub0 = DeltaSub0.toComplex();
+
+        double zre = complex[0].getRe(), zim = complex[0].getIm();
+        double dre = CDeltaSubN.getRe(), dim = CDeltaSubN.getIm();
+        double d0re = CDeltaSub0.getRe(), d0im = CDeltaSub0.getIm();
+        double tempre, tempim, temp;
+
+        double[] RefRe = reference.re;
+        double[] RefIm = reference.im;
+
+        boolean isNonZero = !CDeltaSub0.isZero();
+
+        if (!usedDeepCode && iterations != 0 && RefIteration < MaxRefIteration) {
+            zre = RefRe[RefIteration] + dre;
+            zim = RefIm[RefIteration] + dim;
+            complex[0].assign(zre, zim);
+        } else if (!usedDeepCode && iterations != 0 && ReferencePeriod != 0) {
+            RefIteration = RefIteration % ReferencePeriod;
+            zre = RefRe[RefIteration] + dre;
+            zim = RefIm[RefIteration] + dim;
+            complex[0].assign(zre, zim);
+        }
+
+        double norm_squared = zre * zre + zim * zim;
+
+        for (; iterations < max_iterations; iterations++) {
+
+            //No update values
+
+            if (trap != null) {
+                trap.check(complex[0], iterations);
+            }
+
+            if (bailout_algorithm2.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, norm_squared, pixel)) {
+                escaped = true;
+
+                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0, pixel};
+                double res = out_color_algorithm.getResult(object);
+
+                res = getFinalValueOut(res, complex[0]);
+
+                if (outTrueColorAlgorithm != null) {
+                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+                }
+
+                return res;
+            }
+
+            // perturbation iteration
+            tempre = 2 * RefRe[RefIteration] + dre;
+            tempim = 2 * RefIm[RefIteration] + dim;
+
+            temp = tempre * dre - tempim * dim;
+            dim = tempre * dim + tempim * dre;
+            dre = temp;
+
+            if(isNonZero) {
+                dre += d0re;
+                dim += d0im;
+            }
+
+            RefIteration++;
+            double_iterations++;
+
+            zold2.assign(zold);
+            zold.assign(complex[0]);
+
+            //No Plane influence work
+            //No Pre filters work
+            if (max_iterations > 1) {
+                zre = RefRe[RefIteration] + dre;
+                zim = RefIm[RefIteration] + dim;
+                complex[0].assign(zre, zim);
+            }
+            //No Post filters work
+
+            if (statistic != null) {
+                statistic.insert(complex[0], zold, zold2, iterations, complex[1], start, c0);
+            }
+
+            norm_squared = zre * zre + zim * zim;
+
+            if (norm_squared < dre * dre + dim * dim || RefIteration >= MaxRefIteration) {
+                dre = zre;
+                dim = zim;
+                RefIteration = 0;
+                rebases++;
+            }
+
+        }
+
+        Object[] object = {complex[0], zold, zold2, complex[1], start, c0, pixel};
+        double in = in_color_algorithm.getResult(object);
+
+        in = getFinalValueIn(in, complex[0]);
+
+        if (inTrueColorAlgorithm != null) {
+            setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+        }
+
+        return in;
+    }
+
+    @Override
+    public double iterateJuliaWithPerturbation(Complex[] complex, Complex dpixel) {
+
+        if(burning_ship) {
+            super.iterateJuliaWithPerturbation(complex, dpixel);
+        }
+
+        double_iterations = 0;
+        rebases = 0;
+
+        iterations = 0;
+
+        int RefIteration = iterations;
+
+        Complex[] deltas = initializePerturbation(dpixel);
+        Complex DeltaSubN = deltas[0]; // Delta z
+
+        Complex pixel = dpixel.plus(refPointSmall);
+
+        ReferenceData data = referenceData;
+        double[] RefRe = data.Reference.re;
+        double[] RefIm = data.Reference.im;
+        int MaxRefIteration = data.MaxRefIteration;
+
+        double zre = complex[0].getRe(), zim = complex[0].getIm();
+        double dre = DeltaSubN.getRe(), dim = DeltaSubN.getIm();
+        double tempre, tempim, temp;
+
+        double norm_squared = zre * zre + zim * zim;
+
+        for (; iterations < max_iterations; iterations++) {
+
+            //No update values
+
+            if (trap != null) {
+                trap.check(complex[0], iterations);
+            }
+
+            if (bailout_algorithm2.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, norm_squared, pixel)) {
+                escaped = true;
+
+                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0, pixel};
+                double res = out_color_algorithm.getResult(object);
+
+                res = getFinalValueOut(res, complex[0]);
+
+                if (outTrueColorAlgorithm != null) {
+                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+                }
+
+                return getAndAccumulateStatsNotDeep(res);
+            }
+
+            tempre = 2 * RefRe[RefIteration] + dre;
+            tempim = 2 * RefIm[RefIteration] + dim;
+
+            temp = tempre * dre - tempim * dim;
+            dim = tempre * dim + tempim * dre;
+            dre = temp;
+
+            RefIteration++;
+            double_iterations++;
+
+            zold2.assign(zold);
+            zold.assign(complex[0]);
+
+            //No Plane influence work
+            //No Pre filters work
+            if(max_iterations > 1){
+                zre = RefRe[RefIteration] + dre;
+                zim = RefIm[RefIteration] + dim;
+                complex[0].assign(zre, zim);
+            }
+            //No Post filters work
+
+            if (statistic != null) {
+                statistic.insert(complex[0], zold, zold2, iterations, complex[1], start, c0);
+            }
+
+            norm_squared = zre * zre + zim * zim;
+            if (norm_squared < dre * dre + dim * dim || RefIteration >= MaxRefIteration) {
+                dre = zre;
+                dim = zim;
+                RefIteration = 0;
+
+                data = secondReferenceData;
+                RefRe = data.Reference.re;
+                RefIm = data.Reference.im;
+                MaxRefIteration = data.MaxRefIteration;
+                rebases++;
+            }
+        }
+
+        Object[] object = {complex[0], zold, zold2, complex[1], start, c0, pixel};
+        double in = in_color_algorithm.getResult(object);
+
+        in = getFinalValueIn(in, complex[0]);
+
+        if (inTrueColorAlgorithm != null) {
+            setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+        }
+
+        return getAndAccumulateStatsNotDeep(in);
+
+    }
+
+    @Override
+    public double iterateJuliaWithPerturbation(Complex[] complex, MantExpComplex dpixel) {
+
+        if(burning_ship) {
+            super.iterateJuliaWithPerturbation(complex, dpixel);
+        }
+
+        float_exp_iterations = 0;
+        double_iterations = 0;
+        rebases = 0;
+
+        iterations = 0;
+
+        int totalSkippedIterations = 0;
+
+        int RefIteration = iterations;
+
+        MantExpComplex[] deltas = initializePerturbation(dpixel);
+        MantExpComplex DeltaSubN = deltas[0]; // Delta z
+
+        Complex pixel = dpixel.plus(refPointSmallDeep).toComplex();
+
+        ReferenceDeepData deepData = referenceDeepData;
+        ReferenceData data = referenceData;
+        int MaxRefIteration = data.MaxRefIteration;
+
+        int minExp = -1000;
+        int reducedExp = minExp / (int)power;
+
+        DeltaSubN.Normalize();
+        long exp = DeltaSubN.getMinExp();
+
+        boolean useFullFloatExp = useFullFloatExp();
+        boolean doBailCheck = useFullFloatExp || TaskDraw.CHECK_BAILOUT_DURING_DEEP_NOT_FULL_FLOATEXP_MODE;
+
+        if(useFullFloatExp || (totalSkippedIterations == 0 && exp <= minExp) || (totalSkippedIterations != 0 && exp <= reducedExp)) {
+            MantExpComplex z = getArrayDeepValue(deepData.Reference, RefIteration).plus_mutable(DeltaSubN);
+            for (; iterations < max_iterations; iterations++) {
+                if (trap != null) {
+                    trap.check(complex[0], iterations);
+                }
+
+                if (doBailCheck && bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, 0.0, pixel)) {
+                    escaped = true;
+
+                    Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0, pixel};
+                    double res = out_color_algorithm.getResult(object);
+
+                    res = getFinalValueOut(res, complex[0]);
+
+                    if (outTrueColorAlgorithm != null) {
+                        setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+                    }
+
+                    return getAndAccumulateStatsNotScaled(res);
+                }
+
+                DeltaSubN = perturbationFunction(DeltaSubN, deepData, RefIteration);
+
+                RefIteration++;
+                float_exp_iterations++;
+
+                zold2.assign(zold);
+                zold.assign(complex[0]);
+
+                if (max_iterations > 1) {
+                    z = getArrayDeepValue(deepData.Reference, RefIteration).plus_mutable(DeltaSubN);
+                    complex[0] = z.toComplex();
+                }
+
+                if (statistic != null) {
+                    statistic.insert(complex[0], zold, zold2, iterations, complex[1], start, c0);
+                }
+
+                if (z.norm_squared().compareToBothPositive(DeltaSubN.norm_squared()) < 0 || RefIteration >= MaxRefIteration) {
+                    DeltaSubN = z;
+                    RefIteration = 0;
+
+                    deepData = secondReferenceDeepData;
+                    data = secondReferenceData;
+                    MaxRefIteration = data.MaxRefIteration;
+                    rebases++;
+                }
+
+                DeltaSubN.Normalize();
+
+                if(!useFullFloatExp) {
+                    if (DeltaSubN.getMinExp() > reducedExp) {
+                        iterations++;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if(!useFullFloatExp) {
+            Complex CDeltaSubN = DeltaSubN.toComplex();
+
+            double zre = complex[0].getRe(), zim = complex[0].getIm();
+            double dre = CDeltaSubN.getRe(), dim = CDeltaSubN.getIm();
+            double tempre, tempim, temp;
+
+            double[] RefRe = data.Reference.re;
+            double[] RefIm = data.Reference.im;
+
+            double norm_squared = zre * zre + zim * zim;
+
+            for (; iterations < max_iterations; iterations++) {
+
+                //No update values
+
+                if (trap != null) {
+                    trap.check(complex[0], iterations);
+                }
+
+                if (bailout_algorithm2.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, norm_squared, pixel)) {
+                    escaped = true;
+
+                    Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0, pixel};
+                    double res = out_color_algorithm.getResult(object);
+
+                    res = getFinalValueOut(res, complex[0]);
+
+                    if (outTrueColorAlgorithm != null) {
+                        setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+                    }
+
+                    return getAndAccumulateStatsNotScaled(res);
+                }
+
+                tempre = 2 * RefRe[RefIteration] + dre;
+                tempim = 2 * RefIm[RefIteration] + dim;
+
+                temp = tempre * dre - tempim * dim;
+                dim = tempre * dim + tempim * dre;
+                dre = temp;
+
+                RefIteration++;
+                double_iterations++;
+
+                zold2.assign(zold);
+                zold.assign(complex[0]);
+
+                //No Plane influence work
+                //No Pre filters work
+                if (max_iterations > 1) {
+                    zre = RefRe[RefIteration] + dre;
+                    zim = RefIm[RefIteration] + dim;
+                    complex[0].assign(zre, zim);
+                }
+                //No Post filters work
+
+                if (statistic != null) {
+                    statistic.insert(complex[0], zold, zold2, iterations, complex[1], start, c0);
+                }
+
+                norm_squared = zre * zre + zim * zim;
+                if (norm_squared < dre * dre + dim * dim || RefIteration >= MaxRefIteration) {
+                    dre = zre;
+                    dim = zim;
+                    RefIteration = 0;
+                    data = secondReferenceData;
+                    MaxRefIteration = data.MaxRefIteration;
+                    RefRe = data.Reference.re;
+                    RefIm = data.Reference.im;
+                    rebases++;
+                }
+
+            }
+        }
+
+        Object[] object = {complex[0], zold, zold2, complex[1], start, c0, pixel};
+        double in = in_color_algorithm.getResult(object);
+
+        in = getFinalValueIn(in, complex[0]);
+
+        if (inTrueColorAlgorithm != null) {
+            setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+        }
+
+        return getAndAccumulateStatsNotScaled(in);
+
+    }
+
+    @Override
+    public double iterateFractalWithPerturbationScaled(Complex[] complex, MantExpComplex dpixel) {
+
+        if(burning_ship) {
+            super.iterateFractalWithPerturbationScaled(complex, dpixel);
+        }
+
+        float_exp_iterations = 0;
+        double_iterations = 0;
+        scaled_iterations = 0;
+        rebases = 0;
+        realigns = 0;
+
+        double reAlignThreshold = power == 2 ? 1e100 : Math.exp(Math.log(1e200) / power);
+
+        MantExpComplex[] deltas = initializePerturbation(dpixel);
+        MantExpComplex DeltaSubN = deltas[0]; // Delta z
+        MantExpComplex DeltaSub0 = deltas[1]; // Delta c
+
+        precalculatePerturbationData(DeltaSub0);
+
+        int totalSkippedIterations = nanomb1SkippedIterations != 0 ? nanomb1SkippedIterations : SAskippedIterations;
+        iterations = totalSkippedIterations;
+
+        int RefIteration = iterations;
+
+        int ReferencePeriod = getPeriod();
+
+        int MaxRefIteration = getReferenceFinalIterationNumber(true, referenceData);
+
+        int minExp = -1000;
+        int reducedExp = minExp / (int) power;
+
+        DeltaSubN.Normalize();
+        long exp = DeltaSubN.getMinExp();
+
+        boolean useFullFloatExp = useFullFloatExp();
+
+        boolean doBailCheck = useFullFloatExp || TaskDraw.CHECK_BAILOUT_DURING_DEEP_NOT_FULL_FLOATEXP_MODE;
+
+        Complex pixel = dpixel.plus(refPointSmallDeep).toComplex();
+
+        boolean usedDeepCode = false;
+        if (useFullFloatExp || (totalSkippedIterations == 0 && exp <= minExp) || (totalSkippedIterations != 0 && exp <= reducedExp)) {
+            usedDeepCode = true;
+
+            MantExpComplex z = MantExpComplex.create();
+            double norm_squared = 0;
+            if (iterations != 0 && RefIteration < MaxRefIteration) {
+                z = getArrayDeepValue(referenceDeep, RefIteration).plus_mutable(DeltaSubN);
+                complex[0] = z.toComplex();
+                norm_squared = complex[0].norm_squared();
+            } else if (iterations != 0 && ReferencePeriod != 0) {
+                RefIteration = RefIteration % ReferencePeriod;
+                z = getArrayDeepValue(referenceDeep, RefIteration).plus_mutable(DeltaSubN);
+                complex[0] = z.toComplex();
+                norm_squared = complex[0].norm_squared();
+            }
+
+            GenericComplex zoldDeep;
+            GenericComplex zDeep = z;
+
+            MantExpComplex tempDeltaSubN = MantExpComplex.copy(DeltaSubN);
+            MantExpComplex tempDeltaSub0 = MantExpComplex.copy(DeltaSub0);
+            long exponent = -DeltaSubN.getAverageExp();
+            tempDeltaSub0.addExp(exponent);
+            tempDeltaSubN.addExp(exponent);
+
+
+            MantExp S = tempDeltaSubN.norm();
+            double s = S.toDoubleSub(exponent);
+            double ss = s * s;
+
+            Complex DeltaSubNscaled = tempDeltaSubN.divide(S).toComplex();
+            Complex DeltaSub0scaled = tempDeltaSub0.divide(S).toComplex();
+            double dnReScaled = DeltaSubNscaled.getRe();
+            double dnImScaled = DeltaSubNscaled.getIm();
+            double d0ReScaled = DeltaSub0scaled.getRe();
+            double d0ImScaled = DeltaSub0scaled.getIm();
+            double temp, tempre, tempim;
+            double zre = complex[0].getRe();
+            double zim = complex[0].getIm();
+
+            double[] RefRe = reference.re;
+            double[] RefIm = reference.im;
+
+            boolean isDeltaSub0NotZero = !DeltaSub0scaled.isZero();
+
+            int nextTinyRefIndex = 0;
+            int nextTinyRefIteration = 0;
+            int tinyRefPtsLength = tinyRefPtsArray.length;
+            do { //find the next tiny ref iteration which is after the skipped iterations
+                if (nextTinyRefIndex < tinyRefPtsLength) {
+                    nextTinyRefIteration = tinyRefPtsArray[nextTinyRefIndex];
+                    nextTinyRefIndex++;
+                } else {
+                    nextTinyRefIteration = RefIteration == 0 ? 0 : max_iterations;
+                }
+
+            } while (nextTinyRefIteration < RefIteration);
+
+            for (; iterations < max_iterations; iterations++) {
+
+                if (RefIteration == nextTinyRefIteration) {
+                    //No update values
+
+                    if (trap != null) {
+                        trap.check(complex[0], iterations);
+                    }
+
+                    if (doBailCheck && bailout_algorithm2.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, norm_squared, pixel)) {
+                        escaped = true;
+
+                        Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0, pixel};
+                        double res = out_color_algorithm.getResult(object);
+
+                        res = getFinalValueOut(res, complex[0]);
+
+                        if (outTrueColorAlgorithm != null) {
+                            setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+                        }
+
+                        return getAndAccumulateStatsScaled(res);
+                    }
+
+                    DeltaSubN = perturbationFunction(DeltaSubN, DeltaSub0, RefIteration);
+
+                    RefIteration++;
+
+                    float_exp_iterations++;
+
+                    zold2.assign(zold);
+                    zold.assign(complex[0]);
+                    zoldDeep = zDeep;
+
+                    //No Plane influence work
+                    //No Pre filters work
+                    if (max_iterations > 1) {
+                        zDeep = z = getArrayDeepValue(referenceDeep, RefIteration).plus_mutable(DeltaSubN);
+                        complex[0] = z.toComplex();
+                    }
+                    //No Post filters work
+
+                    if (statistic != null) {
+                        statistic.insert(complex[0], zold, zold2, iterations, complex[1], start, c0, zDeep, zoldDeep, null);
+                    }
+
+                    MantExp normSquared = z.norm_squared();
+
+                    if(doBailCheck) {
+                        norm_squared = normSquared.toDouble();
+                    }
+
+                    MantExp deltaNormSquared = DeltaSubN.norm_squared();
+                    MantExp rescaledNorm = deltaNormSquared;
+                    if (normSquared.compareToBothPositive(deltaNormSquared) < 0 || RefIteration >= MaxRefIteration) {
+                        DeltaSubN = z;
+                        RefIteration = 0;
+                        nextTinyRefIndex = 0;
+                        rescaledNorm = normSquared;
+                        rebases++;
+                    }
+
+                    DeltaSubN.Normalize();
+
+                    if (!useFullFloatExp) {
+                        if (DeltaSubN.getMinExp() > reducedExp) {
+                            iterations++;
+                            break;
+                        }
+                    }
+
+                    if (nextTinyRefIndex < tinyRefPtsLength) {
+                        nextTinyRefIteration = tinyRefPtsArray[nextTinyRefIndex];
+                        nextTinyRefIndex++;
+                    } else {
+                        nextTinyRefIteration = max_iterations;
+                    }
+
+                    if(RefIteration == nextTinyRefIteration) {
+                        continue;
+                    }
+
+                    tempDeltaSubN.assign(DeltaSubN);
+                    tempDeltaSub0.assign(DeltaSub0);
+
+                    S = rescaledNorm.sqrt();
+
+                    exponent = -S.getExp();
+                    tempDeltaSubN.addExp(exponent);
+                    tempDeltaSub0.addExp(exponent);
+                    S.setExp(0);
+
+                    //rescale
+                    s = S.toDoubleSub(exponent);
+                    ss = s * s;
+                    DeltaSubNscaled = tempDeltaSubN.divide(S).toComplex();
+                    DeltaSub0scaled = tempDeltaSub0.divide(S).toComplex();
+
+                    dnReScaled = DeltaSubNscaled.getRe();
+                    dnImScaled = DeltaSubNscaled.getIm();
+                    d0ReScaled = DeltaSub0scaled.getRe();
+                    d0ImScaled = DeltaSub0scaled.getIm();
+
+                    isDeltaSub0NotZero = !DeltaSub0scaled.isZero();
+
+                } else {
+                    //No update values
+
+                    if (trap != null) {
+                        trap.check(complex[0], iterations);
+                    }
+
+                    if (doBailCheck && bailout_algorithm2.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, norm_squared, pixel)) {
+                        escaped = true;
+
+                        Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0, pixel};
+                        double res = out_color_algorithm.getResult(object);
+
+                        res = getFinalValueOut(res, complex[0]);
+
+                        if (outTrueColorAlgorithm != null) {
+                            setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+                        }
+
+                        return getAndAccumulateStatsScaled(res);
+                    }
+
+                    if(s == 0) {
+                        tempre = 2 * RefRe[RefIteration];
+                        tempim = 2 * RefIm[RefIteration];
+
+                        temp = tempre * dnReScaled - tempim * dnImScaled;
+                        dnImScaled = tempre * dnImScaled + tempim * dnReScaled;
+                        dnReScaled = temp;
+                    }
+                    else {
+                        tempre = 2 * RefRe[RefIteration] + dnReScaled * s;
+                        tempim = 2 * RefIm[RefIteration] + dnImScaled * s;
+
+                        temp = tempre * dnReScaled - tempim * dnImScaled;
+                        dnImScaled = tempre * dnImScaled + tempim * dnReScaled;
+                        dnReScaled = temp;
+                    }
+
+                    if(isDeltaSub0NotZero) {
+                        dnReScaled += d0ReScaled;
+                        dnImScaled += d0ImScaled;
+                    }
+
+                    RefIteration++;
+
+                    scaled_iterations++;
+
+                    zold2.assign(zold);
+                    zold.assign(complex[0]);
+
+                    //No Plane influence work
+                    //No Pre filters work
+                    if (max_iterations > 1) {
+                        if(RefIteration == nextTinyRefIteration) {
+                            DeltaSubN = MantExpComplex.create(dnReScaled, dnImScaled).times_mutable(S);
+                            DeltaSubN.subExp(exponent);
+                            zDeep = z = getArrayDeepValue(referenceDeep, RefIteration).plus_mutable(DeltaSubN);
+                            complex[0] = z.toComplex();
+                            zre = complex[0].getRe();
+                            zim = complex[0].getIm();
+                        }
+                        else {
+                            zre = RefRe[RefIteration] + dnReScaled * s;
+                            zim = RefIm[RefIteration] + dnImScaled * s;
+                            complex[0].assign(zre, zim);
+                            zDeep.assign(complex[0]);
+                        }
+                    }
+                    //No Post filters work
+
+                    if (statistic != null) {
+                        statistic.insert(complex[0], zold, zold2, iterations, complex[1], start, c0);
+                    }
+
+                    double DeltaSubNscaledNormSqr = dnReScaled * dnReScaled + dnImScaled * dnImScaled;
+                    norm_squared = zre * zre + zim * zim;
+                    if (norm_squared < DeltaSubNscaledNormSqr * ss || RefIteration >= MaxRefIteration) {
+                        boolean isTiny = RefIteration == nextTinyRefIteration;
+                        RefIteration = 0;
+
+                        if(isTiny) {
+                            DeltaSubN = z;
+                            DeltaSubN.Normalize();
+                        }
+                        else {
+                            DeltaSubN = MantExpComplex.create(complex[0]);
+                        }
+                        rebases++;
+
+                        if (!useFullFloatExp) {
+                            if (DeltaSubN.getMinExp() > reducedExp) {
+                                iterations++;
+                                break;
+                            }
+                        }
+
+                        tempDeltaSubN.assign(DeltaSubN);
+                        tempDeltaSub0.assign(DeltaSub0);
+
+                        //rescale
+                        if(isTiny) {
+                            exponent = -DeltaSubN.getAverageExp();
+
+                            tempDeltaSubN.addExp(exponent);
+                            tempDeltaSub0.addExp(exponent);
+
+                            S = tempDeltaSubN.norm();
+                            s = S.toDoubleSub(exponent);
+                            ss = s * s;
+
+                        }
+                        else {
+                            ss = norm_squared;
+                            s = Math.sqrt(ss);
+                            S = new MantExp(s);
+                            exponent = -S.getExp();
+                            tempDeltaSubN.addExp(exponent);
+                            tempDeltaSub0.addExp(exponent);
+                            S.setExp(0);
+                        }
+
+                        DeltaSubNscaled = tempDeltaSubN.divide(S).toComplex();
+                        DeltaSub0scaled = tempDeltaSub0.divide(S).toComplex();
+
+                        dnReScaled = DeltaSubNscaled.getRe();
+                        dnImScaled = DeltaSubNscaled.getIm();
+                        d0ReScaled = DeltaSub0scaled.getRe();
+                        d0ImScaled = DeltaSub0scaled.getIm();
+
+                        isDeltaSub0NotZero = !DeltaSub0scaled.isZero();
+
+                        nextTinyRefIndex = 0;
+                        if (nextTinyRefIndex < tinyRefPtsLength) {
+                            nextTinyRefIteration = tinyRefPtsArray[nextTinyRefIndex];
+                            nextTinyRefIndex++;
+                        } else {
+                            nextTinyRefIteration = max_iterations;
+                        }
+
+                        continue;
+                    }
+
+
+                    if (DeltaSubNscaledNormSqr >= reAlignThreshold) {
+                        DeltaSubN = MantExpComplex.create(dnReScaled, dnImScaled).times_mutable(S);
+                        DeltaSubN.Normalize();
+                        DeltaSubN.subExp(exponent);
+
+                        if (!useFullFloatExp) {
+                            if (DeltaSubN.getMinExp() > reducedExp) {
+                                iterations++;
+                                break;
+                            }
+                        }
+
+                        tempDeltaSubN.assign(DeltaSubN);
+                        tempDeltaSub0.assign(DeltaSub0);
+
+                        exponent = -DeltaSubN.getAverageExp();
+                        tempDeltaSub0.addExp(exponent);
+                        tempDeltaSubN.addExp(exponent);
+
+                        //rescale
+                        S = tempDeltaSubN.norm();
+                        s = S.toDoubleSub(exponent);
+                        ss = s * s;
+
+                        DeltaSubNscaled = tempDeltaSubN.divide(S).toComplex();
+                        DeltaSub0scaled = tempDeltaSub0.divide(S).toComplex();
+
+                        dnReScaled = DeltaSubNscaled.getRe();
+                        dnImScaled = DeltaSubNscaled.getIm();
+                        d0ReScaled = DeltaSub0scaled.getRe();
+                        d0ImScaled = DeltaSub0scaled.getIm();
+
+                        isDeltaSub0NotZero = !DeltaSub0scaled.isZero();
+                        realigns++;
+                    }
+                }
+            }
+        }
+
+        if (!useFullFloatExp) {
+            return getAndAccumulateStatsScaled(PerturbationAfterExtendedRange(complex, pixel, DeltaSubN, DeltaSub0, RefIteration, MaxRefIteration, ReferencePeriod, usedDeepCode));
+        }
+
+        Object[] object = {complex[0], zold, zold2, complex[1], start, c0, pixel};
+        double in = in_color_algorithm.getResult(object);
+
+        in = getFinalValueIn(in, complex[0]);
+
+        if (inTrueColorAlgorithm != null) {
+            setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+        }
+
+        return getAndAccumulateStatsScaled(in);
+
     }
 }

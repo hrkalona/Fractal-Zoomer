@@ -24,7 +24,9 @@ public class D3Settings {
     public boolean d3;
     public int detail;
     public boolean gaussian_scaling;
-    public double gaussian_weight;
+    public boolean bilateral_scaling;
+    public double sigma_s;
+    public double sigma_r;
     public int gaussian_kernel;
     public boolean remove_outliers_pre;
     public boolean remove_outliers_post;
@@ -47,6 +49,11 @@ public class D3Settings {
     public int histogram_granularity;
     public double histogram_density;
     public boolean preHeightScaling;
+    public int fractionalTransfer;
+    public int fractionalSmoothing;
+    public int fractionalTransferMode;
+    public double fractionalTransferScale;
+    public boolean height_invert;
     
     public D3Settings() {
         
@@ -62,7 +69,9 @@ public class D3Settings {
         color_3d_blending = 0.84;
 
         gaussian_scaling = false;
-        gaussian_weight = 2;
+        bilateral_scaling = false;
+        sigma_s = 2;
+        sigma_r = 2;
         gaussian_kernel = 1;
 
         shade_height = false;
@@ -87,6 +96,13 @@ public class D3Settings {
         preHeightScaling = false;
 
         outliers_method = 0;
+
+        fractionalTransfer = 0;
+        fractionalSmoothing = 0;
+        fractionalTransferMode = 1;
+        fractionalTransferScale = 10;
+
+        height_invert = false;
         
     }
 }

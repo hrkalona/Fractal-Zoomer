@@ -22,7 +22,7 @@ public class SettingsFractals1085 extends SettingsFractals1084 implements Serial
         xJuliaCenter = s.xJuliaCenter.toString(true);
         yJuliaCenter = s.yJuliaCenter.toString(true);
         blending_reversed_colors = s.color_blending.blending_reversed_colors;
-        min_contour = s.cns.min_contour;
+        min_contour = s.pps.cns.min_contour;
         this.perturbation_theory = perturbation_theory;
         this.greedy_drawing_algorithm = greedy_drawing_algorithm;
     }

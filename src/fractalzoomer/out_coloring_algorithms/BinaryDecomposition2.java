@@ -29,7 +29,7 @@ public class BinaryDecomposition2 extends OutColorAlgorithm {
     public BinaryDecomposition2() {
 
         super();
-        OutNotUsingIncrement = false;
+        OutUsingIncrement = true;
         
     }
 

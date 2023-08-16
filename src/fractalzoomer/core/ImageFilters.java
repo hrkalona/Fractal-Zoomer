@@ -21,6 +21,7 @@ import fractalzoomer.filters_utils.image.*;
 import fractalzoomer.filters_utils.image.LightFilter.Light;
 import fractalzoomer.filters_utils.image.LightFilter.Material;
 import fractalzoomer.main.MainWindow;
+import fractalzoomer.main.app_settings.FiltersSettings;
 import fractalzoomer.utils.ColorSpaceConverter;
 
 import javax.swing.*;
@@ -40,12 +41,11 @@ public class ImageFilters {
     private static final float[] thick_edges = {-1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -2.0f, -2.0f, -2.0f, -1.0f, -1.0f, -2.0f, 32.0f, -2.0f, -1.0f, -1.0f, -2.0f, -2.0f, -2.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f};
     private static final float[] thin_edges = {-1.0f, -1.0f, -1.0f, -1.0f, 8.0f, -1.0f, -1.0f, -1.0f, -1.0f};
     private static final float[] sharpness_high = {-0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, 3.4f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f};
-    private static float[] sharpness_low = {0.0f, -0.2f, 0.0f, -0.2f, 1.8f, -0.2f, 0.0f, -0.2f, 0.0f};
     private static final float[] EMBOSS = {1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, -1.0f};
 
     private static void filterEmboss(BufferedImage image, int filter_value) {
 
-        int image_size = image.getHeight();
+        int image_size = image.getWidth();
 
         int algorithm = (int) (((int) (((int) (filter_value % 100000.0)) % 1000.0)) % 10.0);
 
@@ -150,7 +150,7 @@ public class ImageFilters {
 
         int kernelWidth = (int) Math.sqrt((double) EDGES.length);
 
-        int image_size = image.getHeight();
+        int image_size = image.getWidth();
 
         Kernel kernel = new Kernel(kernelWidth, kernelWidth, EDGES);
         ConvolveOp cop = new ConvolveOp(kernel, ConvolveOp.EDGE_ZERO_FILL, null);
@@ -187,38 +187,40 @@ public class ImageFilters {
 
     private static void filterSharpness(BufferedImage image, int filter_value) {
 
-        int image_size = image.getHeight();
+        if(filter_value == 1) {
+            int image_size = image.getWidth();
 
-        float[] SHARPNESS = null;
+            float[] SHARPNESS = sharpness_high;
 
-        if (filter_value == 0) {
-            SHARPNESS = sharpness_low;
+            int kernelWidth = (int) Math.sqrt((double) SHARPNESS.length);
+            int kernelHeight = kernelWidth;
+            int xOffset = (kernelWidth - 1) / 2;
+            int yOffset = xOffset;
+
+            BufferedImage newSource = new BufferedImage(image_size + kernelWidth - 1, image_size + kernelHeight - 1, BufferedImage.TYPE_INT_RGB);
+            Graphics2D graphics = newSource.createGraphics();
+            graphics.drawImage(image, xOffset, yOffset, null);
+
+            Kernel kernel = new Kernel(kernelWidth, kernelHeight, SHARPNESS);
+            ConvolveOp cop = new ConvolveOp(kernel, ConvolveOp.EDGE_NO_OP, null);
+            cop.filter(newSource, image);
+
+            graphics.dispose();
+            graphics = null;
+            kernel = null;
+            cop = null;
+            newSource = null;
+        } else if (filter_value == 0) {
+            SharpenFilter f = new SharpenFilter();
+            f.filter(image, image);
         } else {
-            SHARPNESS = sharpness_high;
+            UnsharpFilter f = new UnsharpFilter();
+            f.filter(image, image);
         }
-
-        int kernelWidth = (int) Math.sqrt((double) SHARPNESS.length);
-        int kernelHeight = kernelWidth;
-        int xOffset = (kernelWidth - 1) / 2;
-        int yOffset = xOffset;
-
-        BufferedImage newSource = new BufferedImage(image_size + kernelWidth - 1, image_size + kernelHeight - 1, BufferedImage.TYPE_INT_RGB);
-        Graphics2D graphics = newSource.createGraphics();
-        graphics.drawImage(image, xOffset, yOffset, null);
-
-        Kernel kernel = new Kernel(kernelWidth, kernelHeight, SHARPNESS);
-        ConvolveOp cop = new ConvolveOp(kernel, ConvolveOp.EDGE_NO_OP, null);
-        cop.filter(newSource, image);
-
-        graphics.dispose();
-        graphics = null;
-        kernel = null;
-        cop = null;
-        newSource = null;
 
     }
 
-    private static void filterBlurring(BufferedImage image, int filter_value) { //OLD antialiasing method (blurring)
+    private static void filterBlurring(BufferedImage image, int filter_value, double sigmaR, double sigmaS, int kernel_size) { //OLD antialiasing method (blurring)
 
         int alg = ((int) (filter_value / 1000.0));
 
@@ -286,11 +288,12 @@ public class ImageFilters {
                 blur = NORMAL_BLUR;
             } else {
                 int radius = alg;
-                double weight = ((int) (filter_value % 1000.0)) / 100.0 * 40;
 
                 int kernelSize = (radius - 1) * 2 + 3;
-                //double weight = 0.3* ((kernelSize - 1) * 0.5 - 1) + 0.8;
-                blur = createGaussianKernel(kernelSize, weight);
+                if(sigmaR == 0) {
+                    sigmaR = 0.3* ((kernelSize - 1) * 0.5 - 1) + 0.8;
+                }
+                blur = createGaussianKernel(kernelSize, (float) sigmaR);
             }
 
             // }
@@ -324,7 +327,7 @@ public class ImageFilters {
             int xOffset = (kernelWidth - 1) / 2;
             int yOffset = xOffset;
 
-            int image_size = image.getHeight();
+            int image_size = image.getWidth();
 
             BufferedImage newSource = new BufferedImage(image_size + kernelWidth - 1, image_size + kernelHeight - 1, BufferedImage.TYPE_INT_RGB);
             Graphics2D graphics = newSource.createGraphics();
@@ -353,19 +356,53 @@ public class ImageFilters {
 
             f.filter(image, image);
         } else if (alg == 9) {
-            double weight = ((int) (filter_value % 1000.0));
+            double radius = ((int) (filter_value % 1000.0));
 
             HighPassFilter f = new HighPassFilter();
 
-            f.setRadius((float) weight);
+            f.setRadius((float) radius);
 
             f.filter(image, image);
+        }
+        else if (alg == 10) {
+            BlurFilter f = new BlurFilter();
+            f.filter(image, image);
+        }
+        else if (alg == 11) {
+            DespeckleFilter f = new DespeckleFilter();
+            f.filter(image, image);
+        }
+        else if (alg == 12) {
+            LensBlurFilter f = new LensBlurFilter();
+            f.filter(image, image);
+        }
+        else if (alg == 13) {
+            ReduceNoiseFilter f = new ReduceNoiseFilter();
+            f.filter(image, image);
+        }
+        else if (alg == 14) {
+            SmartBlurFilter f = new SmartBlurFilter();
+            f.filter(image, image);
+        }
+        else if(alg == 15) {
+            GaussianFilter f = new GaussianFilter();
+            double radius = ((int) (filter_value % 1000.0));
+            f.setRadius((float) radius);
+            f.filter(image, image);
+        }
+        else if(alg == 16) {
+            int image_size = image.getWidth();
+            BufferedImage newSource = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
+            Graphics2D graphics = newSource.createGraphics();
+            graphics.drawImage(image, 0, 0, null);
+            BilateralFilter f = new BilateralFilter(kernel_size, sigmaR, sigmaS);
+            f.filter(newSource, image);
         }
     }
 
     private static void filterInvertColors(BufferedImage image, int filter_value) {
 
-        int image_size = image.getHeight();
+        int image_size = image.getWidth();
 
         int[] raster = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 
@@ -462,7 +499,7 @@ public class ImageFilters {
 
     private static void filterColorChannelSwapping(BufferedImage image, int filter_value) {
 
-        int image_size = image.getHeight();
+        int image_size = image.getWidth();
 
         int[] raster = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 
@@ -517,7 +554,7 @@ public class ImageFilters {
 
     private static void filterGrayscale(BufferedImage image, int filter_value) {
 
-        int image_size = image.getHeight();
+        int image_size = image.getWidth();
 
         int[] raster = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 
@@ -555,7 +592,7 @@ public class ImageFilters {
 
     private static void filterHistogramEqualization(BufferedImage image, int filter_value) {
 
-        int image_size = image.getHeight();
+        int image_size = image.getWidth();
 
         int[] raster = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 
@@ -1367,7 +1404,39 @@ public class ImageFilters {
 
     }
 
-    public static float[] createGaussianKernel(int length, double weight) {
+    public static double[] createGaussianKernel(int length, double weight) {
+        double[] gaussian_kernel = new double[length * length];
+        double sumTotal = 0;
+
+        //OpenCv
+        //weight=0.3*((length-1)*0.5 - 1) + 0.8;
+        int kernelRadius = length / 2;
+        double distance = 0;
+
+        double weightSqr2 =  2.0 * weight * weight;
+        double calculatedEuler = 1.0 / (weightSqr2 * Math.PI);
+
+
+        double temp;
+        for (int filterY = -kernelRadius; filterY <= kernelRadius; filterY++) {
+            for (int filterX = -kernelRadius; filterX <= kernelRadius; filterX++) {
+                distance = ((filterX * filterX) + (filterY * filterY)) / (weightSqr2);
+                temp = gaussian_kernel[(filterY + kernelRadius) * length + filterX + kernelRadius] = (calculatedEuler * Math.exp(-distance));
+                sumTotal += temp;
+            }
+        }
+
+        for (int y = 0; y < length; y++) {
+            for (int x = 0; x < length; x++) {
+                gaussian_kernel[y * length + x] = (gaussian_kernel[y * length + x] / sumTotal);
+            }
+        }
+
+        return gaussian_kernel;
+
+    }
+
+    public static float[] createGaussianKernel(int length, float weight) {
         float[] gaussian_kernel = new float[length * length];
         double sumTotal = 0;
 
@@ -1406,7 +1475,7 @@ public class ImageFilters {
 
     }
 
-    public static void filter(BufferedImage image, boolean[] filters, int[] filters_options_vals, int[][] filters_options_extra_vals, Color[] filters_colors, Color[][] filters_extra_colors, int[] filters_order, JProgressBar progressbar) {
+    public static void filter(BufferedImage image, boolean[] filters, int[] filters_options_vals, int[][] filters_options_extra_vals, Color[] filters_colors, Color[][] filters_extra_colors, int[] filters_order, FiltersSettings fs, JProgressBar progressbar) {
 
         int active = 0;
         if (filters[MainWindow.ANTIALIASING] && progressbar != null) {
@@ -1661,7 +1730,7 @@ public class ImageFilters {
                     break;
                 case MainWindow.BLURRING:
                     if (filters[MainWindow.BLURRING]) {
-                        ImageFilters.filterBlurring(image, filters_options_vals[MainWindow.BLURRING]);
+                        ImageFilters.filterBlurring(image, filters_options_vals[MainWindow.BLURRING], fs.bluringSigmaR, fs.bluringSigmaS, fs.blurringKernelSelection * 2 + 3);
                         if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);

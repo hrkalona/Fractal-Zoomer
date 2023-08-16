@@ -1,7 +1,7 @@
 package fractalzoomer.utils;
 
 import com.jogamp.nativewindow.WindowClosingProtocol;
-import fractalzoomer.core.ThreadDraw;
+import fractalzoomer.core.TaskDraw;
 import fractalzoomer.gui.MyButton;
 import fractalzoomer.gui.MyJSpinner;
 import fractalzoomer.main.CommonFunctions;
@@ -916,7 +916,8 @@ public class P3DHeightMap extends PApplet {
     @Override
     public void draw() {
 
-        float[][][] data = ThreadDraw.vert;
+        double[][] data = TaskDraw.vert;
+        int[][] data_color = TaskDraw.vert_color;
 
         try {
 
@@ -928,7 +929,7 @@ public class P3DHeightMap extends PApplet {
             rotateZ(rotZ);
             translate(-image_size / 2, -image_size / 2);
 
-            if(data == null) {
+            if(data == null || data_color == null) {
                 return;
             }
 
@@ -992,26 +993,26 @@ public class P3DHeightMap extends PApplet {
 
             float scale_factor = Float.parseFloat(scaling.getText());
 
-            if(ThreadDraw.D3_APPLY_AVERAGE_TO_TRIANGLE_COLORS == 1) {
+            if(TaskDraw.D3_APPLY_AVERAGE_TO_TRIANGLE_COLORS == 1) {
                 int red, green, blue;
                 for (int y = 0; y < details - 1; y++) {
                     int yp1 = y + 1;
                     beginShape(TRIANGLE_STRIP);
                     for (int x = 0; x < details; x++) {
-                        red = ((int) data[x][y][0] >> 16) & 0xff;
-                        green = ((int) data[x][y][0] >> 8) & 0xff;
-                        blue = ((int) data[x][y][0]) & 0xff;
+                        red = (data_color[x][y] >> 16) & 0xff;
+                        green = (data_color[x][y] >> 8) & 0xff;
+                        blue = (data_color[x][y]) & 0xff;
 
                         fill(red, green, blue);
 
-                        vertex(x * scl, y * scl,  scale_factor * (invertcb.isSelected() ? -data[x][y][1] : data[x][y][1]));
-                        red = ((int) data[x][yp1][0] >> 16) & 0xff;
-                        green = ((int) data[x][yp1][0] >> 8) & 0xff;
-                        blue = ((int) data[x][yp1][0]) & 0xff;
+                        vertex(x * scl, y * scl,  (float)(scale_factor * (invertcb.isSelected() ? -data[x][y] : data[x][y])));
+                        red = (data_color[x][yp1] >> 16) & 0xff;
+                        green = (data_color[x][yp1] >> 8) & 0xff;
+                        blue = (data_color[x][yp1]) & 0xff;
 
                         fill(red, green, blue);
 
-                        vertex(x * scl, yp1 * scl, scale_factor * (invertcb.isSelected() ? -data[x][yp1][1] : data[x][yp1][1]));
+                        vertex(x * scl, yp1 * scl, (float)(scale_factor * (invertcb.isSelected() ? -data[x][yp1] : data[x][yp1])));
                     }
                     endShape();
                 }
@@ -1024,25 +1025,25 @@ public class P3DHeightMap extends PApplet {
                     int xp1 = x + 1;
                     for (int y = 0; y < details - 1; y++) {
 
-                        int red1 = ((int) data[x][y][0] >> 16) & 0xff;
-                        int green1 = ((int) data[x][y][0] >> 8) & 0xff;
-                        int blue1 = ((int) data[x][y][0]) & 0xff;
+                        int red1 = (data_color[x][y] >> 16) & 0xff;
+                        int green1 = (data_color[x][y] >> 8) & 0xff;
+                        int blue1 = (data_color[x][y]) & 0xff;
 
                         int yp1 = y + 1;
 
-                        if(ThreadDraw.D3_APPLY_AVERAGE_TO_TRIANGLE_COLORS == 0) {
+                        if(TaskDraw.D3_APPLY_AVERAGE_TO_TRIANGLE_COLORS == 0) {
                             red = red1;
                             green = green1;
                             blue = blue1;
                         }
                         else {
-                            int red2 = ((int) data[xp1][y][0] >> 16) & 0xff;
-                            int green2 = ((int) data[xp1][y][0] >> 8) & 0xff;
-                            int blue2 = ((int) data[xp1][y][0]) & 0xff;
+                            int red2 = (data_color[xp1][y] >> 16) & 0xff;
+                            int green2 = (data_color[xp1][y] >> 8) & 0xff;
+                            int blue2 = (data_color[xp1][y]) & 0xff;
 
-                            int red3 = ((int) data[x][yp1][0] >> 16) & 0xff;
-                            int green3 = ((int) data[x][yp1][0] >> 8) & 0xff;
-                            int blue3 = ((int) data[x][yp1][0]) & 0xff;
+                            int red3 = (data_color[x][yp1] >> 16) & 0xff;
+                            int green3 = (data_color[x][yp1] >> 8) & 0xff;
+                            int blue3 = (data_color[x][yp1]) & 0xff;
 
                             red = (int)((red1 + red2 + red3) / 3.0 + 0.5);
                             green = (int)((green1 + green2 + green3) / 3.0 + 0.5);
@@ -1053,29 +1054,29 @@ public class P3DHeightMap extends PApplet {
                         beginShape(TRIANGLE);
                         fill(red, green, blue);
 
-                        vertex(x * scl, y * scl, scale_factor * (invertcb.isSelected() ? -data[x][y][1] : data[x][y][1]));
-                        vertex(xp1 * scl, y * scl, scale_factor * (invertcb.isSelected() ? -data[xp1][y][1] : data[xp1][y][1]));
-                        vertex(x * scl, yp1 * scl, scale_factor * (invertcb.isSelected() ? -data[x][yp1][1] : data[x][yp1][1]));
+                        vertex(x * scl, y * scl, (float)(scale_factor * (invertcb.isSelected() ? -data[x][y] : data[x][y])));
+                        vertex(xp1 * scl, y * scl, (float)(scale_factor * (invertcb.isSelected() ? -data[xp1][y] : data[xp1][y])));
+                        vertex(x * scl, yp1 * scl, (float)(scale_factor * (invertcb.isSelected() ? -data[x][yp1] : data[x][yp1])));
                         endShape();
 
 
-                        red1 = ((int) data[xp1][y][0] >> 16) & 0xff;
-                        green1 = ((int) data[xp1][y][0] >> 8) & 0xff;
-                        blue1 = ((int) data[xp1][y][0]) & 0xff;
+                        red1 = (data_color[xp1][y] >> 16) & 0xff;
+                        green1 = (data_color[xp1][y] >> 8) & 0xff;
+                        blue1 = (data_color[xp1][y]) & 0xff;
 
-                        if(ThreadDraw.D3_APPLY_AVERAGE_TO_TRIANGLE_COLORS == 0) {
+                        if(TaskDraw.D3_APPLY_AVERAGE_TO_TRIANGLE_COLORS == 0) {
                             red = red1;
                             green = green1;
                             blue = blue1;
                         }
                         else {
-                            int red2 = ((int) data[xp1][yp1][0] >> 16) & 0xff;
-                            int green2 = ((int) data[xp1][yp1][0] >> 8) & 0xff;
-                            int blue2 = ((int) data[xp1][yp1][0]) & 0xff;
+                            int red2 = (data_color[xp1][yp1] >> 16) & 0xff;
+                            int green2 = (data_color[xp1][yp1] >> 8) & 0xff;
+                            int blue2 = (data_color[xp1][yp1]) & 0xff;
 
-                            int red3 = ((int) data[x][yp1][0] >> 16) & 0xff;
-                            int green3 = ((int) data[x][yp1][0] >> 8) & 0xff;
-                            int blue3 = ((int) data[x][yp1][0]) & 0xff;
+                            int red3 = (data_color[x][yp1] >> 16) & 0xff;
+                            int green3 = (data_color[x][yp1] >> 8) & 0xff;
+                            int blue3 = (data_color[x][yp1]) & 0xff;
 
                             red = (int)((red1 + red2 + red3) / 3.0 + 0.5);
                             green = (int)((green1 + green2 + green3) / 3.0 + 0.5);
@@ -1086,9 +1087,9 @@ public class P3DHeightMap extends PApplet {
                         beginShape(TRIANGLE);
                         fill(red, green, blue);
 
-                        vertex(xp1 * scl, y * scl, scale_factor * (invertcb.isSelected() ? -data[xp1][y][1] : data[xp1][y][1]));
-                        vertex(xp1 * scl, yp1 * scl, scale_factor * (invertcb.isSelected() ? -data[xp1][yp1][1] : data[xp1][yp1][1]) );
-                        vertex(x * scl, yp1 * scl, scale_factor * (invertcb.isSelected() ? -data[x][yp1][1] : data[x][yp1][1]));
+                        vertex(xp1 * scl, y * scl, (float)(scale_factor * (invertcb.isSelected() ? -data[xp1][y] : data[xp1][y])));
+                        vertex(xp1 * scl, yp1 * scl, (float)(scale_factor * (invertcb.isSelected() ? -data[xp1][yp1] : data[xp1][yp1])) );
+                        vertex(x * scl, yp1 * scl, (float)(scale_factor * (invertcb.isSelected() ? -data[x][yp1] : data[x][yp1])));
 
                         endShape();
                     }

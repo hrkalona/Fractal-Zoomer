@@ -47,7 +47,7 @@ public class SplitImageRenderDialog extends JDialog {
 
         Object[] message3 = {
             " ",
-            "Enter the grid dimension N for the image split (NxN).",
+            "Insert the grid dimension N for the image split (NxN).",
                 "Grid Dimension N:",
             field,
             " ",};

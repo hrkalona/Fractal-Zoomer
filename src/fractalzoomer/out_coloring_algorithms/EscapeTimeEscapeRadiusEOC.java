@@ -28,7 +28,7 @@ public class EscapeTimeEscapeRadiusEOC extends EscapeTimeEscapeRadius {
     public EscapeTimeEscapeRadiusEOC(double log_bailout_squared) {
 
         super(log_bailout_squared);
-        OutNotUsingIncrement = true;
+        OutUsingIncrement = false;
 
     }
 

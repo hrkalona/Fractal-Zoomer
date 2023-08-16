@@ -26,7 +26,7 @@ public class SmoothBinaryDecomposition2Kleinian extends OutColorAlgorithm {
 
         super();
         this.u = u * 0.5;
-        OutNotUsingIncrement = false;
+        OutUsingIncrement = true;
 
     }
 

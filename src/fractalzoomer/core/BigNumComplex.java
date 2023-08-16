@@ -298,8 +298,8 @@ public class BigNumComplex extends GenericComplex {
     public final BigNum norm_squared() {
 
         if(BigNum.use_threads) {
-            Future<BigNum> temp1 = ThreadDraw.executor.submit(() -> re.square());
-            Future<BigNum> temp2 = ThreadDraw.executor.submit(() -> im.square());
+            Future<BigNum> temp1 = TaskDraw.reference_thread_executor.submit(() -> re.square());
+            Future<BigNum> temp2 = TaskDraw.reference_thread_executor.submit(() -> im.square());
 
             try {
                 return temp1.get().add(temp2.get());
@@ -508,8 +508,8 @@ public class BigNumComplex extends GenericComplex {
         BigNumComplex c = (BigNumComplex)cn;
 
         if(BigNum.use_threads) {
-            Future<BigNum> temp1 = ThreadDraw.executor.submit(() -> re.add(im).mult(re.sub(im)).add(c.re));
-            Future<BigNum> temp2 = ThreadDraw.executor.submit(() -> re.mult(im).mult2().add(c.im));
+            Future<BigNum> temp1 = TaskDraw.reference_thread_executor.submit(() -> re.add(im).mult(re.sub(im)).add(c.re));
+            Future<BigNum> temp2 = TaskDraw.reference_thread_executor.submit(() -> re.mult(im).mult2().add(c.im));
 
             try {
                 return new BigNumComplex(temp1.get(), temp2.get());
@@ -633,6 +633,28 @@ public class BigNumComplex extends GenericComplex {
 
     }
 
+    public final BigNumComplex inflectionPower(BigNumComplex inf, double power) {
+
+        if(power == 1) {
+            return plus(inf);
+        }
+        else if(power == 2) {
+            return square().plus(inf);
+        }
+        else if(power == 3) {
+            return cube().plus(inf);
+        }
+        else if(power == 4) {
+            return fourth().plus(inf);
+        }
+        if(power == 5) {
+            return fifth().plus(inf);
+        }
+
+        return new BigNumComplex();
+
+    }
+
     public final BigNumComplex shear(BigNumComplex sh) {
 
         return new BigNumComplex(re.add(im.mult(sh.re)), im.add(re.mult(sh.im)));
@@ -683,7 +705,7 @@ public class BigNumComplex extends GenericComplex {
     }
 
     @Override
-    public MantExpComplex toMantExpComplex() { return new MantExpComplex(this);}
+    public MantExpComplex toMantExpComplex() { return MantExpComplex.create(this);}
 
     @Override
     public void set(GenericComplex za) {
@@ -817,6 +839,19 @@ public class BigNumComplex extends GenericComplex {
 
     }
 
+    @Override
+    public BigNumComplex absNegateRe_mutable() {
+        return new BigNumComplex(re.abs().negate(), im);
+    }
+
+    @Override
+    public BigNumComplex absNegateIm_mutable() {
+        return new BigNumComplex(re, im.abs().negate());
+    }
+
+    @Override
+    public BigNumComplex absre_mutable() { return  absre(); }
+
     public static void main(String[] args) {
 
         MyApfloat.setPrecision(3000);
@@ -844,6 +879,6 @@ public class BigNumComplex extends GenericComplex {
         System.out.println(System.currentTimeMillis() - time);
         System.out.println(i);
 
-        ThreadDraw.executor.shutdown();
+        TaskDraw.reference_thread_executor.shutdown();
     }
 }

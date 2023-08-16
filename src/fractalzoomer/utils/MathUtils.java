@@ -28,6 +28,11 @@ import java.awt.geom.Point2D;
  * @author hrkalona2
  */
 public class MathUtils {
+
+	public static double fract(double x) {
+		x = Math.abs(x);
+		return x - (int)x;
+	}
     
     public static double angleBetween2PointsDegrees(double x1, double y1, double x2, double y2) {
         

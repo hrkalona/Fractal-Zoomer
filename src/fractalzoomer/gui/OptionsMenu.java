@@ -61,11 +61,15 @@ public class OptionsMenu extends MyMenu {
     private JMenuItem variables_opt;
     private JMenuItem overview_opt;
     private JMenuItem stats_opt;
+
+    private JMenuItem thread_stats_opt;
     private FractalOptionsMenu fractal_options_menu;
     private JMenu window_menu;
     private JCheckBoxMenuItem toolbar_opt;
     private JCheckBoxMenuItem statusbar_opt;
     private JCheckBoxMenuItem infobar_opt;
+
+    private JCheckBoxMenuItem debugbar_opt;
     private JCheckBoxMenuItem fullscreen_opt;
 
     private JCheckBoxMenuItem auto_repaint_image_opt;
@@ -139,8 +143,11 @@ public class OptionsMenu extends MyMenu {
 
         stats_opt = new MyMenuItem("Statistics", MainWindow.getIcon("stats.png"));
 
+        thread_stats_opt = new MyMenuItem("Task Statistics", MainWindow.getIcon("stats_tasks.png"));
+
         toolbar_opt = new MyCheckBoxMenuItem("Tool Bar");
         statusbar_opt = new MyCheckBoxMenuItem("Status Bar");
+        debugbar_opt = new MyCheckBoxMenuItem("Debug Bar");
         infobar_opt = new MyCheckBoxMenuItem("Information Bar");
         fullscreen_opt = new MyCheckBoxMenuItem("Full Screen");
 
@@ -148,12 +155,15 @@ public class OptionsMenu extends MyMenu {
         zoom_on_cursor_opt = new MyCheckBoxMenuItem("Zoom on Mouse Cursor");
         quick_draw_opt = new MyMenuItem("Quick Draw", MainWindow.getIcon("quickdraw.png"));
 
+        auto_repaint_image_opt.setSelected(MainWindow.AUTO_REPAINT_IMAGE);
+        zoom_on_cursor_opt.setSelected(MainWindow.ZOOM_ON_THE_CURSOR);
+
         size_of_image.setToolTipText("Sets the image size.");
         period.setToolTipText("Sets the period for the reference calculation.");
         iterations.setToolTipText("Sets the maximum number of iterations.");
-        increase_iterations.setToolTipText("Increases the maximum iteterations number by one.");
-        decrease_iterations.setToolTipText("Decreases the maximum iteterations number by one.");
-        double_iterations.setToolTipText("Doubles the maximum iteterations.");
+        increase_iterations.setToolTipText("Increases the maximum iterations number by one.");
+        decrease_iterations.setToolTipText("Decreases the maximum iterations number by one.");
+        double_iterations.setToolTipText("Doubles the maximum iterations.");
         bailout_number.setToolTipText("Sets the bailout. Above this number the norm of a complex numbers is not bounded.");
         set_rotation.setToolTipText("Sets the rotation in degrees.");
         point_opt.setToolTipText("A point picked by the user, for the point variable.");
@@ -165,8 +175,10 @@ public class OptionsMenu extends MyMenu {
         filters_options.setToolTipText("Sets the options of the image filters.");
         overview_opt.setToolTipText("Creates a report of all the active fractal options.");
         stats_opt.setToolTipText("Displays the statistics of last rendered fractal.");
+        thread_stats_opt.setToolTipText("Displays the task statistics of last rendered fractal.");
         toolbar_opt.setToolTipText("Activates the tool bar.");
         statusbar_opt.setToolTipText("Activates the status bar.");
+        debugbar_opt.setToolTipText("Activate the debug bar.");
         infobar_opt.setToolTipText("Activates the information bar.");
         fullscreen_opt.setToolTipText("Toggles the application from window mode to full screen.");
         jitter_opt.setToolTipText("Adds jitter to each pixel.");
@@ -196,6 +208,7 @@ public class OptionsMenu extends MyMenu {
         stats_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F12, 0));
         jitter_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_J, ActionEvent.CTRL_MASK | ActionEvent.SHIFT_MASK));
         quick_draw_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, ActionEvent.SHIFT_MASK));
+        thread_stats_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F12, ActionEvent.CTRL_MASK));
 
         overview_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.SHIFT_MASK));
 
@@ -231,11 +244,15 @@ public class OptionsMenu extends MyMenu {
 
         stats_opt.addActionListener(e -> ptr.Stats());
 
+        thread_stats_opt.addActionListener(e -> ptr.ThreadStats());
+
         toolbar_opt.addActionListener(e -> ptr.setToolbar());
 
         statusbar_opt.addActionListener(e -> ptr.setStatubar());
 
         infobar_opt.addActionListener(e -> ptr.setInfobar());
+
+        debugbar_opt.addActionListener(e -> ptr.setDebugbar());
 
         fullscreen_opt.addActionListener(e -> ptr.setFullScreen());
 
@@ -248,12 +265,14 @@ public class OptionsMenu extends MyMenu {
         window_menu.add(toolbar_opt);
         window_menu.add(infobar_opt);
         window_menu.add(statusbar_opt);
+        window_menu.add(debugbar_opt);
         window_menu.add(fullscreen_opt);
 
         toolbar_opt.setSelected(true);
         infobar_opt.setSelected(true);
         statusbar_opt.setSelected(true);
         fullscreen_opt.setSelected(false);
+        debugbar_opt.setSelected(false);
 
         filters_options.addActionListener(e -> ptr.filtersOptions());
 
@@ -308,6 +327,8 @@ public class OptionsMenu extends MyMenu {
         add(overview_opt);
         addSeparator();
         add(stats_opt);
+        addSeparator();
+        add(thread_stats_opt);
         addSeparator();
         add(window_menu);
     }
@@ -370,9 +391,21 @@ public class OptionsMenu extends MyMenu {
 
     }
 
+    public JMenuItem getColorSpaceParams() {
+
+        return colors_menu.getColorSpaceParams();
+
+    }
+
     public JMenuItem getFakeDistanceEstimation() {
 
         return colors_menu.getFakeDistanceEstimation();
+
+    }
+
+    public JMenuItem getNumericalDistanceEstimator() {
+
+        return colors_menu.getNumericalDistanceEstimator();
 
     }
 
@@ -628,6 +661,10 @@ public class OptionsMenu extends MyMenu {
 
     }
 
+    public JMenuItem getStatsTasks() {
+        return thread_stats_opt;
+    }
+
     public JCheckBoxMenuItem getToolbar() {
 
         return toolbar_opt;
@@ -649,6 +686,12 @@ public class OptionsMenu extends MyMenu {
     public JCheckBoxMenuItem getStatusbar() {
 
         return statusbar_opt;
+
+    }
+
+    public JCheckBoxMenuItem getDebugbar() {
+
+        return debugbar_opt;
 
     }
 
@@ -697,6 +740,12 @@ public class OptionsMenu extends MyMenu {
     public JMenuItem getLight() {
 
         return colors_menu.getLight();
+
+    }
+
+    public JMenuItem getSlopes() {
+
+        return colors_menu.getSlopes();
 
     }
     

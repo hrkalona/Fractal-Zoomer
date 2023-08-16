@@ -66,10 +66,10 @@ public class SettingsFractals1074 extends SettingsFractals1073 implements Serial
         outTcColorSpace = s.fns.tcs.outTcColorSpace;
         inTcColorSpace = s.fns.tcs.inTcColorSpace;
         newton_hines_k = s.fns.newton_hines_k;
-        showAtomDomains = s.sts.showAtomDomains;
-        reductionFunction = s.sts.reductionFunction;
-        useIterations = s.sts.useIterations;
-        useSmoothing = s.sts.useSmoothing;
+        showAtomDomains = s.pps.sts.showAtomDomains;
+        reductionFunction = s.pps.sts.reductionFunction;
+        useIterations = s.pps.sts.useIterations;
+        useSmoothing = s.pps.sts.useSmoothing;
         stepsize_im = s.fns.mps.stepsize_im;
         lyapunovInitialValue = s.fns.lpns.lyapunovInitialValue;
         

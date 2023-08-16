@@ -16,8 +16,10 @@
  */
 package fractalzoomer.core;
 
+import fractalzoomer.core.unused.BigDecNumComplex;
 import fractalzoomer.filters_utils.math.Noise;
 import fractalzoomer.utils.NormComponents;
+import org.apfloat.Apfloat;
 
 public final class Complex extends GenericComplex {
     public static final double HALF_PI = Math.PI * 0.5;
@@ -40,6 +42,13 @@ public final class Complex extends GenericComplex {
 
         this.re = re;
         this.im = im;
+
+    }
+
+    public Complex(Apfloat re, Apfloat im) {
+
+        this.re = re.doubleValue();
+        this.im = im.doubleValue();
 
     }
 
@@ -83,6 +92,9 @@ public final class Complex extends GenericComplex {
     public BigIntNumComplex toBigIntNumComplex() { return new BigIntNumComplex(this); }
 
     @Override
+    public BigDecNumComplex toBigDecNumComplex() { return new BigDecNumComplex(this); }
+
+    @Override
     public MpfrBigNumComplex toMpfrBigNumComplex() { return new MpfrBigNumComplex(this);}
 
     @Override
@@ -118,6 +130,13 @@ public final class Complex extends GenericComplex {
 
         this.re = re;
         im = 0;
+
+    }
+
+    public final void assign(double re, double im) {
+
+        this.re = re;
+        this.im = im;
 
     }
 
@@ -1191,6 +1210,7 @@ public final class Complex extends GenericComplex {
     /*
      *  z = |Re(z)| + Im(z)i
      */
+    @Override
     public final Complex absre_mutable() {
 
         re = re >= 0 ? re : -re;
@@ -1706,7 +1726,7 @@ public final class Complex extends GenericComplex {
      */
     public final Complex ahvsin() {
 
-        return this.sqrt().asin().times_mutable(2);
+        return this.sqrt().asin().times2_mutable();
 
     }
 
@@ -1724,7 +1744,7 @@ public final class Complex extends GenericComplex {
      */
     public final Complex ahvcos() {
 
-        return this.sqrt().acos().times_mutable(2);
+        return this.sqrt().acos().times2_mutable();
 
     }
 
@@ -1742,7 +1762,7 @@ public final class Complex extends GenericComplex {
      */
     public final Complex ahcvsin() {
 
-        return this.times(2).r_sub_mutable(1).asin();
+        return this.times2().r_sub_mutable(1).asin();
 
     }
 
@@ -2037,10 +2057,26 @@ public final class Complex extends GenericComplex {
      * Gamma function with lancos aproximation
      */
     public final Complex gamma_la() {
-        double[] p = {0.99999999999980993, 676.5203681218851, -1259.1392167224028,
-            771.32342877765313, -176.61502916214059, 12.507343278686905,
-            -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7};
-        int g = 7;
+//        double[] p = {0.99999999999980993, 676.5203681218851, -1259.1392167224028,
+//            771.32342877765313, -176.61502916214059, 12.507343278686905,
+//            -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7};
+//        int g = 7;
+
+        int g = 8;
+        double[] p = {
+        0.9999999999999999298,
+                1975.3739023578852322,
+                -4397.3823927922428918,
+                3462.6328459862717019,
+                -1156.9851431631167820,
+                154.53815050252775060,
+                -6.2536716123689161798,
+                0.034642762454736807441,
+                -7.4776171974442977377e-7,
+                6.3041253821852264261e-8,
+                -2.7405717035683877489e-8,
+                4.0486948817567609101e-9};
+
         if (re < 0.5) {
             Complex pi = new Complex(Math.PI, 0);
             return pi.divide_mutable((this.times(pi)).sin().times_mutable((this.r_sub(1.0)).gamma_la()));
@@ -2188,7 +2224,7 @@ public final class Complex extends GenericComplex {
 
     public final Complex fromBiPolar(Complex a) {
 
-        return this.divide(a.times_i(1)).acot().times_mutable(2);
+        return this.divide(a.times_i(1)).acot().times2_mutable();
 
     }
 
@@ -2221,6 +2257,17 @@ public final class Complex extends GenericComplex {
 
     }
 
+    public final Complex riemann_zeta_gt1() {
+        Complex temp2 = this.negative();
+        Complex sum2 = new Complex();
+
+        for (int k = 1; k < 101; k++) {
+            sum2.plus_mutable(new Complex(k, 0).pow(temp2));
+        }
+
+        return sum2;
+    }
+
     public final Complex riemann_zeta() {
 
         if (re > 0) {
@@ -2233,7 +2280,7 @@ public final class Complex extends GenericComplex {
             Complex sum2 = temp.riemann_zeta_positive();
 
             return (new Complex(2, 0).pow(this)).times_mutable(new Complex(Math.PI, 0).pow(this.sub(1))).times_mutable(gamma).times_mutable(this.times(HALF_PI).sin()).times_mutable(sum2);
-        }
+       }
 
     }
 
@@ -2251,6 +2298,43 @@ public final class Complex extends GenericComplex {
         Complex diff = this.sub(inf);
 
         return inf.plus(diff.square_mutable());
+
+    }
+
+    public final Complex inflectionPower(Complex inf, double power) {
+
+        if(power == 1) {
+            return plus(inf);
+        }
+        else if(power == 2) {
+            return square().plus_mutable(inf);
+        }
+        else if(power == 3) {
+            return cube().plus_mutable(inf);
+        }
+        else if(power == 4) {
+            return fourth().plus_mutable(inf);
+        }
+        if(power == 5) {
+            return fifth().plus_mutable(inf);
+        }
+        else if(power == 6) {
+            return sixth().plus_mutable(inf);
+        }
+        else if(power == 7) {
+            return seventh().plus_mutable(inf);
+        }
+        else if(power == 8) {
+            return eighth().plus_mutable(inf);
+        }
+        else if(power == 9) {
+            return ninth().plus_mutable(inf);
+        }
+        else if(power == 10) {
+            return tenth().plus_mutable(inf);
+        }
+
+        return pow(power).plus_mutable(inf);
 
     }
 
@@ -2670,7 +2754,7 @@ public final class Complex extends GenericComplex {
     }
 
     @Override
-    public MantExpComplex toMantExpComplex() { return new MantExpComplex(this);}
+    public MantExpComplex toMantExpComplex() { return MantExpComplex.create(this);}
 
     @Override
     public Complex toComplex() {return new Complex(this);}
@@ -3015,6 +3099,25 @@ public final class Complex extends GenericComplex {
 
     public double chebychevNorm() {
         return Math.max(Math.abs(re), Math.abs(im));
+    }
+
+    @Override
+    public void assign(GenericComplex za) {
+        Complex z = (Complex) za;
+        re = z.re;
+        im = z.im;
+    }
+
+    @Override
+    public Complex absNegateRe_mutable() {
+        re = - Math.abs(re);
+        return this;
+    }
+
+    @Override
+    public Complex absNegateIm_mutable() {
+        im = - Math.abs(im);
+        return this;
     }
 
 }

@@ -87,9 +87,4 @@ public class MeanAntialiasingAlgorithm extends AntialiasingAlgorithm {
 
         return  0xff000000 | (result[0] << 16) | (result[1] << 8) | result[2];
     }
-
-    @Override
-    protected double function(double value) {
-        return value * totalSamplesReciprocal;
-    }
 }

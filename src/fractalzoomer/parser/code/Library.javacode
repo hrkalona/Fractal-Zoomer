@@ -39,7 +39,7 @@ public class Derivative {
     }
 
     public static void calculateConstants() {
-        DZ_2 = DZ.times(2);
+        DZ_2 = DZ.times2();
         DZ_3 = DZ.times(3);
 
         INV_DZ = DZ.r_divide(1);
@@ -74,21 +74,21 @@ public class Derivative {
     //Parameters: f(z), f(z + dz), f(z + 2 * dz)
     public static Complex numericalForwardDerivativeSecondOrder(Complex fz, Complex fzdz, Complex fz2dz) {
 
-        return fz.sub(fzdz.times(2)).plus_mutable(fz2dz).times_mutable(INV_DZ_SQUARED);
+        return fz.sub(fzdz.times2()).plus_mutable(fz2dz).times_mutable(INV_DZ_SQUARED);
 
     }
 
     //Parameters: f(z), f(z + dz), f(z - dz)
     public static Complex numericalCentralDerivativeSecondOrder(Complex fz, Complex fzdz, Complex fzmdz) {
 
-        return fzdz.sub(fz.times(2)).plus_mutable(fzmdz).times_mutable(INV_DZ_SQUARED);
+        return fzdz.sub(fz.times2()).plus_mutable(fzmdz).times_mutable(INV_DZ_SQUARED);
 
     }
 
     //Parameters: f(z), f(z - dz), f(z - 2 * dz)
     public static Complex numericalBackwardDerivativeSecondOrder(Complex fz, Complex fzmdz, Complex fzm2dz) {
 
-        return fz.sub(fzmdz.times(2)).plus_mutable(fzm2dz).times_mutable(INV_DZ_SQUARED);
+        return fz.sub(fzmdz.times2()).plus_mutable(fzm2dz).times_mutable(INV_DZ_SQUARED);
 
     }
 
@@ -138,6 +138,13 @@ public final class Complex extends GenericComplex {
 
     }
 
+    public Complex(Apfloat re, Apfloat im) {
+
+        this.re = re.doubleValue();
+        this.im = im.doubleValue();
+
+    }
+
     public Complex(Complex z) {
 
         re = z.re;
@@ -178,6 +185,9 @@ public final class Complex extends GenericComplex {
     public BigIntNumComplex toBigIntNumComplex() { return new BigIntNumComplex(this); }
 
     @Override
+    public BigDecNumComplex toBigDecNumComplex() { return new BigDecNumComplex(this); }
+
+    @Override
     public MpfrBigNumComplex toMpfrBigNumComplex() { return new MpfrBigNumComplex(this);}
 
     @Override
@@ -213,6 +223,13 @@ public final class Complex extends GenericComplex {
 
         this.re = re;
         im = 0;
+
+    }
+
+    public final void assign(double re, double im) {
+
+        this.re = re;
+        this.im = im;
 
     }
 
@@ -1801,7 +1818,7 @@ public final class Complex extends GenericComplex {
      */
     public final Complex ahvsin() {
 
-        return this.sqrt().asin().times_mutable(2);
+        return this.sqrt().asin().times2_mutable();
 
     }
 
@@ -1819,7 +1836,7 @@ public final class Complex extends GenericComplex {
      */
     public final Complex ahvcos() {
 
-        return this.sqrt().acos().times_mutable(2);
+        return this.sqrt().acos().times2_mutable();
 
     }
 
@@ -1837,7 +1854,7 @@ public final class Complex extends GenericComplex {
      */
     public final Complex ahcvsin() {
 
-        return this.times(2).r_sub_mutable(1).asin();
+        return this.times2().r_sub_mutable(1).asin();
 
     }
 
@@ -2283,7 +2300,7 @@ public final class Complex extends GenericComplex {
 
     public final Complex fromBiPolar(Complex a) {
 
-        return this.divide(a.times_i(1)).acot().times_mutable(2);
+        return this.divide(a.times_i(1)).acot().times2_mutable();
 
     }
 
@@ -2346,6 +2363,43 @@ public final class Complex extends GenericComplex {
         Complex diff = this.sub(inf);
 
         return inf.plus(diff.square_mutable());
+
+    }
+
+    public final Complex inflectionPower(Complex inf, double power) {
+
+        if(power == 1) {
+            return plus(inf);
+        }
+        else if(power == 2) {
+            return square().plus_mutable(inf);
+        }
+        else if(power == 3) {
+            return cube().plus_mutable(inf);
+        }
+        else if(power == 4) {
+            return fourth().plus_mutable(inf);
+        }
+        if(power == 5) {
+            return fifth().plus_mutable(inf);
+        }
+        else if(power == 6) {
+            return sixth().plus_mutable(inf);
+        }
+        else if(power == 7) {
+            return seventh().plus_mutable(inf);
+        }
+        else if(power == 8) {
+            return eighth().plus_mutable(inf);
+        }
+        else if(power == 9) {
+            return ninth().plus_mutable(inf);
+        }
+        else if(power == 10) {
+            return tenth().plus_mutable(inf);
+        }
+
+        return pow(power).plus_mutable(inf);
 
     }
 
@@ -2523,10 +2577,9 @@ public final class Complex extends GenericComplex {
         }
     }
 
-    public final Complex circle_inversion(Complex center, double radiusSqr) {
+    public final Complex circle_inversion(Complex center, double radius2) {
 
         double distance = this.distance_squared(center);
-        double radius2 = radiusSqr;
 
         double temp = radius2 / distance;
 
@@ -2766,7 +2819,7 @@ public final class Complex extends GenericComplex {
     }
 
     @Override
-    public MantExpComplex toMantExpComplex() { return new MantExpComplex(this);}
+    public MantExpComplex toMantExpComplex() { return MantExpComplex.create(this);}
 
     @Override
     public Complex toComplex() {return new Complex(this);}
@@ -3092,6 +3145,13 @@ public final class Complex extends GenericComplex {
 
     }
 
+    @Override
+    public final Complex square_plus_c_mutable_no_threads(GenericComplex cn) {
+
+        return square_plus_c(cn);
+
+    }
+
     public static int sign(double value) {
         if(value < 0) {
             return -1;
@@ -3106,4 +3166,10 @@ public final class Complex extends GenericComplex {
         return Math.max(Math.abs(re), Math.abs(im));
     }
 
+    @Override
+    public void assign(GenericComplex za) {
+        Complex z = (Complex) za;
+        re = z.re;
+        im = z.im;
+    }
 }

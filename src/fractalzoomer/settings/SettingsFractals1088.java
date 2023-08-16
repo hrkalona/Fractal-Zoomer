@@ -16,7 +16,7 @@ public class SettingsFractals1088 extends SettingsFractals1087 implements Serial
         super(s, perturbation_theory,  greedy_drawing_algorithm, brute_force_alg, greedy_drawing_algorithm_id, greedy_algorithm_check_iter_data, userDefinedCode);
         variable_re = s.fns.variable_re;
         variable_im = s.fns.variable_im;
-        normalMapCombineWithOtherStatistics = s.sts.normalMapCombineWithOtherStatistics;
+        normalMapCombineWithOtherStatistics = s.pps.sts.normalMapCombineWithOtherStatistics;
     }
 
     @Override

@@ -1,7 +1,9 @@
 package fractalzoomer.core.la;
 
 import fractalzoomer.core.*;
+import fractalzoomer.core.la.impl.LAInfo;
 import fractalzoomer.functions.Fractal;
+import fractalzoomer.main.app_settings.ApproximationDefaultSettings;
 
 import java.util.Arrays;
 
@@ -18,18 +20,36 @@ class  LAInfoI {
         StepLength = 0;
         NextStageLAIndex = 0;
     }
-    public LAInfoI(LAInfoI other) {
+};
+
+class LAData {
+    public GenericLAInfo la;
+    int StepLength, NextStageLAIndex; //Info
+
+    public LAData() {
+        StepLength = 0;
+        NextStageLAIndex = 0;
+    }
+
+    public void setInfo(LAInfoI other) {
         StepLength = other.StepLength;
         NextStageLAIndex = other.NextStageLAIndex;
     }
-};
+
+    void invalidateInfo() {
+        StepLength = -1;
+        NextStageLAIndex = -1;
+    }
+}
+
 public class LAReference {
+    public static boolean CONVERT_TO_DOUBLE_WHEN_POSSIBLE = false;
 
     private static final int lowBound = 64;
     private static final double log16 = Math.log(16);
 
     private static final MantExp doubleRadiusLimit = new MantExp(0x1.0p-896);
-    private static final MantExp doubleThresholdLimit = new MantExp(0x1.0p-768);
+    public static MantExp doubleThresholdLimit = new MantExp(ApproximationDefaultSettings.DoubleThresholdLimit);
     public boolean UseAT;
 
     public ATInfo AT;
@@ -38,17 +58,15 @@ public class LAReference {
 
     public boolean isValid;
 
-    public boolean DoublePrecisionPT;
+    public boolean performDoublePrecisionSimplePerturbation;
 
     public boolean calculatedForDeep;
 
     private static final int MaxLAStages = 512;
-    private static final int DEFAULT_SIZE = 10000;
-    private GenericLAInfo[] LAs;
-    private int LAcurrentIndex;
-    private int LAIcurrentIndex;
-    private LAInfoI[] LAIs;
+    private static final int DEFAULT_SIZE = 131072;
 
+    private LAData[] LAs;
+    private int LAcurrentIndex;
     private LAStageInfo[] LAStages;
 
     private void init(boolean deepZoom) {
@@ -57,41 +75,34 @@ public class LAReference {
         isValid = false;
         LAStages = new LAStageInfo[MaxLAStages];
         LAcurrentIndex = 0;
-        LAIcurrentIndex = 0;
 
-        LAs = new GenericLAInfo[DEFAULT_SIZE];
-        LAIs = new LAInfoI[DEFAULT_SIZE];
+        LAs = new LAData[DEFAULT_SIZE];
 
         UseAT = false;
         LAStageCount = 0;
 
-        for(int i = 0; i < LAStages.length; i++) {
-            LAStages[i] = new LAStageInfo();
-        }
+        LAStages[0] = new LAStageInfo();
 
         LAStages[0].UseDoublePrecision = !deepZoom;
 
         LAStages[0].LAIndex = 0;
+
     }
 
-    private void addToLA(GenericLAInfo la) {
-        LAs[LAcurrentIndex] = la;
+    private void addToLA(LAData laData) throws Exception {
+        LAs[LAcurrentIndex] = laData;
         LAcurrentIndex++;
         if (LAcurrentIndex >= LAs.length) {
-            LAs = Arrays.copyOf(LAs, LAs.length << 1);
+            long newLen  = ((long) LAs.length) << 1;
+            if(newLen > (long)Integer.MAX_VALUE) {
+                throw new Exception("No space");
+            }
+            LAs = Arrays.copyOf(LAs, (int)newLen);
         }
     }
 
     private int LAsize() {
         return LAcurrentIndex;
-    }
-
-    private void addToLAI(LAInfoI lai) {
-        LAIs[LAIcurrentIndex] = lai;
-        LAIcurrentIndex++;
-        if (LAIcurrentIndex >= LAIs.length) {
-            LAIs = Arrays.copyOf(LAIs, LAIs.length << 1);
-        }
     }
 
     private void popLA() {
@@ -100,14 +111,6 @@ public class LAReference {
             LAs[LAcurrentIndex] = null;
         }
     }
-
-    private void popLAI() {
-        if(LAIcurrentIndex > 0) {
-            LAIcurrentIndex--;
-            LAIs[LAIcurrentIndex] = null;
-        }
-    }
-
 
     private boolean CreateLAFromOrbit(DoubleReference ref, DeepReference refDeep, int maxRefIteration, boolean deepZoom) throws Exception {
 
@@ -118,18 +121,17 @@ public class LAReference {
         GenericLAInfo LA;
 
         if(deepZoom) {
-            LA = new LAInfoDeep(new MantExpComplex());
+            GenericLAInfo.refExpRe = refDeep.exps;
+            GenericLAInfo.refExpIm = refDeep.expsIm;
+            GenericLAInfo.refMantsRe = refDeep.mantsRe;
+            GenericLAInfo.refMantsIm = refDeep.mantsIm;
         }
         else {
-            LA = new LAInfo(new Complex());
+            GenericLAInfo.refRe = ref.re;
+            GenericLAInfo.refIm = ref.im;
         }
 
-        if(deepZoom) {
-            LA = LA.Step(Fractal.getArrayDeepValue(refDeep, 1));
-        }
-        else {
-            LA = LA.Step(Fractal.getArrayValue(ref, 1));
-        }
+        LA = GenericLAInfo.create(maxRefIteration, deepZoom, 0).Step(1);
 
         LAInfoI LAI = new LAInfoI();
         LAI.NextStageLAIndex = 0;
@@ -141,42 +143,27 @@ public class LAReference {
         int i;
         for (i = 2; i < maxRefIteration; i++) {
 
-            GenericLAInfo NewLA;
-            boolean PeriodDetected;
+            GenericLAInfo NewLA = GenericLAInfo.create(maxRefIteration, deepZoom);
 
-            if(deepZoom) {
-                NewLA = new LAInfoDeep();
-                PeriodDetected = LA.Step(NewLA, Fractal.getArrayDeepValue(refDeep, i));
-            }
-            else {
-                NewLA = new LAInfo();
-                PeriodDetected = LA.Step(NewLA, Fractal.getArrayValue(ref, i));
-            }
+            boolean PeriodDetected = LA.Step(NewLA, i);
 
             if (PeriodDetected) {
                 Period = i;
                 LAI.StepLength = Period;
 
-                addToLA(LA);
-                addToLAI(new LAInfoI(LAI));
+                LAData laData = new LAData();
+                laData.la = LA;
+                laData.setInfo(LAI);
+
+                addToLA(laData);
 
                 LAI.NextStageLAIndex = i;
 
                 if (i + 1 < maxRefIteration) {
-                    if(deepZoom) {
-                        LA = new LAInfoDeep(Fractal.getArrayDeepValue(refDeep, i)).Step(Fractal.getArrayDeepValue(refDeep, i + 1));
-                    }
-                    else {
-                        LA = new LAInfo(Fractal.getArrayValue(ref, i)).Step(Fractal.getArrayValue(ref, i + 1));
-                    }
+                    LA = GenericLAInfo.create(maxRefIteration, deepZoom, i).Step(i + 1);
                     i += 2;
                 } else {
-                    if(deepZoom) {
-                        LA = new LAInfoDeep(Fractal.getArrayDeepValue(refDeep, i));
-                    }
-                    else {
-                        LA = new LAInfo(Fractal.getArrayValue(ref, i));
-                    }
+                    LA = GenericLAInfo.create(maxRefIteration, deepZoom, i);
                     i += 1;
                 }
                 break;
@@ -191,12 +178,7 @@ public class LAReference {
 
         if (Period == 0) {
             if (maxRefIteration > lowBound) {
-                if(deepZoom) {
-                    LA = new LAInfoDeep(Fractal.getArrayDeepValue(refDeep, 0)).Step(Fractal.getArrayDeepValue(refDeep, 1));
-                }
-                else {
-                    LA = new LAInfo(Fractal.getArrayValue(ref, 0)).Step(Fractal.getArrayValue(ref, 1));
-                }
+                LA = GenericLAInfo.create(maxRefIteration, deepZoom, 0).Step(1);
                 LAI.NextStageLAIndex = 0;
                 i = 2;
 
@@ -208,15 +190,15 @@ public class LAReference {
             } else {
                 LAI.StepLength = maxRefIteration;
 
-                addToLA(LA);
-                addToLAI(new LAInfoI(LAI));
+                LAData laData = new LAData();
+                laData.la = LA;
+                laData.setInfo(LAI);
+                addToLA(laData);
 
-                if(deepZoom) {
-                    addToLA(new LAInfoDeep(Fractal.getArrayDeepValue(refDeep, maxRefIteration)));
-                }
-                else {
-                    addToLA(new LAInfo(Fractal.getArrayValue(ref, maxRefIteration)));
-                }
+                laData = new LAData();
+                laData.la = GenericLAInfo.create(maxRefIteration, deepZoom, maxRefIteration);
+                laData.invalidateInfo();
+                addToLA(laData);
 
                 LAStages[0].MacroItCount = 1;
 
@@ -224,14 +206,8 @@ public class LAReference {
             }
         } else if (Period > lowBound) {
             popLA();
-            popLAI();
 
-            if(deepZoom) {
-                LA = new LAInfoDeep(Fractal.getArrayDeepValue(refDeep, 0)).Step(Fractal.getArrayDeepValue(refDeep, 1));
-            }
-            else {
-                LA = new LAInfo(Fractal.getArrayValue(ref, 0)).Step(Fractal.getArrayValue(ref, 1));
-            }
+            LA = GenericLAInfo.create(maxRefIteration, deepZoom, 0).Step(1);
             LAI.NextStageLAIndex = 0;
             i = 2;
 
@@ -243,23 +219,17 @@ public class LAReference {
         }
 
         for (; i < maxRefIteration; i++) {
-            GenericLAInfo NewLA;
-            boolean PeriodDetected;
-
-            if(deepZoom) {
-                NewLA = new LAInfoDeep();
-                PeriodDetected = LA.Step(NewLA, Fractal.getArrayDeepValue(refDeep, i));
-            }
-            else {
-                NewLA = new LAInfo();
-                PeriodDetected = LA.Step(NewLA, Fractal.getArrayValue(ref, i));
-            }
+            GenericLAInfo NewLA = GenericLAInfo.create(maxRefIteration, deepZoom);
+            boolean PeriodDetected = LA.Step(NewLA, i);
 
             if (PeriodDetected || i >= PeriodEnd) {
                 LAI.StepLength = i - PeriodBegin;
 
-                addToLA(LA);
-                addToLAI(new LAInfoI(LAI));
+                LAData laData = new LAData();
+                laData.la = LA;
+                laData.setInfo(LAI);
+
+                addToLA(laData);
 
                 LAI.NextStageLAIndex = i;
                 PeriodBegin = i;
@@ -277,19 +247,9 @@ public class LAReference {
                 }
 
                 if (detected || ip1 >= maxRefIteration) {
-                    if(deepZoom) {
-                        LA = new LAInfoDeep(Fractal.getArrayDeepValue(refDeep, i));
-                    }
-                    else {
-                        LA = new LAInfo(Fractal.getArrayValue(ref, i));
-                    }
+                    LA = GenericLAInfo.create(maxRefIteration, deepZoom, i);
                 } else {
-                    if(deepZoom) {
-                        LA = new LAInfoDeep(Fractal.getArrayDeepValue(refDeep, i)).Step(Fractal.getArrayDeepValue(refDeep, ip1));
-                    }
-                    else {
-                        LA = new LAInfo(Fractal.getArrayValue(ref, i)).Step(Fractal.getArrayValue(ref, ip1));
-                    }
+                    LA = GenericLAInfo.create(maxRefIteration, deepZoom, i).Step(ip1);
                     i++;
                 }
             } else {
@@ -299,25 +259,23 @@ public class LAReference {
 
         LAI.StepLength = i - PeriodBegin;
 
-        addToLA(LA);
-        addToLAI(new LAInfoI(LAI));
+        LAData laData = new LAData();
+        laData.la = LA;
+        laData.setInfo(LAI);
+        addToLA(laData);
 
         LAStages[0].MacroItCount = LAsize();
 
-        if(deepZoom) {
-            addToLA(new LAInfoDeep(Fractal.getArrayDeepValue(refDeep, maxRefIteration)));
-        }
-        else {
-            addToLA(new LAInfo(Fractal.getArrayValue(ref, maxRefIteration)));
-        }
+        laData = new LAData();
+        laData.la = GenericLAInfo.create(maxRefIteration, deepZoom, maxRefIteration);
 
-        addToLAI(new LAInfoI());
+        addToLA(laData);
 
         return true;
     }
 
 
-    private boolean CreateNewLAStage(DoubleReference ref, DeepReference refDeep, int maxRefIteration, boolean deepZoom) throws Exception {
+    private boolean CreateNewLAStage(int maxRefIteration, boolean deepZoom) throws Exception {
         GenericLAInfo LA;
         LAInfoI LAI = new LAInfoI();
         int i;
@@ -328,37 +286,32 @@ public class LAReference {
         int CurrentStage = LAStageCount;
         int PrevStageLAIndex = LAStages[PrevStage].LAIndex;
         int PrevStageMacroItCount = LAStages[PrevStage].MacroItCount;
-        GenericLAInfo PrevStageLA = LAs[PrevStageLAIndex];
-        LAInfoI PrevStageLAI = LAIs[PrevStageLAIndex];
 
-        GenericLAInfo PrevStageLAp1 = LAs[PrevStageLAIndex + 1];
-        LAInfoI PrevStageLAIp1 = LAIs[PrevStageLAIndex + 1];
+        LAData prevLaData = LAs[PrevStageLAIndex];
+        GenericLAInfo PrevStageLA = prevLaData.la;
+
+        LAData prevLaDataP1 = LAs[PrevStageLAIndex + 1];
+        GenericLAInfo PrevStageLAp1 = prevLaDataP1.la;
 
         int Period = 0;
 
         if (CurrentStage >= MaxLAStages) throw new Exception("Too many stages");
 
+        LAStages[CurrentStage] = new LAStageInfo();
         LAStages[CurrentStage].UseDoublePrecision = !deepZoom;
         LAStages[CurrentStage].LAIndex = LAsize();
 
         LA = PrevStageLA.Composite(PrevStageLAp1);
         LAI.NextStageLAIndex = 0;
-        i = PrevStageLAI.StepLength + PrevStageLAIp1.StepLength;
+        i = prevLaData.StepLength + prevLaDataP1.StepLength;
         int j;
 
         for (j = 2; j < PrevStageMacroItCount; j++) {
-            GenericLAInfo NewLA;
-
-            if(deepZoom) {
-                NewLA = new LAInfoDeep();
-            }
-            else {
-                NewLA = new LAInfo();
-            }
+            GenericLAInfo NewLA = GenericLAInfo.create(maxRefIteration, deepZoom);
 
             int PrevStageLAIndexj = PrevStageLAIndex + j;
-            GenericLAInfo PrevStageLAj = LAs[PrevStageLAIndexj];
-            LAInfoI PrevStageLAIj = LAIs[PrevStageLAIndexj];
+            LAData prevLaDataj = LAs[PrevStageLAIndexj];
+            GenericLAInfo PrevStageLAj = prevLaDataj.la;
             boolean PeriodDetected = LA.Composite(NewLA, PrevStageLAj);
 
             if (PeriodDetected) {
@@ -367,29 +320,31 @@ public class LAReference {
 
                 LAI.StepLength = Period;
 
-                addToLA(LA);
-                addToLAI(new LAInfoI(LAI));
+                LAData laData = new LAData();
+                laData.la = LA;
+                laData.setInfo(LAI);
+
+                addToLA(laData);
 
                 LAI.NextStageLAIndex = j;
 
                 int PrevStageLAIndexjp1 = PrevStageLAIndexj + 1;
-                GenericLAInfo PrevStageLAjp1 = LAs[PrevStageLAIndexjp1];
-                LAInfoI PrevStageLAIjp1 = LAIs[PrevStageLAIndexjp1];
+                LAData prevLaDatajp1 = LAs[PrevStageLAIndexjp1];
+                GenericLAInfo PrevStageLAjp1 = prevLaDatajp1.la;
 
                 if (NewLA.DetectPeriod(PrevStageLAjp1.getRef()) || j + 1 >= PrevStageMacroItCount) {
                     LA = PrevStageLAj;
-                    i += PrevStageLAIj.StepLength;
+                    i += prevLaDataj.StepLength;
                     j++;
                 } else {
                     LA = PrevStageLAj.Composite(PrevStageLAjp1);
-                    i += PrevStageLAIj.StepLength + PrevStageLAIjp1.StepLength;
+                    i += prevLaDataj.StepLength + prevLaDatajp1.StepLength;
                     j += 2;
                 }
                 break;
             }
             LA = NewLA;
-            PrevStageLAIj = LAIs[PrevStageLAIndex + j];
-            i += PrevStageLAIj.StepLength;
+            i += LAs[PrevStageLAIndex + j].StepLength;
         }
         LAStageCount++;
         if (LAStageCount > MaxLAStages) throw new Exception("Too many stages");
@@ -398,123 +353,123 @@ public class LAReference {
         PeriodEnd = PeriodBegin + Period;
 
         if (Period == 0) {
-            if (maxRefIteration > PrevStageLAI.StepLength * lowBound) {
+            if (maxRefIteration > prevLaData.StepLength * lowBound) {
                 LA = PrevStageLA.Composite(PrevStageLAp1);
-                i = PrevStageLAI.StepLength + PrevStageLAIp1.StepLength;
+                i = prevLaData.StepLength + prevLaDataP1.StepLength;
                 LAI.NextStageLAIndex = 0;
 
                 j = 2;
 
-                double Ratio = ((double)(maxRefIteration)) / PrevStageLAI.StepLength;
+                double Ratio = ((double)(maxRefIteration)) / prevLaData.StepLength;
                 double NthRoot = Math.round(Math.log(Ratio) / log16); // log16
-                Period = PrevStageLAI.StepLength * (int)Math.round(Math.pow(Ratio, 1.0 / NthRoot));
+                Period = prevLaData.StepLength * (int)Math.round(Math.pow(Ratio, 1.0 / NthRoot));
 
                 PeriodBegin = 0;
                 PeriodEnd = Period;
             } else {
                 LAI.StepLength = maxRefIteration;
 
-                addToLA(LA);
-                addToLAI(new LAInfoI(LAI));
+                LAData laData = new LAData();
+                laData.la = LA;
+                laData.setInfo(LAI);
 
+                addToLA(laData);
 
-                if(deepZoom) {
-                    addToLA(new LAInfoDeep(Fractal.getArrayDeepValue(refDeep, maxRefIteration)));
-                }
-                else {
-                    addToLA(new LAInfo(Fractal.getArrayValue(ref, maxRefIteration)));
-                }
+                laData = new LAData();
+                laData.la = GenericLAInfo.create(maxRefIteration, deepZoom, maxRefIteration);
+
+                laData.invalidateInfo();
+                addToLA(laData);
 
                 LAStages[CurrentStage].MacroItCount = 1;
 
                 return false;
             }
         }
-        else if (Period > PrevStageLAI.StepLength * lowBound) {
+        else if (Period > prevLaData.StepLength * lowBound) {
             popLA();
-            popLAI();
 
             LA = PrevStageLA.Composite(PrevStageLAp1);
-            i = PrevStageLAI.StepLength + PrevStageLAIp1.StepLength;
+            i = prevLaData.StepLength + prevLaDataP1.StepLength;
             LAI.NextStageLAIndex = 0;
 
             j = 2;
 
-            double Ratio = ((double)(Period)) / PrevStageLAI.StepLength;
+            double Ratio = ((double)(Period)) / prevLaData.StepLength;
 
             double NthRoot = Math.round(Math.log(Ratio) / log16);
-            Period = PrevStageLAI.StepLength * ((int)Math.round(Math.pow(Ratio, 1.0 / NthRoot)));
+            Period = prevLaData.StepLength * ((int)Math.round(Math.pow(Ratio, 1.0 / NthRoot)));
 
             PeriodBegin = 0;
             PeriodEnd = Period;
         }
 
         for (; j < PrevStageMacroItCount; j++) {
-            GenericLAInfo NewLA;
-
-            if(deepZoom) {
-                NewLA = new LAInfoDeep();
-            }
-            else {
-                NewLA = new LAInfo();
-            }
+            GenericLAInfo NewLA = GenericLAInfo.create(maxRefIteration, deepZoom);
 
             int PrevStageLAIndexj = PrevStageLAIndex + j;
 
-            GenericLAInfo PrevStageLAj = LAs[PrevStageLAIndexj];
-            LAInfoI PrevStageLAIj = LAIs[PrevStageLAIndexj];
+            LAData prevLaDataj = LAs[PrevStageLAIndexj];
+            GenericLAInfo PrevStageLAj = prevLaDataj.la;
             boolean PeriodDetected = LA.Composite(NewLA, PrevStageLAj);
 
             if (PeriodDetected || i >= PeriodEnd) {
                 LAI.StepLength = i - PeriodBegin;
 
-                addToLA(LA);
-                addToLAI(new LAInfoI(LAI));
+                LAData laData = new LAData();
+                laData.la = LA;
+                laData.setInfo(LAI);
+                addToLA(laData);
 
                 LAI.NextStageLAIndex = j;
                 PeriodBegin = i;
                 PeriodEnd = PeriodBegin + Period;
 
-                GenericLAInfo PrevStageLAjp1 = LAs[PrevStageLAIndexj + 1];
+                LAData prevLaDatajP1 = LAs[PrevStageLAIndexj + 1];
+                GenericLAInfo PrevStageLAjp1 = prevLaDatajP1.la;
 
                 if (NewLA.DetectPeriod(PrevStageLAjp1.getRef()) || j + 1 >= PrevStageMacroItCount) {
                     LA = PrevStageLAj;
                 } else {
                     LA = PrevStageLAj.Composite(PrevStageLAjp1);
-                    i += PrevStageLAIj.StepLength;
+                    i += prevLaDataj.StepLength;
                     j++;
                 }
             } else {
                 LA = NewLA;
             }
-            PrevStageLAIj = LAIs[PrevStageLAIndex + j];
-            i += PrevStageLAIj.StepLength;
+            i += LAs[PrevStageLAIndex + j].StepLength;
         }
 
         LAI.StepLength = i - PeriodBegin;
 
-        addToLA(LA);
-        addToLAI(new LAInfoI(LAI));
+        LAData laData = new LAData();
+        laData.la = LA;
+        laData.setInfo(LAI);
+
+        addToLA(laData);
 
         LAStages[CurrentStage].MacroItCount = LAsize() - LAStages[CurrentStage].LAIndex;
 
-        if(deepZoom) {
-            addToLA(new LAInfoDeep(Fractal.getArrayDeepValue(refDeep, maxRefIteration)));
-        }
-        else {
-            addToLA(new LAInfo(Fractal.getArrayValue(ref, maxRefIteration)));
-        }
+        laData = new LAData();
+        laData.la = GenericLAInfo.create(maxRefIteration, deepZoom, maxRefIteration);
 
-        addToLAI(new LAInfoI());
+        addToLA(laData);
         return true;
     }
 
     private boolean DoubleUsableAtPrevStage(int stage, MantExp radius) {
-            int LAIndex = LAStages[stage].LAIndex;
-            GenericLAInfo LA = LAs[LAIndex];
+
+        LAStageInfo lasi = LAStages[stage];
+        if(lasi != null) {
+            int LAIndex = lasi.LAIndex;
+            GenericLAInfo LA = LAs[LAIndex].la;
             return radius.compareToBothPositiveReduced(doubleRadiusLimit) > 0
                     || (LA.getLAThreshold().compareToBothPositiveReduced(doubleThresholdLimit) > 0
-                         && LA.getLAThresholdC().compareToBothPositiveReduced(doubleThresholdLimit) > 0);
+                    && LA.getLAThresholdC().compareToBothPositiveReduced(doubleThresholdLimit) > 0);
+        }
+
+        return radius.compareToBothPositiveReduced(doubleRadiusLimit) > 0;
 
     }
 
@@ -536,10 +491,8 @@ public class LAReference {
 
             if (!PeriodDetected) return;
 
-            if (deepZoom && !f.useFullFloatExp()) {
-                if (DoubleUsableAtPrevStage(0, radius)) {
-                    DoublePrecisionPT = true;
-                }
+            if (deepZoom && (!f.useFullFloatExp() || CONVERT_TO_DOUBLE_WHEN_POSSIBLE) && DoubleUsableAtPrevStage(0, radius)) {
+                performDoublePrecisionSimplePerturbation = true;
             }
 
             boolean convertedToDouble = false;
@@ -549,35 +502,43 @@ public class LAReference {
                 int CurrentStage = LAStageCount;
 
                 try {
-                    PeriodDetected = CreateNewLAStage(refData.Reference, refDeepData.Reference, maxRefIteration, deepZoom);
+                    PeriodDetected = CreateNewLAStage(maxRefIteration, deepZoom);
 
                 }
                 catch (InvalidCalculationException ex) {
                     PeriodDetected = false;
                 }
+                catch (Exception ex) {
+                    PeriodDetected = false;
+                }
 
-                if (deepZoom && !f.useFullFloatExp()) {
-                    if (DoubleUsableAtPrevStage(CurrentStage, radius)) {
-                        ConvertStageToDouble(PrevStage);
-                        convertedToDouble = true;
-                    }
+                if (deepZoom && (!f.useFullFloatExp() || CONVERT_TO_DOUBLE_WHEN_POSSIBLE) && DoubleUsableAtPrevStage(CurrentStage, radius)) {
+                    ConvertStageToDouble(PrevStage);
+                    convertedToDouble = true;
+                }
+                else if(LAInfo.DETECTION_METHOD == 1) {
+                    MinimizeStage(PrevStage);
                 }
 
                 if (!PeriodDetected) break;
             }
 
-            CreateATFromLA(radius);
-
-            if (deepZoom && !f.useFullFloatExp()) {
-                if (radius.compareToBothPositiveReduced(doubleRadiusLimit) > 0) {
-                    ConvertStageToDouble(LAStageCount - 1);
-                    convertedToDouble = true;
-                }
+            if (deepZoom && (!f.useFullFloatExp() || CONVERT_TO_DOUBLE_WHEN_POSSIBLE) && DoubleUsableAtPrevStage(LAStageCount, radius)) {
+                ConvertStageToDouble(LAStageCount - 1);
+                convertedToDouble = true;
+            }
+            else if(LAInfo.DETECTION_METHOD == 1) {
+                MinimizeStage(LAStageCount - 1);
             }
 
+            CreateATFromLA(radius);
+
             //Recreate data to save memory
-            if (deepZoom && refData.Reference == null && (convertedToDouble || DoublePrecisionPT)) {
-                f.createLowPrecisionOrbit(maxRefIteration, refData, refDeepData);
+            if (deepZoom && (refData.Reference == null || refData.Reference.dataLength() != maxRefIteration + 1) && (convertedToDouble || performDoublePrecisionSimplePerturbation)) {
+                f.createLowPrecisionOrbit(maxRefIteration + 1, refData, refDeepData);
+
+                GenericLAInfo.refRe = refData.Reference.re;
+                GenericLAInfo.refIm = refData.Reference.im;
             }
         }
         catch (Exception ex) {
@@ -592,13 +553,14 @@ public class LAReference {
     public void CreateATFromLA(MantExp radius) {
 
         MantExp SqrRadius = radius.square();
-        SqrRadius.Reduce();
+        SqrRadius.Normalize();
 
         for (int Stage = LAStageCount; Stage > 0; ) {
             Stage--;
             int LAIndex = LAStages[Stage].LAIndex;
-            AT = LAs[LAIndex].CreateAT(LAs[LAIndex + 1]);
-            AT.StepLength = LAIs[LAIndex].StepLength;
+            LAData laData = LAs[LAIndex];
+            AT = laData.la.CreateAT(LAs[LAIndex + 1].la);
+            AT.StepLength = laData.StepLength;
             if (AT.StepLength > 0 && AT.Usable(SqrRadius)) {
                 UseAT = true;
                 return;
@@ -613,26 +575,37 @@ public class LAReference {
 
         LAStages[Stage].UseDoublePrecision = true;
 
-        for (int i = 0; i <= MacroItCount; i++) {
-            LAs[LAIndex + i] = new LAInfo((LAInfoDeep)LAs[LAIndex + i]);
+        int length = LAIndex + MacroItCount;
+        for (int i = LAIndex; i <= length; i++) {
+            LAs[i].la = LAs[i].la.toDouble();
+        }
+    }
+
+    void MinimizeStage(int Stage) {
+        int LAIndex = LAStages[Stage].LAIndex;
+        int MacroItCount = LAStages[Stage].MacroItCount;
+
+        int length = LAIndex + MacroItCount;
+        for (int i = LAIndex; i <= length; i++) {
+            LAs[i].la = LAs[i].la.minimize();
         }
     }
 
 
     public boolean isLAStageInvalid(int LAIndex, Complex dc) {
-        return (dc.chebychevNorm() >= ((LAInfo)LAs[LAIndex]).LAThresholdC);
+        return (dc.chebychevNorm() >= LAs[LAIndex].la.dgetLAThresholdC());
     }
 
     public boolean isLAStageInvalid(int LAIndex, double dcChebychevNorm) {
-        return (dcChebychevNorm >= ((LAInfo)LAs[LAIndex]).LAThresholdC);
+        return (dcChebychevNorm >= LAs[LAIndex].la.dgetLAThresholdC());
     }
 
     public boolean isLAStageInvalid(int LAIndex, MantExpComplex dc) {
-        return (dc.chebychevNorm().compareToBothPositiveReduced((LAs[LAIndex]).getLAThresholdC()) >= 0);
+        return (dc.chebychevNorm().compareToBothPositiveReduced((LAs[LAIndex].la).getLAThresholdC()) >= 0);
     }
 
     public boolean isLAStageInvalid(int LAIndex, MantExp dcChebychevNorm) {
-        return (dcChebychevNorm.compareToBothPositiveReduced((LAs[LAIndex]).getLAThresholdC()) >= 0);
+        return (dcChebychevNorm.compareToBothPositiveReduced((LAs[LAIndex].la).getLAThresholdC()) >= 0);
     }
 
     public boolean useDoublePrecisionAtStage(int stage) {
@@ -647,24 +620,24 @@ public class LAReference {
         return LAStages[CurrentLAStage].MacroItCount;
     }
 
-    public LAstep getLA(int LAIndex, Complex dz, Complex dc, int j, int iterations, int max_iterations) {
+    public LAstep getLA(int LAIndex, Complex dz, int j, int iterations, int max_iterations) {
 
         int LAIndexj = LAIndex + j;
-        LAInfoI LAIj = LAIs[LAIndexj];
+        LAData laData = LAs[LAIndexj];
 
         LAstep las;
 
-        int l = LAIj.StepLength;
+        int l = laData.StepLength;
         boolean usuable  = iterations + l <= max_iterations;
 
         if(usuable) {
-            LAInfo LAj = (LAInfo) LAs[LAIndexj];
-            las = LAj.Prepare(dz, dc);
+            GenericLAInfo LAj = laData.la;
+            las = LAj.Prepare(dz);
 
             if(!las.unusable) {
                 las.LAj = LAj;
-                las.Refp1 = (Complex) LAs[LAIndexj + 1].getRef();
-                las.step = LAIj.StepLength;
+                las.Refp1 = (Complex) LAs[LAIndexj + 1].la.getRef();
+                las.step = l;
             }
         }
         else {
@@ -672,31 +645,30 @@ public class LAReference {
             las.unusable = true;
         }
 
-        las.nextStageLAindex = LAIj.NextStageLAIndex;
+        las.nextStageLAindex = laData.NextStageLAIndex;
 
         return las;
 
     }
 
-    public LAstep getLA(int LAIndex, MantExpComplex dz, MantExpComplex dc, int j, int iterations, int max_iterations) {
+    public LAstep getLA(int LAIndex, double dre, double dim, int j, int iterations, int max_iterations) {
 
         int LAIndexj = LAIndex + j;
-        LAInfoI LAIj = LAIs[LAIndexj];
+        LAData laData = LAs[LAIndexj];
 
         LAstep las;
 
-        int l = LAIj.StepLength;
-        boolean usuable = iterations + l <= max_iterations;
+        int l = laData.StepLength;
+        boolean usuable  = iterations + l <= max_iterations;
 
         if(usuable) {
-            LAInfoDeep LAj = (LAInfoDeep) LAs[LAIndexj];
-
-            las = LAj.Prepare(dz, dc);
+            GenericLAInfo LAj = laData.la;
+            las = LAj.Prepare(dre, dim);
 
             if(!las.unusable) {
-                las.LAjdeep = LAj;
-                las.Refp1Deep = (MantExpComplex) LAs[LAIndexj + 1].getRef();
-                las.step = LAIj.StepLength;
+                las.LAj = LAj;
+                las.Refp1 = (Complex) LAs[LAIndexj + 1].la.getRef();
+                las.step = l;
             }
         }
         else {
@@ -704,10 +676,86 @@ public class LAReference {
             las.unusable = true;
         }
 
-        las.nextStageLAindex = LAIj.NextStageLAIndex;
+        las.nextStageLAindex = laData.NextStageLAIndex;
 
         return las;
 
+    }
+
+    public LAstep getLA(int LAIndex, MantExpComplex dz, int j, int iterations, int max_iterations) {
+
+        int LAIndexj = LAIndex + j;
+        LAData laData = LAs[LAIndexj];
+
+        LAstep las;
+
+        int l = laData.StepLength;
+        boolean usuable = iterations + l <= max_iterations;
+
+        if(usuable) {
+            GenericLAInfo LAj = laData.la;
+            las = LAj.Prepare(dz);
+
+            if(!las.unusable) {
+                las.LAj = LAj;
+                las.Refp1Deep = (MantExpComplex) LAs[LAIndexj + 1].la.getRef();
+                las.step = l;
+            }
+        }
+        else {
+            las = new LAstep();
+            las.unusable = true;
+        }
+
+        las.nextStageLAindex = laData.NextStageLAIndex;
+
+        return las;
+
+    }
+
+    public static void main(String[] args) {
+
+        long mem;
+        int length = 20000000;
+//        mem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+//
+//        LAInfo[] temp = new LAInfo[length];
+//        LAInfoI[] temp2 = new LAInfoI[length];
+//
+//        for(int i = 0; i < length; i++) {
+//            temp[i] = new LAInfo();
+//            temp2[i] = new LAInfoI();
+//        }
+       // System.out.println(Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory() - mem);
+
+//        mem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+//        LAData[] temp3 = new LAData[length];
+//
+//        for(int i = 0; i < length; i++) {
+//            temp3[i] = new LAData();
+//            temp3[i].la = new LAInfo();
+//        }
+//        System.out.println(Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory() - mem);
+
+//        mem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+//        LAData2[] temp3 = new LAData2[length];
+//
+//        for(int i = 0; i < length; i++) {
+//            int j = i;
+//            temp3[i] = new LAData2() {
+//                @Override
+//                public int getStepLength() {
+//                    return j;
+//                }
+//
+//                @Override
+//                public int getNextStageLAIndex() {
+//                    return -j;
+//                }
+//            };
+//            temp3[i].la = new LAInfo();
+//        }
+//        System.out.println(Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory() - mem);
     }
 
 }

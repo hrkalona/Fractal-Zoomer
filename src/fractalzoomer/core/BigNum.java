@@ -55,10 +55,10 @@ public class BigNum {
         }
 
         if((temp & 1) == 0) {
-            fracDigits = temp * ThreadDraw.BIGNUM_PRECISION_FACTOR;
+            fracDigits = temp * TaskDraw.BIGNUM_PRECISION_FACTOR;
         }
         else {
-            fracDigits = (temp + 1) * ThreadDraw.BIGNUM_PRECISION_FACTOR;
+            fracDigits = (temp + 1) * TaskDraw.BIGNUM_PRECISION_FACTOR;
         }
 
         fracDigitsm1 = fracDigits - 1;
@@ -69,11 +69,11 @@ public class BigNum {
         initialLength = fracDigitsHalf - ((fracDigitsp1) % 2);
         evenFracDigits = (fracDigits & 1) == 0;
 
-        use_threads = ThreadDraw.USE_THREADS_IN_BIGNUM_LIBS && fracDigits >= THREADS_THRESHOLD && Runtime.getRuntime().availableProcessors() >= 2;
+        use_threads = TaskDraw.USE_THREADS_IN_BIGNUM_LIBS && fracDigits >= THREADS_THRESHOLD && Runtime.getRuntime().availableProcessors() >= 2;
     }
 
     public static void reinitializeTest(double digits) {
-        fracDigits = ((int)(digits / SHIFT) + 1) * ThreadDraw.BIGNUM_PRECISION_FACTOR;//should be two if comparing with 64version
+        fracDigits = ((int)(digits / SHIFT) + 1) * TaskDraw.BIGNUM_PRECISION_FACTOR;//should be two if comparing with 64version
 
         fracDigitsm1 = fracDigits - 1;
         fracDigitsp1 = fracDigits + 1;
@@ -208,11 +208,11 @@ public class BigNum {
         offset = -1;
         bitOffset = -1;
 
-        inputVal.Reduce();
+        inputVal.Normalize();
         double doubleMantissa = inputVal.getMantissa();
         long inputExp = inputVal.getExp();
 
-        if(doubleMantissa == 0 || inputExp == MantExp.MIN_BIG_EXPONENT) {
+        if(doubleMantissa == 0) {
             sign = 0;
             isOne = false;
             return;
@@ -3350,7 +3350,7 @@ public class BigNum {
             mantissaDouble = Double.longBitsToDouble((mantissa & 0xFFFFFFFFFFFFFL) | (0x3FF0000000000000L));
         }
 
-        return new MantExp(mantissaDouble, exp);
+        return new MantExp(exp, mantissaDouble);
 
 
 

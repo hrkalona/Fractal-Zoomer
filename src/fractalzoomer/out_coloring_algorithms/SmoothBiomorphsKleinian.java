@@ -28,7 +28,7 @@ public class SmoothBiomorphsKleinian extends OutColorAlgorithm {
         super();
         this.u = u * 0.5;
         this.bailout = bailout;
-        OutNotUsingIncrement = false;
+        OutUsingIncrement = true;
 
     }
 

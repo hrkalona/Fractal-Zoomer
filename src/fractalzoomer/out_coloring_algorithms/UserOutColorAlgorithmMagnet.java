@@ -18,7 +18,7 @@
 package fractalzoomer.out_coloring_algorithms;
 
 import fractalzoomer.core.Complex;
-import fractalzoomer.core.ThreadDraw;
+import fractalzoomer.core.TaskDraw;
 import fractalzoomer.parser.Parser;
 import fractalzoomer.utils.ColorAlgorithm;
 
@@ -33,7 +33,7 @@ public class UserOutColorAlgorithmMagnet extends  UserOutColorAlgorithm {
         super(outcoloring_formula, bailout, max_iterations, xCenter, yCenter, size, point, globalVars);
         
         this.max_iterations = max_iterations;
-        OutNotUsingIncrement = true;
+        OutUsingIncrement = false;
 
     }
 
@@ -80,12 +80,16 @@ public class UserOutColorAlgorithmMagnet extends  UserOutColorAlgorithm {
         
         double result = expr.getValue().getRe();
         
-        if (ThreadDraw.USE_DIRECT_COLOR) {
+        if (TaskDraw.USE_DIRECT_COLOR) {
             return result;
         }
         
         if(Math.abs(result) == max_iterations) {
             return result < 0 ? -ColorAlgorithm.MAXIMUM_ITERATIONS : ColorAlgorithm.MAXIMUM_ITERATIONS;
+        }
+
+        if(Math.abs(result) == ColorAlgorithm.MAXIMUM_ITERATIONS_DE) {
+            return result < 0 ? -ColorAlgorithm.MAXIMUM_ITERATIONS_DE : ColorAlgorithm.MAXIMUM_ITERATIONS_DE;
         }
    
         if(result < 0) {

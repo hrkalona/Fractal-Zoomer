@@ -32,7 +32,7 @@ public class SmoothEscapeTimeFieldLinesMagnet extends SmoothEscapeTimeFieldLines
         super(log_bailout_squared, algorithm);
         this.log_convergent_bailout = log_convergent_bailout;
         this.algorithm2 = algorithm2;
-        OutNotUsingIncrement = false;
+        OutUsingIncrement = true;
 
     }
 

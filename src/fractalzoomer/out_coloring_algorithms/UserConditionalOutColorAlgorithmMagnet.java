@@ -17,7 +17,7 @@
 package fractalzoomer.out_coloring_algorithms;
 
 import fractalzoomer.core.Complex;
-import fractalzoomer.core.ThreadDraw;
+import fractalzoomer.core.TaskDraw;
 import fractalzoomer.parser.Parser;
 import fractalzoomer.utils.ColorAlgorithm;
 
@@ -30,7 +30,7 @@ public class UserConditionalOutColorAlgorithmMagnet extends UserConditionalOutCo
     public UserConditionalOutColorAlgorithmMagnet(String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, double bailout, int max_iterations, double xCenter, double yCenter, double size, double[] point, Complex[] globalVars) {
 
         super(user_outcoloring_conditions, user_outcoloring_condition_formula, bailout, max_iterations, xCenter, yCenter, size, point, globalVars);
-        OutNotUsingIncrement = true;
+        OutUsingIncrement = false;
         
     }
 
@@ -160,12 +160,16 @@ public class UserConditionalOutColorAlgorithmMagnet extends UserConditionalOutCo
             
             double result2 = expr2[0].getValue().getRe();
             
-            if(ThreadDraw.USE_DIRECT_COLOR) {
+            if(TaskDraw.USE_DIRECT_COLOR) {
                 return result2;
             }
         
             if(Math.abs(result2) == max_iterations) {
                 return result2 < 0 ? -ColorAlgorithm.MAXIMUM_ITERATIONS : ColorAlgorithm.MAXIMUM_ITERATIONS;
+            }
+
+            if(Math.abs(result2) == ColorAlgorithm.MAXIMUM_ITERATIONS_DE) {
+                return result2 < 0 ? -ColorAlgorithm.MAXIMUM_ITERATIONS_DE : ColorAlgorithm.MAXIMUM_ITERATIONS_DE;
             }
 
             if(result2 < 0) {
@@ -216,12 +220,16 @@ public class UserConditionalOutColorAlgorithmMagnet extends UserConditionalOutCo
 
             double result2 = expr2[1].getValue().getRe();
             
-            if(ThreadDraw.USE_DIRECT_COLOR) {
+            if(TaskDraw.USE_DIRECT_COLOR) {
                 return result2;
             }
         
             if(Math.abs(result2) == max_iterations) {
                 return result2 < 0 ? -ColorAlgorithm.MAXIMUM_ITERATIONS : ColorAlgorithm.MAXIMUM_ITERATIONS;
+            }
+
+            if(Math.abs(result2) == ColorAlgorithm.MAXIMUM_ITERATIONS_DE) {
+                return result2 < 0 ? -ColorAlgorithm.MAXIMUM_ITERATIONS_DE : ColorAlgorithm.MAXIMUM_ITERATIONS_DE;
             }
 
             if(result2 < 0) {
@@ -272,12 +280,16 @@ public class UserConditionalOutColorAlgorithmMagnet extends UserConditionalOutCo
 
             double result2 = expr2[2].getValue().getRe();
             
-            if(ThreadDraw.USE_DIRECT_COLOR) {
+            if(TaskDraw.USE_DIRECT_COLOR) {
                 return result2;
             }
         
             if(Math.abs(result2) == max_iterations) {
                 return result2 < 0 ? -ColorAlgorithm.MAXIMUM_ITERATIONS : ColorAlgorithm.MAXIMUM_ITERATIONS;
+            }
+
+            if(Math.abs(result2) == ColorAlgorithm.MAXIMUM_ITERATIONS_DE) {
+                return result2 < 0 ? -ColorAlgorithm.MAXIMUM_ITERATIONS_DE : ColorAlgorithm.MAXIMUM_ITERATIONS_DE;
             }
 
             if(result2 < 0) {

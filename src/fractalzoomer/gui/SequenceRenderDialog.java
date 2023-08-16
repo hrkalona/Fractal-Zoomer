@@ -41,7 +41,7 @@ public class SequenceRenderDialog extends JDialog {
 
     private final JScrollPane scrollPane;
 
-    public SequenceRenderDialog(ImageExpanderWindow ptr, Settings s, double zoom_factor, int zooming_mode, Apfloat size, double rotation_adjusting_value, int color_cycling_adjusting_value, double light_light_direction_adjusting_value, double bump_light_direction_adjusting_value, int zoom_every_n_frame, int gradient_color_cycling_adjusting_value, boolean flipSequenceIndexing) {
+    public SequenceRenderDialog(ImageExpanderWindow ptr, Settings s, double zoom_factor, int zooming_mode, Apfloat size, double rotation_adjusting_value, int color_cycling_adjusting_value, double light_light_direction_adjusting_value, double bump_light_direction_adjusting_value, int zoom_every_n_frame, int gradient_color_cycling_adjusting_value, boolean flipSequenceIndexing, long startAtSequenceIndex, double slope_light_direction_adjusting_value) {
 
         super(ptr);
         
@@ -103,6 +103,8 @@ public class SequenceRenderDialog extends JDialog {
 
         MyJSpinner fieldLightCycling = new MyJSpinner(new SpinnerNumberModel(light_light_direction_adjusting_value, -90.0, 90.0, 1));
 
+        MyJSpinner fieldSlopesCycling = new MyJSpinner(new SpinnerNumberModel(slope_light_direction_adjusting_value, -90.0, 90.0, 1));
+
         MyJSpinner filedBumpLightCycling = new MyJSpinner(new SpinnerNumberModel(bump_light_direction_adjusting_value, -90.0, 90.0, 1));
 
         MyJSpinner fieldZoomEveryNFrame = new MyJSpinner(new SpinnerNumberModel(zoom_every_n_frame, 1, 20, 1));
@@ -111,6 +113,9 @@ public class SequenceRenderDialog extends JDialog {
         flipIndex.setFocusable(false);
         flipIndex.setSelected(flipSequenceIndexing);
         flipIndex.setToolTipText("Changes the indexing of the name to start backwards.");
+
+        JTextField startAtIndex = new JTextField();
+        startAtIndex.setText("" + startAtSequenceIndex);
 
 
         Object[] message = {
@@ -140,8 +145,13 @@ public class SequenceRenderDialog extends JDialog {
                 fieldLightCycling,
                 "Bump Mapping Light Direction Adjusting Value (When Bump Mapping is Enabled):",
                 filedBumpLightCycling,
+                "Slope Direction Adjusting Value (When Slopes is Enabled):",
+                fieldSlopesCycling,
                 " ",
+                "Set the zoom sequence index parameters.",
                 flipIndex,
+                "Start Rendering at Sequence Index:",
+                startAtIndex,
 
             " "};
 
@@ -185,14 +195,16 @@ public class SequenceRenderDialog extends JDialog {
                             int tempColorCycling = Integer.parseInt(fieldColorCycling.getText());
                             double tempLight = Double.parseDouble(fieldLightCycling.getText());
                             double tempBumpLight = Double.parseDouble(filedBumpLightCycling.getText());
+                            double tempSlopes = Double.parseDouble(fieldSlopesCycling.getText());
                             int tempZoomNFrame = Integer.parseInt(fieldZoomEveryNFrame.getText());
                             int tempGradientColorCycling = Integer.parseInt(fieldGradientColorCycling.getText());
+                            long startAtIdx = Long.parseLong(startAtIndex.getText());
 
                             if(MyApfloat.setAutomaticPrecision) {
                                 long precision = MyApfloat.getAutomaticPrecision(new String[]{field_size.getText(), s.size.toString()}, new boolean[]{true, true});
 
                                 if (MyApfloat.shouldSetPrecision(precision, MyApfloat.alwaysCheckForDecrease)) {
-                                    Fractal.clearReferences(true);
+                                    Fractal.clearReferences(true, true);
                                     MyApfloat.setPrecision(precision, s);
                                 }
                             }
@@ -229,6 +241,11 @@ public class SequenceRenderDialog extends JDialog {
                                 return;
                             }
 
+                            if(tempSlopes > 90 || tempSlopes < -90) {
+                                JOptionPane.showMessageDialog(ptra, "The slope direction adjusting value must be a number in the range [-90, 90] degrees.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+
                             if(tempBumpLight > 90 || tempBumpLight < -90) {
                                 JOptionPane.showMessageDialog(ptra, "The bump mapping light direction adjusting value must be a number in the range [-90, 90] degrees.", "Error!", JOptionPane.ERROR_MESSAGE);
                                 return;
@@ -239,7 +256,12 @@ public class SequenceRenderDialog extends JDialog {
                                 return;
                             }
 
-                            ptr.startSequenceRender(tempSize, tempZoomFactor, zoooming_mode.getSelectedIndex(), tempRotation, tempColorCycling, tempLight, tempBumpLight, tempZoomNFrame, tempGradientColorCycling, flipIndex.isSelected());
+                            if(startAtIdx < 0) {
+                                JOptionPane.showMessageDialog(ptra, "The starting index value must be greater than -1.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+
+                            ptr.startSequenceRender(tempSize, tempZoomFactor, zoooming_mode.getSelectedIndex(), tempRotation, tempColorCycling, tempLight, tempBumpLight, tempZoomNFrame, tempGradientColorCycling, flipIndex.isSelected(), startAtIdx, tempSlopes);
 
                         } catch (Exception ex) {
                             JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);

@@ -2,7 +2,7 @@ package fractalzoomer.core.unused;
 
 import fractalzoomer.core.MantExp;
 import fractalzoomer.core.MyApfloat;
-import fractalzoomer.core.ThreadDraw;
+import fractalzoomer.core.TaskDraw;
 import org.apfloat.Apfloat;
 import org.apfloat.internal.LongMemoryDataStorage;
 
@@ -41,7 +41,7 @@ public class BigNum64 {
 
     public static void reinitialize(double digits) {
 
-        fracDigits = (int)((digits / SHIFT) * ThreadDraw.BIGNUM_PRECISION_FACTOR) + 1;
+        fracDigits = (int)((digits / SHIFT) * TaskDraw.BIGNUM_PRECISION_FACTOR) + 1;
         fracDigitsm1 = fracDigits - 1;
         fracDigitsp1 = fracDigits + 1;
         fracDigitsShift = fracDigits * SHIFT;
@@ -1794,7 +1794,7 @@ public class BigNum64 {
             mantissaDouble = Double.longBitsToDouble((mantissa & 0xFFFFFFFFFFFFFL) | (0x3FF0000000000000L));
         }
 
-        return new MantExp(mantissaDouble, exp);
+        return new MantExp(exp, mantissaDouble);
 
 
 

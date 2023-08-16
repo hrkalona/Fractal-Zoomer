@@ -29,7 +29,7 @@ public class EscapeTimeEscapeRadiusNova extends EscapeTimeEscapeRadius {
     public EscapeTimeEscapeRadiusNova() {
 
         super(Math.log(16.0));
-        OutNotUsingIncrement = true;
+        OutUsingIncrement = false;
 
     }
 

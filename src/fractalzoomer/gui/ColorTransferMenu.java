@@ -19,6 +19,8 @@ package fractalzoomer.gui;
 import fractalzoomer.main.MainWindow;
 
 import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 
 /**
  *
@@ -28,18 +30,20 @@ public class ColorTransferMenu extends MyMenu {
 	private static final long serialVersionUID = 187762488530185183L;
 	private MainWindow ptr;
     private JRadioButtonMenuItem[] color_transfer;
+    private JMenuItem color_density_opt;
     
     public static final String[] colorTransferNames;
     
     static {
         colorTransferNames = new String[MainWindow.TOTAL_COLOR_TRANSFER_FILTERS];
-        colorTransferNames[MainWindow.LINEAR] = "Linear";
+        colorTransferNames[MainWindow.DEFAULT] = "Default";
         colorTransferNames[MainWindow.SQUARE_ROOT] = "Square Root";
         colorTransferNames[MainWindow.CUBE_ROOT] = "Cube Root";
         colorTransferNames[MainWindow.FOURTH_ROOT] = "Fourth Root";
         colorTransferNames[MainWindow.LOGARITHM] = "Logarithm";
         colorTransferNames[MainWindow.LOG_LOG] = "Log Log";
         colorTransferNames[MainWindow.ATAN] = "Atan";
+        colorTransferNames[MainWindow.LINEAR] = "Linear";
     }
 
     public ColorTransferMenu(MainWindow ptr2, String name, int selection, final boolean outcoloring) {
@@ -53,11 +57,11 @@ public class ColorTransferMenu extends MyMenu {
         color_transfer = new JRadioButtonMenuItem[colorTransferNames.length];
         ButtonGroup color_transfer_group = new ButtonGroup();
         
-        color_transfer[MainWindow.LINEAR] = new JRadioButtonMenuItem(colorTransferNames[MainWindow.LINEAR]);
-        color_transfer[MainWindow.LINEAR].setToolTipText("Sets the color transfer function to linear.");
-        color_transfer[MainWindow.LINEAR].addActionListener(e -> ptr.setColorTransfer(MainWindow.LINEAR, outcoloring));
-        add(color_transfer[MainWindow.LINEAR]);
-        color_transfer_group.add(color_transfer[MainWindow.LINEAR]);
+        color_transfer[MainWindow.DEFAULT] = new JRadioButtonMenuItem(colorTransferNames[MainWindow.DEFAULT]);
+        color_transfer[MainWindow.DEFAULT].setToolTipText("Sets the color transfer function to default.");
+        color_transfer[MainWindow.DEFAULT].addActionListener(e -> ptr.setColorTransfer(MainWindow.DEFAULT, outcoloring));
+        add(color_transfer[MainWindow.DEFAULT]);
+        color_transfer_group.add(color_transfer[MainWindow.DEFAULT]);
         
         
         color_transfer[MainWindow.SQUARE_ROOT] = new JRadioButtonMenuItem(colorTransferNames[MainWindow.SQUARE_ROOT]);
@@ -100,8 +104,29 @@ public class ColorTransferMenu extends MyMenu {
         color_transfer[MainWindow.ATAN].addActionListener(e -> ptr.setColorTransfer(MainWindow.ATAN, outcoloring));
         add(color_transfer[MainWindow.ATAN]);
         color_transfer_group.add(color_transfer[MainWindow.ATAN]);
+
+        color_transfer[MainWindow.LINEAR] = new JRadioButtonMenuItem(colorTransferNames[MainWindow.LINEAR]);
+        color_transfer[MainWindow.LINEAR].setToolTipText("Sets the color transfer function to linear.");
+        color_transfer[MainWindow.LINEAR].addActionListener(e -> ptr.setColorTransfer(MainWindow.LINEAR, outcoloring));
+        add(color_transfer[MainWindow.LINEAR]);
+        color_transfer_group.add(color_transfer[MainWindow.LINEAR]);
         
         color_transfer[selection].setSelected(true);
+
+        color_density_opt = new MyMenuItem("Color Density", MainWindow.getIcon("color_density.png"));
+        color_density_opt.setToolTipText("Changes the color density of the transfer function.");
+
+        color_density_opt.addActionListener(e -> ptr.setColorDensity(outcoloring));
+
+        if(outcoloring) {
+            color_density_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, ActionEvent.SHIFT_MASK | ActionEvent.ALT_MASK));
+        }
+        else {
+            color_density_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, ActionEvent.CTRL_MASK | ActionEvent.ALT_MASK));
+        }
+
+        addSeparator();
+        add(color_density_opt);
     }
     
     public JRadioButtonMenuItem[] getTranferFunctions() {

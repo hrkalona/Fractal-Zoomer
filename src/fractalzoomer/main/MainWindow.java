@@ -49,17 +49,15 @@ import fractalzoomer.bailout_conditions.SkipBailoutCondition;
 import fractalzoomer.convergent_bailout_conditions.SkipConvergentBailoutCondition;
 import fractalzoomer.core.*;
 import fractalzoomer.core.drawing_algorithms.*;
-import fractalzoomer.core.la.LAInfo;
-import fractalzoomer.core.la.LAInfoDeep;
+import fractalzoomer.core.la.impl.LAInfo;
+import fractalzoomer.core.la.impl.LAInfoDeep;
+import fractalzoomer.core.la.LAReference;
 import fractalzoomer.core.location.Location;
 import fractalzoomer.core.location.normal.CartesianLocationNormalApfloatArbitrary;
 import fractalzoomer.core.location.normal.PolarLocationNormalApfloatArbitrary;
 import fractalzoomer.functions.Fractal;
 import fractalzoomer.gui.*;
-import fractalzoomer.main.app_settings.BumpMapSettings;
-import fractalzoomer.main.app_settings.LightSettings;
-import fractalzoomer.main.app_settings.Settings;
-import fractalzoomer.main.app_settings.StatisticsSettings;
+import fractalzoomer.main.app_settings.*;
 import fractalzoomer.palettes.CustomPalette;
 import fractalzoomer.palettes.PresetPalette;
 import fractalzoomer.parser.Parser;
@@ -86,9 +84,13 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Timer;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Stream;
+
+import static fractalzoomer.gui.CpuLabel.CPU_DELAY;
+import static fractalzoomer.gui.MemoryLabel.MEMORY_DELAY;
 
 /**
  *
@@ -106,7 +108,7 @@ public class MainWindow extends JFrame implements Constants {
             } else {
                 myPath = Paths.get(uri);
             }
-            Stream<Path> walk = Files.walk(myPath, 1);
+            Stream<Path> walk = Files.walk(myPath, 2);
 
             Path outputPath = Paths.get(ColorMapFrame.DirName);
             if(!outputPath.toFile().exists()) {
@@ -117,7 +119,18 @@ public class MainWindow extends JFrame implements Constants {
                 for (Iterator<Path> it = walk.iterator(); it.hasNext(); ) {
                     Path inputPath = it.next();
                     if (inputPath.toString().toLowerCase().endsWith(".map")) {
-                        Path path = outputPath.resolve(inputPath.getFileName().toString());
+                        String temp = inputPath.toString();
+                        temp = temp.replaceAll("\\\\", "/");
+                        temp = temp.substring(temp.lastIndexOf("color_maps/"), temp.length());
+                        temp = temp.replace("color_maps/", "");
+
+                        Path path = outputPath.resolve(temp);
+
+                        Path parent = path.getParent();
+                        if(parent != null && Files.notExists(parent)) {
+                            Files.createDirectories(parent);
+                        }
+
                         if (!path.toFile().exists()) {
                             String resourcePath = inputPath.toString();
                             resourcePath = resourcePath.replaceAll("\\\\", "/");
@@ -135,25 +148,29 @@ public class MainWindow extends JFrame implements Constants {
         }
     }
 
-    public static boolean ZOOM_ON_THE_CURSOR = false;
+    public static boolean ZOOM_ON_THE_CURSOR = true;
     public static boolean QUICK_DRAW_ZOOM_TO_CURRENT_CENTER = false;
+    public static boolean CIRCULAR_DRAW_FOLLOWS_ZOOM_TO_CURSOR = false;
+
     public static String SaveSettingsPath = "";
     public static String SaveImagesPath = "";
     private static final long serialVersionUID = -6314723558420412681L;
     private Settings s;
     private boolean first_paint;
     private boolean orbit;
-    private boolean show_orbit_converging_point;
+    public static boolean show_orbit_converging_point = true;
     private int orbit_style;
     private int zoom_window_style;
     private boolean whole_image_done;
-    private boolean fast_julia_filters;
-    private boolean periodicity_checking;
+    public static boolean FAST_JULIA_FILTERS = false;
+    public static boolean PERIODICITY_CHECKING = false;
     private boolean color_cycling;
     private int color_cycling_speed;
     private boolean cycle_colors;
     private boolean cycle_lights;
     private boolean cycle_gradient;
+
+    private ImageRepainter ir;
 
     private int color_cycling_adjusting_value;
 
@@ -165,7 +182,10 @@ public class MainWindow extends JFrame implements Constants {
     private boolean zoom_window;
     private boolean old_polar_projection;
     private boolean old_d3;
-    private ThreadDraw[][] threads;
+    private TaskDraw[][] tasks;
+    private ArrayList<Future<?>> futures = new ArrayList<>();
+    private Future<?> image_repainter_future;
+    private Future<?> orbit_future;
     private DrawOrbit pixels_orbit;
     private Apfloat old_xCenter;
     private Apfloat old_yCenter;
@@ -184,6 +204,7 @@ public class MainWindow extends JFrame implements Constants {
     private int boundaries_type;
     private boolean first_seed;
     private int n;
+    private int m;
     private int thread_grouping;
     private int julia_grid_first_dimension;
     private double zoom_factor;
@@ -209,6 +230,7 @@ public class MainWindow extends JFrame implements Constants {
     private JProgressBar progress;
     private Toolbar toolbar;
     private Statusbar statusbar;
+    private Debugbar debugbar;
     private Infobar infobar;
     private JMenuBar menubar;
     private FileMenu file_menu;
@@ -232,11 +254,15 @@ public class MainWindow extends JFrame implements Constants {
 
     private int i;
     private Object[] compilationStatus;
-    private boolean auto_repaint_image;
+    public static boolean AUTO_REPAINT_IMAGE = true;
 
     private boolean P3D_AA = true;
     private int P3D_AA_SAMPLES = 16;
 
+    private boolean initialized;
+
+    Lock successive_refinement_mutex = new ReentrantLock();
+    Object new_calculation_mutex = new Object();
 
     /**
      * *****************************
@@ -252,7 +278,7 @@ public class MainWindow extends JFrame implements Constants {
         s = new Settings();
         s.applyStaticSettings();
 
-        auto_repaint_image = false;
+        TaskDraw.ALWAYS_SAVE_EXTRA_PIXEL_DATA_ON_AA = true;
 
         runsOnWindows = false;
 
@@ -265,8 +291,18 @@ public class MainWindow extends JFrame implements Constants {
         old_size = s.size;
         old_height_ratio = s.height_ratio;
 
-        n = Runtime.getRuntime().availableProcessors();
-        thread_grouping = 1;
+        int procs = Runtime.getRuntime().availableProcessors();
+
+        ArrayList<Integer> factors = CommonFunctions.getAllFactors(procs);
+        int index = factors.size() / 2 - 1;
+        m = factors.get(index);
+        n = factors.get(index + 1);
+
+        TaskDraw.thread_calculation_executor = (ThreadPoolExecutor)Executors.newFixedThreadPool(m * n);
+        TaskDraw.single_thread_executor = Executors.newSingleThreadExecutor();
+        TaskDraw.action_thread_executor = (ThreadPoolExecutor)Executors.newFixedThreadPool(4);
+
+        thread_grouping = 3;
         julia_grid_first_dimension = 2;
 
         grid_tiles = 6;
@@ -311,8 +347,6 @@ public class MainWindow extends JFrame implements Constants {
         orbit_style = 0;
         zoom_window_style = 0;
         first_seed = true;
-        fast_julia_filters = false;
-        periodicity_checking = false;
         whole_image_done = false;
         color_cycling = false;
         grid = false;
@@ -320,7 +354,6 @@ public class MainWindow extends JFrame implements Constants {
         boundaries = false;
         old_boundaries = boundaries;
         zoom_window = false;
-        show_orbit_converging_point = true;
 
         orbit_color = Color.WHITE;
         grid_color = Color.WHITE;
@@ -434,7 +467,12 @@ public class MainWindow extends JFrame implements Constants {
         status_bars.add(infobar);
 
         statusbar = new Statusbar();
+        debugbar = new Debugbar();
         progress = statusbar.getProgress();
+
+        debugbar.setVisible(false);
+
+        status_bars.add(debugbar);
 
         status_bars.add(statusbar);
 
@@ -481,17 +519,17 @@ public class MainWindow extends JFrame implements Constants {
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_CONTROL && !ctrlKeyPressed && !shiftKeyPressed && !altKeyPressed) {
-                    if (!orbit && !s.d3s.d3 && !s.julia_map && (!s.fns.julia || s.fns.julia && !first_seed)) {
+                    if (!orbit && !s.d3s.d3 && !s.julia_map && (!s.fns.julia || !first_seed)) {
                         ctrlKeyPressed = true;
                         scroll_pane.setCursor(grab_cursor);
                     }
                 } else if (e.getKeyCode() == KeyEvent.VK_SHIFT && !ctrlKeyPressed && !shiftKeyPressed && !altKeyPressed) {
-                    if (!orbit && !s.d3s.d3 && !s.julia_map && (!s.fns.julia || s.fns.julia && !first_seed)) {
+                    if (!orbit && !s.d3s.d3 && !s.julia_map && (!s.fns.julia || !first_seed)) {
                         shiftKeyPressed = true;
                         scroll_pane.setCursor(rotate_cursor);
                     }
                 } else if (e.getKeyCode() == KeyEvent.VK_ALT && !ctrlKeyPressed && !shiftKeyPressed && !altKeyPressed) {
-                    if (!orbit && !s.d3s.d3 && !s.julia_map && (!s.fns.julia || s.fns.julia && !first_seed)) {
+                    if (!orbit && !s.d3s.d3 && !s.julia_map && (!s.fns.julia || !first_seed)) {
                         altKeyPressed = true;
                         scroll_pane.setCursor(new Cursor(Cursor.HAND_CURSOR));
                     }
@@ -501,17 +539,17 @@ public class MainWindow extends JFrame implements Constants {
             @Override
             public void keyReleased(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_CONTROL && ctrlKeyPressed) {
-                    if (!orbit && !s.d3s.d3 && !s.julia_map && (!s.fns.julia || s.fns.julia && !first_seed)) {
+                    if (!orbit && !s.d3s.d3 && !s.julia_map && (!s.fns.julia || !first_seed)) {
                         ctrlKeyPressed = false;
                         scroll_pane.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
                     }
                 } else if (e.getKeyCode() == KeyEvent.VK_SHIFT && shiftKeyPressed) {
-                    if (!orbit && !s.d3s.d3 && !s.julia_map && (!s.fns.julia || s.fns.julia && !first_seed)) {
+                    if (!orbit && !s.d3s.d3 && !s.julia_map && (!s.fns.julia || !first_seed)) {
                         shiftKeyPressed = false;
                         scroll_pane.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
                     }
                 } else if (e.getKeyCode() == KeyEvent.VK_ALT && altKeyPressed) {
-                    if (!orbit && !s.d3s.d3 && !s.julia_map && (!s.fns.julia || s.fns.julia && !first_seed)) {
+                    if (!orbit && !s.d3s.d3 && !s.julia_map && (!s.fns.julia || !first_seed)) {
                         altKeyPressed = false;
                         scroll_pane.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
                     }
@@ -528,7 +566,7 @@ public class MainWindow extends JFrame implements Constants {
         }
 
         scroll_pane.addMouseWheelListener(e -> {
-            if (!orbit && !s.d3s.d3 && !s.julia_map && (!s.fns.julia || s.fns.julia && !first_seed)) {
+            if (!orbit && !s.d3s.d3 && !s.julia_map && (!s.fns.julia || !first_seed)) {
 
                 if (!s.polar_projection) {
                     scrollPoint(e);
@@ -674,11 +712,11 @@ public class MainWindow extends JFrame implements Constants {
                     selectPointOrbit(e);
                 } else if (s.d3s.d3) {
                     rotate3DModel(e);
-                } else if (ctrlKeyPressed && !s.julia_map && (!s.fns.julia || s.fns.julia && !first_seed)) {
+                } else if (ctrlKeyPressed && !s.julia_map && (!s.fns.julia || !first_seed)) {
                     dragPoint(e);
-                } else if (shiftKeyPressed && !s.julia_map && (!s.fns.julia || s.fns.julia && !first_seed)) {
+                } else if (shiftKeyPressed && !s.julia_map && (!s.fns.julia || !first_seed)) {
                     rotatePoint(e);
-                } else if (altKeyPressed && !s.julia_map && (!s.fns.julia || s.fns.julia && !first_seed)) {
+                } else if (altKeyPressed && !s.julia_map && (!s.fns.julia || !first_seed)) {
                     selectPointForPlane(e);
                 }
 
@@ -693,7 +731,7 @@ public class MainWindow extends JFrame implements Constants {
                     scroll_pane.setCursor(grab_cursor);
                 } else if (shiftKeyPressed) {
                     scroll_pane.setCursor(rotate_cursor);
-                } else if (altKeyPressed && scroll_pane.getCursor().getType() != Cursor.HAND_CURSOR) {
+                } else if (altKeyPressed) { // && scroll_pane.getCursor().getType() != Cursor.HAND_CURSOR
                     scroll_pane.setCursor(new Cursor(Cursor.HAND_CURSOR));
                 } else if (scroll_pane.getCursor().getType() != Cursor.CROSSHAIR_CURSOR) {
                     scroll_pane.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
@@ -714,6 +752,34 @@ public class MainWindow extends JFrame implements Constants {
 
                 if ((e.getModifiers() & InputEvent.ALT_MASK) != InputEvent.ALT_MASK && altKeyPressed) {
                     altKeyPressed = false;
+                }
+
+                if(options_menu.getDebugbar().isSelected()) {
+
+                    try {
+                        int x1 = (int) main_panel.getMousePosition().getX();
+                        int y1 = (int) main_panel.getMousePosition().getY();
+
+                        if (x1 < 0 || x1 > image_size || y1 < 0 || y1 > image_size) {
+                            if (!color_cycling) {
+                                main_panel.repaint();
+                            }
+                            return;
+                        }
+
+                        debugbar.getXTf().setText("" + x1);
+                        debugbar.getYTf().setText("" + y1);
+
+                        Color c = main_panel.getColor(x1, y1);
+                        debugbar.getR().setText("" + c.getRed());
+                        debugbar.getG().setText("" + c.getGreen());
+                        debugbar.getB().setText("" + c.getBlue());
+
+                        debugbar.getIterData().setText(main_panel.getIterationData(x1, y1, image_size, s.ds.domain_coloring, s.d3s.d3));
+                    }
+                    catch (Exception ex) {
+
+                    }
                 }
 
                 try {
@@ -805,13 +871,13 @@ public class MainWindow extends JFrame implements Constants {
             toolbar.getCurrentPlane().setEnabled(false);
         }
 
-        ThreadDraw.setArrays(image_size, s.ds.domain_coloring, s.needsExtraData());
+        TaskDraw.setArrays(image_size, s.ds.domain_coloring, s.needsExtraData());
 
         main_panel.setPreferredSize(new Dimension(image_size, image_size));
 
         requestFocus();
 
-        progress.setMaximum((image_size * image_size) + ((image_size * image_size) / 100));
+        progress.setMaximum(image_size * image_size + 1);
 
         setOptions(false);
 
@@ -822,15 +888,17 @@ public class MainWindow extends JFrame implements Constants {
 
         ArraysFillColor(image, EMPTY_COLOR);
 
-        fast_julia_image = new BufferedImage(ThreadDraw.FAST_JULIA_IMAGE_SIZE, ThreadDraw.FAST_JULIA_IMAGE_SIZE, BufferedImage.TYPE_INT_ARGB);
+        fast_julia_image = new BufferedImage(TaskDraw.FAST_JULIA_IMAGE_SIZE, TaskDraw.FAST_JULIA_IMAGE_SIZE, BufferedImage.TYPE_INT_ARGB);
 
         whole_image_done = false;
 
-        createThreads(false, true, false, false);
+        createTasks(false, false, false, false);
 
         calculation_time = System.currentTimeMillis();
 
-        startThreads();
+        startTasks();
+
+        initialized = true;
 
     }
 
@@ -846,19 +914,13 @@ public class MainWindow extends JFrame implements Constants {
 
     }
 
-    public boolean threadsAvailable() {
+    public boolean tasksCompleted() {
 
         synchronized (this) {
-            try {
-                for (int i = 0; i < threads.length; i++) {
-                    for (int j = 0; j < threads[i].length; j++) {
-                        if (threads[i][j].isAlive() || !threads[i][j].started()) {
-                            return false;
-                        }
-                    }
+            for(Future<?> future : futures) {
+                if(!future.isDone()) {
+                    return false;
                 }
-            } catch (Exception ex) {
-                return false;
             }
 
             return true;
@@ -872,9 +934,9 @@ public class MainWindow extends JFrame implements Constants {
 
     }
 
-    public ThreadDraw[][] getThreads() {
+    public TaskDraw[][] getTasks() {
 
-        return threads;
+        return tasks;
 
     }
 
@@ -1199,6 +1261,27 @@ public class MainWindow extends JFrame implements Constants {
             case FORMULA46:
                 temp += "   z = (-0.4 + 0.2i)cz^2 + (-0.275i/c)z + c";
                 break;
+            case FORMULA47:
+                temp += "   z = z^2 + c^2";
+                break;
+            case PERPENDICULAR_MANDELBROT:
+                temp += "   Perpendicular Mandelbrot";
+                break;
+            case BUFFALO_MANDELBROT:
+                temp += "   Buffalo Mandelbrot";
+                break;
+            case CELTIC_MANDELBROT:
+                temp += "   Celtic Mandelbrot";
+                break;
+            case PERPENDICULAR_BURNING_SHIP:
+                temp += "   Perpendicular Burning Ship";
+                break;
+            case PERPENDICULAR_BUFFALO_MANDELBROT:
+                temp += "   Perpendicular Buffalo Mandelbrot";
+                break;
+            case PERPENDICULAR_CELTIC_MANDELBROT:
+                temp += "   Perpendicular Celtic Mandelbrot";
+                break;
             case USER_FORMULA:
                 temp += "   User Formula";
                 break;
@@ -1273,6 +1356,24 @@ public class MainWindow extends JFrame implements Constants {
 
         setTitle(temp);
 
+
+        try {
+            int x1 = (int) main_panel.getMousePosition().getX();
+            int y1 = (int) main_panel.getMousePosition().getY();
+            if (options_menu.getDebugbar().isSelected()) {
+                debugbar.getXTf().setText("" + x1);
+                debugbar.getYTf().setText("" + y1);
+
+                Color c = main_panel.getColor(x1, y1);
+                debugbar.getR().setText("" + c.getRed());
+                debugbar.getG().setText("" + c.getGreen());
+                debugbar.getB().setText("" + c.getBlue());
+
+                debugbar.getIterData().setText(main_panel.getIterationData(x1, y1, image_size, s.ds.domain_coloring, s.d3s.d3));
+            }
+        }
+        catch (Exception ex) {}
+
         if (s.d3s.d3) {
             statusbar.getReal().setText("Real");
             statusbar.getImaginary().setText("Imaginary");
@@ -1315,105 +1416,156 @@ public class MainWindow extends JFrame implements Constants {
         }
     }
 
-    private void createThreads(boolean quickDraw, boolean skipPreview, boolean zoom_to_cursor, boolean createFullImageAfterPreview) {
+    private void createTasks(boolean doQuickDraw, boolean doPreview, boolean zoom_to_cursor, boolean createFullImageAfterPreview) {
 
         synchronized (this) {
             boolean createPreview = false;
 
             if(s.d3s.d3) {
-                skipPreview = true;
+                doPreview = false;
             }
 
-            if (!skipPreview) {
-                if (!quickDraw) {
-                    quickDraw = ThreadDraw.DRAW_IMAGE_PREVIEW;
-                    createPreview = quickDraw;
+            if (doPreview && !doQuickDraw) {
+                if(!(TaskDraw.GREEDY_ALGORITHM && (TaskDraw.GREEDY_ALGORITHM_SELECTION == SUCCESSIVE_REFINEMENT || TaskDraw.GREEDY_ALGORITHM_SELECTION == CIRCULAR_SUCCESSIVE_REFINEMENT))) {
+                    doQuickDraw = TaskDraw.DRAW_IMAGE_PREVIEW;
+                    createPreview = doQuickDraw;
                 }
             }
 
             if (thread_grouping == 0) {
-                threads = new ThreadDraw[n][n];
-                ThreadDraw.resetThreadData(n * n, createFullImageAfterPreview);
-            } else {
-                threads = new ThreadDraw[1][n];
-                ThreadDraw.resetThreadData(n, createFullImageAfterPreview);
+                tasks = new TaskDraw[n][n];
+                TaskDraw.resetTaskData(n * n, createFullImageAfterPreview);
+            } else if (thread_grouping == 1 || thread_grouping == 2){
+                tasks = new TaskDraw[1][n];
+                TaskDraw.resetTaskData(n, createFullImageAfterPreview);
             }
+            else if(thread_grouping == 3 || thread_grouping == 4 || thread_grouping == 5) {
+                tasks = new TaskDraw[m][n];
+                TaskDraw.resetTaskData(m * n, createFullImageAfterPreview);
+            }
+
 
             Parser.usesUserCode = false;
 
             try {
-                for (int i = 0; i < threads.length; i++) {
-                    for (int j = 0; j < threads[i].length; j++) {
+                int taskId = 0;
+                for (int i = 0; i < tasks.length; i++) {
+                    for (int j = 0; j < tasks[i].length; j++, taskId++) {
 
-                        ThreadSplitCoordinates tsc;
+                        TaskSplitCoordinates tsc;
 
                         if (s.d3s.d3) {
-                            tsc = ThreadSplitCoordinates.get(j, i, thread_grouping, n, s.d3s.detail);
+                            tsc = TaskSplitCoordinates.get(j, i, thread_grouping, n, m, s.d3s.detail);
                         } else {
-                            tsc = ThreadSplitCoordinates.get(j, i, thread_grouping, n, image_size);
+                            tsc = TaskSplitCoordinates.get(j, i, thread_grouping, n, m, image_size);
                         }
 
                         if (s.fns.julia) {
-                            if (ThreadDraw.GREEDY_ALGORITHM) {
-                                if (ThreadDraw.GREEDY_ALGORITHM_SELECTION == BOUNDARY_TRACING) {
-                                    if (ThreadDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA) {
-                                        threads[i][j] = new BoundaryTracingColorsAndIterationDataDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, quickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js, s.xJuliaCenter, s.yJuliaCenter);
+                            if (TaskDraw.GREEDY_ALGORITHM) {
+                                if (TaskDraw.GREEDY_ALGORITHM_SELECTION == BOUNDARY_TRACING) {
+                                    if (TaskDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA) {
+                                        tasks[i][j] = new BoundaryTracingColorsAndIterationDataDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, PERIODICITY_CHECKING, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.ds, s.inverse_dem, doQuickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps, s.xJuliaCenter, s.yJuliaCenter);
                                     } else {
-                                        threads[i][j] = new BoundaryTracingDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, quickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js, s.xJuliaCenter, s.yJuliaCenter);
+                                        tasks[i][j] = new BoundaryTracingDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, PERIODICITY_CHECKING, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.ds, s.inverse_dem, doQuickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps, s.xJuliaCenter, s.yJuliaCenter);
                                     }
-                                } else if (ThreadDraw.GREEDY_ALGORITHM_SELECTION == DIVIDE_AND_CONQUER) {
-                                    if (ThreadDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA) {
-                                        threads[i][j] = new DivideAndConquerColorsAndIterationDataDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, quickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js, s.xJuliaCenter, s.yJuliaCenter);
+                                } else if (TaskDraw.GREEDY_ALGORITHM_SELECTION == DIVIDE_AND_CONQUER) {
+                                    if (TaskDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA) {
+                                        tasks[i][j] = new MarianiSilverColorsAndIterationDataDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, PERIODICITY_CHECKING, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.ds, s.inverse_dem, doQuickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps, s.xJuliaCenter, s.yJuliaCenter);
                                     } else {
-                                        threads[i][j] = new DivideAndConquerDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, quickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js, s.xJuliaCenter, s.yJuliaCenter);
+                                        tasks[i][j] = new MarianiSilverDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, PERIODICITY_CHECKING, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.ds, s.inverse_dem, doQuickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps, s.xJuliaCenter, s.yJuliaCenter);
+                                    }
+                                }
+                                else if (TaskDraw.GREEDY_ALGORITHM_SELECTION == SUCCESSIVE_REFINEMENT) {
+                                    if (TaskDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA) {
+                                        tasks[i][j] = new SuccessiveRefinementGuessingColorsAndIterationDataDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, PERIODICITY_CHECKING, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.ds, s.inverse_dem, doQuickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps, s.xJuliaCenter, s.yJuliaCenter);
+                                    } else {
+                                        tasks[i][j] = new SuccessiveRefinementGuessingDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, PERIODICITY_CHECKING, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.ds, s.inverse_dem, doQuickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps, s.xJuliaCenter, s.yJuliaCenter);
+                                    }
+                                }
+                                else if (TaskDraw.GREEDY_ALGORITHM_SELECTION == CIRCULAR_SUCCESSIVE_REFINEMENT) {
+                                    if (TaskDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA) {
+                                        tasks[i][j] = new CircularSuccessiveRefinementGuessingColorsAndIterationDataDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, PERIODICITY_CHECKING, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.ds, s.inverse_dem, doQuickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps, s.xJuliaCenter, s.yJuliaCenter);
+                                    } else {
+                                        tasks[i][j] = new CircularSuccessiveRefinementGuessingDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, PERIODICITY_CHECKING, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.ds, s.inverse_dem, doQuickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps, s.xJuliaCenter, s.yJuliaCenter);
                                     }
                                 }
                             } else {
-                                if (ThreadDraw.BRUTE_FORCE_ALG == 0) {
-                                    threads[i][j] = new BruteForceDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, quickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js, s.xJuliaCenter, s.yJuliaCenter);
-                                } else if (ThreadDraw.BRUTE_FORCE_ALG == 1){
-                                    threads[i][j] = new BruteForce2Draw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, quickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js, s.xJuliaCenter, s.yJuliaCenter);
+                                if (TaskDraw.BRUTE_FORCE_ALG == 0) {
+                                    tasks[i][j] = new BruteForceDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, PERIODICITY_CHECKING, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.ds, s.inverse_dem, doQuickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps, s.xJuliaCenter, s.yJuliaCenter);
+                                } else if (TaskDraw.BRUTE_FORCE_ALG == 1){
+                                    tasks[i][j] = new BruteForce2Draw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, PERIODICITY_CHECKING, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.ds, s.inverse_dem, doQuickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps, s.xJuliaCenter, s.yJuliaCenter);
                                 }
                                 else {
-                                    threads[i][j] = new CircularBruteForceDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, quickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js, s.xJuliaCenter, s.yJuliaCenter);
+                                    tasks[i][j] = new CircularBruteForceDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, PERIODICITY_CHECKING, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.ds, s.inverse_dem, doQuickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps, s.xJuliaCenter, s.yJuliaCenter);
                                 }
                             }
-                        } else if (ThreadDraw.GREEDY_ALGORITHM) {
-                            if (ThreadDraw.GREEDY_ALGORITHM_SELECTION == BOUNDARY_TRACING) {
-                                if (ThreadDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA) {
-                                    threads[i][j] = new BoundaryTracingColorsAndIterationDataDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, quickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js);
+                        } else if (TaskDraw.GREEDY_ALGORITHM) {
+                            if (TaskDraw.GREEDY_ALGORITHM_SELECTION == BOUNDARY_TRACING) {
+                                if (TaskDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA) {
+                                    tasks[i][j] = new BoundaryTracingColorsAndIterationDataDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, PERIODICITY_CHECKING, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.ds, s.inverse_dem, doQuickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps);
                                 } else {
-                                    threads[i][j] = new BoundaryTracingDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, quickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js);
+                                    tasks[i][j] = new BoundaryTracingDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, PERIODICITY_CHECKING, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.ds, s.inverse_dem, doQuickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps);
                                 }
-                            } else if (ThreadDraw.GREEDY_ALGORITHM_SELECTION == DIVIDE_AND_CONQUER) {
-                                if (ThreadDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA) {
-                                    threads[i][j] = new DivideAndConquerColorsAndIterationDataDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, quickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js);
+                            } else if (TaskDraw.GREEDY_ALGORITHM_SELECTION == DIVIDE_AND_CONQUER) {
+                                if (TaskDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA) {
+                                    tasks[i][j] = new MarianiSilverColorsAndIterationDataDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, PERIODICITY_CHECKING, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.ds, s.inverse_dem, doQuickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps);
                                 } else {
-                                    threads[i][j] = new DivideAndConquerDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, quickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js);
+                                    tasks[i][j] = new MarianiSilverDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, PERIODICITY_CHECKING, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.ds, s.inverse_dem, doQuickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps);
+                                }
+                            }
+                            else if (TaskDraw.GREEDY_ALGORITHM_SELECTION == SUCCESSIVE_REFINEMENT) {
+                                if (TaskDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA) {
+                                    tasks[i][j] = new SuccessiveRefinementGuessingColorsAndIterationDataDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, PERIODICITY_CHECKING, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.ds, s.inverse_dem, doQuickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps);
+                                } else {
+                                    tasks[i][j] = new SuccessiveRefinementGuessingDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, PERIODICITY_CHECKING, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.ds, s.inverse_dem, doQuickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps);
+                                }
+                            }
+                            else if(TaskDraw.GREEDY_ALGORITHM_SELECTION == CIRCULAR_SUCCESSIVE_REFINEMENT) {
+                                if (TaskDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA) {
+                                    tasks[i][j] = new CircularSuccessiveRefinementGuessingColorsAndIterationDataDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, PERIODICITY_CHECKING, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.ds, s.inverse_dem, doQuickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps);
+                                } else {
+                                    tasks[i][j] = new CircularSuccessiveRefinementGuessingDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, PERIODICITY_CHECKING, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.ds, s.inverse_dem, doQuickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps);
                                 }
                             }
                         } else {
-                            if (ThreadDraw.BRUTE_FORCE_ALG == 0) {
-                                threads[i][j] = new BruteForceDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, quickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js);
-                            } else if (ThreadDraw.BRUTE_FORCE_ALG == 1) {
-                                threads[i][j] = new BruteForce2Draw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, quickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js);
+                            if (TaskDraw.BRUTE_FORCE_ALG == 0) {
+                                tasks[i][j] = new BruteForceDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, PERIODICITY_CHECKING, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.ds, s.inverse_dem, doQuickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps);
+                            } else if (TaskDraw.BRUTE_FORCE_ALG == 1) {
+                                tasks[i][j] = new BruteForce2Draw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, PERIODICITY_CHECKING, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.ds, s.inverse_dem, doQuickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps);
                             }
                             else {
-                                threads[i][j] = new CircularBruteForceDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, quickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js);
+                                tasks[i][j] = new CircularBruteForceDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, PERIODICITY_CHECKING, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.ds, s.inverse_dem, doQuickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps);
                             }
                         }
-                        threads[i][j].setThreadId(i * threads.length + j);
-                        threads[i][j].setCreatePreview(createPreview);
-                        threads[i][j].setZoomToCursor(zoom_to_cursor);
-                        threads[i][j].setCreateFullImageAfterPreview(createFullImageAfterPreview);
+                        tasks[i][j].setTaskId(taskId);
+                        tasks[i][j].setCreatePreview(createPreview);
+                        tasks[i][j].setZoomToCursor(zoom_to_cursor);
+                        tasks[i][j].setCreateFullImageAfterPreview(createFullImageAfterPreview);
+                        tasks[i][j].setUsesSquareChunks(thread_grouping == 0 || ((thread_grouping == 3 || thread_grouping == 4 || thread_grouping == 5) && m == n));
                     }
                 }
 
-                if(threads[0][0] instanceof CircularBruteForceDraw) {
-                    CircularBruteForceDraw.initCoordinates(image_size, zoom_to_cursor, !quickDraw);
+                if(tasks[0][0].hasCircularLogic()) {
+                    CircularBruteForceDraw.initCoordinates(image_size, zoom_to_cursor && CIRCULAR_DRAW_FOLLOWS_ZOOM_TO_CURSOR, !doQuickDraw || TaskDraw.QUICKDRAW_SUCCESSIVE_REFINEMENT, tasks[0][0].usesSuccessiveRefinement());
+                    if(tasks[0][0].usesSuccessiveRefinement()) {
+                        CircularSuccessiveRefinementGuessingDraw.initCoordinates(image_size, false);
+                    }
                 }
                 else {
                     CircularBruteForceDraw.clear();
+                }
+
+                if(tasks[0][0].usesSuccessiveRefinement()) {
+                    SuccessiveRefinementGuessingDraw.examined = new boolean[image_size * image_size];
+                    SuccessiveRefinementGuessingDraw.filled = new boolean[image_size * image_size];
+                    if(TaskDraw.SKIPPED_PIXELS_ALG != 0) {
+                        SuccessiveRefinementGuessingDraw.skipped_colors = new int[image_size * image_size];
+                    }
+                }
+                else {
+                    SuccessiveRefinementGuessingDraw.examined = null;
+                    SuccessiveRefinementGuessingDraw.filled = null;
+                    SuccessiveRefinementGuessingDraw.skipped_colors = null;
                 }
             } catch (ParserException e) {
                 JOptionPane.showMessageDialog(scroll_pane, e.getMessage() + "\nThe application will terminate.", "Error!", JOptionPane.ERROR_MESSAGE);
@@ -1426,25 +1578,41 @@ public class MainWindow extends JFrame implements Constants {
         }
     }
 
-    private void startThreads() {
+    private void startTasks() {
 
         boolean isQuickDraw = false;
         boolean isFastJulia = false;
+
         synchronized (this) {
 
-            isQuickDraw = threads[0][0].isQuickDraw();
-            isFastJulia = threads[0][0].isFastJulia();
-            for (int i = 0; i < threads.length; i++) {
-                for (int j = 0; j < threads[i].length; j++) {
-                    threads[i][j].start();
+            isQuickDraw = tasks[0][0].isQuickDraw();
+            isFastJulia = tasks[0][0].isFastJulia();
+            boolean isJuliaMap = tasks[0][0].isJuliaMap();
+            futures.clear();
+            for (int i = 0; i < tasks.length; i++) {
+                for (int j = 0; j < tasks[i].length; j++) {
+                    if(isJuliaMap) {
+                        futures.add(TaskDraw.julia_map_thread_calculation_executor.submit(tasks[i][j]));
+                    }
+                    else {
+                        futures.add(TaskDraw.thread_calculation_executor.submit(tasks[i][j]));
+                    }
                 }
             }
         }
 
-        if ((auto_repaint_image && !isQuickDraw) && !s.d3s.d3 && !isFastJulia && !color_cycling) {
-            ImageRepainter ir = new ImageRepainter(ptr, threads);
-            ir.init();
-            ir.start();
+        if (initialized && (AUTO_REPAINT_IMAGE && (!isQuickDraw || TaskDraw.QUICKDRAW_SUCCESSIVE_REFINEMENT)) && !s.d3s.d3 && !isFastJulia && !color_cycling) {
+            if(ir == null) {
+                ir = new ImageRepainter(ptr, tasks);
+                ir.init((isQuickDraw && TaskDraw.QUICKDRAW_SUCCESSIVE_REFINEMENT) || tasks[0][0].usesSuccessiveRefinement());
+                image_repainter_future = TaskDraw.single_thread_executor.submit(ir);
+            }
+            else {
+                ir.stopIt();
+                ir = new ImageRepainter(ptr, tasks);
+                ir.init((isQuickDraw && TaskDraw.QUICKDRAW_SUCCESSIVE_REFINEMENT) || tasks[0][0].usesSuccessiveRefinement());
+                image_repainter_future = TaskDraw.single_thread_executor.submit(ir);
+            }
         }
     }
 
@@ -1563,15 +1731,15 @@ public class MainWindow extends JFrame implements Constants {
         }
 
         if (s.fns.in_coloring_algorithm != MAX_ITERATIONS) {
-            periodicity_checking = false;
+            PERIODICITY_CHECKING = false;
             options_menu.getPeriodicityChecking().setSelected(false);
             options_menu.getPeriodicityChecking().setEnabled(false);
             options_menu.getInColoringMenu().setEnabledAllButMaxIterations(true);
         }
 
-        if (s.ots.useTraps  || s.fns.tcs.trueColorIn || (s.sts.statistic && s.sts.statisticGroup == 2 && s.sts.equicontinuityOverrideColoring)
-                || (s.sts.statistic && (s.sts.statisticGroup == 3 || s.sts.normalMapCombineWithOtherStatistics)) || (s.sts.statistic && s.sts.statisticGroup == 4)) {
-            periodicity_checking = false;
+        if (s.pps.ots.useTraps  || s.fns.tcs.trueColorIn || (s.pps.sts.statistic && s.pps.sts.statisticGroup == 2 && s.pps.sts.equicontinuityOverrideColoring)
+                || (s.pps.sts.statistic && (s.pps.sts.statisticGroup == 3 || s.pps.sts.normalMapCombineWithOtherStatistics)) || (s.pps.sts.statistic && s.pps.sts.statisticGroup == 4)) {
+            PERIODICITY_CHECKING = false;
             options_menu.getPeriodicityChecking().setSelected(false);
             options_menu.getPeriodicityChecking().setEnabled(false);
         }
@@ -1601,9 +1769,9 @@ public class MainWindow extends JFrame implements Constants {
         if (s.fns.out_coloring_algorithm != USER_OUTCOLORING_ALGORITHM && s.fns.in_coloring_algorithm != USER_INCOLORING_ALGORITHM) {
             options_menu.getDirectColor().setEnabled(false);
             options_menu.getDirectColor().setSelected(false);
-            ThreadDraw.USE_DIRECT_COLOR = s.useDirectColor = false;
+            TaskDraw.USE_DIRECT_COLOR = s.useDirectColor = false;
 
-            if(!(s.sts.statistic && s.sts.statisticGroup == 4)){
+            if(!(s.pps.sts.statistic && s.pps.sts.statisticGroup == 4)){
                 setPalettePreviewsVisible();
             }
 
@@ -1614,7 +1782,7 @@ public class MainWindow extends JFrame implements Constants {
         if (!s.useDirectColor) {
             options_menu.getDirectColor().setSelected(false);
 
-            if(!(s.sts.statistic && s.sts.statisticGroup == 4)) {
+            if(!(s.pps.sts.statistic && s.pps.sts.statisticGroup == 4)) {
                 setPalettePreviewsVisible();
             }
 
@@ -1648,6 +1816,7 @@ public class MainWindow extends JFrame implements Constants {
             options_menu.getProcessing().setEnabled(false);
             options_menu.getGradient().setEnabled(false);
             options_menu.getColorBlending().setEnabled(false);
+            options_menu.getColorSpaceParams().setEnabled(false);
 
             options_menu.getOutTrueColoring().setEnabled(false);
             options_menu.getInTrueColoring().setEnabled(false);
@@ -1716,7 +1885,7 @@ public class MainWindow extends JFrame implements Constants {
 
             options_menu.getDirectColor().setEnabled(false);
             options_menu.getDirectColor().setSelected(false);
-            ThreadDraw.USE_DIRECT_COLOR = s.useDirectColor = false;
+            TaskDraw.USE_DIRECT_COLOR = s.useDirectColor = false;
 
             infobar.getGradientPreviewLabel().setVisible(true);
             infobar.getGradientPreview().setVisible(true);
@@ -1736,6 +1905,7 @@ public class MainWindow extends JFrame implements Constants {
             options_menu.getDistanceEstimation().setEnabled(false);
 
             options_menu.getFakeDistanceEstimation().setEnabled(false);
+            options_menu.getNumericalDistanceEstimator().setEnabled(false);
             options_menu.getContourColoring().setEnabled(false);
 
             options_menu.getEntropyColoring().setEnabled(false);
@@ -1773,7 +1943,7 @@ public class MainWindow extends JFrame implements Constants {
             infobar.getInColoringPalettePreviewLabel().setVisible(false);
 
         } else {
-            if (!s.useDirectColor && !(s.sts.statistic && s.sts.statisticGroup == 4)) {
+            if (!s.useDirectColor && !(s.pps.sts.statistic && s.pps.sts.statisticGroup == 4)) {
                 if (s.usePaletteForInColoring) {
                     if(!s.gps.useGeneratedPaletteInColoring) {
                         infobar.getInColoringPalettePreview().setVisible(true);
@@ -1794,7 +1964,7 @@ public class MainWindow extends JFrame implements Constants {
             }
         }
 
-        if(s.sts.statistic && s.sts.statisticGroup == 4) {
+        if(s.pps.sts.statistic && s.pps.sts.statisticGroup == 4) {
             infobar.getMaxIterationsColorPreview().setVisible(false);
             infobar.getMaxIterationsColorPreviewLabel().setVisible(false);
             infobar.getOutColoringPalettePreview().setVisible(false);
@@ -1824,8 +1994,8 @@ public class MainWindow extends JFrame implements Constants {
 
         toolbar.getDomainColoringButton().setSelected(s.ds.domain_coloring);
 
-        if (s.ots.useTraps || s.fns.tcs.trueColorIn || (s.sts.statistic && s.sts.statisticGroup == 2 && s.sts.equicontinuityOverrideColoring)
-         || (s.sts.statistic && (s.sts.statisticGroup == 3 || s.sts.normalMapCombineWithOtherStatistics)) || (s.sts.statistic && s.sts.statisticGroup == 4)
+        if (s.pps.ots.useTraps || s.fns.tcs.trueColorIn || (s.pps.sts.statistic && s.pps.sts.statisticGroup == 2 && s.pps.sts.equicontinuityOverrideColoring)
+         || (s.pps.sts.statistic && (s.pps.sts.statisticGroup == 3 || s.pps.sts.normalMapCombineWithOtherStatistics)) || (s.pps.sts.statistic && s.pps.sts.statisticGroup == 4)
         ) {
             tools_menu.getColorCycling().setEnabled(false);
             toolbar.getColorCyclingButton().setEnabled(false);
@@ -2045,7 +2215,7 @@ public class MainWindow extends JFrame implements Constants {
             try {
                 s.readSettings(filename, scroll_pane, false);
 
-                ThreadDraw.setDomainImageData(image_size, s.ds.domain_coloring);
+                TaskDraw.setDomainImageData(image_size, s.ds.domain_coloring);
 
                 prepareUI();
 
@@ -2056,9 +2226,9 @@ public class MainWindow extends JFrame implements Constants {
                 scroll_pane.getHorizontalScrollBar().setValue((int) (scroll_pane.getHorizontalScrollBar().getMaximum() / 2.0 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2.0));
                 scroll_pane.getVerticalScrollBar().setValue((int) (scroll_pane.getVerticalScrollBar().getMaximum() / 2.0 - scroll_pane.getVerticalScrollBar().getSize().getHeight() / 2.0));
 
-                resetImage();
-
                 whole_image_done = false;
+
+                resetImage();
 
                 if (s.d3s.d3) {
                     s.d3s.fiX = 0.64;
@@ -2066,11 +2236,11 @@ public class MainWindow extends JFrame implements Constants {
                     ArraysFillColor(image, Color.BLACK.getRGB());
                 }
 
-                createThreads(false, false, false, false);
+                createTasks(false, true, false, false);
 
                 calculation_time = System.currentTimeMillis();
 
-                startThreads();
+                startTasks();
 
                 SaveSettingsPath = file.getParent();
             } catch (IOException ex) {
@@ -2246,6 +2416,8 @@ public class MainWindow extends JFrame implements Constants {
         resetOrbit();
         setOptions(false);
 
+        Fractal.clearReferences(true, true);
+
         s.defaultFractalSettings();
 
         if (s.size.compareTo(new MyApfloat(0.05)) < 0) {
@@ -2259,14 +2431,14 @@ public class MainWindow extends JFrame implements Constants {
         scroll_pane.getHorizontalScrollBar().setValue((int) (scroll_pane.getHorizontalScrollBar().getMaximum() / 2.0 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2.0));
         scroll_pane.getVerticalScrollBar().setValue((int) (scroll_pane.getVerticalScrollBar().getMaximum() / 2.0 - scroll_pane.getVerticalScrollBar().getSize().getHeight() / 2.0));
 
+        whole_image_done = false;
+
         if(resetImage) {
             resetImage();
         }
         else {
             ArraysFillColor(image, EMPTY_COLOR);
         }
-
-        whole_image_done = false;
 
         if (s.d3s.d3) {
             s.d3s.fiX = 0.64;
@@ -2275,14 +2447,14 @@ public class MainWindow extends JFrame implements Constants {
         }
 
         if (s.julia_map) {
-            createThreadsJuliaMap();
+            createTasksJuliaMap();
         } else {
-            createThreads(false, false, false, false);
+            createTasks(false, true, false, false);
         }
 
         calculation_time = System.currentTimeMillis();
 
-        startThreads();
+        startTasks();
 
     }
 
@@ -2300,23 +2472,23 @@ public class MainWindow extends JFrame implements Constants {
         scroll_pane.getHorizontalScrollBar().setValue((int) (scroll_pane.getHorizontalScrollBar().getMaximum() / 2.0 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2.0));
         scroll_pane.getVerticalScrollBar().setValue((int) (scroll_pane.getVerticalScrollBar().getMaximum() / 2.0 - scroll_pane.getVerticalScrollBar().getSize().getHeight() / 2.0));
 
+        whole_image_done = false;
+
         resetImage();
 
         if (s.d3s.d3) {
             ArraysFillColor(image, Color.BLACK.getRGB());
         }
 
-        whole_image_done = false;
-
         if(s.julia_map) {
-            createThreadsJuliaMap();
+            createTasksJuliaMap();
         } else {
-            createThreads(false, false, false, false);
+            createTasks(false, true, false, false);
         }
 
         calculation_time = System.currentTimeMillis();
 
-        startThreads();
+        startTasks();
     }
 
     public void goToFractal() {
@@ -2333,18 +2505,21 @@ public class MainWindow extends JFrame implements Constants {
 
     public void setOrbitPointPost(double x_real, double y_imag, int seq_points) {
 
-        if (pixels_orbit != null) {
+        if (pixels_orbit != null && orbit_future != null) {
             try {
-                pixels_orbit.join();
+                orbit_future.get();
 
             } catch (InterruptedException ex) {
+
+            }
+            catch (ExecutionException ex) {
 
             }
         }
 
         try {
             pixels_orbit = new DrawOrbit(s, x_real, y_imag, seq_points, image_size, ptr, orbit_color, orbit_style, show_orbit_converging_point);
-            pixels_orbit.start();
+            orbit_future = TaskDraw.single_thread_executor.submit(pixels_orbit);
         } catch (ParserException e) {
             JOptionPane.showMessageDialog(scroll_pane, e.getMessage() + "\nThe application will terminate.", "Error!", JOptionPane.ERROR_MESSAGE);
             exit(-1);
@@ -2392,7 +2567,7 @@ public class MainWindow extends JFrame implements Constants {
         s.dem_color = dem_color;
         s.special_color = special_color;
         s.special_use_palette_color = use_palette_color;
-        ColorAlgorithm.GlobalIncrementBypass = s.globalIncrementBypass = special_bypass;
+        ColorAlgorithm.GlobalUsingIncrement = s.globalIncrementBypass = special_bypass;
 
         boolean recalculate = false;
         if(ColorAlgorithm.MAGNET_INCREMENT != magnetOffset) {
@@ -2401,24 +2576,24 @@ public class MainWindow extends JFrame implements Constants {
         }
 
         if (s.ps.color_choice == CUSTOM_PALETTE_ID) {
-            ThreadDraw.palette_outcoloring = new CustomPalette(s.ps.custom_palette, s.ps.color_interpolation, s.ps.color_space, s.ps.reversed_palette, s.ps.scale_factor_palette_val, s.ps.processing_alg, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color).getRawPalette();
+            TaskDraw.palette_outcoloring = new CustomPalette(s.ps.custom_palette, s.ps.color_interpolation, s.ps.color_space, s.ps.reversed_palette, s.ps.scale_factor_palette_val, s.ps.processing_alg, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method).getRawPalette();
         } else {
-            ThreadDraw.palette_outcoloring = new PresetPalette(s.ps.color_choice, s.ps.direct_palette, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color).getRawPalette();
+            TaskDraw.palette_outcoloring = new PresetPalette(s.ps.color_choice, s.ps.direct_palette, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method).getRawPalette();
         }
 
         if (s.ps2.color_choice == CUSTOM_PALETTE_ID) {
-            ThreadDraw.palette_incoloring = new CustomPalette(s.ps2.custom_palette, s.ps2.color_interpolation, s.ps2.color_space, s.ps2.reversed_palette, s.ps2.scale_factor_palette_val, s.ps2.processing_alg, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color).getRawPalette();
+            TaskDraw.palette_incoloring = new CustomPalette(s.ps2.custom_palette, s.ps2.color_interpolation, s.ps2.color_space, s.ps2.reversed_palette, s.ps2.scale_factor_palette_val, s.ps2.processing_alg, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method).getRawPalette();
         } else {
-            ThreadDraw.palette_incoloring = new PresetPalette(s.ps2.color_choice, s.ps2.direct_palette, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color).getRawPalette();
+            TaskDraw.palette_incoloring = new PresetPalette(s.ps2.color_choice, s.ps2.direct_palette, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method).getRawPalette();
         }
 
-        ThreadDraw.palette_outcoloring.setGeneratedPaletteSettings(true, s.gps);
-        ThreadDraw.palette_incoloring.setGeneratedPaletteSettings(false, s.gps);
+        TaskDraw.palette_outcoloring.setGeneratedPaletteSettings(true, s.gps);
+        TaskDraw.palette_incoloring.setGeneratedPaletteSettings(false, s.gps);
 
         updateMaxIterColorPreview();
 
         if(!recalculate) {
-            updateColors();
+            updateColors(false);
         }
         else {
             redraw();
@@ -2467,23 +2642,23 @@ public class MainWindow extends JFrame implements Constants {
 
         progress.setValue(0);
 
-        resetImage();
-
         whole_image_done = false;
+
+        resetImage();
 
         if (s.d3s.d3) {
             ArraysFillColor(image, Color.BLACK.getRGB());
         }
 
         if(s.julia_map) {
-            createThreadsJuliaMap();
+            createTasksJuliaMap();
         } else {
-            createThreads(false, false, false, false);
+            createTasks(false, true, false, false);
         }
 
         calculation_time = System.currentTimeMillis();
 
-        startThreads();
+        startTasks();
     }
 
     public void setHeightRatio() {
@@ -2504,15 +2679,30 @@ public class MainWindow extends JFrame implements Constants {
 
     }
 
-    public void setThreadsNumberPost(int grouping, int n) {
-        this.n = n;
+    public void setThreadsNumberPost(int grouping, int val, int val2) {
+        if(grouping == 3 || grouping == 4) {
+            ArrayList<Integer> factors = CommonFunctions.getAllFactors(val);
+
+            int index = factors.size() / 2 - 1;
+
+            m = factors.get(index);
+            this.n = factors.get(index + 1);
+        } else if (grouping == 5) {
+            m = val2;
+            n = val;
+        } else {
+            this.n = val;
+        }
         this.thread_grouping = grouping;
+
+        TaskDraw.thread_calculation_executor.shutdown();
+        TaskDraw.thread_calculation_executor = (ThreadPoolExecutor)Executors.newFixedThreadPool(getNumberOfThreads());
     }
 
     public void setThreadsNumber() {
 
         resetOrbit();
-        new ThreadsDialog(ptr, n, thread_grouping);
+        new ThreadsDialog(ptr, n, m, thread_grouping);
 
     }
 
@@ -2559,9 +2749,9 @@ public class MainWindow extends JFrame implements Constants {
             options_menu.getOutColoringPalette()[s.ps.color_choice].setSelected(true);
 
             if (s.ps.color_choice == CUSTOM_PALETTE_ID) {
-                ThreadDraw.palette_outcoloring = new CustomPalette(s.ps.custom_palette, s.ps.color_interpolation, s.ps.color_space, s.ps.reversed_palette, s.ps.scale_factor_palette_val, s.ps.processing_alg, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color).getRawPalette();
+                TaskDraw.palette_outcoloring = new CustomPalette(s.ps.custom_palette, s.ps.color_interpolation, s.ps.color_space, s.ps.reversed_palette, s.ps.scale_factor_palette_val, s.ps.processing_alg, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method).getRawPalette();
             } else {
-                ThreadDraw.palette_outcoloring = new PresetPalette(s.ps.color_choice, s.ps.direct_palette, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color).getRawPalette();
+                TaskDraw.palette_outcoloring = new PresetPalette(s.ps.color_choice, s.ps.direct_palette, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method).getRawPalette();
             }
 
             s.ps2.color_choice = temp2;
@@ -2572,9 +2762,9 @@ public class MainWindow extends JFrame implements Constants {
             options_menu.getInColoringPalette()[s.ps2.color_choice].setSelected(true);
 
             if (s.ps2.color_choice == CUSTOM_PALETTE_ID) {
-                ThreadDraw.palette_incoloring = new CustomPalette(s.ps2.custom_palette, s.ps2.color_interpolation, s.ps2.color_space, s.ps2.reversed_palette, s.ps2.scale_factor_palette_val, s.ps2.processing_alg, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color).getRawPalette();
+                TaskDraw.palette_incoloring = new CustomPalette(s.ps2.custom_palette, s.ps2.color_interpolation, s.ps2.color_space, s.ps2.reversed_palette, s.ps2.scale_factor_palette_val, s.ps2.processing_alg, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method).getRawPalette();
             } else {
-                ThreadDraw.palette_incoloring = new PresetPalette(s.ps2.color_choice, s.ps2.direct_palette, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color).getRawPalette();
+                TaskDraw.palette_incoloring = new PresetPalette(s.ps2.color_choice, s.ps2.direct_palette, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method).getRawPalette();
             }
         } else if (mode == 0) {
             s.ps.color_choice = temp2;
@@ -2589,9 +2779,9 @@ public class MainWindow extends JFrame implements Constants {
             options_menu.getOutColoringPalette()[s.ps.color_choice].setSelected(true);
 
             if (s.ps.color_choice == CUSTOM_PALETTE_ID) {
-                ThreadDraw.palette_outcoloring = new CustomPalette(s.ps.custom_palette, s.ps.color_interpolation, s.ps.color_space, s.ps.reversed_palette, s.ps.scale_factor_palette_val, s.ps.processing_alg, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color).getRawPalette();
+                TaskDraw.palette_outcoloring = new CustomPalette(s.ps.custom_palette, s.ps.color_interpolation, s.ps.color_space, s.ps.reversed_palette, s.ps.scale_factor_palette_val, s.ps.processing_alg, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method).getRawPalette();
             } else {
-                ThreadDraw.palette_outcoloring = new PresetPalette(s.ps.color_choice, s.ps.direct_palette, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color).getRawPalette();
+                TaskDraw.palette_outcoloring = new PresetPalette(s.ps.color_choice, s.ps.direct_palette, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method).getRawPalette();
             }
         } else {
             s.ps2.color_choice = temp2;
@@ -2606,19 +2796,19 @@ public class MainWindow extends JFrame implements Constants {
             options_menu.getInColoringPalette()[s.ps2.color_choice].setSelected(true);
 
             if (s.ps2.color_choice == CUSTOM_PALETTE_ID) {
-                ThreadDraw.palette_incoloring = new CustomPalette(s.ps2.custom_palette, s.ps2.color_interpolation, s.ps2.color_space, s.ps2.reversed_palette, s.ps2.scale_factor_palette_val, s.ps2.processing_alg, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color).getRawPalette();
+                TaskDraw.palette_incoloring = new CustomPalette(s.ps2.custom_palette, s.ps2.color_interpolation, s.ps2.color_space, s.ps2.reversed_palette, s.ps2.scale_factor_palette_val, s.ps2.processing_alg, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method).getRawPalette();
             } else {
-                ThreadDraw.palette_incoloring = new PresetPalette(s.ps2.color_choice, s.ps2.direct_palette, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color).getRawPalette();
+                TaskDraw.palette_incoloring = new PresetPalette(s.ps2.color_choice, s.ps2.direct_palette, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method).getRawPalette();
             }
         }
 
-        ThreadDraw.palette_outcoloring.setGeneratedPaletteSettings(true, s.gps);
-        ThreadDraw.palette_incoloring.setGeneratedPaletteSettings(false, s.gps);
+        TaskDraw.palette_outcoloring.setGeneratedPaletteSettings(true, s.gps);
+        TaskDraw.palette_incoloring.setGeneratedPaletteSettings(false, s.gps);
 
         updateColorPalettesMenu();
         updateMaxIterColorPreview();
 
-        updateColors();
+        updateColors(false);
 
     }
 
@@ -2630,68 +2820,68 @@ public class MainWindow extends JFrame implements Constants {
                 s.fs.filters[ANTIALIASING] = false;
 
                 if(s.d3s.d3) {
-                    ThreadDraw.setExtraDataArrays(s.needsExtraData(), s.d3s.detail);
+                    TaskDraw.setExtraDataArrays(s.needsExtraData(), s.d3s.detail);
                 }
                 else {
-                    ThreadDraw.setExtraDataArrays(s.needsExtraData(), image_size);
+                    TaskDraw.setExtraDataArrays(s.needsExtraData(), image_size);
                 }
 
                 setOptions(false);
 
                 progress.setValue(0);
 
-                resetImageAndCopy(s.d3s.d3, false);
-
                 whole_image_done = false;
 
-                if ((ThreadDraw.GREEDY_ALGORITHM && ThreadDraw.GREEDY_ALGORITHM_SELECTION == DIVIDE_AND_CONQUER) || s.ots.useTraps || s.fns.tcs.trueColorOut || s.fns.tcs.trueColorIn || (s.sts.statistic && s.sts.statisticGroup == 2 && s.sts.equicontinuityOverrideColoring)
-                        || (s.sts.statistic && (s.sts.statisticGroup == 3 || s.sts.normalMapCombineWithOtherStatistics)) || (s.sts.statistic && s.sts.statisticGroup == 4)) {
+                resetImageAndCopy(s.d3s.d3, false);
+
+                if ((TaskDraw.GREEDY_ALGORITHM && TaskDraw.GREEDY_ALGORITHM_SELECTION == DIVIDE_AND_CONQUER) || s.pps.ots.useTraps || s.fns.tcs.trueColorOut || s.fns.tcs.trueColorIn || (s.pps.sts.statistic && s.pps.sts.statisticGroup == 2 && s.pps.sts.equicontinuityOverrideColoring)
+                        || (s.pps.sts.statistic && (s.pps.sts.statisticGroup == 3 || s.pps.sts.normalMapCombineWithOtherStatistics)) || (s.pps.sts.statistic && s.pps.sts.statisticGroup == 4)) {
                     if (s.d3s.d3) {
-                        createThreadsPaletteAndFilter3DModel();
+                        createTasksPaletteAndFilter3DModel();
                     } else {
-                        createThreads(false, false, false, false);
+                        createTasks(false, false, false, false);
                     }
 
                     calculation_time = System.currentTimeMillis();
-                    startThreads();
+                    startTasks();
                 } else {
                     if (s.d3s.d3 || s.ds.domain_coloring) {
-                        createThreads(false, false, false, false);
+                        createTasks(false, false, false, false);
                     } else {
-                        createThreadsPaletteAndFilter();
+                        createTasksPaletteAndFilter();
                     }
 
                     calculation_time = System.currentTimeMillis();
 
-                    startThreads();
+                    startTasks();
                 }
             } else {
                 s.fs.filters[ANTIALIASING] = true;
 
                 if(s.d3s.d3) {
-                    ThreadDraw.setExtraDataArrays(s.needsExtraData(), s.d3s.detail);
+                    TaskDraw.setExtraDataArrays(s.needsExtraData(), s.d3s.detail);
                 }
                 else {
-                    ThreadDraw.setExtraDataArrays(s.needsExtraData(), image_size);
+                    TaskDraw.setExtraDataArrays(s.needsExtraData(), image_size);
                 }
 
                 setOptions(false);
 
                 progress.setValue(0);
 
-                resetImageAndCopy(s.d3s.d3, false);
-
                 whole_image_done = false;
 
+                resetImageAndCopy(s.d3s.d3, false);
+
                 if(s.julia_map) {
-                    createThreadsJuliaMap();
+                    createTasksJuliaMap();
                 } else {
-                    createThreads(false, false, false, false);
+                    createTasks(false, false, false, false);
                 }
 
                 calculation_time = System.currentTimeMillis();
 
-                startThreads();
+                startTasks();
 
             }
         } else {
@@ -2705,34 +2895,41 @@ public class MainWindow extends JFrame implements Constants {
 
             progress.setValue(0);
 
-            resetImageAndCopy(s.d3s.d3, false);
-
             whole_image_done = false;
 
-            if (s.fs.filters[ANTIALIASING] || s.ots.useTraps || s.ds.domain_coloring || s.fns.tcs.trueColorOut || s.fns.tcs.trueColorIn || (s.sts.statistic && s.sts.statisticGroup == 2 && s.sts.equicontinuityOverrideColoring)
-                    || (s.sts.statistic && (s.sts.statisticGroup == 3 || s.sts.normalMapCombineWithOtherStatistics)) || (s.sts.statistic && s.sts.statisticGroup == 4)) {
-                if(s.julia_map) {
-                    createThreadsJuliaMap();
+            resetImageAndCopy(s.d3s.d3, false);
+
+            if (s.fs.filters[ANTIALIASING] || s.pps.ots.useTraps || s.ds.domain_coloring || s.fns.tcs.trueColorOut || s.fns.tcs.trueColorIn || (s.pps.sts.statistic && s.pps.sts.statisticGroup == 2 && s.pps.sts.equicontinuityOverrideColoring)
+                    || (s.pps.sts.statistic && (s.pps.sts.statisticGroup == 3 || s.pps.sts.normalMapCombineWithOtherStatistics)) || (s.pps.sts.statistic && s.pps.sts.statisticGroup == 4)) {
+
+                if(!TaskDraw.hasExtraData(image_size) || s.d3s.d3) {
+                    if(s.julia_map) {
+                        createTasksJuliaMap();
+                    }
+                    else if (s.d3s.d3) {
+                        createTasksPaletteAndFilter3DModel();
+                    }
+                    else  {
+                        createTasks(false, false, false, false);
+                    }
                 }
-                else if (s.d3s.d3) {
-                    createThreadsPaletteAndFilter3DModel();
-                } else {
-                    createThreads(false, false, false, false);
+                else {
+                    createTasksPalettePostProcessAndFilterWithAAData(TaskDraw.POST_PROCESSING_WITH_AA_AND_FILTER);
                 }
 
                 calculation_time = System.currentTimeMillis();
 
-                startThreads();
+                startTasks();
             } else {
                 if (s.d3s.d3) {
-                    createThreadsPaletteAndFilter3DModel();
+                    createTasksPaletteAndFilter3DModel();
                 } else {
-                    createThreadsPaletteAndFilter();
+                    createTasksPaletteAndFilter();
                 }
 
                 calculation_time = System.currentTimeMillis();
 
-                startThreads();
+                startTasks();
             }
         }
     }
@@ -2839,7 +3036,7 @@ public class MainWindow extends JFrame implements Constants {
 
         resetOrbit();
         if (!options_menu.getPeriodicityChecking().isSelected()) {
-            periodicity_checking = false;
+            PERIODICITY_CHECKING = false;
             options_menu.getInColoringMenu().setEnabledAllButMaxIterations(true);
             if (!s.useDirectColor) {
                 options_menu.getOrbitTraps().setEnabled(true);
@@ -2847,7 +3044,7 @@ public class MainWindow extends JFrame implements Constants {
             }
             main_panel.repaint();
         } else {
-            periodicity_checking = true;
+            PERIODICITY_CHECKING = true;
             options_menu.getInColoringMenu().setEnabledAllButMaxIterations(false);
             options_menu.getOrbitTraps().setEnabled(false);
             options_menu.getInTrueColoring().setEnabled(false);
@@ -2859,33 +3056,15 @@ public class MainWindow extends JFrame implements Constants {
     public void setAutoRepaintImage() {
         resetOrbit();
         if (!options_menu.getAutoRepaintImage().isSelected()) {
-            auto_repaint_image = false;
+            AUTO_REPAINT_IMAGE = false;
             main_panel.repaint();
         } else {
-            auto_repaint_image = true;
+            AUTO_REPAINT_IMAGE = true;
             main_panel.repaint();
         }
     }
 
-    private void selectPointFractal(MouseEvent e) {
-
-        resetOrbit();
-
-        if (!threadsAvailable() || (e.getModifiers() != InputEvent.BUTTON1_MASK && e.getModifiers() != InputEvent.BUTTON3_MASK)) {
-            return;
-        }
-
-        double curX, curY;
-        try {
-            curX = main_panel.getMousePosition().getX();
-            curY = main_panel.getMousePosition().getY();
-        } catch (Exception ex) {
-            return;
-        }
-
-        if (curX < 0 || curX > image_size || curY < 0 || curY > image_size) {
-            return;
-        }
+    private void selectPointFractalInternal(MouseEvent e, double curX, double curY) {
 
         if (timer != null) {
             timer.cancel();
@@ -2910,7 +3089,7 @@ public class MainWindow extends JFrame implements Constants {
             case InputEvent.BUTTON1_MASK: {
                 if(MyApfloat.setAutomaticPrecision) {
                     if (MyApfloat.shouldIncreasePrecision(s.size)) {
-                        Fractal.clearReferences(true);
+                        Fractal.clearReferences(true, true);
                         MyApfloat.increasePrecision(s);
                     }
                 }
@@ -2948,42 +3127,70 @@ public class MainWindow extends JFrame implements Constants {
             scroll_pane.getVerticalScrollBar().setValue((int) (scroll_pane.getVerticalScrollBar().getMaximum() / 2.0 - scroll_pane.getVerticalScrollBar().getSize().getHeight() / 2.0));
         }
 
-        resetImage();
-
         whole_image_done = false;
 
+        resetImage();
+
         if(s.julia_map) {
-            createThreadsJuliaMap();
+            createTasksJuliaMap();
         } else {
-            createThreads(false, false, ZOOM_ON_THE_CURSOR, false);
+            createTasks(false, true, ZOOM_ON_THE_CURSOR, false);
         }
 
         calculation_time = System.currentTimeMillis();
 
-        startThreads();
+        startTasks();
 
     }
 
-    private void scrollPoint(MouseWheelEvent e) {
+    private boolean canSelectPointInstantly() {
+        return !(s.fns.julia && first_seed) && !color_cycling && !s.julia_map && !s.d3s.d3 && TaskDraw.USE_QUICKDRAW_ON_GREEDY_SUCCESSIVE_REFINEMENT && TaskDraw.GREEDY_ALGORITHM && (TaskDraw.GREEDY_ALGORITHM_SELECTION == Constants.SUCCESSIVE_REFINEMENT || TaskDraw.GREEDY_ALGORITHM_SELECTION == Constants.CIRCULAR_SUCCESSIVE_REFINEMENT);
+    }
 
-        resetOrbit();
+    private void selectPointFractal(MouseEvent e) {
 
-        if (!threadsAvailable() || ctrlKeyPressed || shiftKeyPressed || altKeyPressed) {
-            return;
+        synchronized (new_calculation_mutex) {
+            resetOrbit();
+
+            if ((e.getModifiers() != InputEvent.BUTTON1_MASK && e.getModifiers() != InputEvent.BUTTON3_MASK)) {
+                return;
+            }
+
+            double curX, curY;
+            try {
+                curX = main_panel.getMousePosition().getX();
+                curY = main_panel.getMousePosition().getY();
+            } catch (Exception ex) {
+                return;
+            }
+
+            if (curX < 0 || curX > image_size || curY < 0 || curY > image_size) {
+                return;
+            }
+
+
+            if (canSelectPointInstantly()) {
+                TaskDraw.action_thread_executor.submit(() -> {
+                    if (successive_refinement_mutex.tryLock()) {
+                        try {
+                            stopSuccessiveRefinement();
+                            selectPointFractalInternal(e, curX, curY);
+                        } finally {
+                            successive_refinement_mutex.unlock();
+                        }
+                    }
+                });
+                return;
+            } else if (!tasksCompleted()) {
+                return;
+            }
+
+            selectPointFractalInternal(e, curX, curY);
         }
+    }
 
-        double curX, curY;
+    private void scrollPointInternal(MouseWheelEvent e, boolean doQuickDraw, double curX, double curY) {
 
-        try {
-            curX = main_panel.getMousePosition().getX();
-            curY = main_panel.getMousePosition().getY();
-        } catch (Exception ex) {
-            return;
-        }
-
-        if (curX < 0 || curX > image_size || curY < 0 || curY > image_size) {
-            return;
-        }
 
         if (timer != null) {
             timer.cancel();
@@ -3010,7 +3217,7 @@ public class MainWindow extends JFrame implements Constants {
         if (notches < 0) {
             if(MyApfloat.setAutomaticPrecision) {
                 if (MyApfloat.shouldIncreasePrecision(s.size)) {
-                    Fractal.clearReferences(true);
+                    Fractal.clearReferences(true, true);
                     MyApfloat.increasePrecision(s);
                 }
             }
@@ -3036,43 +3243,70 @@ public class MainWindow extends JFrame implements Constants {
 
         setOptions(false);
 
+        if(!doQuickDraw) {
+            progress.setValue(0);
+        }
+
         if(QUICK_DRAW_ZOOM_TO_CURRENT_CENTER || !ZOOM_ON_THE_CURSOR) {
             scroll_pane.getHorizontalScrollBar().setValue((int) (scroll_pane.getHorizontalScrollBar().getMaximum() / 2.0 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2.0));
             scroll_pane.getVerticalScrollBar().setValue((int) (scroll_pane.getVerticalScrollBar().getMaximum() / 2.0 - scroll_pane.getVerticalScrollBar().getSize().getHeight() / 2.0));
         }
 
-        resetImage();
-
         whole_image_done = false;
 
-        createThreads(true, false, ZOOM_ON_THE_CURSOR, false);
+        resetImage();
+
+        createTasks(doQuickDraw, true, ZOOM_ON_THE_CURSOR, false);
 
         calculation_time = System.currentTimeMillis();
 
-        startThreads();
+        startTasks();
 
     }
 
-    private void dragPoint(MouseEvent e) {
+    private void scrollPoint(MouseWheelEvent e) {
 
-        resetOrbit();
+        synchronized (new_calculation_mutex) {
+            resetOrbit();
 
-        if (!threadsAvailable() || e.getModifiers() != (InputEvent.BUTTON1_MASK | InputEvent.CTRL_MASK)) {
-            return;
+            if (ctrlKeyPressed || shiftKeyPressed || altKeyPressed) {
+                return;
+            }
+
+            double curX, curY;
+
+            try {
+                curX = main_panel.getMousePosition().getX();
+                curY = main_panel.getMousePosition().getY();
+            } catch (Exception ex) {
+                return;
+            }
+
+            if (curX < 0 || curX > image_size || curY < 0 || curY > image_size) {
+                return;
+            }
+
+            if (canSelectPointInstantly()) {
+                TaskDraw.action_thread_executor.submit(() -> {
+                    if (successive_refinement_mutex.tryLock()) {
+                        try {
+                            stopSuccessiveRefinement();
+                            scrollPointInternal(e, false, curX, curY);
+                        } finally {
+                            successive_refinement_mutex.unlock();
+                        }
+                    }
+                });
+                return;
+            } else if (!tasksCompleted()) {
+                return;
+            }
+
+            scrollPointInternal(e, true, curX, curY);
         }
+    }
 
-        double curX, curY;
-        try {
-            curX = main_panel.getMousePosition().getX();
-            curY = main_panel.getMousePosition().getY();
-        } catch (Exception ex) {
-            return;
-        }
-
-        if (curX < 0 || curX > image_size || curY < 0 || curY > image_size) {
-            return;
-        }
-
+    private void dragPointInternal(MouseEvent e, boolean doQuickDraw, double curX, double curY) {
         if (timer != null) {
             timer.cancel();
             timer = null;
@@ -3093,37 +3327,66 @@ public class MainWindow extends JFrame implements Constants {
         scroll_pane.getHorizontalScrollBar().setValue((int) (scroll_pane.getHorizontalScrollBar().getMaximum() / 2.0 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2.0));
         scroll_pane.getVerticalScrollBar().setValue((int) (scroll_pane.getVerticalScrollBar().getMaximum() / 2.0 - scroll_pane.getVerticalScrollBar().getSize().getHeight() / 2.0));
 
-        resetImage();
+        if(!doQuickDraw) {
+            progress.setValue(0);
+        }
 
         whole_image_done = false;
 
-        createThreads(true, false, false, false);
+        resetImage();
+
+        createTasks(doQuickDraw, true, false, false);
 
         calculation_time = System.currentTimeMillis();
 
-        startThreads();
+        startTasks();
 
     }
 
-    private void selectPointForPlane(MouseEvent e) {
+    private void dragPoint(MouseEvent e) {
 
-        resetOrbit();
+        synchronized (new_calculation_mutex) {
+            resetOrbit();
 
-        if (!threadsAvailable() || e.getModifiers() != (InputEvent.BUTTON1_MASK | InputEvent.ALT_MASK)) {
-            return;
+            if (e.getModifiers() != (InputEvent.BUTTON1_MASK | InputEvent.CTRL_MASK)) {
+                return;
+            }
+
+            double curX, curY;
+
+            try {
+                curX = main_panel.getMousePosition().getX();
+                curY = main_panel.getMousePosition().getY();
+            } catch (Exception ex) {
+                return;
+            }
+
+            if (curX < 0 || curX > image_size || curY < 0 || curY > image_size) {
+                return;
+            }
+
+            if (canSelectPointInstantly()) {
+                TaskDraw.action_thread_executor.submit(() -> {
+                    if (successive_refinement_mutex.tryLock()) {
+                        try {
+                            stopSuccessiveRefinement();
+                            dragPointInternal(e, false, curX, curY);
+                        } finally {
+                            successive_refinement_mutex.unlock();
+                        }
+                    }
+                });
+                return;
+            } else if (!tasksCompleted()) {
+                return;
+            }
+
+            dragPointInternal(e, true, curX, curY);
         }
 
-        double curX, curY;
-        try {
-            curX = main_panel.getMousePosition().getX();
-            curY = main_panel.getMousePosition().getY();
-        } catch (Exception ex) {
-            return;
-        }
+    }
 
-        if (curX < 0 || curX > image_size || curY < 0 || curY > image_size) {
-            return;
-        }
+    private void selectPointForPlaneInternal(MouseEvent e, boolean doQuickDraw, double curX, double curY) {
 
         if (timer != null) {
             timer.cancel();
@@ -3139,43 +3402,84 @@ public class MainWindow extends JFrame implements Constants {
         s.fns.plane_transform_center[0] = p.x.doubleValue();
         s.fns.plane_transform_center[1] = p.y.doubleValue();
 
+        if(s.fns.plane_type != MU_PLANE) {
+            Fractal.clearReferences(true, true);
+        }
+
+        if(s.fns.plane_type == INFLECTIONS_PLANE) {
+            if(e.getModifiers() == (InputEvent.BUTTON1_MASK | InputEvent.ALT_MASK)) {
+                s.fns.inflections_re.add(s.fns.plane_transform_center[0]);
+                s.fns.inflections_im.add(s.fns.plane_transform_center[1]);
+            }
+            else if (e.getModifiers() == (InputEvent.BUTTON3_MASK | InputEvent.ALT_MASK)) {
+                if(!s.fns.inflections_re.isEmpty()) {
+                    s.fns.inflections_re.remove(s.fns.inflections_re.size() - 1);
+                    s.fns.inflections_im.remove(s.fns.inflections_im.size() - 1);
+                }
+            }
+        }
+
         setOptions(false);
 
         scroll_pane.getHorizontalScrollBar().setValue((int) (scroll_pane.getHorizontalScrollBar().getMaximum() / 2.0 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2.0));
         scroll_pane.getVerticalScrollBar().setValue((int) (scroll_pane.getVerticalScrollBar().getMaximum() / 2.0 - scroll_pane.getVerticalScrollBar().getSize().getHeight() / 2.0));
 
-        resetImage();
-
         whole_image_done = false;
 
-        createThreads(true, false, false, false);
+        resetImage();
+
+        createTasks(doQuickDraw, true, false, false);
 
         calculation_time = System.currentTimeMillis();
 
-        startThreads();
+        startTasks();
 
     }
 
-    private void rotatePoint(MouseEvent e) {
+    private void selectPointForPlane(MouseEvent e) {
 
-        resetOrbit();
+        synchronized (new_calculation_mutex) {
+            resetOrbit();
 
-        if (!threadsAvailable() || e.getModifiers() != (InputEvent.BUTTON1_MASK | InputEvent.SHIFT_MASK)) {
-            return;
+            if (e.getModifiers() != (InputEvent.BUTTON1_MASK | InputEvent.ALT_MASK) && e.getModifiers() != (InputEvent.BUTTON3_MASK | InputEvent.ALT_MASK)) {
+                return;
+            }
+
+            double curX, curY;
+            try {
+                curX = main_panel.getMousePosition().getX();
+                curY = main_panel.getMousePosition().getY();
+            } catch (Exception ex) {
+                return;
+            }
+
+            if (curX < 0 || curX > image_size || curY < 0 || curY > image_size) {
+                return;
+            }
+
+
+            if (canSelectPointInstantly()) {
+                TaskDraw.action_thread_executor.submit(() -> {
+                    if (successive_refinement_mutex.tryLock()) {
+                        try {
+                            stopSuccessiveRefinement();
+                            selectPointForPlaneInternal(e, false, curX, curY);
+                        } finally {
+                            successive_refinement_mutex.unlock();
+                        }
+                    }
+                });
+                return;
+            } else if (!tasksCompleted()) {
+                return;
+            }
+
+            selectPointForPlaneInternal(e, true, curX, curY);
         }
 
-        double curX, curY;
-        try {
-            curX = main_panel.getMousePosition().getX();
-            curY = main_panel.getMousePosition().getY();
-        } catch (Exception ex) {
-            return;
-        }
+    }
 
-        if (curX < 0 || curX > image_size || curY < 0 || curY > image_size) {
-            return;
-        }
-
+    private void rotatePointInternal(MouseEvent e, boolean doQuickDraw, double curX, double curY) {
         if (timer != null) {
             timer.cancel();
             timer = null;
@@ -3222,40 +3526,67 @@ public class MainWindow extends JFrame implements Constants {
 
         setOptions(false);
 
+        if(!doQuickDraw) {
+            progress.setValue(0);
+        }
+
         scroll_pane.getHorizontalScrollBar().setValue((int) (scroll_pane.getHorizontalScrollBar().getMaximum() / 2.0 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2.0));
         scroll_pane.getVerticalScrollBar().setValue((int) (scroll_pane.getVerticalScrollBar().getMaximum() / 2.0 - scroll_pane.getVerticalScrollBar().getSize().getHeight() / 2.0));
 
-        resetImage();
-
         whole_image_done = false;
 
-        createThreads(true, false, false, false);
+        resetImage();
+
+        createTasks(doQuickDraw, true, false, false);
 
         calculation_time = System.currentTimeMillis();
 
-        startThreads();
+        startTasks();
 
     }
 
-    private void scrollPointPolar(MouseWheelEvent e) {
+    private void rotatePoint(MouseEvent e) {
 
-        resetOrbit();
+        synchronized (new_calculation_mutex) {
+            resetOrbit();
 
-        if (!threadsAvailable()) {
-            return;
+            if (e.getModifiers() != (InputEvent.BUTTON1_MASK | InputEvent.SHIFT_MASK)) {
+                return;
+            }
+
+            double curX, curY;
+            try {
+                curX = main_panel.getMousePosition().getX();
+                curY = main_panel.getMousePosition().getY();
+            } catch (Exception ex) {
+                return;
+            }
+
+            if (curX < 0 || curX > image_size || curY < 0 || curY > image_size) {
+                return;
+            }
+
+            if (canSelectPointInstantly()) {
+                TaskDraw.action_thread_executor.submit(() -> {
+                    if (successive_refinement_mutex.tryLock()) {
+                        try {
+                            stopSuccessiveRefinement();
+                            rotatePointInternal(e, false, curX, curY);
+                        } finally {
+                            successive_refinement_mutex.unlock();
+                        }
+                    }
+                });
+                return;
+            } else if (!tasksCompleted()) {
+                return;
+            }
+
+            rotatePointInternal(e, true, curX, curY);
         }
+    }
 
-        double curX, curY;
-        try {
-            curX = main_panel.getMousePosition().getX();
-            curY = main_panel.getMousePosition().getY();
-        } catch (Exception ex) {
-            return;
-        }
-
-        if (curX < 0 || curX > image_size || curY < 0 || curY > image_size) {
-            return;
-        }
+    private void scrollPointPolarInternal(MouseWheelEvent e, boolean doQuickDraw, double curX, double curY) {
 
         if (timer != null) {
             timer.cancel();
@@ -3266,7 +3597,7 @@ public class MainWindow extends JFrame implements Constants {
         if (notches < 0) {
             if(MyApfloat.setAutomaticPrecision) {
                 if (MyApfloat.shouldIncreasePrecision(s.size)) {
-                    Fractal.clearReferences(true);
+                    Fractal.clearReferences(true, true);
                     MyApfloat.increasePrecision(s);
                 }
             }
@@ -3283,40 +3614,68 @@ public class MainWindow extends JFrame implements Constants {
 
         setOptions(false);
 
+        if(!doQuickDraw) {
+            progress.setValue(0);
+        }
+
         scroll_pane.getHorizontalScrollBar().setValue((int) (scroll_pane.getHorizontalScrollBar().getMaximum() / 2.0 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2.0));
         scroll_pane.getVerticalScrollBar().setValue((int) (scroll_pane.getVerticalScrollBar().getMaximum() / 2.0 - scroll_pane.getVerticalScrollBar().getSize().getHeight() / 2.0));
 
-        resetImage();
-
         whole_image_done = false;
 
-        createThreads(true, false, false, false);
+        resetImage();
+
+        createTasks(doQuickDraw, true, false, false);
 
         calculation_time = System.currentTimeMillis();
 
-        startThreads();
+        startTasks();
 
     }
 
-    private void selectPointJulia(MouseEvent e) {
+    private void scrollPointPolar(MouseWheelEvent e) {
 
-        resetOrbit();
+        synchronized (new_calculation_mutex) {
+            if (ctrlKeyPressed || shiftKeyPressed || altKeyPressed) {
+                return;
+            }
 
-        if (!threadsAvailable() || (e.getModifiers() != InputEvent.BUTTON1_MASK && e.getModifiers() != InputEvent.BUTTON3_MASK)) {
-            return;
+            double curX, curY;
+
+            try {
+                curX = main_panel.getMousePosition().getX();
+                curY = main_panel.getMousePosition().getY();
+            } catch (Exception ex) {
+                return;
+            }
+
+            if (curX < 0 || curX > image_size || curY < 0 || curY > image_size) {
+                return;
+            }
+
+            if (canSelectPointInstantly()) {
+                TaskDraw.action_thread_executor.submit(() -> {
+                    if (successive_refinement_mutex.tryLock()) {
+                        try {
+                            stopSuccessiveRefinement();
+                            scrollPointPolarInternal(e, false, curX, curY);
+                        } finally {
+                            successive_refinement_mutex.unlock();
+                        }
+                    }
+                });
+                return;
+            } else if (!tasksCompleted()) {
+                return;
+            }
+
+            scrollPointPolarInternal(e, true, curX, curY);
         }
 
-        double curX, curY;
-        try {
-            curX = main_panel.getMousePosition().getX();
-            curY = main_panel.getMousePosition().getY();
-        } catch (Exception ex) {
-            return;
-        }
 
-        if (curX < 0 || curX > image_size || curY < 0 || curY > image_size) {
-            return;
-        }
+    }
+
+    private void selectPointJuliaInternal(MouseEvent e, double curX, double curY) {
 
         if (timer != null) {
             timer.cancel();
@@ -3331,7 +3690,7 @@ public class MainWindow extends JFrame implements Constants {
                 int x1 = (int) curX;
                 int y1 = (int) curY;
 
-                Fractal.clearReferences(true);
+                Fractal.clearReferences(true, true);
 
                 if (s.polar_projection) {
 
@@ -3380,7 +3739,7 @@ public class MainWindow extends JFrame implements Constants {
                 case InputEvent.BUTTON1_MASK: {
                     if(MyApfloat.setAutomaticPrecision) {
                         if (MyApfloat.shouldIncreasePrecision(s.size)) {
-                            Fractal.clearReferences(true);
+                            Fractal.clearReferences(true, true);
                             MyApfloat.increasePrecision(s);
                         }
                     }
@@ -3415,37 +3774,61 @@ public class MainWindow extends JFrame implements Constants {
                 scroll_pane.getVerticalScrollBar().setValue((int) (scroll_pane.getVerticalScrollBar().getMaximum() / 2.0 - scroll_pane.getVerticalScrollBar().getSize().getHeight() / 2.0));
             }
 
-            resetImage();
-
             whole_image_done = false;
 
-            createThreads(false, false, ZOOM_ON_THE_CURSOR, false);
+            resetImage();
+
+            createTasks(false, true, ZOOM_ON_THE_CURSOR, false);
 
             calculation_time = System.currentTimeMillis();
 
-            startThreads();
+            startTasks();
 
+        }
+    }
+    private void selectPointJulia(MouseEvent e) {
+
+        synchronized (new_calculation_mutex) {
+            resetOrbit();
+
+            if ((e.getModifiers() != InputEvent.BUTTON1_MASK && e.getModifiers() != InputEvent.BUTTON3_MASK)) {
+                return;
+            }
+
+            double curX, curY;
+            try {
+                curX = main_panel.getMousePosition().getX();
+                curY = main_panel.getMousePosition().getY();
+            } catch (Exception ex) {
+                return;
+            }
+
+            if (curX < 0 || curX > image_size || curY < 0 || curY > image_size) {
+                return;
+            }
+
+            if (canSelectPointInstantly()) {
+                TaskDraw.action_thread_executor.submit(() -> {
+                    if (successive_refinement_mutex.tryLock()) {
+                        try {
+                            stopSuccessiveRefinement();
+                            selectPointJuliaInternal(e, curX, curY);
+                        } finally {
+                            successive_refinement_mutex.unlock();
+                        }
+                    }
+                });
+                return;
+            } else if (!tasksCompleted()) {
+                return;
+            }
+
+            selectPointJuliaInternal(e, curX, curY);
         }
 
     }
 
-    private void selectPointPolar(MouseEvent e) {
-        resetOrbit();
-        if (!threadsAvailable() || (e.getModifiers() != InputEvent.BUTTON1_MASK && e.getModifiers() != InputEvent.BUTTON3_MASK)) {
-            return;
-        }
-
-        double curX, curY;
-        try {
-            curX = main_panel.getMousePosition().getX();
-            curY = main_panel.getMousePosition().getY();
-        } catch (Exception ex) {
-            return;
-        }
-
-        if (curX < 0 || curX > image_size || curY < 0 || curY > image_size) {
-            return;
-        }
+    private void selectPointPolarInternal(MouseEvent e, double curX, double curY) {
 
         if (timer != null) {
             timer.cancel();
@@ -3456,7 +3839,7 @@ public class MainWindow extends JFrame implements Constants {
             case InputEvent.BUTTON1_MASK: {
                 if(MyApfloat.setAutomaticPrecision) {
                     if (MyApfloat.shouldIncreasePrecision(s.size)) {
-                        Fractal.clearReferences(true);
+                        Fractal.clearReferences(true, true);
                         MyApfloat.increasePrecision(s);
                     }
                 }
@@ -3482,19 +3865,87 @@ public class MainWindow extends JFrame implements Constants {
         scroll_pane.getHorizontalScrollBar().setValue((int) (scroll_pane.getHorizontalScrollBar().getMaximum() / 2.0 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2.0));
         scroll_pane.getVerticalScrollBar().setValue((int) (scroll_pane.getVerticalScrollBar().getMaximum() / 2.0 - scroll_pane.getVerticalScrollBar().getSize().getHeight() / 2.0));
 
-        resetImage();
-
         whole_image_done = false;
 
+        resetImage();
+
         if(s.julia_map) {
-            createThreadsJuliaMap();
+            createTasksJuliaMap();
         } else {
-            createThreads(false, false, false, false);
+            createTasks(false, true, false, false);
         }
 
         calculation_time = System.currentTimeMillis();
 
-        startThreads();
+        startTasks();
+    }
+
+    private void stopSuccessiveRefinement() {
+        TaskDraw.stopSuccessiveRefinement();
+
+       // synchronized (this) {
+            try {
+                for(Future<?> future : futures) {
+                    future.get();
+                }
+            } catch (InterruptedException ex) {
+            }
+            catch (ExecutionException ex) {
+            }
+        //}
+
+        if(ir != null && image_repainter_future != null) {
+            ir.stopIt();
+            try {
+                image_repainter_future.get();
+            }
+            catch (InterruptedException ex) {
+
+            }
+            catch (ExecutionException ex) {
+
+            }
+        }
+    }
+
+    private void selectPointPolar(MouseEvent e) {
+        synchronized (new_calculation_mutex) {
+            resetOrbit();
+
+            if ((e.getModifiers() != InputEvent.BUTTON1_MASK && e.getModifiers() != InputEvent.BUTTON3_MASK)) {
+                return;
+            }
+
+            double curX, curY;
+            try {
+                curX = main_panel.getMousePosition().getX();
+                curY = main_panel.getMousePosition().getY();
+            } catch (Exception ex) {
+                return;
+            }
+
+            if (curX < 0 || curX > image_size || curY < 0 || curY > image_size) {
+                return;
+            }
+
+            if (canSelectPointInstantly()) {
+                TaskDraw.action_thread_executor.submit(() -> {
+                    if (successive_refinement_mutex.tryLock()) {
+                        try {
+                            stopSuccessiveRefinement();
+                            selectPointPolarInternal(e, curX, curY);
+                        } finally {
+                            successive_refinement_mutex.unlock();
+                        }
+                    }
+                });
+                return;
+            } else if (!tasksCompleted()) {
+                return;
+            }
+
+            selectPointPolarInternal(e, curX, curY);
+        }
     }
 
     public void setJuliaOption() {
@@ -3587,7 +4038,7 @@ public class MainWindow extends JFrame implements Constants {
 
         resetOrbit();
 
-        if (!threadsAvailable() || e.getModifiers() != InputEvent.BUTTON1_MASK) {
+        if (!tasksCompleted() || e.getModifiers() != InputEvent.BUTTON1_MASK) {
             return;
         }
 
@@ -3619,23 +4070,23 @@ public class MainWindow extends JFrame implements Constants {
         setOptions(false);
 
         //progress.setValue(0);
+        whole_image_done = false;
+
         resetImage();
 
         ArraysFillColor(image, Color.BLACK.getRGB());
 
-        whole_image_done = false;
-
-        createThreadsRotate3DModel();
+        createTasksRotate3DModel();
 
         calculation_time = System.currentTimeMillis();
 
-        startThreads();
+        startTasks();
 
     }
 
     private void selectPointOrbit(MouseEvent e) {
 
-        if (!threadsAvailable() || (pixels_orbit != null && pixels_orbit.isAlive())) {
+        if (!tasksCompleted() || (pixels_orbit != null && orbit_future != null && !orbit_future.isDone())) {
             return;
         }
 
@@ -3652,10 +4103,22 @@ public class MainWindow extends JFrame implements Constants {
             return;
         }
 
+        if(options_menu.getDebugbar().isSelected()) {
+            debugbar.getXTf().setText("" + x1);
+            debugbar.getYTf().setText("" + y1);
+
+            Color c = main_panel.getColor(x1, y1);
+            debugbar.getR().setText("" + c.getRed());
+            debugbar.getG().setText("" + c.getGreen());
+            debugbar.getB().setText("" + c.getBlue());
+
+            debugbar.getIterData().setText(main_panel.getIterationData(x1, y1, image_size, s.ds.domain_coloring, s.d3s.d3));
+        }
+
         if (e.getModifiers() == InputEvent.BUTTON1_MASK) {
             try {
                 pixels_orbit = new DrawOrbit(s, x1, y1, image_size, ptr, orbit_color, orbit_style, show_orbit_converging_point);
-                pixels_orbit.start();
+                orbit_future = TaskDraw.single_thread_executor.submit(pixels_orbit);
             } catch (ParserException ex) {
                 JOptionPane.showMessageDialog(scroll_pane, ex.getMessage() + "\nThe application will terminate.", "Error!", JOptionPane.ERROR_MESSAGE);
                 exit(-1);
@@ -3729,12 +4192,12 @@ public class MainWindow extends JFrame implements Constants {
      }
      }.start();  
      }*/
-    public void zoomIn() {
 
+    private void zoomInInternal() {
         resetOrbit();
         if(MyApfloat.setAutomaticPrecision) {
             if (MyApfloat.shouldIncreasePrecision(s.size)) {
-                Fractal.clearReferences(true);
+                Fractal.clearReferences(true, true);
                 MyApfloat.increasePrecision(s);
             }
         }
@@ -3753,27 +4216,67 @@ public class MainWindow extends JFrame implements Constants {
         scroll_pane.getHorizontalScrollBar().setValue((int) (scroll_pane.getHorizontalScrollBar().getMaximum() / 2.0 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2.0));
         scroll_pane.getVerticalScrollBar().setValue((int) (scroll_pane.getVerticalScrollBar().getMaximum() / 2.0 - scroll_pane.getVerticalScrollBar().getSize().getHeight() / 2.0));
 
+        whole_image_done = false;
+
         resetImage();
 
         if (s.d3s.d3) {
             ArraysFillColor(image, Color.BLACK.getRGB());
         }
 
-        whole_image_done = false;
-
         if(s.julia_map) {
-            createThreadsJuliaMap();
+            createTasksJuliaMap();
         } else {
-            createThreads(false, false, false, false);
+            createTasks(false, true, false, false);
         }
 
         calculation_time = System.currentTimeMillis();
 
-        startThreads();
+        startTasks();
+    }
+    public void zoomIn() {
 
+        synchronized (new_calculation_mutex) {
+            if (canSelectPointInstantly()) {
+                TaskDraw.action_thread_executor.submit(() -> {
+                    if (successive_refinement_mutex.tryLock()) {
+                        try {
+                            stopSuccessiveRefinement();
+                            zoomInInternal();
+                        } finally {
+                            successive_refinement_mutex.unlock();
+                        }
+                    }
+                });
+                return;
+            }
+
+            zoomInInternal();
+        }
     }
 
     public void zoomOut() {
+
+        synchronized (new_calculation_mutex) {
+            if (canSelectPointInstantly()) {
+                TaskDraw.action_thread_executor.submit(() -> {
+                    if (successive_refinement_mutex.tryLock()) {
+                        try {
+                            stopSuccessiveRefinement();
+                            zoomOutInternal();
+                        } finally {
+                            successive_refinement_mutex.unlock();
+                        }
+                    }
+                });
+                return;
+            }
+
+            zoomOutInternal();
+        }
+    }
+
+    private void zoomOutInternal() {
 
         resetOrbit();
         s.size = MyApfloat.fp.multiply(s.size, new MyApfloat(zoom_factor));
@@ -3791,28 +4294,27 @@ public class MainWindow extends JFrame implements Constants {
         scroll_pane.getHorizontalScrollBar().setValue((int) (scroll_pane.getHorizontalScrollBar().getMaximum() / 2.0 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2.0));
         scroll_pane.getVerticalScrollBar().setValue((int) (scroll_pane.getVerticalScrollBar().getMaximum() / 2.0 - scroll_pane.getVerticalScrollBar().getSize().getHeight() / 2.0));
 
+        whole_image_done = false;
+
         resetImage();
 
         if (s.d3s.d3) {
             ArraysFillColor(image, Color.BLACK.getRGB());
         }
 
-        whole_image_done = false;
-
         if(s.julia_map) {
-            createThreadsJuliaMap();
+            createTasksJuliaMap();
         } else {
-            createThreads(false, false, false, false);
+            createTasks(false, true, false, false);
         }
 
         calculation_time = System.currentTimeMillis();
 
-        startThreads();
+        startTasks();
 
     }
 
-    public void moveTo(int where) {
-
+    private void moveToInternal(int where) {
         resetOrbit();
         if (where == UP) {
             if (!s.polar_projection) {
@@ -3868,23 +4370,43 @@ public class MainWindow extends JFrame implements Constants {
         scroll_pane.getHorizontalScrollBar().setValue((int) (scroll_pane.getHorizontalScrollBar().getMaximum() / 2.0 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2.0));
         scroll_pane.getVerticalScrollBar().setValue((int) (scroll_pane.getVerticalScrollBar().getMaximum() / 2.0 - scroll_pane.getVerticalScrollBar().getSize().getHeight() / 2.0));
 
+        whole_image_done = false;
+
         resetImage();
 
         if (s.d3s.d3) {
             ArraysFillColor(image, Color.BLACK.getRGB());
         }
 
-        whole_image_done = false;
-
         if(s.julia_map) {
-            createThreadsJuliaMap();
+            createTasksJuliaMap();
         } else {
-            createThreads(false, false, false, false);
+            createTasks(false, true, false, false);
         }
 
         calculation_time = System.currentTimeMillis();
 
-        startThreads();
+        startTasks();
+    }
+
+    public void moveTo(int where) {
+        synchronized (new_calculation_mutex) {
+            if (canSelectPointInstantly()) {
+                TaskDraw.action_thread_executor.submit(() -> {
+                    if (successive_refinement_mutex.tryLock()) {
+                        try {
+                            stopSuccessiveRefinement();
+                            moveToInternal(where);
+                        } finally {
+                            successive_refinement_mutex.unlock();
+                        }
+                    }
+                });
+                return;
+            }
+
+            moveToInternal(where);
+        }
 
     }
 
@@ -3894,8 +4416,42 @@ public class MainWindow extends JFrame implements Constants {
 
     public void setOptions(boolean option) {
 
-        file_menu.getStartingPosition().setEnabled(option);
-        toolbar.getStartingPositionButton().setEnabled(option);
+        if(!canSelectPointInstantly()) {
+            file_menu.getStartingPosition().setEnabled(option);
+            toolbar.getStartingPositionButton().setEnabled(option);
+
+            file_menu.getZoomIn().setEnabled(option);
+            toolbar.getZoomInButton().setEnabled(option);
+
+            file_menu.getZoomOut().setEnabled(option);
+            toolbar.getZoomOutButton().setEnabled(option);
+
+            file_menu.getLeft().setEnabled(option);
+            file_menu.getRight().setEnabled(option);
+
+            if(!s.polar_projection) {
+                file_menu.getUp().setEnabled(option);
+                file_menu.getDown().setEnabled(option);
+            }
+        }
+        else {
+            file_menu.getStartingPosition().setEnabled(true);
+            toolbar.getStartingPositionButton().setEnabled(true);
+
+            file_menu.getZoomIn().setEnabled(true);
+            toolbar.getZoomInButton().setEnabled(true);
+
+            file_menu.getZoomOut().setEnabled(true);
+            toolbar.getZoomOutButton().setEnabled(true);
+
+            file_menu.getLeft().setEnabled(true);
+            file_menu.getRight().setEnabled(true);
+
+            if(!s.polar_projection) {
+                file_menu.getUp().setEnabled(true);
+                file_menu.getDown().setEnabled(true);
+            }
+        }
 
         file_menu.getSaveSettings().setEnabled(option);
         file_menu.getLoadSettings().setEnabled(option);
@@ -3917,11 +4473,14 @@ public class MainWindow extends JFrame implements Constants {
         if(s.isPertubationTheoryInUse() || s.isHighPrecisionInUse()) {
             options_menu.getPostFunctionFiltersMenu().setEnabled(false);
             options_menu.getPreFunctionFiltersMenu().setEnabled(false);
+            options_menu.getMandelGrassOpt().setEnabled(false);
         }
         else {
             options_menu.getPostFunctionFiltersMenu().setEnabled(option);
             options_menu.getPreFunctionFiltersMenu().setEnabled(option);
+            options_menu.getMandelGrassOpt().setEnabled(option);
         }
+
 
         options_menu.getColorsMenu().setEnabled(option);
 
@@ -3938,7 +4497,7 @@ public class MainWindow extends JFrame implements Constants {
 
         options_menu.getZoomFactor().setEnabled(option);
 
-        if ((!s.ds.domain_coloring || (s.ds.domain_coloring && s.ds.domain_coloring_mode == 1)) && !s.useDirectColor) {
+        if ((!s.ds.domain_coloring || s.ds.domain_coloring_mode == 1) && !s.useDirectColor) {
             toolbar.getOutCustomPaletteButton().setEnabled(option);
             toolbar.getOutCustomPalette2Button().setEnabled(option);
             toolbar.getRandomPaletteButton().setEnabled(option);
@@ -3977,7 +4536,7 @@ public class MainWindow extends JFrame implements Constants {
             options_menu.getDirectColor().setEnabled(option);
         }
 
-        if (!s.ds.domain_coloring && !s.isConvergingType() && s.fns.function != KLEINIAN && s.fns.function != SIERPINSKI_GASKET && s.fns.function != INERTIA_GRAVITY && !s.ots.useTraps && !s.fns.tcs.trueColorIn && !(s.sts.statistic && s.sts.statisticGroup == 2 && s.sts.equicontinuityOverrideColoring) && !(s.sts.statistic && (s.sts.statisticGroup == 3 || s.sts.normalMapCombineWithOtherStatistics)) && !(s.sts.statistic && s.sts.statisticGroup == 4) && !ThreadDraw.PERTURBATION_THEORY && !ThreadDraw.HIGH_PRECISION_CALCULATION) {
+        if (!s.ds.domain_coloring && !s.isConvergingType() && s.fns.function != KLEINIAN && s.fns.function != SIERPINSKI_GASKET && s.fns.function != INERTIA_GRAVITY && !s.pps.ots.useTraps && !s.fns.tcs.trueColorIn && !(s.pps.sts.statistic && s.pps.sts.statisticGroup == 2 && s.pps.sts.equicontinuityOverrideColoring) && !(s.pps.sts.statistic && (s.pps.sts.statisticGroup == 3 || s.pps.sts.normalMapCombineWithOtherStatistics)) && !(s.pps.sts.statistic && s.pps.sts.statisticGroup == 4) && !TaskDraw.PERTURBATION_THEORY && !TaskDraw.HIGH_PRECISION_CALCULATION) {
             options_menu.getPeriodicityChecking().setEnabled(option);
         }
 
@@ -3990,8 +4549,8 @@ public class MainWindow extends JFrame implements Constants {
             toolbar.getJuliaButton().setEnabled(option);
         }
 
-        if (!zoom_window && !orbit && !color_cycling && !s.d3s.d3 && !s.ots.useTraps && !s.useDirectColor && !s.fns.tcs.trueColorOut && !s.fns.tcs.trueColorIn && !(s.sts.statistic && s.sts.statisticGroup == 2 && s.sts.equicontinuityOverrideColoring)
-                && !(s.sts.statistic && (s.sts.statisticGroup == 3 || s.sts.normalMapCombineWithOtherStatistics)) && !(s.sts.statistic && s.sts.statisticGroup == 4)) {
+        if (!zoom_window && !orbit && !color_cycling && !s.d3s.d3 && !s.pps.ots.useTraps && !s.useDirectColor && !s.fns.tcs.trueColorOut && !s.fns.tcs.trueColorIn && !(s.pps.sts.statistic && s.pps.sts.statisticGroup == 2 && s.pps.sts.equicontinuityOverrideColoring)
+                && !(s.pps.sts.statistic && (s.pps.sts.statisticGroup == 3 || s.pps.sts.normalMapCombineWithOtherStatistics)) && !(s.pps.sts.statistic && s.pps.sts.statisticGroup == 4)) {
             tools_menu.getColorCycling().setEnabled(option);
             toolbar.getColorCyclingButton().setEnabled(option);
         }
@@ -4017,6 +4576,8 @@ public class MainWindow extends JFrame implements Constants {
 
             options_menu.getFakeDistanceEstimation().setEnabled(option);
 
+            options_menu.getNumericalDistanceEstimator().setEnabled(option);
+
             options_menu.getEntropyColoring().setEnabled(option);
 
             options_menu.getGreyScaleColoring().setEnabled(option);
@@ -4025,11 +4586,11 @@ public class MainWindow extends JFrame implements Constants {
 
             options_menu.getOffsetColoring().setEnabled(option);
 
-            if(!(s.sts.statistic && s.sts.statisticGroup == 4)) {
+            if(!(s.pps.sts.statistic && s.pps.sts.statisticGroup == 4)) {
                 options_menu.getHistogramColoring().setEnabled(option);
             }
 
-            if (!periodicity_checking) {
+            if (!PERIODICITY_CHECKING) {
                 options_menu.getOrbitTraps().setEnabled(option);
             }
 
@@ -4041,6 +4602,7 @@ public class MainWindow extends JFrame implements Constants {
                 options_menu.getStatisticsColoring().setEnabled(option);
                 options_menu.getInColoringPaletteMenu().setEnabled(option);
                 options_menu.getPaletteGradientMerging().setEnabled(option);
+                options_menu.getColorSpaceParams().setEnabled(option);
 
                 if(!s.ds.domain_coloring) {
                     toolbar.getInCustomPaletteButton().setEnabled(option);
@@ -4048,13 +4610,13 @@ public class MainWindow extends JFrame implements Constants {
                 }
                 options_menu.getOutTrueColoring().setEnabled(option);
 
-                if (!periodicity_checking) {
+                if (!PERIODICITY_CHECKING) {
                     options_menu.getInTrueColoring().setEnabled(option);
                 }
             }
         }
 
-        if ((!s.ds.domain_coloring || (s.ds.domain_coloring && s.ds.domain_coloring_mode == 1)) && !s.useDirectColor) {
+        if ((!s.ds.domain_coloring || s.ds.domain_coloring_mode == 1) && !s.useDirectColor) {
             options_menu.getRandomPalette().setEnabled(option);
             options_menu.getOutColoringPaletteMenu().setEnabled(option);
         }
@@ -4093,20 +4655,6 @@ public class MainWindow extends JFrame implements Constants {
             tools_menu.getZoomWindow().setEnabled(option);
         }
 
-        file_menu.getZoomIn().setEnabled(option);
-        toolbar.getZoomInButton().setEnabled(option);
-
-        file_menu.getZoomOut().setEnabled(option);
-        toolbar.getZoomOutButton().setEnabled(option);
-
-        if(!s.polar_projection) {
-            file_menu.getUp().setEnabled(option);
-            file_menu.getDown().setEnabled(option);
-        }
-
-        file_menu.getLeft().setEnabled(option);
-        file_menu.getRight().setEnabled(option);
-
         if (!s.julia_map && !s.d3s.d3 && !zoom_window) {
             tools_menu.getOrbit().setEnabled(option);
             toolbar.getOrbitButton().setEnabled(option);
@@ -4139,8 +4687,10 @@ public class MainWindow extends JFrame implements Constants {
 
         options_menu.getOverview().setEnabled(option);
         options_menu.getStats().setEnabled(option);
+        options_menu.getStatsTasks().setEnabled(option);
         infobar.getOverview().setEnabled(option);
         infobar.getStats().setEnabled(option);
+        infobar.getStatsTasks().setEnabled(option);
 
         if (!s.useDirectColor) {
             options_menu.getGradient().setEnabled(option);
@@ -4149,7 +4699,7 @@ public class MainWindow extends JFrame implements Constants {
 
         infobar.setListenersEnabled(option);
 
-        if((!s.fns.julia || s.fns.julia && !first_seed)) {
+        if(!s.fns.julia || !first_seed) {
             file_menu.getCancelOperation().setEnabled(!option);
             infobar.getCancelButton().setEnabled(!option);
         }
@@ -4453,22 +5003,22 @@ public class MainWindow extends JFrame implements Constants {
         }
 
         if (s.isConvergingType()) {
-            s.sts.statistic_type = COS_ARG_DIVIDE_INVERSE_NORM;
-        } else if (s.sts.statistic_type == COS_ARG_DIVIDE_INVERSE_NORM && !s.isMagnetType() && !s.isEscapingOrConvergingType()) {
-            s.sts.statistic_type = STRIPE_AVERAGE;
+            s.pps.sts.statistic_type = COS_ARG_DIVIDE_INVERSE_NORM;
+        } else if (s.pps.sts.statistic_type == COS_ARG_DIVIDE_INVERSE_NORM && !s.isMagnetType() && !s.isEscapingOrConvergingType()) {
+            s.pps.sts.statistic_type = STRIPE_AVERAGE;
         }
 
-        if(!((s.fns.function >= MainWindow.MANDELBROT && s.fns.function <= MainWindow.MANDELBROTNTH && !s.fns.burning_ship) || s.fns.function == MainWindow.LAMBDA) && s.sts.statisticGroup == 3) {
-            s.sts.statisticGroup = 0;
+        if(!((s.fns.function >= MainWindow.MANDELBROT && s.fns.function <= MainWindow.MANDELBROTNTH && !s.fns.burning_ship) || s.fns.function == MainWindow.LAMBDA) && s.pps.sts.statisticGroup == 3) {
+            s.pps.sts.statisticGroup = 0;
         }
         else if(s.fns.function >= MainWindow.MANDELBROT && s.fns.function <= MainWindow.MANDELBROTNTH && s.fns.burning_ship) {
-            s.sts.useNormalMap = false;
-            s.sts.normalMapOverrideColoring = false;
-            s.sts.normalMapColoring = 0;
+            s.pps.sts.useNormalMap = false;
+            s.pps.sts.normalMapOverrideColoring = false;
+            s.pps.sts.normalMapColoring = 0;
         }
 
-        if(!(s.isConvergingType() && s.fns.function != MainWindow.MAGNETIC_PENDULUM) && s.sts.statisticGroup == 4) {
-            s.sts.statisticGroup = 0;
+        if(!(s.isConvergingType() && s.fns.function != MainWindow.MAGNETIC_PENDULUM) && s.pps.sts.statisticGroup == 4) {
+            s.pps.sts.statisticGroup = 0;
         }
 
         defaultFractalSettings(true);
@@ -4477,7 +5027,7 @@ public class MainWindow extends JFrame implements Constants {
 
     public void setBailoutPost() {
 
-        Fractal.clearReferences(true);
+        Fractal.clearReferences(true, true);
 
         redraw();
     }
@@ -4501,6 +5051,8 @@ public class MainWindow extends JFrame implements Constants {
 
         progress.setValue(0);
 
+        whole_image_done = false;
+
         resetImage();
 
         if (s.d3s.d3) {
@@ -4517,17 +5069,15 @@ public class MainWindow extends JFrame implements Constants {
             tools_menu.getBoundaries().setSelected(false);
         }
 
-        whole_image_done = false;
-
         if(s.julia_map) {
-            createThreadsJuliaMap();
+            createTasksJuliaMap();
         } else {
-            createThreads(false, false, false, false);
+            createTasks(false, true, false, false);
         }
 
         calculation_time = System.currentTimeMillis();
 
-        startThreads();
+        startTasks();
     }
 
     public void increaseRotation() {
@@ -4556,23 +5106,23 @@ public class MainWindow extends JFrame implements Constants {
             tools_menu.getBoundaries().setSelected(false);
         }
 
-        resetImage();
-
         whole_image_done = false;
+
+        resetImage();
 
         if (s.d3s.d3) {
             ArraysFillColor(image, Color.BLACK.getRGB());
         }
 
         if(s.julia_map) {
-            createThreadsJuliaMap();
+            createTasksJuliaMap();
         } else {
-            createThreads(false, false, false, false);
+            createTasks(false, true, false, false);
         }
 
         calculation_time = System.currentTimeMillis();
 
-        startThreads();
+        startTasks();
 
     }
 
@@ -4602,23 +5152,23 @@ public class MainWindow extends JFrame implements Constants {
             tools_menu.getBoundaries().setSelected(false);
         }
 
-        resetImage();
-
         whole_image_done = false;
+
+        resetImage();
 
         if (s.d3s.d3) {
             ArraysFillColor(image, Color.BLACK.getRGB());
         }
 
         if(s.julia_map) {
-            createThreadsJuliaMap();
+            createTasksJuliaMap();
         } else {
-            createThreads(false, false, false, false);
+            createTasks(false, true, false, false);
         }
 
         calculation_time = System.currentTimeMillis();
 
-        startThreads();
+        startTasks();
 
     }
 
@@ -4632,9 +5182,9 @@ public class MainWindow extends JFrame implements Constants {
         }
 
         if(s.fns.function >= MainWindow.MANDELBROT && s.fns.function <= MainWindow.MANDELBROTNTH && s.fns.burning_ship) {
-            s.sts.useNormalMap = false;
-            s.sts.normalMapOverrideColoring = false;
-            s.sts.normalMapColoring = 0;
+            s.pps.sts.useNormalMap = false;
+            s.pps.sts.normalMapOverrideColoring = false;
+            s.pps.sts.normalMapColoring = 0;
         }
 
         if (s.fns.function <= 9 || s.fns.function == MANDELPOLY || s.fns.function == MANDELBROTWTH) {
@@ -4650,10 +5200,17 @@ public class MainWindow extends JFrame implements Constants {
 
     }
 
-    public void startingPosition() {
-
+    private void startingPositionInternal() {
         resetOrbit();
         setOptions(false);
+
+        if(MyApfloat.setAutomaticPrecision) {
+            long precision = MyApfloat.getAutomaticPrecision(new String[]{s.size.toString(true)}, new boolean[] {true});
+
+            if (MyApfloat.shouldSetPrecision(precision, true)) {
+                MyApfloat.setPrecision(precision, s);
+            }
+        }
 
         s.startingPosition();
 
@@ -4668,23 +5225,44 @@ public class MainWindow extends JFrame implements Constants {
         scroll_pane.getHorizontalScrollBar().setValue((int) (scroll_pane.getHorizontalScrollBar().getMaximum() / 2.0 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2.0));
         scroll_pane.getVerticalScrollBar().setValue((int) (scroll_pane.getVerticalScrollBar().getMaximum() / 2.0 - scroll_pane.getVerticalScrollBar().getSize().getHeight() / 2.0));
 
+        whole_image_done = false;
+
         resetImage();
 
         if (s.d3s.d3) {
             ArraysFillColor(image, Color.BLACK.getRGB());
         }
 
-        whole_image_done = false;
-
         if(s.julia_map) {
-            createThreadsJuliaMap();
+            createTasksJuliaMap();
         } else {
-            createThreads(false, false, false, false);
+            createTasks(false, true, false, false);
         }
 
         calculation_time = System.currentTimeMillis();
 
-        startThreads();
+        startTasks();
+    }
+
+    public void startingPosition() {
+
+        synchronized (new_calculation_mutex) {
+            if (canSelectPointInstantly()) {
+                TaskDraw.action_thread_executor.submit(() -> {
+                    if (successive_refinement_mutex.tryLock()) {
+                        try {
+                            stopSuccessiveRefinement();
+                            startingPositionInternal();
+                        } finally {
+                            successive_refinement_mutex.unlock();
+                        }
+                    }
+                });
+                return;
+            }
+
+            startingPositionInternal();
+        }
 
     }
 
@@ -4704,7 +5282,7 @@ public class MainWindow extends JFrame implements Constants {
         this.image_size = image_size;
 
         if (!s.d3s.d3) {
-            ThreadDraw.setArrays(image_size, s.ds.domain_coloring, s.needsExtraData());
+            TaskDraw.setArrays(image_size, s.ds.domain_coloring, s.needsExtraData());
         }
 
         main_panel.setPreferredSize(new Dimension(image_size, image_size));
@@ -4712,7 +5290,7 @@ public class MainWindow extends JFrame implements Constants {
         setOptions(false);
 
         if (!s.d3s.d3) {
-            progress.setMaximum((image_size * image_size) + ((image_size * image_size) / 100));
+            progress.setMaximum(image_size * image_size + 1);
         }
 
         updateP3D();
@@ -4746,14 +5324,14 @@ public class MainWindow extends JFrame implements Constants {
         }
 
         if(s.julia_map) {
-            createThreadsJuliaMap();
+            createTasksJuliaMap();
         } else {
-            createThreads(false, false, false, false);
+            createTasks(false, true, false, false);
         }
 
         calculation_time = System.currentTimeMillis();
 
-        startThreads();
+        startTasks();
 
     }
 
@@ -4774,10 +5352,10 @@ public class MainWindow extends JFrame implements Constants {
 
         resetOrbit();
         if (!options_menu.getFastJuliaFiltersOptions().isSelected()) {
-            fast_julia_filters = false;
+            FAST_JULIA_FILTERS = false;
             main_panel.repaint();
         } else {
-            fast_julia_filters = true;
+            FAST_JULIA_FILTERS = true;
             main_panel.repaint();
         }
 
@@ -4787,7 +5365,7 @@ public class MainWindow extends JFrame implements Constants {
 
         resetOrbit();
 
-        if (!threadsAvailable()) {
+        if (!tasksCompleted()) {
             return;
         }
 
@@ -4879,6 +5457,13 @@ public class MainWindow extends JFrame implements Constants {
             case FORMULA17:
             case FORMULA19:
             case FORMULA46:
+            case FORMULA47:
+            case PERPENDICULAR_MANDELBROT:
+            case BUFFALO_MANDELBROT:
+            case CELTIC_MANDELBROT:
+            case PERPENDICULAR_BURNING_SHIP:
+            case PERPENDICULAR_BUFFALO_MANDELBROT:
+            case PERPENDICULAR_CELTIC_MANDELBROT:
             case FORMULA32:
             case FORMULA33:
             case FORMULA35:
@@ -4937,55 +5522,91 @@ public class MainWindow extends JFrame implements Constants {
 
         synchronized (this) {
             if (thread_grouping == 0) {
-                threads = new ThreadDraw[n][n];
-                ThreadDraw.resetThreadData(n * n, false);
-            } else {
-                threads = new ThreadDraw[1][n];
-                ThreadDraw.resetThreadData(n, false);
+                tasks = new TaskDraw[n][n];
+                TaskDraw.resetTaskData(n * n, false);
+            } else if (thread_grouping == 1 || thread_grouping == 2){
+                tasks = new TaskDraw[1][n];
+                TaskDraw.resetTaskData(n, false);
+            }
+            else if(thread_grouping == 3 || thread_grouping == 4 || thread_grouping == 5) {
+                tasks = new TaskDraw[m][n];
+                TaskDraw.resetTaskData(m * n, false);
             }
 
             Parser.usesUserCode = false;
 
             try {
 
-                for (int i = 0; i < threads.length; i++) {
-                    for (int j = 0; j < threads[i].length; j++) {
+                int taskId = 0;
+                for (int i = 0; i < tasks.length; i++) {
+                    for (int j = 0; j < tasks[i].length; j++, taskId++) {
 
-                        ThreadSplitCoordinates tsc = ThreadSplitCoordinates.get(j, i, thread_grouping, n, ThreadDraw.FAST_JULIA_IMAGE_SIZE);
+                        TaskSplitCoordinates tsc = TaskSplitCoordinates.get(j, i, thread_grouping, n, m, TaskDraw.FAST_JULIA_IMAGE_SIZE);
 
-                        if (ThreadDraw.GREEDY_ALGORITHM) {
-                            if (ThreadDraw.GREEDY_ALGORITHM_SELECTION == BOUNDARY_TRACING) {
-                                if (ThreadDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA) {
-                                    threads[i][j] = new BoundaryTracingColorsAndIterationDataDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, fast_julia_filters, fast_julia_image, periodicity_checking, s.fs, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js, temp_xJuliaCenter, temp_yJuliaCenter);
+                        if (TaskDraw.GREEDY_ALGORITHM) {
+                            if (TaskDraw.GREEDY_ALGORITHM_SELECTION == BOUNDARY_TRACING) {
+                                if (TaskDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA) {
+                                    tasks[i][j] = new BoundaryTracingColorsAndIterationDataDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, FAST_JULIA_FILTERS, fast_julia_image, PERIODICITY_CHECKING, s.fs, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps, temp_xJuliaCenter, temp_yJuliaCenter);
                                 } else {
-                                    threads[i][j] = new BoundaryTracingDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, fast_julia_filters, fast_julia_image, periodicity_checking, s.fs, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js, temp_xJuliaCenter, temp_yJuliaCenter);
+                                    tasks[i][j] = new BoundaryTracingDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, FAST_JULIA_FILTERS, fast_julia_image, PERIODICITY_CHECKING, s.fs, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps, temp_xJuliaCenter, temp_yJuliaCenter);
                                 }
-                            } else if (ThreadDraw.GREEDY_ALGORITHM_SELECTION == DIVIDE_AND_CONQUER) {
-                                if (ThreadDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA) {
-                                    threads[i][j] = new DivideAndConquerColorsAndIterationDataDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, fast_julia_filters, fast_julia_image, periodicity_checking, s.fs, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js, temp_xJuliaCenter, temp_yJuliaCenter);
+                            } else if (TaskDraw.GREEDY_ALGORITHM_SELECTION == DIVIDE_AND_CONQUER) {
+                                if (TaskDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA) {
+                                    tasks[i][j] = new MarianiSilverColorsAndIterationDataDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, FAST_JULIA_FILTERS, fast_julia_image, PERIODICITY_CHECKING, s.fs, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps, temp_xJuliaCenter, temp_yJuliaCenter);
                                 } else {
-                                    threads[i][j] = new DivideAndConquerDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, fast_julia_filters, fast_julia_image, periodicity_checking, s.fs, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js, temp_xJuliaCenter, temp_yJuliaCenter);
+                                    tasks[i][j] = new MarianiSilverDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, FAST_JULIA_FILTERS, fast_julia_image, PERIODICITY_CHECKING, s.fs, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps, temp_xJuliaCenter, temp_yJuliaCenter);
+                                }
+                            }
+                            else if (TaskDraw.GREEDY_ALGORITHM_SELECTION == SUCCESSIVE_REFINEMENT) {
+                                if (TaskDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA) {
+                                    tasks[i][j] = new SuccessiveRefinementGuessingColorsAndIterationDataDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, FAST_JULIA_FILTERS, fast_julia_image, PERIODICITY_CHECKING, s.fs, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps, temp_xJuliaCenter, temp_yJuliaCenter);
+                                } else {
+                                    tasks[i][j] = new SuccessiveRefinementGuessingDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, FAST_JULIA_FILTERS, fast_julia_image, PERIODICITY_CHECKING, s.fs, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps, temp_xJuliaCenter, temp_yJuliaCenter);
+                                }
+                            }
+                            else if (TaskDraw.GREEDY_ALGORITHM_SELECTION == CIRCULAR_SUCCESSIVE_REFINEMENT) {
+                                if (TaskDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA) {
+                                    tasks[i][j] = new CircularSuccessiveRefinementGuessingColorsAndIterationDataDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, FAST_JULIA_FILTERS, fast_julia_image, PERIODICITY_CHECKING, s.fs, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps, temp_xJuliaCenter, temp_yJuliaCenter);
+                                } else {
+                                    tasks[i][j] = new CircularSuccessiveRefinementGuessingDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, FAST_JULIA_FILTERS, fast_julia_image, PERIODICITY_CHECKING, s.fs, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps, temp_xJuliaCenter, temp_yJuliaCenter);
                                 }
                             }
                         } else {
-                            if (ThreadDraw.BRUTE_FORCE_ALG == 0) {
-                                threads[i][j] = new BruteForceDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, fast_julia_filters, fast_julia_image, periodicity_checking, s.fs, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js, temp_xJuliaCenter, temp_yJuliaCenter);
-                            } else if (ThreadDraw.BRUTE_FORCE_ALG == 1) {
-                                threads[i][j] = new BruteForce2Draw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, fast_julia_filters, fast_julia_image, periodicity_checking, s.fs, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js, temp_xJuliaCenter, temp_yJuliaCenter);
+                            if (TaskDraw.BRUTE_FORCE_ALG == 0) {
+                                tasks[i][j] = new BruteForceDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, FAST_JULIA_FILTERS, fast_julia_image, PERIODICITY_CHECKING, s.fs, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps, temp_xJuliaCenter, temp_yJuliaCenter);
+                            } else if (TaskDraw.BRUTE_FORCE_ALG == 1) {
+                                tasks[i][j] = new BruteForce2Draw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, FAST_JULIA_FILTERS, fast_julia_image, PERIODICITY_CHECKING, s.fs, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps, temp_xJuliaCenter, temp_yJuliaCenter);
                             }
                             else {
-                                threads[i][j] = new CircularBruteForceDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, fast_julia_filters, fast_julia_image, periodicity_checking, s.fs, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js, temp_xJuliaCenter, temp_yJuliaCenter);
+                                tasks[i][j] = new CircularBruteForceDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, FAST_JULIA_FILTERS, fast_julia_image, PERIODICITY_CHECKING, s.fs, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps, temp_xJuliaCenter, temp_yJuliaCenter);
                             }
                         }
-                        threads[i][j].setThreadId(i * threads.length + j);
+                        tasks[i][j].setTaskId(taskId);
+                        tasks[i][j].setUsesSquareChunks(thread_grouping == 0 || ((thread_grouping == 3 || thread_grouping == 4 || thread_grouping == 5) && m == n));
                     }
                 }
 
-                if(threads[0][0] instanceof CircularBruteForceDraw) {
-                    CircularBruteForceDraw.initCoordinatesFastJulia(ThreadDraw.FAST_JULIA_IMAGE_SIZE);
+                if(tasks[0][0].hasCircularLogic()) {
+                    CircularBruteForceDraw.initCoordinatesFastJulia(TaskDraw.FAST_JULIA_IMAGE_SIZE, tasks[0][0].usesSuccessiveRefinement());
+                    if(tasks[0][0].usesSuccessiveRefinement()) {
+                        CircularSuccessiveRefinementGuessingDraw.initCoordinatesFastJulia(TaskDraw.FAST_JULIA_IMAGE_SIZE, false);
+                    }
                 }
                 else {
                     CircularBruteForceDraw.clearFastJulia();
+                }
+
+                if(tasks[0][0].usesSuccessiveRefinement()) {
+                    SuccessiveRefinementGuessingDraw.filled_fast_julia = new boolean[TaskDraw.FAST_JULIA_IMAGE_SIZE * TaskDraw.FAST_JULIA_IMAGE_SIZE];
+                    SuccessiveRefinementGuessingDraw.examined_fast_julia = new boolean[TaskDraw.FAST_JULIA_IMAGE_SIZE * TaskDraw.FAST_JULIA_IMAGE_SIZE];
+                    if(TaskDraw.SKIPPED_PIXELS_ALG != 0) {
+                        SuccessiveRefinementGuessingDraw.skipped_colors_fast_julia = new int[TaskDraw.FAST_JULIA_IMAGE_SIZE * TaskDraw.FAST_JULIA_IMAGE_SIZE];
+                    }
+                }
+                else {
+                    SuccessiveRefinementGuessingDraw.examined_fast_julia = null;
+                    SuccessiveRefinementGuessingDraw.filled_fast_julia = null;
+                    SuccessiveRefinementGuessingDraw.skipped_colors_fast_julia = null;
                 }
             } catch (ParserException e) {
                 JOptionPane.showMessageDialog(scroll_pane, e.getMessage() + "\nThe application will terminate.", "Error!", JOptionPane.ERROR_MESSAGE);
@@ -4993,7 +5614,7 @@ public class MainWindow extends JFrame implements Constants {
             }
         }
 
-        startThreads();
+        startTasks();
 
     }
 
@@ -5002,28 +5623,28 @@ public class MainWindow extends JFrame implements Constants {
         resetOrbit();
         if (!tools_menu.getColorCycling().isSelected()) {
 
-            ExecutorService executor = Executors.newFixedThreadPool(1);
 
-            executor.submit(() -> {
+            TaskDraw.action_thread_executor.submit(() -> {
                 color_cycling = false;
                 toolbar.getColorCyclingButton().setSelected(false);
 
-                ThreadDraw.terminateColorCycling();
+                TaskDraw.terminateColorCycling();
 
                 try {
-                    for (int i = 0; i < threads.length; i++) {
-                        for (int j = 0; j < threads[i].length; j++) {
-                            threads[i][j].join();
-                        }
+                    for(Future<?> future : futures) {
+                        future.get();
                     }
                 } catch (InterruptedException ex) {
                 }
+                catch (ExecutionException ex) {
+                }
 
-                s.ps.color_cycling_location = threads[0][0].getColorCyclingLocationOutColoring();
-                s.ps2.color_cycling_location = threads[0][0].getColorCyclingLocationInColoring();
-                s.bms = new BumpMapSettings(threads[0][0].getBumpMapSettings());
-                s.ls = new LightSettings(threads[0][0].getLightSettings());
-                s.gs.gradient_offset = threads[0][0].getGradientOffset();
+                s.ps.color_cycling_location = tasks[0][0].getColorCyclingLocationOutColoring();
+                s.ps2.color_cycling_location = tasks[0][0].getColorCyclingLocationInColoring();
+                s.pps.bms = new BumpMapSettings(tasks[0][0].getBumpMapSettings());
+                s.pps.ls = new LightSettings(tasks[0][0].getLightSettings());
+                s.pps.ss = new SlopeSettings(tasks[0][0].getSlopeSettings());
+                s.gs.gradient_offset = tasks[0][0].getGradientOffset();
 
                 if (s.ps.color_choice == CUSTOM_PALETTE_ID) {
                     s.temp_color_cycling_location = s.ps.color_cycling_location;
@@ -5040,19 +5661,24 @@ public class MainWindow extends JFrame implements Constants {
 
                     progress.setValue(0);
 
-                    resetImageAndCopy(s.d3s.d3, false);
-
                     whole_image_done = false;
 
-                    if (s.julia_map) {
-                        createThreadsJuliaMap();
-                    } else {
-                        createThreads(false, false, false, false);
+                    resetImageAndCopy(s.d3s.d3, false);
+
+                    if(!TaskDraw.hasExtraData(image_size) || s.ds.domain_coloring) {
+                        if (s.julia_map) {
+                            createTasksJuliaMap();
+                        }else {
+                            createTasks(false, false, false, false);
+                        }
+                    }
+                    else {
+                        createTasksPalettePostProcessAndFilterWithAAData(TaskDraw.APPLY_PALETTE_AND_POST_PROCESSING_WITH_AA_AND_FILTER);
                     }
 
                     calculation_time = System.currentTimeMillis();
 
-                    startThreads();
+                    startTasks();
                 } else {
                     //last_used = null;
                     setOptions(true);
@@ -5066,46 +5692,57 @@ public class MainWindow extends JFrame implements Constants {
 
             whole_image_done = false;
 
-            createThreadsColorCycling();
+            createTasksColorCycling();
 
-            ThreadDraw.initializeColorCycling();
+            TaskDraw.initializeColorCycling();
 
-            startThreads();
+            startTasks();
         }
 
     }
 
-    private void createThreadsPaletteAndFilter() {
+    private void createTasksPaletteAndFilter() {
 
         synchronized (this) {
             if (thread_grouping == 0) {
-                threads = new ThreadDraw[n][n];
-                ThreadDraw.resetThreadData(n * n, false);
-            } else {
-                threads = new ThreadDraw[1][n];
-                ThreadDraw.resetThreadData(n, false);
+                tasks = new TaskDraw[n][n];
+                TaskDraw.resetTaskData(n * n, false);
+            } else if (thread_grouping == 1 || thread_grouping == 2){
+                tasks = new TaskDraw[1][n];
+                TaskDraw.resetTaskData(n, false);
+            }
+            else if(thread_grouping == 3 || thread_grouping == 4 || thread_grouping == 5) {
+                tasks = new TaskDraw[m][n];
+                TaskDraw.resetTaskData(m * n, false);
             }
 
-            for (int i = 0; i < threads.length; i++) {
-                for (int j = 0; j < threads[i].length; j++) {
-                    ThreadSplitCoordinates tsc = ThreadSplitCoordinates.get(j, i, thread_grouping, n, image_size);
+            int taskId = 0;
+            for (int i = 0; i < tasks.length; i++) {
+                for (int j = 0; j < tasks[i].length; j++, taskId++) {
+                    TaskSplitCoordinates tsc = TaskSplitCoordinates.get(j, i, thread_grouping, n, m, image_size);
 
-                    if (!ThreadDraw.GREEDY_ALGORITHM && ThreadDraw.BRUTE_FORCE_ALG == 2) {
-                        threads[i][j] = new CircularBruteForceDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs, s.bms, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.fdes, s.rps, s.ens, s.ofs, s.gss, s.color_blending, s.cns, s.post_processing_order, s.ls, s.pbs, s.ots, s.ds, s.gs.gradient_offset, s.hss, s.contourFactor, s.fns.smoothing, s.gps);
+                    if(TaskDraw.GREEDY_ALGORITHM && TaskDraw.GREEDY_ALGORITHM_SELECTION == Constants.CIRCULAR_SUCCESSIVE_REFINEMENT) {
+                        tasks[i][j] = new CircularSuccessiveRefinementGuessingDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs,  s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,      s.color_blending,  s.post_processing_order,   s.pbs,  s.ds, s.gs.gradient_offset,  s.contourFactor, s.fns.smoothing, s.gps, s.pps);
                     }
-                    else if (!ThreadDraw.GREEDY_ALGORITHM && ThreadDraw.BRUTE_FORCE_ALG == 0) {
-                        threads[i][j] = new BruteForceDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs, s.bms, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.fdes, s.rps, s.ens, s.ofs, s.gss, s.color_blending, s.cns, s.post_processing_order, s.ls, s.pbs, s.ots, s.ds, s.gs.gradient_offset, s.hss, s.contourFactor, s.fns.smoothing, s.gps);
+                    else if (!TaskDraw.GREEDY_ALGORITHM && TaskDraw.BRUTE_FORCE_ALG == 2) {
+                        tasks[i][j] = new CircularBruteForceDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs,  s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,      s.color_blending,  s.post_processing_order,   s.pbs,  s.ds, s.gs.gradient_offset,  s.contourFactor, s.fns.smoothing, s.gps, s.pps);
+                    }
+                    else if (!TaskDraw.GREEDY_ALGORITHM && TaskDraw.BRUTE_FORCE_ALG == 0) {
+                        tasks[i][j] = new BruteForceDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs,  s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,      s.color_blending,  s.post_processing_order,   s.pbs,  s.ds, s.gs.gradient_offset,  s.contourFactor, s.fns.smoothing, s.gps, s.pps);
                     }
                     else {
-                        threads[i][j] = new BruteForce2Draw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs, s.bms, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.fdes, s.rps, s.ens, s.ofs, s.gss, s.color_blending, s.cns, s.post_processing_order, s.ls, s.pbs, s.ots, s.ds, s.gs.gradient_offset, s.hss, s.contourFactor, s.fns.smoothing, s.gps);
+                        tasks[i][j] = new BruteForce2Draw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs,  s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,      s.color_blending,  s.post_processing_order,   s.pbs,  s.ds, s.gs.gradient_offset,  s.contourFactor, s.fns.smoothing, s.gps, s.pps);
                     }
 
-                    threads[i][j].setThreadId(i * threads.length + j);
+                    tasks[i][j].setTaskId(taskId);
                 }
             }
 
-            if(threads[0][0] instanceof CircularBruteForceDraw) {
-                CircularBruteForceDraw.initCoordinates(image_size, false, true);
+            if(tasks[0][0].hasCircularLogic()) {
+                CircularBruteForceDraw.initCoordinates(image_size, false, true, tasks[0][0].usesSuccessiveRefinement());
+                if(tasks[0][0].usesSuccessiveRefinement()) {
+                    CircularSuccessiveRefinementGuessingDraw.initCoordinates(image_size, false);
+                }
             }
             else {
                 CircularBruteForceDraw.clear();
@@ -5113,67 +5750,131 @@ public class MainWindow extends JFrame implements Constants {
         }
     }
 
-    private void createThreadsColorCycling() {
+    private void createTasksPalettePostProcessAndFilterWithAAData(int action) {
 
         synchronized (this) {
             if (thread_grouping == 0) {
-                threads = new ThreadDraw[n][n];
-                ThreadDraw.resetThreadData(n * n, false);
-            } else {
-                threads = new ThreadDraw[1][n];
-                ThreadDraw.resetThreadData(n, false);
+                tasks = new TaskDraw[n][n];
+                TaskDraw.resetTaskData(n * n, false);
+            } else if (thread_grouping == 1 || thread_grouping == 2){
+                tasks = new TaskDraw[1][n];
+                TaskDraw.resetTaskData(n, false);
+            }
+            else if(thread_grouping == 3 || thread_grouping == 4 || thread_grouping == 5) {
+                tasks = new TaskDraw[m][n];
+                TaskDraw.resetTaskData(m * n, false);
             }
 
-            for (int i = 0; i < threads.length; i++) {
-                for (int j = 0; j < threads[i].length; j++) {
-                    ThreadSplitCoordinates tsc = ThreadSplitCoordinates.get(j, i, thread_grouping, n, image_size);
-                    threads[i][j] = new BruteForceDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, s.fractal_color, s.dem_color, image, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.bms, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.fdes, s.rps, color_cycling_speed, s.fs, s.ens, s.ofs, s.gss, s.color_blending, s.cns, s.post_processing_order, s.ls, s.pbs, s.ots, cycle_colors, cycle_lights, cycle_gradient, color_cycling_adjusting_value, s.ds, s.gs.gradient_offset, s.hss, s.contourFactor, s.fns.smoothing, s.gps);
-                    threads[i][j].setThreadId(i * threads.length + j);
+            int taskId = 0;
+            for (int i = 0; i < tasks.length; i++) {
+                for (int j = 0; j < tasks[i].length; j++, taskId++) {
+                    TaskSplitCoordinates tsc = TaskSplitCoordinates.get(j, i, thread_grouping, n, m, image_size);
+
+                    if(TaskDraw.GREEDY_ALGORITHM && TaskDraw.GREEDY_ALGORITHM_SELECTION == Constants.CIRCULAR_SUCCESSIVE_REFINEMENT) {
+                        tasks[i][j] = new CircularSuccessiveRefinementGuessingDraw(action, tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs,  s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending,  s.post_processing_order, s.pbs, s.gs.gradient_offset,  s.contourFactor, s.gps, s.pps, s.ds);
+                    }
+                    else if (!TaskDraw.GREEDY_ALGORITHM && TaskDraw.BRUTE_FORCE_ALG == 2) {
+                        tasks[i][j] = new CircularBruteForceDraw(action, tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs,  s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending,  s.post_processing_order, s.pbs, s.gs.gradient_offset,  s.contourFactor, s.gps, s.pps, s.ds);
+                    }
+                    else if (!TaskDraw.GREEDY_ALGORITHM && TaskDraw.BRUTE_FORCE_ALG == 0) {
+                        tasks[i][j] = new BruteForceDraw(action, tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs,  s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending,  s.post_processing_order, s.pbs, s.gs.gradient_offset,  s.contourFactor, s.gps, s.pps, s.ds);
+                    }
+                    else {
+                        tasks[i][j] = new BruteForce2Draw(action, tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs,  s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending,  s.post_processing_order, s.pbs, s.gs.gradient_offset,  s.contourFactor, s.gps, s.pps, s.ds);
+                    }
+
+                    tasks[i][j].setTaskId(taskId);
+                }
+            }
+
+            if(tasks[0][0].hasCircularLogic()) {
+                CircularBruteForceDraw.initCoordinates(image_size, false, true, tasks[0][0].usesSuccessiveRefinement());
+                if(tasks[0][0].usesSuccessiveRefinement()) {
+                    CircularSuccessiveRefinementGuessingDraw.initCoordinates(image_size, false);
+                }
+            }
+            else {
+                CircularBruteForceDraw.clear();
+            }
+        }
+    }
+
+    private void createTasksColorCycling() {
+
+        synchronized (this) {
+            if (thread_grouping == 0) {
+                tasks = new TaskDraw[n][n];
+                TaskDraw.resetTaskData(n * n, false);
+            } else if (thread_grouping == 1 || thread_grouping == 2){
+                tasks = new TaskDraw[1][n];
+                TaskDraw.resetTaskData(n, false);
+            }
+            else if(thread_grouping == 3 || thread_grouping == 4 || thread_grouping == 5) {
+                tasks = new TaskDraw[m][n];
+                TaskDraw.resetTaskData(m * n, false);
+            }
+
+            int taskId = 0;
+            for (int i = 0; i < tasks.length; i++) {
+                for (int j = 0; j < tasks[i].length; j++, taskId++) {
+                    TaskSplitCoordinates tsc = TaskSplitCoordinates.get(j, i, thread_grouping, n, m, image_size);
+                    tasks[i][j] = new BruteForceDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, s.fractal_color, s.dem_color, image, s.ps.color_cycling_location, s.ps2.color_cycling_location,  s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,   color_cycling_speed, s.fs,    s.color_blending,  s.post_processing_order,   s.pbs,  cycle_colors, cycle_lights, cycle_gradient, color_cycling_adjusting_value, s.ds, s.gs.gradient_offset,  s.contourFactor, s.fns.smoothing, s.gps, s.pps);
+                    tasks[i][j].setTaskId(taskId);
                 }
             }
         }
     }
 
-    private void createThreadsRotate3DModel() {
+    private void createTasksRotate3DModel() {
 
         synchronized (this) {
             if (thread_grouping == 0) {
-                threads = new ThreadDraw[n][n];
-                ThreadDraw.resetThreadData(n * n, false);
-            } else {
-                threads = new ThreadDraw[1][n];
-                ThreadDraw.resetThreadData(n, false);
+                tasks = new TaskDraw[n][n];
+                TaskDraw.resetTaskData(n * n, false);
+            } else if (thread_grouping == 1 || thread_grouping == 2){
+                tasks = new TaskDraw[1][n];
+                TaskDraw.resetTaskData(n, false);
+            }
+            else if(thread_grouping == 3 || thread_grouping == 4 || thread_grouping == 5) {
+                tasks = new TaskDraw[m][n];
+                TaskDraw.resetTaskData(m * n, false);
             }
 
-            int tile = s.d3s.detail <= 60 ? 1 : ThreadDraw.TILE_SIZE;
+            int tile = s.d3s.detail <= 60 ? 1 : TaskDraw.TILE_SIZE;
 
-            for (int i = 0; i < threads.length; i++) {
-                for (int j = 0; j < threads[i].length; j++) {
-                    ThreadSplitCoordinates tsc = ThreadSplitCoordinates.get(j, i, thread_grouping, n, s.d3s.detail / tile);
-                    threads[i][j] = new BruteForceDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.d3s, true, ptr, image, s.fs, s.color_blending, s.contourFactor, s.fns.smoothing, s.gps);
-                    threads[i][j].setThreadId(i * threads.length + j);
+            int taskId = 0;
+            for (int i = 0; i < tasks.length; i++) {
+                for (int j = 0; j < tasks[i].length; j++, taskId++) {
+                    TaskSplitCoordinates tsc = TaskSplitCoordinates.get(j, i, thread_grouping, n, m,s.d3s.detail / tile);
+                    tasks[i][j] = new BruteForceDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.d3s, true, ptr, image, s.fs, s.color_blending, s.contourFactor, s.fns.smoothing, s.gps);
+                    tasks[i][j].setTaskId(taskId);
                 }
             }
         }
 
     }
 
-    private void createThreadsPaletteAndFilter3DModel() {
+    private void createTasksPaletteAndFilter3DModel() {
 
         synchronized (this) {
             if (thread_grouping == 0) {
-                threads = new ThreadDraw[n][n];
-                ThreadDraw.resetThreadData(n * n, false);
-            } else {
-                threads = new ThreadDraw[1][n];
-                ThreadDraw.resetThreadData(n, false);
+                tasks = new TaskDraw[n][n];
+                TaskDraw.resetTaskData(n * n, false);
+            } else if (thread_grouping == 1 || thread_grouping == 2) {
+                tasks = new TaskDraw[1][n];
+                TaskDraw.resetTaskData(n, false);
+            }
+            else if(thread_grouping == 3 || thread_grouping == 4 || thread_grouping == 5) {
+                tasks = new TaskDraw[m][n];
+                TaskDraw.resetTaskData(m * n, false);
             }
 
-            for (int i = 0; i < threads.length; i++) {
-                for (int j = 0; j < threads[i].length; j++) {
-                    ThreadSplitCoordinates tsc = ThreadSplitCoordinates.get(j, i, thread_grouping, n, s.d3s.detail);
-                    threads[i][j] = new BruteForceDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.d3s, false, ptr, image, s.fs, s.color_blending, s.contourFactor, s.fns.smoothing, s.gps);
-                    threads[i][j].setThreadId(i * threads.length + j);
+            int taskId = 0;
+            for (int i = 0; i < tasks.length; i++) {
+                for (int j = 0; j < tasks[i].length; j++, taskId++) {
+                    TaskSplitCoordinates tsc = TaskSplitCoordinates.get(j, i, thread_grouping, n, m, s.d3s.detail);
+                    tasks[i][j] = new BruteForceDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.d3s, false, ptr, image, s.fs, s.color_blending, s.contourFactor, s.fns.smoothing, s.gps);
+                    tasks[i][j].setTaskId(taskId);
                 }
             }
 
@@ -5186,7 +5887,7 @@ public class MainWindow extends JFrame implements Constants {
 
     public void shiftPalettePost() {
         updateColorPalettesMenu();
-        updateColors();
+        updateColors(false);
     }
 
     public void shiftPalette(boolean outcoloring) {
@@ -5233,7 +5934,12 @@ public class MainWindow extends JFrame implements Constants {
         } else if (s.fns.plane_type == SKEW_PLANE) {
             new SkewPlaneDialog(ptr, s, oldSelected, planes);
             return;
-        } else {
+        }
+        else if (s.fns.plane_type == INFLECTIONS_PLANE) {
+            new InflectionsPlaneDialog(ptr, s, oldSelected, planes);
+            return;
+        }
+        else {
             defaultFractalSettings(true);
         }
     }
@@ -5276,7 +5982,7 @@ public class MainWindow extends JFrame implements Constants {
 
     public void setBailoutTestPost() {
 
-        Fractal.clearReferences(true);
+        Fractal.clearReferences(true, true);
 
         redraw();
 
@@ -5341,9 +6047,9 @@ public class MainWindow extends JFrame implements Constants {
         if (s.fns.out_coloring_algorithm != USER_OUTCOLORING_ALGORITHM && s.fns.in_coloring_algorithm != USER_INCOLORING_ALGORITHM) {
             options_menu.getDirectColor().setEnabled(false);
             options_menu.getDirectColor().setSelected(false);
-            ThreadDraw.USE_DIRECT_COLOR = s.useDirectColor = false;
+            TaskDraw.USE_DIRECT_COLOR = s.useDirectColor = false;
 
-            if(!(s.sts.statistic && s.sts.statisticGroup == 4)) {
+            if(!(s.pps.sts.statistic && s.pps.sts.statisticGroup == 4)) {
                 setPalettePreviewsVisible();
             }
             infobar.getGradientPreviewLabel().setVisible(true);
@@ -5361,8 +6067,8 @@ public class MainWindow extends JFrame implements Constants {
         s.fns.in_coloring_algorithm = temp;
 
         if (s.fns.in_coloring_algorithm == MAX_ITERATIONS) {
-            if (!s.ds.domain_coloring && !s.isConvergingType() && s.fns.function != KLEINIAN && s.fns.function != SIERPINSKI_GASKET && s.fns.function != INERTIA_GRAVITY && !s.ots.useTraps && !s.fns.tcs.trueColorIn && !(s.sts.statistic && s.sts.statisticGroup == 2 && s.sts.equicontinuityOverrideColoring)
-                    && !(s.sts.statistic && (s.sts.statisticGroup == 3 || s.sts.normalMapCombineWithOtherStatistics)) && !(s.sts.statistic && s.sts.statisticGroup == 4) && !ThreadDraw.PERTURBATION_THEORY && !ThreadDraw.HIGH_PRECISION_CALCULATION) {
+            if (!s.ds.domain_coloring && !s.isConvergingType() && s.fns.function != KLEINIAN && s.fns.function != SIERPINSKI_GASKET && s.fns.function != INERTIA_GRAVITY && !s.pps.ots.useTraps && !s.fns.tcs.trueColorIn && !(s.pps.sts.statistic && s.pps.sts.statisticGroup == 2 && s.pps.sts.equicontinuityOverrideColoring)
+                    && !(s.pps.sts.statistic && (s.pps.sts.statisticGroup == 3 || s.pps.sts.normalMapCombineWithOtherStatistics)) && !(s.pps.sts.statistic && s.pps.sts.statisticGroup == 4) && !TaskDraw.PERTURBATION_THEORY && !TaskDraw.HIGH_PRECISION_CALCULATION) {
                 options_menu.getPeriodicityChecking().setEnabled(true);
             }
         } else if (s.fns.in_coloring_algorithm == USER_INCOLORING_ALGORITHM) {
@@ -5380,9 +6086,9 @@ public class MainWindow extends JFrame implements Constants {
         if (s.fns.out_coloring_algorithm != USER_OUTCOLORING_ALGORITHM && s.fns.in_coloring_algorithm != USER_INCOLORING_ALGORITHM) {
             options_menu.getDirectColor().setEnabled(false);
             options_menu.getDirectColor().setSelected(false);
-            ThreadDraw.USE_DIRECT_COLOR = s.useDirectColor = false;
+            TaskDraw.USE_DIRECT_COLOR = s.useDirectColor = false;
 
-            if(!(s.sts.statistic && s.sts.statisticGroup == 4)) {
+            if(!(s.pps.sts.statistic && s.pps.sts.statisticGroup == 4)) {
                 setPalettePreviewsVisible();
             }
             infobar.getGradientPreviewLabel().setVisible(true);
@@ -5392,28 +6098,33 @@ public class MainWindow extends JFrame implements Constants {
         redraw();
     }
 
-    public void setSmoothingPost() {
+    public void setSmoothingPost(boolean recalculate) {
         if (s.ps.color_choice == CUSTOM_PALETTE_ID) {
-            ThreadDraw.palette_outcoloring = new CustomPalette(s.ps.custom_palette, s.ps.color_interpolation, s.ps.color_space, s.ps.reversed_palette, s.ps.scale_factor_palette_val, s.ps.processing_alg, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color).getRawPalette();
+            TaskDraw.palette_outcoloring = new CustomPalette(s.ps.custom_palette, s.ps.color_interpolation, s.ps.color_space, s.ps.reversed_palette, s.ps.scale_factor_palette_val, s.ps.processing_alg, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method).getRawPalette();
         } else {
-            ThreadDraw.palette_outcoloring = new PresetPalette(s.ps.color_choice, s.ps.direct_palette, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color).getRawPalette();
+            TaskDraw.palette_outcoloring = new PresetPalette(s.ps.color_choice, s.ps.direct_palette, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method).getRawPalette();
         }
 
         if (s.ps2.color_choice == CUSTOM_PALETTE_ID) {
-            ThreadDraw.palette_incoloring = new CustomPalette(s.ps2.custom_palette, s.ps2.color_interpolation, s.ps2.color_space, s.ps2.reversed_palette, s.ps2.scale_factor_palette_val, s.ps2.processing_alg, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color).getRawPalette();
+            TaskDraw.palette_incoloring = new CustomPalette(s.ps2.custom_palette, s.ps2.color_interpolation, s.ps2.color_space, s.ps2.reversed_palette, s.ps2.scale_factor_palette_val, s.ps2.processing_alg, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method).getRawPalette();
         } else {
-            ThreadDraw.palette_incoloring = new PresetPalette(s.ps2.color_choice, s.ps2.direct_palette, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color).getRawPalette();
+            TaskDraw.palette_incoloring = new PresetPalette(s.ps2.color_choice, s.ps2.direct_palette, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method).getRawPalette();
         }
 
-        ThreadDraw.palette_outcoloring.setGeneratedPaletteSettings(true, s.gps);
-        ThreadDraw.palette_incoloring.setGeneratedPaletteSettings(false, s.gps);
+        TaskDraw.palette_outcoloring.setGeneratedPaletteSettings(true, s.gps);
+        TaskDraw.palette_incoloring.setGeneratedPaletteSettings(false, s.gps);
 
-        ThreadDraw.COLOR_SMOOTHING_METHOD = s.color_smoothing_method;
+        TaskDraw.COLOR_SMOOTHING_METHOD = s.color_smoothing_method;
 
         updateColorPalettesMenu();
         options_menu.getProcessing().updateIcons(s);
 
-        redraw();
+        if(s.needsChangeOfSmoothing() || recalculate) {
+            redraw();
+        }
+        else {
+            updateColors(false);
+        }
     }
 
     public void setSmoothing() {
@@ -5426,42 +6137,42 @@ public class MainWindow extends JFrame implements Constants {
     public void setBumpMap() {
 
         resetOrbit();
-        new BumpMappingDialog(ptr, s, ThreadDraw.GREEDY_ALGORITHM, s.julia_map);
+        new BumpMappingDialog(ptr, s, TaskDraw.GREEDY_ALGORITHM, s.julia_map);
 
     }
 
     public void setRainbowPalette() {
 
         resetOrbit();
-        new RainbowPaletteDialog(ptr, s, ThreadDraw.GREEDY_ALGORITHM, s.julia_map);
+        new RainbowPaletteDialog(ptr, s, TaskDraw.GREEDY_ALGORITHM, s.julia_map);
 
     }
 
     public void setFakeDistanceEstimation() {
 
         resetOrbit();
-        new FakeDistanceEstimationDialog(ptr, s, ThreadDraw.GREEDY_ALGORITHM, s.julia_map);
+        new FakeDistanceEstimationDialog(ptr, s, TaskDraw.GREEDY_ALGORITHM, s.julia_map);
 
     }
 
     public void setGreyScaleColoring() {
 
         resetOrbit();
-        new GreyscaleColoringDialog(ptr, s, ThreadDraw.GREEDY_ALGORITHM, s.julia_map);
+        new GreyscaleColoringDialog(ptr, s, TaskDraw.GREEDY_ALGORITHM, s.julia_map);
 
     }
 
     public void setEntropyColoring() {
 
         resetOrbit();
-        new EntropyColoringDialog(ptr, s, ThreadDraw.GREEDY_ALGORITHM, s.julia_map);
+        new EntropyColoringDialog(ptr, s, TaskDraw.GREEDY_ALGORITHM, s.julia_map);
 
     }
 
     public void setOffsetColoring() {
 
         resetOrbit();
-        new OffsetColoringDialog(ptr, s, ThreadDraw.GREEDY_ALGORITHM, s.julia_map);
+        new OffsetColoringDialog(ptr, s, TaskDraw.GREEDY_ALGORITHM, s.julia_map);
 
     }
 
@@ -5534,15 +6245,15 @@ public class MainWindow extends JFrame implements Constants {
             scroll_pane.getHorizontalScrollBar().setValue((int) (scroll_pane.getHorizontalScrollBar().getMaximum() / 2.0 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2.0));
             scroll_pane.getVerticalScrollBar().setValue((int) (scroll_pane.getVerticalScrollBar().getMaximum() / 2.0 - scroll_pane.getVerticalScrollBar().getSize().getHeight() / 2.0));
 
-            resetImage();
-
             whole_image_done = false;
 
-            createThreadsJuliaMap();
+            resetImage();
+
+            createTasksJuliaMap();
 
             calculation_time = System.currentTimeMillis();
 
-            startThreads();
+            startTasks();
         }
         else {
             tools_menu.getJuliaMap().setIcon(getIcon("julia_map.png"));
@@ -5565,15 +6276,15 @@ public class MainWindow extends JFrame implements Constants {
             scroll_pane.getHorizontalScrollBar().setValue((int) (scroll_pane.getHorizontalScrollBar().getMaximum() / 2.0 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2.0));
             scroll_pane.getVerticalScrollBar().setValue((int) (scroll_pane.getVerticalScrollBar().getMaximum() / 2.0 - scroll_pane.getVerticalScrollBar().getSize().getHeight() / 2.0));
 
-            resetImage();
-
             whole_image_done = false;
 
-            createThreads(false, false, false, false);
+            resetImage();
+
+            createTasks(false, true, false, false);
 
             calculation_time = System.currentTimeMillis();
 
-            startThreads();
+            startTasks();
 
         }
 
@@ -5617,9 +6328,9 @@ public class MainWindow extends JFrame implements Constants {
 
             progress.setValue(0);
 
-            resetImage();
-
             whole_image_done = false;
+
+            resetImage();
 
             scroll_pane.getHorizontalScrollBar().setValue((int) (scroll_pane.getHorizontalScrollBar().getMaximum() / 2.0 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2.0));
             scroll_pane.getVerticalScrollBar().setValue((int) (scroll_pane.getVerticalScrollBar().getMaximum() / 2.0 - scroll_pane.getVerticalScrollBar().getSize().getHeight() / 2.0));
@@ -5630,14 +6341,14 @@ public class MainWindow extends JFrame implements Constants {
             }
 
             if(s.julia_map) {
-                createThreadsJuliaMap();
+                createTasksJuliaMap();
             } else {
-                createThreads(false, false, false, false);
+                createTasks(false, true, false, false);
             }
 
             calculation_time = System.currentTimeMillis();
 
-            startThreads();
+            startTasks();
 
         }
         else {
@@ -5646,27 +6357,26 @@ public class MainWindow extends JFrame implements Constants {
 
             progress.setValue(0);
 
+            whole_image_done = false;
+
             resetImage();
 
             scroll_pane.getHorizontalScrollBar().setValue((int) (scroll_pane.getHorizontalScrollBar().getMaximum() / 2.0 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2.0));
             scroll_pane.getVerticalScrollBar().setValue((int) (scroll_pane.getVerticalScrollBar().getMaximum() / 2.0 - scroll_pane.getVerticalScrollBar().getSize().getHeight() / 2.0));
-
-
-            whole_image_done = false;
 
             if (s.d3s.d3) {
                 ArraysFillColor(image, Color.BLACK.getRGB());
             }
 
             if(s.julia_map) {
-                createThreadsJuliaMap();
+                createTasksJuliaMap();
             } else {
-                createThreads(false, false, false, false);
+                createTasks(false, true, false, false);
             }
 
             calculation_time = System.currentTimeMillis();
 
-            startThreads();
+            startTasks();
         }
 
     }
@@ -6093,21 +6803,31 @@ public class MainWindow extends JFrame implements Constants {
         }
     }
 
-    private void createThreadsJuliaMap() {
+    private void createTasksJuliaMap() {
 
         synchronized (this) {
-            threads = new ThreadDraw[julia_grid_first_dimension][julia_grid_first_dimension];
+            tasks = new TaskDraw[julia_grid_first_dimension][julia_grid_first_dimension];
 
-            ThreadDraw.resetThreadData(julia_grid_first_dimension * julia_grid_first_dimension, false);
+            TaskDraw.resetTaskData(julia_grid_first_dimension * julia_grid_first_dimension, false);
             Parser.usesUserCode = false;
 
             int n = julia_grid_first_dimension;
 
+            if(s.julia_map) {
+                if(TaskDraw.julia_map_thread_calculation_executor == null || TaskDraw.julia_map_thread_calculation_executor.getPoolSize() != julia_grid_first_dimension * julia_grid_first_dimension) {
+                    if(TaskDraw.julia_map_thread_calculation_executor != null) {
+                        TaskDraw.julia_map_thread_calculation_executor.shutdown();
+                    }
+                    TaskDraw.julia_map_thread_calculation_executor = (ThreadPoolExecutor)Executors.newFixedThreadPool(julia_grid_first_dimension * julia_grid_first_dimension);
+                }
+            }
+
             try {
-                for (int i = 0; i < threads.length; i++) {
-                    for (int j = 0; j < threads[i].length; j++) {
-                        threads[i][j] = new BruteForceDraw(j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.hss, s.contourFactor, s.gps, s.js);
-                        threads[i][j].setThreadId(i * threads.length + j);
+                int taskId = 0;
+                for (int i = 0; i < tasks.length; i++) {
+                    for (int j = 0; j < tasks[i].length; j++, taskId++) {
+                        tasks[i][j] = new BruteForceDraw(j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, PERIODICITY_CHECKING, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps);
+                        tasks[i][j].setTaskId(taskId);
                     }
                 }
             } catch (ParserException e) {
@@ -6121,7 +6841,7 @@ public class MainWindow extends JFrame implements Constants {
     public void increaseIterations() {
 
         resetOrbit();
-        if (s.max_iterations >= MAX_ITERATIONS_NUMBER) {
+        if (s.max_iterations == MAX_ITERATIONS_NUMBER) {
             return;
         }
         s.max_iterations++;
@@ -6130,23 +6850,23 @@ public class MainWindow extends JFrame implements Constants {
 
         progress.setValue(0);
 
-        resetImage();
-
         whole_image_done = false;
+
+        resetImage();
 
         if (s.d3s.d3) {
             ArraysFillColor(image, Color.BLACK.getRGB());
         }
 
         if(s.julia_map) {
-            createThreadsJuliaMap();
+            createTasksJuliaMap();
         } else {
-            createThreads(false, false, false, false);
+            createTasks(false, true, false, false);
         }
 
         calculation_time = System.currentTimeMillis();
 
-        startThreads();
+        startTasks();
 
     }
 
@@ -6162,23 +6882,23 @@ public class MainWindow extends JFrame implements Constants {
 
         progress.setValue(0);
 
-        resetImage();
-
         whole_image_done = false;
+
+        resetImage();
 
         if (s.d3s.d3) {
             ArraysFillColor(image, Color.BLACK.getRGB());
         }
 
         if(s.julia_map) {
-            createThreadsJuliaMap();
+            createTasksJuliaMap();
         } else {
-            createThreads(false, false, false, false);
+            createTasks(false, true, false, false);
         }
 
         calculation_time = System.currentTimeMillis();
 
-        startThreads();
+        startTasks();
 
     }
 
@@ -6195,23 +6915,23 @@ public class MainWindow extends JFrame implements Constants {
 
         progress.setValue(0);
 
-        resetImage();
-
         whole_image_done = false;
+
+        resetImage();
 
         if (s.d3s.d3) {
             ArraysFillColor(image, Color.BLACK.getRGB());
         }
 
         if(s.julia_map) {
-            createThreadsJuliaMap();
+            createTasksJuliaMap();
         } else {
-            createThreads(false, false, false, false);
+            createTasks(false, true, false, false);
         }
 
         calculation_time = System.currentTimeMillis();
 
-        startThreads();
+        startTasks();
 
     }
 
@@ -6239,7 +6959,7 @@ public class MainWindow extends JFrame implements Constants {
 
         updateColorPalettesMenu();
 
-        updateColors();
+        updateColors(false);
     }
 
     public void shiftPaletteBackward(boolean outcoloring) {
@@ -6267,7 +6987,7 @@ public class MainWindow extends JFrame implements Constants {
 
         updateColorPalettesMenu();
 
-        updateColors();
+        updateColors(false);
     }
 
     public void setUsePaletteForInColoring() {
@@ -6276,7 +6996,7 @@ public class MainWindow extends JFrame implements Constants {
 
         if (!options_menu.getUsePaletteForInColoring().isSelected()) {
             s.usePaletteForInColoring = false;
-            if(!(s.sts.statistic && s.sts.statisticGroup == 4)){
+            if(!(s.pps.sts.statistic && s.pps.sts.statisticGroup == 4)){
                 infobar.getInColoringPalettePreview().setVisible(false);
                 infobar.getInColoringPalettePreviewLabel().setVisible(false);
                 infobar.getMaxIterationsColorPreview().setVisible(true);
@@ -6285,7 +7005,7 @@ public class MainWindow extends JFrame implements Constants {
         } else {
             s.usePaletteForInColoring = true;
 
-            if(!(s.sts.statistic && s.sts.statisticGroup == 4)) {
+            if(!(s.pps.sts.statistic && s.pps.sts.statisticGroup == 4)) {
                 if(!s.gps.useGeneratedPaletteInColoring) {
                     infobar.getInColoringPalettePreview().setVisible(true);
                     infobar.getInColoringPalettePreviewLabel().setVisible(true);
@@ -6299,7 +7019,7 @@ public class MainWindow extends JFrame implements Constants {
             }
         }
 
-        updateColors();
+        updateColors(false);
     }
 
     public void setPerturbation() {
@@ -6483,8 +7203,8 @@ public class MainWindow extends JFrame implements Constants {
     public void randomPalette() {
 
         resetOrbit();
-        CustomPaletteEditorFrame.randomPalette(CustomPaletteEditorFrame.generator, true, s.ps.custom_palette, CustomPaletteEditorFrame.getRandomPaletteAlgorithm(), CustomPaletteEditorFrame.getEqualHues(), s.ps.color_interpolation, s.ps.color_space, s.ps.reversed_palette, s.ps.color_cycling_location, s.ps.scale_factor_palette_val, s.ps.processing_alg);
-        CustomPaletteEditorFrame.randomPalette(CustomPaletteEditorFrame.generator, true, s.ps2.custom_palette, CustomPaletteEditorFrame.getRandomPaletteAlgorithm(), CustomPaletteEditorFrame.getEqualHues(), s.ps2.color_interpolation, s.ps2.color_space, s.ps2.reversed_palette, s.ps2.color_cycling_location, s.ps2.scale_factor_palette_val, s.ps2.processing_alg);
+        CustomPaletteEditorFrame.randomPalette(CustomPaletteEditorFrame.generator, true, s.ps.custom_palette, CustomPaletteEditorFrame.random_palette_algorithm, CustomPaletteEditorFrame.equal_hues, s.ps.color_interpolation, s.ps.color_space, s.ps.reversed_palette, s.ps.color_cycling_location, s.ps.scale_factor_palette_val, s.ps.processing_alg, CustomPaletteEditorFrame.pastel);
+        CustomPaletteEditorFrame.randomPalette(CustomPaletteEditorFrame.generator, true, s.ps2.custom_palette, CustomPaletteEditorFrame.random_palette_algorithm, CustomPaletteEditorFrame.equal_hues, s.ps2.color_interpolation, s.ps2.color_space, s.ps2.reversed_palette, s.ps2.color_cycling_location, s.ps2.scale_factor_palette_val, s.ps2.processing_alg, CustomPaletteEditorFrame.pastel);
 
         setPalette(CUSTOM_PALETTE_ID, null, 2);
 
@@ -6501,6 +7221,13 @@ public class MainWindow extends JFrame implements Constants {
 
         resetOrbit();
         statusbar.setVisible(options_menu.getStatusbar().isSelected());
+
+    }
+
+    public void setDebugbar() {
+
+        resetOrbit();
+        debugbar.setVisible(options_menu.getDebugbar().isSelected());
 
     }
 
@@ -6535,7 +7262,15 @@ public class MainWindow extends JFrame implements Constants {
 
     public int getNumberOfThreads() {
 
-        return thread_grouping == 0 ? n * n : n;
+        if(thread_grouping == 0) {
+            return n * n;
+        }
+        else if(thread_grouping == 1 || thread_grouping == 2) {
+            return n;
+        }
+        else {
+            return m * n;
+        }
 
     }
 
@@ -6548,7 +7283,7 @@ public class MainWindow extends JFrame implements Constants {
     public void filtersOptions() {
 
         resetOrbit();
-        new FiltersOptionsFrame(ptr, s.fs.filters_options_vals, s.fs.filters_options_extra_vals, s.fs.filters_colors, s.fs.filters_extra_colors, filters_opt, s.fs.filters_order, s.fs.filters);
+        new FiltersOptionsFrame(ptr, s.fs.filters_options_vals, s.fs.filters_options_extra_vals, s.fs.filters_colors, s.fs.filters_extra_colors, filters_opt, s.fs.filters_order, s.fs.filters, s.fs);
 
     }
 
@@ -6588,23 +7323,23 @@ public class MainWindow extends JFrame implements Constants {
             scroll_pane.getHorizontalScrollBar().setValue((int) (scroll_pane.getHorizontalScrollBar().getMaximum() / 2.0 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2.0));
             scroll_pane.getVerticalScrollBar().setValue((int) (scroll_pane.getVerticalScrollBar().getMaximum() / 2.0 - scroll_pane.getVerticalScrollBar().getSize().getHeight() / 2.0));
 
+            whole_image_done = false;
+
             resetImage();
 
             if (s.d3s.d3) {
                 ArraysFillColor(image, Color.BLACK.getRGB());
             }
 
-            whole_image_done = false;
-
             if(s.julia_map) {
-                createThreadsJuliaMap();
+                createTasksJuliaMap();
             } else {
-                createThreads(false, false, false, false);
+                createTasks(false, true, false, false);
             }
 
             calculation_time = System.currentTimeMillis();
 
-            startThreads();
+            startTasks();
         }else {
 
             if(oldPolar){
@@ -6628,23 +7363,23 @@ public class MainWindow extends JFrame implements Constants {
             scroll_pane.getHorizontalScrollBar().setValue((int) (scroll_pane.getHorizontalScrollBar().getMaximum() / 2.0 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2.0));
             scroll_pane.getVerticalScrollBar().setValue((int) (scroll_pane.getVerticalScrollBar().getMaximum() / 2.0 - scroll_pane.getVerticalScrollBar().getSize().getHeight() / 2.0));
 
-            resetImage();
-
             whole_image_done = false;
+
+            resetImage();
 
             if (s.d3s.d3) {
                 ArraysFillColor(image, Color.BLACK.getRGB());
             }
 
             if(s.julia_map) {
-                createThreadsJuliaMap();
+                createTasksJuliaMap();
             } else {
-                createThreads(false, false, false, false);
+                createTasks(false, true, false, false);
             }
 
             calculation_time = System.currentTimeMillis();
 
-            startThreads();
+            startTasks();
         }
     }
 
@@ -6678,6 +7413,7 @@ public class MainWindow extends JFrame implements Constants {
                     options_menu.getDistanceEstimation().setEnabled(false);
 
                     options_menu.getFakeDistanceEstimation().setEnabled(false);
+                    options_menu.getNumericalDistanceEstimator().setEnabled(false);
                     options_menu.getContourColoring().setEnabled(false);
 
                     options_menu.getEntropyColoring().setEnabled(false);
@@ -6693,7 +7429,7 @@ public class MainWindow extends JFrame implements Constants {
                     options_menu.getInColoringPaletteMenu().setEnabled(false);
                     options_menu.getDirectColor().setEnabled(false);
                     options_menu.getDirectColor().setSelected(false);
-                    ThreadDraw.USE_DIRECT_COLOR = s.useDirectColor = false;
+                    TaskDraw.USE_DIRECT_COLOR = s.useDirectColor = false;
 
                     toolbar.getInCustomPaletteButton().setEnabled(false);
                     toolbar.getInCustomPalette2Button().setEnabled(false);
@@ -6724,7 +7460,7 @@ public class MainWindow extends JFrame implements Constants {
 
                     updatePalettePreview(s.ps.color_cycling_location, s.ps2.color_cycling_location);
 
-                    ThreadDraw.setDomainImageData(image_size, true);
+                    TaskDraw.setDomainImageData(image_size, true);
 
                 }
                 else {
@@ -6756,19 +7492,19 @@ public class MainWindow extends JFrame implements Constants {
                 scroll_pane.getHorizontalScrollBar().setValue((int) (scroll_pane.getHorizontalScrollBar().getMaximum() / 2.0 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2.0));
                 scroll_pane.getVerticalScrollBar().setValue((int) (scroll_pane.getVerticalScrollBar().getMaximum() / 2.0 - scroll_pane.getVerticalScrollBar().getSize().getHeight() / 2.0));
 
+                whole_image_done = false;
+
                 resetImage();
 
                 if (s.d3s.d3) {
                     ArraysFillColor(image, Color.BLACK.getRGB());
                 }
 
-                whole_image_done = false;
-
-                createThreads(false, false, false, false);
+                createTasks(false, true, false, false);
 
                 calculation_time = System.currentTimeMillis();
 
-                startThreads();
+                startTasks();
             } catch (OutOfMemoryError e) {
                 JOptionPane.showMessageDialog(scroll_pane, "Maximum Heap size was reached.\nThe application will terminate.", "Error!", JOptionPane.ERROR_MESSAGE);
                 exit(-1);
@@ -6779,11 +7515,11 @@ public class MainWindow extends JFrame implements Constants {
             if(oldDomain){
                 tools_menu.getDomainColoring().setIcon(getIcon("domain_coloring.png"));
 
-                ThreadDraw.setDomainImageData(image_size, false);
+                TaskDraw.setDomainImageData(image_size, false);
 
                 toolbar.getDomainColoringButton().setSelected(false);
 
-                if(!(s.sts.statistic && s.sts.statisticGroup == 4)) {
+                if(!(s.pps.sts.statistic && s.pps.sts.statisticGroup == 4)) {
                     if (s.usePaletteForInColoring) {
                         if(!s.gps.useGeneratedPaletteInColoring) {
                             infobar.getInColoringPalettePreview().setVisible(true);
@@ -6830,19 +7566,19 @@ public class MainWindow extends JFrame implements Constants {
             scroll_pane.getHorizontalScrollBar().setValue((int) (scroll_pane.getHorizontalScrollBar().getMaximum() / 2.0 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2.0));
             scroll_pane.getVerticalScrollBar().setValue((int) (scroll_pane.getVerticalScrollBar().getMaximum() / 2.0 - scroll_pane.getVerticalScrollBar().getSize().getHeight() / 2.0));
 
-            resetImage();
-
             whole_image_done = false;
+
+            resetImage();
 
             if (s.d3s.d3) {
                 ArraysFillColor(image, Color.BLACK.getRGB());
             }
 
-            createThreads(false, false, false, false);
+            createTasks(false, true, false, false);
 
             calculation_time = System.currentTimeMillis();
 
-            startThreads();
+            startTasks();
 
         }
     }
@@ -6887,24 +7623,24 @@ public class MainWindow extends JFrame implements Constants {
 
                 toolbar.get3DButton().setSelected(false);
 
-                ThreadDraw.setArrays(image_size, s.ds.domain_coloring, s.needsExtraData());
+                TaskDraw.setArrays(image_size, s.ds.domain_coloring, s.needsExtraData());
 
-                progress.setMaximum((image_size * image_size) + ((image_size * image_size) / 100));
+                progress.setMaximum(image_size * image_size + 1);
 
                 progress.setValue(0);
 
                 scroll_pane.getHorizontalScrollBar().setValue((int) (scroll_pane.getHorizontalScrollBar().getMaximum() / 2.0 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2.0));
                 scroll_pane.getVerticalScrollBar().setValue((int) (scroll_pane.getVerticalScrollBar().getMaximum() / 2.0 - scroll_pane.getVerticalScrollBar().getSize().getHeight() / 2.0));
 
-                resetImage();
-
                 whole_image_done = false;
 
-                createThreads(false, false, false, false);
+                resetImage();
+
+                createTasks(false, true, false, false);
 
                 calculation_time = System.currentTimeMillis();
 
-                startThreads();
+                startTasks();
             } catch (OutOfMemoryError e) {
                 JOptionPane.showMessageDialog(scroll_pane, "Maximum Heap size was reached.\nThe application will terminate.", "Error!", JOptionPane.ERROR_MESSAGE);
                 exit(-1);
@@ -6934,9 +7670,9 @@ public class MainWindow extends JFrame implements Constants {
 
                     options_menu.getDirectColor().setEnabled(false);
                     options_menu.getDirectColor().setSelected(false);
-                    ThreadDraw.USE_DIRECT_COLOR = s.useDirectColor = false;
+                    TaskDraw.USE_DIRECT_COLOR = s.useDirectColor = false;
 
-                    if(!(s.sts.statistic && s.sts.statisticGroup == 4)) {
+                    if(!(s.pps.sts.statistic && s.pps.sts.statisticGroup == 4)) {
                         if (!s.ds.domain_coloring) {
                             if (s.usePaletteForInColoring) {
                                 if(!s.gps.useGeneratedPaletteInColoring) {
@@ -6976,23 +7712,23 @@ public class MainWindow extends JFrame implements Constants {
 
                 setOptions(false);
 
-                ThreadDraw.set3DArrays(s.d3s.detail, s.needsExtraData());
+                TaskDraw.set3DArrays(s.d3s.detail, s.needsExtraData());
 
-                progress.setMaximum((s.d3s.detail * s.d3s.detail) + (s.d3s.detail * s.d3s.detail / 100));
+                progress.setMaximum(s.d3s.detail * s.d3s.detail + 1);
 
                 progress.setValue(0);
+
+                whole_image_done = false;
 
                 resetImage();
 
                 ArraysFillColor(image, Color.BLACK.getRGB());
 
-                whole_image_done = false;
-
-                createThreads(false, false, false, false);
+                createTasks(false, true, false, false);
 
                 calculation_time = System.currentTimeMillis();
 
-                startThreads();
+                startTasks();
             } catch (OutOfMemoryError e) {
                 JOptionPane.showMessageDialog(scroll_pane, "Maximum Heap size was reached.\nThe application will terminate.", "Error!", JOptionPane.ERROR_MESSAGE);
                 exit(-1);
@@ -7028,6 +7764,13 @@ public class MainWindow extends JFrame implements Constants {
 
         resetOrbit();
         new ColorIntensityDialog(ptr, s, outcoloring);
+
+    }
+
+    public void setColorDensity(boolean outcoloring) {
+
+        resetOrbit();
+        new ColorDensityDialog(ptr, s, outcoloring);
 
     }
 
@@ -7199,7 +7942,7 @@ public class MainWindow extends JFrame implements Constants {
 
         resetOrbit();
         try {
-            common.overview(s, periodicity_checking);
+            common.overview(s, PERIODICITY_CHECKING);
         } catch (Exception ex) {
         }
 
@@ -7214,7 +7957,7 @@ public class MainWindow extends JFrame implements Constants {
 
             textArea.setEditable(false);
             textArea.setContentType("text/html");
-            textArea.setPreferredSize(new Dimension(450, 500));
+            textArea.setPreferredSize(new Dimension(500, 500));
             //textArea.setLineWrap(false);
             //textArea.setWrapStyleWord(false);
 
@@ -7225,17 +7968,127 @@ public class MainWindow extends JFrame implements Constants {
                     "<font size='4' face='arial'>" + getProgressBar().getToolTipText() + "</font></html>");
 
             MemoryLabel memory_label = new MemoryLabel(250);
+            CpuLabel cpuLabel = new CpuLabel(250);
+
+            Timer timer = new Timer();
+            timer.schedule(new RefreshMemoryTask(memory_label), MEMORY_DELAY, MEMORY_DELAY);
+            Timer timer2 = new Timer();
+            timer2.schedule(new RefreshCpuTask(cpuLabel), CPU_DELAY, CPU_DELAY);
+
+
             Object[] message = {
                     " ",
                     scroll_pane_2,
                     " ",
                     "Memory:",
                     memory_label,
+                    "CPU Usage:",
+                    cpuLabel,
             " "};
 
             textArea.setCaretPosition(0);
 
-            JOptionPane.showMessageDialog(this, message,  "Statistics", JOptionPane.INFORMATION_MESSAGE, getIcon("stats_large.png"));
+            int res = JOptionPane.showOptionDialog(this, message,  "Statistics", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, getIcon("stats_large.png"), null, null);
+
+            timer.cancel();
+            timer2.cancel();
+
+        } catch (Exception ex) {
+        }
+
+    }
+
+    public void ThreadStats() {
+
+        resetOrbit();
+        try {
+
+            JEditorPane textArea = new JEditorPane();
+
+            textArea.setEditable(false);
+            textArea.setContentType("text/html");
+            textArea.setPreferredSize(new Dimension(500, 500));
+            //textArea.setLineWrap(false);
+            //textArea.setWrapStyleWord(false);
+
+            JScrollPane scroll_pane_2 = new JScrollPane(textArea);
+            scroll_pane_2.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+
+            ArrayList<TaskStatistic> taskStatistics = new ArrayList<>();
+            for (int i = 0; i < tasks.length; i++) {
+                for (int j = 0; j < tasks[i].length; j++) {
+                    TaskStatistic t = tasks[i][j].getTaskStatistic();
+                    if(t != null) {
+                        taskStatistics.add(t);
+                    }
+                }
+            }
+
+            Collections.sort(taskStatistics);
+
+            long maxTime = TaskDraw.max_pixel_calculation_time.get();
+            long maxTimePostProcessing = TaskDraw.PostProcessingCalculationTime.get();
+
+            HashSet<String> uniqueThreads = new LinkedHashSet<>();
+
+            for(TaskStatistic stat : taskStatistics) {
+                uniqueThreads.add(stat.getThreadName());
+            }
+            String data = "";
+
+            if(!taskStatistics.isEmpty()) {
+
+                data += "<ul><li>Logical Processors: <b>" + Runtime.getRuntime().availableProcessors() + "</b></ul><br>";
+
+                data += "<ul><li>Threads Used: <b>" + uniqueThreads.size() + "</b></ul><br>";
+
+                data += "<ul><li>Number of Tasks: <b>" + taskStatistics.size() + "</b></ul><br>";
+
+                data += "<ul>";
+                for (TaskStatistic stat : taskStatistics) {
+                    data += "<li>Task: <b>" + stat.getTaskId() + "</b>";
+                    data += "<ul>";
+                    data += "<li>Thread: <b>" + stat.getThreadName() + "</b> <span style='font-size:20px;color: " + String.format("#%02x%02x%02x", stat.getThreadColor().getRed(), stat.getThreadColor().getGreen(), stat.getThreadColor().getBlue()) + ";'>&#9632;</span></li>";
+
+                    if(maxTime > 0) {
+                        data += "<li>Pixel Calculation Elapsed Time: <b>" + stat.getPixelCalculationTime() + " ms</b></li>";
+                        data += "<li>Pixel Calculation Thread Utilization: <b>" + String.format("%.2f", ((double) stat.getPixelCalculationTime()) / maxTime * 100) + "%</b></li>";
+                    }
+                    if(stat.getPixelsCalculated() >= 0) {
+                        data += "<li>Pixels Calculated: <b>" + stat.getPixelsCalculated() + " / " + stat.getTotalPixels() + " (" + String.format("%f", (((double) stat.getPixelsCalculated()) / stat.getTotalPixels()) * 100) + "%)</b></li>";
+                    }
+                    if(stat.getPixelsCompleted() >= 0) {
+                        data += "<li>Pixels Completed: <b>" + stat.getPixelsCompleted() + " / " + stat.getTotalPixels() + " (" + String.format("%f", (((double) stat.getPixelsCompleted()) / stat.getTotalPixels()) * 100) + "%)</b></li>";
+                    }
+                    if(stat.getPixelsCalculated() >= 0 && stat.getPixelsCompleted() >= 0) {
+                        data += "<li>Pixels Guessed: <b>" + (stat.getPixelsCompleted() - stat.getPixelsCalculated()) + " / " + stat.getPixelsCompleted() + " (" + String.format("%f", (((double) (stat.getPixelsCompleted() - stat.getPixelsCalculated())) / stat.getPixelsCompleted()) * 100) + "%)</b></li>";
+                    }
+                    if (maxTimePostProcessing > 0) {
+                        data += "<li>Post Processing Elapsed Time: <b>" + stat.getPostProcessingCalculationTime() + " ms</b></li>";
+                        data += "<li>Post Processing Thread Utilization: <b>" + String.format("%.2f", ((double) stat.getPostProcessingCalculationTime()) / maxTimePostProcessing * 100) + "%</b></li>";
+                    }
+                    if(stat.getPixelsPostProcessed() >= 0) {
+                        data += "<li>Pixels Post Processed: <b>" + stat.getPixelsPostProcessed() + " / " + stat.getTotalPixels() + " (" + String.format("%f", (((double) stat.getPixelsPostProcessed()) / stat.getTotalPixels()) * 100) + "%)</b></li>";
+                    }
+                    if (stat.getExtraPixelsCalculated() > 0) {
+                        data += "<li>Extra Pixels Calculated: <b>" + stat.getExtraPixelsCalculated() + "</b></li>";
+                    }
+                    data += "</ul></li>";
+                }
+                data += "</ul>";
+            }
+
+            textArea.setText("<html>" + "<center><b><u><font size='5' face='arial' color='blue'>Task Statistics</font></u></b></center><br><br>" +
+                    "<font size='4' face='arial'>" + data + "</font></html>");
+
+            Object[] message = {
+                    " ",
+                    scroll_pane_2,
+                    " "};
+
+            textArea.setCaretPosition(0);
+
+            JOptionPane.showMessageDialog(this, message,  "Task Statistics", JOptionPane.INFORMATION_MESSAGE, getIcon("stats_tasks_large.png"));
 
         } catch (Exception ex) {
         }
@@ -7281,7 +8134,7 @@ public class MainWindow extends JFrame implements Constants {
         }
     }
 
-    private void updateColorPalettesMenu() {
+    public void updateColorPalettesMenu() {
 
         //update out coloring palettes
         for (i = 0; i < TOTAL_PALETTES; i++) {
@@ -7412,55 +8265,61 @@ public class MainWindow extends JFrame implements Constants {
             writer.println();
 
             writer.println("[Optimizations]");
-            writer.println("thread_dim " + n);
+            writer.println("thread_dim " + ((thread_grouping == 3 || thread_grouping == 4) ? m * n : n));
+            if(thread_grouping == 5) {
+                writer.println("thread_dim2 " + m);
+            }
             writer.println("thread_grouping " + thread_grouping);
-            writer.println("greedy_drawing_algorithm " + ThreadDraw.GREEDY_ALGORITHM);
-            writer.println("greedy_drawing_algorithm_id " + ThreadDraw.GREEDY_ALGORITHM_SELECTION);
-            writer.println("greedy_drawing_algorithm_use_iter_data " + ThreadDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA);
-            writer.println("skipped_pixels_coloring " + ThreadDraw.SKIPPED_PIXELS_ALG);
-            int color = ThreadDraw.SKIPPED_PIXELS_COLOR;
+            writer.println("greedy_drawing_algorithm " + TaskDraw.GREEDY_ALGORITHM);
+            writer.println("greedy_drawing_algorithm_id " + TaskDraw.GREEDY_ALGORITHM_SELECTION);
+            writer.println("greedy_drawing_algorithm_use_iter_data " + TaskDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA);
+            writer.println("skipped_pixels_coloring " + TaskDraw.SKIPPED_PIXELS_ALG);
+            writer.println("mariani_silver_use_dfs " + MarianiSilverDraw.RENDER_USING_DFS);
+            writer.println("guess_blocks_selection " + TaskDraw.GUESS_BLOCKS_SELECTION);
+            int color = TaskDraw.SKIPPED_PIXELS_COLOR;
             writer.println("skipped_pixels_user_color " + ((color >> 16) & 0xff) + " " + ((color >> 8) & 0xff) + " " + (color & 0xff));
-            writer.println("periodicity_checking " + periodicity_checking);
-            writer.println("perturbation_theory " + ThreadDraw.PERTURBATION_THEORY);
+            writer.println("periodicity_checking " + PERIODICITY_CHECKING);
+            writer.println("perturbation_theory " + TaskDraw.PERTURBATION_THEORY);
             writer.println("precision " + MyApfloat.precision);
-            writer.println("approximation_algorithm " + ThreadDraw.APPROXIMATION_ALGORITHM);
-            writer.println("series_approximation_terms " + ThreadDraw.SERIES_APPROXIMATION_TERMS);
-            writer.println("series_approximation_oom_diff " + ThreadDraw.SERIES_APPROXIMATION_OOM_DIFFERENCE);
-            writer.println("series_approximation_max_skip " + ThreadDraw.SERIES_APPROXIMATION_MAX_SKIP_ITER);
-            writer.println("use_full_floatexp_for_deep_zoom " + ThreadDraw.USE_FULL_FLOATEXP_FOR_DEEP_ZOOM);
-            writer.println("use_full_floatexp_for_all_zoom " + ThreadDraw.USE_FULL_FLOATEXP_FOR_ALL_ZOOM);
-            writer.println("use_bignum_for_ref " + ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE);
-            writer.println("automatic_bignum_precision " + ThreadDraw.BIGNUM_AUTOMATIC_PRECISION);
-            writer.println("bignum_precision_bits " + ThreadDraw.BIGNUM_PRECISION);
-            writer.println("bignum_precision_factor " + ThreadDraw.BIGNUM_PRECISION_FACTOR);
-            writer.println("use_bignum_for_pixels " + ThreadDraw.USE_BIGNUM_FOR_PIXELS_IF_POSSIBLE);
-            writer.println("use_threads_for_sa " + ThreadDraw.USE_THREADS_FOR_SA);
-            writer.println("bla_precision_bits " + ThreadDraw.BLA_BITS);
-            writer.println("bla_starting_level " + ThreadDraw.BLA_STARTING_LEVEL);
-            writer.println("use_threads_for_bla " + ThreadDraw.USE_THREADS_FOR_BLA);
-            writer.println("detect_period " + ThreadDraw.DETECT_PERIOD);
-            writer.println("brute_force_alg " + ThreadDraw.BRUTE_FORCE_ALG);
+            writer.println("approximation_algorithm " + TaskDraw.APPROXIMATION_ALGORITHM);
+            writer.println("series_approximation_terms " + TaskDraw.SERIES_APPROXIMATION_TERMS);
+            writer.println("series_approximation_oom_diff " + TaskDraw.SERIES_APPROXIMATION_OOM_DIFFERENCE);
+            writer.println("series_approximation_max_skip " + TaskDraw.SERIES_APPROXIMATION_MAX_SKIP_ITER);
+            writer.println("use_full_floatexp_for_deep_zoom " + TaskDraw.USE_FULL_FLOATEXP_FOR_DEEP_ZOOM);
+            writer.println("use_full_floatexp_for_all_zoom " + TaskDraw.USE_FULL_FLOATEXP_FOR_ALL_ZOOM);
+            writer.println("automatic_bignum_precision " + TaskDraw.BIGNUM_AUTOMATIC_PRECISION);
+            writer.println("bignum_precision_bits " + TaskDraw.BIGNUM_PRECISION);
+            writer.println("bignum_precision_factor " + TaskDraw.BIGNUM_PRECISION_FACTOR);
+            writer.println("use_threads_for_sa " + TaskDraw.USE_THREADS_FOR_SA);
+            writer.println("bla_precision_bits " + TaskDraw.BLA_BITS);
+            writer.println("bla_starting_level " + TaskDraw.BLA_STARTING_LEVEL);
+            writer.println("use_threads_for_bla " + TaskDraw.USE_THREADS_FOR_BLA);
+            writer.println("detect_period " + TaskDraw.DETECT_PERIOD);
+            writer.println("brute_force_alg " + TaskDraw.BRUTE_FORCE_ALG);
             writer.println("exponent_diff_ignored " + MantExp.EXPONENT_DIFF_IGNORED);
-            writer.println("bignum_library " + ThreadDraw.BIGNUM_LIBRARY);
+            writer.println("bignum_library " + TaskDraw.BIGNUM_LIBRARY);
             writer.println("automatic_precision " + MyApfloat.setAutomaticPrecision);
-            writer.println("nanomb1_n " + ThreadDraw.NANOMB1_N);
-            writer.println("nanomb1_m " + ThreadDraw.NANOMB1_M);
-            writer.println("perturbation_pixel_algorithm " + ThreadDraw.PERTUBATION_PIXEL_ALGORITHM);
-            writer.println("gather_perturbation_statistics " + ThreadDraw.GATHER_PERTURBATION_STATISTICS);
-            writer.println("check_bailout_during_deep_not_full_floatexp_mode " + ThreadDraw.CHECK_BAILOUT_DURING_DEEP_NOT_FULL_FLOATEXP_MODE);
-            writer.println("gather_tiny_ref_indexes " + ThreadDraw.GATHER_TINY_REF_INDEXES);
+            writer.println("nanomb1_n " + TaskDraw.NANOMB1_N);
+            writer.println("nanomb1_m " + TaskDraw.NANOMB1_M);
+            writer.println("perturbation_pixel_algorithm " + TaskDraw.PERTUBATION_PIXEL_ALGORITHM);
+            writer.println("gather_perturbation_statistics " + TaskDraw.GATHER_PERTURBATION_STATISTICS);
+            writer.println("check_bailout_during_deep_not_full_floatexp_mode " + TaskDraw.CHECK_BAILOUT_DURING_DEEP_NOT_FULL_FLOATEXP_MODE);
+            writer.println("gather_tiny_ref_indexes " + TaskDraw.GATHER_TINY_REF_INDEXES);
             //writer.println("high_precision " + ThreadDraw.HIGH_PRECISION_CALCULATION);
-            writer.println("high_precision_lib " + ThreadDraw.HIGH_PRECISION_LIB);
+            writer.println("high_precision_lib " + TaskDraw.HIGH_PRECISION_LIB);
             writer.println("bignum_sqrt_max_iterations " + BigNum.SQRT_MAX_ITERATIONS);
-            writer.println("stop_reference_calculation_after_detected_period " + ThreadDraw.STOP_REFERENCE_CALCULATION_AFTER_DETECTED_PERIOD);
-            writer.println("use_custom_floatexp_requirement " + ThreadDraw.USE_CUSTOM_FLOATEXP_REQUIREMENT);
-            writer.println("load_mpfr " + ThreadDraw.LOAD_MPFR);
-            writer.println("load_mpir " + ThreadDraw.LOAD_MPIR);
-            writer.println("#available libs: " + String.join(", ", ThreadDraw.mpirWinLibs));
-            writer.println("mpir_lib " + ThreadDraw.MPIR_LIB);
-            writer.println("period_detection_algorithm " + ThreadDraw.PERIOD_DETECTION_ALGORITHM);
-            writer.println("circular_brute_force_compare_alg " + ThreadDraw.CIRCULAR_BRUTE_FORCE_COMPARE_ALG);
-            writer.println("circular_brute_force_n " + ThreadDraw.CIRCULAR_BRUTE_FORCE_N);
+            writer.println("stop_reference_calculation_after_detected_period " + TaskDraw.STOP_REFERENCE_CALCULATION_AFTER_DETECTED_PERIOD);
+            writer.println("use_custom_floatexp_requirement " + TaskDraw.USE_CUSTOM_FLOATEXP_REQUIREMENT);
+            writer.println("load_mpfr " + TaskDraw.LOAD_MPFR);
+            writer.println("load_mpir " + TaskDraw.LOAD_MPIR);
+            writer.println("#available libs: " + String.join(", ", TaskDraw.mpirWinLibs));
+            writer.println("mpir_lib " + TaskDraw.MPIR_LIB);
+            writer.println("period_detection_algorithm " + TaskDraw.PERIOD_DETECTION_ALGORITHM);
+            writer.println("circular_compare_alg " + TaskDraw.CIRCULAR_COMPARE_ALG);
+            writer.println("circular_revert_alg " + TaskDraw.CIRCULAR_REVERT_ALG);
+            writer.println("circular_repeat_alg " + TaskDraw.CIRCULAR_REPEAT_ALG);
+            writer.println("circular_repeat_spacing " + TaskDraw.CIRCULAR_REPEAT_SPACING);
+            writer.println("circular_n " + TaskDraw.CIRCULAR_N);
             writer.println("bla2_detection_method " + LAInfo.DETECTION_METHOD);
             writer.println("bla2_stage0_period_detection_threshold " + LAInfo.Stage0PeriodDetectionThreshold);
             writer.println("bla2_stage0_period_detection_threshold2 " + LAInfo.Stage0PeriodDetectionThreshold2);
@@ -7468,23 +8327,30 @@ public class MainWindow extends JFrame implements Constants {
             writer.println("bla2_period_detection_threshold2 " + LAInfo.PeriodDetectionThreshold2);
             writer.println("bla2_la_threshold_scale " + LAInfo.LAThresholdScale);
             writer.println("bla2_la_threshold_c_scale " + LAInfo.LAThresholdCScale);
+            writer.println("bla2_double_threshold_limit " + LAReference.doubleThresholdLimit.toDouble());
+            writer.println("bla2_convert_to_double_when_possible " + LAReference.CONVERT_TO_DOUBLE_WHEN_POSSIBLE);
             writer.println("always_check_for_precision_decrease " + MyApfloat.alwaysCheckForDecrease);
-            writer.println("use_threads_in_bignum_libs " + ThreadDraw.USE_THREADS_IN_BIGNUM_LIBS);
-
+            writer.println("use_threads_in_bignum_libs " + TaskDraw.USE_THREADS_IN_BIGNUM_LIBS);
+            writer.println("calculate_period_every_time_from_start " + TaskDraw.CALCULATE_PERIOD_EVERY_TIME_FROM_START);
+            writer.println("mantexpcomplex_format " + TaskDraw.MANTEXPCOMPLEX_FORMAT);
+            writer.println("use_fast_delta_location " + TaskDraw.USE_FAST_DELTA_LOCATION);
+            writer.println("always_save_extra_pixel_data_on_aa " + TaskDraw.ALWAYS_SAVE_EXTRA_PIXEL_DATA_ON_AA);
 
             writer.println();
             writer.println("[General]");
             writer.println("save_settings_path \"" + SaveSettingsPath + "\"");
             writer.println("save_image_path \"" + SaveImagesPath + "\"");
-            writer.println("auto_repaint_image " + auto_repaint_image);
+            writer.println("auto_repaint_image " + AUTO_REPAINT_IMAGE);
             writer.println("auto_repaint_image_delay " + ImageRepainter.REPAINT_SLEEP_TIME);
-            writer.println("use_smoothing_for_processing_algs " + ThreadDraw.USE_SMOOTHING_FOR_PROCESSING_ALGS);
+            writer.println("use_smoothing_for_processing_algs " + TaskDraw.USE_SMOOTHING_FOR_PROCESSING_ALGS);
             writer.println("zoom_on_cursor " + ZOOM_ON_THE_CURSOR);
-            writer.println("draw_image_preview " + ThreadDraw.DRAW_IMAGE_PREVIEW);
-            writer.println("3d_apply_average_to_triangle_colors " + ThreadDraw.D3_APPLY_AVERAGE_TO_TRIANGLE_COLORS);
-            writer.println("load_drawing_algorithm_from_saves " + ThreadDraw.LOAD_DRAWING_ALGORITHM_FROM_SAVES);
+            writer.println("circular_draw_follows_zoom_to_cursor " + CIRCULAR_DRAW_FOLLOWS_ZOOM_TO_CURSOR);
+            writer.println("draw_image_preview " + TaskDraw.DRAW_IMAGE_PREVIEW);
+            writer.println("3d_apply_average_to_triangle_colors " + TaskDraw.D3_APPLY_AVERAGE_TO_TRIANGLE_COLORS);
+            writer.println("load_drawing_algorithm_from_saves " + TaskDraw.LOAD_DRAWING_ALGORITHM_FROM_SAVES);
             writer.println("p3d_aa " + P3D_AA);
             writer.println("p3d_aa_samples " + P3D_AA_SAMPLES);
+            writer.println("neon_percentage " + ColorComponent.NEON_PERCENTAGE);
 
             writer.println();
             writer.println("[Window]");
@@ -7495,6 +8361,7 @@ public class MainWindow extends JFrame implements Constants {
             writer.println("window_toolbar " + options_menu.getToolbar().isSelected());
             writer.println("window_infobar " + options_menu.getInfobar().isSelected());
             writer.println("window_statusbar " + options_menu.getStatusbar().isSelected());
+            writer.println("window_debugbar " + options_menu.getDebugbar().isSelected());
             writer.println("window_fullscreen " + options_menu.getFullscreen().isSelected());
 
             writer.println();
@@ -7522,8 +8389,8 @@ public class MainWindow extends JFrame implements Constants {
 
             writer.println();
             writer.println("[Julia]");
-            writer.println("julia_preview_filters " + fast_julia_filters);
-            writer.println("julia_preview_image_size " + ThreadDraw.FAST_JULIA_IMAGE_SIZE);
+            writer.println("julia_preview_filters " + FAST_JULIA_FILTERS);
+            writer.println("julia_preview_image_size " + TaskDraw.FAST_JULIA_IMAGE_SIZE);
 
             writer.println();
             writer.println("[Color Cycling]");
@@ -7540,15 +8407,19 @@ public class MainWindow extends JFrame implements Constants {
 
             writer.println();
             writer.println("[Random Palette]");
-            writer.println("random_palette_algorithm " + CustomPaletteEditorFrame.getRandomPaletteAlgorithm());
-            writer.println("equal_hues " + CustomPaletteEditorFrame.getEqualHues());
+            writer.println("random_palette_algorithm " + CustomPaletteEditorFrame.random_palette_algorithm);
+            writer.println("equal_hues " + CustomPaletteEditorFrame.equal_hues);
+            writer.println("pastel " + CustomPaletteEditorFrame.pastel);
+            writer.println("pastel_color " + ColorSpaceConverter.PASTEL_RED + " " + ColorSpaceConverter.PASTEL_GREEN + " " + ColorSpaceConverter.PASTEL_BLUE);
+            writer.println("seed " + CustomPaletteEditorFrame.seed);
 
             writer.println();
             writer.println("[Quick Draw]");
-            writer.println("tiles " + ThreadDraw.TILE_SIZE);
-            writer.println("quickdraw_delay " + ThreadDraw.QUICK_DRAW_DELAY);
+            writer.println("tiles " + TaskDraw.TILE_SIZE);
+            writer.println("quickdraw_delay " + TaskDraw.QUICK_DRAW_DELAY);
             writer.println("quickdraw_zoom_to_center " + QUICK_DRAW_ZOOM_TO_CURRENT_CENTER);
-            writer.println("quickdraw_successive_refinement " + ThreadDraw.SUCCESSIVE_REFINEMENT);
+            writer.println("quickdraw_successive_refinement " + TaskDraw.QUICKDRAW_SUCCESSIVE_REFINEMENT);
+            writer.println("use_quick_draw_on_greedy_successive_refinement " + TaskDraw.USE_QUICKDRAW_ON_GREEDY_SUCCESSIVE_REFINEMENT);
 
             writer.println();
             writer.println("[Core]");
@@ -7595,23 +8466,44 @@ public class MainWindow extends JFrame implements Constants {
                 if (tokenizer.hasMoreTokens()) {
 
                     String token = tokenizer.nextToken();
-                    if (token.equals("thread_grouping") && tokenizer.countTokens() == 1) {
-                        try {
-                            int temp = Integer.parseInt(tokenizer.nextToken());
 
-                            if (temp >= 0 && temp <= 2) {
-                                thread_grouping = temp;
-                            }
-                        } catch (Exception ex) {
-                        }
-                    }
-                    else if (token.equals("auto_repaint_image_delay") && tokenizer.countTokens() == 1) {
+                    if (token.equals("auto_repaint_image_delay") && tokenizer.countTokens() == 1) {
                         try {
                             int temp = Integer.parseInt(tokenizer.nextToken());
 
                             if (temp > 0 && temp <= 5000) {
                                 ImageRepainter.REPAINT_SLEEP_TIME = temp;
                             }
+                        } catch (Exception ex) {
+                        }
+                    }
+                    else if (token.equals("mantexpcomplex_format") && tokenizer.countTokens() == 1) {
+                        try {
+                            int temp = Integer.parseInt(tokenizer.nextToken());
+
+                            if (temp >= 0 && temp <= 1) {
+                                TaskDraw.MANTEXPCOMPLEX_FORMAT = temp;
+                            }
+                        } catch (Exception ex) {
+                        }
+                    }
+                    else if (token.equals("guess_blocks_selection") && tokenizer.countTokens() == 1) {
+
+                        try {
+                            int temp = Integer.parseInt(tokenizer.nextToken());
+
+                            if (temp >= 0 && temp <= 7) {
+                                TaskDraw.GUESS_BLOCKS_SELECTION = temp;
+                            }
+                        } catch (Exception ex) {
+                        }
+                    }
+                    else if (token.equals("seed") && tokenizer.countTokens() == 1) {
+
+                        try {
+                            long temp = Long.parseLong(tokenizer.nextToken());
+                            CustomPaletteEditorFrame.seed = temp;
+                            CustomPaletteEditorFrame.reSeed();
                         } catch (Exception ex) {
                         }
                     }
@@ -7641,10 +8533,131 @@ public class MainWindow extends JFrame implements Constants {
                         token = tokenizer.nextToken();
 
                         if(token.equals("false")) {
-                            ThreadDraw.STOP_REFERENCE_CALCULATION_AFTER_DETECTED_PERIOD = false;
+                            TaskDraw.STOP_REFERENCE_CALCULATION_AFTER_DETECTED_PERIOD = false;
                         }
                         else if(token.equals("true")) {
-                            ThreadDraw.STOP_REFERENCE_CALCULATION_AFTER_DETECTED_PERIOD = true;
+                            TaskDraw.STOP_REFERENCE_CALCULATION_AFTER_DETECTED_PERIOD = true;
+                        }
+                    }
+                    else if(token.equals("always_save_extra_pixel_data_on_aa") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if(token.equals("false")) {
+                            TaskDraw.ALWAYS_SAVE_EXTRA_PIXEL_DATA_ON_AA = false;
+                        }
+                        else if(token.equals("true")) {
+                            TaskDraw.ALWAYS_SAVE_EXTRA_PIXEL_DATA_ON_AA = true;
+                        }
+                    }
+                    else if(token.equals("use_fast_delta_location") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if(token.equals("false")) {
+                            TaskDraw.USE_FAST_DELTA_LOCATION = false;
+                        }
+                        else if(token.equals("true")) {
+                            TaskDraw.USE_FAST_DELTA_LOCATION = true;
+                        }
+                    }
+                    else if(token.equals("use_quick_draw_on_greedy_successive_refinement") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if(token.equals("false")) {
+                            TaskDraw.USE_QUICKDRAW_ON_GREEDY_SUCCESSIVE_REFINEMENT = false;
+                        }
+                        else if(token.equals("true")) {
+                            TaskDraw.USE_QUICKDRAW_ON_GREEDY_SUCCESSIVE_REFINEMENT = true;
+                        }
+                    }
+                    else if(token.equals("bla2_convert_to_double_when_possible") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if(token.equals("false")) {
+                            LAReference.CONVERT_TO_DOUBLE_WHEN_POSSIBLE = false;
+                        }
+                        else if(token.equals("true")) {
+                            LAReference.CONVERT_TO_DOUBLE_WHEN_POSSIBLE = true;
+                        }
+                    }
+                    else if(token.equals("mariani_silver_use_dfs") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if(token.equals("false")) {
+                            MarianiSilverDraw.RENDER_USING_DFS = false;
+                        }
+                        else if(token.equals("true")) {
+                            MarianiSilverDraw.RENDER_USING_DFS = true;
+                        }
+                    }
+                    else if (token.equals("bla2_double_threshold_limit") && tokenizer.countTokens() == 1) {
+
+                        try {
+                            double temp = Double.parseDouble(tokenizer.nextToken());
+
+                            if (temp > 0) {
+                                LAReference.doubleThresholdLimit = new MantExp(temp);
+                            }
+                        } catch (Exception ex) {
+                        }
+                    }
+                    else if(token.equals("circular_draw_follows_zoom_to_cursor") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if(token.equals("false")) {
+                            CIRCULAR_DRAW_FOLLOWS_ZOOM_TO_CURSOR = false;
+                        }
+                        else if(token.equals("true")) {
+                            CIRCULAR_DRAW_FOLLOWS_ZOOM_TO_CURSOR = true;
+                        }
+                    }
+                    else if(token.equals("circular_revert_alg") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if(token.equals("false")) {
+                            TaskDraw.CIRCULAR_REVERT_ALG = false;
+                        }
+                        else if(token.equals("true")) {
+                            TaskDraw.CIRCULAR_REVERT_ALG = true;
+                        }
+                    }
+                    else if (token.equals("circular_repeat_spacing") && tokenizer.countTokens() == 1) {
+
+                        try {
+                            double temp = Double.parseDouble(tokenizer.nextToken());
+
+                            if (temp > 0) {
+                                TaskDraw.CIRCULAR_REPEAT_SPACING = temp;
+                            }
+                        } catch (Exception ex) {
+                        }
+                    }
+                    else if(token.equals("circular_repeat_alg") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if(token.equals("false")) {
+                            TaskDraw.CIRCULAR_REPEAT_ALG = false;
+                        }
+                        else if(token.equals("true")) {
+                            TaskDraw.CIRCULAR_REPEAT_ALG = true;
+                        }
+                    }
+                    else if(token.equals("calculate_period_every_time_from_start") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if(token.equals("false")) {
+                            TaskDraw.CALCULATE_PERIOD_EVERY_TIME_FROM_START = false;
+                        }
+                        else if(token.equals("true")) {
+                            TaskDraw.CALCULATE_PERIOD_EVERY_TIME_FROM_START = true;
                         }
                     }
                     else if(token.equals("use_threads_in_bignum_libs") && tokenizer.countTokens() == 1) {
@@ -7652,10 +8665,10 @@ public class MainWindow extends JFrame implements Constants {
                         token = tokenizer.nextToken();
 
                         if(token.equals("false")) {
-                            ThreadDraw.USE_THREADS_IN_BIGNUM_LIBS = false;
+                            TaskDraw.USE_THREADS_IN_BIGNUM_LIBS = false;
                         }
                         else if(token.equals("true")) {
-                            ThreadDraw.USE_THREADS_IN_BIGNUM_LIBS = true;
+                            TaskDraw.USE_THREADS_IN_BIGNUM_LIBS = true;
                         }
                     }
                     else if(token.equals("quickdraw_successive_refinement") && tokenizer.countTokens() == 1) {
@@ -7663,10 +8676,10 @@ public class MainWindow extends JFrame implements Constants {
                         token = tokenizer.nextToken();
 
                         if(token.equals("false")) {
-                            ThreadDraw.SUCCESSIVE_REFINEMENT = false;
+                            TaskDraw.QUICKDRAW_SUCCESSIVE_REFINEMENT = false;
                         }
                         else if(token.equals("true")) {
-                            ThreadDraw.SUCCESSIVE_REFINEMENT = true;
+                            TaskDraw.QUICKDRAW_SUCCESSIVE_REFINEMENT = true;
                         }
                     }
                     else if(token.equals("always_check_for_precision_decrease") && tokenizer.countTokens() == 1) {
@@ -7685,7 +8698,7 @@ public class MainWindow extends JFrame implements Constants {
                             int temp = Integer.parseInt(tokenizer.nextToken());
 
                             if (temp >= 0 && temp <= 2) {
-                                ThreadDraw.D3_APPLY_AVERAGE_TO_TRIANGLE_COLORS = temp;
+                                TaskDraw.D3_APPLY_AVERAGE_TO_TRIANGLE_COLORS = temp;
                             }
                         } catch (Exception ex) {
                         }
@@ -7700,11 +8713,22 @@ public class MainWindow extends JFrame implements Constants {
                         } catch (Exception ex) {
                         }
                     }
+
+                    else if (token.equals("neon_percentage") && tokenizer.countTokens() == 1) {
+                        try {
+                            double temp = Double.parseDouble(tokenizer.nextToken());
+
+                            if (temp > 0 && temp <= 0.4) {
+                                ColorComponent.NEON_PERCENTAGE = temp;
+                            }
+                        } catch (Exception ex) {
+                        }
+                    }
                     else if (token.equals("aa_number_of_jitter_kernels") && tokenizer.countTokens() == 1) {
                         try {
                             int temp = Integer.parseInt(tokenizer.nextToken());
 
-                            if (temp > 0 && temp < 100) {
+                            if (temp > 0 && temp <= 200) {
                                 Location.NUMBER_OF_AA_JITTER_KERNELS = temp;
                             }
                         } catch (Exception ex) {
@@ -7725,7 +8749,7 @@ public class MainWindow extends JFrame implements Constants {
                         try {
                             int temp = Integer.parseInt(tokenizer.nextToken());
 
-                            if (temp > 1 && temp <= 32) {
+                            if (temp > 1 && temp <= 64) {
                                 P3D_AA_SAMPLES = temp;
                             }
                         } catch (Exception ex) {
@@ -7735,8 +8759,8 @@ public class MainWindow extends JFrame implements Constants {
                         try {
                             int temp = Integer.parseInt(tokenizer.nextToken());
 
-                            if (temp >= 0 && temp <= 7) {
-                                ThreadDraw.BIGNUM_LIBRARY = temp;
+                            if (temp >= 0 && temp <= 8) {
+                                TaskDraw.BIGNUM_LIBRARY = temp;
                             }
                         } catch (Exception ex) {
                         }
@@ -7746,10 +8770,10 @@ public class MainWindow extends JFrame implements Constants {
                         token = tokenizer.nextToken();
 
                         if(token.equals("false")) {
-                            ThreadDraw.USE_SMOOTHING_FOR_PROCESSING_ALGS = false;
+                            TaskDraw.USE_SMOOTHING_FOR_PROCESSING_ALGS = false;
                         }
                         else if(token.equals("true")) {
-                            ThreadDraw.USE_SMOOTHING_FOR_PROCESSING_ALGS = true;
+                            TaskDraw.USE_SMOOTHING_FOR_PROCESSING_ALGS = true;
                         }
                     }
                     else if(token.equals("draw_image_preview") && tokenizer.countTokens() == 1) {
@@ -7757,30 +8781,30 @@ public class MainWindow extends JFrame implements Constants {
                         token = tokenizer.nextToken();
 
                         if(token.equals("false")) {
-                            ThreadDraw.DRAW_IMAGE_PREVIEW = false;
+                            TaskDraw.DRAW_IMAGE_PREVIEW = false;
                         }
                         else if(token.equals("true")) {
-                            ThreadDraw.DRAW_IMAGE_PREVIEW = true;
+                            TaskDraw.DRAW_IMAGE_PREVIEW = true;
                         }
                     }
-                    else if (token.equals("circular_brute_force_compare_alg") && tokenizer.countTokens() == 1) {
+                    else if (token.equals("circular_compare_alg") && tokenizer.countTokens() == 1) {
 
                         try {
                             int temp = Integer.parseInt(tokenizer.nextToken());
 
-                            if (temp >= 0 && temp <= 3) {
-                                ThreadDraw.CIRCULAR_BRUTE_FORCE_COMPARE_ALG = temp;
+                            if (temp >= 0 && temp <= 15) {
+                                TaskDraw.CIRCULAR_COMPARE_ALG = temp;
                             }
                         } catch (Exception ex) {
                         }
                     }
-                    else if (token.equals("circular_brute_force_n") && tokenizer.countTokens() == 1) {
+                    else if (token.equals("circular_n") && tokenizer.countTokens() == 1) {
 
                         try {
                             double temp = Double.parseDouble(tokenizer.nextToken());
 
                             if (temp != 0) {
-                                ThreadDraw.CIRCULAR_BRUTE_FORCE_N = temp;
+                                TaskDraw.CIRCULAR_N = temp;
                             }
                         } catch (Exception ex) {
                         }
@@ -7790,10 +8814,10 @@ public class MainWindow extends JFrame implements Constants {
                         token = tokenizer.nextToken();
 
                         if(token.equals("false")) {
-                            ThreadDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA = false;
+                            TaskDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA = false;
                         }
                         else if(token.equals("true")) {
-                            ThreadDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA = true;
+                            TaskDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA = true;
                         }
                     }
                     else if (token.equals("high_precision_lib") && tokenizer.countTokens() == 1) {
@@ -7801,7 +8825,7 @@ public class MainWindow extends JFrame implements Constants {
                             int temp = Integer.parseInt(tokenizer.nextToken());
 
                             if (temp >= 0 && temp <= 6) {
-                                ThreadDraw.HIGH_PRECISION_LIB = temp;
+                                TaskDraw.HIGH_PRECISION_LIB = temp;
                             }
                         } catch (Exception ex) {
                         }
@@ -7811,7 +8835,7 @@ public class MainWindow extends JFrame implements Constants {
                             int temp = Integer.parseInt(tokenizer.nextToken());
 
                             if (temp >= 0) {
-                                ThreadDraw.QUICK_DRAW_DELAY = temp;
+                                TaskDraw.QUICK_DRAW_DELAY = temp;
                             }
                         } catch (Exception ex) {
                         }
@@ -7905,7 +8929,7 @@ public class MainWindow extends JFrame implements Constants {
                             int temp = Integer.parseInt(tokenizer.nextToken());
 
                             if (temp >= 100 && temp <= 1000) {
-                                ThreadDraw.FAST_JULIA_IMAGE_SIZE = temp;
+                                TaskDraw.FAST_JULIA_IMAGE_SIZE = temp;
                             }
                         } catch (Exception ex) {
                         }
@@ -7916,7 +8940,7 @@ public class MainWindow extends JFrame implements Constants {
                             int temp = Integer.parseInt(tokenizer.nextToken());
 
                             if (temp >= 2 && temp <= 48) {
-                                ThreadDraw.NANOMB1_N = temp;
+                                TaskDraw.NANOMB1_N = temp;
                             }
                         } catch (Exception ex) {
                         }
@@ -7926,10 +8950,10 @@ public class MainWindow extends JFrame implements Constants {
                         token = tokenizer.nextToken();
 
                         if(token.equals("false")) {
-                            ThreadDraw.CHECK_BAILOUT_DURING_DEEP_NOT_FULL_FLOATEXP_MODE = false;
+                            TaskDraw.CHECK_BAILOUT_DURING_DEEP_NOT_FULL_FLOATEXP_MODE = false;
                         }
                         else if(token.equals("true")) {
-                            ThreadDraw.CHECK_BAILOUT_DURING_DEEP_NOT_FULL_FLOATEXP_MODE = true;
+                            TaskDraw.CHECK_BAILOUT_DURING_DEEP_NOT_FULL_FLOATEXP_MODE = true;
                         }
                     }
                     else if(token.equals("use_custom_floatexp_requirement") && tokenizer.countTokens() == 1) {
@@ -7937,10 +8961,10 @@ public class MainWindow extends JFrame implements Constants {
                         token = tokenizer.nextToken();
 
                         if(token.equals("false")) {
-                            ThreadDraw.USE_CUSTOM_FLOATEXP_REQUIREMENT = false;
+                            TaskDraw.USE_CUSTOM_FLOATEXP_REQUIREMENT = false;
                         }
                         else if(token.equals("true")) {
-                            ThreadDraw.USE_CUSTOM_FLOATEXP_REQUIREMENT = true;
+                            TaskDraw.USE_CUSTOM_FLOATEXP_REQUIREMENT = true;
                         }
                     }
                     else if (token.equals("period_detection_algorithm") && tokenizer.countTokens() == 1) {
@@ -7949,7 +8973,7 @@ public class MainWindow extends JFrame implements Constants {
                             int temp = Integer.parseInt(tokenizer.nextToken());
 
                             if (temp >= 0 && temp <= 2) {
-                                ThreadDraw.PERIOD_DETECTION_ALGORITHM = temp;
+                                TaskDraw.PERIOD_DETECTION_ALGORITHM = temp;
                             }
                         } catch (Exception ex) {
                         }
@@ -7960,7 +8984,7 @@ public class MainWindow extends JFrame implements Constants {
                             int temp = Integer.parseInt(tokenizer.nextToken());
 
                             if (temp >= 0 && temp <= 1) {
-                                ThreadDraw.PERTUBATION_PIXEL_ALGORITHM = temp;
+                                TaskDraw.PERTUBATION_PIXEL_ALGORITHM = temp;
                             }
                         } catch (Exception ex) {
                         }
@@ -7971,7 +8995,7 @@ public class MainWindow extends JFrame implements Constants {
                             int temp = Integer.parseInt(tokenizer.nextToken());
 
                             if (temp >= 2 && temp <= 48) {
-                                ThreadDraw.NANOMB1_M = temp;
+                                TaskDraw.NANOMB1_M = temp;
                             }
                         } catch (Exception ex) {
                         }
@@ -7985,14 +9009,37 @@ public class MainWindow extends JFrame implements Constants {
                                     n = temp;
                                 }
                             }
-                            else {
+                            else if (thread_grouping == 1 || thread_grouping == 2){
                                 if (temp >= 1 && temp <= 10000) {
                                     n = temp;
                                 }
                             }
+                            else {
+                                if (temp >= 1 && temp <= 10000) {
+                                    ArrayList<Integer> factors = CommonFunctions.getAllFactors(temp);
+
+                                    int index = factors.size() / 2 - 1;
+
+                                    m = factors.get(index);
+                                    this.n = factors.get(index + 1);
+                                }
+                            }
                         } catch (Exception ex) {
                         }
-                    }else if (token.startsWith("save_settings_path") && tokenizer.countTokens() == 1) {
+                    }
+                    else if (token.equals("thread_dim2") && tokenizer.countTokens() == 1) {
+                        try {
+                            int temp = Integer.parseInt(tokenizer.nextToken());
+
+                            if(thread_grouping == 5) {
+                                if (temp >= 1 && temp <= 100) {
+                                    m = temp;
+                                }
+                            }
+                        } catch (Exception ex) {
+                        }
+                    }
+                    else if (token.startsWith("save_settings_path") && tokenizer.countTokens() == 1) {
 
                         SaveSettingsPath = tokenizer.nextToken();
 
@@ -8023,9 +9070,9 @@ public class MainWindow extends JFrame implements Constants {
                         token = tokenizer.nextToken();
 
                         if (token.equals("false")) {
-                            ThreadDraw.GREEDY_ALGORITHM = false;
+                            TaskDraw.GREEDY_ALGORITHM = false;
                         } else if (token.equals("true")) {
-                            ThreadDraw.GREEDY_ALGORITHM = true;
+                            TaskDraw.GREEDY_ALGORITHM = true;
                         }
                     }
                     else if (token.equals("quickdraw_zoom_to_center") && tokenizer.countTokens() == 1) {
@@ -8043,10 +9090,10 @@ public class MainWindow extends JFrame implements Constants {
                         token = tokenizer.nextToken();
 
                         if(token.equals("false")) {
-                            ThreadDraw.GATHER_PERTURBATION_STATISTICS = false;
+                            TaskDraw.GATHER_PERTURBATION_STATISTICS = false;
                         }
                         else if(token.equals("true")) {
-                            ThreadDraw.GATHER_PERTURBATION_STATISTICS = true;
+                            TaskDraw.GATHER_PERTURBATION_STATISTICS = true;
                         }
                     }
 //                    else if(token.equals("high_precision") && tokenizer.countTokens() == 1) {
@@ -8065,10 +9112,10 @@ public class MainWindow extends JFrame implements Constants {
                         token = tokenizer.nextToken();
 
                         if(token.equals("false")) {
-                            ThreadDraw.GATHER_TINY_REF_INDEXES = false;
+                            TaskDraw.GATHER_TINY_REF_INDEXES = false;
                         }
                         else if(token.equals("true")) {
-                            ThreadDraw.GATHER_TINY_REF_INDEXES = true;
+                            TaskDraw.GATHER_TINY_REF_INDEXES = true;
                         }
                     }
                     else if(token.equals("automatic_precision") && tokenizer.countTokens() == 1) {
@@ -8087,8 +9134,8 @@ public class MainWindow extends JFrame implements Constants {
                         try {
                             int temp = Integer.parseInt(tokenizer.nextToken());
 
-                            if (temp == BOUNDARY_TRACING || temp == DIVIDE_AND_CONQUER) {
-                                ThreadDraw.GREEDY_ALGORITHM_SELECTION = temp;
+                            if (temp == BOUNDARY_TRACING || temp == DIVIDE_AND_CONQUER || temp == SUCCESSIVE_REFINEMENT || temp == CIRCULAR_SUCCESSIVE_REFINEMENT) {
+                                TaskDraw.GREEDY_ALGORITHM_SELECTION = temp;
                             }
                         } catch (Exception ex) {
                         }
@@ -8099,7 +9146,7 @@ public class MainWindow extends JFrame implements Constants {
                             int temp = Integer.parseInt(tokenizer.nextToken());
 
                             if (temp >= 0 && temp <= 2) {
-                                ThreadDraw.BRUTE_FORCE_ALG = temp;
+                                TaskDraw.BRUTE_FORCE_ALG = temp;
                             }
                         } catch (Exception ex) {
                         }
@@ -8122,7 +9169,7 @@ public class MainWindow extends JFrame implements Constants {
                             int temp = Integer.parseInt(tokenizer.nextToken());
 
                             if (temp >= 0 && temp <= 4) {
-                                ThreadDraw.SKIPPED_PIXELS_ALG = temp;
+                                TaskDraw.SKIPPED_PIXELS_ALG = temp;
                             }
                         } catch (Exception ex) {
                         }
@@ -8134,7 +9181,7 @@ public class MainWindow extends JFrame implements Constants {
                             int blue = Integer.parseInt(tokenizer.nextToken());
 
                             if (red >= 0 && red <= 255 && green >= 0 && green <= 255 && blue >= 0 && blue <= 255) {
-                                ThreadDraw.SKIPPED_PIXELS_COLOR = new Color(red, green, blue).getRGB();
+                                TaskDraw.SKIPPED_PIXELS_COLOR = new Color(red, green, blue).getRGB();
                             }
                         } catch (Exception ex) {
                         }
@@ -8147,6 +9194,13 @@ public class MainWindow extends JFrame implements Constants {
                         } else if (token.equals("true") && !options_menu.getPeriodicityChecking().isSelected()) {
                             options_menu.getPeriodicityChecking().doClick();
                         }
+
+                        if(token.equals("false")) {
+                            PERIODICITY_CHECKING = false;
+                        }
+                        else {
+                            PERIODICITY_CHECKING = true;
+                        }
                     }
                     else if (token.equals("auto_repaint_image") && tokenizer.countTokens() == 1) {
 
@@ -8156,6 +9210,13 @@ public class MainWindow extends JFrame implements Constants {
                             options_menu.getAutoRepaintImage().doClick();
                         } else if (token.equals("true") && !options_menu.getAutoRepaintImage().isSelected()) {
                             options_menu.getAutoRepaintImage().doClick();
+                        }
+
+                        if(token.equals("false")) {
+                            AUTO_REPAINT_IMAGE = false;
+                        }
+                        else {
+                            AUTO_REPAINT_IMAGE = true;
                         }
                     }
                     else if (token.equals("zoom_on_cursor") && tokenizer.countTokens() == 1) {
@@ -8167,15 +9228,22 @@ public class MainWindow extends JFrame implements Constants {
                         } else if (token.equals("true") && !options_menu.getZoomOnCursor().isSelected()) {
                             options_menu.getZoomOnCursor().doClick();
                         }
+
+                        if(token.equals("false")) {
+                            ZOOM_ON_THE_CURSOR = false;
+                        }
+                        else {
+                            ZOOM_ON_THE_CURSOR = true;
+                        }
                     }
                     else if (token.equals("perturbation_theory") && tokenizer.countTokens() == 1) {
 
                         token = tokenizer.nextToken();
 
                         if (token.equals("false")) {
-                           ThreadDraw.PERTURBATION_THEORY = false;
+                           TaskDraw.PERTURBATION_THEORY = false;
                         } else if (token.equals("true")) {
-                            ThreadDraw.PERTURBATION_THEORY = true;
+                            TaskDraw.PERTURBATION_THEORY = true;
                         }
                     }
                     else if (token.equals("detect_period") && tokenizer.countTokens() == 1) {
@@ -8183,9 +9251,9 @@ public class MainWindow extends JFrame implements Constants {
                         token = tokenizer.nextToken();
 
                         if (token.equals("false")) {
-                            ThreadDraw.DETECT_PERIOD = false;
+                            TaskDraw.DETECT_PERIOD = false;
                         } else if (token.equals("true")) {
-                            ThreadDraw.DETECT_PERIOD = true;
+                            TaskDraw.DETECT_PERIOD = true;
                         }
                     }
                     else if (token.equals("use_threads_for_sa") && tokenizer.countTokens() == 1) {
@@ -8193,9 +9261,9 @@ public class MainWindow extends JFrame implements Constants {
                         token = tokenizer.nextToken();
 
                         if (token.equals("false")) {
-                            ThreadDraw.USE_THREADS_FOR_SA = false;
+                            TaskDraw.USE_THREADS_FOR_SA = false;
                         } else if (token.equals("true")) {
-                            ThreadDraw.USE_THREADS_FOR_SA = true;
+                            TaskDraw.USE_THREADS_FOR_SA = true;
                         }
                     }
                     else if (token.equals("use_threads_for_bla") && tokenizer.countTokens() == 1) {
@@ -8203,9 +9271,9 @@ public class MainWindow extends JFrame implements Constants {
                         token = tokenizer.nextToken();
 
                         if (token.equals("false")) {
-                            ThreadDraw.USE_THREADS_FOR_BLA = false;
+                            TaskDraw.USE_THREADS_FOR_BLA = false;
                         } else if (token.equals("true")) {
-                            ThreadDraw.USE_THREADS_FOR_BLA = true;
+                            TaskDraw.USE_THREADS_FOR_BLA = true;
                         }
                     }
                     else if (token.equals("bla_starting_level") && tokenizer.countTokens() == 1) {
@@ -8214,40 +9282,20 @@ public class MainWindow extends JFrame implements Constants {
                             int temp = Integer.parseInt(tokenizer.nextToken());
 
                             if (temp > 0 && temp <= 32) {
-                                ThreadDraw.BLA_STARTING_LEVEL = temp;
+                                TaskDraw.BLA_STARTING_LEVEL = temp;
                             }
                         } catch (Exception ex) {
                         }
 
-                    }
-                    else if (token.equals("use_bignum_for_ref") && tokenizer.countTokens() == 1) {
-
-                        token = tokenizer.nextToken();
-
-                        if (token.equals("false")) {
-                            ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE = false;
-                        } else if (token.equals("true")) {
-                            ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE = true;
-                        }
-                    }
-                    else if (token.equals("use_bignum_for_pixels") && tokenizer.countTokens() == 1) {
-
-                        token = tokenizer.nextToken();
-
-                        if (token.equals("false")) {
-                            ThreadDraw.USE_BIGNUM_FOR_PIXELS_IF_POSSIBLE = false;
-                        } else if (token.equals("true")) {
-                            ThreadDraw.USE_BIGNUM_FOR_PIXELS_IF_POSSIBLE = true;
-                        }
                     }
                     else if (token.equals("automatic_bignum_precision") && tokenizer.countTokens() == 1) {
 
                         token = tokenizer.nextToken();
 
                         if (token.equals("false")) {
-                            ThreadDraw.BIGNUM_AUTOMATIC_PRECISION = false;
+                            TaskDraw.BIGNUM_AUTOMATIC_PRECISION = false;
                         } else if (token.equals("true")) {
-                            ThreadDraw.BIGNUM_AUTOMATIC_PRECISION = true;
+                            TaskDraw.BIGNUM_AUTOMATIC_PRECISION = true;
                         }
                     }
                     else if (token.equals("precision") && tokenizer.countTokens() == 1) {
@@ -8267,7 +9315,7 @@ public class MainWindow extends JFrame implements Constants {
                             int temp = Integer.parseInt(tokenizer.nextToken());
 
                             if (temp > 0 && temp < 64) {
-                                ThreadDraw.BLA_BITS = temp;
+                                TaskDraw.BLA_BITS = temp;
                             }
                         } catch (Exception ex) {
                         }
@@ -8278,7 +9326,7 @@ public class MainWindow extends JFrame implements Constants {
                             int temp = Integer.parseInt(tokenizer.nextToken());
 
                             if (temp > 0) {
-                                ThreadDraw.BIGNUM_PRECISION_FACTOR = temp;
+                                TaskDraw.BIGNUM_PRECISION_FACTOR = temp;
                             }
                         } catch (Exception ex) {
                         }
@@ -8289,7 +9337,7 @@ public class MainWindow extends JFrame implements Constants {
                             int temp = Integer.parseInt(tokenizer.nextToken());
 
                             if (temp > 0) {
-                                ThreadDraw.BIGNUM_PRECISION = temp;
+                                TaskDraw.BIGNUM_PRECISION = temp;
                             }
                         } catch (Exception ex) {
                         }
@@ -8300,7 +9348,7 @@ public class MainWindow extends JFrame implements Constants {
                             int temp = Integer.parseInt(tokenizer.nextToken());
 
                             if (temp >= 0 && temp <= 4) {
-                                ThreadDraw.APPROXIMATION_ALGORITHM = temp;
+                                TaskDraw.APPROXIMATION_ALGORITHM = temp;
                             }
                         } catch (Exception ex) {
                         }
@@ -8310,9 +9358,9 @@ public class MainWindow extends JFrame implements Constants {
                         token = tokenizer.nextToken();
 
                         if (token.equals("false")) {
-                            ThreadDraw.USE_FULL_FLOATEXP_FOR_DEEP_ZOOM = false;
+                            TaskDraw.USE_FULL_FLOATEXP_FOR_DEEP_ZOOM = false;
                         } else if (token.equals("true")) {
-                            ThreadDraw.USE_FULL_FLOATEXP_FOR_DEEP_ZOOM = true;
+                            TaskDraw.USE_FULL_FLOATEXP_FOR_DEEP_ZOOM = true;
                         }
                     }
                     else if (token.equals("use_full_floatexp_for_all_zoom") && tokenizer.countTokens() == 1) {
@@ -8320,16 +9368,16 @@ public class MainWindow extends JFrame implements Constants {
                         token = tokenizer.nextToken();
 
                         if (token.equals("false")) {
-                            ThreadDraw.USE_FULL_FLOATEXP_FOR_ALL_ZOOM = false;
+                            TaskDraw.USE_FULL_FLOATEXP_FOR_ALL_ZOOM = false;
                         } else if (token.equals("true")) {
-                            ThreadDraw.USE_FULL_FLOATEXP_FOR_ALL_ZOOM = true;
+                            TaskDraw.USE_FULL_FLOATEXP_FOR_ALL_ZOOM = true;
                         }
                     }
                     else if (token.equals("series_approximation_oom_diff") && tokenizer.countTokens() == 1) {
 
                         try {
                             long temp = Long.parseLong(tokenizer.nextToken());
-                            ThreadDraw.SERIES_APPROXIMATION_OOM_DIFFERENCE = temp;
+                            TaskDraw.SERIES_APPROXIMATION_OOM_DIFFERENCE = temp;
 
                         } catch (Exception ex) {
                         }
@@ -8340,7 +9388,7 @@ public class MainWindow extends JFrame implements Constants {
                             int temp = Integer.parseInt(tokenizer.nextToken());
 
                             if (temp >=2  && temp <= 257) {
-                                ThreadDraw.SERIES_APPROXIMATION_TERMS = temp;
+                                TaskDraw.SERIES_APPROXIMATION_TERMS = temp;
                             }
                         } catch (Exception ex) {
                         }
@@ -8351,7 +9399,7 @@ public class MainWindow extends JFrame implements Constants {
                             int temp = Integer.parseInt(tokenizer.nextToken());
 
                             if (temp >=0) {
-                                ThreadDraw.SERIES_APPROXIMATION_MAX_SKIP_ITER = temp;
+                                TaskDraw.SERIES_APPROXIMATION_MAX_SKIP_ITER = temp;
                             }
                         } catch (Exception ex) {
                         }
@@ -8428,7 +9476,18 @@ public class MainWindow extends JFrame implements Constants {
                         } else if (token.equals("true") && !options_menu.getStatusbar().isSelected()) {
                             options_menu.getStatusbar().doClick();
                         }
-                    } else if (token.equals("orbit_style") && tokenizer.countTokens() == 1) {
+                    }
+                    else if (token.equals("window_debugbar") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if (token.equals("false") && options_menu.getDebugbar().isSelected()) {
+                            options_menu.getDebugbar().doClick();
+                        } else if (token.equals("true") && !options_menu.getDebugbar().isSelected()) {
+                            options_menu.getDebugbar().doClick();
+                        }
+                    }
+                    else if (token.equals("orbit_style") && tokenizer.countTokens() == 1) {
 
                         token = tokenizer.nextToken();
 
@@ -8445,6 +9504,12 @@ public class MainWindow extends JFrame implements Constants {
                             options_menu.getShowOrbitConvergingPoint().doClick();
                         } else if (token.equals("true") && !options_menu.getShowOrbitConvergingPoint().isSelected()) {
                             options_menu.getShowOrbitConvergingPoint().doClick();
+                        }
+
+                        if (token.equals("false")) {
+                            show_orbit_converging_point = false;
+                        } else {
+                            show_orbit_converging_point = true;
                         }
                     } else if (token.equals("orbit_color") && tokenizer.countTokens() == 3) {
                         try {
@@ -8515,7 +9580,22 @@ public class MainWindow extends JFrame implements Constants {
                             }
                         } catch (Exception ex) {
                         }
-                    } else if (token.equals("zoom_window_style") && tokenizer.countTokens() == 1) {
+                    }
+                    else if (token.equals("pastel_color") && tokenizer.countTokens() == 3) {
+                        try {
+                            int red = Integer.parseInt(tokenizer.nextToken());
+                            int green = Integer.parseInt(tokenizer.nextToken());
+                            int blue = Integer.parseInt(tokenizer.nextToken());
+
+                            if (red >= 0 && red <= 255 && green >= 0 && green <= 255 && blue >= 0 && blue <= 255) {
+                                ColorSpaceConverter.PASTEL_RED = red;
+                                ColorSpaceConverter.PASTEL_GREEN = green;
+                                ColorSpaceConverter.PASTEL_BLUE = blue;
+                            }
+                        } catch (Exception ex) {
+                        }
+                    }
+                    else if (token.equals("zoom_window_style") && tokenizer.countTokens() == 1) {
 
                         token = tokenizer.nextToken();
 
@@ -8544,6 +9624,12 @@ public class MainWindow extends JFrame implements Constants {
                         } else if (token.equals("true") && !options_menu.getFastJuliaFiltersOptions().isSelected()) {
                             options_menu.getFastJuliaFiltersOptions().doClick();
                         }
+
+                        if (token.equals("false")) {
+                            FAST_JULIA_FILTERS = false;
+                        } else {
+                            FAST_JULIA_FILTERS = true;
+                        }
                     } else if (token.equals("zoom_factor") && tokenizer.countTokens() == 1) {
                         try {
                             double temp = Double.parseDouble(tokenizer.nextToken());
@@ -8567,8 +9653,8 @@ public class MainWindow extends JFrame implements Constants {
                         try {
                             int temp = Integer.parseInt(tokenizer.nextToken());
 
-                            if (temp >= 0 && temp <= 10) {
-                                CustomPaletteEditorFrame.setRandomPaletteAlgorithm(temp);
+                            if (temp >= 0 && temp <= 14) {
+                                CustomPaletteEditorFrame.random_palette_algorithm = temp;
                             }
                         } catch (Exception ex) {
                         }
@@ -8577,11 +9663,22 @@ public class MainWindow extends JFrame implements Constants {
                         token = tokenizer.nextToken();
 
                         if (token.equals("true")) {
-                            CustomPaletteEditorFrame.setEqualHues(true);
+                            CustomPaletteEditorFrame.equal_hues = true;
                         } else if (token.equals("false")) {
-                            CustomPaletteEditorFrame.setEqualHues(false);
+                            CustomPaletteEditorFrame.equal_hues = false;
                         }
-                    } else if (token.equals("cycle_colors") && tokenizer.countTokens() == 1) {
+                    }
+                    else if (token.equals("pastel") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if (token.equals("true")) {
+                            CustomPaletteEditorFrame.pastel = true;
+                        } else if (token.equals("false")) {
+                            CustomPaletteEditorFrame.pastel = false;
+                        }
+                    }
+                    else if (token.equals("cycle_colors") && tokenizer.countTokens() == 1) {
 
                         token = tokenizer.nextToken();
 
@@ -8626,7 +9723,7 @@ public class MainWindow extends JFrame implements Constants {
                             int temp = Integer.parseInt(tokenizer.nextToken());
 
                             if (temp >= Constants.MIN_QUICK_DRAW_TILES && temp <= Constants.MAX_QUICK_DRAW_TILES) {
-                                ThreadDraw.TILE_SIZE = temp;
+                                TaskDraw.TILE_SIZE = temp;
                             }
                         } catch (Exception ex) {
                         }
@@ -8656,14 +9753,17 @@ public class MainWindow extends JFrame implements Constants {
 
         }
 
+        TaskDraw.thread_calculation_executor.shutdown();
+        TaskDraw.thread_calculation_executor = (ThreadPoolExecutor)Executors.newFixedThreadPool(getNumberOfThreads());
+
         MyApfloat.setPrecision(MyApfloat.precision, s);
 
         Location.setJitter(2);
 
         ColorSpaceConverter.init();
 
-        if(ThreadDraw.PERTURBATION_THEORY || ThreadDraw.HIGH_PRECISION_CALCULATION) {
-            periodicity_checking = false;
+        if(TaskDraw.PERTURBATION_THEORY || TaskDraw.HIGH_PRECISION_CALCULATION) {
+            PERIODICITY_CHECKING = false;
             options_menu.getPeriodicityChecking().setSelected(false);
             options_menu.getPeriodicityChecking().setEnabled(false);
         }
@@ -8698,10 +9798,10 @@ public class MainWindow extends JFrame implements Constants {
                         token = tokenizer.nextToken();
 
                         if(token.equals("false")) {
-                            ThreadDraw.LOAD_MPIR = false;
+                            TaskDraw.LOAD_MPIR = false;
                         }
                         else if(token.equals("true")) {
-                            ThreadDraw.LOAD_MPIR = true;
+                            TaskDraw.LOAD_MPIR = true;
                         }
                     }
                     else if(token.equals("load_mpfr") && tokenizer.countTokens() == 1) {
@@ -8709,10 +9809,10 @@ public class MainWindow extends JFrame implements Constants {
                         token = tokenizer.nextToken();
 
                         if(token.equals("false")) {
-                            ThreadDraw.LOAD_MPFR = false;
+                            TaskDraw.LOAD_MPFR = false;
                         }
                         else if(token.equals("true")) {
-                            ThreadDraw.LOAD_MPFR = true;
+                            TaskDraw.LOAD_MPFR = true;
                         }
                     }
                     else if(token.equals("load_drawing_algorithm_from_saves") && tokenizer.countTokens() == 1) {
@@ -8720,18 +9820,28 @@ public class MainWindow extends JFrame implements Constants {
                         token = tokenizer.nextToken();
 
                         if(token.equals("false")) {
-                            ThreadDraw.LOAD_DRAWING_ALGORITHM_FROM_SAVES = false;
+                            TaskDraw.LOAD_DRAWING_ALGORITHM_FROM_SAVES = false;
                         }
                         else if(token.equals("true")) {
-                            ThreadDraw.LOAD_DRAWING_ALGORITHM_FROM_SAVES = true;
+                            TaskDraw.LOAD_DRAWING_ALGORITHM_FROM_SAVES = true;
                         }
                     }
                     else if(token.equals("mpir_lib") && tokenizer.countTokens() == 1) {
 
                         token = tokenizer.nextToken();
 
-                        if(Arrays.asList(ThreadDraw.mpirWinLibs).contains(token)) {
-                            ThreadDraw.MPIR_LIB = token;
+                        if(Arrays.asList(TaskDraw.mpirWinLibs).contains(token)) {
+                            TaskDraw.MPIR_LIB = token;
+                        }
+                    }
+                    else if (token.equals("thread_grouping") && tokenizer.countTokens() == 1) {
+                        try {
+                            int temp = Integer.parseInt(tokenizer.nextToken());
+
+                            if (temp >= 0 && temp <= 5) {
+                                thread_grouping = temp;
+                            }
+                        } catch (Exception ex) {
                         }
                     }
                     else {
@@ -8748,7 +9858,7 @@ public class MainWindow extends JFrame implements Constants {
         }
     }
 
-    public void filtersOptionsChanged(int[] filters_options_vals, int[][] filters_options_extra_vals, Color[] filters_colors, Color[][] filters_extra_colors, int[] filters_order, boolean[] activeFilters) {
+    public void filtersOptionsChanged(int[] filters_options_vals, int[][] filters_options_extra_vals, Color[] filters_colors, Color[][] filters_extra_colors, int[] filters_order, boolean[] activeFilters, boolean samplesChanged, boolean jitterChanged) {
 
         boolean oldAAValue = s.fs.filters[ANTIALIASING];
 
@@ -8772,43 +9882,49 @@ public class MainWindow extends JFrame implements Constants {
         }
 
         if(s.d3s.d3) {
-            ThreadDraw.setExtraDataArrays(s.needsExtraData(), s.d3s.detail);
+            TaskDraw.setExtraDataArrays(s.needsExtraData(), s.d3s.detail);
         }
         else {
-            ThreadDraw.setExtraDataArrays(s.needsExtraData(), image_size);
+            TaskDraw.setExtraDataArrays(s.needsExtraData(), image_size);
         }
 
         setOptions(false);
 
         progress.setValue(0);
 
-        resetImageAndCopy(s.d3s.d3, false);
-
         whole_image_done = false;
 
-        if ((oldAAValue && ThreadDraw.GREEDY_ALGORITHM && ThreadDraw.GREEDY_ALGORITHM_SELECTION == DIVIDE_AND_CONQUER) || s.fs.filters[ANTIALIASING] || s.ds.domain_coloring || s.ots.useTraps || s.fns.tcs.trueColorOut || s.fns.tcs.trueColorIn || (s.sts.statistic && s.sts.statisticGroup == 2 && s.sts.equicontinuityOverrideColoring)
-                || (s.sts.statistic && (s.sts.statisticGroup == 3 || s.sts.normalMapCombineWithOtherStatistics)) || (s.sts.statistic && s.sts.statisticGroup == 4)) {
+        resetImageAndCopy(s.d3s.d3, false);
 
-            if(s.julia_map) {
-                createThreadsJuliaMap();
-            } else {
-                createThreads(false, false, false, false);
+        if ((oldAAValue && TaskDraw.GREEDY_ALGORITHM && TaskDraw.GREEDY_ALGORITHM_SELECTION == DIVIDE_AND_CONQUER) || s.fs.filters[ANTIALIASING] || s.ds.domain_coloring || s.pps.ots.useTraps || s.fns.tcs.trueColorOut || s.fns.tcs.trueColorIn || (s.pps.sts.statistic && s.pps.sts.statisticGroup == 2 && s.pps.sts.equicontinuityOverrideColoring)
+                || (s.pps.sts.statistic && (s.pps.sts.statisticGroup == 3 || s.pps.sts.normalMapCombineWithOtherStatistics)) || (s.pps.sts.statistic && s.pps.sts.statisticGroup == 4)) {
+
+            if(!TaskDraw.hasExtraData(image_size) || s.d3s.d3 || samplesChanged || jitterChanged) {
+                if(s.julia_map) {
+                    createTasksJuliaMap();
+                }
+                else {
+                    createTasks(false, false, false, false);
+                }
+            }
+            else {
+                createTasksPalettePostProcessAndFilterWithAAData(TaskDraw.POST_PROCESSING_WITH_AA_AND_FILTER);
             }
 
             calculation_time = System.currentTimeMillis();
 
-            startThreads();
+            startTasks();
         } else {
 
             if (s.d3s.d3) {
-                createThreadsPaletteAndFilter3DModel();
+                createTasksPaletteAndFilter3DModel();
             } else {
-                createThreadsPaletteAndFilter();
+                createTasksPaletteAndFilter();
             }
 
             calculation_time = System.currentTimeMillis();
 
-            startThreads();
+            startTasks();
         }
 
     }
@@ -8992,7 +10108,7 @@ public class MainWindow extends JFrame implements Constants {
             operations,
             new JLabel("+ - * / % ^ ( ) ,"),
             constants,
-            new JLabel("pi, e, phi, c10, alpha, delta"),
+            new JLabel("pi, e, phi, c10, alpha, delta, maxnde"),
             complex_numbers,
             new JLabel("a + bi"),
             trig,
@@ -9065,26 +10181,26 @@ public class MainWindow extends JFrame implements Constants {
         }
     }
 
-    public void cancelOperation() {
+    /*public void cancelOperation() {
 
         resetOrbit();
 
         synchronized (this) {
-            for (int i = 0; i < threads.length; i++) {
-                for (int j = 0; j < threads[i].length; j++) {
-                    threads[i][j].stop();
-                }
+            for(Future<?> future : futures) {
+                future.cancel(true);
             }
         }
 
-        while (!threadsAvailable()) {}
+        while (!tasksCompleted()) {}
 
+        TaskDraw.thread_calculation_executor.shutdownNow();
+        TaskDraw.thread_calculation_executor = (ThreadPoolExecutor)Executors.newFixedThreadPool(getNumberOfThreads());
 
         if(s.d3s.d3) {
-            progress.setMaximum((s.d3s.detail * s.d3s.detail) + (s.d3s.detail * s.d3s.detail / 100));
+            progress.setMaximum(s.d3s.detail * s.d3s.detail + 1);
         }
         else {
-            progress.setMaximum((image_size * image_size) + ((image_size * image_size) / 100));
+            progress.setMaximum(image_size * image_size + 1);
         }
 
         progress.setForeground(MainWindow.progress_color);
@@ -9094,7 +10210,7 @@ public class MainWindow extends JFrame implements Constants {
         s.max_iterations = s.max_iterations > 500 ? 500 : s.max_iterations;
         defaultFractalSettings(false);
 
-    }
+    }*/
 
     public void createCompleteImage(int delay, boolean d3, boolean preview, boolean zoomToCursor) {
         if (timer == null) {
@@ -9106,7 +10222,7 @@ public class MainWindow extends JFrame implements Constants {
 
     public void taskCompleteImage(boolean d3, boolean preview, boolean zoomToCursor) {
 
-        if (!threadsAvailable()) {
+        if (!tasksCompleted()) {
             timer.cancel();
             timer = null;
 
@@ -9120,24 +10236,25 @@ public class MainWindow extends JFrame implements Constants {
         setOptions(false);
 
         progress.setValue(0);
-        resetImageAndCopy(d3, !s.fs.filters[ANTIALIASING]);
 
         whole_image_done = false;
+
+        resetImageAndCopy(d3, !s.fs.filters[ANTIALIASING]);
 
         if(preview) {
             main_panel.repaint();
         }
 
         if(d3) {
-            createThreadsPaletteAndFilter3DModel();
+            createTasksPaletteAndFilter3DModel();
         }
         else {
-            createThreads(false, true, zoomToCursor, true);
+            createTasks(false, false, zoomToCursor, true);
         }
 
         calculation_time = System.currentTimeMillis();
 
-        startThreads();
+        startTasks();
     }
 
     public void setQuickDrawTiles() {
@@ -9149,23 +10266,23 @@ public class MainWindow extends JFrame implements Constants {
 
     public void boundaryTracingOptionsChanged(boolean greedy_algorithm, int algorithm, int brute_force_alg) {
 
-        ThreadDraw.GREEDY_ALGORITHM = greedy_algorithm;
-        ThreadDraw.GREEDY_ALGORITHM_SELECTION = algorithm;
-        ThreadDraw.BRUTE_FORCE_ALG = brute_force_alg;
+        TaskDraw.GREEDY_ALGORITHM = greedy_algorithm;
+        TaskDraw.GREEDY_ALGORITHM_SELECTION = algorithm;
+        TaskDraw.BRUTE_FORCE_ALG = brute_force_alg;
 
         setOptions(false);
 
         progress.setValue(0);
 
-        resetImageAndCopy(s.d3s.d3, false);
-
         whole_image_done = false;
 
-        createThreads(false, false, false, false);
+        resetImageAndCopy(s.d3s.d3, false);
+
+        createTasks(false, false, false, false);
 
         calculation_time = System.currentTimeMillis();
 
-        startThreads();
+        startTasks();
 
     }
 
@@ -9175,23 +10292,23 @@ public class MainWindow extends JFrame implements Constants {
 
         progress.setValue(0);
 
+        whole_image_done = false;
+
         resetImage();
 
         if (s.d3s.d3) {
             ArraysFillColor(image, Color.BLACK.getRGB());
         }
 
-        whole_image_done = false;
-
         if(s.julia_map) {
-            createThreadsJuliaMap();
+            createTasksJuliaMap();
         } else {
-            createThreads(false, false, false, false);
+            createTasks(false, true, false, false);
         }
 
         calculation_time = System.currentTimeMillis();
 
-        startThreads();
+        startTasks();
 
     }
 
@@ -9247,7 +10364,7 @@ public class MainWindow extends JFrame implements Constants {
     public void setGreedyAlgorithms() {
 
         resetOrbit();
-        new GreedyAlgorithmsFrame(ptr, ThreadDraw.GREEDY_ALGORITHM, ThreadDraw.GREEDY_ALGORITHM_SELECTION, ThreadDraw.BRUTE_FORCE_ALG);
+        new DrawingAlgorithmsFrame(ptr, TaskDraw.GREEDY_ALGORITHM, TaskDraw.GREEDY_ALGORITHM_SELECTION, TaskDraw.BRUTE_FORCE_ALG, TaskDraw.GUESS_BLOCKS_SELECTION);
 
     }
 
@@ -9269,15 +10386,15 @@ public class MainWindow extends JFrame implements Constants {
     }
 
     public void setHighPrecisionPost() {
-        if(ThreadDraw.HIGH_PRECISION_CALCULATION) {
-            periodicity_checking = false;
+        if(TaskDraw.HIGH_PRECISION_CALCULATION) {
+            PERIODICITY_CHECKING = false;
             options_menu.getPeriodicityChecking().setSelected(false);
             options_menu.getPeriodicityChecking().setEnabled(false);
         }
         else {
             if (s.fns.in_coloring_algorithm == MAX_ITERATIONS) {
-                if (!s.ds.domain_coloring && !s.isConvergingType() && s.fns.function != KLEINIAN && s.fns.function != SIERPINSKI_GASKET && s.fns.function != INERTIA_GRAVITY && !s.ots.useTraps && !s.fns.tcs.trueColorIn && !(s.sts.statistic && s.sts.statisticGroup == 2 && s.sts.equicontinuityOverrideColoring)
-                        && !(s.sts.statistic && (s.sts.statisticGroup == 3 || s.sts.normalMapCombineWithOtherStatistics)) && !(s.sts.statistic && s.sts.statisticGroup == 4) && !ThreadDraw.PERTURBATION_THEORY && !ThreadDraw.HIGH_PRECISION_CALCULATION) {
+                if (!s.ds.domain_coloring && !s.isConvergingType() && s.fns.function != KLEINIAN && s.fns.function != SIERPINSKI_GASKET && s.fns.function != INERTIA_GRAVITY && !s.pps.ots.useTraps && !s.fns.tcs.trueColorIn && !(s.pps.sts.statistic && s.pps.sts.statisticGroup == 2 && s.pps.sts.equicontinuityOverrideColoring)
+                        && !(s.pps.sts.statistic && (s.pps.sts.statisticGroup == 3 || s.pps.sts.normalMapCombineWithOtherStatistics)) && !(s.pps.sts.statistic && s.pps.sts.statisticGroup == 4) && !TaskDraw.PERTURBATION_THEORY && !TaskDraw.HIGH_PRECISION_CALCULATION) {
                     options_menu.getPeriodicityChecking().setEnabled(true);
                 }
             }
@@ -9287,15 +10404,15 @@ public class MainWindow extends JFrame implements Constants {
 
     public void setPerturbationTheoryPost() {
 
-        if(ThreadDraw.PERTURBATION_THEORY) {
-            periodicity_checking = false;
+        if(TaskDraw.PERTURBATION_THEORY) {
+            PERIODICITY_CHECKING = false;
             options_menu.getPeriodicityChecking().setSelected(false);
             options_menu.getPeriodicityChecking().setEnabled(false);
         }
         else {
             if (s.fns.in_coloring_algorithm == MAX_ITERATIONS) {
-                if (!s.ds.domain_coloring && !s.isConvergingType() && s.fns.function != KLEINIAN && s.fns.function != SIERPINSKI_GASKET && s.fns.function != INERTIA_GRAVITY && !s.ots.useTraps && !s.fns.tcs.trueColorIn && !(s.sts.statistic && s.sts.statisticGroup == 2 && s.sts.equicontinuityOverrideColoring)
-                        && !(s.sts.statistic && (s.sts.statisticGroup == 3 || s.sts.normalMapCombineWithOtherStatistics)) && !(s.sts.statistic && s.sts.statisticGroup == 4) && !ThreadDraw.PERTURBATION_THEORY && !ThreadDraw.HIGH_PRECISION_CALCULATION) {
+                if (!s.ds.domain_coloring && !s.isConvergingType() && s.fns.function != KLEINIAN && s.fns.function != SIERPINSKI_GASKET && s.fns.function != INERTIA_GRAVITY && !s.pps.ots.useTraps && !s.fns.tcs.trueColorIn && !(s.pps.sts.statistic && s.pps.sts.statisticGroup == 2 && s.pps.sts.equicontinuityOverrideColoring)
+                        && !(s.pps.sts.statistic && (s.pps.sts.statisticGroup == 3 || s.pps.sts.normalMapCombineWithOtherStatistics)) && !(s.pps.sts.statistic && s.pps.sts.statisticGroup == 4) && !TaskDraw.PERTURBATION_THEORY && !TaskDraw.HIGH_PRECISION_CALCULATION) {
                     options_menu.getPeriodicityChecking().setEnabled(true);
                 }
             }
@@ -9332,11 +10449,11 @@ public class MainWindow extends JFrame implements Constants {
         image = last_used;
         last_used = temp;
 
-        if(afterQuickDraw && ThreadDraw.GREEDY_ALGORITHM && ThreadDraw.GREEDY_ALGORITHM_SELECTION == BOUNDARY_TRACING) {
+        if(afterQuickDraw && TaskDraw.GREEDY_ALGORITHM && TaskDraw.GREEDY_ALGORITHM_SELECTION == BOUNDARY_TRACING) {
             BoundaryTracingDraw.examined = new boolean[image_size * image_size];
         }
 
-        if(!d3 && (!ThreadDraw.GREEDY_ALGORITHM || (ThreadDraw.GREEDY_ALGORITHM_SELECTION == DIVIDE_AND_CONQUER || ThreadDraw.GREEDY_ALGORITHM_SELECTION == BOUNDARY_TRACING))) {
+        if(!d3 && (!TaskDraw.GREEDY_ALGORITHM || (TaskDraw.GREEDY_ALGORITHM_SELECTION == DIVIDE_AND_CONQUER || TaskDraw.GREEDY_ALGORITHM_SELECTION == BOUNDARY_TRACING || TaskDraw.GREEDY_ALGORITHM_SELECTION == SUCCESSIVE_REFINEMENT || TaskDraw.GREEDY_ALGORITHM_SELECTION == CIRCULAR_SUCCESSIVE_REFINEMENT))) {
             int[] dataDest = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
             int[] dataSrc = ((DataBufferInt) last_used.getRaster().getDataBuffer()).getData();
             int total = dataDest.length;
@@ -9378,11 +10495,14 @@ public class MainWindow extends JFrame implements Constants {
     }
 
     private void resetOrbit() {
-        if (orbit && pixels_orbit != null) {
+        if (orbit && pixels_orbit != null && orbit_future != null) {
             try {
-                pixels_orbit.join();
+                orbit_future.get();
 
             } catch (InterruptedException ex) {
+
+            }
+            catch (ExecutionException ex) {
 
             }
 
@@ -9395,13 +10515,13 @@ public class MainWindow extends JFrame implements Constants {
     private void clearThreads() {
 
         synchronized (this) {
-            if (threads == null) {
+            if (tasks == null) {
                 return;
             }
 
-            for (int i = 0; i < threads.length; i++) {
-                for (int j = 0; j < threads[i].length; j++) {
-                    threads[i][j] = null;
+            for (int i = 0; i < tasks.length; i++) {
+                for (int j = 0; j < tasks[i].length; j++) {
+                    tasks[i][j] = null;
                 }
             }
         }
@@ -9414,7 +10534,7 @@ public class MainWindow extends JFrame implements Constants {
 
         s.color_blending.color_blending = val;
 
-        updateColors();
+        updateColors(false);
     }
 
     public void setColorBlendingRevertColors(boolean val) {
@@ -9422,7 +10542,7 @@ public class MainWindow extends JFrame implements Constants {
 
         s.color_blending.blending_reversed_colors = val;
 
-        updateColors();
+        updateColors(false);
     }
 
     public void setColorTransfer(int val, boolean outcoloring) {
@@ -9434,7 +10554,7 @@ public class MainWindow extends JFrame implements Constants {
             s.ps2.transfer_function = val;
         }
 
-        updateColors();
+        updateColors(false);
 
     }
 
@@ -9458,6 +10578,13 @@ public class MainWindow extends JFrame implements Constants {
 
     }
 
+    public void setHueGeneratedPaletteParams() {
+
+        resetOrbit();
+        new HueGeneratedPalettes(ptr, s);
+
+    }
+
     public void gradientChanged(Color colorA, Color colorB, int interpolation, int color_space, boolean reverse, int gradient_offset) {
 
         resetOrbit();
@@ -9469,17 +10596,17 @@ public class MainWindow extends JFrame implements Constants {
         s.gs.gradient_reversed = reverse;
         s.gs.gradient_offset = gradient_offset;
 
-        ThreadDraw.gradient = CustomPalette.createGradient(colorA.getRGB(), colorB.getRGB(), Constants.GRADIENT_LENGTH, interpolation, color_space, reverse, 0);
+        TaskDraw.gradient = CustomPalette.createGradient(colorA.getRGB(), colorB.getRGB(), Constants.GRADIENT_LENGTH, interpolation, color_space, reverse, 0);
 
         updateGradientPreview(s.gs.gradient_offset);
 
-        updateColors();
+        updateColors(false);
     }
 
     public void setOrbitTraps() {
 
         resetOrbit();
-        new OrbitTrapsFrame(ptr, s.ots, s);
+        new OrbitTrapsFrame(ptr, s.pps.ots, s);
 
     }
 
@@ -9495,23 +10622,23 @@ public class MainWindow extends JFrame implements Constants {
 
         progress.setValue(0);
 
-        resetImage();
-
         whole_image_done = false;
+
+        resetImage();
 
         if (s.d3s.d3) {
             ArraysFillColor(image, Color.BLACK.getRGB());
         }
 
         if(s.julia_map) {
-            createThreadsJuliaMap();
+            createTasksJuliaMap();
         } else {
-            createThreads(false, false, false, false);
+            createTasks(false, true, false, false);
         }
 
         calculation_time = System.currentTimeMillis();
 
-        startThreads();
+        startTasks();
     }
 
     private void setPalettePreviewsVisible() {
@@ -9541,17 +10668,17 @@ public class MainWindow extends JFrame implements Constants {
     public void setDirectColor() {
 
         if (!options_menu.getDirectColor().isSelected()) {
-            ThreadDraw.USE_DIRECT_COLOR = s.useDirectColor = false;
+            TaskDraw.USE_DIRECT_COLOR = s.useDirectColor = false;
 
-            if(!(s.sts.statistic && s.sts.statisticGroup == 4)) {
+            if(!(s.pps.sts.statistic && s.pps.sts.statisticGroup == 4)) {
                 setPalettePreviewsVisible();
             }
 
             infobar.getGradientPreviewLabel().setVisible(true);
             infobar.getGradientPreview().setVisible(true);
         } else {
-            ThreadDraw.USE_DIRECT_COLOR = s.useDirectColor = true;
-            s.ots.useTraps = false;
+            TaskDraw.USE_DIRECT_COLOR = s.useDirectColor = true;
+            s.pps.ots.useTraps = false;
             s.fns.tcs.trueColorOut = false;
             s.fns.tcs.trueColorIn = false;
 
@@ -9585,6 +10712,7 @@ public class MainWindow extends JFrame implements Constants {
             options_menu.getColorBlending().setEnabled(false);
             options_menu.getOutTrueColoring().setEnabled(false);
             options_menu.getInTrueColoring().setEnabled(false);
+            options_menu.getColorSpaceParams().setEnabled(false);
 
             infobar.getMaxIterationsColorPreview().setVisible(false);
             infobar.getMaxIterationsColorPreviewLabel().setVisible(false);
@@ -9600,40 +10728,40 @@ public class MainWindow extends JFrame implements Constants {
 
         progress.setValue(0);
 
-        resetImage();
-
         whole_image_done = false;
+
+        resetImage();
 
         if (s.d3s.d3) {
             ArraysFillColor(image, Color.BLACK.getRGB());
         }
 
         if(s.julia_map) {
-            createThreadsJuliaMap();
+            createTasksJuliaMap();
         } else {
-            createThreads(false, false, false, false);
+            createTasks(false, true, false, false);
         }
 
         calculation_time = System.currentTimeMillis();
 
-        startThreads();
+        startTasks();
 
     }
 
     public void setContourColoring() {
 
         resetOrbit();
-        new ContourColoringDialog(ptr, s, ThreadDraw.GREEDY_ALGORITHM, s.julia_map);
+        new ContourColoringDialog(ptr, s, TaskDraw.GREEDY_ALGORITHM, s.julia_map);
 
     }
 
-    public void defaultSettings() {
+    public void resetSettings() {
         try {
             resetOrbit();
 
             s.defaultValues();
             s.applyStaticSettings();
-            Fractal.clearReferences(true);
+            Fractal.clearReferences(true, true);
 
             if(MyApfloat.setAutomaticPrecision) {
                 long precision = MyApfloat.getAutomaticPrecision(new String[]{s.size.toString(true)}, new boolean[] {true});
@@ -9644,8 +10772,8 @@ public class MainWindow extends JFrame implements Constants {
             }
 
             if (!s.d3s.d3) {
-                ThreadDraw.setArrays(image_size, s.ds.domain_coloring, s.needsExtraData());
-                progress.setMaximum((image_size * image_size) + ((image_size * image_size) / 100));
+                TaskDraw.setArrays(image_size, s.ds.domain_coloring, s.needsExtraData());
+                progress.setMaximum(image_size * image_size + 1);
                 toolbar.get3DButton().setSelected(false);
                 tools_menu.get3D().setIcon(getIcon("3d.png"));
             }
@@ -9654,11 +10782,13 @@ public class MainWindow extends JFrame implements Constants {
                 prepareUI();
             }
 
-            ThreadDraw.setDomainImageData(image_size, s.ds.domain_coloring);
+            TaskDraw.setDomainImageData(image_size, s.ds.domain_coloring);
 
             setOptions(false);
 
             progress.setValue(0);
+
+            whole_image_done = false;
 
             resetImage();
 
@@ -9671,17 +10801,15 @@ public class MainWindow extends JFrame implements Constants {
                 ArraysFillColor(image, Color.BLACK.getRGB());
             }
 
-            whole_image_done = false;
-
             if(s.julia_map) {
-                createThreadsJuliaMap();
+                createTasksJuliaMap();
             } else {
-                createThreads(false, false, false, false);
+                createTasks(false, true, false, false);
             }
 
             calculation_time = System.currentTimeMillis();
 
-            startThreads();
+            startTasks();
         } catch (OutOfMemoryError e) {
             JOptionPane.showMessageDialog(scroll_pane, "Maximum Heap size was reached.\nThe application will terminate.", "Error!", JOptionPane.ERROR_MESSAGE);
             exit(-1);
@@ -9691,13 +10819,13 @@ public class MainWindow extends JFrame implements Constants {
     public void setProcessingOrder() {
 
         resetOrbit();
-        new ProcessingOrderingFrame(ptr, s.post_processing_order, s.fdes.fake_de, s.ens.entropy_coloring, s.ofs.offset_coloring, s.rps.rainbow_palette, s.gss.greyscale_coloring, s.cns.contour_coloring, s.bms.bump_map, s.ls.lighting);
+        new ProcessingOrderingFrame(ptr, s.post_processing_order, s.pps.fdes.fake_de, s.pps.ens.entropy_coloring, s.pps.ofs.offset_coloring, s.pps.rps.rainbow_palette, s.pps.gss.greyscale_coloring, s.pps.cns.contour_coloring, s.pps.bms.bump_map, s.pps.ls.lighting, s.pps.ss.slopes, s.pps.ndes.useNumericalDem, s.pps.hss.histogramColoring);
 
     }
 
     public void setProcessingOrder(int[] processing_order) {
         s.post_processing_order = processing_order;
-        updateColors();
+        updateColorsAfterPostProcessing(true);
     }
 
     public static void ArraysFillColor(BufferedImage img, int color) {
@@ -9712,19 +10840,19 @@ public class MainWindow extends JFrame implements Constants {
 
         progress.setValue(0);
 
-        resetImageAndCopy(s.d3s.d3, false);
-
         whole_image_done = false;
 
+        resetImageAndCopy(s.d3s.d3, false);
+
         if(s.julia_map) {
-            createThreadsJuliaMap();
+            createTasksJuliaMap();
         } else {
-            createThreads(false, false, false, false);
+            createTasks(false, true, false, false);
         }
 
         calculation_time = System.currentTimeMillis();
 
-        startThreads();
+        startTasks();
 
     }
 
@@ -9732,35 +10860,48 @@ public class MainWindow extends JFrame implements Constants {
 
         resetOrbit();
 
-        new LightDialog(ptr, s, ThreadDraw.GREEDY_ALGORITHM, s.julia_map);
+        new LightDialog(ptr, s, TaskDraw.GREEDY_ALGORITHM, s.julia_map);
+
+    }
+
+    public void setNumericalDistanceEstimator() {
+        resetOrbit();
+
+        new NumericalDistanceEstimatorDialog(ptr, s, TaskDraw.GREEDY_ALGORITHM, s.julia_map);
+    }
+    public void setSlopes() {
+
+        resetOrbit();
+
+        new SlopesDialog(ptr, s, TaskDraw.GREEDY_ALGORITHM, s.julia_map);
 
     }
 
     public void setPostProcessingPost() {
         if(s.d3s.d3) {
-            ThreadDraw.setExtraDataArrays(s.needsExtraData(), s.d3s.detail);
+            TaskDraw.setExtraDataArrays(s.needsExtraData(), s.d3s.detail);
         }
         else {
-            ThreadDraw.setExtraDataArrays(s.needsExtraData(), image_size);
+            TaskDraw.setExtraDataArrays(s.needsExtraData(), image_size);
         }
         options_menu.getProcessing().updateIcons(s);
-        updateColors();
+        updateColorsAfterPostProcessing(true);
     }
 
     public void setPaletteGradientMergingPost() {
         options_menu.getColorsMenu().updateIcons(s);
-        updateColors();
+        updateColors(false);
     }
 
     public void setGeneratedPalettePost() {
 
-        ThreadDraw.palette_outcoloring.setGeneratedPaletteSettings(true, s.gps);
-        ThreadDraw.palette_incoloring.setGeneratedPaletteSettings(false, s.gps);
+        TaskDraw.palette_outcoloring.setGeneratedPaletteSettings(true, s.gps);
+        TaskDraw.palette_incoloring.setGeneratedPaletteSettings(false, s.gps);
 
         if(s.gps.useGeneratedPaletteOutColoring && !(s.ds.domain_coloring && s.ds.domain_coloring_mode != 1)) {
             infobar.getOutColoringPalettePreview().setVisible(false);
             infobar.getOutColoringPalettePreviewLabel().setVisible(false);
-        } else if (!s.useDirectColor && !(s.sts.statistic && s.sts.statisticGroup == 4)) {
+        } else if (!s.useDirectColor && !(s.pps.sts.statistic && s.pps.sts.statisticGroup == 4)) {
                 infobar.getOutColoringPalettePreview().setVisible(true);
                 infobar.getOutColoringPalettePreviewLabel().setVisible(true);
         }
@@ -9771,7 +10912,7 @@ public class MainWindow extends JFrame implements Constants {
             infobar.getInColoringPalettePreviewLabel().setVisible(false);
         }
         else {
-            if (!s.useDirectColor && !s.ds.domain_coloring && !(s.sts.statistic && s.sts.statisticGroup == 4) && s.usePaletteForInColoring) {
+            if (!s.useDirectColor && !s.ds.domain_coloring && !(s.pps.sts.statistic && s.pps.sts.statisticGroup == 4) && s.usePaletteForInColoring) {
                 infobar.getInColoringPalettePreview().setVisible(true);
                 infobar.getInColoringPalettePreviewLabel().setVisible(true);
             }
@@ -9780,7 +10921,7 @@ public class MainWindow extends JFrame implements Constants {
         options_menu.getColorsMenu().getOutColoringPaletteMenu().updateIcons(s);
         options_menu.getColorsMenu().getInColoringPaletteMenu().updateIcons(s);
 
-        updateColors();
+        updateColors(false);
     }
 
     public void setPaletteGradientMerging() {
@@ -9790,56 +10931,102 @@ public class MainWindow extends JFrame implements Constants {
 
     }
 
-    public void updateColors() {
+    public void updateColors(boolean skipPreview) {
 
         setOptions(false);
 
         progress.setValue(0);
 
+        whole_image_done = false;
+
         resetImageAndCopy(s.d3s.d3, false);
+
+        if (s.fs.filters[ANTIALIASING] || s.needsChangeOfSmoothing() || s.pps.ots.useTraps || s.fns.tcs.trueColorOut || s.fns.tcs.trueColorIn || (s.pps.sts.statistic && s.pps.sts.statisticGroup == 2 && s.pps.sts.equicontinuityOverrideColoring)
+                || (s.pps.sts.statistic && (s.pps.sts.statisticGroup == 3 || s.pps.sts.normalMapCombineWithOtherStatistics)) || (s.pps.sts.statistic && s.pps.sts.statisticGroup == 4)) {
+
+
+            if(!TaskDraw.hasExtraData(image_size) || s.d3s.d3 || s.ds.domain_coloring || s.needsChangeOfSmoothing() || s.pps.ots.useTraps || s.pps.sts.statistic || s.fns.tcs.trueColorOut || s.fns.tcs.trueColorIn) {
+                if(s.julia_map) {
+                    createTasksJuliaMap();
+                } else {
+                    createTasks(false, !skipPreview, false, false);
+                }
+            }
+            else {
+                createTasksPalettePostProcessAndFilterWithAAData(TaskDraw.APPLY_PALETTE_AND_POST_PROCESSING_WITH_AA_AND_FILTER);
+            }
+
+            calculation_time = System.currentTimeMillis();
+
+            startTasks();
+        } else {
+            if (s.d3s.d3) {
+                createTasks(false, true, false, false);
+            } else {
+                createTasksPaletteAndFilter();
+            }
+
+            calculation_time = System.currentTimeMillis();
+
+            startTasks();
+        }
+    }
+
+    public void updateColorsAfterPostProcessing(boolean skipPreview) {
+
+        setOptions(false);
+
+        progress.setValue(0);
 
         whole_image_done = false;
 
-        if (s.fs.filters[ANTIALIASING] || s.needSmoothing() || s.ots.useTraps || s.fns.tcs.trueColorOut || s.fns.tcs.trueColorIn || (s.sts.statistic && s.sts.statisticGroup == 2 && s.sts.equicontinuityOverrideColoring)
-                || (s.sts.statistic && (s.sts.statisticGroup == 3 || s.sts.normalMapCombineWithOtherStatistics)) || (s.sts.statistic && s.sts.statisticGroup == 4)) {
-            if(s.julia_map) {
-                createThreadsJuliaMap();
-            } else {
-                createThreads(false, false, false, false);
+        resetImageAndCopy(s.d3s.d3, false);
+
+        if (s.fs.filters[ANTIALIASING] || s.needsChangeOfSmoothing()) {
+
+            if(!TaskDraw.hasExtraData(image_size) || s.d3s.d3 || s.needsChangeOfSmoothing()) {
+                if(s.julia_map) {
+                    createTasksJuliaMap();
+                } else {
+                    createTasks(false, !skipPreview, false, false);
+                }
+            }
+            else {
+                createTasksPalettePostProcessAndFilterWithAAData(TaskDraw.POST_PROCESSING_WITH_AA_AND_FILTER);
             }
 
             calculation_time = System.currentTimeMillis();
 
-            startThreads();
+            startTasks();
         } else {
             if (s.d3s.d3) {
-                createThreads(false, false, false, false);
+                createTasks(false, true, false, false);
             } else {
-                createThreadsPaletteAndFilter();
+                createTasksPaletteAndFilter();
             }
 
             calculation_time = System.currentTimeMillis();
 
-            startThreads();
+            startTasks();
         }
     }
 
     public void openStatisticsColoringFrame() {
         resetOrbit();
-        new StatisticsColoringFrame(ptr, s.sts, s, periodicity_checking);
+        new StatisticsColoringFrame(ptr, s.pps.sts, s, PERIODICITY_CHECKING);
     }
 
     public void setHistogramColoring() {
         resetOrbit();
-        new HistogramColoringDialog(ptr, s, ThreadDraw.GREEDY_ALGORITHM, s.julia_map);
+        new HistogramColoringDialog(ptr, s, TaskDraw.GREEDY_ALGORITHM, s.julia_map);
     }
 
     public void statisticsColorAlgorithmChanged(StatisticsSettings sts) {
-        s.sts = new StatisticsSettings(sts);
+        s.pps.sts = new StatisticsSettings(sts);
 
         options_menu.getProcessing().updateIcons(s);
 
-        if((sts.statistic && sts.statisticGroup == 2 && sts.equicontinuityOverrideColoring) || (s.sts.statistic && (s.sts.statisticGroup == 3 || s.sts.normalMapCombineWithOtherStatistics)) || (s.sts.statistic && s.sts.statisticGroup == 4)) {
+        if((sts.statistic && sts.statisticGroup == 2 && sts.equicontinuityOverrideColoring) || (s.pps.sts.statistic && (s.pps.sts.statisticGroup == 3 || s.pps.sts.normalMapCombineWithOtherStatistics)) || (s.pps.sts.statistic && s.pps.sts.statisticGroup == 4)) {
             tools_menu.getColorCycling().setEnabled(false);
             toolbar.getColorCyclingButton().setEnabled(false);
             options_menu.getPeriodicityChecking().setEnabled(false);
@@ -9855,7 +11042,7 @@ public class MainWindow extends JFrame implements Constants {
 
             options_menu.getHistogramColoring().setEnabled(false);
 
-            s.hss.histogramColoring = false;
+            s.pps.hss.histogramColoring = false;
             options_menu.getProcessing().updateIcons(s);
         }
         else {
@@ -9870,23 +11057,23 @@ public class MainWindow extends JFrame implements Constants {
 
         progress.setValue(0);
 
-        resetImage();
-
         whole_image_done = false;
+
+        resetImage();
 
         if (s.d3s.d3) {
             ArraysFillColor(image, Color.BLACK.getRGB());
         }
 
         if(s.julia_map) {
-            createThreadsJuliaMap();
+            createTasksJuliaMap();
         } else {
-            createThreads(false, false, false, false);
+            createTasks(false, true, false, false);
         }
 
         calculation_time = System.currentTimeMillis();
 
-        startThreads();
+        startTasks();
 
     }
 
@@ -10044,7 +11231,7 @@ public class MainWindow extends JFrame implements Constants {
     public void exit(int val) {
 
         savePreferences();
-        ThreadDraw.deleteLibs();
+        TaskDraw.deleteLibs();
 
         new Timer().schedule(new TimerTask() {
             public void run() {
@@ -10052,9 +11239,7 @@ public class MainWindow extends JFrame implements Constants {
             }
         }, 8000);
 
-        if(ThreadDraw.executor != null) {
-            ThreadDraw.executor.shutdown();
-        }
+        TaskDraw.shutdownThreadPools();
 
         System.exit(val);
 

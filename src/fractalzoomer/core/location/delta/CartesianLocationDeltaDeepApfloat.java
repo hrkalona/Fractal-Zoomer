@@ -1,8 +1,6 @@
 package fractalzoomer.core.location.delta;
 
-import fractalzoomer.core.BigComplex;
-import fractalzoomer.core.GenericComplex;
-import fractalzoomer.core.MantExpComplex;
+import fractalzoomer.core.*;
 import fractalzoomer.functions.Fractal;
 import fractalzoomer.main.app_settings.JitterSettings;
 import org.apfloat.Apfloat;
@@ -23,25 +21,25 @@ public class CartesianLocationDeltaDeepApfloat extends CartesianLocationDeltaGen
     @Override
     public GenericComplex getComplex(int x, int y) {
         BigComplex temp = getComplexInternal(offset.getX(x), offset.getY(y));
-        return new MantExpComplex(getMantExp(temp.getRe()), getMantExp(temp.getIm()));
+        return MantExpComplex.create(getMantExp(temp.getRe()), getMantExp(temp.getIm()));
     }
 
     @Override
     public GenericComplex getComplexWithX(int x) {
         BigComplex temp = getComplexWithXInternal(offset.getX(x));
-        return new MantExpComplex(getMantExp(temp.getRe()), getMantExp(temp.getIm()));
+        return MantExpComplex.create(getMantExp(temp.getRe()), getMantExp(temp.getIm()));
     }
 
     @Override
     public GenericComplex getComplexWithY(int y) {
         BigComplex temp = getComplexWithYInternal(offset.getY(y));
-        return new MantExpComplex(getMantExp(temp.getRe()), getMantExp(temp.getIm()));
+        return MantExpComplex.create(getMantExp(temp.getRe()), getMantExp(temp.getIm()));
     }
 
     @Override
     public GenericComplex getAntialiasingComplex(int sample, int loc) {
         BigComplex temp = getAntialiasingComplexInternal(sample, loc);
-        return new MantExpComplex(getMantExp(temp.getRe()), getMantExp(temp.getIm()));
+        return MantExpComplex.create(getMantExp(temp.getRe()), getMantExp(temp.getIm()));
     }
 
 }

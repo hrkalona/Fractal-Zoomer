@@ -285,9 +285,9 @@ public class PolarLocationNormalDouble extends Location {
     }
 
     @Override
-    public void createAntialiasingSteps(boolean adaptive, boolean jitter) {
-        super.createAntialiasingSteps(adaptive, jitter);
-        double[][] steps = createAntialiasingPolarStepsDouble(mulx, muly, adaptive, jitter);
+    public void createAntialiasingSteps(boolean adaptive, boolean jitter, int numberOfExtraSamples) {
+        super.createAntialiasingSteps(adaptive, jitter, numberOfExtraSamples);
+        double[][] steps = createAntialiasingPolarStepsDouble(mulx, muly, adaptive, jitter, numberOfExtraSamples);
         antialiasing_x = steps[0];
         antialiasing_y_sin = steps[1];
         antialiasing_y_cos = steps[2];

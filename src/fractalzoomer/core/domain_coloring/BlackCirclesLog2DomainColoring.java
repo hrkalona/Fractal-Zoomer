@@ -49,7 +49,7 @@ public class BlackCirclesLog2DomainColoring extends DomainColoring {
         
         int color = applyArgColor(res.arg());
         
-        return applyCircles(color, res.norm());
+        return applyCircles(color, res.norm(), 0);
     }
 
 }

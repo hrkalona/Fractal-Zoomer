@@ -36,16 +36,13 @@ public class MuSquaredPlane extends Plane {
     public MuSquaredPlane() {
         
         super();
-        if(ThreadDraw.PERTURBATION_THEORY || ThreadDraw.HIGH_PRECISION_CALCULATION) {
-            if (ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE || ThreadDraw.HIGH_PRECISION_CALCULATION) {
-
-                if (ThreadDraw.allocateMPFR()) {
-                    tempRe = new MpfrBigNum();
-                    tempIm = new MpfrBigNum();
-                } else if (ThreadDraw.allocateMPIR()) {
-                    tempRep = new MpirBigNum();
-                    tempImp = new MpirBigNum();
-                }
+        if(TaskDraw.PERTURBATION_THEORY || TaskDraw.HIGH_PRECISION_CALCULATION) {
+            if (TaskDraw.allocateMPFR()) {
+                tempRe = new MpfrBigNum();
+                tempIm = new MpfrBigNum();
+            } else if (TaskDraw.allocateMPIR()) {
+                tempRep = new MpirBigNum();
+                tempImp = new MpirBigNum();
             }
         }
         

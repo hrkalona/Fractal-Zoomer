@@ -43,7 +43,7 @@ public class BigIntNum {
 
         int temp = (int)(digits / SHIFT32);
 
-        fracDigits = (temp + 1) * ThreadDraw.BIGNUM_PRECISION_FACTOR;
+        fracDigits = (temp + 1) * TaskDraw.BIGNUM_PRECISION_FACTOR;
 
         totalDigits = fracDigits + INTEGER_PART;
         totalDigitsByteCount = totalDigits << 2;
@@ -56,7 +56,7 @@ public class BigIntNum {
         ONE = new BigIntNum(1);
         ONESHIFTED = new BigIntNum(ONE.digits.shiftLeft(fracDigitsBits));
 
-        use_threads = ThreadDraw.USE_THREADS_IN_BIGNUM_LIBS && fracDigits >= THREADS_THRESHOLD && Runtime.getRuntime().availableProcessors() >= 2;
+        use_threads = TaskDraw.USE_THREADS_IN_BIGNUM_LIBS && fracDigits >= THREADS_THRESHOLD && Runtime.getRuntime().availableProcessors() >= 2;
 
     }
 
@@ -445,7 +445,7 @@ public class BigIntNum {
             mantissaDouble = Double.longBitsToDouble((mantissa & 0xFFFFFFFFFFFFFL) | (0x3FF0000000000000L));
         }
 
-        return new MantExp(mantissaDouble, exp);
+        return new MantExp(exp, mantissaDouble);
 
 
 
@@ -539,6 +539,7 @@ public class BigIntNum {
         return new BigIntNum(digits.abs());
     }
 
+    //Was added in java9
     public BigIntNum sqrt() {
 
         int sign = digits.signum();

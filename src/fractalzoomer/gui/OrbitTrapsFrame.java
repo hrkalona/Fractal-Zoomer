@@ -17,6 +17,7 @@
 package fractalzoomer.gui;
 
 import fractalzoomer.fractal_options.orbit_traps.ImageOrbitTrap;
+import fractalzoomer.fractal_options.orbit_traps.TransparentImageOrbitTrap;
 import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
@@ -745,6 +746,7 @@ public class OrbitTrapsFrame extends JFrame {
             if(image != null) {
                 ots.trapImage = image;
                 ImageOrbitTrap.image = ots.trapImage;
+                TransparentImageOrbitTrap.image = ots.trapImage;
             }
 
             ots.showOnlyTraps = showOnlyTraps.isSelected();
@@ -843,7 +845,7 @@ public class OrbitTrapsFrame extends JFrame {
 
         int index = orbit_traps_combo.getSelectedIndex();
 
-        if(index != MainWindow.IMAGE_TRAP) {
+        if(index != MainWindow.IMAGE_TRAP && index != MainWindow.IMAGE_TRANSPARENT_TRAP) {
             trap_threshold_field.setEnabled(true);
             trap_intensity_field.setEnabled(true);
             setComponentState(color_options_panel ,true);
@@ -856,8 +858,8 @@ public class OrbitTrapsFrame extends JFrame {
 
 
         trap_norm_field.setEnabled(index == MainWindow.NNORM_ATOM_DOMAIN_TRAP || index == MainWindow.POINT_N_NORM_TRAP || index == MainWindow.N_NORM_TRAP || index == MainWindow.N_NORM_CROSS_TRAP || index == MainWindow.N_NORM_POINT_TRAP || index == MainWindow.N_NORM_POINT_N_NORM_TRAP || index == MainWindow.GOLDEN_RATIO_SPIRAL_POINT_N_NORM_TRAP || index == MainWindow.GOLDEN_RATIO_SPIRAL_N_NORM_TRAP || index == MainWindow.STALKS_POINT_N_NORM_TRAP || index == MainWindow.STALKS_N_NORM_TRAP);
-        trap_width_field.setEnabled(!(index == MainWindow.ATOM_DOMAIN_TRAP || index == MainWindow.SQUARE_ATOM_DOMAIN_TRAP || index == MainWindow.RHOMBUS_ATOM_DOMAIN_TRAP || index == MainWindow.NNORM_ATOM_DOMAIN_TRAP || index == MainWindow.POINT_RHOMBUS_TRAP || index == MainWindow.POINT_SQUARE_TRAP || index == MainWindow.POINT_TRAP || index == MainWindow.POINT_N_NORM_TRAP));
-        trap_length_field.setEnabled(!(index == Constants.SUPER_FORMULA_ORBIT_TRAP || index == MainWindow.ATOM_DOMAIN_TRAP || index == MainWindow.SQUARE_ATOM_DOMAIN_TRAP || index == MainWindow.RHOMBUS_ATOM_DOMAIN_TRAP || index == MainWindow.NNORM_ATOM_DOMAIN_TRAP ||  index == MainWindow.GOLDEN_RATIO_SPIRAL_TRAP || index == MainWindow.STALKS_TRAP));
+        trap_width_field.setEnabled(!(index == MainWindow.ATOM_DOMAIN_TRAP || index == MainWindow.SQUARE_ATOM_DOMAIN_TRAP || index == MainWindow.RHOMBUS_ATOM_DOMAIN_TRAP || index == MainWindow.NNORM_ATOM_DOMAIN_TRAP || index == MainWindow.POINT_RHOMBUS_TRAP || index == MainWindow.POINT_SQUARE_TRAP || index == MainWindow.POINT_TRAP || index == MainWindow.POINT_N_NORM_TRAP || index == MainWindow.IMAGE_TRANSPARENT_TRAP));
+        trap_length_field.setEnabled(!(index == Constants.SUPER_FORMULA_ORBIT_TRAP || index == MainWindow.ATOM_DOMAIN_TRAP || index == MainWindow.SQUARE_ATOM_DOMAIN_TRAP || index == MainWindow.RHOMBUS_ATOM_DOMAIN_TRAP || index == MainWindow.NNORM_ATOM_DOMAIN_TRAP ||  index == MainWindow.GOLDEN_RATIO_SPIRAL_TRAP || index == MainWindow.STALKS_TRAP || index == MainWindow.IMAGE_TRANSPARENT_TRAP));
         lines_function_combo.setEnabled(index == MainWindow.CROSS_TRAP || index ==  MainWindow.RE_TRAP || index ==  MainWindow.IM_TRAP || index ==  MainWindow.CIRCLE_CROSS_TRAP || index ==  MainWindow.SQUARE_CROSS_TRAP || index ==  MainWindow.RHOMBUS_CROSS_TRAP || index ==  MainWindow.N_NORM_CROSS_TRAP || index == MainWindow.GOLDEN_RATIO_SPIRAL_CROSS_TRAP || index == MainWindow.STALKS_CROSS_TRAP);
 
         if(index == MainWindow.SUPER_FORMULA_ORBIT_TRAP) {
@@ -879,9 +881,9 @@ public class OrbitTrapsFrame extends JFrame {
             b.setEnabled(false);
         }
         
-        blend_opt.setEnabled(color_method_combo.getSelectedIndex() == 3 && index != MainWindow.IMAGE_TRAP);
+        blend_opt.setEnabled(color_method_combo.getSelectedIndex() == 3 && index != MainWindow.IMAGE_TRAP && index != MainWindow.IMAGE_TRANSPARENT_TRAP);
 
-        load_image_button.setEnabled(index == MainWindow.IMAGE_TRAP);
+        load_image_button.setEnabled(index == MainWindow.IMAGE_TRAP || index == MainWindow.IMAGE_TRANSPARENT_TRAP);
 
     }
 

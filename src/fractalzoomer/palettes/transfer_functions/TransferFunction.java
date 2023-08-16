@@ -21,6 +21,7 @@ package fractalzoomer.palettes.transfer_functions;
  * @author hrkalona2
  */
 public abstract class TransferFunction {
+    protected static double IT_COLOR_DENSITY_MULTIPLIER = 0.05;
     protected int paletteLength;
     
     public TransferFunction(int paletteLength) {

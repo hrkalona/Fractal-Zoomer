@@ -5,8 +5,8 @@ import fractalzoomer.core.MantExpComplex;
 
 public class ATResult {
     public ATResult() {
-        dzdc = new MantExpComplex();
-        dzdc2 = new MantExpComplex();
+        dzdc = MantExpComplex.create();
+        dzdc2 = MantExpComplex.create();
     }
 
     public GenericComplex dz;

@@ -33,7 +33,7 @@ public class SmoothBinaryDecomposition2RootFindingMethod extends OutColorAlgorit
         super();
         this.log_convergent_bailout = log_convergent_bailout;
         this.algorithm = algorithm;
-        OutNotUsingIncrement = false;
+        OutUsingIncrement = true;
 
     }
 

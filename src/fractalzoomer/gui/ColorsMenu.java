@@ -16,7 +16,7 @@
  */
 package fractalzoomer.gui;
 
-import fractalzoomer.core.ThreadDraw;
+import fractalzoomer.core.TaskDraw;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.PaletteSettings;
 import fractalzoomer.main.app_settings.Settings;
@@ -34,6 +34,8 @@ public class ColorsMenu extends MyMenu {
 	private MainWindow ptr;
     private JMenuItem fract_color;
     private JMenuItem contour_factor;
+
+    private JMenuItem color_space_params;
     private JMenuItem gradient;
     private JMenuItem random_palette;
     private JMenuItem blend_palette_opt;
@@ -81,6 +83,7 @@ public class ColorsMenu extends MyMenu {
         gradient = new MyMenuItem("Gradient", MainWindow.getIcon("gradient.png"));
 
         contour_factor = new MyMenuItem("Contour Factor", MainWindow.getIcon("contour.png"));
+        color_space_params = new MyMenuItem("Hue Generated Palettes", MainWindow.getIcon("color_spaces_params.png"));
      
         fract_color.setToolTipText("Sets the colors for maximum iterations, distance estimation and some color algorithms.");
         random_palette.setToolTipText("Randomizes the palette.");        
@@ -90,6 +93,7 @@ public class ColorsMenu extends MyMenu {
         out_true_color_opt.setToolTipText("Overrides the palette coloring for out coloring mode, and uses a direct color space coloring."); 
         in_true_color_opt.setToolTipText("Overrides the palette coloring for in coloring mode, and uses a direct color space coloring.");
         contour_factor.setToolTipText("Changes the contour factor in all color algorithms that use it.");
+        color_space_params.setToolTipText("Sets the rest of the color space parameters for every Hue generated palette.");
                 
         fract_color.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T, 0));
         random_palette.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, ActionEvent.SHIFT_MASK));
@@ -99,6 +103,7 @@ public class ColorsMenu extends MyMenu {
         out_true_color_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_3, ActionEvent.SHIFT_MASK));
         in_true_color_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_3, ActionEvent.ALT_MASK));
         contour_factor.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_6, ActionEvent.SHIFT_MASK));
+        color_space_params.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_6, ActionEvent.ALT_MASK));
 
         fract_color.addActionListener(e -> ptr.setFractalColor());
         
@@ -116,7 +121,9 @@ public class ColorsMenu extends MyMenu {
 
         contour_factor.addActionListener(e -> ptr.setContourFactor());
 
-        direct_color_opt.setSelected(ThreadDraw.USE_DIRECT_COLOR);
+        color_space_params.addActionListener(e -> ptr.setHueGeneratedPaletteParams());
+
+        direct_color_opt.setSelected(TaskDraw.USE_DIRECT_COLOR);
         
         add(out_coloring_mode_menu);
         add(in_coloring_mode_menu);
@@ -132,6 +139,8 @@ public class ColorsMenu extends MyMenu {
         add(fract_color);
         addSeparator();
         add(contour_factor);
+        addSeparator();
+        add(color_space_params);
         addSeparator();
         add(outcolor_palette_menu);
         add(incolor_palette_menu);
@@ -187,6 +196,18 @@ public class ColorsMenu extends MyMenu {
         return processing.getLight();
         
     }
+
+    public JMenuItem getSlopes() {
+
+        return processing.getSlopes();
+
+    }
+
+    public JMenuItem getColorSpaceParams() {
+
+        return color_space_params;
+
+    }
     
     public JMenuItem getHistogramColoring() {
         
@@ -198,6 +219,12 @@ public class ColorsMenu extends MyMenu {
         
         return processing.getFakeDistanceEstimation();
         
+    }
+
+    public JMenuItem getNumericalDistanceEstimator() {
+
+        return processing.getNumericalDistanceEstimator();
+
     }
     
     public JMenuItem getDistanceEstimation() {

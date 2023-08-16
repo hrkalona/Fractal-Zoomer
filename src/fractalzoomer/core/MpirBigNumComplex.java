@@ -978,6 +978,7 @@ public class MpirBigNumComplex extends GenericComplex {
 
     }
 
+    @Override
     public final MpirBigNumComplex absre_mutable() {
 
         re.abs(re);
@@ -1774,6 +1775,28 @@ public class MpirBigNumComplex extends GenericComplex {
 
     }
 
+    public final MpirBigNumComplex inflectionPower(MpirBigNumComplex inf, double power) {
+
+        if(power == 1) {
+            return plus(inf);
+        }
+        else if(power == 2) {
+            return square().plus(inf);
+        }
+        else if(power == 3) {
+            return cube().plus(inf);
+        }
+        else if(power == 4) {
+            return fourth().plus(inf);
+        }
+        if(power == 5) {
+            return fifth().plus(inf);
+        }
+
+        return new MpirBigNumComplex();
+
+    }
+
     public final MpirBigNumComplex shear(MpirBigNumComplex sh) {
 
         return new MpirBigNumComplex(re.add(im.mult(sh.re)), im.add(re.mult(sh.im)));
@@ -1973,7 +1996,7 @@ public class MpirBigNumComplex extends GenericComplex {
     }
 
     @Override
-    public MantExpComplex toMantExpComplex() { return new MantExpComplex(this);}
+    public MantExpComplex toMantExpComplex() { return MantExpComplex.create(this);}
 
     public boolean isZero() {
         return re.isZero() && im.isZero();
@@ -2140,6 +2163,7 @@ public class MpirBigNumComplex extends GenericComplex {
 
     }
 
+    @Override
     public final MpirBigNumComplex square_mutable(MpirBigNum temp1, MpirBigNum temp2) {
 
         MpirBigNum tempRe = re.add(im, temp1);
@@ -2157,6 +2181,20 @@ public class MpirBigNumComplex extends GenericComplex {
     @Override
     public MpirBigNumComplex times2(MpirBigNum temp1, MpirBigNum temp2) {
         return new MpirBigNumComplex(re.mult2(temp1), im.mult2(temp2));
+    }
+
+    @Override
+    public MpirBigNumComplex absNegateRe_mutable() {
+        re.abs(re);
+        re.negate(re);
+        return this;
+    }
+
+    @Override
+    public MpirBigNumComplex absNegateIm_mutable() {
+        im.abs(im);
+        im.negate(im);
+        return this;
     }
 
 }

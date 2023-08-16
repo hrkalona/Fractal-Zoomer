@@ -30,7 +30,6 @@ public class PixelExtraData {
             rgb_values = new int[length];
             escaped = new boolean[length];
         }
-
         Arrays.fill(rgb_values, 0, length, Constants.EMPTY_COLOR);
     }
 
@@ -41,6 +40,20 @@ public class PixelExtraData {
         rgb_values[index] = rgb;
         values[index] = value;
         escaped[index] = esc;
+    }
+
+    public void update_rgb(int index, int rgb) {
+        rgb_values[index] = rgb;
+    }
+
+    public int getActualLength() {
+        int length = 0;
+        for(; length < rgb_values.length; length++) {
+            if(rgb_values[length] == Constants.EMPTY_COLOR) {
+                break;
+            }
+        }
+        return length;
     }
 
 }

@@ -340,5 +340,12 @@ public class Rotation {
     public boolean shouldRotate(Apfloat xCenter, Apfloat yCenter) {
         return xCenter.compareTo(ddcenter.getRe()) != 0 || yCenter.compareTo(ddcenter.getIm()) != 0;
     }
+
+    public static boolean usesRotation(Apfloat[] rotation_center, Apfloat[] rotation_vals) {
+        boolean hasRotation = !(rotation_vals[0].compareTo(Apfloat.ONE) == 0 && rotation_vals[1].compareTo(Apfloat.ZERO) == 0);
+        boolean hasRotationCenter = !(rotation_center[0].compareTo(Apfloat.ZERO) == 0 && rotation_center[1].compareTo(Apfloat.ZERO) == 0);
+
+        return hasRotation || hasRotationCenter;
+    }
     
 }

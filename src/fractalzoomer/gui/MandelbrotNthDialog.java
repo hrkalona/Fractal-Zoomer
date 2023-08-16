@@ -47,7 +47,7 @@ public class MandelbrotNthDialog extends JDialog {
 
         Object[] message = {
             " ",
-            "Enter the exponent of z.\nThe exponent can be a real number.",
+            "Insert the exponent of z.\nThe exponent can be a real number.",
             field,
             " ",};
 

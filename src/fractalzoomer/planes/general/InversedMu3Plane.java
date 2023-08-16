@@ -36,17 +36,14 @@ public class InversedMu3Plane extends Plane {
 
         super();
 
-        if(ThreadDraw.PERTURBATION_THEORY || ThreadDraw.HIGH_PRECISION_CALCULATION) {
-            if (ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE || ThreadDraw.HIGH_PRECISION_CALCULATION) {
-
-                if (ThreadDraw.allocateMPFR()) {
-                    tempRe = new MpfrBigNum();
-                    tempIm = new MpfrBigNum();
-                } else if (ThreadDraw.allocateMPIR()) {
-                    tempRep = new MpirBigNum();
-                    tempImp = new MpirBigNum();
-                    _14 = new MpirBigNum(1.401155189);
-                }
+        if(TaskDraw.PERTURBATION_THEORY || TaskDraw.HIGH_PRECISION_CALCULATION) {
+            if (TaskDraw.allocateMPFR()) {
+                tempRe = new MpfrBigNum();
+                tempIm = new MpfrBigNum();
+            } else if (TaskDraw.allocateMPIR()) {
+                tempRep = new MpirBigNum();
+                tempImp = new MpirBigNum();
+                _14 = new MpirBigNum(1.401155189);
             }
         }
 

@@ -1,7 +1,7 @@
 package fractalzoomer.fractal_options.filter;
 
 import fractalzoomer.core.Complex;
-import fractalzoomer.core.ThreadDraw;
+import fractalzoomer.core.TaskDraw;
 import fractalzoomer.parser.ExpressionNode;
 import fractalzoomer.parser.Parser;
 
@@ -97,7 +97,7 @@ public class UserConditionalFunctionFilter extends FunctionFilter {
             parser2[2].setSizevalue(c_size);
         }
 
-        Complex c_isize = new Complex(ThreadDraw.IMAGE_SIZE, 0);
+        Complex c_isize = new Complex(TaskDraw.IMAGE_SIZE, 0);
         if (parser[0].foundISize()) {
             parser[0].setISizevalue(c_isize);
         }

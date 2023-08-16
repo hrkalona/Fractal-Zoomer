@@ -29,7 +29,7 @@ public class ReDivideIm extends InColorAlgorithm {
     public ReDivideIm(int max_iterations) { 
         
         super();
-        InNotUsingIncrement = true;
+        InUsingIncrement = false;
         this.max_iterations = max_iterations;        
     
     }

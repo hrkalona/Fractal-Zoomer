@@ -249,9 +249,9 @@ public class CartesianLocationNormalApfloatArbitrary extends Location {
     }
 
     @Override
-    public void createAntialiasingSteps(boolean adaptive, boolean jitter) {
-        super.createAntialiasingSteps(adaptive, jitter);
-        Apfloat[][] steps = createAntialiasingStepsApfloat(ddtemp_size_image_size_x, ddtemp_size_image_size_y, adaptive, jitter);
+    public void createAntialiasingSteps(boolean adaptive, boolean jitter, int numberOfExtraSamples) {
+        super.createAntialiasingSteps(adaptive, jitter, numberOfExtraSamples);
+        Apfloat[][] steps = createAntialiasingStepsApfloat(ddtemp_size_image_size_x, ddtemp_size_image_size_y, adaptive, jitter, numberOfExtraSamples);
         ddantialiasing_x = steps[0];
         ddantialiasing_y = steps[1];
     }
@@ -287,9 +287,11 @@ public class CartesianLocationNormalApfloatArbitrary extends Location {
     }
 
     public BigPoint getPointRelativeToPoint(int x, int y, BigPoint refPoint) {
-        Apfloat size05 = MyApfloat.fp.multiply(ddsize, point5);
-        Apfloat newX = MyApfloat.fp.add(MyApfloat.fp.subtract(size05, MyApfloat.fp.multiply(ddtemp_size_image_size_x, new MyApfloat(x))), refPoint.x);
-        Apfloat newY = MyApfloat.fp.add(MyApfloat.fp.add(size05.negate(), MyApfloat.fp.multiply(ddtemp_size_image_size_y, new MyApfloat(y))), refPoint.y);
+        Apfloat size05x = MyApfloat.fp.multiply(ddsize, point5);
+        Apfloat temp = MyApfloat.fp.multiply(ddsize, this.height_ratio);
+        Apfloat size05y = MyApfloat.fp.multiply(temp, point5);
+        Apfloat newX = MyApfloat.fp.add(MyApfloat.fp.subtract(size05x, MyApfloat.fp.multiply(ddtemp_size_image_size_x, new MyApfloat(x))), refPoint.x);
+        Apfloat newY = MyApfloat.fp.add(MyApfloat.fp.add(size05y.negate(), MyApfloat.fp.multiply(ddtemp_size_image_size_y, new MyApfloat(y))), refPoint.y);
         return new BigPoint(newX, newY);
     }
 

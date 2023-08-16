@@ -24,18 +24,18 @@ public class SettingsFractals1079 extends SettingsFractals1078 implements Serial
 
     public SettingsFractals1079(Settings s) {
         super(s);
-        useNormalMap = s.sts.useNormalMap;
-        normalMapColorMode = s.sts.normalMapColorMode;
-        normalMapOverrideColoring = s.sts.normalMapOverrideColoring;
-        normalMapLightFactor = s.sts.normalMapLightFactor;
-        normalMapBlending = s.sts.normalMapBlending;
-        normalMapHeight = s.sts.normalMapHeight;
-        normalMapAngle = s.sts.normalMapAngle;
-        normalMapUseSecondDerivative = s.sts.normalMapUseSecondDerivative;
-        normalMapUseDE = s.sts.normalMapUseDE;
-        normalMapDEfactor = s.sts.normalMapDEfactor;
-        normalMapInvertDE = s.sts.normalMapInvertDE;
-        normalMapColoring = s.sts.normalMapColoring;
+        useNormalMap = s.pps.sts.useNormalMap;
+        normalMapColorMode = s.pps.sts.normalMapColorMode;
+        normalMapOverrideColoring = s.pps.sts.normalMapOverrideColoring;
+        normalMapLightFactor = s.pps.sts.normalMapLightFactor;
+        normalMapBlending = s.pps.sts.normalMapBlending;
+        normalMapHeight = s.pps.sts.normalMapHeight;
+        normalMapAngle = s.pps.sts.normalMapAngle;
+        normalMapUseSecondDerivative = s.pps.sts.normalMapUseSecondDerivative;
+        normalMapUseDE = s.pps.sts.normalMapUseDE;
+        normalMapDEfactor = s.pps.sts.normalMapDEfactor;
+        normalMapInvertDE = s.pps.sts.normalMapInvertDE;
+        normalMapColoring = s.pps.sts.normalMapColoring;
         defaultNovaInitialValue = s.fns.defaultNovaInitialValue;
         contourFactor = s.contourFactor;
     }

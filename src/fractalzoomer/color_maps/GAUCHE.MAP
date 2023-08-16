@@ -1,6 +1,6 @@
-     0     0     0
-    27    16     0
-    49    32     0
+     0     0     0    Created by Fractint Mapmaker v1.3
+    27    16     0    (c)1994,1995 by Jack A. Orman
+    49    32     0    For non-commercial use only!
     75    48     0
     96    64     0
    120    80     0
@@ -254,3 +254,23 @@
      1     1    28
      1     1    23
      1     1    18
+
+MAPMAKER comments - up to 3 lines of 75 characters max
+
+       Red        Green      Blue
+      Sine       Triang     Tangnt
+Peaks     8         8         8
+Phase     0         0         0
+1:    0  255       0  255       0    1
+2:    0  255       0  192       0   64
+3:    0  255       0  128       0  128
+4:    0  255       0   64       0  192
+5:    0  192       0    1       0  255
+6:    0  128       0    1       0  192
+7:    0   64       0    1       0  128
+8:    0    1       0    1       0   64
+
+ License for commercial use or resale is available from
+  Jack A. Orman
+  P.O. Box 858
+  Southaven, MS 38671

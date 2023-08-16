@@ -61,9 +61,9 @@ public class Magnet1 extends MagnetType {
         super();
     }
 
-    public Magnet1(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, int converging_smooth_algorithm, OrbitTrapSettings ots, StatisticsSettings sts) {
+    public Magnet1(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower, int escaping_smooth_algorithm, int converging_smooth_algorithm, OrbitTrapSettings ots, StatisticsSettings sts) {
 
-        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, ots);
+        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, ots);
 
         convergent_bailout = 1E-12;
 
@@ -108,9 +108,9 @@ public class Magnet1 extends MagnetType {
         }
     }
 
-    public Magnet1(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, int converging_smooth_algorithm, OrbitTrapSettings ots, StatisticsSettings sts, double xJuliaCenter, double yJuliaCenter) {
+    public Magnet1(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower, int escaping_smooth_algorithm, int converging_smooth_algorithm, OrbitTrapSettings ots, StatisticsSettings sts, double xJuliaCenter, double yJuliaCenter) {
 
-        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, periodicity_checking, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, ots, xJuliaCenter, yJuliaCenter);
+        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, periodicity_checking, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, ots, xJuliaCenter, yJuliaCenter);
 
         convergent_bailout = 1E-12;
 
@@ -139,9 +139,9 @@ public class Magnet1 extends MagnetType {
     }
 
     //orbit
-    public Magnet1(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount) {
+    public Magnet1(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower) {
 
-        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower);
 
         power = 4;
 
@@ -166,9 +166,9 @@ public class Magnet1 extends MagnetType {
 
     }
 
-    public Magnet1(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double xJuliaCenter, double yJuliaCenter) {
+    public Magnet1(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower, double xJuliaCenter, double yJuliaCenter) {
 
-        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, xJuliaCenter, yJuliaCenter);
         power = 4;
         pertur_val = new DefaultPerturbation();
         init_val = new InitialValue(0, 0);
@@ -177,7 +177,7 @@ public class Magnet1 extends MagnetType {
     @Override
     public void function(Complex[] complex) {
 
-        complex[0] = (complex[0].square().plus_mutable(complex[1].sub(1))).divide_mutable(complex[0].times(2).plus_mutable(complex[1].sub(2))).square_mutable();
+        complex[0] = (complex[0].square().plus_mutable(complex[1].sub(1))).divide_mutable(complex[0].times2().plus_mutable(complex[1].sub(2))).square_mutable();
 
     }
 
@@ -209,6 +209,7 @@ public class Magnet1 extends MagnetType {
         }
 
         boolean lowPrecReferenceOrbitNeeded = !needsOnlyExtendedReferenceOrbit(deepZoom, false);
+        DoubleReference.SHOULD_SAVE_MEMORY = false;
 
         if (iterations == 0) {
             if(lowPrecReferenceOrbitNeeded) {
@@ -244,73 +245,70 @@ public class Magnet1 extends MagnetType {
             }
         }
 
-        int bigNumLib = ThreadDraw.getBignumLibrary(size, this);
-        boolean useBignum = ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE && bigNumLib != Constants.BIGNUM_APFLOAT;
+        int bigNumLib = TaskDraw.getBignumLibrary(size, this);
 
 
         GenericComplex z, c, zold, zold2, start, c0, pixel;
         Object normSquared, root;
 
-        if(useBignum ) {
-            if (bigNumLib == Constants.BIGNUM_MPFR) {
-                MpfrBigNumComplex bn = new MpfrBigNumComplex(inputPixel.toMpfrBigNumComplex());
-                z = iterations == 0 ? (isJulia ? bn : new MpfrBigNumComplex()) : referenceData.lastZValue;
-                c = isJulia ? getSeed(useBignum, bigNumLib) : bn;
-                zold = iterations == 0 ? new MpfrBigNumComplex() : referenceData.secondTolastZValue;
-                zold2 = iterations == 0 ? new MpfrBigNumComplex() : referenceData.thirdTolastZValue;
-                start = isJulia ? new MpfrBigNumComplex(bn) : new MpfrBigNumComplex();
-                c0 = new MpfrBigNumComplex((MpfrBigNumComplex)c);
-                pixel = new MpfrBigNumComplex(bn);
-                root = new MpfrBigNum(1);
-            }
-            else if (bigNumLib == Constants.BIGNUM_MPIR) {
-                MpirBigNumComplex bn = new MpirBigNumComplex(inputPixel.toMpirBigNumComplex());
-                z = iterations == 0 ? (isJulia ? bn : new MpirBigNumComplex()) : referenceData.lastZValue;
-                c = isJulia ? getSeed(useBignum, bigNumLib) : bn;
-                zold = iterations == 0 ? new MpirBigNumComplex() : referenceData.secondTolastZValue;
-                zold2 = iterations == 0 ? new MpirBigNumComplex() : referenceData.thirdTolastZValue;
-                start = isJulia ? new MpirBigNumComplex(bn) : new MpirBigNumComplex();
-                c0 = new MpirBigNumComplex((MpirBigNumComplex)c);
-                pixel = new MpirBigNumComplex(bn);
-                root = new MpirBigNum(1);
-            }
-            else if(bigNumLib == Constants.BIGNUM_DOUBLEDOUBLE) {
-                DDComplex ddn = inputPixel.toDDComplex();
-                z = iterations == 0 ? (isJulia ? ddn : new DDComplex()) : referenceData.lastZValue;
-                c = isJulia ? getSeed(useBignum, bigNumLib) : ddn;
-                zold = iterations == 0 ? new DDComplex() : referenceData.secondTolastZValue;
-                zold2 = iterations == 0 ? new DDComplex() : referenceData.thirdTolastZValue;
-                start = isJulia ? ddn : new DDComplex();
-                c0 = c;
-                pixel = ddn;
-                root = new DoubleDouble(1.0);
-            }
-            else if(bigNumLib == Constants.BIGNUM_BIGINT) {
-                BigIntNumComplex bin = inputPixel.toBigIntNumComplex();
-                z = iterations == 0 ? (isJulia ? bin : new BigIntNumComplex()) : referenceData.lastZValue;
-                c = isJulia ? getSeed(useBignum, bigNumLib) : bin;
-                zold = iterations == 0 ? new BigIntNumComplex() : referenceData.secondTolastZValue;
-                zold2 = iterations == 0 ? new BigIntNumComplex() : referenceData.thirdTolastZValue;
-                start = isJulia ? bin : new BigIntNumComplex();
-                c0 = c;
-                pixel = bin;
-                root = new BigIntNum(1.0);
-            }
-            else {
-                Complex bn = inputPixel.toComplex();
-                z = iterations == 0 ? (isJulia ? bn : new Complex()) : referenceData.lastZValue;
-                c = isJulia ? getSeed(useBignum, bigNumLib) : bn;
-                zold = iterations == 0 ? new Complex() : referenceData.secondTolastZValue;
-                zold2 = iterations == 0 ? new Complex() : referenceData.thirdTolastZValue;
-                start = isJulia ? new Complex(bn) : new Complex();
-                c0 = new Complex((Complex) c);
-                pixel = new Complex(bn);
-                root = 1.0;
-            }
+        if (bigNumLib == Constants.BIGNUM_MPFR) {
+            MpfrBigNumComplex bn = new MpfrBigNumComplex(inputPixel.toMpfrBigNumComplex());
+            z = iterations == 0 ? (isJulia ? bn : new MpfrBigNumComplex()) : referenceData.lastZValue;
+            c = isJulia ? getSeed(bigNumLib) : bn;
+            zold = iterations == 0 ? new MpfrBigNumComplex() : referenceData.secondTolastZValue;
+            zold2 = iterations == 0 ? new MpfrBigNumComplex() : referenceData.thirdTolastZValue;
+            start = isJulia ? new MpfrBigNumComplex(bn) : new MpfrBigNumComplex();
+            c0 = new MpfrBigNumComplex((MpfrBigNumComplex)c);
+            pixel = new MpfrBigNumComplex(bn);
+            root = new MpfrBigNum(1);
+        }
+        else if (bigNumLib == Constants.BIGNUM_MPIR) {
+            MpirBigNumComplex bn = new MpirBigNumComplex(inputPixel.toMpirBigNumComplex());
+            z = iterations == 0 ? (isJulia ? bn : new MpirBigNumComplex()) : referenceData.lastZValue;
+            c = isJulia ? getSeed(bigNumLib) : bn;
+            zold = iterations == 0 ? new MpirBigNumComplex() : referenceData.secondTolastZValue;
+            zold2 = iterations == 0 ? new MpirBigNumComplex() : referenceData.thirdTolastZValue;
+            start = isJulia ? new MpirBigNumComplex(bn) : new MpirBigNumComplex();
+            c0 = new MpirBigNumComplex((MpirBigNumComplex)c);
+            pixel = new MpirBigNumComplex(bn);
+            root = new MpirBigNum(1);
+        }
+        else if(bigNumLib == Constants.BIGNUM_DOUBLEDOUBLE) {
+            DDComplex ddn = inputPixel.toDDComplex();
+            z = iterations == 0 ? (isJulia ? ddn : new DDComplex()) : referenceData.lastZValue;
+            c = isJulia ? getSeed(bigNumLib) : ddn;
+            zold = iterations == 0 ? new DDComplex() : referenceData.secondTolastZValue;
+            zold2 = iterations == 0 ? new DDComplex() : referenceData.thirdTolastZValue;
+            start = isJulia ? ddn : new DDComplex();
+            c0 = c;
+            pixel = ddn;
+            root = new DoubleDouble(1.0);
+        }
+        else if(bigNumLib == Constants.BIGNUM_BIGINT) {
+            BigIntNumComplex bin = inputPixel.toBigIntNumComplex();
+            z = iterations == 0 ? (isJulia ? bin : new BigIntNumComplex()) : referenceData.lastZValue;
+            c = isJulia ? getSeed(bigNumLib) : bin;
+            zold = iterations == 0 ? new BigIntNumComplex() : referenceData.secondTolastZValue;
+            zold2 = iterations == 0 ? new BigIntNumComplex() : referenceData.thirdTolastZValue;
+            start = isJulia ? bin : new BigIntNumComplex();
+            c0 = c;
+            pixel = bin;
+            root = new BigIntNum(1.0);
+        }
+        else if(bigNumLib == Constants.BIGNUM_DOUBLE) {
+            Complex bn = inputPixel.toComplex();
+            z = iterations == 0 ? (isJulia ? bn : new Complex()) : referenceData.lastZValue;
+            c = isJulia ? getSeed(bigNumLib) : bn;
+            zold = iterations == 0 ? new Complex() : referenceData.secondTolastZValue;
+            zold2 = iterations == 0 ? new Complex() : referenceData.thirdTolastZValue;
+            start = isJulia ? new Complex(bn) : new Complex();
+            c0 = new Complex((Complex) c);
+            pixel = new Complex(bn);
+            root = 1.0;
         }
         else {
             z = iterations == 0 ? (isJulia ? inputPixel : new BigComplex()) : referenceData.lastZValue;
-            c = isJulia ? getSeed(useBignum, bigNumLib) : inputPixel;
+            c = isJulia ? getSeed(bigNumLib) : inputPixel;
             zold = iterations == 0 ? new BigComplex() : referenceData.secondTolastZValue;
             zold2 = iterations == 0 ? new BigComplex() : referenceData.thirdTolastZValue;
             start = isJulia ? inputPixel : new BigComplex();
@@ -333,14 +331,14 @@ public class Magnet1 extends MagnetType {
 
         GenericComplex c2big = c.times2();
 
-        if(useBignum) {
+        if(bigNumLib != Constants.BIGNUM_APFLOAT) {
             cs2big = c.sub(2);
         }
         else {
             cs2big = c.sub(MyApfloat.TWO);
         }
 
-        if(useBignum) {
+        if(bigNumLib != Constants.BIGNUM_APFLOAT) {
             cs1big = c.sub(1);
         }
         else {
@@ -350,7 +348,7 @@ public class Magnet1 extends MagnetType {
 
         GenericComplex cs6big;
 
-        if(useBignum) {
+        if(bigNumLib != Constants.BIGNUM_APFLOAT) {
             cs6big = c.sub(6);
         }
         else {
@@ -359,7 +357,7 @@ public class Magnet1 extends MagnetType {
 
         cs24big = cs2big.times4();
 
-        if(useBignum) {
+        if(bigNumLib != Constants.BIGNUM_APFLOAT) {
             cs212big = cs2big.times(12);
         }
         else {
@@ -367,7 +365,7 @@ public class Magnet1 extends MagnetType {
         }
 
 
-        if(useBignum) {
+        if(bigNumLib != Constants.BIGNUM_APFLOAT) {
             cs23big = cs2big.times(3);
         }
         else {
@@ -376,7 +374,7 @@ public class Magnet1 extends MagnetType {
 
         GenericComplex c12big;
 
-        if(useBignum) {
+        if(bigNumLib != Constants.BIGNUM_APFLOAT) {
             c12big = c.times(12);
         }
         else {
@@ -384,7 +382,7 @@ public class Magnet1 extends MagnetType {
         }
 
 
-        if(useBignum) {
+        if(bigNumLib != Constants.BIGNUM_APFLOAT) {
             c12s8big = c12big.sub(8);
         }
         else {
@@ -393,7 +391,7 @@ public class Magnet1 extends MagnetType {
 
         GenericComplex c12s6big;
 
-        if(useBignum) {
+        if(bigNumLib != Constants.BIGNUM_APFLOAT) {
             c12s6big = c12big.sub(6);
         }
         else {
@@ -406,7 +404,7 @@ public class Magnet1 extends MagnetType {
 
         GenericComplex csqr7big;
 
-        if(useBignum) {
+        if(bigNumLib != Constants.BIGNUM_APFLOAT) {
             csqr7big = csqrbig.times(7);
         }
         else {
@@ -415,7 +413,7 @@ public class Magnet1 extends MagnetType {
 
         GenericComplex csqr24big;
 
-        if(useBignum) {
+        if(bigNumLib != Constants.BIGNUM_APFLOAT) {
             csqr24big = csqrbig.times(24);
         }
         else {
@@ -429,14 +427,14 @@ public class Magnet1 extends MagnetType {
         GenericComplex csqrsc4big = csqrbig.sub(c4big);
 
 
-        if(useBignum) {
+        if(bigNumLib != Constants.BIGNUM_APFLOAT) {
             precalclbig = csqrbig.sub(c.times(3)).plus_mutable(2);
         }
         else {
             precalclbig = csqrbig.sub(c.times(MyApfloat.THREE)).plus(MyApfloat.TWO);
         }
 
-        if(useBignum) {
+        if(bigNumLib != Constants.BIGNUM_APFLOAT) {
             precalc2big = csqrsc4big.plus(4);
         }
         else {
@@ -445,28 +443,28 @@ public class Magnet1 extends MagnetType {
 
         GenericComplex precalc3big;
 
-        if(useBignum) {
+        if(bigNumLib != Constants.BIGNUM_APFLOAT) {
             precalc3big =  csqrsc4big.plus(3).times2_mutable();
         }
         else {
             precalc3big = csqrsc4big.plus(MyApfloat.THREE).times2();
         }
 
-        if(useBignum) {
+        if(bigNumLib != Constants.BIGNUM_APFLOAT) {
             precalc4big =  ccubebig.sub(csqrbig.times(6));
         }
         else {
             precalc4big = ccubebig.sub(csqrbig.times(MyApfloat.SIX));
         }
 
-        if(useBignum) {
+        if(bigNumLib != Constants.BIGNUM_APFLOAT) {
             precalc5big =  precalc4big.plus(c12s8big).times_mutable(8);
         }
         else {
             precalc5big =  precalc4big.plus(c12s8big).times(MyApfloat.EIGHT);
         }
 
-        if(useBignum) {
+        if(bigNumLib != Constants.BIGNUM_APFLOAT) {
             precalc6big =  ccubebig.sub(csqrbig.times(7)).plus_mutable(c12s6big);
         }
         else {
@@ -475,7 +473,7 @@ public class Magnet1 extends MagnetType {
 
         GenericComplex precalc7big;
 
-        if(useBignum) {
+        if(bigNumLib != Constants.BIGNUM_APFLOAT) {
             precalc7big =  csqrbig.sub(c.times(6)).plus_mutable(4);
         }
         else {
@@ -484,7 +482,7 @@ public class Magnet1 extends MagnetType {
 
         GenericComplex precalc8big;
 
-        if(useBignum) {
+        if(bigNumLib != Constants.BIGNUM_APFLOAT) {
             precalc8big = c.sub(3).times2_mutable();
         }
         else {
@@ -494,28 +492,28 @@ public class Magnet1 extends MagnetType {
 
         GenericComplex precalc9big;
 
-        if(useBignum) {
+        if(bigNumLib != Constants.BIGNUM_APFLOAT) {
             precalc9big = csqrbig.sub(c2big).plus_mutable(1);
         }
         else {
             precalc9big = csqrbig.sub(c2big).plus(MyApfloat.ONE);
         }
 
-        if(useBignum) {
+        if(bigNumLib != Constants.BIGNUM_APFLOAT) {
             precalc10big = c.fourth().sub_mutable(ccubebig.times(8)).plus_mutable(csqr24big).sub_mutable(c.times(32)).plus_mutable(16);
         }
         else {
             precalc10big = c.fourth().sub(ccubebig.times(MyApfloat.EIGHT)).plus(csqr24big).sub(c.times(MyApfloat.THIRTYTWO)).plus(MyApfloat.SIXTEEN);
         }
 
-        if(useBignum) {
+        if(bigNumLib != Constants.BIGNUM_APFLOAT) {
             precalc11big = ccubebig.sub(csqr7big).plus_mutable(c12s6big);
         }
         else {
             precalc11big = ccubebig.sub(csqr7big).plus(c12s6big);
         }
 
-        if(useBignum) {
+        if(bigNumLib != Constants.BIGNUM_APFLOAT) {
             precalc12big = ccubebig.negative().plus_mutable(csqr4big).sub_mutable(c.times(5)).plus_mutable(2);
         }
         else {
@@ -524,7 +522,7 @@ public class Magnet1 extends MagnetType {
 
         GenericComplex precalc13big;
 
-        if(useBignum) {
+        if(bigNumLib != Constants.BIGNUM_APFLOAT) {
             precalc13big = c2big.sub(3);
         }
         else {
@@ -545,7 +543,9 @@ public class Magnet1 extends MagnetType {
 
         convergent_bailout_algorithm.setReferenceMode(true);
 
-        for (; iterations < max_ref_iterations; iterations++) {
+        calculatedReferenceIterations = 0;
+
+        for (; iterations < max_ref_iterations; iterations++, calculatedReferenceIterations++) {
 
             if (lowPrecReferenceOrbitNeeded) {
                 Complex cz = z.toComplex();
@@ -596,7 +596,7 @@ public class Magnet1 extends MagnetType {
             GenericComplex temp1Z = precalc2big.times(z);
 
             GenericComplex preCalc3;
-            if (useBignum) {
+            if (bigNumLib != Constants.BIGNUM_APFLOAT) {
                 preCalc3 = precalc10big.plus(temp8.times(32)).plus_mutable(zcube.times(16).plus_mutable(temp1Z.times(24)).plus_mutable(precalc5big).times_mutable(z));
 
             } else {
@@ -608,7 +608,7 @@ public class Magnet1 extends MagnetType {
             }
 
             GenericComplex preCalc4;
-            if (useBignum) {
+            if (bigNumLib != Constants.BIGNUM_APFLOAT) {
                 preCalc4 = precalc4big.plus(cs212big.times(zsqr)).plus_mutable(zcube.times(8)).plus_mutable(temp1Z.times(6)).plus_mutable(c12s8big);
             } else {
                 preCalc4 = precalc4big.plus(cs212big.times(zsqr)).plus(zcube.times(MyApfloat.EIGHT)).plus(temp1Z.times(MyApfloat.SIX)).plus(c12s8big);
@@ -638,7 +638,7 @@ public class Magnet1 extends MagnetType {
 
 
             GenericComplex preCalc7;
-            if(useBignum) {
+            if(bigNumLib != Constants.BIGNUM_APFLOAT) {
                 preCalc7 = precalc2big.plus(cs24tzbig).times_mutable(zsqr).times_mutable(3)
                         .plus_mutable(zfourth.times(10))
                         .plus_mutable(precalc11big).plus_mutable(precalclbig.times4().times_mutable(z));
@@ -710,7 +710,7 @@ public class Magnet1 extends MagnetType {
 
         referenceData.MaxRefIteration = iterations - 1;
 
-        skippedIterations = 0;
+        SAskippedIterations = 0;
 
         if(progress != null) {
             progress.setValue(progress.getMaximum());
@@ -747,6 +747,7 @@ public class Magnet1 extends MagnetType {
         }
 
         boolean lowPrecReferenceOrbitNeeded = !needsOnlyExtendedReferenceOrbit(deepZoom, false);
+        DoubleReference.SHOULD_SAVE_MEMORY = false;
 
         if (iterations == 0) {
             if(lowPrecReferenceOrbitNeeded) {
@@ -774,72 +775,69 @@ public class Magnet1 extends MagnetType {
 
         Location loc = new Location();
 
-        int bigNumLib = ThreadDraw.getBignumLibrary(size, this);
-        boolean useBignum = ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE  && bigNumLib != Constants.BIGNUM_APFLOAT;
+        int bigNumLib = TaskDraw.getBignumLibrary(size, this);
 
         GenericComplex z, c, zold, zold2, start, c0, pixel;
         Object normSquared, root;
 
-        if(useBignum ) {
-            if (bigNumLib == Constants.BIGNUM_MPFR) {
-                MpfrBigNumComplex bn = new MpfrBigNumComplex(inputPixel.toMpfrBigNumComplex());
-                z = iterations == 0 ? new MpfrBigNumComplex() : secondReferenceData.lastZValue;
-                c = getSeed(useBignum, bigNumLib);
-                zold = iterations == 0 ? new MpfrBigNumComplex() : secondReferenceData.secondTolastZValue;
-                zold2 = iterations == 0 ? new MpfrBigNumComplex() : secondReferenceData.thirdTolastZValue;
-                start = new MpfrBigNumComplex();
-                c0 = new MpfrBigNumComplex((MpfrBigNumComplex)c);
-                pixel = new MpfrBigNumComplex(bn);
-                root = new MpfrBigNum(1);
-            }
-            else if (bigNumLib == Constants.BIGNUM_MPIR) {
-                MpirBigNumComplex bn = new MpirBigNumComplex(inputPixel.toMpirBigNumComplex());
-                z = iterations == 0 ? new MpirBigNumComplex() : secondReferenceData.lastZValue;
-                c = getSeed(useBignum, bigNumLib);
-                zold = iterations == 0 ? new MpirBigNumComplex() : secondReferenceData.secondTolastZValue;
-                zold2 = iterations == 0 ? new MpirBigNumComplex() : secondReferenceData.thirdTolastZValue;
-                start = new MpirBigNumComplex();
-                c0 = new MpirBigNumComplex((MpirBigNumComplex)c);
-                pixel = new MpirBigNumComplex(bn);
-                root = new MpirBigNum(1);
-            }
-            else if(bigNumLib == Constants.BIGNUM_DOUBLEDOUBLE) {
-                DDComplex ddn = inputPixel.toDDComplex();
-                z = iterations == 0 ? new DDComplex() : secondReferenceData.lastZValue;
-                c = getSeed(useBignum, bigNumLib);
-                zold = iterations == 0 ? new DDComplex() : secondReferenceData.secondTolastZValue;
-                zold2 = iterations == 0 ? new DDComplex() : secondReferenceData.thirdTolastZValue;
-                start = new DDComplex();
-                c0 = c;
-                pixel = ddn;
-                root = new DoubleDouble(1.0);
-            }
-            else if(bigNumLib == Constants.BIGNUM_BIGINT) {
-                BigIntNumComplex bin = inputPixel.toBigIntNumComplex();
-                z = iterations == 0 ? new BigIntNumComplex() : secondReferenceData.lastZValue;
-                c = getSeed(useBignum, bigNumLib);
-                zold = iterations == 0 ? new BigIntNumComplex() : secondReferenceData.secondTolastZValue;
-                zold2 = iterations == 0 ? new BigIntNumComplex() : secondReferenceData.thirdTolastZValue;
-                start = new BigIntNumComplex();
-                c0 = c;
-                pixel = bin;
-                root = new BigIntNum(1.0);
-            }
-            else {
-                Complex bn = inputPixel.toComplex();
-                z = iterations == 0 ? new Complex() : secondReferenceData.lastZValue;
-                c = getSeed(useBignum, bigNumLib);
-                zold = iterations == 0 ? new Complex() : secondReferenceData.secondTolastZValue;
-                zold2 = iterations == 0 ? new Complex() : secondReferenceData.thirdTolastZValue;
-                start = new Complex();
-                c0 = new Complex((Complex) c);
-                pixel = new Complex(bn);
-                root = 1.0;
-            }
+        if (bigNumLib == Constants.BIGNUM_MPFR) {
+            MpfrBigNumComplex bn = new MpfrBigNumComplex(inputPixel.toMpfrBigNumComplex());
+            z = iterations == 0 ? new MpfrBigNumComplex() : secondReferenceData.lastZValue;
+            c = getSeed(bigNumLib);
+            zold = iterations == 0 ? new MpfrBigNumComplex() : secondReferenceData.secondTolastZValue;
+            zold2 = iterations == 0 ? new MpfrBigNumComplex() : secondReferenceData.thirdTolastZValue;
+            start = new MpfrBigNumComplex();
+            c0 = new MpfrBigNumComplex((MpfrBigNumComplex)c);
+            pixel = new MpfrBigNumComplex(bn);
+            root = new MpfrBigNum(1);
+        }
+        else if (bigNumLib == Constants.BIGNUM_MPIR) {
+            MpirBigNumComplex bn = new MpirBigNumComplex(inputPixel.toMpirBigNumComplex());
+            z = iterations == 0 ? new MpirBigNumComplex() : secondReferenceData.lastZValue;
+            c = getSeed(bigNumLib);
+            zold = iterations == 0 ? new MpirBigNumComplex() : secondReferenceData.secondTolastZValue;
+            zold2 = iterations == 0 ? new MpirBigNumComplex() : secondReferenceData.thirdTolastZValue;
+            start = new MpirBigNumComplex();
+            c0 = new MpirBigNumComplex((MpirBigNumComplex)c);
+            pixel = new MpirBigNumComplex(bn);
+            root = new MpirBigNum(1);
+        }
+        else if(bigNumLib == Constants.BIGNUM_DOUBLEDOUBLE) {
+            DDComplex ddn = inputPixel.toDDComplex();
+            z = iterations == 0 ? new DDComplex() : secondReferenceData.lastZValue;
+            c = getSeed(bigNumLib);
+            zold = iterations == 0 ? new DDComplex() : secondReferenceData.secondTolastZValue;
+            zold2 = iterations == 0 ? new DDComplex() : secondReferenceData.thirdTolastZValue;
+            start = new DDComplex();
+            c0 = c;
+            pixel = ddn;
+            root = new DoubleDouble(1.0);
+        }
+        else if(bigNumLib == Constants.BIGNUM_BIGINT) {
+            BigIntNumComplex bin = inputPixel.toBigIntNumComplex();
+            z = iterations == 0 ? new BigIntNumComplex() : secondReferenceData.lastZValue;
+            c = getSeed(bigNumLib);
+            zold = iterations == 0 ? new BigIntNumComplex() : secondReferenceData.secondTolastZValue;
+            zold2 = iterations == 0 ? new BigIntNumComplex() : secondReferenceData.thirdTolastZValue;
+            start = new BigIntNumComplex();
+            c0 = c;
+            pixel = bin;
+            root = new BigIntNum(1.0);
+        }
+        else if(bigNumLib == Constants.BIGNUM_DOUBLE) {
+            Complex bn = inputPixel.toComplex();
+            z = iterations == 0 ? new Complex() : secondReferenceData.lastZValue;
+            c = getSeed(bigNumLib);
+            zold = iterations == 0 ? new Complex() : secondReferenceData.secondTolastZValue;
+            zold2 = iterations == 0 ? new Complex() : secondReferenceData.thirdTolastZValue;
+            start = new Complex();
+            c0 = new Complex((Complex) c);
+            pixel = new Complex(bn);
+            root = 1.0;
         }
         else {
             z = iterations == 0 ? new BigComplex() : secondReferenceData.lastZValue;
-            c = getSeed(useBignum, bigNumLib);
+            c = getSeed(bigNumLib);
             zold = iterations == 0 ? new BigComplex() : secondReferenceData.secondTolastZValue;
             zold2 = iterations == 0 ? new BigComplex() : secondReferenceData.thirdTolastZValue;
             start = new BigComplex();
@@ -854,7 +852,9 @@ public class Magnet1 extends MagnetType {
 
         convergent_bailout_algorithm.setReferenceMode(true);
 
-        for (; iterations < max_ref_iterations; iterations++) {
+        calculatedSecondReferenceIterations = 0;
+
+        for (; iterations < max_ref_iterations; iterations++, calculatedSecondReferenceIterations++) {
 
             if(lowPrecReferenceOrbitNeeded) {
                 Complex cz = z.toComplex();
@@ -906,7 +906,7 @@ public class Magnet1 extends MagnetType {
             GenericComplex temp1Z = precalc2big.times(z);
 
             GenericComplex preCalc3;
-            if (useBignum) {
+            if (bigNumLib != Constants.BIGNUM_APFLOAT) {
                 preCalc3 = precalc10big.plus(temp8.times(32)).plus_mutable(zcube.times(16).plus_mutable(temp1Z.times(24)).plus_mutable(precalc5big).times_mutable(z));
 
             } else {
@@ -918,7 +918,7 @@ public class Magnet1 extends MagnetType {
             }
 
             GenericComplex preCalc4;
-            if (useBignum) {
+            if (bigNumLib != Constants.BIGNUM_APFLOAT) {
                 preCalc4 = precalc4big.plus(cs212big.times(zsqr)).plus_mutable(zcube.times(8)).plus_mutable(temp1Z.times(6)).plus_mutable(c12s8big);
             } else {
                 preCalc4 = precalc4big.plus(cs212big.times(zsqr)).plus(zcube.times(MyApfloat.EIGHT)).plus(temp1Z.times(MyApfloat.SIX)).plus(c12s8big);
@@ -930,7 +930,7 @@ public class Magnet1 extends MagnetType {
 
 
             GenericComplex preCalc7;
-            if(useBignum) {
+            if(bigNumLib != Constants.BIGNUM_APFLOAT) {
                 preCalc7 = precalc2big.plus(cs24tzbig).times_mutable(zsqr).times_mutable(3)
                         .plus_mutable(zfourth.times(10))
                         .plus_mutable(precalc11big).plus_mutable(precalclbig.times4().times_mutable(z));

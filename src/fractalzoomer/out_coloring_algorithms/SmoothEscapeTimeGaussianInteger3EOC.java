@@ -33,7 +33,7 @@ public class SmoothEscapeTimeGaussianInteger3EOC extends OutColorAlgorithm {
         super();
         this.log_convergent_bailout = log_convergent_bailout;
         this.algorithm = algorithm;
-        OutNotUsingIncrement = true;
+        OutUsingIncrement = false;
 
     }
 

@@ -47,15 +47,15 @@ public abstract class Julia extends Fractal {
         super();
     }
 
-    public Julia(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, OrbitTrapSettings ots) {
+    public Julia(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower, OrbitTrapSettings ots) {
 
-        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, ots);
+        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, ots);
         isJulia = false;
     }
 
-    public Julia(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, boolean periodicity_checking, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, OrbitTrapSettings ots, double xJuliaCenter, double yJuliaCenter) {
+    public Julia(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, boolean periodicity_checking, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower, OrbitTrapSettings ots, double xJuliaCenter, double yJuliaCenter) {
 
-        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, ots);
+        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, ots);
 
         if (apply_plane_on_julia_seed) {
             seed = plane.transform(new Complex(xJuliaCenter, yJuliaCenter));
@@ -71,15 +71,15 @@ public abstract class Julia extends Fractal {
     }
 
     //orbit
-    public Julia(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount) {
+    public Julia(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower) {
 
-        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, false);
+        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, false);
 
     }
 
-    public Julia(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double xJuliaCenter, double yJuliaCenter) {
+    public Julia(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower, double xJuliaCenter, double yJuliaCenter) {
 
-        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, true);
+        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, true);
 
         if (apply_plane_on_julia_seed) {
             seed = plane.transform(new Complex(xJuliaCenter, yJuliaCenter));
@@ -125,7 +125,7 @@ public abstract class Julia extends Fractal {
 
             Complex pixel = (Complex)gpixel;
 
-            if(ThreadDraw.PERTURBATION_THEORY && supportsPerturbationTheory()) {
+            if(TaskDraw.PERTURBATION_THEORY && supportsPerturbationTheory()) {
                 Complex pixelWithoutDelta = pixel.plus(refPointSmall);
 
                 if (statistic != null) {
@@ -138,7 +138,7 @@ public abstract class Julia extends Fractal {
 
 
                 try {
-                    return iterateJuliaWithPerturbationWithoutPeriodicity(initializeSeed(pixel), pixel);
+                    return iterateJuliaWithPerturbation(initializeSeed(pixel), pixel);
                 }
                 catch (Exception ex) {
                     return 0;
@@ -174,7 +174,7 @@ public abstract class Julia extends Fractal {
             }
 
             try {
-                return iterateJuliaWithPerturbationWithoutPeriodicity(initializeSeed(pix), pixel);
+                return iterateJuliaWithPerturbation(initializeSeed(pix), pixel);
             }
             catch (Exception ex) {
                 return 0;
@@ -194,7 +194,7 @@ public abstract class Julia extends Fractal {
             }
 
             try {
-                return iterateFractalArbitraryPrecisionWithoutPeriodicity(initializeSeed(gpixel), gpixel);
+                return iterateFractalArbitraryPrecision(initializeSeed(gpixel), gpixel);
             } catch (Exception ex) {
                 return 0;
             }
@@ -207,7 +207,7 @@ public abstract class Julia extends Fractal {
 
         Complex[] complex = new Complex[2];
 
-        if(ThreadDraw.PERTURBATION_THEORY && supportsPerturbationTheory()) {
+        if(TaskDraw.PERTURBATION_THEORY && supportsPerturbationTheory()) {
 
             if(!isOrbit && !isDomain) {
                 complex[0] = pixel.plus(refPointSmall);
@@ -238,7 +238,7 @@ public abstract class Julia extends Fractal {
 
         GenericComplex[] complex = new GenericComplex[2];
 
-        int lib = ThreadDraw.getHighPrecisionLibrary(dsize, this);
+        int lib = TaskDraw.getHighPrecisionLibrary(dsize, this);
 
         if(lib == ARBITRARY_MPFR) {
             workSpaceData.z.set(pixel);
@@ -363,7 +363,7 @@ public abstract class Julia extends Fractal {
     }
 
     @Override
-    public double iterateJuliaWithPerturbationWithoutPeriodicity(Complex[] complex, Complex dpixel) {
+    public double iterateJuliaWithPerturbation(Complex[] complex, Complex dpixel) {
 
         double_iterations = 0;
         rebases = 0;
@@ -449,7 +449,7 @@ public abstract class Julia extends Fractal {
     }
 
     @Override
-    public double iterateJuliaWithPerturbationWithoutPeriodicity(Complex[] complex, MantExpComplex dpixel) {
+    public double iterateJuliaWithPerturbation(Complex[] complex, MantExpComplex dpixel) {
 
 
         float_exp_iterations = 0;
@@ -474,11 +474,11 @@ public abstract class Julia extends Fractal {
         int minExp = -1000;
         int reducedExp = minExp / (int)power;
 
-        DeltaSubN.Reduce();
-        long exp = DeltaSubN.getExp();
+        DeltaSubN.Normalize();
+        long exp = DeltaSubN.getMinExp();
 
         boolean useFullFloatExp = useFullFloatExp();
-        boolean doBailCheck = useFullFloatExp || ThreadDraw.CHECK_BAILOUT_DURING_DEEP_NOT_FULL_FLOATEXP_MODE;
+        boolean doBailCheck = useFullFloatExp || TaskDraw.CHECK_BAILOUT_DURING_DEEP_NOT_FULL_FLOATEXP_MODE;
 
         if(useFullFloatExp || (totalSkippedIterations == 0 && exp <= minExp) || (totalSkippedIterations != 0 && exp <= reducedExp)) {
             MantExpComplex z = getArrayDeepValue(deepData.Reference, RefIteration).plus_mutable(DeltaSubN);
@@ -529,10 +529,10 @@ public abstract class Julia extends Fractal {
                     rebases++;
                 }
 
-                DeltaSubN.Reduce();
+                DeltaSubN.Normalize();
 
                 if(!useFullFloatExp) {
-                    if (DeltaSubN.getExp() > reducedExp) {
+                    if (DeltaSubN.getMinExp() > reducedExp) {
                         iterations++;
                         break;
                     }
@@ -638,6 +638,7 @@ public abstract class Julia extends Fractal {
         }
 
         boolean lowPrecReferenceOrbitNeeded = !needsOnlyExtendedReferenceOrbit(deepZoom, false);
+        DoubleReference.SHOULD_SAVE_MEMORY = false;
 
         if (iterations == 0) {
             if(lowPrecReferenceOrbitNeeded) {
@@ -668,89 +669,85 @@ public abstract class Julia extends Fractal {
         GenericComplex z, c, zold, zold2, start, c0, pixel, initVal;
         Object normSquared;
 
-        int bigNumLib = ThreadDraw.getBignumLibrary(size, this);
-        boolean useBignum = ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE  && bigNumLib != Constants.BIGNUM_APFLOAT;
+        int bigNumLib = TaskDraw.getBignumLibrary(size, this);
 
-        if(useBignum) {
+        if(bigNumLib == Constants.BIGNUM_BUILT_IN) {
+            initVal = new BigNumComplex(defaultInitVal.getValue(null));
 
-            if(bigNumLib == Constants.BIGNUM_BUILT_IN) {
-                initVal = new BigNumComplex(defaultInitVal.getValue(null));
+            BigNumComplex bn = inputPixel.toBigNumComplex();
+            z = iterations == 0 ? initVal : secondReferenceData.lastZValue;
+            c = getSeed(bigNumLib);
+            zold = iterations == 0 ? new BigNumComplex() : secondReferenceData.secondTolastZValue;
+            zold2 = iterations == 0 ? new BigNumComplex() : secondReferenceData.thirdTolastZValue;
+            start = initVal;
+            c0 = c;
+            pixel = bn;
+        }
+        else if(bigNumLib == Constants.BIGNUM_BIGINT) {
+            initVal = new BigIntNumComplex(defaultInitVal.getValue(null));
 
-                BigNumComplex bn = inputPixel.toBigNumComplex();
-                z = iterations == 0 ? initVal : secondReferenceData.lastZValue;
-                c = getSeed(useBignum, bigNumLib);
-                zold = iterations == 0 ? new BigNumComplex() : secondReferenceData.secondTolastZValue;
-                zold2 = iterations == 0 ? new BigNumComplex() : secondReferenceData.thirdTolastZValue;
-                start = initVal;
-                c0 = c;
-                pixel = bn;
-            }
-            else if(bigNumLib == Constants.BIGNUM_BIGINT) {
-                initVal = new BigIntNumComplex(defaultInitVal.getValue(null));
+            BigIntNumComplex bn = inputPixel.toBigIntNumComplex();
+            z = iterations == 0 ? initVal : secondReferenceData.lastZValue;
+            c = getSeed(bigNumLib);
+            zold = iterations == 0 ? new BigIntNumComplex() : secondReferenceData.secondTolastZValue;
+            zold2 = iterations == 0 ? new BigIntNumComplex() : secondReferenceData.thirdTolastZValue;
+            start = initVal;
+            c0 = c;
+            pixel = bn;
+        }
+        else if(bigNumLib == Constants.BIGNUM_MPFR) {
+            initVal = new MpfrBigNumComplex(defaultInitVal.getValue(null));
 
-                BigIntNumComplex bn = inputPixel.toBigIntNumComplex();
-                z = iterations == 0 ? initVal : secondReferenceData.lastZValue;
-                c = getSeed(useBignum, bigNumLib);
-                zold = iterations == 0 ? new BigIntNumComplex() : secondReferenceData.secondTolastZValue;
-                zold2 = iterations == 0 ? new BigIntNumComplex() : secondReferenceData.thirdTolastZValue;
-                start = initVal;
-                c0 = c;
-                pixel = bn;
-            }
-            else if(bigNumLib == Constants.BIGNUM_MPFR) {
-                initVal = new MpfrBigNumComplex(defaultInitVal.getValue(null));
+            MpfrBigNumComplex bn = new MpfrBigNumComplex(inputPixel.toMpfrBigNumComplex());
+            z = iterations == 0 ? new MpfrBigNumComplex((MpfrBigNumComplex)initVal) : secondReferenceData.lastZValue;
+            c = getSeed(bigNumLib);
+            zold = iterations == 0 ? new MpfrBigNumComplex() : secondReferenceData.secondTolastZValue;
+            zold2 = iterations == 0 ? new MpfrBigNumComplex() : secondReferenceData.thirdTolastZValue;
+            start = new MpfrBigNumComplex((MpfrBigNumComplex)initVal);
+            c0 = new MpfrBigNumComplex((MpfrBigNumComplex)c);
+            pixel = new MpfrBigNumComplex(bn);
+        }
+        else if(bigNumLib == Constants.BIGNUM_MPIR) {
+            initVal = new MpirBigNumComplex(defaultInitVal.getValue(null));
 
-                MpfrBigNumComplex bn = new MpfrBigNumComplex(inputPixel.toMpfrBigNumComplex());
-                z = iterations == 0 ? new MpfrBigNumComplex((MpfrBigNumComplex)initVal) : secondReferenceData.lastZValue;
-                c = getSeed(useBignum, bigNumLib);
-                zold = iterations == 0 ? new MpfrBigNumComplex() : secondReferenceData.secondTolastZValue;
-                zold2 = iterations == 0 ? new MpfrBigNumComplex() : secondReferenceData.thirdTolastZValue;
-                start = new MpfrBigNumComplex((MpfrBigNumComplex)initVal);
-                c0 = new MpfrBigNumComplex((MpfrBigNumComplex)c);
-                pixel = new MpfrBigNumComplex(bn);
-            }
-            else if(bigNumLib == Constants.BIGNUM_MPIR) {
-                initVal = new MpirBigNumComplex(defaultInitVal.getValue(null));
+            MpirBigNumComplex bn = new MpirBigNumComplex(inputPixel.toMpirBigNumComplex());
+            z = iterations == 0 ? new MpirBigNumComplex((MpirBigNumComplex)initVal) : secondReferenceData.lastZValue;
+            c = getSeed(bigNumLib);
+            zold = iterations == 0 ? new MpirBigNumComplex() : secondReferenceData.secondTolastZValue;
+            zold2 = iterations == 0 ? new MpirBigNumComplex() : secondReferenceData.thirdTolastZValue;
+            start = new MpirBigNumComplex((MpirBigNumComplex)initVal);
+            c0 = new MpirBigNumComplex((MpirBigNumComplex)c);
+            pixel = new MpirBigNumComplex(bn);
+        }
+        else if(bigNumLib == Constants.BIGNUM_DOUBLEDOUBLE) {
+            initVal = new DDComplex(defaultInitVal.getValue(null));
 
-                MpirBigNumComplex bn = new MpirBigNumComplex(inputPixel.toMpirBigNumComplex());
-                z = iterations == 0 ? new MpirBigNumComplex((MpirBigNumComplex)initVal) : secondReferenceData.lastZValue;
-                c = getSeed(useBignum, bigNumLib);
-                zold = iterations == 0 ? new MpirBigNumComplex() : secondReferenceData.secondTolastZValue;
-                zold2 = iterations == 0 ? new MpirBigNumComplex() : secondReferenceData.thirdTolastZValue;
-                start = new MpirBigNumComplex((MpirBigNumComplex)initVal);
-                c0 = new MpirBigNumComplex((MpirBigNumComplex)c);
-                pixel = new MpirBigNumComplex(bn);
-            }
-            else if(bigNumLib == Constants.BIGNUM_DOUBLEDOUBLE) {
-                initVal = new DDComplex(defaultInitVal.getValue(null));
+            DDComplex ddn = inputPixel.toDDComplex();
+            z = iterations == 0 ? initVal : secondReferenceData.lastZValue;
+            c = getSeed(bigNumLib);
+            zold = iterations == 0 ? new DDComplex() : secondReferenceData.secondTolastZValue;
+            zold2 = iterations == 0 ? new DDComplex() : secondReferenceData.thirdTolastZValue;
+            start = initVal;
+            c0 = c;
+            pixel = ddn;
+        }
+        else if(bigNumLib == Constants.BIGNUM_DOUBLE) {
+            initVal = defaultInitVal.getValue(null);
 
-                DDComplex ddn = inputPixel.toDDComplex();
-                z = iterations == 0 ? initVal : secondReferenceData.lastZValue;
-                c = getSeed(useBignum, bigNumLib);
-                zold = iterations == 0 ? new DDComplex() : secondReferenceData.secondTolastZValue;
-                zold2 = iterations == 0 ? new DDComplex() : secondReferenceData.thirdTolastZValue;
-                start = initVal;
-                c0 = c;
-                pixel = ddn;
-            }
-            else {
-                initVal = defaultInitVal.getValue(null);
-
-                Complex bn = inputPixel.toComplex();
-                z = iterations == 0 ? new Complex((Complex)initVal) : secondReferenceData.lastZValue;
-                c = getSeed(useBignum, bigNumLib);
-                zold = iterations == 0 ? new Complex() : secondReferenceData.secondTolastZValue;
-                zold2 = iterations == 0 ? new Complex() : secondReferenceData.thirdTolastZValue;
-                start = new Complex((Complex)initVal);
-                c0 = new Complex((Complex) c);
-                pixel = new Complex(bn);
-            }
+            Complex bn = inputPixel.toComplex();
+            z = iterations == 0 ? new Complex((Complex)initVal) : secondReferenceData.lastZValue;
+            c = getSeed(bigNumLib);
+            zold = iterations == 0 ? new Complex() : secondReferenceData.secondTolastZValue;
+            zold2 = iterations == 0 ? new Complex() : secondReferenceData.thirdTolastZValue;
+            start = new Complex((Complex)initVal);
+            c0 = new Complex((Complex) c);
+            pixel = new Complex(bn);
         }
         else {
             initVal = new BigComplex(defaultInitVal.getValue(null));
 
             z = iterations == 0 ? initVal : secondReferenceData.lastZValue;
-            c = getSeed(useBignum, bigNumLib);
+            c = getSeed(bigNumLib);
             zold = iterations == 0 ? new BigComplex() : secondReferenceData.secondTolastZValue;
             zold2 = iterations == 0 ? new BigComplex() : secondReferenceData.thirdTolastZValue;
             start = initVal;
@@ -758,14 +755,16 @@ public abstract class Julia extends Fractal {
             pixel = inputPixel;
         }
 
-        GenericComplex[] initialPrecal = initializeReferencePrecalculationData(c, loc, useBignum, lowPrecReferenceOrbitNeeded, deepZoom);
+        GenericComplex[] initialPrecal = initializeReferencePrecalculationData(c, loc, bigNumLib, lowPrecReferenceOrbitNeeded, deepZoom);
 
         normSquared = z.normSquared();
 
         boolean preCalcNormData = bailout_algorithm2.getId() == MainWindow.BAILOUT_CONDITION_CIRCLE;
         NormComponents normData = null;
 
-        for (; iterations < max_ref_iterations; iterations++) {
+        calculatedSecondReferenceIterations = 0;
+
+        for (; iterations < max_ref_iterations; iterations++, calculatedSecondReferenceIterations++) {
 
             if(lowPrecReferenceOrbitNeeded) {
                 Complex cz = z.toComplex();
@@ -780,14 +779,14 @@ public abstract class Julia extends Fractal {
                 setArrayDeepValue(secondReferenceDeepData.Reference, iterations, loc.getMantExpComplex(z));
             }
 
-            calculateRefSubCp(z, initVal, loc, useBignum, bigNumLib, lowPrecReferenceOrbitNeeded, deepZoom, secondReferenceData, secondReferenceDeepData, iterations);
+            calculateRefSubCp(z, initVal, loc, bigNumLib, lowPrecReferenceOrbitNeeded, deepZoom, secondReferenceData, secondReferenceDeepData, iterations);
 
             if(preCalcNormData) {
                 normData = z.normSquaredWithComponents(normData);
                 normSquared = normData.normSquared;
             }
 
-            GenericComplex[] precalculatedData = precalculateReferenceData(z, c, normData, loc, useBignum, bigNumLib, lowPrecReferenceOrbitNeeded, deepZoom, secondReferenceData, secondReferenceDeepData, iterations);
+            GenericComplex[] precalculatedData = precalculateReferenceData(z, c, normData, loc, bigNumLib, lowPrecReferenceOrbitNeeded, deepZoom, secondReferenceData, secondReferenceDeepData, iterations);
 
             if (iterations > 0 && bailout_algorithm2.Escaped(z, zold, zold2, iterations, c, start, c0, normSquared, pixel)) {
                 break;
@@ -833,39 +832,37 @@ public abstract class Julia extends Fractal {
     }
 
     @Override
-    public GenericComplex getSeed(boolean useBignum, int bigNumLib) {
+    public GenericComplex getSeed(int bigNumLib) {
 
         GenericComplex tseed = null;
 
-        if(useBignum) {
-            if(bigNumLib == Constants.BIGNUM_BUILT_IN) { //BigNumComplex
-                tseed = bigSeed.toBigNumComplex();
-            }
-            else if(bigNumLib == BIGNUM_BIGINT) { //BigIntNumComplex
-                tseed = bigSeed.toBigIntNumComplex();
-            }
-            else if(bigNumLib == Constants.BIGNUM_MPFR) { //MpfrBigNumComplex
-                tseed = bigSeed.toMpfrBigNumComplex();
-            }
-            else if(bigNumLib == Constants.BIGNUM_MPIR) { //MpirBigNumComplex
-                if(!LibMpfr.hasError()) {
-                    try {
-                        tseed = new MpirBigNumComplex(bigSeed.toMpfrBigNumComplex());
-                    }
-                    catch (Error e) {
-                        tseed = bigSeed.toMpirBigNumComplex();
-                    }
+        if(bigNumLib == Constants.BIGNUM_BUILT_IN) { //BigNumComplex
+            tseed = bigSeed.toBigNumComplex();
+        }
+        else if(bigNumLib == BIGNUM_BIGINT) { //BigIntNumComplex
+            tseed = bigSeed.toBigIntNumComplex();
+        }
+        else if(bigNumLib == Constants.BIGNUM_MPFR) { //MpfrBigNumComplex
+            tseed = bigSeed.toMpfrBigNumComplex();
+        }
+        else if(bigNumLib == Constants.BIGNUM_MPIR) { //MpirBigNumComplex
+            if(!LibMpfr.hasError()) {
+                try {
+                    tseed = new MpirBigNumComplex(bigSeed.toMpfrBigNumComplex());
                 }
-                else {
+                catch (Error e) {
                     tseed = bigSeed.toMpirBigNumComplex();
                 }
             }
-            else if(bigNumLib == Constants.BIGNUM_DOUBLEDOUBLE) { //DDComplex
-                tseed = bigSeed.toDDComplex();
+            else {
+                tseed = bigSeed.toMpirBigNumComplex();
             }
-            else { //Complex
-                tseed = bigSeed.toComplex();
-            }
+        }
+        else if(bigNumLib == Constants.BIGNUM_DOUBLEDOUBLE) { //DDComplex
+            tseed = bigSeed.toDDComplex();
+        }
+        else if(bigNumLib == Constants.BIGNUM_DOUBLE) {  //Complex
+            tseed = bigSeed.toComplex();
         }
         else { //Apfloat
             tseed = bigSeed;

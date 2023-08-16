@@ -16,7 +16,7 @@
  */
 package fractalzoomer.gui;
 
-import fractalzoomer.core.ThreadDraw;
+import fractalzoomer.core.TaskDraw;
 import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
@@ -45,16 +45,16 @@ public class RainbowPaletteDialog extends JDialog {
         setIconImage(MainWindow.getIcon("mandel2.png").getImage());
 
         JTextField rainbow_palette_factor_field = new JTextField();
-        rainbow_palette_factor_field.setText("" + s.rps.rainbow_palette_factor);
+        rainbow_palette_factor_field.setText("" + s.pps.rps.rainbow_palette_factor);
 
         final JCheckBox enable_rainbow_palette = new JCheckBox("Rainbow Palette");
-        enable_rainbow_palette.setSelected(s.rps.rainbow_palette);
+        enable_rainbow_palette.setSelected(s.pps.rps.rainbow_palette);
         enable_rainbow_palette.setFocusable(false);
 
         JTextField rainbow_offset_field = new JTextField();
-        rainbow_offset_field.setText("" + s.rps.rainbow_offset);
+        rainbow_offset_field.setText("" + s.pps.rps.rainbow_offset);
 
-        JSlider color_blend_opt = new JSlider(JSlider.HORIZONTAL, 0, 100, (int) (s.rps.rp_blending * 100));
+        JSlider color_blend_opt = new JSlider(JSlider.HORIZONTAL, 0, 100, (int) (s.pps.rps.rp_blending * 100));
         color_blend_opt.setMajorTickSpacing(25);
         color_blend_opt.setMinorTickSpacing(1);
         color_blend_opt.setToolTipText("Sets the color blending percentage.");
@@ -62,14 +62,14 @@ public class RainbowPaletteDialog extends JDialog {
         color_blend_opt.setPaintLabels(true);
 
         JTextField noise_factor_field = new JTextField();
-        noise_factor_field.setText("" + s.rps.rp_noise_reducing_factor);
+        noise_factor_field.setText("" + s.pps.rps.rp_noise_reducing_factor);
 
         final JComboBox<String> rainbow_coloring_method_opt = new JComboBox<>(Constants.rainbowMethod);
-        rainbow_coloring_method_opt.setSelectedIndex(s.rps.rainbow_algorithm);
+        rainbow_coloring_method_opt.setSelectedIndex(s.pps.rps.rainbow_algorithm);
         rainbow_coloring_method_opt.setFocusable(false);
         rainbow_coloring_method_opt.setToolTipText("Sets the color transfer method.");
 
-        if (s.rps.rainbow_algorithm != 0) {
+        if (s.pps.rps.rainbow_algorithm != 0) {
             rainbow_offset_field.setEnabled(false);
         }
 
@@ -152,12 +152,12 @@ public class RainbowPaletteDialog extends JDialog {
                                 return;
                             }
 
-                            s.rps.rainbow_palette = enable_rainbow_palette.isSelected();
-                            s.rps.rainbow_palette_factor = temp;
-                            s.rps.rp_noise_reducing_factor = temp2;
-                            s.rps.rainbow_offset = temp3;
-                            s.rps.rp_blending = color_blend_opt.getValue() / 100.0;
-                            s.rps.rainbow_algorithm = rainbow_coloring_method_opt.getSelectedIndex();
+                            s.pps.rps.rainbow_palette = enable_rainbow_palette.isSelected();
+                            s.pps.rps.rainbow_palette_factor = temp;
+                            s.pps.rps.rp_noise_reducing_factor = temp2;
+                            s.pps.rps.rainbow_offset = temp3;
+                            s.pps.rps.rp_blending = color_blend_opt.getValue() / 100.0;
+                            s.pps.rps.rainbow_algorithm = rainbow_coloring_method_opt.getSelectedIndex();
                         } catch (Exception ex) {
                             JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                             return;
@@ -165,7 +165,7 @@ public class RainbowPaletteDialog extends JDialog {
 
                         dispose();
 
-                        if (greedy_algorithm && !ThreadDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA && enable_rainbow_palette.isSelected() && !julia_map && !s.d3s.d3) {
+                        if (greedy_algorithm && !TaskDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA && enable_rainbow_palette.isSelected() && !julia_map && !s.d3s.d3) {
                             JOptionPane.showMessageDialog(ptra, Constants.greedyWarning, "Warning!", JOptionPane.WARNING_MESSAGE);
                         }
 

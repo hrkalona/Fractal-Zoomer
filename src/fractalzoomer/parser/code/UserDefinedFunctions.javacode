@@ -885,7 +885,7 @@ public class UserDefinedFunctions {
 			der.assign(new Complex(1, 0));
 		}
 		
-		der.assign(der.times(2).times(z).plus(1));
+		der.assign(der.times2().times(z).plus(1));
 		z = z.square().plus(c);
 	
 		return z;
@@ -916,7 +916,7 @@ public class UserDefinedFunctions {
 		}
 		double norm_z = z.norm();
 
-		Complex temp = z.times(Math.log(norm_z)).times(2).divide(dc);
+		Complex temp = z.times(Math.log(norm_z)).times2().divide(dc);
 
 		if(Math.tanh(temp.norm()) < pixel_size.getRe()) {
 			return maxn.negative();
@@ -936,8 +936,8 @@ public class UserDefinedFunctions {
 			der2.assign(new Complex());
 		}
 		
-		der2.assign((der2.times(z).plus(der.square())).times(2));
-		der.assign(der.times(2).times(z).plus(1));
+		der2.assign((der2.times(z).plus(der.square())).times2());
+		der.assign(der.times2().times(z).plus(1));
 		z = z.square().plus(c);
 	
 		return z;

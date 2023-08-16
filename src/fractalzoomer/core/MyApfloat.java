@@ -193,14 +193,14 @@ public class MyApfloat extends Apfloat {
         TWO_PI = fp.multiply(PI, TWO);
         SQRT_TWO = fp.sqrt(TWO);
         LOG_TWO = fp.log(TWO);
-        RECIPROCAL_LOG_TWO_BASE_TEN = MyApfloat.reciprocal(fp.divide(LOG_TWO, fp.log(TEN)));
-        MAX_DOUBLE_SIZE = new MyApfloat(1.0e-304);
+        RECIPROCAL_LOG_TWO_BASE_TEN = fp.divide(fp.log(TEN), LOG_TWO);
+        MAX_DOUBLE_SIZE = new MyApfloat(1.0e-300);
         MIN_DOUBLE_SIZE = new MyApfloat(5.0e-13);
         SA_START_SIZE = new MyApfloat(1.0e-5);
 
         NativeLoader.init();
 
-        if(ThreadDraw.BIGNUM_AUTOMATIC_PRECISION) {
+        if(TaskDraw.BIGNUM_AUTOMATIC_PRECISION) {
             double temp = fp.divide(fp.log(fp.pow(TEN, precision)), LOG_TWO).doubleValue();
 
             BigNum.reinitialize(temp);
@@ -209,13 +209,13 @@ public class MyApfloat extends Apfloat {
             MpirBigNum.reinitialize(temp);
         }
         else {
-            BigNum.reinitialize(ThreadDraw.BIGNUM_PRECISION);
-            BigIntNum.reinitialize(ThreadDraw.BIGNUM_PRECISION);
-            MpfrBigNum.reinitialize(ThreadDraw.BIGNUM_PRECISION);
-            MpirBigNum.reinitialize(ThreadDraw.BIGNUM_PRECISION);
+            BigNum.reinitialize(TaskDraw.BIGNUM_PRECISION);
+            BigIntNum.reinitialize(TaskDraw.BIGNUM_PRECISION);
+            MpfrBigNum.reinitialize(TaskDraw.BIGNUM_PRECISION);
+            MpirBigNum.reinitialize(TaskDraw.BIGNUM_PRECISION);
         }
 
-        use_threads = ThreadDraw.USE_THREADS_IN_BIGNUM_LIBS && precision >= THREADS_THRESHOLD && Runtime.getRuntime().availableProcessors() >= 2;
+        use_threads = TaskDraw.USE_THREADS_IN_BIGNUM_LIBS && precision >= THREADS_THRESHOLD && Runtime.getRuntime().availableProcessors() >= 2;
     }
 
     public static void setPrecision(long prec) {
@@ -226,12 +226,12 @@ public class MyApfloat extends Apfloat {
         TWO_PI = fp.multiply(PI, TWO);
         SQRT_TWO = fp.sqrt(TWO);
         LOG_TWO = fp.log(TWO);
-        RECIPROCAL_LOG_TWO_BASE_TEN = MyApfloat.reciprocal(fp.divide(LOG_TWO, fp.log(TEN)));
-        MAX_DOUBLE_SIZE = new MyApfloat(1.0e-304);
+        RECIPROCAL_LOG_TWO_BASE_TEN = fp.divide(fp.log(TEN), LOG_TWO);
+        MAX_DOUBLE_SIZE = new MyApfloat(1.0e-300);
         MIN_DOUBLE_SIZE = new MyApfloat(5.0e-13);
         SA_START_SIZE = new MyApfloat(1.0e-5);
 
-        if(ThreadDraw.BIGNUM_AUTOMATIC_PRECISION) {
+        if(TaskDraw.BIGNUM_AUTOMATIC_PRECISION) {
             double temp = fp.divide(fp.log(fp.pow(TEN, precision)), LOG_TWO).doubleValue();
 
             BigNum.reinitialize(temp);
@@ -240,13 +240,13 @@ public class MyApfloat extends Apfloat {
             MpirBigNum.reinitialize(temp);
         }
         else {
-            BigNum.reinitialize(ThreadDraw.BIGNUM_PRECISION);
-            BigIntNum.reinitialize(ThreadDraw.BIGNUM_PRECISION);
-            MpfrBigNum.reinitialize(ThreadDraw.BIGNUM_PRECISION);
-            MpirBigNum.reinitialize(ThreadDraw.BIGNUM_PRECISION);
+            BigNum.reinitialize(TaskDraw.BIGNUM_PRECISION);
+            BigIntNum.reinitialize(TaskDraw.BIGNUM_PRECISION);
+            MpfrBigNum.reinitialize(TaskDraw.BIGNUM_PRECISION);
+            MpirBigNum.reinitialize(TaskDraw.BIGNUM_PRECISION);
         }
 
-        use_threads = ThreadDraw.USE_THREADS_IN_BIGNUM_LIBS && precision >= THREADS_THRESHOLD && Runtime.getRuntime().availableProcessors() >= 2;
+        use_threads = TaskDraw.USE_THREADS_IN_BIGNUM_LIBS && precision >= THREADS_THRESHOLD && Runtime.getRuntime().availableProcessors() >= 2;
     }
 
     public static void setPrecision(long prec, Settings s) {

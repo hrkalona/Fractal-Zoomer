@@ -49,7 +49,18 @@ public class CartesianLocationNormalMpirBigNumArbitrary extends Location {
 
         this.height_ratio = height_ratio;
 
-        ddsize = new MpirBigNum(size);
+        if(!LibMpfr.hasError()) {
+            try {
+                ddsize = new MpirBigNum(new MpfrBigNum(size));
+            }
+            catch (Error e) {
+                ddsize = new MpirBigNum(size);
+            }
+        }
+        else {
+            //Bug here near 0, -1 very deep
+            ddsize = new MpirBigNum(size);
+        }
 
         int image_size = offset.getImageSize(image_size_in);
 
@@ -346,9 +357,9 @@ public class CartesianLocationNormalMpirBigNumArbitrary extends Location {
     }
 
     @Override
-    public void createAntialiasingSteps(boolean adaptive, boolean jitter) {
-        super.createAntialiasingSteps(adaptive, jitter);
-        MpirBigNum[][] steps = createAntialiasingStepsMpirBigNum(ddtemp_size_image_size_x, ddtemp_size_image_size_y, adaptive, jitter);
+    public void createAntialiasingSteps(boolean adaptive, boolean jitter, int numberOfExtraSamples) {
+        super.createAntialiasingSteps(adaptive, jitter, numberOfExtraSamples);
+        MpirBigNum[][] steps = createAntialiasingStepsMpirBigNum(ddtemp_size_image_size_x, ddtemp_size_image_size_y, adaptive, jitter, numberOfExtraSamples);
         ddantialiasing_x = steps[0];
         ddantialiasing_y = steps[1];
     }

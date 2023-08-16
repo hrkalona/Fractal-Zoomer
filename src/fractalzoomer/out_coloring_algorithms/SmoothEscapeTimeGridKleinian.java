@@ -13,7 +13,7 @@ public class SmoothEscapeTimeGridKleinian extends OutColorAlgorithm {
         this.u = u * 0.5;
         pi2 = Math.PI * 2;
         this.log_bailout_squared = log_bailout_squared;
-        OutNotUsingIncrement = false;
+        OutUsingIncrement = true;
 
     }
 

@@ -28,7 +28,7 @@ public class EscapeTimeColorDecompositionMagneticPendulum extends EscapeTimeColo
     public EscapeTimeColorDecompositionMagneticPendulum(Complex[] magnets) {
         super();
         this.magnets = magnets;
-        OutNotUsingIncrement = true;
+        OutUsingIncrement = false;
     }
 
     @Override

@@ -436,9 +436,9 @@ public class PolarLocationNormalMpfrBigNumArbitrary extends Location {
     }
 
     @Override
-    public void createAntialiasingSteps(boolean adaptive, boolean jitter) {
-        super.createAntialiasingSteps(adaptive, jitter);
-        MpfrBigNum[][] steps = createAntialiasingPolarStepsMpfrBigNum(ddmulx, ddmuly, adaptive, jitter);
+    public void createAntialiasingSteps(boolean adaptive, boolean jitter, int numberOfExtraSamples) {
+        super.createAntialiasingSteps(adaptive, jitter, numberOfExtraSamples);
+        MpfrBigNum[][] steps = createAntialiasingPolarStepsMpfrBigNum(ddmulx, ddmuly, adaptive, jitter, numberOfExtraSamples);
         ddantialiasing_x = steps[0];
         ddantialiasing_y_sin = steps[1];
         ddantialiasing_y_cos = steps[2];

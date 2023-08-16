@@ -16,6 +16,7 @@ public abstract class BLA {
     }
 
     public abstract Complex getValue(Complex DeltaSubN, Complex DeltaSub0);
+    public abstract Complex getValue(double dre, double dim, double d0re, double d0im);
     public abstract Complex getValue(Complex DeltaSubN, double DeltaSub0);
 
     public Complex getValue(Complex DeltaSubN) {
@@ -30,7 +31,9 @@ public abstract class BLA {
 
     public abstract double hypotB();
 
-    public abstract int getL();
+    public int getL() {
+        return 0;
+    }
 
     public double getAx() {
         return Ax;

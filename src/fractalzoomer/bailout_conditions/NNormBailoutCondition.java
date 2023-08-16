@@ -48,7 +48,7 @@ public class NNormBailoutCondition extends BailoutCondition {
         this.n_norm = n_norm;
         n_norm_reciprocal = 1 / n_norm;
 
-        if(ThreadDraw.PERTURBATION_THEORY || ThreadDraw.HIGH_PRECISION_CALCULATION) {
+        if(TaskDraw.PERTURBATION_THEORY || TaskDraw.HIGH_PRECISION_CALCULATION) {
             ddn_norm = new MyApfloat(n_norm);
             dddn_norm = new DoubleDouble(n_norm);
 
@@ -58,16 +58,13 @@ public class NNormBailoutCondition extends BailoutCondition {
             }
 
 
-            if(ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE || ThreadDraw.HIGH_PRECISION_CALCULATION) {
+            if(!LibMpfr.hasError()) {
+                mpfrbn_norm = new MpfrBigNum(n_norm);
+                temp1 = new MpfrBigNum();
+                temp2 = new MpfrBigNum();
 
-                if(!LibMpfr.hasError()) {
-                    mpfrbn_norm = new MpfrBigNum(n_norm);
-                    temp1 = new MpfrBigNum();
-                    temp2 = new MpfrBigNum();
-
-                    if(n_norm != 0) {
-                        mpfrbn_norm_reciprocal = mpfrbn_norm.reciprocal();
-                    }
+                if(n_norm != 0) {
+                    mpfrbn_norm_reciprocal = mpfrbn_norm.reciprocal();
                 }
             }
         }

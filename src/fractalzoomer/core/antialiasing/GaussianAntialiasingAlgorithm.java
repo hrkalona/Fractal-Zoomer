@@ -1,30 +1,30 @@
 package fractalzoomer.core.antialiasing;
 
 public class GaussianAntialiasingAlgorithm extends AntialiasingAlgorithm {
-    private double redSum;
-    private double greenSum;
-    private double blueSum;
+    private double SumA;
+    private double SumB;
+    private double SumC;
 
-    private double redSum2;
-    private double greenSum2;
-    private double blueSum2;
+    private double SumA2;
+    private double SumB2;
+    private double SumC2;
 
     private int sample;
 
     private boolean avgWithMean;
 
-    private double[] coefficients;
+    private double[] gaussian_coefficients;
 
-    public GaussianAntialiasingAlgorithm(int totalSamples, double[] coefficients, boolean avgWithMean,  int colorSpace) {
+    public GaussianAntialiasingAlgorithm(int totalSamples, double[] gaussian_coefficients, boolean avgWithMean,  int colorSpace) {
         super(totalSamples, colorSpace);
-        redSum = 0;
-        greenSum = 0;
-        blueSum = 0;
-        redSum2 = 0;
-        greenSum2 = 0;
-        blueSum2 = 0;
+        SumA = 0;
+        SumB = 0;
+        SumC = 0;
+        SumA2 = 0;
+        SumB2 = 0;
+        SumC2 = 0;
         sample = 0;
-        this.coefficients = coefficients;
+        this.gaussian_coefficients = gaussian_coefficients;
         this.avgWithMean = avgWithMean;
     }
 
@@ -34,16 +34,16 @@ public class GaussianAntialiasingAlgorithm extends AntialiasingAlgorithm {
         double[] result = getColorChannels(color);
 
         if(avgWithMean) {
-            redSum2 = result[0];
-            greenSum2 = result[1];
-            blueSum2 = result[2];
+            SumA2 = result[0];
+            SumB2 = result[1];
+            SumC2 = result[2];
         }
 
         sample = 0;
-        double coefficient = coefficients[sample];
-        redSum = coefficient * result[0];
-        greenSum = coefficient * result[1];
-        blueSum = coefficient * result[2];
+        double coefficient = gaussian_coefficients[sample];
+        SumA = coefficient * result[0];
+        SumB = coefficient * result[1];
+        SumC = coefficient * result[2];
     }
 
     @Override
@@ -52,22 +52,22 @@ public class GaussianAntialiasingAlgorithm extends AntialiasingAlgorithm {
         double[] result = getColorChannels(color);
 
         if(avgWithMean) {
-            redSum2 += result[0];
-            greenSum2 += result[1];
-            blueSum2 += result[2];
+            SumA2 += result[0];
+            SumB2 += result[1];
+            SumC2 += result[2];
         }
 
         sample++;
-        double coefficient = coefficients[sample];
-        redSum += coefficient * result[0];
-        greenSum += coefficient * result[1];
-        blueSum += coefficient * result[2];
+        double coefficient = gaussian_coefficients[sample];
+        SumA += coefficient * result[0];
+        SumB += coefficient * result[1];
+        SumC += coefficient * result[2];
         return true;
     }
 
     @Override
     public int getColor() {
-        int[] result = getAveragedColorChannels(redSum, greenSum, blueSum, redSum2, greenSum2, blueSum2);
+        int[] result = getAveragedColorChannels(SumA, SumB, SumC, SumA2, SumB2, SumC2);
         return  0xff000000 | (result[0] << 16) | (result[1] << 8) | result[2];
     }
 
@@ -81,12 +81,18 @@ public class GaussianAntialiasingAlgorithm extends AntialiasingAlgorithm {
         }
     }
 
-    public static double[] createGaussianKernel(int length, int[] X, int[] Y) {
+    public static double getSigma(int kernel_size) {
+        return 0.3*((kernel_size-1)*0.5 - 1) + 0.8;
+    }
+
+    public static double[] createGaussianKernel(int length, int[] X, int[] Y, double sigma) {
         double[] gaussian_kernel = new double[X.length];
         double sumTotal = 0;
 
         //OpenCv
-        double sigma=0.3*((length-1)*0.5 - 1) + 0.8;
+        if(sigma == 0) {
+            sigma = getSigma(length);
+        }
 
         double distance = 0;
         double sigmaSqr2 = 2.0 * sigma * sigma;

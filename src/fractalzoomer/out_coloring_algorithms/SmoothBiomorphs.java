@@ -37,7 +37,7 @@ public class SmoothBiomorphs extends OutColorAlgorithm {
         this.log_bailout_squared = log_bailout_squared;
         this.bailout = bailout;
         this.algorithm = algorithm;
-        OutNotUsingIncrement = false;
+        OutUsingIncrement = true;
         usePower = false;
 
     }
@@ -48,7 +48,7 @@ public class SmoothBiomorphs extends OutColorAlgorithm {
         this.log_bailout_squared = log_bailout_squared;
         this.bailout = bailout;
         this.algorithm = algorithm;
-        OutNotUsingIncrement = false;
+        OutUsingIncrement = true;
         usePower = true;
         this.log_power = log_power;
     }

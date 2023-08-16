@@ -2,12 +2,13 @@ package fractalzoomer.main.app_settings;
 
 public class ApproximationDefaultSettings {
     public static int DETECTION_METHOD = 1;
-    public static double Stage0PeriodDetectionThreshold = 0x1.0p-10;
-    public static double PeriodDetectionThreshold = 0x1.0p-10;
-    public static double Stage0PeriodDetectionThreshold2 = 0x1.0p-6;
+    public static double Stage0PeriodDetectionThreshold = 0.1;//0x1.0p-10;
+    public static double PeriodDetectionThreshold = 0.1;//0x1.0p-10;
+    public static double Stage0PeriodDetectionThreshold2 = 0.5;
     public static double PeriodDetectionThreshold2 = 0x1.0p-3;
     public static double LAThresholdScale = 0x1.0p-24;
     public static double LAThresholdCScale = 0x1.0p-24;
+    public static double DoubleThresholdLimit = 0x1.0p-768;
 
     public static int SERIES_APPROXIMATION_TERMS = 5;
     public static long SERIES_APPROXIMATION_OOM_DIFFERENCE = 2;

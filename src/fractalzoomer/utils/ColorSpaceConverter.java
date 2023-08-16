@@ -47,6 +47,11 @@ import java.util.ArrayList;
       public static final int GRADIENT = 8;
       public static final int DIRECT = 9;
       public static final int HWB = 10;
+
+      public static final int HSL_uv = 11;
+
+      public static final int LCH_uv = 12;
+      public static final int LCH_oklab = 13;
       /**
        * reference white in XYZ coordinates
        */
@@ -513,6 +518,10 @@ import java.util.ArrayList;
        * @param B
        * @return Lab values
        */
+      /*
+        Min: 0.0 -0.23388757418790818 -0.3115281476783751
+        Max: 0.9999999934735462 0.27621639742350523 0.19856975465179516
+       */
       public static double[] RGBtoOKLAB(int R, int G, int B) {
           return LinearRGBtoOKLAB(RGBtoLinearRGB(R, G, B));
       }
@@ -522,6 +531,11 @@ import java.util.ArrayList;
        * @param G
        * @param B
        * @return Luv values
+       */
+
+      /*
+      Min: 0.0 -83.06803370763052 -134.11398769549862
+      Max: 100.0 175.0601455599254 107.40606240895833
        */
       public static double[] RGBtoLUV(int R, int G, int B) {
           return XYZtoLUV(RGBtoXYZ(R, G, B));
@@ -733,6 +747,10 @@ import java.util.ArrayList;
           return LCH_uvtoRGB(HPL_uvtoLCH_uv(H, P, L));
       }
 
+      /*
+       Min: 0.0 0.0 0.0
+       Max: 359.9999965782164 128.00081217081788 100.0
+       */
       public static double[] RGBtoHSL_uv(int R, int G, int B) {
           return LCH_uvtoHSL_uv(RGBtoLCH_uv(R, G, B));
       }
@@ -741,6 +759,10 @@ import java.util.ArrayList;
          return RGBtoHSL_uv(RGB[0], RGB[1], RGB[2]);
       }
 
+      /*
+        Min: 0.0 0.0 0.0
+        Max: 359.9999965782164 1783.8219320285107 100.0
+       */
       public static double[] RGBtoHPL_uv(int R, int G, int B) {
           return LCH_uvtoHPL_uv(RGBtoLCH_uv(R, G, B));
       }
@@ -1187,8 +1209,8 @@ import java.util.ArrayList;
 
       /*
 
-        Min L= 0.0 C= 5.0638463202671015E-5 H= 5.041644380817674E-6
-        Max L= 100.0 C= 179.08481341748777 H= 359.9999965782164
+        Min: 0.0 0.0 0.0
+        Max: 100.0 179.08481341748777 359.9999965782164
 
        */
       public static double[] RGBtoLCH_uv(int R, int G, int B) {
@@ -1264,6 +1286,10 @@ import java.util.ArrayList;
     }
 
 
+    /*
+    Min: -8.077935669463161E-26 2.5849394142282115E-26 7.710123533994793E-5
+    Max: 0.01758021431928381 0.02497698799226275 359.99992196733234
+     */
       public static double[] RGBtoLCH_JzAzBz(int R, int G, int B) {
 
           double[] temp = RGBtoJzAzBz(R, G, B);
@@ -1297,6 +1323,10 @@ import java.util.ArrayList;
 
       }
 
+      /*
+        Min: 0.0 0.0 0.0
+        Max: 0.9999999934735462 0.32249096477516437 359.99998185762746
+       */
 
       public static double[] RGBtoLCH_oklab(int R, int G, int B) {
 
@@ -1544,6 +1574,39 @@ import java.util.ArrayList;
                 
     }
 
+    public static int PASTEL_RED = 255;
+    public static int PASTEL_GREEN = 255;
+    public static int PASTEL_BLUE = 255;
+
+    public static int pastel(int c, int component) {
+
+        int color = 255;
+
+        switch (component) {
+            case 0:
+                color = PASTEL_RED;
+                break;
+            case 1:
+                color = PASTEL_GREEN;
+                break;
+            case 2:
+                color = PASTEL_BLUE;
+                break;
+        }
+
+        return (int)((c + color) * 0.5 + 0.5);
+    }
+
+      public static int pastel(int c, int pastel_val, double percent) {
+          return (int)(c * percent + pastel_val * (1 - percent) + 0.5);
+      }
+
+      public static int pastelWithValue(int c, int pastel_value) {
+
+          return (int)((c + pastel_value) * 0.5 + 0.5);
+
+      }
+
     public static double[] RGBtoHWB(int[] RGB) {
         return RGBtoHWB(RGB[0], RGB[1], RGB[2]);
     }
@@ -1650,7 +1713,7 @@ double g(double K) {
     return new int[] {r, g, b};
 }*/
 
-      /*public static void main(String[] args) {
+      public static void main(String[] args) {
 
           double minL = Double.MAX_VALUE;
           double minU = Double.MAX_VALUE;
@@ -1662,7 +1725,7 @@ double g(double K) {
           for(int r = 0; r < 256; r++) {
               for(int g = 0; g < 256; g++) {
                   for(int b = 0; b < 256; b++) {
-                      double[] res = ColorSpaceConverter.RGBtoJzAzBz(r, g, b);
+                      double[] res = ColorSpaceConverter.RGBtoLCH_uv(r, g, b);
 
                       if(res[0] > maxL) {
                           maxL = res[0];
@@ -1688,27 +1751,14 @@ double g(double K) {
                           minV = res[2];
                       }
 
-                      int[] newrgb = ColorSpaceConverter.JzAzBztoRGB(res);
-
-                      if(r != newrgb[0]) {
-                          System.out.println(newrgb[0] + " " + r);
-                      }
-
-                      if(g != newrgb[1]) {
-                          System.out.println(newrgb[1] + " " + g);
-                      }
-
-                      if(b != newrgb[2]) {
-                          System.out.println(newrgb[2] + " " + b);
-                      }
                   }
               }
           }
 
-          System.out.println("Min L= " + minL + " C= " + minU + " H= " + minV);
-          System.out.println("Max L= " + maxL + " C= " + maxU + " H= " + maxV);
+          System.out.println("Min: " + minL + " " + minU + " " + minV);
+          System.out.println("Max: " + maxL + " " + maxU + " " + maxV);
 
 
-      }*/
+      }
   }
 

@@ -22,7 +22,8 @@ public class CombinedStatisticWithNormalMap extends GenericStatistic {
     public double getValue() {
         double v1 = nm.getValue();
 
-        if(Math.abs(v1) == ColorAlgorithm.MAXIMUM_ITERATIONS) {
+        double tempV1 = Math.abs(v1);
+        if(tempV1 == ColorAlgorithm.MAXIMUM_ITERATIONS || tempV1 == ColorAlgorithm.MAXIMUM_ITERATIONS_DE) {
             return v1;
         }
 
@@ -190,7 +191,8 @@ public class CombinedStatisticWithNormalMap extends GenericStatistic {
     public double getValueNotEscaped() {
         double v1 = nm.getValueNotEscaped();
 
-        if(Math.abs(v1) == ColorAlgorithm.MAXIMUM_ITERATIONS) {
+        double tempV1 = Math.abs(v1);
+        if(tempV1 == ColorAlgorithm.MAXIMUM_ITERATIONS || tempV1 == ColorAlgorithm.MAXIMUM_ITERATIONS_DE) {
             return v1;
         }
 
@@ -233,5 +235,10 @@ public class CombinedStatisticWithNormalMap extends GenericStatistic {
     @Override
     public double getExtraValue() {
         return nm.getExtraValue();
+    }
+
+    @Override
+    public boolean hasNormalMap() {
+        return true;
     }
 }

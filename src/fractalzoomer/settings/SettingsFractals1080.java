@@ -41,24 +41,24 @@ public class SettingsFractals1080 extends SettingsFractals1079 implements Serial
 
     public SettingsFractals1080(Settings s) {
         super(s);
-        checkType = s.ots.checkType;
-        sfm1 = s.ots.sfm1;
-        sfm2 = s.ots.sfm2;
-        sfn1 = s.ots.sfn1;
-        sfn2 = s.ots.sfn2;
-        sfn3 = s.ots.sfn3;
-        sfa = s.ots.sfa;
-        sfb = s.ots.sfb;
+        checkType = s.pps.ots.checkType;
+        sfm1 = s.pps.ots.sfm1;
+        sfm2 = s.pps.ots.sfm2;
+        sfn1 = s.pps.ots.sfn1;
+        sfn2 = s.pps.ots.sfn2;
+        sfn3 = s.pps.ots.sfn3;
+        sfa = s.pps.ots.sfa;
+        sfb = s.pps.ots.sfb;
 
-        rootIterationsScaling = s.sts.rootIterationsScaling;
-        rootShading = s.sts.rootShading;
-        rootContourColorMethod = s.sts.rootContourColorMethod;
-        rootBlending = s.sts.rootBlending;
-        rootShadingFunction = s.sts.rootShadingFunction;
-        revertRootShading = s.sts.revertRootShading;
-        highlightRoots = s.sts.highlightRoots;
-        rootSmooting = s.sts.rootSmooting;
-        rootColors = s.sts.rootColors;
+        rootIterationsScaling = s.pps.sts.rootIterationsScaling;
+        rootShading = s.pps.sts.rootShading;
+        rootContourColorMethod = s.pps.sts.rootContourColorMethod;
+        rootBlending = s.pps.sts.rootBlending;
+        rootShadingFunction = s.pps.sts.rootShadingFunction;
+        revertRootShading = s.pps.sts.revertRootShading;
+        highlightRoots = s.pps.sts.highlightRoots;
+        rootSmooting = s.pps.sts.rootSmooting;
+        rootColors = s.pps.sts.rootColors;
 
         MagnetColorOffset = s.MagnetColorOffset;
 
@@ -69,8 +69,8 @@ public class SettingsFractals1080 extends SettingsFractals1079 implements Serial
         convergent_n_norm = s.fns.cbs.convergent_n_norm;
         skip_convergent_bailout_iterations = s.fns.skip_convergent_bailout_iterations;
 
-        twlFunction = s.sts.twlFunction;
-        twlPoint = s.sts.twlPoint;
+        twlFunction = s.pps.sts.twlFunction;
+        twlPoint = s.pps.sts.twlPoint;
     }
 
     @Override

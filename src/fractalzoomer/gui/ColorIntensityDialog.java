@@ -48,7 +48,7 @@ public class ColorIntensityDialog extends JDialog {
 
         Object[] message3 = {
             " ",
-            "You are using " + (outcoloring ? s.ps.color_intensity : s.ps2.color_intensity) + " for color intensity.\nEnter the new color intensity number.",
+            "You are using " + (outcoloring ? s.ps.color_intensity : s.ps2.color_intensity) + " for color intensity.\nInsert the new color intensity number.",
             field,
             " ",};
 
@@ -106,7 +106,7 @@ public class ColorIntensityDialog extends JDialog {
                         }
 
                         dispose();
-                        ptr.updateColors();
+                        ptr.updateColors(false);
                     }
                 });
 

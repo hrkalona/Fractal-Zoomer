@@ -48,7 +48,7 @@ public class HeightRatioDialog extends JDialog {
 
         Object[] message3 = {
             " ",
-            "You are using " + s.height_ratio + " as stretch factor.\nEnter the new stretch.",
+            "You are using " + s.height_ratio + " as stretch factor.\nInsert the new stretch.",
             field,
             " ",};
 

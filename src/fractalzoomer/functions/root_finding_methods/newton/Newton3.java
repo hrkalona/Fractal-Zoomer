@@ -36,9 +36,9 @@ import static fractalzoomer.main.Constants.REFERENCE_CALCULATION_STR;
  */
 public class Newton3 extends NewtonRootFindingMethod {
 
-    public Newton3(double xCenter, double yCenter, double size, int max_iterations, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula,  double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int converging_smooth_algorithm, OrbitTrapSettings ots, StatisticsSettings sts) {
+    public Newton3(double xCenter, double yCenter, double size, int max_iterations, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula,  double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower, int converging_smooth_algorithm, OrbitTrapSettings ots, StatisticsSettings sts) {
 
-        super(xCenter, yCenter, size, max_iterations,  plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula,  plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, ots);
+        super(xCenter, yCenter, size, max_iterations,  plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula,  plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, ots);
 
         switch (out_coloring_algorithm) {
             case MainWindow.BINARY_DECOMPOSITION:
@@ -65,9 +65,9 @@ public class Newton3 extends NewtonRootFindingMethod {
     }
 
     //orbit
-    public Newton3(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula,  double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount) {
+    public Newton3(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula,  double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower) {
 
-        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula,  plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula,  plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower);
 
         power = 3;
 
@@ -95,7 +95,7 @@ public class Newton3 extends NewtonRootFindingMethod {
 
         Complex Z = getArrayValue(reference, RefIteration);
 
-        Complex temp = Z.times(2).plus_mutable(z).times_mutable(z).times_mutable(Z.square());
+        Complex temp = Z.times2().plus_mutable(z).times_mutable(z).times_mutable(Z.square());
         return temp.plus(getArrayValue(referenceData.PrecalculatedTerms[0], RefIteration)).sub_mutable(z.times(0.5)).times_mutable(z).divide_mutable(temp.plus(Z.fourth()).times_mutable(1.5));
 
     }
@@ -114,7 +114,7 @@ public class Newton3 extends NewtonRootFindingMethod {
 
         Complex Z = getArrayValue(data.Reference, RefIteration);
 
-        Complex temp = Z.times(2).plus_mutable(z).times_mutable(z).times_mutable(Z.square());
+        Complex temp = Z.times2().plus_mutable(z).times_mutable(z).times_mutable(Z.square());
         return temp.plus(getArrayValue(data.PrecalculatedTerms[0], RefIteration)).sub_mutable(z.times(0.5)).times_mutable(z).divide_mutable(temp.plus(Z.fourth()).times_mutable(1.5));
 
     }
@@ -158,6 +158,7 @@ public class Newton3 extends NewtonRootFindingMethod {
         }
 
         boolean lowPrecReferenceOrbitNeeded = !needsOnlyExtendedReferenceOrbit(deepZoom, false);
+        DoubleReference.SHOULD_SAVE_MEMORY = false;
 
         if(iterations == 0) {
             if(lowPrecReferenceOrbitNeeded) {
@@ -206,57 +207,54 @@ public class Newton3 extends NewtonRootFindingMethod {
         }
 
 
-        int bigNumLib = ThreadDraw.getBignumLibrary(size, this);
-        boolean useBignum = ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE && bigNumLib != Constants.BIGNUM_APFLOAT;
+        int bigNumLib = TaskDraw.getBignumLibrary(size, this);
 
         GenericComplex z, zold, zold2, start, pixel, initVal;
 
-        if(useBignum) {
-            if(bigNumLib == Constants.BIGNUM_MPFR) {
-                initVal = new MpfrBigNumComplex(1, 0);
-                MpfrBigNumComplex bn = new MpfrBigNumComplex(inputPixel.toMpfrBigNumComplex());
-                z = iterations == 0 ? bn : referenceData.lastZValue;
-                zold = iterations == 0 ? new MpfrBigNumComplex() : referenceData.secondTolastZValue;
-                zold2 = iterations == 0 ? new MpfrBigNumComplex() : referenceData.thirdTolastZValue;
-                start = new MpfrBigNumComplex(bn);
-                pixel = new MpfrBigNumComplex(bn);
-            }
-            else if(bigNumLib == Constants.BIGNUM_MPIR) {
-                initVal = new MpirBigNumComplex(1, 0);
-                MpirBigNumComplex bn = new MpirBigNumComplex(inputPixel.toMpirBigNumComplex());
-                z = iterations == 0 ? bn : referenceData.lastZValue;
-                zold = iterations == 0 ? new MpirBigNumComplex() : referenceData.secondTolastZValue;
-                zold2 = iterations == 0 ? new MpirBigNumComplex() : referenceData.thirdTolastZValue;
-                start = new MpirBigNumComplex(bn);
-                pixel = new MpirBigNumComplex(bn);
-            }
-            else if(bigNumLib == Constants.BIGNUM_DOUBLEDOUBLE) {
-                initVal = new DDComplex(1, 0);
-                DDComplex ddn = inputPixel.toDDComplex();
-                z = iterations == 0 ? ddn : referenceData.lastZValue;
-                zold = iterations == 0 ? new DDComplex() : referenceData.secondTolastZValue;
-                zold2 = iterations == 0 ? new DDComplex() : referenceData.thirdTolastZValue;
-                start = ddn;
-                pixel = ddn;
-            }
-            else if(bigNumLib == Constants.BIGNUM_BIGINT) {
-                initVal = new BigIntNumComplex(1, 0);
-                BigIntNumComplex bin = inputPixel.toBigIntNumComplex();
-                z = iterations == 0 ? bin : referenceData.lastZValue;
-                zold = iterations == 0 ? new BigIntNumComplex() : referenceData.secondTolastZValue;
-                zold2 = iterations == 0 ? new BigIntNumComplex() : referenceData.thirdTolastZValue;
-                start = bin;
-                pixel = bin;
-            }
-            else {
-                initVal = new Complex(1, 0);
-                Complex bn = inputPixel.toComplex();
-                z = iterations == 0 ? bn : referenceData.lastZValue;
-                zold = iterations == 0 ? new Complex() : referenceData.secondTolastZValue;
-                zold2 = iterations == 0 ? new Complex() : referenceData.thirdTolastZValue;
-                start = new Complex(bn);
-                pixel = new Complex(bn);
-            }
+        if(bigNumLib == Constants.BIGNUM_MPFR) {
+            initVal = new MpfrBigNumComplex(1, 0);
+            MpfrBigNumComplex bn = new MpfrBigNumComplex(inputPixel.toMpfrBigNumComplex());
+            z = iterations == 0 ? bn : referenceData.lastZValue;
+            zold = iterations == 0 ? new MpfrBigNumComplex() : referenceData.secondTolastZValue;
+            zold2 = iterations == 0 ? new MpfrBigNumComplex() : referenceData.thirdTolastZValue;
+            start = new MpfrBigNumComplex(bn);
+            pixel = new MpfrBigNumComplex(bn);
+        }
+        else if(bigNumLib == Constants.BIGNUM_MPIR) {
+            initVal = new MpirBigNumComplex(1, 0);
+            MpirBigNumComplex bn = new MpirBigNumComplex(inputPixel.toMpirBigNumComplex());
+            z = iterations == 0 ? bn : referenceData.lastZValue;
+            zold = iterations == 0 ? new MpirBigNumComplex() : referenceData.secondTolastZValue;
+            zold2 = iterations == 0 ? new MpirBigNumComplex() : referenceData.thirdTolastZValue;
+            start = new MpirBigNumComplex(bn);
+            pixel = new MpirBigNumComplex(bn);
+        }
+        else if(bigNumLib == Constants.BIGNUM_DOUBLEDOUBLE) {
+            initVal = new DDComplex(1, 0);
+            DDComplex ddn = inputPixel.toDDComplex();
+            z = iterations == 0 ? ddn : referenceData.lastZValue;
+            zold = iterations == 0 ? new DDComplex() : referenceData.secondTolastZValue;
+            zold2 = iterations == 0 ? new DDComplex() : referenceData.thirdTolastZValue;
+            start = ddn;
+            pixel = ddn;
+        }
+        else if(bigNumLib == Constants.BIGNUM_BIGINT) {
+            initVal = new BigIntNumComplex(1, 0);
+            BigIntNumComplex bin = inputPixel.toBigIntNumComplex();
+            z = iterations == 0 ? bin : referenceData.lastZValue;
+            zold = iterations == 0 ? new BigIntNumComplex() : referenceData.secondTolastZValue;
+            zold2 = iterations == 0 ? new BigIntNumComplex() : referenceData.thirdTolastZValue;
+            start = bin;
+            pixel = bin;
+        }
+        else if(bigNumLib == Constants.BIGNUM_DOUBLE) {
+            initVal = new Complex(1, 0);
+            Complex bn = inputPixel.toComplex();
+            z = iterations == 0 ? bn : referenceData.lastZValue;
+            zold = iterations == 0 ? new Complex() : referenceData.secondTolastZValue;
+            zold2 = iterations == 0 ? new Complex() : referenceData.thirdTolastZValue;
+            start = new Complex(bn);
+            pixel = new Complex(bn);
         }
         else {
             initVal = new BigComplex(1, 0);
@@ -281,7 +279,9 @@ public class Newton3 extends NewtonRootFindingMethod {
 
         convergent_bailout_algorithm.setReferenceMode(true);
 
-        for (; iterations < max_ref_iterations; iterations++) {
+        calculatedReferenceIterations = 0;
+
+        for (; iterations < max_ref_iterations; iterations++, calculatedReferenceIterations++) {
 
             if(lowPrecReferenceOrbitNeeded) {
                 Complex cz = z.toComplex();
@@ -293,10 +293,10 @@ public class Newton3 extends NewtonRootFindingMethod {
             }
 
             GenericComplex zsubcp;
-            if(useBignum && bigNumLib == Constants.BIGNUM_MPFR) {
+            if(bigNumLib == Constants.BIGNUM_MPFR) {
                 zsubcp = z.sub(initVal, workSpaceData.temp1, workSpaceData.temp2);
             }
-            else if(useBignum && bigNumLib == Constants.BIGNUM_MPIR) {
+            else if(bigNumLib == Constants.BIGNUM_MPIR) {
                 zsubcp = z.sub(initVal, workSpaceData.temp1p, workSpaceData.temp2p);
             }
             else {
@@ -312,7 +312,7 @@ public class Newton3 extends NewtonRootFindingMethod {
 
             GenericComplex zcubes1;
 
-            if(useBignum) {
+            if(bigNumLib != Constants.BIGNUM_APFLOAT) {
                 zcubes1 = z.cube().sub_mutable(1);
             }
             else {
@@ -339,7 +339,7 @@ public class Newton3 extends NewtonRootFindingMethod {
             zold.set(z);
 
             try {
-                if(useBignum) {
+                if(bigNumLib != Constants.BIGNUM_APFLOAT) {
                     z = z.sub_mutable(zcubes1.divide_mutable(z.square().times_mutable(3)));
                 }
                 else {
@@ -365,7 +365,7 @@ public class Newton3 extends NewtonRootFindingMethod {
 
         referenceData.MaxRefIteration = iterations - 1;
 
-        skippedIterations = 0;
+        SAskippedIterations = 0;
 
         if(progress != null) {
             progress.setValue(progress.getMaximum());
@@ -428,55 +428,52 @@ public class Newton3 extends NewtonRootFindingMethod {
 
         GenericComplex z, c, zold, zold2, start, c0, pixel, initVal;
 
-        int bigNumLib = ThreadDraw.getBignumLibrary(size, this);
-        boolean useBignum = ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE  && bigNumLib != Constants.BIGNUM_APFLOAT;
+        int bigNumLib = TaskDraw.getBignumLibrary(size, this);
 
-        if(useBignum) {
-            if(bigNumLib == Constants.BIGNUM_MPFR) {
-                initVal = new MpfrBigNumComplex(1, 0);
-                MpfrBigNumComplex bn = new MpfrBigNumComplex(inputPixel.toMpfrBigNumComplex());
-                z = iterations == 0 ? initVal : secondReferenceData.lastZValue;
-                zold = iterations == 0 ? new MpfrBigNumComplex() : secondReferenceData.secondTolastZValue;
-                zold2 = iterations == 0 ? new MpfrBigNumComplex() : secondReferenceData.thirdTolastZValue;
-                start = new MpfrBigNumComplex((MpfrBigNumComplex) initVal);
-                pixel = new MpfrBigNumComplex(bn);
-            }
-            else if(bigNumLib == Constants.BIGNUM_MPIR) {
-                initVal = new MpirBigNumComplex(1, 0);
-                MpirBigNumComplex bn = new MpirBigNumComplex(inputPixel.toMpirBigNumComplex());
-                z = iterations == 0 ? initVal : secondReferenceData.lastZValue;
-                zold = iterations == 0 ? new MpirBigNumComplex() : secondReferenceData.secondTolastZValue;
-                zold2 = iterations == 0 ? new MpirBigNumComplex() : secondReferenceData.thirdTolastZValue;
-                start = new MpirBigNumComplex((MpirBigNumComplex) initVal);
-                pixel = new MpirBigNumComplex(bn);
-            }
-            else if(bigNumLib == Constants.BIGNUM_DOUBLEDOUBLE) {
-                initVal = new DDComplex(1, 0);
-                DDComplex ddn = inputPixel.toDDComplex();
-                z = iterations == 0 ? initVal : secondReferenceData.lastZValue;
-                zold = iterations == 0 ? new DDComplex() : secondReferenceData.secondTolastZValue;
-                zold2 = iterations == 0 ? new DDComplex() : secondReferenceData.thirdTolastZValue;
-                start = initVal;
-                pixel = ddn;
-            }
-            else if(bigNumLib == Constants.BIGNUM_BIGINT) {
-                initVal = new BigIntNumComplex(1, 0);
-                BigIntNumComplex bin = inputPixel.toBigIntNumComplex();
-                z = iterations == 0 ? initVal : secondReferenceData.lastZValue;
-                zold = iterations == 0 ? new BigIntNumComplex() : secondReferenceData.secondTolastZValue;
-                zold2 = iterations == 0 ? new BigIntNumComplex() : secondReferenceData.thirdTolastZValue;
-                start = initVal;
-                pixel = bin;
-            }
-            else {
-                initVal = new Complex(1, 0);
-                Complex bn = inputPixel.toComplex();
-                z = iterations == 0 ? initVal : secondReferenceData.lastZValue;
-                zold = iterations == 0 ? new Complex() : secondReferenceData.secondTolastZValue;
-                zold2 = iterations == 0 ? new Complex() : secondReferenceData.thirdTolastZValue;
-                start = new Complex((Complex) initVal);
-                pixel = new Complex(bn);
-            }
+        if(bigNumLib == Constants.BIGNUM_MPFR) {
+            initVal = new MpfrBigNumComplex(1, 0);
+            MpfrBigNumComplex bn = new MpfrBigNumComplex(inputPixel.toMpfrBigNumComplex());
+            z = iterations == 0 ? initVal : secondReferenceData.lastZValue;
+            zold = iterations == 0 ? new MpfrBigNumComplex() : secondReferenceData.secondTolastZValue;
+            zold2 = iterations == 0 ? new MpfrBigNumComplex() : secondReferenceData.thirdTolastZValue;
+            start = new MpfrBigNumComplex((MpfrBigNumComplex) initVal);
+            pixel = new MpfrBigNumComplex(bn);
+        }
+        else if(bigNumLib == Constants.BIGNUM_MPIR) {
+            initVal = new MpirBigNumComplex(1, 0);
+            MpirBigNumComplex bn = new MpirBigNumComplex(inputPixel.toMpirBigNumComplex());
+            z = iterations == 0 ? initVal : secondReferenceData.lastZValue;
+            zold = iterations == 0 ? new MpirBigNumComplex() : secondReferenceData.secondTolastZValue;
+            zold2 = iterations == 0 ? new MpirBigNumComplex() : secondReferenceData.thirdTolastZValue;
+            start = new MpirBigNumComplex((MpirBigNumComplex) initVal);
+            pixel = new MpirBigNumComplex(bn);
+        }
+        else if(bigNumLib == Constants.BIGNUM_DOUBLEDOUBLE) {
+            initVal = new DDComplex(1, 0);
+            DDComplex ddn = inputPixel.toDDComplex();
+            z = iterations == 0 ? initVal : secondReferenceData.lastZValue;
+            zold = iterations == 0 ? new DDComplex() : secondReferenceData.secondTolastZValue;
+            zold2 = iterations == 0 ? new DDComplex() : secondReferenceData.thirdTolastZValue;
+            start = initVal;
+            pixel = ddn;
+        }
+        else if(bigNumLib == Constants.BIGNUM_BIGINT) {
+            initVal = new BigIntNumComplex(1, 0);
+            BigIntNumComplex bin = inputPixel.toBigIntNumComplex();
+            z = iterations == 0 ? initVal : secondReferenceData.lastZValue;
+            zold = iterations == 0 ? new BigIntNumComplex() : secondReferenceData.secondTolastZValue;
+            zold2 = iterations == 0 ? new BigIntNumComplex() : secondReferenceData.thirdTolastZValue;
+            start = initVal;
+            pixel = bin;
+        }
+        else if(bigNumLib == Constants.BIGNUM_DOUBLE) {
+            initVal = new Complex(1, 0);
+            Complex bn = inputPixel.toComplex();
+            z = iterations == 0 ? initVal : secondReferenceData.lastZValue;
+            zold = iterations == 0 ? new Complex() : secondReferenceData.secondTolastZValue;
+            zold2 = iterations == 0 ? new Complex() : secondReferenceData.thirdTolastZValue;
+            start = new Complex((Complex) initVal);
+            pixel = new Complex(bn);
         }
         else {
             initVal = new BigComplex(1, 0);
@@ -502,10 +499,10 @@ public class Newton3 extends NewtonRootFindingMethod {
             }
 
             GenericComplex zsubcp;
-            if(useBignum && bigNumLib == Constants.BIGNUM_MPFR) {
+            if(bigNumLib == Constants.BIGNUM_MPFR) {
                 zsubcp = z.sub(initVal, workSpaceData.temp1, workSpaceData.temp2);
             }
-            else if(useBignum && bigNumLib == Constants.BIGNUM_MPIR) {
+            else if(bigNumLib == Constants.BIGNUM_MPIR) {
                 zsubcp = z.sub(initVal, workSpaceData.temp1p, workSpaceData.temp2p);
             }
             else {
@@ -521,7 +518,7 @@ public class Newton3 extends NewtonRootFindingMethod {
 
             GenericComplex zcubes1;
 
-            if(useBignum) {
+            if(bigNumLib != Constants.BIGNUM_APFLOAT) {
                 zcubes1 = z.cube().sub_mutable(1);
             }
             else {
@@ -548,7 +545,7 @@ public class Newton3 extends NewtonRootFindingMethod {
             zold.set(z);
 
             try {
-                if(useBignum) {
+                if(bigNumLib != Constants.BIGNUM_APFLOAT) {
                     z = z.sub_mutable(zcubes1.divide_mutable(z.square().times_mutable(3)));
                 }
                 else {
@@ -605,7 +602,7 @@ public class Newton3 extends NewtonRootFindingMethod {
 
     @Override
     public double getDoubleDoubleLimit() {
-        if(ThreadDraw.HIGH_PRECISION_CALCULATION) {
+        if(TaskDraw.HIGH_PRECISION_CALCULATION) {
             return super.getDoubleDoubleLimit();
         }
 
@@ -614,7 +611,7 @@ public class Newton3 extends NewtonRootFindingMethod {
 
     @Override
     public boolean needsExtendedRange() {
-        return ThreadDraw.USE_FULL_FLOATEXP_FOR_ALL_ZOOM || (ThreadDraw.USE_CUSTOM_FLOATEXP_REQUIREMENT && size < 1.0e-14);
+        return TaskDraw.USE_FULL_FLOATEXP_FOR_ALL_ZOOM || (TaskDraw.USE_CUSTOM_FLOATEXP_REQUIREMENT && size < 1.0e-14);
     }
 
     @Override

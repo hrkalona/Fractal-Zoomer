@@ -70,6 +70,8 @@ public abstract class InterpolationMethod {
                 return new FrthrootInterpolation();
             case MainWindow.INTERPOLATION_SMOOTH_TRANSITION_STEP:
                 return new SmoothTransitionFunctionInterpolation();
+            case MainWindow.INTERPOLATION_QUARTER_SIN:
+                return new QuarterSinInterpolation();
         }
 
         return null;

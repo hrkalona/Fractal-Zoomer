@@ -632,7 +632,7 @@ public class DDComplex extends GenericComplex {
 
     public final DDComplex fromBiPolar(DDComplex a) {
 
-        return this.divide(a.times_i(1)).acot().times(2);
+        return this.divide(a.times_i(1)).acot().times2();
 
     }
 
@@ -1022,7 +1022,7 @@ public class DDComplex extends GenericComplex {
      */
     public final DDComplex ahvsin() {
 
-        return this.sqrt().asin().times(2);
+        return this.sqrt().asin().times2();
 
     }
 
@@ -1040,7 +1040,7 @@ public class DDComplex extends GenericComplex {
      */
     public final DDComplex ahvcos() {
 
-        return this.sqrt().acos().times(2);
+        return this.sqrt().acos().times2();
 
     }
 
@@ -1058,7 +1058,7 @@ public class DDComplex extends GenericComplex {
      */
     public final DDComplex ahcvsin() {
 
-        return this.times(2).r_sub(1).asin();
+        return this.times2().r_sub(1).asin();
 
     }
 
@@ -1161,6 +1161,28 @@ public class DDComplex extends GenericComplex {
         DDComplex diff = this.sub(inf);
 
         return inf.plus(diff.square());
+
+    }
+
+    public final DDComplex inflectionPower(DDComplex inf, double power) {
+
+        if(power == 1) {
+            return plus(inf);
+        }
+        else if(power == 2) {
+            return square().plus(inf);
+        }
+        else if(power == 3) {
+            return cube().plus(inf);
+        }
+        else if(power == 4) {
+            return fourth().plus(inf);
+        }
+        if(power == 5) {
+            return fifth().plus(inf);
+        }
+
+        return pow(power).plus(inf);
 
     }
 
@@ -1479,7 +1501,7 @@ public class DDComplex extends GenericComplex {
     }
 
     @Override
-    public MantExpComplex toMantExpComplex() { return new MantExpComplex(this.toComplex());}
+    public MantExpComplex toMantExpComplex() { return MantExpComplex.create(this.toComplex());}
 
     @Override
     public void set(GenericComplex za) {
@@ -1617,4 +1639,17 @@ public class DDComplex extends GenericComplex {
         return conjugate();
 
     }
+
+    @Override
+    public DDComplex absNegateRe_mutable() {
+        return new DDComplex(re.abs().negate(), im);
+    }
+    @Override
+    public DDComplex absNegateIm_mutable() {
+        return new DDComplex(re, im.abs().negate());
+    }
+
+
+    @Override
+    public DDComplex absre_mutable() { return  absre(); }
 }

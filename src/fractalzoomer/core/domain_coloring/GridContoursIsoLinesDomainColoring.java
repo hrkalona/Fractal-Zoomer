@@ -60,7 +60,7 @@ public class GridContoursIsoLinesDomainColoring extends DomainColoring {
         
         color = applyGridContours(color, res.getRe(), res.getIm());  
         
-        return applyIsoLines(color, arg);
+        return applyIsoLines(color, arg, 0, 0);
 
     }
     

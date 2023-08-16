@@ -2,18 +2,20 @@ package fractalzoomer.core.mpir;
 
 
 import fractalzoomer.core.MantExp;
-import fractalzoomer.core.ThreadDraw;
+import fractalzoomer.core.TaskDraw;
 import fractalzoomer.core.mpfr.MpfrBigNum;
 import fractalzoomer.core.mpfr.mpfr_t;
 import org.apfloat.Apfloat;
 
 import java.util.Arrays;
 
+import static fractalzoomer.core.mpfr.LibMpfr.mpfr_div_2ui;
+import static fractalzoomer.core.mpfr.LibMpfr.mpfr_mul_2ui;
 import static fractalzoomer.core.mpir.LibMpir.*;
 
 
 public class MpirBigNum {
-    public static long precision = ThreadDraw.BIGNUM_PRECISION;
+    public static long precision = TaskDraw.BIGNUM_PRECISION;
     public static int THREADS_THRESHOLD = 3820; // bits of precision
     private static int use_threads = 0;
 
@@ -35,9 +37,9 @@ public class MpirBigNum {
                 a = SQRT_TWO.divide(10000);
             }
             else {
-                int index = Arrays.asList(ThreadDraw.mpirWinLibs).indexOf(ThreadDraw.MPIR_LIB);
+                int index = Arrays.asList(TaskDraw.mpirWinLibs).indexOf(TaskDraw.MPIR_LIB);
                 if(index != -1) {//Try to fallback to another for the next load
-                    ThreadDraw.MPIR_LIB = ThreadDraw.mpirWinLibs[(index + 1) % ThreadDraw.mpirWinLibs.length];
+                    TaskDraw.MPIR_LIB = TaskDraw.mpirWinLibs[(index + 1) % TaskDraw.mpirWinLibs.length];
                 }
             }
         }
@@ -46,21 +48,21 @@ public class MpirBigNum {
             LOAD_ERROR = new Exception(ex.getMessage());
             System.out.println("Cannot load mpir: " + LOAD_ERROR.getMessage());
 
-            int index = Arrays.asList(ThreadDraw.mpirWinLibs).indexOf(ThreadDraw.MPIR_LIB);
+            int index = Arrays.asList(TaskDraw.mpirWinLibs).indexOf(TaskDraw.MPIR_LIB);
             if(index != -1) {//Try to fallback to another for the next load
-                ThreadDraw.MPIR_LIB = ThreadDraw.mpirWinLibs[(index + 1) % ThreadDraw.mpirWinLibs.length];
+                TaskDraw.MPIR_LIB = TaskDraw.mpirWinLibs[(index + 1) % TaskDraw.mpirWinLibs.length];
             }
         }
     }
 
     public static void reinitialize(double digits) {
-        precision = (int)(digits * ThreadDraw.BIGNUM_PRECISION_FACTOR + 0.5);
+        precision = (int)(digits * TaskDraw.BIGNUM_PRECISION_FACTOR + 0.5);
 
         if(!hasError()) {
             SQRT_TWO = new MpirBigNum(2).sqrt();
         }
 
-        use_threads = ThreadDraw.USE_THREADS_IN_BIGNUM_LIBS && precision >= THREADS_THRESHOLD && Runtime.getRuntime().availableProcessors() >= 2 ? 1 : 0;
+        use_threads = TaskDraw.USE_THREADS_IN_BIGNUM_LIBS && precision >= THREADS_THRESHOLD && Runtime.getRuntime().availableProcessors() >= 2 ? 1 : 0;
     }
 
     private MpfMemory mpfMemory;
@@ -297,6 +299,27 @@ public class MpirBigNum {
 
     public MpirBigNum divide4(MpirBigNum result) {
         __gmpf_div_2exp(result.mpfMemory.peer, mpfMemory.peer, 2);
+        return result;
+    }
+
+    public MpirBigNum shift2toi(long val) {
+        MpirBigNum result = new MpirBigNum();
+        if(val < 0) {
+            __gmpf_div_2exp(result.mpfMemory.peer, mpfMemory.peer, -val);
+        }
+        else {
+            __gmpf_mul_2exp(result.mpfMemory.peer, mpfMemory.peer, val);
+        }
+        return result;
+    }
+
+    public MpirBigNum shift2toi(long val, MpirBigNum result) {
+        if(val < 0) {
+            __gmpf_div_2exp(result.mpfMemory.peer, mpfMemory.peer, -val);
+        }
+        else {
+            __gmpf_mul_2exp(result.mpfMemory.peer, mpfMemory.peer, val);
+        }
         return result;
     }
 

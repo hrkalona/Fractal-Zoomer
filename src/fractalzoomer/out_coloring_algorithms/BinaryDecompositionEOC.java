@@ -28,7 +28,7 @@ public class BinaryDecompositionEOC extends BinaryDecomposition {
     public BinaryDecompositionEOC() {
 
         super();
-        OutNotUsingIncrement = false;
+        OutUsingIncrement = true;
         
     }
 

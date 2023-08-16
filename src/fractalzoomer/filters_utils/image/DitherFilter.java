@@ -258,9 +258,6 @@ public class DitherFilter extends PointFilter {
 		return super.filter( src, dst );
 	}
 
-	@Override
-	protected boolean supportsThreadsWithFullLoop() { return false;}
-
         @Override
 	public int filterRGB(int x, int y, int rgb) {
 		int a = rgb & 0xff000000;

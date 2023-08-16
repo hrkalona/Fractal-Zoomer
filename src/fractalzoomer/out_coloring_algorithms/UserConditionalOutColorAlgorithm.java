@@ -17,7 +17,7 @@
 package fractalzoomer.out_coloring_algorithms;
 
 import fractalzoomer.core.Complex;
-import fractalzoomer.core.ThreadDraw;
+import fractalzoomer.core.TaskDraw;
 import fractalzoomer.parser.ExpressionNode;
 import fractalzoomer.parser.Parser;
 import fractalzoomer.utils.ColorAlgorithm;
@@ -151,7 +151,7 @@ public class UserConditionalOutColorAlgorithm extends OutColorAlgorithm {
             parser2[2].setSizevalue(c_size);
         }
         
-        Complex c_isize = new Complex(ThreadDraw.IMAGE_SIZE, 0);
+        Complex c_isize = new Complex(TaskDraw.IMAGE_SIZE, 0);
         if (parser[0].foundISize()) {
             parser[0].setISizevalue(c_isize);
         }
@@ -193,7 +193,7 @@ public class UserConditionalOutColorAlgorithm extends OutColorAlgorithm {
             parser2[2].setPointvalue(c_point);
         }
         
-        OutNotUsingIncrement = true;
+        OutUsingIncrement = false;
 
     }
 
@@ -323,12 +323,16 @@ public class UserConditionalOutColorAlgorithm extends OutColorAlgorithm {
             
             double result2 = expr2[0].getValue().getRe();
             
-            if(ThreadDraw.USE_DIRECT_COLOR) {
+            if(TaskDraw.USE_DIRECT_COLOR) {
                 return result2;
             }
         
             if(Math.abs(result2) == max_iterations) {
                 return result2 < 0 ? -ColorAlgorithm.MAXIMUM_ITERATIONS : ColorAlgorithm.MAXIMUM_ITERATIONS;
+            }
+
+            if(Math.abs(result2) == ColorAlgorithm.MAXIMUM_ITERATIONS_DE) {
+                return result2 < 0 ? -ColorAlgorithm.MAXIMUM_ITERATIONS_DE : ColorAlgorithm.MAXIMUM_ITERATIONS_DE;
             }
 
             return result2;     
@@ -374,12 +378,16 @@ public class UserConditionalOutColorAlgorithm extends OutColorAlgorithm {
 
             double result2 = expr2[1].getValue().getRe();
             
-            if(ThreadDraw.USE_DIRECT_COLOR) {
+            if(TaskDraw.USE_DIRECT_COLOR) {
                 return result2;
             }
         
             if(Math.abs(result2) == max_iterations) {
                 return result2 < 0 ? -ColorAlgorithm.MAXIMUM_ITERATIONS : ColorAlgorithm.MAXIMUM_ITERATIONS;
+            }
+
+            if(Math.abs(result2) == ColorAlgorithm.MAXIMUM_ITERATIONS_DE) {
+                return result2 < 0 ? -ColorAlgorithm.MAXIMUM_ITERATIONS_DE : ColorAlgorithm.MAXIMUM_ITERATIONS_DE;
             }
 
             return result2;   
@@ -425,12 +433,16 @@ public class UserConditionalOutColorAlgorithm extends OutColorAlgorithm {
 
             double result2 = expr2[2].getValue().getRe();
             
-            if(ThreadDraw.USE_DIRECT_COLOR) {
+            if(TaskDraw.USE_DIRECT_COLOR) {
                 return result2;
             }
         
             if(Math.abs(result2) == max_iterations) {
                 return result2 < 0 ? -ColorAlgorithm.MAXIMUM_ITERATIONS : ColorAlgorithm.MAXIMUM_ITERATIONS;
+            }
+
+            if(Math.abs(result2) == ColorAlgorithm.MAXIMUM_ITERATIONS_DE) {
+                return result2 < 0 ? -ColorAlgorithm.MAXIMUM_ITERATIONS_DE : ColorAlgorithm.MAXIMUM_ITERATIONS_DE;
             }
 
             return result2;   

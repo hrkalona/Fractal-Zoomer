@@ -28,7 +28,7 @@ public class EscapeTimeGridEOC extends EscapeTimeGrid {
     public EscapeTimeGridEOC(double log_bailout_squared) {
 
         super(log_bailout_squared);
-        OutNotUsingIncrement = false;
+        OutUsingIncrement = true;
 
     }
 

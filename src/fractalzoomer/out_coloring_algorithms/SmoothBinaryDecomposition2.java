@@ -36,7 +36,7 @@ public class SmoothBinaryDecomposition2 extends OutColorAlgorithm {
         this.log_bailout_squared = log_bailout_squared;
         this.algorithm = algorithm;
         
-        OutNotUsingIncrement = false;
+        OutUsingIncrement = true;
         usePower = false;
 
     }
@@ -47,7 +47,7 @@ public class SmoothBinaryDecomposition2 extends OutColorAlgorithm {
         this.log_bailout_squared = log_bailout_squared;
         this.algorithm = algorithm;
 
-        OutNotUsingIncrement = false;
+        OutUsingIncrement = true;
         usePower = true;
         this.log_power = log_power;
 

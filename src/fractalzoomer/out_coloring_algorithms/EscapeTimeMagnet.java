@@ -21,7 +21,7 @@ public class EscapeTimeMagnet extends EscapeTime {
     
     public EscapeTimeMagnet() {
         super();
-        OutNotUsingIncrement = true;
+        OutUsingIncrement = false;
     }
 
     @Override

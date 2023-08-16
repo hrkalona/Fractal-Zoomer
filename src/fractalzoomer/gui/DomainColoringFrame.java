@@ -49,7 +49,7 @@ public class DomainColoringFrame extends JFrame {
         this_frame = this;
 
         ptra2.setEnabled(false);
-        int custom_palette_window_width = 750;
+        int custom_palette_window_width = 870;
         int custom_palette_window_height = 390;
         setTitle("Domain Coloring");
         setIconImage(MainWindow.getIcon("domain_coloring.png").getImage());
@@ -82,7 +82,7 @@ public class DomainColoringFrame extends JFrame {
 
         JPanel domain_coloring_panel = new JPanel();
 
-        domain_coloring_panel.setPreferredSize(new Dimension(650, 253));
+        domain_coloring_panel.setPreferredSize(new Dimension(770, 253));
         domain_coloring_panel.setLayout(new GridLayout(4, 1));
         domain_coloring_panel.setBackground(MainWindow.bg_color);
 
@@ -117,7 +117,7 @@ public class DomainColoringFrame extends JFrame {
         JPanel processing_panel = new JPanel();
         processing_panel.setLayout(new FlowLayout());
         processing_panel.setBackground(MainWindow.bg_color);
-        processing_panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Processing", TitledBorder.DEFAULT_POSITION, TitledBorder.DEFAULT_POSITION));
+        processing_panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Post-Processing / 3D", TitledBorder.DEFAULT_POSITION, TitledBorder.DEFAULT_POSITION));
         
         JPanel s2 = new JPanel();
         s2.setLayout(new FlowLayout());
@@ -133,12 +133,19 @@ public class DomainColoringFrame extends JFrame {
         domain_height_opt.setFocusable(false);
         domain_height_opt.setToolTipText("Sets the domain coloring height method.");
 
+        final JComboBox<String> domain_normalization_opt = new JComboBox<>(MainWindow.domainNormalization);
+        domain_normalization_opt.setSelectedIndex(s.ds.domain_height_normalization_method);
+        domain_normalization_opt.setFocusable(false);
+        domain_normalization_opt.setToolTipText("Sets the domain coloring height normalization method.");
+
 
         final JTextField factor_textfield = new JTextField(8);
         factor_textfield.setText("" + s.ds.domainProcessingHeightFactor);
 
         s2.add(new JLabel("Height: "));
         s2.add(domain_height_opt);
+        s2.add(new JLabel(" Normalize: "));
+        s2.add(domain_normalization_opt);
         s2.add(new JLabel("  Transfer Function: "));
         s2.add(domain_processing_transfer_opt);
         s2.add(new JLabel("  Factor: "));
@@ -284,6 +291,8 @@ public class DomainColoringFrame extends JFrame {
                 s.temp_color_cycling_location = s.ps.color_cycling_location;
             }
 
+            s.ds.domain_height_normalization_method = domain_normalization_opt.getSelectedIndex();
+
             ptra2.setDomainColoringSettings(domain_coloring.isSelected());
             ptra2.setEnabled(true);
             dispose();
@@ -327,7 +336,7 @@ public class DomainColoringFrame extends JFrame {
 
         RoundedPanel round_panel = new RoundedPanel(true, true, true, 15);
         round_panel.setBackground(MainWindow.bg_color);
-        round_panel.setPreferredSize(new Dimension(680, 310));
+        round_panel.setPreferredSize(new Dimension(800, 310));
         round_panel.setLayout(new GridBagLayout());
 
         GridBagConstraints con = new GridBagConstraints();

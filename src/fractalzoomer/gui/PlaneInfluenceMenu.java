@@ -18,6 +18,7 @@ public class PlaneInfluenceMenu extends MyMenu {
         planeInfluenceNames = new String[MainWindow.TOTAL_PLANE_INFLUENCES];
         planeInfluenceNames[MainWindow.NO_PLANE_INFLUENCE] = "No Plane Influence";
         planeInfluenceNames[MainWindow.USER_PLANE_INFLUENCE] = "User Plane Influence";
+        planeInfluenceNames[MainWindow.SLIDING_C_PLANE_INFLUENCE] = "Sliding C";
     }
 
     public PlaneInfluenceMenu(MainWindow ptr2, int plane_influence) {
@@ -44,6 +45,18 @@ public class PlaneInfluenceMenu extends MyMenu {
 
         }
 
+        for(int i = MainWindow.USER_PLANE_INFLUENCE + 1; i < planeInfluenceNames.length; i++) {
+
+            plane_influences[i] = new JRadioButtonMenuItem(planeInfluenceNames[i]);
+            plane_influences[i].setToolTipText(planeInfluenceNames[i]);
+
+            final int temp = i;
+            plane_influences[i].addActionListener(e -> ptr.setPlaneInfluence(temp));
+            add(plane_influences[i]);
+            function_filter_group.add(plane_influences[i]);
+
+        }
+
         plane_influences[MainWindow.USER_PLANE_INFLUENCE] = new JRadioButtonMenuItem(planeInfluenceNames[MainWindow.USER_PLANE_INFLUENCE]);
         plane_influences[MainWindow.USER_PLANE_INFLUENCE].setToolTipText(planeInfluenceNames[MainWindow.USER_PLANE_INFLUENCE]);
         plane_influences[MainWindow.USER_PLANE_INFLUENCE].addActionListener(e -> ptr.setPlaneInfluence(MainWindow.USER_PLANE_INFLUENCE));
@@ -52,6 +65,7 @@ public class PlaneInfluenceMenu extends MyMenu {
         plane_influences[MainWindow.USER_PLANE_INFLUENCE].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_7, ActionEvent.CTRL_MASK));
 
         function_filter_group.add(plane_influences[MainWindow.USER_PLANE_INFLUENCE]);
+
 
         plane_influences[plane_influence].setSelected(true);
 

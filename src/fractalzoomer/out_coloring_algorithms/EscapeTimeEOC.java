@@ -21,7 +21,7 @@ public class EscapeTimeEOC extends EscapeTime {
 
     public EscapeTimeEOC() {
         super();
-        OutNotUsingIncrement = true;
+        OutUsingIncrement = false;
     }
 
     @Override

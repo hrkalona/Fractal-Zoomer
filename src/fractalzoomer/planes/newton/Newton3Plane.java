@@ -156,14 +156,14 @@ public class Newton3Plane extends Plane {
         //Complex dfz = pixel.square().times(3);
         
         //Complex fz = pixel.fourth().sub(1);
-        //Complex dfz = pixel.cube().times(4);
+        //Complex dfz = pixel.cube().times4();
         
         //Complex[] temp = pixel.der01_cos();
         
         //Complex fz = temp[0];
         //Complex dfz = temp[1];
         
-        Complex fz = pixel.cube().sub_mutable(pixel.times(2)).plus_mutable(2);
+        Complex fz = pixel.cube().sub_mutable(pixel.times2()).plus_mutable(2);
         Complex dfz = pixel.square().times_mutable(3).sub_mutable(2);*/
         
         

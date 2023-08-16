@@ -29,7 +29,7 @@ public class CosMag extends InColorAlgorithm {
     public CosMag(int max_iterations) { 
         
         super();
-        InNotUsingIncrement = false;
+        InUsingIncrement = true;
         this.max_iterations = max_iterations;
         
     }

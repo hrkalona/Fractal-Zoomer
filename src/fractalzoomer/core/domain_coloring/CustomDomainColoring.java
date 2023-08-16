@@ -17,6 +17,7 @@
 package fractalzoomer.core.domain_coloring;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.core.TaskDraw;
 import fractalzoomer.core.blending.Blending;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.DomainColoringSettings;
@@ -32,6 +33,8 @@ public class CustomDomainColoring extends DomainColoring {
 
     private boolean drawColor;
     private boolean drawContour;
+
+    private boolean applyShading;
     private boolean drawGrid;
     private boolean drawCircles;
     private boolean drawIsoLines;
@@ -40,6 +43,10 @@ public class CustomDomainColoring extends DomainColoring {
     private double normType;
     private double normTypeReciprocal;
     private int[] order;
+
+    private int iso_color_type;
+    private int grid_color_type;
+    private int circle_color_type;
 
     public CustomDomainColoring(DomainColoringSettings ds, PaletteColor palette, TransferFunction color_transfer, int color_cycling_location, GeneratedPaletteSettings gps, Blending blending, int[] gradient, int interpolation, int gradient_offset, double countourFactor) {
 
@@ -69,6 +76,7 @@ public class CustomDomainColoring extends DomainColoring {
 
         gridFactor = (Math.PI / ds.gridFactor);
         logBaseFinal = Math.log(ds.logBase);
+        base = ds.logBase;
 
         order = ds.domainOrder;
         
@@ -130,6 +138,18 @@ public class CustomDomainColoring extends DomainColoring {
         
         combineType = ds.combineType;
 
+        circle_color_type = ds.circle_color_type;
+        grid_color_type = ds.grid_color_type;
+        iso_color_type = ds.iso_color_type;
+
+        applyShading = ds.applyShading;
+        saturation_adjustment = ds.saturation_adjustment;
+        mapNormReImWithAbsScale = ds.mapNormReImWithAbsScale;
+        shadingType = ds.shadingType;
+        shadingColorAlgorithm = ds.shadingColorAlgorithm;
+        invertShading = ds.invertShading;
+        shadingPercent = ds.shadingPercent;
+
     }
 
     @Override
@@ -167,6 +187,10 @@ public class CustomDomainColoring extends DomainColoring {
                     color = applyImColor(im);
                     break;
             }
+        }
+
+        if(applyShading) {
+            color = applyShading(color, norm, re, im);
         }
 
         if(drawContour) {
@@ -215,17 +239,17 @@ public class CustomDomainColoring extends DomainColoring {
             switch (order[i]) {
                 case MainWindow.GRID:
                     if(drawGrid) {
-                        color = applyGrid(color, re, im);
+                        color = applyGrid(color, re, im, grid_color_type, norm);
                     }
                     break;
                 case MainWindow.CIRCLES:
                     if(drawCircles) {
-                        color = applyCircles(color, norm);
+                        color = applyCircles(color, norm, circle_color_type);
                     }
                     break;
                 case MainWindow.ISO_LINES:
                     if(drawIsoLines && contourType != 9 && contourType != 11) {
-                        color = applyIsoLines(color, arg);
+                        color = applyIsoLines(color, arg, iso_color_type, norm);
                     }
                     break;
             }

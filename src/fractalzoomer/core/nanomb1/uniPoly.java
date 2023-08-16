@@ -29,14 +29,14 @@ public class uniPoly {
         b = new MantExpComplex[m_m + 1];
         for(int i = 0; i <= m_m; i += 2)
         {
-            MantExpComplex s = new MantExpComplex();
-            MantExpComplex cj = new MantExpComplex(MantExp.ONE, MantExp.ZERO);
+            MantExpComplex s = MantExpComplex.create();
+            MantExpComplex cj = MantExpComplex.create(MantExp.ONE, MantExp.ZERO);
             for (int j = 0; j <= p.m_n; ++j)
             {
                 s.plus_mutable(p.tab[i][j].times(cj));
-                s.Reduce();
+                s.Normalize();
                 cj.times_mutable(c);
-                cj.Reduce();
+                cj.Normalize();
             }
             b[i] = s;
         }
@@ -48,21 +48,21 @@ public class uniPoly {
         dbdc = new MantExpComplex[m_m + 1];
         for(int i = 0; i <= m_m; i += 2)
         {
-            MantExpComplex s = new MantExpComplex();
-            MantExpComplex ds = new MantExpComplex();
-            MantExpComplex cj = new MantExpComplex(MantExp.ONE, MantExp.ZERO);
-            MantExpComplex cj1 = new MantExpComplex();
+            MantExpComplex s = MantExpComplex.create();
+            MantExpComplex ds = MantExpComplex.create();
+            MantExpComplex cj = MantExpComplex.create(MantExp.ONE, MantExp.ZERO);
+            MantExpComplex cj1 = MantExpComplex.create();
             for (int j = 0; j <= p.m_n; ++j)
             {
                 s.plus_mutable(p.tab[i][j].times(cj));
-                s.Reduce();
+                s.Normalize();
                 ds.plus_mutable(p.tab[i][j].times(new MantExp(j)).times_mutable(cj1));
-                ds.Reduce();
+                ds.Normalize();
                 cj.times_mutable(c);
-                cj.Reduce();
+                cj.Normalize();
                 cj1.times_mutable(c);
-                cj1.Reduce();
-                if (j == 0) cj1 = new MantExpComplex(MantExp.ONE, MantExp.ZERO);
+                cj1.Normalize();
+                if (j == 0) cj1 = MantExpComplex.create(MantExp.ONE, MantExp.ZERO);
             }
             b[i] = s;
             dbdc[i] = ds;
@@ -77,32 +77,32 @@ public class uniPoly {
         ddbdcdc = new MantExpComplex[m_m + 1];
         for(int i = 0; i <= m_m; i += 2)
         {
-            MantExpComplex s = new MantExpComplex();
-            MantExpComplex ds = new MantExpComplex();
-            MantExpComplex dds = new MantExpComplex();
+            MantExpComplex s = MantExpComplex.create();
+            MantExpComplex ds = MantExpComplex.create();
+            MantExpComplex dds = MantExpComplex.create();
 
-            MantExpComplex cj = new MantExpComplex(MantExp.ONE, MantExp.ZERO);
-            MantExpComplex cj1 = new MantExpComplex();
-            MantExpComplex cj2 = new MantExpComplex();
+            MantExpComplex cj = MantExpComplex.create(MantExp.ONE, MantExp.ZERO);
+            MantExpComplex cj1 = MantExpComplex.create();
+            MantExpComplex cj2 = MantExpComplex.create();
             for (int j = 0; j <= p.m_n; ++j)
             {
                 s.plus_mutable(p.tab[i][j].times(cj));
-                s.Reduce();
+                s.Normalize();
 
                 ds.plus_mutable(p.tab[i][j].times(new MantExp(j)).times_mutable(cj1));
-                ds.Reduce();
+                ds.Normalize();
 
                 dds.plus_mutable(p.tab[i][j].times(new MantExp(j * (j - 1))).times_mutable(cj2));
-                dds.Reduce();
+                dds.Normalize();
 
                 cj.times_mutable(c);
-                cj.Reduce();
+                cj.Normalize();
                 cj1.times_mutable(c);
-                cj1.Reduce();
+                cj1.Normalize();
                 cj2.times_mutable(c);
-                cj2.Reduce();
-                if (j == 0) cj1 = new MantExpComplex(MantExp.ONE, MantExp.ZERO);
-                if (j == 1) cj2 = new MantExpComplex(MantExp.ONE, MantExp.ZERO);
+                cj2.Normalize();
+                if (j == 0) cj1 = MantExpComplex.create(MantExp.ONE, MantExp.ZERO);
+                if (j == 1) cj2 = MantExpComplex.create(MantExp.ONE, MantExp.ZERO);
             }
             b[i] = s;
             dbdc[i] = ds;
@@ -111,39 +111,39 @@ public class uniPoly {
     }
 
     public void eval(MantExpComplex z) {
-        MantExpComplex zs = new MantExpComplex();
-        MantExpComplex zi = new MantExpComplex(MantExp.ONE, MantExp.ZERO);
+        MantExpComplex zs = MantExpComplex.create();
+        MantExpComplex zi = MantExpComplex.create(MantExp.ONE, MantExp.ZERO);
         MantExpComplex zsqr = z.square();
         for (int i = 0; i <= m_m; i += 2)
         {
             zs.plus_mutable(b[i].times(zi));
-            zs.Reduce();
+            zs.Normalize();
             zi.times_mutable(zsqr);
-            zi.Reduce();
+            zi.Normalize();
         }
         z.assign(zs);
     }
 
     public void eval(MantExpComplex z, MantExpComplex dc) {
 
-        MantExpComplex zs = new MantExpComplex();
-        MantExpComplex dcs = new MantExpComplex();
-        MantExpComplex zi = new MantExpComplex(MantExp.ONE, MantExp.ZERO);
-        MantExpComplex zi1 = new MantExpComplex();
+        MantExpComplex zs = MantExpComplex.create();
+        MantExpComplex dcs = MantExpComplex.create();
+        MantExpComplex zi = MantExpComplex.create(MantExp.ONE, MantExp.ZERO);
+        MantExpComplex zi1 = MantExpComplex.create();
 
         MantExpComplex zsqr = z.square();
 
         for (int i = 0; i <= m_m; i += 2)
         {
             dcs.plus_mutable(b[i].times(zi1).times_mutable(dc).times_mutable(new MantExp(i))).plus_mutable(dbdc[i].times(zi));
-            dcs.Reduce();
+            dcs.Normalize();
             zs.plus_mutable(b[i].times(zi));
-            zs.Reduce();
+            zs.Normalize();
             zi.times_mutable(zsqr);
-            zi.Reduce();
+            zi.Normalize();
             zi1.times_mutable(zsqr);
-            zi1.Reduce();
-            if (i == 0) zi1 = new MantExpComplex(z);
+            zi1.Normalize();
+            if (i == 0) zi1 = MantExpComplex.copy(z);
         }
         z.assign(zs);
         dc.assign(dcs);
@@ -151,12 +151,12 @@ public class uniPoly {
 
     public void eval(MantExpComplex z, MantExpComplex dc, MantExpComplex ddc) {
 
-        MantExpComplex zs = new MantExpComplex();
-        MantExpComplex dcs = new MantExpComplex();
-        MantExpComplex ddcs = new MantExpComplex();
-        MantExpComplex zi = new MantExpComplex(MantExp.ONE, MantExp.ZERO);
-        MantExpComplex zi1 = new MantExpComplex();
-        MantExpComplex zi2 = new MantExpComplex();
+        MantExpComplex zs = MantExpComplex.create();
+        MantExpComplex dcs = MantExpComplex.create();
+        MantExpComplex ddcs = MantExpComplex.create();
+        MantExpComplex zi = MantExpComplex.create(MantExp.ONE, MantExp.ZERO);
+        MantExpComplex zi1 = MantExpComplex.create();
+        MantExpComplex zi2 = MantExpComplex.create();
 
         MantExpComplex zsqr = z.square();
 
@@ -165,20 +165,20 @@ public class uniPoly {
             ddcs.plus_mutable(dbdc[i].times2().times_mutable(zi1).times_mutable(dc)
                     .plus_mutable(b[i].times(zi2.times(dc.square()).times_mutable(new MantExp(i - 1)).plus_mutable(zi1.times(ddc)))).times_mutable(new MantExp(i)))
                     .plus_mutable(ddbdcdc[i].times(zi));
-            ddcs.Reduce();
+            ddcs.Normalize();
 
             dcs.plus_mutable(b[i].times(zi1).times_mutable(dc).times_mutable(new MantExp(i))).plus_mutable(dbdc[i].times(zi));
-            dcs.Reduce();
+            dcs.Normalize();
             zs.plus_mutable(b[i].times(zi));
-            zs.Reduce();
+            zs.Normalize();
             zi.times_mutable(zsqr);
-            zi.Reduce();
+            zi.Normalize();
             zi1.times_mutable(zsqr);
-            zi1.Reduce();
+            zi1.Normalize();
             zi2.times_mutable(zsqr);
-            zi2.Reduce();
-            if (i == 0) zi1 = new MantExpComplex(z);
-            if (i == 0) zi2 = new MantExpComplex(MantExp.ONE, MantExp.ZERO);
+            zi2.Normalize();
+            if (i == 0) zi1 = MantExpComplex.copy(z);
+            if (i == 0) zi2 = MantExpComplex.create(MantExp.ONE, MantExp.ZERO);
         }
         z.assign(zs);
         dc.assign(dcs);

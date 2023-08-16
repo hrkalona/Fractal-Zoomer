@@ -47,7 +47,7 @@ public class ZoomingFactorDialog extends JDialog {
 
         Object[] message3 = {
             " ",
-            "You are using " + zoom_factor + " for zooming factor.\nEnter the new zooming factor.",
+            "You are using " + zoom_factor + " for zooming factor.\nInsert the new zooming factor.",
             field,
             " ",};
 

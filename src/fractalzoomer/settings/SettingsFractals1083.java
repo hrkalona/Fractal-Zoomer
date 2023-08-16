@@ -15,11 +15,11 @@ public class SettingsFractals1083 extends SettingsFractals1081 implements Serial
 
     public SettingsFractals1083(Settings s) {
         super(s);
-        normalMapDeFadeAlgorithm = s.sts.normalMapDeFadeAlgorithm;
-        normalMapDEUpperLimitFactor = s.sts.normalMapDEUpperLimitFactor;
-        normalMapDEAAEffect = s.sts.normalMapDEAAEffect;
-        unmmapedRootColor = s.sts.unmmapedRootColor;
-        rootShadingColor = s.sts.rootShadingColor;
+        normalMapDeFadeAlgorithm = s.pps.sts.normalMapDeFadeAlgorithm;
+        normalMapDEUpperLimitFactor = s.pps.sts.normalMapDEUpperLimitFactor;
+        normalMapDEAAEffect = s.pps.sts.normalMapDEAAEffect;
+        unmmapedRootColor = s.pps.sts.unmmapedRootColor;
+        rootShadingColor = s.pps.sts.rootShadingColor;
     }
 
     @Override

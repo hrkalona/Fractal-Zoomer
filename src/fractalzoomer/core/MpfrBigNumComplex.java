@@ -1086,6 +1086,7 @@ public class MpfrBigNumComplex extends GenericComplex {
 
     }
 
+    @Override
     public final MpfrBigNumComplex absre_mutable() {
 
         re.abs(re);
@@ -1983,6 +1984,28 @@ public class MpfrBigNumComplex extends GenericComplex {
 
     }
 
+    public final MpfrBigNumComplex inflectionPower(MpfrBigNumComplex inf, double power) {
+
+        if(power == 1) {
+            return plus(inf);
+        }
+        else if(power == 2) {
+            return square().plus(inf);
+        }
+        else if(power == 3) {
+            return cube().plus(inf);
+        }
+        else if(power == 4) {
+            return fourth().plus(inf);
+        }
+        if(power == 5) {
+            return fifth().plus(inf);
+        }
+
+        return pow(power).plus(inf);
+
+    }
+
     public final MpfrBigNumComplex shear(MpfrBigNumComplex sh) {
 
         return new MpfrBigNumComplex(re.add(im.mult(sh.re)), im.add(re.mult(sh.im)));
@@ -2630,7 +2653,7 @@ public class MpfrBigNumComplex extends GenericComplex {
     }
 
     @Override
-    public MantExpComplex toMantExpComplex() { return new MantExpComplex(this);}
+    public MantExpComplex toMantExpComplex() { return MantExpComplex.create(this);}
 
     public boolean isZero() {
         return re.isZero() && im.isZero();
@@ -3066,6 +3089,7 @@ public class MpfrBigNumComplex extends GenericComplex {
 
     }
 
+    @Override
     public final MpfrBigNumComplex square_mutable(MpfrBigNum temp1, MpfrBigNum temp2) {
 
         MpfrBigNum tempRe = re.add(im, temp1);
@@ -3084,5 +3108,20 @@ public class MpfrBigNumComplex extends GenericComplex {
     public MpfrBigNumComplex times2(MpfrBigNum temp1, MpfrBigNum temp2) {
         return new MpfrBigNumComplex(re.mult2(temp1), im.mult2(temp2));
     }
+
+    @Override
+    public MpfrBigNumComplex absNegateRe_mutable() {
+        re.abs(re);
+        re.negate(re);
+        return this;
+    }
+
+    @Override
+    public MpfrBigNumComplex absNegateIm_mutable() {
+        im.abs(im);
+        im.negate(im);
+        return this;
+    }
+
 
 }

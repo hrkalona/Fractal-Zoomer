@@ -22,6 +22,11 @@ public class BLA1Step extends BLA {
     }
 
     @Override
+    public Complex getValue(double dre, double dim, double d0re, double d0im) {
+        return new Complex(Ax * dre - Ay * dim + d0re, Ax * dim + Ay * dre + d0im);
+    }
+
+    @Override
     public Complex getValue(Complex DeltaSubN, double cx) {
         double zx = DeltaSubN.getRe();
         double zy = DeltaSubN.getIm();

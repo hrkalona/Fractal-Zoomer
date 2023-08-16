@@ -68,6 +68,7 @@ public class VariablesDialog extends JDialog {
             var_panels[k].add(new JLabel("v" + (k + 1)));
             var_panels[k].add(new JLabel(" Re: "));
             var_panels[k].add(variable_re[k]);
+            var_panels[k].add(new JLabel(" Im: "));
             var_panels[k].add(variable_im[k]);
         }
 
@@ -75,7 +76,7 @@ public class VariablesDialog extends JDialog {
 
         Object[] poly_poly = {
             " ",
-            "Enter the variable values.",
+            "Insert the variable values.",
             " ",
             var_panels[0],
             var_panels[1],
