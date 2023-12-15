@@ -43,7 +43,7 @@ public class Newton4Plane extends Plane {
         
         for(int iterations = 0; iterations < 5; iterations++) {
             Complex fz = temp.fourth().sub_mutable(1);
-            Complex dfz = temp.cube().times_mutable(4);
+            Complex dfz = temp.cube().times4_mutable();
             
             temp = temp.sub(fz.divide_mutable(dfz));
         }
@@ -63,7 +63,7 @@ public class Newton4Plane extends Plane {
 
         for(int iterations = 0; iterations < 5; iterations++) {
             BigIntNumComplex fz = temp.fourth().sub(1);
-            BigIntNumComplex dfz = temp.cube().times(4);
+            BigIntNumComplex dfz = temp.cube().times4();
 
             temp = temp.sub(fz.divide(dfz));
         }
@@ -103,7 +103,7 @@ public class Newton4Plane extends Plane {
 
         for(int iterations = 0; iterations < 5; iterations++) {
             DDComplex fz = temp.fourth().sub(1);
-            DDComplex dfz = temp.cube().times(4);
+            DDComplex dfz = temp.cube().times4();
 
             temp = temp.sub(fz.divide(dfz));
         }

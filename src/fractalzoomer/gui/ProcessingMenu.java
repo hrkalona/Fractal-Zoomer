@@ -31,6 +31,8 @@ public class ProcessingMenu extends MyMenu {
 	private static final long serialVersionUID = 880061806683700045L;
 	private MainWindow ptr;
     private JMenuItem light_opt;
+
+    private JMenuItem slope_opt;
     private JMenuItem bump_map_opt;
     private JMenuItem rainbow_palette_opt;
     private JMenuItem fake_de_opt;
@@ -43,6 +45,8 @@ public class ProcessingMenu extends MyMenu {
     private JMenuItem contour_coloring_opt;
     private JMenuItem statistics_coloring_opt;
     private JMenuItem histogram_coloring_opt;
+
+    private JMenuItem numerical_distance_estimator_opt;
     private JMenuItem order_opt;
     
     public ProcessingMenu(MainWindow ptr2, String name) {
@@ -66,12 +70,14 @@ public class ProcessingMenu extends MyMenu {
         order_opt = new MyMenuItem("Processing Order", MainWindow.getIcon("list.png"));
         statistics_coloring_opt = new MyMenuItem("Statistical Coloring", MainWindow.getIcon("statistics_coloring.png"));
         histogram_coloring_opt = new MyMenuItem("Histogram Coloring", MainWindow.getIcon("histogram.png"));
-                
+        slope_opt = new MyMenuItem("Slopes", MainWindow.getIcon("slopes.png"));
+        numerical_distance_estimator_opt = new MyMenuItem("Numerical Distance Estimator", MainWindow.getIcon("numerical_dem.png"));
+
         smoothing_opt.setToolTipText("Smooths the image's color transitions.");
         exterior_de_opt.setToolTipText("<html>Sets some points near the boundary of<br>the set to the maximum iterations value.</html>");
         bump_map_opt.setToolTipText("Emulates a light source to create a pseudo 3d image.");
         fake_de_opt.setToolTipText("Emulates the effect of distance estimation.");
-        entropy_coloring_opt.setToolTipText("Calculates the entropy of neaby points to create a coloring effect.");
+        entropy_coloring_opt.setToolTipText("Calculates the entropy of nearby points to create a coloring effect.");
         offset_coloring_opt.setToolTipText("Adds a palette offset, into areas with smooth iteration gradients.");
         greyscale_coloring_opt.setToolTipText("Converts the areas with smooth iteration gradients, to greyscale.");
         rainbow_palette_opt.setToolTipText("Creates a pseudo 3d image, by applying the palette colors as a rainbow.");
@@ -80,8 +86,10 @@ public class ProcessingMenu extends MyMenu {
         order_opt.setToolTipText("Changes the application order of the processing algorithms.");
         light_opt.setToolTipText("Emulates a light source to create a pseudo 3d image.");
         statistics_coloring_opt.setToolTipText("Enables the use of statistical coloring algorithms, that work along with out-coloring modes.");
-        histogram_coloring_opt.setToolTipText("Calulates the histogram of the iterations and re-scales the palette accordingly.");
-                
+        histogram_coloring_opt.setToolTipText("Calculates the histogram of the iterations and re-scales the palette accordingly.");
+        slope_opt.setToolTipText("Emulates a light source to create a pseudo 3d image.");
+        numerical_distance_estimator_opt.setToolTipText("Calculates the distance estimator using numerical methods.");
+
         smoothing_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, 0));
         exterior_de_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, 0));
         bump_map_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, 0));
@@ -96,7 +104,9 @@ public class ProcessingMenu extends MyMenu {
         order_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_9, 0));
         statistics_coloring_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_1, 0));
         histogram_coloring_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_4, ActionEvent.SHIFT_MASK));
-        
+        slope_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, ActionEvent.SHIFT_MASK | ActionEvent.CTRL_MASK));
+        numerical_distance_estimator_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, ActionEvent.SHIFT_MASK | ActionEvent.CTRL_MASK));
+
         contour_coloring_opt.addActionListener(e -> ptr.setContourColoring());
         
         smoothing_opt.addActionListener(e -> ptr.setSmoothing());
@@ -118,18 +128,23 @@ public class ProcessingMenu extends MyMenu {
         orbit_traps_opt.addActionListener(e -> ptr.setOrbitTraps());
         
         light_opt.addActionListener(e -> ptr.setLighting());
+
+        slope_opt.addActionListener(e -> ptr.setSlopes());
         
         order_opt.addActionListener(e -> ptr.setProcessingOrder());
         
         statistics_coloring_opt.addActionListener(e -> ptr.openStatisticsColoringFrame());
         
         histogram_coloring_opt.addActionListener(e -> ptr.setHistogramColoring());
+
+        numerical_distance_estimator_opt.addActionListener(e -> ptr.setNumericalDistanceEstimator());
         
         add(smoothing_opt);
         add(statistics_coloring_opt);
         add(histogram_coloring_opt);
         add(exterior_de_opt);
         add(fake_de_opt);
+        add(numerical_distance_estimator_opt);
         add(entropy_coloring_opt);
         add(offset_coloring_opt);
         add(rainbow_palette_opt);
@@ -138,6 +153,7 @@ public class ProcessingMenu extends MyMenu {
         add(contour_coloring_opt);
         add(bump_map_opt);
         add(light_opt);
+        add(slope_opt);
         addSeparator();
         add(order_opt);
     }
@@ -177,11 +193,23 @@ public class ProcessingMenu extends MyMenu {
         return light_opt;
         
     }
+
+    public JMenuItem getSlopes() {
+
+        return slope_opt;
+
+    }
     
     public JMenuItem getFakeDistanceEstimation() {
         
         return fake_de_opt;
         
+    }
+
+    public JMenuItem getNumericalDistanceEstimator() {
+
+        return numerical_distance_estimator_opt;
+
     }
     
     public JMenuItem getDistanceEstimation() {
@@ -229,63 +257,70 @@ public class ProcessingMenu extends MyMenu {
             smoothing_opt.setIcon(MainWindow.getIcon("smoothing.png"));
         }
         
-        if(s.hss.histogramColoring) {
+        if(s.pps.hss.histogramColoring) {
             histogram_coloring_opt.setIcon(MainWindow.getIcon("histogram_enabled.png"));
         }
         else {
             histogram_coloring_opt.setIcon(MainWindow.getIcon("histogram.png"));
         }
         
-        if(s.bms.bump_map) {
+        if(s.pps.bms.bump_map) {
             bump_map_opt.setIcon(MainWindow.getIcon("bump_map_enabled.png"));
         }
         else {
             bump_map_opt.setIcon(MainWindow.getIcon("bump_map.png"));
         }
         
-        if(s.rps.rainbow_palette) {
+        if(s.pps.rps.rainbow_palette) {
             rainbow_palette_opt.setIcon(MainWindow.getIcon("rainbow_palette_enabled.png"));
         }
         else {
             rainbow_palette_opt.setIcon(MainWindow.getIcon("rainbow_palette.png"));
         }
         
-        if(s.ots.useTraps) {
+        if(s.pps.ots.useTraps) {
             orbit_traps_opt.setIcon(MainWindow.getIcon("orbit_traps_enabled.png"));
         }
         else {
             orbit_traps_opt.setIcon(MainWindow.getIcon("orbit_traps.png"));
         }
         
-        if(s.cns.contour_coloring) {
+        if(s.pps.cns.contour_coloring) {
             contour_coloring_opt.setIcon(MainWindow.getIcon("contour_coloring_enabled.png"));
         }
         else {
             contour_coloring_opt.setIcon(MainWindow.getIcon("contour_coloring.png"));
         }
         
-        if(s.gss.greyscale_coloring) {
+        if(s.pps.gss.greyscale_coloring) {
             greyscale_coloring_opt.setIcon(MainWindow.getIcon("greyscale_coloring_enabled.png"));
         }
         else {
             greyscale_coloring_opt.setIcon(MainWindow.getIcon("greyscale_coloring.png"));
         }
         
-        if(s.ofs.offset_coloring) {
+        if(s.pps.ofs.offset_coloring) {
             offset_coloring_opt.setIcon(MainWindow.getIcon("offset_coloring_enabled.png"));
         }
         else {
             offset_coloring_opt.setIcon(MainWindow.getIcon("offset_coloring.png"));
         }
         
-        if(s.fdes.fake_de) {
+        if(s.pps.fdes.fake_de) {
             fake_de_opt.setIcon(MainWindow.getIcon("fake_distance_estimation_enabled.png"));
         }
         else {
             fake_de_opt.setIcon(MainWindow.getIcon("fake_distance_estimation.png"));
         }
+
+        if(s.pps.ndes.useNumericalDem) {
+            numerical_distance_estimator_opt.setIcon(MainWindow.getIcon("numerical_dem_enabled.png"));
+        }
+        else {
+            numerical_distance_estimator_opt.setIcon(MainWindow.getIcon("numerical_dem.png"));
+        }
         
-        if(s.ens.entropy_coloring) {
+        if(s.pps.ens.entropy_coloring) {
             entropy_coloring_opt.setIcon(MainWindow.getIcon("entropy_coloring_enabled.png"));
         }
         else {
@@ -299,14 +334,21 @@ public class ProcessingMenu extends MyMenu {
             exterior_de_opt.setIcon(MainWindow.getIcon("distance_estimation.png"));
         }
         
-        if(s.ls.lighting) {
+        if(s.pps.ls.lighting) {
             light_opt.setIcon(MainWindow.getIcon("light_enabled.png"));
         }
         else {
             light_opt.setIcon(MainWindow.getIcon("light.png"));
         }
+
+        if(s.pps.ss.slopes) {
+            slope_opt.setIcon(MainWindow.getIcon("slopes_enabled.png"));
+        }
+        else {
+            slope_opt.setIcon(MainWindow.getIcon("slopes.png"));
+        }
         
-        if(s.sts.statistic) {
+        if(s.pps.sts.statistic) {
             statistics_coloring_opt.setIcon(MainWindow.getIcon("statistics_coloring_enabled.png"));
         }
         else {

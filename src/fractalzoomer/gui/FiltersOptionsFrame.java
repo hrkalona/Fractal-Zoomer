@@ -16,7 +16,10 @@
  */
 package fractalzoomer.gui;
 
+import fractalzoomer.core.TaskDraw;
+import fractalzoomer.core.location.Location;
 import fractalzoomer.main.MainWindow;
+import fractalzoomer.main.app_settings.FiltersSettings;
 
 import javax.swing.*;
 import javax.swing.border.EtchedBorder;
@@ -47,7 +50,7 @@ public class FiltersOptionsFrame extends JFrame {
        tab_index = 0;
    }
    
-    public FiltersOptionsFrame(MainWindow ptra, int[] filters_options_vals2, int[][] filters_options_extra_vals2, Color[] filters_colors2, Color[][] filters_extra_colors2, JCheckBoxMenuItem[] filter_names, int[] filter_order, boolean[] active_filters) {
+    public FiltersOptionsFrame(MainWindow ptra, int[] filters_options_vals2, int[][] filters_options_extra_vals2, Color[] filters_colors2, Color[][] filters_extra_colors2, JCheckBoxMenuItem[] filter_names, int[] filter_order, boolean[] active_filters, FiltersSettings fs) {
         
         super();
 
@@ -134,18 +137,18 @@ public class FiltersOptionsFrame extends JFrame {
 
         panels[MainWindow.ANTIALIASING] = new JPanel();
         panels[MainWindow.ANTIALIASING].setBackground(MainWindow.bg_color);
-        String[] antialiasing_str = {"5x Samples", "9x Samples", "17x Samples", "25x Samples"};
+        String[] antialiasing_str = {"5x Samples", "9x Samples", "17x Samples", "25x Samples", "49x Samples", "81x Samples", "121x Samples", "169x Samples", "225x Samples", "289x Samples"};
 
         components_filters[MainWindow.ANTIALIASING] = new JPanel();
         ((JPanel)components_filters[MainWindow.ANTIALIASING]).setBackground(MainWindow.bg_color);
-        ((JPanel)components_filters[MainWindow.ANTIALIASING]).setLayout(new GridLayout(5, 1));
+        ((JPanel)components_filters[MainWindow.ANTIALIASING]).setLayout(new GridLayout(6, 1));
 
         JComboBox<String> aaSamples = new JComboBox<>(antialiasing_str);
         aaSamples.setSelectedIndex((filters_options_vals[MainWindow.ANTIALIASING] % 100) % 10);
         aaSamples.setFocusable(false);
         aaSamples.setToolTipText("Sets the sampled pixels number for the anti-aliasing.");
 
-        String[] antialiasing_method_str = {"Mean", "Median", "Mid-Point", "Closest to Mean", "Closest To Mid-Point", "Adaptive Mean(Min 5)", "Gaussian", "Mean Without Outliers"};
+        String[] antialiasing_method_str = {"Mean", "Median", "Mid-Point", "Closest to Mean", "Closest To Mid-Point", "Adaptive (Min 5, Max 25)", "Gaussian", "Mean Without Outliers", "Bilateral"};
 
         JComboBox<String> aaMethod = new JComboBox<>(antialiasing_method_str);
         aaMethod.setSelectedIndex((filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10);
@@ -175,15 +178,9 @@ public class FiltersOptionsFrame extends JFrame {
         useJitter.setToolTipText("Adds jitter to the sampling.");
         useJitter.setSelected(((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x4) == 4);
 
-        useJitter.setEnabled(aaMethod.getSelectedIndex() != 6);
+        useJitter.setEnabled(aaMethod.getSelectedIndex() != 6 && aaMethod.getSelectedIndex() != 8);
 
-        antialiasing_color_space.setEnabled(aaMethod.getSelectedIndex() == 0 || aaMethod.getSelectedIndex() == 1 || aaMethod.getSelectedIndex() == 2 || aaMethod.getSelectedIndex() == 6 || aaMethod.getSelectedIndex() == 7);
-
-        aaMethod.addActionListener(e -> {
-            aaAvgWithMean.setEnabled(aaMethod.getSelectedIndex() != 0 && aaMethod.getSelectedIndex() != 5 && aaMethod.getSelectedIndex() != 7);
-            antialiasing_color_space.setEnabled(aaMethod.getSelectedIndex() == 0 || aaMethod.getSelectedIndex() == 1 || aaMethod.getSelectedIndex() == 2 || aaMethod.getSelectedIndex() == 6 || aaMethod.getSelectedIndex() == 7);
-            useJitter.setEnabled(aaMethod.getSelectedIndex() != 6);
-        });
+        antialiasing_color_space.setEnabled(aaMethod.getSelectedIndex() == 0 || aaMethod.getSelectedIndex() == 1 || aaMethod.getSelectedIndex() == 2 || aaMethod.getSelectedIndex() == 6 || aaMethod.getSelectedIndex() == 7 || aaMethod.getSelectedIndex() == 8);
 
 
         JPanel samples = new JPanel();
@@ -210,11 +207,37 @@ public class FiltersOptionsFrame extends JFrame {
         space.add(new JLabel("Color Space:"));
         space.add(antialiasing_color_space);
 
+        JPanel sigmapanel = new JPanel();
+        sigmapanel.setBackground(MainWindow.bg_color);
+
+        JTextField sigmaR = new JTextField(6);
+        sigmaR.setText("" + fs.aaSigmaR);
+
+
+        JTextField sigmaS = new JTextField(6);
+        sigmaS.setText("" + fs.aaSigmaS);
+        sigmapanel.add(new JLabel("Sigma R: "));
+        sigmapanel.add(sigmaR);
+        sigmapanel.add(new JLabel(" S: "));
+        sigmapanel.add(sigmaS);
+
+        sigmaR.setEnabled(aaMethod.getSelectedIndex() == 6 || aaMethod.getSelectedIndex() == 8);
+        sigmaS.setEnabled(aaMethod.getSelectedIndex() == 8);
+
+        aaMethod.addActionListener(e -> {
+            aaAvgWithMean.setEnabled(aaMethod.getSelectedIndex() != 0 && aaMethod.getSelectedIndex() != 5 && aaMethod.getSelectedIndex() != 7);
+            antialiasing_color_space.setEnabled(aaMethod.getSelectedIndex() == 0 || aaMethod.getSelectedIndex() == 1 || aaMethod.getSelectedIndex() == 2 || aaMethod.getSelectedIndex() == 6 || aaMethod.getSelectedIndex() == 7 || aaMethod.getSelectedIndex() == 8);
+            useJitter.setEnabled(aaMethod.getSelectedIndex() != 6 & aaMethod.getSelectedIndex() != 8);
+            sigmaR.setEnabled(aaMethod.getSelectedIndex() == 6 || aaMethod.getSelectedIndex() == 8);
+            sigmaS.setEnabled(aaMethod.getSelectedIndex() == 8);
+        });
+
         ((JPanel)components_filters[MainWindow.ANTIALIASING]).add(samples);
         ((JPanel)components_filters[MainWindow.ANTIALIASING]).add(method);
         ((JPanel)components_filters[MainWindow.ANTIALIASING]).add(avg);
         ((JPanel)components_filters[MainWindow.ANTIALIASING]).add(jitterPanel);
         ((JPanel)components_filters[MainWindow.ANTIALIASING]).add(space);
+        ((JPanel)components_filters[MainWindow.ANTIALIASING]).add(sigmapanel);
 
         panels[MainWindow.ANTIALIASING].add(((JPanel)components_filters[MainWindow.ANTIALIASING]));
         panels[MainWindow.ANTIALIASING].setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Anti-Aliasing", TitledBorder.DEFAULT_POSITION, TitledBorder.DEFAULT_POSITION));
@@ -349,12 +372,14 @@ public class FiltersOptionsFrame extends JFrame {
        
         panels[MainWindow.SHARPNESS] = new JPanel();
         panels[MainWindow.SHARPNESS].setBackground(MainWindow.bg_color);
-        String[] sharpness_str = {"Low", "High"};
+        String[] sharpness_str = {"Low", "High", "Unsharp"};
 
         components_filters[MainWindow.SHARPNESS] = new JComboBox<>(sharpness_str);
         ((JComboBox)components_filters[MainWindow.SHARPNESS]).setSelectedIndex(filters_options_vals[MainWindow.SHARPNESS]);
         ((JComboBox)components_filters[MainWindow.SHARPNESS]).setFocusable(false);
-        ((JComboBox)components_filters[MainWindow.SHARPNESS]).setToolTipText("Sets the intensity of the sharpness.");
+        ((JComboBox)components_filters[MainWindow.SHARPNESS]).setToolTipText("Sets the sharpness algorithm.");
+
+
         panels[MainWindow.SHARPNESS].add(((JComboBox)components_filters[MainWindow.SHARPNESS]));
         panels[MainWindow.SHARPNESS].setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Sharpness", TitledBorder.DEFAULT_POSITION, TitledBorder.DEFAULT_POSITION));
 
@@ -1051,9 +1076,9 @@ public class FiltersOptionsFrame extends JFrame {
 
         components_filters[MainWindow.BLURRING] = new JPanel();
         ((JPanel)components_filters[MainWindow.BLURRING]).setBackground(MainWindow.bg_color);
-        ((JPanel)components_filters[MainWindow.BLURRING]).setLayout(new GridLayout(4, 1));
+        ((JPanel)components_filters[MainWindow.BLURRING]).setLayout(new GridLayout(6, 1));
 
-        String[] blurring_str = {"Default", "Gaussian, Radius 3", "Gaussian, Radius 5", "Gaussian, Radius 7", "Gaussian, Radius 9", "Gaussian, Radius 11", "Maximum", "Median", "Minimum", "High Pass"};
+        String[] blurring_str = {"Default", "Gaussian, Kernel 3", "Gaussian, Kernel 5", "Gaussian, Kernel 7", "Gaussian, Kernel 9", "Gaussian, Kernel 11", "Maximum", "Median", "Minimum", "High Pass", "Blur", "Despeckle", "Lens Blur", "Reduce Noise", "Smart Blur", "Gaussian", "Bilateral"};
 
         final JComboBox<String> blurring_radius = new JComboBox<>(blurring_str);
         blurring_radius.setSelectedIndex((int)(filters_options_vals[MainWindow.BLURRING] / 1000.0));
@@ -1068,20 +1093,42 @@ public class FiltersOptionsFrame extends JFrame {
         alg_panel.setBackground(MainWindow.bg_color);
         alg_panel.add(new JLabel("Algorithm:"));
         
-        JPanel weight_panel = new JPanel();
-        weight_panel.setBackground(MainWindow.bg_color);
-        weight_panel.add(new JLabel("Weight:"));
+        JPanel radius_panel = new JPanel();
+        radius_panel.setBackground(MainWindow.bg_color);
+        radius_panel.add(new JLabel("Radius:"));
 
-        ((JPanel)components_filters[MainWindow.BLURRING]).add(alg_panel);
-        ((JPanel)components_filters[MainWindow.BLURRING]).add(temp_panel_blurring);
-        ((JPanel)components_filters[MainWindow.BLURRING]).add(weight_panel);
+        JPanel kernel_panel = new JPanel();
+        kernel_panel.setBackground(MainWindow.bg_color);
+        kernel_panel.add(new JLabel("Kernel: "));
 
-        final JSlider blurring_slid = new JSlider(JSlider.HORIZONTAL, 1, 100, (int)(filters_options_vals[MainWindow.BLURRING] % 1000.0));
-        blurring_slid.setPreferredSize(new Dimension(200, 35));
-        blurring_slid.setBackground(MainWindow.bg_color);
-        blurring_slid.setFocusable(false);
-        blurring_slid.setToolTipText("Sets the blurring weight.");
-        blurring_slid.setPaintLabels(true);
+        String[] kernels = {"3", "5", "7", "9", "11"};
+        final JComboBox<String> kernels_size_opt = new JComboBox<>(kernels);
+        kernels_size_opt.setSelectedIndex(fs.blurringKernelSelection);
+        kernels_size_opt.setFocusable(false);
+        kernels_size_opt.setToolTipText("Sets the kernel size of the bilateral smoothing.");
+
+        kernel_panel.add(kernels_size_opt);
+
+        JPanel sigmapanel2 = new JPanel();
+        sigmapanel2.setBackground(MainWindow.bg_color);
+
+        JTextField sigmaR2 = new JTextField(6);
+        sigmaR2.setText("" + fs.bluringSigmaR);
+
+
+        JTextField sigmaS2 = new JTextField(6);
+        sigmaS2.setText("" + fs.bluringSigmaS);
+        sigmapanel2.add(new JLabel("Sigma R: "));
+        sigmapanel2.add(sigmaR2);
+        sigmapanel2.add(new JLabel(" S: "));
+        sigmapanel2.add(sigmaS2);
+
+        final JSlider radius_slid = new JSlider(JSlider.HORIZONTAL, 1, 100, (int)(filters_options_vals[MainWindow.BLURRING] % 1000.0));
+        radius_slid.setPreferredSize(new Dimension(200, 35));
+        radius_slid.setBackground(MainWindow.bg_color);
+        radius_slid.setFocusable(false);
+        radius_slid.setToolTipText("Sets the blurring radius.");
+        radius_slid.setPaintLabels(true);
 
         table3 = new Hashtable<>();
         table3.put(1, new JLabel("1"));
@@ -1089,13 +1136,27 @@ public class FiltersOptionsFrame extends JFrame {
         table3.put(50, new JLabel("50"));
         table3.put(75, new JLabel("75"));
         table3.put(100, new JLabel("100"));
-        blurring_slid.setLabelTable(table3);
+        radius_slid.setLabelTable(table3);
 
-        blurring_radius.addActionListener(e -> blurring_slid.setEnabled(blurring_radius.getSelectedIndex() > 0 && blurring_radius.getSelectedIndex() < 6 || blurring_radius.getSelectedIndex() == 9));
 
-        blurring_slid.setEnabled(blurring_radius.getSelectedIndex() > 0 && blurring_radius.getSelectedIndex() < 6 || blurring_radius.getSelectedIndex() == 9);
+        ((JPanel)components_filters[MainWindow.BLURRING]).add(alg_panel);
+        ((JPanel)components_filters[MainWindow.BLURRING]).add(temp_panel_blurring);
+        ((JPanel)components_filters[MainWindow.BLURRING]).add(sigmapanel2);
+        ((JPanel)components_filters[MainWindow.BLURRING]).add(kernel_panel);
+        ((JPanel)components_filters[MainWindow.BLURRING]).add(radius_panel);
+        ((JPanel)components_filters[MainWindow.BLURRING]).add(radius_slid);
 
-        ((JPanel)components_filters[MainWindow.BLURRING]).add(blurring_slid);
+
+        sigmaR2.setEnabled((blurring_radius.getSelectedIndex() > 0 && blurring_radius.getSelectedIndex() < 6) || blurring_radius.getSelectedIndex() == 16);
+        sigmaS2.setEnabled(blurring_radius.getSelectedIndex() == 16);
+        kernels_size_opt.setEnabled(blurring_radius.getSelectedIndex() == 16);
+        radius_slid.setEnabled(blurring_radius.getSelectedIndex() == 9 || blurring_radius.getSelectedIndex() == 15);
+        blurring_radius.addActionListener(e -> {
+            sigmaR2.setEnabled((blurring_radius.getSelectedIndex() > 0 && blurring_radius.getSelectedIndex() < 6) || blurring_radius.getSelectedIndex() == 16);
+            sigmaS2.setEnabled(blurring_radius.getSelectedIndex() == 16);
+            kernels_size_opt.setEnabled(blurring_radius.getSelectedIndex() == 16);
+            radius_slid.setEnabled(blurring_radius.getSelectedIndex() == 9 || blurring_radius.getSelectedIndex() == 15);
+        });
 
         panels[MainWindow.BLURRING].add((JPanel)components_filters[MainWindow.BLURRING]);
 
@@ -2767,6 +2828,34 @@ public class FiltersOptionsFrame extends JFrame {
 //                    return;
 //                }
 //            }
+            double temp, temp2, temp3, temp4;
+
+            try {
+                temp = Double.parseDouble(sigmaR.getText());
+                temp2 = Double.parseDouble(sigmaS.getText());
+                temp3 = Double.parseDouble(sigmaR2.getText());
+                temp4 = Double.parseDouble(sigmaS2.getText());
+            }
+            catch (Exception ex) {
+                JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            if(temp < 0 || temp2 < 0 || temp3 < 0 || temp4 < 0) {
+                JOptionPane.showMessageDialog(ptra, "The sigma values must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            fs.aaSigmaS = temp2;
+            fs.aaSigmaR = temp;
+            fs.bluringSigmaS = temp4;
+            fs.bluringSigmaR = temp3;
+            fs.blurringKernelSelection = kernels_size_opt.getSelectedIndex();
+
+            boolean useJitterOld = ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x4) == 4;
+            int aaMethodOld = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
+            int aaSamplesIndexOld = (filters_options_vals[MainWindow.ANTIALIASING] % 100) % 10;
+            int old_supersampling_num = TaskDraw.getExtraSamples(aaSamplesIndexOld, aaMethodOld);
 
             for(int k = 0; k < filters_options_vals.length; k++) {
                 if(components_filters[k] != null) {
@@ -2791,7 +2880,7 @@ public class FiltersOptionsFrame extends JFrame {
                         filters_options_vals[k] = sb * 100000 + db * 10000 + dither_alg.getSelectedIndex() * 1000 + dither_slid.getValue();
                     }
                     else if(k == MainWindow.BLURRING) {
-                        filters_options_vals[k] = blurring_radius.getSelectedIndex() * 1000 + blurring_slid.getValue();
+                        filters_options_vals[k] = blurring_radius.getSelectedIndex() * 1000 + radius_slid.getValue();
                     }
                     else if(k == MainWindow.POSTERIZE) {
                         filters_options_vals[k] = posterize_slid.getValue();
@@ -2892,7 +2981,12 @@ public class FiltersOptionsFrame extends JFrame {
                 }
             }
 
-            ptra2.filtersOptionsChanged(filters_options_vals, filters_options_extra_vals, filters_colors, filters_extra_colors, order_panel.getFilterOrder(), mActiveFilters);
+            boolean useJitterNew = ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x4) == 4;
+            int aaSamplesIndexNew = (filters_options_vals[MainWindow.ANTIALIASING] % 100) % 10;
+            int aaMethodNew = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
+            int new_supersampling_num = TaskDraw.getExtraSamples(aaSamplesIndexNew, aaMethodNew);
+
+            ptra2.filtersOptionsChanged(filters_options_vals, filters_options_extra_vals, filters_colors, filters_extra_colors, order_panel.getFilterOrder(), mActiveFilters, aaSamplesIndexNew != aaSamplesIndexOld || old_supersampling_num != new_supersampling_num, useJitterOld != useJitterNew);
 
             tab_index = tabbedPane.getSelectedIndex();
 
@@ -2944,7 +3038,7 @@ public class FiltersOptionsFrame extends JFrame {
         reset.setFocusable(false);
         reset.addActionListener(e -> {
 
-            ptra2.filtersOptionsChanged(null, null, null, null, null, null);
+            ptra2.filtersOptionsChanged(null, null, null, null, null, null, true, true);
 
             tab_index = tabbedPane.getSelectedIndex();
 

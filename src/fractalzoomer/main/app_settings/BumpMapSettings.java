@@ -30,6 +30,10 @@ public class BumpMapSettings {
     public double bump_transfer_factor;
     public int bumpProcessing;
     public double bump_blending;
+    public int fractionalTransfer;
+    public int fractionalSmoothing;
+    public int fractionalTransferMode;
+    public double fractionalTransferScale;
     
     public BumpMapSettings(BumpMapSettings copy) {
         
@@ -42,6 +46,10 @@ public class BumpMapSettings {
         bm_noise_reducing_factor = copy.bm_noise_reducing_factor;
         bumpProcessing = copy.bumpProcessing;
         bump_blending = copy.bump_blending;
+        fractionalTransfer = copy.fractionalTransfer;
+        fractionalSmoothing = copy.fractionalSmoothing;
+        fractionalTransferMode = copy.fractionalTransferMode;
+        fractionalTransferScale = copy.fractionalTransferScale;
         
     }
     
@@ -56,6 +64,10 @@ public class BumpMapSettings {
         bm_noise_reducing_factor = 1e-10;
         bumpProcessing = 0;
         bump_blending = 0.5;
+        fractionalTransfer = 0;
+        fractionalSmoothing = 0;
+        fractionalTransferMode = 1;
+        fractionalTransferScale = 1;
         
     }
 }

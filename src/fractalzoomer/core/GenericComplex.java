@@ -2,6 +2,7 @@ package fractalzoomer.core;
 
 import fractalzoomer.core.mpfr.MpfrBigNum;
 import fractalzoomer.core.mpir.MpirBigNum;
+import fractalzoomer.core.unused.BigDecNumComplex;
 import fractalzoomer.utils.NormComponents;
 import org.apfloat.Apfloat;
 
@@ -18,6 +19,10 @@ public class GenericComplex {
     public GenericComplex squareFast_plus_c_mutable(NormComponents normComponents, GenericComplex c) { return null;}
 
     public GenericComplex square_plus_c_mutable(GenericComplex c, MpfrBigNum temp, MpfrBigNum temp2) {return null;}
+
+    public GenericComplex square_mutable(MpfrBigNum temp1, MpfrBigNum temp2) { return null; }
+
+    public GenericComplex square_mutable(MpirBigNum temp1, MpirBigNum temp2) { return null; }
 
     public GenericComplex square_plus_c_mutable(GenericComplex c, MpirBigNum temp, MpirBigNum temp2, MpirBigNum temp3) {return null;}
 
@@ -108,6 +113,8 @@ public class GenericComplex {
 
     public BigIntNumComplex toBigIntNumComplex() { return null; }
 
+    public BigDecNumComplex toBigDecNumComplex() { return null; }
+
     public MpfrBigNumComplex toMpfrBigNumComplex() { return null; }
 
     public MpirBigNumComplex toMpirBigNumComplex() { return null; }
@@ -121,5 +128,12 @@ public class GenericComplex {
 
     public GenericComplex divide_mutable(GenericComplex z) {return null;}
 
+    public void assign(GenericComplex z) {}
+
+    public GenericComplex absNegateRe_mutable() {return null;}
+
+    public GenericComplex absNegateIm_mutable() {return null;}
+
+    public GenericComplex absre_mutable() { return null; }
 
 }

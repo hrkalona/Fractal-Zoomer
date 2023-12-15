@@ -1,56 +1,57 @@
 package fractalzoomer.utils;
 
-import fractalzoomer.core.ThreadDraw;
+import fractalzoomer.core.TaskDraw;
 import fractalzoomer.main.MainWindow;
 
-public class ImageRepainter extends Thread {
+public class ImageRepainter implements Runnable {
     private MainWindow ptr;
-    private ThreadDraw [][] drawThreads;
-    public static int REPAINT_SLEEP_TIME = 200;
+    private TaskDraw[][] drawThreads;
+    public static int REPAINT_SLEEP_TIME = 24;
 
-    public ImageRepainter(MainWindow ptr,  ThreadDraw [][] drawThreads) {
+    private volatile boolean stop;
+
+    public ImageRepainter(MainWindow ptr,  TaskDraw[][] drawThreads) {
         super();
         this.ptr = ptr;
         this.drawThreads = drawThreads;
+        stop = false;
     }
 
-    public void init() {
-        ptr.setWholeImageDone(true);
-        ptr.reloadTitle();
-        ptr.getMainPanel().repaint();
+    public void init(boolean quickDrawAndRefinement) {
+
+        ptr.setWholeImageDone(!quickDrawAndRefinement);
+        if(!quickDrawAndRefinement) {
+            boolean isJulia = drawThreads[0][0].isJulia();
+            boolean isJuliaMap = drawThreads[0][0].isJuliaMap();
+            boolean isDomainColoring = drawThreads[0][0].isDomainColoring();
+            boolean isNonJulia = drawThreads[0][0].isNonJulia();
+
+            if(isJulia || isNonJulia || isJuliaMap || isDomainColoring) {
+                ptr.reloadTitle();
+                TaskDraw.updateMode(ptr, false, isJulia, isJuliaMap, isDomainColoring);
+            }
+            ptr.getMainPanel().repaint();
+        }
+        stop = false;
+    }
+
+    public void stopIt() {
+        stop = true;
     }
 
     @Override
     public void run() {
 
-        while (!threadsAvailable()) {
+        while (!stop && TaskDraw.number_of_tasks.get() > 0) {
+
             ptr.repaint();
+
             try {
-                sleep(REPAINT_SLEEP_TIME);
-            }
-            catch (Exception ex) {
-
-            }
-        }
-
-    }
-
-    public boolean threadsAvailable() {
-
-        synchronized(ptr) {
-            try {
-                for (int i = 0; i < drawThreads.length; i++) {
-                    for (int j = 0; j < drawThreads[i].length; j++) {
-                        if (drawThreads[i][j].isAlive() || !drawThreads[i][j].started()) {
-                            return false;
-                        }
-                    }
-                }
+                Thread.sleep(REPAINT_SLEEP_TIME);
             } catch (Exception ex) {
-                return false;
+
             }
 
-            return true;
         }
 
     }

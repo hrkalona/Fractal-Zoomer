@@ -5,7 +5,7 @@ import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.NativeLibrary;
 import com.sun.jna.Platform;
-import fractalzoomer.core.ThreadDraw;
+import fractalzoomer.core.TaskDraw;
 import fractalzoomer.core.mpir.mpf_t;
 import fractalzoomer.utils.NativeLoader;
 
@@ -46,7 +46,7 @@ public class LibMpfr {
 
     static {
 
-        if(!ThreadDraw.LOAD_MPFR) {
+        if(!TaskDraw.LOAD_MPFR) {
             LOAD_ERROR = new Exception("Disabled loading of mpfr");
         }
         else if(!Platform.isWindows() && !Platform.isLinux()) {

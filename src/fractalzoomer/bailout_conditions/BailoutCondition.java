@@ -43,14 +43,11 @@ public abstract class BailoutCondition {
 
         useThreads = true;
         this.bound = bound;
-        if(ThreadDraw.PERTURBATION_THEORY || ThreadDraw.HIGH_PRECISION_CALCULATION) {
+        if(TaskDraw.PERTURBATION_THEORY || TaskDraw.HIGH_PRECISION_CALCULATION) {
             ddbound = new MyApfloat(bound);
             ddcbound = new DoubleDouble(bound);
-
-            if(ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE || ThreadDraw.HIGH_PRECISION_CALCULATION) {
-                bnbound = new BigNum(bound);
-                binbound = new BigIntNum(bound);
-            }
+            bnbound = new BigNum(bound);
+            binbound = new BigIntNum(bound);
         }
         
     }

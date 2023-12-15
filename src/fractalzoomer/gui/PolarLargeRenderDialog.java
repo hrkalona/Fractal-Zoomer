@@ -52,7 +52,7 @@ public class PolarLargeRenderDialog extends JDialog {
 
         Object[] message3 = {
             " ",
-            "Enter the number of images that will be used in order to create the large image.",
+            "Insert the number of images that will be used in order to create the large image.",
                 "Number of Images:",
                 field,
                 " ",

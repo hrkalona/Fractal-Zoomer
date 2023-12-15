@@ -1,10 +1,11 @@
-Fractal Zoomer 1.0.8.8
+Fractal Zoomer 1.0.8.9
 
 The most complete fractal generating software using java!
 
 Optimizations:
 Boundary Tracing
-Divide and Conquer
+Mariani/Silver
+Successive Refinement
 Perturbation Theory
 
 Functions:

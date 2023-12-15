@@ -72,6 +72,11 @@ public class StatisticsColoringFrame extends JFrame {
 
     private JComboBox<String> de_fade_method_combo;
 
+    private JComboBox<String> checkersNormType;
+    private JTextField checkersNNorm;
+
+    private JRadioButton checkers;
+
     public StatisticsColoringFrame(MainWindow ptra, StatisticsSettings sts2, Settings s, boolean periodicity_checking) {
 
         super();
@@ -89,6 +94,7 @@ public class StatisticsColoringFrame extends JFrame {
         atomDomain  = new JRadioButton(Constants.statisticalColoringName[MainWindow.ATOM_DOMAIN_BOF60_BOF61]);
         lagrangian = new JRadioButton(Constants.statisticalColoringName[MainWindow.DISCRETE_LAGRANGIAN_DESCRIPTORS]);
         JRadioButton twinLamps = new JRadioButton(Constants.statisticalColoringName[MainWindow.TWIN_LAMPS]);
+        checkers = new JRadioButton(Constants.statisticalColoringName[MainWindow.CHECKERS]);
 
         if(s.isConvergingType()) {
             stripe_average.setEnabled(false);
@@ -97,6 +103,7 @@ public class StatisticsColoringFrame extends JFrame {
             triangle_inequality_average.setEnabled(false);
             twinLamps.setEnabled(false);
             triangle_inequality_average.setEnabled(false);
+            checkers.setEnabled(false);
         }
         else if(!s.isMagnetType() && !s.isEscapingOrConvergingType()) {
             alg2.setEnabled(false);
@@ -1259,7 +1266,7 @@ public class StatisticsColoringFrame extends JFrame {
         atomNormType.setFocusable(false);
         atomNormType.setToolTipText("Sets the norm type.");
 
-        atom_domain_panel.add(new JLabel(" Norm-Type: "));
+        atom_domain_panel.add(new JLabel(" Norm Type: "));
         atom_domain_panel.add(atomNormType);
 
         atomNNorm = new JTextField(10);
@@ -1294,7 +1301,7 @@ public class StatisticsColoringFrame extends JFrame {
         langNormType.setFocusable(false);
         langNormType.setToolTipText("Sets the norm type.");
 
-        lagrangian_panel.add(new JLabel(" Norm-Type: "));
+        lagrangian_panel.add(new JLabel(" Norm Type: "));
         lagrangian_panel.add(langNormType);
 
         langNNorm = new JTextField(10);
@@ -1346,14 +1353,56 @@ public class StatisticsColoringFrame extends JFrame {
 
         twin_lamps_panel.setBorder(twin_lamps_border);
 
+
+
+        final JPanel checkers_panel = new JPanel();
+        checkers_panel.setLayout(new FlowLayout());
+        checkers_panel.setBackground(MainWindow.bg_color);
+
+        JTextField patternScale = new JTextField(10);
+        patternScale.setText("" + sts.patternScale);
+        checkers_panel.add(new JLabel("Pattern Scale: "));
+        checkers_panel.add(patternScale);
+
+        checkersNormType = new JComboBox<>(Constants.atomNormTypes);
+        checkersNormType.setSelectedIndex(sts.checkerNormType);
+        checkersNormType.setFocusable(false);
+        checkersNormType.setToolTipText("Sets the norm type.");
+
+        checkers_panel.add(new JLabel(" Norm Type: "));
+        checkers_panel.add(checkersNormType);
+
+        checkersNNorm = new JTextField(10);
+        checkersNNorm.setText("" + sts.checkerNormValue);
+
+        checkersNormType.addActionListener(e -> checkersNNorm.setEnabled(checkersNormType.getSelectedIndex() == 3));
+
+        checkers_panel.add(new JLabel(" N-Norm: "));
+        checkers_panel.add(checkersNNorm);
+
+        checkers.setBackground(MainWindow.bg_color);
+        checkers.setSelected(sts.statistic_type == MainWindow.CHECKERS);
+        button_group.add(checkers);
+
+        ComponentTitledBorder checkers_border = new ComponentTitledBorder(checkers, checkers_panel, BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), this_frame);
+        checkers_border.setChangeListener();
+
+        checkers_panel.setBorder(checkers_border);
+
+        JPanel pp = new JPanel();
+        pp.setBackground(Constants.bg_color);
+        pp.setLayout(new GridLayout(1, 2));
+        pp.add(curvature_panel);
+        pp.add(triangle_inequality_panel);
+
         panel.add(stripe_panel);
-        panel.add(curvature_panel);
-        panel.add(triangle_inequality_panel);
+        panel.add(pp);
         panel.add(alg1_panel);
         panel.add(alg2_panel);
         panel.add(atom_domain_panel);
         panel.add(lagrangian_panel);
         panel.add(twin_lamps_panel);
+        panel.add(checkers_panel);
 
         stripe_border.setState(stripe_average.isSelected());
         curvature_border.setState(curvature_average.isSelected());
@@ -1363,9 +1412,11 @@ public class StatisticsColoringFrame extends JFrame {
         atom_domain_border.setState(atomDomain.isSelected());
         lagrangian_border.setState(lagrangian.isSelected());
         twin_lamps_border.setState(twinLamps.isSelected());
+        checkers_border.setState(checkers.isSelected());
 
         langNNorm.setEnabled(lagrangian.isSelected() && langNormType.getSelectedIndex() == 4);
         atomNNorm.setEnabled(atomDomain.isSelected() && atomNormType.getSelectedIndex() == 3);
+        checkersNNorm.setEnabled(checkers.isSelected() && checkersNormType.getSelectedIndex() == 3);
 
         stripe_average.addActionListener(e -> {
             smoothing.setEnabled(true);
@@ -1407,6 +1458,11 @@ public class StatisticsColoringFrame extends JFrame {
             average.setEnabled(false);
         });
 
+        checkers.addActionListener(e -> {
+            smoothing.setEnabled(true);
+            average.setEnabled(true);
+        });
+
         panel3.add(panel2);
         panel3.add(panel6);
         panel3.add(tabbedPane);
@@ -1422,7 +1478,7 @@ public class StatisticsColoringFrame extends JFrame {
         ok.addActionListener(e -> {
 
             double temp, temp2, temp3, temp4, temp5, temp6, temp7, temp8, temp9, temp10, temp11, temp12, temp13, temp14, temp15, temp16, temp17, temp18;
-            double temp19;
+            double temp19, temp22, temp23;
             int temp20, temp21;
 
             try {
@@ -1447,6 +1503,8 @@ public class StatisticsColoringFrame extends JFrame {
                 temp19 = Double.parseDouble(normalMapDEOffsetFactor.getText());
                 temp20 = Integer.parseInt(normalMapDEOffset.getText());
                 temp21 = Integer.parseInt(useLastX.getText());
+                temp22 = Double.parseDouble(patternScale.getText());
+                temp23 = Double.parseDouble(checkersNNorm.getText());
             }
             catch(Exception ex) {
                 JOptionPane.showMessageDialog(this_frame, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
@@ -1490,6 +1548,11 @@ public class StatisticsColoringFrame extends JFrame {
 
             if (temp9 <= 0) {
                 JOptionPane.showMessageDialog(this_frame, "The distance estimation factor must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            if (temp22 <= 0) {
+                JOptionPane.showMessageDialog(this_frame, "The pattern scale must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
@@ -1613,6 +1676,10 @@ public class StatisticsColoringFrame extends JFrame {
             sts.atomNormType = atomNormType.getSelectedIndex();
             sts.atomNNorm = temp16;
 
+            sts.patternScale = temp22;
+            sts.checkerNormValue = temp23;
+            sts.checkerNormType = checkersNormType.getSelectedIndex();
+
             if(stripe_average.isSelected()) {
                 sts.statistic_type = MainWindow.STRIPE_AVERAGE;
             }
@@ -1636,6 +1703,9 @@ public class StatisticsColoringFrame extends JFrame {
             }
             else if(twinLamps.isSelected()) {
                 sts.statistic_type = MainWindow.TWIN_LAMPS;
+            }
+            else if (checkers.isSelected()) {
+                sts.statistic_type = MainWindow.CHECKERS;
             }
 
             sts.statisticGroup = tabbedPane.getSelectedIndex();
@@ -1759,6 +1829,10 @@ public class StatisticsColoringFrame extends JFrame {
 
         if(atomDomain.isSelected()) {
             atomNNorm.setEnabled(atomNormType.getSelectedIndex() == 3);
+        }
+
+        if(checkers.isSelected()) {
+            checkersNNorm.setEnabled(checkersNormType.getSelectedIndex() == 3);
         }
 
     }

@@ -28,7 +28,7 @@ public class ColorDecompositionMagneticPendulum extends ColorDecomposition {
     public ColorDecompositionMagneticPendulum(Complex[] magnets) {
         super();
         this.magnets = magnets;
-        OutNotUsingIncrement = true;
+        OutUsingIncrement = false;
     }
 
     @Override

@@ -42,9 +42,9 @@ public abstract class RootFindingMethods extends Fractal {
     protected double convergent_bailout;
     protected Object[] iterationData;
 
-    public RootFindingMethods(double xCenter, double yCenter, double size, int max_iterations, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, OrbitTrapSettings ots) {
+    public RootFindingMethods(double xCenter, double yCenter, double size, int max_iterations, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower, OrbitTrapSettings ots) {
 
-        super(xCenter, yCenter, size, max_iterations, 0, 0, "", "", 0, 0, false, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, ots);
+        super(xCenter, yCenter, size, max_iterations, 0, 0, "", "", 0, 0, false, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, ots);
 
         convergent_bailout = 1E-10;
         isJulia = false;
@@ -53,9 +53,9 @@ public abstract class RootFindingMethods extends Fractal {
     }
 
     //orbit
-    public RootFindingMethods(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount) {
+    public RootFindingMethods(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower) {
 
-        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, false);
+        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, false);
         defaultInitVal = new DefaultInitialValue();
 
     }
@@ -64,7 +64,7 @@ public abstract class RootFindingMethods extends Fractal {
     public Complex[] initialize(Complex pixel) {
 
         Complex[] complex = new Complex[1];
-        if(ThreadDraw.PERTURBATION_THEORY && supportsPerturbationTheory()) {
+        if(TaskDraw.PERTURBATION_THEORY && supportsPerturbationTheory()) {
             if(!isOrbit && !isDomain) {
                 complex[0] = pixel.plus(refPointSmall);
             }
@@ -90,7 +90,7 @@ public abstract class RootFindingMethods extends Fractal {
 
         GenericComplex[] complex = new GenericComplex[1];
 
-        int lib = ThreadDraw.getHighPrecisionLibrary(dsize, this);
+        int lib = TaskDraw.getHighPrecisionLibrary(dsize, this);
 
         if(lib == ARBITRARY_MPFR) {
 
@@ -164,9 +164,11 @@ public abstract class RootFindingMethods extends Fractal {
     }
 
     @Override
-    public double iterateFractalArbitraryPrecisionWithoutPeriodicity(GenericComplex[] complex, GenericComplex pixel) {
+    public double iterateFractalArbitraryPrecision(GenericComplex[] complex, GenericComplex pixel) {
 
         iterations = 0;
+
+        complex = precalculateArbitraryData(complex);
 
         Complex start = gstart.toComplex();
         Complex c0 = gc0.toComplex();
@@ -552,14 +554,14 @@ public abstract class RootFindingMethods extends Fractal {
 
         MantExpComplex[] complex = new MantExpComplex[1];
 
-        complex[0] = new MantExpComplex(dpixel);
+        complex[0] = MantExpComplex.copy(dpixel);
 
         return complex;
 
     }
 
     @Override
-    public double iterateFractalWithPerturbationWithoutPeriodicity(Complex[] complex, Complex dpixel) {
+    public double iterateFractalWithPerturbation(Complex[] complex, Complex dpixel) {
 
         double_iterations = 0;
         rebases = 0;
@@ -651,7 +653,7 @@ public abstract class RootFindingMethods extends Fractal {
     }
 
     @Override
-    public double iterateFractalWithPerturbationWithoutPeriodicity(Complex[] complex, MantExpComplex dpixel) {
+    public double iterateFractalWithPerturbation(Complex[] complex, MantExpComplex dpixel) {
 
 
         float_exp_iterations = 0;
@@ -674,15 +676,15 @@ public abstract class RootFindingMethods extends Fractal {
         int minExp = -1000;
         int reducedExp = minExp / (int)power;
 
-        DeltaSubN.Reduce();
-        long exp = DeltaSubN.getExp();
+        DeltaSubN.Normalize();
+        long exp = DeltaSubN.getMinExp();
 
         ReferenceDeepData deepData = referenceDeepData;
         ReferenceData data = referenceData;
         int MaxRefIteration = data.MaxRefIteration;
 
         boolean useFullFloatExp = useFullFloatExp();
-        boolean doBailCheck = useFullFloatExp || ThreadDraw.CHECK_BAILOUT_DURING_DEEP_NOT_FULL_FLOATEXP_MODE;
+        boolean doBailCheck = useFullFloatExp || TaskDraw.CHECK_BAILOUT_DURING_DEEP_NOT_FULL_FLOATEXP_MODE;
 
         if(useFullFloatExp || (totalSkippedIterations == 0 && exp <= minExp) || (totalSkippedIterations != 0 && exp <= reducedExp)) {
 
@@ -742,10 +744,10 @@ public abstract class RootFindingMethods extends Fractal {
                     rebases++;
                 }
 
-                DeltaSubN.Reduce();
+                DeltaSubN.Normalize();
 
                 if(!useFullFloatExp) {
-                    if (DeltaSubN.getExp() > reducedExp) {
+                    if (DeltaSubN.getMinExp() > reducedExp) {
                         iterations++;
                         break;
                     }

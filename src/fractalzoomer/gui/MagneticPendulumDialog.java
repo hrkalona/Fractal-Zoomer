@@ -136,7 +136,7 @@ public class MagneticPendulumDialog extends JDialog {
 
         Object[] magnets = {
             " ",
-            "Enter the magnetic pendulum simulation parameters",
+            "Insert the magnetic pendulum simulation parameters",
             magnet_p1,
             magnet_p2,
             magnet_panels[0],

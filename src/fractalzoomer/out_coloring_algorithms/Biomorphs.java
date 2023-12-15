@@ -31,7 +31,7 @@ public class Biomorphs extends OutColorAlgorithm {
 
         super();
         this.bailout = bailout;
-        OutNotUsingIncrement = false;
+        OutUsingIncrement = true;
 
     }
 

@@ -244,11 +244,11 @@ public abstract class AntialiasingAlgorithm {
     }
 
     protected double function(double value) {
-        return 0;
+        return value * totalSamplesReciprocal;
     }
 
     protected double function(double value, int samples) {
-        return 0;
+        return value / samples;
     }
 
     protected double function(double value, double value2) {
@@ -260,7 +260,7 @@ public abstract class AntialiasingAlgorithm {
     }
 
 
-    public static AntialiasingAlgorithm getAntialiasingAlgorithm(int totalSamples, int method, boolean avgWithMean, int colorSpace, Location location) {
+    public static AntialiasingAlgorithm getAntialiasingAlgorithm(int totalSamples, int method, boolean avgWithMean, int colorSpace, double sigmaR, double sigmaS) {
 
         //int colorspace = 0;
         if(method == 0) {
@@ -300,13 +300,14 @@ public abstract class AntialiasingAlgorithm {
             return new AdaptiveMeanAntialiasingAlgorithm(totalSamples, 5);
         }
         else if (method == 6) {
-            return new GaussianAntialiasingAlgorithm(totalSamples, location.getGaussianCoefficients(totalSamples), avgWithMean, colorSpace);
+            return new GaussianAntialiasingAlgorithm(totalSamples, (double [])Location.getGaussianCoefficients(totalSamples, sigmaR)[0], avgWithMean, colorSpace);
         }
-        else {
+        else if (method == 7) {
             return new MeanNoOutliersAntialiasingAlgorithm(totalSamples, colorSpace);
         }
-//        else {
-//            return new AdaptiveMeanAntialiasingAlgorithmRGB(totalSamples, 9);
-//        }
+        else {
+            Object[] res = Location.getGaussianCoefficients(totalSamples, sigmaR);
+            return new BilateralAntialiasingAlgorithm(totalSamples, (double [])res[0], (int)res[1], sigmaS, avgWithMean, colorSpace);
+        }
     }
 }

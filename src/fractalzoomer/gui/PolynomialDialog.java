@@ -116,7 +116,7 @@ public class PolynomialDialog extends JDialog {
 
         Object[] poly_poly = {
             " ",
-            "Enter the coefficients of the polynomial.",
+            "Insert the coefficients of the polynomial.",
             polynomial,
             " ",
             poly_panels[0],

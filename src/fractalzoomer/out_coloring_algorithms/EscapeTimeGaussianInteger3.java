@@ -28,7 +28,7 @@ public class EscapeTimeGaussianInteger3 extends OutColorAlgorithm {
     public EscapeTimeGaussianInteger3() {
         
         super();
-        OutNotUsingIncrement = true;
+        OutUsingIncrement = false;
         
     }
      

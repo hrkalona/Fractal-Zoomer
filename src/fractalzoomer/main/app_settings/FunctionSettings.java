@@ -22,6 +22,8 @@ import fractalzoomer.main.Constants;
 import fractalzoomer.parser.Parser;
 import org.apfloat.Apfloat;
 
+import java.util.ArrayList;
+
 
 /**
  *
@@ -113,6 +115,7 @@ public class FunctionSettings implements Constants {
     public int escaping_smooth_algorithm;
     public int converging_smooth_algorithm;
     public boolean smoothing;
+    public int smoothing_fractional_transfer_method;
     public double[] durand_kerner_init_val;
     public MagneticPendulumSettings mps;
     public LyapunovSettings lpns;
@@ -140,6 +143,9 @@ public class FunctionSettings implements Constants {
     public int period;
     public double[] variable_re;
     public double[] variable_im;
+    public ArrayList<Double> inflections_re;
+    public ArrayList<Double> inflections_im;
+    public double inflectionsPower;
     
     public FunctionSettings() {
         period = 0;
@@ -147,6 +153,7 @@ public class FunctionSettings implements Constants {
         z_exponent = 2;
         
         smoothing = false;
+        smoothing_fractional_transfer_method = 0;
         
         escaping_smooth_algorithm = 1;
         converging_smooth_algorithm = 1;
@@ -392,6 +399,10 @@ public class FunctionSettings implements Constants {
         globalMethodFactor = new double[2];
         globalMethodFactor[0] = 0.5;
         globalMethodFactor[1] = 0;
+
+        inflections_re = new ArrayList<>();
+        inflections_im = new ArrayList<>();
+        inflectionsPower = 2;
         
     }
     

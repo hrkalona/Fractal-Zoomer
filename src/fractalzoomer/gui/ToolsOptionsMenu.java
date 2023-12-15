@@ -58,8 +58,10 @@ public class ToolsOptionsMenu extends MyMenu {
         setIcon(MainWindow.getIcon("tools_options.png"));
         
         show_orbit_converging_point_opt = new MyCheckBoxMenuItem("Show Converging Point");
+        show_orbit_converging_point_opt.setSelected(MainWindow.show_orbit_converging_point);
 
         fast_julia_filters_opt = new MyCheckBoxMenuItem("Julia Preview Image Filters");
+        fast_julia_filters_opt.setSelected(MainWindow.FAST_JULIA_FILTERS);
 
         color_cycling_options_opt = new MyMenuItem("Color Cycling Options", MainWindow.getIcon("color_cycling_options.png"));
         

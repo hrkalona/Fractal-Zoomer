@@ -51,7 +51,7 @@ public class MagnetPatakiNthDialog extends JDialog {
         Object[] message = {
                 " ",
                 zw,
-            "Enter the exponent of z.\nThe exponent can be a real number.",
+            "Insert the exponent of z.\nThe exponent can be a real number.",
             field,
             " ",};
 

@@ -16,7 +16,7 @@
  */
 package fractalzoomer.gui;
 
-import fractalzoomer.core.ThreadDraw;
+import fractalzoomer.core.TaskDraw;
 import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
@@ -45,13 +45,13 @@ public class OffsetColoringDialog extends JDialog {
         setIconImage(MainWindow.getIcon("mandel2.png").getImage());
 
         JTextField offset_field = new JTextField();
-        offset_field.setText("" + s.ofs.post_process_offset);
+        offset_field.setText("" + s.pps.ofs.post_process_offset);
 
         final JCheckBox enable_offset_coloring = new JCheckBox("Offset Coloring");
-        enable_offset_coloring.setSelected(s.ofs.offset_coloring);
+        enable_offset_coloring.setSelected(s.pps.ofs.offset_coloring);
         enable_offset_coloring.setFocusable(false);
 
-        JSlider color_blend_opt = new JSlider(JSlider.HORIZONTAL, 0, 100, (int) (s.ofs.of_blending * 100));
+        JSlider color_blend_opt = new JSlider(JSlider.HORIZONTAL, 0, 100, (int) (s.pps.ofs.of_blending * 100));
         color_blend_opt.setMajorTickSpacing(25);
         color_blend_opt.setMinorTickSpacing(1);
         color_blend_opt.setToolTipText("Sets the color blending percentage.");
@@ -59,7 +59,7 @@ public class OffsetColoringDialog extends JDialog {
         color_blend_opt.setPaintLabels(true);
 
         JTextField noise_factor_field = new JTextField();
-        noise_factor_field.setText("" + s.ofs.of_noise_reducing_factor);
+        noise_factor_field.setText("" + s.pps.ofs.of_noise_reducing_factor);
 
         Object[] message = {
             " ",
@@ -124,10 +124,10 @@ public class OffsetColoringDialog extends JDialog {
                                 return;
                             }
 
-                            s.ofs.offset_coloring = enable_offset_coloring.isSelected();
-                            s.ofs.post_process_offset = temp;
-                            s.ofs.of_noise_reducing_factor = temp2;
-                            s.ofs.of_blending = color_blend_opt.getValue() / 100.0;
+                            s.pps.ofs.offset_coloring = enable_offset_coloring.isSelected();
+                            s.pps.ofs.post_process_offset = temp;
+                            s.pps.ofs.of_noise_reducing_factor = temp2;
+                            s.pps.ofs.of_blending = color_blend_opt.getValue() / 100.0;
                         } catch (Exception ex) {
                             JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                             return;
@@ -135,7 +135,7 @@ public class OffsetColoringDialog extends JDialog {
 
                         dispose();
 
-                        if (greedy_algorithm && !ThreadDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA && enable_offset_coloring.isSelected() && !julia_map && !s.d3s.d3) {
+                        if (greedy_algorithm && !TaskDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA && enable_offset_coloring.isSelected() && !julia_map && !s.d3s.d3) {
                             JOptionPane.showMessageDialog(ptra, Constants.greedyWarning, "Warning!", JOptionPane.WARNING_MESSAGE);
                         }
 

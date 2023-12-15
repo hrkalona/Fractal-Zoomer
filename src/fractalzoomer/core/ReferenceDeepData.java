@@ -77,31 +77,71 @@ public class ReferenceDeepData {
 
     //Use this on julia ref
     public void create(int max_iterations, boolean needsRefSubCp, int[] indexes) {
-        Reference = new DeepReference(max_iterations);
+        if(Reference == null || Reference.shouldCreateNew(max_iterations)) {
+            Reference = new DeepReference(max_iterations);
+        }
+        else {
+            Reference.reset();
+        }
 
         if(needsRefSubCp) {
-            ReferenceSubCp = new DeepReference(max_iterations);
+            if(ReferenceSubCp == null || ReferenceSubCp.shouldCreateNew(max_iterations)) {
+                ReferenceSubCp = new DeepReference(max_iterations);
+            }
+            else {
+                ReferenceSubCp.reset();
+            }
         }
 
         for(int i = 0; i < indexes.length; i++) {
-            if(indexes[i] < PrecalculatedTerms.length) {
-                PrecalculatedTerms[indexes[i]] = new DeepReference(max_iterations);
+            int index = indexes[i];
+            if(index < PrecalculatedTerms.length) {
+                if( PrecalculatedTerms[index] == null ||  PrecalculatedTerms[index].shouldCreateNew(max_iterations)) {
+                    PrecalculatedTerms[index] = new DeepReference(max_iterations);
+                }
+                else {
+                    PrecalculatedTerms[index].reset();
+                }
             }
         }
     }
 
     public void create(int max_iterations, int cpsCount, int[] indexes) {
-        Reference = new DeepReference(max_iterations);
+        if(Reference == null || Reference.shouldCreateNew(max_iterations)) {
+            Reference = new DeepReference(max_iterations);
+        }
+        else {
+            Reference.reset();
+        }
 
         for(int i = 0; i < indexes.length; i++) {
-            if(indexes[i] < PrecalculatedTerms.length) {
-                PrecalculatedTerms[indexes[i]] = new DeepReference(max_iterations);
+            int index = indexes[i];
+            if(index < PrecalculatedTerms.length) {
+                if( PrecalculatedTerms[index] == null ||  PrecalculatedTerms[index].shouldCreateNew(max_iterations)) {
+                    PrecalculatedTerms[index] = new DeepReference(max_iterations);
+                }
+                else {
+                    PrecalculatedTerms[index].reset();
+                }
             }
         }
 
-        ReferenceSubCps = new DeepReference[cpsCount];
-        for(int i = 0; i < ReferenceSubCps.length; i++) {
-            ReferenceSubCps[i] = new DeepReference(max_iterations);
+        if(ReferenceSubCps == null || cpsCount != ReferenceSubCps.length) {
+            ReferenceSubCps = new DeepReference[cpsCount];
+
+            for(int i = 0; i < ReferenceSubCps.length; i++) {
+                ReferenceSubCps[i] = new DeepReference(max_iterations);
+            }
+        }
+        else {
+            for(int i = 0; i < ReferenceSubCps.length; i++) {
+                if( ReferenceSubCps[i] == null ||  ReferenceSubCps[i].shouldCreateNew(max_iterations)) {
+                    ReferenceSubCps[i] = new DeepReference(max_iterations);
+                }
+                else {
+                    ReferenceSubCps[i].reset();
+                }
+            }
         }
     }
 

@@ -45,24 +45,21 @@ public class LambdaPlane extends Plane {
         
         super();
 
-        if(ThreadDraw.PERTURBATION_THEORY || ThreadDraw.HIGH_PRECISION_CALCULATION) {
-            if (ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE || ThreadDraw.HIGH_PRECISION_CALCULATION) {
-
-                if (ThreadDraw.allocateMPFR()) {
-                    tempRe = new MpfrBigNum();
-                    tempIm = new MpfrBigNum();
-                    temp1 = new MpfrBigNum();
-                    temp2 = new MpfrBigNum();
-                    temp3 = new MpfrBigNum();
-                    temp4 = new MpfrBigNum();
-                } else if (ThreadDraw.allocateMPIR()) {
-                    tempRep = new MpirBigNum();
-                    tempImp = new MpirBigNum();
-                    temp1p = new MpirBigNum();
-                    temp2p = new MpirBigNum();
-                    temp3p = new MpirBigNum();
-                    temp4p = new MpirBigNum();
-                }
+        if(TaskDraw.PERTURBATION_THEORY || TaskDraw.HIGH_PRECISION_CALCULATION) {
+            if (TaskDraw.allocateMPFR()) {
+                tempRe = new MpfrBigNum();
+                tempIm = new MpfrBigNum();
+                temp1 = new MpfrBigNum();
+                temp2 = new MpfrBigNum();
+                temp3 = new MpfrBigNum();
+                temp4 = new MpfrBigNum();
+            } else if (TaskDraw.allocateMPIR()) {
+                tempRep = new MpirBigNum();
+                tempImp = new MpirBigNum();
+                temp1p = new MpirBigNum();
+                temp2p = new MpirBigNum();
+                temp3p = new MpirBigNum();
+                temp4p = new MpirBigNum();
             }
         }
 

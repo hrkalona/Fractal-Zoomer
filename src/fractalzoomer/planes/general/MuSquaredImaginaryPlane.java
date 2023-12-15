@@ -36,16 +36,14 @@ public class MuSquaredImaginaryPlane extends Plane {
         super();
         exponent = new Complex(0, 2);
 
-        if(ThreadDraw.PERTURBATION_THEORY || ThreadDraw.HIGH_PRECISION_CALCULATION) {
+        if(TaskDraw.PERTURBATION_THEORY || TaskDraw.HIGH_PRECISION_CALCULATION) {
 
-            if(ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE || ThreadDraw.HIGH_PRECISION_CALCULATION) {
+            ddcexponent = new DDComplex(0, 2);
 
-                ddcexponent = new DDComplex(0, 2);
-
-                if(!LibMpfr.hasError()) {
-                    mpfrbnexponent = new MpfrBigNumComplex(0, 2);
-                }
+            if(!LibMpfr.hasError()) {
+                mpfrbnexponent = new MpfrBigNumComplex(0, 2);
             }
+
         }
 
     }

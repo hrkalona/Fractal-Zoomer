@@ -31,7 +31,7 @@ public class EscapeTimeAlgorithm1 extends OutColorAlgorithm {
         super();
         
         this.zold = zold;
-        OutNotUsingIncrement = true;
+        OutUsingIncrement = false;
         
     }
 

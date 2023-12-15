@@ -31,9 +31,9 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
         super();
     }
 
-    public NewtonThirdDegreeParameterSpace(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int converging_smooth_algorithm, OrbitTrapSettings ots, StatisticsSettings sts) {
+    public NewtonThirdDegreeParameterSpace(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower, int converging_smooth_algorithm, OrbitTrapSettings ots, StatisticsSettings sts) {
 
-        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, false, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, ots);
+        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, false, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, ots);
 
         setPertubationOption(perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, perturbation_user_formula, user_perturbation_conditions, user_perturbation_condition_formula, plane_transform_center);
 
@@ -73,9 +73,9 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
         }
     }
 
-    public NewtonThirdDegreeParameterSpace(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int converging_smooth_algorithm, OrbitTrapSettings ots, StatisticsSettings sts, double xJuliaCenter, double yJuliaCenter) {
+    public NewtonThirdDegreeParameterSpace(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower, int converging_smooth_algorithm, OrbitTrapSettings ots, StatisticsSettings sts, double xJuliaCenter, double yJuliaCenter) {
 
-        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, false, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, ots, xJuliaCenter, yJuliaCenter);
+        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, false, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, ots, xJuliaCenter, yJuliaCenter);
 
         switch (out_coloring_algorithm) {
             case MainWindow.BINARY_DECOMPOSITION:
@@ -105,9 +105,9 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
     }
 
         //orbit
-    public NewtonThirdDegreeParameterSpace(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex > complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount) {
+    public NewtonThirdDegreeParameterSpace(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex > complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower) {
 
-        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower);
 
         setPertubationOption(perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, perturbation_user_formula, user_perturbation_conditions, user_perturbation_condition_formula, plane_transform_center);
 
@@ -130,9 +130,9 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
 
     }
 
-    public NewtonThirdDegreeParameterSpace(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double xJuliaCenter, double yJuliaCenter) {
+    public NewtonThirdDegreeParameterSpace(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower, double xJuliaCenter, double yJuliaCenter) {
 
-        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, xJuliaCenter, yJuliaCenter);
         power = 3;
         defaultInitVal = new DefaultInitialValueWithFactor(1.0 / 3.0);
         pertur_val = new DefaultPerturbation();
@@ -184,6 +184,7 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
         }
 
         boolean lowPrecReferenceOrbitNeeded = !needsOnlyExtendedReferenceOrbit(deepZoom, false);
+        DoubleReference.SHOULD_SAVE_MEMORY = false;
 
         if(iterations == 0) {
 
@@ -221,74 +222,71 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
             }
         }
 
-        int bigNumLib = ThreadDraw.getBignumLibrary(size, this);
-        boolean useBignum = ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE && bigNumLib != Constants.BIGNUM_APFLOAT;
+        int bigNumLib = TaskDraw.getBignumLibrary(size, this);
 
         GenericComplex z, c, zold, zold2, start, c0, initVal, pixel;
 
-        if(useBignum) {
-            if (bigNumLib == Constants.BIGNUM_MPFR) {
-                MpfrBigNumComplex bn = new MpfrBigNumComplex(inputPixel.toMpfrBigNumComplex());
-                initVal = bn.divide(3);
-                z = iterations == 0 ? (isJulia ? bn : new MpfrBigNumComplex((MpfrBigNumComplex)initVal)) : referenceData.lastZValue;
-                c = isJulia ? getSeed(useBignum, bigNumLib) : bn;
-                zold = iterations == 0 ? new MpfrBigNumComplex() : referenceData.secondTolastZValue;
-                zold2 = iterations == 0 ? new MpfrBigNumComplex() : referenceData.thirdTolastZValue;
-                start = isJulia ? new MpfrBigNumComplex(bn) : new MpfrBigNumComplex((MpfrBigNumComplex)initVal);
-                c0 = new MpfrBigNumComplex((MpfrBigNumComplex)c);
-                pixel = new MpfrBigNumComplex(bn);
-            }
-            else if (bigNumLib == Constants.BIGNUM_MPIR) {
-                MpirBigNumComplex bn = new MpirBigNumComplex(inputPixel.toMpirBigNumComplex());
-                initVal = bn.divide(3);
-                z = iterations == 0 ? (isJulia ? bn : new MpirBigNumComplex((MpirBigNumComplex)initVal)) : referenceData.lastZValue;
-                c = isJulia ? getSeed(useBignum, bigNumLib) : bn;
-                zold = iterations == 0 ? new MpirBigNumComplex() : referenceData.secondTolastZValue;
-                zold2 = iterations == 0 ? new MpirBigNumComplex() : referenceData.thirdTolastZValue;
-                start = isJulia ? new MpirBigNumComplex(bn) : new MpirBigNumComplex((MpirBigNumComplex)initVal);
-                c0 = new MpirBigNumComplex((MpirBigNumComplex)c);
-                pixel = new MpirBigNumComplex(bn);
-            }
-            else if(bigNumLib == Constants.BIGNUM_DOUBLEDOUBLE) {
-                DDComplex ddn = inputPixel.toDDComplex();
-                initVal = ddn.divide(3);
-                z = iterations == 0 ? (isJulia ? ddn : initVal) : referenceData.lastZValue;
-                c = isJulia ? getSeed(useBignum, bigNumLib) : ddn;
-                zold = iterations == 0 ? new DDComplex() : referenceData.secondTolastZValue;
-                zold2 = iterations == 0 ? new DDComplex() : referenceData.thirdTolastZValue;
-                start = isJulia ? ddn : initVal;
-                c0 = c;
-                pixel = ddn;
-            }
-            else if(bigNumLib == Constants.BIGNUM_BIGINT) {
-                BigIntNumComplex bni = inputPixel.toBigIntNumComplex();
-                initVal = bni.divide(3);
-                z = iterations == 0 ? (isJulia ? bni : initVal) : referenceData.lastZValue;
-                c = isJulia ? getSeed(useBignum, bigNumLib) : bni;
-                zold = iterations == 0 ? new BigIntNumComplex() : referenceData.secondTolastZValue;
-                zold2 = iterations == 0 ? new BigIntNumComplex() : referenceData.thirdTolastZValue;
-                start = isJulia ? bni : initVal;
-                c0 = c;
-                pixel = bni;
-            }
-            else {
-                Complex bn = inputPixel.toComplex();
-                initVal = bn.divide(3);
-                z = iterations == 0 ? (isJulia ? bn : new Complex((Complex)initVal)) : referenceData.lastZValue;
-                c = isJulia ? getSeed(useBignum, bigNumLib) : bn;
-                zold = iterations == 0 ? new Complex() : referenceData.secondTolastZValue;
-                zold2 = iterations == 0 ? new Complex() : referenceData.thirdTolastZValue;
-                start = isJulia ? new Complex(bn) : new Complex((Complex)initVal);
-                c0 = new Complex((Complex) c);
-                pixel = new Complex(bn);
-            }
+        if (bigNumLib == Constants.BIGNUM_MPFR) {
+            MpfrBigNumComplex bn = new MpfrBigNumComplex(inputPixel.toMpfrBigNumComplex());
+            initVal = bn.divide(3);
+            z = iterations == 0 ? (isJulia ? bn : new MpfrBigNumComplex((MpfrBigNumComplex)initVal)) : referenceData.lastZValue;
+            c = isJulia ? getSeed(bigNumLib) : bn;
+            zold = iterations == 0 ? new MpfrBigNumComplex() : referenceData.secondTolastZValue;
+            zold2 = iterations == 0 ? new MpfrBigNumComplex() : referenceData.thirdTolastZValue;
+            start = isJulia ? new MpfrBigNumComplex(bn) : new MpfrBigNumComplex((MpfrBigNumComplex)initVal);
+            c0 = new MpfrBigNumComplex((MpfrBigNumComplex)c);
+            pixel = new MpfrBigNumComplex(bn);
+        }
+        else if (bigNumLib == Constants.BIGNUM_MPIR) {
+            MpirBigNumComplex bn = new MpirBigNumComplex(inputPixel.toMpirBigNumComplex());
+            initVal = bn.divide(3);
+            z = iterations == 0 ? (isJulia ? bn : new MpirBigNumComplex((MpirBigNumComplex)initVal)) : referenceData.lastZValue;
+            c = isJulia ? getSeed(bigNumLib) : bn;
+            zold = iterations == 0 ? new MpirBigNumComplex() : referenceData.secondTolastZValue;
+            zold2 = iterations == 0 ? new MpirBigNumComplex() : referenceData.thirdTolastZValue;
+            start = isJulia ? new MpirBigNumComplex(bn) : new MpirBigNumComplex((MpirBigNumComplex)initVal);
+            c0 = new MpirBigNumComplex((MpirBigNumComplex)c);
+            pixel = new MpirBigNumComplex(bn);
+        }
+        else if(bigNumLib == Constants.BIGNUM_DOUBLEDOUBLE) {
+            DDComplex ddn = inputPixel.toDDComplex();
+            initVal = ddn.divide(3);
+            z = iterations == 0 ? (isJulia ? ddn : initVal) : referenceData.lastZValue;
+            c = isJulia ? getSeed(bigNumLib) : ddn;
+            zold = iterations == 0 ? new DDComplex() : referenceData.secondTolastZValue;
+            zold2 = iterations == 0 ? new DDComplex() : referenceData.thirdTolastZValue;
+            start = isJulia ? ddn : initVal;
+            c0 = c;
+            pixel = ddn;
+        }
+        else if(bigNumLib == Constants.BIGNUM_BIGINT) {
+            BigIntNumComplex bni = inputPixel.toBigIntNumComplex();
+            initVal = bni.divide(3);
+            z = iterations == 0 ? (isJulia ? bni : initVal) : referenceData.lastZValue;
+            c = isJulia ? getSeed(bigNumLib) : bni;
+            zold = iterations == 0 ? new BigIntNumComplex() : referenceData.secondTolastZValue;
+            zold2 = iterations == 0 ? new BigIntNumComplex() : referenceData.thirdTolastZValue;
+            start = isJulia ? bni : initVal;
+            c0 = c;
+            pixel = bni;
+        }
+        else if(bigNumLib == Constants.BIGNUM_DOUBLE) {
+            Complex bn = inputPixel.toComplex();
+            initVal = bn.divide(3);
+            z = iterations == 0 ? (isJulia ? bn : new Complex((Complex)initVal)) : referenceData.lastZValue;
+            c = isJulia ? getSeed(bigNumLib) : bn;
+            zold = iterations == 0 ? new Complex() : referenceData.secondTolastZValue;
+            zold2 = iterations == 0 ? new Complex() : referenceData.thirdTolastZValue;
+            start = isJulia ? new Complex(bn) : new Complex((Complex)initVal);
+            c0 = new Complex((Complex) c);
+            pixel = new Complex(bn);
         }
         else {
             initVal = inputPixel.divide(MyApfloat.THREE);
 
             z = iterations == 0 ? (isJulia ? inputPixel : initVal) : referenceData.lastZValue;
 
-            c = isJulia ? getSeed(useBignum, bigNumLib) : inputPixel;
+            c = isJulia ? getSeed(bigNumLib) : inputPixel;
 
             zold = iterations == 0 ? new BigComplex() : referenceData.secondTolastZValue;
             zold2 = iterations == 0 ? new BigComplex() : referenceData.thirdTolastZValue;
@@ -312,14 +310,14 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
         c2big = c.times2();
         csqrbig = c.square();
 
-        if(useBignum) {
+        if(bigNumLib != Constants.BIGNUM_APFLOAT) {
             csqrs3big = csqrbig.sub(3);
         }
         else {
             csqrs3big = csqrbig.sub(MyApfloat.THREE);
         }
 
-        if(useBignum) {
+        if(bigNumLib != Constants.BIGNUM_APFLOAT) {
             csqr2s3big = csqrbig.times2().sub_mutable(3);
         }
         else {
@@ -335,7 +333,9 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
 
         convergent_bailout_algorithm.setReferenceMode(true);
 
-        for (; iterations < max_ref_iterations; iterations++) {
+        calculatedReferenceIterations = 0;
+
+        for (; iterations < max_ref_iterations; iterations++, calculatedReferenceIterations++) {
 
             if(lowPrecReferenceOrbitNeeded) {
                 Complex cz = z.toComplex();
@@ -347,10 +347,10 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
             }
 
             GenericComplex zsubcp;
-            if(useBignum && bigNumLib == Constants.BIGNUM_MPFR) {
+            if(bigNumLib == Constants.BIGNUM_MPFR) {
                 zsubcp = z.sub(initVal, workSpaceData.temp1, workSpaceData.temp2);
             }
-            else if(useBignum && bigNumLib == Constants.BIGNUM_MPIR) {
+            else if(bigNumLib == Constants.BIGNUM_MPIR) {
                 zsubcp = z.sub(initVal, workSpaceData.temp1p, workSpaceData.temp2p);
             }
             else {
@@ -368,7 +368,7 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
 
             GenericComplex zsqr3;
 
-            if(useBignum) {
+            if(bigNumLib != Constants.BIGNUM_APFLOAT) {
                 zsqr3 = zsqr.times(3);
             }
             else {
@@ -388,7 +388,7 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
             GenericComplex csztz = c.sub(z).times_mutable(z);
             GenericComplex preCalc2;
             // 9*C*Z^2 - 9*Z^3 - (2*C^2 - 3)*Z- C for catastrophic cancelation
-            if(useBignum) {
+            if(bigNumLib != Constants.BIGNUM_APFLOAT) {
                 preCalc2 = csztz.times(9).sub_mutable(csqr2s3big).times_mutable(z).sub_mutable(c);
             }
             else {
@@ -402,7 +402,7 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
 
             GenericComplex c2z = c2big.times(z);
             GenericComplex preCalc3;
-            if(useBignum) {
+            if(bigNumLib != Constants.BIGNUM_APFLOAT) {
                 preCalc3 = c2z.sub(zsqr3).plus_mutable(1);
             }
             else {
@@ -415,7 +415,7 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
 
             
             GenericComplex preCalc4;
-            if(useBignum) {
+            if(bigNumLib != Constants.BIGNUM_APFLOAT) {
                 preCalc4 = c4zSzsqr3.times(3).sub_mutable(csqr2s3big.times2()).times_mutable(zsqr).sub_mutable(c4z).sub_mutable(1);
             }
             else {
@@ -430,7 +430,7 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
 
             GenericComplex preCalc5;
 
-            if (useBignum) {
+            if (bigNumLib != Constants.BIGNUM_APFLOAT) {
                 preCalc5 = csztz.times(12).sub_mutable(csqrs3big.times2()).times_mutable(z).sub_mutable(c4big);
             } else {
                 preCalc5 = csztz.times(MyApfloat.TWELVE).sub(csqrs3big.times2()).times(z).sub(c4big);
@@ -441,7 +441,7 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
             }
 
             GenericComplex zsqr3s1;
-            if (useBignum) {
+            if (bigNumLib != Constants.BIGNUM_APFLOAT) {
                 zsqr3s1 = zsqr3.sub(1);
 
             } else {
@@ -451,7 +451,7 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
             if(!isJulia) {
                 ////C*Z^2-Z^3-C+Z
                 GenericComplex preCalc6;
-                if (useBignum) {
+                if (bigNumLib != Constants.BIGNUM_APFLOAT) {
                     preCalc6 = csztz.plus(1).times_mutable(z).sub(c);
                 } else {
                     preCalc6 = csztz.plus(MyApfloat.ONE).times(z).sub(c);
@@ -471,7 +471,7 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
                 ////(Z^2-2)*Z^2 + 1
                 GenericComplex preCalc8;
 
-                if (useBignum) {
+                if (bigNumLib != Constants.BIGNUM_APFLOAT) {
                     preCalc8 = zsqr.sub(2).times_mutable(zsqr).plus_mutable(1);
                 } else {
                     preCalc8 = zsqr.sub(MyApfloat.TWO).times(zsqr).plus(MyApfloat.ONE);
@@ -506,7 +506,7 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
 
 
             try {
-                if(useBignum) {
+                if(bigNumLib != Constants.BIGNUM_APFLOAT) {
                     z = z.sub_mutable(z.sub(1).times_mutable(z.plus(1)).times_mutable(z.sub(c)).divide_mutable(c2z.negative().plus_mutable(zsqr3s1)));
                 }
                 else {
@@ -532,7 +532,7 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
 
         referenceData.MaxRefIteration = iterations - 1;
 
-        skippedIterations = 0;
+        SAskippedIterations = 0;
 
         if(progress != null) {
             progress.setValue(progress.getMaximum());
@@ -570,6 +570,7 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
         }
 
         boolean lowPrecReferenceOrbitNeeded = !needsOnlyExtendedReferenceOrbit(deepZoom, false);
+        DoubleReference.SHOULD_SAVE_MEMORY = false;
 
         if (iterations == 0) {
             if(lowPrecReferenceOrbitNeeded) {
@@ -599,71 +600,68 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
 
         GenericComplex z, c, zold, zold2, start, c0, pixel, initVal;
 
-        int bigNumLib = ThreadDraw.getBignumLibrary(size, this);
-        boolean useBignum = ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE  && bigNumLib != Constants.BIGNUM_APFLOAT;
+        int bigNumLib = TaskDraw.getBignumLibrary(size, this);
 
-        if(useBignum) {
-            if (bigNumLib == Constants.BIGNUM_MPFR) {
-                MpfrBigNumComplex bn = new MpfrBigNumComplex(inputPixel.toMpfrBigNumComplex());
-                initVal = bn.divide(3);
-                z = iterations == 0 ? new MpfrBigNumComplex((MpfrBigNumComplex)initVal) : secondReferenceData.lastZValue;
-                c = getSeed(useBignum, bigNumLib);
-                zold = iterations == 0 ? new MpfrBigNumComplex() : secondReferenceData.secondTolastZValue;
-                zold2 = iterations == 0 ? new MpfrBigNumComplex() : secondReferenceData.thirdTolastZValue;
-                start = new MpfrBigNumComplex((MpfrBigNumComplex)initVal);
-                c0 = new MpfrBigNumComplex((MpfrBigNumComplex)c);
-                pixel = new MpfrBigNumComplex(bn);
-            }
-            else if (bigNumLib == Constants.BIGNUM_MPIR) {
-                MpirBigNumComplex bn = new MpirBigNumComplex(inputPixel.toMpirBigNumComplex());
-                initVal = bn.divide(3);
-                z = iterations == 0 ? new MpirBigNumComplex((MpirBigNumComplex)initVal) : secondReferenceData.lastZValue;
-                c = getSeed(useBignum, bigNumLib);
-                zold = iterations == 0 ? new MpirBigNumComplex() : secondReferenceData.secondTolastZValue;
-                zold2 = iterations == 0 ? new MpirBigNumComplex() : secondReferenceData.thirdTolastZValue;
-                start = new MpirBigNumComplex((MpirBigNumComplex)initVal);
-                c0 = new MpirBigNumComplex((MpirBigNumComplex)c);
-                pixel = new MpirBigNumComplex(bn);
-            }
-            else if(bigNumLib == Constants.BIGNUM_DOUBLEDOUBLE) {
-                DDComplex ddn = inputPixel.toDDComplex();
-                initVal = ddn.divide(3);
-                z = iterations == 0 ? initVal : secondReferenceData.lastZValue;
-                c = getSeed(useBignum, bigNumLib);
-                zold = iterations == 0 ? new DDComplex() : secondReferenceData.secondTolastZValue;
-                zold2 = iterations == 0 ? new DDComplex() : secondReferenceData.thirdTolastZValue;
-                start = initVal;
-                c0 = c;
-                pixel = ddn;
-            }
-            else if(bigNumLib == Constants.BIGNUM_BIGINT) {
-                BigIntNumComplex bni = inputPixel.toBigIntNumComplex();
-                initVal = bni.divide(3);
-                z = iterations == 0 ? initVal : secondReferenceData.lastZValue;
-                c = getSeed(useBignum, bigNumLib);
-                zold = iterations == 0 ? new BigIntNumComplex() : secondReferenceData.secondTolastZValue;
-                zold2 = iterations == 0 ? new BigIntNumComplex() : secondReferenceData.thirdTolastZValue;
-                start = initVal;
-                c0 = c;
-                pixel = bni;
-            }
-            else {
-                Complex bn = inputPixel.toComplex();
-                initVal = bn.divide(3);
-                z = iterations == 0 ? new Complex((Complex)initVal) : secondReferenceData.lastZValue;
-                c = getSeed(useBignum, bigNumLib);
-                zold = iterations == 0 ? new Complex() : secondReferenceData.secondTolastZValue;
-                zold2 = iterations == 0 ? new Complex() : secondReferenceData.thirdTolastZValue;
-                start = new Complex((Complex)initVal);
-                c0 = new Complex((Complex) c);
-                pixel = new Complex(bn);
-            }
+        if (bigNumLib == Constants.BIGNUM_MPFR) {
+            MpfrBigNumComplex bn = new MpfrBigNumComplex(inputPixel.toMpfrBigNumComplex());
+            initVal = bn.divide(3);
+            z = iterations == 0 ? new MpfrBigNumComplex((MpfrBigNumComplex)initVal) : secondReferenceData.lastZValue;
+            c = getSeed(bigNumLib);
+            zold = iterations == 0 ? new MpfrBigNumComplex() : secondReferenceData.secondTolastZValue;
+            zold2 = iterations == 0 ? new MpfrBigNumComplex() : secondReferenceData.thirdTolastZValue;
+            start = new MpfrBigNumComplex((MpfrBigNumComplex)initVal);
+            c0 = new MpfrBigNumComplex((MpfrBigNumComplex)c);
+            pixel = new MpfrBigNumComplex(bn);
+        }
+        else if (bigNumLib == Constants.BIGNUM_MPIR) {
+            MpirBigNumComplex bn = new MpirBigNumComplex(inputPixel.toMpirBigNumComplex());
+            initVal = bn.divide(3);
+            z = iterations == 0 ? new MpirBigNumComplex((MpirBigNumComplex)initVal) : secondReferenceData.lastZValue;
+            c = getSeed(bigNumLib);
+            zold = iterations == 0 ? new MpirBigNumComplex() : secondReferenceData.secondTolastZValue;
+            zold2 = iterations == 0 ? new MpirBigNumComplex() : secondReferenceData.thirdTolastZValue;
+            start = new MpirBigNumComplex((MpirBigNumComplex)initVal);
+            c0 = new MpirBigNumComplex((MpirBigNumComplex)c);
+            pixel = new MpirBigNumComplex(bn);
+        }
+        else if(bigNumLib == Constants.BIGNUM_DOUBLEDOUBLE) {
+            DDComplex ddn = inputPixel.toDDComplex();
+            initVal = ddn.divide(3);
+            z = iterations == 0 ? initVal : secondReferenceData.lastZValue;
+            c = getSeed(bigNumLib);
+            zold = iterations == 0 ? new DDComplex() : secondReferenceData.secondTolastZValue;
+            zold2 = iterations == 0 ? new DDComplex() : secondReferenceData.thirdTolastZValue;
+            start = initVal;
+            c0 = c;
+            pixel = ddn;
+        }
+        else if(bigNumLib == Constants.BIGNUM_BIGINT) {
+            BigIntNumComplex bni = inputPixel.toBigIntNumComplex();
+            initVal = bni.divide(3);
+            z = iterations == 0 ? initVal : secondReferenceData.lastZValue;
+            c = getSeed(bigNumLib);
+            zold = iterations == 0 ? new BigIntNumComplex() : secondReferenceData.secondTolastZValue;
+            zold2 = iterations == 0 ? new BigIntNumComplex() : secondReferenceData.thirdTolastZValue;
+            start = initVal;
+            c0 = c;
+            pixel = bni;
+        }
+        else if(bigNumLib == Constants.BIGNUM_DOUBLE) {
+            Complex bn = inputPixel.toComplex();
+            initVal = bn.divide(3);
+            z = iterations == 0 ? new Complex((Complex)initVal) : secondReferenceData.lastZValue;
+            c = getSeed(bigNumLib);
+            zold = iterations == 0 ? new Complex() : secondReferenceData.secondTolastZValue;
+            zold2 = iterations == 0 ? new Complex() : secondReferenceData.thirdTolastZValue;
+            start = new Complex((Complex)initVal);
+            c0 = new Complex((Complex) c);
+            pixel = new Complex(bn);
         }
         else {
             initVal = inputPixel.divide(MyApfloat.THREE);
 
             z = iterations == 0 ? initVal : secondReferenceData.lastZValue;
-            c = getSeed(useBignum, bigNumLib);
+            c = getSeed(bigNumLib);
             zold = iterations == 0 ? new BigComplex() : secondReferenceData.secondTolastZValue;
             zold2 = iterations == 0 ? new BigComplex() : secondReferenceData.thirdTolastZValue;
             start = initVal;
@@ -673,7 +671,9 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
 
         convergent_bailout_algorithm.setReferenceMode(true);
 
-        for (; iterations < max_ref_iterations; iterations++) {
+        calculatedSecondReferenceIterations = 0;
+
+        for (; iterations < max_ref_iterations; iterations++, calculatedSecondReferenceIterations++) {
 
             if(lowPrecReferenceOrbitNeeded) {
                 Complex cz = z.toComplex();
@@ -685,10 +685,10 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
             }
 
             GenericComplex zsubcp;
-            if(useBignum && bigNumLib == Constants.BIGNUM_MPFR) {
+            if(bigNumLib == Constants.BIGNUM_MPFR) {
                 zsubcp = z.sub(initVal, workSpaceData.temp1, workSpaceData.temp2);
             }
-            else if(useBignum && bigNumLib == Constants.BIGNUM_MPIR) {
+            else if(bigNumLib == Constants.BIGNUM_MPIR) {
                 zsubcp = z.sub(initVal, workSpaceData.temp1p, workSpaceData.temp2p);
             }
             else {
@@ -706,7 +706,7 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
 
             GenericComplex zsqr3;
 
-            if(useBignum) {
+            if(bigNumLib != Constants.BIGNUM_APFLOAT) {
                 zsqr3 = zsqr.times(3);
             }
             else {
@@ -725,7 +725,7 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
             GenericComplex csztz = c.sub(z).times_mutable(z);
             GenericComplex preCalc2;
             // 9*C*Z^2 - 9*Z^3 - (2*C^2 - 3)*Z- C for catastrophic cancelation
-            if(useBignum) {
+            if(bigNumLib != Constants.BIGNUM_APFLOAT) {
                 preCalc2 = csztz.times(9).sub_mutable(csqr2s3big).times_mutable(z).sub_mutable(c);
             }
             else {
@@ -738,7 +738,7 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
 
             GenericComplex c2z = c2big.times(z);
             GenericComplex preCalc3;
-            if(useBignum) {
+            if(bigNumLib != Constants.BIGNUM_APFLOAT) {
                 preCalc3 = c2z.sub(zsqr3).plus_mutable(1);
             }
             else {
@@ -751,7 +751,7 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
 
 
             GenericComplex preCalc4;
-            if(useBignum) {
+            if(bigNumLib != Constants.BIGNUM_APFLOAT) {
                 preCalc4 = c4zSzsqr3.times(3).sub_mutable(csqr2s3big.times2()).times_mutable(zsqr).sub_mutable(c4z).sub_mutable(1);
             }
             else {
@@ -766,7 +766,7 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
 
             GenericComplex preCalc5;
 
-            if (useBignum) {
+            if (bigNumLib != Constants.BIGNUM_APFLOAT) {
                 preCalc5 = csztz.times(12).sub_mutable(csqrs3big.times2()).times_mutable(z).sub_mutable(c4big);
             } else {
                 preCalc5 = csztz.times(MyApfloat.TWELVE).sub(csqrs3big.times2()).times(z).sub(c4big);
@@ -794,7 +794,7 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
 
 
             try {
-                if(useBignum) {
+                if(bigNumLib != Constants.BIGNUM_APFLOAT) {
                     z = z.sub_mutable(z.sub(1).times_mutable(z.plus(1)).times_mutable(z.sub(c)).divide_mutable(c2z.negative().plus_mutable(zsqr3).sub_mutable(1)));
                 }
                 else {
@@ -1064,7 +1064,7 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
         }
         else {
             complex[0] = dpixel.divide(MantExp.THREE);
-            complex[1] = new MantExpComplex(dpixel);
+            complex[1] = MantExpComplex.copy(dpixel);
         }
 
         return complex;
@@ -1086,7 +1086,7 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
 
         GenericComplex[] complex = new GenericComplex[2];
 
-        int lib = ThreadDraw.getHighPrecisionLibrary(dsize, this);
+        int lib = TaskDraw.getHighPrecisionLibrary(dsize, this);
 
         if(lib == ARBITRARY_MPFR) {
 
@@ -1178,7 +1178,7 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
 
     @Override
     public double getDoubleDoubleLimit() {
-        if(ThreadDraw.HIGH_PRECISION_CALCULATION) {
+        if(TaskDraw.HIGH_PRECISION_CALCULATION) {
             return super.getDoubleDoubleLimit();
         }
 
@@ -1192,7 +1192,7 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
 
     @Override
     public boolean needsExtendedRange() {
-        return ThreadDraw.USE_FULL_FLOATEXP_FOR_ALL_ZOOM || (ThreadDraw.USE_CUSTOM_FLOATEXP_REQUIREMENT && size < 1e-30);
+        return TaskDraw.USE_FULL_FLOATEXP_FOR_ALL_ZOOM || (TaskDraw.USE_CUSTOM_FLOATEXP_REQUIREMENT && size < 1e-30);
     }
 
     @Override

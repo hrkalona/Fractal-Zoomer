@@ -23,18 +23,18 @@ public class SettingsFractals1081 extends SettingsFractals1080 implements Serial
     public SettingsFractals1081(Settings s) {
         super(s);
         period = s.fns.period;
-        langNormType = s.sts.langNormType;
-        langNNorm = s.sts.langNNorm;
+        langNormType = s.pps.sts.langNormType;
+        langNNorm = s.pps.sts.langNNorm;
 
-        atomNormType = s.sts.atomNormType;
-        atomNNorm = s.sts.atomNNorm;
+        atomNormType = s.pps.sts.atomNormType;
+        atomNNorm = s.pps.sts.atomNNorm;
 
-        hmapping = s.hss.hmapping;
+        hmapping = s.pps.hss.hmapping;
 
         useGlobalMethod = s.fns.useGlobalMethod;
         globalMethodFactor = s.fns.globalMethodFactor;
-        trapBgColor = s.ots.background;
-        showOnlyTraps = s.ots.showOnlyTraps;
+        trapBgColor = s.pps.ots.background;
+        showOnlyTraps = s.pps.ots.showOnlyTraps;
         domain_height_method = s.ds.domain_height_method;
     }
 

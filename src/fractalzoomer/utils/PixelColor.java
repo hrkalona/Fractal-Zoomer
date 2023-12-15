@@ -27,7 +27,7 @@ import java.awt.*;
  *
  * @author hrkalona2
  */
-public class PixelColor extends Thread {
+public class PixelColor implements Runnable {
     private RoundedPanel ptr;
     private JLabel ptr2;
     private volatile boolean running;

@@ -34,7 +34,7 @@ public class SmoothEscapeTimeFieldLines2Nova extends OutColorAlgorithm {
         this.log_convergent_bailout = log_convergent_bailout;
         log_bailout_squared = Math.log(16.0);
         this.algorithm = algorithm;
-        OutNotUsingIncrement = false;
+        OutUsingIncrement = true;
 
     }
 

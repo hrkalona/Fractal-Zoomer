@@ -28,7 +28,7 @@ public class EscapeTimeGridNova extends EscapeTimeGrid {
     public EscapeTimeGridNova() {
 
         super(Math.log(16.0));
-        OutNotUsingIncrement = false;
+        OutUsingIncrement = true;
 
     }
 

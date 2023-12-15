@@ -27,7 +27,7 @@ public class EscapeTimeFieldLinesMagnet extends EscapeTimeFieldLines {
     public EscapeTimeFieldLinesMagnet(double log_bailout_squared) {
 
         super(log_bailout_squared);
-        OutNotUsingIncrement = false;
+        OutUsingIncrement = true;
 
     }
 

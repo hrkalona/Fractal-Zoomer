@@ -18,7 +18,7 @@
 package fractalzoomer.planes.user_plane;
 
 import fractalzoomer.core.Complex;
-import fractalzoomer.core.ThreadDraw;
+import fractalzoomer.core.TaskDraw;
 import fractalzoomer.parser.ExpressionNode;
 import fractalzoomer.parser.Parser;
 import fractalzoomer.planes.Plane;
@@ -59,7 +59,7 @@ public class UserPlane extends Plane {
         }
 
         if (parser.foundISize()) {
-            parser.setISizevalue(new Complex(ThreadDraw.IMAGE_SIZE, 0));
+            parser.setISizevalue(new Complex(TaskDraw.IMAGE_SIZE, 0));
         } 
         
         if(parser.foundPoint()) {

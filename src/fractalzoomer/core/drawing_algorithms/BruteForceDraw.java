@@ -18,7 +18,7 @@ package fractalzoomer.core.drawing_algorithms;
 
 import fractalzoomer.core.Complex;
 import fractalzoomer.core.PixelExtraData;
-import fractalzoomer.core.ThreadDraw;
+import fractalzoomer.core.TaskDraw;
 import fractalzoomer.core.antialiasing.AntialiasingAlgorithm;
 import fractalzoomer.core.location.Location;
 import fractalzoomer.functions.Fractal;
@@ -26,6 +26,7 @@ import fractalzoomer.main.Constants;
 import fractalzoomer.main.ImageExpanderWindow;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.*;
+import fractalzoomer.utils.StopSuccessiveRefinementException;
 import org.apfloat.Apfloat;
 
 import java.awt.*;
@@ -36,46 +37,50 @@ import java.util.concurrent.BrokenBarrierException;
  *
  * @author kaloch
  */
-public class BruteForceDraw extends ThreadDraw {
+public class BruteForceDraw extends TaskDraw {
 
-    public BruteForceDraw(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, D3Settings d3s, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, DomainColoringSettings ds, boolean inverse_dem, boolean quickDraw, double color_intensity, int transfer_function, double color_intensity2, int transfer_function2, boolean usePaletteForInColoring, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, BlendingSettings color_blending, OrbitTrapSettings ots, ContourColoringSettings cns, int[] post_processing_order, LightSettings ls, PaletteGradientMergingSettings pbs, StatisticsSettings sts, int gradient_offset, HistogramColoringSettings hss, double contourFactor, GeneratedPaletteSettings gps, JitterSettings js) {
-        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns, d3s, ptr, fractal_color, dem_color, image, fs, periodicity_checking, color_cycling_location, color_cycling_location2, exterior_de, exterior_de_factor, height_ratio, bms, polar_projection, circle_period, fdes, rps, ds, inverse_dem, quickDraw, color_intensity, transfer_function, color_intensity2, transfer_function2, usePaletteForInColoring, ens, ofs, gss, color_blending, ots, cns, post_processing_order, ls, pbs, sts, gradient_offset, hss, contourFactor, gps, js);
+    public BruteForceDraw(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, D3Settings d3s, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio,  boolean polar_projection, double circle_period,   DomainColoringSettings ds, boolean inverse_dem, boolean quickDraw, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring,    BlendingSettings color_blending,   int[] post_processing_order,   PaletteGradientMergingSettings pbs,  int gradient_offset,  double contourFactor, GeneratedPaletteSettings gps, JitterSettings js, PostProcessSettings pps) {
+        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns, d3s, ptr, fractal_color, dem_color, image, fs, periodicity_checking, color_cycling_location, color_cycling_location2, exterior_de, exterior_de_factor, height_ratio,  polar_projection, circle_period,   ds, inverse_dem, quickDraw, color_intensity, transfer_function, color_density, color_intensity2, transfer_function2, color_density2, usePaletteForInColoring,    color_blending,   post_processing_order,  pbs,  gradient_offset,  contourFactor, gps, js, pps);
     }
 
-    public BruteForceDraw(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, ImageExpanderWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, DomainColoringSettings ds, boolean inverse_dem, double color_intensity, int transfer_function, double color_intensity2, int transfer_function2, boolean usePaletteForInColoring, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, BlendingSettings color_blending, OrbitTrapSettings ots, ContourColoringSettings cns, int[] post_processing_order, LightSettings ls, PaletteGradientMergingSettings pbs, StatisticsSettings sts, int gradient_offset, HistogramColoringSettings hss, double contourFactor, GeneratedPaletteSettings gps, JitterSettings js) {
-        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns, ptr, fractal_color, dem_color, image, fs, periodicity_checking, color_cycling_location, color_cycling_location2, exterior_de, exterior_de_factor, height_ratio, bms, polar_projection, circle_period, fdes, rps, ds, inverse_dem, color_intensity, transfer_function, color_intensity2, transfer_function2, usePaletteForInColoring, ens, ofs, gss, color_blending, ots, cns, post_processing_order, ls, pbs, sts, gradient_offset, hss, contourFactor, gps, js);
+    public BruteForceDraw(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, ImageExpanderWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio,  boolean polar_projection, double circle_period,   DomainColoringSettings ds, boolean inverse_dem, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring,    BlendingSettings color_blending,   int[] post_processing_order,   PaletteGradientMergingSettings pbs,  int gradient_offset,  double contourFactor, GeneratedPaletteSettings gps, JitterSettings js, PostProcessSettings pps) {
+        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns, ptr, fractal_color, dem_color, image, fs, periodicity_checking, color_cycling_location, color_cycling_location2, exterior_de, exterior_de_factor, height_ratio,  polar_projection, circle_period,   ds, inverse_dem, color_intensity, transfer_function, color_density, color_intensity2, transfer_function2, color_density2, usePaletteForInColoring,    color_blending,   post_processing_order,  pbs,  gradient_offset,  contourFactor, gps, js, pps);
     }
 
-    public BruteForceDraw(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, D3Settings d3s, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, DomainColoringSettings ds, boolean inverse_dem, boolean quickDraw, double color_intensity, int transfer_function, double color_intensity2, int transfer_function2, boolean usePaletteForInColoring, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, BlendingSettings color_blending, OrbitTrapSettings ots, ContourColoringSettings cns, int[] post_processing_order, LightSettings ls, PaletteGradientMergingSettings pbs, StatisticsSettings sts, int gradient_offset, HistogramColoringSettings hss, double contourFactor, GeneratedPaletteSettings gps, JitterSettings js, Apfloat xJuliaCenter, Apfloat yJuliaCenter) {
-        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns, d3s, ptr, fractal_color, dem_color, image, fs, periodicity_checking, color_cycling_location, color_cycling_location2, exterior_de, exterior_de_factor, height_ratio, bms, polar_projection, circle_period, fdes, rps, ds, inverse_dem, quickDraw, color_intensity, transfer_function, color_intensity2, transfer_function2, usePaletteForInColoring, ens, ofs, gss, color_blending, ots, cns, post_processing_order, ls, pbs, sts, gradient_offset, hss, contourFactor, gps, js, xJuliaCenter, yJuliaCenter);
+    public BruteForceDraw(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, D3Settings d3s, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio,  boolean polar_projection, double circle_period,   DomainColoringSettings ds, boolean inverse_dem, boolean quickDraw, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring,    BlendingSettings color_blending,   int[] post_processing_order,   PaletteGradientMergingSettings pbs,  int gradient_offset,  double contourFactor, GeneratedPaletteSettings gps, JitterSettings js, PostProcessSettings pps, Apfloat xJuliaCenter, Apfloat yJuliaCenter) {
+        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns, d3s, ptr, fractal_color, dem_color, image, fs, periodicity_checking, color_cycling_location, color_cycling_location2, exterior_de, exterior_de_factor, height_ratio,  polar_projection, circle_period,   ds, inverse_dem, quickDraw, color_intensity, transfer_function, color_density, color_intensity2, transfer_function2, color_density2, usePaletteForInColoring,    color_blending,   post_processing_order,  pbs,  gradient_offset,  contourFactor, gps, js, pps, xJuliaCenter, yJuliaCenter);
     }
 
-    public BruteForceDraw(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, ImageExpanderWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, DomainColoringSettings ds, boolean inverse_dem, double color_intensity, int transfer_function, double color_intensity2, int transfer_function2, boolean usePaletteForInColoring, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, BlendingSettings color_blending, OrbitTrapSettings ots, ContourColoringSettings cns, int[] post_processing_order, LightSettings ls, PaletteGradientMergingSettings pbs, StatisticsSettings sts, int gradient_offset, HistogramColoringSettings hss, double contourFactor, GeneratedPaletteSettings gps, JitterSettings js, Apfloat xJuliaCenter, Apfloat yJuliaCenter) {
-        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns, ptr, fractal_color, dem_color, image, fs, periodicity_checking, color_cycling_location, color_cycling_location2, exterior_de, exterior_de_factor, height_ratio, bms, polar_projection, circle_period, fdes, rps, ds, inverse_dem, color_intensity, transfer_function, color_intensity2, transfer_function2, usePaletteForInColoring, ens, ofs, gss, color_blending, ots, cns, post_processing_order, ls, pbs, sts, gradient_offset, hss, contourFactor, gps, js, xJuliaCenter, yJuliaCenter);
+    public BruteForceDraw(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, ImageExpanderWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio,  boolean polar_projection, double circle_period,   DomainColoringSettings ds, boolean inverse_dem, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring,    BlendingSettings color_blending,   int[] post_processing_order,   PaletteGradientMergingSettings pbs,  int gradient_offset,  double contourFactor, GeneratedPaletteSettings gps, JitterSettings js, PostProcessSettings pps, Apfloat xJuliaCenter, Apfloat yJuliaCenter) {
+        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns, ptr, fractal_color, dem_color, image, fs, periodicity_checking, color_cycling_location, color_cycling_location2, exterior_de, exterior_de_factor, height_ratio,  polar_projection, circle_period,   ds, inverse_dem, color_intensity, transfer_function, color_density, color_intensity2, transfer_function2, color_density2, usePaletteForInColoring,    color_blending,   post_processing_order,  pbs,  gradient_offset,  contourFactor, gps, js, pps, xJuliaCenter, yJuliaCenter);
     }
 
-    public BruteForceDraw(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, boolean inverse_dem, double color_intensity, int transfer_function, double color_intensity2, int transfer_function2, boolean usePaletteForInColoring, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, BlendingSettings color_blending, OrbitTrapSettings ots, ContourColoringSettings cns, int[] post_processing_order, LightSettings ls, PaletteGradientMergingSettings pbs, StatisticsSettings sts, int gradient_offset, HistogramColoringSettings hss, double contourFactor, GeneratedPaletteSettings gps, JitterSettings js) {
-        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns, ptr, fractal_color, dem_color, image, fs, periodicity_checking, color_cycling_location, color_cycling_location2, exterior_de, exterior_de_factor, height_ratio, bms, polar_projection, circle_period, fdes, rps, inverse_dem, color_intensity, transfer_function, color_intensity2, transfer_function2, usePaletteForInColoring, ens, ofs, gss, color_blending, ots, cns, post_processing_order, ls, pbs, sts, gradient_offset, hss, contourFactor, gps, js);
+    public BruteForceDraw(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio,  boolean polar_projection, double circle_period,   boolean inverse_dem, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring,    BlendingSettings color_blending,   int[] post_processing_order,   PaletteGradientMergingSettings pbs,  int gradient_offset,  double contourFactor, GeneratedPaletteSettings gps, JitterSettings js, PostProcessSettings pps) {
+        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns, ptr, fractal_color, dem_color, image, fs, periodicity_checking, color_cycling_location, color_cycling_location2, exterior_de, exterior_de_factor, height_ratio,  polar_projection, circle_period,   inverse_dem, color_intensity, transfer_function, color_density, color_intensity2, transfer_function2, color_density2, usePaletteForInColoring,    color_blending,   post_processing_order,  pbs,  gradient_offset,  contourFactor, gps, js, pps);
     }
 
-    public BruteForceDraw(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, MainWindow ptr, Color fractal_color, Color dem_color, boolean fast_julia_filters, BufferedImage image, boolean periodicity_checking, FiltersSettings fs, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, boolean inverse_dem, double color_intensity, int transfer_function, double color_intensity2, int transfer_function2, boolean usePaletteForInColoring, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, BlendingSettings color_blending, OrbitTrapSettings ots, ContourColoringSettings cns, int[] post_processing_order, LightSettings ls, PaletteGradientMergingSettings pbs, StatisticsSettings sts, int gradient_offset, HistogramColoringSettings hss, double contourFactor, GeneratedPaletteSettings gps, JitterSettings js, Apfloat xJuliaCenter, Apfloat yJuliaCenter) {
-        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns, ptr, fractal_color, dem_color, fast_julia_filters, image, periodicity_checking, fs, color_cycling_location, color_cycling_location2, exterior_de, exterior_de_factor, height_ratio, bms, polar_projection, circle_period, fdes, rps, inverse_dem, color_intensity, transfer_function, color_intensity2, transfer_function2, usePaletteForInColoring, ens, ofs, gss, color_blending, ots, cns, post_processing_order, ls, pbs, sts, gradient_offset, hss, contourFactor, gps, js, xJuliaCenter, yJuliaCenter);
+    public BruteForceDraw(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, MainWindow ptr, Color fractal_color, Color dem_color, boolean fast_julia_filters, BufferedImage image, boolean periodicity_checking, FiltersSettings fs, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio,  boolean polar_projection, double circle_period,   boolean inverse_dem, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring,    BlendingSettings color_blending,   int[] post_processing_order,   PaletteGradientMergingSettings pbs,  int gradient_offset,  double contourFactor, GeneratedPaletteSettings gps, JitterSettings js, PostProcessSettings pps,Apfloat xJuliaCenter, Apfloat yJuliaCenter) {
+        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns, ptr, fractal_color, dem_color, fast_julia_filters, image, periodicity_checking, fs, color_cycling_location, color_cycling_location2, exterior_de, exterior_de_factor, height_ratio,  polar_projection, circle_period,   inverse_dem, color_intensity, transfer_function, color_density, color_intensity2, transfer_function2, color_density2, usePaletteForInColoring,    color_blending,   post_processing_order,  pbs,  gradient_offset,  contourFactor, gps, js, pps, xJuliaCenter, yJuliaCenter);
     }
 
-    public BruteForceDraw(int FROMx, int TOx, int FROMy, int TOy, int max_iterations, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, int color_cycling_location, int color_cycling_location2, BumpMapSettings bms, double color_intensity, int transfer_function, double color_intensity2, int transfer_function2, boolean usePaletteForInColoring, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, int color_cycling_speed, FiltersSettings fs, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, BlendingSettings color_blending, ContourColoringSettings cns, int[] post_processing_order, LightSettings ls, PaletteGradientMergingSettings pbs, OrbitTrapSettings ots, boolean cycle_colors, boolean cycle_lights, boolean cycle_gradient, int color_cycling_adjusting_value, DomainColoringSettings ds, int gradient_offset, HistogramColoringSettings hss, double contourFactor, boolean smoothing, GeneratedPaletteSettings gps) {
-        super(FROMx, TOx, FROMy, TOy, max_iterations, ptr, fractal_color, dem_color, image, color_cycling_location, color_cycling_location2, bms, fdes, rps, color_cycling_speed, fs, color_intensity, transfer_function, color_intensity2, transfer_function2, usePaletteForInColoring, ens, ofs, gss, color_blending, cns, post_processing_order, ls, pbs, ots, cycle_colors, cycle_lights, cycle_gradient, color_cycling_adjusting_value, ds, gradient_offset, hss, contourFactor, smoothing, gps);
+    public BruteForceDraw(int FROMx, int TOx, int FROMy, int TOy, int max_iterations, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, int color_cycling_location, int color_cycling_location2,  double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring,   int color_cycling_speed, FiltersSettings fs,    BlendingSettings color_blending,  int[] post_processing_order,   PaletteGradientMergingSettings pbs,  boolean cycle_colors, boolean cycle_lights, boolean cycle_gradient, int color_cycling_adjusting_value, DomainColoringSettings ds, int gradient_offset,  double contourFactor, boolean smoothing, GeneratedPaletteSettings gps, PostProcessSettings pps) {
+        super(FROMx, TOx, FROMy, TOy, max_iterations, ptr, fractal_color, dem_color, image, color_cycling_location, color_cycling_location2,    color_cycling_speed, fs, color_intensity, transfer_function, color_density, color_intensity2, transfer_function2, color_density2, usePaletteForInColoring,    color_blending,  post_processing_order,  pbs,  cycle_colors, cycle_lights, cycle_gradient, color_cycling_adjusting_value, ds, gradient_offset,  contourFactor, smoothing, gps, pps);
     }
 
-    public BruteForceDraw(int FROMx, int TOx, int FROMy, int TOy, int max_iterations, MainWindow ptr, BufferedImage image, Color fractal_color, Color dem_color, int color_cycling_location, int color_cycling_location2, FiltersSettings fs, BumpMapSettings bms, double color_intensity, int transfer_function, double color_intensity2, int transfer_function2, boolean usePaletteForInColoring, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, BlendingSettings color_blending, ContourColoringSettings cns, int[] post_processing_order, LightSettings ls, PaletteGradientMergingSettings pbs, OrbitTrapSettings ots, DomainColoringSettings ds, int gradient_offset, HistogramColoringSettings hss, double contourFactor, boolean smoothing, GeneratedPaletteSettings gps) {
-        super(FROMx, TOx, FROMy, TOy, max_iterations, ptr, image, fractal_color, dem_color, color_cycling_location, color_cycling_location2, fs, bms, fdes, rps, color_intensity, transfer_function, color_intensity2, transfer_function2, usePaletteForInColoring, ens, ofs, gss, color_blending, cns, post_processing_order, ls, pbs, ots, ds, gradient_offset, hss, contourFactor, smoothing, gps);
+    public BruteForceDraw(int FROMx, int TOx, int FROMy, int TOy, int max_iterations, MainWindow ptr, BufferedImage image, Color fractal_color, Color dem_color, int color_cycling_location, int color_cycling_location2, FiltersSettings fs,  double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring,      BlendingSettings color_blending,  int[] post_processing_order,   PaletteGradientMergingSettings pbs,  DomainColoringSettings ds, int gradient_offset,  double contourFactor, boolean smoothing, GeneratedPaletteSettings gps, PostProcessSettings pps) {
+        super(FROMx, TOx, FROMy, TOy, max_iterations, ptr, image, fractal_color, dem_color, color_cycling_location, color_cycling_location2, fs,    color_intensity, transfer_function, color_density, color_intensity2, transfer_function2, color_density2, usePaletteForInColoring,    color_blending,  post_processing_order,  pbs,  ds, gradient_offset,  contourFactor, smoothing, gps, pps);
     }
 
     public BruteForceDraw(int FROMx, int TOx, int FROMy, int TOy, D3Settings d3s, boolean draw_action, MainWindow ptr, BufferedImage image, FiltersSettings fs,  BlendingSettings color_blending, double contourFactor, boolean smoothing, GeneratedPaletteSettings gps) {
         super(FROMx, TOx, FROMy, TOy, d3s, draw_action, ptr, image, fs,  color_blending, contourFactor, smoothing, gps);
     }
 
+    public BruteForceDraw(int action, int FROMx, int TOx, int FROMy, int TOy, int max_iterations, MainWindow ptr, BufferedImage image, Color fractal_color, Color dem_color, int color_cycling_location, int color_cycling_location2, FiltersSettings fs,    double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring,    BlendingSettings color_blending,  int[] post_processing_order,   PaletteGradientMergingSettings pbs, int gradient_offset,  double contourFactor, GeneratedPaletteSettings gps, PostProcessSettings pps, DomainColoringSettings ds) {
+        super(action, FROMx, TOx, FROMy, TOy, max_iterations, ptr, image, fractal_color, dem_color, color_cycling_location, color_cycling_location2, fs,  color_intensity, transfer_function, color_density, color_intensity2, transfer_function2, color_density2, usePaletteForInColoring, color_blending,  post_processing_order, pbs, gradient_offset,  contourFactor, gps, pps, ds);
+    }
+
     @Override
-    protected void drawIterations(int image_size, boolean polar) {
+    protected void drawIterations(int image_size, boolean polar) throws StopSuccessiveRefinementException {
 
         Location location = Location.getInstanceForDrawing(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
 
@@ -106,6 +111,8 @@ public class BruteForceDraw extends ThreadDraw {
         boolean escaped_val;
         double f_val;
 
+        long time = System.currentTimeMillis();
+
         do {
 
             loc = THREAD_CHUNK_SIZE * normal_drawing_algorithm_pixel.getAndIncrement();
@@ -123,7 +130,7 @@ public class BruteForceDraw extends ThreadDraw {
                     image_iterations[loc] = f_val = iteration_algorithm.calculate(location.getComplex(x, y));
                     escaped[loc] = escaped_val = iteration_algorithm.escaped();
                     rgbs[loc] = getFinalColor(f_val, escaped_val);
-                    thread_calculated++;
+                    task_calculated++;
                 }
 
                 drawing_done++;
@@ -136,16 +143,20 @@ public class BruteForceDraw extends ThreadDraw {
 
         } while(true);
 
+        pixel_calculation_time_per_task = System.currentTimeMillis() - time;
+
         postProcess(image_size, null, location);
     }
 
     @Override
-    protected void drawIterationsAntialiased(int image_size, boolean polar) {
+    protected void drawIterationsAntialiased(int image_size, boolean polar) throws StopSuccessiveRefinementException {
 
         int aaMethod = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
         boolean useJitter = aaMethod != 6 && ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x4) == 4;
         Location location = Location.getInstanceForDrawing(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
-        location.createAntialiasingSteps(aaMethod == 5, useJitter);
+        int aaSamplesIndex = (filters_options_vals[MainWindow.ANTIALIASING] % 100) % 10;
+        int supersampling_num = getExtraSamples(aaSamplesIndex, aaMethod);
+        location.createAntialiasingSteps(aaMethod == 5, useJitter, supersampling_num);
 
         int pixel_percent = (image_size * image_size) / 100;
 
@@ -157,12 +168,10 @@ public class BruteForceDraw extends ThreadDraw {
 
         int condition = image_size * image_size;
 
-        int aaSamplesIndex = (filters_options_vals[MainWindow.ANTIALIASING] % 100) % 10;
         boolean aaAvgWithMean = ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x1) == 1;
         int colorSpace = filters_options_extra_vals[0][MainWindow.ANTIALIASING];
-        int supersampling_num = (aaSamplesIndex == 0 ? 4 : 8 * aaSamplesIndex);
         int totalSamples = supersampling_num + 1;
-        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(totalSamples, aaMethod, aaAvgWithMean, colorSpace, location);
+        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(totalSamples, aaMethod, aaAvgWithMean, colorSpace, fs.aaSigmaR, fs.aaSigmaS);
 
         if(PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && !HIGH_PRECISION_CALCULATION) {
             if (reference_calc_sync.getAndIncrement() == 0) {
@@ -182,8 +191,11 @@ public class BruteForceDraw extends ThreadDraw {
         boolean escaped_val;
         double f_val;
 
-        boolean needsPostProcessing = needsPostProcessing();
-        aa.setNeedsPostProcessing(needsPostProcessing);
+        aa.setNeedsPostProcessing(needsPostProcessing());
+
+        boolean storeExtraData = pixelData != null;
+
+        long time = System.currentTimeMillis();
 
         do {
 
@@ -201,7 +213,7 @@ public class BruteForceDraw extends ThreadDraw {
                 escaped[loc] = escaped_val = iteration_algorithm.escaped();
                 color = getFinalColor(f_val, escaped_val);
 
-                if(needsPostProcessing) {
+                if(storeExtraData) {
                     pixelData[loc].set(0, color, f_val, escaped_val, totalSamples);
                 }
 
@@ -213,7 +225,7 @@ public class BruteForceDraw extends ThreadDraw {
                     escaped_val = iteration_algorithm.escaped();
                     color = getFinalColor(temp_result, escaped_val);
 
-                    if(needsPostProcessing) {
+                    if(storeExtraData) {
                         pixelData[loc].set(i + 1, color, temp_result, escaped_val, totalSamples);
                     }
 
@@ -229,13 +241,15 @@ public class BruteForceDraw extends ThreadDraw {
 
             if(drawing_done / pixel_percent >= 1) {
                 update(drawing_done);
-                thread_calculated += drawing_done;
+                task_calculated += drawing_done;
                 drawing_done = 0;
             }
 
         } while(true);
 
-        thread_calculated += drawing_done;
+        task_calculated += drawing_done;
+
+        pixel_calculation_time_per_task = System.currentTimeMillis() - time;
 
         postProcess(image_size, aa, location);
     }
@@ -297,7 +311,9 @@ public class BruteForceDraw extends ThreadDraw {
         int aaMethod = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
         boolean useJitter = aaMethod != 6 && ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x4) == 4;
         Location location = Location.getInstanceForDrawing(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
-        location.createAntialiasingSteps(aaMethod == 5, useJitter);
+        int aaSamplesIndex = (filters_options_vals[MainWindow.ANTIALIASING] % 100) % 10;
+        int supersampling_num = getExtraSamples(aaSamplesIndex, aaMethod);
+        location.createAntialiasingSteps(aaMethod == 5, useJitter, supersampling_num);
 
         if(PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && !HIGH_PRECISION_CALCULATION) {
 
@@ -322,19 +338,18 @@ public class BruteForceDraw extends ThreadDraw {
 
         int condition = image_size * image_size;
 
-        int aaSamplesIndex = (filters_options_vals[MainWindow.ANTIALIASING] % 100) % 10;
         boolean aaAvgWithMean = ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x1) == 1;
         int colorSpace = filters_options_extra_vals[0][MainWindow.ANTIALIASING];
-        int supersampling_num = (aaSamplesIndex == 0 ? 4 : 8 * aaSamplesIndex);
         int totalSamples = supersampling_num + 1;
 
-        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(totalSamples, aaMethod, aaAvgWithMean, colorSpace, location);
+        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(totalSamples, aaMethod, aaAvgWithMean, colorSpace, fs.aaSigmaR, fs.aaSigmaS);
 
         boolean escaped_val;
         double f_val;
 
-        boolean needsPostProcessing = needsPostProcessing();
-        aa.setNeedsPostProcessing(needsPostProcessing);
+        aa.setNeedsPostProcessing(needsPostProcessing());
+
+        boolean storeExtraData = pixelData_fast_julia != null;
 
         do {
 
@@ -352,7 +367,7 @@ public class BruteForceDraw extends ThreadDraw {
                 escaped_fast_julia[loc] = escaped_val = iteration_algorithm.escaped();
                 color = getFinalColor(f_val, escaped_val);
 
-                if(needsPostProcessing) {
+                if(storeExtraData) {
                     pixelData_fast_julia[loc].set(0, color, f_val, escaped_val, totalSamples);
                 }
 
@@ -364,7 +379,7 @@ public class BruteForceDraw extends ThreadDraw {
                     escaped_val = iteration_algorithm.escaped();
                     color = getFinalColor(temp_result, escaped_val);
 
-                    if(needsPostProcessing) {
+                    if(storeExtraData) {
                         pixelData_fast_julia[loc].set(i + 1, color, temp_result, escaped_val, totalSamples);
                     }
 
@@ -383,7 +398,7 @@ public class BruteForceDraw extends ThreadDraw {
     @Override
     protected void applyPostProcessingPointFilter(int image_size, double[] image_iterations, boolean[] escaped, PixelExtraData[] pixelData, AntialiasingAlgorithm aa, Location location) {
 
-        if(action == COLOR_CYCLING) {
+        if(d3 || action == COLOR_CYCLING) {
             super.applyPostProcessingPointFilter(image_size, image_iterations, escaped, pixelData, aa, location);
             return;
         }
@@ -429,12 +444,82 @@ public class BruteForceDraw extends ThreadDraw {
     }
 
     @Override
-    protected void changePalette(int image_size) {
+    protected void changePaletteWithAA(int image_size) throws StopSuccessiveRefinementException {
+
+        int aaMethod = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
+        int aaSamplesIndex = (filters_options_vals[MainWindow.ANTIALIASING] % 100) % 10;
+        boolean aaAvgWithMean = ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x1) == 1;
+        int colorSpace = filters_options_extra_vals[0][MainWindow.ANTIALIASING];
+        int supersampling_num = getExtraSamples(aaSamplesIndex, aaMethod);
+        int totalSamples = supersampling_num + 1;
+        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(totalSamples, aaMethod, aaAvgWithMean, colorSpace, fs.aaSigmaR, fs.aaSigmaS);
+
+        aa.setNeedsPostProcessing(true);
+
+        int loc;
+        int condition = image_size * image_size;
+
+        int pixel_percent = (image_size * image_size) / 100;
+
+        int color;
+        PixelExtraData data;
+        task_completed = 0;
+
+        long time = System.currentTimeMillis();
+
+        do {
+
+            loc = THREAD_CHUNK_SIZE * normal_drawing_algorithm_apply_palette.getAndIncrement();
+
+            if(loc >= condition) {
+                break;
+            }
+
+            for(int count = 0; count < THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
+                data = pixelData[loc];
+                data.update_rgb(0, color = getStandardColor(data.values[0], data.escaped[0]));
+
+                aa.initialize(color);
+
+                //Supersampling
+                int length = data.getActualLength() - 1;
+                for(int i = 0; i < length; i++) {
+                    data.update_rgb(i + 1, color = getFinalColor(data.values[i + 1], data.escaped[i + 1]));
+
+                    if(!aa.addSample(color)) {
+                        break;
+                    }
+                }
+
+                rgbs[loc] = aa.getColor();
+
+                drawing_done++;
+                task_completed++;
+            }
+
+            if (drawing_done / pixel_percent >= 1) {
+                update(drawing_done);
+                drawing_done = 0;
+            }
+
+        } while(true);
+
+        pixel_calculation_time_per_task = System.currentTimeMillis() - time;
+
+        postProcess(image_size, aa, null);
+
+    }
+
+    @Override
+    protected void changePalette(int image_size) throws StopSuccessiveRefinementException {
 
         int pixel_percent = (image_size * image_size) / 100;
 
         int loc;
         int condition = image_size * image_size;
+        task_completed = 0;
+
+        long time = System.currentTimeMillis();
 
         do {
 
@@ -452,6 +537,7 @@ public class BruteForceDraw extends ThreadDraw {
                 }
 
                 drawing_done++;
+                task_completed++;
             }
 
             if (drawing_done / pixel_percent >= 1) {
@@ -461,183 +547,164 @@ public class BruteForceDraw extends ThreadDraw {
 
         } while(true);
 
+        pixel_calculation_time_per_task = System.currentTimeMillis() - time;
+
         postProcess(image_size, null, null);
 
     }
 
     @Override
-    protected void applyHistogram(PixelExtraData[] data, int image_size, int maxCount, int histogramGranularity, double histogramDensity, Location location, AntialiasingAlgorithm aa) {
+    protected void drawIterationsDomain(int image_size, boolean polar) {
 
-        if(action == COLOR_CYCLING) {
-            super.applyHistogram(data, image_size, maxCount, histogramGranularity, histogramDensity, location, aa);
-            return;
-        }
+        Location location = Location.getInstanceForDrawing(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, js, polar, false);
 
+        int pixel_percent = (image_size * image_size) / 100;
+
+        //Better brute force
         int x, y, loc;
+
         int condition = image_size * image_size;
+
+        long time = System.currentTimeMillis();
 
         do {
 
-            loc = THREAD_CHUNK_SIZE * normal_drawing_algorithm_histogram.getAndIncrement();
+            loc = THREAD_CHUNK_SIZE * normal_drawing_algorithm_pixel.getAndIncrement();
 
-            if(loc >= condition) {
+            if (loc >= condition) {
                 break;
             }
 
-            for(int count = 0; count < THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
+            for (int count = 0; count < THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
                 x = loc % image_size;
                 y = loc / image_size;
 
-                applyHistogramToPixel(loc, x, y, image_size, data, maxCount, histogramGranularity, histogramDensity, location, aa);
+                if(rgbs[loc] >>> 24 != Constants.NORMAL_ALPHA) {
+                    Complex val = iteration_algorithm.calculateDomain(location.getComplex(x, y));
+                    image_iterations[loc] = scaleDomainHeight(getDomainHeight(val));
+                    rgbs[loc] = domain_color.getDomainColor(val);
+
+                    if (domain_image_data_re != null && domain_image_data_im != null) {
+                        domain_image_data_re[loc] = val.getRe();
+                        domain_image_data_im[loc] = val.getIm();
+                    }
+                    task_calculated++;
+                }
+
+                drawing_done++;
             }
 
-        } while(true);
+            if (drawing_done / pixel_percent >= 1) {
+                update(drawing_done);
+                drawing_done = 0;
+            }
+
+        } while (true);
+
+        pixel_calculation_time_per_task = System.currentTimeMillis() - time;
+
+        try {
+            postProcess(image_size, null, location);
+        }
+        catch (StopSuccessiveRefinementException ex) {}
 
     }
 
     @Override
-    protected void applyRankOrderMapping(PixelExtraData[] data, int image_size, Location location, AntialiasingAlgorithm aa) {
+    protected void drawIterationsDomainAntialiased(int image_size, boolean polar) {
 
-        if(action == COLOR_CYCLING) {
-            super.applyRankOrderMapping(data, image_size, location, aa);
-            return;
-        }
+        int aaMethod = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
+        boolean useJitter = aaMethod != 6 && ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x4) == 4;
+        Location location = Location.getInstanceForDrawing(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, js, polar, false);
+        int aaSamplesIndex = (filters_options_vals[MainWindow.ANTIALIASING] % 100) % 10;
+        int supersampling_num = getExtraSamples(aaSamplesIndex, aaMethod);
+        location.createAntialiasingSteps(aaMethod == 5, useJitter, supersampling_num);
 
+        int pixel_percent = (image_size * image_size) / 100;
+
+        //better Brute force with antialiasing
         int x, y, loc;
+        int color;
+
         int condition = image_size * image_size;
+
+        boolean aaAvgWithMean = ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x1) == 1;
+        int colorSpace = filters_options_extra_vals[0][MainWindow.ANTIALIASING];
+        int totalSamples = supersampling_num + 1;
+
+        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(totalSamples, aaMethod, aaAvgWithMean, colorSpace, fs.aaSigmaR, fs.aaSigmaS);
+
+        aa.setNeedsPostProcessing(needsPostProcessing());
+
+        boolean storeExtraData = pixelData != null;
+
+        double f_val;
+
+        long time = System.currentTimeMillis();
 
         do {
 
-            loc = THREAD_CHUNK_SIZE * normal_drawing_algorithm_histogram.getAndIncrement();
+            loc = THREAD_CHUNK_SIZE * normal_drawing_algorithm_pixel.getAndIncrement();
 
-            if(loc >= condition) {
+            if (loc >= condition) {
                 break;
             }
 
-            for(int count = 0; count < THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
+            for (int count = 0; count < THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
                 x = loc % image_size;
                 y = loc / image_size;
 
-                applyRankOrderMappingToPixel(loc, x, y, image_size, data, location, aa);
+                Complex val = iteration_algorithm.calculateDomain(location.getComplex(x, y));
+                image_iterations[loc] = f_val = scaleDomainHeight(getDomainHeight(val));
+                color = domain_color.getDomainColor(val);
+
+                if(storeExtraData) {
+                    pixelData[loc].set(0, color, f_val, true, totalSamples);
+                }
+
+                if (domain_image_data_re != null && domain_image_data_im != null) {
+                    domain_image_data_re[loc] = val.getRe();
+                    domain_image_data_im[loc] = val.getIm();
+                }
+
+                aa.initialize(color);
+
+                //Supersampling
+                for (int i = 0; i < supersampling_num; i++) {
+                    val = iteration_algorithm.calculateDomain(location.getAntialiasingComplex(i, loc));
+                    color = domain_color.getDomainColor(val);
+
+                    if(storeExtraData) {
+                        f_val = scaleDomainHeight(getDomainHeight(val));
+                        pixelData[loc].set(i + 1, color, f_val, true, totalSamples);
+                    }
+
+                    if(!aa.addSample(color)) {
+                        break;
+                    }
+                }
+
+                rgbs[loc] = aa.getColor();
+
+                drawing_done++;
             }
 
-        } while(true);
+            if (drawing_done / pixel_percent >= 1) {
+                update(drawing_done);
+                task_calculated += drawing_done;
+                drawing_done = 0;
+            }
+
+        } while (true);
+
+        task_calculated += drawing_done;
+
+        pixel_calculation_time_per_task = System.currentTimeMillis() - time;
+
+        try {
+            postProcess(image_size, aa, location);
+        } catch (StopSuccessiveRefinementException ex) {}
 
     }
 
-    @Override
-    protected void applyHistogram(double[] image_iterations, boolean[] escaped, int image_size, int maxCount, int histogramGranularity, double histogramDensity, Location location, AntialiasingAlgorithm aa) {
-
-        if(action == COLOR_CYCLING) {
-            super.applyHistogram(image_iterations, escaped, image_size, maxCount, histogramGranularity, histogramDensity, location, aa);
-            return;
-        }
-
-        int x, y, loc;
-        int condition = image_size * image_size;
-
-        do {
-
-            loc = THREAD_CHUNK_SIZE * normal_drawing_algorithm_histogram.getAndIncrement();
-
-            if(loc >= condition) {
-                break;
-            }
-
-            for(int count = 0; count < THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
-                x = loc % image_size;
-                y = loc / image_size;
-
-                applyHistogramToPixel(loc, x, y, image_size, image_iterations, escaped, maxCount, histogramGranularity, histogramDensity, location, aa);
-            }
-
-        } while(true);
-    }
-
-    @Override
-    protected void applyRankOrderMapping(double[] image_iterations, boolean[] escaped, int image_size, Location location, AntialiasingAlgorithm aa) {
-
-        if(action == COLOR_CYCLING) {
-            super.applyRankOrderMapping(image_iterations, escaped, image_size, location, aa);
-            return;
-        }
-
-        int x, y, loc;
-        int condition = image_size * image_size;
-
-        do {
-
-            loc = THREAD_CHUNK_SIZE * normal_drawing_algorithm_histogram.getAndIncrement();
-
-            if(loc >= condition) {
-                break;
-            }
-
-            for(int count = 0; count < THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
-                x = loc % image_size;
-                y = loc / image_size;
-
-                applyRankOrderMappingToPixel(loc, x, y, image_size, image_iterations, escaped, location, aa);
-            }
-
-        } while(true);
-    }
-
-    @Override
-    protected void applyScaling(double[] image_iterations, boolean[] escaped, int mapping, int image_size, Location location, AntialiasingAlgorithm aa) {
-
-        if(action == COLOR_CYCLING) {
-            super.applyScaling(image_iterations, escaped, mapping, image_size, location, aa);
-            return;
-        }
-
-        int x, y, loc;
-        int condition = image_size * image_size;
-
-        do {
-
-            loc = THREAD_CHUNK_SIZE * normal_drawing_algorithm_histogram.getAndIncrement();
-
-            if(loc >= condition) {
-                break;
-            }
-
-            for(int count = 0; count < THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
-                x = loc % image_size;
-                y = loc / image_size;
-
-                applyScalingToPixel(loc, x, y, image_size, image_iterations, escaped, mapping, location, aa);
-            }
-
-        } while(true);
-    }
-
-    @Override
-    protected void applyScaling(PixelExtraData[] data, int mapping, int image_size, Location location, AntialiasingAlgorithm aa) {
-
-        if(action == COLOR_CYCLING) {
-            super.applyScaling(data, mapping, image_size, location, aa);
-            return;
-        }
-
-        int x, y, loc;
-        int condition = image_size * image_size;
-
-        do {
-
-            loc = THREAD_CHUNK_SIZE * normal_drawing_algorithm_histogram.getAndIncrement();
-
-            if(loc >= condition) {
-                break;
-            }
-
-            for(int count = 0; count < THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
-                x = loc % image_size;
-                y = loc / image_size;
-
-                applyScalingToPixel(loc, x, y, image_size, data, mapping, location, aa);
-            }
-
-        } while(true);
-    }
 }

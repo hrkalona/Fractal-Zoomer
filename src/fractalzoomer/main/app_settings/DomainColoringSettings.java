@@ -60,6 +60,19 @@ public class DomainColoringSettings {
     public int gridAlgorithm;
     public int combineType;
     public int domain_height_method;
+    public int domain_height_normalization_method;
+
+    public int iso_color_type;
+    public int grid_color_type;
+    public int circle_color_type;
+
+    public boolean applyShading;
+    public double saturation_adjustment;
+    public boolean mapNormReImWithAbsScale;
+    public int shadingType;
+    public int shadingColorAlgorithm;
+    public boolean invertShading;
+    public double shadingPercent;
 
 
     public DomainColoringSettings(DomainColoringSettings copy ) {
@@ -110,6 +123,19 @@ public class DomainColoringSettings {
         
         combineType = copy.combineType;
         domain_height_method = copy.domain_height_method;
+
+        iso_color_type = copy.iso_color_type;
+        grid_color_type = copy.grid_color_type;
+        circle_color_type = copy.circle_color_type;
+
+        applyShading = copy.applyShading;
+        saturation_adjustment = copy.saturation_adjustment;
+        mapNormReImWithAbsScale = copy.mapNormReImWithAbsScale;
+        shadingType = copy.shadingType;
+        shadingColorAlgorithm = copy.shadingColorAlgorithm;
+        domain_height_normalization_method = copy.domain_height_normalization_method;
+        invertShading = copy.invertShading;
+        shadingPercent = copy.shadingPercent;
     }
     
     public DomainColoringSettings() {
@@ -118,6 +144,10 @@ public class DomainColoringSettings {
         domain_coloring_alg = 0;
         domain_coloring_mode = 0;
         customDomainColoring = false;
+
+        grid_color_type = 0;
+        circle_color_type = 0;
+        iso_color_type = 0;
         
         logBase = 2.0;
         normType = 2.0;
@@ -164,6 +194,15 @@ public class DomainColoringSettings {
         gridAlgorithm = 0;
         combineType = 0;
         domain_height_method = 0;
+
+        applyShading = false;
+        saturation_adjustment = 6;
+        mapNormReImWithAbsScale = true;
+        shadingType = 0;
+        shadingColorAlgorithm = 0;
+        domain_height_normalization_method = 0;
+        invertShading = false;
+        shadingPercent = 0.1;
         
     }
     

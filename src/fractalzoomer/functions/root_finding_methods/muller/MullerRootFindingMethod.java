@@ -28,16 +28,16 @@ import java.util.ArrayList;
  */
 public abstract class MullerRootFindingMethod extends RootFindingMethods {
 
-    public MullerRootFindingMethod(double xCenter, double yCenter, double size, int max_iterations, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, OrbitTrapSettings ots) {
+    public MullerRootFindingMethod(double xCenter, double yCenter, double size, int max_iterations, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower, OrbitTrapSettings ots) {
 
-        super(xCenter, yCenter, size, max_iterations, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, ots);
+        super(xCenter, yCenter, size, max_iterations, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, ots);
 
     }
 
     //orbit
-    public MullerRootFindingMethod(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount) {
+    public MullerRootFindingMethod(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower) {
 
-        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower);
 
     }
     
@@ -51,11 +51,11 @@ public abstract class MullerRootFindingMethod extends RootFindingMethods {
         Complex rksqr = rk.square();
         Complex ck = fz.times(rkp1);
         Complex fz2rksqr = fz2.times(rksqr);
-        Complex bk = fz.times(rk.times(2).plus_mutable(1)).sub(fz1.times(rkp1.square())).plus(fz2rksqr);
+        Complex bk = fz.times(rk.times2().plus_mutable(1)).sub(fz1.times(rkp1.square())).plus(fz2rksqr);
         Complex ak = fz.times(rk).sub(fz1.times(rkp1.times(rk))).plus(fz2rksqr);
         
-        Complex ck2 = ck.times(2);
-        Complex temp = (bk.square().sub(ak.times(ck).times_mutable(4))).sqrt();
+        Complex ck2 = ck.times2();
+        Complex temp = (bk.square().sub(ak.times(ck).times4_mutable())).sqrt();
         
         Complex denom1 = bk.plus(temp);
         Complex denom2 = bk.sub(temp);
@@ -87,11 +87,11 @@ public abstract class MullerRootFindingMethod extends RootFindingMethods {
         Complex rkp1 = rk.plus(1);
         Complex rksqr = rk.square();
         Complex ck = fz.times(rkp1);
-        Complex bk = fz.times(rk.times(2).plus_mutable(1)).sub(fz1.times(rkp1.square())).plus(fz2.times(rksqr));
+        Complex bk = fz.times(rk.times2().plus_mutable(1)).sub(fz1.times(rkp1.square())).plus(fz2.times(rksqr));
         Complex ak = fz.times(rk).sub(fz1.times(rkp1.times(rk))).plus(fz2.times(rksqr));       
         
-        Complex ck2 = ck.times(2);
-        Complex temp = (bk.square().sub(ak.times(ck).times_mutable(4))).sqrt();
+        Complex ck2 = ck.times2();
+        Complex temp = (bk.square().sub(ak.times(ck).times4_mutable())).sqrt();
         
         Complex denom1 = bk.plus(temp);
         Complex denom2 = bk.sub(temp);
@@ -123,11 +123,11 @@ public abstract class MullerRootFindingMethod extends RootFindingMethods {
         Complex rkp1 = rk.plus(1);
         Complex rksqr = rk.square();
         Complex ck = fz.times(rkp1);
-        Complex bk = fz.times(rk.times(2).plus_mutable(1)).sub(fz1.times(rkp1.square())).plus(fz2.times(rksqr));
+        Complex bk = fz.times(rk.times2().plus_mutable(1)).sub(fz1.times(rkp1.square())).plus(fz2.times(rksqr));
         Complex ak = fz.times(rk).sub(fz1.times(rkp1.times(rk))).plus(fz2.times(rksqr));
 
-        Complex ck2 = ck.times(2);
-        Complex temp = (bk.square().sub(ak.times(ck).times_mutable(4))).sqrt();
+        Complex ck2 = ck.times2();
+        Complex temp = (bk.square().sub(ak.times(ck).times4_mutable())).sqrt();
 
         Complex denom1 = bk.plus(temp);
         Complex denom2 = bk.sub(temp);

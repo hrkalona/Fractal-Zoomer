@@ -18,7 +18,7 @@
 package fractalzoomer.in_coloring_algorithms;
 
 import fractalzoomer.core.Complex;
-import fractalzoomer.core.ThreadDraw;
+import fractalzoomer.core.TaskDraw;
 import fractalzoomer.parser.ExpressionNode;
 import fractalzoomer.parser.Parser;
 import fractalzoomer.utils.ColorAlgorithm;
@@ -59,7 +59,7 @@ public class UserInColorAlgorithm extends InColorAlgorithm {
         }
 
         if (parser.foundISize()) {
-            parser.setISizevalue(new Complex(ThreadDraw.IMAGE_SIZE, 0));
+            parser.setISizevalue(new Complex(TaskDraw.IMAGE_SIZE, 0));
         }
  
         if(parser.foundPoint()) {
@@ -76,7 +76,7 @@ public class UserInColorAlgorithm extends InColorAlgorithm {
         
         this.max_iterations = max_iterations;
         
-        InNotUsingIncrement = true;
+        InUsingIncrement = false;
         
     }
 
@@ -119,12 +119,16 @@ public class UserInColorAlgorithm extends InColorAlgorithm {
         
         double result = expr.getValue().getRe();
         
-        if(ThreadDraw.USE_DIRECT_COLOR) {
+        if(TaskDraw.USE_DIRECT_COLOR) {
             return result;
         }
  
         if(Math.abs(result) == max_iterations) {
             return result < 0 ? -ColorAlgorithm.MAXIMUM_ITERATIONS : ColorAlgorithm.MAXIMUM_ITERATIONS;
+        }
+
+        if(Math.abs(result) == ColorAlgorithm.MAXIMUM_ITERATIONS_DE) {
+            return result < 0 ? -ColorAlgorithm.MAXIMUM_ITERATIONS_DE : ColorAlgorithm.MAXIMUM_ITERATIONS_DE;
         }
 
         return result < 0 ? result - max_iterations : result + max_iterations; 

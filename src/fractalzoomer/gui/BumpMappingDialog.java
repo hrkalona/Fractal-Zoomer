@@ -16,7 +16,7 @@
  */
 package fractalzoomer.gui;
 
-import fractalzoomer.core.ThreadDraw;
+import fractalzoomer.core.TaskDraw;
 import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
@@ -49,10 +49,10 @@ public class BumpMappingDialog extends JDialog {
         setIconImage(MainWindow.getIcon("mandel2.png").getImage());
 
         final JCheckBox enable_bump_map = new JCheckBox("Bump Mapping");
-        enable_bump_map.setSelected(s.bms.bump_map);
+        enable_bump_map.setSelected(s.pps.bms.bump_map);
         enable_bump_map.setFocusable(false);
 
-        JSlider direction_of_light = new JSlider(JSlider.HORIZONTAL, -360, 360, ((int) (s.bms.lightDirectionDegrees)));
+        JSlider direction_of_light = new JSlider(JSlider.HORIZONTAL, -360, 360, ((int) (s.pps.bms.lightDirectionDegrees)));
         direction_of_light.setPreferredSize(new Dimension(300, 40));
         direction_of_light.setMajorTickSpacing(90);
         direction_of_light.setMinorTickSpacing(1);
@@ -62,7 +62,7 @@ public class BumpMappingDialog extends JDialog {
         //direction_of_light.setSnapToTicks(true);
         direction_of_light.setFocusable(false);
 
-        JSlider depth = new JSlider(JSlider.HORIZONTAL, 0, 100, ((int) (s.bms.bumpMappingDepth)));
+        JSlider depth = new JSlider(JSlider.HORIZONTAL, 0, 100, ((int) (s.pps.bms.bumpMappingDepth)));
         depth.setPreferredSize(new Dimension(300, 40));
         depth.setMajorTickSpacing(25);
         depth.setMinorTickSpacing(1);
@@ -72,7 +72,7 @@ public class BumpMappingDialog extends JDialog {
         //depth.setSnapToTicks(true);
         depth.setFocusable(false);
 
-        JSlider strength = new JSlider(JSlider.HORIZONTAL, 0, 100, ((int) (s.bms.bumpMappingStrength)));
+        JSlider strength = new JSlider(JSlider.HORIZONTAL, 0, 100, ((int) (s.pps.bms.bumpMappingStrength)));
         strength.setPreferredSize(new Dimension(300, 40));
         strength.setMajorTickSpacing(25);
         strength.setMinorTickSpacing(1);
@@ -83,34 +83,41 @@ public class BumpMappingDialog extends JDialog {
         strength.setFocusable(false);
 
         JTextField noise_factor_field = new JTextField();
-        noise_factor_field.setText("" + s.bms.bm_noise_reducing_factor);
+        noise_factor_field.setText("" + s.pps.bms.bm_noise_reducing_factor);
 
         final JComboBox<String> bump_transfer_functions_opt = new JComboBox<>(bumpTransferNames);
-        bump_transfer_functions_opt.setSelectedIndex(s.bms.bump_transfer_function);
+        bump_transfer_functions_opt.setSelectedIndex(s.pps.bms.bump_transfer_function);
         bump_transfer_functions_opt.setFocusable(false);
         bump_transfer_functions_opt.setToolTipText("Sets the transfer function.");
 
         JTextField bump_transfer_factor_field = new JTextField(20);
-        bump_transfer_factor_field.setText("" + s.bms.bump_transfer_factor);
+        bump_transfer_factor_field.setText("" + s.pps.bms.bump_transfer_factor);
 
-        JPanel panel = new JPanel();
-        panel.add(bump_transfer_functions_opt);
-        panel.add(bump_transfer_factor_field);
+        JPanel panel = new JPanel(new GridLayout(2, 2));
+        panel.add(new JLabel("Transfer Function:"));
+        panel.add(new JLabel("Transfer Factor:"));
+
+        JPanel p12 = new JPanel();
+        p12.add(bump_transfer_functions_opt);
+        JPanel p13 = new JPanel();
+        p13.add(bump_transfer_factor_field);
+        panel.add(p12);
+        panel.add(p13);
 
         final JComboBox<String> bump_processing_method_opt = new JComboBox<>(bumpProcessingMethod);
-        bump_processing_method_opt.setSelectedIndex(s.bms.bumpProcessing);
+        bump_processing_method_opt.setSelectedIndex(s.pps.bms.bumpProcessing);
         bump_processing_method_opt.setFocusable(false);
         bump_processing_method_opt.setToolTipText("Sets the image processing method.");
         bump_processing_method_opt.setPreferredSize(new Dimension(150, 20));
 
-        final JSlider color_blend_opt = new JSlider(JSlider.HORIZONTAL, 0, 100, (int) (s.bms.bump_blending * 100));
+        final JSlider color_blend_opt = new JSlider(JSlider.HORIZONTAL, 0, 100, (int) (s.pps.bms.bump_blending * 100));
         color_blend_opt.setMajorTickSpacing(25);
         color_blend_opt.setMinorTickSpacing(1);
         color_blend_opt.setToolTipText("Sets the color blending percentage.");
         color_blend_opt.setFocusable(false);
         color_blend_opt.setPaintLabels(true);
 
-        color_blend_opt.setEnabled(s.bms.bumpProcessing == 1 || s.bms.bumpProcessing == 2);
+        color_blend_opt.setEnabled(s.pps.bms.bumpProcessing == 1 || s.pps.bms.bumpProcessing == 2);
 
         bump_processing_method_opt.addActionListener(e -> color_blend_opt.setEnabled(bump_processing_method_opt.getSelectedIndex() == 1 || bump_processing_method_opt.getSelectedIndex() == 2));
 
@@ -124,6 +131,41 @@ public class BumpMappingDialog extends JDialog {
         p1.add(p2);
         p1.add(color_blend_opt);
 
+        final JComboBox<String> fractional_transfer = new JComboBox<>(Constants.fractionalTransfer);
+        fractional_transfer.setSelectedIndex(s.pps.bms.fractionalTransfer);
+        fractional_transfer.setFocusable(false);
+        fractional_transfer.setToolTipText("Sets the fractional transfer function.");
+
+        final JComboBox<String> fractional_smoothing = new JComboBox<>(Constants.FadeAlgs);
+        fractional_smoothing.setSelectedIndex(s.pps.bms.fractionalSmoothing);
+        fractional_smoothing.setFocusable(false);
+        fractional_smoothing.setToolTipText("Sets the fractional smoothing function.");
+
+        final JComboBox<String> fractional_transfer_mode = new JComboBox<>(Constants.fractionalTransferMode);
+        fractional_transfer_mode.setSelectedIndex(s.pps.bms.fractionalTransferMode);
+        fractional_transfer_mode.setFocusable(false);
+        fractional_transfer_mode.setToolTipText("Sets the fractional transfer mode.");
+
+        fractional_transfer_mode.setEnabled(fractional_transfer.getSelectedIndex() != 0);
+        fractional_transfer.addActionListener(e -> fractional_transfer_mode.setEnabled(fractional_transfer.getSelectedIndex() != 0));
+
+        JPanel p20 = new JPanel();
+        p20.add(fractional_transfer);
+        JPanel p22 = new JPanel();
+        p22.add(fractional_transfer_mode);
+        JPanel p21 = new JPanel();
+        p21.add(fractional_smoothing);
+
+        JPanel p3 = new JPanel();
+        p3.setLayout(new GridLayout(2, 3));
+
+        p3.add(new JLabel("Fractional Transfer:", SwingConstants.HORIZONTAL));
+        p3.add(new JLabel("Transfer Mode:", SwingConstants.HORIZONTAL));
+        p3.add(new JLabel("Fractional Smoothing:", SwingConstants.HORIZONTAL));
+        p3.add(p20);
+        p3.add(p22);
+        p3.add(p21);
+
         Object[] message = {
             " ",
             enable_bump_map,
@@ -135,10 +177,12 @@ public class BumpMappingDialog extends JDialog {
             " ",
             "Strength:", strength,
             " ",
-            "Set the tranfer function and the factor.",
-            "Transfer Function and Factor:",
+            "Set the transfer function and the factor.",
             panel,
             " ",
+                "Set the fractional transfer/smoothing.",
+                p3,
+                " ",
             "Set the image processing method.",
             p1,
             " ",
@@ -195,15 +239,18 @@ public class BumpMappingDialog extends JDialog {
                                 return;
                             }
 
-                            s.bms.bump_map = enable_bump_map.isSelected();
-                            s.bms.lightDirectionDegrees = direction_of_light.getValue();
-                            s.bms.bumpMappingDepth = depth.getValue();
-                            s.bms.bumpMappingStrength = strength.getValue();
-                            s.bms.bm_noise_reducing_factor = temp;
-                            s.bms.bump_transfer_function = bump_transfer_functions_opt.getSelectedIndex();
-                            s.bms.bump_transfer_factor = temp2;
-                            s.bms.bumpProcessing = bump_processing_method_opt.getSelectedIndex();
-                            s.bms.bump_blending = color_blend_opt.getValue() / 100.0;
+                            s.pps.bms.bump_map = enable_bump_map.isSelected();
+                            s.pps.bms.lightDirectionDegrees = direction_of_light.getValue();
+                            s.pps.bms.bumpMappingDepth = depth.getValue();
+                            s.pps.bms.bumpMappingStrength = strength.getValue();
+                            s.pps.bms.bm_noise_reducing_factor = temp;
+                            s.pps.bms.bump_transfer_function = bump_transfer_functions_opt.getSelectedIndex();
+                            s.pps.bms.bump_transfer_factor = temp2;
+                            s.pps.bms.bumpProcessing = bump_processing_method_opt.getSelectedIndex();
+                            s.pps.bms.bump_blending = color_blend_opt.getValue() / 100.0;
+                            s.pps.bms.fractionalTransfer = fractional_transfer.getSelectedIndex();
+                            s.pps.bms.fractionalSmoothing = fractional_smoothing.getSelectedIndex();
+                            s.pps.bms.fractionalTransferMode = fractional_transfer_mode.getSelectedIndex();
 
                         } catch (Exception ex) {
                             JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
@@ -212,7 +259,7 @@ public class BumpMappingDialog extends JDialog {
 
                         dispose();
 
-                        if (greedy_algorithm && !ThreadDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA && enable_bump_map.isSelected() && !julia_map && !s.d3s.d3 && !s.ds.domain_coloring) {
+                        if (greedy_algorithm && !TaskDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA && enable_bump_map.isSelected() && !julia_map && !s.d3s.d3 && !s.ds.domain_coloring) {
                             JOptionPane.showMessageDialog(ptra, Constants.greedyWarning, "Warning!", JOptionPane.WARNING_MESSAGE);
                         }
 

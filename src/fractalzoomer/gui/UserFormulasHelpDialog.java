@@ -124,7 +124,9 @@ public class UserFormulasHelpDialog {
                 + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>phi</b></font>: 1.618033988749895.<br>"
                 + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>c10 (Champernowne's)</b></font>: 0.1234567891011121314.<br>"
                 + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>alpha (Feigenbaum's)</b></font>: 2.5029078750958928.<br>"
-                + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>delta (Feigenbaum's)</b></font>: 4.669201609102990.<br><br><br>"
+                + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>delta (Feigenbaum's)</b></font>: 4.669201609102990.<br>" +
+                "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>maxnde</b></font>: By using this constant in the user out/in coloring formulas you can set the pixel to the corresponding Distance Estimation color.<br>" +
+                "<br><br>"
 
                 + "<font  face='arial'><font color='blue'><center><b><u>Complex Numbers</u></b></center></font><br>"
                 + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>a + bi</b></font>: a = Real, b = Imaginary.<br><br><br>"
@@ -491,7 +493,7 @@ public class UserFormulasHelpDialog {
                 + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>rem</b></font>: remainder.<br>"
                 + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>pow</b></font>: exponentiation.<br><br><br>"
                 + "<font  face='arial'><font color='blue'><center><b><u>General Guidelines:</u></b></center></font><br>"
-                + "If you set the User Out Coloring or User In Coloring algorithm to the value of -maxn,<br>"
+                + "If you set the User Out Coloring or User In Coloring algorithm to the value of maxnde,<br>"
                 + "then the corresponding color for Distance Estimation will be used.<br><br>"
                 + "If you set the User Out Coloring or User In Coloring algorithm to a negative value,<br>"
                 + "then the corresponding color for Special Color will be used."

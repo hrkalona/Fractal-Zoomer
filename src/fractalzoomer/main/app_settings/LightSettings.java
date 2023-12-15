@@ -35,6 +35,11 @@ public class LightSettings {
     public double light_blending;
     public double light_direction;
     public double light_magnitude;
+    public int specularReflectionMethod;
+    public int fractionalTransfer;
+    public int fractionalSmoothing;
+    public int fractionalTransferMode;
+    public double fractionalTransferScale;
     
     public LightSettings(LightSettings copy) {
         lighting = copy.lighting;
@@ -57,6 +62,11 @@ public class LightSettings {
         l_noise_reducing_factor = copy.l_noise_reducing_factor;
         light_blending = copy.light_blending;
         heightTransferFactor = copy.heightTransferFactor;
+        specularReflectionMethod = copy.specularReflectionMethod;
+        fractionalTransfer = copy.fractionalTransfer;
+        fractionalSmoothing = copy.fractionalSmoothing;
+        fractionalTransferMode = copy.fractionalTransferMode;
+        fractionalTransferScale = copy.fractionalTransferScale;
         
     }
     
@@ -81,6 +91,11 @@ public class LightSettings {
         l_noise_reducing_factor = 1e-10;
         light_blending = 0.5;
         heightTransferFactor = 10;
+        specularReflectionMethod = 0;
+        fractionalTransfer = 0;
+        fractionalSmoothing = 0;
+        fractionalTransferMode = 1;
+        fractionalTransferScale = 1;
         
     }
 }

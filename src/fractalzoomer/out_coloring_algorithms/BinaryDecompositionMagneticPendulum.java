@@ -27,7 +27,7 @@ public class BinaryDecompositionMagneticPendulum extends OutColorAlgorithm {
     public BinaryDecompositionMagneticPendulum() {
 
         super();
-        OutNotUsingIncrement = false;
+        OutUsingIncrement = true;
         
     }
 

@@ -16,6 +16,11 @@
  */
 package fractalzoomer.gui;
 
+import de.articdive.jnoise.core.api.functions.Interpolation;
+import de.articdive.jnoise.generators.noise_parameters.fade_functions.FadeFunction;
+import de.articdive.jnoise.generators.noisegen.opensimplex.FastSimplexNoiseGenerator;
+import de.articdive.jnoise.generators.noisegen.perlin.PerlinNoiseGenerator;
+import fractalzoomer.core.TaskDraw;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.palettes.CustomPalette;
 import fractalzoomer.settings.SettingsPalette;
@@ -40,6 +45,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import static fractalzoomer.main.Constants.color_interp_str;
 
@@ -55,6 +62,8 @@ public class CustomPaletteEditorFrame extends JFrame {
 
     private JComboBox<String> combo_box_random_palette_alg;
     private JCheckBox same_hues;
+
+    private JCheckBox pastel_cb;
     private JLabel[] labels;
     private JTextField[] textfields;
     private JFrame color_picker_frame;
@@ -90,13 +99,24 @@ public class CustomPaletteEditorFrame extends JFrame {
 
     public static int random_palette_algorithm;
     public static boolean equal_hues;
+    public static boolean pastel;
     public static Random generator;
+    public static long seed = 0;
 
     public static JsonPalettesContainer extraPalettes;
     
     static {
         generator = new Random(System.currentTimeMillis());
         extraPalettes = new JsonPalettesContainer();
+    }
+
+    public static void reSeed() {
+        if(seed == 0) {
+            generator = new Random(System.currentTimeMillis());
+        }
+        else {
+            generator = new Random(seed);
+        }
     }
 
     public static final int[][][] editor_default_palettes = {{{12, 0, 10, 20}, {12, 50, 100, 240}, {12, 20, 3, 26}, {12, 230, 60, 20}, {12, 25, 10, 9}, {12, 230, 170, 0}, {12, 20, 40, 10}, {12, 0, 100, 0}, {12, 5, 10, 10}, {12, 210, 70, 30}, {12, 90, 0, 50}, {12, 180, 90, 120}, {12, 0, 20, 40}, {12, 30, 70, 200}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}},
@@ -125,6 +145,8 @@ public class CustomPaletteEditorFrame extends JFrame {
         equal_hues = false;
     }
 
+    private Future<?> future;
+
     public CustomPaletteEditorFrame(MainWindow ptra, final JRadioButtonMenuItem[] palette, boolean smoothing, final int palette_id, final int color_choice, int[][] custom_palette, int color_interpolation2, int color_space2, boolean reversed_palette2, int temp_color_cycling_location2, double scale_factor_palette_val2, int processing_alg2, final boolean outcoloring_mode) {
 
         super();
@@ -145,7 +167,7 @@ public class CustomPaletteEditorFrame extends JFrame {
 
         ptra2.setEnabled(false);
         int custom_palette_window_width = 990;
-        int custom_palette_window_height = 640;
+        int custom_palette_window_height = 655;
         setTitle("Custom Palette Editor");
         setIconImage(MainWindow.getIcon("palette.png").getImage());
         setSize(custom_palette_window_width, custom_palette_window_height);
@@ -187,11 +209,11 @@ public class CustomPaletteEditorFrame extends JFrame {
         JPanel palette_colors = new JPanel();
         JPanel buttons = new JPanel();
 
-        editor_panel.setPreferredSize(new Dimension(910, 480));
+        editor_panel.setPreferredSize(new Dimension(910, 495));
         editor_panel.setLayout(new FlowLayout());
         editor_panel.setBackground(MainWindow.bg_color);
         tools.setLayout(new FlowLayout());
-        tools.setPreferredSize(new Dimension(890, 80));
+        tools.setPreferredSize(new Dimension(890, 95));
         tools.setBackground(MainWindow.bg_color);
         palette_colors.setLayout(new FlowLayout());
         palette_colors.setPreferredSize(new Dimension(890, 80));
@@ -621,6 +643,7 @@ public class CustomPaletteEditorFrame extends JFrame {
 
             equal_hues = same_hues.isSelected();
             random_palette_algorithm = combo_box_random_palette_alg.getSelectedIndex();
+            pastel = pastel_cb.isSelected();
 
             ptra2.customPaletteChanged(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2.0) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex(), outcoloring_mode);
 
@@ -644,6 +667,12 @@ public class CustomPaletteEditorFrame extends JFrame {
 
         buttons.add(palette_ok);
 
+        JButton seed_button = new MyButton("Seed");
+        seed_button.setFocusable(false);
+        seed_button.addActionListener(e -> new RandomPaletteSeedDialog(this_frame));
+
+        buttons.add(seed_button);
+
         JButton palette_cancel = new MyButton("Cancel");
         palette_cancel.setFocusable(false);
         palette_cancel.addActionListener(e -> {
@@ -666,6 +695,7 @@ public class CustomPaletteEditorFrame extends JFrame {
         });
 
         buttons.add(palette_cancel);
+
 
         colors = new BufferedImage(868, 36, BufferedImage.TYPE_INT_ARGB);
 
@@ -1015,7 +1045,7 @@ public class CustomPaletteEditorFrame extends JFrame {
 
         color_interp_panel.add(combo_box_color_interp);
 
-        String[] random_palette_alg_str = {"Golden Ratio", "Waves", "Distance", "Triad", "Tetrad", "Google Material", "ColorBrewer 1", "ColorBrewer 2", "Google-ColorBrewer", "Cubehelix", "Cosines"};
+        String[] random_palette_alg_str = {"Golden Ratio", "Waves", "Distance", "Triad", "Tetrad", "Google Material", "ColorBrewer 1", "ColorBrewer 2", "Google-ColorBrewer", "Cubehelix", "IQ-Cosines", "Perlin", "Simplex", "Perlin+Simplex", "Random Walk"};
 
         combo_box_random_palette_alg = new JComboBox<>(random_palette_alg_str);
         combo_box_random_palette_alg.setSelectedIndex(random_palette_algorithm);
@@ -1027,6 +1057,12 @@ public class CustomPaletteEditorFrame extends JFrame {
         same_hues.setFocusable(false);
         same_hues.setToolTipText("Every color will have the same numbers of hues.");
         same_hues.setBackground(MainWindow.bg_color);
+
+        pastel_cb = new JCheckBox("Pastel");
+        pastel_cb.setSelected(CustomPaletteEditorFrame.pastel);
+        pastel_cb.setFocusable(false);
+        pastel_cb.setToolTipText("Create a random pastel palette.");
+        pastel_cb.setBackground(MainWindow.bg_color);
 
         JPanel processing_palette = new JPanel();
         processing_palette.setPreferredSize(new Dimension(244, 60));
@@ -1260,7 +1296,11 @@ public class CustomPaletteEditorFrame extends JFrame {
 
         });
 
-        tools.add(reset_palette);
+        JPanel buttons_panel = new JPanel();
+        buttons_panel.setBackground(MainWindow.bg_color);
+        buttons_panel.setLayout(new GridLayout(2, 5));
+
+        buttons_panel.add(reset_palette);
 
         JButton clear_palette = new MyButton();
         clear_palette.setIcon(MainWindow.getIcon("palette_clear.png"));
@@ -1298,7 +1338,7 @@ public class CustomPaletteEditorFrame extends JFrame {
             }
         });
 
-        tools.add(clear_palette);
+        buttons_panel.add(clear_palette);
 
         JButton save_palette = new MyButton();
         save_palette.setIcon(MainWindow.getIcon("palette_save.png"));
@@ -1333,7 +1373,7 @@ public class CustomPaletteEditorFrame extends JFrame {
 
         });
 
-        tools.add(save_palette);
+        buttons_panel.add(save_palette);
 
         JButton load_palette = new MyButton();
         load_palette.setIcon(MainWindow.getIcon("palette_load.png"));
@@ -1363,7 +1403,7 @@ public class CustomPaletteEditorFrame extends JFrame {
 
         });
 
-        tools.add(load_palette);
+        buttons_panel.add(load_palette);
 
         JButton random_palette = new MyButton();
         random_palette.setIcon(MainWindow.getIcon("palette_random.png"));
@@ -1373,7 +1413,7 @@ public class CustomPaletteEditorFrame extends JFrame {
 
         random_palette.addActionListener(e -> {
 
-            Color[] c18 = randomPalette(generator, true, temp_custom_palette, combo_box_random_palette_alg.getSelectedIndex(), same_hues.isSelected(), combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2.0) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
+            Color[] c18 = randomPalette(generator, true, temp_custom_palette, combo_box_random_palette_alg.getSelectedIndex(), same_hues.isSelected(), combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2.0) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex(), pastel_cb.isSelected());
 
             if (c18 == null) {
                 JOptionPane.showMessageDialog(this_frame, "Please select a valid palette offset.", "Error!", JOptionPane.ERROR_MESSAGE);
@@ -1390,7 +1430,7 @@ public class CustomPaletteEditorFrame extends JFrame {
             paintGradientAndGraph(c18);
         });
 
-        tools.add(random_palette);
+        buttons_panel.add(random_palette);
 
         add_palette.setIcon(MainWindow.getIcon("palette_add.png"));
         add_palette.setFocusable(false);
@@ -1413,7 +1453,7 @@ public class CustomPaletteEditorFrame extends JFrame {
 
         });
 
-        tools.add(add_palette);
+        buttons_panel.add(add_palette);
 
         minus_palette.setIcon(MainWindow.getIcon("palette_minus.png"));
         minus_palette.setFocusable(false);
@@ -1434,7 +1474,7 @@ public class CustomPaletteEditorFrame extends JFrame {
             }
         });
 
-        tools.add(minus_palette);
+        buttons_panel.add(minus_palette);
         
         copy_palette.setIcon(MainWindow.getIcon("palette_copy.png"));
         copy_palette.setFocusable(false);
@@ -1462,7 +1502,7 @@ public class CustomPaletteEditorFrame extends JFrame {
 
         });
 
-        tools.add(copy_palette);
+        buttons_panel.add(copy_palette);
         
         swap_palette.setIcon(MainWindow.getIcon("shift_palette.png"));
         swap_palette.setFocusable(false);
@@ -1490,7 +1530,7 @@ public class CustomPaletteEditorFrame extends JFrame {
 
         });
 
-        tools.add(swap_palette);
+        buttons_panel.add(swap_palette);
 
         JButton color_picker = new MyButton();
         color_picker.setIcon(MainWindow.getIcon("color_picker.png"));
@@ -1590,9 +1630,10 @@ public class CustomPaletteEditorFrame extends JFrame {
                             color_picker_thread.terminate();
 
                             try {
-                                color_picker_thread.join();
+                                future.get();
                             } catch (InterruptedException ex) {
                             }
+                            catch (ExecutionException ex) {}
 
                             int m;
                             for (m = 0; m < labels.length; m++) {
@@ -1649,9 +1690,10 @@ public class CustomPaletteEditorFrame extends JFrame {
                             color_picker_thread.terminate();
 
                             try {
-                                color_picker_thread.join();
+                                future.get();
                             } catch (InterruptedException ex) {
                             }
+                            catch (ExecutionException ex) {}
 
                             ptra2.setVisible(true);
                             setVisible(true);
@@ -1672,10 +1714,12 @@ public class CustomPaletteEditorFrame extends JFrame {
             setVisible(false);
             color_picker_frame.setVisible(true);
 
-            color_picker_thread.start();
+            future = TaskDraw.single_thread_executor.submit(color_picker_thread);
         });
 
-        tools.add(color_picker);
+        buttons_panel.add(color_picker);
+
+        tools.add(buttons_panel);
 
         JMenu presets_menu = new MyMenu("Presets");
         
@@ -1805,10 +1849,22 @@ public class CustomPaletteEditorFrame extends JFrame {
         p1.setLayout(new GridLayout(2, 1));
         p1.setBackground(MainWindow.bg_color);
 
-        p1.add(combo_box_random_palette_alg);
-        p1.add(same_hues);
 
-        tools.add(Box.createRigidArea(new Dimension(5, 10)));
+
+        JPanel p12 = new JPanel();
+        p12.setBackground(MainWindow.bg_color);
+        p12.add(combo_box_random_palette_alg);
+
+        p1.add(p12);
+
+        JPanel p11 = new JPanel();
+        p11.setBackground(MainWindow.bg_color);
+        p11.add(same_hues);
+        p11.add(pastel_cb);
+
+        p1.add(p11);
+
+        tools.add(Box.createRigidArea(new Dimension(10, 10)));
 
         tools.add(new JLabel("Preset: "));
 
@@ -1879,12 +1935,12 @@ public class CustomPaletteEditorFrame extends JFrame {
             }
         });
 
-        tools.add(Box.createRigidArea(new Dimension(5, 10)));
-
+        tools.add(Box.createRigidArea(new Dimension(10, 10)));
 
         tools.add(new JLabel("Random: "));
         tools.add(p1);
-        tools.add(Box.createRigidArea(new Dimension(5, 10)));
+
+        tools.add(Box.createRigidArea(new Dimension(10, 10)));
         tools.add(check_box_preview_smooth_color);
 
         graph = new ImageLabel(new ImageIcon(colors2));
@@ -1920,7 +1976,7 @@ public class CustomPaletteEditorFrame extends JFrame {
 
         RoundedPanel round_panel = new RoundedPanel(true, true, true, 15);
         round_panel.setBackground(MainWindow.bg_color);
-        round_panel.setPreferredSize(new Dimension(920, 540));
+        round_panel.setPreferredSize(new Dimension(920, 555));
         round_panel.setLayout(new GridBagLayout());
 
         GridBagConstraints con = new GridBagConstraints();
@@ -2165,31 +2221,7 @@ public class CustomPaletteEditorFrame extends JFrame {
 
     }
 
-    public static void setRandomPaletteAlgorithm(int random_palette_alg) {
-
-        random_palette_algorithm = random_palette_alg;
-
-    }
-
-    public static void setEqualHues(boolean equal_hue) {
-
-        equal_hues = equal_hue;
-
-    }
-
-    public static int getRandomPaletteAlgorithm() {
-
-        return random_palette_algorithm;
-
-    }
-
-    public static boolean getEqualHues() {
-
-        return equal_hues;
-
-    }
-
-    public static Color[] randomPalette(Random generator, boolean createFullPalette, int[][] palette, int random_palette_alg, boolean same_hues, int color_interpolation, int color_space, boolean reverse_palette, int color_cycling, double processing_val, int processing_alg) {
+    public static Color[] randomPalette(Random generator, boolean createFullPalette, int[][] palette, int random_palette_alg, boolean same_hues, int color_interpolation, int color_space, boolean reverse_palette, int color_cycling, double processing_val, int processing_alg, boolean pastel) {
 
         if (color_cycling < 0) {
             return null;
@@ -2230,6 +2262,10 @@ public class CustomPaletteEditorFrame extends JFrame {
                 palette[m][1] = ColorSpaceConverter.clamp(res[0]);
                 palette[m][2] = ColorSpaceConverter.clamp(res[1]);
                 palette[m][3] = ColorSpaceConverter.clamp(res[2]);
+
+                palette[m][1] = pastel ? ColorSpaceConverter.pastel(palette[m][1], 0) :  palette[m][1];
+                palette[m][2] = pastel ? ColorSpaceConverter.pastel(palette[m][2], 1) :  palette[m][2];
+                palette[m][3] = pastel ? ColorSpaceConverter.pastel(palette[m][3], 2) :  palette[m][3];
 
             }
 
@@ -2274,6 +2310,10 @@ public class CustomPaletteEditorFrame extends JFrame {
                 palette[m][1] = ColorSpaceConverter.clamp(res[0]);
                 palette[m][2] = ColorSpaceConverter.clamp(res[1]);
                 palette[m][3] = ColorSpaceConverter.clamp(res[2]);
+
+                palette[m][1] = pastel ? ColorSpaceConverter.pastel(palette[m][1], 0) :  palette[m][1];
+                palette[m][2] = pastel ? ColorSpaceConverter.pastel(palette[m][2], 1) :  palette[m][2];
+                palette[m][3] = pastel ? ColorSpaceConverter.pastel(palette[m][3], 2) :  palette[m][3];
             }
 
             if(createFullPalette) {
@@ -2286,6 +2326,10 @@ public class CustomPaletteEditorFrame extends JFrame {
                 palette[m][1] = list.get(m).getRed();
                 palette[m][2] = list.get(m).getGreen();
                 palette[m][3] = list.get(m).getBlue();
+
+                palette[m][1] = pastel ? ColorSpaceConverter.pastel(palette[m][1], 0) :  palette[m][1];
+                palette[m][2] = pastel ? ColorSpaceConverter.pastel(palette[m][2], 1) :  palette[m][2];
+                palette[m][3] = pastel ? ColorSpaceConverter.pastel(palette[m][3], 2) :  palette[m][3];
             }
 
             if(createFullPalette) {
@@ -2331,6 +2375,12 @@ public class CustomPaletteEditorFrame extends JFrame {
                 palette[cnt][1] = res[0];
                 palette[cnt][2] = res[1];
                 palette[cnt][3] = res[2];
+            }
+
+            for(int m = 0; m < 32; m++) {
+                palette[m][1] = pastel ? ColorSpaceConverter.pastel(palette[m][1], 0) :  palette[m][1];
+                palette[m][2] = pastel ? ColorSpaceConverter.pastel(palette[m][2], 1) :  palette[m][2];
+                palette[m][3] = pastel ? ColorSpaceConverter.pastel(palette[m][3], 2) :  palette[m][3];
             }
 
             if(createFullPalette) {
@@ -2386,6 +2436,12 @@ public class CustomPaletteEditorFrame extends JFrame {
                 palette[cnt][3] = res[2];
             }
 
+            for(int m = 0; m < 32; m++) {
+                palette[m][1] = pastel ? ColorSpaceConverter.pastel(palette[m][1], 0) :  palette[m][1];
+                palette[m][2] = pastel ? ColorSpaceConverter.pastel(palette[m][2], 1) :  palette[m][2];
+                palette[m][3] = pastel ? ColorSpaceConverter.pastel(palette[m][3], 2) :  palette[m][3];
+            }
+
             if(createFullPalette) {
                 c = CustomPalette.getPalette(palette, color_interpolation, color_space, reverse_palette, color_cycling, processing_val, processing_alg);
             }
@@ -2405,6 +2461,10 @@ public class CustomPaletteEditorFrame extends JFrame {
                     palette[m][2] = col[m].getGreen();
                     palette[m][3] = col[m].getBlue();
                 }
+
+                palette[m][1] = pastel ? ColorSpaceConverter.pastel(palette[m][1], 0) :  palette[m][1];
+                palette[m][2] = pastel ? ColorSpaceConverter.pastel(palette[m][2], 1) :  palette[m][2];
+                palette[m][3] = pastel ? ColorSpaceConverter.pastel(palette[m][3], 2) :  palette[m][3];
 
             }
 
@@ -2428,6 +2488,10 @@ public class CustomPaletteEditorFrame extends JFrame {
                     palette[m][3] = col[m].getBlue();
                 }
 
+                palette[m][1] = pastel ? ColorSpaceConverter.pastel(palette[m][1], 0) :  palette[m][1];
+                palette[m][2] = pastel ? ColorSpaceConverter.pastel(palette[m][2], 1) :  palette[m][2];
+                palette[m][3] = pastel ? ColorSpaceConverter.pastel(palette[m][3], 2) :  palette[m][3];
+
             }
 
             if(createFullPalette) {
@@ -2450,6 +2514,10 @@ public class CustomPaletteEditorFrame extends JFrame {
                     palette[m][3] = col[m].getBlue();
                 }
 
+                palette[m][1] = pastel ? ColorSpaceConverter.pastel(palette[m][1], 0) :  palette[m][1];
+                palette[m][2] = pastel ? ColorSpaceConverter.pastel(palette[m][2], 1) :  palette[m][2];
+                palette[m][3] = pastel ? ColorSpaceConverter.pastel(palette[m][3], 2) :  palette[m][3];
+
             }
 
             if(createFullPalette) {
@@ -2471,6 +2539,10 @@ public class CustomPaletteEditorFrame extends JFrame {
                     palette[m][2] = col[m].getGreen();
                     palette[m][3] = col[m].getBlue();
                 }
+
+                palette[m][1] = pastel ? ColorSpaceConverter.pastel(palette[m][1], 0) :  palette[m][1];
+                palette[m][2] = pastel ? ColorSpaceConverter.pastel(palette[m][2], 1) :  palette[m][2];
+                palette[m][3] = pastel ? ColorSpaceConverter.pastel(palette[m][3], 2) :  palette[m][3];
 
             }
 
@@ -2511,6 +2583,11 @@ public class CustomPaletteEditorFrame extends JFrame {
                 palette[m][1] = res[0];
                 palette[m][2] = res[1];
                 palette[m][3] = res[2];
+
+
+                palette[m][1] = pastel ? ColorSpaceConverter.pastel(palette[m][1], 0) :  palette[m][1];
+                palette[m][2] = pastel ? ColorSpaceConverter.pastel(palette[m][2], 1) :  palette[m][2];
+                palette[m][3] = pastel ? ColorSpaceConverter.pastel(palette[m][3], 2) :  palette[m][3];
             }
 
             if (createFullPalette) {
@@ -2518,33 +2595,474 @@ public class CustomPaletteEditorFrame extends JFrame {
             }
         }
         else if (random_palette_alg == 10) {
-            double a_red = Math.random();
-            double a_green = Math.random();
-            double a_blue = Math.random();
 
-            double b_red = Math.random();
-            double b_green = Math.random();
-            double b_blue = Math.random();
+            double red_sum = generator.nextDouble() + 0.4;
+            double green_sum = generator.nextDouble() + 0.4;
+            double blue_sum = generator.nextDouble() + 0.4;
 
-            double c_red = Math.random();
-            double c_green = Math.random();
-            double c_blue = Math.random();
+            if(red_sum > 1) {
+                red_sum = 1;
+            }
 
-            double d_red = Math.random();
-            double d_green = Math.random();
-            double d_blue = Math.random();
+            if(green_sum > 1) {
+                green_sum = 1;
+            }
+
+            if(blue_sum > 1) {
+                blue_sum = 1;
+            }
+
+
+            double red_percent = generator.nextDouble();
+            double green_percent = generator.nextDouble();
+            double blue_percent = generator.nextDouble();
+
+            double a_red = red_sum * red_percent;
+            double a_green = green_sum * green_percent;
+            double a_blue = blue_sum * blue_percent;
+
+            double b_red = red_sum * (1 - red_percent);
+            double b_green = green_sum * (1 - green_percent);
+            double b_blue = green_sum * (1 - blue_percent);
+
+            double c_red = generator.nextDouble() * 2;
+            double c_green = generator.nextDouble() * 2;
+            double c_blue = generator.nextDouble() * 2;
+
+            double d_red = generator.nextDouble() * 2;
+            double d_green = generator.nextDouble() * 2;
+            double d_blue = generator.nextDouble() * 2;
+
+            double g_red = generator.nextDouble() * 2;
+            double g_green = generator.nextDouble() * 2;
+            double g_blue = generator.nextDouble() * 2;
+
+            double min_red = Double.MAX_VALUE;
+            double min_green = Double.MAX_VALUE;
+            double min_blue = Double.MAX_VALUE;
+
+            double max_red = Double.MIN_VALUE;
+            double max_green = Double.MIN_VALUE;
+            double max_blue = Double.MIN_VALUE;
+
+            double[] red_vals = new double[palette.length];
+            double[] green_vals = new double[palette.length];
+            double[] blue_vals = new double[palette.length];
+
+            for (int m = 0; m < palette.length; m++) {
+
+                double t = ((double) m / palette.length);
+                red_vals[m] = (a_red + b_red * Math.cos(Math.PI * 2 * (c_red * t + d_red) + g_red));
+                green_vals[m] = (a_green + b_green * Math.cos(Math.PI * 2 * (c_green * t + d_green) + g_green));
+                blue_vals[m] = (a_blue + b_blue * Math.cos(Math.PI * 2 * (c_blue * t + d_blue) + g_blue));
+            }
+
+            for (int m = 0; m < palette.length; m++) {
+                if(red_vals[m] < min_red) {
+                    min_red = red_vals[m];
+                }
+
+                if(green_vals[m] < min_green) {
+                    min_green = green_vals[m];
+                }
+
+                if(blue_vals[m] < min_blue) {
+                    min_blue = blue_vals[m];
+                }
+
+                if(red_vals[m] > max_red) {
+                    max_red = red_vals[m];
+                }
+
+                if(green_vals[m] > max_green) {
+                    max_green = green_vals[m];
+                }
+
+                if(blue_vals[m] > max_blue) {
+                    max_blue = blue_vals[m];
+                }
+            }
 
             for (int m = 0; m < palette.length; m++) {
                 palette[m][0] = same_hues ? hues : generator.nextInt(12) + 7;
 
-                double t = ((double) m / palette.length);
-                palette[m][1] = (int) (255 * (a_red + b_red * Math.cos(Math.PI * 2 * (c_red * t + d_red))) + 0.5);
-                palette[m][2] = (int) (255 * (a_green + b_green * Math.cos(Math.PI * 2 * (c_green * t + d_green))) + 0.5);
-                palette[m][3] = (int) (255 * (a_blue + b_blue * Math.cos(Math.PI * 2 * (c_blue * t + d_blue))) + 0.5);
+
+                palette[m][1] = (int) (255 * (red_vals[m] - min_red)/(max_red - min_red) + 0.5);
+                palette[m][2] = (int) (255 * (green_vals[m] - min_green)/(max_green - min_green)+ 0.5);
+                palette[m][3] = (int) (255 * (blue_vals[m] - min_blue)/(max_blue - min_blue) + 0.5);
+
 
                 palette[m][1] = ColorSpaceConverter.clamp(palette[m][1]);
                 palette[m][2] = ColorSpaceConverter.clamp(palette[m][2]);
                 palette[m][3] = ColorSpaceConverter.clamp(palette[m][3]);
+
+                palette[m][1] = pastel ? ColorSpaceConverter.pastel(palette[m][1], 0) :  palette[m][1];
+                palette[m][2] = pastel ? ColorSpaceConverter.pastel(palette[m][2], 1) :  palette[m][2];
+                palette[m][3] = pastel ? ColorSpaceConverter.pastel(palette[m][3], 2) :  palette[m][3];
+            }
+
+            if (createFullPalette) {
+                c = CustomPalette.getPalette(palette, color_interpolation, color_space, reverse_palette, color_cycling, processing_val, processing_alg);
+            }
+        } else if (random_palette_alg == 11) {
+
+            double a = 0, incr = (Math.PI * 2) / palette.length;
+
+            Random r = new Random();
+
+            PerlinNoiseGenerator gen_red = PerlinNoiseGenerator.newBuilder().setSeed(r.nextInt(1000000)).setInterpolation(Interpolation.LINEAR).setFadeFunction(FadeFunction.QUINTIC_POLY).build();
+
+            PerlinNoiseGenerator gen_green = PerlinNoiseGenerator.newBuilder().setSeed(r.nextInt(1000000)).setInterpolation(Interpolation.LINEAR).setFadeFunction(FadeFunction.QUINTIC_POLY).build();
+
+            PerlinNoiseGenerator gen_blue = PerlinNoiseGenerator.newBuilder().setSeed(r.nextInt(1000000)).setInterpolation(Interpolation.LINEAR).setFadeFunction(FadeFunction.QUINTIC_POLY).build();
+
+            double noise_max_red = r.nextDouble() * 3 + 0.2;
+            double noise_max_green = r.nextDouble() * 3 + 0.2;
+            double noise_max_blue = r.nextDouble() * 3 + 0.2;
+
+            double phase_red = r.nextDouble() * 10;
+            double phase_green = r.nextDouble() * 10;
+            double phase_blue = r.nextDouble() * 10;
+
+            double[] noise_red = new double[palette.length];
+            double[] noise_green = new double[palette.length];
+            double[] noise_blue = new double[palette.length];
+
+            for (int m = 0; m < palette.length; m++, a += incr) {
+                double xoffset_red = (Math.cos(a + phase_red) + 1) * noise_max_red;
+                double yoffset_red = (Math.sin(a + phase_red) + 1) * noise_max_red;
+
+                double xoffset_green = (Math.cos(a + phase_green) + 1) * noise_max_green;
+                double yoffset_green = (Math.sin(a + phase_green) + 1) * noise_max_green;
+
+                double xoffset_blue = (Math.cos(a + phase_blue) + 1) * noise_max_blue;
+                double yoffset_blue = (Math.sin(a + phase_blue) + 1) * noise_max_blue;
+
+                noise_red[m] =  gen_red.evaluateNoise( xoffset_red, yoffset_red);
+                noise_green[m] = gen_green.evaluateNoise( xoffset_green, yoffset_green);
+                noise_blue[m] = gen_blue.evaluateNoise( xoffset_blue, yoffset_blue);
+            }
+
+            double min_red = Double.MAX_VALUE;
+            double min_green = Double.MAX_VALUE;
+            double min_blue = Double.MAX_VALUE;
+
+            double max_red = Double.MIN_VALUE;
+            double max_green = Double.MIN_VALUE;
+            double max_blue = Double.MIN_VALUE;
+
+            for (int m = 0; m < palette.length; m++) {
+                if(noise_red[m] < min_red) {
+                    min_red = noise_red[m];
+                }
+
+                if(noise_green[m] < min_green) {
+                    min_green = noise_green[m];
+                }
+
+                if(noise_blue[m] < min_blue) {
+                    min_blue = noise_blue[m];
+                }
+
+                if(noise_red[m] > max_red) {
+                    max_red = noise_red[m];
+                }
+
+                if(noise_green[m] > max_green) {
+                    max_green = noise_green[m];
+                }
+
+                if(noise_blue[m] > max_blue) {
+                    max_blue = noise_blue[m];
+                }
+            }
+
+            for (int m = 0; m < palette.length; m++) {
+                palette[m][0] = same_hues ? hues : generator.nextInt(12) + 7;
+
+
+                palette[m][1] = (int) (255 * (noise_red[m] - min_red) / (max_red - min_red) + 0.5);
+                palette[m][2] = (int) (255 * (noise_green[m] - min_green) / (max_green - min_green) + 0.5);
+                palette[m][3] = (int) (255 * (noise_blue[m] - min_blue) / (max_blue - min_blue) + 0.5);
+
+                palette[m][1] = ColorSpaceConverter.clamp(palette[m][1]);
+                palette[m][2] = ColorSpaceConverter.clamp(palette[m][2]);
+                palette[m][3] = ColorSpaceConverter.clamp(palette[m][3]);
+
+                palette[m][1] = pastel ? ColorSpaceConverter.pastel(palette[m][1], 0) :  palette[m][1];
+                palette[m][2] = pastel ? ColorSpaceConverter.pastel(palette[m][2], 1) :  palette[m][2];
+                palette[m][3] = pastel ? ColorSpaceConverter.pastel(palette[m][3], 2) :  palette[m][3];
+            }
+
+            if (createFullPalette) {
+                c = CustomPalette.getPalette(palette, color_interpolation, color_space, reverse_palette, color_cycling, processing_val, processing_alg);
+            }
+        }
+        else if (random_palette_alg == 12) {
+
+            double a = 0, incr = (Math.PI * 2) / palette.length;
+
+            Random r = new Random();
+
+            FastSimplexNoiseGenerator gen_red = FastSimplexNoiseGenerator.newBuilder().setSeed(r.nextInt(1000000)).build();
+
+            FastSimplexNoiseGenerator gen_green = FastSimplexNoiseGenerator.newBuilder().setSeed(r.nextInt(1000000)).build();
+
+            FastSimplexNoiseGenerator gen_blue = FastSimplexNoiseGenerator.newBuilder().setSeed(r.nextInt(1000000)).build();
+
+            double noise_max_red = r.nextDouble() * 3 + 0.2;
+            double noise_max_green = r.nextDouble() * 3 + 0.2;
+            double noise_max_blue = r.nextDouble() * 3 + 0.2;
+
+            double phase_red = r.nextDouble() * 10;
+            double phase_green = r.nextDouble() * 10;
+            double phase_blue = r.nextDouble() * 10;
+
+            double[] noise_red = new double[palette.length];
+            double[] noise_green = new double[palette.length];
+            double[] noise_blue = new double[palette.length];
+
+            for (int m = 0; m < palette.length; m++, a += incr) {
+                double xoffset_red = (Math.cos(a + phase_red) + 1) * noise_max_red;
+                double yoffset_red = (Math.sin(a + phase_red) + 1) * noise_max_red;
+
+                double xoffset_green = (Math.cos(a + phase_green) + 1) * noise_max_green;
+                double yoffset_green = (Math.sin(a + phase_green) + 1) * noise_max_green;
+
+                double xoffset_blue = (Math.cos(a + phase_blue) + 1) * noise_max_blue;
+                double yoffset_blue = (Math.sin(a + phase_blue) + 1) * noise_max_blue;
+
+                noise_red[m] =  gen_red.evaluateNoise( xoffset_red, yoffset_red);
+                noise_green[m] = gen_green.evaluateNoise( xoffset_green, yoffset_green);
+                noise_blue[m] = gen_blue.evaluateNoise( xoffset_blue, yoffset_blue);
+            }
+
+            double min_red = Double.MAX_VALUE;
+            double min_green = Double.MAX_VALUE;
+            double min_blue = Double.MAX_VALUE;
+
+            double max_red = Double.MIN_VALUE;
+            double max_green = Double.MIN_VALUE;
+            double max_blue = Double.MIN_VALUE;
+
+            for (int m = 0; m < palette.length; m++) {
+                if(noise_red[m] < min_red) {
+                    min_red = noise_red[m];
+                }
+
+                if(noise_green[m] < min_green) {
+                    min_green = noise_green[m];
+                }
+
+                if(noise_blue[m] < min_blue) {
+                    min_blue = noise_blue[m];
+                }
+
+                if(noise_red[m] > max_red) {
+                    max_red = noise_red[m];
+                }
+
+                if(noise_green[m] > max_green) {
+                    max_green = noise_green[m];
+                }
+
+                if(noise_blue[m] > max_blue) {
+                    max_blue = noise_blue[m];
+                }
+            }
+
+            for (int m = 0; m < palette.length; m++) {
+                palette[m][0] = same_hues ? hues : generator.nextInt(12) + 7;
+
+
+                palette[m][1] = (int) (255 * (noise_red[m] - min_red) / (max_red - min_red) + 0.5);
+                palette[m][2] = (int) (255 * (noise_green[m] - min_green) / (max_green - min_green) + 0.5);
+                palette[m][3] = (int) (255 * (noise_blue[m] - min_blue) / (max_blue - min_blue) + 0.5);
+
+                palette[m][1] = ColorSpaceConverter.clamp(palette[m][1]);
+                palette[m][2] = ColorSpaceConverter.clamp(palette[m][2]);
+                palette[m][3] = ColorSpaceConverter.clamp(palette[m][3]);
+
+                palette[m][1] = pastel ? ColorSpaceConverter.pastel(palette[m][1], 0) :  palette[m][1];
+                palette[m][2] = pastel ? ColorSpaceConverter.pastel(palette[m][2], 1) :  palette[m][2];
+                palette[m][3] = pastel ? ColorSpaceConverter.pastel(palette[m][3], 2) :  palette[m][3];
+            }
+
+            if (createFullPalette) {
+                c = CustomPalette.getPalette(palette, color_interpolation, color_space, reverse_palette, color_cycling, processing_val, processing_alg);
+            }
+        }
+        else if (random_palette_alg == 13) {
+
+            double a = 0, incr = (Math.PI * 2) / palette.length;
+
+            Random r = new Random();
+
+            FastSimplexNoiseGenerator gen_red = FastSimplexNoiseGenerator.newBuilder().setSeed(r.nextInt(1000000)).build();
+
+            FastSimplexNoiseGenerator gen_green = FastSimplexNoiseGenerator.newBuilder().setSeed(r.nextInt(1000000)).build();
+
+            FastSimplexNoiseGenerator gen_blue = FastSimplexNoiseGenerator.newBuilder().setSeed(r.nextInt(1000000)).build();
+
+            PerlinNoiseGenerator gen_red2 = PerlinNoiseGenerator.newBuilder().setSeed(r.nextInt(1000000)).setInterpolation(Interpolation.LINEAR).setFadeFunction(FadeFunction.QUINTIC_POLY).build();
+
+            PerlinNoiseGenerator gen_green2 = PerlinNoiseGenerator.newBuilder().setSeed(r.nextInt(1000000)).setInterpolation(Interpolation.LINEAR).setFadeFunction(FadeFunction.QUINTIC_POLY).build();
+
+            PerlinNoiseGenerator gen_blue2 = PerlinNoiseGenerator.newBuilder().setSeed(r.nextInt(1000000)).setInterpolation(Interpolation.LINEAR).setFadeFunction(FadeFunction.QUINTIC_POLY).build();
+
+
+            double noise_max_red = r.nextDouble() * 3 + 0.2;
+            double noise_max_green = r.nextDouble() * 3 + 0.2;
+            double noise_max_blue = r.nextDouble() * 3 + 0.2;
+
+            double phase_red = r.nextDouble() * 10;
+            double phase_green = r.nextDouble() * 10;
+            double phase_blue = r.nextDouble() * 10;
+
+            double noise_max_red2 = r.nextDouble() * 3 + 0.2;
+            double noise_max_green2 = r.nextDouble() * 3 + 0.2;
+            double noise_max_blue2 = r.nextDouble() * 3 + 0.2;
+
+            double phase_red2 = r.nextDouble() * 10;
+            double phase_green2 = r.nextDouble() * 10;
+            double phase_blue2 = r.nextDouble() * 10;
+
+            double[] noise_red = new double[palette.length];
+            double[] noise_green = new double[palette.length];
+            double[] noise_blue = new double[palette.length];
+
+            for (int m = 0; m < palette.length; m++, a += incr) {
+                double xoffset_red = (Math.cos(a + phase_red) + 1) * noise_max_red;
+                double yoffset_red = (Math.sin(a + phase_red) + 1) * noise_max_red;
+
+                double xoffset_green = (Math.cos(a + phase_green) + 1) * noise_max_green;
+                double yoffset_green = (Math.sin(a + phase_green) + 1) * noise_max_green;
+
+                double xoffset_blue = (Math.cos(a + phase_blue) + 1) * noise_max_blue;
+                double yoffset_blue = (Math.sin(a + phase_blue) + 1) * noise_max_blue;
+
+                double xoffset_red2 = (Math.cos(a + phase_red2) + 1) * noise_max_red2;
+                double yoffset_red2 = (Math.sin(a + phase_red2) + 1) * noise_max_red2;
+
+                double xoffset_green2 = (Math.cos(a + phase_green2) + 1) * noise_max_green2;
+                double yoffset_green2 = (Math.sin(a + phase_green2) + 1) * noise_max_green2;
+
+                double xoffset_blue2 = (Math.cos(a + phase_blue2) + 1) * noise_max_blue2;
+                double yoffset_blue2 = (Math.sin(a + phase_blue2) + 1) * noise_max_blue2;
+
+
+                noise_red[m] =  (gen_red.evaluateNoise( xoffset_red, yoffset_red) + gen_red2.evaluateNoise( xoffset_red2, yoffset_red2)) / 2;
+                noise_green[m] = (gen_green.evaluateNoise( xoffset_green, yoffset_green) + gen_green2.evaluateNoise( xoffset_green2, yoffset_green2)) / 2;
+                noise_blue[m] = (gen_blue.evaluateNoise( xoffset_blue, yoffset_blue) + gen_blue2.evaluateNoise( xoffset_blue2, yoffset_blue2)) / 2;
+            }
+
+            double min_red = Double.MAX_VALUE;
+            double min_green = Double.MAX_VALUE;
+            double min_blue = Double.MAX_VALUE;
+
+            double max_red = Double.MIN_VALUE;
+            double max_green = Double.MIN_VALUE;
+            double max_blue = Double.MIN_VALUE;
+
+            for (int m = 0; m < palette.length; m++) {
+                if(noise_red[m] < min_red) {
+                    min_red = noise_red[m];
+                }
+
+                if(noise_green[m] < min_green) {
+                    min_green = noise_green[m];
+                }
+
+                if(noise_blue[m] < min_blue) {
+                    min_blue = noise_blue[m];
+                }
+
+                if(noise_red[m] > max_red) {
+                    max_red = noise_red[m];
+                }
+
+                if(noise_green[m] > max_green) {
+                    max_green = noise_green[m];
+                }
+
+                if(noise_blue[m] > max_blue) {
+                    max_blue = noise_blue[m];
+                }
+            }
+
+            for (int m = 0; m < palette.length; m++) {
+                palette[m][0] = same_hues ? hues : generator.nextInt(12) + 7;
+
+
+                palette[m][1] = (int) (255 * (noise_red[m] - min_red) / (max_red - min_red) + 0.5);
+                palette[m][2] = (int) (255 * (noise_green[m] - min_green) / (max_green - min_green) + 0.5);
+                palette[m][3] = (int) (255 * (noise_blue[m] - min_blue) / (max_blue - min_blue) + 0.5);
+
+                palette[m][1] = ColorSpaceConverter.clamp(palette[m][1]);
+                palette[m][2] = ColorSpaceConverter.clamp(palette[m][2]);
+                palette[m][3] = ColorSpaceConverter.clamp(palette[m][3]);
+
+                palette[m][1] = pastel ? ColorSpaceConverter.pastel(palette[m][1], 0) :  palette[m][1];
+                palette[m][2] = pastel ? ColorSpaceConverter.pastel(palette[m][2], 1) :  palette[m][2];
+                palette[m][3] = pastel ? ColorSpaceConverter.pastel(palette[m][3], 2) :  palette[m][3];
+            }
+
+            if (createFullPalette) {
+                c = CustomPalette.getPalette(palette, color_interpolation, color_space, reverse_palette, color_cycling, processing_val, processing_alg);
+            }
+        }
+        else if(random_palette_alg == 14) {
+            Random r = new Random();
+            int red = r.nextInt(256);
+            int green = r.nextInt(256);
+            int blue = r.nextInt(256);
+
+            int [] vals = new int[] {30, 15, 20, 10, 25};
+
+            for (int m = 0; m < palette.length; m++) {
+                palette[m][0] = same_hues ? hues : generator.nextInt(12) + 7;
+
+                int val = vals[r.nextInt(vals.length)];
+
+                red += r.nextBoolean() ? val : -val;
+                green += r.nextBoolean() ? val : -val;
+                blue += r.nextBoolean() ? val : -val;
+
+                if(red < 0) {
+                    red += 2*val;
+                }
+
+                if(green < 0) {
+                    green += 2*val;
+                }
+
+                if(blue < 0) {
+                    blue += 2*val;
+                }
+
+                if(red > 255) {
+                    red -= 2*val;
+                }
+
+                if(green > 255) {
+                    green -= 2*val;
+                }
+
+                if(blue > 255) {
+                    blue -= 2*val;
+                }
+
+                palette[m][1] = red;
+                palette[m][2] = green;
+                palette[m][3] = blue;
+
+                palette[m][1] = ColorSpaceConverter.clamp(palette[m][1]);
+                palette[m][2] = ColorSpaceConverter.clamp(palette[m][2]);
+                palette[m][3] = ColorSpaceConverter.clamp(palette[m][3]);
+
+                palette[m][1] = pastel ? ColorSpaceConverter.pastel(palette[m][1], 0) :  palette[m][1];
+                palette[m][2] = pastel ? ColorSpaceConverter.pastel(palette[m][2], 1) :  palette[m][2];
+                palette[m][3] = pastel ? ColorSpaceConverter.pastel(palette[m][3], 2) :  palette[m][3];
             }
 
             if (createFullPalette) {

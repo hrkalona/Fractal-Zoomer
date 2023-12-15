@@ -32,7 +32,7 @@ public class MuVariationPlane extends Plane {
 
         super();
 
-        if (ThreadDraw.allocateMPIR()) {
+        if (TaskDraw.allocateMPIR()) {
             _025 = new MpirBigNum(0.25);
         }
 

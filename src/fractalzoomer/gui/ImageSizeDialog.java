@@ -47,7 +47,7 @@ public class ImageSizeDialog extends JDialog {
 
         Object[] message3 = {
             " ",
-            "Your image size is " + image_size + "x" + image_size + " .\nEnter the new image size.\nOnly one dimension is required.",
+            "Your image size is " + image_size + "x" + image_size + " .\nInsert the new image size.\nOnly one dimension is required.",
             field,
             " ",};
 

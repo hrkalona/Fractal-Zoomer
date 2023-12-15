@@ -51,8 +51,8 @@ public class SkipBailoutDialog extends JDialog {
         field.setText("" + (mode ? s.fns.skip_bailout_iterations : s.fns.skip_convergent_bailout_iterations));
         field.addAncestorListener(new RequestFocusListener());
 
-        String message = mode ? ("You are using " + s.fns.skip_bailout_iterations + " skip bailout condition iterations.\nEnter the new skip bailout condition iterations number." ) :
-                ("You are using " + s.fns.skip_convergent_bailout_iterations + " skip convergent bailout condition iterations.\nEnter the new skip convergent bailout condition iterations number." );
+        String message = mode ? ("You are using " + s.fns.skip_bailout_iterations + " skip bailout condition iterations.\nInsert the new skip bailout condition iterations number." ) :
+                ("You are using " + s.fns.skip_convergent_bailout_iterations + " skip convergent bailout condition iterations.\nInsert the new skip convergent bailout condition iterations number." );
 
         Object[] message3 = {
             " ",

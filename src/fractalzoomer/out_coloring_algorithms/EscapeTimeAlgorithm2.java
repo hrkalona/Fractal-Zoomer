@@ -28,7 +28,7 @@ public class EscapeTimeAlgorithm2 extends OutColorAlgorithm {
     public EscapeTimeAlgorithm2() {
         
         super();
-        OutNotUsingIncrement = true;
+        OutUsingIncrement = false;
         
     }
 

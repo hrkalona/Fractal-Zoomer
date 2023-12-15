@@ -17,7 +17,7 @@
 package fractalzoomer.gui;
 
 import fractalzoomer.core.PlaneVisualizer;
-import fractalzoomer.core.ThreadDraw;
+import fractalzoomer.core.TaskDraw;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
 import fractalzoomer.parser.ParserException;
@@ -101,10 +101,8 @@ public class PlaneVisualizationFrame extends JFrame {
         catch(ParserException e) {
             JOptionPane.showMessageDialog(thiss, e.getMessage() + "\nThe application will terminate.", "Error!", JOptionPane.ERROR_MESSAGE);
             ptra2.savePreferences();
-            ThreadDraw.deleteLibs();
-            if(ThreadDraw.executor != null) {
-                ThreadDraw.executor.shutdown();
-            }
+            TaskDraw.deleteLibs();
+            TaskDraw.shutdownThreadPools();
             System.exit(-1);
         }
 
@@ -119,10 +117,8 @@ public class PlaneVisualizationFrame extends JFrame {
             catch(ParserException ex) {
                 JOptionPane.showMessageDialog(thiss, ex.getMessage() + "\nThe application will terminate.", "Error!", JOptionPane.ERROR_MESSAGE);
                 ptra2.savePreferences();
-                ThreadDraw.deleteLibs();
-                if(ThreadDraw.executor != null) {
-                    ThreadDraw.executor.shutdown();
-                }
+                TaskDraw.deleteLibs();
+                TaskDraw.shutdownThreadPools();
                 System.exit(-1);
             }
             l1.repaint();
@@ -137,10 +133,8 @@ public class PlaneVisualizationFrame extends JFrame {
             catch(ParserException ex) {
                 JOptionPane.showMessageDialog(thiss, ex.getMessage() + "\nThe application will terminate.", "Error!", JOptionPane.ERROR_MESSAGE);
                 ptra2.savePreferences();
-                ThreadDraw.deleteLibs();
-                if(ThreadDraw.executor != null) {
-                    ThreadDraw.executor.shutdown();
-                }
+                TaskDraw.deleteLibs();
+                TaskDraw.shutdownThreadPools();
                 System.exit(-1);
             }
             l1.repaint();

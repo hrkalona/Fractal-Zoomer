@@ -55,7 +55,7 @@ public class JuliaMapDialog extends JDialog {
             " ",
                 julia_map,
                 " ",
-            "You are using a " + julia_grid_first_dimension + "x" + julia_grid_first_dimension + " grid.\nEnter the first dimension, n,\nof the nxn 2D grid.",
+            "You are using a " + julia_grid_first_dimension + "x" + julia_grid_first_dimension + " grid.\nInsert the first dimension, n,\nof the nxn 2D grid.",
             field,
             " ",};
 

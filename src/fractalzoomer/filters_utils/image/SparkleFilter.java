@@ -33,9 +33,6 @@ public class SparkleFilter extends PointFilter {
 	public SparkleFilter() {
 	}
 
-	@Override
-	protected boolean supportsThreadsWithFullLoop() { return false;}
-
 	public void setColor(int color) {
 		this.color = color;
 	}

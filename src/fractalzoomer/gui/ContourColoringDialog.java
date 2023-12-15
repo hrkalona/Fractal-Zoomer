@@ -16,7 +16,7 @@
  */
 package fractalzoomer.gui;
 
-import fractalzoomer.core.ThreadDraw;
+import fractalzoomer.core.TaskDraw;
 import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
@@ -46,16 +46,16 @@ public class ContourColoringDialog extends JDialog {
         setIconImage(MainWindow.getIcon("mandel2.png").getImage());
 
         final JCheckBox enable_contour_coloring = new JCheckBox("Contour Coloring");
-        enable_contour_coloring.setSelected(s.cns.contour_coloring);
+        enable_contour_coloring.setSelected(s.pps.cns.contour_coloring);
         enable_contour_coloring.setFocusable(false);
 
         final JComboBox<String> contour_coloring_algorithm_opt = new JComboBox<>(Constants.contourColorAlgorithmNames);
-        contour_coloring_algorithm_opt.setSelectedIndex(s.cns.contour_algorithm);
+        contour_coloring_algorithm_opt.setSelectedIndex(s.pps.cns.contour_algorithm);
         contour_coloring_algorithm_opt.setFocusable(false);
         contour_coloring_algorithm_opt.setToolTipText("Sets the contour coloring algorithm.");
         contour_coloring_algorithm_opt.setPreferredSize(new Dimension(150, 20));
 
-        JSlider color_blend_opt = new JSlider(JSlider.HORIZONTAL, 0, 100, (int) (s.cns.cn_blending * 100));
+        JSlider color_blend_opt = new JSlider(JSlider.HORIZONTAL, 0, 100, (int) (s.pps.cns.cn_blending * 100));
         color_blend_opt.setMajorTickSpacing(25);
         color_blend_opt.setMinorTickSpacing(1);
         color_blend_opt.setToolTipText("Sets the color blending percentage.");
@@ -63,16 +63,16 @@ public class ContourColoringDialog extends JDialog {
         color_blend_opt.setPaintLabels(true);
 
         JComboBox<String> color_method_combo = new JComboBox<>(Constants.colorMethod);
-        color_method_combo.setSelectedIndex(s.cns.contourColorMethod);
+        color_method_combo.setSelectedIndex(s.pps.cns.contourColorMethod);
         color_method_combo.setFocusable(false);
         color_method_combo.setToolTipText("Sets the color method.");
 
         color_method_combo.addActionListener(e -> color_blend_opt.setEnabled(color_method_combo.getSelectedIndex() == 3));
 
-        color_blend_opt.setEnabled(s.cns.contourColorMethod == 3);
+        color_blend_opt.setEnabled(s.pps.cns.contourColorMethod == 3);
 
         JTextField noise_factor_field = new JTextField();
-        noise_factor_field.setText("" + s.cns.cn_noise_reducing_factor);
+        noise_factor_field.setText("" + s.pps.cns.cn_noise_reducing_factor);
 
         JPanel p1 = new JPanel();
         p1.setLayout(new GridLayout(2, 2));
@@ -86,7 +86,7 @@ public class ContourColoringDialog extends JDialog {
         p1.add(color_blend_opt);
 
         JTextField min_contour = new JTextField();
-        min_contour.setText("" + s.cns.min_contour);
+        min_contour.setText("" + s.pps.cns.min_contour);
 
         min_contour.setEnabled(contour_coloring_algorithm_opt.getSelectedIndex() == 0
         || contour_coloring_algorithm_opt.getSelectedIndex() == 2 || contour_coloring_algorithm_opt.getSelectedIndex() == 3);
@@ -94,11 +94,34 @@ public class ContourColoringDialog extends JDialog {
         contour_coloring_algorithm_opt.addActionListener(e -> {min_contour.setEnabled(contour_coloring_algorithm_opt.getSelectedIndex() == 0
                 || contour_coloring_algorithm_opt.getSelectedIndex() == 2 || contour_coloring_algorithm_opt.getSelectedIndex() == 3);});
 
+        final JComboBox<String> fractional_transfer = new JComboBox<>(Constants.fractionalTransfer);
+        fractional_transfer.setSelectedIndex(s.pps.cns.fractionalTransfer);
+        fractional_transfer.setFocusable(false);
+        fractional_transfer.setToolTipText("Sets the fractional transfer function.");
+
+        final JComboBox<String> fractional_smoothing = new JComboBox<>(Constants.FadeAlgs);
+        fractional_smoothing.setSelectedIndex(s.pps.cns.fractionalSmoothing);
+        fractional_smoothing.setFocusable(false);
+        fractional_smoothing.setToolTipText("Sets the fractional smoothing function.");
+
+        JPanel p20 = new JPanel();
+        p20.add(fractional_transfer);
+        JPanel p21 = new JPanel();
+        p21.add(fractional_smoothing);
+
+        JPanel p3 = new JPanel();
+        p3.setLayout(new GridLayout(2, 3));
+
+        p3.add(new JLabel("Fractional Transfer:", SwingConstants.HORIZONTAL));
+        p3.add(new JLabel("Fractional Smoothing:", SwingConstants.HORIZONTAL));
+        p3.add(p20);
+        p3.add(p21);
+
         Object[] message = {
             " ",
             enable_contour_coloring,
             " ",
-            "Set the contour coloring algorthm",
+            "Set the contour coloring algorithm.",
             "Contour Coloring Algorithm:", contour_coloring_algorithm_opt,
             " ",
             "Set the color method and blending percentage.",
@@ -107,7 +130,10 @@ public class ContourColoringDialog extends JDialog {
                 "Set the minimum contour factor.",
                 "Minimum Contour Factor:",
                 min_contour,
-            " ",
+                " ",
+                "Set the fractional transfer/smoothing.",
+                p3,
+                " ",
             "Set the image noise reduction factor.",
             "Noise Reduction Factor:",
             noise_factor_field,
@@ -165,12 +191,14 @@ public class ContourColoringDialog extends JDialog {
                                 return;
                             }
 
-                            s.cns.contour_coloring = enable_contour_coloring.isSelected();
-                            s.cns.cn_noise_reducing_factor = temp2;
-                            s.cns.cn_blending = color_blend_opt.getValue() / 100.0;
-                            s.cns.contour_algorithm = contour_coloring_algorithm_opt.getSelectedIndex();
-                            s.cns.contourColorMethod = color_method_combo.getSelectedIndex();
-                            s.cns.min_contour = temp3;
+                            s.pps.cns.contour_coloring = enable_contour_coloring.isSelected();
+                            s.pps.cns.cn_noise_reducing_factor = temp2;
+                            s.pps.cns.cn_blending = color_blend_opt.getValue() / 100.0;
+                            s.pps.cns.contour_algorithm = contour_coloring_algorithm_opt.getSelectedIndex();
+                            s.pps.cns.contourColorMethod = color_method_combo.getSelectedIndex();
+                            s.pps.cns.min_contour = temp3;
+                            s.pps.cns.fractionalTransfer = fractional_transfer.getSelectedIndex();
+                            s.pps.cns.fractionalSmoothing = fractional_smoothing.getSelectedIndex();
 
                         } catch (Exception ex) {
                             JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
@@ -179,7 +207,7 @@ public class ContourColoringDialog extends JDialog {
 
                         dispose();
 
-                        if (greedy_algorithm && !ThreadDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA && enable_contour_coloring.isSelected() && !julia_map && !s.d3s.d3) {
+                        if (greedy_algorithm && !TaskDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA && enable_contour_coloring.isSelected() && !julia_map && !s.d3s.d3) {
                             JOptionPane.showMessageDialog(ptra, Constants.greedyWarning, "Warning!", JOptionPane.WARNING_MESSAGE);
                         }
 

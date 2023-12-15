@@ -7,21 +7,19 @@ import fractalzoomer.core.MantExpComplex;
 
 public class ATInfo {
     private static final MantExp factor = new MantExp(0x1.0p32);
+    private static final double ESCAPE_RADIUS = 4;
 
     protected int StepLength;
-    protected MantExp ThresholdC;
-    protected double SqrEscapeRadius;
-    protected MantExpComplex RefC;
-    protected MantExpComplex ZCoeff, CCoeff, InvZCoeff;
-    protected MantExpComplex CCoeffSqrInvZCoeff;
-    protected MantExpComplex CCoeffInvZCoeff;
-
-    protected MantExp CCoeffNormSqr;
-    protected MantExp RefCNormSqr;
+    public MantExp ThresholdC;
+    public double SqrEscapeRadius;
+    public MantExpComplex RefC;
+    public MantExpComplex ZCoeff, CCoeff, InvZCoeff;
+    public MantExpComplex CCoeffSqrInvZCoeff;
+    public MantExpComplex CCoeffInvZCoeff;
 
     protected boolean Usable(MantExp SqrRadius) {
-       return CCoeffNormSqr.multiply(SqrRadius).multiply_mutable(factor)
-                .compareToBothPositive(RefCNormSqr) > 0 && SqrEscapeRadius > 4.0;
+       return CCoeff.norm_squared().multiply(SqrRadius).multiply_mutable(factor)
+                .compareToBothPositive(RefC.norm_squared()) > 0 && SqrEscapeRadius > ESCAPE_RADIUS;
     }
 
     public boolean isValid(Complex DeltaSub0) {
@@ -33,32 +31,32 @@ public class ATInfo {
     }
 
     public Complex getC(Complex dc) {
-        MantExpComplex temp = new MantExpComplex(dc).times(CCoeff).plus_mutable(RefC);
-        temp.Reduce();
+        MantExpComplex temp = MantExpComplex.create(dc).times(CCoeff).plus_mutable(RefC);
+        temp.Normalize();
         return temp.toComplex();
     }
 
     public MantExpComplex getDZ(Complex z) {
-        MantExpComplex temp = new MantExpComplex(z).times(InvZCoeff);
-        temp.Reduce();
+        MantExpComplex temp = MantExpComplex.create(z).times(InvZCoeff);
+        temp.Normalize();
         return temp;
     }
 
     public MantExpComplex getDZDC(Complex dzdc) {
-        MantExpComplex temp = new MantExpComplex(dzdc).times(CCoeffInvZCoeff);
-        temp.Reduce();
+        MantExpComplex temp = MantExpComplex.create(dzdc).times(CCoeffInvZCoeff);
+        temp.Normalize();
         return temp;
     }
 
     public MantExpComplex getDZDC2(Complex dzdc2) {
-        MantExpComplex temp = new MantExpComplex(dzdc2).times(CCoeffSqrInvZCoeff);
-        temp.Reduce();
+        MantExpComplex temp = MantExpComplex.create(dzdc2).times(CCoeffSqrInvZCoeff);
+        temp.Normalize();
         return temp;
     }
 
     public Complex getC(MantExpComplex dc) {
         MantExpComplex temp = dc.times(CCoeff).plus_mutable(RefC);
-        temp.Reduce();
+        temp.Normalize();
         return temp.toComplex();
     }
 
@@ -79,19 +77,22 @@ public class ATInfo {
         Complex dzdc2 = new Complex();
 
         double norm_squared = 0;
-        double re_sqr = 0;
-        double im_sqr = 0;
-        double re = 0;
-        double im = 0;
+        double zre_sqr = 0;
+        double zim_sqr = 0;
+        double zre = 0;
+        double zim = 0;
+        double cre = c.getRe();
+        double cim = c.getIm();
+        double temp;
 
         int i;
         for(i = 0; i < ATMaxIt; i++) {
 
-            re = z.getRe();
-            re_sqr = re * re;
-            im = z.getIm();
-            im_sqr = im * im;
-            norm_squared = re_sqr + im_sqr;
+            //zre = z.getRe();
+            zre_sqr = zre * zre;
+            //zim = z.getIm();
+            zim_sqr = zim * zim;
+            norm_squared = zre_sqr + zim_sqr;
 
             if(norm_squared > SqrEscapeRadius) {
                 break;
@@ -104,7 +105,12 @@ public class ATInfo {
                 dzdc = dzdc.times2().times_mutable(z).plus_mutable(1);
             }
 
-            z = z.square_mutable_plus_c_mutable(c, re_sqr, im_sqr, norm_squared);
+            //z = z.square_mutable_plus_c_mutable(c, zre_sqr, zim_sqr, norm_squared);
+
+            temp = zre + zim;
+            zre = zre_sqr - zim_sqr + cre;
+            zim = temp * temp - norm_squared + cim;
+            z.assign(zre, zim);
         }
 
         ATResult res = new ATResult();

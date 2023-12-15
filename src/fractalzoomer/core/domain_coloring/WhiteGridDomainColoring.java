@@ -49,7 +49,7 @@ public class WhiteGridDomainColoring extends DomainColoring {
         
         int color = applyArgColor(res.arg());
         
-        return applyGrid(color, res.getRe(), res.getIm());
+        return applyGrid(color, res.getRe(), res.getIm(), 0, 0);
         
     }
 

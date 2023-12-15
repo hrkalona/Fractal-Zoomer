@@ -29,7 +29,7 @@ public class BiomorphsEOC extends Biomorphs {
     public BiomorphsEOC(double bailout) {
 
         super(bailout);
-        OutNotUsingIncrement = false;
+        OutUsingIncrement = true;
 
     }
 

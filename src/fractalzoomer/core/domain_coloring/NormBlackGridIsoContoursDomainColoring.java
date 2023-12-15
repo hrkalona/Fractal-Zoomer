@@ -58,7 +58,7 @@ public class NormBlackGridIsoContoursDomainColoring extends DomainColoring {
         
         color = applyArgContours(color, res.arg());    
 
-        return applyGrid(color, res.getRe(), res.getIm());  
+        return applyGrid(color, res.getRe(), res.getIm(), 0, 0);
 
     }
     

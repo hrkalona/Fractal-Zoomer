@@ -16,6 +16,8 @@
  */
 package fractalzoomer.palettes;
 
+import fractalzoomer.main.app_settings.CosinePaletteSettings;
+
 import java.awt.*;
 
 public class PaletteColorNormal extends PaletteColor {
@@ -44,9 +46,9 @@ public class PaletteColorNormal extends PaletteColor {
     }
 
     @Override
-    public int calculateColor(double result, int paletteId,  int color_cycling_location, int cycle) {
+    public int calculateColor(double result, int paletteId,  int color_cycling_location, int cycle, CosinePaletteSettings iqps) {
 
-        return getGeneratedColor(result, paletteId, color_cycling_location, cycle);
+        return getGeneratedColor((int)result, paletteId, color_cycling_location, cycle, iqps);
 
     }
 

@@ -17,17 +17,21 @@
 package fractalzoomer.palettes;
 
 import fractalzoomer.core.interpolation.InterpolationMethod;
+import fractalzoomer.core.interpolation.LinearInterpolation;
+import fractalzoomer.main.app_settings.CosinePaletteSettings;
 
 import java.awt.*;
 
 public class PaletteColorSmooth extends PaletteColor {
     private InterpolationMethod interpolator;
+    private int fractional_transfer_method;
 
-    public PaletteColorSmooth(int[] palette, Color special_color, int color_smoothing_method, boolean special_use_palette_color) {
+    public PaletteColorSmooth(int[] palette, Color special_color, int color_smoothing_method, boolean special_use_palette_color, int fractional_transfer_method) {
 
         super(palette, special_color, special_use_palette_color);
 
         interpolator = InterpolationMethod.create(color_smoothing_method);
+        this.fractional_transfer_method = fractional_transfer_method;
 
     }
 
@@ -47,7 +51,98 @@ public class PaletteColorSmooth extends PaletteColor {
         }
     }
 
+    private double fractional_transfer(double result, int transfer_method) {
+
+        switch (transfer_method) {
+            case 0:
+                return result;
+            case 1:
+                double fract_part = result - (int)result;
+                fract_part = 1 - fract_part;
+                return (int)result + fract_part;
+            case 2:
+                fract_part = result - (int)result;
+                double temp = 2*fract_part-1;
+                fract_part = 1 - temp * temp;
+                return (int)result + fract_part;
+            case 3:
+                fract_part = result - (int)result;
+                temp = 2*fract_part-1;
+                fract_part = temp * temp;
+                return (int)result + fract_part;
+            case 4:
+                fract_part = result - (int)result;
+                temp = 2*fract_part-1;
+                temp *= temp;
+                fract_part = 1 - temp * temp;
+                return (int)result + fract_part;
+            case 5:
+                fract_part = result - (int)result;
+                temp = 2*fract_part-1;
+                temp *= temp;
+                fract_part = temp * temp;
+                return (int)result + fract_part;
+            case 6:
+                fract_part = result - (int)result;
+                fract_part = Math.sin(fract_part * Math.PI);
+                return (int)result + fract_part;
+            case 7:
+                fract_part = result - (int)result;
+                fract_part = 1 - Math.sin(fract_part * Math.PI);
+                return (int)result + fract_part;
+            case 8:
+                fract_part = result - (int)result;
+                if(fract_part < 0.5) {
+                    fract_part = 2 * fract_part;
+                }
+                else {
+                    fract_part = 2 - 2 *fract_part;
+                }
+                return (int)result + fract_part;
+            case 9:
+                fract_part = result - (int)result;
+                if(fract_part < 0.5) {
+                    fract_part = 1 - 2 * fract_part;
+                }
+                else {
+                    fract_part = 1 - (2 - 2 *fract_part);
+                }
+                return (int)result + fract_part;
+            case 10:
+                fract_part = result - (int)result;
+                fract_part = 0.5 - 0.5 * Math.cos(2 * fract_part * Math.PI);
+                return (int)result + fract_part;
+            case 11:
+                fract_part = result - (int)result;
+                fract_part = 0.5 + 0.5 * Math.cos(2 * fract_part * Math.PI);
+                return (int)result + fract_part;
+            case 12:
+                fract_part = result - (int)result;
+                if(fract_part < 0.5) {
+                    fract_part = Math.sqrt(2 * fract_part);
+                }
+                else {
+                    fract_part = Math.sqrt(2 - 2 *fract_part);
+                }
+                return (int)result + fract_part;
+            case 13:
+                fract_part = result - (int)result;
+                if(fract_part < 0.5) {
+                    fract_part = 1 - Math.sqrt(2 * fract_part);
+                }
+                else {
+                    fract_part = 1 - Math.sqrt(2 - 2 *fract_part);
+                }
+                return (int)result + fract_part;
+        }
+
+        return result;
+    }
+
     private int calculateSmoothColor(double result) {
+
+
+        result = fractional_transfer(result, fractional_transfer_method);
 
         int color2 = palette[((int)(result)) % palette.length];
         int color = palette[((int)((result - 1 + palette.length))) % palette.length];
@@ -67,17 +162,23 @@ public class PaletteColorSmooth extends PaletteColor {
     }
 
     @Override
-    public int calculateColor(double result, int paletteId,  int color_cycling_location, int cycle) {
+    public int calculateColor(double result, int paletteId,  int color_cycling_location, int cycle, CosinePaletteSettings iqps) {
+
+        result = fractional_transfer(result, fractional_transfer_method);
+
+        if((paletteId == 3) && interpolator instanceof LinearInterpolation) {
+            return getGeneratedColor(result, paletteId, color_cycling_location, cycle, iqps);
+        }
 
         int color;
         int color2;
 
         if(result == 0) {
-            color = color2 = getGeneratedColor(((int)result), paletteId, color_cycling_location, cycle);
+            color = color2 = getGeneratedColor(((int)result), paletteId, color_cycling_location, cycle, iqps);
         }
         else {
-            color = getGeneratedColor(((int)result - 1), paletteId, color_cycling_location, cycle);
-            color2 = getGeneratedColor(((int)result), paletteId, color_cycling_location, cycle);
+            color = getGeneratedColor(((int)result - 1), paletteId, color_cycling_location, cycle, iqps);
+            color2 = getGeneratedColor(((int)result), paletteId, color_cycling_location, cycle, iqps);
         }
 
         int color_red = (color >> 16) & 0xff;

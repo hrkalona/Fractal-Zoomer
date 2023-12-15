@@ -36,7 +36,7 @@ public class ProcessingOrderingFrame extends JFrame {
     private int[] processing_order;
     private Color activeColor;
 
-    public ProcessingOrderingFrame(MainWindow ptra, int[] processing_order, final boolean fake_distance_estimation, final boolean entropy_coloring, final boolean offset_coloring, final boolean rainbow_palette, final boolean greyscale_coloring, final boolean contour_coloring, final boolean bump_mapping, final boolean light) {
+    public ProcessingOrderingFrame(MainWindow ptra, int[] processing_order, final boolean fake_distance_estimation, final boolean entropy_coloring, final boolean offset_coloring, final boolean rainbow_palette, final boolean greyscale_coloring, final boolean contour_coloring, final boolean bump_mapping, final boolean light, final boolean slopes, final boolean numerical_dem, final boolean histogram) {
 
         super();
 
@@ -122,6 +122,15 @@ public class ProcessingOrderingFrame extends JFrame {
                 else if(MainWindow.processingAlgorithNames[7].equals(value)) {
                     icon.setIcon(MainWindow.getIcon("light.png"));
                 }
+                else if(MainWindow.processingAlgorithNames[8].equals(value)) {
+                    icon.setIcon(MainWindow.getIcon("slopes.png"));
+                }
+                else if(MainWindow.processingAlgorithNames[9].equals(value)) {
+                    icon.setIcon(MainWindow.getIcon("numerical_dem.png"));
+                }
+                else if(MainWindow.processingAlgorithNames[10].equals(value)) {
+                    icon.setIcon(MainWindow.getIcon("histogram.png"));
+                }
                 
                 label.setText(value);
                 label.setForeground(list.getForeground());
@@ -177,6 +186,24 @@ public class ProcessingOrderingFrame extends JFrame {
                         label.setForeground(list.getSelectionForeground());
                     }
                 }
+                else if(MainWindow.processingAlgorithNames[8].equals(value)) {
+                    if(slopes) {
+                        p.setBackground(activeColor);
+                        label.setForeground(list.getSelectionForeground());
+                    }
+                }
+                else if(MainWindow.processingAlgorithNames[9].equals(value)) {
+                    if(numerical_dem) {
+                        p.setBackground(activeColor);
+                        label.setForeground(list.getSelectionForeground());
+                    }
+                }
+                else if(MainWindow.processingAlgorithNames[10].equals(value)) {
+                    if(histogram) {
+                        p.setBackground(activeColor);
+                        label.setForeground(list.getSelectionForeground());
+                    }
+                }
                 
                 if(isSelected) {
                     p.setBackground(list.getSelectionBackground());
@@ -203,13 +230,13 @@ public class ProcessingOrderingFrame extends JFrame {
         JPanel p2 = new JPanel();
         p2.setLayout(new FlowLayout(FlowLayout.LEFT));
         p2.setBackground(MainWindow.bg_color);
-        p2.add(new JLabel("Smoothing, Distance Estimation, Orbit Traps, Statistical Coloring,"));
+        p2.add(new JLabel("Smoothing, Distance Estimation, Orbit Traps, and Statistical Coloring"));
         text.add(p2);
         
         JPanel p4 = new JPanel();
         p4.setLayout(new FlowLayout(FlowLayout.LEFT));
         p4.setBackground(MainWindow.bg_color);
-        p4.add(new JLabel("and Histogram Coloring are always performed first."));
+        p4.add(new JLabel("are always performed first."));
         text.add(p4);
         
         JLabel color = new JLabel();

@@ -48,7 +48,7 @@ public class ContourFactorDialog extends JDialog {
 
         Object[] message3 = {
                 " ",
-                "You are using " + ( s.contourFactor) + " for contour factor.\nEnter the new contour factor number.",
+                "You are using " + ( s.contourFactor) + " for contour factor.\nInsert the new contour factor number.",
                 field,
                 " ",};
 
@@ -102,7 +102,7 @@ public class ContourFactorDialog extends JDialog {
                         }
 
                         dispose();
-                        ptr.updateColors();
+                        ptr.updateColors(false);
                     }
                 });
 

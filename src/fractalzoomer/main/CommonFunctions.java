@@ -47,6 +47,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  *
@@ -663,6 +665,12 @@ public class CommonFunctions implements Constants {
                 overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[" + s.fns.user_plane_conditions[0] + " = " + s.fns.user_plane_conditions[1] + "]</font> <font color='" + keyword_color + "'>then</font> z = " + s.fns.user_plane_condition_formula[2] + "<br>";
             }
         }
+        else if (s.fns.plane_type == INFLECTIONS_PLANE) {
+            overview += tab + "Inflection Power = " + s.fns.inflectionsPower + "<br>";
+            for(int i = 0; i < s.fns.inflections_re.size(); i++) {
+                overview += tab + "Inflection Point " + (i + 1) + " = " + Complex.toString2(s.fns.inflections_re.get(i), s.fns.inflections_im.get(i)) + "<br>";
+            }
+        }
 
         overview += "<br>";
 
@@ -694,7 +702,7 @@ public class CommonFunctions implements Constants {
         }
 
         if (!s.fns.init_val || s.isPertubationTheoryInUse() || s.isHighPrecisionInUse()) {
-            String res = ThreadDraw.getDefaultInitialValue();
+            String res = TaskDraw.getDefaultInitialValue();
 
             if (!res.equals("")) {
                 if(res.equals("c")) {
@@ -710,7 +718,7 @@ public class CommonFunctions implements Constants {
             if((s.julia_map || s.fns.julia) && !(s.fns.function == MainWindow.USER_FORMULA || s.fns.function == MainWindow.USER_FORMULA_CONDITIONAL || s.fns.function == MainWindow.USER_FORMULA_ITERATION_BASED || s.fns.function == MainWindow.USER_FORMULA_COUPLED
                     || s.fns.function == MainWindow.USER_FORMULA_NOVA || s.fns.function == MainWindow.LYAPUNOV || s.fns.function == MainWindow.LAMBDA_FN_FN)) {
 
-                String res = ThreadDraw.getDefaultInitialValue();
+                String res = TaskDraw.getDefaultInitialValue();
 
                 if (!res.equals("")) {
                     overview += "<b><font color='red'>Initial Value:</font></b> Default Value<br>";
@@ -958,7 +966,7 @@ public class CommonFunctions implements Constants {
                 overview += "<br>";
 
                 if (s.fns.cbs.convergent_bailout_test_algorithm != Constants.CONVERGENT_BAILOUT_CONDITION_NO_BAILOUT) {
-                    overview += "<b><font color='red'>Convergent Bailout:</font></b> " + ThreadDraw.getConvergentBailout() + "<br><br>";
+                    overview += "<b><font color='red'>Convergent Bailout:</font></b> " + TaskDraw.getConvergentBailout() + "<br><br>";
                     overview += "<b><font color='red'>Skip Convergent Bailout Condition Iterations:</font></b> " + s.fns.skip_convergent_bailout_iterations + "<br><br>";
                 }
 
@@ -1023,7 +1031,7 @@ public class CommonFunctions implements Constants {
                 overview += "<br>";
 
                 if (s.fns.cbs.convergent_bailout_test_algorithm != Constants.CONVERGENT_BAILOUT_CONDITION_NO_BAILOUT) {
-                    overview += "<b><font color='red'>Convergent Bailout:</font></b> " + ThreadDraw.getConvergentBailout() + "<br><br>";
+                    overview += "<b><font color='red'>Convergent Bailout:</font></b> " + TaskDraw.getConvergentBailout() + "<br><br>";
                     overview += "<b><font color='red'>Skip Convergent Bailout Condition Iterations:</font></b> " + s.fns.skip_convergent_bailout_iterations + "<br><br>";
                 }
             }
@@ -1089,7 +1097,7 @@ public class CommonFunctions implements Constants {
             overview += "<br>";
 
             if (s.fns.cbs.convergent_bailout_test_algorithm != Constants.CONVERGENT_BAILOUT_CONDITION_NO_BAILOUT) {
-                overview += "<b><font color='red'>Convergent Bailout:</font></b> " + ThreadDraw.getConvergentBailout() + "<br><br>";
+                overview += "<b><font color='red'>Convergent Bailout:</font></b> " + TaskDraw.getConvergentBailout() + "<br><br>";
                 overview += "<b><font color='red'>Skip Convergent Bailout Condition Iterations:</font></b> " + s.fns.skip_convergent_bailout_iterations + "<br><br>";
             }
 
@@ -1145,219 +1153,226 @@ public class CommonFunctions implements Constants {
             }
             overview += "<br>";
 
-            if (s.sts.statistic) {
-                if (s.sts.statisticGroup == 0) {
+            if (s.pps.sts.statistic) {
+                if (s.pps.sts.statisticGroup == 0) {
                     overview += "<b><font color='red'>Statistical Coloring:</font></b><br>";
-                    overview += tab + "Algorithm = " + Constants.statisticalColoringName[s.sts.statistic_type] + "<br>";
-                    if (s.sts.statistic_type == Constants.STRIPE_AVERAGE) {
-                        overview += tab2 + "Stripe Density = " + s.sts.stripeAvgStripeDensity + "<br>";
-                    } else if (s.sts.statistic_type == Constants.COS_ARG_DIVIDE_NORM_AVERAGE) {
-                        overview += tab2 + "Stripe Density = " + s.sts.cosArgStripeDensity + "<br>";
-                    } else if (s.sts.statistic_type == Constants.COS_ARG_DIVIDE_INVERSE_NORM) {
-                        overview += tab2 + "Stripe Density = " + s.sts.cosArgInvStripeDensity + "<br>";
-                        overview += tab2 + "Stripe Denominator Factor = " + s.sts.StripeDenominatorFactor + "<br>";
+                    overview += tab + "Algorithm = " + Constants.statisticalColoringName[s.pps.sts.statistic_type] + "<br>";
+                    if (s.pps.sts.statistic_type == Constants.STRIPE_AVERAGE) {
+                        overview += tab2 + "Stripe Density = " + s.pps.sts.stripeAvgStripeDensity + "<br>";
+                    } else if (s.pps.sts.statistic_type == Constants.COS_ARG_DIVIDE_NORM_AVERAGE) {
+                        overview += tab2 + "Stripe Density = " + s.pps.sts.cosArgStripeDensity + "<br>";
+                    } else if (s.pps.sts.statistic_type == Constants.COS_ARG_DIVIDE_INVERSE_NORM) {
+                        overview += tab2 + "Stripe Density = " + s.pps.sts.cosArgInvStripeDensity + "<br>";
+                        overview += tab2 + "Stripe Denominator Factor = " + s.pps.sts.StripeDenominatorFactor + "<br>";
                     }
-                    else if (s.sts.statistic_type == Constants.ATOM_DOMAIN_BOF60_BOF61) {
-                        overview += tab2 + "Norm Type = " + Constants.atomNormTypes[s.sts.atomNormType] + "<br>";
-                        if(s.sts.atomNormType == 3) {
-                            overview += tab3 + "N-Norm = " + s.sts.atomNNorm + "<br>";
+                    else if (s.pps.sts.statistic_type == Constants.ATOM_DOMAIN_BOF60_BOF61) {
+                        overview += tab2 + "Norm Type = " + Constants.atomNormTypes[s.pps.sts.atomNormType] + "<br>";
+                        if(s.pps.sts.atomNormType == 3) {
+                            overview += tab3 + "N-Norm = " + s.pps.sts.atomNNorm + "<br>";
                         }
-                        if (s.sts.showAtomDomains) {
+                        if (s.pps.sts.showAtomDomains) {
                             overview += tab2 + "Shows atom domains<br>";
                         }
                     }
-                    else if(s.sts.statistic_type == Constants.DISCRETE_LAGRANGIAN_DESCRIPTORS) {
-                        overview += tab2 + "Power = " + s.sts.lagrangianPower + "<br>";
-                        overview += tab2 + "Norm Type = " + Constants.langNormTypes[s.sts.langNormType] + "<br>";
-                        if(s.sts.langNormType == 4) {
-                            overview += tab3 + "N-Norm = " + s.sts.langNNorm + "<br>";
+                    else if(s.pps.sts.statistic_type == Constants.DISCRETE_LAGRANGIAN_DESCRIPTORS) {
+                        overview += tab2 + "Power = " + s.pps.sts.lagrangianPower + "<br>";
+                        overview += tab2 + "Norm Type = " + Constants.langNormTypes[s.pps.sts.langNormType] + "<br>";
+                        if(s.pps.sts.langNormType == 4) {
+                            overview += tab3 + "N-Norm = " + s.pps.sts.langNNorm + "<br>";
                         }
                     }
-                    else if(s.sts.statistic_type == Constants.TWIN_LAMPS) {
-                        overview += tab2 + "Point = " + Complex.toString2(s.sts.twlPoint[0], s.sts.twlPoint[1]) + "<br>";
-                        overview += tab2 + "Function = " + Constants.twinLampsFunction[s.sts.twlFunction] + "<br>";
+                    else if(s.pps.sts.statistic_type == Constants.TWIN_LAMPS) {
+                        overview += tab2 + "Point = " + Complex.toString2(s.pps.sts.twlPoint[0], s.pps.sts.twlPoint[1]) + "<br>";
+                        overview += tab2 + "Function = " + Constants.twinLampsFunction[s.pps.sts.twlFunction] + "<br>";
                     }
-                } else if (s.sts.statisticGroup == 1){
+                    else if(s.pps.sts.statistic_type == Constants.CHECKERS) {
+                        overview += tab2 + "Pattern Scale = " + s.pps.sts.patternScale + "<br>";
+                        overview += tab2 + "Norm Type = " + Constants.atomNormTypes[s.pps.sts.checkerNormType] + "<br>";
+                        if(s.pps.sts.checkerNormType == 3) {
+                            overview += tab3 + "N-Norm = " + s.pps.sts.checkerNormValue + "<br>";
+                        }
+                    }
+                } else if (s.pps.sts.statisticGroup == 1){
                     overview += "<b><font color='red'>Statistical Coloring:</font></b><br>";
-                    overview += tab + "User Statistical Formula: " + s.sts.user_statistic_formula + "<br>";
-                    overview += tab + "Reduction Method = " + Constants.reductionMethod[s.sts.reductionFunction] + "<br>";
-                    overview += tab + "Initial value = " + s.sts.user_statistic_init_value + "<br>";
+                    overview += tab + "User Statistical Formula: " + s.pps.sts.user_statistic_formula + "<br>";
+                    overview += tab + "Reduction Method = " + Constants.reductionMethod[s.pps.sts.reductionFunction] + "<br>";
+                    overview += tab + "Initial value = " + s.pps.sts.user_statistic_init_value + "<br>";
 
-                    if (s.sts.useIterations && (s.sts.reductionFunction == Constants.REDUCTION_MAX || s.sts.reductionFunction == Constants.REDUCTION_MIN)) {
+                    if (s.pps.sts.useIterations && (s.pps.sts.reductionFunction == Constants.REDUCTION_MAX || s.pps.sts.reductionFunction == Constants.REDUCTION_MIN)) {
                         overview += tab + "Using Similar Iterations<br>";
                     }
 
                     if (s.isMagnetType() || s.isEscapingOrConvergingType()) {
-                        overview += tab + (s.sts.statistic_escape_type == ESCAPING ? "Escaping" : "Converging") + "<br>";
+                        overview += tab + (s.pps.sts.statistic_escape_type == ESCAPING ? "Escaping" : "Converging") + "<br>";
                     }
                 }
-                else if (!s.isPertubationTheoryInUse() && !s.isHighPrecisionInUse() && s.sts.statisticGroup == 2) {
+                else if (!s.isPertubationTheoryInUse() && !s.isHighPrecisionInUse() && s.pps.sts.statisticGroup == 2) {
                     overview += "<b><font color='red'>Statistical Coloring:</font></b><br>";
                     overview += tab + "Equicontinuity<br>";
-                    overview += tab2 + "Delta = " + s.sts.equicontinuityDelta + "<br>";
-                    overview += tab2 + "Denominator Factor = " + s.sts.equicontinuityDenominatorFactor + "<br>";
-                    if(s.sts.equicontinuityInvertFactor) {
+                    overview += tab2 + "Delta = " + s.pps.sts.equicontinuityDelta + "<br>";
+                    overview += tab2 + "Denominator Factor = " + s.pps.sts.equicontinuityDenominatorFactor + "<br>";
+                    if(s.pps.sts.equicontinuityInvertFactor) {
                         overview += tab2 + "Inverted Factor<br>";
                     }
 
-                    if(s.sts.equicontinuityOverrideColoring) {
-                        if(s.sts.equicontinuityColorMethod != 4) {
-                            overview += tab2 + "Argument Value = " + Constants.equicontinuityArgs[s.sts.equicontinuityArgValue] + "<br>";
+                    if(s.pps.sts.equicontinuityOverrideColoring) {
+                        if(s.pps.sts.equicontinuityColorMethod != 4) {
+                            overview += tab2 + "Argument Value = " + Constants.equicontinuityArgs[s.pps.sts.equicontinuityArgValue] + "<br>";
                         }
-                        overview += tab2 + "Coloring Method = " + Constants.equicontinuityColorMethods[s.sts.equicontinuityColorMethod] + "<br>";
+                        overview += tab2 + "Coloring Method = " + Constants.equicontinuityColorMethods[s.pps.sts.equicontinuityColorMethod] + "<br>";
 
-                        if(s.sts.equicontinuityColorMethod != 3 && s.sts.equicontinuityColorMethod != 4) {
-                            overview += tab2 + "Saturation/Chroma = " + s.sts.equicontinuitySatChroma + "<br>";
+                        if(s.pps.sts.equicontinuityColorMethod != 3 && s.pps.sts.equicontinuityColorMethod != 4) {
+                            overview += tab2 + "Saturation/Chroma = " + s.pps.sts.equicontinuitySatChroma + "<br>";
                         }
                         else {
-                            overview += tab2 + "Mixing Method = " + Constants.colorMethod[s.sts.equicontinuityMixingMethod] + "<br>";
+                            overview += tab2 + "Mixing Method = " + Constants.colorMethod[s.pps.sts.equicontinuityMixingMethod] + "<br>";
 
-                            if(s.sts.equicontinuityMixingMethod == 3) {
-                                overview += tab2 + "Color Blending = " + s.sts.equicontinuityBlending + "<br>";
+                            if(s.pps.sts.equicontinuityMixingMethod == 3) {
+                                overview += tab2 + "Color Blending = " + s.pps.sts.equicontinuityBlending + "<br>";
                             }
                         }
                     }
 
 
                 }
-                else if (s.sts.statisticGroup == 4){
+                else if (s.pps.sts.statisticGroup == 4){
                     overview += "<b><font color='red'>Statistical Coloring:</font></b><br>";
                     overview += tab + "Root Coloring<br>";
 
-                    if(s.sts.rootShading) {
+                    if(s.pps.sts.rootShading) {
                         overview += tab + "Root Contouring<br>";
 
-                        overview += tab2 + "Iterations Scaling = " + s.sts.rootIterationsScaling + "<br>";
-                        overview += tab2 + "Contour Function = " + rootShadingFunction[s.sts.rootShadingFunction] + "<br>";
+                        overview += tab2 + "Iterations Scaling = " + s.pps.sts.rootIterationsScaling + "<br>";
+                        overview += tab2 + "Contour Function = " + rootShadingFunction[s.pps.sts.rootShadingFunction] + "<br>";
 
-                        if(s.sts.rootShadingFunction != 5) {
-                            overview += tab2 + "Contour Color Mode = " + colorMethod[s.sts.rootContourColorMethod] + "<br>";
+                        if(s.pps.sts.rootShadingFunction != 5) {
+                            overview += tab2 + "Contour Color Mode = " + colorMethod[s.pps.sts.rootContourColorMethod] + "<br>";
                         }
 
-                        if(s.sts.revertRootShading) {
+                        if(s.pps.sts.revertRootShading) {
                             overview += tab2 + "Inverted Coloring" + "<br>";
                         }
 
-                        if(s.sts.highlightRoots) {
+                        if(s.pps.sts.highlightRoots) {
                             overview += tab2 + "Root highlighting" + "<br>";
                         }
 
-                        if(s.sts.rootShadingFunction != 5) {
-                            if (s.sts.rootContourColorMethod == 3) {
-                                overview += tab3 + "Color Blending = " + s.sts.rootBlending + "<br>";
+                        if(s.pps.sts.rootShadingFunction != 5) {
+                            if (s.pps.sts.rootContourColorMethod == 3) {
+                                overview += tab3 + "Color Blending = " + s.pps.sts.rootBlending + "<br>";
                             }
 
-                            if (s.sts.rootSmooting) {
+                            if (s.pps.sts.rootSmooting) {
                                 overview += tab2 + "Uses Contour Smoothing" + "<br>";
                             }
                         }
                     }
                 }
 
-                if(s.sts.statisticGroup == 3) {
+                if(s.pps.sts.statisticGroup == 3) {
                     overview += "<b><font color='red'>Statistical Coloring:</font></b><br>";
                 }
 
-                if (s.sts.statisticGroup == 3 || s.sts.normalMapCombineWithOtherStatistics){
-                    if(s.sts.useNormalMap) {
+                if (s.pps.sts.statisticGroup == 3 || s.pps.sts.normalMapCombineWithOtherStatistics){
+                    if(s.pps.sts.useNormalMap) {
                         overview += tab + "Normal Map<br>";
-                        overview += tab2 + "Height = " + s.sts.normalMapHeight + "<br>";
-                        overview += tab2 + "Angle = " + s.sts.normalMapAngle + "<br>";
+                        overview += tab2 + "Height = " + s.pps.sts.normalMapHeight + "<br>";
+                        overview += tab2 + "Angle = " + s.pps.sts.normalMapAngle + "<br>";
 
-                        if(s.sts.normalMapUseSecondDerivative) {
+                        if(s.pps.sts.normalMapUseSecondDerivative) {
                             overview += tab2 + "Using second derivative<br>";
                         }
 
-                        if(s.sts.normalMapOverrideColoring) {
-                            overview += tab2 + "Light = " + s.sts.normalMapLightFactor + "<br>";
-                            overview += tab2 + "Color Mode = " + colorMethod[s.sts.normalMapColorMode] + "<br>";
+                        if(s.pps.sts.normalMapOverrideColoring) {
+                            overview += tab2 + "Light = " + s.pps.sts.normalMapLightFactor + "<br>";
+                            overview += tab2 + "Color Mode = " + colorMethod[s.pps.sts.normalMapColorMode] + "<br>";
 
-                            if(s.sts.normalMapColorMode == 3) {
-                                overview += tab3 + "Color Blending = " + s.sts.normalMapBlending + "<br>";
+                            if(s.pps.sts.normalMapColorMode == 3) {
+                                overview += tab3 + "Color Blending = " + s.pps.sts.normalMapBlending + "<br>";
                             }
                         }
                     }
 
-                    if(s.sts.normalMapUseDE) {
+                    if(s.pps.sts.normalMapUseDE) {
                         overview += tab + "Distance Estimation<br>";
 
-                        if (s.sts.normalMapInvertDE) {
-                            overview += tab2 + "Lower Limit Factor = " + s.sts.normalMapDEfactor + "<br>";
-                            if(!s.sts.normalMapDEAAEffect) {
-                                overview += tab2 + "Upper Limit Factor = " + s.sts.normalMapDEUpperLimitFactor + "<br>";
+                        if (s.pps.sts.normalMapInvertDE) {
+                            overview += tab2 + "Lower Limit Factor = " + s.pps.sts.normalMapDEfactor + "<br>";
+                            if(!s.pps.sts.normalMapDEAAEffect) {
+                                overview += tab2 + "Upper Limit Factor = " + s.pps.sts.normalMapDEUpperLimitFactor + "<br>";
                             }
                             overview += tab2 + "Inverted Coloring<br><br>";
                         } else {
-                            overview += tab2 + "Lower Limit Factor = " + s.sts.normalMapDEfactor + "<br>";
-                            if(!s.sts.normalMapDEAAEffect) {
-                                overview += tab2 + "Upper Limit Factor = " + s.sts.normalMapDEUpperLimitFactor + "<br>";
+                            overview += tab2 + "Lower Limit Factor = " + s.pps.sts.normalMapDEfactor + "<br>";
+                            if(!s.pps.sts.normalMapDEAAEffect) {
+                                overview += tab2 + "Upper Limit Factor = " + s.pps.sts.normalMapDEUpperLimitFactor + "<br>";
                             }
                         }
 
-                        if(s.sts.normalMapDEAAEffect) {
-                            overview += tab2 + "Fade Method = " + Constants.FadeAlgs[s.sts.normalMapDeFadeAlgorithm] + "<br>";
-                            if(s.sts.normalMapDEUseColorPerDepth) {
+                        if(s.pps.sts.normalMapDEAAEffect) {
+                            overview += tab2 + "Fade Method = " + Constants.FadeAlgs[s.pps.sts.normalMapDeFadeAlgorithm] + "<br>";
+                            if(s.pps.sts.normalMapDEUseColorPerDepth) {
                                 overview += tab2 + "Coloring Per-Depth<br>";
-                                overview += tab3 + "Factor = " + s.sts.normalMapDEOffsetFactor + "<br>";
-                                overview += tab3 + "Offset = " + s.sts.normalMapDEOffset + "<br>";
+                                overview += tab3 + "Factor = " + s.pps.sts.normalMapDEOffsetFactor + "<br>";
+                                overview += tab3 + "Offset = " + s.pps.sts.normalMapDEOffset + "<br>";
                             }
                         }
                     }
 
-                    if(s.sts.normalMapOverrideColoring) {
-                        overview += tab + "Coloring Algorithm = " + normalMapColoringMethods[s.sts.normalMapColoring] + "<br>";
+                    if(s.pps.sts.normalMapOverrideColoring) {
+                        overview += tab + "Coloring Algorithm = " + normalMapColoringMethods[s.pps.sts.normalMapColoring] + "<br>";
 
-                        if(s.sts.normalMapColoring == 2 || s.sts.normalMapColoring == 3) {
-                            overview += tab2 + "Distance Estimator Factor = " + s.sts.normalMapDistanceEstimatorfactor + "<br>";
+                        if(s.pps.sts.normalMapColoring == 2 || s.pps.sts.normalMapColoring == 3) {
+                            overview += tab2 + "Distance Estimator Factor = " + s.pps.sts.normalMapDistanceEstimatorfactor + "<br>";
                         }
                     }
 
                 }
 
-                if(s.sts.statisticGroup != 2 || (!s.isPertubationTheoryInUse() && !s.isHighPrecisionInUse())) {
-                    if (s.sts.statisticIncludeEscaped) {
+                if(s.pps.sts.statisticGroup != 2 || (!s.isPertubationTheoryInUse() && !s.isHighPrecisionInUse())) {
+                    if (s.pps.sts.statisticIncludeEscaped) {
                         overview += tab + "Includes escaped points<br>";
                     }
-                    if (s.sts.statisticIncludeNotEscaped) {
+                    if (s.pps.sts.statisticIncludeNotEscaped) {
                         overview += tab + "Includes not escaped points<br>";
                     }
 
-                    if (s.sts.statisticGroup == 1) {
-                        if (s.sts.useSmoothing && (s.sts.reductionFunction == Constants.REDUCTION_SUM || s.sts.reductionFunction == Constants.REDUCTION_SUB)) {
+                    if (s.pps.sts.statisticGroup == 1) {
+                        if (s.pps.sts.useSmoothing && (s.pps.sts.reductionFunction == Constants.REDUCTION_SUM || s.pps.sts.reductionFunction == Constants.REDUCTION_SUB)) {
                             overview += tab + "Smooth Sum<br>";
                         }
 
-                        if (s.sts.useAverage && (s.sts.reductionFunction == Constants.REDUCTION_SUM || s.sts.reductionFunction == Constants.REDUCTION_SUB)) {
+                        if (s.pps.sts.useAverage && (s.pps.sts.reductionFunction == Constants.REDUCTION_SUM || s.pps.sts.reductionFunction == Constants.REDUCTION_SUB)) {
                             overview += tab + "Using Average<br>";
                         }
 
-                        if(s.sts.lastXItems > 0) {
-                            overview += tab + "Using only last "  + s.sts.lastXItems +" samples<br>";
+                        if(s.pps.sts.lastXItems > 0) {
+                            overview += tab + "Using only last "  + s.pps.sts.lastXItems +" samples<br>";
                         }
-                    } else if (s.sts.statisticGroup == 0) {
-                        if (s.sts.useSmoothing && s.sts.statistic_type != Constants.ATOM_DOMAIN_BOF60_BOF61 && s.sts.statistic_type != Constants.COS_ARG_DIVIDE_INVERSE_NORM) {
+                    } else if (s.pps.sts.statisticGroup == 0) {
+                        if (s.pps.sts.useSmoothing && s.pps.sts.statistic_type != Constants.ATOM_DOMAIN_BOF60_BOF61 && s.pps.sts.statistic_type != Constants.COS_ARG_DIVIDE_INVERSE_NORM) {
                             overview += tab + "Smooth Sum<br>";
                         }
 
-                        if (s.sts.useAverage && s.sts.statistic_type != Constants.ATOM_DOMAIN_BOF60_BOF61 && s.sts.statistic_type != Constants.COS_ARG_DIVIDE_INVERSE_NORM && s.sts.statistic_type != Constants.TWIN_LAMPS) {
+                        if (s.pps.sts.useAverage && s.pps.sts.statistic_type != Constants.ATOM_DOMAIN_BOF60_BOF61 && s.pps.sts.statistic_type != Constants.COS_ARG_DIVIDE_INVERSE_NORM && s.pps.sts.statistic_type != Constants.TWIN_LAMPS) {
                             overview += tab + "Using Average<br>";
                         }
 
-                        if(s.sts.lastXItems > 0) {
-                            overview += tab + "Using only last "  + s.sts.lastXItems +" samples<br>";
+                        if(s.pps.sts.lastXItems > 0) {
+                            overview += tab + "Using only last "  + s.pps.sts.lastXItems +" samples<br>";
                         }
-                    } else if (s.sts.statisticGroup == 2) {
-                        if (s.sts.useSmoothing) {
+                    } else if (s.pps.sts.statisticGroup == 2) {
+                        if (s.pps.sts.useSmoothing) {
                             overview += tab + "Smooth Sum<br>";
                         }
 
-                        if (s.sts.useAverage) {
+                        if (s.pps.sts.useAverage) {
                             overview += tab + "Using Average<br>";
                         }
                     }
 
-                    if(s.sts.statisticGroup != 4) {
-                        overview += tab + "Intensity = " + s.sts.statistic_intensity + "<br><br>";
+                    if(s.pps.sts.statisticGroup != 4) {
+                        overview += tab + "Intensity = " + s.pps.sts.statistic_intensity + "<br><br>";
                     }
                     else {
                         overview += "<br>";
@@ -1376,6 +1391,9 @@ public class CommonFunctions implements Constants {
             }
             overview += tab + "Palette Offset = " + s.ps.color_cycling_location + "<br>";
             overview += tab + "Transfer Function = " + ColorTransferMenu.colorTransferNames[s.ps.transfer_function] + "<br>";
+            if(s.ps.transfer_function != DEFAULT) {
+                overview += tab + "Color Density = " + s.ps.color_density + "<br>";
+            }
             overview += tab + "Color Intensity = " + s.ps.color_intensity + "<br><br>";
 
             if (!s.ds.domain_coloring && s.usePaletteForInColoring) {
@@ -1387,16 +1405,21 @@ public class CommonFunctions implements Constants {
                 }
                 overview += tab + "Palette Offset = " + s.ps2.color_cycling_location + "<br>";
                 overview += tab + "Transfer Function = " + ColorTransferMenu.colorTransferNames[s.ps2.transfer_function] + "<br>";
+                if(s.ps2.transfer_function != DEFAULT) {
+                    overview += tab + "Color Density = " + s.ps2.color_density + "<br>";
+                }
                 overview += tab + "Color Intensity = " + s.ps2.color_intensity + "<br><br>";
             }
 
             if ((s.ds.domain_coloring && s.ds.domain_coloring_mode == 1)) {
                 if (s.fns.smoothing) {
                     overview += "<b><font color='red'>Color Smoothing:</font></b><br>";
+                    overview += tab + "Fractional Transfer = " + Constants.smoothingFractionalTransfer[s.fns.smoothing_fractional_transfer_method] + "<br>";
                     overview += tab + "Interpolation = " + color_interp_str[s.color_smoothing_method] + "<br><br>";
                 }
             } else if (s.fns.smoothing) {
                 overview += "<b><font color='red'>Color Smoothing:</font></b><br>";
+                overview += tab + "Fractional Transfer = " + Constants.smoothingFractionalTransfer[s.fns.smoothing_fractional_transfer_method] + "<br>";
                 if (s.fns.escaping_smooth_algorithm == 0) {
                     overview += tab + "Escaping Smooth Algorithm 1<br>";
                 } else {
@@ -1558,106 +1581,106 @@ public class CommonFunctions implements Constants {
                 }
             }
 
-            if (!periodicity_checking && s.ots.useTraps) {
+            if (!periodicity_checking && s.pps.ots.useTraps) {
                 overview += "<b><font color='red'>Orbit Traps:</font></b><br>";
-                overview += tab + "Shape = " + Constants.orbitTrapsNames[s.ots.trapType] + "<br>";
-                overview += tab + "Center = " + Complex.toString2(s.ots.trapPoint[0], s.ots.trapPoint[1]) + "<br>";
+                overview += tab + "Shape = " + Constants.orbitTrapsNames[s.pps.ots.trapType] + "<br>";
+                overview += tab + "Center = " + Complex.toString2(s.pps.ots.trapPoint[0], s.pps.ots.trapPoint[1]) + "<br>";
 
-                int type = s.ots.trapType == Constants.IMAGE_TRAP && s.ots.checkType == Constants.TRAP_CHECK_TYPE_TRAPPED_MIN_DISTANCE ? Constants.TRAP_CHECK_TYPE_TRAPPED_FIRST : s.ots.checkType;
+                int type = (s.pps.ots.trapType == Constants.IMAGE_TRANSPARENT_TRAP || s.pps.ots.trapType == Constants.IMAGE_TRAP )&& s.pps.ots.checkType == Constants.TRAP_CHECK_TYPE_TRAPPED_MIN_DISTANCE ? Constants.TRAP_CHECK_TYPE_TRAPPED_FIRST : s.pps.ots.checkType;
                 overview += tab + "Check type = " + Constants.orbitTrapCheckTypes[type] + "<br>";
 
-                if(s.ots.skipTrapCheckForIterations > 0) {
-                    overview += tab + "Skip Trap Check for the first iterations = " + s.ots.skipTrapCheckForIterations + "<br>";
+                if(s.pps.ots.skipTrapCheckForIterations > 0) {
+                    overview += tab + "Skip Trap Check for the first iterations = " + s.pps.ots.skipTrapCheckForIterations + "<br>";
                 }
 
-                if (s.ots.trapType != Constants.SUPER_FORMULA_ORBIT_TRAP && s.ots.trapType != Constants.ATOM_DOMAIN_TRAP && s.ots.trapType != Constants.SQUARE_ATOM_DOMAIN_TRAP && s.ots.trapType != Constants.RHOMBUS_ATOM_DOMAIN_TRAP && s.ots.trapType != Constants.NNORM_ATOM_DOMAIN_TRAP && s.ots.trapType != Constants.GOLDEN_RATIO_SPIRAL_TRAP && s.ots.trapType != Constants.STALKS_TRAP) {
-                    overview += tab + "Length = " + s.ots.trapLength + "<br>";
+                if (s.pps.ots.trapType != Constants.IMAGE_TRANSPARENT_TRAP && s.pps.ots.trapType != Constants.SUPER_FORMULA_ORBIT_TRAP && s.pps.ots.trapType != Constants.ATOM_DOMAIN_TRAP && s.pps.ots.trapType != Constants.SQUARE_ATOM_DOMAIN_TRAP && s.pps.ots.trapType != Constants.RHOMBUS_ATOM_DOMAIN_TRAP && s.pps.ots.trapType != Constants.NNORM_ATOM_DOMAIN_TRAP && s.pps.ots.trapType != Constants.GOLDEN_RATIO_SPIRAL_TRAP && s.pps.ots.trapType != Constants.STALKS_TRAP) {
+                    overview += tab + "Length = " + s.pps.ots.trapLength + "<br>";
                 }
 
-                if (!(s.ots.trapType == Constants.ATOM_DOMAIN_TRAP || s.ots.trapType == Constants.SQUARE_ATOM_DOMAIN_TRAP || s.ots.trapType == Constants.RHOMBUS_ATOM_DOMAIN_TRAP || s.ots.trapType == Constants.NNORM_ATOM_DOMAIN_TRAP || s.ots.trapType == Constants.POINT_RHOMBUS_TRAP || s.ots.trapType == Constants.POINT_SQUARE_TRAP || s.ots.trapType == Constants.POINT_TRAP || s.ots.trapType == Constants.POINT_N_NORM_TRAP)) {
-                    overview += tab + "Width = " + s.ots.trapWidth + "<br>";
+                if (!(s.pps.ots.trapType == Constants.IMAGE_TRANSPARENT_TRAP || s.pps.ots.trapType == Constants.ATOM_DOMAIN_TRAP || s.pps.ots.trapType == Constants.SQUARE_ATOM_DOMAIN_TRAP || s.pps.ots.trapType == Constants.RHOMBUS_ATOM_DOMAIN_TRAP || s.pps.ots.trapType == Constants.NNORM_ATOM_DOMAIN_TRAP || s.pps.ots.trapType == Constants.POINT_RHOMBUS_TRAP || s.pps.ots.trapType == Constants.POINT_SQUARE_TRAP || s.pps.ots.trapType == Constants.POINT_TRAP || s.pps.ots.trapType == Constants.POINT_N_NORM_TRAP)) {
+                    overview += tab + "Width = " + s.pps.ots.trapWidth + "<br>";
                 }
 
-                if (s.ots.trapType == Constants.POINT_N_NORM_TRAP || s.ots.trapType == Constants.N_NORM_TRAP || s.ots.trapType == Constants.N_NORM_CROSS_TRAP || s.ots.trapType == Constants.N_NORM_POINT_TRAP || s.ots.trapType == Constants.N_NORM_POINT_N_NORM_TRAP || s.ots.trapType == Constants.GOLDEN_RATIO_SPIRAL_POINT_N_NORM_TRAP || s.ots.trapType == Constants.GOLDEN_RATIO_SPIRAL_N_NORM_TRAP || s.ots.trapType == Constants.STALKS_POINT_N_NORM_TRAP || s.ots.trapType == Constants.STALKS_N_NORM_TRAP || s.ots.trapType == Constants.NNORM_ATOM_DOMAIN_TRAP) {
-                    overview += tab + "Norm = " + s.ots.trapNorm + "<br>";
+                if (s.pps.ots.trapType == Constants.POINT_N_NORM_TRAP || s.pps.ots.trapType == Constants.N_NORM_TRAP || s.pps.ots.trapType == Constants.N_NORM_CROSS_TRAP || s.pps.ots.trapType == Constants.N_NORM_POINT_TRAP || s.pps.ots.trapType == Constants.N_NORM_POINT_N_NORM_TRAP || s.pps.ots.trapType == Constants.GOLDEN_RATIO_SPIRAL_POINT_N_NORM_TRAP || s.pps.ots.trapType == Constants.GOLDEN_RATIO_SPIRAL_N_NORM_TRAP || s.pps.ots.trapType == Constants.STALKS_POINT_N_NORM_TRAP || s.pps.ots.trapType == Constants.STALKS_N_NORM_TRAP || s.pps.ots.trapType == Constants.NNORM_ATOM_DOMAIN_TRAP) {
+                    overview += tab + "Norm = " + s.pps.ots.trapNorm + "<br>";
                 }
 
-                if (s.ots.trapType == Constants.CROSS_TRAP || s.ots.trapType == Constants.RE_TRAP || s.ots.trapType == Constants.IM_TRAP || s.ots.trapType == Constants.CIRCLE_CROSS_TRAP || s.ots.trapType == Constants.SQUARE_CROSS_TRAP || s.ots.trapType == Constants.RHOMBUS_CROSS_TRAP || s.ots.trapType == Constants.N_NORM_CROSS_TRAP || s.ots.trapType == Constants.GOLDEN_RATIO_SPIRAL_CROSS_TRAP || s.ots.trapType == Constants.STALKS_CROSS_TRAP) {
-                    overview += tab + "Line Function = " + Constants.orbitTrapLineTypes[s.ots.lineType] + "<br>";
+                if (s.pps.ots.trapType == Constants.CROSS_TRAP || s.pps.ots.trapType == Constants.RE_TRAP || s.pps.ots.trapType == Constants.IM_TRAP || s.pps.ots.trapType == Constants.CIRCLE_CROSS_TRAP || s.pps.ots.trapType == Constants.SQUARE_CROSS_TRAP || s.pps.ots.trapType == Constants.RHOMBUS_CROSS_TRAP || s.pps.ots.trapType == Constants.N_NORM_CROSS_TRAP || s.pps.ots.trapType == Constants.GOLDEN_RATIO_SPIRAL_CROSS_TRAP || s.pps.ots.trapType == Constants.STALKS_CROSS_TRAP) {
+                    overview += tab + "Line Function = " + Constants.orbitTrapLineTypes[s.pps.ots.lineType] + "<br>";
                 }
 
-                if(s.ots.trapType == Constants.SUPER_FORMULA_ORBIT_TRAP) {
-                    overview += tab + "m1 = " + s.ots.sfm1 + "<br>";
-                    overview += tab + "m2 = " + s.ots.sfm2 + "<br>";
-                    overview += tab + "n1 = " + s.ots.sfn1 + "<br>";
-                    overview += tab + "n2 = " + s.ots.sfn2 + "<br>";
-                    overview += tab + "n3 = " + s.ots.sfn3 + "<br>";
-                    overview += tab + "a = " + s.ots.sfa + "<br>";
-                    overview += tab + "b = " + s.ots.sfa + "<br>";
+                if(s.pps.ots.trapType == Constants.SUPER_FORMULA_ORBIT_TRAP) {
+                    overview += tab + "m1 = " + s.pps.ots.sfm1 + "<br>";
+                    overview += tab + "m2 = " + s.pps.ots.sfm2 + "<br>";
+                    overview += tab + "n1 = " + s.pps.ots.sfn1 + "<br>";
+                    overview += tab + "n2 = " + s.pps.ots.sfn2 + "<br>";
+                    overview += tab + "n3 = " + s.pps.ots.sfn3 + "<br>";
+                    overview += tab + "a = " + s.pps.ots.sfa + "<br>";
+                    overview += tab + "b = " + s.pps.ots.sfa + "<br>";
                 }
 
-                if (s.ots.trapType != Constants.IMAGE_TRAP) {
-                    overview += tab + "Trap Color Method = " + Constants.colorMethod[s.ots.trapColorMethod] + "<br>";
+                if (s.pps.ots.trapType != Constants.IMAGE_TRAP && s.pps.ots.trapType != Constants.IMAGE_TRANSPARENT_TRAP) {
+                    overview += tab + "Trap Color Method = " + Constants.colorMethod[s.pps.ots.trapColorMethod] + "<br>";
 
-                    if (s.ots.trapColorMethod == 3) {
-                        overview += tab2 + "Trap Blending = " + s.ots.trapBlending + "<br>";
+                    if (s.pps.ots.trapColorMethod == 3) {
+                        overview += tab2 + "Trap Blending = " + s.pps.ots.trapBlending + "<br>";
                     }
 
-                    if (s.ots.trapMaxDistance != 0) {
-                        overview += tab + "Max Distance = " + s.ots.trapMaxDistance + "<br>";
+                    if (s.pps.ots.trapMaxDistance != 0) {
+                        overview += tab + "Max Distance = " + s.pps.ots.trapMaxDistance + "<br>";
                     }
-                    overview += tab + "Interpolation percent = " + s.ots.trapColorInterpolation + "<br>";
+                    overview += tab + "Interpolation percent = " + s.pps.ots.trapColorInterpolation + "<br>";
 
-                    if (s.ots.trapCellularStructure) {
+                    if (s.pps.ots.trapCellularStructure) {
                         overview += tab + "Uses cellular structure<br>";
-                        if (s.ots.trapCellularInverseColor) {
+                        if (s.pps.ots.trapCellularInverseColor) {
                             overview += tab2 + "Uses inverted coloring<br>";
                         }
-                        overview += tab2 + "Cellular Size = " + s.ots.trapCellularSize + "<br>";
+                        overview += tab2 + "Cellular Size = " + s.pps.ots.trapCellularSize + "<br>";
                     }
                 }
 
-                if (s.ots.trapIncludeEscaped) {
+                if (s.pps.ots.trapIncludeEscaped) {
                     overview += tab + "Includes escaped points<br>";
                 }
-                if (s.ots.trapIncludeNotEscaped) {
+                if (s.pps.ots.trapIncludeNotEscaped) {
                     overview += tab + "Includes not escaped points<br>";
                 }
-                if (s.ots.countTrapIterations) {
+                if (s.pps.ots.countTrapIterations) {
                     overview += tab + "Counts trap iterations<br>";
                 }
-                if (s.ots.showOnlyTraps) {
+                if (s.pps.ots.showOnlyTraps) {
                     overview += tab + "Shows only traps<br>";
                 }
 
-                if (s.ots.trapType != Constants.IMAGE_TRAP) {
-                    overview += tab + "Intensity = " + s.ots.trapIntensity + "<br>";
-                    overview += tab + "Height Function = " + Constants.trapHeightAlgorithms[s.ots.trapHeightFunction] + "<br>";
+                if (s.pps.ots.trapType != Constants.IMAGE_TRAP && s.pps.ots.trapType != Constants.IMAGE_TRANSPARENT_TRAP) {
+                    overview += tab + "Intensity = " + s.pps.ots.trapIntensity + "<br>";
+                    overview += tab + "Height Function = " + Constants.trapHeightAlgorithms[s.pps.ots.trapHeightFunction] + "<br>";
                     
-                    if(s.ots.invertTrapHeight) {
+                    if(s.pps.ots.invertTrapHeight) {
                         overview += tab + "Inverts trap height<br>";
                     }
                 }
 
-                if(s.ots.lastXItems > 0) {
-                    overview += tab + "Using only last "  + s.ots.lastXItems +" samples<br>";
+                if(s.pps.ots.lastXItems > 0) {
+                    overview += tab + "Using only last "  + s.pps.ots.lastXItems +" samples<br>";
                 }
 
                 overview += "<br>";
             }
 
-            if (s.hss.histogramColoring && ! (s.sts.statistic && s.sts.statisticGroup == 4)) {
+            if (s.pps.hss.histogramColoring && ! (s.pps.sts.statistic && s.pps.sts.statisticGroup == 4)) {
                 overview += "<b><font color='red'>Histogram Coloring:</font></b><br>";
 
-                overview += tab + "Mapping = " + histogramMapping[s.hss.hmapping] + "<br>";
-                if(s.hss.hmapping == 0) {
-                    overview += tab2 + "Bin Granularity = " + s.hss.histogramBinGranularity + "<br>";
-                    overview += tab2 + "Density = " + s.hss.histogramDensity + "<br>";
+                overview += tab + "Mapping = " + histogramMapping[s.pps.hss.hmapping] + "<br>";
+                if(s.pps.hss.hmapping == 0) {
+                    overview += tab2 + "Bin Granularity = " + s.pps.hss.histogramBinGranularity + "<br>";
+                    overview += tab2 + "Density = " + s.pps.hss.histogramDensity + "<br>";
                 }
-                overview += tab2 + "Min Scaling = " + s.hss.histogramScaleMin + "<br>";
-                overview += tab2 + "Max Scaling = " + s.hss.histogramScaleMax + "<br>";
-                overview += tab + "Color Blending = " + s.hss.hs_blending + "<br>";
-                overview += tab + "Noise Reduction Factor = " + s.hss.hs_noise_reducing_factor + "<br><br>";
+                overview += tab2 + "Min Scaling = " + s.pps.hss.histogramScaleMin + "<br>";
+                overview += tab2 + "Max Scaling = " + s.pps.hss.histogramScaleMax + "<br>";
+                overview += tab + "Color Blending = " + s.pps.hss.hs_blending + "<br>";
+                overview += tab + "Noise Reduction Factor = " + s.pps.hss.hs_noise_reducing_factor + "<br><br>";
             }
         }
 
@@ -1665,108 +1688,151 @@ public class CommonFunctions implements Constants {
             for (int i = 0; i < s.post_processing_order.length; i++) {
                 switch (s.post_processing_order[i]) {
                     case LIGHT:
-                        if (s.ls.lighting) {
+                        if (s.pps.ls.lighting) {
                             overview += "<b><font color='red'>Light:</font></b><br>";
-                            overview += tab + "Light Mode = " + Constants.lightModes[s.ls.lightMode] + "<br>";
-                            overview += tab + "Direction = " + s.ls.light_direction + " degrees<br>";
-                            overview += tab + "Magnitude = " + s.ls.light_magnitude + "<br>";
-                            overview += tab + "Light Intensity = " + s.ls.lightintensity + "<br>";
-                            overview += tab + "Ambient Light = " + s.ls.ambientlight + "<br>";
-                            overview += tab + "Specular Intensity = " + s.ls.specularintensity + "<br>";
-                            overview += tab + "Shininess = " + s.ls.shininess + "<br>";
-                            overview += tab + "Height Transfer = " + Constants.lightTransfer[s.ls.heightTransfer] + "<br>";
-                            overview += tab + "Height Transfer Factor = " + s.ls.heightTransferFactor + "<br>";
-                            overview += tab + "Color Mode = " + Constants.colorMethod[s.ls.colorMode] + "<br>";
-                            if (s.ls.colorMode == 3) {
-                                overview += tab2 + "Color Blending = " + s.ls.light_blending + "<br>";
+                            overview += tab + "Light Mode = " + Constants.lightModes[s.pps.ls.lightMode] + "<br>";
+                            overview += tab + "Reflection Mode = " + Constants.reflectionModes[s.pps.ls.specularReflectionMethod] + "<br>";
+                            overview += tab + "Direction = " + s.pps.ls.light_direction + " degrees<br>";
+                            overview += tab + "Magnitude = " + s.pps.ls.light_magnitude + "<br>";
+                            overview += tab + "Light Intensity = " + s.pps.ls.lightintensity + "<br>";
+                            overview += tab + "Ambient Light = " + s.pps.ls.ambientlight + "<br>";
+                            overview += tab + "Specular Intensity = " + s.pps.ls.specularintensity + "<br>";
+                            overview += tab + "Shininess = " + s.pps.ls.shininess + "<br>";
+                            overview += tab + "Height Transfer = " + Constants.lightTransfer[s.pps.ls.heightTransfer] + "<br>";
+                            overview += tab + "Height Transfer Factor = " + s.pps.ls.heightTransferFactor + "<br>";
+                            overview += tab + "Fractional Transfer = " + Constants.fractionalTransfer[s.pps.ls.fractionalTransfer] + "<br";
+                            if(s.pps.ls.fractionalTransfer != 0) {
+                                overview += tab + "Fractional Transfer Mode = " + Constants.fractionalTransferMode[s.pps.ls.fractionalTransferMode] + "<br";
                             }
-                            overview += tab + "Noise Reduction Factor = " + s.ls.l_noise_reducing_factor + "<br><br>";
+                            overview += tab + "Fractional Smoothing = " + Constants.FadeAlgs[s.pps.ls.fractionalSmoothing] + "<br";
+                            overview += tab + "Color Mode = " + Constants.colorMethod[s.pps.ls.colorMode] + "<br>";
+                            if (s.pps.ls.colorMode == 3) {
+                                overview += tab2 + "Color Blending = " + s.pps.ls.light_blending + "<br>";
+                            }
+                            overview += tab + "Noise Reduction Factor = " + s.pps.ls.l_noise_reducing_factor + "<br><br>";
+                        }
+                        break;
+                    case SLOPES:
+                        if (s.pps.ss.slopes) {
+                            overview += "<b><font color='red'>Slopes:</font></b><br>";
+                            overview += tab + "Angle = " + s.pps.ss.SlopeAngle + " degrees<br>";
+                            overview += tab + "Power = " + s.pps.ss.SlopePower + "<br>";
+                            overview += tab + "Ratio = " + s.pps.ss.SlopeRatio + "<br>";
+                            overview += tab + "Height Transfer = " + Constants.lightTransfer[s.pps.ss.heightTransfer] + "<br>";
+                            overview += tab + "Height Transfer Factor = " + s.pps.ss.heightTransferFactor + "<br>";
+                            overview += tab + "Fractional Transfer = " + Constants.fractionalTransfer[s.pps.ss.fractionalTransfer] + "<br";
+                            if(s.pps.ss.fractionalTransfer != 0) {
+                                overview += tab + "Fractional Transfer Mode = " + Constants.fractionalTransferMode[s.pps.ss.fractionalTransferMode] + "<br";
+                            }
+                            overview += tab + "Fractional Smoothing = " + Constants.FadeAlgs[s.pps.ss.fractionalSmoothing] + "<br";
+                            overview += tab + "Color Mode = " + Constants.colorMethod[s.pps.ss.colorMode] + "<br>";
+                            if (s.pps.ss.colorMode == 3) {
+                                overview += tab2 + "Color Blending = " + s.pps.ss.slope_blending + "<br>";
+                            }
+                            overview += tab + "Noise Reduction Factor = " + s.pps.ss.s_noise_reducing_factor + "<br><br>";
                         }
                         break;
                     case FAKE_DISTANCE_ESTIMATION:
-                        if (!s.ds.domain_coloring && s.fdes.fake_de) {
+                        if (!s.ds.domain_coloring && s.pps.fdes.fake_de) {
                             overview += "<b><font color='red'>Fake Distance Estimation:</font></b><br>";
 
-                            if (s.fdes.inverse_fake_dem) {
-                                overview += tab + "Factor = " + s.fdes.fake_de_factor + "<br>";
-                                overview += tab + "Fade Method = " + Constants.FadeAlgs[s.fdes.fade_algorithm] + "<br>";
+                            if (s.pps.fdes.inverse_fake_dem) {
+                                overview += tab + "Factor = " + s.pps.fdes.fake_de_factor + "<br>";
+                                overview += tab + "Fade Method = " + Constants.FadeAlgs[s.pps.fdes.fade_algorithm] + "<br>";
                                 overview += tab + "Inverted Coloring<br><br>";
                             } else {
-                                overview += tab + "Factor = " + s.fdes.fake_de_factor + "<br>";
-                                overview += tab + "Fade Method = " + Constants.FadeAlgs[s.fdes.fade_algorithm] + "<br><br>";
+                                overview += tab + "Factor = " + s.pps.fdes.fake_de_factor + "<br>";
+                                overview += tab + "Fade Method = " + Constants.FadeAlgs[s.pps.fdes.fade_algorithm] + "<br><br>";
                             }
                         }
                         break;
                     case ENTROPY_COLORING:
-                        if (!s.ds.domain_coloring && s.ens.entropy_coloring) {
+                        if (!s.ds.domain_coloring && s.pps.ens.entropy_coloring) {
                             overview += "<b><font color='red'>Entropy Coloring:</font></b><br>";
-                            overview += tab + "Factor = " + s.ens.entropy_palette_factor + "<br>";
-                            overview += tab + "Color Transfer Method = " + entropyMethod[s.ens.entropy_algorithm] + "<br>";
+                            overview += tab + "Factor = " + s.pps.ens.entropy_palette_factor + "<br>";
+                            overview += tab + "Color Transfer Method = " + entropyMethod[s.pps.ens.entropy_algorithm] + "<br>";
 
-                            if (s.ens.entropy_algorithm == 0) {
-                                overview += tab + "Offset = " + s.ens.entropy_offset + "<br>";
+                            if (s.pps.ens.entropy_algorithm == 0) {
+                                overview += tab + "Offset = " + s.pps.ens.entropy_offset + "<br>";
                             }
 
-                            overview += tab + "Color Blending = " + s.ens.en_blending + "<br>";
-                            overview += tab + "Noise Reduction Factor = " + s.ens.en_noise_reducing_factor + "<br><br>";
+                            overview += tab + "Color Blending = " + s.pps.ens.en_blending + "<br>";
+                            overview += tab + "Noise Reduction Factor = " + s.pps.ens.en_noise_reducing_factor + "<br><br>";
                         }
                         break;
                     case OFFSET_COLORING:
-                        if (!s.ds.domain_coloring && s.ofs.offset_coloring) {
+                        if (!s.ds.domain_coloring && s.pps.ofs.offset_coloring) {
                             overview += "<b><font color='red'>Offset Coloring:</font></b><br>";
-                            overview += tab + "Offset = " + s.ofs.post_process_offset + "<br>";
-                            overview += tab + "Color Blending = " + s.ofs.of_blending + "<br>";
-                            overview += tab + "Noise Reduction Factor = " + s.ofs.of_noise_reducing_factor + "<br><br>";
+                            overview += tab + "Offset = " + s.pps.ofs.post_process_offset + "<br>";
+                            overview += tab + "Color Blending = " + s.pps.ofs.of_blending + "<br>";
+                            overview += tab + "Noise Reduction Factor = " + s.pps.ofs.of_noise_reducing_factor + "<br><br>";
                         }
                         break;
                     case RAINBOW_PALETTE:
-                        if (!s.ds.domain_coloring && s.rps.rainbow_palette) {
+                        if (!s.ds.domain_coloring && s.pps.rps.rainbow_palette) {
                             overview += "<b><font color='red'>Rainbow Palette:</font></b><br>";
-                            overview += tab + "Factor = " + s.rps.rainbow_palette_factor + "<br>";
-                            overview += tab + "Color Transfer Method = " + rainbowMethod[s.rps.rainbow_algorithm] + "<br>";
+                            overview += tab + "Factor = " + s.pps.rps.rainbow_palette_factor + "<br>";
+                            overview += tab + "Color Transfer Method = " + rainbowMethod[s.pps.rps.rainbow_algorithm] + "<br>";
 
-                            if (s.rps.rainbow_algorithm == 0) {
-                                overview += tab + "Offset = " + s.rps.rainbow_offset + "<br>";
+                            if (s.pps.rps.rainbow_algorithm == 0) {
+                                overview += tab + "Offset = " + s.pps.rps.rainbow_offset + "<br>";
                             }
 
-                            overview += tab + "Color Blending = " + s.rps.rp_blending + "<br>";
-                            overview += tab + "Noise Reduction Factor = " + s.rps.rp_noise_reducing_factor + "<br><br>";
+                            overview += tab + "Color Blending = " + s.pps.rps.rp_blending + "<br>";
+                            overview += tab + "Noise Reduction Factor = " + s.pps.rps.rp_noise_reducing_factor + "<br><br>";
+                        }
+                        break;
+                    case NUMERICAL_DISTANCE_ESTIMATOR:
+                        if (!s.ds.domain_coloring && s.pps.ndes.useNumericalDem) {
+                            overview += "<b><font color='red'>Numerical Distance Estimator:</font></b><br>";
+                            overview += tab + "Difference Method = " + differencesMethod[s.pps.ndes.differencesMethod] + "<br>";
+                            overview += tab + "Transfer Factor = " + s.pps.ndes.distanceFactor + "<br>";
+                            overview += tab + "Offset = " + s.pps.ndes.distanceOffset + "<br>";
+                            overview += tab + "Color Blending = " + s.pps.ndes.numerical_blending + "<br>";
+                            overview += tab + "Noise Reduction Factor = " + s.pps.ndes.n_noise_reducing_factor + "<br><br>";
                         }
                         break;
                     case GREYSCALE_COLORING:
-                        if (!s.ds.domain_coloring && s.gss.greyscale_coloring) {
+                        if (!s.ds.domain_coloring && s.pps.gss.greyscale_coloring) {
                             overview += "<b><font color='red'>Greyscale Coloring:</font></b><br>";
-                            overview += tab + "Noise Reduction Factor = " + s.gss.gs_noise_reducing_factor + "<br><br>";
+                            overview += tab + "Noise Reduction Factor = " + s.pps.gss.gs_noise_reducing_factor + "<br><br>";
                         }
                         break;
                     case CONTOUR_COLORING:
-                        if (!s.ds.domain_coloring && s.cns.contour_coloring) {
+                        if (!s.ds.domain_coloring && s.pps.cns.contour_coloring) {
                             overview += "<b><font color='red'>Contour Coloring:</font></b><br>";
-                            overview += tab + "Algorithm = " + Constants.contourColorAlgorithmNames[s.cns.contour_algorithm] + "<br>";
-                            overview += tab + "Color Method = " + Constants.colorMethod[s.cns.contourColorMethod] + "<br>";
-                            if (s.cns.contourColorMethod == 3) {
-                                overview += tab2 + "Color Blending = " + s.cns.cn_blending + "<br>";
+                            overview += tab + "Algorithm = " + Constants.contourColorAlgorithmNames[s.pps.cns.contour_algorithm] + "<br>";
+                            overview += tab + "Color Method = " + Constants.colorMethod[s.pps.cns.contourColorMethod] + "<br>";
+                            if (s.pps.cns.contourColorMethod == 3) {
+                                overview += tab2 + "Color Blending = " + s.pps.cns.cn_blending + "<br>";
                             }
-                            if(s.cns.contourColorMethod == 0 || s.cns.contourColorMethod == 2 || s.cns.contourColorMethod == 3) {
-                                overview += tab + "Min Contour Factor = " + s.cns.min_contour + "<br>";
+                            if(s.pps.cns.contourColorMethod == 0 || s.pps.cns.contourColorMethod == 2 || s.pps.cns.contourColorMethod == 3) {
+                                overview += tab + "Min Contour Factor = " + s.pps.cns.min_contour + "<br>";
                             }
-                            overview += tab + "Noise Reduction Factor = " + s.cns.cn_noise_reducing_factor + "<br><br>";
+                            overview += tab + "Fractional Transfer = " + Constants.fractionalTransfer[s.pps.cns.fractionalTransfer] + "<br";
+                            overview += tab + "Fractional Smoothing = " + Constants.FadeAlgs[s.pps.cns.fractionalSmoothing] + "<br";
+                            overview += tab + "Noise Reduction Factor = " + s.pps.cns.cn_noise_reducing_factor + "<br><br>";
                         }
                         break;
                     case BUMP_MAPPING:
-                        if (s.bms.bump_map) {
+                        if (s.pps.bms.bump_map) {
                             overview += "<b><font color='red'>Bump Mapping:</font></b><br>";
-                            overview += tab + "Light Direction = " + s.bms.lightDirectionDegrees + " degrees<br>";
-                            overview += tab + "Depth = " + s.bms.bumpMappingDepth + "<br>";
-                            overview += tab + "Strength = " + s.bms.bumpMappingStrength + "<br>";
-                            overview += tab + "Transfer Function = " + Constants.bumpTransferNames[s.bms.bump_transfer_function] + "<br>";
-                            overview += tab + "Transfer Factor = " + s.bms.bump_transfer_factor + "<br>";
-                            overview += tab + "Processing Method = " + Constants.bumpProcessingMethod[s.bms.bumpProcessing] + "<br>";
-
-                            if (s.bms.bumpProcessing == 1 || s.bms.bumpProcessing == 2) {
-                                overview += tab + "Color Blending = " + s.bms.bump_blending + "<br>";
+                            overview += tab + "Light Direction = " + s.pps.bms.lightDirectionDegrees + " degrees<br>";
+                            overview += tab + "Depth = " + s.pps.bms.bumpMappingDepth + "<br>";
+                            overview += tab + "Strength = " + s.pps.bms.bumpMappingStrength + "<br>";
+                            overview += tab + "Transfer Function = " + Constants.bumpTransferNames[s.pps.bms.bump_transfer_function] + "<br>";
+                            overview += tab + "Transfer Factor = " + s.pps.bms.bump_transfer_factor + "<br>";
+                            overview += tab + "Fractional Transfer = " + Constants.fractionalTransfer[s.pps.bms.fractionalTransfer] + "<br";
+                            if(s.pps.bms.fractionalTransfer != 0) {
+                                overview += tab + "Fractional Transfer Mode = " + Constants.fractionalTransferMode[s.pps.bms.fractionalTransferMode] + "<br";
                             }
-                            overview += tab + "Noise Reduction Factor = " + s.bms.bm_noise_reducing_factor + "<br><br>";
+                            overview += tab + "Fractional Smoothing = " + Constants.FadeAlgs[s.pps.bms.fractionalSmoothing] + "<br";
+                            overview += tab + "Processing Method = " + Constants.bumpProcessingMethod[s.pps.bms.bumpProcessing] + "<br>";
+
+                            if (s.pps.bms.bumpProcessing == 1 || s.pps.bms.bumpProcessing == 2) {
+                                overview += tab + "Color Blending = " + s.pps.bms.bump_blending + "<br>";
+                            }
+                            overview += tab + "Noise Reduction Factor = " + s.pps.bms.bm_noise_reducing_factor + "<br><br>";
                         }
                         break;
                 }
@@ -1787,16 +1853,12 @@ public class CommonFunctions implements Constants {
                 overview += tab + "Algorithm = " + Constants.domainAlgNames[s.ds.domain_coloring_alg] + "<br>";
                 overview += tab + "Interpolation = " + color_interp_str[s.color_smoothing_method] + "<br>";
                 overview += tab + "Processing Transfer Function = " + Constants.domainProcessingTransferNames[s.ds.domainProcessingTransfer] + "<br>";
-                overview += tab + "Processing Factor = " + s.ds.domainProcessingHeightFactor + "<br><br>";
+                overview += tab + "Processing Factor = " + s.ds.domainProcessingHeightFactor + "<br>";
             } else {
                 overview += "<b><font color='red'>Custom Domain Coloring:</font></b><br>";
 
                 if (s.ds.drawColor) {
                     overview += tab + "Color = " + Constants.domainColors[s.ds.colorType] + "<br>";
-
-                    if (s.ds.colorType != 0) {
-                        overview += tab2 + "Max Norm/Re/Im Value = " + s.ds.max_norm_re_im_value + "<br>";
-                    }
                 }
 
                 if (s.ds.drawContour) {
@@ -1804,6 +1866,20 @@ public class CommonFunctions implements Constants {
                     overview += tab2 + "Color Method = " + Constants.colorMethod[s.ds.contourMethod] + "<br>";
                     if (s.ds.contourMethod == 3) {
                         overview += tab2 + "Color Blending = " + s.ds.contourBlending + "<br>";
+                    }
+                }
+
+                if (s.ds.applyShading) {
+                    overview += tab + "Shading = " + Constants.domainShading[s.ds.shadingType] + "<br>";
+                    overview += tab2 + "Coloring Mode = " + Constants.domainShadingColor[s.ds.shadingColorAlgorithm] + "<br>";
+                    if(s.ds.shadingColorAlgorithm == 0) {
+                        overview += tab3 + "Saturation Adjustment = " + s.ds.saturation_adjustment + "<br>";
+                    }
+                    if(s.ds.shadingColorAlgorithm == 1) {
+                        overview += tab3 + "Shading Factor = " + s.ds.shadingPercent + "<br>";
+                    }
+                    if(s.ds.invertShading) {
+                        overview += tab2 + "Inverted<br>";
                     }
                 }
 
@@ -1815,6 +1891,7 @@ public class CommonFunctions implements Constants {
                                 overview += tab2 + "Width = " + s.ds.gridWidth + "<br>";
                                 overview += tab2 + "Strength = " + s.ds.gridBlending + "<br>";
                                 overview += tab2 + "Fading = " + Constants.circleAndGridFadeNames[s.ds.gridFadeFunction] + "<br>";
+                                overview += tab2 + "Color Type = " + Constants.gridColorType[s.ds.grid_color_type] + "<br>";
                             }
                             break;
                         case MainWindow.CIRCLES:
@@ -1823,6 +1900,7 @@ public class CommonFunctions implements Constants {
                                 overview += tab2 + "Width = " + s.ds.circleWidth + "<br>";
                                 overview += tab2 + "Strength = " + s.ds.circlesBlending + "<br>";
                                 overview += tab2 + "Fading = " + Constants.circleAndGridFadeNames[s.ds.circleFadeFunction] + "<br>";
+                                overview += tab2 + "Color Type = " + Constants.circleColorType[s.ds.circle_color_type] + "<br>";
                             }
                             break;
                         case MainWindow.ISO_LINES:
@@ -1830,6 +1908,7 @@ public class CommonFunctions implements Constants {
                                 overview += tab + "Iso-Argument Lines<br>";
                                 overview += tab2 + "Width = " + s.ds.iso_factor + "<br>";
                                 overview += tab2 + "Strength = " + s.ds.isoLinesBlendingFactor + "<br>";
+                                overview += tab2 + "Color Type = " + Constants.isoColorType[s.ds.iso_color_type] + "<br>";
                             }
                             break;
                     }
@@ -1843,9 +1922,19 @@ public class CommonFunctions implements Constants {
                 overview += tab + "Norm Type = " + s.ds.normType + "<br>";
                 overview += tab + "Iso-Argument Line Distance = " + Constants.argumentLinesDistance[s.ds.iso_distance] + "<br>";
                 overview += tab + "Processing Transfer Function = " + Constants.domainProcessingTransferNames[s.ds.domainProcessingTransfer] + "<br>";
-                overview += tab + "Processing Factor = " + s.ds.domainProcessingHeightFactor + "<br><br>";
+                overview += tab + "Processing Factor = " + s.ds.domainProcessingHeightFactor + "<br>";
+
+                if (!s.ds.mapNormReImWithAbsScale) {
+                    overview += tab + "Max Norm/Re/Im Value = " + s.ds.max_norm_re_im_value + "<br>";
+                }
             }
 
+            overview += tab + "Processing / 3D" + "<br>";
+            overview += tab2 + "Height Method = " + MainWindow.domainHeightNames[s.ds.domain_height_method] + "<br>";
+            overview += tab2 + "Normalization = " + MainWindow.domainNormalization[s.ds.domain_height_normalization_method] + "<br>";
+            overview += tab2 + "Transfer Function = " + MainWindow.domainProcessingTransferNames[s.ds.domainProcessingTransfer] + "<br>";
+            overview += tab2 + "Transfer Factor = " + s.ds.domainProcessingHeightFactor + "<br>";
+            overview += "<br>";
         }
 
         int active = 0;
@@ -1894,10 +1983,10 @@ public class CommonFunctions implements Constants {
                 Object[] message = {
                     scroll_pane_2,
                     " ",
-                    s.sts.statistic && s.sts.statisticGroup == 4 || s.gps.useGeneratedPaletteOutColoring ? null : palette_text_label,
-                        s.sts.statistic && s.sts.statisticGroup == 4 || s.gps.useGeneratedPaletteOutColoring ? null : palette_label,
-                        s.sts.statistic && s.sts.statisticGroup == 4 || s.gps.useGeneratedPaletteInColoring ? null : palette_in_text_label,
-                        s.sts.statistic && s.sts.statisticGroup == 4 || s.gps.useGeneratedPaletteInColoring ? null : palette_in_label,
+                    s.pps.sts.statistic && s.pps.sts.statisticGroup == 4 || s.gps.useGeneratedPaletteOutColoring ? null : palette_text_label,
+                        s.pps.sts.statistic && s.pps.sts.statisticGroup == 4 || s.gps.useGeneratedPaletteOutColoring ? null : palette_label,
+                        s.pps.sts.statistic && s.pps.sts.statisticGroup == 4 || s.gps.useGeneratedPaletteInColoring ? null : palette_in_text_label,
+                        s.pps.sts.statistic && s.pps.sts.statisticGroup == 4 || s.gps.useGeneratedPaletteInColoring ? null : palette_in_label,
                     gradient_text_label,
                     gradient_label};
 
@@ -1968,8 +2057,8 @@ public class CommonFunctions implements Constants {
                 Object[] message = {
                     scroll_pane_2,
                     " ",
-                        s.sts.statistic && s.sts.statisticGroup == 4 || (s.gps.useGeneratedPaletteOutColoring && (!s.ds.domain_coloring || (s.ds.domain_coloring && s.ds.domain_coloring_mode == 1))) ? null : palette_text_label,
-                        s.sts.statistic && s.sts.statisticGroup == 4 || (s.gps.useGeneratedPaletteOutColoring && (!s.ds.domain_coloring || (s.ds.domain_coloring && s.ds.domain_coloring_mode == 1))) ? null : palette_label,
+                        s.pps.sts.statistic && s.pps.sts.statisticGroup == 4 || (s.gps.useGeneratedPaletteOutColoring && (!s.ds.domain_coloring || (s.ds.domain_coloring && s.ds.domain_coloring_mode == 1))) ? null : palette_text_label,
+                        s.pps.sts.statistic && s.pps.sts.statisticGroup == 4 || (s.gps.useGeneratedPaletteOutColoring && (!s.ds.domain_coloring || (s.ds.domain_coloring && s.ds.domain_coloring_mode == 1))) ? null : palette_label,
                     gradient_text_label,
                     gradient_label
                     ," ",
@@ -2178,18 +2267,18 @@ public class CommonFunctions implements Constants {
                 + "<font size='4' face='arial'>"
                 + "Disclaimer, the Offset Removal option is tightly coupled with the<br>"
                 + "implementation of the current software and its only provided in order to<br>"
-                + "bypass an implementation design<br><br>"
+                + "bypass an implementation design.<br><br>"
                 + "Coloring algorithms that apply an offset to the palette, based<br>"
                 + "on a specific condition, (Binary Decomposition Variant, Biomorph, Escape Time + Grid,<br>"
                 + "Escape Time + Field Lines Variant) will return a value offseted by 50<br>"
                 + "The return value of these algorithms that contains the value 50 will be<br>"
-                + "negative in order for the software to determine this special offset<br>"
+                + "negative in order for the software to determine this special offset.<br>"
                 + "For instance Binary Decomposition will produce the following:<br>"
-                + "<b>(if im(z) &lt 0) then return -(n + 50) else return n</b><br><br>"
+                + "<b>(if im(z) &lt 0) then return -(n + 50) else return n</b>.<br><br>"
                 + "This constant offset value of 50, is creating noisy images when<br>"
-                + "applying processing algorithms like Bump-Mapping or Entropy Coloring<br>"
+                + "applying processing algorithms like Bump-Mapping or Entropy Coloring.<br>"
                 + "The same issue arises also in 3d mode, so in order to alleviate the problem,<br>"
-                + "this constant needs to be subtracted before applying any processing<br><br>"
+                + "this constant needs to be subtracted before applying any processing.<br><br>"
                 + "This action is already applied on the included coloring algorithms, but<br>"
                 + "it will not be used for the User Out/In Coloring Algorithms<br>"
                 + "If you want to set your own coloring algorithm that uses this offset, you<br>"
@@ -2215,7 +2304,7 @@ public class CommonFunctions implements Constants {
                 + "<b>Operations:</b><br>"
                 + "+ - * / % ^ ( ) ,<br>"
                 + "<b>Constants:</b><br>"
-                + "pi, e, phi, c10, alpha, delta<br>"
+                + "pi, e, phi, c10, alpha, delta, maxnde<br>"
                 + "<b>Complex Numbers:</b><br>"
                 + "a + bi<br>"
                 + "<b>Trigonometric Functions: f(z)</b><br>"
@@ -2256,5 +2345,19 @@ public class CommonFunctions implements Constants {
             }
             catch (Exception ex) {}
         }
+    }
+
+    public static ArrayList<Integer> getAllFactors(int n) {
+        ArrayList<Integer> factors = new ArrayList<>();
+        int step = n % 2 == 0 ? 1 : 2;
+        double sqrt = Math.sqrt(n);
+        for (int i = 1; i <= sqrt; i += step) {
+            if (n % i == 0) {
+                factors.add(i);
+                factors.add(n / i);
+            }
+        }
+        Collections.sort(factors);
+        return factors;
     }
 }

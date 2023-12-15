@@ -28,7 +28,7 @@ public class EscapeTimeEscapeRadiusMagnet extends EscapeTimeEscapeRadius {
     public EscapeTimeEscapeRadiusMagnet(double log_bailout_squared) {
 
         super(log_bailout_squared);
-        OutNotUsingIncrement = true;
+        OutUsingIncrement = false;
 
     }
 

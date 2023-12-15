@@ -1,3 +1,32 @@
+Version 1.0.8.9
+    -Implemented a non-blocking (Only for the pixel calculation part) successive refinement method with pixel guessing
+    -Optimized the pixel calculation for Mandelbrot by unwrapping some calculations
+    -Added a new option in the Perturbation Theory dialog which sets the Complex Extended Range mode (Combined Exponent/Two Exponents)
+    -Implemented a thread pool to reduce the amount of spawned threads
+    -Implemented some new thread grid splits to allow for different grid dimensions (MxN)
+    -Increased the amount of available samples in Anti-Aliasing
+    -Added more options in Light post-processing method (Windows, fractional value transfer)
+    -Ported the Slope and Numerical Distance Estimator methods from Kalle's Fraktaler as post-processing methods
+    -Added the fractional value transfer in Bump-Mapping, Contour Coloring, Smoothing, and in the 3D Mode
+    -Added a new plane transformation for multiple inflections
+    -Added a new plane influence "C-Sliding"
+    -Added more options in Custom Domain Coloring
+    -Added a new function z = z^2 + c^2 which supports Perturbation Theory
+    -Added functions Buffalo Mandelbrot, Celtic Mandelbrot, Perpendicular Mandelbrot, Perpendicular Burning Ship, Perpendicular Buffalo Mandelbrot, Perpendicular Celtic Mandelbrot which support Perturbation Theory
+    -Added more options to the Custom Direct Palette dialog
+    -Added more color maps to the Direct Palette Loader
+    -Modified the Color Transfer algorithms
+    -Added a new Orbit Trap using an image
+    -Added a new Statistical Coloring algorithm "Checkers"
+    -Histogram coloring can be ordered in the Processing Order dialog
+    -Modified some application flows to reuse the stored data for Anti-Aliasing to avoid the image recalculation
+    -Added a new option to the Generated Palettes to support some cosine related Palettes (by Inigo Quilez)
+    -Added some new random palette generation algorithms that use noise (Perlin/Simplex)
+    -Added a new dialog "Task Statistics" which displays some statistics per thread
+    -Added more options to the normal "Statistics" dialog
+    -Added a new option debug bar on the bottom of the window
+    -Bug Fixes and general improvements
+
 Version 1.0.8.8
     -Added a new BigNum type based on BigInteger which is faster than the built-in type in low zoom levels
     -Added Rank Order in histogram coloring

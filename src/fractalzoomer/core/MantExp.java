@@ -1,10 +1,11 @@
 package fractalzoomer.core;
 
+import fractalzoomer.core.unused.BigDecNum;
 import org.apfloat.Apfloat;
 
 public class MantExp {
     public static final long MIN_SMALL_EXPONENT = -1023;
-    public static final long MIN_BIG_EXPONENT = Long.MIN_VALUE >> 3;
+    public static final long MIN_BIG_EXPONENT = Long.MIN_VALUE >> 7;
     public static final MantExp ZERO = new MantExp(MIN_BIG_EXPONENT, 0.0);
     public static final MantExp POINTTWOFIVE = new MantExp(0.25);
     public static final MantExp POINTFIVE = new MantExp(0.5);
@@ -21,6 +22,7 @@ public class MantExp {
     public static final MantExp NINE = new MantExp(9.0);
     public static final MantExp TEN = new MantExp(10.0);
     public static final MantExp TWELVE = new MantExp(12.0);
+    public static final MantExp FOURTEEN = new MantExp(14.0);
     public static final MantExp SIXTEEN = new MantExp(16.0);
     public static final MantExp EIGHTEEN = new MantExp(18.0);
     public static final MantExp TWENTY = new MantExp(20.0);
@@ -58,11 +60,6 @@ public class MantExp {
     public MantExp(MantExp other) {
         mantissa = other.mantissa;
         exp = other.exp;
-    }
-
-    public MantExp(double mantissa, long exp) {
-        this.mantissa = mantissa;
-        this.exp = exp < MIN_BIG_EXPONENT ? MIN_BIG_EXPONENT : exp;
     }
 
     public MantExp(long exp, double mantissa) {
@@ -124,9 +121,39 @@ public class MantExp {
 
     }
 
-    public void Reduce() {
+    public MantExp(BigDecNum number) {
+
+        if(number.isZero()) {
+            mantissa = 0.0;
+            exp = MIN_BIG_EXPONENT;
+            return;
+        }
+
+        BigDecNum exp = BigDecNum.RECIPROCAL_LOG_TWO_BASE_TEN.mult(number.scale());
+
+        int long_exp = 0;
+
+        double double_exp = exp.doubleValue();
+
+        if(double_exp < 0) {
+            long_exp = (int)(double_exp - 0.5);
+            BigDecNum twoToExp = BigDecNum.TWO.pow(-long_exp);
+            mantissa = number.mult(twoToExp).doubleValue();
+        }
+        else {
+            long_exp = (int)(double_exp + 0.5);
+            BigDecNum twoToExp = BigDecNum.TWO.pow(long_exp);
+            mantissa = number.divide(twoToExp).doubleValue();
+        }
+
+        this.exp = long_exp;
+
+    }
+
+    public void Normalize() {
 
         if(mantissa == 0) {
+            exp = MIN_BIG_EXPONENT;
             return;
         }
 
@@ -225,27 +252,11 @@ public class MantExp {
     }*/
 
     public MantExp divide(MantExp factor) {
-        double mantissa = this.mantissa / factor.mantissa;
-        long exp = this.exp - factor.exp;
-
-        return new MantExp(mantissa, exp);
-
-        /*double abs = Math.abs(res.mantissa);
-        if (abs > 1e50 || abs < 1e-50) {
-            res.Reduce();
-        }*/
+        return new MantExp(exp - factor.exp, mantissa / factor.mantissa);
     }
 
     public MantExp reciprocal() {
-        double mantissa = 1.0 / this.mantissa;
-        long exp = -this.exp;
-
-        return new MantExp(mantissa, exp);
-
-        /*double abs = Math.abs(res.mantissa);
-        if (abs > 1e50 || abs < 1e-50) {
-            res.Reduce();
-        }*/
+        return new MantExp(-exp, 1.0 / mantissa);
     }
 
     public MantExp reciprocal_mutable() {
@@ -256,16 +267,8 @@ public class MantExp {
     }
 
     public MantExp divide_mutable(MantExp factor) {
-        double mantissa = this.mantissa / factor.mantissa;
-        long exp = this.exp - factor.exp;
-
-        this.mantissa = mantissa;
-        this.exp = exp < MIN_BIG_EXPONENT ? MIN_BIG_EXPONENT : exp;
-
-        /*double abs = Math.abs(mantissa);
-        if (abs > 1e50 || abs < 1e-50) {
-            Reduce();
-        }*/
+        exp -= factor.exp;
+        mantissa /= factor.mantissa;
 
         return this;
     }
@@ -281,15 +284,7 @@ public class MantExp {
     }
 
     public MantExp multiply(MantExp factor) {
-        double mantissa = this.mantissa * factor.mantissa;
-        long exp = this.exp + factor.exp;
-
-        return new MantExp(mantissa, exp);
-
-        /*double abs = Math.abs(res.mantissa);
-        if (abs > 1e50 || abs < 1e-50) {
-            res.Reduce();
-        }*/
+        return new MantExp(exp + factor.exp, mantissa * factor.mantissa);
     }
 
     public MantExp multiply(double factor) {
@@ -298,16 +293,8 @@ public class MantExp {
     }
 
     public MantExp multiply_mutable(MantExp factor) {
-        double mantissa = this.mantissa * factor.mantissa;
-        long exp = this.exp + factor.exp;
-
-        this.mantissa = mantissa;
-        this.exp = exp < MIN_BIG_EXPONENT ? MIN_BIG_EXPONENT : exp;
-
-        /*double abs = Math.abs(mantissa);
-        if (abs > 1e50 || abs < 1e-50) {
-            Reduce();
-        }*/
+        exp += factor.exp;
+        mantissa *= factor.mantissa;
 
         return this;
     }
@@ -318,28 +305,12 @@ public class MantExp {
     }
 
     public MantExp square() {
-        double mantissa = this.mantissa * this.mantissa;
-        long exp = this.exp << 1;
-
-        return new MantExp(mantissa, exp);
-
-        /*double abs = Math.abs(res.mantissa);
-        if (abs > 1e50 || abs < 1e-50) {
-            res.Reduce();
-        }*/
+        return new MantExp(exp << 1, mantissa * mantissa);
     }
 
     public MantExp square_mutable() {
-        double mantissa = this.mantissa * this.mantissa;
-        long exp = this.exp << 1;
-
-        this.mantissa = mantissa;
-        this.exp = exp < MIN_BIG_EXPONENT ? MIN_BIG_EXPONENT : exp;
-
-        /*double abs = Math.abs(mantissa);
-        if (abs > 1e50 || abs < 1e-50) {
-            Reduce();
-        }*/
+        exp <<=  1;
+        mantissa = mantissa * mantissa;
 
         return this;
     }
@@ -362,29 +333,53 @@ public class MantExp {
         return this;
     }
 
+    public MantExp multiply8() {
+        return new MantExp(exp + 3, mantissa);
+    }
+
+    public MantExp multiply8_mutable() {
+        exp += 3;
+        return this;
+    }
+
+    public MantExp multiply16() {
+        return new MantExp(exp + 4, mantissa);
+    }
+
+    public MantExp multiply16_mutable() {
+        exp += 4;
+        return this;
+    }
+
+    public MantExp multiply32() {
+        return new MantExp(exp + 5, mantissa);
+    }
+
+    public MantExp multiply32_mutable() {
+        exp += 5;
+        return this;
+    }
+
 
     public MantExp divide2() {
-        return new MantExp(mantissa, exp - 1);
+        return new MantExp(exp - 1, mantissa);
     }
 
     public MantExp divide2_mutable() {
         exp--;
-        this.exp = exp < MIN_BIG_EXPONENT ? MIN_BIG_EXPONENT : exp;
         return this;
     }
 
     public MantExp divide4() {
-        return new MantExp(mantissa, exp - 2);
+        return new MantExp(exp - 2, mantissa);
     }
 
     public MantExp divide4_mutable() {
         exp -= 2;
-        exp--;
-        this.exp = exp < MIN_BIG_EXPONENT ? MIN_BIG_EXPONENT : exp;
         return this;
     }
 
-    public MantExp addOld(MantExp value) {
+    /*public MantExp addOld(MantExp value) {
 
         double temp_mantissa = 0;
         long temp_exp = exp;
@@ -405,14 +400,23 @@ public class MantExp {
 
         return new MantExp(temp_exp, temp_mantissa);
 
-    }
+    }*/
 
     public MantExp add(MantExp value) {
+
+        //The correct way is to check for zero but it messes the performance, hopefully sanitizing the output of addition and subtraction will be fine?
+//        if(mantissa == 0) {
+//            return new MantExp(value.exp, value.mantissa);
+//        }
+//
+//        if(value.mantissa == 0) {
+//            return new MantExp(exp, mantissa);
+//        }
 
         long expDiff = exp - value.exp;
 
         if(expDiff >= EXPONENT_DIFF_IGNORED) {
-            return new MantExp(exp, mantissa, true);
+            return new MantExp(exp, mantissa);
         } else if(expDiff >= 0) {
             double mul = getMultiplier(-expDiff);
             return new MantExp(exp, mantissa + value.mantissa * mul, true);
@@ -424,7 +428,7 @@ public class MantExp {
             double mul = getMultiplier(expDiff);
             return new MantExp(value.exp, mantissa * mul + value.mantissa, true);
         } else {
-            return new MantExp(value.exp, value.mantissa, true);
+            return new MantExp(value.exp, value.mantissa);
         }
 
         /*double temp_mantissa = 0;
@@ -451,6 +455,16 @@ public class MantExp {
 
     public MantExp add_mutable(MantExp value) {
 
+//        if(mantissa == 0) {
+//            exp = value.exp;
+//            mantissa = value.mantissa;
+//            return this;
+//        }
+//
+//        if(value.mantissa == 0) {
+//            return this;
+//        }
+
         long expDiff = exp - value.exp;
 
         if(expDiff >= EXPONENT_DIFF_IGNORED) {
@@ -469,6 +483,7 @@ public class MantExp {
         } else {
             exp = value.exp;
             mantissa = value.mantissa;
+            return this;
         }
 
         if(mantissa == 0) {
@@ -481,10 +496,18 @@ public class MantExp {
 
     public MantExp subtract(MantExp value) {
 
+//        if(mantissa == 0) {
+//            return new MantExp(value.exp, -value.mantissa);
+//        }
+//
+//        if(value.mantissa == 0) {
+//            return new MantExp(exp, mantissa);
+//        }
+
         long expDiff = exp - value.exp;
 
         if(expDiff >= EXPONENT_DIFF_IGNORED) {
-            return new MantExp(exp, mantissa, true);
+            return new MantExp(exp, mantissa);
         } else if(expDiff >= 0) {
             double mul = getMultiplier(-expDiff);
             return new MantExp(exp, mantissa - value.mantissa * mul, true);
@@ -496,11 +519,21 @@ public class MantExp {
             double mul = getMultiplier(expDiff);
             return new MantExp(value.exp, mantissa * mul - value.mantissa, true);
         } else {
-            return new MantExp(value.exp, -value.mantissa, true);
+            return new MantExp(value.exp, -value.mantissa);
         }
     }
 
     public MantExp subtract_mutable(MantExp value) {
+
+//        if(mantissa == 0) {
+//            exp = value.exp;
+//            mantissa = -value.mantissa;
+//            return this;
+//        }
+//
+//        if(value.mantissa == 0) {
+//            return this;
+//        }
 
         long expDiff = exp - value.exp;
 
@@ -520,6 +553,7 @@ public class MantExp {
         } else {
             exp = value.exp;
             mantissa = -value.mantissa;
+            return this;
         }
 
         if(mantissa == 0) {
@@ -565,9 +599,15 @@ public class MantExp {
 
     public int compareToBothPositiveReduced(MantExp compareToReduced) {
 
-//        if(mantissa == 0 && compareToReduced.mantissa == 0) {
-//            return 0;
-//        }
+        if(mantissa == 0 || compareToReduced.mantissa == 0) {
+            if(mantissa > compareToReduced.mantissa) {
+                return 1;
+            }
+            else if(mantissa < compareToReduced.mantissa) {
+                return -1;
+            }
+            return 0;
+        }
 
         if(exp > compareToReduced.exp) {
             return 1;
@@ -589,12 +629,18 @@ public class MantExp {
     }
 
     public int compareToBothPositive(MantExp compareTo) {
-        Reduce();
-        compareTo.Reduce();
+        Normalize();
+        compareTo.Normalize();
 
-//        if(mantissa == 0 && compareTo.mantissa == 0) {
-//            return 0;
-//        }
+        if(mantissa == 0 || compareTo.mantissa == 0) {
+            if(mantissa > compareTo.mantissa) {
+                return 1;
+            }
+            else if(mantissa < compareTo.mantissa) {
+                return -1;
+            }
+            return 0;
+        }
 
         if(exp > compareTo.exp) {
             return 1;
@@ -617,15 +663,21 @@ public class MantExp {
 
     public int compareTo(MantExp compareTo) {
 
-        Reduce();
-        compareTo.Reduce();
+        Normalize();
+        compareTo.Normalize();
 
-        if(mantissa == 0 && compareTo.mantissa == 0) {
+        if(mantissa == 0 || compareTo.mantissa == 0) {
+            if(mantissa > compareTo.mantissa) {
+                return 1;
+            }
+            else if(mantissa < compareTo.mantissa) {
+                return -1;
+            }
             return 0;
         }
 
         if(mantissa > 0) {
-            if(compareTo.mantissa <= 0) {
+            if(compareTo.mantissa < 0) {
                 return 1;
             }
             else if(exp > compareTo.exp) {
@@ -661,7 +713,7 @@ public class MantExp {
                     return 1;
                 }
                 else if(mantissa < compareTo.mantissa) {
-                    return - 1;
+                    return -1;
                 }
                 else {
                     return 0;
@@ -672,12 +724,18 @@ public class MantExp {
 
     public int compareToReduced(MantExp compareToReduced) {
 
-        if(mantissa == 0 && compareToReduced.mantissa == 0) {
+        if(mantissa == 0 || compareToReduced.mantissa == 0) {
+            if(mantissa > compareToReduced.mantissa) {
+                return 1;
+            }
+            else if(mantissa < compareToReduced.mantissa) {
+                return -1;
+            }
             return 0;
         }
 
         if(mantissa > 0) {
-            if(compareToReduced.mantissa <= 0) {
+            if(compareToReduced.mantissa < 0) {
                 return 1;
             }
             else if(exp > compareToReduced.exp) {
@@ -713,7 +771,7 @@ public class MantExp {
                     return 1;
                 }
                 else if(mantissa < compareToReduced.mantissa) {
-                    return - 1;
+                    return -1;
                 }
                 else {
                     return 0;
@@ -737,6 +795,9 @@ public class MantExp {
     }
 
     public long log2approx() {
+        if(mantissa == 0) {
+            return Long.MIN_VALUE;
+        }
         long bits = Double.doubleToRawLongBits(mantissa);
         long exponent = ((bits & 0x7FF0000000000000L) >> 52) + MIN_SMALL_EXPONENT;
         return exponent + exp;

@@ -1,7 +1,7 @@
 package fractalzoomer.fractal_options.iteration_statistics;
 
 import fractalzoomer.core.Complex;
-import fractalzoomer.core.ThreadDraw;
+import fractalzoomer.core.TaskDraw;
 import fractalzoomer.fractal_options.PlanePointOption;
 import fractalzoomer.fractal_options.initial_value.VariableInitialValue;
 import fractalzoomer.main.MainWindow;
@@ -46,7 +46,7 @@ public abstract class GenericUserStatistic extends GenericStatistic {
         }
 
         if (parser.foundISize()) {
-            parser.setISizevalue(new Complex(ThreadDraw.IMAGE_SIZE, 0));
+            parser.setISizevalue(new Complex(TaskDraw.IMAGE_SIZE, 0));
         }
 
         if (parser.foundPoint()) {

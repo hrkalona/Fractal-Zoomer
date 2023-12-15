@@ -17,6 +17,7 @@
 package fractalzoomer.parser;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.utils.ColorAlgorithm;
 
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
@@ -698,13 +699,17 @@ public class Parser {
 
             ExpressionNode expr = null;
 
-            if(temp.equalsIgnoreCase("pi") || temp.equalsIgnoreCase("e") || temp.equalsIgnoreCase("c10") || temp.equalsIgnoreCase("phi") || temp.equalsIgnoreCase("alpha") || temp.equalsIgnoreCase("delta") || temp.equalsIgnoreCase("rand")) {
+            if(temp.equalsIgnoreCase("pi") || temp.equalsIgnoreCase("e") || temp.equalsIgnoreCase("c10") || temp.equalsIgnoreCase("phi") || temp.equalsIgnoreCase("alpha") || temp.equalsIgnoreCase("delta") || temp.equalsIgnoreCase("rand") || temp.equalsIgnoreCase("maxnde")) {
                 if(temp.equalsIgnoreCase("pi")) {
                     expr = new RealConstantExpressionNode(Math.PI);
                 }
 
                 if(temp.equalsIgnoreCase("e")) {
                     expr = new RealConstantExpressionNode(Math.E);
+                }
+
+                if(temp.equalsIgnoreCase("maxnde")) {
+                    expr = new RealConstantExpressionNode(ColorAlgorithm.MAXIMUM_ITERATIONS_DE);
                 }
 
                 if(temp.equalsIgnoreCase("c10")) {

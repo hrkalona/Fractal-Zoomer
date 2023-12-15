@@ -55,7 +55,7 @@ public class BailoutNNormDialog extends JDialog {
 
         Object[] message3 = {
             " ",
-            "You are using " + s.fns.cbs.convergent_n_norm + " as the N-Norm.\nEnter the new N-Norm number.",
+            "You are using " + s.fns.cbs.convergent_n_norm + " as the N-Norm.\nInsert the new N-Norm number.",
             field,
             " ",};
 

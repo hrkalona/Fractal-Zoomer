@@ -67,7 +67,7 @@ public class GenericCpAZpBCDialog extends JDialog {
 
         Object[] obj = {
             " ",
-            "Enter the function parameters,",
+            "Insert the function parameters,",
             func,
             " ",
             alpha_panel,

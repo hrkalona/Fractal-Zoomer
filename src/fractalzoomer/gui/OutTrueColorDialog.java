@@ -386,6 +386,7 @@ public class OutTrueColorDialog extends JDialog {
                 l2.setText("W =");
                 l3.setText("B =");
                 break;
+            case ColorSpaceConverter.HSL_uv:
             case ColorSpaceConverter.HSL:
                 l1.setText("H =");
                 l2.setText("S =");
@@ -402,6 +403,8 @@ public class OutTrueColorDialog extends JDialog {
                 l3.setText("B =");
                 break;
             case ColorSpaceConverter.LCH_ab:
+            case ColorSpaceConverter.LCH_uv:
+            case ColorSpaceConverter.LCH_oklab:
                 l1.setText("L =");
                 l2.setText("C =");
                 l3.setText("H =");

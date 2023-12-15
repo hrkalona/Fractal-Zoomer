@@ -35,7 +35,7 @@ public class ThreadsDialog extends JDialog {
     private JFrame ptra;
     private JOptionPane optionPane;
 
-    public ThreadsDialog(JFrame ptr, int n, int grouping) {
+    public ThreadsDialog(JFrame ptr, int n, int m, int grouping) {
 
         super(ptr);
 
@@ -50,7 +50,7 @@ public class ThreadsDialog extends JDialog {
             setIconImage(MainWindow.getIcon("mandelExpander.png").getImage());
         }
 
-        JComboBox<String> thread_grouping = new JComboBox<>(new String[]{"Grid Split (nxn)", "Horizontal Split (n)", "Vertical Split (n)"});
+        JComboBox<String> thread_grouping = new JComboBox<>(new String[]{"Grid Split (nxn)", "Horizontal Split (n)", "Vertical Split (n)", "Auto Grid Split (n) Horizontal >= Vertical", "Auto Grid Split (n) Vertical >= Horizontal", "Grid Split(mxn)"});
         thread_grouping.setFocusable(false);
         thread_grouping.setToolTipText("Sets the thread grouping method.");
 
@@ -58,7 +58,10 @@ public class ThreadsDialog extends JDialog {
 
         JTextField field = new JTextField(20);
         field.addAncestorListener(new RequestFocusListener());
-        field.setText("" + n);
+        field.setText("" + (grouping == 3 || grouping == 4 ? m * n : n));
+
+        JTextField field2 = new JTextField(20);
+        field2.setText("" + m);
 
         int threadNumber = 0;
 
@@ -70,30 +73,31 @@ public class ThreadsDialog extends JDialog {
             case 2:
                 threadNumber = n;
                 break;
+            case 3:
+            case 4:
+            case 5:
+                threadNumber = m * n;
+                break;
         }
 
         JLabel currentThreads = new JLabel("Current Thread Number: " + threadNumber);
 
 
-        thread_grouping.addActionListener(e -> {
-            handleChange(field, thread_grouping, currentThreads);
-        });
-
         field.getDocument().addDocumentListener(new DocumentListener() {
 
             @Override
             public void insertUpdate(DocumentEvent documentEvent) {
-                handleChange(field, thread_grouping, currentThreads);
+                handleChange(field, field2, thread_grouping, currentThreads);
             }
 
             @Override
             public void removeUpdate(DocumentEvent documentEvent) {
-                handleChange(field, thread_grouping, currentThreads);
+                handleChange(field, field2, thread_grouping, currentThreads);
             }
 
             @Override
             public void changedUpdate(DocumentEvent documentEvent) {
-                handleChange(field, thread_grouping, currentThreads);
+                handleChange(field, field2, thread_grouping, currentThreads);
             }
         });
 
@@ -103,16 +107,36 @@ public class ThreadsDialog extends JDialog {
         p.add(new JLabel("n = "));
         p.add(field);
 
+        JLabel l2 = new JLabel("Insert the number of m.");
+
+        JPanel p2 = new JPanel();
+        p2.setLayout(new FlowLayout(FlowLayout.LEFT));
+
+        p2.add(new JLabel("m = "));
+        p2.add(field2);
+
+        l2.setVisible(thread_grouping.getSelectedIndex() == 5);
+        p2.setVisible(thread_grouping.getSelectedIndex() == 5);
+
+        thread_grouping.addActionListener(e -> {
+            handleChange(field, field2, thread_grouping, currentThreads);
+            l2.setVisible(thread_grouping.getSelectedIndex() == 5);
+            p2.setVisible(thread_grouping.getSelectedIndex() == 5);
+            pack();
+        });
+
 
         Object[] message3 = {
             " ",
-                "Processor Cores: " + Runtime.getRuntime().availableProcessors() ,
+                "Logical Processors: " + Runtime.getRuntime().availableProcessors(),
                 currentThreads,
                 " ",
                 "Thread Split:",
                 thread_grouping,
                 " ",
-            "Enter the number of n.",
+                l2,
+                p2,
+            "Insert the number of n.",
                 p,
             " ",};
 
@@ -152,6 +176,7 @@ public class ThreadsDialog extends JDialog {
 
                         try {
                             int temp = Integer.parseInt(field.getText());
+                            int tempm = Integer.parseInt(field2.getText());
 
                             int tempgrouping = thread_grouping.getSelectedIndex();
 
@@ -161,6 +186,25 @@ public class ThreadsDialog extends JDialog {
                                     return;
                                 } else if (temp > 100) {
                                     JOptionPane.showMessageDialog(ptra, "The first dimension number of the 2D threads\ngrid must be lower than 101.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                    return;
+                                }
+                            }
+                            if(tempgrouping == 5) {
+
+
+                                if (tempm < 1) {
+                                    JOptionPane.showMessageDialog(ptra, "The value m must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                    return;
+                                } else if (tempm > 100) {
+                                    JOptionPane.showMessageDialog(ptra, "The value m must be lower than 101.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                    return;
+                                }
+
+                                if (temp < 1) {
+                                    JOptionPane.showMessageDialog(ptra, "The value n must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                    return;
+                                } else if (temp > 100) {
+                                    JOptionPane.showMessageDialog(ptra, "The value n must be lower than 101.", "Error!", JOptionPane.ERROR_MESSAGE);
                                     return;
                                 }
                             }
@@ -175,9 +219,9 @@ public class ThreadsDialog extends JDialog {
                             }
 
                             if (ptra instanceof MainWindow) {
-                                ((MainWindow) ptra).setThreadsNumberPost(tempgrouping, temp);
+                                ((MainWindow) ptra).setThreadsNumberPost(tempgrouping, temp, tempm);
                             } else if (ptra instanceof ImageExpanderWindow) {
-                                ((ImageExpanderWindow) ptra).setThreadsNumberPost(tempgrouping, temp);
+                                ((ImageExpanderWindow) ptra).setThreadsNumberPost(tempgrouping, temp, tempm);
                             }
                         } catch (Exception ex) {
                             JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
@@ -199,9 +243,10 @@ public class ThreadsDialog extends JDialog {
 
     }
 
-    private void handleChange(JTextField field, JComboBox<String> thread_grouping, JLabel currentThreads) {
+    private void handleChange(JTextField field, JTextField field2, JComboBox<String> thread_grouping, JLabel currentThreads) {
         try {
             int tempn = Integer.parseInt(field.getText());
+            int tempm = Integer.parseInt(field2.getText());
 
             int threadNumberTemp = 0;
 
@@ -211,7 +256,13 @@ public class ThreadsDialog extends JDialog {
                     break;
                 case 1:
                 case 2:
+                case 3:
+                case 4:
                     threadNumberTemp = tempn;
+                    break;
+
+                case 5:
+                    threadNumberTemp = tempn * tempm;
                     break;
             }
 

@@ -30,7 +30,7 @@ public class ZMag extends InColorAlgorithm {
 
         super();
         this.max_iterations = max_iterations;
-        InNotUsingIncrement = true;
+        InUsingIncrement = false;
 
     }
 

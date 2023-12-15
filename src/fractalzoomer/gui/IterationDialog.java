@@ -48,7 +48,7 @@ public class IterationDialog extends JDialog {
 
         Object[] message3 = {
             " ",
-            "You are using maximum " + s.max_iterations + " iterations.\nEnter the new maximum iterations number.",
+            "You are using maximum " + s.max_iterations + " iterations.\nInsert the new maximum iterations number.",
             field,
             " ",};
 
@@ -87,7 +87,7 @@ public class IterationDialog extends JDialog {
                         }
 
                         try {
-                            int temp = Integer.parseInt(field.getText());
+                            long temp = Long.parseLong(field.getText());
 
                             if (temp < 1) {
                                 JOptionPane.showMessageDialog(ptra, "Maximum iterations number must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
@@ -97,7 +97,7 @@ public class IterationDialog extends JDialog {
                                 return;
                             }
 
-                            s.max_iterations = temp;
+                            s.max_iterations = (int)temp;
                         } catch (Exception ex) {
                             JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                             return;

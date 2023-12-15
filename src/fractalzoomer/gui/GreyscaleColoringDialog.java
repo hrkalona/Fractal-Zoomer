@@ -16,7 +16,7 @@
  */
 package fractalzoomer.gui;
 
-import fractalzoomer.core.ThreadDraw;
+import fractalzoomer.core.TaskDraw;
 import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
@@ -45,11 +45,11 @@ public class GreyscaleColoringDialog extends JDialog {
         setIconImage(MainWindow.getIcon("mandel2.png").getImage());
 
         final JCheckBox enable_greyscale_coloring = new JCheckBox("Greyscale Coloring");
-        enable_greyscale_coloring.setSelected(s.gss.greyscale_coloring);
+        enable_greyscale_coloring.setSelected(s.pps.gss.greyscale_coloring);
         enable_greyscale_coloring.setFocusable(false);
 
         JTextField noise_factor_field = new JTextField();
-        noise_factor_field.setText("" + s.gss.gs_noise_reducing_factor);
+        noise_factor_field.setText("" + s.pps.gss.gs_noise_reducing_factor);
 
         Object[] message = {
             " ",
@@ -102,8 +102,8 @@ public class GreyscaleColoringDialog extends JDialog {
                                 return;
                             }
 
-                            s.gss.greyscale_coloring = enable_greyscale_coloring.isSelected();
-                            s.gss.gs_noise_reducing_factor = temp2;
+                            s.pps.gss.greyscale_coloring = enable_greyscale_coloring.isSelected();
+                            s.pps.gss.gs_noise_reducing_factor = temp2;
                         } catch (Exception ex) {
                             JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                             return;
@@ -111,7 +111,7 @@ public class GreyscaleColoringDialog extends JDialog {
 
                         dispose();
 
-                        if (greedy_algorithm && !ThreadDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA && enable_greyscale_coloring.isSelected() && !julia_map && !s.d3s.d3) {
+                        if (greedy_algorithm && !TaskDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA && enable_greyscale_coloring.isSelected() && !julia_map && !s.d3s.d3) {
                             JOptionPane.showMessageDialog(ptra, Constants.greedyWarning, "Warning!", JOptionPane.WARNING_MESSAGE);
                         }
 

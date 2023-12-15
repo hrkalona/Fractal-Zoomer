@@ -30,7 +30,7 @@ public class MagTimesCosReSquared extends InColorAlgorithm {
     public MagTimesCosReSquared(int max_iterations) { 
        
         super();
-        InNotUsingIncrement = true;
+        InUsingIncrement = false;
         this.max_iterations = max_iterations;
     
     }

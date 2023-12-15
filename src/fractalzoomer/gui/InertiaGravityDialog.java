@@ -120,7 +120,7 @@ public class InertiaGravityDialog extends JDialog {
 
         Object[] magnets = {
             " ",
-            "Enter the modified inertia/gravity simulation parameters",
+            "Insert the modified inertia/gravity simulation parameters",
             p1,
             p2,
             inertia_panels[0],

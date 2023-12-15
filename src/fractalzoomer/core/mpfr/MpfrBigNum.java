@@ -1,7 +1,7 @@
 package fractalzoomer.core.mpfr;
 
 import fractalzoomer.core.MantExp;
-import fractalzoomer.core.ThreadDraw;
+import fractalzoomer.core.TaskDraw;
 import fractalzoomer.core.mpir.MpirBigNum;
 import fractalzoomer.core.mpir.mpf_t;
 import org.apfloat.Apfloat;
@@ -16,7 +16,7 @@ public class MpfrBigNum {
     public static MpfrBigNum PI;
     public static MpfrBigNum HALF_PI;
 
-    public static long precision = ThreadDraw.BIGNUM_PRECISION;
+    public static long precision = TaskDraw.BIGNUM_PRECISION;
 
     public static final long intPrec = 32;
     public static final long doublePrec = 53;
@@ -48,7 +48,7 @@ public class MpfrBigNum {
     }
 
     public static void reinitialize(double digits) {
-        precision = (int)(digits * ThreadDraw.BIGNUM_PRECISION_FACTOR + 0.5);
+        precision = (int)(digits * TaskDraw.BIGNUM_PRECISION_FACTOR + 0.5);
 
         if(!hasError()) {
             SQRT_TWO = new MpfrBigNum(2).sqrt();
@@ -269,6 +269,27 @@ public class MpfrBigNum {
 
     public MpfrBigNum divide4(MpfrBigNum result) {
         mpfr_div_2ui(result.mpfrMemory.peer, mpfrMemory.peer, 2, rounding);
+        return result;
+    }
+
+    public MpfrBigNum shift2toi(long val) {
+        MpfrBigNum result = new MpfrBigNum();
+        if(val < 0) {
+            mpfr_div_2ui(result.mpfrMemory.peer, mpfrMemory.peer, -val, rounding);
+        }
+        else {
+            mpfr_mul_2ui(result.mpfrMemory.peer, mpfrMemory.peer, val, rounding);
+        }
+        return result;
+    }
+
+    public MpfrBigNum shift2toi(long val, MpfrBigNum result) {
+        if(val < 0) {
+            mpfr_div_2ui(result.mpfrMemory.peer, mpfrMemory.peer, -val, rounding);
+        }
+        else {
+            mpfr_mul_2ui(result.mpfrMemory.peer, mpfrMemory.peer, val, rounding);
+        }
         return result;
     }
 

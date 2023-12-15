@@ -108,6 +108,8 @@ public class PlanesMenu extends MyMenu {
         planeNames[MainWindow.INFLECTION_PLANE] = "Inflection";
         planeNames[MainWindow.RIPPLES_PLANE] = "Ripples";
         planeNames[MainWindow.SKEW_PLANE] = "Skew";
+        planeNames[MainWindow.INFLECTIONS_PLANE] = "Multiple Inflections";
+        planeNames[MainWindow.MU_FOURTH_PLANE] = "mu^4";
     }
 
     public PlanesMenu(MainWindow ptr2, String name, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, int plane_type) {
@@ -170,6 +172,12 @@ public class PlanesMenu extends MyMenu {
         planes[MainWindow.MU_SQUARED_PLANE].addActionListener(e -> ptr.setPlane(MainWindow.MU_SQUARED_PLANE));
         planes_general_menu.add(planes[MainWindow.MU_SQUARED_PLANE]);
         planes_button_group.add(planes[MainWindow.MU_SQUARED_PLANE]);
+
+        planes[MainWindow.MU_FOURTH_PLANE] = new JRadioButtonMenuItem(planeNames[MainWindow.MU_FOURTH_PLANE]);
+        planes[MainWindow.MU_FOURTH_PLANE].setToolTipText("The mu fourth plane.");
+        planes[MainWindow.MU_FOURTH_PLANE].addActionListener(e -> ptr.setPlane(MainWindow.MU_FOURTH_PLANE));
+        planes_general_menu.add(planes[MainWindow.MU_FOURTH_PLANE]);
+        planes_button_group.add(planes[MainWindow.MU_FOURTH_PLANE]);
 
         planes[MainWindow.MU_SQUARED_IMAGINARY_PLANE] = new JRadioButtonMenuItem(planeNames[MainWindow.MU_SQUARED_IMAGINARY_PLANE]);
         planes[MainWindow.MU_SQUARED_IMAGINARY_PLANE].setToolTipText("The mu squared imaginary plane.");
@@ -248,6 +256,12 @@ public class PlanesMenu extends MyMenu {
         planes[MainWindow.INFLECTION_PLANE].addActionListener(e -> ptr.setPlane(MainWindow.INFLECTION_PLANE));
         planes_general_menu.add(planes[MainWindow.INFLECTION_PLANE]);
         planes_button_group.add(planes[MainWindow.INFLECTION_PLANE]);
+
+        planes[MainWindow.INFLECTIONS_PLANE] = new JRadioButtonMenuItem(planeNames[MainWindow.INFLECTIONS_PLANE]);
+        planes[MainWindow.INFLECTIONS_PLANE].setToolTipText("The multiple inflection plane.");
+        planes[MainWindow.INFLECTIONS_PLANE].addActionListener(e -> ptr.setPlane(MainWindow.INFLECTIONS_PLANE));
+        planes_general_menu.add(planes[MainWindow.INFLECTIONS_PLANE]);
+        planes_button_group.add(planes[MainWindow.INFLECTIONS_PLANE]);
 
         planes[MainWindow.FOLDUP_PLANE] = new JRadioButtonMenuItem(planeNames[MainWindow.FOLDUP_PLANE]);
         planes[MainWindow.FOLDUP_PLANE].setToolTipText("The fold up plane.");

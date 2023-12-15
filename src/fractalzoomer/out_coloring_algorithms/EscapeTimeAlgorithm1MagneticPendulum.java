@@ -30,7 +30,7 @@ public class EscapeTimeAlgorithm1MagneticPendulum extends OutColorAlgorithm {
         super();
         
         this.zold = zold;
-        OutNotUsingIncrement = true;
+        OutUsingIncrement = false;
         
     }
 

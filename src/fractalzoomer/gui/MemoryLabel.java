@@ -35,9 +35,15 @@ public class MemoryLabel extends JLabel {
     private double maxMemory;
     private final double installedMemory = getInstalledMemory() / MiB;
     private double allocatedMemory, usedMemory;
-    private static final Color USED_MEMORY_COLOR = new Color(76, 139, 245);
-    private static final Color ALLOCATED_MEMORY_COLOR = new Color(221, 80, 68);
-    private static final Color FREE_MEMORY_COLOR = new Color(26, 162, 96);
+
+    public static final int MEMORY_DELAY = 20000;
+//    private static final Color USED_MEMORY_COLOR = new Color(76, 139, 245);
+//    private static final Color ALLOCATED_MEMORY_COLOR = new Color(221, 80, 68);
+//    private static final Color FREE_MEMORY_COLOR = new Color(26, 162, 96);
+
+    private static final Color FREE_MEMORY_COLOR = new Color(0xAABE7D);
+    private static final Color ALLOCATED_MEMORY_COLOR = new Color(0xFFBE7D);
+    private static final Color USED_MEMORY_COLOR = new Color(0xFFFFD1);
     private static final int PANEL_HEIGHT = 23;
     private static final String HASHES = "##############################";
     private static final String ZEROS = "0000000000000000000000000000000000000000000000000000000000000000";
@@ -85,9 +91,9 @@ public class MemoryLabel extends JLabel {
                 + Math.round(allocatedMemory) + "M / "
                 + Math.round(maxMemory) + "M");
         setToolTipText("<html>Java heap space:<br>&bull; <b>" + formatDouble(usedMemory, 1)
-                + " MiB</b> used<br>&bull; <b>" + formatDouble(allocatedMemory, 1)
-                + " MiB</b> allocated<br>&bull; <b>" + formatDouble(maxMemory, 1) + " MiB</b> maximum"
-                + "<br>Installed RAM: <b>" + formatDouble(installedMemory) + " MiB</b></html>");
+                + " MB</b> used<br>&bull; <b>" + formatDouble(allocatedMemory, 1)
+                + " MB</b> allocated<br>&bull; <b>" + formatDouble(maxMemory, 1) + " MB</b> maximum"
+                + "<br>Installed RAM: <b>" + formatDouble(installedMemory) + " MB</b></html>");
         repaint();
     }
 

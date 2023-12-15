@@ -44,7 +44,7 @@ public class PaletteMenu extends MyMenu {
     private MainWindow ptr;
     private JRadioButtonMenuItem[] palette;
     public static final String[] paletteNames;
-    private JMenu paletteLegacyFractintMenu;
+    private JMenu paletteLegacyFractintMen;
 
     private JMenuItem colorMapframe;
     private JMenuItem alternativeCustomDirectPalette;
@@ -95,6 +95,10 @@ public class PaletteMenu extends MyMenu {
         paletteNames[38] = "Q Fractal 3";
         paletteNames[39] = "Q Fractal 4";
         paletteNames[40] = "Q Fractal 5";
+        paletteNames[41] = "FX Fast Changes";
+        paletteNames[42] = "FX Rainbow";
+        paletteNames[43] = "FX Three Primaries";
+        paletteNames[44] = "FX Six Primaries";
     }
 
     public PaletteMenu(MainWindow ptr2, String name, int color_choice, boolean smoothing, int[][] custom_palette, int color_interpolation, int color_space, boolean reversed_palette, int color_cycling_location, double scale_factor_palette_val, int processing_alg, final boolean outcoloring_mode, int temp_color_cycling_location) {
@@ -104,10 +108,21 @@ public class PaletteMenu extends MyMenu {
         this.ptr = ptr2;
 
         setIcon(MainWindow.getIcon("palette.png"));
-        
-        paletteLegacyFractintMenu = new MyMenu("Other Paletttes/Maps");
-        paletteLegacyFractintMenu.setIcon(MainWindow.getIcon("palette.png"));
-        
+
+        paletteLegacyFractintMen = new MyMenu("Other Palettes/Maps");
+        paletteLegacyFractintMen.setIcon(MainWindow.getIcon("palette.png"));
+
+        JMenu p1 = new MyMenu("(1)");
+        p1.setIcon(MainWindow.getIcon("palette.png"));
+
+        JMenu p2 = new MyMenu("(2)");
+        p2.setIcon(MainWindow.getIcon("palette.png"));
+
+        paletteLegacyFractintMen.add(p1);
+        paletteLegacyFractintMen.add(p2);
+
+        int count = 0;
+
         palette = new JRadioButtonMenuItem[paletteNames.length];
 
         ButtonGroup palettes_group = new ButtonGroup();
@@ -179,7 +194,7 @@ public class PaletteMenu extends MyMenu {
                 
                 addSeparator();
                 
-                add(paletteLegacyFractintMenu);
+                add(paletteLegacyFractintMen);
                 
                 palette[i].addActionListener(e -> ptr.openCustomPaletteEditor(temp, outcoloring_mode));
 
@@ -195,8 +210,15 @@ public class PaletteMenu extends MyMenu {
             }
             else {
                 palette[i].addActionListener(e -> ptr.setPalette(temp, null, outcoloring_mode ? 0 : 1));
-                
-                paletteLegacyFractintMenu.add(palette[i]);
+
+                count++;
+
+                if(count < 13) {
+                    p1.add(palette[i]);
+                }
+                else {
+                    p2.add(palette[i]);
+                }
             }
 
             
@@ -271,6 +293,10 @@ public class PaletteMenu extends MyMenu {
         palette[38].setToolTipText("A palette from QFractal.");
         palette[39].setToolTipText("A palette from QFractal.");
         palette[40].setToolTipText("A palette from QFractal.");
+        palette[41].setToolTipText("A palette from Fractal Extreme.");
+        palette[42].setToolTipText("A palette from Fractal Extreme.");
+        palette[43].setToolTipText("A palette from Fractal Extreme.");
+        palette[44].setToolTipText("A palette from Fractal Extreme.");
     }
 
     public JRadioButtonMenuItem[] getPalette() {

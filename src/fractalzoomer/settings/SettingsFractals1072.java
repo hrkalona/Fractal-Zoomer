@@ -63,12 +63,12 @@ public class SettingsFractals1072 extends SettingsFractals1071 implements Serial
         direct_palette = s.ps.direct_palette;
         direct_palette2 = s.ps2.direct_palette;
         
-        trapColor1 = s.ots.trapColor1;
-        trapColor2 = s.ots.trapColor2;
-        trapColor3 = s.ots.trapColor3;
-        trapColorInterpolation = s.ots.trapColorInterpolation;
-        trapIncludeNotEscaped = s.ots.trapIncludeNotEscaped;
-        trapIncludeEscaped = s.ots.trapIncludeEscaped;
+        trapColor1 = s.pps.ots.trapColor1;
+        trapColor2 = s.pps.ots.trapColor2;
+        trapColor3 = s.pps.ots.trapColor3;
+        trapColorInterpolation = s.pps.ots.trapColorInterpolation;
+        trapIncludeNotEscaped = s.pps.ots.trapIncludeNotEscaped;
+        trapIncludeEscaped = s.pps.ots.trapIncludeEscaped;
         
         pendulumHeight = s.fns.mps.height;
         magnetLocation = s.fns.mps.magnetLocation;
@@ -94,8 +94,8 @@ public class SettingsFractals1072 extends SettingsFractals1071 implements Serial
         lyapunovExpression = s.fns.lpns.lyapunovExpression;
         useLyapunovExponent = s.fns.lpns.useLyapunovExponent;
         
-        statisticIncludeEscaped = s.sts.statisticIncludeEscaped;
-        statisticIncludeNotEscaped = s.sts.statisticIncludeNotEscaped;
+        statisticIncludeEscaped = s.pps.sts.statisticIncludeEscaped;
+        statisticIncludeNotEscaped = s.pps.sts.statisticIncludeNotEscaped;
         
     }
     

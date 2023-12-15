@@ -39,7 +39,7 @@ public class SmoothEscapeTimeGrid extends OutColorAlgorithm {
         this.algorithm = algorithm;
         usePower = false;
 
-        OutNotUsingIncrement = false;
+        OutUsingIncrement = true;
     }
 
     public SmoothEscapeTimeGrid(double log_bailout_squared, int algorithm, double log_power) {
@@ -51,7 +51,7 @@ public class SmoothEscapeTimeGrid extends OutColorAlgorithm {
         usePower = true;
         this.log_power = log_power;
 
-        OutNotUsingIncrement = false;
+        OutUsingIncrement = true;
     }
 
     @Override

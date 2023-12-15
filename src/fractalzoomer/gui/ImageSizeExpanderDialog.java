@@ -48,7 +48,7 @@ public class ImageSizeExpanderDialog extends JDialog {
 
         Object[] message3 = {
             " ",
-            "Your image size is " + image_size + "x" + image_size + " .\nEnter the new image size.\nOnly one dimension is required.",
+            "Your image size is " + image_size + "x" + image_size + " .\nInsert the new image size.\nOnly one dimension is required.",
             field,
             " ",};
 
@@ -92,6 +92,11 @@ public class ImageSizeExpanderDialog extends JDialog {
 
                             if (temp < 1) {
                                 JOptionPane.showMessageDialog(ptr, "Image size must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+
+                            if(temp > 46500) {
+                                JOptionPane.showMessageDialog(ptr, "Image size must be less than 46501.", "Error!", JOptionPane.ERROR_MESSAGE);
                                 return;
                             }
                         } catch (Exception ex) {

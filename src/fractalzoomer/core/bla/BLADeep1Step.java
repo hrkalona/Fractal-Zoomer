@@ -2,12 +2,20 @@ package fractalzoomer.core.bla;
 
 import fractalzoomer.core.MantExp;
 import fractalzoomer.core.MantExpComplex;
+import fractalzoomer.core.TaskDraw;
 
 public class BLADeep1Step extends BLADeep {
     //This class Assumes that B is 1 + 0i
-    public static MantExpComplex B = new MantExpComplex(MantExp.ONE, MantExp.ZERO);
+    public static MantExpComplex B = MantExpComplex.ONE;
 
-    public BLADeep1Step(MantExp r2, MantExpComplex A) {
+    public static BLADeep create(MantExp r2, MantExpComplex A) {
+        if(TaskDraw.MANTEXPCOMPLEX_FORMAT == 1) {
+            return new BLADeepFull1Step(r2, A);
+        }
+        return new BLADeep1Step(r2, A);
+    }
+
+    private BLADeep1Step(MantExp r2, MantExpComplex A) {
         super(r2, A);
     }
 
@@ -17,7 +25,7 @@ public class BLADeep1Step extends BLADeep {
         //double zxn = Ax * zx - Ay * zy + Bx * cx - By * cy;
         //double zyn = Ax * zy + Ay * zx + Bx * cy + By * cx;
 
-        return MantExpComplex.AtXpY(new MantExpComplex(Aexp, Ax, Ay), DeltaSubN, DeltaSub0);
+        return DeltaSubN.times(Aexp, Ax, Ay).plus_mutable(DeltaSub0);
     }
 
     @Override
@@ -25,8 +33,7 @@ public class BLADeep1Step extends BLADeep {
 
         //double zxn = Ax * zx - Ay * zy + Bx * cx - By * cy;
         //double zyn = Ax * zy + Ay * zx + Bx * cy + By * cx;
-
-        return MantExpComplex.AtXpY(new MantExpComplex(Aexp, Ax, Ay), DeltaSubN, DeltaSub0);
+        return DeltaSubN.times(Aexp, Ax, Ay).plus_mutable(DeltaSub0);
     }
 
     @Override
@@ -41,6 +48,6 @@ public class BLADeep1Step extends BLADeep {
 
     @Override
     public MantExpComplex getB() {
-        return new MantExpComplex(B);
+        return MantExpComplex.copy(B);
     }
 }

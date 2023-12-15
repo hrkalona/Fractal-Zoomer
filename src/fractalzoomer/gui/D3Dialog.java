@@ -16,7 +16,7 @@
  */
 package fractalzoomer.gui;
 
-import fractalzoomer.core.ThreadDraw;
+import fractalzoomer.core.TaskDraw;
 import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
@@ -130,30 +130,43 @@ public class D3Dialog extends JDialog {
         height_algorithm_opt.setFocusable(false);
         height_algorithm_opt.setToolTipText("Sets the height algorithm.");
 
-        final JCheckBox gaussian_scaling_opt = new JCheckBox("Gaussian Normalization");
+        final JCheckBox gaussian_scaling_opt = new JCheckBox("Gaussian Smooth");
         gaussian_scaling_opt.setSelected(s.d3s.gaussian_scaling);
         gaussian_scaling_opt.setFocusable(false);
-        gaussian_scaling_opt.setToolTipText("Enables the gaussian normalization.");
+        gaussian_scaling_opt.setToolTipText("Enables the gaussian smoothing.");
+
+        final JCheckBox bilateral_scaling_opt = new JCheckBox("Bilateral Smooth");
+        bilateral_scaling_opt.setSelected(s.d3s.bilateral_scaling);
+        bilateral_scaling_opt.setFocusable(false);
+        bilateral_scaling_opt.setToolTipText("Enables the bilateral smoothing.");
+
+        gaussian_scaling_opt.setEnabled(!bilateral_scaling_opt.isSelected());
 
         final JTextField field3 = new JTextField();
-        field3.setText("" + s.d3s.gaussian_weight);
-        field3.setEnabled(s.d3s.gaussian_scaling);
+        field3.setText("" + s.d3s.sigma_r);
+        field3.setEnabled(s.d3s.gaussian_scaling || s.d3s.bilateral_scaling);
+
+        final JTextField field4 = new JTextField();
+        field4.setText("" + s.d3s.sigma_s);
+        field4.setEnabled(s.d3s.bilateral_scaling);
 
         String[] kernels = {"3", "5", "7", "9", "11"};
         final JComboBox<String> kernels_size_opt = new JComboBox<>(kernels);
         kernels_size_opt.setSelectedIndex(s.d3s.gaussian_kernel);
         kernels_size_opt.setFocusable(false);
-        kernels_size_opt.setEnabled(s.d3s.gaussian_scaling);
-        kernels_size_opt.setToolTipText("Sets the radius of the gaussian normalization.");
+        kernels_size_opt.setEnabled(s.d3s.gaussian_scaling || s.d3s.bilateral_scaling);
+        kernels_size_opt.setToolTipText("Sets the kernel size of the gaussian/bilateral smoothing.");
 
         gaussian_scaling_opt.addActionListener(e -> {
-            if (gaussian_scaling_opt.isSelected()) {
-                field3.setEnabled(true);
-                kernels_size_opt.setEnabled(true);
-            } else {
-                field3.setEnabled(false);
-                kernels_size_opt.setEnabled(false);
-            }
+            field3.setEnabled(bilateral_scaling_opt.isSelected() || gaussian_scaling_opt.isSelected());
+            kernels_size_opt.setEnabled(bilateral_scaling_opt.isSelected() || gaussian_scaling_opt.isSelected());
+        });
+
+        bilateral_scaling_opt.addActionListener( e -> {
+            field3.setEnabled(bilateral_scaling_opt.isSelected() || gaussian_scaling_opt.isSelected());
+            field4.setEnabled(bilateral_scaling_opt.isSelected());
+            kernels_size_opt.setEnabled(bilateral_scaling_opt.isSelected() || gaussian_scaling_opt.isSelected());
+            gaussian_scaling_opt.setEnabled(!bilateral_scaling_opt.isSelected());
         });
 
 
@@ -201,6 +214,56 @@ public class D3Dialog extends JDialog {
         triangle_color_panel.setLayout(new GridLayout(2, 1));
         triangle_color_panel.add(new JLabel("Set the triangle coloring method."));
 
+        JPanel fractional_transfer_panel1 = new JPanel();
+        fractional_transfer_panel1.add(new JLabel("Set the fractional value transfer."));
+        fractional_transfer_panel1.setLayout(new GridLayout(2, 1));
+
+        JPanel fractional_transfer_panel = new JPanel();
+        fractional_transfer_panel.setLayout(new GridLayout(2, 4));
+
+        fractional_transfer_panel1.add(fractional_transfer_panel);
+
+
+        fractional_transfer_panel.add(new JLabel("Fractional Transfer:", SwingConstants.HORIZONTAL));
+        fractional_transfer_panel.add(new JLabel("Transfer Mode:", SwingConstants.HORIZONTAL));
+        fractional_transfer_panel.add(new JLabel("Smoothing:", SwingConstants.HORIZONTAL));
+        fractional_transfer_panel.add(new JLabel("Scale:", SwingConstants.HORIZONTAL));
+
+        final JComboBox<String> fractional_transfer = new JComboBox<>(Constants.fractionalTransfer);
+        fractional_transfer.setSelectedIndex(s.d3s.fractionalTransfer);
+        fractional_transfer.setFocusable(false);
+        fractional_transfer.setToolTipText("Sets the fractional transfer function.");
+
+        final JComboBox<String> fractional_transfer_mode = new JComboBox<>(Constants.fractionalTransferMode);
+        fractional_transfer_mode.setSelectedIndex(s.d3s.fractionalTransferMode);
+        fractional_transfer_mode.setFocusable(false);
+        fractional_transfer_mode.setToolTipText("Sets the fractional transfer mode.");
+
+        fractional_transfer_mode.setEnabled(fractional_transfer.getSelectedIndex() != 0);
+        fractional_transfer.addActionListener(e -> fractional_transfer_mode.setEnabled(fractional_transfer.getSelectedIndex() != 0));
+
+        final JComboBox<String> fractional_smoothing = new JComboBox<>(Constants.FadeAlgs);
+        fractional_smoothing.setSelectedIndex(s.d3s.fractionalSmoothing);
+        fractional_smoothing.setFocusable(false);
+        fractional_smoothing.setToolTipText("Sets the fractional smoothing function.");
+
+        JTextField fractional_scale = new JTextField(10);
+        fractional_scale.setText("" + s.d3s.fractionalTransferScale);
+
+        JPanel p20 = new JPanel();
+        p20.add(fractional_transfer);
+        JPanel p22 = new JPanel();
+        p22.add(fractional_transfer_mode);
+        JPanel p21 = new JPanel();
+        p21.add(fractional_smoothing);
+        JPanel p23 = new JPanel();
+        p23.add(fractional_scale);
+
+        fractional_transfer_panel.add(p20);
+        fractional_transfer_panel.add(p22);
+        fractional_transfer_panel.add(p21);
+        fractional_transfer_panel.add(p23);
+
         String[] shades = {"White & Black", "White", "Black"};
 
         final JComboBox<String> shade_choice_box = new JComboBox<>(shades);
@@ -221,9 +284,14 @@ public class D3Dialog extends JDialog {
         shade_invert_opt.setToolTipText("Inverts the height shading.");
 
         JComboBox<String> triangle_coloring = new JComboBox<>(new String[]{"Simple", "Barycentric Gradient", "Average"});
-        triangle_coloring.setSelectedIndex(ThreadDraw.D3_APPLY_AVERAGE_TO_TRIANGLE_COLORS);
+        triangle_coloring.setSelectedIndex(TaskDraw.D3_APPLY_AVERAGE_TO_TRIANGLE_COLORS);
         triangle_coloring.setFocusable(false);
         triangle_coloring.setToolTipText("Sets the triangle coloring method.");
+
+        JPanel p40 = new JPanel();
+        p40.setLayout(new FlowLayout(FlowLayout.LEFT));
+        p40.add(gaussian_scaling_opt);
+        p40.add(bilateral_scaling_opt);
 
         JPanel pp = new JPanel();
         pp.add(triangle_coloring);
@@ -266,6 +334,7 @@ public class D3Dialog extends JDialog {
 
         tabbedPane.addTab("Color", cblend_panel);
         tabbedPane.addTab("Height Shading", height_color_panel);
+        tabbedPane.add("Fractional Transfer", fractional_transfer_panel1);
         tabbedPane.addTab("Triangle Coloring", triangle_color_panel);
 
         JPanel temp_p2 = new JPanel();
@@ -276,11 +345,25 @@ public class D3Dialog extends JDialog {
         temp_p2.add(size_opt);
 
         JPanel temp_p = new JPanel();
-        temp_p.setLayout(new GridLayout(2, 2));
-        temp_p.add(new JLabel("Weight:", SwingConstants.HORIZONTAL));
-        temp_p.add(new JLabel("Radius:", SwingConstants.HORIZONTAL));
+        temp_p.setLayout(new GridLayout(2, 3));
+        temp_p.add(new JLabel("Sigma R:", SwingConstants.HORIZONTAL));
+        temp_p.add(new JLabel("Sigma S:", SwingConstants.HORIZONTAL));
+        temp_p.add(new JLabel("Kernel Length:", SwingConstants.HORIZONTAL));
         temp_p.add(field3);
+        temp_p.add(field4);
         temp_p.add(kernels_size_opt);
+
+        JCheckBox invert_orientation = new JCheckBox("Invert Orientation");
+        invert_orientation.setFocusable(false);
+        invert_orientation.setSelected(s.d3s.height_invert);
+        invert_orientation.setToolTipText("Inverts the height.");
+
+        JPanel temp_p4 = new JPanel();
+        temp_p4.setLayout(new GridLayout(2, 2));
+        temp_p4.add(new JLabel("Scale:", SwingConstants.HORIZONTAL));
+        temp_p4.add(new JLabel("", SwingConstants.HORIZONTAL));
+        temp_p4.add(field2);
+        temp_p4.add(invert_orientation);
 
 
         /*final JTextField field_granularity = new JTextField();
@@ -324,9 +407,8 @@ public class D3Dialog extends JDialog {
                 " ",
             "Set the 3D detail level and size.",
             temp_p2,
-            "Set the scale of the height.",
-            "Scale:",
-            field2,
+            "Set the scale and orientation of the height.",
+            temp_p4,
             temp_p3,
             " ",
             "Set the height algorithm.",
@@ -337,8 +419,8 @@ public class D3Dialog extends JDialog {
                 "Outliers Removal Method:",
                 outliersAlgorithm,
             " ",
-            "Select the gaussian normalization weight and radius.",
-            gaussian_scaling_opt,
+            "Select the gaussian/bilateral smoothing sigma and kernel length.",
+                p40,
             temp_p,
             //"Select histogram height equalization parameters.",
             //histogram_opt,
@@ -388,6 +470,8 @@ public class D3Dialog extends JDialog {
                             double temp4 = Double.parseDouble(size_opt.getText());
                             //int temp5 = Integer.parseInt(field_granularity.getText());
                             //double temp6 = Double.parseDouble(field_density.getText());
+                            double temp7 = Double.parseDouble(fractional_scale.getText());
+                            double temp8 = Double.parseDouble(field4.getText());
 
                             if (temp < 10) {
                                 JOptionPane.showMessageDialog(ptra, "The 3D detail level must be greater than 9.", "Error!", JOptionPane.ERROR_MESSAGE);
@@ -397,13 +481,23 @@ public class D3Dialog extends JDialog {
                                 return;
                             }
 
+                            if(temp7 <= 0) {
+                                JOptionPane.showMessageDialog(ptra, "The fractional transfer scale must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+
                             if (temp2 <= 0) {
                                 JOptionPane.showMessageDialog(ptra, "The height scale must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
                                 return;
                             }
 
                             if (temp3 <= 0) {
-                                JOptionPane.showMessageDialog(ptra, "The gaussian normalization weight must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                JOptionPane.showMessageDialog(ptra, "The sigma R value must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+
+                            if (temp8 <= 0) {
+                                JOptionPane.showMessageDialog(ptra, "The sigma S value must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
                                 return;
                             }
 
@@ -432,7 +526,9 @@ public class D3Dialog extends JDialog {
                             s.d3s.d3_size_scale = temp4;
                             s.d3s.height_algorithm = height_algorithm_opt.getSelectedIndex();
                             s.d3s.gaussian_scaling = gaussian_scaling_opt.isSelected();
-                            s.d3s.gaussian_weight = temp3;
+                            s.d3s.bilateral_scaling = bilateral_scaling_opt.isSelected();
+                            s.d3s.sigma_s = temp8;
+                            s.d3s.sigma_r = temp3;
                             s.d3s.gaussian_kernel = kernels_size_opt.getSelectedIndex();
                             s.d3s.max_range = scale_range.getUpperValue();
                             s.d3s.min_range = scale_range.getValue();
@@ -456,7 +552,13 @@ public class D3Dialog extends JDialog {
                             //s.d3s.histogram_density = temp6;
                             s.d3s.preHeightScaling = preHeightScaling.isSelected();
 
-                            ThreadDraw.D3_APPLY_AVERAGE_TO_TRIANGLE_COLORS = triangle_coloring.getSelectedIndex();
+                            TaskDraw.D3_APPLY_AVERAGE_TO_TRIANGLE_COLORS = triangle_coloring.getSelectedIndex();
+
+                            s.d3s.fractionalTransfer = fractional_transfer.getSelectedIndex();
+                            s.d3s.fractionalTransferMode = fractional_transfer_mode.getSelectedIndex();
+                            s.d3s.fractionalSmoothing = fractional_smoothing.getSelectedIndex();
+                            s.d3s.fractionalTransferScale = temp7;
+                            s.d3s.height_invert = invert_orientation.isSelected();
 
                         } catch (Exception ex) {
                             JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);

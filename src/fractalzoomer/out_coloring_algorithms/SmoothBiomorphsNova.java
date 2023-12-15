@@ -31,7 +31,7 @@ public class SmoothBiomorphsNova extends SmoothBiomorphs {
 
         super(0, 4.0, algorithm);
         this.log_convergent_bailout = log_convergent_bailout;
-        OutNotUsingIncrement = false;
+        OutUsingIncrement = true;
 
     }
 

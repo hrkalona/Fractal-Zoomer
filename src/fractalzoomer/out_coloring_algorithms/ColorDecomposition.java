@@ -33,7 +33,7 @@ public class ColorDecomposition extends OutColorAlgorithm {
         
         pi2 = 2 * Math.PI;
         pi59 = 59 * Math.PI;
-        OutNotUsingIncrement = true;
+        OutUsingIncrement = false;
         
     }
 

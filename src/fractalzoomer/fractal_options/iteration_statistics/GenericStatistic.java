@@ -138,14 +138,14 @@ public abstract class GenericStatistic {
             z_val_deep = (MantExpComplex) zDeep;
         }
         else {
-            z_val_deep = new MantExpComplex((Complex)zDeep);
+            z_val_deep = MantExpComplex.create((Complex)zDeep);
         }
 
         if(zoldDeep instanceof MantExpComplex) {
             zold_val_deep = (MantExpComplex) zoldDeep;
         }
         else {
-            zold_val_deep = new MantExpComplex((Complex)zoldDeep);
+            zold_val_deep = MantExpComplex.create((Complex)zoldDeep);
         }
 
         if(cDeep != null) {
@@ -153,7 +153,7 @@ public abstract class GenericStatistic {
                 c_val_deep = (MantExpComplex) cDeep;
             }
             else {
-                c_val_deep = new MantExpComplex((Complex) cDeep);
+                c_val_deep = MantExpComplex.create((Complex) cDeep);
             }
         }
         hasData = true;
@@ -320,7 +320,7 @@ public abstract class GenericStatistic {
     public void setSize(Apfloat size, double height_ratio) {
         this.size = size;
         this.mSize = new MantExp(size);
-        mSize.Reduce();
+        mSize.Normalize();
     }
 
     public void setZValue(Complex z) {
@@ -370,6 +370,10 @@ public abstract class GenericStatistic {
 
     public void setVariablePixelSize(MantExp pixelSize) {
 
+    }
+
+    public boolean hasNormalMap() {
+        return false;
     }
     
 }

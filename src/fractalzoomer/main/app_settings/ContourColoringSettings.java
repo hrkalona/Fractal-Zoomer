@@ -27,6 +27,8 @@ public class ContourColoringSettings {
     public int contour_algorithm;
     public int contourColorMethod;
     public double min_contour;
+    public int fractionalTransfer;
+    public int fractionalSmoothing;
  
     public ContourColoringSettings() {
         contour_coloring = false;
@@ -35,5 +37,7 @@ public class ContourColoringSettings {
         contour_algorithm = 0;
         contourColorMethod = 3;
         min_contour = 0.06;
+        fractionalTransfer = 0;
+        fractionalSmoothing = 0;
     }
 }

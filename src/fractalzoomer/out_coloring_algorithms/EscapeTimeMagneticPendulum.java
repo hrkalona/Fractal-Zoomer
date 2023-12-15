@@ -26,7 +26,7 @@ public class EscapeTimeMagneticPendulum extends OutColorAlgorithm {
 
     public EscapeTimeMagneticPendulum() {
         super();
-        OutNotUsingIncrement = true;
+        OutUsingIncrement = false;
     }
 
     @Override

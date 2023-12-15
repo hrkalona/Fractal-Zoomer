@@ -27,7 +27,7 @@ public class EscapeTimeFieldLinesNova extends EscapeTimeFieldLines {
     public EscapeTimeFieldLinesNova() {
 
         super(Math.log(16.0));
-        OutNotUsingIncrement = false;
+        OutUsingIncrement = true;
 
     }
 

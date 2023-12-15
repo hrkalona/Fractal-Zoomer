@@ -60,7 +60,7 @@ public class BoundariesDialog extends JDialog {
 
         Object[] message3 = {
             " ",
-            "You are using " + boundaries_num + " as the number of boundaries.\nEnter the new boundaries number.",
+            "You are using " + boundaries_num + " as the number of boundaries.\nInsert the new boundaries number.",
             field,
             " ",
             "Select the spacing method.",

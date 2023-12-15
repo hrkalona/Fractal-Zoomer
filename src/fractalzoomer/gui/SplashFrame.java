@@ -28,7 +28,7 @@ import java.awt.image.BufferedImage;
  */
 public class SplashFrame extends JFrame {
 	private static final long serialVersionUID = -3529067027804520472L;
-	private SplashThread thread;
+	private Thread thread;
     
 
     public SplashFrame(int version) {
@@ -47,7 +47,7 @@ public class SplashFrame extends JFrame {
 
         add(l1, BorderLayout.PAGE_START); 
         
-        thread = new SplashThread(image, l1, version, 155);
+        thread = new Thread(new SplashTask(image, l1, version, 155));
         thread.start();
     }
     

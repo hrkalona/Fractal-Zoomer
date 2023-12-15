@@ -469,6 +469,13 @@ public class FractalFunctionsMenu extends MyMenu {
         functionNames[MainWindow.MAGNET_PATAKI4] = "Magnet Pataki 4";
         functionNames[MainWindow.MAGNET_PATAKI5] = "Magnet Pataki 5";
         functionNames[MainWindow.MAGNET_PATAKIK] = "Magnet Pataki K";
+        functionNames[MainWindow.FORMULA47] = "z = z^2 + c^2";
+        functionNames[MainWindow.PERPENDICULAR_MANDELBROT] = "Perpendicular Mandelbrot";
+        functionNames[MainWindow.BUFFALO_MANDELBROT] = "Buffalo Mandelbrot";
+        functionNames[MainWindow.CELTIC_MANDELBROT] = "Celtic Mandelbrot";
+        functionNames[MainWindow.PERPENDICULAR_BURNING_SHIP] = "Perpendicular Burning Ship";
+        functionNames[MainWindow.PERPENDICULAR_CELTIC_MANDELBROT] = "Perpendicular Celtic Mandelbrot";
+        functionNames[MainWindow.PERPENDICULAR_BUFFALO_MANDELBROT] = "Perpendicular Buffalo Mandelbrot";
     }
 
     public FractalFunctionsMenu(MainWindow ptr2, String name, int function) {
@@ -654,6 +661,48 @@ public class FractalFunctionsMenu extends MyMenu {
         fractal_functions[MainWindow.GENERIC_CpAZpBC].addActionListener(e -> ptr.setFunction(MainWindow.GENERIC_CpAZpBC));
         m_like_generalizations_type_functions.add(fractal_functions[MainWindow.GENERIC_CpAZpBC]);
         functions_button_group.add(fractal_functions[MainWindow.GENERIC_CpAZpBC]);
+        m_like_generalizations_type_functions.addSeparator();
+
+        fractal_functions[MainWindow.FORMULA47] = new JRadioButtonMenuItem(functionNames[MainWindow.FORMULA47]);
+        fractal_functions[MainWindow.FORMULA47].addActionListener(e -> ptr.setFunction(MainWindow.FORMULA47));
+        m_like_generalizations_type_functions.add(fractal_functions[MainWindow.FORMULA47]);
+        functions_button_group.add(fractal_functions[MainWindow.FORMULA47]);
+        m_like_generalizations_type_functions.addSeparator();
+
+        fractal_functions[MainWindow.BUFFALO_MANDELBROT] = new JRadioButtonMenuItem(functionNames[MainWindow.BUFFALO_MANDELBROT]);
+        fractal_functions[MainWindow.BUFFALO_MANDELBROT].addActionListener(e -> ptr.setFunction(MainWindow.BUFFALO_MANDELBROT));
+        m_like_generalizations_type_functions.add(fractal_functions[MainWindow.BUFFALO_MANDELBROT]);
+        functions_button_group.add(fractal_functions[MainWindow.BUFFALO_MANDELBROT]);
+        m_like_generalizations_type_functions.addSeparator();
+
+        fractal_functions[MainWindow.CELTIC_MANDELBROT] = new JRadioButtonMenuItem(functionNames[MainWindow.CELTIC_MANDELBROT]);
+        fractal_functions[MainWindow.CELTIC_MANDELBROT].addActionListener(e -> ptr.setFunction(MainWindow.CELTIC_MANDELBROT));
+        m_like_generalizations_type_functions.add(fractal_functions[MainWindow.CELTIC_MANDELBROT]);
+        functions_button_group.add(fractal_functions[MainWindow.CELTIC_MANDELBROT]);
+        m_like_generalizations_type_functions.addSeparator();
+
+        fractal_functions[MainWindow.PERPENDICULAR_MANDELBROT] = new JRadioButtonMenuItem(functionNames[MainWindow.PERPENDICULAR_MANDELBROT]);
+        fractal_functions[MainWindow.PERPENDICULAR_MANDELBROT].addActionListener(e -> ptr.setFunction(MainWindow.PERPENDICULAR_MANDELBROT));
+        m_like_generalizations_type_functions.add(fractal_functions[MainWindow.PERPENDICULAR_MANDELBROT]);
+        functions_button_group.add(fractal_functions[MainWindow.PERPENDICULAR_MANDELBROT]);
+        m_like_generalizations_type_functions.addSeparator();
+
+        fractal_functions[MainWindow.PERPENDICULAR_BURNING_SHIP] = new JRadioButtonMenuItem(functionNames[MainWindow.PERPENDICULAR_BURNING_SHIP]);
+        fractal_functions[MainWindow.PERPENDICULAR_BURNING_SHIP].addActionListener(e -> ptr.setFunction(MainWindow.PERPENDICULAR_BURNING_SHIP));
+        m_like_generalizations_type_functions.add(fractal_functions[MainWindow.PERPENDICULAR_BURNING_SHIP]);
+        functions_button_group.add(fractal_functions[MainWindow.PERPENDICULAR_BURNING_SHIP]);
+        m_like_generalizations_type_functions.addSeparator();
+
+        fractal_functions[MainWindow.PERPENDICULAR_CELTIC_MANDELBROT] = new JRadioButtonMenuItem(functionNames[MainWindow.PERPENDICULAR_CELTIC_MANDELBROT]);
+        fractal_functions[MainWindow.PERPENDICULAR_CELTIC_MANDELBROT].addActionListener(e -> ptr.setFunction(MainWindow.PERPENDICULAR_CELTIC_MANDELBROT));
+        m_like_generalizations_type_functions.add(fractal_functions[MainWindow.PERPENDICULAR_CELTIC_MANDELBROT]);
+        functions_button_group.add(fractal_functions[MainWindow.PERPENDICULAR_CELTIC_MANDELBROT]);
+        m_like_generalizations_type_functions.addSeparator();
+
+        fractal_functions[MainWindow.PERPENDICULAR_BUFFALO_MANDELBROT] = new JRadioButtonMenuItem(functionNames[MainWindow.PERPENDICULAR_BUFFALO_MANDELBROT]);
+        fractal_functions[MainWindow.PERPENDICULAR_BUFFALO_MANDELBROT].addActionListener(e -> ptr.setFunction(MainWindow.PERPENDICULAR_BUFFALO_MANDELBROT));
+        m_like_generalizations_type_functions.add(fractal_functions[MainWindow.PERPENDICULAR_BUFFALO_MANDELBROT]);
+        functions_button_group.add(fractal_functions[MainWindow.PERPENDICULAR_BUFFALO_MANDELBROT]);
         m_like_generalizations_type_functions.addSeparator();
           
         fractal_functions[MainWindow.FORMULA2] = new JRadioButtonMenuItem(functionNames[MainWindow.FORMULA2]);

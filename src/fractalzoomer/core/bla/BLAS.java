@@ -20,8 +20,6 @@ public class BLAS {
     private Fractal fractal;
 
     private int[] elementsPerLevel;
-    public static boolean MEMORY_PACKING = false;
-    private static final int MEM_PACKING_LIMIT = 100000000;
 
     private int firstLevel;
     private boolean returnL1;
@@ -40,10 +38,10 @@ public class BLAS {
 
         MantExp r2 = r.square();
 
-        A.Reduce();
-        r2.Reduce();
+        A.Normalize();
+        r2.Normalize();
 
-        return new BLADeep1Step(r2, A);
+        return BLADeep1Step.create(r2, A);
     }
 
     private void initLStep(int level, int m, DoubleReference Ref, double blaSize, double epsilon) {
@@ -68,7 +66,12 @@ public class BLAS {
         double xB = x.hypotB();
         double r = Math.min(Math.sqrt(x.r2), Math.max(0, (Math.sqrt(y.r2) - xB * blaSize) / xA));
         double r2 = r * r;
-        return BLAGenericStep.getGenericStep(r2, A, B, l);
+        return new BLALStep(r2, A, B) {
+            @Override
+            public int getL() {
+                return l;
+            }
+        };
     }
 
     private BLADeep mergeTwoBlas(BLADeep x, BLADeep y, MantExp blaSize) {
@@ -83,11 +86,11 @@ public class BLAS {
         MantExp r = MantExp.min(x.getR2().sqrt_mutable(), MantExp.max(MantExp.ZERO, y.getR2().sqrt_mutable().subtract_mutable(xB.multiply(blaSize)).divide_mutable(xA)));
         MantExp r2 = r.square();
 
-        A.Reduce();
-        B.Reduce();
-        r2.Reduce();
+        A.Normalize();
+        B.Normalize();
+        r2.Normalize();
 
-        return BLADeepGenericStep.getGenericStep(r2, A, B, l);
+        return BLADeepLStep.create(r2, A, B, l);
     }
 
     private BLA createLStep(int level, int m, DoubleReference Ref, double blaSize, double epsilon) {
@@ -152,7 +155,7 @@ public class BLAS {
     private void init(DoubleReference Ref, double blaSize, double epsilon, JProgressBar progress, long divisor) {
 
         int elements = elementsPerLevel[firstLevel] + 1;
-        if(ThreadDraw.USE_THREADS_FOR_BLA) {
+        if(TaskDraw.USE_THREADS_FOR_BLA) {
             done = 0; //we dont care fore race condition
             long mainId = Thread.currentThread().getId();
 
@@ -218,7 +221,7 @@ public class BLAS {
     private void init(DeepReference Ref, MantExp blaSize, MantExp epsilon, JProgressBar progress, long divisor) {
 
         int elements = elementsPerLevel[firstLevel] + 1;
-        if(ThreadDraw.USE_THREADS_FOR_BLA) {
+        if(TaskDraw.USE_THREADS_FOR_BLA) {
 
             done = 0; //we dont care for race conditions
             long mainId = Thread.currentThread().getId();
@@ -304,7 +307,7 @@ public class BLAS {
 
     private void merge(double blaSize, JProgressBar progress, long divisor) {
 
-        boolean useThreadsForBla = ThreadDraw.USE_THREADS_FOR_BLA;
+        boolean useThreadsForBla = TaskDraw.USE_THREADS_FOR_BLA;
 
         long mainId = Thread.currentThread().getId();
 
@@ -380,7 +383,7 @@ public class BLAS {
 
     private void merge(MantExp blaSize, JProgressBar progress, long divisor) {
 
-        boolean useThreadsForBla = ThreadDraw.USE_THREADS_FOR_BLA;
+        boolean useThreadsForBla = TaskDraw.USE_THREADS_FOR_BLA;
 
         long mainId = Thread.currentThread().getId();
 
@@ -456,16 +459,9 @@ public class BLAS {
     }
 
     public void init(int M, DoubleReference Ref, double blaSize, JProgressBar progress) {
-        double precision = 1 / ((double)(1L << ThreadDraw.BLA_BITS));
-        firstLevel = ThreadDraw.BLA_STARTING_LEVEL - 1;
+        double precision = 1 / ((double)(1L << TaskDraw.BLA_BITS));
+        firstLevel = TaskDraw.BLA_STARTING_LEVEL - 1;
         isValid = false;
-
-        if(M >= MEM_PACKING_LIMIT) {
-            MEMORY_PACKING = true;
-        }
-        else {
-            MEMORY_PACKING = false;
-        }
 
         this.M = M;
 
@@ -533,16 +529,9 @@ public class BLAS {
     }
 
     public void init(int M, DeepReference Ref, MantExp blaSize, JProgressBar progress) {
-        MantExp precision = new MantExp(1 / ((double)(1L << ThreadDraw.BLA_BITS)));
-        firstLevel = ThreadDraw.BLA_STARTING_LEVEL - 1;
+        MantExp precision = new MantExp(1 / ((double)(1L << TaskDraw.BLA_BITS)));
+        firstLevel = TaskDraw.BLA_STARTING_LEVEL - 1;
         isValid = false;
-
-        if(M >= MEM_PACKING_LIMIT) {
-            MEMORY_PACKING = true;
-        }
-        else {
-            MEMORY_PACKING = false;
-        }
 
         this.M = M;
 
@@ -607,7 +596,7 @@ public class BLAS {
         isValid = true;
     }
 
-    public BLA lookup(int m, double z2) {
+    public BLA lookup(int m, double z2, int iterations, int max_iterations) {
         if (m == 0) {
             return null;
         }
@@ -618,7 +607,9 @@ public class BLAS {
         for (int level = firstLevel; level < L; ++level) {
             int ixm = (ix << level) + 1;
             if (m == ixm && z2 < (tempB = b[level][ix]).r2) {
-                B = tempB;
+                if(iterations + tempB.getL() <= max_iterations) {
+                    B = tempB;
+                }
             } else {
                 break;
             }
@@ -627,7 +618,7 @@ public class BLAS {
         return B;
     }
 
-    public BLA lookupBackwards(int m, double z2) {
+    public BLA lookupBackwards(int m, double z2, int iterations, int max_iterations) {
 
         if (m == 0) {
             return null;
@@ -662,14 +653,16 @@ public class BLAS {
         int startLevel = zeros <= LM2 ? zeros : LM2;
         for (int level = startLevel; level >= firstLevel; --level) {
             if (z2 < (tempB = b[level][ix]).r2) {
-                return tempB;
+                if(iterations + tempB.getL() <= max_iterations) {
+                    return tempB;
+                }
             }
             ix = ix << 1;
         }
         return null;
     }
 
-    public BLADeep lookup(int m, MantExp z2) {
+    public BLADeep lookup(int m, MantExp z2, int iterations, int max_iterations) {
         if (m == 0) {
             return null;
         }
@@ -681,7 +674,9 @@ public class BLAS {
         for (int level = firstLevel; level < L; ++level) {
             int ixm = (ix << level) + 1;
             if (m == ixm && z2.compareToBothPositiveReduced((tempB = bdeep[level][ix]).getR2()) < 0) {
-                B = tempB;
+                if(iterations + tempB.getL() <= max_iterations) {
+                    B = tempB;
+                }
             } else {
                 break;
             }
@@ -690,7 +685,7 @@ public class BLAS {
         return B;
     }
 
-    public BLADeep lookupBackwards(int m, MantExp z2) {
+    public BLADeep lookupBackwards(int m, MantExp z2, int iterations, int max_iterations) {
 
         if (m == 0) {
             return null;
@@ -726,7 +721,9 @@ public class BLAS {
         int startLevel = zeros <= LM2 ? zeros : LM2;
         for (int level = startLevel; level >= firstLevel; --level) {
             if (z2.compareToBothPositiveReduced((tempB = bdeep[level][ix]).getR2()) < 0) {
-                return tempB;
+                if(iterations + tempB.getL() <= max_iterations) {
+                    return tempB;
+                }
             }
             ix = ix << 1;
         }

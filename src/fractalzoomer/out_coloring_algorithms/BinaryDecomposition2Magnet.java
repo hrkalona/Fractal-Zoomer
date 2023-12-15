@@ -28,7 +28,7 @@ public class BinaryDecomposition2Magnet extends BinaryDecomposition2 {
     public BinaryDecomposition2Magnet() {
 
         super();
-        OutNotUsingIncrement = false;
+        OutUsingIncrement = true;
         
     }
 

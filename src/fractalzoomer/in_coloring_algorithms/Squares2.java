@@ -28,7 +28,7 @@ public class Squares2 extends InColorAlgorithm {
     
     public Squares2(int max_iterations) { 
         super();
-        InNotUsingIncrement = false;
+        InUsingIncrement = true;
         this.max_iterations = max_iterations;
     }
     

@@ -28,7 +28,7 @@ public class EscapeTimeGridMagnet extends EscapeTimeGrid {
     public EscapeTimeGridMagnet(double log_bailout_squared) {
 
         super(log_bailout_squared);
-        OutNotUsingIncrement = false;
+        OutUsingIncrement = true;
 
     }
 

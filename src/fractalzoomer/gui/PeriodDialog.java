@@ -16,7 +16,7 @@
  */
 package fractalzoomer.gui;
 
-import fractalzoomer.core.ThreadDraw;
+import fractalzoomer.core.TaskDraw;
 import fractalzoomer.functions.Fractal;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
@@ -56,10 +56,10 @@ public class PeriodDialog extends JDialog {
             " ",
              "Period is only meant to be used along with Perturbation Theory\nand Bilinear Approximation or Nanomb1.",
                 " ",
-            "You are using " + s.fns.period + " as period.\nEnter the new period number.",
+            "You are using " + s.fns.period + " as period.\nInsert the new period number.",
             field,
                 " ",
-                "You are using maximum " + s.max_iterations + " iterations.\nEnter the new maximum iterations number.",
+                "You are using maximum " + s.max_iterations + " iterations.\nInsert the new maximum iterations number.",
                 field2,
                 " ",};
 
@@ -98,8 +98,8 @@ public class PeriodDialog extends JDialog {
                         }
 
                         try {
-                            int temp = Integer.parseInt(field.getText());
-                            int temp2 = Integer.parseInt(field2.getText());
+                            long temp = Long.parseLong(field.getText());
+                            long temp2 = Long.parseLong(field2.getText());
 
                             if (temp < 0) {
                                 JOptionPane.showMessageDialog(ptra, "Period number must be greater than -1.", "Error!", JOptionPane.ERROR_MESSAGE);
@@ -117,13 +117,13 @@ public class PeriodDialog extends JDialog {
                                 return;
                             }
 
-                            s.max_iterations = temp2;
+                            s.max_iterations = (int) temp2;
                             
-                            if(s.fns.period != temp && s.supportsPeriod() && (ThreadDraw.APPROXIMATION_ALGORITHM == 3 || (ThreadDraw.DETECT_PERIOD && ThreadDraw.STOP_REFERENCE_CALCULATION_AFTER_DETECTED_PERIOD))) {
-                                Fractal.clearReferences(true);
+                            if(s.fns.period != temp && s.supportsPeriod() && (TaskDraw.APPROXIMATION_ALGORITHM == 3 || (TaskDraw.DETECT_PERIOD && TaskDraw.STOP_REFERENCE_CALCULATION_AFTER_DETECTED_PERIOD))) {
+                                Fractal.clearReferences(true, true);
                             }
 
-                            s.fns.period = temp;
+                            s.fns.period = (int) temp;
                         } catch (Exception ex) {
                             JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                             return;

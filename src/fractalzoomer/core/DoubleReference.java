@@ -8,21 +8,34 @@ public class DoubleReference {
     public int length;
     private int lengthOverride;
     public boolean saveMemory;
-    private static final int SAVE_MEMORY_THRESHOLD = 100_000_000;
+    public static final int SAVE_MEMORY_THRESHOLD = 100_000_000;
+    public static final int SAVE_MEMORY_THRESHOLD2 = 50_000_000;
+    public static boolean SHOULD_SAVE_MEMORY = false;
 
     public DoubleReference(int length) {
-        if(length > SAVE_MEMORY_THRESHOLD) {
-            re = new double[SAVE_MEMORY_THRESHOLD];
-            im = new double[SAVE_MEMORY_THRESHOLD];
-            saveMemory = true;
-        }
-        else {
-            re = new double[length];
-            im = new double[length];
-            saveMemory = false;
-        }
+
+        int actualLength = getCreationLength(length);
+
+        re = new double[actualLength];
+        im = new double[actualLength];
+
+        saveMemory = length != actualLength;
 
         this.length = length;
+    }
+
+    private int getCreationLength(int length) {
+        return SHOULD_SAVE_MEMORY && length > SAVE_MEMORY_THRESHOLD ? SAVE_MEMORY_THRESHOLD : length;
+    }
+
+    public boolean shouldCreateNew(int length) {
+        int actualLength = getCreationLength(length);
+        return  re == null || im == null || re.length != actualLength || im.length != actualLength;
+    }
+
+    public void reset() {
+        Arrays.fill(re, 0, re.length, 0);
+        Arrays.fill(im, 0, im.length, 0);
     }
 
     public DoubleReference(int length, int lengthOverride) {
@@ -39,11 +52,10 @@ public class DoubleReference {
     }
 
     public void resize(int length) {
-        if(length > SAVE_MEMORY_THRESHOLD) {
+        if(SHOULD_SAVE_MEMORY && length > SAVE_MEMORY_THRESHOLD) {
 
             int newLength = re.length + SAVE_MEMORY_THRESHOLD;
-            int maxLength = length;
-            newLength = newLength > maxLength ? maxLength : newLength;
+            newLength = Math.min(newLength, length);
 
             re = Arrays.copyOf(re, newLength);
             im = Arrays.copyOf(im, newLength);
@@ -62,12 +74,16 @@ public class DoubleReference {
         return lengthOverride != 0 ? lengthOverride : length;
     }
 
+    public int dataLength() {
+        return length;
+    }
+
     public void checkAllocation(int index) {
 
         int currentLength = re.length;
         if(index >= currentLength) {
-            int newLength = currentLength + SAVE_MEMORY_THRESHOLD;
-            newLength = newLength > length ? length : newLength;
+            int newLength = currentLength + SAVE_MEMORY_THRESHOLD2;
+            newLength = Math.min(newLength, length);
             re = Arrays.copyOf(re, newLength);
             im = Arrays.copyOf(im, newLength);
         }

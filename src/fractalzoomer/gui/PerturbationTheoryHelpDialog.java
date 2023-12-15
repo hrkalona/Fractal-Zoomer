@@ -40,8 +40,15 @@ public class PerturbationTheoryHelpDialog {
                 "<li>Lambda</li>" +
                 "<li>Magnet 1</li>" +
                 "<li>Magnet Pataki (2-5) powers</li>" +
+                "<li>z = z^2 + c^2</li>" +
+                "<li>Buffalo Mandelbrot</li>" +
+                "<li>Celtic Mandelbrot</li>" +
+                "<li>Perpendicular Mandelbrot</li>" +
+                "<li>Perpendicular Burning Ship</li>" +
+                "<li>Perpendicular Buffalo Mandelbrot</li>" +
+                "<li>Perpendicular Celtic Mandelbrot</li>" +
                 "<li>Nova (power 3 + 0i, relaxation 1 + 0i)</li>" +
-                "<li>Newton Third Degree Parameter Space</li>" +
+                "<li>Newton Third Degree Parameter Space (Experimental, has glitches in some areas)</li>" +
                 "<li>Newton 3 (No Julia Set available)</li>" +
                 "</ul>" +
                 "<br><br>"+
@@ -55,7 +62,7 @@ public class PerturbationTheoryHelpDialog {
                 "Some options like Plane Influence, Pre/Post Function Filters, Initial Value, Perturbation, Equicontinuity will be ignored if perturbation theory " +
                 "is enabled and the current function supports it. Perturbation theory will not work on Julia sets with Juliter enabled (The low precision calculations will be used).<br><br>" +
                 "The thread option for Series Approximation is only supported by Mandelbrot. It may or may not decrease the SA completion time, and it is based on your system and number of coefficients selected.<br><br>" +
-                "Bilinear (Bivariate) Approximation is a new development in perturbation theory optimization and its goal is to create a look-up table of coefficients " +
+                "Bilinear (Bivariate) Approximation (claude's) is a new development in perturbation theory optimization and its goal is to create a look-up table of coefficients " +
                 "in order to used during the fractal iteration and approximate the iteration value by applying multiple iterations at one step, in the form of a linear " +
                 "function. Currently it is only implemented for the Mandelbrot (2-5) powers (Not with burning ship or Julia sets).<br><br>" +
                 "Bilinear Approximation (Zhuoran's) works similar with first version of BLA. Currently it is only implemented for Mandelbrot (Not with burning ship or Julia sets).<br><br>" +

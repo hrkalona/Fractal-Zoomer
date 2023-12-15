@@ -62,7 +62,7 @@ public class SettingsFractals1073 extends SettingsFractals1072 implements Serial
         lyapunovExponentFunction = s.fns.lpns.lyapunovExponentFunction;
         lyapunovVariableId = s.fns.lpns.lyapunovVariableId;
         magnetPendVariableId = s.fns.mps.magnetPendVariableId;
-        user_statistic_init_value = s.sts.user_statistic_init_value;
+        user_statistic_init_value = s.pps.sts.user_statistic_init_value;
         skip_bailout_iterations = s.fns.skip_bailout_iterations;      
         bodyLocation = s.fns.igs.bodyLocation;
         bodyGravity = s.fns.igs.bodyGravity;

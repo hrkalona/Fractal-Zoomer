@@ -48,23 +48,23 @@ public class SettingsFractals1076 extends SettingsFractals1075 implements Serial
      public SettingsFractals1076(Settings s) {
         
         super(s);
-        histogramColoring = s.hss.histogramColoring;
-        histogramDensity = s.hss.histogramDensity;
-        hs_noise_reducing_factor = s.hss.hs_noise_reducing_factor;
-        histogramBinGranularity = s.hss.histogramBinGranularity;
-        hs_blending = s.hss.hs_blending;
-        histogramScaleMin = s.hss.histogramScaleMin;
-        histogramScaleMax = s.hss.histogramScaleMax;
+        histogramColoring = s.pps.hss.histogramColoring;
+        histogramDensity = s.pps.hss.histogramDensity;
+        hs_noise_reducing_factor = s.pps.hss.hs_noise_reducing_factor;
+        histogramBinGranularity = s.pps.hss.histogramBinGranularity;
+        hs_blending = s.pps.hss.hs_blending;
+        histogramScaleMin = s.pps.hss.histogramScaleMin;
+        histogramScaleMax = s.pps.hss.histogramScaleMax;
         lyapunovInitializationIteratons = s.fns.lpns.lyapunovInitializationIteratons;
         lyapunovskipBailoutCheck = s.fns.lpns.lyapunovskipBailoutCheck;
-        trapCellularStructure = s.ots.trapCellularStructure;
-        trapCellularInverseColor = s.ots.trapCellularInverseColor;
-        trapCellularColor = s.ots.trapCellularColor;
-        countTrapIterations = s.ots.countTrapIterations;
-        trapCellularSize = s.ots.trapCellularSize;
+        trapCellularStructure = s.pps.ots.trapCellularStructure;
+        trapCellularInverseColor = s.pps.ots.trapCellularInverseColor;
+        trapCellularColor = s.pps.ots.trapCellularColor;
+        countTrapIterations = s.pps.ots.countTrapIterations;
+        trapCellularSize = s.pps.ots.trapCellularSize;
         combineType = s.ds.combineType;
-        invertTrapHeight = s.ots.invertTrapHeight;
-        trapHeightFunction = s.ots.trapHeightFunction;
+        invertTrapHeight = s.pps.ots.invertTrapHeight;
+        trapHeightFunction = s.pps.ots.trapHeightFunction;
                 
      }
      

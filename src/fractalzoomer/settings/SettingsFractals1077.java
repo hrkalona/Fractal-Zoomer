@@ -51,16 +51,16 @@ public class SettingsFractals1077 extends SettingsFractals1076 implements Serial
         user_dddfz_formula = s.fns.user_dddfz_formula;
         root_initialization_method = s.fns.root_initialization_method;
 
-        lagrangianPower = s.sts.lagrangianPower;
-        equicontinuityDenominatorFactor = s.sts.equicontinuityDenominatorFactor;
-        equicontinuityColorMethod = s.sts.equicontinuityColorMethod;
-        equicontinuityMixingMethod = s.sts.equicontinuityMixingMethod;
-        equicontinuityBlending = s.sts.equicontinuityBlending;
-        equicontinuitySatChroma = s.sts.equicontinuitySatChroma;
-        equicontinuityArgValue = s.sts.equicontinuityArgValue;
-        equicontinuityInvertFactor = s.sts.equicontinuityInvertFactor;
-        equicontinuityOverrideColoring = s.sts.equicontinuityOverrideColoring;
-        equicontinuityDelta = s.sts.equicontinuityDelta;
+        lagrangianPower = s.pps.sts.lagrangianPower;
+        equicontinuityDenominatorFactor = s.pps.sts.equicontinuityDenominatorFactor;
+        equicontinuityColorMethod = s.pps.sts.equicontinuityColorMethod;
+        equicontinuityMixingMethod = s.pps.sts.equicontinuityMixingMethod;
+        equicontinuityBlending = s.pps.sts.equicontinuityBlending;
+        equicontinuitySatChroma = s.pps.sts.equicontinuitySatChroma;
+        equicontinuityArgValue = s.pps.sts.equicontinuityArgValue;
+        equicontinuityInvertFactor = s.pps.sts.equicontinuityInvertFactor;
+        equicontinuityOverrideColoring = s.pps.sts.equicontinuityOverrideColoring;
+        equicontinuityDelta = s.pps.sts.equicontinuityDelta;
 
     }
 

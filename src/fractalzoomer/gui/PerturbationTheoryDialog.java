@@ -17,8 +17,9 @@
 package fractalzoomer.gui;
 
 import fractalzoomer.core.*;
-import fractalzoomer.core.la.LAInfo;
-import fractalzoomer.core.la.LAInfoDeep;
+import fractalzoomer.core.la.impl.LAInfo;
+import fractalzoomer.core.la.impl.LAInfoDeep;
+import fractalzoomer.core.la.LAReference;
 import fractalzoomer.core.mpfr.LibMpfr;
 import fractalzoomer.core.mpfr.MpfrBigNum;
 import fractalzoomer.core.mpir.LibMpir;
@@ -88,11 +89,11 @@ public class PerturbationTheoryDialog extends JDialog {
         }
 
         final JCheckBox enable_perturbation = new JCheckBox("Perturbation Theory");
-        enable_perturbation.setSelected(ThreadDraw.PERTURBATION_THEORY);
+        enable_perturbation.setSelected(TaskDraw.PERTURBATION_THEORY);
         enable_perturbation.setFocusable(false);
 
         final JCheckBox detect_period = new JCheckBox("Detect Period if possible");
-        detect_period.setSelected(ThreadDraw.DETECT_PERIOD);
+        detect_period.setSelected(TaskDraw.DETECT_PERIOD);
         detect_period.setFocusable(false);
 
         final JCheckBox automatic_precision = new JCheckBox("Automatic Precision");
@@ -104,23 +105,15 @@ public class PerturbationTheoryDialog extends JDialog {
         alwaysCheckForPrecisionDecrease.setFocusable(false);
         alwaysCheckForPrecisionDecrease.setToolTipText("Checks if the precision should be reduced when you modify coordinates in dialogs.");
 
-        final JCheckBox enable_bignum = new JCheckBox("Use BigNum for Reference calculation if possible");
-        enable_bignum.setSelected(ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE);
-        enable_bignum.setFocusable(false);
-
-        final JCheckBox enable_bignum_pixels = new JCheckBox("Use BigNum for Pixels if possible");
-        enable_bignum_pixels.setSelected(ThreadDraw.USE_BIGNUM_FOR_PIXELS_IF_POSSIBLE);
-        enable_bignum_pixels.setFocusable(false);
-
         final JCheckBox use_threads_for_sa = new JCheckBox("Use Threads for SA if possible");
-        use_threads_for_sa.setSelected(ThreadDraw.USE_THREADS_FOR_SA);
+        use_threads_for_sa.setSelected(TaskDraw.USE_THREADS_FOR_SA);
         use_threads_for_sa.setFocusable(false);
 
         final JCheckBox use_threads_for_bla = new JCheckBox("Use Threads for BLA");
-        use_threads_for_bla.setSelected(ThreadDraw.USE_THREADS_FOR_BLA);
+        use_threads_for_bla.setSelected(TaskDraw.USE_THREADS_FOR_BLA);
         use_threads_for_bla.setFocusable(false);
 
-        final JSlider bla_starting_level_slid = new JSlider(JSlider.HORIZONTAL, 1, 32, ThreadDraw.BLA_STARTING_LEVEL);
+        final JSlider bla_starting_level_slid = new JSlider(JSlider.HORIZONTAL, 1, 32, TaskDraw.BLA_STARTING_LEVEL);
 
         bla_starting_level_slid.setPreferredSize(new Dimension(300, 55));
 
@@ -136,12 +129,12 @@ public class PerturbationTheoryDialog extends JDialog {
 
         bla_starting_level_slid.addChangeListener(e -> blaLevel.setText("BLA Starting Level: " + bla_starting_level_slid.getValue()));
 
-        final JCheckBox full_floatexp_for_deep_zooms = new JCheckBox("Use FloatExp For All Iterations In Deep Zooms");
-        full_floatexp_for_deep_zooms.setSelected(ThreadDraw.USE_FULL_FLOATEXP_FOR_DEEP_ZOOM);
+        final JCheckBox full_floatexp_for_deep_zooms = new JCheckBox("Use Extended Range For All Iterations In Deep Zooms");
+        full_floatexp_for_deep_zooms.setSelected(TaskDraw.USE_FULL_FLOATEXP_FOR_DEEP_ZOOM);
         full_floatexp_for_deep_zooms.setFocusable(false);
 
-        final JCheckBox full_floatexp_for_all_zooms = new JCheckBox("Use FloatExp For All Iterations In All Zooms");
-        full_floatexp_for_all_zooms.setSelected(ThreadDraw.USE_FULL_FLOATEXP_FOR_ALL_ZOOM);
+        final JCheckBox full_floatexp_for_all_zooms = new JCheckBox("Use Extended Range For All Iterations In All Zooms");
+        full_floatexp_for_all_zooms.setSelected(TaskDraw.USE_FULL_FLOATEXP_FOR_ALL_ZOOM);
         full_floatexp_for_all_zooms.setFocusable(false);
 
         FloatExpPanel2.add(full_floatexp_for_deep_zooms);
@@ -152,25 +145,30 @@ public class PerturbationTheoryDialog extends JDialog {
         precision.addAncestorListener(new RequestFocusListener());
 
         final JCheckBox automaticBignumPrecision = new JCheckBox("Automatic BigNum Precision");
-        automaticBignumPrecision.setSelected(ThreadDraw.BIGNUM_AUTOMATIC_PRECISION);
+        automaticBignumPrecision.setSelected(TaskDraw.BIGNUM_AUTOMATIC_PRECISION);
         automaticBignumPrecision.setFocusable(false);
 
         final JCheckBox gatherPerturbationStatistics = new JCheckBox("Display Perturbation Statistics");
-        gatherPerturbationStatistics.setSelected(ThreadDraw.GATHER_PERTURBATION_STATISTICS);
+        gatherPerturbationStatistics.setSelected(TaskDraw.GATHER_PERTURBATION_STATISTICS);
         gatherPerturbationStatistics.setFocusable(false);
 
         JTextField bignumPrecision = new JTextField();
-        bignumPrecision.setText("" + ThreadDraw.BIGNUM_PRECISION);
+        bignumPrecision.setText("" + TaskDraw.BIGNUM_PRECISION);
 
         final JComboBox<String> approximation_alg = new JComboBox<>(new String[] {"No Approximation", "Series Approximation", "Bilinear Approximation (claude)", "Nanomb1", "Bilinear Approximation (Zhuoran)"});
-        approximation_alg.setSelectedIndex(ThreadDraw.APPROXIMATION_ALGORITHM);
+        approximation_alg.setSelectedIndex(TaskDraw.APPROXIMATION_ALGORITHM);
         approximation_alg.setFocusable(false);
         approximation_alg.setToolTipText("Sets approximation algorithm.");
 
         final JComboBox<String> pixelAlgorithm = new JComboBox<>(new String[] {"Not Scaled", "Scaled"});
-        pixelAlgorithm.setSelectedIndex(ThreadDraw.PERTUBATION_PIXEL_ALGORITHM);
+        pixelAlgorithm.setSelectedIndex(TaskDraw.PERTUBATION_PIXEL_ALGORITHM);
         pixelAlgorithm.setFocusable(false);
         pixelAlgorithm.setToolTipText("Sets the deep zoom pixel calculation algorithm.");
+
+        final JComboBox<String> mantexpcomplex_format = new JComboBox<>(new String[] {"Combined Exponent", "Two Exponents"});
+        mantexpcomplex_format.setSelectedIndex(TaskDraw.MANTEXPCOMPLEX_FORMAT);
+        mantexpcomplex_format.setFocusable(false);
+        mantexpcomplex_format.setToolTipText("Sets format of the Complex number using FloatExp.");
 
         JLabel pixelLabel = new JLabel("Deep Zoom Pixel Calculation Algorithm:");
         JLabel pixelLabel2 = new JLabel(" ");
@@ -188,9 +186,9 @@ public class PerturbationTheoryDialog extends JDialog {
         });
 
         JTextField maxSkipIter = new JTextField();
-        maxSkipIter.setText("" + ThreadDraw.SERIES_APPROXIMATION_MAX_SKIP_ITER);
+        maxSkipIter.setText("" + TaskDraw.SERIES_APPROXIMATION_MAX_SKIP_ITER);
 
-        final JSlider series_terms_slid = new JSlider(JSlider.HORIZONTAL, 2, 257, ThreadDraw.SERIES_APPROXIMATION_TERMS);
+        final JSlider series_terms_slid = new JSlider(JSlider.HORIZONTAL, 2, 257, TaskDraw.SERIES_APPROXIMATION_TERMS);
 
         series_terms_slid.setPreferredSize(new Dimension(300, 55));
 
@@ -202,7 +200,7 @@ public class PerturbationTheoryDialog extends JDialog {
         series_terms_slid.setMajorTickSpacing(20);
 
         JTextField seriesApproximationTolerance = new JTextField();
-        seriesApproximationTolerance.setText("" + ThreadDraw.SERIES_APPROXIMATION_OOM_DIFFERENCE);
+        seriesApproximationTolerance.setText("" + TaskDraw.SERIES_APPROXIMATION_OOM_DIFFERENCE);
 
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
@@ -227,7 +225,7 @@ public class PerturbationTheoryDialog extends JDialog {
 
         Nanomb1Panel.setLayout(new BoxLayout(Nanomb1Panel, BoxLayout.Y_AXIS));
 
-        final JSlider nanomb1N = new JSlider(JSlider.HORIZONTAL, 2, 48, ThreadDraw.NANOMB1_N);
+        final JSlider nanomb1N = new JSlider(JSlider.HORIZONTAL, 2, 48, TaskDraw.NANOMB1_N);
 
         nanomb1N.setPreferredSize(new Dimension(300, 55));
 
@@ -239,7 +237,7 @@ public class PerturbationTheoryDialog extends JDialog {
         nanomb1N.setMajorTickSpacing(4);
 
 
-        final JSlider nanomb1M = new JSlider(JSlider.HORIZONTAL, 2, 48, ThreadDraw.NANOMB1_M);
+        final JSlider nanomb1M = new JSlider(JSlider.HORIZONTAL, 2, 48, TaskDraw.NANOMB1_M);
 
         nanomb1M.setPreferredSize(new Dimension(300, 55));
 
@@ -287,7 +285,7 @@ public class PerturbationTheoryDialog extends JDialog {
 
         full_floatexp_for_all_zooms.addActionListener(e -> full_floatexp_for_deep_zooms.setEnabled(!full_floatexp_for_all_zooms.isSelected() && (approximation_alg.getSelectedIndex() == 0 || approximation_alg.getSelectedIndex() == 1 || approximation_alg.getSelectedIndex() == 3 || approximation_alg.getSelectedIndex() == 4)));
 
-        final JSlider blaBits = new JSlider(JSlider.HORIZONTAL, 1, 63, ThreadDraw.BLA_BITS);
+        final JSlider blaBits = new JSlider(JSlider.HORIZONTAL, 1, 63, TaskDraw.BLA_BITS);
 
         blaBits.setPreferredSize(new Dimension(300, 55));
 
@@ -334,41 +332,27 @@ public class PerturbationTheoryDialog extends JDialog {
         BLA2panel.setVisible(approximation_alg.getSelectedIndex() == 4);
         Nanomb1Panel.setVisible(approximation_alg.getSelectedIndex() == 3);
 
-        JComboBox<String> bigNumLibs = new JComboBox<>(new String[] {"Double (53 bits)", "DoubleDouble (106 bits)", "Built-in", "MPFR", "Automatic", "MPIR", "Automatic (No Double/DoubleDouble)", "Fixed Point BigInteger"});
-        bigNumLibs.setSelectedIndex(ThreadDraw.BIGNUM_LIBRARY);
+        JComboBox<String> bigNumLibs = new JComboBox<>(new String[] {"Double (53 bits)", "DoubleDouble (106 bits)", "Built-in", "MPFR", "Automatic", "MPIR", "Automatic (No Double/DoubleDouble)", "Fixed Point BigInteger", "Apfloat"});
+        bigNumLibs.setSelectedIndex(TaskDraw.BIGNUM_LIBRARY);
         JLabel bnliblabel = new JLabel("BigNum Library:");
         bigNumLibs.setFocusable(false);
 
-        bigNumLibs.setEnabled(enable_bignum.isSelected());
+
+        bignumPrecision.setEnabled(!automaticBignumPrecision.isSelected() && bigNumLibs.getSelectedIndex() != Constants.BIGNUM_DOUBLE && bigNumLibs.getSelectedIndex() != Constants.BIGNUM_DOUBLEDOUBLE);
+
+        automaticBignumPrecision.addActionListener(e -> bignumPrecision.setEnabled(!automaticBignumPrecision.isSelected() && bigNumLibs.getSelectedIndex() != Constants.BIGNUM_DOUBLE && bigNumLibs.getSelectedIndex() != Constants.BIGNUM_DOUBLEDOUBLE));
 
 
-        bignumPrecision.setEnabled(enable_bignum.isSelected() && !automaticBignumPrecision.isSelected() && bigNumLibs.getSelectedIndex() != Constants.BIGNUM_DOUBLE && bigNumLibs.getSelectedIndex() != Constants.BIGNUM_DOUBLEDOUBLE);
-
-        automaticBignumPrecision.addActionListener(e -> bignumPrecision.setEnabled(enable_bignum.isSelected() && !automaticBignumPrecision.isSelected() && bigNumLibs.getSelectedIndex() != Constants.BIGNUM_DOUBLE && bigNumLibs.getSelectedIndex() != Constants.BIGNUM_DOUBLEDOUBLE));
-
-        enable_bignum_pixels.setEnabled(enable_bignum.isSelected());
-
-        automaticBignumPrecision.setEnabled(enable_bignum.isSelected() && bigNumLibs.getSelectedIndex() != Constants.BIGNUM_DOUBLE && bigNumLibs.getSelectedIndex() != Constants.BIGNUM_DOUBLEDOUBLE);
+        automaticBignumPrecision.setEnabled(bigNumLibs.getSelectedIndex() != Constants.BIGNUM_DOUBLE && bigNumLibs.getSelectedIndex() != Constants.BIGNUM_DOUBLEDOUBLE);
 
         bigNumLibs.addActionListener(e -> {
-            bignumPrecision.setEnabled(enable_bignum.isSelected() && !automaticBignumPrecision.isSelected() && bigNumLibs.getSelectedIndex() != Constants.BIGNUM_DOUBLE && bigNumLibs.getSelectedIndex() != Constants.BIGNUM_DOUBLEDOUBLE);
-            automaticBignumPrecision.setEnabled(enable_bignum.isSelected()&& bigNumLibs.getSelectedIndex() != Constants.BIGNUM_DOUBLE && bigNumLibs.getSelectedIndex() != Constants.BIGNUM_DOUBLEDOUBLE);
-        });
-
-        enable_bignum.addActionListener(e -> {
-            bigNumLibs.setEnabled(enable_bignum.isSelected());
-            enable_bignum_pixels.setEnabled(enable_bignum.isSelected());
-            bignumPrecision.setEnabled(enable_bignum.isSelected() && !automaticBignumPrecision.isSelected() && bigNumLibs.getSelectedIndex() != Constants.BIGNUM_DOUBLE && bigNumLibs.getSelectedIndex() != Constants.BIGNUM_DOUBLEDOUBLE);
-            automaticBignumPrecision.setEnabled(enable_bignum.isSelected()&& bigNumLibs.getSelectedIndex() != Constants.BIGNUM_DOUBLE && bigNumLibs.getSelectedIndex() != Constants.BIGNUM_DOUBLEDOUBLE);
+            bignumPrecision.setEnabled(!automaticBignumPrecision.isSelected() && bigNumLibs.getSelectedIndex() != Constants.BIGNUM_DOUBLE && bigNumLibs.getSelectedIndex() != Constants.BIGNUM_DOUBLEDOUBLE);
+            automaticBignumPrecision.setEnabled(bigNumLibs.getSelectedIndex() != Constants.BIGNUM_DOUBLE && bigNumLibs.getSelectedIndex() != Constants.BIGNUM_DOUBLEDOUBLE);
         });
 
         JPanel statsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         statsPanel.add(detect_period);
         statsPanel.add(gatherPerturbationStatistics);
-
-        JPanel enable_bignum_panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        enable_bignum_panel.add(enable_bignum);
-        enable_bignum_panel.add(enable_bignum_pixels);
 
         JPanel autoBigNumPrecPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         autoBigNumPrecPanel.add(automaticBignumPrecision);
@@ -395,6 +379,9 @@ public class PerturbationTheoryDialog extends JDialog {
         stage01.setText("" + LAInfo.Stage0PeriodDetectionThreshold2);
         JTextField plimit1 = new JTextField();
         plimit1.setText("" + LAInfo.PeriodDetectionThreshold2);
+
+        JTextField double_threshold = new JTextField();
+        double_threshold.setText("" + LAReference.doubleThresholdLimit.toDouble());
 
 
         bla2Thresholds.add(stage0);
@@ -427,10 +414,15 @@ public class PerturbationTheoryDialog extends JDialog {
             plimit1.setEnabled(bla2DetectionMethod.getSelectedIndex() == 1);
         });
 
+        JPanel panel3 = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        panel3.add(new JLabel("Double Threshold Limit:"));
+
         BLA2panel.add(detectionPanel);
         BLA2panel.add(bla2DetectionMethod);
         BLA2panel.add(new JLabel(" "));
         BLA2panel.add(bla2Thresholds);
+        BLA2panel.add(panel3);
+        BLA2panel.add(double_threshold);
         BLA2panel.add(new JLabel(" "));
 
         reset_approximation.addActionListener(e -> {
@@ -440,6 +432,8 @@ public class PerturbationTheoryDialog extends JDialog {
 
             stage01.setText("" + ApproximationDefaultSettings.Stage0PeriodDetectionThreshold2);
             plimit1.setText("" + ApproximationDefaultSettings.PeriodDetectionThreshold2);
+
+            double_threshold.setText("" + ApproximationDefaultSettings.DoubleThresholdLimit);
 
             lascale.setText("" + ApproximationDefaultSettings.LAThresholdScale);
             lacscale.setText("" + ApproximationDefaultSettings.LAThresholdCScale);
@@ -472,6 +466,11 @@ public class PerturbationTheoryDialog extends JDialog {
 
         automatic_precision.addActionListener(e -> alwaysCheckForPrecisionDecrease.setEnabled(automatic_precision.isSelected()));
 
+
+        JPanel panelmantex = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        panelmantex.add(new JLabel("Complex Extended Range Format:"));
+
+
         Object[] message3 = {
             info_panel,
             " ",
@@ -481,7 +480,6 @@ public class PerturbationTheoryDialog extends JDialog {
             precision,
                 panel_auto_prec,
             " ",
-                enable_bignum_panel,
                 bnliblabel,
                 bigNumLibs,
                 autoBigNumPrecPanel,
@@ -497,6 +495,8 @@ public class PerturbationTheoryDialog extends JDialog {
                 BLA2panel,
                 Nanomb1Panel,
                 FloatExpPanel2,
+                panelmantex,
+                mantexpcomplex_format,
                 pixelLabel2,
                 pixelLabel,
                 pixelAlgorithm};
@@ -547,6 +547,7 @@ public class PerturbationTheoryDialog extends JDialog {
                             double temp8 = Double.parseDouble(plimit1.getText());
                             double temp9 = Double.parseDouble(lascale.getText());
                             double temp10 = Double.parseDouble(lacscale.getText());
+                            double double_t_l = Double.parseDouble(double_threshold.getText());
 
                             if(temp5 <= 0 || temp6 <= 0 || temp7 <= 0 || temp8 <= 0) {
                                 JOptionPane.showMessageDialog(ptra, "The stage 0 and period limit values must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
@@ -560,6 +561,11 @@ public class PerturbationTheoryDialog extends JDialog {
 
                             if(temp9 <= 0 || temp10 <= 0) {
                                 JOptionPane.showMessageDialog(ptra, "The LA scale limit values must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+
+                            if(double_t_l <= 0) {
+                                JOptionPane.showMessageDialog(ptra, "The double threshold limit value must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
                                 return;
                             }
 
@@ -578,43 +584,43 @@ public class PerturbationTheoryDialog extends JDialog {
                                 return;
                             }
 
-                            ThreadDraw.PERTURBATION_THEORY = enable_perturbation.isSelected();
-                            boolean tempBigNum = enable_bignum.isSelected();
-                            if(!ThreadDraw.PERTURBATION_THEORY || tempPrecision != MyApfloat.precision || tempBigNum != ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE) {
-                                Fractal.clearReferences(true);
+                            TaskDraw.PERTURBATION_THEORY = enable_perturbation.isSelected();
+
+                            if(!TaskDraw.PERTURBATION_THEORY || tempPrecision != MyApfloat.precision) {
+                                Fractal.clearReferences(true, true);
                             }
 
                             boolean tempAuto = automaticBignumPrecision.isSelected();
 
                             if(!tempAuto && tempPrecision == MyApfloat.precision) {
-                                Fractal.clearReferences(true);
+                                Fractal.clearReferences(true, true);
                                 BigNum.reinitialize(temp4);
                                 MpfrBigNum.reinitialize(temp4);
                                 MpirBigNum.reinitialize(temp4);
                                 BigIntNum.reinitialize(temp4);
                             }
-                            else if(tempAuto && !ThreadDraw.BIGNUM_AUTOMATIC_PRECISION && tempPrecision == MyApfloat.precision) {
-                                Fractal.clearReferences(true);
+                            else if(tempAuto && !TaskDraw.BIGNUM_AUTOMATIC_PRECISION && tempPrecision == MyApfloat.precision) {
+                                Fractal.clearReferences(true, true);
                                 MyApfloat.setBigNumPrecision();
                             }
 
-                            int oldApproximationAlg = ThreadDraw.APPROXIMATION_ALGORITHM;
-                            ThreadDraw.APPROXIMATION_ALGORITHM = approximation_alg.getSelectedIndex();
+                            int oldApproximationAlg = TaskDraw.APPROXIMATION_ALGORITHM;
+                            TaskDraw.APPROXIMATION_ALGORITHM = approximation_alg.getSelectedIndex();
 
-                            if(oldApproximationAlg != ThreadDraw.APPROXIMATION_ALGORITHM) {
-                                Fractal.clearReferences(true);
+                            if(oldApproximationAlg != TaskDraw.APPROXIMATION_ALGORITHM) {
+                                Fractal.clearReferences(true, true);
                             }
 
-                            boolean oldDetectedPeriod =  ThreadDraw.DETECT_PERIOD;
-                            ThreadDraw.DETECT_PERIOD = detect_period.isSelected();
+                            boolean oldDetectedPeriod =  TaskDraw.DETECT_PERIOD;
+                            TaskDraw.DETECT_PERIOD = detect_period.isSelected();
 
-                            if(oldDetectedPeriod != ThreadDraw.DETECT_PERIOD) {
-                                if(ThreadDraw.DETECT_PERIOD || ThreadDraw.APPROXIMATION_ALGORITHM == 3) {
-                                    Fractal.clearReferences(true);
+                            if(oldDetectedPeriod != TaskDraw.DETECT_PERIOD) {
+                                if(TaskDraw.DETECT_PERIOD || TaskDraw.APPROXIMATION_ALGORITHM == 3) {
+                                    Fractal.clearReferences(true, true);
                                 }
                                 else {
-                                    if(ThreadDraw.STOP_REFERENCE_CALCULATION_AFTER_DETECTED_PERIOD) {
-                                        Fractal.clearReferences(true);
+                                    if(TaskDraw.STOP_REFERENCE_CALCULATION_AFTER_DETECTED_PERIOD) {
+                                        Fractal.clearReferences(true, true);
                                     }
                                     else {
                                        // Fractal.DetectedAtomPeriod = 0;
@@ -623,65 +629,74 @@ public class PerturbationTheoryDialog extends JDialog {
                                 }
                             }
 
-                            ThreadDraw.GATHER_PERTURBATION_STATISTICS = gatherPerturbationStatistics.isSelected();
+                            TaskDraw.GATHER_PERTURBATION_STATISTICS = gatherPerturbationStatistics.isSelected();
 
-                            int oldBignumLib = ThreadDraw.BIGNUM_LIBRARY;
-                            ThreadDraw.BIGNUM_LIBRARY = bigNumLibs.getSelectedIndex();
-                            if(oldBignumLib != ThreadDraw.BIGNUM_LIBRARY) {
-                                Fractal.clearReferences(true);
+                            int oldBignumLib = TaskDraw.BIGNUM_LIBRARY;
+                            TaskDraw.BIGNUM_LIBRARY = bigNumLibs.getSelectedIndex();
+                            if(oldBignumLib != TaskDraw.BIGNUM_LIBRARY) {
+                                Fractal.clearReferences(true, true);
                             }
 
-                            boolean oldUseFullFloatExp = ThreadDraw.USE_FULL_FLOATEXP_FOR_ALL_ZOOM;
-                            ThreadDraw.USE_FULL_FLOATEXP_FOR_ALL_ZOOM = full_floatexp_for_all_zooms.isSelected();
-                            if(oldUseFullFloatExp != ThreadDraw.USE_FULL_FLOATEXP_FOR_ALL_ZOOM){
-                                Fractal.clearReferences(true);
+                            boolean oldUseFullFloatExp = TaskDraw.USE_FULL_FLOATEXP_FOR_ALL_ZOOM;
+                            TaskDraw.USE_FULL_FLOATEXP_FOR_ALL_ZOOM = full_floatexp_for_all_zooms.isSelected();
+                            if(oldUseFullFloatExp != TaskDraw.USE_FULL_FLOATEXP_FOR_ALL_ZOOM){
+                                Fractal.clearReferences(true, true);
                             }
 
-                            if(ThreadDraw.PERTURBATION_THEORY && ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE && ThreadDraw.BIGNUM_LIBRARY == Constants.BIGNUM_MPFR && LibMpfr.hasError()) {
+                            boolean oldUseFullFloatExpDeep = TaskDraw.USE_FULL_FLOATEXP_FOR_DEEP_ZOOM;
+                            TaskDraw.USE_FULL_FLOATEXP_FOR_DEEP_ZOOM = full_floatexp_for_deep_zooms.isSelected();
+                            if(oldUseFullFloatExpDeep != TaskDraw.USE_FULL_FLOATEXP_FOR_DEEP_ZOOM){
+                                Fractal.clearReferences(true, true);
+                            }
+
+                            int oldFormat = TaskDraw.MANTEXPCOMPLEX_FORMAT;
+                            TaskDraw.MANTEXPCOMPLEX_FORMAT = mantexpcomplex_format.getSelectedIndex();
+                            if(oldFormat != TaskDraw.MANTEXPCOMPLEX_FORMAT) {
+                                Fractal.clearReferences(true, true);
+                            }
+
+                            if(TaskDraw.PERTURBATION_THEORY && TaskDraw.BIGNUM_LIBRARY == Constants.BIGNUM_MPFR && LibMpfr.hasError()) {
                                 JOptionPane.showMessageDialog(ptra, "The MPFR library is not available, and the engine will fallback to an alternative library.", "Warning!", JOptionPane.WARNING_MESSAGE);
                             }
 
-                            if(ThreadDraw.PERTURBATION_THEORY && ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE && ThreadDraw.BIGNUM_LIBRARY == Constants.BIGNUM_MPIR && LibMpir.hasError()) {
+                            if(TaskDraw.PERTURBATION_THEORY && TaskDraw.BIGNUM_LIBRARY == Constants.BIGNUM_MPIR && LibMpir.hasError()) {
                                 JOptionPane.showMessageDialog(ptra, "The MPIR library is not available, and the engine will fallback to an alternative library.", "Warning!", JOptionPane.WARNING_MESSAGE);
                             }
 
-                            ThreadDraw.BIGNUM_AUTOMATIC_PRECISION = tempAuto;
-                            ThreadDraw.BIGNUM_PRECISION = temp4;
+                            TaskDraw.BIGNUM_AUTOMATIC_PRECISION = tempAuto;
+                            TaskDraw.BIGNUM_PRECISION = temp4;
 
                             if(tempPrecision != MyApfloat.precision) {
                                 MyApfloat.setPrecision(tempPrecision, s);
                             }
 
-                            int oldNanomb1N = ThreadDraw.NANOMB1_N;
-                            ThreadDraw.NANOMB1_N = nanomb1N.getValue();
+                            int oldNanomb1N = TaskDraw.NANOMB1_N;
+                            TaskDraw.NANOMB1_N = nanomb1N.getValue();
 
-                            int oldNanomb1M = ThreadDraw.NANOMB1_M;
-                            ThreadDraw.NANOMB1_M = nanomb1M.getValue();
+                            int oldNanomb1M = TaskDraw.NANOMB1_M;
+                            TaskDraw.NANOMB1_M = nanomb1M.getValue();
 
-                            if(oldNanomb1N != ThreadDraw.NANOMB1_N || oldNanomb1M != ThreadDraw.NANOMB1_M) {
-                                Fractal.clearReferences(true);
+                            if(oldNanomb1N != TaskDraw.NANOMB1_N || oldNanomb1M != TaskDraw.NANOMB1_M) {
+                                Fractal.clearReferences(true, true);
                             }
 
-                            int oldPixelAlgorithm = ThreadDraw.PERTUBATION_PIXEL_ALGORITHM;
-                            ThreadDraw.PERTUBATION_PIXEL_ALGORITHM = pixelAlgorithm.getSelectedIndex();
-                            if(oldPixelAlgorithm != ThreadDraw.PERTUBATION_PIXEL_ALGORITHM) {
-                                Fractal.clearReferences(true);
+                            int oldPixelAlgorithm = TaskDraw.PERTUBATION_PIXEL_ALGORITHM;
+                            TaskDraw.PERTUBATION_PIXEL_ALGORITHM = pixelAlgorithm.getSelectedIndex();
+                            if(oldPixelAlgorithm != TaskDraw.PERTUBATION_PIXEL_ALGORITHM) {
+                                Fractal.clearReferences(true, true);
                             }
 
                             MyApfloat.setAutomaticPrecision = automatic_precision.isSelected();
                             MyApfloat.alwaysCheckForDecrease = alwaysCheckForPrecisionDecrease.isSelected();
 
-                            ThreadDraw.USE_BIGNUM_FOR_REF_IF_POSSIBLE = tempBigNum;
-                            ThreadDraw.APPROXIMATION_ALGORITHM = approximation_alg.getSelectedIndex();
-                            ThreadDraw.SERIES_APPROXIMATION_TERMS = series_terms_slid.getValue();
-                            ThreadDraw.SERIES_APPROXIMATION_OOM_DIFFERENCE = temp2;
-                            ThreadDraw.USE_FULL_FLOATEXP_FOR_DEEP_ZOOM = full_floatexp_for_deep_zooms.isSelected();
-                            ThreadDraw.SERIES_APPROXIMATION_MAX_SKIP_ITER = temp3;
-                            ThreadDraw.USE_BIGNUM_FOR_PIXELS_IF_POSSIBLE = enable_bignum_pixels.isSelected();
-                            ThreadDraw.USE_THREADS_FOR_SA = use_threads_for_sa.isSelected();
-                            ThreadDraw.BLA_BITS = blaBits.getValue();
-                            ThreadDraw.BLA_STARTING_LEVEL = bla_starting_level_slid.getValue();
-                            ThreadDraw.USE_THREADS_FOR_BLA = use_threads_for_bla.isSelected();
+                            TaskDraw.APPROXIMATION_ALGORITHM = approximation_alg.getSelectedIndex();
+                            TaskDraw.SERIES_APPROXIMATION_TERMS = series_terms_slid.getValue();
+                            TaskDraw.SERIES_APPROXIMATION_OOM_DIFFERENCE = temp2;
+                            TaskDraw.SERIES_APPROXIMATION_MAX_SKIP_ITER = temp3;
+                            TaskDraw.USE_THREADS_FOR_SA = use_threads_for_sa.isSelected();
+                            TaskDraw.BLA_BITS = blaBits.getValue();
+                            TaskDraw.BLA_STARTING_LEVEL = bla_starting_level_slid.getValue();
+                            TaskDraw.USE_THREADS_FOR_BLA = use_threads_for_bla.isSelected();
 
                             LAInfo.DETECTION_METHOD = bla2DetectionMethod.getSelectedIndex();
                             LAInfo.Stage0PeriodDetectionThreshold = temp5;
@@ -697,6 +712,7 @@ public class PerturbationTheoryDialog extends JDialog {
                             LAInfoDeep.PeriodDetectionThreshold2 = new MantExp(temp8);
                             LAInfoDeep.LAThresholdScale = new MantExp(temp9);
                             LAInfoDeep.LAThresholdCScale = new MantExp(temp10);
+                            LAReference.doubleThresholdLimit = new MantExp(double_t_l);
 
                             if(ptra instanceof MainWindow) {
                                 ((MainWindow)ptra).setPerturbationTheoryPost();

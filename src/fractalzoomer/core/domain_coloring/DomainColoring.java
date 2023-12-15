@@ -17,9 +17,9 @@
 package fractalzoomer.core.domain_coloring;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.core.TaskDraw;
 import fractalzoomer.core.blending.Blending;
 import fractalzoomer.core.interpolation.*;
-import fractalzoomer.main.Constants;
 import fractalzoomer.main.app_settings.GeneratedPaletteSettings;
 import fractalzoomer.palettes.PaletteColor;
 import fractalzoomer.palettes.transfer_functions.TransferFunction;
@@ -50,6 +50,7 @@ public abstract class DomainColoring {
 
     protected double logBaseFinal;
     protected double circlesBlending;
+    protected double base;
 
     protected Blending blending;
 
@@ -81,6 +82,7 @@ public abstract class DomainColoring {
     
     protected int circleFadeFunction;
     protected int gridFadeFunction;
+
     
     protected int contourMethod;
     
@@ -88,6 +90,18 @@ public abstract class DomainColoring {
     protected double gridWidth;
     protected int gridAlgorithm;
     protected double countourFactor;
+
+    protected double saturation_adjustment;
+
+    protected boolean mapNormReImWithAbsScale;
+
+    protected int shadingType;
+
+    protected int shadingColorAlgorithm;
+
+    protected boolean invertShading;
+
+    protected double shadingPercent;
 
     protected DomainColoring(int coloring_mode, PaletteColor palette, TransferFunction color_transfer, int color_cycling_location, GeneratedPaletteSettings gps, int color_interpolation, Blending blending, double countourFactor) {
 
@@ -141,7 +155,7 @@ public abstract class DomainColoring {
             return palette.getPaletteColor(result + color_cycling_location);
         }
         else {
-            return palette.calculateColor(result, gps.generatedPaletteOutColoringId, color_cycling_location, gps.restartGeneratedOutColoringPaletteAt);
+            return palette.calculateColor(result, gps.generatedPaletteOutColoringId, color_cycling_location, gps.restartGeneratedOutColoringPaletteAt, gps.outColoringIQ);
         }
 
     }
@@ -172,20 +186,20 @@ public abstract class DomainColoring {
     
     public static int HSBcolor(double h, int color_cycling_location) {
         
-        return Color.HSBtoRGB((float) ((h + color_cycling_location * 0.01) % 1.0), 1, 1);
+        return Color.HSBtoRGB((float) ((h + color_cycling_location * 0.01) % 1.0), TaskDraw.HSB_CONSTANT_S, TaskDraw.HSB_CONSTANT_B);
         
     }
     
     public static int LCHabcolor(double h, int color_cycling_location) {
         
-        int [] res = ColorSpaceConverter.LCH_abtoRGB(Constants.LCH_CONSTANT_L, Constants.LCH_CONSTANT_C, ((h + color_cycling_location * 0.01) % 1.0) * 360);
+        int [] res = ColorSpaceConverter.LCH_abtoRGB(TaskDraw.LCHab_CONSTANT_L, TaskDraw.LCHab_CONSTANT_C, ((h + color_cycling_location * 0.01) % 1.0) * 360);
         return 0xFF000000 | res[0] << 16 | res[1] << 8 | res[2];
         
     }
 
     public static int LCHuvcolor(double h, int color_cycling_location) {
 
-        int [] res = ColorSpaceConverter.LCH_uvtoRGB(Constants.LCH_CONSTANT_L, Constants.LCH_CONSTANT_C, ((h + color_cycling_location * 0.01) % 1.0) * 360);
+        int [] res = ColorSpaceConverter.LCH_uvtoRGB(TaskDraw.LCHuv_CONSTANT_L, TaskDraw.LCHuv_CONSTANT_C, ((h + color_cycling_location * 0.01) % 1.0) * 360);
         return 0xFF000000 | res[0] << 16 | res[1] << 8 | res[2];
 
     }
@@ -204,17 +218,58 @@ public abstract class DomainColoring {
 
     protected int applyArgColor(double arg) {
 
-        double h = arg / Math.PI * 0.5;
-
-        h = h < 0 ? h + 1 : h;
+        double h = (arg + Math.PI) / ( Math.PI * 2);
 
         return chooseColor(h);
 
     }
 
+//    private double fract(double x) {
+//        return x - (int)x;
+//    }
+    /*protected int applyArgColor2(double arg, double r) {
+
+        double h = (arg + Math.PI) / ( Math.PI * 2);
+
+        //return chooseColor(h);
+        double phi = 2.*Math.atan(1./r);
+
+        double b0 = fract(2.0*Math.log(r)/Math.log(2.)); // fractional brightness
+        double b1 = fract(Math.log(r)/Math.log(2.));        // ... for every second band
+        // adjust brightness
+        //double b = (b0+1.0)/2.0;
+        double b = (b0+3.0)/4.0;
+        if (b1<0.5) b = 1.0;
+        // saturation and value
+        double s = 1.0;
+        double val = 1.0;
+
+        if (phi<Math.PI/2.) s = Math.sin(phi); else val = Math.sin(phi);
+        s=Math.pow(s,0.5);
+        val=Math.pow(val,0.5);
+        //s = 1.0; val = 1.0;
+        // convert
+
+        int[] rgb = ColorSpaceConverter.HSBtoRGB(h, s, val);
+
+        rgb[0] = (int)(rgb[0] * b + 0.5);
+        rgb[1] = (int)(rgb[1] * b + 0.5);
+        rgb[2] = (int)(rgb[2] * b + 0.5);
+
+        return 0xff000000 | (rgb[0] << 16) | (rgb[1] << 8) | rgb[2];
+        //vec3 v = HSVtoRGB(vec3(theta,s,val))*b;
+
+    }*/
+
     protected int applyNormColor(double norm) {
 
-        double h = norm / max_norm_re_im_value;
+        double h;
+        if(mapNormReImWithAbsScale) {
+            h = scale0toInfto0and1(norm);
+        }
+        else {
+            h = norm / max_norm_re_im_value;
+        }
 
         return chooseColor(h);
 
@@ -222,7 +277,13 @@ public abstract class DomainColoring {
     
     protected int applyReColor(double re) {
 
-        double h = Math.abs(re) / max_norm_re_im_value;
+        double h;
+        if(mapNormReImWithAbsScale) {
+            h = scale0toInfto0and1(Math.abs(re));
+        }
+        else {
+            h = Math.abs(re) / max_norm_re_im_value;
+        }
 
         return chooseColor(h);
 
@@ -230,7 +291,13 @@ public abstract class DomainColoring {
     
     protected int applyImColor(double im) {
 
-        double h = Math.abs(im) / max_norm_re_im_value;
+        double h;
+        if(mapNormReImWithAbsScale) {
+            h = scale0toInfto0and1(Math.abs(im));
+        }
+        else {
+            h = Math.abs(im) / max_norm_re_im_value;
+        }
 
         return chooseColor(h);
 
@@ -284,7 +351,7 @@ public abstract class DomainColoring {
         
     }
 
-    protected int applyGrid(int color, double re, double im) {
+    protected int applyGrid(int color, double re, double im, int grid_color_type, double norm) {
 
         int red = (color >> 16) & 0xFF;
         int green = (color >> 8) & 0xFF;
@@ -303,11 +370,33 @@ public abstract class DomainColoring {
 
         b = b * gridBlending;
 
-        return method.interpolate(red, green, blue, gridColorRed, gridColorGreen, gridColorBlue, b);
+        int tempRed = gridColorRed;
+        int tempGreen = gridColorGreen;
+        int tempBlue = gridColorBlue;
+
+        if(grid_color_type == 1) {
+            if(mapNormReImWithAbsScale) {
+                norm = scale0toInfto0and1(norm);
+            }
+            else {
+                norm = norm > max_norm_re_im_value ? max_norm_re_im_value : norm;
+                norm = norm / max_norm_re_im_value;
+            }
+
+            int index = (int)(norm * (gradient.length - 1) + 0.5);
+
+            int grad_color = gradient[(index + gradient_offset) % gradient.length];
+
+            tempRed = (grad_color >> 16) & 0xff;
+            tempGreen = (grad_color >> 8) & 0xff;
+            tempBlue = grad_color & 0xff;
+        }
+
+        return method.interpolate(red, green, blue, tempRed, tempGreen, tempBlue, b);
 
     }
 
-    protected int applyCircles(int color, double norm) {
+    protected int applyCircles(int color, double norm, int circle_color_type) {
 
         int red = (color >> 16) & 0xFF;
         int green = (color >> 8) & 0xFF;
@@ -321,13 +410,52 @@ public abstract class DomainColoring {
 
         b = b * circlesBlending;
 
-        return method.interpolate(red, green, blue, circlesColorRed, circlesColorGreen, circlesColorBlue, b);
+        int tempRed = circlesColorRed;
+        int tempGreen = circlesColorGreen;
+        int tempBlue = circlesColorBlue;
+
+        if(circle_color_type == 1) {
+            if(mapNormReImWithAbsScale) {
+                norm = scale0toInfto0and1(norm);
+            }
+            else {
+                norm = norm > max_norm_re_im_value ? max_norm_re_im_value : norm;
+                norm = norm / max_norm_re_im_value;
+            }
+
+            int index = (int)(norm * (gradient.length - 1) + 0.5);
+
+            int grad_color = gradient[(index + gradient_offset) % gradient.length];
+
+            tempRed = (grad_color >> 16) & 0xff;
+            tempGreen = (grad_color >> 8) & 0xff;
+            tempBlue = grad_color & 0xff;
+        }
+        else if(circle_color_type == 2) {
+            if(norm < 1 - (1 - 1 / base) * 0.5) {
+                tempRed = 255;
+                tempGreen = 255;
+                tempBlue = 255;
+            }
+            else if (norm > 1 + (base - 1) * 0.5) {
+                tempRed = 127;
+                tempGreen = 127;
+                tempBlue = 127;
+            }
+            else {
+                tempRed = 0;
+                tempGreen = 0;
+                tempBlue = 0;
+            }
+        }
+
+        return method.interpolate(red, green, blue, tempRed, tempGreen, tempBlue, b);
 
     }
 
-    protected int applyIsoLines(int color, double arg) {
+    protected int applyIsoLines(int color, double originalArg, int iso_color_type, double norm) {
 
-        arg = arg / Math.PI * 0.5;
+        double arg = originalArg / Math.PI * 0.5;
 
         arg = arg < 0 ? arg + 1 : arg;
 
@@ -350,7 +478,36 @@ public abstract class DomainColoring {
 
         coef = coef * isoLinesBlendingFactor;
 
-        return method.interpolate(red, green, blue, isoLinesColorRed, isoLinesColorGreen, isoLinesColorBlue, coef);
+        int tempRed = isoLinesColorRed;
+        int tempGreen = isoLinesColorGreen;
+        int tempBlue = isoLinesColorBlue;
+
+        if(iso_color_type == 1) {
+            if(mapNormReImWithAbsScale) {
+                norm = scale0toInfto0and1(norm);
+            }
+            else {
+                norm = norm > max_norm_re_im_value ? max_norm_re_im_value : norm;
+                norm = norm / max_norm_re_im_value;
+            }
+
+            int index = (int)(norm * (gradient.length - 1) + 0.5);
+
+            int grad_color = gradient[(index + gradient_offset) % gradient.length];
+
+            tempRed = (grad_color >> 16) & 0xff;
+            tempGreen = (grad_color >> 8) & 0xff;
+            tempBlue = grad_color & 0xff;
+        }
+        else if(iso_color_type == 2) {
+            int argColor = applyArgColor(originalArg);
+
+            tempRed = (argColor >> 16) & 0xff;
+            tempGreen = (argColor >> 8) & 0xff;
+            tempBlue = argColor & 0xff;
+        }
+
+        return method.interpolate(red, green, blue, tempRed, tempGreen, tempBlue, coef);
     }
 
     protected int applyNormContours(int color, double norm) {
@@ -730,10 +887,12 @@ public abstract class DomainColoring {
                 return Exponential2Interpolation.getCoefficient(value);
             case 12:
                 return SmoothTransitionFunctionInterpolation.getCoefficient(value);
+            case 13:
+                return QuarterSinInterpolation.getCoefficient(value);
         }
         return 0;
     }
-    
+
      private double gridfade(double value) {
 
         switch (this.gridFadeFunction) {
@@ -763,6 +922,8 @@ public abstract class DomainColoring {
                 return Exponential2Interpolation.getCoefficient(value);
             case 12:
                 return SmoothTransitionFunctionInterpolation.getCoefficient(value);
+            case 13:
+                return QuarterSinInterpolation.getCoefficient(value);
         }
         
         return 0;
@@ -820,6 +981,81 @@ public abstract class DomainColoring {
          }
       
      }
+
+    private static final double LOG2 = Math.log(2);
+
+    private double scale0toInfto0and1(double val) {
+        double alpha = LOG2 / logBaseFinal;
+        double pow = Math.pow(val, alpha);
+        return pow / (pow + 1);
+    }
+
+    protected int applyShading(int color, double norm, double re, double im) {
+
+        int red = (color >> 16) & 0xFF;
+        int green = (color >> 8) & 0xFF;
+        int blue = color & 0xFF;
+
+        double coef;
+
+        if(mapNormReImWithAbsScale) {
+            if (shadingType == 0) {
+                coef = scale0toInfto0and1(norm);
+            } else if (shadingType == 1) {
+                coef = scale0toInfto0and1(Math.abs(re));
+            } else {
+                coef = scale0toInfto0and1(Math.abs(im));
+            }
+        }
+        else {
+            if (shadingType == 0) {
+                norm = norm > max_norm_re_im_value ? max_norm_re_im_value : norm;
+                coef = norm / max_norm_re_im_value;
+            } else if (shadingType == 1) {
+                double val = Math.abs(re);
+
+                val = val > max_norm_re_im_value ? max_norm_re_im_value : val;
+                coef = val / max_norm_re_im_value;
+            } else {
+                double val = Math.abs(im);
+
+                val = val > max_norm_re_im_value ? max_norm_re_im_value : val;
+                coef = val / max_norm_re_im_value;
+            }
+        }
+
+        if(invertShading) {
+            coef = 1 - coef;
+        }
+
+        if(shadingColorAlgorithm == 0) {
+            double r0 = 0.08499547839164734;
+            r0 *= saturation_adjustment;
+
+            double rd = r0 - r0 * 2 * Math.abs(coef - 0.5);
+            double[] Lab = ColorSpaceConverter.RGBtoLAB(red, green, blue);
+            int[] rgb = ColorSpaceConverter.LABtoRGB(coef * 100, rd * Lab[1], rd * Lab[2]);
+
+            return 0xff000000 | (rgb[0] << 16) | (rgb[1] << 8) | rgb[2];
+        }
+        else  {
+            if (coef <= shadingPercent) {
+                double final_coef = coef  / shadingPercent;
+                final_coef = final_coef * final_coef;
+                red = (int) (red * final_coef + 0.5);
+                green = (int) (green * final_coef + 0.5);
+                blue = (int) (blue * final_coef + 0.5);
+            } else if (coef >= 1 - shadingPercent) {
+                double final_coef = 1 - (coef - (1 - shadingPercent)) / shadingPercent;
+                final_coef = final_coef * final_coef;
+                red = (int) (red * final_coef + (1 - final_coef) * 255 + 0.5);
+                green = (int) (green * final_coef + (1 - final_coef) * 255 + 0.5);
+                blue = (int) (blue * final_coef + (1 - final_coef) * 255 + 0.5);
+            }
+            return 0xff000000 | (red << 16) | (green << 8) | blue;
+        }
+
+    }
      
      public void setColorCyclingLocation(int color_cycling_location) {
          

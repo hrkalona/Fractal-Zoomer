@@ -32,6 +32,11 @@ public class FiltersSettings {
     public int[] filters_order;
     public Color[] filters_colors;
     public Color[][] filters_extra_colors;
+    public double aaSigmaR;
+    public double aaSigmaS;
+    public double bluringSigmaR;
+    public double bluringSigmaS;
+    public int blurringKernelSelection;
     
     public FiltersSettings() {
         
@@ -48,6 +53,12 @@ public class FiltersSettings {
     }
     
     public void defaultFilters(boolean reset_checked) {
+
+        aaSigmaR = 0;
+        aaSigmaS = 0;
+        bluringSigmaR = 0;
+        bluringSigmaS = 0;
+        blurringKernelSelection = 0;
 
         for(int k = 0; k < filters_options_vals.length; k++) {
 

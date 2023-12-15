@@ -72,6 +72,9 @@ public class PlaneVisualizer {
             case MainWindow.MU_SQUARED_PLANE:
                 plane = new MuSquaredPlane();
                 break;
+            case MainWindow.MU_FOURTH_PLANE:
+                plane = new MuFourthPlane();
+                break;
             case MainWindow.MU_SQUARED_IMAGINARY_PLANE:
                 plane = new MuSquaredImaginaryPlane();
                 break;
@@ -265,6 +268,9 @@ public class PlaneVisualizer {
             case MainWindow.SKEW_PLANE:
                 plane = new SkewPlane(s.fns.plane_transform_angle, s.fns.plane_transform_angle2);
                 break;
+            case MainWindow.INFLECTIONS_PLANE:
+                plane = new InflectionsPlane(s.fns.inflections_re, s.fns.inflections_im, s.fns.inflectionsPower);
+                break;
         }
 
     }
@@ -282,7 +288,7 @@ public class PlaneVisualizer {
 
     public void visualizePlanes(int color_mode) {
 
-        int image_size = plane_mu_image.getHeight();
+        int image_size = plane_mu_image.getWidth();
         int[] rgbs = ((DataBufferInt)plane_mu_image.getRaster().getDataBuffer()).getData();
         int[] rgbs2 = ((DataBufferInt)new_plane_image.getRaster().getDataBuffer()).getData();
 

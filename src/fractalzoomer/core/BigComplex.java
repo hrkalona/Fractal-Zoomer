@@ -1,5 +1,6 @@
 package fractalzoomer.core;
 
+import fractalzoomer.core.unused.BigDecNumComplex;
 import fractalzoomer.utils.NormComponents;
 import org.apfloat.Apfloat;
 import org.apfloat.ApfloatMath;
@@ -50,6 +51,9 @@ public class BigComplex extends GenericComplex {
 
     @Override
     public BigIntNumComplex toBigIntNumComplex() { return new BigIntNumComplex(this); }
+
+    @Override
+    public BigDecNumComplex toBigDecNumComplex() { return new BigDecNumComplex(this); }
 
     @Override
     public MpfrBigNumComplex toMpfrBigNumComplex() { return new MpfrBigNumComplex(this);}
@@ -304,8 +308,8 @@ public class BigComplex extends GenericComplex {
     public final Apfloat norm_squared() {
 
         if(MyApfloat.use_threads) {
-            Future<Apfloat> temp1 = ThreadDraw.executor.submit(() -> MyApfloat.fp.multiply(re, re));
-            Future<Apfloat> temp2 = ThreadDraw.executor.submit(() -> MyApfloat.fp.multiply(im, im));
+            Future<Apfloat> temp1 = TaskDraw.reference_thread_executor.submit(() -> MyApfloat.fp.multiply(re, re));
+            Future<Apfloat> temp2 = TaskDraw.reference_thread_executor.submit(() -> MyApfloat.fp.multiply(im, im));
 
             try {
                 return temp1.get().add(temp2.get());
@@ -528,6 +532,28 @@ public class BigComplex extends GenericComplex {
         BigComplex diff = this.sub(inf);
 
         return inf.plus(diff.square());
+
+    }
+
+    public final BigComplex inflectionPower(BigComplex inf, double power) {
+
+        if(power == 1) {
+            return plus(inf);
+        }
+        else if(power == 2) {
+            return square().plus(inf);
+        }
+        else if(power == 3) {
+            return cube().plus(inf);
+        }
+        else if(power == 4) {
+            return fourth().plus(inf);
+        }
+        if(power == 5) {
+            return fifth().plus(inf);
+        }
+
+        return new BigComplex();
 
     }
 
@@ -891,7 +917,7 @@ public class BigComplex extends GenericComplex {
     }
 
     @Override
-    public MantExpComplex toMantExpComplex() { return new MantExpComplex(this);}
+    public MantExpComplex toMantExpComplex() { return MantExpComplex.create(this);}
 
     @Override
     public void set(GenericComplex za) {
@@ -906,8 +932,8 @@ public class BigComplex extends GenericComplex {
         BigComplex c = (BigComplex)cn;
 
         if(MyApfloat.use_threads) {
-            Future<Apfloat> temp1 = ThreadDraw.executor.submit(() -> MyApfloat.fp.add(MyApfloat.fp.multiply(MyApfloat.fp.add(re, im), MyApfloat.fp.subtract(re, im)), c.re));
-            Future<Apfloat> temp2 = ThreadDraw.executor.submit(() -> {
+            Future<Apfloat> temp1 = TaskDraw.reference_thread_executor.submit(() -> MyApfloat.fp.add(MyApfloat.fp.multiply(MyApfloat.fp.add(re, im), MyApfloat.fp.subtract(re, im)), c.re));
+            Future<Apfloat> temp2 = TaskDraw.reference_thread_executor.submit(() -> {
                 Apfloat temp = MyApfloat.fp.multiply(re, im);
                 return MyApfloat.fp.add(MyApfloat.fp.add(temp, temp), c.im);
             });
@@ -1042,4 +1068,17 @@ public class BigComplex extends GenericComplex {
         return conjugate();
 
     }
+
+    @Override
+    public BigComplex absNegateRe_mutable() {
+        return new BigComplex(ApfloatMath.abs(re).negate(), im);
+    }
+
+    @Override
+    public BigComplex absNegateIm_mutable() {
+        return new BigComplex(re, ApfloatMath.abs(im).negate());
+    }
+
+    @Override
+    public BigComplex absre_mutable() { return  absre(); }
 }
