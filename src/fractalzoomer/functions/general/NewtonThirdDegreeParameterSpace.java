@@ -17,6 +17,7 @@ import org.apfloat.Apfloat;
 
 import javax.swing.*;
 import java.util.ArrayList;
+import java.util.function.Function;
 
 import static fractalzoomer.main.Constants.*;
 
@@ -37,7 +38,6 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
 
         setPertubationOption(perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, perturbation_user_formula, user_perturbation_conditions, user_perturbation_condition_formula, plane_transform_center);
 
-        power = 3;
         defaultInitVal = new DefaultInitialValueWithFactor(1.0 / 3.0);
 
         if (init_value) {
@@ -79,13 +79,11 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
 
         switch (out_coloring_algorithm) {
             case MainWindow.BINARY_DECOMPOSITION:
-                convergent_bailout = 1E-9;
-                break;
             case MainWindow.BINARY_DECOMPOSITION2:
-                convergent_bailout = 1E-9;
+                setConvergentBailout(1E-9);
                 break;
             case MainWindow.USER_OUTCOLORING_ALGORITHM:
-                convergent_bailout = 1E-7;
+                setConvergentBailout(1E-7);
                 break;
 
         }
@@ -98,7 +96,6 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
             StatisticFactory(sts, plane_transform_center);
         }
 
-        power = 3;
         defaultInitVal = new DefaultInitialValueWithFactor(1.0 / 3.0);
         pertur_val = new DefaultPerturbation();
         init_val = defaultInitVal;
@@ -111,7 +108,6 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
 
         setPertubationOption(perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, perturbation_user_formula, user_perturbation_conditions, user_perturbation_condition_formula, plane_transform_center);
 
-        power = 3;
         defaultInitVal = new DefaultInitialValueWithFactor(1.0 / 3.0);
 
         if (init_value) {
@@ -133,7 +129,6 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
     public NewtonThirdDegreeParameterSpace(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower, double xJuliaCenter, double yJuliaCenter) {
 
         super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, xJuliaCenter, yJuliaCenter);
-        power = 3;
         defaultInitVal = new DefaultInitialValueWithFactor(1.0 / 3.0);
         pertur_val = new DefaultPerturbation();
         init_val = defaultInitVal;
@@ -163,6 +158,94 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
         return super.getRefType() + (isJulia ? "-Julia-" + bigSeed.toStringPretty() : "");
     }
 
+    @Override
+    protected int[] getNeededPrecalculatedTermsIndexes() {
+        if(!isJulia) {
+            return new int[] {0, 1, 2, 3, 4, 5, 6, 7};
+        }
+        return new int[] {0, 1, 2, 3, 4};
+    }
+
+    @Override
+    protected Function[] getPrecalculatedTermsFunctions(Complex c) {
+
+        Complex c4 = c.times4();
+        Complex csqr = c.square();
+        Complex csqrs3 = csqr.sub(3);
+        Complex csqr2s3 = csqr.times2().sub_mutable(3);
+        Complex c2 = c.times2();
+
+        Function<Complex, Complex> f1 = x -> {
+            Complex zsqr = x.square();
+            return c4.times(x).sub_mutable(zsqr.times(3)).sub_mutable(csqrs3).times_mutable(zsqr).plus_mutable(csqr).sub_mutable(c4.times(x));};
+
+        Function<Complex, Complex> f2 = x -> c.sub(x).times_mutable(x).times_mutable(9).sub_mutable(csqr2s3).times_mutable(x).sub_mutable(c);;
+
+        Function<Complex, Complex> f3 = x -> c2.times(x).sub(x.square().times_mutable(3)).plus_mutable(1);
+
+        Function<Complex, Complex> f4 = x -> {
+            Complex zsqr = x.square();
+            Complex c4z = c4.times(x);
+            return c4z.sub(zsqr.times(3)).times_mutable(3).sub_mutable(csqr2s3.times2()).times_mutable(zsqr).sub_mutable(c4z).sub_mutable(1);
+        };
+
+        Function<Complex, Complex> f5 = x -> c.sub(x).times_mutable(x).times(12).sub_mutable(csqrs3.times2()).times_mutable(x).sub_mutable(c4);
+        if(!isJulia) {
+            Function<Complex, Complex> f6 = x -> c.sub(x).times_mutable(x).plus_mutable(1).times_mutable(x).sub(c);
+
+            Function<Complex, Complex> f7 = x -> c2.times(x).sub(x.square().times_mutable(3).sub_mutable(1)).times_mutable(x);
+            Function<Complex, Complex> f8 = x -> {
+                Complex zsqr = x.square();
+                return zsqr.sub(2).times_mutable(zsqr).plus_mutable(1);
+            };
+
+            return new Function[] {f1, f2, f3, f4, f5, f6, f7, f8};
+        }
+        return new Function[] {f1, f2, f3, f4, f5};
+    }
+
+    @Override
+    protected Function[] getPrecalculatedTermsFunctionsDeep(MantExpComplex c) {
+        MantExpComplex c4 = c.times4();
+        c4.Normalize();
+        MantExpComplex csqr = c.square();
+        csqr.Normalize();
+        MantExpComplex csqrs3 = csqr.sub(MantExp.THREE);
+        csqrs3.Normalize();
+        MantExpComplex csqr2s3 = csqr.times2().sub_mutable(MantExp.THREE);
+        csqr2s3.Normalize();
+        MantExpComplex c2 = c.times2();
+        c2.Normalize();
+
+        Function<MantExpComplex, MantExpComplex> f1 = x -> {
+            MantExpComplex zsqr = x.square();
+            return c4.times(x).sub_mutable(zsqr.times(MantExp.THREE)).sub_mutable(csqrs3).times_mutable(zsqr).plus_mutable(csqr).sub_mutable(c4.times(x));};
+
+        Function<MantExpComplex, MantExpComplex> f2 = x -> c.sub(x).times_mutable(x).times_mutable(MantExp.NINE).sub_mutable(csqr2s3).times_mutable(x).sub_mutable(c);;
+
+        Function<MantExpComplex, MantExpComplex> f3 = x -> c2.times(x).sub(x.square().times_mutable(MantExp.THREE)).plus_mutable(MantExp.ONE);
+
+        Function<MantExpComplex, MantExpComplex> f4 = x -> {
+            MantExpComplex zsqr = x.square();
+            MantExpComplex c4z = c4.times(x);
+            return c4z.sub(zsqr.times(MantExp.THREE)).times_mutable(MantExp.THREE).sub_mutable(csqr2s3.times2()).times_mutable(zsqr).sub_mutable(c4z).sub_mutable(MantExp.ONE);
+        };
+
+        Function<MantExpComplex, MantExpComplex> f5 = x -> c.sub(x).times_mutable(x).times(MantExp.TWELVE).sub_mutable(csqrs3.times2()).times_mutable(x).sub_mutable(c4);
+        if(!isJulia) {
+            Function<MantExpComplex, MantExpComplex> f6 = x -> c.sub(x).times_mutable(x).plus_mutable(MantExp.ONE).times_mutable(x).sub(c);
+
+            Function<MantExpComplex, MantExpComplex> f7 = x -> c2.times(x).sub(x.square().times_mutable(MantExp.THREE).sub_mutable(MantExp.ONE)).times_mutable(x);
+            Function<MantExpComplex, MantExpComplex> f8 = x -> {
+                MantExpComplex zsqr = x.square();
+                return zsqr.sub(MantExp.TWO).times_mutable(zsqr).plus_mutable(MantExp.ONE);
+            };
+
+            return new Function[] {f1, f2, f3, f4, f5, f6, f7, f8};
+        }
+        return new Function[] {f1, f2, f3, f4, f5};
+    }
+
 
     @Override
     public void calculateReferencePoint(GenericComplex inputPixel, Apfloat size, boolean deepZoom, int[] Iterations, int[] juliaIterations, Location externalLocation, JProgressBar progress) {
@@ -185,28 +268,20 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
 
         boolean lowPrecReferenceOrbitNeeded = !needsOnlyExtendedReferenceOrbit(deepZoom, false);
         DoubleReference.SHOULD_SAVE_MEMORY = false;
+        boolean useCompressedRef = TaskDraw.COMPRESS_REFERENCE_IF_POSSIBLE && supportsReferenceCompression();
+        int[] preCalcIndexes = getNeededPrecalculatedTermsIndexes();
 
         if(iterations == 0) {
 
             if(lowPrecReferenceOrbitNeeded) {
-                if(!isJulia) {
-                    referenceData.createAndSetShortcut(max_ref_iterations, true, 8);
-                }
-                else {
-                    referenceData.createAndSetShortcut(max_ref_iterations, true, 5);
-                }
+                referenceData.createAndSetShortcut(max_ref_iterations, true, preCalcIndexes, useCompressedRef);
             }
             else {
                 referenceData.deallocate();
             }
 
             if (deepZoom) {
-                if(!isJulia) {
-                    referenceDeepData.createAndSetShortcut(max_ref_iterations, true, 8);
-                }
-                else {
-                    referenceDeepData.createAndSetShortcut(max_ref_iterations, true, 5);
-                }
+                referenceDeepData.createAndSetShortcut(max_ref_iterations, true, preCalcIndexes, useCompressedRef);
             }
         }
         else if (max_ref_iterations > getReferenceLength()){
@@ -300,12 +375,6 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
 
         refPoint = inputPixel;
 
-        refPointSmall = refPoint.toComplex();
-
-        if(lowPrecReferenceOrbitNeeded) {
-            C = c.toComplex();
-        }
-
         c4big = c.times4();
         c2big = c.times2();
         csqrbig = c.square();
@@ -327,24 +396,75 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
         if(deepZoom) {
             refPointSmallDeep = loc.getMantExpComplex(refPoint);
             Cdeep = loc.getMantExpComplex(c);
+
+            if(isJulia) {
+                seedSmallDeep = loc.getMantExpComplex(c);
+            }
+
+            refPointSmall = refPointSmallDeep.toComplex();
+
+            if(lowPrecReferenceOrbitNeeded) {
+                C = Cdeep.toComplex();
+            }
+
+            if(lowPrecReferenceOrbitNeeded && isJulia) {
+                seedSmall = seedSmallDeep.toComplex();
+            }
+        }
+        else {
+            refPointSmall = refPoint.toComplex();
+
+            if(lowPrecReferenceOrbitNeeded) {
+                C = c.toComplex();
+            }
+
+            if(lowPrecReferenceOrbitNeeded && isJulia) {
+                seedSmall = c.toComplex();
+            }
         }
 
         RefType = getRefType();
 
         convergent_bailout_algorithm.setReferenceMode(true);
 
+        if(useCompressedRef) {
+            if(deepZoom) {
+                referenceCompressor[referenceDeep.id] = new ReferenceCompressor(this, iterations == 0 ? z.toMantExpComplex() : referenceData.compressorZm, c.toMantExpComplex(), start.toMantExpComplex());
+
+                MantExpComplex cp = initVal.toMantExpComplex();
+                Function<MantExpComplex, MantExpComplex> f = x -> x.sub(cp);
+                functions[referenceDeepData.ReferenceSubCp.id] = f;
+                subexpressionsCompressor[referenceDeepData.ReferenceSubCp.id] = new ReferenceCompressor(f, true);
+
+                Function<MantExpComplex, MantExpComplex>[] fs = getPrecalculatedTermsFunctionsDeep(c.toMantExpComplex());
+                for(int i = 0; i < preCalcIndexes.length; i++) {
+                    int id = referenceDeepData.PrecalculatedTerms[preCalcIndexes[i]].id;
+                    functions[id] = fs[i];
+                    subexpressionsCompressor[id] = new ReferenceCompressor(fs[i], true);
+                }
+            }
+            if(lowPrecReferenceOrbitNeeded) {
+                referenceCompressor[reference.id] = new ReferenceCompressor(this, iterations == 0 ? z.toComplex() : referenceData.compressorZ, c.toComplex(), start.toComplex());
+
+                Complex cp = initVal.toComplex();
+                Function<Complex, Complex> f = x -> x.sub(cp);
+                functions[referenceData.ReferenceSubCp.id] = f;
+                subexpressionsCompressor[referenceData.ReferenceSubCp.id] = new ReferenceCompressor(f);
+
+                Function<Complex, Complex>[] fs = getPrecalculatedTermsFunctions(c.toComplex());
+                for(int i = 0; i < preCalcIndexes.length; i++) {
+                    int id = referenceData.PrecalculatedTerms[preCalcIndexes[i]].id;
+                    functions[id] = fs[i];
+                    subexpressionsCompressor[id] = new ReferenceCompressor(fs[i]);
+                }
+            }
+        }
+
         calculatedReferenceIterations = 0;
+        MantExpComplex tempmcz = null;
+        Complex cz = null;
 
         for (; iterations < max_ref_iterations; iterations++, calculatedReferenceIterations++) {
-
-            if(lowPrecReferenceOrbitNeeded) {
-                Complex cz = z.toComplex();
-                if (cz.isInfinite()) {
-                    break;
-                }
-
-                setArrayValue(reference, iterations, cz);
-            }
 
             GenericComplex zsubcp;
             if(bigNumLib == Constants.BIGNUM_MPFR) {
@@ -355,13 +475,6 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
             }
             else {
                 zsubcp = z.sub(initVal);
-            }
-
-            if(lowPrecReferenceOrbitNeeded) {
-                setArrayValue(referenceData.ReferenceSubCp, iterations, zsubcp.toComplex());
-            }
-            if(deepZoom) {
-                setArrayDeepValue(referenceDeepData.ReferenceSubCp, iterations, loc.getMantExpComplex(zsubcp));
             }
 
             GenericComplex zsqr = z.square();
@@ -381,10 +494,6 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
             GenericComplex c4zSzsqr3 = c4z.sub(zsqr3);
             GenericComplex preCalc = c4zSzsqr3.sub(csqrs3big).times_mutable(zsqr).plus_mutable(csqrbig).sub_mutable(c4z);
 
-            if(lowPrecReferenceOrbitNeeded) {
-                setArrayValue(referenceData.PrecalculatedTerms[0], iterations, preCalc.toComplex());
-            }
-
             GenericComplex csztz = c.sub(z).times_mutable(z);
             GenericComplex preCalc2;
             // 9*C*Z^2 - 9*Z^3 - (2*C^2 - 3)*Z- C for catastrophic cancelation
@@ -395,11 +504,6 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
                 preCalc2 = csztz.times(MyApfloat.NINE).sub(csqr2s3big).times(z).sub(c);
             }
 
-
-            if(lowPrecReferenceOrbitNeeded) {
-                setArrayValue(referenceData.PrecalculatedTerms[1], iterations, preCalc2.toComplex());
-            }
-
             GenericComplex c2z = c2big.times(z);
             GenericComplex preCalc3;
             if(bigNumLib != Constants.BIGNUM_APFLOAT) {
@@ -408,11 +512,6 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
             else {
                 preCalc3 = c2z.sub(zsqr3).plus(MyApfloat.ONE);
             }
-
-            if(lowPrecReferenceOrbitNeeded) {
-                setArrayValue(referenceData.PrecalculatedTerms[2], iterations, preCalc3.toComplex());
-            }
-
             
             GenericComplex preCalc4;
             if(bigNumLib != Constants.BIGNUM_APFLOAT) {
@@ -420,10 +519,6 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
             }
             else {
                 preCalc4 = c4zSzsqr3.times(MyApfloat.THREE).sub(csqr2s3big.times2()).times(zsqr).sub(c4z).sub(MyApfloat.ONE);
-            }
-
-            if(lowPrecReferenceOrbitNeeded) {
-                setArrayValue(referenceData.PrecalculatedTerms[3], iterations, preCalc4.toComplex());
             }
 
             //12*(C*Z^2 - Z^3)-2*(C^2-3)*Z -4*C
@@ -436,10 +531,6 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
                 preCalc5 = csztz.times(MyApfloat.TWELVE).sub(csqrs3big.times2()).times(z).sub(c4big);
             }
 
-            if (lowPrecReferenceOrbitNeeded) {
-                setArrayValue(referenceData.PrecalculatedTerms[4], iterations, preCalc5.toComplex());
-            }
-
             GenericComplex zsqr3s1;
             if (bigNumLib != Constants.BIGNUM_APFLOAT) {
                 zsqr3s1 = zsqr3.sub(1);
@@ -448,53 +539,87 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
                 zsqr3s1 = zsqr3.sub(MyApfloat.ONE);
             }
 
+            GenericComplex preCalc7 = null;
+            GenericComplex preCalc8 = null;
+            GenericComplex preCalc6 = null;
             if(!isJulia) {
                 ////C*Z^2-Z^3-C+Z
-                GenericComplex preCalc6;
                 if (bigNumLib != Constants.BIGNUM_APFLOAT) {
                     preCalc6 = csztz.plus(1).times_mutable(z).sub(c);
                 } else {
                     preCalc6 = csztz.plus(MyApfloat.ONE).times(z).sub(c);
                 }
 
-                if (lowPrecReferenceOrbitNeeded) {
-                    setArrayValue(referenceData.PrecalculatedTerms[5], iterations, preCalc6.toComplex());
-                }
-
                 //2*C*Z^2 + (-3*Z^2+1)*Z
-                GenericComplex preCalc7 = c2z.sub(zsqr3s1).times_mutable(z);
-
-                if (lowPrecReferenceOrbitNeeded) {
-                    setArrayValue(referenceData.PrecalculatedTerms[6], iterations, preCalc7.toComplex());
-                }
+                preCalc7 = c2z.sub(zsqr3s1).times_mutable(z);
 
                 ////(Z^2-2)*Z^2 + 1
-                GenericComplex preCalc8;
-
                 if (bigNumLib != Constants.BIGNUM_APFLOAT) {
                     preCalc8 = zsqr.sub(2).times_mutable(zsqr).plus_mutable(1);
                 } else {
                     preCalc8 = zsqr.sub(MyApfloat.TWO).times(zsqr).plus(MyApfloat.ONE);
                 }
+            }
 
-                if (lowPrecReferenceOrbitNeeded) {
-                    setArrayValue(referenceData.PrecalculatedTerms[7], iterations, preCalc8.toComplex());
+            MantExpComplex zsubcpm = null, czm = null;
+            MantExpComplex precalm = null, precal2m = null, precal3m = null, precal4m = null, precal5m = null;
+            MantExpComplex precal6m = null, precal7m = null, precal8m = null;
+            if(deepZoom) {
+                czm = loc.getMantExpComplex(z);
+                if (czm.isInfinite() || czm.isNaN()) {
+                    break;
+                }
+                tempmcz = setArrayDeepValue(referenceDeep, iterations, czm);
+            }
+
+            if(lowPrecReferenceOrbitNeeded) {
+                cz = deepZoom ? czm.toComplex() : z.toComplex();
+                if (cz.isInfinite() || cz.isNaN()) {
+                    break;
                 }
 
-                if(deepZoom) {
-                    setArrayDeepValue(referenceDeepData.PrecalculatedTerms[5], iterations, loc.getMantExpComplex(preCalc6));
-                    setArrayDeepValue(referenceDeepData.PrecalculatedTerms[6], iterations, loc.getMantExpComplex(preCalc7));
-                    setArrayDeepValue(referenceDeepData.PrecalculatedTerms[7], iterations, loc.getMantExpComplex(preCalc8));
+                cz = setArrayValue(reference, iterations, cz);
+            }
+
+            czm = tempmcz;
+
+            if(deepZoom) {
+                zsubcpm = loc.getMantExpComplex(zsubcp);
+                precalm = loc.getMantExpComplex(preCalc);
+                precal2m = loc.getMantExpComplex(preCalc2);
+                precal3m = loc.getMantExpComplex(preCalc3);
+                precal4m = loc.getMantExpComplex(preCalc4);
+                precal5m = loc.getMantExpComplex(preCalc5);
+                setArrayDeepValue(referenceDeepData.ReferenceSubCp, iterations, zsubcpm, czm);
+                setArrayDeepValue(referenceDeepData.PrecalculatedTerms[0], iterations, precalm, czm);
+                setArrayDeepValue(referenceDeepData.PrecalculatedTerms[1], iterations, precal2m, czm);
+                setArrayDeepValue(referenceDeepData.PrecalculatedTerms[2], iterations, precal3m, czm);
+                setArrayDeepValue(referenceDeepData.PrecalculatedTerms[3], iterations, precal4m, czm);
+                setArrayDeepValue(referenceDeepData.PrecalculatedTerms[4], iterations, precal5m, czm);
+
+                if(!isJulia) {
+                    precal6m = loc.getMantExpComplex(preCalc6);
+                    precal7m = loc.getMantExpComplex(preCalc7);
+                    precal8m = loc.getMantExpComplex(preCalc8);
+                    setArrayDeepValue(referenceDeepData.PrecalculatedTerms[5], iterations, precal6m, czm);
+                    setArrayDeepValue(referenceDeepData.PrecalculatedTerms[6], iterations, precal7m, czm);
+                    setArrayDeepValue(referenceDeepData.PrecalculatedTerms[7], iterations, precal8m, czm);
                 }
             }
 
-            if(deepZoom) {
-                setArrayDeepValue(referenceDeep, iterations, loc.getMantExpComplex(z));
-                setArrayDeepValue(referenceDeepData.PrecalculatedTerms[0], iterations, loc.getMantExpComplex(preCalc));
-                setArrayDeepValue(referenceDeepData.PrecalculatedTerms[1], iterations, loc.getMantExpComplex(preCalc2));
-                setArrayDeepValue(referenceDeepData.PrecalculatedTerms[2], iterations, loc.getMantExpComplex(preCalc3));
-                setArrayDeepValue(referenceDeepData.PrecalculatedTerms[3], iterations, loc.getMantExpComplex(preCalc4));
-                setArrayDeepValue(referenceDeepData.PrecalculatedTerms[4], iterations, loc.getMantExpComplex(preCalc5));
+            if(lowPrecReferenceOrbitNeeded) {
+                setArrayValue(referenceData.ReferenceSubCp, iterations, deepZoom ? zsubcpm.toComplex() : zsubcp.toComplex(), cz);
+                setArrayValue(referenceData.PrecalculatedTerms[0], iterations, deepZoom ? precalm.toComplex() : preCalc.toComplex(), cz);
+                setArrayValue(referenceData.PrecalculatedTerms[1], iterations, deepZoom ? precal2m.toComplex() : preCalc2.toComplex(), cz);
+                setArrayValue(referenceData.PrecalculatedTerms[2], iterations, deepZoom ? precal3m.toComplex() : preCalc3.toComplex(), cz);
+                setArrayValue(referenceData.PrecalculatedTerms[3], iterations, deepZoom ? precal4m.toComplex() : preCalc4.toComplex(), cz);
+                setArrayValue(referenceData.PrecalculatedTerms[4], iterations, deepZoom ? precal5m.toComplex() : preCalc5.toComplex(), cz);
+
+                if(!isJulia) {
+                    setArrayValue(referenceData.PrecalculatedTerms[5], iterations, deepZoom ? precal6m.toComplex() : preCalc6.toComplex(), cz);
+                    setArrayValue(referenceData.PrecalculatedTerms[6], iterations, deepZoom ? precal7m.toComplex() : preCalc7.toComplex(), cz);
+                    setArrayValue(referenceData.PrecalculatedTerms[7], iterations, deepZoom ? precal8m.toComplex() : preCalc8.toComplex(), cz);
+                }
             }
 
             if (iterations > 0 && convergent_bailout_algorithm.Converged(z, zold, zold2, iterations, c, start, c0, pixel)) {
@@ -531,6 +656,30 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
         referenceData.thirdTolastZValue = zold2;
 
         referenceData.MaxRefIteration = iterations - 1;
+
+        if(useCompressedRef) {
+            if(deepZoom) {
+                referenceCompressor[referenceDeep.id].compact(referenceDeep);
+                referenceData.compressorZm = referenceCompressor[referenceDeep.id].getZDeep();
+
+                subexpressionsCompressor[referenceDeepData.ReferenceSubCp.id].compact(referenceDeepData.ReferenceSubCp);
+
+                for(int i = 0; i < preCalcIndexes.length; i++) {
+                    subexpressionsCompressor[referenceDeepData.PrecalculatedTerms[preCalcIndexes[i]].id].compact(referenceDeepData.PrecalculatedTerms[preCalcIndexes[i]]);
+                }
+            }
+
+            if(lowPrecReferenceOrbitNeeded) {
+                referenceCompressor[reference.id].compact(reference);
+                referenceData.compressorZ = referenceCompressor[reference.id].getZ();
+
+                subexpressionsCompressor[referenceData.ReferenceSubCp.id].compact(referenceData.ReferenceSubCp);
+
+                for(int i = 0; i < preCalcIndexes.length; i++) {
+                    subexpressionsCompressor[referenceData.PrecalculatedTerms[preCalcIndexes[i]].id].compact(referenceData.PrecalculatedTerms[preCalcIndexes[i]]);
+                }
+            }
+        }
 
         SAskippedIterations = 0;
 
@@ -571,17 +720,19 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
 
         boolean lowPrecReferenceOrbitNeeded = !needsOnlyExtendedReferenceOrbit(deepZoom, false);
         DoubleReference.SHOULD_SAVE_MEMORY = false;
+        boolean useCompressedRef = TaskDraw.COMPRESS_REFERENCE_IF_POSSIBLE && supportsReferenceCompression();
+        int[] preCalcIndexes = getNeededPrecalculatedTermsIndexes();
 
         if (iterations == 0) {
             if(lowPrecReferenceOrbitNeeded) {
-                secondReferenceData.create(max_ref_iterations,true, 5);
+                secondReferenceData.create(max_ref_iterations,true, preCalcIndexes, useCompressedRef);
             }
             else {
                 secondReferenceData.deallocate();
             }
 
             if (deepZoom) {
-                secondReferenceDeepData.create(max_ref_iterations,true, 5);
+                secondReferenceDeepData.create(max_ref_iterations,true, preCalcIndexes, useCompressedRef);
             }
         } else if (max_ref_iterations > getSecondReferenceLength()) {
             if(lowPrecReferenceOrbitNeeded) {
@@ -671,18 +822,45 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
 
         convergent_bailout_algorithm.setReferenceMode(true);
 
+        if(useCompressedRef) {
+            if(deepZoom) {
+                referenceCompressor[secondReferenceDeepData.Reference.id] = new ReferenceCompressor(this, iterations == 0 ? z.toMantExpComplex() : secondReferenceData.compressorZm, c.toMantExpComplex(), start.toMantExpComplex());
+
+                MantExpComplex cp = initVal.toMantExpComplex();
+                Function<MantExpComplex, MantExpComplex> f = x -> x.sub(cp);
+                functions[secondReferenceDeepData.ReferenceSubCp.id] = f;
+                subexpressionsCompressor[secondReferenceDeepData.ReferenceSubCp.id] = new ReferenceCompressor(f, true);
+
+                Function<MantExpComplex, MantExpComplex>[] fs = getPrecalculatedTermsFunctionsDeep(c.toMantExpComplex());
+                for(int i = 0; i < preCalcIndexes.length; i++) {
+                    int id = secondReferenceDeepData.PrecalculatedTerms[preCalcIndexes[i]].id;
+                    functions[id] = fs[i];
+                    subexpressionsCompressor[id] = new ReferenceCompressor(fs[i], true);
+                }
+            }
+            if(lowPrecReferenceOrbitNeeded) {
+                referenceCompressor[secondReferenceData.Reference.id] = new ReferenceCompressor(this, iterations == 0 ? z.toComplex() : secondReferenceData.compressorZ, c.toComplex(), start.toComplex());
+
+                Complex cp = initVal.toComplex();
+                Function<Complex, Complex> f = x -> x.sub(cp);
+                functions[secondReferenceData.ReferenceSubCp.id] = f;
+                subexpressionsCompressor[secondReferenceData.ReferenceSubCp.id] = new ReferenceCompressor(f);
+
+                Function<Complex, Complex>[] fs = getPrecalculatedTermsFunctions(c.toComplex());
+                for(int i = 0; i < preCalcIndexes.length; i++) {
+                    int id = secondReferenceData.PrecalculatedTerms[preCalcIndexes[i]].id;
+                    functions[id] = fs[i];
+                    subexpressionsCompressor[id] = new ReferenceCompressor(fs[i]);
+                }
+            }
+        }
+
         calculatedSecondReferenceIterations = 0;
 
+        MantExpComplex tempczm = null;
+        Complex cz = null;
+
         for (; iterations < max_ref_iterations; iterations++, calculatedSecondReferenceIterations++) {
-
-            if(lowPrecReferenceOrbitNeeded) {
-                Complex cz = z.toComplex();
-                if (cz.isInfinite()) {
-                    break;
-                }
-
-                setArrayValue(secondReferenceData.Reference, iterations, cz);
-            }
 
             GenericComplex zsubcp;
             if(bigNumLib == Constants.BIGNUM_MPFR) {
@@ -693,13 +871,6 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
             }
             else {
                 zsubcp = z.sub(initVal);
-            }
-
-            if(lowPrecReferenceOrbitNeeded) {
-                setArrayValue(secondReferenceData.ReferenceSubCp, iterations, zsubcp.toComplex());
-            }
-            if(deepZoom) {
-                setArrayDeepValue(secondReferenceDeepData.ReferenceSubCp, iterations, loc.getMantExpComplex(zsubcp));
             }
 
             GenericComplex zsqr = z.square();
@@ -718,10 +889,6 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
             GenericComplex c4zSzsqr3 = c4z.sub(zsqr3);
             GenericComplex preCalc = c4zSzsqr3.sub(csqrs3big).times_mutable(zsqr).plus_mutable(csqrbig).sub_mutable(c4z);
 
-            if(lowPrecReferenceOrbitNeeded) {
-                setArrayValue(secondReferenceData.PrecalculatedTerms[0], iterations, preCalc.toComplex());
-            }
-
             GenericComplex csztz = c.sub(z).times_mutable(z);
             GenericComplex preCalc2;
             // 9*C*Z^2 - 9*Z^3 - (2*C^2 - 3)*Z- C for catastrophic cancelation
@@ -730,10 +897,6 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
             }
             else {
                 preCalc2 = csztz.times(MyApfloat.NINE).sub(csqr2s3big).times(z).sub(c);
-            }
-
-            if(lowPrecReferenceOrbitNeeded) {
-                setArrayValue(secondReferenceData.PrecalculatedTerms[1], iterations, preCalc2.toComplex());
             }
 
             GenericComplex c2z = c2big.times(z);
@@ -745,10 +908,6 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
                 preCalc3 = c2z.sub(zsqr3).plus(MyApfloat.ONE);
             }
 
-            if(lowPrecReferenceOrbitNeeded) {
-                setArrayValue(secondReferenceData.PrecalculatedTerms[2], iterations, preCalc3.toComplex());
-            }
-
 
             GenericComplex preCalc4;
             if(bigNumLib != Constants.BIGNUM_APFLOAT) {
@@ -756,10 +915,6 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
             }
             else {
                 preCalc4 = c4zSzsqr3.times(MyApfloat.THREE).sub(csqr2s3big.times2()).times(zsqr).sub(c4z).sub(MyApfloat.ONE);
-            }
-
-            if(lowPrecReferenceOrbitNeeded) {
-                setArrayValue(secondReferenceData.PrecalculatedTerms[3], iterations, preCalc4.toComplex());
             }
 
             //12*(C*Z^2 - Z^3)-2*(C^2-3)*Z -4*C
@@ -772,17 +927,49 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
                 preCalc5 = csztz.times(MyApfloat.TWELVE).sub(csqrs3big.times2()).times(z).sub(c4big);
             }
 
-            if(lowPrecReferenceOrbitNeeded) {
-                setArrayValue(secondReferenceData.PrecalculatedTerms[4], iterations, preCalc5.toComplex());
+            MantExpComplex zsubcpm = null, czm = null;
+            MantExpComplex precalm = null, precal2m = null, precal3m = null, precal4m = null, precal5m = null;
+            if(deepZoom) {
+                czm = loc.getMantExpComplex(z);
+                if (czm.isInfinite() || czm.isNaN()) {
+                    break;
+                }
+                tempczm = setArrayDeepValue(secondReferenceDeepData.Reference, iterations, czm);
             }
 
+            if(lowPrecReferenceOrbitNeeded) {
+                cz = deepZoom ? czm.toComplex() : z.toComplex();
+                if (cz.isInfinite() || cz.isNaN()) {
+                    break;
+                }
+
+                cz = setArrayValue(secondReferenceData.Reference, iterations, cz);
+            }
+
+            czm = tempczm;
+
             if(deepZoom) {
-                setArrayDeepValue(secondReferenceDeepData.Reference, iterations, loc.getMantExpComplex(z));
-                setArrayDeepValue(secondReferenceDeepData.PrecalculatedTerms[0], iterations, loc.getMantExpComplex(preCalc));
-                setArrayDeepValue(secondReferenceDeepData.PrecalculatedTerms[1], iterations, loc.getMantExpComplex(preCalc2));
-                setArrayDeepValue(secondReferenceDeepData.PrecalculatedTerms[2], iterations, loc.getMantExpComplex(preCalc3));
-                setArrayDeepValue(secondReferenceDeepData.PrecalculatedTerms[3], iterations, loc.getMantExpComplex(preCalc4));
-                setArrayDeepValue(secondReferenceDeepData.PrecalculatedTerms[4], iterations, loc.getMantExpComplex(preCalc5));
+                zsubcpm = loc.getMantExpComplex(zsubcp);
+                precalm = loc.getMantExpComplex(preCalc);
+                precal2m = loc.getMantExpComplex(preCalc2);
+                precal3m = loc.getMantExpComplex(preCalc3);
+                precal4m = loc.getMantExpComplex(preCalc4);
+                precal5m = loc.getMantExpComplex(preCalc5);
+                setArrayDeepValue(secondReferenceDeepData.ReferenceSubCp, iterations, zsubcpm, czm);
+                setArrayDeepValue(secondReferenceDeepData.PrecalculatedTerms[0], iterations, precalm, czm);
+                setArrayDeepValue(secondReferenceDeepData.PrecalculatedTerms[1], iterations, precal2m, czm);
+                setArrayDeepValue(secondReferenceDeepData.PrecalculatedTerms[2], iterations, precal3m, czm);
+                setArrayDeepValue(secondReferenceDeepData.PrecalculatedTerms[3], iterations, precal4m, czm);
+                setArrayDeepValue(secondReferenceDeepData.PrecalculatedTerms[4], iterations, precal5m, czm);
+            }
+
+            if(lowPrecReferenceOrbitNeeded) {
+                setArrayValue(secondReferenceData.ReferenceSubCp, iterations, deepZoom ? zsubcpm.toComplex() : zsubcp.toComplex(), cz);
+                setArrayValue(secondReferenceData.PrecalculatedTerms[0], iterations, deepZoom ? precalm.toComplex() : preCalc.toComplex(), cz);
+                setArrayValue(secondReferenceData.PrecalculatedTerms[1], iterations, deepZoom ? precal2m.toComplex() : preCalc2.toComplex(), cz);
+                setArrayValue(secondReferenceData.PrecalculatedTerms[2], iterations, deepZoom ? precal3m.toComplex() : preCalc3.toComplex(), cz);
+                setArrayValue(secondReferenceData.PrecalculatedTerms[3], iterations, deepZoom ? precal4m.toComplex() : preCalc4.toComplex(), cz);
+                setArrayValue(secondReferenceData.PrecalculatedTerms[4], iterations, deepZoom ? precal5m.toComplex() : preCalc5.toComplex(), cz);
             }
 
             if (iterations > 0 && convergent_bailout_algorithm.Converged(z, zold, zold2, iterations, c, start, c0, pixel)) {
@@ -821,6 +1008,31 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
 
         secondReferenceData.MaxRefIteration = iterations - 1;
 
+        if(useCompressedRef) {
+            if(deepZoom) {
+                referenceCompressor[secondReferenceDeepData.Reference.id].compact(secondReferenceDeepData.Reference);
+                secondReferenceData.compressorZm = referenceCompressor[secondReferenceDeepData.Reference.id].getZDeep();
+
+                subexpressionsCompressor[secondReferenceDeepData.ReferenceSubCp.id].compact(secondReferenceDeepData.ReferenceSubCp);
+
+                for(int i = 0; i < preCalcIndexes.length; i++) {
+                    subexpressionsCompressor[secondReferenceDeepData.PrecalculatedTerms[preCalcIndexes[i]].id].compact(secondReferenceDeepData.PrecalculatedTerms[preCalcIndexes[i]]);
+                }
+            }
+
+            if(lowPrecReferenceOrbitNeeded) {
+                referenceCompressor[secondReferenceData.Reference.id].compact(secondReferenceData.Reference);
+                secondReferenceData.compressorZ = referenceCompressor[secondReferenceData.Reference.id].getZ();
+
+                subexpressionsCompressor[secondReferenceData.ReferenceSubCp.id].compact(secondReferenceData.ReferenceSubCp);
+
+                for(int i = 0; i < preCalcIndexes.length; i++) {
+                    subexpressionsCompressor[secondReferenceData.PrecalculatedTerms[preCalcIndexes[i]].id].compact(secondReferenceData.PrecalculatedTerms[preCalcIndexes[i]]);
+                }
+            }
+        }
+
+
         if(progress != null) {
             progress.setValue(progress.getMaximum());
             progress.setString(REFERENCE_CALCULATION_STR + " 100%");
@@ -841,22 +1053,27 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
 
         Complex zsqr = z.square();
 
-        Complex temp1 = getArrayValue(referenceData.PrecalculatedTerms[2], RefIteration);
+        Complex Z = null;
+        if(reference.compressed) {
+            Z = getArrayValue(reference, RefIteration);
+        }
+
+        Complex temp1 = getArrayValue(referenceData.PrecalculatedTerms[2], RefIteration, Z);
         Complex temp9 = temp1.times(c);
 
-        Complex temp11 = getArrayValue(referenceData.PrecalculatedTerms[7], RefIteration);
+        Complex temp11 = getArrayValue(referenceData.PrecalculatedTerms[7], RefIteration, Z);
 
 
         Complex num = temp1.times2().times_mutable(z.cube())
-                .plus_mutable(getArrayValue(referenceData.PrecalculatedTerms[4], RefIteration).sub_mutable(temp9).times_mutable(zsqr))
+                .plus_mutable(getArrayValue(referenceData.PrecalculatedTerms[4], RefIteration, Z).sub_mutable(temp9).times_mutable(zsqr))
                 .sub_mutable(temp11.times_mutable(c))
-        .plus_mutable(getArrayValue(referenceData.PrecalculatedTerms[0], RefIteration).sub_mutable(getArrayValue(referenceData.PrecalculatedTerms[5], RefIteration).times_mutable(c)).times2_mutable().times_mutable(z));
+        .plus_mutable(getArrayValue(referenceData.PrecalculatedTerms[0], RefIteration, Z).sub_mutable(getArrayValue(referenceData.PrecalculatedTerms[5], RefIteration, Z).times_mutable(c)).times2_mutable().times_mutable(z));
 
 
-        Complex denom = getArrayValue(referenceData.PrecalculatedTerms[3], RefIteration)
+        Complex denom = getArrayValue(referenceData.PrecalculatedTerms[3], RefIteration, Z)
                 .plus_mutable(temp1.times(zsqr).times_mutable(3))
-                .sub_mutable(getArrayValue(referenceData.PrecalculatedTerms[6], RefIteration).times_mutable(c).times2_mutable())
-                .plus_mutable(getArrayValue(referenceData.PrecalculatedTerms[1], RefIteration).sub_mutable(temp9).times_mutable(z).times2_mutable())
+                .sub_mutable(getArrayValue(referenceData.PrecalculatedTerms[6], RefIteration, Z).times_mutable(c).times2_mutable())
+                .plus_mutable(getArrayValue(referenceData.PrecalculatedTerms[1], RefIteration, Z).sub_mutable(temp9).times_mutable(z).times2_mutable())
                 ;
 
 
@@ -870,22 +1087,27 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
 
         MantExpComplex zsqr = z.square();
 
-        MantExpComplex temp1 = getArrayDeepValue(referenceDeepData.PrecalculatedTerms[2], RefIteration);
+        MantExpComplex Z = null;
+        if(referenceDeep.compressed) {
+            Z = getArrayDeepValue(referenceDeep, RefIteration);
+        }
+
+        MantExpComplex temp1 = getArrayDeepValue(referenceDeepData.PrecalculatedTerms[2], RefIteration, Z);
         MantExpComplex temp9 = temp1.times(c);
 
-        MantExpComplex temp11 = getArrayDeepValue(referenceDeepData.PrecalculatedTerms[7], RefIteration);
+        MantExpComplex temp11 = getArrayDeepValue(referenceDeepData.PrecalculatedTerms[7], RefIteration, Z);
 
 
         MantExpComplex num = temp1.times2().times_mutable(z.cube())
-                .plus_mutable(getArrayDeepValue(referenceDeepData.PrecalculatedTerms[4], RefIteration).sub_mutable(temp9).times_mutable(zsqr))
+                .plus_mutable(getArrayDeepValue(referenceDeepData.PrecalculatedTerms[4], RefIteration, Z).sub_mutable(temp9).times_mutable(zsqr))
                 .sub_mutable(temp11.times_mutable(c))
-                .plus_mutable(getArrayDeepValue(referenceDeepData.PrecalculatedTerms[0], RefIteration).sub_mutable(getArrayDeepValue(referenceDeepData.PrecalculatedTerms[5], RefIteration).times_mutable(c)).times2_mutable().times_mutable(z));
+                .plus_mutable(getArrayDeepValue(referenceDeepData.PrecalculatedTerms[0], RefIteration, Z).sub_mutable(getArrayDeepValue(referenceDeepData.PrecalculatedTerms[5], RefIteration, Z).times_mutable(c)).times2_mutable().times_mutable(z));
 
 
-        MantExpComplex denom = getArrayDeepValue(referenceDeepData.PrecalculatedTerms[3], RefIteration)
+        MantExpComplex denom = getArrayDeepValue(referenceDeepData.PrecalculatedTerms[3], RefIteration, Z)
                 .plus_mutable(temp1.times(zsqr).times_mutable(MantExp.THREE))
-                .sub_mutable(getArrayDeepValue(referenceDeepData.PrecalculatedTerms[6], RefIteration).times_mutable(c).times2_mutable())
-                .plus_mutable(getArrayDeepValue(referenceDeepData.PrecalculatedTerms[1], RefIteration).sub_mutable(temp9).times_mutable(z).times2_mutable())
+                .sub_mutable(getArrayDeepValue(referenceDeepData.PrecalculatedTerms[6], RefIteration, Z).times_mutable(c).times2_mutable())
+                .plus_mutable(getArrayDeepValue(referenceDeepData.PrecalculatedTerms[1], RefIteration, Z).sub_mutable(temp9).times_mutable(z).times2_mutable())
                 ;
 
 
@@ -897,22 +1119,27 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
     public Complex perturbationFunction(Complex z, Complex c, ReferenceData data, int RefIteration) {
         Complex zsqr = z.square();
 
-        Complex temp1 = getArrayValue(data.PrecalculatedTerms[2], RefIteration);
+        Complex Z = null;
+        if(data.Reference.compressed) {
+            Z = getArrayValue(data.Reference, RefIteration);
+        }
+
+        Complex temp1 = getArrayValue(data.PrecalculatedTerms[2], RefIteration, Z);
         Complex temp9 = temp1.times(c);
 
-        Complex temp11 = getArrayValue(data.PrecalculatedTerms[7], RefIteration);
+        Complex temp11 = getArrayValue(data.PrecalculatedTerms[7], RefIteration, Z);
 
 
         Complex num = temp1.times2().times_mutable(z.cube())
-                .plus_mutable(getArrayValue(data.PrecalculatedTerms[4], RefIteration).sub_mutable(temp9).times_mutable(zsqr))
+                .plus_mutable(getArrayValue(data.PrecalculatedTerms[4], RefIteration, Z).sub_mutable(temp9).times_mutable(zsqr))
                 .sub_mutable(temp11.times_mutable(c))
-                .plus_mutable(getArrayValue(data.PrecalculatedTerms[0], RefIteration).sub_mutable(getArrayValue(data.PrecalculatedTerms[5], RefIteration).times_mutable(c)).times2_mutable().times_mutable(z));
+                .plus_mutable(getArrayValue(data.PrecalculatedTerms[0], RefIteration, Z).sub_mutable(getArrayValue(data.PrecalculatedTerms[5], RefIteration, Z).times_mutable(c)).times2_mutable().times_mutable(z));
 
 
-        Complex denom = getArrayValue(data.PrecalculatedTerms[3], RefIteration)
+        Complex denom = getArrayValue(data.PrecalculatedTerms[3], RefIteration, Z)
                 .plus_mutable(temp1.times(zsqr).times_mutable(3))
-                .sub_mutable(getArrayValue(data.PrecalculatedTerms[6], RefIteration).times_mutable(c).times2_mutable())
-                .plus_mutable(getArrayValue(data.PrecalculatedTerms[1], RefIteration).sub_mutable(temp9).times_mutable(z).times2_mutable())
+                .sub_mutable(getArrayValue(data.PrecalculatedTerms[6], RefIteration, Z).times_mutable(c).times2_mutable())
+                .plus_mutable(getArrayValue(data.PrecalculatedTerms[1], RefIteration, Z).sub_mutable(temp9).times_mutable(z).times2_mutable())
                 ;
 
 
@@ -924,22 +1151,27 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
     public MantExpComplex perturbationFunction(MantExpComplex z, MantExpComplex c, ReferenceDeepData data, int RefIteration) {
         MantExpComplex zsqr = z.square();
 
-        MantExpComplex temp1 = getArrayDeepValue(data.PrecalculatedTerms[2], RefIteration);
+        MantExpComplex Z = null;
+        if(data.Reference.compressed) {
+            Z = getArrayDeepValue(data.Reference, RefIteration);
+        }
+
+        MantExpComplex temp1 = getArrayDeepValue(data.PrecalculatedTerms[2], RefIteration, Z);
         MantExpComplex temp9 = temp1.times(c);
 
-        MantExpComplex temp11 = getArrayDeepValue(data.PrecalculatedTerms[7], RefIteration);
+        MantExpComplex temp11 = getArrayDeepValue(data.PrecalculatedTerms[7], RefIteration, Z);
 
 
         MantExpComplex num = temp1.times2().times_mutable(z.cube())
-                .plus_mutable(getArrayDeepValue(data.PrecalculatedTerms[4], RefIteration).sub_mutable(temp9).times_mutable(zsqr))
+                .plus_mutable(getArrayDeepValue(data.PrecalculatedTerms[4], RefIteration, Z).sub_mutable(temp9).times_mutable(zsqr))
                 .sub_mutable(temp11.times_mutable(c))
-                .plus_mutable(getArrayDeepValue(data.PrecalculatedTerms[0], RefIteration).sub_mutable(getArrayDeepValue(data.PrecalculatedTerms[5], RefIteration).times_mutable(c)).times2_mutable().times_mutable(z));
+                .plus_mutable(getArrayDeepValue(data.PrecalculatedTerms[0], RefIteration, Z).sub_mutable(getArrayDeepValue(data.PrecalculatedTerms[5], RefIteration, Z).times_mutable(c)).times2_mutable().times_mutable(z));
 
 
-        MantExpComplex denom = getArrayDeepValue(data.PrecalculatedTerms[3], RefIteration)
+        MantExpComplex denom = getArrayDeepValue(data.PrecalculatedTerms[3], RefIteration, Z)
                 .plus_mutable(temp1.times(zsqr).times_mutable(MantExp.THREE))
-                .sub_mutable(getArrayDeepValue(data.PrecalculatedTerms[6], RefIteration).times_mutable(c).times2_mutable())
-                .plus_mutable(getArrayDeepValue(data.PrecalculatedTerms[1], RefIteration).sub_mutable(temp9).times_mutable(z).times2_mutable())
+                .sub_mutable(getArrayDeepValue(data.PrecalculatedTerms[6], RefIteration, Z).times_mutable(c).times2_mutable())
+                .plus_mutable(getArrayDeepValue(data.PrecalculatedTerms[1], RefIteration, Z).sub_mutable(temp9).times_mutable(z).times2_mutable())
                 ;
 
 
@@ -952,17 +1184,22 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
 
         Complex zsqr = z.square();
 
-        Complex temp1 = getArrayValue(referenceData.PrecalculatedTerms[2], RefIteration);
+        Complex Z = null;
+        if(reference.compressed) {
+            Z = getArrayValue(reference, RefIteration);
+        }
+
+        Complex temp1 = getArrayValue(referenceData.PrecalculatedTerms[2], RefIteration, Z);
 
 
         Complex num = temp1.times2().times_mutable(z.cube())
-                .plus_mutable(getArrayValue(referenceData.PrecalculatedTerms[4], RefIteration).times_mutable(zsqr))
-                .plus_mutable(getArrayValue(referenceData.PrecalculatedTerms[0], RefIteration).times2_mutable().times_mutable(z));
+                .plus_mutable(getArrayValue(referenceData.PrecalculatedTerms[4], RefIteration, Z).times_mutable(zsqr))
+                .plus_mutable(getArrayValue(referenceData.PrecalculatedTerms[0], RefIteration, Z).times2_mutable().times_mutable(z));
 
 
-        Complex denom = getArrayValue(referenceData.PrecalculatedTerms[3], RefIteration)
+        Complex denom = getArrayValue(referenceData.PrecalculatedTerms[3], RefIteration, Z)
                 .plus_mutable(temp1.times(zsqr).times_mutable(3))
-                .plus_mutable(getArrayValue(referenceData.PrecalculatedTerms[1], RefIteration).times_mutable(z).times2_mutable())
+                .plus_mutable(getArrayValue(referenceData.PrecalculatedTerms[1], RefIteration, Z).times_mutable(z).times2_mutable())
                 ;
 
 
@@ -975,17 +1212,22 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
 
         MantExpComplex zsqr = z.square();
 
-        MantExpComplex temp1 = getArrayDeepValue(referenceDeepData.PrecalculatedTerms[2], RefIteration);
+        MantExpComplex Z = null;
+        if(referenceDeep.compressed) {
+            Z = getArrayDeepValue(referenceDeep, RefIteration);
+        }
+
+        MantExpComplex temp1 = getArrayDeepValue(referenceDeepData.PrecalculatedTerms[2], RefIteration, Z);
 
 
         MantExpComplex num = temp1.times2().times_mutable(z.cube())
-                .plus_mutable(getArrayDeepValue(referenceDeepData.PrecalculatedTerms[4], RefIteration).times_mutable(zsqr))
-                .plus_mutable(getArrayDeepValue(referenceDeepData.PrecalculatedTerms[0], RefIteration).times2_mutable().times_mutable(z));
+                .plus_mutable(getArrayDeepValue(referenceDeepData.PrecalculatedTerms[4], RefIteration, Z).times_mutable(zsqr))
+                .plus_mutable(getArrayDeepValue(referenceDeepData.PrecalculatedTerms[0], RefIteration, Z).times2_mutable().times_mutable(z));
 
 
-        MantExpComplex denom = getArrayDeepValue(referenceDeepData.PrecalculatedTerms[3], RefIteration)
+        MantExpComplex denom = getArrayDeepValue(referenceDeepData.PrecalculatedTerms[3], RefIteration, Z)
                 .plus_mutable(temp1.times(zsqr).times_mutable(MantExp.THREE))
-                .plus_mutable(getArrayDeepValue(referenceDeepData.PrecalculatedTerms[1], RefIteration).times_mutable(z).times2_mutable())
+                .plus_mutable(getArrayDeepValue(referenceDeepData.PrecalculatedTerms[1], RefIteration, Z).times_mutable(z).times2_mutable())
                 ;
 
 
@@ -997,17 +1239,22 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
 
         Complex zsqr = z.square();
 
-        Complex temp1 = getArrayValue(data.PrecalculatedTerms[2], RefIteration);
+        Complex Z = null;
+        if(data.Reference.compressed) {
+            Z = getArrayValue(data.Reference, RefIteration);
+        }
+
+        Complex temp1 = getArrayValue(data.PrecalculatedTerms[2], RefIteration, Z);
 
 
         Complex num = temp1.times2().times_mutable(z.cube())
-                .plus_mutable(getArrayValue(data.PrecalculatedTerms[4], RefIteration).times_mutable(zsqr))
-                .plus_mutable(getArrayValue(data.PrecalculatedTerms[0], RefIteration).times2_mutable().times_mutable(z));
+                .plus_mutable(getArrayValue(data.PrecalculatedTerms[4], RefIteration, Z).times_mutable(zsqr))
+                .plus_mutable(getArrayValue(data.PrecalculatedTerms[0], RefIteration, Z).times2_mutable().times_mutable(z));
 
 
-        Complex denom = getArrayValue(data.PrecalculatedTerms[3], RefIteration)
+        Complex denom = getArrayValue(data.PrecalculatedTerms[3], RefIteration, Z)
                 .plus_mutable(temp1.times(zsqr).times_mutable(3))
-                .plus_mutable(getArrayValue(data.PrecalculatedTerms[1], RefIteration).times_mutable(z).times2_mutable())
+                .plus_mutable(getArrayValue(data.PrecalculatedTerms[1], RefIteration, Z).times_mutable(z).times2_mutable())
                 ;
 
 
@@ -1020,17 +1267,22 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
 
         MantExpComplex zsqr = z.square();
 
-        MantExpComplex temp1 = getArrayDeepValue(data.PrecalculatedTerms[2], RefIteration);
+        MantExpComplex Z = null;
+        if(data.Reference.compressed) {
+            Z = getArrayDeepValue(data.Reference, RefIteration);
+        }
+
+        MantExpComplex temp1 = getArrayDeepValue(data.PrecalculatedTerms[2], RefIteration, Z);
 
 
         MantExpComplex num = temp1.times2().times_mutable(z.cube())
-                .plus_mutable(getArrayDeepValue(data.PrecalculatedTerms[4], RefIteration).times_mutable(zsqr))
-                .plus_mutable(getArrayDeepValue(data.PrecalculatedTerms[0], RefIteration).times2_mutable().times_mutable(z));
+                .plus_mutable(getArrayDeepValue(data.PrecalculatedTerms[4], RefIteration, Z).times_mutable(zsqr))
+                .plus_mutable(getArrayDeepValue(data.PrecalculatedTerms[0], RefIteration, Z).times2_mutable().times_mutable(z));
 
 
-        MantExpComplex denom = getArrayDeepValue(data.PrecalculatedTerms[3], RefIteration)
+        MantExpComplex denom = getArrayDeepValue(data.PrecalculatedTerms[3], RefIteration, Z)
                 .plus_mutable(temp1.times(zsqr).times_mutable(MantExp.THREE))
-                .plus_mutable(getArrayDeepValue(data.PrecalculatedTerms[1], RefIteration).times_mutable(z).times2_mutable())
+                .plus_mutable(getArrayDeepValue(data.PrecalculatedTerms[1], RefIteration, Z).times_mutable(z).times2_mutable())
                 ;
 
 
@@ -1231,4 +1483,29 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
 //    protected boolean additionalConvergentBailoutTest(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0, Complex pixel) {
 //        return z.distance_squared(1) <= 1e-3 || z.distance_squared(-1) <= 1e-3;
 //    }
+
+    @Override
+    public boolean supportsReferenceCompression() {
+        return true;
+    }
+
+    @Override
+    public Complex function(Complex z, Complex c) {
+        return z.sub_mutable(z.sub(1).times_mutable(z.plus(1)).times_mutable(z.sub(c)).divide_mutable(c.times(z).times2_mutable().negative_mutable().plus_mutable(z.square().times_mutable(3)).sub_mutable(1)));
+    }
+
+    @Override
+    public MantExpComplex function(MantExpComplex z, MantExpComplex c) {
+        return z.sub_mutable(z.sub(MantExp.ONE).times_mutable(z.plus(MantExp.ONE)).times_mutable(z.sub(c)).divide_mutable(c.times(z).times2_mutable().negative_mutable().plus_mutable(z.square().times_mutable(MantExp.THREE)).sub_mutable(MantExp.ONE)));
+    }
+
+    @Override
+    protected boolean needsRefSubCp() {
+        return true;
+    }
+
+    @Override
+    public double getPower() {
+        return 3;
+    }
 }

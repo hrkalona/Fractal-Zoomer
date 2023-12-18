@@ -28,6 +28,7 @@ import org.apfloat.Apfloat;
 
 import javax.swing.*;
 import java.util.ArrayList;
+import java.util.function.Function;
 
 import static fractalzoomer.main.Constants.*;
 
@@ -472,7 +473,7 @@ public abstract class Julia extends Fractal {
         int MaxRefIteration = data.MaxRefIteration;
 
         int minExp = -1000;
-        int reducedExp = minExp / (int)power;
+        int reducedExp = minExp / (int)getPower();
 
         DeltaSubN.Normalize();
         long exp = DeltaSubN.getMinExp();
@@ -482,6 +483,8 @@ public abstract class Julia extends Fractal {
 
         if(useFullFloatExp || (totalSkippedIterations == 0 && exp <= minExp) || (totalSkippedIterations != 0 && exp <= reducedExp)) {
             MantExpComplex z = getArrayDeepValue(deepData.Reference, RefIteration).plus_mutable(DeltaSubN);
+            MantExpComplex zoldDeep;
+
             for (; iterations < max_iterations; iterations++) {
                 if (trap != null) {
                     trap.check(complex[0], iterations);
@@ -509,6 +512,7 @@ public abstract class Julia extends Fractal {
 
                 zold2.assign(zold);
                 zold.assign(complex[0]);
+                zoldDeep = z;
 
                 if (max_iterations > 1) {
                     z = getArrayDeepValue(deepData.Reference, RefIteration).plus_mutable(DeltaSubN);
@@ -516,7 +520,7 @@ public abstract class Julia extends Fractal {
                 }
 
                 if (statistic != null) {
-                    statistic.insert(complex[0], zold, zold2, iterations, complex[1], start, c0);
+                    statistic.insert(complex[0], zold, zold2, iterations, complex[1], start, c0, z, zoldDeep , null);
                 }
 
                 if (z.norm_squared().compareToBothPositive(DeltaSubN.norm_squared()) < 0 || RefIteration >= MaxRefIteration) {
@@ -639,17 +643,19 @@ public abstract class Julia extends Fractal {
 
         boolean lowPrecReferenceOrbitNeeded = !needsOnlyExtendedReferenceOrbit(deepZoom, false);
         DoubleReference.SHOULD_SAVE_MEMORY = false;
+        boolean useCompressedRef = TaskDraw.COMPRESS_REFERENCE_IF_POSSIBLE && supportsReferenceCompression();
+        int[] precalIndexes = getNeededPrecalculatedTermsIndexes();
 
         if (iterations == 0) {
             if(lowPrecReferenceOrbitNeeded) {
-                secondReferenceData.create(max_ref_iterations, needsRefSubCp(), getNeededPrecalculatedTermsIndexes());
+                secondReferenceData.create(max_ref_iterations, needsRefSubCp(), precalIndexes, useCompressedRef);
             }
             else {
                 secondReferenceData.deallocate();
             }
 
             if (deepZoom) {
-                secondReferenceDeepData.create(max_ref_iterations, needsRefSubCp(), getNeededPrecalculatedTermsIndexes());
+                secondReferenceDeepData.create(max_ref_iterations, needsRefSubCp(), precalIndexes, useCompressedRef);
             }
         } else if (max_ref_iterations > getSecondReferenceLength()) {
             if(lowPrecReferenceOrbitNeeded) {
@@ -762,31 +768,79 @@ public abstract class Julia extends Fractal {
         boolean preCalcNormData = bailout_algorithm2.getId() == MainWindow.BAILOUT_CONDITION_CIRCLE;
         NormComponents normData = null;
 
+        MantExpComplex mcz = null;
+        Complex cz = null;
+
+        if(useCompressedRef) {
+            if(deepZoom) {
+                referenceCompressor[secondReferenceDeepData.Reference.id] = new ReferenceCompressor(this, iterations == 0 ? z.toMantExpComplex() : secondReferenceData.compressorZm, c.toMantExpComplex(), start.toMantExpComplex());
+
+                if(needsRefSubCp()) {
+                    MantExpComplex cp = initVal.toMantExpComplex();
+                    Function<MantExpComplex, MantExpComplex> f = x -> x.sub(cp);
+                    functions[secondReferenceDeepData.ReferenceSubCp.id] = f;
+                    subexpressionsCompressor[secondReferenceDeepData.ReferenceSubCp.id] = new ReferenceCompressor(f, true);
+                }
+
+                Function<MantExpComplex, MantExpComplex>[] fs = getPrecalculatedTermsFunctionsDeep(c.toMantExpComplex());
+                for(int i = 0; i < precalIndexes.length; i++) {
+                    int id = secondReferenceDeepData.PrecalculatedTerms[precalIndexes[i]].id;
+                    functions[id] = fs[i];
+                    subexpressionsCompressor[id] = new ReferenceCompressor(fs[i], true);
+                }
+            }
+            if(lowPrecReferenceOrbitNeeded) {
+                referenceCompressor[secondReferenceData.Reference.id] = new ReferenceCompressor(this, iterations == 0 ? z.toComplex() : secondReferenceData.compressorZ, c.toComplex(), start.toComplex());
+
+                if(needsRefSubCp()) {
+                    Complex cp = initVal.toComplex();
+                    Function<Complex, Complex> f = x -> x.sub(cp);
+                    functions[secondReferenceData.ReferenceSubCp.id] = f;
+                    subexpressionsCompressor[secondReferenceData.ReferenceSubCp.id] = new ReferenceCompressor(f);
+                }
+
+                Function<Complex, Complex>[] fs = getPrecalculatedTermsFunctions(c.toComplex());
+                for(int i = 0; i < precalIndexes.length; i++) {
+                    int id = secondReferenceData.PrecalculatedTerms[precalIndexes[i]].id;
+                    functions[id] = fs[i];
+                    subexpressionsCompressor[id] = new ReferenceCompressor(fs[i]);
+                }
+            }
+        }
+
         calculatedSecondReferenceIterations = 0;
+
+        MantExpComplex tempmcz = null;
 
         for (; iterations < max_ref_iterations; iterations++, calculatedSecondReferenceIterations++) {
 
-            if(lowPrecReferenceOrbitNeeded) {
-                Complex cz = z.toComplex();
-
-                if (cz.isInfinite()) {
+            if(deepZoom) {
+                mcz = loc.getMantExpComplex(z);
+                if (mcz.isInfinite() || mcz.isNaN()) {
                     break;
                 }
-                setArrayValue(secondReferenceData.Reference, iterations, cz);
+                tempmcz = setArrayDeepValue(secondReferenceDeepData.Reference, iterations, mcz);
             }
 
-            if(deepZoom) {
-                setArrayDeepValue(secondReferenceDeepData.Reference, iterations, loc.getMantExpComplex(z));
+            if(lowPrecReferenceOrbitNeeded) {
+                cz = deepZoom ? mcz.toComplex() : z.toComplex();
+
+                if (cz.isInfinite() || cz.isNaN()) {
+                    break;
+                }
+                cz = setArrayValue(secondReferenceData.Reference, iterations, cz);
             }
 
-            calculateRefSubCp(z, initVal, loc, bigNumLib, lowPrecReferenceOrbitNeeded, deepZoom, secondReferenceData, secondReferenceDeepData, iterations);
+            mcz = tempmcz;
+
+            calculateRefSubCp(z, initVal, loc, bigNumLib, lowPrecReferenceOrbitNeeded, deepZoom, secondReferenceData, secondReferenceDeepData, iterations, cz, mcz);
 
             if(preCalcNormData) {
                 normData = z.normSquaredWithComponents(normData);
                 normSquared = normData.normSquared;
             }
 
-            GenericComplex[] precalculatedData = precalculateReferenceData(z, c, normData, loc, bigNumLib, lowPrecReferenceOrbitNeeded, deepZoom, secondReferenceData, secondReferenceDeepData, iterations);
+            GenericComplex[] precalculatedData = precalculateReferenceData(z, c, normData, loc, bigNumLib, lowPrecReferenceOrbitNeeded, deepZoom, secondReferenceData, secondReferenceDeepData, iterations, cz, mcz);
 
             if (iterations > 0 && bailout_algorithm2.Escaped(z, zold, zold2, iterations, c, start, c0, normSquared, pixel)) {
                 break;
@@ -817,6 +871,34 @@ public abstract class Julia extends Fractal {
         secondReferenceData.thirdTolastZValue = zold2;
 
         secondReferenceData.MaxRefIteration = iterations - 1;
+
+        if(useCompressedRef) {
+            if(deepZoom) {
+                referenceCompressor[secondReferenceDeepData.Reference.id].compact(secondReferenceDeepData.Reference);
+                secondReferenceData.compressorZm = referenceCompressor[secondReferenceDeepData.Reference.id].getZDeep();
+
+                if(needsRefSubCp()) {
+                    subexpressionsCompressor[secondReferenceDeepData.ReferenceSubCp.id].compact(secondReferenceDeepData.ReferenceSubCp);
+                }
+
+                for(int i = 0; i < precalIndexes.length; i++) {
+                    subexpressionsCompressor[secondReferenceDeepData.PrecalculatedTerms[precalIndexes[i]].id].compact(secondReferenceDeepData.PrecalculatedTerms[precalIndexes[i]]);
+                }
+            }
+
+            if(lowPrecReferenceOrbitNeeded) {
+                referenceCompressor[secondReferenceData.Reference.id].compact(secondReferenceData.Reference);
+                secondReferenceData.compressorZ = referenceCompressor[secondReferenceData.Reference.id].getZ();
+
+                if(needsRefSubCp()) {
+                    subexpressionsCompressor[secondReferenceData.ReferenceSubCp.id].compact(secondReferenceData.ReferenceSubCp);
+                }
+
+                for(int i = 0; i < precalIndexes.length; i++) {
+                    subexpressionsCompressor[secondReferenceData.PrecalculatedTerms[precalIndexes[i]].id].compact(secondReferenceData.PrecalculatedTerms[precalIndexes[i]]);
+                }
+            }
+        }
 
         if(progress != null) {
             progress.setValue(progress.getMaximum());

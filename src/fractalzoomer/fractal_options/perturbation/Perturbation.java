@@ -18,6 +18,7 @@
 package fractalzoomer.fractal_options.perturbation;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.core.MantExpComplex;
 import fractalzoomer.fractal_options.PlanePointOption;
 
 
@@ -41,6 +42,11 @@ public class Perturbation extends PlanePointOption {
         
         return this.pixel.plus(pixel);
         
+    }
+
+    @Override
+    public MantExpComplex getValueDeep(MantExpComplex pixel) {
+        return MantExpComplex.create(this.pixel).plus(pixel);
     }
     
 }

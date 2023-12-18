@@ -25,20 +25,7 @@ public class SolidGuessingDraw extends TaskDraw {
 
         Location location = Location.getInstanceForDrawing(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
 
-        if(PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && !HIGH_PRECISION_CALCULATION) {
-            if (reference_calc_sync.getAndIncrement() == 0) {
-                calculateReference(location);
-            }
-
-            try {
-                reference_sync.await();
-            } catch (InterruptedException ex) {
-
-            } catch (BrokenBarrierException ex) {
-
-            }
-            location.setReference(Fractal.refPoint);
-        }
+        initialize(location);
 
         int pixel_percent = (image_size * image_size) / 100;
 
@@ -75,11 +62,18 @@ public class SolidGuessingDraw extends TaskDraw {
                         if(currentColor == prevColor) {
                             int skippedColor = getColorForSkippedPixels(currentColor, randomNumber);
                             int temp3 = loc - chunk;
-                            Arrays.fill(image_iterations, temp3, loc, val);
-                            Arrays.fill(rgbs, temp3, loc, skippedColor);
-                            Arrays.fill(escaped, temp3, loc, esc);
+
+                            for (int index = temp3; index < loc; index++) {
+                                if (rgbs[index] >>> 24 != Constants.NORMAL_ALPHA) {
+                                    image_iterations[index] = val;
+                                    rgbs[index] = skippedColor;
+                                    escaped[index] = esc;
+                                    task_completed++;
+                                }
+                            }
+
                             drawing_done += chunk;
-                            task_completed += chunk;
+
                         }
                         else {
                             for(int x1 = x - chunk, loc1 = y * image_size + x1 ; x1 < x; x1++, loc1++) {

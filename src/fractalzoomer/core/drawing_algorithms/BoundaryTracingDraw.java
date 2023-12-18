@@ -89,20 +89,7 @@ public class BoundaryTracingDraw extends TaskDraw {
         int last_drawing_done = 0;
         int totalPixels = (TOx - FROMx) * (TOy - FROMy);
 
-        if(PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && !HIGH_PRECISION_CALCULATION) {
-            if (reference_calc_sync.getAndIncrement() == 0) {
-                calculateReference(location);
-            }
-
-            try {
-                reference_sync.await();
-            } catch (InterruptedException ex) {
-
-            } catch (BrokenBarrierException ex) {
-
-            }
-            location.setReference(Fractal.refPoint);
-        }
+        initialize(location);
 
         Location location2 = Location.getCopy(location);
 
@@ -574,21 +561,7 @@ public class BoundaryTracingDraw extends TaskDraw {
 
         PixelExtraData temp_starting_pixel_extra_data = null;
 
-        if(PERTURBATION_THEORY  && fractal.supportsPerturbationTheory() && !HIGH_PRECISION_CALCULATION) {
-            if (reference_calc_sync.getAndIncrement() == 0) {
-                calculateReference(location);
-            }
-
-            try {
-                reference_sync.await();
-            } catch (InterruptedException ex) {
-
-            } catch (BrokenBarrierException ex) {
-
-            }
-
-            location.setReference(Fractal.refPoint);
-        }
+        initialize(location);
 
         Location location2 = Location.getCopy(location);
 

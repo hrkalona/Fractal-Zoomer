@@ -985,6 +985,7 @@ public class MantExpComplex extends GenericComplex {
         return this;
     }
 
+    @Override
     public MantExpComplex reciprocal() {
 
         double temp = 1.0 / (mantissaReal * mantissaReal + mantissaImag * mantissaImag);
@@ -1064,6 +1065,27 @@ public class MantExpComplex extends GenericComplex {
         mantissaImag = Math.abs(mantissaImag);
         return this;
 
+    }
+
+    @Override
+    public MantExpComplex absre_mutable() {
+
+        mantissaReal = Math.abs(mantissaReal);
+
+        return this;
+
+    }
+
+    @Override
+    public MantExpComplex absNegateRe_mutable() {
+        mantissaReal = - Math.abs(mantissaReal);
+        return this;
+    }
+
+    @Override
+    public MantExpComplex absNegateIm_mutable() {
+        mantissaImag = - Math.abs(mantissaImag);
+        return this;
     }
 
     public MantExpComplex conjugate() {
@@ -1210,7 +1232,7 @@ public class MantExpComplex extends GenericComplex {
 
     }
 
-    public MantExp chebychevNorm() {
+    public MantExp chebyshevNorm() {
         return MantExp.maxBothPositive(getRe().abs(), getIm().abs());
     }
 
@@ -1225,6 +1247,37 @@ public class MantExpComplex extends GenericComplex {
 
     public void assign(long exp1, long expIm1, double mantissaReal1, double mantissaImag1) {
 
+    }
+
+    public void set(long expRe, long expIm, double valRe, double valIm) {
+
+        if(valRe == 0 && valIm == 0) {
+            expRe = MantExp.MIN_BIG_EXPONENT;
+            expIm = MantExp.MIN_BIG_EXPONENT;
+        }
+        else if(valRe == 0) {
+            expRe = MantExp.MIN_BIG_EXPONENT;
+        }
+        else if(valIm == 0) {
+            expIm = MantExp.MIN_BIG_EXPONENT;
+        }
+
+        exp = Math.max(expRe, expIm);
+        mantissaReal = valRe * MantExp.getMultiplier(expRe-exp);
+        mantissaImag = valIm * MantExp.getMultiplier(expIm-exp);
+    }
+
+    public boolean isInfinite() {
+        return Double.isInfinite(mantissaReal) || Double.isInfinite(mantissaImag);
+    }
+
+    public boolean isNaN() {
+        return Double.isNaN(mantissaReal) || Double.isNaN(mantissaImag);
+    }
+
+    @Override
+    public boolean isZero() {
+        return mantissaReal == 0 && mantissaImag == 0;
     }
 }
 

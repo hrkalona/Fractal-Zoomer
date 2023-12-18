@@ -72,26 +72,28 @@ public class MeanNoOutliersAntialiasingAlgorithm extends AntialiasingAlgorithm {
             double upper_quartile = calculateMedian(vals, (vals.length + 1) / 2, vals.length);
             double iqr = upper_quartile - lower_quartile;
 
-            if (iqr == 0) {
-                double mean = 0;
-                double variance = 0;
-                int samples = 0;
-                for (int i = 0; i < vals.length; i++) {
-                    samples++;
-                    double delta = vals[i] - mean;
-                    mean += delta / samples;
-                    double delta2 = vals[i] - mean;
-                    variance += delta * delta2;
-                }
-                double sigma = Math.sqrt(variance / samples);
-                double temp = 3 * sigma;
-                lower_fence = mean - temp;
-                upper_fence = mean + temp;
-            } else {
-                double temp = 1.5 * iqr;
-                lower_fence = lower_quartile - temp;
-                upper_fence = upper_quartile + temp;
+            double temp = 1.5 * iqr;
+            double lower_fence2 = lower_quartile - temp;
+            double upper_fence2 = upper_quartile + temp;
+
+            double mean = 0;
+            double variance = 0;
+            int samples = 0;
+            for (int i = 0; i < vals.length; i++) {
+                samples++;
+                double delta = vals[i] - mean;
+                mean += delta / samples;
+                double delta2 = vals[i] - mean;
+                variance += delta * delta2;
             }
+            double sigma = Math.sqrt(variance / samples);
+            double temp2 = 3 * sigma;
+            double lower_fence1 = mean - temp2;
+            double upper_fence1 = mean + temp2;
+
+            lower_fence = Math.max(lower_fence1, lower_fence2);
+            upper_fence = Math.min(upper_fence1, upper_fence2);
+
         }
 
         double sum = 0;

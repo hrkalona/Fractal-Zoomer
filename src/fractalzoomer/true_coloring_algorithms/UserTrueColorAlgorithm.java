@@ -352,7 +352,7 @@ public class UserTrueColorAlgorithm extends TrueColorAlgorithm {
                 res = ColorSpaceConverter.RYBtoRGB(c1, c2, c3);
                 return 0xFF000000 | res[0] << 16 | res[1] << 8 | res[2];
             case ColorSpaceConverter.LAB:
-                res = ColorSpaceConverter.LABtoRGB(c1 * 100, (2 * c2 - 1) * 100, (2 * c3 - 1) * 100);
+                res = ColorSpaceConverter.LABtoRGB(c1 * 100, c2 * 184.43 - 86.17, c3 * 202.33 - 107.85);
                 return 0xFF000000 | res[0] << 16 | res[1] << 8 | res[2];
             case ColorSpaceConverter.LCH_ab:
                 res = ColorSpaceConverter.LCH_abtoRGB(c1 * 100, c2 * 140, c3 * 360);

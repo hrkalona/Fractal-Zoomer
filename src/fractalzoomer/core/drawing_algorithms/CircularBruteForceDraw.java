@@ -73,22 +73,42 @@ public class CircularBruteForceDraw extends TaskDraw {
 
             coordinatesFastJulia = new Pixel[fast_julia_image_size * fast_julia_image_size];
 
-            int loc = 0;
-            for (int y = 0; y < fast_julia_image_size; y++) {
-                for (int x = 0; x < fast_julia_image_size; x++, loc++) {
-                    coordinatesFastJulia[loc] = new Pixel(x, y);
+            if(Pixel.COMPARE_ALG == 16) { //Interleave
+                int loc = 0;
+                for (int y = 0; y < fast_julia_image_size; y+= 2) {
+                    for (int x = 0; x < fast_julia_image_size; x++, loc++) {
+                        coordinatesFastJulia[loc] = new Pixel(x, y);
+                    }
+                }
+
+                for (int y = 1; y < fast_julia_image_size; y+= 2) {
+                    for (int x = 0; x < fast_julia_image_size; x++, loc++) {
+                        coordinatesFastJulia[loc] = new Pixel(x, y);
+                    }
+                }
+            }
+            else {
+                int loc = 0;
+                for (int y = 0; y < fast_julia_image_size; y++) {
+                    for (int x = 0; x < fast_julia_image_size; x++, loc++) {
+                        coordinatesFastJulia[loc] = new Pixel(x, y);
+                    }
+                }
+
+                if (Pixel.COMPARE_ALG == 4) {
+                    shuffle(coordinatesFastJulia);
+                } else {
+                    Arrays.sort(coordinatesFastJulia);
                 }
             }
 
-            if(Pixel.COMPARE_ALG == 4) {
-                shuffle(coordinatesFastJulia);
-            }
-            else {
-                Arrays.sort(coordinatesFastJulia);
-            }
-
             if(hasSuccessiveRefinement) {
-                CircularSuccessiveRefinementGuessingDraw.initCoordinatesFastJulia(fast_julia_image_size, true);
+                if(TaskDraw.SUCCESSIVE_REFINEMENT_SQUARE_RECT_SPLIT_ALGORITHM > 0) {
+                    CircularSuccessiveRefinementGuessing2Draw.initCoordinatesFastJulia(fast_julia_image_size, true);
+                }
+                else {
+                    CircularSuccessiveRefinementGuessingDraw.initCoordinatesFastJulia(fast_julia_image_size, true);
+                }
             }
         }
     }
@@ -109,28 +129,63 @@ public class CircularBruteForceDraw extends TaskDraw {
 
                 coordinates = new Pixel[image_size * image_size];
 
-                int loc = 0;
-                for (int y = 0; y < image_size; y++) {
-                    for (int x = 0; x < image_size; x++, loc++) {
-                        coordinates[loc] = new Pixel(x, y);
+                if(Pixel.COMPARE_ALG == 16) { //Interleave
+                    int loc = 0;
+                    for (int y = 0; y < image_size; y+= 2) {
+                        for (int x = 0; x < image_size; x++, loc++) {
+                            coordinates[loc] = new Pixel(x, y);
+                        }
+                    }
+
+                    for (int y = 1; y < image_size; y+= 2) {
+                        for (int x = 0; x < image_size; x++, loc++) {
+                            coordinates[loc] = new Pixel(x, y);
+                        }
+                    }
+                }
+                else {
+                    int loc = 0;
+                    for (int y = 0; y < image_size; y++) {
+                        for (int x = 0; x < image_size; x++, loc++) {
+                            coordinates[loc] = new Pixel(x, y);
+                        }
+                    }
+
+                    if (Pixel.COMPARE_ALG == 4) {
+                        shuffle(coordinates);
+                    } else {
+                        Arrays.sort(coordinates);
                     }
                 }
 
-                if(Pixel.COMPARE_ALG == 4) {
-                    shuffle(coordinates);
-                }
-                else {
-                    Arrays.sort(coordinates);
-                }
-
                 sorted_by_zoom_center = zoom_to_cursor;
 
                 if(hasSuccessiveRefinement) {
-                    CircularSuccessiveRefinementGuessingDraw.initCoordinates(image_size, true);
+                    if(TaskDraw.SUCCESSIVE_REFINEMENT_SQUARE_RECT_SPLIT_ALGORITHM > 0) {
+                        CircularSuccessiveRefinementGuessing2Draw.initCoordinates(image_size, true);
+                    }
+                    else {
+                        CircularSuccessiveRefinementGuessingDraw.initCoordinates(image_size, true);
+                    }
                 }
             }
             else if(doSort && (zoom_to_cursor || zoom_to_cursor != sorted_by_zoom_center)) {
-                if(Pixel.COMPARE_ALG == 4) {
+
+                if(Pixel.COMPARE_ALG == 16) { //Interleave
+                    int loc = 0;
+                    for (int y = 0; y < image_size; y+= 2) {
+                        for (int x = 0; x < image_size; x++, loc++) {
+                            coordinates[loc] = new Pixel(x, y);
+                        }
+                    }
+
+                    for (int y = 1; y < image_size; y+= 2) {
+                        for (int x = 0; x < image_size; x++, loc++) {
+                            coordinates[loc] = new Pixel(x, y);
+                        }
+                    }
+                }
+                else if(Pixel.COMPARE_ALG == 4) {
                     shuffle(coordinates);
                 }
                 else {
@@ -139,7 +194,12 @@ public class CircularBruteForceDraw extends TaskDraw {
                 sorted_by_zoom_center = zoom_to_cursor;
 
                 if(hasSuccessiveRefinement) {
-                    CircularSuccessiveRefinementGuessingDraw.initCoordinates(image_size, true);
+                    if(TaskDraw.SUCCESSIVE_REFINEMENT_SQUARE_RECT_SPLIT_ALGORITHM > 0) {
+                        CircularSuccessiveRefinementGuessing2Draw.initCoordinates(image_size, true);
+                    }
+                    else {
+                        CircularSuccessiveRefinementGuessingDraw.initCoordinates(image_size, true);
+                    }
                 }
             }
 
@@ -159,11 +219,13 @@ public class CircularBruteForceDraw extends TaskDraw {
         public static void clear() {
             coordinates = null;
             CircularSuccessiveRefinementGuessingDraw.CoordinatesPerLevel = null;
+            CircularSuccessiveRefinementGuessing2Draw.CoordinatesPerLevel = null;
         }
 
         public static void clearFastJulia() {
             coordinatesFastJulia = null;
             CircularSuccessiveRefinementGuessingDraw.CoordinatesPerLevelFastJulia = null;
+            CircularSuccessiveRefinementGuessing2Draw.CoordinatesPerLevelFastJulia = null;
         }
 
         @Override
@@ -178,22 +240,7 @@ public class CircularBruteForceDraw extends TaskDraw {
 
             int condition = image_size * image_size;
 
-            if(PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && !HIGH_PRECISION_CALCULATION) {
-
-                if (reference_calc_sync.getAndIncrement() == 0) {
-                    calculateReference(location);
-                }
-
-                try {
-                    reference_sync.await();
-                } catch (InterruptedException ex) {
-
-                } catch (BrokenBarrierException ex) {
-
-                }
-
-                location.setReference(Fractal.refPoint);
-            }
+            initialize(location);
 
             boolean escaped_val;
             double f_val;
@@ -325,17 +372,15 @@ public class CircularBruteForceDraw extends TaskDraw {
                 rgbs[loc] = aa.getColor();
 
                 drawing_done++;
+                task_calculated++;
             }
 
             if (drawing_done / pixel_percent >= 1) {
                 update(drawing_done);
-                task_calculated += drawing_done;
                 drawing_done = 0;
             }
 
         } while (true);
-
-        task_calculated += drawing_done;
 
         pixel_calculation_time_per_task = System.currentTimeMillis() - time;
 
@@ -432,20 +477,7 @@ public class CircularBruteForceDraw extends TaskDraw {
         int totalSamples = supersampling_num + 1;
         AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(totalSamples, aaMethod, aaAvgWithMean, colorSpace, fs.aaSigmaR, fs.aaSigmaS);
 
-        if(PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && !HIGH_PRECISION_CALCULATION) {
-            if (reference_calc_sync.getAndIncrement() == 0) {
-                calculateReference(location);
-            }
-
-            try {
-                reference_sync.await();
-            } catch (InterruptedException ex) {
-
-            } catch (BrokenBarrierException ex) {
-
-            }
-            location.setReference(Fractal.refPoint);
-        }
+        initialize(location);
 
         boolean escaped_val;
         double f_val;
@@ -500,17 +532,15 @@ public class CircularBruteForceDraw extends TaskDraw {
                 rgbs[loc] = aa.getColor();
 
                 drawing_done++;
+                task_calculated++;
             }
 
             if(drawing_done / pixel_percent >= 1) {
                 update(drawing_done);
-                task_calculated += drawing_done;
                 drawing_done = 0;
             }
 
         } while(true);
-
-        task_calculated += drawing_done;
 
         pixel_calculation_time_per_task = System.currentTimeMillis() - time;
 
@@ -844,20 +874,7 @@ public class CircularBruteForceDraw extends TaskDraw {
 
         Location location = Location.getInstanceForDrawing(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
 
-        if(PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && !HIGH_PRECISION_CALCULATION) {
-            if (reference_calc_sync.getAndIncrement() == 0) {
-                calculateReference(location);
-            }
-
-            try {
-                reference_sync.await();
-            } catch (InterruptedException ex) {
-
-            } catch (BrokenBarrierException ex) {
-
-            }
-            location.setReference(Fractal.refPoint);
-        }
+        initialize(location);
 
         int color, loc2, x, y;
         int tempx, tempy;

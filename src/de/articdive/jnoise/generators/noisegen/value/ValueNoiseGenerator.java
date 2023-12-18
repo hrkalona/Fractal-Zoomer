@@ -209,9 +209,6 @@ public final class ValueNoiseGenerator implements SeededNoiseGenerator {
          * @return {@link ValueNoiseBuilder} this
          */
         public ValueNoiseBuilder setInterpolation(Interpolation interpolation) {
-            if (interpolation == null) {
-                throw new IllegalArgumentException("Interpolation cannot be null.");
-            }
             this.interpolation = interpolation;
             return this;
         }
@@ -223,9 +220,6 @@ public final class ValueNoiseGenerator implements SeededNoiseGenerator {
          * @return {@link ValueNoiseBuilder} this
          */
         public ValueNoiseBuilder setFadeFunction(FadeFunction fadeFunction) {
-            if (fadeFunction == null) {
-                throw new IllegalArgumentException("Fade function cannot be null.");
-            }
             this.fadeFunction = fadeFunction;
             return this;
         }

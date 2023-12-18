@@ -27,6 +27,13 @@ public class SuccessiveRefinementGuessingDraw extends TaskDraw {
     public static int[] skipped_colors_fast_julia;
     protected static int STOP_AFTER_ITER = 2;
 
+    protected int getStopAfterIter() {
+        if(TWO_PASS_SUCCESSIVE_REFINEMENT) {
+            return STOP_AFTER_ITER << 1;
+        }
+        return STOP_AFTER_ITER;
+    }
+
     public SuccessiveRefinementGuessingDraw(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, D3Settings d3s, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio,  boolean polar_projection, double circle_period,   DomainColoringSettings ds, boolean inverse_dem, boolean quickDraw, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring,    BlendingSettings color_blending,   int[] post_processing_order,   PaletteGradientMergingSettings pbs,  int gradient_offset,  double contourFactor, GeneratedPaletteSettings gps, JitterSettings js, PostProcessSettings pps) {
         super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns, d3s, ptr, fractal_color, dem_color, image, fs, periodicity_checking, color_cycling_location, color_cycling_location2, exterior_de, exterior_de_factor, height_ratio,  polar_projection, circle_period,   ds, inverse_dem, quickDraw, color_intensity, transfer_function, color_density, color_intensity2, transfer_function2, color_density2, usePaletteForInColoring,    color_blending,   post_processing_order,  pbs,  gradient_offset,  contourFactor, gps, js, pps);
     }
@@ -51,8 +58,8 @@ public class SuccessiveRefinementGuessingDraw extends TaskDraw {
         super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns, ptr, fractal_color, dem_color, fast_julia_filters, image, periodicity_checking, fs, color_cycling_location, color_cycling_location2, exterior_de, exterior_de_factor, height_ratio,  polar_projection, circle_period,   inverse_dem, color_intensity, transfer_function, color_density, color_intensity2, transfer_function2, color_density2, usePaletteForInColoring,    color_blending,   post_processing_order,  pbs,  gradient_offset,  contourFactor, gps, js, pps, xJuliaCenter, yJuliaCenter);
     }
 
-    public SuccessiveRefinementGuessingDraw(int FROMx, int TOx, int FROMy, int TOy, int max_iterations, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, int color_cycling_location, int color_cycling_location2,  double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring,   int color_cycling_speed, FiltersSettings fs,    BlendingSettings color_blending,  int[] post_processing_order,   PaletteGradientMergingSettings pbs,  boolean cycle_colors, boolean cycle_lights, boolean cycle_gradient, int color_cycling_adjusting_value, DomainColoringSettings ds, int gradient_offset,  double contourFactor, boolean smoothing, GeneratedPaletteSettings gps, PostProcessSettings pps) {
-        super(FROMx, TOx, FROMy, TOy, max_iterations, ptr, fractal_color, dem_color, image, color_cycling_location, color_cycling_location2,    color_cycling_speed, fs, color_intensity, transfer_function, color_density, color_intensity2, transfer_function2, color_density2, usePaletteForInColoring,    color_blending,  post_processing_order,  pbs,  cycle_colors, cycle_lights, cycle_gradient, color_cycling_adjusting_value, ds, gradient_offset,  contourFactor, smoothing, gps, pps);
+    public SuccessiveRefinementGuessingDraw(int FROMx, int TOx, int FROMy, int TOy, int max_iterations, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, int color_cycling_location, int color_cycling_location2,  double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring, FiltersSettings fs,    BlendingSettings color_blending,  int[] post_processing_order,   PaletteGradientMergingSettings pbs, DomainColoringSettings ds, int gradient_offset,  double contourFactor, GeneratedPaletteSettings gps, PostProcessSettings pps, ColorCyclingSettings ccs) {
+        super(FROMx, TOx, FROMy, TOy, max_iterations, ptr, fractal_color, dem_color, image, color_cycling_location, color_cycling_location2, fs, color_intensity, transfer_function, color_density, color_intensity2, transfer_function2, color_density2, usePaletteForInColoring,    color_blending,  post_processing_order,  pbs, ds, gradient_offset,  contourFactor, gps, pps, ccs);
     }
 
     public SuccessiveRefinementGuessingDraw(int FROMx, int TOx, int FROMy, int TOy, int max_iterations, MainWindow ptr, BufferedImage image, Color fractal_color, Color dem_color, int color_cycling_location, int color_cycling_location2, FiltersSettings fs,  double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring,      BlendingSettings color_blending,  int[] post_processing_order,   PaletteGradientMergingSettings pbs,  DomainColoringSettings ds, int gradient_offset,  double contourFactor, boolean smoothing, GeneratedPaletteSettings gps, PostProcessSettings pps) {
@@ -81,20 +88,7 @@ public class SuccessiveRefinementGuessingDraw extends TaskDraw {
         int pixel_percent = (image_size * image_size) / 100;
 
 
-        if(PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && !HIGH_PRECISION_CALCULATION) {
-            if (reference_calc_sync.getAndIncrement() == 0) {
-                calculateReference(location);
-            }
-
-            try {
-                reference_sync.await();
-            } catch (InterruptedException ex) {
-
-            } catch (BrokenBarrierException ex) {
-
-            }
-            location.setReference(Fractal.refPoint);
-        }
+        initialize(location);
 
 
         int color, loc2, loc, x, y;
@@ -105,9 +99,11 @@ public class SuccessiveRefinementGuessingDraw extends TaskDraw {
 
 
         int current_chunk_size = SUCCESSIVE_REFINEMENT_MAX_SIZE;
+        int prev_chunk_size = 0;
         int iteration = randomNumber;
 
         int min_chunk_size = TaskDraw.GUESS_BLOCKS_SELECTION == 0 ? 0 : 1 << (TaskDraw.GUESS_BLOCKS_SELECTION - 1);
+        min_chunk_size = TWO_PASS_SUCCESSIVE_REFINEMENT ? min_chunk_size << 1 : min_chunk_size;
 
         int current_chunk_size2 = 0;
 
@@ -121,17 +117,21 @@ public class SuccessiveRefinementGuessingDraw extends TaskDraw {
         int locc = 0;
         int locd = 0;
 
+
+        int stop_id = getStopAfterIter();
+
         task_completed = 0;
 
         long nano_time = 0;
 
-        for(int id = 0; current_chunk_size >= 1; current_chunk_size >>= 1, id++, iteration++) {
+        for(int id = 0, id2 = 0; current_chunk_size >= 1; id++) {
             long time = System.nanoTime();
             AtomicInteger ai = successive_refinement_drawing_algorithm_pixel[id];
 
             int image_size_tile = image_size % current_chunk_size  == 0 ? image_size / current_chunk_size : image_size / current_chunk_size + 1;
             int condition = (image_size_tile) * (image_size_tile);
-            int chunk_size = THREAD_CHUNK_SIZE_PER_LEVEL[id];
+            int chunk_size = THREAD_CHUNK_SIZE_PER_LEVEL[id2];
+            boolean performSecondPassActions = !TWO_PASS_SUCCESSIVE_REFINEMENT || (id & 1) == 1;
 
             do {
 
@@ -152,8 +152,9 @@ public class SuccessiveRefinementGuessingDraw extends TaskDraw {
 
                     if(!filled[loc2]) {
 
-                        if(current_chunk_size <= min_chunk_size) {
-                            current_chunk_size2 = current_chunk_size << 1;
+                        boolean check = performSecondPassActions && current_chunk_size <= min_chunk_size;
+                        if(check) {
+                            current_chunk_size2 = prev_chunk_size;
 
                             xstart = (x / current_chunk_size2) * current_chunk_size2;
                             ystart = (y / current_chunk_size2) * current_chunk_size2;
@@ -169,40 +170,45 @@ public class SuccessiveRefinementGuessingDraw extends TaskDraw {
                             locc += xstart;
                         }
 
-                        if(current_chunk_size <= min_chunk_size && xend < image_size && yend < image_size && isTheSame(loca, locb, locc, locd)) {
-
+                        if(check && xend < image_size && yend < image_size && isTheSame(loca, locb, locc, locd)) {
 
                             tempx = Math.min(image_size, x + current_chunk_size);
                             tempy = Math.min(image_size, y + current_chunk_size);
 
-                            int skippedColor = getColorForSkippedPixels(rgbs[loca], iteration);
+                            int start_color = rgbs[loca];
+                            int skippedColor = getColorForSkippedPixels(start_color, iteration);
+                            double start_iterations = image_iterations[loca];
+                            boolean start_escaped = escaped[loca];
 
                             for (int i = y; i < tempy; i++) {
                                 for (int j = x, loc3 = i * image_size + j; j < tempx; j++, loc3++) {
                                     if(!examined[loc3]) {
-                                        rgbs[loc3] = rgbs[loca];
-                                        image_iterations[loc3] = image_iterations[loca];
-                                        escaped[loc3] = escaped[loca];
+                                        if (rgbs[loc3] >>> 24 != Constants.NORMAL_ALPHA) {
+                                            rgbs[loc3] = start_color;
+                                            image_iterations[loc3] = start_iterations;
+                                            escaped[loc3] = start_escaped;
+                                            task_completed++;
+                                        }
+
                                         setFilledAndExaminedWithSkippedColor(examined, filled, skipped_colors, loc3, skippedColor);
-                                        task_completed++;
                                         drawing_done++;
                                     }
                                 }
                             }
                         }
-                        else if (!examined[loc2]){
+                        else if (!examined[loc2]) {
 
                             if (rgbs[loc2] >>> 24 != Constants.NORMAL_ALPHA) {
                                 image_iterations[loc2] = f_val = iteration_algorithm.calculate(location.getComplex(x, y));
                                 escaped[loc2] = escaped_val = iteration_algorithm.escaped();
                                 rgbs[loc2] = color = getFinalColor(f_val, escaped_val);
                                 task_calculated++;
+                                task_completed++;
                             } else {
                                 color = rgbs[loc2];
                             }
 
                             examined[loc2] = true;
-                            task_completed++;
                             drawing_done++;
 
                             tempx = Math.min(image_size, x + current_chunk_size);
@@ -218,12 +224,12 @@ public class SuccessiveRefinementGuessingDraw extends TaskDraw {
                         }
                     }
 
-                    if(USE_QUICKDRAW_ON_GREEDY_SUCCESSIVE_REFINEMENT && id > STOP_AFTER_ITER && STOP_SUCCESSIVE_REFINEMENT) {
+                    if(USE_QUICKDRAW_ON_GREEDY_SUCCESSIVE_REFINEMENT && id > stop_id && STOP_SUCCESSIVE_REFINEMENT) {
                         break;
                     }
                 }
 
-                if(USE_QUICKDRAW_ON_GREEDY_SUCCESSIVE_REFINEMENT && id > STOP_AFTER_ITER && STOP_SUCCESSIVE_REFINEMENT) {
+                if(USE_QUICKDRAW_ON_GREEDY_SUCCESSIVE_REFINEMENT && id > stop_id && STOP_SUCCESSIVE_REFINEMENT) {
                     break;
                 }
 
@@ -254,8 +260,8 @@ public class SuccessiveRefinementGuessingDraw extends TaskDraw {
             }
 
             if(taskId == 0 && ptr != null) {
-                ptr.setWholeImageDone(true);
                 if(id == 0) {
+                    ptr.setWholeImageDone(true);
                     ptr.reloadTitle();
                     updateMode(ptr, false, iteration_algorithm.isJulia(), false, false);
                 }
@@ -263,11 +269,18 @@ public class SuccessiveRefinementGuessingDraw extends TaskDraw {
             }
 
             if(USE_QUICKDRAW_ON_GREEDY_SUCCESSIVE_REFINEMENT) {
-                if (id > STOP_AFTER_ITER && STOP_SUCCESSIVE_REFINEMENT) {
+                if (id > stop_id && STOP_SUCCESSIVE_REFINEMENT) {
                     successive_refinement_lock.unlockRead();
                     throw new StopSuccessiveRefinementException();
                 }
                 successive_refinement_lock.unlockRead();
+            }
+
+            prev_chunk_size = current_chunk_size;
+            if(performSecondPassActions) {
+                current_chunk_size >>= 1;
+                iteration++;
+                id2++;
             }
         }
 
@@ -298,15 +311,17 @@ public class SuccessiveRefinementGuessingDraw extends TaskDraw {
         int colB = grey;
         int length = 14;
 
+        int thread_chunk_size = getThreadChunkSize(image_size, CHUNK_SIZE_PER_ROW);
+
         do {
 
-            loc = THREAD_CHUNK_SIZE * draw_squares_pixel.getAndIncrement();
+            loc = thread_chunk_size * draw_squares_pixel.getAndIncrement();
 
             if(loc >= condition) {
                 break;
             }
 
-            for(int count = 0; count < THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
+            for(int count = 0; count < thread_chunk_size && loc < condition; count++, loc++) {
 
                 x = loc % image_size;
                 y = loc / image_size;
@@ -344,15 +359,17 @@ public class SuccessiveRefinementGuessingDraw extends TaskDraw {
 
         int[] colors = isFastJulia ? skipped_colors_fast_julia : skipped_colors;
 
+        int thread_chunk_size = getThreadChunkSize(image_size, CHUNK_SIZE_PER_ROW);
+
         do {
 
-            loc = THREAD_CHUNK_SIZE * apply_skipped_color_pixel.getAndIncrement();
+            loc = thread_chunk_size * apply_skipped_color_pixel.getAndIncrement();
 
             if (loc >= condition) {
                 break;
             }
 
-            for (int count = 0; count < THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
+            for (int count = 0; count < thread_chunk_size && loc < condition; count++, loc++) {
 
                 x = loc % image_size;
                 y = loc / image_size;
@@ -380,20 +397,7 @@ public class SuccessiveRefinementGuessingDraw extends TaskDraw {
         int supersampling_num = getExtraSamples(aaSamplesIndex, aaMethod);
         location.createAntialiasingSteps(aaMethod == 5, useJitter, supersampling_num);
 
-        if(PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && !HIGH_PRECISION_CALCULATION) {
-            if (reference_calc_sync.getAndIncrement() == 0) {
-                calculateReference(location);
-            }
-
-            try {
-                reference_sync.await();
-            } catch (InterruptedException ex) {
-
-            } catch (BrokenBarrierException ex) {
-
-            }
-            location.setReference(Fractal.refPoint);
-        }
+        initialize(location);
 
         boolean aaAvgWithMean = ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x1) == 1;
         int colorSpace = filters_options_extra_vals[0][MainWindow.ANTIALIASING];
@@ -413,8 +417,11 @@ public class SuccessiveRefinementGuessingDraw extends TaskDraw {
         double temp_result;
 
         int current_chunk_size = SUCCESSIVE_REFINEMENT_MAX_SIZE;
+        int prev_chunk_size = 0;
         int iteration = randomNumber;
         int min_chunk_size = TaskDraw.GUESS_BLOCKS_SELECTION == 0 ? 0 : 1 << (TaskDraw.GUESS_BLOCKS_SELECTION - 1);
+        min_chunk_size = TWO_PASS_SUCCESSIVE_REFINEMENT ? min_chunk_size << 1 : min_chunk_size;
+
 
         int current_chunk_size2 = 0;
 
@@ -428,12 +435,13 @@ public class SuccessiveRefinementGuessingDraw extends TaskDraw {
         int locc = 0;
         int locd = 0;
 
-        for(int id = 0; current_chunk_size >= 1; current_chunk_size >>= 1, id++, iteration++) {
+        for(int id = 0, id2 = 0; current_chunk_size >= 1; id++) {
             AtomicInteger ai = successive_refinement_drawing_algorithm_pixel[id];
 
             int image_size_tile = image_size % current_chunk_size  == 0 ? image_size / current_chunk_size : image_size / current_chunk_size + 1;
             int condition = (image_size_tile) * (image_size_tile);
-            int chunk_size = THREAD_CHUNK_SIZE_PER_LEVEL[id];
+            int chunk_size = THREAD_CHUNK_SIZE_PER_LEVEL[id2];
+            boolean performSecondPassActions = !TWO_PASS_SUCCESSIVE_REFINEMENT || (id & 1) == 1;
 
             do {
 
@@ -454,8 +462,9 @@ public class SuccessiveRefinementGuessingDraw extends TaskDraw {
 
                     if(!filled_fast_julia[loc2]) {
 
-                        if(current_chunk_size <= min_chunk_size) {
-                            current_chunk_size2 = current_chunk_size << 1;
+                        boolean check = performSecondPassActions && current_chunk_size <= min_chunk_size;
+                        if(check) {
+                            current_chunk_size2 = prev_chunk_size;
 
                             xstart = (x / current_chunk_size2) * current_chunk_size2;
                             ystart = (y / current_chunk_size2) * current_chunk_size2;
@@ -471,23 +480,31 @@ public class SuccessiveRefinementGuessingDraw extends TaskDraw {
                             locc += xstart;
                         }
 
-                        if(current_chunk_size <= min_chunk_size && xend < image_size && yend < image_size && isTheSameFastJulia(loca, locb, locc, locd)) {
+                        if(check && xend < image_size && yend < image_size && isTheSameFastJulia(loca, locb, locc, locd)) {
 
 
                             tempx = Math.min(image_size, x + current_chunk_size);
                             tempy = Math.min(image_size, y + current_chunk_size);
 
-                            int skippedColor = getColorForSkippedPixels(rgbs[loca], iteration);
+                            int start_color = rgbs[loca];
+                            int skippedColor = getColorForSkippedPixels(start_color, iteration);
+                            double start_iterations = image_iterations_fast_julia[loca];
+                            boolean start_escaped = escaped_fast_julia[loca];
+
+                            PixelExtraData start_extra_data = null;
+                            if(storeExtraData) {
+                                start_extra_data = pixelData_fast_julia[loca];
+                            }
 
                             for (int i = y; i < tempy; i++) {
                                 for (int j = x, loc3 = i * image_size + j; j < tempx; j++, loc3++) {
                                     if(!examined_fast_julia[loc3]) {
-                                        rgbs[loc3] = rgbs[loca];
-                                        image_iterations_fast_julia[loc3] = image_iterations_fast_julia[loca];
-                                        escaped_fast_julia[loc3] = escaped_fast_julia[loca];
+                                        rgbs[loc3] = start_color;
+                                        image_iterations_fast_julia[loc3] = start_iterations;
+                                        escaped_fast_julia[loc3] = start_escaped;
                                         setFilledAndExaminedWithSkippedColor(examined_fast_julia, filled_fast_julia, skipped_colors_fast_julia, loc3, skippedColor);
                                         if(storeExtraData) {
-                                            pixelData_fast_julia[loc3] = new PixelExtraData(pixelData_fast_julia[loca], skippedColor);
+                                            pixelData_fast_julia[loc3] = new PixelExtraData(start_extra_data, skippedColor);
                                         }
                                     }
                                 }
@@ -536,6 +553,13 @@ public class SuccessiveRefinementGuessingDraw extends TaskDraw {
             } catch (BrokenBarrierException ex) {
 
             }
+
+            prev_chunk_size = current_chunk_size;
+            if(performSecondPassActions) {
+                current_chunk_size >>= 1;
+                iteration++;
+                id2++;
+            }
         }
 
 
@@ -564,20 +588,7 @@ public class SuccessiveRefinementGuessingDraw extends TaskDraw {
         location.createAntialiasingSteps(aaMethod == 5, useJitter, supersampling_num);
         int pixel_percent = (image_size * image_size) / 100;
 
-        if(PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && !HIGH_PRECISION_CALCULATION) {
-            if (reference_calc_sync.getAndIncrement() == 0) {
-                calculateReference(location);
-            }
-
-            try {
-                reference_sync.await();
-            } catch (InterruptedException ex) {
-
-            } catch (BrokenBarrierException ex) {
-
-            }
-            location.setReference(Fractal.refPoint);
-        }
+        initialize(location);
 
         boolean aaAvgWithMean = ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x1) == 1;
         int colorSpace = filters_options_extra_vals[0][MainWindow.ANTIALIASING];
@@ -598,8 +609,10 @@ public class SuccessiveRefinementGuessingDraw extends TaskDraw {
 
 
         int current_chunk_size = SUCCESSIVE_REFINEMENT_MAX_SIZE;
+        int prev_chunk_size = 0;
         int iteration = randomNumber;
         int min_chunk_size = TaskDraw.GUESS_BLOCKS_SELECTION == 0 ? 0 : 1 << (TaskDraw.GUESS_BLOCKS_SELECTION - 1);
+        min_chunk_size = TWO_PASS_SUCCESSIVE_REFINEMENT ? min_chunk_size << 1 : min_chunk_size;
 
         int current_chunk_size2 = 0;
 
@@ -614,15 +627,18 @@ public class SuccessiveRefinementGuessingDraw extends TaskDraw {
         int locd = 0;
         task_completed = 0;
 
+        int stop_id = getStopAfterIter();
+
         long nano_time = 0;
 
-        for(int id = 0; current_chunk_size >= 1; current_chunk_size >>= 1, id++, iteration++) {
+        for(int id = 0, id2 = 0; current_chunk_size >= 1; id++) {
             long time = System.nanoTime();
             AtomicInteger ai = successive_refinement_drawing_algorithm_pixel[id];
 
             int image_size_tile = image_size % current_chunk_size  == 0 ? image_size / current_chunk_size : image_size / current_chunk_size + 1;
             int condition = (image_size_tile) * (image_size_tile);
-            int chunk_size = THREAD_CHUNK_SIZE_PER_LEVEL[id];
+            int chunk_size = THREAD_CHUNK_SIZE_PER_LEVEL[id2];
+            boolean performSecondPassActions = !TWO_PASS_SUCCESSIVE_REFINEMENT || (id & 1) == 1;
 
             do {
 
@@ -643,8 +659,9 @@ public class SuccessiveRefinementGuessingDraw extends TaskDraw {
 
                     if(!filled[loc2]) {
 
-                        if(current_chunk_size <= min_chunk_size) {
-                            current_chunk_size2 = current_chunk_size << 1;
+                        boolean check = performSecondPassActions && current_chunk_size <= min_chunk_size;
+                        if(check) {
+                            current_chunk_size2 = prev_chunk_size;
 
                             xstart = (x / current_chunk_size2) * current_chunk_size2;
                             ystart = (y / current_chunk_size2) * current_chunk_size2;
@@ -660,23 +677,30 @@ public class SuccessiveRefinementGuessingDraw extends TaskDraw {
                             locc += xstart;
                         }
 
-                        if(current_chunk_size <= min_chunk_size && xend < image_size && yend < image_size && isTheSame(loca, locb, locc, locd)) {
+                        if(check && xend < image_size && yend < image_size && isTheSame(loca, locb, locc, locd)) {
 
 
                             tempx = Math.min(image_size, x + current_chunk_size);
                             tempy = Math.min(image_size, y + current_chunk_size);
 
-                            int skippedColor = getColorForSkippedPixels(rgbs[loca], iteration);
+                            int start_color = rgbs[loca];
+                            int skippedColor = getColorForSkippedPixels(start_color, iteration);
+                            double start_iterations = image_iterations[loca];
+                            boolean start_escaped = escaped[loca];
+                            PixelExtraData start_extra_data = null;
+                            if(storeExtraData) {
+                                start_extra_data = pixelData[loca];
+                            }
 
                             for (int i = y; i < tempy; i++) {
                                 for (int j = x, loc3 = i * image_size + j; j < tempx; j++, loc3++) {
                                     if(!examined[loc3]) {
-                                        rgbs[loc3] = rgbs[loca];
-                                        image_iterations[loc3] = image_iterations[loca];
-                                        escaped[loc3] = escaped[loca];
+                                        rgbs[loc3] = start_color;
+                                        image_iterations[loc3] = start_iterations;
+                                        escaped[loc3] = start_escaped;
                                         setFilledAndExaminedWithSkippedColor(examined, filled, skipped_colors, loc3, skippedColor);
                                         if(storeExtraData) {
-                                            pixelData[loc3] = new PixelExtraData(pixelData[loca], skippedColor);
+                                            pixelData[loc3] = new PixelExtraData(start_extra_data, skippedColor);
                                         }
                                         task_completed++;
                                         drawing_done++;
@@ -685,7 +709,6 @@ public class SuccessiveRefinementGuessingDraw extends TaskDraw {
                             }
                         }
                         else if (!examined[loc2]){
-
                             image_iterations[loc2] = f_val = iteration_algorithm.calculate(location.getComplex(x, y));
                             escaped[loc2] = escaped_val = iteration_algorithm.escaped();
                             color = getFinalColor(f_val, escaped_val);
@@ -695,29 +718,28 @@ public class SuccessiveRefinementGuessingDraw extends TaskDraw {
                             drawing_done++;
                             task_completed++;
 
-                            if(storeExtraData) {
+                            if (storeExtraData) {
                                 pixelData[loc2].set(0, color, f_val, escaped_val, totalSamples);
                             }
 
                             aa.initialize(color);
 
                             //Supersampling
-                            for(int i = 0; i < supersampling_num; i++) {
+                            for (int i = 0; i < supersampling_num; i++) {
                                 temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i, loc2));
                                 escaped_val = iteration_algorithm.escaped();
                                 color = getFinalColor(temp_result, escaped_val);
 
-                                if(storeExtraData) {
+                                if (storeExtraData) {
                                     pixelData[loc2].set(i + 1, color, temp_result, escaped_val, totalSamples);
                                 }
 
-                                if(!aa.addSample(color)) {
+                                if (!aa.addSample(color)) {
                                     break;
                                 }
                             }
 
                             rgbs[loc2] = color = aa.getColor();
-
 
                             tempx = Math.min(image_size, x + current_chunk_size);
                             tempy = Math.min(image_size, y + current_chunk_size);
@@ -730,12 +752,12 @@ public class SuccessiveRefinementGuessingDraw extends TaskDraw {
                         }
                     }
 
-                    if(USE_QUICKDRAW_ON_GREEDY_SUCCESSIVE_REFINEMENT && id > STOP_AFTER_ITER && STOP_SUCCESSIVE_REFINEMENT) {
+                    if(USE_QUICKDRAW_ON_GREEDY_SUCCESSIVE_REFINEMENT && id > stop_id && STOP_SUCCESSIVE_REFINEMENT) {
                         break;
                     }
                 }
 
-                if(USE_QUICKDRAW_ON_GREEDY_SUCCESSIVE_REFINEMENT && id > STOP_AFTER_ITER && STOP_SUCCESSIVE_REFINEMENT) {
+                if(USE_QUICKDRAW_ON_GREEDY_SUCCESSIVE_REFINEMENT && id > stop_id && STOP_SUCCESSIVE_REFINEMENT) {
                     break;
                 }
 
@@ -764,8 +786,8 @@ public class SuccessiveRefinementGuessingDraw extends TaskDraw {
             }
 
             if(taskId == 0 && ptr != null) {
-                ptr.setWholeImageDone(true);
                 if(id == 0) {
+                    ptr.setWholeImageDone(true);
                     ptr.reloadTitle();
                     updateMode(ptr, false, iteration_algorithm.isJulia(), false, false);
                 }
@@ -773,11 +795,18 @@ public class SuccessiveRefinementGuessingDraw extends TaskDraw {
             }
 
             if(USE_QUICKDRAW_ON_GREEDY_SUCCESSIVE_REFINEMENT) {
-                if (id > STOP_AFTER_ITER && STOP_SUCCESSIVE_REFINEMENT) {
+                if (id > stop_id && STOP_SUCCESSIVE_REFINEMENT) {
                     successive_refinement_lock.unlockRead();
                     throw new StopSuccessiveRefinementException();
                 }
                 successive_refinement_lock.unlockRead();
+            }
+
+            prev_chunk_size = current_chunk_size;
+            if(performSecondPassActions) {
+                current_chunk_size >>= 1;
+                iteration++;
+                id2++;
             }
         }
 
@@ -800,20 +829,7 @@ public class SuccessiveRefinementGuessingDraw extends TaskDraw {
 
         Location location = Location.getInstanceForDrawing(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, js, polar, (HIGH_PRECISION_CALCULATION || PERTURBATION_THEORY) && fractal.supportsPerturbationTheory());
 
-        if(PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && !HIGH_PRECISION_CALCULATION) {
-            if (reference_calc_sync.getAndIncrement() == 0) {
-                calculateReference(location);
-            }
-
-            try {
-                reference_sync.await();
-            } catch (InterruptedException ex) {
-
-            } catch (BrokenBarrierException ex) {
-
-            }
-            location.setReference(Fractal.refPoint);
-        }
+        initialize(location);
 
 
         int loc2, loc, x, y;
@@ -824,8 +840,10 @@ public class SuccessiveRefinementGuessingDraw extends TaskDraw {
 
 
         int current_chunk_size = SUCCESSIVE_REFINEMENT_MAX_SIZE;
+        int prev_chunk_size = 0;
         int iteration = randomNumber;
         int min_chunk_size = TaskDraw.GUESS_BLOCKS_SELECTION == 0 ? 0 : 1 << (TaskDraw.GUESS_BLOCKS_SELECTION - 1);
+        min_chunk_size = TWO_PASS_SUCCESSIVE_REFINEMENT ? min_chunk_size << 1 : min_chunk_size;
 
         int current_chunk_size2 = 0;
 
@@ -839,12 +857,13 @@ public class SuccessiveRefinementGuessingDraw extends TaskDraw {
         int locc = 0;
         int locd = 0;
 
-        for(int id = 0; current_chunk_size >= 1; current_chunk_size >>= 1, id++, iteration++) {
+        for(int id = 0, id2 = 0; current_chunk_size >= 1; id++) {
             AtomicInteger ai = successive_refinement_drawing_algorithm_pixel[id];
 
             int image_size_tile = image_size % current_chunk_size  == 0 ? image_size / current_chunk_size : image_size / current_chunk_size + 1;
             int condition = (image_size_tile) * (image_size_tile);
-            int chunk_size = THREAD_CHUNK_SIZE_PER_LEVEL[id];
+            int chunk_size = THREAD_CHUNK_SIZE_PER_LEVEL[id2];
+            boolean performSecondPassActions = !TWO_PASS_SUCCESSIVE_REFINEMENT || (id & 1) == 1;
 
             do {
 
@@ -865,8 +884,9 @@ public class SuccessiveRefinementGuessingDraw extends TaskDraw {
 
                     if(!filled_fast_julia[loc2]) {
 
-                        if(current_chunk_size <= min_chunk_size) {
-                            current_chunk_size2 = current_chunk_size << 1;
+                        boolean check = performSecondPassActions && current_chunk_size <= min_chunk_size;
+                        if(check) {
+                            current_chunk_size2 = prev_chunk_size;
 
                             xstart = (x / current_chunk_size2) * current_chunk_size2;
                             ystart = (y / current_chunk_size2) * current_chunk_size2;
@@ -882,19 +902,23 @@ public class SuccessiveRefinementGuessingDraw extends TaskDraw {
                             locc += xstart;
                         }
 
-                        if(current_chunk_size <= min_chunk_size && xend < image_size && yend < image_size && isTheSameFastJulia(loca, locb, locc, locd)) {
+                        if(check && xend < image_size && yend < image_size && isTheSameFastJulia(loca, locb, locc, locd)) {
 
 
                             tempx = Math.min(image_size, x + current_chunk_size);
                             tempy = Math.min(image_size, y + current_chunk_size);
 
-                            int skippedColor = getColorForSkippedPixels(rgbs[loca], iteration);
+                            int start_color = rgbs[loca];
+                            int skippedColor = getColorForSkippedPixels(start_color, iteration);
+                            double start_iterations = image_iterations_fast_julia[loca];
+                            boolean start_escaped = escaped_fast_julia[loca];
+
                             for (int i = y; i < tempy; i++) {
                                 for (int j = x, loc3 = i * image_size + j; j < tempx; j++, loc3++) {
                                     if(!examined_fast_julia[loc3]) {
-                                        rgbs[loc3] = rgbs[loca];
-                                        image_iterations_fast_julia[loc3] = image_iterations_fast_julia[loca];
-                                        escaped_fast_julia[loc3] = escaped_fast_julia[loca];
+                                        rgbs[loc3] = start_color;
+                                        image_iterations_fast_julia[loc3] = start_iterations;
+                                        escaped_fast_julia[loc3] = start_escaped;
                                         setFilledAndExaminedWithSkippedColor(examined_fast_julia, filled_fast_julia, skipped_colors_fast_julia, loc3, skippedColor);
                                     }
                                 }
@@ -919,6 +943,13 @@ public class SuccessiveRefinementGuessingDraw extends TaskDraw {
 
             } catch (BrokenBarrierException ex) {
 
+            }
+
+            prev_chunk_size = current_chunk_size;
+            if(performSecondPassActions) {
+                current_chunk_size >>= 1;
+                iteration++;
+                id2++;
             }
         }
 
@@ -983,15 +1014,17 @@ public class SuccessiveRefinementGuessingDraw extends TaskDraw {
         int x, y, loc;
         int condition = image_size * image_size;
 
+        int thread_chunk_size = getThreadChunkSize(image_size, CHUNK_SIZE_PER_ROW);
+
         do {
 
-            loc = THREAD_CHUNK_SIZE * normal_drawing_algorithm_post_processing.getAndIncrement();
+            loc = thread_chunk_size * normal_drawing_algorithm_post_processing.getAndIncrement();
 
             if(loc >= condition) {
                 break;
             }
 
-            for(int count = 0; count < THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
+            for(int count = 0; count < thread_chunk_size && loc < condition; count++, loc++) {
                 x = loc % image_size;
                 y = loc / image_size;
 
@@ -1026,17 +1059,19 @@ public class SuccessiveRefinementGuessingDraw extends TaskDraw {
         int condition = image_size * image_size;
         task_completed = 0;
 
+        int thread_chunk_size = getThreadChunkSize(image_size, CHUNK_SIZE_PER_ROW);
+
         long time = System.currentTimeMillis();
 
         do {
 
-            loc = THREAD_CHUNK_SIZE * normal_drawing_algorithm_apply_palette.getAndIncrement();
+            loc = thread_chunk_size * normal_drawing_algorithm_apply_palette.getAndIncrement();
 
             if(loc >= condition) {
                 break;
             }
 
-            for(int count = 0; count < THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
+            for(int count = 0; count < thread_chunk_size && loc < condition; count++, loc++) {
                 if (domain_coloring) {
                     rgbs[loc] = domain_color.getDomainColor(new Complex(domain_image_data_re[loc], domain_image_data_im[loc]));
                 } else {
@@ -1117,17 +1152,19 @@ public class SuccessiveRefinementGuessingDraw extends TaskDraw {
         PixelExtraData data;
         task_completed = 0;
 
+        int thread_chunk_size = getThreadChunkSize(image_size, CHUNK_SIZE_PER_ROW);
+
         long time = System.currentTimeMillis();
 
         do {
 
-            loc = THREAD_CHUNK_SIZE * normal_drawing_algorithm_apply_palette.getAndIncrement();
+            loc = thread_chunk_size * normal_drawing_algorithm_apply_palette.getAndIncrement();
 
             if(loc >= condition) {
                 break;
             }
 
-            for(int count = 0; count < THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
+            for(int count = 0; count < thread_chunk_size && loc < condition; count++, loc++) {
                 data = pixelData[loc];
                 data.update_rgb(0, color = getStandardColor(data.values[0], data.escaped[0]));
 
@@ -1209,17 +1246,19 @@ public class SuccessiveRefinementGuessingDraw extends TaskDraw {
 
         int condition = image_size * image_size;
 
+        int thread_chunk_size = getThreadChunkSize(image_size, CHUNK_SIZE_PER_ROW);
+
         long time = System.currentTimeMillis();
 
         do {
 
-            loc = THREAD_CHUNK_SIZE * normal_drawing_algorithm_pixel.getAndIncrement();
+            loc = thread_chunk_size * normal_drawing_algorithm_pixel.getAndIncrement();
 
             if (loc >= condition) {
                 break;
             }
 
-            for (int count = 0; count < THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
+            for (int count = 0; count < thread_chunk_size && loc < condition; count++, loc++) {
                 x = loc % image_size;
                 y = loc / image_size;
 
@@ -1282,19 +1321,21 @@ public class SuccessiveRefinementGuessingDraw extends TaskDraw {
 
         boolean storeExtraData = pixelData != null;
 
+        int thread_chunk_size = getThreadChunkSize(image_size, CHUNK_SIZE_PER_ROW);
+
         double f_val;
 
         long time = System.currentTimeMillis();
 
         do {
 
-            loc = THREAD_CHUNK_SIZE * normal_drawing_algorithm_pixel.getAndIncrement();
+            loc = thread_chunk_size * normal_drawing_algorithm_pixel.getAndIncrement();
 
             if (loc >= condition) {
                 break;
             }
 
-            for (int count = 0; count < THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
+            for (int count = 0; count < thread_chunk_size && loc < condition; count++, loc++) {
                 x = loc % image_size;
                 y = loc / image_size;
 
@@ -1331,17 +1372,15 @@ public class SuccessiveRefinementGuessingDraw extends TaskDraw {
                 rgbs[loc] = aa.getColor();
 
                 drawing_done++;
+                task_calculated++;
             }
 
             if (drawing_done / pixel_percent >= 1) {
                 update(drawing_done);
-                task_calculated += drawing_done;
                 drawing_done = 0;
             }
 
         } while (true);
-
-        task_calculated += drawing_done;
 
         pixel_calculation_time_per_task = System.currentTimeMillis() - time;
 

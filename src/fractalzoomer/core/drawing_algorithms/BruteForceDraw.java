@@ -63,8 +63,8 @@ public class BruteForceDraw extends TaskDraw {
         super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns, ptr, fractal_color, dem_color, fast_julia_filters, image, periodicity_checking, fs, color_cycling_location, color_cycling_location2, exterior_de, exterior_de_factor, height_ratio,  polar_projection, circle_period,   inverse_dem, color_intensity, transfer_function, color_density, color_intensity2, transfer_function2, color_density2, usePaletteForInColoring,    color_blending,   post_processing_order,  pbs,  gradient_offset,  contourFactor, gps, js, pps, xJuliaCenter, yJuliaCenter);
     }
 
-    public BruteForceDraw(int FROMx, int TOx, int FROMy, int TOy, int max_iterations, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, int color_cycling_location, int color_cycling_location2,  double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring,   int color_cycling_speed, FiltersSettings fs,    BlendingSettings color_blending,  int[] post_processing_order,   PaletteGradientMergingSettings pbs,  boolean cycle_colors, boolean cycle_lights, boolean cycle_gradient, int color_cycling_adjusting_value, DomainColoringSettings ds, int gradient_offset,  double contourFactor, boolean smoothing, GeneratedPaletteSettings gps, PostProcessSettings pps) {
-        super(FROMx, TOx, FROMy, TOy, max_iterations, ptr, fractal_color, dem_color, image, color_cycling_location, color_cycling_location2,    color_cycling_speed, fs, color_intensity, transfer_function, color_density, color_intensity2, transfer_function2, color_density2, usePaletteForInColoring,    color_blending,  post_processing_order,  pbs,  cycle_colors, cycle_lights, cycle_gradient, color_cycling_adjusting_value, ds, gradient_offset,  contourFactor, smoothing, gps, pps);
+    public BruteForceDraw(int FROMx, int TOx, int FROMy, int TOy, int max_iterations, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, int color_cycling_location, int color_cycling_location2,  double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring, FiltersSettings fs,    BlendingSettings color_blending,  int[] post_processing_order,   PaletteGradientMergingSettings pbs, DomainColoringSettings ds, int gradient_offset,  double contourFactor, GeneratedPaletteSettings gps, PostProcessSettings pps, ColorCyclingSettings ccs) {
+        super(FROMx, TOx, FROMy, TOy, max_iterations, ptr, fractal_color, dem_color, image, color_cycling_location, color_cycling_location2, fs, color_intensity, transfer_function, color_density, color_intensity2, transfer_function2, color_density2, usePaletteForInColoring,    color_blending,  post_processing_order,  pbs, ds, gradient_offset,  contourFactor, gps, pps, ccs);
     }
 
     public BruteForceDraw(int FROMx, int TOx, int FROMy, int TOy, int max_iterations, MainWindow ptr, BufferedImage image, Color fractal_color, Color dem_color, int color_cycling_location, int color_cycling_location2, FiltersSettings fs,  double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring,      BlendingSettings color_blending,  int[] post_processing_order,   PaletteGradientMergingSettings pbs,  DomainColoringSettings ds, int gradient_offset,  double contourFactor, boolean smoothing, GeneratedPaletteSettings gps, PostProcessSettings pps) {
@@ -91,37 +91,23 @@ public class BruteForceDraw extends TaskDraw {
 
         int condition = image_size * image_size;
 
-        if(PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && !HIGH_PRECISION_CALCULATION) {
-
-            if (reference_calc_sync.getAndIncrement() == 0) {
-                calculateReference(location);
-            }
-
-            try {
-                reference_sync.await();
-            } catch (InterruptedException ex) {
-
-            } catch (BrokenBarrierException ex) {
-
-            }
-
-            location.setReference(Fractal.refPoint);
-        }
+        initialize(location);
 
         boolean escaped_val;
         double f_val;
+        int thread_chunk_size = getThreadChunkSize(image_size, CHUNK_SIZE_PER_ROW);
 
         long time = System.currentTimeMillis();
 
         do {
 
-            loc = THREAD_CHUNK_SIZE * normal_drawing_algorithm_pixel.getAndIncrement();
+            loc = thread_chunk_size * normal_drawing_algorithm_pixel.getAndIncrement();
 
             if(loc >= condition) {
                 break;
             }
 
-            for(int count = 0; count < THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
+            for(int count = 0; count < thread_chunk_size && loc < condition; count++, loc++) {
 
                 x = loc % image_size;
                 y = loc / image_size;
@@ -173,20 +159,7 @@ public class BruteForceDraw extends TaskDraw {
         int totalSamples = supersampling_num + 1;
         AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(totalSamples, aaMethod, aaAvgWithMean, colorSpace, fs.aaSigmaR, fs.aaSigmaS);
 
-        if(PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && !HIGH_PRECISION_CALCULATION) {
-            if (reference_calc_sync.getAndIncrement() == 0) {
-                calculateReference(location);
-            }
-
-            try {
-                reference_sync.await();
-            } catch (InterruptedException ex) {
-
-            } catch (BrokenBarrierException ex) {
-
-            }
-            location.setReference(Fractal.refPoint);
-        }
+        initialize(location);
 
         boolean escaped_val;
         double f_val;
@@ -195,17 +168,19 @@ public class BruteForceDraw extends TaskDraw {
 
         boolean storeExtraData = pixelData != null;
 
+        int thread_chunk_size = getThreadChunkSize(image_size, CHUNK_SIZE_PER_ROW);
+
         long time = System.currentTimeMillis();
 
         do {
 
-            loc = THREAD_CHUNK_SIZE * normal_drawing_algorithm_pixel.getAndIncrement();
+            loc = thread_chunk_size * normal_drawing_algorithm_pixel.getAndIncrement();
 
             if(loc >= condition) {
                 break;
             }
 
-            for(int count = 0; count < THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
+            for(int count = 0; count < thread_chunk_size && loc < condition; count++, loc++) {
                 x = loc % image_size;
                 y = loc / image_size;
 
@@ -237,17 +212,15 @@ public class BruteForceDraw extends TaskDraw {
                 rgbs[loc] = aa.getColor();
 
                 drawing_done++;
+                task_calculated++;
             }
 
             if(drawing_done / pixel_percent >= 1) {
                 update(drawing_done);
-                task_calculated += drawing_done;
                 drawing_done = 0;
             }
 
         } while(true);
-
-        task_calculated += drawing_done;
 
         pixel_calculation_time_per_task = System.currentTimeMillis() - time;
 
@@ -279,18 +252,20 @@ public class BruteForceDraw extends TaskDraw {
 
         int condition = image_size * image_size;
 
+        int thread_chunk_size = getThreadChunkSize(image_size, CHUNK_SIZE_PER_ROW);
+
         boolean escaped_val;
         double f_val;
 
         do {
 
-            loc = THREAD_CHUNK_SIZE * normal_drawing_algorithm_pixel.getAndIncrement();
+            loc = thread_chunk_size * normal_drawing_algorithm_pixel.getAndIncrement();
 
             if(loc >= condition) {
                 break;
             }
 
-            for(int count = 0; count < THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
+            for(int count = 0; count < thread_chunk_size && loc < condition; count++, loc++) {
                 x = loc % image_size;
                 y = loc / image_size;
 
@@ -351,15 +326,17 @@ public class BruteForceDraw extends TaskDraw {
 
         boolean storeExtraData = pixelData_fast_julia != null;
 
+        int thread_chunk_size = getThreadChunkSize(image_size, CHUNK_SIZE_PER_ROW);
+
         do {
 
-            loc = THREAD_CHUNK_SIZE * normal_drawing_algorithm_pixel.getAndIncrement();
+            loc = thread_chunk_size * normal_drawing_algorithm_pixel.getAndIncrement();
 
             if(loc >= condition) {
                 break;
             }
 
-            for(int count = 0; count < THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
+            for(int count = 0; count < thread_chunk_size && loc < condition; count++, loc++) {
                 x = loc % image_size;
                 y = loc / image_size;
 
@@ -424,15 +401,17 @@ public class BruteForceDraw extends TaskDraw {
         int x, y, loc;
         int condition = image_size * image_size;
 
+        int thread_chunk_size = getThreadChunkSize(image_size, CHUNK_SIZE_PER_ROW);
+
         do {
 
-            loc = THREAD_CHUNK_SIZE * normal_drawing_algorithm_post_processing.getAndIncrement();
+            loc = thread_chunk_size * normal_drawing_algorithm_post_processing.getAndIncrement();
 
             if(loc >= condition) {
                 break;
             }
 
-            for(int count = 0; count < THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
+            for(int count = 0; count < thread_chunk_size && loc < condition; count++, loc++) {
                 x = loc % image_size;
                 y = loc / image_size;
 
@@ -465,17 +444,19 @@ public class BruteForceDraw extends TaskDraw {
         PixelExtraData data;
         task_completed = 0;
 
+        int thread_chunk_size = getThreadChunkSize(image_size, CHUNK_SIZE_PER_ROW);
+
         long time = System.currentTimeMillis();
 
         do {
 
-            loc = THREAD_CHUNK_SIZE * normal_drawing_algorithm_apply_palette.getAndIncrement();
+            loc = thread_chunk_size * normal_drawing_algorithm_apply_palette.getAndIncrement();
 
             if(loc >= condition) {
                 break;
             }
 
-            for(int count = 0; count < THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
+            for(int count = 0; count < thread_chunk_size && loc < condition; count++, loc++) {
                 data = pixelData[loc];
                 data.update_rgb(0, color = getStandardColor(data.values[0], data.escaped[0]));
 
@@ -519,17 +500,19 @@ public class BruteForceDraw extends TaskDraw {
         int condition = image_size * image_size;
         task_completed = 0;
 
+        int thread_chunk_size = getThreadChunkSize(image_size, CHUNK_SIZE_PER_ROW);
+
         long time = System.currentTimeMillis();
 
         do {
 
-            loc = THREAD_CHUNK_SIZE * normal_drawing_algorithm_apply_palette.getAndIncrement();
+            loc = thread_chunk_size * normal_drawing_algorithm_apply_palette.getAndIncrement();
 
             if(loc >= condition) {
                 break;
             }
 
-            for(int count = 0; count < THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
+            for(int count = 0; count < thread_chunk_size && loc < condition; count++, loc++) {
                 if (domain_coloring) {
                     rgbs[loc] = domain_color.getDomainColor(new Complex(domain_image_data_re[loc], domain_image_data_im[loc]));
                 } else {
@@ -565,17 +548,19 @@ public class BruteForceDraw extends TaskDraw {
 
         int condition = image_size * image_size;
 
+        int thread_chunk_size = getThreadChunkSize(image_size, CHUNK_SIZE_PER_ROW);
+
         long time = System.currentTimeMillis();
 
         do {
 
-            loc = THREAD_CHUNK_SIZE * normal_drawing_algorithm_pixel.getAndIncrement();
+            loc = thread_chunk_size * normal_drawing_algorithm_pixel.getAndIncrement();
 
             if (loc >= condition) {
                 break;
             }
 
-            for (int count = 0; count < THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
+            for (int count = 0; count < thread_chunk_size && loc < condition; count++, loc++) {
                 x = loc % image_size;
                 y = loc / image_size;
 
@@ -640,17 +625,19 @@ public class BruteForceDraw extends TaskDraw {
 
         double f_val;
 
+        int thread_chunk_size = getThreadChunkSize(image_size, CHUNK_SIZE_PER_ROW);
+
         long time = System.currentTimeMillis();
 
         do {
 
-            loc = THREAD_CHUNK_SIZE * normal_drawing_algorithm_pixel.getAndIncrement();
+            loc = thread_chunk_size * normal_drawing_algorithm_pixel.getAndIncrement();
 
             if (loc >= condition) {
                 break;
             }
 
-            for (int count = 0; count < THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
+            for (int count = 0; count < thread_chunk_size && loc < condition; count++, loc++) {
                 x = loc % image_size;
                 y = loc / image_size;
 
@@ -687,17 +674,15 @@ public class BruteForceDraw extends TaskDraw {
                 rgbs[loc] = aa.getColor();
 
                 drawing_done++;
+                task_calculated++;
             }
 
             if (drawing_done / pixel_percent >= 1) {
                 update(drawing_done);
-                task_calculated += drawing_done;
                 drawing_done = 0;
             }
 
         } while (true);
-
-        task_calculated += drawing_done;
 
         pixel_calculation_time_per_task = System.currentTimeMillis() - time;
 

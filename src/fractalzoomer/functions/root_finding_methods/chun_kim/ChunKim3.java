@@ -16,16 +16,12 @@ public class ChunKim3 extends ChunKimRootFindingMethod {
         switch (out_coloring_algorithm) {
 
             case MainWindow.BINARY_DECOMPOSITION:
-                convergent_bailout = 1E-4;
-                break;
             case MainWindow.BINARY_DECOMPOSITION2:
-                convergent_bailout = 1E-4;
-                break;
             case MainWindow.ESCAPE_TIME_ALGORITHM:
-                convergent_bailout = 1E-4;
+                setConvergentBailout(1E-4);
                 break;
             case MainWindow.USER_OUTCOLORING_ALGORITHM:
-                convergent_bailout = 1E-7;
+                setConvergentBailout(1E-7);
                 break;
         }
 

@@ -169,12 +169,6 @@ public class D3Dialog extends JDialog {
             gaussian_scaling_opt.setEnabled(!bilateral_scaling_opt.isSelected());
         });
 
-
-        /*final JCheckBox histogram_opt = new JCheckBox("Histogram Equalization");
-        histogram_opt.setSelected(s.d3s.histogram_equalization);
-        histogram_opt.setFocusable(false);
-        histogram_opt.setToolTipText("Enables the histogram equalization.");*/
-
         JSlider color_blend = new JSlider(JSlider.HORIZONTAL, 0, 100, ((int) (s.d3s.color_3d_blending * 100)));
         color_blend.setPreferredSize(new Dimension(270, 35));
         color_blend.setMajorTickSpacing(25);
@@ -365,32 +359,6 @@ public class D3Dialog extends JDialog {
         temp_p4.add(field2);
         temp_p4.add(invert_orientation);
 
-
-        /*final JTextField field_granularity = new JTextField();
-        field_granularity.setText("" + s.d3s.histogram_granularity);
-        field_granularity.setEnabled(s.d3s.histogram_equalization);
-
-        final JTextField field_density = new JTextField();
-        field_density.setText("" + s.d3s.histogram_density);
-        field_density.setEnabled(s.d3s.histogram_equalization);*/
-
-        /*JPanel temp_p4 = new JPanel();
-        temp_p4.setLayout(new GridLayout(2, 2));
-        temp_p4.add(new JLabel("Bin Granularity:", SwingConstants.HORIZONTAL));
-        temp_p4.add(new JLabel("Density:", SwingConstants.HORIZONTAL));
-        temp_p4.add(field_granularity);
-        temp_p4.add(field_density);*/
-
-        /*histogram_opt.addActionListener(e -> {
-            if (histogram_opt.isSelected()) {
-                field_granularity.setEnabled(true);
-                field_density.setEnabled(true);
-            } else {
-                field_granularity.setEnabled(false);
-                field_density.setEnabled(false);
-            }
-        });*/
-
         JButton d3Pbutton = new MyButton("Processing 3D");
         d3Pbutton.setFocusable(false);
         d3Pbutton.setIcon(MainWindow.getIcon("3d.png"));
@@ -422,9 +390,6 @@ public class D3Dialog extends JDialog {
             "Select the gaussian/bilateral smoothing sigma and kernel length.",
                 p40,
             temp_p,
-            //"Select histogram height equalization parameters.",
-            //histogram_opt,
-            //temp_p4,
             " ",
             tabbedPane,};
 
@@ -506,20 +471,6 @@ public class D3Dialog extends JDialog {
                                 return;
                             }
 
-                            /*if(temp5 < 1) {
-                                JOptionPane.showMessageDialog(ptra, "The histogram bin granularity must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                return;
-                            }
-
-                            if(temp5 > 50) {
-                                JOptionPane.showMessageDialog(ptra, "The histogram bin granularity must be lower than 51.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                return;
-                            }
-
-                            if (temp6 <= 0) {
-                                JOptionPane.showMessageDialog(ptra, "The histogram density must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                return;
-                            }*/
 
                             s.d3s.detail = temp;
                             s.d3s.d3_height_scale = temp2;
@@ -547,9 +498,6 @@ public class D3Dialog extends JDialog {
                             //d3_draw_method = draw_choice.getSelectedIndex();
                             s.d3s.color_3d_blending = color_blend.getValue() / 100.0;
 
-                            //s.d3s.histogram_equalization = histogram_opt.isSelected();
-                            //s.d3s.histogram_granularity = temp5;
-                            //s.d3s.histogram_density = temp6;
                             s.d3s.preHeightScaling = preHeightScaling.isSelected();
 
                             TaskDraw.D3_APPLY_AVERAGE_TO_TRIANGLE_COLORS = triangle_coloring.getSelectedIndex();

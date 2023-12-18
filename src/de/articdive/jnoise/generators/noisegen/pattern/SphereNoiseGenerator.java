@@ -3,7 +3,6 @@ package de.articdive.jnoise.generators.noisegen.pattern;
 import de.articdive.jnoise.core.api.noisegen.NoiseGenerator;
 import de.articdive.jnoise.core.api.pipeline.NoiseSourceBuilder;
 
-
 /**
  * A noise generator that returns a concentric spheres (centered on the origin) extending infinitely.
  * Returns 0.0 when on a circle, and 1.0 when between two circles.
@@ -60,7 +59,6 @@ public final class SphereNoiseGenerator implements NoiseGenerator {
      *
      * @return {@link SphereNoiseBuilder}.
      */
-    
     public static SphereNoiseBuilder newBuilder() {
         return new SphereNoiseBuilder();
     }
@@ -75,7 +73,6 @@ public final class SphereNoiseGenerator implements NoiseGenerator {
         }
 
         @Override
-        
         public SphereNoiseGenerator build() {
             return new SphereNoiseGenerator();
         }

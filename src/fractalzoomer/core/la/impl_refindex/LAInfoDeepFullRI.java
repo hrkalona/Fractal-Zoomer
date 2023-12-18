@@ -1,12 +1,12 @@
 package fractalzoomer.core.la.impl_refindex;
 
-import fractalzoomer.core.GenericComplex;
-import fractalzoomer.core.MantExp;
-import fractalzoomer.core.MantExpComplex;
-import fractalzoomer.core.MantExpComplexFull;
+import fractalzoomer.core.*;
 import fractalzoomer.core.la.ATInfo;
 import fractalzoomer.core.la.GenericLAInfo;
 import fractalzoomer.core.la.LAstep;
+import fractalzoomer.functions.Fractal;
+
+import static fractalzoomer.core.la.LAReference.f;
 
 public class LAInfoDeepFullRI extends LAInfoDeepRI {
     long ZCoeffExpIm;
@@ -63,17 +63,17 @@ public class LAInfoDeepFullRI extends LAInfoDeepRI {
 
     @Override
     protected boolean DetectPeriod(MantExpComplex z) {
-        return z.chebychevNorm().divide(new MantExpComplexFull(ZCoeffExp, ZCoeffExpIm, ZCoeffRe, ZCoeffIm).chebychevNorm()).multiply_mutable(LAThresholdScale).compareToBothPositive(new MantExp(LAThresholdExp, LAThresholdMant).multiply(PeriodDetectionThreshold)) < 0;
+        return z.chebyshevNorm().divide(new MantExpComplexFull(ZCoeffExp, ZCoeffExpIm, ZCoeffRe, ZCoeffIm).chebyshevNorm()).multiply_mutable(LAThresholdScale).compareToBothPositive(new MantExp(LAThresholdExp, LAThresholdMant).multiply(PeriodDetectionThreshold)) < 0;
     }
 
     @Override
     protected boolean Stage0DetectPeriod(MantExpComplex z) {
-        return z.chebychevNorm().divide(new MantExpComplexFull(ZCoeffExp, ZCoeffExpIm, ZCoeffRe, ZCoeffIm).chebychevNorm()).multiply_mutable(LAThresholdScale).compareToBothPositive(new MantExp(LAThresholdExp, LAThresholdMant).multiply(Stage0PeriodDetectionThreshold)) < 0;
+        return z.chebyshevNorm().divide(new MantExpComplexFull(ZCoeffExp, ZCoeffExpIm, ZCoeffRe, ZCoeffIm).chebyshevNorm()).multiply_mutable(LAThresholdScale).compareToBothPositive(new MantExp(LAThresholdExp, LAThresholdMant).multiply(Stage0PeriodDetectionThreshold)) < 0;
     }
 
     @Override
-    public GenericComplex getRef() {
-        return new MantExpComplexFull(refExpRe[RefIndex], refExpIm[RefIndex], refMantsRe[RefIndex], refMantsIm[RefIndex]);
+    public GenericComplex getRef(Fractal f) {
+        return f.getArrayDeepValue(Fractal.referenceDeep, RefIndex);
     }
 
     @Override
@@ -87,19 +87,19 @@ public class LAInfoDeepFullRI extends LAInfoDeepRI {
     }
 
     @Override
-    protected boolean Step(LAInfoDeepRI out1, int zRefIndex) {
+    protected boolean Step(LAInfoDeepRI out1, int zRefIndex, ReferenceDecompressor referenceDecompressor) {
 
         LAInfoDeepFullRI out = (LAInfoDeepFullRI)out1;
 
-        MantExpComplex z = new MantExpComplexFull(refExpRe[zRefIndex], refExpIm[zRefIndex], refMantsRe[zRefIndex], refMantsIm[zRefIndex]);
+        MantExpComplex z = f.getArrayDeepValue(referenceDecompressor, Fractal.referenceDeep, zRefIndex);
 
-        MantExp ChebyMagz = z.chebychevNorm();
+        MantExp ChebyMagz = z.chebyshevNorm();
 
         MantExpComplex ZCoeff = new MantExpComplexFull(ZCoeffExp, ZCoeffExpIm, ZCoeffRe, ZCoeffIm);
         MantExpComplex CCoeff = new MantExpComplexFull(CCoeffExp, CCoeffExpIm, CCoeffRe, CCoeffIm);
 
-        MantExp ChebyMagZCoeff = ZCoeff.chebychevNorm();
-        MantExp ChebyMagCCoeff = CCoeff.chebychevNorm();
+        MantExp ChebyMagZCoeff = ZCoeff.chebyshevNorm();
+        MantExp ChebyMagCCoeff = CCoeff.chebyshevNorm();
 
         MantExp temp1 = ChebyMagz.divide(ChebyMagZCoeff).multiply_mutable(LAThresholdScale);
         temp1.Normalize();
@@ -145,23 +145,23 @@ public class LAInfoDeepFullRI extends LAInfoDeepRI {
     }
 
     @Override
-    protected boolean Composite(LAInfoDeepRI out1, LAInfoDeepRI LA1) {
+    protected boolean Composite(LAInfoDeepRI out1, LAInfoDeepRI LA1, ReferenceDecompressor referenceDecompressor) {
 
         LAInfoDeepFullRI out = (LAInfoDeepFullRI)out1;
         LAInfoDeepFullRI LA = (LAInfoDeepFullRI)LA1;
 
         int zRefIndex = LA.RefIndex;
 
-        MantExpComplex z = new MantExpComplexFull(refExpRe[zRefIndex], refExpIm[zRefIndex], refMantsRe[zRefIndex], refMantsIm[zRefIndex]);
-        MantExp ChebyMagz = z.chebychevNorm();
+        MantExpComplex z = f.getArrayDeepValue(referenceDecompressor, Fractal.referenceDeep, zRefIndex);
+        MantExp ChebyMagz = z.chebyshevNorm();
 
         MantExpComplex ZCoeff = new MantExpComplexFull(ZCoeffExp, ZCoeffExpIm, ZCoeffRe, ZCoeffIm);
         MantExpComplex CCoeff = new MantExpComplexFull(CCoeffExp, CCoeffExpIm, CCoeffRe, CCoeffIm);
         MantExp LAThreshold = new MantExp(LAThresholdExp, LAThresholdMant);
         MantExp LAThresholdC = new MantExp(LAThresholdCExp, LAThresholdCMant);
 
-        MantExp ChebyMagZCoeff = ZCoeff.chebychevNorm();
-        MantExp ChebyMagCCoeff = CCoeff.chebychevNorm();
+        MantExp ChebyMagZCoeff = ZCoeff.chebyshevNorm();
+        MantExp ChebyMagCCoeff = CCoeff.chebyshevNorm();
 
         MantExp temp1 = ChebyMagz.divide(ChebyMagZCoeff).multiply_mutable(LAThresholdScale);
         temp1.Normalize();
@@ -179,8 +179,8 @@ public class LAInfoDeepFullRI extends LAInfoDeepRI {
         MantExpComplex outCCoeff = z2.times(CCoeff);
         outCCoeff.Normalize();
 
-        ChebyMagZCoeff = outZCoeff.chebychevNorm();
-        ChebyMagCCoeff = outCCoeff.chebychevNorm();
+        ChebyMagZCoeff = outZCoeff.chebyshevNorm();
+        ChebyMagCCoeff = outCCoeff.chebyshevNorm();
         MantExp temp = outLAThreshold;
 
         MantExp LA_LAThreshold = new MantExp(LA.LAThresholdExp, LA.LAThresholdMant);
@@ -223,21 +223,21 @@ public class LAInfoDeepFullRI extends LAInfoDeepRI {
     }
 
     @Override
-    protected LAInfoDeepFullRI Composite(LAInfoDeepRI LA)  {
+    protected LAInfoDeepFullRI Composite(LAInfoDeepRI LA, ReferenceDecompressor referenceDecompressor)  {
         LAInfoDeepFullRI Result = new LAInfoDeepFullRI();
 
-        Composite(Result, LA);
+        Composite(Result, LA, referenceDecompressor);
         return Result;
     }
 
     @Override
-    protected LAstep Prepare(MantExpComplex dz)  {
+    protected LAstep Prepare(Fractal f, MantExpComplex dz)  {
         //*2 is + 1
-        MantExpComplex newdz = dz.times(new MantExpComplexFull(refExpRe[RefIndex] + 1, refExpIm[RefIndex] + 1, refMantsRe[RefIndex], refMantsIm[RefIndex]).plus_mutable(dz));
+        MantExpComplex newdz = dz.times(f.getArrayDeepValue(Fractal.referenceDeep, RefIndex).times2_mutable().plus_mutable(dz));
         newdz.Normalize();
 
         LAstep temp = new LAstep();
-        temp.unusable = newdz.chebychevNorm().compareToBothPositiveReduced(new MantExp(LAThresholdExp, LAThresholdMant)) >= 0;
+        temp.unusable = newdz.chebyshevNorm().compareToBothPositiveReduced(new MantExp(LAThresholdExp, LAThresholdMant)) >= 0;
         temp.newDzDeep = newdz;
         return temp;
     }
@@ -263,10 +263,59 @@ public class LAInfoDeepFullRI extends LAInfoDeepRI {
     }
 
     @Override
-    protected GenericLAInfo Step(int RefIndex) {
+    protected GenericLAInfo Step(int RefIndex, ReferenceDecompressor referenceDecompressor) {
         LAInfoDeepFullRI Result = new LAInfoDeepFullRI();
 
-        Step(Result, RefIndex);
+        Step(Result, RefIndex, referenceDecompressor);
         return Result;
+    }
+
+    @Override
+    public String toString() {
+        return  ZCoeffRe + "\n" +
+                ZCoeffIm + "\n" +
+                ZCoeffExp + "\n" +
+                ZCoeffExpIm + "\n" +
+                CCoeffRe + "\n" +
+                CCoeffIm + "\n" +
+                CCoeffExp + "\n" +
+                CCoeffExpIm + "\n" +
+                LAThresholdMant + "\n" +
+                LAThresholdExp + "\n" +
+                LAThresholdCMant + "\n" +
+                LAThresholdExp + "\n" +
+                RefIndex;
+    }
+
+    @Override
+    public boolean isEqual(GenericLAInfo other) {
+        if(other == null) {
+            return false;
+        }
+        if(!(other instanceof LAInfoDeepFullRI)) {
+            return false;
+        }
+        LAInfoDeepFullRI oth = (LAInfoDeepFullRI) other;
+        if(this == other) {
+            return true;
+        }
+
+        return ZCoeffRe == oth.ZCoeffRe &&
+                ZCoeffIm == oth.ZCoeffIm &&
+                ZCoeffExp == oth.ZCoeffExp &&
+                ZCoeffExpIm == oth.ZCoeffExpIm &&
+
+                CCoeffRe == oth.CCoeffRe &&
+                CCoeffIm == oth.CCoeffIm &&
+                CCoeffExp == oth.CCoeffExp &&
+                CCoeffExpIm == oth.CCoeffExpIm &&
+
+                LAThresholdMant == oth.LAThresholdMant &&
+                LAThresholdExp == oth.LAThresholdExp &&
+
+                LAThresholdCMant == oth.LAThresholdCMant &&
+                LAThresholdCExp == oth.LAThresholdCExp &&
+
+                RefIndex == oth.RefIndex;
     }
 }

@@ -3,7 +3,6 @@ package de.articdive.jnoise.generators.noisegen.pattern;
 import de.articdive.jnoise.core.api.noisegen.NoiseGenerator;
 import de.articdive.jnoise.core.api.pipeline.NoiseSourceBuilder;
 
-
 /**
  * A noise generator that returns a checkerboard of unit-sized blocks alternating between 0.0 and 1.0.
  * Useful when combined with the scale transformer, as you can create blocks of any size.
@@ -50,7 +49,6 @@ public final class CheckerboardNoiseGenerator implements NoiseGenerator {
      *
      * @return {@link CheckerboardNoiseBuilder}.
      */
-    
     public static CheckerboardNoiseBuilder newBuilder() {
         return new CheckerboardNoiseBuilder();
     }
@@ -65,7 +63,6 @@ public final class CheckerboardNoiseGenerator implements NoiseGenerator {
         }
 
         @Override
-        
         public CheckerboardNoiseGenerator build() {
             return new CheckerboardNoiseGenerator();
         }

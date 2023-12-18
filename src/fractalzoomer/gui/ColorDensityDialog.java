@@ -89,8 +89,8 @@ public class ColorDensityDialog extends JDialog {
                         try {
                             double temp = Double.parseDouble(field.getText());
 
-                            if (temp < - 280 || temp > 280) {
-                                JOptionPane.showMessageDialog(ptra, "The density value must be in the range [-280, 280].", "Error!", JOptionPane.ERROR_MESSAGE);
+                            if (temp < - 300 || temp > 300) {
+                                JOptionPane.showMessageDialog(ptra, "The density value must be in the range [-300, 300].", "Error!", JOptionPane.ERROR_MESSAGE);
                                 return;
                             }
 
@@ -106,7 +106,7 @@ public class ColorDensityDialog extends JDialog {
                         }
 
                         dispose();
-                        ptr.updateColors(false);
+                        ptr.updateColors(false, false);
                     }
                 });
 

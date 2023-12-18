@@ -48,6 +48,10 @@ public abstract class MagnetType extends Julia {
 
     }
 
+    protected void setConvergentBailout(double val) {
+        convergent_bailout = TaskDraw.USER_CONVERGENT_BAILOUT > 0 ? TaskDraw.USER_CONVERGENT_BAILOUT : val;
+    }
+
     public MagnetType(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, boolean periodicity_checking, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower, OrbitTrapSettings ots, double xJuliaCenter, double yJuliaCenter) {
 
         super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, periodicity_checking, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, ots, xJuliaCenter, yJuliaCenter);
@@ -283,7 +287,7 @@ public abstract class MagnetType extends Julia {
                     setTrueColorOut(z, zold, zold2, iterations, c, start, c0, pixelC);
                 }
 
-                return out;
+                return getAndAccumulateHP(out);
             }
 
             gzold2.set(gzold);
@@ -310,7 +314,7 @@ public abstract class MagnetType extends Julia {
             setTrueColorIn(z, zold, zold2, iterations, c, start, c0, pixelC);
         }
 
-        return in;
+        return getAndAccumulateHP(in);
 
     }
 
@@ -661,7 +665,7 @@ public abstract class MagnetType extends Julia {
         int MaxRefIteration = getReferenceFinalIterationNumber(true, referenceData);
 
         int minExp = -1000;
-        int reducedExp = minExp / (int)power;
+        int reducedExp = minExp / (int)getPower();
 
         DeltaSubN.Normalize();
         long exp = DeltaSubN.getMinExp();
@@ -949,7 +953,7 @@ public abstract class MagnetType extends Julia {
 
 
         int minExp = -1000;
-        int reducedExp = minExp / (int)power;
+        int reducedExp = minExp / (int)getPower();
 
         DeltaSubN.Normalize();
         long exp = DeltaSubN.getMinExp();
@@ -969,6 +973,7 @@ public abstract class MagnetType extends Julia {
 
         if(useFullFloatExp || (totalSkippedIterations == 0 && exp <= minExp) || (totalSkippedIterations != 0 && exp <= reducedExp)) {
             MantExpComplex z = getArrayDeepValue(deepData.Reference, RefIteration).plus_mutable(DeltaSubN);
+            MantExpComplex zoldDeep;
             for (; iterations < max_iterations; iterations++) {
                 if (trap != null) {
                     trap.check(complex[0], iterations);
@@ -999,6 +1004,7 @@ public abstract class MagnetType extends Julia {
 
                 zold2.assign(zold);
                 zold.assign(complex[0]);
+                zoldDeep = z;
 
                 if (max_iterations > 1) {
                     z = getArrayDeepValue(deepData.Reference, RefIteration).plus_mutable(DeltaSubN);
@@ -1006,7 +1012,7 @@ public abstract class MagnetType extends Julia {
                 }
 
                 if (statistic != null) {
-                    statistic.insert(complex[0], zold, zold2, iterations, complex[1], start, c0);
+                    statistic.insert(complex[0], zold, zold2, iterations, complex[1], start, c0, z, zoldDeep , null);
                 }
 
                 if (z.norm_squared().compareToBothPositive(DeltaSubN.norm_squared()) < 0 || RefIteration >= MaxRefIteration) {

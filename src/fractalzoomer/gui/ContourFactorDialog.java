@@ -102,7 +102,7 @@ public class ContourFactorDialog extends JDialog {
                         }
 
                         dispose();
-                        ptr.updateColors(false);
+                        ptr.updateColors(false, false);
                     }
                 });
 

@@ -15,17 +15,14 @@ public class King3Sin extends King3RootFindingMethod {
 
         switch (out_coloring_algorithm) {
             case MainWindow.BINARY_DECOMPOSITION:
-                convergent_bailout = 1E-9;
-                break;
             case MainWindow.BINARY_DECOMPOSITION2:
-                convergent_bailout = 1E-9;
+                setConvergentBailout(1E-9);
                 break;
             case MainWindow.USER_OUTCOLORING_ALGORITHM:
-                convergent_bailout = 1E-7;
+                setConvergentBailout(1E-7);
                 break;
 
         }
-
         OutColoringAlgorithmFactory(out_coloring_algorithm, smoothing, converging_smooth_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, plane_transform_center);
 
         InColoringAlgorithmFactory(in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, plane_transform_center);

@@ -679,6 +679,9 @@ public class CustomPaletteEditorFrame extends JFrame {
 
             ptra2.setEnabled(true);
             palette[palette_id].setSelected(color_choice == palette_id);
+            equal_hues = same_hues.isSelected();
+            random_palette_algorithm = combo_box_random_palette_alg.getSelectedIndex();
+            pastel = pastel_cb.isSelected();
             dispose();
 
         });
@@ -1045,7 +1048,7 @@ public class CustomPaletteEditorFrame extends JFrame {
 
         color_interp_panel.add(combo_box_color_interp);
 
-        String[] random_palette_alg_str = {"Golden Ratio", "Waves", "Distance", "Triad", "Tetrad", "Google Material", "ColorBrewer 1", "ColorBrewer 2", "Google-ColorBrewer", "Cubehelix", "IQ-Cosines", "Perlin", "Simplex", "Perlin+Simplex", "Random Walk"};
+        String[] random_palette_alg_str = {"Golden Ratio", "Waves", "Distance", "Triad", "Tetrad", "Google Material", "ColorBrewer 1", "ColorBrewer 2", "Google-ColorBrewer", "Cubehelix", "IQ-Cosines", "Perlin", "Simplex", "Perlin+Simplex", "Random Walk", "Simple Random"};
 
         combo_box_random_palette_alg = new JComboBox<>(random_palette_alg_str);
         combo_box_random_palette_alg.setSelectedIndex(random_palette_algorithm);
@@ -2250,7 +2253,7 @@ public class CustomPaletteEditorFrame extends JFrame {
                 if (color_space == MainWindow.COLOR_SPACE_LCH_ab) {
                     res = ColorSpaceConverter.LCH_abtoRGB(brightness * 100.0, generator.nextDouble() * 140.0, generator.nextDouble() * 360.0);
                 } else if (color_space == MainWindow.COLOR_SPACE_LAB) {
-                    res = ColorSpaceConverter.LABtoRGB(brightness * 100.0, (2 * generator.nextDouble() - 1) * 100, (2 * generator.nextDouble() - 1) * 100);
+                    res = ColorSpaceConverter.LABtoRGB(brightness * 100.0, generator.nextDouble() * 184.43 - 86.17, generator.nextDouble() * 202.33 - 107.85);
                 } else if (color_space == MainWindow.COLOR_SPACE_HSL){
                     res = ColorSpaceConverter.HSLtoRGB(generator.nextDouble(), generator.nextDouble(), brightness);
                 }
@@ -2295,7 +2298,7 @@ public class CustomPaletteEditorFrame extends JFrame {
                 else if (color_space == MainWindow.COLOR_SPACE_RYB) {
                     res = ColorSpaceConverter.RYBtoRGB((0.5 * (Math.sin(Math.PI / a_coeff * (m + 1) + random_a) + 1)), (0.5 * (Math.sin(Math.PI / b_coeff * (m + 1) + random_b) + 1)), (0.5 * (Math.sin(Math.PI / c_coeff * (m + 1) + random_c) + 1)));
                 } else if (color_space == MainWindow.COLOR_SPACE_LAB) {
-                    res = ColorSpaceConverter.LABtoRGB((50 * (Math.sin(Math.PI / a_coeff * (m + 1) + random_a) + 1)), (100 * (Math.sin(Math.PI / b_coeff * (m + 1) + random_b))), (100 * (Math.sin(Math.PI / c_coeff * (m + 1) + random_c))));
+                    res = ColorSpaceConverter.LABtoRGB((50 * (Math.sin(Math.PI / a_coeff * (m + 1) + random_a) + 1)), (184.43 * ((Math.sin(Math.PI / b_coeff * (m + 1) + random_b) + 1) * 0.5) - 86.17), (202.33 * ((Math.sin(Math.PI / c_coeff * (m + 1) + random_c)+ 1) * 0.5) - 107.85));
                 } else if (color_space == MainWindow.COLOR_SPACE_XYZ) {
                     res = ColorSpaceConverter.XYZtoRGB((50 * (Math.sin(Math.PI / a_coeff * (m + 1) + random_a) + 1)), (50 * (Math.sin(Math.PI / b_coeff * (m + 1) + random_b) + 1)), (50 * (Math.sin(Math.PI / c_coeff * (m + 1) + random_c) + 1)));
                 } else if (color_space == MainWindow.COLOR_SPACE_LCH_ab) {
@@ -2708,21 +2711,20 @@ public class CustomPaletteEditorFrame extends JFrame {
 
             double a = 0, incr = (Math.PI * 2) / palette.length;
 
-            Random r = new Random();
 
-            PerlinNoiseGenerator gen_red = PerlinNoiseGenerator.newBuilder().setSeed(r.nextInt(1000000)).setInterpolation(Interpolation.LINEAR).setFadeFunction(FadeFunction.QUINTIC_POLY).build();
+            PerlinNoiseGenerator gen_red = PerlinNoiseGenerator.newBuilder().setSeed(generator.nextInt(1000000)).setInterpolation(Interpolation.LINEAR).setFadeFunction(FadeFunction.QUINTIC_POLY).build();
 
-            PerlinNoiseGenerator gen_green = PerlinNoiseGenerator.newBuilder().setSeed(r.nextInt(1000000)).setInterpolation(Interpolation.LINEAR).setFadeFunction(FadeFunction.QUINTIC_POLY).build();
+            PerlinNoiseGenerator gen_green = PerlinNoiseGenerator.newBuilder().setSeed(generator.nextInt(1000000)).setInterpolation(Interpolation.LINEAR).setFadeFunction(FadeFunction.QUINTIC_POLY).build();
 
-            PerlinNoiseGenerator gen_blue = PerlinNoiseGenerator.newBuilder().setSeed(r.nextInt(1000000)).setInterpolation(Interpolation.LINEAR).setFadeFunction(FadeFunction.QUINTIC_POLY).build();
+            PerlinNoiseGenerator gen_blue = PerlinNoiseGenerator.newBuilder().setSeed(generator.nextInt(1000000)).setInterpolation(Interpolation.LINEAR).setFadeFunction(FadeFunction.QUINTIC_POLY).build();
 
-            double noise_max_red = r.nextDouble() * 3 + 0.2;
-            double noise_max_green = r.nextDouble() * 3 + 0.2;
-            double noise_max_blue = r.nextDouble() * 3 + 0.2;
+            double noise_max_red = generator.nextDouble() * 3 + 0.2;
+            double noise_max_green = generator.nextDouble() * 3 + 0.2;
+            double noise_max_blue = generator.nextDouble() * 3 + 0.2;
 
-            double phase_red = r.nextDouble() * 10;
-            double phase_green = r.nextDouble() * 10;
-            double phase_blue = r.nextDouble() * 10;
+            double phase_red = generator.nextDouble() * 10;
+            double phase_green = generator.nextDouble() * 10;
+            double phase_blue = generator.nextDouble() * 10;
 
             double[] noise_red = new double[palette.length];
             double[] noise_green = new double[palette.length];
@@ -2802,21 +2804,19 @@ public class CustomPaletteEditorFrame extends JFrame {
 
             double a = 0, incr = (Math.PI * 2) / palette.length;
 
-            Random r = new Random();
+            FastSimplexNoiseGenerator gen_red = FastSimplexNoiseGenerator.newBuilder().setSeed(generator.nextInt(1000000)).build();
 
-            FastSimplexNoiseGenerator gen_red = FastSimplexNoiseGenerator.newBuilder().setSeed(r.nextInt(1000000)).build();
+            FastSimplexNoiseGenerator gen_green = FastSimplexNoiseGenerator.newBuilder().setSeed(generator.nextInt(1000000)).build();
 
-            FastSimplexNoiseGenerator gen_green = FastSimplexNoiseGenerator.newBuilder().setSeed(r.nextInt(1000000)).build();
+            FastSimplexNoiseGenerator gen_blue = FastSimplexNoiseGenerator.newBuilder().setSeed(generator.nextInt(1000000)).build();
 
-            FastSimplexNoiseGenerator gen_blue = FastSimplexNoiseGenerator.newBuilder().setSeed(r.nextInt(1000000)).build();
+            double noise_max_red = generator.nextDouble() * 3 + 0.2;
+            double noise_max_green = generator.nextDouble() * 3 + 0.2;
+            double noise_max_blue = generator.nextDouble() * 3 + 0.2;
 
-            double noise_max_red = r.nextDouble() * 3 + 0.2;
-            double noise_max_green = r.nextDouble() * 3 + 0.2;
-            double noise_max_blue = r.nextDouble() * 3 + 0.2;
-
-            double phase_red = r.nextDouble() * 10;
-            double phase_green = r.nextDouble() * 10;
-            double phase_blue = r.nextDouble() * 10;
+            double phase_red = generator.nextDouble() * 10;
+            double phase_green = generator.nextDouble() * 10;
+            double phase_blue = generator.nextDouble() * 10;
 
             double[] noise_red = new double[palette.length];
             double[] noise_green = new double[palette.length];
@@ -2896,36 +2896,35 @@ public class CustomPaletteEditorFrame extends JFrame {
 
             double a = 0, incr = (Math.PI * 2) / palette.length;
 
-            Random r = new Random();
 
-            FastSimplexNoiseGenerator gen_red = FastSimplexNoiseGenerator.newBuilder().setSeed(r.nextInt(1000000)).build();
+            FastSimplexNoiseGenerator gen_red = FastSimplexNoiseGenerator.newBuilder().setSeed(generator.nextInt(1000000)).build();
 
-            FastSimplexNoiseGenerator gen_green = FastSimplexNoiseGenerator.newBuilder().setSeed(r.nextInt(1000000)).build();
+            FastSimplexNoiseGenerator gen_green = FastSimplexNoiseGenerator.newBuilder().setSeed(generator.nextInt(1000000)).build();
 
-            FastSimplexNoiseGenerator gen_blue = FastSimplexNoiseGenerator.newBuilder().setSeed(r.nextInt(1000000)).build();
+            FastSimplexNoiseGenerator gen_blue = FastSimplexNoiseGenerator.newBuilder().setSeed(generator.nextInt(1000000)).build();
 
-            PerlinNoiseGenerator gen_red2 = PerlinNoiseGenerator.newBuilder().setSeed(r.nextInt(1000000)).setInterpolation(Interpolation.LINEAR).setFadeFunction(FadeFunction.QUINTIC_POLY).build();
+            PerlinNoiseGenerator gen_red2 = PerlinNoiseGenerator.newBuilder().setSeed(generator.nextInt(1000000)).setInterpolation(Interpolation.LINEAR).setFadeFunction(FadeFunction.QUINTIC_POLY).build();
 
-            PerlinNoiseGenerator gen_green2 = PerlinNoiseGenerator.newBuilder().setSeed(r.nextInt(1000000)).setInterpolation(Interpolation.LINEAR).setFadeFunction(FadeFunction.QUINTIC_POLY).build();
+            PerlinNoiseGenerator gen_green2 = PerlinNoiseGenerator.newBuilder().setSeed(generator.nextInt(1000000)).setInterpolation(Interpolation.LINEAR).setFadeFunction(FadeFunction.QUINTIC_POLY).build();
 
-            PerlinNoiseGenerator gen_blue2 = PerlinNoiseGenerator.newBuilder().setSeed(r.nextInt(1000000)).setInterpolation(Interpolation.LINEAR).setFadeFunction(FadeFunction.QUINTIC_POLY).build();
+            PerlinNoiseGenerator gen_blue2 = PerlinNoiseGenerator.newBuilder().setSeed(generator.nextInt(1000000)).setInterpolation(Interpolation.LINEAR).setFadeFunction(FadeFunction.QUINTIC_POLY).build();
 
 
-            double noise_max_red = r.nextDouble() * 3 + 0.2;
-            double noise_max_green = r.nextDouble() * 3 + 0.2;
-            double noise_max_blue = r.nextDouble() * 3 + 0.2;
+            double noise_max_red = generator.nextDouble() * 3 + 0.2;
+            double noise_max_green = generator.nextDouble() * 3 + 0.2;
+            double noise_max_blue = generator.nextDouble() * 3 + 0.2;
 
-            double phase_red = r.nextDouble() * 10;
-            double phase_green = r.nextDouble() * 10;
-            double phase_blue = r.nextDouble() * 10;
+            double phase_red = generator.nextDouble() * 10;
+            double phase_green = generator.nextDouble() * 10;
+            double phase_blue = generator.nextDouble() * 10;
 
-            double noise_max_red2 = r.nextDouble() * 3 + 0.2;
-            double noise_max_green2 = r.nextDouble() * 3 + 0.2;
-            double noise_max_blue2 = r.nextDouble() * 3 + 0.2;
+            double noise_max_red2 = generator.nextDouble() * 3 + 0.2;
+            double noise_max_green2 = generator.nextDouble() * 3 + 0.2;
+            double noise_max_blue2 = generator.nextDouble() * 3 + 0.2;
 
-            double phase_red2 = r.nextDouble() * 10;
-            double phase_green2 = r.nextDouble() * 10;
-            double phase_blue2 = r.nextDouble() * 10;
+            double phase_red2 = generator.nextDouble() * 10;
+            double phase_green2 = generator.nextDouble() * 10;
+            double phase_blue2 = generator.nextDouble() * 10;
 
             double[] noise_red = new double[palette.length];
             double[] noise_green = new double[palette.length];
@@ -3012,21 +3011,20 @@ public class CustomPaletteEditorFrame extends JFrame {
             }
         }
         else if(random_palette_alg == 14) {
-            Random r = new Random();
-            int red = r.nextInt(256);
-            int green = r.nextInt(256);
-            int blue = r.nextInt(256);
+            int red = generator.nextInt(256);
+            int green = generator.nextInt(256);
+            int blue = generator.nextInt(256);
 
             int [] vals = new int[] {30, 15, 20, 10, 25};
 
             for (int m = 0; m < palette.length; m++) {
                 palette[m][0] = same_hues ? hues : generator.nextInt(12) + 7;
 
-                int val = vals[r.nextInt(vals.length)];
+                int val = vals[generator.nextInt(vals.length)];
 
-                red += r.nextBoolean() ? val : -val;
-                green += r.nextBoolean() ? val : -val;
-                blue += r.nextBoolean() ? val : -val;
+                red += generator.nextBoolean() ? val : -val;
+                green += generator.nextBoolean() ? val : -val;
+                blue += generator.nextBoolean() ? val : -val;
 
                 if(red < 0) {
                     red += 2*val;
@@ -3059,6 +3057,94 @@ public class CustomPaletteEditorFrame extends JFrame {
                 palette[m][1] = ColorSpaceConverter.clamp(palette[m][1]);
                 palette[m][2] = ColorSpaceConverter.clamp(palette[m][2]);
                 palette[m][3] = ColorSpaceConverter.clamp(palette[m][3]);
+
+                palette[m][1] = pastel ? ColorSpaceConverter.pastel(palette[m][1], 0) :  palette[m][1];
+                palette[m][2] = pastel ? ColorSpaceConverter.pastel(palette[m][2], 1) :  palette[m][2];
+                palette[m][3] = pastel ? ColorSpaceConverter.pastel(palette[m][3], 2) :  palette[m][3];
+            }
+
+            if (createFullPalette) {
+                c = CustomPalette.getPalette(palette, color_interpolation, color_space, reverse_palette, color_cycling, processing_val, processing_alg);
+            }
+        }
+        else if(random_palette_alg == 15) {
+
+            int type = generator.nextInt(11);
+
+            for (int m = 0; m < palette.length; m++) {
+                palette[m][0] = same_hues ? hues : generator.nextInt(12) + 7;
+
+                int red, green, blue;
+                if(type == 1) {
+                    int[] rgb = ColorSpaceConverter.HSBtoRGB(generator.nextDouble(), generator.nextDouble(), generator.nextDouble());
+                    red = rgb[0];
+                    green = rgb[1];
+                    blue = rgb[2];
+                }
+                else if(type == 2) {
+                    int[] rgb = ColorSpaceConverter.HSLtoRGB(generator.nextDouble(), generator.nextDouble(), generator.nextDouble());
+                    red = rgb[0];
+                    green = rgb[1];
+                    blue = rgb[2];
+                }
+                else if(type == 3) {
+                    int[] rgb = ColorSpaceConverter.RYBtoRGB(generator.nextDouble(), generator.nextDouble(), generator.nextDouble());
+                    red = rgb[0];
+                    green = rgb[1];
+                    blue = rgb[2];
+                }
+                else if(type == 4) {
+                    int[] rgb = ColorSpaceConverter.HWBtoRGB(generator.nextDouble(), generator.nextDouble(), generator.nextDouble());
+                    red = rgb[0];
+                    green = rgb[1];
+                    blue = rgb[2];
+                }
+                else if(type == 5) {
+                    int[] rgb = ColorSpaceConverter.LCH_abtoRGB(generator.nextDouble() * 100.0, generator.nextDouble() * 140.0, generator.nextDouble() * 360.0);
+                    red = rgb[0];
+                    green = rgb[1];
+                    blue = rgb[2];
+                }
+                else if(type == 6) {
+                    int[] rgb = ColorSpaceConverter.LCH_oklabtoRGB(generator.nextDouble(), generator.nextDouble() * 0.3224, generator.nextDouble() * 360);
+                    red = rgb[0];
+                    green = rgb[1];
+                    blue = rgb[2];
+                }
+                else if(type == 7) {
+                    int[] rgb = ColorSpaceConverter.LCH_uvtoRGB(generator.nextDouble() * 100, generator.nextDouble() * 179.08, generator.nextDouble() * 360);
+                    red = rgb[0];
+                    green = rgb[1];
+                    blue = rgb[2];
+                }
+                else if(type == 8) {
+                    int[] rgb = ColorSpaceConverter.HSL_uvtoRGB(generator.nextDouble() * 360, generator.nextDouble() * 128, generator.nextDouble() * 100);
+                    red = rgb[0];
+                    green = rgb[1];
+                    blue = rgb[2];
+                }
+                else if(type == 9) {
+                    int[] rgb = ColorSpaceConverter.XYZtoRGB(generator.nextDouble() * 100, generator.nextDouble() * 100, generator.nextDouble() * 100);
+                    red = rgb[0];
+                    green = rgb[1];
+                    blue = rgb[2];
+                }
+                else if(type == 9) {
+                    int[] rgb = ColorSpaceConverter.LABtoRGB(generator.nextDouble() * 100, generator.nextDouble() * 184.43 - 86.17, generator.nextDouble() * 202.33 - 107.85);
+                    red = rgb[0];
+                    green = rgb[1];
+                    blue = rgb[2];
+                }
+                else {
+                    red = generator.nextInt(256);
+                    green = generator.nextInt(256);
+                    blue = generator.nextInt(256);
+                }
+
+                palette[m][1] = red;
+                palette[m][2] = green;
+                palette[m][3] = blue;
+
 
                 palette[m][1] = pastel ? ColorSpaceConverter.pastel(palette[m][1], 0) :  palette[m][1];
                 palette[m][2] = pastel ? ColorSpaceConverter.pastel(palette[m][2], 1) :  palette[m][2];

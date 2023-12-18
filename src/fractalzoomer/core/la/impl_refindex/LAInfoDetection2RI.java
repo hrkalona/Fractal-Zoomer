@@ -1,8 +1,12 @@
 package fractalzoomer.core.la.impl_refindex;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.core.ReferenceDecompressor;
 import fractalzoomer.core.la.GenericLAInfo;
 import fractalzoomer.core.la.InvalidCalculationException;
+import fractalzoomer.functions.Fractal;
+
+import static fractalzoomer.core.la.LAReference.f;
 
 public class LAInfoDetection2RI extends LAInfoRI {
     protected double MinMag;
@@ -18,36 +22,36 @@ public class LAInfoDetection2RI extends LAInfoRI {
 
     @Override
     protected boolean DetectPeriod(Complex z) {
-        return z.chebychevNorm() < MinMag * PeriodDetectionThreshold2;
+        return z.chebyshevNorm() < MinMag * PeriodDetectionThreshold2;
     }
 
     @Override
     protected boolean Stage0DetectPeriod(Complex z) {
-        return z.chebychevNorm() < MinMag * Stage0PeriodDetectionThreshold2;
+        return z.chebyshevNorm() < MinMag * Stage0PeriodDetectionThreshold2;
     }
 
     @Override
-    protected GenericLAInfo Step(int RefIndex) throws InvalidCalculationException {
+    protected GenericLAInfo Step(int RefIndex, ReferenceDecompressor referenceDecompressor) throws InvalidCalculationException {
         LAInfoDetection2RI Result = new LAInfoDetection2RI();
 
-        Step(Result, RefIndex);
+        Step(Result, RefIndex, referenceDecompressor);
         return Result;
     }
 
     @Override
-    protected boolean Step(LAInfoRI out1, int zRefIndex) throws InvalidCalculationException {
+    protected boolean Step(LAInfoRI out1, int zRefIndex, ReferenceDecompressor referenceDecompressor) throws InvalidCalculationException {
 
         LAInfoDetection2RI out = (LAInfoDetection2RI)out1;
 
-        Complex z = new Complex(refRe[zRefIndex], refIm[zRefIndex]);
+        Complex z = f.getArrayValue(referenceDecompressor, Fractal.reference, zRefIndex);
 
-        double ChebyMagz = z.chebychevNorm();
+        double ChebyMagz = z.chebyshevNorm();
 
         Complex ZCoeff = new Complex(ZCoeffRe, ZCoeffIm);
         Complex CCoeff = new Complex(CCoeffRe, CCoeffIm);
 
-        double ChebyMagZCoeff = ZCoeff.chebychevNorm();
-        double ChebyMagCCoeff = CCoeff.chebychevNorm();
+        double ChebyMagZCoeff = ZCoeff.chebyshevNorm();
+        double ChebyMagCCoeff = CCoeff.chebyshevNorm();
 
         out.LAThreshold = Math.min(LAThreshold, ChebyMagz / ChebyMagZCoeff * LAThresholdScale);
         out.LAThresholdC = Math.min(LAThresholdC, ChebyMagz / ChebyMagCCoeff * LAThresholdCScale);
@@ -76,19 +80,19 @@ public class LAInfoDetection2RI extends LAInfoRI {
     }
 
     @Override
-    protected boolean Composite(LAInfoRI out1, LAInfoRI LA1) throws InvalidCalculationException {
+    protected boolean Composite(LAInfoRI out1, LAInfoRI LA1, ReferenceDecompressor referenceDecompressor) throws InvalidCalculationException {
 
         LAInfoDetection2RI out = (LAInfoDetection2RI)out1;
         LAInfoDetection2RI LA = (LAInfoDetection2RI)LA1;
 
         int zRefIndex = LA.RefIndex;
-        Complex z = new Complex(refRe[zRefIndex], refIm[zRefIndex]);
+        Complex z = f.getArrayValue(referenceDecompressor, Fractal.reference, zRefIndex);
         Complex ZCoeff = new Complex(ZCoeffRe, ZCoeffIm);
         Complex CCoeff = new Complex(CCoeffRe, CCoeffIm);
 
-        double ChebyMagz = z.chebychevNorm();
-        double ChebyMagZCoeff = ZCoeff.chebychevNorm();
-        double ChebyMagCCoeff = CCoeff.chebychevNorm();
+        double ChebyMagz = z.chebyshevNorm();
+        double ChebyMagZCoeff = ZCoeff.chebyshevNorm();
+        double ChebyMagCCoeff = CCoeff.chebyshevNorm();
 
         out.LAThreshold = Math.min(LAThreshold, ChebyMagz / ChebyMagZCoeff * LAThresholdScale);
         out.LAThresholdC = Math.min(LAThresholdC, ChebyMagz / ChebyMagCCoeff * LAThresholdCScale);
@@ -101,8 +105,8 @@ public class LAInfoDetection2RI extends LAInfoRI {
 
 
 
-        ChebyMagZCoeff = outZCoeff.chebychevNorm();
-        ChebyMagCCoeff = outCCoeff.chebychevNorm();
+        ChebyMagZCoeff = outZCoeff.chebyshevNorm();
+        ChebyMagCCoeff = outCCoeff.chebyshevNorm();
 
         out.LAThreshold = Math.min(out.LAThreshold, LA.LAThreshold / ChebyMagZCoeff);
         out.LAThresholdC = Math.min(out.LAThresholdC, LA.LAThreshold / ChebyMagCCoeff);
@@ -135,15 +139,49 @@ public class LAInfoDetection2RI extends LAInfoRI {
     }
 
     @Override
-    protected LAInfoDetection2RI Composite(LAInfoRI LA) throws InvalidCalculationException {
+    protected LAInfoDetection2RI Composite(LAInfoRI LA, ReferenceDecompressor referenceDecompressor) throws InvalidCalculationException {
         LAInfoDetection2RI Result = new LAInfoDetection2RI();
 
-        Composite(Result, LA);
+        Composite(Result, LA, referenceDecompressor);
         return Result;
     }
 
     @Override
     public GenericLAInfo minimize() {
         return new LAInfoRI(this);
+    }
+
+    @Override
+    public String toString() {
+        return  ZCoeffRe + "\n" +
+                ZCoeffIm + "\n" +
+                CCoeffRe + "\n" +
+                CCoeffIm + "\n" +
+                LAThreshold + "\n" +
+                LAThresholdC + "\n" +
+                RefIndex + "\n" +
+                MinMag + "\n";
+    }
+    @Override
+    public boolean isEqual(GenericLAInfo other) {
+        if(other == null) {
+            return false;
+        }
+        if(!(other instanceof LAInfoDetection2RI)) {
+            return false;
+        }
+        LAInfoDetection2RI oth = (LAInfoDetection2RI) other;
+        if(this == other) {
+            return true;
+        }
+
+        return ZCoeffRe == oth.ZCoeffRe &&
+                ZCoeffIm == oth.ZCoeffIm &&
+                CCoeffRe == oth.CCoeffRe &&
+                CCoeffIm == oth.CCoeffIm &&
+                LAThreshold == oth.LAThreshold &&
+                LAThresholdC == oth.LAThresholdC &&
+                RefIndex == oth.RefIndex &&
+                MinMag == oth.MinMag;
     }
 }

@@ -10,23 +10,23 @@ public class BigNumComplex extends GenericComplex {
     private BigNum im;
 
     public BigNumComplex(BigComplex c) {
-        re = new BigNum(c.getRe());
-        im = new BigNum(c.getIm());
+        re = BigNum.create(c.getRe());
+        im = BigNum.create(c.getIm());
     }
 
     public BigNumComplex(double re, double im) {
-        this.re = new BigNum(re);
-        this.im = new BigNum(im);
+        this.re = BigNum.create(re);
+        this.im = BigNum.create(im);
     }
 
     public BigNumComplex(BigNumComplex c) {
-        re = new BigNum(c.getRe());
-        im = new BigNum(c.getIm());
+        re = BigNum.copy(c.getRe());
+        im = BigNum.copy(c.getIm());
     }
 
     public BigNumComplex(Complex c) {
-        re = new BigNum(c.getRe());
-        im = new BigNum(c.getIm());
+        re = BigNum.create(c.getRe());
+        im = BigNum.create(c.getIm());
     }
 
     public BigNumComplex(BigNum re, BigNum im) {
@@ -35,19 +35,19 @@ public class BigNumComplex extends GenericComplex {
     }
 
     public BigNumComplex(Apfloat re, Apfloat im) {
-        this.re = new BigNum(re);
-        this.im = new BigNum(im);
+        this.re = BigNum.create(re);
+        this.im = BigNum.create(im);
     }
 
     public BigNumComplex(String re, String im) {
-        this.re = new BigNum(re);
-        this.im = new BigNum(im);
+        this.re = BigNum.create(re);
+        this.im = BigNum.create(im);
     }
 
     public BigNumComplex() {
 
-        re = new BigNum();
-        im = new BigNum();
+        re = BigNum.create();
+        im = BigNum.create();
 
     }
 
@@ -166,7 +166,7 @@ public class BigNumComplex extends GenericComplex {
     @Override
     public final BigNumComplex r_sub(int number) {
 
-        return  new BigNumComplex(new BigNum(number).sub(re), im.negate());
+        return  new BigNumComplex(BigNum.create(number).sub(re), im.negate());
 
     }
 
@@ -297,7 +297,7 @@ public class BigNumComplex extends GenericComplex {
      */
     public final BigNum norm_squared() {
 
-        if(BigNum.use_threads) {
+        if(BigNum.useThreads()) {
             Future<BigNum> temp1 = TaskDraw.reference_thread_executor.submit(() -> re.square());
             Future<BigNum> temp2 = TaskDraw.reference_thread_executor.submit(() -> im.square());
 
@@ -305,7 +305,7 @@ public class BigNumComplex extends GenericComplex {
                 return temp1.get().add(temp2.get());
             }
             catch (Exception ex) {
-                return new BigNum();
+                return BigNum.create();
             }
         }
         else {
@@ -507,7 +507,31 @@ public class BigNumComplex extends GenericComplex {
 
         BigNumComplex c = (BigNumComplex)cn;
 
-        if(BigNum.use_threads) {
+        /*if(BigNum.useThreads2()) {
+            Future<BigNum> temp1 = TaskDraw.reference_thread_executor2.submit(() -> re.squareFull());
+            Future<BigNum> temp2 = TaskDraw.reference_thread_executor2.submit(() -> im.squareFull());
+            Future<BigNum> temp3 = TaskDraw.reference_thread_executor2.submit(() -> re.add(im).squareFull());
+
+            try {
+                BigNum resqr = temp1.get();
+                BigNum imsqr = temp2.get();
+                BigNum resqrpimsqr = temp3.get();
+
+                return new BigNumComplex(resqr.sub(imsqr).add(c.re), resqrpimsqr.sub(resqr).sub(imsqr).add(c.im));
+            }
+            catch (Exception ex) {
+                return new BigNumComplex();
+            }
+        }
+        else {
+            BigNum resqr = re.squareFull();
+            BigNum imsqr = im.squareFull();
+            BigNum resqrpimsqr = re.add(im).squareFull();
+
+            return new BigNumComplex(resqr.sub(imsqr).add(c.re), resqrpimsqr.sub(resqr).sub(imsqr).add(c.im));
+        }*/
+//        else
+        if(BigNum.useThreads()) {
             Future<BigNum> temp1 = TaskDraw.reference_thread_executor.submit(() -> re.add(im).mult(re.sub(im)).add(c.re));
             Future<BigNum> temp2 = TaskDraw.reference_thread_executor.submit(() -> re.mult(im).mult2().add(c.im));
 
@@ -851,6 +875,9 @@ public class BigNumComplex extends GenericComplex {
 
     @Override
     public BigNumComplex absre_mutable() { return  absre(); }
+
+    @Override
+    public BigComplex toBigComplex() {return new BigComplex(re.toApfloat(), im.toApfloat());}
 
     public static void main(String[] args) {
 

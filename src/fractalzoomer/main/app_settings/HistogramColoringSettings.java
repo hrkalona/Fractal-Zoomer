@@ -32,6 +32,7 @@ public class HistogramColoringSettings {
     public int hmapping;
     public boolean hs_remove_outliers;
     public int hs_outliers_method;
+    public int rank_order_digits_grouping;
 
     public HistogramColoringSettings() {
         histogramColoring = false;
@@ -44,5 +45,6 @@ public class HistogramColoringSettings {
         histogramScaleMax = 1;
         hmapping = 0;
         hs_outliers_method= 0;
+        rank_order_digits_grouping = 2;
     }
 }

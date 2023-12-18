@@ -122,12 +122,17 @@ public abstract class MagnetPatakiType extends Julia {
             cp1 = c.plus(MyApfloat.ONE);
         }
 
-        if(lowPrecReferenceOrbitNeeded) {
-            Cp1 = cp1.toComplex();
-        }
-
         if(deepZoom) {
             Cp1Deep = loc.getMantExpComplex(cp1);
+
+            if(lowPrecReferenceOrbitNeeded) {
+                Cp1 = Cp1Deep.toComplex();
+            }
+        }
+        else {
+            if(lowPrecReferenceOrbitNeeded) {
+                Cp1 = cp1.toComplex();
+            }
         }
 
         return null;
@@ -159,6 +164,11 @@ public abstract class MagnetPatakiType extends Julia {
             return 5.0e-25;
         }
 
-        return 1.0e-20;
+        return 1.0e-18;
+    }
+
+    @Override
+    public double getPower() {
+        return exponent;
     }
 }

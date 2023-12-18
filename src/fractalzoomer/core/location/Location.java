@@ -135,7 +135,10 @@ public class Location {
     }
 
     public GenericComplex getAntialiasingComplex(int sample, int loc) {return  null;}
-    public void setReference(GenericComplex ref) {reference = ref; }
+    public void setReference(GenericComplex ref) {
+        reference = ref;
+        fractal.initializeReferenceDecompressor();
+    }
 
     public static Location getInstanceForDrawing(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int image_size, double circle_period, Apfloat[] rotation_center, Apfloat[] rotation_vals, Fractal fractal, JitterSettings js, boolean polar, boolean highPresicion) {
 
@@ -209,7 +212,7 @@ public class Location {
             if(highPresicion && isDeep) {
 
                 if(TaskDraw.USE_FAST_DELTA_LOCATION && fractal.usesDefaultPlane() && !Rotation.usesRotation(rotation_center, rotation_vals)) {
-                    return new CartesianLocationDeltaDeep(xCenter, yCenter, size, height_ratio, image_size, js, bignumLib);
+                    return new CartesianLocationDeltaDeep(xCenter, yCenter, size, height_ratio, image_size, js, fractal, bignumLib);
                 }
 
                 if(bignumLib == Constants.BIGNUM_BUILT_IN) {
@@ -232,7 +235,7 @@ public class Location {
                 if(TaskDraw.USE_FAST_DELTA_LOCATION
                         && fractal.usesDefaultPlane() && !Rotation.usesRotation(rotation_center, rotation_vals)
                      && size.doubleValue() / offset.getImageSize(image_size) > 1e-305) {
-                    return new CartesianLocationDelta(xCenter, yCenter, size, height_ratio, image_size, js, bignumLib);
+                    return new CartesianLocationDelta(xCenter, yCenter, size, height_ratio, image_size, js, fractal, bignumLib);
                 }
 
                 if(bignumLib == Constants.BIGNUM_BUILT_IN) {
@@ -510,8 +513,8 @@ public class Location {
 
         for(int k = 0; k < NUMBER_OF_AA_JITTER_KERNELS; k++) {
             for (int i = 0; i < temp_x.length; i++) {
-                precalculatedJitterDataBigNum[k][0][i] = temp_x[i].add(ddx_antialiasing_size.mult(new BigNum(aaJitterKernelX[k][i])));
-                precalculatedJitterDataBigNum[k][1][i] = temp_y[i].add(ddy_antialiasing_size.mult(new BigNum(aaJitterKernelY[k][i])));
+                precalculatedJitterDataBigNum[k][0][i] = temp_x[i].add(ddx_antialiasing_size.mult(BigNum.create(aaJitterKernelX[k][i])));
+                precalculatedJitterDataBigNum[k][1][i] = temp_y[i].add(ddy_antialiasing_size.mult(BigNum.create(aaJitterKernelY[k][i])));
             }
         }
 
@@ -544,19 +547,19 @@ public class Location {
             ddy_antialiasing_size = bntemp_size_image_size_y.shift2toi(-4);
         }
         else if(samples > MAX_AA_SAMPLES_168 && !adaptive) {
-            BigNum oneFourteenth = new BigNum(MyApfloat.reciprocal(new MyApfloat(14.0)));
+            BigNum oneFourteenth = BigNum.create(MyApfloat.reciprocal(new MyApfloat(14.0)));
 
             ddx_antialiasing_size = bntemp_size_image_size_x.mult(oneFourteenth);
             ddy_antialiasing_size = bntemp_size_image_size_y.mult(oneFourteenth);
         }
         else if(samples > MAX_AA_SAMPLES_120 && !adaptive) {
-            BigNum oneTwelveth = new BigNum(MyApfloat.reciprocal(new MyApfloat(12.0)));
+            BigNum oneTwelveth = BigNum.create(MyApfloat.reciprocal(new MyApfloat(12.0)));
 
             ddx_antialiasing_size = bntemp_size_image_size_x.mult(oneTwelveth);
             ddy_antialiasing_size = bntemp_size_image_size_y.mult(oneTwelveth);
         }
         else if(samples > MAX_AA_SAMPLES_80 && !adaptive) {
-            BigNum oneTenth = new BigNum(MyApfloat.reciprocal(new MyApfloat(10.0)));
+            BigNum oneTenth = BigNum.create(MyApfloat.reciprocal(new MyApfloat(10.0)));
 
             ddx_antialiasing_size = bntemp_size_image_size_x.mult(oneTenth);
             ddy_antialiasing_size = bntemp_size_image_size_y.mult(oneTenth);
@@ -566,7 +569,7 @@ public class Location {
             ddy_antialiasing_size = bntemp_size_image_size_y.shift2toi(-3);
         }
         else if(samples > MAX_AA_SAMPLES_24 && !adaptive) {
-            BigNum oneSixth = new BigNum(MyApfloat.reciprocal(new MyApfloat(6.0)));
+            BigNum oneSixth = BigNum.create(MyApfloat.reciprocal(new MyApfloat(6.0)));
 
             ddx_antialiasing_size = bntemp_size_image_size_x.mult(oneSixth);
             ddy_antialiasing_size = bntemp_size_image_size_y.mult(oneSixth);
@@ -676,7 +679,7 @@ public class Location {
             ddy_antialiasing_size_x8 = ddy_antialiasing_size.shift2toi(3);
         }
 
-        BigNum zero = new BigNum();
+        BigNum zero = BigNum.create();
 
         BigNum[][] data;
         if(!adaptive) {

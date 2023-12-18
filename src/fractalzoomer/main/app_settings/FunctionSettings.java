@@ -99,6 +99,7 @@ public class FunctionSettings implements Constants {
     public boolean julia;
     public int bailout_test_algorithm;
     public double bailout;
+    public double convergent_bailout;
     public String bailout_test_user_formula;
     public String bailout_test_user_formula2;
     public int bailout_test_comparison;
@@ -161,6 +162,7 @@ public class FunctionSettings implements Constants {
         nova_method = NOVA_NEWTON;
         
         bailout = 2;
+        convergent_bailout = 0;
         bailout_test_algorithm = 0;
         skip_bailout_iterations = 0;
         skip_convergent_bailout_iterations = 0;

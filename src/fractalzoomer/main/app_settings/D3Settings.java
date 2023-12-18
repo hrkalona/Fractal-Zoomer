@@ -45,9 +45,6 @@ public class D3Settings {
     public int shade_choice;
     public int shade_algorithm;
     public boolean shade_invert;
-    public boolean histogram_equalization;
-    public int histogram_granularity;
-    public double histogram_density;
     public boolean preHeightScaling;
     public int fractionalTransfer;
     public int fractionalSmoothing;
@@ -88,10 +85,6 @@ public class D3Settings {
 
         remove_outliers_pre = true;
         remove_outliers_post = false;
-
-        histogram_equalization = false;
-        histogram_granularity = 10;
-        histogram_density = 3;
 
         preHeightScaling = false;
 

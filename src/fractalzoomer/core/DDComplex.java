@@ -616,6 +616,7 @@ public class DDComplex extends GenericComplex {
     /*
      *  1 / z
      */
+    @Override
     public final DDComplex reciprocal() {
 
         DoubleDouble temp = new DoubleDouble(1.0).divide(re.sqr().add(im.sqr()));
@@ -1652,4 +1653,17 @@ public class DDComplex extends GenericComplex {
 
     @Override
     public DDComplex absre_mutable() { return  absre(); }
+
+    public final boolean isNaN() {
+        return re.isNaN() || im.isNaN();
+    }
+
+    public final boolean isInfinite() {
+        return re.isInfinite() || im.isInfinite();
+    }
+
+    @Override
+    public BigComplex toBigComplex() {
+        return new BigComplex(re.toApfloat(), im.toApfloat());
+    }
 }

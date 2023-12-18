@@ -56,6 +56,7 @@ public class OptionsMenu extends MyMenu {
     private JMenuItem increase_rotation;
     private JMenuItem decrease_rotation;
     private JMenuItem bailout_number;
+    private JMenuItem convergent_bailout_number;
     private JMenuItem change_zooming_factor;
     private JMenuItem point_opt;
     private JMenuItem variables_opt;
@@ -106,6 +107,9 @@ public class OptionsMenu extends MyMenu {
         convergent_bailout_condition_menu = new ConvergentBailoutConditionsMenu(ptr, "Convergent Bailout Condition", convergent_bailout_test_algorithm);
 
         bailout_number = new MyMenuItem("Bailout", MainWindow.getIcon("bailout.png"));
+        convergent_bailout_number = new MyMenuItem("Convergent Bailout", MainWindow.getIcon("convergent_bailout.png"));
+
+        convergent_bailout_number.setEnabled(false);
 
         rotation_menu = new MyMenu("Rotation");
         rotation_menu.setIcon(MainWindow.getIcon("rotate.png"));
@@ -165,6 +169,7 @@ public class OptionsMenu extends MyMenu {
         decrease_iterations.setToolTipText("Decreases the maximum iterations number by one.");
         double_iterations.setToolTipText("Doubles the maximum iterations.");
         bailout_number.setToolTipText("Sets the bailout. Above this number the norm of a complex numbers is not bounded.");
+        convergent_bailout_number.setToolTipText("Sets the convergent bailout. This defines the acceptable error for converging functions.");
         set_rotation.setToolTipText("Sets the rotation in degrees.");
         point_opt.setToolTipText("A point picked by the user, for the point variable.");
         variables_opt.setToolTipText("Sets the values for the variables v1-v30.");
@@ -193,6 +198,7 @@ public class OptionsMenu extends MyMenu {
         decrease_iterations.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, ActionEvent.ALT_MASK));
         double_iterations.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_2, ActionEvent.CTRL_MASK));
         bailout_number.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_U, ActionEvent.ALT_MASK));
+        convergent_bailout_number.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, ActionEvent.ALT_MASK));
         set_rotation.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, ActionEvent.ALT_MASK));
         increase_rotation.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, ActionEvent.CTRL_MASK));
         decrease_rotation.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, ActionEvent.CTRL_MASK));
@@ -225,6 +231,7 @@ public class OptionsMenu extends MyMenu {
         double_iterations.addActionListener(e -> ptr.doubleIterations());
 
         bailout_number.addActionListener(e -> ptr.setBailout());
+        convergent_bailout_number.addActionListener(e -> ptr.setConvergentBailout());
 
         set_rotation.addActionListener(e -> ptr.setRotation());
 
@@ -300,6 +307,7 @@ public class OptionsMenu extends MyMenu {
         add(bailout_condition_menu);
         add(bailout_number);
         add(convergent_bailout_condition_menu);
+        add(convergent_bailout_number);
         addSeparator();
         add(rotation_menu);
         addSeparator();
@@ -481,6 +489,12 @@ public class OptionsMenu extends MyMenu {
 
     }
 
+    public JRadioButtonMenuItem getLine2() {
+
+        return tools_options_menu.getLine2();
+
+    }
+
     public JRadioButtonMenuItem getDot() {
 
         return tools_options_menu.getDot();
@@ -514,6 +528,12 @@ public class OptionsMenu extends MyMenu {
     public JMenuItem getBailout() {
 
         return bailout_number;
+
+    }
+
+    public JMenuItem getConvergentBailout() {
+
+        return convergent_bailout_number;
 
     }
 

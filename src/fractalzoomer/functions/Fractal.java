@@ -44,6 +44,7 @@ import fractalzoomer.fractal_options.perturbation.Perturbation;
 import fractalzoomer.fractal_options.perturbation.VariableConditionalPerturbation;
 import fractalzoomer.fractal_options.perturbation.VariablePerturbation;
 import fractalzoomer.fractal_options.plane_influence.*;
+import fractalzoomer.functions.root_finding_methods.RootFindingMethods;
 import fractalzoomer.in_coloring_algorithms.*;
 import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
@@ -74,6 +75,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.LongAccumulator;
 import java.util.concurrent.atomic.LongAdder;
+import java.util.function.Function;
 
 import static fractalzoomer.main.Constants.*;
 
@@ -150,6 +152,12 @@ public abstract class Fractal {
     protected boolean isJulia;
     protected boolean isJuliaMap = false;
     protected PlanePointOption defaultInitVal;
+    protected ReferenceDecompressor[] referenceDecompressor = new ReferenceDecompressor[ReferenceData.REFERENCE_DATA_COUNT];
+    protected ReferenceCompressor[] referenceCompressor = new ReferenceCompressor[ReferenceData.REFERENCE_DATA_COUNT];
+    protected ReferenceCompressor[] subexpressionsCompressor = new ReferenceCompressor[ReferenceData.REFERENCE_DATA_COUNT * ReferenceData.SUBEXPRESSION_LENGTH];
+    protected ReferenceDecompressor[] subexpressionsDecompressor = new ReferenceDecompressor[ReferenceData.REFERENCE_DATA_COUNT * ReferenceData.SUBEXPRESSION_LENGTH];
+
+    protected static Function<?, ?>[] functions = new Function[ReferenceData.REFERENCE_DATA_COUNT * ReferenceData.SUBEXPRESSION_LENGTH];
     protected boolean isOrbit;
     protected boolean isDomain;
     protected int userPeriod;
@@ -178,6 +186,8 @@ public abstract class Fractal {
 
     public static LongAccumulator total_min_iterations;
     public static LongAccumulator total_max_iterations;
+    public static LongAccumulator total_max_iterations_ignore_max_iter;
+    public static LongAdder total_iterations;
 
 
     public static LongAdder total_bla_iterations;
@@ -200,10 +210,11 @@ public abstract class Fractal {
     public static ReferenceDeepData[] secondMultiReferenceDeepData;*/
 
     static {
-        referenceData = new ReferenceData();
-        secondReferenceData = new ReferenceData();
-        referenceDeepData = new ReferenceDeepData();
-        secondReferenceDeepData = new ReferenceDeepData();
+        //If more of these are added, update REFERENCE_DATA_COUNT
+        referenceData = new ReferenceData(0);
+        secondReferenceData = new ReferenceData(1);
+        referenceDeepData = new ReferenceDeepData(2);
+        secondReferenceDeepData = new ReferenceDeepData(3);
 
         /*int max_data = 6;
         multiReferenceData = new ReferenceData[max_data];
@@ -229,12 +240,13 @@ public abstract class Fractal {
     public static MantExpComplex Cdeep;
     public static Complex refPointSmall;
     public static MantExpComplex refPointSmallDeep;
+    public static Complex seedSmall;
+    public static MantExpComplex seedSmallDeep;
     public static String RefType = "";
     public static int SAskippedIterations;
 
     protected static final double scaledE = 2.2250738585072014e-308;
     protected static final int skippedThreshold = 6;
-    protected double power = 0;
     protected boolean burning_ship = false;
     protected static final int max_data = skippedThreshold * 2;
     public static DeepReference coefficients;
@@ -366,6 +378,14 @@ public abstract class Fractal {
 
     public Complex perturbationFunction(Complex dz, ReferenceData data, int RefIteration) {
         return new Complex();
+    }
+
+    public Complex perturbationFunction(Complex dz, DoubleReference data, int RefIteration) {
+        return new Complex();
+    }
+
+    public MantExpComplex perturbationFunction(MantExpComplex dz, DeepReference data, int RefIteration) {
+        return MantExpComplex.create();
     }
 
     public MantExpComplex perturbationFunction(MantExpComplex dz, ReferenceDeepData data, int RefIteration) {
@@ -639,6 +659,14 @@ public abstract class Fractal {
     }
 
     public boolean supportsPerturbationTheory() {
+        return false;
+    }
+
+    public boolean supportsReferenceCompression() {
+        return false;
+    }
+
+    public boolean supportsExtendedReferenceCompression() {
         return false;
     }
 
@@ -946,6 +974,7 @@ public abstract class Fractal {
             progress.setForeground(MainWindow.progress_sa_color);
             progress.setString(SA_CALCULATION_STR + " " + String.format("%3d", 0) + "%");
         }
+        initializeReferenceDecompressor();
         SAOOMDiff = TaskDraw.SERIES_APPROXIMATION_OOM_DIFFERENCE;
         SAMaxSkip = TaskDraw.SERIES_APPROXIMATION_MAX_SKIP_ITER;
         calculateSeries(dsize, deepZoom, externalLocation, progress);
@@ -970,6 +999,7 @@ public abstract class Fractal {
             progress.setForeground(MainWindow.progress_nanomb1_color);
             progress.setString(NANOMB1_CALCULATION_STR + " " + String.format("%3d", 0) + "%");
         }
+        initializeReferenceDecompressor();
         calculateNanomb1(deepZoom, progress);
         if (progress != null) {
             progress.setValue(progress.getMaximum());
@@ -987,6 +1017,7 @@ public abstract class Fractal {
             progress.setForeground(MainWindow.progress_bla_color);
             progress.setString(BLA_CALCULATION_STR + " " + String.format("%3d", 0) + "%");
         }
+        initializeReferenceDecompressor();
         BLAbits = TaskDraw.BLA_BITS;
         BLAStartingLevel = TaskDraw.BLA_STARTING_LEVEL;
         calculateBLA(deepZoom, externalLocation, progress);
@@ -1010,6 +1041,8 @@ public abstract class Fractal {
                 progress.setString(BLA_CALCULATION_STR2);
             });
         }
+
+        initializeReferenceDecompressor();
 
         calculateBLA2(deepZoom, externalLocation, progress);
 
@@ -1037,6 +1070,8 @@ public abstract class Fractal {
                 progress.setString(BLA_CALCULATION_STR2);
             });
         }
+
+        initializeReferenceDecompressor();
 
         calculateBLA2AT(externalLocation, progress);
 
@@ -1101,15 +1136,16 @@ public abstract class Fractal {
             return true;
         }
         
-        double[] newParms = new double[8];
+        double[] newParms = new double[9];
         newParms[0] = LAInfo.DETECTION_METHOD;
         newParms[1] = LAInfo.Stage0PeriodDetectionThreshold;
         newParms[2] = LAInfo.PeriodDetectionThreshold;
         newParms[3] = LAInfo.Stage0PeriodDetectionThreshold2;
-        newParms[4] = LAInfo.Stage0PeriodDetectionThreshold2;
+        newParms[4] = LAInfo.PeriodDetectionThreshold2;
         newParms[5] = LAInfo.LAThresholdScale;
         newParms[6] = LAInfo.LAThresholdCScale;
         newParms[7] = LAReference.doubleThresholdLimit.toDouble();
+        newParms[8] = LAReference.periodDivisor;
 
         for(int i = 0; i < newParms.length; i++) {
             if(newParms[i] != BLA2UsedParams[i]) {
@@ -1130,15 +1166,16 @@ public abstract class Fractal {
 
         BLA2UsedFullFloatExp = useFullFloatExp();
 
-        BLA2UsedParams = new double[8];
+        BLA2UsedParams = new double[9];
         BLA2UsedParams[0] = LAInfo.DETECTION_METHOD;
         BLA2UsedParams[1] = LAInfo.Stage0PeriodDetectionThreshold;
         BLA2UsedParams[2] = LAInfo.PeriodDetectionThreshold;
         BLA2UsedParams[3] = LAInfo.Stage0PeriodDetectionThreshold2;
-        BLA2UsedParams[4] = LAInfo.Stage0PeriodDetectionThreshold2;
+        BLA2UsedParams[4] = LAInfo.PeriodDetectionThreshold2;
         BLA2UsedParams[5] = LAInfo.LAThresholdScale;
         BLA2UsedParams[6] = LAInfo.LAThresholdCScale;
         BLA2UsedParams[7] = LAReference.doubleThresholdLimit.toDouble();
+        BLA2UsedParams[8] = LAReference.periodDivisor;
 
         laReference.GenerateApproximationData(BLA2Size, referenceData, referenceDeepData, getBLA2Length(), deepZoom, this);
 
@@ -1530,7 +1567,7 @@ public abstract class Fractal {
 
     protected GenericComplex[] initializeFromSeries(GenericComplex pixel) {
 
-        if (power == 0) {
+        if (getPower() == 0) {
             return null;
         }
 
@@ -1617,8 +1654,25 @@ public abstract class Fractal {
             total_rebases.add(rebases);
             total_max_iterations.accumulate(iterations);
             total_min_iterations.accumulate(iterations);
+            total_iterations.add(iterations);
+            if(iterations < max_iterations) {
+                total_max_iterations_ignore_max_iter.accumulate(iterations);
+            }
         }
 
+
+        return val;
+    }
+
+    public double getAndAccumulateHP(double val) {
+        if(TaskDraw.GATHER_HIGHPRECISION_STATISTICS) {
+            total_max_iterations.accumulate(iterations);
+            total_min_iterations.accumulate(iterations);
+            total_iterations.add(iterations);
+            if(iterations < max_iterations) {
+                total_max_iterations_ignore_max_iter.accumulate(iterations);
+            }
+        }
 
         return val;
     }
@@ -1634,6 +1688,10 @@ public abstract class Fractal {
             total_realigns.add(realigns);
             total_max_iterations.accumulate(iterations);
             total_min_iterations.accumulate(iterations);
+            total_iterations.add(iterations);
+            if(iterations < max_iterations) {
+                total_max_iterations_ignore_max_iter.accumulate(iterations);
+            }
         }
 
         return val;
@@ -1648,6 +1706,10 @@ public abstract class Fractal {
             total_rebases.add(rebases);
             total_max_iterations.accumulate(iterations);
             total_min_iterations.accumulate(iterations);
+            total_iterations.add(iterations);
+            if(iterations < max_iterations) {
+                total_max_iterations_ignore_max_iter.accumulate(iterations);
+            }
         }
 
         return val;
@@ -1661,6 +1723,10 @@ public abstract class Fractal {
             total_rebases.add(rebases);
             total_max_iterations.accumulate(iterations);
             total_min_iterations.accumulate(iterations);
+            total_iterations.add(iterations);
+            if(iterations < max_iterations) {
+                total_max_iterations_ignore_max_iter.accumulate(iterations);
+            }
         }
 
         return val;
@@ -1844,7 +1910,7 @@ public abstract class Fractal {
 
         precalculatePerturbationData(DeltaSub0);
 
-        MantExp DeltaSub0ChebyshevNorm = DeltaSub0.chebychevNorm();
+        MantExp DeltaSub0ChebyshevNorm = DeltaSub0.chebyshevNorm();
 
         iterations = BLA2SkippedIterations;
         bla_iterations = BLA2SkippedIterations;
@@ -1896,7 +1962,7 @@ public abstract class Fractal {
 
             while(iterations < max_iterations) {
 
-                LAstep las = laReference.getLA(LAIndex, DeltaSubN, RefIteration, iterations, max_iterations);
+                LAstep las = laReference.getLA(this, LAIndex, DeltaSubN, RefIteration, iterations, max_iterations);
 
                 if(las.unusable) {
                     RefIteration = las.nextStageLAindex;
@@ -1939,7 +2005,7 @@ public abstract class Fractal {
 
                 // rebase
 
-                if(z.chebychevNorm().compareToBothPositiveReduced(DeltaSubN.chebychevNorm()) < 0|| RefIteration >= MacroItCount) {
+                if(z.chebyshevNorm().compareToBothPositiveReduced(DeltaSubN.chebyshevNorm()) < 0|| RefIteration >= MacroItCount) {
                     DeltaSubN = z;
                     RefIteration = 0;
                     rebases++;
@@ -2046,7 +2112,7 @@ public abstract class Fractal {
 
                 while(iterations < max_iterations) {
 
-                    LAstep las = laReference.getLA(LAIndex, CDeltaSubN, RefIteration, iterations, max_iterations);
+                    LAstep las = laReference.getLA(this, LAIndex, CDeltaSubN, RefIteration, iterations, max_iterations);
 
                     if(las.unusable) {
                         RefIteration = las.nextStageLAindex;
@@ -2083,7 +2149,7 @@ public abstract class Fractal {
 
                     // rebase
 
-                    if(complex[0].chebychevNorm() < CDeltaSubN.chebychevNorm() || RefIteration >= MacroItCount) {
+                    if(complex[0].chebyshevNorm() < CDeltaSubN.chebyshevNorm() || RefIteration >= MacroItCount) {
                         CDeltaSubN = complex[0];
                         RefIteration = 0;
                         rebases++;
@@ -2133,7 +2199,7 @@ public abstract class Fractal {
 
         precalculatePerturbationData(DeltaSub0);
 
-        double CDeltaSub0ChebyshevNorm = DeltaSub0.chebychevNorm();
+        double CDeltaSub0ChebyshevNorm = DeltaSub0.chebyshevNorm();
 
         iterations = BLA2SkippedIterations;
         bla_iterations = BLA2SkippedIterations;
@@ -2171,7 +2237,7 @@ public abstract class Fractal {
 
             while(iterations < max_iterations) {
 
-                LAstep las = laReference.getLA(LAIndex, DeltaSubN, RefIteration, iterations, max_iterations);
+                LAstep las = laReference.getLA(this, LAIndex, DeltaSubN, RefIteration, iterations, max_iterations);
 
                 if(las.unusable) {
                     RefIteration = las.nextStageLAindex;
@@ -2203,7 +2269,7 @@ public abstract class Fractal {
 
                 // rebase
 
-                if(complex[0].chebychevNorm() < DeltaSubN.chebychevNorm() || RefIteration >= MacroItCount) {
+                if(complex[0].chebyshevNorm() < DeltaSubN.chebyshevNorm() || RefIteration >= MacroItCount) {
                     DeltaSubN = complex[0];
                     RefIteration = 0;
                     rebases++;
@@ -2580,6 +2646,7 @@ public abstract class Fractal {
         rebases = 0;
         realigns = 0;
 
+        double power = getPower();
         double reAlignThreshold = power == 2 ? 1e100 : Math.exp(Math.log(1e200) / power);
 
         MantExpComplex[] deltas = initializePerturbation(dpixel);
@@ -2598,7 +2665,7 @@ public abstract class Fractal {
         int MaxRefIteration = getReferenceFinalIterationNumber(true, referenceData);
 
         int minExp = -1000;
-        int reducedExp = minExp / (int) power;
+        int reducedExp = minExp / (int) getPower();
 
         DeltaSubN.Normalize();
         long exp = DeltaSubN.getMinExp();
@@ -3031,7 +3098,7 @@ public abstract class Fractal {
         Complex pixel = dpixel.plus(refPointSmallDeep).toComplex();
 
         int minExp = -1000;
-        int reducedExp = minExp / (int) power;
+        int reducedExp = minExp / (int) getPower();
 
         DeltaSubN.Normalize();
         long exp = DeltaSubN.getMinExp();
@@ -3173,7 +3240,7 @@ public abstract class Fractal {
                     setTrueColorOut(z, zold, zold2, iterations, c, start, c0, pixelC);
                 }
 
-                return out;
+                return getAndAccumulateHP(out);
             }
 
             gzold2.set(gzold);
@@ -3200,7 +3267,7 @@ public abstract class Fractal {
             setTrueColorIn(z, zold, zold2, iterations, c, start, c0, pixelC);
         }
 
-        return in;
+        return getAndAccumulateHP(in);
 
     }
 
@@ -3704,7 +3771,7 @@ public abstract class Fractal {
             statistic = new Equicontinuity(sts.statistic_intensity, sts.useSmoothing, sts.useAverage, log_bailout_squared, false, 0, sts.equicontinuityDenominatorFactor, sts.equicontinuityInvertFactor, sts.equicontinuityDelta);
             return;
         } else if (sts.statisticGroup == 3) {
-            statistic = new NormalMap(sts.statistic_intensity, power, sts.normalMapHeight, sts.normalMapAngle, sts.normalMapUseSecondDerivative, sts.normalMapDEfactor, isJulia, sts.normalMapUseDE, sts.normalMapInvertDE, sts.normalMapColoring, sts.useNormalMap, sts.normalMapDEUpperLimitFactor, sts.normalMapDEAAEffect, sts.normalMapOverrideColoring, sts.normalMapDeFadeAlgorithm, sts.normalMapDistanceEstimatorfactor);
+            statistic = new NormalMap(sts.statistic_intensity, getPower(), sts.normalMapHeight, sts.normalMapAngle, sts.normalMapUseSecondDerivative, sts.normalMapDEfactor, isJulia, sts.normalMapUseDE, sts.normalMapInvertDE, sts.normalMapColoring, sts.useNormalMap, sts.normalMapDEUpperLimitFactor, sts.normalMapDEAAEffect, sts.normalMapOverrideColoring, sts.normalMapDeFadeAlgorithm, sts.normalMapDistanceEstimatorfactor);
             return;
         } else if (sts.statisticGroup == 0) {
             switch (sts.statistic_type) {
@@ -3736,7 +3803,7 @@ public abstract class Fractal {
         }
 
         if(sts.normalMapCombineWithOtherStatistics) {
-            statistic = new CombinedStatisticWithNormalMap(statistic, new NormalMap(sts.statistic_intensity, power, sts.normalMapHeight, sts.normalMapAngle, sts.normalMapUseSecondDerivative, sts.normalMapDEfactor, isJulia, sts.normalMapUseDE, sts.normalMapInvertDE, sts.normalMapColoring, sts.useNormalMap, sts.normalMapDEUpperLimitFactor, sts.normalMapDEAAEffect, sts.normalMapOverrideColoring, sts.normalMapDeFadeAlgorithm, sts.normalMapDistanceEstimatorfactor));
+            statistic = new CombinedStatisticWithNormalMap(statistic, new NormalMap(sts.statistic_intensity, getPower(), sts.normalMapHeight, sts.normalMapAngle, sts.normalMapUseSecondDerivative, sts.normalMapDEfactor, isJulia, sts.normalMapUseDE, sts.normalMapInvertDE, sts.normalMapColoring, sts.useNormalMap, sts.normalMapDEUpperLimitFactor, sts.normalMapDEAAEffect, sts.normalMapOverrideColoring, sts.normalMapDeFadeAlgorithm, sts.normalMapDistanceEstimatorfactor));
         }
     }
 
@@ -4360,12 +4427,34 @@ public abstract class Fractal {
                 secondMultiReferenceData[i].clear();
                 secondMultiReferenceDeepData[i].clear();
             }*/
+
+            for(int i = 0; i < functions.length; i++){
+                functions[i] = null;
+            }
         }
 
         tinyRefPts.clear();
         tinyRefPtsArray = null;
 
         nanomb1 = null;
+
+
+    }
+
+    public static void clearStatistics() {
+        total_max_iterations = null;
+        total_min_iterations = null;
+        total_max_iterations_ignore_max_iter = null;
+        total_bla_iterations =  null;
+        total_iterations = null;
+        total_bla_steps =  null;
+        total_perturb_iterations =  null;
+        total_nanomb1_skipped_iterations = null;
+        total_double_iterations = null;
+        total_scaled_iterations = null;
+        total_float_exp_iterations = null;
+        total_rebases = null;
+        total_realigns = null;
     }
 
     /*protected static boolean isLastTermNotNegligible(MantExpComplex[][] coefs, MantExpComplex[] delta, MantExp limit, int i, int terms) {
@@ -4385,6 +4474,10 @@ public abstract class Fractal {
 
     protected static boolean isLastTermNotNegligible(long[] magCoeff, long magDiffThreshold, int lastIndex) {
         long magLast = magCoeff[lastIndex];
+        
+        if(magLast == Long.MIN_VALUE) {
+            return false;
+        }
 
         for (int k = 0; k < lastIndex; k++) {
             if(magCoeff[k] == Long.MIN_VALUE) {
@@ -4442,58 +4535,280 @@ public abstract class Fractal {
         return null;
     }
 
-    public static Complex getArrayValue(DoubleReference array, int index) {
+    public Complex getArrayValue(DoubleReference array, int index) {
+        if(array.compressed) {
+            return referenceDecompressor[array.id].getArrayValue(array, index);
+        }
+
         return new Complex(array.re[index], array.im[index]);
     }
 
-    public static Complex getArrayValue(DoubleReference array, int index, Complex output) {
-        output.assign(array.re[index], array.im[index]);
-        return output;
-    }
-
-    public static void setArrayValue(DoubleReference array, int index, Complex val) {
-
-        if(array.saveMemory) {
-            array.checkAllocation(index);
+    public Complex getArrayValue(ReferenceDecompressor rd, DoubleReference array, int index) {
+        if(array.compressed) {
+            return rd.getArrayValue(array, index);
         }
 
-        array.re[index] = val.getRe();
-        array.im[index] = val.getIm();
+        return new Complex(array.re[index], array.im[index]);
     }
 
-    public static MantExpComplex getArrayDeepValue(DeepReference array, int index) {
+    public Complex getArrayValue(DoubleReference array, int index, Complex refZ) {
+        if(array.compressed) {
+            return subexpressionsDecompressor[array.id].getArrayValue(array, index, refZ);
+        }
+
+        return new Complex(array.re[index], array.im[index]);
+    }
+
+    public Complex getArrayValue(ReferenceDecompressor rd, DoubleReference array, int index, Complex refZ) {
+        if(array.compressed) {
+            return rd.getArrayValue(array, index, refZ);
+        }
+
+        return new Complex(array.re[index], array.im[index]);
+    }
+
+    public Complex setArrayValue(DoubleReference array, int index, Complex val) {
+
+        if(array.compressed) {
+            return referenceCompressor[array.id].setArrayValue(array, index, val);
+        }
+        else {
+
+            if (array.saveMemory) {
+                array.checkAllocation(index);
+            }
+
+            array.re[index] = val.getRe();
+            array.im[index] = val.getIm();
+
+            return val;
+        }
+    }
+
+    public void setArrayValue(DoubleReference array, int index, Complex val, Complex refZ) {
+
+        if(array.compressed) {
+            subexpressionsCompressor[array.id].setArrayValue(array, index, val, refZ);
+        }
+        else {
+
+            if (array.saveMemory) {
+                array.checkAllocation(index);
+            }
+
+            array.re[index] = val.getRe();
+            array.im[index] = val.getIm();
+        }
+    }
+
+    public void setArrayValue(ReferenceCompressor referenceCompressor, DoubleReference array, int index, Complex val, Complex refZ) {
+
+        if(array.compressed) {
+            referenceCompressor.setArrayValue(array, index, val, refZ);
+        }
+        else {
+
+            if (array.saveMemory) {
+                array.checkAllocation(index);
+            }
+
+            array.re[index] = val.getRe();
+            array.im[index] = val.getIm();
+        }
+    }
+    public Complex setArrayValue(ReferenceCompressor referenceCompressor, DoubleReference array, int index, Complex val) {
+
+        if(array.compressed) {
+            return referenceCompressor.setArrayValue(array, index, val);
+        }
+        else {
+
+            if (array.saveMemory) {
+                array.checkAllocation(index);
+            }
+
+            array.re[index] = val.getRe();
+            array.im[index] = val.getIm();
+            return val;
+        }
+    }
+
+    public MantExpComplex getArrayDeepValue(DeepReference array, int index) {
+
+        if(array.compressed) {
+            return referenceDecompressor[array.id].getArrayDeepValue(array, index);
+        }
+
         if(TaskDraw.MANTEXPCOMPLEX_FORMAT == 1) {
             return new MantExpComplexFull(array.exps[index], array.expsIm[index], array.mantsRe[index], array.mantsIm[index]);
         }
         return new MantExpComplex(array.exps[index], array.mantsRe[index], array.mantsIm[index]);
     }
 
-    public static MantExpComplex getArrayDeepValue(DeepReference array, int index, MantExpComplex output) {
-        if(TaskDraw.MANTEXPCOMPLEX_FORMAT == 1) {
-            output.assign(array.exps[index], array.expsIm[index], array.mantsRe[index], array.mantsIm[index]);
-            return output;
+    public MantExpComplex getArrayDeepValue(DeepReference array, int index, MantExpComplex refZ) {
+
+        if(array.compressed) {
+            return subexpressionsDecompressor[array.id].getArrayDeepValue(array, index, refZ);
         }
-        output.assign(array.exps[index], array.mantsRe[index], array.mantsIm[index]);
-        return output;
-    }
-
-    protected static void setArrayDeepValue(DeepReference array, int index, MantExpComplex val) {
-
-        if(array.saveMemory) {
-            array.checkAllocation(index);
-        }
-
-        array.exps[index] = val.getExp();
-        array.mantsRe[index] = val.getMantissaReal();
-        array.mantsIm[index] = val.getMantissaImag();
 
         if(TaskDraw.MANTEXPCOMPLEX_FORMAT == 1) {
-            array.expsIm[index] = val.getExpImag();
+            return new MantExpComplexFull(array.exps[index], array.expsIm[index], array.mantsRe[index], array.mantsIm[index]);
+        }
+        return new MantExpComplex(array.exps[index], array.mantsRe[index], array.mantsIm[index]);
+    }
+
+    public MantExpComplex getArrayDeepValue(ReferenceDecompressor rd, DeepReference array, int index, MantExpComplex refZ) {
+
+        if(array.compressed) {
+            return rd.getArrayDeepValue(array, index, refZ);
+        }
+
+        if(TaskDraw.MANTEXPCOMPLEX_FORMAT == 1) {
+            return new MantExpComplexFull(array.exps[index], array.expsIm[index], array.mantsRe[index], array.mantsIm[index]);
+        }
+        return new MantExpComplex(array.exps[index], array.mantsRe[index], array.mantsIm[index]);
+    }
+
+    public MantExpComplex getArrayDeepValue(ReferenceDecompressor rd, DeepReference array, int index) {
+
+        if(array.compressed) {
+            return rd.getArrayDeepValue(array, index);
+        }
+
+        if(TaskDraw.MANTEXPCOMPLEX_FORMAT == 1) {
+            return new MantExpComplexFull(array.exps[index], array.expsIm[index], array.mantsRe[index], array.mantsIm[index]);
+        }
+        return new MantExpComplex(array.exps[index], array.mantsRe[index], array.mantsIm[index]);
+    }
+
+    protected MantExpComplex setArrayDeepValue(DeepReference array, int index, MantExpComplex val) {
+
+        if(array.compressed) {
+            return referenceCompressor[array.id].setArrayDeepValue(array, index, val);
+        }
+        else {
+            if (array.saveMemory) {
+                array.checkAllocation(index);
+            }
+
+            array.exps[index] = val.getExp();
+            array.mantsRe[index] = val.getMantissaReal();
+            array.mantsIm[index] = val.getMantissaImag();
+
+            if (TaskDraw.MANTEXPCOMPLEX_FORMAT == 1) {
+                array.expsIm[index] = val.getExpImag();
+            }
+
+            return val;
         }
 
     }
 
-    protected static MantExpComplex getSACoefficient(int term, int i) {
+    protected void setArrayDeepValue(DeepReference array, int index, MantExpComplex val, MantExpComplex refZ) {
+
+        if(array.compressed) {
+            subexpressionsCompressor[array.id].setArrayDeepValue(array, index, val, refZ);
+        }
+        else {
+            if (array.saveMemory) {
+                array.checkAllocation(index);
+            }
+
+            array.exps[index] = val.getExp();
+            array.mantsRe[index] = val.getMantissaReal();
+            array.mantsIm[index] = val.getMantissaImag();
+
+            if (TaskDraw.MANTEXPCOMPLEX_FORMAT == 1) {
+                array.expsIm[index] = val.getExpImag();
+            }
+        }
+
+    }
+
+    protected void setArrayDeepValue(ReferenceCompressor referenceCompressor, DeepReference array, int index, MantExpComplex val, MantExpComplex refZ) {
+
+        if(array.compressed) {
+            referenceCompressor.setArrayDeepValue(array, index, val, refZ);
+        }
+        else {
+            if (array.saveMemory) {
+                array.checkAllocation(index);
+            }
+
+            array.exps[index] = val.getExp();
+            array.mantsRe[index] = val.getMantissaReal();
+            array.mantsIm[index] = val.getMantissaImag();
+
+            if (TaskDraw.MANTEXPCOMPLEX_FORMAT == 1) {
+                array.expsIm[index] = val.getExpImag();
+            }
+        }
+
+    }
+
+    protected MantExpComplex setArrayDeepValue(ReferenceCompressor referenceCompressor, DeepReference array, int index, MantExpComplex val) {
+
+        if(array.compressed) {
+            return referenceCompressor.setArrayDeepValue(array, index, val);
+        }
+        else {
+            if (array.saveMemory) {
+                array.checkAllocation(index);
+            }
+
+            array.exps[index] = val.getExp();
+            array.mantsRe[index] = val.getMantissaReal();
+            array.mantsIm[index] = val.getMantissaImag();
+
+            if (TaskDraw.MANTEXPCOMPLEX_FORMAT == 1) {
+                array.expsIm[index] = val.getExpImag();
+            }
+            return val;
+        }
+
+    }
+
+    public MantExpComplex getArrayDeepValueRandomAccess(DeepReference array, int index) {
+
+        if(array.compressed) {
+            return referenceDecompressor[array.id].getArrayDeepValueRandomAccess(array, index);
+        }
+
+        if(TaskDraw.MANTEXPCOMPLEX_FORMAT == 1) {
+            return new MantExpComplexFull(array.exps[index], array.expsIm[index], array.mantsRe[index], array.mantsIm[index]);
+        }
+        return new MantExpComplex(array.exps[index], array.mantsRe[index], array.mantsIm[index]);
+    }
+
+    public MantExpComplex getArrayDeepValueRandomAccess(DeepReference array, int index, MantExpComplex refZ) {
+
+        if(array.compressed) {
+            return subexpressionsDecompressor[array.id].getArrayDeepValueRandomAccess(array, index, refZ);
+        }
+
+        if(TaskDraw.MANTEXPCOMPLEX_FORMAT == 1) {
+            return new MantExpComplexFull(array.exps[index], array.expsIm[index], array.mantsRe[index], array.mantsIm[index]);
+        }
+        return new MantExpComplex(array.exps[index], array.mantsRe[index], array.mantsIm[index]);
+    }
+
+    public Complex getArrayValueRandomAccess(DoubleReference array, int index) {
+        if(array.compressed) {
+            return referenceDecompressor[array.id].getArrayValueRandomAccess(array, index);
+        }
+
+        return new Complex(array.re[index], array.im[index]);
+    }
+
+    public Complex getArrayValueRandomAccess(DoubleReference array, int index, Complex refZ) {
+        if(array.compressed) {
+            return subexpressionsDecompressor[array.id].getArrayValueRandomAccess(array, index, refZ);
+        }
+
+        return new Complex(array.re[index], array.im[index]);
+    }
+
+    protected MantExpComplex getSACoefficient(int term, int i) {
 
         int dataIndex = i % max_data;
         int index = dataIndex * SATerms + term;
@@ -4505,7 +4820,7 @@ public abstract class Fractal {
 
     }
 
-    protected static void setSACoefficient(int term, int i, MantExpComplex val) {
+    protected void setSACoefficient(int term, int i, MantExpComplex val) {
 
         int dataIndex = i % max_data;
         int index = dataIndex * SATerms + term;
@@ -4567,7 +4882,7 @@ public abstract class Fractal {
         }
 
         if(isJulia) {
-            return 1.0e-20;
+            return 1.0e-18;
         }
         return 5.0e-25;
     }
@@ -4719,12 +5034,20 @@ public abstract class Fractal {
         return null;
     }
 
-    protected GenericComplex[] precalculateReferenceData(GenericComplex z, GenericComplex c, NormComponents normData, Location loc, int bigNumLib, boolean lowPrecReferenceOrbitNeeded, boolean deepZoom, ReferenceData referenceData, ReferenceDeepData referenceDeepData, int iterations) {
+    protected GenericComplex[] precalculateReferenceData(GenericComplex z, GenericComplex c, NormComponents normData, Location loc, int bigNumLib, boolean lowPrecReferenceOrbitNeeded, boolean deepZoom, ReferenceData referenceData, ReferenceDeepData referenceDeepData, int iterations, Complex cz, MantExpComplex mcz) {
         return null;
     }
 
     protected int[] getNeededPrecalculatedTermsIndexes() {
         return new int[0];
+    }
+
+    protected Function[] getPrecalculatedTermsFunctions(Complex c) {
+        return null;
+    }
+
+    protected Function[] getPrecalculatedTermsFunctionsDeep(MantExpComplex c) {
+        return null;
     }
 
     public void calculateReferencePoint(GenericComplex inputPixel, Apfloat size, boolean deepZoom, int[] Iterations, int[] juliaIterations, Location externalLocation, JProgressBar progress) {
@@ -4748,17 +5071,19 @@ public abstract class Fractal {
 
         boolean lowPrecReferenceOrbitNeeded = !needsOnlyExtendedReferenceOrbit(deepZoom, false);
         DoubleReference.SHOULD_SAVE_MEMORY = false;
+        boolean useCompressedRef = TaskDraw.COMPRESS_REFERENCE_IF_POSSIBLE && supportsReferenceCompression();
+        int[] precalIndexes = getNeededPrecalculatedTermsIndexes();
 
         if (iterations == 0) {
             if(lowPrecReferenceOrbitNeeded) {
-                referenceData.createAndSetShortcut(max_ref_iterations, needsRefSubCp(), getNeededPrecalculatedTermsIndexes());
+                referenceData.createAndSetShortcut(max_ref_iterations, needsRefSubCp(), precalIndexes, useCompressedRef);
             }
             else {
                 referenceData.deallocate();
             }
 
             if (deepZoom) {
-                referenceDeepData.createAndSetShortcut(max_ref_iterations, needsRefSubCp(), getNeededPrecalculatedTermsIndexes());
+                referenceDeepData.createAndSetShortcut(max_ref_iterations, needsRefSubCp(), precalIndexes, useCompressedRef);
             }
         } else if (max_ref_iterations > getReferenceLength()) {
             if(lowPrecReferenceOrbitNeeded) {
@@ -4772,6 +5097,8 @@ public abstract class Fractal {
                 referenceDeepData.resize(max_ref_iterations);
             }
         }
+
+        inputPixel = getInputPixel(inputPixel);
 
         GenericComplex z, c, zold, zold2, start, c0, pixel, initVal;
         Object normSquared;
@@ -4868,15 +5195,35 @@ public abstract class Fractal {
         Location loc = new Location();
 
         refPoint = inputPixel;
-        refPointSmall = refPoint.toComplex();
-
-        if(lowPrecReferenceOrbitNeeded) {
-            C = c.toComplex();
-        }
 
         if(deepZoom) {
             refPointSmallDeep = loc.getMantExpComplex(refPoint);
             Cdeep = loc.getMantExpComplex(c);
+
+            if(isJulia) {
+                seedSmallDeep = loc.getMantExpComplex(c);
+            }
+
+            if(lowPrecReferenceOrbitNeeded) {
+                C = Cdeep.toComplex();
+
+                if(isJulia) {
+                    seedSmall = seedSmallDeep.toComplex();
+                }
+            }
+
+            refPointSmall = refPointSmallDeep.toComplex();
+        }
+        else {
+            if(lowPrecReferenceOrbitNeeded) {
+                C = c.toComplex();
+
+                if(isJulia) {
+                    seedSmall = c.toComplex();
+                }
+            }
+
+            refPointSmall = refPoint.toComplex();
         }
 
         GenericComplex[] initialPrecal = initializeReferencePrecalculationData(c, loc, bigNumLib, lowPrecReferenceOrbitNeeded, deepZoom);
@@ -4886,32 +5233,79 @@ public abstract class Fractal {
         boolean preCalcNormData = bailout_algorithm2.getId() == MainWindow.BAILOUT_CONDITION_CIRCLE;
         NormComponents normData = null;
 
+        if(useCompressedRef) {
+            if(deepZoom) {
+                referenceCompressor[referenceDeep.id] = new ReferenceCompressor(this, iterations == 0 ? z.toMantExpComplex() : referenceData.compressorZm, c.toMantExpComplex(), start.toMantExpComplex());
+
+                if(needsRefSubCp()) {
+                    MantExpComplex cp = initVal.toMantExpComplex();
+                    Function<MantExpComplex, MantExpComplex> f = x -> x.sub(cp);
+                    functions[referenceDeepData.ReferenceSubCp.id] = f;
+                    subexpressionsCompressor[referenceDeepData.ReferenceSubCp.id] = new ReferenceCompressor(f, true);
+                }
+
+                Function<MantExpComplex, MantExpComplex>[] fs = getPrecalculatedTermsFunctionsDeep(c.toMantExpComplex());
+                for(int i = 0; i < precalIndexes.length; i++) {
+                    int id = referenceDeepData.PrecalculatedTerms[precalIndexes[i]].id;
+                    functions[id] = fs[i];
+                    subexpressionsCompressor[id] = new ReferenceCompressor(fs[i], true);
+                }
+            }
+            if(lowPrecReferenceOrbitNeeded) {
+                referenceCompressor[reference.id] = new ReferenceCompressor(this, iterations == 0 ? z.toComplex() : referenceData.compressorZ, c.toComplex(), start.toComplex());
+
+                if(needsRefSubCp()) {
+                    Complex cp = initVal.toComplex();
+                    Function<Complex, Complex> f = x -> x.sub(cp);
+                    functions[referenceData.ReferenceSubCp.id] = f;
+                    subexpressionsCompressor[referenceData.ReferenceSubCp.id] = new ReferenceCompressor(f);
+                }
+
+                Function<Complex, Complex>[] fs = getPrecalculatedTermsFunctions(c.toComplex());
+                for(int i = 0; i < precalIndexes.length; i++) {
+                    int id = referenceData.PrecalculatedTerms[precalIndexes[i]].id;
+                    functions[id] = fs[i];
+                    subexpressionsCompressor[id] = new ReferenceCompressor(fs[i]);
+                }
+            }
+        }
+
         calculatedReferenceIterations = 0;
+
+        MantExpComplex mcz = null;
+        Complex cz = null;
+        MantExpComplex tempmcz = null;
 
         for (; iterations < max_ref_iterations; iterations++, calculatedReferenceIterations++) {
 
-            if(lowPrecReferenceOrbitNeeded) {
-                Complex cz = z.toComplex();
-                if (cz.isInfinite()) {
+            if(deepZoom) {
+                mcz = loc.getMantExpComplex(z);
+                if (mcz.isInfinite() || mcz.isNaN()) {
                     break;
                 }
-
-                setArrayValue(reference, iterations, cz);
-            }
-
-            if(deepZoom) {
-                setArrayDeepValue(referenceDeep, iterations, loc.getMantExpComplex(z));
+                tempmcz = setArrayDeepValue(referenceDeep, iterations, mcz);
                 //ReferenceDeep[iterations] = new MantExpComplex(Reference[iterations]);
             }
 
-            calculateRefSubCp(z, initVal, loc, bigNumLib, lowPrecReferenceOrbitNeeded, deepZoom, referenceData, referenceDeepData, iterations);
+            if(lowPrecReferenceOrbitNeeded) {
+                cz = deepZoom ? mcz.toComplex() : z.toComplex();
+                if (cz.isInfinite() || cz.isNaN()) {
+                    break;
+                }
+
+                cz = setArrayValue(reference, iterations, cz);
+            }
+
+            mcz = tempmcz;
+
+            calculateRefSubCp(z, initVal, loc, bigNumLib, lowPrecReferenceOrbitNeeded, deepZoom, referenceData, referenceDeepData, iterations, cz, mcz);
 
             if(preCalcNormData) {
                 normData = z.normSquaredWithComponents(normData);
                 normSquared = normData.normSquared;
             }
 
-            GenericComplex[] precalculatedData = precalculateReferenceData(z, c, normData, loc, bigNumLib, lowPrecReferenceOrbitNeeded, deepZoom, referenceData, referenceDeepData, iterations);
+            GenericComplex[] precalculatedData = precalculateReferenceData(z, c, normData, loc, bigNumLib, lowPrecReferenceOrbitNeeded, deepZoom, referenceData, referenceDeepData, iterations, cz, mcz);
 
             if (iterations > 0 && bailout_algorithm2.Escaped(z, zold, zold2, iterations, c, start, c0, normSquared, pixel)) {
                 break;
@@ -4942,6 +5336,34 @@ public abstract class Fractal {
 
         referenceData.MaxRefIteration = iterations - 1;
 
+        if(useCompressedRef) {
+            if(deepZoom) {
+                referenceCompressor[referenceDeep.id].compact(referenceDeep);
+                referenceData.compressorZm = referenceCompressor[referenceDeep.id].getZDeep();
+
+                if(needsRefSubCp()) {
+                    subexpressionsCompressor[referenceDeepData.ReferenceSubCp.id].compact(referenceDeepData.ReferenceSubCp);
+                }
+
+                for(int i = 0; i < precalIndexes.length; i++) {
+                    subexpressionsCompressor[referenceDeepData.PrecalculatedTerms[precalIndexes[i]].id].compact(referenceDeepData.PrecalculatedTerms[precalIndexes[i]]);
+                }
+            }
+
+            if(lowPrecReferenceOrbitNeeded) {
+                referenceCompressor[reference.id].compact(reference);
+                referenceData.compressorZ = referenceCompressor[reference.id].getZ();
+
+                if(needsRefSubCp()) {
+                    subexpressionsCompressor[referenceData.ReferenceSubCp.id].compact(referenceData.ReferenceSubCp);
+                }
+
+                for(int i = 0; i < precalIndexes.length; i++) {
+                    subexpressionsCompressor[referenceData.PrecalculatedTerms[precalIndexes[i]].id].compact(referenceData.PrecalculatedTerms[precalIndexes[i]]);
+                }
+            }
+        }
+
         SAskippedIterations = 0;
 
         if(progress != null) {
@@ -4953,7 +5375,6 @@ public abstract class Fractal {
         if(isJulia) {
             calculateJuliaReferencePoint(inputPixel, size, deepZoom, juliaIterations, progress);
         }
-
     }
 
     protected GenericComplex referenceFunction(GenericComplex z, GenericComplex c, NormComponents normData, GenericComplex[] initialPrecal, GenericComplex[] precalc) {
@@ -4964,7 +5385,7 @@ public abstract class Fractal {
         return false;
     }
 
-    protected void calculateRefSubCp(GenericComplex z, GenericComplex initVal, Location loc, int bigNumLib, boolean lowPrecReferenceOrbitNeeded, boolean deepZoom, ReferenceData referenceData, ReferenceDeepData referenceDeepData, int iterations) {
+    protected void calculateRefSubCp(GenericComplex z, GenericComplex initVal, Location loc, int bigNumLib, boolean lowPrecReferenceOrbitNeeded, boolean deepZoom, ReferenceData referenceData, ReferenceDeepData referenceDeepData, int iterations, Complex cz, MantExpComplex mcz) {
 
     }
 
@@ -5038,8 +5459,132 @@ public abstract class Fractal {
 
     }
 
+    public Complex function(Complex z, Complex c) {
+        return null;
+    }
+
+    public MantExpComplex function(MantExpComplex z, MantExpComplex c) {
+        return null;
+    }
+
     public boolean usesDefaultPlane() {
         return plane instanceof MuPlane;
+    }
+
+    public void initializeReferenceDecompressor() {
+
+        if(!(supportsPerturbationTheory() && TaskDraw.PERTURBATION_THEORY && TaskDraw.COMPRESS_REFERENCE_IF_POSSIBLE && supportsReferenceCompression())) {
+            return;
+        }
+
+        if(referenceData.Reference != null) {
+            if((isJulia || this instanceof RootFindingMethods) && refPointSmall != null && seedSmall != null) {
+                referenceDecompressor[referenceData.Reference.id] = new ReferenceDecompressor(this, new Complex(seedSmall), new Complex(refPointSmall));
+            }
+            else if (refPointSmall != null){
+                referenceDecompressor[referenceData.Reference.id] = new ReferenceDecompressor(this, new Complex(refPointSmall), new Complex(defaultInitVal.getValue(refPointSmall)));
+            }
+        }
+
+        if(secondReferenceData.Reference != null && seedSmall != null && refPointSmall != null) {
+            referenceDecompressor[secondReferenceData.Reference.id] = new ReferenceDecompressor(this, new Complex(seedSmall), new Complex(defaultInitVal.getValue(refPointSmall)));
+        }
+
+        if(referenceDeepData.Reference != null) {
+            if((isJulia || this instanceof RootFindingMethods) && seedSmallDeep != null && refPointSmallDeep != null) {
+                referenceDecompressor[referenceDeepData.Reference.id] = new ReferenceDecompressor(this, MantExpComplex.copy(seedSmallDeep) , MantExpComplex.copy(refPointSmallDeep));
+            }
+            else if (refPointSmallDeep != null) {
+                referenceDecompressor[referenceDeepData.Reference.id] = new ReferenceDecompressor(this, MantExpComplex.copy(refPointSmallDeep), MantExpComplex.copy(defaultInitVal.getValueDeep(refPointSmallDeep)));
+            }
+        }
+
+        if(secondReferenceDeepData.Reference != null && seedSmallDeep != null && refPointSmallDeep != null) {
+            referenceDecompressor[secondReferenceDeepData.Reference.id] = new ReferenceDecompressor(this, MantExpComplex.copy(seedSmallDeep), MantExpComplex.copy(defaultInitVal.getValueDeep(refPointSmallDeep)));
+        }
+
+        if(needsRefSubCp()) {
+            if(referenceData.ReferenceSubCp != null) {
+                subexpressionsDecompressor[referenceData.ReferenceSubCp.id] = new ReferenceDecompressor((Function<Complex, Complex>) functions[referenceData.ReferenceSubCp.id]);
+            }
+
+            if(referenceDeepData.ReferenceSubCp != null) {
+                subexpressionsDecompressor[referenceDeepData.ReferenceSubCp.id] = new ReferenceDecompressor((Function<MantExpComplex, MantExpComplex>) functions[referenceDeepData.ReferenceSubCp.id], true);
+            }
+
+            if(secondReferenceData.ReferenceSubCp != null) {
+                subexpressionsDecompressor[secondReferenceData.ReferenceSubCp.id] = new ReferenceDecompressor((Function<Complex, Complex>) functions[secondReferenceData.ReferenceSubCp.id]);
+            }
+
+            if(secondReferenceDeepData.ReferenceSubCp != null) {
+                subexpressionsDecompressor[secondReferenceDeepData.ReferenceSubCp.id] = new ReferenceDecompressor((Function<MantExpComplex, MantExpComplex>) functions[secondReferenceDeepData.ReferenceSubCp.id], true);
+            }
+        }
+
+        int[] precalIndexes = getNeededPrecalculatedTermsIndexes();
+        for(int i = 0; i < precalIndexes.length; i++) {
+            int index = precalIndexes[i];
+
+            if(referenceData.PrecalculatedTerms[index] != null) {
+                subexpressionsDecompressor[referenceData.PrecalculatedTerms[index].id] = new ReferenceDecompressor((Function<Complex, Complex>) functions[referenceData.PrecalculatedTerms[index].id]);
+            }
+
+            if(referenceDeepData.PrecalculatedTerms[index] != null) {
+                subexpressionsDecompressor[referenceDeepData.PrecalculatedTerms[index].id] = new ReferenceDecompressor((Function<MantExpComplex, MantExpComplex>) functions[referenceDeepData.PrecalculatedTerms[index].id], true);
+            }
+
+            if(secondReferenceData.PrecalculatedTerms[index] != null) {
+                subexpressionsDecompressor[secondReferenceData.PrecalculatedTerms[index].id] = new ReferenceDecompressor((Function<Complex, Complex>) functions[secondReferenceData.PrecalculatedTerms[index].id]);
+            }
+
+            if(secondReferenceDeepData.PrecalculatedTerms[index] != null) {
+                subexpressionsDecompressor[secondReferenceDeepData.PrecalculatedTerms[index].id] = new ReferenceDecompressor((Function<MantExpComplex, MantExpComplex>) functions[secondReferenceDeepData.PrecalculatedTerms[index].id], true);
+            }
+        }
+    }
+
+    public long getBLAEntries() {
+        if(TaskDraw.APPROXIMATION_ALGORITHM == 4 && supportsBilinearApproximation2()) {
+            return laReference.isValid ? laReference.LAsize() : 0;
+        }
+        else if(TaskDraw.APPROXIMATION_ALGORITHM == 2 && supportsBilinearApproximation()) {
+            return B.isValid ? B.getTotalElements() : 0;
+        }
+        return 0;
+    }
+
+    public ReferenceDecompressor[] getReferenceDecompressors() {
+        return referenceDecompressor;
+    }
+
+    protected GenericComplex sanitizeInputPixel(GenericComplex inputPixel) {
+        if(inputPixel instanceof BigComplex && ((BigComplex)inputPixel).norm().compareTo(new MyApfloat(1e-4)) < 0) {
+            inputPixel = new BigComplex(1e-4, 1e-4);
+        }
+        else if(inputPixel instanceof MpfrBigNumComplex && ((MpfrBigNumComplex)inputPixel).norm().compare(1e-4) < 0) {
+            inputPixel = new MpfrBigNumComplex(1e-4, 1e-4);
+        }
+        else if(inputPixel instanceof MpirBigNumComplex && ((MpirBigNumComplex)inputPixel).norm().compare(1e-4) < 0) {
+            inputPixel = new MpirBigNumComplex(1e-4, 1e-4);
+        }
+        else if(inputPixel instanceof DDComplex && ((DDComplex)inputPixel).norm().compareTo(new DoubleDouble(1e-4)) < 0) {
+            inputPixel = new DDComplex(1e-4, 1e-4);
+        }
+        else if(inputPixel instanceof BigIntNumComplex && ((BigIntNumComplex)inputPixel).norm().compare(new BigIntNum(1e-4)) < 0) {
+            inputPixel = new BigIntNumComplex(1e-4, 1e-4);
+        }
+        else if(inputPixel instanceof Complex && ((Complex)inputPixel).norm() < 1e-4) {
+            inputPixel = new Complex(1e-4, 1e-4);
+        }
+        return inputPixel;
+    }
+
+    protected GenericComplex getInputPixel(GenericComplex inputPixel) {
+        return inputPixel;
+    }
+
+    protected double getPower() {
+        return 0;
     }
 
 }

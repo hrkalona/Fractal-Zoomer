@@ -1,3 +1,14 @@
+Version 1.0.9.0
+    -Implemented Zhuoran's reference compression algorithm as a memory/speed tradeoff for locations with high memory requirement
+    -Optimized the custom BigNum implementation, which decreases the reference calculation time in shallow areas
+    -Optimized the mpfr/mpir reference calculations by reducing the number of JNA calls
+    -Implemented Zhuoran's multithreaded BLA table generation code. (It mostly affects areas with high iteration count, when using compression)
+    -Modified the drawing algorithms to include more tiling options
+    -Added convergent bailout as an option
+    -The zoom sequence renderer of Image Expander will now save the render settings and also the zoom factor on every step
+    -Added an aspect ratio option in zoom sequence renderer as a temporary workaround, until I implement non-square image format
+    -Bug Fixes and general improvements
+
 Version 1.0.8.9
     -Implemented a non-blocking (Only for the pixel calculation part) successive refinement method with pixel guessing
     -Optimized the pixel calculation for Mandelbrot by unwrapping some calculations

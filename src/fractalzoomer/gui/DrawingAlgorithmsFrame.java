@@ -18,6 +18,7 @@ package fractalzoomer.gui;
 
 import fractalzoomer.core.TaskDraw;
 import fractalzoomer.core.drawing_algorithms.CircularBruteForceDraw;
+import fractalzoomer.core.drawing_algorithms.CircularSuccessiveRefinementGuessing2Draw;
 import fractalzoomer.core.drawing_algorithms.CircularSuccessiveRefinementGuessingDraw;
 import fractalzoomer.main.ImageExpanderWindow;
 import fractalzoomer.main.MainWindow;
@@ -38,9 +39,13 @@ public class DrawingAlgorithmsFrame extends JFrame {
     private JFrame this_frame;
     private JRadioButton successive_refinement;
     private JRadioButton circular_successive_refinement;
+
+    private JRadioButton divide_and_conquer_algorithm;
     private JCheckBox greedy_algorithm_opt;
+    private JComboBox<String> mix_squares_and_rectangles;
 
     private JComboBox<String> guessess;
+    private JCheckBox twoPassSuccessiveRefinement;
 
     public DrawingAlgorithmsFrame(Component ptra, boolean greedy_algorithm, int greedy_algorithm_selection, int brute_force_alg, int guesses_selection) {
 
@@ -50,7 +55,7 @@ public class DrawingAlgorithmsFrame extends JFrame {
 
         ptra2.setEnabled(false);
         int color_window_width = 800;
-        int color_window_height = 520;
+        int color_window_height = 550;
         setTitle("Drawing Algorithms");
         setSize(color_window_width, color_window_height);
         setIconImage(MainWindow.getIcon("greedy_algorithm.png").getImage());
@@ -68,12 +73,12 @@ public class DrawingAlgorithmsFrame extends JFrame {
         });
 
         JPanel options_panel = new JPanel();
-        options_panel.setPreferredSize(new Dimension(700, 260));
+        options_panel.setPreferredSize(new Dimension(700, 290));
         options_panel.setBackground(MainWindow.bg_color);
         options_panel.setLayout(new FlowLayout());
         
         JPanel options_panel2 = new JPanel();
-        options_panel2.setPreferredSize(new Dimension(680, 220));
+        options_panel2.setPreferredSize(new Dimension(680, 250));
         options_panel2.setBackground(MainWindow.bg_color);
         options_panel2.setLayout(new GridLayout(2, 1));
       
@@ -103,7 +108,7 @@ public class DrawingAlgorithmsFrame extends JFrame {
         boundary_tracing_opt.setToolTipText("Calculates only the boundaries of the image.");
         boundary_tracing_opt.setBackground(MainWindow.bg_color);
 
-        final JRadioButton divide_and_conquer_algorithm = new JRadioButton("Mariani/Silver");
+        divide_and_conquer_algorithm = new JRadioButton("Mariani/Silver");
         divide_and_conquer_algorithm.setFocusable(false);
         divide_and_conquer_algorithm.setToolTipText("Divides the image in halves and skips rectangles with the same boundary.");
         divide_and_conquer_algorithm.setBackground(MainWindow.bg_color);
@@ -113,9 +118,9 @@ public class DrawingAlgorithmsFrame extends JFrame {
         successive_refinement.setToolTipText("Successively increases the resolution and performs guessing.");
         successive_refinement.setBackground(MainWindow.bg_color);
 
-        circular_successive_refinement = new JRadioButton("Circular Successive Refinement");
+        circular_successive_refinement = new JRadioButton("Patterned Successive Refinement");
         circular_successive_refinement.setFocusable(false);
-        circular_successive_refinement.setToolTipText("Successively increases the resolution and performs guessing, using a circular rendering method.");
+        circular_successive_refinement.setToolTipText("Successively increases the resolution and performs guessing, using a patterned rendering method.");
         circular_successive_refinement.setBackground(MainWindow.bg_color);
 
         final JCheckBox trace_iter_data = new JCheckBox("Use Iteration Data");
@@ -124,7 +129,19 @@ public class DrawingAlgorithmsFrame extends JFrame {
         trace_iter_data.setBackground(MainWindow.bg_color);
         trace_iter_data.setSelected(TaskDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA);
 
-        guessess = new JComboBox<>(new String[] {"No", "1x1", "<= 2x2", "<= 4x4", "<= 8x8", "<= 16x16", "<= 32x32", "<= 64x64"});
+        mix_squares_and_rectangles = new JComboBox<>(new String[]{"Square", "Square/Rectangle H", "Square/Rectangle V", "Square/Rectangle HV", "Square/Rectangle VH"});
+        mix_squares_and_rectangles.setFocusable(false);
+        mix_squares_and_rectangles.setToolTipText("Configure how the successive refinement algorithm will split the area.");
+        mix_squares_and_rectangles.setBackground(MainWindow.bg_color);
+        mix_squares_and_rectangles.setSelectedIndex(TaskDraw.SUCCESSIVE_REFINEMENT_SQUARE_RECT_SPLIT_ALGORITHM);
+
+        twoPassSuccessiveRefinement = new JCheckBox("2 Steps");
+        twoPassSuccessiveRefinement.setFocusable(false);
+        twoPassSuccessiveRefinement.setToolTipText("Changes the successive refinement algorithms to used two steps.");
+        twoPassSuccessiveRefinement.setSelected(TaskDraw.TWO_PASS_SUCCESSIVE_REFINEMENT);
+        twoPassSuccessiveRefinement.setBackground(MainWindow.bg_color);
+
+        guessess = new JComboBox<>(new String[] {"No", "1x", "<= 2x", "<= 4x", "<= 8x", "<= 16x", "<= 32x", "<= 64x"});
         guessess.setSelectedIndex(guesses_selection);
         guessess.setFocusable(false);
         guessess.setToolTipText("Sets the blocks to be guessed by the successive refinement algorithms.");
@@ -134,9 +151,25 @@ public class DrawingAlgorithmsFrame extends JFrame {
         greedy_algorithm_button_group.add(successive_refinement);
         greedy_algorithm_button_group.add(circular_successive_refinement);
 
-        circular_successive_refinement.addItemListener(e->guessess.setEnabled(circular_successive_refinement.isSelected() || successive_refinement.isSelected()));
+        circular_successive_refinement.addItemListener(e->
+        {
+            guessess.setEnabled(circular_successive_refinement.isSelected() || successive_refinement.isSelected());
+            mix_squares_and_rectangles.setEnabled(divide_and_conquer_algorithm.isSelected() || successive_refinement.isSelected() || circular_successive_refinement.isSelected());
+            twoPassSuccessiveRefinement.setEnabled(circular_successive_refinement.isSelected() || successive_refinement.isSelected());
+        });
 
-        successive_refinement.addItemListener(e->guessess.setEnabled(circular_successive_refinement.isSelected() || successive_refinement.isSelected()));
+        successive_refinement.addItemListener(e-> {
+            guessess.setEnabled(circular_successive_refinement.isSelected() || successive_refinement.isSelected());
+            mix_squares_and_rectangles.setEnabled(divide_and_conquer_algorithm.isSelected() || successive_refinement.isSelected() || circular_successive_refinement.isSelected());
+            twoPassSuccessiveRefinement.setEnabled(circular_successive_refinement.isSelected() || successive_refinement.isSelected());
+        }
+        );
+
+        divide_and_conquer_algorithm.addItemListener(e-> {
+                    mix_squares_and_rectangles.setEnabled(divide_and_conquer_algorithm.isSelected() || successive_refinement.isSelected() || circular_successive_refinement.isSelected());
+                    twoPassSuccessiveRefinement.setEnabled(circular_successive_refinement.isSelected() || successive_refinement.isSelected());
+        }
+        );
 
         if(greedy_algorithm_selection == MainWindow.BOUNDARY_TRACING) {
             boundary_tracing_opt.setSelected(true);
@@ -153,18 +186,32 @@ public class DrawingAlgorithmsFrame extends JFrame {
 
         JPanel p1 = new JPanel();
         p1.setBackground(MainWindow.bg_color);
-        p1.setLayout(new GridLayout(2, 2));
+        p1.setLayout(new GridLayout(4, 1));
         p1.add(boundary_tracing_opt);
         p1.add(divide_and_conquer_algorithm);
         p1.add(successive_refinement);
         p1.add(circular_successive_refinement);
 
         greedy_algorithm_panel.add(p1);
-        greedy_algorithm_panel.add(trace_iter_data);
+
+
+
+        JPanel p11 = new JPanel();
+        p11.setBackground(MainWindow.bg_color);
+        p11.add(mix_squares_and_rectangles);
+
+        JPanel p7 = new JPanel();
+        p7.setBackground(MainWindow.bg_color);
+        p7.setLayout(new GridLayout(2, 1));
+        p7.add(trace_iter_data);
+        p7.add(twoPassSuccessiveRefinement);
+
+
+        greedy_algorithm_panel.add(p7);
 
         JPanel p2 = new JPanel();
         p2.setBackground(MainWindow.bg_color);
-        p2.setLayout(new GridLayout(2, 1));
+        p2.setLayout(new GridLayout(3, 1));
 
         JPanel p3 = new JPanel();
         p3.setBackground(MainWindow.bg_color);
@@ -175,6 +222,7 @@ public class DrawingAlgorithmsFrame extends JFrame {
         p4.add(new JLabel("Guess Blocks:"));
         p2.add(p4);
         p2.add(p3);
+        p2.add(p11);
 
         greedy_algorithm_panel.add(p2);
 
@@ -280,17 +328,31 @@ public class DrawingAlgorithmsFrame extends JFrame {
         panel3.setBackground(MainWindow.bg_color);
         panel3.setPreferredSize(new Dimension(704, 60));
 
-        JComboBox<String> brute_force_alg_opt = new JComboBox<>(new String[] {"Chunks", "Thread Split", "Circular Chunks"});
+        JComboBox<String> brute_force_alg_opt = new JComboBox<>(new String[] {"Chunks", "Thread Split", "Patterned Chunks", "Interleaved"});
         brute_force_alg_opt.setSelectedIndex(brute_force_alg);
         brute_force_alg_opt.setFocusable(false);
         brute_force_alg_opt.setToolTipText("Sets the brute force algorithm.");
 
         brute_force_alg_opt.setEnabled(!greedy_algorithm_opt.isSelected());
 
-        greedy_algorithm_opt.addActionListener(e -> brute_force_alg_opt.setEnabled(!greedy_algorithm_opt.isSelected()));
+        JCheckBox chunksPerRow = new JCheckBox("1 Chunk per row");
+        chunksPerRow.setFocusable(false);
+        chunksPerRow.setSelected(TaskDraw.CHUNK_SIZE_PER_ROW);
+        chunksPerRow.setBackground(MainWindow.bg_color);
+
+        chunksPerRow.setEnabled(!greedy_algorithm_opt.isSelected() && brute_force_alg_opt.getSelectedIndex() == 0);
+
+        greedy_algorithm_opt.addActionListener(e -> {
+            brute_force_alg_opt.setEnabled(!greedy_algorithm_opt.isSelected());
+            chunksPerRow.setEnabled(!greedy_algorithm_opt.isSelected() && brute_force_alg_opt.getSelectedIndex() == 0);
+        }
+        );
+
+        brute_force_alg_opt.addActionListener(e -> chunksPerRow.setEnabled(!greedy_algorithm_opt.isSelected() && brute_force_alg_opt.getSelectedIndex() == 0));
 
         panel3.add(new JLabel("Brute Force Algorithm: "));
         panel3.add(brute_force_alg_opt);
+        panel3.add(chunksPerRow);
 
         panel3.setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Brute Force Options", TitledBorder.DEFAULT_POSITION, TitledBorder.DEFAULT_POSITION));
 
@@ -299,10 +361,10 @@ public class DrawingAlgorithmsFrame extends JFrame {
         panel4.setBackground(MainWindow.bg_color);
         panel4.setPreferredSize(new Dimension(704, 60));
 
-        JComboBox<String> circular_pattern = new JComboBox<>(new String[] {"Circle", "Square", "Rhombus", "N-Norm", "Random", "Rectangle (Columns)", "Rectangle (Rows)", "Angle", "Double Angle", "Columns", "Rows", "Diagonal Top", "Diagonal Bottom", "Hourglass", "Star", "Cross"});
+        JComboBox<String> circular_pattern = new JComboBox<>(new String[] {"Circle", "Square", "Rhombus", "N-Norm", "Random", "Rectangle (Columns)", "Rectangle (Rows)", "Angle", "Double Angle", "Columns", "Rows", "Diagonal Top", "Diagonal Bottom", "Hourglass", "Star", "Cross", "Interleaved"});
         circular_pattern.setSelectedIndex(TaskDraw.CIRCULAR_COMPARE_ALG);
         circular_pattern.setFocusable(false);
-        circular_pattern.setToolTipText("Sets the circular drawing pattern.");
+        circular_pattern.setToolTipText("Sets the drawing pattern.");
 
         JTextField nnorm = new JTextField(6);
         nnorm.setText("" + TaskDraw.CIRCULAR_N);
@@ -326,15 +388,15 @@ public class DrawingAlgorithmsFrame extends JFrame {
 //        pattern_follows_zoom_center.setFocusable(false);
 //        pattern_follows_zoom_center.setToolTipText("If zoom on mouse cursor is enabled then, by enabling this the drawing pattern will initiate from the selected point (Requires sorting every time).");
 
-        revert_pattern.setEnabled(circular_pattern.getSelectedIndex() != 4);
-        repeat_pattern.setEnabled(circular_pattern.getSelectedIndex() != 4);
+        revert_pattern.setEnabled(circular_pattern.getSelectedIndex() != 4 && circular_pattern.getSelectedIndex() != 16);
+        repeat_pattern.setEnabled(circular_pattern.getSelectedIndex() != 4 && circular_pattern.getSelectedIndex() != 16);
 
 //        pattern_follows_zoom_center.setEnabled(ptra instanceof MainWindow && circular_pattern.getSelectedIndex() != 4);
 
         circular_pattern.addActionListener(
                 e -> {nnorm.setEnabled(circular_pattern.getSelectedIndex() == 3);
-                revert_pattern.setEnabled(circular_pattern.getSelectedIndex() != 4);
-                    repeat_pattern.setEnabled(circular_pattern.getSelectedIndex() != 4);
+                revert_pattern.setEnabled(circular_pattern.getSelectedIndex() != 4 && circular_pattern.getSelectedIndex() != 16);
+                    repeat_pattern.setEnabled(circular_pattern.getSelectedIndex() != 4 && circular_pattern.getSelectedIndex() != 16);
   //                  pattern_follows_zoom_center.setEnabled(ptra instanceof MainWindow && circular_pattern.getSelectedIndex() != 4);
         });
 
@@ -346,7 +408,7 @@ public class DrawingAlgorithmsFrame extends JFrame {
         panel4.add(revert_pattern);
        // panel4.add(pattern_follows_zoom_center);
 
-        panel4.setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Circular Pattern Options", TitledBorder.DEFAULT_POSITION, TitledBorder.DEFAULT_POSITION));
+        panel4.setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Pattern Options", TitledBorder.DEFAULT_POSITION, TitledBorder.DEFAULT_POSITION));
 
 
         JButton ok = new MyButton("Ok");
@@ -397,49 +459,50 @@ public class DrawingAlgorithmsFrame extends JFrame {
             TaskDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA = trace_iter_data.isSelected();
             TaskDraw.GUESS_BLOCKS_SELECTION = guessess.getSelectedIndex();
 
+            int oldSuccessiveRefinementSplit = TaskDraw.SUCCESSIVE_REFINEMENT_SQUARE_RECT_SPLIT_ALGORITHM;
+            TaskDraw.SUCCESSIVE_REFINEMENT_SQUARE_RECT_SPLIT_ALGORITHM = mix_squares_and_rectangles.getSelectedIndex();
+            TaskDraw.CHUNK_SIZE_PER_ROW = chunksPerRow.isSelected();
+            TaskDraw.TWO_PASS_SUCCESSIVE_REFINEMENT = twoPassSuccessiveRefinement.isSelected();
+
+            if(oldSuccessiveRefinementSplit != TaskDraw.SUCCESSIVE_REFINEMENT_SQUARE_RECT_SPLIT_ALGORITHM) {
+                TaskDraw.setSuccessiveRefinementChunks();
+                CircularBruteForceDraw.clear();
+                CircularBruteForceDraw.clearFastJulia();
+            }
+
             int oldCircularAlg = TaskDraw.CIRCULAR_COMPARE_ALG;
             TaskDraw.CIRCULAR_COMPARE_ALG = circular_pattern.getSelectedIndex();
             if(oldCircularAlg != TaskDraw.CIRCULAR_COMPARE_ALG) {
-                CircularBruteForceDraw.coordinates = null;
-                CircularBruteForceDraw.coordinatesFastJulia = null;
-                CircularSuccessiveRefinementGuessingDraw.CoordinatesPerLevel = null;
-                CircularSuccessiveRefinementGuessingDraw.CoordinatesPerLevelFastJulia = null;
+                CircularBruteForceDraw.clear();
+                CircularBruteForceDraw.clearFastJulia();
             }
 
             boolean oldRevertPattern = TaskDraw.CIRCULAR_REVERT_ALG;
             TaskDraw.CIRCULAR_REVERT_ALG = revert_pattern.isSelected();
             if(oldRevertPattern != TaskDraw.CIRCULAR_REVERT_ALG) {
-                CircularBruteForceDraw.coordinates = null;
-                CircularBruteForceDraw.coordinatesFastJulia = null;
-                CircularSuccessiveRefinementGuessingDraw.CoordinatesPerLevel = null;
-                CircularSuccessiveRefinementGuessingDraw.CoordinatesPerLevelFastJulia = null;
+                CircularBruteForceDraw.clear();
+                CircularBruteForceDraw.clearFastJulia();
             }
 
             boolean oldRepeatPattern = TaskDraw.CIRCULAR_REPEAT_ALG;
             TaskDraw.CIRCULAR_REPEAT_ALG = repeat_pattern.isSelected();
             if(oldRepeatPattern != TaskDraw.CIRCULAR_REPEAT_ALG) {
-                CircularBruteForceDraw.coordinates = null;
-                CircularBruteForceDraw.coordinatesFastJulia = null;
-                CircularSuccessiveRefinementGuessingDraw.CoordinatesPerLevel = null;
-                CircularSuccessiveRefinementGuessingDraw.CoordinatesPerLevelFastJulia = null;
+                CircularBruteForceDraw.clear();
+                CircularBruteForceDraw.clearFastJulia();
             }
 
             double oldNnorm = TaskDraw.CIRCULAR_N;
             TaskDraw.CIRCULAR_N = temp;
             if(TaskDraw.CIRCULAR_N != oldNnorm) {
-                CircularBruteForceDraw.coordinates = null;
-                CircularBruteForceDraw.coordinatesFastJulia = null;
-                CircularSuccessiveRefinementGuessingDraw.CoordinatesPerLevel = null;
-                CircularSuccessiveRefinementGuessingDraw.CoordinatesPerLevelFastJulia = null;
+                CircularBruteForceDraw.clear();
+                CircularBruteForceDraw.clearFastJulia();
             }
 
 //            boolean oldFollowZoom = MainWindow.CIRCULAR_DRAW_FOLLOWS_ZOOM_TO_CURSOR;
 //            MainWindow.CIRCULAR_DRAW_FOLLOWS_ZOOM_TO_CURSOR = pattern_follows_zoom_center.isSelected();
 //            if(MainWindow.CIRCULAR_DRAW_FOLLOWS_ZOOM_TO_CURSOR != oldFollowZoom) {
-//                CircularBruteForceDraw.coordinates = null;
-//                CircularBruteForceDraw.coordinatesFastJulia = null;
-//            CircularSuccessiveRefinementGuessingDraw.CoordinatesPerLevel = null;
-//            CircularSuccessiveRefinementGuessingDraw.CoordinatesPerLevelFastJulia = null;
+//            CircularBruteForceDraw.clear();
+//            CircularBruteForceDraw.clearFastJulia();
 //            }
 
             if(ptra2 instanceof MainWindow) {
@@ -493,7 +556,10 @@ public class DrawingAlgorithmsFrame extends JFrame {
         options_border.setState(greedy_algorithm_opt.isSelected());
 
         guessess.setEnabled(greedy_algorithm_opt.isSelected() && (circular_successive_refinement.isSelected() || successive_refinement.isSelected()));
-        
+        mix_squares_and_rectangles.setEnabled(greedy_algorithm_opt.isSelected() && (divide_and_conquer_algorithm.isSelected() || successive_refinement.isSelected() || circular_successive_refinement.isSelected()));
+
+        twoPassSuccessiveRefinement.setEnabled(greedy_algorithm_opt.isSelected() && (circular_successive_refinement.isSelected() || successive_refinement.isSelected()));
+
         JPanel buttons = new JPanel();
         buttons.setBackground(MainWindow.bg_color);
 
@@ -502,7 +568,7 @@ public class DrawingAlgorithmsFrame extends JFrame {
 
         RoundedPanel round_panel = new RoundedPanel(true, true, true, 15);
         round_panel.setBackground(MainWindow.bg_color);
-        round_panel.setPreferredSize(new Dimension(730, 440));
+        round_panel.setPreferredSize(new Dimension(730, 470));
         round_panel.setLayout(new GridBagLayout());
 
         GridBagConstraints con = new GridBagConstraints();
@@ -551,6 +617,8 @@ public class DrawingAlgorithmsFrame extends JFrame {
         }
 
         guessess.setEnabled(greedy_algorithm_opt.isSelected() && (circular_successive_refinement.isSelected() || successive_refinement.isSelected()));
+        mix_squares_and_rectangles.setEnabled(greedy_algorithm_opt.isSelected() && (divide_and_conquer_algorithm.isSelected() || successive_refinement.isSelected() || circular_successive_refinement.isSelected()));
+        twoPassSuccessiveRefinement.setEnabled(greedy_algorithm_opt.isSelected() && (circular_successive_refinement.isSelected() || successive_refinement.isSelected()));
     }
 
 }

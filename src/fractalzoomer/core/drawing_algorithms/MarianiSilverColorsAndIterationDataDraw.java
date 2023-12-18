@@ -54,10 +54,12 @@ public class MarianiSilverColorsAndIterationDataDraw extends MarianiSilverDraw {
         super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns, ptr, fractal_color, dem_color, fast_julia_filters, image, periodicity_checking, fs, color_cycling_location, color_cycling_location2, exterior_de, exterior_de_factor, height_ratio,  polar_projection, circle_period,   inverse_dem, color_intensity, transfer_function, color_density, color_intensity2, transfer_function2, color_density2, usePaletteForInColoring,    color_blending,   post_processing_order,  pbs,  gradient_offset,  contourFactor, gps, js, pps, xJuliaCenter, yJuliaCenter);
     }
 
+    @Override
     protected boolean isNotTheSame(int loc, int pixel_color, double pixel_value) {
         return rgbs[loc] != pixel_color || image_iterations[loc] != pixel_value;
     }
 
+    @Override
     protected boolean isNotTheSameFastJulia(int loc, int pixel_color, double pixel_value) {
         return rgbs[loc] != pixel_color || image_iterations_fast_julia[loc] != pixel_value;
     }

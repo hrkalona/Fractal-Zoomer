@@ -100,6 +100,13 @@ public class PerturbationTheoryDialog extends JDialog {
         automatic_precision.setSelected(MyApfloat.setAutomaticPrecision);
         automatic_precision.setFocusable(false);
 
+        final JCheckBox compress_reference = new JCheckBox("Compress Reference");
+        compress_reference.setSelected(TaskDraw.COMPRESS_REFERENCE_IF_POSSIBLE);
+        compress_reference.setFocusable(false);
+
+        JTextField compressionError = new JTextField();
+        compressionError.setText("" + ReferenceCompressor.CompressionError);
+
         final JCheckBox alwaysCheckForPrecisionDecrease = new JCheckBox("Check for Reduction");
         alwaysCheckForPrecisionDecrease.setSelected(MyApfloat.alwaysCheckForDecrease);
         alwaysCheckForPrecisionDecrease.setFocusable(false);
@@ -112,6 +119,10 @@ public class PerturbationTheoryDialog extends JDialog {
         final JCheckBox use_threads_for_bla = new JCheckBox("Use Threads for BLA");
         use_threads_for_bla.setSelected(TaskDraw.USE_THREADS_FOR_BLA);
         use_threads_for_bla.setFocusable(false);
+
+        final JCheckBox use_threads_for_bla2 = new JCheckBox("Use Threads for BLA");
+        use_threads_for_bla2.setSelected(TaskDraw.USE_THREADS_FOR_BLA2);
+        use_threads_for_bla2.setFocusable(false);
 
         final JSlider bla_starting_level_slid = new JSlider(JSlider.HORIZONTAL, 1, 32, TaskDraw.BLA_STARTING_LEVEL);
 
@@ -310,6 +321,9 @@ public class PerturbationTheoryDialog extends JDialog {
         JPanel blaThreadsPAnel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         blaThreadsPAnel.add(use_threads_for_bla);
 
+        JPanel bla2ThreadsPAnel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        bla2ThreadsPAnel.add(use_threads_for_bla2);
+
 
         JPanel blaSkipLevel1PAnelLabel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         blaSkipLevel1PAnelLabel.add(blaLevel);
@@ -383,6 +397,9 @@ public class PerturbationTheoryDialog extends JDialog {
         JTextField double_threshold = new JTextField();
         double_threshold.setText("" + LAReference.doubleThresholdLimit.toDouble());
 
+        JTextField period_divisor = new JTextField();
+        period_divisor.setText("" + LAReference.periodDivisor);
+
 
         bla2Thresholds.add(stage0);
         bla2Thresholds.add(plimit);
@@ -414,16 +431,19 @@ public class PerturbationTheoryDialog extends JDialog {
             plimit1.setEnabled(bla2DetectionMethod.getSelectedIndex() == 1);
         });
 
-        JPanel panel3 = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        panel3.add(new JLabel("Double Threshold Limit:"));
+        JPanel panel3 = new JPanel(new GridLayout(2, 2));
+        panel3.add(new JLabel("Double Threshold Limit:", SwingConstants.HORIZONTAL));
+        panel3.add(new JLabel("Period Divisor:", SwingConstants.HORIZONTAL));
+        panel3.add(double_threshold);
+        panel3.add(period_divisor);
 
         BLA2panel.add(detectionPanel);
         BLA2panel.add(bla2DetectionMethod);
         BLA2panel.add(new JLabel(" "));
         BLA2panel.add(bla2Thresholds);
         BLA2panel.add(panel3);
-        BLA2panel.add(double_threshold);
         BLA2panel.add(new JLabel(" "));
+        BLA2panel.add(bla2ThreadsPAnel);
 
         reset_approximation.addActionListener(e -> {
 
@@ -449,6 +469,8 @@ public class PerturbationTheoryDialog extends JDialog {
 
             blaBits.setValue(ApproximationDefaultSettings.BLA_BITS);
             bla_starting_level_slid.setValue(ApproximationDefaultSettings.BLA_STARTING_LEVEL);
+
+            period_divisor.setText("" + ApproximationDefaultSettings.PeriodDivisor);
 
 
         });
@@ -487,6 +509,11 @@ public class PerturbationTheoryDialog extends JDialog {
                 bignumPrecision,
                 " ",
                 statsPanel,
+                " ",
+                compress_reference,
+                "Compression Error:",
+                compressionError,
+                " ",
                 appr,
                 approximation_alg,
                 " ",
@@ -549,6 +576,9 @@ public class PerturbationTheoryDialog extends JDialog {
                             double temp10 = Double.parseDouble(lacscale.getText());
                             double double_t_l = Double.parseDouble(double_threshold.getText());
 
+                            double temp11 = Double.parseDouble(compressionError.getText());
+                            double temp12 = Double.parseDouble(period_divisor.getText());
+
                             if(temp5 <= 0 || temp6 <= 0 || temp7 <= 0 || temp8 <= 0) {
                                 JOptionPane.showMessageDialog(ptra, "The stage 0 and period limit values must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
                                 return;
@@ -569,6 +599,11 @@ public class PerturbationTheoryDialog extends JDialog {
                                 return;
                             }
 
+                            if(temp12 <= 0) {
+                                JOptionPane.showMessageDialog(ptra, "The LA period divisor must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+
                             if (tempPrecision < 1) {
                                 JOptionPane.showMessageDialog(ptra, "Precision number must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
                                 return;
@@ -581,6 +616,11 @@ public class PerturbationTheoryDialog extends JDialog {
 
                             if (temp3 < 0) {
                                 JOptionPane.showMessageDialog(ptra, "Maximum skipped iterations must be greater than -1.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+
+                            if(temp11 <= 0) {
+                                JOptionPane.showMessageDialog(ptra, "The compression error must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
                                 return;
                             }
 
@@ -686,6 +726,19 @@ public class PerturbationTheoryDialog extends JDialog {
                                 Fractal.clearReferences(true, true);
                             }
 
+                            boolean oldCompressReference = TaskDraw.COMPRESS_REFERENCE_IF_POSSIBLE;
+                            TaskDraw.COMPRESS_REFERENCE_IF_POSSIBLE = compress_reference.isSelected();
+                            if(oldCompressReference != TaskDraw.COMPRESS_REFERENCE_IF_POSSIBLE) {
+                                Fractal.clearReferences(true, true);
+                            }
+
+                            double oldCompressionError = ReferenceCompressor.CompressionError;
+                            ReferenceCompressor.CompressionError = temp11;
+                            ReferenceCompressor.setCompressionError();
+                            if(oldCompressionError != ReferenceCompressor.CompressionError) {
+                                Fractal.clearReferences(true, true);
+                            }
+
                             MyApfloat.setAutomaticPrecision = automatic_precision.isSelected();
                             MyApfloat.alwaysCheckForDecrease = alwaysCheckForPrecisionDecrease.isSelected();
 
@@ -697,6 +750,7 @@ public class PerturbationTheoryDialog extends JDialog {
                             TaskDraw.BLA_BITS = blaBits.getValue();
                             TaskDraw.BLA_STARTING_LEVEL = bla_starting_level_slid.getValue();
                             TaskDraw.USE_THREADS_FOR_BLA = use_threads_for_bla.isSelected();
+                            TaskDraw.USE_THREADS_FOR_BLA2 = use_threads_for_bla2.isSelected();
 
                             LAInfo.DETECTION_METHOD = bla2DetectionMethod.getSelectedIndex();
                             LAInfo.Stage0PeriodDetectionThreshold = temp5;
@@ -713,6 +767,7 @@ public class PerturbationTheoryDialog extends JDialog {
                             LAInfoDeep.LAThresholdScale = new MantExp(temp9);
                             LAInfoDeep.LAThresholdCScale = new MantExp(temp10);
                             LAReference.doubleThresholdLimit = new MantExp(double_t_l);
+                            LAReference.periodDivisor = temp12;
 
                             if(ptra instanceof MainWindow) {
                                 ((MainWindow)ptra).setPerturbationTheoryPost();

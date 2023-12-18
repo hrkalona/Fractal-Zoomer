@@ -67,8 +67,6 @@ public class MandelbrotFourth extends Julia {
         this.burning_ship = burning_ship;
         not_burning_ship = !burning_ship;
 
-        power = 4;
-
         if(burning_ship) {
             type = new BurningShip();
         }
@@ -118,8 +116,6 @@ public class MandelbrotFourth extends Julia {
         this.burning_ship = burning_ship;
         not_burning_ship = !burning_ship;
 
-        power = 4;
-
         if(burning_ship) {
             type = new BurningShip();
         }
@@ -153,8 +149,6 @@ public class MandelbrotFourth extends Julia {
 
         this.burning_ship = burning_ship;
         not_burning_ship = !burning_ship;
-
-        power = 4;
 
         if(burning_ship) {
             type = new BurningShip();
@@ -198,8 +192,6 @@ public class MandelbrotFourth extends Julia {
         this.burning_ship = burning_ship;
         not_burning_ship = !burning_ship;
 
-        power = 4;
-
         if(burning_ship) {
             type = new BurningShip();
         }
@@ -242,6 +234,8 @@ public class MandelbrotFourth extends Julia {
             return true;
         }
 
+        initializeReferenceDecompressor();
+
         if (deepZoom) {
             if(referenceData.period_mdzdc == null) {
                 return true;
@@ -249,8 +243,9 @@ public class MandelbrotFourth extends Julia {
 
             MantExpComplex mdzdc = referenceData.period_mdzdc;
             MantExp mradius = externalLocation.getSize().multiply2_mutable();
+            MantExp temp = mdzdc.times(mradius).chebyshevNorm();
 
-            if (mradius.multiply(mdzdc.chebychevNorm()).compareToBothPositive(getArrayDeepValue(referenceDeep, DetectedPeriod).chebychevNorm()) > 0) {
+            if (temp.compareToBothPositiveReduced(getArrayDeepValue(referenceDeep, DetectedPeriod).chebyshevNorm()) > 0) {
                 return false;
             }
         } else {
@@ -261,7 +256,7 @@ public class MandelbrotFourth extends Julia {
             Complex dzdc = referenceData.period_dzdc;
             double radius = this.size * 2;
 
-            if (radius * dzdc.chebychevNorm() > getArrayValue(reference, DetectedPeriod).chebychevNorm()) {
+            if (radius * dzdc.chebyshevNorm() > getArrayValue(reference, DetectedPeriod).chebyshevNorm()) {
                 return false;
             }
         }
@@ -294,17 +289,18 @@ public class MandelbrotFourth extends Julia {
         boolean stopReferenceCalculationOnDetectedPeriod = detectPeriod && TaskDraw.STOP_REFERENCE_CALCULATION_AFTER_DETECTED_PERIOD && userPeriod == 0 && canStopOnDetectedPeriod();
 
         DoubleReference.SHOULD_SAVE_MEMORY = stopReferenceCalculationOnDetectedPeriod;
+        boolean useCompressedRef = TaskDraw.COMPRESS_REFERENCE_IF_POSSIBLE && supportsReferenceCompression();
 
         if (iterations == 0) {
             if(lowPrecReferenceOrbitNeeded) {
-                referenceData.createAndSetShortcut(max_ref_iterations, false, 0);
+                referenceData.createAndSetShortcut(max_ref_iterations, false, 0, useCompressedRef);
             }
             else {
                 referenceData.deallocate();
             }
 
             if (deepZoom) {
-                referenceDeepData.createAndSetShortcut(max_ref_iterations, false, 0);
+                referenceDeepData.createAndSetShortcut(max_ref_iterations, false, 0, useCompressedRef);
             }
         } else if (max_ref_iterations > getReferenceLength()) {
             if(lowPrecReferenceOrbitNeeded) {
@@ -341,8 +337,8 @@ public class MandelbrotFourth extends Julia {
             pixel = bn;
             if(detectPeriod && detectPeriodAlgorithm == 0) {
                 //referenceData.minValue = iterations == 0 ? BigNum.getMax() : referenceData.minValue;
-                r0 = new BigNum(size);
-                r = iterations == 0 ? new BigNum((BigNum) r0) : referenceData.lastRValue;
+                r0 = BigNum.create(size);
+                r = iterations == 0 ? BigNum.copy((BigNum) r0) : referenceData.lastRValue;
             }
         }
         else if(bigNumLib == BIGNUM_BIGINT) {
@@ -437,12 +433,25 @@ public class MandelbrotFourth extends Julia {
         normSquared = z.normSquared();
 
         refPoint = inputPixel;
-        refPointSmall = refPoint.toComplex();
 
         Location loc = new Location();
 
         if(deepZoom) {
             refPointSmallDeep = loc.getMantExpComplex(refPoint);
+            refPointSmall = refPointSmallDeep.toComplex();
+            if(isJulia) {
+                seedSmallDeep = loc.getMantExpComplex(c);
+            }
+
+            if(lowPrecReferenceOrbitNeeded && isJulia) {
+                seedSmall = seedSmallDeep.toComplex();
+            }
+        }
+        else {
+            refPointSmall = refPoint.toComplex();
+            if(lowPrecReferenceOrbitNeeded && isJulia) {
+                seedSmall = c.toComplex();
+            }
         }
 
         boolean isSeriesInUse = TaskDraw.APPROXIMATION_ALGORITHM == 1 && supportsSeriesApproximation();
@@ -487,25 +496,35 @@ public class MandelbrotFourth extends Julia {
 
         Complex cz = null;
         MantExpComplex mcz = null;
+        MantExp temp;
+
+        if(useCompressedRef) {
+            if(deepZoom) {
+                referenceCompressor[referenceDeep.id] = new ReferenceCompressor(this, iterations == 0 ? z.toMantExpComplex() : referenceData.compressorZm, c.toMantExpComplex(), start.toMantExpComplex());
+            }
+            if(lowPrecReferenceOrbitNeeded) {
+                referenceCompressor[reference.id] = new ReferenceCompressor(this, iterations == 0 ? z.toComplex() : referenceData.compressorZ, c.toComplex(), start.toComplex());
+            }
+        }
 
         calculatedReferenceIterations = 0;
 
+        MantExpComplex tempmcz = null;
+
         for (; iterations < max_ref_iterations; iterations++, calculatedReferenceIterations++) {
 
-            if(lowPrecReferenceOrbitNeeded) {
-                cz = z.toComplex();
-                if (cz.isInfinite()) {
-                    break;
-                }
-
-                setArrayValue(reference, iterations, cz);
-            }
-
             if(deepZoom) {
-                mcz =  loc.getMantExpComplex(z);
-                setArrayDeepValue(referenceDeep, iterations, mcz);
+                mcz = loc.getMantExpComplex(z);
+                tempmcz = setArrayDeepValue(referenceDeep, iterations, mcz);
                 //ReferenceDeep[iterations] = new MantExpComplex(Reference[iterations]);
             }
+
+            if(lowPrecReferenceOrbitNeeded) {
+                cz = deepZoom ? mcz.toComplex() : z.toComplex();
+                cz = setArrayValue(reference, iterations, cz);
+            }
+
+            mcz = tempmcz;
 
             if(stopReferenceCalculationOnDetectedPeriod && DetectedPeriod != 0) {
                 break;
@@ -582,12 +601,13 @@ public class MandelbrotFourth extends Julia {
                 else {
                     if (DetectedPeriod == 0 && iterations > 0) {
                         if (deepZoom) {
-                            if (mradius.multiply(mdzdc.chebychevNorm()).compareToBothPositive(mcz.chebychevNorm()) > 0) {
+                            temp = mdzdc.times(mradius).chebyshevNorm();
+                            if (temp.compareToBothPositiveReduced(mcz.chebyshevNorm()) > 0) {
                                 DetectedPeriod = iterations;
                                 period_mdzdc = MantExpComplex.copy(mdzdc);
                             }
                         } else {
-                            if (radius * dzdc.chebychevNorm() > cz.chebychevNorm()) {
+                            if (radius * dzdc.chebyshevNorm() > cz.chebyshevNorm()) {
                                 DetectedPeriod = iterations;
                                 period_dzdc = new Complex(dzdc);
                             }
@@ -658,6 +678,18 @@ public class MandelbrotFourth extends Julia {
         referenceData.period_mdzdc = period_mdzdc;
 
         referenceData.MaxRefIteration = iterations - 1;
+
+        if(useCompressedRef) {
+            if(deepZoom) {
+                referenceCompressor[referenceDeep.id].compact(referenceDeep);
+                referenceData.compressorZm = referenceCompressor[referenceDeep.id].getZDeep();
+            }
+
+            if(lowPrecReferenceOrbitNeeded) {
+                referenceCompressor[reference.id].compact(reference);
+                referenceData.compressorZ = referenceCompressor[reference.id].getZ();
+            }
+        }
 
         if(progress != null) {
             progress.setValue(progress.getMaximum());
@@ -841,10 +873,10 @@ public class MandelbrotFourth extends Julia {
             MantExp i = X.getIm();
             MantExp a = DeltaSubN.getRe();
             MantExp b = DeltaSubN.getIm();
-            MantExp r2 = r.multiply(r);
-            MantExp i2 = i.multiply(i);
-            MantExp a2 = a.multiply(a);
-            MantExp b2 = b.multiply(b);
+            MantExp r2 = r.square();
+            MantExp i2 = i.square();
+            MantExp a2 = a.square();
+            MantExp b2 = b.square();
             MantExp ar = a.multiply(r);
             MantExp ib = i.multiply(b);
             MantExp ab = a.multiply(b);
@@ -854,15 +886,15 @@ public class MandelbrotFourth extends Julia {
 
             MantExp Dnr = r2.multiply(ar).add_mutable(ar.multiply(a2)).add_mutable(i2.multiply(ib)).add_mutable(ib.multiply(b2)).multiply4_mutable()
                     .add_mutable(r2.multiply(a2).add_mutable(i2.multiply(b2)).subtract_mutable(r2.multiply(b2)).subtract_mutable(a2.multiply(i2)).subtract_mutable(a2.multiply(b2)).multiply_mutable(MantExp.SIX))
-                    .add_mutable(a2.multiply(a2))
-                    .add_mutable(b2.multiply(b2))
-                    .subtract_mutable(r2.multiply(ib).add_mutable(ar.multiply(i2)).add_mutable(ar.multiply(b2)).add_mutable(a2).multiply(ib).multiply_mutable(MantExp.TWELVE))
-                    .subtract_mutable(MantExp.TWENTYFOUR.multiply(ar).multiply_mutable(ib));
+                    .add_mutable(a2.square())
+                    .add_mutable(b2.square())
+                    .subtract_mutable(r2.multiply(ib).add_mutable(ar.multiply(i2)).add_mutable(ar.multiply(b2)).add_mutable(a2.multiply(ib)).multiply_mutable(MantExp.TWELVE))
+                    .subtract_mutable(ar.multiply(ib).multiply_mutable(MantExp.TWENTYFOUR));
 
             MantExp Dni = MantExpComplex.DiffAbs(ri, rb.add(ai).add_mutable(ab));
 
-            Dni = (r2.subtract(i2)).multiply_mutable(Dni)
-                    .add_mutable(((ri.add(rb).add_mutable(ai).add_mutable(ab)).abs_mutable()).multiply_mutable(ar.subtract(ib).multiply2_mutable().add_mutable(a2).subtract_mutable(b2))).multiply4_mutable();
+            Dni = r2.subtract(i2).multiply_mutable(Dni)
+                    .add_mutable(ri.add(rb).add_mutable(ai).add_mutable(ab).abs_mutable().multiply_mutable(ar.subtract(ib).multiply2_mutable().add_mutable(a2).subtract_mutable(b2))).multiply4_mutable();
 
             return MantExpComplex.create(Dnr, Dni).plus_mutable(DeltaSub0);
         }
@@ -928,10 +960,10 @@ public class MandelbrotFourth extends Julia {
             MantExp i = X.getIm();
             MantExp a = DeltaSubN.getRe();
             MantExp b = DeltaSubN.getIm();
-            MantExp r2 = r.multiply(r);
-            MantExp i2 = i.multiply(i);
-            MantExp a2 = a.multiply(a);
-            MantExp b2 = b.multiply(b);
+            MantExp r2 = r.square();
+            MantExp i2 = i.square();
+            MantExp a2 = a.square();
+            MantExp b2 = b.square();
             MantExp ar = a.multiply(r);
             MantExp ib = i.multiply(b);
             MantExp ab = a.multiply(b);
@@ -939,18 +971,17 @@ public class MandelbrotFourth extends Julia {
             MantExp rb = r.multiply(b);
             MantExp ai = a.multiply(i);
 
-
             MantExp Dnr = r2.multiply(ar).add_mutable(ar.multiply(a2)).add_mutable(i2.multiply(ib)).add_mutable(ib.multiply(b2)).multiply4_mutable()
                     .add_mutable(r2.multiply(a2).add_mutable(i2.multiply(b2)).subtract_mutable(r2.multiply(b2)).subtract_mutable(a2.multiply(i2)).subtract_mutable(a2.multiply(b2)).multiply_mutable(MantExp.SIX))
-                    .add_mutable(a2.multiply(a2))
-                    .add_mutable(b2.multiply(b2))
-                    .subtract_mutable(r2.multiply(ib).add_mutable(ar.multiply(i2)).add_mutable(ar.multiply(b2)).add_mutable(a2).multiply(ib).multiply_mutable(MantExp.TWELVE))
-                    .subtract_mutable(MantExp.TWENTYFOUR.multiply(ar).multiply_mutable(ib));
+                    .add_mutable(a2.square())
+                    .add_mutable(b2.square())
+                    .subtract_mutable(r2.multiply(ib).add_mutable(ar.multiply(i2)).add_mutable(ar.multiply(b2)).add_mutable(a2.multiply(ib)).multiply_mutable(MantExp.TWELVE))
+                    .subtract_mutable(ar.multiply(ib).multiply_mutable(MantExp.TWENTYFOUR));
 
             MantExp Dni = MantExpComplex.DiffAbs(ri, rb.add(ai).add_mutable(ab));
 
-            Dni = (r2.subtract(i2)).multiply_mutable(Dni)
-                    .add_mutable(((ri.add(rb).add_mutable(ai).add_mutable(ab)).abs_mutable()).multiply_mutable(ar.subtract(ib).multiply2_mutable().add_mutable(a2).subtract_mutable(b2))).multiply4_mutable();
+            Dni = r2.subtract(i2).multiply_mutable(Dni)
+                    .add_mutable(ri.add(rb).add_mutable(ai).add_mutable(ab).abs_mutable().multiply_mutable(ar.subtract(ib).multiply2_mutable().add_mutable(a2).subtract_mutable(b2))).multiply4_mutable();
 
             return MantExpComplex.create(Dnr, Dni);
         }
@@ -1014,10 +1045,10 @@ public class MandelbrotFourth extends Julia {
             MantExp i = X.getIm();
             MantExp a = DeltaSubN.getRe();
             MantExp b = DeltaSubN.getIm();
-            MantExp r2 = r.multiply(r);
-            MantExp i2 = i.multiply(i);
-            MantExp a2 = a.multiply(a);
-            MantExp b2 = b.multiply(b);
+            MantExp r2 = r.square();
+            MantExp i2 = i.square();
+            MantExp a2 = a.square();
+            MantExp b2 = b.square();
             MantExp ar = a.multiply(r);
             MantExp ib = i.multiply(b);
             MantExp ab = a.multiply(b);
@@ -1027,15 +1058,15 @@ public class MandelbrotFourth extends Julia {
 
             MantExp Dnr = r2.multiply(ar).add_mutable(ar.multiply(a2)).add_mutable(i2.multiply(ib)).add_mutable(ib.multiply(b2)).multiply4_mutable()
                     .add_mutable(r2.multiply(a2).add_mutable(i2.multiply(b2)).subtract_mutable(r2.multiply(b2)).subtract_mutable(a2.multiply(i2)).subtract_mutable(a2.multiply(b2)).multiply_mutable(MantExp.SIX))
-                    .add_mutable(a2.multiply(a2))
-                    .add_mutable(b2.multiply(b2))
-                    .subtract_mutable(r2.multiply(ib).add_mutable(ar.multiply(i2)).add_mutable(ar.multiply(b2)).add_mutable(a2).multiply(ib).multiply_mutable(MantExp.TWELVE))
-                    .subtract_mutable(MantExp.TWENTYFOUR.multiply(ar).multiply_mutable(ib));
+                    .add_mutable(a2.square())
+                    .add_mutable(b2.square())
+                    .subtract_mutable(r2.multiply(ib).add_mutable(ar.multiply(i2)).add_mutable(ar.multiply(b2)).add_mutable(a2.multiply(ib)).multiply_mutable(MantExp.TWELVE))
+                    .subtract_mutable(ar.multiply(ib).multiply_mutable(MantExp.TWENTYFOUR));
 
             MantExp Dni = MantExpComplex.DiffAbs(ri, rb.add(ai).add_mutable(ab));
 
-            Dni = (r2.subtract(i2)).multiply_mutable(Dni)
-                    .add_mutable(((ri.add(rb).add_mutable(ai).add_mutable(ab)).abs_mutable()).multiply_mutable(ar.subtract(ib).multiply2_mutable().add_mutable(a2).subtract_mutable(b2))).multiply4_mutable();
+            Dni = r2.subtract(i2).multiply_mutable(Dni)
+                    .add_mutable(ri.add(rb).add_mutable(ai).add_mutable(ab).abs_mutable().multiply_mutable(ar.subtract(ib).multiply2_mutable().add_mutable(a2).subtract_mutable(b2))).multiply4_mutable();
 
             return MantExpComplex.create(Dnr, Dni);
         }
@@ -1256,5 +1287,35 @@ public class MandelbrotFourth extends Julia {
 
     @Override
     public boolean supportsMpirBignum() { return true;}
+
+    @Override
+    public boolean supportsReferenceCompression() {
+        return true;
+    }
+
+    @Override
+    public Complex function(Complex z, Complex c) {
+        if(not_burning_ship) {
+            return z.fourth_mutable().plus_mutable(c);
+        }
+        else {
+            return z.abs_mutable().fourth_mutable().plus_mutable(c);
+        }
+    }
+
+    @Override
+    public MantExpComplex function(MantExpComplex z, MantExpComplex c) {
+        if(not_burning_ship) {
+            return z.fourth_mutable().plus_mutable(c);
+        }
+        else {
+            return z.abs_mutable().fourth_mutable().plus_mutable(c);
+        }
+    }
+
+    @Override
+    public double getPower() {
+        return 4;
+    }
 
 }

@@ -648,7 +648,7 @@ class ColorPoint implements Comparable<ColorPoint> {
                 paletteLength = new JLabel("" + getTotalColors());
             }
 
-            String[] random_palette_alg_str = {"Golden Ratio", "Waves", "Distance", "Triad", "Tetrad", "Google Material", "ColorBrewer 1", "ColorBrewer 2", "Google-ColorBrewer", "Cubehelix", "IQ-Cosines", "Perlin", "Simplex", "Perlin+Simplex", "Random Walk"};
+            String[] random_palette_alg_str = {"Golden Ratio", "Waves", "Distance", "Triad", "Tetrad", "Google Material", "ColorBrewer 1", "ColorBrewer 2", "Google-ColorBrewer", "Cubehelix", "IQ-Cosines", "Perlin", "Simplex", "Perlin+Simplex", "Random Walk", "Simple Random"};
 
 
             combo_box_random_palette_alg = new JComboBox<>(random_palette_alg_str);

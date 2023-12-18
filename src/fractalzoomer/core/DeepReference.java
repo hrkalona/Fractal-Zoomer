@@ -11,10 +11,17 @@ public class DeepReference {
 
     public long[] expsIm;
 
-    private int lengthOverride;
-    public int length;
+    protected int lengthOverride;
+    protected int length;
 
     public boolean saveMemory;
+    public int id;
+    public boolean compressed;
+
+    public DeepReference() {
+        id = -1;
+        compressed = false;
+    }
     public DeepReference(int length) {
 
         int actualLength = getCreationLength(length);
@@ -28,6 +35,8 @@ public class DeepReference {
         saveMemory = length != actualLength;
 
         this.length = length;
+        id = -1;
+        compressed = false;
 
     }
 
@@ -42,6 +51,8 @@ public class DeepReference {
         saveMemory = false;
         this.lengthOverride = lengthOverride;
         this.length = length;
+        id = -1;
+        compressed = false;
     }
 
     private int getCreationLength(int length) {

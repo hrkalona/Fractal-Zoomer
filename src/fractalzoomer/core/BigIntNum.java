@@ -12,11 +12,15 @@ public class BigIntNum {
 
     //This fixed point representation stores 64 bits as the integer part and fracDigits as the fractional part
 
+    public static long getPrecision() {
+        return (long)fracDigits * SHIFT32;
+    }
     private static final int INTEGER_PART = 2;
     private static final int INTEGER_PART_BYTES = INTEGER_PART << 2;
 
     public static final int SHIFT8 = 8;
     public static final int SHIFT32 = 32;
+    public static final int SHIFT32M1 = SHIFT32 - 1;
 
     public static final int MSHIFTP52 = 52 - SHIFT8;
 
@@ -32,8 +36,9 @@ public class BigIntNum {
     public static int fracDigitsBitsp1 = fracDigitsBits + 1;
     private static BigIntNum ONESHIFTED = new BigIntNum(ONE.digits.shiftLeft(fracDigitsBits));
 
-    public static int THREADS_THRESHOLD = 265;
+    public static int THREADS_THRESHOLD = 245;
     public static boolean use_threads = false;
+   // public static boolean use_threads2 = false;
 
     private long mantissa;
     private boolean hasMantissa;
@@ -41,9 +46,22 @@ public class BigIntNum {
 
     public static void reinitialize(double digits) {
 
-        int temp = (int)(digits / SHIFT32);
+        double res = digits / SHIFT32;
+        int temp = (int) (res);
 
-        fracDigits = (temp + 1) * TaskDraw.BIGNUM_PRECISION_FACTOR;
+        if (temp == 0) {
+            temp = 1;
+        } else if (digits % SHIFT32 != 0) {
+            //0 is floor
+            if(TaskDraw.BIGNUM_INITIALIZATION_ALGORITHM == 1) { //always
+                temp++;
+            }
+            else if (TaskDraw.BIGNUM_INITIALIZATION_ALGORITHM == 2) { //round
+                temp = (int)(res + 0.5);
+            }
+        }
+
+        fracDigits = temp * TaskDraw.BIGNUM_PRECISION_FACTOR;
 
         totalDigits = fracDigits + INTEGER_PART;
         totalDigitsByteCount = totalDigits << 2;
@@ -58,6 +76,7 @@ public class BigIntNum {
 
         use_threads = TaskDraw.USE_THREADS_IN_BIGNUM_LIBS && fracDigits >= THREADS_THRESHOLD && Runtime.getRuntime().availableProcessors() >= 2;
 
+        //use_threads2 = TaskDraw.USE_THREADS_IN_BIGNUM_LIBS && fracDigits >= THREADS_THRESHOLD && Runtime.getRuntime().availableProcessors() >= 3;
     }
 
     public BigIntNum() {
@@ -577,7 +596,7 @@ public class BigIntNum {
         BigIntNum newX = x.mult(oneHalf.sub(aHalf.mult(x.square()))); // x = (3/2 - (a/2)*x^2)*x
 
         byte[] bytes = new byte[totalDigitsByteCount];
-        bytes[totalDigitsByteCount - 1] = 0x1F;
+        bytes[totalDigitsByteCount - 1] = 0x3;
         BigIntNum epsilon = new BigIntNum(new BigInteger(1, bytes));
 
         int iter = 0;
@@ -635,5 +654,53 @@ public class BigIntNum {
     public boolean isNegative() {
         return digits.signum() == -1;
     }
+
+    public int getBitLength() {
+        return digits.bitLength();
+    }
+
+    public String bits() {
+
+        String value = "";
+
+        BigInteger nv = digits.abs();
+
+        for(int i = 0; i < fracDigits; i++) {
+            int v = nv.intValue();
+
+            String temp = "";
+            for (int j = SHIFT32M1; j >= 0; j--) {
+                temp += "" + ((v >>> j) & 0x1);
+            }
+
+            value = temp + value;
+
+            nv = nv.shiftRight(SHIFT32);
+        }
+
+        value = "." + value;
+
+        for(int i = 0; i < INTEGER_PART; i++) {
+            int v = nv.intValue();
+
+            String temp = "";
+            for (int j = SHIFT32M1; j >= 0; j--) {
+                temp += "" + ((v >>> j) & 0x1);
+            }
+
+            value = temp + value;
+
+            nv = nv.shiftRight(SHIFT32);
+        }
+
+        if(digits.signum() == -1) {
+            value = "-" + value;
+        }
+
+        return value;
+
+    }
+
+    public Apfloat toApfloat() { return new MyApfloat(bits(), 2).toRadix(10);}
 
 }

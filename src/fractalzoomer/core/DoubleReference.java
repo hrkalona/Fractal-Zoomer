@@ -5,12 +5,19 @@ import java.util.Arrays;
 public class DoubleReference {
     public double[] re;
     public double[] im;
-    public int length;
-    private int lengthOverride;
+    protected int length;
+    protected int lengthOverride;
     public boolean saveMemory;
     public static final int SAVE_MEMORY_THRESHOLD = 100_000_000;
     public static final int SAVE_MEMORY_THRESHOLD2 = 50_000_000;
     public static boolean SHOULD_SAVE_MEMORY = false;
+    public int id;
+    public boolean compressed;
+
+    public DoubleReference() {
+        id = -1;
+        compressed = false;
+    }
 
     public DoubleReference(int length) {
 
@@ -22,6 +29,9 @@ public class DoubleReference {
         saveMemory = length != actualLength;
 
         this.length = length;
+
+        id = -1;
+        compressed = false;
     }
 
     private int getCreationLength(int length) {
@@ -45,6 +55,8 @@ public class DoubleReference {
         im = new double[length];
         saveMemory = false;
         this.length = length;
+        id = -1;
+        compressed = false;
     }
 
     public void setLengthOverride(int lengthOverride) {

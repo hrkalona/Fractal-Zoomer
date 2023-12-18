@@ -12,6 +12,7 @@ public class TaskStatistic implements Comparable<TaskStatistic> {
     private long extra_pixels_calculated;
 
     private long pixels_post_processed;
+    private int sort_mode = 0;
 
     private long total_pixels;
 
@@ -39,7 +40,14 @@ public class TaskStatistic implements Comparable<TaskStatistic> {
 
     @Override
     public int compareTo(TaskStatistic o) {
-        return Long.compare(pixelCalculationTime, o.pixelCalculationTime);
+        if(sort_mode == 0) {
+            return Long.compare(pixelCalculationTime, o.pixelCalculationTime);
+        }
+        return Long.compare(postProcessingCalculationTime, o.postProcessingCalculationTime);
+    }
+
+    public void setSortMode(int mode) {
+        sort_mode = mode;
     }
 
     public String getThreadName() {

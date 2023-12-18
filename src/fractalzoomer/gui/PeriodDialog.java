@@ -117,6 +117,7 @@ public class PeriodDialog extends JDialog {
                                 return;
                             }
 
+                            s.old_max_iterations = s.max_iterations;
                             s.max_iterations = (int) temp2;
                             
                             if(s.fns.period != temp && s.supportsPeriod() && (TaskDraw.APPROXIMATION_ALGORITHM == 3 || (TaskDraw.DETECT_PERIOD && TaskDraw.STOP_REFERENCE_CALCULATION_AFTER_DETECTED_PERIOD))) {
@@ -130,7 +131,7 @@ public class PeriodDialog extends JDialog {
                         }
 
                         dispose();
-                        ptr.redraw();
+                        ptr.onPeriodChange();
                     }
                 });
 

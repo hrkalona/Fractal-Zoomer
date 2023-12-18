@@ -1,17 +1,15 @@
 package fractalzoomer.core.mpir;
 
 
-import fractalzoomer.core.MantExp;
-import fractalzoomer.core.TaskDraw;
+import fractalzoomer.core.*;
 import fractalzoomer.core.mpfr.MpfrBigNum;
 import fractalzoomer.core.mpfr.mpfr_t;
 import org.apfloat.Apfloat;
 
 import java.util.Arrays;
 
-import static fractalzoomer.core.mpfr.LibMpfr.mpfr_div_2ui;
-import static fractalzoomer.core.mpfr.LibMpfr.mpfr_mul_2ui;
 import static fractalzoomer.core.mpir.LibMpir.*;
+import static fractalzoomer.core.mpir.LibMpir.mpir_fz_square_plus_c_simple_with_reduction_deep;
 
 
 public class MpirBigNum {
@@ -396,18 +394,21 @@ public class MpirBigNum {
     }
 
     public MantExp getMantExp() {
-        if(__gmpf_cmp_ui(mpfMemory.peer, 0) == 0) {
-            return new MantExp();
-        }
 
         if(isLong4) {
             int[] exp = new int[1];
             double d = __gmpf_get_d_2exp(exp, mpfMemory.peer);
+            if(d == 0) {
+                return new MantExp();
+            }
             return new MantExp(exp[0], d);
         }
         else {
             long[] exp = new long[1];
             double d = __gmpf_get_d_2exp(exp, mpfMemory.peer);
+            if(d == 0) {
+                return new MantExp();
+            }
             return new MantExp(exp[0], d);
         }
 
@@ -459,38 +460,40 @@ public class MpirBigNum {
 
             int[] reExp = new int[1];
             int[] imExp = new int[1];
-            int result = mpir_fz_get_d_2exp(reD, imD, reExp, imExp, re.mpfMemory.peer, im.mpfMemory.peer);
+            mpir_fz_get_d_2exp(reD, imD, reExp, imExp, re.mpfMemory.peer, im.mpfMemory.peer);
 
-            if(result == 0) { //No zero
-                return new MantExp[] {new MantExp(reExp[0], reD[0]), new MantExp(imExp[0], imD[0])};
-            }
-            else if(result == 1) { // re is zero
-                return new MantExp[] {new MantExp(), new MantExp(imExp[0], imD[0])};
-            }
-            else if (result == 2) { // im is zero
-                return new MantExp[] {new MantExp(reExp[0], reD[0]), new MantExp()};
-            }
-            else { // both
+            double v1 = reD[0], v2 = imD[0];
+            if(v1 == 0 && v2 == 0) {
                 return new MantExp[] {new MantExp(), new MantExp()};
+            }
+            else if(v1 == 0) {
+                return new MantExp[] {new MantExp(), new MantExp(imExp[0], v2)};
+            }
+            else if(v2 == 0) {
+                return new MantExp[] {new MantExp(reExp[0], v1), new MantExp()};
+            }
+            else {
+                return new MantExp[] {new MantExp(reExp[0], v1), new MantExp(imExp[0], v2)};
             }
         }
         else {
             long[] reExp = new long[1];
             long[] imExp = new long[1];
-            int result = mpir_fz_get_d_2exp(reD, imD, reExp, imExp, re.mpfMemory.peer, im.mpfMemory.peer);
-
-            if(result == 0) {
-                return new MantExp[] {new MantExp(reExp[0], reD[0]), new MantExp(imExp[0], imD[0])};
-            }
-            else if(result == 1) {
-                return new MantExp[] {new MantExp(), new MantExp(imExp[0], imD[0])};
-            }
-            else if (result == 2) {
-                return new MantExp[] {new MantExp(reExp[0], reD[0]), new MantExp()};
-            }
-            else {
+            mpir_fz_get_d_2exp(reD, imD, reExp, imExp, re.mpfMemory.peer, im.mpfMemory.peer);
+            double v1 = reD[0], v2 = imD[0];
+            if(v1 == 0 && v2 == 0) {
                 return new MantExp[] {new MantExp(), new MantExp()};
             }
+            else if(v1 == 0) {
+                return new MantExp[] {new MantExp(), new MantExp(imExp[0], v2)};
+            }
+            else if(v2 == 0) {
+                return new MantExp[] {new MantExp(reExp[0], v1), new MantExp()};
+            }
+            else {
+                return new MantExp[] {new MantExp(reExp[0], v1), new MantExp(imExp[0], v2)};
+            }
+
         }
 
 
@@ -505,6 +508,35 @@ public class MpirBigNum {
     public static void z_sqr_p_c(MpirBigNum re, MpirBigNum im, MpirBigNum temp1, MpirBigNum temp2, MpirBigNum temp3, MpirBigNum cre, MpirBigNum cim) {
 
         mpir_fz_square_plus_c_simple(re.mpfMemory.peer, im.mpfMemory.peer, temp1.mpfMemory.peer, temp2.mpfMemory.peer, temp3.mpfMemory.peer, cre.mpfMemory.peer, cim.mpfMemory.peer, 1, use_threads);
+
+    }
+
+    static double[] valRe = new double[1];
+    static double[] valIm = new double[1];
+    static double[] mantissaRe = new double[1];
+    static double[] mantissaIm = new double[1];
+
+    static long[] reExpL = new long[1];
+    static long[] imExpL = new long[1];
+    static int[] reExp = new int[1];
+    static int[] imExp = new int[1];
+
+    public static void z_sqr_p_c_with_reduction(MpirBigNum re, MpirBigNum im, MpirBigNum temp1, MpirBigNum temp2, MpirBigNum temp3, MpirBigNum cre, MpirBigNum cim, boolean deepZoom, Complex cz, MantExpComplex mcz) {
+
+        if(deepZoom) {
+            if(isLong4) {
+                mpir_fz_square_plus_c_simple_with_reduction_deep(re.mpfMemory.peer, im.mpfMemory.peer, temp1.mpfMemory.peer, temp2.mpfMemory.peer, temp3.mpfMemory.peer, cre.mpfMemory.peer, cim.mpfMemory.peer, 1, use_threads, mantissaRe, mantissaIm, reExp, imExp);
+                mcz.set(reExp[0], imExp[0], mantissaRe[0], mantissaIm[0]);
+            }
+            else {
+                mpir_fz_square_plus_c_simple_with_reduction_deep(re.mpfMemory.peer, im.mpfMemory.peer, temp1.mpfMemory.peer, temp2.mpfMemory.peer, temp3.mpfMemory.peer, cre.mpfMemory.peer, cim.mpfMemory.peer, 1, use_threads, mantissaRe, mantissaIm, reExpL, imExpL);
+                mcz.set(reExpL[0], imExpL[0], mantissaRe[0], mantissaIm[0]);
+            }
+        }
+        else {
+            mpir_fz_square_plus_c_simple_with_reduction_not_deep(re.mpfMemory.peer, im.mpfMemory.peer, temp1.mpfMemory.peer, temp2.mpfMemory.peer, temp3.mpfMemory.peer, cre.mpfMemory.peer, cim.mpfMemory.peer, 1, use_threads, valRe, valIm);
+            cz.assign(valRe[0], valIm[0]);
+        }
 
     }
 
@@ -571,6 +603,17 @@ public class MpirBigNum {
         mpir_fz_r_ball_pow2(r.mpfMemory.peer, az.mpfMemory.peer, r0.mpfMemory.peer, azsquare.mpfMemory.peer);
 
     }
+
+    public String toFullString() {
+//        int n = (int) MyApfloat.precision * 2;
+//        byte[] buf = new byte[n];
+//        String template = "%." + MyApfloat.precision + "f";
+//        __gmp_snprintf(buf, n, template, mpfMemory.peer);
+//        return new String(buf).trim();
+        return new MpfrBigNum(this).toFullString();
+    }
+
+    public Apfloat toApfloat() { return new MyApfloat(toFullString());}
 
 
     public static void main(String[] args) {

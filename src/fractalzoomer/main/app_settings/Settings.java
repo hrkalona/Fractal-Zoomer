@@ -64,6 +64,7 @@ public class Settings implements Constants {
     public Apfloat size;
     public double height_ratio;
     public int max_iterations;
+    public long old_max_iterations;
     public double circle_period;
     public int color_smoothing_method;
     public Color fractal_color;
@@ -356,12 +357,12 @@ public class Settings implements Constants {
 
             if(MyApfloat.setAutomaticPrecision) {
 
-                long precision = MyApfloat.getAutomaticPrecision(new String[]{sizeStr, xCenterStr, yCenterStr, xJuliaCenterStr, yJuliaCenterStr}, new boolean[] {true, false, false, false, false});
+                long precision = MyApfloat.getAutomaticPrecision(new String[]{sizeStr, xCenterStr, yCenterStr, xJuliaCenterStr, yJuliaCenterStr}, new boolean[] {true, false, false, false, false}, settings.getFunction());
 
-                if (MyApfloat.shouldSetPrecision(precision, true)) {
+                //if (MyApfloat.shouldSetPrecision(precision, true, settings.getFunction())) {
                     Fractal.clearReferences(true, true);
                     MyApfloat.setPrecision(precision, this);
-                }
+                //}
             }
 
             if(version < 1084) {
@@ -438,12 +439,12 @@ public class Settings implements Constants {
 
             if(MyApfloat.setAutomaticPrecision) {
 
-                long precision = MyApfloat.getAutomaticPrecision(new String[]{sizeStr, xCenterStr, yCenterStr}, new boolean[] {true, false, false});
+                long precision = MyApfloat.getAutomaticPrecision(new String[]{sizeStr, xCenterStr, yCenterStr}, new boolean[] {true, false, false}, settings.getFunction());
 
-                if (MyApfloat.shouldSetPrecision(precision, true)) {
+                //if (MyApfloat.shouldSetPrecision(precision, true, settings.getFunction())) {
                     Fractal.clearReferences(true, true);
                     MyApfloat.setPrecision(precision, this);
-                }
+                //}
             }
         }
 
@@ -1675,6 +1676,21 @@ public class Settings implements Constants {
             fs.blurringKernelSelection = ((SettingsFractals1089) settings).getBlurringKernelSelection();
         }
 
+        if(version < 1090) {
+            fns.convergent_bailout = defaults.fns.convergent_bailout;
+            pps.hss.rank_order_digits_grouping = defaults.pps.hss.rank_order_digits_grouping;
+        }
+        else {
+            if(TaskDraw.LOAD_DRAWING_ALGORITHM_FROM_SAVES) {
+                TaskDraw.SUCCESSIVE_REFINEMENT_SQUARE_RECT_SPLIT_ALGORITHM = ((SettingsFractals1090) settings).getBlocksFormat();
+                TaskDraw.TWO_PASS_SUCCESSIVE_REFINEMENT = ((SettingsFractals1090) settings).getTwoStepRefinement();
+                TaskDraw.CHUNK_SIZE_PER_ROW = ((SettingsFractals1090) settings).getOneChunkPerRow();
+            }
+
+            fns.convergent_bailout = ((SettingsFractals1090) settings).getConvergentBailout();
+            pps.hss.rank_order_digits_grouping = ((SettingsFractals1090) settings).getRankOrderDigitsGrouping();
+        }
+
         if (fns.plane_type == USER_PLANE) {
             if (version < 1058) {
                 fns.user_plane_algorithm = defaults.fns.user_plane_algorithm;
@@ -2156,7 +2172,7 @@ public class Settings implements Constants {
                 userCode = userCode.replaceAll("\\b" + Parser.DEFAULT_USER_CODE_CLASS + "\\b", Parser.SAVED_USER_CODE_CLASS);
             }
 
-            SettingsFractals settings = new SettingsFractals1089(this, TaskDraw.PERTURBATION_THEORY, TaskDraw.GREEDY_ALGORITHM, TaskDraw.BRUTE_FORCE_ALG, TaskDraw.GREEDY_ALGORITHM_SELECTION, TaskDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA, userCode, TaskDraw.GUESS_BLOCKS_SELECTION);
+            SettingsFractals settings = new SettingsFractals1090(this, TaskDraw.PERTURBATION_THEORY, TaskDraw.GREEDY_ALGORITHM, TaskDraw.BRUTE_FORCE_ALG, TaskDraw.GREEDY_ALGORITHM_SELECTION, TaskDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA, userCode, TaskDraw.GUESS_BLOCKS_SELECTION, TaskDraw.SUCCESSIVE_REFINEMENT_SQUARE_RECT_SPLIT_ALGORITHM, TaskDraw.TWO_PASS_SUCCESSIVE_REFINEMENT, TaskDraw.CHUNK_SIZE_PER_ROW);
             file_temp.writeObject(settings);
             file_temp.flush();
         } catch (IOException ex) {
@@ -2595,6 +2611,7 @@ public class Settings implements Constants {
             case MAGNET_PATAKI4:
             case MAGNET_PATAKI5:
             case MAGNET_PATAKIK:
+            case FORMULA48:
                 xCenter = new MyApfloat(0.0);
                 yCenter = new MyApfloat(0.0);
                 size = new MyApfloat(6);
@@ -2625,6 +2642,8 @@ public class Settings implements Constants {
         }
 
         fns.period = 0;
+        fns.convergent_bailout = 0;
+        TaskDraw.USER_CONVERGENT_BAILOUT = 0;
     }
 
     public void createPoly() {
@@ -2662,7 +2681,7 @@ public class Settings implements Constants {
         }
     }
 
-    public boolean hasConvergentBailoutCondition() {
+    public boolean hasConvergentBailout() {
         return (isConvergingType() || isMagnetType() || isEscapingOrConvergingType()) && fns.function != MAGNETIC_PENDULUM;
     }
 
@@ -2905,7 +2924,6 @@ public class Settings implements Constants {
         return  nova_method == NOVA_HALLEY
                 || nova_method == NOVA_PARHALLEY
                 || nova_method == NOVA_SCHRODER
-                ||nova_method == NOVA_HOUSEHOLDER
                 || nova_method == NOVA_HOUSEHOLDER
                 || nova_method == NOVA_LAGUERRE
                 || nova_method == NOVA_WHITTAKER
@@ -2980,7 +2998,7 @@ public class Settings implements Constants {
 
     public static boolean isMagnetPataki(int function) {
         return function == MAGNET_PATAKI2 || function == MAGNET_PATAKI3
-                || function == MAGNET_PATAKI4 || function == MAGNET_PATAKI4
+                || function == MAGNET_PATAKI4
                 || function == MAGNET_PATAKI5 || function == MAGNET_PATAKIK;
     }
 
@@ -3016,6 +3034,7 @@ public class Settings implements Constants {
             TaskDraw.palette_incoloring = new PresetPalette(ps2.color_choice, ps2.direct_palette, fns.smoothing, special_color, color_smoothing_method, special_use_palette_color, fns.smoothing_fractional_transfer_method).getRawPalette();
         }
 
+        TaskDraw.USER_CONVERGENT_BAILOUT = fns.convergent_bailout * fns.convergent_bailout;
         TaskDraw.palette_outcoloring.setGeneratedPaletteSettings(true, gps);
         TaskDraw.palette_incoloring.setGeneratedPaletteSettings(false, gps);
 
@@ -3089,7 +3108,15 @@ public class Settings implements Constants {
                 || fns.function == MAGNET_PATAKI2 || fns.function == MAGNET_PATAKI3
                 || fns.function == MAGNET_PATAKI4 || fns.function == MAGNET_PATAKI5 || fns.function == FORMULA47
                 || fns.function ==  PERPENDICULAR_MANDELBROT || fns.function == BUFFALO_MANDELBROT || fns.function == CELTIC_MANDELBROT
-                || fns.function ==  PERPENDICULAR_BURNING_SHIP || fns.function == PERPENDICULAR_CELTIC_MANDELBROT || fns.function == PERPENDICULAR_BUFFALO_MANDELBROT);
+                || fns.function ==  PERPENDICULAR_BURNING_SHIP || fns.function == PERPENDICULAR_CELTIC_MANDELBROT || fns.function == PERPENDICULAR_BUFFALO_MANDELBROT
+                || fns.function == FORMULA48);
+    }
+
+    public static boolean usesPerturbationWithDivision(int function) {
+        return function == MAGNET1 || function == NEWTON_THIRD_DEGREE_PARAMETER_SPACE
+                || function == NEWTON3 || function == NOVA ||
+                function == MAGNET_PATAKI2 || function == MAGNET_PATAKI3
+                || function == MAGNET_PATAKI4 || function == MAGNET_PATAKI5 || function == FORMULA48;
     }
 
     public boolean isPertubationTheoryInUse() {
@@ -3130,8 +3157,27 @@ public class Settings implements Constants {
         return requiresSmoothingCalculation() || requiresUnSmoothingCalculation();
     }
 
+    public boolean canSkipCalculatedAreas() {
+        return !d3s.d3 && !ds.domain_coloring && !julia_map && !fs.filters[ANTIALIASING];
+    }
+
     public boolean supportsBilinearApproximation() {
         return (fns.function == MANDELBROT || fns.function == MANDELBROTCUBED || fns.function == MANDELBROTFOURTH || fns.function == MANDELBROTFIFTH) && !fns.burning_ship && !fns.julia;
+    }
+
+    public boolean requiresRecalculation(boolean ignoreTrueColorOut) {
+
+        if(ignoreTrueColorOut) {
+            return pps.ots.useTraps || fns.tcs.trueColorIn
+                    || (pps.sts.statistic && pps.sts.statisticGroup == 2 && pps.sts.equicontinuityOverrideColoring)
+                    || (pps.sts.statistic && (pps.sts.statisticGroup == 3 || pps.sts.normalMapCombineWithOtherStatistics))
+                    || (pps.sts.statistic && pps.sts.statisticGroup == 4);
+        }
+
+        return pps.ots.useTraps || fns.tcs.trueColorOut || fns.tcs.trueColorIn
+                || (pps.sts.statistic && pps.sts.statisticGroup == 2 && pps.sts.equicontinuityOverrideColoring)
+                || (pps.sts.statistic && (pps.sts.statisticGroup == 3 || pps.sts.normalMapCombineWithOtherStatistics))
+                || (pps.sts.statistic && pps.sts.statisticGroup == 4);
     }
 
     public boolean supportsBilinearApproximation2() {
@@ -3186,7 +3232,7 @@ public class Settings implements Constants {
         ) && !useDirectColor;
     }
     public boolean needsExtraData() {
-        return fs.filters[Constants.ANTIALIASING]  && (needsPostProcessing() || TaskDraw.ALWAYS_SAVE_EXTRA_PIXEL_DATA_ON_AA);
+        return fs.filters[Constants.ANTIALIASING]  && ((TaskDraw.ALWAYS_SAVE_EXTRA_PIXEL_DATA_ON_AA_WITH_PP && needsPostProcessing()) || TaskDraw.ALWAYS_SAVE_EXTRA_PIXEL_DATA_ON_AA);
     }
 
 }

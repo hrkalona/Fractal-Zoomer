@@ -45,20 +45,7 @@ public class TiledGuessingDraw extends TaskDraw {
 
         Location location = Location.getInstanceForDrawing(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
 
-        if(PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && !HIGH_PRECISION_CALCULATION) {
-            if (reference_calc_sync.getAndIncrement() == 0) {
-                calculateReference(location);
-            }
-
-            try {
-                reference_sync.await();
-            } catch (InterruptedException ex) {
-
-            } catch (BrokenBarrierException ex) {
-
-            }
-            location.setReference(Fractal.refPoint);
-        }
+        initialize(location);
 
         int pixel_percent = (image_size * image_size) / 100;
 
@@ -202,11 +189,15 @@ public class TiledGuessingDraw extends TaskDraw {
                             int temploc = k * image_size;
                             temp3 = temploc + x;
                             temp4 = temploc + temp1;
-                            Arrays.fill(image_iterations, temp3, temp4, temp_starting_pixel_cicle);
-                            Arrays.fill(rgbs, temp3, temp4, skippedColor);
-                            Arrays.fill(escaped, temp3, temp4, temp_starting_escaped);
+                            for (int index = temp3; index < temp4; index++) {
+                                if (rgbs[index] == notCalculated) {
+                                    image_iterations[index] = temp_starting_pixel_cicle;
+                                    rgbs[index] = skippedColor;
+                                    escaped[index] = temp_starting_escaped;
+                                    task_completed++;
+                                }
+                            }
                             drawing_done += chunk;
-                            task_completed += chunk;
                         }
 
                         if (drawing_done / pixel_percent >= 1) {

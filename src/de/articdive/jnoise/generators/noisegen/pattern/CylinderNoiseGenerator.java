@@ -3,7 +3,6 @@ package de.articdive.jnoise.generators.noisegen.pattern;
 import de.articdive.jnoise.core.api.noisegen.NoiseGenerator;
 import de.articdive.jnoise.core.api.pipeline.NoiseSourceBuilder;
 
-
 /**
  * A noise generator that returns a concentric cylinders (centered on the origin) extending infinitely.
  * Returns 1.0 when on a cylinder side, and 0.0 when perfectly between two cylinders.
@@ -58,7 +57,6 @@ public final class CylinderNoiseGenerator implements NoiseGenerator {
      *
      * @return {@link CylinderNoiseBuilder}.
      */
-    
     public static CylinderNoiseBuilder newBuilder() {
         return new CylinderNoiseBuilder();
     }
@@ -73,7 +71,6 @@ public final class CylinderNoiseGenerator implements NoiseGenerator {
         }
 
         @Override
-        
         public CylinderNoiseGenerator build() {
             return new CylinderNoiseGenerator();
         }

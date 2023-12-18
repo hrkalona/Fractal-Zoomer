@@ -506,6 +506,26 @@ public class MantExpComplexFull extends MantExpComplex {
     }
 
     @Override
+    public MantExpComplexFull absre_mutable() {
+
+        re.abs_mutable();
+        return this;
+
+    }
+
+    @Override
+    public MantExpComplexFull absNegateRe_mutable() {
+        re.abs_mutable().negate_mutable();
+        return this;
+    }
+
+    @Override
+    public MantExpComplexFull absNegateIm_mutable() {
+        im.abs_mutable().negate_mutable();
+        return this;
+    }
+
+    @Override
     public MantExpComplexFull conjugate() {
 
         return new MantExpComplexFull(re, im.negate());
@@ -651,6 +671,41 @@ public class MantExpComplexFull extends MantExpComplex {
         im.mantissa = mantissaImag1;
         re.exp = exp1;
         im.exp = expIm1;
+    }
+
+    @Override
+    public void set(long expRe, long expIm, double valRe, double valIm) {
+
+        if(valRe == 0 && valIm == 0) {
+            expRe = MantExp.MIN_BIG_EXPONENT;
+            expIm = MantExp.MIN_BIG_EXPONENT;
+        }
+        else if(valRe == 0) {
+            expRe = MantExp.MIN_BIG_EXPONENT;
+        }
+        else if(valIm == 0) {
+            expIm = MantExp.MIN_BIG_EXPONENT;
+        }
+
+        re.exp = expRe;
+        im.exp = expIm;
+        re.mantissa = valRe;
+        im.mantissa = valIm;
+    }
+
+    @Override
+    public boolean isInfinite() {
+        return Double.isInfinite(re.mantissa) || Double.isInfinite(im.mantissa);
+    }
+
+    @Override
+    public boolean isNaN() {
+        return Double.isNaN(re.mantissa) || Double.isNaN(im.mantissa);
+    }
+
+    @Override
+    public boolean isZero() {
+        return re.mantissa == 0 && im.mantissa == 0;
     }
 }
 

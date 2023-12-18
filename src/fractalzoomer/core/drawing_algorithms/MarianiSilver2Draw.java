@@ -50,20 +50,7 @@ public class MarianiSilver2Draw extends TaskDraw {
 
         Location location = Location.getInstanceForDrawing(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
 
-        if(PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && !HIGH_PRECISION_CALCULATION) {
-            if (reference_calc_sync.getAndIncrement() == 0) {
-                calculateReference(location);
-            }
-
-            try {
-                reference_sync.await();
-            } catch (InterruptedException ex) {
-
-            } catch (BrokenBarrierException ex) {
-
-            }
-            location.setReference(Fractal.refPoint);
-        }
+        initialize(location);
 
         ExpandingQueueSquare squares = new ExpandingQueueSquare(RENDER_USING_DFS ? INIT_QUEUE_SIZE : INIT_QUEUE_SIZE2);
 
@@ -126,6 +113,7 @@ public class MarianiSilver2Draw extends TaskDraw {
                 temp_starting_pixel_color = rgbs[loc] = getFinalColor(temp_starting_value, temp_starting_escaped);
                 drawing_done++;
                 task_calculated++;
+                task_completed++;
             }
             else {
                 temp_starting_value = image_iterations[loc];
@@ -146,6 +134,7 @@ public class MarianiSilver2Draw extends TaskDraw {
 
                     drawing_done++;
                     task_calculated++;
+                    task_completed++;
                 }
             }
 
@@ -162,6 +151,7 @@ public class MarianiSilver2Draw extends TaskDraw {
 
                     drawing_done++;
                     task_calculated++;
+                    task_completed++;
                 }
             }
 
@@ -177,6 +167,7 @@ public class MarianiSilver2Draw extends TaskDraw {
 
                     drawing_done++;
                     task_calculated++;
+                    task_completed++;
                 }
             }
 
@@ -193,6 +184,7 @@ public class MarianiSilver2Draw extends TaskDraw {
 
                     drawing_done++;
                     task_calculated++;
+                    task_completed++;
                 }
             }
 
@@ -242,9 +234,16 @@ public class MarianiSilver2Draw extends TaskDraw {
                     int temploc = k * image_size;
                     int loc3 = temploc + x;
                     int loc4 = temploc + temp1;
-                    Arrays.fill(rgbs, loc3, loc4, skippedColor);
-                    Arrays.fill(image_iterations, loc3, loc4, temp_starting_value);
-                    Arrays.fill(escaped, loc3, loc4, temp_starting_escaped);
+
+                    for (int index = loc3; index < loc4; index++) {
+                        if (rgbs[index] == notCalculated) {
+                            image_iterations[index] = temp_starting_value;
+                            rgbs[index] = skippedColor;
+                            escaped[index] = temp_starting_escaped;
+                            task_completed++;
+                        }
+                    }
+
                     drawing_done += chunk;
                 }
                 

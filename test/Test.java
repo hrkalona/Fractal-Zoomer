@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
+package test;
 import fractalzoomer.core.Complex;
 import fractalzoomer.parser.EvaluationException;
 import fractalzoomer.parser.ExpressionNode;

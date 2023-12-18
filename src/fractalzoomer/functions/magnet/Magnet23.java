@@ -37,7 +37,7 @@ public class Magnet23 extends MagnetType {
 
         super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, ots);
 
-        convergent_bailout = 1E-9;
+        setConvergentBailout(1E-9);
 
         setPertubationOption(perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, perturbation_user_formula, user_perturbation_conditions, user_perturbation_condition_formula, plane_transform_center);
 
@@ -61,10 +61,8 @@ public class Magnet23 extends MagnetType {
         switch (out_coloring_algorithm) {
 
             case MainWindow.ITERATIONS_PLUS_RE_DIVIDE_IM:
-                convergent_bailout = 1E-2;
-                break;
             case MainWindow.ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM:
-                convergent_bailout = 1E-2;
+                setConvergentBailout(1E-2);
                 break;
         }
 
@@ -81,15 +79,13 @@ public class Magnet23 extends MagnetType {
 
         super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, periodicity_checking, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, ots, xJuliaCenter, yJuliaCenter);
 
-        convergent_bailout = 1E-9;
+        setConvergentBailout(1E-9);
 
         switch (out_coloring_algorithm) {
 
             case MainWindow.ITERATIONS_PLUS_RE_DIVIDE_IM:
-                convergent_bailout = 1E-2;
-                break;
             case MainWindow.ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM:
-                convergent_bailout = 1E-2;
+                setConvergentBailout(1E-2);
                 break;
         }
 

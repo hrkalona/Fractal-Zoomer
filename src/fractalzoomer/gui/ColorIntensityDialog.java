@@ -106,7 +106,7 @@ public class ColorIntensityDialog extends JDialog {
                         }
 
                         dispose();
-                        ptr.updateColors(false);
+                        ptr.updateColors(false, false);
                     }
                 });
 

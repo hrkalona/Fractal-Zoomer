@@ -457,6 +457,7 @@ public class BigComplex extends GenericComplex {
     /*
      *  1 / z
      */
+    @Override
     public final BigComplex reciprocal() {
 
         Apfloat temp = MyApfloat.fp.divide(MyApfloat.ONE, MyApfloat.fp.add(MyApfloat.fp.multiply(re, re), MyApfloat.fp.multiply(im, im)));
@@ -1081,4 +1082,7 @@ public class BigComplex extends GenericComplex {
 
     @Override
     public BigComplex absre_mutable() { return  absre(); }
+
+    @Override
+    public BigComplex toBigComplex() {return this;}
 }

@@ -18,6 +18,7 @@
 package fractalzoomer.fractal_options.perturbation;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.core.MantExpComplex;
 import fractalzoomer.core.TaskDraw;
 import fractalzoomer.fractal_options.PlanePointOption;
 import fractalzoomer.parser.ExpressionNode;
@@ -79,6 +80,11 @@ public class VariablePerturbation extends PlanePointOption {
 
         return pixel.plus(expr.getValue());
         
+    }
+
+    @Override
+    public MantExpComplex getValueDeep(MantExpComplex pixel) {
+        return MantExpComplex.create(getValue(pixel.toComplex()));
     }
     
 }

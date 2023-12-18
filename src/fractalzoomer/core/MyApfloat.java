@@ -40,8 +40,9 @@ public class MyApfloat extends Apfloat {
     public static Apfloat SA_START_SIZE;
     public static Apfloat NEGATIVE_INFINITY = new Apfloat("-1e5000000000");
     public static FixedPrecisionApfloatHelper fp;
-    public static long precHeadRoom = 30;
-    public static long precHeadRoomSmall = 4;
+    public static long precHeadRoom = 25;
+    public static long precHeadRoom2 = 50;
+    public static long precHeadRoomSmall = 5;
 
     public static boolean setAutomaticPrecision = true;
     public static boolean alwaysCheckForDecrease = true;
@@ -58,13 +59,13 @@ public class MyApfloat extends Apfloat {
         Apfloat val = new Apfloat(new BigDecimal(value), 10000); //Hopefully that is enough
         return Math.abs(val.scale()) + precHeadRoom + 1; // + 30 for some headroom
     }*/
-
-    public static long getAutomaticPrecision(String[] values, boolean[] preferExponent) {
-        long prec = getAutomaticPrecisionInternal(values, preferExponent);
-        return Math.max(prec, precHeadRoom);
+    public static long getAutomaticPrecision(String[] values, boolean[] preferExponent, int function) {
+        long precHeadRoomToUse = Settings.usesPerturbationWithDivision(function) ? precHeadRoom2 : precHeadRoom;
+        long prec = getAutomaticPrecisionInternal(values, preferExponent, precHeadRoomToUse);
+        return Math.max(prec, precHeadRoomToUse);
     }
 
-    private static long getAutomaticPrecisionInternal(String[] values, boolean[] preferExponent) {
+    private static long getAutomaticPrecisionInternal(String[] values, boolean[] preferExponent, long precHeadRoom) {
 
         long maxValue = Long.MIN_VALUE;
         long maxValueForExponentPreferal = Long.MIN_VALUE;
@@ -154,11 +155,12 @@ public class MyApfloat extends Apfloat {
         }
     }
 
-    public static boolean shouldSetPrecision(long newPrecision, boolean checkForDecrease) {
+    public static boolean shouldSetPrecision(long newPrecision, boolean checkForDecrease, int function) {
+        long precHeadRoomToUse = Settings.usesPerturbationWithDivision(function) ? precHeadRoom2 : precHeadRoom;
         return (newPrecision > precision) ||
                 (checkForDecrease
-                && newPrecision < (precision - (precHeadRoom << 1))
-                && newPrecision > precHeadRoom
+                && newPrecision < (precision - (precHeadRoomToUse << 1))
+                && newPrecision > precHeadRoomToUse
                 );
     }
 
@@ -167,7 +169,8 @@ public class MyApfloat extends Apfloat {
     }
 
     public static void increasePrecision(Settings s) {
-        setPrecision(precision + precHeadRoom, s);
+        long precHeadRoomToUse = Settings.usesPerturbationWithDivision(s.fns.function) ? precHeadRoom2 : precHeadRoom;
+        setPrecision(precision + precHeadRoomToUse, s);
     }
 
     static {
@@ -189,7 +192,7 @@ public class MyApfloat extends Apfloat {
         SIXTEEN = new Apint(16);
         TWENTYFOUR = new Apint(24);
         THIRTYTWO = new Apint(32);
-        E = fp.exp(ONE);
+        E = fp.e();
         TWO_PI = fp.multiply(PI, TWO);
         SQRT_TWO = fp.sqrt(TWO);
         LOG_TWO = fp.log(TWO);
@@ -222,7 +225,7 @@ public class MyApfloat extends Apfloat {
         precision = prec;
         fp = new FixedPrecisionApfloatHelper(precision);
         PI = fp.pi();
-        E = fp.exp(ONE);
+        E = fp.e();
         TWO_PI = fp.multiply(PI, TWO);
         SQRT_TWO = fp.sqrt(TWO);
         LOG_TWO = fp.log(TWO);
@@ -284,6 +287,10 @@ public class MyApfloat extends Apfloat {
 
     public MyApfloat(String value) {
         super(value.trim(), precision);
+    }
+
+    public MyApfloat(String value, int radix) {
+        super(value.trim(), precision, radix);
     }
 
     public static Apfloat getPi() {
@@ -637,7 +644,7 @@ public class MyApfloat extends Apfloat {
         MyApfloat.precision = 50;
         MyApfloat.fp = new FixedPrecisionApfloatHelper(MyApfloat.precision);
 
-        System.out.println(getAutomaticPrecision(new String[]{"0.003236469856558749616219364295756151228386738578675", "-0.8421534199886435385336059377278168189344067258883", "6.82121026329696178436279296875e-13" }, new boolean[] {false, false, true}));
+        //System.out.println(getAutomaticPrecision(new String[]{"0.003236469856558749616219364295756151228386738578675", "-0.8421534199886435385336059377278168189344067258883", "6.82121026329696178436279296875e-13" }, new boolean[] {false, false, true}));
 
         //Apfloat a = new MyApfloat("-1.99996619445037030418434688506350579675531241540724851511761922944801584242342684381376129778868913812287046406560949864353810575744772166485672496092803920095332");
         //Apfloat b = new MyApfloat("+0.00000000000000000000000000000000030013824367909383240724973039775924987346831190773335270174257280120474975614823581185647299288414075519224186504978181625478529");

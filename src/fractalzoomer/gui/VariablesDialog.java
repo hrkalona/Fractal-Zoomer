@@ -163,7 +163,7 @@ public class VariablesDialog extends JDialog {
                         }
 
                         dispose();
-                        ptr.redraw();
+                        ptr.redraw(false);
 
                     }
                 });

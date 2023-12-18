@@ -111,6 +111,7 @@ import fractalzoomer.functions.root_finding_methods.whittaker_double_convex.*;
 import fractalzoomer.functions.szegedi_butterfly.SzegediButterfly1;
 import fractalzoomer.functions.szegedi_butterfly.SzegediButterfly2;
 import fractalzoomer.functions.user_formulas.*;
+import fractalzoomer.main.CommonFunctions;
 import fractalzoomer.main.Constants;
 import fractalzoomer.main.ImageExpanderWindow;
 import fractalzoomer.main.MainWindow;
@@ -138,6 +139,7 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.LongAccumulator;
 import java.util.concurrent.atomic.LongAdder;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -188,16 +190,58 @@ public abstract class TaskDraw implements Runnable {
     public static float HSB_CONSTANT_S = 1;
     public static float HSB_CONSTANT_B = 1;
 
+    public static double USER_CONVERGENT_BAILOUT;
+
+    public static boolean CHUNK_SIZE_PER_ROW = false;
+
     protected static final int THREAD_CHUNK_SIZE = 500;
     protected static final int SUCCESSIVE_REFINEMENT_EXPONENT = 7;
     protected static final int SUCCESSIVE_REFINEMENT_MAX_SIZE = 2 << (SUCCESSIVE_REFINEMENT_EXPONENT - 1);
     protected static final int[] THREAD_CHUNK_SIZE_PER_LEVEL = {2, 4, 8, 16, 32, 64, 128, 256};
+    protected static final int[] THREAD_CHUNK_SIZE_PER_LEVEL2 = {2, 4, 4, 8, 8, 16, 16, 32, 32, 64, 64, 128, 128, 256, 256};
+
+    protected static final int[] SUCCESSIVE_REFINEMENT_SPLIT1 = {SUCCESSIVE_REFINEMENT_MAX_SIZE, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 1, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 1,
+            SUCCESSIVE_REFINEMENT_MAX_SIZE >> 2, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 2, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 3, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 3,
+            SUCCESSIVE_REFINEMENT_MAX_SIZE >> 4, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 4, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 5, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 5,
+            SUCCESSIVE_REFINEMENT_MAX_SIZE >> 6, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 6, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 7, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 7};
+
+    protected static final int[] SUCCESSIVE_REFINEMENT_SPLIT2 = {SUCCESSIVE_REFINEMENT_MAX_SIZE, SUCCESSIVE_REFINEMENT_MAX_SIZE, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 1, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 1,
+            SUCCESSIVE_REFINEMENT_MAX_SIZE >> 2, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 2, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 3, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 3,
+            SUCCESSIVE_REFINEMENT_MAX_SIZE >> 4, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 4, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 5, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 5,
+            SUCCESSIVE_REFINEMENT_MAX_SIZE >> 6, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 6, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 7};
+
+
+    protected static final int[] SUCCESSIVE_REFINEMENT_SPLIT3 = {SUCCESSIVE_REFINEMENT_MAX_SIZE, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 1, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 1,
+            SUCCESSIVE_REFINEMENT_MAX_SIZE >> 1, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 2, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 3, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 3,
+            SUCCESSIVE_REFINEMENT_MAX_SIZE >> 3, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 4, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 5, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 5,
+            SUCCESSIVE_REFINEMENT_MAX_SIZE >> 5, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 6, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 7, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 7};
+
+    protected static final int[] SUCCESSIVE_REFINEMENT_SPLIT4 = {SUCCESSIVE_REFINEMENT_MAX_SIZE, SUCCESSIVE_REFINEMENT_MAX_SIZE, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 1, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 2,
+            SUCCESSIVE_REFINEMENT_MAX_SIZE >> 2, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 2, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 3, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 4,
+            SUCCESSIVE_REFINEMENT_MAX_SIZE >> 4, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 4, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 5, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 6,
+            SUCCESSIVE_REFINEMENT_MAX_SIZE >> 6, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 6, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 7};
+
+
+    public static int SUCCESSIVE_REFINEMENT_SQUARE_RECT_SPLIT_ALGORITHM = 0;
+
+    public static boolean COMPRESS_REFERENCE_IF_POSSIBLE = false;
+
+    public static boolean TWO_PASS_SUCCESSIVE_REFINEMENT = false;
+    public static int SQUARE_RECT_CHUNK_AGGERAGATION = 0;
+
+    protected static int[] SUCCESSIVE_REFINEMENT_CHUNK_X;
+    protected static int[] SUCCESSIVE_REFINEMENT_CHUNK_Y;
 
     public static boolean QUICKDRAW_SUCCESSIVE_REFINEMENT = false;
     public static boolean USE_QUICKDRAW_ON_GREEDY_SUCCESSIVE_REFINEMENT = true;
     public static boolean ALWAYS_SAVE_EXTRA_PIXEL_DATA_ON_AA = true;
+    public static boolean ALWAYS_SAVE_EXTRA_PIXEL_DATA_ON_AA_WITH_PP = true;
+    public static boolean USE_RI_ON_BLA2 = false;
+    public static boolean DISABLE_RI_ON_BLA2 = false;
 
     public static boolean USE_FAST_DELTA_LOCATION = true;
+    public static int BUILT_IT_BIGNUM_IMPLEMENTATION = 0;
+    public static int BIGNUM_INITIALIZATION_ALGORITHM = 0;
 
     public static int FAST_JULIA_IMAGE_SIZE = 252;
     protected static int randomNumber;
@@ -232,8 +276,7 @@ public abstract class TaskDraw implements Runnable {
     private static CyclicBarrier normalize_sync;
     private static CyclicBarrier normalize_sync2;
     private static CyclicBarrier normalize_find_ranges_sync_3d;
-    private static CyclicBarrier normalize_sync_3d;
-    private static CyclicBarrier normalize_sync2_3d;
+
     protected static CyclicBarrier initialize_jobs_sync;
     private static CyclicBarrier post_processing_sync;
     private static CyclicBarrier calculate_vectors_sync;
@@ -258,13 +301,17 @@ public abstract class TaskDraw implements Runnable {
     public static LongAccumulator max_pixel_calculation_time;
     private static LongAdder total_calculated_extra;
     protected static AtomicInteger normal_drawing_algorithm_pixel;
+    protected static AtomicInteger normal_drawing_algorithm_pixel2;
     protected static AtomicInteger[] quick_draw_drawing_algorithm_pixel;
     protected static AtomicInteger[] successive_refinement_drawing_algorithm_pixel;
+    protected static AtomicInteger[] successive_refinement_drawing_algorithm2_pixel;
     protected static AtomicInteger draw_squares_pixel;
     protected static CyclicBarrier quick_draw_drawing_algorithm_barrier;
     protected static CyclicBarrier successive_refinement_drawing_algorithm_barrier;
     protected static AtomicInteger normal_drawing_algorithm_apply_palette;
+    protected static AtomicInteger normal_drawing_algorithm_apply_palette2;
     protected static AtomicInteger normal_drawing_algorithm_post_processing;
+    protected static AtomicInteger normal_drawing_algorithm_post_processing2;
     protected static AtomicInteger apply_skipped_color_pixel;
     protected static AtomicInteger normal_drawing_algorithm_histogram;
     private static CyclicBarrier color_cycling_filters_sync;
@@ -286,6 +333,42 @@ public abstract class TaskDraw implements Runnable {
         }
         STOP_SUCCESSIVE_REFINEMENT = true;
         successive_refinement_lock.unlockWrite();
+    }
+
+    protected static int getThreadChunkSize(int width, boolean per_row) {
+        if (per_row) {
+            return width;
+        }
+        return THREAD_CHUNK_SIZE;
+    }
+
+    static {
+        setSuccessiveRefinementChunks();
+    }
+
+    public static void setSuccessiveRefinementChunks() {
+
+        if(SUCCESSIVE_REFINEMENT_SQUARE_RECT_SPLIT_ALGORITHM == 1) {
+            SUCCESSIVE_REFINEMENT_CHUNK_X = SUCCESSIVE_REFINEMENT_SPLIT1;
+            SUCCESSIVE_REFINEMENT_CHUNK_Y = SUCCESSIVE_REFINEMENT_SPLIT2;
+        }
+        else if(SUCCESSIVE_REFINEMENT_SQUARE_RECT_SPLIT_ALGORITHM == 2) {
+            SUCCESSIVE_REFINEMENT_CHUNK_X = SUCCESSIVE_REFINEMENT_SPLIT2;
+            SUCCESSIVE_REFINEMENT_CHUNK_Y = SUCCESSIVE_REFINEMENT_SPLIT1;
+        }
+        else if(SUCCESSIVE_REFINEMENT_SQUARE_RECT_SPLIT_ALGORITHM == 3) {
+            SUCCESSIVE_REFINEMENT_CHUNK_X = SUCCESSIVE_REFINEMENT_SPLIT3;
+            SUCCESSIVE_REFINEMENT_CHUNK_Y = SUCCESSIVE_REFINEMENT_SPLIT4;
+        }
+        else if(SUCCESSIVE_REFINEMENT_SQUARE_RECT_SPLIT_ALGORITHM == 4) {
+            SUCCESSIVE_REFINEMENT_CHUNK_X = SUCCESSIVE_REFINEMENT_SPLIT4;
+            SUCCESSIVE_REFINEMENT_CHUNK_Y = SUCCESSIVE_REFINEMENT_SPLIT3;
+        }
+        else {
+            SUCCESSIVE_REFINEMENT_CHUNK_X = null;
+            SUCCESSIVE_REFINEMENT_CHUNK_Y = null;
+        }
+
     }
 
     private static BufferedImage window_image;
@@ -371,14 +454,6 @@ public abstract class TaskDraw implements Runnable {
 
     private static double lowerFence;
     private static double upperFence;
-    private static double maxIterations3d;
-    private static double minIterations3d;
-    private static double histogramDenominator = 1;
-    private static int[] histogramCounts;
-    private static int totalCounts;
-    private boolean histogramHeight;
-    private int histogram_granularity;
-    private double histogram_density;
     private boolean preHeightScaling;
 
     /**
@@ -492,12 +567,9 @@ public abstract class TaskDraw implements Runnable {
     private int color_cycling_location_outcoloring;
     private int color_cycling_location_incoloring;
     private int gradient_offset;
-    private int color_cycling_speed;
-    private boolean cycle_colors;
-    private boolean cycle_lights;
-    private boolean cycle_gradient;
 
-    private int color_cycling_adjusting_value;
+    private ColorCyclingSettings ccs;
+
     /**
      * ********************
      */
@@ -566,6 +638,7 @@ public abstract class TaskDraw implements Runnable {
     public static boolean USE_THREADS_FOR_SA = false;
     public static int BLA_BITS = ApproximationDefaultSettings.BLA_BITS;
     public static boolean USE_THREADS_FOR_BLA = true;
+    public static boolean USE_THREADS_FOR_BLA2 = true;
     public static boolean DETECT_PERIOD = true;
     public static int PERIOD_DETECTION_ALGORITHM = 2;
     public static boolean STOP_REFERENCE_CALCULATION_AFTER_DETECTED_PERIOD = true;
@@ -574,6 +647,7 @@ public abstract class TaskDraw implements Runnable {
     public static int NANOMB1_N = ApproximationDefaultSettings.NANOMB1_N;
     public static int NANOMB1_M = ApproximationDefaultSettings.NANOMB1_M;
     public static boolean GATHER_PERTURBATION_STATISTICS = false;
+    public static boolean GATHER_HIGHPRECISION_STATISTICS = false;
     public static boolean CHECK_BAILOUT_DURING_DEEP_NOT_FULL_FLOATEXP_MODE = false;
     public static boolean GREEDY_ALGORITHM = true;
     public static boolean GREEDY_ALGORITHM_CHECK_ITER_DATA = true;
@@ -598,7 +672,9 @@ public abstract class TaskDraw implements Runnable {
     public static int MANTEXPCOMPLEX_FORMAT = 0;
 
     public static boolean SMOOTH_DATA = false;
+    public static ThreadPoolExecutor la_thread_executor;
     public static ThreadPoolExecutor reference_thread_executor;
+    //public static ThreadPoolExecutor reference_thread_executor2;
     public static ThreadPoolExecutor thread_calculation_executor;
     public static ThreadPoolExecutor julia_map_thread_calculation_executor;
     public static ExecutorService single_thread_executor;
@@ -608,6 +684,9 @@ public abstract class TaskDraw implements Runnable {
         if(reference_thread_executor != null) {
             reference_thread_executor.shutdownNow();
         }
+//        if(reference_thread_executor2 != null) {
+//            reference_thread_executor2.shutdown();
+//        }
         if(thread_calculation_executor != null) {
             thread_calculation_executor.shutdownNow();
         }
@@ -619,6 +698,9 @@ public abstract class TaskDraw implements Runnable {
         }
         if(action_thread_executor != null) {
             action_thread_executor.shutdownNow();
+        }
+        if(la_thread_executor != null) {
+            la_thread_executor.shutdownNow();
         }
     }
     
@@ -637,10 +719,13 @@ public abstract class TaskDraw implements Runnable {
         algorithm_colors2 = new int[200];
         setAlgorithmColors();
 
-        if(Runtime.getRuntime().availableProcessors() >= 2) {
-            reference_thread_executor = (ThreadPoolExecutor)Executors.newFixedThreadPool(2);
+        if (Runtime.getRuntime().availableProcessors() >= 2) {
+            reference_thread_executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(2);
         }
 
+//        if (Runtime.getRuntime().availableProcessors() >= 3) {
+//            reference_thread_executor2 = (ThreadPoolExecutor) Executors.newFixedThreadPool(3);
+//        }
     }
 
     public static void setAlgorithmColors() {
@@ -778,9 +863,6 @@ public abstract class TaskDraw implements Runnable {
         this.shade_algorithm = d3s.shade_algorithm;
         this.shade_invert = d3s.shade_invert;
         this.d3_color_type = d3s.d3_color_type;
-        this.histogramHeight = d3s.histogram_equalization;
-        this.histogram_granularity = d3s.histogram_granularity;
-        this.histogram_density = d3s.histogram_density;
         this.preHeightScaling = d3s.preHeightScaling;
         this.d3s = d3s;
 
@@ -1001,9 +1083,6 @@ public abstract class TaskDraw implements Runnable {
         this.shade_algorithm = d3s.shade_algorithm;
         this.shade_invert = d3s.shade_invert;
         this.d3_color_type = d3s.d3_color_type;
-        this.histogramHeight = d3s.histogram_equalization;
-        this.histogram_granularity = d3s.histogram_granularity;
-        this.histogram_density = d3s.histogram_density;
         this.preHeightScaling = d3s.preHeightScaling;
         this.d3s = d3s;
 
@@ -1367,7 +1446,7 @@ public abstract class TaskDraw implements Runnable {
     }
 
     //Color Cycling
-    public TaskDraw(int FROMx, int TOx, int FROMy, int TOy, int max_iterations, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, int color_cycling_location, int color_cycling_location2,    int color_cycling_speed, FiltersSettings fs, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring,    BlendingSettings color_blending,  int[] post_processing_order,   PaletteGradientMergingSettings pbs,  boolean cycle_colors, boolean cycle_lights, boolean cycle_gradient, int color_cycling_adjusting_value, DomainColoringSettings ds, int gradient_offset,  double contourFactor, boolean smoothing, GeneratedPaletteSettings gps, PostProcessSettings pps) {
+    public TaskDraw(int FROMx, int TOx, int FROMy, int TOy, int max_iterations, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, int color_cycling_location, int color_cycling_location2, FiltersSettings fs, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring,    BlendingSettings color_blending,  int[] post_processing_order,   PaletteGradientMergingSettings pbs, DomainColoringSettings ds, int gradient_offset,  double contourFactor, GeneratedPaletteSettings gps, PostProcessSettings pps, ColorCyclingSettings ccs) {
 
         this.FROMx = FROMx;
         this.TOx = TOx;
@@ -1393,11 +1472,7 @@ public abstract class TaskDraw implements Runnable {
 
         action = COLOR_CYCLING;
 
-        this.color_cycling_speed = color_cycling_speed;
-        this.cycle_colors = cycle_colors;
-        this.cycle_lights = cycle_lights;
-        this.cycle_gradient = cycle_gradient;
-        this.color_cycling_adjusting_value = color_cycling_adjusting_value;
+        this.ccs = ccs;
 
         this.color_blending = color_blending;
 
@@ -1702,7 +1777,11 @@ public abstract class TaskDraw implements Runnable {
             System.exit(-1);
         }
         DONE = true;
-        number_of_tasks.decrementAndGet();
+        int number = number_of_tasks.decrementAndGet();
+
+        if(ptr != null && number == 0) {
+            ptr.getMainPanel().stopTimer();
+        }
     }
 
 
@@ -1798,10 +1877,10 @@ public abstract class TaskDraw implements Runnable {
 
         if(!domain_coloring && HIGH_PRECISION_CALCULATION && fractal.supportsPerturbationTheory()) {
             if(arbitraryLib == Constants.ARBITRARY_BUILT_IN && fractal.supportsBignum()) {
-                return _getBigNumLibString("Built-in") + _getBigNumLibPrecString(BigNum.fracDigits * BigNum.SHIFT);
+                return _getBigNumLibString(BigNum.getName()) + _getBigNumLibPrecString(BigNum.getPrecision());
             }
             else if(arbitraryLib == Constants.ARBITRARY_BIGINT && fractal.supportsBigIntnum()) {
-                return _getBigNumLibString("Fixed Point BigInteger") + _getBigNumLibPrecString(BigIntNum.fracDigits * BigIntNum.SHIFT32);
+                return _getBigNumLibString("Fixed Point BigInteger") + _getBigNumLibPrecString(BigIntNum.getPrecision());
             }
             else if(arbitraryLib == Constants.ARBITRARY_MPFR && fractal.supportsMpfrBignum()) {
                 return _getBigNumLibString("MPFR " + LibMpfr.mpfr_version) + _getBigNumLibPrecString(MpfrBigNum.precision);
@@ -1818,10 +1897,10 @@ public abstract class TaskDraw implements Runnable {
         }
         else if(!domain_coloring && PERTURBATION_THEORY && fractal.supportsPerturbationTheory()) {
             if(bigNumLib == Constants.BIGNUM_BUILT_IN && fractal.supportsBignum()) {
-                return _getBigNumLibString("Built-in") + _getBigNumLibPrecString(BigNum.fracDigits * BigNum.SHIFT);
+                return _getBigNumLibString(BigNum.getName()) + _getBigNumLibPrecString(BigNum.getPrecision());
             }
             else if(bigNumLib == Constants.BIGNUM_BIGINT && fractal.supportsBigIntnum()) {
-                return _getBigNumLibString("Fixed Point BigInteger") + _getBigNumLibPrecString(BigIntNum.fracDigits * BigIntNum.SHIFT32);
+                return _getBigNumLibString("Fixed Point BigInteger") + _getBigNumLibPrecString(BigIntNum.getPrecision());
             }
             else if(bigNumLib == Constants.BIGNUM_MPFR && fractal.supportsMpfrBignum()) {
                 return _getBigNumLibString("MPFR " + LibMpfr.mpfr_version) + _getBigNumLibPrecString(MpfrBigNum.precision);
@@ -1946,6 +2025,94 @@ public abstract class TaskDraw implements Runnable {
         }
     }
 
+    private String getCompressionInfo(int refPointIterations, int secondRefPointIterations) {
+
+        int waypoints = 0;
+        int waypoints2 = 0;
+
+        String referenceDataWaypoints = "" + waypoints;
+        if(Fractal.referenceDeepData != null && Fractal.referenceDeepData.exists()) {
+            ArrayList<Integer> waypointsList = Fractal.referenceDeepData.getWaypointsLength();
+            waypoints = waypointsList.stream().mapToInt(v -> v).max().orElse(0);
+            if(waypointsList.size() == 1) {
+                referenceDataWaypoints = "" + waypointsList.get(0);
+            }
+            else {
+                referenceDataWaypoints = "[" + String.join(", ", waypointsList.stream().map(i -> "" + i).collect(Collectors.toList())) + "]";
+            }
+        }
+        else if(Fractal.referenceData != null && Fractal.referenceData.exists()) {
+            ArrayList<Integer> waypointsList = Fractal.referenceData.getWaypointsLength();
+            waypoints = waypointsList.stream().mapToInt(v -> v).max().orElse(0);
+            if(waypointsList.size() == 1) {
+                referenceDataWaypoints = "" + waypointsList.get(0);
+            }
+            else {
+                referenceDataWaypoints = "[" + String.join(", ", waypointsList.stream().map(i -> "" + i).collect(Collectors.toList())) + "]";
+            }
+        }
+
+        String result =  "<li>Reference Compression Waypoints: <b>" + referenceDataWaypoints + "</b><br>";
+        result += "<li>Reference Compression Ratio: <b>" + (waypoints > 0 ?  (refPointIterations) + " / " + (waypoints) + " (" + String.format("%.4f", refPointIterations / ((double)waypoints)) + "x)" : "N/A")  + "</b><br>";
+
+        if(fractal.needsSecondReference()) {
+
+            String referenceDataWaypoints2 = "" + waypoints2;
+            if(Fractal.secondReferenceDeepData != null && Fractal.secondReferenceDeepData.exists()) {
+                ArrayList<Integer> waypointsList = Fractal.secondReferenceDeepData.getWaypointsLength();
+                waypoints2 = waypointsList.stream().mapToInt(v -> v).max().orElse(0);
+                if(waypointsList.size() == 1) {
+                    referenceDataWaypoints2 = "" + waypointsList.get(0);
+                }
+                else {
+                    referenceDataWaypoints2 = "[" + String.join(", ", waypointsList.stream().map(i -> "" + i).collect(Collectors.toList())) + "]";
+                }
+            }
+            else if(Fractal.secondReferenceData != null && Fractal.secondReferenceData.exists()) {
+                ArrayList<Integer> waypointsList = Fractal.secondReferenceData.getWaypointsLength();
+                waypoints2 = waypointsList.stream().mapToInt(v -> v).max().orElse(0);
+                if(waypointsList.size() == 1) {
+                    referenceDataWaypoints2 = "" + waypointsList.get(0);
+                }
+                else {
+                    referenceDataWaypoints2 = "[" + String.join(", ", waypointsList.stream().map(i -> "" + i).collect(Collectors.toList())) + "]";
+                }
+            }
+
+            result += "<li>Julia Extra Reference Compression Waypoints: <b>" + referenceDataWaypoints2 + "</b><br>";
+            result += "<li>Julia Extra Reference Compression Ratio: <b>" + (waypoints2 > 0 ?  (secondRefPointIterations) + " / " + (waypoints2) + " (" + String.format("%.4f", secondRefPointIterations / ((double)waypoints2)) + "x)" : "N/A")  + "</b><br>";
+
+        }
+
+        return result;
+    }
+
+    private String getApproximationString(boolean supportsPerturbation) {
+
+        if(!(!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation)) {
+            return "";
+        }
+
+        String approximation = "<li>Approximation: ";
+        if(APPROXIMATION_ALGORITHM == 1 && fractal.supportsSeriesApproximation()) {
+            approximation += "<b>Series Approximation</b><br>";
+        }
+        else if(APPROXIMATION_ALGORITHM == 2 && fractal.supportsBilinearApproximation()) {
+            approximation += "<b>Bilinear Approximation (claude)</b><br>";
+        }
+        else if(APPROXIMATION_ALGORITHM == 3 && fractal.supportsNanomb1()) {
+            approximation += "<b>Nanomb1</b><br>";
+        }
+        else if(APPROXIMATION_ALGORITHM == 4 && fractal.supportsBilinearApproximation2()) {
+            approximation += "<b>Bilinear Approximation (Zhuoran)</b><br>";
+        }
+        else {
+            approximation += "<b>No Approximation</b><br>";
+        }
+
+        return approximation;
+    }
+
     public void setFullToolTipMessage(int total) {
 
         long time =  ptr != null ? ptr.getCalculationTime() : ptrExpander.getCalculationTime();
@@ -2010,14 +2177,16 @@ public abstract class TaskDraw implements Runnable {
                 (d3 && D3RenderingCalculationTime > 0? "<li>3D Rendering Elapsed Time: <b>" + D3RenderingCalculationTime + " ms</b><br>" : "") +
                 (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation && Fractal.ReferenceCalculationTime > 0 ? "<li>Reference Calculation Elapsed Time: <b>" + Fractal.ReferenceCalculationTime + " ms</b><br>" : "") +
                 (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation  ? "<li>Reference Point Iterations: <b>" + refPointIterations + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation && Fractal.ReferenceCalculationTime > 0 && Fractal.calculatedReferenceIterations > 0 ? "<li>Reference Point Iterations per second: <b>" + String.format("%.2f", Fractal.calculatedReferenceIterations / ((double)Fractal.ReferenceCalculationTime / 1000.0)) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation && Fractal.ReferenceCalculationTime > 0 && Fractal.calculatedReferenceIterations > 0 ? "<li>Reference Point Iterations per second: <b>" + String.format("%.4f", Fractal.calculatedReferenceIterations / ((double)Fractal.ReferenceCalculationTime / 1000.0)) + "</b><br>" : "") +
 
                 (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation && fractal.needsSecondReference() && Fractal.SecondReferenceCalculationTime > 0 ? "<li>Julia Extra Reference Calculation Elapsed Time: <b>" + Fractal.SecondReferenceCalculationTime + " ms</b><br>" : "") +
                 (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation  && fractal.needsSecondReference() ? "<li>Julia Extra Reference Point Iterations: <b>" + secondRefPointIterations + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation  && fractal.needsSecondReference() && Fractal.SecondReferenceCalculationTime > 0 && Fractal.calculatedSecondReferenceIterations > 0 ? "<li>Julia Extra Reference Point Iterations per second: <b>" + String.format("%.2f", Fractal.calculatedSecondReferenceIterations / ((double)Fractal.SecondReferenceCalculationTime / 1000.0)) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation  && fractal.needsSecondReference() && Fractal.SecondReferenceCalculationTime > 0 && Fractal.calculatedSecondReferenceIterations > 0 ? "<li>Julia Extra Reference Point Iterations per second: <b>" + String.format("%.4f", Fractal.calculatedSecondReferenceIterations / ((double)Fractal.SecondReferenceCalculationTime / 1000.0)) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation && COMPRESS_REFERENCE_IF_POSSIBLE && fractal.supportsReferenceCompression() ? getCompressionInfo(refPointIterations, secondRefPointIterations) : "") +
                 (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation && DETECT_PERIOD && fractal.supportsPeriod()  ? "<li>Detected Period: <b>" + (Fractal.DetectedPeriod != 0 ? Fractal.DetectedPeriod : "N/A") + "</b><br>" : "") + //&& Fractal.DetectedPeriod != 0
                 //(!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation && DETECT_PERIOD && fractal.supportsPeriod() && Fractal.DetectedPeriod != Fractal.DetectedAtomPeriod ? "<li>Detected Atom Period: <b>" + Fractal.DetectedAtomPeriod + "</b><br>" : "") +
                 (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation && fractal.supportsPeriod() && fractal.getPeriod()  != 0 && Fractal.SAskippedIterations == 0 ? "<li>Used Period: <b>" + fractal.getPeriod() + "</b><br>" : "") +
+                getApproximationString(supportsPerturbation) +
                 (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation && APPROXIMATION_ALGORITHM == 1 && fractal.supportsSeriesApproximation() && Fractal.SAskippedIterations != 0 && Fractal.SATerms != 0 && Fractal.SACalculationTime > 0? "<li>SA Calculation Elapsed Time: <b>" + Fractal.SACalculationTime + " ms</b><br>" : "") +
                 (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation && APPROXIMATION_ALGORITHM == 1 && fractal.supportsSeriesApproximation() && Fractal.SAskippedIterations != 0 && Fractal.SATerms != 0 ? "<li>SA Terms Used: <b>" + Fractal.SATerms + "</b><br>" : "") +
                 (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation && APPROXIMATION_ALGORITHM == 1 && fractal.supportsSeriesApproximation() && Fractal.SAskippedIterations != 0 && Fractal.SATerms != 0 ? "<li>SA Skipped Iterations: <b>" + Fractal.SAskippedIterations + "</b><br>": "") +
@@ -2025,26 +2194,28 @@ public abstract class TaskDraw implements Runnable {
                 (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation && APPROXIMATION_ALGORITHM == 3 && fractal.supportsNanomb1() && Fractal.Nanomb1CalculationTime > 0 ? "<li>Nanomb1 Calculation Elapsed Time: <b>" + Fractal.Nanomb1CalculationTime + " ms</b><br>" : "") +
                 (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation && APPROXIMATION_ALGORITHM == 3 && fractal.supportsNanomb1() ? "<li>Nanomb1 M: <b>" + NANOMB1_M + "</b><br>" : "") +
                 (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation && APPROXIMATION_ALGORITHM == 3 && fractal.supportsNanomb1() ? "<li>Nanomb1 N: <b>" + NANOMB1_N + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && APPROXIMATION_ALGORITHM == 3 && fractal.supportsNanomb1() ? "<li>Nanomb1 Skipped Iterations Per Pixel: <b>" + String.format("%.2f", Fractal.total_nanomb1_skipped_iterations.sum() / ((double) total_calculated_pixels * (supersampling_num))) + "</b><br>": "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && APPROXIMATION_ALGORITHM == 3 && fractal.supportsNanomb1() ? "<li>Nanomb1 Skipped Iterations Per Pixel: <b>" + String.format("%.4f", Fractal.total_nanomb1_skipped_iterations.sum() / ((double) total_calculated_pixels * (supersampling_num))) + "</b><br>": "") +
                 (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation && (APPROXIMATION_ALGORITHM == 2 && fractal.supportsBilinearApproximation() ||  APPROXIMATION_ALGORITHM == 4 && fractal.supportsBilinearApproximation2() && Fractal.BLACalculationTime > 0) ? "<li>BLA Calculation Elapsed Time: <b>" + Fractal.BLACalculationTime + " ms</b><br>" : "") +
                 (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation && APPROXIMATION_ALGORITHM == 2 && fractal.supportsBilinearApproximation()  ? "<li>BLA Precision: <b>" + TaskDraw.BLA_BITS + " bits</b><br>" : "") +
                 (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation && APPROXIMATION_ALGORITHM == 2 && fractal.supportsBilinearApproximation()  ? "<li>BLA Starting Level: <b>" + TaskDraw.BLA_STARTING_LEVEL + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && (APPROXIMATION_ALGORITHM == 2 && fractal.supportsBilinearApproximation() ||  APPROXIMATION_ALGORITHM == 4 && fractal.supportsBilinearApproximation2())  ? "<li>BLA Iterations Per Pixel: <b>" +  String.format("%.2f", Fractal.total_bla_iterations.sum() / ((double) total_calculated_pixels * (supersampling_num))) + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && (APPROXIMATION_ALGORITHM == 2 && fractal.supportsBilinearApproximation() ||  APPROXIMATION_ALGORITHM == 4 && fractal.supportsBilinearApproximation2())  ? "<li>BLA Iterations Per BLA Step: <b>" +  (Fractal.total_bla_steps.sum() == 0 ? "N/A" : String.format("%.2f", Fractal.total_bla_iterations.sum() / ((double)Fractal.total_bla_steps.sum()))) + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && (APPROXIMATION_ALGORITHM == 2 && fractal.supportsBilinearApproximation() ||  APPROXIMATION_ALGORITHM == 4 && fractal.supportsBilinearApproximation2())  ? "<li>Perturbation Iterations Per Pixel: <b>" +  String.format("%.2f", Fractal.total_perturb_iterations.sum() / ((double) total_calculated_pixels * (supersampling_num))) + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && (APPROXIMATION_ALGORITHM == 2 && fractal.supportsBilinearApproximation() ||  APPROXIMATION_ALGORITHM == 4 && fractal.supportsBilinearApproximation2())  ? "<li>BLA Steps Per Pixel: <b>" + String.format("%.2f", Fractal.total_bla_steps.sum() / ((double) total_calculated_pixels * (supersampling_num))) + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && (APPROXIMATION_ALGORITHM == 2 && fractal.supportsBilinearApproximation() ||  APPROXIMATION_ALGORITHM == 4 && fractal.supportsBilinearApproximation2())  ? "<li>Total Steps Per Pixel: <b>" + String.format("%.2f", (Fractal.total_bla_steps.sum() + Fractal.total_perturb_iterations.sum()) / ((double) total_calculated_pixels * (supersampling_num))) + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && (APPROXIMATION_ALGORITHM != 2 || !fractal.supportsBilinearApproximation()) && (APPROXIMATION_ALGORITHM != 4 || !fractal.supportsBilinearApproximation2()) && TaskDraw.PERTUBATION_PIXEL_ALGORITHM == 1 && fractal.supportsScaledIterations() && isDeep ? "<li>Extended Range Iterations Per Pixel: <b>" +  (String.format("%.2f", Fractal.total_float_exp_iterations.sum() / ((double) total_calculated_pixels * (supersampling_num)))) + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && (APPROXIMATION_ALGORITHM != 2 || !fractal.supportsBilinearApproximation()) && (APPROXIMATION_ALGORITHM != 4 || !fractal.supportsBilinearApproximation2()) && TaskDraw.PERTUBATION_PIXEL_ALGORITHM == 1 && fractal.supportsScaledIterations() && isDeep ? "<li>Scaled Double Iterations Per Pixel: <b>" +  (String.format("%.2f", Fractal.total_scaled_iterations.sum() / ((double) total_calculated_pixels * (supersampling_num)))) + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && (APPROXIMATION_ALGORITHM != 2 || !fractal.supportsBilinearApproximation()) && (APPROXIMATION_ALGORITHM != 4 || !fractal.supportsBilinearApproximation2()) && TaskDraw.PERTUBATION_PIXEL_ALGORITHM == 1 && fractal.supportsScaledIterations() && isDeep ? "<li>Normal Double Iterations Per Pixel: <b>" +  (String.format("%.2f", Fractal.total_double_iterations.sum() / ((double) total_calculated_pixels * (supersampling_num)))) + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && (APPROXIMATION_ALGORITHM != 2 || !fractal.supportsBilinearApproximation()) && (APPROXIMATION_ALGORITHM != 4 || !fractal.supportsBilinearApproximation2()) && (TaskDraw.PERTUBATION_PIXEL_ALGORITHM == 0 || !fractal.supportsScaledIterations()) && isDeep ? "<li>Extended Range Iterations Per Pixel: <b>" +  (String.format("%.2f", Fractal.total_float_exp_iterations.sum() / ((double) total_calculated_pixels * (supersampling_num)))) + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && (APPROXIMATION_ALGORITHM != 2 || !fractal.supportsBilinearApproximation()) && (APPROXIMATION_ALGORITHM != 4 || !fractal.supportsBilinearApproximation2()) && (TaskDraw.PERTUBATION_PIXEL_ALGORITHM == 0 || !fractal.supportsScaledIterations()) && isDeep ? "<li>Normal Double Iterations Per Pixel: <b>" +  (String.format("%.2f", Fractal.total_double_iterations.sum() / ((double) total_calculated_pixels * (supersampling_num)))) + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && (APPROXIMATION_ALGORITHM != 2 || !fractal.supportsBilinearApproximation()) && (APPROXIMATION_ALGORITHM != 4 || !fractal.supportsBilinearApproximation2()) && !isDeep ? "<li>Normal Double Iterations Per Pixel: <b>" +  (String.format("%.2f", Fractal.total_double_iterations.sum() / ((double) total_calculated_pixels * (supersampling_num)))) + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && (APPROXIMATION_ALGORITHM != 2 || !fractal.supportsBilinearApproximation()) && (APPROXIMATION_ALGORITHM != 4 || !fractal.supportsBilinearApproximation2()) && TaskDraw.PERTUBATION_PIXEL_ALGORITHM == 1 && fractal.supportsScaledIterations() && isDeep ? "<li>Re-Aligns Per Pixel: <b>" +  (String.format("%.2f", Fractal.total_realigns.sum() / ((double) total_calculated_pixels * (supersampling_num)))) + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation ? "<li>Rebases Per Pixel: <b>" +  String.format("%.2f", Fractal.total_rebases.sum() / ((double) total_calculated_pixels * (supersampling_num))) + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation ? "<li>Average Iterations Per Pixel: <b>" +  String.format("%.2f", ( Fractal.total_double_iterations.sum() + Fractal.total_scaled_iterations.sum() + Fractal.total_float_exp_iterations.sum() + Fractal.total_perturb_iterations.sum() + Fractal.total_bla_iterations.sum())/ ((double) total_calculated_pixels * (supersampling_num))) + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation ? "<li>Minimum Iterations: <b>" +  Fractal.total_min_iterations.get() + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation? "<li>Maximum Iterations: <b>" +  Fractal.total_max_iterations.get() + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation && (APPROXIMATION_ALGORITHM == 2 && fractal.supportsBilinearApproximation() || APPROXIMATION_ALGORITHM == 4 && fractal.supportsBilinearApproximation2())  ? "<li>BLA Entries: <b>" + fractal.getBLAEntries() + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && (APPROXIMATION_ALGORITHM == 2 && fractal.supportsBilinearApproximation() ||  APPROXIMATION_ALGORITHM == 4 && fractal.supportsBilinearApproximation2())  ? "<li>BLA Iterations Per Pixel: <b>" +  String.format("%.4f", Fractal.total_bla_iterations.sum() / ((double) total_calculated_pixels * (supersampling_num))) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && (APPROXIMATION_ALGORITHM == 2 && fractal.supportsBilinearApproximation() ||  APPROXIMATION_ALGORITHM == 4 && fractal.supportsBilinearApproximation2())  ? "<li>BLA Iterations Per BLA Step: <b>" +  (Fractal.total_bla_steps.sum() == 0 ? "N/A" : String.format("%.4f", Fractal.total_bla_iterations.sum() / ((double)Fractal.total_bla_steps.sum()))) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && (APPROXIMATION_ALGORITHM == 2 && fractal.supportsBilinearApproximation() ||  APPROXIMATION_ALGORITHM == 4 && fractal.supportsBilinearApproximation2())  ? "<li>Perturbation Iterations Per Pixel: <b>" +  String.format("%.4f", Fractal.total_perturb_iterations.sum() / ((double) total_calculated_pixels * (supersampling_num))) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && (APPROXIMATION_ALGORITHM == 2 && fractal.supportsBilinearApproximation() ||  APPROXIMATION_ALGORITHM == 4 && fractal.supportsBilinearApproximation2())  ? "<li>BLA Steps Per Pixel: <b>" + String.format("%.4f", Fractal.total_bla_steps.sum() / ((double) total_calculated_pixels * (supersampling_num))) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && (APPROXIMATION_ALGORITHM == 2 && fractal.supportsBilinearApproximation() ||  APPROXIMATION_ALGORITHM == 4 && fractal.supportsBilinearApproximation2())  ? "<li>Total Steps Per Pixel: <b>" + String.format("%.4f", (Fractal.total_bla_steps.sum() + Fractal.total_perturb_iterations.sum()) / ((double) total_calculated_pixels * (supersampling_num))) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && (APPROXIMATION_ALGORITHM != 2 || !fractal.supportsBilinearApproximation()) && (APPROXIMATION_ALGORITHM != 4 || !fractal.supportsBilinearApproximation2()) && TaskDraw.PERTUBATION_PIXEL_ALGORITHM == 1 && fractal.supportsScaledIterations() && isDeep ? "<li>Extended Range Iterations Per Pixel: <b>" +  (String.format("%.4f", Fractal.total_float_exp_iterations.sum() / ((double) total_calculated_pixels * (supersampling_num)))) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && (APPROXIMATION_ALGORITHM != 2 || !fractal.supportsBilinearApproximation()) && (APPROXIMATION_ALGORITHM != 4 || !fractal.supportsBilinearApproximation2()) && TaskDraw.PERTUBATION_PIXEL_ALGORITHM == 1 && fractal.supportsScaledIterations() && isDeep ? "<li>Scaled Double Iterations Per Pixel: <b>" +  (String.format("%.4f", Fractal.total_scaled_iterations.sum() / ((double) total_calculated_pixels * (supersampling_num)))) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && (APPROXIMATION_ALGORITHM != 2 || !fractal.supportsBilinearApproximation()) && (APPROXIMATION_ALGORITHM != 4 || !fractal.supportsBilinearApproximation2()) && TaskDraw.PERTUBATION_PIXEL_ALGORITHM == 1 && fractal.supportsScaledIterations() && isDeep ? "<li>Normal Double Iterations Per Pixel: <b>" +  (String.format("%.4f", Fractal.total_double_iterations.sum() / ((double) total_calculated_pixels * (supersampling_num)))) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && (APPROXIMATION_ALGORITHM != 2 || !fractal.supportsBilinearApproximation()) && (APPROXIMATION_ALGORITHM != 4 || !fractal.supportsBilinearApproximation2()) && (TaskDraw.PERTUBATION_PIXEL_ALGORITHM == 0 || !fractal.supportsScaledIterations()) && isDeep ? "<li>Extended Range Iterations Per Pixel: <b>" +  (String.format("%.4f", Fractal.total_float_exp_iterations.sum() / ((double) total_calculated_pixels * (supersampling_num)))) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && (APPROXIMATION_ALGORITHM != 2 || !fractal.supportsBilinearApproximation()) && (APPROXIMATION_ALGORITHM != 4 || !fractal.supportsBilinearApproximation2()) && (TaskDraw.PERTUBATION_PIXEL_ALGORITHM == 0 || !fractal.supportsScaledIterations()) && isDeep ? "<li>Normal Double Iterations Per Pixel: <b>" +  (String.format("%.4f", Fractal.total_double_iterations.sum() / ((double) total_calculated_pixels * (supersampling_num)))) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && (APPROXIMATION_ALGORITHM != 2 || !fractal.supportsBilinearApproximation()) && (APPROXIMATION_ALGORITHM != 4 || !fractal.supportsBilinearApproximation2()) && !isDeep ? "<li>Normal Double Iterations Per Pixel: <b>" +  (String.format("%.4f", Fractal.total_double_iterations.sum() / ((double) total_calculated_pixels * (supersampling_num)))) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && (APPROXIMATION_ALGORITHM != 2 || !fractal.supportsBilinearApproximation()) && (APPROXIMATION_ALGORITHM != 4 || !fractal.supportsBilinearApproximation2()) && TaskDraw.PERTUBATION_PIXEL_ALGORITHM == 1 && fractal.supportsScaledIterations() && isDeep ? "<li>Re-Aligns Per Pixel: <b>" +  (String.format("%.4f", Fractal.total_realigns.sum() / ((double) total_calculated_pixels * (supersampling_num)))) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation ? "<li>Rebases Per Pixel: <b>" +  String.format("%.4f", Fractal.total_rebases.sum() / ((double) total_calculated_pixels * (supersampling_num))) + "</b><br>" : "") +
+                (((HIGH_PRECISION_CALCULATION && GATHER_HIGHPRECISION_STATISTICS) || (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY)) && supportsPerturbation ? "<li>Average Iterations Per Pixel: <b>" +  String.format("%.4f", (Fractal.total_iterations.sum())/ ((double) total_calculated_pixels * (supersampling_num))) + "</b><br>" : "") +
+                (((HIGH_PRECISION_CALCULATION && GATHER_HIGHPRECISION_STATISTICS) || (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY)) && supportsPerturbation ? "<li>Minimum Iterations: <b>" +  Fractal.total_min_iterations.get() + "</b><br>" : "") +
+                (((HIGH_PRECISION_CALCULATION && GATHER_HIGHPRECISION_STATISTICS) || (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY)) && supportsPerturbation ? "<li>Maximum Iterations: <b>" +  Fractal.total_max_iterations.get() + "</b><br>" : "") +
+                (((HIGH_PRECISION_CALCULATION && GATHER_HIGHPRECISION_STATISTICS) || (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY)) && supportsPerturbation ? "<li>Maximum Iterations (Ignore Not Escaped Points): <b>" +  Fractal.total_max_iterations_ignore_max_iter.get() + "</b><br>" : "") +
 
 
 
@@ -3394,10 +3565,7 @@ public abstract class TaskDraw implements Runnable {
         return x - (x >>> 1);
     }
 
-    protected void quickDrawIterations(int image_size, boolean polar) {
-
-        Location location = Location.getInstanceForDrawing(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
-
+    protected void initialize(Location location) {
         if(PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && !HIGH_PRECISION_CALCULATION) {
             if (reference_calc_sync.getAndIncrement() == 0) {
                 calculateReference(location);
@@ -3412,6 +3580,26 @@ public abstract class TaskDraw implements Runnable {
             }
             location.setReference(Fractal.refPoint);
         }
+        else if(HIGH_PRECISION_CALCULATION && fractal.supportsPerturbationTheory()) {
+            if (reference_calc_sync.getAndIncrement() == 0) {
+                initializeHighPrecision();
+            }
+
+            try {
+                reference_sync.await();
+            } catch (InterruptedException ex) {
+
+            } catch (BrokenBarrierException ex) {
+
+            }
+        }
+    }
+
+    protected void quickDrawIterations(int image_size, boolean polar) {
+
+        Location location = Location.getInstanceForDrawing(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
+
+        initialize(location);
 
         int color, loc2, loc, x, y;
         int tempx, tempy;
@@ -3713,20 +3901,7 @@ public abstract class TaskDraw implements Runnable {
 
         Location location = Location.getInstanceForDrawing(xCenter, yCenter, size, height_ratio, detail, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
 
-        if(PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && !HIGH_PRECISION_CALCULATION) {
-            if (reference_calc_sync.getAndIncrement() == 0) {
-                calculateReference(location);
-            }
-
-            try {
-                reference_sync.await();
-            } catch (InterruptedException ex) {
-
-            } catch (BrokenBarrierException ex) {
-
-            }
-            location.setReference(Fractal.refPoint);
-        }
+        initialize(location);
 
         int pixel_percent = detail * detail / 100;
 
@@ -3738,6 +3913,8 @@ public abstract class TaskDraw implements Runnable {
 
         int x, y, loc;
 
+        int thread_chunk_size = getThreadChunkSize(detail, CHUNK_SIZE_PER_ROW);
+
         int condition = detail * detail;
 
         boolean escaped_val;
@@ -3747,13 +3924,13 @@ public abstract class TaskDraw implements Runnable {
 
         do {
 
-            loc = THREAD_CHUNK_SIZE * normal_drawing_algorithm_pixel.getAndIncrement();
+            loc = thread_chunk_size * normal_drawing_algorithm_pixel.getAndIncrement();
 
             if (loc >= condition) {
                 break;
             }
 
-            for (int count = 0; count < THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
+            for (int count = 0; count < thread_chunk_size && loc < condition; count++, loc++) {
                 x = loc % detail;
                 y = loc / detail;
 
@@ -3806,17 +3983,19 @@ public abstract class TaskDraw implements Runnable {
 
         int condition = detail * detail;
 
+        int thread_chunk_size = getThreadChunkSize(detail, CHUNK_SIZE_PER_ROW);
+
         long time = System.currentTimeMillis();
 
         do {
 
-            loc = THREAD_CHUNK_SIZE * normal_drawing_algorithm_pixel.getAndIncrement();
+            loc = thread_chunk_size * normal_drawing_algorithm_pixel.getAndIncrement();
 
             if (loc >= condition) {
                 break;
             }
 
-            for (int count = 0; count < THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
+            for (int count = 0; count < thread_chunk_size && loc < condition; count++, loc++) {
                 x = loc % detail;
                 y = loc / detail;
 
@@ -3865,20 +4044,7 @@ public abstract class TaskDraw implements Runnable {
         int supersampling_num = getExtraSamples(aaSamplesIndex, aaMethod);
         location.createAntialiasingSteps(aaMethod == 5, useJitter, supersampling_num);
 
-        if(PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && !HIGH_PRECISION_CALCULATION) {
-            if (reference_calc_sync.getAndIncrement() == 0) {
-                calculateReference(location);
-            }
-
-            try {
-                reference_sync.await();
-            } catch (InterruptedException ex) {
-
-            } catch (BrokenBarrierException ex) {
-
-            }
-            location.setReference(Fractal.refPoint);
-        }
+        initialize(location);
 
         int pixel_percent = detail * detail / 100;
 
@@ -3907,17 +4073,19 @@ public abstract class TaskDraw implements Runnable {
         double f_val;
         boolean storeExtraData = pixelData != null;
 
+        int thread_chunk_size = getThreadChunkSize(detail, CHUNK_SIZE_PER_ROW);
+
         long time = System.currentTimeMillis();
 
         do {
 
-            loc = THREAD_CHUNK_SIZE * normal_drawing_algorithm_pixel.getAndIncrement();
+            loc = thread_chunk_size * normal_drawing_algorithm_pixel.getAndIncrement();
 
             if (loc >= condition) {
                 break;
             }
 
-            for (int count = 0; count < THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
+            for (int count = 0; count < thread_chunk_size && loc < condition; count++, loc++) {
                 x = loc % detail;
                 y = loc / detail;
 
@@ -4018,17 +4186,19 @@ public abstract class TaskDraw implements Runnable {
 
         boolean storeExtraData = pixelData != null;
 
+        int thread_chunk_size = getThreadChunkSize(detail, CHUNK_SIZE_PER_ROW);
+
         long time = System.currentTimeMillis();
 
         do {
 
-            loc = THREAD_CHUNK_SIZE * normal_drawing_algorithm_pixel.getAndIncrement();
+            loc = thread_chunk_size * normal_drawing_algorithm_pixel.getAndIncrement();
 
             if (loc >= condition) {
                 break;
             }
 
-            for (int count = 0; count < THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
+            for (int count = 0; count < thread_chunk_size && loc < condition; count++, loc++) {
                 x = loc % detail;
                 y = loc / detail;
 
@@ -4958,7 +5128,7 @@ public abstract class TaskDraw implements Runnable {
 
     protected void applyPostProcessingOnPixel(int index, int x, int y, int image_size, double[] image_iterations, boolean[] escaped, PixelExtraData[] pixelData, AntialiasingAlgorithm aa, int[] modified, double sizeCorr, double lightx, double lighty, Location location) {
 
-        if(aa != null) {
+        if(aa != null && pixelData != null) {
             modified = pixelData[index].rgb_values;
         }
         else if (d3) {
@@ -5049,7 +5219,7 @@ public abstract class TaskDraw implements Runnable {
         }
 
 
-        if(aa != null) {
+        if(aa != null && pixelData != null) {
 
             aa.initialize(modified[0]);
 
@@ -5106,7 +5276,7 @@ public abstract class TaskDraw implements Runnable {
     protected void applyPostProcessing(int image_size, double[] image_iterations, boolean[] escaped, PixelExtraData[] pixelData, AntialiasingAlgorithm aa, Location location) {
 
         if (hss.histogramColoring && !domain_coloring) {
-            if(aa != null) {
+            if(aa != null && pixelData != null) {
                 initializeHistogramColoring(pixelData);
             }else {
                 initializeHistogramColoring(image_iterations, escaped);
@@ -5129,11 +5299,14 @@ public abstract class TaskDraw implements Runnable {
 
     private void colorCycling() {
 
+        int outPaletteLength = CommonFunctions.getOutPaletteLength(domain_coloring, domain_color != null ? domain_color.getColoringMode() : -1);
+        int inPaletteLength = CommonFunctions.getInPaletteLength(domain_coloring);
+
         do {
             try {
                 color_cycling_toggle_lock.lockRead();
+            } catch (InterruptedException e) {
             }
-            catch (InterruptedException e) {}
 
 
             try {
@@ -5156,44 +5329,25 @@ public abstract class TaskDraw implements Runnable {
 
             int image_size = image.getWidth();
 
-            if (cycle_gradient) {
-                gradient_offset += color_cycling_adjusting_value;
-                gradient_offset = gradient_offset > Integer.MAX_VALUE - 40000 ? 0 : gradient_offset;
+            if (ccs.gradient_cycling_adjusting_value != 0) {
+                gradient_offset = CommonFunctions.adjustPaletteOffset(gradient_offset, ccs.gradient_cycling_adjusting_value, Constants.GRADIENT_LENGTH);
             }
 
-            if (cycle_colors) {
-                color_cycling_location_outcoloring += color_cycling_adjusting_value;
-
-                color_cycling_location_outcoloring = color_cycling_location_outcoloring > Integer.MAX_VALUE - 40000 ? 0 : color_cycling_location_outcoloring;
-
-                color_cycling_location_incoloring += color_cycling_adjusting_value;
-
-                color_cycling_location_incoloring = color_cycling_location_incoloring > Integer.MAX_VALUE - 40000 ? 0 : color_cycling_location_incoloring;
+            if (ccs.color_cycling_adjusting_value != 0) {
+                color_cycling_location_outcoloring = CommonFunctions.adjustPaletteOffset(color_cycling_location_outcoloring, ccs.color_cycling_adjusting_value, outPaletteLength);
+                color_cycling_location_incoloring = CommonFunctions.adjustPaletteOffset(color_cycling_location_incoloring, ccs.color_cycling_adjusting_value, inPaletteLength);
             }
 
-            if (cycle_lights) {
-                if (bms.bump_map) {
-                    bms.lightDirectionDegrees += color_cycling_adjusting_value;
-                    bms.lightDirectionDegrees = bms.lightDirectionDegrees % 360.0;
-                }
+            if (ccs.bump_cycling_adjusting_value != 0 && bms.bump_map) {
+                CommonFunctions.adjustBumpOffset(bms, ccs.bump_cycling_adjusting_value);
+            }
 
-                if (ls.lighting) {
-                    ls.light_direction += color_cycling_adjusting_value;
-                    ls.light_direction = ls.light_direction % 360.0;
+            if (ccs.light_cycling_adjusting_value != 0 && ls.lighting) {
+                CommonFunctions.adjustLightOffset(ls, ccs.light_cycling_adjusting_value);
+            }
 
-                    double lightAngleRadians = Math.toRadians(ls.light_direction);
-                    ls.lightVector[0] = Math.cos(lightAngleRadians) * ls.light_magnitude;
-                    ls.lightVector[1] = Math.sin(lightAngleRadians) * ls.light_magnitude;
-                }
-
-                if(ss.slopes) {
-                    ss.SlopeAngle += color_cycling_adjusting_value;
-                    ss.SlopeAngle = ss.SlopeAngle % 360.0;
-
-                    double lightAngleRadians = Math.toRadians(ss.SlopeAngle);
-                    ss.lightVector[0] = Math.cos(lightAngleRadians);
-                    ss.lightVector[1] = Math.sin(lightAngleRadians);
-                }
+            if(ccs.slope_cycling_adjusting_value != 0 && ss.slopes) {
+                CommonFunctions.adjustSlopeOffset(ss, ccs.slope_cycling_adjusting_value);
             }
 
             for (int y = FROMy; y < TOy; y++) {
@@ -5218,11 +5372,11 @@ public abstract class TaskDraw implements Runnable {
 
                     ptr.getMainPanel().repaint();
 
-                    if (cycle_colors) {
+                    if (ccs.color_cycling_adjusting_value != 0) {
                         ptr.updatePalettePreview(color_cycling_location_outcoloring, color_cycling_location_incoloring);
                     }
 
-                    if (cycle_gradient) {
+                    if (ccs.gradient_cycling_adjusting_value != 0) {
                         ptr.updateGradientPreview(gradient_offset);
                     }
                     //progress.setForeground(new Color(palette.getPaletteColor(color_cycling_location)));
@@ -5234,7 +5388,7 @@ public abstract class TaskDraw implements Runnable {
             }
 
             try {
-                Thread.sleep(color_cycling_speed + 35);
+                Thread.sleep(ccs.color_cycling_speed + 35);
             } catch (InterruptedException ex) {
             }
 
@@ -6429,10 +6583,6 @@ public abstract class TaskDraw implements Runnable {
         }
 
         applyHeightFunction();
-
-        if (histogramHeight) {
-            histogramHeight();
-        }
 
         if (remove_outliers_post) {
 
@@ -8694,12 +8844,12 @@ public abstract class TaskDraw implements Runnable {
         return output;
     }
 
-    private int binarySearch(double[] array, double target) {
+    private int closestPoint(double[] array, double target) {
         int left = 0;
         int right = array.length - 1;
 
         while (left <= right) {
-            int mid = left + (right - left) / 2;
+            int mid = (int)(((long)left + right) >>> 1);
 
             if (array[mid] == target) {
                 return mid;
@@ -8710,10 +8860,10 @@ public abstract class TaskDraw implements Runnable {
             }
         }
 
-        return -1; // Target value not found
+        return right;
     }
 
-    protected int[] applyHistogramToPixel(int index, int[] colors, PixelExtraData[] data, int maxCount, int histogramGranularity, double histogramDensity, double[] image_iterations, boolean[] escaped) {
+    protected int[] applyHistogramToPixel(int index, int[] colors, PixelExtraData[] data, int histogramGranularity, double histogramDensity, double[] image_iterations, boolean[] escaped) {
 
         int[] output = new int[colors.length];
 
@@ -8740,26 +8890,26 @@ public abstract class TaskDraw implements Runnable {
             double tempVal = Math.abs(ColorAlgorithm.transformResultToHeight(val, max_iterations));
             double diff = 0;
 
-            int valIndex = 0;
+            long valIndex = 0;
             if (esc) {
                 tempVal = capValue(tempVal, upperFenceEscaped, lowerFenceEscaped);
                 diff = tempVal - minIterationsEscaped;
-                diff = diff > maxCount ? maxCount : diff;
-                valIndex = (int) ((diff) / denominatorEscaped * histogramGranularity);
+                valIndex = (long) ((diff) / denominatorEscaped * histogramGranularity);
             } else {
                 tempVal = capValue(tempVal, upperFenceNotEscaped, lowerFenceNotEscaped);
                 diff = tempVal - minIterationsNotEscaped;
-                diff = diff > maxCount ? maxCount : diff;
-                valIndex = (int) ((diff) / denominatorNotEscaped * histogramGranularity);
+                valIndex = (long) ((diff) / denominatorNotEscaped * histogramGranularity);
             }
             int[] array = esc ? escapedCounts : notEscapedCounts;
 
-            double sum = array[valIndex];
+
+            int valIndexInt = valIndex >= array.length ? array.length - 1 : (int)valIndex;
+            double sum = array[valIndexInt];
 
             double sumNext = sum;
 
             //Find the next cdf val that is greater from the old
-            for (int i = valIndex + 1; i < array.length; i++) {
+            for (int i = valIndexInt + 1; i < array.length; i++) {
                 if (array[i] > sum) {
                     sumNext = array[i];
                     break;
@@ -8848,25 +8998,44 @@ public abstract class TaskDraw implements Runnable {
                 tempVal = capValue(tempVal, upperFenceNotEscaped, lowerFenceNotEscaped);
             }
 
+            double originalVal = tempVal;
             tempVal = roundForRankOrder(tempVal);
 
             double g1;
 
             if (esc) {
-                int i = binarySearch(arrayEscaped, tempVal);
+                int i = closestPoint(arrayEscaped, tempVal);
 
                 if(i != -1) {
-                    g1 = (double)i / arrayEscaped.length;
+                    if(arrayEscaped[i] == tempVal) {
+                        g1 = (double) i / (arrayEscaped.length - 1);
+                    }
+                    else if(i + 1 >= arrayEscaped.length) {
+                        g1 = 1.0;
+                    }
+                    else {
+                        double in = i + ((originalVal - arrayEscaped[i])/(arrayEscaped[i + 1] - arrayEscaped[i]));
+                        g1 = in / (arrayEscaped.length - 1);
+                    }
                 }
                 else {
                     g1 = 0;
                 }
 
             } else {
-                int i = binarySearch(arraynotEscaped, tempVal);
+                int i = closestPoint(arraynotEscaped, tempVal);
 
                 if(i != -1) {
-                    g1 = (double)i / arraynotEscaped.length;
+                    if(arraynotEscaped[i] == tempVal) {
+                        g1 = (double)i / (arraynotEscaped.length - 1);
+                    }
+                    else if(i + 1 >= arraynotEscaped.length) {
+                        g1 = 1.0;
+                    }
+                    else {
+                        double in = i + ((originalVal - arraynotEscaped[i])/(arraynotEscaped[i + 1] - arraynotEscaped[i]));
+                        g1 = in / (arraynotEscaped.length - 1);
+                    }
                 }
                 else {
                     g1 = 0;
@@ -8974,13 +9143,36 @@ public abstract class TaskDraw implements Runnable {
         }
     }
 
+    public static boolean INCLUDE_AA_DATA_ON_RANK_ORDER = false;
+
     private double roundForRankOrder(double val) {
-        return Math.floor(100 * val + 0.5) / 100;
+        if(hss.rank_order_digits_grouping == 0) {
+            return Math.floor(val + 0.5);
+        }
+        else if(hss.rank_order_digits_grouping == 1) {
+            return Math.floor(10 * val + 0.5) / 10;
+        }
+        else if(hss.rank_order_digits_grouping == 2) {
+            return Math.floor(100 * val + 0.5) / 100;
+        }
+        else if(hss.rank_order_digits_grouping == 3) {
+            return Math.floor(1000 * val + 0.5) / 1000;
+        }
+        else if(hss.rank_order_digits_grouping == 4) {
+            return Math.floor(10000 * val + 0.5) / 10000;
+        }
+        else if(hss.rank_order_digits_grouping == 5) {
+            return Math.floor(100000 * val + 0.5) / 100000;
+        }
+        else if(hss.rank_order_digits_grouping == 6) {
+            return Math.floor(1000000 * val + 0.5) / 1000000;
+        }
+
+        return Math.floor(10000000 * val + 0.5) / 10000000;
     }
 
     private void initializeHistogramColoring(double[] image_iterations, boolean[] escaped) {
 
-        int maxCount = 1000000;
         int mapping = hss.hmapping;
         int histogramGranularity = hss.histogramBinGranularity;
 
@@ -9122,14 +9314,16 @@ public abstract class TaskDraw implements Runnable {
                     if(mapping == 0) {
                         if (maxIterationEscaped != -Double.MAX_VALUE && minIterationsEscaped != Double.MAX_VALUE) {
                             double diff = maxIterationEscaped - minIterationsEscaped;
-                            diff = diff > maxCount ? maxCount : diff;
-                            escapedCounts = new int[((int) ((diff + 1) * histogramGranularity))];
+                            long total = ((long)((diff + 1) * histogramGranularity));
+                            total = total > Integer.MAX_VALUE ? Integer.MAX_VALUE : total;
+                            escapedCounts = new int[(int)total];
                         }
 
                         if (maxIterationNotEscaped != -Double.MAX_VALUE && minIterationsNotEscaped != Double.MAX_VALUE) {
                             double diff = maxIterationNotEscaped - minIterationsNotEscaped;
-                            diff = diff > maxCount ? maxCount : diff;
-                            notEscapedCounts = new int[((int) ((diff + 1) * histogramGranularity))];
+                            long total = ((long)((diff + 1) * histogramGranularity));
+                            total = total > Integer.MAX_VALUE ? Integer.MAX_VALUE : total;
+                            notEscapedCounts = new int[(int)total];
                         }
 
                         if (maxIterationEscaped < 1 && minIterationsEscaped < 1) {
@@ -9168,8 +9362,9 @@ public abstract class TaskDraw implements Runnable {
                             }
                             else {
                                 double diff = val - minIterationsEscaped;
-                                diff = diff > maxCount ? maxCount : diff;
-                                escapedCounts[(int) ((diff) / denominatorEscaped * histogramGranularity)]++;
+                                long id = (long) ((diff) / denominatorEscaped * histogramGranularity);
+                                id = id >= escapedCounts.length ? escapedCounts.length - 1 : id;
+                                escapedCounts[(int)id]++;
                             }
                             totalEscaped++;
                         } else {
@@ -9180,8 +9375,9 @@ public abstract class TaskDraw implements Runnable {
                             }
                             else {
                                 double diff = val - minIterationsNotEscaped;
-                                diff = diff > maxCount ? maxCount : diff;
-                                notEscapedCounts[(int) ((diff) / denominatorNotEscaped * histogramGranularity)]++;
+                                long id = (long) ((diff) / denominatorNotEscaped * histogramGranularity);
+                                id = id >= notEscapedCounts.length ? notEscapedCounts.length - 1 : id;
+                                notEscapedCounts[(int)id]++;
                             }
                             totalNotEscaped++;
                         }
@@ -9238,7 +9434,6 @@ public abstract class TaskDraw implements Runnable {
 
     private void initializeHistogramColoring(PixelExtraData[] data) {
 
-        int maxCount = 1000000;
         int mapping = hss.hmapping;
         int histogramGranularity = hss.histogramBinGranularity;
 
@@ -9383,14 +9578,16 @@ public abstract class TaskDraw implements Runnable {
                     if(mapping == 0) {
                         if (maxIterationEscaped != -Double.MAX_VALUE && minIterationsEscaped != Double.MAX_VALUE) {
                             double diff = maxIterationEscaped - minIterationsEscaped;
-                            diff = diff > maxCount ? maxCount : diff;
-                            escapedCounts = new int[((int) ((diff + 1) * histogramGranularity))];
+                            long total = ((long)((diff + 1) * histogramGranularity));
+                            total = total > Integer.MAX_VALUE ? Integer.MAX_VALUE : total;
+                            escapedCounts = new int[(int)total];
                         }
 
                         if (maxIterationNotEscaped != -Double.MAX_VALUE && minIterationsNotEscaped != Double.MAX_VALUE) {
                             double diff = maxIterationNotEscaped - minIterationsNotEscaped;
-                            diff = diff > maxCount ? maxCount : diff;
-                            notEscapedCounts = new int[((int) ((diff + 1) * histogramGranularity))];
+                            long total = ((long)((diff + 1) * histogramGranularity));
+                            total = total > Integer.MAX_VALUE ? Integer.MAX_VALUE : total;
+                            notEscapedCounts = new int[(int)total];
                         }
 
                         if (maxIterationEscaped < 1 && minIterationsEscaped < 1) {
@@ -9408,7 +9605,14 @@ public abstract class TaskDraw implements Runnable {
                     ArrayList<Double> listnotEscaped;
 
                     for(int j = 0; j < data.length; j++) {
-                        for (int i = 0; i < data[j].values.length; i++) {
+                        int length;
+                        if(mapping == 6 && INCLUDE_AA_DATA_ON_RANK_ORDER) {
+                            length = data[j].values.length;
+                        }
+                        else {
+                            length = mapping == 6 ? Math.min(1, data[j].values.length) : data[j].values.length;
+                        }
+                        for (int i = 0; i < length; i++) {
                             double val = data[j].values[i];
 
                             if (isMaximumIterations(val)) {
@@ -9429,8 +9633,9 @@ public abstract class TaskDraw implements Runnable {
                                 }
                                 else {
                                     double diff = val - minIterationsEscaped;
-                                    diff = diff > maxCount ? maxCount : diff;
-                                    escapedCounts[(int) ((diff) / denominatorEscaped * histogramGranularity)]++;
+                                    long id = (long) ((diff) / denominatorEscaped * histogramGranularity);
+                                    id = id >= escapedCounts.length ? escapedCounts.length - 1 : id;
+                                    escapedCounts[(int)id]++;
                                 }
                                 totalEscaped++;
                             } else {
@@ -9440,8 +9645,9 @@ public abstract class TaskDraw implements Runnable {
                                 }
                                 else {
                                     double diff = val - minIterationsNotEscaped;
-                                    diff = diff > maxCount ? maxCount : diff;
-                                    notEscapedCounts[(int) ((diff) / denominatorNotEscaped * histogramGranularity)]++;
+                                    long id = (long) ((diff) / denominatorNotEscaped * histogramGranularity);
+                                    id = id >= notEscapedCounts.length ? notEscapedCounts.length - 1 : id;
+                                    notEscapedCounts[(int)id]++;
                                 }
 
                                 totalNotEscaped++;
@@ -9501,149 +9707,16 @@ public abstract class TaskDraw implements Runnable {
     private int[] finalizeHistogramColoring(double[] image_iterations, PixelExtraData[] data, int[] colors, int i, int j, int image_size, boolean[] escaped) {
 
         double histogramDensity = hss.histogramDensity;
-        int maxCount = 1000000;
         int mapping = hss.hmapping;
         int histogramGranularity = hss.histogramBinGranularity;
         if(mapping == 0) {
-            return applyHistogramToPixel(i * image_size + j, colors, data, maxCount, histogramGranularity, histogramDensity, image_iterations, escaped);
+            return applyHistogramToPixel(i * image_size + j, colors, data, histogramGranularity, histogramDensity, image_iterations, escaped);
         }
         else if(mapping == 6) {
             return applyRankOrderMappingToPixel(i * image_size + j, colors, data, image_iterations, escaped);
         }
         else {
             return applyScalingToPixel(i * image_size + j, colors, data, mapping, image_iterations, escaped);
-        }
-
-    }
-
-    private void histogramHeight() {
-
-        int maxCount = 1000000;
-        int HIST_MULT = histogram_granularity;
-
-        histogramDenominator = 1;
-
-        try {
-            if (normalize_find_ranges_sync_3d.await() == 0) {
-                maxIterations3d = -Double.MAX_VALUE;
-                minIterations3d = Double.MAX_VALUE;
-                totalCounts = 0;
-
-                for (int x = 0; x < detail; x++) {
-                    for (int y = 0; y < detail; y++) {
-                        double val = Math.abs(vert[x][y]);
-
-                        if (Double.isNaN(val) || Double.isInfinite(val)) {
-                            continue;
-                        }
-
-                        maxIterations3d = val > maxIterations3d ? val : maxIterations3d;
-                        minIterations3d = val < minIterations3d ? val : minIterations3d;
-                    }
-                }
-
-                if (maxIterations3d != -Double.MAX_VALUE && minIterations3d != Double.MAX_VALUE) {
-                    double diff = maxIterations3d - minIterations3d;
-                    diff = diff > maxCount ? maxCount : diff;
-                    histogramCounts = new int[((int) ((diff + 1) * HIST_MULT))];
-                }
-
-
-                if(minIterations3d < 1 && maxIterations3d < 1) {
-                    histogramDenominator = maxIterations3d - minIterations3d + 1e-12;
-                }
-
-                for (int x = 0; x < detail; x++) {
-                    for (int y = 0; y < detail; y++) {
-                        double val = Math.abs(vert[x][y]);
-
-                        if (Double.isNaN(val) || Double.isInfinite(val)) {
-                            continue;
-                        }
-
-                        double diff = val - minIterations3d;
-                        diff = diff > maxCount ? maxCount : diff;
-
-                        histogramCounts[(int) ((diff) / histogramDenominator * HIST_MULT)]++;
-                        totalCounts++;
-                    }
-                }
-
-                if (histogramCounts != null) {
-                    double sum = 0;
-                    for (int i = 0; i < histogramCounts.length; i++) {
-                        histogramCounts[i] += sum;
-                        sum = histogramCounts[i];
-                    }
-                }
-            }
-        } catch (InterruptedException e) {
-
-        } catch (BrokenBarrierException e) {
-
-        }
-
-        try {
-            normalize_sync_3d.await();
-        } catch (InterruptedException ex) {
-
-        } catch (BrokenBarrierException ex) {
-
-        }
-
-        for (int x = FROMx; x < TOx; x++) {
-            for (int y = FROMy; y < TOy; y++) {
-
-                double val = vert[x][y];
-
-                if (Double.isNaN(val) || Double.isInfinite(val)) {
-                    continue;
-                }
-
-                double tempVal = Math.abs(val);
-
-                double diff = tempVal - minIterations3d;
-                diff = diff > maxCount ? maxCount : diff;
-
-                int valIndex = (int) ((diff)  / histogramDenominator * HIST_MULT);
-
-                double sum = histogramCounts[valIndex];
-
-                double sumNext = sum;
-
-                //Find the next cdf val that is greater from the old
-                for (int i = valIndex + 1; i < histogramCounts.length; i++) {
-                    if (histogramCounts[i] > sum) {
-                        sumNext = histogramCounts[i];
-                        break;
-                    }
-                }
-
-                double cdfMin = histogramCounts[0];
-                double g = 1.0 - Math.pow(1.0 - ((sum - cdfMin) / (totalCounts - cdfMin)), 1.0 / histogram_density);
-                double g2 = 1.0 - Math.pow(1.0 - ((sumNext - cdfMin) / (totalCounts - cdfMin)), 1.0 / histogram_density);
-
-                double fractionalPart = MathUtils.fract((diff) / histogramDenominator * HIST_MULT);
-
-                g = method.interpolate(g, g2, fractionalPart);
-                val = g;
-
-                if (Double.isNaN(val) || Double.isInfinite(val)) {
-                    continue;
-                }
-
-                vert[x][y] = val;
-            }
-        }
-
-        try {
-            if (normalize_sync2_3d.await() == 0) {
-                histogramCounts = null;
-            }
-        } catch (InterruptedException ex) {
-
-        } catch (BrokenBarrierException ex) {
-
         }
 
     }
@@ -9841,6 +9914,7 @@ public abstract class TaskDraw implements Runnable {
         remove_outliers_sync2 = new CyclicBarrier(num_tasks);
         remove_outliers_sync4 = new CyclicBarrier(num_tasks);
         normal_drawing_algorithm_pixel = new AtomicInteger(0);
+        normal_drawing_algorithm_pixel2 = new AtomicInteger(0);
         apply_skipped_color_pixel = new AtomicInteger(0);
         draw_squares_pixel = new AtomicInteger(0);
         quick_draw_drawing_algorithm_pixel = new AtomicInteger[SUCCESSIVE_REFINEMENT_EXPONENT];
@@ -9848,15 +9922,22 @@ public abstract class TaskDraw implements Runnable {
             quick_draw_drawing_algorithm_pixel[i] = new AtomicInteger(0);
         }
 
-        successive_refinement_drawing_algorithm_pixel = new AtomicInteger[SUCCESSIVE_REFINEMENT_EXPONENT + 1];
+        successive_refinement_drawing_algorithm_pixel = new AtomicInteger[2 * (SUCCESSIVE_REFINEMENT_EXPONENT + 1)];
         for(int i = 0; i < successive_refinement_drawing_algorithm_pixel.length; i++) {
             successive_refinement_drawing_algorithm_pixel[i] = new AtomicInteger(0);
+        }
+
+        successive_refinement_drawing_algorithm2_pixel = new AtomicInteger[2 * (2 * SUCCESSIVE_REFINEMENT_EXPONENT + 1)];
+        for(int i = 0; i < successive_refinement_drawing_algorithm2_pixel.length; i++) {
+            successive_refinement_drawing_algorithm2_pixel[i] = new AtomicInteger(0);
         }
 
         quick_draw_drawing_algorithm_barrier = new CyclicBarrier(num_tasks);
         successive_refinement_drawing_algorithm_barrier = new CyclicBarrier(num_tasks);
         normal_drawing_algorithm_post_processing = new AtomicInteger(0);
+        normal_drawing_algorithm_post_processing2 = new AtomicInteger(0);
         normal_drawing_algorithm_apply_palette = new AtomicInteger(0);
+        normal_drawing_algorithm_apply_palette2 = new AtomicInteger(0);
         normal_drawing_algorithm_histogram = new AtomicInteger(0);
         color_cycling_filters_sync = new CyclicBarrier(num_tasks);
         color_cycling_restart_sync = new CyclicBarrier(num_tasks);
@@ -9866,8 +9947,6 @@ public abstract class TaskDraw implements Runnable {
         normalize_sync = new CyclicBarrier(num_tasks);
         normalize_sync2 = new CyclicBarrier(num_tasks);
         normalize_find_ranges_sync_3d = new CyclicBarrier(num_tasks);
-        normalize_sync_3d = new CyclicBarrier(num_tasks);
-        normalize_sync2_3d = new CyclicBarrier(num_tasks);
         color_cycling_toggle_lock = new ReadWriteLock();
         successive_refinement_lock = new ReadWriteLock();
 
@@ -10438,6 +10517,9 @@ public abstract class TaskDraw implements Runnable {
                 break;
             case MainWindow.FORMULA47:
                 fractal = new Formula47(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, escaping_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.FORMULA48:
+                fractal = new Formula48(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, escaping_smooth_algorithm, ots, sts);
                 break;
             case MainWindow.PERPENDICULAR_MANDELBROT:
                 fractal = new PerpendicularMandelbrot(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, escaping_smooth_algorithm, ots, sts);
@@ -11615,12 +11697,12 @@ public abstract class TaskDraw implements Runnable {
         fractal.setFunctionId(function);
 
         if(ptr != null) {
-            if(ptr.getSettings().hasConvergentBailoutCondition()) {
+            if(ptr.getSettings().hasConvergentBailout()) {
                 fractal.ConvergentBailoutConditionFactory(cbs.convergent_bailout_test_algorithm, fractal.getConvergentBailout(), cbs.convergent_bailout_test_user_formula, cbs.convergent_bailout_test_user_formula2, cbs.convergent_bailout_test_comparison, cbs.convergent_n_norm, plane_transform_center);
             }
         }
         else if(ptrExpander != null) {
-            if(ptrExpander.getSettings().hasConvergentBailoutCondition()) {
+            if(ptrExpander.getSettings().hasConvergentBailout()) {
                 fractal.ConvergentBailoutConditionFactory(cbs.convergent_bailout_test_algorithm, fractal.getConvergentBailout(), cbs.convergent_bailout_test_user_formula, cbs.convergent_bailout_test_user_formula2, cbs.convergent_bailout_test_comparison, cbs.convergent_n_norm, plane_transform_center);
             }
         }
@@ -11922,6 +12004,9 @@ public abstract class TaskDraw implements Runnable {
             case MainWindow.FORMULA47:
                 fractal = new Formula47(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, escaping_smooth_algorithm, ots, sts, xJuliaCenter, yJuliaCenter);
                 break;
+            case MainWindow.FORMULA48:
+                fractal = new Formula48(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, escaping_smooth_algorithm, ots, sts, xJuliaCenter, yJuliaCenter);
+                break;
             case MainWindow.PERPENDICULAR_MANDELBROT:
                 fractal = new PerpendicularMandelbrot(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, escaping_smooth_algorithm, ots, sts, xJuliaCenter, yJuliaCenter);
                 break;
@@ -12048,12 +12133,12 @@ public abstract class TaskDraw implements Runnable {
         fractal.influencePlaneFactory(ips);
 
         if(ptr != null) {
-            if(ptr.getSettings().hasConvergentBailoutCondition()) {
+            if(ptr.getSettings().hasConvergentBailout()) {
                 fractal.ConvergentBailoutConditionFactory(cbs.convergent_bailout_test_algorithm, fractal.getConvergentBailout(), cbs.convergent_bailout_test_user_formula, cbs.convergent_bailout_test_user_formula2, cbs.convergent_bailout_test_comparison, cbs.convergent_n_norm, plane_transform_center);
             }
         }
         else if(ptrExpander != null) {
-            if(ptrExpander.getSettings().hasConvergentBailoutCondition()) {
+            if(ptrExpander.getSettings().hasConvergentBailout()) {
                 fractal.ConvergentBailoutConditionFactory(cbs.convergent_bailout_test_algorithm, fractal.getConvergentBailout(), cbs.convergent_bailout_test_user_formula, cbs.convergent_bailout_test_user_formula2, cbs.convergent_bailout_test_comparison, cbs.convergent_n_norm, plane_transform_center);
             }
         }
@@ -12175,12 +12260,12 @@ public abstract class TaskDraw implements Runnable {
                 return Constants.ARBITRARY_DOUBLEDOUBLE;
             }
 
-            if(f.supportsBigIntnum()) {
-                return Constants.ARBITRARY_BIGINT;
-            }
-
             if(f.supportsBignum()) {
                 return Constants.ARBITRARY_BUILT_IN;
+            }
+
+            if(f.supportsBigIntnum()) {
+                return Constants.ARBITRARY_BIGINT;
             }
 
             return Constants.ARBITRARY_APFLOAT;
@@ -12202,12 +12287,12 @@ public abstract class TaskDraw implements Runnable {
                 return Constants.ARBITRARY_DOUBLEDOUBLE;
             }
 
-            if(f.supportsBigIntnum()) {
-                return Constants.ARBITRARY_BIGINT;
-            }
-
             if(f.supportsBignum()) {
                 return Constants.ARBITRARY_BUILT_IN;
+            }
+
+            if(f.supportsBigIntnum()) {
+                return Constants.ARBITRARY_BIGINT;
             }
 
             return Constants.ARBITRARY_APFLOAT;
@@ -12218,20 +12303,20 @@ public abstract class TaskDraw implements Runnable {
                 return Constants.ARBITRARY_DOUBLEDOUBLE;
             }
 
-            if(!LibMpir.hasError() && f.supportsMpirBignum() && (MpirBigNum.precision >= 1500 || (!f.supportsBigIntnum() && !f.supportsBignum()))) {
+            if(!LibMpir.hasError() && f.supportsMpirBignum() && (MpirBigNum.precision >= 1200 || (!f.supportsBigIntnum() && !f.supportsBignum()))) {
                 return Constants.ARBITRARY_MPIR;
             }
 
-            if(!LibMpfr.hasError() && f.supportsMpfrBignum() && (MpfrBigNum.precision >= 1800 || (!f.supportsBigIntnum() && !f.supportsBignum()))) {
+            if(!LibMpfr.hasError() && f.supportsMpfrBignum() && (MpfrBigNum.precision >= 1350 || (!f.supportsBigIntnum() && !f.supportsBignum()))) {
                 return Constants.ARBITRARY_MPFR;
-            }
-
-            if(f.supportsBigIntnum()) {
-                return Constants.ARBITRARY_BIGINT;
             }
 
             if(f.supportsBignum()) {
                 return Constants.ARBITRARY_BUILT_IN;
+            }
+
+            if(f.supportsBigIntnum()) {
+                return Constants.ARBITRARY_BIGINT;
             }
 
             return Constants.ARBITRARY_APFLOAT;
@@ -12303,6 +12388,10 @@ public abstract class TaskDraw implements Runnable {
                 return Constants.BIGNUM_DOUBLEDOUBLE;
             }
 
+            if(f.supportsBignum()) {
+                return Constants.BIGNUM_BUILT_IN;
+            }
+
             if(f.supportsBigIntnum()) {
                 return Constants.BIGNUM_BIGINT;
             }
@@ -12333,6 +12422,10 @@ public abstract class TaskDraw implements Runnable {
                 return Constants.BIGNUM_DOUBLEDOUBLE;
             }
 
+            if(f.supportsBignum()) {
+                return Constants.BIGNUM_BUILT_IN;
+            }
+
             if(f.supportsBigIntnum()) {
                 return Constants.BIGNUM_BIGINT;
             }
@@ -12348,39 +12441,39 @@ public abstract class TaskDraw implements Runnable {
                 return Constants.BIGNUM_DOUBLEDOUBLE;
             }
 
-            if(!LibMpir.hasError() && f.supportsMpirBignum() && (MpirBigNum.precision >= 1500 || (!f.supportsBigIntnum() && !f.supportsBignum()))) { //(f.supportsPeriod() && DETECT_PERIOD && MpfrBigNum.precision >= 450)
+            if(!LibMpir.hasError() && f.supportsMpirBignum() && (MpirBigNum.precision >= 1200 || (!f.supportsBigIntnum() && !f.supportsBignum()))) { //(f.supportsPeriod() && DETECT_PERIOD && MpfrBigNum.precision >= 450)
                 return Constants.BIGNUM_MPIR;
             }
 
-            if(!LibMpfr.hasError() && f.supportsMpfrBignum() && (MpfrBigNum.precision >= 1800 || (!f.supportsBigIntnum() && !f.supportsBignum()))) { //(f.supportsPeriod() && DETECT_PERIOD && MpfrBigNum.precision >= 450)
+            if(!LibMpfr.hasError() && f.supportsMpfrBignum() && (MpfrBigNum.precision >= 1350 || (!f.supportsBigIntnum() && !f.supportsBignum()))) { //(f.supportsPeriod() && DETECT_PERIOD && MpfrBigNum.precision >= 450)
                 return Constants.BIGNUM_MPFR;
-            }
-
-            if(f.supportsBigIntnum()) {
-                return Constants.BIGNUM_BIGINT;
             }
 
             if(f.supportsBignum()) {
                 return Constants.BIGNUM_BUILT_IN;
+            }
+
+            if(f.supportsBigIntnum()) {
+                return Constants.BIGNUM_BIGINT;
             }
 
             return Constants.BIGNUM_APFLOAT;
         }
         else if(TaskDraw.BIGNUM_LIBRARY == Constants.BIGNUM_AUTOMATIC_ONLY_BIGNUM) {
-            if(!LibMpir.hasError() && f.supportsMpirBignum() && (MpirBigNum.precision >= 1500 || (!f.supportsBigIntnum() && !f.supportsBignum()))) { //(f.supportsPeriod() && DETECT_PERIOD && MpfrBigNum.precision >= 450)
+            if(!LibMpir.hasError() && f.supportsMpirBignum() && (MpirBigNum.precision >= 1200 || (!f.supportsBigIntnum() && !f.supportsBignum()))) { //(f.supportsPeriod() && DETECT_PERIOD && MpfrBigNum.precision >= 450)
                 return Constants.BIGNUM_MPIR;
             }
 
-            if(!LibMpfr.hasError() && f.supportsMpfrBignum() && (MpfrBigNum.precision >= 1800 || (!f.supportsBigIntnum() && !f.supportsBignum()))) { //(f.supportsPeriod() && DETECT_PERIOD && MpfrBigNum.precision >= 450)
+            if(!LibMpfr.hasError() && f.supportsMpfrBignum() && (MpfrBigNum.precision >= 1350 || (!f.supportsBigIntnum() && !f.supportsBignum()))) { //(f.supportsPeriod() && DETECT_PERIOD && MpfrBigNum.precision >= 450)
                 return Constants.BIGNUM_MPFR;
-            }
-
-            if(f.supportsBigIntnum()) {
-                return Constants.BIGNUM_BIGINT;
             }
 
             if(f.supportsBignum()) {
                 return Constants.BIGNUM_BUILT_IN;
+            }
+
+            if(f.supportsBigIntnum()) {
+                return Constants.BIGNUM_BIGINT;
             }
 
             return Constants.BIGNUM_APFLOAT;
@@ -12438,8 +12531,8 @@ public abstract class TaskDraw implements Runnable {
             if(RefIteration == nextBigDataIter) {
                 DeltaSubN.Normalize();
                 DeltaSub0.Normalize();
-                GenericComplex p = new BigNumComplex(new BigNum(DeltaSubN.getRe()), new BigNum(DeltaSubN.getIm()));
-                GenericComplex c = new BigNumComplex(new BigNum(DeltaSub0.getRe()), new BigNum(DeltaSub0.getIm()));
+                GenericComplex p = new BigNumComplex(BigNum.create(DeltaSubN.getRe()), BigNum.create(DeltaSubN.getIm()));
+                GenericComplex c = new BigNumComplex(BigNum.create(DeltaSub0.getRe()), BigNum.create(DeltaSub0.getIm()));
                 DeltaSubN = Mandelbrot.BigData.get(nextBigDataIndex).times2().plus_mutable(p).times_mutable(p).plus_mutable(c).toMantExpComplex();
                 //return getArrayDeepValue(referenceDeep, RefIteration).times2_mutable().plus_mutable(DeltaSubN).times_mutable(DeltaSubN).plus_mutable(DeltaSub0);
             }
@@ -12452,7 +12545,7 @@ public abstract class TaskDraw implements Runnable {
             if (max_iterations > 1) {
                 if(RefIteration == nextBigDataIter) {
                     DeltaSubN.Normalize();
-                    GenericComplex p = new BigNumComplex(new BigNum(DeltaSubN.getRe()), new BigNum(DeltaSubN.getIm()));
+                    GenericComplex p = new BigNumComplex(BigNum.create(DeltaSubN.getRe()), BigNum.create(DeltaSubN.getIm()));
                     z = Mandelbrot.BigData.get(nextBigDataIndex).plus(p).toMantExpComplex();
                 }
                 else {
@@ -12495,6 +12588,13 @@ public abstract class TaskDraw implements Runnable {
 
     }*/
 
+    public void initializeHighPrecision() {
+        Fractal.total_iterations = new LongAdder();
+        Fractal.total_min_iterations = new LongAccumulator(Math::min, Long.MAX_VALUE);
+        Fractal.total_max_iterations = new LongAccumulator(Math::max, Long.MIN_VALUE);
+        Fractal.total_max_iterations_ignore_max_iter = new LongAccumulator(Math::max, Long.MIN_VALUE);
+    }
+
     public void calculateReference(Location loc) {
 
         Fractal.ReferenceCalculationTime = 0;
@@ -12512,8 +12612,10 @@ public abstract class TaskDraw implements Runnable {
         Fractal.total_float_exp_iterations = new LongAdder();
         Fractal.total_rebases = new LongAdder();
         Fractal.total_realigns = new LongAdder();
+        Fractal.total_iterations = new LongAdder();
         Fractal.total_min_iterations = new LongAccumulator(Math::min, Long.MAX_VALUE);
         Fractal.total_max_iterations = new LongAccumulator(Math::max, Long.MIN_VALUE);
+        Fractal.total_max_iterations_ignore_max_iter = new LongAccumulator(Math::max, Long.MIN_VALUE);
 
         int old_max = progress.getMaximum();
         int cur_val = progress.getValue();
@@ -12583,10 +12685,12 @@ public abstract class TaskDraw implements Runnable {
                 else if(APPROXIMATION_ALGORITHM == 4 && fractal.supportsBilinearApproximation2()
                  && (loc.getSize().compareToBothPositive(Fractal.BLA2Size) != 0
                      || fractal.BLA2ParamsDiffer()
-                    || (isDeep && fractal.useFullFloatExp() != Fractal.BLA2UsedFullFloatExp))) {
+                    || (isDeep && fractal.useFullFloatExp() != Fractal.BLA2UsedFullFloatExp)
+                        || Fractal.laReference == null || !Fractal.laReference.isValid)) {
 
                     if(Fractal.laReference == null ||
-                            fractal.BLA2ParamsDiffer()
+                            !Fractal.laReference.isValid
+                            || fractal.BLA2ParamsDiffer()
                             || (isDeep && fractal.useFullFloatExp() != Fractal.BLA2UsedFullFloatExp)
                             //|| (isDeep && !fractal.useFullFloatExp())
                             || (isDeep && fractal.useFullFloatExp() && LAReference.CONVERT_TO_DOUBLE_WHEN_POSSIBLE)

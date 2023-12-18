@@ -88,8 +88,8 @@ public class ZoomingFactorDialog extends JDialog {
                         try {
                             Double temp = Double.parseDouble(field.getText());
 
-                            if (temp < 1.05 || temp > 32) {
-                                JOptionPane.showMessageDialog(ptra, "Zooming factor must be in the range [1.05, 32].", "Error!", JOptionPane.ERROR_MESSAGE);
+                            if (temp < 1.001 || temp > 32) {
+                                JOptionPane.showMessageDialog(ptra, "Zooming factor must be in the range [1.001, 32].", "Error!", JOptionPane.ERROR_MESSAGE);
                                 return;
                             }
 
