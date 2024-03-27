@@ -1,26 +1,18 @@
 package fractalzoomer.core.la;
 
-import fractalzoomer.core.Complex;
-import fractalzoomer.core.GenericComplex;
-import fractalzoomer.core.MantExp;
-import fractalzoomer.core.MantExpComplex;
+import fractalzoomer.core.*;
 import fractalzoomer.core.la.impl.LAInfo;
 import fractalzoomer.core.la.impl.LAInfoDeep;
 import fractalzoomer.core.la.impl_refindex.LAInfoDeepRI;
 import fractalzoomer.core.la.impl_refindex.LAInfoRI;
+import fractalzoomer.functions.Fractal;
 
 public abstract class GenericLAInfo {
-    public static double[] refRe;
-    public static double[] refIm;
-    public static double[] refMantsRe;
-    public static double[] refMantsIm;
-    public static long[] refExpRe;
-    public static long[] refExpIm;
 
     private static final int ITERATIONS_MEMORY_THRESHOLD = 50_000_000;
 
-    public static GenericLAInfo create(int length, boolean deepZoom, int refIndex) {
-        if(length > ITERATIONS_MEMORY_THRESHOLD) {
+    public static GenericLAInfo create(int length, boolean deepZoom, int refIndex, ReferenceDecompressor referenceDecompressor) {
+        if(TaskDraw.USE_RI_ON_BLA2 || (!TaskDraw.DISABLE_RI_ON_BLA2 && !TaskDraw.COMPRESS_REFERENCE_IF_POSSIBLE && length > ITERATIONS_MEMORY_THRESHOLD)) {
             if (deepZoom) {
                 return LAInfoDeepRI.create(refIndex);
             } else {
@@ -29,15 +21,15 @@ public abstract class GenericLAInfo {
         }
         else {
             if (deepZoom) {
-                return LAInfoDeep.create(refIndex);
+                return LAInfoDeep.create(refIndex, referenceDecompressor);
             } else {
-                return LAInfo.create(refIndex);
+                return LAInfo.create(refIndex, referenceDecompressor);
             }
         }
     }
 
     public static GenericLAInfo create(int length, boolean deepZoom) {
-        if(length > ITERATIONS_MEMORY_THRESHOLD) {
+        if(TaskDraw.USE_RI_ON_BLA2 || (!TaskDraw.DISABLE_RI_ON_BLA2 && !TaskDraw.COMPRESS_REFERENCE_IF_POSSIBLE && length > ITERATIONS_MEMORY_THRESHOLD)) {
             if (deepZoom) {
                 return LAInfoDeepRI.create();
             } else {
@@ -53,66 +45,66 @@ public abstract class GenericLAInfo {
         }
     }
 
-    protected abstract GenericLAInfo Composite(LAInfo LA) throws InvalidCalculationException;
-    protected abstract GenericLAInfo Composite(LAInfoRI LA) throws InvalidCalculationException;
+    protected abstract GenericLAInfo Composite(LAInfo LA, ReferenceDecompressor referenceDecompressor) throws InvalidCalculationException;
+    protected abstract GenericLAInfo Composite(LAInfoRI LA, ReferenceDecompressor referenceDecompressor) throws InvalidCalculationException;
 
-    protected abstract GenericLAInfo Composite(LAInfoDeep LA);
-    protected abstract GenericLAInfo Composite(LAInfoDeepRI LA);
+    protected abstract GenericLAInfo Composite(LAInfoDeep LA, ReferenceDecompressor referenceDecompressor);
+    protected abstract GenericLAInfo Composite(LAInfoDeepRI LA, ReferenceDecompressor referenceDecompressor);
 
 
-    protected abstract GenericLAInfo Step(int RefIndex) throws InvalidCalculationException;
-    protected abstract boolean Composite(LAInfo out, LAInfo LA) throws InvalidCalculationException;
-    protected abstract boolean Composite(LAInfoRI out, LAInfoRI LA) throws InvalidCalculationException;
-    protected abstract boolean Composite(LAInfoDeep out, LAInfoDeep LA);
+    protected abstract GenericLAInfo Step(int RefIndex, ReferenceDecompressor referenceDecompressor) throws InvalidCalculationException;
+    protected abstract boolean Composite(LAInfo out, LAInfo LA, ReferenceDecompressor referenceDecompressor) throws InvalidCalculationException;
+    protected abstract boolean Composite(LAInfoRI out, LAInfoRI LA, ReferenceDecompressor referenceDecompressor) throws InvalidCalculationException;
+    protected abstract boolean Composite(LAInfoDeep out, LAInfoDeep LA, ReferenceDecompressor referenceDecompressor);
 
-    protected abstract boolean Composite(LAInfoDeepRI out, LAInfoDeepRI LA);
-    protected abstract boolean Step(LAInfoDeep out, int zRefIndex);
-    protected abstract boolean Step(LAInfoDeepRI out, int zRefIndex);
-    protected abstract boolean Step(LAInfo out, int zRefIndex) throws InvalidCalculationException;
-    protected abstract boolean Step(LAInfoRI out, int zRefIndex) throws InvalidCalculationException;
+    protected abstract boolean Composite(LAInfoDeepRI out, LAInfoDeepRI LA, ReferenceDecompressor referenceDecompressor);
+    protected abstract boolean Step(LAInfoDeep out, int zRefIndex, ReferenceDecompressor referenceDecompressor);
+    protected abstract boolean Step(LAInfoDeepRI out, int zRefIndex, ReferenceDecompressor referenceDecompressor);
+    protected abstract boolean Step(LAInfo out, int zRefIndex, ReferenceDecompressor referenceDecompressor) throws InvalidCalculationException;
+    protected abstract boolean Step(LAInfoRI out, int zRefIndex, ReferenceDecompressor referenceDecompressor) throws InvalidCalculationException;
 
-    protected boolean Step(GenericLAInfo out, int zRefIndex) throws InvalidCalculationException {
+    protected boolean Step(GenericLAInfo out, int zRefIndex, ReferenceDecompressor referenceDecompressor) throws InvalidCalculationException {
         if(out instanceof LAInfo) {
-            return Step((LAInfo) out, zRefIndex);
+            return Step((LAInfo) out, zRefIndex, referenceDecompressor);
         }
         else if(out instanceof LAInfoRI) {
-            return Step((LAInfoRI) out, zRefIndex);
+            return Step((LAInfoRI) out, zRefIndex, referenceDecompressor);
         }
         else if(out instanceof LAInfoDeep) {
-            return Step((LAInfoDeep) out, zRefIndex);
+            return Step((LAInfoDeep) out, zRefIndex, referenceDecompressor);
         }
         else {
-            return Step((LAInfoDeepRI) out, zRefIndex);
+            return Step((LAInfoDeepRI) out, zRefIndex, referenceDecompressor);
         }
     }
 
-    protected GenericLAInfo Composite(GenericLAInfo LA) throws InvalidCalculationException {
+    protected GenericLAInfo Composite(GenericLAInfo LA, ReferenceDecompressor referenceDecompressor) throws InvalidCalculationException {
         if(LA instanceof  LAInfo) {
-            return Composite((LAInfo) LA);
+            return Composite((LAInfo) LA, referenceDecompressor);
         }
         else if(LA instanceof  LAInfoRI) {
-            return Composite((LAInfoRI) LA);
+            return Composite((LAInfoRI) LA, referenceDecompressor);
         }
         else if(LA instanceof  LAInfoDeep) {
-            return Composite((LAInfoDeep) LA);
+            return Composite((LAInfoDeep) LA, referenceDecompressor);
         }
         else {
-            return Composite((LAInfoDeepRI) LA);
+            return Composite((LAInfoDeepRI) LA, referenceDecompressor);
         }
     }
 
-    protected boolean Composite(GenericLAInfo out, GenericLAInfo LA) throws InvalidCalculationException {
+    protected boolean Composite(GenericLAInfo out, GenericLAInfo LA, ReferenceDecompressor referenceDecompressor) throws InvalidCalculationException {
         if(LA instanceof  LAInfo) {
-            return Composite((LAInfo) out, (LAInfo) LA);
+            return Composite((LAInfo) out, (LAInfo) LA, referenceDecompressor);
         }
         else if(LA instanceof  LAInfoRI) {
-            return Composite((LAInfoRI) out, (LAInfoRI) LA);
+            return Composite((LAInfoRI) out, (LAInfoRI) LA, referenceDecompressor);
         }
         else if(LA instanceof  LAInfoDeep) {
-            return Composite((LAInfoDeep) out, (LAInfoDeep) LA);
+            return Composite((LAInfoDeep) out, (LAInfoDeep) LA, referenceDecompressor);
         }
         else  {
-            return Composite((LAInfoDeepRI) out, (LAInfoDeepRI) LA);
+            return Composite((LAInfoDeepRI) out, (LAInfoDeepRI) LA, referenceDecompressor);
         }
     }
 
@@ -133,7 +125,8 @@ public abstract class GenericLAInfo {
         }
     }
 
-    public abstract GenericComplex getRef();
+    public abstract GenericComplex getRef(Fractal f);
+    public Complex getRefDouble() {return  null;}
 
     public abstract GenericComplex getZCoeff();
 
@@ -154,15 +147,15 @@ public abstract class GenericLAInfo {
         return this;
     }
 
-    protected LAstep Prepare(MantExpComplex dz)  {
+    protected LAstep Prepare(Fractal f, MantExpComplex dz)  {
         return null;
     }
 
-    protected LAstep Prepare(Complex dz)  {
+    protected LAstep Prepare(Fractal f, Complex dz)  {
         return null;
     }
 
-    protected LAstep Prepare(double dre, double dim)  {
+    protected LAstep Prepare(Fractal f, double dre, double dim)  {
         return null;
     }
 
@@ -197,5 +190,13 @@ public abstract class GenericLAInfo {
     public MantExpComplex EvaluateDzdc2(MantExpComplex z, MantExpComplex dzdc2, MantExpComplex dzdc)  {
         return null;
     }
+
+    public abstract boolean isEqual(GenericLAInfo other);
+
+    @Override
+    public String toString() {
+        return "";
+    }
+
 
 }

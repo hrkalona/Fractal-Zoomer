@@ -2,6 +2,7 @@ package fractalzoomer.core.location.delta;
 
 import fractalzoomer.core.*;
 import fractalzoomer.core.location.Location;
+import fractalzoomer.functions.Fractal;
 import fractalzoomer.main.Constants;
 import fractalzoomer.main.app_settings.JitterSettings;
 import org.apfloat.Apfloat;
@@ -29,10 +30,11 @@ public class CartesianLocationDelta extends Location {
 
     private double[] antialiasing_y;
 
-    public CartesianLocationDelta(Apfloat xCenter, Apfloat yCenter, Apfloat ddsize, double height_ratio, int image_size_in, JitterSettings js, int bignumLib) {
+    public CartesianLocationDelta(Apfloat xCenter, Apfloat yCenter, Apfloat ddsize, double height_ratio, int image_size_in, JitterSettings js, Fractal fractal, int bignumLib) {
 
         super();
 
+        this.fractal = fractal;
         this.height_ratio = height_ratio;
         ddxcenter = xCenter;
         ddycenter = yCenter;
@@ -74,6 +76,7 @@ public class CartesianLocationDelta extends Location {
 
     public CartesianLocationDelta(CartesianLocationDelta other) {
         super(other);
+        fractal = other.fractal;
         reference = other.reference;
         temp_x_corner = other.temp_x_corner;
         temp_y_corner = other.temp_y_corner;

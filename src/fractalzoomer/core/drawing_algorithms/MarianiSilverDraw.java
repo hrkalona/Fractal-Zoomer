@@ -77,21 +77,7 @@ public class MarianiSilverDraw extends TaskDraw {
 
         Location location = Location.getInstanceForDrawing(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
 
-        if(PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && !HIGH_PRECISION_CALCULATION) {
-            if (reference_calc_sync.getAndIncrement() == 0) {
-                calculateReference(location);
-            }
-
-            try {
-                reference_sync.await();
-            } catch (InterruptedException ex) {
-
-            } catch (BrokenBarrierException ex) {
-
-            }
-
-            location.setReference(Fractal.refPoint);
-        }
+        initialize(location);
 
         int pixel_percent = (image_size * image_size) / 100;
 
@@ -352,11 +338,17 @@ public class MarianiSilverDraw extends TaskDraw {
                     int temploc = k * image_size;
                     int loc3 = temploc + x;
                     int loc4 = temploc + slice_TOx;
-                    Arrays.fill(rgbs, loc3, loc4, skippedColor);
-                    Arrays.fill(image_iterations, loc3, loc4, temp_starting_value);
-                    Arrays.fill(escaped, loc3, loc4, temp_starting_escaped);
+
+                    for (int index = loc3; index < loc4; index++) {
+                        if (rgbs[index] >>> 24 != Constants.NORMAL_ALPHA) {
+                            image_iterations[index] = temp_starting_value;
+                            rgbs[index] = skippedColor;
+                            escaped[index] = temp_starting_escaped;
+                            task_completed++;
+                        }
+                    }
+
                     drawing_done += chunk;
-                    task_completed += chunk;
                 }
 
                 if (drawing_done / pixel_percent >= 1) {
@@ -383,7 +375,7 @@ public class MarianiSilverDraw extends TaskDraw {
         postProcess(image_size, null, location);
     }
 
-    private boolean canSubDivide(int xLength, int yLength) {
+    protected boolean canSubDivide(int xLength, int yLength) {
         if(usesSquareChunks) {
             return xLength >= MAX_TILE_SIZE && yLength >= MAX_TILE_SIZE;
         }
@@ -402,20 +394,7 @@ public class MarianiSilverDraw extends TaskDraw {
         int supersampling_num = getExtraSamples(aaSamplesIndex, aaMethod);
         location.createAntialiasingSteps(aaMethod == 5, useJitter, supersampling_num);
 
-        if(PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && !HIGH_PRECISION_CALCULATION) {
-            if (reference_calc_sync.getAndIncrement() == 0) {
-                calculateReference(location);
-            }
-
-            try {
-                reference_sync.await();
-            } catch (InterruptedException ex) {
-
-            } catch (BrokenBarrierException ex) {
-
-            }
-            location.setReference(Fractal.refPoint);
-        }
+        initialize(location);
 
         int pixel_percent = (image_size * image_size) / 100;
 
@@ -843,16 +822,18 @@ public class MarianiSilverDraw extends TaskDraw {
                     int temploc = k * image_size;
                     int loc3 = temploc + x;
                     int loc4 = temploc + slice_TOx;
-                    Arrays.fill(rgbs, loc3, loc4, skippedColor);
-                    Arrays.fill(image_iterations, loc3, loc4, temp_starting_value);
-                    Arrays.fill(escaped, loc3, loc4, temp_starting_escaped);
-                    if(storeExtraData) {
-                        for(int n = loc3; n < loc4; n++) {
-                            pixelData[n] = new PixelExtraData(temp_starting_pixel_extra_data, skippedColor);
+
+                    for (int index = loc3; index < loc4; index++) {
+                        image_iterations[index] = temp_starting_value;
+                        rgbs[index] = skippedColor;
+                        escaped[index] = temp_starting_escaped;
+                        if(storeExtraData) {
+                            pixelData[index] = new PixelExtraData(temp_starting_pixel_extra_data, skippedColor);
                         }
+                        task_completed++;
                     }
+
                     drawing_done += chunk;
-                    task_completed += chunk;
                 }
 
                 if (drawing_done / pixel_percent >= 1) {
@@ -1091,9 +1072,12 @@ public class MarianiSilverDraw extends TaskDraw {
                     int temploc = k * image_size;
                     int loc3 = temploc + x;
                     int loc4 = temploc + slice_TOx;
-                    Arrays.fill(rgbs, loc3, loc4, skippedColor);
-                    Arrays.fill(image_iterations_fast_julia, loc3, loc4, temp_starting_value);
-                    Arrays.fill(escaped_fast_julia, loc3, loc4, temp_starting_escaped);
+
+                    for (int index = loc3; index < loc4; index++) {
+                        image_iterations_fast_julia[index] = temp_starting_value;
+                        rgbs[index] = skippedColor;
+                        escaped_fast_julia[index] = temp_starting_escaped;
+                    }
                 }
             }
 
@@ -1512,12 +1496,13 @@ public class MarianiSilverDraw extends TaskDraw {
                     int temploc = k * image_size;
                     int loc3 = temploc + x;
                     int loc4 = temploc + slice_TOx;
-                    Arrays.fill(rgbs, loc3, loc4, skippedColor);
-                    Arrays.fill(image_iterations_fast_julia, loc3, loc4, temp_starting_value);
-                    Arrays.fill(escaped_fast_julia, loc3, loc4, temp_starting_escaped);
-                    if(storeExtraData) {
-                        for(int n = loc3; n < loc4; n++) {
-                            pixelData_fast_julia[n] = new PixelExtraData(temp_starting_pixel_extra_data, skippedColor);
+
+                    for (int index = loc3; index < loc4; index++) {
+                        image_iterations_fast_julia[index] = temp_starting_value;
+                        rgbs[index] = skippedColor;
+                        escaped_fast_julia[index] = temp_starting_escaped;
+                        if(storeExtraData) {
+                            pixelData_fast_julia[index] = new PixelExtraData(temp_starting_pixel_extra_data, skippedColor);
                         }
                     }
                 }

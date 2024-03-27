@@ -40,7 +40,7 @@ public class PaletteColorSmooth extends PaletteColor {
 
         if(result < 0) {
             if(!special_use_palette_color) {
-                return special_colors[((int)(result * (-1))) % special_colors.length];
+                return special_colors[(int)(((long)(result * (-1))) % special_colors.length)];
             }
             else {
                 return calculateSmoothColor(-result);
@@ -57,83 +57,83 @@ public class PaletteColorSmooth extends PaletteColor {
             case 0:
                 return result;
             case 1:
-                double fract_part = result - (int)result;
+                double fract_part = result - (long)result;
                 fract_part = 1 - fract_part;
-                return (int)result + fract_part;
+                return (long)result + fract_part;
             case 2:
-                fract_part = result - (int)result;
+                fract_part = result - (long)result;
                 double temp = 2*fract_part-1;
                 fract_part = 1 - temp * temp;
-                return (int)result + fract_part;
+                return (long)result + fract_part;
             case 3:
-                fract_part = result - (int)result;
+                fract_part = result - (long)result;
                 temp = 2*fract_part-1;
                 fract_part = temp * temp;
-                return (int)result + fract_part;
+                return (long)result + fract_part;
             case 4:
-                fract_part = result - (int)result;
+                fract_part = result - (long)result;
                 temp = 2*fract_part-1;
                 temp *= temp;
                 fract_part = 1 - temp * temp;
-                return (int)result + fract_part;
+                return (long)result + fract_part;
             case 5:
-                fract_part = result - (int)result;
+                fract_part = result - (long)result;
                 temp = 2*fract_part-1;
                 temp *= temp;
                 fract_part = temp * temp;
-                return (int)result + fract_part;
+                return (long)result + fract_part;
             case 6:
-                fract_part = result - (int)result;
+                fract_part = result - (long)result;
                 fract_part = Math.sin(fract_part * Math.PI);
-                return (int)result + fract_part;
+                return (long)result + fract_part;
             case 7:
-                fract_part = result - (int)result;
+                fract_part = result - (long)result;
                 fract_part = 1 - Math.sin(fract_part * Math.PI);
-                return (int)result + fract_part;
+                return (long)result + fract_part;
             case 8:
-                fract_part = result - (int)result;
+                fract_part = result - (long)result;
                 if(fract_part < 0.5) {
                     fract_part = 2 * fract_part;
                 }
                 else {
                     fract_part = 2 - 2 *fract_part;
                 }
-                return (int)result + fract_part;
+                return (long)result + fract_part;
             case 9:
-                fract_part = result - (int)result;
+                fract_part = result - (long)result;
                 if(fract_part < 0.5) {
                     fract_part = 1 - 2 * fract_part;
                 }
                 else {
                     fract_part = 1 - (2 - 2 *fract_part);
                 }
-                return (int)result + fract_part;
+                return (long)result + fract_part;
             case 10:
-                fract_part = result - (int)result;
+                fract_part = result - (long)result;
                 fract_part = 0.5 - 0.5 * Math.cos(2 * fract_part * Math.PI);
-                return (int)result + fract_part;
+                return (long)result + fract_part;
             case 11:
-                fract_part = result - (int)result;
+                fract_part = result - (long)result;
                 fract_part = 0.5 + 0.5 * Math.cos(2 * fract_part * Math.PI);
-                return (int)result + fract_part;
+                return (long)result + fract_part;
             case 12:
-                fract_part = result - (int)result;
+                fract_part = result - (long)result;
                 if(fract_part < 0.5) {
                     fract_part = Math.sqrt(2 * fract_part);
                 }
                 else {
                     fract_part = Math.sqrt(2 - 2 *fract_part);
                 }
-                return (int)result + fract_part;
+                return (long)result + fract_part;
             case 13:
-                fract_part = result - (int)result;
+                fract_part = result - (long)result;
                 if(fract_part < 0.5) {
                     fract_part = 1 - Math.sqrt(2 * fract_part);
                 }
                 else {
                     fract_part = 1 - Math.sqrt(2 - 2 *fract_part);
                 }
-                return (int)result + fract_part;
+                return (long)result + fract_part;
         }
 
         return result;
@@ -144,8 +144,8 @@ public class PaletteColorSmooth extends PaletteColor {
 
         result = fractional_transfer(result, fractional_transfer_method);
 
-        int color2 = palette[((int)(result)) % palette.length];
-        int color = palette[((int)((result - 1 + palette.length))) % palette.length];
+        int color2 = palette[(int)(((long)(result)) % palette.length)];
+        int color = palette[(int)(((long)((result - 1 + palette.length))) % palette.length)];
 
         int color_red = (color >> 16) & 0xff;
         int color_green = (color >> 8) & 0xff;
@@ -155,7 +155,7 @@ public class PaletteColorSmooth extends PaletteColor {
         int color2_green = (color2 >> 8) & 0xff;
         int color2_blue = color2 & 0xff;
 
-        double coef = result - (int)result; //fractional part
+        double coef = result - (long)result; //fractional part
         
         return interpolator.interpolate(color_red, color_green, color_blue, color2_red, color2_green, color2_blue, coef);
 
@@ -174,11 +174,11 @@ public class PaletteColorSmooth extends PaletteColor {
         int color2;
 
         if(result == 0) {
-            color = color2 = getGeneratedColor(((int)result), paletteId, color_cycling_location, cycle, iqps);
+            color = color2 = getGeneratedColor(0, paletteId, color_cycling_location, cycle, iqps);
         }
         else {
-            color = getGeneratedColor(((int)result - 1), paletteId, color_cycling_location, cycle, iqps);
-            color2 = getGeneratedColor(((int)result), paletteId, color_cycling_location, cycle, iqps);
+            color = getGeneratedColor(((long)result - 1), paletteId, color_cycling_location, cycle, iqps);
+            color2 = getGeneratedColor(((long)result), paletteId, color_cycling_location, cycle, iqps);
         }
 
         int color_red = (color >> 16) & 0xff;
@@ -189,7 +189,7 @@ public class PaletteColorSmooth extends PaletteColor {
         int color2_green = (color2 >> 8) & 0xff;
         int color2_blue = color2 & 0xff;
 
-        double coef = result - (int)result; //fractional part
+        double coef = result - (long)result; //fractional part
 
         return interpolator.interpolate(color_red, color_green, color_blue, color2_red, color2_green, color2_blue, coef);
     }

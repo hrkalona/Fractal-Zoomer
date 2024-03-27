@@ -350,9 +350,12 @@ public class LibMpfr {
     public static native void mpfr_fz_square (mpfr_t re, mpfr_t im, mpfr_t temp, mpfr_t re_sqr, mpfr_t im_sqr, mpfr_t norm_sqr, int rnd);
     public static native void mpfr_fz_norm_square_with_components (mpfr_t re_sqr, mpfr_t im_sqr, mpfr_t norm_sqr, mpfr_t re, mpfr_t im, int rnd);
     public static native void mpfr_fz_get_d (double[] valRe, double[] valIm, mpfr_t re, mpfr_t im, int rnd);
-    public static native int mpfr_fz_get_d_2exp (double[] valRe, double[] valIm, long[] expRe, long[] expIm, mpfr_t re, mpfr_t im, int rnd);
-    public static native int mpfr_fz_get_d_2exp (double[] valRe, double[] valIm, int[] expRe, int[] expIm, mpfr_t re, mpfr_t im, int rnd);
+    public static native void mpfr_fz_get_d_2exp (double[] valRe, double[] valIm, long[] expRe, long[] expIm, mpfr_t re, mpfr_t im, int rnd);
+    public static native void mpfr_fz_get_d_2exp (double[] valRe, double[] valIm, int[] expRe, int[] expIm, mpfr_t re, mpfr_t im, int rnd);
     public static native void mpfr_fz_square_plus_c_simple (mpfr_t re, mpfr_t im, mpfr_t temp1, mpfr_t temp2, mpfr_t cre, mpfr_t cim, int rnd);
+    public static native void mpfr_fz_square_plus_c_simple_with_reduction_not_deep (mpfr_t re, mpfr_t im, mpfr_t temp1, mpfr_t temp2, mpfr_t cre, mpfr_t cim, int rnd, double[] valRe, double[] valIm);
+    public static native void mpfr_fz_square_plus_c_simple_with_reduction_deep (mpfr_t re, mpfr_t im, mpfr_t temp1, mpfr_t temp2, mpfr_t cre, mpfr_t cim, int rnd, double[] valRe, double[] valIm, long[] expRe, long[] expIm);
+    public static native void mpfr_fz_square_plus_c_simple_with_reduction_deep (mpfr_t re, mpfr_t im, mpfr_t temp1, mpfr_t temp2, mpfr_t cre, mpfr_t cim, int rnd, double[] valRe, double[] valIm, int[] expRe, int[] expIm);
     public static native void mpfr_fz_set (mpfr_t destre, mpfr_t destim, mpfr_t srcre, mpfr_t srcim, int rnd);
     public static native void mpfr_fz_norm_square (mpfr_t norm_sqr, mpfr_t temp1, mpfr_t re, mpfr_t im, int rnd);
     public static native void mpfr_fz_self_add (mpfr_t re, mpfr_t im, mpfr_t val_re, mpfr_t val_im, int rnd);
@@ -363,4 +366,6 @@ public class LibMpfr {
     public static native void mpfr_fz_ApBmC_DsEmG (mpfr_t temp, mpfr_t temp2, mpfr_t a, mpfr_t b, double c, mpfr_t d, mpfr_t e, double g, int rnd);
     public static native void mpfr_fz_ApBmC_DpEmG (mpfr_t temp, mpfr_t temp2, mpfr_t a, mpfr_t b, mpfr_t c, mpfr_t d, mpfr_t e, mpfr_t g, int rnd);
     public static native void mpfr_fz_r_ball_pow2 (mpfr_t r, mpfr_t az, mpfr_t r0, mpfr_t azsquare, int rnd);
+
+    public static native int mpfr_snprintf (byte[] buf, int n, String template, int rnd, mpfr_t val);
 }

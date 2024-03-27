@@ -45,15 +45,19 @@ public abstract class ExtendedConvergentType extends Julia {
         
         super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, false, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, ots);
 
-        convergent_bailout = 1E-10;
+        setConvergentBailout(1E-10);
 
+    }
+
+    protected void setConvergentBailout(double val) {
+        convergent_bailout = TaskDraw.USER_CONVERGENT_BAILOUT > 0 ? TaskDraw.USER_CONVERGENT_BAILOUT : val;
     }
     
     public ExtendedConvergentType(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, boolean periodicity_checking, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula,  double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower, OrbitTrapSettings ots, double xJuliaCenter, double yJuliaCenter) {
         
         super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, false, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, ots, xJuliaCenter, yJuliaCenter);
 
-        convergent_bailout = 1E-10;
+        setConvergentBailout(1E-10);
 
     }
     
@@ -345,7 +349,7 @@ public abstract class ExtendedConvergentType extends Julia {
                     setTrueColorOut(z, zold, zold2, iterations, c, start, c0, pixelC);
                 }
 
-                return out;
+                return getAndAccumulateHP(out);
             }
 
             gzold2.set(gzold);
@@ -373,7 +377,7 @@ public abstract class ExtendedConvergentType extends Julia {
             setTrueColorIn(z, zold, zold2, iterations, c, start, c0, pixelC);
         }
 
-        return in;
+        return getAndAccumulateHP(in);
 
     }
 
@@ -492,7 +496,7 @@ public abstract class ExtendedConvergentType extends Julia {
         int MaxRefIteration = getReferenceFinalIterationNumber(true, referenceData);
 
         int minExp = -1000;
-        int reducedExp = minExp / (int)power;
+        int reducedExp = minExp / (int)getPower();
 
         DeltaSubN.Normalize();
         long exp = DeltaSubN.getMinExp();
@@ -502,18 +506,25 @@ public abstract class ExtendedConvergentType extends Julia {
         boolean useFullFloatExp = useFullFloatExp();
         boolean doBailCheck = useFullFloatExp || TaskDraw.CHECK_BAILOUT_DURING_DEEP_NOT_FULL_FLOATEXP_MODE;
 
+        MantExpComplex refZm;
+
         boolean usedDeepCode = false;
         if(useFullFloatExp || (totalSkippedIterations == 0 && exp <= minExp) || (totalSkippedIterations != 0 && exp <= reducedExp)) {
             usedDeepCode = true;
+            MantExpComplex zWithoutInitVal = MantExpComplex.create();
             MantExpComplex z = MantExpComplex.create();
             if(iterations != 0 && RefIteration < MaxRefIteration) {
-                z = getArrayDeepValue(referenceDeepData.ReferenceSubCp, RefIteration).plus_mutable(DeltaSubN);
-                complex[0] = getArrayDeepValue(referenceDeep, RefIteration).plus_mutable(DeltaSubN).toComplex();
+                refZm = getArrayDeepValue(referenceDeep, RefIteration);
+                zWithoutInitVal = getArrayDeepValue(referenceDeepData.ReferenceSubCp, RefIteration, refZm).plus_mutable(DeltaSubN);
+                z = refZm.plus_mutable(DeltaSubN);
+                complex[0] = z.toComplex();
             }
             else if(iterations != 0 && ReferencePeriod != 0) {
                 RefIteration = RefIteration % ReferencePeriod;
-                z = getArrayDeepValue(referenceDeepData.ReferenceSubCp, RefIteration).plus_mutable(DeltaSubN);
-                complex[0] = getArrayDeepValue(referenceDeep, RefIteration).plus_mutable(DeltaSubN).toComplex();
+                refZm = getArrayDeepValue(referenceDeep, RefIteration);
+                zWithoutInitVal = getArrayDeepValue(referenceDeepData.ReferenceSubCp, RefIteration, refZm).plus_mutable(DeltaSubN);
+                z = refZm.plus_mutable(DeltaSubN);
+                complex[0] = z.toComplex();
             }
 
             MantExpComplex zoldDeep;
@@ -549,16 +560,18 @@ public abstract class ExtendedConvergentType extends Julia {
                 zoldDeep = z;
 
                 if (max_iterations > 1) {
-                    z = getArrayDeepValue(referenceDeepData.ReferenceSubCp, RefIteration).plus_mutable(DeltaSubN);
-                    complex[0] = getArrayDeepValue(referenceDeep, RefIteration).plus_mutable(DeltaSubN).toComplex();
+                    refZm = getArrayDeepValue(referenceDeep, RefIteration);
+                    zWithoutInitVal = getArrayDeepValue(referenceDeepData.ReferenceSubCp, RefIteration, refZm).plus_mutable(DeltaSubN);
+                    z = refZm.plus_mutable(DeltaSubN);
+                    complex[0] = z.toComplex();
                 }
 
                 if (statistic != null) {
                     statistic.insert(complex[0], zold, zold2, iterations, complex[1], start, c0, z, zoldDeep, null);
                 }
 
-                if (z.norm_squared().compareToBothPositive(DeltaSubN.norm_squared()) < 0 || RefIteration >= MaxRefIteration) {
-                    DeltaSubN = z;
+                if (zWithoutInitVal.norm_squared().compareToBothPositive(DeltaSubN.norm_squared()) < 0 || RefIteration >= MaxRefIteration) {
+                    DeltaSubN = zWithoutInitVal;
                     RefIteration = 0;
                     rebases++;
                 }
@@ -580,15 +593,18 @@ public abstract class ExtendedConvergentType extends Julia {
 
             Complex CDeltaSubN = DeltaSubN.toComplex();
             Complex CDeltaSub0 = DeltaSub0.toComplex();
+            Complex refZ;
 
             if(!usedDeepCode && iterations != 0 && RefIteration < MaxRefIteration) {
-                zWithoutInitVal = getArrayValue(referenceData.ReferenceSubCp, RefIteration).plus_mutable(CDeltaSubN);
-                complex[0] = getArrayValue(reference, RefIteration).plus_mutable(CDeltaSubN);
+                refZ = getArrayValue(reference, RefIteration);
+                zWithoutInitVal = getArrayValue(referenceData.ReferenceSubCp, RefIteration, refZ).plus_mutable(CDeltaSubN);
+                complex[0] = refZ.plus_mutable(CDeltaSubN);
             }
             else if(!usedDeepCode && iterations != 0 && ReferencePeriod != 0) {
                 RefIteration = RefIteration % ReferencePeriod;
-                zWithoutInitVal = getArrayValue(referenceData.ReferenceSubCp, RefIteration).plus_mutable(CDeltaSubN);
-                complex[0] = getArrayValue(reference, RefIteration).plus_mutable(CDeltaSubN);
+                refZ = getArrayValue(reference, RefIteration);
+                zWithoutInitVal = getArrayValue(referenceData.ReferenceSubCp, RefIteration, refZ).plus_mutable(CDeltaSubN);
+                complex[0] = refZ.plus_mutable(CDeltaSubN);
             }
 
             boolean isZero = CDeltaSub0.isZero();
@@ -632,8 +648,9 @@ public abstract class ExtendedConvergentType extends Julia {
                 //No Plane influence work
                 //No Pre filters work
                 if (max_iterations > 1) {
-                    zWithoutInitVal = getArrayValue(referenceData.ReferenceSubCp, RefIteration).plus_mutable(CDeltaSubN);
-                    complex[0] = getArrayValue(reference, RefIteration).plus_mutable(CDeltaSubN);
+                    refZ = getArrayValue(reference, RefIteration);
+                    zWithoutInitVal = getArrayValue(referenceData.ReferenceSubCp, RefIteration, refZ).plus_mutable(CDeltaSubN);
+                    complex[0] = refZ.plus_mutable(CDeltaSubN);
                 }
                 //No Post filters work
 
@@ -689,14 +706,18 @@ public abstract class ExtendedConvergentType extends Julia {
 
         Complex pixel = dpixel.plus(refPointSmall);
 
+        Complex refZ;
+
         if(iterations != 0 && RefIteration < MaxRefIteration) {
-            complex[0] = getArrayValue(reference, RefIteration).plus_mutable(DeltaSubN);
-            zWithoutInitVal = getArrayValue(referenceData.ReferenceSubCp, RefIteration).plus_mutable(DeltaSubN);
+            refZ = getArrayValue(reference, RefIteration);
+            zWithoutInitVal = getArrayValue(referenceData.ReferenceSubCp, RefIteration, refZ).plus_mutable(DeltaSubN);
+            complex[0] = refZ.plus_mutable(DeltaSubN);
         }
         else if(iterations != 0 && ReferencePeriod != 0) {
             RefIteration = RefIteration % ReferencePeriod;
-            complex[0] = getArrayValue(reference, RefIteration).plus_mutable(DeltaSubN);
-            zWithoutInitVal = getArrayValue(referenceData.ReferenceSubCp, RefIteration).plus_mutable(DeltaSubN);
+            refZ = getArrayValue(reference, RefIteration);
+            zWithoutInitVal = getArrayValue(referenceData.ReferenceSubCp, RefIteration, refZ).plus_mutable(DeltaSubN);
+            complex[0] = refZ.plus_mutable(DeltaSubN);
         }
 
         for (; iterations < max_iterations; iterations++) {
@@ -734,8 +755,9 @@ public abstract class ExtendedConvergentType extends Julia {
             //No Plane influence work
             //No Pre filters work
             if(max_iterations > 1){
-                zWithoutInitVal = getArrayValue(referenceData.ReferenceSubCp, RefIteration).plus_mutable(DeltaSubN);
-                complex[0] = getArrayValue(reference, RefIteration).plus_mutable(DeltaSubN);
+                refZ = getArrayValue(reference, RefIteration);
+                zWithoutInitVal = getArrayValue(referenceData.ReferenceSubCp, RefIteration, refZ).plus_mutable(DeltaSubN);
+                complex[0] = refZ.plus_mutable(DeltaSubN);
             }
 
             //No Post filters work
@@ -786,6 +808,8 @@ public abstract class ExtendedConvergentType extends Julia {
         ReferenceData data = referenceData;
         int MaxRefIteration = data.MaxRefIteration;
 
+        Complex refZ;
+
         for (; iterations < max_iterations; iterations++) {
 
             //No update values
@@ -821,8 +845,9 @@ public abstract class ExtendedConvergentType extends Julia {
             //No Plane influence work
             //No Pre filters work
             if(max_iterations > 1){
-                zWithoutInitVal = getArrayValue(data.ReferenceSubCp, RefIteration).plus_mutable(DeltaSubN);
-                complex[0] = getArrayValue(data.Reference, RefIteration).plus_mutable(DeltaSubN);
+                refZ = getArrayValue(data.Reference, RefIteration);
+                zWithoutInitVal = getArrayValue(data.ReferenceSubCp, RefIteration, refZ).plus_mutable(DeltaSubN);
+                complex[0] = refZ.plus_mutable(DeltaSubN);
             }
             //No Post filters work
 
@@ -874,12 +899,10 @@ public abstract class ExtendedConvergentType extends Julia {
         MantExpComplex[] deltas = initializePerturbation(dpixel);
         MantExpComplex DeltaSubN = deltas[0]; // Delta z
 
-        Complex zWithoutInitVal = new Complex();
-
         Complex pixel = dpixel.plus(refPointSmallDeep).toComplex();
 
         int minExp = -1000;
-        int reducedExp = minExp / (int)power;
+        int reducedExp = minExp / (int)getPower();
 
         DeltaSubN.Normalize();
         long exp = DeltaSubN.getMinExp();
@@ -891,8 +914,13 @@ public abstract class ExtendedConvergentType extends Julia {
         ReferenceData data = referenceData;
         int MaxRefIteration = data.MaxRefIteration;
 
+        MantExpComplex refZm;
+
         if(useFullFloatExp || (totalSkippedIterations == 0 && exp <= minExp) || (totalSkippedIterations != 0 && exp <= reducedExp)) {
-            MantExpComplex z = getArrayDeepValue(deepData.ReferenceSubCp, RefIteration).plus_mutable(DeltaSubN);
+            MantExpComplex zWithoutInitVal = MantExpComplex.create();
+            MantExpComplex z = getArrayDeepValue(deepData.Reference, RefIteration).plus_mutable(DeltaSubN);
+
+            MantExpComplex zoldDeep;
 
             for (; iterations < max_iterations; iterations++) {
                 if (trap != null) {
@@ -922,18 +950,21 @@ public abstract class ExtendedConvergentType extends Julia {
 
                 zold2.assign(zold);
                 zold.assign(complex[0]);
+                zoldDeep = z;
 
                 if (max_iterations > 1) {
-                    z = getArrayDeepValue(deepData.ReferenceSubCp, RefIteration).plus_mutable(DeltaSubN);
-                    complex[0] = getArrayDeepValue(deepData.Reference, RefIteration).plus_mutable(DeltaSubN).toComplex();
+                    refZm = getArrayDeepValue(deepData.Reference, RefIteration);
+                    zWithoutInitVal = getArrayDeepValue(deepData.ReferenceSubCp, RefIteration, refZm).plus_mutable(DeltaSubN);
+                    z = refZm.plus_mutable(DeltaSubN);
+                    complex[0] = z.toComplex();
                 }
 
                 if (statistic != null) {
-                    statistic.insert(complex[0], zold, zold2, iterations, complex[1], start, c0);
+                    statistic.insert(complex[0], zold, zold2, iterations, complex[1], start, c0, z, zoldDeep, null);
                 }
 
-                if (z.norm_squared().compareToBothPositive(DeltaSubN.norm_squared()) < 0 || RefIteration >= MaxRefIteration) {
-                    DeltaSubN = z;
+                if (zWithoutInitVal.norm_squared().compareToBothPositive(DeltaSubN.norm_squared()) < 0 || RefIteration >= MaxRefIteration) {
+                    DeltaSubN = zWithoutInitVal;
                     RefIteration = 0;
 
                     deepData = secondReferenceDeepData;
@@ -956,6 +987,8 @@ public abstract class ExtendedConvergentType extends Julia {
 
         if(!useFullFloatExp) {
             Complex CDeltaSubN = DeltaSubN.toComplex();
+            Complex zWithoutInitVal = new Complex();
+            Complex refZ;
 
             for (; iterations < max_iterations; iterations++) {
 
@@ -992,8 +1025,9 @@ public abstract class ExtendedConvergentType extends Julia {
                 //No Plane influence work
                 //No Pre filters work
                 if (max_iterations > 1) {
-                    zWithoutInitVal = getArrayValue(data.ReferenceSubCp, RefIteration).plus_mutable(CDeltaSubN);
-                    complex[0] = getArrayValue(data.Reference, RefIteration).plus_mutable(CDeltaSubN);
+                    refZ = getArrayValue(data.Reference, RefIteration);
+                    zWithoutInitVal = getArrayValue(data.ReferenceSubCp, RefIteration, refZ).plus_mutable(CDeltaSubN);
+                    complex[0] = refZ.plus_mutable(CDeltaSubN);
                 }
                 //No Post filters work
 

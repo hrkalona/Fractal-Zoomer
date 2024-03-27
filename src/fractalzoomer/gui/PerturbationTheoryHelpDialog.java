@@ -41,6 +41,7 @@ public class PerturbationTheoryHelpDialog {
                 "<li>Magnet 1</li>" +
                 "<li>Magnet Pataki (2-5) powers</li>" +
                 "<li>z = z^2 + c^2</li>" +
+                "<li>z = c * (z^2 + z^-2)" +
                 "<li>Buffalo Mandelbrot</li>" +
                 "<li>Celtic Mandelbrot</li>" +
                 "<li>Perpendicular Mandelbrot</li>" +
@@ -52,12 +53,15 @@ public class PerturbationTheoryHelpDialog {
                 "<li>Newton 3 (No Julia Set available)</li>" +
                 "</ul>" +
                 "<br><br>"+
+                "Reference compression will reduce the memory footprint when saving the reference data, by only allowing some" +
+                " waypoint data to be saved when the defined compression error is exceeded." +
+                "<br><br>"+
                 "Series Approximation is another useful feature of perturbation theory as it can approximate the iteration values for " +
                 "a number of iterations and skip them. This feature is only implemented for the Mandelbrot (2-5) powers (Not supported with burning ship or Julia sets). " +
                 "Mandelbrot (2) can use up to 257 terms, and there rest of the available powers can use up to 5 terms. " +
                 "You can also set how aggressive the series approximation can be by changing the orders of magnitude difference to a lower value.<br><br>" +
                 "If you zoom deeper than e-300, doubles cannot store the differences anymore so a custom type of FloatExp is used " +
-                "which stores a mantissa and a extended exponent. You can choose to do all the iterations using this type on deep zooms, " +
+                "which stores a mantissa and an extended exponent. You can choose to do all the iterations using this type on deep zooms, " +
                 "or switch back to double precision when is appropriate.<br><br>" +
                 "Some options like Plane Influence, Pre/Post Function Filters, Initial Value, Perturbation, Equicontinuity will be ignored if perturbation theory " +
                 "is enabled and the current function supports it. Perturbation theory will not work on Julia sets with Juliter enabled (The low precision calculations will be used).<br><br>" +

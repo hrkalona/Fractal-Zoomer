@@ -752,6 +752,7 @@ public final class Complex extends GenericComplex {
     /*
      *  1 / z
      */
+    @Override
     public final Complex reciprocal() {
 
         double temp = 1.0 / (re * re + im * im);
@@ -3097,7 +3098,7 @@ public final class Complex extends GenericComplex {
         return 0;
     }
 
-    public double chebychevNorm() {
+    public double chebyshevNorm() {
         return Math.max(Math.abs(re), Math.abs(im));
     }
 
@@ -3119,5 +3120,8 @@ public final class Complex extends GenericComplex {
         im = - Math.abs(im);
         return this;
     }
+
+    @Override
+    public BigComplex toBigComplex() {return new BigComplex(re, im);}
 
 }

@@ -356,7 +356,7 @@ public class PresetPalette extends Palette {
         Color[] colors = new Color[palette.length];
 
         for (int i = 0; i < colors.length; i++) {
-            colors[i] = new Color(palette[(i + color_cycling_location) % colors.length]);
+            colors[i] = new Color(palette[(int)(((long)i + color_cycling_location) % colors.length)]);
         }
 
         return colors;
@@ -506,7 +506,7 @@ public class PresetPalette extends Palette {
         Color[] colors = new Color[palette.length];
 
         for (int i = 0; i < colors.length; i++) {
-            colors[i] = new Color(palette[(i + color_cycling_location) % colors.length]);
+            colors[i] = new Color(palette[(int)(((long)i + color_cycling_location) % colors.length)]);
         }
 
         return colors;

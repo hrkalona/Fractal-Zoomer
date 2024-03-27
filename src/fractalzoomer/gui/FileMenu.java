@@ -140,7 +140,7 @@ public class FileMenu extends MyMenu {
         
         starting_position.addActionListener(e -> ptr.startingPosition());
         
-        repaint_opt.addActionListener(e -> ptr.redraw());
+        repaint_opt.addActionListener(e -> ptr.redraw(false));
 
         go_to.addActionListener(e -> ptr.goTo());
 

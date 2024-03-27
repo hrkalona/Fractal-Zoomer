@@ -1455,6 +1455,14 @@ public class MpfrBigNumComplex extends GenericComplex {
 
     }
 
+    @Override
+    public MpfrBigNumComplex square_plus_c_mutable_with_reduction(GenericComplex ca, MpfrBigNum temp1, MpfrBigNum temp2, boolean deepZoom, Complex cz, MantExpComplex mcz) {
+        MpfrBigNumComplex c = (MpfrBigNumComplex)ca;
+        MpfrBigNum.z_sqr_p_c_with_reduction(re, im, temp1, temp2, c.re, c.im, deepZoom, cz, mcz);
+        return this;
+
+    }
+
     /*
      *  z1 * z2
      */
@@ -2225,6 +2233,7 @@ public class MpfrBigNumComplex extends GenericComplex {
     /*
      *  1 / z
      */
+    @Override
     public final MpfrBigNumComplex reciprocal() {
         MpfrBigNum tempRe = re.square();
         MpfrBigNum tempIm = im.square();
@@ -3121,6 +3130,11 @@ public class MpfrBigNumComplex extends GenericComplex {
         im.abs(im);
         im.negate(im);
         return this;
+    }
+
+    @Override
+    public BigComplex toBigComplex() {
+        return new BigComplex(re.toApfloat(), im.toApfloat());
     }
 
 

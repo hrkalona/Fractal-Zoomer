@@ -6,9 +6,10 @@ import fractalzoomer.core.unused.BigDecNumComplex;
 import fractalzoomer.utils.NormComponents;
 import org.apfloat.Apfloat;
 
-public class GenericComplex {
+public abstract class GenericComplex {
 
     public Complex toComplex() {return null;}
+    public BigComplex toBigComplex() {return null;}
 
     public MantExpComplex toMantExpComplex() {return null;}
 
@@ -20,11 +21,15 @@ public class GenericComplex {
 
     public GenericComplex square_plus_c_mutable(GenericComplex c, MpfrBigNum temp, MpfrBigNum temp2) {return null;}
 
+    public GenericComplex square_plus_c_mutable_with_reduction(GenericComplex c, MpfrBigNum temp, MpfrBigNum temp2, boolean deepZoom, Complex cz, MantExpComplex mcz) {return null;}
+
     public GenericComplex square_mutable(MpfrBigNum temp1, MpfrBigNum temp2) { return null; }
 
     public GenericComplex square_mutable(MpirBigNum temp1, MpirBigNum temp2) { return null; }
 
     public GenericComplex square_plus_c_mutable(GenericComplex c, MpirBigNum temp, MpirBigNum temp2, MpirBigNum temp3) {return null;}
+
+    public GenericComplex square_plus_c_mutable_with_reduction(GenericComplex c, MpirBigNum temp, MpirBigNum temp2, MpirBigNum temp3, boolean deepZoom, Complex cz, MantExpComplex mcz) {return null;}
 
     public GenericComplex square_plus_c_mutable_no_threads(GenericComplex c, MpirBigNum temp, MpirBigNum temp2, MpirBigNum temp3) {return null;}
     public GenericComplex sub(GenericComplex v, MpfrBigNum temp, MpfrBigNum temp2) {return null;}
@@ -54,6 +59,8 @@ public class GenericComplex {
     public GenericComplex square() {return null;}
 
     public GenericComplex square_mutable() {return null;}
+
+    public GenericComplex reciprocal() {return null;}
 
     public GenericComplex cube() {return null;}
 
@@ -135,5 +142,7 @@ public class GenericComplex {
     public GenericComplex absNegateIm_mutable() {return null;}
 
     public GenericComplex absre_mutable() { return null; }
+
+    public abstract boolean isZero();
 
 }

@@ -1,14 +1,13 @@
 package fractalzoomer.core.la;
 
-import fractalzoomer.core.Complex;
-import fractalzoomer.core.GenericComplex;
-import fractalzoomer.core.MantExp;
-import fractalzoomer.core.MantExpComplex;
+import fractalzoomer.core.*;
 import fractalzoomer.core.la.impl.LAInfo;
 import fractalzoomer.core.la.impl.LAInfoDeep;
 import fractalzoomer.core.la.impl_refindex.LAInfoDeepRI;
 import fractalzoomer.core.la.impl_refindex.LAInfoRI;
 import fractalzoomer.main.app_settings.ApproximationDefaultSettings;
+
+import static fractalzoomer.core.la.LAReference.f;
 
 public abstract  class LAInfoBase extends GenericLAInfo {
     public static int DETECTION_METHOD = ApproximationDefaultSettings.DETECTION_METHOD;
@@ -36,7 +35,7 @@ public abstract  class LAInfoBase extends GenericLAInfo {
     }
 
     @Override
-    protected boolean Step(LAInfoRI out, int zRefIndex) throws InvalidCalculationException {
+    protected boolean Step(LAInfoRI out, int zRefIndex, ReferenceDecompressor referenceDecompressor) throws InvalidCalculationException {
         return false;
     }
 
@@ -46,42 +45,42 @@ public abstract  class LAInfoBase extends GenericLAInfo {
     }
 
     @Override
-    protected boolean Composite(LAInfoRI out, LAInfoRI LA) throws InvalidCalculationException {
+    protected boolean Composite(LAInfoRI out, LAInfoRI LA, ReferenceDecompressor referenceDecompressor) throws InvalidCalculationException {
         return false;
     }
 
     @Override
-    protected boolean Composite(LAInfoDeep out, LAInfoDeep LA) {
+    protected boolean Composite(LAInfoDeep out, LAInfoDeep LA, ReferenceDecompressor referenceDecompressor) {
         return false;
     }
 
     @Override
-    protected boolean Composite(LAInfoDeepRI out, LAInfoDeepRI LA) {
+    protected boolean Composite(LAInfoDeepRI out, LAInfoDeepRI LA, ReferenceDecompressor referenceDecompressor) {
         return false;
     }
 
     @Override
-    protected boolean Step(LAInfoDeep out, int zRefIndex) {
+    protected boolean Step(LAInfoDeep out, int zRefIndex, ReferenceDecompressor referenceDecompressor) {
         return false;
     }
 
     @Override
-    protected boolean Step(LAInfoDeepRI out, int zRefIndex) {
+    protected boolean Step(LAInfoDeepRI out, int zRefIndex, ReferenceDecompressor referenceDecompressor) {
         return false;
     }
 
     @Override
-    protected GenericLAInfo Composite(LAInfoRI LA) throws InvalidCalculationException {
+    protected GenericLAInfo Composite(LAInfoRI LA, ReferenceDecompressor referenceDecompressor) throws InvalidCalculationException {
         return null;
     }
 
     @Override
-    protected GenericLAInfo Composite(LAInfoDeep LA) {
+    protected GenericLAInfo Composite(LAInfoDeep LA, ReferenceDecompressor referenceDecompressor) {
         return null;
     }
 
     @Override
-    protected GenericLAInfo Composite(LAInfoDeepRI LA) {
+    protected GenericLAInfo Composite(LAInfoDeepRI LA, ReferenceDecompressor referenceDecompressor) {
         return null;
     }
 
@@ -106,17 +105,17 @@ public abstract  class LAInfoBase extends GenericLAInfo {
     }
 
     @Override
-    protected boolean Step(LAInfo out, int zRefIndex) throws InvalidCalculationException {
+    protected boolean Step(LAInfo out, int zRefIndex, ReferenceDecompressor referenceDecompressor) throws InvalidCalculationException {
         return false;
     }
 
     @Override
-    protected GenericLAInfo Composite(LAInfo LA) throws InvalidCalculationException {
+    protected GenericLAInfo Composite(LAInfo LA, ReferenceDecompressor referenceDecompressor) throws InvalidCalculationException {
         return null;
     }
 
     @Override
-    protected boolean Composite(LAInfo out, LAInfo LA) throws InvalidCalculationException {
+    protected boolean Composite(LAInfo out, LAInfo LA, ReferenceDecompressor referenceDecompressor) throws InvalidCalculationException {
         return false;
     }
 
@@ -198,12 +197,12 @@ public abstract  class LAInfoBase extends GenericLAInfo {
         Result.CCoeffInvZCoeff = Result.CCoeff.times(Result.InvZCoeff);
         Result.CCoeffInvZCoeff.Normalize();
 
-        Result.RefC = Next.getRef().toMantExpComplex().times(zCm);
+        Result.RefC = Next.getRef(f).toMantExpComplex().times(zCm);
         Result.RefC.Normalize();
 
         Result.SqrEscapeRadius = MantExp.minBothPositive(zCm.norm_squared().multiply(LAThreshold), atLimit).toDouble();
 
-        Result.ThresholdC = MantExp.minBothPositive(new MantExp(LAThresholdC), atLimit.divide(Result.CCoeff.chebychevNorm()));
+        Result.ThresholdC = MantExp.minBothPositive(new MantExp(LAThresholdC), atLimit.divide(Result.CCoeff.chebyshevNorm()));
         Result.ThresholdC.Normalize();
 
         return Result;
@@ -211,12 +210,12 @@ public abstract  class LAInfoBase extends GenericLAInfo {
 
     @Override
     protected boolean Stage0DetectPeriod(Complex z) {
-        return z.chebychevNorm() / new Complex(ZCoeffRe, ZCoeffIm).chebychevNorm() * LAThresholdScale < LAThreshold * Stage0PeriodDetectionThreshold;
+        return z.chebyshevNorm() / new Complex(ZCoeffRe, ZCoeffIm).chebyshevNorm() * LAThresholdScale < LAThreshold * Stage0PeriodDetectionThreshold;
     }
 
     @Override
     protected boolean DetectPeriod(Complex z) {
-        return z.chebychevNorm() / new Complex(ZCoeffRe, ZCoeffIm).chebychevNorm() * LAThresholdScale < LAThreshold * PeriodDetectionThreshold;
+        return z.chebyshevNorm() / new Complex(ZCoeffRe, ZCoeffIm).chebyshevNorm() * LAThresholdScale < LAThreshold * PeriodDetectionThreshold;
     }
 
 

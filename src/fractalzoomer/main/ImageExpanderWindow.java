@@ -16,6 +16,7 @@
  */
 package fractalzoomer.main;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.jna.Platform;
 import fractalzoomer.core.*;
 import fractalzoomer.core.drawing_algorithms.*;
@@ -23,11 +24,9 @@ import fractalzoomer.core.la.impl.LAInfo;
 import fractalzoomer.core.la.impl.LAInfoDeep;
 import fractalzoomer.core.la.LAReference;
 import fractalzoomer.core.location.Location;
+import fractalzoomer.functions.Fractal;
 import fractalzoomer.gui.*;
-import fractalzoomer.main.app_settings.BumpMapSettings;
-import fractalzoomer.main.app_settings.LightSettings;
-import fractalzoomer.main.app_settings.Settings;
-import fractalzoomer.main.app_settings.SlopeSettings;
+import fractalzoomer.main.app_settings.*;
 import fractalzoomer.parser.ParserException;
 import fractalzoomer.utils.*;
 import org.apfloat.Apfloat;
@@ -62,6 +61,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
 
     private ArrayList<Future<?>> futures = new ArrayList<>();
 	private Settings s;
+    private ZoomSequenceSettings zss;
     private int n;
     private int m;
 
@@ -105,7 +105,8 @@ public class ImageExpanderWindow extends JFrame implements Constants {
     private CommonFunctions common;
     private boolean runsOnBatchingMode;
     private boolean runsOnSequenceMode;
-    private boolean flipSequenceIndexing;
+
+    private double aspectRatio;
 
     private boolean runsOnLargePolarImageMode;
 
@@ -113,24 +114,9 @@ public class ImageExpanderWindow extends JFrame implements Constants {
     private int batchIndex;
     private long sequenceIndex;
 
-    private long startAtSequenceIndex;
-
     private long numberOfSequenceSteps;
 
-    private String outputDirectory = ".";
-
-    private double zoom_factor = 2.0;
-    private int zooming_mode = 0;
-    private double rotation_adjusting_value = 0;
-    private int color_cycling_adjusting_value = 0;
-
-    private int gradient_color_cycling_adjusting_value = 0;
-
-    private double light_light_direction_adjusting_value = 0;
-    private double slopes_light_direction_adjusting_value = 0;
-    private double bump_light_direction_adjusting_value = 0;
-
-    private int zoom_every_n_frame = 1;
+    public static String outputDirectory = ".";
 
     private int number_of_polar_images = 5;
     private int polar_orientation = 0;
@@ -140,9 +126,9 @@ public class ImageExpanderWindow extends JFrame implements Constants {
     private int gridI;
     private int gridJ;
 
-    private Apfloat size = Constants.DEFAULT_MAGNIFICATION;
-
     private String settingsName;
+
+    private static boolean USE_LESS_INITIAL_ITERATIONS_ON_SEQUENCE_RENDER = true;
 
     public ImageExpanderWindow() {
         super();
@@ -153,8 +139,11 @@ public class ImageExpanderWindow extends JFrame implements Constants {
 
         ptr = this;
 
+        aspectRatio = 1;
+
         s = new Settings();
         s.applyStaticSettings();
+        zss = new ZoomSequenceSettings();
 
         TaskDraw.ALWAYS_SAVE_EXTRA_PIXEL_DATA_ON_AA = false;
 
@@ -168,6 +157,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
 
         TaskDraw.thread_calculation_executor = (ThreadPoolExecutor)Executors.newFixedThreadPool(m * n);
         TaskDraw.single_thread_executor = Executors.newSingleThreadExecutor();
+        TaskDraw.la_thread_executor = (ThreadPoolExecutor)Executors.newFixedThreadPool(procs);
 
         thread_grouping = 3;
 
@@ -176,9 +166,9 @@ public class ImageExpanderWindow extends JFrame implements Constants {
         Locale.setDefault(Locale.US);
 
         image_size = 1000;
-        setSize(540, 550);
+        setSize(565, 565);
         setTitle("Fractal Zoomer Image Expander");
-        
+
         loadPreferences();
 
         if(Platform.isWindows()) {
@@ -515,7 +505,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
     }
 
     public void sequenceRender() {
-        new SequenceRenderDialog(ptr, s, zoom_factor, zooming_mode, size, rotation_adjusting_value, color_cycling_adjusting_value, light_light_direction_adjusting_value, bump_light_direction_adjusting_value, zoom_every_n_frame, gradient_color_cycling_adjusting_value, flipSequenceIndexing, startAtSequenceIndex, slopes_light_direction_adjusting_value);
+        new SequenceRenderDialog(ptr, s, zss);
     }
 
     public void loadSettings() {
@@ -664,24 +654,51 @@ public class ImageExpanderWindow extends JFrame implements Constants {
                                 }
                             }
                             else if(TaskDraw.GREEDY_ALGORITHM_SELECTION == DIVIDE_AND_CONQUER) {
-                                if (TaskDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA) {
-                                    tasks[i][j] = new MarianiSilverColorsAndIterationDataDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps, s.xJuliaCenter, s.yJuliaCenter);
-                                } else {
-                                    tasks[i][j] = new MarianiSilverDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps, s.xJuliaCenter, s.yJuliaCenter);
+                                if (TaskDraw.SUCCESSIVE_REFINEMENT_SQUARE_RECT_SPLIT_ALGORITHM > 0) {
+                                    if (TaskDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA) {
+                                        tasks[i][j] = new MarianiSilver3ColorsAndIterationDataDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.polar_projection, s.circle_period, s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending, s.post_processing_order, s.pbs, s.gs.gradient_offset, s.contourFactor, s.gps, s.js, s.pps, s.xJuliaCenter, s.yJuliaCenter);
+                                    } else {
+                                        tasks[i][j] = new MarianiSilver3Draw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.polar_projection, s.circle_period, s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending, s.post_processing_order, s.pbs, s.gs.gradient_offset, s.contourFactor, s.gps, s.js, s.pps, s.xJuliaCenter, s.yJuliaCenter);
+                                    }
+                                }
+                                else {
+                                    if (TaskDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA) {
+                                        tasks[i][j] = new MarianiSilverColorsAndIterationDataDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.polar_projection, s.circle_period, s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending, s.post_processing_order, s.pbs, s.gs.gradient_offset, s.contourFactor, s.gps, s.js, s.pps, s.xJuliaCenter, s.yJuliaCenter);
+                                    } else {
+                                        tasks[i][j] = new MarianiSilverDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.polar_projection, s.circle_period, s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending, s.post_processing_order, s.pbs, s.gs.gradient_offset, s.contourFactor, s.gps, s.js, s.pps, s.xJuliaCenter, s.yJuliaCenter);
+                                    }
                                 }
                             }
                             else if(TaskDraw.GREEDY_ALGORITHM_SELECTION == SUCCESSIVE_REFINEMENT) {
-                                if (TaskDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA) {
-                                    tasks[i][j] = new SuccessiveRefinementGuessingColorsAndIterationDataDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps, s.xJuliaCenter, s.yJuliaCenter);
-                                } else {
-                                    tasks[i][j] = new SuccessiveRefinementGuessingDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps, s.xJuliaCenter, s.yJuliaCenter);
+                                if(TaskDraw.SUCCESSIVE_REFINEMENT_SQUARE_RECT_SPLIT_ALGORITHM > 0) {
+                                    if (TaskDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA) {
+                                        tasks[i][j] = new SuccessiveRefinementGuessing2ColorsAndIterationDataDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.polar_projection, s.circle_period, s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending, s.post_processing_order, s.pbs, s.gs.gradient_offset, s.contourFactor, s.gps, s.js, s.pps, s.xJuliaCenter, s.yJuliaCenter);
+                                    } else {
+                                        tasks[i][j] = new SuccessiveRefinementGuessing2Draw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.polar_projection, s.circle_period, s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending, s.post_processing_order, s.pbs, s.gs.gradient_offset, s.contourFactor, s.gps, s.js, s.pps, s.xJuliaCenter, s.yJuliaCenter);
+                                    }
+                                }
+                                else {
+                                    if (TaskDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA) {
+                                        tasks[i][j] = new SuccessiveRefinementGuessingColorsAndIterationDataDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.polar_projection, s.circle_period, s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending, s.post_processing_order, s.pbs, s.gs.gradient_offset, s.contourFactor, s.gps, s.js, s.pps, s.xJuliaCenter, s.yJuliaCenter);
+                                    } else {
+                                        tasks[i][j] = new SuccessiveRefinementGuessingDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.polar_projection, s.circle_period, s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending, s.post_processing_order, s.pbs, s.gs.gradient_offset, s.contourFactor, s.gps, s.js, s.pps, s.xJuliaCenter, s.yJuliaCenter);
+                                    }
                                 }
                             }
                             else if(TaskDraw.GREEDY_ALGORITHM_SELECTION == CIRCULAR_SUCCESSIVE_REFINEMENT) {
-                                if (TaskDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA) {
-                                    tasks[i][j] = new CircularSuccessiveRefinementGuessingColorsAndIterationDataDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps, s.xJuliaCenter, s.yJuliaCenter);
-                                } else {
-                                    tasks[i][j] = new CircularSuccessiveRefinementGuessingDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps, s.xJuliaCenter, s.yJuliaCenter);
+                                if(TaskDraw.SUCCESSIVE_REFINEMENT_SQUARE_RECT_SPLIT_ALGORITHM > 0) {
+                                    if (TaskDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA) {
+                                        tasks[i][j] = new CircularSuccessiveRefinementGuessing2ColorsAndIterationDataDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.polar_projection, s.circle_period, s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending, s.post_processing_order, s.pbs, s.gs.gradient_offset, s.contourFactor, s.gps, s.js, s.pps, s.xJuliaCenter, s.yJuliaCenter);
+                                    } else {
+                                        tasks[i][j] = new CircularSuccessiveRefinementGuessing2Draw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.polar_projection, s.circle_period, s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending, s.post_processing_order, s.pbs, s.gs.gradient_offset, s.contourFactor, s.gps, s.js, s.pps, s.xJuliaCenter, s.yJuliaCenter);
+                                    }
+                                }
+                                else {
+                                    if (TaskDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA) {
+                                        tasks[i][j] = new CircularSuccessiveRefinementGuessingColorsAndIterationDataDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.polar_projection, s.circle_period, s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending, s.post_processing_order, s.pbs, s.gs.gradient_offset, s.contourFactor, s.gps, s.js, s.pps, s.xJuliaCenter, s.yJuliaCenter);
+                                    } else {
+                                        tasks[i][j] = new CircularSuccessiveRefinementGuessingDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.polar_projection, s.circle_period, s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending, s.post_processing_order, s.pbs, s.gs.gradient_offset, s.contourFactor, s.gps, s.js, s.pps, s.xJuliaCenter, s.yJuliaCenter);
+                                    }
                                 }
                             }
                         }
@@ -692,8 +709,11 @@ public class ImageExpanderWindow extends JFrame implements Constants {
                             else if (TaskDraw.BRUTE_FORCE_ALG == 1) {
                                 tasks[i][j] = new BruteForce2Draw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps, s.xJuliaCenter, s.yJuliaCenter);
                             }
-                            else {
+                            else if (TaskDraw.BRUTE_FORCE_ALG == 2) {
                                 tasks[i][j] = new CircularBruteForceDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps, s.xJuliaCenter, s.yJuliaCenter);
+                            }
+                            else {
+                                tasks[i][j] = new BruteForceInterleavedDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps, s.xJuliaCenter, s.yJuliaCenter);
                             }
                         }
                     }
@@ -707,24 +727,51 @@ public class ImageExpanderWindow extends JFrame implements Constants {
                                 }
                             }
                             else if(TaskDraw.GREEDY_ALGORITHM_SELECTION == DIVIDE_AND_CONQUER) {
-                                if (TaskDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA) {
-                                    tasks[i][j] = new MarianiSilverColorsAndIterationDataDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps);
-                                } else {
-                                    tasks[i][j] = new MarianiSilverDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps);
+                                if (TaskDraw.SUCCESSIVE_REFINEMENT_SQUARE_RECT_SPLIT_ALGORITHM > 0) {
+                                    if (TaskDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA) {
+                                        tasks[i][j] = new MarianiSilver3ColorsAndIterationDataDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.polar_projection, s.circle_period, s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending, s.post_processing_order, s.pbs, s.gs.gradient_offset, s.contourFactor, s.gps, s.js, s.pps);
+                                    } else {
+                                        tasks[i][j] = new MarianiSilver3Draw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.polar_projection, s.circle_period, s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending, s.post_processing_order, s.pbs, s.gs.gradient_offset, s.contourFactor, s.gps, s.js, s.pps);
+                                    }
+                                }
+                                else {
+                                    if (TaskDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA) {
+                                        tasks[i][j] = new MarianiSilverColorsAndIterationDataDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.polar_projection, s.circle_period, s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending, s.post_processing_order, s.pbs, s.gs.gradient_offset, s.contourFactor, s.gps, s.js, s.pps);
+                                    } else {
+                                        tasks[i][j] = new MarianiSilverDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.polar_projection, s.circle_period, s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending, s.post_processing_order, s.pbs, s.gs.gradient_offset, s.contourFactor, s.gps, s.js, s.pps);
+                                    }
                                 }
                             }
                             else if(TaskDraw.GREEDY_ALGORITHM_SELECTION == SUCCESSIVE_REFINEMENT) {
-                                if (TaskDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA) {
-                                    tasks[i][j] = new SuccessiveRefinementGuessingColorsAndIterationDataDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps);
-                                } else {
-                                    tasks[i][j] = new SuccessiveRefinementGuessingDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps);
+                                if(TaskDraw.SUCCESSIVE_REFINEMENT_SQUARE_RECT_SPLIT_ALGORITHM > 0) {
+                                    if (TaskDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA) {
+                                        tasks[i][j] = new SuccessiveRefinementGuessing2ColorsAndIterationDataDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.polar_projection, s.circle_period, s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending, s.post_processing_order, s.pbs, s.gs.gradient_offset, s.contourFactor, s.gps, s.js, s.pps);
+                                    } else {
+                                        tasks[i][j] = new SuccessiveRefinementGuessing2Draw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.polar_projection, s.circle_period, s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending, s.post_processing_order, s.pbs, s.gs.gradient_offset, s.contourFactor, s.gps, s.js, s.pps);
+                                    }
+                                }
+                                else {
+                                    if (TaskDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA) {
+                                        tasks[i][j] = new SuccessiveRefinementGuessingColorsAndIterationDataDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.polar_projection, s.circle_period, s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending, s.post_processing_order, s.pbs, s.gs.gradient_offset, s.contourFactor, s.gps, s.js, s.pps);
+                                    } else {
+                                        tasks[i][j] = new SuccessiveRefinementGuessingDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.polar_projection, s.circle_period, s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending, s.post_processing_order, s.pbs, s.gs.gradient_offset, s.contourFactor, s.gps, s.js, s.pps);
+                                    }
                                 }
                             }
                             else if(TaskDraw.GREEDY_ALGORITHM_SELECTION == CIRCULAR_SUCCESSIVE_REFINEMENT) {
-                                if (TaskDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA) {
-                                    tasks[i][j] = new CircularSuccessiveRefinementGuessingColorsAndIterationDataDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps);
-                                } else {
-                                    tasks[i][j] = new CircularSuccessiveRefinementGuessingDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps);
+                                if(TaskDraw.SUCCESSIVE_REFINEMENT_SQUARE_RECT_SPLIT_ALGORITHM > 0) {
+                                    if (TaskDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA) {
+                                        tasks[i][j] = new CircularSuccessiveRefinementGuessing2ColorsAndIterationDataDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.polar_projection, s.circle_period, s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending, s.post_processing_order, s.pbs, s.gs.gradient_offset, s.contourFactor, s.gps, s.js, s.pps);
+                                    } else {
+                                        tasks[i][j] = new CircularSuccessiveRefinementGuessing2Draw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.polar_projection, s.circle_period, s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending, s.post_processing_order, s.pbs, s.gs.gradient_offset, s.contourFactor, s.gps, s.js, s.pps);
+                                    }
+                                }
+                                else {
+                                    if (TaskDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA) {
+                                        tasks[i][j] = new CircularSuccessiveRefinementGuessingColorsAndIterationDataDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.polar_projection, s.circle_period, s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending, s.post_processing_order, s.pbs, s.gs.gradient_offset, s.contourFactor, s.gps, s.js, s.pps);
+                                    } else {
+                                        tasks[i][j] = new CircularSuccessiveRefinementGuessingDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.polar_projection, s.circle_period, s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending, s.post_processing_order, s.pbs, s.gs.gradient_offset, s.contourFactor, s.gps, s.js, s.pps);
+                                    }
                                 }
                             }
                         }
@@ -735,8 +782,11 @@ public class ImageExpanderWindow extends JFrame implements Constants {
                             else if (TaskDraw.BRUTE_FORCE_ALG == 1) {
                                 tasks[i][j] = new BruteForce2Draw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps);
                             }
-                            else {
+                            else if (TaskDraw.BRUTE_FORCE_ALG == 2) {
                                 tasks[i][j] = new CircularBruteForceDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps);
+                            }
+                            else {
+                                tasks[i][j] = new BruteForceInterleavedDraw(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.ds, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps);
                             }
                         }
                     }
@@ -748,7 +798,12 @@ public class ImageExpanderWindow extends JFrame implements Constants {
             if(tasks[0][0].hasCircularLogic()) {
                 CircularBruteForceDraw.initCoordinates(image_size, false, true, tasks[0][0].usesSuccessiveRefinement());
                 if(tasks[0][0].usesSuccessiveRefinement()) {
-                    CircularSuccessiveRefinementGuessingDraw.initCoordinates(image_size, false);
+                    if(TaskDraw.SUCCESSIVE_REFINEMENT_SQUARE_RECT_SPLIT_ALGORITHM > 0) {
+                        CircularSuccessiveRefinementGuessing2Draw.initCoordinates(image_size, false);
+                    }
+                    else {
+                        CircularSuccessiveRefinementGuessingDraw.initCoordinates(image_size, false);
+                    }
                 }
             }
             else {
@@ -830,6 +885,8 @@ public class ImageExpanderWindow extends JFrame implements Constants {
             return;
         }
 
+        boolean runsOnSimpleMode = false;
+
         try {
             String name;
             if (runsOnSequenceMode) {
@@ -853,6 +910,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
                 }
             }
             else {
+                runsOnSimpleMode = true;
                 Path path = Paths.get(outputDirectory);
                 if (Files.exists(path) && Files.isDirectory(path)) {
                     name = path.resolve(settingsName + ".png").toString();
@@ -868,13 +926,48 @@ public class ImageExpanderWindow extends JFrame implements Constants {
                 }
 
             }
-            File file = new File(name);
-            ImageIO.write(image, "png", file);
+
+            double aspect_ratio = 1;
+            if(runsOnSequenceMode) {
+                aspect_ratio = zss.aspect_ratio;
+            }
+            else if(runsOnSimpleMode) {
+                aspect_ratio = aspectRatio;
+            }
+            writeImage(image, name, aspect_ratio);
         }
         catch(IOException ex) {
         }
+
         if(!runsOnBatchingMode && !runsOnSequenceMode && !runsOnSplitImageMode) {
             cleanUp();
+        }
+    }
+
+    private void writeImage(BufferedImage image, String name, double aspect_ratio) throws IOException {
+        if(aspect_ratio == 1) {
+            File file = new File(name);
+            ImageIO.write(image, "png", file);
+        }
+        else if(aspect_ratio > 1) {
+            int width = image.getWidth();
+
+            int height = (int)(width / aspect_ratio + 0.5);
+
+            BufferedImage subImage = image.getSubimage(0, (image.getHeight() - height) / 2, width, height);
+
+            File file = new File(name);
+            ImageIO.write(subImage, "png", file);
+        }
+        else  {
+            int height = image.getHeight();
+
+            int width = (int)(height * aspect_ratio + 0.5);
+
+            BufferedImage subImage = image.getSubimage((image.getWidth() - width) / 2, 0, width, height);
+
+            File file = new File(name);
+            ImageIO.write(subImage, "png", file);
         }
     }
 
@@ -899,7 +992,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
         TaskDraw.thread_calculation_executor.shutdown();
         TaskDraw.thread_calculation_executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(getNumberOfThreads());
     }
-    
+
     public void setThreadsNumber() {
 
         new ThreadsDialog(ptr, n, m, thread_grouping);
@@ -927,7 +1020,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
         }
 
     }
-    
+
     public void setSizeOfImagePost(int image_size) {
         this.image_size = image_size;
     }
@@ -1003,7 +1096,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
                 + "If you are using the *.exe version of the application please edit<br>"
                 + "<b>FZImageExpander.l4j.ini</b> and add <b>-Xmx4000m</b> or any other memory size<br>"
                 + "value into the *.ini file. The *.ini file name must match the name of the executable.<br><br>"
-                
+
                 + "If you do not set the maximum heap, the JVM's default will be used,<br>"
                 + "which scales based on your memory.</font></html>";
 
@@ -1022,14 +1115,14 @@ public class ImageExpanderWindow extends JFrame implements Constants {
         return common;
 
     }
-    
+
     public void savePreferences() {
 
         PrintWriter writer;
         try {
-            writer = new PrintWriter(new File("IEpreferences.ini"));
+            writer = new PrintWriter("IEpreferences.ini");
 
-            writer.println("#Fractal Zoomer Image Expander preferences.");
+            writer.println("#Fractal Zoomer Image Expander " + VERSION + " preferences.");
             writer.println("#This file contains all the preferences of the user and it is updated,");
             writer.println("#every time the application terminates. Settings that wont have the");
             writer.println("#correct name/number of arguments/argument value, will be ignored");
@@ -1042,6 +1135,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
             writer.println("save_settings_path \"" + MainWindow.SaveSettingsPath + "\"");
             writer.println("output_directory \"" + outputDirectory + "\"");
             writer.println("use_smoothing_for_processing_algs " + TaskDraw.USE_SMOOTHING_FOR_PROCESSING_ALGS);
+            writer.println("aspect_ratio " + aspectRatio);
 
             writer.println();
 
@@ -1057,6 +1151,9 @@ public class ImageExpanderWindow extends JFrame implements Constants {
             writer.println("skipped_pixels_coloring " + TaskDraw.SKIPPED_PIXELS_ALG);
             writer.println("mariani_silver_use_dfs " + MarianiSilverDraw.RENDER_USING_DFS);
             writer.println("guess_blocks_selection " + TaskDraw.GUESS_BLOCKS_SELECTION);
+            writer.println("greedy_successive_refinement_squares_and_rectangles_algorithm " + TaskDraw.SUCCESSIVE_REFINEMENT_SQUARE_RECT_SPLIT_ALGORITHM);
+            writer.println("two_pass_successive_refinement " + TaskDraw.TWO_PASS_SUCCESSIVE_REFINEMENT);
+            writer.println("square_rect_chunk_aggregation " + TaskDraw.SQUARE_RECT_CHUNK_AGGERAGATION);
             int color = TaskDraw.SKIPPED_PIXELS_COLOR;
             writer.println("skipped_pixels_user_color " + ((color >> 16) & 0xff) + " " + ((color >> 8) & 0xff) + " " + (color & 0xff));
             writer.println("perturbation_theory " + TaskDraw.PERTURBATION_THEORY);
@@ -1070,12 +1167,14 @@ public class ImageExpanderWindow extends JFrame implements Constants {
             writer.println("automatic_bignum_precision " + TaskDraw.BIGNUM_AUTOMATIC_PRECISION);
             writer.println("bignum_precision_bits " + TaskDraw.BIGNUM_PRECISION);
             writer.println("bignum_precision_factor " + TaskDraw.BIGNUM_PRECISION_FACTOR);
+            writer.println("bignum_initialization_algorithm " + TaskDraw.BIGNUM_INITIALIZATION_ALGORITHM);
             writer.println("use_threads_for_sa " + TaskDraw.USE_THREADS_FOR_SA);
             writer.println("bla_precision_bits " + TaskDraw.BLA_BITS);
             writer.println("use_threads_for_bla " + TaskDraw.USE_THREADS_FOR_BLA);
             writer.println("bla_starting_level " + TaskDraw.BLA_STARTING_LEVEL);
             writer.println("detect_period " + TaskDraw.DETECT_PERIOD);
             writer.println("brute_force_alg " + TaskDraw.BRUTE_FORCE_ALG);
+            writer.println("one_chunk_per_row " + TaskDraw.CHUNK_SIZE_PER_ROW);
             writer.println("exponent_diff_ignored " + MantExp.EXPONENT_DIFF_IGNORED);
             writer.println("bignum_library " + TaskDraw.BIGNUM_LIBRARY);
             writer.println("automatic_precision " + MyApfloat.setAutomaticPrecision);
@@ -1086,6 +1185,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
             writer.println("check_bailout_during_deep_not_full_floatexp_mode " + TaskDraw.CHECK_BAILOUT_DURING_DEEP_NOT_FULL_FLOATEXP_MODE);
             writer.println("gather_tiny_ref_indexes " + TaskDraw.GATHER_TINY_REF_INDEXES);
             writer.println("bignum_sqrt_max_iterations " + BigNum.SQRT_MAX_ITERATIONS);
+            writer.println("built_in_bignum_implementation " + TaskDraw.BUILT_IT_BIGNUM_IMPLEMENTATION);
             writer.println("stop_reference_calculation_after_detected_period " + TaskDraw.STOP_REFERENCE_CALCULATION_AFTER_DETECTED_PERIOD);
             writer.println("use_custom_floatexp_requirement " + TaskDraw.USE_CUSTOM_FLOATEXP_REQUIREMENT);
             writer.println("load_mpfr " + TaskDraw.LOAD_MPFR);
@@ -1108,14 +1208,21 @@ public class ImageExpanderWindow extends JFrame implements Constants {
             writer.println("bla2_la_threshold_c_scale " + LAInfo.LAThresholdCScale);
             writer.println("bla2_double_threshold_limit " + LAReference.doubleThresholdLimit.toDouble());
             writer.println("bla2_convert_to_double_when_possible " + LAReference.CONVERT_TO_DOUBLE_WHEN_POSSIBLE);
+            writer.println("bla2_period_divisor " + LAReference.periodDivisor);
+            writer.println("use_threads_for_bla2 " + TaskDraw.USE_THREADS_FOR_BLA2);
+            writer.println("use_ref_index_on_bla2 " + TaskDraw.USE_RI_ON_BLA2);
+            writer.println("disable_ref_index_on_bla2 " + TaskDraw.DISABLE_RI_ON_BLA2);
             writer.println("always_check_for_precision_decrease " + MyApfloat.alwaysCheckForDecrease);
             writer.println("use_threads_in_bignum_libs " + TaskDraw.USE_THREADS_IN_BIGNUM_LIBS);
             writer.println("calculate_period_every_time_from_start " + TaskDraw.CALCULATE_PERIOD_EVERY_TIME_FROM_START);
             writer.println("mantexpcomplex_format " + TaskDraw.MANTEXPCOMPLEX_FORMAT);
             writer.println("use_fast_delta_location " + TaskDraw.USE_FAST_DELTA_LOCATION);
+            writer.println("always_save_extra_pixel_data_on_aa_with_pp " + TaskDraw.ALWAYS_SAVE_EXTRA_PIXEL_DATA_ON_AA_WITH_PP);
+            writer.println("reference_compression " + TaskDraw.COMPRESS_REFERENCE_IF_POSSIBLE);
+            writer.println("reference_compression_error " + ReferenceCompressor.CompressionError);
 
             writer.println();
-            
+
             writer.println("[Window]");
             writer.println("image_size " + image_size);
             writer.println("window_location " + (int) getLocation().getX() + " " + (int) getLocation().getY());
@@ -1126,6 +1233,11 @@ public class ImageExpanderWindow extends JFrame implements Constants {
             writer.println("aa_jitter_size " + Location.AA_JITTER_SIZE);
             writer.println("aa_number_of_jitter_kernels " + Location.NUMBER_OF_AA_JITTER_KERNELS);
             writer.println("whitepoint " + ColorSpaceConverter.whitePointId);
+            writer.println("include_aa_data_on_rank_order " + TaskDraw.INCLUDE_AA_DATA_ON_RANK_ORDER);
+
+            writer.println();
+            writer.println("[Sequence Render]");
+            writer.println("use_less_initial_iterations " + USE_LESS_INITIAL_ITERATIONS_ON_SEQUENCE_RENDER);
 
             writer.close();
         }
@@ -1193,6 +1305,34 @@ public class ImageExpanderWindow extends JFrame implements Constants {
                             TaskDraw.USE_THREADS_IN_BIGNUM_LIBS = true;
                         }
                     }
+                    else if(token.equals("bignum_initialization_algorithm") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        try {
+                            int val = Integer.parseInt(token);
+                            if(val >= 0 && val <= 2) {
+                                TaskDraw.BIGNUM_INITIALIZATION_ALGORITHM = val;
+                            }
+                        }
+                        catch (Exception ex) {
+
+                        }
+                    }
+                    else if(token.equals("built_in_bignum_implementation") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        try {
+                            int val = Integer.parseInt(token);
+                            if(val >= 0 && val <= 4) {
+                                TaskDraw.BUILT_IT_BIGNUM_IMPLEMENTATION = val;
+                            }
+                        }
+                        catch (Exception ex) {
+
+                        }
+                    }
                     else if(token.equals("mpir_lib") && tokenizer.countTokens() == 1) {
 
                         token = tokenizer.nextToken();
@@ -1211,6 +1351,17 @@ public class ImageExpanderWindow extends JFrame implements Constants {
                         } catch (Exception ex) {
                         }
                     }
+                    else if (token.equals("greedy_successive_refinement_squares_and_rectangles_algorithm") && tokenizer.countTokens() == 1) {
+                        try {
+                            int temp = Integer.parseInt(tokenizer.nextToken());
+
+                            if (temp >= 0 && temp <= 4) {
+                                TaskDraw.SUCCESSIVE_REFINEMENT_SQUARE_RECT_SPLIT_ALGORITHM = temp;
+                                TaskDraw.setSuccessiveRefinementChunks();
+                            }
+                        } catch (Exception ex) {
+                        }
+                    }
                     else {
                         continue;
                     }
@@ -1224,7 +1375,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
 
         }
     }
-    
+
     private void loadPreferences() {
         BufferedReader br;
 
@@ -1263,6 +1414,16 @@ public class ImageExpanderWindow extends JFrame implements Constants {
 
                             if (temp >= 0 && temp <= 1) {
                                 TaskDraw.MANTEXPCOMPLEX_FORMAT = temp;
+                            }
+                        } catch (Exception ex) {
+                        }
+                    }
+                    else if (token.equals("aspect_ratio") && tokenizer.countTokens() == 1) {
+                        try {
+                            double temp = Integer.parseInt(tokenizer.nextToken());
+
+                            if (temp > 0) {
+                                aspectRatio = temp;
                             }
                         } catch (Exception ex) {
                         }
@@ -1314,7 +1475,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
                         try {
                             int temp = Integer.parseInt(tokenizer.nextToken());
 
-                            if (temp >= 0 && temp <= 15) {
+                            if (temp >= 0 && temp <= 16) {
                                 TaskDraw.CIRCULAR_COMPARE_ALG = temp;
                             }
                         } catch (Exception ex) {
@@ -1338,6 +1499,17 @@ public class ImageExpanderWindow extends JFrame implements Constants {
 
                             if (temp > 0) {
                                 TaskDraw.CIRCULAR_REPEAT_SPACING = temp;
+                            }
+                        } catch (Exception ex) {
+                        }
+                    }
+                    else if (token.equals("bla2_period_divisor") && tokenizer.countTokens() == 1) {
+
+                        try {
+                            double temp = Double.parseDouble(tokenizer.nextToken());
+
+                            if (temp > 0) {
+                                LAReference.periodDivisor = temp;
                             }
                         } catch (Exception ex) {
                         }
@@ -1372,6 +1544,126 @@ public class ImageExpanderWindow extends JFrame implements Constants {
                         }
                         else if(token.equals("true")) {
                             TaskDraw.STOP_REFERENCE_CALCULATION_AFTER_DETECTED_PERIOD = true;
+                        }
+                    }
+                    else if(token.equals("include_aa_data_on_rank_order") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if(token.equals("false")) {
+                            TaskDraw.INCLUDE_AA_DATA_ON_RANK_ORDER = false;
+                        }
+                        else if(token.equals("true")) {
+                            TaskDraw.INCLUDE_AA_DATA_ON_RANK_ORDER = true;
+                        }
+                    }
+                    else if(token.equals("use_less_initial_iterations") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if(token.equals("false")) {
+                            USE_LESS_INITIAL_ITERATIONS_ON_SEQUENCE_RENDER = false;
+                        }
+                        else if(token.equals("true")) {
+                            USE_LESS_INITIAL_ITERATIONS_ON_SEQUENCE_RENDER = true;
+                        }
+                    }
+                    else if(token.equals("use_threads_for_bla2") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if(token.equals("false")) {
+                            TaskDraw.USE_THREADS_FOR_BLA2 = false;
+                        }
+                        else if(token.equals("true")) {
+                            TaskDraw.USE_THREADS_FOR_BLA2 = true;
+                        }
+                    }
+                    else if(token.equals("reference_compression") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if(token.equals("false")) {
+                            TaskDraw.COMPRESS_REFERENCE_IF_POSSIBLE = false;
+                        }
+                        else if(token.equals("true")) {
+                            TaskDraw.COMPRESS_REFERENCE_IF_POSSIBLE = true;
+                        }
+                    }
+                    else if (token.equals("reference_compression_error") && tokenizer.countTokens() == 1) {
+                        try {
+                            double temp = Double.parseDouble(tokenizer.nextToken());
+
+                            if (temp > 0) {
+                                ReferenceCompressor.CompressionError = temp;
+                                ReferenceCompressor.setCompressionError();
+                            }
+                        } catch (Exception ex) {
+                        }
+                    }
+                    else if(token.equals("use_ref_index_on_bla2") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if(token.equals("false")) {
+                            TaskDraw.USE_RI_ON_BLA2 = false;
+                        }
+                        else if(token.equals("true")) {
+                            TaskDraw.USE_RI_ON_BLA2 = true;
+                        }
+                    }
+                    else if(token.equals("disable_ref_index_on_bla2") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if(token.equals("false")) {
+                            TaskDraw.DISABLE_RI_ON_BLA2 = false;
+                        }
+                        else if(token.equals("true")) {
+                            TaskDraw.DISABLE_RI_ON_BLA2 = true;
+                        }
+                    }
+                    else if(token.equals("two_pass_successive_refinement") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if(token.equals("false")) {
+                            TaskDraw.TWO_PASS_SUCCESSIVE_REFINEMENT = false;
+                        }
+                        else if(token.equals("true")) {
+                            TaskDraw.TWO_PASS_SUCCESSIVE_REFINEMENT = true;
+                        }
+                    }
+                    else if (token.equals("square_rect_chunk_aggregation") && tokenizer.countTokens() == 1) {
+                        try {
+                            int temp = Integer.parseInt(tokenizer.nextToken());
+
+                            if (temp >= 0 && temp <= 1) {
+                                TaskDraw.SQUARE_RECT_CHUNK_AGGERAGATION = temp;
+                            }
+                        } catch (Exception ex) {
+                        }
+                    }
+                    else if(token.equals("one_chunk_per_row") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if(token.equals("false")) {
+                            TaskDraw.CHUNK_SIZE_PER_ROW = false;
+                        }
+                        else if(token.equals("true")) {
+                            TaskDraw.CHUNK_SIZE_PER_ROW = true;
+                        }
+                    }
+                    else if(token.equals("always_save_extra_pixel_data_on_aa_with_pp") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if(token.equals("false")) {
+                            TaskDraw.ALWAYS_SAVE_EXTRA_PIXEL_DATA_ON_AA_WITH_PP = false;
+                        }
+                        else if(token.equals("true")) {
+                            TaskDraw.ALWAYS_SAVE_EXTRA_PIXEL_DATA_ON_AA_WITH_PP = true;
                         }
                     }
                     else if(token.equals("use_fast_delta_location") && tokenizer.countTokens() == 1) {
@@ -1643,7 +1935,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
                         try {
                             int temp = Integer.parseInt(tokenizer.nextToken());
 
-                            if (temp >= 0 && temp <= 2) {
+                            if (temp >= 0 && temp <= 3) {
                                 TaskDraw.BRUTE_FORCE_ALG = temp;
                             }
                         } catch (Exception ex) {
@@ -2251,39 +2543,47 @@ public class ImageExpanderWindow extends JFrame implements Constants {
 
     }
 
-    public void startSequenceRender(Apfloat size, double zoom_factor, int zooming_mode, double rotation_adjusting_value, int color_cycling_adjusting_value, double light_light_direction_adjusting_value, double bump_light_direction_adjusting_value, int zoom_every_n_frame, int gradient_color_cycling_adjusting_value, boolean flipSequenceIndexing, long startAtSequenceIndex, double slope_light_direction_adjusting_value) {
+    public void startSequenceRender() {
 
         Location.offset = new PixelOffset();
 
         numberOfSequenceSteps = 0;
 
-        Apfloat temp = zooming_mode == 0 ? size : s.size;
-        while ((zooming_mode == 0 && temp.compareTo(s.size) > 0) || (zooming_mode == 1 && temp.compareTo(size) < 0)) {
-            if(zooming_mode == 0) {
-                temp = MyApfloat.fp.divide(temp, new MyApfloat(zoom_factor));
+        Apfloat temp = zss.zooming_mode == 0 ? zss.size : s.size;
+        while ((zss.zooming_mode == 0 && temp.compareTo(s.size) > 0) || (zss.zooming_mode == 1 && temp.compareTo(zss.size) < 0)) {
+            if(zss.zooming_mode == 0) {
+                temp = MyApfloat.fp.divide(temp, new MyApfloat(zss.zoom_factor));
             }
             else {
-                temp = MyApfloat.fp.multiply(temp, new MyApfloat(zoom_factor));
+                temp = MyApfloat.fp.multiply(temp, new MyApfloat(zss.zoom_factor));
             }
             numberOfSequenceSteps++;
         }
 
         numberOfSequenceSteps++;
 
-        this.zoom_factor = zoom_factor;
-        this.zooming_mode = zooming_mode;
-        this.size = size;
-        this.rotation_adjusting_value = rotation_adjusting_value;
-        this.color_cycling_adjusting_value = color_cycling_adjusting_value;
-        this.light_light_direction_adjusting_value = light_light_direction_adjusting_value;
-        this.bump_light_direction_adjusting_value = bump_light_direction_adjusting_value;
-        this.slopes_light_direction_adjusting_value = slope_light_direction_adjusting_value;
-        this.zoom_every_n_frame = zoom_every_n_frame;
-        this.gradient_color_cycling_adjusting_value = gradient_color_cycling_adjusting_value;
-        this.flipSequenceIndexing = flipSequenceIndexing;
-        this.startAtSequenceIndex = startAtSequenceIndex;
+        numberOfSequenceSteps *= zss.zoom_every_n_frame;
 
-        numberOfSequenceSteps *= zoom_every_n_frame;
+        Path path = Paths.get(outputDirectory);
+
+        String name;
+        if (Files.exists(path) && Files.isDirectory(path)) {
+            name = path.resolve(settingsName + " - zoom sequence.json").toString();
+        }
+        else {
+            name = settingsName + " - zoom sequence.json";
+        }
+
+        File file = new File(name);
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            objectMapper.writeValue(file, zss);
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+
+        int outPaletteLength = CommonFunctions.getOutPaletteLength(s.ds.domain_coloring, s.ds.domain_coloring_mode);
+        int inPaletteLength = CommonFunctions.getInPaletteLength(s.ds.domain_coloring);
 
         TaskDraw.single_thread_executor.submit(() -> {
 
@@ -2305,7 +2605,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
             overviewButton.setEnabled(false);
             setOptions(false);
             runsOnSequenceMode = true;
-            sequenceIndex = flipSequenceIndexing ? numberOfSequenceSteps : 1;
+            sequenceIndex = zss.flipSequenceIndexing ? numberOfSequenceSteps : 1;
 
             Apfloat originalSize = s.size;
             Apfloat[] originalRotCenter = new Apfloat[2];
@@ -2324,16 +2624,24 @@ public class ImageExpanderWindow extends JFrame implements Constants {
 
             int originalGradientColorCyclingLocation = s.gs.gradient_offset;
 
-            if(rotation_adjusting_value != 0) {
+            int originalMaxIterations = s.max_iterations;
+
+            if(zss.rotation_adjusting_value != 0) {
                 s.fns.rotation_center[0] = s.xCenter;
                 s.fns.rotation_center[1] = s.yCenter;
             }
 
-            s.size = zooming_mode == 0 ? size : s.size;
+            Fractal.clearStatistics();
+
+            s.size = zss.zooming_mode == 0 ? zss.size : s.size;
+
+            int renderCount = 0;
+
             for(int k = 1; k <= numberOfSequenceSteps; k++) {
 
-                if(startAtSequenceIndex == 0 || (!flipSequenceIndexing && sequenceIndex >= startAtSequenceIndex) || (flipSequenceIndexing && sequenceIndex <= startAtSequenceIndex) ) {
+                if(zss.startAtSequenceIndex == 0 || (!zss.flipSequenceIndexing && sequenceIndex >= zss.startAtSequenceIndex) || (zss.flipSequenceIndexing && sequenceIndex <= zss.startAtSequenceIndex) ) {
                     render();
+
                     try {
                         for(Future<?> future : futures) {
                             future.get();
@@ -2342,9 +2650,43 @@ public class ImageExpanderWindow extends JFrame implements Constants {
                     }
                     catch (ExecutionException ex) {
                     }
+
+                    if(USE_LESS_INITIAL_ITERATIONS_ON_SEQUENCE_RENDER && Fractal.total_min_iterations != null && Fractal.total_min_iterations.get() != Long.MAX_VALUE) {
+                        long minStat = Fractal.total_min_iterations.get();
+
+                        int iterLimit = 500000;
+                        double limit = 1000;
+                        double limit2 = 10000;
+                        if(minStat < limit && originalMaxIterations > iterLimit) {
+                            s.max_iterations = iterLimit;
+                        }
+                        else if(minStat >= limit && minStat <= limit2 && originalMaxIterations > iterLimit) {
+                            s.max_iterations = (int)(iterLimit + (originalMaxIterations - iterLimit) * ((minStat - limit) / (limit2 - limit)) + 0.5);
+                        }
+                        else {
+                            s.max_iterations = originalMaxIterations;
+                        }
+
+                        if(renderCount == 0 && s.max_iterations != originalMaxIterations) {
+                            render();
+
+                            try {
+                                for(Future<?> future : futures) {
+                                    future.get();
+                                }
+                            } catch (InterruptedException ex) {
+                            }
+                            catch (ExecutionException ex) {
+                            }
+                        }
+                    }
+
+                    writeInfo(path);
+
+                    renderCount++;
                 }
 
-                if(flipSequenceIndexing) {
+                if(zss.flipSequenceIndexing) {
                     sequenceIndex--;
                 }
                 else {
@@ -2359,89 +2701,37 @@ public class ImageExpanderWindow extends JFrame implements Constants {
                     totalprogress.setString("Zoom Sequence: " + String.format("%3d", (int) ((double) (totalprogress.getValue()) / totalprogress.getMaximum() * 100)) + "%");
                 }
 
-                if(k >= zoom_every_n_frame && k % zoom_every_n_frame == 0) {
-                    if (zooming_mode == 0) {
-                        s.size = MyApfloat.fp.divide(s.size, new MyApfloat(zoom_factor));
+                if(k >= zss.zoom_every_n_frame && k % zss.zoom_every_n_frame == 0) {
+                    if (zss.zooming_mode == 0) {
+                        s.size = MyApfloat.fp.divide(s.size, new MyApfloat(zss.zoom_factor));
                     } else {
-                        s.size = MyApfloat.fp.multiply(s.size, new MyApfloat(zoom_factor));
+                        s.size = MyApfloat.fp.multiply(s.size, new MyApfloat(zss.zoom_factor));
                     }
                 }
 
-                if(rotation_adjusting_value != 0) {
-                    s.fns.rotation += rotation_adjusting_value;
-                    if (rotation_adjusting_value > 0) {
-                        s.fns.rotation = s.fns.rotation % 360.0;
-                    } else if (rotation_adjusting_value < 0) {
-                        if (s.fns.rotation <= -360) {
-                            s.fns.rotation += 360;
-                        }
-                    }
-
-                    Apfloat tempRadians =  MyApfloat.fp.toRadians(new MyApfloat(s.fns.rotation));
-                    s.fns.rotation_vals[0] = MyApfloat.cos(tempRadians);
-                    s.fns.rotation_vals[1] = MyApfloat.sin(tempRadians);
+                if(zss.rotation_adjusting_value != 0) {
+                    CommonFunctions.adjustRotationOffset(s,zss.rotation_adjusting_value);
                 }
 
-                if(color_cycling_adjusting_value != 0) {
-                    s.ps.color_cycling_location += color_cycling_adjusting_value;
-
-                    s.ps.color_cycling_location = s.ps.color_cycling_location > Integer.MAX_VALUE - 40000 ? 0 : s.ps.color_cycling_location;
-
-                    s.ps2.color_cycling_location += color_cycling_adjusting_value;
-
-                    s.ps2.color_cycling_location = s.ps2.color_cycling_location > Integer.MAX_VALUE - 40000 ? 0 : s.ps2.color_cycling_location;
-
+                if(zss.color_cycling_adjusting_value != 0) {
+                    s.ps.color_cycling_location = CommonFunctions.adjustPaletteOffset(s.ps.color_cycling_location, zss.color_cycling_adjusting_value, outPaletteLength);
+                    s.ps2.color_cycling_location = CommonFunctions.adjustPaletteOffset(s.ps2.color_cycling_location, zss.color_cycling_adjusting_value, inPaletteLength);
                 }
 
-                if(gradient_color_cycling_adjusting_value != 0) {
-                    s.gs.gradient_offset += gradient_color_cycling_adjusting_value;
-                    s.gs.gradient_offset = s.gs.gradient_offset > Integer.MAX_VALUE - 40000 ? 0 : s.gs.gradient_offset;
+                if(zss.gradient_color_cycling_adjusting_value != 0) {
+                    s.gs.gradient_offset = CommonFunctions.adjustPaletteOffset(s.gs.gradient_offset, zss.gradient_color_cycling_adjusting_value, GRADIENT_LENGTH);
                 }
 
-                if (s.pps.bms.bump_map && bump_light_direction_adjusting_value != 0) {
-                    s.pps.bms.lightDirectionDegrees += bump_light_direction_adjusting_value;
-                    if (bump_light_direction_adjusting_value > 0) {
-                        s.pps.bms.lightDirectionDegrees = s.pps.bms.lightDirectionDegrees % 360.0;
-                    }
-                    else {
-                        if (s.pps.bms.lightDirectionDegrees <= -360) {
-                            s.pps.bms.lightDirectionDegrees += 360;
-                        }
-                    }
+                if (s.pps.bms.bump_map && zss.bump_direction_adjusting_value != 0) {
+                    CommonFunctions.adjustBumpOffset(s.pps.bms, zss.bump_direction_adjusting_value);
                 }
 
-                if (s.pps.ls.lighting && light_light_direction_adjusting_value != 0) {
-                    s.pps.ls.light_direction += light_light_direction_adjusting_value;
-
-                    if(light_light_direction_adjusting_value > 0) {
-                        s.pps.ls.light_direction = s.pps.ls.light_direction % 360.0;
-                    }
-                    else {
-                        if (s.pps.ls.light_direction < 0) {
-                            s.pps.ls.light_direction += 360;
-                        }
-                    }
-
-                    double lightAngleRadians = Math.toRadians(s.pps.ls.light_direction);
-                    s.pps.ls.lightVector[0] = Math.cos(lightAngleRadians) * s.pps.ls.light_magnitude;
-                    s.pps.ls.lightVector[1] = Math.sin(lightAngleRadians) * s.pps.ls.light_magnitude;
+                if (s.pps.ls.lighting && zss.light_direction_adjusting_value != 0) {
+                    CommonFunctions.adjustLightOffset(s.pps.ls, zss.light_direction_adjusting_value);
                 }
 
-                if (s.pps.ss.slopes && slope_light_direction_adjusting_value != 0) {
-                    s.pps.ss.SlopeAngle += slope_light_direction_adjusting_value;
-
-                    if(slope_light_direction_adjusting_value > 0) {
-                        s.pps.ss.SlopeAngle = s.pps.ss.SlopeAngle % 360.0;
-                    }
-                    else {
-                        if (s.pps.ss.SlopeAngle < 0) {
-                            s.pps.ss.SlopeAngle += 360;
-                        }
-                    }
-
-                    double lightAngleRadians = Math.toRadians(s.pps.ss.SlopeAngle);
-                    s.pps.ss.lightVector[0] = Math.cos(lightAngleRadians);
-                    s.pps.ss.lightVector[1] = Math.sin(lightAngleRadians);
+                if (s.pps.ss.slopes && zss.slopes_direction_adjusting_value != 0) {
+                    CommonFunctions.adjustSlopeOffset(s.pps.ss, zss.slopes_direction_adjusting_value);
                 }
             }
 
@@ -2462,6 +2752,8 @@ public class ImageExpanderWindow extends JFrame implements Constants {
             s.pps.ls = lightBack;
             s.pps.ss = slopeBack;
 
+            s.max_iterations = originalMaxIterations;
+
             s.gs.gradient_offset = originalGradientColorCyclingLocation;
 
             setOptions(true);
@@ -2470,6 +2762,43 @@ public class ImageExpanderWindow extends JFrame implements Constants {
         });
 
 
+    }
+
+    private String normalizeValue(String val, int digits) {
+        val = val.toLowerCase();
+        int indexOfE = val.indexOf("e");
+
+        String mantissa = indexOfE != -1 ? val.substring(0, indexOfE) : val;
+        String exponent = indexOfE != -1 ? val.substring(indexOfE, val.length()) : "";
+        int indexofDot = mantissa.indexOf(".");
+        if(indexofDot != -1) {
+            int length = mantissa.length() - (indexofDot + 1);
+            if(length > digits) {
+                length = digits;
+            }
+            return mantissa.substring(0, indexofDot) + mantissa.substring(indexofDot,  indexofDot + 1 + length) + exponent;
+        }
+        else {
+            return val;
+        }
+    }
+
+    private void writeInfo(Path path) {
+        String infoName;
+        if (Files.exists(path) && Files.isDirectory(path)) {
+            infoName = path.resolve(settingsName + " - zoom sequence - " + " (" + sequenceIndex + ")" + ".info").toString();
+        }
+        else {
+            infoName = settingsName + " - zoom sequence - " + " (" + sequenceIndex + ")" + ".info";
+        }
+
+        String info = "Size: " + normalizeValue(s.size.toString(), 4) + "\n" +
+                "Magnification: " + normalizeValue(MyApfloat.fp.divide(Constants.DEFAULT_MAGNIFICATION, s.size).toString(), 6);
+
+        try {
+            Files.write(Paths.get(infoName), info.getBytes());
+        }
+        catch (Exception ex) {}
     }
 
     public void setOutputDirectory() {
@@ -2490,21 +2819,23 @@ public class ImageExpanderWindow extends JFrame implements Constants {
 
     public static void main(String[] args) throws Exception {
 
-        if(args.length > 0 && args[0].equals("l4jini")) {
-            CommonFunctions.exportL4jIni("FZImageExpander", Constants.IEL4j);
-        }
+       // SwingUtilities.invokeLater(() -> {
+            if(args.length > 0 && args[0].equals("l4jini")) {
+                CommonFunctions.exportL4jIni("FZImageExpander", Constants.IEL4j);
+            }
 
-        ImageExpanderWindow mw = new ImageExpanderWindow();
-        mw.setVisible(true);
+            ImageExpanderWindow mw = new ImageExpanderWindow();
+            mw.setVisible(true);
 
-        boolean actionOk = mw.getCommonFunctions().copyLib();
-        mw.getCommonFunctions().exportCodeFilesNoUi();
-        
-        if(actionOk) {
-            mw.getCommonFunctions().compileCode(false);
-        }
-        
-        mw.getCommonFunctions().checkForUpdate(false);
+            boolean actionOk = mw.getCommonFunctions().copyLib();
+            mw.getCommonFunctions().exportCodeFilesNoUi();
 
+            if(actionOk) {
+                mw.getCommonFunctions().compileCode(false);
+            }
+
+            mw.getCommonFunctions().checkForUpdate(false);
+
+        //});
     }
 }

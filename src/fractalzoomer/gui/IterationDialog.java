@@ -97,14 +97,15 @@ public class IterationDialog extends JDialog {
                                 return;
                             }
 
+                            s.old_max_iterations = s.max_iterations;
                             s.max_iterations = (int)temp;
                         } catch (Exception ex) {
                             JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                             return;
                         }
 
+                        ptr.onIterationsChange();
                         dispose();
-                        ptr.redraw();
                     }
                 });
 

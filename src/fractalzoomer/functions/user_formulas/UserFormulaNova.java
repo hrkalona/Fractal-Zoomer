@@ -116,7 +116,7 @@ public class UserFormulaNova extends ExtendedConvergentType {
 
         //Todo: Check which other methods need this
         if(nova_method == MainWindow.NOVA_TRAUB_OSTROWSKI) {
-            convergent_bailout = 1E-8;
+            setConvergentBailout(1E-8);
         }
 
         this.nova_method = nova_method;
@@ -194,7 +194,7 @@ public class UserFormulaNova extends ExtendedConvergentType {
         super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, false, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, ots, xJuliaCenter, yJuliaCenter);
         
         if(nova_method == MainWindow.NOVA_TRAUB_OSTROWSKI) {
-            convergent_bailout = 1E-8;
+            setConvergentBailout(1E-8);
         }
 
         this.nova_method = nova_method;
@@ -228,15 +228,15 @@ public class UserFormulaNova extends ExtendedConvergentType {
             case MainWindow.BINARY_DECOMPOSITION2:
             case MainWindow.BANDED:
                 if (nova_method == MainWindow.NOVA_HALLEY || nova_method == MainWindow.NOVA_HOUSEHOLDER || nova_method == MainWindow.NOVA_WHITTAKER || nova_method == MainWindow.NOVA_WHITTAKER_DOUBLE_CONVEX || nova_method == MainWindow.NOVA_SUPER_HALLEY) {
-                    convergent_bailout = 1E-4;
+                    setConvergentBailout(1E-4);
                 } else if (nova_method == MainWindow.NOVA_NEWTON || nova_method == MainWindow.NOVA_STEFFENSEN) {
-                    convergent_bailout = 1E-9;
+                    setConvergentBailout(1E-9);
                 } else if (nova_method == MainWindow.NOVA_SCHRODER) {
-                    convergent_bailout = 1E-6;
+                    setConvergentBailout(1E-6);
                 }
                 break;
             case MainWindow.USER_OUTCOLORING_ALGORITHM:
-                convergent_bailout = 1E-7;
+                setConvergentBailout(1E-7);
                 break;
 
         }

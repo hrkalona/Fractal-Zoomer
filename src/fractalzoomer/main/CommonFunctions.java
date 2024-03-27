@@ -22,14 +22,14 @@ import fractalzoomer.core.domain_coloring.DomainColoring;
 import fractalzoomer.functions.root_finding_methods.durand_kerner.DurandKernerRootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.newton_hines.NewtonHinesRootFindingMethod;
 import fractalzoomer.gui.*;
-import fractalzoomer.main.app_settings.GradientSettings;
-import fractalzoomer.main.app_settings.Settings;
+import fractalzoomer.main.app_settings.*;
 import fractalzoomer.palettes.CustomPalette;
 import fractalzoomer.palettes.PresetPalette;
 import fractalzoomer.parser.Parser;
 import fractalzoomer.parser.ParserException;
 import fractalzoomer.utils.ColorSpaceConverter;
 import fractalzoomer.utils.MathUtils;
+import org.apfloat.Apfloat;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -2121,7 +2121,7 @@ public class CommonFunctions implements Constants {
         boolean isSmooth = false;
         Color[] c = null;
         if (s.ds.domain_coloring && s.ds.domain_coloring_mode == 0) {
-            c = new Color[width];
+            c = new Color[DomainColoring.getDomainColoringPaletteLength(s.ds.domain_coloring_mode)];
 
             for (int i = 0; i < c.length; i++) {
                 double h = ((double) i) / (c.length - 1);
@@ -2129,7 +2129,7 @@ public class CommonFunctions implements Constants {
             }
             isSmooth = true;
         } else if (s.ds.domain_coloring && s.ds.domain_coloring_mode == 2) {
-            c = new Color[width];
+            c = new Color[DomainColoring.getDomainColoringPaletteLength(s.ds.domain_coloring_mode)];
 
             for (int i = 0; i < c.length; i++) {
                 double h = ((double) i) / (c.length - 1);
@@ -2138,7 +2138,7 @@ public class CommonFunctions implements Constants {
             isSmooth = true;
         }
         else if (s.ds.domain_coloring && s.ds.domain_coloring_mode == 5) {
-            c = new Color[width];
+            c = new Color[DomainColoring.getDomainColoringPaletteLength(s.ds.domain_coloring_mode)];
 
             for (int i = 0; i < c.length; i++) {
                 double h = ((double) i) / (c.length - 1);
@@ -2147,7 +2147,7 @@ public class CommonFunctions implements Constants {
             isSmooth = true;
         }
         else if (s.ds.domain_coloring && s.ds.domain_coloring_mode == 3) {
-            c = new Color[width];
+            c = new Color[DomainColoring.getDomainColoringPaletteLength(s.ds.domain_coloring_mode)];
 
             for (int i = 0; i < c.length; i++) {
                 double h = ((double) i) / (c.length - 1);
@@ -2155,7 +2155,7 @@ public class CommonFunctions implements Constants {
             }
             isSmooth = true;
         } else if (s.ds.domain_coloring && s.ds.domain_coloring_mode == 4) {
-            c = new Color[width];
+            c = new Color[DomainColoring.getDomainColoringPaletteLength(s.ds.domain_coloring_mode)];
 
             for (int i = 0; i < c.length; i++) {
                 double h = ((double) i) / (c.length - 1);
@@ -2188,6 +2188,110 @@ public class CommonFunctions implements Constants {
         }
 
         return palette_preview;
+    }
+
+    public static int getOutPaletteLength(boolean domain_coloring, int domain_coloring_mode) {
+
+        if(!domain_coloring || domain_coloring_mode == 1) {
+            return TaskDraw.palette_outcoloring.getPaletteLength();
+        }
+
+        return DomainColoring.getDomainColoringPaletteLength(domain_coloring_mode);
+    }
+
+    public static void adjustBumpOffset(BumpMapSettings bms, double adjust) {
+        bms.lightDirectionDegrees += adjust;
+        if (adjust > 0) {
+            bms.lightDirectionDegrees = bms.lightDirectionDegrees % 360.0;
+        }
+        else {
+            if (bms.lightDirectionDegrees <= -360) {
+                bms.lightDirectionDegrees += 360;
+            }
+        }
+    }
+    public static void adjustSlopeOffset(SlopeSettings ss, double adjustment) {
+        ss.SlopeAngle += adjustment;
+
+        if(adjustment> 0) {
+            ss.SlopeAngle = ss.SlopeAngle % 360.0;
+        }
+        else {
+            if (ss.SlopeAngle < 0) {
+                ss.SlopeAngle += 360;
+            }
+        }
+
+        double lightAngleRadians = Math.toRadians(ss.SlopeAngle);
+        ss.lightVector[0] = Math.cos(lightAngleRadians);
+        ss.lightVector[1] = Math.sin(lightAngleRadians);
+    }
+
+    public static void adjustLightOffset(LightSettings ls, double adjustment) {
+        ls.light_direction += adjustment;
+
+        if(adjustment > 0) {
+            ls.light_direction = ls.light_direction % 360.0;
+        }
+        else {
+            if (ls.light_direction < 0) {
+                ls.light_direction += 360;
+            }
+        }
+
+        double lightAngleRadians = Math.toRadians(ls.light_direction);
+        ls.lightVector[0] = Math.cos(lightAngleRadians) * ls.light_magnitude;
+        ls.lightVector[1] = Math.sin(lightAngleRadians) * ls.light_magnitude;
+    }
+
+    public static void adjustRotationOffset(Settings s, double adjustment) {
+        s.fns.rotation += adjustment;
+        if (adjustment > 0) {
+            s.fns.rotation = s.fns.rotation % 360.0;
+        } else if (adjustment < 0) {
+            if (s.fns.rotation <= -360) {
+                s.fns.rotation += 360;
+            }
+        }
+
+        Apfloat tempRadians =  MyApfloat.fp.toRadians(new MyApfloat(s.fns.rotation));
+        s.fns.rotation_vals[0] = MyApfloat.cos(tempRadians);
+        s.fns.rotation_vals[1] = MyApfloat.sin(tempRadians);
+    }
+
+    public static int adjustPaletteOffset(int originalValue, int adjustment, int length) {
+        if(length <= 0) {
+            return originalValue;
+        }
+
+        long newValue = (long)originalValue + adjustment;
+
+        if(newValue > Integer.MAX_VALUE) {
+            return (int)newValue % length;
+        }
+        else if(newValue < 0) {
+            while (newValue < 0) {
+                newValue += length;
+            }
+            int targetValue = (int)newValue % length;
+            int currentValue = Integer.MAX_VALUE;
+            while (currentValue % length != targetValue) {
+                currentValue--;
+            }
+            return currentValue;
+        }
+        else {
+            return (int)newValue;
+        }
+    }
+
+    public static int getInPaletteLength(boolean domain_coloring) {
+
+        if(!domain_coloring) {
+            return TaskDraw.palette_incoloring.getPaletteLength();
+        }
+
+        return -1;
     }
 
     public static BufferedImage getInColoringPalettePreview(Settings s, int color_cycling_location, int width, int height) {

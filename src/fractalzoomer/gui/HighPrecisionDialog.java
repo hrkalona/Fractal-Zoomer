@@ -73,6 +73,9 @@ public class HighPrecisionDialog extends JDialog {
         automatic_precision.setSelected(MyApfloat.setAutomaticPrecision);
         automatic_precision.setFocusable(false);
 
+        final JCheckBox gatherHpStatistics = new JCheckBox("Display Statistics");
+        gatherHpStatistics.setSelected(TaskDraw.GATHER_HIGHPRECISION_STATISTICS);
+        gatherHpStatistics.setFocusable(false);
 
 
         JTextField precision = new JTextField();
@@ -117,6 +120,8 @@ public class HighPrecisionDialog extends JDialog {
                 automaticBignumPrecision,
                 "BigNum bits precision:",
                 bignumPrecision,
+                " ",
+                gatherHpStatistics,
         " "};
 
         optionPane = new JOptionPane(message3, JOptionPane.QUESTION_MESSAGE, JOptionPane.OK_CANCEL_OPTION, null, null, null);
@@ -192,6 +197,7 @@ public class HighPrecisionDialog extends JDialog {
                             MyApfloat.setAutomaticPrecision = automatic_precision.isSelected();
 
                             TaskDraw.HIGH_PRECISION_CALCULATION = enable_high_precision.isSelected();
+                            TaskDraw.GATHER_HIGHPRECISION_STATISTICS = gatherHpStatistics.isSelected();
 
 
                             TaskDraw.HIGH_PRECISION_LIB = arbitraryLibs.getSelectedIndex();

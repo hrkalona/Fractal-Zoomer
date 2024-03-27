@@ -42,12 +42,12 @@ public class AtanTransferFunction extends TransferFunction {
             result = -result; // transfer to positive
             result *= itPaletteDensity;
             result = Math.atan(result);
-            result *= paletteLength;
+            result *= paletteLength * paletteMultiplier;
             result = -result; // transfer to negative
         } else {
             result *= itPaletteDensity;
             result = Math.atan(result);
-            result *= paletteLength;
+            result *= paletteLength * paletteMultiplier;
         }
 
         return result * color_intensity;

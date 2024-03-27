@@ -25,7 +25,7 @@ import java.awt.*;
  * @author hrkalona2
  */
 public interface Constants {
-    public static final int VERSION = 1089;
+    public static final int VERSION = 1090;
     public static final boolean beta = false;
     public static final int TOTAL_PALETTES = 45;
     public static final int TOTAL_INCOLORING_ALGORITHMS = 11;
@@ -33,7 +33,7 @@ public interface Constants {
     public static final int TOTAL_BAILOUT_CONDITIONS = 13;
     public static final int TOTAL_CONVERGENT_BAILOUT_CONDITIONS = 6;
     public static final int TOTAL_PLANES = 66;
-    public static final int TOTAL_FUNCTIONS = 513;
+    public static final int TOTAL_FUNCTIONS = 514;
     public static final int TOTAL_FILTERS = 35;
     public static final int TOTAL_COLOR_TRANSFER_FILTERS = 8;
     public static final int TOTAL_COLOR_BLENDING = 30;
@@ -663,6 +663,7 @@ public interface Constants {
     public static final int PERPENDICULAR_CELTIC_MANDELBROT = 511;
 
     public static final int PERPENDICULAR_BUFFALO_MANDELBROT = 512;
+    public static final int FORMULA48 = 513;
     /**
      * ***************
      */
@@ -1370,12 +1371,14 @@ public interface Constants {
     public static final String FZL4j = "# Launch4j runtime config\n" +
             "# This file must be named as the executable. If the executable is AAA.exe, then this file must be named AAA.l4j.ini\n" +
             "# Configure the JVM Heap size.\n" +
-            "-Xmx2200m";
+            "-Xmx2200m\n" +
+            "-XX:+UseG1GC";
 
     public static final String IEL4j = "# Launch4j runtime config\n" +
             "# This file must be named as the executable. If the executable is AAA.exe, then this file must be named AAA.l4j.ini\n" +
             "# Configure the JVM Heap size.\n" +
-            "-Xmx4000m";
+            "-Xmx4000m\n" +
+            "-XX:+UseG1GC";
 
     public static final long MAX_PROGRESS_VALUE = Integer.MAX_VALUE;
 

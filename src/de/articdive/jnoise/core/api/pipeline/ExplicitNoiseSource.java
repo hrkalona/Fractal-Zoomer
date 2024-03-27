@@ -2,7 +2,6 @@ package de.articdive.jnoise.core.api.pipeline;
 
 import de.articdive.jnoise.core.api.noisegen.NoiseResult;
 
-
 /**
  * Interface that denotes an explicit {@link NoiseSource}, which can evaluate a {@link NoiseResult} at a location.
  * Used everywhere where a {@link NoiseSource} has a non-double as a result.
@@ -16,7 +15,6 @@ public interface ExplicitNoiseSource<NR extends NoiseResult> extends NoiseSource
      * @param x X-Coordinate of the 1D point.
      * @return {@link NR} denoting the noise value at the 1D point.
      */
-    
     NR evaluateNoiseResult(double x);
 
     /**
@@ -26,7 +24,6 @@ public interface ExplicitNoiseSource<NR extends NoiseResult> extends NoiseSource
      * @param y Y-Coordinate of the 2D point.
      * @return {@link NR} denoting the noise value at the 2D point.
      */
-    
     NR evaluateNoiseResult(double x, double y);
 
     /**
@@ -37,7 +34,6 @@ public interface ExplicitNoiseSource<NR extends NoiseResult> extends NoiseSource
      * @param z Z-Coordinate of the 3D point.
      * @return {@link NR} denoting the noise value at the 3D point.
      */
-    
     NR evaluateNoiseResult(double x, double y, double z);
 
     /**
@@ -49,6 +45,5 @@ public interface ExplicitNoiseSource<NR extends NoiseResult> extends NoiseSource
      * @param w W-Coordinate of the 4D point.
      * @return {@link NR} denoting the noise value at the 4D point.
      */
-    
     NR evaluateNoiseResult(double x, double y, double z, double w);
 }

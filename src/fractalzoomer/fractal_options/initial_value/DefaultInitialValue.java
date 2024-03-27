@@ -18,6 +18,7 @@
 package fractalzoomer.fractal_options.initial_value;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.core.MantExpComplex;
 import fractalzoomer.fractal_options.PlanePointOption;
 
 /**
@@ -38,6 +39,11 @@ public class DefaultInitialValue extends PlanePointOption {
         
         return pixel;
         
+    }
+
+    @Override
+    public MantExpComplex getValueDeep(MantExpComplex pixel) {
+        return pixel;
     }
     
     @Override

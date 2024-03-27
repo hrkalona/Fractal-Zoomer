@@ -270,6 +270,7 @@ public class DomainColoringFrame extends JFrame {
 
             s.ds = CustomDomainColoringFrame.getSettings();
 
+            s.old_max_iterations = s.max_iterations;
             s.max_iterations = tempIterations;
 
             if (presetButton.isSelected()) {

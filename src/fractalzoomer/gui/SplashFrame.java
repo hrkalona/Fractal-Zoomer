@@ -50,11 +50,14 @@ public class SplashFrame extends JFrame {
         thread = new Thread(new SplashTask(image, l1, version, 155));
         thread.start();
     }
-    
-    public boolean isAnimating() {
-        
-        return thread.isAlive();
-        
+
+    @Override
+    public void dispose() {
+        try {
+            thread.join();
+        }
+        catch (Exception ex) {}
+        super.dispose();
     }
     
     private BufferedImage convertToBufferedImage(Image image) {

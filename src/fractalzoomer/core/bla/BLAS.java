@@ -6,6 +6,7 @@ import fractalzoomer.main.Constants;
 
 import javax.swing.*;
 import java.util.ArrayList;
+import java.util.concurrent.Future;
 import java.util.stream.IntStream;
 
 import static fractalzoomer.main.Constants.BLA_CALCULATION_STR;
@@ -24,12 +25,17 @@ public class BLAS {
     private int firstLevel;
     private boolean returnL1;
 
+    private long finalTotal;
+
+    private ReferenceDecompressor[] referenceDecompressors;
+    private ReferenceDecompressor referenceDecompressor;
+
     public BLAS(Fractal fractal) {
         this.fractal = fractal;
     }
 
-    private BLADeep createOneStep(DeepReference Ref, int m, MantExp epsilon) {
-        MantExpComplex Z = Fractal.getArrayDeepValue(Ref, m);
+    private BLADeep createOneStep(DeepReference Ref, int m, MantExp epsilon, ReferenceDecompressor referenceDecompressor) {
+        MantExpComplex Z = fractal.getArrayDeepValue(referenceDecompressor, Ref, m);
         MantExpComplex A = fractal.getBlaA(Z);
 
         MantExp mA = A.hypot();
@@ -44,15 +50,15 @@ public class BLAS {
         return BLADeep1Step.create(r2, A);
     }
 
-    private void initLStep(int level, int m, DoubleReference Ref, double blaSize, double epsilon) {
+    private void initLStep(int level, int m, DoubleReference Ref, double blaSize, double epsilon, ReferenceDecompressor referenceDecompressor) {
 
-        b[level][m - 1] = createLStep(level, m, Ref, blaSize, epsilon);
+        b[level][m - 1] = createLStep(level, m, Ref, blaSize, epsilon, referenceDecompressor);
 
     }
 
-    private void initLStep(int level, int m, DeepReference Ref, MantExp blaSize, MantExp epsilon) {
+    private void initLStep(int level, int m, DeepReference Ref, MantExp blaSize, MantExp epsilon, ReferenceDecompressor referenceDecompressor) {
 
-        bdeep[level][m - 1] = createLStep(level, m, Ref, blaSize, epsilon);
+        bdeep[level][m - 1] = createLStep(level, m, Ref, blaSize, epsilon, referenceDecompressor);
 
     }
 
@@ -93,10 +99,10 @@ public class BLAS {
         return BLADeepLStep.create(r2, A, B, l);
     }
 
-    private BLA createLStep(int level, int m, DoubleReference Ref, double blaSize, double epsilon) {
+    private BLA createLStep(int level, int m, DoubleReference Ref, double blaSize, double epsilon, ReferenceDecompressor referenceDecompressor) {
 
         if(level == 0) {
-            return createOneStep(Ref, m, epsilon);
+            return createOneStep(Ref, m, epsilon, referenceDecompressor);
         }
 
         int m2 = m << 1;
@@ -105,21 +111,21 @@ public class BLAS {
         int levelm1 = level - 1;
         if (my <= elementsPerLevel[levelm1]) {
 
-            BLA x = createLStep(levelm1, mx, Ref, blaSize, epsilon);
+            BLA x = createLStep(levelm1, mx, Ref, blaSize, epsilon, referenceDecompressor);
 
-            BLA y = createLStep(levelm1, my, Ref, blaSize, epsilon);
+            BLA y = createLStep(levelm1, my, Ref, blaSize, epsilon, referenceDecompressor);
 
             return mergeTwoBlas(x, y, blaSize);
         } else {
-            return createLStep(levelm1, mx, Ref, blaSize, epsilon);
+            return createLStep(levelm1, mx, Ref, blaSize, epsilon, referenceDecompressor);
         }
     }
 
 
-    private BLADeep createLStep(int level, int m, DeepReference Ref, MantExp blaSize, MantExp epsilon) {
+    private BLADeep createLStep(int level, int m, DeepReference Ref, MantExp blaSize, MantExp epsilon, ReferenceDecompressor referenceDecompressor) {
 
         if(level == 0) {
-            return createOneStep(Ref, m, epsilon);
+            return createOneStep(Ref, m, epsilon, referenceDecompressor);
         }
 
         int m2 = m << 1;
@@ -127,18 +133,18 @@ public class BLAS {
         int my = m2;
         int levelm1 = level - 1;
         if (my <= elementsPerLevel[levelm1]) {
-            BLADeep x = createLStep(levelm1, mx, Ref, blaSize, epsilon);
+            BLADeep x = createLStep(levelm1, mx, Ref, blaSize, epsilon, referenceDecompressor);
 
-            BLADeep y = createLStep(levelm1, my, Ref, blaSize, epsilon);
+            BLADeep y = createLStep(levelm1, my, Ref, blaSize, epsilon, referenceDecompressor);
 
             return mergeTwoBlas(x, y, blaSize);
         } else {
-            return createLStep(levelm1, mx, Ref, blaSize, epsilon);
+            return createLStep(levelm1, mx, Ref, blaSize, epsilon, referenceDecompressor);
         }
     }
 
-    private BLA createOneStep(DoubleReference Ref, int m, double epsilon) {
-        Complex Z = Fractal.getArrayValue(Ref, m);
+    private BLA createOneStep(DoubleReference Ref, int m, double epsilon, ReferenceDecompressor referenceDecompressor) {
+        Complex Z = fractal.getArrayValue(referenceDecompressor, Ref, m);
         Complex A = fractal.getBlaA(Z);
 
         double mA = A.hypot();
@@ -157,30 +163,61 @@ public class BLAS {
         int elements = elementsPerLevel[firstLevel] + 1;
         if(TaskDraw.USE_THREADS_FOR_BLA) {
             done = 0; //we dont care fore race condition
-            long mainId = Thread.currentThread().getId();
+
+            ArrayList<Future<?>> futures = new ArrayList<>();
+            final int ThreadCount = TaskDraw.la_thread_executor.getCorePoolSize();
+            Runnable[] Tasks = new Runnable[ThreadCount];
 
             long expectedVal = done + elements;
-
             old_chunk = 0;
-            IntStream.range(1, elements).
-                    parallel().forEach(m -> {
-                        initLStep(firstLevel, m, Ref, blaSize, epsilon);
-                        if (progress != null) {
-                            if (Thread.currentThread().getId() == mainId) {
-                                done++;
-                                long val = done;
 
-                                long new_chunk = val / 1000;
+            try {
+                for (int i = 0; i < Tasks.length; i++) {
+                    final int k = i;
+                    Tasks[i] = new Runnable() {
+                        int ThreadID = k;
+                        @Override
+                        public void run() {
+                            int Start = (int)((long)elements * ThreadID / ThreadCount);
+                            int End = (int)((long)elements * (ThreadID + 1) / ThreadCount);
 
-                                if(old_chunk != new_chunk) {
-                                    setProgress(progress, val, divisor);
-                                    old_chunk = new_chunk;
+                            Start = ThreadID == 0 ? Start + 1 : Start;
+
+                            ReferenceDecompressor referenceDecompressor = referenceDecompressors[ThreadID];
+
+                            for(int m = Start; m < End; m++) {
+                                initLStep(firstLevel, m, Ref, blaSize, epsilon, referenceDecompressor);
+
+                                if (progress != null) {
+                                    if (ThreadID == 0) {
+                                        done++;
+                                        long val = done;
+
+                                        long new_chunk = val / 1000;
+
+                                        if(old_chunk != new_chunk) {
+                                            setProgress(progress, val, divisor);
+                                            old_chunk = new_chunk;
+                                        }
+                                    } else {
+                                        done++;
+                                    }
                                 }
-                            } else {
-                                done++;
                             }
+
                         }
-                    });
+                    };
+                }
+
+                for (int i = 0; i < Tasks.length; i++) {
+                    futures.add(TaskDraw.la_thread_executor.submit(Tasks[i]));
+                }
+
+                for (int i = 0; i < futures.size(); i++) {
+                    futures.get(i).get();
+                }
+            }
+            catch (Exception ex) {}
 
             //Fix for thread race condition
             if (progress != null && expectedVal > done) {
@@ -192,7 +229,7 @@ public class BLAS {
         else {
             done = 0;
             for(int m = 1; m < elements; m++) {
-                initLStep(firstLevel, m, Ref, blaSize, epsilon);
+                initLStep(firstLevel, m, Ref, blaSize, epsilon, referenceDecompressor);
                 if (progress != null) {
                     done++;
                     long val = done;
@@ -224,31 +261,58 @@ public class BLAS {
         if(TaskDraw.USE_THREADS_FOR_BLA) {
 
             done = 0; //we dont care for race conditions
-            long mainId = Thread.currentThread().getId();
 
-            old_chunk = 0;
+            ArrayList<Future<?>> futures = new ArrayList<>();
+            final int ThreadCount = TaskDraw.la_thread_executor.getCorePoolSize();
+            Runnable[] Tasks = new Runnable[ThreadCount];
 
             long expectedVal = done + elements;
+            old_chunk = 0;
 
-            IntStream.range(1, elements).
-                    parallel().forEach(m -> {
-                        initLStep(firstLevel, m , Ref, blaSize, epsilon);
-                        if (progress != null) {
-                            if (Thread.currentThread().getId() == mainId) {
-                                done++;
-                                long val = done;
-                                long new_chunk = val / 1000;
+            try {
+                for (int i = 0; i < Tasks.length; i++) {
+                    final int k = i;
+                    Tasks[i] = new Runnable() {
+                        int ThreadID = k;
+                        @Override
+                        public void run() {
+                            int Start = (int)((long)elements * ThreadID / ThreadCount);
+                            int End = (int)((long)elements * (ThreadID + 1) / ThreadCount);
+                            ReferenceDecompressor referenceDecompressor = referenceDecompressors[ThreadID];
 
-                                if(old_chunk != new_chunk) {
-                                    setProgress(progress, val, divisor);
-                                    old_chunk = new_chunk;
+                            Start = ThreadID == 0 ? Start + 1 : Start;
+
+                            for(int m = Start; m < End; m++) {
+                                initLStep(firstLevel, m , Ref, blaSize, epsilon, referenceDecompressor);
+                                if (progress != null) {
+                                    if (ThreadID == 0) {
+                                        done++;
+                                        long val = done;
+                                        long new_chunk = val / 1000;
+
+                                        if(old_chunk != new_chunk) {
+                                            setProgress(progress, val, divisor);
+                                            old_chunk = new_chunk;
+                                        }
+                                    } else {
+                                        done++;
+                                    }
                                 }
-                            } else {
-                                done++;
                             }
+
                         }
-                        }
-                    );
+                    };
+                }
+
+                for (int i = 0; i < Tasks.length; i++) {
+                    futures.add(TaskDraw.la_thread_executor.submit(Tasks[i]));
+                }
+
+                for (int i = 0; i < futures.size(); i++) {
+                    futures.get(i).get();
+                }
+            }
+            catch (Exception ex) {}
 
             //Fix for thread race condition
             if (progress != null && expectedVal > done) {
@@ -260,7 +324,7 @@ public class BLAS {
         else {
             done = 0;
             for(int m = 1; m < elements; m++) {
-                initLStep(firstLevel, m , Ref, blaSize, epsilon);
+                initLStep(firstLevel, m , Ref, blaSize, epsilon, referenceDecompressor);
                 if (progress != null) {
                     done++;
                     long val = done;
@@ -309,8 +373,6 @@ public class BLAS {
 
         boolean useThreadsForBla = TaskDraw.USE_THREADS_FOR_BLA;
 
-        long mainId = Thread.currentThread().getId();
-
         int elementsDst = 0;
         int src = firstLevel;
         int maxLevel = elementsPerLevel.length - 1;
@@ -326,28 +388,55 @@ public class BLAS {
 
             if(useThreadsForBla) {
 
+                ArrayList<Future<?>> futures = new ArrayList<>();
+                final int ThreadCount = TaskDraw.la_thread_executor.getCorePoolSize();
+                Runnable[] Tasks = new Runnable[ThreadCount];
+
                 long expectedVal = done + elementsDst;
 
-                IntStream.range(0, elementsDst).
-                    parallel().forEach(m -> {
-                        mergeOneStep(m, elementsSrcFinal, srcFinal, destFinal, blaSize);
+                try {
+                    for (int i = 0; i < Tasks.length; i++) {
+                        final int k = i;
+                        final int elementsDstFinal = elementsDst;
+                        Tasks[i] = new Runnable() {
+                            int ThreadID = k;
+                            @Override
+                            public void run() {
+                                int Start = (int)((long)elementsDstFinal * ThreadID / ThreadCount);
+                                int End = (int)((long)elementsDstFinal * (ThreadID + 1) / ThreadCount);
 
-                            if (progress != null) {
-                                if (Thread.currentThread().getId() == mainId) {
-                                    done++;
-                                    long val = done;
-                                    long new_chunk = val / 1000;
+                                for(int m = Start; m < End; m++) {
+                                    mergeOneStep(m, elementsSrcFinal, srcFinal, destFinal, blaSize);
 
-                                    if(old_chunk != new_chunk) {
-                                        setProgress(progress, val, divisor);
-                                        old_chunk = new_chunk;
+                                    if (progress != null) {
+                                        if (ThreadID == 0) {
+                                            done++;
+                                            long val = done;
+                                            long new_chunk = val / 1000;
+
+                                            if(old_chunk != new_chunk) {
+                                                setProgress(progress, val, divisor);
+                                                old_chunk = new_chunk;
+                                            }
+                                        } else {
+                                            done++;
+                                        }
                                     }
-                                } else {
-                                    done++;
                                 }
+
                             }
+                        };
                     }
-                );
+
+                    for (int i = 0; i < Tasks.length; i++) {
+                        futures.add(TaskDraw.la_thread_executor.submit(Tasks[i]));
+                    }
+
+                    for (int i = 0; i < futures.size(); i++) {
+                        futures.get(i).get();
+                    }
+                }
+                catch (Exception ex) {}
 
                 //Fix for thread race condition
                 if (progress != null && expectedVal > done) {
@@ -385,8 +474,6 @@ public class BLAS {
 
         boolean useThreadsForBla = TaskDraw.USE_THREADS_FOR_BLA;
 
-        long mainId = Thread.currentThread().getId();
-
         int elementsDst = 0;
         int src = firstLevel;
         int maxLevel = elementsPerLevel.length - 1;
@@ -402,28 +489,55 @@ public class BLAS {
 
             if(useThreadsForBla) {
 
+                ArrayList<Future<?>> futures = new ArrayList<>();
+                final int ThreadCount = TaskDraw.la_thread_executor.getCorePoolSize();
+                Runnable[] Tasks = new Runnable[ThreadCount];
+
                 long expectedVal = done + elementsDst;
 
-                IntStream.range(0, elementsDst).
-                    parallel().forEach(m -> {
-                            mergeOneStep(m, elementsSrcFinal, srcFinal, destFinal, blaSize);
+                try {
+                    for (int i = 0; i < Tasks.length; i++) {
+                        final int k = i;
+                        final int elementsDstFinal = elementsDst;
+                        Tasks[i] = new Runnable() {
+                            int ThreadID = k;
+                            @Override
+                            public void run() {
+                                int Start = (int)((long)elementsDstFinal * ThreadID / ThreadCount);
+                                int End = (int)((long)elementsDstFinal * (ThreadID + 1) / ThreadCount);
 
-                            if (progress != null) {
-                                if (Thread.currentThread().getId() == mainId) {
-                                    done++;
-                                    long val = done;
-                                    long new_chunk = val / 1000;
+                                for(int m = Start; m < End; m++) {
+                                    mergeOneStep(m, elementsSrcFinal, srcFinal, destFinal, blaSize);
 
-                                    if(old_chunk != new_chunk) {
-                                        setProgress(progress, val, divisor);
-                                        old_chunk = new_chunk;
+                                    if (progress != null) {
+                                        if (ThreadID == 0) {
+                                            done++;
+                                            long val = done;
+                                            long new_chunk = val / 1000;
+
+                                            if(old_chunk != new_chunk) {
+                                                setProgress(progress, val, divisor);
+                                                old_chunk = new_chunk;
+                                            }
+                                        } else {
+                                            done++;
+                                        }
                                     }
-                                } else {
-                                    done++;
                                 }
+
                             }
+                        };
                     }
-                );
+
+                    for (int i = 0; i < Tasks.length; i++) {
+                        futures.add(TaskDraw.la_thread_executor.submit(Tasks[i]));
+                    }
+
+                    for (int i = 0; i < futures.size(); i++) {
+                        futures.get(i).get();
+                    }
+                }
+                catch (Exception ex) {}
 
                 //Fix for thread race condition
                 if (progress != null && expectedVal > done) {
@@ -485,7 +599,7 @@ public class BLAS {
 
         elementsPerLevel = elemPerLevel.stream().mapToInt(i -> i).toArray();
 
-        long finalTotal = total;
+        finalTotal = total;
         long removedTotal = 0;
 
         if(firstLevel > 0) {
@@ -513,6 +627,19 @@ public class BLAS {
 
         for(int l = firstLevel; l < b.length; l++) {
             b[l] = new BLA[elementsPerLevel[l]];
+        }
+
+        if(Ref.compressed) {
+            referenceDecompressor = fractal.getReferenceDecompressors()[Ref.id];
+        }
+
+        if(TaskDraw.USE_THREADS_FOR_BLA) {
+            referenceDecompressors = new ReferenceDecompressor[TaskDraw.la_thread_executor.getCorePoolSize()];
+            if (referenceDecompressor != null) {
+                for (int i = 0; i < referenceDecompressors.length; i++) {
+                    referenceDecompressors[i] = new ReferenceDecompressor(referenceDecompressor);
+                }
+            }
         }
 
         init(Ref, blaSize, precision, progress, divisor);
@@ -555,7 +682,7 @@ public class BLAS {
 
         elementsPerLevel = elemPerLevel.stream().mapToInt(i -> i).toArray();
 
-        long finalTotal = total;
+        finalTotal = total;
         long removedTotal = 0;
 
         if(firstLevel > 0) {
@@ -584,6 +711,19 @@ public class BLAS {
             bdeep[l] = new BLADeep[elementsPerLevel[l]];
         }
 
+        if(Ref.compressed) {
+            referenceDecompressor = fractal.getReferenceDecompressors()[Ref.id];
+        }
+
+        if(TaskDraw.USE_THREADS_FOR_BLA) {
+            referenceDecompressors = new ReferenceDecompressor[TaskDraw.la_thread_executor.getCorePoolSize()];
+            if (referenceDecompressor != null) {
+                for (int i = 0; i < referenceDecompressors.length; i++) {
+                    referenceDecompressors[i] = new ReferenceDecompressor(referenceDecompressor);
+                }
+            }
+        }
+
         init(Ref, blaSize, precision, progress, divisor);
 
         merge(blaSize, progress, divisor);
@@ -594,6 +734,10 @@ public class BLAS {
 //            }
 //        }
         isValid = true;
+    }
+
+    public long getTotalElements() {
+        return finalTotal;
     }
 
     public BLA lookup(int m, double z2, int iterations, int max_iterations) {

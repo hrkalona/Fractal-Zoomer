@@ -46,10 +46,14 @@ public abstract class RootFindingMethods extends Fractal {
 
         super(xCenter, yCenter, size, max_iterations, 0, 0, "", "", 0, 0, false, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, ots);
 
-        convergent_bailout = 1E-10;
+        setConvergentBailout(1E-10);
         isJulia = false;
         defaultInitVal = new DefaultInitialValue();
 
+    }
+
+    protected void setConvergentBailout(double val) {
+        convergent_bailout = TaskDraw.USER_CONVERGENT_BAILOUT > 0 ? TaskDraw.USER_CONVERGENT_BAILOUT : val;
     }
 
     //orbit
@@ -197,7 +201,7 @@ public abstract class RootFindingMethods extends Fractal {
                     setTrueColorOut(z, zold, zold2, iterations, pixelC, start, c0, pixelC);
                 }
 
-                return out;
+                return getAndAccumulateHP(out);
             }
 
             gzold2.set(gzold);
@@ -224,7 +228,7 @@ public abstract class RootFindingMethods extends Fractal {
             setTrueColorIn(z, zold, zold2, iterations, pixelC, start, c0, pixelC);
         }
 
-        return in;
+        return getAndAccumulateHP(in);
 
     }
 
@@ -577,6 +581,8 @@ public abstract class RootFindingMethods extends Fractal {
 
         Complex pixel = dpixel.plus(refPointSmall);
 
+        Complex refZ;
+
         ReferenceData data = referenceData;
         int MaxRefIteration = data.MaxRefIteration;
 
@@ -616,8 +622,9 @@ public abstract class RootFindingMethods extends Fractal {
             //No Plane influence work
             //No Pre filters work
             if(max_iterations > 1){
-                zWithoutInitVal = getArrayValue(data.ReferenceSubCp, RefIteration).plus_mutable(DeltaSubN);
-                complex[0] = getArrayValue(data.Reference, RefIteration).plus_mutable(DeltaSubN);
+                refZ = getArrayValue(data.Reference, RefIteration);
+                zWithoutInitVal = getArrayValue(data.ReferenceSubCp, RefIteration, refZ).plus_mutable(DeltaSubN);
+                complex[0] = refZ.plus_mutable(DeltaSubN);
             }
             //No Post filters work
 
@@ -669,12 +676,10 @@ public abstract class RootFindingMethods extends Fractal {
         MantExpComplex[] deltas = initializePerturbation(dpixel);
         MantExpComplex DeltaSubN = deltas[0]; // Delta z
 
-        Complex zWithoutInitVal = new Complex();
-
         Complex pixel = dpixel.plus(refPointSmallDeep).toComplex();
 
         int minExp = -1000;
-        int reducedExp = minExp / (int)power;
+        int reducedExp = minExp / (int)getPower();
 
         DeltaSubN.Normalize();
         long exp = DeltaSubN.getMinExp();
@@ -683,12 +688,15 @@ public abstract class RootFindingMethods extends Fractal {
         ReferenceData data = referenceData;
         int MaxRefIteration = data.MaxRefIteration;
 
+        MantExpComplex refZm;
+
         boolean useFullFloatExp = useFullFloatExp();
         boolean doBailCheck = useFullFloatExp || TaskDraw.CHECK_BAILOUT_DURING_DEEP_NOT_FULL_FLOATEXP_MODE;
 
         if(useFullFloatExp || (totalSkippedIterations == 0 && exp <= minExp) || (totalSkippedIterations != 0 && exp <= reducedExp)) {
 
-            MantExpComplex z = getArrayDeepValue(deepData.ReferenceSubCp, RefIteration).plus_mutable(DeltaSubN);
+            MantExpComplex zWithoutInitVal = MantExpComplex.create();
+            MantExpComplex z = getArrayDeepValue(deepData.Reference, RefIteration).plus_mutable(DeltaSubN);
 
             MantExpComplex zoldDeep;
 
@@ -724,16 +732,18 @@ public abstract class RootFindingMethods extends Fractal {
                 zoldDeep = z;
 
                 if (max_iterations > 1) {
-                    z = getArrayDeepValue(deepData.ReferenceSubCp, RefIteration).plus_mutable(DeltaSubN);
-                    complex[0] = getArrayDeepValue(deepData.Reference, RefIteration).plus_mutable(DeltaSubN).toComplex();
+                    refZm = getArrayDeepValue(deepData.Reference, RefIteration);
+                    zWithoutInitVal = getArrayDeepValue(deepData.ReferenceSubCp, RefIteration, refZm).plus_mutable(DeltaSubN);
+                    z = refZm.plus_mutable(DeltaSubN);
+                    complex[0] = z.toComplex();
                 }
 
                 if (statistic != null) {
                     statistic.insert(complex[0], zold, zold2, iterations, pixel, start, c0, z , zoldDeep, null);
                 }
 
-                if (z.norm_squared().compareToBothPositive(DeltaSubN.norm_squared()) < 0 || RefIteration >= MaxRefIteration) {
-                    DeltaSubN = z;
+                if (zWithoutInitVal.norm_squared().compareToBothPositive(DeltaSubN.norm_squared()) < 0 || RefIteration >= MaxRefIteration) {
+                    DeltaSubN = zWithoutInitVal;
                     RefIteration = 0;
 
                     deepData = secondReferenceDeepData;
@@ -757,6 +767,8 @@ public abstract class RootFindingMethods extends Fractal {
 
         if(!useFullFloatExp) {
             Complex CDeltaSubN = DeltaSubN.toComplex();
+            Complex zWithoutInitVal = new Complex();
+            Complex refZ;
 
             for (; iterations < max_iterations; iterations++) {
 
@@ -794,8 +806,9 @@ public abstract class RootFindingMethods extends Fractal {
                 //No Plane influence work
                 //No Pre filters work
                 if (max_iterations > 1) {
-                    zWithoutInitVal = getArrayValue(data.ReferenceSubCp, RefIteration).plus_mutable(CDeltaSubN);
-                    complex[0] = getArrayValue(data.Reference, RefIteration).plus_mutable(CDeltaSubN);
+                    refZ = getArrayValue(data.Reference, RefIteration);
+                    zWithoutInitVal = getArrayValue(data.ReferenceSubCp, RefIteration, refZ).plus_mutable(CDeltaSubN);
+                    complex[0] = refZ.plus_mutable(CDeltaSubN);
                 }
                 //No Post filters work
 

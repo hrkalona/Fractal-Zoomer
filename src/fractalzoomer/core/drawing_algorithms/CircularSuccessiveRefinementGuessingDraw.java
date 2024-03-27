@@ -65,18 +65,43 @@ public class CircularSuccessiveRefinementGuessingDraw extends SuccessiveRefineme
             int current_chunk_size = SUCCESSIVE_REFINEMENT_MAX_SIZE;
 
             int x, y;
-            for (int id = 0; current_chunk_size >= 2; current_chunk_size >>= 1, id++) {
-
+            for (int id = 0; id < CoordinatesPerLevel.length - 1; current_chunk_size >>= 1, id++) {
                 ArrayList<Pixel> list = new ArrayList<>();
-                for (int i = 0; i < coordinates.length; i++) {
-                    Pixel pix = coordinates[i];
-                    x = pix.x;
-                    y = pix.y;
 
-                    if (x % current_chunk_size != 0 || y % current_chunk_size != 0) {
-                        continue;
+                if(Pixel.COMPARE_ALG == 16) {
+                    for (int i = 0; i < coordinates.length; i++) {
+                        Pixel pix = coordinates[i];
+                        x = pix.x;
+                        y = pix.y;
+
+                        if (x % current_chunk_size != 0 || y % current_chunk_size != 0 || (y / current_chunk_size) % 2 == 1) {
+                            continue;
+                        }
+                        list.add(pix);
                     }
-                    list.add(pix);
+
+                    for (int i = 0; i < coordinates.length; i++) {
+                        Pixel pix = coordinates[i];
+                        x = pix.x;
+                        y = pix.y;
+
+                        if (x % current_chunk_size != 0 || y % current_chunk_size != 0 || (y / current_chunk_size) % 2 == 0) {
+                            continue;
+                        }
+                        list.add(pix);
+                    }
+                }
+                else {
+                    for (int i = 0; i < coordinates.length; i++) {
+                        Pixel pix = coordinates[i];
+                        x = pix.x;
+                        y = pix.y;
+
+                        if (x % current_chunk_size != 0 || y % current_chunk_size != 0) {
+                            continue;
+                        }
+                        list.add(pix);
+                    }
                 }
 
                 Pixel[] array = new Pixel[list.size()];
@@ -95,18 +120,44 @@ public class CircularSuccessiveRefinementGuessingDraw extends SuccessiveRefineme
             int current_chunk_size = SUCCESSIVE_REFINEMENT_MAX_SIZE;
 
             int x, y;
-            for (int id = 0; current_chunk_size >= 2; current_chunk_size >>= 1, id++) {
+            for (int id = 0; id < CoordinatesPerLevelFastJulia.length - 1; current_chunk_size >>= 1, id++) {
 
                 ArrayList<Pixel> list = new ArrayList<>();
-                for (int i = 0; i < coordinatesFastJulia.length; i++) {
-                    Pixel pix = coordinatesFastJulia[i];
-                    x = pix.x;
-                    y = pix.y;
 
-                    if (x % current_chunk_size != 0 || y % current_chunk_size != 0) {
-                        continue;
+                if(Pixel.COMPARE_ALG == 16) {
+                    for (int i = 0; i < coordinatesFastJulia.length; i++) {
+                        Pixel pix = coordinatesFastJulia[i];
+                        x = pix.x;
+                        y = pix.y;
+
+                        if (x % current_chunk_size != 0 || y % current_chunk_size != 0 || (y / current_chunk_size) % 2 == 1) {
+                            continue;
+                        }
+                        list.add(pix);
                     }
-                    list.add(pix);
+
+                    for (int i = 0; i < coordinatesFastJulia.length; i++) {
+                        Pixel pix = coordinatesFastJulia[i];
+                        x = pix.x;
+                        y = pix.y;
+
+                        if (x % current_chunk_size != 0 || y % current_chunk_size != 0 || (y / current_chunk_size) % 2 == 0) {
+                            continue;
+                        }
+                        list.add(pix);
+                    }
+                }
+                else {
+                    for (int i = 0; i < coordinatesFastJulia.length; i++) {
+                        Pixel pix = coordinatesFastJulia[i];
+                        x = pix.x;
+                        y = pix.y;
+
+                        if (x % current_chunk_size != 0 || y % current_chunk_size != 0) {
+                            continue;
+                        }
+                        list.add(pix);
+                    }
                 }
 
                 Pixel[] array = new Pixel[list.size()];
@@ -125,20 +176,7 @@ public class CircularSuccessiveRefinementGuessingDraw extends SuccessiveRefineme
         int pixel_percent = (image_size * image_size) / 100;
 
 
-        if(PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && !HIGH_PRECISION_CALCULATION) {
-            if (reference_calc_sync.getAndIncrement() == 0) {
-                calculateReference(location);
-            }
-
-            try {
-                reference_sync.await();
-            } catch (InterruptedException ex) {
-
-            } catch (BrokenBarrierException ex) {
-
-            }
-            location.setReference(Fractal.refPoint);
-        }
+        initialize(location);
 
 
         int color, loc2, x, y;
@@ -149,8 +187,10 @@ public class CircularSuccessiveRefinementGuessingDraw extends SuccessiveRefineme
 
 
         int current_chunk_size = SUCCESSIVE_REFINEMENT_MAX_SIZE;
+        int prev_chunk_size = 0;
         int iteration = randomNumber;
         int min_chunk_size = TaskDraw.GUESS_BLOCKS_SELECTION == 0 ? 0 : 1 << (TaskDraw.GUESS_BLOCKS_SELECTION - 1);
+        min_chunk_size = TWO_PASS_SUCCESSIVE_REFINEMENT ? min_chunk_size << 1 : min_chunk_size;
 
         int current_chunk_size2 = 0;
 
@@ -166,10 +206,12 @@ public class CircularSuccessiveRefinementGuessingDraw extends SuccessiveRefineme
 
         int condition;
 
+        int stop_id = getStopAfterIter();
+
         task_completed = 0;
         long nano_time = 0;
 
-        for(int id = 0; current_chunk_size >= 1; current_chunk_size >>= 1, id++, iteration++) {
+        for(int id = 0, id2 = 0; current_chunk_size >= 1; id++) {
 
             long time = System.nanoTime();
 
@@ -177,9 +219,10 @@ public class CircularSuccessiveRefinementGuessingDraw extends SuccessiveRefineme
 
             int coordinatesLoc;
 
-            Pixel[] coordinates = CoordinatesPerLevel[id];
+            Pixel[] coordinates = CoordinatesPerLevel[id2];
             condition = coordinates.length;
-            int chunk_size = THREAD_CHUNK_SIZE_PER_LEVEL[id];
+            int chunk_size = THREAD_CHUNK_SIZE_PER_LEVEL[id2];
+            boolean performSecondPassActions = !TWO_PASS_SUCCESSIVE_REFINEMENT || (id & 1) == 1;
 
             do {
 
@@ -198,8 +241,9 @@ public class CircularSuccessiveRefinementGuessingDraw extends SuccessiveRefineme
 
                     if(!filled[loc2]) {
 
-                        if(current_chunk_size <= min_chunk_size) {
-                            current_chunk_size2 = current_chunk_size << 1;
+                        boolean check = performSecondPassActions && current_chunk_size <= min_chunk_size;
+                        if(check) {
+                            current_chunk_size2 = prev_chunk_size;
 
                             xstart = (x / current_chunk_size2) * current_chunk_size2;
                             ystart = (y / current_chunk_size2) * current_chunk_size2;
@@ -215,40 +259,45 @@ public class CircularSuccessiveRefinementGuessingDraw extends SuccessiveRefineme
                             locc += xstart;
                         }
 
-                        if(current_chunk_size <= min_chunk_size && xend < image_size && yend < image_size && isTheSame(loca, locb, locc, locd)) {
+                        if(check && xend < image_size && yend < image_size && isTheSame(loca, locb, locc, locd)) {
 
 
                             tempx = Math.min(image_size, x + current_chunk_size);
                             tempy = Math.min(image_size, y + current_chunk_size);
 
-                            int skippedColor = getColorForSkippedPixels(rgbs[loca], iteration);
+                            int start_color = rgbs[loca];
+                            int skippedColor = getColorForSkippedPixels(start_color, iteration);
+                            double start_iterations = image_iterations[loca];
+                            boolean start_escaped = escaped[loca];
+
                             for (int i = y; i < tempy; i++) {
                                 for (int j = x, loc3 = i * image_size + j; j < tempx; j++, loc3++) {
                                     if(!examined[loc3]) {
-                                        rgbs[loc3] = rgbs[loca];
-                                        image_iterations[loc3] = image_iterations[loca];
-                                        escaped[loc3] = escaped[loca];
+                                        if (rgbs[loc3] >>> 24 != Constants.NORMAL_ALPHA) {
+                                            rgbs[loc3] = start_color;
+                                            image_iterations[loc3] = start_iterations;
+                                            escaped[loc3] = start_escaped;
+                                            task_completed++;
+                                        }
                                         setFilledAndExaminedWithSkippedColor(examined, filled, skipped_colors, loc3, skippedColor);
                                         drawing_done++;
-                                        task_completed++;
                                     }
                                 }
                             }
                         }
                         else if (!examined[loc2]){
-
                             if (rgbs[loc2] >>> 24 != Constants.NORMAL_ALPHA) {
                                 image_iterations[loc2] = f_val = iteration_algorithm.calculate(location.getComplex(x, y));
                                 escaped[loc2] = escaped_val = iteration_algorithm.escaped();
                                 rgbs[loc2] = color = getFinalColor(f_val, escaped_val);
                                 task_calculated++;
+                                task_completed++;
                             } else {
                                 color = rgbs[loc2];
                             }
 
                             examined[loc2] = true;
                             drawing_done++;
-                            task_completed++;
 
                             tempx = Math.min(image_size, x + current_chunk_size);
                             tempy = Math.min(image_size, y + current_chunk_size);
@@ -263,12 +312,12 @@ public class CircularSuccessiveRefinementGuessingDraw extends SuccessiveRefineme
                         }
                     }
 
-                    if(USE_QUICKDRAW_ON_GREEDY_SUCCESSIVE_REFINEMENT && id > STOP_AFTER_ITER && STOP_SUCCESSIVE_REFINEMENT) {
+                    if(USE_QUICKDRAW_ON_GREEDY_SUCCESSIVE_REFINEMENT && id > stop_id && STOP_SUCCESSIVE_REFINEMENT) {
                         break;
                     }
                 }
 
-                if(USE_QUICKDRAW_ON_GREEDY_SUCCESSIVE_REFINEMENT && id > STOP_AFTER_ITER && STOP_SUCCESSIVE_REFINEMENT) {
+                if(USE_QUICKDRAW_ON_GREEDY_SUCCESSIVE_REFINEMENT && id > stop_id && STOP_SUCCESSIVE_REFINEMENT) {
                     break;
                 }
 
@@ -298,8 +347,8 @@ public class CircularSuccessiveRefinementGuessingDraw extends SuccessiveRefineme
             }
 
             if(taskId == 0 && ptr != null) {
-                ptr.setWholeImageDone(true);
                 if(id == 0) {
+                    ptr.setWholeImageDone(true);
                     ptr.reloadTitle();
                     updateMode(ptr, false, iteration_algorithm.isJulia(), false, false);
                 }
@@ -307,11 +356,18 @@ public class CircularSuccessiveRefinementGuessingDraw extends SuccessiveRefineme
             }
 
             if(USE_QUICKDRAW_ON_GREEDY_SUCCESSIVE_REFINEMENT) {
-                if (id > STOP_AFTER_ITER && STOP_SUCCESSIVE_REFINEMENT) {
+                if (id > stop_id && STOP_SUCCESSIVE_REFINEMENT) {
                     successive_refinement_lock.unlockRead();
                     throw new StopSuccessiveRefinementException();
                 }
                 successive_refinement_lock.unlockRead();
+            }
+
+            prev_chunk_size = current_chunk_size;
+            if(performSecondPassActions) {
+                current_chunk_size >>= 1;
+                iteration++;
+                id2++;
             }
         }
 
@@ -339,20 +395,7 @@ public class CircularSuccessiveRefinementGuessingDraw extends SuccessiveRefineme
         int supersampling_num = getExtraSamples(aaSamplesIndex, aaMethod);
         location.createAntialiasingSteps(aaMethod == 5, useJitter, supersampling_num);
 
-        if(PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && !HIGH_PRECISION_CALCULATION) {
-            if (reference_calc_sync.getAndIncrement() == 0) {
-                calculateReference(location);
-            }
-
-            try {
-                reference_sync.await();
-            } catch (InterruptedException ex) {
-
-            } catch (BrokenBarrierException ex) {
-
-            }
-            location.setReference(Fractal.refPoint);
-        }
+        initialize(location);
 
         boolean aaAvgWithMean = ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x1) == 1;
         int colorSpace = filters_options_extra_vals[0][MainWindow.ANTIALIASING];
@@ -372,8 +415,10 @@ public class CircularSuccessiveRefinementGuessingDraw extends SuccessiveRefineme
         double temp_result;
 
         int current_chunk_size = SUCCESSIVE_REFINEMENT_MAX_SIZE;
+        int prev_chunk_size = 0;
         int iteration = randomNumber;
         int min_chunk_size = TaskDraw.GUESS_BLOCKS_SELECTION == 0 ? 0 : 1 << (TaskDraw.GUESS_BLOCKS_SELECTION - 1);
+        min_chunk_size = TWO_PASS_SUCCESSIVE_REFINEMENT ? min_chunk_size << 1 : min_chunk_size;
 
         int current_chunk_size2 = 0;
 
@@ -389,12 +434,13 @@ public class CircularSuccessiveRefinementGuessingDraw extends SuccessiveRefineme
 
         int condition;
 
-        for(int id = 0; current_chunk_size >= 1; current_chunk_size >>= 1, id++, iteration++) {
+        for(int id = 0, id2 = 0; current_chunk_size >= 1; id++) {
             AtomicInteger ai = successive_refinement_drawing_algorithm_pixel[id];
 
-            Pixel[] coordinates = CoordinatesPerLevelFastJulia[id];
+            Pixel[] coordinates = CoordinatesPerLevelFastJulia[id2];
             condition = coordinates.length;
-            int chunk_size = THREAD_CHUNK_SIZE_PER_LEVEL[id];
+            int chunk_size = THREAD_CHUNK_SIZE_PER_LEVEL[id2];
+            boolean performSecondPassActions = !TWO_PASS_SUCCESSIVE_REFINEMENT || (id & 1) == 1;
 
             int coordinatesLoc;
 
@@ -416,8 +462,9 @@ public class CircularSuccessiveRefinementGuessingDraw extends SuccessiveRefineme
 
                     if(!filled_fast_julia[loc2]) {
 
-                        if(current_chunk_size <= min_chunk_size) {
-                            current_chunk_size2 = current_chunk_size << 1;
+                        boolean check = performSecondPassActions && current_chunk_size <= min_chunk_size;
+                        if(check) {
+                            current_chunk_size2 = prev_chunk_size;
 
                             xstart = (x / current_chunk_size2) * current_chunk_size2;
                             ystart = (y / current_chunk_size2) * current_chunk_size2;
@@ -433,22 +480,31 @@ public class CircularSuccessiveRefinementGuessingDraw extends SuccessiveRefineme
                             locc += xstart;
                         }
 
-                        if(current_chunk_size <= min_chunk_size && xend < image_size && yend < image_size && isTheSameFastJulia(loca, locb, locc, locd)) {
+                        if(check && xend < image_size && yend < image_size && isTheSameFastJulia(loca, locb, locc, locd)) {
 
 
                             tempx = Math.min(image_size, x + current_chunk_size);
                             tempy = Math.min(image_size, y + current_chunk_size);
 
-                            int skippedColor = getColorForSkippedPixels(rgbs[loca], iteration);
+                            int start_color = rgbs[loca];
+                            int skippedColor = getColorForSkippedPixels(start_color, iteration);
+                            double start_iterations = image_iterations_fast_julia[loca];
+                            boolean start_escaped = escaped_fast_julia[loca];
+
+                            PixelExtraData start_extra_data = null;
+                            if(storeExtraData) {
+                                start_extra_data = pixelData_fast_julia[loca];
+                            }
+
                             for (int i = y; i < tempy; i++) {
                                 for (int j = x, loc3 = i * image_size + j; j < tempx; j++, loc3++) {
                                     if(!examined_fast_julia[loc3]) {
-                                        rgbs[loc3] = rgbs[loca];
-                                        image_iterations_fast_julia[loc3] = image_iterations_fast_julia[loca];
-                                        escaped_fast_julia[loc3] = escaped_fast_julia[loca];
+                                        rgbs[loc3] = start_color;
+                                        image_iterations_fast_julia[loc3] = start_iterations;
+                                        escaped_fast_julia[loc3] = start_escaped;
                                         setFilledAndExaminedWithSkippedColor(examined_fast_julia, filled_fast_julia, skipped_colors_fast_julia, loc3, skippedColor);
                                         if(storeExtraData) {
-                                            pixelData_fast_julia[loc3] = new PixelExtraData(pixelData_fast_julia[loca], skippedColor);
+                                            pixelData_fast_julia[loc3] = new PixelExtraData(start_extra_data, skippedColor);
                                         }
                                     }
                                 }
@@ -497,6 +553,13 @@ public class CircularSuccessiveRefinementGuessingDraw extends SuccessiveRefineme
             } catch (BrokenBarrierException ex) {
 
             }
+
+            prev_chunk_size = current_chunk_size;
+            if(performSecondPassActions) {
+                current_chunk_size >>= 1;
+                iteration++;
+                id2++;
+            }
         }
 
 
@@ -525,20 +588,7 @@ public class CircularSuccessiveRefinementGuessingDraw extends SuccessiveRefineme
         location.createAntialiasingSteps(aaMethod == 5, useJitter, supersampling_num);
         int pixel_percent = (image_size * image_size) / 100;
 
-        if(PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && !HIGH_PRECISION_CALCULATION) {
-            if (reference_calc_sync.getAndIncrement() == 0) {
-                calculateReference(location);
-            }
-
-            try {
-                reference_sync.await();
-            } catch (InterruptedException ex) {
-
-            } catch (BrokenBarrierException ex) {
-
-            }
-            location.setReference(Fractal.refPoint);
-        }
+        initialize(location);
 
         boolean aaAvgWithMean = ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x1) == 1;
         int colorSpace = filters_options_extra_vals[0][MainWindow.ANTIALIASING];
@@ -559,8 +609,10 @@ public class CircularSuccessiveRefinementGuessingDraw extends SuccessiveRefineme
 
 
         int current_chunk_size = SUCCESSIVE_REFINEMENT_MAX_SIZE;
+        int prev_chunk_size = 0;
         int iteration = randomNumber;
         int min_chunk_size = TaskDraw.GUESS_BLOCKS_SELECTION == 0 ? 0 : 1 << (TaskDraw.GUESS_BLOCKS_SELECTION - 1);
+        min_chunk_size = TWO_PASS_SUCCESSIVE_REFINEMENT ? min_chunk_size << 1 : min_chunk_size;
 
         int current_chunk_size2 = 0;
 
@@ -576,17 +628,20 @@ public class CircularSuccessiveRefinementGuessingDraw extends SuccessiveRefineme
 
         int condition;
 
+        int stop_id = getStopAfterIter();
+
         task_completed = 0;
 
         long nano_time = 0;
 
-        for(int id = 0; current_chunk_size >= 1; current_chunk_size >>= 1, id++, iteration++) {
+        for(int id = 0, id2 = 0; current_chunk_size >= 1; id++) {
             long time = System.nanoTime();
             AtomicInteger ai = successive_refinement_drawing_algorithm_pixel[id];
 
-            Pixel[] coordinates = CoordinatesPerLevel[id];
+            Pixel[] coordinates = CoordinatesPerLevel[id2];
             condition = coordinates.length;
-            int chunk_size = THREAD_CHUNK_SIZE_PER_LEVEL[id];
+            int chunk_size = THREAD_CHUNK_SIZE_PER_LEVEL[id2];
+            boolean performSecondPassActions = !TWO_PASS_SUCCESSIVE_REFINEMENT || (id & 1) == 1;
 
             int coordinatesLoc;
 
@@ -608,8 +663,9 @@ public class CircularSuccessiveRefinementGuessingDraw extends SuccessiveRefineme
 
                     if(!filled[loc2]) {
 
-                        if(current_chunk_size <= min_chunk_size) {
-                            current_chunk_size2 = current_chunk_size << 1;
+                        boolean check = performSecondPassActions && current_chunk_size <= min_chunk_size;
+                        if(check) {
+                            current_chunk_size2 = prev_chunk_size;
 
                             xstart = (x / current_chunk_size2) * current_chunk_size2;
                             ystart = (y / current_chunk_size2) * current_chunk_size2;
@@ -625,22 +681,31 @@ public class CircularSuccessiveRefinementGuessingDraw extends SuccessiveRefineme
                             locc += xstart;
                         }
 
-                        if(current_chunk_size <= min_chunk_size && xend < image_size && yend < image_size && isTheSame(loca, locb, locc, locd)) {
+                        if(check && xend < image_size && yend < image_size && isTheSame(loca, locb, locc, locd)) {
 
 
                             tempx = Math.min(image_size, x + current_chunk_size);
                             tempy = Math.min(image_size, y + current_chunk_size);
 
-                            int skippedColor = getColorForSkippedPixels(rgbs[loca], iteration);
+                            int start_color = rgbs[loca];
+                            int skippedColor = getColorForSkippedPixels(start_color, iteration);
+                            double start_iterations = image_iterations[loca];
+                            boolean start_escaped = escaped[loca];
+
+                            PixelExtraData start_extra_data = null;
+                            if(storeExtraData) {
+                                start_extra_data = pixelData[loca];
+                            }
+
                             for (int i = y; i < tempy; i++) {
                                 for (int j = x, loc3 = i * image_size + j; j < tempx; j++, loc3++) {
                                     if(!examined[loc3]) {
-                                        rgbs[loc3] = rgbs[loca];
-                                        image_iterations[loc3] = image_iterations[loca];
-                                        escaped[loc3] = escaped[loca];
+                                        rgbs[loc3] = start_color;
+                                        image_iterations[loc3] = start_iterations;
+                                        escaped[loc3] = start_escaped;
                                         setFilledAndExaminedWithSkippedColor(examined, filled, skipped_colors, loc3, skippedColor);
                                         if(storeExtraData) {
-                                            pixelData[loc3] = new PixelExtraData(pixelData[loca], skippedColor);
+                                            pixelData[loc3] = new PixelExtraData(start_extra_data, skippedColor);
                                         }
                                         task_completed++;
                                         drawing_done++;
@@ -649,7 +714,6 @@ public class CircularSuccessiveRefinementGuessingDraw extends SuccessiveRefineme
                             }
                         }
                         else if (!examined[loc2]){
-
                             image_iterations[loc2] = f_val = iteration_algorithm.calculate(location.getComplex(x, y));
                             escaped[loc2] = escaped_val = iteration_algorithm.escaped();
                             color = getFinalColor(f_val, escaped_val);
@@ -659,29 +723,28 @@ public class CircularSuccessiveRefinementGuessingDraw extends SuccessiveRefineme
                             drawing_done++;
                             task_completed++;
 
-                            if(storeExtraData) {
+                            if (storeExtraData) {
                                 pixelData[loc2].set(0, color, f_val, escaped_val, totalSamples);
                             }
 
                             aa.initialize(color);
 
                             //Supersampling
-                            for(int i = 0; i < supersampling_num; i++) {
+                            for (int i = 0; i < supersampling_num; i++) {
                                 temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i, loc2));
                                 escaped_val = iteration_algorithm.escaped();
                                 color = getFinalColor(temp_result, escaped_val);
 
-                                if(storeExtraData) {
+                                if (storeExtraData) {
                                     pixelData[loc2].set(i + 1, color, temp_result, escaped_val, totalSamples);
                                 }
 
-                                if(!aa.addSample(color)) {
+                                if (!aa.addSample(color)) {
                                     break;
                                 }
                             }
 
                             rgbs[loc2] = color = aa.getColor();
-
 
                             tempx = Math.min(image_size, x + current_chunk_size);
                             tempy = Math.min(image_size, y + current_chunk_size);
@@ -694,12 +757,12 @@ public class CircularSuccessiveRefinementGuessingDraw extends SuccessiveRefineme
                         }
                     }
 
-                    if(USE_QUICKDRAW_ON_GREEDY_SUCCESSIVE_REFINEMENT && id > STOP_AFTER_ITER && STOP_SUCCESSIVE_REFINEMENT) {
+                    if(USE_QUICKDRAW_ON_GREEDY_SUCCESSIVE_REFINEMENT && id > stop_id && STOP_SUCCESSIVE_REFINEMENT) {
                         break;
                     }
                 }
 
-                if(USE_QUICKDRAW_ON_GREEDY_SUCCESSIVE_REFINEMENT && id > STOP_AFTER_ITER && STOP_SUCCESSIVE_REFINEMENT) {
+                if(USE_QUICKDRAW_ON_GREEDY_SUCCESSIVE_REFINEMENT && id > stop_id && STOP_SUCCESSIVE_REFINEMENT) {
                     break;
                 }
 
@@ -728,8 +791,8 @@ public class CircularSuccessiveRefinementGuessingDraw extends SuccessiveRefineme
             }
 
             if(taskId == 0 && ptr != null) {
-                ptr.setWholeImageDone(true);
                 if(id == 0) {
+                    ptr.setWholeImageDone(true);
                     ptr.reloadTitle();
                     updateMode(ptr, false, iteration_algorithm.isJulia(), false, false);
                 }
@@ -737,11 +800,18 @@ public class CircularSuccessiveRefinementGuessingDraw extends SuccessiveRefineme
             }
 
             if(USE_QUICKDRAW_ON_GREEDY_SUCCESSIVE_REFINEMENT) {
-                if (id > STOP_AFTER_ITER && STOP_SUCCESSIVE_REFINEMENT) {
+                if (id > stop_id && STOP_SUCCESSIVE_REFINEMENT) {
                     successive_refinement_lock.unlockRead();
                     throw new StopSuccessiveRefinementException();
                 }
                 successive_refinement_lock.unlockRead();
+            }
+
+            prev_chunk_size = current_chunk_size;
+            if(performSecondPassActions) {
+                current_chunk_size >>= 1;
+                iteration++;
+                id2++;
             }
         }
 
@@ -764,20 +834,7 @@ public class CircularSuccessiveRefinementGuessingDraw extends SuccessiveRefineme
 
         Location location = Location.getInstanceForDrawing(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, js, polar, (HIGH_PRECISION_CALCULATION || PERTURBATION_THEORY) && fractal.supportsPerturbationTheory());
 
-        if(PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && !HIGH_PRECISION_CALCULATION) {
-            if (reference_calc_sync.getAndIncrement() == 0) {
-                calculateReference(location);
-            }
-
-            try {
-                reference_sync.await();
-            } catch (InterruptedException ex) {
-
-            } catch (BrokenBarrierException ex) {
-
-            }
-            location.setReference(Fractal.refPoint);
-        }
+        initialize(location);
 
 
         int loc2, x, y;
@@ -788,8 +845,10 @@ public class CircularSuccessiveRefinementGuessingDraw extends SuccessiveRefineme
 
 
         int current_chunk_size = SUCCESSIVE_REFINEMENT_MAX_SIZE;
+        int prev_chunk_size = 0;
         int iteration = randomNumber;
         int min_chunk_size = TaskDraw.GUESS_BLOCKS_SELECTION == 0 ? 0 : 1 << (TaskDraw.GUESS_BLOCKS_SELECTION - 1);
+        min_chunk_size = TWO_PASS_SUCCESSIVE_REFINEMENT ? min_chunk_size << 1 : min_chunk_size;
 
         int current_chunk_size2 = 0;
 
@@ -805,12 +864,13 @@ public class CircularSuccessiveRefinementGuessingDraw extends SuccessiveRefineme
 
         int condition;
 
-        for(int id = 0; current_chunk_size >= 1; current_chunk_size >>= 1, id++, iteration++) {
+        for(int id = 0, id2 = 0; current_chunk_size >= 1; id++) {
             AtomicInteger ai = successive_refinement_drawing_algorithm_pixel[id];
 
-            Pixel[] coordinates = CoordinatesPerLevelFastJulia[id];
+            Pixel[] coordinates = CoordinatesPerLevelFastJulia[id2];
             condition = coordinates.length;
-            int chunk_size = THREAD_CHUNK_SIZE_PER_LEVEL[id];
+            int chunk_size = THREAD_CHUNK_SIZE_PER_LEVEL[id2];
+            boolean performSecondPassActions = !TWO_PASS_SUCCESSIVE_REFINEMENT || (id & 1) == 1;
 
             int coordinatesLoc;
 
@@ -831,8 +891,9 @@ public class CircularSuccessiveRefinementGuessingDraw extends SuccessiveRefineme
 
                     if(!filled_fast_julia[loc2]) {
 
-                        if(current_chunk_size <= min_chunk_size) {
-                            current_chunk_size2 = current_chunk_size << 1;
+                        boolean check = performSecondPassActions && current_chunk_size <= min_chunk_size;
+                        if(check) {
+                            current_chunk_size2 = prev_chunk_size;
 
                             xstart = (x / current_chunk_size2) * current_chunk_size2;
                             ystart = (y / current_chunk_size2) * current_chunk_size2;
@@ -848,19 +909,23 @@ public class CircularSuccessiveRefinementGuessingDraw extends SuccessiveRefineme
                             locc += xstart;
                         }
 
-                        if(current_chunk_size <= min_chunk_size && xend < image_size && yend < image_size && isTheSameFastJulia(loca, locb, locc, locd)) {
+                        if(check && xend < image_size && yend < image_size && isTheSameFastJulia(loca, locb, locc, locd)) {
 
 
                             tempx = Math.min(image_size, x + current_chunk_size);
                             tempy = Math.min(image_size, y + current_chunk_size);
 
-                            int skippedColor = getColorForSkippedPixels(rgbs[loca], iteration);
+                            int start_color = rgbs[loca];
+                            int skippedColor = getColorForSkippedPixels(start_color, iteration);
+                            double start_iterations = image_iterations_fast_julia[loca];
+                            boolean start_escaped = escaped_fast_julia[loca];
+
                             for (int i = y; i < tempy; i++) {
                                 for (int j = x, loc3 = i * image_size + j; j < tempx; j++, loc3++) {
                                     if(!examined_fast_julia[loc3]) {
-                                        rgbs[loc3] = rgbs[loca];
-                                        image_iterations_fast_julia[loc3] = image_iterations_fast_julia[loca];
-                                        escaped_fast_julia[loc3] = escaped_fast_julia[loca];
+                                        rgbs[loc3] = start_color;
+                                        image_iterations_fast_julia[loc3] = start_iterations;
+                                        escaped_fast_julia[loc3] = start_escaped;
                                         setFilledAndExaminedWithSkippedColor(examined_fast_julia, filled_fast_julia, skipped_colors_fast_julia, loc3, skippedColor);
                                     }
                                 }
@@ -885,6 +950,13 @@ public class CircularSuccessiveRefinementGuessingDraw extends SuccessiveRefineme
 
             } catch (BrokenBarrierException ex) {
 
+            }
+
+            prev_chunk_size = current_chunk_size;
+            if(performSecondPassActions) {
+                current_chunk_size >>= 1;
+                iteration++;
+                id2++;
             }
         }
 
@@ -1169,20 +1241,7 @@ public class CircularSuccessiveRefinementGuessingDraw extends SuccessiveRefineme
 
         Location location = Location.getInstanceForDrawing(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
 
-        if(PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && !HIGH_PRECISION_CALCULATION) {
-            if (reference_calc_sync.getAndIncrement() == 0) {
-                calculateReference(location);
-            }
-
-            try {
-                reference_sync.await();
-            } catch (InterruptedException ex) {
-
-            } catch (BrokenBarrierException ex) {
-
-            }
-            location.setReference(Fractal.refPoint);
-        }
+        initialize(location);
 
         int color, loc2, x, y;
         int tempx, tempy;
@@ -1265,8 +1324,8 @@ public class CircularSuccessiveRefinementGuessingDraw extends SuccessiveRefineme
                 }
 
                 if(taskId == 0) {
-                    ptr.setWholeImageDone(true);
                     if(id == 0) {
+                        ptr.setWholeImageDone(true);
                         ptr.reloadTitle();
                         updateMode(ptr, false, iteration_algorithm.isJulia(), false, false);
                     }
@@ -1364,8 +1423,8 @@ public class CircularSuccessiveRefinementGuessingDraw extends SuccessiveRefineme
 
                 }
                 if(taskId == 0) {
-                    ptr.setWholeImageDone(true);
                     if(id == 0) {
+                        ptr.setWholeImageDone(true);
                         ptr.reloadTitle();
                         updateMode(ptr, false, iteration_algorithm.isJulia(), false, false);
                     }
@@ -1550,17 +1609,15 @@ public class CircularSuccessiveRefinementGuessingDraw extends SuccessiveRefineme
                 rgbs[loc] = aa.getColor();
 
                 drawing_done++;
+                task_calculated++;
             }
 
             if (drawing_done / pixel_percent >= 1) {
                 update(drawing_done);
-                task_calculated += drawing_done;
                 drawing_done = 0;
             }
 
         } while (true);
-
-        task_calculated += drawing_done;
 
         pixel_calculation_time_per_task = System.currentTimeMillis() - time;
 

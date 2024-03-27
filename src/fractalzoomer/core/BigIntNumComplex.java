@@ -324,6 +324,7 @@ public class BigIntNumComplex extends GenericComplex {
 
     }
 
+    @Override
     public final BigIntNumComplex reciprocal() {
 
         BigIntNum temp = re.square().add(im.square()).reciprocal();
@@ -634,6 +635,23 @@ public class BigIntNumComplex extends GenericComplex {
 
         BigIntNumComplex c = (BigIntNumComplex)cn;
 
+//        if(BigIntNum.use_threads2) {
+//            Future<BigIntNum> temp1 = TaskDraw.reference_thread_executor2.submit(() -> re.square());
+//            Future<BigIntNum> temp2 = TaskDraw.reference_thread_executor2.submit(() -> im.square());
+//            Future<BigIntNum> temp3 = TaskDraw.reference_thread_executor2.submit(() -> re.add(im).square());
+//
+//            try {
+//                BigIntNum resqr = temp1.get();
+//                BigIntNum imsqr = temp2.get();
+//                BigIntNum resqrpimsqr = temp3.get();
+//
+//                return new BigIntNumComplex(resqr.sub(imsqr).add(c.re), resqrpimsqr.sub(resqr).sub(imsqr).add(c.im));
+//            }
+//            catch (Exception ex) {
+//                return new BigIntNumComplex();
+//            }
+//        }
+//        else
         if(BigIntNum.use_threads) {
             Future<BigIntNum> temp1 = TaskDraw.reference_thread_executor.submit(() -> re.add(im).mult(re.sub(im)).add(c.re));
             Future<BigIntNum> temp2 = TaskDraw.reference_thread_executor.submit(() -> re.mult(im).mult2().add(c.im));
@@ -1007,4 +1025,7 @@ public class BigIntNumComplex extends GenericComplex {
 
     @Override
     public BigIntNumComplex absre_mutable() { return  absre(); }
+
+    @Override
+    public BigComplex toBigComplex() {return new BigComplex(re.toApfloat(), im.toApfloat());}
 }

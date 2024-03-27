@@ -46,7 +46,7 @@ public abstract class BailoutCondition {
         if(TaskDraw.PERTURBATION_THEORY || TaskDraw.HIGH_PRECISION_CALCULATION) {
             ddbound = new MyApfloat(bound);
             ddcbound = new DoubleDouble(bound);
-            bnbound = new BigNum(bound);
+            bnbound = BigNum.create(bound);
             binbound = new BigIntNum(bound);
         }
         

@@ -1,13 +1,16 @@
 package fractalzoomer.core.mpfr;
 
-import fractalzoomer.core.MantExp;
-import fractalzoomer.core.TaskDraw;
+import fractalzoomer.core.*;
 import fractalzoomer.core.mpir.MpirBigNum;
 import fractalzoomer.core.mpir.mpf_t;
 import org.apfloat.Apfloat;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.lang.annotation.Native;
+import java.nio.charset.StandardCharsets;
+
 import static fractalzoomer.core.mpfr.LibMpfr.*;
-import static fractalzoomer.core.mpir.LibMpir.LOAD_ERROR;
 
 
 public class MpfrBigNum {
@@ -526,18 +529,24 @@ public class MpfrBigNum {
     }
 
     public MantExp getMantExp() {
-        if(mpfr_zero_p(mpfrMemory.peer) == 1) {
-            return new MantExp();
-        }
-
         if(isLong4) {
             int[] exp = new int[1];
             double d = mpfr_get_d_2exp(exp, mpfrMemory.peer, rounding);
+
+            if(d == 0) {
+                return new MantExp();
+            }
+
             return new MantExp(exp[0], d);
         }
         else {
             long[] exp = new long[1];
             double d = mpfr_get_d_2exp(exp, mpfrMemory.peer, rounding);
+
+            if(d == 0) {
+                return new MantExp();
+            }
+
             return new MantExp(exp[0], d);
         }
 
@@ -600,37 +609,39 @@ public class MpfrBigNum {
 
             int[] reExp = new int[1];
             int[] imExp = new int[1];
-            int result = mpfr_fz_get_d_2exp(reD, imD, reExp, imExp, re.mpfrMemory.peer, im.mpfrMemory.peer, rounding);
+            mpfr_fz_get_d_2exp(reD, imD, reExp, imExp, re.mpfrMemory.peer, im.mpfrMemory.peer, rounding);
 
-            if(result == 0) { //No zero
-                return new MantExp[] {new MantExp(reExp[0], reD[0]), new MantExp(imExp[0], imD[0])};
-            }
-            else if(result == 1) { // re is zero
-                return new MantExp[] {new MantExp(), new MantExp(imExp[0], imD[0])};
-            }
-            else if (result == 2) { // im is zero
-                return new MantExp[] {new MantExp(reExp[0], reD[0]), new MantExp()};
-            }
-            else { // both
+            double v1 = reD[0], v2 = imD[0];
+            if(v1 == 0 && v2 == 0) {
                 return new MantExp[] {new MantExp(), new MantExp()};
+            }
+            else if(v1 == 0) {
+                return new MantExp[] {new MantExp(), new MantExp(imExp[0], v2)};
+            }
+            else if(v2 == 0) {
+                return new MantExp[] {new MantExp(reExp[0], v1), new MantExp()};
+            }
+            else {
+                return new MantExp[] {new MantExp(reExp[0], v1), new MantExp(imExp[0], v2)};
             }
         }
         else {
             long[] reExp = new long[1];
             long[] imExp = new long[1];
-            int result = mpfr_fz_get_d_2exp(reD, imD, reExp, imExp, re.mpfrMemory.peer, im.mpfrMemory.peer, rounding);
+            mpfr_fz_get_d_2exp(reD, imD, reExp, imExp, re.mpfrMemory.peer, im.mpfrMemory.peer, rounding);
 
-            if(result == 0) {
-                return new MantExp[] {new MantExp(reExp[0], reD[0]), new MantExp(imExp[0], imD[0])};
+            double v1 = reD[0], v2 = imD[0];
+            if(v1 == 0 && v2 == 0) {
+                return new MantExp[] {new MantExp(), new MantExp()};
             }
-            else if(result == 1) {
-                return new MantExp[] {new MantExp(), new MantExp(imExp[0], imD[0])};
+            else if(v1 == 0) {
+                return new MantExp[] {new MantExp(), new MantExp(imExp[0], v2)};
             }
-            else if (result == 2) {
-                return new MantExp[] {new MantExp(reExp[0], reD[0]), new MantExp()};
+            else if(v2 == 0) {
+                return new MantExp[] {new MantExp(reExp[0], v1), new MantExp()};
             }
             else {
-                return new MantExp[] {new MantExp(), new MantExp()};
+                return new MantExp[] {new MantExp(reExp[0], v1), new MantExp(imExp[0], v2)};
             }
         }
 
@@ -652,6 +663,35 @@ public class MpfrBigNum {
     public static void z_sqr(MpfrBigNum re, MpfrBigNum im, MpfrBigNum temp, MpfrBigNum reSqr, MpfrBigNum imSqr, MpfrBigNum normSqr) {
 
         mpfr_fz_square(re.mpfrMemory.peer, im.mpfrMemory.peer, temp.mpfrMemory.peer, reSqr.mpfrMemory.peer, imSqr.mpfrMemory.peer, normSqr.mpfrMemory.peer, rounding);
+
+    }
+
+    static double[] valRe = new double[1];
+    static double[] valIm = new double[1];
+    static double[] mantissaRe = new double[1];
+    static double[] mantissaIm = new double[1];
+
+    static long[] reExpL = new long[1];
+    static long[] imExpL = new long[1];
+    static int[] reExp = new int[1];
+    static int[] imExp = new int[1];
+
+    public static void z_sqr_p_c_with_reduction(MpfrBigNum re, MpfrBigNum im, MpfrBigNum temp1, MpfrBigNum temp2, MpfrBigNum cre, MpfrBigNum cim, boolean deepZoom, Complex cz, MantExpComplex mcz) {
+
+        if(deepZoom) {
+            if(isLong4) {
+                mpfr_fz_square_plus_c_simple_with_reduction_deep(re.mpfrMemory.peer, im.mpfrMemory.peer, temp1.mpfrMemory.peer, temp2.mpfrMemory.peer, cre.mpfrMemory.peer, cim.mpfrMemory.peer, rounding, mantissaRe, mantissaIm, reExp, imExp);
+                mcz.set(reExp[0], imExp[0], mantissaRe[0], mantissaIm[0]);
+            }
+            else {
+                mpfr_fz_square_plus_c_simple_with_reduction_deep(re.mpfrMemory.peer, im.mpfrMemory.peer, temp1.mpfrMemory.peer, temp2.mpfrMemory.peer, cre.mpfrMemory.peer, cim.mpfrMemory.peer, rounding, mantissaRe, mantissaIm, reExpL, imExpL);
+                mcz.set(reExpL[0], imExpL[0], mantissaRe[0], mantissaIm[0]);
+            }
+        }
+        else {
+            mpfr_fz_square_plus_c_simple_with_reduction_not_deep(re.mpfrMemory.peer, im.mpfrMemory.peer, temp1.mpfrMemory.peer, temp2.mpfrMemory.peer, cre.mpfrMemory.peer, cim.mpfrMemory.peer, rounding, valRe, valIm);
+            cz.assign(valRe[0], valIm[0]);
+        }
 
     }
 
@@ -705,6 +745,16 @@ public class MpfrBigNum {
     public String toString() {
         return "" + doubleValue();
     }
+
+    public String toFullString() {
+        int n = (int)MyApfloat.precision * 2;
+        byte[] buf = new byte[n];
+        String template = "%." + MyApfloat.precision + "R*g";
+        mpfr_snprintf(buf, n, template, rounding, mpfrMemory.peer);
+        return new String(buf).trim();
+    }
+
+    public Apfloat toApfloat() { return new MyApfloat(toFullString());}
 
     /*public static void main(String[] args) {
         String Re = "-1.7685653943536636812525937129345323689264178203655023808403568327813984751602057983694075544809385380635853233562272021595486038792597346267621026418533261924962244609714446430169626331467057579947033159779441985348128008304981334471441266997824980553144563791567792114724296121872944832614093450944724492334683449190475005836849397812504637683710510408861059046995537629068401998856337076707729082352934525561410799942777533219989198396355688230764560224323159046285245196155466314399804239661358274503819615557368332052446821888562141313581523317892262380088027074432482039394916527640029121955174213203521566050696042500969919946717868654263385845711621571084795576591138961066064076009303183875949501143195217469003173308513486183081233774459137115288547807735477262202007250717008710283162223251492449408111203225925774749231087606075791025786880373414419640567812051244300178691506999924356763498211814367907336500103294768040948403104863777932123346593677739181711573037377537612597105572567432844531248119698069826986109774175430124235000261952935148608089775593025955571455701166888054695292300393363716767974622037919908584052332982637466";

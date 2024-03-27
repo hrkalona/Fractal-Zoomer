@@ -183,23 +183,32 @@ public abstract class DomainColoring {
         return 0;
         
     }
-    
+
+    public int getColoringMode() {
+        return coloring_mode;
+    }
+
+    public static final int HSB_COLOR_LENGTH = 100;
+    private static double HSB_COLOR_FACTOR = 1.0 / HSB_COLOR_LENGTH;
     public static int HSBcolor(double h, int color_cycling_location) {
         
-        return Color.HSBtoRGB((float) ((h + color_cycling_location * 0.01) % 1.0), TaskDraw.HSB_CONSTANT_S, TaskDraw.HSB_CONSTANT_B);
+        return Color.HSBtoRGB((float) ((h + color_cycling_location * HSB_COLOR_FACTOR) % 1.0), TaskDraw.HSB_CONSTANT_S, TaskDraw.HSB_CONSTANT_B);
         
     }
+
+    public static final int LCH_COLOR_LENGTH = 100;
+    private static double LCH_COLOR_FACTOR = 1.0 / LCH_COLOR_LENGTH;
     
     public static int LCHabcolor(double h, int color_cycling_location) {
         
-        int [] res = ColorSpaceConverter.LCH_abtoRGB(TaskDraw.LCHab_CONSTANT_L, TaskDraw.LCHab_CONSTANT_C, ((h + color_cycling_location * 0.01) % 1.0) * 360);
+        int [] res = ColorSpaceConverter.LCH_abtoRGB(TaskDraw.LCHab_CONSTANT_L, TaskDraw.LCHab_CONSTANT_C, ((h + color_cycling_location * LCH_COLOR_FACTOR) % 1.0) * 360);
         return 0xFF000000 | res[0] << 16 | res[1] << 8 | res[2];
         
     }
 
     public static int LCHuvcolor(double h, int color_cycling_location) {
 
-        int [] res = ColorSpaceConverter.LCH_uvtoRGB(TaskDraw.LCHuv_CONSTANT_L, TaskDraw.LCHuv_CONSTANT_C, ((h + color_cycling_location * 0.01) % 1.0) * 360);
+        int [] res = ColorSpaceConverter.LCH_uvtoRGB(TaskDraw.LCHuv_CONSTANT_L, TaskDraw.LCHuv_CONSTANT_C, ((h + color_cycling_location * 0.01) % LCH_COLOR_FACTOR) * 360);
         return 0xFF000000 | res[0] << 16 | res[1] << 8 | res[2];
 
     }
@@ -216,6 +225,22 @@ public abstract class DomainColoring {
 
     }
 
+    public static int getDomainColoringPaletteLength(int domain_coloring_mode) {
+        if(domain_coloring_mode == 4) {
+            return Cubehelix.cubehelix3.length;
+        }
+        else if(domain_coloring_mode == 3) {
+            return Cubehelix.defaultMap.length;
+        }
+        else if(domain_coloring_mode == 0) {
+            return HSB_COLOR_LENGTH;
+        }
+        else if(domain_coloring_mode == 2 || domain_coloring_mode == 5) {
+            return LCH_COLOR_LENGTH;
+        }
+        return 0;
+    }
+
     protected int applyArgColor(double arg) {
 
         double h = (arg + Math.PI) / ( Math.PI * 2);
@@ -225,7 +250,7 @@ public abstract class DomainColoring {
     }
 
 //    private double fract(double x) {
-//        return x - (int)x;
+//        return x - (long)x;
 //    }
     /*protected int applyArgColor2(double arg, double r) {
 

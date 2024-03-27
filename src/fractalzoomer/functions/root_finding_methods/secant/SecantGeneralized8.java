@@ -36,7 +36,7 @@ public class SecantGeneralized8 extends SecantRootFindingMethod {
         switch (out_coloring_algorithm) {
 
             case MainWindow.USER_OUTCOLORING_ALGORITHM:
-                convergent_bailout = 1E-7;
+                setConvergentBailout(1e-7);
                 break;
 
         }

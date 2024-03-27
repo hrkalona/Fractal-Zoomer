@@ -52,9 +52,9 @@ public class MagnificationDialog extends JDialog {
         try {
 
             if(MyApfloat.setAutomaticPrecision) {
-                long precision = MyApfloat.getAutomaticPrecision(new String[]{field_size.getText()}, new boolean[] {true});
+                long precision = MyApfloat.getAutomaticPrecision(new String[]{field_size.getText()}, new boolean[] {true}, s.fns.function);
 
-                if (MyApfloat.shouldSetPrecision(precision, MyApfloat.alwaysCheckForDecrease)) {
+                if (MyApfloat.shouldSetPrecision(precision, MyApfloat.alwaysCheckForDecrease, s.fns.function)) {
                     Fractal.clearReferences(true, true);
                     MyApfloat.setPrecision(precision, s);
                 }
@@ -127,9 +127,9 @@ public class MagnificationDialog extends JDialog {
                         try {
 
                             if(MyApfloat.setAutomaticPrecision) {
-                                long precision = MyApfloat.getAutomaticPrecision(new String[]{magnification.getText()}, new boolean[] {true});
+                                long precision = MyApfloat.getAutomaticPrecision(new String[]{magnification.getText()}, new boolean[] {true}, s.fns.function);
 
-                                if (MyApfloat.shouldSetPrecision(precision, MyApfloat.alwaysCheckForDecrease)) {
+                                if (MyApfloat.shouldSetPrecision(precision, MyApfloat.alwaysCheckForDecrease, s.fns.function)) {
                                     Fractal.clearReferences(true, true);
                                     MyApfloat.setPrecision(precision, s);
                                 }

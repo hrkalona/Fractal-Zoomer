@@ -51,7 +51,6 @@ public class Formula47 extends Julia {
         if(sts.statistic) {
             StatisticFactory(sts, plane_transform_center);
         }
-        power = 2;
     }
 
     public Formula47(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower, int escaping_smooth_algorithm, OrbitTrapSettings ots, StatisticsSettings sts, double xJuliaCenter, double yJuliaCenter) {
@@ -68,7 +67,6 @@ public class Formula47 extends Julia {
 
         pertur_val = new DefaultPerturbation();
         init_val = new InitialValue(0, 0);
-        power = 2;
     }
 
     //orbit
@@ -94,7 +92,6 @@ public class Formula47 extends Julia {
         else {
             init_val = new InitialValue(0, 0);
         }
-        power = 2;
 
     }
 
@@ -103,7 +100,6 @@ public class Formula47 extends Julia {
         super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, xJuliaCenter, yJuliaCenter);
         pertur_val = new DefaultPerturbation();
         init_val = new InitialValue(0, 0);
-        power = 2;
     }
 
     @Override
@@ -220,12 +216,17 @@ public class Formula47 extends Julia {
 
         GenericComplex c2 = c.times2();
 
-        if(lowPrecReferenceOrbitNeeded) {
-            C2 = c2.toComplex();
-        }
-
         if(deepZoom) {
             C2Deep = loc.getMantExpComplex(c2);
+
+            if(lowPrecReferenceOrbitNeeded) {
+                C2 = C2Deep.toComplex();
+            }
+        }
+        else {
+            if(lowPrecReferenceOrbitNeeded) {
+                C2 = c2.toComplex();
+            }
         }
 
         return new GenericComplex[] {c.square()};
@@ -247,6 +248,26 @@ public class Formula47 extends Julia {
                 return z.square_plus_c_mutable(initialPrecal[0]);
             }
         }
+    }
+
+    @Override
+    public boolean supportsReferenceCompression() {
+        return true;
+    }
+
+    @Override
+    public Complex function(Complex z, Complex c) {
+        return z.square_mutable().plus_mutable(c.square());
+    }
+
+    @Override
+    public MantExpComplex function(MantExpComplex z, MantExpComplex c) {
+        return z.square_mutable().plus_mutable(c.square());
+    }
+
+    @Override
+    public double getPower() {
+        return 2;
     }
 
 }

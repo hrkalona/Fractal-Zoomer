@@ -22,6 +22,8 @@ import fractalzoomer.main.MainWindow;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 
 
@@ -29,12 +31,53 @@ import java.awt.image.BufferedImage;
  *
  * @author hrkalona2
  */
-public class MainPanel extends JPanel {
+public class MainPanel extends JPanel implements ActionListener {
 	private static final long serialVersionUID = 1059117419848617111L;
 	private MainWindow ptr;
+    private Timer timer;
+
+    public static int REPAINT_SLEEP_TIME = 24;
    
     public MainPanel(MainWindow ptr) {
         this.ptr = ptr;
+    }
+
+    public void setTimer(boolean quickDrawAndRefinement, TaskDraw[][] drawThreads) {
+        if(timer == null) {
+            timer = new Timer(REPAINT_SLEEP_TIME, this);
+            timer.start();
+        }
+        else {
+            timer.stop();
+            timer = null;
+            timer = new Timer(REPAINT_SLEEP_TIME, this);
+        }
+
+        ptr.setWholeImageDone(!quickDrawAndRefinement);
+        if(!quickDrawAndRefinement) {
+            boolean isJulia = drawThreads[0][0].isJulia();
+            boolean isJuliaMap = drawThreads[0][0].isJuliaMap();
+            boolean isDomainColoring = drawThreads[0][0].isDomainColoring();
+            boolean isNonJulia = drawThreads[0][0].isNonJulia();
+
+            if(isJulia || isNonJulia || isJuliaMap || isDomainColoring) {
+                ptr.reloadTitle();
+                TaskDraw.updateMode(ptr, false, isJulia, isJuliaMap, isDomainColoring);
+            }
+            repaint();
+        }
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        repaint();
+    }
+
+    public void stopTimer() {
+        if(timer != null) {
+            timer.stop();
+            timer = null;
+        }
     }
     
     @Override

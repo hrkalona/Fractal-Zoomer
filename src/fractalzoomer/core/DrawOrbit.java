@@ -310,9 +310,68 @@ public class DrawOrbit implements Runnable {
         ptr.getMainPanel().repaint();
         
     }
-    
-    public void drawLine(Graphics2D full_image_g) {
-        int x0, y0, x1 = 0, y1 = 0, list_size;
+
+    static final double EPSILON = 1e-6;
+
+    static boolean liangBarskyClip(double x0, double y0, double x1, double y1,
+                                   double xmin, double ymin, double xmax, double ymax, double[] result) {
+        double dx = x1 - x0;
+        double dy = y1 - y0;
+
+        double p1 = -dx;
+        double p2 = dx;
+        double p3 = -dy;
+        double p4 = dy;
+
+        double q1 = x0 - xmin;
+        double q2 = xmax - x0;
+        double q3 = y0 - ymin;
+        double q4 = ymax - y0;
+
+        double[] p = {p1, p2, p3, p4};
+        double[] q = {q1, q2, q3, q4};
+
+        double t_enter = 0, t_exit = 1;
+
+        for (int i = 0; i < p.length; i++) {
+            if (Math.abs(p[i]) < EPSILON) {
+                if (q[i] < 0) {
+                    return false; // Line is parallel and outside the clipping window
+                }
+            } else {
+                double t = q[i] / p[i];
+
+                if (p[i] < 0 && t > t_enter) {
+                    t_enter = t;
+                } else if (p[i] > 0 && t < t_exit) {
+                    t_exit = t;
+                }
+            }
+        }
+
+        if (t_enter > t_exit) {
+            return false; // Line is outside the clipping window
+        }
+
+        // Compute the intersection points
+        double xIntersection1 = x0 + t_enter * dx;
+        double yIntersection1 = y0 + t_enter * dy;
+
+        double xIntersection2 = x0 + t_exit * dx;
+        double yIntersection2 = y0 + t_exit * dy;
+
+        // Print the intersection points
+        result[0] = xIntersection1;
+        result[1] = yIntersection1;
+        result[2] = xIntersection2;
+        result[3] = yIntersection2;
+
+        return true;
+    }
+
+    public void drawLine(Graphics2D full_image_g, boolean drawDot) {
+        double x0, y0, x1 = 0, y1 = 0;
+        int list_size;
         
         full_image_g.setColor(orbit_color);
         
@@ -353,6 +412,10 @@ public class DrawOrbit implements Runnable {
         Rectangle2D rect = metrics.getStringBounds("*", full_image_g);
         int width = (int)rect.getWidth();
         int height = (int)rect.getHeight();
+
+        int x0_ = 0, x1_ = 0, y0_ = 0, y1_ = 0;
+        double[] result = new double[4];
+        boolean drawLine = true;
         
         for(int i = 0; i < list_size; i++) {
             
@@ -362,54 +425,77 @@ public class DrawOrbit implements Runnable {
                 f0 = n0.arg();
                 f0 = f0 < 0 ? f0 + 2 * Math.PI : f0;
                 
-                x0 = (int)((Math.log(r0) - start) / mulx + 0.5);
-                y0 = (int)(f0 / muly + 0.5);
+                x0 = (Math.log(r0) - start) / mulx;
+                y0 = f0 / muly;
                 
                 Complex n1 = complex_orbit.get(i + 1).sub(new Complex(xcenter, ycenter));
                 r1 = n1.norm();
                 f1 = n1.arg();
                 
                 f1 = f1 < 0 ? f1 + 2 * Math.PI : f1;
-                x1 = (int)((Math.log(r1) - start) / mulx + 0.5);
-                y1 = (int)(f1 / muly + 0.5);
+                x1 = (Math.log(r1) - start) / mulx;
+                y1 = f1 / muly;
                 
             }
             else {
-                x0 = (int)((complex_orbit.get(i).getRe() - temp_xcenter_size) / temp_size_image_size_x + 0.5);
-                y0 = (int)((-complex_orbit.get(i).getIm() + temp_ycenter_size) / temp_size_image_size_y + 0.5);
-                x1 = (int)((complex_orbit.get(i + 1).getRe() - temp_xcenter_size) / temp_size_image_size_x + 0.5);
-                y1 = (int)((-complex_orbit.get(i + 1).getIm() + temp_ycenter_size) / temp_size_image_size_y + 0.5);
+                x0 = (complex_orbit.get(i).getRe() - temp_xcenter_size) / temp_size_image_size_x;
+                y0 = (-complex_orbit.get(i).getIm() + temp_ycenter_size) / temp_size_image_size_y;
+                x1 = (complex_orbit.get(i + 1).getRe() - temp_xcenter_size) / temp_size_image_size_x;
+                y1 = (-complex_orbit.get(i + 1).getIm() + temp_ycenter_size) / temp_size_image_size_y;
             }
-            
-            if(x0 == Integer.MIN_VALUE || x0 == Integer.MAX_VALUE || x1 == Integer.MIN_VALUE || x1 == Integer.MAX_VALUE || y0 == Integer.MIN_VALUE || y0 == Integer.MAX_VALUE || y1 == Integer.MIN_VALUE || y1 == Integer.MAX_VALUE) {
-                return;
-            }
-            
-            full_image_g.drawLine(x0, y0, x1, y1);
-            if(i == 0) {
-                if(polar_projection && circle_period > 1 && pixel_x != -1 && pixel_y != -1 && Math.abs(y0 - pixel_y) != 0) {
-                    full_image_g.drawLine(pixel_x, pixel_y, x0, y0);
-                    full_image_g.drawString("*", pixel_x - width / 2, pixel_y + height / 2);
-                    full_image_g.fillOval(x0 - 2, y0 - 2, 5, 5);
+
+            drawLine = true;
+            if(x0 < 0 || x0 >= image_size || y0 < 0 || y0 >= image_size ||
+                    x1 < 0 || x1 >= image_size || y1 < 0 || y1 >= image_size) {
+
+                int limit = 1000000;
+                if(!liangBarskyClip(x0, y0, x1, y1, -limit, -limit, image_size + limit, image_size + limit, result)) {
+                    drawLine = false;
                 }
                 else {
-                    full_image_g.drawString("*", x0 - width / 2, y0 + height / 2);
+                    x0_ = (int) (result[0] + 0.5);
+                    y0_ = (int) (result[1] + 0.5);
+                    x1_ = (int) (result[2] + 0.5);
+                    y1_ = (int) (result[3] + 0.5);
                 }
             }
             else {
-                full_image_g.fillOval(x0 - 2, y0 - 2, 5, 5);
+                x0_ = (int)(x0 + 0.5);
+                y0_ = (int)(y0 + 0.5);
+                x1_ = (int)(x1 + 0.5);
+                y1_ = (int)(y1 + 0.5);
+            }
+
+            if(drawLine) {
+                full_image_g.drawLine(x0_, y0_, x1_, y1_);
+
+                if(drawDot) {
+                    if (i == 0) {
+                        if (polar_projection && circle_period > 1 && pixel_x != -1 && pixel_y != -1 && Math.abs(y0_ - pixel_y) != 0) {
+                            full_image_g.drawLine(pixel_x, pixel_y, x0_, y0_);
+                            full_image_g.drawString("*", pixel_x - width / 2, pixel_y + height / 2);
+                            full_image_g.fillOval(x0_ - 2, y0_ - 2, 5, 5);
+                        } else {
+                            full_image_g.drawString("*", x0_ - width / 2, y0_ + height / 2);
+                        }
+                    } else {
+                        full_image_g.fillOval(x0_ - 2, y0_ - 2, 5, 5);
+                    }
+                }
             }
         }
         
-        if(list_size > 0) {
-            full_image_g.fillOval(x1 - 2, y1 - 2, 5, 5);
+        if(list_size > 0 && drawLine) {
+            if(drawDot) {
+                full_image_g.fillOval(x1_ - 2, y1_ - 2, 5, 5);
+            }
             
             if(show_converging_point) {
-                if(complex_orbit.get(complex_orbit.size() - 1).distance(complex_orbit.get(complex_orbit.size() - 2)) < 1e-6) {
+                if(complex_orbit.get(complex_orbit.size() - 1).distance(complex_orbit.get(complex_orbit.size() - 2)) < EPSILON) {
                     Complex last = complex_orbit.get(complex_orbit.size() - 1);
                     Rotation rot = new Rotation(rotation_vals[0], rotation_vals[1], rotation_center[0], rotation_center[1]);
                     
-                    full_image_g.drawString(rot.rotate(last).toStringTruncated(), x1 + 15, y1 + 15);
+                    full_image_g.drawString(rot.rotate(last).toStringTruncated(), x1_ + 15, y1_ + 15);
                 }
             }
         }
@@ -417,7 +503,8 @@ public class DrawOrbit implements Runnable {
     }
     
     public void drawDot(Graphics2D full_image_g) {
-        int x0 = 0, y0 = 0, list_size;
+        double x0 = 0, y0 = 0;
+        int list_size;
         
         full_image_g.setColor(orbit_color);
         
@@ -460,6 +547,8 @@ public class DrawOrbit implements Runnable {
         Rectangle2D rect = metrics.getStringBounds("*", full_image_g);
         int width = (int)rect.getWidth();
         int height = (int)rect.getHeight();
+        int x0_ = 0, y0_ = 0;
+        boolean draw = true;
         
         for(int i = 0; i < list_size; i++) {
             if(polar_projection) {
@@ -468,41 +557,42 @@ public class DrawOrbit implements Runnable {
                 f0 = n0.arg();
                 f0 = f0 < 0 ? f0 + 2 * Math.PI : f0;
                 
-                x0 = (int)((Math.log(r0) - start) / mulx + 0.5);
-                y0 = (int)(f0 / muly + 0.5);
+                x0 = (Math.log(r0) - start) / mulx;
+                y0 = f0 / muly;
             }
             else {
-                x0 = (int)((complex_orbit.get(i).getRe() - temp_xcenter_size) / temp_size_image_size_x + 0.5);
-                y0 = (int)((-complex_orbit.get(i).getIm() + temp_ycenter_size) / temp_size_image_size_y + 0.5);
+                x0 = (complex_orbit.get(i).getRe() - temp_xcenter_size) / temp_size_image_size_x;
+                y0 = (-complex_orbit.get(i).getIm() + temp_ycenter_size) / temp_size_image_size_y;
             }
-            
-            if(x0 == Integer.MIN_VALUE || x0 == Integer.MAX_VALUE || y0 == Integer.MIN_VALUE || y0 == Integer.MAX_VALUE) {
-                return;
-            }
-            
-            if(i == 0) {
-                if(polar_projection && circle_period > 1 && pixel_x != -1 && pixel_y != -1 && Math.abs(y0 - pixel_y) != 0) {
-                    full_image_g.drawString("*", pixel_x - width / 2, pixel_y + height / 2);
-                    full_image_g.fillOval(x0 - 2, y0 - 2, 5, 5);
-                }
-                else {
-                    full_image_g.drawString("*", x0 - width / 2, y0 + height / 2);
-                }
+
+            draw = true;
+            if(x0 < 0 || x0 >= image_size || y0 < 0 || y0 >= image_size) {
+                draw = false;
             }
             else {
-                full_image_g.fillOval(x0 - 2, y0 - 2, 5, 5);
+                x0_ = (int)(x0 + 0.5);
+                y0_ = (int)(y0 + 0.5);
+            }
+
+            if(draw) {
+                if (i == 0) {
+                    if (polar_projection && circle_period > 1 && pixel_x != -1 && pixel_y != -1 && Math.abs(y0_ - pixel_y) != 0) {
+                        full_image_g.drawString("*", pixel_x - width / 2, pixel_y + height / 2);
+                        full_image_g.fillOval(x0_ - 2, y0_ - 2, 5, 5);
+                    } else {
+                        full_image_g.drawString("*", x0_ - width / 2, y0_ + height / 2);
+                    }
+                } else {
+                    full_image_g.fillOval(x0_ - 2, y0_ - 2, 5, 5);
+                }
             }
         }
-        
-        if(list_size > 1) {            
-            if(show_converging_point) {
-                if(complex_orbit.get(complex_orbit.size() - 1).distance(complex_orbit.get(complex_orbit.size() - 2)) < 1e-6) {
-                    Complex last = complex_orbit.get(complex_orbit.size() - 1);
-                    Rotation rot = new Rotation(rotation_vals[0], rotation_vals[1], rotation_center[0], rotation_center[1]);
-                    
-                    full_image_g.drawString(rot.rotate(last).toStringTruncated(), x0 + 15, y0 + 15);
-                }
-            }
+
+        if(draw && list_size > 1 && show_converging_point && complex_orbit.get(complex_orbit.size() - 1).distance(complex_orbit.get(complex_orbit.size() - 2)) < EPSILON) {
+            Complex last = complex_orbit.get(complex_orbit.size() - 1);
+            Rotation rot = new Rotation(rotation_vals[0], rotation_vals[1], rotation_center[0], rotation_center[1]);
+
+            full_image_g.drawString(rot.rotate(last).toStringTruncated(), x0_ + 15, y0_ + 15);
         }
         
     }
@@ -771,6 +861,9 @@ public class DrawOrbit implements Runnable {
                 break;
             case MainWindow.FORMULA47:
                 pixel_orbit = new Formula47(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.FORMULA48:
+                pixel_orbit = new Formula48(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.PERPENDICULAR_MANDELBROT:
                 pixel_orbit = new PerpendicularMandelbrot(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, xJuliaCenter, yJuliaCenter);
@@ -1311,6 +1404,9 @@ public class DrawOrbit implements Runnable {
                 break;
             case MainWindow.FORMULA47:
                 pixel_orbit = new Formula47(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower);
+                break;
+            case MainWindow.FORMULA48:
+                pixel_orbit = new Formula48(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower);
                 break;
             case MainWindow.PERPENDICULAR_MANDELBROT:
                 pixel_orbit = new PerpendicularMandelbrot(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower);

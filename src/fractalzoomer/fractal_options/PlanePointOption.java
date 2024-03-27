@@ -17,6 +17,7 @@
 package fractalzoomer.fractal_options;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.core.MantExpComplex;
 
 /**
  *
@@ -29,6 +30,7 @@ public abstract class PlanePointOption {
     }
     
     public abstract Complex getValue(Complex pixel);
+    public abstract MantExpComplex getValueDeep(MantExpComplex pixel);
 
     public boolean isStatic() {return false;}
     

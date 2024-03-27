@@ -17,6 +17,7 @@
 package fractalzoomer.fractal_options.initial_value;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.core.MantExpComplex;
 import fractalzoomer.core.TaskDraw;
 import fractalzoomer.fractal_options.PlanePointOption;
 import fractalzoomer.parser.ExpressionNode;
@@ -230,6 +231,11 @@ public class VariableConditionalInitialValue extends PlanePointOption {
 
         return pixel;
 
+    }
+
+    @Override
+    public MantExpComplex getValueDeep(MantExpComplex pixel) {
+        return MantExpComplex.create(getValue(pixel.toComplex()));
     }
 
     @Override

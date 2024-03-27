@@ -80,9 +80,13 @@ public class MantExpSoft {
         long mantissa = ((long)this.mantissa) * ((long)factor.mantissa) >>> MANTISSA_BITS;
         long exp = this.exp + factor.exp;
 
-        if((mantissa & 0x40000000L) == 0) {
+        if(mantissa < 0x40000000L) {
             mantissa = mantissa << 1;
             exp--;
+        }
+        else if (mantissa > 0x7FFFFFFFL) {
+            mantissa = mantissa >>> 1;
+            exp++;
         }
 
         MantExpSoft res = new MantExpSoft((int)mantissa, exp, this.sign ^ factor.sign);

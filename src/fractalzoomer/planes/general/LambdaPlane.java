@@ -89,7 +89,7 @@ public class LambdaPlane extends Plane {
     @Override
     public BigNumComplex transform(BigNumComplex pixel) {
 
-        return  pixel.times(pixel.r_sub(new BigNum(1)));
+        return  pixel.times(pixel.r_sub(BigNum.create(1)));
 
     }
 

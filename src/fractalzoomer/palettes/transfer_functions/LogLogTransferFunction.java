@@ -42,12 +42,12 @@ public class LogLogTransferFunction extends TransferFunction {
             result = -result; // transfer to positive
             result *= itPaletteDensity;
             result = Math.log(Math.log(result + 1) + 1);
-            result *= paletteLength;
+            result *= paletteLength * paletteMultiplier;
             result = -result; // transfer to negative
         } else {
             result *= itPaletteDensity;
             result = Math.log(Math.log(result + 1) + 1);
-            result *= paletteLength;
+            result *= paletteLength * paletteMultiplier;
         }
 
         return result * color_intensity;

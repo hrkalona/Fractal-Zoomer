@@ -37,18 +37,13 @@ public class Abbasbandy2Generalized3 extends Abbasbandy2RootFindingMethod {
         switch (out_coloring_algorithm) {
 
             case MainWindow.BINARY_DECOMPOSITION:
-                convergent_bailout = 1E-4;
-                break;
             case MainWindow.BINARY_DECOMPOSITION2:
-                convergent_bailout = 1E-4;
-                break;           
             case MainWindow.ESCAPE_TIME_ALGORITHM:
-                convergent_bailout = 1E-4;
+                setConvergentBailout(1E-4);
                 break;
             case MainWindow.USER_OUTCOLORING_ALGORITHM:
-                convergent_bailout = 1E-7;
+                setConvergentBailout(1E-7);
                 break;
-
         }
 
         OutColoringAlgorithmFactory(out_coloring_algorithm, smoothing, converging_smooth_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, plane_transform_center);

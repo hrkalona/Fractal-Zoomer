@@ -40,13 +40,13 @@ public class CbrtTransferFunction extends TransferFunction {
         if (result < 0) {
             result = -result; // transfer to positive
             result *= itPaletteDensity;
-            result = Math.cbrt(result + 1);
-            result *= paletteLength;
+            result = Math.cbrt(result);
+            result *= paletteLength * paletteMultiplier;
             result = -result; // transfer to negative
         } else {
             result *= itPaletteDensity;
-            result = Math.cbrt(result + 1);
-            result *= paletteLength;
+            result = Math.cbrt(result);
+            result *= paletteLength * paletteMultiplier;
         }
 
         return result * color_intensity;

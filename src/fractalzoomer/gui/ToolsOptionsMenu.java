@@ -43,6 +43,8 @@ public class ToolsOptionsMenu extends MyMenu {
     private JMenuItem zoom_window_color_opt;
     private JRadioButtonMenuItem line;
     private JRadioButtonMenuItem dot;
+
+    private JRadioButtonMenuItem line2;
     private JRadioButtonMenuItem zoom_window_dashed_line;
     private JRadioButtonMenuItem zoom_window_line;
     private JCheckBoxMenuItem fast_julia_filters_opt;
@@ -137,22 +139,28 @@ public class ToolsOptionsMenu extends MyMenu {
         zoom_window_line_button_group.add(zoom_window_line);
 
         line = new JRadioButtonMenuItem("Line");
-        line.setToolTipText("Sets the orbit style to line.");
+        line.setToolTipText("Sets the orbit style to line with dots.");
         dot = new JRadioButtonMenuItem("Dot");
         dot.setToolTipText("Sets the orbit style to dot.");
+        line2 = new JRadioButtonMenuItem("Line (No Dots)");
+        line2.setToolTipText("Sets the orbit style to line without dots.");
 
-        line.addActionListener(e -> ptr.setLine());
+        line.addActionListener(e -> ptr.setOrbitStyle(0));
 
-        dot.addActionListener(e -> ptr.setDot());
+        dot.addActionListener(e -> ptr.setOrbitStyle(1));
+
+        line2.addActionListener(e -> ptr.setOrbitStyle(2));
         
         show_orbit_converging_point_opt.addActionListener(e -> ptr.setShowOrbitConvergingPoint());
         
         orbit_style_menu.add(line);
         orbit_style_menu.add(dot);
+        orbit_style_menu.add(line2);
 
         ButtonGroup orbit_style_button_group = new ButtonGroup();
         orbit_style_button_group.add(line);
         orbit_style_button_group.add(dot);
+        orbit_style_button_group.add(line2);
         
         line.setSelected(true);
 
@@ -221,6 +229,12 @@ public class ToolsOptionsMenu extends MyMenu {
         
         return dot;
         
+    }
+
+    public JRadioButtonMenuItem getLine2() {
+
+        return line2;
+
     }
     
     public JRadioButtonMenuItem getZoomWindowLine() {

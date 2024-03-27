@@ -1,12 +1,10 @@
 package fractalzoomer.core.la.impl;
 
-import fractalzoomer.core.Complex;
-import fractalzoomer.core.GenericComplex;
-import fractalzoomer.core.MantExp;
-import fractalzoomer.core.la.GenericLAInfo;
-import fractalzoomer.core.la.InvalidCalculationException;
-import fractalzoomer.core.la.LAInfoBase;
-import fractalzoomer.core.la.LAstep;
+import fractalzoomer.core.*;
+import fractalzoomer.core.la.*;
+import fractalzoomer.functions.Fractal;
+
+import static fractalzoomer.core.la.LAReference.f;
 
 public class LAInfo extends LAInfoBase {
     protected double RefRe, RefIm;
@@ -18,20 +16,21 @@ public class LAInfo extends LAInfoBase {
         return new LAInfo();
     }
 
-    public static LAInfo create(int RefIndex) {
+    public static LAInfo create(int RefIndex, ReferenceDecompressor referenceDecompressor) {
         if(DETECTION_METHOD == 1) {
-            return new LAInfoDetection2(RefIndex);
+            return new LAInfoDetection2(RefIndex, referenceDecompressor);
         }
-        return new LAInfo(RefIndex);
+        return new LAInfo(RefIndex, referenceDecompressor);
     }
 
     protected LAInfo() {
 
     }
 
-    protected LAInfo(int RefIndex) {
-        RefRe = refRe[RefIndex];
-        RefIm = refIm[RefIndex];
+    protected LAInfo(int RefIndex, ReferenceDecompressor referenceDecompressor) {
+        Complex val = f.getArrayValue(referenceDecompressor, Fractal.reference, RefIndex);
+        RefRe = val.getRe();
+        RefIm = val.getIm();
         ZCoeffRe = 1.0;
         ZCoeffIm = 0.0;
         CCoeffRe = 1.0;
@@ -56,7 +55,7 @@ public class LAInfo extends LAInfoBase {
     }
 
     protected LAInfo(LAInfoDeep deep) {
-        Complex Ref = deep.getRef().toComplex();
+        Complex Ref = deep.getRefDouble();
         Complex ZCoeff = deep.getZCoeff().toComplex();
         Complex CCoeff = deep.getCCoeff().toComplex();
 
@@ -74,22 +73,25 @@ public class LAInfo extends LAInfoBase {
     }
 
     @Override
-    public GenericComplex getRef() {
+    public GenericComplex getRef(Fractal f) {
         return new Complex(RefRe, RefIm);
     }
 
     @Override
-    protected boolean Step(LAInfo out, int zRefIndex) throws InvalidCalculationException {
+    public Complex getRefDouble() {return new Complex(RefRe, RefIm);}
 
-        Complex z = new Complex(refRe[zRefIndex], refIm[zRefIndex]);
+    @Override
+    protected boolean Step(LAInfo out, int zRefIndex, ReferenceDecompressor referenceDecompressor) throws InvalidCalculationException {
 
-        double ChebyMagz = z.chebychevNorm();
+        Complex z = f.getArrayValue(referenceDecompressor, Fractal.reference, zRefIndex);
+
+        double ChebyMagz = z.chebyshevNorm();
 
         Complex ZCoeff = new Complex(ZCoeffRe, ZCoeffIm);
         Complex CCoeff = new Complex(CCoeffRe, CCoeffIm);
 
-        double ChebyMagZCoeff = ZCoeff.chebychevNorm();
-        double ChebyMagCCoeff = CCoeff.chebychevNorm();
+        double ChebyMagZCoeff = ZCoeff.chebyshevNorm();
+        double ChebyMagCCoeff = CCoeff.chebyshevNorm();
 
         out.LAThreshold = Math.min(LAThreshold, ChebyMagz / ChebyMagZCoeff * LAThresholdScale);
         out.LAThresholdC = Math.min(LAThresholdC, ChebyMagz / ChebyMagCCoeff * LAThresholdCScale);
@@ -117,22 +119,22 @@ public class LAInfo extends LAInfoBase {
     }
 
     @Override
-    protected GenericLAInfo Step(int zRefIndex) throws InvalidCalculationException {
+    protected GenericLAInfo Step(int zRefIndex, ReferenceDecompressor referenceDecompressor) throws InvalidCalculationException {
         LAInfo Result = new LAInfo();
 
-        Step(Result, zRefIndex);
+        Step(Result, zRefIndex, referenceDecompressor);
         return Result;
     }
 
     @Override
-    protected boolean Composite(LAInfo out, LAInfo LA) throws InvalidCalculationException {
+    protected boolean Composite(LAInfo out, LAInfo LA, ReferenceDecompressor referenceDecompressor) throws InvalidCalculationException {
         Complex z = new Complex(LA.RefRe, LA.RefIm);
         Complex ZCoeff = new Complex(ZCoeffRe, ZCoeffIm);
         Complex CCoeff = new Complex(CCoeffRe, CCoeffIm);
 
-        double ChebyMagz = z.chebychevNorm();
-        double ChebyMagZCoeff = ZCoeff.chebychevNorm();
-        double ChebyMagCCoeff = CCoeff.chebychevNorm();
+        double ChebyMagz = z.chebyshevNorm();
+        double ChebyMagZCoeff = ZCoeff.chebyshevNorm();
+        double ChebyMagCCoeff = CCoeff.chebyshevNorm();
 
         out.LAThreshold = Math.min(LAThreshold, ChebyMagz / ChebyMagZCoeff * LAThresholdScale);
         out.LAThresholdC = Math.min(LAThresholdC, ChebyMagz / ChebyMagCCoeff * LAThresholdCScale);
@@ -145,8 +147,8 @@ public class LAInfo extends LAInfoBase {
 
 
 
-        ChebyMagZCoeff = outZCoeff.chebychevNorm();
-        ChebyMagCCoeff = outCCoeff.chebychevNorm();
+        ChebyMagZCoeff = outZCoeff.chebyshevNorm();
+        ChebyMagCCoeff = outCCoeff.chebyshevNorm();
         double temp = out.LAThreshold;
         out.LAThreshold = Math.min(out.LAThreshold, LA.LAThreshold / ChebyMagZCoeff);
         out.LAThresholdC = Math.min(out.LAThresholdC, LA.LAThreshold / ChebyMagCCoeff);
@@ -177,25 +179,25 @@ public class LAInfo extends LAInfoBase {
     }
 
     @Override
-    protected LAInfo Composite(LAInfo LA) throws InvalidCalculationException {
+    protected LAInfo Composite(LAInfo LA, ReferenceDecompressor referenceDecompressor) throws InvalidCalculationException {
         LAInfo Result = new LAInfo();
 
-        Composite(Result, LA);
+        Composite(Result, LA, referenceDecompressor);
         return Result;
     }
 
     @Override
-    public LAstep Prepare(Complex dz)  {
+    public LAstep Prepare(Fractal f, Complex dz)  {
         Complex newdz = dz.times(new Complex( 2 * RefRe, 2 * RefIm).plus_mutable(dz));
 
         LAstep temp = new LAstep();
-        temp.unusable = newdz.chebychevNorm() >= LAThreshold;
+        temp.unusable = newdz.chebyshevNorm() >= LAThreshold;
         temp.newDz = newdz;
         return temp;
     }
 
     @Override
-    public LAstep Prepare(double dre, double dim)  {
+    public LAstep Prepare(Fractal f, double dre, double dim)  {
         double newdre = 2 * RefRe + dre;
         double newdim = 2 * RefIm + dim;
 
@@ -208,6 +210,41 @@ public class LAInfo extends LAInfoBase {
         tempstep.newdre = newdre;
         tempstep.newdim = newdim;
         return tempstep;
+    }
+
+    @Override
+    public String toString() {
+        return  ZCoeffRe + "\n" +
+                ZCoeffIm + "\n" +
+                CCoeffRe + "\n" +
+                CCoeffIm + "\n" +
+                LAThreshold + "\n" +
+                LAThresholdC + "\n" +
+                RefRe + "\n" +
+                RefIm + "\n";
+    }
+
+    @Override
+    public boolean isEqual(GenericLAInfo other) {
+        if(other == null) {
+            return false;
+        }
+        if(!(other instanceof LAInfo)) {
+            return false;
+        }
+        LAInfo oth = (LAInfo) other;
+        if(this == other) {
+            return true;
+        }
+
+        return ZCoeffRe == oth.ZCoeffRe &&
+                ZCoeffIm == oth.ZCoeffIm &&
+                CCoeffRe == oth.CCoeffRe &&
+                CCoeffIm == oth.CCoeffIm &&
+                LAThreshold == oth.LAThreshold &&
+                LAThresholdC == oth.LAThresholdC &&
+                RefRe == oth.RefRe &&
+                RefIm == oth.RefIm;
     }
 
 }

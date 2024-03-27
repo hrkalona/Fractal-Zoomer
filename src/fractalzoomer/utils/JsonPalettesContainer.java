@@ -19,10 +19,7 @@ package fractalzoomer.utils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class JsonPalettesContainer {
     private ArrayList<Object> palettes;
@@ -37,6 +34,26 @@ public class JsonPalettesContainer {
         catch (Exception ex) {
 
         }
+        Collections.sort(palettes, (o1, o2) -> {
+            Set<Map.Entry<String,Object>> set1 = ((LinkedHashMap<String,Object>)o1).entrySet();
+            Set<Map.Entry<String,Object>> set2 = ((LinkedHashMap<String,Object>)o2).entrySet();
+
+            String name1 = "";
+            for(Map.Entry<String,Object> entry : set1) {
+                if(entry.getKey().equals("name")) {
+                    name1 = ((String)entry.getValue()).toLowerCase();
+                }
+            }
+
+            String name2 = "";
+            for(Map.Entry<String,Object> entry : set2) {
+                if(entry.getKey().equals("name")) {
+                    name2 = ((String)entry.getValue()).toLowerCase();
+                }
+            }
+
+            return name1.compareTo(name2);
+        });
     }
 
     public ArrayList<Object> getPalettes() {

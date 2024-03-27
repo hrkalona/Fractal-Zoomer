@@ -23,11 +23,11 @@ public class ATInfo {
     }
 
     public boolean isValid(Complex DeltaSub0) {
-        return DeltaSub0.chebychevNorm() <= ThresholdC.toDouble();
+        return DeltaSub0.chebyshevNorm() <= ThresholdC.toDouble();
     }
 
     public boolean isValid(MantExpComplex DeltaSub0) {
-        return DeltaSub0.chebychevNorm().compareToBothPositiveReduced(ThresholdC) <= 0;
+        return DeltaSub0.chebyshevNorm().compareToBothPositiveReduced(ThresholdC) <= 0;
     }
 
     public Complex getC(Complex dc) {

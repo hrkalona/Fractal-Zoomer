@@ -1,7 +1,6 @@
 package de.articdive.jnoise.core.api.noisegen;
 
 
-
 /**
  * Interface that denotes a {@link SeededNoiseGenerator}, which can additionally evaluate a {@link NoiseResult} at a location.
  *
@@ -16,7 +15,6 @@ public interface SeededExplicitNoiseGenerator<NR extends NoiseResult> extends Ex
      * @param seed seed for the {@link SeededNoiseGenerator} to use.
      * @return {@link NR} denoting the noise value at the 1D point.
      */
-    
     NR evaluateNoiseResult(double x, long seed);
 
     /**
@@ -27,7 +25,6 @@ public interface SeededExplicitNoiseGenerator<NR extends NoiseResult> extends Ex
      * @param seed seed for the {@link SeededNoiseGenerator} to use.
      * @return {@link NR} denoting the noise value at the 2D point.
      */
-    
     NR evaluateNoiseResult(double x, double y, long seed);
 
     /**
@@ -39,7 +36,6 @@ public interface SeededExplicitNoiseGenerator<NR extends NoiseResult> extends Ex
      * @param seed seed for the {@link SeededNoiseGenerator} to use.
      * @return {@link NR} denoting the noise value at the 3D point.
      */
-    
     NR evaluateNoiseResult(double x, double y, double z, long seed);
 
     /**
@@ -52,6 +48,5 @@ public interface SeededExplicitNoiseGenerator<NR extends NoiseResult> extends Ex
      * @param seed seed for the {@link SeededNoiseGenerator} to use.
      * @return {@link NR} denoting the noise value at the 4D point.
      */
-    
     NR evaluateNoiseResult(double x, double y, double z, double w, long seed);
 }

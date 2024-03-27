@@ -6,8 +6,10 @@
 //__MPFR_DECLSPEC void mpfr_fz_square (mpfr_ptr re, mpfr_ptr im, mpfr_ptr temp, mpfr_srcptr re_sqr, mpfr_srcptr im_sqr, mpfr_srcptr norm_sqr, mpfr_rnd_t rnd_mode);
 //__MPFR_DECLSPEC void mpfr_fz_norm_square_with_components (mpfr_ptr re_sqr, mpfr_ptr im_sqr, mpfr_ptr norm_sqr, mpfr_srcptr re, mpfr_srcptr im, mpfr_rnd_t rnd_mode);
 //__MPFR_DECLSPEC void mpfr_fz_get_d (double* valRe, double* valIm, mpfr_srcptr re, mpfr_srcptr im, mpfr_rnd_t rnd_mode);
-//__MPFR_DECLSPEC int mpfr_fz_get_d_2exp (double* valRe, double* valIm, long *expRe, long* expIm, mpfr_srcptr re, mpfr_srcptr im, mpfr_rnd_t rnd_mode);
+//__MPFR_DECLSPEC void mpfr_fz_get_d_2exp (double* valRe, double* valIm, long *expRe, long* expIm, mpfr_srcptr re, mpfr_srcptr im, mpfr_rnd_t rnd_mode);
 //__MPFR_DECLSPEC void mpfr_fz_square_plus_c_simple (mpfr_ptr re, mpfr_ptr im, mpfr_ptr temp1, mpfr_ptr temp2, mpfr_srcptr cre, mpfr_srcptr cim, mpfr_rnd_t rnd_mode);
+//__MPFR_DECLSPEC void mpfr_fz_square_plus_c_simple_with_reduction_not_deep (mpfr_ptr re, mpfr_ptr im, mpfr_ptr temp1, mpfr_ptr temp2, mpfr_srcptr cre, mpfr_srcptr cim, mpfr_rnd_t rnd_mode, double* valRe, double* valIm);
+//__MPFR_DECLSPEC void mpfr_fz_square_plus_c_simple_with_reduction_deep (mpfr_ptr re, mpfr_ptr im, mpfr_ptr temp1, mpfr_ptr temp2, mpfr_srcptr cre, mpfr_srcptr cim, mpfr_rnd_t rnd_mode, double* valRe, double* valIm, long* expRe, long* expIm);
 //__MPFR_DECLSPEC void mpfr_fz_set (mpfr_ptr destre, mpfr_ptr destim, mpfr_srcptr srcre, mpfr_srcptr srcim, mpfr_rnd_t rnd_mode);
 //__MPFR_DECLSPEC void mpfr_fz_norm_square (mpfr_ptr norm_sqr, mpfr_ptr temp1, mpfr_srcptr re, mpfr_srcptr im, mpfr_rnd_t rnd_mode);
 //__MPFR_DECLSPEC void mpfr_fz_self_add (mpfr_ptr re, mpfr_ptr im, mpfr_srcptr val_re, mpfr_srcptr val_im, mpfr_rnd_t rnd_mode);
@@ -58,6 +60,40 @@ mpfr_fz_square_plus_c_simple (mpfr_ptr re, mpfr_ptr im, mpfr_ptr temp1, mpfr_ptr
 }
 
 MPFR_HOT_FUNCTION_ATTR void
+mpfr_fz_square_plus_c_simple_with_reduction_deep (mpfr_ptr re, mpfr_ptr im, mpfr_ptr temp1, mpfr_ptr temp2, mpfr_srcptr cre, mpfr_srcptr cim, mpfr_rnd_t rnd_mode, double* valRe, double* valIm, long* expRe, long* expIm)
+{
+    mpfr_add(temp1, re, im, rnd_mode); // temp1 = re + im
+    mpfr_sub(temp2, re, im, rnd_mode); // temp2 = re - im
+    mpfr_mul(temp2, temp1, temp2, rnd_mode); // temp2 = (re + im) * (re - im)
+    
+    mpfr_mul(im, re, im, rnd_mode); // im = re * im
+    
+    mpfr_add(re, temp2, cre, rnd_mode); // re = (re + im) * (re - im) + cre
+    mpfr_mul_2ui(im, im, 1, rnd_mode); // im = 2 * re * im
+    mpfr_add(im, im, cim, rnd_mode); // im = 2 * re * im + cim
+    
+    *valRe = mpfr_get_d_2exp(expRe, re, rnd_mode);
+    *valIm = mpfr_get_d_2exp(expIm, im, rnd_mode); 
+}
+
+MPFR_HOT_FUNCTION_ATTR void
+mpfr_fz_square_plus_c_simple_with_reduction_not_deep (mpfr_ptr re, mpfr_ptr im, mpfr_ptr temp1, mpfr_ptr temp2, mpfr_srcptr cre, mpfr_srcptr cim, mpfr_rnd_t rnd_mode, double* valRe, double* valIm)
+{
+    mpfr_add(temp1, re, im, rnd_mode); // temp1 = re + im
+    mpfr_sub(temp2, re, im, rnd_mode); // temp2 = re - im
+    mpfr_mul(temp2, temp1, temp2, rnd_mode); // temp2 = (re + im) * (re - im)
+    
+    mpfr_mul(im, re, im, rnd_mode); // im = re * im
+    
+    mpfr_add(re, temp2, cre, rnd_mode); // re = (re + im) * (re - im) + cre
+    mpfr_mul_2ui(im, im, 1, rnd_mode); // im = 2 * re * im
+    mpfr_add(im, im, cim, rnd_mode); // im = 2 * re * im + cim
+    
+    *valRe = mpfr_get_d(re, rnd_mode); 
+    *valIm = mpfr_get_d(im, rnd_mode); 
+}
+
+MPFR_HOT_FUNCTION_ATTR void
 mpfr_fz_norm_square_with_components (mpfr_ptr re_sqr, mpfr_ptr im_sqr, mpfr_ptr norm_sqr, mpfr_srcptr re, mpfr_srcptr im, mpfr_rnd_t rnd_mode)
 {
     mpfr_sqr(re_sqr, re, rnd_mode); // re^2
@@ -80,26 +116,11 @@ mpfr_fz_get_d (double* valRe, double* valIm, mpfr_srcptr re, mpfr_srcptr im, mpf
     *valIm = mpfr_get_d(im, rnd_mode); 
 }
 
-MPFR_HOT_FUNCTION_ATTR int
+MPFR_HOT_FUNCTION_ATTR void
 mpfr_fz_get_d_2exp (double* valRe, double* valIm, long *expRe, long* expIm, mpfr_srcptr re, mpfr_srcptr im, mpfr_rnd_t rnd_mode)
 {
-    int isZero = 0;
-    
-    if(mpfr_zero_p(re)) {
-    	isZero = 0x1;
-    }
-    else {
-    	*valRe = mpfr_get_d_2exp(expRe, re, rnd_mode); 
-    }
-    
-    if(mpfr_zero_p(im)) {
-       isZero |= 0x2;
-    }
-    else {
-    	*valIm = mpfr_get_d_2exp(expIm, im, rnd_mode);
-    } 
-    
-    return isZero;
+    *valRe = mpfr_get_d_2exp(expRe, re, rnd_mode);
+    *valIm = mpfr_get_d_2exp(expIm, im, rnd_mode); 
 }
 
 MPFR_HOT_FUNCTION_ATTR void

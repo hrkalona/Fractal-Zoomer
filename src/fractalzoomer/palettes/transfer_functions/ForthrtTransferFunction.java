@@ -41,13 +41,13 @@ public class ForthrtTransferFunction extends TransferFunction {
         if (result < 0) {
             result = -result; // transfer to positive
             result *= itPaletteDensity;
-            result = Math.sqrt(Math.sqrt(result + 1));
-            result *= paletteLength;
+            result = Math.sqrt(Math.sqrt(result));
+            result *= paletteLength * paletteMultiplier;
             result = -result; // transfer to negative
         } else {
             result *= itPaletteDensity;
-            result = Math.sqrt(Math.sqrt(result + 1));
-            result *= paletteLength;
+            result = Math.sqrt(Math.sqrt(result));
+            result *= paletteLength * paletteMultiplier;
         }
 
         return result * color_intensity;

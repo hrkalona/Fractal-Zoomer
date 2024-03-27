@@ -33,14 +33,14 @@ public class PaletteColorNormal extends PaletteColor {
 
         if(result < 0) {
             if(!special_use_palette_color) {
-                return special_colors[((int)(result * (-1))) % special_colors.length];
+                return special_colors[(int)(((long)(result * (-1))) % special_colors.length)];
             }
             else {
-                return palette[((int)(result * (-1))) % palette.length];
+                return palette[(int)(((long)(result * (-1))) % palette.length)];
             }
         }
         else {
-            return palette[((int)result) % palette.length];
+            return palette[(int)(((long)result) % palette.length)];
         }
 
     }

@@ -476,6 +476,7 @@ public class FractalFunctionsMenu extends MyMenu {
         functionNames[MainWindow.PERPENDICULAR_BURNING_SHIP] = "Perpendicular Burning Ship";
         functionNames[MainWindow.PERPENDICULAR_CELTIC_MANDELBROT] = "Perpendicular Celtic Mandelbrot";
         functionNames[MainWindow.PERPENDICULAR_BUFFALO_MANDELBROT] = "Perpendicular Buffalo Mandelbrot";
+        functionNames[MainWindow.FORMULA48] = "z = c(z^2 + z^-2)";
     }
 
     public FractalFunctionsMenu(MainWindow ptr2, String name, int function) {
@@ -709,6 +710,11 @@ public class FractalFunctionsMenu extends MyMenu {
         fractal_functions[MainWindow.FORMULA2].addActionListener(e -> ptr.setFunction(MainWindow.FORMULA2));
         c_azb_dze_type_functions.add(fractal_functions[MainWindow.FORMULA2]);
         functions_button_group.add(fractal_functions[MainWindow.FORMULA2]);
+
+        fractal_functions[MainWindow.FORMULA48] = new JRadioButtonMenuItem(functionNames[MainWindow.FORMULA48]);
+        fractal_functions[MainWindow.FORMULA48].addActionListener(e -> ptr.setFunction(MainWindow.FORMULA48));
+        c_azb_dze_type_functions.add(fractal_functions[MainWindow.FORMULA48]);
+        functions_button_group.add(fractal_functions[MainWindow.FORMULA48]);
 
         fractal_functions[MainWindow.FORMULA3] = new JRadioButtonMenuItem(functionNames[MainWindow.FORMULA3]);
         fractal_functions[MainWindow.FORMULA3].addActionListener(e -> ptr.setFunction(MainWindow.FORMULA3));

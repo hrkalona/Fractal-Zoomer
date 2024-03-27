@@ -34,12 +34,16 @@ public class HistogramColoringDialog extends JDialog {
 
     private MainWindow ptra;
     private JOptionPane optionPane;
+    private final JScrollPane scrollPane;
 
     public HistogramColoringDialog(MainWindow ptr, Settings s, boolean greedy_algorithm, boolean julia_map) {
 
         super(ptr);
         
         ptra = ptr;
+
+        scrollPane = new JScrollPane();
+        scrollPane.setPreferredSize(new Dimension(700, 700));
 
         setTitle("Histogram Coloring");
         setModal(true);
@@ -78,6 +82,11 @@ public class HistogramColoringDialog extends JDialog {
         outliersAlgorithm.setFocusable(false);
         outliersAlgorithm.setToolTipText("Sets the outlier removal method.");
 
+        JComboBox<String> rankOrderDigitGrouping = new JComboBox<>(new String[] {"1", "2", "3", "4", "5", "6", "7", "8"});
+        rankOrderDigitGrouping.setSelectedIndex(s.pps.hss.rank_order_digits_grouping);
+        rankOrderDigitGrouping.setFocusable(false);
+        rankOrderDigitGrouping.setToolTipText("Sets the fractional digits grouping for rank order.");
+
         outliersAlgorithm.setEnabled(removeOutliers.isSelected());
 
         removeOutliers.addActionListener(e -> outliersAlgorithm.setEnabled(removeOutliers.isSelected()));
@@ -104,7 +113,10 @@ public class HistogramColoringDialog extends JDialog {
         mapping.addActionListener(e -> {
             density_field.setEnabled(mapping.getSelectedIndex() == 0);
             granularity_field.setEnabled(mapping.getSelectedIndex() == 0);
+            rankOrderDigitGrouping.setEnabled(mapping.getSelectedIndex() == 6);
         });
+
+        rankOrderDigitGrouping.setEnabled(mapping.getSelectedIndex() == 6);
 
         Object[] message = {
             " ",
@@ -120,6 +132,10 @@ public class HistogramColoringDialog extends JDialog {
             "Set the histogram bin granularity/density.",
                 temp_p4,
             " ",
+                "Set the rank order fractional digits grouping.",
+                "Fractional Digits Grouping:",
+                rankOrderDigitGrouping,
+                " ",
             "Set the scaling range.",
             "Scaling Range:",
             scale_range,
@@ -202,6 +218,7 @@ public class HistogramColoringDialog extends JDialog {
                             s.pps.hss.hmapping = mapping.getSelectedIndex();
                             s.pps.hss.hs_remove_outliers = removeOutliers.isSelected();
                             s.pps.hss.hs_outliers_method = outliersAlgorithm.getSelectedIndex();
+                            s.pps.hss.rank_order_digits_grouping = rankOrderDigitGrouping.getSelectedIndex();
                         } catch (Exception ex) {
                             JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                             return;
@@ -218,7 +235,8 @@ public class HistogramColoringDialog extends JDialog {
                 });
 
         //Make this dialog display it.
-        setContentPane(optionPane);
+        scrollPane.setViewportView(optionPane);
+        setContentPane(scrollPane);
 
         pack();
 

@@ -195,7 +195,7 @@ public class HueGeneratedPalettes extends JDialog {
                             TaskDraw.setAlgorithmColors();
 
                             ptr.updateColorPalettesMenu();
-                            ptr.updateColors(false);
+                            ptr.updateColors(false, false);
                         } catch (Exception ex) {
                             JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                             return;

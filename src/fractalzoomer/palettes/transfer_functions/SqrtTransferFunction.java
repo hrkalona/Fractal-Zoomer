@@ -45,8 +45,8 @@ public class SqrtTransferFunction extends TransferFunction {
 //            result *= paletteLength; // rescale to palette length
 
             result *= itPaletteDensity;
-            result = Math.sqrt(result + 1);
-            result *= paletteLength;
+            result = Math.sqrt(result);
+            result *= paletteLength * paletteMultiplier;
 
             result = -result; // transfer to negative
         } else {
@@ -55,8 +55,8 @@ public class SqrtTransferFunction extends TransferFunction {
 //            result *= paletteLength; // rescale to palette length
 
             result *= itPaletteDensity;
-            result = Math.sqrt(result + 1);
-            result *= paletteLength;
+            result = Math.sqrt(result);
+            result *= paletteLength * paletteMultiplier;
         }
 
         return result * color_intensity;

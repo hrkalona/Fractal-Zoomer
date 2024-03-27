@@ -12,7 +12,7 @@ public abstract class ChangBumChun1RootFindingMethod extends RootFindingMethods 
 
         super(xCenter, yCenter, size, max_iterations, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, ots);
 
-        convergent_bailout = 1e-8;
+        setConvergentBailout(1e-8);
 
     }
 

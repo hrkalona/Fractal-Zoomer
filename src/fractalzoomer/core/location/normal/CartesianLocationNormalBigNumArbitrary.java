@@ -48,20 +48,20 @@ public class CartesianLocationNormalBigNumArbitrary extends Location {
 
         point5 = new MyApfloat(0.5);
 
-        bnsize = new BigNum(size);
+        bnsize = BigNum.create(size);
         
         BigNum size_2_x = bnsize.divide2();
         Apfloat ddimage_size = new MyApfloat(image_size);
 
         ddsize = size;
 
-        ddxcenter = new BigNum(xCenter);
-        ddycenter = new BigNum(yCenter);
+        ddxcenter = BigNum.create(xCenter);
+        ddycenter = BigNum.create(yCenter);
 
         Apfloat temp = MyApfloat.fp.multiply(size, this.height_ratio);
-        BigNum size_2_y = new BigNum(temp).divide2();
-        bntemp_size_image_size_x = new BigNum(MyApfloat.fp.divide(size, ddimage_size));
-        bntemp_size_image_size_y = new BigNum(MyApfloat.fp.divide(temp, ddimage_size));
+        BigNum size_2_y = BigNum.create(temp).divide2();
+        bntemp_size_image_size_x = BigNum.create(MyApfloat.fp.divide(size, ddimage_size));
+        bntemp_size_image_size_y = BigNum.create(MyApfloat.fp.divide(temp, ddimage_size));
 
         bntemp_xcenter_size = ddxcenter.sub(size_2_x);
         bntemp_ycenter_size = ddycenter.add(size_2_y);
@@ -107,8 +107,8 @@ public class CartesianLocationNormalBigNumArbitrary extends Location {
 
         if(js.enableJitter) {
             double[] res = GetPixelOffset(y, x, js.jitterSeed, js.jitterShape, js.jitterScale);
-            bntempX = bntemp_xcenter_size.add(bntemp_size_image_size_x.mult(new BigNum(x + res[1])));
-            bntempY = bntemp_ycenter_size.sub(bntemp_size_image_size_y.mult(new BigNum(y + res[0])));
+            bntempX = bntemp_xcenter_size.add(bntemp_size_image_size_x.mult(BigNum.create(x + res[1])));
+            bntempY = bntemp_ycenter_size.sub(bntemp_size_image_size_y.mult(BigNum.create(y + res[0])));
         }
         else {
             if (x == indexX + 1) {

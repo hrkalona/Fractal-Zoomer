@@ -4,16 +4,10 @@ import de.articdive.jnoise.core.api.functions.Combiner;
 import de.articdive.jnoise.core.api.noisegen.SeededExplicitNoiseGenerator;
 import de.articdive.jnoise.core.api.pipeline.NoiseSourceBuilder;
 import de.articdive.jnoise.core.util.HashUtil;
-import de.articdive.jnoise.core.util.vectors.Vector;
-import de.articdive.jnoise.core.util.vectors.Vector1D;
-import de.articdive.jnoise.core.util.vectors.Vector2D;
-import de.articdive.jnoise.core.util.vectors.Vector3D;
-import de.articdive.jnoise.core.util.vectors.Vector4D;
 import de.articdive.jnoise.generators.noise_parameters.distance_functions.DistanceFunction;
 import de.articdive.jnoise.generators.noise_parameters.distance_functions.DistanceFunctionType;
 import de.articdive.jnoise.generators.noise_parameters.return_type_functions.ReturnDistanceFunction;
 import de.articdive.jnoise.generators.noise_parameters.return_type_functions.ReturnDistanceFunctionType;
-
 
 import java.util.Arrays;
 import java.util.Random;
@@ -27,7 +21,7 @@ import java.util.function.IntToLongFunction;
  *
  * @author Articdive
  */
-public final class WorleyNoiseGenerator implements SeededExplicitNoiseGenerator<WorleyNoiseResult<Vector>> {
+public final class WorleyNoiseGenerator implements SeededExplicitNoiseGenerator<WorleyNoiseResult> {
     private final long seed;
 
     private final int depth;
@@ -86,13 +80,12 @@ public final class WorleyNoiseGenerator implements SeededExplicitNoiseGenerator<
     }
 
     @Override
-    
-    public WorleyNoiseResult<Vector> evaluateNoiseResult(double x, long seed) {
+    public WorleyNoiseResult evaluateNoiseResult(double x, long seed) {
         long iX = (long) Math.floor(x);
         double[] distancesStack = new double[depth];
         Arrays.fill(distancesStack, Double.MAX_VALUE);
         // distancesStack[0] is the shortest distance.
-        Vector1D closestPoint = null;
+        double[] closestPoint = new double[1];
 
         //TODO: Add Grid size as a parameter in all worley noise types. (Here it is 3)
         for (int xOffset = -1; xOffset <= 1; xOffset++) {
@@ -116,23 +109,22 @@ public final class WorleyNoiseGenerator implements SeededExplicitNoiseGenerator<
                 }
                 if (distance < distancesStack[0]) {
                     distancesStack[0] = minFunction.applyTo(distance, distancesStack[0]);
-                    closestPoint = new Vector1D(pointX);
+                    closestPoint[0] = pointX;
                 }
             }
         }
-        return new WorleyNoiseResult<>(returnDistanceFunction.applyAsDouble(distancesStack), closestPoint);
+        return new WorleyNoiseResult(returnDistanceFunction.applyAsDouble(distancesStack), closestPoint);
     }
 
 
     @Override
-    
-    public WorleyNoiseResult<Vector> evaluateNoiseResult(double x, double y, long seed) {
+    public WorleyNoiseResult evaluateNoiseResult(double x, double y, long seed) {
         long iX = (long) Math.floor(x);
         long iY = (long) Math.floor(y);
         double[] distancesStack = new double[depth];
         Arrays.fill(distancesStack, Double.MAX_VALUE);
         // distancesStack[0] is the shortest distance.
-        Vector2D closestPoint = null;
+        double[] closestPoint = new double[2];
 
         for (int xOffset = -1; xOffset <= 1; xOffset++) {
             long secX = iX + xOffset;
@@ -161,24 +153,24 @@ public final class WorleyNoiseGenerator implements SeededExplicitNoiseGenerator<
                     }
                     if (distance < distancesStack[0]) {
                         distancesStack[0] = minFunction.applyTo(distance, distancesStack[0]);
-                        closestPoint = new Vector2D(pointX, pointY);
+                        closestPoint[0] = pointX;
+                        closestPoint[1] = pointY;
                     }
                 }
             }
         }
-        return new WorleyNoiseResult<>(returnDistanceFunction.applyAsDouble(distancesStack), closestPoint);
+        return new WorleyNoiseResult(returnDistanceFunction.applyAsDouble(distancesStack), closestPoint);
     }
 
     @Override
-    
-    public WorleyNoiseResult<Vector> evaluateNoiseResult(double x, double y, double z, long seed) {
+    public WorleyNoiseResult evaluateNoiseResult(double x, double y, double z, long seed) {
         long iX = (long) Math.floor(x);
         long iY = (long) Math.floor(y);
         long iZ = (long) Math.floor(z);
         double[] distancesStack = new double[depth];
         Arrays.fill(distancesStack, Double.MAX_VALUE);
         // distancesStack[0] is the shortest distance.
-        Vector3D closestPoint = null;
+        double[] closestPoint = new double[3];
 
         for (int xOffset = -1; xOffset <= 1; xOffset++) {
             long secX = iX + xOffset;
@@ -212,19 +204,20 @@ public final class WorleyNoiseGenerator implements SeededExplicitNoiseGenerator<
                         }
                         if (distance < distancesStack[0]) {
                             distancesStack[0] = minFunction.applyTo(distance, distancesStack[0]);
-                            closestPoint = new Vector3D(pointX, pointY, pointZ);
+                            closestPoint[0] = pointX;
+                            closestPoint[1] = pointY;
+                            closestPoint[2] = pointZ;
                         }
                     }
 
                 }
             }
         }
-        return new WorleyNoiseResult<>(returnDistanceFunction.applyAsDouble(distancesStack), closestPoint);
+        return new WorleyNoiseResult(returnDistanceFunction.applyAsDouble(distancesStack), closestPoint);
     }
 
     @Override
-    
-    public WorleyNoiseResult<Vector> evaluateNoiseResult(double x, double y, double z, double w, long seed) {
+    public WorleyNoiseResult evaluateNoiseResult(double x, double y, double z, double w, long seed) {
         long iX = (long) Math.floor(x);
         long iY = (long) Math.floor(y);
         long iZ = (long) Math.floor(z);
@@ -232,7 +225,7 @@ public final class WorleyNoiseGenerator implements SeededExplicitNoiseGenerator<
         double[] distancesStack = new double[depth];
         Arrays.fill(distancesStack, Double.MAX_VALUE);
         // distancesStack[0] is the shortest distance.
-        Vector4D closestPoint = null;
+        double[] closestPoint = new double[4];
 
         for (int xOffset = -1; xOffset <= 1; xOffset++) {
             long secX = iX + xOffset;
@@ -272,7 +265,10 @@ public final class WorleyNoiseGenerator implements SeededExplicitNoiseGenerator<
                             }
                             if (distance < distancesStack[0]) {
                                 distancesStack[0] = minFunction.applyTo(distance, distancesStack[0]);
-                                closestPoint = new Vector4D(pointX, pointY, pointZ, pointW);
+                                closestPoint[0] = pointX;
+                                closestPoint[1] = pointY;
+                                closestPoint[2] = pointZ;
+                                closestPoint[3] = pointW;
                             }
                         }
                     }
@@ -280,30 +276,26 @@ public final class WorleyNoiseGenerator implements SeededExplicitNoiseGenerator<
                 }
             }
         }
-        return new WorleyNoiseResult<>(returnDistanceFunction.applyAsDouble(distancesStack), closestPoint);
+        return new WorleyNoiseResult(returnDistanceFunction.applyAsDouble(distancesStack), closestPoint);
     }
 
     @Override
-    
-    public WorleyNoiseResult<Vector> evaluateNoiseResult(double x) {
+    public WorleyNoiseResult evaluateNoiseResult(double x) {
         return evaluateNoiseResult(x, seed);
     }
 
     @Override
-    
-    public WorleyNoiseResult<Vector> evaluateNoiseResult(double x, double y) {
+    public WorleyNoiseResult evaluateNoiseResult(double x, double y) {
         return evaluateNoiseResult(x, y, seed);
     }
 
     @Override
-    
-    public WorleyNoiseResult<Vector> evaluateNoiseResult(double x, double y, double z) {
+    public WorleyNoiseResult evaluateNoiseResult(double x, double y, double z) {
         return evaluateNoiseResult(x, y, z, seed);
     }
 
     @Override
-    
-    public WorleyNoiseResult<Vector> evaluateNoiseResult(double x, double y, double z, double w) {
+    public WorleyNoiseResult evaluateNoiseResult(double x, double y, double z, double w) {
         return evaluateNoiseResult(x, y, z, w, seed);
     }
 
@@ -317,7 +309,6 @@ public final class WorleyNoiseGenerator implements SeededExplicitNoiseGenerator<
      *
      * @return {@link WorleyNoiseBuilder}.
      */
-    
     public static WorleyNoiseBuilder newBuilder() {
         return new WorleyNoiseBuilder();
     }
@@ -343,7 +334,6 @@ public final class WorleyNoiseGenerator implements SeededExplicitNoiseGenerator<
          * @param seed the new seed for the {@link WorleyNoiseGenerator}.
          * @return {@link WorleyNoiseBuilder} this
          */
-        
         public WorleyNoiseBuilder setSeed(long seed) {
             this.seed = seed;
             return this;
@@ -358,7 +348,6 @@ public final class WorleyNoiseGenerator implements SeededExplicitNoiseGenerator<
          * @param depth The new depth for the {@link WorleyNoiseGenerator}.
          * @return {@link WorleyNoiseBuilder} this
          */
-        
         public WorleyNoiseBuilder setDepth(int depth) {
             this.depth = depth;
             return this;
@@ -370,11 +359,7 @@ public final class WorleyNoiseGenerator implements SeededExplicitNoiseGenerator<
          * @param distanceFunction The new {@link DistanceFunction} for the {@link WorleyNoiseGenerator}.
          * @return {@link WorleyNoiseBuilder} this
          */
-        
         public WorleyNoiseBuilder setDistanceFunction(DistanceFunction distanceFunction) {
-            if (distanceFunction == null) {
-                throw new IllegalArgumentException("Distance function cannot be null.");
-            }
             this.distanceFunction = distanceFunction;
             return this;
         }
@@ -388,11 +373,7 @@ public final class WorleyNoiseGenerator implements SeededExplicitNoiseGenerator<
          * @param fpAmountFunction The new (feature point amount function) for the {@link WorleyNoiseGenerator}
          * @return {@link WorleyNoiseBuilder} this
          */
-        
         public WorleyNoiseBuilder setFeaturePointAmountFunction(IntToLongFunction fpAmountFunction) {
-            if (fpAmountFunction == null) {
-                throw new IllegalArgumentException("Featurepoint amount function cannot be null.");
-            }
             this.fpAmountFunction = fpAmountFunction;
             return this;
         }
@@ -407,11 +388,7 @@ public final class WorleyNoiseGenerator implements SeededExplicitNoiseGenerator<
          * @param returnDistanceFunction The new return distance function for the {@link WorleyNoiseGenerator}.
          * @return {@link WorleyNoiseBuilder} this
          */
-        
         public WorleyNoiseBuilder setReturnDistanceFunction(ReturnDistanceFunction returnDistanceFunction) {
-            if (returnDistanceFunction == null) {
-                throw new IllegalArgumentException("Return distance function cannot be null.");
-            }
             this.returnDistanceFunction = returnDistanceFunction;
             return this;
         }
@@ -424,15 +401,11 @@ public final class WorleyNoiseGenerator implements SeededExplicitNoiseGenerator<
          * @return {@link WorleyNoiseBuilder} this
          */
         public WorleyNoiseBuilder setMinFunction(Combiner minFunction) {
-            if (minFunction == null) {
-                throw new IllegalArgumentException("Minimization function cannot be null.");
-            }
             this.minFunction = minFunction;
             return this;
         }
 
         @Override
-        
         public WorleyNoiseGenerator build() {
             if (!returnDistanceFunction.isValidArrayLength(depth)) {
                 throw new IllegalArgumentException("Invalid depth for the specified return distance function!");

@@ -324,6 +324,7 @@ public class BigDecNumComplex extends GenericComplex {
 
     }
 
+    @Override
     public final BigDecNumComplex reciprocal() {
 
         BigDecNum temp = re.square().add(im.square()).reciprocal();
@@ -993,5 +994,10 @@ public class BigDecNumComplex extends GenericComplex {
 
         return square();
 
+    }
+
+    @Override
+    public BigComplex toBigComplex() {
+        return new BigComplex(re.toApfloat(), im.toApfloat());
     }
 }

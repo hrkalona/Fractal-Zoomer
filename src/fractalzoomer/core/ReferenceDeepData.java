@@ -2,9 +2,10 @@ package fractalzoomer.core;
 
 import fractalzoomer.functions.Fractal;
 
+import java.util.ArrayList;
 import java.util.stream.IntStream;
 
-import static fractalzoomer.core.ReferenceData.MAX_PRECALCULATED_TERMS;
+import static fractalzoomer.core.ReferenceData.*;
 
 public class ReferenceDeepData {
 
@@ -12,10 +13,12 @@ public class ReferenceDeepData {
     public DeepReference ReferenceSubCp;
     public DeepReference[] PrecalculatedTerms;
     public DeepReference[] ReferenceSubCps;
+    public int id;
 
 
-    public ReferenceDeepData() {
+    public ReferenceDeepData(int id) {
         PrecalculatedTerms = new DeepReference[MAX_PRECALCULATED_TERMS];
+        this.id = id;
     }
 
     public void clear() {
@@ -39,79 +42,102 @@ public class ReferenceDeepData {
         Fractal.referenceDeep = null;
     }
 
-    public void createAndSetShortcut(int max_iterations, boolean needsRefSubCp, int precalCount) {
-        create(max_iterations, needsRefSubCp, precalCount);
+    public void createAndSetShortcut(int max_iterations, boolean needsRefSubCp, int precalCount, boolean compress) {
+        create(max_iterations, needsRefSubCp, precalCount, compress);
         Fractal.referenceDeep = Reference;
     }
 
-    public void createAndSetShortcut(int max_iterations, boolean needsRefSubCp, int[] indexes) {
-        create(max_iterations, needsRefSubCp, indexes);
+    public void createAndSetShortcut(int max_iterations, boolean needsRefSubCp, int[] indexes, boolean compress) {
+        create(max_iterations, needsRefSubCp, indexes, compress);
         Fractal.referenceDeep = Reference;
     }
 
-    public void createAndSetShortcut(int max_iterations, int cps, int precalCount) {
-        create(max_iterations, cps, precalCount);
+    /*public void createAndSetShortcut(int max_iterations, int cps, int precalCount, boolean compression) {
+        create(max_iterations, cps, precalCount, compression);
         Fractal.referenceDeep = Reference;
     }
 
-    public void createAndSetShortcut(int max_iterations, int cps, int[] indexes) {
-        create(max_iterations, cps, indexes);
+    public void createAndSetShortcut(int max_iterations, int cps, int[] indexes, boolean compression) {
+        create(max_iterations, cps, indexes, compression);
         Fractal.referenceDeep = Reference;
-    }
+    }*/
 
-    public void create(int max_iterations, boolean needsRefSubCp, int precalCount) {
+    public void create(int max_iterations, boolean needsRefSubCp, int precalCount, boolean compress) {
         int[] indexes = new int[0];
         if(precalCount > 0) {
             indexes = IntStream.range(0, precalCount).toArray();
         }
-        create(max_iterations, needsRefSubCp, indexes);
+        create(max_iterations, needsRefSubCp, indexes, compress);
     }
 
-    public void create(int max_iterations, int cps, int precalCount) {
+    /*public void create(int max_iterations, int cps, int precalCount, boolean compression) {
         int[] indexes = new int[0];
         if(precalCount > 0) {
             indexes = IntStream.range(0, precalCount).toArray();
         }
-        create(max_iterations, cps, indexes);
-    }
+        create(max_iterations, cps, indexes, compression);
+    }*/
 
     //Use this on julia ref
-    public void create(int max_iterations, boolean needsRefSubCp, int[] indexes) {
-        if(Reference == null || Reference.shouldCreateNew(max_iterations)) {
-            Reference = new DeepReference(max_iterations);
+    public void create(int max_iterations, boolean needsRefSubCp, int[] indexes, boolean compression) {
+
+        if(compression) {
+            Reference = new CompressedDeepReference(max_iterations);
+            Reference.id = id;
         }
         else {
-            Reference.reset();
+            if (Reference == null || Reference.shouldCreateNew(max_iterations)) {
+                Reference = new DeepReference(max_iterations);
+                Reference.id = id;
+            } else {
+                Reference.reset();
+            }
         }
 
         if(needsRefSubCp) {
-            if(ReferenceSubCp == null || ReferenceSubCp.shouldCreateNew(max_iterations)) {
-                ReferenceSubCp = new DeepReference(max_iterations);
+            if(compression) {
+                ReferenceSubCp = new CompressedDeepReference(max_iterations);
+                ReferenceSubCp.id = id * SUBEXPRESSION_LENGTH;
             }
             else {
-                ReferenceSubCp.reset();
+                if (ReferenceSubCp == null || ReferenceSubCp.shouldCreateNew(max_iterations)) {
+                    ReferenceSubCp = new DeepReference(max_iterations);
+                } else {
+                    ReferenceSubCp.reset();
+                }
             }
         }
 
         for(int i = 0; i < indexes.length; i++) {
             int index = indexes[i];
             if(index < PrecalculatedTerms.length) {
-                if( PrecalculatedTerms[index] == null ||  PrecalculatedTerms[index].shouldCreateNew(max_iterations)) {
-                    PrecalculatedTerms[index] = new DeepReference(max_iterations);
+                if(compression) {
+                    PrecalculatedTerms[index] = new CompressedDeepReference(max_iterations);
+                    PrecalculatedTerms[index].id = id * SUBEXPRESSION_LENGTH + (index + 1);
                 }
                 else {
-                    PrecalculatedTerms[index].reset();
+                    if (PrecalculatedTerms[index] == null || PrecalculatedTerms[index].shouldCreateNew(max_iterations)) {
+                        PrecalculatedTerms[index] = new DeepReference(max_iterations);
+                    } else {
+                        PrecalculatedTerms[index].reset();
+                    }
                 }
             }
         }
     }
 
-    public void create(int max_iterations, int cpsCount, int[] indexes) {
-        if(Reference == null || Reference.shouldCreateNew(max_iterations)) {
-            Reference = new DeepReference(max_iterations);
+    /*public void create(int max_iterations, int cpsCount, int[] indexes, boolean compression) {
+        if(compression) {
+            Reference = new CompressedDeepReference(max_iterations);
+            Reference.id = id;
         }
         else {
-            Reference.reset();
+            if (Reference == null || Reference.shouldCreateNew(max_iterations)) {
+                Reference = new DeepReference(max_iterations);
+                Reference.id = id;
+            } else {
+                Reference.reset();
+            }
         }
 
         for(int i = 0; i < indexes.length; i++) {
@@ -143,10 +169,11 @@ public class ReferenceDeepData {
                 }
             }
         }
-    }
+    }*/
 
     public void setReference(DeepReference Reference) {
         this.Reference = Reference;
+        Reference.id = id;
         Fractal.referenceDeep = Reference;
     }
 
@@ -172,5 +199,29 @@ public class ReferenceDeepData {
                 }
             }
         }
+    }
+
+    public ArrayList<Integer> getWaypointsLength() {
+        ArrayList<Integer> waypoints = new ArrayList<>();
+
+        if(Reference != null && Reference.compressed) {
+            waypoints.add(((CompressedDeepReference)Reference).compressedLength());
+        }
+
+        if(ReferenceSubCp != null && ReferenceSubCp.compressed) {
+            waypoints.add(((CompressedDeepReference)ReferenceSubCp).compressedLength());
+        }
+
+        for(int i = 0; i < PrecalculatedTerms.length; i++) {
+            if(PrecalculatedTerms[i] != null && PrecalculatedTerms[i].compressed) {
+                waypoints.add(((CompressedDeepReference)PrecalculatedTerms[i]).compressedLength());
+            }
+        }
+
+        return waypoints;
+    }
+
+    public boolean exists() {
+        return Reference != null;
     }
 }

@@ -2187,4 +2187,6 @@ public strictfp class DoubleDouble
     public MantExp getMantExp() {
         return new MantExp(doubleValue());
     }
+
+    public Apfloat toApfloat() { return new MyApfloat(toString());}
 }

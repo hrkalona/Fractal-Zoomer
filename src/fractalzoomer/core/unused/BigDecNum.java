@@ -178,4 +178,6 @@ public class BigDecNum {
         return new BigDecNum(bd.pow(n, mc));
     }
 
+    public Apfloat toApfloat() { return new MyApfloat(bd.toString());}
+
 }
