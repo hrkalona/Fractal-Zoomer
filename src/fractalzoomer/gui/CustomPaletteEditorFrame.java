@@ -989,7 +989,7 @@ public class CustomPaletteEditorFrame extends JFrame {
         color_space_panel.setLayout(new FlowLayout());
         color_space_panel.setBackground(MainWindow.bg_color);
 
-        String[] color_space_str = {"RGB", "HSB", "Exp", "Square", "Sqrt", "RYB", "Lab", "XYZ", "LCH_ab", "Bezier RGB", "HSL", "Luv", "LCH_uv", "OKLab", "LCH_oklab", "JzAzBz", "LCH_JzAzBz", "HSL_uv", "HPL_uv", "HWB", "Linear sRGB"};
+        String[] color_space_str = {"RGB", "HSB", "Exp", "Square", "Sqrt", "RYB", "Lab", "XYZ", "LCH_ab", "Bezier RGB", "HSL", "Luv", "LCH_uv", "OKLab", "LCH_oklab", "JzAzBz", "LCH_JzAzBz", "HSL_uv", "HPL_uv", "HWB", "Linear sRGB", "yCbCr"};
 
         combo_box_color_space = new JComboBox<>(color_space_str);
         combo_box_color_space.setSelectedIndex(color_space);

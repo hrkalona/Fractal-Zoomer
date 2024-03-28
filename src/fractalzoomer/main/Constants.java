@@ -25,7 +25,7 @@ import java.awt.*;
  * @author hrkalona2
  */
 public interface Constants {
-    public static final int VERSION = 1090;
+    public static final int VERSION = 1091;
     public static final boolean beta = false;
     public static final int TOTAL_PALETTES = 45;
     public static final int TOTAL_INCOLORING_ALGORITHMS = 11;
@@ -1019,6 +1019,8 @@ public interface Constants {
     public static final int COLOR_SPACE_HWB = 19;
 
     public static final int COLOR_SPACE_LINEAR_RGB = 20;
+
+    public static final int COLOR_SPACE_YCBCR = 21;
     /**
      * *******************
      */
