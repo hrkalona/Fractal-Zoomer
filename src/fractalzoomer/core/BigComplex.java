@@ -308,8 +308,8 @@ public class BigComplex extends GenericComplex {
     public final Apfloat norm_squared() {
 
         if(MyApfloat.use_threads) {
-            Future<Apfloat> temp1 = TaskDraw.reference_thread_executor.submit(() -> MyApfloat.fp.multiply(re, re));
-            Future<Apfloat> temp2 = TaskDraw.reference_thread_executor.submit(() -> MyApfloat.fp.multiply(im, im));
+            Future<Apfloat> temp1 = TaskRender.reference_thread_executor.submit(() -> MyApfloat.fp.multiply(re, re));
+            Future<Apfloat> temp2 = TaskRender.reference_thread_executor.submit(() -> MyApfloat.fp.multiply(im, im));
 
             try {
                 return temp1.get().add(temp2.get());
@@ -933,8 +933,8 @@ public class BigComplex extends GenericComplex {
         BigComplex c = (BigComplex)cn;
 
         if(MyApfloat.use_threads) {
-            Future<Apfloat> temp1 = TaskDraw.reference_thread_executor.submit(() -> MyApfloat.fp.add(MyApfloat.fp.multiply(MyApfloat.fp.add(re, im), MyApfloat.fp.subtract(re, im)), c.re));
-            Future<Apfloat> temp2 = TaskDraw.reference_thread_executor.submit(() -> {
+            Future<Apfloat> temp1 = TaskRender.reference_thread_executor.submit(() -> MyApfloat.fp.add(MyApfloat.fp.multiply(MyApfloat.fp.add(re, im), MyApfloat.fp.subtract(re, im)), c.re));
+            Future<Apfloat> temp2 = TaskRender.reference_thread_executor.submit(() -> {
                 Apfloat temp = MyApfloat.fp.multiply(re, im);
                 return MyApfloat.fp.add(MyApfloat.fp.add(temp, temp), c.im);
             });
@@ -1085,4 +1085,22 @@ public class BigComplex extends GenericComplex {
 
     @Override
     public BigComplex toBigComplex() {return this;}
+
+    @Override
+    public Object re() {
+        return getRe();
+    }
+
+    @Override
+    public Object im() {
+        return getIm();
+    }
+
+    @Override
+    public Object Norm() {
+        return norm();
+    }
+
+    @Override
+    public BigComplex times2_mutable() {return times2();}
 }

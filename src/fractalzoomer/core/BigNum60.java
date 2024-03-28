@@ -5,7 +5,6 @@ import org.apfloat.internal.LongMemoryDataStorage;
 
 import java.util.Arrays;
 
-import static fractalzoomer.core.MyApfloat.TWO;
 import static org.apfloat.internal.LongRadixConstants.BASE_DIGITS;
 
 public class BigNum60 extends BigNum {
@@ -55,22 +54,16 @@ public class BigNum60 extends BigNum {
         if (temp == 0) {
             temp = 1;
         } else if (digits % SHIFT != 0) {
-            //0 is floor
-            if(TaskDraw.BIGNUM_INITIALIZATION_ALGORITHM == 1) { //always
-                temp++;
-            }
-            else if (TaskDraw.BIGNUM_INITIALIZATION_ALGORITHM == 2) { //round
-                temp = (int)(res + 0.5);
-            }
+            temp++;
         }
 
-        fracDigits = temp * TaskDraw.BIGNUM_PRECISION_FACTOR;
+        fracDigits = temp * TaskRender.BIGNUM_PRECISION_FACTOR;
 
         initializeInternal();
     }
 
     public static void reinitializeTest(double digits) {
-        fracDigits = ((int)(digits / SHIFT) + 1) * TaskDraw.BIGNUM_PRECISION_FACTOR;
+        fracDigits = ((int)(digits / SHIFT) + 1) * TaskRender.BIGNUM_PRECISION_FACTOR;
         initializeInternal();
     }
 
@@ -84,7 +77,7 @@ public class BigNum60 extends BigNum {
         initialLength = fracDigitsHalf - ((fracDigitsp1) % 2);
         evenFracDigits = (fracDigits & 1) == 0;
 
-        use_threads = TaskDraw.USE_THREADS_IN_BIGNUM_LIBS && fracDigits >= THREADS_THRESHOLD && Runtime.getRuntime().availableProcessors() >= 2;
+        use_threads = TaskRender.USE_THREADS_IN_BIGNUM_LIBS && fracDigits >= THREADS_THRESHOLD && Runtime.getRuntime().availableProcessors() >= 2;
     }
 
     private static BigNum60 getMax() {

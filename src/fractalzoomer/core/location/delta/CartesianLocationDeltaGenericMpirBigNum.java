@@ -4,15 +4,16 @@ import fractalzoomer.core.GenericComplex;
 import fractalzoomer.core.MantExp;
 import fractalzoomer.core.MpirBigNumComplex;
 import fractalzoomer.core.location.normal.CartesianLocationNormalMpirBigNumArbitrary;
+import fractalzoomer.core.mpfr.MpfrBigNum;
 import fractalzoomer.core.mpir.MpirBigNum;
 import fractalzoomer.functions.Fractal;
 import fractalzoomer.main.app_settings.JitterSettings;
 import org.apfloat.Apfloat;
 
 public abstract class CartesianLocationDeltaGenericMpirBigNum extends CartesianLocationNormalMpirBigNumArbitrary {
-    protected CartesianLocationDeltaGenericMpirBigNum(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int image_size, Apfloat[] rotation_center, Apfloat[] rotation_vals, Fractal fractal, JitterSettings js) {
+    protected CartesianLocationDeltaGenericMpirBigNum(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int width, int height, Apfloat[] rotation_center, Apfloat[] rotation_vals, Fractal fractal, JitterSettings js) {
 
-        super(xCenter, yCenter, size, height_ratio, image_size, rotation_center, rotation_vals, fractal, js);
+        super(xCenter, yCenter, size, height_ratio, width, height, rotation_center, rotation_vals, fractal, js);
 
     }
 
@@ -54,17 +55,16 @@ public abstract class CartesianLocationDeltaGenericMpirBigNum extends CartesianL
 
     @Override
     public MantExp getMaxSizeInImage() {
-        if(height_ratio == 1) {
-            MpirBigNum temp = ddsize.divide2();
-            return temp.mult(MpirBigNum.SQRT_TWO, temp).getMantExp();
-        }
-        else {
-            MpirBigNum temp = ddsize.divide2();
-            MpirBigNum temp2 = temp.mult(heightRatio);
-            temp.square(temp);
-            temp.add(temp2.square(temp2), temp);
-            return temp.sqrt(temp).getMantExp();
-        }
+        MpirBigNum temp = ddtemp_size_image_size_x.mult(new MpirBigNum(width * 0.5));
+        MpirBigNum temp2 = ddtemp_size_image_size_y.mult(new MpirBigNum(height * 0.5));
+
+        temp.square(temp);
+        temp2.square(temp2);
+
+        temp.add(temp2, temp);
+        temp.sqrt(temp);
+
+        return temp.getMantExp();
     }
 
     @Override

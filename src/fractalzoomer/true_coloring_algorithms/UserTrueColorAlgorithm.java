@@ -17,7 +17,7 @@
 package fractalzoomer.true_coloring_algorithms;
 
 import fractalzoomer.core.Complex;
-import fractalzoomer.core.TaskDraw;
+import fractalzoomer.core.TaskRender;
 import fractalzoomer.parser.ExpressionNode;
 import fractalzoomer.parser.Parser;
 import fractalzoomer.utils.ColorSpaceConverter;
@@ -41,6 +41,7 @@ public class UserTrueColorAlgorithm extends TrueColorAlgorithm {
         super();
 
         this.space = space;
+        this.globalVars = globalVars;
 
         parser1 = new Parser();
         expr1 = parser1.parse(c1);
@@ -121,7 +122,7 @@ public class UserTrueColorAlgorithm extends TrueColorAlgorithm {
             parser3.setSizevalue(c_size);
         }
 
-        Complex c_isize = new Complex(TaskDraw.IMAGE_SIZE, 0);
+        Complex c_isize = new Complex(Math.min(TaskRender.WIDTH, TaskRender.HEIGHT), 0);
         if (parser1.foundISize()) {
             parser1.setISizevalue(c_isize);
         }
@@ -132,6 +133,33 @@ public class UserTrueColorAlgorithm extends TrueColorAlgorithm {
 
         if (parser3.foundISize()) {
             parser3.setISizevalue(c_isize);
+        }
+
+        Complex c_width = new Complex(TaskRender.WIDTH, 0);
+        if (parser1.foundWidth()) {
+            parser1.setWidthvalue(c_width);
+        }
+
+        if (parser2.foundWidth()) {
+            parser2.setWidthvalue(c_width);
+        }
+
+        if (parser3.foundWidth()) {
+            parser3.setWidthvalue(c_width);
+        }
+
+        Complex c_height = new Complex(TaskRender.HEIGHT, 0);
+
+        if (parser1.foundHeight()) {
+            parser1.setHeightvalue(c_height);
+        }
+
+        if (parser2.foundHeight()) {
+            parser2.setHeightvalue(c_height);
+        }
+
+        if (parser3.foundHeight()) {
+            parser3.setHeightvalue(c_height);
         }
 
         Complex c_point = new Complex(point[0], point[1]);

@@ -56,6 +56,7 @@ public class SetVariable implements ExpressionNodeVisitor
   @Override
   public void visit(VariableExpressionNode node)
   {
+    //Todo hopefully no collisions
     //if (node.getName().equals(name))
     if(node.getHash() == hash)
       node.setValue(new Complex(value));

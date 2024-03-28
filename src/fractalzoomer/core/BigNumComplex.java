@@ -298,8 +298,8 @@ public class BigNumComplex extends GenericComplex {
     public final BigNum norm_squared() {
 
         if(BigNum.useThreads()) {
-            Future<BigNum> temp1 = TaskDraw.reference_thread_executor.submit(() -> re.square());
-            Future<BigNum> temp2 = TaskDraw.reference_thread_executor.submit(() -> im.square());
+            Future<BigNum> temp1 = TaskRender.reference_thread_executor.submit(() -> re.square());
+            Future<BigNum> temp2 = TaskRender.reference_thread_executor.submit(() -> im.square());
 
             try {
                 return temp1.get().add(temp2.get());
@@ -508,9 +508,9 @@ public class BigNumComplex extends GenericComplex {
         BigNumComplex c = (BigNumComplex)cn;
 
         /*if(BigNum.useThreads2()) {
-            Future<BigNum> temp1 = TaskDraw.reference_thread_executor2.submit(() -> re.squareFull());
-            Future<BigNum> temp2 = TaskDraw.reference_thread_executor2.submit(() -> im.squareFull());
-            Future<BigNum> temp3 = TaskDraw.reference_thread_executor2.submit(() -> re.add(im).squareFull());
+            Future<BigNum> temp1 = TaskRender.reference_thread_executor2.submit(() -> re.squareFull());
+            Future<BigNum> temp2 = TaskRender.reference_thread_executor2.submit(() -> im.squareFull());
+            Future<BigNum> temp3 = TaskRender.reference_thread_executor2.submit(() -> re.add(im).squareFull());
 
             try {
                 BigNum resqr = temp1.get();
@@ -532,8 +532,8 @@ public class BigNumComplex extends GenericComplex {
         }*/
 //        else
         if(BigNum.useThreads()) {
-            Future<BigNum> temp1 = TaskDraw.reference_thread_executor.submit(() -> re.add(im).mult(re.sub(im)).add(c.re));
-            Future<BigNum> temp2 = TaskDraw.reference_thread_executor.submit(() -> re.mult(im).mult2().add(c.im));
+            Future<BigNum> temp1 = TaskRender.reference_thread_executor.submit(() -> re.add(im).mult(re.sub(im)).add(c.re));
+            Future<BigNum> temp2 = TaskRender.reference_thread_executor.submit(() -> re.mult(im).mult2().add(c.im));
 
             try {
                 return new BigNumComplex(temp1.get(), temp2.get());
@@ -879,6 +879,21 @@ public class BigNumComplex extends GenericComplex {
     @Override
     public BigComplex toBigComplex() {return new BigComplex(re.toApfloat(), im.toApfloat());}
 
+    @Override
+    public Object re() {
+        return getRe();
+    }
+
+    @Override
+    public Object im() {
+        return getIm();
+    }
+
+    @Override
+    public Object Norm() {
+        return norm();
+    }
+
     public static void main(String[] args) {
 
         MyApfloat.setPrecision(3000);
@@ -906,6 +921,6 @@ public class BigNumComplex extends GenericComplex {
         System.out.println(System.currentTimeMillis() - time);
         System.out.println(i);
 
-        TaskDraw.reference_thread_executor.shutdown();
+        TaskRender.reference_thread_executor.shutdown();
     }
 }

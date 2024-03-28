@@ -38,7 +38,7 @@ public class IterationDialog extends JDialog {
 
         ptra = ptr;
 
-        setTitle("Maximum Iterations Number");
+        setTitle("Maximum Iterations");
         setModal(true);
         setIconImage(MainWindow.getIcon("mandel2.png").getImage());
 

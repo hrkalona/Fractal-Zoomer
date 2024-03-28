@@ -17,7 +17,7 @@
 package fractalzoomer.functions.user_formulas;
 
 import fractalzoomer.core.Complex;
-import fractalzoomer.core.TaskDraw;
+import fractalzoomer.core.TaskRender;
 import fractalzoomer.fractal_options.initial_value.DefaultInitialValue;
 import fractalzoomer.fractal_options.initial_value.InitialValue;
 import fractalzoomer.fractal_options.initial_value.VariableConditionalInitialValue;
@@ -288,7 +288,9 @@ public class UserFormulaIterationBasedEscaping extends Julia {
 
         Complex c_center = new Complex(xCenter, yCenter);
         Complex c_size = new Complex(size, 0);
-        Complex c_isize = new Complex(TaskDraw.IMAGE_SIZE, 0);
+        Complex c_isize = new Complex(Math.min(TaskRender.WIDTH, TaskRender.HEIGHT), 0);
+        Complex c_width = new Complex(TaskRender.WIDTH, 0);
+        Complex c_height = new Complex(TaskRender.HEIGHT, 0);
 
         for (int i = 0; i < parser.length; i++) {
 
@@ -326,6 +328,14 @@ public class UserFormulaIterationBasedEscaping extends Julia {
 
             if (parser[i].foundISize()) {
                 parser[i].setISizevalue(c_isize);
+            }
+
+            if (parser[i].foundWidth()) {
+                parser[i].setWidthvalue(c_width);
+            }
+
+            if (parser[i].foundHeight()) {
+                parser[i].setHeightvalue(c_height);
             }
 
             if (parser[i].foundPoint()) {

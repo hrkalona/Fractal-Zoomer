@@ -7,9 +7,9 @@ import org.apfloat.Apfloat;
 
 public class CartesianLocationDeltaDeepBigIntNum extends CartesianLocationDeltaGenericBigIntNum {
 
-    public CartesianLocationDeltaDeepBigIntNum(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int image_size, Apfloat[] rotation_center, Apfloat[] rotation_vals, Fractal fractal, JitterSettings js) {
+    public CartesianLocationDeltaDeepBigIntNum(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int width, int height, Apfloat[] rotation_center, Apfloat[] rotation_vals, Fractal fractal, JitterSettings js) {
 
-        super(xCenter, yCenter, size, height_ratio, image_size, rotation_center, rotation_vals, fractal, js);
+        super(xCenter, yCenter, size, height_ratio, width, height, rotation_center, rotation_vals, fractal, js);
 
     }
 

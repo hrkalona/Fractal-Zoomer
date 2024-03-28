@@ -48,7 +48,7 @@ public class LinkLabel extends JLabel {
 	public LinkLabel(final String text, final String url) {
         setText(text);
         setForeground(Color.BLUE);
-        setCursor(new Cursor(Cursor.HAND_CURSOR));
+        setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         setToolTipText(url);
 
         addMouseListener(new MouseAdapter() {

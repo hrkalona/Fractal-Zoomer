@@ -54,10 +54,10 @@ public class SmoothEscapeTimeFieldLinesNova extends OutColorAlgorithm {
 
         double temp3;
         if(algorithm == 0) {
-            temp3 = (Integer)object[0] + SmoothEscapeTimeRootFindingMethod.getSmoothing1(object, log_convergent_bailout);
+            temp3 = (int)object[0] + SmoothEscapeTimeRootFindingMethod.getSmoothing1(object, log_convergent_bailout);
         }
         else {
-            temp3 = (Integer)object[0] + SmoothEscapeTimeRootFindingMethod.getSmoothing2(object, log_convergent_bailout);
+            temp3 = (int)object[0] + SmoothEscapeTimeRootFindingMethod.getSmoothing2(object, log_convergent_bailout);
         }
 
         return line ? temp3 : -(temp3 + INCREMENT);

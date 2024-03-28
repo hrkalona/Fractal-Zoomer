@@ -80,11 +80,18 @@ public class MathUtils {
 		return new BigPoint(temp1, temp2);
 	}
     
-    public static Apfloat[] convertFromCenterSizeToCorners(Apfloat xCenter, Apfloat yCenter, Apfloat size) {
+    public static Apfloat[] convertFromCenterSizeToCorners(Apfloat xCenter, Apfloat yCenter, Apfloat size, int width, int height) {
 
-		Apfloat point5 = new MyApfloat(0.5);
-		Apfloat sizePoint5 = MyApfloat.fp.multiply(size, point5);
-        return new Apfloat[] {MyApfloat.fp.subtract(xCenter, sizePoint5), MyApfloat.fp.add(yCenter, sizePoint5), MyApfloat.fp.add(xCenter, sizePoint5), MyApfloat.fp.subtract(yCenter, sizePoint5)};
+		int image_size = Math.min(width, height);
+		double coefx = width == image_size ? 0.5 : (1 + (width - (double)height) / height) * 0.5;
+		double coefy = height == image_size ? 0.5 : (1 + (height - (double)width) / width) * 0.5;
+
+		Apfloat coefxdd = new MyApfloat(coefx);
+		Apfloat coefydd = new Apfloat(coefy);
+
+		Apfloat sizeX = MyApfloat.fp.multiply(size, coefxdd);
+		Apfloat sizeY = MyApfloat.fp.multiply(size, coefydd);
+        return new Apfloat[] {MyApfloat.fp.subtract(xCenter, sizeX), MyApfloat.fp.add(yCenter, sizeY), MyApfloat.fp.add(xCenter, sizeX), MyApfloat.fp.subtract(yCenter, sizeY)};
         
     }
     
@@ -92,7 +99,7 @@ public class MathUtils {
 
 		Apfloat xLen = ApfloatMath.abs(MyApfloat.fp.subtract(corners[0], corners[2]));
 		Apfloat yLen = ApfloatMath.abs(MyApfloat.fp.subtract(corners[1], corners[3]));
-		Apfloat size = ApfloatMath.max(xLen, yLen);
+		Apfloat size = ApfloatMath.min(xLen, yLen);
 
 		Apfloat topX = ApfloatMath.min(corners[0], corners[2]);
 		Apfloat topY = ApfloatMath.max(corners[1], corners[3]);

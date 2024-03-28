@@ -10,8 +10,8 @@ import org.apfloat.Apfloat;
 public class CartesianLocationNormalBigIntNumArbitrary extends Location {
     protected BigIntNum ddxcenter;
     protected BigIntNum ddycenter;
-    private BigIntNum bntemp_size_image_size_x;
-    private BigIntNum bntemp_size_image_size_y;
+    protected BigIntNum bntemp_size_image_size_x;
+    protected BigIntNum bntemp_size_image_size_y;
     private BigIntNum bntemp_xcenter_size;
     private BigIntNum bntemp_ycenter_size;
 
@@ -25,38 +25,42 @@ public class CartesianLocationNormalBigIntNumArbitrary extends Location {
     private BigIntNum bntempY;
 
     protected BigIntNum bnsize;
-    protected Apfloat ddsize;
-
-    protected Apfloat height_ratio;
-    protected Apfloat point5;
 
     private JitterSettings js;
 
-    public CartesianLocationNormalBigIntNumArbitrary(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int image_size_in, Apfloat[] rotation_center, Apfloat[] rotation_vals, Fractal fractal, JitterSettings js) {
+    private BigIntNum coefxdd;
+    private BigIntNum coefydd;
+
+    protected int width;
+    protected int height;
+
+    public CartesianLocationNormalBigIntNumArbitrary(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int width, int height, Apfloat[] rotation_center, Apfloat[] rotation_vals, Fractal fractal, JitterSettings js) {
 
         super();
 
         this.fractal = fractal;
 
-        point5 = new MyApfloat(0.5);
+        width = offset.getWidth(width);
+        height = offset.getHeight(height);
+        int image_size = Math.min(width, height);
+        double coefx = width == image_size ? 0.5 : (1 + (width - (double)height) / height) * 0.5;
+        double coefy = height == image_size ? 0.5 : (1 + (height - (double)width) / width) * 0.5;
 
-        this.height_ratio = new MyApfloat(height_ratio);
-
-        int image_size = offset.getImageSize(image_size_in);
+        coefxdd = new BigIntNum(coefx);
+        coefydd = new BigIntNum(coefy);
 
         BigIntNum biSize = new BigIntNum(size);
 
-        BigIntNum size_2_x = biSize.divide2();
+        BigIntNum size_2_x = biSize.mult(coefxdd);
         BigIntNum ddimage_size = new BigIntNum(image_size);
 
         bnsize = new BigIntNum(size);
-        ddsize = size;
 
         ddxcenter = new BigIntNum(xCenter);
         ddycenter = new BigIntNum(yCenter);
 
-        BigIntNum temp = biSize.mult(new BigIntNum(this.height_ratio));
-        BigIntNum size_2_y = temp.divide2();
+        BigIntNum temp = biSize.mult(new BigIntNum(height_ratio));
+        BigIntNum size_2_y = temp.mult(coefydd);
         bntemp_size_image_size_x = biSize.divide(ddimage_size);
         bntemp_size_image_size_y = temp.divide(ddimage_size);
 
@@ -65,6 +69,8 @@ public class CartesianLocationNormalBigIntNumArbitrary extends Location {
 
         rotation = new Rotation(new BigIntNumComplex(rotation_vals[0], rotation_vals[1]), new BigIntNumComplex(rotation_center[0], rotation_center[1]));
         this.js = js;
+        this.width = width;
+        this.height = height;
 
     }
 
@@ -75,8 +81,6 @@ public class CartesianLocationNormalBigIntNumArbitrary extends Location {
         fractal = other.fractal;
 
         bnsize = other.bnsize;
-        ddsize = other.ddsize;
-        height_ratio = other.height_ratio;
 
         ddxcenter = other.ddxcenter;
         ddycenter = other.ddycenter;
@@ -91,7 +95,10 @@ public class CartesianLocationNormalBigIntNumArbitrary extends Location {
         bnantialiasing_y = other.bnantialiasing_y;
 
         js = other.js;
-        point5 = other.point5;
+        coefxdd = other.coefxdd;
+        coefydd = other.coefydd;
+        width = other.width;
+        height = other.height;
 
     }
 

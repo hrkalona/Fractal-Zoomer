@@ -480,7 +480,7 @@ public class NormalMap extends GenericStatistic {
     }
 
     @Override
-    public double getValueNotEscaped() {
+    protected double getValueNotEscaped() {
         boolean oldnormalMapUseDE = normalMapUseDE;
         normalMapUseDE = false;
         double val = getValue();
@@ -489,7 +489,7 @@ public class NormalMap extends GenericStatistic {
     }
 
     @Override
-    public double getValue() {
+    protected double getValue() {
 
         if(normalMapUseDE && !normalMapDEAAEffect) {
 
@@ -680,7 +680,7 @@ public class NormalMap extends GenericStatistic {
             t = t > 1 ? 1 : t;
         }
 
-        return TaskDraw.fade(deFadeAlgorithm, t);
+        return TaskRender.fade(deFadeAlgorithm, t);
 
     }
 
@@ -693,10 +693,10 @@ public class NormalMap extends GenericStatistic {
         super.setSize(size, height_ratio);
 
         if(height_ratio == 1) {
-            DELimit_m = new MantExp(MyApfloat.fp.multiply(MyApfloat.fp.divide(size, new MyApfloat(TaskDraw.IMAGE_SIZE)), new MyApfloat(normalMapDEfactor)));
+            DELimit_m = new MantExp(MyApfloat.fp.multiply(MyApfloat.fp.divide(size, new MyApfloat(Math.min(TaskRender.WIDTH, TaskRender.HEIGHT))), new MyApfloat(normalMapDEfactor)));
         }
         else {
-            Apfloat a = MyApfloat.fp.divide(size, new MyApfloat(TaskDraw.IMAGE_SIZE));
+            Apfloat a = MyApfloat.fp.divide(size, new MyApfloat(Math.min(TaskRender.WIDTH, TaskRender.HEIGHT)));
             Apfloat b = MyApfloat.fp.multiply(a, new MyApfloat(height_ratio));
             Apfloat c = MyApfloat.fp.sqrt(MyApfloat.fp.add(MyApfloat.fp.multiply(a, a), MyApfloat.fp.multiply(b, b)));
             DELimit_m = new MantExp(MyApfloat.fp.multiply(c, new MyApfloat(normalMapDEfactor)));
@@ -704,7 +704,7 @@ public class NormalMap extends GenericStatistic {
 
         DELimit = DELimit_m.toDouble();
 
-        supportsDeepCalc = (function >= MainWindow.MANDELBROT && function <= MainWindow.MANDELBROTFIFTH  || function == MainWindow.LAMBDA) && (TaskDraw.PERTURBATION_THEORY || TaskDraw.HIGH_PRECISION_CALCULATION);
+        supportsDeepCalc = (function >= MainWindow.MANDELBROT && function <= MainWindow.MANDELBROTFIFTH  || function == MainWindow.LAMBDA) && (TaskRender.PERTURBATION_THEORY || TaskRender.HIGH_PRECISION_CALCULATION);
     }
 
     @Override

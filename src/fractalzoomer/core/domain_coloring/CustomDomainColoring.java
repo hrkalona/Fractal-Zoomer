@@ -17,7 +17,6 @@
 package fractalzoomer.core.domain_coloring;
 
 import fractalzoomer.core.Complex;
-import fractalzoomer.core.TaskDraw;
 import fractalzoomer.core.blending.Blending;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.DomainColoringSettings;

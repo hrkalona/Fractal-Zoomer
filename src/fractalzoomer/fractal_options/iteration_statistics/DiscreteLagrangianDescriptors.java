@@ -183,7 +183,7 @@ public class DiscreteLagrangianDescriptors extends GenericStatistic {
     }
 
     @Override
-    public double getValue() {
+    protected double getValue() {
 
         if(keepLastXItems) {
             int[] sample_vals = sampleLastX();
@@ -244,7 +244,7 @@ public class DiscreteLagrangianDescriptors extends GenericStatistic {
     }
 
     @Override
-    public double getValueNotEscaped() {
+    protected double getValueNotEscaped() {
         return 20 * super.getValueNotEscaped();
     }
 

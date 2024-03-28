@@ -130,6 +130,10 @@ public class Parser {
     boolean found_size;
     boolean found_point;
     boolean found_isize;
+
+    boolean found_width;
+
+    boolean found_height;
     boolean found_r;
     boolean found_stat;
     boolean found_trap;
@@ -150,6 +154,9 @@ public class Parser {
     ArrayList<VariableExpressionNode> center_var;
     ArrayList<VariableExpressionNode> size_var;
     ArrayList<VariableExpressionNode> isize_var;
+
+    ArrayList<VariableExpressionNode> width_var;
+    ArrayList<VariableExpressionNode> height_var;
     ArrayList<ArrayList<VariableExpressionNode>> vars_var;
     ArrayList<VariableExpressionNode> point_var;
     ArrayList<VariableExpressionNode> r_var;
@@ -170,6 +177,8 @@ public class Parser {
     VariableExpressionNode[] center_var_arr;
     VariableExpressionNode[] size_var_arr;
     VariableExpressionNode[] isize_var_arr;
+    VariableExpressionNode[] width_var_arr;
+    VariableExpressionNode[] height_var_arr;
     VariableExpressionNode[][] vars_var_arr;
     VariableExpressionNode[] point_var_arr;
     VariableExpressionNode[] r_var_arr;
@@ -205,6 +214,8 @@ public class Parser {
         found_center = false;
         found_size = false;
         found_isize = false;
+        found_width = false;
+        found_height = false;
         found_point = false;
         found_r = false;
         found_stat = false;
@@ -230,6 +241,8 @@ public class Parser {
         center_var = new ArrayList<>();
         size_var = new ArrayList<>();
         isize_var = new ArrayList<>();
+        width_var = new ArrayList<>();
+        height_var = new ArrayList<>();
         vars_var = new ArrayList<>();
         r_var = new ArrayList<>();
         stat_var = new ArrayList<>();
@@ -287,6 +300,8 @@ public class Parser {
         center_var_arr = new VariableExpressionNode[center_var.size()];
         size_var_arr = new VariableExpressionNode[size_var.size()];
         isize_var_arr = new VariableExpressionNode[isize_var.size()];
+        width_var_arr = new VariableExpressionNode[width_var.size()];
+        height_var_arr = new VariableExpressionNode[height_var.size()];
         point_var_arr = new VariableExpressionNode[point_var.size()];
         r_var_arr = new VariableExpressionNode[r_var.size()];
         stat_var_arr = new VariableExpressionNode[stat_var.size()];
@@ -306,6 +321,8 @@ public class Parser {
         center_var_arr = center_var.toArray(center_var_arr);
         size_var_arr = size_var.toArray(size_var_arr);
         isize_var_arr = isize_var.toArray(isize_var_arr);
+        width_var_arr = width_var.toArray(width_var_arr);
+        height_var_arr = height_var.toArray(height_var_arr);
         point_var_arr = point_var.toArray(point_var_arr);
         r_var_arr = r_var.toArray(r_var_arr);
         stat_var_arr = stat_var.toArray(stat_var_arr);
@@ -693,7 +710,10 @@ public class Parser {
                     && !temp.equalsIgnoreCase("trap")
                     && !temp.equalsIgnoreCase("rand")
                     && !temp.equalsIgnoreCase("c0")
-                    && !temp.equalsIgnoreCase("pixel")) {
+                    && !temp.equalsIgnoreCase("pixel")
+                    && !temp.equalsIgnoreCase("width")
+                    && !temp.equalsIgnoreCase("height")
+            ) {
                 throw new ParserException("Unrecognized variable %s found.", lookahead);
             }
 
@@ -791,6 +811,16 @@ public class Parser {
             if(temp.equalsIgnoreCase("sizei")) {
                 found_isize = true;
                 isize_var.add((VariableExpressionNode)expr);
+            }
+
+            if(temp.equalsIgnoreCase("width")) {
+                found_width = true;
+                width_var.add((VariableExpressionNode)expr);
+            }
+
+            if(temp.equalsIgnoreCase("height")) {
+                found_height = true;
+                height_var.add((VariableExpressionNode)expr);
             }
 
             if(temp.equalsIgnoreCase("maxn")) {
@@ -983,6 +1013,14 @@ public class Parser {
         return found_isize;
     }
 
+    public boolean foundWidth() {
+        return found_width;
+    }
+
+    public boolean foundHeight() {
+        return found_height;
+    }
+
     public boolean foundPoint() {
         return found_point;
     }
@@ -1125,6 +1163,22 @@ public class Parser {
 
         for(int i = 0; i < isize_var_arr.length; i++) {
             isize_var_arr[i].setValue(new Complex(value));
+        }
+
+    }
+
+    public void setWidthvalue(Complex value) {
+
+        for(int i = 0; i < width_var_arr.length; i++) {
+            width_var_arr[i].setValue(new Complex(value));
+        }
+
+    }
+
+    public void setHeightvalue(Complex value) {
+
+        for(int i = 0; i < height_var_arr.length; i++) {
+            height_var_arr[i].setValue(new Complex(value));
         }
 
     }

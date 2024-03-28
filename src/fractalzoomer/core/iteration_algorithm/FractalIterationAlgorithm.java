@@ -46,6 +46,13 @@ public class FractalIterationAlgorithm extends IterationAlgorithm {
     }
 
     @Override
+    public double[] calculateVectorized(GenericComplex[] numbers) {
+
+        return fractal.calculateFractalVectorized(numbers);
+
+    }
+
+    @Override
     public void calculateOrbit() {
         
         fractal.calculateFractalOrbit();

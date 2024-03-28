@@ -16,7 +16,7 @@
  */
 package fractalzoomer.gui;
 
-import fractalzoomer.core.TaskDraw;
+import fractalzoomer.core.TaskRender;
 import fractalzoomer.functions.Fractal;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
@@ -120,7 +120,7 @@ public class PeriodDialog extends JDialog {
                             s.old_max_iterations = s.max_iterations;
                             s.max_iterations = (int) temp2;
                             
-                            if(s.fns.period != temp && s.supportsPeriod() && (TaskDraw.APPROXIMATION_ALGORITHM == 3 || (TaskDraw.DETECT_PERIOD && TaskDraw.STOP_REFERENCE_CALCULATION_AFTER_DETECTED_PERIOD))) {
+                            if(s.fns.period != temp && s.supportsPeriod() && (TaskRender.APPROXIMATION_ALGORITHM == 3 || (TaskRender.DETECT_PERIOD && TaskRender.STOP_REFERENCE_CALCULATION_AFTER_DETECTED_PERIOD))) {
                                 Fractal.clearReferences(true, true);
                             }
 

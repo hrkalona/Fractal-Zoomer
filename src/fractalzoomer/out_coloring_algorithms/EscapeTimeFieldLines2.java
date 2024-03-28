@@ -44,7 +44,7 @@ public class EscapeTimeFieldLines2 extends OutColorAlgorithm {
 
         boolean line = Math.abs(fx) < (1.0 - lineWidth)*fz && lineWidth * fz < Math.abs(fx); 
                 
-        return line ? (Integer)object[0] : -((Integer)object[0] + INCREMENT);
+        return line ? (int)object[0] : -((int)object[0] + INCREMENT);
 
     }
     

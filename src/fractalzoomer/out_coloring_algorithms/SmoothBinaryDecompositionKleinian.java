@@ -33,7 +33,7 @@ public class SmoothBinaryDecompositionKleinian extends OutColorAlgorithm {
     @Override
     public double getResult(Object[] object) {
 
-        double temp = (Integer)object[0] + 1 + Math.log(((Complex)object[1]).sub_i(u).norm());
+        double temp = (int)object[0] + 1 + Math.log(((Complex)object[1]).sub_i(u).norm());
 
         return ((Complex)object[1]).getIm() < 0 ? -(temp + INCREMENT) : temp;
 

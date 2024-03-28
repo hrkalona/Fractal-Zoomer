@@ -203,7 +203,7 @@ public class MyApfloat extends Apfloat {
 
         NativeLoader.init();
 
-        if(TaskDraw.BIGNUM_AUTOMATIC_PRECISION) {
+        if(TaskRender.BIGNUM_AUTOMATIC_PRECISION) {
             double temp = fp.divide(fp.log(fp.pow(TEN, precision)), LOG_TWO).doubleValue();
 
             BigNum.reinitialize(temp);
@@ -212,13 +212,13 @@ public class MyApfloat extends Apfloat {
             MpirBigNum.reinitialize(temp);
         }
         else {
-            BigNum.reinitialize(TaskDraw.BIGNUM_PRECISION);
-            BigIntNum.reinitialize(TaskDraw.BIGNUM_PRECISION);
-            MpfrBigNum.reinitialize(TaskDraw.BIGNUM_PRECISION);
-            MpirBigNum.reinitialize(TaskDraw.BIGNUM_PRECISION);
+            BigNum.reinitialize(TaskRender.BIGNUM_PRECISION);
+            BigIntNum.reinitialize(TaskRender.BIGNUM_PRECISION);
+            MpfrBigNum.reinitialize(TaskRender.BIGNUM_PRECISION);
+            MpirBigNum.reinitialize(TaskRender.BIGNUM_PRECISION);
         }
 
-        use_threads = TaskDraw.USE_THREADS_IN_BIGNUM_LIBS && precision >= THREADS_THRESHOLD && Runtime.getRuntime().availableProcessors() >= 2;
+        use_threads = TaskRender.USE_THREADS_IN_BIGNUM_LIBS && precision >= THREADS_THRESHOLD && Runtime.getRuntime().availableProcessors() >= 2;
     }
 
     public static void setPrecision(long prec) {
@@ -234,7 +234,7 @@ public class MyApfloat extends Apfloat {
         MIN_DOUBLE_SIZE = new MyApfloat(5.0e-13);
         SA_START_SIZE = new MyApfloat(1.0e-5);
 
-        if(TaskDraw.BIGNUM_AUTOMATIC_PRECISION) {
+        if(TaskRender.BIGNUM_AUTOMATIC_PRECISION) {
             double temp = fp.divide(fp.log(fp.pow(TEN, precision)), LOG_TWO).doubleValue();
 
             BigNum.reinitialize(temp);
@@ -243,13 +243,13 @@ public class MyApfloat extends Apfloat {
             MpirBigNum.reinitialize(temp);
         }
         else {
-            BigNum.reinitialize(TaskDraw.BIGNUM_PRECISION);
-            BigIntNum.reinitialize(TaskDraw.BIGNUM_PRECISION);
-            MpfrBigNum.reinitialize(TaskDraw.BIGNUM_PRECISION);
-            MpirBigNum.reinitialize(TaskDraw.BIGNUM_PRECISION);
+            BigNum.reinitialize(TaskRender.BIGNUM_PRECISION);
+            BigIntNum.reinitialize(TaskRender.BIGNUM_PRECISION);
+            MpfrBigNum.reinitialize(TaskRender.BIGNUM_PRECISION);
+            MpirBigNum.reinitialize(TaskRender.BIGNUM_PRECISION);
         }
 
-        use_threads = TaskDraw.USE_THREADS_IN_BIGNUM_LIBS && precision >= THREADS_THRESHOLD && Runtime.getRuntime().availableProcessors() >= 2;
+        use_threads = TaskRender.USE_THREADS_IN_BIGNUM_LIBS && precision >= THREADS_THRESHOLD && Runtime.getRuntime().availableProcessors() >= 2;
     }
 
     public static void setPrecision(long prec, Settings s) {

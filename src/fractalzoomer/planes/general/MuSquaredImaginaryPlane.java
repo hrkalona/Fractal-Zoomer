@@ -36,7 +36,7 @@ public class MuSquaredImaginaryPlane extends Plane {
         super();
         exponent = new Complex(0, 2);
 
-        if(TaskDraw.PERTURBATION_THEORY || TaskDraw.HIGH_PRECISION_CALCULATION) {
+        if(TaskRender.PERTURBATION_THEORY || TaskRender.HIGH_PRECISION_CALCULATION) {
 
             ddcexponent = new DDComplex(0, 2);
 

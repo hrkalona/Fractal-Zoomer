@@ -11,8 +11,8 @@ import org.apfloat.Apfloat;
 
 public abstract class CartesianLocationDeltaGenericApfloat extends CartesianLocationNormalApfloatArbitrary {
 
-    protected CartesianLocationDeltaGenericApfloat(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int image_size, Apfloat[] rotation_center, Apfloat[] rotation_vals, Fractal fractal, JitterSettings js) {
-        super(xCenter, yCenter, size, height_ratio, image_size, rotation_center, rotation_vals, fractal, js);
+    protected CartesianLocationDeltaGenericApfloat(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int width, int height, Apfloat[] rotation_center, Apfloat[] rotation_vals, Fractal fractal, JitterSettings js) {
+        super(xCenter, yCenter, size, height_ratio, width, height, rotation_center, rotation_vals, fractal, js);
     }
 
     protected CartesianLocationDeltaGenericApfloat(CartesianLocationDeltaGenericApfloat other) {
@@ -52,14 +52,13 @@ public abstract class CartesianLocationDeltaGenericApfloat extends CartesianLoca
 
     @Override
     public MantExp getMaxSizeInImage() {
-        if(height_ratio.compareTo(Apfloat.ONE) == 0) {
-            return new MantExp(MyApfloat.fp.multiply(MyApfloat.fp.multiply(ddsize, point5), MyApfloat.SQRT_TWO));
-        }
-        else {
-            Apfloat temp = MyApfloat.fp.multiply(ddsize, point5);
-            Apfloat temp2 = MyApfloat.fp.multiply(temp, height_ratio);
-            return new MantExp(MyApfloat.fp.sqrt(MyApfloat.fp.add(MyApfloat.fp.multiply(temp, temp), MyApfloat.fp.multiply(temp2, temp2))));
-        }
+        Apfloat temp = MyApfloat.fp.multiply(ddtemp_xcenter_size, new MyApfloat(width * 0.5));
+
+        Apfloat temp2 = MyApfloat.fp.multiply(ddtemp_ycenter_size, new MyApfloat(height * 0.5));
+
+        temp = MyApfloat.fp.multiply(temp, temp);
+        temp2 = MyApfloat.fp.multiply(temp2, temp2);
+        return new MantExp(MyApfloat.fp.sqrt(MyApfloat.fp.add(temp, temp2)));
     }
 
     @Override

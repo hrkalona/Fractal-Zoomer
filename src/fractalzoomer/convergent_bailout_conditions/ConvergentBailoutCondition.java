@@ -38,7 +38,7 @@ public abstract class ConvergentBailoutCondition {
         
         this.convergent_bailout = convergent_bailout;
 
-        if(TaskDraw.PERTURBATION_THEORY || TaskDraw.HIGH_PRECISION_CALCULATION) {
+        if(TaskRender.PERTURBATION_THEORY || TaskRender.HIGH_PRECISION_CALCULATION) {
             ddconvergent_bailout = new MyApfloat(convergent_bailout);
             ddcconvergent_bailout = new DoubleDouble(convergent_bailout);
             binddconvergent_bailout = new BigIntNum(convergent_bailout);

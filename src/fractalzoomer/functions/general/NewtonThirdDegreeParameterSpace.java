@@ -268,7 +268,7 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
 
         boolean lowPrecReferenceOrbitNeeded = !needsOnlyExtendedReferenceOrbit(deepZoom, false);
         DoubleReference.SHOULD_SAVE_MEMORY = false;
-        boolean useCompressedRef = TaskDraw.COMPRESS_REFERENCE_IF_POSSIBLE && supportsReferenceCompression();
+        boolean useCompressedRef = TaskRender.COMPRESS_REFERENCE_IF_POSSIBLE && supportsReferenceCompression();
         int[] preCalcIndexes = getNeededPrecalculatedTermsIndexes();
 
         if(iterations == 0) {
@@ -297,7 +297,7 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
             }
         }
 
-        int bigNumLib = TaskDraw.getBignumLibrary(size, this);
+        int bigNumLib = TaskRender.getBignumLibrary(size, this);
 
         GenericComplex z, c, zold, zold2, start, c0, initVal, pixel;
 
@@ -720,7 +720,7 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
 
         boolean lowPrecReferenceOrbitNeeded = !needsOnlyExtendedReferenceOrbit(deepZoom, false);
         DoubleReference.SHOULD_SAVE_MEMORY = false;
-        boolean useCompressedRef = TaskDraw.COMPRESS_REFERENCE_IF_POSSIBLE && supportsReferenceCompression();
+        boolean useCompressedRef = TaskRender.COMPRESS_REFERENCE_IF_POSSIBLE && supportsReferenceCompression();
         int[] preCalcIndexes = getNeededPrecalculatedTermsIndexes();
 
         if (iterations == 0) {
@@ -751,7 +751,7 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
 
         GenericComplex z, c, zold, zold2, start, c0, pixel, initVal;
 
-        int bigNumLib = TaskDraw.getBignumLibrary(size, this);
+        int bigNumLib = TaskRender.getBignumLibrary(size, this);
 
         if (bigNumLib == Constants.BIGNUM_MPFR) {
             MpfrBigNumComplex bn = new MpfrBigNumComplex(inputPixel.toMpfrBigNumComplex());
@@ -1338,7 +1338,7 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
 
         GenericComplex[] complex = new GenericComplex[2];
 
-        int lib = TaskDraw.getHighPrecisionLibrary(dsize, this);
+        int lib = TaskRender.getHighPrecisionLibrary(dsize, this);
 
         if(lib == ARBITRARY_MPFR) {
 
@@ -1430,7 +1430,7 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
 
     @Override
     public double getDoubleDoubleLimit() {
-        if(TaskDraw.HIGH_PRECISION_CALCULATION) {
+        if(TaskRender.HIGH_PRECISION_CALCULATION) {
             return super.getDoubleDoubleLimit();
         }
 
@@ -1444,7 +1444,7 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
 
     @Override
     public boolean needsExtendedRange() {
-        return TaskDraw.USE_FULL_FLOATEXP_FOR_ALL_ZOOM || (TaskDraw.USE_CUSTOM_FLOATEXP_REQUIREMENT && size < 1e-30);
+        return TaskRender.USE_FULL_FLOATEXP_FOR_ALL_ZOOM || (TaskRender.USE_CUSTOM_FLOATEXP_REQUIREMENT && size < 1e-30);
     }
 
     @Override

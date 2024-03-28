@@ -39,12 +39,12 @@ public class FoldOutPlane extends Plane {
 
         super();
         center = new Complex(plane_transform_radius, 0);
-        if(TaskDraw.PERTURBATION_THEORY || TaskDraw.HIGH_PRECISION_CALCULATION) {
+        if(TaskRender.PERTURBATION_THEORY || TaskRender.HIGH_PRECISION_CALCULATION) {
             ddcenter = new BigComplex(center);
             ddccenter = new DDComplex(center);
-            if (TaskDraw.allocateMPFR()) {
+            if (TaskRender.allocateMPFR()) {
                 mpfrbncenter = new MpfrBigNumComplex(center);
-            } else if (TaskDraw.allocateMPIR()) {
+            } else if (TaskRender.allocateMPIR()) {
                 mpirbncenter = new MpirBigNumComplex(center);
             }
         }

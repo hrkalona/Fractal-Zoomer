@@ -46,15 +46,15 @@ public class InversedLambdaPlane extends Plane {
         
         super();
 
-        if(TaskDraw.PERTURBATION_THEORY || TaskDraw.HIGH_PRECISION_CALCULATION) {
-            if (TaskDraw.allocateMPFR()) {
+        if(TaskRender.PERTURBATION_THEORY || TaskRender.HIGH_PRECISION_CALCULATION) {
+            if (TaskRender.allocateMPFR()) {
                 tempRe = new MpfrBigNum();
                 tempIm = new MpfrBigNum();
                 temp1 = new MpfrBigNum();
                 temp2 = new MpfrBigNum();
                 temp3 = new MpfrBigNum();
                 temp4 = new MpfrBigNum();
-            } else if (TaskDraw.allocateMPIR()) {
+            } else if (TaskRender.allocateMPIR()) {
                 tempRep = new MpirBigNum();
                 tempImp = new MpirBigNum();
                 temp1p = new MpirBigNum();

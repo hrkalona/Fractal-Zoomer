@@ -49,7 +49,7 @@ public class OutColoringFormulaDialog extends JDialog {
         //tabbedPane.setPreferredSize(new Dimension(550, 210));
         tabbedPane.setFocusable(false);
 
-        JTextField field_formula = new JTextField(MainWindow.runsOnWindows ? 50 : 45);//48
+        JTextField field_formula = new JTextField(MainWindow.runsOnWindows && !MainWindow.useCustomLaf ? 50 : 45);//48
         field_formula.setText(s.fns.outcoloring_formula);
 
         JPanel formula_panel = new JPanel();
@@ -74,13 +74,13 @@ public class OutColoringFormulaDialog extends JDialog {
         formula_panel_cond1.add(field_condition);
         formula_panel_cond1.add(field_condition2);
 
-        JTextField field_formula_cond1 = new JTextField(MainWindow.runsOnWindows ? 45 : 40);//35
+        JTextField field_formula_cond1 = new JTextField(MainWindow.runsOnWindows && !MainWindow.useCustomLaf ? 45 : 40);//35
         field_formula_cond1.setText(s.fns.user_outcoloring_condition_formula[0]);
 
-        JTextField field_formula_cond2 = new JTextField(MainWindow.runsOnWindows ? 45 : 40);//35
+        JTextField field_formula_cond2 = new JTextField(MainWindow.runsOnWindows && !MainWindow.useCustomLaf ? 45 : 40);//35
         field_formula_cond2.setText(s.fns.user_outcoloring_condition_formula[1]);
 
-        JTextField field_formula_cond3 = new JTextField(MainWindow.runsOnWindows ? 45 : 40);//35
+        JTextField field_formula_cond3 = new JTextField(MainWindow.runsOnWindows && !MainWindow.useCustomLaf ? 45 : 40);//35
         field_formula_cond3.setText(s.fns.user_outcoloring_condition_formula[2]);
 
         JPanel formula_panel_cond11 = new JPanel();
@@ -108,7 +108,7 @@ public class OutColoringFormulaDialog extends JDialog {
 
         tabbedPane.addTab("Conditional", panel_cond);
 
-        Object[] labels33 = ptra.createUserFormulaLabels("z, c, s, c0, pixel, p, pp, n, maxn, bail, cbail, center, size, sizei, v1 - v30, point");
+        Object[] labels33 = ptra.createUserFormulaLabels("z, c, s, c0, pixel, p, pp, n, maxn, bail, cbail, center, size, sizei, width, height, v1 - v30, point");
 
         tabbedPane.setSelectedIndex(s.fns.user_out_coloring_algorithm);
 

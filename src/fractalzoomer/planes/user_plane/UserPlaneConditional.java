@@ -18,7 +18,7 @@
 package fractalzoomer.planes.user_plane;
 
 import fractalzoomer.core.Complex;
-import fractalzoomer.core.TaskDraw;
+import fractalzoomer.core.TaskRender;
 import fractalzoomer.parser.ExpressionNode;
 import fractalzoomer.parser.Parser;
 import fractalzoomer.planes.Plane;
@@ -127,7 +127,7 @@ public class UserPlaneConditional extends Plane {
             parser2[2].setSizevalue(c_size);
         }
         
-        Complex c_isize = new Complex(TaskDraw.IMAGE_SIZE, 0);
+        Complex c_isize = new Complex(Math.min(TaskRender.WIDTH, TaskRender.HEIGHT), 0);
         if (parser[0].foundISize()) {
             parser[0].setISizevalue(c_isize);
         }
@@ -146,6 +146,50 @@ public class UserPlaneConditional extends Plane {
 
         if (parser2[2].foundISize()) {
             parser2[2].setISizevalue(c_isize);
+        }
+
+        Complex c_width = new Complex(TaskRender.WIDTH, 0);
+
+        if (parser[0].foundWidth()) {
+            parser[0].setWidthvalue(c_width);
+        }
+
+        if (parser[1].foundWidth()) {
+            parser[1].setWidthvalue(c_width);
+        }
+
+        if (parser2[0].foundWidth()) {
+            parser2[0].setWidthvalue(c_width);
+        }
+
+        if (parser2[1].foundWidth()) {
+            parser2[1].setWidthvalue(c_width);
+        }
+
+        if (parser2[2].foundWidth()) {
+            parser2[2].setWidthvalue(c_width);
+        }
+
+        Complex c_height = new Complex(TaskRender.HEIGHT, 0);
+
+        if (parser[0].foundHeight()) {
+            parser[0].setHeightvalue(c_height);
+        }
+
+        if (parser[1].foundHeight()) {
+            parser[1].setHeightvalue(c_height);
+        }
+
+        if (parser2[0].foundHeight()) {
+            parser2[0].setHeightvalue(c_height);
+        }
+
+        if (parser2[1].foundHeight()) {
+            parser2[1].setHeightvalue(c_height);
+        }
+
+        if (parser2[2].foundHeight()) {
+            parser2[2].setHeightvalue(c_height);
         }
         
         Complex c_point = new Complex(point[0], point[1]);

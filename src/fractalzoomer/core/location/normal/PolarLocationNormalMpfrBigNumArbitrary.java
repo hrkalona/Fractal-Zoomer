@@ -12,8 +12,6 @@ import org.apfloat.Apfloat;
 public class PolarLocationNormalMpfrBigNumArbitrary extends Location {
     protected Rotation rotation;
 
-    protected int image_size;
-
     protected MpfrBigNum ddxcenter;
     protected MpfrBigNum ddycenter;
 
@@ -21,7 +19,8 @@ public class PolarLocationNormalMpfrBigNumArbitrary extends Location {
 
     private MpfrBigNum ddmuly;
     protected MpfrBigNum ddmulx;
-    private MpfrBigNum ddstart;
+    private MpfrBigNum ddstartx;
+    private MpfrBigNum ddstarty;
     protected MpfrBigNum ddcenter;
     private MpfrBigNum[] ddantialiasing_y_sin;
     private MpfrBigNum[] ddantialiasing_y_cos;
@@ -51,12 +50,16 @@ public class PolarLocationNormalMpfrBigNumArbitrary extends Location {
 
     private boolean requiresVariablePixelSize;
 
-    public PolarLocationNormalMpfrBigNumArbitrary(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int image_size_in, double circle_period, Apfloat[] rotation_center, Apfloat[] rotation_vals, Fractal fractal, JitterSettings js) {
+    protected int width;
+
+    public PolarLocationNormalMpfrBigNumArbitrary(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int width, int height, double circle_period, Apfloat[] rotation_center, Apfloat[] rotation_vals, Fractal fractal, JitterSettings js) {
 
         super();
 
         this.fractal = fractal;
-        this.image_size = offset.getImageSize(image_size_in);
+        width = offset.getWidth(width);
+        height = offset.getHeight(height);
+        int image_size = Math.min(width, height);
 
         requiresVariablePixelSize = fractal.requiresVariablePixelSize();
 
@@ -66,6 +69,8 @@ public class PolarLocationNormalMpfrBigNumArbitrary extends Location {
         ddcenter = new MpfrBigNum(size);
         ddcenter.log(ddcenter);
 
+        double coefx = width == image_size ? 0.5 : (1 + (width - (double)height) / height) * 0.5;
+        double coefy = height == image_size ? 0.5 : (1 + (height - (double)width) / width) * 0.5;
 
         ddmuly = MpfrBigNum.PI.mult(2.0 * circle_period);
         ddmuly.divide(image_size, ddmuly);
@@ -73,10 +78,13 @@ public class PolarLocationNormalMpfrBigNumArbitrary extends Location {
 
         ddmulx = ddmuly.mult(height_ratio);
 
-        ddstart = ddmulx.mult(image_size);
-        ddstart.divide2(ddstart);
+        ddstartx = ddmulx.mult(image_size);
+        ddstartx.mult(coefx, ddstartx);
 
-        ddcenter.sub(ddstart, ddstart);
+        ddcenter.sub(ddstartx, ddstartx);
+
+        ddstarty = ddmuly.mult(image_size);
+        ddstarty.mult(0.5 - coefy, ddstarty);
 
         rotation = new Rotation(new MpfrBigNumComplex(rotation_vals[0], rotation_vals[1]), new MpfrBigNumComplex(rotation_center[0], rotation_center[1]));
 
@@ -98,6 +106,7 @@ public class PolarLocationNormalMpfrBigNumArbitrary extends Location {
         tempResultY = new MpfrBigNum();
 
         this.js = js;
+        this.width = width;
     }
 
     public PolarLocationNormalMpfrBigNumArbitrary(PolarLocationNormalMpfrBigNumArbitrary other) {
@@ -113,14 +122,15 @@ public class PolarLocationNormalMpfrBigNumArbitrary extends Location {
 
         ddmulx = other.ddmulx;
         ddmuly = other.ddmuly;
-        ddstart = other.ddstart;
+        ddstartx = other.ddstartx;
+        ddstarty = other.ddstarty;
 
         ddemulx = other.ddemulx;
         ddInvemulx = other.ddInvemulx;
         ddcosmuly = other.ddcosmuly;
         ddsinmuly = other.ddsinmuly;
 
-        image_size = other.image_size;
+        width = other.width;
 
         rotation = other.rotation;
 
@@ -159,10 +169,11 @@ public class PolarLocationNormalMpfrBigNumArbitrary extends Location {
             double[] res = GetPixelOffset(y, x, js.jitterSeed, js.jitterShape, js.jitterScale);
 
             ddmulx.mult(x + res[1], temp_ddr);
-            temp_ddr.add(ddstart, temp_ddr);
+            temp_ddr.add(ddstartx, temp_ddr);
             temp_ddr.exp(temp_ddr);
 
             ddmuly.mult(y + res[0], tempResult);
+            tempResult.add(ddstarty, tempResult);
             tempResult.sin_cos(tempResult, tempResult3);
 
             //temp_ddsf.set(tempResult);
@@ -176,7 +187,7 @@ public class PolarLocationNormalMpfrBigNumArbitrary extends Location {
                 temp_ddr.mult(ddInvemulx, temp_ddr);
             } else if (x != indexX) {
                 ddmulx.mult(x, temp_ddr);
-                temp_ddr.add(ddstart, temp_ddr);
+                temp_ddr.add(ddstartx, temp_ddr);
                 temp_ddr.exp(temp_ddr);
             }
 
@@ -209,6 +220,7 @@ public class PolarLocationNormalMpfrBigNumArbitrary extends Location {
                 MpfrBigNum.set(temp_ddsf, temp_ddcf, tempResult, tempResult3);
             } else if (y != indexY) {
                 ddmuly.mult(y, tempResult);
+                tempResult.add(ddstarty, tempResult);
                 tempResult.sin_cos(tempResult, tempResult3);
 
                 //temp_ddsf.set(tempResult);
@@ -280,6 +292,7 @@ public class PolarLocationNormalMpfrBigNumArbitrary extends Location {
             } else if (y != indexY) {
 
                 ddmuly.mult(y, tempResult);
+                tempResult.add(ddstarty, tempResult);
                 tempResult.sin_cos(tempResult, tempResult3);
 
                 //temp_ddsf.set(tempResult);
@@ -304,7 +317,7 @@ public class PolarLocationNormalMpfrBigNumArbitrary extends Location {
                 temp_ddr.mult(ddInvemulx, temp_ddr);
             } else if (x != indexX) {
                 ddmulx.mult(x, temp_ddr);
-                temp_ddr.add(ddstart, temp_ddr);
+                temp_ddr.add(ddstartx, temp_ddr);
                 temp_ddr.exp(temp_ddr);
             }
         }
@@ -336,7 +349,7 @@ public class PolarLocationNormalMpfrBigNumArbitrary extends Location {
         }
         else if (x != indexX) {
             ddmulx.mult(x, temp_ddr);
-            temp_ddr.add(ddstart, temp_ddr);
+            temp_ddr.add(ddstartx, temp_ddr);
             temp_ddr.exp(temp_ddr);
         }
 
@@ -408,6 +421,7 @@ public class PolarLocationNormalMpfrBigNumArbitrary extends Location {
         else if (y != indexY) {
 
             ddmuly.mult(y, tempResult);
+            tempResult.add(ddstarty, tempResult);
             tempResult.sin_cos(tempResult, tempResult3);
 
             //temp_ddsf.set(tempResult);

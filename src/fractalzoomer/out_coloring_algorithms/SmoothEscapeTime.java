@@ -55,13 +55,13 @@ public class SmoothEscapeTime extends OutColorAlgorithm {
     public double getResult(Object[] object) {
         
         if(algorithm == 0 && !usePower) {
-            return (Integer)object[0] + getSmoothing1(object, Math.log(((Complex)object[1]).norm_squared()), log_bailout_squared);
+            return (int)object[0] + getSmoothing1(object, Math.log(((Complex)object[1]).norm_squared()), log_bailout_squared);
         }
         else {
             //double temp2 = ((Complex)object[1]).norm_squared();
-            //return (Integer)object[0] + 1 - Math.log(Math.log(temp2) / log_bailout_squared) / log_power;
+            //return (int)object[0] + 1 - Math.log(Math.log(temp2) / log_bailout_squared) / log_power;
 
-            return (Integer)object[0] + getSmoothing2(object, Math.log(((Complex)object[1]).norm_squared()), log_bailout_squared, usePower, log_power);
+            return (int)object[0] + getSmoothing2(object, Math.log(((Complex)object[1]).norm_squared()), log_bailout_squared, usePower, log_power);
 
         }
 

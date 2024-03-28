@@ -14,8 +14,8 @@ public class CartesianLocationNormalMpfrBigNumArbitrary extends Location {
     protected MpfrBigNum ddxcenter;
     protected MpfrBigNum ddycenter;
 
-    private MpfrBigNum ddtemp_size_image_size_x;
-    private MpfrBigNum ddtemp_size_image_size_y;
+    protected MpfrBigNum ddtemp_size_image_size_x;
+    protected MpfrBigNum ddtemp_size_image_size_y;
     private MpfrBigNum ddtemp_xcenter_size;
     private MpfrBigNum ddtemp_ycenter_size;
 
@@ -35,8 +35,10 @@ public class CartesianLocationNormalMpfrBigNumArbitrary extends Location {
     private MpfrBigNum tempResultY;
 
     private JitterSettings js;
+    protected int width;
+    protected int height;
 
-    public CartesianLocationNormalMpfrBigNumArbitrary(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int image_size_in, Apfloat[] rotation_center, Apfloat[] rotation_vals, Fractal fractal, JitterSettings js) {
+    public CartesianLocationNormalMpfrBigNumArbitrary(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int width, int height, Apfloat[] rotation_center, Apfloat[] rotation_vals, Fractal fractal, JitterSettings js) {
 
         super();
 
@@ -46,12 +48,16 @@ public class CartesianLocationNormalMpfrBigNumArbitrary extends Location {
 
         ddsize = new MpfrBigNum(size);
 
-        int image_size = offset.getImageSize(image_size_in);
+        width = offset.getWidth(width);
+        height = offset.getHeight(height);
+        int image_size = Math.min(width, height);
+        double coefx = width == image_size ? 0.5 : (1 + (width - (double)height) / height) * 0.5;
+        double coefy = height == image_size ? 0.5 : (1 + (height - (double)width) / width) * 0.5;
 
-        MpfrBigNum size_2_x = ddsize.divide2();
+        MpfrBigNum size_2_x = ddsize.mult(coefx);
 
         MpfrBigNum size_2_y = ddsize.mult(height_ratio);
-        size_2_y = size_2_y.divide2(size_2_y);
+        size_2_y = size_2_y.mult(coefy, size_2_y);
 
         ddtemp_size_image_size_x = ddsize.divide(image_size);
         ddtemp_size_image_size_y = ddsize.mult(height_ratio);
@@ -69,6 +75,8 @@ public class CartesianLocationNormalMpfrBigNumArbitrary extends Location {
         tempResultX = new MpfrBigNum();
         tempResultY = new MpfrBigNum();
         this.js = js;
+        this.width = width;
+        this.height = height;
 
     }
 

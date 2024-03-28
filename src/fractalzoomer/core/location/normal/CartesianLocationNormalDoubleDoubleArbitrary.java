@@ -12,8 +12,8 @@ import org.apfloat.Apfloat;
 public class CartesianLocationNormalDoubleDoubleArbitrary extends Location {
     protected DoubleDouble ddxcenter;
     protected DoubleDouble ddycenter;
-    private DoubleDouble ddtemp_size_image_size_x;
-    private DoubleDouble ddtemp_size_image_size_y;
+    protected DoubleDouble ddtemp_size_image_size_x;
+    protected DoubleDouble ddtemp_size_image_size_y;
     private DoubleDouble ddtemp_xcenter_size;
     private DoubleDouble ddtemp_ycenter_size;
 
@@ -31,8 +31,10 @@ public class CartesianLocationNormalDoubleDoubleArbitrary extends Location {
     protected double height_ratio;
 
     private JitterSettings js;
+    protected int width;
+    protected int height;
 
-    public CartesianLocationNormalDoubleDoubleArbitrary(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int image_size_in, Apfloat[] rotation_center, Apfloat[] rotation_vals, Fractal fractal, JitterSettings js) {
+    public CartesianLocationNormalDoubleDoubleArbitrary(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int width, int height, Apfloat[] rotation_center, Apfloat[] rotation_vals, Fractal fractal, JitterSettings js) {
 
         super();
 
@@ -42,16 +44,20 @@ public class CartesianLocationNormalDoubleDoubleArbitrary extends Location {
 
         ddsize = new DoubleDouble(size);
 
-        int image_size = offset.getImageSize(image_size_in);
+        width = offset.getWidth(width);
+        height = offset.getHeight(height);
+        int image_size = Math.min(width, height);
+        double coefx = width == image_size ? 0.5 : (1 + (width - (double)height) / height) * 0.5;
+        double coefy = height == image_size ? 0.5 : (1 + (height - (double)width) / width) * 0.5;
 
-        DoubleDouble size_2_x = ddsize.multiply(0.5);
+        DoubleDouble size_2_x = ddsize.multiply(coefx);
         DoubleDouble ddimage_size = new DoubleDouble(image_size);
 
         ddxcenter = new DoubleDouble(xCenter);
         ddycenter = new DoubleDouble(yCenter);
 
         DoubleDouble temp = ddsize.multiply(new DoubleDouble(height_ratio));
-        DoubleDouble size_2_y = temp.multiply(0.5);
+        DoubleDouble size_2_y = temp.multiply(coefy);
         ddtemp_size_image_size_x = ddsize.divide(ddimage_size);
         ddtemp_size_image_size_y = temp.divide(ddimage_size);
 
@@ -60,6 +66,8 @@ public class CartesianLocationNormalDoubleDoubleArbitrary extends Location {
 
         rotation = new Rotation(new DDComplex(rotation_vals[0], rotation_vals[1]), new DDComplex(rotation_center[0], rotation_center[1]));
         this.js = js;
+        this.width = width;
+        this.height = height;
 
     }
 
@@ -85,6 +93,8 @@ public class CartesianLocationNormalDoubleDoubleArbitrary extends Location {
         ddantialiasing_y = other.ddantialiasing_y;
 
         js = other.js;
+        width = other.width;
+        height = other.height;
 
     }
 

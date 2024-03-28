@@ -10,6 +10,8 @@ public class NumericalDistanceEstimatorSettings {
     public double numerical_blending;
     public boolean cap_to_palette_length;
     //public boolean useJitter;
+    public int nde_color_blending;
+    public boolean nde_reverse_color_blending;
 
     public NumericalDistanceEstimatorSettings() {
         useNumericalDem = false;
@@ -20,5 +22,7 @@ public class NumericalDistanceEstimatorSettings {
         //useJitter = false;
         distanceOffset = 0;
         cap_to_palette_length = false;
+        nde_color_blending = 0;
+        nde_reverse_color_blending = false;
     }
 }

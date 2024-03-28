@@ -39,7 +39,7 @@ public class Banded extends OutColorAlgorithm {
         
         double f = (Math.log(temp) / Math.log(2)) * 2.4;
 
-        return (Integer)object[0] + Math.abs(f);
+        return (int)object[0] + Math.abs(f);
 
     }
     

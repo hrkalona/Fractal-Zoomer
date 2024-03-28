@@ -49,13 +49,13 @@ public class ComponentTitledBorder implements Border, MouseListener, MouseMotion
     private Rectangle rect;
     private Border border;
     private boolean mouseEntered = false;
-    private JFrame parentFrame;
+    private JDialog parentDialog;
 
-    public ComponentTitledBorder(Component comp, JComponent container, Border border, JFrame ptr) {
+    public ComponentTitledBorder(Component comp, JComponent container, Border border, JDialog ptr) {
         this.comp = comp;
         this.container = container;
         this.border = border;
-        parentFrame = ptr;
+        parentDialog = ptr;
         container.addMouseListener(this);
         container.addMouseMotionListener(this);
     }
@@ -84,17 +84,17 @@ public class ComponentTitledBorder implements Border, MouseListener, MouseMotion
                 setComponentState(components[i], enable);
             }
 
-            if (parentFrame instanceof OrbitTrapsFrame) {
-                ((OrbitTrapsFrame) parentFrame).toggled(element.isSelected());
+            if (parentDialog instanceof OrbitTrapsDialog) {
+                ((OrbitTrapsDialog) parentDialog).toggled();
             }
-            else if(parentFrame instanceof CustomDomainColoringFrame) {
-                ((CustomDomainColoringFrame) parentFrame).toggled(element.isSelected());
+            else if(parentDialog instanceof CustomDomainColoringDialog) {
+                ((CustomDomainColoringDialog) parentDialog).toggled(element.isSelected());
             }
-            else if(parentFrame instanceof StatisticsColoringFrame) {
-                ((StatisticsColoringFrame) parentFrame).toggled(element.isSelected());
+            else if(parentDialog instanceof StatisticsColoringDialog) {
+                ((StatisticsColoringDialog) parentDialog).toggled(element.isSelected());
             }
-            else if(parentFrame instanceof DrawingAlgorithmsFrame) {
-                ((DrawingAlgorithmsFrame) parentFrame).toggled(element.isSelected());
+            else if(parentDialog instanceof RenderingAlgorithmsDialog) {
+                ((RenderingAlgorithmsDialog) parentDialog).toggled(element.isSelected());
             }
         });
 
@@ -110,8 +110,8 @@ public class ComponentTitledBorder implements Border, MouseListener, MouseMotion
                 setComponentState(components[i], enable);
             }
 
-            if (parentFrame instanceof StatisticsColoringFrame) {
-                ((StatisticsColoringFrame) parentFrame).toggled(element.isSelected());
+            if (parentDialog instanceof StatisticsColoringDialog) {
+                ((StatisticsColoringDialog) parentDialog).toggled(element.isSelected());
             }
 
             container.repaint();
@@ -145,6 +145,8 @@ public class ComponentTitledBorder implements Border, MouseListener, MouseMotion
         border.paintBorder(c, g, x, y + temp, width, height - temp);
         Dimension size = comp.getPreferredSize();
         rect = new Rectangle(offset, 0, size.width, size.height);
+        g.setColor(comp.getBackground());
+        g.fillRect(rect.x, rect.y, rect.width, rect.height);
         SwingUtilities.paintComponent(g, comp, (Container) c, rect);
     }
 

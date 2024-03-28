@@ -12,12 +12,11 @@ public class PolarLocationNormalDouble extends Location {
 
     private double muly;
     private double mulx;
-    private double start;
+    private double startx;
+    private double starty;
 
     private double xcenter;
     private double ycenter;
-
-    private int image_size;
 
     private double center;
 
@@ -42,12 +41,15 @@ public class PolarLocationNormalDouble extends Location {
     private boolean requiresVariablePixelSize;
 
 
-    public PolarLocationNormalDouble(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int image_size_in, double circle_period, Fractal fractal, JitterSettings js) {
+    public PolarLocationNormalDouble(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int width, int height, double circle_period, Fractal fractal, JitterSettings js) {
 
         super();
 
         this.fractal = fractal;
-        this.image_size = offset.getImageSize(image_size_in);
+
+        width = offset.getWidth(width);
+        height = offset.getHeight(height);
+        int image_size = Math.min(width, height);
 
         requiresVariablePixelSize = fractal.requiresVariablePixelSize();
 
@@ -55,13 +57,17 @@ public class PolarLocationNormalDouble extends Location {
         ycenter = yCenter.doubleValue();
         double dsize = size.doubleValue();
 
+        double coefx = width == image_size ? 0.5 : (1 + (width - (double)height) / height) * 0.5;
+        double coefy = height == image_size ? 0.5 : (1 + (height - (double)width) / width) * 0.5;
+
         center = Math.log(dsize);
 
         muly = (2 * circle_period * Math.PI) / image_size;
 
         mulx = muly * height_ratio;
 
-        start = center - mulx * image_size * 0.5;
+        startx = center - mulx * image_size * coefx;
+        starty = muly * image_size * (0.5 - coefy);
 
         emulx = Math.exp(mulx);
         Invemulx = 1 / emulx;
@@ -84,7 +90,8 @@ public class PolarLocationNormalDouble extends Location {
 
         mulx = other.mulx;
         muly = other.muly;
-        start = other.start;
+        startx = other.startx;
+        starty = other.starty;
 
         emulx = other.emulx;
         Invemulx = other.Invemulx;
@@ -92,8 +99,6 @@ public class PolarLocationNormalDouble extends Location {
         sinmuly = other.sinmuly;
 
         center = other.center;
-
-        image_size = other.image_size;
 
         antialiasing_y_cos = other.antialiasing_y_cos;
         antialiasing_y_sin = other.antialiasing_y_sin;
@@ -112,9 +117,9 @@ public class PolarLocationNormalDouble extends Location {
         if(js.enableJitter) {
             double[] res = GetPixelOffset(y, x, js.jitterSeed, js.jitterShape, js.jitterScale);
 
-            temp_r = Math.exp((x + res[1]) * mulx + start);
+            temp_r = Math.exp((x + res[1]) * mulx + startx);
 
-            double f = (y + res[0]) * muly;
+            double f = (y + res[0]) * muly + starty;
             temp_sf = Math.sin(f);
             temp_cf = Math.cos(f);
         }
@@ -132,7 +137,7 @@ public class PolarLocationNormalDouble extends Location {
                 temp_sf = tempSin;
                 temp_cf = tempCos;
             } else if (y != indexY) {
-                double f = y * muly;
+                double f = y * muly + starty;
                 temp_sf = Math.sin(f);
                 temp_cf = Math.cos(f);
             }
@@ -142,7 +147,7 @@ public class PolarLocationNormalDouble extends Location {
             } else if (x == indexX - 1) {
                 temp_r = temp_r * Invemulx;
             } else if (x != indexX) {
-                temp_r = Math.exp(x * mulx + start);
+                temp_r = Math.exp(x * mulx + startx);
             }
         }
 
@@ -181,7 +186,7 @@ public class PolarLocationNormalDouble extends Location {
                 temp_sf = tempSin;
                 temp_cf = tempCos;
             } else if (y != indexY) {
-                double f = y * muly;
+                double f = y * muly + starty;
                 temp_sf = Math.sin(f);
                 temp_cf = Math.cos(f);
             }
@@ -202,7 +207,7 @@ public class PolarLocationNormalDouble extends Location {
             } else if (x == indexX - 1) {
                 temp_r = temp_r * Invemulx;
             } else if (x != indexX) {
-                temp_r = Math.exp(x * mulx + start);
+                temp_r = Math.exp(x * mulx + startx);
             }
         }
 
@@ -227,7 +232,7 @@ public class PolarLocationNormalDouble extends Location {
             temp_r = temp_r * Invemulx;
         }
         else if (x != indexX) {
-            temp_r = Math.exp(x * mulx + start);
+            temp_r = Math.exp(x * mulx + startx);
         }
 
         if(requiresVariablePixelSize) {
@@ -267,7 +272,7 @@ public class PolarLocationNormalDouble extends Location {
             temp_cf = tempCos;
         }
         else if (y != indexY) {
-            double f = y * muly;
+            double f = y * muly + starty;
             temp_sf = Math.sin(f);
             temp_cf = Math.cos(f);
         }

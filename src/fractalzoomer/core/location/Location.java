@@ -140,128 +140,127 @@ public class Location {
         fractal.initializeReferenceDecompressor();
     }
 
-    public static Location getInstanceForDrawing(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int image_size, double circle_period, Apfloat[] rotation_center, Apfloat[] rotation_vals, Fractal fractal, JitterSettings js, boolean polar, boolean highPresicion) {
+    public static Location getInstanceForRendering(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int width, int height, double circle_period, Apfloat[] rotation_center, Apfloat[] rotation_vals, Fractal fractal, JitterSettings js, boolean polar, boolean highPresicion) {
 
-
-        if(highPresicion && TaskDraw.HIGH_PRECISION_CALCULATION) {
-            int lib = TaskDraw.getHighPrecisionLibrary(size, fractal);
+        if(highPresicion && TaskRender.HIGH_PRECISION_CALCULATION) {
+            int lib = TaskRender.getHighPrecisionLibrary(size, fractal);
             if(polar) {
                 if(lib == Constants.ARBITRARY_MPFR || (lib == Constants.ARBITRARY_MPIR && !LibMpfr.hasError())) {
-                    return new PolarLocationNormalMpfrBigNumArbitrary(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, js);
+                    return new PolarLocationNormalMpfrBigNumArbitrary(xCenter, yCenter, size, height_ratio, width, height, circle_period, rotation_center, rotation_vals, fractal, js);
                 }
                 else if(lib == Constants.ARBITRARY_DOUBLEDOUBLE) {
-                    return new PolarLocationNormalDoubleDoubleArbitrary(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, js);
+                    return new PolarLocationNormalDoubleDoubleArbitrary(xCenter, yCenter, size, height_ratio, width, height, circle_period, rotation_center, rotation_vals, fractal, js);
                 }
                 else {
-                    return new PolarLocationNormalApfloatArbitrary(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, js);
+                    return new PolarLocationNormalApfloatArbitrary(xCenter, yCenter, size, height_ratio, width, height, circle_period, rotation_center, rotation_vals, fractal, js);
                 }
             }
             else {
                 if(lib == Constants.ARBITRARY_MPFR) {
-                    return new CartesianLocationNormalMpfrBigNumArbitrary(xCenter, yCenter, size, height_ratio, image_size, rotation_center, rotation_vals, fractal, js);
+                    return new CartesianLocationNormalMpfrBigNumArbitrary(xCenter, yCenter, size, height_ratio, width, height, rotation_center, rotation_vals, fractal, js);
                 }
                 else if(lib == Constants.ARBITRARY_MPIR) {
-                    return new CartesianLocationNormalMpirBigNumArbitrary(xCenter, yCenter, size, height_ratio, image_size, rotation_center, rotation_vals, fractal, js);
+                    return new CartesianLocationNormalMpirBigNumArbitrary(xCenter, yCenter, size, height_ratio, width, height, rotation_center, rotation_vals, fractal, js);
                 }
                 else if(lib == Constants.ARBITRARY_BUILT_IN) {
-                    return new CartesianLocationNormalBigNumArbitrary(xCenter, yCenter, size, height_ratio, image_size, rotation_center, rotation_vals, fractal, js);
+                    return new CartesianLocationNormalBigNumArbitrary(xCenter, yCenter, size, height_ratio, width, height, rotation_center, rotation_vals, fractal, js);
                 }
                 else if(lib == Constants.ARBITRARY_BIGINT) {
-                    return new CartesianLocationNormalBigIntNumArbitrary(xCenter, yCenter, size, height_ratio, image_size, rotation_center, rotation_vals, fractal, js);
+                    return new CartesianLocationNormalBigIntNumArbitrary(xCenter, yCenter, size, height_ratio, width, height, rotation_center, rotation_vals, fractal, js);
                 }
                 else if(lib == Constants.ARBITRARY_DOUBLEDOUBLE) {
-                    return new CartesianLocationNormalDoubleDoubleArbitrary(xCenter, yCenter, size, height_ratio, image_size, rotation_center, rotation_vals, fractal, js);
+                    return new CartesianLocationNormalDoubleDoubleArbitrary(xCenter, yCenter, size, height_ratio, width, height, rotation_center, rotation_vals, fractal, js);
                 }
                 else {
-                    return new CartesianLocationNormalApfloatArbitrary(xCenter, yCenter, size, height_ratio, image_size, rotation_center, rotation_vals, fractal, js);
+                    return new CartesianLocationNormalApfloatArbitrary(xCenter, yCenter, size, height_ratio, width, height, rotation_center, rotation_vals, fractal, js);
                 }
             }
         }
 
-        int bignumLib = TaskDraw.getBignumLibrary(size, fractal);
-        boolean isDeep = TaskDraw.useExtendedRange(size, fractal);
+        int bignumLib = TaskRender.getBignumLibrary(size, fractal);
+        boolean isDeep = TaskRender.useExtendedRange(size, fractal);
 
         if(polar) {
             if(highPresicion && isDeep) {
                 if(bignumLib == Constants.BIGNUM_MPFR || (bignumLib == Constants.BIGNUM_MPIR && !LibMpfr.hasError())) {
-                    return new PolarLocationDeltaDeepMpfrBigNum(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, js);
+                    return new PolarLocationDeltaDeepMpfrBigNum(xCenter, yCenter, size, height_ratio, width, height, circle_period, rotation_center, rotation_vals, fractal, js);
                 }
                 else {
-                    return new PolarLocationDeltaDeepApfloat(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, js);
+                    return new PolarLocationDeltaDeepApfloat(xCenter, yCenter, size, height_ratio, width, height, circle_period, rotation_center, rotation_vals, fractal, js);
                 }
             }
             else if(highPresicion) {
                 if (bignumLib == Constants.BIGNUM_MPFR || (bignumLib == Constants.BIGNUM_MPIR && !LibMpfr.hasError())) {
-                    return new PolarLocationDeltaMpfrBigNum(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, js);
+                    return new PolarLocationDeltaMpfrBigNum(xCenter, yCenter, size, height_ratio, width, height, circle_period, rotation_center, rotation_vals, fractal, js);
                 }
                 else if (bignumLib == Constants.BIGNUM_DOUBLEDOUBLE) {
-                    return new PolarLocationDeltaDoubleDouble(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, js);
+                    return new PolarLocationDeltaDoubleDouble(xCenter, yCenter, size, height_ratio, width, height, circle_period, rotation_center, rotation_vals, fractal, js);
                 }
                 else if (bignumLib == Constants.BIGNUM_DOUBLE) {
-                    return new PolarLocationDeltaDouble(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, js);
+                    return new PolarLocationDeltaDouble(xCenter, yCenter, size, height_ratio, width, height, circle_period, rotation_center, rotation_vals, fractal, js);
                 }
                 else {
-                    return new PolarLocationDeltaApfloat(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, js);
+                    return new PolarLocationDeltaApfloat(xCenter, yCenter, size, height_ratio, width, height, circle_period, rotation_center, rotation_vals, fractal, js);
                 }
             }
             else {
-                return new PolarLocationNormalDouble(xCenter, yCenter, size, height_ratio, image_size, circle_period, fractal, js);
+                return new PolarLocationNormalDouble(xCenter, yCenter, size, height_ratio, width, height, circle_period, fractal, js);
             }
         }
         else {
             if(highPresicion && isDeep) {
 
-                if(TaskDraw.USE_FAST_DELTA_LOCATION && fractal.usesDefaultPlane() && !Rotation.usesRotation(rotation_center, rotation_vals)) {
-                    return new CartesianLocationDeltaDeep(xCenter, yCenter, size, height_ratio, image_size, js, fractal, bignumLib);
+                if(TaskRender.USE_FAST_DELTA_LOCATION && fractal.usesDefaultPlane() && !Rotation.usesRotation(rotation_center, rotation_vals)) {
+                    return new CartesianLocationDeltaDeep(xCenter, yCenter, size, height_ratio, width, height, js, fractal, bignumLib);
                 }
 
                 if(bignumLib == Constants.BIGNUM_BUILT_IN) {
-                    return new CartesianLocationDeltaDeepBigNum(xCenter, yCenter, size, height_ratio, image_size, rotation_center, rotation_vals, fractal, js);
+                    return new CartesianLocationDeltaDeepBigNum(xCenter, yCenter, size, height_ratio, width, height, rotation_center, rotation_vals, fractal, js);
                 }
                 else if(bignumLib == Constants.BIGNUM_BIGINT) {
-                    return new CartesianLocationDeltaDeepBigIntNum(xCenter, yCenter, size, height_ratio, image_size, rotation_center, rotation_vals, fractal, js);
+                    return new CartesianLocationDeltaDeepBigIntNum(xCenter, yCenter, size, height_ratio, width, height, rotation_center, rotation_vals, fractal, js);
                 }
                 else if(bignumLib == Constants.BIGNUM_MPIR) {
-                    return new CartesianLocationDeltaDeepMpirBigNum(xCenter, yCenter, size, height_ratio, image_size, rotation_center, rotation_vals, fractal, js);
+                    return new CartesianLocationDeltaDeepMpirBigNum(xCenter, yCenter, size, height_ratio, width, height, rotation_center, rotation_vals, fractal, js);
                 }
                 else if(bignumLib == Constants.BIGNUM_MPFR) {
-                    return new CartesianLocationDeltaDeepMpfrBigNum(xCenter, yCenter, size, height_ratio, image_size, rotation_center, rotation_vals, fractal, js);
+                    return new CartesianLocationDeltaDeepMpfrBigNum(xCenter, yCenter, size, height_ratio, width, height, rotation_center, rotation_vals, fractal, js);
                 }
                 else {
-                    return new CartesianLocationDeltaDeepApfloat(xCenter, yCenter, size, height_ratio, image_size, rotation_center, rotation_vals, fractal, js);
+                    return new CartesianLocationDeltaDeepApfloat(xCenter, yCenter, size, height_ratio, width, height, rotation_center, rotation_vals, fractal, js);
                 }
             }
             else if(highPresicion) {
-                if(TaskDraw.USE_FAST_DELTA_LOCATION
+                if(TaskRender.USE_FAST_DELTA_LOCATION
                         && fractal.usesDefaultPlane() && !Rotation.usesRotation(rotation_center, rotation_vals)
-                     && size.doubleValue() / offset.getImageSize(image_size) > 1e-305) {
-                    return new CartesianLocationDelta(xCenter, yCenter, size, height_ratio, image_size, js, fractal, bignumLib);
+                     && size.doubleValue() / Math.min(offset.getWidth(width), offset.getHeight(height)) > 1e-305) {
+                    return new CartesianLocationDelta(xCenter, yCenter, size, height_ratio, width, height, js, fractal, bignumLib);
                 }
 
                 if(bignumLib == Constants.BIGNUM_BUILT_IN) {
-                    return new CartesianLocationDeltaBigNum(xCenter, yCenter, size, height_ratio, image_size, rotation_center, rotation_vals, fractal, js);
+                    return new CartesianLocationDeltaBigNum(xCenter, yCenter, size, height_ratio, width, height, rotation_center, rotation_vals, fractal, js);
                 }
                 else if(bignumLib == Constants.BIGNUM_BIGINT) {
-                    return new CartesianLocationDeltaBigIntNum(xCenter, yCenter, size, height_ratio, image_size, rotation_center, rotation_vals, fractal, js);
+                    return new CartesianLocationDeltaBigIntNum(xCenter, yCenter, size, height_ratio, width, height, rotation_center, rotation_vals, fractal, js);
                 }
                 else if (bignumLib == Constants.BIGNUM_MPFR) {
-                    return new CartesianLocationDeltaMpfrBigNum(xCenter, yCenter, size, height_ratio, image_size, rotation_center, rotation_vals, fractal, js);
+                    return new CartesianLocationDeltaMpfrBigNum(xCenter, yCenter, size, height_ratio, width, height, rotation_center, rotation_vals, fractal, js);
                 }
                 else if (bignumLib == Constants.BIGNUM_MPIR) {
-                    return new CartesianLocationDeltaMpirBigNum(xCenter, yCenter, size, height_ratio, image_size, rotation_center, rotation_vals, fractal, js);
+                    return new CartesianLocationDeltaMpirBigNum(xCenter, yCenter, size, height_ratio, width, height, rotation_center, rotation_vals, fractal, js);
                 }
                 else if (bignumLib == Constants.BIGNUM_DOUBLEDOUBLE) {
-                    return new CartesianLocationDeltaDoubleDouble(xCenter, yCenter, size, height_ratio, image_size, rotation_center, rotation_vals, fractal, js);
+                    return new CartesianLocationDeltaDoubleDouble(xCenter, yCenter, size, height_ratio, width, height, rotation_center, rotation_vals, fractal, js);
                 }
                 else if (bignumLib == Constants.BIGNUM_DOUBLE) {
-                    return new CartesianLocationDeltaDouble(xCenter, yCenter, size, height_ratio, image_size, rotation_center, rotation_vals, fractal, js);
+                    return new CartesianLocationDeltaDouble(xCenter, yCenter, size, height_ratio, width, height, rotation_center, rotation_vals, fractal, js);
                 }
                 else {
-                    return new CartesianLocationDeltaApfloat(xCenter, yCenter, size, height_ratio, image_size, rotation_center, rotation_vals, fractal, js);
+                    return new CartesianLocationDeltaApfloat(xCenter, yCenter, size, height_ratio, width, height, rotation_center, rotation_vals, fractal, js);
                 }
             }
             else {
-                return new CartesianLocationNormalDouble(xCenter, yCenter, size, height_ratio, image_size, fractal, js);
+                return new CartesianLocationNormalDouble(xCenter, yCenter, size, height_ratio, width, height, fractal, js);
             }
         }
 

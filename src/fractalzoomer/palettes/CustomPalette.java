@@ -226,7 +226,20 @@ public class CustomPalette extends Palette {
                     blue = (int) (Math.sqrt(method.interpolate(from_b, to_b, coef)));
 
                     palette[(n + k) % palette.length] = 0xff000000 | (red << 16) | (green << 8) | blue;
-                } else if (color_space == MainWindow.COLOR_SPACE_RYB) {
+                }
+                else if (color_space == MainWindow.COLOR_SPACE_YCBCR) {
+                    int[] ycbcr_from = ColorSpaceConverter.RGBtoYCbCr(c1[1], c1[2], c1[3]);
+                    int[] ycbcr_to = ColorSpaceConverter.RGBtoYCbCr(c2[1], c2[2], c2[3]);
+
+                    int y = method.interpolate(ycbcr_from[0], ycbcr_to[0], coef);
+                    int cb = method.interpolate(ycbcr_from[1], ycbcr_to[1], coef);
+                    int cr = method.interpolate(ycbcr_from[2], ycbcr_to[2], coef);
+
+                    int[] rgb = ColorSpaceConverter.YCbCrtoRGB(y, cb, cr);
+
+                    palette[(n + k) % palette.length] = 0xff000000 | ((int) (rgb[0]) << 16) | ((int) (rgb[1]) << 8) | (int) (rgb[2]);
+                }
+                else if (color_space == MainWindow.COLOR_SPACE_RYB) {
                     double[] ryb_from = ColorSpaceConverter.RGBtoRYB(c1[1], c1[2], c1[3]);
                     double[] ryb_to = ColorSpaceConverter.RGBtoRYB(c2[1], c2[2], c2[3]);
 
@@ -770,7 +783,20 @@ public class CustomPalette extends Palette {
                     blue = (int) (Math.sqrt(method.interpolate(from_b, to_b, coef)));
 
                     palette[(n + k) % palette.length] = 0xff000000 | (red << 16) | (green << 8) | blue;
-                } else if (color_space == MainWindow.COLOR_SPACE_RYB) {
+                }
+                else if (color_space == MainWindow.COLOR_SPACE_YCBCR) {
+                    int[] ycbcr_from = ColorSpaceConverter.RGBtoYCbCr(c1[1], c1[2], c1[3]);
+                    int[] ycbcr_to = ColorSpaceConverter.RGBtoYCbCr(c2[1], c2[2], c2[3]);
+
+                    int y = method.interpolate(ycbcr_from[0], ycbcr_to[0], coef);
+                    int cb = method.interpolate(ycbcr_from[1], ycbcr_to[1], coef);
+                    int cr = method.interpolate(ycbcr_from[2], ycbcr_to[2], coef);
+
+                    int[] rgb = ColorSpaceConverter.YCbCrtoRGB(y, cb, cr);
+
+                    palette[(n + k) % palette.length] = 0xff000000 | ((int) (rgb[0]) << 16) | ((int) (rgb[1]) << 8) | (int) (rgb[2]);
+                }
+                else if (color_space == MainWindow.COLOR_SPACE_RYB) {
                     double[] ryb_from = ColorSpaceConverter.RGBtoRYB(c1[1], c1[2], c1[3]);
                     double[] ryb_to = ColorSpaceConverter.RGBtoRYB(c2[1], c2[2], c2[3]);
 

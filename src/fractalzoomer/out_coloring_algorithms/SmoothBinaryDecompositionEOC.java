@@ -41,20 +41,20 @@ public class SmoothBinaryDecompositionEOC extends SmoothBinaryDecomposition {
     public double getResult(Object[] object) {
 
         double temp3;
-        if((Boolean)object[8]) {
+        if((boolean)object[8]) {
             if(algorithm == 0) {
-                temp3 = (Integer)object[0] + SmoothEscapeTimeEOC.getEscSmoothing1(object, Math.log(((Complex)object[1]).norm_squared()), log_bailout_squared) + MAGNET_INCREMENT;
+                temp3 = (int)object[0] + SmoothEscapeTimeEOC.getEscSmoothing1(object, Math.log(((Complex)object[1]).norm_squared()), log_bailout_squared) + MAGNET_INCREMENT;
             }
             else {
-                temp3 = (Integer)object[0] + SmoothEscapeTimeEOC.getEscSmoothing2(object, Math.log(((Complex)object[1]).norm_squared()), log_bailout_squared) + MAGNET_INCREMENT;
+                temp3 = (int)object[0] + SmoothEscapeTimeEOC.getEscSmoothing2(object, Math.log(((Complex)object[1]).norm_squared()), log_bailout_squared) + MAGNET_INCREMENT;
             }
         }
         else {
             if(algorithm2 == 0) {
-                temp3 = (Integer)object[0] + SmoothEscapeTimeEOC.getConvSmoothing1(object, log_convergent_bailout);
+                temp3 = (int)object[0] + SmoothEscapeTimeEOC.getConvSmoothing1(object, log_convergent_bailout);
             }
             else {
-                temp3 = (Integer)object[0] + SmoothEscapeTimeEOC.getConvSmoothing2(object, log_convergent_bailout);
+                temp3 = (int)object[0] + SmoothEscapeTimeEOC.getConvSmoothing2(object, log_convergent_bailout);
             }
         }
         

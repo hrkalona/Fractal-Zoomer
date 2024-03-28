@@ -10,8 +10,8 @@ public class MpirBigNumComplex extends GenericComplex {
     private MpirBigNum im;
 
     public MpirBigNumComplex(BigComplex c) {
-        re = new MpirBigNum(c.getRe());
-        im = new MpirBigNum(c.getIm());
+        re = MpirBigNum.fromApfloat(c.getRe());
+        im = MpirBigNum.fromApfloat(c.getIm());
     }
 
     public MpirBigNumComplex(MpfrBigNumComplex c) {
@@ -53,8 +53,10 @@ public class MpirBigNumComplex extends GenericComplex {
     }
 
     public MpirBigNumComplex(Apfloat re, Apfloat im) {
-        this.re = new MpirBigNum(re);
-        this.im = new MpirBigNum(im);
+
+        this.re = MpirBigNum.fromApfloat(re);
+        this.im = MpirBigNum.fromApfloat(im);
+
     }
 
     public MpirBigNumComplex() {
@@ -66,8 +68,8 @@ public class MpirBigNumComplex extends GenericComplex {
 
     public MpirBigNumComplex(String reStr, String imStr) {
 
-        re = new MpirBigNum(reStr);
-        im = new MpirBigNum(imStr);
+        re = MpirBigNum.fromString(reStr);
+        im = MpirBigNum.fromString(imStr);
 
     }
 
@@ -2208,6 +2210,21 @@ public class MpirBigNumComplex extends GenericComplex {
     @Override
     public BigComplex toBigComplex() {
         return new BigComplex(re.toApfloat(), im.toApfloat());
+    }
+
+    @Override
+    public Object re() {
+        return getRe();
+    }
+
+    @Override
+    public Object im() {
+        return getIm();
+    }
+
+    @Override
+    public Object Norm() {
+        return norm();
     }
 
 }

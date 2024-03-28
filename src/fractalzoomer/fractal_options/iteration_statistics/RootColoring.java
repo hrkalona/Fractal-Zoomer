@@ -55,7 +55,7 @@ public class RootColoring extends GenericStatistic {
     }
 
     @Override
-    public double getValue() {
+    protected double getValue() {
         return 0;
     }
 

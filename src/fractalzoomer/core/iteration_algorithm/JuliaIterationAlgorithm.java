@@ -38,6 +38,13 @@ public class JuliaIterationAlgorithm extends IterationAlgorithm {
         return fractal.calculateJulia(number);
         
     }
+
+    @Override
+    public double[] calculateVectorized(GenericComplex[] numbers) {
+
+        return fractal.calculateJuliaVectorized(numbers);
+
+    }
     
     @Override
     public Complex calculateDomain(GenericComplex number) {

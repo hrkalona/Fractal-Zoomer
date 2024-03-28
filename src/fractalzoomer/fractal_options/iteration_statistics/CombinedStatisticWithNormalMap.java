@@ -19,7 +19,7 @@ public class CombinedStatisticWithNormalMap extends GenericStatistic {
     }
 
     @Override
-    public double getValue() {
+    protected double getValue() {
         double v1 = nm.getValue();
 
         double tempV1 = Math.abs(v1);
@@ -188,7 +188,7 @@ public class CombinedStatisticWithNormalMap extends GenericStatistic {
     }
 
     @Override
-    public double getValueNotEscaped() {
+    protected double getValueNotEscaped() {
         double v1 = nm.getValueNotEscaped();
 
         double tempV1 = Math.abs(v1);

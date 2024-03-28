@@ -45,7 +45,8 @@ public class ImageFilters {
 
     private static void filterEmboss(BufferedImage image, int filter_value) {
 
-        int image_size = image.getWidth();
+        int image_width = image.getWidth();
+        int image_height = image.getHeight();
 
         int algorithm = (int) (((int) (((int) (filter_value % 100000.0)) % 1000.0)) % 10.0);
 
@@ -55,7 +56,7 @@ public class ImageFilters {
             int xOffset = (kernelWidth - 1) / 2;
             int yOffset = xOffset;
 
-            BufferedImage newSource = new BufferedImage(image_size + kernelWidth - 1, image_size + kernelHeight - 1, BufferedImage.TYPE_INT_RGB);
+            BufferedImage newSource = new BufferedImage(image_width + kernelWidth - 1, image_height + kernelHeight - 1, BufferedImage.TYPE_INT_RGB);
             Graphics2D graphics = newSource.createGraphics();
             graphics.drawImage(image, xOffset, yOffset, null);
 
@@ -73,34 +74,6 @@ public class ImageFilters {
 
             f.filter(image, image);
         } else {
-            /*int[] raster = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
-
-             for(int i = image_size - 1; i >= 0; i--) {
-             for(int j = image_size - 1, loc = i * image_size + j; j >= 0; j--, loc--) {
-             int current = raster[loc];
-
-             int upperLeft = 0;
-             if(i > 0 && j > 0) {
-             upperLeft = raster[loc - image_size - 1];
-             }
-
-             int rDiff = ((current >> 16) & 0xff) - ((upperLeft >> 16) & 0xff);
-             int gDiff = ((current >> 8) & 0xff) - ((upperLeft >> 8) & 0xff);
-             int bDiff = (current & 0xff) - (upperLeft & 0xff);
-
-             int diff = rDiff;
-             if(Math.abs(gDiff) > Math.abs(diff)) {
-             diff = gDiff;
-             }
-             if(Math.abs(bDiff) > Math.abs(diff)) {
-             diff = bDiff;
-             }
-
-             int grayLevel = Math.max(Math.min(128 + diff, 255), 0);
-             raster[loc] = 0xff000000 | ((grayLevel << 16) + (grayLevel << 8) + grayLevel);
-             }
-             }*/
-
             double direction = (((int) (((int) (((int) (filter_value % 100000.0)) % 1000.0)) / 10.0)) / 80.0 * 360) * Math.PI / 180.0;
             double elevation = (((int) (((int) (filter_value % 100000.0)) / 1000.0)) / 80.0 * 90) * Math.PI / 180.0;
             double bump_height = ((int) (filter_value / 100000.0)) / 80.0;
@@ -150,21 +123,22 @@ public class ImageFilters {
 
         int kernelWidth = (int) Math.sqrt((double) EDGES.length);
 
-        int image_size = image.getWidth();
+        int image_width = image.getWidth();
+        int image_height = image.getHeight();
 
         Kernel kernel = new Kernel(kernelWidth, kernelWidth, EDGES);
         ConvolveOp cop = new ConvolveOp(kernel, ConvolveOp.EDGE_ZERO_FILL, null);
-        BufferedImage newSource = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_RGB);
-        BufferedImage newSource2 = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_RGB);
+        BufferedImage newSource = new BufferedImage(image_width, image_height, BufferedImage.TYPE_INT_RGB);
+        BufferedImage newSource2 = new BufferedImage(image_width, image_height, BufferedImage.TYPE_INT_RGB);
 
-        System.arraycopy(((DataBufferInt) image.getRaster().getDataBuffer()).getData(), 0, ((DataBufferInt) newSource.getRaster().getDataBuffer()).getData(), 0, image_size * image_size);
+        System.arraycopy(((DataBufferInt) image.getRaster().getDataBuffer()).getData(), 0, ((DataBufferInt) newSource.getRaster().getDataBuffer()).getData(), 0, image_width * image_height);
 
         cop.filter(newSource, newSource2);
 
         int[] raster = ((DataBufferInt) newSource2.getRaster().getDataBuffer()).getData();
         int[] rgbs = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 
-        int condition = image_size * image_size;
+        int condition = image_width * image_height;
 
         IntStream.range(0, condition)
                 .parallel().forEach(p -> {
@@ -188,7 +162,8 @@ public class ImageFilters {
     private static void filterSharpness(BufferedImage image, int filter_value) {
 
         if(filter_value == 1) {
-            int image_size = image.getWidth();
+            int image_width = image.getWidth();
+            int image_height = image.getHeight();
 
             float[] SHARPNESS = sharpness_high;
 
@@ -197,7 +172,7 @@ public class ImageFilters {
             int xOffset = (kernelWidth - 1) / 2;
             int yOffset = xOffset;
 
-            BufferedImage newSource = new BufferedImage(image_size + kernelWidth - 1, image_size + kernelHeight - 1, BufferedImage.TYPE_INT_RGB);
+            BufferedImage newSource = new BufferedImage(image_width + kernelWidth - 1, image_height + kernelHeight - 1, BufferedImage.TYPE_INT_RGB);
             Graphics2D graphics = newSource.createGraphics();
             graphics.drawImage(image, xOffset, yOffset, null);
 
@@ -327,9 +302,10 @@ public class ImageFilters {
             int xOffset = (kernelWidth - 1) / 2;
             int yOffset = xOffset;
 
-            int image_size = image.getWidth();
+            int image_width = image.getWidth();
+            int image_height = image.getHeight();
 
-            BufferedImage newSource = new BufferedImage(image_size + kernelWidth - 1, image_size + kernelHeight - 1, BufferedImage.TYPE_INT_RGB);
+            BufferedImage newSource = new BufferedImage(image_width + kernelWidth - 1, image_height + kernelHeight - 1, BufferedImage.TYPE_INT_RGB);
             Graphics2D graphics = newSource.createGraphics();
             graphics.drawImage(image, xOffset, yOffset, null);
 
@@ -391,8 +367,9 @@ public class ImageFilters {
             f.filter(image, image);
         }
         else if(alg == 16) {
-            int image_size = image.getWidth();
-            BufferedImage newSource = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
+            int image_width = image.getWidth();
+            int image_height = image.getHeight();
+            BufferedImage newSource = new BufferedImage(image_width, image_height, BufferedImage.TYPE_INT_ARGB);
             Graphics2D graphics = newSource.createGraphics();
             graphics.drawImage(image, 0, 0, null);
             BilateralFilter f = new BilateralFilter(kernel_size, sigmaR, sigmaS);
@@ -402,11 +379,12 @@ public class ImageFilters {
 
     private static void filterInvertColors(BufferedImage image, int filter_value) {
 
-        int image_size = image.getWidth();
+        int image_width = image.getWidth();
+        int image_height = image.getHeight();
 
         int[] raster = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 
-        int condition = image_size * image_size;
+        int condition = image_width * image_height;
 
 
         IntStream.range(0, condition)
@@ -499,12 +477,13 @@ public class ImageFilters {
 
     private static void filterColorChannelSwapping(BufferedImage image, int filter_value) {
 
-        int image_size = image.getWidth();
+        int image_width = image.getWidth();
+        int image_height = image.getHeight();
 
         int[] raster = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 
 
-        int condition = image_size * image_size;
+        int condition = image_width * image_height;
 
         IntStream.range(0, condition)
                 .parallel().forEach(p -> {
@@ -554,12 +533,13 @@ public class ImageFilters {
 
     private static void filterGrayscale(BufferedImage image, int filter_value) {
 
-        int image_size = image.getWidth();
+        int image_width = image.getWidth();
+        int image_height = image.getHeight();
 
         int[] raster = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 
 
-        int condition = image_size * image_size;
+        int condition = image_width * image_height;
 
         //for (int p = 0; p < condition; p++) {
         IntStream.range(0, condition)
@@ -592,11 +572,12 @@ public class ImageFilters {
 
     private static void filterHistogramEqualization(BufferedImage image, int filter_value) {
 
-        int image_size = image.getWidth();
+        int image_width = image.getWidth();
+        int image_height = image.getHeight();
 
         int[] raster = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 
-        int condition = image_size * image_size;
+        int condition = image_width * image_height;
 
         /*int r, g, b;
         
@@ -655,7 +636,7 @@ public class ImageFilters {
                 hist[2][raster[p] & 0xff]++;
             }
 
-            count = image_size * image_size;
+            count = image_width * image_height;
             // Fore each channel
             for (c = 0; c < hist.length; c++) {
                 // Determine the low input value
@@ -754,7 +735,7 @@ public class ImageFilters {
                 }
             }
 
-            count = image_size * image_size;
+            count = image_width * image_height;
 
             // Determine the low input value
             next_percentage = hist[0] / count;
@@ -854,7 +835,7 @@ public class ImageFilters {
                 }
             }
 
-            count = image_size * image_size;
+            count = image_width * image_height;
             // Determine the low input value
             next_percentage = hist[0] / count;
             for (i = 0; i < 255; i++) {
@@ -1045,10 +1026,12 @@ public class ImageFilters {
 
     private static void filterPosterize(BufferedImage image, int filter_value) {
 
-        int numLevels = filter_value;
+        int numLevels = filter_value % 1000;
+        int mode = filter_value / 1000;
 
         PosterizeFilter f = new PosterizeFilter();
         f.setNumLevels(numLevels);
+        f.setMode(mode);
 
         f.filter(image, image);
 

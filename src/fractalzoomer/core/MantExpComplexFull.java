@@ -707,5 +707,20 @@ public class MantExpComplexFull extends MantExpComplex {
     public boolean isZero() {
         return re.mantissa == 0 && im.mantissa == 0;
     }
+
+    @Override
+    public Object re() {
+        return getRe();
+    }
+
+    @Override
+    public Object im() {
+        return getIm();
+    }
+
+    @Override
+    public Object Norm() {
+        return norm();
+    }
 }
 

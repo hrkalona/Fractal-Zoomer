@@ -37,7 +37,7 @@ public class ConvergentBailoutDialog extends JDialog {
         
         ptra = ptr;
 
-        setTitle("Convergent Bailout Number");
+        setTitle("Convergent Bailout");
         setModal(true);
         setIconImage(MainWindow.getIcon("mandel2.png").getImage());
 

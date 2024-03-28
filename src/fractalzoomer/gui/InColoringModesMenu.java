@@ -45,7 +45,8 @@ public class InColoringModesMenu extends MyMenu {
         inColoringNames[MainWindow.ATAN_RE_TIMES_IM_TIMES_ABS_RE_TIMES_ABS_IM] = "atan(Re * Im * |Re| * |Im|)";
         inColoringNames[MainWindow.SQUARES] = "Squares";
         inColoringNames[MainWindow.SQUARES2] = "Squares 2";
-        inColoringNames[MainWindow.USER_INCOLORING_ALGORITHM] = "User In Coloring Method";      
+        inColoringNames[MainWindow.USER_INCOLORING_ALGORITHM] = "User In Coloring Method";
+        inColoringNames[MainWindow.SQUARES3] = "abs(sin(re(z) * 50)) * abs(sin(im(z) * 50)) * 100";
     }
 
     public InColoringModesMenu(MainWindow ptr2, String name, int in_coloring_algorithm) {
@@ -119,6 +120,12 @@ public class InColoringModesMenu extends MyMenu {
         in_coloring_modes[MainWindow.SQUARES2].addActionListener(e -> ptr.setInColoringMode(MainWindow.SQUARES2));
         add(in_coloring_modes[MainWindow.SQUARES2]);
         incoloring_button_group.add(in_coloring_modes[MainWindow.SQUARES2]);
+
+        in_coloring_modes[MainWindow.SQUARES3] = new JRadioButtonMenuItem(inColoringNames[MainWindow.SQUARES3]);
+        in_coloring_modes[MainWindow.SQUARES3].setToolTipText("Sets the in-coloring method, using squares variation.");
+        in_coloring_modes[MainWindow.SQUARES3].addActionListener(e -> ptr.setInColoringMode(MainWindow.SQUARES3));
+        add(in_coloring_modes[MainWindow.SQUARES3]);
+        incoloring_button_group.add(in_coloring_modes[MainWindow.SQUARES3]);
 
         in_coloring_modes[MainWindow.USER_INCOLORING_ALGORITHM] = new JRadioButtonMenuItem(inColoringNames[MainWindow.USER_INCOLORING_ALGORITHM]);
         in_coloring_modes[MainWindow.USER_INCOLORING_ALGORITHM].setToolTipText("A user defined in-coloring method.");

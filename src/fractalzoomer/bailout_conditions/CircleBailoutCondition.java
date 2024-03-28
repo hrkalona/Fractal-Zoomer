@@ -37,12 +37,12 @@ public class CircleBailoutCondition extends BailoutCondition {
         
         super(bound);
 
-        if(TaskDraw.PERTURBATION_THEORY || TaskDraw.HIGH_PRECISION_CALCULATION) {
+        if(TaskRender.PERTURBATION_THEORY || TaskRender.HIGH_PRECISION_CALCULATION) {
             if(allocateMemory) {
-                if (TaskDraw.allocateMPFR()) {
+                if (TaskRender.allocateMPFR()) {
                     temp1 = new MpfrBigNum();
                     temp2 = new MpfrBigNum();
-                } else if (TaskDraw.allocateMPIR()) {
+                } else if (TaskRender.allocateMPIR()) {
                     temp1p = new MpirBigNum();
                     temp2p = new MpirBigNum();
                 }

@@ -36,10 +36,12 @@ public abstract class FractalWithoutConstant extends Fractal {
             if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, pixel, start, c0, 0.0, pixel)) {
                 escaped = true;
 
+                finalizeStatistic(true, complex[0]);
+
                 Object[] object = {iterations, complex[0], zold, zold2, pixel, start, c0, pixel};
                 double out = out_color_algorithm.getResult(object);
 
-                out = getFinalValueOut(out, complex[0]);
+                out = getFinalValueOut(out);
 
                 if (outTrueColorAlgorithm != null) {
                     setTrueColorOut(complex[0], zold, zold2, iterations, pixel, start, c0, pixel);
@@ -60,10 +62,11 @@ public abstract class FractalWithoutConstant extends Fractal {
 
         }
 
+        finalizeStatistic(false, complex[0]);
         Object[] object = {complex[0], zold, zold2, pixel, start, c0, pixel};
         double in = in_color_algorithm.getResult(object);
 
-        in = getFinalValueIn(in, complex[0]);
+        in = getFinalValueIn(in);
 
         if (inTrueColorAlgorithm != null) {
             setTrueColorIn(complex[0], zold, zold2, iterations, pixel, start, c0, pixel);
@@ -77,7 +80,11 @@ public abstract class FractalWithoutConstant extends Fractal {
     protected void iterateFractalOrbit(Complex[] complex, Complex pixel) {
         iterations = 0;
 
-        Complex temp = null;
+        complex_orbit.clear();
+
+        Complex temp = rotation.rotateInverse(complex[0]);
+
+        complex_orbit.add(temp);
 
         for (; iterations < max_iterations; iterations++) {
 
@@ -125,6 +132,11 @@ public abstract class FractalWithoutConstant extends Fractal {
     @Override
     public double calculateJulia(GenericComplex pixel) {
         return 0;
+    }
+
+    @Override
+    public double[] calculateJuliaVectorized(GenericComplex[] pixels) {
+        return null;
     }
 
     @Override

@@ -64,17 +64,6 @@ public class StalksPointNNormOrbitTrap extends OrbitTrap {
         }
 
     }
-
-    @Override
-    public double getDistance() {
-
-        if(keepLastXItems && !processedLastItems) {
-            processLastItems();
-        }
-
-        return trapId == 0 ? (distance != Double.MAX_VALUE ? Math.abs(trapWidth - 2 * (distance - cnorm + trapWidth * 0.5)) : distance) : distance;
-
-    }
     
     @Override
     public void initialize(Complex pixel) {
@@ -89,7 +78,22 @@ public class StalksPointNNormOrbitTrap extends OrbitTrap {
 
     @Override
     public double getMaxValue() {
-        return trapId == 1 ? trapLength : trapWidth;
+        if(trapId == 0) {
+            return stalksradiushigh;
+        }
+        else {
+            return trapLength;
+        }
+    }
+
+    @Override
+    public double getMinValue() {
+        if(trapId == 0) {
+            return stalksradiuslow;
+        }
+        else {
+            return 0;
+        }
     }
     
 }

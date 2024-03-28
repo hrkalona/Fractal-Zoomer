@@ -16,6 +16,7 @@
  */
 package fractalzoomer.gui;
 
+import fractalzoomer.main.CommonFunctions;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.palettes.CustomPalette;
 import fractalzoomer.palettes.PresetPalette;
@@ -165,6 +166,10 @@ public class PaletteMenu extends MyMenu {
                     }
                 }
 
+                if(MainWindow.useCustomLaf) {
+                    palette_preview = CommonFunctions.makeRoundedCorner(palette_preview, 5);
+                }
+
                 palette[i] = new ImageRadioButtonMenuItem(paletteNames[i], new ImageIcon(palette_preview));
             } else {
                 palette[i] = new JRadioButtonMenuItem(paletteNames[i], MainWindow.getIcon("palette_load.png"));
@@ -226,7 +231,7 @@ public class PaletteMenu extends MyMenu {
         }
 
         colorMapframe = new MyMenuItem("Direct Palette Loader", MainWindow.getIcon("palette_load.png"));
-        colorMapframe.setToolTipText("Loads all color maps from the " + ColorMapFrame.DirName + " directory.");
+        colorMapframe.setToolTipText("Loads all color maps from the " + ColorMapDialog.DirName + " directory.");
         if (outcoloring_mode) {
             colorMapframe.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, ActionEvent.CTRL_MASK | ActionEvent.SHIFT_MASK));
         } else {

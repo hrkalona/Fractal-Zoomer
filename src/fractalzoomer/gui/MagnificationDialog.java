@@ -44,7 +44,7 @@ public class MagnificationDialog extends JDialog {
         
         ptra = ptr;
 
-        setTitle("Magnification");
+        setTitle("Magnification/Zoom");
         setModal(true);
         setIconImage(MainWindow.getIcon("mandel2.png").getImage());
 
@@ -84,8 +84,8 @@ public class MagnificationDialog extends JDialog {
 
         Object[] message = {
             " ",
-            "Set the magnification.",
-            "Magnification:",
+            "Set the magnification/zoom.",
+            "Magnification/Zoom:",
                 magnScroll,
             " ",
             };

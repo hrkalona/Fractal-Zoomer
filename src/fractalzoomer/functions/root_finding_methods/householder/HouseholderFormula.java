@@ -18,7 +18,7 @@ package fractalzoomer.functions.root_finding_methods.householder;
 
 import fractalzoomer.core.Complex;
 import fractalzoomer.core.Derivative;
-import fractalzoomer.core.TaskDraw;
+import fractalzoomer.core.TaskRender;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
 import fractalzoomer.main.app_settings.StatisticsSettings;
@@ -333,7 +333,7 @@ public class HouseholderFormula extends HouseholderRootFindingMethod {
             parser3.setSizevalue(c_size);
         }
 
-        Complex c_isize = new Complex(TaskDraw.IMAGE_SIZE, 0);
+        Complex c_isize = new Complex(Math.min(TaskRender.WIDTH, TaskRender.HEIGHT), 0);
         if (parser.foundISize()) {
             parser.setISizevalue(c_isize);
         }
@@ -344,6 +344,33 @@ public class HouseholderFormula extends HouseholderRootFindingMethod {
 
         if (parser3.foundISize()) {
             parser3.setISizevalue(c_isize);
+        }
+
+        Complex c_width = new Complex(TaskRender.WIDTH, 0);
+        if (parser.foundWidth()) {
+            parser.setWidthvalue(c_width);
+        }
+
+        if (parser2.foundWidth()) {
+            parser2.setWidthvalue(c_width);
+        }
+
+        if (parser3.foundWidth()) {
+            parser3.setWidthvalue(c_width);
+        }
+
+        Complex c_height = new Complex(TaskRender.HEIGHT, 0);
+
+        if (parser.foundHeight()) {
+            parser.setHeightvalue(c_height);
+        }
+
+        if (parser2.foundHeight()) {
+            parser2.setHeightvalue(c_height);
+        }
+
+        if (parser3.foundHeight()) {
+            parser3.setHeightvalue(c_height);
         }
 
         if (parser.foundPoint()) {

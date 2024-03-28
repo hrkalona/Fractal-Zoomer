@@ -2,14 +2,14 @@ package test;
 import fractalzoomer.core.BigNum;
 import fractalzoomer.core.BigNum30;
 import fractalzoomer.core.MyApfloat;
-import fractalzoomer.core.TaskDraw;
+import fractalzoomer.core.TaskRender;
 import org.apfloat.Apfloat;
 
 public class TestBigNum30 {
 
     public static void main(String[] args) {
 
-        TaskDraw.BUILT_IT_BIGNUM_IMPLEMENTATION = 1;
+        TaskRender.BUILT_IT_BIGNUM_IMPLEMENTATION = 1;
         MyApfloat.precision = 2000000;
         BigNum.reinitializeTest(19000);
 

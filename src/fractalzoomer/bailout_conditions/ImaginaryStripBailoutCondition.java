@@ -33,10 +33,10 @@ public class ImaginaryStripBailoutCondition extends BailoutCondition {
         
         super(bound);
 
-        if(TaskDraw.PERTURBATION_THEORY || TaskDraw.HIGH_PRECISION_CALCULATION) {
-            if (TaskDraw.allocateMPFR()) {
+        if(TaskRender.PERTURBATION_THEORY || TaskRender.HIGH_PRECISION_CALCULATION) {
+            if (TaskRender.allocateMPFR()) {
                 temp1 = new MpfrBigNum();
-            } else if (TaskDraw.allocateMPIR()) {
+            } else if (TaskRender.allocateMPIR()) {
                 temp1p = new MpirBigNum();
             }
         }

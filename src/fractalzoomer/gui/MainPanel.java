@@ -17,14 +17,19 @@
 
 package fractalzoomer.gui;
 
-import fractalzoomer.core.TaskDraw;
+import fractalzoomer.core.TaskRender;
 import fractalzoomer.main.MainWindow;
+import fractalzoomer.utils.SelectionRectangle;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
+import java.util.function.Predicate;
+import java.util.stream.IntStream;
 
 
 /**
@@ -42,7 +47,7 @@ public class MainPanel extends JPanel implements ActionListener {
         this.ptr = ptr;
     }
 
-    public void setTimer(boolean quickDrawAndRefinement, TaskDraw[][] drawThreads) {
+    public void setTimer(boolean quickRenderAndRefinement, TaskRender[][] drawThreads) {
         if(timer == null) {
             timer = new Timer(REPAINT_SLEEP_TIME, this);
             timer.start();
@@ -53,8 +58,8 @@ public class MainPanel extends JPanel implements ActionListener {
             timer = new Timer(REPAINT_SLEEP_TIME, this);
         }
 
-        ptr.setWholeImageDone(!quickDrawAndRefinement);
-        if(!quickDrawAndRefinement) {
+        ptr.setWholeImageDone(!quickRenderAndRefinement);
+        if(!quickRenderAndRefinement) {
             boolean isJulia = drawThreads[0][0].isJulia();
             boolean isJuliaMap = drawThreads[0][0].isJuliaMap();
             boolean isDomainColoring = drawThreads[0][0].isDomainColoring();
@@ -62,7 +67,7 @@ public class MainPanel extends JPanel implements ActionListener {
 
             if(isJulia || isNonJulia || isJuliaMap || isDomainColoring) {
                 ptr.reloadTitle();
-                TaskDraw.updateMode(ptr, false, isJulia, isJuliaMap, isDomainColoring);
+                TaskRender.updateMode(ptr, false, isJulia, isJuliaMap, isDomainColoring);
             }
             repaint();
         }
@@ -77,6 +82,148 @@ public class MainPanel extends JPanel implements ActionListener {
         if(timer != null) {
             timer.stop();
             timer = null;
+        }
+    }
+
+    private void handlePreviousImage(Graphics g) {
+        if(MainWindow.ZOOM_TO_THE_SELECTED_AREA) {
+            BufferedImage lastUsed = ptr.getLastUsed();
+            final SelectionRectangle sr = ptr.getSelectionRectangle();
+            boolean showRectangle = sr.isVisible() && (ptr.canSelectPointInstantly() || TaskRender.DONE);
+
+            if(lastUsed != null){
+                if (showRectangle) {
+                    if (sr.isSelectionValid() && MainWindow.MASK_IMAGE_OUTSIDE_WINDOW > 0) {
+                        maskImageSlow(lastUsed, g, point -> !sr.isInImageChangeArea(point) || !sr.isInRectangleArea(point));
+                    } else {
+                        g.drawImage(lastUsed, 0, 0, null);
+                    }
+                } else {
+                    g.drawImage(lastUsed, 0, 0, null);
+                }
+            }
+
+            if(ptr.getBoundaries() && lastUsed != null) {
+                ptr.drawBoundaries((Graphics2D)g, true);
+            }
+
+            if(ptr.getGrid() && lastUsed != null) {
+                ptr.drawGrid((Graphics2D)g, true);
+            }
+
+            if(showRectangle && sr.isSelectionValid() && lastUsed != null) {
+                sr.draw((Graphics2D) g);
+            }
+        }
+        else {
+            BufferedImage lastUsed = ptr.getLastUsed();
+            Point p = null;
+
+            boolean zw = ptr.getZoomWindow();
+            if(zw) {
+                try {
+                    p = getMousePosition();
+                }
+                catch (Exception ex) {
+                }
+            }
+
+            if(lastUsed != null) {
+                if (zw && MainWindow.MASK_IMAGE_OUTSIDE_WINDOW > 0) {
+                    Rectangle2D.Double rect = ptr.getZoomWindowRectangle(p);
+                    maskImageSlow(lastUsed, g, point -> rect != null && !rect.contains(point));
+                } else {
+                    g.drawImage(lastUsed, 0, 0, null);
+                }
+            }
+
+            if(ptr.getBoundaries() && lastUsed != null) {
+                ptr.drawBoundaries((Graphics2D)g, true);
+            }
+
+            if(ptr.getGrid() && lastUsed != null) {
+                ptr.drawGrid((Graphics2D)g, true);
+            }
+
+            if (zw && lastUsed != null) {
+                ptr.drawZoomWindow((Graphics2D) g,  p);
+            }
+        }
+    }
+
+    private void handleNewImage(Graphics g) {
+        if(MainWindow.ZOOM_TO_THE_SELECTED_AREA) {
+
+            final SelectionRectangle sr = ptr.getSelectionRectangle();
+            boolean showRectangle = sr.isVisible() && (ptr.canSelectPointInstantly() || TaskRender.DONE);
+            BufferedImage image = ptr.getImage();
+            BufferedImage last_used = ptr.getLastUsed();
+
+            if(showRectangle) {
+                if (sr.isSelectionValid() && MainWindow.MASK_IMAGE_OUTSIDE_WINDOW > 0) {
+                    maskImage(image, last_used, point -> !sr.isInImageChangeArea(point) || !sr.isInRectangleArea(point));
+                    g.drawImage(last_used, 0, 0, null);
+                } else {
+                    g.drawImage(image, 0, 0, null);
+                }
+            }
+            else {
+                g.drawImage(image, 0, 0, null);
+            }
+
+            if (ptr.getOrbit()) {
+                ptr.drawOrbit((Graphics2D) g);
+            }
+
+            if (ptr.getBoundaries()) {
+                ptr.drawBoundaries((Graphics2D) g, true);
+            }
+
+            if (ptr.getGrid()) {
+                ptr.drawGrid((Graphics2D) g, true);
+            }
+
+            if(showRectangle && sr.isSelectionValid() ) {
+                sr.draw((Graphics2D) g);
+            }
+        }
+        else {
+            Point p = null;
+
+            boolean zw = ptr.getZoomWindow();
+            if(zw) {
+                try {
+                    p = getMousePosition();
+                }
+                catch (Exception ex) {
+                }
+            }
+
+            BufferedImage image = ptr.getImage();
+            if (zw && MainWindow.MASK_IMAGE_OUTSIDE_WINDOW > 0 &&  ptr.getLastUsed() != null) {
+                Rectangle2D.Double rect = ptr.getZoomWindowRectangle(p);
+                maskImage(image, ptr.getLastUsed(), point -> rect != null && !rect.contains(point));
+                g.drawImage(ptr.getLastUsed(), 0, 0, null);
+            }
+            else {
+                g.drawImage(image, 0, 0, null);
+            }
+
+            if (ptr.getOrbit()) {
+                ptr.drawOrbit((Graphics2D) g);
+            }
+
+            if (ptr.getBoundaries()) {
+                ptr.drawBoundaries((Graphics2D) g, true);
+            }
+
+            if (ptr.getGrid()) {
+                ptr.drawGrid((Graphics2D) g, true);
+            }
+
+            if (zw) {
+                ptr.drawZoomWindow((Graphics2D) g, p);
+            }
         }
     }
     
@@ -94,51 +241,21 @@ public class MainPanel extends JPanel implements ActionListener {
         //}
 
         if(!ptr.getFirstPaint()) {
-            g.drawImage(new BufferedImage(TaskDraw.FAST_JULIA_IMAGE_SIZE, TaskDraw.FAST_JULIA_IMAGE_SIZE, BufferedImage.TYPE_INT_ARGB), ptr.getScrollPane().getHorizontalScrollBar().getValue(), ptr.getScrollPane().getVerticalScrollBar().getValue(), null);
+            g.drawImage(new BufferedImage(TaskRender.FAST_JULIA_IMAGE_SIZE, TaskRender.FAST_JULIA_IMAGE_SIZE, BufferedImage.TYPE_INT_ARGB), ptr.getScrollPane().getHorizontalScrollBar().getValue(), ptr.getScrollPane().getVerticalScrollBar().getValue(), null);
             ptr.getScrollPane().getHorizontalScrollBar().setValue((int)(ptr.getScrollPane().getHorizontalScrollBar().getMaximum() / 2.0 - ptr.getScrollPane().getHorizontalScrollBar().getSize().getWidth() / 2.0));
             ptr.getScrollPane().getVerticalScrollBar().setValue((int)(ptr.getScrollPane().getVerticalScrollBar().getMaximum() / 2.0 - ptr.getScrollPane().getVerticalScrollBar().getSize().getHeight() / 2.0));
             ptr.setFirstPaint();
         }
 
-
        if(ptr.getWholeImageDone()) {
-            g.drawImage(ptr.getImage(), 0, 0, null);
-            
-            if(ptr.getOrbit()) {
-                ptr.drawOrbit((Graphics2D)g);
-            }
-                
-            if(ptr.getBoundaries()) {
-                ptr.drawBoundaries((Graphics2D)g, true);
-            }
-                
-            if(ptr.getGrid()) {
-                ptr.drawGrid((Graphics2D)g, true);
-            }
-                
-            if(ptr.getZoomWindow()) {
-               ptr.drawZoomWindow((Graphics2D)g);
-            }      
+            handleNewImage(g);
        }
-       else {
-            if(!ptr.getColorCycling()) {
-                g.drawImage(ptr.getLastUsed(), 0, 0, null);
-                    
-                if(ptr.getBoundaries() && ptr.getLastUsed() != null) {
-                    ptr.drawBoundaries((Graphics2D)g, true);
-                }
-                    
-                if(ptr.getGrid() && ptr.getLastUsed() != null) {
-                    ptr.drawGrid((Graphics2D)g, true);
-                }
-                    
-                if(ptr.getZoomWindow() && ptr.getLastUsed() != null) {
-                   ptr.drawZoomWindow((Graphics2D)g);
-                }
-           }
+       else if(!ptr.getColorCycling()) {
+           handlePreviousImage(g);
        }
             
     }
+
 
     public Color getColor(int x, int y) {
         try {
@@ -153,22 +270,98 @@ public class MainPanel extends JPanel implements ActionListener {
         }
     }
 
-    public String getIterationData(int x, int y, int image_size, boolean domain_coloring, boolean d3) {
+    private final static double MASK_COEF = 0.4;
 
-        if(domain_coloring || d3) {
+    private void maskImage(BufferedImage image, BufferedImage image2, Predicate<Point> predicate) {
+
+        synchronized (ptr.image_reset_mutex) {
+            int[] rgbs = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
+            int[] rgbs2 = ((DataBufferInt) image2.getRaster().getDataBuffer()).getData();
+            int image_width = image.getWidth();
+            double inv_coef = 1 - MASK_COEF;
+
+            IntStream.range(0, rgbs.length).parallel().forEach(p -> {
+                int y = p / image_width;
+                int x = p % image_width;
+
+                int color = rgbs[p];
+                int red = (color >> 16) & 0xFF;
+                int green = (color >> 8) & 0xFF;
+                int blue = (color) & 0xFF;
+
+                if (predicate.test(new Point(x, y))) {
+
+                    if(MainWindow.MASK_IMAGE_OUTSIDE_WINDOW == 1) {
+                        red = (int) (red * MASK_COEF + inv_coef * 255);
+                        green = (int) (green * MASK_COEF + inv_coef * 255);
+                        blue = (int) (blue * MASK_COEF + inv_coef * 255);
+                        rgbs2[p] = 0xFF000000 | (red << 16) | (green << 8) | blue;
+                    }
+                    else {
+                        red = (int) (red * MASK_COEF);
+                        green = (int) (green * MASK_COEF);
+                        blue = (int) (blue * MASK_COEF);
+                        rgbs2[p] = 0xFF000000 | (red << 16) | (green << 8) | blue;
+                    }
+
+                } else {
+                    rgbs2[p] = color;
+                }
+            });
+        }
+    }
+
+    private void maskImageSlow(BufferedImage image, Graphics g, Predicate<Point> predicate) {
+
+        synchronized (ptr.image_reset_mutex) {
+            int[] rgbs = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
+            int image_width = image.getWidth();
+            double inv_coef = 1 - MASK_COEF;
+
+            for(int p = 0; p < rgbs.length; p++) {
+                int y = p / image_width;
+                int x = p % image_width;
+
+                int color = rgbs[p];
+                int red = (color >> 16) & 0xFF;
+                int green = (color >> 8) & 0xFF;
+                int blue = (color) & 0xFF;
+
+                if (predicate.test(new Point(x, y))) {
+
+                    if(MainWindow.MASK_IMAGE_OUTSIDE_WINDOW == 1) {
+                        red = (int) (red * MASK_COEF + inv_coef * 255);
+                        green = (int) (green * MASK_COEF + inv_coef * 255);
+                        blue = (int) (blue * MASK_COEF + inv_coef * 255);
+                        g.setColor(new Color((0xff000000) | (red << 16) | (green << 8) | blue));
+                    }
+                    else {
+                        red = (int) (red * MASK_COEF);
+                        green = (int) (green * MASK_COEF);
+                        blue = (int) (blue * MASK_COEF);
+                        g.setColor(new Color((0xff000000) | (red << 16) | (green << 8) | blue));
+                    }
+                    g.drawRect(x, y, 1, 1);
+                }
+                else {
+                    g.setColor(new Color(color));
+                    g.drawRect(x, y, 1, 1);
+                }
+            }
+        }
+    }
+
+    public String getIterationData(int x, int y, int width, boolean domain_coloring, boolean d3) {
+
+        if(domain_coloring || d3 || !TaskRender.DONE || ptr.hasTransformedImage()) {
             return "N/A";
         }
 
         try {
-            if (TaskDraw.DONE) {
-                return "" + TaskDraw.image_iterations[y * image_size + x];
-            } else {
-                return "N/A";
-            }
+            return "" + TaskRender.image_iterations[y * width + x];
         }
         catch (Exception ex) {
             return "N/A";
         }
     }
-  
 }

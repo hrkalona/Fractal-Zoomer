@@ -53,6 +53,9 @@ public class Toolbar extends JToolBar {
     private JButton domain_coloring_button;
     private JButton current_function_button;
     private JButton current_plane_button;
+
+    private JToggleButton zoom_method_selection_toggle;
+    private JToggleButton zoom_method_mouse_toggle;
     
     public Toolbar(MainWindow ptr2) {
         super();
@@ -96,24 +99,44 @@ public class Toolbar extends JToolBar {
         zoom_out_button.addActionListener(e -> ptr.zoomOut());
 
         add(zoom_out_button);
+
+        addSeparator();
+
+        zoom_method_selection_toggle = new JToggleButton();
+        zoom_method_selection_toggle.setIcon(MainWindow.getIcon("crop.png"));
+        zoom_method_selection_toggle.setToolTipText("Zoom using the selected rectangle.");
+        zoom_method_selection_toggle.addActionListener(e -> ptr.toggleZoomToTheSelectedArea());
+
+        zoom_method_mouse_toggle = new JToggleButton();
+        zoom_method_mouse_toggle.setIcon(MainWindow.getIcon("mouse.png"));
+        zoom_method_mouse_toggle.setToolTipText("Zoom using the mouse cursor.");
+        zoom_method_mouse_toggle.addActionListener(e -> ptr.toggleZoomOnTheCursor());
+        zoom_method_mouse_toggle.setSelected(true);
+
+        add(zoom_method_selection_toggle);
+        add(zoom_method_mouse_toggle);
+
+        ButtonGroup buttonGroup1 = new ButtonGroup();
+        buttonGroup1.add(zoom_method_selection_toggle);
+        buttonGroup1.add(zoom_method_mouse_toggle);
         
         addSeparator();
 
         save_image_button = new MyButton();
         save_image_button.setIcon(MainWindow.getIcon("save_image.png"));
         save_image_button.setFocusable(false);
-        save_image_button.setToolTipText("Saves a png image.");
+        save_image_button.setToolTipText("Saves an image.");
 
-        save_image_button.addActionListener(e -> ptr.saveImage());
+        save_image_button.addActionListener(e -> ptr.saveImage(false));
 
         add(save_image_button);
         
         save_image_and_settings_button = new MyButton();
         save_image_and_settings_button.setIcon(MainWindow.getIcon("save_image_settings.png"));
         save_image_and_settings_button.setFocusable(false);
-        save_image_and_settings_button.setToolTipText("Saves the current settings and a png image.");
+        save_image_and_settings_button.setToolTipText("Saves the current settings and an image.");
 
-        save_image_and_settings_button.addActionListener(e -> ptr.saveSettingsAndImage());
+        save_image_and_settings_button.addActionListener(e -> ptr.saveImage(true));
 
         add(save_image_and_settings_button);
 
@@ -450,5 +473,13 @@ public class Toolbar extends JToolBar {
 
         return current_plane_button;
 
+    }
+
+    public JToggleButton getZoom_method_selection_toggle() {
+        return zoom_method_selection_toggle;
+    }
+
+    public JToggleButton getZoom_method_mouse_toggle() {
+        return zoom_method_mouse_toggle;
     }
 }

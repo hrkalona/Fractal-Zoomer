@@ -33,6 +33,8 @@ public class HistogramColoringSettings {
     public boolean hs_remove_outliers;
     public int hs_outliers_method;
     public int rank_order_digits_grouping;
+    public int hs_color_blending;
+    public boolean hs_reverse_color_blending;
 
     public HistogramColoringSettings() {
         histogramColoring = false;
@@ -46,5 +48,7 @@ public class HistogramColoringSettings {
         hmapping = 0;
         hs_outliers_method= 0;
         rank_order_digits_grouping = 2;
+        hs_color_blending = 0;
+        hs_reverse_color_blending = false;
     }
 }

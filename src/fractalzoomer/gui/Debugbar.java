@@ -1,5 +1,6 @@
 package fractalzoomer.gui;
 
+import fractalzoomer.main.MainWindow;
 import fractalzoomer.utils.RefreshCpuTask;
 import fractalzoomer.utils.RefreshMemoryTask;
 
@@ -33,12 +34,18 @@ public class Debugbar extends JToolBar {
     public Debugbar() {
         super();
 
+        int definedHeight = 22;
+
+        if(MainWindow.useCustomLaf) {
+            definedHeight = 24;
+        }
+
         setFloatable(false);
         setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
 
         setBorderPainted(true);
         setAlignmentX(Component.LEFT_ALIGNMENT);
-        setPreferredSize(new Dimension(0, 22));
+        setPreferredSize(new Dimension(0, definedHeight));
 
         JLabel label = new JLabel(" X: ");
         // label.setFont(new Font("Arial", Font.PLAIN, 11));
@@ -46,9 +53,10 @@ public class Debugbar extends JToolBar {
 
         X = new JTextField("X");
         X .setHorizontalAlignment(JTextField.RIGHT);
-        X.setPreferredSize(new Dimension(50, 22));
+        X.setPreferredSize(new Dimension(50, definedHeight));
         X .setMaximumSize(X.getPreferredSize());
         X .setEditable(false);
+        X.setFocusable(false);
         X .setToolTipText("Displays the x coordinate the hovered pixel.");
 
         add(X);
@@ -60,9 +68,10 @@ public class Debugbar extends JToolBar {
 
         Y = new JTextField("Y");
         Y .setHorizontalAlignment(JTextField.RIGHT);
-        Y.setPreferredSize(new Dimension(50, 22));
+        Y.setPreferredSize(new Dimension(50, definedHeight));
         Y .setMaximumSize(Y.getPreferredSize());
         Y .setEditable(false);
+        Y.setFocusable(false);
         Y .setToolTipText("Displays the y coordinate the hovered pixel.");
 
         add(Y);
@@ -77,9 +86,10 @@ public class Debugbar extends JToolBar {
 
         R = new JTextField("R");
         R .setHorizontalAlignment(JTextField.RIGHT);
-        R .setPreferredSize(new Dimension(40, 22));
+        R .setPreferredSize(new Dimension(40, definedHeight));
         R .setMaximumSize(R.getPreferredSize());
         R .setEditable(false);
+        R.setFocusable(false);
         R .setForeground(Color.RED);
         R .setToolTipText("Displays the red component of the hovered pixel.");
 
@@ -91,9 +101,10 @@ public class Debugbar extends JToolBar {
 
         G = new JTextField("G");
         G .setHorizontalAlignment(JTextField.RIGHT);
-        G .setPreferredSize(new Dimension(40, 22));
+        G .setPreferredSize(new Dimension(40, definedHeight));
         G .setMaximumSize(G.getPreferredSize());
         G .setEditable(false);
+        G.setFocusable(false);
         G .setForeground(Color.GREEN.darker());
         G .setToolTipText("Displays the green component of the hovered pixel.");
 
@@ -106,9 +117,10 @@ public class Debugbar extends JToolBar {
 
         B = new JTextField("B");
         B .setHorizontalAlignment(JTextField.RIGHT);
-        B .setPreferredSize(new Dimension(40, 22));
+        B .setPreferredSize(new Dimension(40, definedHeight));
         B .setMaximumSize(B.getPreferredSize());
         B .setEditable(false);
+        B.setFocusable(false);
         B .setForeground(Color.BLUE);
         B .setToolTipText("Displays the blue component of the hovered pixel.");
 
@@ -124,9 +136,10 @@ public class Debugbar extends JToolBar {
 
         IterData = new JTextField("Iteration Data");
         IterData .setHorizontalAlignment(JTextField.RIGHT);
-        IterData.setPreferredSize(new Dimension(150, 22));
+        IterData.setPreferredSize(new Dimension(160, definedHeight));
         IterData .setMaximumSize(IterData.getPreferredSize());
         IterData .setEditable(false);
+        IterData.setFocusable(false);
         IterData .setToolTipText("Displays the iteration data of the hovered pixel.");
 
         add(IterData);

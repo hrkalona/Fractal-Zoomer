@@ -52,16 +52,10 @@ public class BigIntNum {
         if (temp == 0) {
             temp = 1;
         } else if (digits % SHIFT32 != 0) {
-            //0 is floor
-            if(TaskDraw.BIGNUM_INITIALIZATION_ALGORITHM == 1) { //always
-                temp++;
-            }
-            else if (TaskDraw.BIGNUM_INITIALIZATION_ALGORITHM == 2) { //round
-                temp = (int)(res + 0.5);
-            }
+            temp++;
         }
 
-        fracDigits = temp * TaskDraw.BIGNUM_PRECISION_FACTOR;
+        fracDigits = temp * TaskRender.BIGNUM_PRECISION_FACTOR;
 
         totalDigits = fracDigits + INTEGER_PART;
         totalDigitsByteCount = totalDigits << 2;
@@ -74,9 +68,9 @@ public class BigIntNum {
         ONE = new BigIntNum(1);
         ONESHIFTED = new BigIntNum(ONE.digits.shiftLeft(fracDigitsBits));
 
-        use_threads = TaskDraw.USE_THREADS_IN_BIGNUM_LIBS && fracDigits >= THREADS_THRESHOLD && Runtime.getRuntime().availableProcessors() >= 2;
+        use_threads = TaskRender.USE_THREADS_IN_BIGNUM_LIBS && fracDigits >= THREADS_THRESHOLD && Runtime.getRuntime().availableProcessors() >= 2;
 
-        //use_threads2 = TaskDraw.USE_THREADS_IN_BIGNUM_LIBS && fracDigits >= THREADS_THRESHOLD && Runtime.getRuntime().availableProcessors() >= 3;
+        //use_threads2 = TaskRender.USE_THREADS_IN_BIGNUM_LIBS && fracDigits >= THREADS_THRESHOLD && Runtime.getRuntime().availableProcessors() >= 3;
     }
 
     public BigIntNum() {
@@ -702,5 +696,9 @@ public class BigIntNum {
     }
 
     public Apfloat toApfloat() { return new MyApfloat(bits(), 2).toRadix(10);}
+
+    public int signum() {
+        return digits.signum();
+    }
 
 }

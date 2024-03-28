@@ -25,15 +25,15 @@ public class InflectionsPlane extends Plane {
             inflections[i] = new Complex(inflections_re.get(i), inflections_im.get(i));
         }
 
-        if(TaskDraw.PERTURBATION_THEORY || TaskDraw.HIGH_PRECISION_CALCULATION) {
+        if(TaskRender.PERTURBATION_THEORY || TaskRender.HIGH_PRECISION_CALCULATION) {
             ddinflections = new BigComplex[inflections.length];
             ddcinflections = new DDComplex[inflections.length];
             bninflections = new BigNumComplex[inflections.length];
             bniinflections = new BigIntNumComplex[inflections.length];
 
-            if (TaskDraw.allocateMPFR()) {
+            if (TaskRender.allocateMPFR()) {
                 mpfrbninflections = new MpfrBigNumComplex[inflections.length];
-            } else if (TaskDraw.allocateMPIR()) {
+            } else if (TaskRender.allocateMPIR()) {
                 mpirbninflections = new MpirBigNumComplex[inflections.length];
             }
 
@@ -43,9 +43,9 @@ public class InflectionsPlane extends Plane {
                 bninflections[i] = new BigNumComplex(inflections[i]);
                 bniinflections[i] = new BigIntNumComplex(inflections[i]);
 
-                if (TaskDraw.allocateMPFR()) {
+                if (TaskRender.allocateMPFR()) {
                     mpfrbninflections[i] = new MpfrBigNumComplex(inflections[i]);
-                } else if (TaskDraw.allocateMPIR()) {
+                } else if (TaskRender.allocateMPIR()) {
                     mpirbninflections[i] = new MpirBigNumComplex(inflections[i]);
                 }
             }

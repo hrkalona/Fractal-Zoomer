@@ -57,12 +57,12 @@ public class SmoothBinaryDecomposition extends OutColorAlgorithm {
     public double getResult(Object[] object) {
 
         if(algorithm == 0 && !usePower) {
-            double temp3 = (Integer)object[0] + SmoothEscapeTime.getSmoothing1(object, Math.log(((Complex)object[1]).norm_squared()), log_bailout_squared);
+            double temp3 = (int)object[0] + SmoothEscapeTime.getSmoothing1(object, Math.log(((Complex)object[1]).norm_squared()), log_bailout_squared);
 
             return ((Complex)object[1]).getIm() < 0 ? -(temp3 + INCREMENT) : temp3;
         }
         else {
-            double temp3 = (Integer)object[0] + SmoothEscapeTime.getSmoothing2(object, Math.log(((Complex)object[1]).norm_squared()), log_bailout_squared, usePower, log_power);
+            double temp3 = (int)object[0] + SmoothEscapeTime.getSmoothing2(object, Math.log(((Complex)object[1]).norm_squared()), log_bailout_squared, usePower, log_power);
             
             return ((Complex)object[1]).getIm() < 0 ? -(temp3 + INCREMENT) : temp3;
         }

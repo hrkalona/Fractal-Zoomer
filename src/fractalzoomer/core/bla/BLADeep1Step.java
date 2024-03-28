@@ -2,14 +2,14 @@ package fractalzoomer.core.bla;
 
 import fractalzoomer.core.MantExp;
 import fractalzoomer.core.MantExpComplex;
-import fractalzoomer.core.TaskDraw;
+import fractalzoomer.core.TaskRender;
 
 public class BLADeep1Step extends BLADeep {
     //This class Assumes that B is 1 + 0i
     public static MantExpComplex B = MantExpComplex.ONE;
 
     public static BLADeep create(MantExp r2, MantExpComplex A) {
-        if(TaskDraw.MANTEXPCOMPLEX_FORMAT == 1) {
+        if(TaskRender.MANTEXPCOMPLEX_FORMAT == 1) {
             return new BLADeepFull1Step(r2, A);
         }
         return new BLADeep1Step(r2, A);

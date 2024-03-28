@@ -13,7 +13,10 @@ public class PixelOffset {
         return y;
     }
 
-    public int getImageSize(int image_size) {
-        return image_size;
+    public int getWidth(int width) {
+        return width;
+    }
+    public int getHeight(int height) {
+        return height;
     }
 }

@@ -25,6 +25,9 @@ import fractalzoomer.out_coloring_algorithms.*;
 
 import java.util.ArrayList;
 
+import static fractalzoomer.main.Constants.ESCAPE_TIME_SQUARES;
+import static fractalzoomer.main.Constants.ESCAPE_TIME_SQUARES2;
+
 /**
  *
  * @author hrkalona
@@ -126,10 +129,11 @@ public class Kleinian extends FractalWithoutConstant {
             if (complex[0].getIm() < 0.0 || complex[0].getIm() > u) {
                 escaped = true;
 
+                finalizeStatistic(true, complex[0]);
                 Object[] object = {iterations, complex[0], zold, zold2, pixel, start, c0, pixel};
                 double out = out_color_algorithm.getResult(object);
 
-                out = getFinalValueOut(out, complex[0]);
+                out = getFinalValueOut(out);
 
                 if (outTrueColorAlgorithm != null) {
                     setTrueColorOut(complex[0], zold, zold2, iterations, pixel, start, c0, pixel);
@@ -141,10 +145,11 @@ public class Kleinian extends FractalWithoutConstant {
             //If the iterated points enters a 2-cycle , bail out.
             if (iterations != 0 && complex[0].distance_squared(zold2) < error) {
 
+                finalizeStatistic(false, complex[0]);
                 Object[] object = {complex[0], zold, zold2, pixel, start, c0, pixel};
                 double in = in_color_algorithm.getResult(object);
 
-                in = getFinalValueIn(in, complex[0]);
+                in = getFinalValueIn(in);
 
                 if (inTrueColorAlgorithm != null) {
                     setTrueColorIn(complex[0], zold, zold2, iterations, pixel, start, c0, pixel);
@@ -166,10 +171,11 @@ public class Kleinian extends FractalWithoutConstant {
             }
         }
 
+        finalizeStatistic(false, complex[0]);
         Object[] object = {complex[0], zold, zold2, pixel, start, c0, pixel};
         double in = in_color_algorithm.getResult(object);
 
-        in = getFinalValueIn(in, complex[0]);
+        in = getFinalValueIn(in);
 
         if (inTrueColorAlgorithm != null) {
             setTrueColorIn(complex[0], zold, zold2, iterations, pixel, start, c0, pixel);
@@ -219,6 +225,18 @@ public class Kleinian extends FractalWithoutConstant {
             case MainWindow.ESCAPE_TIME_FIELD_LINES2:
                 if (smoothing) {
                     out_color_algorithm = new SmoothEscapeTimeFieldLines2Kleinian(u, log_bailout_squared);
+                }
+                break;
+            case ESCAPE_TIME_SQUARES:
+                if (smoothing) {
+                    OutColorAlgorithm wrappedAlgorithm = new SmoothEscapeTimeKleinian(u);
+                    out_color_algorithm = new EscapeTimeSquares(5, wrappedAlgorithm);
+                }
+                break;
+            case ESCAPE_TIME_SQUARES2:
+                if (smoothing) {
+                    OutColorAlgorithm wrappedAlgorithm = new SmoothEscapeTimeKleinian(u);
+                    out_color_algorithm = new EscapeTimeSquares2(5, wrappedAlgorithm);
                 }
                 break;
 

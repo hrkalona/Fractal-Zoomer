@@ -824,7 +824,7 @@ public class Nova extends ExtendedConvergentType {
 
         Complex[] complex = new Complex[6];
 
-        if(TaskDraw.PERTURBATION_THEORY && supportsPerturbationTheory()) {
+        if(TaskRender.PERTURBATION_THEORY && supportsPerturbationTheory()) {
             if(!isOrbit && !isDomain) {
                 Complex temp = pixel.plus(refPointSmall);
                 complex[0] = new Complex(defaultInitVal.getValue(temp));
@@ -859,7 +859,7 @@ public class Nova extends ExtendedConvergentType {
 
         Complex[] complex = new Complex[6];
 
-        if(TaskDraw.PERTURBATION_THEORY && supportsPerturbationTheory()) {
+        if(TaskRender.PERTURBATION_THEORY && supportsPerturbationTheory()) {
 
             if(!isOrbit && !isDomain) {
                 complex[0] = pixel.plus(refPointSmall);
@@ -952,7 +952,7 @@ public class Nova extends ExtendedConvergentType {
 
         boolean lowPrecReferenceOrbitNeeded = !needsOnlyExtendedReferenceOrbit(deepZoom, false);
         DoubleReference.SHOULD_SAVE_MEMORY = false;
-        boolean useCompressedRef = TaskDraw.COMPRESS_REFERENCE_IF_POSSIBLE && supportsReferenceCompression();
+        boolean useCompressedRef = TaskRender.COMPRESS_REFERENCE_IF_POSSIBLE && supportsReferenceCompression();
         int[] preCalcIndexes = getNeededPrecalculatedTermsIndexes();
 
         if(iterations == 0) {
@@ -985,7 +985,7 @@ public class Nova extends ExtendedConvergentType {
             inputPixel = sanitizeInputPixel(inputPixel);
         }
 
-        int bigNumLib = TaskDraw.getBignumLibrary(size, this);
+        int bigNumLib = TaskRender.getBignumLibrary(size, this);
 
         GenericComplex z, c, zold, zold2, start, c0, initVal, pixel;
         if(bigNumLib == Constants.BIGNUM_MPFR) {
@@ -1284,7 +1284,7 @@ public class Nova extends ExtendedConvergentType {
 
         boolean lowPrecReferenceOrbitNeeded = !needsOnlyExtendedReferenceOrbit(deepZoom, false);
         DoubleReference.SHOULD_SAVE_MEMORY = false;
-        boolean useCompressedRef = TaskDraw.COMPRESS_REFERENCE_IF_POSSIBLE && supportsReferenceCompression();
+        boolean useCompressedRef = TaskRender.COMPRESS_REFERENCE_IF_POSSIBLE && supportsReferenceCompression();
         int[] preCalcIndexes = getNeededPrecalculatedTermsIndexes();
 
         if (iterations == 0) {
@@ -1315,7 +1315,7 @@ public class Nova extends ExtendedConvergentType {
 
         GenericComplex z, c, zold, zold2, start, c0, pixel, initVal;
 
-        int bigNumLib = TaskDraw.getBignumLibrary(size, this);
+        int bigNumLib = TaskRender.getBignumLibrary(size, this);
 
         if(bigNumLib == Constants.BIGNUM_MPFR) {
 
@@ -1687,7 +1687,7 @@ public class Nova extends ExtendedConvergentType {
 
     @Override
     public boolean needsExtendedRange() {
-        return TaskDraw.USE_FULL_FLOATEXP_FOR_ALL_ZOOM || (TaskDraw.USE_CUSTOM_FLOATEXP_REQUIREMENT && isJulia && size < 1.0e-14);
+        return TaskRender.USE_FULL_FLOATEXP_FOR_ALL_ZOOM || (TaskRender.USE_CUSTOM_FLOATEXP_REQUIREMENT && isJulia && size < 1.0e-14);
     }
 
     @Override

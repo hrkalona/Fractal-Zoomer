@@ -16,10 +16,11 @@
  */
 package fractalzoomer.gui;
 
-import fractalzoomer.core.TaskDraw;
+import fractalzoomer.core.TaskRender;
 import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
+import raven.slider.SliderGradient;
 
 import javax.swing.*;
 import java.awt.*;
@@ -43,7 +44,7 @@ public class D3Dialog extends JDialog {
         ptra = ptr;
 
         scrollPane = new JScrollPane();
-        scrollPane.setPreferredSize(new Dimension(700, 700));
+        scrollPane.setPreferredSize(new Dimension(MainWindow.useCustomLaf ? 750 : 700, 700));
 
         setTitle("3D");
         setModal(true);
@@ -169,7 +170,7 @@ public class D3Dialog extends JDialog {
             gaussian_scaling_opt.setEnabled(!bilateral_scaling_opt.isSelected());
         });
 
-        JSlider color_blend = new JSlider(JSlider.HORIZONTAL, 0, 100, ((int) (s.d3s.color_3d_blending * 100)));
+        JSlider color_blend = new SliderGradient(JSlider.HORIZONTAL, 0, 100, ((int) (s.d3s.color_3d_blending * 100)));
         color_blend.setPreferredSize(new Dimension(270, 35));
         color_blend.setMajorTickSpacing(25);
         color_blend.setMinorTickSpacing(1);
@@ -278,7 +279,7 @@ public class D3Dialog extends JDialog {
         shade_invert_opt.setToolTipText("Inverts the height shading.");
 
         JComboBox<String> triangle_coloring = new JComboBox<>(new String[]{"Simple", "Barycentric Gradient", "Average"});
-        triangle_coloring.setSelectedIndex(TaskDraw.D3_APPLY_AVERAGE_TO_TRIANGLE_COLORS);
+        triangle_coloring.setSelectedIndex(TaskRender.D3_APPLY_AVERAGE_TO_TRIANGLE_COLORS);
         triangle_coloring.setFocusable(false);
         triangle_coloring.setToolTipText("Sets the triangle coloring method.");
 
@@ -500,7 +501,7 @@ public class D3Dialog extends JDialog {
 
                             s.d3s.preHeightScaling = preHeightScaling.isSelected();
 
-                            TaskDraw.D3_APPLY_AVERAGE_TO_TRIANGLE_COLORS = triangle_coloring.getSelectedIndex();
+                            TaskRender.D3_APPLY_AVERAGE_TO_TRIANGLE_COLORS = triangle_coloring.getSelectedIndex();
 
                             s.d3s.fractionalTransfer = fractional_transfer.getSelectedIndex();
                             s.d3s.fractionalTransferMode = fractional_transfer_mode.getSelectedIndex();

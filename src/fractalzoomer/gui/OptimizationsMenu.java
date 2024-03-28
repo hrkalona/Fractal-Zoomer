@@ -45,7 +45,7 @@ public class OptimizationsMenu extends MyMenu {
         setIcon(MainWindow.getIcon("optimizations.png"));
         
         thread_number = new MyMenuItem("Threads", MainWindow.getIcon("threads.png"));
-        greedy_algorithm_item = new MyMenuItem("Drawing Algorithms", MainWindow.getIcon("greedy_algorithm.png"));
+        greedy_algorithm_item = new MyMenuItem("Rendering Algorithms", MainWindow.getIcon("greedy_algorithm.png"));
         periodicity_checking_opt = new MyCheckBoxMenuItem("Periodicity Checking");
         perturbation_theory = new MyMenuItem("Perturbation Theory", MainWindow.getIcon("perturbation.png"));
         high_precision = new MyMenuItem("High Precision", MainWindow.getIcon("high_precision.png"));
@@ -53,9 +53,9 @@ public class OptimizationsMenu extends MyMenu {
         periodicity_checking_opt.setSelected(MainWindow.PERIODICITY_CHECKING);
 
         
-        thread_number.setToolTipText("Sets the number of parallel drawing threads.");
+        thread_number.setToolTipText("Sets the number of parallel rendering threads.");
         periodicity_checking_opt.setToolTipText("Renders the image faster when containing a lot of bounded areas.");
-        greedy_algorithm_item.setToolTipText("Sets the drawing algorithms options.");
+        greedy_algorithm_item.setToolTipText("Sets the rendering algorithms options.");
         perturbation_theory.setToolTipText("Sets the perturbation theory settings.");
         high_precision.setToolTipText("Sets the use of high precision calculation for all pixels and for only for supported fractals.");
 

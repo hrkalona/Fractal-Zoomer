@@ -255,7 +255,7 @@ public class Lambda extends Julia {
 
 
     @Override
-    public double iterateFractalWithPerturbation(Complex[] complex, Complex dpixel) {
+    public double iterateFractalWithPerturbation(Complex[] complexIn, Complex dpixel) {
 
 
         double_iterations = 0;
@@ -276,17 +276,19 @@ public class Lambda extends Julia {
 
         Complex refZ;
         Complex zWithoutInitVal = new Complex();
+        Complex z = complexIn[0];
+        Complex c = complexIn[1];
 
         if(iterations != 0 && RefIteration < MaxRefIteration) {
             refZ = getArrayValue(reference, RefIteration);
             zWithoutInitVal = getArrayValue(referenceData.ReferenceSubCp, RefIteration, refZ).plus_mutable(DeltaSubN);
-            complex[0] = refZ.plus_mutable(DeltaSubN);
+            z = refZ.plus_mutable(DeltaSubN);
         }
         else if(iterations != 0 && ReferencePeriod != 0) {
             RefIteration = RefIteration % ReferencePeriod;
             refZ = getArrayValue(reference, RefIteration);
             zWithoutInitVal = getArrayValue(referenceData.ReferenceSubCp, RefIteration, refZ).plus_mutable(DeltaSubN);
-            complex[0] = refZ.plus_mutable(DeltaSubN);
+            z = refZ.plus_mutable(DeltaSubN);
         }
 
         Complex pixel = dpixel.plus(refPointSmall);
@@ -296,19 +298,20 @@ public class Lambda extends Julia {
             //No update values
 
             if (trap != null) {
-                trap.check(complex[0], iterations);
+                trap.check(z, iterations);
             }
 
-            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, 0.0, pixel)) {
+            if (bailout_algorithm.escaped(z, zold, zold2, iterations, c, start, c0, 0.0, pixel)) {
                 escaped = true;
 
-                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0, pixel};
+                finalizeStatistic(true, z);
+                Object[] object = {iterations, z, zold, zold2, c, start, c0, pixel};
                 double res = out_color_algorithm.getResult(object);
 
-                res = getFinalValueOut(res, complex[0]);
+                res = getFinalValueOut(res);
 
                 if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+                    setTrueColorOut(z, zold, zold2, iterations, c, start, c0, pixel);
                 }
 
                 return getAndAccumulateStatsNotDeep(res);
@@ -320,19 +323,19 @@ public class Lambda extends Julia {
             double_iterations++;
 
             zold2.assign(zold);
-            zold.assign(complex[0]);
+            zold.assign(z);
 
             //No Plane influence work
             //No Pre filters work
             if(max_iterations > 1){
                 refZ = getArrayValue(reference, RefIteration);
                 zWithoutInitVal = getArrayValue(referenceData.ReferenceSubCp, RefIteration, refZ).plus_mutable(DeltaSubN);
-                complex[0] = refZ.plus_mutable(DeltaSubN);
+                z = refZ.plus_mutable(DeltaSubN);
             }
             //No Post filters work
 
             if (statistic != null) {
-                statistic.insert(complex[0], zold, zold2, iterations, complex[1], start, c0);
+                statistic.insert(z, zold, zold2, iterations, c, start, c0);
             }
 
             if (zWithoutInitVal.norm_squared() < DeltaSubN.norm_squared() || RefIteration >= MaxRefIteration) {
@@ -343,13 +346,14 @@ public class Lambda extends Julia {
 
         }
 
-        Object[] object = {complex[0], zold, zold2, complex[1], start, c0, pixel};
+        finalizeStatistic(false,z);
+        Object[] object = {z, zold, zold2, c, start, c0, pixel};
         double in = in_color_algorithm.getResult(object);
 
-        in = getFinalValueIn(in, complex[0]);
+        in = getFinalValueIn(in);
 
         if (inTrueColorAlgorithm != null) {
-            setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+            setTrueColorIn(z, zold, zold2, iterations, c, start, c0, pixel);
         }
 
         return getAndAccumulateStatsNotDeep(in);
@@ -357,7 +361,7 @@ public class Lambda extends Julia {
     }
 
     @Override
-    public double iterateFractalWithPerturbation(Complex[] complex, MantExpComplex dpixel) {
+    public double iterateFractalWithPerturbation(Complex[] complexIn, MantExpComplex dpixel) {
 
         float_exp_iterations = 0;
         double_iterations = 0;
@@ -385,9 +389,11 @@ public class Lambda extends Julia {
 
         MantExpComplex cDeep = dpixel.plus(refPointSmallDeep);
         Complex pixel = cDeep.toComplex();
+        Complex zc = complexIn[0];
+        Complex c = complexIn[1];
 
         boolean useFullFloatExp = useFullFloatExp();
-        boolean doBailCheck = useFullFloatExp || TaskDraw.CHECK_BAILOUT_DURING_DEEP_NOT_FULL_FLOATEXP_MODE;
+        boolean doBailCheck = useFullFloatExp || TaskRender.CHECK_BAILOUT_DURING_DEEP_NOT_FULL_FLOATEXP_MODE;
 
         boolean usedDeepCode = false;
 
@@ -401,14 +407,14 @@ public class Lambda extends Julia {
                 refZm = getArrayDeepValue(referenceDeep, RefIteration);
                 zWithoutInitVal = getArrayDeepValue(referenceDeepData.ReferenceSubCp, RefIteration, refZm).plus_mutable(DeltaSubN);
                 z = refZm.plus_mutable(DeltaSubN);
-                complex[0] = z.toComplex();
+                zc = z.toComplex();
             }
             else if(iterations != 0 && ReferencePeriod != 0) {
                 RefIteration = RefIteration % ReferencePeriod;
                 refZm = getArrayDeepValue(referenceDeep, RefIteration);
                 zWithoutInitVal = getArrayDeepValue(referenceDeepData.ReferenceSubCp, RefIteration, refZm).plus_mutable(DeltaSubN);
                 z = refZm.plus_mutable(DeltaSubN);
-                complex[0] = z.toComplex();
+                zc = z.toComplex();
             }
 
             MantExpComplex zoldDeep;
@@ -416,19 +422,20 @@ public class Lambda extends Julia {
 
             for (; iterations < max_iterations; iterations++) {
                 if (trap != null) {
-                    trap.check(complex[0], iterations);
+                    trap.check(zc, iterations);
                 }
 
-                if (doBailCheck && bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, 0.0, pixel)) {
+                if (doBailCheck && bailout_algorithm.escaped(zc, zold, zold2, iterations, c, start, c0, 0.0, pixel)) {
                     escaped = true;
 
-                    Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0, pixel};
+                    finalizeStatistic(true, zc);
+                    Object[] object = {iterations, zc, zold, zold2, c, start, c0, pixel};
                     double res = out_color_algorithm.getResult(object);
 
-                    res = getFinalValueOut(res, complex[0]);
+                    res = getFinalValueOut(res);
 
                     if (outTrueColorAlgorithm != null) {
-                        setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+                        setTrueColorOut(zc, zold, zold2, iterations, c, start, c0, pixel);
                     }
 
                     return getAndAccumulateStatsNotScaled(res);
@@ -440,18 +447,18 @@ public class Lambda extends Julia {
                 float_exp_iterations++;
 
                 zold2.assign(zold);
-                zold.assign(complex[0]);
+                zold.assign(zc);
                 zoldDeep = z;
 
                 if (max_iterations > 1) {
                     refZm = getArrayDeepValue(referenceDeep, RefIteration);
                     zWithoutInitVal = getArrayDeepValue(referenceDeepData.ReferenceSubCp, RefIteration, refZm).plus_mutable(DeltaSubN);
                     z = refZm.plus_mutable(DeltaSubN);
-                    complex[0] = z.toComplex();
+                    zc = z.toComplex();
                 }
 
                 if (statistic != null) {
-                    statistic.insert(complex[0], zold, zold2, iterations, complex[1], start, c0, z, zoldDeep, cDeep);
+                    statistic.insert(zc, zold, zold2, iterations, c, start, c0, z, zoldDeep, cDeep);
                 }
 
                 if (zWithoutInitVal.norm_squared().compareToBothPositive(DeltaSubN.norm_squared()) < 0 || RefIteration >= MaxRefIteration) {
@@ -483,13 +490,13 @@ public class Lambda extends Julia {
             if(!usedDeepCode && iterations != 0 && RefIteration < MaxRefIteration) {
                 refZ = getArrayValue(reference, RefIteration);
                 zWithoutInitVal = getArrayValue(referenceData.ReferenceSubCp, RefIteration, refZ).plus_mutable(CDeltaSubN);
-                complex[0] = refZ.plus_mutable(CDeltaSubN);
+                zc = refZ.plus_mutable(CDeltaSubN);
             }
             else if(!usedDeepCode && iterations != 0 && ReferencePeriod != 0) {
                 RefIteration = RefIteration % ReferencePeriod;
                 refZ = getArrayValue(reference, RefIteration);
                 zWithoutInitVal = getArrayValue(referenceData.ReferenceSubCp, RefIteration, refZ).plus_mutable(CDeltaSubN);
-                complex[0] = refZ.plus_mutable(CDeltaSubN);
+                zc = refZ.plus_mutable(CDeltaSubN);
             }
 
             for (; iterations < max_iterations; iterations++) {
@@ -497,19 +504,20 @@ public class Lambda extends Julia {
                 //No update values
 
                 if (trap != null) {
-                    trap.check(complex[0], iterations);
+                    trap.check(zc, iterations);
                 }
 
-                if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, 0.0, pixel)) {
+                if (bailout_algorithm.escaped(zc, zold, zold2, iterations, c, start, c0, 0.0, pixel)) {
                     escaped = true;
 
-                    Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0, pixel};
+                    finalizeStatistic(true, zc);
+                    Object[] object = {iterations, zc, zold, zold2, c, start, c0, pixel};
                     double res = out_color_algorithm.getResult(object);
 
-                    res = getFinalValueOut(res, complex[0]);
+                    res = getFinalValueOut(res);
 
                     if (outTrueColorAlgorithm != null) {
-                        setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+                        setTrueColorOut(zc, zold, zold2, iterations, c, start, c0, pixel);
                     }
 
                     return getAndAccumulateStatsNotScaled(res);
@@ -525,19 +533,19 @@ public class Lambda extends Julia {
                 double_iterations++;
 
                 zold2.assign(zold);
-                zold.assign(complex[0]);
+                zold.assign(zc);
 
                 //No Plane influence work
                 //No Pre filters work
                 if (max_iterations > 1) {
                     refZ = getArrayValue(reference, RefIteration);
                     zWithoutInitVal = getArrayValue(referenceData.ReferenceSubCp, RefIteration, refZ).plus_mutable(CDeltaSubN);
-                    complex[0] = refZ.plus_mutable(CDeltaSubN);
+                    zc = refZ.plus_mutable(CDeltaSubN);
                 }
                 //No Post filters work
 
                 if (statistic != null) {
-                    statistic.insert(complex[0], zold, zold2, iterations, complex[1], start, c0);
+                    statistic.insert(zc, zold, zold2, iterations, c, start, c0);
                 }
 
                 if (zWithoutInitVal.norm_squared() < CDeltaSubN.norm_squared() || RefIteration >= MaxRefIteration) {
@@ -549,13 +557,14 @@ public class Lambda extends Julia {
             }
         }
 
-        Object[] object = {complex[0], zold, zold2, complex[1], start, c0, pixel};
+        finalizeStatistic(false, zc);
+        Object[] object = {zc, zold, zold2, c, start, c0, pixel};
         double in = in_color_algorithm.getResult(object);
 
-        in = getFinalValueIn(in, complex[0]);
+        in = getFinalValueIn(in);
 
         if (inTrueColorAlgorithm != null) {
-            setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+            setTrueColorIn(zc, zold, zold2, iterations, c, start, c0, pixel);
         }
 
         return getAndAccumulateStatsNotScaled(in);
@@ -563,7 +572,7 @@ public class Lambda extends Julia {
     }
 
     @Override
-    public double iterateJuliaWithPerturbation(Complex[] complex, Complex dpixel) {
+    public double iterateJuliaWithPerturbation(Complex[] complexIn, Complex dpixel) {
 
         double_iterations = 0;
         rebases = 0;
@@ -576,6 +585,8 @@ public class Lambda extends Julia {
         Complex DeltaSubN = deltas[0]; // Delta z
 
         Complex pixel = dpixel.plus(refPointSmall);
+        Complex z = complexIn[0];
+        Complex c = complexIn[1];
 
         ReferenceData data = referenceData;
         int MaxRefIteration = data.MaxRefIteration;
@@ -589,19 +600,20 @@ public class Lambda extends Julia {
             //No update values
 
             if (trap != null) {
-                trap.check(complex[0], iterations);
+                trap.check(z, iterations);
             }
 
-            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, 0.0, pixel)) {
+            if (bailout_algorithm.escaped(z, zold, zold2, iterations, c, start, c0, 0.0, pixel)) {
                 escaped = true;
 
-                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0, pixel};
+                finalizeStatistic(true, z);
+                Object[] object = {iterations, z, zold, zold2, c, start, c0, pixel};
                 double res = out_color_algorithm.getResult(object);
 
-                res = getFinalValueOut(res, complex[0]);
+                res = getFinalValueOut(res);
 
                 if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+                    setTrueColorOut(z, zold, zold2, iterations, c, start, c0, pixel);
                 }
 
                 return getAndAccumulateStatsNotDeep(res);
@@ -613,19 +625,19 @@ public class Lambda extends Julia {
             double_iterations++;
 
             zold2.assign(zold);
-            zold.assign(complex[0]);
+            zold.assign(z);
 
             //No Plane influence work
             //No Pre filters work
             if(max_iterations > 1) {
                 refZ = getArrayValue(data.Reference, RefIteration);
                 zWithoutInitVal = getArrayValue(data.ReferenceSubCp, RefIteration, refZ).plus_mutable(DeltaSubN);
-                complex[0] = refZ.plus_mutable(DeltaSubN);
+                z = refZ.plus_mutable(DeltaSubN);
             }
             //No Post filters work
 
             if (statistic != null) {
-                statistic.insert(complex[0], zold, zold2, iterations, complex[1], start, c0);
+                statistic.insert(z, zold, zold2, iterations, c, start, c0);
             }
 
             if (zWithoutInitVal.norm_squared() < DeltaSubN.norm_squared() || RefIteration >= MaxRefIteration) {
@@ -638,13 +650,14 @@ public class Lambda extends Julia {
             }
         }
 
-        Object[] object = {complex[0], zold, zold2, complex[1], start, c0, pixel};
+        finalizeStatistic(false, z);
+        Object[] object = {z, zold, zold2, c, start, c0, pixel};
         double in = in_color_algorithm.getResult(object);
 
-        in = getFinalValueIn(in, complex[0]);
+        in = getFinalValueIn(in);
 
         if (inTrueColorAlgorithm != null) {
-            setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+            setTrueColorIn(z, zold, zold2, iterations, c, start, c0, pixel);
         }
 
         return getAndAccumulateStatsNotDeep(in);
@@ -652,7 +665,7 @@ public class Lambda extends Julia {
     }
 
     @Override
-    public double iterateJuliaWithPerturbation(Complex[] complex, MantExpComplex dpixel) {
+    public double iterateJuliaWithPerturbation(Complex[] complexIn, MantExpComplex dpixel) {
 
         float_exp_iterations = 0;
         double_iterations = 0;
@@ -669,6 +682,8 @@ public class Lambda extends Julia {
 
         MantExpComplex cDeep = dpixel.plus(refPointSmallDeep);
         Complex pixel = cDeep.toComplex();
+        Complex zc = complexIn[0];
+        Complex c = complexIn[1];
 
         ReferenceDeepData deepData = referenceDeepData;
         ReferenceData data = referenceData;
@@ -683,7 +698,7 @@ public class Lambda extends Julia {
         long exp = DeltaSubN.getMinExp();
 
         boolean useFullFloatExp = useFullFloatExp();
-        boolean doBailCheck = useFullFloatExp || TaskDraw.CHECK_BAILOUT_DURING_DEEP_NOT_FULL_FLOATEXP_MODE;
+        boolean doBailCheck = useFullFloatExp || TaskRender.CHECK_BAILOUT_DURING_DEEP_NOT_FULL_FLOATEXP_MODE;
 
         if(useFullFloatExp || (totalSkippedIterations == 0 && exp <= minExp) || (totalSkippedIterations != 0 && exp <= reducedExp)) {
             MantExpComplex zWithoutInitVal = MantExpComplex.create();
@@ -692,19 +707,20 @@ public class Lambda extends Julia {
 
             for (; iterations < max_iterations; iterations++) {
                 if (trap != null) {
-                    trap.check(complex[0], iterations);
+                    trap.check(zc, iterations);
                 }
 
-                if (doBailCheck && bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, 0.0, pixel)) {
+                if (doBailCheck && bailout_algorithm.escaped(zc, zold, zold2, iterations, c, start, c0, 0.0, pixel)) {
                     escaped = true;
 
-                    Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0, pixel};
+                    finalizeStatistic(true, zc);
+                    Object[] object = {iterations, zc, zold, zold2, c, start, c0, pixel};
                     double res = out_color_algorithm.getResult(object);
 
-                    res = getFinalValueOut(res, complex[0]);
+                    res = getFinalValueOut(res);
 
                     if (outTrueColorAlgorithm != null) {
-                        setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+                        setTrueColorOut(zc, zold, zold2, iterations, c, start, c0, pixel);
                     }
 
                     return getAndAccumulateStatsNotScaled(res);
@@ -716,18 +732,18 @@ public class Lambda extends Julia {
                 float_exp_iterations++;
 
                 zold2.assign(zold);
-                zold.assign(complex[0]);
+                zold.assign(zc);
                 zoldDeep = z;
 
                 if (max_iterations > 1) {
                     refZm = getArrayDeepValue(deepData.Reference, RefIteration);
                     zWithoutInitVal = getArrayDeepValue(deepData.ReferenceSubCp, RefIteration, refZm).plus_mutable(DeltaSubN);
                     z = refZm.plus_mutable(DeltaSubN);
-                    complex[0] = z.toComplex();
+                    zc = z.toComplex();
                 }
 
                 if (statistic != null) {
-                    statistic.insert(complex[0], zold, zold2, iterations, complex[1], start, c0, z, zoldDeep , cDeep);
+                    statistic.insert(zc, zold, zold2, iterations, c, start, c0, z, zoldDeep , cDeep);
                 }
 
                 if (zWithoutInitVal.norm_squared().compareToBothPositive(DeltaSubN.norm_squared()) < 0 || RefIteration >= MaxRefIteration) {
@@ -764,19 +780,20 @@ public class Lambda extends Julia {
                 //No update values
 
                 if (trap != null) {
-                    trap.check(complex[0], iterations);
+                    trap.check(zc, iterations);
                 }
 
-                if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, 0.0, pixel)) {
+                if (bailout_algorithm.escaped(zc, zold, zold2, iterations, c, start, c0, 0.0, pixel)) {
                     escaped = true;
 
-                    Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0, pixel};
+                    finalizeStatistic(true, zc);
+                    Object[] object = {iterations, zc, zold, zold2, c, start, c0, pixel};
                     double res = out_color_algorithm.getResult(object);
 
-                    res = getFinalValueOut(res, complex[0]);
+                    res = getFinalValueOut(res);
 
                     if (outTrueColorAlgorithm != null) {
-                        setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+                        setTrueColorOut(zc, zold, zold2, iterations, c, start, c0, pixel);
                     }
 
                     return getAndAccumulateStatsNotScaled(res);
@@ -788,19 +805,19 @@ public class Lambda extends Julia {
                 double_iterations++;
 
                 zold2.assign(zold);
-                zold.assign(complex[0]);
+                zold.assign(zc);
 
                 //No Plane influence work
                 //No Pre filters work
                 if (max_iterations > 1) {
                     refZ = getArrayValue(data.Reference, RefIteration);
                     zWithoutInitVal = getArrayValue(data.ReferenceSubCp, RefIteration, refZ).plus_mutable(CDeltaSubN);
-                    complex[0] = refZ.plus_mutable(CDeltaSubN);
+                    zc = refZ.plus_mutable(CDeltaSubN);
                 }
                 //No Post filters work
 
                 if (statistic != null) {
-                    statistic.insert(complex[0], zold, zold2, iterations, complex[1], start, c0);
+                    statistic.insert(zc, zold, zold2, iterations, c, start, c0);
                 }
 
                 if (zWithoutInitVal.norm_squared() < CDeltaSubN.norm_squared() || RefIteration >= MaxRefIteration) {
@@ -815,13 +832,14 @@ public class Lambda extends Julia {
             }
         }
 
-        Object[] object = {complex[0], zold, zold2, complex[1], start, c0, pixel};
+        finalizeStatistic(false, zc);
+        Object[] object = {zc, zold, zold2, c, start, c0, pixel};
         double in = in_color_algorithm.getResult(object);
 
-        in = getFinalValueIn(in, complex[0]);
+        in = getFinalValueIn(in);
 
         if (inTrueColorAlgorithm != null) {
-            setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+            setTrueColorIn(zc, zold, zold2, iterations, c, start, c0, pixel);
         }
 
         return getAndAccumulateStatsNotScaled(in);

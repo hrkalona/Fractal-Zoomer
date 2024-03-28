@@ -15,13 +15,13 @@ public class LAInfoDeep extends LAInfoBaseDeep {
     public static LAInfoDeep create() {
 
         if(LAInfo.DETECTION_METHOD == 1) {
-            if (TaskDraw.MANTEXPCOMPLEX_FORMAT == 1) {
+            if (TaskRender.MANTEXPCOMPLEX_FORMAT == 1) {
                 return new LAInfoDeepDetection2Full();
             }
             return new LAInfoDeepDetection2();
         }
         else {
-            if (TaskDraw.MANTEXPCOMPLEX_FORMAT == 1) {
+            if (TaskRender.MANTEXPCOMPLEX_FORMAT == 1) {
                 return new LAInfoDeepFull();
             }
             return new LAInfoDeep();
@@ -30,13 +30,13 @@ public class LAInfoDeep extends LAInfoBaseDeep {
 
     public static LAInfoDeep create(int refIndex, ReferenceDecompressor referenceDecompressor) {
         if(LAInfo.DETECTION_METHOD == 1) {
-            if (TaskDraw.MANTEXPCOMPLEX_FORMAT == 1) {
+            if (TaskRender.MANTEXPCOMPLEX_FORMAT == 1) {
                 return new LAInfoDeepDetection2Full(refIndex, referenceDecompressor);
             }
             return new LAInfoDeepDetection2(refIndex, referenceDecompressor);
         }
         else {
-            if (TaskDraw.MANTEXPCOMPLEX_FORMAT == 1) {
+            if (TaskRender.MANTEXPCOMPLEX_FORMAT == 1) {
                 return new LAInfoDeepFull(refIndex, referenceDecompressor);
             }
             return new LAInfoDeep(refIndex, referenceDecompressor);

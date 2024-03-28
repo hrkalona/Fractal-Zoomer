@@ -17,7 +17,7 @@
 package fractalzoomer.out_coloring_algorithms;
 
 import fractalzoomer.core.Complex;
-import fractalzoomer.core.TaskDraw;
+import fractalzoomer.core.TaskRender;
 import fractalzoomer.parser.Parser;
 import fractalzoomer.utils.ColorAlgorithm;
 
@@ -39,7 +39,7 @@ public class UserConditionalOutColorAlgorithmMagnet extends UserConditionalOutCo
 
         /* LEFT */
         if(parser[0].foundN()) {
-            parser[0].setNvalue(new Complex((Integer)object[0], 0));
+            parser[0].setNvalue(new Complex((int)object[0], 0));
         }
 
         if(parser[0].foundZ()) {
@@ -78,7 +78,7 @@ public class UserConditionalOutColorAlgorithmMagnet extends UserConditionalOutCo
 
         /* RIGHT */
         if(parser[1].foundN()) {
-            parser[1].setNvalue(new Complex((Integer)object[0], 0));
+            parser[1].setNvalue(new Complex((int)object[0], 0));
         }
 
         if(parser[1].foundZ()) {
@@ -120,7 +120,7 @@ public class UserConditionalOutColorAlgorithmMagnet extends UserConditionalOutCo
 
         if(result == -1) { // left > right
             if(parser2[0].foundN()) {
-                parser2[0].setNvalue(new Complex((Integer)object[0], 0));
+                parser2[0].setNvalue(new Complex((int)object[0], 0));
             }
 
             if(parser2[0].foundZ()) {
@@ -160,7 +160,7 @@ public class UserConditionalOutColorAlgorithmMagnet extends UserConditionalOutCo
             
             double result2 = expr2[0].getValue().getRe();
             
-            if(TaskDraw.USE_DIRECT_COLOR) {
+            if(TaskRender.USE_DIRECT_COLOR) {
                 return result2;
             }
         
@@ -173,15 +173,15 @@ public class UserConditionalOutColorAlgorithmMagnet extends UserConditionalOutCo
             }
 
             if(result2 < 0) {
-                return (Boolean)object[2] ? result2 - MAGNET_INCREMENT  : result2;
+                return (boolean)object[2] ? result2 - MAGNET_INCREMENT  : result2;
             }
             else {
-                return (Boolean)object[2] ? result2 + MAGNET_INCREMENT  : result2;
+                return (boolean)object[2] ? result2 + MAGNET_INCREMENT  : result2;
             }
         }
         else if(result == 1) { // right > left
             if(parser2[1].foundN()) {
-                parser2[1].setNvalue(new Complex((Integer)object[0], 0));
+                parser2[1].setNvalue(new Complex((int)object[0], 0));
             }
 
             if(parser2[1].foundZ()) {
@@ -220,7 +220,7 @@ public class UserConditionalOutColorAlgorithmMagnet extends UserConditionalOutCo
 
             double result2 = expr2[1].getValue().getRe();
             
-            if(TaskDraw.USE_DIRECT_COLOR) {
+            if(TaskRender.USE_DIRECT_COLOR) {
                 return result2;
             }
         
@@ -233,15 +233,15 @@ public class UserConditionalOutColorAlgorithmMagnet extends UserConditionalOutCo
             }
 
             if(result2 < 0) {
-                return (Boolean)object[2] ? result2 - MAGNET_INCREMENT  : result2;
+                return (boolean)object[2] ? result2 - MAGNET_INCREMENT  : result2;
             }
             else {
-                return (Boolean)object[2] ? result2 + MAGNET_INCREMENT  : result2;
+                return (boolean)object[2] ? result2 + MAGNET_INCREMENT  : result2;
             }
         }
         else if(result == 0) { //left == right
             if(parser2[2].foundN()) {
-                parser2[2].setNvalue(new Complex((Integer)object[0], 0));
+                parser2[2].setNvalue(new Complex((int)object[0], 0));
             }
 
             if(parser2[2].foundZ()) {
@@ -280,7 +280,7 @@ public class UserConditionalOutColorAlgorithmMagnet extends UserConditionalOutCo
 
             double result2 = expr2[2].getValue().getRe();
             
-            if(TaskDraw.USE_DIRECT_COLOR) {
+            if(TaskRender.USE_DIRECT_COLOR) {
                 return result2;
             }
         
@@ -293,10 +293,10 @@ public class UserConditionalOutColorAlgorithmMagnet extends UserConditionalOutCo
             }
 
             if(result2 < 0) {
-                return (Boolean)object[2] ? result2 - MAGNET_INCREMENT  : result2;
+                return (boolean)object[2] ? result2 - MAGNET_INCREMENT  : result2;
             }
             else {
-                return (Boolean)object[2] ? result2 + MAGNET_INCREMENT  : result2;
+                return (boolean)object[2] ? result2 + MAGNET_INCREMENT  : result2;
             }
         }
 

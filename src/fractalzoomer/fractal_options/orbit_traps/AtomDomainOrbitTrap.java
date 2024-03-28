@@ -25,6 +25,7 @@ import static fractalzoomer.main.Constants.*;
  * @author hrkalona
  */
 public class AtomDomainOrbitTrap extends OrbitTrap {
+    private double max_distance;
     private double old_distance;
 
     public AtomDomainOrbitTrap(int checkType, double pointRe, double pointIm, boolean countTrapIterations, int lastXItems) {
@@ -37,6 +38,7 @@ public class AtomDomainOrbitTrap extends OrbitTrap {
     public void initialize(Complex pixel) {
         
         super.initialize(pixel);
+        max_distance = 0;
         old_distance = Double.MAX_VALUE;
         
     }
@@ -53,15 +55,24 @@ public class AtomDomainOrbitTrap extends OrbitTrap {
         if (checkType == TRAP_CHECK_TYPE_TRAPPED_FIRST || checkType == TRAP_CHECK_TYPE_TRAPPED_LAST) {
             old_distance = distance;
             distance = dist;
+            if(distance > max_distance) {
+                max_distance = distance;
+            }
             trapId = 0;
             setTrappedData(val, iteration);
         } else if (checkType == TRAP_CHECK_TYPE_TRAPPED_MIN_DISTANCE) {
             if (dist < distance) {
                 old_distance = distance;
                 distance = dist;
+
+                if(distance > max_distance) {
+                    max_distance = distance;
+                }
+
                 trapId = 0;
                 setTrappedData(val, iteration);
-            } else if (dist < old_distance && dist != distance) {
+            }
+            else if (dist < old_distance && dist != distance) {
                 old_distance = dist;
                 countExtraIterations();
             }
@@ -71,7 +82,12 @@ public class AtomDomainOrbitTrap extends OrbitTrap {
 
     @Override
     public double getMaxValue() {
-        return old_distance;
+        if(distance <= old_distance) {
+            return old_distance;
+        }
+        else {
+            return max_distance;
+        }
     }
 
 }

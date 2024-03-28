@@ -5,7 +5,6 @@ import fractalzoomer.core.la.GenericLAInfo;
 import fractalzoomer.core.la.LAInfoBaseDeep;
 import fractalzoomer.core.la.LAstep;
 import fractalzoomer.core.la.impl.LAInfo;
-import fractalzoomer.core.la.impl.LAInfoDeep;
 import fractalzoomer.functions.Fractal;
 
 import static fractalzoomer.core.la.LAReference.f;
@@ -15,13 +14,13 @@ public class LAInfoDeepRI extends LAInfoBaseDeep {
     public static LAInfoDeepRI create() {
 
         if(LAInfo.DETECTION_METHOD == 1) {
-            if (TaskDraw.MANTEXPCOMPLEX_FORMAT == 1) {
+            if (TaskRender.MANTEXPCOMPLEX_FORMAT == 1) {
                 return new LAInfoDeepDetection2FullRI();
             }
             return new LAInfoDeepDetection2RI();
         }
         else {
-            if (TaskDraw.MANTEXPCOMPLEX_FORMAT == 1) {
+            if (TaskRender.MANTEXPCOMPLEX_FORMAT == 1) {
                 return new LAInfoDeepFullRI();
             }
             return new LAInfoDeepRI();
@@ -30,13 +29,13 @@ public class LAInfoDeepRI extends LAInfoBaseDeep {
 
     public static LAInfoDeepRI create(int RefIndex) {
         if(LAInfo.DETECTION_METHOD == 1) {
-            if (TaskDraw.MANTEXPCOMPLEX_FORMAT == 1) {
+            if (TaskRender.MANTEXPCOMPLEX_FORMAT == 1) {
                 return new LAInfoDeepDetection2FullRI(RefIndex);
             }
             return new LAInfoDeepDetection2RI(RefIndex);
         }
         else {
-            if (TaskDraw.MANTEXPCOMPLEX_FORMAT == 1) {
+            if (TaskRender.MANTEXPCOMPLEX_FORMAT == 1) {
                 return new LAInfoDeepFullRI(RefIndex);
             }
             return new LAInfoDeepRI(RefIndex);

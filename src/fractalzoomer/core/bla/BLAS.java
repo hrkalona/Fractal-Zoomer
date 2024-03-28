@@ -7,7 +7,6 @@ import fractalzoomer.main.Constants;
 import javax.swing.*;
 import java.util.ArrayList;
 import java.util.concurrent.Future;
-import java.util.stream.IntStream;
 
 import static fractalzoomer.main.Constants.BLA_CALCULATION_STR;
 
@@ -161,11 +160,11 @@ public class BLAS {
     private void init(DoubleReference Ref, double blaSize, double epsilon, JProgressBar progress, long divisor) {
 
         int elements = elementsPerLevel[firstLevel] + 1;
-        if(TaskDraw.USE_THREADS_FOR_BLA) {
+        if(TaskRender.USE_THREADS_FOR_BLA) {
             done = 0; //we dont care fore race condition
 
             ArrayList<Future<?>> futures = new ArrayList<>();
-            final int ThreadCount = TaskDraw.la_thread_executor.getCorePoolSize();
+            final int ThreadCount = TaskRender.la_thread_executor.getCorePoolSize();
             Runnable[] Tasks = new Runnable[ThreadCount];
 
             long expectedVal = done + elements;
@@ -210,7 +209,7 @@ public class BLAS {
                 }
 
                 for (int i = 0; i < Tasks.length; i++) {
-                    futures.add(TaskDraw.la_thread_executor.submit(Tasks[i]));
+                    futures.add(TaskRender.la_thread_executor.submit(Tasks[i]));
                 }
 
                 for (int i = 0; i < futures.size(); i++) {
@@ -258,12 +257,12 @@ public class BLAS {
     private void init(DeepReference Ref, MantExp blaSize, MantExp epsilon, JProgressBar progress, long divisor) {
 
         int elements = elementsPerLevel[firstLevel] + 1;
-        if(TaskDraw.USE_THREADS_FOR_BLA) {
+        if(TaskRender.USE_THREADS_FOR_BLA) {
 
             done = 0; //we dont care for race conditions
 
             ArrayList<Future<?>> futures = new ArrayList<>();
-            final int ThreadCount = TaskDraw.la_thread_executor.getCorePoolSize();
+            final int ThreadCount = TaskRender.la_thread_executor.getCorePoolSize();
             Runnable[] Tasks = new Runnable[ThreadCount];
 
             long expectedVal = done + elements;
@@ -305,7 +304,7 @@ public class BLAS {
                 }
 
                 for (int i = 0; i < Tasks.length; i++) {
-                    futures.add(TaskDraw.la_thread_executor.submit(Tasks[i]));
+                    futures.add(TaskRender.la_thread_executor.submit(Tasks[i]));
                 }
 
                 for (int i = 0; i < futures.size(); i++) {
@@ -371,7 +370,7 @@ public class BLAS {
 
     private void merge(double blaSize, JProgressBar progress, long divisor) {
 
-        boolean useThreadsForBla = TaskDraw.USE_THREADS_FOR_BLA;
+        boolean useThreadsForBla = TaskRender.USE_THREADS_FOR_BLA;
 
         int elementsDst = 0;
         int src = firstLevel;
@@ -389,7 +388,7 @@ public class BLAS {
             if(useThreadsForBla) {
 
                 ArrayList<Future<?>> futures = new ArrayList<>();
-                final int ThreadCount = TaskDraw.la_thread_executor.getCorePoolSize();
+                final int ThreadCount = TaskRender.la_thread_executor.getCorePoolSize();
                 Runnable[] Tasks = new Runnable[ThreadCount];
 
                 long expectedVal = done + elementsDst;
@@ -429,7 +428,7 @@ public class BLAS {
                     }
 
                     for (int i = 0; i < Tasks.length; i++) {
-                        futures.add(TaskDraw.la_thread_executor.submit(Tasks[i]));
+                        futures.add(TaskRender.la_thread_executor.submit(Tasks[i]));
                     }
 
                     for (int i = 0; i < futures.size(); i++) {
@@ -472,7 +471,7 @@ public class BLAS {
 
     private void merge(MantExp blaSize, JProgressBar progress, long divisor) {
 
-        boolean useThreadsForBla = TaskDraw.USE_THREADS_FOR_BLA;
+        boolean useThreadsForBla = TaskRender.USE_THREADS_FOR_BLA;
 
         int elementsDst = 0;
         int src = firstLevel;
@@ -490,7 +489,7 @@ public class BLAS {
             if(useThreadsForBla) {
 
                 ArrayList<Future<?>> futures = new ArrayList<>();
-                final int ThreadCount = TaskDraw.la_thread_executor.getCorePoolSize();
+                final int ThreadCount = TaskRender.la_thread_executor.getCorePoolSize();
                 Runnable[] Tasks = new Runnable[ThreadCount];
 
                 long expectedVal = done + elementsDst;
@@ -530,7 +529,7 @@ public class BLAS {
                     }
 
                     for (int i = 0; i < Tasks.length; i++) {
-                        futures.add(TaskDraw.la_thread_executor.submit(Tasks[i]));
+                        futures.add(TaskRender.la_thread_executor.submit(Tasks[i]));
                     }
 
                     for (int i = 0; i < futures.size(); i++) {
@@ -573,8 +572,8 @@ public class BLAS {
     }
 
     public void init(int M, DoubleReference Ref, double blaSize, JProgressBar progress) {
-        double precision = 1 / ((double)(1L << TaskDraw.BLA_BITS));
-        firstLevel = TaskDraw.BLA_STARTING_LEVEL - 1;
+        double precision = 1 / ((double)(1L << TaskRender.BLA_BITS));
+        firstLevel = TaskRender.BLA_STARTING_LEVEL - 1;
         isValid = false;
 
         this.M = M;
@@ -612,9 +611,9 @@ public class BLAS {
         returnL1 = firstLevel == 0;
 
 
-        long divisor = finalTotal > Constants.MAX_PROGRESS_VALUE ? finalTotal / 100 : 1;
+        long divisor = finalTotal > Constants.MAX_PROGRESS_VALUE ? finalTotal / Constants.PROGRESS_SCALE : 1;
         if(progress != null) {
-            progress.setMaximum((int)(finalTotal > Constants.MAX_PROGRESS_VALUE ? 100 : finalTotal));
+            progress.setMaximum((int)(finalTotal > Constants.MAX_PROGRESS_VALUE ? Constants.PROGRESS_SCALE : finalTotal));
         }
 
         L = count;
@@ -633,8 +632,8 @@ public class BLAS {
             referenceDecompressor = fractal.getReferenceDecompressors()[Ref.id];
         }
 
-        if(TaskDraw.USE_THREADS_FOR_BLA) {
-            referenceDecompressors = new ReferenceDecompressor[TaskDraw.la_thread_executor.getCorePoolSize()];
+        if(TaskRender.USE_THREADS_FOR_BLA) {
+            referenceDecompressors = new ReferenceDecompressor[TaskRender.la_thread_executor.getCorePoolSize()];
             if (referenceDecompressor != null) {
                 for (int i = 0; i < referenceDecompressors.length; i++) {
                     referenceDecompressors[i] = new ReferenceDecompressor(referenceDecompressor);
@@ -656,8 +655,8 @@ public class BLAS {
     }
 
     public void init(int M, DeepReference Ref, MantExp blaSize, JProgressBar progress) {
-        MantExp precision = new MantExp(1 / ((double)(1L << TaskDraw.BLA_BITS)));
-        firstLevel = TaskDraw.BLA_STARTING_LEVEL - 1;
+        MantExp precision = new MantExp(1 / ((double)(1L << TaskRender.BLA_BITS)));
+        firstLevel = TaskRender.BLA_STARTING_LEVEL - 1;
         isValid = false;
 
         this.M = M;
@@ -694,9 +693,9 @@ public class BLAS {
 
         returnL1 = firstLevel == 0;
 
-        long divisor = finalTotal > Constants.MAX_PROGRESS_VALUE ? finalTotal / 100 : 1;
+        long divisor = finalTotal > Constants.MAX_PROGRESS_VALUE ? finalTotal / Constants.PROGRESS_SCALE : 1;
         if(progress != null) {
-            progress.setMaximum((int)(finalTotal > Constants.MAX_PROGRESS_VALUE ? 100 : finalTotal));
+            progress.setMaximum((int)(finalTotal > Constants.MAX_PROGRESS_VALUE ? Constants.PROGRESS_SCALE : finalTotal));
         }
 
         L = count;
@@ -715,8 +714,8 @@ public class BLAS {
             referenceDecompressor = fractal.getReferenceDecompressors()[Ref.id];
         }
 
-        if(TaskDraw.USE_THREADS_FOR_BLA) {
-            referenceDecompressors = new ReferenceDecompressor[TaskDraw.la_thread_executor.getCorePoolSize()];
+        if(TaskRender.USE_THREADS_FOR_BLA) {
+            referenceDecompressors = new ReferenceDecompressor[TaskRender.la_thread_executor.getCorePoolSize()];
             if (referenceDecompressor != null) {
                 for (int i = 0; i < referenceDecompressors.length; i++) {
                     referenceDecompressors[i] = new ReferenceDecompressor(referenceDecompressor);

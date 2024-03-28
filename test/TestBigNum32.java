@@ -1,7 +1,7 @@
 package test;
 import fractalzoomer.core.BigNum;
 import fractalzoomer.core.MyApfloat;
-import fractalzoomer.core.TaskDraw;
+import fractalzoomer.core.TaskRender;
 import fractalzoomer.core.BigNum32;
 import org.apfloat.Apfloat;
 
@@ -9,7 +9,7 @@ public class TestBigNum32 {
 
     public static void main(String[] args) {
 
-        TaskDraw.BUILT_IT_BIGNUM_IMPLEMENTATION = 3;
+        TaskRender.BUILT_IT_BIGNUM_IMPLEMENTATION = 3;
         MyApfloat.precision = 2000000;
         BigNum32.reinitializeTest(19000);
 

@@ -1,6 +1,7 @@
 package fractalzoomer.gui;
 
 import fractalzoomer.core.interpolation.*;
+import fractalzoomer.main.MainWindow;
 
 import javax.swing.*;
 import java.awt.*;
@@ -216,9 +217,16 @@ public class ColorComponent extends JPanel {
             nodeColor = color;
         }
 
-        g.setColor(Color.BLACK);
+        if(MainWindow.useCustomLaf) {
+            g.setColor(Color.LIGHT_GRAY);
+        }
+        else {
+            g.setColor(Color.BLACK);
+        }
+        g2d.setStroke(new BasicStroke(1));
         g.drawRect(0, 0, getWidth() - 1, getHeight() - 1);
 
+        g2d.setStroke(new BasicStroke(2));
         g.setColor(lineColor);
 
         if(editor.getInterpolationMode() == 0 && editor.getInterpolationColorMode() == 0) {

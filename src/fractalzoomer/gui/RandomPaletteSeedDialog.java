@@ -16,8 +16,8 @@
  */
 package fractalzoomer.gui;
 
+import fractalzoomer.core.TaskRender;
 import fractalzoomer.main.MainWindow;
-import fractalzoomer.main.app_settings.Settings;
 
 import javax.swing.*;
 import java.awt.event.WindowAdapter;
@@ -29,10 +29,10 @@ import java.awt.event.WindowEvent;
  */
 public class RandomPaletteSeedDialog extends JDialog {
 
-    private JFrame ptra;
+    private JDialog ptra;
     private JOptionPane optionPane;
 
-    public RandomPaletteSeedDialog(JFrame ptr) {
+    public RandomPaletteSeedDialog(JDialog ptr) {
         
         super(ptr);
 
@@ -43,12 +43,12 @@ public class RandomPaletteSeedDialog extends JDialog {
         setIconImage(MainWindow.getIcon("mandel2.png").getImage());
 
         JTextField field = new JTextField(10);
-        field.setText("" + CustomPaletteEditorFrame.seed);
+        field.setText("" + TaskRender.SEED);
         field.addAncestorListener(new RequestFocusListener());
 
         Object[] message3 = {
             " ",
-            "You are using " + CustomPaletteEditorFrame.seed + " as the random palette seed.\nInsert the new seed value.\nA value of zero will make the seed random.",
+            "You are using " + TaskRender.SEED + " as the random palette seed.\nInsert the new seed value.\nA value of zero will make the seed random.",
             field,
             " ",};
 
@@ -87,8 +87,8 @@ public class RandomPaletteSeedDialog extends JDialog {
                         }
 
                         try {
-                            CustomPaletteEditorFrame.seed = Long.parseLong(field.getText());
-                            CustomPaletteEditorFrame.reSeed();
+                            TaskRender.SEED = Long.parseLong(field.getText());
+                            TaskRender.reSeed();
                         } catch (Exception ex) {
                             JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                             return;

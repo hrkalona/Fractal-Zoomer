@@ -39,7 +39,7 @@ public class PolarProjectionDialog extends JDialog {
     private MainWindow ptra;
     private JOptionPane optionPane;
 
-    public PolarProjectionDialog(MainWindow ptr, Settings s) {
+    public PolarProjectionDialog(MainWindow ptr, Settings s, int image_width, int image_height) {
         
         super(ptr);
 
@@ -109,7 +109,7 @@ public class PolarProjectionDialog extends JDialog {
         corners.setFocusable(false);
         corners.setIcon(MainWindow.getIcon("corners.png"));
 
-        JButton magnification = new MyButton("Set Magnification");
+        JButton magnification = new MyButton("Set Magnification/Zoom");
         magnification.setToolTipText("An alternative size option.");
         magnification.setFocusable(false);
         magnification.setIcon(MainWindow.getIcon("magnification.png"));
@@ -118,7 +118,7 @@ public class PolarProjectionDialog extends JDialog {
         cornersPanel.add(corners);
         cornersPanel.add(magnification);
 
-        corners.addActionListener(e -> new CornersDialog(ptr, s, field_real, field_imaginary, field_size));
+        corners.addActionListener(e -> new CornersDialog(ptr, s, field_real, field_imaginary, field_size, image_width, image_height));
 
         magnification.addActionListener(e -> new MagnificationDialog(ptr, s, field_size));
 

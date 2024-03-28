@@ -16,6 +16,7 @@
  */
 package fractalzoomer.gui;
 
+import fractalzoomer.main.MainWindow;
 import fractalzoomer.utils.ColorSpaceConverter;
 
 import javax.swing.*;
@@ -33,16 +34,23 @@ import java.util.Locale;
  */
 public class CpuLabel extends JLabel {
 	private static final long serialVersionUID = 364504299182837311L;
-    private static final int PANEL_HEIGHT = 23;
 
     private double cpuLoad;
 
-    public static final int CPU_DELAY = 3000;
+    public static final int CPU_DELAY = 2000;
+    private int arcWidth = 5;
+    private int arcHeight = 5;
+
+    private static final int PANEL_HEIGHT = 20;
 
     public CpuLabel(int width) {
-        setBorder(BorderFactory.createLoweredBevelBorder());
+        if(!MainWindow.useCustomLaf) {
+            setBorder(BorderFactory.createLoweredBevelBorder());
+        }
         //setBorder(MyBorder.LOWERED);
+
         setPreferredSize(new Dimension(width, PANEL_HEIGHT));
+
         setHorizontalAlignment(JLabel.CENTER);
         refresh();
         addMouseListener(new MouseAdapter() {
@@ -118,7 +126,14 @@ public class CpuLabel extends JLabel {
 
 
         g.setColor(finalColor);
-        g.fillRect(insets.left, insets.top, width, height);
+
+        if(!MainWindow.useCustomLaf) {
+            g.fillRect(insets.left, insets.top, width, height);
+        }
+        else {
+            ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g.fillRoundRect(insets.left, insets.top, width, height, arcWidth, arcHeight);
+        }
 
         super.paint(g);
     }
@@ -137,9 +152,14 @@ public class CpuLabel extends JLabel {
         repaint();
     }
 
-    public double getCpuLoad() {
+    public static double getCpuLoad() {
         return ManagementFactory.getPlatformMXBean(
                 com.sun.management.OperatingSystemMXBean.class).getProcessCpuLoad();
+    }
+
+    public static double getSystemCpuLoad() {
+        return ManagementFactory.getPlatformMXBean(
+                com.sun.management.OperatingSystemMXBean.class).getSystemCpuLoad();
     }
 
 }

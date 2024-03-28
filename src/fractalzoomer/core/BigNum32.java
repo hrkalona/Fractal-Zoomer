@@ -5,7 +5,6 @@ import org.apfloat.internal.LongMemoryDataStorage;
 
 import java.util.Arrays;
 
-import static fractalzoomer.core.MyApfloat.TWO;
 import static org.apfloat.internal.LongRadixConstants.BASE_DIGITS;
 
 public class BigNum32 extends BigNum {
@@ -49,29 +48,23 @@ public class BigNum32 extends BigNum {
         if (temp == 0) {
             temp = 1;
         } else if (digits % SHIFT != 0) {
-            //0 is floor
-            if(TaskDraw.BIGNUM_INITIALIZATION_ALGORITHM == 1) { //always
-                temp++;
-            }
-            else if (TaskDraw.BIGNUM_INITIALIZATION_ALGORITHM == 2) { //round
-                temp = (int)(res + 0.5);
-            }
+            temp++;
         }
 
         //Lets always have even fracDigits
 //        if((temp & 1) == 0) {
-//            fracDigits = temp * TaskDraw.BIGNUM_PRECISION_FACTOR;
+//            fracDigits = temp * TaskRender.BIGNUM_PRECISION_FACTOR;
 //        }
 //        else {
-//            fracDigits = (temp + 1) * TaskDraw.BIGNUM_PRECISION_FACTOR;
+//            fracDigits = (temp + 1) * TaskRender.BIGNUM_PRECISION_FACTOR;
 //        }
-        fracDigits = temp * TaskDraw.BIGNUM_PRECISION_FACTOR;
+        fracDigits = temp * TaskRender.BIGNUM_PRECISION_FACTOR;
 
         initializeInternal();
     }
 
     public static void reinitializeTest(double digits) {
-        fracDigits = ((int)(digits / SHIFT) + 1) * TaskDraw.BIGNUM_PRECISION_FACTOR;
+        fracDigits = ((int)(digits / SHIFT) + 1) * TaskRender.BIGNUM_PRECISION_FACTOR;
         initializeInternal();
     }
 

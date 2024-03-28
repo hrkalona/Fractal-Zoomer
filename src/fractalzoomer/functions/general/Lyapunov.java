@@ -17,7 +17,7 @@
 package fractalzoomer.functions.general;
 
 import fractalzoomer.core.Complex;
-import fractalzoomer.core.TaskDraw;
+import fractalzoomer.core.TaskRender;
 import fractalzoomer.fractal_options.initial_value.InitialValue;
 import fractalzoomer.fractal_options.initial_value.VariableConditionalInitialValue;
 import fractalzoomer.fractal_options.initial_value.VariableInitialValue;
@@ -390,10 +390,11 @@ public class Lyapunov extends Julia {
             if (!skipBailoutCheck && bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, 0.0, pixel)) {
                 escaped = true;
 
+                finalizeStatistic(true, complex[0]);
                 Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0, pixel};
                 double out = out_color_algorithm.getResult(object);
 
-                out = getFinalValueOut(out, complex[0]);
+                out = getFinalValueOut(out);
 
                 if (outTrueColorAlgorithm != null) {
                     setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
@@ -423,10 +424,12 @@ public class Lyapunov extends Julia {
 
             double value;
             if (res > 0) {
-                value = getFinalValueOut(ColorAlgorithm.MAXIMUM_ITERATIONS, complex[0]);
+                finalizeStatistic(true, complex[0]);
+                value = getFinalValueOut(ColorAlgorithm.MAXIMUM_ITERATIONS);
             }
             else {
-                value = getFinalValueIn(Math.abs(res) + max_iterations, complex[0]);
+                finalizeStatistic(false, complex[0]);
+                value = getFinalValueIn(Math.abs(res) + max_iterations);
             }
 
             if (inTrueColorAlgorithm != null) {
@@ -436,10 +439,11 @@ public class Lyapunov extends Julia {
             return  value;
         }
 
+        finalizeStatistic(false, complex[0]);
         Object[] object = {complex[0], zold, zold2, complex[1], start, c0, pixel};
         double in = in_color_algorithm.getResult(object);
 
-        in = getFinalValueIn(in, complex[0]);
+        in = getFinalValueIn(in);
 
         if (inTrueColorAlgorithm != null) {
             setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
@@ -487,10 +491,11 @@ public class Lyapunov extends Julia {
             if (!skipBailoutCheck && bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, 0.0, pixel)) {
                 escaped = true;
 
+                finalizeStatistic(true, complex[0]);
                 Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0, pixel};
                 double out = out_color_algorithm.getResult(object);
 
-                out = getFinalValueOut(out, complex[0]);
+                out = getFinalValueOut(out);
 
                 if (outTrueColorAlgorithm != null) {
                     setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
@@ -524,8 +529,6 @@ public class Lyapunov extends Julia {
     protected void iterateFractalOrbit(Complex[] complex, Complex pixel) {
         iterations = 0;
 
-        Complex temp = null;
-
         calculateExponent = false;
         for(int initialIteration = 0; initialIteration < initializationIterations; initialIteration++) {
             zold2.assign(zold);
@@ -536,6 +539,12 @@ public class Lyapunov extends Julia {
             function(complex);
             complex[0] = postFilter.getValue(complex[0], iterations, complex[1], start, c0, pixel);
         }
+
+        complex_orbit.clear();
+
+        Complex temp = rotation.rotateInverse(complex[0]);
+
+        complex_orbit.add(temp);
 
         for (; iterations < max_iterations; iterations++) {
 
@@ -630,7 +639,9 @@ public class Lyapunov extends Julia {
 
         Complex c_center = new Complex(xCenter, yCenter);
         Complex c_size = new Complex(size, 0);
-        Complex c_isize = new Complex(TaskDraw.IMAGE_SIZE, 0);
+        Complex c_isize = new Complex(Math.min(TaskRender.WIDTH, TaskRender.HEIGHT), 0);
+        Complex c_width = new Complex(TaskRender.WIDTH, 0);
+        Complex c_height = new Complex(TaskRender.HEIGHT, 0);
 
         for (int i = 0; i < parser.length; i++) {
             if (parser[i].foundS()) {
@@ -667,6 +678,14 @@ public class Lyapunov extends Julia {
 
             if (parser[i].foundISize()) {
                 parser[i].setISizevalue(c_isize);
+            }
+
+            if (parser[i].foundWidth()) {
+                parser[i].setWidthvalue(c_width);
+            }
+
+            if (parser[i].foundHeight()) {
+                parser[i].setHeightvalue(c_height);
             }
 
             if (parser[i].foundPoint()) {
@@ -711,6 +730,14 @@ public class Lyapunov extends Julia {
                 function_parser.setISizevalue(c_isize);
             }
 
+            if (function_parser.foundWidth()) {
+                function_parser.setWidthvalue(c_width);
+            }
+
+            if (function_parser.foundHeight()) {
+                function_parser.setHeightvalue(c_height);
+            }
+
             if (function_parser.foundPoint()) {
                 function_parser.setPointvalue(point);
             }
@@ -749,6 +776,14 @@ public class Lyapunov extends Julia {
 
             if (exponent_parser.foundISize()) {
                 exponent_parser.setISizevalue(c_isize);
+            }
+
+            if (exponent_parser.foundWidth()) {
+                exponent_parser.setWidthvalue(c_width);
+            }
+
+            if (exponent_parser.foundHeight()) {
+                exponent_parser.setHeightvalue(c_height);
             }
 
             if (exponent_parser.foundPoint()) {

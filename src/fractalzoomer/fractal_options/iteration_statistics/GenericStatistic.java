@@ -66,6 +66,8 @@ public abstract class GenericStatistic {
     private boolean hasData;
     protected int escaping_smoothing_algorithm;
     protected int converging_smoothing_algorithm;
+
+    protected double final_value;
     
     protected GenericStatistic(double statistic_intensity, boolean useSmoothing, boolean useAverage, int lastXItems) {
         this.statistic_intensity = statistic_intensity;
@@ -249,7 +251,7 @@ public abstract class GenericStatistic {
 
     }
 
-    public abstract double getValue();
+    protected abstract double getValue();
 
     public double getValueForColoring() {
         return getValue();
@@ -261,7 +263,7 @@ public abstract class GenericStatistic {
 
     public abstract int getType();
 
-    public double getValueNotEscaped() {
+    protected double getValueNotEscaped() {
         boolean oldSmoothingValue = useSmoothing;
         useSmoothing = false;
         double val = getValue();
@@ -374,6 +376,17 @@ public abstract class GenericStatistic {
 
     public boolean hasNormalMap() {
         return false;
+    }
+
+    public void calculate(boolean escaped, Complex z) {
+        if (getSamples() == 0 || !hasData()) {
+            setZValue(z);
+        }
+        final_value = escaped ? getValue() : getValueNotEscaped();
+    }
+
+    public double get() {
+        return final_value;
     }
     
 }

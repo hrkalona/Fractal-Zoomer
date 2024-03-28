@@ -25,11 +25,11 @@ import java.awt.*;
  * @author hrkalona2
  */
 public interface Constants {
-    public static final int VERSION = 1090;
+    public static final int VERSION = 1091;
     public static final boolean beta = false;
     public static final int TOTAL_PALETTES = 45;
-    public static final int TOTAL_INCOLORING_ALGORITHMS = 11;
-    public static final int TOTAL_OUTCOLORING_ALGORITHMS = 25;
+    public static final int TOTAL_INCOLORING_ALGORITHMS = 12;
+    public static final int TOTAL_OUTCOLORING_ALGORITHMS = 27;
     public static final int TOTAL_BAILOUT_CONDITIONS = 13;
     public static final int TOTAL_CONVERGENT_BAILOUT_CONDITIONS = 6;
     public static final int TOTAL_PLANES = 66;
@@ -67,7 +67,7 @@ public interface Constants {
     public static final String[] domainShadingColor = {"Saturation/Lightness", "White/Black Scaling"};
     public static final String[] domainContours = {"Norm", "Iso-Argument", "Norm, Iso-Argument", "Grid", "Grid, Norm", "Grid, Iso-Argument", "Grid, Norm, Iso-Argument", "Grid Lines", "Circles Lines", "Iso-Arg Lines", "Grid Lines, Circles Lines", "Circles Lines, Iso-Arg Lines"};
     public static final String[] argumentLinesDistance = {"2 * pi", "pi", "pi / 2", "pi / 4", "pi / 6", "pi / 8", "pi / 10", "pi / 12", "pi / 14", "pi / 16"};
-    public static final String[] orbitTrapsNames = {"Point", "Point Square", "Point Rhombus", "Point N-Norm", "Cross", "Re", "Im", "Circle", "Square", "Rhombus", "N-Norm", "Circle/Cross", "Square/Cross", "Rhombus/Cross", "N-Norm/Cross", "Circle/Point", "Square/Point", "Rhombus/Point", "N-Norm/Point", "N-Norm/Point N-Norm", "Golden Ratio Spiral", "Golden Ratio Spiral/Point", "Golden Ratio Spiral/Point N-Norm", "Golden Ratio Spiral/Cross", "Golden Ratio Spiral/Circle", "Golden Ratio Spiral/Square", "Golden Ratio Spiral/Rhombus", "Golden Ratio Spiral/N-Norm", "Stalks", "Stalks/Point", "Stalks/Point N-Norm", "Stalks/Cross", "Stalks/Circle", "Stalks/Square", "Stalks/Rhombus", "Stalks/N-Norm", "Image Based", "Atom Domain Circle", "Atom Domain Square", "Atom Domain Rhombus", "Atom Domain N-Norm", "Teardrop", "Super-Formula", "Image (Transparent) Based"};
+    public static final String[] orbitTrapsNames = {"Point", "Point Square", "Point Rhombus", "Point N-Norm", "Cross", "Re", "Im", "Circle", "Square", "Rhombus", "N-Norm", "Circle/Cross", "Square/Cross", "Rhombus/Cross", "N-Norm/Cross", "Circle/Point", "Square/Point", "Rhombus/Point", "N-Norm/Point", "N-Norm/Point N-Norm", "Golden Ratio Spiral", "Golden Ratio Spiral/Point", "Golden Ratio Spiral/Point N-Norm", "Golden Ratio Spiral/Cross", "Golden Ratio Spiral/Circle", "Golden Ratio Spiral/Square", "Golden Ratio Spiral/Rhombus", "Golden Ratio Spiral/N-Norm", "Stalks", "Stalks/Point", "Stalks/Point N-Norm", "Stalks/Cross", "Stalks/Circle", "Stalks/Square", "Stalks/Rhombus", "Stalks/N-Norm", "Image Based", "Atom Domain Circle", "Atom Domain Square", "Atom Domain Rhombus", "Atom Domain N-Norm", "Teardrop", "Super-Formula", "Image (Transparent) Based", "Moving Average 1", "Moving Average 2"};
     public static final String[] orbitTrapLineTypes = {"Line", "Sin", "Cos", "Tan", "Sinh", "Cosh", "Tanh", "Asin", "Acos", "Atan", "Square", "Cube", "Sqrt", "Cbrt", "Exp", "Log", "Abs" };
     public static final String[] orbitTrapCheckTypes = {"Minimum Distance", "Trapped First", "Trapped Last"};
     public static final String[] contourColorAlgorithmNames = {"Non-smooth Transitions", "Smooth Transitions", "Boundaries", "Boundaries/Non-Smooth Colors (Deprecated)"};
@@ -112,6 +112,7 @@ public interface Constants {
     public static final String[] histogramMapping = {"Histogram", "Linear", "Square Root", "Cube Root", "Fourth Root", "Logarithmic", "Rank Order"};
 
     public static final String[] generatedPalettes = {"Multiwave: default", "Multiwave: g_spdz2", "Multiwave: g_spdz2_custom", "IQ: A + B * cos(2 * pi * (C * t + D) + G)"};
+    public static final String[] blend_algorithms = {"Normal", "Multiply", "Divide", "Addition", "Subtraction", "Difference", "Value (HSV)", "Soft Light", "Screen", "Dodge", "Burn", "Darken Only", "Lighten Only", "Hard Light", "Grain Extract", "Grain Merge", "Saturation (HSV)", "Color (HSV)", "Hue (HSV)", "Exclusion", "Pin Light", "Linear Light", "Vivid Light", "Overlay", "Chroma (LCH)", "Color (LCH)", "Hue (LCH)", "Lightness (LCH)", "Luminance", "Linear Burn"};
     /**
      * ** FUNCTION ***
      */
@@ -788,6 +789,8 @@ public interface Constants {
     public static final int USER_OUTCOLORING_ALGORITHM = 22;
     public static final int ESCAPE_TIME_FIELD_LINES = 23;
     public static final int ESCAPE_TIME_FIELD_LINES2 = 24;
+    public static final int ESCAPE_TIME_SQUARES = 25;
+    public static final int ESCAPE_TIME_SQUARES2 = 26;
     /**
      * ***************************
      */
@@ -806,6 +809,7 @@ public interface Constants {
     public static final int SQUARES = 8;
     public static final int SQUARES2 = 9;
     public static final int USER_INCOLORING_ALGORITHM = 10;
+    public static final int SQUARES3 = 11;
     /**
      * *************************
      */
@@ -1019,6 +1023,8 @@ public interface Constants {
     public static final int COLOR_SPACE_HWB = 19;
 
     public static final int COLOR_SPACE_LINEAR_RGB = 20;
+
+    public static final int COLOR_SPACE_YCBCR = 21;
     /**
      * *******************
      */
@@ -1264,6 +1270,9 @@ public interface Constants {
 
     public static final int IMAGE_TRANSPARENT_TRAP = 43;
 
+    public static final int MOVING_AVERAGE_1_TRAP = 44;
+    public static final int MOVING_AVERAGE_2_TRAP = 45;
+
 
 
 
@@ -1333,18 +1342,18 @@ public interface Constants {
 
     public static final Color progress_nanomb1_color = new Color(255, 170, 51);
     public static final Color progress_bla_color = new Color(24, 201, 85);
-
+    public static final Color progress_pp_color = new Color(104, 170, 85);
     public static final Apint DEFAULT_MAGNIFICATION = new Apint(4);
 
     public static final int EMPTY_ALPHA = 0xFD;
-    public static final int QUICKDRAW_CALCULATED_ALPHA = 0xFE;
+    public static final int QUICKRENDER_CALCULATED_ALPHA = 0xFE;
     public static final int NORMAL_ALPHA = 0xFF;
 
     public static final int SKIPPED_PIXELS_SPECIAL_COLOR = 0x00ffffff;
 
     public static final int EMPTY_ALPHA_OFFSETED = EMPTY_ALPHA << 24;
     public static final int EMPTY_COLOR = EMPTY_ALPHA_OFFSETED | 0xFFFFFF;
-    public static final int QUICKDRAW_CALCULATED_ALPHA_OFFSETED = QUICKDRAW_CALCULATED_ALPHA << 24;
+    public static final int QUICKRENDER_CALCULATED_ALPHA_OFFSETED = QUICKRENDER_CALCULATED_ALPHA << 24;
     public static final int NORMAL_ALPHA_OFFSETED = NORMAL_ALPHA << 24;
 
     public static final int BIGNUM_DOUBLE = 0;
@@ -1381,8 +1390,9 @@ public interface Constants {
             "-XX:+UseG1GC";
 
     public static final long MAX_PROGRESS_VALUE = Integer.MAX_VALUE;
+    public static final long PROGRESS_SCALE = 10000;
 
-    public static final int MIN_QUICK_DRAW_TILES = 2;
-    public static final int MAX_QUICK_DRAW_TILES = 20;
+    public static final int MIN_QUICK_RENDER_TILES = 2;
+    public static final int MAX_QUICK_RENDER_TILES = 20;
 
 }

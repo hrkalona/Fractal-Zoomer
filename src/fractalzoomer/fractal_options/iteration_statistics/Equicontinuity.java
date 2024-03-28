@@ -88,7 +88,7 @@ public class Equicontinuity extends GenericStatistic {
     }
 
     @Override
-    public double getValue() {
+    protected double getValue() {
 
         return getValueInternal() * statistic_intensity;
 

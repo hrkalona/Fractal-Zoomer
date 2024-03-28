@@ -35,11 +35,19 @@ public abstract class IterationAlgorithm {
     public abstract Complex calculateDomain(GenericComplex number);
     public abstract void calculateOrbit();
     public abstract double[] calculate3D(GenericComplex number);
+
+    public abstract double[] calculateVectorized(GenericComplex[] numbers);
     
     public boolean escaped() {
         
         return fractal.escaped();
         
+    }
+
+    public boolean[] vescaped() {
+
+        return fractal.vescaped();
+
     }
 
     public abstract boolean isJulia();

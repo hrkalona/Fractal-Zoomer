@@ -73,13 +73,13 @@ public class PlaneFormulaDialog extends JDialog {
         formula_panel_cond1.add(new JLabel("Right operand:", SwingConstants.HORIZONTAL));
         formula_panel_cond1.add(field_condition);
         formula_panel_cond1.add(field_condition2);
-        JTextField field_formula_cond1 = new JTextField(runsOnWindows ? 45 : 40);
+        JTextField field_formula_cond1 = new JTextField(runsOnWindows && !MainWindow.useCustomLaf ? 45 : 40);
         field_formula_cond1.setText(s.fns.user_plane_condition_formula[0]);
 
-        JTextField field_formula_cond2 = new JTextField(runsOnWindows ? 45 : 40);
+        JTextField field_formula_cond2 = new JTextField(runsOnWindows && !MainWindow.useCustomLaf ? 45 : 40);
         field_formula_cond2.setText(s.fns.user_plane_condition_formula[1]);
 
-        JTextField field_formula_cond3 = new JTextField(runsOnWindows ? 45 : 40);
+        JTextField field_formula_cond3 = new JTextField(runsOnWindows && !MainWindow.useCustomLaf ? 45 : 40);
         field_formula_cond3.setText(s.fns.user_plane_condition_formula[2]);
 
         JPanel formula_panel_cond11 = new JPanel();
@@ -108,7 +108,7 @@ public class PlaneFormulaDialog extends JDialog {
 
         tabbedPane.addTab("Conditional", panel_cond);
 
-        Object[] labels3 = ptra.createUserFormulaLabels("z, maxn, center, size, sizei, v1 - v30, point");
+        Object[] labels3 = ptra.createUserFormulaLabels("z, maxn, center, size, sizei, width, height, v1 - v30, point");
 
         tabbedPane.setSelectedIndex(s.fns.user_plane_algorithm);
 

@@ -17,8 +17,8 @@ public class CartesianLocationNormalMpirBigNumArbitrary extends Location {
     protected MpirBigNum ddxcenter;
     protected MpirBigNum ddycenter;
 
-    private MpirBigNum ddtemp_size_image_size_x;
-    private MpirBigNum ddtemp_size_image_size_y;
+    protected MpirBigNum ddtemp_size_image_size_x;
+    protected MpirBigNum ddtemp_size_image_size_y;
     private MpirBigNum ddtemp_xcenter_size;
     private MpirBigNum ddtemp_ycenter_size;
 
@@ -40,8 +40,10 @@ public class CartesianLocationNormalMpirBigNumArbitrary extends Location {
     protected MpirBigNum heightRatio;
 
     private JitterSettings js;
+    protected int width;
+    protected int height;
 
-    public CartesianLocationNormalMpirBigNumArbitrary(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int image_size_in, Apfloat[] rotation_center, Apfloat[] rotation_vals, Fractal fractal, JitterSettings js) {
+    public CartesianLocationNormalMpirBigNumArbitrary(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int width, int height, Apfloat[] rotation_center, Apfloat[] rotation_vals, Fractal fractal, JitterSettings js) {
 
         super();
 
@@ -49,72 +51,40 @@ public class CartesianLocationNormalMpirBigNumArbitrary extends Location {
 
         this.height_ratio = height_ratio;
 
-        if(!LibMpfr.hasError()) {
-            try {
-                ddsize = new MpirBigNum(new MpfrBigNum(size));
-            }
-            catch (Error e) {
-                ddsize = new MpirBigNum(size);
-            }
-        }
-        else {
-            //Bug here near 0, -1 very deep
-            ddsize = new MpirBigNum(size);
-        }
+        ddsize = MpirBigNum.fromApfloat(size);
 
-        int image_size = offset.getImageSize(image_size_in);
+        width = offset.getWidth(width);
+        height = offset.getHeight(height);
+        int image_size = Math.min(width, height);
+        double coefx = width == image_size ? 0.5 : (1 + (width - (double)height) / height) * 0.5;
+        double coefy = height == image_size ? 0.5 : (1 + (height - (double)width) / width) * 0.5;
 
-        MpirBigNum size_2_x = ddsize.divide2();
+        MpirBigNum size_2_x = ddsize.mult(new MpirBigNum(coefx));
 
         heightRatio = new MpirBigNum(height_ratio);
 
         MpirBigNum size_2_y = ddsize.mult(heightRatio);
-        size_2_y = size_2_y.divide2(size_2_y);
+        size_2_y = size_2_y.mult(new MpirBigNum(coefy), size_2_y);
 
         ddtemp_size_image_size_x = ddsize.divide(image_size);
         ddtemp_size_image_size_y = ddsize.mult(heightRatio);
         ddtemp_size_image_size_y = ddtemp_size_image_size_y.divide(image_size, ddtemp_size_image_size_y);
 
-        if(!LibMpfr.hasError()) {
-            try {
-                ddxcenter = new MpirBigNum(new MpfrBigNum(xCenter));
-                ddycenter = new MpirBigNum(new MpfrBigNum(yCenter));
-            }
-            catch (Error e) {
-                ddxcenter = new MpirBigNum(xCenter);
-                ddycenter = new MpirBigNum(yCenter);
-            }
-        }
-        else {
-            //Bug here near 0, -1 very deep
-            ddxcenter = new MpirBigNum(xCenter);
-            ddycenter = new MpirBigNum(yCenter);
-        }
+        ddxcenter = MpirBigNum.fromApfloat(xCenter);
+        ddycenter = MpirBigNum.fromApfloat(yCenter);
 
         ddtemp_xcenter_size = ddxcenter.sub(size_2_x);
         ddtemp_ycenter_size = ddycenter.add(size_2_y);
 
-        MpirBigNumComplex rotCenter;
-
-        if(!LibMpfr.hasError()) {
-            try {
-                rotCenter = new MpirBigNumComplex(new MpfrBigNumComplex(rotation_center[0], rotation_center[1]));
-            }
-            catch (Error e) {
-                rotCenter = new MpirBigNumComplex(rotation_center[0], rotation_center[1]);
-            }
-        }
-        else {
-            rotCenter = new MpirBigNumComplex(rotation_center[0], rotation_center[1]);
-        }
-
-        rotation = new Rotation(new MpirBigNumComplex(rotation_vals[0], rotation_vals[1]), rotCenter);
+        rotation = new Rotation(new MpirBigNumComplex(rotation_vals[0], rotation_vals[1]), new MpirBigNumComplex(rotation_center[0], rotation_center[1]));
 
         ddtempX = new MpirBigNum();
         ddtempY = new MpirBigNum();
         tempResultX = new MpirBigNum();
         tempResultY = new MpirBigNum();
         this.js = js;
+        this.width = width;
+        this.height = height;
 
     }
 
@@ -147,6 +117,8 @@ public class CartesianLocationNormalMpirBigNumArbitrary extends Location {
         tempResultX = other.tempResultX;
         tempResultY = other.tempResultY;
         js = other.js;
+        width = other.width;
+        height = other.height;
     }
 
     @Override

@@ -27,6 +27,8 @@ public class EntropyColoringSettings {
     public int entropy_offset;
     public double en_blending;
     public int entropy_algorithm;
+    public int en_color_blending;
+    public boolean en_reverse_color_blending;
     
     public EntropyColoringSettings() {
         entropy_coloring = false;
@@ -35,5 +37,7 @@ public class EntropyColoringSettings {
         en_blending = 0.7;
         entropy_offset = 0;
         entropy_algorithm = 0;
+        en_color_blending = 0;
+        en_reverse_color_blending = false;
     }
 }

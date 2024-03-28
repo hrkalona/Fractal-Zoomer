@@ -38,9 +38,9 @@ public class EscapeTimeEscapeRadiusMagnet extends EscapeTimeEscapeRadius {
         double zabs = Math.log(((Complex)object[1]).norm_squared()) / log_bailout_squared - 1.0f;
         double zarg = (((Complex)object[1]).arg() / (pi2) + 1.0f) % 1.0;
         
-        double temp = (Integer)object[0] + zabs + zarg;
+        double temp = (int)object[0] + zabs + zarg;
         
-        return (Boolean)object[2] ? temp + MAGNET_INCREMENT  : temp;
+        return (boolean)object[2] ? temp + MAGNET_INCREMENT  : temp;
 
     }
     

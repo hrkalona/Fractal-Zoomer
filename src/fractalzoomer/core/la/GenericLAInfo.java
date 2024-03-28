@@ -12,7 +12,7 @@ public abstract class GenericLAInfo {
     private static final int ITERATIONS_MEMORY_THRESHOLD = 50_000_000;
 
     public static GenericLAInfo create(int length, boolean deepZoom, int refIndex, ReferenceDecompressor referenceDecompressor) {
-        if(TaskDraw.USE_RI_ON_BLA2 || (!TaskDraw.DISABLE_RI_ON_BLA2 && !TaskDraw.COMPRESS_REFERENCE_IF_POSSIBLE && length > ITERATIONS_MEMORY_THRESHOLD)) {
+        if(TaskRender.USE_RI_ON_BLA2 || (!TaskRender.DISABLE_RI_ON_BLA2 && !TaskRender.COMPRESS_REFERENCE_IF_POSSIBLE && length > ITERATIONS_MEMORY_THRESHOLD)) {
             if (deepZoom) {
                 return LAInfoDeepRI.create(refIndex);
             } else {
@@ -29,7 +29,7 @@ public abstract class GenericLAInfo {
     }
 
     public static GenericLAInfo create(int length, boolean deepZoom) {
-        if(TaskDraw.USE_RI_ON_BLA2 || (!TaskDraw.DISABLE_RI_ON_BLA2 && !TaskDraw.COMPRESS_REFERENCE_IF_POSSIBLE && length > ITERATIONS_MEMORY_THRESHOLD)) {
+        if(TaskRender.USE_RI_ON_BLA2 || (!TaskRender.DISABLE_RI_ON_BLA2 && !TaskRender.COMPRESS_REFERENCE_IF_POSSIBLE && length > ITERATIONS_MEMORY_THRESHOLD)) {
             if (deepZoom) {
                 return LAInfoDeepRI.create();
             } else {

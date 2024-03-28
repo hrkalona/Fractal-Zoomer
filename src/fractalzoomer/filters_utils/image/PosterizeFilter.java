@@ -16,6 +16,8 @@ limitations under the License.
 
 package fractalzoomer.filters_utils.image;
 
+import fractalzoomer.utils.ColorSpaceConverter;
+
 import java.awt.image.BufferedImage;
 
 /**
@@ -26,8 +28,10 @@ public class PosterizeFilter extends PointFilter {
 	private int numLevels;
 	private int[] levels;
     private boolean initialized = false;
+	private int mode;
 
 	public PosterizeFilter() {
+		mode = 0;
 		setNumLevels(6);
 	}
 	
@@ -39,6 +43,10 @@ public class PosterizeFilter extends PointFilter {
     public void setNumLevels(int numLevels) {
 		this.numLevels = numLevels;
 		initialized = false;
+	}
+
+	public void setMode(int mode) {
+		this.mode = mode;
 	}
 
 	/**
@@ -55,10 +63,18 @@ public class PosterizeFilter extends PointFilter {
      */
     protected void initialize() {
 		initialized = true;
-		levels = new int[256];
-		if (numLevels != 1)
-			for (int i = 0; i < 256; i++)
-				levels[i] = 255 * (numLevels*i / 256) / (numLevels-1);
+
+		if(mode == 0) {
+			levels = new int[256];
+			if (numLevels != 1)
+				for (int i = 0; i < 256; i++)
+					levels[i] = 255 * (numLevels * i / 256) / (numLevels - 1);
+		}
+
+	}
+
+	protected double posterize(double v) {
+		return Math.round(v * numLevels) / (double)numLevels;
 	}
 
 	@Override
@@ -75,9 +91,46 @@ public class PosterizeFilter extends PointFilter {
 		int r = (rgb >> 16) & 0xff;
 		int g = (rgb >> 8) & 0xff;
 		int b = rgb & 0xff;
-		r = levels[r];
-		g = levels[g];
-		b = levels[b];
+
+		if(mode == 0) {
+			r = levels[r];
+			g = levels[g];
+			b = levels[b];
+		}
+		else if(mode == 1) {
+			double[] hsb = ColorSpaceConverter.RGBtoHSB(r, g, b);
+
+			hsb[2] = posterize(hsb[2]);
+
+			int[] rgbs = ColorSpaceConverter.HSBtoRGB(hsb);
+
+			r = rgbs[0];
+			g = rgbs[1];
+			b = rgbs[2];
+		}
+		else if(mode == 2) {
+			double[] hsl = ColorSpaceConverter.RGBtoHSL(r, g, b);
+
+			hsl[2] = posterize(hsl[2]);
+
+			int[] rgbs = ColorSpaceConverter.HSLtoRGB(hsl);
+
+			r = rgbs[0];
+			g = rgbs[1];
+			b = rgbs[2];
+		}
+		else if(mode == 3) {
+			double[] lab = ColorSpaceConverter.RGBtoLAB(r, g, b);
+
+			lab[0] = 100.0 * posterize(lab[0] / 100.0);
+
+			int[] rgbs = ColorSpaceConverter.LABtoRGB(lab);
+
+			r = rgbs[0];
+			g = rgbs[1];
+			b = rgbs[2];
+		}
+
 		return a | (r << 16) | (g << 8) | b;
 	}
 

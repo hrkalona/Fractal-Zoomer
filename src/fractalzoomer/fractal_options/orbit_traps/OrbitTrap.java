@@ -129,6 +129,10 @@ public abstract class OrbitTrap {
     }
     
     public abstract double getMaxValue();
+
+    public double getMinValue() {
+        return 0;
+    }
     
     public int getColor() {
         

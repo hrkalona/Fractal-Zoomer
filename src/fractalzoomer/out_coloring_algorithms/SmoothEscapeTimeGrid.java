@@ -70,7 +70,7 @@ public class SmoothEscapeTimeGrid extends OutColorAlgorithm {
             boolean grid = grid_weight < zabs && zabs < (1.0 - grid_weight) && (grid_weight * k) < zarg && zarg < (1.0 - grid_weight * k);
 
 
-            double temp3 = (Integer)object[0] + SmoothEscapeTime.getSmoothing1(object, temp2, log_bailout_squared);
+            double temp3 = (int)object[0] + SmoothEscapeTime.getSmoothing1(object, temp2, log_bailout_squared);
 
             return grid ? temp3 : -(temp3 + INCREMENT);
         }
@@ -86,7 +86,7 @@ public class SmoothEscapeTimeGrid extends OutColorAlgorithm {
 
             boolean grid = grid_weight < zabs && zabs < (1.0 - grid_weight) && (grid_weight * k) < zarg && zarg < (1.0 - grid_weight * k);
 
-            double temp3 = (Integer)object[0] + SmoothEscapeTime.getSmoothing2(object, temp2, log_bailout_squared, usePower, log_power);
+            double temp3 = (int)object[0] + SmoothEscapeTime.getSmoothing2(object, temp2, log_bailout_squared, usePower, log_power);
             
             return grid ? temp3 : -(temp3 + INCREMENT);
         }

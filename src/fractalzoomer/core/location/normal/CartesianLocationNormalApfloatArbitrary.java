@@ -13,8 +13,8 @@ public class CartesianLocationNormalApfloatArbitrary extends Location {
     protected Apfloat ddycenter;
     private Apfloat ddtemp_size_image_size_x;
     private Apfloat ddtemp_size_image_size_y;
-    private Apfloat ddtemp_xcenter_size;
-    private Apfloat ddtemp_ycenter_size;
+    protected Apfloat ddtemp_xcenter_size;
+    protected Apfloat ddtemp_ycenter_size;
 
     private Apfloat[] ddantialiasing_x;
     private Apfloat[] ddantialiasing_y;
@@ -27,13 +27,18 @@ public class CartesianLocationNormalApfloatArbitrary extends Location {
 
     protected Apfloat height_ratio;
 
-    protected Apfloat point5;
 
     protected Rotation rotation;
 
     private JitterSettings js;
 
-    public CartesianLocationNormalApfloatArbitrary(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int image_size_in, Apfloat[] rotation_center, Apfloat[] rotation_vals, Fractal fractal, JitterSettings js) {
+    private Apfloat coefxdd;
+    private Apfloat coefydd;
+
+    protected int width;
+    protected int height;
+
+    public CartesianLocationNormalApfloatArbitrary(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int width, int height, Apfloat[] rotation_center, Apfloat[] rotation_vals, Fractal fractal, JitterSettings js) {
 
         super();
 
@@ -44,15 +49,22 @@ public class CartesianLocationNormalApfloatArbitrary extends Location {
 
         ddsize = size;
 
-        int image_size = offset.getImageSize(image_size_in);
+        width = offset.getWidth(width);
+        height = offset.getHeight(height);
+        int image_size = Math.min(width, height);
+        double coefx = width == image_size ? 0.5 : (1 + (width - (double)height) / height) * 0.5;
+        double coefy = height == image_size ? 0.5 : (1 + (height - (double)width) / width) * 0.5;
 
-        point5 = new MyApfloat(0.5);
-        Apfloat size_2_x = MyApfloat.fp.multiply(size, point5);
+        coefxdd = new MyApfloat(coefx);
+        coefydd = new Apfloat(coefy);
+
+
+        Apfloat size_2_x = MyApfloat.fp.multiply(size, coefxdd);
         Apfloat ddimage_size = new MyApfloat(image_size);
         this.height_ratio = new MyApfloat(height_ratio);
 
         Apfloat temp = MyApfloat.fp.multiply(size, this.height_ratio);
-        Apfloat size_2_y = MyApfloat.fp.multiply(temp, point5);
+        Apfloat size_2_y = MyApfloat.fp.multiply(temp, coefydd);
         ddtemp_size_image_size_x = MyApfloat.fp.divide(size, ddimage_size);
         ddtemp_size_image_size_y = MyApfloat.fp.divide(temp, ddimage_size);
 
@@ -61,23 +73,35 @@ public class CartesianLocationNormalApfloatArbitrary extends Location {
 
         rotation = new Rotation(new BigComplex(rotation_vals[0], rotation_vals[1]), new BigComplex(rotation_center[0], rotation_center[1]));
         this.js = js;
+        this.width = width;
+        this.height = height;
     }
 
-    public CartesianLocationNormalApfloatArbitrary(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int image_size) {
+    public CartesianLocationNormalApfloatArbitrary(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int width, int height) {
         super();
         this.height_ratio = new MyApfloat(height_ratio);
         ddsize = size;
         ddxcenter = xCenter;
         ddycenter = yCenter;
-        point5 = new MyApfloat(0.5);
-        Apfloat size_2_x = MyApfloat.fp.multiply(size, point5);
+
+        int image_size = Math.min(width, height);
+        double coefx = width == image_size ? 0.5 : (1 + (width - (double)height) / height) * 0.5;
+        double coefy = height == image_size ? 0.5 : (1 + (height - (double)width) / width) * 0.5;
+
+        coefxdd = new MyApfloat(coefx);
+        coefydd = new MyApfloat(coefy);
+
+        Apfloat size_2_x = MyApfloat.fp.multiply(size, coefxdd);
         Apfloat ddimage_size = new MyApfloat(image_size);
         Apfloat ddiheight_ratio = new MyApfloat(height_ratio);
-        Apfloat size_2_y = MyApfloat.fp.multiply(MyApfloat.fp.multiply(size, ddiheight_ratio), point5);
+        Apfloat size_2_y = MyApfloat.fp.multiply(MyApfloat.fp.multiply(size, ddiheight_ratio), coefydd);
         ddtemp_size_image_size_x = MyApfloat.fp.divide(size, ddimage_size);
         ddtemp_size_image_size_y = MyApfloat.fp.divide(MyApfloat.fp.multiply(size, ddiheight_ratio), ddimage_size);
         ddtemp_xcenter_size = MyApfloat.fp.subtract(xCenter, size_2_x);
         ddtemp_ycenter_size =  MyApfloat.fp.add(yCenter, size_2_y);
+
+        this.width = width;
+        this.height = height;
     }
 
     public CartesianLocationNormalApfloatArbitrary(CartesianLocationNormalApfloatArbitrary other) {
@@ -103,8 +127,12 @@ public class CartesianLocationNormalApfloatArbitrary extends Location {
         ddantialiasing_y = other.ddantialiasing_y;
         ddantialiasing_x = other.ddantialiasing_x;
 
-        point5 = other.point5;
+        coefxdd = other.coefxdd;
+        coefydd = other.coefydd;
+
         js = other.js;
+        width = other.width;
+        height = other.height;
     }
 
     @Override
@@ -286,10 +314,20 @@ public class CartesianLocationNormalApfloatArbitrary extends Location {
         return new BigPoint(MyApfloat.fp.add(ddtemp_xcenter_size, MyApfloat.fp.multiply(ddtemp_size_image_size_x, new MyApfloat(x))), MyApfloat.fp.subtract(ddtemp_ycenter_size, MyApfloat.fp.multiply(ddtemp_size_image_size_y, new MyApfloat(y))));
     }
 
+    public Apfloat getNRradius() {
+        int image_size = Math.min(width, height);
+        Apfloat coef = new MyApfloat(image_size * 0.1);
+        Apfloat x = MyApfloat.fp.multiply(coef, ddtemp_size_image_size_x);
+        Apfloat y = MyApfloat.fp.multiply(coef, ddtemp_size_image_size_y);
+        x = MyApfloat.fp.multiply(x, x);
+        y = MyApfloat.fp.multiply(y, y);
+        return MyApfloat.fp.sqrt(MyApfloat.fp.add(x, y));
+    }
+
     public BigPoint getPointRelativeToPoint(int x, int y, BigPoint refPoint) {
-        Apfloat size05x = MyApfloat.fp.multiply(ddsize, point5);
+        Apfloat size05x = MyApfloat.fp.multiply(ddsize, coefxdd);
         Apfloat temp = MyApfloat.fp.multiply(ddsize, this.height_ratio);
-        Apfloat size05y = MyApfloat.fp.multiply(temp, point5);
+        Apfloat size05y = MyApfloat.fp.multiply(temp, coefydd);
         Apfloat newX = MyApfloat.fp.add(MyApfloat.fp.subtract(size05x, MyApfloat.fp.multiply(ddtemp_size_image_size_x, new MyApfloat(x))), refPoint.x);
         Apfloat newY = MyApfloat.fp.add(MyApfloat.fp.add(size05y.negate(), MyApfloat.fp.multiply(ddtemp_size_image_size_y, new MyApfloat(y))), refPoint.y);
         return new BigPoint(newX, newY);

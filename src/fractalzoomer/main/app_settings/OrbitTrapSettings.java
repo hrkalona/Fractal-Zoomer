@@ -36,6 +36,7 @@ public class OrbitTrapSettings {
     public int lineType;
     public int trapColorMethod;
     public double trapIntensity;
+    public int trapOffset;
     public double trapMaxDistance;
     public Color trapColor1;
     public Color trapColor2;
@@ -112,9 +113,11 @@ public class OrbitTrapSettings {
         sfb = 0.5;
 
         showOnlyTraps = false;
-        background = Color.BLACK;
+        background = new Color(4, 4, 4);
         skipTrapCheckForIterations = 0;
         lastXItems = 20;
+
+        trapOffset = 0;
         
     }
     

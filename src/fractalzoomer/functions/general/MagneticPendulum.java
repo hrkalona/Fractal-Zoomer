@@ -31,6 +31,9 @@ import fractalzoomer.utils.ColorAlgorithm;
 import java.util.ArrayList;
 import java.util.function.Predicate;
 
+import static fractalzoomer.main.Constants.ESCAPE_TIME_SQUARES;
+import static fractalzoomer.main.Constants.ESCAPE_TIME_SQUARES2;
+
 /**
  *
  * @author hrkalona2
@@ -203,11 +206,12 @@ public class MagneticPendulum extends FractalWithoutConstant {
 
         escaped = true;
 
+        finalizeStatistic(true, complex[0]);
         Object[] object = {iterations, complex[0], 0, zold, zold2, pixel, start, c0, pixel, complex[4]};
         iterationData = object;
         double out = out_color_algorithm.getResult(object);
 
-        out = getFinalValueOut(out, complex[0]);
+        out = getFinalValueOut(out);
 
         if (outTrueColorAlgorithm != null) {
             setTrueColorOut(complex[0], zold, zold2, iterations, pixel, start, c0, pixel);
@@ -247,6 +251,14 @@ public class MagneticPendulum extends FractalWithoutConstant {
                     out_color_algorithm = new UserConditionalOutColorAlgorithmRootFindingMethod(user_outcoloring_conditions, user_outcoloring_condition_formula, 0, max_iterations, xCenter, yCenter, size, plane_transform_center, globalVars);
                 }
                 break;
+            case ESCAPE_TIME_SQUARES:
+                OutColorAlgorithm wrappedAlgorithm = new EscapeTimeMagneticPendulum();;
+                out_color_algorithm = new EscapeTimeSquares(7, wrappedAlgorithm);
+                break;
+            case ESCAPE_TIME_SQUARES2:
+                wrappedAlgorithm = new EscapeTimeMagneticPendulum();;
+                out_color_algorithm = new EscapeTimeSquares2(7, wrappedAlgorithm);
+                break;
 
         }
 
@@ -259,9 +271,11 @@ public class MagneticPendulum extends FractalWithoutConstant {
     public double getFractal3DHeight(double value) {
 
         if (escaped) {
+            finalizeStatistic(true, (Complex) iterationData[1]);
+
             double res = out_color_algorithm.getResult3D(iterationData, value);
 
-            res = getFinalValueOut(res, (Complex) iterationData[1]);
+            res = getFinalValueOut(res);
 
             return ColorAlgorithm.transformResultToHeight(res, max_iterations);
         }

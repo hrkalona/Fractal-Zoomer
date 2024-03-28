@@ -2881,10 +2881,12 @@ public final class Complex extends GenericComplex {
     public final Complex squareFast_plus_c(NormComponents normComponents, GenericComplex ca) {
         double reSqr = (double) normComponents.reSqr;
         double imSqr = (double) normComponents.imSqr;
-        double normSquared = (double) normComponents.normSquared;
+        //double normSquared = (double) normComponents.normSquared; //its not faster
         Complex c = (Complex) ca;
-        double temp = re + im;
-        return new Complex(reSqr - imSqr + c.re, temp * temp - normSquared + c.im);
+//        double temp = re + im;
+//        return new Complex(reSqr - imSqr + c.re, temp * temp - normSquared + c.im);
+        double temp = re * im;
+        return new Complex(reSqr - imSqr + c.re, temp + temp + c.im);
     }
 
     /*
@@ -3123,5 +3125,20 @@ public final class Complex extends GenericComplex {
 
     @Override
     public BigComplex toBigComplex() {return new BigComplex(re, im);}
+
+    @Override
+    public Object re() {
+        return getRe();
+    }
+
+    @Override
+    public Object im() {
+        return getIm();
+    }
+
+    @Override
+    public Object Norm() {
+        return norm();
+    }
 
 }

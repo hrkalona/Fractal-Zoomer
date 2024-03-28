@@ -1,5 +1,7 @@
 package fractalzoomer.gui;
 
+import com.formdev.flatlaf.ui.FlatSliderUI;
+
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -12,10 +14,14 @@ import java.awt.geom.Ellipse2D;
  * UI delegate for the RangeSlider component.  RangeSliderUI paints two thumbs,
  * one for the lower value and one for the upper value.
  */
-class RangeSliderUI extends BasicSliderUI {
+public class RangeSliderUI extends FlatSliderUI {//BasicSliderUI
 
     /** Color of selected range. */
-    private Color rangeColor = Color.GREEN;
+    public static Color rangeColor = Color.GREEN;
+    public static Color lowerThumbColor = Color.CYAN;
+    public static Color lowerThumbColorEdge = Color.BLUE;
+    public static Color upperThumbColor = Color.PINK;
+    public static Color upperThumbColorEdge = Color.RED;
     
     /** Location and size of thumb for upper value. */
     private Rectangle upperThumbRect;
@@ -32,7 +38,8 @@ class RangeSliderUI extends BasicSliderUI {
      * @param b RangeSlider
      */
     public RangeSliderUI(RangeSlider b) {
-        super(b);
+        //super(b);//old
+        super();
     }
     
     /**
@@ -245,10 +252,10 @@ class RangeSliderUI extends BasicSliderUI {
             RenderingHints.VALUE_ANTIALIAS_ON);
         g2d.translate(knobBounds.x, knobBounds.y);
 
-        g2d.setColor(Color.CYAN);
+        g2d.setColor(lowerThumbColor);
         g2d.fill(thumbShape);
 
-        g2d.setColor(Color.BLUE);
+        g2d.setColor(lowerThumbColorEdge);
         g2d.draw(thumbShape);
         
         // Dispose graphics.
@@ -274,10 +281,10 @@ class RangeSliderUI extends BasicSliderUI {
             RenderingHints.VALUE_ANTIALIAS_ON);
         g2d.translate(knobBounds.x, knobBounds.y);
 
-        g2d.setColor(Color.PINK);
+        g2d.setColor(upperThumbColor);
         g2d.fill(thumbShape);
 
-        g2d.setColor(Color.RED);
+        g2d.setColor(upperThumbColorEdge);
         g2d.draw(thumbShape);
 
         // Dispose graphics.

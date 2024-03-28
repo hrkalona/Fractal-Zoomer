@@ -29,7 +29,7 @@ public class DeepReference {
         mantsRe = new double[actualLength];
         mantsIm = new double[actualLength];
         exps = new long[actualLength];
-        if(TaskDraw.MANTEXPCOMPLEX_FORMAT == 1) {
+        if(TaskRender.MANTEXPCOMPLEX_FORMAT == 1) {
             expsIm = new long[actualLength];
         }
         saveMemory = length != actualLength;
@@ -45,7 +45,7 @@ public class DeepReference {
         mantsIm = new double[length];
         exps = new long[length];
 
-        if(TaskDraw.MANTEXPCOMPLEX_FORMAT == 1) {
+        if(TaskRender.MANTEXPCOMPLEX_FORMAT == 1) {
             expsIm = new long[length];
         }
         saveMemory = false;
@@ -65,7 +65,7 @@ public class DeepReference {
         boolean res = mantsRe == null || mantsIm == null || exps == null
                 || mantsRe.length != actualLength || mantsIm.length != actualLength || exps.length != actualLength;
 
-        if(TaskDraw.MANTEXPCOMPLEX_FORMAT == 1) {
+        if(TaskRender.MANTEXPCOMPLEX_FORMAT == 1) {
             res = res || expsIm == null || expsIm.length != actualLength;
         }
 
@@ -76,7 +76,7 @@ public class DeepReference {
         Arrays.fill(mantsRe, 0, mantsRe.length, 0);
         Arrays.fill(mantsIm, 0, mantsIm.length, 0);
         Arrays.fill(exps, 0, exps.length, 0);
-        if(TaskDraw.MANTEXPCOMPLEX_FORMAT == 1) {
+        if(TaskRender.MANTEXPCOMPLEX_FORMAT == 1) {
             Arrays.fill(expsIm, 0, expsIm.length, 0);
         }
 
@@ -94,7 +94,7 @@ public class DeepReference {
             mantsIm = Arrays.copyOf(mantsIm, newLength);
             exps = Arrays.copyOf(exps, newLength);
 
-            if(TaskDraw.MANTEXPCOMPLEX_FORMAT == 1) {
+            if(TaskRender.MANTEXPCOMPLEX_FORMAT == 1) {
                 expsIm = Arrays.copyOf(expsIm, newLength);
             }
             saveMemory = true;
@@ -104,7 +104,7 @@ public class DeepReference {
             mantsIm = Arrays.copyOf(mantsIm, length);
             exps = Arrays.copyOf(exps, length);
 
-            if(TaskDraw.MANTEXPCOMPLEX_FORMAT == 1) {
+            if(TaskRender.MANTEXPCOMPLEX_FORMAT == 1) {
                 expsIm = Arrays.copyOf(expsIm, length);
             }
             saveMemory = false;
@@ -129,7 +129,7 @@ public class DeepReference {
             mantsRe = Arrays.copyOf(mantsRe, newLength);
             mantsIm = Arrays.copyOf(mantsIm, newLength);
             exps = Arrays.copyOf(exps, newLength);
-            if(TaskDraw.MANTEXPCOMPLEX_FORMAT == 1) {
+            if(TaskRender.MANTEXPCOMPLEX_FORMAT == 1) {
                 expsIm = Arrays.copyOf(expsIm, newLength);
             }
         }

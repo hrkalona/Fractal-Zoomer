@@ -302,6 +302,20 @@ public strictfp class DoubleDouble
      */
     private DoubleDouble selfAdd(DoubleDouble y)
     {
+        // Compute dsa + dsb using Knuth's trick.
+        double t1 = hi + y.hi;
+        double e = t1 - hi;
+        double t2 = ((y.hi - e) + (hi - (t1 - e))) + lo + y.lo;
+
+        // The result is t1 + t2, after normalization.
+        hi = e = t1 + t2;
+        lo = t2 - (e - t1);
+
+        return this;
+    }
+
+    private DoubleDouble selfAddOld(DoubleDouble y)
+    {
         double H, h, T, t, S, s, e, f;
         S = hi + y.hi;
         T = lo + y.lo;
@@ -351,10 +365,30 @@ public strictfp class DoubleDouble
      * @param y the subtrahend
      * @return <tt>(this - y)</tt>
      */
+//    public DoubleDouble subtract(DoubleDouble y)
+//    {
+//        if (isNaN()) return this;
+//        return add(y.negate());
+//    }
+
     public DoubleDouble subtract(DoubleDouble y)
     {
         if (isNaN()) return this;
-        return add(y.negate());
+        return (new DoubleDouble(this)).selfSubtract(y);
+    }
+
+    private DoubleDouble selfSubtract(DoubleDouble y)
+    {
+        // Compute dsa + dsb using Knuth's trick.
+        double t1 = hi - y.hi;
+        double e = t1 - hi;
+        double t2 = ((-y.hi - e) + (hi - (t1 - e))) + lo - y.lo;
+
+        // The result is t1 + t2, after normalization.
+        hi = e = t1 + t2;
+        lo = t2 - (e - t1);
+
+        return this;
     }
 
 	/*
@@ -2189,4 +2223,8 @@ public strictfp class DoubleDouble
     }
 
     public Apfloat toApfloat() { return new MyApfloat(toString());}
+
+    public DoubleDouble multiply2() {
+        return multiply(2);
+    }
 }

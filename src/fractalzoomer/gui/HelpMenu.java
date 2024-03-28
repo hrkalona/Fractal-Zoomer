@@ -34,6 +34,9 @@ public class HelpMenu extends MyMenu {
     private JMenuItem fractInt_help;
     private JMenuItem about;
     private JMenuItem update;
+
+    private JMenuItem donate;
+
     private JMenuItem useful_links;
     
     public HelpMenu(MainWindow ptr2, String name) {
@@ -50,12 +53,15 @@ public class HelpMenu extends MyMenu {
 
         useful_links = new MyMenuItem("Useful Links", MainWindow.getIcon("useful_links.png"));
 
+        donate = new MyMenuItem("Donate", MainWindow.getIcon("paypal.png"));
+
         update = new MyMenuItem("Software Update", MainWindow.getIcon("update.png"));
         
         help_contents.setToolTipText("Loads the help file.");
         fractInt_help.setToolTipText("Loads a help file for FractInt users.");
         update.setToolTipText("Checks for software update.");
         useful_links.setToolTipText("Provides some useful links about fractals.");
+        donate.setToolTipText("Help the development by donating any amount you like!");
         
         about.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, 0));
         help_contents.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, 0));
@@ -70,6 +76,8 @@ public class HelpMenu extends MyMenu {
         about.addActionListener(e -> ptr.displayAboutInfo());
 
         update.addActionListener(e -> ptr.checkForUpdate(true));
+
+        donate.addActionListener(e -> ptr.donate());
         
         add(help_contents);
         addSeparator();
@@ -78,6 +86,8 @@ public class HelpMenu extends MyMenu {
         add(useful_links);
         addSeparator();
         add(update);
+        addSeparator();
+        add(donate);
         addSeparator();
         add(about);
         

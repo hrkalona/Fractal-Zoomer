@@ -1,7 +1,7 @@
 package fractalzoomer.utils;
 
 import com.sun.jna.Platform;
-import fractalzoomer.core.TaskDraw;
+import fractalzoomer.core.TaskRender;
 import fractalzoomer.core.mpfr.LibMpfr;
 import fractalzoomer.core.mpir.LibMpir;
 
@@ -41,7 +41,7 @@ public class NativeLoader {
 
         List<String> resultList = new ArrayList<>();
         Collections.addAll(resultList, mpfrWinLibs);
-        Collections.addAll(resultList, TaskDraw.mpirWinLibs);
+        Collections.addAll(resultList, TaskRender.mpirWinLibs);
 
         winLibs = new String[resultList.size()];
         winLibs = resultList.toArray(winLibs);

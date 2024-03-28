@@ -40,24 +40,24 @@ public class SmoothEscapeTimeMagnet extends SmoothEscapeTime {
     @Override
     public double getResult(Object[] object) {
 
-        if((Boolean)object[2]) {
+        if((boolean)object[2]) {
 
             if(algorithm == 0) {
-                return (Integer)object[0] + getEscSmoothing1(object, Math.log(((Complex)object[1]).norm_squared()), log_bailout_squared) + MAGNET_INCREMENT;
+                return (int)object[0] + getEscSmoothing1(object, Math.log(((Complex)object[1]).norm_squared()), log_bailout_squared) + MAGNET_INCREMENT;
             }
             else {
                 //double temp2 = ((Complex)object[1]).norm_squared();
-                //return (Integer)object[0] + 1 - Math.log((Math.log(temp2)) / log_bailout_squared) / log_power + MAGNET_INCREMENT;
+                //return (int)object[0] + 1 - Math.log((Math.log(temp2)) / log_bailout_squared) / log_power + MAGNET_INCREMENT;
 
-                return (Integer)object[0] + getEscSmoothing2(object, Math.log(((Complex)object[1]).norm_squared()), log_bailout_squared) + MAGNET_INCREMENT;
+                return (int)object[0] + getEscSmoothing2(object, Math.log(((Complex)object[1]).norm_squared()), log_bailout_squared) + MAGNET_INCREMENT;
             }
         }
         else {
             if(algorithm2 == 0) {
-                return (Integer)object[0] + getConvSmoothing1(object, log_convergent_bailout);
+                return (int)object[0] + getConvSmoothing1(object, log_convergent_bailout);
             }
             else {
-                return (Integer)object[0] + getConvSmoothing2(object, log_convergent_bailout);
+                return (int)object[0] + getConvSmoothing2(object, log_convergent_bailout);
             }
         }
 
@@ -66,13 +66,13 @@ public class SmoothEscapeTimeMagnet extends SmoothEscapeTime {
     public static double getConvSmoothing1(Object[] object, double log_convergent_bailout) {
 
         double temp = Math.log(((Complex)object[4]).distance_squared(1));
-        return (log_convergent_bailout - temp) / (Math.log((Double)object[3]) - temp);
+        return (log_convergent_bailout - temp) / (Math.log((double)object[3]) - temp);
 
     }
 
     public static double getConvSmoothing2(Object[] object, double log_convergent_bailout) {
 
-        double temp4 = Math.log(((Double)object[3]));
+        double temp4 = Math.log(((double)object[3]));
 
         double power = temp4 / Math.log(((Complex)object[4]).distance_squared(1));
 

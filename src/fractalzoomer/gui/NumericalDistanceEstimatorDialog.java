@@ -16,10 +16,11 @@
  */
 package fractalzoomer.gui;
 
-import fractalzoomer.core.TaskDraw;
+import fractalzoomer.core.TaskRender;
 import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
+import raven.slider.SliderGradient;
 
 import javax.swing.*;
 import java.awt.event.WindowAdapter;
@@ -59,7 +60,7 @@ public class NumericalDistanceEstimatorDialog extends JDialog {
         JTextField offset_field = new JTextField();
         offset_field.setText("" + s.pps.ndes.distanceOffset);
 
-        JSlider color_blend_opt = new JSlider(JSlider.HORIZONTAL, 0, 100, (int) (s.pps.ndes.numerical_blending * 100));
+        JSlider color_blend_opt = new SliderGradient(JSlider.HORIZONTAL, 0, 100, (int) (s.pps.ndes.numerical_blending * 100));
         color_blend_opt.setMajorTickSpacing(25);
         color_blend_opt.setMinorTickSpacing(1);
         color_blend_opt.setToolTipText("Sets the color blending percentage.");
@@ -78,6 +79,22 @@ public class NumericalDistanceEstimatorDialog extends JDialog {
 //        useJitter.setSelected(s.pps.ndes.useJitter);
 //        useJitter.setFocusable(false);
 
+        JPanel blend_panel = new JPanel();
+
+        final JComboBox<String> blend_modes = new JComboBox<>(Constants.blend_algorithms);
+        blend_modes.setSelectedIndex(s.pps.ndes.nde_color_blending);
+        blend_modes.setFocusable(false);
+        blend_modes.setToolTipText("Sets the blending mode mode.");
+
+        final JCheckBox reverse_blending = new JCheckBox("Reverse Order of Colors");
+        reverse_blending.setSelected(s.pps.ndes.nde_reverse_color_blending);
+        reverse_blending.setFocusable(false);
+        reverse_blending.setToolTipText("Reverts the order of colors in the blending operation.");
+
+        blend_panel.add(new JLabel("Blend Mode: "));
+        blend_panel.add(blend_modes);
+        blend_panel.add(reverse_blending);
+
 
         Object[] message = {
             " ",
@@ -93,9 +110,10 @@ public class NumericalDistanceEstimatorDialog extends JDialog {
             " ",
             "Set the coloring offset.",
             "Coloring Offset:", offset_field,
-            " ",
-//                useJitter,
-//                " ",
+                " ",
+                "Set the color blending options.",
+                blend_panel,
+                " ",
             "Set the color blending percentage.",
             "Color Blending:", color_blend_opt,
             " ",
@@ -165,6 +183,8 @@ public class NumericalDistanceEstimatorDialog extends JDialog {
                             s.pps.ndes.numerical_blending = color_blend_opt.getValue() / 100.0;
                             s.pps.ndes.differencesMethod = differences_method_opt.getSelectedIndex();
                             s.pps.ndes.cap_to_palette_length = cap_to_palette_length.isSelected();
+                            s.pps.ndes.nde_color_blending = blend_modes.getSelectedIndex();
+                            s.pps.ndes.nde_reverse_color_blending = reverse_blending.isSelected();
                            // s.pps.ndes.useJitter = useJitter.isSelected();
                         } catch (Exception ex) {
                             JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
@@ -173,7 +193,7 @@ public class NumericalDistanceEstimatorDialog extends JDialog {
 
                         dispose();
 
-                        if (greedy_algorithm && !TaskDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA && enable_num.isSelected() && !julia_map && !s.d3s.d3) {
+                        if (greedy_algorithm && !TaskRender.GREEDY_ALGORITHM_CHECK_ITER_DATA && enable_num.isSelected() && !julia_map && !s.d3s.d3) {
                             JOptionPane.showMessageDialog(ptra, Constants.greedyWarning, "Warning!", JOptionPane.WARNING_MESSAGE);
                         }
 

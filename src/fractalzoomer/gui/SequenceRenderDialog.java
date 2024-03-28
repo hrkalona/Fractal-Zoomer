@@ -73,7 +73,6 @@ public class SequenceRenderDialog extends JDialog {
     private JCheckBox flipIndex;
 
     private JTextField startAtIndex;
-    private JTextField aspectRatio;
 
     public SequenceRenderDialog(ImageExpanderWindow ptr, Settings s, ZoomSequenceSettings zss) {
 
@@ -171,9 +170,6 @@ public class SequenceRenderDialog extends JDialog {
         startAtIndex = new JTextField();
         startAtIndex.setText("" + zss.startAtSequenceIndex);
 
-        aspectRatio = new JTextField();
-        aspectRatio.setText("" + zss.aspect_ratio);
-
 
         Object[] message = {
             " ",
@@ -211,10 +207,7 @@ public class SequenceRenderDialog extends JDialog {
                 flipIndex,
                 "Start Rendering at Sequence Index:",
                 startAtIndex,
-                " ",
-                "Set the output image aspect ratio.",
-                "Aspect Ratio:",
-                aspectRatio,
+
 
             " "};
 
@@ -262,7 +255,6 @@ public class SequenceRenderDialog extends JDialog {
                             int tempZoomNFrame = Integer.parseInt(fieldZoomEveryNFrame.getText());
                             int tempGradientColorCycling = Integer.parseInt(fieldGradientColorCycling.getText());
                             long startAtIdx = Long.parseLong(startAtIndex.getText());
-                            double tempAspectRatio = Double.parseDouble(aspectRatio.getText());
 
                             if(MyApfloat.setAutomaticPrecision) {
                                 long precision = MyApfloat.getAutomaticPrecision(new String[]{field_size.getText(), s.size.toString()}, new boolean[]{true, true}, s.fns.function);
@@ -325,11 +317,6 @@ public class SequenceRenderDialog extends JDialog {
                                 return;
                             }
 
-                            if(tempAspectRatio <= 0) {
-                                JOptionPane.showMessageDialog(ptra, "The aspect ratio must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                return;
-                            }
-
                             zss.zooming_mode = zoooming_mode.getSelectedIndex();
                             zss.zoom_factor = tempZoomFactor;
                             zss.rotation_adjusting_value = tempRotation;
@@ -343,7 +330,6 @@ public class SequenceRenderDialog extends JDialog {
                             zss.slopes_direction_adjusting_value = tempSlopes;
                             zss.size = tempSize;
                             zss.sizeStr = tempSize.toString();
-                            zss.aspect_ratio = tempAspectRatio;
 
                             ptr.startSequenceRender();
 
@@ -439,7 +425,6 @@ public class SequenceRenderDialog extends JDialog {
         fieldZoomEveryNFrame.setValue(zss.zoom_every_n_frame);
         flipIndex.setSelected(zss.flipSequenceIndexing);
         startAtIndex.setText("" + zss.startAtSequenceIndex);
-        aspectRatio.setText("" + zss.aspect_ratio);
     }
 
 }

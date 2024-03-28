@@ -111,6 +111,11 @@ public abstract class Julia extends Fractal {
     }
 
     @Override
+    public final double[] calculateJuliaVectorized(GenericComplex[] gpixels) {
+        return null;
+    }
+
+    @Override
     public final double calculateJulia(GenericComplex gpixel) {
 
         escaped = false;
@@ -126,7 +131,7 @@ public abstract class Julia extends Fractal {
 
             Complex pixel = (Complex)gpixel;
 
-            if(TaskDraw.PERTURBATION_THEORY && supportsPerturbationTheory()) {
+            if(TaskRender.PERTURBATION_THEORY && supportsPerturbationTheory()) {
                 Complex pixelWithoutDelta = pixel.plus(refPointSmall);
 
                 if (statistic != null) {
@@ -208,7 +213,7 @@ public abstract class Julia extends Fractal {
 
         Complex[] complex = new Complex[2];
 
-        if(TaskDraw.PERTURBATION_THEORY && supportsPerturbationTheory()) {
+        if(TaskRender.PERTURBATION_THEORY && supportsPerturbationTheory()) {
 
             if(!isOrbit && !isDomain) {
                 complex[0] = pixel.plus(refPointSmall);
@@ -239,7 +244,7 @@ public abstract class Julia extends Fractal {
 
         GenericComplex[] complex = new GenericComplex[2];
 
-        int lib = TaskDraw.getHighPrecisionLibrary(dsize, this);
+        int lib = TaskRender.getHighPrecisionLibrary(dsize, this);
 
         if(lib == ARBITRARY_MPFR) {
             workSpaceData.z.set(pixel);
@@ -364,7 +369,7 @@ public abstract class Julia extends Fractal {
     }
 
     @Override
-    public double iterateJuliaWithPerturbation(Complex[] complex, Complex dpixel) {
+    public double iterateJuliaWithPerturbation(Complex[] complexIn, Complex dpixel) {
 
         double_iterations = 0;
         rebases = 0;
@@ -377,30 +382,33 @@ public abstract class Julia extends Fractal {
         Complex DeltaSubN = deltas[0]; // Delta z
 
         Complex pixel = dpixel.plus(refPointSmall);
+        Complex z = complexIn[0];
+        Complex c = complexIn[1];
 
         ReferenceData data = referenceData;
         int MaxRefIteration = data.MaxRefIteration;
 
-        double norm_squared = complex[0].norm_squared();
+        double norm_squared = z.norm_squared();
 
         for (; iterations < max_iterations; iterations++) {
 
             //No update values
 
             if (trap != null) {
-                trap.check(complex[0], iterations);
+                trap.check(z, iterations);
             }
 
-            if (bailout_algorithm2.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, norm_squared, pixel)) {
+            if (bailout_algorithm2.escaped(z, zold, zold2, iterations, c, start, c0, norm_squared, pixel)) {
                 escaped = true;
 
-                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0, pixel};
+                finalizeStatistic(true, z);
+                Object[] object = {iterations, z, zold, zold2, c, start, c0, pixel};
                 double res = out_color_algorithm.getResult(object);
 
-                res = getFinalValueOut(res, complex[0]);
+                res = getFinalValueOut(res);
 
                 if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+                    setTrueColorOut(z, zold, zold2, iterations, c, start, c0, pixel);
                 }
 
                 return getAndAccumulateStatsNotDeep(res);
@@ -412,22 +420,22 @@ public abstract class Julia extends Fractal {
             double_iterations++;
 
             zold2.assign(zold);
-            zold.assign(complex[0]);
+            zold.assign(z);
 
             //No Plane influence work
             //No Pre filters work
             if(max_iterations > 1){
-                complex[0] = getArrayValue(data.Reference, RefIteration).plus_mutable(DeltaSubN);
+                z = getArrayValue(data.Reference, RefIteration).plus_mutable(DeltaSubN);
             }
             //No Post filters work
 
             if (statistic != null) {
-                statistic.insert(complex[0], zold, zold2, iterations, complex[1], start, c0);
+                statistic.insert(z, zold, zold2, iterations, c, start, c0);
             }
 
-            norm_squared = complex[0].norm_squared();
+            norm_squared = z.norm_squared();
             if (norm_squared < DeltaSubN.norm_squared() || RefIteration >= MaxRefIteration) {
-                DeltaSubN = complex[0];
+                DeltaSubN = z;
                 RefIteration = 0;
 
                 data = secondReferenceData;
@@ -436,13 +444,14 @@ public abstract class Julia extends Fractal {
             }
         }
 
-        Object[] object = {complex[0], zold, zold2, complex[1], start, c0, pixel};
+        finalizeStatistic(false, z);
+        Object[] object = {z, zold, zold2, c, start, c0, pixel};
         double in = in_color_algorithm.getResult(object);
 
-        in = getFinalValueIn(in, complex[0]);
+        in = getFinalValueIn(in);
 
         if (inTrueColorAlgorithm != null) {
-            setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+            setTrueColorIn(z, zold, zold2, iterations, c, start, c0, pixel);
         }
 
         return getAndAccumulateStatsNotDeep(in);
@@ -450,7 +459,7 @@ public abstract class Julia extends Fractal {
     }
 
     @Override
-    public double iterateJuliaWithPerturbation(Complex[] complex, MantExpComplex dpixel) {
+    public double iterateJuliaWithPerturbation(Complex[] complexIn, MantExpComplex dpixel) {
 
 
         float_exp_iterations = 0;
@@ -467,6 +476,8 @@ public abstract class Julia extends Fractal {
         MantExpComplex DeltaSubN = deltas[0]; // Delta z
 
         Complex pixel = dpixel.plus(refPointSmallDeep).toComplex();
+        Complex zc = complexIn[0];
+        Complex c = complexIn[1];
 
         ReferenceDeepData deepData = referenceDeepData;
         ReferenceData data = referenceData;
@@ -479,7 +490,7 @@ public abstract class Julia extends Fractal {
         long exp = DeltaSubN.getMinExp();
 
         boolean useFullFloatExp = useFullFloatExp();
-        boolean doBailCheck = useFullFloatExp || TaskDraw.CHECK_BAILOUT_DURING_DEEP_NOT_FULL_FLOATEXP_MODE;
+        boolean doBailCheck = useFullFloatExp || TaskRender.CHECK_BAILOUT_DURING_DEEP_NOT_FULL_FLOATEXP_MODE;
 
         if(useFullFloatExp || (totalSkippedIterations == 0 && exp <= minExp) || (totalSkippedIterations != 0 && exp <= reducedExp)) {
             MantExpComplex z = getArrayDeepValue(deepData.Reference, RefIteration).plus_mutable(DeltaSubN);
@@ -487,19 +498,20 @@ public abstract class Julia extends Fractal {
 
             for (; iterations < max_iterations; iterations++) {
                 if (trap != null) {
-                    trap.check(complex[0], iterations);
+                    trap.check(zc, iterations);
                 }
 
-                if (doBailCheck && bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, 0.0, pixel)) {
+                if (doBailCheck && bailout_algorithm.escaped(zc, zold, zold2, iterations, c, start, c0, 0.0, pixel)) {
                     escaped = true;
 
-                    Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0, pixel};
+                    finalizeStatistic(true, zc);
+                    Object[] object = {iterations, zc, zold, zold2, c, start, c0, pixel};
                     double res = out_color_algorithm.getResult(object);
 
-                    res = getFinalValueOut(res, complex[0]);
+                    res = getFinalValueOut(res);
 
                     if (outTrueColorAlgorithm != null) {
-                        setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+                        setTrueColorOut(zc, zold, zold2, iterations, c, start, c0, pixel);
                     }
 
                     return getAndAccumulateStatsNotScaled(res);
@@ -511,16 +523,16 @@ public abstract class Julia extends Fractal {
                 float_exp_iterations++;
 
                 zold2.assign(zold);
-                zold.assign(complex[0]);
+                zold.assign(zc);
                 zoldDeep = z;
 
                 if (max_iterations > 1) {
                     z = getArrayDeepValue(deepData.Reference, RefIteration).plus_mutable(DeltaSubN);
-                    complex[0] = z.toComplex();
+                    zc = z.toComplex();
                 }
 
                 if (statistic != null) {
-                    statistic.insert(complex[0], zold, zold2, iterations, complex[1], start, c0, z, zoldDeep , null);
+                    statistic.insert(zc, zold, zold2, iterations, c, start, c0, z, zoldDeep , null);
                 }
 
                 if (z.norm_squared().compareToBothPositive(DeltaSubN.norm_squared()) < 0 || RefIteration >= MaxRefIteration) {
@@ -547,26 +559,27 @@ public abstract class Julia extends Fractal {
         if(!useFullFloatExp) {
             Complex CDeltaSubN = DeltaSubN.toComplex();
 
-            double norm_squared = complex[0].norm_squared();
+            double norm_squared = zc.norm_squared();
 
             for (; iterations < max_iterations; iterations++) {
 
                 //No update values
 
                 if (trap != null) {
-                    trap.check(complex[0], iterations);
+                    trap.check(zc, iterations);
                 }
 
-                if (bailout_algorithm2.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, norm_squared, pixel)) {
+                if (bailout_algorithm2.escaped(zc, zold, zold2, iterations, c, start, c0, norm_squared, pixel)) {
                     escaped = true;
 
-                    Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0, pixel};
+                    finalizeStatistic(true, zc);
+                    Object[] object = {iterations, zc, zold, zold2, c, start, c0, pixel};
                     double res = out_color_algorithm.getResult(object);
 
-                    res = getFinalValueOut(res, complex[0]);
+                    res = getFinalValueOut(res);
 
                     if (outTrueColorAlgorithm != null) {
-                        setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+                        setTrueColorOut(zc, zold, zold2, iterations, c, start, c0, pixel);
                     }
 
                     return getAndAccumulateStatsNotScaled(res);
@@ -578,22 +591,22 @@ public abstract class Julia extends Fractal {
                 double_iterations++;
 
                 zold2.assign(zold);
-                zold.assign(complex[0]);
+                zold.assign(zc);
 
                 //No Plane influence work
                 //No Pre filters work
                 if (max_iterations > 1) {
-                    complex[0] = getArrayValue(data.Reference, RefIteration).plus_mutable(CDeltaSubN);
+                    zc = getArrayValue(data.Reference, RefIteration).plus_mutable(CDeltaSubN);
                 }
                 //No Post filters work
 
                 if (statistic != null) {
-                    statistic.insert(complex[0], zold, zold2, iterations, complex[1], start, c0);
+                    statistic.insert(zc, zold, zold2, iterations, c, start, c0);
                 }
 
-                norm_squared = complex[0].norm_squared();
+                norm_squared = zc.norm_squared();
                 if (norm_squared < CDeltaSubN.norm_squared() || RefIteration >= MaxRefIteration) {
-                    CDeltaSubN = complex[0];
+                    CDeltaSubN = zc;
                     RefIteration = 0;
                     data = secondReferenceData;
                     MaxRefIteration = data.MaxRefIteration;
@@ -603,13 +616,14 @@ public abstract class Julia extends Fractal {
             }
         }
 
-        Object[] object = {complex[0], zold, zold2, complex[1], start, c0, pixel};
+        finalizeStatistic(false, zc);
+        Object[] object = {zc, zold, zold2, c, start, c0, pixel};
         double in = in_color_algorithm.getResult(object);
 
-        in = getFinalValueIn(in, complex[0]);
+        in = getFinalValueIn(in);
 
         if (inTrueColorAlgorithm != null) {
-            setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+            setTrueColorIn(zc, zold, zold2, iterations, c, start, c0, pixel);
         }
 
         return getAndAccumulateStatsNotScaled(in);
@@ -643,7 +657,7 @@ public abstract class Julia extends Fractal {
 
         boolean lowPrecReferenceOrbitNeeded = !needsOnlyExtendedReferenceOrbit(deepZoom, false);
         DoubleReference.SHOULD_SAVE_MEMORY = false;
-        boolean useCompressedRef = TaskDraw.COMPRESS_REFERENCE_IF_POSSIBLE && supportsReferenceCompression();
+        boolean useCompressedRef = TaskRender.COMPRESS_REFERENCE_IF_POSSIBLE && supportsReferenceCompression();
         int[] precalIndexes = getNeededPrecalculatedTermsIndexes();
 
         if (iterations == 0) {
@@ -675,7 +689,7 @@ public abstract class Julia extends Fractal {
         GenericComplex z, c, zold, zold2, start, c0, pixel, initVal;
         Object normSquared;
 
-        int bigNumLib = TaskDraw.getBignumLibrary(size, this);
+        int bigNumLib = TaskRender.getBignumLibrary(size, this);
 
         if(bigNumLib == Constants.BIGNUM_BUILT_IN) {
             initVal = new BigNumComplex(defaultInitVal.getValue(null));
@@ -928,17 +942,7 @@ public abstract class Julia extends Fractal {
             tseed = bigSeed.toMpfrBigNumComplex();
         }
         else if(bigNumLib == Constants.BIGNUM_MPIR) { //MpirBigNumComplex
-            if(!LibMpfr.hasError()) {
-                try {
-                    tseed = new MpirBigNumComplex(bigSeed.toMpfrBigNumComplex());
-                }
-                catch (Error e) {
-                    tseed = bigSeed.toMpirBigNumComplex();
-                }
-            }
-            else {
-                tseed = bigSeed.toMpirBigNumComplex();
-            }
+            tseed = bigSeed.toMpirBigNumComplex();
         }
         else if(bigNumLib == Constants.BIGNUM_DOUBLEDOUBLE) { //DDComplex
             tseed = bigSeed.toDDComplex();

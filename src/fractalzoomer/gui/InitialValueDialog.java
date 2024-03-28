@@ -83,7 +83,7 @@ public class InitialValueDialog extends JDialog {
         JPanel panel22 = new JPanel();
         panel22.setLayout(new FlowLayout());
 
-        JLabel html_label = CommonFunctions.createUserFormulaHtmlLabels("c, maxn, center, size, sizei, v1 - v30, point", "variable initial value", "");
+        JLabel html_label = CommonFunctions.createUserFormulaHtmlLabels("c, maxn, center, size, sizei, width, height, v1 - v30, point", "variable initial value", "");
         panel21.add(html_label);
 
         JTextField field_formula = new JTextField(45);
@@ -101,10 +101,10 @@ public class InitialValueDialog extends JDialog {
         JPanel formula_panel_cond1 = new JPanel();
         formula_panel_cond1.setLayout(new GridLayout(2, 2));
 
-        JTextField field_condition = new JTextField(24);
+        JTextField field_condition = new JTextField(MainWindow.useCustomLaf ? 22 : 24);
         field_condition.setText(s.fns.user_initial_value_conditions[0]);
 
-        JTextField field_condition2 = new JTextField(24);
+        JTextField field_condition2 = new JTextField(MainWindow.useCustomLaf ? 22 : 24);
         field_condition2.setText(s.fns.user_initial_value_conditions[1]);
 
         formula_panel_cond1.add(new JLabel("Left operand:", SwingConstants.HORIZONTAL));

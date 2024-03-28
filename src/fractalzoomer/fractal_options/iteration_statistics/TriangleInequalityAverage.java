@@ -111,7 +111,7 @@ public class TriangleInequalityAverage extends GenericStatistic {
     }
 
     @Override
-    public double getValue() {
+    protected double getValue() {
 
         if(keepLastXItems) {
             int[] sample_vals = sampleLastX();

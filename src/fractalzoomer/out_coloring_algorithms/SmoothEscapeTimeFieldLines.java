@@ -59,7 +59,7 @@ public class SmoothEscapeTimeFieldLines extends OutColorAlgorithm {
         if(algorithm == 0 && !usePower) {
             double temp2 = Math.log(((Complex)object[1]).norm_squared());
 
-            double temp3 = (Integer)object[0] + SmoothEscapeTime.getSmoothing1(object, temp2, log_bailout_squared);
+            double temp3 = (int)object[0] + SmoothEscapeTime.getSmoothing1(object, temp2, log_bailout_squared);
             
             double lineWidth = 0.008;  // freely adjustable
             double fx = ((Complex)object[1]).arg() / (pi2);  // angle within cell
@@ -73,7 +73,7 @@ public class SmoothEscapeTimeFieldLines extends OutColorAlgorithm {
         else {
             double temp2 = Math.log(((Complex)object[1]).norm_squared());
 
-            double temp3 = (Integer)object[0] + SmoothEscapeTime.getSmoothing2(object, temp2, log_bailout_squared, usePower, log_power);
+            double temp3 = (int)object[0] + SmoothEscapeTime.getSmoothing2(object, temp2, log_bailout_squared, usePower, log_power);
             
             double lineWidth = 0.008;  // freely adjustable
             double fx = ((Complex)object[1]).arg() / (pi2);  // angle within cell

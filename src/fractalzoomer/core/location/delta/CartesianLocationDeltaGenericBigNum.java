@@ -1,18 +1,15 @@
 package fractalzoomer.core.location.delta;
 
-import fractalzoomer.core.BigNumComplex;
-import fractalzoomer.core.GenericComplex;
-import fractalzoomer.core.MantExp;
-import fractalzoomer.core.MyApfloat;
+import fractalzoomer.core.*;
 import fractalzoomer.core.location.normal.CartesianLocationNormalBigNumArbitrary;
 import fractalzoomer.functions.Fractal;
 import fractalzoomer.main.app_settings.JitterSettings;
 import org.apfloat.Apfloat;
 
 public abstract class CartesianLocationDeltaGenericBigNum extends CartesianLocationNormalBigNumArbitrary {
-    protected CartesianLocationDeltaGenericBigNum(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int image_size, Apfloat[] rotation_center, Apfloat[] rotation_vals, Fractal fractal, JitterSettings js) {
+    protected CartesianLocationDeltaGenericBigNum(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int width, int height, Apfloat[] rotation_center, Apfloat[] rotation_vals, Fractal fractal, JitterSettings js) {
 
-        super(xCenter, yCenter, size, height_ratio, image_size, rotation_center, rotation_vals, fractal, js);
+        super(xCenter, yCenter, size, height_ratio, width, height, rotation_center, rotation_vals, fractal, js);
 
     }
 
@@ -53,14 +50,13 @@ public abstract class CartesianLocationDeltaGenericBigNum extends CartesianLocat
 
     @Override
     public MantExp getMaxSizeInImage() {
-        if(height_ratio.compareTo(Apfloat.ONE) == 0) {
-            return new MantExp(MyApfloat.fp.multiply(MyApfloat.fp.multiply(ddsize, point5), MyApfloat.SQRT_TWO));
-        }
-        else {
-            Apfloat temp = MyApfloat.fp.multiply(ddsize, point5);
-            Apfloat temp2 = MyApfloat.fp.multiply(temp, height_ratio);
-            return new MantExp(MyApfloat.fp.sqrt(MyApfloat.fp.add(MyApfloat.fp.multiply(temp, temp), MyApfloat.fp.multiply(temp2, temp2))));
-        }
+        BigNum temp = bntemp_size_image_size_x.mult(BigNum.create(width * 0.5));
+        BigNum temp2 = bntemp_size_image_size_y.mult(BigNum.create(height * 0.5));
+
+        temp = temp.square();
+        temp2 = temp2.square();
+
+        return temp.add(temp2).sqrt().getMantExp();
     }
 
     @Override

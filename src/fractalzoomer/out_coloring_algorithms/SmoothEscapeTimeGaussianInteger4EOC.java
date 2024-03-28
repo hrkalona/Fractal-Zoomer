@@ -42,7 +42,7 @@ public class SmoothEscapeTimeGaussianInteger4EOC extends OutColorAlgorithm {
 
 
         double temp3 = 0;
-        if(!(Boolean)object[8]) {
+        if(!(boolean)object[8]) {
             if(algorithm == 0) {
                 temp3 = SmoothEscapeTimeEOC.getConvSmoothing1(object, log_convergent_bailout);
             }
@@ -53,7 +53,7 @@ public class SmoothEscapeTimeGaussianInteger4EOC extends OutColorAlgorithm {
 
         Complex temp = ((Complex)object[1]).sub(((Complex)object[1]).gaussian_integer());
 
-        return Math.abs((Integer)object[0] + temp.getRe() + temp.getIm() + temp3);
+        return Math.abs((int)object[0] + temp.getRe() + temp.getIm() + temp3);
 
     }
 }

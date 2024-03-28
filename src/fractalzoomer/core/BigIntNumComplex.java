@@ -2,7 +2,6 @@ package fractalzoomer.core;
 
 import fractalzoomer.utils.NormComponents;
 import org.apfloat.Apfloat;
-import org.apfloat.ApfloatMath;
 
 import java.util.concurrent.Future;
 
@@ -412,8 +411,8 @@ public class BigIntNumComplex extends GenericComplex {
     public final BigIntNum norm_squared() {
 
         if(BigIntNum.use_threads) {
-            Future<BigIntNum> temp1 = TaskDraw.reference_thread_executor.submit(() -> re.square());
-            Future<BigIntNum> temp2 = TaskDraw.reference_thread_executor.submit(() -> im.square());
+            Future<BigIntNum> temp1 = TaskRender.reference_thread_executor.submit(() -> re.square());
+            Future<BigIntNum> temp2 = TaskRender.reference_thread_executor.submit(() -> im.square());
 
             try {
                 return temp1.get().add(temp2.get());
@@ -636,9 +635,9 @@ public class BigIntNumComplex extends GenericComplex {
         BigIntNumComplex c = (BigIntNumComplex)cn;
 
 //        if(BigIntNum.use_threads2) {
-//            Future<BigIntNum> temp1 = TaskDraw.reference_thread_executor2.submit(() -> re.square());
-//            Future<BigIntNum> temp2 = TaskDraw.reference_thread_executor2.submit(() -> im.square());
-//            Future<BigIntNum> temp3 = TaskDraw.reference_thread_executor2.submit(() -> re.add(im).square());
+//            Future<BigIntNum> temp1 = TaskRender.reference_thread_executor2.submit(() -> re.square());
+//            Future<BigIntNum> temp2 = TaskRender.reference_thread_executor2.submit(() -> im.square());
+//            Future<BigIntNum> temp3 = TaskRender.reference_thread_executor2.submit(() -> re.add(im).square());
 //
 //            try {
 //                BigIntNum resqr = temp1.get();
@@ -653,8 +652,8 @@ public class BigIntNumComplex extends GenericComplex {
 //        }
 //        else
         if(BigIntNum.use_threads) {
-            Future<BigIntNum> temp1 = TaskDraw.reference_thread_executor.submit(() -> re.add(im).mult(re.sub(im)).add(c.re));
-            Future<BigIntNum> temp2 = TaskDraw.reference_thread_executor.submit(() -> re.mult(im).mult2().add(c.im));
+            Future<BigIntNum> temp1 = TaskRender.reference_thread_executor.submit(() -> re.add(im).mult(re.sub(im)).add(c.re));
+            Future<BigIntNum> temp2 = TaskRender.reference_thread_executor.submit(() -> re.mult(im).mult2().add(c.im));
 
             try {
                 return new BigIntNumComplex(temp1.get(), temp2.get());
@@ -1028,4 +1027,19 @@ public class BigIntNumComplex extends GenericComplex {
 
     @Override
     public BigComplex toBigComplex() {return new BigComplex(re.toApfloat(), im.toApfloat());}
+
+    @Override
+    public Object re() {
+        return getRe();
+    }
+
+    @Override
+    public Object im() {
+        return getIm();
+    }
+
+    @Override
+    public Object Norm() {
+        return norm();
+    }
 }

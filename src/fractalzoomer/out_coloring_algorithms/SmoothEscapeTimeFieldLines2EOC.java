@@ -48,9 +48,9 @@ public class SmoothEscapeTimeFieldLines2EOC extends SmoothEscapeTimeFieldLines2 
 
         boolean line = Math.abs(fx) > lineWidth * fz;
 
-        double temp3 = line ? (Integer)object[0] : -((Integer)object[0] + INCREMENT);
+        double temp3 = line ? (int)object[0] : -((int)object[0] + INCREMENT);
 
-        if((Boolean)object[8]) {
+        if((boolean)object[8]) {
             if(algorithm == 0) {
                 if(temp3 < 0) {
                     return temp3 -(SmoothEscapeTimeMagnet.getEscSmoothing1(object, temp2, log_bailout_squared) + MAGNET_INCREMENT);

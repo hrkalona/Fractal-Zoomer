@@ -8,7 +8,7 @@ public class NoStatistic extends GenericStatistic {
     }
 
     @Override
-    public double getValue() {
+    protected double getValue() {
         return 0;
     }
 

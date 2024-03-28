@@ -27,7 +27,7 @@ public class EscapeTimeEOC extends EscapeTime {
     @Override
     public double getResult(Object[] object) {
 
-        return  (Boolean)object[8] ? (Integer)object[0] + MAGNET_INCREMENT  : (Integer)object[0];
+        return  (boolean)object[8] ? (int)object[0] + MAGNET_INCREMENT  : (int)object[0];
 
     }
     

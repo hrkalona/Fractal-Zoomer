@@ -306,9 +306,10 @@ public class DDComplex extends GenericComplex {
     public final DDComplex squareFast_plus_c(NormComponents normComponents, GenericComplex ca) {
         DoubleDouble reSqr = (DoubleDouble) normComponents.reSqr;
         DoubleDouble imSqr = (DoubleDouble) normComponents.imSqr;
-        DoubleDouble normSquared = (DoubleDouble) normComponents.normSquared;
+        //DoubleDouble normSquared = (DoubleDouble) normComponents.normSquared;
         DDComplex c = (DDComplex) ca;
-        return new DDComplex(reSqr.subtract(imSqr).add(c.re), re.add(im).sqr().subtract(normSquared).add(c.im));
+        DoubleDouble temp = re.multiply(im);
+        return new DDComplex(reSqr.subtract(imSqr).add(c.re), temp.add(temp).add(c.im));
     }
 
     /*
@@ -1665,5 +1666,20 @@ public class DDComplex extends GenericComplex {
     @Override
     public BigComplex toBigComplex() {
         return new BigComplex(re.toApfloat(), im.toApfloat());
+    }
+
+    @Override
+    public Object re() {
+        return getRe();
+    }
+
+    @Override
+    public Object im() {
+        return getIm();
+    }
+
+    @Override
+    public Object Norm() {
+        return norm();
     }
 }

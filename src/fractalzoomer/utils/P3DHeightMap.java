@@ -1,7 +1,7 @@
 package fractalzoomer.utils;
 
 import com.jogamp.nativewindow.WindowClosingProtocol;
-import fractalzoomer.core.TaskDraw;
+import fractalzoomer.core.TaskRender;
 import fractalzoomer.gui.MyButton;
 import fractalzoomer.gui.MyJSpinner;
 import fractalzoomer.main.CommonFunctions;
@@ -44,9 +44,9 @@ public class P3DHeightMap extends PApplet {
     private float scale;
 
     private int aa_size;
-    private boolean readyToDraw;
+    private boolean readyToRender;
 
-    private JFrame optionsframe;
+    private JDialog optionsframe;
 
     private JCheckBox invertcb;
     private MyJSpinner scaling;
@@ -136,7 +136,7 @@ public class P3DHeightMap extends PApplet {
         this.aa = aa;
         isValid = true;
         this.aa_size = aa_size;
-        readyToDraw = true;
+        readyToRender = true;
         this.ptra = ptra;
         reset();
     }
@@ -152,14 +152,14 @@ public class P3DHeightMap extends PApplet {
 
     @Override
     public void exitActual() {
-        readyToDraw = false;
+        readyToRender = false;
         isValid = false;
         optionsframe.setVisible(false);
         dispose();
     }
 
     public void close() {
-        readyToDraw = false;
+        readyToRender = false;
         if (getGraphics().isGL()) {
             final com.jogamp.newt.Window w = (com.jogamp.newt.Window) getSurface().getNative();
             w.destroy();
@@ -279,9 +279,11 @@ public class P3DHeightMap extends PApplet {
         }
         surface.setResizable(true);
 
-        optionsframe = new JFrame("3D Options");
-        optionsframe.setSize(470 + 30 + (MainWindow.runsOnWindows ? 0 : 40), 360);
-        optionsframe.setPreferredSize(new Dimension(470 + 30 + (MainWindow.runsOnWindows ? 0 : 40), 320));
+        optionsframe = new JDialog();
+
+        optionsframe.setTitle("3D Options");
+        optionsframe.setSize(470 + 30 + (MainWindow.runsOnWindows && !MainWindow.useCustomLaf ? 0 : 60), 380);
+        optionsframe.setPreferredSize(new Dimension(470 + 30 + (MainWindow.runsOnWindows && !MainWindow.useCustomLaf ? 0 : 60), 340));
         optionsframe.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         optionsframe.setLocation((int) (-200 + ptra.getLocation().getX() + ptra.getSize().getWidth() / 2) - (optionsframe.getWidth() / 2), (int) (ptra.getLocation().getY() + ptra.getSize().getHeight() / 2) - (optionsframe.getHeight() / 2));
         optionsframe.setIconImage(MainWindow.getIcon("mandel2.png").getImage());
@@ -289,7 +291,7 @@ public class P3DHeightMap extends PApplet {
 
 
         JTabbedPane tabbedPane = new JTabbedPane();
-        tabbedPane.setPreferredSize(new Dimension(470 + (MainWindow.runsOnWindows ? 0 : 40), 220));
+        tabbedPane.setPreferredSize(new Dimension(470 + (MainWindow.runsOnWindows && !MainWindow.useCustomLaf ? 0 : 60), 240));
         tabbedPane.setFocusable(false);
 
 
@@ -916,8 +918,8 @@ public class P3DHeightMap extends PApplet {
     @Override
     public void draw() {
 
-        double[][] data = TaskDraw.vert;
-        int[][] data_color = TaskDraw.vert_color;
+        double[][] data = TaskRender.vert;
+        int[][] data_color = TaskRender.vert_color;
 
         try {
 
@@ -933,7 +935,7 @@ public class P3DHeightMap extends PApplet {
                 return;
             }
 
-            if(!readyToDraw) {
+            if(!readyToRender) {
                 return;
             }
 
@@ -993,7 +995,7 @@ public class P3DHeightMap extends PApplet {
 
             float scale_factor = Float.parseFloat(scaling.getText());
 
-            if(TaskDraw.D3_APPLY_AVERAGE_TO_TRIANGLE_COLORS == 1) {
+            if(TaskRender.D3_APPLY_AVERAGE_TO_TRIANGLE_COLORS == 1) {
                 int red, green, blue;
                 for (int y = 0; y < details - 1; y++) {
                     int yp1 = y + 1;
@@ -1031,7 +1033,7 @@ public class P3DHeightMap extends PApplet {
 
                         int yp1 = y + 1;
 
-                        if(TaskDraw.D3_APPLY_AVERAGE_TO_TRIANGLE_COLORS == 0) {
+                        if(TaskRender.D3_APPLY_AVERAGE_TO_TRIANGLE_COLORS == 0) {
                             red = red1;
                             green = green1;
                             blue = blue1;
@@ -1064,7 +1066,7 @@ public class P3DHeightMap extends PApplet {
                         green1 = (data_color[xp1][y] >> 8) & 0xff;
                         blue1 = (data_color[xp1][y]) & 0xff;
 
-                        if(TaskDraw.D3_APPLY_AVERAGE_TO_TRIANGLE_COLORS == 0) {
+                        if(TaskRender.D3_APPLY_AVERAGE_TO_TRIANGLE_COLORS == 0) {
                             red = red1;
                             green = green1;
                             blue = blue1;
@@ -1108,7 +1110,7 @@ public class P3DHeightMap extends PApplet {
         }
     }
 
-    public void setReadyToDraw(boolean readyToDraw) {
-        this.readyToDraw = readyToDraw;
+    public void setReadyToRender(boolean readyToRender) {
+        this.readyToRender = readyToRender;
     }
 }

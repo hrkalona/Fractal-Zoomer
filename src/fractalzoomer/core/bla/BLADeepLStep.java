@@ -2,7 +2,7 @@ package fractalzoomer.core.bla;
 
 import fractalzoomer.core.MantExp;
 import fractalzoomer.core.MantExpComplex;
-import fractalzoomer.core.TaskDraw;
+import fractalzoomer.core.TaskRender;
 
 public class BLADeepLStep extends BLADeep {
     public double Bx;
@@ -10,7 +10,7 @@ public class BLADeepLStep extends BLADeep {
     public long Bexp;
 
     public static BLADeep create(MantExp r2, MantExpComplex A, MantExpComplex B, int l) {
-        if(TaskDraw.MANTEXPCOMPLEX_FORMAT == 1) {
+        if(TaskRender.MANTEXPCOMPLEX_FORMAT == 1) {
             return new BLADeepFullLStep(r2, A, B) {
                 @Override
                 public int getL() {

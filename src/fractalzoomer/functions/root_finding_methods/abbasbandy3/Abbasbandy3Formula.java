@@ -2,7 +2,7 @@ package fractalzoomer.functions.root_finding_methods.abbasbandy3;
 
 import fractalzoomer.core.Complex;
 import fractalzoomer.core.Derivative;
-import fractalzoomer.core.TaskDraw;
+import fractalzoomer.core.TaskRender;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
 import fractalzoomer.main.app_settings.StatisticsSettings;
@@ -405,7 +405,7 @@ public class Abbasbandy3Formula extends Abbasbandy3RootFindingMethod {
             parser4.setSizevalue(c_size);
         }
 
-        Complex c_isize = new Complex(TaskDraw.IMAGE_SIZE, 0);
+        Complex c_isize = new Complex(Math.min(TaskRender.WIDTH, TaskRender.HEIGHT), 0);
         if (parser.foundISize()) {
             parser.setISizevalue(c_isize);
         }
@@ -420,6 +420,41 @@ public class Abbasbandy3Formula extends Abbasbandy3RootFindingMethod {
 
         if (parser4.foundISize()) {
             parser4.setISizevalue(c_isize);
+        }
+
+        Complex c_width = new Complex(TaskRender.WIDTH, 0);
+        if (parser.foundWidth()) {
+            parser.setWidthvalue(c_width);
+        }
+
+        if (parser2.foundWidth()) {
+            parser2.setWidthvalue(c_width);
+        }
+
+        if (parser3.foundWidth()) {
+            parser3.setWidthvalue(c_width);
+        }
+
+        if (parser4.foundWidth()) {
+            parser4.setWidthvalue(c_width);
+        }
+
+        Complex c_height = new Complex(TaskRender.HEIGHT, 0);
+
+        if (parser.foundHeight()) {
+            parser.setHeightvalue(c_height);
+        }
+
+        if (parser2.foundHeight()) {
+            parser2.setHeightvalue(c_height);
+        }
+
+        if (parser3.foundHeight()) {
+            parser3.setHeightvalue(c_height);
+        }
+
+        if (parser4.foundHeight()) {
+            parser4.setHeightvalue(c_height);
         }
 
         if (parser.foundPoint()) {

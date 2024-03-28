@@ -16,7 +16,6 @@
  */
 package fractalzoomer.gui;
 
-import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
 
@@ -24,8 +23,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-
-import static fractalzoomer.main.Constants.*;
 
 /**
  *
@@ -163,7 +160,7 @@ public class VariablesDialog extends JDialog {
                         }
 
                         dispose();
-                        ptr.redraw(false);
+                        ptr.reRender(false);
 
                     }
                 });

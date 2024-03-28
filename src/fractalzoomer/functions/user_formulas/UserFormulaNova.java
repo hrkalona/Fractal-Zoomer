@@ -18,7 +18,7 @@ package fractalzoomer.functions.user_formulas;
 
 import fractalzoomer.core.Complex;
 import fractalzoomer.core.Derivative;
-import fractalzoomer.core.TaskDraw;
+import fractalzoomer.core.TaskRender;
 import fractalzoomer.fractal_options.initial_value.DefaultInitialValue;
 import fractalzoomer.fractal_options.initial_value.InitialValue;
 import fractalzoomer.fractal_options.initial_value.VariableConditionalInitialValue;
@@ -1410,7 +1410,7 @@ public class UserFormulaNova extends ExtendedConvergentType {
             parserAddend.setSizevalue(c_size);
         }
 
-        Complex c_isize = new Complex(TaskDraw.IMAGE_SIZE, 0);
+        Complex c_isize = new Complex(Math.min(TaskRender.WIDTH, TaskRender.HEIGHT), 0);
         if (parser.foundISize()) {
             parser.setISizevalue(c_isize);
         }
@@ -1429,6 +1429,50 @@ public class UserFormulaNova extends ExtendedConvergentType {
 
         if (parserAddend.foundISize()) {
             parserAddend.setISizevalue(c_isize);
+        }
+
+        Complex c_width = new Complex(TaskRender.WIDTH, 0);
+
+        if (parser.foundWidth()) {
+            parser.setWidthvalue(c_width);
+        }
+
+        if (parser2.foundWidth()) {
+            parser2.setWidthvalue(c_width);
+        }
+
+        if (parser3.foundWidth()) {
+            parser3.setWidthvalue(c_width);
+        }
+
+        if (parserRelaxation.foundWidth()) {
+            parserRelaxation.setWidthvalue(c_width);
+        }
+
+        if (parserAddend.foundWidth()) {
+            parserAddend.setWidthvalue(c_width);
+        }
+
+        Complex c_height = new Complex(TaskRender.HEIGHT, 0);
+
+        if (parser.foundHeight()) {
+            parser.setHeightvalue(c_height);
+        }
+
+        if (parser2.foundHeight()) {
+            parser2.setHeightvalue(c_height);
+        }
+
+        if (parser3.foundHeight()) {
+            parser3.setHeightvalue(c_height);
+        }
+
+        if (parserRelaxation.foundHeight()) {
+            parserRelaxation.setHeightvalue(c_height);
+        }
+
+        if (parserAddend.foundHeight()) {
+            parserAddend.setHeightvalue(c_height);
         }
 
         if (parser.foundPoint()) {

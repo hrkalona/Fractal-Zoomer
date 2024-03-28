@@ -36,11 +36,11 @@ public class InversedMu3Plane extends Plane {
 
         super();
 
-        if(TaskDraw.PERTURBATION_THEORY || TaskDraw.HIGH_PRECISION_CALCULATION) {
-            if (TaskDraw.allocateMPFR()) {
+        if(TaskRender.PERTURBATION_THEORY || TaskRender.HIGH_PRECISION_CALCULATION) {
+            if (TaskRender.allocateMPFR()) {
                 tempRe = new MpfrBigNum();
                 tempIm = new MpfrBigNum();
-            } else if (TaskDraw.allocateMPIR()) {
+            } else if (TaskRender.allocateMPIR()) {
                 tempRep = new MpirBigNum();
                 tempImp = new MpirBigNum();
                 _14 = new MpirBigNum(1.401155189);
