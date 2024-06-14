@@ -23,7 +23,8 @@ public class CartesianLocationDeltaDeep extends Location {
     private Apfloat ddxcenter;
     private Apfloat ddycenter;
 
-    private double image_size_2;
+    private double image_size_2x;
+    private double image_size_2y;
 
     private int bignumLib;
 
@@ -31,7 +32,10 @@ public class CartesianLocationDeltaDeep extends Location {
 
     private MantExp[] antialiasing_y;
 
-    public CartesianLocationDeltaDeep(Apfloat xCenter, Apfloat yCenter, Apfloat ddsize, double height_ratio, int image_size_in, JitterSettings js, Fractal fractal, int bignumLib) {
+    private int width;
+    private int height;
+
+    public CartesianLocationDeltaDeep(Apfloat xCenter, Apfloat yCenter, Apfloat ddsize, double height_ratio, int width, int height, JitterSettings js, Fractal fractal, int bignumLib) {
 
         super();
 
@@ -46,26 +50,21 @@ public class CartesianLocationDeltaDeep extends Location {
         //this.ddsize = ddsize;
         size = new MantExp(ddsize);
 
-        int image_size = offset.getImageSize(image_size_in);
-        image_size_2 = image_size * 0.5;
+        width = offset.getWidth(width);
+        height = offset.getHeight(height);
+        int image_size = Math.min(width, height);
+        double coefx = width == image_size ? 0.5 : (1 + (width - (double)height) / height) * 0.5;
+        double coefy = height == image_size ? 0.5 : (1 + (height - (double)width) / width) * 0.5;
 
-//        Apfloat point5 = new MyApfloat(0.5);
-//        Apfloat size_2_x = MyApfloat.fp.multiply(ddsize, point5);
-//        Apfloat ddimage_size = new MyApfloat(image_size);
-//        Apfloat temp = MyApfloat.fp.multiply(ddsize, ddheight_ratio);
-//        Apfloat size_2_y = MyApfloat.fp.multiply(temp, point5);
-//        Apfloat ddtemp_size_image_size_x = MyApfloat.fp.divide(ddsize, ddimage_size);
-//        Apfloat ddtemp_size_image_size_y = MyApfloat.fp.divide(temp, ddimage_size);
-//        temp_size_image_size_x = ddtemp_size_image_size_x.doubleValue();
-//        temp_size_image_size_y = ddtemp_size_image_size_y.doubleValue();
-//
-//
-//        temp_x_corner = size_2_x.negate().doubleValue();
-//        temp_y_corner =  size_2_y.doubleValue();
+        this.width = width;
+        this.height = height;
 
-        MantExp size_2_x = size.divide2();
+        image_size_2x = width * 0.5;
+        image_size_2y = height * 0.5;
+
+        MantExp size_2_x = size.multiply(coefx);
         MantExp temp = size.multiply(mheight_ratio);
-        MantExp size_2_y = temp.divide2();
+        MantExp size_2_y = temp.multiply(coefy);
         size_2_x.Normalize();
         size_2_y.Normalize();
 
@@ -96,7 +95,10 @@ public class CartesianLocationDeltaDeep extends Location {
         antialiasing_y = other.antialiasing_y;
         size = other.size;
         height_ratio = other.height_ratio;
-        image_size_2 = other.image_size_2;
+        image_size_2x = other.image_size_2x;
+        image_size_2y = other.image_size_2y;
+        width = other.width;
+        height = other.height;
     }
 
     private MantExpComplex getComplexBase(int x, int y) {
@@ -108,9 +110,9 @@ public class CartesianLocationDeltaDeep extends Location {
 //            tempY = temp_y_corner.subtract(temp_size_image_size_y.multiply(y + res[0]));
 //            tempY.Normalize();
 
-            tempX = temp_size_image_size_x.multiply((x + res[1]) - image_size_2);
+            tempX = temp_size_image_size_x.multiply((x + res[1]) - image_size_2x);
             tempX.Normalize();
-            tempY = temp_size_image_size_y.multiply(image_size_2 - (y + res[0]));
+            tempY = temp_size_image_size_y.multiply(image_size_2y - (y + res[0]));
             tempY.Normalize();
         }
         else {
@@ -119,9 +121,9 @@ public class CartesianLocationDeltaDeep extends Location {
 //            tempY = temp_y_corner.subtract(temp_size_image_size_y.multiply(y));
 //            tempY.Normalize();
 
-            tempX = temp_size_image_size_x.multiply(x - image_size_2);
+            tempX = temp_size_image_size_x.multiply(x - image_size_2x);
             tempX.Normalize();
-            tempY = temp_size_image_size_y.multiply(image_size_2 - y);
+            tempY = temp_size_image_size_y.multiply(image_size_2y - y);
             tempY.Normalize();
         }
 
@@ -144,7 +146,7 @@ public class CartesianLocationDeltaDeep extends Location {
 //        tempX = temp_x_corner.add(temp_size_image_size_x.multiply(x));
 //        tempX.Normalize();
 
-        tempX = temp_size_image_size_x.multiply(x - image_size_2);
+        tempX = temp_size_image_size_x.multiply(x - image_size_2x);
         tempX.Normalize();
 
         indexX = x;
@@ -164,7 +166,7 @@ public class CartesianLocationDeltaDeep extends Location {
 
 //        tempY = temp_y_corner.subtract(temp_size_image_size_y.multiply(y));
 //        tempY.Normalize();
-        tempY = temp_size_image_size_y.multiply(image_size_2 - y);
+        tempY = temp_size_image_size_y.multiply(image_size_2y - y);
         tempY.Normalize();
 
         indexY = y;
@@ -185,7 +187,7 @@ public class CartesianLocationDeltaDeep extends Location {
         if(!js.enableJitter) {
 //            tempY = temp_y_corner.subtract(temp_size_image_size_y.multiply(y));
 //            tempY.Normalize();
-            tempY = temp_size_image_size_y.multiply(image_size_2 - y);
+            tempY = temp_size_image_size_y.multiply(image_size_2y - y);
             tempY.Normalize();
         }
 
@@ -201,7 +203,7 @@ public class CartesianLocationDeltaDeep extends Location {
         if(!js.enableJitter) {
 //            tempX = temp_x_corner.add(temp_size_image_size_x.multiply(x));
 //            tempX.Normalize();
-            tempX = temp_size_image_size_x.multiply(x - image_size_2);
+            tempX = temp_size_image_size_x.multiply(x - image_size_2x);
             tempX.Normalize();
         }
 
@@ -237,19 +239,17 @@ public class CartesianLocationDeltaDeep extends Location {
 
     @Override
     public MantExp getMaxSizeInImage() {
-        if(height_ratio == 1) { // ((size * 0.5) / image_size) * sqrt(image_size^2 + image_size^2) = ((size * 0.5) / image_size) * sqrt(2) * image_size
-            MantExp sqrt2 = MantExp.TWO.sqrt();
-            MantExp temp = sqrt2.multiply(size).divide2();
-            temp.Normalize();
-            return temp;
-        }
-        else {
-            MantExp temp = size.divide2();
-            MantExp temp2 = temp.multiply(mheight_ratio);
-            MantExp temp3 = temp.square().add(temp2.square()).sqrt();
-            temp3.Normalize();
-            return temp3;
-        }
+
+        MantExp temp = temp_size_image_size_x.multiply(width * 0.5);
+        temp = temp.square();
+        temp.Normalize();
+        MantExp temp2 = temp_size_image_size_y.multiply(height * 0.5);
+        temp2 = temp2.square();
+        temp2.Normalize();
+        MantExp temp3 = temp.add(temp2).sqrt();
+        temp3.Normalize();
+        return temp3;
+
     }
 
     @Override

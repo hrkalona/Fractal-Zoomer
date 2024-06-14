@@ -12,7 +12,7 @@ import org.apfloat.Apfloat;
 public class PolarLocationNormalDoubleDoubleArbitrary extends Location {
     protected Rotation rotation;
 
-    protected int image_size;
+    protected int width;
 
     protected DoubleDouble ddxcenter;
     protected DoubleDouble ddycenter;
@@ -21,7 +21,8 @@ public class PolarLocationNormalDoubleDoubleArbitrary extends Location {
 
     private DoubleDouble ddmuly;
     protected DoubleDouble ddmulx;
-    private DoubleDouble ddstart;
+    private DoubleDouble ddstartx;
+    private DoubleDouble ddstarty;
     protected DoubleDouble ddcenter;
     private DoubleDouble[] ddantialiasing_y_sin;
     private DoubleDouble[] ddantialiasing_y_cos;
@@ -42,12 +43,14 @@ public class PolarLocationNormalDoubleDoubleArbitrary extends Location {
 
     private boolean requiresVariablePixelSize;
 
-    public PolarLocationNormalDoubleDoubleArbitrary(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int image_size_in, double circle_period, Apfloat[] rotation_center, Apfloat[] rotation_vals, Fractal fractal, JitterSettings js) {
+    public PolarLocationNormalDoubleDoubleArbitrary(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int width, int height, double circle_period, Apfloat[] rotation_center, Apfloat[] rotation_vals, Fractal fractal, JitterSettings js) {
 
         super();
 
         this.fractal = fractal;
-        this.image_size = offset.getImageSize(image_size_in);
+        width = offset.getWidth(width);
+        height = offset.getHeight(height);
+        int image_size = Math.min(width, height);
 
         requiresVariablePixelSize = fractal.requiresVariablePixelSize();
 
@@ -56,13 +59,16 @@ public class PolarLocationNormalDoubleDoubleArbitrary extends Location {
 
         ddcenter = new DoubleDouble(size).log();
 
+        double coefx = width == image_size ? 0.5 : (1 + (width - (double)height) / height) * 0.5;
+        double coefy = height == image_size ? 0.5 : (1 + (height - (double)width) / width) * 0.5;
 
         ddmuly =  DoubleDouble.PI.multiply(2.0 * circle_period).divide(image_size);
 
 
         ddmulx = ddmuly.multiply(height_ratio);
 
-        ddstart = ddcenter.subtract(ddmulx.multiply(image_size).multiply(0.5));
+        ddstartx = ddcenter.subtract(ddmulx.multiply(image_size).multiply(coefx));
+        ddstarty = ddmuly.multiply(image_size).multiply(0.5 - coefy);
 
         rotation = new Rotation(new DDComplex(rotation_vals[0], rotation_vals[1]), new DDComplex(rotation_center[0], rotation_center[1]));
 
@@ -73,6 +79,7 @@ public class PolarLocationNormalDoubleDoubleArbitrary extends Location {
         ddsinmuly = ddmuly.sin();
 
         this.js = js;
+        this.width = width;
     }
 
     public PolarLocationNormalDoubleDoubleArbitrary(PolarLocationNormalDoubleDoubleArbitrary other) {
@@ -88,14 +95,15 @@ public class PolarLocationNormalDoubleDoubleArbitrary extends Location {
 
         ddmulx = other.ddmulx;
         ddmuly = other.ddmuly;
-        ddstart = other.ddstart;
+        ddstartx = other.ddstartx;
+        ddstarty = other.ddstarty;
 
         ddemulx = other.ddemulx;
         ddInvemulx = other.ddInvemulx;
         ddcosmuly = other.ddcosmuly;
         ddsinmuly = other.ddsinmuly;
 
-        image_size = other.image_size;
+        width = other.width;
 
         rotation = other.rotation;
 
@@ -122,9 +130,9 @@ public class PolarLocationNormalDoubleDoubleArbitrary extends Location {
         if(js.enableJitter) {
             double[] res = GetPixelOffset(y, x, js.jitterSeed, js.jitterShape, js.jitterScale);
 
-            temp_ddr = ddstart.add(ddmulx.multiply(x + res[1])).exp();
+            temp_ddr = ddstartx.add(ddmulx.multiply(x + res[1])).exp();
 
-            DoubleDouble f = ddmuly.multiply(y + res[0]);
+            DoubleDouble f = ddmuly.multiply(y + res[0]).add(ddstarty);
             temp_ddsf = f.sin();
             temp_ddcf = f.cos();
         }
@@ -134,7 +142,7 @@ public class PolarLocationNormalDoubleDoubleArbitrary extends Location {
             } else if (x == indexX - 1) {
                 temp_ddr = temp_ddr.multiply(ddInvemulx);
             } else if (x != indexX) {
-                temp_ddr = ddstart.add(ddmulx.multiply(x)).exp();
+                temp_ddr = ddstartx.add(ddmulx.multiply(x)).exp();
             }
 
             if (y == indexY + 1) {
@@ -150,7 +158,7 @@ public class PolarLocationNormalDoubleDoubleArbitrary extends Location {
                 temp_ddsf = tempSin;
                 temp_ddcf = tempCos;
             } else if (y != indexY) {
-                DoubleDouble f = ddmuly.multiply(y);
+                DoubleDouble f = ddmuly.multiply(y).add(ddstarty);
                 temp_ddsf = f.sin();
                 temp_ddcf = f.cos();
             }
@@ -193,7 +201,7 @@ public class PolarLocationNormalDoubleDoubleArbitrary extends Location {
                 temp_ddsf = tempSin;
                 temp_ddcf = tempCos;
             } else if (y != indexY) {
-                DoubleDouble f = ddmuly.multiply(y);
+                DoubleDouble f = ddmuly.multiply(y).add(ddstarty);
                 temp_ddsf = f.sin();
                 temp_ddcf = f.cos();
             }
@@ -214,7 +222,7 @@ public class PolarLocationNormalDoubleDoubleArbitrary extends Location {
             } else if (x == indexX - 1) {
                 temp_ddr = temp_ddr.multiply(ddInvemulx);
             } else if (x != indexX) {
-                temp_ddr = ddstart.add(ddmulx.multiply(x)).exp();
+                temp_ddr = ddstartx.add(ddmulx.multiply(x)).exp();
             }
         }
 
@@ -242,7 +250,7 @@ public class PolarLocationNormalDoubleDoubleArbitrary extends Location {
         } else if (x == indexX - 1) {
             temp_ddr = temp_ddr.multiply(ddInvemulx);
         } else if (x != indexX) {
-            temp_ddr = ddstart.add(ddmulx.multiply(x)).exp();
+            temp_ddr = ddstartx.add(ddmulx.multiply(x)).exp();
         }
 
         indexX = x;
@@ -287,7 +295,7 @@ public class PolarLocationNormalDoubleDoubleArbitrary extends Location {
             temp_ddsf = tempSin;
             temp_ddcf = tempCos;
         } else if (y != indexY) {
-            DoubleDouble f = ddmuly.multiply(y);
+            DoubleDouble f = ddmuly.multiply(y).add(ddstarty);
             temp_ddsf = f.sin();
             temp_ddcf = f.cos();
         }

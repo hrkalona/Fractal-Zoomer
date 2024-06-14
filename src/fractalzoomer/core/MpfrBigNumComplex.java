@@ -3138,4 +3138,19 @@ public class MpfrBigNumComplex extends GenericComplex {
     }
 
 
+    @Override
+    public Object re() {
+        return getRe();
+    }
+
+    @Override
+    public Object im() {
+        return getIm();
+    }
+
+    @Override
+    public Object Norm() {
+        return norm();
+    }
+
 }

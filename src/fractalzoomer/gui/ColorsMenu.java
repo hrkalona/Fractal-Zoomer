@@ -16,7 +16,7 @@
  */
 package fractalzoomer.gui;
 
-import fractalzoomer.core.TaskDraw;
+import fractalzoomer.core.TaskRender;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.PaletteSettings;
 import fractalzoomer.main.app_settings.Settings;
@@ -123,7 +123,7 @@ public class ColorsMenu extends MyMenu {
 
         color_space_params.addActionListener(e -> ptr.setHueGeneratedPaletteParams());
 
-        direct_color_opt.setSelected(TaskDraw.USE_DIRECT_COLOR);
+        direct_color_opt.setSelected(TaskRender.USE_DIRECT_COLOR);
         
         add(out_coloring_mode_menu);
         add(in_coloring_mode_menu);

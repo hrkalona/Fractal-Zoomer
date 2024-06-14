@@ -46,7 +46,7 @@ public class SmoothEscapeTimeColorDecompositionRootFindingMethod extends EscapeT
 
             double temp4 = SmoothEscapeTimeRootFindingMethod.getSmoothing1(object, log_convergent_bailout);
 
-            return Math.abs(((Integer)object[0]) + (long)(((Math.atan2(temp2, temp) / (pi2) + 0.75) * pi59) + (temp * temp + temp2 * temp2) * 2.5) + temp4);
+            return Math.abs(((int)object[0]) + (long)(((Math.atan2(temp2, temp) / (pi2) + 0.75) * pi59) + (temp * temp + temp2 * temp2) * 2.5) + temp4);
         }
         else {
             double temp = Math.floor(1000 * ((Complex)object[1]).getRe() + 0.5) / 1000;
@@ -54,7 +54,7 @@ public class SmoothEscapeTimeColorDecompositionRootFindingMethod extends EscapeT
 
             double f = SmoothEscapeTimeRootFindingMethod.getSmoothing2(object, log_convergent_bailout);
 
-            return Math.abs(((Integer)object[0]) + (long)(((Math.atan2(temp2, temp) / (pi2) + 0.75) * pi59) + (temp * temp + temp2 * temp2) * 2.5) + f);
+            return Math.abs(((int)object[0]) + (long)(((Math.atan2(temp2, temp) / (pi2) + 0.75) * pi59) + (temp * temp + temp2 * temp2) * 2.5) + f);
         }
     }
 
@@ -62,10 +62,10 @@ public class SmoothEscapeTimeColorDecompositionRootFindingMethod extends EscapeT
     public double getResult3D(Object[] object, double result) {
 
         if(algorithm == 0) {
-            return (Integer)object[0] + SmoothEscapeTimeRootFindingMethod.getSmoothing1(object, log_convergent_bailout);
+            return (int)object[0] + SmoothEscapeTimeRootFindingMethod.getSmoothing1(object, log_convergent_bailout);
         }
         else {
-            return (Integer)object[0] + SmoothEscapeTimeRootFindingMethod.getSmoothing2(object, log_convergent_bailout);
+            return (int)object[0] + SmoothEscapeTimeRootFindingMethod.getSmoothing2(object, log_convergent_bailout);
         }
 
     }

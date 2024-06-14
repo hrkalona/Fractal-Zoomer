@@ -1,3 +1,20 @@
+Version 1.0.9.1
+    -Reimplemented the image size format (width, height), in order to allow images of any dimension
+    -Changed the UI to flatlaf, so the application will be consistent between windows and linux
+    -Modified some UI elements to make them more consistent with the overall theme of flatlaf
+    -Implemented an additional zooming and rotating mechanism, a selection rectangle.
+    -The blending algorithm can now be configured for the post-processing algorithms independently. This option
+     along with the processing order can produce a multi-layer image format
+    -Added a preview to Image Expander
+    -Added image support for bmp, jpg, ppm, pgm
+    -Added some charts in the statistics and task statistics
+    -Added metrics functionality which displays the JVM memory usage and CPU usage in a time-series
+    -Added 2 trap coloring algorithms, 2 out coloring algorithms and 1 in coloring algorithm
+    -Fixed a bug concerning the v1-v30 user variables
+    -Reimplemented the final calculation order of the statistic coloring, in order for user statistical coloring to be able
+    to be used in user out coloring or user in coloring methods via the usage of v1-v30 variables
+    -Bug fixes and stability changes
+
 Version 1.0.9.0
     -Implemented Zhuoran's reference compression algorithm as a memory/speed tradeoff for locations with high memory requirement
     -Optimized the custom BigNum implementation, which decreases the reference calculation time in shallow areas

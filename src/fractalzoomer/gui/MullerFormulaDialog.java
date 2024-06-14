@@ -96,7 +96,7 @@ public class MullerFormulaDialog extends JDialog {
         scroll_pane2.setPreferredSize(new Dimension(500, 120));
         scroll_pane2.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 
-        Object[] labels46 = ptra.createUserFormulaLabels("z, s, pixel, p, pp, n, maxn, center, size, sizei, v1 - v30, point");
+        Object[] labels46 = ptra.createUserFormulaLabels("z, s, pixel, p, pp, n, maxn, center, size, sizei, width, height, v1 - v30, point");
 
         Object[] message46 = {
             labels46,

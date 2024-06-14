@@ -42,7 +42,7 @@ public class SmoothEscapeTimeGaussianIntegerMagnet extends OutColorAlgorithm {
 
 
         double temp3 = 0;
-        if(!(Boolean)object[2]) {
+        if(!(boolean)object[2]) {
             if(algorithm == 0) {
                 temp3 = SmoothEscapeTimeMagnet.getConvSmoothing1(object, log_convergent_bailout);
             }
@@ -51,7 +51,7 @@ public class SmoothEscapeTimeGaussianIntegerMagnet extends OutColorAlgorithm {
             }
         }
 
-        return (Integer)object[0] + ((Complex)(object[1])).distance_squared(((Complex)(object[1])).gaussian_integer()) * 90 + temp3;
+        return (int)object[0] + ((Complex)(object[1])).distance_squared(((Complex)(object[1])).gaussian_integer()) * 90 + temp3;
 
     }
 }

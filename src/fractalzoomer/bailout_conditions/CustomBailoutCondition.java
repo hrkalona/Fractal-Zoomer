@@ -16,11 +16,11 @@ public class CustomBailoutCondition extends BailoutCondition {
 
         super(Math.pow(bound, 1 / Math.sqrt(bound)));
 
-        if(TaskDraw.PERTURBATION_THEORY || TaskDraw.HIGH_PRECISION_CALCULATION) {
-            if (TaskDraw.allocateMPFR()) {
+        if(TaskRender.PERTURBATION_THEORY || TaskRender.HIGH_PRECISION_CALCULATION) {
+            if (TaskRender.allocateMPFR()) {
                 temp1 = new MpfrBigNum();
                 temp2 = new MpfrBigNum();
-            } else if (TaskDraw.allocateMPIR()) {
+            } else if (TaskRender.allocateMPIR()) {
                 temp1p = new MpirBigNum();
                 temp2p = new MpirBigNum();
             }

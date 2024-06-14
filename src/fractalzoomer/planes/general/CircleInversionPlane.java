@@ -52,7 +52,7 @@ public class CircleInversionPlane extends Plane {
         center = new Complex(plane_transform_center[0], plane_transform_center[1]);
         this.plane_transform_radius = plane_transform_radius * plane_transform_radius;
 
-        if(TaskDraw.PERTURBATION_THEORY || TaskDraw.HIGH_PRECISION_CALCULATION) {
+        if(TaskRender.PERTURBATION_THEORY || TaskRender.HIGH_PRECISION_CALCULATION) {
             ddplane_transform_radius = new MyApfloat(this.plane_transform_radius);
             ddcenter = new BigComplex(center);
 
@@ -62,10 +62,10 @@ public class CircleInversionPlane extends Plane {
             ddccenter = new DDComplex(center);
             ddcplane_transform_radius = new DoubleDouble(this.plane_transform_radius);
 
-            if (TaskDraw.allocateMPFR()) {
+            if (TaskRender.allocateMPFR()) {
                 mpfrbncenter = new MpfrBigNumComplex(center);
                 mpfrbnplane_transform_radius = new MpfrBigNum(this.plane_transform_radius);
-            } else if (TaskDraw.allocateMPIR()) {
+            } else if (TaskRender.allocateMPIR()) {
                 mpirbncenter = new MpirBigNumComplex(center);
                 mpirbnplane_transform_radius = new MpirBigNum(this.plane_transform_radius);
             }

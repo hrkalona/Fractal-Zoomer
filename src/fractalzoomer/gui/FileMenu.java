@@ -16,7 +16,6 @@
  */
 package fractalzoomer.gui;
 
-import fractalzoomer.main.CommonFunctions;
 import fractalzoomer.main.MainWindow;
 
 import javax.swing.*;
@@ -102,8 +101,8 @@ public class FileMenu extends MyMenu {
         right.setToolTipText("Moves one screen right.");
         save_settings.setToolTipText("<html>Saves the function, plane, center, size, color options, iterations,<br> rotation, perturbation, initial value, bailout, julia settings,<br>and image filters.</html>");
         load_settings.setToolTipText("<html>Loads the function, plane, center, size, color options, iterations,<br> rotation, perturbation, initial value, bailout, julia settings,<br>and image filters.</html>");
-        save_image.setToolTipText("Saves a png image.");
-        save_settings_image.setToolTipText("Saves the current settings and a png image.");
+        save_image.setToolTipText("Saves an image.");
+        save_settings_image.setToolTipText("Saves the current settings and an image.");
         code_editor.setToolTipText("<html>Opens the java code, containing the user defined functions,<br>with a text editor.</html>");
         library_code.setToolTipText("Opens the library code with a text editor.");
         compile_code.setToolTipText("Compiles the java code, containing the user defined functions.");
@@ -140,7 +139,7 @@ public class FileMenu extends MyMenu {
         
         starting_position.addActionListener(e -> ptr.startingPosition());
         
-        repaint_opt.addActionListener(e -> ptr.redraw(false));
+        repaint_opt.addActionListener(e -> ptr.reRender(false));
 
         go_to.addActionListener(e -> ptr.goTo());
 
@@ -148,9 +147,9 @@ public class FileMenu extends MyMenu {
 
         load_settings.addActionListener(e -> ptr.loadSettings());
 
-        save_image.addActionListener(e -> ptr.saveImage());
+        save_image.addActionListener(e -> ptr.saveImage(false));
         
-        save_settings_image.addActionListener(e -> ptr.saveSettingsAndImage());
+        save_settings_image.addActionListener(e -> ptr.saveImage(true));
 
         compile_code.addActionListener(e -> ptr.compileCode(true));
 

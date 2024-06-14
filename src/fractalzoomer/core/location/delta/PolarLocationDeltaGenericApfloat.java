@@ -11,9 +11,9 @@ import org.apfloat.Apfloat;
 
 public class PolarLocationDeltaGenericApfloat extends PolarLocationNormalApfloatArbitrary {
 
-    public PolarLocationDeltaGenericApfloat(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int image_size, double circle_period, Apfloat[] rotation_center, Apfloat[] rotation_vals, Fractal fractal, JitterSettings js) {
+    public PolarLocationDeltaGenericApfloat(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int widht, int height, double circle_period, Apfloat[] rotation_center, Apfloat[] rotation_vals, Fractal fractal, JitterSettings js) {
 
-        super(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, js);
+        super(xCenter, yCenter, size, height_ratio, widht, height, circle_period, rotation_center, rotation_vals, fractal, js);
 
     }
 
@@ -44,7 +44,7 @@ public class PolarLocationDeltaGenericApfloat extends PolarLocationNormalApfloat
 
     @Override
     public MantExp getMaxSizeInImage() {
-        Apfloat end = MyApfloat.fp.add(ddcenter, MyApfloat.fp.multiply(MyApfloat.fp.multiply(ddmulx, new MyApfloat(image_size)), point5));
+        Apfloat end = MyApfloat.fp.add(ddcenter, MyApfloat.fp.multiply(ddmulx, new MyApfloat(width * 0.5)));
         return new MantExp(expFunction(end));
     }
 

@@ -14,49 +14,49 @@ public class MantExpComplex extends GenericComplex {
     private double mantissaImag;
 
     public static MantExpComplex create() {
-        if(TaskDraw.MANTEXPCOMPLEX_FORMAT == 1) {
+        if(TaskRender.MANTEXPCOMPLEX_FORMAT == 1) {
             return new MantExpComplexFull();
         }
         return new MantExpComplex();
     }
 
     public static MantExpComplex create(Complex c) {
-        if(TaskDraw.MANTEXPCOMPLEX_FORMAT == 1) {
+        if(TaskRender.MANTEXPCOMPLEX_FORMAT == 1) {
             return new MantExpComplexFull(c);
         }
         return new MantExpComplex(c);
     }
 
     public static MantExpComplex create(DDComplex c) {
-        if(TaskDraw.MANTEXPCOMPLEX_FORMAT == 1) {
+        if(TaskRender.MANTEXPCOMPLEX_FORMAT == 1) {
             return new MantExpComplexFull(c);
         }
         return new MantExpComplex(c);
     }
 
     public static MantExpComplex create(BigComplex c) {
-        if(TaskDraw.MANTEXPCOMPLEX_FORMAT == 1) {
+        if(TaskRender.MANTEXPCOMPLEX_FORMAT == 1) {
             return new MantExpComplexFull(c);
         }
         return new MantExpComplex(c);
     }
 
     public static MantExpComplex create(BigNumComplex c) {
-        if(TaskDraw.MANTEXPCOMPLEX_FORMAT == 1) {
+        if(TaskRender.MANTEXPCOMPLEX_FORMAT == 1) {
             return new MantExpComplexFull(c);
         }
         return new MantExpComplex(c);
     }
 
     public static MantExpComplex create(BigIntNumComplex c) {
-        if(TaskDraw.MANTEXPCOMPLEX_FORMAT == 1) {
+        if(TaskRender.MANTEXPCOMPLEX_FORMAT == 1) {
             return new MantExpComplexFull(c);
         }
         return new MantExpComplex(c);
     }
 
     public static MantExpComplex create(BigDecNumComplex c) {
-        if(TaskDraw.MANTEXPCOMPLEX_FORMAT == 1) {
+        if(TaskRender.MANTEXPCOMPLEX_FORMAT == 1) {
             return new MantExpComplexFull(c);
         }
         return new MantExpComplex(c);
@@ -64,7 +64,7 @@ public class MantExpComplex extends GenericComplex {
 
     public static MantExpComplex create(MpfrBigNumComplex c) {
 
-        if(TaskDraw.MANTEXPCOMPLEX_FORMAT == 1) {
+        if(TaskRender.MANTEXPCOMPLEX_FORMAT == 1) {
             return new MantExpComplexFull(c);
         }
         return new MantExpComplex(c);
@@ -72,21 +72,21 @@ public class MantExpComplex extends GenericComplex {
 
     public static MantExpComplex create(MpirBigNumComplex c) {
 
-        if(TaskDraw.MANTEXPCOMPLEX_FORMAT == 1) {
+        if(TaskRender.MANTEXPCOMPLEX_FORMAT == 1) {
             return new MantExpComplexFull(c);
         }
         return new MantExpComplex(c);
     }
 
     public static MantExpComplex create(Apfloat re, Apfloat im) {
-        if(TaskDraw.MANTEXPCOMPLEX_FORMAT == 1) {
+        if(TaskRender.MANTEXPCOMPLEX_FORMAT == 1) {
             return new MantExpComplexFull(re, im);
         }
         return new MantExpComplex(re, im);
     }
 
     public static MantExpComplex create(MantExp re, MantExp im) {
-        if(TaskDraw.MANTEXPCOMPLEX_FORMAT == 1) {
+        if(TaskRender.MANTEXPCOMPLEX_FORMAT == 1) {
             return new MantExpComplexFull(re, im);
         }
         return new MantExpComplex(re, im);
@@ -97,14 +97,14 @@ public class MantExpComplex extends GenericComplex {
     }
 
     public static MantExpComplex create(double re, double im) {
-        if(TaskDraw.MANTEXPCOMPLEX_FORMAT == 1) {
+        if(TaskRender.MANTEXPCOMPLEX_FORMAT == 1) {
             return new MantExpComplexFull(re, im);
         }
         return new MantExpComplex(re, im);
     }
 
     public static MantExpComplex copy(MantExpComplex other) {
-        if(TaskDraw.MANTEXPCOMPLEX_FORMAT == 1) {
+        if(TaskRender.MANTEXPCOMPLEX_FORMAT == 1) {
             return new MantExpComplexFull((MantExpComplexFull) other);
         }
         return new MantExpComplex(other);
@@ -1278,6 +1278,21 @@ public class MantExpComplex extends GenericComplex {
     @Override
     public boolean isZero() {
         return mantissaReal == 0 && mantissaImag == 0;
+    }
+
+    @Override
+    public Object re() {
+        return getRe();
+    }
+
+    @Override
+    public Object im() {
+        return getIm();
+    }
+
+    @Override
+    public Object Norm() {
+        return norm();
     }
 }
 

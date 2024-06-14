@@ -49,7 +49,7 @@ public abstract class MagnetType extends Julia {
     }
 
     protected void setConvergentBailout(double val) {
-        convergent_bailout = TaskDraw.USER_CONVERGENT_BAILOUT > 0 ? TaskDraw.USER_CONVERGENT_BAILOUT : val;
+        convergent_bailout = TaskRender.USER_CONVERGENT_BAILOUT > 0 ? TaskRender.USER_CONVERGENT_BAILOUT : val;
     }
 
     public MagnetType(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, boolean periodicity_checking, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower, OrbitTrapSettings ots, double xJuliaCenter, double yJuliaCenter) {
@@ -101,10 +101,11 @@ public abstract class MagnetType extends Julia {
                 escaped = true;
                 converged = temp1;
 
+                finalizeStatistic(true, complex[0]);
                 Object[] object = {iterations, complex[0], temp2, convergent_bailout_algorithm.getDistance(), zold, zold2, complex[1], start, c0, pixel};
                 double out = out_color_algorithm.getResult(object);
 
-                out = getFinalValueOut(out, complex[0]);
+                out = getFinalValueOut(out);
 
                 if (outTrueColorAlgorithm != null) {
                     setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
@@ -152,10 +153,11 @@ public abstract class MagnetType extends Julia {
                 escaped = true;
                 converged = temp1;
 
+                finalizeStatistic(true, complex[0]);
                 Object[] object = {iterations, complex[0], temp2, convergent_bailout_algorithm.getDistance(), zold, zold2, complex[1], start, c0, pixel};
                 double out = out_color_algorithm.getResult(object);
 
-                out = getFinalValueOut(out, complex[0]);
+                out = getFinalValueOut(out);
 
                 if (outTrueColorAlgorithm != null) {
                     setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
@@ -177,10 +179,11 @@ public abstract class MagnetType extends Julia {
 
         }
 
+        finalizeStatistic(false, complex[0]);
         Object[] object = {complex[0], zold, zold2, complex[1], start, c0, pixel};
         double in = in_color_algorithm.getResult(object);
 
-        in = getFinalValueIn(in, complex[0]);
+        in = getFinalValueIn(in);
 
         if (inTrueColorAlgorithm != null) {
             setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
@@ -195,7 +198,7 @@ public abstract class MagnetType extends Julia {
 
         GenericComplex[] complex = super.initialize(pixel);
 
-        int lib = TaskDraw.getHighPrecisionLibrary(dsize, this);
+        int lib = TaskRender.getHighPrecisionLibrary(dsize, this);
 
         if(lib == ARBITRARY_MPFR) {
             workSpaceData.root.set(1);
@@ -224,7 +227,7 @@ public abstract class MagnetType extends Julia {
 
         GenericComplex[] complex = super.initializeSeed(pixel);
 
-        int lib = TaskDraw.getHighPrecisionLibrary(dsize, this);
+        int lib = TaskRender.getHighPrecisionLibrary(dsize, this);
 
         if(lib == ARBITRARY_MPFR) {
             workSpaceData.root.set(1);
@@ -278,10 +281,11 @@ public abstract class MagnetType extends Julia {
                 Complex zold2 = gzold2.toComplex();
                 Complex c = complex[1].toComplex();
 
+                finalizeStatistic(true, z);
                 Object[] object = {iterations, z, temp2, convergent_bailout_algorithm.getDistance(), zold, zold2, c, start, c0, pixelC};
                 double out = out_color_algorithm.getResult(object);
 
-                out = getFinalValueOut(out, z);
+                out = getFinalValueOut(out);
 
                 if (outTrueColorAlgorithm != null) {
                     setTrueColorOut(z, zold, zold2, iterations, c, start, c0, pixelC);
@@ -305,10 +309,11 @@ public abstract class MagnetType extends Julia {
         Complex zold2 = gzold2.toComplex();
         Complex c = complex[1].toComplex();
 
+        finalizeStatistic(false, z);
         Object[] object = {z, zold, zold2, c, start, c0, pixelC};
         double in = in_color_algorithm.getResult(object);
 
-        in = getFinalValueIn(in, z);
+        in = getFinalValueIn(in);
 
         if (inTrueColorAlgorithm != null) {
             setTrueColorIn(z, zold, zold2, iterations, c, start, c0, pixelC);
@@ -463,6 +468,24 @@ public abstract class MagnetType extends Julia {
                 }
                 break;
 
+            case ESCAPE_TIME_SQUARES:
+                OutColorAlgorithm wrappedAlgorithm;
+                if (!smoothing) {
+                    wrappedAlgorithm = new EscapeTimeMagnet();
+                } else {
+                    wrappedAlgorithm = new SmoothEscapeTimeMagnet(log_bailout_squared, Math.log(convergent_bailout), escaping_smooth_algorithm, converging_smooth_algorithm);
+                }
+                out_color_algorithm = new EscapeTimeSquares(8, wrappedAlgorithm);
+                break;
+            case ESCAPE_TIME_SQUARES2:
+                if (!smoothing) {
+                    wrappedAlgorithm = new EscapeTimeMagnet();
+                } else {
+                    wrappedAlgorithm = new SmoothEscapeTimeMagnet(log_bailout_squared, Math.log(convergent_bailout), escaping_smooth_algorithm, converging_smooth_algorithm);
+                }
+                out_color_algorithm = new EscapeTimeSquares2(8, wrappedAlgorithm);
+                break;
+
         }
 
     }
@@ -525,27 +548,35 @@ public abstract class MagnetType extends Julia {
         }
     }
 
-    @Override
-    protected double getStatistic(double result, Complex z, boolean escaped) {
 
-        if ((converged && statistic.getType() == MainWindow.ESCAPING) || (!converged && statistic.getType() == MainWindow.CONVERGING)) {
-            return result;
+    @Override
+    protected void finalizeStatistic(boolean escaped, Complex z) {
+        if(statistic == null) {
+            return;
         }
 
         if(converged) {
             statistic.setMode(GenericStatistic.MAGNET_ROOT);
         }
 
-        double res = super.getStatistic(result, z, escaped);
+        super.finalizeStatistic(escaped, z);
 
         statistic.setMode(GenericStatistic.NORMAL_ESCAPE);
+    }
 
-        return res;
+    @Override
+    protected double getStatistic(double result, boolean escaped) {
+
+        if ((converged && statistic.getType() == MainWindow.ESCAPING) || (!converged && statistic.getType() == MainWindow.CONVERGING)) {
+            return result;
+        }
+
+        return super.getStatistic(result, escaped);
 
     }
 
     @Override
-    public double iterateFractalWithPerturbation(Complex[] complex, Complex dpixel) {
+    public double iterateFractalWithPerturbation(Complex[] complexIn, Complex dpixel) {
 
         double_iterations = 0;
         rebases = 0;
@@ -565,14 +596,17 @@ public abstract class MagnetType extends Julia {
 
         double norm_squared = 0;
 
+        Complex z = complexIn[0];
+        Complex c = complexIn[1];
+
         if(iterations != 0 && RefIteration < MaxRefIteration) {
-            complex[0] = getArrayValue(reference, RefIteration).plus_mutable(DeltaSubN);
-            norm_squared = complex[0].norm_squared();
+            z = getArrayValue(reference, RefIteration).plus_mutable(DeltaSubN);
+            norm_squared = z.norm_squared();
         }
         else if(iterations != 0 && ReferencePeriod != 0) {
             RefIteration = RefIteration % ReferencePeriod;
-            complex[0] = getArrayValue(reference, RefIteration).plus_mutable(DeltaSubN);
-            norm_squared = complex[0].norm_squared();
+            z = getArrayValue(reference, RefIteration).plus_mutable(DeltaSubN);
+            norm_squared = z.norm_squared();
         }
 
         boolean temp1 = false, temp2 = false;
@@ -584,21 +618,22 @@ public abstract class MagnetType extends Julia {
         for (; iterations < max_iterations; iterations++) {
 
             if (trap != null) {
-                trap.check(complex[0], iterations);
+                trap.check(z, iterations);
             }
 
-            if ((temp1 = convergent_bailout_algorithm.converged(complex[0], 1, zold, zold2, iterations, complex[1], start, c0, pixel))
-                    || (temp2 = bailout_algorithm2.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, norm_squared, pixel))) {
+            if ((temp1 = convergent_bailout_algorithm.converged(z, 1, zold, zold2, iterations, c, start, c0, pixel))
+                    || (temp2 = bailout_algorithm2.escaped(z, zold, zold2, iterations, c, start, c0, norm_squared, pixel))) {
                 escaped = true;
                 converged = temp1;
 
-                Object[] object = {iterations, complex[0], temp2, convergent_bailout_algorithm.getDistance(), zold, zold2, complex[1], start, c0, pixel};
+                finalizeStatistic(true, z);
+                Object[] object = {iterations, z, temp2, convergent_bailout_algorithm.getDistance(), zold, zold2, c, start, c0, pixel};
                 double out = out_color_algorithm.getResult(object);
 
-                out = getFinalValueOut(out, complex[0]);
+                out = getFinalValueOut(out);
 
                 if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+                    setTrueColorOut(z, zold, zold2, iterations, c, start, c0, pixel);
                 }
 
                 return getAndAccumulateStatsNotDeep(out);
@@ -610,33 +645,34 @@ public abstract class MagnetType extends Julia {
             double_iterations++;
 
             zold2.assign(zold);
-            zold.assign(complex[0]);
+            zold.assign(z);
 
 
             if(max_iterations > 1){
-                complex[0] = getArrayValue(reference, RefIteration).plus_mutable(DeltaSubN);
+                z = getArrayValue(reference, RefIteration).plus_mutable(DeltaSubN);
             }
 
             if (statistic != null) {
-                statistic.insert(complex[0], zold, zold2, iterations, complex[1], start, c0);
+                statistic.insert(z, zold, zold2, iterations, c, start, c0);
             }
 
-            norm_squared = complex[0].norm_squared();
+            norm_squared = z.norm_squared();
             if (norm_squared < DeltaSubN.norm_squared() || RefIteration >= MaxRefIteration) {
-                DeltaSubN = complex[0];
+                DeltaSubN = z;
                 RefIteration = 0;
                 rebases++;
             }
 
         }
 
-        Object[] object = {complex[0], zold, zold2, complex[1], start, c0, pixel};
+        finalizeStatistic(false, z);
+        Object[] object = {z, zold, zold2, c, start, c0, pixel};
         double in = in_color_algorithm.getResult(object);
 
-        in = getFinalValueIn(in, complex[0]);
+        in = getFinalValueIn(in);
 
         if (inTrueColorAlgorithm != null) {
-            setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+            setTrueColorIn(z, zold, zold2, iterations, c, start, c0, pixel);
         }
 
         return getAndAccumulateStatsNotDeep(in);
@@ -644,7 +680,7 @@ public abstract class MagnetType extends Julia {
     }
 
     @Override
-    public double iterateFractalWithPerturbation(Complex[] complex, MantExpComplex dpixel) {
+    public double iterateFractalWithPerturbation(Complex[] complexIn, MantExpComplex dpixel) {
 
         float_exp_iterations = 0;
         double_iterations = 0;
@@ -675,9 +711,11 @@ public abstract class MagnetType extends Julia {
         converged = false;
 
         Complex pixel = dpixel.plus(refPointSmallDeep).toComplex();
+        Complex zc = complexIn[0];
+        Complex c = complexIn[1];
 
         boolean useFullFloatExp = useFullFloatExp();
-        boolean doBailCheck = useFullFloatExp || TaskDraw.CHECK_BAILOUT_DURING_DEEP_NOT_FULL_FLOATEXP_MODE;
+        boolean doBailCheck = useFullFloatExp || TaskRender.CHECK_BAILOUT_DURING_DEEP_NOT_FULL_FLOATEXP_MODE;
 
         boolean usedDeepCode = false;
         if(useFullFloatExp || (totalSkippedIterations == 0 && exp <= minExp) || (totalSkippedIterations != 0 && exp <= reducedExp)) {
@@ -685,12 +723,12 @@ public abstract class MagnetType extends Julia {
             MantExpComplex z = MantExpComplex.create();
             if(iterations != 0 && RefIteration < MaxRefIteration) {
                 z = getArrayDeepValue(referenceDeep, RefIteration).plus_mutable(DeltaSubN);
-                complex[0] = z.toComplex();
+                zc = z.toComplex();
             }
             else if(iterations != 0 && ReferencePeriod != 0) {
                 RefIteration = RefIteration % ReferencePeriod;
                 z = getArrayDeepValue(referenceDeep, RefIteration).plus_mutable(DeltaSubN);
-                complex[0] = z.toComplex();
+                zc = z.toComplex();
             }
 
             MantExpComplex zoldDeep;
@@ -701,22 +739,23 @@ public abstract class MagnetType extends Julia {
 
             for (; iterations < max_iterations; iterations++) {
                 if (trap != null) {
-                    trap.check(complex[0], iterations);
+                    trap.check(zc, iterations);
                 }
 
                 if(doBailCheck) {
-                    if ((temp1 = convergent_bailout_algorithm.converged(complex[0], 1, zold, zold2, iterations, complex[1], start, c0, pixel))
-                            || (temp2 = bailout_algorithm2.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, norm_squared_m.toDouble(), pixel))) {
+                    if ((temp1 = convergent_bailout_algorithm.converged(zc, 1, zold, zold2, iterations, c, start, c0, pixel))
+                            || (temp2 = bailout_algorithm2.escaped(zc, zold, zold2, iterations, c, start, c0, norm_squared_m.toDouble(), pixel))) {
                         escaped = true;
                         converged = temp1;
 
-                        Object[] object = {iterations, complex[0], temp2, convergent_bailout_algorithm.getDistance(), zold, zold2, complex[1], start, c0, pixel};
+                        finalizeStatistic(true, zc);
+                        Object[] object = {iterations, zc, temp2, convergent_bailout_algorithm.getDistance(), zold, zold2, c, start, c0, pixel};
                         double out = out_color_algorithm.getResult(object);
 
-                        out = getFinalValueOut(out, complex[0]);
+                        out = getFinalValueOut(out);
 
                         if (outTrueColorAlgorithm != null) {
-                            setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+                            setTrueColorOut(zc, zold, zold2, iterations, c, start, c0, pixel);
                         }
 
                         return getAndAccumulateStatsNotScaled(out);
@@ -729,16 +768,16 @@ public abstract class MagnetType extends Julia {
                 float_exp_iterations++;
 
                 zold2.assign(zold);
-                zold.assign(complex[0]);
+                zold.assign(zc);
                 zoldDeep = z;
 
                 if (max_iterations > 1) {
                     z = getArrayDeepValue(referenceDeep, RefIteration).plus_mutable(DeltaSubN);
-                    complex[0] = z.toComplex();
+                    zc = z.toComplex();
                 }
 
                 if (statistic != null) {
-                    statistic.insert(complex[0], zold, zold2, iterations, complex[1], start, c0, z, zoldDeep, null);
+                    statistic.insert(zc, zold, zold2, iterations, c, start, c0, z, zoldDeep, null);
                 }
 
                 norm_squared_m = z.norm_squared();
@@ -766,35 +805,36 @@ public abstract class MagnetType extends Julia {
             boolean isZero = CDeltaSub0.isZero();
 
             if(!usedDeepCode && iterations != 0 && RefIteration < MaxRefIteration) {
-                complex[0] = getArrayValue(reference, RefIteration).plus_mutable(CDeltaSubN);
+                zc = getArrayValue(reference, RefIteration).plus_mutable(CDeltaSubN);
             }
             else if(!usedDeepCode && iterations != 0 && ReferencePeriod != 0) {
                 RefIteration = RefIteration % ReferencePeriod;
-                complex[0] = getArrayValue(reference, RefIteration).plus_mutable(CDeltaSubN);
+                zc = getArrayValue(reference, RefIteration).plus_mutable(CDeltaSubN);
             }
 
-            double norm_squared = complex[0].norm_squared();
+            double norm_squared = zc.norm_squared();
 
             for (; iterations < max_iterations; iterations++) {
 
                 //No update values
 
                 if (trap != null) {
-                    trap.check(complex[0], iterations);
+                    trap.check(zc, iterations);
                 }
 
-                if ((temp1 = convergent_bailout_algorithm.converged(complex[0], 1, zold, zold2, iterations, complex[1], start, c0, pixel))
-                        || (temp2 = bailout_algorithm2.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, norm_squared, pixel))) {
+                if ((temp1 = convergent_bailout_algorithm.converged(zc, 1, zold, zold2, iterations, c, start, c0, pixel))
+                        || (temp2 = bailout_algorithm2.escaped(zc, zold, zold2, iterations, c, start, c0, norm_squared, pixel))) {
                     escaped = true;
                     converged = temp1;
 
-                    Object[] object = {iterations, complex[0], temp2, convergent_bailout_algorithm.getDistance(), zold, zold2, complex[1], start, c0, pixel};
+                    finalizeStatistic(true, zc);
+                    Object[] object = {iterations, zc, temp2, convergent_bailout_algorithm.getDistance(), zold, zold2, c, start, c0, pixel};
                     double out = out_color_algorithm.getResult(object);
 
-                    out = getFinalValueOut(out, complex[0]);
+                    out = getFinalValueOut(out);
 
                     if (outTrueColorAlgorithm != null) {
-                        setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+                        setTrueColorOut(zc, zold, zold2, iterations, c, start, c0, pixel);
                     }
 
                     return getAndAccumulateStatsNotScaled(out);
@@ -810,23 +850,23 @@ public abstract class MagnetType extends Julia {
                 double_iterations++;
 
                 zold2.assign(zold);
-                zold.assign(complex[0]);
+                zold.assign(zc);
 
                 //No Plane influence work
                 //No Pre filters work
                 if (max_iterations > 1) {
-                    complex[0] = getArrayValue(reference, RefIteration).plus_mutable(CDeltaSubN);
+                    zc = getArrayValue(reference, RefIteration).plus_mutable(CDeltaSubN);
                 }
                 //No Post filters work
 
                 if (statistic != null) {
-                    statistic.insert(complex[0], zold, zold2, iterations, complex[1], start, c0);
+                    statistic.insert(zc, zold, zold2, iterations, c, start, c0);
                 }
 
-                norm_squared = complex[0].norm_squared();
+                norm_squared = zc.norm_squared();
 
                 if (norm_squared < CDeltaSubN.norm_squared() || RefIteration >= MaxRefIteration) {
-                    CDeltaSubN = complex[0];
+                    CDeltaSubN = zc;
                     RefIteration = 0;
                     rebases++;
                 }
@@ -834,13 +874,14 @@ public abstract class MagnetType extends Julia {
             }
         }
 
-        Object[] object = {complex[0], zold, zold2, complex[1], start, c0, pixel};
+        finalizeStatistic(false, zc);
+        Object[] object = {zc, zold, zold2, c, start, c0, pixel};
         double in = in_color_algorithm.getResult(object);
 
-        in = getFinalValueIn(in, complex[0]);
+        in = getFinalValueIn(in);
 
         if (inTrueColorAlgorithm != null) {
-            setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+            setTrueColorIn(zc, zold, zold2, iterations, c, start, c0, pixel);
         }
 
         return getAndAccumulateStatsNotScaled(in);
@@ -848,7 +889,7 @@ public abstract class MagnetType extends Julia {
     }
 
     @Override
-    public double iterateJuliaWithPerturbation(Complex[] complex, Complex dpixel) {
+    public double iterateJuliaWithPerturbation(Complex[] complexIn, Complex dpixel) {
 
         double_iterations = 0;
         rebases = 0;
@@ -865,30 +906,33 @@ public abstract class MagnetType extends Julia {
         converged = false;
 
         Complex pixel = dpixel.plus(refPointSmall);
+        Complex z = complexIn[0];
+        Complex c = complexIn[1];
 
         ReferenceData data = referenceData;
         int MaxRefIteration = data.MaxRefIteration;
 
-        double norm_squared = complex[0].norm_squared();
+        double norm_squared = z.norm_squared();
 
         for (; iterations < max_iterations; iterations++) {
 
             if (trap != null) {
-                trap.check(complex[0], iterations);
+                trap.check(z, iterations);
             }
 
-            if ((temp1 = convergent_bailout_algorithm.converged(complex[0], 1, zold, zold2, iterations, complex[1], start, c0, pixel))
-                    || (temp2 = bailout_algorithm2.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, norm_squared, pixel))) {
+            if ((temp1 = convergent_bailout_algorithm.converged(z, 1, zold, zold2, iterations, c, start, c0, pixel))
+                    || (temp2 = bailout_algorithm2.escaped(z, zold, zold2, iterations, c, start, c0, norm_squared, pixel))) {
                 escaped = true;
                 converged = temp1;
 
-                Object[] object = {iterations, complex[0], temp2, convergent_bailout_algorithm.getDistance(), zold, zold2, complex[1], start, c0, pixel};
+                finalizeStatistic(true, z);
+                Object[] object = {iterations, z, temp2, convergent_bailout_algorithm.getDistance(), zold, zold2, c, start, c0, pixel};
                 double out = out_color_algorithm.getResult(object);
 
-                out = getFinalValueOut(out, complex[0]);
+                out = getFinalValueOut(out);
 
                 if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+                    setTrueColorOut(z, zold, zold2, iterations, c, start, c0, pixel);
                 }
 
                 return getAndAccumulateStatsNotDeep(out);
@@ -900,20 +944,20 @@ public abstract class MagnetType extends Julia {
             double_iterations++;
 
             zold2.assign(zold);
-            zold.assign(complex[0]);
+            zold.assign(z);
 
 
             if(max_iterations > 1){
-                complex[0] = getArrayValue(data.Reference, RefIteration).plus_mutable(DeltaSubN);
+                z = getArrayValue(data.Reference, RefIteration).plus_mutable(DeltaSubN);
             }
 
             if (statistic != null) {
-                statistic.insert(complex[0], zold, zold2, iterations, complex[1], start, c0);
+                statistic.insert(z, zold, zold2, iterations, c, start, c0);
             }
 
-            norm_squared = complex[0].norm_squared();
+            norm_squared = z.norm_squared();
             if (norm_squared < DeltaSubN.norm_squared() || RefIteration >= MaxRefIteration) {
-                DeltaSubN = complex[0];
+                DeltaSubN = z;
                 RefIteration = 0;
 
                 data = secondReferenceData;
@@ -924,13 +968,14 @@ public abstract class MagnetType extends Julia {
 
         }
 
-        Object[] object = {complex[0], zold, zold2, complex[1], start, c0, pixel};
+        finalizeStatistic(false, z);
+        Object[] object = {z, zold, zold2, c, start, c0, pixel};
         double in = in_color_algorithm.getResult(object);
 
-        in = getFinalValueIn(in, complex[0]);
+        in = getFinalValueIn(in);
 
         if (inTrueColorAlgorithm != null) {
-            setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+            setTrueColorIn(z, zold, zold2, iterations, c, start, c0, pixel);
         }
 
         return getAndAccumulateStatsNotDeep(in);
@@ -938,7 +983,7 @@ public abstract class MagnetType extends Julia {
     }
 
     @Override
-    public double iterateJuliaWithPerturbation(Complex[] complex, MantExpComplex dpixel) {
+    public double iterateJuliaWithPerturbation(Complex[] complexIn, MantExpComplex dpixel) {
 
         float_exp_iterations = 0;
         double_iterations = 0;
@@ -963,34 +1008,37 @@ public abstract class MagnetType extends Julia {
         converged = false;
 
         Complex pixel = dpixel.plus(refPointSmallDeep).toComplex();
+        Complex zc = complexIn[0];
+        Complex c = complexIn[1];
 
         ReferenceDeepData deepData = referenceDeepData;
         ReferenceData data = referenceData;
         int MaxRefIteration = data.MaxRefIteration;
 
         boolean useFullFloatExp = useFullFloatExp();
-        boolean doBailCheck = useFullFloatExp || TaskDraw.CHECK_BAILOUT_DURING_DEEP_NOT_FULL_FLOATEXP_MODE;
+        boolean doBailCheck = useFullFloatExp || TaskRender.CHECK_BAILOUT_DURING_DEEP_NOT_FULL_FLOATEXP_MODE;
 
         if(useFullFloatExp || (totalSkippedIterations == 0 && exp <= minExp) || (totalSkippedIterations != 0 && exp <= reducedExp)) {
             MantExpComplex z = getArrayDeepValue(deepData.Reference, RefIteration).plus_mutable(DeltaSubN);
             MantExpComplex zoldDeep;
             for (; iterations < max_iterations; iterations++) {
                 if (trap != null) {
-                    trap.check(complex[0], iterations);
+                    trap.check(zc, iterations);
                 }
 
                 if(doBailCheck) {
-                    if ((temp1 = convergent_bailout_algorithm.converged(complex[0], 1, zold, zold2, iterations, complex[1], start, c0, pixel)) || (temp2 = bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, 0.0, pixel))) {
+                    if ((temp1 = convergent_bailout_algorithm.converged(zc, 1, zold, zold2, iterations, c, start, c0, pixel)) || (temp2 = bailout_algorithm.escaped(zc, zold, zold2, iterations, c, start, c0, 0.0, pixel))) {
                         escaped = true;
                         converged = temp1;
 
-                        Object[] object = {iterations, complex[0], temp2, convergent_bailout_algorithm.getDistance(), zold, zold2, complex[1], start, c0, pixel};
+                        finalizeStatistic(true, zc);
+                        Object[] object = {iterations, zc, temp2, convergent_bailout_algorithm.getDistance(), zold, zold2, c, start, c0, pixel};
                         double out = out_color_algorithm.getResult(object);
 
-                        out = getFinalValueOut(out, complex[0]);
+                        out = getFinalValueOut(out);
 
                         if (outTrueColorAlgorithm != null) {
-                            setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+                            setTrueColorOut(zc, zold, zold2, iterations, c, start, c0, pixel);
                         }
 
                         return getAndAccumulateStatsNotScaled(out);
@@ -1003,16 +1051,16 @@ public abstract class MagnetType extends Julia {
                 float_exp_iterations++;
 
                 zold2.assign(zold);
-                zold.assign(complex[0]);
+                zold.assign(zc);
                 zoldDeep = z;
 
                 if (max_iterations > 1) {
                     z = getArrayDeepValue(deepData.Reference, RefIteration).plus_mutable(DeltaSubN);
-                    complex[0] = z.toComplex();
+                    zc = z.toComplex();
                 }
 
                 if (statistic != null) {
-                    statistic.insert(complex[0], zold, zold2, iterations, complex[1], start, c0, z, zoldDeep , null);
+                    statistic.insert(zc, zold, zold2, iterations, c, start, c0, z, zoldDeep , null);
                 }
 
                 if (z.norm_squared().compareToBothPositive(DeltaSubN.norm_squared()) < 0 || RefIteration >= MaxRefIteration) {
@@ -1040,28 +1088,29 @@ public abstract class MagnetType extends Julia {
         if(!useFullFloatExp) {
             Complex CDeltaSubN = DeltaSubN.toComplex();
 
-            double norm_squared = complex[0].norm_squared();
+            double norm_squared = zc.norm_squared();
 
             for (; iterations < max_iterations; iterations++) {
 
                 //No update values
 
                 if (trap != null) {
-                    trap.check(complex[0], iterations);
+                    trap.check(zc, iterations);
                 }
 
-                if ((temp1 = convergent_bailout_algorithm.converged(complex[0], 1, zold, zold2, iterations, complex[1], start, c0, pixel))
-                        || (temp2 = bailout_algorithm2.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, norm_squared, pixel))) {
+                if ((temp1 = convergent_bailout_algorithm.converged(zc, 1, zold, zold2, iterations, c, start, c0, pixel))
+                        || (temp2 = bailout_algorithm2.escaped(zc, zold, zold2, iterations, c, start, c0, norm_squared, pixel))) {
                     escaped = true;
                     converged = temp1;
 
-                    Object[] object = {iterations, complex[0], temp2, convergent_bailout_algorithm.getDistance(), zold, zold2, complex[1], start, c0, pixel};
+                    finalizeStatistic(true, zc);
+                    Object[] object = {iterations, zc, temp2, convergent_bailout_algorithm.getDistance(), zold, zold2, c, start, c0, pixel};
                     double out = out_color_algorithm.getResult(object);
 
-                    out = getFinalValueOut(out, complex[0]);
+                    out = getFinalValueOut(out);
 
                     if (outTrueColorAlgorithm != null) {
-                        setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+                        setTrueColorOut(zc, zold, zold2, iterations, c, start, c0, pixel);
                     }
 
                     return getAndAccumulateStatsNotScaled(out);
@@ -1073,22 +1122,22 @@ public abstract class MagnetType extends Julia {
                 double_iterations++;
 
                 zold2.assign(zold);
-                zold.assign(complex[0]);
+                zold.assign(zc);
 
                 //No Plane influence work
                 //No Pre filters work
                 if (max_iterations > 1) {
-                    complex[0] = getArrayValue(data.Reference, RefIteration).plus_mutable(CDeltaSubN);
+                    zc = getArrayValue(data.Reference, RefIteration).plus_mutable(CDeltaSubN);
                 }
                 //No Post filters work
 
                 if (statistic != null) {
-                    statistic.insert(complex[0], zold, zold2, iterations, complex[1], start, c0);
+                    statistic.insert(zc, zold, zold2, iterations, c, start, c0);
                 }
 
-                norm_squared = complex[0].norm_squared();
+                norm_squared = zc.norm_squared();
                 if (norm_squared < CDeltaSubN.norm_squared() || RefIteration >= MaxRefIteration) {
-                    CDeltaSubN = complex[0];
+                    CDeltaSubN = zc;
                     RefIteration = 0;
 
                     data = secondReferenceData;
@@ -1099,13 +1148,14 @@ public abstract class MagnetType extends Julia {
             }
         }
 
-        Object[] object = {complex[0], zold, zold2, complex[1], start, c0, pixel};
+        finalizeStatistic(false, zc);
+        Object[] object = {zc, zold, zold2, c, start, c0, pixel};
         double in = in_color_algorithm.getResult(object);
 
-        in = getFinalValueIn(in, complex[0]);
+        in = getFinalValueIn(in);
 
         if (inTrueColorAlgorithm != null) {
-            setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+            setTrueColorIn(zc, zold, zold2, iterations, c, start, c0, pixel);
         }
 
         return getAndAccumulateStatsNotScaled(in);

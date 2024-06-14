@@ -25,9 +25,10 @@ import static fractalzoomer.main.Constants.*;
  * @author hrkalona
  */
 public class NNormAtomDomainOrbitTrap extends OrbitTrap {
-    private double old_distance;
     private double n_norm;
     private double n_norm_reciprocal;
+    private double max_distance;
+    private double old_distance;
 
     public NNormAtomDomainOrbitTrap(int checkType, double pointRe, double pointIm, double n_norm, boolean countTrapIterations, int lastXItems) {
 
@@ -41,6 +42,7 @@ public class NNormAtomDomainOrbitTrap extends OrbitTrap {
     public void initialize(Complex pixel) {
         
         super.initialize(pixel);
+        max_distance = 0;
         old_distance = Double.MAX_VALUE;
         
     }
@@ -58,16 +60,23 @@ public class NNormAtomDomainOrbitTrap extends OrbitTrap {
 
         if (checkType == TRAP_CHECK_TYPE_TRAPPED_FIRST || checkType == TRAP_CHECK_TYPE_TRAPPED_LAST) {
             old_distance = distance;
+            if(distance > max_distance) {
+                max_distance = distance;
+            }
             distance = dist;
             trapId = 0;
             setTrappedData(val, iteration);
         } else if (checkType == TRAP_CHECK_TYPE_TRAPPED_MIN_DISTANCE) {
             if (dist < distance) {
                 old_distance = distance;
+                if(distance > max_distance) {
+                    max_distance = distance;
+                }
                 distance = dist;
                 trapId = 0;
                 setTrappedData(val, iteration);
-            } else if (dist < old_distance) {
+            }
+            else if (dist < old_distance && dist != distance) {
                 old_distance = dist;
                 countExtraIterations();
             }
@@ -77,7 +86,12 @@ public class NNormAtomDomainOrbitTrap extends OrbitTrap {
 
     @Override
     public double getMaxValue() {
-        return old_distance;
+        if(distance <= old_distance) {
+            return old_distance;
+        }
+        else {
+            return max_distance;
+        }
     }
     
 }

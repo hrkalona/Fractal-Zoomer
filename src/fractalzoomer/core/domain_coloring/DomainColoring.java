@@ -17,7 +17,7 @@
 package fractalzoomer.core.domain_coloring;
 
 import fractalzoomer.core.Complex;
-import fractalzoomer.core.TaskDraw;
+import fractalzoomer.core.TaskRender;
 import fractalzoomer.core.blending.Blending;
 import fractalzoomer.core.interpolation.*;
 import fractalzoomer.main.app_settings.GeneratedPaletteSettings;
@@ -192,7 +192,7 @@ public abstract class DomainColoring {
     private static double HSB_COLOR_FACTOR = 1.0 / HSB_COLOR_LENGTH;
     public static int HSBcolor(double h, int color_cycling_location) {
         
-        return Color.HSBtoRGB((float) ((h + color_cycling_location * HSB_COLOR_FACTOR) % 1.0), TaskDraw.HSB_CONSTANT_S, TaskDraw.HSB_CONSTANT_B);
+        return Color.HSBtoRGB((float) ((h + color_cycling_location * HSB_COLOR_FACTOR) % 1.0), TaskRender.HSB_CONSTANT_S, TaskRender.HSB_CONSTANT_B);
         
     }
 
@@ -201,14 +201,14 @@ public abstract class DomainColoring {
     
     public static int LCHabcolor(double h, int color_cycling_location) {
         
-        int [] res = ColorSpaceConverter.LCH_abtoRGB(TaskDraw.LCHab_CONSTANT_L, TaskDraw.LCHab_CONSTANT_C, ((h + color_cycling_location * LCH_COLOR_FACTOR) % 1.0) * 360);
+        int [] res = ColorSpaceConverter.LCH_abtoRGB(TaskRender.LCHab_CONSTANT_L, TaskRender.LCHab_CONSTANT_C, ((h + color_cycling_location * LCH_COLOR_FACTOR) % 1.0) * 360);
         return 0xFF000000 | res[0] << 16 | res[1] << 8 | res[2];
         
     }
 
     public static int LCHuvcolor(double h, int color_cycling_location) {
 
-        int [] res = ColorSpaceConverter.LCH_uvtoRGB(TaskDraw.LCHuv_CONSTANT_L, TaskDraw.LCHuv_CONSTANT_C, ((h + color_cycling_location * 0.01) % LCH_COLOR_FACTOR) * 360);
+        int [] res = ColorSpaceConverter.LCH_uvtoRGB(TaskRender.LCHuv_CONSTANT_L, TaskRender.LCHuv_CONSTANT_C, ((h + color_cycling_location * 0.01) % LCH_COLOR_FACTOR) * 360);
         return 0xFF000000 | res[0] << 16 | res[1] << 8 | res[2];
 
     }

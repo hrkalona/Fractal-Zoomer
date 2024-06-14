@@ -75,7 +75,7 @@ public class ReferenceCompressor {
         //Do the compression
 
         int length = Math.min(maxRefIteration, reference.length - 1);
-        boolean twoExponents = TaskDraw.MANTEXPCOMPLEX_FORMAT == 1;
+        boolean twoExponents = TaskRender.MANTEXPCOMPLEX_FORMAT == 1;
 
 
         int compressed_index = 0;
@@ -130,7 +130,7 @@ public class ReferenceCompressor {
         //Do the compression
 
         int length = Math.min(maxRefIteration, reference.length - 1);
-        boolean twoExponents = TaskDraw.MANTEXPCOMPLEX_FORMAT == 1;
+        boolean twoExponents = TaskRender.MANTEXPCOMPLEX_FORMAT == 1;
 
         for (int i = 0; i <= length; i++) {
 
@@ -293,7 +293,7 @@ public class ReferenceCompressor {
         int i = 1;
         MantExpComplex z = MantExpComplex.copy(c);
 
-        boolean twoExponents = TaskDraw.MANTEXPCOMPLEX_FORMAT == 1;
+        boolean twoExponents = TaskRender.MANTEXPCOMPLEX_FORMAT == 1;
 
         int length = Math.min(maxRefIteration, reference.length - 1);
 
@@ -489,7 +489,7 @@ public class ReferenceCompressor {
 
         //Do the compression
 
-        boolean twoExponents = TaskDraw.MANTEXPCOMPLEX_FORMAT == 1;
+        boolean twoExponents = TaskRender.MANTEXPCOMPLEX_FORMAT == 1;
 
         int length = Math.min(maxRefIteration, reference.length - 1);
 
@@ -611,7 +611,7 @@ public class ReferenceCompressor {
             int index1 = -1;
             MantExpComplex origRef;
             MantExpComplex newRef;
-            boolean twoExponents = TaskDraw.MANTEXPCOMPLEX_FORMAT == 1;
+            boolean twoExponents = TaskRender.MANTEXPCOMPLEX_FORMAT == 1;
             for (int i = 0; i <= referenceData.MaxRefIteration + 1; i++) {
 
                 if(twoExponents) {

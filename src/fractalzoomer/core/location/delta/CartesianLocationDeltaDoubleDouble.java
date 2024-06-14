@@ -1,18 +1,15 @@
 package fractalzoomer.core.location.delta;
 
-import fractalzoomer.core.DDComplex;
-import fractalzoomer.core.DoubleDouble;
-import fractalzoomer.core.GenericComplex;
-import fractalzoomer.core.MantExp;
+import fractalzoomer.core.*;
 import fractalzoomer.core.location.normal.CartesianLocationNormalDoubleDoubleArbitrary;
 import fractalzoomer.functions.Fractal;
 import fractalzoomer.main.app_settings.JitterSettings;
 import org.apfloat.Apfloat;
 
 public class CartesianLocationDeltaDoubleDouble extends CartesianLocationNormalDoubleDoubleArbitrary {
-    public CartesianLocationDeltaDoubleDouble(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int image_size, Apfloat[] rotation_center, Apfloat[] rotation_vals, Fractal fractal, JitterSettings js) {
+    public CartesianLocationDeltaDoubleDouble(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int width, int height, Apfloat[] rotation_center, Apfloat[] rotation_vals, Fractal fractal, JitterSettings js) {
 
-        super(xCenter, yCenter, size, height_ratio, image_size, rotation_center, rotation_vals, fractal, js);
+        super(xCenter, yCenter, size, height_ratio, width, height, rotation_center, rotation_vals, fractal, js);
 
     }
 
@@ -73,15 +70,13 @@ public class CartesianLocationDeltaDoubleDouble extends CartesianLocationNormalD
 
     @Override
     public MantExp getMaxSizeInImage() {
-        if(height_ratio == 1) { // ((size * 0.5) / image_size) * sqrt(image_size^2 + image_size^2) = ((size * 0.5) / image_size) * sqrt(2) * image_size
-            DoubleDouble temp = ddsize.multiply(0.5);
-            return temp.multiply(new DoubleDouble(2).sqrt()).getMantExp();
-        }
-        else {
-            DoubleDouble temp = ddsize.multiply(0.5);
-            DoubleDouble temp2 = temp.multiply(height_ratio);
-            return temp.sqr().add(temp2.sqr()).sqrt().getMantExp();
-        }
+        DoubleDouble temp = ddtemp_size_image_size_x.multiply(width * 0.5);
+        DoubleDouble temp2 = ddtemp_size_image_size_y.multiply(height * 0.5);
+
+        temp = temp.sqr();
+        temp2 = temp2.sqr();
+
+        return temp.add(temp2).sqrt().getMantExp();
     }
 
     @Override

@@ -17,7 +17,7 @@
 package fractalzoomer.out_coloring_algorithms;
 
 import fractalzoomer.core.Complex;
-import fractalzoomer.core.TaskDraw;
+import fractalzoomer.core.TaskRender;
 import fractalzoomer.parser.ExpressionNode;
 import fractalzoomer.parser.Parser;
 import fractalzoomer.utils.ColorAlgorithm;
@@ -151,7 +151,7 @@ public class UserConditionalOutColorAlgorithm extends OutColorAlgorithm {
             parser2[2].setSizevalue(c_size);
         }
         
-        Complex c_isize = new Complex(TaskDraw.IMAGE_SIZE, 0);
+        Complex c_isize = new Complex(Math.min(TaskRender.WIDTH, TaskRender.HEIGHT), 0);
         if (parser[0].foundISize()) {
             parser[0].setISizevalue(c_isize);
         }
@@ -170,6 +170,50 @@ public class UserConditionalOutColorAlgorithm extends OutColorAlgorithm {
 
         if (parser2[2].foundISize()) {
             parser2[2].setISizevalue(c_isize);
+        }
+
+        Complex c_width = new Complex(TaskRender.WIDTH, 0);
+
+        if (parser[0].foundWidth()) {
+            parser[0].setWidthvalue(c_width);
+        }
+
+        if (parser[1].foundWidth()) {
+            parser[1].setWidthvalue(c_width);
+        }
+
+        if (parser2[0].foundWidth()) {
+            parser2[0].setWidthvalue(c_width);
+        }
+
+        if (parser2[1].foundWidth()) {
+            parser2[1].setWidthvalue(c_width);
+        }
+
+        if (parser2[2].foundWidth()) {
+            parser2[2].setWidthvalue(c_width);
+        }
+
+        Complex c_height = new Complex(TaskRender.HEIGHT, 0);
+
+        if (parser[0].foundHeight()) {
+            parser[0].setHeightvalue(c_height);
+        }
+
+        if (parser[1].foundHeight()) {
+            parser[1].setHeightvalue(c_height);
+        }
+
+        if (parser2[0].foundHeight()) {
+            parser2[0].setHeightvalue(c_height);
+        }
+
+        if (parser2[1].foundHeight()) {
+            parser2[1].setHeightvalue(c_height);
+        }
+
+        if (parser2[2].foundHeight()) {
+            parser2[2].setHeightvalue(c_height);
         }
         
         Complex c_point = new Complex(point[0], point[1]);
@@ -202,7 +246,7 @@ public class UserConditionalOutColorAlgorithm extends OutColorAlgorithm {
 
         /* LEFT */
         if(parser[0].foundN()) {
-            parser[0].setNvalue(new Complex((Integer)object[0], 0));
+            parser[0].setNvalue(new Complex((int)object[0], 0));
         }
 
         if(parser[0].foundZ()) {
@@ -243,7 +287,7 @@ public class UserConditionalOutColorAlgorithm extends OutColorAlgorithm {
 
         /* RIGHT */
         if(parser[1].foundN()) {
-            parser[1].setNvalue(new Complex((Integer)object[0], 0));
+            parser[1].setNvalue(new Complex((int)object[0], 0));
         }
 
         if(parser[1].foundZ()) {
@@ -284,7 +328,7 @@ public class UserConditionalOutColorAlgorithm extends OutColorAlgorithm {
 
         if(result == -1) { // left > right
             if(parser2[0].foundN()) {
-                parser2[0].setNvalue(new Complex((Integer)object[0], 0));
+                parser2[0].setNvalue(new Complex((int)object[0], 0));
             }
 
             if(parser2[0].foundZ()) {
@@ -323,7 +367,7 @@ public class UserConditionalOutColorAlgorithm extends OutColorAlgorithm {
             
             double result2 = expr2[0].getValue().getRe();
             
-            if(TaskDraw.USE_DIRECT_COLOR) {
+            if(TaskRender.USE_DIRECT_COLOR) {
                 return result2;
             }
         
@@ -339,7 +383,7 @@ public class UserConditionalOutColorAlgorithm extends OutColorAlgorithm {
         }
         else if(result == 1) { // right > left
             if(parser2[1].foundN()) {
-                parser2[1].setNvalue(new Complex((Integer)object[0], 0));
+                parser2[1].setNvalue(new Complex((int)object[0], 0));
             }
 
             if(parser2[1].foundZ()) {
@@ -378,7 +422,7 @@ public class UserConditionalOutColorAlgorithm extends OutColorAlgorithm {
 
             double result2 = expr2[1].getValue().getRe();
             
-            if(TaskDraw.USE_DIRECT_COLOR) {
+            if(TaskRender.USE_DIRECT_COLOR) {
                 return result2;
             }
         
@@ -394,7 +438,7 @@ public class UserConditionalOutColorAlgorithm extends OutColorAlgorithm {
         }
         else if(result == 0) { //left == right
             if(parser2[2].foundN()) {
-                parser2[2].setNvalue(new Complex((Integer)object[0], 0));
+                parser2[2].setNvalue(new Complex((int)object[0], 0));
             }
 
             if(parser2[2].foundZ()) {
@@ -433,7 +477,7 @@ public class UserConditionalOutColorAlgorithm extends OutColorAlgorithm {
 
             double result2 = expr2[2].getValue().getRe();
             
-            if(TaskDraw.USE_DIRECT_COLOR) {
+            if(TaskRender.USE_DIRECT_COLOR) {
                 return result2;
             }
         

@@ -39,13 +39,13 @@ public class EscapeTimeGridEOC extends EscapeTimeGrid {
         double zarg = (((Complex)object[1]).arg() / (pi2) + 1.0f) % 1.0;
         boolean grid = 0.05 < zabs && zabs < 0.95 && 0.05 < zarg && zarg < 0.95;
         
-        double temp = grid ? (Integer)object[0] : -((Integer)object[0] + INCREMENT);
+        double temp = grid ? (int)object[0] : -((int)object[0] + INCREMENT);
         
         if(temp < 0) {
-            return (Boolean)object[8] ? temp - MAGNET_INCREMENT : temp;
+            return (boolean)object[8] ? temp - MAGNET_INCREMENT : temp;
         }
         else {
-            return (Boolean)object[8] ? temp + MAGNET_INCREMENT : temp;
+            return (boolean)object[8] ? temp + MAGNET_INCREMENT : temp;
         }
     }
     

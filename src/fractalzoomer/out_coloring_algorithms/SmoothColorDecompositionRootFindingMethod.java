@@ -51,10 +51,10 @@ public class SmoothColorDecompositionRootFindingMethod extends ColorDecompositio
     public double getResult3D(Object[] object, double result) {
 
         if(algorithm == 0) {
-            return (Integer)object[0] + SmoothEscapeTimeRootFindingMethod.getSmoothing1(object, log_convergent_bailout);
+            return (int)object[0] + SmoothEscapeTimeRootFindingMethod.getSmoothing1(object, log_convergent_bailout);
         }
         else {
-            return (Integer)object[0] + SmoothEscapeTimeRootFindingMethod.getSmoothing2(object, log_convergent_bailout);
+            return (int)object[0] + SmoothEscapeTimeRootFindingMethod.getSmoothing2(object, log_convergent_bailout);
         }
 
     }

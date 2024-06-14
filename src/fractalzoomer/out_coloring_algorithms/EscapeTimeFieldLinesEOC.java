@@ -41,13 +41,13 @@ public class EscapeTimeFieldLinesEOC extends EscapeTimeFieldLines {
 
         boolean line = Math.abs(fx) > lineWidth * fz;
         
-        double temp = line ? (Integer)object[0] : -((Integer)object[0] + INCREMENT);
+        double temp = line ? (int)object[0] : -((int)object[0] + INCREMENT);
         
         if(temp < 0) {
-            return (Boolean)object[8] ? temp - MAGNET_INCREMENT : temp;
+            return (boolean)object[8] ? temp - MAGNET_INCREMENT : temp;
         }
         else {
-            return (Boolean)object[8] ? temp + MAGNET_INCREMENT : temp;
+            return (boolean)object[8] ? temp + MAGNET_INCREMENT : temp;
         }
 
     }

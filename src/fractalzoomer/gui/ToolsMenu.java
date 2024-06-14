@@ -33,6 +33,8 @@ public class ToolsMenu extends MyMenu {
     private JCheckBoxMenuItem julia_opt;
     private JMenuItem polar_projection_opt;
     private JMenuItem d3_opt;
+
+    //private JCheckBoxMenuItem nr_zooming_opt;
     private JCheckBoxMenuItem color_cycling_opt;
     private JMenuItem julia_map_opt;
     private JMenuItem juliter_opt;
@@ -60,7 +62,9 @@ public class ToolsMenu extends MyMenu {
         zoom_window_opt = new MyCheckBoxMenuItem("Show Zoom Window", MainWindow.getIcon("zoom_window.png"));
         boundaries_opt = new MyCheckBoxMenuItem("Show Boundaries", MainWindow.getIcon("boundaries.png"));
         plane_visualization_opt = new MyMenuItem("Plane Visualization", MainWindow.getIcon("plane_visualization.png"));
-        
+
+        //nr_zooming_opt = new MyCheckBoxMenuItem("NR Zooming", MainWindow.getIcon("zoom_window.png"));
+
         orbit_opt.setToolTipText("Displays the orbit of a complex number.");
         julia_opt.setToolTipText("Generates an image based on a seed (chosen pixel).");
         julia_map_opt.setToolTipText("Creates an image of julia sets.");
@@ -70,7 +74,7 @@ public class ToolsMenu extends MyMenu {
         color_cycling_opt.setToolTipText("Animates the image, cycling through the palette.");
         plane_visualization_opt.setToolTipText("Creates a visualization of the active plane transformation.");
         domain_coloring_opt.setToolTipText("Creates a complex plane domain coloring visualization.");
-        grid_opt.setToolTipText("Draws a cordinated grid.");
+        grid_opt.setToolTipText("Draws a coordinated grid.");
         zoom_window_opt.setToolTipText("Displays the zooming window.");
         boundaries_opt.setToolTipText("Draws the plane boundaries.");
         
@@ -134,6 +138,8 @@ public class ToolsMenu extends MyMenu {
         add(zoom_window_opt);
         addSeparator();
         add(boundaries_opt);
+//        addSeparator();
+//        add(nr_zooming_opt);
         
     }
     
@@ -190,6 +196,12 @@ public class ToolsMenu extends MyMenu {
         return zoom_window_opt;
         
     }
+
+//    public JCheckBoxMenuItem getNRZooming() {
+//
+//        return nr_zooming_opt;
+//
+//    }
     
     public JMenuItem get3D() {
         

@@ -39,14 +39,14 @@ public class BiomorphsEOC extends Biomorphs {
         double temp = ((Complex)object[1]).getRe();
         double temp2 = ((Complex)object[1]).getIm();
         
-        double temp3 = temp > -bailout && temp < bailout || temp2 > -bailout && temp2 < bailout ?  (Integer)object[0] : -((Integer)object[0] + INCREMENT);
+        double temp3 = temp > -bailout && temp < bailout || temp2 > -bailout && temp2 < bailout ?  (int)object[0] : -((int)object[0] + INCREMENT);
         
         
         if(temp3 < 0) {
-            return (Boolean)object[8] ? temp3 - MAGNET_INCREMENT : temp3;
+            return (boolean)object[8] ? temp3 - MAGNET_INCREMENT : temp3;
         }
         else {
-            return (Boolean)object[8] ? temp3 + MAGNET_INCREMENT : temp3;
+            return (boolean)object[8] ? temp3 + MAGNET_INCREMENT : temp3;
         }
 
     }

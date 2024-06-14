@@ -69,7 +69,7 @@ public class CompressedDeepReference extends DeepReference {
             wayPointMantissaRe = new double[length];
             wayPointMantissaIm = new double[length];
             wayPointExpRe = new long[length];
-            if(TaskDraw.MANTEXPCOMPLEX_FORMAT == 1) {
+            if(TaskRender.MANTEXPCOMPLEX_FORMAT == 1) {
                 wayPointExpIm = new long[length];
             }
             wayPointIteration = new int[length];
@@ -79,7 +79,7 @@ public class CompressedDeepReference extends DeepReference {
                 wayPointMantissaRe[i] = mz.getMantissaReal();
                 wayPointMantissaIm[i] = mz.getMantissaImag();
                 wayPointExpRe[i] = mz.getExp();
-                if(TaskDraw.MANTEXPCOMPLEX_FORMAT == 1) {
+                if(TaskRender.MANTEXPCOMPLEX_FORMAT == 1) {
                     wayPointExpIm[i] = mz.getExpImag();
                 }
                 wayPointIteration[i] = w.iteration;
@@ -91,7 +91,7 @@ public class CompressedDeepReference extends DeepReference {
             wayPointMantissaRe = Arrays.copyOf(wayPointMantissaRe, newLength);
             wayPointMantissaIm = Arrays.copyOf(wayPointMantissaIm, newLength);
             wayPointExpRe = Arrays.copyOf(wayPointExpRe, newLength);
-            if(TaskDraw.MANTEXPCOMPLEX_FORMAT == 1) {
+            if(TaskRender.MANTEXPCOMPLEX_FORMAT == 1) {
                 wayPointExpIm = Arrays.copyOf(wayPointExpIm, newLength);
             }
             wayPointIteration = Arrays.copyOf(wayPointIteration, newLength);
@@ -102,7 +102,7 @@ public class CompressedDeepReference extends DeepReference {
                 wayPointMantissaRe[j] = mz.getMantissaReal();
                 wayPointMantissaIm[j] = mz.getMantissaImag();
                 wayPointExpRe[j] = mz.getExp();
-                if(TaskDraw.MANTEXPCOMPLEX_FORMAT == 1) {
+                if(TaskRender.MANTEXPCOMPLEX_FORMAT == 1) {
                     wayPointExpIm[j] = mz.getExpImag();
                 }
                 wayPointIteration[j] = w.iteration;
@@ -119,7 +119,7 @@ public class CompressedDeepReference extends DeepReference {
             wayPointMantissaIm = new double[length];
             wayPointExpRe = new long[length];
             rebase = new boolean[length];
-            if(TaskDraw.MANTEXPCOMPLEX_FORMAT == 1) {
+            if(TaskRender.MANTEXPCOMPLEX_FORMAT == 1) {
                 wayPointExpIm = new long[length];
             }
             wayPointIteration = new int[length];
@@ -129,7 +129,7 @@ public class CompressedDeepReference extends DeepReference {
                 wayPointMantissaRe[i] = mz.getMantissaReal();
                 wayPointMantissaIm[i] = mz.getMantissaImag();
                 wayPointExpRe[i] = mz.getExp();
-                if(TaskDraw.MANTEXPCOMPLEX_FORMAT == 1) {
+                if(TaskRender.MANTEXPCOMPLEX_FORMAT == 1) {
                     wayPointExpIm[i] = mz.getExpImag();
                 }
                 wayPointIteration[i] = w.iteration;
@@ -143,7 +143,7 @@ public class CompressedDeepReference extends DeepReference {
             wayPointMantissaIm = Arrays.copyOf(wayPointMantissaIm, newLength);
             wayPointExpRe = Arrays.copyOf(wayPointExpRe, newLength);
             rebase = Arrays.copyOf(rebase, newLength);
-            if(TaskDraw.MANTEXPCOMPLEX_FORMAT == 1) {
+            if(TaskRender.MANTEXPCOMPLEX_FORMAT == 1) {
                 wayPointExpIm = Arrays.copyOf(wayPointExpIm, newLength);
             }
             wayPointIteration = Arrays.copyOf(wayPointIteration, newLength);
@@ -154,7 +154,7 @@ public class CompressedDeepReference extends DeepReference {
                 wayPointMantissaRe[j] = mz.getMantissaReal();
                 wayPointMantissaIm[j] = mz.getMantissaImag();
                 wayPointExpRe[j] = mz.getExp();
-                if(TaskDraw.MANTEXPCOMPLEX_FORMAT == 1) {
+                if(TaskRender.MANTEXPCOMPLEX_FORMAT == 1) {
                     wayPointExpIm[j] = mz.getExpImag();
                 }
                 wayPointIteration[j] = w.iteration;
@@ -198,7 +198,7 @@ public class CompressedDeepReference extends DeepReference {
     }
 
     public MantExpComplex getWaypointData(int compressed_index) {
-        if(TaskDraw.MANTEXPCOMPLEX_FORMAT == 1) {
+        if(TaskRender.MANTEXPCOMPLEX_FORMAT == 1) {
             return new MantExpComplexFull(wayPointExpRe[compressed_index], wayPointExpIm[compressed_index], wayPointMantissaRe[compressed_index], wayPointMantissaIm[compressed_index]);
         }
         return new MantExpComplex(wayPointExpRe[compressed_index], wayPointMantissaRe[compressed_index], wayPointMantissaIm[compressed_index]);
@@ -207,7 +207,7 @@ public class CompressedDeepReference extends DeepReference {
     public Waypoint getWaypoint(int compressed_index) {
 
         MantExpComplex z;
-        if(TaskDraw.MANTEXPCOMPLEX_FORMAT == 1) {
+        if(TaskRender.MANTEXPCOMPLEX_FORMAT == 1) {
             z = new MantExpComplexFull(wayPointExpRe[compressed_index], wayPointExpIm[compressed_index], wayPointMantissaRe[compressed_index], wayPointMantissaIm[compressed_index]);
         }
         else {
@@ -219,7 +219,7 @@ public class CompressedDeepReference extends DeepReference {
 
     public Waypoint getWaypointExtended(int compressed_index) {
         MantExpComplex z;
-        if(TaskDraw.MANTEXPCOMPLEX_FORMAT == 1) {
+        if(TaskRender.MANTEXPCOMPLEX_FORMAT == 1) {
             z = new MantExpComplexFull(wayPointExpRe[compressed_index], wayPointExpIm[compressed_index], wayPointMantissaRe[compressed_index], wayPointMantissaIm[compressed_index]);
         }
         else {
@@ -242,7 +242,7 @@ public class CompressedDeepReference extends DeepReference {
 
         if(iteration == 0) {
             if(wayPointIteration.length > 0 && wayPointIteration[0] == iteration) {
-                if(TaskDraw.MANTEXPCOMPLEX_FORMAT == 1) {
+                if(TaskRender.MANTEXPCOMPLEX_FORMAT == 1) {
                     return new Waypoint(new MantExpComplexFull(wayPointExpRe[0], wayPointExpIm[0], wayPointMantissaRe[0], wayPointMantissaIm[0]), wayPointIteration[0], 0);
                 }
                 return new Waypoint(new MantExpComplex(wayPointExpRe[0], wayPointMantissaRe[0], wayPointMantissaIm[0]), wayPointIteration[0], 0);
@@ -258,7 +258,7 @@ public class CompressedDeepReference extends DeepReference {
             int mid = (int)(((long)left + right) >>> 1);
 
             if (wayPointIteration[mid] == iteration) {
-                if(TaskDraw.MANTEXPCOMPLEX_FORMAT == 1) {
+                if(TaskRender.MANTEXPCOMPLEX_FORMAT == 1) {
                     return new Waypoint(new MantExpComplexFull(wayPointExpRe[mid], wayPointExpIm[mid], wayPointMantissaRe[mid], wayPointMantissaIm[mid]), iteration, mid);
                 }
                 return new Waypoint(new MantExpComplex(wayPointExpRe[mid], wayPointMantissaRe[mid], wayPointMantissaIm[mid]), iteration, mid);
@@ -273,7 +273,7 @@ public class CompressedDeepReference extends DeepReference {
             return new Waypoint(0, -1);
         }
 
-        if(TaskDraw.MANTEXPCOMPLEX_FORMAT == 1) {
+        if(TaskRender.MANTEXPCOMPLEX_FORMAT == 1) {
             return new Waypoint(new MantExpComplexFull(wayPointExpRe[right], wayPointExpIm[right], wayPointMantissaRe[right], wayPointMantissaIm[right]), wayPointIteration[right], right);
         }
         return new Waypoint(new MantExpComplex(wayPointExpRe[right], wayPointMantissaRe[right], wayPointMantissaIm[right]), wayPointIteration[right], right);
@@ -289,7 +289,7 @@ public class CompressedDeepReference extends DeepReference {
             int mid = (int)(((long)left + right) >>> 1);
 
             if (wayPointIteration[mid] == iteration) {
-                if(TaskDraw.MANTEXPCOMPLEX_FORMAT == 1) {
+                if(TaskRender.MANTEXPCOMPLEX_FORMAT == 1) {
                     return new Waypoint(new MantExpComplexFull(wayPointExpRe[mid], wayPointExpIm[mid], wayPointMantissaRe[mid], wayPointMantissaIm[mid]), iteration, mid);
                 }
                 return new Waypoint(new MantExpComplex(wayPointExpRe[mid], wayPointMantissaRe[mid], wayPointMantissaIm[mid]), iteration, mid);

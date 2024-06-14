@@ -18,7 +18,7 @@
 package fractalzoomer.out_coloring_algorithms;
 
 import fractalzoomer.core.Complex;
-import fractalzoomer.core.TaskDraw;
+import fractalzoomer.core.TaskRender;
 import fractalzoomer.parser.Parser;
 import fractalzoomer.utils.ColorAlgorithm;
 
@@ -40,7 +40,7 @@ public class UserOutColorAlgorithmEOC extends  UserOutColorAlgorithm {
     public double getResult(Object[] object) {
 
         if(parser.foundN()) {
-            parser.setNvalue(new Complex((Integer)object[0], 0));
+            parser.setNvalue(new Complex((int)object[0], 0));
         }
         
         if(parser.foundZ()) {
@@ -79,7 +79,7 @@ public class UserOutColorAlgorithmEOC extends  UserOutColorAlgorithm {
         
         double result = expr.getValue().getRe();
         
-        if (TaskDraw.USE_DIRECT_COLOR) {
+        if (TaskRender.USE_DIRECT_COLOR) {
             return result;
         }
         
@@ -92,10 +92,10 @@ public class UserOutColorAlgorithmEOC extends  UserOutColorAlgorithm {
         }
    
         if(result < 0) {
-            return (Boolean)object[8] ? result - MAGNET_INCREMENT  : result;
+            return (boolean)object[8] ? result - MAGNET_INCREMENT  : result;
         }
         else {
-            return (Boolean)object[8] ? result + MAGNET_INCREMENT  : result;
+            return (boolean)object[8] ? result + MAGNET_INCREMENT  : result;
         }
     }
 

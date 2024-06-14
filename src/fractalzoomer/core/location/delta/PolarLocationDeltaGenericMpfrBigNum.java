@@ -11,9 +11,9 @@ import org.apfloat.Apfloat;
 
 public class PolarLocationDeltaGenericMpfrBigNum extends PolarLocationNormalMpfrBigNumArbitrary {
 
-    public PolarLocationDeltaGenericMpfrBigNum(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int image_size, double circle_period, Apfloat[] rotation_center, Apfloat[] rotation_vals, Fractal fractal, JitterSettings js) {
+    public PolarLocationDeltaGenericMpfrBigNum(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int width, int height, double circle_period, Apfloat[] rotation_center, Apfloat[] rotation_vals, Fractal fractal, JitterSettings js) {
 
-        super(xCenter, yCenter, size, height_ratio, image_size, circle_period, rotation_center, rotation_vals, fractal, js);
+        super(xCenter, yCenter, size, height_ratio, width, height, circle_period, rotation_center, rotation_vals, fractal, js);
 
     }
 
@@ -56,7 +56,7 @@ public class PolarLocationDeltaGenericMpfrBigNum extends PolarLocationNormalMpfr
     @Override
     public MantExp getMaxSizeInImage() {
 
-        MpfrBigNum temp = ddmulx.mult(image_size * 0.5);
+        MpfrBigNum temp = ddmulx.mult(width * 0.5);
         temp.add(ddcenter, temp);
         temp.exp(temp);
         return temp.getMantExp();

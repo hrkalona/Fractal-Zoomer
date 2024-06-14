@@ -44,7 +44,7 @@ public class ColorDecompositionRootFindingMethod extends ColorDecomposition {
     @Override
     public double getResult3D(Object[] object, double result) {
   
-        return ((Integer)object[0]);
+        return ((int)object[0]);
 
     }
     

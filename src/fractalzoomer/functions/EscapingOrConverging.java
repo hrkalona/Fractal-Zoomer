@@ -1,7 +1,7 @@
 package fractalzoomer.functions;
 
 import fractalzoomer.core.Complex;
-import fractalzoomer.core.TaskDraw;
+import fractalzoomer.core.TaskRender;
 import fractalzoomer.fractal_options.iteration_statistics.*;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
@@ -10,6 +10,9 @@ import fractalzoomer.out_coloring_algorithms.*;
 import fractalzoomer.utils.ColorAlgorithm;
 
 import java.util.ArrayList;
+
+import static fractalzoomer.main.Constants.ESCAPE_TIME_SQUARES;
+import static fractalzoomer.main.Constants.ESCAPE_TIME_SQUARES2;
 
 public abstract class EscapingOrConverging extends Julia {
 
@@ -27,7 +30,7 @@ public abstract class EscapingOrConverging extends Julia {
     }
 
     protected void setConvergentBailout(double val) {
-        convergent_bailout = TaskDraw.USER_CONVERGENT_BAILOUT > 0 ? TaskDraw.USER_CONVERGENT_BAILOUT : val;
+        convergent_bailout = TaskRender.USER_CONVERGENT_BAILOUT > 0 ? TaskRender.USER_CONVERGENT_BAILOUT : val;
     }
 
     public EscapingOrConverging(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, boolean periodicity_checking, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower, OrbitTrapSettings ots, double xJuliaCenter, double yJuliaCenter) {
@@ -75,10 +78,11 @@ public abstract class EscapingOrConverging extends Julia {
                 escaped = true;
                 converged = temp1;
 
+                finalizeStatistic(true, complex[0]);
                 Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0, pixel, temp2};
                 double res = out_color_algorithm.getResult(object);
 
-                res = getFinalValueOut(res, complex[0]);
+                res = getFinalValueOut(res);
 
                 if (outTrueColorAlgorithm != null) {
                     setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
@@ -127,10 +131,11 @@ public abstract class EscapingOrConverging extends Julia {
                 escaped = true;
                 converged = temp1;
 
+                finalizeStatistic(true, complex[0]);
                 Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0, pixel, temp2};
                 double res = out_color_algorithm.getResult(object);
 
-                res = getFinalValueOut(res, complex[0]);
+                res = getFinalValueOut(res);
 
                 if (outTrueColorAlgorithm != null) {
                     setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
@@ -153,10 +158,11 @@ public abstract class EscapingOrConverging extends Julia {
 
         }
 
+        finalizeStatistic(false, complex[0]);
         Object[] object = {complex[0], zold, zold2, complex[1], start, c0, pixel};
         double in = in_color_algorithm.getResult(object);
 
-        in = getFinalValueIn(in, complex[0]);
+        in = getFinalValueIn(in);
 
         if (inTrueColorAlgorithm != null) {
             setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
@@ -311,7 +317,23 @@ public abstract class EscapingOrConverging extends Julia {
                     out_color_algorithm = new UserConditionalOutColorAlgorithmEOC(user_outcoloring_conditions, user_outcoloring_condition_formula, bailout, max_iterations, xCenter, yCenter, size, plane_transform_center, globalVars);
                 }
                 break;
-
+            case ESCAPE_TIME_SQUARES:
+                OutColorAlgorithm wrappedAlgorithm;
+                if (!smoothing) {
+                    wrappedAlgorithm = new EscapeTimeEOC();
+                } else {
+                    wrappedAlgorithm = new SmoothEscapeTimeEOC(log_bailout_squared, Math.log(convergent_bailout), escaping_smooth_algorithm, converging_smooth_algorithm);
+                }
+                out_color_algorithm = new EscapeTimeSquares(6, wrappedAlgorithm);
+                break;
+            case ESCAPE_TIME_SQUARES2:
+                if (!smoothing) {
+                    wrappedAlgorithm = new EscapeTimeEOC();
+                } else {
+                    wrappedAlgorithm = new SmoothEscapeTimeEOC(log_bailout_squared, Math.log(convergent_bailout), escaping_smooth_algorithm, converging_smooth_algorithm);
+                }
+                out_color_algorithm = new EscapeTimeSquares2(6, wrappedAlgorithm);
+                break;
         }
 
     }
@@ -375,21 +397,28 @@ public abstract class EscapingOrConverging extends Julia {
     }
 
     @Override
-    protected double getStatistic(double result, Complex z, boolean escaped) {
-
-        if ((converged && statistic.getType() == MainWindow.ESCAPING) || (!converged && statistic.getType() == MainWindow.CONVERGING)) {
-            return result;
+    protected void finalizeStatistic(boolean escaped, Complex z) {
+        if(statistic == null) {
+            return;
         }
 
         if(converged) {
             statistic.setMode(GenericStatistic.NORMAL_CONVERGE);
         }
 
-        double res = super.getStatistic(result, z, escaped);
+        super.finalizeStatistic(escaped, z);
 
         statistic.setMode(GenericStatistic.NORMAL_ESCAPE);
+    }
 
-        return res;
+    @Override
+    protected double getStatistic(double result, boolean escaped) {
+
+        if ((converged && statistic.getType() == MainWindow.ESCAPING) || (!converged && statistic.getType() == MainWindow.CONVERGING)) {
+            return result;
+        }
+
+        return super.getStatistic(result, escaped);
 
     }
 }

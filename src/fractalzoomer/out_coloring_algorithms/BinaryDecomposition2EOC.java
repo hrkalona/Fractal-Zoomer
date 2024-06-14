@@ -35,13 +35,13 @@ public class BinaryDecomposition2EOC extends BinaryDecomposition2 {
     @Override
     public double getResult(Object[] object) {
 
-        double temp3 = ((Complex)object[1]).getRe() < 0 ? -((Integer)object[0] + INCREMENT) : (Integer)object[0];
+        double temp3 = ((Complex)object[1]).getRe() < 0 ? -((int)object[0] + INCREMENT) : (int)object[0];
 
         if(temp3 < 0) {
-            return (Boolean)object[8] ? temp3 - MAGNET_INCREMENT : temp3;
+            return (boolean)object[8] ? temp3 - MAGNET_INCREMENT : temp3;
         }
         else {
-            return (Boolean)object[8] ? temp3 + MAGNET_INCREMENT : temp3;
+            return (boolean)object[8] ? temp3 + MAGNET_INCREMENT : temp3;
         }
     } 
     

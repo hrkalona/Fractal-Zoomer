@@ -1,9 +1,6 @@
 package fractalzoomer.core.location.normal;
 
-import fractalzoomer.core.BigNum;
-import fractalzoomer.core.BigNumComplex;
-import fractalzoomer.core.GenericComplex;
-import fractalzoomer.core.MyApfloat;
+import fractalzoomer.core.*;
 import fractalzoomer.core.location.Location;
 import fractalzoomer.fractal_options.Rotation;
 import fractalzoomer.functions.Fractal;
@@ -13,8 +10,8 @@ import org.apfloat.Apfloat;
 public class CartesianLocationNormalBigNumArbitrary extends Location {
     protected BigNum ddxcenter;
     protected BigNum ddycenter;
-    private BigNum bntemp_size_image_size_x;
-    private BigNum bntemp_size_image_size_y;
+    protected BigNum bntemp_size_image_size_x;
+    protected BigNum bntemp_size_image_size_y;
     private BigNum bntemp_xcenter_size;
     private BigNum bntemp_ycenter_size;
 
@@ -28,38 +25,39 @@ public class CartesianLocationNormalBigNumArbitrary extends Location {
     private BigNum bntempY;
 
     protected BigNum bnsize;
-    protected Apfloat ddsize;
-
-    protected Apfloat height_ratio;
-
-    protected Apfloat point5;
-
     private JitterSettings js;
 
-    public CartesianLocationNormalBigNumArbitrary(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int image_size_in, Apfloat[] rotation_center, Apfloat[] rotation_vals, Fractal fractal, JitterSettings js) {
+    private BigNum coefxdd;
+    private BigNum coefydd;
+
+    protected int width;
+    protected  int height;
+
+    public CartesianLocationNormalBigNumArbitrary(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int width, int height, Apfloat[] rotation_center, Apfloat[] rotation_vals, Fractal fractal, JitterSettings js) {
 
         super();
 
         this.fractal = fractal;
 
-        this.height_ratio = new MyApfloat(height_ratio);
-
-        int image_size = offset.getImageSize(image_size_in);
-
-        point5 = new MyApfloat(0.5);
+        width = offset.getWidth(width);
+        height = offset.getHeight(height);
+        int image_size = Math.min(width, height);
+        double coefx = width == image_size ? 0.5 : (1 + (width - (double)height) / height) * 0.5;
+        double coefy = height == image_size ? 0.5 : (1 + (height - (double)width) / width) * 0.5;
 
         bnsize = BigNum.create(size);
-        
-        BigNum size_2_x = bnsize.divide2();
-        Apfloat ddimage_size = new MyApfloat(image_size);
 
-        ddsize = size;
+        coefxdd = BigNum.create(coefx);
+        coefydd = BigNum.create(coefy);
+        
+        BigNum size_2_x = bnsize.mult(coefxdd);
+        Apfloat ddimage_size = new MyApfloat(image_size);
 
         ddxcenter = BigNum.create(xCenter);
         ddycenter = BigNum.create(yCenter);
 
-        Apfloat temp = MyApfloat.fp.multiply(size, this.height_ratio);
-        BigNum size_2_y = BigNum.create(temp).divide2();
+        Apfloat temp = MyApfloat.fp.multiply(size, new MyApfloat(height_ratio));
+        BigNum size_2_y = BigNum.create(temp).mult(coefydd);
         bntemp_size_image_size_x = BigNum.create(MyApfloat.fp.divide(size, ddimage_size));
         bntemp_size_image_size_y = BigNum.create(MyApfloat.fp.divide(temp, ddimage_size));
 
@@ -68,6 +66,8 @@ public class CartesianLocationNormalBigNumArbitrary extends Location {
 
         rotation = new Rotation(new BigNumComplex(rotation_vals[0], rotation_vals[1]), new BigNumComplex(rotation_center[0], rotation_center[1]));
         this.js = js;
+        this.width = width;
+        this.height = height;
 
     }
 
@@ -78,8 +78,6 @@ public class CartesianLocationNormalBigNumArbitrary extends Location {
         fractal = other.fractal;
 
         bnsize = other.bnsize;
-        ddsize = other.ddsize;
-        height_ratio = other.height_ratio;
 
         ddxcenter = other.ddxcenter;
         ddycenter = other.ddycenter;
@@ -93,8 +91,11 @@ public class CartesianLocationNormalBigNumArbitrary extends Location {
         bnantialiasing_x = other.bnantialiasing_x;
         bnantialiasing_y = other.bnantialiasing_y;
 
-        point5 = other.point5;
+        coefxdd = other.coefxdd;
+        coefydd = other.coefydd;
         js = other.js;
+        width = other.width;
+        height = other.height;
 
     }
 

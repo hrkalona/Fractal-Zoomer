@@ -150,8 +150,8 @@ public class FiltersMenu extends MyMenu {
         filters_opt[MainWindow.GRAYSCALE].setToolTipText("Converts the image to grayscale.");
         filters_opt[MainWindow.COLOR_TEMPERATURE].setToolTipText("Changes the color temperature of the image.");
         filters_opt[MainWindow.COLOR_CHANNEL_SWIZZLING].setToolTipText("Swizzles the color channels of the image.");
-        filters_opt[MainWindow.COLOR_CHANNEL_HSB_ADJUSTING].setToolTipText("Adjusts the color channels of the image.");
-        filters_opt[MainWindow.COLOR_CHANNEL_ADJUSTING].setToolTipText("Adjusts the HSB color channels of the image.");
+        filters_opt[MainWindow.COLOR_CHANNEL_HSB_ADJUSTING].setToolTipText("Adjusts the HSB color channels of the image.");
+        filters_opt[MainWindow.COLOR_CHANNEL_ADJUSTING].setToolTipText("Adjusts the color channels of the image.");
         filters_opt[MainWindow.POSTERIZE].setToolTipText("Changes the color tones of the image.");
         filters_opt[MainWindow.SOLARIZE].setToolTipText("Creates a solarized effect.");
         filters_opt[MainWindow.DITHER].setToolTipText("Creates a dithering effect on the image.");

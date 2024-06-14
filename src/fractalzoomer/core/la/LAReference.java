@@ -348,7 +348,7 @@ public class LAReference {
     private boolean CreateLAFromOrbit_MT(DoubleReference ref, DeepReference refDeep, int maxRefIteration, boolean deepZoom, Fractal f) throws Exception {
 
         int WorkThreshholdForThreads = 50000;
-        int MaxThreadCount = TaskDraw.la_thread_executor.getCorePoolSize();
+        int MaxThreadCount = TaskRender.la_thread_executor.getCorePoolSize();
 
         ThreadCount = maxRefIteration / WorkThreshholdForThreads;
 
@@ -775,7 +775,7 @@ public class LAReference {
         }
 
         for(int i = 0; i < Tasks.length; i++) {
-            futures.add(TaskDraw.la_thread_executor.submit(Tasks[i]));
+            futures.add(TaskRender.la_thread_executor.submit(Tasks[i]));
         }
 
         for(int i = 0; i < futures.size(); i++) {
@@ -1062,7 +1062,7 @@ public class LAReference {
 
             boolean PeriodDetected;
             try {
-                if(TaskDraw.USE_THREADS_FOR_BLA2) {
+                if(TaskRender.USE_THREADS_FOR_BLA2) {
                     PeriodDetected = CreateLAFromOrbit_MT(refData.Reference, refDeepData.Reference, maxRefIteration, deepZoom, f);
                 }
                 else {
@@ -1158,7 +1158,7 @@ public class LAReference {
 
         int length = LAIndex + MacroItCount;
 
-        if(TaskDraw.USE_THREADS_FOR_BLA2) {
+        if(TaskRender.USE_THREADS_FOR_BLA2) {
             IntStream.range(LAIndex, length + 1).
                     parallel().forEach(i -> LAs[i].la = LAs[i].la.toDouble());
         }
@@ -1175,7 +1175,7 @@ public class LAReference {
 
         int length = LAIndex + MacroItCount;
 
-        if(TaskDraw.USE_THREADS_FOR_BLA2) {
+        if(TaskRender.USE_THREADS_FOR_BLA2) {
             IntStream.range(LAIndex, length + 1).
                     parallel().forEach(i -> LAs[i].la = LAs[i].la.minimize());
         }

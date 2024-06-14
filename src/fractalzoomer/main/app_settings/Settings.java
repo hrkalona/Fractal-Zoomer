@@ -21,10 +21,11 @@ import fractalzoomer.convergent_bailout_conditions.SkipConvergentBailoutConditio
 import fractalzoomer.core.Complex;
 import fractalzoomer.core.Derivative;
 import fractalzoomer.core.MyApfloat;
-import fractalzoomer.core.TaskDraw;
+import fractalzoomer.core.TaskRender;
 import fractalzoomer.fractal_options.orbit_traps.ImageOrbitTrap;
 import fractalzoomer.functions.Fractal;
 import fractalzoomer.main.Constants;
+import fractalzoomer.main.ImageExpanderWindow;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.palettes.CustomPalette;
 import fractalzoomer.palettes.PresetPalette;
@@ -35,6 +36,8 @@ import fractalzoomer.utils.ColorAlgorithm;
 import org.apfloat.Apfloat;
 
 import javax.swing.*;
+import javax.tools.JavaCompiler;
+import javax.tools.ToolProvider;
 import java.awt.*;
 import java.io.*;
 import java.nio.file.Files;
@@ -48,6 +51,7 @@ import java.util.stream.Stream;
  * @author hrkalona2
  */
 public class Settings implements Constants {
+    public static boolean DISPLAY_USER_CODE_WARNING = true;
 
     public PostProcessSettings pps;
     public PaletteSettings ps;
@@ -205,7 +209,7 @@ public class Settings implements Constants {
 
     }
 
-    public void readSettings(String filename, Component parent, boolean silent) throws FileNotFoundException, IOException, ClassNotFoundException, Exception {
+    public void readSettings(JFrame parentFrame, String filename, Component parent, boolean silent, boolean silentWarning) throws FileNotFoundException, IOException, ClassNotFoundException, Exception {
 
         ObjectInputStream file_temp = new ObjectInputStream(new FileInputStream(filename));
 
@@ -1413,10 +1417,10 @@ public class Settings implements Constants {
         else {
             pps.cns.min_contour = ((SettingsFractals1085) settings).getMinContour();
             color_blending.blending_reversed_colors = ((SettingsFractals1085) settings).getBlendingReversedColors();
-            TaskDraw.PERTURBATION_THEORY = ((SettingsFractals1085) settings).getPerturbationTheory();
+            TaskRender.PERTURBATION_THEORY = ((SettingsFractals1085) settings).getPerturbationTheory();
 
-            if(TaskDraw.LOAD_DRAWING_ALGORITHM_FROM_SAVES) {
-                TaskDraw.GREEDY_ALGORITHM = ((SettingsFractals1085) settings).getGreedyDrawingAlgorithm();
+            if(TaskRender.LOAD_RENDERING_ALGORITHM_FROM_SAVES) {
+                TaskRender.GREEDY_ALGORITHM = ((SettingsFractals1085) settings).getGreedyDrawingAlgorithm();
             }
         }
 
@@ -1433,13 +1437,14 @@ public class Settings implements Constants {
             catch (Exception ex) {}
         }
         else {
-            if(TaskDraw.LOAD_DRAWING_ALGORITHM_FROM_SAVES) {
-                TaskDraw.BRUTE_FORCE_ALG = ((SettingsFractals1086) settings).getBruteForceAlg();
-                TaskDraw.GREEDY_ALGORITHM_SELECTION = ((SettingsFractals1086) settings).getGreedyDrawingAlgorithmId();
-                TaskDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA = ((SettingsFractals1086) settings).getGreedyAlgorithmCheckIterData();
+            if(TaskRender.LOAD_RENDERING_ALGORITHM_FROM_SAVES) {
+                TaskRender.BRUTE_FORCE_ALG = ((SettingsFractals1086) settings).getBruteForceAlg();
+                TaskRender.GREEDY_ALGORITHM_SELECTION = ((SettingsFractals1086) settings).getGreedyDrawingAlgorithmId();
+                TaskRender.GREEDY_ALGORITHM_CHECK_ITER_DATA = ((SettingsFractals1086) settings).getGreedyAlgorithmCheckIterData();
             }
 
             String userCode = ((SettingsFractals1086) settings).getUserDefinedCode();
+
 
             if(!userCode.isEmpty()) {
                 Path path = Paths.get(Parser.SAVED_USER_CODE_FILE);
@@ -1448,6 +1453,30 @@ public class Settings implements Constants {
                 path.toFile().deleteOnExit();
                 Parser.CURRENT_USER_CODE_FILE = Parser.SAVED_USER_CODE_FILE;
                 Parser.CURRENT_USER_CODE_CLASS = Parser.SAVED_USER_CODE_CLASS;
+
+                JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+                if(compiler != null && !silentWarning && DISPLAY_USER_CODE_WARNING) {
+                    int n = JOptionPane.showOptionDialog(parent,
+                            "The loaded Settings file contains some User Defined Code which will be compiled and executed.\n" +
+                                    "Please review the contents of the file " + Parser.SAVED_USER_CODE_FILE + " before moving forward and selecting \"Yes\".\n" +
+                                    "Do you want to proceed? Otherwise the application will be terminated.",
+                            "Warning!",
+                            JOptionPane.YES_NO_OPTION,
+                            JOptionPane.WARNING_MESSAGE,
+                            null,
+                            null,
+                            null);
+
+                    if (n == JOptionPane.NO_OPTION || n == JOptionPane.CLOSED_OPTION) {
+                        if (parentFrame instanceof MainWindow) {
+                            ((MainWindow) parentFrame).exit(-1);
+                        } else if (parentFrame instanceof ImageExpanderWindow) {
+                            ((ImageExpanderWindow) parentFrame).exit(-1);
+                        } else {
+                            System.exit(-1);
+                        }
+                    }
+                }
             }
             else {
                 Parser.CURRENT_USER_CODE_FILE = Parser.DEFAULT_USER_CODE_FILE;
@@ -1593,8 +1622,8 @@ public class Settings implements Constants {
             fs.blurringKernelSelection = defaults.fs.blurringKernelSelection;
         }
         else {
-            if(TaskDraw.LOAD_DRAWING_ALGORITHM_FROM_SAVES) {
-                TaskDraw.GUESS_BLOCKS_SELECTION = ((SettingsFractals1089) settings).getGuessBlocks();
+            if(TaskRender.LOAD_RENDERING_ALGORITHM_FROM_SAVES) {
+                TaskRender.GUESS_BLOCKS_SELECTION = ((SettingsFractals1089) settings).getGuessBlocks();
             }
 
             pps.bms.fractionalTransfer = ((SettingsFractals1089) settings).getBumpfractionalTransfer();
@@ -1681,14 +1710,51 @@ public class Settings implements Constants {
             pps.hss.rank_order_digits_grouping = defaults.pps.hss.rank_order_digits_grouping;
         }
         else {
-            if(TaskDraw.LOAD_DRAWING_ALGORITHM_FROM_SAVES) {
-                TaskDraw.SUCCESSIVE_REFINEMENT_SQUARE_RECT_SPLIT_ALGORITHM = ((SettingsFractals1090) settings).getBlocksFormat();
-                TaskDraw.TWO_PASS_SUCCESSIVE_REFINEMENT = ((SettingsFractals1090) settings).getTwoStepRefinement();
-                TaskDraw.CHUNK_SIZE_PER_ROW = ((SettingsFractals1090) settings).getOneChunkPerRow();
+            if(TaskRender.LOAD_RENDERING_ALGORITHM_FROM_SAVES) {
+                TaskRender.SUCCESSIVE_REFINEMENT_SQUARE_RECT_SPLIT_ALGORITHM = ((SettingsFractals1090) settings).getBlocksFormat();
+                TaskRender.TWO_PASS_SUCCESSIVE_REFINEMENT = ((SettingsFractals1090) settings).getTwoStepRefinement();
+                TaskRender.CHUNK_SIZE_PER_ROW = ((SettingsFractals1090) settings).getOneChunkPerRow();
             }
 
             fns.convergent_bailout = ((SettingsFractals1090) settings).getConvergentBailout();
             pps.hss.rank_order_digits_grouping = ((SettingsFractals1090) settings).getRankOrderDigitsGrouping();
+        }
+
+        if(version < 1091) {
+            pps.ens.en_color_blending = defaults.pps.ens.en_color_blending;
+            pps.ens.en_reverse_color_blending = defaults.pps.ens.en_reverse_color_blending;
+
+            pps.hss.hs_color_blending = defaults.pps.hss.hs_color_blending;
+            pps.hss.hs_reverse_color_blending = defaults.pps.hss.hs_reverse_color_blending;
+
+            pps.ndes.nde_color_blending = defaults.pps.ndes.nde_color_blending;
+            pps.ndes.nde_reverse_color_blending = defaults.pps.ndes.nde_reverse_color_blending;
+
+            pps.ofs.of_color_blending = defaults.pps.ofs.of_color_blending;
+            pps.ofs.of_reverse_color_blending = defaults.pps.ofs.of_reverse_color_blending;
+
+            pps.rps.rp_color_blending = defaults.pps.rps.rp_color_blending;
+            pps.rps.rp_reverse_color_blending = defaults.pps.rps.rp_reverse_color_blending;
+
+            pps.ots.trapOffset = defaults.pps.ots.trapOffset;
+        }
+        else {
+            pps.ens.en_color_blending = ((SettingsFractals1091) settings).getEn_color_blending();
+            pps.ens.en_reverse_color_blending = ((SettingsFractals1091) settings).getEn_reverse_color_blending();
+
+            pps.hss.hs_color_blending = ((SettingsFractals1091) settings).getHs_color_blending();
+            pps.hss.hs_reverse_color_blending = ((SettingsFractals1091) settings).getHs_reverse_color_blending();
+
+            pps.ndes.nde_color_blending = ((SettingsFractals1091) settings).getNde_color_blending();
+            pps.ndes.nde_reverse_color_blending = ((SettingsFractals1091) settings).getNde_reverse_color_blending();
+
+            pps.ofs.of_color_blending = ((SettingsFractals1091) settings).getOf_color_blending();
+            pps.ofs.of_reverse_color_blending = ((SettingsFractals1091) settings).getOf_reverse_color_blending();
+
+            pps.rps.rp_color_blending = ((SettingsFractals1091) settings).getRp_color_blending();
+            pps.rps.rp_reverse_color_blending = ((SettingsFractals1091) settings).getRp_reverse_color_blending();
+
+            pps.ots.trapOffset = ((SettingsFractals1091) settings).getTrapOffset();
         }
 
         if (fns.plane_type == USER_PLANE) {
@@ -2145,11 +2211,11 @@ public class Settings implements Constants {
             loadedSettings(filename, parent, version);
         }
 
-        if (supportsPerturbationTheory() && !TaskDraw.PERTURBATION_THEORY && size.compareTo(MyApfloat.MIN_DOUBLE_SIZE) <= 0) {
-            TaskDraw.PERTURBATION_THEORY = true;
+        if (supportsPerturbationTheory() && !TaskRender.PERTURBATION_THEORY && size.compareTo(MyApfloat.MIN_DOUBLE_SIZE) <= 0) {
+            TaskRender.PERTURBATION_THEORY = true;
         }
-        else if(!supportsPerturbationTheory() && TaskDraw.PERTURBATION_THEORY) {
-            TaskDraw.PERTURBATION_THEORY = false;
+        else if(!supportsPerturbationTheory() && TaskRender.PERTURBATION_THEORY) {
+            TaskRender.PERTURBATION_THEORY = false;
         }
     }
 
@@ -2172,7 +2238,7 @@ public class Settings implements Constants {
                 userCode = userCode.replaceAll("\\b" + Parser.DEFAULT_USER_CODE_CLASS + "\\b", Parser.SAVED_USER_CODE_CLASS);
             }
 
-            SettingsFractals settings = new SettingsFractals1090(this, TaskDraw.PERTURBATION_THEORY, TaskDraw.GREEDY_ALGORITHM, TaskDraw.BRUTE_FORCE_ALG, TaskDraw.GREEDY_ALGORITHM_SELECTION, TaskDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA, userCode, TaskDraw.GUESS_BLOCKS_SELECTION, TaskDraw.SUCCESSIVE_REFINEMENT_SQUARE_RECT_SPLIT_ALGORITHM, TaskDraw.TWO_PASS_SUCCESSIVE_REFINEMENT, TaskDraw.CHUNK_SIZE_PER_ROW);
+            SettingsFractals settings = new SettingsFractals1091(this, TaskRender.PERTURBATION_THEORY, TaskRender.GREEDY_ALGORITHM, TaskRender.BRUTE_FORCE_ALG, TaskRender.GREEDY_ALGORITHM_SELECTION, TaskRender.GREEDY_ALGORITHM_CHECK_ITER_DATA, userCode, TaskRender.GUESS_BLOCKS_SELECTION, TaskRender.SUCCESSIVE_REFINEMENT_SQUARE_RECT_SPLIT_ALGORITHM, TaskRender.TWO_PASS_SUCCESSIVE_REFINEMENT, TaskRender.CHUNK_SIZE_PER_ROW);
             file_temp.writeObject(settings);
             file_temp.flush();
         } catch (IOException ex) {
@@ -2643,7 +2709,7 @@ public class Settings implements Constants {
 
         fns.period = 0;
         fns.convergent_bailout = 0;
-        TaskDraw.USER_CONVERGENT_BAILOUT = 0;
+        TaskRender.USER_CONVERGENT_BAILOUT = 0;
     }
 
     public void createPoly() {
@@ -2726,9 +2792,7 @@ public class Settings implements Constants {
 
     public boolean functionSupportsC() {
 
-        return !isRootFindingMethod(fns.function) && fns.function != KLEINIAN && fns.function != SIERPINSKI_GASKET && fns.function != INERTIA_GRAVITY
-                && (fns.function != USER_FORMULA_NOVA || (fns.function == USER_FORMULA_NOVA && userFormulaHasC)) && (fns.function != USER_FORMULA || (fns.function == USER_FORMULA && userFormulaHasC)) && (fns.function != USER_FORMULA_ITERATION_BASED || (fns.function == USER_FORMULA_ITERATION_BASED && userFormulaHasC)) && (fns.function != USER_FORMULA_CONDITIONAL || (fns.function == USER_FORMULA_CONDITIONAL && userFormulaHasC)) && (fns.function != USER_FORMULA_COUPLED || (fns.function == USER_FORMULA_COUPLED && userFormulaHasC))
-                && (fns.function != LYAPUNOV || (fns.function == LYAPUNOV && userFormulaHasC));
+        return !isRootFindingMethod(fns.function) && fns.function != KLEINIAN && fns.function != SIERPINSKI_GASKET && fns.function != INERTIA_GRAVITY && (fns.function != USER_FORMULA_NOVA || userFormulaHasC) && (fns.function != USER_FORMULA || userFormulaHasC) && (fns.function != USER_FORMULA_ITERATION_BASED || userFormulaHasC) && (fns.function != USER_FORMULA_CONDITIONAL || userFormulaHasC) && (fns.function != USER_FORMULA_COUPLED || userFormulaHasC) && (fns.function != LYAPUNOV || userFormulaHasC);
 
     }
 
@@ -3002,14 +3066,20 @@ public class Settings implements Constants {
                 || function == MAGNET_PATAKI5 || function == MAGNET_PATAKIK;
     }
 
-    public static boolean hasFunctionParameterization(int function) {
-        return function == LYAPUNOV || function == MAGNETIC_PENDULUM || function == MANDELBROTNTH || function == MANDELBROTWTH
-                || function == GENERIC_CaZbdZe || function == GENERIC_CpAZpBC || function == MULLERFORMULA
-                || function == LAGUERREFORMULA || function == NOVA || function == KLEINIAN
-                || function == INERTIA_GRAVITY || function == USER_FORMULA_ITERATION_BASED || function == USER_FORMULA_CONDITIONAL
+    public static boolean hasFunctionUserFormula(int function) {
+        return function == LYAPUNOV
+                || function == MULLERFORMULA
+                || function == LAGUERREFORMULA
+                || function == USER_FORMULA_ITERATION_BASED || function == USER_FORMULA_CONDITIONAL
                 || function == LAMBDA_FN_FN || function == USER_FORMULA || function == USER_FORMULA_COUPLED || function == USER_FORMULA_NOVA
                 || isTwoFunctionsRootFindingMethodFormula(function) || isThreeFunctionsRootFindingMethodFormula(function) || isFourFunctionsRootFindingMethodFormula(function)
-                || isOneFunctionsRootFindingMethodFormula(function) || isPolynomialFunction(function);
+                || isOneFunctionsRootFindingMethodFormula(function);
+    }
+
+    public static boolean hasFunctionParameterization(int function) {
+        return hasFunctionUserFormula(function) || function == MAGNETIC_PENDULUM || function == MANDELBROTNTH || function == MANDELBROTWTH
+                || function == GENERIC_CaZbdZe || function == GENERIC_CpAZpBC || function == NOVA || function == KLEINIAN
+                || function == INERTIA_GRAVITY || isPolynomialFunction(function);
     }
 
     public static boolean hasPlaneParameterization(int plane) {
@@ -3023,28 +3093,28 @@ public class Settings implements Constants {
     public void applyStaticSettings() {
 
         if (ps.color_choice == CUSTOM_PALETTE_ID) {
-            TaskDraw.palette_outcoloring = new CustomPalette(ps.custom_palette, ps.color_interpolation, ps.color_space, ps.reversed_palette, ps.scale_factor_palette_val, ps.processing_alg, fns.smoothing, special_color, color_smoothing_method, special_use_palette_color, fns.smoothing_fractional_transfer_method).getRawPalette();
+            TaskRender.palette_outcoloring = new CustomPalette(ps.custom_palette, ps.color_interpolation, ps.color_space, ps.reversed_palette, ps.scale_factor_palette_val, ps.processing_alg, fns.smoothing, special_color, color_smoothing_method, special_use_palette_color, fns.smoothing_fractional_transfer_method).getRawPalette();
         } else {
-            TaskDraw.palette_outcoloring = new PresetPalette(ps.color_choice, ps.direct_palette, fns.smoothing, special_color, color_smoothing_method, special_use_palette_color, fns.smoothing_fractional_transfer_method).getRawPalette();
+            TaskRender.palette_outcoloring = new PresetPalette(ps.color_choice, ps.direct_palette, fns.smoothing, special_color, color_smoothing_method, special_use_palette_color, fns.smoothing_fractional_transfer_method).getRawPalette();
         }
 
         if (ps2.color_choice == CUSTOM_PALETTE_ID) {
-            TaskDraw.palette_incoloring = new CustomPalette(ps2.custom_palette, ps2.color_interpolation, ps2.color_space, ps2.reversed_palette, ps2.scale_factor_palette_val, ps2.processing_alg, fns.smoothing, special_color, color_smoothing_method, special_use_palette_color, fns.smoothing_fractional_transfer_method).getRawPalette();
+            TaskRender.palette_incoloring = new CustomPalette(ps2.custom_palette, ps2.color_interpolation, ps2.color_space, ps2.reversed_palette, ps2.scale_factor_palette_val, ps2.processing_alg, fns.smoothing, special_color, color_smoothing_method, special_use_palette_color, fns.smoothing_fractional_transfer_method).getRawPalette();
         } else {
-            TaskDraw.palette_incoloring = new PresetPalette(ps2.color_choice, ps2.direct_palette, fns.smoothing, special_color, color_smoothing_method, special_use_palette_color, fns.smoothing_fractional_transfer_method).getRawPalette();
+            TaskRender.palette_incoloring = new PresetPalette(ps2.color_choice, ps2.direct_palette, fns.smoothing, special_color, color_smoothing_method, special_use_palette_color, fns.smoothing_fractional_transfer_method).getRawPalette();
         }
 
-        TaskDraw.USER_CONVERGENT_BAILOUT = fns.convergent_bailout * fns.convergent_bailout;
-        TaskDraw.palette_outcoloring.setGeneratedPaletteSettings(true, gps);
-        TaskDraw.palette_incoloring.setGeneratedPaletteSettings(false, gps);
+        TaskRender.USER_CONVERGENT_BAILOUT = fns.convergent_bailout * fns.convergent_bailout;
+        TaskRender.palette_outcoloring.setGeneratedPaletteSettings(true, gps);
+        TaskRender.palette_incoloring.setGeneratedPaletteSettings(false, gps);
 
-        TaskDraw.USE_DIRECT_COLOR = useDirectColor;
+        TaskRender.USE_DIRECT_COLOR = useDirectColor;
 
         ColorAlgorithm.GlobalUsingIncrement = globalIncrementBypass;
 
-        TaskDraw.gradient = CustomPalette.createGradient(gs.colorA.getRGB(), gs.colorB.getRGB(), Constants.GRADIENT_LENGTH, gs.gradient_interpolation, gs.gradient_color_space, gs.gradient_reversed, 0);
+        TaskRender.gradient = CustomPalette.createGradient(gs.colorA.getRGB(), gs.colorB.getRGB(), Constants.GRADIENT_LENGTH, gs.gradient_interpolation, gs.gradient_color_space, gs.gradient_reversed, 0);
 
-        TaskDraw.COLOR_SMOOTHING_METHOD = color_smoothing_method;
+        TaskRender.COLOR_SMOOTHING_METHOD = color_smoothing_method;
 
         SkipBailoutCondition.SKIPPED_ITERATION_COUNT = fns.skip_bailout_iterations;
 
@@ -3057,21 +3127,21 @@ public class Settings implements Constants {
         ColorAlgorithm.MAGNET_INCREMENT = MagnetColorOffset;
 
         if(d3s.d3) {
-            TaskDraw.setExtraDataArrays(needsExtraData(), d3s.detail);
+            TaskRender.setExtraDataArrays(needsExtraData(), d3s.detail, d3s.detail);
         }
         else {
-            TaskDraw.setExtraDataArrays(needsExtraData(), TaskDraw.IMAGE_SIZE);
+            TaskRender.setExtraDataArrays(needsExtraData(), TaskRender.WIDTH, TaskRender.HEIGHT);
         }
 
-        TaskDraw.loadWindowImage(pps.ls.specularReflectionMethod);
+        TaskRender.loadWindowImage(pps.ls.specularReflectionMethod);
 
-        TaskDraw.HSB_CONSTANT_B = hsb_constant_b;
-        TaskDraw.HSB_CONSTANT_S = hsb_constant_s;
-        TaskDraw.LCHab_CONSTANT_L = lchab_constant_l;
-        TaskDraw.LCHab_CONSTANT_C = lchab_constant_c;
-        TaskDraw.LCHuv_CONSTANT_L = lchuv_constant_l;
-        TaskDraw.LCHuv_CONSTANT_C = lchuv_constant_c;
-        TaskDraw.setAlgorithmColors();
+        TaskRender.HSB_CONSTANT_B = hsb_constant_b;
+        TaskRender.HSB_CONSTANT_S = hsb_constant_s;
+        TaskRender.LCHab_CONSTANT_L = lchab_constant_l;
+        TaskRender.LCHab_CONSTANT_C = lchab_constant_c;
+        TaskRender.LCHuv_CONSTANT_L = lchuv_constant_l;
+        TaskRender.LCHuv_CONSTANT_C = lchuv_constant_c;
+        TaskRender.setAlgorithmColors();
     }
 
     public boolean supportsPeriod() {
@@ -3120,22 +3190,22 @@ public class Settings implements Constants {
     }
 
     public boolean isPertubationTheoryInUse() {
-        return TaskDraw.PERTURBATION_THEORY && supportsPerturbationTheory();
+        return TaskRender.PERTURBATION_THEORY && supportsPerturbationTheory();
     }
 
     public boolean isHighPrecisionInUse() {
-        return TaskDraw.HIGH_PRECISION_CALCULATION && supportsPerturbationTheory();
+        return TaskRender.HIGH_PRECISION_CALCULATION && supportsPerturbationTheory();
     }
 
     public boolean isPeriodInUse() {
-        return isPertubationTheoryInUse() && ((TaskDraw.APPROXIMATION_ALGORITHM == 2 && supportsBilinearApproximation())
-                || (TaskDraw.APPROXIMATION_ALGORITHM == 4 && supportsBilinearApproximation2())
-                || (TaskDraw.APPROXIMATION_ALGORITHM == 3 && supportsNanomb1())
+        return isPertubationTheoryInUse() && ((TaskRender.APPROXIMATION_ALGORITHM == 2 && supportsBilinearApproximation())
+                || (TaskRender.APPROXIMATION_ALGORITHM == 4 && supportsBilinearApproximation2())
+                || (TaskRender.APPROXIMATION_ALGORITHM == 3 && supportsNanomb1())
         ) && supportsPeriod() && fns.period != 0;
     }
 
     public boolean isNanomb1InUse() {
-        return isPertubationTheoryInUse() && TaskDraw.APPROXIMATION_ALGORITHM == 3 && supportsNanomb1() && supportsPeriod();
+        return isPertubationTheoryInUse() && TaskRender.APPROXIMATION_ALGORITHM == 3 && supportsNanomb1() && supportsPeriod();
     }
 
     public boolean supportsNanomb1() {
@@ -3143,14 +3213,14 @@ public class Settings implements Constants {
     }
 
     private boolean needsSmoothing() {
-        return (fns.smoothing || ((pps.ndes.useNumericalDem || pps.ls.lighting || pps.ss.slopes || pps.bms.bump_map || pps.cns.contour_coloring || pps.ens.entropy_coloring || pps.rps.rainbow_palette || pps.fdes.fake_de || pps.sts.statistic) && TaskDraw.USE_SMOOTHING_FOR_PROCESSING_ALGS));
+        return (fns.smoothing || ((pps.ndes.useNumericalDem || pps.ls.lighting || pps.ss.slopes || pps.bms.bump_map || pps.cns.contour_coloring || pps.ens.entropy_coloring || pps.rps.rainbow_palette || pps.fdes.fake_de || pps.sts.statistic) && TaskRender.USE_SMOOTHING_FOR_PROCESSING_ALGS));
     }
     private boolean requiresSmoothingCalculation() {
-        return !TaskDraw.SMOOTH_DATA && needsSmoothing();
+        return !TaskRender.SMOOTH_DATA && needsSmoothing();
     }
 
     private boolean requiresUnSmoothingCalculation() {
-        return TaskDraw.SMOOTH_DATA && !needsSmoothing();
+        return TaskRender.SMOOTH_DATA && !needsSmoothing();
     }
 
     public boolean needsChangeOfSmoothing() {
@@ -3158,7 +3228,70 @@ public class Settings implements Constants {
     }
 
     public boolean canSkipCalculatedAreas() {
-        return !d3s.d3 && !ds.domain_coloring && !julia_map && !fs.filters[ANTIALIASING];
+        return !d3s.d3 && !ds.domain_coloring && !julia_map && !isAnyFilterEnabled() && !isAnyPostProcessingEnabled()
+                && !(pps.sts.statistic && pps.sts.statisticGroup == 4)
+                && !(pps.sts.statistic && pps.sts.statisticIncludeNotEscaped)
+                && !(pps.ots.useTraps && pps.ots.trapIncludeNotEscaped)
+                && !(TaskRender.GREEDY_ALGORITHM && TaskRender.SKIPPED_PIXELS_ALG == 1)
+                && !usesUserFormula()
+                && fns.in_coloring_algorithm == MAX_ITERATIONS
+                && !fns.tcs.trueColorIn
+                && !useDirectColor;
+    }
+
+    public boolean isAnyFilterEnabled() {
+        for(int i = 0; i < fs.filters.length; i++) {
+            if(fs.filters[i]) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean needsBailout() {
+        return !ds.domain_coloring && !isConvergingType() && fns.function != KLEINIAN;
+    }
+
+    public boolean needConvergentBailout() {
+        return !ds.domain_coloring && hasConvergentBailout();
+    }
+
+    public boolean usesUserFormula() {
+        return (!isPertubationTheoryInUse() && !isHighPrecisionInUse() &&
+                    (hasFunctionUserFormula(fns.function)
+                    || fns.ips.influencePlane == USER_PLANE_INFLUENCE
+                    || fns.preffs.functionFilter ==  USER_FUNCTION_FILTER
+                    || fns.postffs.functionFilter ==  USER_FUNCTION_FILTER
+                    || (fns.init_val && fns.variable_init_value)
+                    || (fns.perturbation && fns.variable_perturbation)
+                    )
+                )
+
+                || fns.plane_type == USER_PLANE
+                || (needsBailout() && fns.bailout_test_algorithm == BAILOUT_CONDITION_USER)
+                || (needConvergentBailout() && fns.cbs.convergent_bailout_test_algorithm == CONVERGENT_BAILOUT_CONDITION_USER)
+                || fns.out_coloring_algorithm == USER_OUTCOLORING_ALGORITHM
+                || fns.in_coloring_algorithm == USER_INCOLORING_ALGORITHM
+                || (fns.tcs.trueColorOut && fns.tcs.trueColorOutMode == 1)
+                || (fns.tcs.trueColorIn && fns.tcs.trueColorInMode == 1)
+                || (pps.sts.statistic && pps.sts.statisticGroup == 1)
+                ;
+
+
+    }
+
+    public  boolean isAnyPostProcessingEnabled() {
+        return pps.hss.histogramColoring
+                || pps.ls.lighting
+                || pps.bms.bump_map
+                || pps.ss.slopes
+                || pps.fdes.fake_de
+                || pps.ndes.useNumericalDem
+                || pps.rps.rainbow_palette
+                || pps.ens.entropy_coloring
+                || pps.ofs.offset_coloring
+                || pps.gss.greyscale_coloring
+                || pps.cns.contour_coloring;
     }
 
     public boolean supportsBilinearApproximation() {
@@ -3185,11 +3318,11 @@ public class Settings implements Constants {
     }
 
     public boolean isBilinearApproximationInUse() {
-        return TaskDraw.APPROXIMATION_ALGORITHM == 2 && supportsBilinearApproximation();
+        return TaskRender.APPROXIMATION_ALGORITHM == 2 && supportsBilinearApproximation();
     }
 
     public boolean isBilinearApproximation2InUse() {
-        return TaskDraw.APPROXIMATION_ALGORITHM == 4 && supportsBilinearApproximation2();
+        return TaskRender.APPROXIMATION_ALGORITHM == 4 && supportsBilinearApproximation2();
     }
 
     public void loadedSettings(String file, Component parent, int version) {
@@ -3216,23 +3349,13 @@ public class Settings implements Constants {
 
     public boolean needsPostProcessing() {
         return (
-                (!ds.domain_coloring && (pps.hss.histogramColoring
-                || pps.ls.lighting
-                || pps.bms.bump_map
-                || pps.ss.slopes
-                || pps.fdes.fake_de
-                || pps.ndes.useNumericalDem
-                || pps.rps.rainbow_palette
-                || pps.ens.entropy_coloring
-                || pps.ofs.offset_coloring
-                || pps.gss.greyscale_coloring
-                || pps.cns.contour_coloring))
+                (!ds.domain_coloring && isAnyPostProcessingEnabled())
                 ||
                 (ds.domain_coloring && (pps.ls.lighting || pps.bms.bump_map || pps.ss.slopes))
         ) && !useDirectColor;
     }
     public boolean needsExtraData() {
-        return fs.filters[Constants.ANTIALIASING]  && ((TaskDraw.ALWAYS_SAVE_EXTRA_PIXEL_DATA_ON_AA_WITH_PP && needsPostProcessing()) || TaskDraw.ALWAYS_SAVE_EXTRA_PIXEL_DATA_ON_AA);
+        return fs.filters[Constants.ANTIALIASING]  && ((TaskRender.ALWAYS_SAVE_EXTRA_PIXEL_DATA_ON_AA_WITH_PP && needsPostProcessing()) || TaskRender.ALWAYS_SAVE_EXTRA_PIXEL_DATA_ON_AA);
     }
 
 }

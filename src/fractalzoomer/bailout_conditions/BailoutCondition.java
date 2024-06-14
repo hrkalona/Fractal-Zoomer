@@ -43,7 +43,7 @@ public abstract class BailoutCondition {
 
         useThreads = true;
         this.bound = bound;
-        if(TaskDraw.PERTURBATION_THEORY || TaskDraw.HIGH_PRECISION_CALCULATION) {
+        if(TaskRender.PERTURBATION_THEORY || TaskRender.HIGH_PRECISION_CALCULATION) {
             ddbound = new MyApfloat(bound);
             ddcbound = new DoubleDouble(bound);
             bnbound = BigNum.create(bound);

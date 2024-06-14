@@ -93,7 +93,7 @@ public class CosArgDivideInverseNorm extends GenericStatistic {
     }
 
     @Override
-    public double getValue() {
+    protected double getValue() {
 
         if(keepLastXItems) {
             sampleLastX();

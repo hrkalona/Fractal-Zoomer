@@ -1,7 +1,7 @@
 package fractalzoomer.fractal_options.iteration_statistics;
 
 import fractalzoomer.core.Complex;
-import fractalzoomer.core.TaskDraw;
+import fractalzoomer.core.TaskRender;
 import fractalzoomer.fractal_options.PlanePointOption;
 import fractalzoomer.fractal_options.initial_value.VariableInitialValue;
 import fractalzoomer.main.MainWindow;
@@ -46,7 +46,15 @@ public abstract class GenericUserStatistic extends GenericStatistic {
         }
 
         if (parser.foundISize()) {
-            parser.setISizevalue(new Complex(TaskDraw.IMAGE_SIZE, 0));
+            parser.setISizevalue(new Complex(Math.min(TaskRender.WIDTH, TaskRender.HEIGHT), 0));
+        }
+
+        if (parser.foundWidth()) {
+            parser.setWidthvalue(new Complex(TaskRender.WIDTH, 0));
+        }
+
+        if (parser.foundHeight()) {
+            parser.setHeightvalue(new Complex(TaskRender.HEIGHT, 0));
         }
 
         if (parser.foundPoint()) {
@@ -93,6 +101,10 @@ public abstract class GenericUserStatistic extends GenericStatistic {
             parser.setPPvalue(zold2);
         }
 
+        if(parser.foundStat()) {
+            parser.setStatvalue(val);
+        }
+
         for (int i = 0; i < Parser.EXTRA_VARS; i++) {
             if (parser.foundVar(i)) {
                 parser.setVarsvalue(i, globalVars[i]);
@@ -123,6 +135,7 @@ public abstract class GenericUserStatistic extends GenericStatistic {
                 }
                 break;
             case MainWindow.REDUCTION_ASSIGN:
+                val2.assign(val);
                 val.assign(expr.getValue());
                 break;
             case MainWindow.REDUCTION_SUB:
@@ -130,6 +143,7 @@ public abstract class GenericUserStatistic extends GenericStatistic {
                 val.sub_mutable(expr.getValue());
                 break;
             case MainWindow.REDUCTION_MULT:
+                val2.assign(val);
                 val.times_mutable(expr.getValue());
                 break;
         }
@@ -182,6 +196,10 @@ public abstract class GenericUserStatistic extends GenericStatistic {
             parser.setPPvalue(sam.zold2_val);
         }
 
+        if(parser.foundStat()) {
+            parser.setStatvalue(val);
+        }
+
         for (int i = 0; i < Parser.EXTRA_VARS; i++) {
             if (parser.foundVar(i)) {
                 parser.setVarsvalue(i, globalVars[i]);
@@ -231,7 +249,7 @@ public abstract class GenericUserStatistic extends GenericStatistic {
         int[] samples1 = new int[1];
         int[] samples2 = new int[1];
 
-        if(reductionFunction == MainWindow.REDUCTION_SUM || reductionFunction == MainWindow.REDUCTION_SUB) {
+        if(reductionFunction != MainWindow.REDUCTION_MIN && reductionFunction != MainWindow.REDUCTION_MAX) {
             int start = sampleItem % sampleItems.length;
             for(int i = start, count = 1; count < length; i++, count++) {
                 StatisticSample sam = sampleItems[i % sampleItems.length];
@@ -274,7 +292,7 @@ public abstract class GenericUserStatistic extends GenericStatistic {
     protected abstract double getSmoothing();
 
     @Override
-    public double getValue() {
+    protected double getValue() {
         double sumRe;
         double sum2Re;
 
@@ -283,9 +301,6 @@ public abstract class GenericUserStatistic extends GenericStatistic {
 
             if (reductionFunction == MainWindow.REDUCTION_MAX || reductionFunction == MainWindow.REDUCTION_MIN) {
                 return useIterations ? statisticIteration * statistic_intensity : val.getRe() * statistic_intensity;
-            }
-            else if(reductionFunction != MainWindow.REDUCTION_SUM && reductionFunction != MainWindow.REDUCTION_SUB) {
-                return val.getRe() * statistic_intensity;
             }
 
             if (samples < 1) {
@@ -303,9 +318,6 @@ public abstract class GenericUserStatistic extends GenericStatistic {
         else {
             if (reductionFunction == MainWindow.REDUCTION_MAX || reductionFunction == MainWindow.REDUCTION_MIN) {
                 return useIterations ? statisticIteration * statistic_intensity : val.getRe() * statistic_intensity;
-            }
-            else if(reductionFunction != MainWindow.REDUCTION_SUM && reductionFunction != MainWindow.REDUCTION_SUB) {
-                return val.getRe() * statistic_intensity;
             }
 
             if (samples < 1) {

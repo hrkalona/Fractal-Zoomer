@@ -14,12 +14,11 @@ public class PolarLocationDeltaDouble extends Location {
     private Rotation rotation;
     private double muly;
     private double mulx;
-    private double start;
+    private double startx;
+    private double starty;
 
     private double xcenter;
     private double ycenter;
-
-    private int image_size;
 
     private double center;
 
@@ -43,13 +42,17 @@ public class PolarLocationDeltaDouble extends Location {
 
     private boolean requiresVariablePixelSize;
 
+    private int width;
 
-    public PolarLocationDeltaDouble(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int image_size_in, double circle_period, Apfloat[] rotation_center, Apfloat[] rotation_vals, Fractal fractal, JitterSettings js) {
+
+    public PolarLocationDeltaDouble(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int width, int height, double circle_period, Apfloat[] rotation_center, Apfloat[] rotation_vals, Fractal fractal, JitterSettings js) {
 
         super();
 
         this.fractal = fractal;
-        this.image_size = offset.getImageSize(image_size_in);
+        width = offset.getWidth(width);
+        height = offset.getHeight(height);
+        int image_size = Math.min(width, height);
 
         requiresVariablePixelSize = fractal.requiresVariablePixelSize();
 
@@ -57,13 +60,17 @@ public class PolarLocationDeltaDouble extends Location {
         ycenter = yCenter.doubleValue();
         double dsize = size.doubleValue();
 
+        double coefx = width == image_size ? 0.5 : (1 + (width - (double)height) / height) * 0.5;
+        double coefy = height == image_size ? 0.5 : (1 + (height - (double)width) / width) * 0.5;
+
         center = Math.log(dsize);
 
         muly = (2 * circle_period * Math.PI) / image_size;
 
         mulx = muly * height_ratio;
 
-        start = center - mulx * image_size * 0.5;
+        startx = center - mulx * image_size * coefx;
+        starty = muly * image_size * (0.5 - coefy);
 
         emulx = Math.exp(mulx);
         Invemulx = 1 / emulx;
@@ -74,6 +81,8 @@ public class PolarLocationDeltaDouble extends Location {
         rotation = new Rotation(new Complex(rotation_vals[0].doubleValue(), rotation_vals[1].doubleValue()), new Complex(rotation_center[0].doubleValue(), rotation_center[1].doubleValue()));
 
         this.js = js;
+
+        this.width = width;
 
     }
 
@@ -88,7 +97,8 @@ public class PolarLocationDeltaDouble extends Location {
 
         mulx = other.mulx;
         muly = other.muly;
-        start = other.start;
+        startx = other.startx;
+        starty = other.starty;
 
         emulx = other.emulx;
         Invemulx = other.Invemulx;
@@ -96,8 +106,6 @@ public class PolarLocationDeltaDouble extends Location {
         sinmuly = other.sinmuly;
 
         center = other.center;
-
-        image_size = other.image_size;
 
         antialiasing_y_cos = other.antialiasing_y_cos;
         antialiasing_y_sin = other.antialiasing_y_sin;
@@ -110,6 +118,8 @@ public class PolarLocationDeltaDouble extends Location {
         js = other.js;
 
         requiresVariablePixelSize = other.requiresVariablePixelSize;
+
+        width = other.width;
     }
 
     public void setVariablePixelSize(double expValue) {
@@ -119,8 +129,8 @@ public class PolarLocationDeltaDouble extends Location {
     private Complex getComplexBase(int x, int y) {
         if(js.enableJitter) {
             double[] res = GetPixelOffset(y, x, js.jitterSeed, js.jitterShape, js.jitterScale);
-            temp_r = Math.exp((x + res[1]) * mulx + start);
-            double f = (y + res[0]) * muly;
+            temp_r = Math.exp((x + res[1]) * mulx + startx);
+            double f = (y + res[0]) * muly + starty;
             temp_sf = Math.sin(f);
             temp_cf = Math.cos(f);
         }
@@ -138,7 +148,7 @@ public class PolarLocationDeltaDouble extends Location {
                 temp_sf = tempSin;
                 temp_cf = tempCos;
             } else {
-                double f = y * muly;
+                double f = y * muly + starty;
                 temp_sf = Math.sin(f);
                 temp_cf = Math.cos(f);
             }
@@ -148,7 +158,7 @@ public class PolarLocationDeltaDouble extends Location {
             } else if (x == indexX - 1) {
                 temp_r = temp_r * Invemulx;
             } else {
-                temp_r = Math.exp(x * mulx + start);
+                temp_r = Math.exp(x * mulx + startx);
             }
         }
 
@@ -192,7 +202,7 @@ public class PolarLocationDeltaDouble extends Location {
                 temp_sf = tempSin;
                 temp_cf = tempCos;
             } else {
-                double f = y * muly;
+                double f = y * muly + starty;
                 temp_sf = Math.sin(f);
                 temp_cf = Math.cos(f);
             }
@@ -213,7 +223,7 @@ public class PolarLocationDeltaDouble extends Location {
             } else if (x == indexX - 1) {
                 temp_r = temp_r * Invemulx;
             } else {
-                temp_r = Math.exp(x * mulx + start);
+                temp_r = Math.exp(x * mulx + startx);
             }
         }
 
@@ -237,7 +247,7 @@ public class PolarLocationDeltaDouble extends Location {
             temp_r = temp_r * Invemulx;
         }
         else {
-            temp_r = Math.exp(x * mulx + start);
+            temp_r = Math.exp(x * mulx + startx);
         }
 
         indexX = x;
@@ -284,7 +294,7 @@ public class PolarLocationDeltaDouble extends Location {
             temp_cf = tempCos;
         }
         else {
-            double f = y * muly;
+            double f = y * muly + starty;
             temp_sf = Math.sin(f);
             temp_cf = Math.cos(f);
         }
@@ -363,7 +373,7 @@ public class PolarLocationDeltaDouble extends Location {
 
     @Override
     public MantExp getMaxSizeInImage() {
-        double end = center + mulx * image_size * 0.5;
+        double end = center + mulx * width * 0.5;
         return new MantExp(Math.exp(end));
     }
 

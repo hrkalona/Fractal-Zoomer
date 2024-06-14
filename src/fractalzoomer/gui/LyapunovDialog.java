@@ -171,7 +171,7 @@ public class LyapunovDialog extends JDialog {
         formula_panel_lyapunov8.add(new JLabel("Exponent ="));
         formula_panel_lyapunov8.add(field_exponent_function);
 
-        Object[] labels_lyap = ptra.createUserFormulaLabels("z, r, c, c0, s, pixel, p, pp, n, maxn, center, size, sizei, v1 - v30, point");
+        Object[] labels_lyap = ptra.createUserFormulaLabels("z, r, c, c0, s, pixel, p, pp, n, maxn, center, size, sizei, width, height, v1 - v30, point");
 
 
         Object[] message_lyap = {

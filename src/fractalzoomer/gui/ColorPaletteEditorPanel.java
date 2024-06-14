@@ -3,13 +3,13 @@ package fractalzoomer.gui;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import fractalzoomer.core.TaskRender;
+import fractalzoomer.main.CommonFunctions;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.CosinePaletteSettings;
 import fractalzoomer.utils.ColorSpaceConverter;
 
 import javax.swing.*;
-import javax.swing.border.EtchedBorder;
-import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -27,7 +27,6 @@ import java.io.PrintWriter;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Random;
 
 class ColorPoint implements Comparable<ColorPoint> {
     @JsonProperty("x")
@@ -413,7 +412,7 @@ class ColorPoint implements Comparable<ColorPoint> {
         private static final int[][] greens = new int[][] {{0, 8}, {100, 107}, {200, 253}, {300, 171}, {400, 5}, {500, 7}};
         private static final int[][] blues = new int[][] {{0, 103}, {100, 202}, {200, 253}, {300, 2}, {400, 0}, {500, 97}};
 
-        private ColorPaletteEditorFrame frame;
+        private ColorPaletteEditorDialog frame;
         private int height;
         private void reset() {
             addAnchorAtTheEnd.setSelected(false);
@@ -470,7 +469,7 @@ class ColorPoint implements Comparable<ColorPoint> {
             JOptionPane.showMessageDialog(this, message, "Help", JOptionPane.QUESTION_MESSAGE);
         }
 
-        public ColorPaletteEditorPanel(int width, int height, int color_space, ColorPaletteEditorFrame frame) {
+        public ColorPaletteEditorPanel(int width, int height, int color_space, ColorPaletteEditorDialog frame) {
 
             grab_cursor = Toolkit.getDefaultToolkit().createCustomCursor(MainWindow.getIcon("cursor_grab.gif").getImage(), new Point(16, 16), "grab");
             grabbing_cursor = Toolkit.getDefaultToolkit().createCustomCursor(MainWindow.getIcon("cursor_grabbing.gif").getImage(), new Point(16, 16), "grabbing");
@@ -588,12 +587,10 @@ class ColorPoint implements Comparable<ColorPoint> {
 
             if(customColorLabel == null) {
 
-                customColorLabel = new JLabel();
+                customColorLabel = new ColorLabel();
 
                 customColorLabel.setPreferredSize(new Dimension(22, 22));
-                customColorLabel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
                 customColorLabel.setBackground(Color.BLACK);
-                customColorLabel.setOpaque(true);
                 customColorLabel.setToolTipText("Changes the intermediate color.");
 
                 customColorLabel.addMouseListener(new MouseListener() {
@@ -606,7 +603,7 @@ class ColorPoint implements Comparable<ColorPoint> {
                     public void mousePressed(MouseEvent e) {
 
 
-                        new ColorChooserFrame(frame, "Intermediate Color", customColorLabel, -1, -1);
+                        new ColorChooserDialog(frame, "Intermediate Color", customColorLabel, -1, -1);
                     }
 
                     @Override
@@ -641,7 +638,7 @@ class ColorPoint implements Comparable<ColorPoint> {
 
             JPanel tools = new JPanel();
             tools.setBackground(MainWindow.bg_color);
-            tools.setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Tools", TitledBorder.DEFAULT_POSITION, TitledBorder.DEFAULT_POSITION));
+            tools.setBorder(LAFManager.createTitledBorder("Tools"));
 
 
             if(paletteLength == null) {
@@ -652,18 +649,18 @@ class ColorPoint implements Comparable<ColorPoint> {
 
 
             combo_box_random_palette_alg = new JComboBox<>(random_palette_alg_str);
-            combo_box_random_palette_alg.setSelectedIndex(CustomPaletteEditorFrame.random_palette_algorithm);
+            combo_box_random_palette_alg.setSelectedIndex(CustomPaletteEditorDialog.random_palette_algorithm);
             combo_box_random_palette_alg.setFocusable(false);
             combo_box_random_palette_alg.setToolTipText("Sets the random palette algorithm.");
 
             same_hues = new JCheckBox("Equal Hues");
-            same_hues.setSelected(CustomPaletteEditorFrame.equal_hues);
+            same_hues.setSelected(CustomPaletteEditorDialog.equal_hues);
             same_hues.setFocusable(false);
             same_hues.setToolTipText("Every color will have the same numbers of hues.");
             same_hues.setBackground(MainWindow.bg_color);
 
             pastel = new JCheckBox("Pastel");
-            pastel.setSelected(CustomPaletteEditorFrame.pastel);
+            pastel.setSelected(CustomPaletteEditorDialog.pastel);
             pastel.setFocusable(false);
             pastel.setToolTipText("Create a random pastel palette.");
             pastel.setBackground(MainWindow.bg_color);
@@ -906,7 +903,7 @@ class ColorPoint implements Comparable<ColorPoint> {
 
                 int[][] temp_custom_palette = new int[64][4];
 
-                CustomPaletteEditorFrame.randomPalette(CustomPaletteEditorFrame.generator, false, temp_custom_palette, combo_box_random_palette_alg.getSelectedIndex(), same_hues.isSelected(), 0, color_space, false, 0, 0, 0, pastel.isSelected());
+                CustomPaletteEditorDialog.randomPalette(TaskRender.generator, false, temp_custom_palette, combo_box_random_palette_alg.getSelectedIndex(), same_hues.isSelected(), 0, color_space, false, 0, 0, 0, pastel.isSelected());
 
                 ArrayList<ColorPoint> reds = new ArrayList<>();
                 ArrayList<ColorPoint> greens = new ArrayList<>();
@@ -960,14 +957,14 @@ class ColorPoint implements Comparable<ColorPoint> {
 
             tools.add(new JLabel("Preset: "));
 
-            JComboBox<String> extra_presets_box = new JComboBox<>(CustomPaletteEditorFrame.extraPalettes.getNames());
+            JComboBox<String> extra_presets_box = new JComboBox<>(CustomPaletteEditorDialog.extraPalettes.getNames());
             extra_presets_box.setToolTipText("Loads additional presets to the editor.");
 
             tools.add(extra_presets_box);
 
             extra_presets_box.addActionListener(e -> {
 
-                ArrayList<ArrayList<Integer>> palette1 = CustomPaletteEditorFrame.extraPalettes.getPalette(extra_presets_box.getSelectedIndex(), Integer.MAX_VALUE);
+                ArrayList<ArrayList<Integer>> palette1 = CustomPaletteEditorDialog.extraPalettes.getPalette(extra_presets_box.getSelectedIndex(), Integer.MAX_VALUE);
 
                 redComponent.eraseAll();
                 greenComponent.eraseAll();
@@ -1046,7 +1043,7 @@ class ColorPoint implements Comparable<ColorPoint> {
 
             JPanel options_panel = new JPanel();
             options_panel.setBackground(MainWindow.bg_color);
-            options_panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Options", TitledBorder.DEFAULT_POSITION, TitledBorder.DEFAULT_POSITION));
+            options_panel.setBorder(LAFManager.createTitledBorder( "Options"));
 
             options_panel.add(check_box_reveres_palette);
             options_panel.add(wrapAround);
@@ -1098,7 +1095,7 @@ class ColorPoint implements Comparable<ColorPoint> {
             JPanel color_interp_panel = new JPanel();
             color_interp_panel.setLayout(new GridLayout(2, 1));
             color_interp_panel.setBackground(MainWindow.bg_color);
-            color_interp_panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Color Interpolation", TitledBorder.DEFAULT_POSITION, TitledBorder.DEFAULT_POSITION));
+            color_interp_panel.setBorder(LAFManager.createTitledBorder("Color Interpolation"));
 
             JPanel p1a = new JPanel();
             p1a.setBackground(MainWindow.bg_color);
@@ -1119,7 +1116,7 @@ class ColorPoint implements Comparable<ColorPoint> {
 
             JPanel p3 = new JPanel();
             p3.setBackground(MainWindow.bg_color);
-            p3.setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Graph Options", TitledBorder.DEFAULT_POSITION, TitledBorder.DEFAULT_POSITION));
+            p3.setBorder(LAFManager.createTitledBorder("Graph Options"));
 
 
             p3.add(addAnchorAtTheEnd);
@@ -1133,7 +1130,7 @@ class ColorPoint implements Comparable<ColorPoint> {
 
             JPanel p4 = new JPanel();
             p4.setBackground(MainWindow.bg_color);
-            p4.setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Palette", TitledBorder.DEFAULT_POSITION, TitledBorder.DEFAULT_POSITION));
+            p4.setBorder(LAFManager.createTitledBorder("Palette"));
 
             p4.setPreferredSize(new Dimension(920, 420));
 
@@ -1239,9 +1236,9 @@ class ColorPoint implements Comparable<ColorPoint> {
         }
 
         public void Ok() {
-            CustomPaletteEditorFrame.random_palette_algorithm = combo_box_random_palette_alg.getSelectedIndex();
-            CustomPaletteEditorFrame.equal_hues = same_hues.isSelected();
-            CustomPaletteEditorFrame.pastel = pastel.isSelected();
+            CustomPaletteEditorDialog.random_palette_algorithm = combo_box_random_palette_alg.getSelectedIndex();
+            CustomPaletteEditorDialog.equal_hues = same_hues.isSelected();
+            CustomPaletteEditorDialog.pastel = pastel.isSelected();
         }
 
         public void paintPalette() {
@@ -1271,8 +1268,14 @@ class ColorPoint implements Comparable<ColorPoint> {
                 }
             }
 
-            g.setColor(Color.BLACK);
-            g.drawRect(0, 0, palette_preview.getWidth()-1, palette_preview.getHeight()-1);
+            if(MainWindow.useCustomLaf){
+                palette_preview = CommonFunctions.makeRoundedCorner(palette_preview, 5);
+                im.setIcon(new ImageIcon(palette_preview));
+            }
+            else {
+                g.setColor(Color.BLACK);
+                g.drawRect(0, 0, palette_preview.getWidth()-1, palette_preview.getHeight()-1);
+            }
 
             paletteLength.setText("" + getTotalColors());
             paletteLength.repaint();
@@ -1383,7 +1386,7 @@ class ColorPoint implements Comparable<ColorPoint> {
         }
 
         public void addOnAllComponents(int x, int y, int factor) {
-            new ColorChooserFrame(frame, "Choose Color", this, x, (int)((y / (double)factor) * 255 + 0.5));
+            new ColorChooserDialog(frame, "Choose Color", this, x, (int)((y / (double)factor) * 255 + 0.5));
         }
 
         public void doAdd(int x, Color color) {

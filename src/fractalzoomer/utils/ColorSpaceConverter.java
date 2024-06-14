@@ -1616,6 +1616,57 @@ import java.util.ArrayList;
         return new double[] {hsb[0], (1 - hsb[1]) * hsb[2], 1 - hsb[2]};
     }
 
+      public static int[] YCbCrtoRGB(int[] yCbCr) {
+         return YCbCrtoRGB(yCbCr[0], yCbCr[1], yCbCr[2]);
+      }
+
+      public static int[] YCbCrtoRGB(int y, int Cb, int Cr) {
+        int[] rgb = new int[3];
+
+        Cb = Cb - 128;
+        Cr = Cr - 128;
+
+        rgb[0] = (int) (y + 1.403 * Cr + 0.5);
+        rgb[1] = (int) (y -0.344 * Cb -0.714 * Cr + 0.5);
+        rgb[2] = (int) (y + 1.773 * Cb + 0.5);
+
+        /* rgb[0] = (int) (y + 1.4 * Cr + 0.5);
+        rgb[1] = (int) (y -0.343 * Cb -0.711 * Cr + 0.5);
+        rgb[2] = (int) (y + 1.765 * Cb + 0.5);*/
+
+          for (int i=0; i<3; i++) {
+              if (rgb[i] > 255)
+                  rgb[i] = 255;
+              else if (rgb[i] < 0)
+                  rgb[i] = 0;
+          }
+
+          return rgb;
+      }
+
+      public static int[] RGBtoYCbCr(int[] RGB) {
+          return RGBtoYCbCr(RGB[0], RGB[1], RGB[2]);
+      }
+
+      public static int[] RGBtoYCbCr(int r, int g, int b) {
+          int[] yCbCr = new int[3];
+
+          yCbCr[0] = (int)(0.299 * r + 0.587 * g + 0.114 * b + 0.5);
+
+          yCbCr[1] = (int)(128 -0.169 * r - 0.331 * g + 0.5 * b + 0.5);
+
+          yCbCr[2] = (int)(128 + 0.5 * r - 0.419 * g - 0.081 * b + 0.5);
+
+          for (int i=0; i<3; i++) {
+              if (yCbCr[i] > 255)
+                  yCbCr[i] = 255;
+              else if (yCbCr[i] < 0)
+                  yCbCr[i] = 0;
+          }
+
+          return yCbCr;
+      }
+
     public static int[] HWBtoRGB(double[] HWB) {
         return HWBtoRGB(HWB[0], HWB[1], HWB[2]);
     }
@@ -1715,48 +1766,30 @@ double g(double K) {
 
       public static void main(String[] args) {
 
-          double minL = Double.MAX_VALUE;
-          double minU = Double.MAX_VALUE;
-          double minV = Double.MAX_VALUE;
-          double maxL = -Double.MAX_VALUE;
-          double maxU = -Double.MAX_VALUE;
-          double maxV = -Double.MAX_VALUE;
 
           for(int r = 0; r < 256; r++) {
               for(int g = 0; g < 256; g++) {
                   for(int b = 0; b < 256; b++) {
-                      double[] res = ColorSpaceConverter.RGBtoLCH_uv(r, g, b);
+                      int[] res = ColorSpaceConverter.RGBtoYCbCr(r, g, b);
 
-                      if(res[0] > maxL) {
-                          maxL = res[0];
+                      int[] rgb = ColorSpaceConverter.YCbCrtoRGB(res);
+
+                      if(r != rgb[0]) {
+                          System.out.println("Red: " + r + " " + rgb[0]);
                       }
 
-                      if(res[1] > maxU) {
-                          maxU = res[1];
+                      if(g != rgb[1]) {
+                          System.out.println("Green: " + g + " " + rgb[1]);
                       }
 
-                      if(res[2] > maxV) {
-                          maxV = res[2];
-                      }
-
-                      if(res[0] < minL) {
-                          minL = res[0];
-                      }
-
-                      if(res[1] < minU) {
-                          minU = res[1];
-                      }
-
-                      if(res[2] < minV) {
-                          minV = res[2];
+                      if(b != rgb[2]) {
+                          System.out.println("Blue: " + b + " " + rgb[2]);
                       }
 
                   }
               }
           }
 
-          System.out.println("Min: " + minL + " " + minU + " " + minV);
-          System.out.println("Max: " + maxL + " " + maxU + " " + maxV);
 
 
       }

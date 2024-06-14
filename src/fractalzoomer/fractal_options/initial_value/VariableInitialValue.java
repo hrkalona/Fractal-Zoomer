@@ -18,7 +18,7 @@ package fractalzoomer.fractal_options.initial_value;
 
 import fractalzoomer.core.Complex;
 import fractalzoomer.core.MantExpComplex;
-import fractalzoomer.core.TaskDraw;
+import fractalzoomer.core.TaskRender;
 import fractalzoomer.fractal_options.PlanePointOption;
 import fractalzoomer.parser.ExpressionNode;
 import fractalzoomer.parser.Parser;
@@ -55,7 +55,15 @@ public class VariableInitialValue extends PlanePointOption {
         }
 
         if (parser.foundISize()) {
-            parser.setISizevalue(new Complex(TaskDraw.IMAGE_SIZE, 0));
+            parser.setISizevalue(new Complex(Math.min(TaskRender.WIDTH, TaskRender.HEIGHT), 0));
+        }
+
+        if (parser.foundWidth()) {
+            parser.setWidthvalue(new Complex(TaskRender.WIDTH, 0));
+        }
+
+        if (parser.foundHeight()) {
+            parser.setHeightvalue(new Complex(TaskRender.HEIGHT, 0));
         }
         
         if (parser.foundPoint()) {

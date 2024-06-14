@@ -16,10 +16,11 @@
  */
 package fractalzoomer.gui;
 
-import fractalzoomer.core.TaskDraw;
+import fractalzoomer.core.TaskRender;
 import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
+import raven.slider.SliderGradient;
 
 import javax.swing.*;
 import java.awt.event.WindowAdapter;
@@ -54,7 +55,7 @@ public class EntropyColoringDialog extends JDialog {
         JTextField entropy_offset_field = new JTextField();
         entropy_offset_field.setText("" + s.pps.ens.entropy_offset);
 
-        JSlider color_blend_opt = new JSlider(JSlider.HORIZONTAL, 0, 100, (int) (s.pps.ens.en_blending * 100));
+        JSlider color_blend_opt = new SliderGradient(JSlider.HORIZONTAL, 0, 100, (int) (s.pps.ens.en_blending * 100));
         color_blend_opt.setMajorTickSpacing(25);
         color_blend_opt.setMinorTickSpacing(1);
         color_blend_opt.setToolTipText("Sets the color blending percentage.");
@@ -77,6 +78,22 @@ public class EntropyColoringDialog extends JDialog {
             entropy_offset_field.setEnabled(entropy_coloring_method_opt.getSelectedIndex() == 0);
         });
 
+        JPanel blend_panel = new JPanel();
+
+        final JComboBox<String> blend_modes = new JComboBox<>(Constants.blend_algorithms);
+        blend_modes.setSelectedIndex(s.pps.ens.en_color_blending);
+        blend_modes.setFocusable(false);
+        blend_modes.setToolTipText("Sets the blending mode mode.");
+
+        final JCheckBox reverse_blending = new JCheckBox("Reverse Order of Colors");
+        reverse_blending.setSelected(s.pps.ens.en_reverse_color_blending);
+        reverse_blending.setFocusable(false);
+        reverse_blending.setToolTipText("Reverts the order of colors in the blending operation.");
+
+        blend_panel.add(new JLabel("Blend Mode: "));
+        blend_panel.add(blend_modes);
+        blend_panel.add(reverse_blending);
+
         Object[] message = {
             " ",
             enable_entropy_coloring,
@@ -89,7 +106,10 @@ public class EntropyColoringDialog extends JDialog {
             " ",
             "Set the color transfer method.",
             "Color Transfer Method:", entropy_coloring_method_opt,
-            " ",
+                " ",
+                "Set the color blending options.",
+                blend_panel,
+                " ",
             "Set the color blending percentage.",
             "Color Blending:", color_blend_opt,
             " ",
@@ -158,6 +178,8 @@ public class EntropyColoringDialog extends JDialog {
                             s.pps.ens.entropy_offset = temp3;
                             s.pps.ens.en_blending = color_blend_opt.getValue() / 100.0;
                             s.pps.ens.entropy_algorithm = entropy_coloring_method_opt.getSelectedIndex();
+                            s.pps.ens.en_color_blending = blend_modes.getSelectedIndex();
+                            s.pps.ens.en_reverse_color_blending = reverse_blending.isSelected();
                         } catch (Exception ex) {
                             JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                             return;
@@ -165,7 +187,7 @@ public class EntropyColoringDialog extends JDialog {
 
                         dispose();
 
-                        if (greedy_algorithm && !TaskDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA && enable_entropy_coloring.isSelected() && !julia_map && !s.d3s.d3) {
+                        if (greedy_algorithm && !TaskRender.GREEDY_ALGORITHM_CHECK_ITER_DATA && enable_entropy_coloring.isSelected() && !julia_map && !s.d3s.d3) {
                             JOptionPane.showMessageDialog(ptra, Constants.greedyWarning, "Warning!", JOptionPane.WARNING_MESSAGE);
                         }
 

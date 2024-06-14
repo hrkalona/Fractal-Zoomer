@@ -17,20 +17,41 @@ public class LAstep {
     public double newdre;
     public double newdim;
 
+    public double outdre;
+    public double outdim;
+
     public Complex Evaluate(Complex DeltaSub0) {
         return LAj.Evaluate(newDz, DeltaSub0);
     }
 
-    public Complex EvaluateWithZeroD0(Complex DeltaSub0) {
+    public Complex EvaluateWithZeroD0() {
         return LAj.Evaluate(newDz);
     }
 
-    public Complex EvaluateWithZeroD0(double d0re, double d0im) {
-        return LAj.Evaluate(newdre, newdim);
+//    public Complex EvaluateWithZeroD0Fast() {
+//        return LAj.Evaluate(newdre, newdim);
+//    }
+
+    public void EvaluateWithZeroD0Fast() {
+        LAInfoBase LAjb = ((LAInfoBase)LAj);
+        double ZCoeffRe = LAjb.ZCoeffRe;
+        double ZCoeffIm = LAjb.ZCoeffIm;
+        outdre = newdre * ZCoeffRe - newdim * ZCoeffIm;
+        outdim = newdre * ZCoeffIm + newdim * ZCoeffRe;
     }
 
-    public Complex Evaluate(double d0re, double d0im) {
-        return LAj.Evaluate(newdre, newdim, d0re, d0im);
+//    public Complex Evaluate(double d0re, double d0im) {
+//        return LAj.Evaluate(newdre, newdim, d0re, d0im);
+//    }
+
+    public void Evaluate(double d0re, double d0im) {
+        LAInfoBase LAjb = ((LAInfoBase)LAj);
+        double ZCoeffRe = LAjb.ZCoeffRe;
+        double ZCoeffIm = LAjb.ZCoeffIm;
+        double CCoeffRe = LAjb.CCoeffRe;
+        double CCoeffIm = LAjb.CCoeffIm;
+        outdre = newdre * ZCoeffRe - newdim * ZCoeffIm + d0re * CCoeffRe - d0im * CCoeffIm;
+        outdim = newdre * ZCoeffIm + newdim * ZCoeffRe + d0re * CCoeffIm + d0im * CCoeffRe;
     }
 
     public Complex getZ(Complex DeltaSubN) { return Refp1.plus(DeltaSubN);}

@@ -16,14 +16,20 @@
  */
 package fractalzoomer.gui;
 
+import fractalzoomer.main.MainWindow;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.geom.RoundRectangle2D;
+import java.awt.image.BufferedImage;
 import java.lang.management.ManagementFactory;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Locale;
+
+import static fractalzoomer.main.CommonFunctions.makeRoundedCorner;
 
 /**
  *
@@ -36,7 +42,7 @@ public class MemoryLabel extends JLabel {
     private final double installedMemory = getInstalledMemory() / MiB;
     private double allocatedMemory, usedMemory;
 
-    public static final int MEMORY_DELAY = 20000;
+    public static final int MEMORY_DELAY = 10000;
 //    private static final Color USED_MEMORY_COLOR = new Color(76, 139, 245);
 //    private static final Color ALLOCATED_MEMORY_COLOR = new Color(221, 80, 68);
 //    private static final Color FREE_MEMORY_COLOR = new Color(26, 162, 96);
@@ -44,14 +50,26 @@ public class MemoryLabel extends JLabel {
     private static final Color FREE_MEMORY_COLOR = new Color(0xAABE7D);
     private static final Color ALLOCATED_MEMORY_COLOR = new Color(0xFFBE7D);
     private static final Color USED_MEMORY_COLOR = new Color(0xFFFFD1);
-    private static final int PANEL_HEIGHT = 23;
     private static final String HASHES = "##############################";
     private static final String ZEROS = "0000000000000000000000000000000000000000000000000000000000000000";
 
+    private static final int PANEL_HEIGHT = 20;
+
+
     public MemoryLabel(int width) {
-        setBorder(BorderFactory.createLoweredBevelBorder());
+        super();
+        if(!MainWindow.useCustomLaf) {
+            setBorder(BorderFactory.createLoweredBevelBorder());
+        }
         //setBorder(MyBorder.LOWERED);
+
+
         setPreferredSize(new Dimension(width, PANEL_HEIGHT));
+
+//        Insets insets = getInsets();
+//        Dimension size = getSize();
+//        int height = size.height - insets.top - insets.bottom;
+
         setHorizontalAlignment(JLabel.CENTER);
         refresh();
         addMouseListener(new MouseAdapter() {
@@ -69,15 +87,34 @@ public class MemoryLabel extends JLabel {
         Dimension size = getSize();
         int height = size.height - insets.top - insets.bottom;
         int width = size.width - insets.left - insets.right;
-        
-        g.setColor(FREE_MEMORY_COLOR);
-        g.fillRect(insets.left, insets.top, width, height);
 
-        g.setColor(ALLOCATED_MEMORY_COLOR);
-        g.fillRect(insets.left, insets.top, (int)Math.round(width * allocatedMemory / maxMemory), height);
+        if(MainWindow.useCustomLaf) {
+            BufferedImage image = new BufferedImage(size.width, size.height, BufferedImage.TYPE_INT_ARGB);
 
-        g.setColor(USED_MEMORY_COLOR);
-        g.fillRect(insets.left, insets.top, (int)Math.round(width * usedMemory / maxMemory), height);
+            Graphics g2 = image.createGraphics();
+            g2.setColor(FREE_MEMORY_COLOR);
+            g2.fillRect(0, 0, width, height);
+
+            g2.setColor(ALLOCATED_MEMORY_COLOR);
+            g2.fillRect(0, 0, (int) Math.round(width * allocatedMemory / maxMemory), height);
+
+            g2.setColor(USED_MEMORY_COLOR);
+            g2.fillRect(0, 0, (int) Math.round(width * usedMemory / maxMemory), height);
+            g2.dispose();
+
+            image = makeRoundedCorner(image, 5);
+            g.drawImage(image, insets.left, insets.top, null);
+        }
+        else {
+            g.setColor(FREE_MEMORY_COLOR);
+            g.fillRect(insets.left, insets.top, width, height);
+
+            g.setColor(ALLOCATED_MEMORY_COLOR);
+            g.fillRect(insets.left, insets.top, (int)Math.round(width * allocatedMemory / maxMemory), height);
+
+            g.setColor(USED_MEMORY_COLOR);
+            g.fillRect(insets.left, insets.top, (int)Math.round(width * usedMemory / maxMemory), height);
+        }
 
         super.paint(g);
     }
@@ -122,15 +159,15 @@ public class MemoryLabel extends JLabel {
         return df.format(d);
     }
 
-    private long getAllocatedMemory() {
+    public static long getAllocatedMemory() {
         return Runtime.getRuntime().totalMemory();
     }
 
-    private long getUsedMemory() {
+    public static long getUsedMemory() {
         return getAllocatedMemory() - Runtime.getRuntime().freeMemory();
     }
 
-    private long getMaxMemory() {
+    public static long getMaxMemory() {
         return Runtime.getRuntime().maxMemory();
     }
 

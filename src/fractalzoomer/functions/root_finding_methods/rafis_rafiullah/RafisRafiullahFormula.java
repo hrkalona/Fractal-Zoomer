@@ -2,7 +2,7 @@ package fractalzoomer.functions.root_finding_methods.rafis_rafiullah;
 
 import fractalzoomer.core.Complex;
 import fractalzoomer.core.Derivative;
-import fractalzoomer.core.TaskDraw;
+import fractalzoomer.core.TaskRender;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
 import fractalzoomer.main.app_settings.StatisticsSettings;
@@ -289,12 +289,20 @@ public class RafisRafiullahFormula extends RafisRafiullahRootFindingMethod {
             parser2.setPvalue(zold);
         }
 
+        if (parser3.foundP()) {
+            parser3.setPvalue(zold);
+        }
+
         if (parser.foundPP()) {
             parser.setPPvalue(zold2);
         }
 
         if (parser2.foundPP()) {
             parser2.setPPvalue(zold2);
+        }
+
+        if (parser3.foundPP()) {
+            parser3.setPPvalue(zold2);
         }
 
     }
@@ -309,12 +317,20 @@ public class RafisRafiullahFormula extends RafisRafiullahRootFindingMethod {
             parser2.setPixelvalue(pixel);
         }
 
+        if (parser3.foundPixel()) {
+            parser3.setPixelvalue(pixel);
+        }
+
         if (parser.foundS()) {
             parser.setSvalue(start);
         }
 
         if (parser2.foundS()) {
             parser2.setSvalue(start);
+        }
+
+        if (parser3.foundS()) {
+            parser3.setSvalue(start);
         }
 
         Complex c_maxn = new Complex(max_iterations, 0);
@@ -327,6 +343,10 @@ public class RafisRafiullahFormula extends RafisRafiullahRootFindingMethod {
             parser2.setMaxnvalue(c_maxn);
         }
 
+        if (parser3.foundMaxn()) {
+            parser3.setMaxnvalue(c_maxn);
+        }
+
         if (parser.foundP()) {
             parser.setPvalue(zold);
         }
@@ -335,12 +355,20 @@ public class RafisRafiullahFormula extends RafisRafiullahRootFindingMethod {
             parser2.setPvalue(zold);
         }
 
+        if (parser3.foundP()) {
+            parser3.setPvalue(zold);
+        }
+
         if (parser.foundPP()) {
             parser.setPPvalue(zold2);
         }
 
         if (parser2.foundPP()) {
             parser2.setPPvalue(zold2);
+        }
+
+        if (parser3.foundPP()) {
+            parser3.setPPvalue(zold2);
         }
 
         Complex c_center = new Complex(xCenter, yCenter);
@@ -353,6 +381,10 @@ public class RafisRafiullahFormula extends RafisRafiullahRootFindingMethod {
             parser2.setCentervalue(c_center);
         }
 
+        if (parser3.foundCenter()) {
+            parser3.setCentervalue(c_center);
+        }
+
         Complex c_size = new Complex(size, 0);
 
         if (parser.foundSize()) {
@@ -363,7 +395,11 @@ public class RafisRafiullahFormula extends RafisRafiullahRootFindingMethod {
             parser2.setSizevalue(c_size);
         }
 
-        Complex c_isize = new Complex(TaskDraw.IMAGE_SIZE, 0);
+        if (parser3.foundSize()) {
+            parser3.setSizevalue(c_size);
+        }
+
+        Complex c_isize = new Complex(Math.min(TaskRender.WIDTH, TaskRender.HEIGHT), 0);
         if (parser.foundISize()) {
             parser.setISizevalue(c_isize);
         }
@@ -372,12 +408,47 @@ public class RafisRafiullahFormula extends RafisRafiullahRootFindingMethod {
             parser2.setISizevalue(c_isize);
         }
 
+        if (parser3.foundISize()) {
+            parser3.setISizevalue(c_isize);
+        }
+
+        Complex c_width = new Complex(TaskRender.WIDTH, 0);
+        if (parser.foundWidth()) {
+            parser.setWidthvalue(c_width);
+        }
+
+        if (parser2.foundWidth()) {
+            parser2.setWidthvalue(c_width);
+        }
+
+        if (parser3.foundWidth()) {
+            parser3.setWidthvalue(c_width);
+        }
+
+        Complex c_height = new Complex(TaskRender.HEIGHT, 0);
+
+        if (parser.foundHeight()) {
+            parser.setHeightvalue(c_height);
+        }
+
+        if (parser2.foundHeight()) {
+            parser2.setHeightvalue(c_height);
+        }
+
+        if (parser3.foundHeight()) {
+            parser3.setHeightvalue(c_height);
+        }
+
         if (parser.foundPoint()) {
             parser.setPointvalue(point);
         }
 
         if (parser2.foundPoint()) {
             parser2.setPointvalue(point);
+        }
+
+        if (parser3.foundPoint()) {
+            parser3.setPointvalue(point);
         }
 
     }

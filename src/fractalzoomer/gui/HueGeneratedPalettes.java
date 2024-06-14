@@ -16,7 +16,7 @@
  */
 package fractalzoomer.gui;
 
-import fractalzoomer.core.TaskDraw;
+import fractalzoomer.core.TaskRender;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
 
@@ -185,14 +185,14 @@ public class HueGeneratedPalettes extends JDialog {
                             }
 
 
-                            TaskDraw.HSB_CONSTANT_B = s.hsb_constant_b = brightness;
-                            TaskDraw.HSB_CONSTANT_S = s.hsb_constant_s = saturation;
-                            TaskDraw.LCHab_CONSTANT_L = s.lchab_constant_l = lightness1;
-                            TaskDraw.LCHab_CONSTANT_C = s.lchab_constant_c = chroma1;
-                            TaskDraw.LCHuv_CONSTANT_L = s.lchuv_constant_l = lightness2;
-                            TaskDraw.LCHuv_CONSTANT_C = s.lchuv_constant_c = chroma2;
+                            TaskRender.HSB_CONSTANT_B = s.hsb_constant_b = brightness;
+                            TaskRender.HSB_CONSTANT_S = s.hsb_constant_s = saturation;
+                            TaskRender.LCHab_CONSTANT_L = s.lchab_constant_l = lightness1;
+                            TaskRender.LCHab_CONSTANT_C = s.lchab_constant_c = chroma1;
+                            TaskRender.LCHuv_CONSTANT_L = s.lchuv_constant_l = lightness2;
+                            TaskRender.LCHuv_CONSTANT_C = s.lchuv_constant_c = chroma2;
 
-                            TaskDraw.setAlgorithmColors();
+                            TaskRender.setAlgorithmColors();
 
                             ptr.updateColorPalettesMenu();
                             ptr.updateColors(false, false);

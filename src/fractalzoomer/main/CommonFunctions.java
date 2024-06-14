@@ -16,6 +16,7 @@
  */
 package fractalzoomer.main;
 
+import com.sun.jna.Platform;
 import fractalzoomer.app_updater.AppUpdater;
 import fractalzoomer.core.*;
 import fractalzoomer.core.domain_coloring.DomainColoring;
@@ -27,8 +28,7 @@ import fractalzoomer.palettes.CustomPalette;
 import fractalzoomer.palettes.PresetPalette;
 import fractalzoomer.parser.Parser;
 import fractalzoomer.parser.ParserException;
-import fractalzoomer.utils.ColorSpaceConverter;
-import fractalzoomer.utils.MathUtils;
+import fractalzoomer.utils.*;
 import org.apfloat.Apfloat;
 
 import javax.swing.*;
@@ -39,6 +39,7 @@ import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLWriter;
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
+import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.file.FileAlreadyExistsException;
@@ -47,8 +48,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.*;
+import java.util.Timer;
+
+import static fractalzoomer.gui.CpuLabel.CPU_DELAY;
+import static fractalzoomer.gui.MemoryLabel.MEMORY_DELAY;
 
 /**
  *
@@ -57,16 +61,13 @@ import java.util.Collections;
 public class CommonFunctions implements Constants {
 
     private Component parent;
-    private boolean runsOnWindows;
     private static int gradientLength;
     private static int paletteOutLength;
     private static int paletteInLength;
 
-    public CommonFunctions(Component parent, boolean runsOnWindows) {
+    public CommonFunctions(Component parent) {
 
         this.parent = parent;
-        this.runsOnWindows = runsOnWindows;
-
     }
 
     public void checkForUpdate(boolean mode) {
@@ -99,7 +100,7 @@ public class CommonFunctions implements Constants {
 
     public Object[] copyLibNoUI() {
 
-        if (!runsOnWindows) {
+        if (!Platform.isWindows()) {
             return new Object[]{0, ""};
         }
 
@@ -133,7 +134,7 @@ public class CommonFunctions implements Constants {
 
     public boolean copyLib() {
 
-        if (!runsOnWindows) {
+        if (!Platform.isWindows()) {
             return true;
         }
 
@@ -220,6 +221,225 @@ public class CommonFunctions implements Constants {
 
     }
 
+
+    public void threadStats(JFrame ptr, TaskRender[][] tasks) {
+        JEditorPane textArea = new JEditorPane();
+
+        textArea.setEditable(false);
+        textArea.setContentType("text/html");
+        textArea.setPreferredSize(new Dimension(500, 400));
+        //textArea.setLineWrap(false);
+        //textArea.setWrapStyleWord(false);
+
+        JScrollPane scroll_pane_2 = new JScrollPane(textArea);
+        scroll_pane_2.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+
+        long totalPixelsCompleted = -1;
+        ArrayList<TaskStatistic> taskStatistics = new ArrayList<>();
+        for (int i = 0; i < tasks.length; i++) {
+            for (int j = 0; j < tasks[i].length; j++) {
+                TaskStatistic t = tasks[i][j].getTaskStatistic();
+                if(t != null) {
+                    taskStatistics.add(t);
+                    if(t.getPixelsCompleted() >= 0) {
+                        if(totalPixelsCompleted < 0) {
+                            totalPixelsCompleted = t.getPixelsCompleted();
+                        }
+                        else {
+                            totalPixelsCompleted += t.getPixelsCompleted();
+                        }
+                    }
+                }
+            }
+        }
+
+        if(totalPixelsCompleted == -1) {
+            for(TaskStatistic stat : taskStatistics) {
+                stat.setSortMode(1);
+            }
+        }
+
+        Collections.sort(taskStatistics);
+
+        long maxTime = TaskRender.max_pixel_calculation_time.get();
+        long maxTimePostProcessing = TaskRender.PostProcessingCalculationTime.get();
+
+        HashSet<String> uniqueThreads = new LinkedHashSet<>();
+
+        for(TaskStatistic stat : taskStatistics) {
+            uniqueThreads.add(stat.getThreadName());
+        }
+        String data = "";
+
+        if(!taskStatistics.isEmpty()) {
+
+            data += "<ul><li>Logical Processors: <b>" + Runtime.getRuntime().availableProcessors() + "</b></ul><br>";
+
+            data += "<ul><li>Threads Used: <b>" + uniqueThreads.size() + "</b></ul><br>";
+
+            data += "<ul><li>Number of Tasks: <b>" + taskStatistics.size() + "</b></ul><br>";
+
+            data += "<ul>";
+            for (TaskStatistic stat : taskStatistics) {
+                data += "<li>Task: <b>" + stat.getTaskId() + "</b>";
+                data += "<ul>";
+                data += "<li>Thread: <b>" + stat.getThreadName() + "</b> <span style='font-size:20px;color: " + String.format("#%02x%02x%02x", stat.getThreadColor().getRed(), stat.getThreadColor().getGreen(), stat.getThreadColor().getBlue()) + ";'>&#9632;</span></li>";
+
+                if(maxTime > 0) {
+                    data += "<li>Pixel Calculation Elapsed Time: <b>" + stat.getPixelCalculationTime() + " ms</b></li>";
+                    data += "<li>Pixel Calculation Thread Utilization: <b>" + String.format("%.2f", ((double) stat.getPixelCalculationTime()) / maxTime * 100) + "%</b></li>";
+                }
+                if(stat.getPixelsCalculated() >= 0) {
+                    data += "<li>Pixels Calculated: <b>" + stat.getPixelsCalculated() + " / " + stat.getTotalPixels() + " (" + String.format("%f", (((double) stat.getPixelsCalculated()) / stat.getTotalPixels()) * 100) + "%)</b></li>";
+                }
+                if(stat.getPixelsCompleted() >= 0) {
+                    data += "<li>Pixels Completed: <b>" + stat.getPixelsCompleted() + " / " + stat.getTotalPixels() + " (" + String.format("%f", (((double) stat.getPixelsCompleted()) / stat.getTotalPixels()) * 100) + "%)</b></li>";
+                }
+                if(stat.getPixelsCalculated() >= 0 && stat.getPixelsCompleted() >= 0) {
+                    data += "<li>Pixels Guessed: <b>" + (stat.getPixelsCompleted() - stat.getPixelsCalculated()) + " / " + stat.getPixelsCompleted() + " (" + String.format("%f", (((double) (stat.getPixelsCompleted() - stat.getPixelsCalculated())) / stat.getPixelsCompleted()) * 100) + "%)</b></li>";
+                }
+                if (maxTimePostProcessing > 0) {
+                    data += "<li>Post Processing Elapsed Time: <b>" + stat.getPostProcessingCalculationTime() + " ms</b></li>";
+                    data += "<li>Post Processing Thread Utilization: <b>" + String.format("%.2f", ((double) stat.getPostProcessingCalculationTime()) / maxTimePostProcessing * 100) + "%</b></li>";
+                }
+                if(stat.getPixelsPostProcessed() >= 0) {
+                    data += "<li>Pixels Post Processed: <b>" + stat.getPixelsPostProcessed() + " / " + stat.getTotalPixels() + " (" + String.format("%f", (((double) stat.getPixelsPostProcessed()) / stat.getTotalPixels()) * 100) + "%)</b></li>";
+                }
+                if (stat.getExtraPixelsCalculated() > 0) {
+                    data += "<li>Extra Pixels Calculated: <b>" + stat.getExtraPixelsCalculated() + "</b></li>";
+                }
+                data += "</ul></li><br>";
+            }
+            data += "</ul>";
+        }
+
+        textArea.setText("<html>" + "<center><b><u><font size='5' face='arial' color='blue'>Task Statistics</font></u></b></center><br><br>" +
+                "<font size='4' face='arial'>" + data + "</font></html>");
+
+        JButton pixelcountStatistics = new JButton("Pixel Count Statistics");
+        pixelcountStatistics.setIcon(MainWindow.getIcon("bar_chart.png"));
+
+        pixelcountStatistics.setFocusable(false);
+
+        JButton pixelCalculationTime = new JButton("Pixel Elapsed Time Statistics");
+        pixelCalculationTime.setIcon(MainWindow.getIcon("bar_chart.png"));
+
+        pixelCalculationTime.setFocusable(false);
+
+        pixelcountStatistics.addActionListener( e-> new TaskPixelCalculationCountsChartDialog(ptr, taskStatistics).setVisible(true));
+
+        pixelCalculationTime.addActionListener( e-> new TaskElapsedTimeChartDialog(ptr, taskStatistics, maxTime, maxTimePostProcessing).setVisible(true));
+
+        Object[] message = {
+                " ",
+                scroll_pane_2,
+                " ",
+                pixelCalculationTime,
+                pixelcountStatistics,
+                " "};
+
+        textArea.setCaretPosition(0);
+
+        JOptionPane.showMessageDialog(ptr, message,  "Task Statistics", JOptionPane.INFORMATION_MESSAGE, MainWindow.getIcon("stats_tasks_large.png"));
+
+    }
+    public void stats(JFrame ptr, Settings s) {
+        JEditorPane textArea = new JEditorPane();
+
+        JProgressBar pb;
+        if(ptr instanceof MainWindow) {
+            pb = ((MainWindow)ptr).getProgressBar();
+        }
+        else {
+            pb = ((ImageExpanderWindow)ptr).getProgressBar();
+        }
+
+        textArea.setEditable(false);
+        textArea.setContentType("text/html");
+        textArea.setPreferredSize(new Dimension(500, 400));
+        textArea.setMaximumSize(new Dimension(500, 400));
+        textArea.setSize(new Dimension(500, 400));
+        //textArea.setLineWrap(false);
+        //textArea.setWrapStyleWord(false);
+
+        JScrollPane scroll_pane_2 = new JScrollPane(textArea);
+        //scroll_pane_2.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+
+        String tooltip = pb.getToolTipText();
+
+        textArea.setText("<html>" + "<center><b><u><font size='5' face='arial' color='blue'>Statistics</font></u></b></center><br><br>" +
+                "<font size='4' face='arial'>" +tooltip + "</font></html>");
+
+        MemoryLabel memory_label = new MemoryLabel(500);
+        CpuLabel cpuLabel = new CpuLabel(500);
+
+        java.util.Timer timer = new java.util.Timer();
+        timer.schedule(new RefreshMemoryTask(memory_label), MEMORY_DELAY, MEMORY_DELAY);
+        java.util.Timer timer2 = new Timer();
+        timer2.schedule(new RefreshCpuTask(cpuLabel), CPU_DELAY, CPU_DELAY);
+
+        JButton overallTime = new JButton("Overall Elapsed Time Statistics");
+        overallTime.setIcon(MainWindow.getIcon("pie_chart.png"));
+
+        overallTime.setFocusable(false);
+
+        overallTime.addActionListener( e-> new OverallTimeChartDialog(ptr, tooltip).setVisible(true));
+
+        JButton overallPixelCount = new JButton("Pixel Count Statistics");
+        overallPixelCount.setIcon(MainWindow.getIcon("bar_chart.png"));
+
+        overallPixelCount.setFocusable(false);
+
+        overallPixelCount.addActionListener( e-> new OverallPixelCalculationCountsChartDialog(ptr, tooltip).setVisible(true));
+
+        JButton overallPixelDistribution = new JButton("Pixel Distribution Statistics");
+        overallPixelDistribution.setIcon(MainWindow.getIcon("pie_chart.png"));
+
+        overallPixelDistribution.setFocusable(false);
+
+        overallPixelDistribution.addActionListener( e-> new OverallPixelDistributionChartDialog(ptr, tooltip).setVisible(true));
+
+        JButton guessedPixelGrouping = new JButton("Guessed Pixels Group Statistics");
+        guessedPixelGrouping.setIcon(MainWindow.getIcon("pie_chart.png"));
+
+        guessedPixelGrouping.setFocusable(false);
+
+        guessedPixelGrouping.addActionListener( e-> new OverallGuessedPixelGroupingChartDialog(ptr, tooltip).setVisible(true));
+
+        JButton perturbationStatistics = new JButton("Perturbation Statistics");
+        perturbationStatistics.setIcon(MainWindow.getIcon("pie_chart.png"));
+
+        perturbationStatistics.setFocusable(false);
+
+        perturbationStatistics.setEnabled(s.isPertubationTheoryInUse());
+
+        perturbationStatistics.addActionListener( e-> new OverallPerturbationStatisticsChartDialog(ptr, tooltip).setVisible(true));
+
+
+        Object[] message = {
+                " ",
+                scroll_pane_2,
+                " ",
+                overallTime,
+                overallPixelCount,
+                overallPixelDistribution,
+                guessedPixelGrouping,
+                perturbationStatistics,
+                " ",
+                "Memory:",
+                memory_label,
+                "CPU Usage:",
+                cpuLabel,
+                " "};
+
+        textArea.setCaretPosition(0);
+
+        int res = JOptionPane.showOptionDialog(ptr, message, "Statistics", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, MainWindow.getIcon("stats_large.png"), null, null);
+
+        timer.cancel();
+        timer2.cancel();
+    }
+
     public void overview(Settings s, boolean periodicity_checking) {
 
         //JTextArea textArea = new JTextArea(32, 55); // 60
@@ -246,6 +466,12 @@ public class CommonFunctions implements Constants {
 
         String overview = "<html><center><b><u><font size='5' face='arial' color='blue'>Active Fractal Options</font></u></b></center><br><br><font  face='arial' size='3'>";
 
+        if(MainWindow.useCustomLaf) {
+            overview += "<font size='4' face='arial'>";
+        }
+        else {
+            overview += "<font>";
+        }
         overview += "<b><font color='red'>Center:</font></b> " + BigComplex.toString2Pretty(p.x, p.y, s.size) + "<br><br>";
         overview += "<b><font color='red'>Size:</font></b> " + MyApfloat.toString(s.size, s.size) + "<br><br>";
 
@@ -334,10 +560,10 @@ public class CommonFunctions implements Constants {
             overview += tab + "<font color='" + keyword_color + "'>else if</font> <font color='" + condition_color + "'>[re(z) > 0.5]</font> <font color='" + keyword_color + "'>then</font> z = 2re(z) - 1 + 2im(z)i<br>";
             overview += tab + "<font color='" + keyword_color + "'>else then</font> z = 2z<br>";
         } else if (s.fns.function == BARNSLEY1) {
-            overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[re(z) >= 0]</font> <font color='" + keyword_color + "'>then</font> z = (z - 1)c<br>";
+            overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[re(z) ≥ 0]</font> <font color='" + keyword_color + "'>then</font> z = (z - 1)c<br>";
             overview += tab + "<font color='" + keyword_color + "'>else then</font> z = (z + 1)c<br>";
         } else if (s.fns.function == BARNSLEY2) {
-            overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[re(z)im(c) + re(c)im(z) >= 0]</font> <font color='" + keyword_color + "'>then</font> z = (z + 1)c<br>";
+            overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[re(z)im(c) + re(c)im(z) ≥ 0]</font> <font color='" + keyword_color + "'>then</font> z = (z + 1)c<br>";
             overview += tab + "<font color='" + keyword_color + "'>else then</font> z = (z - 1)c<br>";
         } else if (s.fns.function == BARNSLEY3) {
             overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[re(z) > 0]</font> <font color='" + keyword_color + "'>then</font> z = z^2 - 1<br>";
@@ -702,7 +928,7 @@ public class CommonFunctions implements Constants {
         }
 
         if (!s.fns.init_val || s.isPertubationTheoryInUse() || s.isHighPrecisionInUse()) {
-            String res = TaskDraw.getDefaultInitialValue();
+            String res = TaskRender.getDefaultInitialValue();
 
             if (!res.equals("")) {
                 if(res.equals("c")) {
@@ -718,7 +944,7 @@ public class CommonFunctions implements Constants {
             if((s.julia_map || s.fns.julia) && !(s.fns.function == MainWindow.USER_FORMULA || s.fns.function == MainWindow.USER_FORMULA_CONDITIONAL || s.fns.function == MainWindow.USER_FORMULA_ITERATION_BASED || s.fns.function == MainWindow.USER_FORMULA_COUPLED
                     || s.fns.function == MainWindow.USER_FORMULA_NOVA || s.fns.function == MainWindow.LYAPUNOV || s.fns.function == MainWindow.LAMBDA_FN_FN)) {
 
-                String res = TaskDraw.getDefaultInitialValue();
+                String res = TaskRender.getDefaultInitialValue();
 
                 if (!res.equals("")) {
                     overview += "<b><font color='red'>Initial Value:</font></b> Default Value<br>";
@@ -832,7 +1058,7 @@ public class CommonFunctions implements Constants {
             } else {
                 overview += "<b><font color='red'>Bailout Condition:</font></b> Escaping when the criterion defined by the bailout condition \"" + BailoutConditionsMenu.bailoutConditionNames[s.fns.bailout_test_algorithm] + "\" is met<br>";
                 if (s.fns.bailout_test_algorithm == BAILOUT_CONDITION_NNORM) {
-                    overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[(abs(re(z))^" + s.fns.n_norm + " + abs(im(z))^" + s.fns.n_norm + ")^(1/" + s.fns.n_norm + ") >= bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
+                    overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[(abs(re(z))^" + s.fns.n_norm + " + abs(im(z))^" + s.fns.n_norm + ")^(1/" + s.fns.n_norm + ") ≥ bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
                     overview += tab + "<font color='" + keyword_color + "'>else then</font> Not Escaped";
                 } else if (s.fns.bailout_test_algorithm == BAILOUT_CONDITION_USER) {
                     String greater = "", equal = "", lower = "";
@@ -867,36 +1093,36 @@ public class CommonFunctions implements Constants {
                     overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[" + s.fns.bailout_test_user_formula + " &#60; " + s.fns.bailout_test_user_formula2 + "]</font> <font color='" + keyword_color + "'>then</font> " + lower + "<br>";
                     overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[" + s.fns.bailout_test_user_formula + " = " + s.fns.bailout_test_user_formula2 + "]</font> <font color='" + keyword_color + "'>then</font> " + equal + "<br>";
                 } else if (s.fns.bailout_test_algorithm == BAILOUT_CONDITION_CIRCLE) {
-                    overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[norm(z) >= bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
+                    overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[norm(z) ≥ bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
                     overview += tab + "<font color='" + keyword_color + "'>else then</font> Not Escaped<br>";
                 } else if (s.fns.bailout_test_algorithm == BAILOUT_CONDITION_SQUARE) {
-                    overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[abs(re(z)) >= bailout or abs(im(z)) >= bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
+                    overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[abs(re(z)) ≥ bailout or abs(im(z)) ≥ bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
                     overview += tab + "<font color='" + keyword_color + "'>else then</font> Not Escaped<br>";
                 } else if (s.fns.bailout_test_algorithm == BAILOUT_CONDITION_RHOMBUS) {
-                    overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[abs(re(z)) + abs(im(z)) >= bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
+                    overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[abs(re(z)) + abs(im(z)) ≥ bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
                     overview += tab + "<font color='" + keyword_color + "'>else then</font> Not Escaped<br>";
                 } else if (s.fns.bailout_test_algorithm == BAILOUT_CONDITION_REAL_STRIP) {
-                    overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[abs(re(z)) >= bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
+                    overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[abs(re(z)) ≥ bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
                     overview += tab + "<font color='" + keyword_color + "'>else then</font> Not Escaped<br>";
                 } else if (s.fns.bailout_test_algorithm == BAILOUT_CONDITION_HALFPLANE) {
-                    overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[re(z) >= bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
+                    overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[re(z) ≥ bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
                     overview += tab + "<font color='" + keyword_color + "'>else then</font> Not Escaped<br>";
                 } else if (s.fns.bailout_test_algorithm == BAILOUT_CONDITION_FIELD_LINES) {
-                    overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[re(z) / re(p) >= bailout and im(z) / im(p) >= bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
+                    overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[re(z) / re(p) ≥ bailout and im(z) / im(p) ≥ bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
                     overview += tab + "<font color='" + keyword_color + "'>else then</font> Not Escaped<br>";
                     overview += tab + "p is the previous value of z<br>";
                 } else if (s.fns.bailout_test_algorithm == BAILOUT_CONDITION_CROSS) {
-                    overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[abs(re(z)) >= bailout and abs(im(z)) >= bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
+                    overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[abs(re(z)) ≥ bailout and abs(im(z)) ≥ bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
                     overview += tab + "<font color='" + keyword_color + "'>else then</font> Not Escaped<br>";
                 } else if (s.fns.bailout_test_algorithm == BAILOUT_CONDITION_IM_STRIP) {
-                    overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[abs(im(z)) >= bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
+                    overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[abs(im(z)) ≥ bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
                     overview += tab + "<font color='" + keyword_color + "'>else then</font> Not Escaped<br>";
                 } else if (s.fns.bailout_test_algorithm == BAILOUT_CONDITION_RE_IM_SQUARED) {
-                    overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[(re(z) + im(z))^2 >= bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
+                    overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[(re(z) + im(z))^2 ≥ bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
                     overview += tab + "<font color='" + keyword_color + "'>else then</font> Not Escaped<br>";
                 }
                 else if (s.fns.bailout_test_algorithm == BAILOUT_CONDITION_CUSTOM) {
-                    overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[norm(z) >= bailout^(1 / sqrt(bailout))]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
+                    overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[norm(z) ≥ bailout^(1 / sqrt(bailout))]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
                     overview += tab + "<font color='" + keyword_color + "'>else then</font> Not Escaped<br>";
                 }
             }
@@ -966,7 +1192,7 @@ public class CommonFunctions implements Constants {
                 overview += "<br>";
 
                 if (s.fns.cbs.convergent_bailout_test_algorithm != Constants.CONVERGENT_BAILOUT_CONDITION_NO_BAILOUT) {
-                    overview += "<b><font color='red'>Convergent Bailout:</font></b> " + TaskDraw.getConvergentBailout() + "<br><br>";
+                    overview += "<b><font color='red'>Convergent Bailout:</font></b> " + TaskRender.getConvergentBailout() + "<br><br>";
                     overview += "<b><font color='red'>Skip Convergent Bailout Condition Iterations:</font></b> " + s.fns.skip_convergent_bailout_iterations + "<br><br>";
                 }
 
@@ -1031,7 +1257,7 @@ public class CommonFunctions implements Constants {
                 overview += "<br>";
 
                 if (s.fns.cbs.convergent_bailout_test_algorithm != Constants.CONVERGENT_BAILOUT_CONDITION_NO_BAILOUT) {
-                    overview += "<b><font color='red'>Convergent Bailout:</font></b> " + TaskDraw.getConvergentBailout() + "<br><br>";
+                    overview += "<b><font color='red'>Convergent Bailout:</font></b> " + TaskRender.getConvergentBailout() + "<br><br>";
                     overview += "<b><font color='red'>Skip Convergent Bailout Condition Iterations:</font></b> " + s.fns.skip_convergent_bailout_iterations + "<br><br>";
                 }
             }
@@ -1097,7 +1323,7 @@ public class CommonFunctions implements Constants {
             overview += "<br>";
 
             if (s.fns.cbs.convergent_bailout_test_algorithm != Constants.CONVERGENT_BAILOUT_CONDITION_NO_BAILOUT) {
-                overview += "<b><font color='red'>Convergent Bailout:</font></b> " + TaskDraw.getConvergentBailout() + "<br><br>";
+                overview += "<b><font color='red'>Convergent Bailout:</font></b> " + TaskRender.getConvergentBailout() + "<br><br>";
                 overview += "<b><font color='red'>Skip Convergent Bailout Condition Iterations:</font></b> " + s.fns.skip_convergent_bailout_iterations + "<br><br>";
             }
 
@@ -1593,7 +1819,7 @@ public class CommonFunctions implements Constants {
                     overview += tab + "Skip Trap Check for the first iterations = " + s.pps.ots.skipTrapCheckForIterations + "<br>";
                 }
 
-                if (s.pps.ots.trapType != Constants.IMAGE_TRANSPARENT_TRAP && s.pps.ots.trapType != Constants.SUPER_FORMULA_ORBIT_TRAP && s.pps.ots.trapType != Constants.ATOM_DOMAIN_TRAP && s.pps.ots.trapType != Constants.SQUARE_ATOM_DOMAIN_TRAP && s.pps.ots.trapType != Constants.RHOMBUS_ATOM_DOMAIN_TRAP && s.pps.ots.trapType != Constants.NNORM_ATOM_DOMAIN_TRAP && s.pps.ots.trapType != Constants.GOLDEN_RATIO_SPIRAL_TRAP && s.pps.ots.trapType != Constants.STALKS_TRAP) {
+                if (s.pps.ots.trapType != Constants.MOVING_AVERAGE_1_TRAP && s.pps.ots.trapType != Constants.MOVING_AVERAGE_2_TRAP && s.pps.ots.trapType != Constants.IMAGE_TRANSPARENT_TRAP && s.pps.ots.trapType != Constants.SUPER_FORMULA_ORBIT_TRAP && s.pps.ots.trapType != Constants.ATOM_DOMAIN_TRAP && s.pps.ots.trapType != Constants.SQUARE_ATOM_DOMAIN_TRAP && s.pps.ots.trapType != Constants.RHOMBUS_ATOM_DOMAIN_TRAP && s.pps.ots.trapType != Constants.NNORM_ATOM_DOMAIN_TRAP && s.pps.ots.trapType != Constants.GOLDEN_RATIO_SPIRAL_TRAP && s.pps.ots.trapType != Constants.STALKS_TRAP) {
                     overview += tab + "Length = " + s.pps.ots.trapLength + "<br>";
                 }
 
@@ -1655,6 +1881,7 @@ public class CommonFunctions implements Constants {
 
                 if (s.pps.ots.trapType != Constants.IMAGE_TRAP && s.pps.ots.trapType != Constants.IMAGE_TRANSPARENT_TRAP) {
                     overview += tab + "Intensity = " + s.pps.ots.trapIntensity + "<br>";
+                    overview += tab + "Offset = " + s.pps.ots.trapOffset + "<br>";
                     overview += tab + "Height Function = " + Constants.trapHeightAlgorithms[s.pps.ots.trapHeightFunction] + "<br>";
                     
                     if(s.pps.ots.invertTrapHeight) {
@@ -1668,25 +1895,27 @@ public class CommonFunctions implements Constants {
 
                 overview += "<br>";
             }
-
-            if (s.pps.hss.histogramColoring && ! (s.pps.sts.statistic && s.pps.sts.statisticGroup == 4)) {
-                overview += "<b><font color='red'>Histogram Coloring:</font></b><br>";
-
-                overview += tab + "Mapping = " + histogramMapping[s.pps.hss.hmapping] + "<br>";
-                if(s.pps.hss.hmapping == 0) {
-                    overview += tab2 + "Bin Granularity = " + s.pps.hss.histogramBinGranularity + "<br>";
-                    overview += tab2 + "Density = " + s.pps.hss.histogramDensity + "<br>";
-                }
-                overview += tab2 + "Min Scaling = " + s.pps.hss.histogramScaleMin + "<br>";
-                overview += tab2 + "Max Scaling = " + s.pps.hss.histogramScaleMax + "<br>";
-                overview += tab + "Color Blending = " + s.pps.hss.hs_blending + "<br>";
-                overview += tab + "Noise Reduction Factor = " + s.pps.hss.hs_noise_reducing_factor + "<br><br>";
-            }
         }
 
         if (!s.useDirectColor) {
             for (int i = 0; i < s.post_processing_order.length; i++) {
                 switch (s.post_processing_order[i]) {
+                    case HISTOGRAM_COLORING:
+                        if(!s.ds.domain_coloring && s.pps.hss.histogramColoring && ! (s.pps.sts.statistic && s.pps.sts.statisticGroup == 4)) {
+                            overview += "<b><font color='red'>Histogram Coloring:</font></b><br>";
+
+                            overview += tab + "Mapping = " + histogramMapping[s.pps.hss.hmapping] + "<br>";
+                            if(s.pps.hss.hmapping == 0) {
+                                overview += tab2 + "Bin Granularity = " + s.pps.hss.histogramBinGranularity + "<br>";
+                                overview += tab2 + "Density = " + s.pps.hss.histogramDensity + "<br>";
+                            }
+                            overview += tab2 + "Min Scaling = " + s.pps.hss.histogramScaleMin + "<br>";
+                            overview += tab2 + "Max Scaling = " + s.pps.hss.histogramScaleMax + "<br>";
+                            overview += tab + "Color Blending Mode = " + Constants.blend_algorithms[s.pps.hss.hs_color_blending] + "<br>";
+                            overview += tab + "Color Blending = " + s.pps.hss.hs_blending + "<br>";
+                            overview += tab + "Noise Reduction Factor = " + s.pps.hss.hs_noise_reducing_factor + "<br><br>";
+                        }
+                        break;
                     case LIGHT:
                         if (s.pps.ls.lighting) {
                             overview += "<b><font color='red'>Light:</font></b><br>";
@@ -1756,6 +1985,7 @@ public class CommonFunctions implements Constants {
                                 overview += tab + "Offset = " + s.pps.ens.entropy_offset + "<br>";
                             }
 
+                            overview += tab + "Color Blending Mode = " + Constants.blend_algorithms[s.pps.ens.en_color_blending] + "<br>";
                             overview += tab + "Color Blending = " + s.pps.ens.en_blending + "<br>";
                             overview += tab + "Noise Reduction Factor = " + s.pps.ens.en_noise_reducing_factor + "<br><br>";
                         }
@@ -1764,6 +1994,7 @@ public class CommonFunctions implements Constants {
                         if (!s.ds.domain_coloring && s.pps.ofs.offset_coloring) {
                             overview += "<b><font color='red'>Offset Coloring:</font></b><br>";
                             overview += tab + "Offset = " + s.pps.ofs.post_process_offset + "<br>";
+                            overview += tab + "Color Blending Mode = " + Constants.blend_algorithms[s.pps.ofs.of_color_blending] + "<br>";
                             overview += tab + "Color Blending = " + s.pps.ofs.of_blending + "<br>";
                             overview += tab + "Noise Reduction Factor = " + s.pps.ofs.of_noise_reducing_factor + "<br><br>";
                         }
@@ -1778,6 +2009,7 @@ public class CommonFunctions implements Constants {
                                 overview += tab + "Offset = " + s.pps.rps.rainbow_offset + "<br>";
                             }
 
+                            overview += tab + "Color Blending Mode = " + Constants.blend_algorithms[s.pps.rps.rp_color_blending] + "<br>";
                             overview += tab + "Color Blending = " + s.pps.rps.rp_blending + "<br>";
                             overview += tab + "Noise Reduction Factor = " + s.pps.rps.rp_noise_reducing_factor + "<br><br>";
                         }
@@ -1840,7 +2072,7 @@ public class CommonFunctions implements Constants {
         }
 
         if (!s.useDirectColor) {
-            overview += "<b><font color='red'>Color Blending:</font></b> " + ColorBlendingMenu.colorBlendingNames[s.color_blending.color_blending] + "<br>";
+            overview += "<b><font color='red'>Color Blending Mode:</font></b> " + ColorBlendingMenu.colorBlendingNames[s.color_blending.color_blending] + "<br>";
             overview += tab + "Interpolation = " + color_interp_str[s.color_smoothing_method] + "<br><br>";
 
 
@@ -1958,7 +2190,7 @@ public class CommonFunctions implements Constants {
             overview += "<br>";
         }
 
-        overview += "</font></html>";
+        overview += "</font></font></html>";
 
         textArea.setText(overview);
 
@@ -2112,6 +2344,10 @@ public class CommonFunctions implements Constants {
             g.fill(new Rectangle2D.Double(j * palette_preview.getWidth() / ((double)c.length), 0, (j + 1) * palette_preview.getWidth() / ((double)c.length) - j * palette_preview.getWidth() / ((double)c.length), palette_preview.getHeight()));
         }
 
+        if(MainWindow.useCustomLaf) {
+            palette_preview = CommonFunctions.makeRoundedCorner(palette_preview, 5);
+        }
+
         return palette_preview;
 
     }
@@ -2187,13 +2423,17 @@ public class CommonFunctions implements Constants {
             }
         }
 
+        if(MainWindow.useCustomLaf) {
+            palette_preview = CommonFunctions.makeRoundedCorner(palette_preview, 5);
+        }
+
         return palette_preview;
     }
 
     public static int getOutPaletteLength(boolean domain_coloring, int domain_coloring_mode) {
 
         if(!domain_coloring || domain_coloring_mode == 1) {
-            return TaskDraw.palette_outcoloring.getPaletteLength();
+            return TaskRender.palette_outcoloring.getPaletteLength();
         }
 
         return DomainColoring.getDomainColoringPaletteLength(domain_coloring_mode);
@@ -2288,7 +2528,7 @@ public class CommonFunctions implements Constants {
     public static int getInPaletteLength(boolean domain_coloring) {
 
         if(!domain_coloring) {
-            return TaskDraw.palette_incoloring.getPaletteLength();
+            return TaskRender.palette_incoloring.getPaletteLength();
         }
 
         return -1;
@@ -2322,6 +2562,10 @@ public class CommonFunctions implements Constants {
             }
         }
 
+        if(MainWindow.useCustomLaf) {
+            palette_preview = CommonFunctions.makeRoundedCorner(palette_preview, 5);
+        }
+
         return palette_preview;
     }
 
@@ -2337,12 +2581,23 @@ public class CommonFunctions implements Constants {
     }
 
     public static void setUIFontSize(int size) {
+        Font font = UIManager.getFont( "Label.font" );
+        int originalSize = font.getSize();
+
+        if(size - originalSize == 0) {
+            return;
+        }
+
         java.util.Enumeration keys = UIManager.getDefaults().keys();
         while (keys.hasMoreElements()) {
             Object key = keys.nextElement();
             Object value = UIManager.get(key);
             if (value != null && value instanceof javax.swing.plaf.FontUIResource) {
-                UIManager.put(key, ((javax.swing.plaf.FontUIResource)value).deriveFont((float) size));
+                int currentSize = ((javax.swing.plaf.FontUIResource)value).getSize();
+                //UIManager.put(key, ((javax.swing.plaf.FontUIResource) value).deriveFont((float)currentSize + diff));
+                if(currentSize == originalSize) {
+                    UIManager.put(key, ((javax.swing.plaf.FontUIResource) value).deriveFont((float) size));
+                }
             }
         }
     }
@@ -2463,5 +2718,33 @@ public class CommonFunctions implements Constants {
         }
         Collections.sort(factors);
         return factors;
+    }
+
+    public static BufferedImage makeRoundedCorner(BufferedImage image, int cornerRadius) {
+        int w = image.getWidth();
+        int h = image.getHeight();
+        BufferedImage output = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+
+        Graphics2D g2 = output.createGraphics();
+
+        // This is what we want, but it only does hard-clipping, i.e. aliasing
+        // g2.setClip(new RoundRectangle2D ...)
+
+        // so instead fake soft-clipping by first drawing the desired clip shape
+        // in fully opaque white with antialiasing enabled...
+        g2.setComposite(AlphaComposite.Src);
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g2.setColor(Color.WHITE);
+        g2.fill(new RoundRectangle2D.Float(0, 0, w, h, cornerRadius, cornerRadius));
+
+        // ... then compositing the image on top,
+        // using the white shape from above as alpha source
+        g2.setComposite(AlphaComposite.SrcAtop);
+        g2.drawImage(image, 0, 0, null);
+
+        g2.dispose();
+
+        return output;
     }
 }

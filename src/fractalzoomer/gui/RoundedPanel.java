@@ -49,6 +49,17 @@ public class RoundedPanel extends JPanel {
         _arcs = new Dimension(arc_size, arc_size);
     }
 
+    public RoundedPanel(boolean shadowed, boolean highquality, boolean draw_edge, int arc_size, LayoutManager layout)
+    {
+        super(layout);
+        setOpaque(false);
+
+        _shadowed = shadowed;
+        _highQuality = highquality;
+        this.draw_edge = draw_edge;
+        _arcs = new Dimension(arc_size, arc_size);
+    }
+
     @Override
     public void setBackground(Color c)
     {

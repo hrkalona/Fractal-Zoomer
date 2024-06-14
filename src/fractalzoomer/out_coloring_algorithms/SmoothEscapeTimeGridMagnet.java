@@ -51,9 +51,9 @@ public class SmoothEscapeTimeGridMagnet extends SmoothEscapeTimeGrid {
 
         boolean grid = grid_weight < zabs && zabs < (1.0 - grid_weight) && (grid_weight * k) < zarg && zarg < (1.0 - grid_weight * k);
 
-        double temp3 = grid ? (Integer)object[0] : -((Integer)object[0] + INCREMENT);
+        double temp3 = grid ? (int)object[0] : -((int)object[0] + INCREMENT);
 
-        if((Boolean)object[2]) {
+        if((boolean)object[2]) {
             if(algorithm == 0) {
                 if(temp3 < 0) {
                     return temp3 - (SmoothEscapeTimeMagnet.getEscSmoothing1(object, temp2, log_bailout_squared) + MAGNET_INCREMENT);

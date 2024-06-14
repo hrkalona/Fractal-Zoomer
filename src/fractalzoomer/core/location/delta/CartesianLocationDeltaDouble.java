@@ -33,7 +33,10 @@ public class CartesianLocationDeltaDouble extends Location {
 
     private JitterSettings js;
 
-    public CartesianLocationDeltaDouble(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int image_size_in, Apfloat[] rotation_center, Apfloat[] rotation_vals, Fractal fractal, JitterSettings js) {
+    private int width;
+    private int height;
+
+    public CartesianLocationDeltaDouble(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int width, int height, Apfloat[] rotation_center, Apfloat[] rotation_vals, Fractal fractal, JitterSettings js) {
 
         super();
 
@@ -48,11 +51,15 @@ public class CartesianLocationDeltaDouble extends Location {
 
         this.size = dsize;
 
-        int image_size = offset.getImageSize(image_size_in);
+        width = offset.getWidth(width);
+        height = offset.getHeight(height);
+        int image_size = Math.min(width, height);
+        double coefx = width == image_size ? 0.5 : (1 + (width - (double)height) / height) * 0.5;
+        double coefy = height == image_size ? 0.5 : (1 + (height - (double)width) / width) * 0.5;
 
-        double size_2_x = dsize * 0.5;
+        double size_2_x = dsize * coefx;
         double temp = dsize * height_ratio;
-        double size_2_y = temp * 0.5;
+        double size_2_y = temp * coefy;
         temp_size_image_size_x = dsize / image_size;
         temp_size_image_size_y = temp / image_size;
 
@@ -61,6 +68,9 @@ public class CartesianLocationDeltaDouble extends Location {
 
         rotation = new Rotation(new Complex(rotation_vals[0].doubleValue(), rotation_vals[1].doubleValue()), new Complex(rotation_center[0].doubleValue(), rotation_center[1].doubleValue()));
         this.js = js;
+
+        this.width = width;
+        this.height = height;
     }
 
     public CartesianLocationDeltaDouble(CartesianLocationDeltaDouble other) {
@@ -87,6 +97,9 @@ public class CartesianLocationDeltaDouble extends Location {
 
         reference = other.reference;
         js = other.js;
+
+        width = other.width;
+        height = other.height;
     }
 
     private Complex getComplexBase(int x, int y) {
@@ -232,15 +245,7 @@ public class CartesianLocationDeltaDouble extends Location {
 
     @Override
     public MantExp getMaxSizeInImage() {
-        if(height_ratio == 1) { // ((size * 0.5) / image_size) * sqrt(image_size^2 + image_size^2) = ((size * 0.5) / image_size) * sqrt(2) * image_size
-            double sqrt2 = Math.sqrt(2);
-            return new MantExp(sqrt2 * size * 0.5);
-        }
-        else {
-            double temp = size * 0.5;
-            double temp2 = temp * height_ratio;
-            return new MantExp(Math.sqrt(temp * temp + temp2 * temp2));
-        }
+        return new MantExp(Math.hypot(temp_size_image_size_x * width * 0.5, temp_size_image_size_y * height * 0.5));
     }
 
     @Override

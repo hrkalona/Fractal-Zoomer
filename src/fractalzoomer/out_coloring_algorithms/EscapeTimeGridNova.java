@@ -39,7 +39,7 @@ public class EscapeTimeGridNova extends EscapeTimeGrid {
         double zarg = (((Complex)object[1]).arg() / (pi2) + 1.0f) % 1.0;
         boolean grid = 0.05 < zabs && zabs < 0.95 && 0.05 < zarg && zarg < 0.95;
         
-        return grid ? (Integer)object[0] : -((Integer)object[0] + INCREMENT);
+        return grid ? (int)object[0] : -((int)object[0] + INCREMENT);
 
     }
     

@@ -2,7 +2,7 @@ package fractalzoomer.utils;
 
 import fractalzoomer.core.MpfrBigNumComplex;
 import fractalzoomer.core.MpirBigNumComplex;
-import fractalzoomer.core.TaskDraw;
+import fractalzoomer.core.TaskRender;
 import fractalzoomer.core.mpfr.MpfrBigNum;
 import fractalzoomer.core.mpir.MpirBigNum;
 import fractalzoomer.functions.Fractal;
@@ -48,11 +48,11 @@ public class WorkSpaceData {
 
     public WorkSpaceData(Fractal f) {
 
-        if(TaskDraw.allocateMPFR()) {
+        if(TaskRender.allocateMPFR()) {
             temp1 = new MpfrBigNum();
             temp2 = new MpfrBigNum();
 
-            if(f.supportsPeriod() && TaskDraw.DETECT_PERIOD) {
+            if(f.supportsPeriod() && TaskRender.DETECT_PERIOD) {
                 tempPvar = new MpfrBigNum();
                 tempPvar2 = new MpfrBigNum();
             }
@@ -61,7 +61,7 @@ public class WorkSpaceData {
                 temp4 = new MpfrBigNum();
             }
 
-            if(TaskDraw.HIGH_PRECISION_CALCULATION) {
+            if(TaskRender.HIGH_PRECISION_CALCULATION) {
                 z = new MpfrBigNumComplex();
                 c = new MpfrBigNumComplex();
                 zold = new MpfrBigNumComplex();
@@ -71,12 +71,12 @@ public class WorkSpaceData {
                 seed = new MpfrBigNumComplex();
                 root = new MpfrBigNum();
             }
-        } else if (TaskDraw.allocateMPIR()) {
+        } else if (TaskRender.allocateMPIR()) {
             temp1p = new MpirBigNum();
             temp2p = new MpirBigNum();
             temp3p = new MpirBigNum();
 
-            if(f.supportsPeriod() && TaskDraw.DETECT_PERIOD) {
+            if(f.supportsPeriod() && TaskRender.DETECT_PERIOD) {
                 tempPvarp = new MpirBigNum();
                 tempPvar2p = new MpirBigNum();
             }
@@ -84,7 +84,7 @@ public class WorkSpaceData {
                 temp4p = new MpirBigNum();
             }
 
-            if(TaskDraw.HIGH_PRECISION_CALCULATION) {
+            if(TaskRender.HIGH_PRECISION_CALCULATION) {
                 zp = new MpirBigNumComplex();
                 cp = new MpirBigNumComplex();
                 zoldp = new MpirBigNumComplex();

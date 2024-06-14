@@ -31,7 +31,7 @@ public class SmoothEscapeTimeGridKleinian extends OutColorAlgorithm {
 
         boolean grid = grid_weight < zabs && zabs < (1.0 - grid_weight) && (grid_weight * k) < zarg && zarg < (1.0 - grid_weight * k);
 
-        double temp = (Integer)object[0] + 1 + Math.log(((Complex)object[1]).sub_i(u).norm());
+        double temp = (int)object[0] + 1 + Math.log(((Complex)object[1]).sub_i(u).norm());
 
         return grid ? temp : -(temp + INCREMENT);
 

@@ -284,12 +284,12 @@ public class MandelbrotCubed extends Julia {
             progress.setString(REFERENCE_CALCULATION_STR + " " + String.format("%3d", 0) + "%");
         }
 
-        boolean detectPeriod = TaskDraw.DETECT_PERIOD && supportsPeriod() && getUserPeriod() == 0;
+        boolean detectPeriod = TaskRender.DETECT_PERIOD && supportsPeriod() && getUserPeriod() == 0;
         boolean lowPrecReferenceOrbitNeeded = !needsOnlyExtendedReferenceOrbit(deepZoom, detectPeriod);
-        boolean stopReferenceCalculationOnDetectedPeriod = detectPeriod && TaskDraw.STOP_REFERENCE_CALCULATION_AFTER_DETECTED_PERIOD && userPeriod == 0 && canStopOnDetectedPeriod();
+        boolean stopReferenceCalculationOnDetectedPeriod = detectPeriod && TaskRender.STOP_REFERENCE_CALCULATION_AFTER_DETECTED_PERIOD && userPeriod == 0 && canStopOnDetectedPeriod();
 
         DoubleReference.SHOULD_SAVE_MEMORY = stopReferenceCalculationOnDetectedPeriod;
-        boolean useCompressedRef = TaskDraw.COMPRESS_REFERENCE_IF_POSSIBLE && supportsReferenceCompression();
+        boolean useCompressedRef = TaskRender.COMPRESS_REFERENCE_IF_POSSIBLE && supportsReferenceCompression();
 
         if (iterations == 0) {
             if(lowPrecReferenceOrbitNeeded) {
@@ -323,7 +323,7 @@ public class MandelbrotCubed extends Julia {
             DetectedPeriod = 0;
         }
 
-        int bigNumLib = TaskDraw.getBignumLibrary(size, this);
+        int bigNumLib = TaskRender.getBignumLibrary(size, this);
         int detectPeriodAlgorithm = getPeriodDetectionAlgorithm();
 
         if(bigNumLib == Constants.BIGNUM_BUILT_IN) {
@@ -381,7 +381,7 @@ public class MandelbrotCubed extends Julia {
             pixel = new MpirBigNumComplex(bn);
 
             if(detectPeriod && detectPeriodAlgorithm == 0) {
-                r0 = new MpirBigNum(size);
+                r0 = MpirBigNum.fromApfloat(size);
                 r = iterations == 0 ? new MpirBigNum((MpirBigNum) r0) : referenceData.lastRValue;
             }
         }
@@ -454,8 +454,8 @@ public class MandelbrotCubed extends Julia {
             }
         }
 
-        boolean isSeriesInUse = TaskDraw.APPROXIMATION_ALGORITHM == 1 && supportsSeriesApproximation();
-        boolean isBLAInUse = TaskDraw.APPROXIMATION_ALGORITHM == 2 && supportsBilinearApproximation();
+        boolean isSeriesInUse = TaskRender.APPROXIMATION_ALGORITHM == 1 && supportsSeriesApproximation();
+        boolean isBLAInUse = TaskRender.APPROXIMATION_ALGORITHM == 2 && supportsBilinearApproximation();
         RefType = getRefType();
 
         boolean usesCircleBail = bailout_algorithm2.getId() == MainWindow.BAILOUT_CONDITION_CIRCLE;
@@ -1091,7 +1091,7 @@ public class MandelbrotCubed extends Julia {
 
         SAskippedIterations = 0;
 
-        int numCoefficients = TaskDraw.SERIES_APPROXIMATION_TERMS;
+        int numCoefficients = TaskRender.SERIES_APPROXIMATION_TERMS;
 
         if (numCoefficients < 2 || dsize.compareTo(MyApfloat.SA_START_SIZE) > 0) {
             return;
@@ -1122,8 +1122,8 @@ public class MandelbrotCubed extends Julia {
             setSACoefficient(i, 0, MantExpComplex.create());
         }
 
-        long oomDiff = TaskDraw.SERIES_APPROXIMATION_OOM_DIFFERENCE;
-        int SAMaxSkipIter = TaskDraw.SERIES_APPROXIMATION_MAX_SKIP_ITER;
+        long oomDiff = TaskRender.SERIES_APPROXIMATION_OOM_DIFFERENCE;
+        int SAMaxSkipIter = TaskRender.SERIES_APPROXIMATION_MAX_SKIP_ITER;
 
         int length = deepZoom ? referenceDeep.length() : reference.length();
 
@@ -1301,7 +1301,7 @@ public class MandelbrotCubed extends Julia {
 
     @Override
     public boolean supportsPeriod() {
-        return !burning_ship && !isJulia;
+        return !burning_ship && !isJulia && !(TaskRender.APPROXIMATION_ALGORITHM == 1 && supportsSeriesApproximation());
     }
 
     @Override

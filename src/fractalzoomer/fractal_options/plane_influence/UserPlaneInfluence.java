@@ -1,7 +1,7 @@
 package fractalzoomer.fractal_options.plane_influence;
 
 import fractalzoomer.core.Complex;
-import fractalzoomer.core.TaskDraw;
+import fractalzoomer.core.TaskRender;
 import fractalzoomer.parser.ExpressionNode;
 import fractalzoomer.parser.Parser;
 
@@ -29,7 +29,15 @@ public class UserPlaneInfluence extends PlaneInfluence {
         }
 
         if (parser.foundISize()) {
-            parser.setISizevalue(new Complex(TaskDraw.IMAGE_SIZE, 0));
+            parser.setISizevalue(new Complex(Math.min(TaskRender.WIDTH, TaskRender.HEIGHT), 0));
+        }
+
+        if (parser.foundWidth()) {
+            parser.setWidthvalue(new Complex(TaskRender.WIDTH, 0));
+        }
+
+        if (parser.foundHeight()) {
+            parser.setHeightvalue(new Complex(TaskRender.HEIGHT, 0));
         }
 
         if (parser.foundPoint()) {

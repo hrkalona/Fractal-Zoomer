@@ -40,14 +40,14 @@ public class ShearPlane extends Plane {
         super();
         scales = new Complex(plane_transform_scales[0], plane_transform_scales[1]);
 
-        if(TaskDraw.PERTURBATION_THEORY || TaskDraw.HIGH_PRECISION_CALCULATION) {
+        if(TaskRender.PERTURBATION_THEORY || TaskRender.HIGH_PRECISION_CALCULATION) {
             ddscales = new BigComplex(scales);
             ddcscales = new DDComplex(scales);
             bnscales = new BigNumComplex(scales);
 
-            if (TaskDraw.allocateMPFR()) {
+            if (TaskRender.allocateMPFR()) {
                 mpfrbnscales = new MpfrBigNumComplex(scales);
-            } else if (TaskDraw.allocateMPIR()) {
+            } else if (TaskRender.allocateMPIR()) {
                 mpirbnscales = new MpirBigNumComplex(scales);
             }
         }

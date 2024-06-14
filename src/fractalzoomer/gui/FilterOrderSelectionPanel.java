@@ -20,9 +20,13 @@ import fractalzoomer.main.MainWindow;
 
 import javax.swing.*;
 import javax.swing.border.EtchedBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+
+import static fractalzoomer.main.MainWindow.activeColor;
 
 /**
  *
@@ -35,16 +39,12 @@ public class FilterOrderSelectionPanel extends JPanel {
     private int[] filter_order;
     private boolean[] mActiveFilters;
     
-    private Color activeColor;
-    
     public FilterOrderSelectionPanel(JCheckBoxMenuItem[] filters, int[] filter_order, boolean[] activeFilters) {
         
         super();
         mFilters = filters;
         this.filter_order = filter_order;
         mActiveFilters = activeFilters;
-        
-        activeColor = new Color(185, 223, 147);
         
         DefaultListModel<String> m = new DefaultListModel<>();
         for(int i = 0; i < filter_order.length; i++) {
@@ -68,8 +68,10 @@ public class FilterOrderSelectionPanel extends JPanel {
         //list.setFixedCellHeight(80);
         list.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
+        list.addListSelectionListener(e -> list.repaint());
+
         list.setCellRenderer(new ListCellRenderer<String>() {
-            private final JPanel p = new JPanel(new BorderLayout());
+            private final JPanel p = LAFManager.getJListPanel();
             private final ImageLabel icon = new ImageLabel(null, JLabel.LEFT);
             private final JLabel label = new JLabel("", JLabel.LEFT);
 
@@ -136,10 +138,8 @@ public class FilterOrderSelectionPanel extends JPanel {
         p2.add(new JLabel("Anti-Aliasing is always performed first."));
         text.add(p2);
         
-        JLabel color = new JLabel();
+        JLabel color = new ColorLabel();
         color.setPreferredSize(new Dimension(22, 22));
-        color.setOpaque(true);
-        color.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
         color.setBackground(activeColor);
         
         JPanel p3 = new JPanel();

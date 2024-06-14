@@ -16,10 +16,11 @@
  */
 package fractalzoomer.gui;
 
-import fractalzoomer.core.TaskDraw;
+import fractalzoomer.core.TaskRender;
 import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
+import raven.slider.SliderGradient;
 
 import javax.swing.*;
 import java.awt.*;
@@ -111,16 +112,16 @@ public class LightDialog extends JDialog {
         JPanel p2 = new JPanel();
         p2.setLayout(new GridLayout(2, 4));
 
-        JTextField light_intensity_field = new JTextField(20);
+        JTextField light_intensity_field = new JTextField(15);
         light_intensity_field.setText("" + s.pps.ls.lightintensity);
 
-        JTextField ambient_light_field = new JTextField(20);
+        JTextField ambient_light_field = new JTextField(15);
         ambient_light_field.setText("" + s.pps.ls.ambientlight);
 
-        JTextField specular_intensity_field = new JTextField(20);
+        JTextField specular_intensity_field = new JTextField(15);
         specular_intensity_field.setText("" + s.pps.ls.specularintensity);
 
-        JTextField shininess_field = new JTextField(20);
+        JTextField shininess_field = new JTextField(15);
         shininess_field.setText("" + s.pps.ls.shininess);
 
         p2.add(new JLabel("Light Intensity:", SwingConstants.HORIZONTAL));
@@ -161,7 +162,7 @@ public class LightDialog extends JDialog {
         transfer_combo.setFocusable(false);
         transfer_combo.setToolTipText("Sets the height transfer function.");
 
-        JTextField tranfer_factor_field = new JTextField(20);
+        JTextField tranfer_factor_field = new JTextField(15);
         tranfer_factor_field.setText("" + s.pps.ls.heightTransferFactor);
 
         final JComboBox<String> color_method_combo = new JComboBox<>(Constants.colorMethod);
@@ -169,7 +170,7 @@ public class LightDialog extends JDialog {
         color_method_combo.setFocusable(false);
         color_method_combo.setToolTipText("Sets the color mode.");
 
-        final JSlider color_blend_opt = new JSlider(JSlider.HORIZONTAL, 0, 100, (int) (s.pps.ls.light_blending * 100));
+        final JSlider color_blend_opt = new SliderGradient(JSlider.HORIZONTAL, 0, 100, (int) (s.pps.ls.light_blending * 100));
         color_blend_opt.setMajorTickSpacing(25);
         color_blend_opt.setMinorTickSpacing(1);
         color_blend_opt.setToolTipText("Sets the color blending percentage.");
@@ -311,7 +312,7 @@ public class LightDialog extends JDialog {
                             s.pps.ls.l_noise_reducing_factor = temp;
 
                             s.pps.ls.specularReflectionMethod = reflection_mode_combo.getSelectedIndex();
-                            TaskDraw.loadWindowImage(s.pps.ls.specularReflectionMethod);
+                            TaskRender.loadWindowImage(s.pps.ls.specularReflectionMethod);
                             s.pps.ls.fractionalTransfer = fractional_transfer.getSelectedIndex();
                             s.pps.ls.fractionalSmoothing = fractional_smoothing.getSelectedIndex();
                             s.pps.ls.fractionalTransferMode = fractional_transfer_mode.getSelectedIndex();
@@ -323,7 +324,7 @@ public class LightDialog extends JDialog {
 
                         dispose();
 
-                        if (greedy_algorithm && !TaskDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA && enable_light.isSelected() && !julia_map && !s.d3s.d3 && !s.ds.domain_coloring) {
+                        if (greedy_algorithm && !TaskRender.GREEDY_ALGORITHM_CHECK_ITER_DATA && enable_light.isSelected() && !julia_map && !s.d3s.d3 && !s.ds.domain_coloring) {
                             JOptionPane.showMessageDialog(ptra, Constants.greedyWarning, "Warning!", JOptionPane.WARNING_MESSAGE);
                         }
 

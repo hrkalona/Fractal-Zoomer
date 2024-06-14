@@ -258,7 +258,7 @@ public class ReferenceDecompressor {
 
         MantExpComplex z;
 
-        boolean twoExponents = TaskDraw.MANTEXPCOMPLEX_FORMAT == 1;
+        boolean twoExponents = TaskRender.MANTEXPCOMPLEX_FORMAT == 1;
 
         for(int i = 0; i <= length; i++) {
             if(cexprref.useWaypoint(compressed_index, i)) {
@@ -310,7 +310,7 @@ public class ReferenceDecompressor {
 
         MantExpComplex exprz;
 
-        boolean twoExponents = TaskDraw.MANTEXPCOMPLEX_FORMAT == 1;
+        boolean twoExponents = TaskRender.MANTEXPCOMPLEX_FORMAT == 1;
 
         for(int i = 0; i <= length; i++) {
             if(reference.useWaypoint(compressed_index2, i)) {
@@ -358,7 +358,7 @@ public class ReferenceDecompressor {
 
     private static void CorrectOrbit(DeepReference ref, int Begin, int End, MantExpComplex diff) {
         MantExpComplex dzdc = MantExpComplex.create(ScalingFactorm, new MantExp());
-        boolean twoExponents = TaskDraw.MANTEXPCOMPLEX_FORMAT == 1;
+        boolean twoExponents = TaskRender.MANTEXPCOMPLEX_FORMAT == 1;
         MantExpComplex Z;
         for (int i = End; i > Begin; ) {
             i--;
@@ -489,7 +489,7 @@ public class ReferenceDecompressor {
         Waypoint NextWayPoint = cref.getWaypointExtended(WayPointIndex);
         int NextRebase = cref.getRebaseAtIndex(RebaseIndex);
 
-        boolean twoExponents = TaskDraw.MANTEXPCOMPLEX_FORMAT == 1;
+        boolean twoExponents = TaskRender.MANTEXPCOMPLEX_FORMAT == 1;
 
         int i = 0;
         int UncorrectedOrbitBegin = 1;
@@ -589,7 +589,7 @@ public class ReferenceDecompressor {
 
         DeepReference ref = new DeepReference(cref.length, cref.lengthOverride);
 
-        boolean twoExponents = TaskDraw.MANTEXPCOMPLEX_FORMAT == 1;
+        boolean twoExponents = TaskRender.MANTEXPCOMPLEX_FORMAT == 1;
 
         ref.exps[0] = z.getExp();
         ref.mantsRe[0] = z.getMantissaReal();

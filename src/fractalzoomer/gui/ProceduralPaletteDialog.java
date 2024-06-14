@@ -16,11 +16,8 @@
  */
 package fractalzoomer.gui;
 
-import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.CosinePaletteSettings;
-import fractalzoomer.main.app_settings.GeneratedPaletteSettings;
-import fractalzoomer.main.app_settings.Settings;
 
 import javax.swing.*;
 import java.awt.*;
@@ -33,10 +30,10 @@ import java.awt.event.WindowEvent;
  */
 public class ProceduralPaletteDialog extends JDialog {
 
-    private ColorPaletteEditorFrame ptra;
+    private ColorPaletteEditorDialog ptra;
     private JOptionPane optionPane;
 
-    public ProceduralPaletteDialog(ColorPaletteEditorFrame ptr, int length, CosinePaletteSettings cps, int max_length, int step) {
+    public ProceduralPaletteDialog(ColorPaletteEditorDialog ptr, int length, CosinePaletteSettings cps, int max_length, int step) {
         
         super(ptr);
 

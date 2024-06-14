@@ -38,7 +38,7 @@ public class CornersDialog extends JDialog {
     private MainWindow ptra;
     private JOptionPane optionPane;
 
-    public CornersDialog(MainWindow ptr, Settings s, JTextArea field_real, JTextArea field_imaginary, JTextArea field_size) {
+    public CornersDialog(MainWindow ptr, Settings s, JTextArea field_real, JTextArea field_imaginary, JTextArea field_size, int image_width, int image_height) {
 
         super(ptr);
         
@@ -68,7 +68,7 @@ public class CornersDialog extends JDialog {
             tempSize = s.size;
         }
 
-        Apfloat[] corners = MathUtils.convertFromCenterSizeToCorners(tempx, tempy, tempSize);
+        Apfloat[] corners = MathUtils.convertFromCenterSizeToCorners(tempx, tempy, tempSize, image_width, image_height);
 
 
         JTextArea corner1_real = new JTextArea(3, 25);

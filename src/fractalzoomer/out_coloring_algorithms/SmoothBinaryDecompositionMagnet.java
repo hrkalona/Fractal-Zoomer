@@ -41,20 +41,20 @@ public class SmoothBinaryDecompositionMagnet extends SmoothBinaryDecomposition {
     public double getResult(Object[] object) {
 
         double temp3;
-        if((Boolean)object[2]) {
+        if((boolean)object[2]) {
             if(algorithm == 0) {
-                temp3 = (Integer)object[0] + SmoothEscapeTimeMagnet.getEscSmoothing1(object, Math.log(((Complex)object[1]).norm_squared()), log_bailout_squared) + MAGNET_INCREMENT;
+                temp3 = (int)object[0] + SmoothEscapeTimeMagnet.getEscSmoothing1(object, Math.log(((Complex)object[1]).norm_squared()), log_bailout_squared) + MAGNET_INCREMENT;
             }
             else {
-                temp3 = (Integer)object[0] + SmoothEscapeTimeMagnet.getEscSmoothing2(object, Math.log(((Complex)object[1]).norm_squared()), log_bailout_squared) + MAGNET_INCREMENT;
+                temp3 = (int)object[0] + SmoothEscapeTimeMagnet.getEscSmoothing2(object, Math.log(((Complex)object[1]).norm_squared()), log_bailout_squared) + MAGNET_INCREMENT;
             }
         }
         else {
             if(algorithm2 == 0) {
-                temp3 = (Integer)object[0] + SmoothEscapeTimeMagnet.getConvSmoothing1(object, log_convergent_bailout);
+                temp3 = (int)object[0] + SmoothEscapeTimeMagnet.getConvSmoothing1(object, log_convergent_bailout);
             }
             else {
-                temp3 = (Integer)object[0] + SmoothEscapeTimeMagnet.getConvSmoothing2(object, log_convergent_bailout);
+                temp3 = (int)object[0] + SmoothEscapeTimeMagnet.getConvSmoothing2(object, log_convergent_bailout);
             }
         }
         

@@ -27,7 +27,7 @@ public class EscapeTime extends OutColorAlgorithm {
     @Override
     public double getResult(Object[] object) {
 
-        return (Integer)object[0];
+        return (int)object[0];
 
     }
 

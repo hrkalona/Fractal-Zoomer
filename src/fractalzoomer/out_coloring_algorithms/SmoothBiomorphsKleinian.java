@@ -35,7 +35,7 @@ public class SmoothBiomorphsKleinian extends OutColorAlgorithm {
     @Override
     public double getResult(Object[] object) {
 
-        double temp = (Integer)object[0] + 1 + Math.log(((Complex)object[1]).sub_i(u).norm());
+        double temp = (int)object[0] + 1 + Math.log(((Complex)object[1]).sub_i(u).norm());
 
         double temp4 = ((Complex)object[1]).getRe();
         double temp5 = ((Complex)object[1]).getIm();

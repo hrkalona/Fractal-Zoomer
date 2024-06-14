@@ -26,14 +26,10 @@ public class ZoomSequenceSettings {
     @JsonIgnore
     public Apfloat size;
 
-    public double aspect_ratio;
-
 
     public ZoomSequenceSettings() {
         size = Constants.DEFAULT_MAGNIFICATION;
         sizeStr = size.toString();
-
-        aspect_ratio = 1;
 
         zoom_factor = 2.0;
         flipSequenceIndexing = false;

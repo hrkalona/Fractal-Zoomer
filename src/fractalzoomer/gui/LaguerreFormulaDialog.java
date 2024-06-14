@@ -117,7 +117,7 @@ public class LaguerreFormulaDialog extends JDialog {
             pack();
         });
 
-        Object[] labels91 = ptra.createUserFormulaLabels("z, s, pixel, p, pp, n, maxn, center, size, sizei, v1 - v30, point");
+        Object[] labels91 = ptra.createUserFormulaLabels("z, s, pixel, p, pp, n, maxn, center, size, sizei, width, height, v1 - v30, point");
 
         Object[] message91 = {
             labels91,

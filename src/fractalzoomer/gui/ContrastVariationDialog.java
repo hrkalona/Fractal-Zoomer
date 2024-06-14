@@ -17,6 +17,7 @@
 package fractalzoomer.gui;
 
 import fractalzoomer.main.MainWindow;
+import raven.slider.SliderGradient;
 
 import javax.swing.*;
 import java.awt.event.WindowAdapter;
@@ -28,10 +29,10 @@ import java.awt.event.WindowEvent;
  */
 public class ContrastVariationDialog extends JDialog {
 
-    private ColorPaletteEditorFrame ptra;
+    private ColorPaletteEditorDialog ptra;
     private JOptionPane optionPane;
 
-    public ContrastVariationDialog(ColorPaletteEditorFrame ptr, boolean contrast_variation, double range_min, double range_max, int contrast_method, double period, double offset, double merging) {
+    public ContrastVariationDialog(ColorPaletteEditorDialog ptr, boolean contrast_variation, double range_min, double range_max, int contrast_method, double period, double offset, double merging) {
 
         super(ptr);
         
@@ -67,7 +68,7 @@ public class ContrastVariationDialog extends JDialog {
         scale_range.setFocusable(false);
         scale_range.setPaintLabels(true);
 
-        JSlider color_blend_opt = new JSlider(JSlider.HORIZONTAL, 0, 100, (int) (merging * 100));
+        JSlider color_blend_opt = new SliderGradient(JSlider.HORIZONTAL, 0, 100, (int) (merging * 100));
         color_blend_opt.setMajorTickSpacing(25);
         color_blend_opt.setMinorTickSpacing(1);
         color_blend_opt.setToolTipText("Sets the contrast merging percentage.");

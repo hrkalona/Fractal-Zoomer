@@ -11,6 +11,19 @@ public abstract class GenericComplex {
     public Complex toComplex() {return null;}
     public BigComplex toBigComplex() {return null;}
 
+
+    public Object re() {
+        return null;
+    }
+
+    public Object im() {
+        return null;
+    }
+
+    public Object Norm() {
+        return null;
+    }
+
     public MantExpComplex toMantExpComplex() {return null;}
 
     public GenericComplex square_plus_c_mutable(GenericComplex c) { return null;}

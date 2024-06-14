@@ -1,7 +1,7 @@
 package fractalzoomer.core.unused;
 
 import fractalzoomer.core.MyApfloat;
-import fractalzoomer.core.TaskDraw;
+import fractalzoomer.core.TaskRender;
 import org.apfloat.Apfloat;
 
 import java.math.BigDecimal;
@@ -22,7 +22,7 @@ public class BigDecNum {
         mc = new MathContext((int) MyApfloat.precision, RoundingMode.HALF_EVEN);
         RECIPROCAL_LOG_TWO_BASE_TEN = new BigDecNum(MyApfloat.RECIPROCAL_LOG_TWO_BASE_TEN);
         TWO = new BigDecNum(2);
-        use_threads = TaskDraw.USE_THREADS_IN_BIGNUM_LIBS && MyApfloat.precision >= THREADS_THRESHOLD && Runtime.getRuntime().availableProcessors() >= 2;
+        use_threads = TaskRender.USE_THREADS_IN_BIGNUM_LIBS && MyApfloat.precision >= THREADS_THRESHOLD && Runtime.getRuntime().availableProcessors() >= 2;
     }
 
     public static void reinitialize(double prec) {
@@ -30,7 +30,7 @@ public class BigDecNum {
         mc = new MathContext(precision, RoundingMode.HALF_EVEN);
         RECIPROCAL_LOG_TWO_BASE_TEN = new BigDecNum(MyApfloat.RECIPROCAL_LOG_TWO_BASE_TEN);
         TWO = new BigDecNum(2);
-        use_threads = TaskDraw.USE_THREADS_IN_BIGNUM_LIBS && precision >= THREADS_THRESHOLD && Runtime.getRuntime().availableProcessors() >= 2;
+        use_threads = TaskRender.USE_THREADS_IN_BIGNUM_LIBS && precision >= THREADS_THRESHOLD && Runtime.getRuntime().availableProcessors() >= 2;
     }
 
     public BigDecNum(BigDecNum bd) {

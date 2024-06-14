@@ -22,6 +22,8 @@ import javax.swing.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
+import static fractalzoomer.main.Constants.bumpTransferNames;
+
 /**
  *
  * @author hrkalona2
@@ -31,7 +33,7 @@ public class ImageSizeDialog extends JDialog {
     private MainWindow ptra;
     private JOptionPane optionPane;
 
-    public ImageSizeDialog(MainWindow ptr, int image_size) {
+    public ImageSizeDialog(MainWindow ptr, int image_width, int image_height) {
         
         super(ptr);
 
@@ -43,12 +45,69 @@ public class ImageSizeDialog extends JDialog {
 
         JTextField field = new JTextField();
         field.addAncestorListener(new RequestFocusListener());
-        field.setText("" + image_size);
+        field.setText("" + image_width);
+
+        JTextField field2 = new JTextField();
+        field2.setText("" + image_height);
+
+        final JComboBox<String> templates = new JComboBox<>(new String[] {"", "788x788 1:1", "1024x768 4:3", "1280x720 16:9", "1920x1080 16:9", "2560x1440 16:9", "3840x2160 16:9"});
+
+        templates.setFocusable(false);
+        templates.addActionListener( e-> {
+            switch (templates.getSelectedIndex()) {
+                case 1:
+                    field.setText("788");
+                    field2.setText("788");
+                    field.setEnabled(false);
+                    field2.setEnabled(false);
+                    break;
+                case 2:
+                    field.setText("1024");
+                    field2.setText("768");
+                    field.setEnabled(false);
+                    field2.setEnabled(false);
+                    break;
+                case 3:
+                    field.setText("1280");
+                    field2.setText("720");
+                    field.setEnabled(false);
+                    field2.setEnabled(false);
+                    break;
+                case 4:
+                    field.setText("1920");
+                    field2.setText("1080");
+                    field.setEnabled(false);
+                    field2.setEnabled(false);
+                    break;
+                case 5:
+                    field.setText("2560");
+                    field2.setText("1440");
+                    field.setEnabled(false);
+                    field2.setEnabled(false);
+                    break;
+                case 6:
+                    field.setText("3840");
+                    field2.setText("2160");
+                    field.setEnabled(false);
+                    field2.setEnabled(false);
+                    break;
+                case 0:
+                    field.setEnabled(true);
+                    field2.setEnabled(true);
+                    break;
+            }
+        });
 
         Object[] message3 = {
             " ",
-            "Your image size is " + image_size + "x" + image_size + " .\nInsert the new image size.\nOnly one dimension is required.",
+            "Your image size is " + image_width + "x" + image_height + " .\nInsert the new image size.",
+                "Templates:",
+                templates,
+                " ",
+                "Width:",
             field,
+                "Height:",
+                field2,
             " ",};
 
         optionPane = new JOptionPane(message3, JOptionPane.QUESTION_MESSAGE, JOptionPane.OK_CANCEL_OPTION, null, null, null);
@@ -85,17 +144,28 @@ public class ImageSizeDialog extends JDialog {
                             return;
                         }
 
-                        int temp = 0;
+                        int temp = 0, temp2 = 0;
                         try {
                             temp = Integer.parseInt(field.getText());
+                            temp2 = Integer.parseInt(field2.getText());
 
                             if (temp < 209) {
-                                JOptionPane.showMessageDialog(ptra, "Image size must be greater than 209.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                JOptionPane.showMessageDialog(ptra, "Image width must be greater than 209.", "Error!", JOptionPane.ERROR_MESSAGE);
                                 return;
                             }
 
                             if (temp > 6000) {
-                                JOptionPane.showMessageDialog(ptra, "Image size must be less than than 6001.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                JOptionPane.showMessageDialog(ptra, "Image width must be less than than 6001.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+
+                            if (temp2 < 209) {
+                                JOptionPane.showMessageDialog(ptra, "Image height must be greater than 209.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+
+                            if (temp2 > 6000) {
+                                JOptionPane.showMessageDialog(ptra, "Image height must be less than than 6001.", "Error!", JOptionPane.ERROR_MESSAGE);
                                 return;
                             }
                         } catch (Exception ex) {
@@ -104,7 +174,7 @@ public class ImageSizeDialog extends JDialog {
                         }
 
                         dispose();
-                        ptr.setSizeOfImagePost(temp);
+                        ptr.setSizeOfImagePost(temp, temp2);
                     }
                 });
 

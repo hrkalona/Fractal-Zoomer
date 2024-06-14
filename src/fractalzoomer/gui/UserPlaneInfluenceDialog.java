@@ -30,7 +30,7 @@ public class UserPlaneInfluenceDialog extends JDialog {
         //tabbedPane.setPreferredSize(new Dimension(550, 210));
         tabbedPane.setFocusable(false);
 
-        JTextField field_formula = new JTextField(MainWindow.runsOnWindows ? 50 : 45);//48
+        JTextField field_formula = new JTextField(MainWindow.runsOnWindows && !MainWindow.useCustomLaf ? 50 : 45);//48
         field_formula.setText(ips.userFormulaPlaneInfluence);
 
         JPanel formula_panel = new JPanel();
@@ -55,13 +55,13 @@ public class UserPlaneInfluenceDialog extends JDialog {
         formula_panel_cond1.add(field_condition);
         formula_panel_cond1.add(field_condition2);
 
-        JTextField field_formula_cond1 = new JTextField(MainWindow.runsOnWindows ? 45 : 40);//35
+        JTextField field_formula_cond1 = new JTextField(MainWindow.runsOnWindows && !MainWindow.useCustomLaf ? 45 : 40);//35
         field_formula_cond1.setText(ips.user_plane_influence_condition_formula[0]);
 
-        JTextField field_formula_cond2 = new JTextField(MainWindow.runsOnWindows ? 45 : 40);//35
+        JTextField field_formula_cond2 = new JTextField(MainWindow.runsOnWindows && !MainWindow.useCustomLaf ? 45 : 40);//35
         field_formula_cond2.setText(ips.user_plane_influence_condition_formula[1]);
 
-        JTextField field_formula_cond3 = new JTextField(MainWindow.runsOnWindows ? 45 : 40);//35
+        JTextField field_formula_cond3 = new JTextField(MainWindow.runsOnWindows && !MainWindow.useCustomLaf ? 45 : 40);//35
         field_formula_cond3.setText(ips.user_plane_influence_condition_formula[2]);
 
         JPanel formula_panel_cond11 = new JPanel();
@@ -89,7 +89,7 @@ public class UserPlaneInfluenceDialog extends JDialog {
 
         tabbedPane.addTab("Conditional", panel_cond);
 
-        Object[] labels33 = ptra.createUserFormulaLabels("z, c, s, c0, p, pp, n, maxn, center, size, sizei, v1 - v30, point");
+        Object[] labels33 = ptra.createUserFormulaLabels("z, c, s, c0, p, pp, n, maxn, center, size, sizei, width, height, v1 - v30, point");
 
         tabbedPane.setSelectedIndex(ips.user_plane_influence_algorithm);
 

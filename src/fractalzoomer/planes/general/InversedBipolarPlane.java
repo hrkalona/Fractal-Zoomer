@@ -36,7 +36,7 @@ public class InversedBipolarPlane extends Plane {
         super();
         this.focal_point = new Complex(focal_point[0], focal_point[1]);
 
-        if(TaskDraw.PERTURBATION_THEORY || TaskDraw.HIGH_PRECISION_CALCULATION) {
+        if(TaskRender.PERTURBATION_THEORY || TaskRender.HIGH_PRECISION_CALCULATION) {
             ddfocal_point = new DDComplex(focal_point[0], focal_point[1]);
 
             if(!LibMpfr.hasError()) {

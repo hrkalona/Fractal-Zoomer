@@ -37,7 +37,7 @@ public class BailoutDialog extends JDialog {
         
         ptra = ptr;
 
-        setTitle("Bailout Number");
+        setTitle("Bailout");
         setModal(true);
         setIconImage(MainWindow.getIcon("mandel2.png").getImage());
 

@@ -41,10 +41,10 @@ public class SmoothEscapeTimeRootFindingMethod extends OutColorAlgorithm {
 
 
         if(algorithm == 0) {
-            return (Integer)object[0] + getSmoothing1(object, log_convergent_bailout);
+            return (int)object[0] + getSmoothing1(object, log_convergent_bailout);
         }
         else {
-            return (Integer)object[0] + getSmoothing2(object, log_convergent_bailout);
+            return (int)object[0] + getSmoothing2(object, log_convergent_bailout);
         }
 
     }
@@ -52,13 +52,13 @@ public class SmoothEscapeTimeRootFindingMethod extends OutColorAlgorithm {
     public static double getSmoothing1(Object[] object, double log_convergent_bailout) {
 
         double temp = Math.log(((Complex)object[3]).distance_squared((Complex)object[4]));
-        return  (log_convergent_bailout - temp) / (Math.log((Double)object[2]) - temp);
+        return  (log_convergent_bailout - temp) / (Math.log((double)object[2]) - temp);
 
     }
 
     public static double getSmoothing2(Object[] object, double log_convergent_bailout) {
 
-        double temp4 = Math.log(((Double)object[2]) + 1e-33);
+        double temp4 = Math.log(((double)object[2]) + 1e-33);
 
         double power = temp4 / Math.log(((Complex)object[3]).distance_squared(((Complex)object[4])));
 

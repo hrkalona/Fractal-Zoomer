@@ -42,6 +42,8 @@ public class FunctionDerivative2ArgumentsExpressionNode implements ExpressionNod
      */
     public static final int THIRD_DERIVATIVE = 2;
 
+    public static int USER_FORMULA_DERIVATIVE_METHOD = Derivative.NUMERICAL_CENTRAL;
+
     /**
      * the function to apply to the arguments
      */
@@ -135,47 +137,131 @@ public class FunctionDerivative2ArgumentsExpressionNode implements ExpressionNod
         Complex secondArgument = new Complex(argument2.getValue());
 
         if(functionId == FIRST_DERIVATIVE) {
-            visitor.setValue(secondArgument.plus(Derivative.DZ));
-            setDerivativeDelta(visitor);
-            Complex fzdz = argument.getValue();
+            if(USER_FORMULA_DERIVATIVE_METHOD == Derivative.NUMERICAL_CENTRAL) {
+                visitor.setValue(secondArgument.plus(Derivative.DZ));
+                setDerivativeDelta(visitor);
+                Complex fzdz = argument.getValue();
 
-            visitor.setValue(secondArgument.sub(Derivative.DZ));
-            setDerivativeDelta(visitor);
-            Complex fzmdz = argument.getValue();
+                visitor.setValue(secondArgument.sub(Derivative.DZ));
+                setDerivativeDelta(visitor);
+                Complex fzmdz = argument.getValue();
 
-            return Derivative.numericalCentralDerivativeFirstOrder(fzdz, fzmdz);
+                return Derivative.numericalCentralDerivativeFirstOrder(fzdz, fzmdz);
+            }
+            else if(USER_FORMULA_DERIVATIVE_METHOD == Derivative.NUMERICAL_FORWARD) {
+                Complex fz = argument.getValue();
+
+                visitor.setValue(secondArgument.plus(Derivative.DZ));
+                setDerivativeDelta(visitor);
+                Complex fzdz = argument.getValue();
+
+                return Derivative.numericalForwardDerivativeFirstOrder(fz, fzdz);
+            }
+            else if(USER_FORMULA_DERIVATIVE_METHOD == Derivative.NUMERICAL_BACKWARD) {
+                Complex fz = argument.getValue();
+
+                visitor.setValue(secondArgument.sub(Derivative.DZ));
+                setDerivativeDelta(visitor);
+                Complex fzmdz = argument.getValue();
+
+                return Derivative.numericalBackwardDerivativeFirstOrder(fz, fzmdz);
+            }
         }
         else if (functionId == SECOND_DERIVATIVE) {
-            Complex fz = argument.getValue();
+            if(USER_FORMULA_DERIVATIVE_METHOD == Derivative.NUMERICAL_CENTRAL) {
+                Complex fz = argument.getValue();
 
-            visitor.setValue(secondArgument.plus(Derivative.DZ));
-            setDerivativeDelta(visitor);
-            Complex fzdz = argument.getValue();
+                visitor.setValue(secondArgument.plus(Derivative.DZ));
+                setDerivativeDelta(visitor);
+                Complex fzdz = argument.getValue();
 
-            visitor.setValue(secondArgument.sub(Derivative.DZ));
-            setDerivativeDelta(visitor);
-            Complex fzmdz = argument.getValue();
+                visitor.setValue(secondArgument.sub(Derivative.DZ));
+                setDerivativeDelta(visitor);
+                Complex fzmdz = argument.getValue();
 
-            return Derivative.numericalCentralDerivativeSecondOrder(fz, fzdz, fzmdz);
+                return Derivative.numericalCentralDerivativeSecondOrder(fz, fzdz, fzmdz);
+            }
+            else if(USER_FORMULA_DERIVATIVE_METHOD == Derivative.NUMERICAL_FORWARD) {
+                Complex fz = argument.getValue();
+
+                visitor.setValue(secondArgument.plus(Derivative.DZ));
+                setDerivativeDelta(visitor);
+                Complex fzdz = argument.getValue();
+
+                visitor.setValue(secondArgument.plus(Derivative.DZ_2));
+                setDerivativeDelta(visitor);
+                Complex fz2dz = argument.getValue();
+
+                return Derivative.numericalForwardDerivativeSecondOrder(fz, fzdz, fz2dz);
+            }
+            else if(USER_FORMULA_DERIVATIVE_METHOD == Derivative.NUMERICAL_BACKWARD) {
+                Complex fz = argument.getValue();
+
+                visitor.setValue(secondArgument.sub(Derivative.DZ));
+                setDerivativeDelta(visitor);
+                Complex fzmdz = argument.getValue();
+
+                visitor.setValue(secondArgument.sub(Derivative.DZ_2));
+                setDerivativeDelta(visitor);
+                Complex fzm2dz = argument.getValue();
+
+                return Derivative.numericalBackwardDerivativeSecondOrder(fz, fzmdz, fzm2dz);
+            }
         }
         else if (functionId == THIRD_DERIVATIVE) {
-            visitor.setValue(secondArgument.plus(Derivative.DZ));
-            setDerivativeDelta(visitor);
-            Complex fzdz = argument.getValue();
+            if(USER_FORMULA_DERIVATIVE_METHOD == Derivative.NUMERICAL_CENTRAL) {
+                visitor.setValue(secondArgument.plus(Derivative.DZ));
+                setDerivativeDelta(visitor);
+                Complex fzdz = argument.getValue();
 
-            visitor.setValue(secondArgument.plus(Derivative.DZ_2));
-            setDerivativeDelta(visitor);
-            Complex fz2dz = argument.getValue();
+                visitor.setValue(secondArgument.plus(Derivative.DZ_2));
+                setDerivativeDelta(visitor);
+                Complex fz2dz = argument.getValue();
 
-            visitor.setValue(secondArgument.sub(Derivative.DZ));
-            setDerivativeDelta(visitor);
-            Complex fzmdz = argument.getValue();
+                visitor.setValue(secondArgument.sub(Derivative.DZ));
+                setDerivativeDelta(visitor);
+                Complex fzmdz = argument.getValue();
 
-            visitor.setValue(secondArgument.sub(Derivative.DZ_2));
-            setDerivativeDelta(visitor);
-            Complex fzm2dz = argument.getValue();
+                visitor.setValue(secondArgument.sub(Derivative.DZ_2));
+                setDerivativeDelta(visitor);
+                Complex fzm2dz = argument.getValue();
 
-            return Derivative.numericalCentralDerivativeThirdOrder(fzdz, fz2dz, fzmdz, fzm2dz);
+                return Derivative.numericalCentralDerivativeThirdOrder(fzdz, fz2dz, fzmdz, fzm2dz);
+            }
+            else if(USER_FORMULA_DERIVATIVE_METHOD == Derivative.NUMERICAL_FORWARD) {
+                Complex fz = argument.getValue();
+
+                visitor.setValue(secondArgument.plus(Derivative.DZ));
+                setDerivativeDelta(visitor);
+                Complex fzdz = argument.getValue();
+
+                visitor.setValue(secondArgument.plus(Derivative.DZ_2));
+                setDerivativeDelta(visitor);
+                Complex fz2dz = argument.getValue();
+
+                visitor.setValue(secondArgument.plus(Derivative.DZ_3));
+                setDerivativeDelta(visitor);
+                Complex fz3dz = argument.getValue();
+
+                return Derivative.numericalForwardDerivativeThirdOrder(fz, fzdz, fz2dz, fz3dz);
+            }
+            else if(USER_FORMULA_DERIVATIVE_METHOD == Derivative.NUMERICAL_BACKWARD) {
+                Complex fz = argument.getValue();
+
+                visitor.setValue(secondArgument.sub(Derivative.DZ));
+                setDerivativeDelta(visitor);
+                Complex fzmdz = argument.getValue();
+
+                visitor.setValue(secondArgument.sub(Derivative.DZ_2));
+                setDerivativeDelta(visitor);
+                Complex fzm2dz = argument.getValue();
+
+                visitor.setValue(secondArgument.sub(Derivative.DZ_3));
+                setDerivativeDelta(visitor);
+                Complex fzm3dz = argument.getValue();
+
+                return Derivative.numericalBackwardDerivativeThirdOrder(fz, fzmdz, fzm2dz, fzm3dz);
+            }
         }
 
         return new Complex();

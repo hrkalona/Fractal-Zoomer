@@ -13,20 +13,20 @@ public class TaskSplitCoordinates {
         this.TOy = TOy;
     }
 
-    public static TaskSplitCoordinates get(int j, int i, int task_grouping, int n, int m, int image_size) {
+    public static TaskSplitCoordinates get(int j, int i, int task_grouping, int n, int m, int width, int height) {
 
         switch (task_grouping) {
             case 0:
-                return new TaskSplitCoordinates(j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n);
+                return new TaskSplitCoordinates(j * width / n, (j + 1) * width / n, i * height / n, (i + 1) * height / n);
             case 1:
-                return new TaskSplitCoordinates(0, image_size, j * image_size / n, (j + 1) * image_size / n);
+                return new TaskSplitCoordinates(0, width, j * height / n, (j + 1) * height / n);
             case 2:
-                return new TaskSplitCoordinates(j * image_size / n, (j + 1) * image_size / n, 0, image_size);
+                return new TaskSplitCoordinates(j * width / n, (j + 1) * width / n, 0, height);
             case 3:
-                return new TaskSplitCoordinates(i * image_size / m, (i + 1) * image_size / m, j * image_size / n, (j + 1) * image_size / n);
+                return new TaskSplitCoordinates(i * width / m, (i + 1) * width / m, j * height / n, (j + 1) * height / n);
             case 4:
             case 5:
-                return new TaskSplitCoordinates(j * image_size / n, (j + 1) * image_size / n, i * image_size / m, (i + 1) * image_size / m);
+                return new TaskSplitCoordinates(j * width / n, (j + 1) * width / n, i * height / m, (i + 1) * height / m);
         }
 
         return null;

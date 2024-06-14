@@ -71,7 +71,7 @@ public class RootFindingOneFunctionDialog extends JDialog {
         JPanel imagepanel44 = new JPanel();
         imagepanel44.add(imagelabel44);
 
-        Object[] labels44 = ptra.createUserFormulaLabels("z, s, pixel, p, pp, n, maxn, center, size, sizei, v1 - v30, point");
+        Object[] labels44 = ptra.createUserFormulaLabels("z, s, pixel, p, pp, n, maxn, center, size, sizei, width, height, v1 - v30, point");
 
         Object[] message44 = {
             labels44,

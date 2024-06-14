@@ -70,7 +70,7 @@ public class BilateralFilter extends PointFilter {
 				.parallel().forEach(p -> {
 					int y = p / width;
 					int x = p % width;
-					dstrgbs[p] = apply(y, x, p, srcrgbs, width);
+					dstrgbs[p] = apply(y, x, p, srcrgbs, width, height);
 				});
 
 
@@ -83,7 +83,7 @@ public class BilateralFilter extends PointFilter {
 		return 0;
 	}
 
-	public int apply(int y, int x, int index, int[] input, int image_size) {
+	public int apply(int y, int x, int index, int[] input, int width, int height) {
 		double sumRed = 0;
 		double sumGreen = 0;
 		double sumBlue = 0;
@@ -98,11 +98,11 @@ public class BilateralFilter extends PointFilter {
 		for (int k = y - kernel_size2, p = 0; p < kernel_size; k++, p++) {
 			for (int l = x - kernel_size2, t = 0; t < kernel_size; l++, t++) {
 
-				if(k < 0 || k >= image_size || l < 0 || l >= image_size) {
+				if(k < 0 || k >= height || l < 0 || l >= width) {
 					continue;
 				}
 
-				int currentVal = input[k * image_size + l];
+				int currentVal = input[k * width + l];
 				int Red = (currentVal >> 16) & 0xff;
 				int Green = (currentVal >> 8) & 0xff;
 				int Blue = (currentVal) & 0xff;

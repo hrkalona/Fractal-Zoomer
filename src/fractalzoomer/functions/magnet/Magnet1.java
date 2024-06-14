@@ -361,7 +361,7 @@ public class Magnet1 extends MagnetType {
 
         boolean lowPrecReferenceOrbitNeeded = !needsOnlyExtendedReferenceOrbit(deepZoom, false);
         DoubleReference.SHOULD_SAVE_MEMORY = false;
-        boolean useCompressedRef = TaskDraw.COMPRESS_REFERENCE_IF_POSSIBLE && supportsReferenceCompression();
+        boolean useCompressedRef = TaskRender.COMPRESS_REFERENCE_IF_POSSIBLE && supportsReferenceCompression();
         int [] preCalcIndexes = getNeededPrecalculatedTermsIndexes();
 
         if (iterations == 0) {
@@ -388,7 +388,7 @@ public class Magnet1 extends MagnetType {
             }
         }
 
-        int bigNumLib = TaskDraw.getBignumLibrary(size, this);
+        int bigNumLib = TaskRender.getBignumLibrary(size, this);
 
 
         GenericComplex z, c, zold, zold2, start, c0, pixel;
@@ -952,7 +952,7 @@ public class Magnet1 extends MagnetType {
 
         boolean lowPrecReferenceOrbitNeeded = !needsOnlyExtendedReferenceOrbit(deepZoom, false);
         DoubleReference.SHOULD_SAVE_MEMORY = false;
-        boolean useCompressedRef = TaskDraw.COMPRESS_REFERENCE_IF_POSSIBLE && supportsReferenceCompression();
+        boolean useCompressedRef = TaskRender.COMPRESS_REFERENCE_IF_POSSIBLE && supportsReferenceCompression();
         int[] preCalcIndexes = getNeededPrecalculatedTermsIndexes();
 
         if (iterations == 0) {
@@ -981,7 +981,7 @@ public class Magnet1 extends MagnetType {
 
         Location loc = new Location();
 
-        int bigNumLib = TaskDraw.getBignumLibrary(size, this);
+        int bigNumLib = TaskRender.getBignumLibrary(size, this);
 
         GenericComplex z, c, zold, zold2, start, c0, pixel;
         Object normSquared, root;

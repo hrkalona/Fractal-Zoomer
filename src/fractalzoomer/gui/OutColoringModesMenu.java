@@ -59,6 +59,8 @@ public class OutColoringModesMenu extends MyMenu {
         outColoringNames[MainWindow.USER_OUTCOLORING_ALGORITHM] = "User Out Coloring Method";
         outColoringNames[MainWindow.ESCAPE_TIME_FIELD_LINES] = "Escape Time + Field Lines";
         outColoringNames[MainWindow.ESCAPE_TIME_FIELD_LINES2] = "Escape Time + Field Lines 2";
+        outColoringNames[MainWindow.ESCAPE_TIME_SQUARES] = "Escape Time + Squares";
+        outColoringNames[MainWindow.ESCAPE_TIME_SQUARES2] = "Escape Time + Squares2";
     }
 
     public OutColoringModesMenu(MainWindow ptr2, String name, int out_coloring_algorithm) {
@@ -224,6 +226,18 @@ public class OutColoringModesMenu extends MyMenu {
         out_coloring_modes[MainWindow.ESCAPE_TIME_FIELD_LINES2].addActionListener(e -> ptr.setOutColoringMode(MainWindow.ESCAPE_TIME_FIELD_LINES2));
         add(out_coloring_modes[MainWindow.ESCAPE_TIME_FIELD_LINES2]);
         outcoloring_button_group.add(out_coloring_modes[MainWindow.ESCAPE_TIME_FIELD_LINES2]);
+
+        out_coloring_modes[MainWindow.ESCAPE_TIME_SQUARES] = new JRadioButtonMenuItem(outColoringNames[MainWindow.ESCAPE_TIME_SQUARES]);
+        out_coloring_modes[MainWindow.ESCAPE_TIME_SQUARES].setToolTipText("Sets the out-coloring method, using Escape Time + Squares.");
+        out_coloring_modes[MainWindow.ESCAPE_TIME_SQUARES].addActionListener(e -> ptr.setOutColoringMode(MainWindow.ESCAPE_TIME_SQUARES));
+        add(out_coloring_modes[MainWindow.ESCAPE_TIME_SQUARES]);
+        outcoloring_button_group.add(out_coloring_modes[MainWindow.ESCAPE_TIME_SQUARES]);
+
+        out_coloring_modes[MainWindow.ESCAPE_TIME_SQUARES2] = new JRadioButtonMenuItem(outColoringNames[MainWindow.ESCAPE_TIME_SQUARES2]);
+        out_coloring_modes[MainWindow.ESCAPE_TIME_SQUARES2].setToolTipText("Sets the out-coloring method, using Escape Time + Squares 2.");
+        out_coloring_modes[MainWindow.ESCAPE_TIME_SQUARES2].addActionListener(e -> ptr.setOutColoringMode(MainWindow.ESCAPE_TIME_SQUARES2));
+        add(out_coloring_modes[MainWindow.ESCAPE_TIME_SQUARES2]);
+        outcoloring_button_group.add(out_coloring_modes[MainWindow.ESCAPE_TIME_SQUARES2]);
 
         out_coloring_modes[MainWindow.USER_OUTCOLORING_ALGORITHM] = new JRadioButtonMenuItem(outColoringNames[MainWindow.USER_OUTCOLORING_ALGORITHM]);
         out_coloring_modes[MainWindow.USER_OUTCOLORING_ALGORITHM].setToolTipText("A user defined out-coloring method.");

@@ -176,7 +176,7 @@ public class Newton3 extends NewtonRootFindingMethod {
 
         boolean lowPrecReferenceOrbitNeeded = !needsOnlyExtendedReferenceOrbit(deepZoom, false);
         DoubleReference.SHOULD_SAVE_MEMORY = false;
-        boolean useCompressedRef = TaskDraw.COMPRESS_REFERENCE_IF_POSSIBLE && supportsReferenceCompression();
+        boolean useCompressedRef = TaskRender.COMPRESS_REFERENCE_IF_POSSIBLE && supportsReferenceCompression();
         int[] preCalcIndexes = getNeededPrecalculatedTermsIndexes();
 
         if(iterations == 0) {
@@ -208,7 +208,7 @@ public class Newton3 extends NewtonRootFindingMethod {
         //Due to zero, all around zero will not work
         inputPixel = sanitizeInputPixel(inputPixel);
 
-        int bigNumLib = TaskDraw.getBignumLibrary(size, this);
+        int bigNumLib = TaskRender.getBignumLibrary(size, this);
 
         GenericComplex z, zold, zold2, start, pixel, initVal;
 
@@ -482,7 +482,7 @@ public class Newton3 extends NewtonRootFindingMethod {
         }
 
         boolean lowPrecReferenceOrbitNeeded = !needsOnlyExtendedReferenceOrbit(deepZoom, false);
-        boolean useCompressedRef = TaskDraw.COMPRESS_REFERENCE_IF_POSSIBLE && supportsReferenceCompression();
+        boolean useCompressedRef = TaskRender.COMPRESS_REFERENCE_IF_POSSIBLE && supportsReferenceCompression();
         int[] preCalcIndexes = getNeededPrecalculatedTermsIndexes();
 
         if (iterations == 0) {
@@ -513,7 +513,7 @@ public class Newton3 extends NewtonRootFindingMethod {
 
         GenericComplex z, zold, zold2, start, pixel, initVal;
 
-        int bigNumLib = TaskDraw.getBignumLibrary(size, this);
+        int bigNumLib = TaskRender.getBignumLibrary(size, this);
 
         if(bigNumLib == Constants.BIGNUM_MPFR) {
             initVal = new MpfrBigNumComplex(defaultInitVal.getValue(null));
@@ -756,7 +756,7 @@ public class Newton3 extends NewtonRootFindingMethod {
 
     @Override
     public double getDoubleDoubleLimit() {
-        if(TaskDraw.HIGH_PRECISION_CALCULATION) {
+        if(TaskRender.HIGH_PRECISION_CALCULATION) {
             return super.getDoubleDoubleLimit();
         }
 
@@ -765,7 +765,7 @@ public class Newton3 extends NewtonRootFindingMethod {
 
     @Override
     public boolean needsExtendedRange() {
-        return TaskDraw.USE_FULL_FLOATEXP_FOR_ALL_ZOOM || (TaskDraw.USE_CUSTOM_FLOATEXP_REQUIREMENT && size < 1.0e-14);
+        return TaskRender.USE_FULL_FLOATEXP_FOR_ALL_ZOOM || (TaskRender.USE_CUSTOM_FLOATEXP_REQUIREMENT && size < 1.0e-14);
     }
 
     @Override

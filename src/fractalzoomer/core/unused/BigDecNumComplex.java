@@ -412,8 +412,8 @@ public class BigDecNumComplex extends GenericComplex {
     public final BigDecNum norm_squared() {
 
         if(BigDecNum.use_threads) {
-            Future<BigDecNum> temp1 = TaskDraw.reference_thread_executor.submit(() -> re.square());
-            Future<BigDecNum> temp2 = TaskDraw.reference_thread_executor.submit(() -> im.square());
+            Future<BigDecNum> temp1 = TaskRender.reference_thread_executor.submit(() -> re.square());
+            Future<BigDecNum> temp2 = TaskRender.reference_thread_executor.submit(() -> im.square());
 
             try {
                 return temp1.get().add(temp2.get());
@@ -636,8 +636,8 @@ public class BigDecNumComplex extends GenericComplex {
         BigDecNumComplex c = (BigDecNumComplex)cn;
 
         if(BigDecNum.use_threads) {
-            Future<BigDecNum> temp1 = TaskDraw.reference_thread_executor.submit(() -> re.add(im).mult(re.sub(im)).add(c.re));
-            Future<BigDecNum> temp2 = TaskDraw.reference_thread_executor.submit(() -> re.mult(im).mult2().add(c.im));
+            Future<BigDecNum> temp1 = TaskRender.reference_thread_executor.submit(() -> re.add(im).mult(re.sub(im)).add(c.re));
+            Future<BigDecNum> temp2 = TaskRender.reference_thread_executor.submit(() -> re.mult(im).mult2().add(c.im));
 
             try {
                 return new BigDecNumComplex(temp1.get(), temp2.get());
@@ -999,5 +999,15 @@ public class BigDecNumComplex extends GenericComplex {
     @Override
     public BigComplex toBigComplex() {
         return new BigComplex(re.toApfloat(), im.toApfloat());
+    }
+
+    @Override
+    public Object re() {
+        return getRe();
+    }
+
+    @Override
+    public Object im() {
+        return getIm();
     }
 }

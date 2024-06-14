@@ -33,7 +33,7 @@ public class SmoothEscapeTimeKleinian extends OutColorAlgorithm {
     @Override
     public double getResult(Object[] object) {
 
-        return (Integer)object[0] + 1 + Math.log(((Complex)object[1]).sub_i(u).norm());
+        return (int)object[0] + 1 + Math.log(((Complex)object[1]).sub_i(u).norm());
 
     }
 }

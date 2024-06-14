@@ -39,15 +39,15 @@ public class InflectionPlane extends Plane {
         
         super();
         center = new Complex(plane_transform_center[0], plane_transform_center[1]);
-        if(TaskDraw.PERTURBATION_THEORY || TaskDraw.HIGH_PRECISION_CALCULATION) {
+        if(TaskRender.PERTURBATION_THEORY || TaskRender.HIGH_PRECISION_CALCULATION) {
             ddcenter = new BigComplex(center);
             bncenter = new BigNumComplex(center);
             bnicenter = new BigIntNumComplex(center);
             ddccenter = new DDComplex(center);
 
-            if (TaskDraw.allocateMPFR()) {
+            if (TaskRender.allocateMPFR()) {
                 mpfrbncenter = new MpfrBigNumComplex(center);
-            } else if (TaskDraw.allocateMPIR()) {
+            } else if (TaskRender.allocateMPIR()) {
                 mpirbncenter = new MpirBigNumComplex(center);
             }
         }

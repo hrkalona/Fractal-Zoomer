@@ -19,6 +19,7 @@ package fractalzoomer.gui;
 import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
+import raven.slider.SliderGradient;
 
 import javax.swing.*;
 import java.awt.event.WindowAdapter;
@@ -53,7 +54,7 @@ public class PaletteGradientMergingDialog extends JDialog {
         enable_blend_palette.setSelected(s.pbs.palette_gradient_merge);
         enable_blend_palette.setFocusable(false);
 
-        JSlider color_blend_opt = new JSlider(JSlider.HORIZONTAL, 0, 100, (int) (s.pbs.palette_blending * 100));
+        JSlider color_blend_opt = new SliderGradient(JSlider.HORIZONTAL, 0, 100, (int) (s.pbs.palette_blending * 100));
         color_blend_opt.setMajorTickSpacing(25);
         color_blend_opt.setMinorTickSpacing(1);
         color_blend_opt.setToolTipText("Sets the color blending percentage.");

@@ -2,6 +2,9 @@ package fractalzoomer.core.location.delta;
 
 import fractalzoomer.core.*;
 import fractalzoomer.core.location.Location;
+import fractalzoomer.core.mpfr.LibMpfr;
+import fractalzoomer.core.mpfr.MpfrBigNum;
+import fractalzoomer.core.mpir.MpirBigNum;
 import fractalzoomer.functions.Fractal;
 import fractalzoomer.main.Constants;
 import fractalzoomer.main.app_settings.JitterSettings;
@@ -15,7 +18,8 @@ public class CartesianLocationDelta extends Location {
     private double temp_x_corner;
     private double temp_y_corner;
 
-    private double image_size_2;
+    private double image_size_2x;
+    private double image_size_2y;
     private JitterSettings js;
 
     private double tempY;
@@ -30,7 +34,10 @@ public class CartesianLocationDelta extends Location {
 
     private double[] antialiasing_y;
 
-    public CartesianLocationDelta(Apfloat xCenter, Apfloat yCenter, Apfloat ddsize, double height_ratio, int image_size_in, JitterSettings js, Fractal fractal, int bignumLib) {
+    private int width;
+    private int height;
+
+    public CartesianLocationDelta(Apfloat xCenter, Apfloat yCenter, Apfloat ddsize, double height_ratio, int width, int height, JitterSettings js, Fractal fractal, int bignumLib) {
 
         super();
 
@@ -45,27 +52,21 @@ public class CartesianLocationDelta extends Location {
         //this.ddsize = ddsize;
         dsize = ddsize.doubleValue();
 
-        int image_size = offset.getImageSize(image_size_in);
+        width = offset.getWidth(width);
+        height = offset.getHeight(height);
+        int image_size = Math.min(width, height);
+        double coefx = width == image_size ? 0.5 : (1 + (width - (double)height) / height) * 0.5;
+        double coefy = height == image_size ? 0.5 : (1 + (height - (double)width) / width) * 0.5;
 
-        image_size_2 = image_size * 0.5;
+        this.width = width;
+        this.height = height;
 
-//        Apfloat point5 = new MyApfloat(0.5);
-//        Apfloat size_2_x = MyApfloat.fp.multiply(ddsize, point5);
-//        Apfloat ddimage_size = new MyApfloat(image_size);
-//        Apfloat temp = MyApfloat.fp.multiply(ddsize, ddheight_ratio);
-//        Apfloat size_2_y = MyApfloat.fp.multiply(temp, point5);
-//        Apfloat ddtemp_size_image_size_x = MyApfloat.fp.divide(ddsize, ddimage_size);
-//        Apfloat ddtemp_size_image_size_y = MyApfloat.fp.divide(temp, ddimage_size);
-//        temp_size_image_size_x = ddtemp_size_image_size_x.doubleValue();
-//        temp_size_image_size_y = ddtemp_size_image_size_y.doubleValue();
-//
-//
-//        temp_x_corner = size_2_x.negate().doubleValue();
-//        temp_y_corner =  size_2_y.doubleValue();
+        image_size_2x = width * 0.5;
+        image_size_2y = height * 0.5;
 
-        double size_2_x = dsize * 0.5;
+        double size_2_x = dsize * coefx;
         double temp = dsize * height_ratio;
-        double size_2_y = temp * 0.5;
+        double size_2_y = temp * coefy;
         temp_size_image_size_x = dsize / image_size;
         temp_size_image_size_y = temp / image_size;
 
@@ -91,7 +92,10 @@ public class CartesianLocationDelta extends Location {
         antialiasing_y = other.antialiasing_y;
         dsize = other.dsize;
         height_ratio = other.height_ratio;
-        image_size_2 = other.image_size_2;
+        image_size_2x = other.image_size_2x;
+        image_size_2y = other.image_size_2y;
+        width = other.width;
+        height = other.height;
     }
 
     private Complex getComplexBase(int x, int y) {
@@ -99,14 +103,14 @@ public class CartesianLocationDelta extends Location {
             double[] res = GetPixelOffset(y, x, js.jitterSeed, js.jitterShape, js.jitterScale);
 //            tempX = temp_x_corner + (x + res[1]) * temp_size_image_size_x;
 //            tempY = temp_y_corner - (y + res[0]) * temp_size_image_size_y;
-            tempX = ((x + res[1]) - image_size_2) * temp_size_image_size_x;
-            tempY = (image_size_2 - (y + res[0])) * temp_size_image_size_y;
+            tempX = ((x + res[1]) - image_size_2x) * temp_size_image_size_x;
+            tempY = (image_size_2y - (y + res[0])) * temp_size_image_size_y;
         }
         else {
             //tempX = temp_x_corner + x * temp_size_image_size_x;
             //tempY = temp_y_corner - y * temp_size_image_size_y;
-            tempX = (x - image_size_2) * temp_size_image_size_x;
-            tempY = (image_size_2 - y ) * temp_size_image_size_y;
+            tempX = (x - image_size_2x) * temp_size_image_size_x;
+            tempY = (image_size_2y - y ) * temp_size_image_size_y;
         }
 
         indexX = x;
@@ -126,7 +130,7 @@ public class CartesianLocationDelta extends Location {
         }
 
         //tempX = temp_x_corner + x * temp_size_image_size_x;
-        tempX = (x - image_size_2) * temp_size_image_size_x;
+        tempX = (x - image_size_2x) * temp_size_image_size_x;
 
         indexX = x;
 
@@ -144,7 +148,7 @@ public class CartesianLocationDelta extends Location {
         }
 
         //tempY = temp_y_corner - y * temp_size_image_size_y;
-        tempY = (image_size_2 - y ) * temp_size_image_size_y;
+        tempY = (image_size_2y - y ) * temp_size_image_size_y;
 
         indexY = y;
 
@@ -163,7 +167,7 @@ public class CartesianLocationDelta extends Location {
 
         if(!js.enableJitter) {
             //tempY = temp_y_corner - y * temp_size_image_size_y;
-            tempY = (image_size_2 - y ) * temp_size_image_size_y;
+            tempY = (image_size_2y - y ) * temp_size_image_size_y;
         }
 
         indexY = y;
@@ -177,7 +181,7 @@ public class CartesianLocationDelta extends Location {
 
         if(!js.enableJitter) {
             //tempX = temp_x_corner + x * temp_size_image_size_x;
-            tempX = (x - image_size_2) * temp_size_image_size_x;
+            tempX = (x - image_size_2x) * temp_size_image_size_x;
         }
 
         indexX = x;
@@ -212,15 +216,9 @@ public class CartesianLocationDelta extends Location {
 
     @Override
     public MantExp getMaxSizeInImage() {
-        if(height_ratio == 1) { // ((size * 0.5) / image_size) * sqrt(image_size^2 + image_size^2) = ((size * 0.5) / image_size) * sqrt(2) * image_size
-            double sqrt2 = Math.sqrt(2);
-            return new MantExp(sqrt2 * dsize * 0.5);
-        }
-        else {
-            double temp = dsize * 0.5;
-            double temp2 = temp * height_ratio;
-            return new MantExp(Math.sqrt(temp * temp + temp2 * temp2));
-        }
+
+        return new MantExp(Math.hypot(temp_size_image_size_x * width * 0.5, temp_size_image_size_y * height * 0.5));
+
     }
 
     @Override

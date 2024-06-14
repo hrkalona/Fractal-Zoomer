@@ -42,7 +42,7 @@ public class SmoothEscapeTimeColorDecompositionEOC extends ColorDecomposition {
 
 
         double temp3 = 0;
-        if(!(Boolean)object[8]) {
+        if(!(boolean)object[8]) {
             if(algorithm == 0) {
                 temp3 = SmoothEscapeTimeEOC.getConvSmoothing1(object, log_convergent_bailout);
             }
@@ -51,7 +51,7 @@ public class SmoothEscapeTimeColorDecompositionEOC extends ColorDecomposition {
             }
         }
 
-        return Math.abs(((Integer)object[0]) + (((Complex)object[1]).arg() / pi2 + 0.75) * pi59 + temp3);
+        return Math.abs(((int)object[0]) + (((Complex)object[1]).arg() / pi2 + 0.75) * pi59 + temp3);
 
     }
 }

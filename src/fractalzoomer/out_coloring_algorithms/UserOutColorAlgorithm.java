@@ -17,7 +17,7 @@
 package fractalzoomer.out_coloring_algorithms;
 
 import fractalzoomer.core.Complex;
-import fractalzoomer.core.TaskDraw;
+import fractalzoomer.core.TaskRender;
 import fractalzoomer.parser.ExpressionNode;
 import fractalzoomer.parser.Parser;
 import fractalzoomer.utils.ColorAlgorithm;
@@ -61,7 +61,15 @@ public class UserOutColorAlgorithm extends OutColorAlgorithm {
         }
 
         if (parser.foundISize()) {
-            parser.setISizevalue(new Complex(TaskDraw.IMAGE_SIZE, 0));
+            parser.setISizevalue(new Complex(Math.min(TaskRender.WIDTH, TaskRender.HEIGHT), 0));
+        }
+
+        if (parser.foundWidth()) {
+            parser.setWidthvalue(new Complex(TaskRender.WIDTH, 0));
+        }
+
+        if (parser.foundHeight()) {
+            parser.setHeightvalue(new Complex(TaskRender.HEIGHT, 0));
         }
 
         if (parser.foundPoint()) {
@@ -75,7 +83,7 @@ public class UserOutColorAlgorithm extends OutColorAlgorithm {
     public double getResult(Object[] object) {
 
         if (parser.foundN()) {
-            parser.setNvalue(new Complex((Integer) object[0], 0));
+            parser.setNvalue(new Complex((int) object[0], 0));
         }
 
         if (parser.foundZ()) {
@@ -114,7 +122,7 @@ public class UserOutColorAlgorithm extends OutColorAlgorithm {
 
         double result = expr.getValue().getRe();
 
-        if (TaskDraw.USE_DIRECT_COLOR) {
+        if (TaskRender.USE_DIRECT_COLOR) {
             return result;
         }
 

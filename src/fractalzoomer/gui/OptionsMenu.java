@@ -62,6 +62,7 @@ public class OptionsMenu extends MyMenu {
     private JMenuItem variables_opt;
     private JMenuItem overview_opt;
     private JMenuItem stats_opt;
+    private JMenuItem metrics_opt;
 
     private JMenuItem thread_stats_opt;
     private FractalOptionsMenu fractal_options_menu;
@@ -73,11 +74,19 @@ public class OptionsMenu extends MyMenu {
     private JCheckBoxMenuItem debugbar_opt;
     private JCheckBoxMenuItem fullscreen_opt;
 
+    private JCheckBoxMenuItem always_show_progress_bar_opt;
+    private JCheckBoxMenuItem show_minimal_progress_bar_opt;
+
     private JCheckBoxMenuItem auto_repaint_image_opt;
 
     private JCheckBoxMenuItem zoom_on_cursor_opt;
 
-    private JMenuItem quick_draw_opt;
+    private JCheckBoxMenuItem zoom_to_rectangle_selection_opt;
+    private JCheckBoxMenuItem auto_zoom_to_rectangle_selection_opt;
+
+    private JMenuItem quick_render_opt;
+
+    private JMenu bailout_menu;
 
     public OptionsMenu(MainWindow ptr2, String name, PaletteSettings ps, PaletteSettings ps2, boolean smoothing, boolean show_orbit_converging_point, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, int out_coloring_algorithm, int in_coloring_algorithm, int function, int plane_type, int bailout_test_algorithm, int color_blending, boolean color_blending_reverse_order, int temp_color_cycling_location, int temp_color_cycling_location2, int pre_filter, int post_filter, int plane_influence, int convergent_bailout_test_algorithm) {
 
@@ -138,6 +147,9 @@ public class OptionsMenu extends MyMenu {
 
         filters_options = new MyMenuItem("Filters Options", MainWindow.getIcon("filter_options.png"));
 
+        bailout_menu = new MyMenu("Bailout");
+        bailout_menu.setIcon(MainWindow.getIcon("bailoutg.png"));
+
         window_menu = new MyMenu("Window");
         window_menu.setIcon(MainWindow.getIcon("window.png"));
 
@@ -149,18 +161,26 @@ public class OptionsMenu extends MyMenu {
 
         thread_stats_opt = new MyMenuItem("Task Statistics", MainWindow.getIcon("stats_tasks.png"));
 
+        metrics_opt = new MyMenuItem("Metrics", MainWindow.getIcon("chart.png"));
+
         toolbar_opt = new MyCheckBoxMenuItem("Tool Bar");
         statusbar_opt = new MyCheckBoxMenuItem("Status Bar");
         debugbar_opt = new MyCheckBoxMenuItem("Debug Bar");
         infobar_opt = new MyCheckBoxMenuItem("Information Bar");
         fullscreen_opt = new MyCheckBoxMenuItem("Full Screen");
+        always_show_progress_bar_opt = new MyCheckBoxMenuItem("Always Show Progress Bar");
+        show_minimal_progress_bar_opt = new MyCheckBoxMenuItem("Show Minimal Progress Bar");
 
-        auto_repaint_image_opt  = new MyCheckBoxMenuItem("Show Drawing Progress");
-        zoom_on_cursor_opt = new MyCheckBoxMenuItem("Zoom on Mouse Cursor");
-        quick_draw_opt = new MyMenuItem("Quick Draw", MainWindow.getIcon("quickdraw.png"));
+        auto_repaint_image_opt  = new MyCheckBoxMenuItem("Show Rendering Progress");
+        zoom_on_cursor_opt = new MyCheckBoxMenuItem("Zoom on Mouse Cursor", MainWindow.getIcon("zoom_cursor.png"));
+        quick_render_opt = new MyMenuItem("Quick Render", MainWindow.getIcon("quickrender.png"));
+        zoom_to_rectangle_selection_opt = new MyCheckBoxMenuItem("Zoom to Rectangle Selection", MainWindow.getIcon("crop.png"));
+        auto_zoom_to_rectangle_selection_opt = new MyCheckBoxMenuItem("Automatic Zoom to Rectangle Selection");
 
         auto_repaint_image_opt.setSelected(MainWindow.AUTO_REPAINT_IMAGE);
         zoom_on_cursor_opt.setSelected(MainWindow.ZOOM_ON_THE_CURSOR);
+        always_show_progress_bar_opt.setSelected(MainWindow.alwaysShowProgressBar);
+        show_minimal_progress_bar_opt.setSelected(MainWindow.minimalProgressBar);
 
         size_of_image.setToolTipText("Sets the image size.");
         period.setToolTipText("Sets the period for the reference calculation.");
@@ -180,16 +200,20 @@ public class OptionsMenu extends MyMenu {
         filters_options.setToolTipText("Sets the options of the image filters.");
         overview_opt.setToolTipText("Creates a report of all the active fractal options.");
         stats_opt.setToolTipText("Displays the statistics of last rendered fractal.");
+        metrics_opt.setToolTipText("Displays some time-series metrics.");
         thread_stats_opt.setToolTipText("Displays the task statistics of last rendered fractal.");
         toolbar_opt.setToolTipText("Activates the tool bar.");
         statusbar_opt.setToolTipText("Activates the status bar.");
         debugbar_opt.setToolTipText("Activate the debug bar.");
         infobar_opt.setToolTipText("Activates the information bar.");
         fullscreen_opt.setToolTipText("Toggles the application from window mode to full screen.");
+        always_show_progress_bar_opt.setToolTipText("Displays the progress bar permanently.");
+        show_minimal_progress_bar_opt.setToolTipText("Displays a minimal progress bar.");
         jitter_opt.setToolTipText("Adds jitter to each pixel.");
         zoom_on_cursor_opt.setToolTipText("Changes the zooming mechanism, so the zooming stays around the mouse cursor.");
         auto_repaint_image_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, ActionEvent.ALT_MASK | ActionEvent.SHIFT_MASK));
-        quick_draw_opt.setToolTipText("Sets the options for the quick draw method.");
+        quick_render_opt.setToolTipText("Sets the options for the quick render method.");
+        zoom_to_rectangle_selection_opt.setToolTipText("Creates a rectangle which indicates the zoom area.");
 
         size_of_image.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, ActionEvent.CTRL_MASK));
         iterations.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, 0));
@@ -213,8 +237,9 @@ public class OptionsMenu extends MyMenu {
         fullscreen_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F11, 0));
         stats_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F12, 0));
         jitter_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_J, ActionEvent.CTRL_MASK | ActionEvent.SHIFT_MASK));
-        quick_draw_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, ActionEvent.SHIFT_MASK));
+        quick_render_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, ActionEvent.SHIFT_MASK));
         thread_stats_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F12, ActionEvent.CTRL_MASK));
+        metrics_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F12, ActionEvent.SHIFT_MASK));
 
         overview_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.SHIFT_MASK));
 
@@ -251,6 +276,8 @@ public class OptionsMenu extends MyMenu {
 
         stats_opt.addActionListener(e -> ptr.Stats());
 
+        metrics_opt.addActionListener(e ->ptr.Metrics());
+
         thread_stats_opt.addActionListener(e -> ptr.ThreadStats());
 
         toolbar_opt.addActionListener(e -> ptr.setToolbar());
@@ -263,17 +290,26 @@ public class OptionsMenu extends MyMenu {
 
         fullscreen_opt.addActionListener(e -> ptr.setFullScreen());
 
+        always_show_progress_bar_opt.addActionListener(e -> ptr.setAlwaysShowProgressBar());
+
+        show_minimal_progress_bar_opt.addActionListener(e -> ptr.setMinimalProgressBar());
+
         jitter_opt.addActionListener(e -> ptr.setJitter());
 
         auto_repaint_image_opt.addActionListener(e -> ptr.setAutoRepaintImage());
         zoom_on_cursor_opt.addActionListener(e -> ptr.setZoomOnCursor());
-        quick_draw_opt.addActionListener(e -> ptr.setQuickDrawTiles());
+        quick_render_opt.addActionListener(e -> ptr.setQuickRenderTiles());
+        zoom_to_rectangle_selection_opt.addActionListener(e -> ptr.setZoomToTheSelectedArea());
 
         window_menu.add(toolbar_opt);
         window_menu.add(infobar_opt);
         window_menu.add(statusbar_opt);
         window_menu.add(debugbar_opt);
         window_menu.add(fullscreen_opt);
+        window_menu.add(always_show_progress_bar_opt);
+        if(MainWindow.useCustomLaf) {
+            window_menu.add(show_minimal_progress_bar_opt);
+        }
 
         toolbar_opt.setSelected(true);
         infobar_opt.setSelected(true);
@@ -292,11 +328,20 @@ public class OptionsMenu extends MyMenu {
         rotation_menu.add(increase_rotation);
         rotation_menu.add(decrease_rotation);
 
-        general_options_menu.add(quick_draw_opt);
+        general_options_menu.add(quick_render_opt);
         general_options_menu.addSeparator();
         general_options_menu.add(auto_repaint_image_opt);
         general_options_menu.addSeparator();
         general_options_menu.add(zoom_on_cursor_opt);
+        general_options_menu.addSeparator();
+        general_options_menu.add(zoom_to_rectangle_selection_opt);
+        general_options_menu.addSeparator();
+        general_options_menu.add(auto_zoom_to_rectangle_selection_opt);
+
+        bailout_menu.add(bailout_condition_menu);
+        bailout_menu.add(bailout_number);
+        bailout_menu.add(convergent_bailout_condition_menu);
+        bailout_menu.add(convergent_bailout_number);
 
         add(fractal_options_menu);
         addSeparator();
@@ -304,10 +349,7 @@ public class OptionsMenu extends MyMenu {
         addSeparator();
         add(iterations_menu);
         addSeparator();
-        add(bailout_condition_menu);
-        add(bailout_number);
-        add(convergent_bailout_condition_menu);
-        add(convergent_bailout_number);
+        add(bailout_menu);
         addSeparator();
         add(rotation_menu);
         addSeparator();
@@ -338,6 +380,8 @@ public class OptionsMenu extends MyMenu {
         addSeparator();
         add(thread_stats_opt);
         addSeparator();
+        add(metrics_opt);
+        addSeparator();
         add(window_menu);
     }
 
@@ -351,6 +395,10 @@ public class OptionsMenu extends MyMenu {
 
         return optimizations_menu.getGreedyAlgorithm();
 
+    }
+
+    public JMenu getBailoutMenu() {
+        return bailout_menu;
     }
 
     public JMenuItem getJitter() {
@@ -715,6 +763,13 @@ public class OptionsMenu extends MyMenu {
 
     }
 
+    public JCheckBoxMenuItem getAlways_show_progress_bar() {
+        return always_show_progress_bar_opt;
+    }
+
+    public JCheckBoxMenuItem getShow_minimal_progress_bar() {
+        return show_minimal_progress_bar_opt;
+    }
     public OptimizationsMenu getOptimizationsMenu() {
 
         return optimizations_menu;
@@ -891,6 +946,14 @@ public class OptionsMenu extends MyMenu {
 
         return zoom_on_cursor_opt;
 
+    }
+
+    public JCheckBoxMenuItem getZoomToRectangleSelection() {
+        return zoom_to_rectangle_selection_opt;
+    }
+
+    public JCheckBoxMenuItem getAutoZoomToRectangleSelection() {
+        return auto_zoom_to_rectangle_selection_opt;
     }
 
     public JMenuItem getZoomFactor() {

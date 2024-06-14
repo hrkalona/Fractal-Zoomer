@@ -12,6 +12,9 @@ import fractalzoomer.utils.NormComponents;
 
 import java.util.ArrayList;
 
+import static fractalzoomer.main.Constants.ESCAPE_TIME_SQUARES;
+import static fractalzoomer.main.Constants.ESCAPE_TIME_SQUARES2;
+
 public abstract class MagnetPatakiType extends Julia {
     protected double exponent;
     protected static Complex Cp1;
@@ -97,6 +100,23 @@ public abstract class MagnetPatakiType extends Julia {
                     out_color_algorithm = new SmoothEscapeTimeFieldLines2(log_bailout_squared, escaping_smooth_algorithm, log_power);
                 }
                 break;
+            case ESCAPE_TIME_SQUARES:
+                OutColorAlgorithm wrappedAlgorithm;
+                if (!smoothing) {
+                    wrappedAlgorithm = new EscapeTime();
+                } else {
+                    wrappedAlgorithm = new SmoothEscapeTime(log_bailout_squared, escaping_smooth_algorithm, log_power);
+                }
+                out_color_algorithm = new EscapeTimeSquares(6, wrappedAlgorithm);
+                break;
+            case ESCAPE_TIME_SQUARES2:
+                if (!smoothing) {
+                    wrappedAlgorithm = new EscapeTime();
+                } else {
+                    wrappedAlgorithm = new SmoothEscapeTime(log_bailout_squared, escaping_smooth_algorithm, log_power);
+                }
+                out_color_algorithm = new EscapeTimeSquares2(6, wrappedAlgorithm);
+                break;
 
         }
 
@@ -160,7 +180,7 @@ public abstract class MagnetPatakiType extends Julia {
 
     @Override
     public double getDoubleDoubleLimit() {
-        if(TaskDraw.HIGH_PRECISION_CALCULATION) {
+        if(TaskRender.HIGH_PRECISION_CALCULATION) {
             return 5.0e-25;
         }
 

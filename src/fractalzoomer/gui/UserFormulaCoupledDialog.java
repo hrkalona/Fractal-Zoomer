@@ -45,13 +45,13 @@ public class UserFormulaCoupledDialog extends JDialog {
         setModal(true);
         setIconImage(MainWindow.getIcon("mandel2.png").getImage());
 
-        JTextField field_formula_coupled = new JTextField(50);
+        JTextField field_formula_coupled = new JTextField(MainWindow.useCustomLaf ? 44 : 50);
         field_formula_coupled.setText(s.fns.user_formula_coupled[0]);
 
-        JTextField field_formula_coupled2 = new JTextField(50);
+        JTextField field_formula_coupled2 = new JTextField(MainWindow.useCustomLaf ? 44 : 50);
         field_formula_coupled2.setText(s.fns.user_formula_coupled[1]);
 
-        JTextField field_formula_coupled3 = new JTextField(50);
+        JTextField field_formula_coupled3 = new JTextField(MainWindow.useCustomLaf ? 44 : 50);
         field_formula_coupled3.setText(s.fns.user_formula_coupled[2]);
 
         JPanel formula_panel_coupled = new JPanel();
@@ -92,7 +92,7 @@ public class UserFormulaCoupledDialog extends JDialog {
         JSlider coupling_slid = new JSlider(JSlider.HORIZONTAL, 0, 100, (int) (s.fns.coupling * 100));
         coupling_slid.setPreferredSize(new Dimension(360, 45));
         coupling_slid.setFocusable(false);
-        coupling_slid.setToolTipText("Sets the percentange of coupling.");
+        coupling_slid.setToolTipText("Sets the percentage of coupling.");
         coupling_slid.setPaintLabels(true);
 
         Hashtable<Integer, JLabel> table3 = new Hashtable<>();
@@ -191,7 +191,7 @@ public class UserFormulaCoupledDialog extends JDialog {
             }
         });
 
-        Object[] labels5 = ptra.createUserFormulaLabels("z, c, s, c0, pixel, p, pp, n, maxn, center, size, sizei, v1 - v30, point");
+        Object[] labels5 = ptra.createUserFormulaLabels("z, c, s, c0, pixel, p, pp, n, maxn, center, size, sizei, width, height, v1 - v30, point");
 
         Object[] message5 = {
             labels5,

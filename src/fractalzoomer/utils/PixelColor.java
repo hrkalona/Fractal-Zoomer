@@ -22,6 +22,7 @@ import fractalzoomer.main.MainWindow;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 
 /**
  *
@@ -65,16 +66,21 @@ public class PixelColor implements Runnable {
 
         try {
             Robot robot = new Robot();
+            //Rectangle screenRect = new Rectangle(width, height);
 
             while(running) {
                 /*long time = System.currentTimeMillis();
                 while(System.currentTimeMillis() - time < 20) {
                     yield();
                 }*/
-                
+
                 
                 Color color = robot.getPixelColor((int)(MouseInfo.getPointerInfo().getLocation().getX() * scaleX), (int)(MouseInfo.getPointerInfo().getLocation().getY() * scaleY));
 
+
+//                BufferedImage capture = robot.createScreenCapture(screenRect);
+//
+//                Color color = new Color(capture.getRGB((int)(MouseInfo.getPointerInfo().getLocation().getX() * scaleX), (int)(MouseInfo.getPointerInfo().getLocation().getY() * scaleY)));
                 ptr.setBackground(color);
                 ptr2.setText("R: " + String.format("%3d", color.getRed()) + " G: " + String.format("%3d", color.getGreen()) + " B: " + String.format("%3d", color.getBlue()));
 

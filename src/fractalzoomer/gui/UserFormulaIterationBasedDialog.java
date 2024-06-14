@@ -86,7 +86,7 @@ public class UserFormulaIterationBasedDialog extends JDialog {
         method42_choice.setToolTipText("Selects the bailout technique.");
         method42_choice.setFocusable(false);
 
-        Object[] labels32 = ptra.createUserFormulaLabels("z, c, s, c0, pixel, p, pp, n, maxn, center, size, sizei, v1 - v30, point");
+        Object[] labels32 = ptra.createUserFormulaLabels("z, c, s, c0, pixel, p, pp, n, maxn, center, size, sizei, width, height, v1 - v30, point");
 
         Object[] message32 = {
             labels32,

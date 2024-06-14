@@ -15,7 +15,7 @@ public abstract class BigNum {
 
 
 //    public static boolean useThreads2() {
-//        if(TaskDraw.BUILT_IT_BIGNUM_IMPLEMENTATION == 1) {
+//        if(TaskRender.BUILT_IT_BIGNUM_IMPLEMENTATION == 1) {
 //            return BigNum64.use_threads2;
 //        }
 //        return use_threads2;
@@ -53,11 +53,11 @@ public abstract class BigNum {
 
     protected static int getImplementation() {
 
-        if(TaskDraw.BUILT_IT_BIGNUM_IMPLEMENTATION == 0) {
+        if(TaskRender.BUILT_IT_BIGNUM_IMPLEMENTATION == 0) {
             return automaticBignumLib;
         }
 
-        return TaskDraw.BUILT_IT_BIGNUM_IMPLEMENTATION - 1;
+        return TaskRender.BUILT_IT_BIGNUM_IMPLEMENTATION - 1;
 
     }
 
@@ -285,4 +285,8 @@ public abstract class BigNum {
     public abstract String bits();
 
     public Apfloat toApfloat() { return new MyApfloat(bits(), 2).toRadix(10);}
+
+    public int signum() {
+        return sign;
+    }
 }

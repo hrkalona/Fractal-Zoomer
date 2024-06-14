@@ -27,7 +27,7 @@ public class CartesianLocationNormalDouble extends Location {
 
     private JitterSettings js;
 
-    public CartesianLocationNormalDouble(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int image_size_in, Fractal fractal, JitterSettings js) {
+    public CartesianLocationNormalDouble(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int width, int height, Fractal fractal, JitterSettings js) {
 
         super();
 
@@ -39,11 +39,15 @@ public class CartesianLocationNormalDouble extends Location {
 
         this.size = dsize;
 
-        int image_size = offset.getImageSize(image_size_in);
+        width = offset.getWidth(width);
+        height = offset.getHeight(height);
+        int image_size = Math.min(width, height);
+        double coefx = width == image_size ? 0.5 : (1 + (width - (double)height) / height) * 0.5;
+        double coefy = height == image_size ? 0.5 : (1 + (height - (double)width) / width) * 0.5;
 
-        double size_2_x = dsize * 0.5;
+        double size_2_x = dsize * coefx;
         double temp = dsize * height_ratio;
-        double size_2_y = temp * 0.5;
+        double size_2_y = temp * coefy;
         temp_size_image_size_x = dsize / image_size;
         temp_size_image_size_y = temp / image_size;
 

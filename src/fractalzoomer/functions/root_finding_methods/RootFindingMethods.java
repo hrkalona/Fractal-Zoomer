@@ -53,7 +53,7 @@ public abstract class RootFindingMethods extends Fractal {
     }
 
     protected void setConvergentBailout(double val) {
-        convergent_bailout = TaskDraw.USER_CONVERGENT_BAILOUT > 0 ? TaskDraw.USER_CONVERGENT_BAILOUT : val;
+        convergent_bailout = TaskRender.USER_CONVERGENT_BAILOUT > 0 ? TaskRender.USER_CONVERGENT_BAILOUT : val;
     }
 
     //orbit
@@ -68,7 +68,7 @@ public abstract class RootFindingMethods extends Fractal {
     public Complex[] initialize(Complex pixel) {
 
         Complex[] complex = new Complex[1];
-        if(TaskDraw.PERTURBATION_THEORY && supportsPerturbationTheory()) {
+        if(TaskRender.PERTURBATION_THEORY && supportsPerturbationTheory()) {
             if(!isOrbit && !isDomain) {
                 complex[0] = pixel.plus(refPointSmall);
             }
@@ -94,7 +94,7 @@ public abstract class RootFindingMethods extends Fractal {
 
         GenericComplex[] complex = new GenericComplex[1];
 
-        int lib = TaskDraw.getHighPrecisionLibrary(dsize, this);
+        int lib = TaskRender.getHighPrecisionLibrary(dsize, this);
 
         if(lib == ARBITRARY_MPFR) {
 
@@ -191,11 +191,12 @@ public abstract class RootFindingMethods extends Fractal {
                 Complex zold = gzold.toComplex();
                 Complex zold2 = gzold2.toComplex();
 
+                finalizeStatistic(true, z);
                 Object[] object = {iterations, z, convergent_bailout_algorithm.getDistance(), zold, zold2, pixelC, start, c0, pixelC};
                 iterationData = object;
                 double out = out_color_algorithm.getResult(object);
 
-                out = getFinalValueOut(out, z);
+                out = getFinalValueOut(out);
 
                 if (outTrueColorAlgorithm != null) {
                     setTrueColorOut(z, zold, zold2, iterations, pixelC, start, c0, pixelC);
@@ -218,11 +219,12 @@ public abstract class RootFindingMethods extends Fractal {
         Complex zold = gzold.toComplex();
         Complex zold2 = gzold2.toComplex();
 
+        finalizeStatistic(false, z);
         Object[] object = {z, zold, zold2, pixelC, start, c0, pixelC};
         iterationData = object;
         double in = in_color_algorithm.getResult(object);
 
-        in = getFinalValueIn(in, z);
+        in = getFinalValueIn(in);
 
         if (inTrueColorAlgorithm != null) {
             setTrueColorIn(z, zold, zold2, iterations, pixelC, start, c0, pixelC);
@@ -247,11 +249,12 @@ public abstract class RootFindingMethods extends Fractal {
             if (iterations > 0 && convergent_bailout_algorithm.converged(complex[0], zold, zold2, iterations, pixel, start, c0, pixel)) {
                 escaped = true;
 
+                finalizeStatistic(true, complex[0]);
                 Object[] object = {iterations, complex[0], convergent_bailout_algorithm.getDistance(), zold, zold2, pixel, start, c0, pixel};
                 iterationData = object;
                 double out = out_color_algorithm.getResult(object);
 
-                out = getFinalValueOut(out, complex[0]);
+                out = getFinalValueOut(out);
 
                 if (outTrueColorAlgorithm != null) {
                     setTrueColorOut(complex[0], zold, zold2, iterations, pixel, start, c0, pixel);
@@ -272,11 +275,12 @@ public abstract class RootFindingMethods extends Fractal {
 
         }
 
+        finalizeStatistic(false, complex[0]);
         Object[] object = {complex[0], zold, zold2, pixel, start, c0, pixel};
         iterationData = object;
         double in = in_color_algorithm.getResult(object);
 
-        in = getFinalValueIn(in, complex[0]);
+        in = getFinalValueIn(in);
 
         if (inTrueColorAlgorithm != null) {
             setTrueColorIn(complex[0], zold, zold2, iterations, pixel, start, c0, pixel);
@@ -290,7 +294,11 @@ public abstract class RootFindingMethods extends Fractal {
     protected void iterateFractalOrbit(Complex[] complex, Complex pixel) {
         iterations = 0;
 
-        Complex temp = null;
+        complex_orbit.clear();
+
+        Complex temp = rotation.rotateInverse(complex[0]);
+
+        complex_orbit.add(temp);
 
         for (; iterations < max_iterations; iterations++) {
             updateValues(complex);
@@ -337,6 +345,11 @@ public abstract class RootFindingMethods extends Fractal {
     @Override
     public double calculateJulia(GenericComplex pixel) {
         return 0;
+    }
+
+    @Override
+    public double[] calculateJuliaVectorized(GenericComplex[] pixels) {
+        return null;
     }
 
     @Override
@@ -407,6 +420,23 @@ public abstract class RootFindingMethods extends Fractal {
                     out_color_algorithm = new UserConditionalOutColorAlgorithmRootFindingMethod(user_outcoloring_conditions, user_outcoloring_condition_formula, convergent_bailout, max_iterations, xCenter, yCenter, size, plane_transform_center, globalVars);
                 }
                 break;
+            case ESCAPE_TIME_SQUARES:
+                OutColorAlgorithm wrappedAlgorithm;
+                if (!smoothing) {
+                    wrappedAlgorithm = new EscapeTime();
+                } else {
+                    wrappedAlgorithm = new SmoothEscapeTimeRootFindingMethod(Math.log(convergent_bailout), converging_smooth_algorithm);
+                }
+                out_color_algorithm = new EscapeTimeSquares(7, wrappedAlgorithm);
+                break;
+            case ESCAPE_TIME_SQUARES2:
+                if (!smoothing) {
+                    wrappedAlgorithm = new EscapeTime();
+                } else {
+                    wrappedAlgorithm = new SmoothEscapeTimeRootFindingMethod(Math.log(convergent_bailout), converging_smooth_algorithm);
+                }
+                out_color_algorithm = new EscapeTimeSquares2(7, wrappedAlgorithm);
+                break;
 
         }
     }
@@ -446,6 +476,9 @@ public abstract class RootFindingMethods extends Fractal {
             case MainWindow.SQUARES2:
                 in_color_algorithm = new Squares2(max_iterations);
                 break;
+            case MainWindow.SQUARES3:
+                in_color_algorithm = new Squares3(max_iterations);
+                break;
             case MainWindow.USER_INCOLORING_ALGORITHM:
                 if (user_in_coloring_algorithm == 0) {
                     in_color_algorithm = new UserInColorAlgorithm(incoloring_formula, max_iterations, xCenter, yCenter, size, plane_transform_center, convergent_bailout, globalVars);
@@ -462,9 +495,11 @@ public abstract class RootFindingMethods extends Fractal {
     public double getFractal3DHeight(double value) {
 
         if (escaped) {
+            finalizeStatistic(true, (Complex) iterationData[1]);
+
             double res = out_color_algorithm.getResult3D(iterationData, value);
 
-            res = getFinalValueOut(res, (Complex) iterationData[1]);
+            res = getFinalValueOut(res);
 
             return ColorAlgorithm.transformResultToHeight(res, max_iterations);
         }
@@ -565,7 +600,7 @@ public abstract class RootFindingMethods extends Fractal {
     }
 
     @Override
-    public double iterateFractalWithPerturbation(Complex[] complex, Complex dpixel) {
+    public double iterateFractalWithPerturbation(Complex[] complexIn, Complex dpixel) {
 
         double_iterations = 0;
         rebases = 0;
@@ -580,6 +615,7 @@ public abstract class RootFindingMethods extends Fractal {
         Complex zWithoutInitVal = new Complex();
 
         Complex pixel = dpixel.plus(refPointSmall);
+        Complex z = complexIn[0];
 
         Complex refZ;
 
@@ -591,21 +627,22 @@ public abstract class RootFindingMethods extends Fractal {
             //No update values
 
             if (trap != null) {
-                trap.check(complex[0], iterations);
+                trap.check(z, iterations);
             }
 
-            if (iterations > 0 && convergent_bailout_algorithm.converged(complex[0], zold, zold2, iterations, pixel, start, c0, pixel)) {
+            if (iterations > 0 && convergent_bailout_algorithm.converged(z, zold, zold2, iterations, pixel, start, c0, pixel)) {
                 escaped = true;
 
-                Object[] object = {iterations, complex[0], convergent_bailout_algorithm.getDistance(), zold, zold2, pixel, start, c0, pixel};
+                finalizeStatistic(true, z);
+                Object[] object = {iterations, z, convergent_bailout_algorithm.getDistance(), zold, zold2, pixel, start, c0, pixel};
                 iterationData = object;
 
                 double res = out_color_algorithm.getResult(object);
 
-                res = getFinalValueOut(res, complex[0]);
+                res = getFinalValueOut(res);
 
                 if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(complex[0], zold, zold2, iterations, pixel, start, c0, pixel);
+                    setTrueColorOut(z, zold, zold2, iterations, pixel, start, c0, pixel);
                 }
 
                 return getAndAccumulateStatsNotDeep(res);
@@ -617,19 +654,19 @@ public abstract class RootFindingMethods extends Fractal {
             double_iterations++;
 
             zold2.assign(zold);
-            zold.assign(complex[0]);
+            zold.assign(z);
 
             //No Plane influence work
             //No Pre filters work
             if(max_iterations > 1){
                 refZ = getArrayValue(data.Reference, RefIteration);
                 zWithoutInitVal = getArrayValue(data.ReferenceSubCp, RefIteration, refZ).plus_mutable(DeltaSubN);
-                complex[0] = refZ.plus_mutable(DeltaSubN);
+                z = refZ.plus_mutable(DeltaSubN);
             }
             //No Post filters work
 
             if (statistic != null) {
-                statistic.insert(complex[0], zold, zold2, iterations, pixel, start, c0);
+                statistic.insert(z, zold, zold2, iterations, pixel, start, c0);
             }
 
             if (zWithoutInitVal.norm_squared() < DeltaSubN.norm_squared() || RefIteration >= MaxRefIteration) {
@@ -644,15 +681,16 @@ public abstract class RootFindingMethods extends Fractal {
 
         }
 
-        Object[] object = {complex[0], zold, zold2, pixel, start, c0, pixel};
+        finalizeStatistic(false, z);
+        Object[] object = {z, zold, zold2, pixel, start, c0, pixel};
         iterationData = object;
 
         double in = in_color_algorithm.getResult(object);
 
-        in = getFinalValueIn(in, complex[0]);
+        in = getFinalValueIn(in);
 
         if (inTrueColorAlgorithm != null) {
-            setTrueColorIn(complex[0], zold, zold2, iterations, pixel, start, c0, pixel);
+            setTrueColorIn(z, zold, zold2, iterations, pixel, start, c0, pixel);
         }
 
         return getAndAccumulateStatsNotDeep(in);
@@ -660,7 +698,7 @@ public abstract class RootFindingMethods extends Fractal {
     }
 
     @Override
-    public double iterateFractalWithPerturbation(Complex[] complex, MantExpComplex dpixel) {
+    public double iterateFractalWithPerturbation(Complex[] complexIn, MantExpComplex dpixel) {
 
 
         float_exp_iterations = 0;
@@ -677,6 +715,7 @@ public abstract class RootFindingMethods extends Fractal {
         MantExpComplex DeltaSubN = deltas[0]; // Delta z
 
         Complex pixel = dpixel.plus(refPointSmallDeep).toComplex();
+        Complex zc = complexIn[0];
 
         int minExp = -1000;
         int reducedExp = minExp / (int)getPower();
@@ -691,7 +730,7 @@ public abstract class RootFindingMethods extends Fractal {
         MantExpComplex refZm;
 
         boolean useFullFloatExp = useFullFloatExp();
-        boolean doBailCheck = useFullFloatExp || TaskDraw.CHECK_BAILOUT_DURING_DEEP_NOT_FULL_FLOATEXP_MODE;
+        boolean doBailCheck = useFullFloatExp || TaskRender.CHECK_BAILOUT_DURING_DEEP_NOT_FULL_FLOATEXP_MODE;
 
         if(useFullFloatExp || (totalSkippedIterations == 0 && exp <= minExp) || (totalSkippedIterations != 0 && exp <= reducedExp)) {
 
@@ -702,21 +741,22 @@ public abstract class RootFindingMethods extends Fractal {
 
             for (; iterations < max_iterations; iterations++) {
                 if (trap != null) {
-                    trap.check(complex[0], iterations);
+                    trap.check(zc, iterations);
                 }
 
-                if (doBailCheck && iterations > 0 && convergent_bailout_algorithm.converged(complex[0], zold, zold2, iterations, pixel, start, c0, pixel)) {
+                if (doBailCheck && iterations > 0 && convergent_bailout_algorithm.converged(zc, zold, zold2, iterations, pixel, start, c0, pixel)) {
                     escaped = true;
 
-                    Object[] object = {iterations, complex[0], convergent_bailout_algorithm.getDistance(), zold, zold2, pixel, start, c0, pixel};
+                    finalizeStatistic(true, zc);
+                    Object[] object = {iterations, zc, convergent_bailout_algorithm.getDistance(), zold, zold2, pixel, start, c0, pixel};
                     iterationData = object;
 
                     double res = out_color_algorithm.getResult(object);
 
-                    res = getFinalValueOut(res, complex[0]);
+                    res = getFinalValueOut(res);
 
                     if (outTrueColorAlgorithm != null) {
-                        setTrueColorOut(complex[0], zold, zold2, iterations, pixel, start, c0, pixel);
+                        setTrueColorOut(zc, zold, zold2, iterations, pixel, start, c0, pixel);
                     }
 
                     return getAndAccumulateStatsNotScaled(res);
@@ -728,18 +768,18 @@ public abstract class RootFindingMethods extends Fractal {
                 float_exp_iterations++;
 
                 zold2.assign(zold);
-                zold.assign(complex[0]);
+                zold.assign(zc);
                 zoldDeep = z;
 
                 if (max_iterations > 1) {
                     refZm = getArrayDeepValue(deepData.Reference, RefIteration);
                     zWithoutInitVal = getArrayDeepValue(deepData.ReferenceSubCp, RefIteration, refZm).plus_mutable(DeltaSubN);
                     z = refZm.plus_mutable(DeltaSubN);
-                    complex[0] = z.toComplex();
+                    zc = z.toComplex();
                 }
 
                 if (statistic != null) {
-                    statistic.insert(complex[0], zold, zold2, iterations, pixel, start, c0, z , zoldDeep, null);
+                    statistic.insert(zc, zold, zold2, iterations, pixel, start, c0, z , zoldDeep, null);
                 }
 
                 if (zWithoutInitVal.norm_squared().compareToBothPositive(DeltaSubN.norm_squared()) < 0 || RefIteration >= MaxRefIteration) {
@@ -775,21 +815,22 @@ public abstract class RootFindingMethods extends Fractal {
                 //No update values
 
                 if (trap != null) {
-                    trap.check(complex[0], iterations);
+                    trap.check(zc, iterations);
                 }
 
-                if (iterations > 0 && convergent_bailout_algorithm.converged(complex[0], zold, zold2, iterations, pixel, start, c0, pixel)) {
+                if (iterations > 0 && convergent_bailout_algorithm.converged(zc, zold, zold2, iterations, pixel, start, c0, pixel)) {
                     escaped = true;
 
-                    Object[] object = {iterations, complex[0], convergent_bailout_algorithm.getDistance(), zold, zold2, pixel, start, c0, pixel};
+                    finalizeStatistic(true, zc);
+                    Object[] object = {iterations, zc, convergent_bailout_algorithm.getDistance(), zold, zold2, pixel, start, c0, pixel};
                     iterationData = object;
 
                     double res = out_color_algorithm.getResult(object);
 
-                    res = getFinalValueOut(res, complex[0]);
+                    res = getFinalValueOut(res);
 
                     if (outTrueColorAlgorithm != null) {
-                        setTrueColorOut(complex[0], zold, zold2, iterations, pixel, start, c0, pixel);
+                        setTrueColorOut(zc, zold, zold2, iterations, pixel, start, c0, pixel);
                     }
 
                     return getAndAccumulateStatsNotScaled(res);
@@ -801,19 +842,19 @@ public abstract class RootFindingMethods extends Fractal {
                 double_iterations++;
 
                 zold2.assign(zold);
-                zold.assign(complex[0]);
+                zold.assign(zc);
 
                 //No Plane influence work
                 //No Pre filters work
                 if (max_iterations > 1) {
                     refZ = getArrayValue(data.Reference, RefIteration);
                     zWithoutInitVal = getArrayValue(data.ReferenceSubCp, RefIteration, refZ).plus_mutable(CDeltaSubN);
-                    complex[0] = refZ.plus_mutable(CDeltaSubN);
+                    zc = refZ.plus_mutable(CDeltaSubN);
                 }
                 //No Post filters work
 
                 if (statistic != null) {
-                    statistic.insert(complex[0], zold, zold2, iterations, pixel, start, c0);
+                    statistic.insert(zc, zold, zold2, iterations, pixel, start, c0);
                 }
 
                 if (zWithoutInitVal.norm_squared() < CDeltaSubN.norm_squared() || RefIteration >= MaxRefIteration) {
@@ -828,15 +869,16 @@ public abstract class RootFindingMethods extends Fractal {
             }
         }
 
-        Object[] object = {complex[0], zold, zold2, pixel, start, c0, pixel};
+        finalizeStatistic(false, zc);
+        Object[] object = {zc, zold, zold2, pixel, start, c0, pixel};
         iterationData = object;
 
         double in = in_color_algorithm.getResult(object);
 
-        in = getFinalValueIn(in, complex[0]);
+        in = getFinalValueIn(in);
 
         if (inTrueColorAlgorithm != null) {
-            setTrueColorIn(complex[0], zold, zold2, iterations, pixel, start, c0, pixel);
+            setTrueColorIn(zc, zold, zold2, iterations, pixel, start, c0, pixel);
         }
 
         return getAndAccumulateStatsNotScaled(in);

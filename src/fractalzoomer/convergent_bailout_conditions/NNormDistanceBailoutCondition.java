@@ -27,7 +27,7 @@ public class NNormDistanceBailoutCondition extends ConvergentBailoutCondition {
         n_norm_reciprocal = 1 / n_norm;
 
 
-        if(TaskDraw.PERTURBATION_THEORY || TaskDraw.HIGH_PRECISION_CALCULATION) {
+        if(TaskRender.PERTURBATION_THEORY || TaskRender.HIGH_PRECISION_CALCULATION) {
             ddn_norm = new MyApfloat(n_norm);
             ddcn_norm = new DoubleDouble(n_norm);
 

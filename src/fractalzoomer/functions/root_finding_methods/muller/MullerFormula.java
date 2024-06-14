@@ -17,7 +17,7 @@
 package fractalzoomer.functions.root_finding_methods.muller;
 
 import fractalzoomer.core.Complex;
-import fractalzoomer.core.TaskDraw;
+import fractalzoomer.core.TaskRender;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
 import fractalzoomer.main.app_settings.StatisticsSettings;
@@ -179,7 +179,15 @@ public class MullerFormula extends MullerRootFindingMethod {
         }
 
         if (parser.foundISize()) {
-            parser.setISizevalue(new Complex(TaskDraw.IMAGE_SIZE, 0));
+            parser.setISizevalue(new Complex(Math.min(TaskRender.WIDTH, TaskRender.HEIGHT), 0));
+        }
+
+        if (parser.foundWidth()) {
+            parser.setWidthvalue(new Complex(TaskRender.WIDTH, 0));
+        }
+
+        if (parser.foundHeight()) {
+            parser.setHeightvalue(new Complex(TaskRender.HEIGHT, 0));
         }
 
         for (int i = 0; i < Parser.EXTRA_VARS; i++) {

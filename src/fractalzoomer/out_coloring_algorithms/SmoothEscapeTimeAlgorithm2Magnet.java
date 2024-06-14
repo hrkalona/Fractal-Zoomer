@@ -42,7 +42,7 @@ public class SmoothEscapeTimeAlgorithm2Magnet extends OutColorAlgorithm {
 
 
         double temp3 = 0;
-        if(!(Boolean)object[2]) {
+        if(!(boolean)object[2]) {
             if(algorithm == 0) {
                 temp3 = SmoothEscapeTimeMagnet.getConvSmoothing1(object, log_convergent_bailout);
             }
@@ -53,7 +53,7 @@ public class SmoothEscapeTimeAlgorithm2Magnet extends OutColorAlgorithm {
 
         Complex temp = ((Complex)object[1]).sub(((Complex)object[1]).sin());
 
-        return (Integer)object[0] + Math.abs(Math.atan(temp.getIm() / temp.getRe())) * 8 + temp3;
+        return (int)object[0] + Math.abs(Math.atan(temp.getIm() / temp.getRe())) * 8 + temp3;
 
     }
 

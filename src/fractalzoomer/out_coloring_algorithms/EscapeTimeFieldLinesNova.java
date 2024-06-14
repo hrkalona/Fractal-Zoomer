@@ -41,7 +41,7 @@ public class EscapeTimeFieldLinesNova extends EscapeTimeFieldLines {
 
         boolean line = Math.abs(fx) > lineWidth * fz;
         
-        return line ? (Integer)object[0] : -((Integer)object[0] + INCREMENT);
+        return line ? (int)object[0] : -((int)object[0] + INCREMENT);
 
     }
     

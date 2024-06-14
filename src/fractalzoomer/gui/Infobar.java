@@ -52,6 +52,7 @@ public class Infobar extends JToolBar {
     private JButton stats_button;
 
     private JButton thread_stats_button;
+    private JButton matrics_button;
 
     private JButton cancel_button;
     private boolean listenerEnabled;
@@ -87,11 +88,19 @@ public class Infobar extends JToolBar {
         Graphics2D g = max_it_preview.createGraphics();
 
         g.setColor(s.fractal_color);
-        g.fillRect(0, 0, max_it_preview.getWidth(), max_it_preview.getHeight());
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        if(!MainWindow.useCustomLaf) {
+            g.fillRect(0, 0, max_it_preview.getWidth(), max_it_preview.getHeight());
+        }
+        else {
+            g.fillRoundRect(0, 0, max_it_preview.getWidth(), max_it_preview.getHeight(), 5, 5);
+        }
 
         outcoloring_palette_toolbar_preview = new ImageLabel();
         outcoloring_palette_toolbar_preview.setToolTipText("Displays the active out-coloring palette.");
-        outcoloring_palette_toolbar_preview.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
+        if(!MainWindow.useCustomLaf) {
+            outcoloring_palette_toolbar_preview.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
+        }
         outcoloring_palette_toolbar_preview.setIcon(new ImageIcon(palette_preview));
         outcoloring_palette_toolbar_preview.setMaximumSize(new Dimension(palette_preview.getWidth(), palette_preview.getHeight()));
         outcoloring_palette_toolbar_preview.setMinimumSize(new Dimension(palette_preview.getWidth(), palette_preview.getHeight()));
@@ -133,7 +142,9 @@ public class Infobar extends JToolBar {
 
         incoloring_palette_toolbar_preview = new ImageLabel();
         incoloring_palette_toolbar_preview.setToolTipText("Displays the active in-coloring palette.");
-        incoloring_palette_toolbar_preview.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
+        if(!MainWindow.useCustomLaf) {
+            incoloring_palette_toolbar_preview.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
+        }
         incoloring_palette_toolbar_preview.setIcon(new ImageIcon(palette_in_preview));
         incoloring_palette_toolbar_preview.setMaximumSize(new Dimension(palette_in_preview.getWidth(), palette_in_preview.getHeight()));
         incoloring_palette_toolbar_preview.setMinimumSize(new Dimension(palette_in_preview.getWidth(), palette_in_preview.getHeight()));
@@ -171,7 +182,9 @@ public class Infobar extends JToolBar {
 
         gradient_toolbar_preview = new ImageLabel();
         gradient_toolbar_preview.setToolTipText("Displays the active gradient.");
-        gradient_toolbar_preview.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
+        if(!MainWindow.useCustomLaf) {
+            gradient_toolbar_preview.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
+        }
         gradient_toolbar_preview.setIcon(new ImageIcon(gradient_preview));
         gradient_toolbar_preview.setMaximumSize(new Dimension(gradient_preview.getWidth(), gradient_preview.getHeight()));
         gradient_toolbar_preview.setMinimumSize(new Dimension(gradient_preview.getWidth(), gradient_preview.getHeight()));
@@ -210,7 +223,10 @@ public class Infobar extends JToolBar {
 
         max_it_color_preview = new ImageLabel();
         max_it_color_preview.setToolTipText("Displays the color corresponding to the max iterations.");
-        max_it_color_preview.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
+
+        if(!MainWindow.useCustomLaf) {
+            max_it_color_preview.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
+        }
         max_it_color_preview.setIcon(new ImageIcon(max_it_preview));
         max_it_color_preview.setMaximumSize(new Dimension(max_it_preview.getWidth(), max_it_preview.getHeight()));
         max_it_color_preview.setMinimumSize(new Dimension(max_it_preview.getWidth(), max_it_preview.getHeight()));
@@ -286,6 +302,12 @@ public class Infobar extends JToolBar {
 
         thread_stats_button.addActionListener(e -> ptr.ThreadStats());
 
+        matrics_button = new MyButton();
+        matrics_button.setIcon(MainWindow.getIcon("chart.png"));
+        matrics_button.setFocusable(false);
+        matrics_button.setToolTipText("Displays some time-series metrics.");
+        matrics_button.addActionListener(e ->ptr.Metrics());
+
         cancel_button= new MyButton();
         cancel_button.setIcon(MainWindow.getIcon("abort.png"));
         cancel_button.setFocusable(false);
@@ -304,6 +326,7 @@ public class Infobar extends JToolBar {
         addSeparator();
         add(stats_button);
         add(thread_stats_button);
+        add(matrics_button);
 
         palette_toolbar_preview_lbl2.setVisible(false);
         incoloring_palette_toolbar_preview.setVisible(false);
@@ -438,6 +461,10 @@ public class Infobar extends JToolBar {
                     }
                 }
 
+                if(MainWindow.useCustomLaf) {
+                    palette_preview = CommonFunctions.makeRoundedCorner(palette_preview, 5);
+                }
+
                 palette[i] = new ImageRadioButtonMenuItem(PaletteMenu.paletteNames[i], new ImageIcon(palette_preview));
             }
             else {
@@ -522,7 +549,7 @@ public class Infobar extends JToolBar {
         } else {
             colorMapframe.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, ActionEvent.CTRL_MASK | ActionEvent.SHIFT_MASK));
         }
-        colorMapframe.setToolTipText("Loads all color maps from the " + ColorMapFrame.DirName + " directory.");
+        colorMapframe.setToolTipText("Loads all color maps from the " + ColorMapDialog.DirName + " directory.");
         colorMapframe.addActionListener(ev -> {ptr.setColorMap(outcoloring_mode);});
 
         popup.addSeparator();

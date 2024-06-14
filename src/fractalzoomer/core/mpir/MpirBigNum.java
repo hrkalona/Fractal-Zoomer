@@ -2,6 +2,7 @@ package fractalzoomer.core.mpir;
 
 
 import fractalzoomer.core.*;
+import fractalzoomer.core.mpfr.LibMpfr;
 import fractalzoomer.core.mpfr.MpfrBigNum;
 import fractalzoomer.core.mpfr.mpfr_t;
 import org.apfloat.Apfloat;
@@ -13,7 +14,7 @@ import static fractalzoomer.core.mpir.LibMpir.mpir_fz_square_plus_c_simple_with_
 
 
 public class MpirBigNum {
-    public static long precision = TaskDraw.BIGNUM_PRECISION;
+    public static long precision = TaskRender.BIGNUM_PRECISION;
     public static int THREADS_THRESHOLD = 3820; // bits of precision
     private static int use_threads = 0;
 
@@ -35,9 +36,9 @@ public class MpirBigNum {
                 a = SQRT_TWO.divide(10000);
             }
             else {
-                int index = Arrays.asList(TaskDraw.mpirWinLibs).indexOf(TaskDraw.MPIR_LIB);
+                int index = Arrays.asList(TaskRender.mpirWinLibs).indexOf(TaskRender.MPIR_LIB);
                 if(index != -1) {//Try to fallback to another for the next load
-                    TaskDraw.MPIR_LIB = TaskDraw.mpirWinLibs[(index + 1) % TaskDraw.mpirWinLibs.length];
+                    TaskRender.MPIR_LIB = TaskRender.mpirWinLibs[(index + 1) % TaskRender.mpirWinLibs.length];
                 }
             }
         }
@@ -46,21 +47,21 @@ public class MpirBigNum {
             LOAD_ERROR = new Exception(ex.getMessage());
             System.out.println("Cannot load mpir: " + LOAD_ERROR.getMessage());
 
-            int index = Arrays.asList(TaskDraw.mpirWinLibs).indexOf(TaskDraw.MPIR_LIB);
+            int index = Arrays.asList(TaskRender.mpirWinLibs).indexOf(TaskRender.MPIR_LIB);
             if(index != -1) {//Try to fallback to another for the next load
-                TaskDraw.MPIR_LIB = TaskDraw.mpirWinLibs[(index + 1) % TaskDraw.mpirWinLibs.length];
+                TaskRender.MPIR_LIB = TaskRender.mpirWinLibs[(index + 1) % TaskRender.mpirWinLibs.length];
             }
         }
     }
 
     public static void reinitialize(double digits) {
-        precision = (int)(digits * TaskDraw.BIGNUM_PRECISION_FACTOR + 0.5);
+        precision = (int)(digits * TaskRender.BIGNUM_PRECISION_FACTOR + 0.5);
 
         if(!hasError()) {
             SQRT_TWO = new MpirBigNum(2).sqrt();
         }
 
-        use_threads = TaskDraw.USE_THREADS_IN_BIGNUM_LIBS && precision >= THREADS_THRESHOLD && Runtime.getRuntime().availableProcessors() >= 2 ? 1 : 0;
+        use_threads = TaskRender.USE_THREADS_IN_BIGNUM_LIBS && precision >= THREADS_THRESHOLD && Runtime.getRuntime().availableProcessors() >= 2 ? 1 : 0;
     }
 
     private MpfMemory mpfMemory;
@@ -81,13 +82,42 @@ public class MpirBigNum {
         mpfMemory = new MpfMemory(val.getPeer());
     }
 
-    public MpirBigNum(Apfloat number) {
+
+    public static MpirBigNum fromApfloat(Apfloat number) {
+        if(!LibMpfr.hasError()) {
+            try {
+                return new MpirBigNum(new MpfrBigNum(number));
+            }
+            catch (Error e) {
+                return new MpirBigNum(number);
+            }
+        }
+        else {
+            return new MpirBigNum(number);
+        }
+    }
+
+    public static MpirBigNum fromString(String number) {
+        if(!LibMpfr.hasError()) {
+            try {
+                return new MpirBigNum(new MpfrBigNum(number));
+            }
+            catch (Error e) {
+                return new MpirBigNum(number);
+            }
+        }
+        else {
+            return new MpirBigNum(number);
+        }
+    }
+
+    private MpirBigNum(Apfloat number) {
 
         mpfMemory = new MpfMemory(number.toString(true));
 
     }
 
-    public MpirBigNum(String number) {
+    private MpirBigNum(String number) {
 
         mpfMemory = new MpfMemory(number);
 
@@ -615,6 +645,15 @@ public class MpirBigNum {
 
     public Apfloat toApfloat() { return new MyApfloat(toFullString());}
 
+    public int signum() {
+        if(isZero()) {
+            return 0;
+        }
+        else if(isPositive()) {
+            return 1;
+        }
+        return - 1;
+    }
 
     public static void main(String[] args) {
         MpfrBigNum b = new MpfrBigNum("1.536436437574574384584385466456436634574743734743754365532432523531");

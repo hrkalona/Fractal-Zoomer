@@ -16,10 +16,11 @@
  */
 package fractalzoomer.gui;
 
-import fractalzoomer.core.TaskDraw;
+import fractalzoomer.core.TaskRender;
 import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
+import raven.slider.SliderGradient;
 
 import javax.swing.*;
 import java.awt.*;
@@ -91,7 +92,7 @@ public class HistogramColoringDialog extends JDialog {
 
         removeOutliers.addActionListener(e -> outliersAlgorithm.setEnabled(removeOutliers.isSelected()));
 
-        JSlider color_blend_opt = new JSlider(JSlider.HORIZONTAL, 0, 100, (int) (s.pps.hss.hs_blending * 100));
+        JSlider color_blend_opt = new SliderGradient(JSlider.HORIZONTAL, 0, 100, (int) (s.pps.hss.hs_blending * 100));
         color_blend_opt.setMajorTickSpacing(25);
         color_blend_opt.setMinorTickSpacing(1);
         color_blend_opt.setToolTipText("Sets the color blending percentage.");
@@ -118,6 +119,22 @@ public class HistogramColoringDialog extends JDialog {
 
         rankOrderDigitGrouping.setEnabled(mapping.getSelectedIndex() == 6);
 
+        JPanel blend_panel = new JPanel();
+
+        final JComboBox<String> blend_modes = new JComboBox<>(Constants.blend_algorithms);
+        blend_modes.setSelectedIndex(s.pps.hss.hs_color_blending);
+        blend_modes.setFocusable(false);
+        blend_modes.setToolTipText("Sets the blending mode mode.");
+
+        final JCheckBox reverse_blending = new JCheckBox("Reverse Order of Colors");
+        reverse_blending.setSelected(s.pps.hss.hs_reverse_color_blending);
+        reverse_blending.setFocusable(false);
+        reverse_blending.setToolTipText("Reverts the order of colors in the blending operation.");
+
+        blend_panel.add(new JLabel("Blend Mode: "));
+        blend_panel.add(blend_modes);
+        blend_panel.add(reverse_blending);
+
         Object[] message = {
             " ",
             enable_histogram_coloring,
@@ -125,7 +142,10 @@ public class HistogramColoringDialog extends JDialog {
             "Set the mapping function.",
             "Mapping: ",
             mapping,
-            " ",
+                " ",
+                "Set the color blending options.",
+                blend_panel,
+                " ",
             "Set the color blending percentage.",
             "Color Blending:", color_blend_opt,
             " ",
@@ -219,6 +239,8 @@ public class HistogramColoringDialog extends JDialog {
                             s.pps.hss.hs_remove_outliers = removeOutliers.isSelected();
                             s.pps.hss.hs_outliers_method = outliersAlgorithm.getSelectedIndex();
                             s.pps.hss.rank_order_digits_grouping = rankOrderDigitGrouping.getSelectedIndex();
+                            s.pps.hss.hs_color_blending = blend_modes.getSelectedIndex();
+                            s.pps.hss.hs_reverse_color_blending = reverse_blending.isSelected();
                         } catch (Exception ex) {
                             JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                             return;
@@ -226,7 +248,7 @@ public class HistogramColoringDialog extends JDialog {
 
                         dispose();
 
-                        if (greedy_algorithm && !TaskDraw.GREEDY_ALGORITHM_CHECK_ITER_DATA && enable_histogram_coloring.isSelected() && !julia_map && !s.d3s.d3) {
+                        if (greedy_algorithm && !TaskRender.GREEDY_ALGORITHM_CHECK_ITER_DATA && enable_histogram_coloring.isSelected() && !julia_map && !s.d3s.d3) {
                             JOptionPane.showMessageDialog(ptra, Constants.greedyWarning, "Warning!", JOptionPane.WARNING_MESSAGE);
                         }
 

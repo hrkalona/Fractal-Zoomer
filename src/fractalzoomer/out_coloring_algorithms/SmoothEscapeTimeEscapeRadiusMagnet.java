@@ -51,9 +51,9 @@ public class SmoothEscapeTimeEscapeRadiusMagnet extends OutColorAlgorithm {
         double zabs = temp2 / log_bailout_squared - 1.0f;
         double zarg = (((Complex)object[1]).arg() / (pi2) + 1.0f) % 1.0;
 
-        double temp3 = (Integer)object[0] + zabs + zarg;
+        double temp3 = (int)object[0] + zabs + zarg;
 
-        if((Boolean)object[2]) {
+        if((boolean)object[2]) {
             if(algorithm == 0) {
                 return temp3 + SmoothEscapeTimeMagnet.getEscSmoothing1(object, temp2, log_bailout_squared) + MAGNET_INCREMENT;
             }
