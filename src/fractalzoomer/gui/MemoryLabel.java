@@ -53,22 +53,19 @@ public class MemoryLabel extends JLabel {
     private static final String HASHES = "##############################";
     private static final String ZEROS = "0000000000000000000000000000000000000000000000000000000000000000";
 
-    private static final int PANEL_HEIGHT = 20;
-
-
-    public MemoryLabel(int width) {
+    public MemoryLabel(int width, int height) {
         super();
         if(!MainWindow.useCustomLaf) {
             setBorder(BorderFactory.createLoweredBevelBorder());
         }
         //setBorder(MyBorder.LOWERED);
 
-
-        setPreferredSize(new Dimension(width, PANEL_HEIGHT));
-
-//        Insets insets = getInsets();
-//        Dimension size = getSize();
-//        int height = size.height - insets.top - insets.bottom;
+        if(height == 0) {
+            setPreferredSize(new Dimension(width, getFont().getSize() + 4));
+        }
+        else {
+            setPreferredSize(new Dimension(width, 20));
+        }
 
         setHorizontalAlignment(JLabel.CENTER);
         refresh();

@@ -363,15 +363,15 @@ public class CommonFunctions implements Constants {
         //textArea.setWrapStyleWord(false);
 
         JScrollPane scroll_pane_2 = new JScrollPane(textArea);
-        //scroll_pane_2.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        scroll_pane_2.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 
         String tooltip = pb.getToolTipText();
 
         textArea.setText("<html>" + "<center><b><u><font size='5' face='arial' color='blue'>Statistics</font></u></b></center><br><br>" +
                 "<font size='4' face='arial'>" +tooltip + "</font></html>");
 
-        MemoryLabel memory_label = new MemoryLabel(500);
-        CpuLabel cpuLabel = new CpuLabel(500);
+        MemoryLabel memory_label = new MemoryLabel(500, 0);
+        CpuLabel cpuLabel = new CpuLabel(500, 0);
 
         java.util.Timer timer = new java.util.Timer();
         timer.schedule(new RefreshMemoryTask(memory_label), MEMORY_DELAY, MEMORY_DELAY);
@@ -411,7 +411,7 @@ public class CommonFunctions implements Constants {
 
         perturbationStatistics.setFocusable(false);
 
-        perturbationStatistics.setEnabled(s.isPertubationTheoryInUse());
+        perturbationStatistics.setEnabled(s.isPertubationTheoryInUse() && TaskRender.GATHER_PERTURBATION_STATISTICS);
 
         perturbationStatistics.addActionListener( e-> new OverallPerturbationStatisticsChartDialog(ptr, tooltip).setVisible(true));
 
@@ -1617,7 +1617,7 @@ public class CommonFunctions implements Constants {
             }
             overview += tab + "Palette Offset = " + s.ps.color_cycling_location + "<br>";
             overview += tab + "Transfer Function = " + ColorTransferMenu.colorTransferNames[s.ps.transfer_function] + "<br>";
-            if(s.ps.transfer_function != DEFAULT) {
+            if(s.ps.transfer_function != DEFAULT && s.ps.transfer_function < KF_SQUARE_ROOT) {
                 overview += tab + "Color Density = " + s.ps.color_density + "<br>";
             }
             overview += tab + "Color Intensity = " + s.ps.color_intensity + "<br><br>";
@@ -1631,19 +1631,28 @@ public class CommonFunctions implements Constants {
                 }
                 overview += tab + "Palette Offset = " + s.ps2.color_cycling_location + "<br>";
                 overview += tab + "Transfer Function = " + ColorTransferMenu.colorTransferNames[s.ps2.transfer_function] + "<br>";
-                if(s.ps2.transfer_function != DEFAULT) {
+                if(s.ps2.transfer_function != DEFAULT && s.ps2.transfer_function < KF_SQUARE_ROOT) {
                     overview += tab + "Color Density = " + s.ps2.color_density + "<br>";
                 }
                 overview += tab + "Color Intensity = " + s.ps2.color_intensity + "<br><br>";
             }
 
             if ((s.ds.domain_coloring && s.ds.domain_coloring_mode == 1)) {
-                if (s.fns.smoothing) {
+                if(s.fns.banded) {
+                    overview += "<b><font color='red'>Color Banding:</font></b><br>";
+                    overview += tab + "Fractional Transfer = " + Constants.smoothingFractionalTransfer[s.fns.smoothing_fractional_transfer_method] + "<br>";
+                }
+                else if (s.fns.smoothing) {
                     overview += "<b><font color='red'>Color Smoothing:</font></b><br>";
                     overview += tab + "Fractional Transfer = " + Constants.smoothingFractionalTransfer[s.fns.smoothing_fractional_transfer_method] + "<br>";
                     overview += tab + "Interpolation = " + color_interp_str[s.color_smoothing_method] + "<br><br>";
                 }
-            } else if (s.fns.smoothing) {
+            }
+            else if(s.fns.banded) {
+                overview += "<b><font color='red'>Color Banding:</font></b><br>";
+                overview += tab + "Fractional Transfer = " + Constants.smoothingFractionalTransfer[s.fns.smoothing_fractional_transfer_method] + "<br>";
+            }
+            else if (s.fns.smoothing) {
                 overview += "<b><font color='red'>Color Smoothing:</font></b><br>";
                 overview += tab + "Fractional Transfer = " + Constants.smoothingFractionalTransfer[s.fns.smoothing_fractional_transfer_method] + "<br>";
                 if (s.fns.escaping_smooth_algorithm == 0) {
@@ -2413,7 +2422,7 @@ public class CommonFunctions implements Constants {
         BufferedImage palette_preview = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = palette_preview.createGraphics();
         for (int j = 0; j < c.length; j++) {
-            if (s.fns.smoothing || isSmooth) {
+            if (s.fns.smoothing || s.fns.banded || isSmooth) {
                 GradientPaint gp = new GradientPaint(j * palette_preview.getWidth() / ((float)c.length), 0, c[j], (j + 1) * palette_preview.getWidth() / ((float)c.length), 0, c[(j + 1) % c.length]);
                 g.setPaint(gp);
                 g.fill(new Rectangle2D.Double(j * palette_preview.getWidth() / ((double)c.length), 0, (j + 1) * palette_preview.getWidth() / ((double)c.length) - j * palette_preview.getWidth() / ((double)c.length), palette_preview.getHeight()));
@@ -2552,7 +2561,7 @@ public class CommonFunctions implements Constants {
         BufferedImage palette_preview = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = palette_preview.createGraphics();
         for (int j = 0; j < c.length; j++) {
-            if (s.fns.smoothing) {
+            if (s.fns.smoothing || s.fns.banded) {
                 GradientPaint gp = new GradientPaint(j * palette_preview.getWidth() / ((float)c.length), 0, c[j], (j + 1) * palette_preview.getWidth() / ((float)c.length), 0, c[(j + 1) % c.length]);
                 g.setPaint(gp);
                 g.fill(new Rectangle2D.Double(j * palette_preview.getWidth() / ((double)c.length), 0, (j + 1) * palette_preview.getWidth() / ((double)c.length) - j * palette_preview.getWidth() / ((double)c.length), palette_preview.getHeight()));

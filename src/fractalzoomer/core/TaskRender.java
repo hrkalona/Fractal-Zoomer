@@ -1569,7 +1569,7 @@ public abstract class TaskRender implements Runnable {
     }
 
     //Apply Filter
-    public TaskRender(int FROMx, int TOx, int FROMy, int TOy, int max_iterations, MainWindow ptr, BufferedImage image, Color fractal_color, Color dem_color, int color_cycling_location, int color_cycling_location2, FiltersSettings fs, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring, BlendingSettings color_blending, int[] post_processing_order, PaletteGradientMergingSettings pbs, DomainColoringSettings ds, int gradient_offset, double contourFactor, boolean smoothing, GeneratedPaletteSettings gps, PostProcessSettings pps) {
+    public TaskRender(int FROMx, int TOx, int FROMy, int TOy, int max_iterations, MainWindow ptr, BufferedImage image, Color fractal_color, Color dem_color, int color_cycling_location, int color_cycling_location2, FiltersSettings fs, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring, BlendingSettings color_blending, int[] post_processing_order, PaletteGradientMergingSettings pbs, DomainColoringSettings ds, int gradient_offset, double contourFactor, GeneratedPaletteSettings gps, PostProcessSettings pps) {
 
         this.FROMx = FROMx;
         this.TOx = TOx;
@@ -1628,7 +1628,7 @@ public abstract class TaskRender implements Runnable {
     }
 
     //Rotate 3d model
-    public TaskRender(int FROMx, int TOx, int FROMy, int TOy, D3Settings d3s, boolean render_action, MainWindow ptr, BufferedImage image, FiltersSettings fs, BlendingSettings color_blending, double contourFactor, boolean smoothing, GeneratedPaletteSettings gps) {
+    public TaskRender(int FROMx, int TOx, int FROMy, int TOy, D3Settings d3s, boolean render_action, MainWindow ptr, BufferedImage image, FiltersSettings fs, BlendingSettings color_blending, double contourFactor) {
 
         this.FROMx = FROMx;
         this.TOx = TOx;
@@ -7221,7 +7221,7 @@ public abstract class TaskRender implements Runnable {
     }
 
     protected boolean needsSmoothing(FunctionSettings fns, NumericalDistanceEstimatorSettings ndes, LightSettings ls, SlopeSettings ss, BumpMapSettings bms, ContourColoringSettings cns, EntropyColoringSettings ens, RainbowPaletteSettings rps, FakeDistanceEstimationSettings fdes, StatisticsSettings sts) {
-        return fns.smoothing || ((ndes.useNumericalDem || ss.slopes || ls.lighting || bms.bump_map || cns.contour_coloring || ens.entropy_coloring || rps.rainbow_palette || fdes.fake_de || sts.statistic) && USE_SMOOTHING_FOR_PROCESSING_ALGS);
+        return fns.smoothing || fns.banded || ((ndes.useNumericalDem || ss.slopes || ls.lighting || bms.bump_map || cns.contour_coloring || ens.entropy_coloring || rps.rainbow_palette || fdes.fake_de || sts.statistic) && USE_SMOOTHING_FOR_PROCESSING_ALGS);
     }
 
     private boolean forcePostProcessing = false;
@@ -10213,6 +10213,24 @@ public abstract class TaskRender implements Runnable {
             case MainWindow.LINEAR:
                 color_transfer_outcoloring = new LinearTransferFunction(palette_incoloring.getPaletteLength(), color_intensity_out, color_density_out);
                 break;
+            case MainWindow.KF_SQUARE_ROOT:
+                color_transfer_outcoloring = new KFSqrtTransferFunction(palette_outcoloring.getPaletteLength(), color_intensity_out);
+                break;
+            case MainWindow.KF_CUBE_ROOT:
+                color_transfer_outcoloring = new KFCbrtTransferFunction(palette_outcoloring.getPaletteLength(), color_intensity_out);
+                break;
+            case MainWindow.KF_FOURTH_ROOT:
+                color_transfer_outcoloring = new KFForthrtTransferFunction(palette_outcoloring.getPaletteLength(), color_intensity_out);
+                break;
+            case MainWindow.KF_LOGARITHM:
+                color_transfer_outcoloring = new KFLogarithmTransferFunction(palette_outcoloring.getPaletteLength(), color_intensity_out);
+                break;
+            case MainWindow.KF_LOG_LOG:
+                color_transfer_outcoloring = new KFLogLogTransferFunction(palette_outcoloring.getPaletteLength(), color_intensity_out);
+                break;
+            case MainWindow.KF_ATAN:
+                color_transfer_outcoloring = new KFAtanTransferFunction(palette_outcoloring.getPaletteLength(), color_intensity_out);
+                break;
         }
 
 
@@ -10241,6 +10259,24 @@ public abstract class TaskRender implements Runnable {
                 break;
             case MainWindow.LINEAR:
                 color_transfer_incoloring = new LinearTransferFunction(palette_incoloring.getPaletteLength(), color_intensity_in, color_density_in);
+                break;
+            case MainWindow.KF_SQUARE_ROOT:
+                color_transfer_incoloring = new KFSqrtTransferFunction(palette_incoloring.getPaletteLength(), color_intensity_in);
+                break;
+            case MainWindow.KF_CUBE_ROOT:
+                color_transfer_incoloring = new KFCbrtTransferFunction(palette_incoloring.getPaletteLength(), color_intensity_in);
+                break;
+            case MainWindow.KF_FOURTH_ROOT:
+                color_transfer_incoloring = new KFForthrtTransferFunction(palette_incoloring.getPaletteLength(), color_intensity_in);
+                break;
+            case MainWindow.KF_LOGARITHM:
+                color_transfer_incoloring = new KFLogarithmTransferFunction(palette_incoloring.getPaletteLength(), color_intensity_in);
+                break;
+            case MainWindow.KF_LOG_LOG:
+                color_transfer_incoloring = new KFLogLogTransferFunction(palette_incoloring.getPaletteLength(), color_intensity_in);
+                break;
+            case MainWindow.KF_ATAN:
+                color_transfer_incoloring = new KFAtanTransferFunction(palette_incoloring.getPaletteLength(), color_intensity_in);
                 break;
         }
 

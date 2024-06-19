@@ -34,15 +34,16 @@ public class CustomPalette extends Palette {
     private static Point2D.Double[][] bezierControlPoints_green;
     private static Point2D.Double[][] bezierControlPoints_blue;
 
-    public CustomPalette(int[][] custom_palette, int color_interpolation, int color_space, boolean reverse, double scale_factor_palette_val, int processing_alg, boolean smoothing, Color special_color, int color_smoothing_method, boolean special_use_palette_color, int fractional_transfer_method) {
+    public CustomPalette(int[][] custom_palette, int color_interpolation, int color_space, boolean reverse, double scale_factor_palette_val, int processing_alg, boolean smoothingIn, Color special_color, int color_smoothing_method, boolean special_use_palette_color, int fractional_transfer_method, boolean banded) {
         super();
 
         int[] palette = createPalette(custom_palette, reverse, processing_alg, scale_factor_palette_val, color_interpolation, color_space, 0);
 
+        boolean smoothing = smoothingIn || banded;
         if (!smoothing) {
             palette_color = new PaletteColorNormal(palette, special_color, special_use_palette_color);
         } else {
-            palette_color = new PaletteColorSmooth(palette, special_color, color_smoothing_method, special_use_palette_color, fractional_transfer_method);
+            palette_color = new PaletteColorSmooth(palette, special_color, color_smoothing_method, special_use_palette_color, fractional_transfer_method, banded);
         }
     }
 

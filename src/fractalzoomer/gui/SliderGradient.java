@@ -1,4 +1,4 @@
-package raven.slider;
+package fractalzoomer.gui;
 
 import java.awt.Color;
 import javax.swing.JSlider;

@@ -19,7 +19,7 @@ package fractalzoomer.gui;
 import fractalzoomer.core.TaskRender;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.FiltersSettings;
-import raven.slider.SliderGradient;
+
 
 import javax.swing.*;
 import java.awt.*;

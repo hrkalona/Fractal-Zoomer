@@ -25,13 +25,15 @@ import java.awt.*;
 public class PaletteColorSmooth extends PaletteColor {
     private InterpolationMethod interpolator;
     private int fractional_transfer_method;
+    private boolean banded;
 
-    public PaletteColorSmooth(int[] palette, Color special_color, int color_smoothing_method, boolean special_use_palette_color, int fractional_transfer_method) {
+    public PaletteColorSmooth(int[] palette, Color special_color, int color_smoothing_method, boolean special_use_palette_color, int fractional_transfer_method, boolean banded) {
 
         super(palette, special_color, special_use_palette_color);
 
         interpolator = InterpolationMethod.create(color_smoothing_method);
         this.fractional_transfer_method = fractional_transfer_method;
+        this.banded = banded;
 
     }
 
@@ -141,6 +143,10 @@ public class PaletteColorSmooth extends PaletteColor {
 
     private int calculateSmoothColor(double result) {
 
+        if(banded) {
+            result = fractional_transfer(result, fractional_transfer_method);
+            return palette[(int)(((long)(result)) % palette.length)];
+        }
 
         result = fractional_transfer(result, fractional_transfer_method);
 

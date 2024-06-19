@@ -116,6 +116,7 @@ public class FunctionSettings implements Constants {
     public int escaping_smooth_algorithm;
     public int converging_smooth_algorithm;
     public boolean smoothing;
+    public boolean banded;
     public int smoothing_fractional_transfer_method;
     public double[] durand_kerner_init_val;
     public MagneticPendulumSettings mps;
@@ -154,6 +155,7 @@ public class FunctionSettings implements Constants {
         z_exponent = 2;
         
         smoothing = false;
+        banded = false;
         smoothing_fractional_transfer_method = 0;
         
         escaping_smooth_algorithm = 1;
