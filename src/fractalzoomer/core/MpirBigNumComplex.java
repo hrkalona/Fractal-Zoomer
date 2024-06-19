@@ -1023,6 +1023,25 @@ public class MpirBigNumComplex extends GenericComplex {
     }
 
     /*
+     *  -Real + Imaginary i
+     */
+    public final MpirBigNumComplex negate_re() {
+
+        return new MpirBigNumComplex(re.negate(), new MpirBigNum(im));
+
+    }
+
+    /*
+     *  z = -Real + Imaginary i
+     */
+    public final MpirBigNumComplex negate_re_mutable() {
+
+        re.negate(re);
+        return this;
+
+    }
+
+    /*
      *  -z
      */
     @Override

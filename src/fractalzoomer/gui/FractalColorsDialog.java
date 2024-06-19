@@ -1,19 +1,4 @@
-/*
- * Fractal Zoomer, Copyright (C) 2020 hrkalona2
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+
 package fractalzoomer.gui;
 
 import fractalzoomer.main.MainWindow;
@@ -225,7 +210,7 @@ public class FractalColorsDialog extends JDialog {
         color_panel.setLayout(new GridLayout(5, 1));
         color_panel.setPreferredSize(new Dimension(290, 230));
 
-        final JTextField magnetOffsetopt = new JTextField(10);
+        final JTextField magnetOffsetopt = new JTextField(5);
         magnetOffsetopt.setText("" + magnetOffset);
         magnetOffsetopt.setToolTipText("Adds an offset to the magnet functions coloring.");
 
@@ -260,8 +245,8 @@ public class FractalColorsDialog extends JDialog {
                 return;
             }
 
-            ptra2.fractalColorsChanged(max_it_color_label.getBackground(), dem_color_label.getBackground(), special_color_label.getBackground(), use_palette_color.isSelected(), remove_special_increment.isSelected(), temp);
             dispose();
+            ptra2.fractalColorsChanged(max_it_color_label.getBackground(), dem_color_label.getBackground(), special_color_label.getBackground(), use_palette_color.isSelected(), remove_special_increment.isSelected(), temp);
 
         });
 

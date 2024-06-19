@@ -1,19 +1,4 @@
-/* 
- * Fractal Zoomer, Copyright (C) 2020 hrkalona2
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+
 
  /* Made by Kalonakis Chris, hrkalona@gmail.com */
  /* Thanks to Josef Jelinek for the Supersampling code, and some of the palettes used. */
@@ -44,63 +29,70 @@ package fractalzoomer.main;
 
 //import com.alee.laf.WebLookAndFeel;
 
-import com.formdev.flatlaf.FlatLaf;
-import com.formdev.flatlaf.FlatLightLaf;
-import com.formdev.flatlaf.util.SystemInfo;
-import com.sun.jna.Platform;
-import fractalzoomer.bailout_conditions.SkipBailoutCondition;
-import fractalzoomer.convergent_bailout_conditions.SkipConvergentBailoutCondition;
-import fractalzoomer.core.*;
-import fractalzoomer.core.rendering_algorithms.*;
-import fractalzoomer.core.la.impl.LAInfo;
-import fractalzoomer.core.la.impl.LAInfoDeep;
-import fractalzoomer.core.la.LAReference;
-import fractalzoomer.core.location.Location;
-import fractalzoomer.core.location.normal.CartesianLocationNormalApfloatArbitrary;
-import fractalzoomer.core.location.normal.PolarLocationNormalApfloatArbitrary;
-import fractalzoomer.functions.Fractal;
-import fractalzoomer.gui.*;
-import fractalzoomer.main.app_settings.*;
-import fractalzoomer.palettes.CustomPalette;
-import fractalzoomer.palettes.PresetPalette;
-import fractalzoomer.parser.FunctionDerivative2ArgumentsExpressionNode;
-import fractalzoomer.parser.Parser;
-import fractalzoomer.parser.ParserException;
-import fractalzoomer.utils.*;
-import org.apfloat.Apfloat;
-import processing.core.PApplet;
-import raven.slider.SliderGradient;
+ import com.formdev.flatlaf.FlatLaf;
+ import com.formdev.flatlaf.FlatLightLaf;
+ import com.formdev.flatlaf.util.SystemInfo;
+ import com.sun.jna.Platform;
+ import fractalzoomer.bailout_conditions.NNormBailoutCondition;
+ import fractalzoomer.bailout_conditions.SkipBailoutCondition;
+ import fractalzoomer.convergent_bailout_conditions.KFNNormDistanceBailoutCondition;
+ import fractalzoomer.convergent_bailout_conditions.NNormDistanceBailoutCondition;
+ import fractalzoomer.convergent_bailout_conditions.SkipConvergentBailoutCondition;
+ import fractalzoomer.core.*;
+ import fractalzoomer.core.interpolation.CosineInterpolation;
+ import fractalzoomer.core.la.LAReference;
+ import fractalzoomer.core.la.impl.LAInfo;
+ import fractalzoomer.core.la.impl.LAInfoDeep;
+ import fractalzoomer.core.location.Location;
+ import fractalzoomer.core.location.normal.CartesianLocationNormalApfloatArbitrary;
+ import fractalzoomer.core.location.normal.PolarLocationNormalApfloatArbitrary;
+ import fractalzoomer.core.rendering_algorithms.*;
+ import fractalzoomer.functions.Fractal;
+ import fractalzoomer.gui.ColorChooserDialog;
+ import fractalzoomer.gui.*;
+ import fractalzoomer.main.app_settings.*;
+ import fractalzoomer.palettes.CustomPalette;
+ import fractalzoomer.palettes.PaletteColorSmooth;
+ import fractalzoomer.palettes.PresetPalette;
+ import fractalzoomer.parser.FunctionDerivative2ArgumentsExpressionNode;
+ import fractalzoomer.parser.Parser;
+ import fractalzoomer.parser.ParserException;
+ import fractalzoomer.planes.Plane;
+ import fractalzoomer.utils.*;
+ import org.apfloat.Apfloat;
+ import processing.core.PApplet;
 
-import javax.imageio.ImageIO;
-import javax.swing.*;
-import javax.swing.event.MenuEvent;
-import javax.swing.event.MenuListener;
-import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.plaf.basic.BasicFileChooserUI;
-import java.awt.*;
-import java.awt.event.*;
-import java.awt.geom.Rectangle2D;
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferInt;
-import java.io.*;
-import java.net.URI;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.FileSystem;
-import java.nio.file.*;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Timer;
-import java.util.*;
-import java.util.concurrent.*;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
-
-import static fractalzoomer.gui.CpuLabel.CPU_DELAY;
-import static fractalzoomer.gui.MemoryLabel.MEMORY_DELAY;
+ import javax.imageio.ImageIO;
+ import javax.swing.*;
+ import javax.swing.event.MenuEvent;
+ import javax.swing.event.MenuListener;
+ import javax.swing.filechooser.FileNameExtensionFilter;
+ import javax.swing.plaf.basic.BasicFileChooserUI;
+ import java.awt.*;
+ import java.awt.event.*;
+ import java.awt.geom.AffineTransform;
+ import java.awt.geom.Rectangle2D;
+ import java.awt.image.BufferedImage;
+ import java.awt.image.DataBufferInt;
+ import java.io.*;
+ import java.net.URI;
+ import java.net.URL;
+ import java.nio.charset.StandardCharsets;
+ import java.nio.file.FileSystem;
+ import java.nio.file.*;
+ import java.time.LocalDateTime;
+ import java.time.format.DateTimeFormatter;
+ import java.util.List;
+ import java.util.Timer;
+ import java.util.*;
+ import java.util.concurrent.ExecutionException;
+ import java.util.concurrent.Executors;
+ import java.util.concurrent.Future;
+ import java.util.concurrent.ThreadPoolExecutor;
+ import java.util.concurrent.locks.Lock;
+ import java.util.concurrent.locks.ReentrantLock;
+ import java.util.stream.IntStream;
+ import java.util.stream.Stream;
 
 /**
  *
@@ -163,6 +155,7 @@ public class MainWindow extends JFrame implements Constants {
     public static boolean CIRCULAR_RENDER_FOLLOWS_ZOOM_TO_CURSOR = false;
     public static boolean ZOOM_TO_THE_SELECTED_AREA = false;
     public static boolean DRAGGING_TRANSFORMS_IMAGE = true;
+    public static boolean REUSE_DATA_ON_ITERATION_CHANGE = true;
 
     public static String SaveSettingsPath = "";
     public static String SaveImagesPath = "";
@@ -230,6 +223,9 @@ public class MainWindow extends JFrame implements Constants {
     private boolean altKeyPressed;
     private double oldRotateDragX;
     private double oldRotateDragY;
+
+    private double oldRotateDragDX;
+    private double oldRotateDragDY;
 
     private double oldTranslateDragX;
     private double oldTranslateDragY;
@@ -419,7 +415,7 @@ public class MainWindow extends JFrame implements Constants {
 
         file_menu = new FileMenu(ptr, "File");
 
-        options_menu = new OptionsMenu(ptr, "Options", s.ps, s.ps2, s.fns.smoothing, show_orbit_converging_point, s.fns.apply_plane_on_julia, s.fns.apply_plane_on_julia_seed, s.fns.out_coloring_algorithm, s.fns.in_coloring_algorithm, s.fns.function, s.fns.plane_type, s.fns.bailout_test_algorithm, s.color_blending.color_blending, s.color_blending.blending_reversed_colors, s.temp_color_cycling_location, s.temp_color_cycling_location_second_palette, s.fns.preffs.functionFilter, s.fns.postffs.functionFilter, s.fns.ips.influencePlane, s.fns.cbs.convergent_bailout_test_algorithm);
+        options_menu = new OptionsMenu(ptr, "Options", s.ps, s.ps2, s.hasSmoothing(), show_orbit_converging_point, s.fns.apply_plane_on_julia, s.fns.apply_plane_on_julia_seed, s.fns.out_coloring_algorithm, s.fns.in_coloring_algorithm, s.fns.function, s.fns.plane_type, s.fns.bailout_test_algorithm, s.color_blending.color_blending, s.color_blending.blending_reversed_colors, s.temp_color_cycling_location, s.temp_color_cycling_location_second_palette, s.fns.preffs.functionFilter, s.fns.postffs.functionFilter, s.fns.ips.influencePlane, s.fns.cbs.convergent_bailout_test_algorithm, s.flip_real, s.flip_imaginary);
 
         fractal_functions = options_menu.getFractalFunctions();
 
@@ -664,6 +660,9 @@ public class MainWindow extends JFrame implements Constants {
                                 } else if (shiftKeyPressed) {
                                     oldRotateDragX = curX;
                                     oldRotateDragY = curY;
+                                    pre_rotation_size = s.size;
+                                    oldRotateDragDX = Math.abs(curX - image_width / 2.0);
+                                    oldRotateDragDY = Math.abs(curY - image_height / 2.0);
                                 }
 
                             }
@@ -672,7 +671,22 @@ public class MainWindow extends JFrame implements Constants {
                     }
                 }
                 else if(altKeyPressed) {
-                    selectPointForPlane(e);
+                    try {
+                        Point p1 = main_panel.getMousePosition();
+                        double curX = p1.x;
+                        double curY = p1.y;
+
+                        if (isInBounds(curX, curY)) {
+                            oldRotateDragX = curX;
+                            oldRotateDragY = curY;
+                            pre_transformation_amount = s.fns.plane_transform_amount;
+                            oldRotateDragDX = Math.abs(curX - image_width / 2.0);
+                            oldRotateDragDY = Math.abs(curY - image_height / 2.0);
+
+                            selectPointForPlane(e);
+                        }
+                    }
+                    catch (Exception ex) {}
                 }
                 else if((canSelectPointInstantly() ||  tasksCompleted()) && usesSelectionArea()) {
 
@@ -820,6 +834,7 @@ public class MainWindow extends JFrame implements Constants {
             public void mouseDragged(MouseEvent e) {
 
                 lastAction = -1;
+                boolean draggedInArea = false;
 
                 if (ctrlKeyPressed && !s.julia_map && (!s.fns.julia || !first_seed)) {
                     if(dragPoint(e)) {
@@ -832,12 +847,13 @@ public class MainWindow extends JFrame implements Constants {
                 } else if (altKeyPressed && !s.julia_map && (!s.fns.julia || !first_seed)) {
                     selectPointForPlane(e);
                 }
-                else if((canSelectPointInstantly() ||  tasksCompleted()) && usesSelectionArea()) {
+                else if((canSelectPointInstantly() || tasksCompleted()) && usesSelectionArea()) {
                     try {
                         Point p1 = main_panel.getMousePosition();
                         sr.dragAction(p1.x, p1.y, image_width, image_height);
                         scroll_pane.setCursor(sr.getCursor(p1));
                         main_panel.repaint();
+                        draggedInArea = true;
                     }
                     catch (Exception ex) {}
                 }
@@ -909,6 +925,10 @@ public class MainWindow extends JFrame implements Constants {
                         }
                     }
                 } catch (NullPointerException ex) {
+                }
+
+                if(draggedInArea) {
+                    return;
                 }
 
                 if ((s.julia_map || (s.fns.julia && first_seed)) && scroll_pane.getCursor().getType() != Cursor.CROSSHAIR_CURSOR) {
@@ -1346,6 +1366,9 @@ public class MainWindow extends JFrame implements Constants {
             case FORMULA48:
                 temp += "   z = c(z^2 + z^-2)";
                 break;
+            case FORMULA49:
+                temp += "   z = ((z^2 + 1.5) / (-2z + 0.5))^2 + c";
+                break;
             case FORMULA3:
                 temp += "   z = c(z^3 + z^-3)";
                 break;
@@ -1574,15 +1597,28 @@ public class MainWindow extends JFrame implements Constants {
             int y1 = p1.y;
 
             if (options_menu.getDebugbar().isSelected()) {
-                debugbar.getXTf().setText("" + x1);
-                debugbar.getYTf().setText("" + y1);
 
-                Color c = main_panel.getColor(x1, y1);
-                debugbar.getR().setText("" + c.getRed());
-                debugbar.getG().setText("" + c.getGreen());
-                debugbar.getB().setText("" + c.getBlue());
+                if(isInBounds(x1, y1)) {
+                    debugbar.getXTf().setText("" + x1);
+                    debugbar.getYTf().setText("" + y1);
 
-                debugbar.getIterData().setText(main_panel.getIterationData(x1, y1, image_width, s.ds.domain_coloring, s.d3s.d3));
+                    Color c = main_panel.getColor(x1, y1);
+                    debugbar.getR().setText("" + c.getRed());
+                    debugbar.getG().setText("" + c.getGreen());
+                    debugbar.getB().setText("" + c.getBlue());
+
+                    debugbar.getIterData().setText(main_panel.getIterationData(x1, y1, image_width, s.ds.domain_coloring, s.d3s.d3));
+                }
+                else {
+                    debugbar.getXTf().setText("X");
+                    debugbar.getYTf().setText("Y");
+
+                    debugbar.getR().setText("R");
+                    debugbar.getG().setText("G");
+                    debugbar.getB().setText("B");
+
+                    debugbar.getIterData().setText("Iteration Data");
+                }
             }
         }
         catch (Exception ex) {}
@@ -1597,6 +1633,8 @@ public class MainWindow extends JFrame implements Constants {
                 int y1 = p1.y;
 
                 if (!isInBounds(x1, y1)) {
+                    statusbar.getReal().setText("Real");
+                    statusbar.getImaginary().setText("Imaginary");
                     return;
                 }
 
@@ -1614,6 +1652,12 @@ public class MainWindow extends JFrame implements Constants {
                 Point p1 = main_panel.getMousePosition();
                 int x1 = p1.x;
                 int y1 = p1.y;
+
+                if (!isInBounds(x1, y1)) {
+                    statusbar.getReal().setText("Real");
+                    statusbar.getImaginary().setText("Imaginary");
+                    return;
+                }
 
                 CartesianLocationNormalApfloatArbitrary location = new CartesianLocationNormalApfloatArbitrary(s.xCenter, s.yCenter, s.size, s.height_ratio, image_width, image_height);
 
@@ -1926,7 +1970,6 @@ public class MainWindow extends JFrame implements Constants {
 
         s.julia_map = false;
         tools_menu.getJuliaMap().setIcon(getIcon("julia_map.png"));
-        toolbar.getJuliaMapButton().setSelected(false);
 
         zoom_window = false;
         tools_menu.getZoomWindow().setSelected(false);
@@ -1936,7 +1979,6 @@ public class MainWindow extends JFrame implements Constants {
             tools_menu.getJulia().setSelected(true);
             toolbar.getJuliaButton().setSelected(true);
             tools_menu.getJuliaMap().setEnabled(false);
-            toolbar.getJuliaMapButton().setEnabled(false);
             rootFindingMethodsSetEnabled(false);
             fractal_functions[SIERPINSKI_GASKET].setEnabled(false);
             fractal_functions[INERTIA_GRAVITY].setEnabled(false);
@@ -2035,6 +2077,8 @@ public class MainWindow extends JFrame implements Constants {
 
         options_menu.getApplyPlaneOnWholeJuliaOpt().setSelected(s.fns.apply_plane_on_julia);
         options_menu.getApplyPlaneOnJuliaSeedOpt().setSelected(s.fns.apply_plane_on_julia_seed);
+        options_menu.getFlipReOpt().setSelected(s.flip_real);
+        options_menu.getFlipImOpt().setSelected(s.flip_imaginary);
 
         out_coloring_modes[s.fns.out_coloring_algorithm].setSelected(true);
 
@@ -2073,8 +2117,6 @@ public class MainWindow extends JFrame implements Constants {
 
             toolbar.getOutCustomPaletteButton().setEnabled(false);
             toolbar.getOutCustomPalette2Button().setEnabled(false);
-            toolbar.getInCustomPaletteButton().setEnabled(false);
-            toolbar.getInCustomPalette2Button().setEnabled(false);
             toolbar.getRandomPaletteButton().setEnabled(false);
 
             tools_menu.get3D().setEnabled(false);
@@ -2153,7 +2195,6 @@ public class MainWindow extends JFrame implements Constants {
 
         if (s.ds.domain_coloring) {
             tools_menu.getJuliaMap().setEnabled(false);
-            toolbar.getJuliaMapButton().setEnabled(false);
             tools_menu.getJulia().setEnabled(false);
             toolbar.getJuliaButton().setEnabled(false);
 
@@ -2190,8 +2231,6 @@ public class MainWindow extends JFrame implements Constants {
             options_menu.getRainbowPalette().setEnabled(false);
             options_menu.getOrbitTraps().setEnabled(false);
 
-            toolbar.getInCustomPaletteButton().setEnabled(false);
-            toolbar.getInCustomPalette2Button().setEnabled(false);
             options_menu.getPaletteGradientMerging().setEnabled(false);
 
             options_menu.getInColoringPaletteMenu().setEnabled(false);
@@ -2305,7 +2344,6 @@ public class MainWindow extends JFrame implements Constants {
                 tools_menu.getJulia().setEnabled(false);
                 toolbar.getJuliaButton().setEnabled(false);
                 tools_menu.getJuliaMap().setEnabled(false);
-                toolbar.getJuliaMapButton().setEnabled(false);
                 options_menu.getPeriodicityChecking().setEnabled(false);
                 options_menu.getPerturbation().setEnabled(false);
                 options_menu.getInitialValue().setEnabled(false);
@@ -2321,7 +2359,6 @@ public class MainWindow extends JFrame implements Constants {
                 tools_menu.getJulia().setEnabled(false);
                 toolbar.getJuliaButton().setEnabled(false);
                 tools_menu.getJuliaMap().setEnabled(false);
-                toolbar.getJuliaMapButton().setEnabled(false);
                 options_menu.getPeriodicityChecking().setEnabled(false);
                 options_menu.getPerturbation().setEnabled(false);
                 options_menu.getInitialValue().setEnabled(false);
@@ -2398,7 +2435,6 @@ public class MainWindow extends JFrame implements Constants {
                     tools_menu.getJulia().setEnabled(false);
                     toolbar.getJuliaButton().setEnabled(false);
                     tools_menu.getJuliaMap().setEnabled(false);
-                    toolbar.getJuliaMapButton().setEnabled(false);
                     options_menu.getPerturbation().setEnabled(false);
                     options_menu.getInitialValue().setEnabled(false);
                     options_menu.getPlaneInfluenceMenu().setEnabled(false);
@@ -2473,6 +2509,71 @@ public class MainWindow extends JFrame implements Constants {
         }
     }
 
+    public void loadKFRSettings() {
+
+        resetOrbit();
+        file_chooser = new JFileChooser(SaveSettingsPath.isEmpty() ? "." : SaveSettingsPath);
+
+        file_chooser.setAcceptAllFileFilterUsed(false);
+        file_chooser.setDialogType(JFileChooser.OPEN_DIALOG);
+
+        file_chooser.addChoosableFileFilter(new FileNameExtensionFilter("Kalles Fraktaler settings (*.kfr)", "kfr"));
+
+        file_chooser.addPropertyChangeListener(JFileChooser.FILE_FILTER_CHANGED_PROPERTY, evt -> {
+            String file_name = ((BasicFileChooserUI) file_chooser.getUI()).getFileName();
+            file_chooser.setSelectedFile(new File(file_name));
+        });
+
+        int returnVal = file_chooser.showDialog(ptr, "Load KFR Settings");
+
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            File file = file_chooser.getSelectedFile();
+
+            String filename = file.toString();
+            try {
+                parseKFR(filename);
+
+                TaskRender.setDomainImageData(image_width, image_height, s.ds.domain_coloring);
+
+                prepareUI();
+
+                setOptions(false);
+
+                progress.setValue(0);
+
+                setProgressBarVisibility(true);
+
+                scroll_pane.getHorizontalScrollBar().setValue((int) (scroll_pane.getHorizontalScrollBar().getMaximum() / 2.0 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2.0));
+                scroll_pane.getVerticalScrollBar().setValue((int) (scroll_pane.getVerticalScrollBar().getMaximum() / 2.0 - scroll_pane.getVerticalScrollBar().getSize().getHeight() / 2.0));
+
+                whole_image_done = false;
+
+                resetImage();
+
+                if (s.d3s.d3) {
+                    s.d3s.fiX = 0.64;
+                    s.d3s.fiY = 0.82;
+                    ArraysFillColor(image, Color.BLACK.getRGB());
+                }
+
+                createTasks(false, true, false, false);
+
+                calculation_time = System.currentTimeMillis();
+
+                startTasks();
+
+                SaveSettingsPath = file.getParent();
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(scroll_pane, "Error while loading the " + filename + " file.\nThe application will terminate.", "Error!", JOptionPane.ERROR_MESSAGE);
+                exit(-1);
+            } catch (OutOfMemoryError e) {
+                JOptionPane.showMessageDialog(scroll_pane, "Maximum Heap size was reached.\nThe application will terminate.", "Error!", JOptionPane.ERROR_MESSAGE);
+                exit(-1);
+            }
+
+        }
+    }
+
     public void loadSettings() {
 
         resetOrbit();
@@ -2504,7 +2605,7 @@ public class MainWindow extends JFrame implements Constants {
                 setOptions(false);
 
                 progress.setValue(0);
-                ;
+
                 setProgressBarVisibility(true);
 
                 scroll_pane.getHorizontalScrollBar().setValue((int) (scroll_pane.getHorizontalScrollBar().getMaximum() / 2.0 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2.0));
@@ -2543,9 +2644,11 @@ public class MainWindow extends JFrame implements Constants {
 
     }
 
-    public static void saveImage(BufferedImage img, int imageFormat, File file) throws IOException {
+    public static boolean saveImage(BufferedImage img, int imageFormat, File file) throws IOException {
+
+        boolean saved = true;
         if(imageFormat == 0) {
-            ImageIO.write(img, "png", file);
+            saved = ImageIO.write(img, "png", file);
         }
         else if(imageFormat == 1) {
             BufferedImage imgRGB = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_INT_RGB);
@@ -2553,7 +2656,7 @@ public class MainWindow extends JFrame implements Constants {
             g2d.drawImage(img, 0, 0, null);
             g2d.dispose();
 
-            ImageIO.write(imgRGB, "jpeg", file);
+            saved = ImageIO.write(imgRGB, "jpeg", file);
         }
         else if(imageFormat == 2) {
             BufferedImage imgRGB = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_INT_RGB);
@@ -2561,7 +2664,7 @@ public class MainWindow extends JFrame implements Constants {
             g2d.drawImage(img, 0, 0, null);
             g2d.dispose();
 
-            ImageIO.write(imgRGB, "bmp", file);
+            saved = ImageIO.write(imgRGB, "bmp", file);
         }
         else if(imageFormat == 3){
             FileOutputStream os = new FileOutputStream(file, true);
@@ -2606,6 +2709,8 @@ public class MainWindow extends JFrame implements Constants {
             os.close();
 
         }
+
+        return saved;
     }
 
     public void saveImage(boolean saveSettings) {
@@ -2679,23 +2784,29 @@ public class MainWindow extends JFrame implements Constants {
                     file = new File(file.getAbsolutePath() + "." + extension);
                 }
 
+                boolean saved = false;
                 if (extension.equalsIgnoreCase("png")) {
-                    saveImage(last_used, 0, file);
+                    saved = saveImage(last_used, 0, file);
                 }
                 else if (extension.equalsIgnoreCase("jpg")) {
-                    saveImage(last_used, 1, file);
+                    saved = saveImage(last_used, 1, file);
                 }
                 else if (extension.equalsIgnoreCase("bmp")) {
-                    saveImage(last_used, 2, file);
+                    saved = saveImage(last_used, 2, file);
                 }
                 else if (extension.equalsIgnoreCase("ppm")) {
-                    saveImage(last_used, 3, file);
+                    saved = saveImage(last_used, 3, file);
                 }
                 else if (extension.equalsIgnoreCase("pgm")) {
-                    saveImage(last_used, 4, file);
+                    saved = saveImage(last_used, 4, file);
                 }
                 else {
                     JOptionPane.showMessageDialog(scroll_pane, "Unsupported image format.", "Error!", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                if(!saved) {
+                    JOptionPane.showMessageDialog(scroll_pane, "Could not save image.", "Error!", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
 
@@ -2749,7 +2860,7 @@ public class MainWindow extends JFrame implements Constants {
         }
 
         progress.setValue(0);
-        ;
+
         setProgressBarVisibility(true);
 
         scroll_pane.getHorizontalScrollBar().setValue((int) (scroll_pane.getHorizontalScrollBar().getMaximum() / 2.0 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2.0));
@@ -2800,7 +2911,7 @@ public class MainWindow extends JFrame implements Constants {
         setOptions(false);
 
         progress.setValue(0);
-        ;
+
         setProgressBarVisibility(true);
 
         scroll_pane.getHorizontalScrollBar().setValue((int) (scroll_pane.getHorizontalScrollBar().getMaximum() / 2.0 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2.0));
@@ -2995,7 +3106,7 @@ public class MainWindow extends JFrame implements Constants {
         setOptions(false);
 
         progress.setValue(0);
-        ;
+
         setProgressBarVisibility(true);
 
         whole_image_done = false;
@@ -3185,7 +3296,7 @@ public class MainWindow extends JFrame implements Constants {
                 setOptions(false);
 
                 progress.setValue(0);
-                ;
+
                 setProgressBarVisibility(true);
 
                 whole_image_done = false;
@@ -3225,7 +3336,7 @@ public class MainWindow extends JFrame implements Constants {
                 setOptions(false);
 
                 progress.setValue(0);
-                ;
+
                 setProgressBarVisibility(true);
 
                 whole_image_done = false;
@@ -3253,7 +3364,7 @@ public class MainWindow extends JFrame implements Constants {
             setOptions(false);
 
             progress.setValue(0);
-            ;
+
             setProgressBarVisibility(true);
 
             whole_image_done = false;
@@ -3354,7 +3465,6 @@ public class MainWindow extends JFrame implements Constants {
                 toolbar.getJuliaButton().setEnabled(true);
                 if (!s.fns.julia) {
                     tools_menu.getJuliaMap().setEnabled(true);
-                    toolbar.getJuliaMapButton().setEnabled(true);
                 }
             }
 
@@ -3372,6 +3482,11 @@ public class MainWindow extends JFrame implements Constants {
                 tools_menu.getColorCycling().setEnabled(true);
                 toolbar.getColorCyclingButton().setEnabled(true);
             }
+
+            if (!s.julia_map && !s.d3s.d3 && s.size.compareTo(MyApfloat.MIN_DOUBLE_SIZE) >= 0) {
+                tools_menu.getOrbit().setEnabled(true);
+                toolbar.getOrbitButton().setEnabled(true);
+            }
             main_panel.repaint();
         } else {
             zoom_window = true;
@@ -3380,7 +3495,6 @@ public class MainWindow extends JFrame implements Constants {
             tools_menu.getJulia().setEnabled(false);
             toolbar.getJuliaButton().setEnabled(false);
             tools_menu.getJuliaMap().setEnabled(false);
-            toolbar.getJuliaMapButton().setEnabled(false);
             tools_menu.getOrbit().setEnabled(false);
             toolbar.getOrbitButton().setEnabled(false);
             tools_menu.getColorCycling().setEnabled(false);
@@ -3489,7 +3603,7 @@ public class MainWindow extends JFrame implements Constants {
         setOptions(false);
 
         progress.setValue(0);
-        ;
+
         setProgressBarVisibility(true);
 
         if(!ZOOM_ON_THE_CURSOR) {
@@ -3586,7 +3700,7 @@ public class MainWindow extends JFrame implements Constants {
         setOptions(false);
 
         progress.setValue(0);
-        ;
+
         setProgressBarVisibility(true);
 
         if(!ZOOM_ON_THE_CURSOR) {
@@ -3688,7 +3802,7 @@ public class MainWindow extends JFrame implements Constants {
                     setOptions(false);
 
                     progress.setValue(0);
-                    ;
+
                     setProgressBarVisibility(true);
 
                     scroll_pane.getHorizontalScrollBar().setValue((int) (scroll_pane.getHorizontalScrollBar().getMaximum() / 2.0 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2.0));
@@ -3801,7 +3915,6 @@ public class MainWindow extends JFrame implements Constants {
             progress.setValue(0);
         }
 
-        ;
         setProgressBarVisibility(true);
 
         if(QUICK_RENDER_ZOOM_TO_CURRENT_CENTER || !ZOOM_ON_THE_CURSOR) {
@@ -3889,7 +4002,6 @@ public class MainWindow extends JFrame implements Constants {
             progress.setValue(0);
         }
 
-        ;
         setProgressBarVisibility(true);
 
         whole_image_done = false;
@@ -4029,7 +4141,7 @@ public class MainWindow extends JFrame implements Constants {
         s.fns.plane_transform_center[0] = p.x.doubleValue();
         s.fns.plane_transform_center[1] = p.y.doubleValue();
 
-        if(s.fns.plane_type != MU_PLANE) {
+        if(s.fns.plane_type != MU_PLANE && s.fns.plane_type != STRETCH_PLANE) {
             Fractal.clearReferences(true, true);
         }
 
@@ -4044,6 +4156,30 @@ public class MainWindow extends JFrame implements Constants {
                     s.fns.inflections_im.remove(s.fns.inflections_im.size() - 1);
                 }
             }
+        }
+        else if(s.fns.plane_type == STRETCH_PLANE) {
+            double angle = MathUtils.angleBetween2PointsDegrees(curX, curY, image_width / 2.0, image_height / 2.0);
+
+            s.fns.plane_transform_angle = angle + 90;
+
+            if (s.fns.plane_transform_angle > 360) {
+                s.fns.plane_transform_angle -= 2 * 360;
+            } else if (s.fns.plane_transform_angle < -360) {
+                s.fns.plane_transform_angle += 2 * 360;
+            }
+
+            double dx = Math.abs(curX - image_width / 2.0);
+            double dy = Math.abs(curY - image_height / 2.0);
+            double scale = Math.min(Math.max(Math.hypot(dx, dy) / Math.hypot(oldRotateDragDX, oldRotateDragDY), 0.01), 100.0);
+
+            s.fns.plane_transform_amount = Math.log(Math.pow(2, pre_transformation_amount) * scale) / Math.log(2);
+
+            BigPoint p2 = MathUtils.rotatePointRelativeToPoint(new BigPoint(s.xCenter, s.yCenter), s.fns.rotation_vals, s.fns.rotation_center);
+
+            s.fns.plane_transform_center_hp[0] = p2.x;
+            s.fns.plane_transform_center_hp[1] = p2.y;
+            s.fns.plane_transform_center[0] = s.fns.plane_transform_center_hp[0].doubleValue();
+            s.fns.plane_transform_center[1] = s.fns.plane_transform_center_hp[1].doubleValue();
         }
 
         setOptions(false);
@@ -4065,46 +4201,126 @@ public class MainWindow extends JFrame implements Constants {
 
     private void selectPointForPlane(MouseEvent e) {
 
-        synchronized (new_calculation_mutex) {
-            resetOrbit();
+        //if(s.polar_projection || !DRAGGING_TRANSFORMS_IMAGE || s.fns.plane_type != STRETCH_PLANE) {
+            synchronized (new_calculation_mutex) {
+                resetOrbit();
 
-            if (e.getModifiers() != (InputEvent.BUTTON1_MASK | InputEvent.ALT_MASK) && e.getModifiers() != (InputEvent.BUTTON3_MASK | InputEvent.ALT_MASK)) {
-                return;
-            }
+                if (e.getModifiers() != (InputEvent.BUTTON1_MASK | InputEvent.ALT_MASK) && e.getModifiers() != (InputEvent.BUTTON3_MASK | InputEvent.ALT_MASK)) {
+                    return;
+                }
 
-            double curX, curY;
-            try {
-                Point p1 = main_panel.getMousePosition();
-                curX = p1.x;
-                curY = p1.y;
-            } catch (Exception ex) {
-                return;
-            }
+                double curX, curY;
+                try {
+                    Point p1 = main_panel.getMousePosition();
+                    curX = p1.x;
+                    curY = p1.y;
+                } catch (Exception ex) {
+                    return;
+                }
 
-            if (!isInBounds(curX, curY)) {
-                return;
-            }
+                if (!isInBounds(curX, curY)) {
+                    return;
+                }
 
 
-            if (canSelectPointInstantly()) {
-                TaskRender.action_thread_executor.submit(() -> {
-                    if (successive_refinement_mutex.tryLock()) {
-                        try {
-                            stopSuccessiveRefinement();
-                            selectPointForPlaneInternal(e, false, curX, curY);
-                        } finally {
-                            successive_refinement_mutex.unlock();
+                if (canSelectPointInstantly()) {
+                    TaskRender.action_thread_executor.submit(() -> {
+                        if (successive_refinement_mutex.tryLock()) {
+                            try {
+                                stopSuccessiveRefinement();
+                                selectPointForPlaneInternal(e, false, curX, curY);
+                            } finally {
+                                successive_refinement_mutex.unlock();
+                            }
                         }
-                    }
-                });
-                return;
-            } else if (!tasksCompleted()) {
-                return;
+                    });
+                    return;
+                } else if (!tasksCompleted()) {
+                    return;
+                }
+
+                selectPointForPlaneInternal(e, true, curX, curY);
             }
+        /*}
+        else {
+            synchronized (new_calculation_mutex) {
+                resetOrbit();
 
-            selectPointForPlaneInternal(e, true, curX, curY);
-        }
+                if (!tasksCompleted()) {
+                    return;
+                }
 
+                if(oldRotateDragX == Double.MAX_VALUE || oldRotateDragY == Double.MAX_VALUE) {
+                    return;
+                }
+
+                if (e.getModifiers() != (InputEvent.BUTTON1_MASK | InputEvent.ALT_MASK) && e.getModifiers() != (InputEvent.BUTTON3_MASK | InputEvent.ALT_MASK)) {
+                    return;
+                }
+
+                double curX, curY;
+                try {
+                    Point p1 = main_panel.getMousePosition();
+                    curX = p1.x;
+                    curY = p1.y;
+                } catch (Exception ex) {
+                    return;
+                }
+
+                if (!isInBounds(curX, curY)) {
+                    return;
+                }
+
+                double new_angle = MathUtils.angleBetween2PointsDegrees(curX, curY, image_width / 2.0, image_height / 2.0);
+                double old_angle = MathUtils.angleBetween2PointsDegrees(oldRotateDragX, oldRotateDragY, image_width / 2.0, image_height / 2.0);
+                if (Math.abs(new_angle - old_angle) > 350 && new_angle > old_angle) {
+                    old_angle += 360;
+                } else if (Math.abs(new_angle - old_angle) > 350 && new_angle < old_angle) {
+                    new_angle += 360;
+                }
+
+                if (backupImage == null) {
+                    backupImage = new BufferedImage(image.getWidth(), image.getHeight(), image.getType());
+                    Graphics g = backupImage.getGraphics();
+                    g.drawImage(image, 0, 0, null);
+                    g.dispose();
+                    pre_transformation_amount = s.fns.plane_transform_amount;
+                    post_transform_amount = 0;
+                    post_transform_angle = 0;
+//                    oldRotateDragDX = curX;
+//                    oldRotateDragDY = curY;
+                }
+
+                s.fns.plane_transform_angle += new_angle - old_angle;
+                post_transform_angle += new_angle - old_angle;
+
+                if (s.fns.plane_transform_angle > 360) {
+                    s.fns.plane_transform_angle -= 2 * 360;
+                } else if (s.fns.plane_transform_angle < -360) {
+                    s.fns.plane_transform_angle += 2 * 360;
+                }
+
+                oldRotateDragX = curX;
+                oldRotateDragY = curY;
+
+                double dx = Math.abs(curX - image_width / 2.0);
+                double dy = Math.abs(curY - image_height / 2.0);
+                double scale = Math.min(Math.max(Math.hypot(dx, dy) / Math.hypot(oldRotateDragDX, oldRotateDragDY), 0.01), 100.0);
+
+                s.fns.plane_transform_amount = Math.log(Math.pow(2, pre_transformation_amount) * scale) / Math.log(2);
+                post_transform_amount = Math.log(scale) / Math.log(2);
+
+                BigPoint p2 = MathUtils.rotatePointRelativeToPoint(new BigPoint(s.xCenter, s.yCenter), s.fns.rotation_vals, s.fns.rotation_center);
+
+                s.fns.plane_transform_center_hp[0] = p2.x;
+                s.fns.plane_transform_center_hp[1] = p2.y;
+
+                stretchImage(backupImage, image, -post_transform_angle,  Math.log(1 / Math.pow(2, post_transform_amount)) / Math.log(2));
+
+                main_panel.repaint();
+                lastAction = 2;
+            }
+        }*/
     }
 
     private void rotatePointInternal(MouseEvent e, boolean doQuickRender, double curX, double curY) {
@@ -4131,6 +4347,13 @@ public class MainWindow extends JFrame implements Constants {
         oldRotateDragX = curX;
         oldRotateDragY = curY;
 
+        double scale = 1;
+        if (e.getModifiers() == (InputEvent.BUTTON3_MASK | InputEvent.SHIFT_MASK)) {
+            double dx = Math.abs(curX - image_width / 2.0);
+            double dy = Math.abs(curY - image_height / 2.0);
+            scale = Math.min(Math.max(Math.hypot(dx, dy) / Math.hypot(oldRotateDragDX, oldRotateDragDY), 0.01), 100.0);
+        }
+
         BigPoint p = MathUtils.rotatePointRelativeToPoint(new BigPoint(s.xCenter, s.yCenter), s.fns.rotation_vals, s.fns.rotation_center);
 
         Apfloat tempRadians =  MyApfloat.fp.toRadians(new MyApfloat(s.fns.rotation));
@@ -4141,6 +4364,10 @@ public class MainWindow extends JFrame implements Constants {
         s.fns.rotation_center[1] = p.y;
         s.xCenter = s.fns.rotation_center[0];
         s.yCenter = s.fns.rotation_center[1];
+
+        if (e.getModifiers() == (InputEvent.BUTTON3_MASK | InputEvent.SHIFT_MASK)) {
+            s.size = MyApfloat.fp.divide(pre_rotation_size, new MyApfloat(scale));
+        }
 
         if (s.fns.rotation != 0 && s.fns.rotation != 360 && s.fns.rotation != -360) {
             tools_menu.getGrid().setEnabled(false);
@@ -4175,7 +4402,7 @@ public class MainWindow extends JFrame implements Constants {
 
     }
 
-    private static BufferedImage rotateImage(BufferedImage input, BufferedImage output, double angle) {
+    private static BufferedImage rotateAndScaleImage(BufferedImage input, BufferedImage output, double angle, double scaling) {
         int w = input.getWidth();
         int h = input.getHeight();
 
@@ -4185,7 +4412,50 @@ public class MainWindow extends JFrame implements Constants {
                 RenderingHints.VALUE_INTERPOLATION_BILINEAR);
         graphic.setColor(Color.BLACK);
         graphic.fillRect(0, 0, w, h);
+
+
         graphic.rotate(Math.toRadians(angle), w/2.0, h/2.0);
+
+        if(scaling != 1) {
+            graphic.translate(w / 2.0, h / 2.0);
+            graphic.scale(scaling, scaling);
+            graphic.translate(-w / 2.0, -h / 2.0);
+        }
+
+        graphic.drawImage(input, null, 0, 0);
+        graphic.dispose();
+        return output;
+    }
+
+    private static BufferedImage stretchImage(BufferedImage input, BufferedImage output, double stretchAngle, double strechAmount) {
+        int w = input.getWidth();
+        int h = input.getHeight();
+
+        Graphics2D graphic = output.createGraphics();
+        graphic.setRenderingHint(
+                RenderingHints.KEY_INTERPOLATION,
+                RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        graphic.setColor(Color.BLACK);
+        graphic.fillRect(0, 0, w, h);
+
+        double r = Math.pow(2, strechAmount);
+        double rad_angle = Math.toRadians(stretchAngle);
+        double cosanagle = Math.cos(rad_angle);
+        double sinangle = Math.sin(rad_angle);
+        double r_reciprocal = 1 / r;
+        double cossqr = cosanagle * cosanagle;
+        double sinsqr = sinangle * sinangle;
+        double v1d = r * cossqr + r_reciprocal * sinsqr;
+        double v2d = cosanagle * sinangle * (r_reciprocal - r);
+        double v3d = v2d;
+        double v4d = r * sinsqr + r_reciprocal * cossqr;
+
+        AffineTransform tf = new AffineTransform(new double[] {v1d, v2d, v3d, v4d});
+
+        graphic.translate(w/2, h/2);
+        graphic.transform(tf);
+        graphic.translate(-w/2, -h/2);
+
         graphic.drawImage(input, null, 0, 0);
         graphic.dispose();
         return output;
@@ -4211,6 +4481,8 @@ public class MainWindow extends JFrame implements Constants {
     private BufferedImage backupImage;
     private double backup_rotation;
 
+    private Apfloat pre_rotation_size;
+    private double pre_transformation_amount;
     private int lastAction = -1;
 
     private boolean rotatePoint(MouseEvent e) {
@@ -4220,7 +4492,7 @@ public class MainWindow extends JFrame implements Constants {
             synchronized (new_calculation_mutex) {
                 resetOrbit();
 
-                if (e.getModifiers() != (InputEvent.BUTTON1_MASK | InputEvent.SHIFT_MASK)) {
+                if (e.getModifiers() != (InputEvent.BUTTON1_MASK | InputEvent.SHIFT_MASK) && e.getModifiers() != (InputEvent.BUTTON3_MASK | InputEvent.SHIFT_MASK)) {
                     return false;
                 }
 
@@ -4269,7 +4541,7 @@ public class MainWindow extends JFrame implements Constants {
                     return false;
                 }
 
-                if (e.getModifiers() != (InputEvent.BUTTON1_MASK | InputEvent.SHIFT_MASK)) {
+                if (e.getModifiers() != (InputEvent.BUTTON1_MASK | InputEvent.SHIFT_MASK) && e.getModifiers() != (InputEvent.BUTTON3_MASK | InputEvent.SHIFT_MASK)) {
                     return false;
                 }
 
@@ -4292,10 +4564,15 @@ public class MainWindow extends JFrame implements Constants {
                     g.drawImage(image, 0, 0, null);
                     g.dispose();
                     backup_rotation = s.fns.rotation;
+                    pre_rotation_size = s.size;
+                    oldRotateDragDX = Math.abs(curX - image_width / 2.0);
+                    oldRotateDragDY = Math.abs(curY - image_height / 2.0);
                 }
 
                 double new_angle = MathUtils.angleBetween2PointsDegrees(curX, curY, image_width / 2.0, image_height / 2.0);
                 double old_angle = MathUtils.angleBetween2PointsDegrees(oldRotateDragX, oldRotateDragY, image_width / 2.0, image_height / 2.0);
+
+
                 if (Math.abs(new_angle - old_angle) > 350 && new_angle > old_angle) {
                     old_angle += 360;
                 } else if (Math.abs(new_angle - old_angle) > 350 && new_angle < old_angle) {
@@ -4307,6 +4584,14 @@ public class MainWindow extends JFrame implements Constants {
                     s.fns.rotation -= 2 * 360;
                 } else if (s.fns.rotation < -360) {
                     s.fns.rotation += 2 * 360;
+                }
+
+                double scale = 1;
+
+                if (e.getModifiers() == (InputEvent.BUTTON3_MASK | InputEvent.SHIFT_MASK)) {
+                    double dx = Math.abs(curX - image_width / 2.0);
+                    double dy = Math.abs(curY - image_height / 2.0);
+                    scale = Math.min(Math.max(Math.hypot(dx, dy) / Math.hypot(oldRotateDragDX, oldRotateDragDY), 0.01), 100.0);
                 }
 
                 oldRotateDragX = curX;
@@ -4323,10 +4608,15 @@ public class MainWindow extends JFrame implements Constants {
                 s.xCenter = s.fns.rotation_center[0];
                 s.yCenter = s.fns.rotation_center[1];
 
+                if (e.getModifiers() == (InputEvent.BUTTON3_MASK | InputEvent.SHIFT_MASK)) {
+                    s.size = MyApfloat.fp.divide(pre_rotation_size, new MyApfloat(scale));
+                }
+
                 old_rotation_vals = s.fns.rotation_vals;
                 old_rotation_center = s.fns.rotation_center;
                 old_xCenter = s.xCenter;
                 old_yCenter = s.yCenter;
+                old_size = s.size;
 
                 if (s.fns.rotation != 0 && s.fns.rotation != 360 && s.fns.rotation != -360) {
                     tools_menu.getGrid().setEnabled(false);
@@ -4338,7 +4628,7 @@ public class MainWindow extends JFrame implements Constants {
                     tools_menu.getBoundaries().setSelected(false);
                 }
 
-                rotateImage(backupImage, image, s.fns.rotation - backup_rotation);
+                rotateAndScaleImage(backupImage, image, s.fns.rotation - backup_rotation,  scale);
                 main_panel.repaint();
 
                 lastAction = 0;
@@ -4388,7 +4678,6 @@ public class MainWindow extends JFrame implements Constants {
             progress.setValue(0);
         }
 
-        ;
         setProgressBarVisibility(true);
 
         scroll_pane.getHorizontalScrollBar().setValue((int) (scroll_pane.getHorizontalScrollBar().getMaximum() / 2.0 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2.0));
@@ -4550,7 +4839,7 @@ public class MainWindow extends JFrame implements Constants {
             }
 
             progress.setValue(0);
-            ;
+
             setProgressBarVisibility(true);
 
             if(!ZOOM_ON_THE_CURSOR) {
@@ -4654,7 +4943,7 @@ public class MainWindow extends JFrame implements Constants {
         setOptions(false);
 
         progress.setValue(0);
-        ;
+
         setProgressBarVisibility(true);
 
         scroll_pane.getHorizontalScrollBar().setValue((int) (scroll_pane.getHorizontalScrollBar().getMaximum() / 2.0 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2.0));
@@ -4760,7 +5049,6 @@ public class MainWindow extends JFrame implements Constants {
             tools_menu.getOrbit().setEnabled(false);
             toolbar.getOrbitButton().setEnabled(false);
             tools_menu.getJuliaMap().setEnabled(false);
-            toolbar.getJuliaMapButton().setEnabled(false);
             rootFindingMethodsSetEnabled(false);
             fractal_functions[SIERPINSKI_GASKET].setEnabled(false);
             fractal_functions[KLEINIAN].setEnabled(false);
@@ -4786,7 +5074,6 @@ public class MainWindow extends JFrame implements Constants {
                 toolbar.getJuliaButton().setEnabled(true);
                 if (!s.fns.julia) {
                     tools_menu.getJuliaMap().setEnabled(true);
-                    toolbar.getJuliaMapButton().setEnabled(true);
                 }
             }
 
@@ -4809,7 +5096,6 @@ public class MainWindow extends JFrame implements Constants {
             tools_menu.getJulia().setEnabled(false);
             toolbar.getJuliaButton().setEnabled(false);
             tools_menu.getJuliaMap().setEnabled(false);
-            toolbar.getJuliaMapButton().setEnabled(false);
             tools_menu.get3D().setEnabled(false);
             toolbar.get3DButton().setEnabled(false);
             tools_menu.getColorCycling().setEnabled(false);
@@ -4860,7 +5146,6 @@ public class MainWindow extends JFrame implements Constants {
         setOptions(false);
 
         //progress.setValue(0);
-        //;
         //setProgressBarVisibility(true);
         whole_image_done = false;
 
@@ -4924,7 +5209,7 @@ public class MainWindow extends JFrame implements Constants {
      setOptions(false);
     
      progress.setValue(0);
-     ;
+
      setProgressBarVisibility(true);
     
     
@@ -4977,7 +5262,7 @@ public class MainWindow extends JFrame implements Constants {
         setOptions(false);
 
         progress.setValue(0);
-        ;
+
         setProgressBarVisibility(true);
 
         scroll_pane.getHorizontalScrollBar().setValue((int) (scroll_pane.getHorizontalScrollBar().getMaximum() / 2.0 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2.0));
@@ -5068,7 +5353,7 @@ public class MainWindow extends JFrame implements Constants {
         setOptions(false);
 
         progress.setValue(0);
-        ;
+
         setProgressBarVisibility(true);
 
         scroll_pane.getHorizontalScrollBar().setValue((int) (scroll_pane.getHorizontalScrollBar().getMaximum() / 2.0 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2.0));
@@ -5157,7 +5442,7 @@ public class MainWindow extends JFrame implements Constants {
         setOptions(false);
 
         progress.setValue(0);
-        ;
+
         setProgressBarVisibility(true);
 
         scroll_pane.getHorizontalScrollBar().setValue((int) (scroll_pane.getHorizontalScrollBar().getMaximum() / 2.0 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2.0));
@@ -5248,6 +5533,7 @@ public class MainWindow extends JFrame implements Constants {
 
         file_menu.getSaveSettings().setEnabled(option);
         file_menu.getLoadSettings().setEnabled(option);
+        file_menu.getLoadKFRSettings().setEnabled(option);
         file_menu.getSaveImage().setEnabled(option);
         file_menu.getSaveImageAndSettings().setEnabled(option);
         file_menu.getSetInitialSettings().setEnabled(option);
@@ -5401,10 +5687,6 @@ public class MainWindow extends JFrame implements Constants {
                 options_menu.getPaletteGradientMerging().setEnabled(option);
                 options_menu.getColorSpaceParams().setEnabled(option);
 
-                if(!s.ds.domain_coloring) {
-                    toolbar.getInCustomPaletteButton().setEnabled(option);
-                    toolbar.getInCustomPalette2Button().setEnabled(option);
-                }
                 options_menu.getOutTrueColoring().setEnabled(option);
 
                 if (!PERIODICITY_CHECKING) {
@@ -5460,7 +5742,6 @@ public class MainWindow extends JFrame implements Constants {
 
         if (!s.ds.domain_coloring && !zoom_window && !s.fns.julia && !orbit && !s.d3s.d3 && s.functionSupportsC()) {
             tools_menu.getJuliaMap().setEnabled(option);
-            toolbar.getJuliaMapButton().setEnabled(option);
         }
 
         if (!zoom_window && !orbit && !s.julia_map && !grid && !boundaries && !s.useDirectColor) {
@@ -5772,7 +6053,6 @@ public class MainWindow extends JFrame implements Constants {
         tools_menu.getJulia().setEnabled(false);
         toolbar.getJuliaButton().setEnabled(false);
         tools_menu.getJuliaMap().setEnabled(false);
-        toolbar.getJuliaMapButton().setEnabled(false);
         options_menu.getPeriodicityChecking().setEnabled(false);
         options_menu.getPerturbation().setEnabled(false);
         options_menu.getInitialValue().setEnabled(false);
@@ -5863,7 +6143,7 @@ public class MainWindow extends JFrame implements Constants {
         setOptions(false);
 
         progress.setValue(0);
-        ;
+
         setProgressBarVisibility(true);
 
         whole_image_done = false;
@@ -5910,7 +6190,7 @@ public class MainWindow extends JFrame implements Constants {
         setOptions(false);
 
         progress.setValue(0);
-        ;
+
         setProgressBarVisibility(true);
 
         if (s.fns.rotation != 0 && s.fns.rotation != 360 && s.fns.rotation != -360) {
@@ -5958,7 +6238,7 @@ public class MainWindow extends JFrame implements Constants {
         setOptions(false);
 
         progress.setValue(0);
-        ;
+
         setProgressBarVisibility(true);
 
         if (s.fns.rotation != 0 && s.fns.rotation != 360 && s.fns.rotation != -360) {
@@ -6052,7 +6332,7 @@ public class MainWindow extends JFrame implements Constants {
         main_panel.repaint();
 
         progress.setValue(0);
-        ;
+
         setProgressBarVisibility(true);
 
         scroll_pane.getHorizontalScrollBar().setValue((int) (scroll_pane.getHorizontalScrollBar().getMaximum() / 2.0 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2.0));
@@ -6105,20 +6385,13 @@ public class MainWindow extends JFrame implements Constants {
 
     }
 
-    public void setSizeOfImagePost(int width, int height) {
-        whole_image_done = false;
-
+    public void updateDataOnImageSizeChange() {
         old_grid = false;
 
         old_boundaries = false;
 
-        image_width = width;
-        image_height = height;
-
         sr.clear();
         main_panel.repaint();
-
-        setOptions(false);
 
         if (!s.d3s.d3) {
             TaskRender.setArrays(image_width, image_height, s.ds.domain_coloring, s.needsExtraData());
@@ -6132,28 +6405,36 @@ public class MainWindow extends JFrame implements Constants {
 
         updateP3D();
 
-        progress.setValue(0);
-        ;
-        setProgressBarVisibility(true);
+        last_used = null;
+
+        image = null;
+
+        last_used = new BufferedImage(image_width, image_height, BufferedImage.TYPE_INT_ARGB);
+
+        image = new BufferedImage(image_width, image_height, BufferedImage.TYPE_INT_ARGB);
 
         SwingUtilities.updateComponentTreeUI(this);
 
         scroll_pane.getHorizontalScrollBar().setValue((int) (scroll_pane.getHorizontalScrollBar().getMaximum() / 2.0 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2.0));
         scroll_pane.getVerticalScrollBar().setValue((int) (scroll_pane.getVerticalScrollBar().getMaximum() / 2.0 - scroll_pane.getVerticalScrollBar().getSize().getHeight() / 2.0));
 
-        //last_used = null;
-        //last_used = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
-        //Graphics2D graphics = last_used.createGraphics();
-        //graphics.drawImage(image, 0, 0, image_size, image_size, null);
-        last_used = null;
+    }
 
-        image = null;
+    public void setSizeOfImagePost(int width, int height) {
+        whole_image_done = false;
+
+        image_width = width;
+        image_height = height;
+
+        updateDataOnImageSizeChange();
+
+        setOptions(false);
+
+        progress.setValue(0);
+
+        setProgressBarVisibility(true);
 
         clearThreads();
-
-        last_used = new BufferedImage(image_width, image_height, BufferedImage.TYPE_INT_ARGB);
-
-        image = new BufferedImage(image_width, image_height, BufferedImage.TYPE_INT_ARGB);
 
         if (s.d3s.d3) {
             ArraysFillColor(image, Color.BLACK.getRGB());
@@ -6316,6 +6597,7 @@ public class MainWindow extends JFrame implements Constants {
             case FORMULA43:
             case FORMULA44:
             case FORMULA45:
+            case FORMULA49:
                 temp_xCenter = new MyApfloat(0.0);
                 temp_yCenter = new MyApfloat(0.0);
                 temp_size = new MyApfloat(24);
@@ -6533,7 +6815,7 @@ public class MainWindow extends JFrame implements Constants {
                     setOptions(false);
 
                     progress.setValue(0);
-                    ;
+
                     setProgressBarVisibility(true);
 
                     whole_image_done = false;
@@ -6599,19 +6881,19 @@ public class MainWindow extends JFrame implements Constants {
                     TaskSplitCoordinates tsc = TaskSplitCoordinates.get(j, i, thread_grouping, n, m, image_width, image_height);
 
                     if(TaskRender.GREEDY_ALGORITHM && TaskRender.GREEDY_ALGORITHM_SELECTION == Constants.CIRCULAR_SUCCESSIVE_REFINEMENT) {
-                        tasks[i][j] = new CircularSuccessiveRefinementGuessingRender(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs,  s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,      s.color_blending,  s.post_processing_order,   s.pbs,  s.ds, s.gs.gradient_offset,  s.contourFactor, s.fns.smoothing, s.gps, s.pps);
+                        tasks[i][j] = new CircularSuccessiveRefinementGuessingRender(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs,  s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,      s.color_blending,  s.post_processing_order,   s.pbs,  s.ds, s.gs.gradient_offset,  s.contourFactor, s.gps, s.pps, s.fns.banded);
                     }
                     else if (!TaskRender.GREEDY_ALGORITHM && TaskRender.BRUTE_FORCE_ALG == 2) {
-                        tasks[i][j] = new CircularBruteForceRender(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs,  s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,      s.color_blending,  s.post_processing_order,   s.pbs,  s.ds, s.gs.gradient_offset,  s.contourFactor, s.fns.smoothing, s.gps, s.pps);
+                        tasks[i][j] = new CircularBruteForceRender(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs,  s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,      s.color_blending,  s.post_processing_order,   s.pbs,  s.ds, s.gs.gradient_offset,  s.contourFactor, s.gps, s.pps, s.fns.banded);
                     }
                     else if (!TaskRender.GREEDY_ALGORITHM && TaskRender.BRUTE_FORCE_ALG == 0) {
-                        tasks[i][j] = new BruteForceRender(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs,  s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,      s.color_blending,  s.post_processing_order,   s.pbs,  s.ds, s.gs.gradient_offset,  s.contourFactor, s.fns.smoothing, s.gps, s.pps);
+                        tasks[i][j] = new BruteForceRender(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs,  s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,      s.color_blending,  s.post_processing_order,   s.pbs,  s.ds, s.gs.gradient_offset,  s.contourFactor, s.gps, s.pps, s.fns.banded);
                     }
                     else if (!TaskRender.GREEDY_ALGORITHM && TaskRender.BRUTE_FORCE_ALG == 3) {
-                        tasks[i][j] = new BruteForceInterleavedRender(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs,  s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,      s.color_blending,  s.post_processing_order,   s.pbs,  s.ds, s.gs.gradient_offset,  s.contourFactor, s.fns.smoothing, s.gps, s.pps);
+                        tasks[i][j] = new BruteForceInterleavedRender(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs,  s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,      s.color_blending,  s.post_processing_order,   s.pbs,  s.ds, s.gs.gradient_offset,  s.contourFactor, s.gps, s.pps, s.fns.banded);
                     }
                     else {
-                        tasks[i][j] = new BruteForce2Render(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs,  s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,      s.color_blending,  s.post_processing_order,   s.pbs,  s.ds, s.gs.gradient_offset,  s.contourFactor, s.fns.smoothing, s.gps, s.pps);
+                        tasks[i][j] = new BruteForce2Render(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs,  s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,      s.color_blending,  s.post_processing_order,   s.pbs,  s.ds, s.gs.gradient_offset,  s.contourFactor, s.gps, s.pps, s.fns.banded);
                     }
 
                     tasks[i][j].setTaskId(taskId);
@@ -6656,19 +6938,19 @@ public class MainWindow extends JFrame implements Constants {
                     TaskSplitCoordinates tsc = TaskSplitCoordinates.get(j, i, thread_grouping, n, m, image_width, image_height);
 
                     if(TaskRender.GREEDY_ALGORITHM && TaskRender.GREEDY_ALGORITHM_SELECTION == Constants.CIRCULAR_SUCCESSIVE_REFINEMENT) {
-                        tasks[i][j] = new CircularSuccessiveRefinementGuessingRender(action, tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs,  s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending,  s.post_processing_order, s.pbs, s.gs.gradient_offset,  s.contourFactor, s.gps, s.pps, s.ds);
+                        tasks[i][j] = new CircularSuccessiveRefinementGuessingRender(action, tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs,  s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending,  s.post_processing_order, s.pbs, s.gs.gradient_offset,  s.contourFactor, s.gps, s.pps, s.ds, s.fns.banded);
                     }
                     else if (!TaskRender.GREEDY_ALGORITHM && TaskRender.BRUTE_FORCE_ALG == 2) {
-                        tasks[i][j] = new CircularBruteForceRender(action, tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs,  s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending,  s.post_processing_order, s.pbs, s.gs.gradient_offset,  s.contourFactor, s.gps, s.pps, s.ds);
+                        tasks[i][j] = new CircularBruteForceRender(action, tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs,  s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending,  s.post_processing_order, s.pbs, s.gs.gradient_offset,  s.contourFactor, s.gps, s.pps, s.ds, s.fns.banded);
                     }
                     else if (!TaskRender.GREEDY_ALGORITHM && TaskRender.BRUTE_FORCE_ALG == 0) {
-                        tasks[i][j] = new BruteForceRender(action, tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs,  s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending,  s.post_processing_order, s.pbs, s.gs.gradient_offset,  s.contourFactor, s.gps, s.pps, s.ds);
+                        tasks[i][j] = new BruteForceRender(action, tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs,  s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending,  s.post_processing_order, s.pbs, s.gs.gradient_offset,  s.contourFactor, s.gps, s.pps, s.ds, s.fns.banded);
                     }
                     else if (!TaskRender.GREEDY_ALGORITHM && TaskRender.BRUTE_FORCE_ALG == 3) {
-                        tasks[i][j] = new BruteForceInterleavedRender(action, tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs,  s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending,  s.post_processing_order, s.pbs, s.gs.gradient_offset,  s.contourFactor, s.gps, s.pps, s.ds);
+                        tasks[i][j] = new BruteForceInterleavedRender(action, tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs,  s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending,  s.post_processing_order, s.pbs, s.gs.gradient_offset,  s.contourFactor, s.gps, s.pps, s.ds, s.fns.banded);
                     }
                     else {
-                        tasks[i][j] = new BruteForce2Render(action, tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs,  s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending,  s.post_processing_order, s.pbs, s.gs.gradient_offset,  s.contourFactor, s.gps, s.pps, s.ds);
+                        tasks[i][j] = new BruteForce2Render(action, tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs,  s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending,  s.post_processing_order, s.pbs, s.gs.gradient_offset,  s.contourFactor, s.gps, s.pps, s.ds, s.fns.banded);
                     }
 
                     tasks[i][j].setTaskId(taskId);
@@ -6711,7 +6993,7 @@ public class MainWindow extends JFrame implements Constants {
             for (int i = 0; i < tasks.length; i++) {
                 for (int j = 0; j < tasks[i].length; j++, taskId++) {
                     TaskSplitCoordinates tsc = TaskSplitCoordinates.get(j, i, thread_grouping, n, m, image_width, image_height);
-                    tasks[i][j] = new BruteForceRender(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, s.fractal_color, s.dem_color, image, s.ps.color_cycling_location, s.ps2.color_cycling_location,  s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.fs,    s.color_blending,  s.post_processing_order,   s.pbs, s.ds, s.gs.gradient_offset,  s.contourFactor, s.gps, s.pps, ccs);
+                    tasks[i][j] = new BruteForceRender(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, s.fractal_color, s.dem_color, image, s.ps.color_cycling_location, s.ps2.color_cycling_location,  s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.fs,    s.color_blending,  s.post_processing_order,   s.pbs, s.ds, s.gs.gradient_offset,  s.contourFactor, s.gps, s.pps, ccs, s.fns.banded);
                     tasks[i][j].setTaskId(taskId);
                 }
             }
@@ -6739,7 +7021,7 @@ public class MainWindow extends JFrame implements Constants {
             for (int i = 0; i < tasks.length; i++) {
                 for (int j = 0; j < tasks[i].length; j++, taskId++) {
                     TaskSplitCoordinates tsc = TaskSplitCoordinates.get(j, i, thread_grouping, n, m,s.d3s.detail / tile, s.d3s.detail / tile);
-                    tasks[i][j] = new BruteForceRender(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.d3s, true, ptr, image, s.fs, s.color_blending, s.contourFactor, s.fns.smoothing, s.gps);
+                    tasks[i][j] = new BruteForceRender(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.d3s, true, ptr, image, s.fs, s.color_blending, s.contourFactor);
                     tasks[i][j].setTaskId(taskId);
                 }
             }
@@ -6766,7 +7048,7 @@ public class MainWindow extends JFrame implements Constants {
             for (int i = 0; i < tasks.length; i++) {
                 for (int j = 0; j < tasks[i].length; j++, taskId++) {
                     TaskSplitCoordinates tsc = TaskSplitCoordinates.get(j, i, thread_grouping, n, m, s.d3s.detail, s.d3s.detail);
-                    tasks[i][j] = new BruteForceRender(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.d3s, false, ptr, image, s.fs, s.color_blending, s.contourFactor, s.fns.smoothing, s.gps);
+                    tasks[i][j] = new BruteForceRender(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.d3s, false, ptr, image, s.fs, s.color_blending, s.contourFactor);
                     tasks[i][j].setTaskId(taskId);
                 }
             }
@@ -6828,6 +7110,10 @@ public class MainWindow extends JFrame implements Constants {
             new SkewPlaneDialog(ptr, s, oldSelected, planes);
             return;
         }
+        else if (s.fns.plane_type == STRETCH_PLANE) {
+            new StretchPlaneDialog(ptr, s, oldSelected, planes);
+            return;
+        }
         else if (s.fns.plane_type == INFLECTIONS_PLANE) {
             new InflectionsPlaneDialog(ptr, s, oldSelected, planes);
             return;
@@ -6861,7 +7147,7 @@ public class MainWindow extends JFrame implements Constants {
         int oldSelection = s.fns.cbs.convergent_bailout_test_algorithm;
         s.fns.cbs.convergent_bailout_test_algorithm = temp;
 
-        if (s.fns.cbs.convergent_bailout_test_algorithm == CONVERGENT_BAILOUT_CONDITION_NNORM) {
+        if (s.fns.cbs.convergent_bailout_test_algorithm == CONVERGENT_BAILOUT_CONDITION_NNORM || s.fns.cbs.convergent_bailout_test_algorithm == CONVERGENT_BAILOUT_CONDITION_NNORM_KF) {
             new BailoutNNormDialog(ptr, s, oldSelection, convergent_bailout_tests, false);
             return;
         } else if (s.fns.cbs.convergent_bailout_test_algorithm == CONVERGENT_BAILOUT_CONDITION_USER) {
@@ -6874,6 +7160,15 @@ public class MainWindow extends JFrame implements Constants {
     }
 
     public void setBailoutTestPost() {
+
+        NNormDistanceBailoutCondition.A = s.fns.cbs.norm_a;
+        NNormDistanceBailoutCondition.B = s.fns.cbs.norm_b;
+
+        KFNNormDistanceBailoutCondition.A = s.fns.cbs.norm_a;
+        KFNNormDistanceBailoutCondition.B = s.fns.cbs.norm_b;
+
+        NNormBailoutCondition.A = s.fns.norm_a;
+        NNormBailoutCondition.B = s.fns.norm_b;
 
         Fractal.clearReferences(true, true);
 
@@ -7009,6 +7304,9 @@ public class MainWindow extends JFrame implements Constants {
 
         TaskRender.COLOR_SMOOTHING_METHOD = s.color_smoothing_method;
 
+        //SmoothEscapeTime.APPLY_OFFSET_OF_1_IN_SMOOTHING = s.fns.apply_offset_in_smoothing;
+        PaletteColorSmooth.SMOOTHING_COLOR_SELECTION = s.fns.smoothing_color_selection;
+
         updateColorPalettesMenu();
         options_menu.getProcessing().updateIcons(s);
 
@@ -7114,7 +7412,6 @@ public class MainWindow extends JFrame implements Constants {
         if(s.julia_map) {
             if(!oldJM) {
                 tools_menu.getJuliaMap().setIcon(getIcon("julia_map_enabled.png"));
-                toolbar.getJuliaMapButton().setSelected(true);
                 rootFindingMethodsSetEnabled(false);
                 fractal_functions[SIERPINSKI_GASKET].setEnabled(false);
                 fractal_functions[KLEINIAN].setEnabled(false);
@@ -7140,7 +7437,7 @@ public class MainWindow extends JFrame implements Constants {
             setOptions(false);
 
             progress.setValue(0);
-            ;
+
             setProgressBarVisibility(true);
 
             scroll_pane.getHorizontalScrollBar().setValue((int) (scroll_pane.getHorizontalScrollBar().getMaximum() / 2.0 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2.0));
@@ -7158,7 +7455,6 @@ public class MainWindow extends JFrame implements Constants {
         }
         else {
             tools_menu.getJuliaMap().setIcon(getIcon("julia_map.png"));
-            toolbar.getJuliaMapButton().setSelected(false);
 
             setOptions(false);
 
@@ -7173,7 +7469,7 @@ public class MainWindow extends JFrame implements Constants {
             }
 
             progress.setValue(0);
-            ;
+
             setProgressBarVisibility(true);
 
             scroll_pane.getHorizontalScrollBar().setValue((int) (scroll_pane.getHorizontalScrollBar().getMaximum() / 2.0 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2.0));
@@ -7230,7 +7526,7 @@ public class MainWindow extends JFrame implements Constants {
             setOptions(false);
 
             progress.setValue(0);
-            ;
+
             setProgressBarVisibility(true);
 
             whole_image_done = false;
@@ -7261,7 +7557,7 @@ public class MainWindow extends JFrame implements Constants {
             setOptions(false);
 
             progress.setValue(0);
-            ;
+
             setProgressBarVisibility(true);
 
             whole_image_done = false;
@@ -7733,10 +8029,10 @@ public class MainWindow extends JFrame implements Constants {
 
         if (outcoloring_mode) {
             resetOrbit();
-            new CustomPaletteEditorDialog(ptr, options_menu.getOutColoringPalette(), s.fns.smoothing, palette_id, s.ps.color_choice, s.ps.custom_palette, s.ps.color_interpolation, s.ps.color_space, s.ps.reversed_palette, s.temp_color_cycling_location, s.ps.scale_factor_palette_val, s.ps.processing_alg, outcoloring_mode);
+            new CustomPaletteEditorDialog(ptr, options_menu.getOutColoringPalette(), s.hasSmoothing(), palette_id, s.ps.color_choice, s.ps.custom_palette, s.ps.color_interpolation, s.ps.color_space, s.ps.reversed_palette, s.temp_color_cycling_location, s.ps.scale_factor_palette_val, s.ps.processing_alg, outcoloring_mode);
         } else {
             resetOrbit();
-            new CustomPaletteEditorDialog(ptr, options_menu.getInColoringPalette(), s.fns.smoothing, palette_id, s.ps2.color_choice, s.ps2.custom_palette, s.ps2.color_interpolation, s.ps2.color_space, s.ps2.reversed_palette, s.temp_color_cycling_location_second_palette, s.ps2.scale_factor_palette_val, s.ps2.processing_alg, outcoloring_mode);
+            new CustomPaletteEditorDialog(ptr, options_menu.getInColoringPalette(), s.hasSmoothing(), palette_id, s.ps2.color_choice, s.ps2.custom_palette, s.ps2.color_interpolation, s.ps2.color_space, s.ps2.reversed_palette, s.temp_color_cycling_location_second_palette, s.ps2.scale_factor_palette_val, s.ps2.processing_alg, outcoloring_mode);
         }
 
     }
@@ -7809,7 +8105,7 @@ public class MainWindow extends JFrame implements Constants {
         setOptions(false);
 
         progress.setValue(0);
-        ;
+
         setProgressBarVisibility(true);
 
         whole_image_done = false;
@@ -7850,7 +8146,7 @@ public class MainWindow extends JFrame implements Constants {
         setOptions(false);
 
         progress.setValue(0);
-        ;
+
         setProgressBarVisibility(true);
 
         whole_image_done = false;
@@ -7891,7 +8187,7 @@ public class MainWindow extends JFrame implements Constants {
         setOptions(false);
 
         progress.setValue(0);
-        ;
+
         setProgressBarVisibility(true);
 
         whole_image_done = false;
@@ -8343,7 +8639,7 @@ public class MainWindow extends JFrame implements Constants {
             setOptions(false);
 
             progress.setValue(0);
-            ;
+
             setProgressBarVisibility(true);
 
             scroll_pane.getHorizontalScrollBar().setValue((int) (scroll_pane.getHorizontalScrollBar().getMaximum() / 2.0 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2.0));
@@ -8385,7 +8681,7 @@ public class MainWindow extends JFrame implements Constants {
             setOptions(false);
 
             progress.setValue(0);
-            ;
+
             setProgressBarVisibility(true);
 
             scroll_pane.getHorizontalScrollBar().setValue((int) (scroll_pane.getHorizontalScrollBar().getMaximum() / 2.0 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2.0));
@@ -8426,7 +8722,6 @@ public class MainWindow extends JFrame implements Constants {
                     toolbar.getDomainColoringButton().setSelected(true);
 
                     tools_menu.getJuliaMap().setEnabled(false);
-                    toolbar.getJuliaMapButton().setEnabled(false);
                     tools_menu.getJulia().setEnabled(false);
                     toolbar.getJuliaButton().setEnabled(false);
 
@@ -8458,9 +8753,6 @@ public class MainWindow extends JFrame implements Constants {
                     options_menu.getDirectColor().setEnabled(false);
                     options_menu.getDirectColor().setSelected(false);
                     TaskRender.USE_DIRECT_COLOR = s.useDirectColor = false;
-
-                    toolbar.getInCustomPaletteButton().setEnabled(false);
-                    toolbar.getInCustomPalette2Button().setEnabled(false);
 
                     infobar.getGradientPreviewLabel().setVisible(true);
                     infobar.getGradientPreview().setVisible(true);
@@ -8517,7 +8809,7 @@ public class MainWindow extends JFrame implements Constants {
                 setOptions(false);
 
                 progress.setValue(0);
-                ;
+
                 setProgressBarVisibility(true);
 
                 scroll_pane.getHorizontalScrollBar().setValue((int) (scroll_pane.getHorizontalScrollBar().getMaximum() / 2.0 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2.0));
@@ -8593,7 +8885,7 @@ public class MainWindow extends JFrame implements Constants {
             setOptions(false);
 
             progress.setValue(0);
-            ;
+
             setProgressBarVisibility(true);
 
             scroll_pane.getHorizontalScrollBar().setValue((int) (scroll_pane.getHorizontalScrollBar().getMaximum() / 2.0 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2.0));
@@ -8666,7 +8958,7 @@ public class MainWindow extends JFrame implements Constants {
                 progress.setMaximum(image_width * image_height + 1);
 
                 progress.setValue(0);
-                ;
+
                 setProgressBarVisibility(true);
 
                 scroll_pane.getHorizontalScrollBar().setValue((int) (scroll_pane.getHorizontalScrollBar().getMaximum() / 2.0 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2.0));
@@ -8699,7 +8991,6 @@ public class MainWindow extends JFrame implements Constants {
                     tools_menu.getJulia().setEnabled(false);
                     toolbar.getJuliaButton().setEnabled(false);
                     tools_menu.getJuliaMap().setEnabled(false);
-                    toolbar.getJuliaMapButton().setEnabled(false);
                     tools_menu.getOrbit().setEnabled(false);
                     toolbar.getOrbitButton().setEnabled(false);
                     tools_menu.getColorCycling().setEnabled(false);
@@ -8760,7 +9051,7 @@ public class MainWindow extends JFrame implements Constants {
                 progress.setMaximum(s.d3s.detail * s.d3s.detail + 1);
 
                 progress.setValue(0);
-                ;
+
                 setProgressBarVisibility(true);
 
                 whole_image_done = false;
@@ -8891,7 +9182,6 @@ public class MainWindow extends JFrame implements Constants {
         tools_menu.getJulia().setEnabled(false);
         toolbar.getJuliaButton().setEnabled(false);
         tools_menu.getJuliaMap().setEnabled(false);
-        toolbar.getJuliaMapButton().setEnabled(false);
         out_coloring_modes[BIOMORPH].setEnabled(false);
         out_coloring_modes[BANDED].setEnabled(false);
         out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(false);
@@ -8944,6 +9234,34 @@ public class MainWindow extends JFrame implements Constants {
         resetOrbit();
         new ColorCyclingDialog(ptr, ccs);
 
+    }
+
+    public void FlipReal() {
+        resetOrbit();
+
+        if (!options_menu.getFlipReOpt().isSelected()) {
+            s.flip_real = false;
+        } else {
+            s.flip_real = true;
+        }
+
+        Plane.FLIP_REAL = s.flip_real;
+
+        defaultFractalSettings(true);
+    }
+
+    public void FlipImaginary() {
+        resetOrbit();
+
+        if (!options_menu.getFlipImOpt().isSelected()) {
+            s.flip_imaginary = false;
+        } else {
+            s.flip_imaginary = true;
+        }
+
+        Plane.FLIP_IMAGINARY = s.flip_imaginary;
+
+        defaultFractalSettings(true);
     }
 
     public void setApplyPlaneOnWholeJulia() {
@@ -9080,7 +9398,7 @@ public class MainWindow extends JFrame implements Constants {
             BufferedImage palette_preview = new BufferedImage(250, 24, BufferedImage.TYPE_INT_ARGB);
             Graphics2D g = palette_preview.createGraphics();
             for (int j = 0; j < c.length; j++) {
-                if (s.fns.smoothing) {
+                if (s.hasSmoothing()) {
                     GradientPaint gp = new GradientPaint(j * palette_preview.getWidth() / ((float)c.length), 0, c[j], (j + 1) * palette_preview.getWidth() / ((float)c.length), 0, c[(j + 1) % c.length]);
                     g.setPaint(gp);
                     g.fill(new Rectangle2D.Double(j * palette_preview.getWidth() / ((double)c.length), 0, (j + 1) * palette_preview.getWidth() / ((double)c.length) - j * palette_preview.getWidth() / ((double)c.length), palette_preview.getHeight()));
@@ -9122,7 +9440,7 @@ public class MainWindow extends JFrame implements Constants {
             BufferedImage palette_preview = new BufferedImage(250, 24, BufferedImage.TYPE_INT_ARGB);
             Graphics2D g = palette_preview.createGraphics();
             for (int j = 0; j < c.length; j++) {
-                if (s.fns.smoothing) {
+                if (s.hasSmoothing()) {
                     GradientPaint gp = new GradientPaint(j * palette_preview.getWidth() / ((float)c.length), 0, c[j], (j + 1) * palette_preview.getWidth() / ((float)c.length), 0, c[(j + 1) % c.length]);
                     g.setPaint(gp);
                     g.fill(new Rectangle2D.Double(j * palette_preview.getWidth() / ((double)c.length), 0, (j + 1) * palette_preview.getWidth() / ((double)c.length) - j * palette_preview.getWidth() / ((double)c.length), palette_preview.getHeight()));
@@ -9224,7 +9542,7 @@ public class MainWindow extends JFrame implements Constants {
             writer.println("brute_force_alg " + TaskRender.BRUTE_FORCE_ALG);
             writer.println("one_chunk_per_row " + TaskRender.CHUNK_SIZE_PER_ROW);
             writer.println("exponent_diff_ignored " + MantExp.EXPONENT_DIFF_IGNORED);
-            writer.println("bignum_library " + TaskRender.BIGNUM_LIBRARY);
+            writer.println("bignum_implementation " + TaskRender.BIGNUM_IMPLEMENTATION);
             writer.println("automatic_precision " + MyApfloat.setAutomaticPrecision);
             writer.println("nanomb1_n " + TaskRender.NANOMB1_N);
             writer.println("nanomb1_m " + TaskRender.NANOMB1_M);
@@ -9234,7 +9552,7 @@ public class MainWindow extends JFrame implements Constants {
             writer.println("check_bailout_during_deep_not_full_floatexp_mode " + TaskRender.CHECK_BAILOUT_DURING_DEEP_NOT_FULL_FLOATEXP_MODE);
             writer.println("gather_tiny_ref_indexes " + TaskRender.GATHER_TINY_REF_INDEXES);
             //writer.println("high_precision " + ThreadDraw.HIGH_PRECISION_CALCULATION);
-            writer.println("high_precision_lib " + TaskRender.HIGH_PRECISION_LIB);
+            writer.println("high_precision_implementation " + TaskRender.HIGH_PRECISION_IMPLEMENTATION);
             writer.println("bignum_sqrt_max_iterations " + BigNum.SQRT_MAX_ITERATIONS);
             writer.println("built_in_bignum_implementation " + TaskRender.BUILT_IT_BIGNUM_IMPLEMENTATION);
             writer.println("stop_reference_calculation_after_detected_period " + TaskRender.STOP_REFERENCE_CALCULATION_AFTER_DETECTED_PERIOD);
@@ -9259,6 +9577,7 @@ public class MainWindow extends JFrame implements Constants {
             writer.println("bla2_double_threshold_limit " + LAReference.doubleThresholdLimit.toDouble());
             writer.println("bla2_convert_to_double_when_possible " + LAReference.CONVERT_TO_DOUBLE_WHEN_POSSIBLE);
             writer.println("bla2_period_divisor " + LAReference.periodDivisor);
+            writer.println("bla2_create_at " + LAReference.CREATE_AT);
             writer.println("use_threads_for_bla2 " + TaskRender.USE_THREADS_FOR_BLA2);
             writer.println("use_ref_index_on_bla2 " + TaskRender.USE_RI_ON_BLA2);
             writer.println("disable_ref_index_on_bla2 " + TaskRender.DISABLE_RI_ON_BLA2);
@@ -9293,6 +9612,7 @@ public class MainWindow extends JFrame implements Constants {
             writer.println("auto_zoom_to_rectangle_selection " + options_menu.getAutoZoomToRectangleSelection().isSelected());
             writer.println("display_user_code_warning " + Settings.DISPLAY_USER_CODE_WARNING);
             writer.println("dragging_transforms_image " + DRAGGING_TRANSFORMS_IMAGE);
+            writer.println("reuse_data_on_iteration_change " + REUSE_DATA_ON_ITERATION_CHANGE);
 
             writer.println();
             writer.println("[Window]");
@@ -9371,6 +9691,7 @@ public class MainWindow extends JFrame implements Constants {
             writer.println("derivative_step " + Derivative.DZ.getRe());
             writer.println("aa_jitter_size " + Location.AA_JITTER_SIZE);
             writer.println("aa_number_of_jitter_kernels " + Location.NUMBER_OF_AA_JITTER_KERNELS);
+            writer.println("aa_fixed_jitter_size " + Location.FIXED_JITTER_SIZE);
             writer.println("whitepoint " + ColorSpaceConverter.whitePointId);
             writer.println("seed " + TaskRender.SEED);
             writer.println("user_formula_derivative_method " + FunctionDerivative2ArgumentsExpressionNode.USER_FORMULA_DERIVATIVE_METHOD);
@@ -9509,6 +9830,39 @@ public class MainWindow extends JFrame implements Constants {
                         }
                         else if(token.equals("true")) {
                             TaskRender.STOP_REFERENCE_CALCULATION_AFTER_DETECTED_PERIOD = true;
+                        }
+                    }
+                    else if(token.equals("aa_fixed_jitter_size") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if(token.equals("false")) {
+                            Location.FIXED_JITTER_SIZE = false;
+                        }
+                        else if(token.equals("true")) {
+                            Location.FIXED_JITTER_SIZE = true;
+                        }
+                    }
+                    else if(token.equals("bla2_create_at") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if(token.equals("false")) {
+                            LAReference.CREATE_AT = false;
+                        }
+                        else if(token.equals("true")) {
+                            LAReference.CREATE_AT = true;
+                        }
+                    }
+                    else if(token.equals("reuse_data_on_iteration_change") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if(token.equals("false")) {
+                            REUSE_DATA_ON_ITERATION_CHANGE = false;
+                        }
+                        else if(token.equals("true")) {
+                            REUSE_DATA_ON_ITERATION_CHANGE = true;
                         }
                     }
                     else if(token.equals("dragging_transforms_image") && tokenizer.countTokens() == 1) {
@@ -9920,12 +10274,12 @@ public class MainWindow extends JFrame implements Constants {
                         } catch (Exception ex) {
                         }
                     }
-                    else if (token.equals("bignum_library") && tokenizer.countTokens() == 1) {
+                    else if (token.equals("bignum_implementation") && tokenizer.countTokens() == 1) {
                         try {
                             int temp = Integer.parseInt(tokenizer.nextToken());
 
                             if (temp >= 0 && temp <= 8) {
-                                TaskRender.BIGNUM_LIBRARY = temp;
+                                TaskRender.BIGNUM_IMPLEMENTATION = temp;
                             }
                         } catch (Exception ex) {
                         }
@@ -9985,12 +10339,12 @@ public class MainWindow extends JFrame implements Constants {
                             TaskRender.GREEDY_ALGORITHM_CHECK_ITER_DATA = true;
                         }
                     }
-                    else if (token.equals("high_precision_lib") && tokenizer.countTokens() == 1) {
+                    else if (token.equals("high_precision_implementation") && tokenizer.countTokens() == 1) {
                         try {
                             int temp = Integer.parseInt(tokenizer.nextToken());
 
                             if (temp >= 0 && temp <= 6) {
-                                TaskRender.HIGH_PRECISION_LIB = temp;
+                                TaskRender.HIGH_PRECISION_IMPLEMENTATION = temp;
                             }
                         } catch (Exception ex) {
                         }
@@ -10584,7 +10938,7 @@ public class MainWindow extends JFrame implements Constants {
                         try {
                             int temp = Integer.parseInt(tokenizer.nextToken());
 
-                            if (temp >= 209 && temp <= 6000) {
+                            if (temp >= 209 && temp <= 46500) {
                                 image_width = temp;
                             }
                         } catch (Exception ex) {
@@ -10594,7 +10948,7 @@ public class MainWindow extends JFrame implements Constants {
                         try {
                             int temp = Integer.parseInt(tokenizer.nextToken());
 
-                            if (temp >= 209 && temp <= 6000) {
+                            if (temp >= 209 && temp <= 46500) {
                                 image_height = temp;
                             }
                         } catch (Exception ex) {
@@ -10968,7 +11322,7 @@ public class MainWindow extends JFrame implements Constants {
 
         MyApfloat.setPrecision(MyApfloat.precision, s);
 
-        Location.setJitter(2);
+        Location.setJitter(TaskRender.SEED);
 
         ColorSpaceConverter.init();
 
@@ -11148,7 +11502,7 @@ public class MainWindow extends JFrame implements Constants {
         setOptions(false);
 
         progress.setValue(0);
-        ;
+
         setProgressBarVisibility(true);
 
         whole_image_done = false;
@@ -11269,7 +11623,6 @@ public class MainWindow extends JFrame implements Constants {
         if(s.julia_map && !s.userFormulaHasC) {
             s.julia_map = false;
             tools_menu.getJuliaMap().setIcon(getIcon("julia_map.png"));
-            toolbar.getJuliaMapButton().setSelected(false);
             setOptions(false);
 
             if (s.fns.out_coloring_algorithm != ESCAPE_TIME_FIELD_LINES2 && s.fns.out_coloring_algorithm != ESCAPE_TIME_FIELD_LINES && s.fns.out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && s.fns.out_coloring_algorithm != ESCAPE_TIME_GRID && s.fns.out_coloring_algorithm != DISTANCE_ESTIMATOR && !s.exterior_de && s.fns.out_coloring_algorithm != BIOMORPH && s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3 && s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && s.fns.out_coloring_algorithm != ITERATIONS_PLUS_RE && s.fns.out_coloring_algorithm != ITERATIONS_PLUS_IM && s.fns.out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && s.fns.out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM && s.fns.out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && s.fns.out_coloring_algorithm != BANDED) {
@@ -11288,7 +11641,6 @@ public class MainWindow extends JFrame implements Constants {
             tools_menu.getJulia().setEnabled(false);
             toolbar.getJuliaButton().setEnabled(false);
             tools_menu.getJuliaMap().setEnabled(false);
-            toolbar.getJuliaMapButton().setEnabled(false);
             options_menu.getPerturbation().setEnabled(false);
             options_menu.getInitialValue().setEnabled(false);
             options_menu.getPlaneInfluenceMenu().setEnabled(false);
@@ -11497,7 +11849,7 @@ public class MainWindow extends JFrame implements Constants {
         setOptions(false);
 
         progress.setValue(0);
-        ;
+
         setProgressBarVisibility(true);
 
         whole_image_done = false;
@@ -11536,7 +11888,7 @@ public class MainWindow extends JFrame implements Constants {
         setOptions(false);
 
         progress.setValue(0);
-        ;
+
         setProgressBarVisibility(true);
 
         whole_image_done = false;
@@ -11556,7 +11908,7 @@ public class MainWindow extends JFrame implements Constants {
         setOptions(false);
 
         progress.setValue(0);
-        ;
+
         setProgressBarVisibility(true);
 
         whole_image_done = false;
@@ -11625,7 +11977,7 @@ public class MainWindow extends JFrame implements Constants {
 
     }
 
-    public void setGreedyAlgorithms() {
+    public void setRenderingAlgorithms() {
 
         resetOrbit();
         new RenderingAlgorithmsDialog(ptr, TaskRender.GREEDY_ALGORITHM, TaskRender.GREEDY_ALGORITHM_SELECTION, TaskRender.BRUTE_FORCE_ALG, TaskRender.GUESS_BLOCKS_SELECTION);
@@ -11949,7 +12301,7 @@ public class MainWindow extends JFrame implements Constants {
         options_menu.getPeriodicityChecking().setEnabled(false);
 
         progress.setValue(0);
-        ;
+
         setProgressBarVisibility(true);
 
         whole_image_done = false;
@@ -12023,8 +12375,6 @@ public class MainWindow extends JFrame implements Constants {
 
             toolbar.getOutCustomPaletteButton().setEnabled(false);
             toolbar.getOutCustomPalette2Button().setEnabled(false);
-            toolbar.getInCustomPaletteButton().setEnabled(false);
-            toolbar.getInCustomPalette2Button().setEnabled(false);
             toolbar.getRandomPaletteButton().setEnabled(false);
 
             tools_menu.get3D().setEnabled(false);
@@ -12057,7 +12407,7 @@ public class MainWindow extends JFrame implements Constants {
         setOptions(false);
 
         progress.setValue(0);
-        ;
+
         setProgressBarVisibility(true);
 
         whole_image_done = false;
@@ -12123,7 +12473,7 @@ public class MainWindow extends JFrame implements Constants {
             setOptions(false);
 
             progress.setValue(0);
-            ;
+
             setProgressBarVisibility(true);
 
             whole_image_done = false;
@@ -12178,7 +12528,7 @@ public class MainWindow extends JFrame implements Constants {
         setOptions(false);
 
         progress.setValue(0);
-        ;
+
         setProgressBarVisibility(true);
 
         whole_image_done = false;
@@ -12286,7 +12636,7 @@ public class MainWindow extends JFrame implements Constants {
         setOptions(false);
 
         progress.setValue(0);
-        ;
+
         setProgressBarVisibility(true);
 
         whole_image_done = false;
@@ -12372,7 +12722,7 @@ public class MainWindow extends JFrame implements Constants {
         setOptions(false);
 
         progress.setValue(0);
-        ;
+
         setProgressBarVisibility(true);
 
         whole_image_done = false;
@@ -12436,7 +12786,6 @@ public class MainWindow extends JFrame implements Constants {
         tools_menu.getJulia().setEnabled(false);
         toolbar.getJuliaButton().setEnabled(false);
         tools_menu.getJuliaMap().setEnabled(false);
-        toolbar.getJuliaMapButton().setEnabled(false);
         options_menu.getPeriodicityChecking().setEnabled(false);
         options_menu.getPerturbation().setEnabled(false);
         options_menu.getInitialValue().setEnabled(false);
@@ -12566,7 +12915,7 @@ public class MainWindow extends JFrame implements Constants {
     }
 
     public void setColorMap(boolean outcoloring_mode) {
-        new ColorMapDialog(ptr, s.fns.smoothing, outcoloring_mode, outcoloring_mode ? options_menu.getOutColoringPalette() : options_menu.getInColoringPalette());
+        new ColorMapDialog(ptr, s.hasSmoothing(), outcoloring_mode, outcoloring_mode ? options_menu.getOutColoringPalette() : options_menu.getInColoringPalette());
     }
 
     public void setCustomDirectPalette(boolean outcoloring_mode) {
@@ -12673,6 +13022,15 @@ public class MainWindow extends JFrame implements Constants {
         UIManager.put( "MenuItem.selectionType", true ? "underline" : null );
         UIManager.put( "TitlePane.menuBarEmbedded", true );
         UIManager.put( "Component.hideMnemonics", false );
+
+        try {
+            Font f = Font.createFont(Font.TRUETYPE_FONT, MainWindow.class.getResourceAsStream("/fractalzoomer/fonts/segoeui.ttf"));
+            f = f.deriveFont(Font.PLAIN, 12);
+            UIManager.put("defaultFont", f);
+            GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont(f);
+        } catch (Exception ex) {
+            CommonFunctions.setUIFontSize(12);
+        }
     }
 
     public boolean hasTransformedImage() {
@@ -12727,10 +13085,9 @@ public class MainWindow extends JFrame implements Constants {
             }
         } catch( Exception ex ) {
             System.err.println( "Failed to initialize LaF" );
-        }
-
-        if(useCustomLaf) {
-            CommonFunctions.setUIFontSize(12);
+            if(useCustomLaf) {
+                CommonFunctions.setUIFontSize(12);
+            }
         }
 
         if(!useCustomLaf) {
@@ -12778,20 +13135,890 @@ public class MainWindow extends JFrame implements Constants {
         oldRotateDragY = Double.MAX_VALUE;
     }
 
-    public static void main(String[] args) throws Exception {
+    private int convertToFunction(int Power, int FractalType) {
 
-        SplashFrame sf = new SplashFrame(VERSION);
-        sf.setVisible(true);
-        sf.dispose();
+        if(FractalType == 0) { //Multibrot
+            switch (Power) {
+                case 3:
+                    return MANDELBROTCUBED;
+                case 4:
+                    return MANDELBROTFOURTH;
+                case 5:
+                    return MANDELBROTFIFTH;
+                case 6:
+                    return MANDELBROTSIXTH;
+                case 7:
+                    return MANDELBROTSEVENTH;
+                case 8:
+                    return MANDELBROTEIGHTH;
+                case 9:
+                    return MANDELBROTNINTH;
+                case 10:
+                    return MANDELBROTTENTH;
+                case 2:
+                default:
+                    return MANDELBROT;
+            }
+        }
+        else if(FractalType == 1) { //Multibrot Burning-Ship
+            switch (Power) {
+                case 2:
+                    s.fns.burning_ship = true;
+                    return MANDELBROT;
+                case 3:
+                    s.fns.burning_ship = true;
+                    return MANDELBROTCUBED;
+                case 4:
+                    s.fns.burning_ship = true;
+                    return MANDELBROTFOURTH;
+                case 5:
+                    s.fns.burning_ship = true;
+                    return MANDELBROTFIFTH;
+            }
+        }
+        else if(FractalType == 2) { //Buffalo
+            switch (Power) {
+                case 2:
+                    return BUFFALO_MANDELBROT;
+            }
+        }
+        else if(FractalType == 3) { //Celtic
+            switch (Power) {
+                case 2:
+                    return CELTIC_MANDELBROT;
+            }
+        }
+        else if(FractalType == 4) { //Mandelbar
+            switch (Power) {
+                case 2:
+                    return MANDELBAR;
+            }
+        }
+        else if(FractalType == 6) { //Perpendicular Mandelbrot
+            switch (Power) {
+                case 2:
+                    return PERPENDICULAR_MANDELBROT;
+            }
+        }
+        else if(FractalType == 7) { //Perpendicular Burning Ship
+            switch (Power) {
+                case 2:
+                    return PERPENDICULAR_BURNING_SHIP;
+            }
+        }
+        else if(FractalType == 8) { //Perpendicular Celtic
+            switch (Power) {
+                case 2:
+                    return PERPENDICULAR_CELTIC_MANDELBROT;
+            }
+        }
+        else if(FractalType == 9) { //Perpendicular Buffalo
+            switch (Power) {
+                case 2:
+                    return PERPENDICULAR_BUFFALO_MANDELBROT;
+            }
+        }
+        else if(FractalType == 97) { //Nova
+            switch (Power) {
+                case 3:
+                    s.fns.z_exponent_nova[0] = 3;
+                    s.fns.z_exponent_nova[1] = 0;
+                    s.fns.nova_method = 0;
+                    return NOVA;
+            }
+        }
+        else if(FractalType == 98) { //Newton Nova Mandelbrot
+            s.fns.z_exponent_nova[0] = Power;
+            s.fns.z_exponent_nova[1] = 0;
+            s.fns.nova_method = NOVA_NEWTON;
+            return NOVA;
+        }
+        else if(FractalType == 99) { //Halley Nova Mandelbrot
+            s.fns.z_exponent_nova[0] = Power;
+            s.fns.z_exponent_nova[1] = 0;
+            s.fns.nova_method = NOVA_HALLEY;
+            return NOVA;
+        }
+        else if(FractalType == 100) { //Schroder Nova Mandelbrot
+            s.fns.z_exponent_nova[0] = Power;
+            s.fns.z_exponent_nova[1] = 0;
+            s.fns.nova_method = NOVA_SCHRODER;
+            return NOVA;
+        }
+        else if(FractalType == 101) { //Householder 3 Nova Mandelbrot
+            s.fns.z_exponent_nova[0] = Power;
+            s.fns.z_exponent_nova[1] = 0;
+            s.fns.nova_method = NOVA_HOUSEHOLDER3;
+            return NOVA;
+        }
+        else if(FractalType == 102) { //Householder Nova Mandelbrot
+            s.fns.z_exponent_nova[0] = Power;
+            s.fns.z_exponent_nova[1] = 0;
+            s.fns.nova_method = NOVA_HOUSEHOLDER;
+            return NOVA;
+        }
 
-        //SwingUtilities.invokeLater(() -> {
-            if(args.length > 0 && args[0].equals("l4jini")) {
-                CommonFunctions.exportL4jIni("Fractal Zoomer", Constants.FZL4j);
+        return -1;
+    }
+
+    public void parseKFR(String fileName) {
+        BufferedReader br = null;
+
+        try {
+            br = new BufferedReader(new FileReader(fileName));
+
+            String str_line;
+
+            String re = "0";
+            String im = "0";
+            String magnification = "1";
+            String iterations = "200";
+            String colors = "";
+            String iterDiv = "1";
+            String colorOffset = "0";
+            String flat = "0";
+            String rotateAngle = "0";
+            String colorMethod = "0";
+            String BailoutRadiusPreset = "1";
+            String Differences = "0";
+            String Slopes = "0";
+            String SlopeAngle = "45";
+            String SlopeRatio = "50";
+            String SlopePower = "20";
+            String InteriorColor = "";
+            String Smooth = "0";
+            String BailoutRadiusCustom = "2";
+            String StretchAngle = "0";
+            String StretchAmount = "0";
+            String ImagPointsUp = "0";
+            String Power = "2";
+            String FractalType = "0";
+            String ImageWidth = "";
+            String ImageHeight = "";
+            String SmoothMethod = "0";
+            String BailoutNormPreset = "1";
+            String BailoutNormCustom = "2";
+            String real = "1";
+            String imag = "1";
+            String JitterSeed = "0";
+            String JitterShape = "0";
+            String JitterScale = "1";
+
+            boolean matchedAny = false;
+            while ((str_line = br.readLine()) != null) {
+
+                StringTokenizer tokenizer = new StringTokenizer(str_line, " ");
+
+                if (tokenizer.hasMoreTokens()) {
+
+                    String token = tokenizer.nextToken();
+                    if(token.equalsIgnoreCase("Re:") && tokenizer.countTokens() == 1) {
+                        re = tokenizer.nextToken();
+                        matchedAny = true;
+                    }
+                    else if(token.equalsIgnoreCase("Im:") && tokenizer.countTokens() == 1) {
+                        im = tokenizer.nextToken();
+                        matchedAny = true;
+                    }
+                    else if(token.equalsIgnoreCase("Zoom:") && tokenizer.countTokens() == 1) {
+                        magnification = tokenizer.nextToken();
+                        matchedAny = true;
+                    }
+                    else if(token.equalsIgnoreCase("Iterations:") && tokenizer.countTokens() == 1) {
+                        iterations = tokenizer.nextToken();
+                        matchedAny = true;
+                    }
+                    else if(token.equalsIgnoreCase("Colors:") && tokenizer.countTokens() >= 1) {
+
+                        if(tokenizer.countTokens() == 1) {
+                            colors = tokenizer.nextToken();
+                            matchedAny = true;
+                        }
+                        else {
+                            int tokens_size = tokenizer.countTokens();
+                            for(int i = 0; i < tokens_size; i++) {
+                                colors += tokenizer.nextToken();
+                            }
+                            matchedAny = true;
+                        }
+                    }
+                    else if(token.equalsIgnoreCase("IterDiv:") && tokenizer.countTokens() == 1) {
+                        iterDiv = tokenizer.nextToken();
+                        matchedAny = true;
+                    }
+                    else if(token.equalsIgnoreCase("ColorOffset:") && tokenizer.countTokens() == 1) {
+                        colorOffset = tokenizer.nextToken();
+                        matchedAny = true;
+                    }
+                    else if(token.equalsIgnoreCase("Flat:") && tokenizer.countTokens() == 1) {
+                        flat = tokenizer.nextToken();
+                        matchedAny = true;
+                    }
+                    else if(token.equalsIgnoreCase("RotateAngle:") && tokenizer.countTokens() == 1) {
+                        rotateAngle = tokenizer.nextToken();
+                        matchedAny = true;
+                    }
+                    else if(token.equalsIgnoreCase("ColorMethod:") && tokenizer.countTokens() == 1) {
+                        colorMethod = tokenizer.nextToken();
+                        matchedAny = true;
+                    }
+                    else if(token.equalsIgnoreCase("BailoutRadiusPreset:") && tokenizer.countTokens() == 1) {
+                        BailoutRadiusPreset = tokenizer.nextToken();
+                        matchedAny = true;
+                    }
+                    else if(token.equalsIgnoreCase("Differences:") && tokenizer.countTokens() == 1) {
+                        Differences = tokenizer.nextToken();
+                        matchedAny = true;
+                    }
+                    else if(token.equalsIgnoreCase("Slopes:") && tokenizer.countTokens() == 1) {
+                        Slopes = tokenizer.nextToken();
+                        matchedAny = true;
+                    }
+                    else if(token.equalsIgnoreCase("SlopeAngle:") && tokenizer.countTokens() == 1) {
+                        SlopeAngle = tokenizer.nextToken();
+                        matchedAny = true;
+                    }
+                    else if(token.equalsIgnoreCase("SlopeRatio:") && tokenizer.countTokens() == 1) {
+                        SlopeRatio = tokenizer.nextToken();
+                        matchedAny = true;
+                    }
+                    else if(token.equalsIgnoreCase("SlopePower:") && tokenizer.countTokens() == 1) {
+                        SlopePower = tokenizer.nextToken();
+                        matchedAny = true;
+                    }
+                    else if(token.equalsIgnoreCase("InteriorColor:") && tokenizer.countTokens() == 1) {
+                        InteriorColor = tokenizer.nextToken();
+                        matchedAny = true;
+                    }
+                    else if(token.equalsIgnoreCase("Smooth:") && tokenizer.countTokens() == 1) {
+                        Smooth = tokenizer.nextToken();
+                        matchedAny = true;
+                    }
+                    else if(token.equalsIgnoreCase("BailoutRadiusCustom:") && tokenizer.countTokens() == 1) {
+                        BailoutRadiusCustom = tokenizer.nextToken();
+                        matchedAny = true;
+                    }
+                    else if(token.equalsIgnoreCase("StretchAngle:") && tokenizer.countTokens() == 1) {
+                        StretchAngle = tokenizer.nextToken();
+                        matchedAny = true;
+                    }
+                    else if(token.equalsIgnoreCase("StretchAmount:") && tokenizer.countTokens() == 1) {
+                        StretchAmount = tokenizer.nextToken();
+                        matchedAny = true;
+                    }
+                    else if(token.equalsIgnoreCase("ImagPointsUp:") && tokenizer.countTokens() == 1) {
+                        ImagPointsUp = tokenizer.nextToken();
+                        matchedAny = true;
+                    }
+                    else if(token.equalsIgnoreCase("Power:") && tokenizer.countTokens() == 1) {
+                        Power = tokenizer.nextToken();
+                        matchedAny = true;
+                    }
+                    else if(token.equalsIgnoreCase("FractalType:") && tokenizer.countTokens() == 1) {
+                        FractalType = tokenizer.nextToken();
+                        matchedAny = true;
+                    }
+                    else if(token.equalsIgnoreCase("ImageWidth:") && tokenizer.countTokens() == 1) {
+                        ImageWidth = tokenizer.nextToken();
+                        matchedAny = true;
+                    }
+                    else if(token.equalsIgnoreCase("ImageHeight:") && tokenizer.countTokens() == 1) {
+                        ImageHeight = tokenizer.nextToken();
+                        matchedAny = true;
+                    }
+                    else if(token.equalsIgnoreCase("SmoothMethod:") && tokenizer.countTokens() == 1) {
+                        SmoothMethod = tokenizer.nextToken();
+                        matchedAny = true;
+                    }
+                    else if(token.equalsIgnoreCase("BailoutNormPreset:") && tokenizer.countTokens() == 1) {
+                        BailoutNormPreset = tokenizer.nextToken();
+                        matchedAny = true;
+                    }
+                    else if(token.equalsIgnoreCase("BailoutNormCustom:") && tokenizer.countTokens() == 1) {
+                        BailoutNormCustom = tokenizer.nextToken();
+                        matchedAny = true;
+                    }
+                    else if(token.equalsIgnoreCase("real:") && tokenizer.countTokens() == 1) {
+                        real = tokenizer.nextToken();
+                        matchedAny = true;
+                    }
+                    else if(token.equalsIgnoreCase("imag:") && tokenizer.countTokens() == 1) {
+                        imag = tokenizer.nextToken();
+                        matchedAny = true;
+                    }
+                    else if(token.equalsIgnoreCase("JitterSeed:") && tokenizer.countTokens() == 1) {
+                        JitterSeed = tokenizer.nextToken();
+                        matchedAny = true;
+                    }
+                    else if(token.equalsIgnoreCase("JitterScale:") && tokenizer.countTokens() == 1) {
+                        JitterScale = tokenizer.nextToken();
+                        matchedAny = true;
+                    }
+                    else if(token.equalsIgnoreCase("JitterShape:") && tokenizer.countTokens() == 1) {
+                        JitterShape = tokenizer.nextToken();
+                        matchedAny = true;
+                    }
+                    else {
+                        continue;
+                    }
+                }
+
             }
 
-            setLaf();
+            br.close();
 
-            MainWindow mw = new MainWindow();
+            s.defaultValues();
+            s.applyStaticSettings();
+            Fractal.clearReferences(true, true);
+
+            sr.clear();
+            main_panel.repaint();
+
+            if(!matchedAny) {
+                JOptionPane.showMessageDialog(ptr, "Unsupported file format.", "Error!", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            try {
+                int power = Integer.parseInt(Power);
+                int ftype = Integer.parseInt(FractalType);
+                int function = convertToFunction(power, ftype);
+                if(function == -1) {
+                    throw new Exception("");
+                }
+                s.fns.function = function;
+            }
+            catch (Exception ex) {
+                JOptionPane.showMessageDialog(ptr, "Unsupported Fractal Function found.", "Error!", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            int flipImaginary = 0;
+            try {
+                flipImaginary = Integer.parseInt(ImagPointsUp);
+            }
+            catch (Exception ex) {
+
+            }
+
+            try {
+
+                if(MyApfloat.setAutomaticPrecision) {
+                    long precision = MyApfloat.getAutomaticPrecision(new String[]{magnification, re, im}, new boolean[] {true, false, false}, s.fns.function);
+
+                    if (MyApfloat.shouldSetPrecision(precision, MyApfloat.alwaysCheckForDecrease, s.fns.function)) {
+                        Fractal.clearReferences(true, true);
+                        MyApfloat.setPrecision(precision, s);
+                    }
+                }
+
+                s.xCenter = new MyApfloat(re);
+                if(flipImaginary == 1) {
+                    s.yCenter = new MyApfloat(im);
+                    s.flip_imaginary = false;
+                }
+                else {
+                    s.yCenter = new MyApfloat(im).negate(); //Inverted in KF
+                    s.flip_imaginary = true;
+                }
+
+                s.size = MyApfloat.fp.divide(Constants.DEFAULT_MAGNIFICATION, new MyApfloat(magnification));
+            } catch (Exception ex) {
+
+            }
+
+            TaskRender.PERTURBATION_THEORY = true;
+
+            try {
+                long miter = Long.parseLong(iterations);
+                s.max_iterations = miter > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int)miter;
+            } catch (Exception ex) {
+
+            }
+
+            if(!ImageWidth.isEmpty() && !ImageHeight.isEmpty()) {
+                try {
+                    int width = Integer.parseInt(ImageWidth);
+                    int height = Integer.parseInt(ImageHeight);
+
+                    if (width > 0 && width <= 46500 && height > 0 && height <= 46500) {
+                        image_width = width;
+                        image_height = height;
+
+                        updateDataOnImageSizeChange();
+                    }
+                }
+                catch (Exception ex) {
+
+                }
+            }
+
+            int maxColors = 1024;
+
+            double iterDivD = 1;
+            try {
+                iterDivD = Double.parseDouble(iterDiv);
+                iterDivD = iterDivD < 0 ? 1 : iterDivD;
+            }
+            catch (Exception ex) {}
+
+            try {
+                ArrayList<Color> primaryCols = new ArrayList<>();
+
+                try {
+                    if (colors.isEmpty()) {
+                        throw new Exception();
+                    }
+
+                    String[] tokens = colors.split(",");
+
+                    if (tokens.length % 3 != 0) {
+                        throw new Exception();
+                    }
+
+                    for (int i = 0; i < tokens.length; i += 3) {
+                        int blue = Integer.parseInt(tokens[i]);
+                        int green = Integer.parseInt(tokens[i + 1]);
+                        int red = Integer.parseInt(tokens[i + 2]);
+                        red = ColorSpaceConverter.clamp(red);
+                        green = ColorSpaceConverter.clamp(green);
+                        blue = ColorSpaceConverter.clamp(blue);
+                        primaryCols.add(new Color(red, green, blue));
+                    }
+                }
+                catch (Exception ex) {
+                    primaryCols.clear();
+
+                    primaryCols.add(new Color(255, 255, 255));
+                    primaryCols.add(new Color(64, 0, 128));
+                    primaryCols.add(new Color(0, 0, 160));
+                    primaryCols.add(new Color(0, 128, 192));
+                    primaryCols.add(new Color(0, 128, 64));
+                    primaryCols.add(new Color(255, 255, 0));
+                    primaryCols.add(new Color(255, 128, 64));
+                    primaryCols.add(new Color(255, 0, 0));
+                }
+
+                if(!primaryCols.isEmpty()) {
+                    ArrayList<Color> finalCols = new ArrayList<>();
+                    CosineInterpolation lerp = new CosineInterpolation();
+                    int m_nParts = primaryCols.size();
+                    int j, p = 0;
+                    for (j = 0; j < maxColors; j++) {
+                        double temp = (double) j * (double) m_nParts / (double) maxColors;
+                        p = (int) temp;
+                        int pn = (p + 1) % m_nParts;
+                        temp -= p;
+                        finalCols.add(lerp.interpolate(primaryCols.get(p), primaryCols.get(pn), temp));
+                    }
+
+                    s.ps.color_choice = DIRECT_PALETTE_ID;
+                    s.ps.direct_palette = finalCols.stream().mapToInt(i -> i.getRGB()).toArray();
+                }
+            }
+            catch (Exception ex) {
+
+            }
+
+            int coffset = 0;
+            try {
+                long c = Long.parseLong(colorOffset);
+                coffset = c > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int)c;
+            }
+            catch (Exception ex) {
+
+            }
+
+            if(Smooth.equals("1")) {
+                s.fns.smoothing = true;
+            }
+            else if(Smooth.equals("0")) {
+                s.fns.smoothing = false;
+            }
+
+            if(flat.equals("1")) {
+                s.fns.banded = true;
+                s.fns.smoothing = true;
+            }
+            else if(Smooth.equals("0")) {
+                s.fns.banded = false;
+            }
+
+            if(Slopes.equals("1")) {
+                s.pps.ss.slopes = true;
+                s.pps.ss.heightTransferFactor = 100;
+                s.pps.ss.colorMode = 4;
+            }
+            else if(Slopes.equals("0")) {
+                s.pps.ss.slopes = false;
+            }
+
+            try {
+                double sratio = Double.parseDouble(SlopeRatio);
+                sratio = sratio < 0 ? 0 : sratio;
+                sratio = sratio > 100 ? 100 : sratio;
+
+                s.pps.ss.SlopeRatio = (sratio / 100) / 2;
+            }
+            catch (Exception ex) {
+
+            }
+
+            try {
+                if(!InteriorColor.isEmpty()) {
+                    String[] tokens = InteriorColor.split(",");
+
+                    if (tokens.length % 3 == 0) {
+                        int blue = Integer.parseInt(tokens[0]);
+                        int green = Integer.parseInt(tokens[1]);
+                        int red = Integer.parseInt(tokens[2]);
+                        red = ColorSpaceConverter.clamp(red);
+                        green = ColorSpaceConverter.clamp(green);
+                        blue = ColorSpaceConverter.clamp(blue);
+                        s.fractal_color = new Color(red, green, blue);
+                    }
+                }
+            }
+            catch (Exception ex) {
+
+            }
+
+            try {
+                double spower = Double.parseDouble(SlopePower);
+                spower = spower < 0 ? 0 : spower;
+                spower = spower > 100 ? 100 : spower;
+
+                s.pps.ss.SlopePower = spower / 100;
+            }
+            catch (Exception ex) {
+
+            }
+            
+            try {
+                double slopeAngle = Double.parseDouble(SlopeAngle);
+
+                slopeAngle = slopeAngle > 360 ? 360 : slopeAngle;
+                slopeAngle = slopeAngle < -360 ? -360 : slopeAngle;
+
+                slopeAngle = -slopeAngle;
+
+                if(slopeAngle < 0) {
+                    slopeAngle = 360 + slopeAngle;
+                }
+
+                slopeAngle += 180;
+
+                slopeAngle = slopeAngle % 360.0;
+
+                s.pps.ss.SlopeAngle = slopeAngle;
+            }
+            catch (Exception ex) {
+                
+            }
+
+            try {
+                double rangle = -Double.parseDouble(rotateAngle); //Inverted in KF
+
+                if(rangle != 0) {
+                    s.fns.rotation = rangle;
+
+                    Apfloat tempRadians =  MyApfloat.fp.toRadians(new MyApfloat(s.fns.rotation));
+                    s.fns.rotation_vals[0] = MyApfloat.cos(tempRadians);
+                    s.fns.rotation_vals[1] = MyApfloat.sin(tempRadians);
+
+                    s.fns.rotation_center[0] = s.xCenter;
+                    s.fns.rotation_center[1] = s.yCenter;
+                }
+            }
+            catch (Exception ex) {
+
+            }
+
+            try {
+                int color_method = Integer.parseInt(colorMethod);
+
+                switch (color_method) {
+                    case 0:
+                        s.ps.transfer_function = DEFAULT;
+                        break;
+                    case 1:
+                        s.ps.transfer_function = KF_SQUARE_ROOT;
+                        break;
+                    case 2:
+                        s.ps.transfer_function = KF_CUBE_ROOT;
+                        break;
+                    case 3:
+                        s.ps.transfer_function = KF_LOGARITHM;
+                        break;
+                    case 4:
+                        s.pps.hss.histogramColoring = true;
+                        s.pps.hss.hmapping = 1;
+                        break;
+                    case 5:
+                        s.ps.transfer_function = DEFAULT;
+                        s.pps.ndes.useNumericalDem = true;
+                        s.pps.ndes.distanceFactor = 1;
+                        s.fns.banded = false;
+                        break;
+                    case 6:
+                        JOptionPane.showMessageDialog(ptr, "DE+Standard is not supported.", "Warning!", JOptionPane.WARNING_MESSAGE);
+                        s.ps.transfer_function = DEFAULT;
+                        break;
+                    case 7:
+                        s.ps.transfer_function = KF_LOGARITHM;
+                        s.pps.ndes.useNumericalDem = true;
+                        s.pps.ndes.distanceFactor = 1;
+                        s.fns.banded = false;
+                        break;
+                    case 8:
+                        s.ps.transfer_function = KF_SQUARE_ROOT;
+                        s.pps.ndes.useNumericalDem = true;
+                        s.pps.ndes.distanceFactor = 1;
+                        s.fns.banded = false;
+                        break;
+                    case 9:
+                        s.ps.transfer_function = KF_LOG_LOG;
+                        break;
+                    case 10:
+                        s.ps.transfer_function = KF_ATAN;
+                        break;
+                    case 11:
+                        s.ps.transfer_function = KF_FOURTH_ROOT;
+                        break;
+                }
+            }
+            catch (Exception ex) {
+
+            }
+
+            try {
+                int diff = Integer.parseInt(Differences);
+
+                if(diff < 7) {
+                    s.pps.ndes.differencesMethod = diff;
+                }
+                else {
+                    JOptionPane.showMessageDialog(ptr, "Analytic Differencing is not supported.", "Warning!", JOptionPane.WARNING_MESSAGE);
+                    s.pps.ndes.differencesMethod = 0;
+                }
+            }
+            catch (Exception ex) {
+
+            }
+
+            try {
+                int smooth = Integer.parseInt(SmoothMethod);
+
+                if(smooth == 1) {
+                    s.fns.escaping_smooth_algorithm = 2;
+                }
+            }
+            catch (Exception ex) {
+
+            }
+
+            try {
+
+                int bail_preset = Integer.parseInt(BailoutRadiusPreset);
+
+                switch (bail_preset) {
+                    case 0: //High
+                        s.fns.bailout = 100; //10000
+                        break;
+                    case 1: //2
+                        s.fns.bailout = 2;
+                        break;
+                        //2 is not supported
+                    case 3:
+                        try {
+                            double bail = Double.parseDouble(BailoutRadiusCustom);
+                            if(bail > 0) {
+                                s.fns.bailout = Math.sqrt(bail);
+                            }
+                        }
+                        catch (Exception ex) {
+
+                        }
+                        break;
+                }
+            }
+            catch (Exception ex) {
+
+            }
+
+            try {
+                double sangle = Double.parseDouble(StretchAngle);
+                double samount = Double.parseDouble(StretchAmount);
+
+                if(sangle != 0 || samount != 0) {
+                    s.fns.plane_type = STRETCH_PLANE;
+                    s.fns.plane_transform_angle = sangle;
+                    s.fns.plane_transform_amount = samount;
+                    s.fns.plane_transform_center_hp[0] = s.xCenter;
+                    s.fns.plane_transform_center_hp[1] = s.yCenter;
+                    s.fns.plane_transform_center[0] = s.fns.plane_transform_center_hp[0].doubleValue();
+                    s.fns.plane_transform_center[1] = s.fns.plane_transform_center_hp[1].doubleValue();
+                }
+            }
+            catch (Exception ex) {
+
+            }
+
+            double norm_a = 1;
+            try {
+                norm_a = Double.parseDouble(real);
+                s.fns.norm_a = norm_a;
+                s.fns.cbs.norm_a = norm_a;
+            }
+            catch (Exception ex) {
+
+            }
+
+            double norm_b = 1;
+            try {
+                norm_b = Double.parseDouble(imag);
+                s.fns.norm_b = norm_b;
+                s.fns.cbs.norm_b = norm_b;
+            }
+            catch (Exception ex) {
+
+            }
+
+            if(norm_a != 1 || norm_b != 1) {
+                BailoutNormPreset = "3";
+            }
+
+            if(s.isConvergingType()) {
+                try {
+                    int normPreset = Integer.parseInt(BailoutNormPreset);
+                    switch (normPreset) {
+                        case 0:
+                            s.fns.cbs.convergent_bailout_test_algorithm = CONVERGENT_BAILOUT_CONDITION_RHOMBUS_KF;
+                            break;
+                        case 2:
+                            s.fns.cbs.convergent_bailout_test_algorithm = CONVERGENT_BAILOUT_CONDITION_SQUARE_KF;
+                            break;
+                        case 3:
+                            s.fns.cbs.convergent_bailout_test_algorithm = CONVERGENT_BAILOUT_CONDITION_NNORM_KF;
+                            try {
+                                s.fns.cbs.convergent_n_norm = Double.parseDouble(BailoutNormCustom);
+                            }
+                            catch (Exception ex) {
+                                s.fns.cbs.convergent_n_norm = 2;
+                            }
+                            break;
+                        case 1:
+                        default:
+                            s.fns.cbs.convergent_bailout_test_algorithm = CONVERGENT_BAILOUT_CONDITION_CIRCLE_KF;
+                            break;
+                    }
+                }
+                catch (Exception ex) {
+
+                }
+            }
+            else {
+                try {
+                    int normPreset = Integer.parseInt(BailoutNormPreset);
+                    switch (normPreset) {
+                        case 0:
+                            s.fns.bailout_test_algorithm = BAILOUT_CONDITION_RHOMBUS;
+                            s.fns.bailout *= s.fns.bailout;
+                            break;
+                        case 2:
+                            s.fns.bailout_test_algorithm = BAILOUT_CONDITION_SQUARE;
+                            s.fns.bailout *= s.fns.bailout;
+                            break;
+                        case 3:
+                            s.fns.bailout_test_algorithm = BAILOUT_CONDITION_NNORM;
+                            try {
+                                s.fns.n_norm = Double.parseDouble(BailoutNormCustom);
+                            }
+                            catch (Exception ex) {
+                                s.fns.n_norm = 2;
+                            }
+                            break;
+                        case 1:
+                        default:
+                            s.fns.bailout_test_algorithm = BAILOUT_CONDITION_CIRCLE;
+                            break;
+                    }
+                }
+                catch (Exception ex) {
+
+                }
+            }
+
+            if(iterDivD < 1) {
+                s.fns.smoothing = true;
+            }
+
+            s.ps.color_intensity = 1 / iterDivD;
+            s.ps.color_cycling_location = 0;
+
+            if(s.isConvergingType()) {
+                int val = (int)(maxColors - 1 / iterDivD);
+                while (val < 0) {
+                    val += maxColors;
+                }
+                s.ps.color_cycling_location = val;
+            }
+            else if(s.fns.smoothing) {
+                s.fns.smoothing_color_selection = 1;
+            }
+
+            s.ps.color_cycling_location += coffset;
+
+            s.fns.convergent_bailout = 1E-12;
+
+            try {
+                int jseed = Integer.parseInt(JitterSeed);
+
+                if(jseed != 0) {
+                    s.js.enableJitter = true;
+                    s.js.jitterSeed = jseed;
+                }
+
+                double jscale = Double.parseDouble(JitterScale);
+
+                if(jscale > 0) {
+                    s.js.jitterScale = jscale;
+                }
+
+                int jshape = Integer.parseInt(JitterShape);
+
+                if(jshape == 0 || jshape == 1) {
+                    s.js.jitterShape = jshape;
+                }
+            }
+            catch (Exception ex) {
+
+            }
+
+
+            s.applyStaticSettings();
+
+        } catch (FileNotFoundException ex) {
+
+        } catch (IOException ex) {
+
+        }
+    }
+
+    public static void main(String[] args) throws Exception {
+
+        if(args.length > 0 && args[0].equals("l4jini")) {
+            CommonFunctions.exportL4jIni("FractalZoomer", Constants.FZL4j);
+        }
+
+        new SplashFrame(VERSION);
+
+        setLaf();
+
+        MainWindow mw = new MainWindow();
+
+        //SwingUtilities.invokeLater(() -> {
+
             try {
                 mw.setVisible(true);
             }

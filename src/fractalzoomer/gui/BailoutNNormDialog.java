@@ -1,19 +1,4 @@
-/*
- * Copyright (C) 2020 hrkalona2
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+
 package fractalzoomer.gui;
 
 import fractalzoomer.main.MainWindow;
@@ -53,10 +38,34 @@ public class BailoutNNormDialog extends JDialog {
         }
         field.addAncestorListener(new RequestFocusListener());
 
+        JTextField field2 = new JTextField();
+
+        if(mode) {
+            field2.setText("" + s.fns.norm_a);
+        }
+        else {
+            field2.setText("" + s.fns.cbs.norm_a);
+        }
+
+        JTextField field3 = new JTextField();
+        if(mode) {
+            field3.setText("" + s.fns.norm_b);
+        }
+        else {
+            field3.setText("" + s.fns.cbs.norm_b);
+        }
+
         Object[] message3 = {
             " ",
-            "You are using " + s.fns.cbs.convergent_n_norm + " as the N-Norm.\nInsert the new N-Norm number.",
+                "Set the N-Norm.",
+            "N-Norm:",
             field,
+                " ",
+                "Set A and B coefficients.",
+                "A:",
+                field2,
+                "B:",
+                field3,
             " ",};
 
         optionPane = new JOptionPane(message3, JOptionPane.QUESTION_MESSAGE, JOptionPane.OK_CANCEL_OPTION, null, null, null);
@@ -103,12 +112,18 @@ public class BailoutNNormDialog extends JDialog {
 
                         try {
                             double temp3 = Double.parseDouble(field.getText());
+                            double temp4 = Double.parseDouble(field2.getText());
+                            double temp5 = Double.parseDouble(field3.getText());
 
                             if(mode) {
                                 s.fns.n_norm = temp3;
+                                s.fns.norm_a = temp4;
+                                s.fns.norm_b = temp5;
                             }
                             else {
                                 s.fns.cbs.convergent_n_norm  = temp3;
+                                s.fns.cbs.norm_a = temp4;
+                                s.fns.cbs.norm_b = temp5;
                             }
                         } catch (ParserException ex) {
                             JOptionPane.showMessageDialog(ptra, ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);

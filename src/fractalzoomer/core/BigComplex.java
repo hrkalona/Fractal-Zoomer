@@ -433,6 +433,16 @@ public class BigComplex extends GenericComplex {
     }
 
     /*
+     *  -Real + Imaginary i
+     */
+    public final BigComplex negate_re() {
+
+        return new BigComplex(re.negate(), im);
+
+    }
+
+
+    /*
      *  -z
      */
     @Override
@@ -477,6 +487,18 @@ public class BigComplex extends GenericComplex {
      */
     public final Apfloat nnorm(Apfloat n, Apfloat n_reciprocal) {
         return MyApfloat.fp.pow(MyApfloat.fp.add(MyApfloat.fp.pow(ApfloatMath.abs(re), n), MyApfloat.fp.pow(ApfloatMath.abs(im), n)), n_reciprocal);
+    }
+
+    public final Apfloat nnorm(Apfloat n, Apfloat a, Apfloat b, Apfloat n_reciprocal) {
+
+        return MyApfloat.fp.pow(MyApfloat.fp.add(MyApfloat.fp.multiply(MyApfloat.fp.pow(ApfloatMath.abs(re), n), a), MyApfloat.fp.multiply(b, MyApfloat.fp.pow(ApfloatMath.abs(im), n))), n_reciprocal);
+
+    }
+
+    public final Apfloat nnorm(Apfloat n, Apfloat a, Apfloat b) {
+
+        return MyApfloat.fp.pow(MyApfloat.fp.add(MyApfloat.fp.multiply(MyApfloat.fp.pow(ApfloatMath.abs(re), n), a), MyApfloat.fp.multiply(b, MyApfloat.fp.pow(ApfloatMath.abs(im), n))), MyApfloat.fp.divide(MyApfloat.ONE, n));
+
     }
 
     /*

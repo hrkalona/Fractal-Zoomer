@@ -1,19 +1,4 @@
-/*
- * Fractal Zoomer, Copyright (C) 2020 hrkalona2
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+
 package fractalzoomer.gui;
 
 import fractalzoomer.main.MainWindow;
@@ -35,6 +20,7 @@ public class FileMenu extends MyMenu {
     private JMenuItem go_to;
     private JMenuItem save_settings;
     private JMenuItem load_settings;
+    private JMenuItem load_kfr_settings;
     private JMenuItem save_settings_image;
     private JMenuItem code_editor;
     private JMenuItem library_code;
@@ -77,6 +63,7 @@ public class FileMenu extends MyMenu {
         save_settings = new MyMenuItem("Save Settings As...", MainWindow.getIcon("save.png"));
 
         load_settings = new MyMenuItem("Load Settings", MainWindow.getIcon("load.png"));
+        load_kfr_settings = new MyMenuItem("Load KFR Settings", MainWindow.getIcon("load.png"));
         
         save_initial_settings_opt = new MyMenuItem("Set Initial Settings", MainWindow.getIcon("init_settings.png"));
 
@@ -99,8 +86,9 @@ public class FileMenu extends MyMenu {
         down.setToolTipText("Moves one screen down.");
         left.setToolTipText("Moves one screen left.");
         right.setToolTipText("Moves one screen right.");
-        save_settings.setToolTipText("<html>Saves the function, plane, center, size, color options, iterations,<br> rotation, perturbation, initial value, bailout, julia settings,<br>and image filters.</html>");
-        load_settings.setToolTipText("<html>Loads the function, plane, center, size, color options, iterations,<br> rotation, perturbation, initial value, bailout, julia settings,<br>and image filters.</html>");
+        save_settings.setToolTipText("Saves the active settings.");
+        load_settings.setToolTipText("Load settings created by Fractal Zoomer.");
+        load_kfr_settings.setToolTipText("Loads settings created by Kalles Fraktaler.");
         save_image.setToolTipText("Saves an image.");
         save_settings_image.setToolTipText("Saves the current settings and an image.");
         code_editor.setToolTipText("<html>Opens the java code, containing the user defined functions,<br>with a text editor.</html>");
@@ -146,6 +134,7 @@ public class FileMenu extends MyMenu {
         save_settings.addActionListener(e -> ptr.saveSettings());
 
         load_settings.addActionListener(e -> ptr.loadSettings());
+        load_kfr_settings.addActionListener(e -> ptr.loadKFRSettings());
 
         save_image.addActionListener(e -> ptr.saveImage(false));
         
@@ -187,6 +176,7 @@ public class FileMenu extends MyMenu {
         addSeparator();
         add(save_settings);
         add(load_settings);
+        add(load_kfr_settings);
         add(default_opt);
         add(save_initial_settings_opt);
         addSeparator();
@@ -293,6 +283,10 @@ public class FileMenu extends MyMenu {
         
         return load_settings;
         
+    }
+
+    public JMenuItem getLoadKFRSettings() {
+        return load_kfr_settings;
     }
     
     public JMenuItem getSaveImageAndSettings() {

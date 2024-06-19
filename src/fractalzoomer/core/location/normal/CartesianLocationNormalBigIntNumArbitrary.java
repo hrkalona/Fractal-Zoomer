@@ -1,6 +1,8 @@
 package fractalzoomer.core.location.normal;
 
-import fractalzoomer.core.*;
+import fractalzoomer.core.BigIntNum;
+import fractalzoomer.core.BigIntNumComplex;
+import fractalzoomer.core.GenericComplex;
 import fractalzoomer.core.location.Location;
 import fractalzoomer.fractal_options.Rotation;
 import fractalzoomer.functions.Fractal;

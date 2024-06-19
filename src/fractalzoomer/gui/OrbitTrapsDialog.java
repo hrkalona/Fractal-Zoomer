@@ -1,19 +1,4 @@
-/*
- * Copyright (C) 2020 hrkalona
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+
 package fractalzoomer.gui;
 
 import fractalzoomer.fractal_options.orbit_traps.ImageOrbitTrap;
@@ -22,7 +7,6 @@ import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
 import fractalzoomer.main.app_settings.Settings;
-import raven.slider.SliderGradient;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -43,6 +27,8 @@ public class OrbitTrapsDialog extends JDialog {
 	private MainWindow ptra2;
     private JDialog this_frame;
     private JTextField trap_norm_field;
+    private JTextField trap_norm_a_field;
+    private JTextField trap_norm_b_field;
     private JComboBox<String> orbit_traps_combo;
     private JComboBox<String> lines_function_combo;
     private JTextField trap_width_field;
@@ -129,15 +115,21 @@ public class OrbitTrapsDialog extends JDialog {
 
 
         load_image_button = new MyButton();
-        load_image_button.setIcon(MainWindow.getIcon("load_image.png"));
+        load_image_button.setIcon(MainWindow.getIcon("save_image.png"));
         load_image_button.setFocusable(false);
         load_image_button.setToolTipText("Loads an image to be used as a pattern, with the Image based Trap");
         load_image_button.setPreferredSize(new Dimension(30, 30));
 
         load_image_button.addActionListener(e -> loadPatternImage(this_frame));
 
-        trap_norm_field = new JTextField(9);
+        trap_norm_field = new JTextField(3);
         trap_norm_field.setText("" + ots.trapNorm);
+        trap_norm_a_field = new JTextField(3);
+        trap_norm_a_field.setText("" + ots.trapNormA);
+        trap_norm_a_field.setToolTipText("Sets the norm A coefficient.");
+        trap_norm_b_field = new JTextField(3);
+        trap_norm_b_field.setText("" + ots.trapNormB);
+        trap_norm_b_field.setToolTipText("Sets the norm B coefficient.");
         
         lines_function_combo = new JComboBox<>(MainWindow.orbitTrapLineTypes);
         lines_function_combo.setSelectedIndex(ots.lineType);
@@ -147,11 +139,15 @@ public class OrbitTrapsDialog extends JDialog {
         JPanel p1 = new JPanel();
         p1.setBackground(MainWindow.bg_color);
 
-        p1.add(new JLabel("Shape: "));
+        p1.add(new JLabel("Type: "));
         p1.add(orbit_traps_combo);
         p1.add(load_image_button);
         p1.add(new JLabel(" Norm: "));
         p1.add(trap_norm_field);
+        p1.add(new JLabel(" A: "));
+        p1.add(trap_norm_a_field);
+        p1.add(new JLabel(" B: "));
+        p1.add(trap_norm_b_field);
 
         final JTextField real_textfield = new JTextField(10);
         real_textfield.setText("" + ots.trapPoint[0]);
@@ -159,7 +155,7 @@ public class OrbitTrapsDialog extends JDialog {
         final JTextField imaginary_textfield = new JTextField(10);
         imaginary_textfield.setText("" + ots.trapPoint[1]);
 
-        JTextField useLastX = new JTextField(4);
+        JTextField useLastX = new JTextField(3);
         useLastX.setToolTipText("Takes into account only the last X samples (0: use all samples).");
         useLastX.setText("" + ots.lastXItems);
 
@@ -168,7 +164,7 @@ public class OrbitTrapsDialog extends JDialog {
         checkType.setFocusable(false);
         checkType.setToolTipText("Sets the trap finding method.");
 
-        final JTextField skipCheck = new JTextField(4);
+        final JTextField skipCheck = new JTextField(3);
         skipCheck.setText("" + ots.skipTrapCheckForIterations);
 
         JPanel p2 = new JPanel();
@@ -192,13 +188,13 @@ public class OrbitTrapsDialog extends JDialog {
         p12.add(new JLabel(" Im: "));
         p12.add(imaginary_textfield);
 
-        trap_length_field = new JTextField(9);
+        trap_length_field = new JTextField(5);
         trap_length_field.setText("" + ots.trapLength);
 
-        trap_width_field = new JTextField(9);
+        trap_width_field = new JTextField(5);
         trap_width_field.setText("" + ots.trapWidth);
         
-        trap_threshold_field = new JTextField(9);
+        trap_threshold_field = new JTextField(5);
         trap_threshold_field.setText("" + ots.trapMaxDistance);
         
         trap_intensity_field = new JTextField(4);
@@ -671,9 +667,12 @@ public class OrbitTrapsDialog extends JDialog {
 
             double temp, temp2, temp3, temp4, temp5, temp6, temp7;
             double tempM1, tempM2, tempN1, tempN2, tempN3, tempA, tempB;
+            double temp8, temp9;
             int skipTrapIterations, temp21, temp22;
             try {
                 temp = Double.parseDouble(trap_norm_field.getText());
+                temp8 = Double.parseDouble(trap_norm_a_field.getText());
+                temp9 = Double.parseDouble(trap_norm_b_field.getText());
                 temp2 = Double.parseDouble(real_textfield.getText());
                 temp3 = Double.parseDouble(imaginary_textfield.getText());
                 temp4 = Double.parseDouble(trap_length_field.getText());
@@ -737,6 +736,8 @@ public class OrbitTrapsDialog extends JDialog {
             ots.trapMaxDistance = temp6;
             ots.trapIntensity = temp7;
             ots.trapNorm = temp;
+            ots.trapNormA = temp8;
+            ots.trapNormB = temp9;
             ots.trapPoint[0] = temp2;
             ots.trapPoint[1] = temp3;
             ots.trapBlending = blend_opt.getValue() / 100.0;
@@ -890,7 +891,10 @@ public class OrbitTrapsDialog extends JDialog {
         }
 
 
-        trap_norm_field.setEnabled(index == MainWindow.NNORM_ATOM_DOMAIN_TRAP || index == MainWindow.POINT_N_NORM_TRAP || index == MainWindow.N_NORM_TRAP || index == MainWindow.N_NORM_CROSS_TRAP || index == MainWindow.N_NORM_POINT_TRAP || index == MainWindow.N_NORM_POINT_N_NORM_TRAP || index == MainWindow.GOLDEN_RATIO_SPIRAL_POINT_N_NORM_TRAP || index == MainWindow.GOLDEN_RATIO_SPIRAL_N_NORM_TRAP || index == MainWindow.STALKS_POINT_N_NORM_TRAP || index == MainWindow.STALKS_N_NORM_TRAP);
+        boolean enabled = index == MainWindow.NNORM_ATOM_DOMAIN_TRAP || index == MainWindow.POINT_N_NORM_TRAP || index == MainWindow.N_NORM_TRAP || index == MainWindow.N_NORM_CROSS_TRAP || index == MainWindow.N_NORM_POINT_TRAP || index == MainWindow.N_NORM_POINT_N_NORM_TRAP || index == MainWindow.GOLDEN_RATIO_SPIRAL_POINT_N_NORM_TRAP || index == MainWindow.GOLDEN_RATIO_SPIRAL_N_NORM_TRAP || index == MainWindow.STALKS_POINT_N_NORM_TRAP || index == MainWindow.STALKS_N_NORM_TRAP;
+        trap_norm_field.setEnabled(enabled);
+        trap_norm_a_field.setEnabled(enabled);
+        trap_norm_b_field.setEnabled(enabled);
         trap_width_field.setEnabled(!(index == MainWindow.ATOM_DOMAIN_TRAP || index == MainWindow.SQUARE_ATOM_DOMAIN_TRAP || index == MainWindow.RHOMBUS_ATOM_DOMAIN_TRAP || index == MainWindow.NNORM_ATOM_DOMAIN_TRAP || index == MainWindow.POINT_RHOMBUS_TRAP || index == MainWindow.POINT_SQUARE_TRAP || index == MainWindow.POINT_TRAP || index == MainWindow.POINT_N_NORM_TRAP || index == MainWindow.IMAGE_TRANSPARENT_TRAP));
         trap_length_field.setEnabled(!(index == Constants.SUPER_FORMULA_ORBIT_TRAP || index == MainWindow.ATOM_DOMAIN_TRAP || index == MainWindow.SQUARE_ATOM_DOMAIN_TRAP || index == MainWindow.RHOMBUS_ATOM_DOMAIN_TRAP || index == MainWindow.NNORM_ATOM_DOMAIN_TRAP ||  index == MainWindow.GOLDEN_RATIO_SPIRAL_TRAP || index == MainWindow.STALKS_TRAP || index == MainWindow.IMAGE_TRANSPARENT_TRAP || index == MainWindow.MOVING_AVERAGE_1_TRAP || index == MainWindow.MOVING_AVERAGE_2_TRAP));
         lines_function_combo.setEnabled(index == MainWindow.CROSS_TRAP || index ==  MainWindow.RE_TRAP || index ==  MainWindow.IM_TRAP || index ==  MainWindow.CIRCLE_CROSS_TRAP || index ==  MainWindow.SQUARE_CROSS_TRAP || index ==  MainWindow.RHOMBUS_CROSS_TRAP || index ==  MainWindow.N_NORM_CROSS_TRAP || index == MainWindow.GOLDEN_RATIO_SPIRAL_CROSS_TRAP || index == MainWindow.STALKS_CROSS_TRAP);

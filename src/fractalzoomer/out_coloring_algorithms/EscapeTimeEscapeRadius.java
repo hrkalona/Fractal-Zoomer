@@ -1,48 +1,46 @@
-/* 
- * Fractal Zoomer, Copyright (C) 2020 hrkalona2
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+
 
 package fractalzoomer.out_coloring_algorithms;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.core.norms.Norm;
 
 /**
  *
  * @author hrkalona2
  */
 public class EscapeTimeEscapeRadius extends OutColorAlgorithm {
-  protected double log_bailout_squared;
+  protected double log_bailout;
   protected double pi2;
+  protected OutColorAlgorithm EscapeTimeAlg;
+  private Norm normImpl;
     
-    public EscapeTimeEscapeRadius(double log_bailout_squared) {
+    public EscapeTimeEscapeRadius(double bailout, OutColorAlgorithm EscapeTimeAlg, Norm normImpl) {
 
         super();
-        this.log_bailout_squared = log_bailout_squared;
+
+        double exp = normImpl.getExp();
+        if(exp != 2) {
+            log_bailout = exp != 1 ? Math.log(Math.pow(bailout, exp)) : Math.log(bailout);
+        }
+        else {
+            log_bailout = Math.log(bailout * bailout);
+        }
+
         pi2 = Math.PI * 2;
         OutUsingIncrement = false;
+        this.EscapeTimeAlg = EscapeTimeAlg;
+        this.normImpl = normImpl;
 
     }
 
     @Override
     public double getResult(Object[] object) {
         
-        double zabs = Math.log(((Complex)object[1]).norm_squared()) / log_bailout_squared - 1.0f;
+        double zabs = Math.log(normImpl.computeWithoutRoot((Complex)object[1])) / log_bailout - 1.0f;
         double zarg = (((Complex)object[1]).arg() / (pi2) + 1.0f) % 1.0;
         
-        return (int)object[0] + zabs + zarg;
+        return EscapeTimeAlg.getResult(object) + zabs + zarg;
 
     }
     

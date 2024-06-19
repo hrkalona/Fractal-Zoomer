@@ -1,28 +1,13 @@
-/*
- * Fractal Zoomer, Copyright (C) 2020 hrkalona2
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+
 package fractalzoomer.main;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fractalzoomer.core.*;
-import fractalzoomer.core.rendering_algorithms.*;
+import fractalzoomer.core.la.LAReference;
 import fractalzoomer.core.la.impl.LAInfo;
 import fractalzoomer.core.la.impl.LAInfoDeep;
-import fractalzoomer.core.la.LAReference;
 import fractalzoomer.core.location.Location;
+import fractalzoomer.core.rendering_algorithms.*;
 import fractalzoomer.functions.Fractal;
 import fractalzoomer.gui.*;
 import fractalzoomer.main.app_settings.*;
@@ -31,7 +16,6 @@ import fractalzoomer.parser.ParserException;
 import fractalzoomer.utils.*;
 import org.apfloat.Apfloat;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.plaf.basic.BasicFileChooserUI;
@@ -41,13 +25,15 @@ import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Timer;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.IntStream;
 
 import static fractalzoomer.gui.CpuLabel.CPU_DELAY;
@@ -83,7 +69,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
     private JButton compileButton;
     private JButton threadsButton;
     private JButton imageSizeButton;
-    private JButton greedyAlgorithmsButton;
+    private JButton renderingAlgorithmsButton;
     private JButton perturbationTheoryButton;
     private JButton aboutButton;
     private JButton helpButton;
@@ -328,12 +314,12 @@ public class ImageExpanderWindow extends JFrame implements Constants {
 
 
 
-        greedyAlgorithmsButton = new MyButton("Rendering Algorithms", MainWindow.getIcon("greedy_algorithm.png"));
-        greedyAlgorithmsButton.setFocusable(false);
-        greedyAlgorithmsButton.setPreferredSize(buttonDimension);
-        greedyAlgorithmsButton.setToolTipText("Sets the rendering algorithms options.");
+        renderingAlgorithmsButton = new MyButton("Rendering Algorithms", MainWindow.getIcon("rendering_algorithm.png"));
+        renderingAlgorithmsButton.setFocusable(false);
+        renderingAlgorithmsButton.setPreferredSize(buttonDimension);
+        renderingAlgorithmsButton.setToolTipText("Sets the rendering algorithms options.");
 
-        greedyAlgorithmsButton.addActionListener(e -> setGreedyAlgorithms());
+        renderingAlgorithmsButton.addActionListener(e -> setRenderingAlgorithms());
 
 
         renderButton = new MyButton("Render Image", MainWindow.getIcon("save_image.png"));
@@ -428,9 +414,9 @@ public class ImageExpanderWindow extends JFrame implements Constants {
 
         totalprogress.setVisible(false);
 
-        memory_label = new MemoryLabel(220);
+        memory_label = new MemoryLabel(220, 20);
         memory_label.setVisible(false);
-        cpuLabel = new CpuLabel(220);
+        cpuLabel = new CpuLabel(220, 20);
         cpuLabel.setVisible(false);
 
         JPanel stats = new JPanel();
@@ -450,7 +436,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
 
         JPanel p7 = new JPanel();
         p7.setBackground(Constants.bg_color);
-        p7.add(greedyAlgorithmsButton);
+        p7.add(renderingAlgorithmsButton);
         p7.add(perturbationTheoryButton);
 
         JPanel p6 = new JPanel();
@@ -541,7 +527,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
             compileButton.setEnabled(opt);
             threadsButton.setEnabled(opt);
             imageSizeButton.setEnabled(opt);
-            greedyAlgorithmsButton.setEnabled(opt);
+            renderingAlgorithmsButton.setEnabled(opt);
             batchRenderButton.setEnabled(opt);
             sequenceRenderButton.setEnabled(opt);
             outputDirectoryButton.setEnabled(opt);
@@ -1184,7 +1170,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
         new ImageSizeExpanderDialog(ptr, image_width, image_height, imageFormat);
     }
 
-    public void setGreedyAlgorithms() {
+    public void setRenderingAlgorithms() {
 
         new RenderingAlgorithmsDialog(ptr, TaskRender.GREEDY_ALGORITHM, TaskRender.GREEDY_ALGORITHM_SELECTION, TaskRender.BRUTE_FORCE_ALG, TaskRender.GUESS_BLOCKS_SELECTION);
 
@@ -1333,7 +1319,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
             writer.println("brute_force_alg " + TaskRender.BRUTE_FORCE_ALG);
             writer.println("one_chunk_per_row " + TaskRender.CHUNK_SIZE_PER_ROW);
             writer.println("exponent_diff_ignored " + MantExp.EXPONENT_DIFF_IGNORED);
-            writer.println("bignum_library " + TaskRender.BIGNUM_LIBRARY);
+            writer.println("bignum_implementation " + TaskRender.BIGNUM_IMPLEMENTATION);
             writer.println("automatic_precision " + MyApfloat.setAutomaticPrecision);
             writer.println("nanomb1_n " + TaskRender.NANOMB1_N);
             writer.println("nanomb1_m " + TaskRender.NANOMB1_M);
@@ -1366,6 +1352,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
             writer.println("bla2_double_threshold_limit " + LAReference.doubleThresholdLimit.toDouble());
             writer.println("bla2_convert_to_double_when_possible " + LAReference.CONVERT_TO_DOUBLE_WHEN_POSSIBLE);
             writer.println("bla2_period_divisor " + LAReference.periodDivisor);
+            writer.println("bla2_create_at " + LAReference.CREATE_AT);
             writer.println("use_threads_for_bla2 " + TaskRender.USE_THREADS_FOR_BLA2);
             writer.println("use_ref_index_on_bla2 " + TaskRender.USE_RI_ON_BLA2);
             writer.println("disable_ref_index_on_bla2 " + TaskRender.DISABLE_RI_ON_BLA2);
@@ -1390,6 +1377,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
             writer.println("derivative_step " + Derivative.DZ.getRe());
             writer.println("aa_jitter_size " + Location.AA_JITTER_SIZE);
             writer.println("aa_number_of_jitter_kernels " + Location.NUMBER_OF_AA_JITTER_KERNELS);
+            writer.println("aa_fixed_jitter_size " + Location.FIXED_JITTER_SIZE);
             writer.println("whitepoint " + ColorSpaceConverter.whitePointId);
             writer.println("include_aa_data_on_rank_order " + TaskRender.INCLUDE_AA_DATA_ON_RANK_ORDER);
             writer.println("seed " + TaskRender.SEED);
@@ -1555,12 +1543,12 @@ public class ImageExpanderWindow extends JFrame implements Constants {
 
                     String token = tokenizer.nextToken();
 
-                    if (token.equals("bignum_library") && tokenizer.countTokens() == 1) {
+                    if (token.equals("bignum_implementation") && tokenizer.countTokens() == 1) {
                         try {
                             int temp = Integer.parseInt(tokenizer.nextToken());
 
                             if (temp >= 0 && temp <= 8) {
-                                TaskRender.BIGNUM_LIBRARY = temp;
+                                TaskRender.BIGNUM_IMPLEMENTATION = temp;
                             }
                         } catch (Exception ex) {
                         }
@@ -1731,6 +1719,28 @@ public class ImageExpanderWindow extends JFrame implements Constants {
                         }
                         else if(token.equals("true")) {
                             TaskRender.STOP_REFERENCE_CALCULATION_AFTER_DETECTED_PERIOD = true;
+                        }
+                    }
+                    else if(token.equals("aa_fixed_jitter_size") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if(token.equals("false")) {
+                            Location.FIXED_JITTER_SIZE = false;
+                        }
+                        else if(token.equals("true")) {
+                            Location.FIXED_JITTER_SIZE = true;
+                        }
+                    }
+                    else if(token.equals("bla2_create_at") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if(token.equals("false")) {
+                            LAReference.CREATE_AT = false;
+                        }
+                        else if(token.equals("true")) {
+                            LAReference.CREATE_AT = true;
                         }
                     }
                     else if(token.equals("include_aa_data_on_rank_order") && tokenizer.countTokens() == 1) {
@@ -2516,7 +2526,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
 
         MyApfloat.setPrecision(MyApfloat.precision, s);
 
-        Location.setJitter(2);
+        Location.setJitter(TaskRender.SEED);
 
         ColorSpaceConverter.init();
 

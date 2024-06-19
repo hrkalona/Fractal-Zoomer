@@ -1,25 +1,12 @@
-/* 
- * Fractal Zoomer, Copyright (C) 2020 hrkalona2
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+
 
 package fractalzoomer.bailout_conditions;
 
 import fractalzoomer.core.*;
 import fractalzoomer.core.mpfr.MpfrBigNum;
 import fractalzoomer.core.mpir.MpirBigNum;
+import fractalzoomer.core.norms.Norm;
+import fractalzoomer.core.norms.Norm2;
 import org.apfloat.Apfloat;
 
 /**
@@ -33,8 +20,8 @@ public abstract class BailoutCondition {
   protected BigIntNum binbound;
   protected DoubleDouble ddcbound;
   protected int id;
-
-    protected boolean useThreads;
+  protected Norm normImpl;
+  protected boolean useThreads;
 
     public void setUseThreads(boolean useThreads) {
         this.useThreads = useThreads;
@@ -49,6 +36,8 @@ public abstract class BailoutCondition {
             bnbound = BigNum.create(bound);
             binbound = new BigIntNum(bound);
         }
+
+        normImpl = new Norm2();
         
     }
     
@@ -144,6 +133,10 @@ public abstract class BailoutCondition {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public Norm getNormImpl() {
+        return normImpl;
     }
 
 }

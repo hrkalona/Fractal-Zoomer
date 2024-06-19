@@ -1,19 +1,4 @@
-/*
- * Copyright (C) 2020 hrkalona
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+
 package fractalzoomer.gui;
 
 import fractalzoomer.main.MainWindow;
@@ -37,7 +22,7 @@ public class FractalOptionsMenu extends MyMenu {
     private FunctionFiltersMenu post_function_filters;
     private PlaneInfluenceMenu plane_influence_menu;
     
-    public FractalOptionsMenu(MainWindow ptr2, String name, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, int function, int plane_type, int pre_filter, int post_filter, int plane_influence) {
+    public FractalOptionsMenu(MainWindow ptr2, String name, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, int function, int plane_type, int pre_filter, int post_filter, int plane_influence, boolean flip_re, boolean flip_im) {
         super(name);
 
         this.ptr = ptr2;
@@ -46,7 +31,7 @@ public class FractalOptionsMenu extends MyMenu {
         
         fractal_functions_menu = new FractalFunctionsMenu(ptr, "Fractal Functions", function);
         
-        planes_menu = new PlanesMenu(ptr, "Planes", apply_plane_on_julia, apply_plane_on_julia_seed, plane_type);
+        planes_menu = new PlanesMenu(ptr, "Planes", apply_plane_on_julia, apply_plane_on_julia_seed, plane_type, flip_re, flip_im);
 
         pre_function_filters = new FunctionFiltersMenu(ptr, "Pre Function Filter", pre_filter, false);
         post_function_filters = new FunctionFiltersMenu(ptr, "Post Function Filter", post_filter, true);
@@ -108,6 +93,18 @@ public class FractalOptionsMenu extends MyMenu {
     public JCheckBoxMenuItem getApplyPlaneOnJuliaSeedOpt() {
 
         return planes_menu.getApplyPlaneOnJuliaSeedOpt();
+
+    }
+
+    public JCheckBoxMenuItem getFlipReOpt() {
+
+        return planes_menu.getFlipReOpt();
+
+    }
+
+    public JCheckBoxMenuItem getFlipImOpt() {
+
+        return planes_menu.getFlipImOpt();
 
     }
     

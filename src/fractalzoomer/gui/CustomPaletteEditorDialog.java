@@ -1,19 +1,4 @@
-/*
- * Copyright (C) 2020 hrkalona
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+
 package fractalzoomer.gui;
 
 import de.articdive.jnoise.core.api.functions.Interpolation;
@@ -66,7 +51,6 @@ public class CustomPaletteEditorDialog extends JDialog {
     private JLabel[] labels;
     private JTextField[] textfields;
     private JFrame color_picker_frame;
-    private JCheckBox check_box_preview_smooth_color;
     private BufferedImage colors;
     private BufferedImage colors2;
     private JLabel gradient;
@@ -133,10 +117,12 @@ public class CustomPaletteEditorDialog extends JDialog {
     }
 
     private Future<?> future;
+    private boolean smoothing;
 
     public CustomPaletteEditorDialog(MainWindow ptra, final JRadioButtonMenuItem[] palette, boolean smoothing, final int palette_id, final int color_choice, int[][] custom_palette, int color_interpolation2, int color_space2, boolean reversed_palette2, int temp_color_cycling_location2, double scale_factor_palette_val2, int processing_alg2, final boolean outcoloring_mode) {
 
         super();
+        this.smoothing = smoothing;
 
         selectedIndex = -1;
         
@@ -661,15 +647,15 @@ public class CustomPaletteEditorDialog extends JDialog {
             random_palette_algorithm = combo_box_random_palette_alg.getSelectedIndex();
             pastel = pastel_cb.isSelected();
 
-            ptra2.customPaletteChanged(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2.0) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex(), outcoloring_mode);
-
-            ptra2.setPalette(palette_id, null, outcoloring_mode ? 0 : 1);
-
             if(!isModal()) {
                 ptra2.setEnabled(true);
             }
 
             dispose();
+
+            ptra2.customPaletteChanged(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2.0) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex(), outcoloring_mode);
+
+            ptra2.setPalette(palette_id, null, outcoloring_mode ? 0 : 1);
 
         });
 
@@ -1862,31 +1848,6 @@ public class CustomPaletteEditorDialog extends JDialog {
 
         setJMenuBar(menubar);
 
-        check_box_preview_smooth_color = new JCheckBox("Smooth");
-        check_box_preview_smooth_color.setSelected(smoothing);
-        check_box_preview_smooth_color.setFocusable(false);
-        check_box_preview_smooth_color.setToolTipText("Previews the palette for color smoothing.");
-        check_box_preview_smooth_color.setBackground(MainWindow.bg_color);
-
-        check_box_preview_smooth_color.addActionListener(e -> {
-            try {
-                Color[] c111 = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2.0) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
-
-                paintGradientAndGraph(c111);
-            } catch (ArithmeticException ex) {
-                length_label.setText("0");
-                Graphics2D g = colors.createGraphics();
-                g.setColor(Color.LIGHT_GRAY);
-                g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
-                gradient.repaint();
-
-                Graphics2D g2 = colors2.createGraphics();
-                g2.setColor(Color.WHITE);
-                g2.fillRect(0, 0, colors2.getWidth(), colors2.getHeight());
-                graph.repaint();
-            }
-        });
-
         JPanel p1 = new JPanel();
         p1.setLayout(new GridLayout(2, 1));
         p1.setBackground(MainWindow.bg_color);
@@ -1982,9 +1943,6 @@ public class CustomPaletteEditorDialog extends JDialog {
         tools.add(new JLabel("Random: "));
         tools.add(p1);
 
-        tools.add(Box.createRigidArea(new Dimension(10, 10)));
-        tools.add(check_box_preview_smooth_color);
-
         graph = new ImageLabel(new ImageIcon(colors2));
 
         graph.setPreferredSize(new Dimension(colors2.getWidth(), colors2.getHeight()));
@@ -2055,7 +2013,7 @@ public class CustomPaletteEditorDialog extends JDialog {
             length_label.setText("" + c.length);
             Graphics2D g = colors.createGraphics();
             for (int i = 0; i < c.length; i++) {
-                if (check_box_preview_smooth_color.isSelected()) {
+                if (smoothing) {
                     GradientPaint gp = new GradientPaint(i * colors.getWidth() / ((float)c.length), 0, c[i], (i + 1) * colors.getWidth() / ((float)c.length), 0, c[(i + 1) % c.length]);
                     g.setPaint(gp);
                     g.fill(new Rectangle2D.Double(i * colors.getWidth() / ((double)c.length), 0, (i + 1) * colors.getWidth() / ((double)c.length) - i * colors.getWidth() / ((double)c.length), colors.getHeight()));
@@ -3219,7 +3177,7 @@ public class CustomPaletteEditorDialog extends JDialog {
             BufferedImage palette_preview = new BufferedImage(250, 24, BufferedImage.TYPE_INT_ARGB);
             Graphics2D g = palette_preview.createGraphics();
             for (int j = 0; j < c.length; j++) {
-                if (check_box_preview_smooth_color.isSelected()) {
+                if (smoothing) {
                     GradientPaint gp = new GradientPaint(j * palette_preview.getWidth() / ((float)c.length), 0, c[j], (j + 1) * palette_preview.getWidth() / ((float)c.length), 0, c[(j + 1) % c.length]);
                     g.setPaint(gp);
                     g.fill(new Rectangle2D.Double(j * palette_preview.getWidth() / ((double)c.length), 0, (j + 1) * palette_preview.getWidth() / ((double)c.length) - j * palette_preview.getWidth() / ((double)c.length), palette_preview.getHeight()));

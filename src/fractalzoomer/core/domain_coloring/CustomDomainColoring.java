@@ -1,23 +1,10 @@
-/*
- * Fractal Zoomer, Copyright (C) 2020 hrkalona2
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+
 package fractalzoomer.core.domain_coloring;
 
 import fractalzoomer.core.Complex;
 import fractalzoomer.core.blending.Blending;
+import fractalzoomer.core.norms.Norm;
+import fractalzoomer.core.norms.NormN;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.DomainColoringSettings;
 import fractalzoomer.main.app_settings.GeneratedPaletteSettings;
@@ -39,13 +26,13 @@ public class CustomDomainColoring extends DomainColoring {
     private boolean drawIsoLines;
     private int colorType;
     private int contourType;
-    private double normType;
-    private double normTypeReciprocal;
     private int[] order;
 
     private int iso_color_type;
     private int grid_color_type;
     private int circle_color_type;
+
+    private Norm normImpl;
 
     public CustomDomainColoring(DomainColoringSettings ds, PaletteColor palette, TransferFunction color_transfer, int color_cycling_location, GeneratedPaletteSettings gps, Blending blending, int[] gradient, int interpolation, int gradient_offset, double countourFactor) {
 
@@ -132,8 +119,7 @@ public class CustomDomainColoring extends DomainColoring {
         colorType = ds.colorType;
         contourType = ds.contourType;
 
-        normType = ds.normType;
-        normTypeReciprocal = 1 / normType;
+        normImpl = new NormN(ds.normType, ds.normA, ds.normB);
         
         combineType = ds.combineType;
 
@@ -158,14 +144,7 @@ public class CustomDomainColoring extends DomainColoring {
 
         int color = 0xffffffff;
 
-        double norm = 0;
-
-        if(normType == 2) {
-            norm = res.norm();
-        }
-        else {
-            norm = res.nnorm(normType, normTypeReciprocal);
-        }
+        double norm = normImpl.computeWithRoot(res);
 
         double arg = res.arg();
         double re = res.getRe();

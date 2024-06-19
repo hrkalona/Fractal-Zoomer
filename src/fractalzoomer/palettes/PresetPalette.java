@@ -1,19 +1,4 @@
-/* 
- * Fractal Zoomer, Copyright (C) 2020 hrkalona2
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+
 package fractalzoomer.palettes;
 
 import fractalzoomer.main.MainWindow;
@@ -347,6 +332,19 @@ public class PresetPalette extends Palette {
                 } else {
                     palette_color = new PaletteColorSmooth(fx_six_primaries, special_color, color_smoothing_method, special_use_palette_color, fractional_transfer_method);
                 }
+            case 45:
+                if (!smoothing) {
+                    palette_color = new PaletteColorNormal(xaos_default, special_color, special_use_palette_color);
+                } else {
+                    palette_color = new PaletteColorSmooth(xaos_default, special_color, color_smoothing_method, special_use_palette_color, fractional_transfer_method);
+                }
+                break;
+            case 46:
+                if (!smoothing) {
+                    palette_color = new PaletteColorNormal(kf_default, special_color, special_use_palette_color);
+                } else {
+                    palette_color = new PaletteColorSmooth(kf_default, special_color, color_smoothing_method, special_use_palette_color, fractional_transfer_method);
+                }
                 break;
 
         }
@@ -496,6 +494,12 @@ public class PresetPalette extends Palette {
                 break;
             case 44:
                 palette = fx_six_primaries;
+                break;
+            case 45:
+                palette = xaos_default;
+                break;
+            case 46:
+                palette = kf_default;
                 break;
             default:
                 palette = default_fractint;

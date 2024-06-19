@@ -5,7 +5,6 @@ import fractalzoomer.core.la.impl.LAInfo;
 import fractalzoomer.functions.Fractal;
 import fractalzoomer.main.app_settings.ApproximationDefaultSettings;
 
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
@@ -60,6 +59,7 @@ class LAData {
 
 public class LAReference {
     public static boolean CONVERT_TO_DOUBLE_WHEN_POSSIBLE = false;
+    public static boolean CREATE_AT = true;
 
     private static final int lowBound = ApproximationDefaultSettings.lowBound;
     public static double periodDivisor = ApproximationDefaultSettings.PeriodDivisor;
@@ -1115,7 +1115,12 @@ public class LAReference {
                 MinimizeStage(LAStageCount - 1);
             }
 
-            CreateATFromLA(radius);
+            if(CREATE_AT) {
+                CreateATFromLA(radius);
+            }
+            else {
+                UseAT = false;
+            }
 
             //Recreate data to save memory
             if (deepZoom && (refData.Reference == null || refData.Reference.dataLength() != maxRefIteration + 1) && (convertedToDouble || performDoublePrecisionSimplePerturbation)) {

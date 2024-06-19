@@ -15,29 +15,29 @@ public class RootColoring extends GenericStatistic {
     private double rootTolerance;
     private double highlightTolerance;
     private int[] rootColors;
-    private double log_convergent_bailout;
     private double scaling;
     private int max_iterations;
     private boolean rootSmooting;
     private Fractal fractal;
-
     private int unmmaped_root_color;
+
+    private boolean capTo1;
 
     static {
         roots = new ArrayList<>();
     }
 
-    public RootColoring(double log_convergent_bailout, double scaling, int max_iterations, int[] rootColors, boolean rootSmooting, Fractal fractal, int unmmaped_root_color) {
+    public RootColoring(double scaling, int max_iterations, int[] rootColors, boolean rootSmooting, Fractal fractal, int unmmaped_root_color, boolean capTo1) {
         super(0, false, false, 0);
         rootTolerance = 1e-10;
         highlightTolerance = 1e-3;
-        this.log_convergent_bailout = log_convergent_bailout;
         this.scaling = scaling;
         this.max_iterations = max_iterations;
         this.rootColors = rootColors;
         this.rootSmooting = rootSmooting;
         this.fractal = fractal;
         this.unmmaped_root_color = unmmaped_root_color;
+        this.capTo1 = capTo1;
     }
 
     @Override
@@ -72,14 +72,14 @@ public class RootColoring extends GenericStatistic {
 
         if(fractal instanceof RootFindingMethods) {
             Complex result = ((RootFindingMethods)fractal).evaluateFunction(z_val, c_val);
-            if(!(result == null || result.norm_squared() < rootTolerance)) {
+            if(!(result == null || cNormSmoothingImpl.computeWithoutRoot(result) < rootTolerance)) {
                 return unmmaped_root_color;
             }
         }
 
         if(fractal instanceof ExtendedConvergentType) {
             Complex result = ((ExtendedConvergentType)fractal).evaluateFunction(z_val, c_val);
-            if(!(result == null || result.norm_squared() < rootTolerance)) {
+            if(!(result == null || cNormSmoothingImpl.computeWithoutRoot(result) < rootTolerance)) {
                 return unmmaped_root_color;
             }
         }
@@ -88,7 +88,7 @@ public class RootColoring extends GenericStatistic {
         synchronized (roots) {
 
             for(Complex root : roots) {
-                if(root.distance_squared(z_val) <= rootTolerance) {
+                if(cNormSmoothingImpl.computeWithoutRoot(root.sub(z_val)) <= rootTolerance) {
                     break;
                 }
                 rootId++;
@@ -112,18 +112,18 @@ public class RootColoring extends GenericStatistic {
             double smoothing;
 
             if(converging_smoothing_algorithm == 0) {
-                smoothing = OutColorAlgorithm.fractionalPartConverging1(z_val, zold_val, zold2_val, log_convergent_bailout);
+                smoothing = OutColorAlgorithm.fractionalPartConverging1(z_val, zold_val, zold2_val, log_convergent_bailout, cNormSmoothingImpl);
             }
             else {
-                smoothing = OutColorAlgorithm.fractionalPartConverging2(z_val, zold_val, zold2_val, log_convergent_bailout);
+                smoothing = OutColorAlgorithm.fractionalPartConverging2(z_val, zold_val, zold2_val, log_convergent_bailout, cNormSmoothingImpl);
             }
 
             double val = (iterations + 1 - smoothing) / scaling;
-            return val > 1 ? 1 : val;
+            return capTo1 ? (val > 1 ? 1 : val) : val % 2;
         }
         else {
             double val = iterations / scaling;
-            return val > 1 ? 1 : val;
+            return capTo1 ? (val > 1 ? 1 : val) : val % 2;
         }
     }
 
@@ -132,7 +132,7 @@ public class RootColoring extends GenericStatistic {
         synchronized (roots) {
 
             for(Complex root : roots) {
-                double dist = root.distance_squared(pixel_val);
+                double dist = cNormSmoothingImpl.computeWithoutRoot(root.sub(pixel_val));
                 if(dist <= highlightTolerance) {
                     return dist / highlightTolerance;
                 }

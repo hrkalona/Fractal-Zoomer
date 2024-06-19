@@ -1,19 +1,4 @@
-/*
- * Fractal Zoomer, Copyright (C) 2020 hrkalona2
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+
 package fractalzoomer.gui;
 
 import fractalzoomer.main.MainWindow;
@@ -36,10 +21,7 @@ public class Toolbar extends JToolBar {
     private JButton save_image_button;
     private JButton save_image_and_settings_button;
     private JButton custom_palette_button_out;
-    private JButton custom_palette_button_in;
-
     private JButton custom_palette_button2_out;
-    private JButton custom_palette_button2_in;
     private JButton random_palette_button;
     private JButton iterations_button;
     private JButton rotation_button;
@@ -49,7 +31,6 @@ public class Toolbar extends JToolBar {
     private JButton polar_projection_button;
     private JButton color_cycling_button;
     private JButton d3_button;
-    private JButton julia_map_button;
     private JButton domain_coloring_button;
     private JButton current_function_button;
     private JButton current_plane_button;
@@ -199,15 +180,6 @@ public class Toolbar extends JToolBar {
         custom_palette_button_out.addActionListener(e -> ptr.openCustomPaletteEditor(true));
 
         add(custom_palette_button_out);
-        
-        custom_palette_button_in = new MyButton();
-        custom_palette_button_in.setIcon(MainWindow.getIcon("palette_incoloring.png"));
-        custom_palette_button_in.setFocusable(false);
-        custom_palette_button_in.setToolTipText("Loads the custom palette editor for the in-coloring palette.");
-
-        custom_palette_button_in.addActionListener(e -> ptr.openCustomPaletteEditor(false));
-
-        add(custom_palette_button_in);
 
         random_palette_button = new MyButton();
         random_palette_button.setIcon(MainWindow.getIcon("palette_random.png"));
@@ -216,9 +188,7 @@ public class Toolbar extends JToolBar {
 
         random_palette_button.addActionListener(e -> ptr.randomPalette());
 
-        add(random_palette_button);
-
-        addSeparator();
+        add(random_palette_button);;
 
         custom_palette_button2_out = new MyButton();
         custom_palette_button2_out.setIcon(MainWindow.getIcon("palette_outcoloring_direct.png"));
@@ -228,15 +198,6 @@ public class Toolbar extends JToolBar {
         custom_palette_button2_out.addActionListener(e -> ptr.setCustomDirectPalette(true));
 
         add(custom_palette_button2_out);
-
-        custom_palette_button2_in = new MyButton();
-        custom_palette_button2_in.setIcon(MainWindow.getIcon("palette_incoloring_direct.png"));
-        custom_palette_button2_in.setFocusable(false);
-        custom_palette_button2_in.setToolTipText("Loads the direct custom palette editor for the in-coloring palette.");
-
-        custom_palette_button2_in.addActionListener(e -> ptr.setCustomDirectPalette(false));
-
-        add(custom_palette_button2_in);
 
         addSeparator();
 
@@ -288,15 +249,6 @@ public class Toolbar extends JToolBar {
         julia_button.addActionListener(e -> ptr.setJuliaButton());
 
         add(julia_button);
-
-        julia_map_button = new MyButton();
-        julia_map_button.setIcon(MainWindow.getIcon("julia_map.png"));
-        julia_map_button.setToolTipText("Creates an image of julia sets.");
-        julia_map_button.setFocusable(false);
-
-        julia_map_button.addActionListener(e -> ptr.setJuliaMap());
-
-        add(julia_map_button);
 
         d3_button = new MyButton();
         d3_button.setIcon(MainWindow.getIcon("3d.png"));
@@ -361,12 +313,6 @@ public class Toolbar extends JToolBar {
         
     }
     
-    public JButton getJuliaMapButton() {
-        
-        return julia_map_button;
-        
-    }
-    
     public JButton getOrbitButton() {
         
         return orbit_button;
@@ -402,22 +348,10 @@ public class Toolbar extends JToolBar {
         return custom_palette_button_out;
         
     }
-    
-    public JButton getInCustomPaletteButton() {
-        
-        return custom_palette_button_in;
-        
-    }
 
     public JButton getOutCustomPalette2Button() {
 
         return custom_palette_button2_out;
-
-    }
-
-    public JButton getInCustomPalette2Button() {
-
-        return custom_palette_button2_in;
 
     }
     

@@ -1,19 +1,4 @@
-/* 
- * Fractal Zoomer, Copyright (C) 2020 hrkalona2
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+
 package fractalzoomer.palettes;
 
 import fractalzoomer.core.interpolation.InterpolationMethod;
@@ -25,6 +10,8 @@ import java.awt.*;
 public class PaletteColorSmooth extends PaletteColor {
     private InterpolationMethod interpolator;
     private int fractional_transfer_method;
+
+    public static int SMOOTHING_COLOR_SELECTION = 0;
 
     public PaletteColorSmooth(int[] palette, Color special_color, int color_smoothing_method, boolean special_use_palette_color, int fractional_transfer_method) {
 
@@ -141,11 +128,18 @@ public class PaletteColorSmooth extends PaletteColor {
 
     private int calculateSmoothColor(double result) {
 
-
         result = fractional_transfer(result, fractional_transfer_method);
+        int color2 = 0;
+        int color = 0;
 
-        int color2 = palette[(int)(((long)(result)) % palette.length)];
-        int color = palette[(int)(((long)((result - 1 + palette.length))) % palette.length)];
+        if(SMOOTHING_COLOR_SELECTION == 0) {
+            color2 = palette[(int)(((long)(result)) % palette.length)];
+            color = palette[(int)(((long)((result - 1 + palette.length))) % palette.length)];
+        }
+        else {
+            color2 = palette[(int)(((long)(result + 1)) % palette.length)];
+            color = palette[(int)(((long)((result))) % palette.length)];
+        }
 
         int color_red = (color >> 16) & 0xff;
         int color_green = (color >> 8) & 0xff;

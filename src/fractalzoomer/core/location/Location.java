@@ -34,7 +34,7 @@ public class Location {
     protected boolean aaJitter;
     protected int extraSamplesNumber;
 
-    public static int NUMBER_OF_AA_JITTER_KERNELS = 50;
+    public static int NUMBER_OF_AA_JITTER_KERNELS = 100;
     private static double[][] aaJitterKernelX;
     private static double[][] aaJitterKernelY;
 
@@ -64,6 +64,8 @@ public class Location {
     public static final int MAX_AA_SAMPLES_288 = 288;
 
     public static double AA_JITTER_SIZE = 0.25;
+    public static boolean FIXED_JITTER_SIZE = false;
+    private static double[] VARIABLE_JITTER_SIZE = new double[] {0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.55, 0.6};
 
 
     static {
@@ -72,7 +74,7 @@ public class Location {
         setJitter(2);
     }
 
-    public static void setJitter(int seed) {
+    public static void setJitter(long seed) {
         Random r;
         if(seed == 0) {
             r = new Random();
@@ -86,8 +88,9 @@ public class Location {
 
         for(int k = 0; k < NUMBER_OF_AA_JITTER_KERNELS; k++) {
             for (int i = 0; i < MAX_AA_SAMPLES_288; i++) {
-                aaJitterKernelX[k][i] = (r.nextDouble() - 0.5) * 2 * AA_JITTER_SIZE;
-                aaJitterKernelY[k][i] = (r.nextDouble() - 0.5) * 2 * AA_JITTER_SIZE;
+                double jitter_size = FIXED_JITTER_SIZE ? AA_JITTER_SIZE : VARIABLE_JITTER_SIZE[r.nextInt(VARIABLE_JITTER_SIZE.length)];
+                aaJitterKernelX[k][i] = (r.nextDouble() - 0.5) * 2 * jitter_size;
+                aaJitterKernelY[k][i] = (r.nextDouble() - 0.5) * 2 * jitter_size;
             }
         }
     }
@@ -143,7 +146,7 @@ public class Location {
     public static Location getInstanceForRendering(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int width, int height, double circle_period, Apfloat[] rotation_center, Apfloat[] rotation_vals, Fractal fractal, JitterSettings js, boolean polar, boolean highPresicion) {
 
         if(highPresicion && TaskRender.HIGH_PRECISION_CALCULATION) {
-            int lib = TaskRender.getHighPrecisionLibrary(size, fractal);
+            int lib = TaskRender.getHighPrecisionImplementation(size, fractal);
             if(polar) {
                 if(lib == Constants.ARBITRARY_MPFR || (lib == Constants.ARBITRARY_MPIR && !LibMpfr.hasError())) {
                     return new PolarLocationNormalMpfrBigNumArbitrary(xCenter, yCenter, size, height_ratio, width, height, circle_period, rotation_center, rotation_vals, fractal, js);
@@ -177,7 +180,7 @@ public class Location {
             }
         }
 
-        int bignumLib = TaskRender.getBignumLibrary(size, fractal);
+        int bignumLib = TaskRender.getBignumImplementation(size, fractal);
         boolean isDeep = TaskRender.useExtendedRange(size, fractal);
 
         if(polar) {

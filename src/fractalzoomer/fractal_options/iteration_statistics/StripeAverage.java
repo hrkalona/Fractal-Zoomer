@@ -1,19 +1,4 @@
-/*
- * Fractal Zoomer, Copyright (C) 2020 hrkalona2
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+
 package fractalzoomer.fractal_options.iteration_statistics;
 
 import fractalzoomer.core.Complex;
@@ -28,15 +13,13 @@ public class StripeAverage extends GenericStatistic {
     private double sum;
     private double sum2;
     private double StripeDensity;
-    private double log_bailout_squared;
 
 
-    public StripeAverage(double statistic_intensity, double StripeDensity, double log_bailout_squared, boolean useSmoothing, boolean useAverage, int lastXItems) {
+    public StripeAverage(double statistic_intensity, double StripeDensity, boolean useSmoothing, boolean useAverage, int lastXItems) {
         super(statistic_intensity, useSmoothing, useAverage, lastXItems);
         sum = 0;
         sum2 = 0;
         this.StripeDensity = StripeDensity;
-        this.log_bailout_squared = log_bailout_squared;
     }
 
     @Override
@@ -113,10 +96,13 @@ public class StripeAverage extends GenericStatistic {
         double smoothing;
 
         if(escaping_smoothing_algorithm == 0 && !usePower) {
-            smoothing = OutColorAlgorithm.fractionalPartEscaping1(z_val, zold_val, log_bailout_squared);
+            smoothing = OutColorAlgorithm.fractionalPartEscaping1(z_val, zold_val, log_bailout, normSmoothingImpl);
+        }
+        else if(escaping_smoothing_algorithm == 2 && !usePower) {
+            smoothing = OutColorAlgorithm.fractionalPartEscaping3(z_val, zold_val, bailout, normSmoothingImpl);
         }
         else {
-            smoothing = usePower ? OutColorAlgorithm.fractionalPartEscapingWithPower(z_val, log_bailout_squared, log_power) : OutColorAlgorithm.fractionalPartEscaping2(z_val, zold_val, log_bailout_squared);
+            smoothing = usePower ? OutColorAlgorithm.fractionalPartEscapingWithPower(z_val, log_bailout, log_power, normSmoothingImpl) : OutColorAlgorithm.fractionalPartEscaping2(z_val, zold_val, log_bailout, normSmoothingImpl);
         }
 
         return method.interpolate(sum, sum2, smoothing) * statistic_intensity;

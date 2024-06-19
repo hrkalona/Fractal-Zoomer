@@ -1,19 +1,4 @@
-/*
- * Fractal Zoomer, Copyright (C) 2020 hrkalona2
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+
 package fractalzoomer.gui;
 
 import fractalzoomer.main.MainWindow;
@@ -44,6 +29,12 @@ public class ColorTransferMenu extends MyMenu {
         colorTransferNames[MainWindow.LOG_LOG] = "Log Log";
         colorTransferNames[MainWindow.ATAN] = "Atan";
         colorTransferNames[MainWindow.LINEAR] = "Linear";
+        colorTransferNames[MainWindow.KF_SQUARE_ROOT] = "KF Square Root";
+        colorTransferNames[MainWindow.KF_CUBE_ROOT] = "KF Cube Root";
+        colorTransferNames[MainWindow.KF_FOURTH_ROOT] = "KF Fourth Root";
+        colorTransferNames[MainWindow.KF_LOGARITHM] = "KF Logarithm";
+        colorTransferNames[MainWindow.KF_LOG_LOG] = "KF Log Log";
+        colorTransferNames[MainWindow.KF_ATAN] = "KF Atan";
     }
 
     public ColorTransferMenu(MainWindow ptr2, String name, int selection, final boolean outcoloring) {
@@ -110,6 +101,42 @@ public class ColorTransferMenu extends MyMenu {
         color_transfer[MainWindow.LINEAR].addActionListener(e -> ptr.setColorTransfer(MainWindow.LINEAR, outcoloring));
         add(color_transfer[MainWindow.LINEAR]);
         color_transfer_group.add(color_transfer[MainWindow.LINEAR]);
+
+        color_transfer[MainWindow.KF_SQUARE_ROOT] = new JRadioButtonMenuItem(colorTransferNames[MainWindow.KF_SQUARE_ROOT]);
+        color_transfer[MainWindow.KF_SQUARE_ROOT].setToolTipText("Sets the color transfer function to kales fraktaler square root.");
+        color_transfer[MainWindow.KF_SQUARE_ROOT].addActionListener(e -> ptr.setColorTransfer(MainWindow.KF_SQUARE_ROOT, outcoloring));
+        add(color_transfer[MainWindow.KF_SQUARE_ROOT]);
+        color_transfer_group.add(color_transfer[MainWindow.KF_SQUARE_ROOT]);
+
+        color_transfer[MainWindow.KF_CUBE_ROOT] = new JRadioButtonMenuItem(colorTransferNames[MainWindow.KF_CUBE_ROOT]);
+        color_transfer[MainWindow.KF_CUBE_ROOT].setToolTipText("Sets the color transfer function to kales fraktaler cube root.");
+        color_transfer[MainWindow.KF_CUBE_ROOT].addActionListener(e -> ptr.setColorTransfer(MainWindow.KF_CUBE_ROOT, outcoloring));
+        add(color_transfer[MainWindow.KF_CUBE_ROOT]);
+        color_transfer_group.add(color_transfer[MainWindow.KF_CUBE_ROOT]);
+
+        color_transfer[MainWindow.KF_FOURTH_ROOT] = new JRadioButtonMenuItem(colorTransferNames[MainWindow.KF_FOURTH_ROOT]);
+        color_transfer[MainWindow.KF_FOURTH_ROOT].setToolTipText("Sets the color transfer function to kales fraktaler fourth root.");
+        color_transfer[MainWindow.KF_FOURTH_ROOT].addActionListener(e -> ptr.setColorTransfer(MainWindow.KF_FOURTH_ROOT, outcoloring));
+        add(color_transfer[MainWindow.KF_FOURTH_ROOT]);
+        color_transfer_group.add(color_transfer[MainWindow.KF_FOURTH_ROOT]);
+
+        color_transfer[MainWindow.KF_LOGARITHM] = new JRadioButtonMenuItem(colorTransferNames[MainWindow.KF_LOGARITHM]);
+        color_transfer[MainWindow.KF_LOGARITHM].setToolTipText("Sets the color transfer function to kales fraktaler logarithm.");
+        color_transfer[MainWindow.KF_LOGARITHM].addActionListener(e -> ptr.setColorTransfer(MainWindow.KF_LOGARITHM, outcoloring));
+        add(color_transfer[MainWindow.KF_LOGARITHM]);
+        color_transfer_group.add(color_transfer[MainWindow.KF_LOGARITHM]);
+
+        color_transfer[MainWindow.KF_LOG_LOG] = new JRadioButtonMenuItem(colorTransferNames[MainWindow.KF_LOG_LOG]);
+        color_transfer[MainWindow.KF_LOG_LOG].setToolTipText("Sets the color transfer function to kales fraktaler log log.");
+        color_transfer[MainWindow.KF_LOG_LOG].addActionListener(e -> ptr.setColorTransfer(MainWindow.KF_LOG_LOG, outcoloring));
+        add(color_transfer[MainWindow.KF_LOG_LOG]);
+        color_transfer_group.add(color_transfer[MainWindow.KF_LOG_LOG]);
+
+        color_transfer[MainWindow.KF_ATAN] = new JRadioButtonMenuItem(colorTransferNames[MainWindow.KF_ATAN]);
+        color_transfer[MainWindow.KF_ATAN].setToolTipText("Sets the color transfer function to kales fraktaler atan.");
+        color_transfer[MainWindow.KF_ATAN].addActionListener(e -> ptr.setColorTransfer(MainWindow.KF_ATAN, outcoloring));
+        add(color_transfer[MainWindow.KF_ATAN]);
+        color_transfer_group.add(color_transfer[MainWindow.KF_ATAN]);
         
         color_transfer[selection].setSelected(true);
 

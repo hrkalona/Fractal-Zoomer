@@ -1,6 +1,8 @@
 package fractalzoomer.core.location.delta;
 
-import fractalzoomer.core.*;
+import fractalzoomer.core.BigComplex;
+import fractalzoomer.core.GenericComplex;
+import fractalzoomer.core.MantExpComplex;
 import fractalzoomer.functions.Fractal;
 import fractalzoomer.main.app_settings.JitterSettings;
 import org.apfloat.Apfloat;

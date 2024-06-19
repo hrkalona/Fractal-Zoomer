@@ -1,22 +1,9 @@
-/*
- * Copyright (C) 2020 hrkalona
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+
 package fractalzoomer.fractal_options.orbit_traps;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.core.norms.Norm;
+import fractalzoomer.core.norms.NormInfinity;
 
 import static fractalzoomer.main.Constants.*;
 
@@ -27,11 +14,12 @@ import static fractalzoomer.main.Constants.*;
 public class SquareAtomDomainOrbitTrap extends OrbitTrap {
     private double max_distance;
     private double old_distance;
+    private Norm normImpl;
 
     public SquareAtomDomainOrbitTrap(int checkType, double pointRe, double pointIm, boolean countTrapIterations, int lastXItems) {
 
         super(checkType, pointRe, pointIm, 0.0, 0.0, countTrapIterations, lastXItems);
-
+        normImpl = new NormInfinity();
     }
     
     @Override
@@ -52,7 +40,7 @@ public class SquareAtomDomainOrbitTrap extends OrbitTrap {
 
         Complex diff = val.sub(point);
 
-        double dist = Math.max(diff.getAbsRe(), diff.getAbsIm());
+        double dist = normImpl.computeWithRoot(diff);
 
         if (checkType == TRAP_CHECK_TYPE_TRAPPED_FIRST || checkType == TRAP_CHECK_TYPE_TRAPPED_LAST) {
             old_distance = distance;

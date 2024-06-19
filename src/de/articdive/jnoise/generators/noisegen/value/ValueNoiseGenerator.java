@@ -5,10 +5,7 @@ import de.articdive.jnoise.core.api.noisegen.SeededNoiseGenerator;
 import de.articdive.jnoise.core.api.pipeline.NoiseSourceBuilder;
 import de.articdive.jnoise.generators.noise_parameters.fade_functions.FadeFunction;
 
-import static de.articdive.jnoise.core.util.HashUtil.W_PRIME;
-import static de.articdive.jnoise.core.util.HashUtil.X_PRIME;
-import static de.articdive.jnoise.core.util.HashUtil.Y_PRIME;
-import static de.articdive.jnoise.core.util.HashUtil.Z_PRIME;
+import static de.articdive.jnoise.core.util.HashUtil.*;
 
 /**
  * The bounds of this Value Noise implementation are: [-1, 1].

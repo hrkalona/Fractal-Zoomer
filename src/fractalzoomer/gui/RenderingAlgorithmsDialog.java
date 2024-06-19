@@ -1,19 +1,4 @@
-/*
- * Fractal Zoomer, Copyright (C) 2020 hrkalona2
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+
 package fractalzoomer.gui;
 
 import fractalzoomer.core.TaskRender;
@@ -56,7 +41,7 @@ public class RenderingAlgorithmsDialog extends JDialog {
         int color_window_height = 550;
         setTitle("Rendering Algorithms");
         setSize(color_window_width, color_window_height);
-        setIconImage(MainWindow.getIcon("greedy_algorithm.png").getImage());
+        setIconImage(MainWindow.getIcon("rendering_algorithm.png").getImage());
         setLocation((int)(ptra2.getLocation().getX() + ptra2.getSize().getWidth() / 2) - (color_window_width / 2), (int)(ptra2.getLocation().getY() + ptra2.getSize().getHeight() / 2) - (color_window_height / 2));
 
         addWindowListener(new WindowAdapter() {
@@ -500,14 +485,14 @@ public class RenderingAlgorithmsDialog extends JDialog {
 //            CircularBruteForceRender.clearFastJulia();
 //            }
 
+            dispose();
+
             if(ptra2 instanceof MainWindow) {
                 ((MainWindow)ptra2).boundaryTracingOptionsChanged(greedy_algorithm_opt.isSelected(), algorithm, brute_force_alg_opt.getSelectedIndex());
             }
             else {
                 ((ImageExpanderWindow)ptra2).boundaryTracingOptionsChanged(greedy_algorithm_opt.isSelected(), algorithm,  brute_force_alg_opt.getSelectedIndex());
             }
-
-            dispose();
 
         });
 

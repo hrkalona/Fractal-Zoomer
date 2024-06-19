@@ -1,19 +1,4 @@
-/* 
- * Fractal Zoomer, Copyright (C) 2020 hrkalona2
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+
 
 package fractalzoomer.out_coloring_algorithms;
 
@@ -49,27 +34,27 @@ public class UserOutColorAlgorithmMagnet extends  UserOutColorAlgorithm {
         }
         
         if(parser.foundC()) {
-            parser.setCvalue(((Complex)object[6]));
+            parser.setCvalue(((Complex)object[5]));
         }
         
         if(parser.foundS()) {
-            parser.setSvalue(((Complex)object[7]));
+            parser.setSvalue(((Complex)object[6]));
         }
 
         if(parser.foundC0()) {
-            parser.setC0value(((Complex)object[8]));
+            parser.setC0value(((Complex)object[7]));
         }
 
         if (parser.foundPixel()) {
-            parser.setPixelvalue(((Complex) object[9]));
+            parser.setPixelvalue(((Complex) object[8]));
         }
 
         if(parser.foundP()) {
-            parser.setPvalue(((Complex)object[4]));
+            parser.setPvalue(((Complex)object[3]));
         }
         
         if(parser.foundPP()) {
-            parser.setPPvalue(((Complex)object[5]));
+            parser.setPPvalue(((Complex)object[4]));
         }
         
         for(int i = 0; i < Parser.EXTRA_VARS; i++) {

@@ -1647,21 +1647,21 @@ public strictfp class DoubleDouble
         return s;
     }
 
-    public DoubleDouble min(DoubleDouble x) {
-        if (this.le(x)) {
-            return this;
+    public static DoubleDouble min(DoubleDouble x, DoubleDouble y) {
+        if (x.le(y)) {
+            return x;
         }
         else {
-            return x;
+            return y;
         }
     }
 
-    public DoubleDouble max(DoubleDouble x) {
-        if (this.ge(x)) {
-            return this;
+    public static DoubleDouble max(DoubleDouble x, DoubleDouble y) {
+        if (x.ge(y)) {
+            return x;
         }
         else {
-            return x;
+            return y;
         }
     }
 

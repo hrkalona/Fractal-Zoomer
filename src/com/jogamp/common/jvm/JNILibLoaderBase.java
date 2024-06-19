@@ -11,6 +11,9 @@ import com.jogamp.common.os.NativeLibrary;
 import com.jogamp.common.util.JarUtil;
 import com.jogamp.common.util.PropertyAccess;
 import com.jogamp.common.util.cache.TempJarCache;
+import jogamp.common.Debug;
+import jogamp.common.os.PlatformPropsImpl;
+
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -22,8 +25,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import jogamp.common.Debug;
-import jogamp.common.os.PlatformPropsImpl;
 
 public class JNILibLoaderBase {
     public static final boolean DEBUG;

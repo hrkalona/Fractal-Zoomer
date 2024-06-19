@@ -1,19 +1,4 @@
-/*
- * Copyright (C) 2020 hrkalona2
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+
 package fractalzoomer.gui;
 
 import fractalzoomer.main.MainWindow;
@@ -21,8 +6,6 @@ import fractalzoomer.main.MainWindow;
 import javax.swing.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-
-import static fractalzoomer.main.Constants.bumpTransferNames;
 
 /**
  *
@@ -149,23 +132,23 @@ public class ImageSizeDialog extends JDialog {
                             temp = Integer.parseInt(field.getText());
                             temp2 = Integer.parseInt(field2.getText());
 
-                            if (temp < 209) {
-                                JOptionPane.showMessageDialog(ptra, "Image width must be greater than 209.", "Error!", JOptionPane.ERROR_MESSAGE);
+                            if (temp < 1) {
+                                JOptionPane.showMessageDialog(ptra, "Image width must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
                                 return;
                             }
 
-                            if (temp > 6000) {
-                                JOptionPane.showMessageDialog(ptra, "Image width must be less than than 6001.", "Error!", JOptionPane.ERROR_MESSAGE);
+                            if (temp > 46500) {
+                                JOptionPane.showMessageDialog(ptra, "Image width must be less than than 46501.", "Error!", JOptionPane.ERROR_MESSAGE);
                                 return;
                             }
 
-                            if (temp2 < 209) {
-                                JOptionPane.showMessageDialog(ptra, "Image height must be greater than 209.", "Error!", JOptionPane.ERROR_MESSAGE);
+                            if (temp2 < 1) {
+                                JOptionPane.showMessageDialog(ptra, "Image height must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
                                 return;
                             }
 
-                            if (temp2 > 6000) {
-                                JOptionPane.showMessageDialog(ptra, "Image height must be less than than 6001.", "Error!", JOptionPane.ERROR_MESSAGE);
+                            if (temp2 > 46500) {
+                                JOptionPane.showMessageDialog(ptra, "Image height must be less than than 46501.", "Error!", JOptionPane.ERROR_MESSAGE);
                                 return;
                             }
                         } catch (Exception ex) {

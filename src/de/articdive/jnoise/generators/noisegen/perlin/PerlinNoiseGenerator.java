@@ -6,9 +6,7 @@ import de.articdive.jnoise.core.api.pipeline.NoiseSourceBuilder;
 import de.articdive.jnoise.core.util.HashUtil;
 import de.articdive.jnoise.generators.noise_parameters.fade_functions.FadeFunction;
 
-import static de.articdive.jnoise.core.util.MathUtil.dot2D;
-import static de.articdive.jnoise.core.util.MathUtil.dot3D;
-import static de.articdive.jnoise.core.util.MathUtil.dot4D;
+import static de.articdive.jnoise.core.util.MathUtil.*;
 
 /**
  * Based on Ken Perlin's implementation of Perlin Noise.

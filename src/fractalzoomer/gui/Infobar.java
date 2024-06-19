@@ -1,19 +1,4 @@
-/*
- * Fractal Zoomer, Copyright (C) 2020 hrkalona2
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+
 package fractalzoomer.gui;
 
 import fractalzoomer.main.CommonFunctions;
@@ -31,6 +16,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+
+import static fractalzoomer.gui.PaletteMenu.SPLIT_VAL;
 
 /**
  *
@@ -323,7 +310,6 @@ public class Infobar extends JToolBar {
 //        addSeparator();
 
         add(overview_button);
-        addSeparator();
         add(stats_button);
         add(thread_stats_button);
         add(matrics_button);
@@ -531,7 +517,7 @@ public class Infobar extends JToolBar {
 
                 count++;
 
-                if(count < 13) {
+                if(count < SPLIT_VAL) {
                     p1.add(palette[i]);
                 }
                 else {
@@ -613,6 +599,8 @@ public class Infobar extends JToolBar {
         palette[42].setToolTipText("A palette from Fractal Extreme.");
         palette[43].setToolTipText("A palette from Fractal Extreme.");
         palette[44].setToolTipText("A palette from Fractal Extreme.");
+        palette[45].setToolTipText("A palette from Xaos.");
+        palette[46].setToolTipText("A palette from Kales Fraktaler.");
         
         palette[color_choice].setSelected(true);
         popup.show(e.getComponent(), e.getX(), e.getY());

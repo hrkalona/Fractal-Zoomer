@@ -1,27 +1,14 @@
-/*
- * Copyright (C) 2020 hrkalona
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+
 package fractalzoomer.functions.general;
 
+import fractalzoomer.bailout_conditions.CircleBailoutCondition;
 import fractalzoomer.core.Complex;
 import fractalzoomer.functions.FractalWithoutConstant;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
 import fractalzoomer.main.app_settings.StatisticsSettings;
 import fractalzoomer.out_coloring_algorithms.*;
+import org.apfloat.Apfloat;
 
 import java.util.ArrayList;
 
@@ -42,9 +29,9 @@ public class Kleinian extends FractalWithoutConstant {
     private double K;
     private double M;
 
-    public Kleinian(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower, int escaping_smooth_algorithm, OrbitTrapSettings ots, double[] kleinianLine, double kleinianK, double kleinianM, StatisticsSettings sts) {
+    public Kleinian(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, Apfloat[] plane_transform_center_hp, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower, int escaping_smooth_algorithm, OrbitTrapSettings ots, double[] kleinianLine, double kleinianK, double kleinianM, StatisticsSettings sts) {
 
-        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, false, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, ots);
+        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, false, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_center_hp, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, ots);
 
         u = kleinianLine[0];
         v = kleinianLine[1];
@@ -61,12 +48,14 @@ public class Kleinian extends FractalWithoutConstant {
             StatisticFactory(sts, plane_transform_center);
         }
 
+        bailout_algorithm = new CircleBailoutCondition(4, false);
+
     }
 
     //orbit
-    public Kleinian(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower, double[] kleinianLine, double kleinianK, double kleinianM) {
+    public Kleinian(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, Apfloat[] plane_transform_center_hp, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower, double[] kleinianLine, double kleinianK, double kleinianM) {
 
-        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower);
+        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_center_hp, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower);
 
         u = kleinianLine[0];
         v = kleinianLine[1];
@@ -199,44 +188,42 @@ public class Kleinian extends FractalWithoutConstant {
                 break;
             case MainWindow.BINARY_DECOMPOSITION:
                 if (smoothing) {
-                    out_color_algorithm = new SmoothBinaryDecompositionKleinian(u);
+                    out_color_algorithm = new BinaryDecomposition(new SmoothEscapeTimeKleinian(u));
                 }
                 break;
             case MainWindow.BINARY_DECOMPOSITION2:
                 if (smoothing) {
-                    out_color_algorithm = new SmoothBinaryDecomposition2Kleinian(u);
+                    out_color_algorithm = new BinaryDecomposition2(new SmoothEscapeTimeKleinian(u));
                 }
                 break;
             case MainWindow.BIOMORPH:
                 if (smoothing) {
-                    out_color_algorithm = new SmoothBiomorphsKleinian(u, bailout);
+                    out_color_algorithm = new Biomorphs(bailout, new SmoothEscapeTimeKleinian(u));
                 }
                 break;
             case MainWindow.ESCAPE_TIME_GRID:
                 if (smoothing) {
-                    out_color_algorithm = new SmoothEscapeTimeGridKleinian(u, log_bailout_squared);
+                    out_color_algorithm = new EscapeTimeGrid(bailout, new SmoothEscapeTimeKleinian(u), false, bailout_algorithm.getNormImpl());
                 }
                 break;
             case MainWindow.ESCAPE_TIME_FIELD_LINES:
                 if (smoothing) {
-                    out_color_algorithm = new SmoothEscapeTimeFieldLinesKleinian(u, log_bailout_squared);
+                    out_color_algorithm = new EscapeTimeFieldLines(bailout, new SmoothEscapeTimeKleinian(u), bailout_algorithm.getNormImpl());
                 }
                 break;
             case MainWindow.ESCAPE_TIME_FIELD_LINES2:
                 if (smoothing) {
-                    out_color_algorithm = new SmoothEscapeTimeFieldLines2Kleinian(u, log_bailout_squared);
+                    out_color_algorithm = new EscapeTimeFieldLines2(bailout, new SmoothEscapeTimeKleinian(u), bailout_algorithm.getNormImpl());
                 }
                 break;
             case ESCAPE_TIME_SQUARES:
                 if (smoothing) {
-                    OutColorAlgorithm wrappedAlgorithm = new SmoothEscapeTimeKleinian(u);
-                    out_color_algorithm = new EscapeTimeSquares(5, wrappedAlgorithm);
+                    out_color_algorithm = new EscapeTimeSquares(5, new SmoothEscapeTimeKleinian(u));
                 }
                 break;
             case ESCAPE_TIME_SQUARES2:
                 if (smoothing) {
-                    OutColorAlgorithm wrappedAlgorithm = new SmoothEscapeTimeKleinian(u);
-                    out_color_algorithm = new EscapeTimeSquares2(5, wrappedAlgorithm);
+                    out_color_algorithm = new EscapeTimeSquares2(5, new SmoothEscapeTimeKleinian(u));
                 }
                 break;
 

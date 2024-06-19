@@ -6,7 +6,9 @@ package fractalzoomer.gui;
  OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE ENTIRE RISK ARISING OUT OF USE OR
  PERFORMANCE OF THE PROGRAM AND DOCUMENTATION REMAINS WITH THE USER.
  */
-import java.awt.*; import java.util.*;
+
+import java.awt.*;
+import java.util.Hashtable;
 /**
  *
  * A vertical layout manager similar to java.awt.FlowLayout.

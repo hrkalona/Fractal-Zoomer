@@ -1,6 +1,5 @@
 package fractalzoomer.core.location.delta;
 
-import fractalzoomer.core.DoubleDouble;
 import fractalzoomer.core.GenericComplex;
 import fractalzoomer.core.MantExp;
 import fractalzoomer.core.MpfrBigNumComplex;

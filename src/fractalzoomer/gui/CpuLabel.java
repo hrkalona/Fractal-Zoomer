@@ -1,19 +1,4 @@
-/*
- * Fractal Zoomer, Copyright (C) 2020 hrkalona2
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+
 package fractalzoomer.gui;
 
 import fractalzoomer.main.MainWindow;
@@ -24,9 +9,6 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.lang.management.ManagementFactory;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.util.Locale;
 
 /**
  *
@@ -41,15 +23,18 @@ public class CpuLabel extends JLabel {
     private int arcWidth = 5;
     private int arcHeight = 5;
 
-    private static final int PANEL_HEIGHT = 20;
-
-    public CpuLabel(int width) {
+    public CpuLabel(int width, int height) {
         if(!MainWindow.useCustomLaf) {
             setBorder(BorderFactory.createLoweredBevelBorder());
         }
         //setBorder(MyBorder.LOWERED);
 
-        setPreferredSize(new Dimension(width, PANEL_HEIGHT));
+        if(height == 0) {
+            setPreferredSize(new Dimension(width, getFont().getSize() + 4));
+        }
+        else {
+            setPreferredSize(new Dimension(width, height));
+        }
 
         setHorizontalAlignment(JLabel.CENTER);
         refresh();

@@ -1,19 +1,4 @@
-/*
- * Fractal Zoomer, Copyright (C) 2020 hrkalona2
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+
 package fractalzoomer.gui;
 
 import fractalzoomer.main.MainWindow;
@@ -88,13 +73,13 @@ public class OptionsMenu extends MyMenu {
 
     private JMenu bailout_menu;
 
-    public OptionsMenu(MainWindow ptr2, String name, PaletteSettings ps, PaletteSettings ps2, boolean smoothing, boolean show_orbit_converging_point, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, int out_coloring_algorithm, int in_coloring_algorithm, int function, int plane_type, int bailout_test_algorithm, int color_blending, boolean color_blending_reverse_order, int temp_color_cycling_location, int temp_color_cycling_location2, int pre_filter, int post_filter, int plane_influence, int convergent_bailout_test_algorithm) {
+    public OptionsMenu(MainWindow ptr2, String name, PaletteSettings ps, PaletteSettings ps2, boolean smoothing, boolean show_orbit_converging_point, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, int out_coloring_algorithm, int in_coloring_algorithm, int function, int plane_type, int bailout_test_algorithm, int color_blending, boolean color_blending_reverse_order, int temp_color_cycling_location, int temp_color_cycling_location2, int pre_filter, int post_filter, int plane_influence, int convergent_bailout_test_algorithm, boolean flip_re, boolean flip_im) {
 
         super(name);
 
         this.ptr = ptr2;
 
-        fractal_options_menu = new FractalOptionsMenu(ptr, "Fractal Options", apply_plane_on_julia, apply_plane_on_julia_seed, function, plane_type, pre_filter, post_filter, plane_influence);
+        fractal_options_menu = new FractalOptionsMenu(ptr, "Fractal Options", apply_plane_on_julia, apply_plane_on_julia_seed, function, plane_type, pre_filter, post_filter, plane_influence, flip_re, flip_im);
 
         iterations_menu = new MyMenu("Iterations");
         iterations_menu.setIcon(MainWindow.getIcon("iterations.png"));
@@ -393,7 +378,7 @@ public class OptionsMenu extends MyMenu {
 
     public JMenuItem getGreedyAlgorithm() {
 
-        return optimizations_menu.getGreedyAlgorithm();
+        return optimizations_menu.getRenderingAlgorithm();
 
     }
 
@@ -968,6 +953,18 @@ public class OptionsMenu extends MyMenu {
         else {
             jitter_opt.setIcon(MainWindow.getIcon("jitter.png"));
         }
+
+    }
+
+    public JCheckBoxMenuItem getFlipReOpt() {
+
+        return fractal_options_menu.getFlipReOpt();
+
+    }
+
+    public JCheckBoxMenuItem getFlipImOpt() {
+
+        return fractal_options_menu.getFlipImOpt();
 
     }
 

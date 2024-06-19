@@ -1,19 +1,4 @@
-/*
- * Copyright (C) 2020 hrkalona
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+
 package fractalzoomer.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -108,11 +93,10 @@ public class JsonPalettesContainer {
                 values = vals;
             }
             else if(entry.getKey().equals("values_int")) {
-                ArrayList<String> ints = (ArrayList<String>)entry.getValue();
+                ArrayList<Integer> ints = (ArrayList<Integer>)entry.getValue();
                 ArrayList<ArrayList<Integer>> vals = new ArrayList<>();
 
-                for(String v : ints) {
-                    int val = Integer.parseInt(v);
+                for(Integer val : ints) {
                     ArrayList<Integer> rgb = new ArrayList<>();
                     rgb.add((val >> 16) & 0xFF);
                     rgb.add((val >> 8) & 0xFF);
