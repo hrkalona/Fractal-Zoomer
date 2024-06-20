@@ -28,9 +28,9 @@ public class SmoothEscapeTimeGridEOC extends SmoothEscapeTimeGrid {
     private double log_convergent_bailout;
     private int algorithm2;
 
-    public SmoothEscapeTimeGridEOC(double log_bailout_squared, double log_convergent_bailout, int algorithm, int algorithm2) {
+    public SmoothEscapeTimeGridEOC(double bailout, double log_bailout_squared, double log_convergent_bailout, int algorithm, int algorithm2) {
 
-        super(log_bailout_squared, algorithm);
+        super(bailout, log_bailout_squared, algorithm);
         this.log_convergent_bailout = log_convergent_bailout;
         this.algorithm2 = algorithm2;
         OutUsingIncrement = true;
@@ -60,6 +60,14 @@ public class SmoothEscapeTimeGridEOC extends SmoothEscapeTimeGrid {
                 }
                 else {
                     return temp3 + SmoothEscapeTimeMagnet.getEscSmoothing1(object, temp2, log_bailout_squared) + MAGNET_INCREMENT;
+                }
+            }
+            else if(algorithm == 2) {
+                if(temp3 < 0) {
+                    return temp3 -(SmoothEscapeTimeMagnet.getEscSmoothing3(object, bailout) + MAGNET_INCREMENT);
+                }
+                else {
+                    return temp3 + SmoothEscapeTimeMagnet.getEscSmoothing3(object, bailout) + MAGNET_INCREMENT;
                 }
             }
             else {

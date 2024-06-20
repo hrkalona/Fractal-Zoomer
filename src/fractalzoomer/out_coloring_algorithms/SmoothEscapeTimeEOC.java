@@ -28,9 +28,9 @@ public class SmoothEscapeTimeEOC extends SmoothEscapeTime {
     private double log_convergent_bailout;
     private int algorithm2;
 
-    public SmoothEscapeTimeEOC(double log_bailout_squared, double log_convergent_bailout, int algorithm, int algorithm2) {
+    public SmoothEscapeTimeEOC(double bailout, double log_bailout_squared, double log_convergent_bailout, int algorithm, int algorithm2) {
 
-        super(log_bailout_squared, algorithm);
+        super(bailout, log_bailout_squared, algorithm);
         this.log_convergent_bailout = log_convergent_bailout;
         this.algorithm2 = algorithm2;
         OutUsingIncrement = false;
@@ -44,6 +44,9 @@ public class SmoothEscapeTimeEOC extends SmoothEscapeTime {
 
             if(algorithm == 0) {
                 return (int)object[0] + getEscSmoothing1(object, Math.log(((Complex)object[1]).norm_squared()), log_bailout_squared) + MAGNET_INCREMENT;
+            }
+            else if(algorithm == 2) {
+                return (int)object[0] + getEscSmoothing3(object, bailout) + MAGNET_INCREMENT;
             }
             else {
                 //double temp2 = ((Complex)object[1]).norm_squared();
@@ -103,6 +106,22 @@ public class SmoothEscapeTimeEOC extends SmoothEscapeTime {
 
         double a = Math.log(log_znnormsqr / log_bailout_squared);
         return 1 - a / Math.log(p);
+
+    }
+
+    public static double getEscSmoothing3(Object[] object, double bailout) {
+
+        double p = 2;
+
+        double test1 = ((Complex)object[1]).norm_squared();
+        double test2 = ((Complex)object[2]).norm_squared();
+
+        double a = Math.pow(test1, 1 / p);
+        double div = a - Math.pow(test2, 1 / p);
+        if (div != 0)
+            return 1 - (a - bailout) / div;
+
+        return 0;
 
     }
 }

@@ -28,9 +28,9 @@ public class SmoothBinaryDecompositionEOC extends SmoothBinaryDecomposition {
     protected double log_convergent_bailout;
     protected int algorithm2;
 
-    public SmoothBinaryDecompositionEOC(double log_bailout_squared, double log_convergent_bailout, int algorithm, int algorithm2) {
+    public SmoothBinaryDecompositionEOC(double bailout, double log_bailout_squared, double log_convergent_bailout, int algorithm, int algorithm2) {
 
-        super(log_bailout_squared, algorithm);
+        super(bailout, log_bailout_squared, algorithm);
         this.log_convergent_bailout = log_convergent_bailout;
         this.algorithm2 = algorithm2;
         OutUsingIncrement = true;
@@ -44,6 +44,9 @@ public class SmoothBinaryDecompositionEOC extends SmoothBinaryDecomposition {
         if((boolean)object[8]) {
             if(algorithm == 0) {
                 temp3 = (int)object[0] + SmoothEscapeTimeEOC.getEscSmoothing1(object, Math.log(((Complex)object[1]).norm_squared()), log_bailout_squared) + MAGNET_INCREMENT;
+            }
+            else if(algorithm == 2) {
+                temp3 = (int)object[0] + SmoothEscapeTimeEOC.getEscSmoothing3(object, bailout) + MAGNET_INCREMENT;
             }
             else {
                 temp3 = (int)object[0] + SmoothEscapeTimeEOC.getEscSmoothing2(object, Math.log(((Complex)object[1]).norm_squared()), log_bailout_squared) + MAGNET_INCREMENT;

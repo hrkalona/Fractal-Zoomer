@@ -30,8 +30,9 @@ public class SmoothEscapeTimeEscapeRadiusMagnet extends OutColorAlgorithm {
     protected double pi2;
     protected int algorithm;
     protected int algorithm2;
+    protected double bailout;
 
-    public SmoothEscapeTimeEscapeRadiusMagnet(double log_bailout_squared, double log_convergent_bailout, int algorithm, int algorithm2) {
+    public SmoothEscapeTimeEscapeRadiusMagnet(double bailout, double log_bailout_squared, double log_convergent_bailout, int algorithm, int algorithm2) {
 
         super();
 
@@ -41,6 +42,7 @@ public class SmoothEscapeTimeEscapeRadiusMagnet extends OutColorAlgorithm {
         this.algorithm = algorithm;
         this.algorithm2 = algorithm2;
         OutUsingIncrement = false;
+        this.bailout = bailout;
 
     }
 
@@ -56,6 +58,9 @@ public class SmoothEscapeTimeEscapeRadiusMagnet extends OutColorAlgorithm {
         if((boolean)object[2]) {
             if(algorithm == 0) {
                 return temp3 + SmoothEscapeTimeMagnet.getEscSmoothing1(object, temp2, log_bailout_squared) + MAGNET_INCREMENT;
+            }
+            else if(algorithm == 2) {
+                return temp3 + SmoothEscapeTimeMagnet.getEscSmoothing3(object, bailout) + MAGNET_INCREMENT;
             }
             else {
                 return temp3 + SmoothEscapeTimeMagnet.getEscSmoothing2(object, temp2, log_bailout_squared) + MAGNET_INCREMENT;

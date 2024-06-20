@@ -18,7 +18,9 @@ public class DiscreteLagrangianDescriptors extends GenericStatistic {
     private double langNorm;
     private double langNormReciprocal;
 
-    public DiscreteLagrangianDescriptors(double statistic_intensity, double power, double log_bailout_squared, boolean useSmoothing, boolean useAverage, boolean rootFindingMode, double log_convergent_bailout, int normtType, double langNorm, int lastXItems) {
+    private double bailout;
+
+    public DiscreteLagrangianDescriptors(double statistic_intensity, double power, double log_bailout_squared, double bailout, boolean useSmoothing, boolean useAverage, boolean rootFindingMode, double log_convergent_bailout, int normtType, double langNorm, int lastXItems) {
         super(statistic_intensity, useSmoothing, useAverage, lastXItems);
         sum = 0;
         sum2 = 0;
@@ -40,6 +42,7 @@ public class DiscreteLagrangianDescriptors extends GenericStatistic {
         this.normtType = normtType;
         this.langNorm = langNorm;
         langNormReciprocal = 1 / langNorm;
+        this.bailout = bailout;
     }
 
     @Override
@@ -217,6 +220,9 @@ public class DiscreteLagrangianDescriptors extends GenericStatistic {
         if(mode == NORMAL_ESCAPE) {
             if(escaping_smoothing_algorithm == 0 && !usePower) {
                 smoothing = OutColorAlgorithm.fractionalPartEscaping1(z_val, zold_val, log_bailout_squared);
+            }
+            else if(escaping_smoothing_algorithm == 2 && !usePower) {
+                smoothing = OutColorAlgorithm.fractionalPartEscaping3(z_val, zold_val, bailout);
             }
             else {
                 smoothing = usePower ? OutColorAlgorithm.fractionalPartEscapingWithPower(z_val, log_bailout_squared, log_power) : OutColorAlgorithm.fractionalPartEscaping2(z_val, zold_val, log_bailout_squared);

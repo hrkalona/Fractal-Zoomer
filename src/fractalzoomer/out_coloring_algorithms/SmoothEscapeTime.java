@@ -29,18 +29,20 @@ public class SmoothEscapeTime extends OutColorAlgorithm {
     protected int algorithm;
     protected double log_power;
     protected boolean usePower;
+    protected double bailout;
 
-    public SmoothEscapeTime(double log_bailout_squared, int algorithm) {
+    public SmoothEscapeTime(double bailout, double log_bailout_squared, int algorithm) {
 
         super();
         this.log_bailout_squared = log_bailout_squared;
         this.algorithm = algorithm;
         OutUsingIncrement = false;
         usePower = false;
+        this.bailout = bailout;
 
     }
 
-    public SmoothEscapeTime(double log_bailout_squared, int algorithm, double log_power) {
+    public SmoothEscapeTime(double bailout, double log_bailout_squared, int algorithm, double log_power) {
 
         super();
         this.log_bailout_squared = log_bailout_squared;
@@ -48,6 +50,7 @@ public class SmoothEscapeTime extends OutColorAlgorithm {
         OutUsingIncrement = false;
         this.log_power = log_power;
         usePower = true;
+        this.bailout = bailout;
 
     }
 
@@ -56,6 +59,9 @@ public class SmoothEscapeTime extends OutColorAlgorithm {
         
         if(algorithm == 0 && !usePower) {
             return (int)object[0] + getSmoothing1(object, Math.log(((Complex)object[1]).norm_squared()), log_bailout_squared);
+        }
+        else if(algorithm == 2 && !usePower) {
+            return (int)object[0] + getSmoothing3(object, bailout);
         }
         else {
             //double temp2 = ((Complex)object[1]).norm_squared();
@@ -99,5 +105,19 @@ public class SmoothEscapeTime extends OutColorAlgorithm {
         double a = Math.log(log_znnormsqr / log_bailout_squared);
         return  1 - a / p;
 
+    }
+
+    public static double getSmoothing3(Object[] object, double bailout) {
+        double p = 2;
+
+        double test1 = ((Complex)object[1]).norm_squared();
+        double test2 = ((Complex)object[2]).norm_squared();
+
+        double a = Math.pow(test1, 1 / p);
+        double div = a - Math.pow(test2, 1 / p);
+        if (div != 0)
+            return 1 - (a - bailout) / div;
+
+        return 0;
     }
 }

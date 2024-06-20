@@ -45,6 +45,9 @@ public class SmoothBiomorphsEOC extends SmoothBiomorphs {
             if(algorithm == 0) {
                 temp3 = (int)object[0] + SmoothEscapeTimeEOC.getEscSmoothing1(object, Math.log(((Complex)object[1]).norm_squared()), log_bailout_squared) + MAGNET_INCREMENT;
             }
+            else if(algorithm == 2) {
+                temp3 = (int)object[0] + SmoothEscapeTimeEOC.getEscSmoothing3(object, bailout) + MAGNET_INCREMENT;
+            }
             else {
                 temp3 = (int)object[0] + SmoothEscapeTimeEOC.getEscSmoothing2(object, Math.log(((Complex)object[1]).norm_squared()), log_bailout_squared) + MAGNET_INCREMENT;
             }

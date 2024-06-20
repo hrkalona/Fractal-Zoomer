@@ -28,8 +28,9 @@ public class SmoothEscapeTimeFieldLines2 extends OutColorAlgorithm {
     protected int algorithm;
     protected double log_power;
     protected boolean usePower;
+    protected double bailout;
 
-    public SmoothEscapeTimeFieldLines2(double log_bailout_squared, int algorithm) {
+    public SmoothEscapeTimeFieldLines2(double bailout, double log_bailout_squared, int algorithm) {
 
         super();
         this.log_bailout_squared = log_bailout_squared;
@@ -37,9 +38,10 @@ public class SmoothEscapeTimeFieldLines2 extends OutColorAlgorithm {
 
         OutUsingIncrement = true;
         usePower = false;
+        this.bailout = bailout;
     }
 
-    public SmoothEscapeTimeFieldLines2(double log_bailout_squared, int algorithm, double log_power) {
+    public SmoothEscapeTimeFieldLines2(double bailout, double log_bailout_squared, int algorithm, double log_power) {
 
         super();
         this.log_bailout_squared = log_bailout_squared;
@@ -48,6 +50,7 @@ public class SmoothEscapeTimeFieldLines2 extends OutColorAlgorithm {
         OutUsingIncrement = true;
         usePower = true;
         this.log_power = log_power;
+        this.bailout = bailout;
     }
     
     @Override
@@ -58,6 +61,20 @@ public class SmoothEscapeTimeFieldLines2 extends OutColorAlgorithm {
 
             double temp3 = (int)object[0] + SmoothEscapeTime.getSmoothing1(object, temp2, log_bailout_squared);
             
+            double lineWidth = 0.07;  // freely adjustable
+            double fx = (((Complex)object[1]).arg() / 2) * Math.PI;
+            double fy = temp2 / log_bailout_squared;  // radius within cell
+            double fz = Math.pow(0.5, -fy);  // make wider on the outside
+
+            boolean line = Math.abs(fx) < (1.0 - lineWidth)*fz && lineWidth * fz < Math.abs(fx);
+
+            return line ? temp3 : -(temp3 + INCREMENT);
+        }
+        else if(algorithm == 2 && !usePower) {
+            double temp2 = Math.log(((Complex)object[1]).norm_squared());
+
+            double temp3 = (int)object[0] + SmoothEscapeTime.getSmoothing3(object, bailout);
+
             double lineWidth = 0.07;  // freely adjustable
             double fx = (((Complex)object[1]).arg() / 2) * Math.PI;
             double fy = temp2 / log_bailout_squared;  // radius within cell

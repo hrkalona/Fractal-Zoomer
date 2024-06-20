@@ -295,7 +295,7 @@ public abstract class ExtendedConvergentType extends Julia {
             return;
         }
         else if(sts.statisticGroup == 2) {
-            statistic = new Equicontinuity(sts.statistic_intensity, sts.useSmoothing, sts.useAverage, 0, true, Math.log(convergent_bailout), sts.equicontinuityDenominatorFactor, sts.equicontinuityInvertFactor, sts.equicontinuityDelta);
+            statistic = new Equicontinuity(sts.statistic_intensity, sts.useSmoothing, sts.useAverage, 0, 0, true, Math.log(convergent_bailout), sts.equicontinuityDenominatorFactor, sts.equicontinuityInvertFactor, sts.equicontinuityDelta);
             return;
         }
         else if(sts.statisticGroup == 4) {
@@ -306,13 +306,13 @@ public abstract class ExtendedConvergentType extends Julia {
         switch (sts.statistic_type) {
 
             case MainWindow.COS_ARG_DIVIDE_INVERSE_NORM:
-                statistic = new CosArgDivideInverseNorm(sts.statistic_intensity, sts.cosArgInvStripeDensity, sts.StripeDenominatorFactor, sts.useSmoothing, Math.log(convergent_bailout), 0, sts.lastXItems);
+                statistic = new CosArgDivideInverseNorm(sts.statistic_intensity, sts.cosArgInvStripeDensity, sts.StripeDenominatorFactor, sts.useSmoothing, Math.log(convergent_bailout), 0, 0, sts.lastXItems);
                 break;
             case MainWindow.ATOM_DOMAIN_BOF60_BOF61:
                 statistic = new AtomDomain(sts.showAtomDomains, sts.statistic_intensity, sts.atomNormType, sts.atomNNorm, sts.lastXItems);
                 break;
             case MainWindow.DISCRETE_LAGRANGIAN_DESCRIPTORS:
-                statistic = new DiscreteLagrangianDescriptors(sts.statistic_intensity, sts.lagrangianPower, 0, sts.useSmoothing, sts.useAverage, true, Math.log(convergent_bailout), sts.langNormType, sts.langNNorm, sts.lastXItems);
+                statistic = new DiscreteLagrangianDescriptors(sts.statistic_intensity, sts.lagrangianPower, 0, 0, sts.useSmoothing, sts.useAverage, true, Math.log(convergent_bailout), sts.langNormType, sts.langNNorm, sts.lastXItems);
                 break;
             
         }

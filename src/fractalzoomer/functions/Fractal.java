@@ -3752,21 +3752,21 @@ public abstract class Fractal {
                 if (!smoothing) {
                     out_color_algorithm = new EscapeTime();
                 } else {
-                    out_color_algorithm = new SmoothEscapeTime(log_bailout_squared, escaping_smooth_algorithm);
+                    out_color_algorithm = new SmoothEscapeTime(bailout, log_bailout_squared, escaping_smooth_algorithm);
                 }
                 break;
             case MainWindow.BINARY_DECOMPOSITION:
                 if (!smoothing) {
                     out_color_algorithm = new BinaryDecomposition();
                 } else {
-                    out_color_algorithm = new SmoothBinaryDecomposition(log_bailout_squared, escaping_smooth_algorithm);
+                    out_color_algorithm = new SmoothBinaryDecomposition(bailout, log_bailout_squared, escaping_smooth_algorithm);
                 }
                 break;
             case MainWindow.BINARY_DECOMPOSITION2:
                 if (!smoothing) {
                     out_color_algorithm = new BinaryDecomposition2();
                 } else {
-                    out_color_algorithm = new SmoothBinaryDecomposition2(log_bailout_squared, escaping_smooth_algorithm);
+                    out_color_algorithm = new SmoothBinaryDecomposition2(bailout, log_bailout_squared, escaping_smooth_algorithm);
                 }
                 break;
             case MainWindow.ITERATIONS_PLUS_RE:
@@ -3822,7 +3822,7 @@ public abstract class Fractal {
                 if (!smoothing) {
                     out_color_algorithm = new EscapeTimeGrid(log_bailout_squared);
                 } else {
-                    out_color_algorithm = new SmoothEscapeTimeGrid(log_bailout_squared, escaping_smooth_algorithm);
+                    out_color_algorithm = new SmoothEscapeTimeGrid(bailout, log_bailout_squared, escaping_smooth_algorithm);
                 }
                 break;
             case MainWindow.BANDED:
@@ -3832,14 +3832,14 @@ public abstract class Fractal {
                 if (!smoothing) {
                     out_color_algorithm = new EscapeTimeFieldLines(log_bailout_squared);
                 } else {
-                    out_color_algorithm = new SmoothEscapeTimeFieldLines(log_bailout_squared, escaping_smooth_algorithm);
+                    out_color_algorithm = new SmoothEscapeTimeFieldLines(bailout, log_bailout_squared, escaping_smooth_algorithm);
                 }
                 break;
             case MainWindow.ESCAPE_TIME_FIELD_LINES2:
                 if (!smoothing) {
                     out_color_algorithm = new EscapeTimeFieldLines2(log_bailout_squared);
                 } else {
-                    out_color_algorithm = new SmoothEscapeTimeFieldLines2(log_bailout_squared, escaping_smooth_algorithm);
+                    out_color_algorithm = new SmoothEscapeTimeFieldLines2(bailout, log_bailout_squared, escaping_smooth_algorithm);
                 }
                 break;
             case MainWindow.USER_OUTCOLORING_ALGORITHM:
@@ -3854,7 +3854,7 @@ public abstract class Fractal {
                 if (!smoothing) {
                     wrappedAlgorithm = new EscapeTime();
                 } else {
-                    wrappedAlgorithm = new SmoothEscapeTime(log_bailout_squared, escaping_smooth_algorithm);
+                    wrappedAlgorithm = new SmoothEscapeTime(bailout, log_bailout_squared, escaping_smooth_algorithm);
                 }
                 out_color_algorithm = new EscapeTimeSquares(6, wrappedAlgorithm);
                 break;
@@ -3862,7 +3862,7 @@ public abstract class Fractal {
                 if (!smoothing) {
                     wrappedAlgorithm = new EscapeTime();
                 } else {
-                    wrappedAlgorithm = new SmoothEscapeTime(log_bailout_squared, escaping_smooth_algorithm);
+                    wrappedAlgorithm = new SmoothEscapeTime(bailout, log_bailout_squared, escaping_smooth_algorithm);
                 }
                 out_color_algorithm = new EscapeTimeSquares2(6, wrappedAlgorithm);
                 break;
@@ -3930,7 +3930,7 @@ public abstract class Fractal {
             if ((TaskRender.PERTURBATION_THEORY || TaskRender.HIGH_PRECISION_CALCULATION) && supportsPerturbationTheory()) {
                 return;
             }
-            statistic = new Equicontinuity(sts.statistic_intensity, sts.useSmoothing, sts.useAverage, log_bailout_squared, false, 0, sts.equicontinuityDenominatorFactor, sts.equicontinuityInvertFactor, sts.equicontinuityDelta);
+            statistic = new Equicontinuity(sts.statistic_intensity, sts.useSmoothing, sts.useAverage, log_bailout_squared, bailout, false, 0, sts.equicontinuityDenominatorFactor, sts.equicontinuityInvertFactor, sts.equicontinuityDelta);
             return;
         } else if (sts.statisticGroup == 3) {
             statistic = new NormalMap(sts.statistic_intensity, getPower(), sts.normalMapHeight, sts.normalMapAngle, sts.normalMapUseSecondDerivative, sts.normalMapDEfactor, isJulia, sts.normalMapUseDE, sts.normalMapInvertDE, sts.normalMapColoring, sts.useNormalMap, sts.normalMapDEUpperLimitFactor, sts.normalMapDEAAEffect, sts.normalMapOverrideColoring, sts.normalMapDeFadeAlgorithm, sts.normalMapDistanceEstimatorfactor);
@@ -3938,28 +3938,28 @@ public abstract class Fractal {
         } else if (sts.statisticGroup == 0) {
             switch (sts.statistic_type) {
                 case MainWindow.STRIPE_AVERAGE:
-                    statistic = new StripeAverage(sts.statistic_intensity, sts.stripeAvgStripeDensity, log_bailout_squared, sts.useSmoothing, sts.useAverage, sts.lastXItems);
+                    statistic = new StripeAverage(sts.statistic_intensity, sts.stripeAvgStripeDensity, log_bailout_squared, bailout, sts.useSmoothing, sts.useAverage, sts.lastXItems);
                     break;
                 case MainWindow.TRIANGLE_INEQUALITY_AVERAGE:
-                    statistic = new TriangleInequalityAverage(sts.statistic_intensity, log_bailout_squared, sts.useSmoothing, sts.useAverage, sts.lastXItems);
+                    statistic = new TriangleInequalityAverage(sts.statistic_intensity, log_bailout_squared, bailout, sts.useSmoothing, sts.useAverage, sts.lastXItems);
                     break;
                 case MainWindow.CURVATURE_AVERAGE:
-                    statistic = new CurvatureAverage(sts.statistic_intensity, log_bailout_squared, sts.useSmoothing, sts.useAverage, sts.lastXItems);
+                    statistic = new CurvatureAverage(sts.statistic_intensity, log_bailout_squared, bailout, sts.useSmoothing, sts.useAverage, sts.lastXItems);
                     break;
                 case MainWindow.COS_ARG_DIVIDE_NORM_AVERAGE:
-                    statistic = new CosArgDivideNormAverage(sts.statistic_intensity, sts.cosArgStripeDensity, log_bailout_squared, sts.useSmoothing, sts.useAverage, sts.lastXItems);
+                    statistic = new CosArgDivideNormAverage(sts.statistic_intensity, sts.cosArgStripeDensity, log_bailout_squared, bailout, sts.useSmoothing, sts.useAverage, sts.lastXItems);
                     break;
                 case MainWindow.ATOM_DOMAIN_BOF60_BOF61:
                     statistic = new AtomDomain(sts.showAtomDomains, sts.statistic_intensity, sts.atomNormType, sts.atomNNorm, sts.lastXItems);
                     break;
                 case MainWindow.DISCRETE_LAGRANGIAN_DESCRIPTORS:
-                    statistic = new DiscreteLagrangianDescriptors(sts.statistic_intensity, sts.lagrangianPower, log_bailout_squared, sts.useSmoothing, sts.useAverage, false, 0, sts.langNormType, sts.langNNorm, sts.lastXItems);
+                    statistic = new DiscreteLagrangianDescriptors(sts.statistic_intensity, sts.lagrangianPower, log_bailout_squared, bailout, sts.useSmoothing, sts.useAverage, false, 0, sts.langNormType, sts.langNNorm, sts.lastXItems);
                     break;
                 case MainWindow.TWIN_LAMPS:
-                    statistic = new TwinLamps(sts.statistic_intensity, sts.twlFunction, sts.twlPoint, log_bailout_squared, sts.useSmoothing, sts.lastXItems);
+                    statistic = new TwinLamps(sts.statistic_intensity, sts.twlFunction, sts.twlPoint, log_bailout_squared, bailout, sts.useSmoothing, sts.lastXItems);
                     break;
                 case MainWindow.CHECKERS:
-                    statistic = new Checkers(sts.statistic_intensity, sts.patternScale, sts.checkerNormType, sts.checkerNormValue, log_bailout_squared, sts.useSmoothing, sts.useAverage, sts.lastXItems);
+                    statistic = new Checkers(sts.statistic_intensity, sts.patternScale, sts.checkerNormType, sts.checkerNormValue, log_bailout_squared, bailout, sts.useSmoothing, sts.useAverage, sts.lastXItems);
                     break;
             }
         }

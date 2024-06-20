@@ -29,14 +29,16 @@ public class StripeAverage extends GenericStatistic {
     private double sum2;
     private double StripeDensity;
     private double log_bailout_squared;
+    private double bailout;
 
 
-    public StripeAverage(double statistic_intensity, double StripeDensity, double log_bailout_squared, boolean useSmoothing, boolean useAverage, int lastXItems) {
+    public StripeAverage(double statistic_intensity, double StripeDensity, double log_bailout_squared, double bailout, boolean useSmoothing, boolean useAverage, int lastXItems) {
         super(statistic_intensity, useSmoothing, useAverage, lastXItems);
         sum = 0;
         sum2 = 0;
         this.StripeDensity = StripeDensity;
         this.log_bailout_squared = log_bailout_squared;
+        this.bailout = bailout;
     }
 
     @Override
@@ -114,6 +116,9 @@ public class StripeAverage extends GenericStatistic {
 
         if(escaping_smoothing_algorithm == 0 && !usePower) {
             smoothing = OutColorAlgorithm.fractionalPartEscaping1(z_val, zold_val, log_bailout_squared);
+        }
+        else if(escaping_smoothing_algorithm == 2 && !usePower) {
+            smoothing = OutColorAlgorithm.fractionalPartEscaping3(z_val, zold_val, bailout);
         }
         else {
             smoothing = usePower ? OutColorAlgorithm.fractionalPartEscapingWithPower(z_val, log_bailout_squared, log_power) : OutColorAlgorithm.fractionalPartEscaping2(z_val, zold_val, log_bailout_squared);

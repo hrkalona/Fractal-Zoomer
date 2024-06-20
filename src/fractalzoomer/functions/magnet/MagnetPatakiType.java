@@ -56,21 +56,21 @@ public abstract class MagnetPatakiType extends Julia {
                 if (!smoothing) {
                     out_color_algorithm = new EscapeTime();
                 } else {
-                    out_color_algorithm = new SmoothEscapeTime(log_bailout_squared, escaping_smooth_algorithm, log_power);
+                    out_color_algorithm = new SmoothEscapeTime(bailout, log_bailout_squared, escaping_smooth_algorithm, log_power);
                 }
                 break;
             case MainWindow.BINARY_DECOMPOSITION:
                 if (!smoothing) {
                     out_color_algorithm = new BinaryDecomposition();
                 } else {
-                    out_color_algorithm = new SmoothBinaryDecomposition(log_bailout_squared, escaping_smooth_algorithm, log_power);
+                    out_color_algorithm = new SmoothBinaryDecomposition(bailout, log_bailout_squared, escaping_smooth_algorithm, log_power);
                 }
                 break;
             case MainWindow.BINARY_DECOMPOSITION2:
                 if (!smoothing) {
                     out_color_algorithm = new BinaryDecomposition2();
                 } else {
-                    out_color_algorithm = new SmoothBinaryDecomposition2(log_bailout_squared, escaping_smooth_algorithm, log_power);
+                    out_color_algorithm = new SmoothBinaryDecomposition2(bailout, log_bailout_squared, escaping_smooth_algorithm, log_power);
                 }
                 break;
             case MainWindow.BIOMORPH:
@@ -84,21 +84,21 @@ public abstract class MagnetPatakiType extends Julia {
                 if (!smoothing) {
                     out_color_algorithm = new EscapeTimeGrid(log_bailout_squared);
                 } else {
-                    out_color_algorithm = new SmoothEscapeTimeGrid(log_bailout_squared, escaping_smooth_algorithm, log_power);
+                    out_color_algorithm = new SmoothEscapeTimeGrid(bailout, log_bailout_squared, escaping_smooth_algorithm, log_power);
                 }
                 break;
             case MainWindow.ESCAPE_TIME_FIELD_LINES:
                 if (!smoothing) {
                     out_color_algorithm = new EscapeTimeFieldLines(log_bailout_squared);
                 } else {
-                    out_color_algorithm = new SmoothEscapeTimeFieldLines(log_bailout_squared, escaping_smooth_algorithm, log_power);
+                    out_color_algorithm = new SmoothEscapeTimeFieldLines(bailout, log_bailout_squared, escaping_smooth_algorithm, log_power);
                 }
                 break;
             case MainWindow.ESCAPE_TIME_FIELD_LINES2:
                 if (!smoothing) {
                     out_color_algorithm = new EscapeTimeFieldLines2(log_bailout_squared);
                 } else {
-                    out_color_algorithm = new SmoothEscapeTimeFieldLines2(log_bailout_squared, escaping_smooth_algorithm, log_power);
+                    out_color_algorithm = new SmoothEscapeTimeFieldLines2(bailout, log_bailout_squared, escaping_smooth_algorithm, log_power);
                 }
                 break;
             case ESCAPE_TIME_SQUARES:
@@ -106,7 +106,7 @@ public abstract class MagnetPatakiType extends Julia {
                 if (!smoothing) {
                     wrappedAlgorithm = new EscapeTime();
                 } else {
-                    wrappedAlgorithm = new SmoothEscapeTime(log_bailout_squared, escaping_smooth_algorithm, log_power);
+                    wrappedAlgorithm = new SmoothEscapeTime(bailout, log_bailout_squared, escaping_smooth_algorithm, log_power);
                 }
                 out_color_algorithm = new EscapeTimeSquares(6, wrappedAlgorithm);
                 break;
@@ -114,7 +114,7 @@ public abstract class MagnetPatakiType extends Julia {
                 if (!smoothing) {
                     wrappedAlgorithm = new EscapeTime();
                 } else {
-                    wrappedAlgorithm = new SmoothEscapeTime(log_bailout_squared, escaping_smooth_algorithm, log_power);
+                    wrappedAlgorithm = new SmoothEscapeTime(bailout, log_bailout_squared, escaping_smooth_algorithm, log_power);
                 }
                 out_color_algorithm = new EscapeTimeSquares2(6, wrappedAlgorithm);
                 break;

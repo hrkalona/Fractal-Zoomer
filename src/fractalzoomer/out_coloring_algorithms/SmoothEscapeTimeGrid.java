@@ -30,8 +30,9 @@ public class SmoothEscapeTimeGrid extends OutColorAlgorithm {
     protected int algorithm;
     protected double log_power;
     protected boolean usePower;
+    protected double bailout;
 
-    public SmoothEscapeTimeGrid(double log_bailout_squared, int algorithm) {
+    public SmoothEscapeTimeGrid(double bailout, double log_bailout_squared, int algorithm) {
 
         super();
         this.log_bailout_squared = log_bailout_squared;
@@ -40,9 +41,10 @@ public class SmoothEscapeTimeGrid extends OutColorAlgorithm {
         usePower = false;
 
         OutUsingIncrement = true;
+        this.bailout = bailout;
     }
 
-    public SmoothEscapeTimeGrid(double log_bailout_squared, int algorithm, double log_power) {
+    public SmoothEscapeTimeGrid(double bailout, double log_bailout_squared, int algorithm, double log_power) {
 
         super();
         this.log_bailout_squared = log_bailout_squared;
@@ -52,6 +54,7 @@ public class SmoothEscapeTimeGrid extends OutColorAlgorithm {
         this.log_power = log_power;
 
         OutUsingIncrement = true;
+        this.bailout = bailout;
     }
 
     @Override
@@ -71,6 +74,23 @@ public class SmoothEscapeTimeGrid extends OutColorAlgorithm {
 
 
             double temp3 = (int)object[0] + SmoothEscapeTime.getSmoothing1(object, temp2, log_bailout_squared);
+
+            return grid ? temp3 : -(temp3 + INCREMENT);
+        }
+        else if(algorithm == 2 && !usePower) {
+            double temp2 = Math.log(((Complex)object[1]).norm_squared());
+
+            double zabs = temp2 / log_bailout_squared - 1.0f;
+            double zarg = (((Complex)object[1]).arg() / (pi2) + 1.0f) % 1.0;
+
+            double k = Math.pow(0.5, 0.5 - zabs);
+
+            double grid_weight = 0.05;
+
+            boolean grid = grid_weight < zabs && zabs < (1.0 - grid_weight) && (grid_weight * k) < zarg && zarg < (1.0 - grid_weight * k);
+
+
+            double temp3 = (int)object[0] + SmoothEscapeTime.getSmoothing3(object, bailout);
 
             return grid ? temp3 : -(temp3 + INCREMENT);
         }

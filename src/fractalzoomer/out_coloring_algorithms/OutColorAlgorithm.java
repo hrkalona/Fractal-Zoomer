@@ -56,6 +56,21 @@ public abstract class OutColorAlgorithm extends ColorAlgorithm {
 
     }
 
+    public static double fractionalPartEscaping3(Complex z, Complex zold, double bailout) {
+        double p = 2;
+
+        double test1 = z.norm_squared();
+        double test2 = zold.norm_squared();
+
+        double a = Math.pow(test1, 1 / p);
+        double div = a - Math.pow(test2, 1 / p);
+        if (div != 0)
+            return 1 - (a - bailout) / div;
+
+        return 0;
+
+    }
+
     public static double fractionalPartEscapingWithPower(Complex z, double log_bailout_squared, double log_power) {
         double temp2 = z.norm_squared();
         temp2 = Math.log(temp2);

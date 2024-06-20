@@ -12853,6 +12853,131 @@ public class MainWindow extends JFrame implements Constants {
         oldRotateDragY = Double.MAX_VALUE;
     }
 
+    private int convertToFunction(int Power, int FractalType) {
+
+        if(FractalType == 0) { //Multibrot
+            switch (Power) {
+                case 2:
+                    return MANDELBROT;
+                case 3:
+                    return MANDELBROTCUBED;
+                case 4:
+                    return MANDELBROTFOURTH;
+                case 5:
+                    return MANDELBROTFIFTH;
+                case 6:
+                    return MANDELBROTSIXTH;
+                case 7:
+                    return MANDELBROTSEVENTH;
+                case 8:
+                    return MANDELBROTEIGHTH;
+                case 9:
+                    return MANDELBROTNINTH;
+                case 10:
+                    return MANDELBROTTENTH;
+            }
+        }
+        else if(FractalType == 1) { //Multibrot Burning-Ship
+            switch (Power) {
+                case 2:
+                    s.fns.burning_ship = true;
+                    return MANDELBROT;
+                case 3:
+                    s.fns.burning_ship = true;
+                    return MANDELBROTCUBED;
+                case 4:
+                    s.fns.burning_ship = true;
+                    return MANDELBROTFOURTH;
+                case 5:
+                    s.fns.burning_ship = true;
+                    return MANDELBROTFIFTH;
+            }
+        }
+        else if(FractalType == 2) { //Buffalo
+            switch (Power) {
+                case 2:
+                    return BUFFALO_MANDELBROT;
+            }
+        }
+        else if(FractalType == 3) { //Celtic
+            switch (Power) {
+                case 2:
+                    return CELTIC_MANDELBROT;
+            }
+        }
+        else if(FractalType == 4) { //Mandelbar
+            switch (Power) {
+                case 2:
+                    return MANDELBAR;
+            }
+        }
+        else if(FractalType == 6) { //Perpendicular Mandelbrot
+            switch (Power) {
+                case 2:
+                    return PERPENDICULAR_MANDELBROT;
+            }
+        }
+        else if(FractalType == 7) { //Perpendicular Burning Ship
+            switch (Power) {
+                case 2:
+                    return PERPENDICULAR_BURNING_SHIP;
+            }
+        }
+        else if(FractalType == 8) { //Perpendicular Celtic
+            switch (Power) {
+                case 2:
+                    return PERPENDICULAR_CELTIC_MANDELBROT;
+            }
+        }
+        else if(FractalType == 9) { //Perpendicular Buffalo
+            switch (Power) {
+                case 2:
+                    return PERPENDICULAR_BUFFALO_MANDELBROT;
+            }
+        }
+        else if(FractalType == 97) { //Nova
+            switch (Power) {
+                case 3:
+                    s.fns.z_exponent_nova[0] = 3;
+                    s.fns.z_exponent_nova[1] = 0;
+                    s.fns.nova_method = 0;
+                    return NOVA;
+            }
+        }
+        else if(FractalType == 98) { //Newton Nova Mandelbrot
+            s.fns.z_exponent_nova[0] = Power;
+            s.fns.z_exponent_nova[1] = 0;
+            s.fns.nova_method = NOVA_NEWTON;
+            return NOVA;
+        }
+        else if(FractalType == 99) { //Halley Nova Mandelbrot
+            s.fns.z_exponent_nova[0] = Power;
+            s.fns.z_exponent_nova[1] = 0;
+            s.fns.nova_method = NOVA_HALLEY;
+            return NOVA;
+        }
+        else if(FractalType == 100) { //Schroder Nova Mandelbrot
+            s.fns.z_exponent_nova[0] = Power;
+            s.fns.z_exponent_nova[1] = 0;
+            s.fns.nova_method = NOVA_SCHRODER;
+            return NOVA;
+        }
+        else if(FractalType == 101) { //Householder 3 Nova Mandelbrot
+            s.fns.z_exponent_nova[0] = Power;
+            s.fns.z_exponent_nova[1] = 0;
+            s.fns.nova_method = NOVA_HOUSEHOLDER3;
+            return NOVA;
+        }
+        else if(FractalType == 102) { //Householder Nova Mandelbrot
+            s.fns.z_exponent_nova[0] = Power;
+            s.fns.z_exponent_nova[1] = 0;
+            s.fns.nova_method = NOVA_HOUSEHOLDER;
+            return NOVA;
+        }
+
+        return -1;
+    }
+
     public void parseKFR(String fileName) {
         BufferedReader br = null;
 
@@ -12868,7 +12993,7 @@ public class MainWindow extends JFrame implements Constants {
             String colors = "";
             String iterDiv = "1";
             String colorOffset = "0";
-            String flat = "1";
+            String flat = "0";
             String rotateAngle = "0";
             String colorMethod = "0";
             String BailoutRadiusPreset = "0";
@@ -12887,6 +13012,7 @@ public class MainWindow extends JFrame implements Constants {
             String FractalType = "0";
             String ImageWidth = "";
             String ImageHeight = "";
+            String SmoothMethod = "0";
 
             while ((str_line = br.readLine()) != null) {
 
@@ -12973,6 +13099,9 @@ public class MainWindow extends JFrame implements Constants {
                     else if(token.equalsIgnoreCase("ImageHeight:") && tokenizer.countTokens() == 1) {
                         ImageHeight = tokenizer.nextToken();
                     }
+                    else if(token.equalsIgnoreCase("SmoothMethod:") && tokenizer.countTokens() == 1) {
+                        SmoothMethod = tokenizer.nextToken();
+                    }
                     else {
                         continue;
                     }
@@ -12985,6 +13114,20 @@ public class MainWindow extends JFrame implements Constants {
 
             sr.clear();
             main_panel.repaint();
+
+            try {
+                int power = Integer.parseInt(Power);
+                int ftype = Integer.parseInt(FractalType);
+                int function = convertToFunction(power, ftype);
+                if(function == -1) {
+                    throw new Exception("");
+                }
+                s.fns.function = function;
+            }
+            catch (Exception ex) {
+                JOptionPane.showMessageDialog(ptr, "Unsupported Fractal Function found.", "Error!", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
 
             int flipImaginary = 0;
             try {
@@ -13286,7 +13429,16 @@ public class MainWindow extends JFrame implements Constants {
 
             }
 
-            //Todo smooth method
+            try {
+                int smooth = Integer.parseInt(SmoothMethod);
+
+                if(smooth == 1) {
+                    s.fns.escaping_smooth_algorithm = 2;
+                }
+            }
+            catch (Exception ex) {
+
+            }
 
             try {
 
@@ -13335,6 +13487,8 @@ public class MainWindow extends JFrame implements Constants {
 
             s.ps.color_intensity = 1 / iterDivD;
             s.ps.color_cycling_location = (int) (coffset * iterDivD);
+            s.fns.converging_smooth_algorithm = 0;
+            s.fns.convergent_bailout = 1e-6;
 
             s.applyStaticSettings();
 

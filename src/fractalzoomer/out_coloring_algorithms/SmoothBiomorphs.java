@@ -64,6 +64,14 @@ public class SmoothBiomorphs extends OutColorAlgorithm {
 
             return temp4 > -bailout && temp4 < bailout || temp5 > -bailout && temp5 < bailout ? temp3 : -(temp3 + INCREMENT);
         }
+        else if(algorithm == 2 && !usePower) {
+            double temp3 = (int)object[0] + SmoothEscapeTime.getSmoothing3(object, bailout);
+
+            double temp4 = ((Complex)object[1]).getRe();
+            double temp5 = ((Complex)object[1]).getIm();
+
+            return temp4 > -bailout && temp4 < bailout || temp5 > -bailout && temp5 < bailout ? temp3 : -(temp3 + INCREMENT);
+        }
         else {
             double temp3 = (int)object[0] + SmoothEscapeTime.getSmoothing2(object, Math.log(((Complex)object[1]).norm_squared()), log_bailout_squared, usePower, log_power);
 

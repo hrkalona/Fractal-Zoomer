@@ -140,7 +140,7 @@ public class Mandelbrot extends Julia {
             if (!smoothing) {
                 out_color_algorithm = new EscapeTime();
             } else {
-                out_color_algorithm = new SmoothEscapeTime(log_bailout_squared, escaping_smooth_algorithm);
+                out_color_algorithm = new SmoothEscapeTime(bailout, log_bailout_squared, escaping_smooth_algorithm);
             }
         }
         else {

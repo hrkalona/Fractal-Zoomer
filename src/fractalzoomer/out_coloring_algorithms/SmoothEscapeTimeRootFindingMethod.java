@@ -56,6 +56,7 @@ public class SmoothEscapeTimeRootFindingMethod extends OutColorAlgorithm {
 
     }
 
+    //Todo make all smoothings take into account the norm type used on bailout condition
     public static double getSmoothing2(Object[] object, double log_convergent_bailout) {
 
         double temp4 = Math.log(((double)object[2]) + 1e-33);
@@ -65,6 +66,15 @@ public class SmoothEscapeTimeRootFindingMethod extends OutColorAlgorithm {
         power = power <= 0 ? 1e-33 : power;
 
         return Math.log(log_convergent_bailout / temp4) / Math.log(power);
+
+        /* KF
+        double p = 2;
+
+        double delta = ((double)object[2]);
+        double delta_1 = ((Complex)object[3]).distance_squared(((Complex)object[4]));
+        double q = Math.log(delta) / Math.log(delta_1);
+        double f = (Math.log(-log_convergent_bailout/p) - Math.log(-Math.log(delta)/p)) / Math.log(q);
+        return f;*/
 
     }
 }

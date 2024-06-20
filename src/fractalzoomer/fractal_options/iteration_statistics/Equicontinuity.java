@@ -21,8 +21,9 @@ public class Equicontinuity extends GenericStatistic {
     private boolean invertFactor;
     private double delta;
     private boolean isFractalWithoutConstant;
+    private double bailout;
 
-    public Equicontinuity(double statistic_intensity, boolean useSmoothing, boolean useAverage, double log_bailout_squared, boolean rootFindingMode, double log_convergent_bailout, double denominatorFactor, boolean invertFactor, double delta) {
+    public Equicontinuity(double statistic_intensity, boolean useSmoothing, boolean useAverage, double log_bailout_squared, double bailout, boolean rootFindingMode, double log_convergent_bailout, double denominatorFactor, boolean invertFactor, double delta) {
         super(statistic_intensity, useSmoothing, useAverage, 0);
         sum = 0;
         sum2 = 0;
@@ -44,6 +45,8 @@ public class Equicontinuity extends GenericStatistic {
         this.delta = delta;
 
         juliter = false;
+
+        this.bailout = bailout;
     }
 
     @Override
@@ -114,6 +117,9 @@ public class Equicontinuity extends GenericStatistic {
         if(mode == NORMAL_ESCAPE) {
             if(escaping_smoothing_algorithm == 0 && !usePower) {
                 smoothing = OutColorAlgorithm.fractionalPartEscaping1(z_val, zold_val, log_bailout_squared);
+            }
+            else if(escaping_smoothing_algorithm == 2 && !usePower) {
+                smoothing = OutColorAlgorithm.fractionalPartEscaping3(z_val, zold_val, bailout);
             }
             else {
                 smoothing = usePower ? OutColorAlgorithm.fractionalPartEscapingWithPower(z_val, log_bailout_squared, log_power) : OutColorAlgorithm.fractionalPartEscaping2(z_val, zold_val, log_bailout_squared);

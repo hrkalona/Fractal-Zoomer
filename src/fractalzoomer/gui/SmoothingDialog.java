@@ -57,7 +57,7 @@ public class SmoothingDialog extends JDialog {
         fractional_transfer.setSelectedIndex(s.fns.smoothing_fractional_transfer_method);
         fractional_transfer.setFocusable(false);
 
-        String[] escaping_algorithm_str = {"Algorithm 1", "Algorithm 2"};
+        String[] escaping_algorithm_str = {"Algorithm 1", "Algorithm 2", "Algorithm 3"};
 
         JComboBox<String> escaping_alg_combo = new JComboBox<>(escaping_algorithm_str);
         escaping_alg_combo.setSelectedIndex(s.fns.escaping_smooth_algorithm);

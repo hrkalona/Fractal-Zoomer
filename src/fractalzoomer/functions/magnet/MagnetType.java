@@ -339,21 +339,21 @@ public abstract class MagnetType extends Julia {
                 if (!smoothing) {
                     out_color_algorithm = new EscapeTimeMagnet();
                 } else {
-                    out_color_algorithm = new SmoothEscapeTimeMagnet(log_bailout_squared, Math.log(convergent_bailout), escaping_smooth_algorithm, converging_smooth_algorithm);
+                    out_color_algorithm = new SmoothEscapeTimeMagnet(bailout, log_bailout_squared, Math.log(convergent_bailout), escaping_smooth_algorithm, converging_smooth_algorithm);
                 }
                 break;
             case MainWindow.BINARY_DECOMPOSITION:
                 if (!smoothing) {
                     out_color_algorithm = new BinaryDecompositionMagnet();
                 } else {
-                    out_color_algorithm = new SmoothBinaryDecompositionMagnet(log_bailout_squared, Math.log(convergent_bailout), escaping_smooth_algorithm, converging_smooth_algorithm);
+                    out_color_algorithm = new SmoothBinaryDecompositionMagnet(bailout, log_bailout_squared, Math.log(convergent_bailout), escaping_smooth_algorithm, converging_smooth_algorithm);
                 }
                 break;
             case MainWindow.BINARY_DECOMPOSITION2:
                 if (!smoothing) {
                     out_color_algorithm = new BinaryDecomposition2Magnet();
                 } else {
-                    out_color_algorithm = new SmoothBinaryDecomposition2Magnet(log_bailout_squared, Math.log(convergent_bailout), escaping_smooth_algorithm, converging_smooth_algorithm);
+                    out_color_algorithm = new SmoothBinaryDecomposition2Magnet(bailout, log_bailout_squared, Math.log(convergent_bailout), escaping_smooth_algorithm, converging_smooth_algorithm);
                 }
                 break;
             case MainWindow.ITERATIONS_PLUS_RE:
@@ -434,14 +434,14 @@ public abstract class MagnetType extends Julia {
                 if (!smoothing) {
                     out_color_algorithm = new EscapeTimeEscapeRadiusMagnet(log_bailout_squared);
                 } else {
-                    out_color_algorithm = new SmoothEscapeTimeEscapeRadiusMagnet(log_bailout_squared, Math.log(convergent_bailout), escaping_smooth_algorithm, converging_smooth_algorithm);
+                    out_color_algorithm = new SmoothEscapeTimeEscapeRadiusMagnet(bailout, log_bailout_squared, Math.log(convergent_bailout), escaping_smooth_algorithm, converging_smooth_algorithm);
                 }
                 break;
             case MainWindow.ESCAPE_TIME_GRID:
                 if (!smoothing) {
                     out_color_algorithm = new EscapeTimeGridMagnet(log_bailout_squared);
                 } else {
-                    out_color_algorithm = new SmoothEscapeTimeGridMagnet(log_bailout_squared, Math.log(convergent_bailout), escaping_smooth_algorithm, converging_smooth_algorithm);
+                    out_color_algorithm = new SmoothEscapeTimeGridMagnet(bailout, log_bailout_squared, Math.log(convergent_bailout), escaping_smooth_algorithm, converging_smooth_algorithm);
                 }
                 break;
             case MainWindow.BANDED:
@@ -451,14 +451,14 @@ public abstract class MagnetType extends Julia {
                 if (!smoothing) {
                     out_color_algorithm = new EscapeTimeFieldLinesMagnet(log_bailout_squared);
                 } else {
-                    out_color_algorithm = new SmoothEscapeTimeFieldLinesMagnet(log_bailout_squared, Math.log(convergent_bailout), escaping_smooth_algorithm, converging_smooth_algorithm);
+                    out_color_algorithm = new SmoothEscapeTimeFieldLinesMagnet(bailout, log_bailout_squared, Math.log(convergent_bailout), escaping_smooth_algorithm, converging_smooth_algorithm);
                 }
                 break;
             case MainWindow.ESCAPE_TIME_FIELD_LINES2:
                 if (!smoothing) {
                     out_color_algorithm = new EscapeTimeFieldLines2Magnet(log_bailout_squared);
                 } else {
-                    out_color_algorithm = new SmoothEscapeTimeFieldLines2Magnet(log_bailout_squared, Math.log(convergent_bailout), escaping_smooth_algorithm, converging_smooth_algorithm);
+                    out_color_algorithm = new SmoothEscapeTimeFieldLines2Magnet(bailout, log_bailout_squared, Math.log(convergent_bailout), escaping_smooth_algorithm, converging_smooth_algorithm);
                 }
                 break;
             case MainWindow.USER_OUTCOLORING_ALGORITHM:
@@ -474,7 +474,7 @@ public abstract class MagnetType extends Julia {
                 if (!smoothing) {
                     wrappedAlgorithm = new EscapeTimeMagnet();
                 } else {
-                    wrappedAlgorithm = new SmoothEscapeTimeMagnet(log_bailout_squared, Math.log(convergent_bailout), escaping_smooth_algorithm, converging_smooth_algorithm);
+                    wrappedAlgorithm = new SmoothEscapeTimeMagnet(bailout, log_bailout_squared, Math.log(convergent_bailout), escaping_smooth_algorithm, converging_smooth_algorithm);
                 }
                 out_color_algorithm = new EscapeTimeSquares(8, wrappedAlgorithm);
                 break;
@@ -482,7 +482,7 @@ public abstract class MagnetType extends Julia {
                 if (!smoothing) {
                     wrappedAlgorithm = new EscapeTimeMagnet();
                 } else {
-                    wrappedAlgorithm = new SmoothEscapeTimeMagnet(log_bailout_squared, Math.log(convergent_bailout), escaping_smooth_algorithm, converging_smooth_algorithm);
+                    wrappedAlgorithm = new SmoothEscapeTimeMagnet(bailout, log_bailout_squared, Math.log(convergent_bailout), escaping_smooth_algorithm, converging_smooth_algorithm);
                 }
                 out_color_algorithm = new EscapeTimeSquares2(8, wrappedAlgorithm);
                 break;
@@ -513,37 +513,37 @@ public abstract class MagnetType extends Julia {
             return;
         }
         else if(sts.statisticGroup == 2) {
-            statistic = new Equicontinuity(sts.statistic_intensity, sts.useSmoothing, sts.useAverage, log_bailout_squared, false, Math.log(convergent_bailout), sts.equicontinuityDenominatorFactor, sts.equicontinuityInvertFactor, sts.equicontinuityDelta);
+            statistic = new Equicontinuity(sts.statistic_intensity, sts.useSmoothing, sts.useAverage, log_bailout_squared, bailout,false, Math.log(convergent_bailout), sts.equicontinuityDenominatorFactor, sts.equicontinuityInvertFactor, sts.equicontinuityDelta);
             return;
         }
 
         switch (sts.statistic_type) {
             case MainWindow.STRIPE_AVERAGE:
-                statistic = new StripeAverage(sts.statistic_intensity, sts.stripeAvgStripeDensity, log_bailout_squared, sts.useSmoothing, sts.useAverage, sts.lastXItems);
+                statistic = new StripeAverage(sts.statistic_intensity, sts.stripeAvgStripeDensity, log_bailout_squared, bailout, sts.useSmoothing, sts.useAverage, sts.lastXItems);
                 break;
             case MainWindow.CURVATURE_AVERAGE:
-                statistic = new CurvatureAverage(sts.statistic_intensity, log_bailout_squared, sts.useSmoothing, sts.useAverage, sts.lastXItems);
+                statistic = new CurvatureAverage(sts.statistic_intensity, log_bailout_squared, bailout, sts.useSmoothing, sts.useAverage, sts.lastXItems);
                 break;
             case MainWindow.TRIANGLE_INEQUALITY_AVERAGE:
-                statistic = new TriangleInequalityAverage(sts.statistic_intensity, log_bailout_squared, sts.useSmoothing, sts.useAverage, sts.lastXItems);
+                statistic = new TriangleInequalityAverage(sts.statistic_intensity, log_bailout_squared, bailout, sts.useSmoothing, sts.useAverage, sts.lastXItems);
                 break;
             case MainWindow.COS_ARG_DIVIDE_NORM_AVERAGE:
-                statistic = new CosArgDivideNormAverage(sts.statistic_intensity, sts.cosArgStripeDensity, log_bailout_squared, sts.useSmoothing, sts.useAverage, sts.lastXItems);
+                statistic = new CosArgDivideNormAverage(sts.statistic_intensity, sts.cosArgStripeDensity, log_bailout_squared, bailout, sts.useSmoothing, sts.useAverage, sts.lastXItems);
                 break;
             case MainWindow.COS_ARG_DIVIDE_INVERSE_NORM:
-                statistic = new CosArgDivideInverseNorm(sts.statistic_intensity, sts.cosArgInvStripeDensity, sts.StripeDenominatorFactor, sts.useSmoothing, Math.log(convergent_bailout), log_bailout_squared, sts.lastXItems);
+                statistic = new CosArgDivideInverseNorm(sts.statistic_intensity, sts.cosArgInvStripeDensity, sts.StripeDenominatorFactor, sts.useSmoothing, Math.log(convergent_bailout), log_bailout_squared, bailout, sts.lastXItems);
                 break;
             case MainWindow.ATOM_DOMAIN_BOF60_BOF61:
                 statistic = new AtomDomain(sts.showAtomDomains, sts.statistic_intensity, sts.atomNormType, sts.atomNNorm, sts.lastXItems);
                 break;
             case MainWindow.DISCRETE_LAGRANGIAN_DESCRIPTORS:
-                statistic = new DiscreteLagrangianDescriptors(sts.statistic_intensity, sts.lagrangianPower, log_bailout_squared, sts.useSmoothing, sts.useAverage, false, Math.log(convergent_bailout), sts.langNormType, sts.langNNorm, sts.lastXItems);
+                statistic = new DiscreteLagrangianDescriptors(sts.statistic_intensity, sts.lagrangianPower, log_bailout_squared, bailout, sts.useSmoothing, sts.useAverage, false, Math.log(convergent_bailout), sts.langNormType, sts.langNNorm, sts.lastXItems);
                 break;
             case MainWindow.TWIN_LAMPS:
-                statistic = new TwinLamps(sts.statistic_intensity, sts.twlFunction, sts.twlPoint, log_bailout_squared, sts.useSmoothing, sts.lastXItems);
+                statistic = new TwinLamps(sts.statistic_intensity, sts.twlFunction, sts.twlPoint, log_bailout_squared, bailout, sts.useSmoothing, sts.lastXItems);
                 break;
             case MainWindow.CHECKERS:
-                statistic = new Checkers(sts.statistic_intensity, sts.patternScale, sts.checkerNormType, sts.checkerNormValue, log_bailout_squared, sts.useSmoothing, sts.useAverage, sts.lastXItems);
+                statistic = new Checkers(sts.statistic_intensity, sts.patternScale, sts.checkerNormType, sts.checkerNormValue, log_bailout_squared, bailout, sts.useSmoothing, sts.useAverage, sts.lastXItems);
                 break;
 
         }

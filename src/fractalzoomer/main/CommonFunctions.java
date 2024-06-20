@@ -1655,8 +1655,11 @@ public class CommonFunctions implements Constants {
                 overview += tab + "Fractional Transfer = " + Constants.smoothingFractionalTransfer[s.fns.smoothing_fractional_transfer_method] + "<br>";
                 if (s.fns.escaping_smooth_algorithm == 0) {
                     overview += tab + "Escaping Smooth Algorithm 1<br>";
-                } else {
+                } else if (s.fns.escaping_smooth_algorithm == 1){
                     overview += tab + "Escaping Smooth Algorithm 2<br>";
+                }
+                else {
+                    overview += tab + "Escaping Smooth Algorithm 3<br>";
                 }
                 if (s.fns.converging_smooth_algorithm == 0) {
                     overview += tab + "Converging Smooth Algorithm 1<br>";
