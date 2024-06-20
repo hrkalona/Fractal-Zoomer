@@ -17,6 +17,7 @@
 package fractalzoomer.fractal_options.iteration_statistics;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.core.norms.*;
 import fractalzoomer.main.MainWindow;
 
 /**
@@ -27,16 +28,27 @@ public class AtomDomain extends GenericStatistic {
     private double minNorm;
     private int minIteration;
     private boolean showAtomDomains;
-    private int normtType;
-    private double atomNorm;
-    private double atomNormReciprocal;
+    private Norm normImpl;
+
     
     public AtomDomain(boolean showAtomDomains, double statistic_intensity, int normtType, double atomNorm, int lastXItems) {
         super(statistic_intensity, false, false, lastXItems);
         this.showAtomDomains = showAtomDomains;
-        this.normtType = normtType;
-        this.atomNorm = atomNorm;
-        atomNormReciprocal = 1 / atomNorm;
+
+        switch (normtType) {
+            case 0:
+                normImpl = new Norm2();
+                break;
+            case 1: //Rhombus
+                normImpl = new Norm1();
+                break;
+            case 2: //Square
+                normImpl = new NormInfinity();
+                break;
+            case 3:
+                normImpl = new NormP(atomNorm);
+                break;
+        }
     }
 
     @Override
@@ -68,22 +80,7 @@ public class AtomDomain extends GenericStatistic {
     }
 
     private void addSample(Complex z) {
-        double currentNorm = 0;
-
-        switch (normtType) {
-            case 0:
-                currentNorm = z.norm();
-                break;
-            case 1: //Rhombus
-                currentNorm = z.getAbsRe() + z.getAbsIm();
-                break;
-            case 2: //Square
-                currentNorm = Math.max(z.getAbsRe(), z.getAbsIm());
-                break;
-            case 3:
-                currentNorm = z.nnorm(atomNorm, atomNormReciprocal);
-                break;
-        }
+        double currentNorm = normImpl.computeWithRoot(z);
 
         if(currentNorm < minNorm) {
             minNorm = currentNorm;

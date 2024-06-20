@@ -17,6 +17,9 @@
 package fractalzoomer.fractal_options.orbit_traps;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.core.norms.Norm;
+import fractalzoomer.core.norms.Norm2;
+import fractalzoomer.core.norms.NormP;
 
 import static fractalzoomer.main.Constants.*;
 
@@ -28,14 +31,14 @@ public class StalksNNormOrbitTrap extends OrbitTrap {
     private double stalksradiushigh;
     private double stalksradiuslow;
     private double cnorm;
-    private double n_norm;
-    private double n_norm_reciprocal;
+    private Norm normImpl;
+    private Norm normImpl2;
     
     public StalksNNormOrbitTrap(int checkType, double pointRe, double pointIm, double trapLength, double trapWidth, double n_norm, boolean countTrapIterations, int lastXItems) {
         
         super(checkType, pointRe, pointIm, trapLength, trapWidth, countTrapIterations, lastXItems);
-        this.n_norm = n_norm;
-        n_norm_reciprocal = 1 / n_norm;
+        normImpl = new NormP(n_norm);
+        normImpl2 = new Norm2();
         
     }
 
@@ -46,16 +49,17 @@ public class StalksNNormOrbitTrap extends OrbitTrap {
             return;
         }
 
-        double dist = val.distance(point);
+        Complex diff = val.sub(point);
+
+        double dist = normImpl2.computeWithRoot(diff);
 
         if (dist <= stalksradiushigh && dist >= stalksradiuslow && iteration > 0 && (checkType == TRAP_CHECK_TYPE_TRAPPED_FIRST || checkType == TRAP_CHECK_TYPE_TRAPPED_LAST ||  checkType == TRAP_CHECK_TYPE_TRAPPED_MIN_DISTANCE && dist < distance)) {
             distance = dist;
             trapId = 0;
             setTrappedData(val, iteration);
         }
-        
-        Complex temp = val.sub(point);
-        dist = Math.abs(temp.nnorm(n_norm, n_norm_reciprocal) - trapLength);
+
+        dist = Math.abs(normImpl.computeWithRoot(diff) - trapLength);
 
         if(dist < trapWidth && (checkType == TRAP_CHECK_TYPE_TRAPPED_FIRST || checkType == TRAP_CHECK_TYPE_TRAPPED_LAST ||  checkType == TRAP_CHECK_TYPE_TRAPPED_MIN_DISTANCE && dist < distance)) {
             distance = dist;

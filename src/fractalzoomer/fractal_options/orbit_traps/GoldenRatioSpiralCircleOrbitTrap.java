@@ -17,6 +17,8 @@
 package fractalzoomer.fractal_options.orbit_traps;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.core.norms.Norm;
+import fractalzoomer.core.norms.Norm2;
 
 import static fractalzoomer.main.Constants.*;
 
@@ -26,11 +28,13 @@ import static fractalzoomer.main.Constants.*;
  */
 public class GoldenRatioSpiralCircleOrbitTrap extends OrbitTrap {
     private double phi;
+    private Norm normImpl;
 
     public GoldenRatioSpiralCircleOrbitTrap(int checkType, double pointRe, double pointIm, double trapLength, double trapWidth, boolean countTrapIterations, int lastXItems) {
 
         super(checkType, pointRe, pointIm, trapLength, trapWidth, countTrapIterations, lastXItems);
         phi = 0.5 * (1 + Math.sqrt(5));
+        normImpl = new Norm2();
 
     }
 
@@ -53,7 +57,7 @@ public class GoldenRatioSpiralCircleOrbitTrap extends OrbitTrap {
             }
         }
         
-        double dist = Math.abs(val.distance(point) - trapLength);
+        double dist = Math.abs(normImpl.computeWithRoot(val.sub(point)) - trapLength);
 
         if(dist < trapWidth && (checkType == TRAP_CHECK_TYPE_TRAPPED_FIRST || checkType == TRAP_CHECK_TYPE_TRAPPED_LAST ||  checkType == TRAP_CHECK_TYPE_TRAPPED_MIN_DISTANCE && dist < distance)) {
             distance = dist;

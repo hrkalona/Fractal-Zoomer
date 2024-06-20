@@ -2,25 +2,24 @@ package fractalzoomer.core.norms;
 
 import fractalzoomer.core.Complex;
 
-public class Norm1 extends Norm {
+public class NormInfinity extends Norm {
 
-    public Norm1() {
+    public NormInfinity() {
         super();
     }
 
     @Override
     public double getExp() {
-        return 1;
+        return Double.POSITIVE_INFINITY;
     }
 
     @Override
     public double computeWithoutRoot(Complex z) {
-        return z.getAbsRe() + z.getAbsIm();
+        return Math.max(z.getAbsRe(), z.getAbsIm());
     }
 
     @Override
     public double computeWithRoot(Complex z) {
-        return z.getAbsRe() + z.getAbsIm();
+        return Math.max(z.getAbsRe(), z.getAbsIm());
     }
-
 }

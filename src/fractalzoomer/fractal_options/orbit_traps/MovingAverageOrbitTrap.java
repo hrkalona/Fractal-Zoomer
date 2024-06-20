@@ -1,16 +1,20 @@
 package fractalzoomer.fractal_options.orbit_traps;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.core.norms.Norm;
+import fractalzoomer.core.norms.Norm2;
 
 import static fractalzoomer.main.Constants.*;
 
 public class MovingAverageOrbitTrap extends OrbitTrap {
     double sum_norm;
     double last_avg;
+    private Norm normImpl;
 
     public MovingAverageOrbitTrap(int checkType, double pointRe, double pointIm, double trapWidth, boolean countTrapIterations, int lastXItems) {
 
         super(checkType, pointRe, pointIm, 0, trapWidth, countTrapIterations, lastXItems);
+        normImpl = new Norm2();
 
     }
 
@@ -28,7 +32,7 @@ public class MovingAverageOrbitTrap extends OrbitTrap {
             return;
         }
 
-        sum_norm += val.distance(point);
+        sum_norm += normImpl.computeWithRoot(val.sub(point));
         double sum_avg = sum_norm / iteration;
         double diff = sum_avg - last_avg;
         last_avg = sum_avg;

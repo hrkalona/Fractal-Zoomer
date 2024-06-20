@@ -17,16 +17,20 @@
 package fractalzoomer.fractal_options.orbit_traps;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.core.norms.Norm;
+import fractalzoomer.core.norms.NormInfinity;
 
 import static fractalzoomer.main.Constants.*;
 
 public class SquareCrossOrbitTrap extends OrbitTrap {
     private int lineType;
+    private Norm normImpl;
 
     public SquareCrossOrbitTrap(int checkType, double pointRe, double pointIm, double trapLength, double trapWidth, int lineType, boolean countTrapIterations, int lastXItems) {
 
         super(checkType, pointRe, pointIm, trapLength, trapWidth, countTrapIterations, lastXItems);
         this.lineType = lineType;
+        normImpl = new NormInfinity();
 
     }
 
@@ -39,7 +43,7 @@ public class SquareCrossOrbitTrap extends OrbitTrap {
 
         Complex diff = val.sub(point);
         
-        double dist = Math.abs(Math.max(diff.getAbsRe(), diff.getAbsIm()) - trapLength);
+        double dist = Math.abs(normImpl.computeWithRoot(diff) - trapLength);
 
         if(dist < trapWidth && (checkType == TRAP_CHECK_TYPE_TRAPPED_FIRST || checkType == TRAP_CHECK_TYPE_TRAPPED_LAST ||  checkType == TRAP_CHECK_TYPE_TRAPPED_MIN_DISTANCE && dist < distance)) {
             distance = dist;

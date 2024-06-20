@@ -18,6 +18,9 @@ package fractalzoomer.core.domain_coloring;
 
 import fractalzoomer.core.Complex;
 import fractalzoomer.core.blending.Blending;
+import fractalzoomer.core.norms.Norm;
+import fractalzoomer.core.norms.Norm2;
+import fractalzoomer.core.norms.NormP;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.DomainColoringSettings;
 import fractalzoomer.main.app_settings.GeneratedPaletteSettings;
@@ -39,13 +42,13 @@ public class CustomDomainColoring extends DomainColoring {
     private boolean drawIsoLines;
     private int colorType;
     private int contourType;
-    private double normType;
-    private double normTypeReciprocal;
     private int[] order;
 
     private int iso_color_type;
     private int grid_color_type;
     private int circle_color_type;
+
+    private Norm normImpl;
 
     public CustomDomainColoring(DomainColoringSettings ds, PaletteColor palette, TransferFunction color_transfer, int color_cycling_location, GeneratedPaletteSettings gps, Blending blending, int[] gradient, int interpolation, int gradient_offset, double countourFactor) {
 
@@ -132,8 +135,12 @@ public class CustomDomainColoring extends DomainColoring {
         colorType = ds.colorType;
         contourType = ds.contourType;
 
-        normType = ds.normType;
-        normTypeReciprocal = 1 / normType;
+        if(ds.normType == 2) {
+            normImpl = new Norm2();
+        }
+        else {
+            normImpl = new NormP(ds.normType);
+        }
         
         combineType = ds.combineType;
 
@@ -158,14 +165,7 @@ public class CustomDomainColoring extends DomainColoring {
 
         int color = 0xffffffff;
 
-        double norm = 0;
-
-        if(normType == 2) {
-            norm = res.norm();
-        }
-        else {
-            norm = res.nnorm(normType, normTypeReciprocal);
-        }
+        double norm = normImpl.computeWithRoot(res);
 
         double arg = res.arg();
         double re = res.getRe();
