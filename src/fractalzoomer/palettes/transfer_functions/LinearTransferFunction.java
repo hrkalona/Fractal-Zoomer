@@ -5,9 +5,9 @@ public class LinearTransferFunction extends TransferFunction {
     private double color_intensity;
     private double itPaletteDensity;
 
-    public LinearTransferFunction(int paletteLength, double color_intensity, double colorDensity) {
+    public LinearTransferFunction(int paletteLength, double color_intensity, double colorDensity, boolean banded) {
 
-        super(paletteLength);
+        super(paletteLength, banded);
         this.color_intensity = color_intensity;
 
         final double realColorDensity = colorDensity / 100.0;
@@ -18,17 +18,21 @@ public class LinearTransferFunction extends TransferFunction {
     @Override
     public double transfer(double result) {
 
-        if (result < 0) {
-            result = -result; // transfer to positive
-            result *= itPaletteDensity;
-            result *= paletteLength * paletteMultiplier;
-            result = -result; // transfer to negative
-        } else {
-            result *= itPaletteDensity;
-            result *= paletteLength * paletteMultiplier;
+        boolean isNeg = result < 0;
+
+        if (isNeg) {
+            result = -result;
         }
 
-        return result * color_intensity;
+        if(banded) {
+            result = (long) (result);
+        }
+
+        result *= itPaletteDensity;
+        result *= paletteLength * paletteMultiplier;
+
+        double final_result = result * color_intensity;
+        return isNeg ? -final_result : final_result;
 
     }
 }

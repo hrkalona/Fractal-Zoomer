@@ -32,7 +32,7 @@ public interface Constants {
     public static final int TOTAL_OUTCOLORING_ALGORITHMS = 27;
     public static final int TOTAL_BAILOUT_CONDITIONS = 13;
     public static final int TOTAL_CONVERGENT_BAILOUT_CONDITIONS = 6;
-    public static final int TOTAL_PLANES = 66;
+    public static final int TOTAL_PLANES = 67;
     public static final int TOTAL_FUNCTIONS = 514;
     public static final int TOTAL_FILTERS = 35;
     public static final int TOTAL_COLOR_TRANSFER_FILTERS = 14;
@@ -883,6 +883,7 @@ public interface Constants {
     public static final int SKEW_PLANE = 63;
     public static final int INFLECTIONS_PLANE = 64;
     public static final int MU_FOURTH_PLANE = 65;
+    public static final int STRETCH_PLANE = 66;
     /**
      * **************
      */

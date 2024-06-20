@@ -607,6 +607,8 @@ public abstract class TaskRender implements Runnable {
 
     private Blending ndes_blending;
 
+    private boolean banded;
+
     private Blending hss_blending;
     private Blending ofs_blending;
 
@@ -813,6 +815,7 @@ public abstract class TaskRender implements Runnable {
         this.contourFactor = contourFactor;
         setPostProcessingData(pps);
         SMOOTH_DATA = needsSmoothing(fns, ndes, ls, ss, bms, cns, ens, rps, fdes, sts);
+        banded = fns.banded;
         this.gps = gps;
         this.js = js;
         settingsFractal(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns.bailout_test_algorithm, fns.bailout, fns.bailout_test_user_formula, fns.bailout_test_user_formula2, fns.bailout_test_comparison, fns.n_norm, d3s, ptr, fractal_color, dem_color, image, fs, fns.out_coloring_algorithm, fns.user_out_coloring_algorithm, fns.outcoloring_formula, fns.user_outcoloring_conditions, fns.user_outcoloring_condition_formula, fns.in_coloring_algorithm, fns.user_in_coloring_algorithm, fns.incoloring_formula, fns.user_incoloring_conditions, fns.user_incoloring_condition_formula, SMOOTH_DATA, periodicity_checking, fns.plane_type, fns.burning_ship, fns.mandel_grass, fns.mandel_grass_vals, fns.function, fns.z_exponent, fns.z_exponent_complex, color_cycling_location, color_cycling_location2, fns.rotation_vals, fns.rotation_center, fns.perturbation, fns.perturbation_vals, fns.variable_perturbation, fns.user_perturbation_algorithm, fns.user_perturbation_conditions, fns.user_perturbation_condition_formula, fns.perturbation_user_formula, fns.init_val, fns.initial_vals, fns.variable_init_value, fns.user_initial_value_algorithm, fns.user_initial_value_conditions, fns.user_initial_value_condition_formula, fns.initial_value_user_formula, fns.coefficients, fns.z_exponent_nova, fns.relaxation, fns.nova_method, fns.user_formula, fns.user_formula2, fns.bail_technique, fns.user_plane, fns.user_plane_algorithm, fns.user_plane_conditions, fns.user_plane_condition_formula, fns.user_formula_iteration_based, fns.user_formula_conditions, fns.user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, fns.plane_transform_center, fns.plane_transform_angle, fns.plane_transform_radius, fns.plane_transform_scales, fns.plane_transform_wavelength, fns.waveType, fns.plane_transform_angle2, fns.plane_transform_sides, fns.plane_transform_amount, fns.escaping_smooth_algorithm, fns.converging_smooth_algorithm, polar_projection, circle_period, fns.user_fz_formula, fns.user_dfz_formula, fns.user_ddfz_formula, fns.user_dddfz_formula, fns.coupling, fns.user_formula_coupled, fns.coupling_method, fns.coupling_amplitude, fns.coupling_frequency, fns.coupling_seed, ds, inverse_dem, quickRender, color_intensity, transfer_function, color_density, color_intensity2, transfer_function2, color_density2, usePaletteForInColoring, fns.laguerre_deg, color_blending, fns.kleinianLine, fns.kleinianK, fns.kleinianM, post_processing_order, pbs, fns.gcs, fns.durand_kerner_init_val, fns.mps, fns.coefficients_im, fns.lpns.lyapunovFinalExpression, fns.lpns.useLyapunovExponent, gradient_offset, fns.lpns.lyapunovFunction, fns.lpns.lyapunovExponentFunction, fns.lpns.lyapunovVariableId, fns.user_relaxation_formula, fns.user_nova_addend_formula, fns.gcps, fns.igs, fns.lfns, fns.newton_hines_k, fns.tcs, fns.lpns.lyapunovInitialValue, fns.lpns.lyapunovInitializationIteratons, fns.lpns.lyapunovskipBailoutCheck, fns.root_initialization_method, fns.preffs, fns.postffs, fns.ips, fns.defaultNovaInitialValue, fns.cbs, fns.useGlobalMethod, fns.globalMethodFactor, fns.period, fns.variable_re, fns.variable_im, fns.inflections_re, fns.inflections_im, fns.inflectionsPower);
@@ -822,6 +825,7 @@ public abstract class TaskRender implements Runnable {
         this.contourFactor = contourFactor;
         setPostProcessingData(pps);
         SMOOTH_DATA = needsSmoothing(fns, ndes, ls, ss, bms, cns, ens, rps, fdes, sts);
+        banded = fns.banded;
         this.gps = gps;
         this.js = js;
         settingsFractalExpander(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns.bailout_test_algorithm, fns.bailout, fns.bailout_test_user_formula, fns.bailout_test_user_formula2, fns.bailout_test_comparison, fns.n_norm, ptr, fractal_color, dem_color, image, fs, fns.out_coloring_algorithm, fns.user_out_coloring_algorithm, fns.outcoloring_formula, fns.user_outcoloring_conditions, fns.user_outcoloring_condition_formula, fns.in_coloring_algorithm, fns.user_in_coloring_algorithm, fns.incoloring_formula, fns.user_incoloring_conditions, fns.user_incoloring_condition_formula, SMOOTH_DATA, periodicity_checking, fns.plane_type, fns.burning_ship, fns.mandel_grass, fns.mandel_grass_vals, fns.function, fns.z_exponent, fns.z_exponent_complex, color_cycling_location, color_cycling_location2, fns.rotation_vals, fns.rotation_center, fns.perturbation, fns.perturbation_vals, fns.variable_perturbation, fns.user_perturbation_algorithm, fns.user_perturbation_conditions, fns.user_perturbation_condition_formula, fns.perturbation_user_formula, fns.init_val, fns.initial_vals, fns.variable_init_value, fns.user_initial_value_algorithm, fns.user_initial_value_conditions, fns.user_initial_value_condition_formula, fns.initial_value_user_formula, fns.coefficients, fns.z_exponent_nova, fns.relaxation, fns.nova_method, fns.user_formula, fns.user_formula2, fns.bail_technique, fns.user_plane, fns.user_plane_algorithm, fns.user_plane_conditions, fns.user_plane_condition_formula, fns.user_formula_iteration_based, fns.user_formula_conditions, fns.user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, fns.plane_transform_center, fns.plane_transform_angle, fns.plane_transform_radius, fns.plane_transform_scales, fns.plane_transform_wavelength, fns.waveType, fns.plane_transform_angle2, fns.plane_transform_sides, fns.plane_transform_amount, fns.escaping_smooth_algorithm, fns.converging_smooth_algorithm, polar_projection, circle_period, fns.user_fz_formula, fns.user_dfz_formula, fns.user_ddfz_formula, fns.user_dddfz_formula, fns.coupling, fns.user_formula_coupled, fns.coupling_method, fns.coupling_amplitude, fns.coupling_frequency, fns.coupling_seed, ds, inverse_dem, color_intensity, transfer_function, color_density, color_intensity2, transfer_function2, color_density2, usePaletteForInColoring, fns.laguerre_deg, color_blending, fns.kleinianLine, fns.kleinianK, fns.kleinianM, post_processing_order, pbs, fns.gcs, fns.durand_kerner_init_val, fns.mps, fns.coefficients_im, fns.lpns.lyapunovFinalExpression, fns.lpns.useLyapunovExponent, gradient_offset, fns.lpns.lyapunovFunction, fns.lpns.lyapunovExponentFunction, fns.lpns.lyapunovVariableId, fns.user_relaxation_formula, fns.user_nova_addend_formula, fns.gcps, fns.igs, fns.lfns, fns.newton_hines_k, fns.tcs, fns.lpns.lyapunovInitialValue, fns.lpns.lyapunovInitializationIteratons, fns.lpns.lyapunovskipBailoutCheck, fns.root_initialization_method, fns.preffs, fns.postffs, fns.ips, fns.defaultNovaInitialValue, fns.cbs, fns.useGlobalMethod, fns.globalMethodFactor, fns.period, fns.variable_re, fns.variable_im, fns.inflections_re, fns.inflections_im, fns.inflectionsPower);
@@ -831,6 +835,7 @@ public abstract class TaskRender implements Runnable {
         this.contourFactor = contourFactor;
         setPostProcessingData(pps);
         SMOOTH_DATA = needsSmoothing(fns, ndes, ls, ss, bms, cns, ens, rps, fdes, sts);
+        banded = fns.banded;
         this.gps = gps;
         this.js = js;
         settingsJulia(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns.bailout_test_algorithm, fns.bailout, fns.bailout_test_user_formula, fns.bailout_test_user_formula2, fns.bailout_test_comparison, fns.n_norm, d3s, ptr, fractal_color, dem_color, image, fs, fns.out_coloring_algorithm, fns.user_out_coloring_algorithm, fns.outcoloring_formula, fns.user_outcoloring_conditions, fns.user_outcoloring_condition_formula, fns.in_coloring_algorithm, fns.user_in_coloring_algorithm, fns.incoloring_formula, fns.user_incoloring_conditions, fns.user_incoloring_condition_formula, SMOOTH_DATA, periodicity_checking, fns.plane_type, fns.apply_plane_on_julia, fns.apply_plane_on_julia_seed, fns.burning_ship, fns.mandel_grass, fns.mandel_grass_vals, fns.function, fns.z_exponent, fns.z_exponent_complex, color_cycling_location, color_cycling_location2, fns.rotation_vals, fns.rotation_center, fns.coefficients, fns.z_exponent_nova, fns.relaxation, fns.nova_method, fns.user_formula, fns.user_formula2, fns.bail_technique, fns.user_plane, fns.user_plane_algorithm, fns.user_plane_conditions, fns.user_plane_condition_formula, fns.user_formula_iteration_based, fns.user_formula_conditions, fns.user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, fns.plane_transform_center, fns.plane_transform_angle, fns.plane_transform_radius, fns.plane_transform_scales, fns.plane_transform_wavelength, fns.waveType, fns.plane_transform_angle2, fns.plane_transform_sides, fns.plane_transform_amount, fns.escaping_smooth_algorithm, fns.converging_smooth_algorithm, polar_projection, circle_period, fns.coupling, fns.user_formula_coupled, fns.coupling_method, fns.coupling_amplitude, fns.coupling_frequency, fns.coupling_seed, ds, inverse_dem, quickRender, color_intensity, transfer_function, color_density, color_intensity2, transfer_function2, color_density2, usePaletteForInColoring, color_blending, post_processing_order, pbs, fns.gcs, fns.coefficients_im, fns.lpns.lyapunovFinalExpression, fns.lpns.useLyapunovExponent, gradient_offset, fns.lpns.lyapunovFunction, fns.lpns.lyapunovExponentFunction, fns.lpns.lyapunovVariableId, fns.user_fz_formula, fns.user_dfz_formula, fns.user_ddfz_formula, fns.user_dddfz_formula, fns.user_relaxation_formula, fns.user_nova_addend_formula, fns.laguerre_deg, fns.gcps, fns.lfns, fns.newton_hines_k, fns.tcs, fns.lpns.lyapunovInitialValue, fns.lpns.lyapunovInitializationIteratons, fns.lpns.lyapunovskipBailoutCheck, fns.preffs, fns.postffs, fns.ips, fns.juliter, fns.juliterIterations, fns.juliterIncludeInitialIterations, fns.defaultNovaInitialValue, fns.perturbation, fns.perturbation_vals, fns.variable_perturbation, fns.user_perturbation_algorithm, fns.perturbation_user_formula, fns.user_perturbation_conditions, fns.user_perturbation_condition_formula, fns.init_val, fns.initial_vals, fns.variable_init_value, fns.user_initial_value_algorithm, fns.initial_value_user_formula, fns.user_initial_value_conditions, fns.user_initial_value_condition_formula, fns.cbs, fns.useGlobalMethod, fns.globalMethodFactor, fns.variable_re, fns.variable_im, fns.inflections_re, fns.inflections_im, fns.inflectionsPower, xJuliaCenter, yJuliaCenter);
@@ -840,6 +845,7 @@ public abstract class TaskRender implements Runnable {
         this.contourFactor = contourFactor;
         setPostProcessingData(pps);
         SMOOTH_DATA = needsSmoothing(fns, ndes, ls, ss, bms, cns, ens, rps, fdes, sts);
+        banded = fns.banded;
         this.gps = gps;
         this.js = js;
         settingsJuliaExpander(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns.bailout_test_algorithm, fns.bailout, fns.bailout_test_user_formula, fns.bailout_test_user_formula2, fns.bailout_test_comparison, fns.n_norm, ptr, fractal_color, dem_color, image, fs, fns.out_coloring_algorithm, fns.user_out_coloring_algorithm, fns.outcoloring_formula, fns.user_outcoloring_conditions, fns.user_outcoloring_condition_formula, fns.in_coloring_algorithm, fns.user_in_coloring_algorithm, fns.incoloring_formula, fns.user_incoloring_conditions, fns.user_incoloring_condition_formula, SMOOTH_DATA, periodicity_checking, fns.plane_type, fns.apply_plane_on_julia, fns.apply_plane_on_julia_seed, fns.burning_ship, fns.mandel_grass, fns.mandel_grass_vals, fns.function, fns.z_exponent, fns.z_exponent_complex, color_cycling_location, color_cycling_location2, fns.rotation_vals, fns.rotation_center, fns.coefficients, fns.z_exponent_nova, fns.relaxation, fns.nova_method, fns.user_formula, fns.user_formula2, fns.bail_technique, fns.user_plane, fns.user_plane_algorithm, fns.user_plane_conditions, fns.user_plane_condition_formula, fns.user_formula_iteration_based, fns.user_formula_conditions, fns.user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, fns.plane_transform_center, fns.plane_transform_angle, fns.plane_transform_radius, fns.plane_transform_scales, fns.plane_transform_wavelength, fns.waveType, fns.plane_transform_angle2, fns.plane_transform_sides, fns.plane_transform_amount, fns.escaping_smooth_algorithm, fns.converging_smooth_algorithm, polar_projection, circle_period, fns.coupling, fns.user_formula_coupled, fns.coupling_method, fns.coupling_amplitude, fns.coupling_frequency, fns.coupling_seed, ds, inverse_dem, color_intensity, transfer_function, color_density, color_intensity2, transfer_function2, color_density2, usePaletteForInColoring, color_blending, post_processing_order, pbs, fns.gcs, fns.coefficients_im, fns.lpns.lyapunovFinalExpression, fns.lpns.useLyapunovExponent, gradient_offset, fns.lpns.lyapunovFunction, fns.lpns.lyapunovExponentFunction, fns.lpns.lyapunovVariableId, fns.user_fz_formula, fns.user_dfz_formula, fns.user_ddfz_formula, fns.user_dddfz_formula, fns.user_relaxation_formula, fns.user_nova_addend_formula, fns.laguerre_deg, fns.gcps, fns.lfns, fns.newton_hines_k, fns.tcs, fns.lpns.lyapunovInitialValue, fns.lpns.lyapunovInitializationIteratons, fns.lpns.lyapunovskipBailoutCheck, fns.preffs, fns.postffs, fns.ips, fns.juliter, fns.juliterIterations, fns.juliterIncludeInitialIterations, fns.defaultNovaInitialValue, fns.perturbation, fns.perturbation_vals, fns.variable_perturbation, fns.user_perturbation_algorithm, fns.perturbation_user_formula, fns.user_perturbation_conditions, fns.user_perturbation_condition_formula, fns.init_val, fns.initial_vals, fns.variable_init_value, fns.user_initial_value_algorithm, fns.initial_value_user_formula, fns.user_initial_value_conditions, fns.user_initial_value_condition_formula, fns.cbs, fns.useGlobalMethod, fns.globalMethodFactor, fns.variable_re, fns.variable_im, fns.inflections_re, fns.inflections_im, fns.inflectionsPower, xJuliaCenter, yJuliaCenter);
@@ -849,6 +855,7 @@ public abstract class TaskRender implements Runnable {
         this.contourFactor = contourFactor;
         setPostProcessingData(pps);
         SMOOTH_DATA = needsSmoothing(fns, ndes, ls, ss, bms, cns, ens, rps, fdes, sts);
+        banded = fns.banded;
         this.gps = gps;
         this.js = js;
         settingsJuliaMap(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns.bailout_test_algorithm, fns.bailout, fns.bailout_test_user_formula, fns.bailout_test_user_formula2, fns.bailout_test_comparison, fns.n_norm, ptr, fractal_color, dem_color, image, fs, fns.out_coloring_algorithm, fns.user_out_coloring_algorithm, fns.outcoloring_formula, fns.user_outcoloring_conditions, fns.user_outcoloring_condition_formula, fns.in_coloring_algorithm, fns.user_in_coloring_algorithm, fns.incoloring_formula, fns.user_incoloring_conditions, fns.user_incoloring_condition_formula, SMOOTH_DATA, periodicity_checking, fns.plane_type, fns.apply_plane_on_julia, fns.apply_plane_on_julia_seed, fns.burning_ship, fns.mandel_grass, fns.mandel_grass_vals, fns.function, fns.z_exponent, fns.z_exponent_complex, color_cycling_location, color_cycling_location2, fns.rotation_vals, fns.rotation_center, fns.coefficients, fns.z_exponent_nova, fns.relaxation, fns.nova_method, fns.user_formula, fns.user_formula2, fns.bail_technique, fns.user_plane, fns.user_plane_algorithm, fns.user_plane_conditions, fns.user_plane_condition_formula, fns.user_formula_iteration_based, fns.user_formula_conditions, fns.user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, fns.plane_transform_center, fns.plane_transform_angle, fns.plane_transform_radius, fns.plane_transform_scales, fns.plane_transform_wavelength, fns.waveType, fns.plane_transform_angle2, fns.plane_transform_sides, fns.plane_transform_amount, fns.escaping_smooth_algorithm, fns.converging_smooth_algorithm, polar_projection, circle_period, fns.coupling, fns.user_formula_coupled, fns.coupling_method, fns.coupling_amplitude, fns.coupling_frequency, fns.coupling_seed, inverse_dem, color_intensity, transfer_function, color_density, color_intensity2, transfer_function2, color_density2, usePaletteForInColoring, color_blending, post_processing_order, pbs, fns.gcs, fns.coefficients_im, fns.lpns.lyapunovFinalExpression, fns.lpns.useLyapunovExponent, gradient_offset, fns.lpns.lyapunovFunction, fns.lpns.lyapunovExponentFunction, fns.lpns.lyapunovVariableId, fns.user_fz_formula, fns.user_dfz_formula, fns.user_ddfz_formula, fns.user_dddfz_formula, fns.user_relaxation_formula, fns.user_nova_addend_formula, fns.laguerre_deg, fns.gcps, fns.lfns, fns.newton_hines_k, fns.tcs, fns.lpns.lyapunovInitialValue, fns.lpns.lyapunovInitializationIteratons, fns.lpns.lyapunovskipBailoutCheck, fns.preffs, fns.postffs, fns.ips, fns.juliter, fns.juliterIterations, fns.juliterIncludeInitialIterations, fns.defaultNovaInitialValue, fns.perturbation, fns.perturbation_vals, fns.variable_perturbation, fns.user_perturbation_algorithm, fns.perturbation_user_formula, fns.user_perturbation_conditions, fns.user_perturbation_condition_formula, fns.init_val, fns.initial_vals, fns.variable_init_value, fns.user_initial_value_algorithm, fns.initial_value_user_formula, fns.user_initial_value_conditions, fns.user_initial_value_condition_formula, fns.cbs, fns.useGlobalMethod, fns.globalMethodFactor, fns.variable_re, fns.variable_im, fns.inflections_re, fns.inflections_im, fns.inflectionsPower);
@@ -858,6 +865,7 @@ public abstract class TaskRender implements Runnable {
         this.contourFactor = contourFactor;
         setPostProcessingData(pps);
         SMOOTH_DATA = needsSmoothing(fns, ndes, ls, ss, bms, cns, ens, rps, fdes, sts);
+        banded = fns.banded;
         this.gps = gps;
         this.js = js;
         settingsJuliaPreview(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns.bailout_test_algorithm, fns.bailout, fns.bailout_test_user_formula, fns.bailout_test_user_formula2, fns.bailout_test_comparison, fns.n_norm, ptr, fractal_color, dem_color, fast_julia_filters, image, periodicity_checking, fns.plane_type, fns.apply_plane_on_julia, fns.apply_plane_on_julia_seed, fns.out_coloring_algorithm, fns.user_out_coloring_algorithm, fns.outcoloring_formula, fns.user_outcoloring_conditions, fns.user_outcoloring_condition_formula, fns.in_coloring_algorithm, fns.user_in_coloring_algorithm, fns.incoloring_formula, fns.user_incoloring_conditions, fns.user_incoloring_condition_formula, SMOOTH_DATA, fs, fns.burning_ship, fns.mandel_grass, fns.mandel_grass_vals, fns.function, fns.z_exponent, fns.z_exponent_complex, color_cycling_location, color_cycling_location2, fns.rotation_vals, fns.rotation_center, fns.coefficients, fns.z_exponent_nova, fns.relaxation, fns.nova_method, fns.user_formula, fns.user_formula2, fns.bail_technique, fns.user_plane, fns.user_plane_algorithm, fns.user_plane_conditions, fns.user_plane_condition_formula, fns.user_formula_iteration_based, fns.user_formula_conditions, fns.user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, fns.plane_transform_center, fns.plane_transform_angle, fns.plane_transform_radius, fns.plane_transform_scales, fns.plane_transform_wavelength, fns.waveType, fns.plane_transform_angle2, fns.plane_transform_sides, fns.plane_transform_amount, fns.escaping_smooth_algorithm, fns.converging_smooth_algorithm, polar_projection, circle_period, fns.coupling, fns.user_formula_coupled, fns.coupling_method, fns.coupling_amplitude, fns.coupling_frequency, fns.coupling_seed, inverse_dem, color_intensity, transfer_function, color_density, color_intensity2, transfer_function2, color_density2, usePaletteForInColoring, color_blending, post_processing_order, pbs, fns.gcs, fns.coefficients_im, fns.lpns.lyapunovFinalExpression, fns.lpns.useLyapunovExponent, gradient_offset, fns.lpns.lyapunovFunction, fns.lpns.lyapunovExponentFunction, fns.lpns.lyapunovVariableId, fns.user_fz_formula, fns.user_dfz_formula, fns.user_ddfz_formula, fns.user_dddfz_formula, fns.user_relaxation_formula, fns.user_nova_addend_formula, fns.laguerre_deg, fns.gcps, fns.lfns, fns.newton_hines_k, fns.tcs, fns.lpns.lyapunovInitialValue, fns.lpns.lyapunovInitializationIteratons, fns.lpns.lyapunovskipBailoutCheck, fns.preffs, fns.postffs, fns.ips, fns.juliter, fns.juliterIterations, fns.juliterIncludeInitialIterations, fns.defaultNovaInitialValue, fns.perturbation, fns.perturbation_vals, fns.variable_perturbation, fns.user_perturbation_algorithm, fns.perturbation_user_formula, fns.user_perturbation_conditions, fns.user_perturbation_condition_formula, fns.init_val, fns.initial_vals, fns.variable_init_value, fns.user_initial_value_algorithm, fns.initial_value_user_formula, fns.user_initial_value_conditions, fns.user_initial_value_condition_formula, fns.cbs, fns.useGlobalMethod, fns.globalMethodFactor, fns.variable_re, fns.variable_im, fns.inflections_re, fns.inflections_im, fns.inflectionsPower, xJuliaCenter, yJuliaCenter);
@@ -1506,7 +1514,7 @@ public abstract class TaskRender implements Runnable {
     }
 
     //Color Cycling
-    public TaskRender(int FROMx, int TOx, int FROMy, int TOy, int max_iterations, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, int color_cycling_location, int color_cycling_location2, FiltersSettings fs, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring, BlendingSettings color_blending, int[] post_processing_order, PaletteGradientMergingSettings pbs, DomainColoringSettings ds, int gradient_offset, double contourFactor, GeneratedPaletteSettings gps, PostProcessSettings pps, ColorCyclingSettings ccs) {
+    public TaskRender(int FROMx, int TOx, int FROMy, int TOy, int max_iterations, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, int color_cycling_location, int color_cycling_location2, FiltersSettings fs, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring, BlendingSettings color_blending, int[] post_processing_order, PaletteGradientMergingSettings pbs, DomainColoringSettings ds, int gradient_offset, double contourFactor, GeneratedPaletteSettings gps, PostProcessSettings pps, ColorCyclingSettings ccs, boolean banded) {
 
         this.FROMx = FROMx;
         this.TOx = TOx;
@@ -1531,6 +1539,8 @@ public abstract class TaskRender implements Runnable {
         this.gps = gps;
 
         action = COLOR_CYCLING;
+
+        this.banded = banded;
 
         this.ccs = ccs;
 
@@ -1569,7 +1579,7 @@ public abstract class TaskRender implements Runnable {
     }
 
     //Apply Filter
-    public TaskRender(int FROMx, int TOx, int FROMy, int TOy, int max_iterations, MainWindow ptr, BufferedImage image, Color fractal_color, Color dem_color, int color_cycling_location, int color_cycling_location2, FiltersSettings fs, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring, BlendingSettings color_blending, int[] post_processing_order, PaletteGradientMergingSettings pbs, DomainColoringSettings ds, int gradient_offset, double contourFactor, GeneratedPaletteSettings gps, PostProcessSettings pps) {
+    public TaskRender(int FROMx, int TOx, int FROMy, int TOy, int max_iterations, MainWindow ptr, BufferedImage image, Color fractal_color, Color dem_color, int color_cycling_location, int color_cycling_location2, FiltersSettings fs, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring, BlendingSettings color_blending, int[] post_processing_order, PaletteGradientMergingSettings pbs, DomainColoringSettings ds, int gradient_offset, double contourFactor, GeneratedPaletteSettings gps, PostProcessSettings pps, boolean banded) {
 
         this.FROMx = FROMx;
         this.TOx = TOx;
@@ -1601,6 +1611,8 @@ public abstract class TaskRender implements Runnable {
         setPostProcessingData(pps);
 
         this.pbs = pbs;
+
+        this.banded = banded;
 
         domain_coloring = ds.domain_coloring;
         ColorAlgorithm.DomainColoringBypass = domain_coloring;
@@ -1680,7 +1692,7 @@ public abstract class TaskRender implements Runnable {
     }
 
     //AA Palette and Post Processing
-    public TaskRender(int action , int FROMx, int TOx, int FROMy, int TOy, int max_iterations, MainWindow ptr, BufferedImage image, Color fractal_color, Color dem_color, int color_cycling_location, int color_cycling_location2, FiltersSettings fs, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring, BlendingSettings color_blending, int[] post_processing_order, PaletteGradientMergingSettings pbs, int gradient_offset, double contourFactor, GeneratedPaletteSettings gps, PostProcessSettings pps, DomainColoringSettings ds) {
+    public TaskRender(int action , int FROMx, int TOx, int FROMy, int TOy, int max_iterations, MainWindow ptr, BufferedImage image, Color fractal_color, Color dem_color, int color_cycling_location, int color_cycling_location2, FiltersSettings fs, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring, BlendingSettings color_blending, int[] post_processing_order, PaletteGradientMergingSettings pbs, int gradient_offset, double contourFactor, GeneratedPaletteSettings gps, PostProcessSettings pps, DomainColoringSettings ds, boolean banded) {
 
         this.FROMx = FROMx;
         this.TOx = TOx;
@@ -1715,6 +1727,8 @@ public abstract class TaskRender implements Runnable {
         setPostProcessingData(pps);
 
         this.pbs = pbs;
+
+        this.banded = banded;
 
         progress = ptr.getProgressBar();
 
@@ -7221,7 +7235,7 @@ public abstract class TaskRender implements Runnable {
     }
 
     protected boolean needsSmoothing(FunctionSettings fns, NumericalDistanceEstimatorSettings ndes, LightSettings ls, SlopeSettings ss, BumpMapSettings bms, ContourColoringSettings cns, EntropyColoringSettings ens, RainbowPaletteSettings rps, FakeDistanceEstimationSettings fdes, StatisticsSettings sts) {
-        return fns.smoothing || fns.banded || ((ndes.useNumericalDem || ss.slopes || ls.lighting || bms.bump_map || cns.contour_coloring || ens.entropy_coloring || rps.rainbow_palette || fdes.fake_de || sts.statistic) && USE_SMOOTHING_FOR_PROCESSING_ALGS);
+        return fns.smoothing || ((ndes.useNumericalDem || ss.slopes || ls.lighting || bms.bump_map || cns.contour_coloring || ens.entropy_coloring || rps.rainbow_palette || fdes.fake_de || sts.statistic) && USE_SMOOTHING_FOR_PROCESSING_ALGS);
     }
 
     private boolean forcePostProcessing = false;
@@ -10190,46 +10204,46 @@ public abstract class TaskRender implements Runnable {
         switch (transfer_function_out) {
 
             case MainWindow.DEFAULT:
-                color_transfer_outcoloring = new DefaultTransferFunction(palette_outcoloring.getPaletteLength(), color_intensity_out);
+                color_transfer_outcoloring = new DefaultTransferFunction(palette_outcoloring.getPaletteLength(), color_intensity_out, banded);
                 break;
             case MainWindow.SQUARE_ROOT:
-                color_transfer_outcoloring = new SqrtTransferFunction(palette_outcoloring.getPaletteLength(), color_intensity_out, color_density_out);
+                color_transfer_outcoloring = new SqrtTransferFunction(palette_outcoloring.getPaletteLength(), color_intensity_out, color_density_out, banded);
                 break;
             case MainWindow.CUBE_ROOT:
-                color_transfer_outcoloring = new CbrtTransferFunction(palette_outcoloring.getPaletteLength(), color_intensity_out, color_density_out);
+                color_transfer_outcoloring = new CbrtTransferFunction(palette_outcoloring.getPaletteLength(), color_intensity_out, color_density_out, banded);
                 break;
             case MainWindow.FOURTH_ROOT:
-                color_transfer_outcoloring = new ForthrtTransferFunction(palette_outcoloring.getPaletteLength(), color_intensity_out, color_density_out);
+                color_transfer_outcoloring = new ForthrtTransferFunction(palette_outcoloring.getPaletteLength(), color_intensity_out, color_density_out, banded);
                 break;
             case MainWindow.LOGARITHM:
-                color_transfer_outcoloring = new LogarithmTransferFunction(palette_outcoloring.getPaletteLength(), color_intensity_out, color_density_out);
+                color_transfer_outcoloring = new LogarithmTransferFunction(palette_outcoloring.getPaletteLength(), color_intensity_out, color_density_out, banded);
                 break;
             case MainWindow.LOG_LOG:
-                color_transfer_outcoloring = new LogLogTransferFunction(palette_outcoloring.getPaletteLength(), color_intensity_out, color_density_out);
+                color_transfer_outcoloring = new LogLogTransferFunction(palette_outcoloring.getPaletteLength(), color_intensity_out, color_density_out, banded);
                 break;
             case MainWindow.ATAN:
-                color_transfer_outcoloring = new AtanTransferFunction(palette_outcoloring.getPaletteLength(), color_intensity_out, color_density_out);
+                color_transfer_outcoloring = new AtanTransferFunction(palette_outcoloring.getPaletteLength(), color_intensity_out, color_density_out, banded);
                 break;
             case MainWindow.LINEAR:
-                color_transfer_outcoloring = new LinearTransferFunction(palette_incoloring.getPaletteLength(), color_intensity_out, color_density_out);
+                color_transfer_outcoloring = new LinearTransferFunction(palette_incoloring.getPaletteLength(), color_intensity_out, color_density_out, banded);
                 break;
             case MainWindow.KF_SQUARE_ROOT:
-                color_transfer_outcoloring = new KFSqrtTransferFunction(palette_outcoloring.getPaletteLength(), color_intensity_out);
+                color_transfer_outcoloring = new KFSqrtTransferFunction(palette_outcoloring.getPaletteLength(), color_intensity_out, banded);
                 break;
             case MainWindow.KF_CUBE_ROOT:
-                color_transfer_outcoloring = new KFCbrtTransferFunction(palette_outcoloring.getPaletteLength(), color_intensity_out);
+                color_transfer_outcoloring = new KFCbrtTransferFunction(palette_outcoloring.getPaletteLength(), color_intensity_out, banded);
                 break;
             case MainWindow.KF_FOURTH_ROOT:
-                color_transfer_outcoloring = new KFForthrtTransferFunction(palette_outcoloring.getPaletteLength(), color_intensity_out);
+                color_transfer_outcoloring = new KFForthrtTransferFunction(palette_outcoloring.getPaletteLength(), color_intensity_out, banded);
                 break;
             case MainWindow.KF_LOGARITHM:
-                color_transfer_outcoloring = new KFLogarithmTransferFunction(palette_outcoloring.getPaletteLength(), color_intensity_out);
+                color_transfer_outcoloring = new KFLogarithmTransferFunction(palette_outcoloring.getPaletteLength(), color_intensity_out, banded);
                 break;
             case MainWindow.KF_LOG_LOG:
-                color_transfer_outcoloring = new KFLogLogTransferFunction(palette_outcoloring.getPaletteLength(), color_intensity_out);
+                color_transfer_outcoloring = new KFLogLogTransferFunction(palette_outcoloring.getPaletteLength(), color_intensity_out, banded);
                 break;
             case MainWindow.KF_ATAN:
-                color_transfer_outcoloring = new KFAtanTransferFunction(palette_outcoloring.getPaletteLength(), color_intensity_out);
+                color_transfer_outcoloring = new KFAtanTransferFunction(palette_outcoloring.getPaletteLength(), color_intensity_out, banded);
                 break;
         }
 
@@ -10237,46 +10251,46 @@ public abstract class TaskRender implements Runnable {
         switch (transfer_function_in) {
 
             case MainWindow.DEFAULT:
-                color_transfer_incoloring = new DefaultTransferFunction(palette_incoloring.getPaletteLength(), color_intensity_in);
+                color_transfer_incoloring = new DefaultTransferFunction(palette_incoloring.getPaletteLength(), color_intensity_in, banded);
                 break;
             case MainWindow.SQUARE_ROOT:
-                color_transfer_incoloring = new SqrtTransferFunction(palette_incoloring.getPaletteLength(), color_intensity_in, color_density_in);
+                color_transfer_incoloring = new SqrtTransferFunction(palette_incoloring.getPaletteLength(), color_intensity_in, color_density_in, banded);
                 break;
             case MainWindow.CUBE_ROOT:
-                color_transfer_incoloring = new CbrtTransferFunction(palette_incoloring.getPaletteLength(), color_intensity_in, color_density_in);
+                color_transfer_incoloring = new CbrtTransferFunction(palette_incoloring.getPaletteLength(), color_intensity_in, color_density_in, banded);
                 break;
             case MainWindow.FOURTH_ROOT:
-                color_transfer_incoloring = new ForthrtTransferFunction(palette_incoloring.getPaletteLength(), color_intensity_in, color_density_in);
+                color_transfer_incoloring = new ForthrtTransferFunction(palette_incoloring.getPaletteLength(), color_intensity_in, color_density_in, banded);
                 break;
             case MainWindow.LOGARITHM:
-                color_transfer_incoloring = new LogarithmTransferFunction(palette_incoloring.getPaletteLength(), color_intensity_in, color_density_in);
+                color_transfer_incoloring = new LogarithmTransferFunction(palette_incoloring.getPaletteLength(), color_intensity_in, color_density_in, banded);
                 break;
             case MainWindow.LOG_LOG:
-                color_transfer_incoloring = new LogLogTransferFunction(palette_incoloring.getPaletteLength(), color_intensity_in, color_density_in);
+                color_transfer_incoloring = new LogLogTransferFunction(palette_incoloring.getPaletteLength(), color_intensity_in, color_density_in, banded);
                 break;
             case MainWindow.ATAN:
-                color_transfer_incoloring = new AtanTransferFunction(palette_incoloring.getPaletteLength(), color_intensity_in, color_density_in);
+                color_transfer_incoloring = new AtanTransferFunction(palette_incoloring.getPaletteLength(), color_intensity_in, color_density_in, banded);
                 break;
             case MainWindow.LINEAR:
-                color_transfer_incoloring = new LinearTransferFunction(palette_incoloring.getPaletteLength(), color_intensity_in, color_density_in);
+                color_transfer_incoloring = new LinearTransferFunction(palette_incoloring.getPaletteLength(), color_intensity_in, color_density_in, banded);
                 break;
             case MainWindow.KF_SQUARE_ROOT:
-                color_transfer_incoloring = new KFSqrtTransferFunction(palette_incoloring.getPaletteLength(), color_intensity_in);
+                color_transfer_incoloring = new KFSqrtTransferFunction(palette_incoloring.getPaletteLength(), color_intensity_in, banded);
                 break;
             case MainWindow.KF_CUBE_ROOT:
-                color_transfer_incoloring = new KFCbrtTransferFunction(palette_incoloring.getPaletteLength(), color_intensity_in);
+                color_transfer_incoloring = new KFCbrtTransferFunction(palette_incoloring.getPaletteLength(), color_intensity_in, banded);
                 break;
             case MainWindow.KF_FOURTH_ROOT:
-                color_transfer_incoloring = new KFForthrtTransferFunction(palette_incoloring.getPaletteLength(), color_intensity_in);
+                color_transfer_incoloring = new KFForthrtTransferFunction(palette_incoloring.getPaletteLength(), color_intensity_in, banded);
                 break;
             case MainWindow.KF_LOGARITHM:
-                color_transfer_incoloring = new KFLogarithmTransferFunction(palette_incoloring.getPaletteLength(), color_intensity_in);
+                color_transfer_incoloring = new KFLogarithmTransferFunction(palette_incoloring.getPaletteLength(), color_intensity_in, banded);
                 break;
             case MainWindow.KF_LOG_LOG:
-                color_transfer_incoloring = new KFLogLogTransferFunction(palette_incoloring.getPaletteLength(), color_intensity_in);
+                color_transfer_incoloring = new KFLogLogTransferFunction(palette_incoloring.getPaletteLength(), color_intensity_in, banded);
                 break;
             case MainWindow.KF_ATAN:
-                color_transfer_incoloring = new KFAtanTransferFunction(palette_incoloring.getPaletteLength(), color_intensity_in);
+                color_transfer_incoloring = new KFAtanTransferFunction(palette_incoloring.getPaletteLength(), color_intensity_in, banded);
                 break;
         }
 

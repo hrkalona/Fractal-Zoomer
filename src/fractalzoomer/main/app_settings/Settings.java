@@ -3087,21 +3087,21 @@ public class Settings implements Constants {
                 || plane == KALEIDOSCOPE_PLANE || plane == PINCH_PLANE || plane == FOLDUP_PLANE
                 || plane == FOLDDOWN_PLANE || plane == FOLDRIGHT_PLANE || plane == FOLDLEFT_PLANE || plane == INFLECTION_PLANE
                 || plane == BIPOLAR_PLANE || plane == INVERSED_BIPOLAR_PLANE || plane == FOLDIN_PLANE || plane == FOLDOUT_PLANE
-                || plane == CIRCLEINVERSION_PLANE || plane == SKEW_PLANE || plane == INFLECTIONS_PLANE;
+                || plane == CIRCLEINVERSION_PLANE || plane == SKEW_PLANE || plane == INFLECTIONS_PLANE || plane == STRETCH_PLANE;
     }
 
     public void applyStaticSettings() {
 
         if (ps.color_choice == CUSTOM_PALETTE_ID) {
-            TaskRender.palette_outcoloring = new CustomPalette(ps.custom_palette, ps.color_interpolation, ps.color_space, ps.reversed_palette, ps.scale_factor_palette_val, ps.processing_alg, fns.smoothing, special_color, color_smoothing_method, special_use_palette_color, fns.smoothing_fractional_transfer_method, fns.banded).getRawPalette();
+            TaskRender.palette_outcoloring = new CustomPalette(ps.custom_palette, ps.color_interpolation, ps.color_space, ps.reversed_palette, ps.scale_factor_palette_val, ps.processing_alg, fns.smoothing, special_color, color_smoothing_method, special_use_palette_color, fns.smoothing_fractional_transfer_method).getRawPalette();
         } else {
-            TaskRender.palette_outcoloring = new PresetPalette(ps.color_choice, ps.direct_palette, fns.smoothing, special_color, color_smoothing_method, special_use_palette_color, fns.smoothing_fractional_transfer_method, fns.banded).getRawPalette();
+            TaskRender.palette_outcoloring = new PresetPalette(ps.color_choice, ps.direct_palette, fns.smoothing, special_color, color_smoothing_method, special_use_palette_color, fns.smoothing_fractional_transfer_method).getRawPalette();
         }
 
         if (ps2.color_choice == CUSTOM_PALETTE_ID) {
-            TaskRender.palette_incoloring = new CustomPalette(ps2.custom_palette, ps2.color_interpolation, ps2.color_space, ps2.reversed_palette, ps2.scale_factor_palette_val, ps2.processing_alg, fns.smoothing, special_color, color_smoothing_method, special_use_palette_color, fns.smoothing_fractional_transfer_method, fns.banded).getRawPalette();
+            TaskRender.palette_incoloring = new CustomPalette(ps2.custom_palette, ps2.color_interpolation, ps2.color_space, ps2.reversed_palette, ps2.scale_factor_palette_val, ps2.processing_alg, fns.smoothing, special_color, color_smoothing_method, special_use_palette_color, fns.smoothing_fractional_transfer_method).getRawPalette();
         } else {
-            TaskRender.palette_incoloring = new PresetPalette(ps2.color_choice, ps2.direct_palette, fns.smoothing, special_color, color_smoothing_method, special_use_palette_color, fns.smoothing_fractional_transfer_method, fns.banded).getRawPalette();
+            TaskRender.palette_incoloring = new PresetPalette(ps2.color_choice, ps2.direct_palette, fns.smoothing, special_color, color_smoothing_method, special_use_palette_color, fns.smoothing_fractional_transfer_method).getRawPalette();
         }
 
         TaskRender.USER_CONVERGENT_BAILOUT = fns.convergent_bailout * fns.convergent_bailout;
@@ -3359,7 +3359,7 @@ public class Settings implements Constants {
     }
 
     public boolean hasSmoothing() {
-        return fns.smoothing || fns.banded;
+        return fns.smoothing;
     }
 
 }

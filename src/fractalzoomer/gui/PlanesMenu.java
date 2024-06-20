@@ -110,6 +110,7 @@ public class PlanesMenu extends MyMenu {
         planeNames[MainWindow.SKEW_PLANE] = "Skew";
         planeNames[MainWindow.INFLECTIONS_PLANE] = "Multiple Inflections";
         planeNames[MainWindow.MU_FOURTH_PLANE] = "mu^4";
+        planeNames[MainWindow.STRETCH_PLANE] = "Stretch";
     }
 
     public PlanesMenu(MainWindow ptr2, String name, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, int plane_type) {
@@ -334,6 +335,12 @@ public class PlanesMenu extends MyMenu {
         planes[MainWindow.SKEW_PLANE].addActionListener(e -> ptr.setPlane(MainWindow.SKEW_PLANE));
         planes_distort_menu.add(planes[MainWindow.SKEW_PLANE]);
         planes_button_group.add(planes[MainWindow.SKEW_PLANE]);
+
+        planes[MainWindow.STRETCH_PLANE] = new JRadioButtonMenuItem(planeNames[MainWindow.STRETCH_PLANE]);
+        planes[MainWindow.STRETCH_PLANE].setToolTipText("The stretch plane.");
+        planes[MainWindow.STRETCH_PLANE].addActionListener(e -> ptr.setPlane(MainWindow.STRETCH_PLANE));
+        planes_distort_menu.add(planes[MainWindow.STRETCH_PLANE]);
+        planes_button_group.add(planes[MainWindow.STRETCH_PLANE]);
 
         planes[MainWindow.NEWTON3_PLANE] = new JRadioButtonMenuItem(planeNames[MainWindow.NEWTON3_PLANE]);
         planes[MainWindow.NEWTON3_PLANE].setToolTipText("The Newton 3 plane.");

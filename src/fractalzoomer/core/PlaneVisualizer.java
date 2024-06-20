@@ -268,6 +268,9 @@ public class PlaneVisualizer {
             case MainWindow.SKEW_PLANE:
                 plane = new SkewPlane(s.fns.plane_transform_angle, s.fns.plane_transform_angle2);
                 break;
+            case MainWindow.STRETCH_PLANE:
+                plane = new StretchPlane(s.fns.plane_transform_angle, s.fns.plane_transform_amount, s.fns.plane_transform_center_hp);
+                break;
             case MainWindow.INFLECTIONS_PLANE:
                 plane = new InflectionsPlane(s.fns.inflections_re, s.fns.inflections_im, s.fns.inflectionsPower);
                 break;

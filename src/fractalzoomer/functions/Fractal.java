@@ -3735,6 +3735,9 @@ public abstract class Fractal {
             case MainWindow.SKEW_PLANE:
                 plane = new SkewPlane(plane_transform_angle, plane_transform_angle2);
                 break;
+            case STRETCH_PLANE:
+                plane = new StretchPlane(plane_transform_angle, plane_transform_amount, null);//Todo
+                break;
             case MainWindow.INFLECTIONS_PLANE:
                 plane = new InflectionsPlane(inflections_re, inflections_im, inflectionsPower);
                 break;

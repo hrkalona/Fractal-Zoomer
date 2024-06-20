@@ -864,7 +864,12 @@ public class CommonFunctions implements Constants {
         } else if (s.fns.plane_type == SKEW_PLANE) {
             overview += tab + "Angle = " + s.fns.plane_transform_angle + " degrees<br>";
             overview += tab + "Angle2 = " + s.fns.plane_transform_angle2 + " degrees<br>";
-        } else if (s.fns.plane_type == RIPPLES_PLANE) {
+        }
+        else if (s.fns.plane_type == STRETCH_PLANE) {
+            overview += tab + "Angle = " + s.fns.plane_transform_angle + " degrees<br>";
+            overview += tab + "Amount = " + s.fns.plane_transform_amount + "<br>";
+        }
+        else if (s.fns.plane_type == RIPPLES_PLANE) {
             overview += tab + "Amplitude Real = " + s.fns.plane_transform_scales[0] + "<br>";
             overview += tab + "Amplitude Imaginary = " + s.fns.plane_transform_scales[1] + "<br>";
             overview += tab + "Wavelength Real = " + s.fns.plane_transform_wavelength[0] + "<br>";
@@ -1638,19 +1643,11 @@ public class CommonFunctions implements Constants {
             }
 
             if ((s.ds.domain_coloring && s.ds.domain_coloring_mode == 1)) {
-                if(s.fns.banded) {
-                    overview += "<b><font color='red'>Color Banding:</font></b><br>";
-                    overview += tab + "Fractional Transfer = " + Constants.smoothingFractionalTransfer[s.fns.smoothing_fractional_transfer_method] + "<br>";
-                }
-                else if (s.fns.smoothing) {
+                if (s.fns.smoothing) {
                     overview += "<b><font color='red'>Color Smoothing:</font></b><br>";
                     overview += tab + "Fractional Transfer = " + Constants.smoothingFractionalTransfer[s.fns.smoothing_fractional_transfer_method] + "<br>";
                     overview += tab + "Interpolation = " + color_interp_str[s.color_smoothing_method] + "<br><br>";
                 }
-            }
-            else if(s.fns.banded) {
-                overview += "<b><font color='red'>Color Banding:</font></b><br>";
-                overview += tab + "Fractional Transfer = " + Constants.smoothingFractionalTransfer[s.fns.smoothing_fractional_transfer_method] + "<br>";
             }
             else if (s.fns.smoothing) {
                 overview += "<b><font color='red'>Color Smoothing:</font></b><br>";
@@ -2422,7 +2419,7 @@ public class CommonFunctions implements Constants {
         BufferedImage palette_preview = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = palette_preview.createGraphics();
         for (int j = 0; j < c.length; j++) {
-            if (s.fns.smoothing || s.fns.banded || isSmooth) {
+            if (s.fns.smoothing || isSmooth) {
                 GradientPaint gp = new GradientPaint(j * palette_preview.getWidth() / ((float)c.length), 0, c[j], (j + 1) * palette_preview.getWidth() / ((float)c.length), 0, c[(j + 1) % c.length]);
                 g.setPaint(gp);
                 g.fill(new Rectangle2D.Double(j * palette_preview.getWidth() / ((double)c.length), 0, (j + 1) * palette_preview.getWidth() / ((double)c.length) - j * palette_preview.getWidth() / ((double)c.length), palette_preview.getHeight()));
@@ -2561,7 +2558,7 @@ public class CommonFunctions implements Constants {
         BufferedImage palette_preview = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = palette_preview.createGraphics();
         for (int j = 0; j < c.length; j++) {
-            if (s.fns.smoothing || s.fns.banded) {
+            if (s.fns.smoothing) {
                 GradientPaint gp = new GradientPaint(j * palette_preview.getWidth() / ((float)c.length), 0, c[j], (j + 1) * palette_preview.getWidth() / ((float)c.length), 0, c[(j + 1) % c.length]);
                 g.setPaint(gp);
                 g.fill(new Rectangle2D.Double(j * palette_preview.getWidth() / ((double)c.length), 0, (j + 1) * palette_preview.getWidth() / ((double)c.length) - j * palette_preview.getWidth() / ((double)c.length), palette_preview.getHeight()));

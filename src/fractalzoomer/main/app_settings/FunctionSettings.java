@@ -57,6 +57,7 @@ public class FunctionSettings implements Constants {
     public Apfloat[] rotation_vals;
     public Apfloat[] rotation_center;
     public double[] mandel_grass_vals;
+    public Apfloat[] plane_transform_center_hp;
     public double[] plane_transform_center;
     public double[] plane_transform_scales;
     public double[] plane_transform_wavelength;
@@ -198,6 +199,11 @@ public class FunctionSettings implements Constants {
         plane_transform_center = new double[2];
         plane_transform_center[0] = 0;
         plane_transform_center[1] = 0;
+
+        plane_transform_center_hp = new Apfloat[2];
+        plane_transform_center_hp[0] = new MyApfloat(0.0);
+        plane_transform_center_hp[1] = new MyApfloat(0.0);
+
 
         plane_transform_wavelength = new double[2];
         plane_transform_wavelength[0] = 0.15;

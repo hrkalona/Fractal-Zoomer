@@ -2983,15 +2983,15 @@ public class MainWindow extends JFrame implements Constants {
         }
 
         if (s.ps.color_choice == CUSTOM_PALETTE_ID) {
-            TaskRender.palette_outcoloring = new CustomPalette(s.ps.custom_palette, s.ps.color_interpolation, s.ps.color_space, s.ps.reversed_palette, s.ps.scale_factor_palette_val, s.ps.processing_alg, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method, s.fns.banded).getRawPalette();
+            TaskRender.palette_outcoloring = new CustomPalette(s.ps.custom_palette, s.ps.color_interpolation, s.ps.color_space, s.ps.reversed_palette, s.ps.scale_factor_palette_val, s.ps.processing_alg, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method).getRawPalette();
         } else {
-            TaskRender.palette_outcoloring = new PresetPalette(s.ps.color_choice, s.ps.direct_palette, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method, s.fns.banded).getRawPalette();
+            TaskRender.palette_outcoloring = new PresetPalette(s.ps.color_choice, s.ps.direct_palette, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method).getRawPalette();
         }
 
         if (s.ps2.color_choice == CUSTOM_PALETTE_ID) {
-            TaskRender.palette_incoloring = new CustomPalette(s.ps2.custom_palette, s.ps2.color_interpolation, s.ps2.color_space, s.ps2.reversed_palette, s.ps2.scale_factor_palette_val, s.ps2.processing_alg, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method, s.fns.banded).getRawPalette();
+            TaskRender.palette_incoloring = new CustomPalette(s.ps2.custom_palette, s.ps2.color_interpolation, s.ps2.color_space, s.ps2.reversed_palette, s.ps2.scale_factor_palette_val, s.ps2.processing_alg, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method).getRawPalette();
         } else {
-            TaskRender.palette_incoloring = new PresetPalette(s.ps2.color_choice, s.ps2.direct_palette, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method, s.fns.banded).getRawPalette();
+            TaskRender.palette_incoloring = new PresetPalette(s.ps2.color_choice, s.ps2.direct_palette, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method).getRawPalette();
         }
 
         TaskRender.palette_outcoloring.setGeneratedPaletteSettings(true, s.gps);
@@ -3178,9 +3178,9 @@ public class MainWindow extends JFrame implements Constants {
             options_menu.getOutColoringPalette()[s.ps.color_choice].setSelected(true);
 
             if (s.ps.color_choice == CUSTOM_PALETTE_ID) {
-                TaskRender.palette_outcoloring = new CustomPalette(s.ps.custom_palette, s.ps.color_interpolation, s.ps.color_space, s.ps.reversed_palette, s.ps.scale_factor_palette_val, s.ps.processing_alg, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method, s.fns.banded).getRawPalette();
+                TaskRender.palette_outcoloring = new CustomPalette(s.ps.custom_palette, s.ps.color_interpolation, s.ps.color_space, s.ps.reversed_palette, s.ps.scale_factor_palette_val, s.ps.processing_alg, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method).getRawPalette();
             } else {
-                TaskRender.palette_outcoloring = new PresetPalette(s.ps.color_choice, s.ps.direct_palette, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method, s.fns.banded).getRawPalette();
+                TaskRender.palette_outcoloring = new PresetPalette(s.ps.color_choice, s.ps.direct_palette, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method).getRawPalette();
             }
 
             s.ps2.color_choice = temp2;
@@ -3191,9 +3191,9 @@ public class MainWindow extends JFrame implements Constants {
             options_menu.getInColoringPalette()[s.ps2.color_choice].setSelected(true);
 
             if (s.ps2.color_choice == CUSTOM_PALETTE_ID) {
-                TaskRender.palette_incoloring = new CustomPalette(s.ps2.custom_palette, s.ps2.color_interpolation, s.ps2.color_space, s.ps2.reversed_palette, s.ps2.scale_factor_palette_val, s.ps2.processing_alg, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method, s.fns.banded).getRawPalette();
+                TaskRender.palette_incoloring = new CustomPalette(s.ps2.custom_palette, s.ps2.color_interpolation, s.ps2.color_space, s.ps2.reversed_palette, s.ps2.scale_factor_palette_val, s.ps2.processing_alg, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method).getRawPalette();
             } else {
-                TaskRender.palette_incoloring = new PresetPalette(s.ps2.color_choice, s.ps2.direct_palette, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method, s.fns.banded).getRawPalette();
+                TaskRender.palette_incoloring = new PresetPalette(s.ps2.color_choice, s.ps2.direct_palette, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method).getRawPalette();
             }
         } else if (mode == 0) {
             s.ps.color_choice = temp2;
@@ -3208,9 +3208,9 @@ public class MainWindow extends JFrame implements Constants {
             options_menu.getOutColoringPalette()[s.ps.color_choice].setSelected(true);
 
             if (s.ps.color_choice == CUSTOM_PALETTE_ID) {
-                TaskRender.palette_outcoloring = new CustomPalette(s.ps.custom_palette, s.ps.color_interpolation, s.ps.color_space, s.ps.reversed_palette, s.ps.scale_factor_palette_val, s.ps.processing_alg, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method, s.fns.banded).getRawPalette();
+                TaskRender.palette_outcoloring = new CustomPalette(s.ps.custom_palette, s.ps.color_interpolation, s.ps.color_space, s.ps.reversed_palette, s.ps.scale_factor_palette_val, s.ps.processing_alg, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method).getRawPalette();
             } else {
-                TaskRender.palette_outcoloring = new PresetPalette(s.ps.color_choice, s.ps.direct_palette, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method, s.fns.banded).getRawPalette();
+                TaskRender.palette_outcoloring = new PresetPalette(s.ps.color_choice, s.ps.direct_palette, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method).getRawPalette();
             }
         } else {
             s.ps2.color_choice = temp2;
@@ -3225,9 +3225,9 @@ public class MainWindow extends JFrame implements Constants {
             options_menu.getInColoringPalette()[s.ps2.color_choice].setSelected(true);
 
             if (s.ps2.color_choice == CUSTOM_PALETTE_ID) {
-                TaskRender.palette_incoloring = new CustomPalette(s.ps2.custom_palette, s.ps2.color_interpolation, s.ps2.color_space, s.ps2.reversed_palette, s.ps2.scale_factor_palette_val, s.ps2.processing_alg, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method, s.fns.banded).getRawPalette();
+                TaskRender.palette_incoloring = new CustomPalette(s.ps2.custom_palette, s.ps2.color_interpolation, s.ps2.color_space, s.ps2.reversed_palette, s.ps2.scale_factor_palette_val, s.ps2.processing_alg, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method).getRawPalette();
             } else {
-                TaskRender.palette_incoloring = new PresetPalette(s.ps2.color_choice, s.ps2.direct_palette, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method, s.fns.banded).getRawPalette();
+                TaskRender.palette_incoloring = new PresetPalette(s.ps2.color_choice, s.ps2.direct_palette, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method).getRawPalette();
             }
         }
 
@@ -6669,19 +6669,19 @@ public class MainWindow extends JFrame implements Constants {
                     TaskSplitCoordinates tsc = TaskSplitCoordinates.get(j, i, thread_grouping, n, m, image_width, image_height);
 
                     if(TaskRender.GREEDY_ALGORITHM && TaskRender.GREEDY_ALGORITHM_SELECTION == Constants.CIRCULAR_SUCCESSIVE_REFINEMENT) {
-                        tasks[i][j] = new CircularSuccessiveRefinementGuessingRender(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs,  s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,      s.color_blending,  s.post_processing_order,   s.pbs,  s.ds, s.gs.gradient_offset,  s.contourFactor, s.gps, s.pps);
+                        tasks[i][j] = new CircularSuccessiveRefinementGuessingRender(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs,  s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,      s.color_blending,  s.post_processing_order,   s.pbs,  s.ds, s.gs.gradient_offset,  s.contourFactor, s.gps, s.pps, s.fns.banded);
                     }
                     else if (!TaskRender.GREEDY_ALGORITHM && TaskRender.BRUTE_FORCE_ALG == 2) {
-                        tasks[i][j] = new CircularBruteForceRender(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs,  s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,      s.color_blending,  s.post_processing_order,   s.pbs,  s.ds, s.gs.gradient_offset,  s.contourFactor, s.gps, s.pps);
+                        tasks[i][j] = new CircularBruteForceRender(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs,  s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,      s.color_blending,  s.post_processing_order,   s.pbs,  s.ds, s.gs.gradient_offset,  s.contourFactor, s.gps, s.pps, s.fns.banded);
                     }
                     else if (!TaskRender.GREEDY_ALGORITHM && TaskRender.BRUTE_FORCE_ALG == 0) {
-                        tasks[i][j] = new BruteForceRender(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs,  s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,      s.color_blending,  s.post_processing_order,   s.pbs,  s.ds, s.gs.gradient_offset,  s.contourFactor, s.gps, s.pps);
+                        tasks[i][j] = new BruteForceRender(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs,  s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,      s.color_blending,  s.post_processing_order,   s.pbs,  s.ds, s.gs.gradient_offset,  s.contourFactor, s.gps, s.pps, s.fns.banded);
                     }
                     else if (!TaskRender.GREEDY_ALGORITHM && TaskRender.BRUTE_FORCE_ALG == 3) {
-                        tasks[i][j] = new BruteForceInterleavedRender(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs,  s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,      s.color_blending,  s.post_processing_order,   s.pbs,  s.ds, s.gs.gradient_offset,  s.contourFactor, s.gps, s.pps);
+                        tasks[i][j] = new BruteForceInterleavedRender(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs,  s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,      s.color_blending,  s.post_processing_order,   s.pbs,  s.ds, s.gs.gradient_offset,  s.contourFactor, s.gps, s.pps, s.fns.banded);
                     }
                     else {
-                        tasks[i][j] = new BruteForce2Render(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs,  s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,      s.color_blending,  s.post_processing_order,   s.pbs,  s.ds, s.gs.gradient_offset,  s.contourFactor, s.gps, s.pps);
+                        tasks[i][j] = new BruteForce2Render(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs,  s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,      s.color_blending,  s.post_processing_order,   s.pbs,  s.ds, s.gs.gradient_offset,  s.contourFactor, s.gps, s.pps, s.fns.banded);
                     }
 
                     tasks[i][j].setTaskId(taskId);
@@ -6726,19 +6726,19 @@ public class MainWindow extends JFrame implements Constants {
                     TaskSplitCoordinates tsc = TaskSplitCoordinates.get(j, i, thread_grouping, n, m, image_width, image_height);
 
                     if(TaskRender.GREEDY_ALGORITHM && TaskRender.GREEDY_ALGORITHM_SELECTION == Constants.CIRCULAR_SUCCESSIVE_REFINEMENT) {
-                        tasks[i][j] = new CircularSuccessiveRefinementGuessingRender(action, tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs,  s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending,  s.post_processing_order, s.pbs, s.gs.gradient_offset,  s.contourFactor, s.gps, s.pps, s.ds);
+                        tasks[i][j] = new CircularSuccessiveRefinementGuessingRender(action, tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs,  s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending,  s.post_processing_order, s.pbs, s.gs.gradient_offset,  s.contourFactor, s.gps, s.pps, s.ds, s.fns.banded);
                     }
                     else if (!TaskRender.GREEDY_ALGORITHM && TaskRender.BRUTE_FORCE_ALG == 2) {
-                        tasks[i][j] = new CircularBruteForceRender(action, tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs,  s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending,  s.post_processing_order, s.pbs, s.gs.gradient_offset,  s.contourFactor, s.gps, s.pps, s.ds);
+                        tasks[i][j] = new CircularBruteForceRender(action, tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs,  s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending,  s.post_processing_order, s.pbs, s.gs.gradient_offset,  s.contourFactor, s.gps, s.pps, s.ds, s.fns.banded);
                     }
                     else if (!TaskRender.GREEDY_ALGORITHM && TaskRender.BRUTE_FORCE_ALG == 0) {
-                        tasks[i][j] = new BruteForceRender(action, tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs,  s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending,  s.post_processing_order, s.pbs, s.gs.gradient_offset,  s.contourFactor, s.gps, s.pps, s.ds);
+                        tasks[i][j] = new BruteForceRender(action, tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs,  s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending,  s.post_processing_order, s.pbs, s.gs.gradient_offset,  s.contourFactor, s.gps, s.pps, s.ds, s.fns.banded);
                     }
                     else if (!TaskRender.GREEDY_ALGORITHM && TaskRender.BRUTE_FORCE_ALG == 3) {
-                        tasks[i][j] = new BruteForceInterleavedRender(action, tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs,  s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending,  s.post_processing_order, s.pbs, s.gs.gradient_offset,  s.contourFactor, s.gps, s.pps, s.ds);
+                        tasks[i][j] = new BruteForceInterleavedRender(action, tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs,  s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending,  s.post_processing_order, s.pbs, s.gs.gradient_offset,  s.contourFactor, s.gps, s.pps, s.ds, s.fns.banded);
                     }
                     else {
-                        tasks[i][j] = new BruteForce2Render(action, tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs,  s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending,  s.post_processing_order, s.pbs, s.gs.gradient_offset,  s.contourFactor, s.gps, s.pps, s.ds);
+                        tasks[i][j] = new BruteForce2Render(action, tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs,  s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending,  s.post_processing_order, s.pbs, s.gs.gradient_offset,  s.contourFactor, s.gps, s.pps, s.ds, s.fns.banded);
                     }
 
                     tasks[i][j].setTaskId(taskId);
@@ -6781,7 +6781,7 @@ public class MainWindow extends JFrame implements Constants {
             for (int i = 0; i < tasks.length; i++) {
                 for (int j = 0; j < tasks[i].length; j++, taskId++) {
                     TaskSplitCoordinates tsc = TaskSplitCoordinates.get(j, i, thread_grouping, n, m, image_width, image_height);
-                    tasks[i][j] = new BruteForceRender(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, s.fractal_color, s.dem_color, image, s.ps.color_cycling_location, s.ps2.color_cycling_location,  s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.fs,    s.color_blending,  s.post_processing_order,   s.pbs, s.ds, s.gs.gradient_offset,  s.contourFactor, s.gps, s.pps, ccs);
+                    tasks[i][j] = new BruteForceRender(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, s.fractal_color, s.dem_color, image, s.ps.color_cycling_location, s.ps2.color_cycling_location,  s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.fs,    s.color_blending,  s.post_processing_order,   s.pbs, s.ds, s.gs.gradient_offset,  s.contourFactor, s.gps, s.pps, ccs, s.fns.banded);
                     tasks[i][j].setTaskId(taskId);
                 }
             }
@@ -6896,6 +6896,10 @@ public class MainWindow extends JFrame implements Constants {
 
         } else if (s.fns.plane_type == SKEW_PLANE) {
             new SkewPlaneDialog(ptr, s, oldSelected, planes);
+            return;
+        }
+        else if (s.fns.plane_type == STRETCH_PLANE) {
+            new StretchPlaneDialog(ptr, s, oldSelected, planes);
             return;
         }
         else if (s.fns.plane_type == INFLECTIONS_PLANE) {
@@ -7063,15 +7067,15 @@ public class MainWindow extends JFrame implements Constants {
 
     public void setSmoothingPost(boolean recalculate) {
         if (s.ps.color_choice == CUSTOM_PALETTE_ID) {
-            TaskRender.palette_outcoloring = new CustomPalette(s.ps.custom_palette, s.ps.color_interpolation, s.ps.color_space, s.ps.reversed_palette, s.ps.scale_factor_palette_val, s.ps.processing_alg, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method, s.fns.banded).getRawPalette();
+            TaskRender.palette_outcoloring = new CustomPalette(s.ps.custom_palette, s.ps.color_interpolation, s.ps.color_space, s.ps.reversed_palette, s.ps.scale_factor_palette_val, s.ps.processing_alg, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method).getRawPalette();
         } else {
-            TaskRender.palette_outcoloring = new PresetPalette(s.ps.color_choice, s.ps.direct_palette, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method, s.fns.banded).getRawPalette();
+            TaskRender.palette_outcoloring = new PresetPalette(s.ps.color_choice, s.ps.direct_palette, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method).getRawPalette();
         }
 
         if (s.ps2.color_choice == CUSTOM_PALETTE_ID) {
-            TaskRender.palette_incoloring = new CustomPalette(s.ps2.custom_palette, s.ps2.color_interpolation, s.ps2.color_space, s.ps2.reversed_palette, s.ps2.scale_factor_palette_val, s.ps2.processing_alg, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method, s.fns.banded).getRawPalette();
+            TaskRender.palette_incoloring = new CustomPalette(s.ps2.custom_palette, s.ps2.color_interpolation, s.ps2.color_space, s.ps2.reversed_palette, s.ps2.scale_factor_palette_val, s.ps2.processing_alg, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method).getRawPalette();
         } else {
-            TaskRender.palette_incoloring = new PresetPalette(s.ps2.color_choice, s.ps2.direct_palette, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method, s.fns.banded).getRawPalette();
+            TaskRender.palette_incoloring = new PresetPalette(s.ps2.color_choice, s.ps2.direct_palette, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method).getRawPalette();
         }
 
         TaskRender.palette_outcoloring.setGeneratedPaletteSettings(true, s.gps);
@@ -12874,6 +12878,7 @@ public class MainWindow extends JFrame implements Constants {
             String SlopePower = "20";
             String InteriorColor = "";
             String Smooth = "0";
+            String BailoutRadiusCustom = "2";
 
             //Todo StretchAngle
             //Todo StretchAmount
@@ -12938,6 +12943,9 @@ public class MainWindow extends JFrame implements Constants {
                     }
                     else if(token.equalsIgnoreCase("Smooth:") && tokenizer.countTokens() == 1) {
                         Smooth = tokenizer.nextToken();
+                    }
+                    else if(token.equalsIgnoreCase("BailoutRadiusCustom:") && tokenizer.countTokens() == 1) {
+                        BailoutRadiusCustom = tokenizer.nextToken();
                     }
                     else {
                         continue;
@@ -13174,16 +13182,19 @@ public class MainWindow extends JFrame implements Constants {
                         s.ps.transfer_function = DEFAULT;
                         s.pps.ndes.useNumericalDem = true;
                         s.pps.ndes.distanceFactor = 1;
+                        s.fns.banded = false;
                         break;
                     case 7:
                         s.ps.transfer_function = KF_LOGARITHM;
                         s.pps.ndes.useNumericalDem = true;
                         s.pps.ndes.distanceFactor = 1;
+                        s.fns.banded = false;
                         break;
                     case 8:
                         s.ps.transfer_function = KF_SQUARE_ROOT;
                         s.pps.ndes.useNumericalDem = true;
                         s.pps.ndes.distanceFactor = 1;
+                        s.fns.banded = false;
                         break;
                     case 9:
                         s.ps.transfer_function = KF_LOG_LOG;
@@ -13206,8 +13217,10 @@ public class MainWindow extends JFrame implements Constants {
                 if(diff < 7) {
                     s.pps.ndes.differencesMethod = diff;
                 }
-
-                //Todo Analytical
+                else {
+                    JOptionPane.showMessageDialog(ptr, "Analytic Differencing is not supported.", "Warning!", JOptionPane.WARNING_MESSAGE);
+                    s.pps.ndes.differencesMethod = 0;
+                }
             }
             catch (Exception ex) {
 
@@ -13220,13 +13233,23 @@ public class MainWindow extends JFrame implements Constants {
 
                 switch (bail_preset) {
                     case 0: //High
-                        s.fns.bailout = 10000;
+                        s.fns.bailout = 100; //10000
                         break;
                     case 1: //2
                         s.fns.bailout = 2;
                         break;
+                        //2 is not supported
+                    case 3:
+                        try {
+                            double bail = Double.parseDouble(BailoutRadiusCustom);
+                            if(bail > 0) {
+                                s.fns.bailout = Math.sqrt(bail);
+                            }
+                        }
+                        catch (Exception ex) {
 
-                        //Todo 3, 4
+                        }
+                        break;
                 }
             }
             catch (Exception ex) {
