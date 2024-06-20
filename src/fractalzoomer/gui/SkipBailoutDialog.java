@@ -45,7 +45,7 @@ public class SkipBailoutDialog extends JDialog {
             setTitle("Skip Convergent Bailout Condition Iterations");
         }
         setModal(true);
-        setIconImage(MainWindow.getIcon("skip_bailout.png").getImage());
+        setIconImage(MainWindow.getIcon("mandel2.png").getImage());
 
         JTextField field = new JTextField();
         field.setText("" + (mode ? s.fns.skip_bailout_iterations : s.fns.skip_convergent_bailout_iterations));

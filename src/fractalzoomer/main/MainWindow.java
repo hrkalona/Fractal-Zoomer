@@ -6175,20 +6175,13 @@ public class MainWindow extends JFrame implements Constants {
 
     }
 
-    public void setSizeOfImagePost(int width, int height) {
-        whole_image_done = false;
-
+    public void updateDataOnImageSizeChange() {
         old_grid = false;
 
         old_boundaries = false;
 
-        image_width = width;
-        image_height = height;
-
         sr.clear();
         main_panel.repaint();
-
-        setOptions(false);
 
         if (!s.d3s.d3) {
             TaskRender.setArrays(image_width, image_height, s.ds.domain_coloring, s.needsExtraData());
@@ -6202,28 +6195,36 @@ public class MainWindow extends JFrame implements Constants {
 
         updateP3D();
 
-        progress.setValue(0);
+        last_used = null;
 
-        setProgressBarVisibility(true);
+        image = null;
+
+        last_used = new BufferedImage(image_width, image_height, BufferedImage.TYPE_INT_ARGB);
+
+        image = new BufferedImage(image_width, image_height, BufferedImage.TYPE_INT_ARGB);
 
         SwingUtilities.updateComponentTreeUI(this);
 
         scroll_pane.getHorizontalScrollBar().setValue((int) (scroll_pane.getHorizontalScrollBar().getMaximum() / 2.0 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2.0));
         scroll_pane.getVerticalScrollBar().setValue((int) (scroll_pane.getVerticalScrollBar().getMaximum() / 2.0 - scroll_pane.getVerticalScrollBar().getSize().getHeight() / 2.0));
 
-        //last_used = null;
-        //last_used = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
-        //Graphics2D graphics = last_used.createGraphics();
-        //graphics.drawImage(image, 0, 0, image_size, image_size, null);
-        last_used = null;
+    }
 
-        image = null;
+    public void setSizeOfImagePost(int width, int height) {
+        whole_image_done = false;
+
+        image_width = width;
+        image_height = height;
+
+        updateDataOnImageSizeChange();
+
+        setOptions(false);
+
+        progress.setValue(0);
+
+        setProgressBarVisibility(true);
 
         clearThreads();
-
-        last_used = new BufferedImage(image_width, image_height, BufferedImage.TYPE_INT_ARGB);
-
-        image = new BufferedImage(image_width, image_height, BufferedImage.TYPE_INT_ARGB);
 
         if (s.d3s.d3) {
             ArraysFillColor(image, Color.BLACK.getRGB());
@@ -10658,7 +10659,7 @@ public class MainWindow extends JFrame implements Constants {
                         try {
                             int temp = Integer.parseInt(tokenizer.nextToken());
 
-                            if (temp >= 209 && temp <= 6000) {
+                            if (temp >= 209 && temp <= 46500) {
                                 image_width = temp;
                             }
                         } catch (Exception ex) {
@@ -10668,7 +10669,7 @@ public class MainWindow extends JFrame implements Constants {
                         try {
                             int temp = Integer.parseInt(tokenizer.nextToken());
 
-                            if (temp >= 209 && temp <= 6000) {
+                            if (temp >= 209 && temp <= 46500) {
                                 image_height = temp;
                             }
                         } catch (Exception ex) {
@@ -12879,9 +12880,13 @@ public class MainWindow extends JFrame implements Constants {
             String InteriorColor = "";
             String Smooth = "0";
             String BailoutRadiusCustom = "2";
-
-            //Todo StretchAngle
-            //Todo StretchAmount
+            String StretchAngle = "0";
+            String StretchAmount = "0";
+            String ImagPointsUp = "0";
+            String Power = "2";
+            String FractalType = "0";
+            String ImageWidth = "";
+            String ImageHeight = "";
 
             while ((str_line = br.readLine()) != null) {
 
@@ -12947,6 +12952,27 @@ public class MainWindow extends JFrame implements Constants {
                     else if(token.equalsIgnoreCase("BailoutRadiusCustom:") && tokenizer.countTokens() == 1) {
                         BailoutRadiusCustom = tokenizer.nextToken();
                     }
+                    else if(token.equalsIgnoreCase("StretchAngle:") && tokenizer.countTokens() == 1) {
+                        StretchAngle = tokenizer.nextToken();
+                    }
+                    else if(token.equalsIgnoreCase("StretchAmount:") && tokenizer.countTokens() == 1) {
+                        StretchAmount = tokenizer.nextToken();
+                    }
+                    else if(token.equalsIgnoreCase("ImagPointsUp:") && tokenizer.countTokens() == 1) {
+                        ImagPointsUp = tokenizer.nextToken();
+                    }
+                    else if(token.equalsIgnoreCase("Power:") && tokenizer.countTokens() == 1) {
+                        Power = tokenizer.nextToken();
+                    }
+                    else if(token.equalsIgnoreCase("FractalType:") && tokenizer.countTokens() == 1) {
+                        FractalType = tokenizer.nextToken();
+                    }
+                    else if(token.equalsIgnoreCase("ImageWidth:") && tokenizer.countTokens() == 1) {
+                        ImageWidth = tokenizer.nextToken();
+                    }
+                    else if(token.equalsIgnoreCase("ImageHeight:") && tokenizer.countTokens() == 1) {
+                        ImageHeight = tokenizer.nextToken();
+                    }
                     else {
                         continue;
                     }
@@ -12960,6 +12986,14 @@ public class MainWindow extends JFrame implements Constants {
             sr.clear();
             main_panel.repaint();
 
+            int flipImaginary = 0;
+            try {
+                flipImaginary = Integer.parseInt(ImagPointsUp);
+            }
+            catch (Exception ex) {
+
+            }
+
             try {
 
                 if(MyApfloat.setAutomaticPrecision) {
@@ -12972,7 +13006,12 @@ public class MainWindow extends JFrame implements Constants {
                 }
 
                 s.xCenter = new MyApfloat(re);
-                s.yCenter = new MyApfloat(im).negate(); //Inverted in KF
+                if(flipImaginary == 1) {
+                    s.yCenter = new MyApfloat(im);
+                }
+                else {
+                    s.yCenter = new MyApfloat(im).negate(); //Inverted in KF
+                }
                 s.size = MyApfloat.fp.divide(Constants.DEFAULT_MAGNIFICATION, new MyApfloat(magnification));
             } catch (Exception ex) {
 
@@ -12985,6 +13024,23 @@ public class MainWindow extends JFrame implements Constants {
                 s.max_iterations = miter > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int)miter;
             } catch (Exception ex) {
 
+            }
+
+            if(!ImageWidth.isEmpty() && !ImageHeight.isEmpty()) {
+                try {
+                    int width = Integer.parseInt(ImageWidth);
+                    int height = Integer.parseInt(ImageHeight);
+
+                    if (width >= 209 && width <= 46500 && height >= 209 && height <= 46500) {
+                        image_width = width;
+                        image_height = height;
+
+                        updateDataOnImageSizeChange();
+                    }
+                }
+                catch (Exception ex) {
+
+                }
             }
 
             double iterDivD = 1;
@@ -13184,6 +13240,10 @@ public class MainWindow extends JFrame implements Constants {
                         s.pps.ndes.distanceFactor = 1;
                         s.fns.banded = false;
                         break;
+                    case 6:
+                        JOptionPane.showMessageDialog(ptr, "DE+Standard is not supported.", "Warning!", JOptionPane.WARNING_MESSAGE);
+                        s.ps.transfer_function = DEFAULT;
+                        break;
                     case 7:
                         s.ps.transfer_function = KF_LOGARITHM;
                         s.pps.ndes.useNumericalDem = true;
@@ -13229,6 +13289,7 @@ public class MainWindow extends JFrame implements Constants {
             //Todo smooth method
 
             try {
+
                 int bail_preset = Integer.parseInt(BailoutRadiusPreset);
 
                 switch (bail_preset) {
@@ -13250,6 +13311,22 @@ public class MainWindow extends JFrame implements Constants {
 
                         }
                         break;
+                }
+            }
+            catch (Exception ex) {
+
+            }
+
+            try {
+                double sangle = Double.parseDouble(StretchAngle);
+                double samount = Double.parseDouble(StretchAmount);
+
+                if(sangle != 0 || samount != 0) {
+                    s.fns.plane_type = STRETCH_PLANE;
+                    s.fns.plane_transform_angle = sangle;
+                    s.fns.plane_transform_amount = samount;
+                    s.fns.plane_transform_center_hp[0] = s.xCenter;
+                    s.fns.plane_transform_center_hp[1] = s.yCenter;
                 }
             }
             catch (Exception ex) {

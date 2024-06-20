@@ -868,6 +868,7 @@ public class CommonFunctions implements Constants {
         else if (s.fns.plane_type == STRETCH_PLANE) {
             overview += tab + "Angle = " + s.fns.plane_transform_angle + " degrees<br>";
             overview += tab + "Amount = " + s.fns.plane_transform_amount + "<br>";
+            overview += tab + "Center = " + BigComplex.toString2Pretty(s.fns.plane_transform_center_hp[0], s.fns.plane_transform_center_hp[1]) + "<br>";
         }
         else if (s.fns.plane_type == RIPPLES_PLANE) {
             overview += tab + "Amplitude Real = " + s.fns.plane_transform_scales[0] + "<br>";

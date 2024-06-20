@@ -154,8 +154,8 @@ public class ImageSizeDialog extends JDialog {
                                 return;
                             }
 
-                            if (temp > 6000) {
-                                JOptionPane.showMessageDialog(ptra, "Image width must be less than than 6001.", "Error!", JOptionPane.ERROR_MESSAGE);
+                            if (temp > 46500) {
+                                JOptionPane.showMessageDialog(ptra, "Image width must be less than than 46501.", "Error!", JOptionPane.ERROR_MESSAGE);
                                 return;
                             }
 
@@ -164,8 +164,8 @@ public class ImageSizeDialog extends JDialog {
                                 return;
                             }
 
-                            if (temp2 > 6000) {
-                                JOptionPane.showMessageDialog(ptra, "Image height must be less than than 6001.", "Error!", JOptionPane.ERROR_MESSAGE);
+                            if (temp2 > 46500) {
+                                JOptionPane.showMessageDialog(ptra, "Image height must be less than than 46501.", "Error!", JOptionPane.ERROR_MESSAGE);
                                 return;
                             }
                         } catch (Exception ex) {
