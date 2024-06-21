@@ -24,9 +24,10 @@ public class SmoothEscapeTimeKleinian extends OutColorAlgorithm {
 
     public SmoothEscapeTimeKleinian(double u) {
 
-            super();
-            this.u = u * 0.5;
-            OutUsingIncrement = false;
+        super();
+        this.u = u * 0.5;
+        OutUsingIncrement = false;
+        smooth = true;
 
     }
 

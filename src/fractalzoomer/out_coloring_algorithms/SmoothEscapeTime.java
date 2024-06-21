@@ -39,6 +39,7 @@ public class SmoothEscapeTime extends OutColorAlgorithm {
         OutUsingIncrement = false;
         usePower = false;
         this.bailout = bailout;
+        smooth = true;
 
     }
 
@@ -115,9 +116,6 @@ public class SmoothEscapeTime extends OutColorAlgorithm {
 
         double a = Math.pow(test1, 1 / p);
         double div = a - Math.pow(test2, 1 / p);
-        if (div != 0)
-            return 1 - (a - bailout) / div;
-
-        return 0;
+        return 1 - (a - bailout) / div;
     }
 }

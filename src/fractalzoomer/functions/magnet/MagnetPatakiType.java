@@ -47,84 +47,12 @@ public abstract class MagnetPatakiType extends Julia {
     }
 
     @Override
-    protected void OutColoringAlgorithmFactory(int out_coloring_algorithm, boolean smoothing, int escaping_smooth_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, double[] plane_transform_center) {
-
-        double log_power = getLogPower();
-        switch (out_coloring_algorithm) {
-
-            case MainWindow.ESCAPE_TIME:
-                if (!smoothing) {
-                    out_color_algorithm = new EscapeTime();
-                } else {
-                    out_color_algorithm = new SmoothEscapeTime(bailout, log_bailout_squared, escaping_smooth_algorithm, log_power);
-                }
-                break;
-            case MainWindow.BINARY_DECOMPOSITION:
-                if (!smoothing) {
-                    out_color_algorithm = new BinaryDecomposition();
-                } else {
-                    out_color_algorithm = new SmoothBinaryDecomposition(bailout, log_bailout_squared, escaping_smooth_algorithm, log_power);
-                }
-                break;
-            case MainWindow.BINARY_DECOMPOSITION2:
-                if (!smoothing) {
-                    out_color_algorithm = new BinaryDecomposition2();
-                } else {
-                    out_color_algorithm = new SmoothBinaryDecomposition2(bailout, log_bailout_squared, escaping_smooth_algorithm, log_power);
-                }
-                break;
-            case MainWindow.BIOMORPH:
-                if (!smoothing) {
-                    out_color_algorithm = new Biomorphs(bailout);
-                } else {
-                    out_color_algorithm = new SmoothBiomorphs(log_bailout_squared, bailout, escaping_smooth_algorithm, log_power);
-                }
-                break;
-            case MainWindow.ESCAPE_TIME_GRID:
-                if (!smoothing) {
-                    out_color_algorithm = new EscapeTimeGrid(log_bailout_squared);
-                } else {
-                    out_color_algorithm = new SmoothEscapeTimeGrid(bailout, log_bailout_squared, escaping_smooth_algorithm, log_power);
-                }
-                break;
-            case MainWindow.ESCAPE_TIME_FIELD_LINES:
-                if (!smoothing) {
-                    out_color_algorithm = new EscapeTimeFieldLines(log_bailout_squared);
-                } else {
-                    out_color_algorithm = new SmoothEscapeTimeFieldLines(bailout, log_bailout_squared, escaping_smooth_algorithm, log_power);
-                }
-                break;
-            case MainWindow.ESCAPE_TIME_FIELD_LINES2:
-                if (!smoothing) {
-                    out_color_algorithm = new EscapeTimeFieldLines2(log_bailout_squared);
-                } else {
-                    out_color_algorithm = new SmoothEscapeTimeFieldLines2(bailout, log_bailout_squared, escaping_smooth_algorithm, log_power);
-                }
-                break;
-            case ESCAPE_TIME_SQUARES:
-                OutColorAlgorithm wrappedAlgorithm;
-                if (!smoothing) {
-                    wrappedAlgorithm = new EscapeTime();
-                } else {
-                    wrappedAlgorithm = new SmoothEscapeTime(bailout, log_bailout_squared, escaping_smooth_algorithm, log_power);
-                }
-                out_color_algorithm = new EscapeTimeSquares(6, wrappedAlgorithm);
-                break;
-            case ESCAPE_TIME_SQUARES2:
-                if (!smoothing) {
-                    wrappedAlgorithm = new EscapeTime();
-                } else {
-                    wrappedAlgorithm = new SmoothEscapeTime(bailout, log_bailout_squared, escaping_smooth_algorithm, log_power);
-                }
-                out_color_algorithm = new EscapeTimeSquares2(6, wrappedAlgorithm);
-                break;
-
+    protected OutColorAlgorithm getEscapeTimeAlgorithm(boolean smoothing, int escaping_smooth_algorithm) {
+        if (!smoothing) {
+            return new EscapeTime();
+        } else {
+            return new SmoothEscapeTime(bailout, log_bailout_squared, escaping_smooth_algorithm, getLogPower());
         }
-
-        if(out_color_algorithm == null) {
-            super.OutColoringAlgorithmFactory(out_coloring_algorithm, smoothing, escaping_smooth_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, plane_transform_center);
-        }
-
     }
 
     protected double getLogPower() {

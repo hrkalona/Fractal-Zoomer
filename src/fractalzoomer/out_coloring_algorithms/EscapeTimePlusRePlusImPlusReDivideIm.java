@@ -25,11 +25,13 @@ import fractalzoomer.core.Complex;
  * @author hrkalona
  */
 public class EscapeTimePlusRePlusImPlusReDivideIm extends OutColorAlgorithm {
+    protected OutColorAlgorithm EscapeTimeAlg;
 
-    public EscapeTimePlusRePlusImPlusReDivideIm() {
+    public EscapeTimePlusRePlusImPlusReDivideIm(OutColorAlgorithm EscapeTimeAlg) {
 
         super();
         OutUsingIncrement = false;
+        this.EscapeTimeAlg = EscapeTimeAlg;
         
     }
 
@@ -39,7 +41,7 @@ public class EscapeTimePlusRePlusImPlusReDivideIm extends OutColorAlgorithm {
         double temp = ((Complex)object[1]).getRe();
         double temp2 = ((Complex)object[1]).getIm();
         
-        return Math.abs(((int)object[0]) + temp + temp2 + temp / temp2);
+        return Math.abs(EscapeTimeAlg.getResult(object) + temp + temp2 + temp / temp2);
 
     }
 

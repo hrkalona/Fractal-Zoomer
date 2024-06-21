@@ -25,8 +25,8 @@ import fractalzoomer.core.Complex;
 public class EscapeTimeColorDecompositionMagneticPendulum extends EscapeTimeColorDecomposition {
     private Complex[] magnets;
     
-    public EscapeTimeColorDecompositionMagneticPendulum(Complex[] magnets) {
-        super();
+    public EscapeTimeColorDecompositionMagneticPendulum(Complex[] magnets, OutColorAlgorithm EscapeTimeAlg) {
+        super(EscapeTimeAlg);
         this.magnets = magnets;
         OutUsingIncrement = false;
     }
@@ -46,7 +46,7 @@ public class EscapeTimeColorDecompositionMagneticPendulum extends EscapeTimeColo
             }
         }
  
-        return pi59 * (min_i + 1) + ((Complex)object[9]).getRe();
+        return pi59 * (min_i + 1) + EscapeTimeAlg.getResult(object);
         
     }
     

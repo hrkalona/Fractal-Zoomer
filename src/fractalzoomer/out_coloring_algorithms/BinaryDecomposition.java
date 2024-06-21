@@ -25,18 +25,21 @@ import fractalzoomer.core.Complex;
  * @author hrkalona
  */
 public class BinaryDecomposition extends OutColorAlgorithm {
+    protected OutColorAlgorithm EscapeTimeAlg;
 
-    public BinaryDecomposition() {
+    public BinaryDecomposition(OutColorAlgorithm EscapeTimeAlg) {
 
         super();
         OutUsingIncrement = true;
+        this.EscapeTimeAlg = EscapeTimeAlg;
         
     }
 
     @Override
     public double getResult(Object[] object) {
 
-        return ((Complex)object[1]).getIm() < 0 ? -((int)object[0] + INCREMENT) : (int)object[0];
+        double val = EscapeTimeAlg.getResult(object);
+        return ((Complex)object[1]).getIm() < 0 ? -(val + INCREMENT) : val;
 
     }
 

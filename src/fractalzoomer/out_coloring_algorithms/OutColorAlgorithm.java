@@ -21,6 +21,7 @@ import fractalzoomer.core.Complex;
 import fractalzoomer.utils.ColorAlgorithm;
 
 public abstract class OutColorAlgorithm extends ColorAlgorithm {
+    protected boolean smooth = false;
     public abstract double getResult(Object[] object);
     
     public double getResult3D(Object[] object, double result) {
@@ -64,10 +65,7 @@ public abstract class OutColorAlgorithm extends ColorAlgorithm {
 
         double a = Math.pow(test1, 1 / p);
         double div = a - Math.pow(test2, 1 / p);
-        if (div != 0)
-            return 1 - (a - bailout) / div;
-
-        return 0;
+        return (a - bailout) / div;
 
     }
 

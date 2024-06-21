@@ -26,13 +26,15 @@ import fractalzoomer.core.Complex;
 public class EscapeTimeEscapeRadius extends OutColorAlgorithm {
   protected double log_bailout_squared;
   protected double pi2;
+  protected OutColorAlgorithm EscapeTimeAlg;
     
-    public EscapeTimeEscapeRadius(double log_bailout_squared) {
+    public EscapeTimeEscapeRadius(double log_bailout_squared, OutColorAlgorithm EscapeTimeAlg) {
 
         super();
         this.log_bailout_squared = log_bailout_squared;
         pi2 = Math.PI * 2;
         OutUsingIncrement = false;
+        this.EscapeTimeAlg = EscapeTimeAlg;
 
     }
 
@@ -42,7 +44,7 @@ public class EscapeTimeEscapeRadius extends OutColorAlgorithm {
         double zabs = Math.log(((Complex)object[1]).norm_squared()) / log_bailout_squared - 1.0f;
         double zarg = (((Complex)object[1]).arg() / (pi2) + 1.0f) % 1.0;
         
-        return (int)object[0] + zabs + zarg;
+        return EscapeTimeAlg.getResult(object) + zabs + zarg;
 
     }
     

@@ -372,47 +372,36 @@ public abstract class RootFindingMethods extends Fractal {
     }
 
     @Override
+    protected OutColorAlgorithm getEscapeTimeAlgorithm(boolean smoothing, int converging_smooth_algorithm) {
+        if (!smoothing) {
+            return new EscapeTime();
+        } else {
+            return new SmoothEscapeTimeRootFindingMethod(Math.log(convergent_bailout), converging_smooth_algorithm);
+        }
+    }
+
+    @Override
     protected void OutColoringAlgorithmFactory(int out_coloring_algorithm, boolean smoothing, int converging_smooth_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, double[] plane_transform_center) {
 
         switch (out_coloring_algorithm) {
 
             case MainWindow.ESCAPE_TIME:
-                if (!smoothing) {
-                    out_color_algorithm = new EscapeTime();
-                } else {
-                    out_color_algorithm = new SmoothEscapeTimeRootFindingMethod(Math.log(convergent_bailout), converging_smooth_algorithm);
-                }
+                out_color_algorithm = getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm);
                 break;
             case MainWindow.BINARY_DECOMPOSITION:
-                if (!smoothing) {
-                    out_color_algorithm = new BinaryDecomposition();
-                } else {
-                    out_color_algorithm = new SmoothBinaryDecompositionRootFindingMethod(Math.log(convergent_bailout), converging_smooth_algorithm);
-                }
+                out_color_algorithm = new BinaryDecomposition(getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm));
                 break;
             case MainWindow.BINARY_DECOMPOSITION2:
-                if (!smoothing) {
-                    out_color_algorithm = new BinaryDecomposition2();
-                } else {
-                    out_color_algorithm = new SmoothBinaryDecomposition2RootFindingMethod(Math.log(convergent_bailout), converging_smooth_algorithm);
-                }
+                out_color_algorithm = new BinaryDecomposition2(getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm));
                 break;
             case MainWindow.COLOR_DECOMPOSITION:
-                if (!smoothing) {
-                    out_color_algorithm = new ColorDecompositionRootFindingMethod();
-                } else {
-                    out_color_algorithm = new SmoothColorDecompositionRootFindingMethod(Math.log(convergent_bailout), converging_smooth_algorithm);
-                }
+                out_color_algorithm = new ColorDecompositionRootFindingMethod(getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm));
                 break;
             case MainWindow.ESCAPE_TIME_COLOR_DECOMPOSITION:
-                if (!smoothing) {
-                    out_color_algorithm = new EscapeTimeColorDecompositionRootFindingMethod();
-                } else {
-                    out_color_algorithm = new SmoothEscapeTimeColorDecompositionRootFindingMethod(Math.log(convergent_bailout), converging_smooth_algorithm);
-                }
+                out_color_algorithm = new EscapeTimeColorDecompositionRootFindingMethod(getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm));
                 break;
             case MainWindow.ESCAPE_TIME_ALGORITHM:
-                out_color_algorithm = new EscapeTimeAlgorithm1(3);
+                out_color_algorithm = new EscapeTimeAlgorithm1(3, getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm));
                 break;
             case MainWindow.USER_OUTCOLORING_ALGORITHM:
                 if (user_out_coloring_algorithm == 0) {
@@ -422,21 +411,10 @@ public abstract class RootFindingMethods extends Fractal {
                 }
                 break;
             case ESCAPE_TIME_SQUARES:
-                OutColorAlgorithm wrappedAlgorithm;
-                if (!smoothing) {
-                    wrappedAlgorithm = new EscapeTime();
-                } else {
-                    wrappedAlgorithm = new SmoothEscapeTimeRootFindingMethod(Math.log(convergent_bailout), converging_smooth_algorithm);
-                }
-                out_color_algorithm = new EscapeTimeSquares(7, wrappedAlgorithm);
+                out_color_algorithm = new EscapeTimeSquares(7, getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm));
                 break;
             case ESCAPE_TIME_SQUARES2:
-                if (!smoothing) {
-                    wrappedAlgorithm = new EscapeTime();
-                } else {
-                    wrappedAlgorithm = new SmoothEscapeTimeRootFindingMethod(Math.log(convergent_bailout), converging_smooth_algorithm);
-                }
-                out_color_algorithm = new EscapeTimeSquares2(7, wrappedAlgorithm);
+                out_color_algorithm = new EscapeTimeSquares2(7, getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm));
                 break;
 
         }

@@ -3745,102 +3745,82 @@ public abstract class Fractal {
 
     }
 
+    protected OutColorAlgorithm getEscapeTimeAlgorithm(boolean smoothing, int escaping_smooth_algorithm) {
+        if (!smoothing) {
+            return new EscapeTime();
+        } else {
+            return new SmoothEscapeTime(bailout, log_bailout_squared, escaping_smooth_algorithm);
+        }
+    }
+
     protected void OutColoringAlgorithmFactory(int out_coloring_algorithm, boolean smoothing, int escaping_smooth_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, double[] plane_transform_center) {
         switch (out_coloring_algorithm) {
 
             case MainWindow.ESCAPE_TIME:
-                if (!smoothing) {
-                    out_color_algorithm = new EscapeTime();
-                } else {
-                    out_color_algorithm = new SmoothEscapeTime(bailout, log_bailout_squared, escaping_smooth_algorithm);
-                }
+                out_color_algorithm = getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm);
                 break;
             case MainWindow.BINARY_DECOMPOSITION:
-                if (!smoothing) {
-                    out_color_algorithm = new BinaryDecomposition();
-                } else {
-                    out_color_algorithm = new SmoothBinaryDecomposition(bailout, log_bailout_squared, escaping_smooth_algorithm);
-                }
+                out_color_algorithm = new BinaryDecomposition(getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm));
                 break;
             case MainWindow.BINARY_DECOMPOSITION2:
-                if (!smoothing) {
-                    out_color_algorithm = new BinaryDecomposition2();
-                } else {
-                    out_color_algorithm = new SmoothBinaryDecomposition2(bailout, log_bailout_squared, escaping_smooth_algorithm);
-                }
+                out_color_algorithm = new BinaryDecomposition2(getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm));
                 break;
             case MainWindow.ITERATIONS_PLUS_RE:
-                out_color_algorithm = new EscapeTimePlusRe();
+                out_color_algorithm = new EscapeTimePlusRe(getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm));
                 break;
             case MainWindow.ITERATIONS_PLUS_IM:
-                out_color_algorithm = new EscapeTimePlusIm();
+                out_color_algorithm = new EscapeTimePlusIm(getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm));
                 break;
             case MainWindow.ITERATIONS_PLUS_RE_DIVIDE_IM:
-                out_color_algorithm = new EscapeTimePlusReDivideIm();
+                out_color_algorithm = new EscapeTimePlusReDivideIm(getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm));
                 break;
             case MainWindow.ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM:
-                out_color_algorithm = new EscapeTimePlusRePlusImPlusReDivideIm();
+                out_color_algorithm = new EscapeTimePlusRePlusImPlusReDivideIm(getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm));
                 break;
             case MainWindow.BIOMORPH:
-                if (!smoothing) {
-                    out_color_algorithm = new Biomorphs(bailout);
-                } else {
-                    out_color_algorithm = new SmoothBiomorphs(log_bailout_squared, bailout, escaping_smooth_algorithm);
-                }
+                out_color_algorithm = new Biomorphs(bailout, getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm));
                 break;
             case MainWindow.COLOR_DECOMPOSITION:
                 out_color_algorithm = new ColorDecomposition();
                 break;
             case MainWindow.ESCAPE_TIME_COLOR_DECOMPOSITION:
-                out_color_algorithm = new EscapeTimeColorDecomposition();
+                out_color_algorithm = new EscapeTimeColorDecomposition(getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm));
                 break;
             case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER:
-                out_color_algorithm = new EscapeTimeGaussianInteger();
+                out_color_algorithm = new EscapeTimeGaussianInteger(getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm));
                 break;
             case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER2:
-                out_color_algorithm = new EscapeTimeGaussianInteger2();
+                out_color_algorithm = new EscapeTimeGaussianInteger2(getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm));
                 break;
             case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER3:
-                out_color_algorithm = new EscapeTimeGaussianInteger3();
+                out_color_algorithm = new EscapeTimeGaussianInteger3(getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm));
                 break;
             case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER4:
-                out_color_algorithm = new EscapeTimeGaussianInteger4();
+                out_color_algorithm = new EscapeTimeGaussianInteger4(getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm));
                 break;
             case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER5:
-                out_color_algorithm = new EscapeTimeGaussianInteger5();
+                out_color_algorithm = new EscapeTimeGaussianInteger5(getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm));
                 break;
             case MainWindow.ESCAPE_TIME_ALGORITHM:
-                out_color_algorithm = new EscapeTimeAlgorithm1(2);
+                out_color_algorithm = new EscapeTimeAlgorithm1(2, getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm));
                 break;
             case MainWindow.ESCAPE_TIME_ALGORITHM2:
-                out_color_algorithm = new EscapeTimeAlgorithm2();
+                out_color_algorithm = new EscapeTimeAlgorithm2(getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm));
                 break;
             case MainWindow.ESCAPE_TIME_ESCAPE_RADIUS:
-                out_color_algorithm = new EscapeTimeEscapeRadius(log_bailout_squared);
+                out_color_algorithm = new EscapeTimeEscapeRadius(log_bailout_squared, getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm));
                 break;
             case MainWindow.ESCAPE_TIME_GRID:
-                if (!smoothing) {
-                    out_color_algorithm = new EscapeTimeGrid(log_bailout_squared);
-                } else {
-                    out_color_algorithm = new SmoothEscapeTimeGrid(bailout, log_bailout_squared, escaping_smooth_algorithm);
-                }
+                out_color_algorithm = new EscapeTimeGrid(log_bailout_squared, getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm), false);
                 break;
             case MainWindow.BANDED:
                 out_color_algorithm = new Banded();
                 break;
             case MainWindow.ESCAPE_TIME_FIELD_LINES:
-                if (!smoothing) {
-                    out_color_algorithm = new EscapeTimeFieldLines(log_bailout_squared);
-                } else {
-                    out_color_algorithm = new SmoothEscapeTimeFieldLines(bailout, log_bailout_squared, escaping_smooth_algorithm);
-                }
+                out_color_algorithm = new EscapeTimeFieldLines(log_bailout_squared, getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm));
                 break;
             case MainWindow.ESCAPE_TIME_FIELD_LINES2:
-                if (!smoothing) {
-                    out_color_algorithm = new EscapeTimeFieldLines2(log_bailout_squared);
-                } else {
-                    out_color_algorithm = new SmoothEscapeTimeFieldLines2(bailout, log_bailout_squared, escaping_smooth_algorithm);
-                }
+                out_color_algorithm = new EscapeTimeFieldLines2(log_bailout_squared, getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm));
                 break;
             case MainWindow.USER_OUTCOLORING_ALGORITHM:
                 if (user_out_coloring_algorithm == 0) {
@@ -3850,21 +3830,10 @@ public abstract class Fractal {
                 }
                 break;
             case ESCAPE_TIME_SQUARES:
-                OutColorAlgorithm wrappedAlgorithm;
-                if (!smoothing) {
-                    wrappedAlgorithm = new EscapeTime();
-                } else {
-                    wrappedAlgorithm = new SmoothEscapeTime(bailout, log_bailout_squared, escaping_smooth_algorithm);
-                }
-                out_color_algorithm = new EscapeTimeSquares(6, wrappedAlgorithm);
+                out_color_algorithm = new EscapeTimeSquares(6, getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm));
                 break;
             case ESCAPE_TIME_SQUARES2:
-                if (!smoothing) {
-                    wrappedAlgorithm = new EscapeTime();
-                } else {
-                    wrappedAlgorithm = new SmoothEscapeTime(bailout, log_bailout_squared, escaping_smooth_algorithm);
-                }
-                out_color_algorithm = new EscapeTimeSquares2(6, wrappedAlgorithm);
+                out_color_algorithm = new EscapeTimeSquares2(6, getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm));
                 break;
 
         }

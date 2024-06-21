@@ -200,44 +200,42 @@ public class Kleinian extends FractalWithoutConstant {
                 break;
             case MainWindow.BINARY_DECOMPOSITION:
                 if (smoothing) {
-                    out_color_algorithm = new SmoothBinaryDecompositionKleinian(u);
+                    out_color_algorithm = new BinaryDecomposition(new SmoothEscapeTimeKleinian(u));
                 }
                 break;
             case MainWindow.BINARY_DECOMPOSITION2:
                 if (smoothing) {
-                    out_color_algorithm = new SmoothBinaryDecomposition2Kleinian(u);
+                    out_color_algorithm = new BinaryDecomposition2(new SmoothEscapeTimeKleinian(u));
                 }
                 break;
             case MainWindow.BIOMORPH:
                 if (smoothing) {
-                    out_color_algorithm = new SmoothBiomorphsKleinian(u, bailout);
+                    out_color_algorithm = new Biomorphs(bailout, new SmoothEscapeTimeKleinian(u));
                 }
                 break;
             case MainWindow.ESCAPE_TIME_GRID:
                 if (smoothing) {
-                    out_color_algorithm = new SmoothEscapeTimeGridKleinian(u, log_bailout_squared);
+                    out_color_algorithm = new EscapeTimeGrid(log_bailout_squared, new SmoothEscapeTimeKleinian(u), false);
                 }
                 break;
             case MainWindow.ESCAPE_TIME_FIELD_LINES:
                 if (smoothing) {
-                    out_color_algorithm = new SmoothEscapeTimeFieldLinesKleinian(u, log_bailout_squared);
+                    out_color_algorithm = new EscapeTimeFieldLines(log_bailout_squared, new SmoothEscapeTimeKleinian(u));
                 }
                 break;
             case MainWindow.ESCAPE_TIME_FIELD_LINES2:
                 if (smoothing) {
-                    out_color_algorithm = new SmoothEscapeTimeFieldLines2Kleinian(u, log_bailout_squared);
+                    out_color_algorithm = new EscapeTimeFieldLines2(log_bailout_squared, new SmoothEscapeTimeKleinian(u));
                 }
                 break;
             case ESCAPE_TIME_SQUARES:
                 if (smoothing) {
-                    OutColorAlgorithm wrappedAlgorithm = new SmoothEscapeTimeKleinian(u);
-                    out_color_algorithm = new EscapeTimeSquares(5, wrappedAlgorithm);
+                    out_color_algorithm = new EscapeTimeSquares(5, new SmoothEscapeTimeKleinian(u));
                 }
                 break;
             case ESCAPE_TIME_SQUARES2:
                 if (smoothing) {
-                    OutColorAlgorithm wrappedAlgorithm = new SmoothEscapeTimeKleinian(u);
-                    out_color_algorithm = new EscapeTimeSquares2(5, wrappedAlgorithm);
+                    out_color_algorithm = new EscapeTimeSquares2(5, new SmoothEscapeTimeKleinian(u));
                 }
                 break;
 

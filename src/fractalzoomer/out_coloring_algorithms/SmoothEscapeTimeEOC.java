@@ -34,6 +34,7 @@ public class SmoothEscapeTimeEOC extends SmoothEscapeTime {
         this.log_convergent_bailout = log_convergent_bailout;
         this.algorithm2 = algorithm2;
         OutUsingIncrement = false;
+        smooth = true;
 
     }
 
@@ -118,10 +119,7 @@ public class SmoothEscapeTimeEOC extends SmoothEscapeTime {
 
         double a = Math.pow(test1, 1 / p);
         double div = a - Math.pow(test2, 1 / p);
-        if (div != 0)
-            return 1 - (a - bailout) / div;
-
-        return 0;
+        return 1 - (a - bailout) / div;
 
     }
 }

@@ -34,6 +34,7 @@ public class SmoothEscapeTimeRootFindingMethod extends OutColorAlgorithm {
         this.log_convergent_bailout = log_convergent_bailout;
         this.algorithm = algorithm;
         OutUsingIncrement = false;
+        smooth = true;
     }
 
     @Override

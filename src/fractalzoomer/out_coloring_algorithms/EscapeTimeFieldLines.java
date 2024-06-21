@@ -23,16 +23,17 @@ import fractalzoomer.core.Complex;
  * @author hrkalona2
  */
 public class EscapeTimeFieldLines extends OutColorAlgorithm {
-
+    protected OutColorAlgorithm EscapeTimeAlg;
     protected double log_bailout_squared;
     protected double pi2;
 
-    public EscapeTimeFieldLines(double log_bailout_squared) {
+    public EscapeTimeFieldLines(double log_bailout_squared, OutColorAlgorithm EscapeTimeAlg) {
 
         super();
         this.log_bailout_squared = log_bailout_squared;
         pi2 = Math.PI * 2;
         OutUsingIncrement = true;
+        this.EscapeTimeAlg = EscapeTimeAlg;
 
     }
 
@@ -45,8 +46,10 @@ public class EscapeTimeFieldLines extends OutColorAlgorithm {
         double fz = Math.pow(0.5, -fy);  // make wider on the outside
 
         boolean line = Math.abs(fx) > lineWidth * fz;
+
+        double result = EscapeTimeAlg.getResult(object);
                 
-        return line ? (int)object[0] : -((int)object[0] + INCREMENT);
+        return line ? result : -(result + INCREMENT);
 
     }
 }

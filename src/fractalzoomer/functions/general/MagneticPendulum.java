@@ -231,19 +231,19 @@ public class MagneticPendulum extends FractalWithoutConstant {
                 out_color_algorithm = new EscapeTimeMagneticPendulum();
                 break;
             case MainWindow.BINARY_DECOMPOSITION:
-                out_color_algorithm = new BinaryDecompositionMagneticPendulum();
+                out_color_algorithm = new BinaryDecomposition(new EscapeTimeMagneticPendulum());
                 break;
             case MainWindow.BINARY_DECOMPOSITION2:
-                out_color_algorithm = new BinaryDecomposition2MagneticPendulum();
+                out_color_algorithm = new BinaryDecomposition2(new EscapeTimeMagneticPendulum());
                 break;
             case MainWindow.COLOR_DECOMPOSITION:
                 out_color_algorithm = new ColorDecompositionMagneticPendulum(magnets);
                 break;
             case MainWindow.ESCAPE_TIME_COLOR_DECOMPOSITION:
-                out_color_algorithm = new EscapeTimeColorDecompositionMagneticPendulum(magnets);
+                out_color_algorithm = new EscapeTimeColorDecompositionMagneticPendulum(magnets, new EscapeTimeMagneticPendulum());
                 break;
             case MainWindow.ESCAPE_TIME_ALGORITHM:
-                out_color_algorithm = new EscapeTimeAlgorithm1(3);
+                out_color_algorithm = new EscapeTimeAlgorithm1(3, new EscapeTimeMagneticPendulum());
                 break;
             case MainWindow.USER_OUTCOLORING_ALGORITHM:
                 if (user_out_coloring_algorithm == 0) {
@@ -253,12 +253,10 @@ public class MagneticPendulum extends FractalWithoutConstant {
                 }
                 break;
             case ESCAPE_TIME_SQUARES:
-                OutColorAlgorithm wrappedAlgorithm = new EscapeTimeMagneticPendulum();;
-                out_color_algorithm = new EscapeTimeSquares(7, wrappedAlgorithm);
+                out_color_algorithm = new EscapeTimeSquares(7, new EscapeTimeMagneticPendulum());
                 break;
             case ESCAPE_TIME_SQUARES2:
-                wrappedAlgorithm = new EscapeTimeMagneticPendulum();;
-                out_color_algorithm = new EscapeTimeSquares2(7, wrappedAlgorithm);
+                out_color_algorithm = new EscapeTimeSquares2(7, new EscapeTimeMagneticPendulum());
                 break;
 
         }
