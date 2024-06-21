@@ -46,7 +46,7 @@ public class AtomDomain extends GenericStatistic {
                 normImpl = new NormInfinity();
                 break;
             case 3:
-                normImpl = new NormP(atomNorm);
+                normImpl = new NormN(atomNorm);
                 break;
         }
     }

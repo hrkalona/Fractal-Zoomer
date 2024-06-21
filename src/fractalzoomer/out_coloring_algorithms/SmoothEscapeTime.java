@@ -74,7 +74,7 @@ public class SmoothEscapeTime extends OutColorAlgorithm {
 
     }
 
-    public static double getSmoothing1(Object[] object, double log_znnormsqr, double log_bailout_squared) {
+    private static double getSmoothing1(Object[] object, double log_znnormsqr, double log_bailout_squared) {
 
         double temp = ((Complex)object[2]).norm_squared();
 
@@ -87,7 +87,7 @@ public class SmoothEscapeTime extends OutColorAlgorithm {
 
     }
 
-    public static double getSmoothing2(Object[] object, double log_znnormsqr, double log_bailout_squared, boolean usePower, double log_power) {
+    private static double getSmoothing2(Object[] object, double log_znnormsqr, double log_bailout_squared, boolean usePower, double log_power) {
 
         double p;
         if(usePower) {
@@ -108,7 +108,7 @@ public class SmoothEscapeTime extends OutColorAlgorithm {
 
     }
 
-    public static double getSmoothing3(Object[] object, double bailout) {
+    private static double getSmoothing3(Object[] object, double bailout) {
         double p = 2;
 
         double test1 = ((Complex)object[1]).norm_squared();

@@ -20,6 +20,7 @@ package fractalzoomer.bailout_conditions;
 import fractalzoomer.core.*;
 import fractalzoomer.core.mpfr.MpfrBigNum;
 import fractalzoomer.core.mpir.MpirBigNum;
+import fractalzoomer.core.norms.NormInfinity;
 import org.apfloat.Apfloat;
 import org.apfloat.ApfloatMath;
 
@@ -37,6 +38,8 @@ public class SquareBailoutCondition extends BailoutCondition {
     public SquareBailoutCondition(double bound) {
         
         super(bound);
+
+        normImpl = new NormInfinity();
 
         if(TaskRender.PERTURBATION_THEORY || TaskRender.HIGH_PRECISION_CALCULATION) {
             if (TaskRender.allocateMPFR()) {

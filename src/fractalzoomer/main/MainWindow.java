@@ -13420,7 +13420,7 @@ public class MainWindow extends JFrame implements Constants {
                 if(diff < 7) {
                     s.pps.ndes.differencesMethod = diff;
                 }
-                else {
+                else {//Todo investigate it
                     JOptionPane.showMessageDialog(ptr, "Analytic Differencing is not supported.", "Warning!", JOptionPane.WARNING_MESSAGE);
                     s.pps.ndes.differencesMethod = 0;
                 }
@@ -13487,8 +13487,9 @@ public class MainWindow extends JFrame implements Constants {
 
             s.ps.color_intensity = 1 / iterDivD;
             s.ps.color_cycling_location = (int) (coffset * iterDivD);
-            s.fns.converging_smooth_algorithm = 0;
-            s.fns.convergent_bailout = 1e-6;
+            s.fns.convergent_bailout = 1E-12;
+            s.fns.cbs.convergent_bailout_test_algorithm = CONVERGENT_BAILOUT_CONDITION_KF;
+
 
             s.applyStaticSettings();
 

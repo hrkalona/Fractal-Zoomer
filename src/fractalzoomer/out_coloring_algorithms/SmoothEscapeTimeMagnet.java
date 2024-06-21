@@ -66,14 +66,14 @@ public class SmoothEscapeTimeMagnet extends SmoothEscapeTime {
 
     }
 
-    public static double getConvSmoothing1(Object[] object, double log_convergent_bailout) {
+    private static double getConvSmoothing1(Object[] object, double log_convergent_bailout) {
 
         double temp = Math.log(((Complex)object[4]).distance_squared(1));
         return (log_convergent_bailout - temp) / (Math.log((double)object[3]) - temp);
 
     }
 
-    public static double getConvSmoothing2(Object[] object, double log_convergent_bailout) {
+    private static double getConvSmoothing2(Object[] object, double log_convergent_bailout) {
 
         double temp4 = Math.log(((double)object[3]));
 
@@ -83,7 +83,7 @@ public class SmoothEscapeTimeMagnet extends SmoothEscapeTime {
 
     }
 
-    public static double getEscSmoothing1(Object[] object, double log_znnormsqr, double log_bailout_squared) {
+    private static double getEscSmoothing1(Object[] object, double log_znnormsqr, double log_bailout_squared) {
 
         double temp = ((Complex)object[4]).norm_squared();
         if(temp == 0) {
@@ -94,7 +94,7 @@ public class SmoothEscapeTimeMagnet extends SmoothEscapeTime {
 
     }
 
-    public static double getEscSmoothing2(Object[] object, double log_znnormsqr, double log_bailout_squared) {
+    private static double getEscSmoothing2(Object[] object, double log_znnormsqr, double log_bailout_squared) {
 
         double temp = ((Complex)object[4]).norm_squared();
 
@@ -108,7 +108,7 @@ public class SmoothEscapeTimeMagnet extends SmoothEscapeTime {
 
     }
 
-    public static double getEscSmoothing3(Object[] object, double bailout) {
+    private static double getEscSmoothing3(Object[] object, double bailout) {
 
         double p = 2;
 

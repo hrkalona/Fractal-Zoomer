@@ -20,7 +20,7 @@ import fractalzoomer.core.Complex;
 import fractalzoomer.core.blending.Blending;
 import fractalzoomer.core.norms.Norm;
 import fractalzoomer.core.norms.Norm2;
-import fractalzoomer.core.norms.NormP;
+import fractalzoomer.core.norms.NormN;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.DomainColoringSettings;
 import fractalzoomer.main.app_settings.GeneratedPaletteSettings;
@@ -139,7 +139,7 @@ public class CustomDomainColoring extends DomainColoring {
             normImpl = new Norm2();
         }
         else {
-            normImpl = new NormP(ds.normType);
+            normImpl = new NormN(ds.normType);
         }
         
         combineType = ds.combineType;

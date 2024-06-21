@@ -53,7 +53,7 @@ public class DiscreteLagrangianDescriptors extends GenericStatistic {
                 normImpl = new NormInfinity();
                 break;
             case 4:
-                normImpl = new NormP(langNorm);
+                normImpl = new NormN(langNorm);
                 break;
         }
     }

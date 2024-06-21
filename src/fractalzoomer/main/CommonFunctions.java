@@ -1156,6 +1156,11 @@ public class CommonFunctions implements Constants {
                     overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[abs(re(z - 1 - 0i)) + abs(im(z - 1 - 0i)) &#60;= convergent bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
                     overview += tab + "<font color='" + keyword_color + "'>else then</font> Not Escaped<br>";
                 }
+                else if(s.fns.cbs.convergent_bailout_test_algorithm == Constants.CONVERGENT_BAILOUT_CONDITION_KF) {
+                    overview += tab + "Escaping when a complex value almost reaches 1 + 0i (convergence)<br>";
+                    overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[norm(p - 1 - 0i) &#60; convergent bailout and norm(z - 1 - 0i) &#60; norm(p - 1 - 0i)]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
+                    overview += tab + "<font color='" + keyword_color + "'>else then</font> Not Escaped<br>";
+                }
                 else if(s.fns.cbs.convergent_bailout_test_algorithm == Constants.CONVERGENT_BAILOUT_CONDITION_NNORM) {
                     overview += tab + "Escaping when a complex value almost reaches 1 + 0i (convergence)<br>";
                     overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[(abs(re(z - 1 - 0i))^" + s.fns.n_norm + " + abs(im(z - 1 - 0i))^" + s.fns.n_norm + ")^(1/" + s.fns.n_norm + ") &#60;= convergent bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
@@ -1219,6 +1224,11 @@ public class CommonFunctions implements Constants {
                 else if(s.fns.cbs.convergent_bailout_test_algorithm == Constants.CONVERGENT_BAILOUT_CONDITION_RHOMBUS) {
                     overview += tab + "Escaping when two consecutive complex values are almost the same (convergence)<br>";
                     overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[abs(re(z - p)) + abs(im(z - p)) &#60;= convergent bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
+                    overview += tab + "<font color='" + keyword_color + "'>else then</font> Not Escaped<br>";
+                }
+                else if(s.fns.cbs.convergent_bailout_test_algorithm == Constants.CONVERGENT_BAILOUT_CONDITION_KF) {
+                    overview += tab + "Escaping when two consecutive complex values are almost the same (convergence)<br>";
+                    overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[norm(p - pp) &#60; convergent bailout and norm(z - p) &#60; norm(p - pp)]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
                     overview += tab + "<font color='" + keyword_color + "'>else then</font> Not Escaped<br>";
                 }
                 else if(s.fns.cbs.convergent_bailout_test_algorithm == Constants.CONVERGENT_BAILOUT_CONDITION_NNORM) {
@@ -1290,6 +1300,11 @@ public class CommonFunctions implements Constants {
             else if(s.fns.cbs.convergent_bailout_test_algorithm == Constants.CONVERGENT_BAILOUT_CONDITION_NNORM) {
                 overview += tab + "Escaping when two consecutive complex values are almost the same (convergence)<br>";
                 overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[(abs(re(z - p))^" + s.fns.n_norm + " + abs(im(z - p))^" + s.fns.n_norm + ")^(1/" + s.fns.n_norm + ") &#60;= convergent bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
+                overview += tab + "<font color='" + keyword_color + "'>else then</font> Not Escaped<br>";
+            }
+            else if(s.fns.cbs.convergent_bailout_test_algorithm == Constants.CONVERGENT_BAILOUT_CONDITION_KF) {
+                overview += tab + "Escaping when two consecutive complex values are almost the same (convergence)<br>";
+                overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[norm(p - pp) &#60; convergent bailout and norm(z - p) &#60; norm(p - pp)]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
                 overview += tab + "<font color='" + keyword_color + "'>else then</font> Not Escaped<br>";
             }
             else if (s.fns.cbs.convergent_bailout_test_algorithm ==  Constants.CONVERGENT_BAILOUT_CONDITION_USER) {

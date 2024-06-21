@@ -19,7 +19,7 @@ package fractalzoomer.fractal_options.orbit_traps;
 import fractalzoomer.core.Complex;
 import fractalzoomer.core.norms.Norm;
 import fractalzoomer.core.norms.Norm2;
-import fractalzoomer.core.norms.NormP;
+import fractalzoomer.core.norms.NormN;
 
 import static fractalzoomer.main.Constants.*;
 
@@ -37,7 +37,7 @@ public class StalksNNormOrbitTrap extends OrbitTrap {
     public StalksNNormOrbitTrap(int checkType, double pointRe, double pointIm, double trapLength, double trapWidth, double n_norm, boolean countTrapIterations, int lastXItems) {
         
         super(checkType, pointRe, pointIm, trapLength, trapWidth, countTrapIterations, lastXItems);
-        normImpl = new NormP(n_norm);
+        normImpl = new NormN(n_norm);
         normImpl2 = new Norm2();
         
     }

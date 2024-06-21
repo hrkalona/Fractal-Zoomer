@@ -21,6 +21,7 @@ import fractalzoomer.core.*;
 import fractalzoomer.core.mpfr.LibMpfr;
 import fractalzoomer.core.mpfr.MpfrBigNum;
 import fractalzoomer.core.mpir.MpirBigNum;
+import fractalzoomer.core.norms.NormN;
 import org.apfloat.Apcomplex;
 import org.apfloat.Apfloat;
 
@@ -47,6 +48,8 @@ public class NNormBailoutCondition extends BailoutCondition {
         super(bound);
         this.n_norm = n_norm;
         n_norm_reciprocal = 1 / n_norm;
+
+        normImpl = new NormN(n_norm);
 
         if(TaskRender.PERTURBATION_THEORY || TaskRender.HIGH_PRECISION_CALCULATION) {
             ddn_norm = new MyApfloat(n_norm);

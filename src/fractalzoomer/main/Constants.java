@@ -31,7 +31,7 @@ public interface Constants {
     public static final int TOTAL_INCOLORING_ALGORITHMS = 12;
     public static final int TOTAL_OUTCOLORING_ALGORITHMS = 27;
     public static final int TOTAL_BAILOUT_CONDITIONS = 13;
-    public static final int TOTAL_CONVERGENT_BAILOUT_CONDITIONS = 6;
+    public static final int TOTAL_CONVERGENT_BAILOUT_CONDITIONS = 7;
     public static final int TOTAL_PLANES = 67;
     public static final int TOTAL_FUNCTIONS = 514;
     public static final int TOTAL_FILTERS = 35;
@@ -917,6 +917,7 @@ public interface Constants {
     public static final int CONVERGENT_BAILOUT_CONDITION_NNORM = 3;
     public static final int CONVERGENT_BAILOUT_CONDITION_USER = 4;
     public static final int CONVERGENT_BAILOUT_CONDITION_NO_BAILOUT = 5;
+    public static final int CONVERGENT_BAILOUT_CONDITION_KF = 6;
     /**
      * ********************
      */

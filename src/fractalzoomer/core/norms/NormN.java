@@ -2,29 +2,33 @@ package fractalzoomer.core.norms;
 
 import fractalzoomer.core.Complex;
 
-public class Norm2 extends Norm {
+public class NormN extends Norm {
+    private double n;
+    private double n_reciprocal;
 
-    public Norm2() {
+    public NormN(double n) {
         super();
+        this.n = n;
+        n_reciprocal = 1 / n;
     }
 
     @Override
     public double getExp() {
-        return 2;
+        return n;
     }
 
     @Override
     public double getRootExp() {
-        return 0.5;
+        return n_reciprocal;
     }
 
     @Override
     public double computeWithRoot(Complex z) {
-        return z.norm();
+        return z.nnorm(n, n_reciprocal);
     }
 
     @Override
     public double computeWithoutRoot(Complex z) {
-        return z.norm_squared();
+        return z.nnorm_without_root(n);
     }
 }

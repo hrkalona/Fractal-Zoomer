@@ -66,14 +66,14 @@ public class SmoothEscapeTimeEOC extends SmoothEscapeTime {
 
     }
 
-    public static double getConvSmoothing1(Object[] object, double log_convergent_bailout) {
+    private static double getConvSmoothing1(Object[] object, double log_convergent_bailout) {
 
         double temp = Math.log(((Complex)object[2]).distance_squared((Complex)object[3]));
         return  (log_convergent_bailout - temp) / (Math.log(((Complex)object[1]).distance_squared((Complex)object[2])) - temp);
 
     }
 
-    public static double getConvSmoothing2(Object[] object, double log_convergent_bailout) {
+    private static double getConvSmoothing2(Object[] object, double log_convergent_bailout) {
 
         double temp4 = Math.log(((Complex)object[1]).distance_squared((Complex)object[2]) + 1e-33);
 
@@ -85,7 +85,7 @@ public class SmoothEscapeTimeEOC extends SmoothEscapeTime {
 
     }
 
-    public static double getEscSmoothing1(Object[] object, double log_znnormsqr, double log_bailout_squared) {
+    private static double getEscSmoothing1(Object[] object, double log_znnormsqr, double log_bailout_squared) {
 
         double temp = ((Complex)object[2]).norm_squared();
         if(temp == 0) {
@@ -96,7 +96,7 @@ public class SmoothEscapeTimeEOC extends SmoothEscapeTime {
 
     }
 
-    public static double getEscSmoothing2(Object[] object, double log_znnormsqr, double log_bailout_squared) {
+    private static double getEscSmoothing2(Object[] object, double log_znnormsqr, double log_bailout_squared) {
 
         double temp = ((Complex)object[2]).norm_squared();
 
@@ -110,7 +110,7 @@ public class SmoothEscapeTimeEOC extends SmoothEscapeTime {
 
     }
 
-    public static double getEscSmoothing3(Object[] object, double bailout) {
+    private static double getEscSmoothing3(Object[] object, double bailout) {
 
         double p = 2;
 

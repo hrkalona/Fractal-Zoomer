@@ -20,6 +20,8 @@ package fractalzoomer.bailout_conditions;
 import fractalzoomer.core.*;
 import fractalzoomer.core.mpfr.MpfrBigNum;
 import fractalzoomer.core.mpir.MpirBigNum;
+import fractalzoomer.core.norms.Norm;
+import fractalzoomer.core.norms.Norm2;
 import org.apfloat.Apfloat;
 
 /**
@@ -33,8 +35,8 @@ public abstract class BailoutCondition {
   protected BigIntNum binbound;
   protected DoubleDouble ddcbound;
   protected int id;
-
-    protected boolean useThreads;
+  protected Norm normImpl;
+  protected boolean useThreads;
 
     public void setUseThreads(boolean useThreads) {
         this.useThreads = useThreads;
@@ -49,6 +51,8 @@ public abstract class BailoutCondition {
             bnbound = BigNum.create(bound);
             binbound = new BigIntNum(bound);
         }
+
+        normImpl = new Norm2();
         
     }
     

@@ -14,6 +14,11 @@ public class NormInfinity extends Norm {
     }
 
     @Override
+    public double getRootExp() {
+        return 0;
+    }
+
+    @Override
     public double computeWithoutRoot(Complex z) {
         return Math.max(z.getAbsRe(), z.getAbsIm());
     }

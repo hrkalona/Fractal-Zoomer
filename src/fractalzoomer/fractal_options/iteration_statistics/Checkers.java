@@ -54,7 +54,7 @@ public class Checkers extends GenericStatistic {
                 normImpl = new NormInfinity();
                 break;
             case 3:
-                normImpl = new NormP(normValue);
+                normImpl = new NormN(normValue);
                 break;
         }
     }

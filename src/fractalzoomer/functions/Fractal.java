@@ -3524,6 +3524,9 @@ public abstract class Fractal {
             case MainWindow.CONVERGENT_BAILOUT_CONDITION_USER:
                 convergent_bailout_algorithm = new UserConvergentBailoutCondition(convergent_bailout, convergent_bailout_test_user_formula, convergent_bailout_test_user_formula2, convergent_bailout_test_comparison, max_iterations, xCenter, yCenter, size, plane_transform_center, globalVars);
                 break;
+            case MainWindow.CONVERGENT_BAILOUT_CONDITION_KF:
+                convergent_bailout_algorithm = new KFDistanceBailoutCondition(convergent_bailout);
+                break;
 
         }
 

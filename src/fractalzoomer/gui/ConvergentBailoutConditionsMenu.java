@@ -42,6 +42,7 @@ public class ConvergentBailoutConditionsMenu extends MyMenu {
         convergentBailoutConditionNames[MainWindow.CONVERGENT_BAILOUT_CONDITION_NNORM] = "Distance N-Norm";
         convergentBailoutConditionNames[MainWindow.CONVERGENT_BAILOUT_CONDITION_USER] = "User Convergent Bailout Condition";
         convergentBailoutConditionNames[MainWindow.CONVERGENT_BAILOUT_CONDITION_NO_BAILOUT] = "No Condition";
+        convergentBailoutConditionNames[MainWindow.CONVERGENT_BAILOUT_CONDITION_KF] = "KF Condition";
     }
 
     public ConvergentBailoutConditionsMenu(MainWindow ptr2, String name, int bailout_test_algorithm) {
@@ -80,6 +81,12 @@ public class ConvergentBailoutConditionsMenu extends MyMenu {
         convergent_bailout_conditions[MainWindow.CONVERGENT_BAILOUT_CONDITION_NNORM].addActionListener(e -> ptr.setConvergentBailoutTest(MainWindow.CONVERGENT_BAILOUT_CONDITION_NNORM));
         add(convergent_bailout_conditions[MainWindow.CONVERGENT_BAILOUT_CONDITION_NNORM]);
         bailout_tests_group.add(convergent_bailout_conditions[MainWindow.CONVERGENT_BAILOUT_CONDITION_NNORM]);
+
+        convergent_bailout_conditions[MainWindow.CONVERGENT_BAILOUT_CONDITION_KF] = new JRadioButtonMenuItem(convergentBailoutConditionNames[MainWindow.CONVERGENT_BAILOUT_CONDITION_KF]);
+        convergent_bailout_conditions[MainWindow.CONVERGENT_BAILOUT_CONDITION_KF].setToolTipText("The convergent bailout condition from Kalles Fraktaler.");
+        convergent_bailout_conditions[MainWindow.CONVERGENT_BAILOUT_CONDITION_KF].addActionListener(e -> ptr.setConvergentBailoutTest(MainWindow.CONVERGENT_BAILOUT_CONDITION_KF));
+        add(convergent_bailout_conditions[MainWindow.CONVERGENT_BAILOUT_CONDITION_KF]);
+        bailout_tests_group.add(convergent_bailout_conditions[MainWindow.CONVERGENT_BAILOUT_CONDITION_KF]);
 
 
         convergent_bailout_conditions[MainWindow.CONVERGENT_BAILOUT_CONDITION_NO_BAILOUT] = new JRadioButtonMenuItem(convergentBailoutConditionNames[MainWindow.CONVERGENT_BAILOUT_CONDITION_NO_BAILOUT]);

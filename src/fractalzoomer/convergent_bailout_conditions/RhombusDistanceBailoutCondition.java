@@ -3,6 +3,7 @@ package fractalzoomer.convergent_bailout_conditions;
 import fractalzoomer.core.*;
 import fractalzoomer.core.mpfr.MpfrBigNum;
 import fractalzoomer.core.mpir.MpirBigNum;
+import fractalzoomer.core.norms.Norm1;
 import org.apfloat.Apfloat;
 
 public class RhombusDistanceBailoutCondition extends ConvergentBailoutCondition {
@@ -13,6 +14,9 @@ public class RhombusDistanceBailoutCondition extends ConvergentBailoutCondition 
     private MpirBigNum temp2p;
     public RhombusDistanceBailoutCondition(double convergent_bailout) {
         super(convergent_bailout);
+
+        normImpl = new Norm1();
+
         if(TaskRender.PERTURBATION_THEORY || TaskRender.HIGH_PRECISION_CALCULATION) {
             if (TaskRender.allocateMPFR()) {
                 temp1 = new MpfrBigNum();

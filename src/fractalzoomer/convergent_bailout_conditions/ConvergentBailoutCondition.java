@@ -20,6 +20,8 @@ package fractalzoomer.convergent_bailout_conditions;
 import fractalzoomer.core.*;
 import fractalzoomer.core.mpfr.MpfrBigNum;
 import fractalzoomer.core.mpir.MpirBigNum;
+import fractalzoomer.core.norms.Norm;
+import fractalzoomer.core.norms.Norm2;
 import org.apfloat.Apfloat;
 
 /**
@@ -33,6 +35,7 @@ public abstract class ConvergentBailoutCondition {
   protected DoubleDouble ddcconvergent_bailout;
   protected double distance;
   protected boolean calculateDistance;
+  protected Norm normImpl;
 
     protected ConvergentBailoutCondition(double convergent_bailout) {
         
@@ -45,6 +48,7 @@ public abstract class ConvergentBailoutCondition {
         }
 
         calculateDistance = true;
+        normImpl = new Norm2();
         
     }
 

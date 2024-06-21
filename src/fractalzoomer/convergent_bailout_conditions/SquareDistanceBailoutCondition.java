@@ -3,6 +3,7 @@ package fractalzoomer.convergent_bailout_conditions;
 import fractalzoomer.core.*;
 import fractalzoomer.core.mpfr.MpfrBigNum;
 import fractalzoomer.core.mpir.MpirBigNum;
+import fractalzoomer.core.norms.NormInfinity;
 import org.apfloat.Apfloat;
 import org.apfloat.ApfloatMath;
 
@@ -13,6 +14,8 @@ public class SquareDistanceBailoutCondition extends ConvergentBailoutCondition {
     private MpirBigNum temp2p;
     public SquareDistanceBailoutCondition(double convergent_bailout) {
         super(convergent_bailout);
+
+        normImpl = new NormInfinity();
 
         if(TaskRender.PERTURBATION_THEORY || TaskRender.HIGH_PRECISION_CALCULATION) {
             if (TaskRender.allocateMPFR()) {
