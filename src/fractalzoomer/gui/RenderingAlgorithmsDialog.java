@@ -500,14 +500,14 @@ public class RenderingAlgorithmsDialog extends JDialog {
 //            CircularBruteForceRender.clearFastJulia();
 //            }
 
+            dispose();
+
             if(ptra2 instanceof MainWindow) {
                 ((MainWindow)ptra2).boundaryTracingOptionsChanged(greedy_algorithm_opt.isSelected(), algorithm, brute_force_alg_opt.getSelectedIndex());
             }
             else {
                 ((ImageExpanderWindow)ptra2).boundaryTracingOptionsChanged(greedy_algorithm_opt.isSelected(), algorithm,  brute_force_alg_opt.getSelectedIndex());
             }
-
-            dispose();
 
         });
 

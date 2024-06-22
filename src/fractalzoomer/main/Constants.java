@@ -27,7 +27,7 @@ import java.awt.*;
 public interface Constants {
     public static final int VERSION = 1091;
     public static final boolean beta = false;
-    public static final int TOTAL_PALETTES = 45;
+    public static final int TOTAL_PALETTES = 46;
     public static final int TOTAL_INCOLORING_ALGORITHMS = 12;
     public static final int TOTAL_OUTCOLORING_ALGORITHMS = 27;
     public static final int TOTAL_BAILOUT_CONDITIONS = 13;

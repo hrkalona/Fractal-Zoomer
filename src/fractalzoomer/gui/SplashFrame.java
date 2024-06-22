@@ -16,6 +16,8 @@
  */
 package fractalzoomer.gui;
 
+import fractalzoomer.app_updater.AppUpdater;
+import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
 
 import javax.swing.*;
@@ -33,33 +35,40 @@ public class SplashFrame extends JFrame {
 
     public SplashFrame(int version) {
 
+        BufferedImage image = convertToBufferedImage(MainWindow.getIcon("splash.png").getImage());
+
         setIconImage(MainWindow.getIcon("mandel2.png").getImage());
 
-        setSize(400, 260);
+        setSize(image.getWidth(), image.getHeight());
         setLocationRelativeTo(null);
         setUndecorated(true);
         setBackground(new Color(0, 0, 0, 0));
         setLayout(new BorderLayout());
-        
-        BufferedImage image = convertToBufferedImage(MainWindow.getIcon("splash.png").getImage());
-    
-        SplashLabel l1 = new SplashLabel(400, 260);
 
-        add(l1, BorderLayout.PAGE_START); 
-        
-        thread = new Thread(new SplashTask(image, l1, version, 155));
+
+        SplashLabel l1 = new SplashLabel(image.getWidth(), image.getHeight());
+        l1.setImage(image);
+
+        if(Constants.beta) {
+            l1.drawText("version " + AppUpdater.convertVersion(version) + " beta", image.getWidth() - 115, 50, new Color(27, 32, 99), 13);
+        }
+        else {
+            l1.drawText("version " + AppUpdater.convertVersion(version), image.getWidth() - 90, 50, new Color(27, 32, 99), 13);
+        }
+        l1.drawText("Fractal Zoomer", image.getWidth() - 180, 30, Color.BLACK, 26);
+        l1.repaint();
+
+        add(l1, BorderLayout.PAGE_START);
+
+        thread = new Thread(new SplashTask(this));
         thread.start();
-    }
 
-    @Override
-    public void dispose() {
         try {
             thread.join();
         }
         catch (Exception ex) {}
-        super.dispose();
     }
-    
+
     private BufferedImage convertToBufferedImage(Image image) {
         BufferedImage newImage = new BufferedImage(
             image.getWidth(null), image.getHeight(null),

@@ -43,7 +43,7 @@ public class KaleidoscopePlane extends Plane {
     }
 
     @Override
-    public Complex transform(Complex pixel) {
+    public Complex transform_internal(Complex pixel) {
         
         return pixel.kaleidoscope(center, plane_transform_angle, plane_transform_angle2, plane_transform_radius, plane_transform_sides);
     }

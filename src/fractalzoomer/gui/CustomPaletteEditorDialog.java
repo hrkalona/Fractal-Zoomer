@@ -661,15 +661,15 @@ public class CustomPaletteEditorDialog extends JDialog {
             random_palette_algorithm = combo_box_random_palette_alg.getSelectedIndex();
             pastel = pastel_cb.isSelected();
 
-            ptra2.customPaletteChanged(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2.0) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex(), outcoloring_mode);
-
-            ptra2.setPalette(palette_id, null, outcoloring_mode ? 0 : 1);
-
             if(!isModal()) {
                 ptra2.setEnabled(true);
             }
 
             dispose();
+
+            ptra2.customPaletteChanged(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2.0) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex(), outcoloring_mode);
+
+            ptra2.setPalette(palette_id, null, outcoloring_mode ? 0 : 1);
 
         });
 

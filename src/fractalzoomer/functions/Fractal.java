@@ -3709,7 +3709,7 @@ public abstract class Fractal {
                 plane = new TwirlPlane(plane_transform_center, plane_transform_angle, plane_transform_radius);
                 break;
             case MainWindow.SHEAR_PLANE:
-                plane = new ShearPlane(plane_transform_scales);
+                plane = new ShearPlane(plane_transform_scales, plane_transform_center_hp);
                 break;
             case MainWindow.KALEIDOSCOPE_PLANE:
                 plane = new KaleidoscopePlane(plane_transform_center, plane_transform_angle, plane_transform_angle2, plane_transform_radius, plane_transform_sides);
@@ -5618,7 +5618,7 @@ public abstract class Fractal {
     }
 
     public boolean usesDefaultPlane() {
-        return plane instanceof MuPlane;
+        return plane instanceof MuPlane && !Plane.FLIP_IMAGINARY && !Plane.FLIP_REAL;
     }
 
     public void initializeReferenceDecompressor() {

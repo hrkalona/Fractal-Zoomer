@@ -55,42 +55,42 @@ public class FoldDownPlane extends Plane {
     }
 
     @Override
-    public Complex transform(Complex pixel) {
+    public Complex transform_internal(Complex pixel) {
         
         return pixel.fold_down(center);
 
     }
 
     @Override
-    public BigComplex transform(BigComplex pixel) {
+    public BigComplex transform_internal(BigComplex pixel) {
 
         return pixel.fold_down(ddcenter);
 
     }
 
     @Override
-    public BigNumComplex transform(BigNumComplex pixel) {
+    public BigNumComplex transform_internal(BigNumComplex pixel) {
 
         return pixel.fold_down(bncenter);
 
     }
 
     @Override
-    public MpfrBigNumComplex transform(MpfrBigNumComplex pixel) {
+    public MpfrBigNumComplex transform_internal(MpfrBigNumComplex pixel) {
 
         return pixel.fold_down(mpfrbncenter);
 
     }
 
     @Override
-    public MpirBigNumComplex transform(MpirBigNumComplex pixel) {
+    public MpirBigNumComplex transform_internal(MpirBigNumComplex pixel) {
 
         return pixel.fold_down(mpirbncenter);
 
     }
 
     @Override
-    public DDComplex transform(DDComplex pixel) {
+    public DDComplex transform_internal(DDComplex pixel) {
 
         return pixel.fold_down(ddccenter);
 

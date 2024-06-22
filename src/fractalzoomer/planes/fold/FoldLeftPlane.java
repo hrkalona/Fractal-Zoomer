@@ -55,42 +55,42 @@ public class FoldLeftPlane extends Plane {
     }
 
     @Override
-    public Complex transform(Complex pixel) {
+    public Complex transform_internal(Complex pixel) {
 
         return pixel.fold_left(center);
 
     }
 
     @Override
-    public BigComplex transform(BigComplex pixel) {
+    public BigComplex transform_internal(BigComplex pixel) {
 
         return pixel.fold_left(ddcenter);
 
     }
 
     @Override
-    public BigNumComplex transform(BigNumComplex pixel) {
+    public BigNumComplex transform_internal(BigNumComplex pixel) {
 
         return pixel.fold_left(bncenter);
 
     }
 
     @Override
-    public MpfrBigNumComplex transform(MpfrBigNumComplex pixel) {
+    public MpfrBigNumComplex transform_internal(MpfrBigNumComplex pixel) {
 
         return pixel.fold_left(mpfrbncenter);
 
     }
 
     @Override
-    public MpirBigNumComplex transform(MpirBigNumComplex pixel) {
+    public MpirBigNumComplex transform_internal(MpirBigNumComplex pixel) {
 
         return pixel.fold_left(mpirbncenter);
 
     }
 
     @Override
-    public DDComplex transform(DDComplex pixel) {
+    public DDComplex transform_internal(DDComplex pixel) {
 
         return pixel.fold_left(ddccenter);
 

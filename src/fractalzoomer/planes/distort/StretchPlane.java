@@ -151,7 +151,7 @@ public class StretchPlane extends Plane {
     }
 
     @Override
-    public Complex transform(Complex pixel) {
+    public Complex transform_internal(Complex pixel) {
 
         double x = pixel.getRe();
         double y = pixel.getIm();
@@ -172,7 +172,7 @@ public class StretchPlane extends Plane {
     }
 
     @Override
-    public DDComplex transform(DDComplex pixel) {
+    public DDComplex transform_internal(DDComplex pixel) {
 
         DoubleDouble x = pixel.getRe();
         DoubleDouble y = pixel.getIm();
@@ -193,7 +193,7 @@ public class StretchPlane extends Plane {
     }
 
     @Override
-    public BigComplex transform(BigComplex pixel) {
+    public BigComplex transform_internal(BigComplex pixel) {
 
         Apfloat x = pixel.getRe();
         Apfloat y = pixel.getIm();
@@ -214,7 +214,7 @@ public class StretchPlane extends Plane {
     }
 
     @Override
-    public BigNumComplex transform(BigNumComplex pixel) {
+    public BigNumComplex transform_internal(BigNumComplex pixel) {
 
         BigNum x = pixel.getRe();
         BigNum y = pixel.getIm();
@@ -235,7 +235,7 @@ public class StretchPlane extends Plane {
     }
 
     @Override
-    public BigIntNumComplex transform(BigIntNumComplex pixel) {
+    public BigIntNumComplex transform_internal(BigIntNumComplex pixel) {
 
         BigIntNum x = pixel.getRe();
         BigIntNum y = pixel.getIm();
@@ -256,7 +256,7 @@ public class StretchPlane extends Plane {
     }
 
     @Override
-    public MpfrBigNumComplex transform(MpfrBigNumComplex pixel) {
+    public MpfrBigNumComplex transform_internal(MpfrBigNumComplex pixel) {
 
 
         tempxmpfr.set(pixel.getRe());
@@ -284,7 +284,7 @@ public class StretchPlane extends Plane {
     }
 
     @Override
-    public MpirBigNumComplex transform(MpirBigNumComplex pixel) {
+    public MpirBigNumComplex transform_internal(MpirBigNumComplex pixel) {
 
 
         tempxmpir.set(pixel.getRe());

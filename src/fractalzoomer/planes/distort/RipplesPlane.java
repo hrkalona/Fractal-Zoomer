@@ -39,7 +39,7 @@ public class RipplesPlane extends Plane {
     }
 
     @Override
-    public Complex transform(Complex pixel) {
+    public Complex transform_internal(Complex pixel) {
 
         return pixel.ripples(wavelength, scales, waveType);
 

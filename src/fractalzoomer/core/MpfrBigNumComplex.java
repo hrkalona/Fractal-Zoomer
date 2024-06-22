@@ -1129,6 +1129,25 @@ public class MpfrBigNumComplex extends GenericComplex {
     }
 
     /*
+     *  -Real + Imaginary i
+     */
+    public final MpfrBigNumComplex negate_re() {
+
+        return new MpfrBigNumComplex(re.negate(), new MpfrBigNum(im));
+
+    }
+
+    /*
+     *  z = -Real + Imaginary i
+     */
+    public final MpfrBigNumComplex negate_re_mutable() {
+
+        re.negate(re);
+        return this;
+
+    }
+
+    /*
      *  -z
      */
     @Override

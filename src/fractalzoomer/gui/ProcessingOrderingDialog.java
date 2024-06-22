@@ -269,8 +269,8 @@ public class ProcessingOrderingDialog extends JDialog {
         ok.setFocusable(false);
         ok.addActionListener(e -> {
 
-            ptra2.setProcessingOrder(getProcessingOrder());
             dispose();
+            ptra2.setProcessingOrder(getProcessingOrder());
 
         });
 

@@ -861,6 +861,7 @@ public class CommonFunctions implements Constants {
         } else if (s.fns.plane_type == SHEAR_PLANE) {
             overview += tab + "Scale Real = " + s.fns.plane_transform_scales[0] + "<br>";
             overview += tab + "Scale Imaginary = " + s.fns.plane_transform_scales[1] + "<br>";
+            overview += tab + "Center = " + BigComplex.toString2Pretty(s.fns.plane_transform_center_hp[0], s.fns.plane_transform_center_hp[1]) + "<br>";
         } else if (s.fns.plane_type == SKEW_PLANE) {
             overview += tab + "Angle = " + s.fns.plane_transform_angle + " degrees<br>";
             overview += tab + "Angle2 = " + s.fns.plane_transform_angle2 + " degrees<br>";

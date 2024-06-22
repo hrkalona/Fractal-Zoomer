@@ -216,7 +216,7 @@ public class UserPlaneConditional extends Plane {
     }
     
     @Override
-    public Complex transform(Complex pixel) {
+    public Complex transform_internal(Complex pixel) {
         
         /* LEFT */
         if(parser[0].foundZ()) {

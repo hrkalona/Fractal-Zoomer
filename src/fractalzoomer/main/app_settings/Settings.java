@@ -31,6 +31,7 @@ import fractalzoomer.palettes.CustomPalette;
 import fractalzoomer.palettes.PresetPalette;
 import fractalzoomer.parser.Parser;
 import fractalzoomer.parser.ParserException;
+import fractalzoomer.planes.Plane;
 import fractalzoomer.settings.*;
 import fractalzoomer.utils.ColorAlgorithm;
 import org.apfloat.Apfloat;
@@ -66,6 +67,8 @@ public class Settings implements Constants {
     public Apfloat xJuliaCenter;
     public Apfloat yJuliaCenter;
     public Apfloat size;
+    public boolean flip_real;
+    public boolean flip_imaginary;
     public double height_ratio;
     public int max_iterations;
     public long old_max_iterations;
@@ -121,6 +124,10 @@ public class Settings implements Constants {
 
         }
         catch (Exception ex) {}
+
+        //Todo add guys elements
+        flip_real = false;
+        flip_imaginary = false;
 
         hsb_constant_b = 1;
         hsb_constant_s = 1;
@@ -3104,6 +3111,9 @@ public class Settings implements Constants {
             TaskRender.palette_incoloring = new PresetPalette(ps2.color_choice, ps2.direct_palette, fns.smoothing, special_color, color_smoothing_method, special_use_palette_color, fns.smoothing_fractional_transfer_method).getRawPalette();
         }
 
+        Plane.FLIP_REAL = flip_real;
+        Plane.FLIP_IMAGINARY = flip_imaginary;
+
         TaskRender.USER_CONVERGENT_BAILOUT = fns.convergent_bailout * fns.convergent_bailout;
         TaskRender.palette_outcoloring.setGeneratedPaletteSettings(true, gps);
         TaskRender.palette_incoloring.setGeneratedPaletteSettings(false, gps);
@@ -3228,7 +3238,8 @@ public class Settings implements Constants {
     }
 
     public boolean canSkipCalculatedAreas() {
-        return !d3s.d3 && !ds.domain_coloring && !julia_map && !isAnyFilterEnabled() && !isAnyPostProcessingEnabled()
+        return  MainWindow.REUSE_DATA_ON_ITERATION_CHANGE &&
+                !d3s.d3 && !ds.domain_coloring && !julia_map && !isAnyFilterEnabled() && !isAnyPostProcessingEnabled()
                 && !(pps.sts.statistic && pps.sts.statisticGroup == 4)
                 && !(pps.sts.statistic && pps.sts.statisticIncludeNotEscaped)
                 && !(pps.ots.useTraps && pps.ots.trapIncludeNotEscaped)
@@ -3236,7 +3247,8 @@ public class Settings implements Constants {
                 && !usesUserFormula()
                 && fns.in_coloring_algorithm == MAX_ITERATIONS
                 && !fns.tcs.trueColorIn
-                && !useDirectColor;
+                && !useDirectColor
+                && fns.function != MAGNETIC_PENDULUM;
     }
 
     public boolean isAnyFilterEnabled() {

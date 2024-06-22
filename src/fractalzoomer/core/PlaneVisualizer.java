@@ -239,7 +239,7 @@ public class PlaneVisualizer {
                 plane = new TwirlPlane(s.fns.plane_transform_center, s.fns.plane_transform_angle, s.fns.plane_transform_radius);
                 break;
             case MainWindow.SHEAR_PLANE:
-                plane = new ShearPlane(s.fns.plane_transform_scales);
+                plane = new ShearPlane(s.fns.plane_transform_scales, s.fns.plane_transform_center_hp);
                 break;
             case MainWindow.KALEIDOSCOPE_PLANE:
                 plane = new KaleidoscopePlane(s.fns.plane_transform_center, s.fns.plane_transform_angle, s.fns.plane_transform_angle2, s.fns.plane_transform_radius, s.fns.plane_transform_sides);

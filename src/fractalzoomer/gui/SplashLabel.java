@@ -89,18 +89,6 @@ public class SplashLabel extends JLabel {
 
     }
 
-    public int getCustomWidth() {
-
-        return custom_width;
-
-    }
-
-    public int getCustomHeight() {
-
-        return custom_height;
-
-    }
-
     public void setImage(BufferedImage image) {
         this.image = image;
     }

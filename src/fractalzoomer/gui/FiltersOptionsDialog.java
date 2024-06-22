@@ -3119,11 +3119,11 @@ public class FiltersOptionsDialog extends JDialog {
             int aaMethodNew = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
             int new_supersampling_num = TaskRender.getExtraSamples(aaSamplesIndexNew, aaMethodNew);
 
+            dispose();
+
             ptra2.filtersOptionsChanged(filters_options_vals, filters_options_extra_vals, filters_colors, filters_extra_colors, order_panel.getFilterOrder(), mActiveFilters, aaSamplesIndexNew != aaSamplesIndexOld || old_supersampling_num != new_supersampling_num, useJitterOld != useJitterNew);
 
             tab_index = tabbedPane.getSelectedIndex();
-
-            dispose();
 
         });
 

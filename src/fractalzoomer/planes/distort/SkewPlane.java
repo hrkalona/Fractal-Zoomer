@@ -36,7 +36,7 @@ public class SkewPlane extends Plane {
     }
 
     @Override
-    public Complex transform(Complex pixel) {
+    public Complex transform_internal(Complex pixel) {
 
         return pixel.shear(skew);
 

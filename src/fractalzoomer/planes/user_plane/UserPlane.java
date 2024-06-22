@@ -77,7 +77,7 @@ public class UserPlane extends Plane {
     }
 
     @Override
-    public Complex transform(Complex pixel) {
+    public Complex transform_internal(Complex pixel) {
 
         //expr.accept(new SetVariable("z", pixel));
         //expr.accept(new SetVariable("z", complex[0]));

@@ -48,7 +48,7 @@ public class BipolarPlane extends Plane {
     }
 
     @Override
-    public Complex transform(Complex pixel) {
+    public Complex transform_internal(Complex pixel) {
         if(pixel.isZero()) {
             return pixel;
         }
@@ -58,18 +58,18 @@ public class BipolarPlane extends Plane {
     }
 
     @Override
-    public BigComplex transform(BigComplex pixel) {
+    public BigComplex transform_internal(BigComplex pixel) {
 
         if(pixel.isZero()) {
             return pixel;
         }
 
-        return new BigComplex(transform(pixel.toComplex()));
+        return new BigComplex(transform_internal(pixel.toComplex()));
 
     }
 
     @Override
-    public MpfrBigNumComplex transform(MpfrBigNumComplex pixel) {
+    public MpfrBigNumComplex transform_internal(MpfrBigNumComplex pixel) {
 
         if(pixel.isZero()) {
             return pixel;
@@ -80,18 +80,18 @@ public class BipolarPlane extends Plane {
     }
 
     @Override
-    public MpirBigNumComplex transform(MpirBigNumComplex pixel) {
+    public MpirBigNumComplex transform_internal(MpirBigNumComplex pixel) {
 
         if(pixel.isZero()) {
             return pixel;
         }
 
-        return new MpirBigNumComplex(transform(pixel.toComplex()));
+        return new MpirBigNumComplex(transform_internal(pixel.toComplex()));
 
     }
 
     @Override
-    public DDComplex transform(DDComplex pixel) {
+    public DDComplex transform_internal(DDComplex pixel) {
 
         if(pixel.isZero()) {
             return pixel;

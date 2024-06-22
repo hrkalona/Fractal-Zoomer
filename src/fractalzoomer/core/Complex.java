@@ -1283,6 +1283,25 @@ public final class Complex extends GenericComplex {
     }
 
     /*
+     *  -Real + Imaginary i
+     */
+    public final Complex negate_re() {
+
+        return new Complex(-re, im);
+
+    }
+
+    /*
+     *  z = -Real + Imaginary i
+     */
+    public final Complex negate_re_mutable() {
+
+        re = -re;
+        return this;
+
+    }
+
+    /*
      *  -z
      */
     @Override

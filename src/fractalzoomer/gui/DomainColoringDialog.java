@@ -292,8 +292,9 @@ public class DomainColoringDialog extends JDialog {
 
             s.ds.domain_height_normalization_method = domain_normalization_opt.getSelectedIndex();
 
-            ptra2.setDomainColoringSettings(domain_coloring.isSelected());
             dispose();
+
+            ptra2.setDomainColoringSettings(domain_coloring.isSelected());
 
         });
 

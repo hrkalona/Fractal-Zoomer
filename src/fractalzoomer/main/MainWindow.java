@@ -67,6 +67,7 @@ import fractalzoomer.palettes.PresetPalette;
 import fractalzoomer.parser.FunctionDerivative2ArgumentsExpressionNode;
 import fractalzoomer.parser.Parser;
 import fractalzoomer.parser.ParserException;
+import fractalzoomer.planes.Plane;
 import fractalzoomer.utils.*;
 import org.apfloat.Apfloat;
 import processing.core.PApplet;
@@ -161,6 +162,7 @@ public class MainWindow extends JFrame implements Constants {
     public static boolean CIRCULAR_RENDER_FOLLOWS_ZOOM_TO_CURSOR = false;
     public static boolean ZOOM_TO_THE_SELECTED_AREA = false;
     public static boolean DRAGGING_TRANSFORMS_IMAGE = true;
+    public static boolean REUSE_DATA_ON_ITERATION_CHANGE = true;
 
     public static String SaveSettingsPath = "";
     public static String SaveImagesPath = "";
@@ -9368,6 +9370,7 @@ public class MainWindow extends JFrame implements Constants {
             writer.println("auto_zoom_to_rectangle_selection " + options_menu.getAutoZoomToRectangleSelection().isSelected());
             writer.println("display_user_code_warning " + Settings.DISPLAY_USER_CODE_WARNING);
             writer.println("dragging_transforms_image " + DRAGGING_TRANSFORMS_IMAGE);
+            writer.println("reuse_data_on_iteration_change " + REUSE_DATA_ON_ITERATION_CHANGE);
 
             writer.println();
             writer.println("[Window]");
@@ -9584,6 +9587,17 @@ public class MainWindow extends JFrame implements Constants {
                         }
                         else if(token.equals("true")) {
                             TaskRender.STOP_REFERENCE_CALCULATION_AFTER_DETECTED_PERIOD = true;
+                        }
+                    }
+                    else if(token.equals("reuse_data_on_iteration_change") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if(token.equals("false")) {
+                            REUSE_DATA_ON_ITERATION_CHANGE = false;
+                        }
+                        else if(token.equals("true")) {
+                            REUSE_DATA_ON_ITERATION_CHANGE = true;
                         }
                     }
                     else if(token.equals("dragging_transforms_image") && tokenizer.countTokens() == 1) {
@@ -13109,6 +13123,8 @@ public class MainWindow extends JFrame implements Constants {
 
             }
 
+            br.close();
+
             s.defaultValues();
             Fractal.clearReferences(true, true);
 
@@ -13151,10 +13167,13 @@ public class MainWindow extends JFrame implements Constants {
                 s.xCenter = new MyApfloat(re);
                 if(flipImaginary == 1) {
                     s.yCenter = new MyApfloat(im);
+                    s.flip_imaginary = false;
                 }
                 else {
                     s.yCenter = new MyApfloat(im).negate(); //Inverted in KF
+                    s.flip_imaginary = true;
                 }
+
                 s.size = MyApfloat.fp.divide(Constants.DEFAULT_MAGNIFICATION, new MyApfloat(magnification));
             } catch (Exception ex) {
 
@@ -13269,7 +13288,7 @@ public class MainWindow extends JFrame implements Constants {
 
             if(Slopes.equals("1")) {
                 s.pps.ss.slopes = true;
-                s.pps.ss.heightTransferFactor = 50;
+                s.pps.ss.heightTransferFactor = 100;
                 s.pps.ss.colorMode = 4;
             }
             else if(Slopes.equals("0")) {
@@ -13502,18 +13521,18 @@ public class MainWindow extends JFrame implements Constants {
 
     public static void main(String[] args) throws Exception {
 
-        SplashFrame sf = new SplashFrame(VERSION);
-        sf.setVisible(true);
-        sf.dispose();
+        if(args.length > 0 && args[0].equals("l4jini")) {
+            CommonFunctions.exportL4jIni("FractalZoomer", Constants.FZL4j);
+        }
+
+        setLaf();
+
+        MainWindow mw = new MainWindow();
+
+        new SplashFrame(VERSION);
 
         //SwingUtilities.invokeLater(() -> {
-            if(args.length > 0 && args[0].equals("l4jini")) {
-                CommonFunctions.exportL4jIni("FractalZoomer", Constants.FZL4j);
-            }
 
-            setLaf();
-
-            MainWindow mw = new MainWindow();
             try {
                 mw.setVisible(true);
             }
