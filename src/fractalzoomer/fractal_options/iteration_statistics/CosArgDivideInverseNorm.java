@@ -34,8 +34,10 @@ public class CosArgDivideInverseNorm extends GenericStatistic {
 
     private double log_bailout_squared;
     private Complex root;
+
+    private double bailout;
     
-    public CosArgDivideInverseNorm(double statistic_intensity, double StripeDensity, double StripeDenominatorFactor, boolean useSmoothing, double log_convergent_bailout, double log_bailout_squared, int lastXItems) {
+    public CosArgDivideInverseNorm(double statistic_intensity, double StripeDensity, double StripeDenominatorFactor, boolean useSmoothing, double log_convergent_bailout, double log_bailout_squared, double bailout, int lastXItems) {
         super(statistic_intensity, useSmoothing, false, lastXItems);
         sum = 0;
         sum2 = 0;
@@ -45,6 +47,7 @@ public class CosArgDivideInverseNorm extends GenericStatistic {
         this.log_bailout_squared = log_bailout_squared;
         mode = NORMAL_CONVERGE;
         root = new Complex(1, 0);
+        this.bailout = bailout;
     }
 
     @Override
@@ -107,6 +110,9 @@ public class CosArgDivideInverseNorm extends GenericStatistic {
         if(mode == NORMAL_ESCAPE) {
             if(escaping_smoothing_algorithm == 0 && !usePower) {
                 smoothing = OutColorAlgorithm.fractionalPartEscaping1(z_val, zold_val, log_bailout_squared);
+            }
+            else if(escaping_smoothing_algorithm == 2 && !usePower) {
+                smoothing = OutColorAlgorithm.fractionalPartEscaping3(z_val, zold_val, bailout);
             }
             else {
                 smoothing = usePower ? OutColorAlgorithm.fractionalPartEscapingWithPower(z_val, log_bailout_squared, log_power) : OutColorAlgorithm.fractionalPartEscaping2(z_val, zold_val, log_bailout_squared);

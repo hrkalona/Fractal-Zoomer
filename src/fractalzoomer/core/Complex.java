@@ -1095,12 +1095,33 @@ public final class Complex extends GenericComplex {
 
     }
 
-    /*
-     * n-norm
-     */
     public final double nnorm(double n) {
 
         return Math.pow(Math.pow(Math.abs(re), n) + Math.pow(Math.abs(im), n), 1 / n);
+
+    }
+
+    public final double nnorm_without_root(double n) {
+
+        return Math.pow(Math.abs(re), n) + Math.pow(Math.abs(im), n);
+
+    }
+
+    public final double nnorm(double n, double a, double b, double nreciprocal) {
+
+        return Math.pow(a * Math.pow(Math.abs(re), n) + b * Math.pow(Math.abs(im), n), nreciprocal);
+
+    }
+
+    public final double nnorm(double n, double a, double b) {
+
+        return Math.pow(a * Math.pow(Math.abs(re), n) + b * Math.pow(Math.abs(im), n), 1 / n);
+
+    }
+
+    public final double nnorm_without_root(double n, double a, double b) {
+
+        return a * Math.pow(Math.abs(re), n) + b * Math.pow(Math.abs(im), n);
 
     }
 
@@ -1257,6 +1278,25 @@ public final class Complex extends GenericComplex {
 
         im = -im;
 
+        return this;
+
+    }
+
+    /*
+     *  -Real + Imaginary i
+     */
+    public final Complex negate_re() {
+
+        return new Complex(-re, im);
+
+    }
+
+    /*
+     *  z = -Real + Imaginary i
+     */
+    public final Complex negate_re_mutable() {
+
+        re = -re;
         return this;
 
     }

@@ -39,6 +39,8 @@ public class PlanesMenu extends MyMenu {
     private JRadioButtonMenuItem[] planes;
     private JCheckBoxMenuItem apply_plane_on_julia_seed_opt;
     private JCheckBoxMenuItem apply_plane_on_whole_julia_opt;
+    private JCheckBoxMenuItem flip_re_opt;
+    private JCheckBoxMenuItem flip_im_opt;
 
     public static final String[] planeNames;
 
@@ -110,9 +112,10 @@ public class PlanesMenu extends MyMenu {
         planeNames[MainWindow.SKEW_PLANE] = "Skew";
         planeNames[MainWindow.INFLECTIONS_PLANE] = "Multiple Inflections";
         planeNames[MainWindow.MU_FOURTH_PLANE] = "mu^4";
+        planeNames[MainWindow.STRETCH_PLANE] = "Stretch";
     }
 
-    public PlanesMenu(MainWindow ptr2, String name, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, int plane_type) {
+    public PlanesMenu(MainWindow ptr2, String name, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, int plane_type, boolean flip_re, boolean flip_im) {
 
         super(name);
 
@@ -143,6 +146,19 @@ public class PlanesMenu extends MyMenu {
         apply_plane_on_julia_seed_opt.setToolTipText("Enables the application of the plane transformation to the julia set seed.");
 
         apply_plane_on_julia_seed_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_2, ActionEvent.SHIFT_MASK));
+
+        flip_re_opt = new MyCheckBoxMenuItem("Flip Real Axis");
+        flip_re_opt.setToolTipText("Flips the real axis to the opposite direction.");
+        flip_re_opt.setSelected(flip_re);
+        flip_re_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, ActionEvent.CTRL_MASK));
+
+        flip_im_opt = new MyCheckBoxMenuItem("Flip Imaginary Axis");
+        flip_im_opt.setToolTipText("Flips the imaginary axis to the opposite direction.");
+        flip_im_opt.setSelected(flip_im);
+        flip_im_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, ActionEvent.CTRL_MASK));
+
+        flip_re_opt.addActionListener( e -> ptr.FlipReal() );
+        flip_im_opt.addActionListener( e -> ptr.FlipImaginary() );
 
         apply_plane_on_whole_julia_opt.setSelected(apply_plane_on_julia);
         apply_plane_on_julia_seed_opt.setSelected(apply_plane_on_julia_seed);
@@ -334,6 +350,12 @@ public class PlanesMenu extends MyMenu {
         planes[MainWindow.SKEW_PLANE].addActionListener(e -> ptr.setPlane(MainWindow.SKEW_PLANE));
         planes_distort_menu.add(planes[MainWindow.SKEW_PLANE]);
         planes_button_group.add(planes[MainWindow.SKEW_PLANE]);
+
+        planes[MainWindow.STRETCH_PLANE] = new JRadioButtonMenuItem(planeNames[MainWindow.STRETCH_PLANE]);
+        planes[MainWindow.STRETCH_PLANE].setToolTipText("The stretch plane.");
+        planes[MainWindow.STRETCH_PLANE].addActionListener(e -> ptr.setPlane(MainWindow.STRETCH_PLANE));
+        planes_distort_menu.add(planes[MainWindow.STRETCH_PLANE]);
+        planes_button_group.add(planes[MainWindow.STRETCH_PLANE]);
 
         planes[MainWindow.NEWTON3_PLANE] = new JRadioButtonMenuItem(planeNames[MainWindow.NEWTON3_PLANE]);
         planes[MainWindow.NEWTON3_PLANE].setToolTipText("The Newton 3 plane.");
@@ -568,6 +590,9 @@ public class PlanesMenu extends MyMenu {
         add(apply_plane_on_julia_seed_opt);
         addSeparator();
         add(apply_plane_on_whole_julia_opt);
+        addSeparator();
+        add(flip_re_opt);
+        add(flip_im_opt);
 
         planes[plane_type].setSelected(true);
 
@@ -591,4 +616,15 @@ public class PlanesMenu extends MyMenu {
 
     }
 
+    public JCheckBoxMenuItem getFlipReOpt() {
+
+        return flip_re_opt;
+
+    }
+
+    public JCheckBoxMenuItem getFlipImOpt() {
+
+        return flip_im_opt;
+
+    }
 }

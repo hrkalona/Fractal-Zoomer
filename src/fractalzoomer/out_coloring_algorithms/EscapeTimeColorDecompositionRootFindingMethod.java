@@ -25,8 +25,8 @@ import fractalzoomer.core.Complex;
  */
 public class EscapeTimeColorDecompositionRootFindingMethod extends EscapeTimeColorDecomposition {
     
-    public EscapeTimeColorDecompositionRootFindingMethod() {
-        super();    
+    public EscapeTimeColorDecompositionRootFindingMethod(OutColorAlgorithm EscapeTimeAlg) {
+        super(EscapeTimeAlg);
         OutUsingIncrement = false;
     }
 
@@ -36,14 +36,14 @@ public class EscapeTimeColorDecompositionRootFindingMethod extends EscapeTimeCol
         double temp = Math.floor(1000 * ((Complex)object[1]).getRe() + 0.5) / 1000;
         double temp2 = Math.floor(1000 * ((Complex)object[1]).getIm() + 0.5) / 1000;
 
-        return Math.abs(((int)object[0]) + (long)(((Math.atan2(temp2, temp) / (pi2)  + 0.75) * pi59)  + (temp * temp + temp2 * temp2) * 2.5));
+        return Math.abs(EscapeTimeAlg.getResult(object) + (long)(((Math.atan2(temp2, temp) / (pi2)  + 0.75) * pi59)  + (temp * temp + temp2 * temp2) * 2.5));
 
     }
     
     @Override
     public double getResult3D(Object[] object, double result) {
         
-        return  ((int)object[0]);
+        return EscapeTimeAlg.getResult(object);
         
     }
     

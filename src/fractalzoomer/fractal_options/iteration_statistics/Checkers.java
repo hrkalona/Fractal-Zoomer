@@ -17,6 +17,7 @@
 package fractalzoomer.fractal_options.iteration_statistics;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.core.norms.*;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.out_coloring_algorithms.OutColorAlgorithm;
 import fractalzoomer.utils.MathUtils;
@@ -31,20 +32,31 @@ public class Checkers extends GenericStatistic {
     private double PatternScale;
     private double log_bailout_squared;
     private Complex point05point05 = new Complex(0.5, 0.5);
+    private double bailout;
+    private Norm normImpl;
 
-    private int normType;
-    private double normValue;
-    private double normValueReciprocal;
-
-    public Checkers(double statistic_intensity, double PatternScale, int normType, double normValue, double log_bailout_squared, boolean useSmoothing, boolean useAverage, int lastXItems) {
+    public Checkers(double statistic_intensity, double PatternScale, int normType, double normValue, double log_bailout_squared, double bailout, boolean useSmoothing, boolean useAverage, int lastXItems) {
         super(statistic_intensity, useSmoothing, useAverage, lastXItems);
         sum = 0;
         sum2 = 0;
         this.PatternScale = PatternScale;
         this.log_bailout_squared = log_bailout_squared;
-        this.normType = normType;
-        this.normValue = normValue;
-        normValueReciprocal = 1 / normValue;
+        this.bailout = bailout;
+
+        switch (normType) {
+            case 0:
+                normImpl = new Norm2();
+                break;
+            case 1: //Rhombus
+                normImpl = new Norm1();
+                break;
+            case 2: //Square
+                normImpl = new NormInfinity();
+                break;
+            case 3:
+                normImpl = new NormN(normValue);
+                break;
+        }
     }
 
     @Override
@@ -60,7 +72,7 @@ public class Checkers extends GenericStatistic {
         double a = ((wx<0.5 && wy<0.5) || (wx>0.5 && wy>0.5)) ? 1.0 : 0.0;
         wx=MathUtils.fract(wx*2.0);
         wy=MathUtils.fract(wy*2.0);
-        if (norm(new Complex(wx, wy).sub_mutable(point05point05))< 0.5) {
+        if (normImpl.computeWithRoot(new Complex(wx, wy).sub_mutable(point05point05))< 0.5) {
             a = (1.0 - a);
         }
 
@@ -77,21 +89,6 @@ public class Checkers extends GenericStatistic {
         samples = 0;
     }
 
-    private double norm(Complex z) {
-        if(normType == 0) {
-            return z.norm();
-        }
-        else if(normType == 2) {
-            return Math.max(z.getAbsRe(), z.getAbsIm());
-        }
-        else if(normType == 1) {
-            return z.getAbsRe() + z.getAbsIm();
-        }
-        else {
-            return z.nnorm(normValue, normValueReciprocal);
-        }
-    }
-
     @Override
     protected void addSample(StatisticSample sam, double[] data) {
 
@@ -100,7 +97,7 @@ public class Checkers extends GenericStatistic {
         double a = ((wx<0.5 && wy<0.5) || (wx>0.5 && wy>0.5)) ? 1.0 : 0.0;
         wx=MathUtils.fract(wx*2.0);
         wy=MathUtils.fract(wy*2.0);
-        if (norm(new Complex(wx, wy).sub(point05point05)) < 0.5) {
+        if (normImpl.computeWithRoot(new Complex(wx, wy).sub(point05point05)) < 0.5) {
             a = (1.0 - a);
         }
 
@@ -157,6 +154,9 @@ public class Checkers extends GenericStatistic {
 
         if(escaping_smoothing_algorithm == 0 && !usePower) {
             smoothing = OutColorAlgorithm.fractionalPartEscaping1(z_val, zold_val, log_bailout_squared);
+        }
+        else if(escaping_smoothing_algorithm == 2 && !usePower) {
+            smoothing = OutColorAlgorithm.fractionalPartEscaping3(z_val, zold_val, bailout);
         }
         else {
             smoothing = usePower ? OutColorAlgorithm.fractionalPartEscapingWithPower(z_val, log_bailout_squared, log_power) : OutColorAlgorithm.fractionalPartEscaping2(z_val, zold_val, log_bailout_squared);

@@ -49,11 +49,15 @@ public class SmoothingDialog extends JDialog {
         enable_smoothing.setSelected(s.fns.smoothing);
         enable_smoothing.setFocusable(false);
 
+        final JCheckBox enable_flat = new JCheckBox("Banding");
+        enable_flat.setSelected(s.fns.banded);
+        enable_flat.setFocusable(false);
+
         JComboBox<String> fractional_transfer = new JComboBox<>(Constants.smoothingFractionalTransfer);
         fractional_transfer.setSelectedIndex(s.fns.smoothing_fractional_transfer_method);
         fractional_transfer.setFocusable(false);
 
-        String[] escaping_algorithm_str = {"Algorithm 1", "Algorithm 2"};
+        String[] escaping_algorithm_str = {"Algorithm 1", "Algorithm 2", "Algorithm 3"};
 
         JComboBox<String> escaping_alg_combo = new JComboBox<>(escaping_algorithm_str);
         escaping_alg_combo.setSelectedIndex(s.fns.escaping_smooth_algorithm);
@@ -85,6 +89,8 @@ public class SmoothingDialog extends JDialog {
         Object[] message = {
             " ",
             enable_smoothing,
+                " ",
+                enable_flat,
             " ",
                 "Fractional Transfer:",
                 fractional_transfer,
@@ -134,6 +140,7 @@ public class SmoothingDialog extends JDialog {
                         boolean recalculate = false;
                         try {
                             s.fns.smoothing = enable_smoothing.isSelected();
+                            s.fns.banded = enable_flat.isSelected();
 
                             if(s.fns.escaping_smooth_algorithm != escaping_alg_combo.getSelectedIndex()
                              || s.fns.converging_smooth_algorithm != converging_alg_combo.getSelectedIndex()) {

@@ -24,11 +24,13 @@ import fractalzoomer.core.Complex;
  * @author hrkalona2
  */
 public class EscapeTimeGaussianInteger5 extends OutColorAlgorithm {
+    protected OutColorAlgorithm EscapeTimeAlg;
     
-    public EscapeTimeGaussianInteger5() {
+    public EscapeTimeGaussianInteger5(OutColorAlgorithm EscapeTimeAlg) {
         
         super();
         OutUsingIncrement = false;
+        this.EscapeTimeAlg = EscapeTimeAlg;
         
     }
      
@@ -40,7 +42,7 @@ public class EscapeTimeGaussianInteger5 extends OutColorAlgorithm {
         double re = temp.getRe();
         double im = temp.getIm();
  
-        return Math.abs((int)object[0] +  re + im + re / im);
+        return Math.abs(EscapeTimeAlg.getResult(object) +  re + im + re / im);
         
     } 
     

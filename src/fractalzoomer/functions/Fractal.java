@@ -24,9 +24,9 @@ import fractalzoomer.core.bla.BLADeep;
 import fractalzoomer.core.bla.BLAS;
 import fractalzoomer.core.interpolation.*;
 import fractalzoomer.core.la.ATResult;
-import fractalzoomer.core.la.impl.LAInfo;
 import fractalzoomer.core.la.LAReference;
 import fractalzoomer.core.la.LAstep;
+import fractalzoomer.core.la.impl.LAInfo;
 import fractalzoomer.core.location.Location;
 import fractalzoomer.core.nanomb1.Nanomb1;
 import fractalzoomer.core.nanomb1.uniPoly;
@@ -281,7 +281,7 @@ public abstract class Fractal {
         plane = new MuPlane();
     }
 
-    public Fractal(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower, OrbitTrapSettings ots) {
+    public Fractal(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, Apfloat[] plane_transform_center_hp, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower, OrbitTrapSettings ots) {
 
         isJulia = false;
         isOrbit = false;
@@ -312,7 +312,7 @@ public abstract class Fractal {
 
         rotation = new Rotation(rotation_vals[0], rotation_vals[1], rotation_center[0], rotation_center[1]);
 
-        PlaneFactory(plane_type, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower);
+        PlaneFactory(plane_type, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_center_hp, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower);
 
         BailoutConditionFactory(bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, plane_transform_center);
 
@@ -323,7 +323,7 @@ public abstract class Fractal {
     }
 
     //orbit
-    public Fractal(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower, boolean isJulia) {
+    public Fractal(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, Apfloat[] plane_transform_center_hp, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower, boolean isJulia) {
 
         this.isJulia = isJulia;
         isOrbit = true;
@@ -342,7 +342,7 @@ public abstract class Fractal {
 
         rotation = new Rotation(rotation_vals[0], rotation_vals[1], rotation_center[0], rotation_center[1]);
 
-        PlaneFactory(plane_type, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower);
+        PlaneFactory(plane_type, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_center_hp, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower);
 
         pixel_orbit = getTransformedPixel(pixel_orbit);
 
@@ -3524,6 +3524,9 @@ public abstract class Fractal {
             case MainWindow.CONVERGENT_BAILOUT_CONDITION_USER:
                 convergent_bailout_algorithm = new UserConvergentBailoutCondition(convergent_bailout, convergent_bailout_test_user_formula, convergent_bailout_test_user_formula2, convergent_bailout_test_comparison, max_iterations, xCenter, yCenter, size, plane_transform_center, globalVars);
                 break;
+            case MainWindow.CONVERGENT_BAILOUT_CONDITION_KF:
+                convergent_bailout_algorithm = new KFDistanceBailoutCondition(convergent_bailout);
+                break;
 
         }
 
@@ -3533,7 +3536,7 @@ public abstract class Fractal {
 
     }
 
-    private void PlaneFactory(int plane_type, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower) {
+    private void PlaneFactory(int plane_type, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, Apfloat[] plane_transform_center_hp, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower) {
 
         switch (plane_type) {
             case MainWindow.MU_PLANE:
@@ -3706,7 +3709,7 @@ public abstract class Fractal {
                 plane = new TwirlPlane(plane_transform_center, plane_transform_angle, plane_transform_radius);
                 break;
             case MainWindow.SHEAR_PLANE:
-                plane = new ShearPlane(plane_transform_scales);
+                plane = new ShearPlane(plane_transform_scales, plane_transform_center_hp);
                 break;
             case MainWindow.KALEIDOSCOPE_PLANE:
                 plane = new KaleidoscopePlane(plane_transform_center, plane_transform_angle, plane_transform_angle2, plane_transform_radius, plane_transform_sides);
@@ -3733,7 +3736,10 @@ public abstract class Fractal {
                 plane = new RipplesPlane(plane_transform_scales, plane_transform_wavelength, waveType);
                 break;
             case MainWindow.SKEW_PLANE:
-                plane = new SkewPlane(plane_transform_angle, plane_transform_angle2);
+                plane = new SkewPlane(plane_transform_angle, plane_transform_angle2, plane_transform_center_hp);
+                break;
+            case STRETCH_PLANE:
+                plane = new StretchPlane(plane_transform_angle, plane_transform_amount, plane_transform_center_hp);
                 break;
             case MainWindow.INFLECTIONS_PLANE:
                 plane = new InflectionsPlane(inflections_re, inflections_im, inflectionsPower);
@@ -3742,102 +3748,82 @@ public abstract class Fractal {
 
     }
 
+    protected OutColorAlgorithm getEscapeTimeAlgorithm(boolean smoothing, int escaping_smooth_algorithm) {
+        if (!smoothing) {
+            return new EscapeTime();
+        } else {
+            return new SmoothEscapeTime(bailout, log_bailout_squared, escaping_smooth_algorithm);
+        }
+    }
+
     protected void OutColoringAlgorithmFactory(int out_coloring_algorithm, boolean smoothing, int escaping_smooth_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, double[] plane_transform_center) {
         switch (out_coloring_algorithm) {
 
             case MainWindow.ESCAPE_TIME:
-                if (!smoothing) {
-                    out_color_algorithm = new EscapeTime();
-                } else {
-                    out_color_algorithm = new SmoothEscapeTime(log_bailout_squared, escaping_smooth_algorithm);
-                }
+                out_color_algorithm = getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm);
                 break;
             case MainWindow.BINARY_DECOMPOSITION:
-                if (!smoothing) {
-                    out_color_algorithm = new BinaryDecomposition();
-                } else {
-                    out_color_algorithm = new SmoothBinaryDecomposition(log_bailout_squared, escaping_smooth_algorithm);
-                }
+                out_color_algorithm = new BinaryDecomposition(getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm));
                 break;
             case MainWindow.BINARY_DECOMPOSITION2:
-                if (!smoothing) {
-                    out_color_algorithm = new BinaryDecomposition2();
-                } else {
-                    out_color_algorithm = new SmoothBinaryDecomposition2(log_bailout_squared, escaping_smooth_algorithm);
-                }
+                out_color_algorithm = new BinaryDecomposition2(getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm));
                 break;
             case MainWindow.ITERATIONS_PLUS_RE:
-                out_color_algorithm = new EscapeTimePlusRe();
+                out_color_algorithm = new EscapeTimePlusRe(getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm));
                 break;
             case MainWindow.ITERATIONS_PLUS_IM:
-                out_color_algorithm = new EscapeTimePlusIm();
+                out_color_algorithm = new EscapeTimePlusIm(getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm));
                 break;
             case MainWindow.ITERATIONS_PLUS_RE_DIVIDE_IM:
-                out_color_algorithm = new EscapeTimePlusReDivideIm();
+                out_color_algorithm = new EscapeTimePlusReDivideIm(getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm));
                 break;
             case MainWindow.ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM:
-                out_color_algorithm = new EscapeTimePlusRePlusImPlusReDivideIm();
+                out_color_algorithm = new EscapeTimePlusRePlusImPlusReDivideIm(getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm));
                 break;
             case MainWindow.BIOMORPH:
-                if (!smoothing) {
-                    out_color_algorithm = new Biomorphs(bailout);
-                } else {
-                    out_color_algorithm = new SmoothBiomorphs(log_bailout_squared, bailout, escaping_smooth_algorithm);
-                }
+                out_color_algorithm = new Biomorphs(bailout, getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm));
                 break;
             case MainWindow.COLOR_DECOMPOSITION:
                 out_color_algorithm = new ColorDecomposition();
                 break;
             case MainWindow.ESCAPE_TIME_COLOR_DECOMPOSITION:
-                out_color_algorithm = new EscapeTimeColorDecomposition();
+                out_color_algorithm = new EscapeTimeColorDecomposition(getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm));
                 break;
             case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER:
-                out_color_algorithm = new EscapeTimeGaussianInteger();
+                out_color_algorithm = new EscapeTimeGaussianInteger(getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm));
                 break;
             case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER2:
-                out_color_algorithm = new EscapeTimeGaussianInteger2();
+                out_color_algorithm = new EscapeTimeGaussianInteger2(getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm));
                 break;
             case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER3:
-                out_color_algorithm = new EscapeTimeGaussianInteger3();
+                out_color_algorithm = new EscapeTimeGaussianInteger3(getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm));
                 break;
             case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER4:
-                out_color_algorithm = new EscapeTimeGaussianInteger4();
+                out_color_algorithm = new EscapeTimeGaussianInteger4(getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm));
                 break;
             case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER5:
-                out_color_algorithm = new EscapeTimeGaussianInteger5();
+                out_color_algorithm = new EscapeTimeGaussianInteger5(getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm));
                 break;
             case MainWindow.ESCAPE_TIME_ALGORITHM:
-                out_color_algorithm = new EscapeTimeAlgorithm1(2);
+                out_color_algorithm = new EscapeTimeAlgorithm1(2, getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm));
                 break;
             case MainWindow.ESCAPE_TIME_ALGORITHM2:
-                out_color_algorithm = new EscapeTimeAlgorithm2();
+                out_color_algorithm = new EscapeTimeAlgorithm2(getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm));
                 break;
             case MainWindow.ESCAPE_TIME_ESCAPE_RADIUS:
-                out_color_algorithm = new EscapeTimeEscapeRadius(log_bailout_squared);
+                out_color_algorithm = new EscapeTimeEscapeRadius(log_bailout_squared, getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm));
                 break;
             case MainWindow.ESCAPE_TIME_GRID:
-                if (!smoothing) {
-                    out_color_algorithm = new EscapeTimeGrid(log_bailout_squared);
-                } else {
-                    out_color_algorithm = new SmoothEscapeTimeGrid(log_bailout_squared, escaping_smooth_algorithm);
-                }
+                out_color_algorithm = new EscapeTimeGrid(log_bailout_squared, getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm), false);
                 break;
             case MainWindow.BANDED:
                 out_color_algorithm = new Banded();
                 break;
             case MainWindow.ESCAPE_TIME_FIELD_LINES:
-                if (!smoothing) {
-                    out_color_algorithm = new EscapeTimeFieldLines(log_bailout_squared);
-                } else {
-                    out_color_algorithm = new SmoothEscapeTimeFieldLines(log_bailout_squared, escaping_smooth_algorithm);
-                }
+                out_color_algorithm = new EscapeTimeFieldLines(log_bailout_squared, getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm));
                 break;
             case MainWindow.ESCAPE_TIME_FIELD_LINES2:
-                if (!smoothing) {
-                    out_color_algorithm = new EscapeTimeFieldLines2(log_bailout_squared);
-                } else {
-                    out_color_algorithm = new SmoothEscapeTimeFieldLines2(log_bailout_squared, escaping_smooth_algorithm);
-                }
+                out_color_algorithm = new EscapeTimeFieldLines2(log_bailout_squared, getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm));
                 break;
             case MainWindow.USER_OUTCOLORING_ALGORITHM:
                 if (user_out_coloring_algorithm == 0) {
@@ -3847,21 +3833,10 @@ public abstract class Fractal {
                 }
                 break;
             case ESCAPE_TIME_SQUARES:
-                OutColorAlgorithm wrappedAlgorithm;
-                if (!smoothing) {
-                    wrappedAlgorithm = new EscapeTime();
-                } else {
-                    wrappedAlgorithm = new SmoothEscapeTime(log_bailout_squared, escaping_smooth_algorithm);
-                }
-                out_color_algorithm = new EscapeTimeSquares(6, wrappedAlgorithm);
+                out_color_algorithm = new EscapeTimeSquares(6, getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm));
                 break;
             case ESCAPE_TIME_SQUARES2:
-                if (!smoothing) {
-                    wrappedAlgorithm = new EscapeTime();
-                } else {
-                    wrappedAlgorithm = new SmoothEscapeTime(log_bailout_squared, escaping_smooth_algorithm);
-                }
-                out_color_algorithm = new EscapeTimeSquares2(6, wrappedAlgorithm);
+                out_color_algorithm = new EscapeTimeSquares2(6, getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm));
                 break;
 
         }
@@ -3927,7 +3902,7 @@ public abstract class Fractal {
             if ((TaskRender.PERTURBATION_THEORY || TaskRender.HIGH_PRECISION_CALCULATION) && supportsPerturbationTheory()) {
                 return;
             }
-            statistic = new Equicontinuity(sts.statistic_intensity, sts.useSmoothing, sts.useAverage, log_bailout_squared, false, 0, sts.equicontinuityDenominatorFactor, sts.equicontinuityInvertFactor, sts.equicontinuityDelta);
+            statistic = new Equicontinuity(sts.statistic_intensity, sts.useSmoothing, sts.useAverage, log_bailout_squared, bailout, false, 0, sts.equicontinuityDenominatorFactor, sts.equicontinuityInvertFactor, sts.equicontinuityDelta);
             return;
         } else if (sts.statisticGroup == 3) {
             statistic = new NormalMap(sts.statistic_intensity, getPower(), sts.normalMapHeight, sts.normalMapAngle, sts.normalMapUseSecondDerivative, sts.normalMapDEfactor, isJulia, sts.normalMapUseDE, sts.normalMapInvertDE, sts.normalMapColoring, sts.useNormalMap, sts.normalMapDEUpperLimitFactor, sts.normalMapDEAAEffect, sts.normalMapOverrideColoring, sts.normalMapDeFadeAlgorithm, sts.normalMapDistanceEstimatorfactor);
@@ -3935,28 +3910,28 @@ public abstract class Fractal {
         } else if (sts.statisticGroup == 0) {
             switch (sts.statistic_type) {
                 case MainWindow.STRIPE_AVERAGE:
-                    statistic = new StripeAverage(sts.statistic_intensity, sts.stripeAvgStripeDensity, log_bailout_squared, sts.useSmoothing, sts.useAverage, sts.lastXItems);
+                    statistic = new StripeAverage(sts.statistic_intensity, sts.stripeAvgStripeDensity, log_bailout_squared, bailout, sts.useSmoothing, sts.useAverage, sts.lastXItems);
                     break;
                 case MainWindow.TRIANGLE_INEQUALITY_AVERAGE:
-                    statistic = new TriangleInequalityAverage(sts.statistic_intensity, log_bailout_squared, sts.useSmoothing, sts.useAverage, sts.lastXItems);
+                    statistic = new TriangleInequalityAverage(sts.statistic_intensity, log_bailout_squared, bailout, sts.useSmoothing, sts.useAverage, sts.lastXItems);
                     break;
                 case MainWindow.CURVATURE_AVERAGE:
-                    statistic = new CurvatureAverage(sts.statistic_intensity, log_bailout_squared, sts.useSmoothing, sts.useAverage, sts.lastXItems);
+                    statistic = new CurvatureAverage(sts.statistic_intensity, log_bailout_squared, bailout, sts.useSmoothing, sts.useAverage, sts.lastXItems);
                     break;
                 case MainWindow.COS_ARG_DIVIDE_NORM_AVERAGE:
-                    statistic = new CosArgDivideNormAverage(sts.statistic_intensity, sts.cosArgStripeDensity, log_bailout_squared, sts.useSmoothing, sts.useAverage, sts.lastXItems);
+                    statistic = new CosArgDivideNormAverage(sts.statistic_intensity, sts.cosArgStripeDensity, log_bailout_squared, bailout, sts.useSmoothing, sts.useAverage, sts.lastXItems);
                     break;
                 case MainWindow.ATOM_DOMAIN_BOF60_BOF61:
                     statistic = new AtomDomain(sts.showAtomDomains, sts.statistic_intensity, sts.atomNormType, sts.atomNNorm, sts.lastXItems);
                     break;
                 case MainWindow.DISCRETE_LAGRANGIAN_DESCRIPTORS:
-                    statistic = new DiscreteLagrangianDescriptors(sts.statistic_intensity, sts.lagrangianPower, log_bailout_squared, sts.useSmoothing, sts.useAverage, false, 0, sts.langNormType, sts.langNNorm, sts.lastXItems);
+                    statistic = new DiscreteLagrangianDescriptors(sts.statistic_intensity, sts.lagrangianPower, log_bailout_squared, bailout, sts.useSmoothing, sts.useAverage, false, 0, sts.langNormType, sts.langNNorm, sts.lastXItems);
                     break;
                 case MainWindow.TWIN_LAMPS:
-                    statistic = new TwinLamps(sts.statistic_intensity, sts.twlFunction, sts.twlPoint, log_bailout_squared, sts.useSmoothing, sts.lastXItems);
+                    statistic = new TwinLamps(sts.statistic_intensity, sts.twlFunction, sts.twlPoint, log_bailout_squared, bailout, sts.useSmoothing, sts.lastXItems);
                     break;
                 case MainWindow.CHECKERS:
-                    statistic = new Checkers(sts.statistic_intensity, sts.patternScale, sts.checkerNormType, sts.checkerNormValue, log_bailout_squared, sts.useSmoothing, sts.useAverage, sts.lastXItems);
+                    statistic = new Checkers(sts.statistic_intensity, sts.patternScale, sts.checkerNormType, sts.checkerNormValue, log_bailout_squared, bailout, sts.useSmoothing, sts.useAverage, sts.lastXItems);
                     break;
             }
         }
@@ -5643,7 +5618,7 @@ public abstract class Fractal {
     }
 
     public boolean usesDefaultPlane() {
-        return plane instanceof MuPlane;
+        return plane instanceof MuPlane && !Plane.FLIP_IMAGINARY && !Plane.FLIP_REAL;
     }
 
     public void initializeReferenceDecompressor() {

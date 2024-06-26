@@ -41,15 +41,18 @@ public class CpuLabel extends JLabel {
     private int arcWidth = 5;
     private int arcHeight = 5;
 
-    private static final int PANEL_HEIGHT = 20;
-
-    public CpuLabel(int width) {
+    public CpuLabel(int width, int height) {
         if(!MainWindow.useCustomLaf) {
             setBorder(BorderFactory.createLoweredBevelBorder());
         }
         //setBorder(MyBorder.LOWERED);
 
-        setPreferredSize(new Dimension(width, PANEL_HEIGHT));
+        if(height == 0) {
+            setPreferredSize(new Dimension(width, getFont().getSize() + 4));
+        }
+        else {
+            setPreferredSize(new Dimension(width, height));
+        }
 
         setHorizontalAlignment(JLabel.CENTER);
         refresh();

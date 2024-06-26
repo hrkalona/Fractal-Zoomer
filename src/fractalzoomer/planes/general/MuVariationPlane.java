@@ -39,42 +39,42 @@ public class MuVariationPlane extends Plane {
     }
 
     @Override
-    public Complex transform(Complex pixel) {
+    public Complex transform_internal(Complex pixel) {
 
         return pixel.square().divide_mutable(pixel.fourth().sub_mutable(0.25));
 
     }
 
     @Override
-    public BigIntNumComplex transform(BigIntNumComplex pixel) {
+    public BigIntNumComplex transform_internal(BigIntNumComplex pixel) {
 
         return pixel.square().divide(pixel.fourth().sub(0.25));
 
     }
 
     @Override
-    public BigComplex transform(BigComplex pixel) {
+    public BigComplex transform_internal(BigComplex pixel) {
 
         return pixel.square().divide(pixel.fourth().sub(new MyApfloat(0.25)));
 
     }
 
     @Override
-    public MpfrBigNumComplex transform(MpfrBigNumComplex pixel) {
+    public MpfrBigNumComplex transform_internal(MpfrBigNumComplex pixel) {
 
         return pixel.square().divide_mutable(pixel.fourth().sub_mutable(0.25));
 
     }
 
     @Override
-    public MpirBigNumComplex transform(MpirBigNumComplex pixel) {
+    public MpirBigNumComplex transform_internal(MpirBigNumComplex pixel) {
 
         return pixel.square().divide_mutable(pixel.fourth().sub_mutable(_025));
 
     }
 
     @Override
-    public DDComplex transform(DDComplex pixel) {
+    public DDComplex transform_internal(DDComplex pixel) {
 
         return pixel.square().divide(pixel.fourth().sub(new DoubleDouble(0.25)));
 

@@ -1,6 +1,7 @@
 package fractalzoomer.fractal_options.iteration_statistics;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.core.norms.*;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.out_coloring_algorithms.OutColorAlgorithm;
 
@@ -14,11 +15,11 @@ public class DiscreteLagrangianDescriptors extends GenericStatistic {
     private double log_bailout_squared;
     private double log_convergent_bailout;
     private Complex root;
+    private double bailout;
+    private Norm normImpl;
     private int normtType;
-    private double langNorm;
-    private double langNormReciprocal;
 
-    public DiscreteLagrangianDescriptors(double statistic_intensity, double power, double log_bailout_squared, boolean useSmoothing, boolean useAverage, boolean rootFindingMode, double log_convergent_bailout, int normtType, double langNorm, int lastXItems) {
+    public DiscreteLagrangianDescriptors(double statistic_intensity, double power, double log_bailout_squared, double bailout, boolean useSmoothing, boolean useAverage, boolean rootFindingMode, double log_convergent_bailout, int normtType, double langNorm, int lastXItems) {
         super(statistic_intensity, useSmoothing, useAverage, lastXItems);
         sum = 0;
         sum2 = 0;
@@ -28,6 +29,7 @@ public class DiscreteLagrangianDescriptors extends GenericStatistic {
         this.power = power;
         this.log_convergent_bailout = log_convergent_bailout;
         this.log_bailout_squared = log_bailout_squared;
+        this.normtType = normtType;
 
         if(rootFindingMode) {
             mode = NORMAL_CONVERGE;
@@ -37,9 +39,23 @@ public class DiscreteLagrangianDescriptors extends GenericStatistic {
         }
 
         root = new Complex(1, 0);
-        this.normtType = normtType;
-        this.langNorm = langNorm;
-        langNormReciprocal = 1 / langNorm;
+        this.bailout = bailout;
+
+        switch (normtType) {
+            case 0:
+            case 1:
+                normImpl = new Norm2();
+                break;
+            case 2: //Rhombus
+                normImpl = new Norm1();
+                break;
+            case 3: //Square
+                normImpl = new NormInfinity();
+                break;
+            case 4:
+                normImpl = new NormN(langNorm);
+                break;
+        }
     }
 
     @Override
@@ -51,23 +67,11 @@ public class DiscreteLagrangianDescriptors extends GenericStatistic {
         }
 
         double d = 0;
-
-        switch (normtType) {
-            case 0:
-                d = z.norm_squared();
-                break;
-            case 1:
-                d = z.norm();
-                break;
-            case 2: //Rhombus
-                d = z.getAbsRe() + z.getAbsIm();
-                break;
-            case 3: //Square
-                d = Math.max(z.getAbsRe(), z.getAbsIm());
-                break;
-            case 4:
-                d = z.nnorm(langNorm, langNormReciprocal);
-                break;
+        if(normtType == 0) {
+            d = normImpl.computeWithoutRoot(z);
+        }
+        else {
+            d = normImpl.computeWithRoot(z);
         }
 
         double xx = 0;
@@ -99,22 +103,11 @@ public class DiscreteLagrangianDescriptors extends GenericStatistic {
 
         Complex z = sam.z_val;
 
-        switch (normtType) {
-            case 0:
-                d = z.norm_squared();
-                break;
-            case 1:
-                d = z.norm();
-                break;
-            case 2: //Rhombus
-                d = z.getAbsRe() + z.getAbsIm();
-                break;
-            case 3: //Square
-                d = Math.max(z.getAbsRe(), z.getAbsIm());
-                break;
-            case 4:
-                d = z.nnorm(langNorm, langNormReciprocal);
-                break;
+        if(normtType == 0) {
+            d = normImpl.computeWithoutRoot(z);
+        }
+        else {
+            d = normImpl.computeWithRoot(z);
         }
 
         double xx = 0;
@@ -217,6 +210,9 @@ public class DiscreteLagrangianDescriptors extends GenericStatistic {
         if(mode == NORMAL_ESCAPE) {
             if(escaping_smoothing_algorithm == 0 && !usePower) {
                 smoothing = OutColorAlgorithm.fractionalPartEscaping1(z_val, zold_val, log_bailout_squared);
+            }
+            else if(escaping_smoothing_algorithm == 2 && !usePower) {
+                smoothing = OutColorAlgorithm.fractionalPartEscaping3(z_val, zold_val, bailout);
             }
             else {
                 smoothing = usePower ? OutColorAlgorithm.fractionalPartEscapingWithPower(z_val, log_bailout_squared, log_power) : OutColorAlgorithm.fractionalPartEscaping2(z_val, zold_val, log_bailout_squared);

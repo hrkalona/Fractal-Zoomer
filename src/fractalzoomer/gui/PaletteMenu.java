@@ -100,6 +100,7 @@ public class PaletteMenu extends MyMenu {
         paletteNames[42] = "FX Rainbow";
         paletteNames[43] = "FX Three Primaries";
         paletteNames[44] = "FX Six Primaries";
+        paletteNames[45] = "Xaos Default";
     }
 
     public PaletteMenu(MainWindow ptr2, String name, int color_choice, boolean smoothing, int[][] custom_palette, int color_interpolation, int color_space, boolean reversed_palette, int color_cycling_location, double scale_factor_palette_val, int processing_alg, final boolean outcoloring_mode, int temp_color_cycling_location) {
@@ -302,6 +303,7 @@ public class PaletteMenu extends MyMenu {
         palette[42].setToolTipText("A palette from Fractal Extreme.");
         palette[43].setToolTipText("A palette from Fractal Extreme.");
         palette[44].setToolTipText("A palette from Fractal Extreme.");
+        palette[45].setToolTipText("A palette from Xaos.");
     }
 
     public JRadioButtonMenuItem[] getPalette() {

@@ -19,7 +19,7 @@ package fractalzoomer.gui;
 import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.DomainColoringSettings;
-import raven.slider.SliderGradient;
+
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;

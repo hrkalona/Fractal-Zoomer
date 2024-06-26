@@ -347,6 +347,12 @@ public class PresetPalette extends Palette {
                 } else {
                     palette_color = new PaletteColorSmooth(fx_six_primaries, special_color, color_smoothing_method, special_use_palette_color, fractional_transfer_method);
                 }
+            case 45:
+                if (!smoothing) {
+                    palette_color = new PaletteColorNormal(xaos_default, special_color, special_use_palette_color);
+                } else {
+                    palette_color = new PaletteColorSmooth(xaos_default, special_color, color_smoothing_method, special_use_palette_color, fractional_transfer_method);
+                }
                 break;
 
         }
@@ -496,6 +502,9 @@ public class PresetPalette extends Palette {
                 break;
             case 44:
                 palette = fx_six_primaries;
+                break;
+            case 45:
+                palette = xaos_default;
                 break;
             default:
                 palette = default_fractint;

@@ -27,15 +27,15 @@ import java.awt.*;
 public interface Constants {
     public static final int VERSION = 1091;
     public static final boolean beta = false;
-    public static final int TOTAL_PALETTES = 45;
+    public static final int TOTAL_PALETTES = 46;
     public static final int TOTAL_INCOLORING_ALGORITHMS = 12;
     public static final int TOTAL_OUTCOLORING_ALGORITHMS = 27;
     public static final int TOTAL_BAILOUT_CONDITIONS = 13;
-    public static final int TOTAL_CONVERGENT_BAILOUT_CONDITIONS = 6;
-    public static final int TOTAL_PLANES = 66;
-    public static final int TOTAL_FUNCTIONS = 514;
+    public static final int TOTAL_CONVERGENT_BAILOUT_CONDITIONS = 7;
+    public static final int TOTAL_PLANES = 67;
+    public static final int TOTAL_FUNCTIONS = 515;
     public static final int TOTAL_FILTERS = 35;
-    public static final int TOTAL_COLOR_TRANSFER_FILTERS = 8;
+    public static final int TOTAL_COLOR_TRANSFER_FILTERS = 14;
     public static final int TOTAL_COLOR_BLENDING = 30;
     public static final int TOTAL_POST_PROCESS_ALGORITHMS = 11;
     public static final int TOTAL_FUNCTION_FILTERS = 10;
@@ -665,6 +665,7 @@ public interface Constants {
 
     public static final int PERPENDICULAR_BUFFALO_MANDELBROT = 512;
     public static final int FORMULA48 = 513;
+    public static final int FORMULA49 = 514;
     /**
      * ***************
      */
@@ -883,6 +884,7 @@ public interface Constants {
     public static final int SKEW_PLANE = 63;
     public static final int INFLECTIONS_PLANE = 64;
     public static final int MU_FOURTH_PLANE = 65;
+    public static final int STRETCH_PLANE = 66;
     /**
      * **************
      */
@@ -916,6 +918,7 @@ public interface Constants {
     public static final int CONVERGENT_BAILOUT_CONDITION_NNORM = 3;
     public static final int CONVERGENT_BAILOUT_CONDITION_USER = 4;
     public static final int CONVERGENT_BAILOUT_CONDITION_NO_BAILOUT = 5;
+    public static final int CONVERGENT_BAILOUT_CONDITION_KF = 6;
     /**
      * ********************
      */
@@ -1138,6 +1141,12 @@ public interface Constants {
     public static final int LOG_LOG = 5;
     public static final int ATAN = 6;
     public static final int LINEAR = 7;
+    public static final int KF_SQUARE_ROOT = 8;
+    public static final int KF_CUBE_ROOT = 9;
+    public static final int KF_FOURTH_ROOT = 10;
+    public static final int KF_LOGARITHM = 11;
+    public static final int KF_LOG_LOG = 12;
+    public static final int KF_ATAN = 13;
     /**
      * **************************************
      */

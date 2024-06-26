@@ -22,7 +22,7 @@ import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
 import fractalzoomer.main.app_settings.Settings;
-import raven.slider.SliderGradient;
+
 
 import javax.imageio.ImageIO;
 import javax.swing.*;

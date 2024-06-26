@@ -93,27 +93,27 @@ public class UserOutColorAlgorithmRootFindingMethod extends OutColorAlgorithm {
         }
         
         if(parser.foundC()) {
-            parser.setCvalue(((Complex)object[5]));
+            parser.setCvalue(((Complex)object[4]));
         }
         
         if(parser.foundS()) {
-            parser.setSvalue(((Complex)object[6]));
+            parser.setSvalue(((Complex)object[5]));
         }
 
         if(parser.foundC0()) {
-            parser.setC0value(((Complex)object[7]));
+            parser.setC0value(((Complex)object[6]));
         }
 
         if (parser.foundPixel()) {
-            parser.setPixelvalue(((Complex) object[8]));
+            parser.setPixelvalue(((Complex) object[7]));
         }
 
         if(parser.foundP()) {
-            parser.setPvalue(((Complex)object[3]));
+            parser.setPvalue(((Complex)object[2]));
         }
         
         if(parser.foundPP()) {
-            parser.setPPvalue(((Complex)object[4]));
+            parser.setPPvalue(((Complex)object[3]));
         }
         
         for(int i = 0; i < Parser.EXTRA_VARS; i++) {

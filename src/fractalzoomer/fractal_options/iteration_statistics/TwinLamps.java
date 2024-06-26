@@ -14,12 +14,14 @@ public class TwinLamps extends GenericStatistic {
     private int twlFunction;
 
     private double log_bailout_squared;
+    private double bailout;
 
-    public TwinLamps(double statistic_intensity, int twlFunction, double[] twlPoint, double log_bailout_squared, boolean useSmoothing, int lastXItems) {
+    public TwinLamps(double statistic_intensity, int twlFunction, double[] twlPoint, double log_bailout_squared, double bailout, boolean useSmoothing, int lastXItems) {
         super(statistic_intensity, useSmoothing, false, lastXItems);
         point = new Complex(twlPoint[0], twlPoint[1]);
         this.twlFunction = twlFunction;
         this.log_bailout_squared = log_bailout_squared;
+        this.bailout = bailout;
     }
 
     @Override
@@ -121,6 +123,9 @@ public class TwinLamps extends GenericStatistic {
 
         if(escaping_smoothing_algorithm == 0 && !usePower) {
             smoothing = OutColorAlgorithm.fractionalPartEscaping1(z_val, zold_val, log_bailout_squared);
+        }
+        else if(escaping_smoothing_algorithm == 2 && !usePower) {
+            smoothing = OutColorAlgorithm.fractionalPartEscaping3(z_val, zold_val, bailout);
         }
         else {
             smoothing = usePower ? OutColorAlgorithm.fractionalPartEscapingWithPower(z_val, log_bailout_squared, log_power) : OutColorAlgorithm.fractionalPartEscaping2(z_val, zold_val, log_bailout_squared);

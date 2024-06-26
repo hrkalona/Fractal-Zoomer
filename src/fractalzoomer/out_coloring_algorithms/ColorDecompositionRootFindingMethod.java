@@ -25,10 +25,12 @@ import fractalzoomer.core.Complex;
  * @author hrkalona2
  */
 public class ColorDecompositionRootFindingMethod extends ColorDecomposition {
+    protected OutColorAlgorithm EscapeTimeAlg;
     
-    public ColorDecompositionRootFindingMethod() {
+    public ColorDecompositionRootFindingMethod(OutColorAlgorithm EscapeTimeAlg) {
         super();
         OutUsingIncrement = false;
+        this.EscapeTimeAlg = EscapeTimeAlg;
     }
 
     @Override
@@ -44,7 +46,7 @@ public class ColorDecompositionRootFindingMethod extends ColorDecomposition {
     @Override
     public double getResult3D(Object[] object, double result) {
   
-        return ((int)object[0]);
+        return EscapeTimeAlg.getResult(object);
 
     }
     

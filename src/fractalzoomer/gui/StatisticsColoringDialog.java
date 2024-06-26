@@ -22,7 +22,7 @@ import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
 import fractalzoomer.main.app_settings.StatisticsSettings;
 import fractalzoomer.parser.ParserException;
-import raven.slider.SliderGradient;
+
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;

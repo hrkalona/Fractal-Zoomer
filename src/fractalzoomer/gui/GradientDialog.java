@@ -504,8 +504,9 @@ public class GradientDialog extends JDialog {
                 return;
             }
 
-            ptra2.gradientChanged(color_a_label.getBackground(), color_b_label.getBackground(), combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp2);
             dispose();
+
+            ptra2.gradientChanged(color_a_label.getBackground(), color_b_label.getBackground(), combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp2);
 
         });
 

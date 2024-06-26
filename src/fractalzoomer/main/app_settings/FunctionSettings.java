@@ -57,6 +57,7 @@ public class FunctionSettings implements Constants {
     public Apfloat[] rotation_vals;
     public Apfloat[] rotation_center;
     public double[] mandel_grass_vals;
+    public Apfloat[] plane_transform_center_hp;
     public double[] plane_transform_center;
     public double[] plane_transform_scales;
     public double[] plane_transform_wavelength;
@@ -116,6 +117,7 @@ public class FunctionSettings implements Constants {
     public int escaping_smooth_algorithm;
     public int converging_smooth_algorithm;
     public boolean smoothing;
+    public boolean banded;
     public int smoothing_fractional_transfer_method;
     public double[] durand_kerner_init_val;
     public MagneticPendulumSettings mps;
@@ -154,6 +156,7 @@ public class FunctionSettings implements Constants {
         z_exponent = 2;
         
         smoothing = false;
+        banded = false;
         smoothing_fractional_transfer_method = 0;
         
         escaping_smooth_algorithm = 1;
@@ -196,6 +199,11 @@ public class FunctionSettings implements Constants {
         plane_transform_center = new double[2];
         plane_transform_center[0] = 0;
         plane_transform_center[1] = 0;
+
+        plane_transform_center_hp = new Apfloat[2];
+        plane_transform_center_hp[0] = new MyApfloat(0.0);
+        plane_transform_center_hp[1] = new MyApfloat(0.0);
+
 
         plane_transform_wavelength = new double[2];
         plane_transform_wavelength[0] = 0.15;

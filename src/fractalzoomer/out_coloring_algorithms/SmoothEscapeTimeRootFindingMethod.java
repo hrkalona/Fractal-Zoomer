@@ -34,6 +34,7 @@ public class SmoothEscapeTimeRootFindingMethod extends OutColorAlgorithm {
         this.log_convergent_bailout = log_convergent_bailout;
         this.algorithm = algorithm;
         OutUsingIncrement = false;
+        smooth = true;
     }
 
     @Override
@@ -41,30 +42,23 @@ public class SmoothEscapeTimeRootFindingMethod extends OutColorAlgorithm {
 
 
         if(algorithm == 0) {
-            return (int)object[0] + getSmoothing1(object, log_convergent_bailout);
+            return (int)object[0] + getSmoothing1((Complex)object[1], (Complex)object[2], (Complex)object[3], log_convergent_bailout);
         }
         else {
-            return (int)object[0] + getSmoothing2(object, log_convergent_bailout);
+            return (int)object[0] + getSmoothing2((Complex)object[1], (Complex)object[2], (Complex)object[3], log_convergent_bailout);
         }
 
     }
 
-    public static double getSmoothing1(Object[] object, double log_convergent_bailout) {
+    public static double getSmoothing1(Complex z, Complex zold, Complex zold2, double log_convergent_bailout) {
 
-        double temp = Math.log(((Complex)object[3]).distance_squared((Complex)object[4]));
-        return  (log_convergent_bailout - temp) / (Math.log((double)object[2]) - temp);
+        return 1 - fractionalPartConverging1(z, zold, zold2, log_convergent_bailout);
 
     }
 
-    public static double getSmoothing2(Object[] object, double log_convergent_bailout) {
+    public static double getSmoothing2(Complex z, Complex zold, Complex zold2, double log_convergent_bailout) {
 
-        double temp4 = Math.log(((double)object[2]) + 1e-33);
-
-        double power = temp4 / Math.log(((Complex)object[3]).distance_squared(((Complex)object[4])));
-
-        power = power <= 0 ? 1e-33 : power;
-
-        return Math.log(log_convergent_bailout / temp4) / Math.log(power);
+        return 1 - fractionalPartConverging2(z, zold, zold2, log_convergent_bailout);
 
     }
 }

@@ -21,6 +21,7 @@ import fractalzoomer.core.Complex;
 import fractalzoomer.utils.ColorAlgorithm;
 
 public abstract class OutColorAlgorithm extends ColorAlgorithm {
+    protected boolean smooth = false;
     public abstract double getResult(Object[] object);
     
     public double getResult3D(Object[] object, double result) {
@@ -53,6 +54,18 @@ public abstract class OutColorAlgorithm extends ColorAlgorithm {
         temp = Math.log(temp);
 
         return 1.0 - (log_bailout_squared - temp) / (Math.log(z.norm_squared()) - temp);
+
+    }
+
+    public static double fractionalPartEscaping3(Complex z, Complex zold, double bailout) {
+        double p = 2;
+
+        double test1 = z.norm_squared();
+        double test2 = zold.norm_squared();
+
+        double a = Math.pow(test1, 1 / p);
+        double div = a - Math.pow(test2, 1 / p);
+        return (a - bailout) / div;
 
     }
 

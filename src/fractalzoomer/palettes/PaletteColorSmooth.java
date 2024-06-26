@@ -141,7 +141,6 @@ public class PaletteColorSmooth extends PaletteColor {
 
     private int calculateSmoothColor(double result) {
 
-
         result = fractional_transfer(result, fractional_transfer_method);
 
         int color2 = palette[(int)(((long)(result)) % palette.length)];

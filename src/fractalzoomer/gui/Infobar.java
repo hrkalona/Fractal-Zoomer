@@ -613,6 +613,7 @@ public class Infobar extends JToolBar {
         palette[42].setToolTipText("A palette from Fractal Extreme.");
         palette[43].setToolTipText("A palette from Fractal Extreme.");
         palette[44].setToolTipText("A palette from Fractal Extreme.");
+        palette[45].setToolTipText("A palette from Xaos.");
         
         palette[color_choice].setSelected(true);
         popup.show(e.getComponent(), e.getX(), e.getY());

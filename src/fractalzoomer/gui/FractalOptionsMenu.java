@@ -37,7 +37,7 @@ public class FractalOptionsMenu extends MyMenu {
     private FunctionFiltersMenu post_function_filters;
     private PlaneInfluenceMenu plane_influence_menu;
     
-    public FractalOptionsMenu(MainWindow ptr2, String name, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, int function, int plane_type, int pre_filter, int post_filter, int plane_influence) {
+    public FractalOptionsMenu(MainWindow ptr2, String name, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, int function, int plane_type, int pre_filter, int post_filter, int plane_influence, boolean flip_re, boolean flip_im) {
         super(name);
 
         this.ptr = ptr2;
@@ -46,7 +46,7 @@ public class FractalOptionsMenu extends MyMenu {
         
         fractal_functions_menu = new FractalFunctionsMenu(ptr, "Fractal Functions", function);
         
-        planes_menu = new PlanesMenu(ptr, "Planes", apply_plane_on_julia, apply_plane_on_julia_seed, plane_type);
+        planes_menu = new PlanesMenu(ptr, "Planes", apply_plane_on_julia, apply_plane_on_julia_seed, plane_type, flip_re, flip_im);
 
         pre_function_filters = new FunctionFiltersMenu(ptr, "Pre Function Filter", pre_filter, false);
         post_function_filters = new FunctionFiltersMenu(ptr, "Post Function Filter", post_filter, true);
@@ -108,6 +108,18 @@ public class FractalOptionsMenu extends MyMenu {
     public JCheckBoxMenuItem getApplyPlaneOnJuliaSeedOpt() {
 
         return planes_menu.getApplyPlaneOnJuliaSeedOpt();
+
+    }
+
+    public JCheckBoxMenuItem getFlipReOpt() {
+
+        return planes_menu.getFlipReOpt();
+
+    }
+
+    public JCheckBoxMenuItem getFlipImOpt() {
+
+        return planes_menu.getFlipImOpt();
 
     }
     

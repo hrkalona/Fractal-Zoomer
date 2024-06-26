@@ -29,6 +29,8 @@ public class FoldOutPlane extends Plane {
     private Complex center;
     private BigComplex ddcenter;
 
+    private BigIntNumComplex bincenter;
+
     private MpfrBigNumComplex mpfrbncenter;
 
     private MpirBigNumComplex mpirbncenter;
@@ -42,6 +44,7 @@ public class FoldOutPlane extends Plane {
         if(TaskRender.PERTURBATION_THEORY || TaskRender.HIGH_PRECISION_CALCULATION) {
             ddcenter = new BigComplex(center);
             ddccenter = new DDComplex(center);
+            bincenter = new BigIntNumComplex(center);
             if (TaskRender.allocateMPFR()) {
                 mpfrbncenter = new MpfrBigNumComplex(center);
             } else if (TaskRender.allocateMPIR()) {
@@ -52,35 +55,42 @@ public class FoldOutPlane extends Plane {
     }
 
     @Override
-    public Complex transform(Complex pixel) {
+    public Complex transform_internal(Complex pixel) {
         
         return pixel.fold_out(center);
 
     }
 
     @Override
-    public BigComplex transform(BigComplex pixel) {
+    public BigComplex transform_internal(BigComplex pixel) {
 
         return pixel.fold_out(ddcenter);
 
     }
 
     @Override
-    public MpfrBigNumComplex transform(MpfrBigNumComplex pixel) {
+    public MpfrBigNumComplex transform_internal(MpfrBigNumComplex pixel) {
 
         return pixel.fold_out(mpfrbncenter);
 
     }
 
     @Override
-    public MpirBigNumComplex transform(MpirBigNumComplex pixel) {
+    public BigIntNumComplex transform_internal(BigIntNumComplex pixel) {
+
+        return pixel.fold_out(bincenter);
+
+    }
+
+    @Override
+    public MpirBigNumComplex transform_internal(MpirBigNumComplex pixel) {
 
         return pixel.fold_out(mpirbncenter);
 
     }
 
     @Override
-    public DDComplex transform(DDComplex pixel) {
+    public DDComplex transform_internal(DDComplex pixel) {
 
         return pixel.fold_out(ddccenter);
 

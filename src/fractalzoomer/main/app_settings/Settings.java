@@ -31,6 +31,7 @@ import fractalzoomer.palettes.CustomPalette;
 import fractalzoomer.palettes.PresetPalette;
 import fractalzoomer.parser.Parser;
 import fractalzoomer.parser.ParserException;
+import fractalzoomer.planes.Plane;
 import fractalzoomer.settings.*;
 import fractalzoomer.utils.ColorAlgorithm;
 import org.apfloat.Apfloat;
@@ -66,6 +67,8 @@ public class Settings implements Constants {
     public Apfloat xJuliaCenter;
     public Apfloat yJuliaCenter;
     public Apfloat size;
+    public boolean flip_real;
+    public boolean flip_imaginary;
     public double height_ratio;
     public int max_iterations;
     public long old_max_iterations;
@@ -121,6 +124,10 @@ public class Settings implements Constants {
 
         }
         catch (Exception ex) {}
+
+        //Todo add guys elements
+        flip_real = false;
+        flip_imaginary = false;
 
         hsb_constant_b = 1;
         hsb_constant_s = 1;
@@ -2486,6 +2493,7 @@ public class Settings implements Constants {
         switch (fns.function) {
             case MANDEL_NEWTON:
             case FORMULA1:
+            case FORMULA49:
                 xCenter = new MyApfloat(0.0);
                 yCenter = new MyApfloat(0.0);
                 size = new MyApfloat(24);
@@ -3087,7 +3095,7 @@ public class Settings implements Constants {
                 || plane == KALEIDOSCOPE_PLANE || plane == PINCH_PLANE || plane == FOLDUP_PLANE
                 || plane == FOLDDOWN_PLANE || plane == FOLDRIGHT_PLANE || plane == FOLDLEFT_PLANE || plane == INFLECTION_PLANE
                 || plane == BIPOLAR_PLANE || plane == INVERSED_BIPOLAR_PLANE || plane == FOLDIN_PLANE || plane == FOLDOUT_PLANE
-                || plane == CIRCLEINVERSION_PLANE || plane == SKEW_PLANE || plane == INFLECTIONS_PLANE;
+                || plane == CIRCLEINVERSION_PLANE || plane == SKEW_PLANE || plane == INFLECTIONS_PLANE || plane == STRETCH_PLANE;
     }
 
     public void applyStaticSettings() {
@@ -3103,6 +3111,9 @@ public class Settings implements Constants {
         } else {
             TaskRender.palette_incoloring = new PresetPalette(ps2.color_choice, ps2.direct_palette, fns.smoothing, special_color, color_smoothing_method, special_use_palette_color, fns.smoothing_fractional_transfer_method).getRawPalette();
         }
+
+        Plane.FLIP_REAL = flip_real;
+        Plane.FLIP_IMAGINARY = flip_imaginary;
 
         TaskRender.USER_CONVERGENT_BAILOUT = fns.convergent_bailout * fns.convergent_bailout;
         TaskRender.palette_outcoloring.setGeneratedPaletteSettings(true, gps);
@@ -3213,7 +3224,7 @@ public class Settings implements Constants {
     }
 
     private boolean needsSmoothing() {
-        return (fns.smoothing || ((pps.ndes.useNumericalDem || pps.ls.lighting || pps.ss.slopes || pps.bms.bump_map || pps.cns.contour_coloring || pps.ens.entropy_coloring || pps.rps.rainbow_palette || pps.fdes.fake_de || pps.sts.statistic) && TaskRender.USE_SMOOTHING_FOR_PROCESSING_ALGS));
+        return (hasSmoothing() || ((pps.ndes.useNumericalDem || pps.ls.lighting || pps.ss.slopes || pps.bms.bump_map || pps.cns.contour_coloring || pps.ens.entropy_coloring || pps.rps.rainbow_palette || pps.fdes.fake_de || pps.sts.statistic) && TaskRender.USE_SMOOTHING_FOR_PROCESSING_ALGS));
     }
     private boolean requiresSmoothingCalculation() {
         return !TaskRender.SMOOTH_DATA && needsSmoothing();
@@ -3228,7 +3239,8 @@ public class Settings implements Constants {
     }
 
     public boolean canSkipCalculatedAreas() {
-        return !d3s.d3 && !ds.domain_coloring && !julia_map && !isAnyFilterEnabled() && !isAnyPostProcessingEnabled()
+        return  MainWindow.REUSE_DATA_ON_ITERATION_CHANGE &&
+                !d3s.d3 && !ds.domain_coloring && !julia_map && !isAnyFilterEnabled() && !isAnyPostProcessingEnabled()
                 && !(pps.sts.statistic && pps.sts.statisticGroup == 4)
                 && !(pps.sts.statistic && pps.sts.statisticIncludeNotEscaped)
                 && !(pps.ots.useTraps && pps.ots.trapIncludeNotEscaped)
@@ -3236,7 +3248,8 @@ public class Settings implements Constants {
                 && !usesUserFormula()
                 && fns.in_coloring_algorithm == MAX_ITERATIONS
                 && !fns.tcs.trueColorIn
-                && !useDirectColor;
+                && !useDirectColor
+                && fns.function != MAGNETIC_PENDULUM;
     }
 
     public boolean isAnyFilterEnabled() {
@@ -3356,6 +3369,10 @@ public class Settings implements Constants {
     }
     public boolean needsExtraData() {
         return fs.filters[Constants.ANTIALIASING]  && ((TaskRender.ALWAYS_SAVE_EXTRA_PIXEL_DATA_ON_AA_WITH_PP && needsPostProcessing()) || TaskRender.ALWAYS_SAVE_EXTRA_PIXEL_DATA_ON_AA);
+    }
+
+    public boolean hasSmoothing() {
+        return fns.smoothing;
     }
 
 }

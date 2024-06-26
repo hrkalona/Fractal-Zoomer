@@ -495,6 +495,15 @@ public class DDComplex extends GenericComplex {
     }
 
     /*
+     *  -Real + Imaginary i
+     */
+    public final DDComplex negate_re() {
+
+        return new DDComplex(re.negate(), im);
+
+    }
+
+    /*
      *  -z
      */
     @Override

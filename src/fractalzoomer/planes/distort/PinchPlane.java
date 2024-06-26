@@ -43,7 +43,7 @@ public class PinchPlane extends Plane {
     }
 
     @Override
-    public Complex transform(Complex pixel) {
+    public Complex transform_internal(Complex pixel) {
         
         return pixel.pinch(center, plane_transform_radius, plane_transform_amount, plane_transform_angle);
         

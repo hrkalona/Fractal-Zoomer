@@ -27,6 +27,7 @@ import fractalzoomer.main.app_settings.TrueColorSettings;
 import fractalzoomer.out_coloring_algorithms.*;
 import fractalzoomer.true_coloring_algorithms.UserTrueColorAlgorithm;
 import fractalzoomer.utils.ColorAlgorithm;
+import org.apfloat.Apfloat;
 
 import java.util.ArrayList;
 import java.util.function.Predicate;
@@ -51,9 +52,9 @@ public class MagneticPendulum extends FractalWithoutConstant {
     private Object[] iterationData;
     private int magnetPendVariableId;
 
-    public MagneticPendulum(double xCenter, double yCenter, double size, int max_iterations, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower, int converging_smooth_algorithm, OrbitTrapSettings ots, StatisticsSettings sts, MagneticPendulumSettings mps) {
+    public MagneticPendulum(double xCenter, double yCenter, double size, int max_iterations, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, Apfloat[] plane_transform_center_hp, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower, int converging_smooth_algorithm, OrbitTrapSettings ots, StatisticsSettings sts, MagneticPendulumSettings mps) {
 
-        super(xCenter, yCenter, size, max_iterations, 0, 0, "", "", 0, 0, false, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, ots);
+        super(xCenter, yCenter, size, max_iterations, 0, 0, "", "", 0, 0, false, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_center_hp, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, ots);
 
         magnetPendVariableId = mps.magnetPendVariableId;
 
@@ -97,9 +98,9 @@ public class MagneticPendulum extends FractalWithoutConstant {
     }
 
     //orbit
-    public MagneticPendulum(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower, MagneticPendulumSettings mps) {
+    public MagneticPendulum(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, Apfloat[] plane_transform_center_hp, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower, MagneticPendulumSettings mps) {
 
-        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower);
+        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_center_hp, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower);
 
         pendulum = new Complex(mps.pendulum[0], mps.pendulum[1]);
 
@@ -230,19 +231,19 @@ public class MagneticPendulum extends FractalWithoutConstant {
                 out_color_algorithm = new EscapeTimeMagneticPendulum();
                 break;
             case MainWindow.BINARY_DECOMPOSITION:
-                out_color_algorithm = new BinaryDecompositionMagneticPendulum();
+                out_color_algorithm = new BinaryDecomposition(new EscapeTimeMagneticPendulum());
                 break;
             case MainWindow.BINARY_DECOMPOSITION2:
-                out_color_algorithm = new BinaryDecomposition2MagneticPendulum();
+                out_color_algorithm = new BinaryDecomposition2(new EscapeTimeMagneticPendulum());
                 break;
             case MainWindow.COLOR_DECOMPOSITION:
                 out_color_algorithm = new ColorDecompositionMagneticPendulum(magnets);
                 break;
             case MainWindow.ESCAPE_TIME_COLOR_DECOMPOSITION:
-                out_color_algorithm = new EscapeTimeColorDecompositionMagneticPendulum(magnets);
+                out_color_algorithm = new EscapeTimeColorDecompositionMagneticPendulum(magnets, new EscapeTimeMagneticPendulum());
                 break;
             case MainWindow.ESCAPE_TIME_ALGORITHM:
-                out_color_algorithm = new EscapeTimeAlgorithm1(3);
+                out_color_algorithm = new EscapeTimeAlgorithm1(3, new EscapeTimeMagneticPendulum());
                 break;
             case MainWindow.USER_OUTCOLORING_ALGORITHM:
                 if (user_out_coloring_algorithm == 0) {
@@ -252,12 +253,10 @@ public class MagneticPendulum extends FractalWithoutConstant {
                 }
                 break;
             case ESCAPE_TIME_SQUARES:
-                OutColorAlgorithm wrappedAlgorithm = new EscapeTimeMagneticPendulum();;
-                out_color_algorithm = new EscapeTimeSquares(7, wrappedAlgorithm);
+                out_color_algorithm = new EscapeTimeSquares(7, new EscapeTimeMagneticPendulum());
                 break;
             case ESCAPE_TIME_SQUARES2:
-                wrappedAlgorithm = new EscapeTimeMagneticPendulum();;
-                out_color_algorithm = new EscapeTimeSquares2(7, wrappedAlgorithm);
+                out_color_algorithm = new EscapeTimeSquares2(7, new EscapeTimeMagneticPendulum());
                 break;
 
         }
@@ -302,20 +301,20 @@ public class MagneticPendulum extends FractalWithoutConstant {
             return;
         }
         else if(sts.statisticGroup == 2) {
-            statistic = new Equicontinuity(sts.statistic_intensity, sts.useSmoothing, sts.useAverage, 0, true, Math.log(1e-8), sts.equicontinuityDenominatorFactor, sts.equicontinuityInvertFactor, sts.equicontinuityDelta);
+            statistic = new Equicontinuity(sts.statistic_intensity, sts.useSmoothing, sts.useAverage, 0, 0, true, Math.log(1e-8), sts.equicontinuityDenominatorFactor, sts.equicontinuityInvertFactor, sts.equicontinuityDelta);
             return;
         }
 
         switch (sts.statistic_type) {
 
             case MainWindow.COS_ARG_DIVIDE_INVERSE_NORM:
-                statistic = new CosArgDivideInverseNorm(sts.statistic_intensity, sts.cosArgInvStripeDensity, sts.StripeDenominatorFactor, sts.useSmoothing, Math.log(1e-8), 0, sts.lastXItems);
+                statistic = new CosArgDivideInverseNorm(sts.statistic_intensity, sts.cosArgInvStripeDensity, sts.StripeDenominatorFactor, sts.useSmoothing, Math.log(1e-8), 0, 0, sts.lastXItems);
                 break;
             case MainWindow.ATOM_DOMAIN_BOF60_BOF61:
                 statistic = new AtomDomain(sts.showAtomDomains, sts.statistic_intensity, sts.atomNormType, sts.atomNNorm, sts.lastXItems);
                 break;
             case MainWindow.DISCRETE_LAGRANGIAN_DESCRIPTORS:
-                statistic = new DiscreteLagrangianDescriptors(sts.statistic_intensity, sts.lagrangianPower, 0, sts.useSmoothing, sts.useAverage, true, Math.log(1e-8), sts.langNormType, sts.langNNorm, sts.lastXItems);
+                statistic = new DiscreteLagrangianDescriptors(sts.statistic_intensity, sts.lagrangianPower, 0, 0, sts.useSmoothing, sts.useAverage, true, Math.log(1e-8), sts.langNormType, sts.langNNorm, sts.lastXItems);
                 break;
 
         }

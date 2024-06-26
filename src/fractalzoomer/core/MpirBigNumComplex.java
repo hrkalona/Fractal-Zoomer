@@ -1,5 +1,6 @@
 package fractalzoomer.core;
 
+import fractalzoomer.core.mpfr.MpfrBigNum;
 import fractalzoomer.core.mpir.MpirBigNum;
 import fractalzoomer.core.mpir.mpf_t;
 import fractalzoomer.utils.NormComponents;
@@ -1018,6 +1019,25 @@ public class MpirBigNumComplex extends GenericComplex {
     public final MpirBigNumComplex conjugate_mutable() {
 
         im.negate(im);
+        return this;
+
+    }
+
+    /*
+     *  -Real + Imaginary i
+     */
+    public final MpirBigNumComplex negate_re() {
+
+        return new MpirBigNumComplex(re.negate(), new MpirBigNum(im));
+
+    }
+
+    /*
+     *  z = -Real + Imaginary i
+     */
+    public final MpirBigNumComplex negate_re_mutable() {
+
+        re.negate(re);
         return this;
 
     }

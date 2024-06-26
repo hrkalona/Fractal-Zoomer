@@ -29,12 +29,14 @@ public class TriangleInequalityAverage extends GenericStatistic {
     private double sum2;
     private double log_bailout_squared;
     private double mc;
+    private double bailout;
 
-    public TriangleInequalityAverage(double statistic_intensity, double log_bailout_squared, boolean useSmoothing, boolean useAverage, int lastXItems) {
+    public TriangleInequalityAverage(double statistic_intensity, double log_bailout_squared, double bailout, boolean useSmoothing, boolean useAverage, int lastXItems) {
         super(statistic_intensity, useSmoothing, useAverage, lastXItems);
         sum = 0;
         sum2 = 0;
         this.log_bailout_squared = log_bailout_squared;
+        this.bailout = bailout;
     }
 
     @Override
@@ -143,6 +145,9 @@ public class TriangleInequalityAverage extends GenericStatistic {
         double smoothing;
         if(escaping_smoothing_algorithm == 0 && !usePower) {
             smoothing = OutColorAlgorithm.fractionalPartEscaping1(z_val, zold_val, log_bailout_squared);
+        }
+        else if(escaping_smoothing_algorithm == 2 && !usePower) {
+            smoothing = OutColorAlgorithm.fractionalPartEscaping3(z_val, zold_val, bailout);
         }
         else {
             smoothing = usePower ? OutColorAlgorithm.fractionalPartEscapingWithPower(z_val, log_bailout_squared, log_power) : OutColorAlgorithm.fractionalPartEscaping2(z_val, zold_val, log_bailout_squared);

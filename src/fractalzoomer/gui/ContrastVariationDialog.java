@@ -17,7 +17,7 @@
 package fractalzoomer.gui;
 
 import fractalzoomer.main.MainWindow;
-import raven.slider.SliderGradient;
+
 
 import javax.swing.*;
 import java.awt.event.WindowAdapter;

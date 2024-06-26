@@ -54,7 +54,7 @@ public class InflectionsPlane extends Plane {
 
 
     @Override
-    public Complex transform(Complex pixel) {
+    public Complex transform_internal(Complex pixel) {
 
         Complex result = pixel;
         for(int i = inflections.length - 1; i >= 0; i--) {
@@ -65,7 +65,7 @@ public class InflectionsPlane extends Plane {
     }
 
     @Override
-    public BigComplex transform(BigComplex pixel) {
+    public BigComplex transform_internal(BigComplex pixel) {
         if(power == 1 || power == 2 || power == 3 || power == 4 || power == 5) {
             BigComplex result = pixel;
             for(int i = ddinflections.length - 1; i >= 0; i--) {
@@ -74,12 +74,12 @@ public class InflectionsPlane extends Plane {
             return result;
         }
 
-        return new BigComplex(transform(pixel.toComplex()));
+        return new BigComplex(transform_internal(pixel.toComplex()));
 
     }
 
     @Override
-    public BigNumComplex transform(BigNumComplex pixel) {
+    public BigNumComplex transform_internal(BigNumComplex pixel) {
 
         if(power == 1 || power == 2 || power == 3 || power == 4 || power == 5) {
             BigNumComplex result = pixel;
@@ -89,12 +89,12 @@ public class InflectionsPlane extends Plane {
             return result;
         }
 
-        return new BigNumComplex(transform(pixel.toComplex()));
+        return new BigNumComplex(transform_internal(pixel.toComplex()));
 
     }
 
     @Override
-    public BigIntNumComplex transform(BigIntNumComplex pixel) {
+    public BigIntNumComplex transform_internal(BigIntNumComplex pixel) {
 
         if(power == 1 || power == 2 || power == 3 || power == 4 || power == 5) {
             BigIntNumComplex result = pixel;
@@ -104,12 +104,12 @@ public class InflectionsPlane extends Plane {
             return result;
         }
 
-        return new BigIntNumComplex(transform(pixel.toComplex()));
+        return new BigIntNumComplex(transform_internal(pixel.toComplex()));
 
     }
 
     @Override
-    public MpfrBigNumComplex transform(MpfrBigNumComplex pixel) {
+    public MpfrBigNumComplex transform_internal(MpfrBigNumComplex pixel) {
 
         MpfrBigNumComplex result = pixel;
         for(int i = mpfrbninflections.length - 1; i >= 0; i--) {
@@ -121,7 +121,7 @@ public class InflectionsPlane extends Plane {
     }
 
     @Override
-    public MpirBigNumComplex transform(MpirBigNumComplex pixel) {
+    public MpirBigNumComplex transform_internal(MpirBigNumComplex pixel) {
 
         if(power == 1 || power == 2 || power == 3 || power == 4 || power == 5) {
             MpirBigNumComplex result = pixel;
@@ -131,13 +131,13 @@ public class InflectionsPlane extends Plane {
             return result;
         }
 
-        return new MpirBigNumComplex(transform(pixel.toComplex()));
+        return new MpirBigNumComplex(transform_internal(pixel.toComplex()));
 
     }
 
 
     @Override
-    public DDComplex transform(DDComplex pixel) {
+    public DDComplex transform_internal(DDComplex pixel) {
 
         DDComplex result = pixel;
         for(int i = ddcinflections.length - 1; i >= 0; i--) {

@@ -151,11 +151,11 @@ public class Debugbar extends JToolBar {
         //statusbar.add(Box.createRigidArea(new Dimension(100,10)));
         addSeparator();
 
-        memory_label = new MemoryLabel(190);
+        memory_label = new MemoryLabel(190, 20);
         add(new JLabel(" Mem: "));
         add(memory_label);
 
-        cpuLabel = new CpuLabel(90);
+        cpuLabel = new CpuLabel(90, 20);
         add(new JLabel(" CPU: "));
         add(cpuLabel);
 

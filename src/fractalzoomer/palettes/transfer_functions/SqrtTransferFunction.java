@@ -25,9 +25,9 @@ public class SqrtTransferFunction extends TransferFunction {
     private double color_intensity;
     private double itPaletteDensity;
 
-    public SqrtTransferFunction(int paletteLength, double color_intensity, double colorDensity) {
+    public SqrtTransferFunction(int paletteLength, double color_intensity, double colorDensity, boolean banded) {
 
-        super(paletteLength);
+        super(paletteLength, banded);
         this.color_intensity = color_intensity;
 
         final double realColorDensity = colorDensity / 100.0;
@@ -38,28 +38,49 @@ public class SqrtTransferFunction extends TransferFunction {
     @Override
     public double transfer(double result) {
 
-        if (result < 0) {
-            result = -result; // transfer to positive
-//            result /= paletteLength; //scale to palette multiple
-//            result = Math.sqrt(result * color_intensity + 1);
-//            result *= paletteLength; // rescale to palette length
+        boolean isNeg = result < 0;
 
-            result *= itPaletteDensity;
-            result = Math.sqrt(result);
-            result *= paletteLength * paletteMultiplier;
-
-            result = -result; // transfer to negative
-        } else {
-//            result /= paletteLength; //scale to palette multiple
-//            result = Math.sqrt(result * color_intensity + 1);
-//            result *= paletteLength; // rescale to palette length
-
-            result *= itPaletteDensity;
-            result = Math.sqrt(result);
-            result *= paletteLength * paletteMultiplier;
+        if (isNeg) {
+            result = -result;
         }
 
-        return result * color_intensity;
+        if(banded) {
+            result = (long) (result);
+        }
+
+        result *= itPaletteDensity;
+        result = Math.sqrt(result);
+        result *= paletteLength * paletteMultiplier;
+
+        double final_result = result * color_intensity;
+        return isNeg ? -final_result : final_result;
+
+//        if(banded) {
+//            result = (long)result;
+//        }
+//
+//        if (result < 0) {
+//            result = -result; // transfer to positive
+////            result /= paletteLength; //scale to palette multiple
+////            result = Math.sqrt(result * color_intensity + 1);
+////            result *= paletteLength; // rescale to palette length
+//
+//            result *= itPaletteDensity;
+//            result = Math.sqrt(result);
+//            result *= paletteLength * paletteMultiplier;
+//
+//            result = -result; // transfer to negative
+//        } else {
+////            result /= paletteLength; //scale to palette multiple
+////            result = Math.sqrt(result * color_intensity + 1);
+////            result *= paletteLength; // rescale to palette length
+//
+//            result *= itPaletteDensity;
+//            result = Math.sqrt(result);
+//            result *= paletteLength * paletteMultiplier;
+//        }
+//
+//        return result * color_intensity;
 
     }
 

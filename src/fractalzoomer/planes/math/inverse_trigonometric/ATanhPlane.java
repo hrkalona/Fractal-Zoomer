@@ -35,21 +35,21 @@ public class ATanhPlane extends Plane {
     }
 
     @Override
-    public Complex transform(Complex pixel) {
+    public Complex transform_internal(Complex pixel) {
         
         return pixel.atanh();
 
     }
 
     @Override
-    public MpfrBigNumComplex transform(MpfrBigNumComplex pixel) {
+    public MpfrBigNumComplex transform_internal(MpfrBigNumComplex pixel) {
 
         return pixel.atanh();
 
     }
 
     @Override
-    public DDComplex transform(DDComplex pixel) {
+    public DDComplex transform_internal(DDComplex pixel) {
 
         return pixel.atanh();
 

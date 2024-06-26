@@ -8,6 +8,7 @@ import fractalzoomer.main.app_settings.OrbitTrapSettings;
 import fractalzoomer.main.app_settings.StatisticsSettings;
 import fractalzoomer.out_coloring_algorithms.*;
 import fractalzoomer.utils.ColorAlgorithm;
+import org.apfloat.Apfloat;
 
 import java.util.ArrayList;
 
@@ -23,9 +24,9 @@ public abstract class EscapingOrConverging extends Julia {
         super();
     }
 
-    public EscapingOrConverging(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower, OrbitTrapSettings ots) {
+    public EscapingOrConverging(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, Apfloat[] plane_transform_center_hp, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower, OrbitTrapSettings ots) {
 
-        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, ots);
+        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_center_hp, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, ots);
         setConvergentBailout(1E-11);
     }
 
@@ -33,23 +34,23 @@ public abstract class EscapingOrConverging extends Julia {
         convergent_bailout = TaskRender.USER_CONVERGENT_BAILOUT > 0 ? TaskRender.USER_CONVERGENT_BAILOUT : val;
     }
 
-    public EscapingOrConverging(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, boolean periodicity_checking, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower, OrbitTrapSettings ots, double xJuliaCenter, double yJuliaCenter) {
+    public EscapingOrConverging(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, boolean periodicity_checking, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, Apfloat[] plane_transform_center_hp, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower, OrbitTrapSettings ots, double xJuliaCenter, double yJuliaCenter) {
 
-        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, periodicity_checking, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, ots, xJuliaCenter, yJuliaCenter);
+        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, periodicity_checking, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_center_hp, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, ots, xJuliaCenter, yJuliaCenter);
 
         setConvergentBailout(1E-11);
     }
 
     //orbit
-    public EscapingOrConverging(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower) {
+    public EscapingOrConverging(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, Apfloat[] plane_transform_center_hp, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower) {
 
-        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower);
+        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_center_hp, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower);
 
     }
 
-    public EscapingOrConverging(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower, double xJuliaCenter, double yJuliaCenter) {
+    public EscapingOrConverging(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, Apfloat[] plane_transform_center_hp, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower, double xJuliaCenter, double yJuliaCenter) {
 
-        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, xJuliaCenter, yJuliaCenter);
+        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_center_hp, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, xJuliaCenter, yJuliaCenter);
 
     }
 
@@ -179,136 +180,83 @@ public abstract class EscapingOrConverging extends Julia {
 
     }
 
+    protected OutColorAlgorithm getEscapeTimeAlgorithm(boolean smoothing, int converging_smooth_algorithm, int escaping_smooth_algorithm) {
+        if (!smoothing) {
+            return new EscapeTimeEOC();
+        } else {
+            return new SmoothEscapeTimeEOC(bailout, log_bailout_squared, Math.log(convergent_bailout), escaping_smooth_algorithm, converging_smooth_algorithm);
+        }
+    }
 
     protected void OutColoringAlgorithmFactory(int out_coloring_algorithm, boolean smoothing, int escaping_smooth_algorithm, int converging_smooth_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, double[] plane_transform_center) {
 
         switch (out_coloring_algorithm) {
 
             case MainWindow.ESCAPE_TIME:
-                if (!smoothing) {
-                    out_color_algorithm = new EscapeTimeEOC();
-                } else {
-                    out_color_algorithm = new SmoothEscapeTimeEOC(log_bailout_squared, Math.log(convergent_bailout), escaping_smooth_algorithm, converging_smooth_algorithm);
-                }
+                out_color_algorithm = getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm, escaping_smooth_algorithm);
                 break;
             case MainWindow.BINARY_DECOMPOSITION:
-                if (!smoothing) {
-                    out_color_algorithm = new BinaryDecompositionEOC();
-                } else {
-                    out_color_algorithm = new SmoothBinaryDecompositionEOC(log_bailout_squared, Math.log(convergent_bailout), escaping_smooth_algorithm, converging_smooth_algorithm);
-                }
+                out_color_algorithm = new BinaryDecomposition(getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm, escaping_smooth_algorithm));
                 break;
             case MainWindow.BINARY_DECOMPOSITION2:
-                if (!smoothing) {
-                    out_color_algorithm = new BinaryDecomposition2EOC();
-                } else {
-                    out_color_algorithm = new SmoothBinaryDecomposition2EOC(log_bailout_squared, Math.log(convergent_bailout), escaping_smooth_algorithm, converging_smooth_algorithm);
-                }
+                out_color_algorithm = new BinaryDecomposition2(getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm, escaping_smooth_algorithm));
                 break;
             case MainWindow.ITERATIONS_PLUS_RE:
-                if (!smoothing) {
-                    out_color_algorithm = new EscapeTimePlusRe();
-                } else {
-                    out_color_algorithm = new SmoothEscapeTimePlusReEOC(Math.log(convergent_bailout), converging_smooth_algorithm);
-                }
+                out_color_algorithm = new EscapeTimePlusRe(getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm, escaping_smooth_algorithm));
                 break;
             case MainWindow.ITERATIONS_PLUS_IM:
-                if (!smoothing) {
-                    out_color_algorithm = new EscapeTimePlusIm();
-                } else {
-                    out_color_algorithm = new SmoothEscapeTimePlusImEOC(Math.log(convergent_bailout), converging_smooth_algorithm);
-                }
+                out_color_algorithm = new EscapeTimePlusIm(getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm, escaping_smooth_algorithm));
                 break;
             case MainWindow.ITERATIONS_PLUS_RE_DIVIDE_IM:
-                out_color_algorithm = new EscapeTimePlusReDivideIm();
+                out_color_algorithm = new EscapeTimePlusReDivideIm(getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm, escaping_smooth_algorithm));
                 break;
             case MainWindow.ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM:
-                out_color_algorithm = new EscapeTimePlusRePlusImPlusReDivideIm();
+                out_color_algorithm = new EscapeTimePlusRePlusImPlusReDivideIm(getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm, escaping_smooth_algorithm));
                 break;
             case MainWindow.BIOMORPH:
-                if (!smoothing) {
-                    out_color_algorithm = new BiomorphsEOC(bailout);
-                } else {
-                    out_color_algorithm = new SmoothBiomorphsEOC(log_bailout_squared, Math.log(convergent_bailout), bailout, escaping_smooth_algorithm, converging_smooth_algorithm);
-                }
+                out_color_algorithm = new Biomorphs(bailout, getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm, escaping_smooth_algorithm));
                 break;
             case MainWindow.COLOR_DECOMPOSITION:
                 out_color_algorithm = new ColorDecomposition();
                 break;
             case MainWindow.ESCAPE_TIME_COLOR_DECOMPOSITION:
-                if (!smoothing) {
-                    out_color_algorithm = new EscapeTimeColorDecomposition();
-                } else {
-                    out_color_algorithm = new SmoothEscapeTimeColorDecompositionEOC(Math.log(convergent_bailout), converging_smooth_algorithm);
-                }
+                out_color_algorithm = new EscapeTimeColorDecomposition(getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm, escaping_smooth_algorithm));
                 break;
             case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER:
-                if (!smoothing) {
-                    out_color_algorithm = new EscapeTimeGaussianInteger();
-                } else {
-                    out_color_algorithm = new SmoothEscapeTimeGaussianIntegerEOC(Math.log(convergent_bailout), converging_smooth_algorithm);
-                }
+                out_color_algorithm = new EscapeTimeGaussianInteger(getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm, escaping_smooth_algorithm));
                 break;
             case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER2:
-                out_color_algorithm = new EscapeTimeGaussianInteger2();
+                out_color_algorithm = new EscapeTimeGaussianInteger2(getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm, escaping_smooth_algorithm));
                 break;
             case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER3:
-                if (!smoothing) {
-                    out_color_algorithm = new EscapeTimeGaussianInteger3();
-                } else {
-                    out_color_algorithm = new SmoothEscapeTimeGaussianInteger3EOC(Math.log(convergent_bailout), converging_smooth_algorithm);
-                }
+                out_color_algorithm = new EscapeTimeGaussianInteger3(getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm, escaping_smooth_algorithm));
                 break;
             case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER4:
-                if (!smoothing) {
-                    out_color_algorithm = new EscapeTimeGaussianInteger4();
-                } else {
-                    out_color_algorithm = new SmoothEscapeTimeGaussianInteger4EOC(Math.log(convergent_bailout), converging_smooth_algorithm);
-                }
+                out_color_algorithm = new EscapeTimeGaussianInteger4(getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm, escaping_smooth_algorithm));
                 break;
             case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER5:
-                out_color_algorithm = new EscapeTimeGaussianInteger5();
+                out_color_algorithm = new EscapeTimeGaussianInteger5(getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm, escaping_smooth_algorithm));
                 break;
             case MainWindow.ESCAPE_TIME_ALGORITHM:
-                out_color_algorithm = new EscapeTimeAlgorithm1(2);
+                out_color_algorithm = new EscapeTimeAlgorithm1(2, getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm, escaping_smooth_algorithm));
                 break;
             case MainWindow.ESCAPE_TIME_ALGORITHM2:
-                if (!smoothing) {
-                    out_color_algorithm = new EscapeTimeAlgorithm2();
-                } else {
-                    out_color_algorithm = new SmoothEscapeTimeAlgorithm2EOC(Math.log(convergent_bailout), converging_smooth_algorithm);
-                }
+                out_color_algorithm = new EscapeTimeAlgorithm2(getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm, escaping_smooth_algorithm));
                 break;
             case MainWindow.ESCAPE_TIME_ESCAPE_RADIUS:
-                if (!smoothing) {
-                    out_color_algorithm = new EscapeTimeEscapeRadiusEOC(log_bailout_squared);
-                } else {
-                    out_color_algorithm = new SmoothEscapeTimeEscapeRadiusEOC(log_bailout_squared, Math.log(convergent_bailout), escaping_smooth_algorithm, converging_smooth_algorithm);
-                }
+                out_color_algorithm = new EscapeTimeEscapeRadius(log_bailout_squared, getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm, escaping_smooth_algorithm));
                 break;
             case MainWindow.ESCAPE_TIME_GRID:
-                if (!smoothing) {
-                    out_color_algorithm = new EscapeTimeGridEOC(log_bailout_squared);
-                } else {
-                    out_color_algorithm = new SmoothEscapeTimeGridEOC(log_bailout_squared, Math.log(convergent_bailout), escaping_smooth_algorithm, converging_smooth_algorithm);
-                }
+                out_color_algorithm = new EscapeTimeGrid(log_bailout_squared, getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm, escaping_smooth_algorithm), false);
                 break;
             case MainWindow.BANDED:
                 out_color_algorithm = new Banded();
                 break;
             case MainWindow.ESCAPE_TIME_FIELD_LINES:
-                if (!smoothing) {
-                    out_color_algorithm = new EscapeTimeFieldLinesEOC(log_bailout_squared);
-                } else {
-                    out_color_algorithm = new SmoothEscapeTimeFieldLinesEOC(log_bailout_squared, Math.log(convergent_bailout), escaping_smooth_algorithm, converging_smooth_algorithm);
-                }
+                out_color_algorithm = new EscapeTimeFieldLines(log_bailout_squared, getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm, escaping_smooth_algorithm));
                 break;
             case MainWindow.ESCAPE_TIME_FIELD_LINES2:
-                if (!smoothing) {
-                    out_color_algorithm = new EscapeTimeFieldLines2EOC(log_bailout_squared);
-                } else {
-                    out_color_algorithm = new SmoothEscapeTimeFieldLines2EOC(log_bailout_squared, Math.log(convergent_bailout), escaping_smooth_algorithm, converging_smooth_algorithm);
-                }
+                out_color_algorithm = new EscapeTimeFieldLines2(log_bailout_squared, getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm, escaping_smooth_algorithm));
                 break;
             case MainWindow.USER_OUTCOLORING_ALGORITHM:
                 if (user_out_coloring_algorithm == 0) {
@@ -318,21 +266,10 @@ public abstract class EscapingOrConverging extends Julia {
                 }
                 break;
             case ESCAPE_TIME_SQUARES:
-                OutColorAlgorithm wrappedAlgorithm;
-                if (!smoothing) {
-                    wrappedAlgorithm = new EscapeTimeEOC();
-                } else {
-                    wrappedAlgorithm = new SmoothEscapeTimeEOC(log_bailout_squared, Math.log(convergent_bailout), escaping_smooth_algorithm, converging_smooth_algorithm);
-                }
-                out_color_algorithm = new EscapeTimeSquares(6, wrappedAlgorithm);
+                out_color_algorithm = new EscapeTimeSquares(6, getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm, escaping_smooth_algorithm));
                 break;
             case ESCAPE_TIME_SQUARES2:
-                if (!smoothing) {
-                    wrappedAlgorithm = new EscapeTimeEOC();
-                } else {
-                    wrappedAlgorithm = new SmoothEscapeTimeEOC(log_bailout_squared, Math.log(convergent_bailout), escaping_smooth_algorithm, converging_smooth_algorithm);
-                }
-                out_color_algorithm = new EscapeTimeSquares2(6, wrappedAlgorithm);
+                out_color_algorithm = new EscapeTimeSquares2(6, getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm, escaping_smooth_algorithm));
                 break;
         }
 
@@ -360,37 +297,37 @@ public abstract class EscapingOrConverging extends Julia {
             return;
         }
         else if(sts.statisticGroup == 2) {
-            statistic = new Equicontinuity(sts.statistic_intensity, sts.useSmoothing, sts.useAverage, log_bailout_squared, false, Math.log(convergent_bailout), sts.equicontinuityDenominatorFactor, sts.equicontinuityInvertFactor, sts.equicontinuityDelta);
+            statistic = new Equicontinuity(sts.statistic_intensity, sts.useSmoothing, sts.useAverage, log_bailout_squared, bailout, false, Math.log(convergent_bailout), sts.equicontinuityDenominatorFactor, sts.equicontinuityInvertFactor, sts.equicontinuityDelta);
             return;
         }
 
         switch (sts.statistic_type) {
             case MainWindow.STRIPE_AVERAGE:
-                statistic = new StripeAverage(sts.statistic_intensity, sts.stripeAvgStripeDensity, log_bailout_squared, sts.useSmoothing, sts.useAverage, sts.lastXItems);
+                statistic = new StripeAverage(sts.statistic_intensity, sts.stripeAvgStripeDensity, log_bailout_squared, bailout, sts.useSmoothing, sts.useAverage, sts.lastXItems);
                 break;
             case MainWindow.CURVATURE_AVERAGE:
-                statistic = new CurvatureAverage(sts.statistic_intensity, log_bailout_squared, sts.useSmoothing, sts.useAverage, sts.lastXItems);
+                statistic = new CurvatureAverage(sts.statistic_intensity, log_bailout_squared, bailout, sts.useSmoothing, sts.useAverage, sts.lastXItems);
                 break;
             case MainWindow.TRIANGLE_INEQUALITY_AVERAGE:
-                statistic = new TriangleInequalityAverage(sts.statistic_intensity, log_bailout_squared, sts.useSmoothing, sts.useAverage, sts.lastXItems);
+                statistic = new TriangleInequalityAverage(sts.statistic_intensity, log_bailout_squared, bailout, sts.useSmoothing, sts.useAverage, sts.lastXItems);
                 break;
             case MainWindow.COS_ARG_DIVIDE_NORM_AVERAGE:
-                statistic = new CosArgDivideNormAverage(sts.statistic_intensity, sts.cosArgStripeDensity, log_bailout_squared, sts.useSmoothing, sts.useAverage, sts.lastXItems);
+                statistic = new CosArgDivideNormAverage(sts.statistic_intensity, sts.cosArgStripeDensity, log_bailout_squared, bailout, sts.useSmoothing, sts.useAverage, sts.lastXItems);
                 break;
             case MainWindow.COS_ARG_DIVIDE_INVERSE_NORM:
-                statistic = new CosArgDivideInverseNorm(sts.statistic_intensity, sts.cosArgInvStripeDensity, sts.StripeDenominatorFactor, sts.useSmoothing, Math.log(convergent_bailout), log_bailout_squared, sts.lastXItems);
+                statistic = new CosArgDivideInverseNorm(sts.statistic_intensity, sts.cosArgInvStripeDensity, sts.StripeDenominatorFactor, sts.useSmoothing, Math.log(convergent_bailout), log_bailout_squared, bailout, sts.lastXItems);
                 break;
             case MainWindow.ATOM_DOMAIN_BOF60_BOF61:
                 statistic = new AtomDomain(sts.showAtomDomains, sts.statistic_intensity, sts.atomNormType, sts.atomNNorm, sts.lastXItems);
                 break;
             case MainWindow.DISCRETE_LAGRANGIAN_DESCRIPTORS:
-                statistic = new DiscreteLagrangianDescriptors(sts.statistic_intensity, sts.lagrangianPower, log_bailout_squared, sts.useSmoothing, sts.useAverage, false, Math.log(convergent_bailout), sts.langNormType, sts.langNNorm, sts.lastXItems);
+                statistic = new DiscreteLagrangianDescriptors(sts.statistic_intensity, sts.lagrangianPower, log_bailout_squared, bailout, sts.useSmoothing, sts.useAverage, false, Math.log(convergent_bailout), sts.langNormType, sts.langNNorm, sts.lastXItems);
                 break;
             case MainWindow.TWIN_LAMPS:
-                statistic = new TwinLamps(sts.statistic_intensity, sts.twlFunction, sts.twlPoint, log_bailout_squared, sts.useSmoothing, sts.lastXItems);
+                statistic = new TwinLamps(sts.statistic_intensity, sts.twlFunction, sts.twlPoint, log_bailout_squared, bailout, sts.useSmoothing, sts.lastXItems);
                 break;
             case MainWindow.CHECKERS:
-                statistic = new Checkers(sts.statistic_intensity, sts.patternScale, sts.checkerNormType, sts.checkerNormValue, log_bailout_squared, sts.useSmoothing, sts.useAverage, sts.lastXItems);
+                statistic = new Checkers(sts.statistic_intensity, sts.patternScale, sts.checkerNormType, sts.checkerNormValue, log_bailout_squared, bailout, sts.useSmoothing, sts.useAverage, sts.lastXItems);
                 break;
 
         }

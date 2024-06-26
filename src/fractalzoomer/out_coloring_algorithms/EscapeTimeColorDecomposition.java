@@ -26,20 +26,22 @@ import fractalzoomer.core.Complex;
 public class EscapeTimeColorDecomposition extends OutColorAlgorithm {
   protected double pi2;
   protected double pi59;
+  protected OutColorAlgorithm EscapeTimeAlg;
     
-    public EscapeTimeColorDecomposition() {
+    public EscapeTimeColorDecomposition(OutColorAlgorithm EscapeTimeAlg) {
         super();
         
         pi2 = 2 * Math.PI;
         pi59 = Math.PI * 59;
         OutUsingIncrement = false;
+        this.EscapeTimeAlg = EscapeTimeAlg;
         
     }
 
     @Override
     public double getResult(Object[] object) {
 
-        return Math.abs(((int)object[0]) + (((Complex)object[1]).arg() / pi2  + 0.75) * pi59);
+        return Math.abs(EscapeTimeAlg.getResult(object) + (((Complex)object[1]).arg() / pi2  + 0.75) * pi59);
 
     }
 }

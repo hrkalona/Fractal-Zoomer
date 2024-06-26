@@ -260,8 +260,8 @@ public class FractalColorsDialog extends JDialog {
                 return;
             }
 
-            ptra2.fractalColorsChanged(max_it_color_label.getBackground(), dem_color_label.getBackground(), special_color_label.getBackground(), use_palette_color.isSelected(), remove_special_increment.isSelected(), temp);
             dispose();
+            ptra2.fractalColorsChanged(max_it_color_label.getBackground(), dem_color_label.getBackground(), special_color_label.getBackground(), use_palette_color.isSelected(), remove_special_increment.isSelected(), temp);
 
         });
 

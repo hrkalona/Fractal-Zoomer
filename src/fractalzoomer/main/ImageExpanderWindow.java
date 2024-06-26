@@ -428,9 +428,9 @@ public class ImageExpanderWindow extends JFrame implements Constants {
 
         totalprogress.setVisible(false);
 
-        memory_label = new MemoryLabel(220);
+        memory_label = new MemoryLabel(220, 20);
         memory_label.setVisible(false);
-        cpuLabel = new CpuLabel(220);
+        cpuLabel = new CpuLabel(220, 20);
         cpuLabel.setVisible(false);
 
         JPanel stats = new JPanel();

@@ -239,7 +239,7 @@ public class PlaneVisualizer {
                 plane = new TwirlPlane(s.fns.plane_transform_center, s.fns.plane_transform_angle, s.fns.plane_transform_radius);
                 break;
             case MainWindow.SHEAR_PLANE:
-                plane = new ShearPlane(s.fns.plane_transform_scales);
+                plane = new ShearPlane(s.fns.plane_transform_scales, s.fns.plane_transform_center_hp);
                 break;
             case MainWindow.KALEIDOSCOPE_PLANE:
                 plane = new KaleidoscopePlane(s.fns.plane_transform_center, s.fns.plane_transform_angle, s.fns.plane_transform_angle2, s.fns.plane_transform_radius, s.fns.plane_transform_sides);
@@ -266,7 +266,10 @@ public class PlaneVisualizer {
                 plane = new RipplesPlane(s.fns.plane_transform_scales, s.fns.plane_transform_wavelength, s.fns.waveType);
                 break;
             case MainWindow.SKEW_PLANE:
-                plane = new SkewPlane(s.fns.plane_transform_angle, s.fns.plane_transform_angle2);
+                plane = new SkewPlane(s.fns.plane_transform_angle, s.fns.plane_transform_angle2, s.fns.plane_transform_center_hp);
+                break;
+            case MainWindow.STRETCH_PLANE:
+                plane = new StretchPlane(s.fns.plane_transform_angle, s.fns.plane_transform_amount, s.fns.plane_transform_center_hp);
                 break;
             case MainWindow.INFLECTIONS_PLANE:
                 plane = new InflectionsPlane(s.fns.inflections_re, s.fns.inflections_im, s.fns.inflectionsPower);
