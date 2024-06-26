@@ -254,27 +254,27 @@ public class UserConditionalOutColorAlgorithmRootFindingMethod extends OutColorA
         }
 
         if(parser[0].foundC()) {
-            parser[0].setCvalue(((Complex)object[5]));
+            parser[0].setCvalue(((Complex)object[4]));
         }
 
         if(parser[0].foundS()) {
-            parser[0].setSvalue(((Complex)object[6]));
+            parser[0].setSvalue(((Complex)object[5]));
         }
 
         if(parser[0].foundC0()) {
-            parser[0].setC0value(((Complex)object[7]));
+            parser[0].setC0value(((Complex)object[6]));
         }
 
         if (parser[0].foundPixel()) {
-            parser[0].setPixelvalue(((Complex) object[8]));
+            parser[0].setPixelvalue(((Complex) object[7]));
         }
 
         if(parser[0].foundP()) {
-            parser[0].setPvalue(((Complex)object[3]));
+            parser[0].setPvalue(((Complex)object[2]));
         }
 
         if(parser[0].foundPP()) {
-            parser[0].setPPvalue(((Complex)object[4]));
+            parser[0].setPPvalue(((Complex)object[3]));
         }
 
         for(int i = 0; i < Parser.EXTRA_VARS; i++) {
@@ -293,27 +293,27 @@ public class UserConditionalOutColorAlgorithmRootFindingMethod extends OutColorA
         }
 
         if(parser[1].foundC()) {
-            parser[1].setCvalue(((Complex)object[5]));
+            parser[1].setCvalue(((Complex)object[4]));
         }
 
         if(parser[1].foundS()) {
-            parser[1].setSvalue(((Complex)object[6]));
+            parser[1].setSvalue(((Complex)object[5]));
         }
 
         if(parser[1].foundC0()) {
-            parser[1].setC0value(((Complex)object[7]));
+            parser[1].setC0value(((Complex)object[6]));
         }
 
         if (parser[1].foundPixel()) {
-            parser[1].setPixelvalue(((Complex) object[8]));
+            parser[1].setPixelvalue(((Complex) object[7]));
         }
 
         if(parser[1].foundP()) {
-            parser[1].setPvalue(((Complex)object[3]));
+            parser[1].setPvalue(((Complex)object[2]));
         }
 
         if(parser[1].foundPP()) {
-            parser[1].setPPvalue(((Complex)object[4]));
+            parser[1].setPPvalue(((Complex)object[3]));
         }
 
         for(int i = 0; i < Parser.EXTRA_VARS; i++) {
@@ -334,27 +334,27 @@ public class UserConditionalOutColorAlgorithmRootFindingMethod extends OutColorA
             }
 
             if(parser2[0].foundC()) {
-                parser2[0].setCvalue(((Complex)object[5]));
+                parser2[0].setCvalue(((Complex)object[4]));
             }
 
             if(parser2[0].foundS()) {
-                parser2[0].setSvalue(((Complex)object[6]));
+                parser2[0].setSvalue(((Complex)object[5]));
             }
 
             if(parser2[0].foundC0()) {
-                parser2[0].setC0value(((Complex)object[7]));
+                parser2[0].setC0value(((Complex)object[6]));
             }
 
             if (parser2[0].foundPixel()) {
-                parser2[0].setPixelvalue(((Complex) object[8]));
+                parser2[0].setPixelvalue(((Complex) object[7]));
             }
 
             if(parser2[0].foundP()) {
-                parser2[0].setPvalue(((Complex)object[3]));
+                parser2[0].setPvalue(((Complex)object[2]));
             }
 
             if(parser2[0].foundPP()) {
-                parser2[0].setPPvalue(((Complex)object[4]));
+                parser2[0].setPPvalue(((Complex)object[3]));
             }
 
             for(int i = 0; i < Parser.EXTRA_VARS; i++) {
@@ -389,27 +389,27 @@ public class UserConditionalOutColorAlgorithmRootFindingMethod extends OutColorA
             }
 
             if(parser2[1].foundC()) {
-                parser2[1].setCvalue(((Complex)object[5]));
+                parser2[1].setCvalue(((Complex)object[4]));
             }
 
             if(parser2[1].foundS()) {
-                parser2[1].setSvalue(((Complex)object[6]));
+                parser2[1].setSvalue(((Complex)object[5]));
             }
 
             if(parser2[1].foundC0()) {
-                parser2[1].setC0value(((Complex)object[7]));
+                parser2[1].setC0value(((Complex)object[6]));
             }
 
             if (parser2[1].foundPixel()) {
-                parser2[1].setPixelvalue(((Complex) object[8]));
+                parser2[1].setPixelvalue(((Complex) object[7]));
             }
 
             if(parser2[1].foundP()) {
-                parser2[1].setPvalue(((Complex)object[3]));
+                parser2[1].setPvalue(((Complex)object[2]));
             }
 
             if(parser2[1].foundPP()) {
-                parser2[1].setPPvalue(((Complex)object[4]));
+                parser2[1].setPPvalue(((Complex)object[3]));
             }
             
             for(int i = 0; i < Parser.EXTRA_VARS; i++) {
@@ -444,27 +444,27 @@ public class UserConditionalOutColorAlgorithmRootFindingMethod extends OutColorA
             }
 
             if(parser2[2].foundC()) {
-                parser2[2].setCvalue(((Complex)object[5]));
+                parser2[2].setCvalue(((Complex)object[4]));
             }
 
             if(parser2[2].foundS()) {
-                parser2[2].setSvalue(((Complex)object[6]));
+                parser2[2].setSvalue(((Complex)object[5]));
             }
 
             if(parser2[2].foundC0()) {
-                parser2[2].setC0value(((Complex)object[7]));
+                parser2[2].setC0value(((Complex)object[6]));
             }
 
             if (parser2[2].foundPixel()) {
-                parser2[2].setPixelvalue(((Complex) object[8]));
+                parser2[2].setPixelvalue(((Complex) object[7]));
             }
 
             if(parser2[2].foundP()) {
-                parser2[2].setPvalue(((Complex)object[3]));
+                parser2[2].setPvalue(((Complex)object[2]));
             }
 
             if(parser2[2].foundPP()) {
-                parser2[2].setPPvalue(((Complex)object[4]));
+                parser2[2].setPPvalue(((Complex)object[3]));
             }
             
             for(int i = 0; i < Parser.EXTRA_VARS; i++) {

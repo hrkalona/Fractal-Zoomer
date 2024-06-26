@@ -290,8 +290,6 @@ public class Newton3 extends NewtonRootFindingMethod {
 
         RefType = getRefType();
 
-        convergent_bailout_algorithm.setReferenceMode(true);
-
         if(useCompressedRef) {
             if(deepZoom) {
                 referenceCompressor[referenceDeep.id] = new ReferenceCompressor(this, iterations == 0 ? z.toMantExpComplex() : referenceData.compressorZm, MantExpComplex.create(), start.toMantExpComplex());
@@ -415,8 +413,6 @@ public class Newton3 extends NewtonRootFindingMethod {
             }
 
         }
-
-        convergent_bailout_algorithm.setReferenceMode(false);
 
         referenceData.lastZValue = z;
         referenceData.secondTolastZValue = zold;
@@ -602,8 +598,6 @@ public class Newton3 extends NewtonRootFindingMethod {
             }
         }
 
-        convergent_bailout_algorithm.setReferenceMode(true);
-
         MantExpComplex tempmcz = null;
         Complex cz = null;
 
@@ -692,8 +686,6 @@ public class Newton3 extends NewtonRootFindingMethod {
             }
 
         }
-
-        convergent_bailout_algorithm.setReferenceMode(false);
 
         secondReferenceData.lastZValue = z;
         secondReferenceData.secondTolastZValue = zold;

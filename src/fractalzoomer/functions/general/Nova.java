@@ -1081,8 +1081,6 @@ public class Nova extends ExtendedConvergentType {
 
         RefType = getRefType();
 
-        convergent_bailout_algorithm.setReferenceMode(true);
-
         if(useCompressedRef) {
             if(deepZoom) {
                 referenceCompressor[referenceDeep.id] = new ReferenceCompressor(this, iterations == 0 ? z.toMantExpComplex() : referenceData.compressorZm, c.toMantExpComplex(), start.toMantExpComplex());
@@ -1207,8 +1205,6 @@ public class Nova extends ExtendedConvergentType {
             }
 
         }
-
-        convergent_bailout_algorithm.setReferenceMode(false);
 
         referenceData.lastZValue = z;
         referenceData.secondTolastZValue = zold;
@@ -1384,9 +1380,6 @@ public class Nova extends ExtendedConvergentType {
             pixel = inputPixel;
         }
 
-
-        convergent_bailout_algorithm.setReferenceMode(true);
-
         if(useCompressedRef) {
             if(deepZoom) {
                 referenceCompressor[secondReferenceDeepData.Reference.id] = new ReferenceCompressor(this, iterations == 0 ? z.toMantExpComplex() : secondReferenceData.compressorZm, c.toMantExpComplex(), start.toMantExpComplex());
@@ -1509,8 +1502,6 @@ public class Nova extends ExtendedConvergentType {
             }
 
         }
-
-        convergent_bailout_algorithm.setReferenceMode(false);
 
         secondReferenceData.lastZValue = z;
         secondReferenceData.secondTolastZValue = zold;

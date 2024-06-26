@@ -193,7 +193,7 @@ public abstract class RootFindingMethods extends Fractal {
                 Complex zold2 = gzold2.toComplex();
 
                 finalizeStatistic(true, z);
-                Object[] object = {iterations, z, convergent_bailout_algorithm.getDistance(), zold, zold2, pixelC, start, c0, pixelC};
+                Object[] object = {iterations, z, zold, zold2, pixelC, start, c0, pixelC};
                 iterationData = object;
                 double out = out_color_algorithm.getResult(object);
 
@@ -251,7 +251,7 @@ public abstract class RootFindingMethods extends Fractal {
                 escaped = true;
 
                 finalizeStatistic(true, complex[0]);
-                Object[] object = {iterations, complex[0], convergent_bailout_algorithm.getDistance(), zold, zold2, pixel, start, c0, pixel};
+                Object[] object = {iterations, complex[0], zold, zold2, pixel, start, c0, pixel};
                 iterationData = object;
                 double out = out_color_algorithm.getResult(object);
 
@@ -401,7 +401,7 @@ public abstract class RootFindingMethods extends Fractal {
                 out_color_algorithm = new EscapeTimeColorDecompositionRootFindingMethod(getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm));
                 break;
             case MainWindow.ESCAPE_TIME_ALGORITHM:
-                out_color_algorithm = new EscapeTimeAlgorithm1(3, getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm));
+                out_color_algorithm = new EscapeTimeAlgorithm1(2, getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm));
                 break;
             case MainWindow.USER_OUTCOLORING_ALGORITHM:
                 if (user_out_coloring_algorithm == 0) {
@@ -411,10 +411,10 @@ public abstract class RootFindingMethods extends Fractal {
                 }
                 break;
             case ESCAPE_TIME_SQUARES:
-                out_color_algorithm = new EscapeTimeSquares(7, getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm));
+                out_color_algorithm = new EscapeTimeSquares(6, getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm));
                 break;
             case ESCAPE_TIME_SQUARES2:
-                out_color_algorithm = new EscapeTimeSquares2(7, getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm));
+                out_color_algorithm = new EscapeTimeSquares2(6, getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm));
                 break;
 
         }
@@ -613,7 +613,7 @@ public abstract class RootFindingMethods extends Fractal {
                 escaped = true;
 
                 finalizeStatistic(true, z);
-                Object[] object = {iterations, z, convergent_bailout_algorithm.getDistance(), zold, zold2, pixel, start, c0, pixel};
+                Object[] object = {iterations, z, zold, zold2, pixel, start, c0, pixel};
                 iterationData = object;
 
                 double res = out_color_algorithm.getResult(object);
@@ -727,7 +727,7 @@ public abstract class RootFindingMethods extends Fractal {
                     escaped = true;
 
                     finalizeStatistic(true, zc);
-                    Object[] object = {iterations, zc, convergent_bailout_algorithm.getDistance(), zold, zold2, pixel, start, c0, pixel};
+                    Object[] object = {iterations, zc, zold, zold2, pixel, start, c0, pixel};
                     iterationData = object;
 
                     double res = out_color_algorithm.getResult(object);
@@ -801,7 +801,7 @@ public abstract class RootFindingMethods extends Fractal {
                     escaped = true;
 
                     finalizeStatistic(true, zc);
-                    Object[] object = {iterations, zc, convergent_bailout_algorithm.getDistance(), zold, zold2, pixel, start, c0, pixel};
+                    Object[] object = {iterations, zc, zold, zold2, pixel, start, c0, pixel};
                     iterationData = object;
 
                     double res = out_color_algorithm.getResult(object);

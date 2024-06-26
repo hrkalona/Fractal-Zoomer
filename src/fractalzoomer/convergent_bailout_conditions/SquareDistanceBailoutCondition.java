@@ -32,13 +32,7 @@ public class SquareDistanceBailoutCondition extends ConvergentBailoutCondition {
     public boolean converged(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0, Complex pixel) {
 
         Complex diff = z.sub(zold);
-        boolean result = Math.max(diff.getAbsRe(), diff.getAbsIm()) <= convergent_bailout;
-
-        if(calculateDistance && result) {
-            distance = z.distance_squared(zold);
-        }
-
-        return result;
+        return Math.max(diff.getAbsRe(), diff.getAbsIm()) <= convergent_bailout;
     }
 
     @Override
@@ -49,13 +43,7 @@ public class SquareDistanceBailoutCondition extends ConvergentBailoutCondition {
 
         MpfrBigNum max = MpfrBigNum.max(absRe, absIm);
 
-        boolean result =  max.compare(convergent_bailout) <= 0;
-
-        if(calculateDistance && result) {
-            distance = z.distance_squared(zold, temp1, temp2).doubleValue();
-        }
-
-        return result;
+        return  max.compare(convergent_bailout) <= 0;
     }
 
     @Override
@@ -66,13 +54,7 @@ public class SquareDistanceBailoutCondition extends ConvergentBailoutCondition {
 
         MpirBigNum max = MpirBigNum.max(absRe, absIm);
 
-        boolean result =  max.compare(convergent_bailout) <= 0;
-
-        if(calculateDistance && result) {
-            distance = z.distance_squared(zold, temp1p, temp2p).doubleValue();
-        }
-
-        return result;
+        return  max.compare(convergent_bailout) <= 0;
     }
 
     @Override
@@ -84,13 +66,7 @@ public class SquareDistanceBailoutCondition extends ConvergentBailoutCondition {
 
         Apfloat max = ApfloatMath.max(absRe, absIm);
 
-        boolean result =  max.compareTo(ddconvergent_bailout) <= 0;
-
-        if(calculateDistance && result) {
-            distance = z.distance_squared(zold).doubleValue();
-        }
-
-        return result;
+        return  max.compareTo(ddconvergent_bailout) <= 0;
     }
 
     @Override
@@ -101,13 +77,7 @@ public class SquareDistanceBailoutCondition extends ConvergentBailoutCondition {
 
         BigIntNum max = BigIntNum.max(absRe, absIm);
 
-        boolean result = max.compare(binddconvergent_bailout) <= 0;
-
-        if(calculateDistance && result) {
-            distance = z.distance_squared(zold).doubleValue();
-        }
-
-        return result;
+        return max.compare(binddconvergent_bailout) <= 0;
     }
 
     @Override
@@ -119,26 +89,14 @@ public class SquareDistanceBailoutCondition extends ConvergentBailoutCondition {
 
         DoubleDouble max = absRe.max(absIm);
 
-        boolean result =  max.compareTo(ddcconvergent_bailout) <= 0;
-
-        if(calculateDistance && result) {
-            distance = z.distance_squared(zold).doubleValue();
-        }
-
-        return result;
+        return  max.compareTo(ddcconvergent_bailout) <= 0;
     }
 
     @Override
     public boolean converged(Complex z, double root, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0, Complex pixel) {
 
         Complex diff = z.sub(root);
-        boolean result = Math.max(diff.getAbsRe(), diff.getAbsIm()) <= convergent_bailout;
-
-        if(calculateDistance && result) {
-            distance = z.distance_squared(root);
-        }
-
-        return result;
+        return Math.max(diff.getAbsRe(), diff.getAbsIm()) <= convergent_bailout;
     }
 
     @Override
@@ -150,13 +108,7 @@ public class SquareDistanceBailoutCondition extends ConvergentBailoutCondition {
 
         Apfloat max = ApfloatMath.max(absRe, absIm);
 
-        boolean result =  max.compareTo(ddconvergent_bailout) <= 0;
-
-        if(calculateDistance && result) {
-            distance = z.distance_squared(root).doubleValue();
-        }
-
-        return result;
+        return max.compareTo(ddconvergent_bailout) <= 0;
     }
 
     @Override
@@ -167,13 +119,7 @@ public class SquareDistanceBailoutCondition extends ConvergentBailoutCondition {
 
         BigIntNum max = BigIntNum.max(absRe, absIm);
 
-        boolean result =  max.compare(binddconvergent_bailout) <= 0;
-
-        if(calculateDistance && result) {
-            distance = z.distance_squared(root).doubleValue();
-        }
-
-        return result;
+        return  max.compare(binddconvergent_bailout) <= 0;
     }
 
     @Override
@@ -185,13 +131,7 @@ public class SquareDistanceBailoutCondition extends ConvergentBailoutCondition {
 
         DoubleDouble max = absRe.max(absIm);
 
-        boolean result =  max.compareTo(ddcconvergent_bailout) <= 0;
-
-        if(calculateDistance && result) {
-            distance = z.distance_squared(root).doubleValue();
-        }
-
-        return result;
+        return  max.compareTo(ddcconvergent_bailout) <= 0;
     }
 
     @Override
@@ -202,13 +142,7 @@ public class SquareDistanceBailoutCondition extends ConvergentBailoutCondition {
 
         MpfrBigNum max = MpfrBigNum.max(absRe, absIm);
 
-        boolean result =  max.compare(convergent_bailout) <= 0;
-
-        if(calculateDistance && result) {
-            distance = z.distance_squared(root, temp1, temp2).doubleValue();
-        }
-
-        return result;
+        return  max.compare(convergent_bailout) <= 0;
     }
 
     @Override
@@ -219,26 +153,14 @@ public class SquareDistanceBailoutCondition extends ConvergentBailoutCondition {
 
         MpirBigNum max = MpirBigNum.max(absRe, absIm);
 
-        boolean result =  max.compare(convergent_bailout) <= 0;
-
-        if(calculateDistance && result) {
-            distance = z.distance_squared(root, temp1p, temp2p).doubleValue();
-        }
-
-        return result;
+        return  max.compare(convergent_bailout) <= 0;
     }
 
     @Override
     public boolean converged(Complex z, Complex root, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0, Complex pixel) {
 
         Complex diff = z.sub(root);
-        boolean result = Math.max(diff.getAbsRe(), diff.getAbsIm()) <= convergent_bailout;
-
-        if(calculateDistance && result) {
-            distance = z.distance_squared(root);
-        }
-
-        return result;
+        return Math.max(diff.getAbsRe(), diff.getAbsIm()) <= convergent_bailout;
     }
 
     @Override
@@ -250,13 +172,8 @@ public class SquareDistanceBailoutCondition extends ConvergentBailoutCondition {
 
         Apfloat max = ApfloatMath.max(absRe, absIm);
 
-        boolean result =  max.compareTo(ddconvergent_bailout) <= 0;
+        return  max.compareTo(ddconvergent_bailout) <= 0;
 
-        if(calculateDistance && result) {
-            distance = z.distance_squared(root).doubleValue();
-        }
-
-        return result;
     }
 
     @Override
@@ -267,13 +184,7 @@ public class SquareDistanceBailoutCondition extends ConvergentBailoutCondition {
 
         BigIntNum max = BigIntNum.max(absRe, absIm);
 
-        boolean result =  max.compare(binddconvergent_bailout) <= 0;
-
-        if(calculateDistance && result) {
-            distance = z.distance_squared(root).doubleValue();
-        }
-
-        return result;
+        return  max.compare(binddconvergent_bailout) <= 0;
     }
 
     @Override
@@ -285,13 +196,7 @@ public class SquareDistanceBailoutCondition extends ConvergentBailoutCondition {
 
         DoubleDouble max = absRe.max(absIm);
 
-        boolean result =  max.compareTo(ddcconvergent_bailout) <= 0;
-
-        if(calculateDistance && result) {
-            distance = z.distance_squared(root).doubleValue();
-        }
-
-        return result;
+        return  max.compareTo(ddcconvergent_bailout) <= 0;
     }
 
     @Override
@@ -302,13 +207,7 @@ public class SquareDistanceBailoutCondition extends ConvergentBailoutCondition {
 
         MpfrBigNum max = MpfrBigNum.max(absRe, absIm);
 
-        boolean result =  max.compare(convergent_bailout) <= 0;
-
-        if(calculateDistance && result) {
-            distance = z.distance_squared(root, temp1, temp2).doubleValue();
-        }
-
-        return result;
+        return  max.compare(convergent_bailout) <= 0;
     }
 
     @Override
@@ -319,13 +218,7 @@ public class SquareDistanceBailoutCondition extends ConvergentBailoutCondition {
 
         MpirBigNum max = MpirBigNum.max(absRe, absIm);
 
-        boolean result =  max.compare(convergent_bailout) <= 0;
-
-        if(calculateDistance && result) {
-            distance = z.distance_squared(root, temp1p, temp2p).doubleValue();
-        }
-
-        return result;
+        return  max.compare(convergent_bailout) <= 0;
     }
 
 }

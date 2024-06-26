@@ -37,8 +37,6 @@ public class SplashLabel extends JLabel {
     protected int _shadowGap;
     protected int _shadowOffset;
     protected int _shadowAlpha;
-    private int custom_width;
-    private int custom_height;
     private Font font;
 
 
@@ -49,7 +47,7 @@ public class SplashLabel extends JLabel {
         _shadowAlpha = 150;
         _shadowOffset = 4;
         _shadowGap = 5;
-        _arcs = new Dimension(50, 50);
+        _arcs = new Dimension(25, 25);
         _highQuality = true;
         shadowed = false;
         strokeSize = 0;
@@ -64,8 +62,6 @@ public class SplashLabel extends JLabel {
             font = new Font("Arial", Font.BOLD, 25);
         }
 
-        this.custom_width = custom_width;
-        this.custom_height = custom_height;
         BufferedImage img = new BufferedImage(custom_width, custom_height, BufferedImage.TYPE_INT_ARGB);
         Graphics g = img.createGraphics();
         g.setColor(new Color(0, 0, 0, 0));

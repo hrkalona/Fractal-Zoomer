@@ -170,7 +170,7 @@ public abstract class DurandKernerRootFindingMethod extends RootFindingMethods {
                 escaped = true;
 
                 finalizeStatistic(true, complex[0]);
-                Object[] object = {iterations, complex[0], convergent_bailout_algorithm.getDistance(), zold, zold2, pixel, start, c0, pixel};
+                Object[] object = {iterations, complex[0], zold, zold2, pixel, start, c0, pixel};
                 iterationData = object;
                 double out = out_color_algorithm.getResult(object);
 

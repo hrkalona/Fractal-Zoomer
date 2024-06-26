@@ -103,7 +103,7 @@ public abstract class MagnetType extends Julia {
                 converged = temp1;
 
                 finalizeStatistic(true, complex[0]);
-                Object[] object = {iterations, complex[0], temp2, convergent_bailout_algorithm.getDistance(), zold, zold2, complex[1], start, c0, pixel};
+                Object[] object = {iterations, complex[0], temp2, zold, zold2, complex[1], start, c0, pixel};
                 double out = out_color_algorithm.getResult(object);
 
                 out = getFinalValueOut(out);
@@ -155,7 +155,7 @@ public abstract class MagnetType extends Julia {
                 converged = temp1;
 
                 finalizeStatistic(true, complex[0]);
-                Object[] object = {iterations, complex[0], temp2, convergent_bailout_algorithm.getDistance(), zold, zold2, complex[1], start, c0, pixel};
+                Object[] object = {iterations, complex[0], temp2, zold, zold2, complex[1], start, c0, pixel};
                 double out = out_color_algorithm.getResult(object);
 
                 out = getFinalValueOut(out);
@@ -283,7 +283,7 @@ public abstract class MagnetType extends Julia {
                 Complex c = complex[1].toComplex();
 
                 finalizeStatistic(true, z);
-                Object[] object = {iterations, z, temp2, convergent_bailout_algorithm.getDistance(), zold, zold2, c, start, c0, pixelC};
+                Object[] object = {iterations, z, temp2, zold, zold2, c, start, c0, pixelC};
                 double out = out_color_algorithm.getResult(object);
 
                 out = getFinalValueOut(out);
@@ -389,7 +389,7 @@ public abstract class MagnetType extends Julia {
                 out_color_algorithm = new EscapeTimeGaussianInteger5(getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm, escaping_smooth_algorithm));
                 break;
             case MainWindow.ESCAPE_TIME_ALGORITHM:
-                out_color_algorithm = new EscapeTimeAlgorithm1(4, getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm, escaping_smooth_algorithm));
+                out_color_algorithm = new EscapeTimeAlgorithm1(3, getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm, escaping_smooth_algorithm));
                 break;
             case MainWindow.ESCAPE_TIME_ALGORITHM2:
                 out_color_algorithm = new EscapeTimeAlgorithm2(getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm, escaping_smooth_algorithm));
@@ -418,10 +418,10 @@ public abstract class MagnetType extends Julia {
                 break;
 
             case ESCAPE_TIME_SQUARES:
-                out_color_algorithm = new EscapeTimeSquares(8, getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm, escaping_smooth_algorithm));
+                out_color_algorithm = new EscapeTimeSquares(7, getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm, escaping_smooth_algorithm));
                 break;
             case ESCAPE_TIME_SQUARES2:
-                out_color_algorithm = new EscapeTimeSquares2(8, getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm, escaping_smooth_algorithm));
+                out_color_algorithm = new EscapeTimeSquares2(7, getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm, escaping_smooth_algorithm));
                 break;
 
         }
@@ -565,7 +565,7 @@ public abstract class MagnetType extends Julia {
                 converged = temp1;
 
                 finalizeStatistic(true, z);
-                Object[] object = {iterations, z, temp2, convergent_bailout_algorithm.getDistance(), zold, zold2, c, start, c0, pixel};
+                Object[] object = {iterations, z, temp2, zold, zold2, c, start, c0, pixel};
                 double out = out_color_algorithm.getResult(object);
 
                 out = getFinalValueOut(out);
@@ -687,7 +687,7 @@ public abstract class MagnetType extends Julia {
                         converged = temp1;
 
                         finalizeStatistic(true, zc);
-                        Object[] object = {iterations, zc, temp2, convergent_bailout_algorithm.getDistance(), zold, zold2, c, start, c0, pixel};
+                        Object[] object = {iterations, zc, temp2, zold, zold2, c, start, c0, pixel};
                         double out = out_color_algorithm.getResult(object);
 
                         out = getFinalValueOut(out);
@@ -766,7 +766,7 @@ public abstract class MagnetType extends Julia {
                     converged = temp1;
 
                     finalizeStatistic(true, zc);
-                    Object[] object = {iterations, zc, temp2, convergent_bailout_algorithm.getDistance(), zold, zold2, c, start, c0, pixel};
+                    Object[] object = {iterations, zc, temp2, zold, zold2, c, start, c0, pixel};
                     double out = out_color_algorithm.getResult(object);
 
                     out = getFinalValueOut(out);
@@ -864,7 +864,7 @@ public abstract class MagnetType extends Julia {
                 converged = temp1;
 
                 finalizeStatistic(true, z);
-                Object[] object = {iterations, z, temp2, convergent_bailout_algorithm.getDistance(), zold, zold2, c, start, c0, pixel};
+                Object[] object = {iterations, z, temp2, zold, zold2, c, start, c0, pixel};
                 double out = out_color_algorithm.getResult(object);
 
                 out = getFinalValueOut(out);
@@ -970,7 +970,7 @@ public abstract class MagnetType extends Julia {
                         converged = temp1;
 
                         finalizeStatistic(true, zc);
-                        Object[] object = {iterations, zc, temp2, convergent_bailout_algorithm.getDistance(), zold, zold2, c, start, c0, pixel};
+                        Object[] object = {iterations, zc, temp2, zold, zold2, c, start, c0, pixel};
                         double out = out_color_algorithm.getResult(object);
 
                         out = getFinalValueOut(out);
@@ -1042,7 +1042,7 @@ public abstract class MagnetType extends Julia {
                     converged = temp1;
 
                     finalizeStatistic(true, zc);
-                    Object[] object = {iterations, zc, temp2, convergent_bailout_algorithm.getDistance(), zold, zold2, c, start, c0, pixel};
+                    Object[] object = {iterations, zc, temp2, zold, zold2, c, start, c0, pixel};
                     double out = out_color_algorithm.getResult(object);
 
                     out = getFinalValueOut(out);

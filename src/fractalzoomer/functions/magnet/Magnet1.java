@@ -703,8 +703,6 @@ public class Magnet1 extends MagnetType {
         boolean preCalcNormData = bailout_algorithm2.getId() == MainWindow.BAILOUT_CONDITION_CIRCLE;
         NormComponents normData = null;
 
-        convergent_bailout_algorithm.setReferenceMode(true);
-
         if(useCompressedRef) {
             if(deepZoom) {
                 referenceCompressor[referenceDeep.id] = new ReferenceCompressor(this, iterations == 0 ? z.toMantExpComplex() : referenceData.compressorZm, c.toMantExpComplex(), start.toMantExpComplex());
@@ -887,8 +885,6 @@ public class Magnet1 extends MagnetType {
 
         }
 
-        convergent_bailout_algorithm.setReferenceMode(false);
-
         referenceData.lastZValue = z;
         referenceData.secondTolastZValue = zold;
         referenceData.thirdTolastZValue = zold2;
@@ -1056,8 +1052,6 @@ public class Magnet1 extends MagnetType {
         boolean preCalcNormData = bailout_algorithm2.getId() == MainWindow.BAILOUT_CONDITION_CIRCLE;
         NormComponents normData = null;
 
-        convergent_bailout_algorithm.setReferenceMode(true);
-
         if(useCompressedRef) {
             if(deepZoom) {
                 referenceCompressor[secondReferenceDeepData.Reference.id] = new ReferenceCompressor(this, iterations == 0 ? z.toMantExpComplex() : secondReferenceData.compressorZm, c.toMantExpComplex(), start.toMantExpComplex());
@@ -1211,8 +1205,6 @@ public class Magnet1 extends MagnetType {
             }
 
         }
-
-        convergent_bailout_algorithm.setReferenceMode(false);
 
         secondReferenceData.lastZValue = z;
         secondReferenceData.secondTolastZValue = zold;

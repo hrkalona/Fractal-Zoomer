@@ -415,8 +415,6 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
 
         RefType = getRefType();
 
-        convergent_bailout_algorithm.setReferenceMode(true);
-
         if(useCompressedRef) {
             if(deepZoom) {
                 referenceCompressor[referenceDeep.id] = new ReferenceCompressor(this, iterations == 0 ? z.toMantExpComplex() : referenceData.compressorZm, c.toMantExpComplex(), start.toMantExpComplex());
@@ -639,8 +637,6 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
 
         }
 
-        convergent_bailout_algorithm.setReferenceMode(false);
-
         referenceData.lastZValue = z;
         referenceData.secondTolastZValue = zold;
         referenceData.thirdTolastZValue = zold2;
@@ -809,8 +805,6 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
             c0 = c;
             pixel = inputPixel;
         }
-
-        convergent_bailout_algorithm.setReferenceMode(true);
 
         if(useCompressedRef) {
             if(deepZoom) {
@@ -989,8 +983,6 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
             }
 
         }
-
-        convergent_bailout_algorithm.setReferenceMode(false);
 
         secondReferenceData.lastZValue = z;
         secondReferenceData.secondTolastZValue = zold;

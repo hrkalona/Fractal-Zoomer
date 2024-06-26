@@ -33,8 +33,6 @@ public abstract class ConvergentBailoutCondition {
   protected Apfloat ddconvergent_bailout;
   protected BigIntNum binddconvergent_bailout;
   protected DoubleDouble ddcconvergent_bailout;
-  protected double distance;
-  protected boolean calculateDistance;
   protected Norm normImpl;
 
     protected ConvergentBailoutCondition(double convergent_bailout) {
@@ -47,13 +45,8 @@ public abstract class ConvergentBailoutCondition {
             binddconvergent_bailout = new BigIntNum(convergent_bailout);
         }
 
-        calculateDistance = true;
         normImpl = new Norm2();
         
-    }
-
-    public void setReferenceMode(boolean ReferenceMode) {
-        this.calculateDistance = !ReferenceMode;
     }
     
     public abstract boolean converged(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0, Complex pixel);
@@ -134,8 +127,5 @@ public abstract class ConvergentBailoutCondition {
       return converged((Complex) z, (Double)root, (Complex)zold, (Complex)zold2, iterations, (Complex)c, (Complex)start, (Complex)c0, (Complex)pixel);
     }
   }
-    public double getDistance() {
-        return distance;
-    }
     
 }

@@ -59,63 +59,38 @@ public class SmoothEscapeTime extends OutColorAlgorithm {
     public double getResult(Object[] object) {
         
         if(algorithm == 0 && !usePower) {
-            return (int)object[0] + getSmoothing1(object, Math.log(((Complex)object[1]).norm_squared()), log_bailout_squared);
+            return (int)object[0] + getSmoothing1((Complex)object[1], (Complex)object[2], log_bailout_squared);
         }
         else if(algorithm == 2 && !usePower) {
-            return (int)object[0] + getSmoothing3(object, bailout);
+            return (int)object[0] + getSmoothing3((Complex)object[1], (Complex)object[2], bailout);
         }
         else {
             //double temp2 = ((Complex)object[1]).norm_squared();
             //return (int)object[0] + 1 - Math.log(Math.log(temp2) / log_bailout_squared) / log_power;
 
-            return (int)object[0] + getSmoothing2(object, Math.log(((Complex)object[1]).norm_squared()), log_bailout_squared, usePower, log_power);
+            return (int)object[0] + getSmoothing2((Complex)object[1], (Complex)object[2], log_bailout_squared, usePower, log_power);
 
         }
 
     }
 
-    private static double getSmoothing1(Object[] object, double log_znnormsqr, double log_bailout_squared) {
+    protected static double getSmoothing1(Complex z, Complex zold, double log_bailout_squared) {
 
-        double temp = ((Complex)object[2]).norm_squared();
-
-        if(temp == 0) {
-            temp += 0.000000001;
-        }
-        temp = Math.log(temp);
-
-        return (log_bailout_squared - temp) / (log_znnormsqr - temp);
+        return 1 - fractionalPartEscaping1(z, zold, log_bailout_squared);
 
     }
 
-    private static double getSmoothing2(Object[] object, double log_znnormsqr, double log_bailout_squared, boolean usePower, double log_power) {
+    protected static double getSmoothing2(Complex z, Complex zold, double log_bailout_squared, boolean usePower, double log_power) {
 
-        double p;
         if(usePower) {
-            p = log_power;
-        }
-        else {
-            double temp = ((Complex)object[2]).norm_squared();
-            p = log_znnormsqr / Math.log(temp);
-            p = p <= 0 ? 1e-33 : p;
-            p = Math.log(p);
+            return 1 - fractionalPartEscapingWithPower(z, log_bailout_squared, log_power);
         }
 
-
-        log_znnormsqr = log_znnormsqr <= 0 ? 1e-33 : log_znnormsqr;
-
-        double a = Math.log(log_znnormsqr / log_bailout_squared);
-        return  1 - a / p;
+        return 1 - fractionalPartEscaping2(z, zold, log_bailout_squared);
 
     }
 
-    private static double getSmoothing3(Object[] object, double bailout) {
-        double p = 2;
-
-        double test1 = ((Complex)object[1]).norm_squared();
-        double test2 = ((Complex)object[2]).norm_squared();
-
-        double a = Math.pow(test1, 1 / p);
-        double div = a - Math.pow(test2, 1 / p);
-        return 1 - (a - bailout) / div;
+    protected static double getSmoothing3(Complex z, Complex zold, double bailout) {
+        return 1 - fractionalPartEscaping3(z, zold, bailout);
     }
 }
