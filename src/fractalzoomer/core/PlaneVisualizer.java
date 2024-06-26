@@ -266,7 +266,7 @@ public class PlaneVisualizer {
                 plane = new RipplesPlane(s.fns.plane_transform_scales, s.fns.plane_transform_wavelength, s.fns.waveType);
                 break;
             case MainWindow.SKEW_PLANE:
-                plane = new SkewPlane(s.fns.plane_transform_angle, s.fns.plane_transform_angle2);
+                plane = new SkewPlane(s.fns.plane_transform_angle, s.fns.plane_transform_angle2, s.fns.plane_transform_center_hp);
                 break;
             case MainWindow.STRETCH_PLANE:
                 plane = new StretchPlane(s.fns.plane_transform_angle, s.fns.plane_transform_amount, s.fns.plane_transform_center_hp);

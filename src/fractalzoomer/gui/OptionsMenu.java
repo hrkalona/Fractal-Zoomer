@@ -88,13 +88,13 @@ public class OptionsMenu extends MyMenu {
 
     private JMenu bailout_menu;
 
-    public OptionsMenu(MainWindow ptr2, String name, PaletteSettings ps, PaletteSettings ps2, boolean smoothing, boolean show_orbit_converging_point, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, int out_coloring_algorithm, int in_coloring_algorithm, int function, int plane_type, int bailout_test_algorithm, int color_blending, boolean color_blending_reverse_order, int temp_color_cycling_location, int temp_color_cycling_location2, int pre_filter, int post_filter, int plane_influence, int convergent_bailout_test_algorithm) {
+    public OptionsMenu(MainWindow ptr2, String name, PaletteSettings ps, PaletteSettings ps2, boolean smoothing, boolean show_orbit_converging_point, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, int out_coloring_algorithm, int in_coloring_algorithm, int function, int plane_type, int bailout_test_algorithm, int color_blending, boolean color_blending_reverse_order, int temp_color_cycling_location, int temp_color_cycling_location2, int pre_filter, int post_filter, int plane_influence, int convergent_bailout_test_algorithm, boolean flip_re, boolean flip_im) {
 
         super(name);
 
         this.ptr = ptr2;
 
-        fractal_options_menu = new FractalOptionsMenu(ptr, "Fractal Options", apply_plane_on_julia, apply_plane_on_julia_seed, function, plane_type, pre_filter, post_filter, plane_influence);
+        fractal_options_menu = new FractalOptionsMenu(ptr, "Fractal Options", apply_plane_on_julia, apply_plane_on_julia_seed, function, plane_type, pre_filter, post_filter, plane_influence, flip_re, flip_im);
 
         iterations_menu = new MyMenu("Iterations");
         iterations_menu.setIcon(MainWindow.getIcon("iterations.png"));
@@ -968,6 +968,18 @@ public class OptionsMenu extends MyMenu {
         else {
             jitter_opt.setIcon(MainWindow.getIcon("jitter.png"));
         }
+
+    }
+
+    public JCheckBoxMenuItem getFlipReOpt() {
+
+        return fractal_options_menu.getFlipReOpt();
+
+    }
+
+    public JCheckBoxMenuItem getFlipImOpt() {
+
+        return fractal_options_menu.getFlipImOpt();
 
     }
 

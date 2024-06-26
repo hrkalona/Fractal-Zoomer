@@ -419,7 +419,7 @@ public class MainWindow extends JFrame implements Constants {
 
         file_menu = new FileMenu(ptr, "File");
 
-        options_menu = new OptionsMenu(ptr, "Options", s.ps, s.ps2, s.hasSmoothing(), show_orbit_converging_point, s.fns.apply_plane_on_julia, s.fns.apply_plane_on_julia_seed, s.fns.out_coloring_algorithm, s.fns.in_coloring_algorithm, s.fns.function, s.fns.plane_type, s.fns.bailout_test_algorithm, s.color_blending.color_blending, s.color_blending.blending_reversed_colors, s.temp_color_cycling_location, s.temp_color_cycling_location_second_palette, s.fns.preffs.functionFilter, s.fns.postffs.functionFilter, s.fns.ips.influencePlane, s.fns.cbs.convergent_bailout_test_algorithm);
+        options_menu = new OptionsMenu(ptr, "Options", s.ps, s.ps2, s.hasSmoothing(), show_orbit_converging_point, s.fns.apply_plane_on_julia, s.fns.apply_plane_on_julia_seed, s.fns.out_coloring_algorithm, s.fns.in_coloring_algorithm, s.fns.function, s.fns.plane_type, s.fns.bailout_test_algorithm, s.color_blending.color_blending, s.color_blending.blending_reversed_colors, s.temp_color_cycling_location, s.temp_color_cycling_location_second_palette, s.fns.preffs.functionFilter, s.fns.postffs.functionFilter, s.fns.ips.influencePlane, s.fns.cbs.convergent_bailout_test_algorithm, s.flip_real, s.flip_imaginary);
 
         fractal_functions = options_menu.getFractalFunctions();
 
@@ -1345,6 +1345,9 @@ public class MainWindow extends JFrame implements Constants {
                 break;
             case FORMULA48:
                 temp += "   z = c(z^2 + z^-2)";
+                break;
+            case FORMULA49:
+                temp += "   z = ((z^2 + 1.5) / (-2z + 0.5))^2 + c";
                 break;
             case FORMULA3:
                 temp += "   z = c(z^3 + z^-3)";
@@ -6389,6 +6392,7 @@ public class MainWindow extends JFrame implements Constants {
             case FORMULA43:
             case FORMULA44:
             case FORMULA45:
+            case FORMULA49:
                 temp_xCenter = new MyApfloat(0.0);
                 temp_yCenter = new MyApfloat(0.0);
                 temp_size = new MyApfloat(24);
@@ -9021,6 +9025,34 @@ public class MainWindow extends JFrame implements Constants {
         resetOrbit();
         new ColorCyclingDialog(ptr, ccs);
 
+    }
+
+    public void FlipReal() {
+        resetOrbit();
+
+        if (!options_menu.getFlipReOpt().isSelected()) {
+            s.flip_real = false;
+        } else {
+            s.flip_real = true;
+        }
+
+        Plane.FLIP_REAL = s.flip_real;
+
+        defaultFractalSettings(true);
+    }
+
+    public void FlipImaginary() {
+        resetOrbit();
+
+        if (!options_menu.getFlipImOpt().isSelected()) {
+            s.flip_imaginary = false;
+        } else {
+            s.flip_imaginary = true;
+        }
+
+        Plane.FLIP_IMAGINARY = s.flip_imaginary;
+
+        defaultFractalSettings(true);
     }
 
     public void setApplyPlaneOnWholeJulia() {

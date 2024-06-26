@@ -29,6 +29,7 @@ public class FoldDownPlane extends Plane {
     private Complex center;
     private BigComplex ddcenter;
     private BigNumComplex bncenter;
+    private BigIntNumComplex bincenter;
 
     private MpfrBigNumComplex mpfrbncenter;
 
@@ -44,6 +45,7 @@ public class FoldDownPlane extends Plane {
             ddcenter = new BigComplex(center);
             ddccenter = new DDComplex(center);
             bncenter = new BigNumComplex(center);
+            bincenter = new BigIntNumComplex(center);
 
             if (TaskRender.allocateMPFR()) {
                 mpfrbncenter = new MpfrBigNumComplex(center);
@@ -72,6 +74,13 @@ public class FoldDownPlane extends Plane {
     public BigNumComplex transform_internal(BigNumComplex pixel) {
 
         return pixel.fold_down(bncenter);
+
+    }
+
+    @Override
+    public BigIntNumComplex transform_internal(BigIntNumComplex pixel) {
+
+        return pixel.fold_down(bincenter);
 
     }
 

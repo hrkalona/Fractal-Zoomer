@@ -3736,7 +3736,7 @@ public abstract class Fractal {
                 plane = new RipplesPlane(plane_transform_scales, plane_transform_wavelength, waveType);
                 break;
             case MainWindow.SKEW_PLANE:
-                plane = new SkewPlane(plane_transform_angle, plane_transform_angle2);
+                plane = new SkewPlane(plane_transform_angle, plane_transform_angle2, plane_transform_center_hp);
                 break;
             case STRETCH_PLANE:
                 plane = new StretchPlane(plane_transform_angle, plane_transform_amount, plane_transform_center_hp);

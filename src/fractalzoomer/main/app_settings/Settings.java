@@ -2493,6 +2493,7 @@ public class Settings implements Constants {
         switch (fns.function) {
             case MANDEL_NEWTON:
             case FORMULA1:
+            case FORMULA49:
                 xCenter = new MyApfloat(0.0);
                 yCenter = new MyApfloat(0.0);
                 size = new MyApfloat(24);

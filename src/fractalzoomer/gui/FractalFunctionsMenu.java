@@ -477,6 +477,7 @@ public class FractalFunctionsMenu extends MyMenu {
         functionNames[MainWindow.PERPENDICULAR_CELTIC_MANDELBROT] = "Perpendicular Celtic Mandelbrot";
         functionNames[MainWindow.PERPENDICULAR_BUFFALO_MANDELBROT] = "Perpendicular Buffalo Mandelbrot";
         functionNames[MainWindow.FORMULA48] = "z = c(z^2 + z^-2)";
+        functionNames[MainWindow.FORMULA49] = "z = ((z^2 + 1.5) / (-2z + 0.5))^2 + c";
     }
 
     public FractalFunctionsMenu(MainWindow ptr2, String name, int function) {
@@ -704,6 +705,12 @@ public class FractalFunctionsMenu extends MyMenu {
         fractal_functions[MainWindow.PERPENDICULAR_BUFFALO_MANDELBROT].addActionListener(e -> ptr.setFunction(MainWindow.PERPENDICULAR_BUFFALO_MANDELBROT));
         m_like_generalizations_type_functions.add(fractal_functions[MainWindow.PERPENDICULAR_BUFFALO_MANDELBROT]);
         functions_button_group.add(fractal_functions[MainWindow.PERPENDICULAR_BUFFALO_MANDELBROT]);
+        m_like_generalizations_type_functions.addSeparator();
+
+        fractal_functions[MainWindow.FORMULA49] = new JRadioButtonMenuItem(functionNames[MainWindow.FORMULA49]);
+        fractal_functions[MainWindow.FORMULA49].addActionListener(e -> ptr.setFunction(MainWindow.FORMULA49));
+        m_like_generalizations_type_functions.add(fractal_functions[MainWindow.FORMULA49]);
+        functions_button_group.add(fractal_functions[MainWindow.FORMULA49]);
         m_like_generalizations_type_functions.addSeparator();
           
         fractal_functions[MainWindow.FORMULA2] = new JRadioButtonMenuItem(functionNames[MainWindow.FORMULA2]);

@@ -29,6 +29,8 @@ public class FoldOutPlane extends Plane {
     private Complex center;
     private BigComplex ddcenter;
 
+    private BigIntNumComplex bincenter;
+
     private MpfrBigNumComplex mpfrbncenter;
 
     private MpirBigNumComplex mpirbncenter;
@@ -42,6 +44,7 @@ public class FoldOutPlane extends Plane {
         if(TaskRender.PERTURBATION_THEORY || TaskRender.HIGH_PRECISION_CALCULATION) {
             ddcenter = new BigComplex(center);
             ddccenter = new DDComplex(center);
+            bincenter = new BigIntNumComplex(center);
             if (TaskRender.allocateMPFR()) {
                 mpfrbncenter = new MpfrBigNumComplex(center);
             } else if (TaskRender.allocateMPIR()) {
@@ -69,6 +72,13 @@ public class FoldOutPlane extends Plane {
     public MpfrBigNumComplex transform_internal(MpfrBigNumComplex pixel) {
 
         return pixel.fold_out(mpfrbncenter);
+
+    }
+
+    @Override
+    public BigIntNumComplex transform_internal(BigIntNumComplex pixel) {
+
+        return pixel.fold_out(bincenter);
 
     }
 

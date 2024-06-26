@@ -30,6 +30,8 @@ public class FoldUpPlane extends Plane {
     private BigComplex ddcenter;
     private BigNumComplex bncenter;
 
+    private BigIntNumComplex bincenter;
+
     private MpfrBigNumComplex mpfrbncenter;
 
     private MpirBigNumComplex mpirbncenter;
@@ -45,6 +47,7 @@ public class FoldUpPlane extends Plane {
             ddcenter = new BigComplex(center);
             ddccenter = new DDComplex(center);
             bncenter = new BigNumComplex(center);
+            bincenter = new BigIntNumComplex(center);
 
             if (TaskRender.allocateMPFR()) {
                 mpfrbncenter = new MpfrBigNumComplex(center);
@@ -73,6 +76,13 @@ public class FoldUpPlane extends Plane {
     public BigNumComplex transform_internal(BigNumComplex pixel) {
 
         return pixel.fold_up(bncenter);
+
+    }
+
+    @Override
+    public BigIntNumComplex transform_internal(BigIntNumComplex pixel) {
+
+        return pixel.fold_up(bincenter);
 
     }
 
