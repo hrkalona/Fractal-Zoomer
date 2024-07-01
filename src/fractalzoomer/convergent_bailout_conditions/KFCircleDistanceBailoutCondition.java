@@ -5,7 +5,7 @@ import fractalzoomer.core.mpfr.MpfrBigNum;
 import fractalzoomer.core.mpir.MpirBigNum;
 import org.apfloat.Apfloat;
 
-public class KFDistanceBailoutCondition extends ConvergentBailoutCondition {
+public class KFCircleDistanceBailoutCondition extends ConvergentBailoutCondition {
     private MpfrBigNum temp1;
     private MpfrBigNum temp2;
     private MpfrBigNum temp3;
@@ -14,7 +14,7 @@ public class KFDistanceBailoutCondition extends ConvergentBailoutCondition {
     private MpirBigNum temp2p;
     private MpirBigNum temp3p;
     private MpirBigNum temp4p;
-    public KFDistanceBailoutCondition(double convergent_bailout) {
+    public KFCircleDistanceBailoutCondition(double convergent_bailout) {
         super(convergent_bailout);
 
         if(TaskRender.PERTURBATION_THEORY || TaskRender.HIGH_PRECISION_CALCULATION) {

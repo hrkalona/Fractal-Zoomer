@@ -70,7 +70,13 @@ public abstract class GenericStatistic {
     protected int converging_smoothing_algorithm;
 
     protected double final_value;
-    protected Norm normSmoothingImpl; //Todo is this ok?
+
+    protected Norm normSmoothingImpl;
+    protected Norm cNormSmoothingImpl;
+
+    protected double bailout;
+    protected double log_bailout;
+    protected double log_convergent_bailout;
     
     protected GenericStatistic(double statistic_intensity, boolean useSmoothing, boolean useAverage, int lastXItems) {
         this.statistic_intensity = statistic_intensity;
@@ -93,8 +99,6 @@ public abstract class GenericStatistic {
             sampleItems = new StatisticSample[lastXItems];
             sampleItem = 0;
         }
-
-        normSmoothingImpl = new Norm2();
     }
     
     public void insert(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0) {
@@ -392,6 +396,31 @@ public abstract class GenericStatistic {
 
     public double get() {
         return final_value;
+    }
+
+    public void setNormSmoothingImpl(Norm normSmoothingImpl, double bailout) {
+        this.normSmoothingImpl = normSmoothingImpl;
+        this.bailout = bailout;
+
+        double exp = normSmoothingImpl.getExp();
+        if(exp != 2) {
+            log_bailout = exp != 1 ? Math.log(Math.pow(bailout, exp)) : Math.log(bailout);
+        }
+        else {
+            log_bailout = Math.log(bailout * bailout);
+        }
+    }
+
+    public void setcNormSmoothingImpl(Norm cNormSmoothingImpl, double convergent_bailout) {
+        this.cNormSmoothingImpl = cNormSmoothingImpl;
+
+        double exp = cNormSmoothingImpl.getExp();
+        if(exp != 2) {
+            log_convergent_bailout = exp != 1 ? Math.log(Math.pow(convergent_bailout, exp)) : Math.log(convergent_bailout);
+        }
+        else {
+            log_convergent_bailout = Math.log(convergent_bailout * convergent_bailout);
+        }
     }
     
 }

@@ -19,6 +19,7 @@ package fractalzoomer.convergent_bailout_conditions;
 import fractalzoomer.core.*;
 import fractalzoomer.core.mpfr.MpfrBigNum;
 import fractalzoomer.core.mpir.MpirBigNum;
+import fractalzoomer.core.norms.Norm;
 import org.apfloat.Apfloat;
 
 /**
@@ -198,5 +199,10 @@ public class SkipConvergentBailoutCondition extends ConvergentBailoutCondition {
         }
 
         return wrappedCondition.converged(z, root, zold, zold2, iterations, c, start, c0, pixel);
+    }
+
+    @Override
+    public Norm getNormImpl() {
+        return wrappedCondition.getNormImpl();
     }
 }

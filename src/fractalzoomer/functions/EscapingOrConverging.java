@@ -293,45 +293,47 @@ public abstract class EscapingOrConverging extends Julia {
             if (sts.statistic_escape_type == MainWindow.ESCAPING) {
                 statistic = new UserStatisticColoring(sts.statistic_intensity, sts.user_statistic_formula, xCenter, yCenter, max_iterations, size, bailout, plane_transform_center, globalVars, sts.useAverage, sts.user_statistic_init_value, sts.reductionFunction, sts.useIterations, sts.useSmoothing, sts.lastXItems);
             } else {
-                statistic = new UserStatisticColoringEOCConverging(sts.statistic_intensity, sts.user_statistic_formula, xCenter, yCenter, max_iterations, size, convergent_bailout, bailout, plane_transform_center, globalVars, sts.useAverage, sts.user_statistic_init_value, sts.reductionFunction, sts.useIterations, sts.useSmoothing, sts.lastXItems);
+                statistic = new UserStatisticColoringEOCConverging(sts.statistic_intensity, sts.user_statistic_formula, xCenter, yCenter, max_iterations, size, getConvergentBailout(), bailout, plane_transform_center, globalVars, sts.useAverage, sts.user_statistic_init_value, sts.reductionFunction, sts.useIterations, sts.useSmoothing, sts.lastXItems);
             }
-            return;
         }
         else if(sts.statisticGroup == 2) {
-            statistic = new Equicontinuity(sts.statistic_intensity, sts.useSmoothing, sts.useAverage, log_bailout_squared, bailout, false, Math.log(convergent_bailout), sts.equicontinuityDenominatorFactor, sts.equicontinuityInvertFactor, sts.equicontinuityDelta);
-            return;
+            statistic = new Equicontinuity(sts.statistic_intensity, sts.useSmoothing, sts.useAverage, false, sts.equicontinuityDenominatorFactor, sts.equicontinuityInvertFactor, sts.equicontinuityDelta);
+        }
+        else if(sts.statisticGroup == 0) {
+
+            switch (sts.statistic_type) {
+                case MainWindow.STRIPE_AVERAGE:
+                    statistic = new StripeAverage(sts.statistic_intensity, sts.stripeAvgStripeDensity, sts.useSmoothing, sts.useAverage, sts.lastXItems);
+                    break;
+                case MainWindow.CURVATURE_AVERAGE:
+                    statistic = new CurvatureAverage(sts.statistic_intensity, sts.useSmoothing, sts.useAverage, sts.lastXItems);
+                    break;
+                case MainWindow.TRIANGLE_INEQUALITY_AVERAGE:
+                    statistic = new TriangleInequalityAverage(sts.statistic_intensity, sts.useSmoothing, sts.useAverage, sts.lastXItems);
+                    break;
+                case MainWindow.COS_ARG_DIVIDE_NORM_AVERAGE:
+                    statistic = new CosArgDivideNormAverage(sts.statistic_intensity, sts.cosArgStripeDensity, sts.useSmoothing, sts.useAverage, sts.lastXItems);
+                    break;
+                case MainWindow.COS_ARG_DIVIDE_INVERSE_NORM:
+                    statistic = new CosArgDivideInverseNorm(sts.statistic_intensity, sts.cosArgInvStripeDensity, sts.StripeDenominatorFactor, sts.useSmoothing, sts.lastXItems);
+                    break;
+                case MainWindow.ATOM_DOMAIN_BOF60_BOF61:
+                    statistic = new AtomDomain(sts.showAtomDomains, sts.statistic_intensity, sts.atomNormType, sts.atomNNorm, sts.lastXItems);
+                    break;
+                case MainWindow.DISCRETE_LAGRANGIAN_DESCRIPTORS:
+                    statistic = new DiscreteLagrangianDescriptors(sts.statistic_intensity, sts.lagrangianPower, sts.useSmoothing, sts.useAverage, false, sts.langNormType, sts.langNNorm, sts.lastXItems);
+                    break;
+                case MainWindow.TWIN_LAMPS:
+                    statistic = new TwinLamps(sts.statistic_intensity, sts.twlFunction, sts.twlPoint, sts.useSmoothing, sts.lastXItems);
+                    break;
+                case MainWindow.CHECKERS:
+                    statistic = new Checkers(sts.statistic_intensity, sts.patternScale, sts.checkerNormType, sts.checkerNormValue, sts.useSmoothing, sts.useAverage, sts.lastXItems);
+                    break;
+
+            }
         }
 
-        switch (sts.statistic_type) {
-            case MainWindow.STRIPE_AVERAGE:
-                statistic = new StripeAverage(sts.statistic_intensity, sts.stripeAvgStripeDensity, log_bailout_squared, bailout, sts.useSmoothing, sts.useAverage, sts.lastXItems);
-                break;
-            case MainWindow.CURVATURE_AVERAGE:
-                statistic = new CurvatureAverage(sts.statistic_intensity, log_bailout_squared, bailout, sts.useSmoothing, sts.useAverage, sts.lastXItems);
-                break;
-            case MainWindow.TRIANGLE_INEQUALITY_AVERAGE:
-                statistic = new TriangleInequalityAverage(sts.statistic_intensity, log_bailout_squared, bailout, sts.useSmoothing, sts.useAverage, sts.lastXItems);
-                break;
-            case MainWindow.COS_ARG_DIVIDE_NORM_AVERAGE:
-                statistic = new CosArgDivideNormAverage(sts.statistic_intensity, sts.cosArgStripeDensity, log_bailout_squared, bailout, sts.useSmoothing, sts.useAverage, sts.lastXItems);
-                break;
-            case MainWindow.COS_ARG_DIVIDE_INVERSE_NORM:
-                statistic = new CosArgDivideInverseNorm(sts.statistic_intensity, sts.cosArgInvStripeDensity, sts.StripeDenominatorFactor, sts.useSmoothing, Math.log(convergent_bailout), log_bailout_squared, bailout, sts.lastXItems);
-                break;
-            case MainWindow.ATOM_DOMAIN_BOF60_BOF61:
-                statistic = new AtomDomain(sts.showAtomDomains, sts.statistic_intensity, sts.atomNormType, sts.atomNNorm, sts.lastXItems);
-                break;
-            case MainWindow.DISCRETE_LAGRANGIAN_DESCRIPTORS:
-                statistic = new DiscreteLagrangianDescriptors(sts.statistic_intensity, sts.lagrangianPower, log_bailout_squared, bailout, sts.useSmoothing, sts.useAverage, false, Math.log(convergent_bailout), sts.langNormType, sts.langNNorm, sts.lastXItems);
-                break;
-            case MainWindow.TWIN_LAMPS:
-                statistic = new TwinLamps(sts.statistic_intensity, sts.twlFunction, sts.twlPoint, log_bailout_squared, bailout, sts.useSmoothing, sts.lastXItems);
-                break;
-            case MainWindow.CHECKERS:
-                statistic = new Checkers(sts.statistic_intensity, sts.patternScale, sts.checkerNormType, sts.checkerNormValue, log_bailout_squared, bailout, sts.useSmoothing, sts.useAverage, sts.lastXItems);
-                break;
-
-        }
+        statistic.setNormSmoothingImpl(bailout_algorithm.getNormImpl(), bailout);
     }
 
     @Override

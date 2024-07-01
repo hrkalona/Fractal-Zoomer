@@ -17,6 +17,7 @@
 package fractalzoomer.functions.general;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.core.norms.Norm2;
 import fractalzoomer.fractal_options.iteration_statistics.*;
 import fractalzoomer.functions.FractalWithoutConstant;
 import fractalzoomer.main.MainWindow;
@@ -247,7 +248,7 @@ public class MagneticPendulum extends FractalWithoutConstant {
                 break;
             case MainWindow.USER_OUTCOLORING_ALGORITHM:
                 if (user_out_coloring_algorithm == 0) {
-                    out_color_algorithm = new UserOutColorAlgorithmRootFindingMethod(outcoloring_formula, 0, max_iterations, xCenter, yCenter, size, plane_transform_center, globalVars);
+                    out_color_algorithm = new UserOutColorAlgorithmRootFindingMethod(outcoloring_formula, getConvergentBailout(), max_iterations, xCenter, yCenter, size, plane_transform_center, globalVars);
                 } else {
                     out_color_algorithm = new UserConditionalOutColorAlgorithmRootFindingMethod(user_outcoloring_conditions, user_outcoloring_condition_formula, 0, max_iterations, xCenter, yCenter, size, plane_transform_center, globalVars);
                 }
@@ -291,33 +292,39 @@ public class MagneticPendulum extends FractalWithoutConstant {
     }
 
     @Override
+    public double getConvergentBailout() {
+        return Math.sqrt(1e-8);
+    }
+
+    @Override
     protected void StatisticFactory(StatisticsSettings sts, double[] plane_transform_center) {
 
         statisticIncludeEscaped = sts.statisticIncludeEscaped;
         statisticIncludeNotEscaped = sts.statisticIncludeNotEscaped;
 
         if (sts.statisticGroup == 1) {
-            statistic = new UserStatisticColoringRootFindingMethod(sts.statistic_intensity, sts.user_statistic_formula, xCenter, yCenter, max_iterations, size, 1e-8, plane_transform_center, globalVars, sts.useAverage, sts.user_statistic_init_value, sts.reductionFunction, sts.useIterations, sts.useSmoothing, sts.lastXItems);
-            return;
+            statistic = new UserStatisticColoringRootFindingMethod(sts.statistic_intensity, sts.user_statistic_formula, xCenter, yCenter, max_iterations, size, getConvergentBailout(), plane_transform_center, globalVars, sts.useAverage, sts.user_statistic_init_value, sts.reductionFunction, sts.useIterations, sts.useSmoothing, sts.lastXItems);
         }
         else if(sts.statisticGroup == 2) {
-            statistic = new Equicontinuity(sts.statistic_intensity, sts.useSmoothing, sts.useAverage, 0, 0, true, Math.log(1e-8), sts.equicontinuityDenominatorFactor, sts.equicontinuityInvertFactor, sts.equicontinuityDelta);
-            return;
+            statistic = new Equicontinuity(sts.statistic_intensity, sts.useSmoothing, sts.useAverage, true, sts.equicontinuityDenominatorFactor, sts.equicontinuityInvertFactor, sts.equicontinuityDelta);
+        }
+        else if(sts.statisticGroup == 0) {
+            switch (sts.statistic_type) {
+
+                case MainWindow.COS_ARG_DIVIDE_INVERSE_NORM:
+                    statistic = new CosArgDivideInverseNorm(sts.statistic_intensity, sts.cosArgInvStripeDensity, sts.StripeDenominatorFactor, sts.useSmoothing, sts.lastXItems);
+                    break;
+                case MainWindow.ATOM_DOMAIN_BOF60_BOF61:
+                    statistic = new AtomDomain(sts.showAtomDomains, sts.statistic_intensity, sts.atomNormType, sts.atomNNorm, sts.lastXItems);
+                    break;
+                case MainWindow.DISCRETE_LAGRANGIAN_DESCRIPTORS:
+                    statistic = new DiscreteLagrangianDescriptors(sts.statistic_intensity, sts.lagrangianPower, sts.useSmoothing, sts.useAverage, true, sts.langNormType, sts.langNNorm, sts.lastXItems);
+                    break;
+
+            }
         }
 
-        switch (sts.statistic_type) {
-
-            case MainWindow.COS_ARG_DIVIDE_INVERSE_NORM:
-                statistic = new CosArgDivideInverseNorm(sts.statistic_intensity, sts.cosArgInvStripeDensity, sts.StripeDenominatorFactor, sts.useSmoothing, Math.log(1e-8), 0, 0, sts.lastXItems);
-                break;
-            case MainWindow.ATOM_DOMAIN_BOF60_BOF61:
-                statistic = new AtomDomain(sts.showAtomDomains, sts.statistic_intensity, sts.atomNormType, sts.atomNNorm, sts.lastXItems);
-                break;
-            case MainWindow.DISCRETE_LAGRANGIAN_DESCRIPTORS:
-                statistic = new DiscreteLagrangianDescriptors(sts.statistic_intensity, sts.lagrangianPower, 0, 0, sts.useSmoothing, sts.useAverage, true, Math.log(1e-8), sts.langNormType, sts.langNNorm, sts.lastXItems);
-                break;
-
-        }
+        statistic.setcNormSmoothingImpl(new Norm2(), getConvergentBailout());
     }
 
     @Override

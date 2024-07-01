@@ -30,18 +30,14 @@ public class Checkers extends GenericStatistic {
     private double sum;
     private double sum2;
     private double PatternScale;
-    private double log_bailout_squared;
     private Complex point05point05 = new Complex(0.5, 0.5);
-    private double bailout;
     private Norm normImpl;
 
-    public Checkers(double statistic_intensity, double PatternScale, int normType, double normValue, double log_bailout_squared, double bailout, boolean useSmoothing, boolean useAverage, int lastXItems) {
+    public Checkers(double statistic_intensity, double PatternScale, int normType, double normValue, boolean useSmoothing, boolean useAverage, int lastXItems) {
         super(statistic_intensity, useSmoothing, useAverage, lastXItems);
         sum = 0;
         sum2 = 0;
         this.PatternScale = PatternScale;
-        this.log_bailout_squared = log_bailout_squared;
-        this.bailout = bailout;
 
         switch (normType) {
             case 0:
@@ -153,13 +149,13 @@ public class Checkers extends GenericStatistic {
         double smoothing;
 
         if(escaping_smoothing_algorithm == 0 && !usePower) {
-            smoothing = OutColorAlgorithm.fractionalPartEscaping1(z_val, zold_val, log_bailout_squared, normSmoothingImpl);
+            smoothing = OutColorAlgorithm.fractionalPartEscaping1(z_val, zold_val, log_bailout, normSmoothingImpl);
         }
         else if(escaping_smoothing_algorithm == 2 && !usePower) {
             smoothing = OutColorAlgorithm.fractionalPartEscaping3(z_val, zold_val, bailout, normSmoothingImpl);
         }
         else {
-            smoothing = usePower ? OutColorAlgorithm.fractionalPartEscapingWithPower(z_val, log_bailout_squared, log_power, normSmoothingImpl) : OutColorAlgorithm.fractionalPartEscaping2(z_val, zold_val, log_bailout_squared, normSmoothingImpl);
+            smoothing = usePower ? OutColorAlgorithm.fractionalPartEscapingWithPower(z_val, log_bailout, log_power, normSmoothingImpl) : OutColorAlgorithm.fractionalPartEscaping2(z_val, zold_val, log_bailout, normSmoothingImpl);
         }
 
         return method.interpolate(sum, sum2, smoothing) * statistic_intensity;

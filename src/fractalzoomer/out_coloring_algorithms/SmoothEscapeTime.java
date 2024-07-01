@@ -53,18 +53,17 @@ public class SmoothEscapeTime extends OutColorAlgorithm {
 
     }
 
-    public SmoothEscapeTime(double bailout, double log_bailout_squared, int algorithm, double log_power, Norm normImpl) {
+    public SmoothEscapeTime(double bailout, int algorithm, double log_power, Norm normImpl) {
 
         super();
 
-        double log_bail = log_bailout_squared;
-
         double exp = normImpl.getExp();
         if(exp != 2) {
-            log_bail = exp != 1 ? Math.log(Math.pow(bailout, exp)) : Math.log(bailout);
+            log_bailout = exp != 1 ? Math.log(Math.pow(bailout, exp)) : Math.log(bailout);
         }
-
-        log_bailout = log_bail;
+        else {
+            log_bailout = Math.log(bailout * bailout);
+        }
 
         this.algorithm = algorithm;
         OutUsingIncrement = false;

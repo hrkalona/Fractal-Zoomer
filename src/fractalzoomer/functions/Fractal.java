@@ -30,7 +30,6 @@ import fractalzoomer.core.la.impl.LAInfo;
 import fractalzoomer.core.location.Location;
 import fractalzoomer.core.nanomb1.Nanomb1;
 import fractalzoomer.core.nanomb1.uniPoly;
-import fractalzoomer.core.norms.Norm;
 import fractalzoomer.fractal_options.PlanePointOption;
 import fractalzoomer.fractal_options.Rotation;
 import fractalzoomer.fractal_options.filter.*;
@@ -122,7 +121,6 @@ public abstract class Fractal {
     protected boolean escaped;
     protected boolean[] vescaped;
     protected GenericStatistic statistic;
-    protected double log_bailout_squared;
     private double trapIntesity;
     private double trapOffset;
     private boolean invertTrapHeight;
@@ -295,7 +293,6 @@ public abstract class Fractal {
         this.bailout = bailout;
         bailout_squared = bailout * bailout;
         this.periodicity_checking = periodicity_checking;
-        log_bailout_squared = Math.log(bailout_squared);
 
         defaultInitVal = new InitialValue(0, 0);
 
@@ -3526,7 +3523,7 @@ public abstract class Fractal {
                 convergent_bailout_algorithm = new UserConvergentBailoutCondition(convergent_bailout, convergent_bailout_test_user_formula, convergent_bailout_test_user_formula2, convergent_bailout_test_comparison, max_iterations, xCenter, yCenter, size, plane_transform_center, globalVars);
                 break;
             case MainWindow.CONVERGENT_BAILOUT_CONDITION_KF:
-                convergent_bailout_algorithm = new KFDistanceBailoutCondition(convergent_bailout);
+                convergent_bailout_algorithm = new KFCircleDistanceBailoutCondition(convergent_bailout * convergent_bailout);
                 break;
 
         }
@@ -3535,8 +3532,12 @@ public abstract class Fractal {
             convergent_bailout_algorithm = new SkipConvergentBailoutCondition(convergent_bailout_algorithm);
         }
 
-        if(escapeTimeAlg != null) {
+        if(escapeTimeAlg != null && convergent_bailout_algorithm != null) {
             escapeTimeAlg.setNormImpl(convergent_bailout_algorithm.getNormImpl());
+        }
+
+        if(statistic != null && convergent_bailout_algorithm != null) {
+            statistic.setcNormSmoothingImpl(convergent_bailout_algorithm.getNormImpl(), convergent_bailout);
         }
 
     }
@@ -3910,43 +3911,44 @@ public abstract class Fractal {
             if ((TaskRender.PERTURBATION_THEORY || TaskRender.HIGH_PRECISION_CALCULATION) && supportsPerturbationTheory()) {
                 return;
             }
-            statistic = new Equicontinuity(sts.statistic_intensity, sts.useSmoothing, sts.useAverage, log_bailout_squared, bailout, false, 0, sts.equicontinuityDenominatorFactor, sts.equicontinuityInvertFactor, sts.equicontinuityDelta);
-            return;
+            statistic = new Equicontinuity(sts.statistic_intensity, sts.useSmoothing, sts.useAverage, false, sts.equicontinuityDenominatorFactor, sts.equicontinuityInvertFactor, sts.equicontinuityDelta);
         } else if (sts.statisticGroup == 3) {
             statistic = new NormalMap(sts.statistic_intensity, getPower(), sts.normalMapHeight, sts.normalMapAngle, sts.normalMapUseSecondDerivative, sts.normalMapDEfactor, isJulia, sts.normalMapUseDE, sts.normalMapInvertDE, sts.normalMapColoring, sts.useNormalMap, sts.normalMapDEUpperLimitFactor, sts.normalMapDEAAEffect, sts.normalMapOverrideColoring, sts.normalMapDeFadeAlgorithm, sts.normalMapDistanceEstimatorfactor);
-            return;
         } else if (sts.statisticGroup == 0) {
             switch (sts.statistic_type) {
                 case MainWindow.STRIPE_AVERAGE:
-                    statistic = new StripeAverage(sts.statistic_intensity, sts.stripeAvgStripeDensity, log_bailout_squared, bailout, sts.useSmoothing, sts.useAverage, sts.lastXItems);
+                    statistic = new StripeAverage(sts.statistic_intensity, sts.stripeAvgStripeDensity, sts.useSmoothing, sts.useAverage, sts.lastXItems);
                     break;
                 case MainWindow.TRIANGLE_INEQUALITY_AVERAGE:
-                    statistic = new TriangleInequalityAverage(sts.statistic_intensity, log_bailout_squared, bailout, sts.useSmoothing, sts.useAverage, sts.lastXItems);
+                    statistic = new TriangleInequalityAverage(sts.statistic_intensity, sts.useSmoothing, sts.useAverage, sts.lastXItems);
                     break;
                 case MainWindow.CURVATURE_AVERAGE:
-                    statistic = new CurvatureAverage(sts.statistic_intensity, log_bailout_squared, bailout, sts.useSmoothing, sts.useAverage, sts.lastXItems);
+                    statistic = new CurvatureAverage(sts.statistic_intensity, sts.useSmoothing, sts.useAverage, sts.lastXItems);
                     break;
                 case MainWindow.COS_ARG_DIVIDE_NORM_AVERAGE:
-                    statistic = new CosArgDivideNormAverage(sts.statistic_intensity, sts.cosArgStripeDensity, log_bailout_squared, bailout, sts.useSmoothing, sts.useAverage, sts.lastXItems);
+                    statistic = new CosArgDivideNormAverage(sts.statistic_intensity, sts.cosArgStripeDensity, sts.useSmoothing, sts.useAverage, sts.lastXItems);
                     break;
                 case MainWindow.ATOM_DOMAIN_BOF60_BOF61:
                     statistic = new AtomDomain(sts.showAtomDomains, sts.statistic_intensity, sts.atomNormType, sts.atomNNorm, sts.lastXItems);
                     break;
                 case MainWindow.DISCRETE_LAGRANGIAN_DESCRIPTORS:
-                    statistic = new DiscreteLagrangianDescriptors(sts.statistic_intensity, sts.lagrangianPower, log_bailout_squared, bailout, sts.useSmoothing, sts.useAverage, false, 0, sts.langNormType, sts.langNNorm, sts.lastXItems);
+                    statistic = new DiscreteLagrangianDescriptors(sts.statistic_intensity, sts.lagrangianPower, sts.useSmoothing, sts.useAverage, false, sts.langNormType, sts.langNNorm, sts.lastXItems);
                     break;
                 case MainWindow.TWIN_LAMPS:
-                    statistic = new TwinLamps(sts.statistic_intensity, sts.twlFunction, sts.twlPoint, log_bailout_squared, bailout, sts.useSmoothing, sts.lastXItems);
+                    statistic = new TwinLamps(sts.statistic_intensity, sts.twlFunction, sts.twlPoint, sts.useSmoothing, sts.lastXItems);
                     break;
                 case MainWindow.CHECKERS:
-                    statistic = new Checkers(sts.statistic_intensity, sts.patternScale, sts.checkerNormType, sts.checkerNormValue, log_bailout_squared, bailout, sts.useSmoothing, sts.useAverage, sts.lastXItems);
+                    statistic = new Checkers(sts.statistic_intensity, sts.patternScale, sts.checkerNormType, sts.checkerNormValue, sts.useSmoothing, sts.useAverage, sts.lastXItems);
                     break;
             }
         }
 
-        if(sts.normalMapCombineWithOtherStatistics) {
+        statistic.setNormSmoothingImpl(bailout_algorithm.getNormImpl(), bailout);
+
+        if(sts.normalMapCombineWithOtherStatistics && !(sts.statisticGroup == 2 || sts.statisticGroup == 3)) {
             statistic = new CombinedStatisticWithNormalMap(statistic, new NormalMap(sts.statistic_intensity, getPower(), sts.normalMapHeight, sts.normalMapAngle, sts.normalMapUseSecondDerivative, sts.normalMapDEfactor, isJulia, sts.normalMapUseDE, sts.normalMapInvertDE, sts.normalMapColoring, sts.useNormalMap, sts.normalMapDEUpperLimitFactor, sts.normalMapDEAAEffect, sts.normalMapOverrideColoring, sts.normalMapDeFadeAlgorithm, sts.normalMapDistanceEstimatorfactor));
         }
+
     }
 
     protected double getStatistic(double result, boolean escaped) {

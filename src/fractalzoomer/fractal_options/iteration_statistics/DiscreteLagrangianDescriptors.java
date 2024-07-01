@@ -12,14 +12,11 @@ public class DiscreteLagrangianDescriptors extends GenericStatistic {
     private double lasty;
     private double lastz;
     private double power;
-    private double log_bailout_squared;
-    private double log_convergent_bailout;
     private Complex root;
-    private double bailout;
     private Norm normImpl;
     private int normtType;
 
-    public DiscreteLagrangianDescriptors(double statistic_intensity, double power, double log_bailout_squared, double bailout, boolean useSmoothing, boolean useAverage, boolean rootFindingMode, double log_convergent_bailout, int normtType, double langNorm, int lastXItems) {
+    public DiscreteLagrangianDescriptors(double statistic_intensity, double power, boolean useSmoothing, boolean useAverage, boolean rootFindingMode, int normtType, double langNorm, int lastXItems) {
         super(statistic_intensity, useSmoothing, useAverage, lastXItems);
         sum = 0;
         sum2 = 0;
@@ -27,8 +24,6 @@ public class DiscreteLagrangianDescriptors extends GenericStatistic {
         lasty = 0;
         lastz = 0;
         this.power = power;
-        this.log_convergent_bailout = log_convergent_bailout;
-        this.log_bailout_squared = log_bailout_squared;
         this.normtType = normtType;
 
         if(rootFindingMode) {
@@ -39,7 +34,6 @@ public class DiscreteLagrangianDescriptors extends GenericStatistic {
         }
 
         root = new Complex(1, 0);
-        this.bailout = bailout;
 
         switch (normtType) {
             case 0:
@@ -209,29 +203,29 @@ public class DiscreteLagrangianDescriptors extends GenericStatistic {
 
         if(mode == NORMAL_ESCAPE) {
             if(escaping_smoothing_algorithm == 0 && !usePower) {
-                smoothing = OutColorAlgorithm.fractionalPartEscaping1(z_val, zold_val, log_bailout_squared, normSmoothingImpl);
+                smoothing = OutColorAlgorithm.fractionalPartEscaping1(z_val, zold_val, log_bailout, normSmoothingImpl);
             }
             else if(escaping_smoothing_algorithm == 2 && !usePower) {
                 smoothing = OutColorAlgorithm.fractionalPartEscaping3(z_val, zold_val, bailout, normSmoothingImpl);
             }
             else {
-                smoothing = usePower ? OutColorAlgorithm.fractionalPartEscapingWithPower(z_val, log_bailout_squared, log_power, normSmoothingImpl) : OutColorAlgorithm.fractionalPartEscaping2(z_val, zold_val, log_bailout_squared, normSmoothingImpl);
+                smoothing = usePower ? OutColorAlgorithm.fractionalPartEscapingWithPower(z_val, log_bailout, log_power, normSmoothingImpl) : OutColorAlgorithm.fractionalPartEscaping2(z_val, zold_val, log_bailout, normSmoothingImpl);
             }
         }
         else if (mode == NORMAL_CONVERGE){
             if(converging_smoothing_algorithm == 0) {
-                smoothing = OutColorAlgorithm.fractionalPartConverging1(z_val, zold_val, zold2_val, log_convergent_bailout, normSmoothingImpl);
+                smoothing = OutColorAlgorithm.fractionalPartConverging1(z_val, zold_val, zold2_val, log_convergent_bailout, cNormSmoothingImpl);
             }
             else {
-                smoothing = OutColorAlgorithm.fractionalPartConverging2(z_val, zold_val, zold2_val, log_convergent_bailout, normSmoothingImpl);
+                smoothing = OutColorAlgorithm.fractionalPartConverging2(z_val, zold_val, zold2_val, log_convergent_bailout, cNormSmoothingImpl);
             }
         }
         else {
             if(converging_smoothing_algorithm == 0) {
-                smoothing = OutColorAlgorithm.fractionalPartMagnetConverging1(z_val, zold_val, root, log_convergent_bailout, normSmoothingImpl);
+                smoothing = OutColorAlgorithm.fractionalPartMagnetConverging1(z_val, zold_val, root, log_convergent_bailout, cNormSmoothingImpl);
             }
             else {
-                smoothing = OutColorAlgorithm.fractionalPartMagnetConverging2(z_val, zold_val, root, log_convergent_bailout, normSmoothingImpl);
+                smoothing = OutColorAlgorithm.fractionalPartMagnetConverging2(z_val, zold_val, root, log_convergent_bailout, cNormSmoothingImpl);
             }
         }
 

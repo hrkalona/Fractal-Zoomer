@@ -13306,18 +13306,19 @@ public class MainWindow extends JFrame implements Constants {
 
             }
 
-            if(flat.equals("1")) {
-                s.fns.banded = true;
-            }
-            else if(Smooth.equals("0")) {
-                s.fns.banded = false;
-            }
-
             if(Smooth.equals("1")) {
                 s.fns.smoothing = true;
             }
             else if(Smooth.equals("0")) {
                 s.fns.smoothing = false;
+            }
+
+            if(flat.equals("1")) {
+                s.fns.banded = true;
+                s.fns.smoothing = true;
+            }
+            else if(Smooth.equals("0")) {
+                s.fns.banded = false;
             }
 
             if(Slopes.equals("1")) {

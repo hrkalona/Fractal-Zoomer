@@ -19,6 +19,7 @@ package fractalzoomer.bailout_conditions;
 import fractalzoomer.core.*;
 import fractalzoomer.core.mpfr.MpfrBigNum;
 import fractalzoomer.core.mpir.MpirBigNum;
+import fractalzoomer.core.norms.Norm;
 import org.apfloat.Apfloat;
 
 /**
@@ -103,6 +104,11 @@ public class SkipBailoutCondition extends BailoutCondition {
         }
 
         return wrappedCondition.escaped(z, zold, zold2, iterations, c, start, c0, norm_squared, pixel);
+    }
+
+    @Override
+    public Norm getNormImpl() {
+        return wrappedCondition.getNormImpl();
     }
     
 }

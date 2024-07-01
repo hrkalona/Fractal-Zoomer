@@ -29,25 +29,16 @@ public class CosArgDivideInverseNorm extends GenericStatistic {
     private double sum2;
     private double StripeDensity;
     private double StripeDenominatorFactor;
-
-    private double log_convergent_bailout;
-
-    private double log_bailout_squared;
     private Complex root;
-
-    private double bailout;
     
-    public CosArgDivideInverseNorm(double statistic_intensity, double StripeDensity, double StripeDenominatorFactor, boolean useSmoothing, double log_convergent_bailout, double log_bailout_squared, double bailout, int lastXItems) {
+    public CosArgDivideInverseNorm(double statistic_intensity, double StripeDensity, double StripeDenominatorFactor, boolean useSmoothing, int lastXItems) {
         super(statistic_intensity, useSmoothing, false, lastXItems);
         sum = 0;
         sum2 = 0;
         this.StripeDenominatorFactor = StripeDenominatorFactor;
         this.StripeDensity = StripeDensity;
-        this.log_convergent_bailout = log_convergent_bailout;
-        this.log_bailout_squared = log_bailout_squared;
         mode = NORMAL_CONVERGE;
         root = new Complex(1, 0);
-        this.bailout = bailout;
     }
 
     @Override
@@ -109,29 +100,29 @@ public class CosArgDivideInverseNorm extends GenericStatistic {
         double smoothing;
         if(mode == NORMAL_ESCAPE) {
             if(escaping_smoothing_algorithm == 0 && !usePower) {
-                smoothing = OutColorAlgorithm.fractionalPartEscaping1(z_val, zold_val, log_bailout_squared, normSmoothingImpl);
+                smoothing = OutColorAlgorithm.fractionalPartEscaping1(z_val, zold_val, log_bailout, normSmoothingImpl);
             }
             else if(escaping_smoothing_algorithm == 2 && !usePower) {
                 smoothing = OutColorAlgorithm.fractionalPartEscaping3(z_val, zold_val, bailout, normSmoothingImpl);
             }
             else {
-                smoothing = usePower ? OutColorAlgorithm.fractionalPartEscapingWithPower(z_val, log_bailout_squared, log_power, normSmoothingImpl) : OutColorAlgorithm.fractionalPartEscaping2(z_val, zold_val, log_bailout_squared, normSmoothingImpl);
+                smoothing = usePower ? OutColorAlgorithm.fractionalPartEscapingWithPower(z_val, log_bailout, log_power, normSmoothingImpl) : OutColorAlgorithm.fractionalPartEscaping2(z_val, zold_val, log_bailout, normSmoothingImpl);
             }
         }
-        else if (mode == NORMAL_CONVERGE){
+        else if (mode == NORMAL_CONVERGE) {
             if(converging_smoothing_algorithm == 0) {
-                smoothing = OutColorAlgorithm.fractionalPartConverging1(z_val, zold_val, zold2_val, log_convergent_bailout, normSmoothingImpl);
+                smoothing = OutColorAlgorithm.fractionalPartConverging1(z_val, zold_val, zold2_val, log_convergent_bailout, cNormSmoothingImpl);
             }
             else {
-                smoothing = OutColorAlgorithm.fractionalPartConverging2(z_val, zold_val, zold2_val, log_convergent_bailout, normSmoothingImpl);
+                smoothing = OutColorAlgorithm.fractionalPartConverging2(z_val, zold_val, zold2_val, log_convergent_bailout, cNormSmoothingImpl);
             }
         }
         else {
             if(converging_smoothing_algorithm == 0) {
-                smoothing = OutColorAlgorithm.fractionalPartMagnetConverging1(z_val, zold_val, root, log_convergent_bailout, normSmoothingImpl);
+                smoothing = OutColorAlgorithm.fractionalPartMagnetConverging1(z_val, zold_val, root, log_convergent_bailout, cNormSmoothingImpl);
             }
             else {
-                smoothing = OutColorAlgorithm.fractionalPartMagnetConverging2(z_val, zold_val, root, log_convergent_bailout, normSmoothingImpl);
+                smoothing = OutColorAlgorithm.fractionalPartMagnetConverging2(z_val, zold_val, root, log_convergent_bailout, cNormSmoothingImpl);
             }
         }
 
