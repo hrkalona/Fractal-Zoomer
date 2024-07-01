@@ -18,11 +18,6 @@ public class NormN extends Norm {
     }
 
     @Override
-    public double getRootExp() {
-        return n_reciprocal;
-    }
-
-    @Override
     public double computeWithRoot(Complex z) {
         return z.nnorm(n, n_reciprocal);
     }

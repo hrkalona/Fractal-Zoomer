@@ -43,13 +43,13 @@ public class UserStatisticColoring extends GenericUserStatistic {
     @Override
     protected double getSmoothing() {
         if(escaping_smoothing_algorithm == 0 && !usePower) {
-            return OutColorAlgorithm.fractionalPartEscaping1(z_val, zold_val, log_bailout_squared);
+            return OutColorAlgorithm.fractionalPartEscaping1(z_val, zold_val, log_bailout_squared, normSmoothingImpl);
         }
         else if(escaping_smoothing_algorithm == 2 && !usePower) {
-            return OutColorAlgorithm.fractionalPartEscaping3(z_val, zold_val, bailout);
+            return OutColorAlgorithm.fractionalPartEscaping3(z_val, zold_val, bailout, normSmoothingImpl);
         }
         else {
-            return usePower ? OutColorAlgorithm.fractionalPartEscapingWithPower(z_val, log_bailout_squared, log_power) : OutColorAlgorithm.fractionalPartEscaping2(z_val, zold_val, log_bailout_squared);
+            return usePower ? OutColorAlgorithm.fractionalPartEscapingWithPower(z_val, log_bailout_squared, log_power, normSmoothingImpl) : OutColorAlgorithm.fractionalPartEscaping2(z_val, zold_val, log_bailout_squared, normSmoothingImpl);
         }
     }
 

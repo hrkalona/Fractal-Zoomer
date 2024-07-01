@@ -16,6 +16,7 @@
  */
 package fractalzoomer.functions.general;
 
+import fractalzoomer.bailout_conditions.CircleBailoutCondition;
 import fractalzoomer.core.Complex;
 import fractalzoomer.functions.FractalWithoutConstant;
 import fractalzoomer.main.MainWindow;
@@ -61,6 +62,8 @@ public class Kleinian extends FractalWithoutConstant {
         if (sts.statistic) {
             StatisticFactory(sts, plane_transform_center);
         }
+
+        bailout_algorithm = new CircleBailoutCondition(4, false);
 
     }
 
@@ -215,17 +218,17 @@ public class Kleinian extends FractalWithoutConstant {
                 break;
             case MainWindow.ESCAPE_TIME_GRID:
                 if (smoothing) {
-                    out_color_algorithm = new EscapeTimeGrid(log_bailout_squared, new SmoothEscapeTimeKleinian(u), false);
+                    out_color_algorithm = new EscapeTimeGrid(bailout, new SmoothEscapeTimeKleinian(u), false, bailout_algorithm.getNormImpl());
                 }
                 break;
             case MainWindow.ESCAPE_TIME_FIELD_LINES:
                 if (smoothing) {
-                    out_color_algorithm = new EscapeTimeFieldLines(log_bailout_squared, new SmoothEscapeTimeKleinian(u));
+                    out_color_algorithm = new EscapeTimeFieldLines(bailout, new SmoothEscapeTimeKleinian(u), bailout_algorithm.getNormImpl());
                 }
                 break;
             case MainWindow.ESCAPE_TIME_FIELD_LINES2:
                 if (smoothing) {
-                    out_color_algorithm = new EscapeTimeFieldLines2(log_bailout_squared, new SmoothEscapeTimeKleinian(u));
+                    out_color_algorithm = new EscapeTimeFieldLines2(bailout, new SmoothEscapeTimeKleinian(u), bailout_algorithm.getNormImpl());
                 }
                 break;
             case ESCAPE_TIME_SQUARES:

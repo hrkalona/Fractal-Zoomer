@@ -374,10 +374,11 @@ public abstract class RootFindingMethods extends Fractal {
     @Override
     protected OutColorAlgorithm getEscapeTimeAlgorithm(boolean smoothing, int converging_smooth_algorithm) {
         if (!smoothing) {
-            return new EscapeTime();
+            escapeTimeAlg = new EscapeTime();
         } else {
-            return new SmoothEscapeTimeRootFindingMethod(Math.log(convergent_bailout), converging_smooth_algorithm);
+            escapeTimeAlg = new SmoothEscapeTimeRootFindingMethod(getConvergentBailout(), converging_smooth_algorithm);
         }
+        return escapeTimeAlg;
     }
 
     @Override

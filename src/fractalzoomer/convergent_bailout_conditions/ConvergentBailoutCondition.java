@@ -127,5 +127,9 @@ public abstract class ConvergentBailoutCondition {
       return converged((Complex) z, (Double)root, (Complex)zold, (Complex)zold2, iterations, (Complex)c, (Complex)start, (Complex)c0, (Complex)pixel);
     }
   }
+
+    public Norm getNormImpl() {
+        return normImpl;
+    }
     
 }

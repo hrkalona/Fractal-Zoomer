@@ -14,11 +14,6 @@ public class Norm2 extends Norm {
     }
 
     @Override
-    public double getRootExp() {
-        return 0.5;
-    }
-
-    @Override
     public double computeWithRoot(Complex z) {
         return z.norm();
     }

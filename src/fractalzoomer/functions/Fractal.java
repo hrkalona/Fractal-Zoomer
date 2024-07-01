@@ -30,6 +30,7 @@ import fractalzoomer.core.la.impl.LAInfo;
 import fractalzoomer.core.location.Location;
 import fractalzoomer.core.nanomb1.Nanomb1;
 import fractalzoomer.core.nanomb1.uniPoly;
+import fractalzoomer.core.norms.Norm;
 import fractalzoomer.fractal_options.PlanePointOption;
 import fractalzoomer.fractal_options.Rotation;
 import fractalzoomer.fractal_options.filter.*;
@@ -3534,6 +3535,10 @@ public abstract class Fractal {
             convergent_bailout_algorithm = new SkipConvergentBailoutCondition(convergent_bailout_algorithm);
         }
 
+        if(escapeTimeAlg != null) {
+            escapeTimeAlg.setNormImpl(convergent_bailout_algorithm.getNormImpl());
+        }
+
     }
 
     private void PlaneFactory(int plane_type, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, Apfloat[] plane_transform_center_hp, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower) {
@@ -3748,12 +3753,15 @@ public abstract class Fractal {
 
     }
 
+    protected OutColorAlgorithm escapeTimeAlg;
+
     protected OutColorAlgorithm getEscapeTimeAlgorithm(boolean smoothing, int escaping_smooth_algorithm) {
         if (!smoothing) {
-            return new EscapeTime();
+            escapeTimeAlg = new EscapeTime();
         } else {
-            return new SmoothEscapeTime(bailout, log_bailout_squared, escaping_smooth_algorithm);
+            escapeTimeAlg = new SmoothEscapeTime(bailout, escaping_smooth_algorithm, bailout_algorithm.getNormImpl());
         }
+        return escapeTimeAlg;
     }
 
     protected void OutColoringAlgorithmFactory(int out_coloring_algorithm, boolean smoothing, int escaping_smooth_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, double[] plane_transform_center) {
@@ -3811,19 +3819,19 @@ public abstract class Fractal {
                 out_color_algorithm = new EscapeTimeAlgorithm2(getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm));
                 break;
             case MainWindow.ESCAPE_TIME_ESCAPE_RADIUS:
-                out_color_algorithm = new EscapeTimeEscapeRadius(log_bailout_squared, getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm));
+                out_color_algorithm = new EscapeTimeEscapeRadius(bailout, getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm), bailout_algorithm.getNormImpl());
                 break;
             case MainWindow.ESCAPE_TIME_GRID:
-                out_color_algorithm = new EscapeTimeGrid(log_bailout_squared, getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm), false);
+                out_color_algorithm = new EscapeTimeGrid(bailout, getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm), false, bailout_algorithm.getNormImpl());
                 break;
             case MainWindow.BANDED:
                 out_color_algorithm = new Banded();
                 break;
             case MainWindow.ESCAPE_TIME_FIELD_LINES:
-                out_color_algorithm = new EscapeTimeFieldLines(log_bailout_squared, getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm));
+                out_color_algorithm = new EscapeTimeFieldLines(bailout, getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm), bailout_algorithm.getNormImpl());
                 break;
             case MainWindow.ESCAPE_TIME_FIELD_LINES2:
-                out_color_algorithm = new EscapeTimeFieldLines2(log_bailout_squared, getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm));
+                out_color_algorithm = new EscapeTimeFieldLines2(bailout, getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm), bailout_algorithm.getNormImpl());
                 break;
             case MainWindow.USER_OUTCOLORING_ALGORITHM:
                 if (user_out_coloring_algorithm == 0) {

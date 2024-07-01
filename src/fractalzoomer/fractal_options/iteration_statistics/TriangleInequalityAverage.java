@@ -144,13 +144,13 @@ public class TriangleInequalityAverage extends GenericStatistic {
 
         double smoothing;
         if(escaping_smoothing_algorithm == 0 && !usePower) {
-            smoothing = OutColorAlgorithm.fractionalPartEscaping1(z_val, zold_val, log_bailout_squared);
+            smoothing = OutColorAlgorithm.fractionalPartEscaping1(z_val, zold_val, log_bailout_squared, normSmoothingImpl);
         }
         else if(escaping_smoothing_algorithm == 2 && !usePower) {
-            smoothing = OutColorAlgorithm.fractionalPartEscaping3(z_val, zold_val, bailout);
+            smoothing = OutColorAlgorithm.fractionalPartEscaping3(z_val, zold_val, bailout, normSmoothingImpl);
         }
         else {
-            smoothing = usePower ? OutColorAlgorithm.fractionalPartEscapingWithPower(z_val, log_bailout_squared, log_power) : OutColorAlgorithm.fractionalPartEscaping2(z_val, zold_val, log_bailout_squared);
+            smoothing = usePower ? OutColorAlgorithm.fractionalPartEscapingWithPower(z_val, log_bailout_squared, log_power, normSmoothingImpl) : OutColorAlgorithm.fractionalPartEscaping2(z_val, zold_val, log_bailout_squared, normSmoothingImpl);
         }
 
         return method.interpolate(sum, sum2, smoothing) * statistic_intensity;

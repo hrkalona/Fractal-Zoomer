@@ -333,10 +333,11 @@ public abstract class MagnetType extends Julia {
 
     private OutColorAlgorithm getEscapeTimeAlgorithm(boolean smoothing, int converging_smooth_algorithm, int escaping_smooth_algorithm) {
         if (!smoothing) {
-            return new EscapeTimeMagnet();
+            escapeTimeAlg = new EscapeTimeMagnet();
         } else {
-            return new SmoothEscapeTimeMagnet(bailout, log_bailout_squared, Math.log(convergent_bailout), escaping_smooth_algorithm, converging_smooth_algorithm);
+            escapeTimeAlg = new SmoothEscapeTimeMagnet(bailout, getConvergentBailout(), escaping_smooth_algorithm, converging_smooth_algorithm, bailout_algorithm.getNormImpl());
         }
+        return escapeTimeAlg;
     }
 
     protected void OutColoringAlgorithmFactory(int out_coloring_algorithm, boolean smoothing, int escaping_smooth_algorithm, int converging_smooth_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, double[] plane_transform_center) {
@@ -395,19 +396,19 @@ public abstract class MagnetType extends Julia {
                 out_color_algorithm = new EscapeTimeAlgorithm2(getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm, escaping_smooth_algorithm));
                 break;
             case MainWindow.ESCAPE_TIME_ESCAPE_RADIUS:
-                out_color_algorithm = new EscapeTimeEscapeRadius(log_bailout_squared, getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm, escaping_smooth_algorithm));
+                out_color_algorithm = new EscapeTimeEscapeRadius(bailout, getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm, escaping_smooth_algorithm), bailout_algorithm.getNormImpl());
                 break;
             case MainWindow.ESCAPE_TIME_GRID:
-                out_color_algorithm = new EscapeTimeGrid(log_bailout_squared, getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm, escaping_smooth_algorithm), false);
+                out_color_algorithm = new EscapeTimeGrid(bailout, getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm, escaping_smooth_algorithm), false, bailout_algorithm.getNormImpl());
                 break;
             case MainWindow.BANDED:
                 out_color_algorithm = new Banded();
                 break;
             case MainWindow.ESCAPE_TIME_FIELD_LINES:
-                out_color_algorithm = new EscapeTimeFieldLines(log_bailout_squared, getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm, escaping_smooth_algorithm));
+                out_color_algorithm = new EscapeTimeFieldLines(bailout, getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm, escaping_smooth_algorithm), bailout_algorithm.getNormImpl());
                 break;
             case MainWindow.ESCAPE_TIME_FIELD_LINES2:
-                out_color_algorithm = new EscapeTimeFieldLines2(log_bailout_squared, getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm, escaping_smooth_algorithm));
+                out_color_algorithm = new EscapeTimeFieldLines2(bailout, getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm, escaping_smooth_algorithm), bailout_algorithm.getNormImpl());
                 break;
             case MainWindow.USER_OUTCOLORING_ALGORITHM:
                 if (user_out_coloring_algorithm == 0) {

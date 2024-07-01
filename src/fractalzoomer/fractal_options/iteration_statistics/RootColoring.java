@@ -112,10 +112,10 @@ public class RootColoring extends GenericStatistic {
             double smoothing;
 
             if(converging_smoothing_algorithm == 0) {
-                smoothing = OutColorAlgorithm.fractionalPartConverging1(z_val, zold_val, zold2_val, log_convergent_bailout);
+                smoothing = OutColorAlgorithm.fractionalPartConverging1(z_val, zold_val, zold2_val, log_convergent_bailout, normSmoothingImpl);
             }
             else {
-                smoothing = OutColorAlgorithm.fractionalPartConverging2(z_val, zold_val, zold2_val, log_convergent_bailout);
+                smoothing = OutColorAlgorithm.fractionalPartConverging2(z_val, zold_val, zold2_val, log_convergent_bailout, normSmoothingImpl);
             }
 
             double val = (iterations + 1 - smoothing) / scaling;

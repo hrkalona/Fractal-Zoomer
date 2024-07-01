@@ -88,11 +88,12 @@ public abstract class ExtendedConvergentType extends Julia {
     @Override
     protected OutColorAlgorithm getEscapeTimeAlgorithm(boolean smoothing, int converging_smooth_algorithm) {
         if(!smoothing) {
-            return new EscapeTime();
+            escapeTimeAlg = new EscapeTime();
         }
         else {
-            return new SmoothEscapeTimeRootFindingMethod(Math.log(convergent_bailout), converging_smooth_algorithm);
+            escapeTimeAlg = new SmoothEscapeTimeRootFindingMethod(getConvergentBailout(), converging_smooth_algorithm);
         }
+        return escapeTimeAlg;
     }
     
     @Override
@@ -152,19 +153,19 @@ public abstract class ExtendedConvergentType extends Julia {
                 out_color_algorithm = new EscapeTimeAlgorithm2(getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm));
                 break;
             case MainWindow.ESCAPE_TIME_ESCAPE_RADIUS:
-                out_color_algorithm = new EscapeTimeEscapeRadius(Math.log(16), getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm));
+                out_color_algorithm = new EscapeTimeEscapeRadius(4, getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm), bailout_algorithm.getNormImpl());
                 break;
             case MainWindow.ESCAPE_TIME_GRID:
-                out_color_algorithm = new EscapeTimeGrid(Math.log(16), getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm), true);
+                out_color_algorithm = new EscapeTimeGrid(4, getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm), true, bailout_algorithm.getNormImpl());
                 break;
             case MainWindow.BANDED:
                 out_color_algorithm = new Banded();
                 break;
             case MainWindow.ESCAPE_TIME_FIELD_LINES:
-                out_color_algorithm = new EscapeTimeFieldLines(Math.log(16), getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm));
+                out_color_algorithm = new EscapeTimeFieldLines(4, getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm), bailout_algorithm.getNormImpl());
                 break;
             case MainWindow.ESCAPE_TIME_FIELD_LINES2:
-                out_color_algorithm = new EscapeTimeFieldLines2(Math.log(16), getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm));
+                out_color_algorithm = new EscapeTimeFieldLines2(4, getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm), bailout_algorithm.getNormImpl());
                 break;
             case MainWindow.USER_OUTCOLORING_ALGORITHM:
                 if(user_out_coloring_algorithm == 0) {

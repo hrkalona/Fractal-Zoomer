@@ -150,4 +150,8 @@ public abstract class BailoutCondition {
         this.id = id;
     }
 
+    public Norm getNormImpl() {
+        return normImpl;
+    }
+
 }

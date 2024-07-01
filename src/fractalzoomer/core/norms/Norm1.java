@@ -14,11 +14,6 @@ public class Norm1 extends Norm {
     }
 
     @Override
-    public double getRootExp() {
-        return 1;
-    }
-
-    @Override
     public double computeWithoutRoot(Complex z) {
         return z.getAbsRe() + z.getAbsIm();
     }

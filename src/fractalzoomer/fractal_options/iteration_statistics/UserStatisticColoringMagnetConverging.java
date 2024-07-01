@@ -45,10 +45,10 @@ public class UserStatisticColoringMagnetConverging extends GenericUserStatistic 
     @Override
     protected double getSmoothing() {
         if(converging_smoothing_algorithm == 0) {
-            return OutColorAlgorithm.fractionalPartMagnetConverging1(z_val, zold_val, root, log_convergent_bailout);
+            return OutColorAlgorithm.fractionalPartMagnetConverging1(z_val, zold_val, root, log_convergent_bailout, normSmoothingImpl);
         }
         else {
-            return OutColorAlgorithm.fractionalPartMagnetConverging2(z_val, zold_val, root, log_convergent_bailout);
+            return OutColorAlgorithm.fractionalPartMagnetConverging2(z_val, zold_val, root, log_convergent_bailout, normSmoothingImpl);
         }
     }
     

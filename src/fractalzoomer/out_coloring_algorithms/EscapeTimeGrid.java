@@ -18,32 +18,43 @@
 package fractalzoomer.out_coloring_algorithms;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.core.norms.Norm;
 
 /**
  *
  * @author hrkalona2
  */
 public class EscapeTimeGrid extends OutColorAlgorithm {
-  protected double log_bailout_squared;
+  protected double log_bailout;
   protected double pi2;
   protected OutColorAlgorithm EscapeTimeAlg;
-  boolean abs;
+  private boolean abs;
+  private Norm normImpl;
     
-    public EscapeTimeGrid(double log_bailout_squared, OutColorAlgorithm EscapeTimeAlg, boolean abs) {
+    public EscapeTimeGrid(double bailout, OutColorAlgorithm EscapeTimeAlg, boolean abs, Norm normImpl) {
 
         super();
-        this.log_bailout_squared = log_bailout_squared;
+
+        double exp = normImpl.getExp();
+        if(exp != 2) {
+            log_bailout = exp != 1 ? Math.log(Math.pow(bailout, exp)) : Math.log(bailout);
+        }
+        else {
+            log_bailout = Math.log(bailout * bailout);
+        }
+
         pi2 = Math.PI * 2;
         OutUsingIncrement = true;
         this.EscapeTimeAlg = EscapeTimeAlg;
         this.abs = abs;
+        this.normImpl = normImpl;
 
     }
 
     @Override
     public double getResult(Object[] object) {
 
-        double zabs = Math.log(((Complex)object[1]).norm_squared()) / log_bailout_squared - 1.0f;
+        double zabs = Math.log(normImpl.computeWithoutRoot((Complex)object[1])) / log_bailout - 1.0f;
 
         if(abs) {
             zabs = Math.abs(zabs);

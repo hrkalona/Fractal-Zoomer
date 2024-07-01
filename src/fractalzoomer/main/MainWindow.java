@@ -2038,6 +2038,8 @@ public class MainWindow extends JFrame implements Constants {
 
         options_menu.getApplyPlaneOnWholeJuliaOpt().setSelected(s.fns.apply_plane_on_julia);
         options_menu.getApplyPlaneOnJuliaSeedOpt().setSelected(s.fns.apply_plane_on_julia_seed);
+        options_menu.getFlipReOpt().setSelected(s.flip_real);
+        options_menu.getFlipImOpt().setSelected(s.flip_imaginary);
 
         out_coloring_modes[s.fns.out_coloring_algorithm].setSelected(true);
 

@@ -49,10 +49,11 @@ public abstract class MagnetPatakiType extends Julia {
     @Override
     protected OutColorAlgorithm getEscapeTimeAlgorithm(boolean smoothing, int escaping_smooth_algorithm) {
         if (!smoothing) {
-            return new EscapeTime();
+            escapeTimeAlg = new EscapeTime();
         } else {
-            return new SmoothEscapeTime(bailout, log_bailout_squared, escaping_smooth_algorithm, getLogPower());
+            escapeTimeAlg = new SmoothEscapeTime(bailout, log_bailout_squared, escaping_smooth_algorithm, getLogPower(), bailout_algorithm.getNormImpl());
         }
+        return escapeTimeAlg;
     }
 
     protected double getLogPower() {

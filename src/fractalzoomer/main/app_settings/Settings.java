@@ -125,7 +125,6 @@ public class Settings implements Constants {
         }
         catch (Exception ex) {}
 
-        //Todo add guys elements
         flip_real = false;
         flip_imaginary = false;
 

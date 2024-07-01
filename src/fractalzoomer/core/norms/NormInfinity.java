@@ -10,12 +10,7 @@ public class NormInfinity extends Norm {
 
     @Override
     public double getExp() {
-        return Double.POSITIVE_INFINITY;
-    }
-
-    @Override
-    public double getRootExp() {
-        return 0;
+        return 1;
     }
 
     @Override

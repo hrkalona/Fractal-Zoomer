@@ -41,10 +41,10 @@ public class UserStatisticColoringRootFindingMethod extends GenericUserStatistic
     @Override
     protected double getSmoothing() {
         if(converging_smoothing_algorithm == 0) {
-            return OutColorAlgorithm.fractionalPartConverging1(z_val, zold_val, zold2_val, log_convergent_bailout);
+            return OutColorAlgorithm.fractionalPartConverging1(z_val, zold_val, zold2_val, log_convergent_bailout, normSmoothingImpl);
         }
         else {
-            return OutColorAlgorithm.fractionalPartConverging2(z_val, zold_val, zold2_val, log_convergent_bailout);
+            return OutColorAlgorithm.fractionalPartConverging2(z_val, zold_val, zold2_val, log_convergent_bailout, normSmoothingImpl);
         }
     }
 

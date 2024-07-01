@@ -24,6 +24,8 @@ import fractalzoomer.core.bla.BLA;
 import fractalzoomer.core.bla.BLADeep;
 import fractalzoomer.core.interpolation.InterpolationMethod;
 import fractalzoomer.core.la.LAstep;
+import fractalzoomer.core.norms.Norm;
+import fractalzoomer.core.norms.Norm2;
 import org.apfloat.Apfloat;
 
 import java.util.Arrays;
@@ -68,6 +70,7 @@ public abstract class GenericStatistic {
     protected int converging_smoothing_algorithm;
 
     protected double final_value;
+    protected Norm normSmoothingImpl; //Todo is this ok?
     
     protected GenericStatistic(double statistic_intensity, boolean useSmoothing, boolean useAverage, int lastXItems) {
         this.statistic_intensity = statistic_intensity;
@@ -90,6 +93,8 @@ public abstract class GenericStatistic {
             sampleItems = new StatisticSample[lastXItems];
             sampleItem = 0;
         }
+
+        normSmoothingImpl = new Norm2();
     }
     
     public void insert(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0) {
