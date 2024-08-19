@@ -1,6 +1,9 @@
 package fractalzoomer.fractal_options.iteration_statistics;
 
-import fractalzoomer.core.*;
+import fractalzoomer.core.Complex;
+import fractalzoomer.core.GenericComplex;
+import fractalzoomer.core.MantExp;
+import fractalzoomer.core.MantExpComplex;
 import fractalzoomer.core.bla.BLA;
 import fractalzoomer.core.bla.BLADeep;
 import fractalzoomer.core.interpolation.InterpolationMethod;

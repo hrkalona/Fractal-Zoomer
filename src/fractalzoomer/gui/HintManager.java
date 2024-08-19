@@ -16,20 +16,20 @@ package fractalzoomer.gui;
  * limitations under the License.
  */
 
-import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.geom.Area;
-import java.awt.geom.RoundRectangle2D;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import javax.swing.*;
-import javax.swing.border.Border;
 import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.ui.FlatDropShadowBorder;
 import com.formdev.flatlaf.ui.FlatEmptyBorder;
 import com.formdev.flatlaf.ui.FlatUIUtils;
 import com.formdev.flatlaf.util.UIScale;
+
+import javax.swing.*;
+import javax.swing.border.Border;
+import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.geom.Area;
+import java.awt.geom.RoundRectangle2D;
+import java.util.ArrayList;
+import java.util.List;
 //import net.miginfocom.swing.MigLayout;
 
 /**

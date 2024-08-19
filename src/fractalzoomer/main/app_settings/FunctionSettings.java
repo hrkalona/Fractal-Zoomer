@@ -1,19 +1,4 @@
-/*
- * Copyright (C) 2020 hrkalona
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+
 package fractalzoomer.main.app_settings;
 
 import fractalzoomer.core.Derivative;
@@ -57,6 +42,7 @@ public class FunctionSettings implements Constants {
     public Apfloat[] rotation_vals;
     public Apfloat[] rotation_center;
     public double[] mandel_grass_vals;
+    public Apfloat[] plane_transform_center_hp;
     public double[] plane_transform_center;
     public double[] plane_transform_scales;
     public double[] plane_transform_wavelength;
@@ -76,6 +62,8 @@ public class FunctionSettings implements Constants {
     public double plane_transform_amount;
     public int plane_transform_sides;
     public double n_norm;
+    public double norm_a;
+    public double norm_b;
     public double z_exponent;
     public double[] z_exponent_complex;
     public double[] z_exponent_nova;
@@ -116,6 +104,9 @@ public class FunctionSettings implements Constants {
     public int escaping_smooth_algorithm;
     public int converging_smooth_algorithm;
     public boolean smoothing;
+    //public boolean apply_offset_in_smoothing;
+    public boolean banded;
+    public int smoothing_color_selection;
     public int smoothing_fractional_transfer_method;
     public double[] durand_kerner_init_val;
     public MagneticPendulumSettings mps;
@@ -152,8 +143,14 @@ public class FunctionSettings implements Constants {
         period = 0;
         n_norm = 2;
         z_exponent = 2;
+
+        norm_a = 1;
+        norm_b = 1;
         
         smoothing = false;
+        //apply_offset_in_smoothing = true;
+        smoothing_color_selection = 0;
+        banded = false;
         smoothing_fractional_transfer_method = 0;
         
         escaping_smooth_algorithm = 1;
@@ -196,6 +193,11 @@ public class FunctionSettings implements Constants {
         plane_transform_center = new double[2];
         plane_transform_center[0] = 0;
         plane_transform_center[1] = 0;
+
+        plane_transform_center_hp = new Apfloat[2];
+        plane_transform_center_hp[0] = new MyApfloat(0.0);
+        plane_transform_center_hp[1] = new MyApfloat(0.0);
+
 
         plane_transform_wavelength = new double[2];
         plane_transform_wavelength[0] = 0.15;

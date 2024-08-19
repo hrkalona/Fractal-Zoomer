@@ -161,10 +161,18 @@ public class ColorComponent extends JPanel {
                 repaint();
                 
                 if(closestIndex != -1) {
-                    setToolTipText(name + ": " + (int)(((colorPoints.get(closestIndex).getY() / (double)height)) * 255 + 0.5));
+                    ColorPoint cp = colorPoints.get(closestIndex);
+                    setToolTipText(name + ": " + (int)(((cp.getY() / (double)height)) * 255 + 0.5));
+                    if(cp.isAnchor()) {
+                        setCursor(new Cursor(Cursor.N_RESIZE_CURSOR));
+                    }
+                    else {
+                        setCursor(new Cursor(Cursor.MOVE_CURSOR));
+                    }
                 }
                 else {
                     setToolTipText(name + ": " + (int)(((y / (double)height)) * 255 + 0.5));
+                    setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
                 }
 
 

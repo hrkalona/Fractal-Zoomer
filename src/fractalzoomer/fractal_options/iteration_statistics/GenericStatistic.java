@@ -1,19 +1,4 @@
-/*
- * Fractal Zoomer, Copyright (C) 2020 hrkalona2
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+
 package fractalzoomer.fractal_options.iteration_statistics;
 
 import fractalzoomer.core.Complex;
@@ -24,6 +9,7 @@ import fractalzoomer.core.bla.BLA;
 import fractalzoomer.core.bla.BLADeep;
 import fractalzoomer.core.interpolation.InterpolationMethod;
 import fractalzoomer.core.la.LAstep;
+import fractalzoomer.core.norms.Norm;
 import org.apfloat.Apfloat;
 
 import java.util.Arrays;
@@ -68,6 +54,13 @@ public abstract class GenericStatistic {
     protected int converging_smoothing_algorithm;
 
     protected double final_value;
+
+    protected Norm normSmoothingImpl;
+    protected Norm cNormSmoothingImpl;
+
+    protected double bailout;
+    protected double log_bailout;
+    protected double log_convergent_bailout;
     
     protected GenericStatistic(double statistic_intensity, boolean useSmoothing, boolean useAverage, int lastXItems) {
         this.statistic_intensity = statistic_intensity;
@@ -387,6 +380,31 @@ public abstract class GenericStatistic {
 
     public double get() {
         return final_value;
+    }
+
+    public void setNormSmoothingImpl(Norm normSmoothingImpl, double bailout) {
+        this.normSmoothingImpl = normSmoothingImpl;
+        this.bailout = bailout;
+
+        double exp = normSmoothingImpl.getExp();
+        if(exp != 2) {
+            log_bailout = exp != 1 ? Math.log(Math.pow(bailout, exp)) : Math.log(bailout);
+        }
+        else {
+            log_bailout = Math.log(bailout * bailout);
+        }
+    }
+
+    public void setcNormSmoothingImpl(Norm cNormSmoothingImpl, double convergent_bailout) {
+        this.cNormSmoothingImpl = cNormSmoothingImpl;
+
+        double exp = cNormSmoothingImpl.getExp();
+        if(exp != 2) {
+            log_convergent_bailout = exp != 1 ? Math.log(Math.pow(convergent_bailout, exp)) : Math.log(convergent_bailout);
+        }
+        else {
+            log_convergent_bailout = Math.log(convergent_bailout * convergent_bailout);
+        }
     }
     
 }

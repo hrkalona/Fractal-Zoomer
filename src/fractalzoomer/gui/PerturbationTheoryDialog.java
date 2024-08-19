@@ -1,25 +1,10 @@
-/*
- * Copyright (C) 2020 hrkalona2
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+
 package fractalzoomer.gui;
 
 import fractalzoomer.core.*;
+import fractalzoomer.core.la.LAReference;
 import fractalzoomer.core.la.impl.LAInfo;
 import fractalzoomer.core.la.impl.LAInfoDeep;
-import fractalzoomer.core.la.LAReference;
 import fractalzoomer.core.mpfr.LibMpfr;
 import fractalzoomer.core.mpfr.MpfrBigNum;
 import fractalzoomer.core.mpir.LibMpir;
@@ -347,8 +332,8 @@ public class PerturbationTheoryDialog extends JDialog {
         Nanomb1Panel.setVisible(approximation_alg.getSelectedIndex() == 3);
 
         JComboBox<String> bigNumLibs = new JComboBox<>(new String[] {"Double (53 bits)", "DoubleDouble (106 bits)", "Built-in", "MPFR", "Automatic", "MPIR", "Automatic (No Double/DoubleDouble)", "Fixed Point BigInteger", "Apfloat"});
-        bigNumLibs.setSelectedIndex(TaskRender.BIGNUM_LIBRARY);
-        JLabel bnliblabel = new JLabel("BigNum Library:");
+        bigNumLibs.setSelectedIndex(TaskRender.BIGNUM_IMPLEMENTATION);
+        JLabel bnliblabel = new JLabel("BigNum Implementation:");
         bigNumLibs.setFocusable(false);
 
 
@@ -671,9 +656,9 @@ public class PerturbationTheoryDialog extends JDialog {
 
                             TaskRender.GATHER_PERTURBATION_STATISTICS = gatherPerturbationStatistics.isSelected();
 
-                            int oldBignumLib = TaskRender.BIGNUM_LIBRARY;
-                            TaskRender.BIGNUM_LIBRARY = bigNumLibs.getSelectedIndex();
-                            if(oldBignumLib != TaskRender.BIGNUM_LIBRARY) {
+                            int oldBignumLib = TaskRender.BIGNUM_IMPLEMENTATION;
+                            TaskRender.BIGNUM_IMPLEMENTATION = bigNumLibs.getSelectedIndex();
+                            if(oldBignumLib != TaskRender.BIGNUM_IMPLEMENTATION) {
                                 Fractal.clearReferences(true, true);
                             }
 
@@ -695,11 +680,11 @@ public class PerturbationTheoryDialog extends JDialog {
                                 Fractal.clearReferences(true, true);
                             }
 
-                            if(TaskRender.PERTURBATION_THEORY && TaskRender.BIGNUM_LIBRARY == Constants.BIGNUM_MPFR && LibMpfr.hasError()) {
+                            if(TaskRender.PERTURBATION_THEORY && TaskRender.BIGNUM_IMPLEMENTATION == Constants.BIGNUM_MPFR && LibMpfr.hasError()) {
                                 JOptionPane.showMessageDialog(ptra, "The MPFR library is not available, and the engine will fallback to an alternative library.", "Warning!", JOptionPane.WARNING_MESSAGE);
                             }
 
-                            if(TaskRender.PERTURBATION_THEORY && TaskRender.BIGNUM_LIBRARY == Constants.BIGNUM_MPIR && LibMpir.hasError()) {
+                            if(TaskRender.PERTURBATION_THEORY && TaskRender.BIGNUM_IMPLEMENTATION == Constants.BIGNUM_MPIR && LibMpir.hasError()) {
                                 JOptionPane.showMessageDialog(ptra, "The MPIR library is not available, and the engine will fallback to an alternative library.", "Warning!", JOptionPane.WARNING_MESSAGE);
                             }
 

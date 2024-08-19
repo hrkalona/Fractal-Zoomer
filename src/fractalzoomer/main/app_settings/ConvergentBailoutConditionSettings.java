@@ -8,6 +8,8 @@ public class ConvergentBailoutConditionSettings {
     public String convergent_bailout_test_user_formula2;
     public int convergent_bailout_test_comparison;
     public double convergent_n_norm;
+    public double norm_a;
+    public double norm_b;
 
     public ConvergentBailoutConditionSettings() {
         convergent_bailout_test_algorithm = Constants.CONVERGENT_BAILOUT_CONDITION_CIRCLE;
@@ -15,5 +17,7 @@ public class ConvergentBailoutConditionSettings {
         convergent_bailout_test_user_formula2 = "cbail";
         convergent_bailout_test_comparison = Constants.LOWER_EQUAL;
         convergent_n_norm = 2.0;
+        norm_a = 1;
+        norm_b = 1;
     }
 }

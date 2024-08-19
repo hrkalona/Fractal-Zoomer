@@ -1,19 +1,4 @@
-/*
- * Copyright (C) 2020 hrkalona2
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+
 package fractalzoomer.gui;
 
 import fractalzoomer.main.Constants;
@@ -49,11 +34,15 @@ public class SmoothingDialog extends JDialog {
         enable_smoothing.setSelected(s.fns.smoothing);
         enable_smoothing.setFocusable(false);
 
+        final JCheckBox enable_flat = new JCheckBox("Banding");
+        enable_flat.setSelected(s.fns.banded);
+        enable_flat.setFocusable(false);
+
         JComboBox<String> fractional_transfer = new JComboBox<>(Constants.smoothingFractionalTransfer);
         fractional_transfer.setSelectedIndex(s.fns.smoothing_fractional_transfer_method);
         fractional_transfer.setFocusable(false);
 
-        String[] escaping_algorithm_str = {"Algorithm 1", "Algorithm 2"};
+        String[] escaping_algorithm_str = {"Algorithm 1", "Algorithm 2", "Algorithm 3"};
 
         JComboBox<String> escaping_alg_combo = new JComboBox<>(escaping_algorithm_str);
         escaping_alg_combo.setSelectedIndex(s.fns.escaping_smooth_algorithm);
@@ -72,6 +61,15 @@ public class SmoothingDialog extends JDialog {
         combo_box_color_interp.setFocusable(false);
         combo_box_color_interp.setToolTipText("Sets the color interpolation method.");
 
+        JComboBox<String> color_selection = new JComboBox<>(new String[] {"n - 1, n", "n, n + 1"});
+        color_selection.setSelectedIndex(s.fns.smoothing_color_selection);
+        color_selection.setFocusable(false);
+
+//        final JCheckBox apply_offset_of_1 = new JCheckBox("Apply offset of 1");
+//        apply_offset_of_1.setSelected(s.fns.apply_offset_in_smoothing);
+//        apply_offset_of_1.setFocusable(false);
+//        apply_offset_of_1.setToolTipText("Adds an offset of 1 to the calculated fractional value for smoothing.");
+
         if (s.ds.domain_coloring) {
             escaping_alg_combo.setEnabled(false);
             converging_alg_combo.setEnabled(false);
@@ -85,9 +83,16 @@ public class SmoothingDialog extends JDialog {
         Object[] message = {
             " ",
             enable_smoothing,
+                " ",
+                enable_flat,
             " ",
                 "Fractional Transfer:",
                 fractional_transfer,
+                " ",
+                "Set the color indexing parameters.",
+                "Color Index Selection:",
+                color_selection,
+               // apply_offset_of_1,
                 " ",
             "Set the smoothing algorithm for escaping and converging functions.",
             "Escaping:", escaping_alg_combo,
@@ -134,12 +139,17 @@ public class SmoothingDialog extends JDialog {
                         boolean recalculate = false;
                         try {
                             s.fns.smoothing = enable_smoothing.isSelected();
+                            s.fns.banded = enable_flat.isSelected();
 
                             if(s.fns.escaping_smooth_algorithm != escaping_alg_combo.getSelectedIndex()
-                             || s.fns.converging_smooth_algorithm != converging_alg_combo.getSelectedIndex()) {
+                             || s.fns.converging_smooth_algorithm != converging_alg_combo.getSelectedIndex()
+                           // || s.fns.apply_offset_in_smoothing != apply_offset_of_1.isSelected()
+                            ) {
                                 recalculate = true;
                             }
 
+                           // s.fns.apply_offset_in_smoothing = apply_offset_of_1.isSelected();
+                            s.fns.smoothing_color_selection = color_selection.getSelectedIndex();
                             s.fns.escaping_smooth_algorithm = escaping_alg_combo.getSelectedIndex();
                             s.fns.converging_smooth_algorithm = converging_alg_combo.getSelectedIndex();
                             s.color_smoothing_method = combo_box_color_interp.getSelectedIndex();

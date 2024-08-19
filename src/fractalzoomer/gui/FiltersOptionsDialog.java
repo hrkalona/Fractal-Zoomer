@@ -1,25 +1,9 @@
-/*
- * Copyright (C) 2020 hrkalona
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+
 package fractalzoomer.gui;
 
 import fractalzoomer.core.TaskRender;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.FiltersSettings;
-import raven.slider.SliderGradient;
 
 import javax.swing.*;
 import java.awt.*;
@@ -3119,11 +3103,11 @@ public class FiltersOptionsDialog extends JDialog {
             int aaMethodNew = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
             int new_supersampling_num = TaskRender.getExtraSamples(aaSamplesIndexNew, aaMethodNew);
 
+            dispose();
+
             ptra2.filtersOptionsChanged(filters_options_vals, filters_options_extra_vals, filters_colors, filters_extra_colors, order_panel.getFilterOrder(), mActiveFilters, aaSamplesIndexNew != aaSamplesIndexOld || old_supersampling_num != new_supersampling_num, useJitterOld != useJitterNew);
 
             tab_index = tabbedPane.getSelectedIndex();
-
-            dispose();
 
         });
 

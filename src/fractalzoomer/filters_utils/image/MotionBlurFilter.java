@@ -16,8 +16,9 @@ limitations under the License.
 
 package fractalzoomer.filters_utils.image;
 
-import java.awt.image.*;
-import java.awt.geom.*;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
+import java.awt.image.BufferedImage;
 
 /**
  * A filter which produces motion blur the slow, but higher-quality way.

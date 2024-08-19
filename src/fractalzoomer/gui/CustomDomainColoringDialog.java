@@ -1,29 +1,11 @@
-/*
- * Fractal Zoomer, Copyright (C) 2020 hrkalona2
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+
 package fractalzoomer.gui;
 
 import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.DomainColoringSettings;
-import raven.slider.SliderGradient;
 
 import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.*;
 
@@ -101,16 +83,25 @@ public class CustomDomainColoringDialog extends JDialog {
         general_settings_panel.setLayout(new FlowLayout());
         general_settings_panel.setBackground(MainWindow.bg_color);
 
-        final JTextField log_base_textfield = new JTextField(10);
+        final JTextField log_base_textfield = new JTextField(5);
         log_base_textfield.setText("" + ds.logBase);
 
-        final JTextField grid_spacing_textfield = new JTextField(10);
+        final JTextField grid_spacing_textfield = new JTextField(5);
         grid_spacing_textfield.setText("" + ds.gridFactor);
         
-        final JTextField norm_type_textfield = new JTextField(10);
+        final JTextField norm_type_textfield = new JTextField(5);
         norm_type_textfield.setText("" + ds.normType);
 
-        final JTextField max_value_textfield = new JTextField(10);
+        final JTextField norm_a_textfield = new JTextField(5);
+        norm_a_textfield.setText("" + ds.normA);
+
+        final JTextField norm_b_textfield = new JTextField(5);
+        norm_b_textfield.setText("" + ds.normB);
+
+        norm_a_textfield.setToolTipText("Sets the norm A coefficient.");
+        norm_b_textfield.setToolTipText("Sets the norm B coefficient.");
+
+        final JTextField max_value_textfield = new JTextField(5);
         max_value_textfield.setText("" + ds.max_norm_re_im_value);
 
         JCheckBox max_norm_re_im_mapping = new JCheckBox("Map [0, ∞) → [0, 1)");
@@ -224,7 +215,11 @@ public class CustomDomainColoringDialog extends JDialog {
         p1.add(grid_spacing_textfield);
         p1.add(new JLabel("  Norm Type: "));
         p1.add(norm_type_textfield);
-        
+        p1.add(new JLabel("  A: "));
+        p1.add(norm_a_textfield);
+        p1.add(new JLabel("  B: "));
+        p1.add(norm_b_textfield);
+
         JPanel p2 = new JPanel();
         p2.setLayout(new FlowLayout());
         p2.setBackground(MainWindow.bg_color);
@@ -713,7 +708,7 @@ public class CustomDomainColoringDialog extends JDialog {
         getRootPane().setDefaultButton(ok);
         ok.addActionListener(e -> {
 
-            double temp, temp2, temp3, temp4, temp5, temp6;
+            double temp, temp2, temp3, temp4, temp5, temp6, temp7, temp8;
             try {
                 temp = Double.parseDouble(log_base_textfield.getText());
                 temp2 = Double.parseDouble(grid_spacing_textfield.getText());
@@ -721,6 +716,8 @@ public class CustomDomainColoringDialog extends JDialog {
                 temp4 = Double.parseDouble(max_value_textfield.getText());
                 temp5 = Double.parseDouble(saturation.getText());
                 temp6 = Double.parseDouble(shading_percent.getText());
+                temp7 = Double.parseDouble(norm_a_textfield.getText());
+                temp8 = Double.parseDouble(norm_b_textfield.getText());
             }
             catch(Exception ex) {
                 JOptionPane.showMessageDialog(this_frame, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
@@ -755,6 +752,8 @@ public class CustomDomainColoringDialog extends JDialog {
             ds.gridFactor = temp2;
             ds.logBase = temp;
             ds.normType = temp3;
+            ds.normA = temp7;
+            ds.normB = temp8;
             ds.iso_distance = iso_lines_distance_opt.getSelectedIndex();
 
             ds.max_norm_re_im_value = temp4;

@@ -1,22 +1,10 @@
-/*
- * Fractal Zoomer, Copyright (C) 2020 hrkalona2
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+
 package fractalzoomer.main.app_settings;
 
+import fractalzoomer.bailout_conditions.NNormBailoutCondition;
 import fractalzoomer.bailout_conditions.SkipBailoutCondition;
+import fractalzoomer.convergent_bailout_conditions.KFNNormDistanceBailoutCondition;
+import fractalzoomer.convergent_bailout_conditions.NNormDistanceBailoutCondition;
 import fractalzoomer.convergent_bailout_conditions.SkipConvergentBailoutCondition;
 import fractalzoomer.core.Complex;
 import fractalzoomer.core.Derivative;
@@ -28,9 +16,11 @@ import fractalzoomer.main.Constants;
 import fractalzoomer.main.ImageExpanderWindow;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.palettes.CustomPalette;
+import fractalzoomer.palettes.PaletteColorSmooth;
 import fractalzoomer.palettes.PresetPalette;
 import fractalzoomer.parser.Parser;
 import fractalzoomer.parser.ParserException;
+import fractalzoomer.planes.Plane;
 import fractalzoomer.settings.*;
 import fractalzoomer.utils.ColorAlgorithm;
 import org.apfloat.Apfloat;
@@ -66,6 +56,8 @@ public class Settings implements Constants {
     public Apfloat xJuliaCenter;
     public Apfloat yJuliaCenter;
     public Apfloat size;
+    public boolean flip_real;
+    public boolean flip_imaginary;
     public double height_ratio;
     public int max_iterations;
     public long old_max_iterations;
@@ -121,6 +113,9 @@ public class Settings implements Constants {
 
         }
         catch (Exception ex) {}
+
+        flip_real = false;
+        flip_imaginary = false;
 
         hsb_constant_b = 1;
         hsb_constant_s = 1;
@@ -233,6 +228,25 @@ public class Settings implements Constants {
             xCenterStr = ((SettingsFractals1078) settings).getxCenterStr();
             yCenterStr = ((SettingsFractals1078) settings).getyCenterStr();
             sizeStr = ((SettingsFractals1078) settings).getSizeStr();
+        }
+
+        String plane_tform_center_reStr;
+        String plane_tform_center_imStr;
+
+        if(version < 1092) {
+            if(version < 1053) {
+                plane_tform_center_reStr = "0";
+                plane_tform_center_imStr = "0";
+            }
+            else {
+                double[] center = ((SettingsFractals1053) settings).getPlaneTransformCenter();
+                plane_tform_center_reStr = "" + center[0];
+                plane_tform_center_imStr = "" + center[1];
+            }
+        }
+        else {
+            plane_tform_center_reStr = "" + ((SettingsFractals1092) settings).getPlane_transform_center_hp_re();
+            plane_tform_center_imStr = "" + ((SettingsFractals1092) settings).getPlane_transform_center_hp_im();
         }
 
         if (settings.isJulia()) {
@@ -361,7 +375,7 @@ public class Settings implements Constants {
 
             if(MyApfloat.setAutomaticPrecision) {
 
-                long precision = MyApfloat.getAutomaticPrecision(new String[]{sizeStr, xCenterStr, yCenterStr, xJuliaCenterStr, yJuliaCenterStr}, new boolean[] {true, false, false, false, false}, settings.getFunction());
+                long precision = MyApfloat.getAutomaticPrecision(new String[]{sizeStr, xCenterStr, yCenterStr, xJuliaCenterStr, yJuliaCenterStr, plane_tform_center_reStr, plane_tform_center_imStr}, new boolean[] {true, false, false, false, false, false, false}, settings.getFunction());
 
                 //if (MyApfloat.shouldSetPrecision(precision, true, settings.getFunction())) {
                     Fractal.clearReferences(true, true);
@@ -443,7 +457,7 @@ public class Settings implements Constants {
 
             if(MyApfloat.setAutomaticPrecision) {
 
-                long precision = MyApfloat.getAutomaticPrecision(new String[]{sizeStr, xCenterStr, yCenterStr}, new boolean[] {true, false, false}, settings.getFunction());
+                long precision = MyApfloat.getAutomaticPrecision(new String[]{sizeStr, xCenterStr, yCenterStr, plane_tform_center_reStr, plane_tform_center_imStr}, new boolean[] {true, false, false, false, false}, settings.getFunction());
 
                 //if (MyApfloat.shouldSetPrecision(precision, true, settings.getFunction())) {
                     Fractal.clearReferences(true, true);
@@ -830,6 +844,14 @@ public class Settings implements Constants {
             exterior_de_factor = defaults.exterior_de_factor;
             height_ratio = defaults.height_ratio;
 
+            fns.plane_transform_center = defaults.fns.plane_transform_center;
+            fns.plane_transform_amount = defaults.fns.plane_transform_amount;
+            fns.plane_transform_angle = defaults.fns.plane_transform_angle;
+            fns.plane_transform_angle2 = defaults.fns.plane_transform_angle2;
+            fns.plane_transform_sides = defaults.fns.plane_transform_sides;
+            fns.plane_transform_radius = defaults.fns.plane_transform_radius;
+            fns.plane_transform_scales = defaults.fns.plane_transform_scales;
+
             if (fns.plane_type == FOLDUP_PLANE) {
                 fns.plane_transform_center[0] = 0;
                 fns.plane_transform_center[1] = -0.25;
@@ -839,7 +861,6 @@ public class Settings implements Constants {
             } else if (fns.plane_type == FOLDIN_PLANE || fns.plane_type == FOLDOUT_PLANE) {
                 fns.plane_transform_radius = 1;
             }
-
         } else {
             exterior_de = ((SettingsFractals1053) settings).getExteriorDe();
             exterior_de_factor = ((SettingsFractals1053) settings).getExteriorDeFactor();
@@ -873,6 +894,10 @@ public class Settings implements Constants {
             } else if (fns.plane_type == SKEW_PLANE) {
                 fns.plane_transform_angle = ((SettingsFractals1053) settings).getPlaneTransformAngle();
                 fns.plane_transform_angle2 = ((SettingsFractals1053) settings).getPlaneTransformAngle2();
+            }
+            else if (fns.plane_type == STRETCH_PLANE) {
+                fns.plane_transform_angle = ((SettingsFractals1053) settings).getPlaneTransformAngle();
+                fns.plane_transform_amount = ((SettingsFractals1053) settings).getPlaneTransformAmount();
             }
         }
 
@@ -1757,6 +1782,57 @@ public class Settings implements Constants {
             pps.ots.trapOffset = ((SettingsFractals1091) settings).getTrapOffset();
         }
 
+        if(version < 1092) {
+            fns.cbs.norm_a = defaults.fns.cbs.norm_a;
+            fns.cbs.norm_b = defaults.fns.cbs.norm_b;
+            ds.normA = defaults.ds.normA;
+            ds.normB = defaults.ds.normB;
+            fns.norm_a = defaults.fns.norm_a;
+            fns.norm_b = defaults.fns.norm_b;
+            fns.banded = defaults.fns.banded;
+            fns.plane_transform_center_hp[0] = defaults.fns.plane_transform_center_hp[0];
+            fns.plane_transform_center_hp[1] = defaults.fns.plane_transform_center_hp[1];
+            fns.plane_transform_center[0] = fns.plane_transform_center_hp[0].doubleValue();
+            fns.plane_transform_center[1] = fns.plane_transform_center_hp[1].doubleValue();
+            pps.ots.trapNormA = defaults.pps.ots.trapNormA;
+            pps.ots.trapNormB = defaults.pps.ots.trapNormB;
+            flip_real = defaults.flip_real;
+            flip_imaginary = defaults.flip_imaginary;
+            pps.sts.langNormA = defaults.pps.sts.langNormA;
+            pps.sts.langNormB = defaults.pps.sts.langNormB;
+            pps.sts.atomDomainNormA = defaults.pps.sts.atomDomainNormA;
+            pps.sts.atomDomainNormB = defaults.pps.sts.atomDomainNormB;
+            pps.sts.checkerNormA = defaults.pps.sts.checkerNormA;
+            pps.sts.checkerNormB = defaults.pps.sts.checkerNormB;
+            pps.sts.rootScalingCapto1 = defaults.pps.sts.rootScalingCapto1;
+            fns.smoothing_color_selection = defaults.fns.smoothing_color_selection;
+        }
+        else {
+            fns.cbs.norm_a = ((SettingsFractals1092) settings).getConvergent_norm_a();
+            fns.cbs.norm_b = ((SettingsFractals1092) settings).getConvergent_norm_b();
+            ds.normA = ((SettingsFractals1092) settings).getDomain_coloring_norm_a();
+            ds.normB = ((SettingsFractals1092) settings).getDomain_coloring_norm_b();
+            fns.norm_a = ((SettingsFractals1092) settings).getNorm_a();
+            fns.norm_b = ((SettingsFractals1092) settings).getNorm_b();
+            fns.banded = ((SettingsFractals1092) settings).getBanded();
+            fns.plane_transform_center_hp[0] = new MyApfloat(((SettingsFractals1092) settings).getPlane_transform_center_hp_re());
+            fns.plane_transform_center_hp[1] = new MyApfloat(((SettingsFractals1092) settings).getPlane_transform_center_hp_im());
+            fns.plane_transform_center[0] = fns.plane_transform_center_hp[0].doubleValue();
+            fns.plane_transform_center[1] = fns.plane_transform_center_hp[1].doubleValue();
+            pps.ots.trapNormA = ((SettingsFractals1092) settings).getTrap_norm_a();
+            pps.ots.trapNormB = ((SettingsFractals1092) settings).getTrap_norm_b();
+            flip_real = ((SettingsFractals1092) settings).getFlip_real();
+            flip_imaginary = ((SettingsFractals1092) settings).getFlip_imaginary();
+            pps.sts.langNormA = ((SettingsFractals1092) settings).getLang_norm_a();
+            pps.sts.langNormB = ((SettingsFractals1092) settings).getLang_norm_b();
+            pps.sts.atomDomainNormA = ((SettingsFractals1092) settings).getAtom_norm_a();
+            pps.sts.atomDomainNormB = ((SettingsFractals1092) settings).getAtom_norm_b();
+            pps.sts.checkerNormA = ((SettingsFractals1092) settings).getChecker_norm_a();
+            pps.sts.checkerNormB = ((SettingsFractals1092) settings).getChecker_norm_b();
+            pps.sts.rootScalingCapto1 = ((SettingsFractals1092) settings).getRoot_scaling_cap1();
+            fns.smoothing_color_selection = ((SettingsFractals1092) settings).getSmoothing_color_selection();
+        }
+
         if (fns.plane_type == USER_PLANE) {
             if (version < 1058) {
                 fns.user_plane_algorithm = defaults.fns.user_plane_algorithm;
@@ -2238,7 +2314,7 @@ public class Settings implements Constants {
                 userCode = userCode.replaceAll("\\b" + Parser.DEFAULT_USER_CODE_CLASS + "\\b", Parser.SAVED_USER_CODE_CLASS);
             }
 
-            SettingsFractals settings = new SettingsFractals1091(this, TaskRender.PERTURBATION_THEORY, TaskRender.GREEDY_ALGORITHM, TaskRender.BRUTE_FORCE_ALG, TaskRender.GREEDY_ALGORITHM_SELECTION, TaskRender.GREEDY_ALGORITHM_CHECK_ITER_DATA, userCode, TaskRender.GUESS_BLOCKS_SELECTION, TaskRender.SUCCESSIVE_REFINEMENT_SQUARE_RECT_SPLIT_ALGORITHM, TaskRender.TWO_PASS_SUCCESSIVE_REFINEMENT, TaskRender.CHUNK_SIZE_PER_ROW);
+            SettingsFractals settings = new SettingsFractals1092(this, TaskRender.PERTURBATION_THEORY, TaskRender.GREEDY_ALGORITHM, TaskRender.BRUTE_FORCE_ALG, TaskRender.GREEDY_ALGORITHM_SELECTION, TaskRender.GREEDY_ALGORITHM_CHECK_ITER_DATA, userCode, TaskRender.GUESS_BLOCKS_SELECTION, TaskRender.SUCCESSIVE_REFINEMENT_SQUARE_RECT_SPLIT_ALGORITHM, TaskRender.TWO_PASS_SUCCESSIVE_REFINEMENT, TaskRender.CHUNK_SIZE_PER_ROW);
             file_temp.writeObject(settings);
             file_temp.flush();
         } catch (IOException ex) {
@@ -2486,6 +2562,7 @@ public class Settings implements Constants {
         switch (fns.function) {
             case MANDEL_NEWTON:
             case FORMULA1:
+            case FORMULA49:
                 xCenter = new MyApfloat(0.0);
                 yCenter = new MyApfloat(0.0);
                 size = new MyApfloat(24);
@@ -3087,7 +3164,7 @@ public class Settings implements Constants {
                 || plane == KALEIDOSCOPE_PLANE || plane == PINCH_PLANE || plane == FOLDUP_PLANE
                 || plane == FOLDDOWN_PLANE || plane == FOLDRIGHT_PLANE || plane == FOLDLEFT_PLANE || plane == INFLECTION_PLANE
                 || plane == BIPOLAR_PLANE || plane == INVERSED_BIPOLAR_PLANE || plane == FOLDIN_PLANE || plane == FOLDOUT_PLANE
-                || plane == CIRCLEINVERSION_PLANE || plane == SKEW_PLANE || plane == INFLECTIONS_PLANE;
+                || plane == CIRCLEINVERSION_PLANE || plane == SKEW_PLANE || plane == INFLECTIONS_PLANE || plane == STRETCH_PLANE;
     }
 
     public void applyStaticSettings() {
@@ -3103,6 +3180,21 @@ public class Settings implements Constants {
         } else {
             TaskRender.palette_incoloring = new PresetPalette(ps2.color_choice, ps2.direct_palette, fns.smoothing, special_color, color_smoothing_method, special_use_palette_color, fns.smoothing_fractional_transfer_method).getRawPalette();
         }
+
+        NNormDistanceBailoutCondition.A = fns.cbs.norm_a;
+        NNormDistanceBailoutCondition.B = fns.cbs.norm_b;
+
+        KFNNormDistanceBailoutCondition.A = fns.cbs.norm_a;
+        KFNNormDistanceBailoutCondition.B = fns.cbs.norm_b;
+
+        NNormBailoutCondition.A = fns.norm_a;
+        NNormBailoutCondition.B = fns.norm_b;
+
+        Plane.FLIP_REAL = flip_real;
+        Plane.FLIP_IMAGINARY = flip_imaginary;
+
+        //SmoothEscapeTime.APPLY_OFFSET_OF_1_IN_SMOOTHING = fns.apply_offset_in_smoothing;
+        PaletteColorSmooth.SMOOTHING_COLOR_SELECTION = fns.smoothing_color_selection;
 
         TaskRender.USER_CONVERGENT_BAILOUT = fns.convergent_bailout * fns.convergent_bailout;
         TaskRender.palette_outcoloring.setGeneratedPaletteSettings(true, gps);
@@ -3213,7 +3305,7 @@ public class Settings implements Constants {
     }
 
     private boolean needsSmoothing() {
-        return (fns.smoothing || ((pps.ndes.useNumericalDem || pps.ls.lighting || pps.ss.slopes || pps.bms.bump_map || pps.cns.contour_coloring || pps.ens.entropy_coloring || pps.rps.rainbow_palette || pps.fdes.fake_de || pps.sts.statistic) && TaskRender.USE_SMOOTHING_FOR_PROCESSING_ALGS));
+        return (hasSmoothing() || ((pps.ndes.useNumericalDem || pps.ls.lighting || pps.ss.slopes || pps.bms.bump_map || pps.cns.contour_coloring || pps.ens.entropy_coloring || pps.rps.rainbow_palette || pps.fdes.fake_de || pps.sts.statistic) && TaskRender.USE_SMOOTHING_FOR_PROCESSING_ALGS));
     }
     private boolean requiresSmoothingCalculation() {
         return !TaskRender.SMOOTH_DATA && needsSmoothing();
@@ -3228,7 +3320,8 @@ public class Settings implements Constants {
     }
 
     public boolean canSkipCalculatedAreas() {
-        return !d3s.d3 && !ds.domain_coloring && !julia_map && !isAnyFilterEnabled() && !isAnyPostProcessingEnabled()
+        return  MainWindow.REUSE_DATA_ON_ITERATION_CHANGE &&
+                !d3s.d3 && !ds.domain_coloring && !julia_map && !isAnyFilterEnabled() && !isAnyPostProcessingEnabled()
                 && !(pps.sts.statistic && pps.sts.statisticGroup == 4)
                 && !(pps.sts.statistic && pps.sts.statisticIncludeNotEscaped)
                 && !(pps.ots.useTraps && pps.ots.trapIncludeNotEscaped)
@@ -3236,7 +3329,8 @@ public class Settings implements Constants {
                 && !usesUserFormula()
                 && fns.in_coloring_algorithm == MAX_ITERATIONS
                 && !fns.tcs.trueColorIn
-                && !useDirectColor;
+                && !useDirectColor
+                && fns.function != MAGNETIC_PENDULUM;
     }
 
     public boolean isAnyFilterEnabled() {
@@ -3356,6 +3450,10 @@ public class Settings implements Constants {
     }
     public boolean needsExtraData() {
         return fs.filters[Constants.ANTIALIASING]  && ((TaskRender.ALWAYS_SAVE_EXTRA_PIXEL_DATA_ON_AA_WITH_PP && needsPostProcessing()) || TaskRender.ALWAYS_SAVE_EXTRA_PIXEL_DATA_ON_AA);
+    }
+
+    public boolean hasSmoothing() {
+        return fns.smoothing;
     }
 
 }

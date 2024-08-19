@@ -1,19 +1,4 @@
-/*
- * Fractal Zoomer, Copyright (C) 2020 hrkalona2
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+
 package fractalzoomer.palettes.transfer_functions;
 
 /**
@@ -25,9 +10,9 @@ public class SqrtTransferFunction extends TransferFunction {
     private double color_intensity;
     private double itPaletteDensity;
 
-    public SqrtTransferFunction(int paletteLength, double color_intensity, double colorDensity) {
+    public SqrtTransferFunction(int paletteLength, double color_intensity, double colorDensity, boolean banded) {
 
-        super(paletteLength);
+        super(paletteLength, banded);
         this.color_intensity = color_intensity;
 
         final double realColorDensity = colorDensity / 100.0;
@@ -38,28 +23,49 @@ public class SqrtTransferFunction extends TransferFunction {
     @Override
     public double transfer(double result) {
 
-        if (result < 0) {
-            result = -result; // transfer to positive
-//            result /= paletteLength; //scale to palette multiple
-//            result = Math.sqrt(result * color_intensity + 1);
-//            result *= paletteLength; // rescale to palette length
+        boolean isNeg = result < 0;
 
-            result *= itPaletteDensity;
-            result = Math.sqrt(result);
-            result *= paletteLength * paletteMultiplier;
-
-            result = -result; // transfer to negative
-        } else {
-//            result /= paletteLength; //scale to palette multiple
-//            result = Math.sqrt(result * color_intensity + 1);
-//            result *= paletteLength; // rescale to palette length
-
-            result *= itPaletteDensity;
-            result = Math.sqrt(result);
-            result *= paletteLength * paletteMultiplier;
+        if (isNeg) {
+            result = -result;
         }
 
-        return result * color_intensity;
+        if(banded) {
+            result = (long) (result);
+        }
+
+        result *= itPaletteDensity;
+        result = Math.sqrt(result);
+        result *= paletteLength * paletteMultiplier;
+
+        double final_result = result * color_intensity;
+        return isNeg ? -final_result : final_result;
+
+//        if(banded) {
+//            result = (long)result;
+//        }
+//
+//        if (result < 0) {
+//            result = -result; // transfer to positive
+////            result /= paletteLength; //scale to palette multiple
+////            result = Math.sqrt(result * color_intensity + 1);
+////            result *= paletteLength; // rescale to palette length
+//
+//            result *= itPaletteDensity;
+//            result = Math.sqrt(result);
+//            result *= paletteLength * paletteMultiplier;
+//
+//            result = -result; // transfer to negative
+//        } else {
+////            result /= paletteLength; //scale to palette multiple
+////            result = Math.sqrt(result * color_intensity + 1);
+////            result *= paletteLength; // rescale to palette length
+//
+//            result *= itPaletteDensity;
+//            result = Math.sqrt(result);
+//            result *= paletteLength * paletteMultiplier;
+//        }
+//
+//        return result * color_intensity;
 
     }
 

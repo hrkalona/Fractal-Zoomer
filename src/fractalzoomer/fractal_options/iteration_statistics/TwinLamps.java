@@ -13,13 +13,10 @@ public class TwinLamps extends GenericStatistic {
     private Complex point;
     private int twlFunction;
 
-    private double log_bailout_squared;
-
-    public TwinLamps(double statistic_intensity, int twlFunction, double[] twlPoint, double log_bailout_squared, boolean useSmoothing, int lastXItems) {
+    public TwinLamps(double statistic_intensity, int twlFunction, double[] twlPoint, boolean useSmoothing, int lastXItems) {
         super(statistic_intensity, useSmoothing, false, lastXItems);
         point = new Complex(twlPoint[0], twlPoint[1]);
         this.twlFunction = twlFunction;
-        this.log_bailout_squared = log_bailout_squared;
     }
 
     @Override
@@ -120,10 +117,13 @@ public class TwinLamps extends GenericStatistic {
         double smoothing;
 
         if(escaping_smoothing_algorithm == 0 && !usePower) {
-            smoothing = OutColorAlgorithm.fractionalPartEscaping1(z_val, zold_val, log_bailout_squared);
+            smoothing = OutColorAlgorithm.fractionalPartEscaping1(z_val, zold_val, log_bailout, normSmoothingImpl);
+        }
+        else if(escaping_smoothing_algorithm == 2 && !usePower) {
+            smoothing = OutColorAlgorithm.fractionalPartEscaping3(z_val, zold_val, bailout, normSmoothingImpl);
         }
         else {
-            smoothing = usePower ? OutColorAlgorithm.fractionalPartEscapingWithPower(z_val, log_bailout_squared, log_power) : OutColorAlgorithm.fractionalPartEscaping2(z_val, zold_val, log_bailout_squared);
+            smoothing = usePower ? OutColorAlgorithm.fractionalPartEscapingWithPower(z_val, log_bailout, log_power, normSmoothingImpl) : OutColorAlgorithm.fractionalPartEscaping2(z_val, zold_val, log_bailout, normSmoothingImpl);
         }
 
         return method.interpolate(sum / (1 + max - min), sum2 / (1 + max - min), smoothing) * statistic_intensity;

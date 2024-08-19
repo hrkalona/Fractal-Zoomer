@@ -397,6 +397,15 @@ public class BigNumComplex extends GenericComplex {
     }
 
     /*
+     *  -Real + Imaginary i
+     */
+    public final BigNumComplex negate_re() {
+
+        return new BigNumComplex(re.negate(), im);
+
+    }
+
+    /*
      *  -z
      */
     @Override

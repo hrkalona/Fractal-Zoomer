@@ -1,34 +1,19 @@
-/*
- * Copyright (C) 2020 hrkalona
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+
 package fractalzoomer.fractal_options.orbit_traps;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.core.norms.Norm;
+import fractalzoomer.core.norms.NormN;
 
 import static fractalzoomer.main.Constants.*;
 
 public class NNormPointNNormOrbitTrap extends OrbitTrap {
-    private double n_norm;
-    private double n_norm_reciprocal;
+    private Norm normImpl;
 
-    public NNormPointNNormOrbitTrap(int checkType, double pointRe, double pointIm, double trapLength, double trapWidth, double n_norm, boolean countTrapIterations, int lastXItems) {
+    public NNormPointNNormOrbitTrap(int checkType, double pointRe, double pointIm, double trapLength, double trapWidth, double n_norm, boolean countTrapIterations, int lastXItems, double a, double b) {
 
         super(checkType, pointRe, pointIm, trapLength, trapWidth, countTrapIterations, lastXItems);
-        this.n_norm = n_norm;
-        n_norm_reciprocal = 1 / n_norm;
+        normImpl = new NormN(n_norm, a, b);
         
     }
 
@@ -40,7 +25,7 @@ public class NNormPointNNormOrbitTrap extends OrbitTrap {
         }
 
         Complex diff = val.sub(point);
-        double norm = diff.nnorm(n_norm, n_norm_reciprocal);
+        double norm = normImpl.computeWithRoot(diff);
 
         double dist = Math.abs(norm - trapLength);
 

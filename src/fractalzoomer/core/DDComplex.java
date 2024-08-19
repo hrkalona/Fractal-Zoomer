@@ -429,6 +429,17 @@ public class DDComplex extends GenericComplex {
         return re.abs().pow(n).add(im.abs().pow(n)).pow(n_reciprocal);
     }
 
+    public final DoubleDouble nnorm(DoubleDouble n, DoubleDouble a, DoubleDouble b) {
+        return re.abs().pow(n).multiply(a).add(im.abs().pow(n).multiply(b)).pow(n.reciprocal());
+    }
+
+    /*
+     * n-norm
+     */
+    public final DoubleDouble nnorm(DoubleDouble n, DoubleDouble a, DoubleDouble b, DoubleDouble n_reciprocal) {
+        return re.abs().pow(n).multiply(a).add(im.abs().pow(n).multiply(b)).pow(n_reciprocal);
+    }
+
     /*
      *  |z1 - z2|^2
      */
@@ -491,6 +502,15 @@ public class DDComplex extends GenericComplex {
     public final DDComplex conjugate() {
 
         return new DDComplex(re, im.negate());
+
+    }
+
+    /*
+     *  -Real + Imaginary i
+     */
+    public final DDComplex negate_re() {
+
+        return new DDComplex(re.negate(), im);
 
     }
 

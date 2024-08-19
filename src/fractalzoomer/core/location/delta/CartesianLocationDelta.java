@@ -2,9 +2,6 @@ package fractalzoomer.core.location.delta;
 
 import fractalzoomer.core.*;
 import fractalzoomer.core.location.Location;
-import fractalzoomer.core.mpfr.LibMpfr;
-import fractalzoomer.core.mpfr.MpfrBigNum;
-import fractalzoomer.core.mpir.MpirBigNum;
 import fractalzoomer.functions.Fractal;
 import fractalzoomer.main.Constants;
 import fractalzoomer.main.app_settings.JitterSettings;

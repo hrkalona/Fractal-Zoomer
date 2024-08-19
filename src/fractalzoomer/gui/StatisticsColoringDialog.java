@@ -1,19 +1,4 @@
-/*
- * Fractal Zoomer, Copyright (C) 2020 hrkalona2
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+
 package fractalzoomer.gui;
 
 import fractalzoomer.main.CommonFunctions;
@@ -22,11 +7,8 @@ import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
 import fractalzoomer.main.app_settings.StatisticsSettings;
 import fractalzoomer.parser.ParserException;
-import raven.slider.SliderGradient;
 
 import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.*;
 
@@ -52,8 +34,13 @@ public class StatisticsColoringDialog extends JDialog {
     private JLabel colorsLength;
     private JComboBox<String> langNormType;
     private JTextField langNNorm;
+    private JTextField langNormA;
+    private JTextField langNormB;
     private JRadioButton lagrangian;
     private JComboBox<String> atomNormType;
+    private JTextField atomNormA;
+    private JTextField atomNormB;
+
     private JTextField atomNNorm;
     private JRadioButton atomDomain;
     private JCheckBox de;
@@ -76,6 +63,8 @@ public class StatisticsColoringDialog extends JDialog {
 
     private JComboBox<String> checkersNormType;
     private JTextField checkersNNorm;
+    private JTextField checkersNormA;
+    private JTextField checkersNormB;
 
     private JRadioButton checkers;
 
@@ -796,7 +785,7 @@ public class StatisticsColoringDialog extends JDialog {
         JPanel panel90 = new JPanel();
         panel90.setBackground(MainWindow.bg_color);
 
-        JTextField rootIterScaling = new JTextField(10);
+        JTextField rootIterScaling = new JTextField(5);
         rootIterScaling.setText("" + sts.rootIterationsScaling);
 
         rootShading = new JCheckBox("Contouring");
@@ -804,6 +793,12 @@ public class StatisticsColoringDialog extends JDialog {
         rootShading.setBackground(MainWindow.bg_color);
         rootShading.setSelected(sts.rootShading);
         rootShading.setFocusable(false);
+
+        JCheckBox root_Scale_cap = new JCheckBox("Cap Scale");
+        root_Scale_cap.setBackground(MainWindow.bg_color);
+        root_Scale_cap.setSelected(sts.rootScalingCapto1);
+        root_Scale_cap.setFocusable(false);
+        root_Scale_cap.setToolTipText("Caps the scaling transfer value to 1.");
 
         JCheckBox invertShading = new JCheckBox("Invert Coloring");
         invertShading.setToolTipText("Inverts the coloring application.");
@@ -823,7 +818,7 @@ public class StatisticsColoringDialog extends JDialog {
         root_shading_function_combo.setToolTipText("Sets the contouring function.");
 
         panel90.add(invertShading);
-        panel90.add(hightlight);
+        panel90.add(root_Scale_cap);
         panel90.add(new JLabel(" Scaling: "));
         panel90.add(rootIterScaling);
         panel90.add(new JLabel(" Function: "));
@@ -881,6 +876,7 @@ public class StatisticsColoringDialog extends JDialog {
             root_color_blend_opt.setEnabled(rootShading.isSelected() && root_color_method_combo.getSelectedIndex() == 3 && root_shading_function_combo.getSelectedIndex() != 5);
         });
 
+        panel98.add(hightlight);
         panel98.add(rootSmoothing);
 
         final JLabel unmmapped_root_label = new ColorLabel();
@@ -1281,13 +1277,30 @@ public class StatisticsColoringDialog extends JDialog {
         atom_domain_panel.add(new JLabel(" Norm Type: "));
         atom_domain_panel.add(atomNormType);
 
-        atomNNorm = new JTextField(10);
+        atomNNorm = new JTextField(3);
         atomNNorm.setText("" + sts.atomNNorm);
 
-        atomNormType.addActionListener(e -> atomNNorm.setEnabled(atomNormType.getSelectedIndex() == 3));
+        atomNormA = new JTextField(3);
+        atomNormA.setText("" + sts.atomDomainNormA);
+
+        atomNormB = new JTextField(3);
+        atomNormB.setText("" + sts.atomDomainNormB);
+
+        atomNormA.setToolTipText("Sets the norm A coefficient.");
+        atomNormB.setToolTipText("Sets the norm B coefficient.");
+
+        atomNormType.addActionListener(e -> {
+            atomNNorm.setEnabled(atomNormType.getSelectedIndex() == 3);
+            atomNormA.setEnabled(atomNormType.getSelectedIndex() == 3);
+            atomNormB.setEnabled(atomNormType.getSelectedIndex() == 3);
+        });
 
         atom_domain_panel.add(new JLabel(" N-Norm: "));
         atom_domain_panel.add(atomNNorm);
+        atom_domain_panel.add(new JLabel(" A: "));
+        atom_domain_panel.add(atomNormA);
+        atom_domain_panel.add(new JLabel(" B: "));
+        atom_domain_panel.add(atomNormB);
 
 
         atomDomain.setBackground(MainWindow.bg_color);
@@ -1303,7 +1316,7 @@ public class StatisticsColoringDialog extends JDialog {
         lagrangian_panel.setLayout(new FlowLayout());
         lagrangian_panel.setBackground(MainWindow.bg_color);
 
-        JTextField lagrPower = new JTextField(10);
+        JTextField lagrPower = new JTextField(3);
         lagrPower.setText("" + sts.lagrangianPower);
         lagrangian_panel.add(new JLabel("Power: "));
         lagrangian_panel.add(lagrPower);
@@ -1316,13 +1329,30 @@ public class StatisticsColoringDialog extends JDialog {
         lagrangian_panel.add(new JLabel(" Norm Type: "));
         lagrangian_panel.add(langNormType);
 
-        langNNorm = new JTextField(10);
+        langNNorm = new JTextField(3);
         langNNorm.setText("" + sts.langNNorm);
 
-        langNormType.addActionListener(e -> langNNorm.setEnabled(langNormType.getSelectedIndex() == 4));
+        langNormA = new JTextField(3);
+        langNormA.setText("" + sts.langNormA);
+
+        langNormB = new JTextField(3);
+        langNormB.setText("" + sts.langNormB);
+
+        langNormA.setToolTipText("Sets the norm A coefficient.");
+        langNormB.setToolTipText("Sets the norm B coefficient.");
+
+        langNormType.addActionListener(e -> {
+            langNNorm.setEnabled(langNormType.getSelectedIndex() == 4);
+            langNormA.setEnabled(langNormType.getSelectedIndex() == 4);
+            langNormB.setEnabled(langNormType.getSelectedIndex() == 4);
+        });
 
         lagrangian_panel.add(new JLabel(" N-Norm: "));
         lagrangian_panel.add(langNNorm);
+        lagrangian_panel.add(new JLabel(" A: "));
+        lagrangian_panel.add(langNormA);
+        lagrangian_panel.add(new JLabel(" B: "));
+        lagrangian_panel.add(langNormB);
 
         lagrangian.setBackground(MainWindow.bg_color);
         lagrangian.setSelected(sts.statistic_type == MainWindow.DISCRETE_LAGRANGIAN_DESCRIPTORS);
@@ -1371,9 +1401,9 @@ public class StatisticsColoringDialog extends JDialog {
         checkers_panel.setLayout(new FlowLayout());
         checkers_panel.setBackground(MainWindow.bg_color);
 
-        JTextField patternScale = new JTextField(10);
+        JTextField patternScale = new JTextField(3);
         patternScale.setText("" + sts.patternScale);
-        checkers_panel.add(new JLabel("Pattern Scale: "));
+        checkers_panel.add(new JLabel("Scale: "));
         checkers_panel.add(patternScale);
 
         checkersNormType = new JComboBox<>(Constants.atomNormTypes);
@@ -1384,13 +1414,30 @@ public class StatisticsColoringDialog extends JDialog {
         checkers_panel.add(new JLabel(" Norm Type: "));
         checkers_panel.add(checkersNormType);
 
-        checkersNNorm = new JTextField(10);
+        checkersNNorm = new JTextField(3);
         checkersNNorm.setText("" + sts.checkerNormValue);
 
-        checkersNormType.addActionListener(e -> checkersNNorm.setEnabled(checkersNormType.getSelectedIndex() == 3));
+        checkersNormA = new JTextField(3);
+        checkersNormA.setText("" + sts.checkerNormA);
+
+        checkersNormB = new JTextField(3);
+        checkersNormB.setText("" + sts.checkerNormB);
+
+        checkersNormA.setToolTipText("Sets the norm A coefficient.");
+        checkersNormB.setToolTipText("Sets the norm B coefficient.");
+
+        checkersNormType.addActionListener(e -> {
+            checkersNNorm.setEnabled(checkersNormType.getSelectedIndex() == 3);
+            checkersNormA.setEnabled(checkersNormType.getSelectedIndex() == 3);
+            checkersNormB.setEnabled(checkersNormType.getSelectedIndex() == 3);
+        });
 
         checkers_panel.add(new JLabel(" N-Norm: "));
         checkers_panel.add(checkersNNorm);
+        checkers_panel.add(new JLabel(" A: "));
+        checkers_panel.add(checkersNormA);
+        checkers_panel.add(new JLabel(" B: "));
+        checkers_panel.add(checkersNormB);
 
         checkers.setBackground(MainWindow.bg_color);
         checkers.setSelected(sts.statistic_type == MainWindow.CHECKERS);
@@ -1427,8 +1474,14 @@ public class StatisticsColoringDialog extends JDialog {
         checkers_border.setState(checkers.isSelected());
 
         langNNorm.setEnabled(lagrangian.isSelected() && langNormType.getSelectedIndex() == 4);
+        langNormA.setEnabled(lagrangian.isSelected() && langNormType.getSelectedIndex() == 4);
+        langNormB.setEnabled(lagrangian.isSelected() && langNormType.getSelectedIndex() == 4);
         atomNNorm.setEnabled(atomDomain.isSelected() && atomNormType.getSelectedIndex() == 3);
+        atomNormA.setEnabled(atomDomain.isSelected() && atomNormType.getSelectedIndex() == 3);
+        atomNormB.setEnabled(atomDomain.isSelected() && atomNormType.getSelectedIndex() == 3);
         checkersNNorm.setEnabled(checkers.isSelected() && checkersNormType.getSelectedIndex() == 3);
+        checkersNormA.setEnabled(checkers.isSelected() && checkersNormType.getSelectedIndex() == 3);
+        checkersNormB.setEnabled(checkers.isSelected() && checkersNormType.getSelectedIndex() == 3);
 
         stripe_average.addActionListener(e -> {
             smoothing.setEnabled(true);
@@ -1490,7 +1543,7 @@ public class StatisticsColoringDialog extends JDialog {
         ok.addActionListener(e -> {
 
             double temp, temp2, temp3, temp4, temp5, temp6, temp7, temp8, temp9, temp10, temp11, temp12, temp13, temp14, temp15, temp16, temp17, temp18;
-            double temp19, temp22, temp23;
+            double temp19, temp22, temp23, temp24, temp25, temp26, temp27, temp28, temp29;
             int temp20, temp21;
 
             try {
@@ -1517,6 +1570,12 @@ public class StatisticsColoringDialog extends JDialog {
                 temp21 = Integer.parseInt(useLastX.getText());
                 temp22 = Double.parseDouble(patternScale.getText());
                 temp23 = Double.parseDouble(checkersNNorm.getText());
+                temp24 = Double.parseDouble(atomNormA.getText());
+                temp25 = Double.parseDouble(atomNormB.getText());
+                temp26 = Double.parseDouble(checkersNormA.getText());
+                temp27 = Double.parseDouble(checkersNormB.getText());
+                temp28 = Double.parseDouble(langNormA.getText());
+                temp29 = Double.parseDouble(langNormB.getText());
             }
             catch(Exception ex) {
                 JOptionPane.showMessageDialog(this_frame, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
@@ -1573,8 +1632,8 @@ public class StatisticsColoringDialog extends JDialog {
                 return;
             }
 
-            if (temp12 < 1) {
-                JOptionPane.showMessageDialog(this_frame, "The root contour scaling value  must be greater or equal to 1.", "Error!", JOptionPane.ERROR_MESSAGE);
+            if (temp12 <= 0) {
+                JOptionPane.showMessageDialog(this_frame, "The root contour scaling value must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
@@ -1677,6 +1736,7 @@ public class StatisticsColoringDialog extends JDialog {
             sts.rootSmooting = rootSmoothing.isSelected();
             sts.unmmapedRootColor = unmmapped_root_label.getBackground();
             sts.rootShadingColor = root_shading_color_label.getBackground();
+            sts.rootScalingCapto1 = root_Scale_cap.isSelected();
 
             sts.twlPoint[0] = temp13;
             sts.twlPoint[1] = temp14;
@@ -1684,12 +1744,18 @@ public class StatisticsColoringDialog extends JDialog {
 
             sts.langNormType = langNormType.getSelectedIndex();
             sts.langNNorm = temp15;
+            sts.langNormA = temp28;
+            sts.langNormB = temp29;
 
             sts.atomNormType = atomNormType.getSelectedIndex();
             sts.atomNNorm = temp16;
+            sts.atomDomainNormA = temp24;
+            sts.atomDomainNormB = temp25;
 
             sts.patternScale = temp22;
             sts.checkerNormValue = temp23;
+            sts.checkerNormA = temp26;
+            sts.checkerNormB = temp27;
             sts.checkerNormType = checkersNormType.getSelectedIndex();
 
             if(stripe_average.isSelected()) {
@@ -1833,14 +1899,20 @@ public class StatisticsColoringDialog extends JDialog {
 
         if(lagrangian.isSelected()) {
             langNNorm.setEnabled(langNormType.getSelectedIndex() == 4);
+            langNormA.setEnabled(langNormType.getSelectedIndex() == 4);
+            langNormB.setEnabled(langNormType.getSelectedIndex() == 4);
         }
 
         if(atomDomain.isSelected()) {
             atomNNorm.setEnabled(atomNormType.getSelectedIndex() == 3);
+            atomNormA.setEnabled(atomNormType.getSelectedIndex() == 3);
+            atomNormB.setEnabled(atomNormType.getSelectedIndex() == 3);
         }
 
         if(checkers.isSelected()) {
             checkersNNorm.setEnabled(checkersNormType.getSelectedIndex() == 3);
+            checkersNormA.setEnabled(checkersNormType.getSelectedIndex() == 3);
+            checkersNormB.setEnabled(checkersNormType.getSelectedIndex() == 3);
         }
 
     }

@@ -1,22 +1,8 @@
-/*
- * Copyright (C) 2020 hrkalona2
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+
 package fractalzoomer.fractal_options.iteration_statistics;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.core.norms.*;
 import fractalzoomer.main.MainWindow;
 
 /**
@@ -27,16 +13,27 @@ public class AtomDomain extends GenericStatistic {
     private double minNorm;
     private int minIteration;
     private boolean showAtomDomains;
-    private int normtType;
-    private double atomNorm;
-    private double atomNormReciprocal;
+    private Norm normImpl;
+
     
-    public AtomDomain(boolean showAtomDomains, double statistic_intensity, int normtType, double atomNorm, int lastXItems) {
+    public AtomDomain(boolean showAtomDomains, double statistic_intensity, int normtType, double atomNorm, int lastXItems, double a, double b) {
         super(statistic_intensity, false, false, lastXItems);
         this.showAtomDomains = showAtomDomains;
-        this.normtType = normtType;
-        this.atomNorm = atomNorm;
-        atomNormReciprocal = 1 / atomNorm;
+
+        switch (normtType) {
+            case 0:
+                normImpl = new Norm2();
+                break;
+            case 1: //Rhombus
+                normImpl = new Norm1();
+                break;
+            case 2: //Square
+                normImpl = new NormInfinity();
+                break;
+            case 3:
+                normImpl = new NormN(atomNorm, a, b);
+                break;
+        }
     }
 
     @Override
@@ -68,22 +65,7 @@ public class AtomDomain extends GenericStatistic {
     }
 
     private void addSample(Complex z) {
-        double currentNorm = 0;
-
-        switch (normtType) {
-            case 0:
-                currentNorm = z.norm();
-                break;
-            case 1: //Rhombus
-                currentNorm = z.getAbsRe() + z.getAbsIm();
-                break;
-            case 2: //Square
-                currentNorm = Math.max(z.getAbsRe(), z.getAbsIm());
-                break;
-            case 3:
-                currentNorm = z.nnorm(atomNorm, atomNormReciprocal);
-                break;
-        }
+        double currentNorm = normImpl.computeWithRoot(z);
 
         if(currentNorm < minNorm) {
             minNorm = currentNorm;

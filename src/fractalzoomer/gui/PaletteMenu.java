@@ -1,19 +1,4 @@
-/*
- * Fractal Zoomer, Copyright (C) 2020 hrkalona2
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+
 package fractalzoomer.gui;
 
 import fractalzoomer.main.CommonFunctions;
@@ -49,6 +34,8 @@ public class PaletteMenu extends MyMenu {
 
     private JMenuItem colorMapframe;
     private JMenuItem alternativeCustomDirectPalette;
+
+    public static int SPLIT_VAL = 14;
 
     static {
         paletteNames = new String[MainWindow.TOTAL_PALETTES];
@@ -100,6 +87,8 @@ public class PaletteMenu extends MyMenu {
         paletteNames[42] = "FX Rainbow";
         paletteNames[43] = "FX Three Primaries";
         paletteNames[44] = "FX Six Primaries";
+        paletteNames[45] = "Xaos Default";
+        paletteNames[46] = "Kales Fraktaler Default";
     }
 
     public PaletteMenu(MainWindow ptr2, String name, int color_choice, boolean smoothing, int[][] custom_palette, int color_interpolation, int color_space, boolean reversed_palette, int color_cycling_location, double scale_factor_palette_val, int processing_alg, final boolean outcoloring_mode, int temp_color_cycling_location) {
@@ -218,7 +207,7 @@ public class PaletteMenu extends MyMenu {
 
                 count++;
 
-                if(count < 13) {
+                if(count < SPLIT_VAL) {
                     p1.add(palette[i]);
                 }
                 else {
@@ -302,6 +291,8 @@ public class PaletteMenu extends MyMenu {
         palette[42].setToolTipText("A palette from Fractal Extreme.");
         palette[43].setToolTipText("A palette from Fractal Extreme.");
         palette[44].setToolTipText("A palette from Fractal Extreme.");
+        palette[45].setToolTipText("A palette from Xaos.");
+        palette[46].setToolTipText("A palette from Kales Fraktaler.");
     }
 
     public JRadioButtonMenuItem[] getPalette() {

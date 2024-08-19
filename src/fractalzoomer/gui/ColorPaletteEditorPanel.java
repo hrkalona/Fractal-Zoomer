@@ -640,6 +640,10 @@ class ColorPoint implements Comparable<ColorPoint> {
             tools.setBackground(MainWindow.bg_color);
             tools.setBorder(LAFManager.createTitledBorder("Tools"));
 
+            JPanel tools_in = new JPanel();
+            tools_in.setBackground(MainWindow.bg_color);
+            tools_in.setLayout(new GridLayout(1, 8));
+
 
             if(paletteLength == null) {
                 paletteLength = new JLabel("" + getTotalColors());
@@ -672,7 +676,7 @@ class ColorPoint implements Comparable<ColorPoint> {
 
             help.addActionListener( e-> help());
 
-            tools.add(help);
+            tools_in.add(help);
 
             JButton reset = new MyButton();
             reset.setIcon(MainWindow.getIcon("palette_reset.png"));
@@ -681,7 +685,7 @@ class ColorPoint implements Comparable<ColorPoint> {
 
             reset.addActionListener( e-> reset());
 
-            tools.add(reset);
+            tools_in.add(reset);
 
 
             JButton clear_palette = new MyButton();
@@ -705,7 +709,7 @@ class ColorPoint implements Comparable<ColorPoint> {
                 paintPalette();
             });
 
-            tools.add(clear_palette);
+            tools_in.add(clear_palette);
 
             JButton save_palette = new MyButton();
             save_palette.setIcon(MainWindow.getIcon("palette_save.png"));
@@ -799,7 +803,7 @@ class ColorPoint implements Comparable<ColorPoint> {
             });
 
 
-            tools.add(save_palette);
+            tools_in.add(save_palette);
 
             JButton load_palette = new MyButton();
             load_palette.setIcon(MainWindow.getIcon("palette_load.png"));
@@ -891,7 +895,7 @@ class ColorPoint implements Comparable<ColorPoint> {
                 }
             });
 
-            tools.add(load_palette);
+            tools_in.add(load_palette);
 
             JButton random_palette = new MyButton();
             random_palette.setIcon(MainWindow.getIcon("palette_random.png"));
@@ -936,7 +940,7 @@ class ColorPoint implements Comparable<ColorPoint> {
             });
 
 
-            tools.add(random_palette);
+            tools_in.add(random_palette);
 
             JButton procedural_palette = new MyButton();
             procedural_palette.setIcon(MainWindow.getIcon("palette_settings.png"));
@@ -951,7 +955,19 @@ class ColorPoint implements Comparable<ColorPoint> {
             });
 
 
-            tools.add(procedural_palette);
+            tools_in.add(procedural_palette);
+
+            JButton contrast_variation = new MyButton();
+            contrast_variation.setIcon(MainWindow.getIcon("contrast.png"));
+            contrast_variation.setFocusable(false);
+            contrast_variation.setPreferredSize(new Dimension(28, 28));
+            contrast_variation.setToolTipText("Adds contrast to the palette.");
+
+            contrast_variation.addActionListener( e-> setContrastVariation());
+
+            tools_in.add(contrast_variation);
+
+            tools.add(tools_in);
 
             tools.add(Box.createRigidArea(new Dimension(5, 10)));
 
@@ -1081,16 +1097,6 @@ class ColorPoint implements Comparable<ColorPoint> {
             }
 
             options_panel.add(offset_textfield);
-
-            JButton contrast_variation = new MyButton();
-            contrast_variation.setIcon(MainWindow.getIcon("contrast.png"));
-            contrast_variation.setFocusable(false);
-            contrast_variation.setPreferredSize(new Dimension(28, 28));
-
-            contrast_variation.addActionListener( e-> setContrastVariation());
-
-            options_panel.add(Box.createRigidArea(new Dimension(4, 10)));
-            options_panel.add(contrast_variation);
 
             JPanel color_interp_panel = new JPanel();
             color_interp_panel.setLayout(new GridLayout(2, 1));

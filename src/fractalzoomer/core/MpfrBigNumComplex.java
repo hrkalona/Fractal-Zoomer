@@ -1129,6 +1129,25 @@ public class MpfrBigNumComplex extends GenericComplex {
     }
 
     /*
+     *  -Real + Imaginary i
+     */
+    public final MpfrBigNumComplex negate_re() {
+
+        return new MpfrBigNumComplex(re.negate(), new MpfrBigNum(im));
+
+    }
+
+    /*
+     *  z = -Real + Imaginary i
+     */
+    public final MpfrBigNumComplex negate_re_mutable() {
+
+        re.negate(re);
+        return this;
+
+    }
+
+    /*
      *  -z
      */
     @Override
@@ -2166,6 +2185,45 @@ public class MpfrBigNumComplex extends GenericComplex {
         temp1.pow(n, temp1);
         im.abs(temp2);
         temp2.pow(n, temp2);
+
+        temp1.add(temp2, temp1);
+        temp1.pow(n_reciprocal, temp1);
+        return temp1;
+
+    }
+
+    /*
+     * n-norm
+     */
+    public final MpfrBigNum nnorm(MpfrBigNum n, double a, double b) {
+
+        MpfrBigNum tempRe = re.abs();
+        tempRe.pow(n, tempRe);
+        tempRe.mult(a, tempRe);
+
+        MpfrBigNum tempIm = im.abs();
+        tempIm.pow(n, tempIm);
+        tempIm.mult(b, tempIm);
+
+        tempRe.add(tempIm, tempRe);
+        tempRe.pow(n.reciprocal(), tempRe);
+        return tempRe;
+
+    }
+
+
+    /*
+     * n-norm
+     */
+    public final MpfrBigNum nnorm(MpfrBigNum n, double a, double b, MpfrBigNum temp1, MpfrBigNum temp2, MpfrBigNum n_reciprocal) {
+
+        re.abs(temp1);
+        temp1.pow(n, temp1);
+        temp1.mult(a, temp1);
+
+        im.abs(temp2);
+        temp2.pow(n, temp2);
+        temp2.mult(b, temp2);
 
         temp1.add(temp2, temp1);
         temp1.pow(n_reciprocal, temp1);

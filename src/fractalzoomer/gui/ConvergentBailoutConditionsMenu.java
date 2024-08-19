@@ -1,19 +1,4 @@
-/* 
- * Fractal Zoomer, Copyright (C) 2020 hrkalona2
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+
 
 package fractalzoomer.gui;
 
@@ -42,6 +27,10 @@ public class ConvergentBailoutConditionsMenu extends MyMenu {
         convergentBailoutConditionNames[MainWindow.CONVERGENT_BAILOUT_CONDITION_NNORM] = "Distance N-Norm";
         convergentBailoutConditionNames[MainWindow.CONVERGENT_BAILOUT_CONDITION_USER] = "User Convergent Bailout Condition";
         convergentBailoutConditionNames[MainWindow.CONVERGENT_BAILOUT_CONDITION_NO_BAILOUT] = "No Condition";
+        convergentBailoutConditionNames[MainWindow.CONVERGENT_BAILOUT_CONDITION_CIRCLE_KF] = "KF Norm-2 Condition";
+        convergentBailoutConditionNames[MainWindow.CONVERGENT_BAILOUT_CONDITION_SQUARE_KF] = "KF Norm-Infinity Condition";
+        convergentBailoutConditionNames[MainWindow.CONVERGENT_BAILOUT_CONDITION_RHOMBUS_KF] = "KF Norm-1 Condition";
+        convergentBailoutConditionNames[MainWindow.CONVERGENT_BAILOUT_CONDITION_NNORM_KF] = "KF Norm-N Condition";
     }
 
     public ConvergentBailoutConditionsMenu(MainWindow ptr2, String name, int bailout_test_algorithm) {
@@ -81,6 +70,29 @@ public class ConvergentBailoutConditionsMenu extends MyMenu {
         add(convergent_bailout_conditions[MainWindow.CONVERGENT_BAILOUT_CONDITION_NNORM]);
         bailout_tests_group.add(convergent_bailout_conditions[MainWindow.CONVERGENT_BAILOUT_CONDITION_NNORM]);
 
+        convergent_bailout_conditions[MainWindow.CONVERGENT_BAILOUT_CONDITION_CIRCLE_KF] = new JRadioButtonMenuItem(convergentBailoutConditionNames[MainWindow.CONVERGENT_BAILOUT_CONDITION_CIRCLE_KF]);
+        convergent_bailout_conditions[MainWindow.CONVERGENT_BAILOUT_CONDITION_CIRCLE_KF].setToolTipText("A convergent bailout condition from Kalles Fraktaler.");
+        convergent_bailout_conditions[MainWindow.CONVERGENT_BAILOUT_CONDITION_CIRCLE_KF].addActionListener(e -> ptr.setConvergentBailoutTest(MainWindow.CONVERGENT_BAILOUT_CONDITION_CIRCLE_KF));
+        add(convergent_bailout_conditions[MainWindow.CONVERGENT_BAILOUT_CONDITION_CIRCLE_KF]);
+        bailout_tests_group.add(convergent_bailout_conditions[MainWindow.CONVERGENT_BAILOUT_CONDITION_CIRCLE_KF]);
+
+        convergent_bailout_conditions[MainWindow.CONVERGENT_BAILOUT_CONDITION_SQUARE_KF] = new JRadioButtonMenuItem(convergentBailoutConditionNames[MainWindow.CONVERGENT_BAILOUT_CONDITION_SQUARE_KF]);
+        convergent_bailout_conditions[MainWindow.CONVERGENT_BAILOUT_CONDITION_SQUARE_KF].setToolTipText("A convergent bailout condition from Kalles Fraktaler.");
+        convergent_bailout_conditions[MainWindow.CONVERGENT_BAILOUT_CONDITION_SQUARE_KF].addActionListener(e -> ptr.setConvergentBailoutTest(MainWindow.CONVERGENT_BAILOUT_CONDITION_SQUARE_KF));
+        add(convergent_bailout_conditions[MainWindow.CONVERGENT_BAILOUT_CONDITION_SQUARE_KF]);
+        bailout_tests_group.add(convergent_bailout_conditions[MainWindow.CONVERGENT_BAILOUT_CONDITION_SQUARE_KF]);
+
+        convergent_bailout_conditions[MainWindow.CONVERGENT_BAILOUT_CONDITION_RHOMBUS_KF] = new JRadioButtonMenuItem(convergentBailoutConditionNames[MainWindow.CONVERGENT_BAILOUT_CONDITION_RHOMBUS_KF]);
+        convergent_bailout_conditions[MainWindow.CONVERGENT_BAILOUT_CONDITION_RHOMBUS_KF].setToolTipText("A convergent bailout condition from Kalles Fraktaler.");
+        convergent_bailout_conditions[MainWindow.CONVERGENT_BAILOUT_CONDITION_RHOMBUS_KF].addActionListener(e -> ptr.setConvergentBailoutTest(MainWindow.CONVERGENT_BAILOUT_CONDITION_RHOMBUS_KF));
+        add(convergent_bailout_conditions[MainWindow.CONVERGENT_BAILOUT_CONDITION_RHOMBUS_KF]);
+        bailout_tests_group.add(convergent_bailout_conditions[MainWindow.CONVERGENT_BAILOUT_CONDITION_RHOMBUS_KF]);
+
+        convergent_bailout_conditions[MainWindow.CONVERGENT_BAILOUT_CONDITION_NNORM_KF] = new JRadioButtonMenuItem(convergentBailoutConditionNames[MainWindow.CONVERGENT_BAILOUT_CONDITION_NNORM_KF]);
+        convergent_bailout_conditions[MainWindow.CONVERGENT_BAILOUT_CONDITION_NNORM_KF].setToolTipText("A convergent bailout condition from Kalles Fraktaler.");
+        convergent_bailout_conditions[MainWindow.CONVERGENT_BAILOUT_CONDITION_NNORM_KF].addActionListener(e -> ptr.setConvergentBailoutTest(MainWindow.CONVERGENT_BAILOUT_CONDITION_NNORM_KF));
+        add(convergent_bailout_conditions[MainWindow.CONVERGENT_BAILOUT_CONDITION_NNORM_KF]);
+        bailout_tests_group.add(convergent_bailout_conditions[MainWindow.CONVERGENT_BAILOUT_CONDITION_NNORM_KF]);
 
         convergent_bailout_conditions[MainWindow.CONVERGENT_BAILOUT_CONDITION_NO_BAILOUT] = new JRadioButtonMenuItem(convergentBailoutConditionNames[MainWindow.CONVERGENT_BAILOUT_CONDITION_NO_BAILOUT]);
         convergent_bailout_conditions[MainWindow.CONVERGENT_BAILOUT_CONDITION_NO_BAILOUT].setToolTipText("By setting this option, you are disabling the convergent bailout condition.");

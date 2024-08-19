@@ -1,25 +1,12 @@
-/* 
- * Fractal Zoomer, Copyright (C) 2020 hrkalona2
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+
 
 package fractalzoomer.convergent_bailout_conditions;
 
 import fractalzoomer.core.*;
 import fractalzoomer.core.mpfr.MpfrBigNum;
 import fractalzoomer.core.mpir.MpirBigNum;
+import fractalzoomer.core.norms.Norm;
+import fractalzoomer.core.norms.Norm2;
 import org.apfloat.Apfloat;
 
 /**
@@ -31,8 +18,7 @@ public abstract class ConvergentBailoutCondition {
   protected Apfloat ddconvergent_bailout;
   protected BigIntNum binddconvergent_bailout;
   protected DoubleDouble ddcconvergent_bailout;
-  protected double distance;
-  protected boolean calculateDistance;
+  protected Norm normImpl;
 
     protected ConvergentBailoutCondition(double convergent_bailout) {
         
@@ -44,12 +30,8 @@ public abstract class ConvergentBailoutCondition {
             binddconvergent_bailout = new BigIntNum(convergent_bailout);
         }
 
-        calculateDistance = true;
+        normImpl = new Norm2();
         
-    }
-
-    public void setReferenceMode(boolean ReferenceMode) {
-        this.calculateDistance = !ReferenceMode;
     }
     
     public abstract boolean converged(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0, Complex pixel);
@@ -130,8 +112,9 @@ public abstract class ConvergentBailoutCondition {
       return converged((Complex) z, (Double)root, (Complex)zold, (Complex)zold2, iterations, (Complex)c, (Complex)start, (Complex)c0, (Complex)pixel);
     }
   }
-    public double getDistance() {
-        return distance;
+
+    public Norm getNormImpl() {
+        return normImpl;
     }
     
 }

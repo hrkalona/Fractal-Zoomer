@@ -3,10 +3,7 @@ package de.articdive.jnoise.generators.noisegen.random.white;
 import de.articdive.jnoise.core.api.noisegen.SeededNoiseGenerator;
 import de.articdive.jnoise.core.api.pipeline.NoiseSourceBuilder;
 
-import static de.articdive.jnoise.core.util.HashUtil.W_PRIME;
-import static de.articdive.jnoise.core.util.HashUtil.X_PRIME;
-import static de.articdive.jnoise.core.util.HashUtil.Y_PRIME;
-import static de.articdive.jnoise.core.util.HashUtil.Z_PRIME;
+import static de.articdive.jnoise.core.util.HashUtil.*;
 
 /**
  * The bounds of this White Noise implementation are: [-1, 1].

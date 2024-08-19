@@ -16,8 +16,9 @@ limitations under the License.
 
 package fractalzoomer.filters_utils.image;
 
-import java.util.*;
 import java.awt.*;
+import java.util.Date;
+import java.util.Random;
 
 //Todo not added
 public class SmearFilter extends WholeImageFilter {

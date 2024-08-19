@@ -4,7 +4,6 @@ import fractalzoomer.core.GenericComplex;
 import fractalzoomer.core.MantExp;
 import fractalzoomer.core.MpirBigNumComplex;
 import fractalzoomer.core.location.normal.CartesianLocationNormalMpirBigNumArbitrary;
-import fractalzoomer.core.mpfr.MpfrBigNum;
 import fractalzoomer.core.mpir.MpirBigNum;
 import fractalzoomer.functions.Fractal;
 import fractalzoomer.main.app_settings.JitterSettings;

@@ -4,7 +4,10 @@ import fractalzoomer.core.Complex;
 import fractalzoomer.core.GenericComplex;
 import fractalzoomer.core.MantExp;
 import fractalzoomer.core.ReferenceDecompressor;
-import fractalzoomer.core.la.*;
+import fractalzoomer.core.la.GenericLAInfo;
+import fractalzoomer.core.la.InvalidCalculationException;
+import fractalzoomer.core.la.LAInfoBase;
+import fractalzoomer.core.la.LAstep;
 import fractalzoomer.core.la.impl.LAInfo;
 import fractalzoomer.functions.Fractal;
 

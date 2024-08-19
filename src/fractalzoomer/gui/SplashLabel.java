@@ -1,19 +1,4 @@
-/*
- * Fractal Zoomer, Copyright (C) 2020 hrkalona2
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+
 package fractalzoomer.gui;
 
 import javax.swing.*;
@@ -37,8 +22,6 @@ public class SplashLabel extends JLabel {
     protected int _shadowGap;
     protected int _shadowOffset;
     protected int _shadowAlpha;
-    private int custom_width;
-    private int custom_height;
     private Font font;
 
 
@@ -49,7 +32,7 @@ public class SplashLabel extends JLabel {
         _shadowAlpha = 150;
         _shadowOffset = 4;
         _shadowGap = 5;
-        _arcs = new Dimension(50, 50);
+        _arcs = new Dimension(25, 25);
         _highQuality = true;
         shadowed = false;
         strokeSize = 0;
@@ -64,8 +47,6 @@ public class SplashLabel extends JLabel {
             font = new Font("Arial", Font.BOLD, 25);
         }
 
-        this.custom_width = custom_width;
-        this.custom_height = custom_height;
         BufferedImage img = new BufferedImage(custom_width, custom_height, BufferedImage.TYPE_INT_ARGB);
         Graphics g = img.createGraphics();
         g.setColor(new Color(0, 0, 0, 0));
@@ -86,18 +67,6 @@ public class SplashLabel extends JLabel {
         g.drawString(str, x, y);
 
         g.dispose();
-
-    }
-
-    public int getCustomWidth() {
-
-        return custom_width;
-
-    }
-
-    public int getCustomHeight() {
-
-        return custom_height;
 
     }
 

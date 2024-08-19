@@ -1,10 +1,9 @@
 package fractalzoomer.core;
 
-import java.math.BigInteger;
 import org.apfloat.Apfloat;
 import org.apfloat.internal.LongMemoryDataStorage;
 
-
+import java.math.BigInteger;
 
 import static org.apfloat.internal.LongRadixConstants.BASE_DIGITS;
 

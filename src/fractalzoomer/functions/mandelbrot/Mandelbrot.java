@@ -1,19 +1,4 @@
-/* 
- * Fractal Zoomer, Copyright (C) 2020 hrkalona2
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+
 package fractalzoomer.functions.mandelbrot;
 
 import fractalzoomer.core.*;
@@ -47,7 +32,6 @@ import fractalzoomer.out_coloring_algorithms.SmoothEscapeTime;
 import fractalzoomer.utils.ColorAlgorithm;
 import fractalzoomer.utils.NormComponents;
 import fractalzoomer.utils.WorkSpaceData;
-//import jdk.incubator.vector.*;
 import org.apfloat.Apfloat;
 
 import javax.swing.*;
@@ -81,9 +65,9 @@ public class Mandelbrot extends Julia {
         not_burning_ship = !burning_ship;
     }
 
-    public Mandelbrot(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower, boolean exterior_de, double exterior_de_factor, boolean inverse_dem, int escaping_smooth_algorithm, OrbitTrapSettings ots, StatisticsSettings sts, double height_ratio) {
+    public Mandelbrot(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, Apfloat[] plane_transform_center_hp, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower, boolean exterior_de, double exterior_de_factor, boolean inverse_dem, int escaping_smooth_algorithm, OrbitTrapSettings ots, StatisticsSettings sts, double height_ratio) {
 
-        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, ots);
+        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_center_hp, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, ots);
 
         this.burning_ship = burning_ship;
         not_burning_ship = !burning_ship;
@@ -141,7 +125,7 @@ public class Mandelbrot extends Julia {
             if (!smoothing) {
                 out_color_algorithm = new EscapeTime();
             } else {
-                out_color_algorithm = new SmoothEscapeTime(log_bailout_squared, escaping_smooth_algorithm);
+                out_color_algorithm = new SmoothEscapeTime(bailout, escaping_smooth_algorithm, bailout_algorithm.getNormImpl());
             }
         }
         else {
@@ -164,9 +148,9 @@ public class Mandelbrot extends Julia {
         }
     }
 
-    public Mandelbrot(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower, boolean exterior_de, double exterior_de_factor, boolean inverse_dem, int escaping_smooth_algorithm, OrbitTrapSettings ots, StatisticsSettings sts, double height_ratio, double xJuliaCenter, double yJuliaCenter) {
+    public Mandelbrot(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, Apfloat[] plane_transform_center_hp, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower, boolean exterior_de, double exterior_de_factor, boolean inverse_dem, int escaping_smooth_algorithm, OrbitTrapSettings ots, StatisticsSettings sts, double height_ratio, double xJuliaCenter, double yJuliaCenter) {
 
-        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, periodicity_checking, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, ots, xJuliaCenter, yJuliaCenter);
+        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, periodicity_checking, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_center_hp, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, ots, xJuliaCenter, yJuliaCenter);
 
         this.burning_ship = burning_ship;
         not_burning_ship = !burning_ship;
@@ -225,9 +209,9 @@ public class Mandelbrot extends Julia {
     }
 
     //orbit
-    public Mandelbrot(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower) {
+    public Mandelbrot(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, Apfloat[] plane_transform_center_hp, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower) {
 
-        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower);
+        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_center_hp, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower);
 
         this.burning_ship = burning_ship;
         not_burning_ship = !burning_ship;
@@ -263,9 +247,9 @@ public class Mandelbrot extends Julia {
 
     }
 
-    public Mandelbrot(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower, double xJuliaCenter, double yJuliaCenter) {
+    public Mandelbrot(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, Apfloat[] plane_transform_center_hp, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower, double xJuliaCenter, double yJuliaCenter) {
 
-        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, xJuliaCenter, yJuliaCenter);
+        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_center_hp, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, xJuliaCenter, yJuliaCenter);
 
         this.burning_ship = burning_ship;
         not_burning_ship = !burning_ship;
@@ -1017,7 +1001,7 @@ public class Mandelbrot extends Julia {
         GenericComplex z, c, zold, zold2, start, c0, pixel;
         Object normSquared, r = null, r0 = null, norm = null;
 
-        int bigNumLib = TaskRender.getBignumLibrary(size, this);
+        int bigNumLib = TaskRender.getBignumImplementation(size, this);
         int detectPeriodAlgorithm = getPeriodDetectionAlgorithm();
 
         if(bigNumLib == Constants.BIGNUM_BUILT_IN) {
@@ -2512,6 +2496,9 @@ public class Mandelbrot extends Julia {
             z.assign(zre, zim);
         }
 
+        double RefReVal = RefRe[RefIteration];
+        double RefImVal = RefIm[RefIteration];
+
         Complex pixel = dpixel.plus(refPointSmall);
 
         for (; iterations < max_iterations; iterations++) {
@@ -2538,8 +2525,8 @@ public class Mandelbrot extends Julia {
                 return getAndAccumulateStatsNotDeep(res);
             }
 
-            tempre = 2 * RefRe[RefIteration] + dre;
-            tempim = 2 * RefIm[RefIteration] + dim;
+            tempre = 2 * RefReVal + dre;
+            tempim = 2 * RefImVal + dim;
 
             temp = tempre * dre - tempim * dim;
             tempim = tempre * dim + tempim * dre;
@@ -2557,8 +2544,10 @@ public class Mandelbrot extends Julia {
             //No Plane influence work
             //No Pre filters work
             if (max_iterations > 1) {
-                zre = RefRe[RefIteration] + dre;
-                zim = RefIm[RefIteration] + dim;
+                RefReVal = RefRe[RefIteration];
+                RefImVal = RefIm[RefIteration];
+                zre = RefReVal + dre;
+                zim = RefImVal + dim;
                 z.assign(zre, zim);
             }
             //No Post filters work
@@ -2572,6 +2561,8 @@ public class Mandelbrot extends Julia {
                 dre = zre;
                 dim = zim;
                 RefIteration = 0;
+                RefReVal = RefRe[RefIteration];
+                RefImVal = RefIm[RefIteration];
                 rebases++;
             }
 
@@ -2938,6 +2929,9 @@ public class Mandelbrot extends Julia {
         double[] RefRe = reference.re;
         double[] RefIm = reference.im;
 
+        double RefReVal = RefRe[RefIteration];
+        double RefImVal = RefIm[RefIteration];
+
         for (; iterations < max_iterations; iterations++) {
 
             //No update values
@@ -2963,8 +2957,8 @@ public class Mandelbrot extends Julia {
             }
 
             // perturbation iteration
-            tempre = 2 * RefRe[RefIteration] + dre;
-            tempim = 2 * RefIm[RefIteration] + dim;
+            tempre = 2 * RefReVal + dre;
+            tempim = 2 * RefImVal + dim;
 
             temp = tempre * dre - tempim * dim;
             dim = tempre * dim + tempim * dre;
@@ -2985,8 +2979,10 @@ public class Mandelbrot extends Julia {
             //No Plane influence work
             //No Pre filters work
             if (max_iterations > 1) {
-                zre = RefRe[RefIteration] + dre;
-                zim = RefIm[RefIteration] + dim;
+                RefReVal = RefRe[RefIteration];
+                RefImVal = RefIm[RefIteration];
+                zre = RefReVal + dre;
+                zim = RefImVal + dim;
                 z.assign(zre, zim);
             }
             //No Post filters work
@@ -2996,6 +2992,8 @@ public class Mandelbrot extends Julia {
                 dre = zre;
                 dim = zim;
                 RefIteration = 0;
+                RefReVal = RefRe[RefIteration];
+                RefImVal = RefIm[RefIteration];
                 rebases++;
             }
 
@@ -3364,6 +3362,9 @@ public class Mandelbrot extends Julia {
             z.assign(zre, zim);
         }
 
+        double RefReVal = RefRe[RefIteration];
+        double RefImVal = RefIm[RefIteration];
+
         double norm_squared = zre * zre + zim * zim;
 
         for (; iterations < max_iterations; iterations++) {
@@ -3391,8 +3392,8 @@ public class Mandelbrot extends Julia {
             }
 
             // perturbation iteration
-            tempre = 2 * RefRe[RefIteration] + dre;
-            tempim = 2 * RefIm[RefIteration] + dim;
+            tempre = 2 * RefReVal + dre;
+            tempim = 2 * RefImVal + dim;
 
             temp = tempre * dre - tempim * dim;
             dim = tempre * dim + tempim * dre;
@@ -3412,8 +3413,10 @@ public class Mandelbrot extends Julia {
             //No Plane influence work
             //No Pre filters work
             if (max_iterations > 1) {
-                zre = RefRe[RefIteration] + dre;
-                zim = RefIm[RefIteration] + dim;
+                RefReVal = RefRe[RefIteration];
+                RefImVal = RefIm[RefIteration];
+                zre = RefReVal + dre;
+                zim = RefImVal + dim;
                 z.assign(zre, zim);
             }
             //No Post filters work
@@ -3428,6 +3431,8 @@ public class Mandelbrot extends Julia {
                 dre = zre;
                 dim = zim;
                 RefIteration = 0;
+                RefReVal = RefRe[RefIteration];
+                RefImVal = RefIm[RefIteration];
                 rebases++;
             }
 

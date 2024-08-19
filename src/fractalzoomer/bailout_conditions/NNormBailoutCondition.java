@@ -1,19 +1,4 @@
-/* 
- * Fractal Zoomer, Copyright (C) 2020 hrkalona2
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+
 
 package fractalzoomer.bailout_conditions;
 
@@ -21,6 +6,7 @@ import fractalzoomer.core.*;
 import fractalzoomer.core.mpfr.LibMpfr;
 import fractalzoomer.core.mpfr.MpfrBigNum;
 import fractalzoomer.core.mpir.MpirBigNum;
+import fractalzoomer.core.norms.NormN;
 import org.apfloat.Apcomplex;
 import org.apfloat.Apfloat;
 
@@ -32,21 +18,31 @@ public class NNormBailoutCondition extends BailoutCondition {
   protected double n_norm;
   protected double n_norm_reciprocal;
   protected Apfloat ddn_norm;
-    protected Apfloat ddn_norm_reciprocal;
+  protected Apfloat ddn_norm_reciprocal;
   protected MpfrBigNum mpfrbn_norm;
 
   private MpfrBigNum temp1;
   private MpfrBigNum temp2;
   private MpfrBigNum mpfrbn_norm_reciprocal;
 
+  public static double A = 1;
+  public static double B = 1;
+  private DoubleDouble Add;
+  private DoubleDouble Bdd;
+
+  private Apfloat Aaf;
+  private Apfloat Baf;
+
   protected DoubleDouble dddn_norm;
-    protected DoubleDouble dddn_norm_reciprocal;
- 
+  protected DoubleDouble dddn_norm_reciprocal;
+
     public NNormBailoutCondition(double bound, double n_norm) {
         
         super(bound);
         this.n_norm = n_norm;
         n_norm_reciprocal = 1 / n_norm;
+
+        normImpl = new NormN(n_norm, A, B);
 
         if(TaskRender.PERTURBATION_THEORY || TaskRender.HIGH_PRECISION_CALCULATION) {
             ddn_norm = new MyApfloat(n_norm);
@@ -56,6 +52,12 @@ public class NNormBailoutCondition extends BailoutCondition {
                 ddn_norm_reciprocal = MyApfloat.reciprocal(ddn_norm);
                 dddn_norm_reciprocal = dddn_norm.reciprocal();
             }
+
+            Add = new DoubleDouble(A);
+            Bdd = new DoubleDouble(B);
+
+            Aaf = new MyApfloat(A);
+            Baf = new MyApfloat(B);
 
 
             if(!LibMpfr.hasError()) {
@@ -74,7 +76,7 @@ public class NNormBailoutCondition extends BailoutCondition {
      @Override //N norm
      public boolean escaped(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0, double norm_squared, Complex pixel) {
          
-        return z.nnorm(n_norm, n_norm_reciprocal) >= bound;
+        return z.nnorm(n_norm, A, B, n_norm_reciprocal) >= bound;
          
      }
 
@@ -85,24 +87,18 @@ public class NNormBailoutCondition extends BailoutCondition {
             return false;
         }
 
-        return z.nnorm(ddn_norm, ddn_norm_reciprocal).compareTo(ddbound) >= 0;
+        return z.nnorm(ddn_norm, Aaf, Baf, ddn_norm_reciprocal).compareTo(ddbound) >= 0;
 
     }
 
     @Override
     public boolean escaped(BigNumComplex z, BigNumComplex zold, BigNumComplex zold2, int iterations, BigNumComplex c, BigNumComplex start, BigNumComplex c0, BigNum norm_squared, BigNumComplex pixel) {
-        if(n_norm == 0) {
-            return false;
-        }
-        return z.toComplex().nnorm(n_norm, n_norm_reciprocal) >= bound;
+        return escaped(z.toComplex(), zold.toComplex(), zold2.toComplex(), iterations, c.toComplex(), start.toComplex(), c0.toComplex(), norm_squared.doubleValue(), pixel.toComplex());
     }
 
     @Override
     public boolean escaped(BigIntNumComplex z, BigIntNumComplex zold, BigIntNumComplex zold2, int iterations, BigIntNumComplex c, BigIntNumComplex start, BigIntNumComplex c0, BigIntNum norm_squared, BigIntNumComplex pixel) {
-        if(n_norm == 0) {
-            return false;
-        }
-        return z.toComplex().nnorm(n_norm, n_norm_reciprocal) >= bound;
+        return escaped(z.toComplex(), zold.toComplex(), zold2.toComplex(), iterations, c.toComplex(), start.toComplex(), c0.toComplex(), norm_squared.doubleValue(), pixel.toComplex());
     }
 
     @Override
@@ -111,15 +107,12 @@ public class NNormBailoutCondition extends BailoutCondition {
             return false;
         }
 
-        return z.nnorm(mpfrbn_norm, temp1, temp2, mpfrbn_norm_reciprocal).compare(bound) >= 0;
+        return z.nnorm(mpfrbn_norm, A, B, temp1, temp2, mpfrbn_norm_reciprocal).compare(bound) >= 0;
     }
 
     @Override
     public boolean escaped(MpirBigNumComplex z, MpirBigNumComplex zold, MpirBigNumComplex zold2, int iterations, MpirBigNumComplex c, MpirBigNumComplex start, MpirBigNumComplex c0, MpirBigNum norm_squared, MpirBigNumComplex pixel) {
-        if(n_norm == 0) {
-            return false;
-        }
-        return z.toComplex().nnorm(n_norm, n_norm_reciprocal) >= bound;
+        return escaped(z.toComplex(), zold.toComplex(), zold2.toComplex(), iterations, c.toComplex(), start.toComplex(), c0.toComplex(), norm_squared.doubleValue(), pixel.toComplex());
     }
 
     @Override
@@ -129,7 +122,7 @@ public class NNormBailoutCondition extends BailoutCondition {
             return false;
         }
 
-        return z.nnorm(dddn_norm, dddn_norm_reciprocal).compareTo(ddcbound) >= 0;
+        return z.nnorm(dddn_norm, Add, Bdd, dddn_norm_reciprocal).compareTo(ddcbound) >= 0;
 
     }
 }

@@ -1,19 +1,4 @@
-/*
- * Fractal Zoomer, Copyright (C) 2020 hrkalona2
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+
 package fractalzoomer.gui;
 
 import fractalzoomer.main.MainWindow;
@@ -65,37 +50,37 @@ public class ToolsOptionsMenu extends MyMenu {
         fast_julia_filters_opt = new MyCheckBoxMenuItem("Julia Preview Image Filters");
         fast_julia_filters_opt.setSelected(MainWindow.FAST_JULIA_FILTERS);
 
-        color_cycling_options_opt = new MyMenuItem("Color Cycling Options", MainWindow.getIcon("color_cycling_options.png"));
+        color_cycling_options_opt = new MyMenuItem("Color Cycling Options", MainWindow.getIcon("color_cycling.png"));
         
         orbit_menu = new MyMenu("Orbit");
-        orbit_menu.setIcon(MainWindow.getIcon("orbit_options.png"));
+        orbit_menu.setIcon(MainWindow.getIcon("orbit.png"));
 
         grid_menu = new MyMenu("Grid");
-        grid_menu.setIcon(MainWindow.getIcon("grid_options.png"));
+        grid_menu.setIcon(MainWindow.getIcon("grid.png"));
 
         boundaries_menu = new MyMenu("Boundaries");
-        boundaries_menu.setIcon(MainWindow.getIcon("boundaries_options.png"));
+        boundaries_menu.setIcon(MainWindow.getIcon("boundaries.png"));
 
         orbit_color_opt = new MyMenuItem("Orbit Color", MainWindow.getIcon("color.png"));
 
         orbit_style_menu = new MyMenu("Orbit Style");
-        orbit_style_menu.setIcon(MainWindow.getIcon("orbit_style.png"));
+        orbit_style_menu.setIcon(MainWindow.getIcon("tools_options.png"));
         
         grid_color_opt = new MyMenuItem("Grid Color", MainWindow.getIcon("color.png"));
 
-        grid_tiles_opt = new MyMenuItem("Grid Tiles", MainWindow.getIcon("grid_tiles.png"));
+        grid_tiles_opt = new MyMenuItem("Grid Tiles", MainWindow.getIcon("tools_options.png"));
 
         zoom_window_color_opt = new MyMenuItem("Zoom Window Color", MainWindow.getIcon("color.png"));
 
         zoom_window_menu = new MyMenu("Zoom Window");
-        zoom_window_menu.setIcon(MainWindow.getIcon("zoom_window_options.png"));
+        zoom_window_menu.setIcon(MainWindow.getIcon("zoom_window.png"));
 
         zoom_window_style_menu = new MyMenu("Zoom Window Style");
-        zoom_window_style_menu.setIcon(MainWindow.getIcon("orbit_style.png"));
+        zoom_window_style_menu.setIcon(MainWindow.getIcon("tools_options.png"));
 
         boundaries_color_opt = new MyMenuItem("Boundaries Color", MainWindow.getIcon("color.png"));
 
-        boundaries_number_opt = new MyMenuItem("Boundaries Options", MainWindow.getIcon("boundaries_settings.png"));
+        boundaries_number_opt = new MyMenuItem("Boundaries Options", MainWindow.getIcon("tools_options.png"));
         
         grid_color_opt.setToolTipText("Sets the color of the grid.");
         grid_tiles_opt.setToolTipText("Sets the number of the grid tiles.");

@@ -1,3 +1,15 @@
+Version 1.0.9.2
+    -Implemented a KFR parser in order to map a number of KF formulas/coloring algorithms into the software. The mapping
+    was done as a best effort approach. Some features will not be supported and others might have slight differences.
+    -Implemented Stretch plane transformation.
+    -Implemented some coloring transfer algorithms from KF.
+    -Implemented some convergent condition bailout methods from KF.
+    -Added A and B coefficients to all N-Norm instances.
+    -Added real and imaginary axis flipping as an extra plane transformation that can be done on top of any other transformation.
+    -Added a new escaping smoothing algorithm and a banding coloring option during smoothing.
+    -Revamped the icons into a flat version
+    -Bug fixes and stability changes.
+
 Version 1.0.9.1
     -Reimplemented the image size format (width, height), in order to allow images of any dimension
     -Changed the UI to flatlaf, so the application will be consistent between windows and linux

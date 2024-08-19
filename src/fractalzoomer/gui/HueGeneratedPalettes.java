@@ -1,19 +1,4 @@
-/*
- * Copyright (C) 2020 hrkalona2
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+
 package fractalzoomer.gui;
 
 import fractalzoomer.core.TaskRender;
@@ -155,32 +140,32 @@ public class HueGeneratedPalettes extends JDialog {
                             chroma2 = Double.parseDouble(chromauv.getText());
 
                             if(saturation < 0 || saturation > 1) {
-                                JOptionPane.showMessageDialog(ptra, "Saturation be in the range [0, 1].", "Error!", JOptionPane.ERROR_MESSAGE);
+                                JOptionPane.showMessageDialog(ptra, "Saturation must be in the range [0, 1].", "Error!", JOptionPane.ERROR_MESSAGE);
                                 return;
                             }
 
                             if(brightness < 0 || brightness > 1) {
-                                JOptionPane.showMessageDialog(ptra, "Brightness be in the range [0, 1].", "Error!", JOptionPane.ERROR_MESSAGE);
+                                JOptionPane.showMessageDialog(ptra, "Brightness must be in the range [0, 1].", "Error!", JOptionPane.ERROR_MESSAGE);
                                 return;
                             }
 
                             if(lightness1 < 0 || lightness1 > 100) {
-                                JOptionPane.showMessageDialog(ptra, "Lightness (ab) be in the range [0, 100].", "Error!", JOptionPane.ERROR_MESSAGE);
+                                JOptionPane.showMessageDialog(ptra, "Lightness (ab) must be in the range [0, 100].", "Error!", JOptionPane.ERROR_MESSAGE);
                                 return;
                             }
 
                             if(chroma1 < 0 || chroma1 > 133.81) {
-                                JOptionPane.showMessageDialog(ptra, "Chroma (ab) be in the range [0, 133.81].", "Error!", JOptionPane.ERROR_MESSAGE);
+                                JOptionPane.showMessageDialog(ptra, "Chroma (ab) must be in the range [0, 133.81].", "Error!", JOptionPane.ERROR_MESSAGE);
                                 return;
                             }
 
                             if(lightness2 < 0 || lightness2 > 100) {
-                                JOptionPane.showMessageDialog(ptra, "Lightness (uv) be in the range [0, 100].", "Error!", JOptionPane.ERROR_MESSAGE);
+                                JOptionPane.showMessageDialog(ptra, "Lightness (uv) must be in the range [0, 100].", "Error!", JOptionPane.ERROR_MESSAGE);
                                 return;
                             }
 
                             if(chroma2 < 0 || chroma2 > 179.08) {
-                                JOptionPane.showMessageDialog(ptra, "Chroma (uv) be in the range [0, 179.08].", "Error!", JOptionPane.ERROR_MESSAGE);
+                                JOptionPane.showMessageDialog(ptra, "Chroma (uv) must be in the range [0, 179.08].", "Error!", JOptionPane.ERROR_MESSAGE);
                                 return;
                             }
 

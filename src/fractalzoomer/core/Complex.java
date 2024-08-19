@@ -1,19 +1,4 @@
-/* 
- * Fractal Zoomer, Copyright (C) 2020 hrkalona2
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+
 package fractalzoomer.core;
 
 import fractalzoomer.core.unused.BigDecNumComplex;
@@ -1095,12 +1080,33 @@ public final class Complex extends GenericComplex {
 
     }
 
-    /*
-     * n-norm
-     */
     public final double nnorm(double n) {
 
         return Math.pow(Math.pow(Math.abs(re), n) + Math.pow(Math.abs(im), n), 1 / n);
+
+    }
+
+    public final double nnorm_without_root(double n) {
+
+        return Math.pow(Math.abs(re), n) + Math.pow(Math.abs(im), n);
+
+    }
+
+    public final double nnorm(double n, double a, double b, double nreciprocal) {
+
+        return Math.pow(a * Math.pow(Math.abs(re), n) + b * Math.pow(Math.abs(im), n), nreciprocal);
+
+    }
+
+    public final double nnorm(double n, double a, double b) {
+
+        return Math.pow(a * Math.pow(Math.abs(re), n) + b * Math.pow(Math.abs(im), n), 1 / n);
+
+    }
+
+    public final double nnorm_without_root(double n, double a, double b) {
+
+        return a * Math.pow(Math.abs(re), n) + b * Math.pow(Math.abs(im), n);
 
     }
 
@@ -1257,6 +1263,25 @@ public final class Complex extends GenericComplex {
 
         im = -im;
 
+        return this;
+
+    }
+
+    /*
+     *  -Real + Imaginary i
+     */
+    public final Complex negate_re() {
+
+        return new Complex(-re, im);
+
+    }
+
+    /*
+     *  z = -Real + Imaginary i
+     */
+    public final Complex negate_re_mutable() {
+
+        re = -re;
         return this;
 
     }

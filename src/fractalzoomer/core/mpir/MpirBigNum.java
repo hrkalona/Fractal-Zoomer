@@ -10,7 +10,6 @@ import org.apfloat.Apfloat;
 import java.util.Arrays;
 
 import static fractalzoomer.core.mpir.LibMpir.*;
-import static fractalzoomer.core.mpir.LibMpir.mpir_fz_square_plus_c_simple_with_reduction_deep;
 
 
 public class MpirBigNum {

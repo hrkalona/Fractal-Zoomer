@@ -1,6 +1,5 @@
 package fractalzoomer.gui;
 
-import fractalzoomer.core.TaskRender;
 import org.jfree.data.time.Millisecond;
 import org.jfree.data.time.RegularTimePeriod;
 

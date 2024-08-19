@@ -1,19 +1,4 @@
-/*
- * Fractal Zoomer, Copyright (C) 2020 hrkalona2
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+
 package fractalzoomer.main;
 
 import org.apfloat.Apint;
@@ -25,17 +10,17 @@ import java.awt.*;
  * @author hrkalona2
  */
 public interface Constants {
-    public static final int VERSION = 1091;
+    public static final int VERSION = 1092;
     public static final boolean beta = false;
-    public static final int TOTAL_PALETTES = 45;
+    public static final int TOTAL_PALETTES = 47;
     public static final int TOTAL_INCOLORING_ALGORITHMS = 12;
     public static final int TOTAL_OUTCOLORING_ALGORITHMS = 27;
     public static final int TOTAL_BAILOUT_CONDITIONS = 13;
-    public static final int TOTAL_CONVERGENT_BAILOUT_CONDITIONS = 6;
-    public static final int TOTAL_PLANES = 66;
-    public static final int TOTAL_FUNCTIONS = 514;
+    public static final int TOTAL_CONVERGENT_BAILOUT_CONDITIONS = 10;
+    public static final int TOTAL_PLANES = 67;
+    public static final int TOTAL_FUNCTIONS = 515;
     public static final int TOTAL_FILTERS = 35;
-    public static final int TOTAL_COLOR_TRANSFER_FILTERS = 8;
+    public static final int TOTAL_COLOR_TRANSFER_FILTERS = 14;
     public static final int TOTAL_COLOR_BLENDING = 30;
     public static final int TOTAL_POST_PROCESS_ALGORITHMS = 11;
     public static final int TOTAL_FUNCTION_FILTERS = 10;
@@ -665,6 +650,7 @@ public interface Constants {
 
     public static final int PERPENDICULAR_BUFFALO_MANDELBROT = 512;
     public static final int FORMULA48 = 513;
+    public static final int FORMULA49 = 514;
     /**
      * ***************
      */
@@ -883,6 +869,7 @@ public interface Constants {
     public static final int SKEW_PLANE = 63;
     public static final int INFLECTIONS_PLANE = 64;
     public static final int MU_FOURTH_PLANE = 65;
+    public static final int STRETCH_PLANE = 66;
     /**
      * **************
      */
@@ -916,6 +903,10 @@ public interface Constants {
     public static final int CONVERGENT_BAILOUT_CONDITION_NNORM = 3;
     public static final int CONVERGENT_BAILOUT_CONDITION_USER = 4;
     public static final int CONVERGENT_BAILOUT_CONDITION_NO_BAILOUT = 5;
+    public static final int CONVERGENT_BAILOUT_CONDITION_CIRCLE_KF = 6;
+    public static final int CONVERGENT_BAILOUT_CONDITION_SQUARE_KF = 7;
+    public static final int CONVERGENT_BAILOUT_CONDITION_RHOMBUS_KF = 8;
+    public static final int CONVERGENT_BAILOUT_CONDITION_NNORM_KF = 9;
     /**
      * ********************
      */
@@ -1138,6 +1129,12 @@ public interface Constants {
     public static final int LOG_LOG = 5;
     public static final int ATAN = 6;
     public static final int LINEAR = 7;
+    public static final int KF_SQUARE_ROOT = 8;
+    public static final int KF_CUBE_ROOT = 9;
+    public static final int KF_FOURTH_ROOT = 10;
+    public static final int KF_LOGARITHM = 11;
+    public static final int KF_LOG_LOG = 12;
+    public static final int KF_ATAN = 13;
     /**
      * **************************************
      */

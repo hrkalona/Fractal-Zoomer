@@ -18,7 +18,7 @@ package fractalzoomer.filters_utils.image;
 
 import fractalzoomer.filters_utils.math.FFT;
 
-import java.awt.image.*;
+import java.awt.image.BufferedImage;
 
 
 /**

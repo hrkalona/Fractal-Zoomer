@@ -5,7 +5,8 @@ import fractalzoomer.functions.Fractal;
 import java.util.ArrayList;
 import java.util.stream.IntStream;
 
-import static fractalzoomer.core.ReferenceData.*;
+import static fractalzoomer.core.ReferenceData.MAX_PRECALCULATED_TERMS;
+import static fractalzoomer.core.ReferenceData.SUBEXPRESSION_LENGTH;
 
 public class ReferenceDeepData {
 
