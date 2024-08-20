@@ -8,7 +8,6 @@ public class ClosestToMeanAntialiasingAlgorithm extends AntialiasingAlgorithm {
     private int[] redValues;
     private int[] greenValues;
     private int[] blueValues;
-    private int index;
     private boolean avgWithMean;
 
     public ClosestToMeanAntialiasingAlgorithm(int totalSamples, boolean avgWithMean) {
@@ -19,7 +18,6 @@ public class ClosestToMeanAntialiasingAlgorithm extends AntialiasingAlgorithm {
         redValues = new int[totalSamples];
         greenValues = new int[totalSamples];
         blueValues = new int[totalSamples];
-        index = 0;
         this.avgWithMean = avgWithMean;
     }
 
@@ -32,11 +30,11 @@ public class ClosestToMeanAntialiasingAlgorithm extends AntialiasingAlgorithm {
         greenSum = green;
         blueSum = blue;
 
-        index = 0;
-        redValues[index] = red;
-        greenValues[index] = green;
-        blueValues[index] = blue;
-        index++;
+        addedSamples = 0;
+        redValues[addedSamples] = red;
+        greenValues[addedSamples] = green;
+        blueValues[addedSamples] = blue;
+        addedSamples = 1;
     }
 
     @Override
@@ -48,14 +46,17 @@ public class ClosestToMeanAntialiasingAlgorithm extends AntialiasingAlgorithm {
         greenSum += green;
         blueSum += blue;
 
-        redValues[index] = red;
-        greenValues[index] = green;
-        blueValues[index] = blue;
-        index++;
+        redValues[addedSamples] = red;
+        greenValues[addedSamples] = green;
+        blueValues[addedSamples] = blue;
+        addedSamples++;
         return true;
     }
     @Override
     public int getColor() {
+        if(addedSamples != totalSamples) {
+            return 0xff000000;
+        }
 
         double avgRed = redSum * totalSamplesReciprocal;
         double avgGreen = greenSum * totalSamplesReciprocal;

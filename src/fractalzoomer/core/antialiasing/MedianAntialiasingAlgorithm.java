@@ -6,7 +6,6 @@ public class MedianAntialiasingAlgorithm extends AntialiasingAlgorithm {
     private double[] AValues;
     private double[] BValues;
     private double[] CValues;
-    private int index;
     private int median;
     private boolean avgWithMean;
     private double ASum;
@@ -18,7 +17,6 @@ public class MedianAntialiasingAlgorithm extends AntialiasingAlgorithm {
         AValues = new double[totalSamples];
         BValues = new double[totalSamples];
         CValues = new double[totalSamples];
-        index = 0;
         median = (totalSamples >>> 1);
         this.avgWithMean = avgWithMean;
         ASum = 0;
@@ -40,11 +38,11 @@ public class MedianAntialiasingAlgorithm extends AntialiasingAlgorithm {
             CSum = c;
         }
 
-        index = 0;
-        AValues[index] = a;
-        BValues[index] = b;
-        CValues[index] = c;
-        index++;
+        addedSamples = 0;
+        AValues[addedSamples] = a;
+        BValues[addedSamples] = b;
+        CValues[addedSamples] = c;
+        addedSamples = 1;
     }
 
     @Override
@@ -61,16 +59,20 @@ public class MedianAntialiasingAlgorithm extends AntialiasingAlgorithm {
             CSum += c;
         }
 
-        AValues[index] = a;
-        BValues[index] = b;
-        CValues[index] = c;
-        index++;
+        AValues[addedSamples] = a;
+        BValues[addedSamples] = b;
+        CValues[addedSamples] = c;
+        addedSamples++;
 
         return true;
     }
 
     @Override
     public int getColor() {
+        if(addedSamples != totalSamples) {
+            return 0xff000000;
+        }
+
         Arrays.sort(AValues);
         Arrays.sort(BValues);
         Arrays.sort(CValues);

@@ -125,6 +125,8 @@ public class StretchPlaneDialog extends JDialog {
         JTextField field_amount = new JTextField();
         field_amount.setText("" + s.fns.plane_transform_amount * 100);
 
+        //Todo add help for alt + click
+
         Object[] message = {
             " ",
             "Set the stretch angle in degrees.",

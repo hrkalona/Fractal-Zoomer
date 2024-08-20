@@ -625,9 +625,8 @@ public class CustomPaletteEditorDialog extends JDialog {
                 temp_custom_palette[m][0] = temp_array[m];
             }
 
-            Color[] c = null;
             try {
-                c = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2.0) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
+                CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2.0) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
             } catch (Exception ex) {
                 length_label.setText("0");
                 Graphics2D g = colors.createGraphics();
@@ -2350,32 +2349,35 @@ public class CustomPaletteEditorDialog extends JDialog {
 
             int cnt = 0;
 
-            double hue_distance = (generator.nextInt(3) + 3) / 12.0;
+            double hue_distance = (360. / 3) / 360.0;
+            boolean var_s = generator.nextBoolean();
 
             int[] res;
 
-            for (int l = 0; l < 11; cnt++, l++) {
+            int len = 11;
+            for (int l = 0; l < len; cnt++, l++) {
 
-                res = ColorSpaceConverter.HSBtoRGB(hue, (sat + 1.0 / 11 * l) % 1.0, (bright + 1.0 / 11 * l) % 1.0);
+                res = ColorSpaceConverter.HSBtoRGB(hue, var_s ? (sat + 1.0 / len * l) % 1.0 : sat, (bright + 1.0 / len * l) % 1.0);
                 palette[cnt][0] = same_hues ? hues : generator.nextInt(12) + 7;
                 palette[cnt][1] = res[0];
                 palette[cnt][2] = res[1];
                 palette[cnt][3] = res[2];
             }
 
+            len = 10;
             for (int l = 0; l < 10; cnt++, l++) {
 
-                res = ColorSpaceConverter.HSBtoRGB((hue + hue_distance) % 1.0, (sat + 1.0 / 10 * l) % 1.0, (bright + 1.0 / 10 * l) % 1.0);
+                res = ColorSpaceConverter.HSBtoRGB((hue + hue_distance) % 1.0, var_s ? (sat + 1.0 / len * l) % 1.0 : sat, (bright + 1.0 / len * l) % 1.0);
                 palette[cnt][0] = same_hues ? hues : generator.nextInt(12) + 7;
                 palette[cnt][1] = res[0];
                 palette[cnt][2] = res[1];
                 palette[cnt][3] = res[2];
             }
 
+            len = 11;
             for (int l = 0; l < 11; cnt++, l++) {
 
-                double temp = hue - hue_distance < 0 ? 1 - (hue - hue_distance) : hue - hue_distance;
-                res = ColorSpaceConverter.HSBtoRGB((temp) % 1.0, (sat + 1.0 / 11 * l) % 1.0, (bright + 1.0 / 11 * l) % 1.0);
+                res = ColorSpaceConverter.HSBtoRGB((hue + 2 * hue_distance) % 1.0, var_s ? (sat + 1.0 / len * l) % 1.0 : sat, (bright + 1.0 / len * l) % 1.0);
                 palette[cnt][0] = same_hues ? hues : generator.nextInt(12) + 7;
                 palette[cnt][1] = res[0];
                 palette[cnt][2] = res[1];
@@ -2399,42 +2401,45 @@ public class CustomPaletteEditorDialog extends JDialog {
             sat = generator.nextDouble();
             bright = generator.nextDouble();
 
+            boolean var_s = generator.nextBoolean();
+
             int cnt = 0;
 
-            double hue_distance = (generator.nextInt(3) + 1) / 12.0;
+            double hue_distance = (360. / 4) / 360.0;
 
             int[] res;
 
-            for (int l = 0; l < 8; cnt++, l++) {
+            int len = 8;
+            for (int l = 0; l < len; cnt++, l++) {
 
-                res = ColorSpaceConverter.HSBtoRGB(hue, (sat + 1.0 / 8 * l) % 1.0, (bright + 1.0 / 8 * l) % 1.0);
+                res = ColorSpaceConverter.HSBtoRGB(hue, var_s ? (sat + 1.0 / len * l) % 1.0 : sat, (bright + 1.0 / len * l) % 1.0);
                 palette[cnt][0] = same_hues ? hues : generator.nextInt(12) + 7;
                 palette[cnt][1] = res[0];
                 palette[cnt][2] = res[1];
                 palette[cnt][3] = res[2];
             }
 
-            for (int l = 0; l < 8; cnt++, l++) {
+            for (int l = 0; l < len; cnt++, l++) {
 
-                res = ColorSpaceConverter.HSBtoRGB((hue + 0.5) % 1.0, (sat + 1.0 / 8 * l) % 1.0, (bright + 1.0 / 8 * l) % 1.0);
+                res = ColorSpaceConverter.HSBtoRGB((hue + hue_distance) % 1.0, var_s ? (sat + 1.0 / len * l) % 1.0 : sat, (bright + 1.0 / len * l) % 1.0);
                 palette[cnt][0] = same_hues ? hues : generator.nextInt(12) + 7;
                 palette[cnt][1] = res[0];
                 palette[cnt][2] = res[1];
                 palette[cnt][3] = res[2];
             }
 
-            for (int l = 0; l < 8; cnt++, l++) {
+            for (int l = 0; l < len; cnt++, l++) {
 
-                res = ColorSpaceConverter.HSBtoRGB((hue + 0.5 + hue_distance) % 1.0, (sat + 1.0 / 8 * l) % 1.0, (bright + 1.0 / 8 * l) % 1.0);
+                res = ColorSpaceConverter.HSBtoRGB((hue + 2 * hue_distance) % 1.0, var_s ? (sat + 1.0 / len * l) % 1.0 : sat, (bright + 1.0 / len * l) % 1.0);
                 palette[cnt][0] = same_hues ? hues : generator.nextInt(12) + 7;
                 palette[cnt][1] = res[0];
                 palette[cnt][2] = res[1];
                 palette[cnt][3] = res[2];
             }
 
-            for (int l = 0; l < 8; cnt++, l++) {
+            for (int l = 0; l < len; cnt++, l++) {
 
-                res = ColorSpaceConverter.HSBtoRGB((hue + hue_distance) % 1.0, (sat + 1.0 / 8 * l) % 1.0, (bright + 1.0 / 8 * l) % 1.0);
+                res = ColorSpaceConverter.HSBtoRGB((hue + 3 * hue_distance) % 1.0, var_s ? (sat + 1.0 / len * l) % 1.0 : sat, (bright + 1.0 / len * l) % 1.0);
                 palette[cnt][0] = same_hues ? hues : generator.nextInt(12) + 7;
                 palette[cnt][1] = res[0];
                 palette[cnt][2] = res[1];
@@ -2478,7 +2483,7 @@ public class CustomPaletteEditorDialog extends JDialog {
             }
         } else if (random_palette_alg == 6) {
 
-            Color[] col = ColorBrewerPalette.generate2(palette.length);
+            Color[] col = ColorBrewerPalette.generate2(generator, palette.length);
             for (int m = 0; m < palette.length; m++) {
 
                 if (m >= col.length || col[m] == null) {
@@ -2504,7 +2509,7 @@ public class CustomPaletteEditorDialog extends JDialog {
             }
         } else if (random_palette_alg == 7) {
 
-            Color[] col = ColorBrewerPalette.generate(palette.length);
+            Color[] col = ColorBrewerPalette.generate(generator, palette.length);
             for (int m = 0; m < palette.length; m++) {
 
                 if (m >= col.length || col[m] == null) {
@@ -3131,7 +3136,7 @@ public class CustomPaletteEditorDialog extends JDialog {
                     green = rgb[1];
                     blue = rgb[2];
                 }
-                else if(type == 9) {
+                else if(type == 10) {
                     int[] rgb = ColorSpaceConverter.LABtoRGB(generator.nextDouble() * 100, generator.nextDouble() * 184.43 - 86.17, generator.nextDouble() * 202.33 - 107.85);
                     red = rgb[0];
                     green = rgb[1];

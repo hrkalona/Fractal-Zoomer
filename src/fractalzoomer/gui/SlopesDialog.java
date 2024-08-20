@@ -65,7 +65,7 @@ public class SlopesDialog extends JDialog {
         ratio.setLabelTable(table3);
 
 
-        JTextField power = new JTextField(20);
+        JTextField power = new JTextField(6);
         power.setText("" + s.pps.ss.SlopePower);
 
         JPanel p333 = new JPanel();
@@ -102,7 +102,7 @@ public class SlopesDialog extends JDialog {
         transfer_combo.setFocusable(false);
         transfer_combo.setToolTipText("Sets the height transfer function.");
 
-        JTextField tranfer_factor_field = new JTextField(20);
+        JTextField tranfer_factor_field = new JTextField(6);
         tranfer_factor_field.setText("" + s.pps.ss.heightTransferFactor);
 
         final JComboBox<String> color_method_combo = new JComboBox<>(Constants.colorMethod);

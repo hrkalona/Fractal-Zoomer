@@ -230,9 +230,7 @@ public class ColorBlendingMenu extends MyMenu {
         revertOrderOfColors = new MyCheckBoxMenuItem("Reverse Order of Colors");
         revertOrderOfColors.setToolTipText("Reverts the order of colors in the blending operation.");
         revertOrderOfColors.setSelected(color_blending_revert_colors);
-        revertOrderOfColors.addActionListener(e -> {
-            ptr2.setColorBlendingRevertColors(revertOrderOfColors.isSelected());
-        });
+        revertOrderOfColors.addActionListener(e -> ptr2.setColorBlendingRevertColors(revertOrderOfColors.isSelected()));
         
         darken.add(color_blending[MainWindow.DARKEN_ONLY_BLENDING]);
         darken.add(color_blending[MainWindow.MULTIPLY_BLENDING]);

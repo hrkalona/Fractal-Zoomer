@@ -6,25 +6,23 @@ public class MeanNoOutliersAntialiasingAlgorithm extends AntialiasingAlgorithm {
     private double[] redValues;
     private double[] greenValues;
     private double[] blueValues;
-    private int index;
 
     public MeanNoOutliersAntialiasingAlgorithm(int totalSamples,  int colorSpace) {
         super(totalSamples, colorSpace);
         redValues = new double[totalSamples];
         greenValues = new double[totalSamples];
         blueValues = new double[totalSamples];
-        index = 0;
     }
 
     @Override
     public void initialize(int color) {
         double[] result = getColorChannels(color);
 
-        index = 0;
-        redValues[index] = result[0];
-        greenValues[index] =  result[1];
-        blueValues[index] = result[2];
-        index++;
+        addedSamples = 0;
+        redValues[addedSamples] = result[0];
+        greenValues[addedSamples] =  result[1];
+        blueValues[addedSamples] = result[2];
+        addedSamples = 1;
     }
 
     @Override
@@ -32,10 +30,10 @@ public class MeanNoOutliersAntialiasingAlgorithm extends AntialiasingAlgorithm {
         double[] result = getColorChannels(color);
 
 
-        redValues[index] = result[0];
-        greenValues[index] = result[1];
-        blueValues[index] = result[2];
-        index++;
+        redValues[addedSamples] = result[0];
+        greenValues[addedSamples] = result[1];
+        blueValues[addedSamples] = result[2];
+        addedSamples++;
 
         return true;
     }
@@ -110,6 +108,10 @@ public class MeanNoOutliersAntialiasingAlgorithm extends AntialiasingAlgorithm {
 
     @Override
     public int getColor() {
+        if(addedSamples != totalSamples) {
+            return 0xff000000;
+        }
+
         Object[] res1 = getSumAndSamples(redValues);
         Object[] res2 = getSumAndSamples(greenValues);
         Object[] res3 = getSumAndSamples(blueValues);

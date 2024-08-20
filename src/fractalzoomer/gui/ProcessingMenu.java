@@ -235,7 +235,7 @@ public class ProcessingMenu extends MyMenu {
     
     public void updateIcons(Settings s) {
         
-        if(s.hasSmoothing()) {
+        if(s.fns.smoothing) {
             smoothing_opt.setIcon(MainWindow.getIcon("smoothing_enabled.png"));
         }
         else {

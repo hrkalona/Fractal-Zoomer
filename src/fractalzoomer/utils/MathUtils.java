@@ -115,8 +115,9 @@ public static class BezierSpline
 	public static Point2D.Double[][] GetCurveControlPoints(Point2D.Double[] knots)
 	{
 		
-                if (knots == null)
+		if (knots == null) {
 			throw new NullPointerException("knots");
+		}
 		int n = knots.length - 1;
 		if (n < 1)
 			throw new IllegalArgumentException("At least two knot points required");

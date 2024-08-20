@@ -38,7 +38,7 @@ public class TaskElapsedTimeChartDialog extends JDialog {
 
     private static JFreeChart createChart(CategoryDataset dataset) {
         JFreeChart chart = ChartFactory.createBarChart(
-                "Pixel Elapsed Time", "Task" /* x-axis label*/,
+                "Elapsed Time", "Task" /* x-axis label*/,
                 "Time (ms)" /* y-axis label */, dataset);
         chart.addSubtitle(new TextTitle("per Task"));
         chart.setBackgroundPaint(Color.WHITE);
@@ -66,7 +66,7 @@ public class TaskElapsedTimeChartDialog extends JDialog {
         int chart_width = 1000;
         int chart_height = 600;
         setSize(chart_width, chart_height);
-        setTitle("Pixel Elapsed Time Statistics");
+        setTitle("Elapsed Time Statistics");
         setModal(true);
         setIconImage(MainWindow.getIcon("mandel2.png").getImage());
         setLocation((int) (ptra2.getLocation().getX() + ptra2.getSize().getWidth() / 2) - (chart_width / 2), (int) (ptra2.getLocation().getY() + ptra2.getSize().getHeight() / 2) - (chart_height / 2));

@@ -38,8 +38,8 @@ public class Infobar extends JToolBar {
     private JButton overview_button;
     private JButton stats_button;
 
-    private JButton thread_stats_button;
-    private JButton matrics_button;
+    private JButton task_stats_button;
+    private JButton metrics_button;
 
     private JButton cancel_button;
     private boolean listenerEnabled;
@@ -282,18 +282,18 @@ public class Infobar extends JToolBar {
         stats_button.addActionListener(e -> ptr.Stats());
 
 
-        thread_stats_button = new MyButton();
-        thread_stats_button.setIcon(MainWindow.getIcon("stats_tasks.png"));
-        thread_stats_button.setFocusable(false);
-        thread_stats_button.setToolTipText("Displays the task statistics of last rendered fractal.");
+        task_stats_button = new MyButton();
+        task_stats_button.setIcon(MainWindow.getIcon("stats_tasks.png"));
+        task_stats_button.setFocusable(false);
+        task_stats_button.setToolTipText("Displays the task statistics of last rendered fractal.");
 
-        thread_stats_button.addActionListener(e -> ptr.ThreadStats());
+        task_stats_button.addActionListener(e -> ptr.TaskStats());
 
-        matrics_button = new MyButton();
-        matrics_button.setIcon(MainWindow.getIcon("chart.png"));
-        matrics_button.setFocusable(false);
-        matrics_button.setToolTipText("Displays some time-series metrics.");
-        matrics_button.addActionListener(e ->ptr.Metrics());
+        metrics_button = new MyButton();
+        metrics_button.setIcon(MainWindow.getIcon("chart.png"));
+        metrics_button.setFocusable(false);
+        metrics_button.setToolTipText("Displays some time-series metrics.");
+        metrics_button.addActionListener(e ->ptr.Metrics());
 
         cancel_button= new MyButton();
         cancel_button.setIcon(MainWindow.getIcon("abort.png"));
@@ -311,8 +311,8 @@ public class Infobar extends JToolBar {
 
         add(overview_button);
         add(stats_button);
-        add(thread_stats_button);
-        add(matrics_button);
+        add(task_stats_button);
+        add(metrics_button);
 
         palette_toolbar_preview_lbl2.setVisible(false);
         incoloring_palette_toolbar_preview.setVisible(false);
@@ -332,7 +332,7 @@ public class Infobar extends JToolBar {
 
     public JButton getStatsTasks() {
 
-        return thread_stats_button;
+        return task_stats_button;
 
     }
 
@@ -536,7 +536,7 @@ public class Infobar extends JToolBar {
             colorMapframe.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, ActionEvent.CTRL_MASK | ActionEvent.SHIFT_MASK));
         }
         colorMapframe.setToolTipText("Loads all color maps from the " + ColorMapDialog.DirName + " directory.");
-        colorMapframe.addActionListener(ev -> {ptr.setColorMap(outcoloring_mode);});
+        colorMapframe.addActionListener(ev -> ptr.setColorMap(outcoloring_mode));
 
         popup.addSeparator();
         popup.add(colorMapframe);
@@ -548,7 +548,7 @@ public class Infobar extends JToolBar {
         } else {
             alternativeCustomDirectPalette.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.CTRL_MASK | ActionEvent.SHIFT_MASK));
         }
-        alternativeCustomDirectPalette.addActionListener(ev -> {ptr.setCustomDirectPalette(outcoloring_mode);});
+        alternativeCustomDirectPalette.addActionListener(ev -> ptr.setCustomDirectPalette(outcoloring_mode));
 
         popup.addSeparator();
         popup.add(alternativeCustomDirectPalette);
@@ -600,7 +600,7 @@ public class Infobar extends JToolBar {
         palette[43].setToolTipText("A palette from Fractal Extreme.");
         palette[44].setToolTipText("A palette from Fractal Extreme.");
         palette[45].setToolTipText("A palette from Xaos.");
-        palette[46].setToolTipText("A palette from Kales Fraktaler.");
+        palette[46].setToolTipText("A palette from Kalles Fraktaler.");
         
         palette[color_choice].setSelected(true);
         popup.show(e.getComponent(), e.getX(), e.getY());

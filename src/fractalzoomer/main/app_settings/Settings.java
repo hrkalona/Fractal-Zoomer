@@ -13,7 +13,7 @@ import fractalzoomer.core.TaskRender;
 import fractalzoomer.fractal_options.orbit_traps.ImageOrbitTrap;
 import fractalzoomer.functions.Fractal;
 import fractalzoomer.main.Constants;
-import fractalzoomer.main.ImageExpanderWindow;
+import fractalzoomer.main.MinimalRendererWindow;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.palettes.CustomPalette;
 import fractalzoomer.palettes.PaletteColorSmooth;
@@ -1090,7 +1090,7 @@ public class Settings implements Constants {
         } else {
             pps.sts.user_statistic_init_value = ((SettingsFractals1073) settings).getUserStatisticInitValue();
             fns.skip_bailout_iterations = ((SettingsFractals1073) settings).getSkipBailoutIterations();
-            gs.gradient_offset = ((SettingsFractals1073) settings).getGradientOffset();
+            gs.gradient_offset = ((SettingsFractals1073) settings).getGSGradientOffset();
         }
 
         if (version < 1074) {
@@ -1495,8 +1495,8 @@ public class Settings implements Constants {
                     if (n == JOptionPane.NO_OPTION || n == JOptionPane.CLOSED_OPTION) {
                         if (parentFrame instanceof MainWindow) {
                             ((MainWindow) parentFrame).exit(-1);
-                        } else if (parentFrame instanceof ImageExpanderWindow) {
-                            ((ImageExpanderWindow) parentFrame).exit(-1);
+                        } else if (parentFrame instanceof MinimalRendererWindow) {
+                            ((MinimalRendererWindow) parentFrame).exit(-1);
                         } else {
                             System.exit(-1);
                         }
@@ -1831,6 +1831,36 @@ public class Settings implements Constants {
             pps.sts.checkerNormB = ((SettingsFractals1092) settings).getChecker_norm_b();
             pps.sts.rootScalingCapto1 = ((SettingsFractals1092) settings).getRoot_scaling_cap1();
             fns.smoothing_color_selection = ((SettingsFractals1092) settings).getSmoothing_color_selection();
+        }
+
+        if(version < 1093) {
+            fs.quadtree_threshold = defaults.fs.quadtree_threshold;
+            fs.quadtree_dynamic_threshold = defaults.fs.quadtree_dynamic_threshold;
+            fs.quadtree_dynamic_threshold_curve = defaults.fs.quadtree_dynamic_threshold_curve;
+            fs.quadtree_threshold_calculation = defaults.fs.quadtree_threshold_calculation;
+            fs.quadtree_show_division = defaults.fs.quadtree_show_division;
+            fs.quadtree_lod = defaults.fs.quadtree_lod;
+            fs.quadtree_algorithm = defaults.fs.quadtree_algorithm;
+            fs.quadtree_fill_algorithm = defaults.fs.quadtree_fill_algorithm;
+            fs.quadtree_merge_nodes = defaults.fs.quadtree_merge_nodes;
+        }
+        else {
+            fs.quadtree_threshold = ((SettingsFractals1093) settings).getQuadtreeThreshold();
+            fs.quadtree_dynamic_threshold = ((SettingsFractals1093) settings).getQuadtreeDynamicThreshold();
+            fs.quadtree_dynamic_threshold_curve = ((SettingsFractals1093) settings).getQuadtreeDynamicThresholdCurve();
+            fs.quadtree_threshold_calculation = ((SettingsFractals1093) settings).getQuadtreeThresholdCalculation();
+            fs.quadtree_show_division = ((SettingsFractals1093) settings).getQuadtreeShowDivision();
+            fs.quadtree_lod = ((SettingsFractals1093) settings).getQuadtreeLod();
+            fs.quadtree_algorithm = ((SettingsFractals1093) settings).getQuadtreeAlgorithm();
+            fs.quadtree_fill_algorithm = ((SettingsFractals1093) settings).getQuadtreeFillAlgorithm();
+            fs.quadtree_merge_nodes = ((SettingsFractals1093) settings).getQuadtreeMergeNodes();
+
+            if(TaskRender.LOAD_RENDERING_ALGORITHM_FROM_SAVES) {
+                TaskRender.AREA_DIMENSION_X = ((SettingsFractals1093) settings).getAreaDimensionX();
+                TaskRender.AREA_DIMENSION_Y = ((SettingsFractals1093) settings).getAreaDimensionY();
+                TaskRender.SPLIT_INTO_RECTANGLE_AREAS = ((SettingsFractals1093) settings).getSplitIntoRectagleAreas();
+                TaskRender.RECTANGLE_AREA_SPLIT_ALGORITHM = ((SettingsFractals1093) settings).getRectangleAreaSplitAlgorithm();
+            }
         }
 
         if (fns.plane_type == USER_PLANE) {
@@ -2314,7 +2344,7 @@ public class Settings implements Constants {
                 userCode = userCode.replaceAll("\\b" + Parser.DEFAULT_USER_CODE_CLASS + "\\b", Parser.SAVED_USER_CODE_CLASS);
             }
 
-            SettingsFractals settings = new SettingsFractals1092(this, TaskRender.PERTURBATION_THEORY, TaskRender.GREEDY_ALGORITHM, TaskRender.BRUTE_FORCE_ALG, TaskRender.GREEDY_ALGORITHM_SELECTION, TaskRender.GREEDY_ALGORITHM_CHECK_ITER_DATA, userCode, TaskRender.GUESS_BLOCKS_SELECTION, TaskRender.SUCCESSIVE_REFINEMENT_SQUARE_RECT_SPLIT_ALGORITHM, TaskRender.TWO_PASS_SUCCESSIVE_REFINEMENT, TaskRender.CHUNK_SIZE_PER_ROW);
+            SettingsFractals settings = new SettingsFractals1093(this, TaskRender.PERTURBATION_THEORY, TaskRender.GREEDY_ALGORITHM, TaskRender.BRUTE_FORCE_ALG, TaskRender.GREEDY_ALGORITHM_SELECTION, TaskRender.GREEDY_ALGORITHM_CHECK_ITER_DATA, userCode, TaskRender.GUESS_BLOCKS_SELECTION, TaskRender.SUCCESSIVE_REFINEMENT_SQUARE_RECT_SPLIT_ALGORITHM, TaskRender.TWO_PASS_SUCCESSIVE_REFINEMENT, TaskRender.CHUNK_SIZE_PER_ROW, TaskRender.SPLIT_INTO_RECTANGLE_AREAS, TaskRender.RECTANGLE_AREA_SPLIT_ALGORITHM, TaskRender.AREA_DIMENSION_X, TaskRender.AREA_DIMENSION_Y);
             file_temp.writeObject(settings);
             file_temp.flush();
         } catch (IOException ex) {
@@ -2635,6 +2665,7 @@ public class Settings implements Constants {
             case FORMULA41:
             case COUPLED_MANDELBROT:
             case COUPLED_MANDELBROT_BURNING_SHIP:
+            case FORMULA50:
                 xCenter = new MyApfloat(0.0);
                 yCenter = new MyApfloat(0.0);
                 size = new MyApfloat(6);
@@ -3271,7 +3302,8 @@ public class Settings implements Constants {
                 || fns.function == MAGNET_PATAKI4 || fns.function == MAGNET_PATAKI5 || fns.function == FORMULA47
                 || fns.function ==  PERPENDICULAR_MANDELBROT || fns.function == BUFFALO_MANDELBROT || fns.function == CELTIC_MANDELBROT
                 || fns.function ==  PERPENDICULAR_BURNING_SHIP || fns.function == PERPENDICULAR_CELTIC_MANDELBROT || fns.function == PERPENDICULAR_BUFFALO_MANDELBROT
-                || fns.function == FORMULA48);
+                || fns.function == FORMULA48 || fns.function == FORMULA50
+                || fns.function == MANDELBARCUBED);
     }
 
     public static boolean usesPerturbationWithDivision(int function) {
@@ -3292,6 +3324,7 @@ public class Settings implements Constants {
     public boolean isPeriodInUse() {
         return isPertubationTheoryInUse() && ((TaskRender.APPROXIMATION_ALGORITHM == 2 && supportsBilinearApproximation())
                 || (TaskRender.APPROXIMATION_ALGORITHM == 4 && supportsBilinearApproximation2())
+                || (TaskRender.APPROXIMATION_ALGORITHM == 5 && supportsBilinearApproximation3())
                 || (TaskRender.APPROXIMATION_ALGORITHM == 3 && supportsNanomb1())
         ) && supportsPeriod() && fns.period != 0;
     }
@@ -3305,10 +3338,14 @@ public class Settings implements Constants {
     }
 
     private boolean needsSmoothing() {
-        return (hasSmoothing() || ((pps.ndes.useNumericalDem || pps.ls.lighting || pps.ss.slopes || pps.bms.bump_map || pps.cns.contour_coloring || pps.ens.entropy_coloring || pps.rps.rainbow_palette || pps.fdes.fake_de || pps.sts.statistic) && TaskRender.USE_SMOOTHING_FOR_PROCESSING_ALGS));
+        return (fns.smoothing || ((pps.ndes.useNumericalDem || pps.ls.lighting || pps.ss.slopes || pps.bms.bump_map || pps.cns.contour_coloring || pps.ens.entropy_coloring || pps.rps.rainbow_palette || pps.fdes.fake_de || statisticNeedsSmoothing()) && TaskRender.USE_SMOOTHING_FOR_PROCESSING_ALGS));
     }
     private boolean requiresSmoothingCalculation() {
         return !TaskRender.SMOOTH_DATA && needsSmoothing();
+    }
+
+    protected boolean statisticNeedsSmoothing() {
+        return pps.sts.statistic && !(pps.sts.statisticGroup == 3 && !pps.sts.useNormalMap && (!pps.sts.normalMapOverrideColoring || pps.sts.normalMapColoring == 0));
     }
 
     private boolean requiresUnSmoothingCalculation() {
@@ -3392,6 +3429,10 @@ public class Settings implements Constants {
         return (fns.function == MANDELBROT || fns.function == MANDELBROTCUBED || fns.function == MANDELBROTFOURTH || fns.function == MANDELBROTFIFTH) && !fns.burning_ship && !fns.julia;
     }
 
+    public boolean supportsBilinearApproximation3() {
+        return (fns.function == MANDELBROT || fns.function == MANDELBROTCUBED || fns.function == MANDELBROTFOURTH || fns.function == MANDELBROTFIFTH) && !fns.burning_ship && !fns.julia;
+    }
+
     public boolean requiresRecalculation(boolean ignoreTrueColorOut) {
 
         if(ignoreTrueColorOut) {
@@ -3411,12 +3452,17 @@ public class Settings implements Constants {
         return fns.function == MANDELBROT && !fns.burning_ship && !fns.julia;
     }
 
+
     public boolean isBilinearApproximationInUse() {
         return TaskRender.APPROXIMATION_ALGORITHM == 2 && supportsBilinearApproximation();
     }
 
     public boolean isBilinearApproximation2InUse() {
         return TaskRender.APPROXIMATION_ALGORITHM == 4 && supportsBilinearApproximation2();
+    }
+
+    public boolean isBilinearApproximation3InUse() {
+        return TaskRender.APPROXIMATION_ALGORITHM == 5 && supportsBilinearApproximation3();
     }
 
     public void loadedSettings(String file, Component parent, int version) {
@@ -3451,9 +3497,4 @@ public class Settings implements Constants {
     public boolean needsExtraData() {
         return fs.filters[Constants.ANTIALIASING]  && ((TaskRender.ALWAYS_SAVE_EXTRA_PIXEL_DATA_ON_AA_WITH_PP && needsPostProcessing()) || TaskRender.ALWAYS_SAVE_EXTRA_PIXEL_DATA_ON_AA);
     }
-
-    public boolean hasSmoothing() {
-        return fns.smoothing;
-    }
-
 }

@@ -1,6 +1,8 @@
 
 package fractalzoomer.utils;
 
+import fractalzoomer.utils.space_filling_curves.*;
+
 /**
  *
  * @author hrkalona2
@@ -24,10 +26,18 @@ public class Pixel implements Comparable<Pixel> {
     public static double SPACING;
 
     public static boolean REPEAT;
+
+    public static boolean CENTER;
+
+    public static int WIDTH;
     
     public Pixel(int x, int y) {
         this.x = x;
         this.y = y;
+    }
+
+    public boolean supportsRepeat() {
+        return COMPARE_ALG >= 0 && COMPARE_ALG <= 15 && COMPARE_ALG != 4;
     }
 
     @Override
@@ -39,7 +49,7 @@ public class Pixel implements Comparable<Pixel> {
         double bX = o.x + (useCustom ? customX : midX);
         double bY = o.y + (useCustom ? customY : midY);
 
-        if(REPEAT) {
+        if(REPEAT && supportsRepeat()) {
             aX = Math.sin(aX * SPACING) + 1;
             aY = Math.sin(aY * SPACING) + 1;
             bX = Math.sin(bX * SPACING) + 1;
@@ -92,9 +102,44 @@ public class Pixel implements Comparable<Pixel> {
         else if (COMPARE_ALG == 14) {
             return !REVERT ? Double.compare(Math.abs(aX) * Math.abs(aY), Math.abs(bX) * Math.abs(bY)) : Double.compare(Math.abs(bX) * Math.abs(bY), Math.abs(aX) * Math.abs(aY));
         }
-        else {
+        else if (COMPARE_ALG == 15) {
             return !REVERT ? Double.compare(Math.min(Math.abs(aX), Math.abs(aY)), Math.min(Math.abs(bX), Math.abs(bY))) : Double.compare(Math.min(Math.abs(bX), Math.abs(bY)), Math.min(Math.abs(aX), Math.abs(aY)));
         }
+        //COMPARE_ALG == 16 is interleaved
+        else if(COMPARE_ALG == 17) {
+            return CENTER ? Long.compare(ZCurve.interleaveBits((int)Math.abs(aX), (int)Math.abs(aY)), ZCurve.interleaveBits((int)Math.abs(bX), (int)Math.abs(bY)))
+            : Long.compare(ZCurve.interleaveBits(x, y), ZCurve.interleaveBits(o.x, o.y));
+        }
+        else if (COMPARE_ALG == 18) {
+            return CENTER ? Integer.compare(HilbertCurve.defaultCurve((int)Math.abs(aX), (int)Math.abs(aY)), HilbertCurve.defaultCurve((int)Math.abs(bX), (int)Math.abs(bY)))
+            : Integer.compare(HilbertCurve.defaultCurve(x, y), HilbertCurve.defaultCurve(o.x, o.y));
+        }
+        else if (COMPARE_ALG == 19) {
+            //3^19
+            return CENTER ? Integer.compare(PeanoCurve.defaultCurve((int)Math.abs(aX), (int)Math.abs(aY)), PeanoCurve.defaultCurve((int)Math.abs(bX), (int)Math.abs(bY)))
+                    : Integer.compare(PeanoCurve.defaultCurve(x, y), PeanoCurve.defaultCurve(o.x, o.y));
+        }
+        else if (COMPARE_ALG == -1) {//Unused
+            return CENTER ? Integer.compare(SnakeCurve.xyToSnake(WIDTH, (int)Math.abs(aX), (int)Math.abs(aY)), SnakeCurve.xyToSnake(WIDTH, (int)Math.abs(bX), (int)Math.abs(bY)))
+                    : Integer.compare(SnakeCurve.xyToSnake(WIDTH, x, y), SnakeCurve.xyToSnake(WIDTH, o.x, o.y));
+        }
+        else if (COMPARE_ALG == 20) {
+            return CENTER ? Integer.compare(DiagonalZigZagCurve.xyToDiagonal((int)Math.abs(aX), (int)Math.abs(aY)), DiagonalZigZagCurve.xyToDiagonal((int)Math.abs(bX), (int)Math.abs(bY)))
+                    : Integer.compare(DiagonalZigZagCurve.xyToDiagonal(x, y), DiagonalZigZagCurve.xyToDiagonal(o.x, o.y));
+        }
+        else if (COMPARE_ALG == 21) {
+            return CENTER ? Integer.compare(GrayCodeCurve.defaultCurve((int)Math.abs(aX), (int)Math.abs(aY)), GrayCodeCurve.defaultCurve( (int)Math.abs(bX), (int)Math.abs(bY)))
+                    : Integer.compare(GrayCodeCurve.defaultCurve(x, y), GrayCodeCurve.defaultCurve(o.x, o.y));
+        }
+        else if (COMPARE_ALG == 22) {
+            return CENTER ? Integer.compare(PeanoGenericCurve.defaultCurve((int)Math.abs(aX), (int)Math.abs(aY)), PeanoGenericCurve.defaultCurve((int)Math.abs(bX), (int)Math.abs(bY)))
+                    : Integer.compare(PeanoGenericCurve.defaultCurve(x, y), PeanoGenericCurve.defaultCurve(o.x, o.y));
+        }
+        else if (COMPARE_ALG == 23) {
+            return Integer.compare(y * WIDTH + x, o.y * WIDTH + o.x);
+        }
+
+        return 0;
 
     }
 }

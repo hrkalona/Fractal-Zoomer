@@ -280,8 +280,8 @@ public class PlaneVisualizer {
         int[] rgbs = ((DataBufferInt)plane_mu_image.getRaster().getDataBuffer()).getData();
         int[] rgbs2 = ((DataBufferInt)new_plane_image.getRaster().getDataBuffer()).getData();
 
-        Arrays.fill(rgbs, 0, image_size * image_size, Color.WHITE.getRGB());
-        Arrays.fill(rgbs2, 0, image_size * image_size, Color.WHITE.getRGB());
+        Arrays.fill(rgbs, Color.WHITE.getRGB());
+        Arrays.fill(rgbs2,  Color.WHITE.getRGB());
 
         double x_center = 0;
         double y_center = 0;

@@ -494,7 +494,7 @@ public class CustomDomainColoringDialog extends JDialog {
 
         final JLabel circles_color_label = new ColorLabel();
 
-        circles_color_label.setPreferredSize(new Dimension(22, 22));;
+        circles_color_label.setPreferredSize(new Dimension(22, 22));
         circles_color_label.setBackground(ds.circlesColor);
         circles_color_label.setToolTipText("Changes the circles color.");
 
@@ -823,11 +823,7 @@ public class CustomDomainColoringDialog extends JDialog {
 
         JButton cancel = new MyButton("Cancel");
         cancel.setFocusable(false);
-        cancel.addActionListener(e -> {
-
-            dispose();
-
-        });
+        cancel.addActionListener(e -> dispose());
 
         getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
                 KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "Cancel");

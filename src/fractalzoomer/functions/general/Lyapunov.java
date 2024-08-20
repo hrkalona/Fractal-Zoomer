@@ -235,9 +235,11 @@ public class Lyapunov extends Julia {
                 parser[index].setCvalue(complex[1]);
             }
 
-            for (int i = 0; i < Parser.EXTRA_VARS; i++) {
-                if (parser[index].foundVar(i)) {
-                    parser[index].setVarsvalue(i, globalVars[i]);
+            if(parser[index].foundAnyVar()) {
+                for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+                    if (parser[index].foundVar(i)) {
+                        parser[index].setVarsvalue(i, globalVars[i]);
+                    }
                 }
             }
 
@@ -272,9 +274,11 @@ public class Lyapunov extends Julia {
                 function_parser.setCvalue(complex[1]);
             }
 
-            for (int i = 0; i < Parser.EXTRA_VARS; i++) {
-                if (function_parser.foundVar(i)) {
-                    function_parser.setVarsvalue(i, globalVars[i]);
+            if(function_parser.foundAnyVar()) {
+                for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+                    if (function_parser.foundVar(i)) {
+                        function_parser.setVarsvalue(i, globalVars[i]);
+                    }
                 }
             }
 
@@ -297,9 +301,11 @@ public class Lyapunov extends Julia {
                     exponent_parser.setCvalue(complex[1]);
                 }
 
-                for (int i = 0; i < Parser.EXTRA_VARS; i++) {
-                    if (exponent_parser.foundVar(i)) {
-                        exponent_parser.setVarsvalue(i, globalVars[i]);
+                if(exponent_parser.foundAnyVar()) {
+                    for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+                        if (exponent_parser.foundVar(i)) {
+                            exponent_parser.setVarsvalue(i, globalVars[i]);
+                        }
                     }
                 }
 
@@ -318,6 +324,7 @@ public class Lyapunov extends Julia {
 
     }
 
+    @Override
     public Complex[] initialize(Complex pixel) {
 
         Complex[] complex = super.initialize(pixel);
@@ -328,6 +335,7 @@ public class Lyapunov extends Julia {
 
     }
 
+    @Override
     public Complex[] initializeSeed(Complex pixel) {
 
         Complex[] complex = super.initializeSeed(pixel);

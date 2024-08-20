@@ -23,11 +23,16 @@ public class BumpMappingDialog extends JDialog {
     private MainWindow ptra;
     private JOptionPane optionPane;
 
+    private final JScrollPane scrollPane;
+
     public BumpMappingDialog(MainWindow ptr, Settings s, boolean greedy_algorithm, boolean julia_map) {
 
         super(ptr);
         
         ptra = ptr;
+
+        scrollPane = new JScrollPane();
+        scrollPane.setPreferredSize(new Dimension(600, 700));
 
         setTitle("Bump Mapping");
         setModal(true);
@@ -75,7 +80,7 @@ public class BumpMappingDialog extends JDialog {
         bump_transfer_functions_opt.setFocusable(false);
         bump_transfer_functions_opt.setToolTipText("Sets the transfer function.");
 
-        JTextField bump_transfer_factor_field = new JTextField(20);
+        JTextField bump_transfer_factor_field = new JTextField(6);
         bump_transfer_factor_field.setText("" + s.pps.bms.bump_transfer_factor);
 
         JPanel panel = new JPanel(new GridLayout(2, 2));
@@ -253,7 +258,8 @@ public class BumpMappingDialog extends JDialog {
                 });
 
         //Make this dialog display it.
-        setContentPane(optionPane);
+        scrollPane.setViewportView(optionPane);
+        setContentPane(scrollPane);
 
         pack();
 

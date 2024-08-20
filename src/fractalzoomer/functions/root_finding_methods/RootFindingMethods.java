@@ -307,6 +307,7 @@ public abstract class RootFindingMethods extends Fractal {
 
     }
 
+    @Override
     protected Complex iterateFractalDomain(Complex[] complex, Complex pixel) {
 
         iterations = 0;

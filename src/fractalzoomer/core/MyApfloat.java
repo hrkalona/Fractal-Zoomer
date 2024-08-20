@@ -71,7 +71,7 @@ public class MyApfloat extends Apfloat {
         long maxValueForExponentPreferal = Long.MIN_VALUE;
         for(int j = 0; j < values.length; j++) {
             String value = values[j].trim();
-            Apfloat val = new Apfloat(value, 10000); // try to parse this first
+            new Apfloat(value, 10000); // try to parse this first
 
             long digitsBeforeDot = 0;
             long digitsAfterDot = 0;

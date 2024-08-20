@@ -146,9 +146,11 @@ public class UserConvergentBailoutCondition extends ConvergentBailoutCondition {
             parser[0].setPPvalue(zold2);
         }
 
-        for(int i = 0; i < Parser.EXTRA_VARS; i++) {
-            if(parser[0].foundVar(i)) {
-                parser[0].setVarsvalue(i, globalVars[i]);
+        if(parser[0].foundAnyVar()) {
+            for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+                if (parser[0].foundVar(i)) {
+                    parser[0].setVarsvalue(i, globalVars[i]);
+                }
             }
         }
 
@@ -185,9 +187,11 @@ public class UserConvergentBailoutCondition extends ConvergentBailoutCondition {
             parser[1].setPPvalue(zold2);
         }
 
-        for(int i = 0; i < Parser.EXTRA_VARS; i++) {
-            if(parser[1].foundVar(i)) {
-                parser[1].setVarsvalue(i, globalVars[i]);
+        if(parser[1].foundAnyVar()) {
+            for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+                if (parser[1].foundVar(i)) {
+                    parser[1].setVarsvalue(i, globalVars[i]);
+                }
             }
         }
 

@@ -4,6 +4,8 @@ import fractalzoomer.core.*;
 import fractalzoomer.core.bla.BLA;
 import fractalzoomer.core.bla.BLADeep;
 import fractalzoomer.core.la.LAstep;
+import fractalzoomer.core.mipla.MipLADeepStep;
+import fractalzoomer.core.mipla.MipLAStep;
 import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.utils.ColorAlgorithm;
@@ -346,6 +348,48 @@ public class NormalMap extends GenericStatistic {
     }
 
     @Override
+    public void insert(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0, MipLAStep mla, int step_length) {
+        super.insert(z, zold, zold2, iterations, c, start, c0);
+
+        if(power == 0) {
+            return;
+        }
+
+        if(iterations == 0) {
+
+            if ((function >= MainWindow.MANDELBROT && function <= MainWindow.MANDELBROTNTH)){
+                if (zold.compare(new Complex()) != 0) {
+                    derivative = new Complex(1, 0);
+                    derivative_m = MantExpComplex.create(derivative);
+                }
+            }
+
+        }
+
+        boolean supportsDeepCalculations = supportsDeepCalculations();
+
+        if(useSecondDerivative) {
+            if(supportsDeepCalculations) {
+                derivative2_m = MantExpComplex.create(mla.getValue(derivative2_m.toComplex()));
+                derivative2_m.Normalize();
+            }
+            else {
+                derivative2 = mla.getValue(derivative2);
+            }
+        }
+
+        if(supportsDeepCalculations) {
+            derivative_m = MantExpComplex.create(mla.getValue(derivative_m.toComplex(), 1));
+            derivative_m.Normalize();
+        }
+        else {
+            derivative = mla.getValue(derivative, 1);
+        }
+
+        samples += step_length;
+    }
+
+    @Override
     public void insert(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0, BLADeep bla) {
         super.insert(z, zold, zold2, iterations, c, start, c0);
 
@@ -373,6 +417,36 @@ public class NormalMap extends GenericStatistic {
         derivative_m.Normalize();
 
         samples += bla.getL();
+    }
+
+    @Override
+    public void insert(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0, MipLADeepStep mla, int step_length) {
+        super.insert(z, zold, zold2, iterations, c, start, c0);
+
+        if(power == 0) {
+            return;
+        }
+
+        if(iterations == 0) {
+
+            if ((function >= MainWindow.MANDELBROT && function <= MainWindow.MANDELBROTNTH)){
+                if (zold.compare(new Complex()) != 0) {
+                    derivative = new Complex(1, 0);
+                    derivative_m = MantExpComplex.create(derivative);
+                }
+            }
+
+        }
+
+        if(useSecondDerivative) {
+            derivative2_m = mla.getValue(derivative2_m);
+            derivative2_m.Normalize();
+        }
+
+        derivative_m = mla.getValue(derivative_m, MantExp.ONE);
+        derivative_m.Normalize();
+
+        samples += step_length;
     }
 
     @Override

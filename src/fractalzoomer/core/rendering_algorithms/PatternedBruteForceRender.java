@@ -7,7 +7,7 @@ import fractalzoomer.core.antialiasing.AntialiasingAlgorithm;
 import fractalzoomer.core.location.Location;
 import fractalzoomer.functions.Fractal;
 import fractalzoomer.main.Constants;
-import fractalzoomer.main.ImageExpanderWindow;
+import fractalzoomer.main.MinimalRendererWindow;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.*;
 import fractalzoomer.utils.Pixel;
@@ -21,7 +21,7 @@ import java.util.Random;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class CircularBruteForceRender extends TaskRender {
+public class PatternedBruteForceRender extends TaskRender {
     public static Pixel[] coordinates;
     public static int coordinates_width;
     public static int coordinates_height;
@@ -29,46 +29,48 @@ public class CircularBruteForceRender extends TaskRender {
     public static Pixel[] coordinatesFastJulia;
     protected static final int THREAD_CHUNK_SIZE = 250;
 
-    public CircularBruteForceRender(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, D3Settings d3s, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, boolean polar_projection, double circle_period, DomainColoringSettings ds, boolean inverse_dem, boolean quickRender, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring, BlendingSettings color_blending, int[] post_processing_order, PaletteGradientMergingSettings pbs, int gradient_offset, double contourFactor, GeneratedPaletteSettings gps, JitterSettings js, PostProcessSettings pps) {
+    public PatternedBruteForceRender(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, D3Settings d3s, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, boolean polar_projection, double circle_period, DomainColoringSettings ds, boolean inverse_dem, boolean quickRender, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring, BlendingSettings color_blending, int[] post_processing_order, PaletteGradientMergingSettings pbs, int gradient_offset, double contourFactor, GeneratedPaletteSettings gps, JitterSettings js, PostProcessSettings pps) {
         super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns, d3s, ptr, fractal_color, dem_color, image, fs, periodicity_checking, color_cycling_location, color_cycling_location2, exterior_de, exterior_de_factor, height_ratio,  polar_projection, circle_period,   ds, inverse_dem, quickRender, color_intensity, transfer_function, color_density, color_intensity2, transfer_function2, color_density2, usePaletteForInColoring,    color_blending,   post_processing_order,  pbs,  gradient_offset,  contourFactor, gps, js, pps);
     }
 
-    public CircularBruteForceRender(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, ImageExpanderWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, boolean polar_projection, double circle_period, DomainColoringSettings ds, boolean inverse_dem, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring, BlendingSettings color_blending, int[] post_processing_order, PaletteGradientMergingSettings pbs, int gradient_offset, double contourFactor, GeneratedPaletteSettings gps, JitterSettings js, PostProcessSettings pps) {
+    public PatternedBruteForceRender(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, MinimalRendererWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, boolean polar_projection, double circle_period, DomainColoringSettings ds, boolean inverse_dem, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring, BlendingSettings color_blending, int[] post_processing_order, PaletteGradientMergingSettings pbs, int gradient_offset, double contourFactor, GeneratedPaletteSettings gps, JitterSettings js, PostProcessSettings pps) {
         super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns, ptr, fractal_color, dem_color, image, fs, periodicity_checking, color_cycling_location, color_cycling_location2, exterior_de, exterior_de_factor, height_ratio,  polar_projection, circle_period,   ds, inverse_dem, color_intensity, transfer_function, color_density, color_intensity2, transfer_function2, color_density2, usePaletteForInColoring,    color_blending,   post_processing_order,  pbs,  gradient_offset,  contourFactor, gps, js, pps);
     }
 
-    public CircularBruteForceRender(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, D3Settings d3s, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, boolean polar_projection, double circle_period, DomainColoringSettings ds, boolean inverse_dem, boolean quickRender, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring, BlendingSettings color_blending, int[] post_processing_order, PaletteGradientMergingSettings pbs, int gradient_offset, double contourFactor, GeneratedPaletteSettings gps, JitterSettings js, PostProcessSettings pps, Apfloat xJuliaCenter, Apfloat yJuliaCenter) {
+    public PatternedBruteForceRender(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, D3Settings d3s, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, boolean polar_projection, double circle_period, DomainColoringSettings ds, boolean inverse_dem, boolean quickRender, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring, BlendingSettings color_blending, int[] post_processing_order, PaletteGradientMergingSettings pbs, int gradient_offset, double contourFactor, GeneratedPaletteSettings gps, JitterSettings js, PostProcessSettings pps, Apfloat xJuliaCenter, Apfloat yJuliaCenter) {
         super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns, d3s, ptr, fractal_color, dem_color, image, fs, periodicity_checking, color_cycling_location, color_cycling_location2, exterior_de, exterior_de_factor, height_ratio,  polar_projection, circle_period,   ds, inverse_dem, quickRender, color_intensity, transfer_function, color_density, color_intensity2, transfer_function2, color_density2, usePaletteForInColoring,    color_blending,   post_processing_order,  pbs,  gradient_offset,  contourFactor, gps, js, pps, xJuliaCenter, yJuliaCenter);
     }
 
-    public CircularBruteForceRender(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, ImageExpanderWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, boolean polar_projection, double circle_period, DomainColoringSettings ds, boolean inverse_dem, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring, BlendingSettings color_blending, int[] post_processing_order, PaletteGradientMergingSettings pbs, int gradient_offset, double contourFactor, GeneratedPaletteSettings gps, JitterSettings js, PostProcessSettings pps, Apfloat xJuliaCenter, Apfloat yJuliaCenter) {
+    public PatternedBruteForceRender(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, MinimalRendererWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, boolean polar_projection, double circle_period, DomainColoringSettings ds, boolean inverse_dem, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring, BlendingSettings color_blending, int[] post_processing_order, PaletteGradientMergingSettings pbs, int gradient_offset, double contourFactor, GeneratedPaletteSettings gps, JitterSettings js, PostProcessSettings pps, Apfloat xJuliaCenter, Apfloat yJuliaCenter) {
         super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns, ptr, fractal_color, dem_color, image, fs, periodicity_checking, color_cycling_location, color_cycling_location2, exterior_de, exterior_de_factor, height_ratio,  polar_projection, circle_period,   ds, inverse_dem, color_intensity, transfer_function, color_density, color_intensity2, transfer_function2, color_density2, usePaletteForInColoring,    color_blending,   post_processing_order,  pbs,  gradient_offset,  contourFactor, gps, js, pps, xJuliaCenter, yJuliaCenter);
     }
 
-    public CircularBruteForceRender(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, boolean polar_projection, double circle_period, boolean inverse_dem, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring, BlendingSettings color_blending, int[] post_processing_order, PaletteGradientMergingSettings pbs, int gradient_offset, double contourFactor, GeneratedPaletteSettings gps, JitterSettings js, PostProcessSettings pps) {
+    public PatternedBruteForceRender(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, boolean polar_projection, double circle_period, boolean inverse_dem, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring, BlendingSettings color_blending, int[] post_processing_order, PaletteGradientMergingSettings pbs, int gradient_offset, double contourFactor, GeneratedPaletteSettings gps, JitterSettings js, PostProcessSettings pps) {
         super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns, ptr, fractal_color, dem_color, image, fs, periodicity_checking, color_cycling_location, color_cycling_location2, exterior_de, exterior_de_factor, height_ratio,  polar_projection, circle_period,   inverse_dem, color_intensity, transfer_function, color_density, color_intensity2, transfer_function2, color_density2, usePaletteForInColoring,    color_blending,   post_processing_order,  pbs,  gradient_offset,  contourFactor, gps, js, pps);
     }
 
-    public CircularBruteForceRender(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, MainWindow ptr, Color fractal_color, Color dem_color, boolean fast_julia_filters, BufferedImage image, boolean periodicity_checking, FiltersSettings fs, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, boolean polar_projection, double circle_period, boolean inverse_dem, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring, BlendingSettings color_blending, int[] post_processing_order, PaletteGradientMergingSettings pbs, int gradient_offset, double contourFactor, GeneratedPaletteSettings gps, JitterSettings js, PostProcessSettings pps, Apfloat xJuliaCenter, Apfloat yJuliaCenter) {
+    public PatternedBruteForceRender(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, MainWindow ptr, Color fractal_color, Color dem_color, boolean fast_julia_filters, BufferedImage image, boolean periodicity_checking, FiltersSettings fs, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, boolean polar_projection, double circle_period, boolean inverse_dem, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring, BlendingSettings color_blending, int[] post_processing_order, PaletteGradientMergingSettings pbs, int gradient_offset, double contourFactor, GeneratedPaletteSettings gps, JitterSettings js, PostProcessSettings pps, Apfloat xJuliaCenter, Apfloat yJuliaCenter) {
         super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns, ptr, fractal_color, dem_color, fast_julia_filters, image, periodicity_checking, fs, color_cycling_location, color_cycling_location2, exterior_de, exterior_de_factor, height_ratio,  polar_projection, circle_period,   inverse_dem, color_intensity, transfer_function, color_density, color_intensity2, transfer_function2, color_density2, usePaletteForInColoring,    color_blending,   post_processing_order,  pbs,  gradient_offset,  contourFactor, gps, js, pps, xJuliaCenter, yJuliaCenter);
     }
-    public CircularBruteForceRender(int FROMx, int TOx, int FROMy, int TOy, int max_iterations, MainWindow ptr, BufferedImage image, Color fractal_color, Color dem_color, int color_cycling_location, int color_cycling_location2, FiltersSettings fs, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring, BlendingSettings color_blending, int[] post_processing_order, PaletteGradientMergingSettings pbs, DomainColoringSettings ds, int gradient_offset, double contourFactor, GeneratedPaletteSettings gps, PostProcessSettings pps, boolean banded) {
+    public PatternedBruteForceRender(int FROMx, int TOx, int FROMy, int TOy, int max_iterations, MainWindow ptr, BufferedImage image, Color fractal_color, Color dem_color, int color_cycling_location, int color_cycling_location2, FiltersSettings fs, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring, BlendingSettings color_blending, int[] post_processing_order, PaletteGradientMergingSettings pbs, DomainColoringSettings ds, int gradient_offset, double contourFactor, GeneratedPaletteSettings gps, PostProcessSettings pps, boolean banded) {
         super(FROMx, TOx, FROMy, TOy, max_iterations, ptr, image, fractal_color, dem_color, color_cycling_location, color_cycling_location2, fs,    color_intensity, transfer_function, color_density, color_intensity2, transfer_function2, color_density2, usePaletteForInColoring,    color_blending,  post_processing_order,  pbs,  ds, gradient_offset,  contourFactor, gps, pps, banded);
     }
 
-    public CircularBruteForceRender(int action, int FROMx, int TOx, int FROMy, int TOy, int max_iterations, MainWindow ptr, BufferedImage image, Color fractal_color, Color dem_color, int color_cycling_location, int color_cycling_location2, FiltersSettings fs, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring, BlendingSettings color_blending, int[] post_processing_order, PaletteGradientMergingSettings pbs, int gradient_offset, double contourFactor, GeneratedPaletteSettings gps, PostProcessSettings pps, DomainColoringSettings ds, boolean banded) {
+    public PatternedBruteForceRender(int action, int FROMx, int TOx, int FROMy, int TOy, int max_iterations, MainWindow ptr, BufferedImage image, Color fractal_color, Color dem_color, int color_cycling_location, int color_cycling_location2, FiltersSettings fs, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring, BlendingSettings color_blending, int[] post_processing_order, PaletteGradientMergingSettings pbs, int gradient_offset, double contourFactor, GeneratedPaletteSettings gps, PostProcessSettings pps, DomainColoringSettings ds, boolean banded) {
         super(action, FROMx, TOx, FROMy, TOy, max_iterations, ptr, image, fractal_color, dem_color, color_cycling_location, color_cycling_location2, fs,  color_intensity, transfer_function, color_density, color_intensity2, transfer_function2, color_density2, usePaletteForInColoring, color_blending,  post_processing_order, pbs, gradient_offset,  contourFactor, gps, pps, ds, banded);
     }
 
     public static void initCoordinatesFastJulia(int fast_julia_image_size, boolean hasSuccessiveRefinement) {
 
-        Pixel.COMPARE_ALG = TaskRender.CIRCULAR_COMPARE_ALG;
-        Pixel.REVERT = TaskRender.CIRCULAR_REVERT_ALG;
-        Pixel.n = TaskRender.CIRCULAR_N;
+        Pixel.COMPARE_ALG = TaskRender.PATTERN_COMPARE_ALG;
+        Pixel.REVERT = TaskRender.PATTERN_REVERT_ALG;
+        Pixel.n = TaskRender.PATTERN_N;
         Pixel.nreciprocal = 1 / Pixel.n;
         Pixel.useCustom = false;
-        Pixel.REPEAT = TaskRender.CIRCULAR_REPEAT_ALG;
-        Pixel.SPACING = Math.PI / TaskRender.CIRCULAR_REPEAT_SPACING;
+        Pixel.REPEAT = TaskRender.PATTERN_REPEAT_ALG;
+        Pixel.SPACING = Math.PI / TaskRender.PATTERN_REPEAT_SPACING;
+        Pixel.CENTER = TaskRender.PATTERN_CENTER;
+        Pixel.WIDTH = fast_julia_image_size;
 
         if(coordinatesFastJulia == null || coordinatesFastJulia.length != fast_julia_image_size * fast_julia_image_size) {
             Pixel.midX = Pixel.midY = -fast_julia_image_size / 2;
@@ -106,10 +108,10 @@ public class CircularBruteForceRender extends TaskRender {
 
             if(hasSuccessiveRefinement) {
                 if(TaskRender.SUCCESSIVE_REFINEMENT_SQUARE_RECT_SPLIT_ALGORITHM > 0) {
-                    CircularSuccessiveRefinementGuessing2Render.initCoordinatesFastJulia(true);
+                    PatternedSuccessiveRefinementGuessing2Render.initCoordinatesFastJulia(true);
                 }
                 else {
-                    CircularSuccessiveRefinementGuessingRender.initCoordinatesFastJulia(true);
+                    PatternedSuccessiveRefinementGuessingRender.initCoordinatesFastJulia(true);
                 }
             }
         }
@@ -117,13 +119,15 @@ public class CircularBruteForceRender extends TaskRender {
 
         public static void initCoordinates(int width, int height, boolean zoom_to_cursor, boolean doSort, boolean hasSuccessiveRefinement) {
 
-            Pixel.COMPARE_ALG = TaskRender.CIRCULAR_COMPARE_ALG;
-            Pixel.REVERT = TaskRender.CIRCULAR_REVERT_ALG;
-            Pixel.n = TaskRender.CIRCULAR_N;
+            Pixel.COMPARE_ALG = TaskRender.PATTERN_COMPARE_ALG;
+            Pixel.REVERT = TaskRender.PATTERN_REVERT_ALG;
+            Pixel.n = TaskRender.PATTERN_N;
             Pixel.nreciprocal = 1 / Pixel.n;
             Pixel.useCustom = zoom_to_cursor;
-            Pixel.REPEAT = TaskRender.CIRCULAR_REPEAT_ALG;
-            Pixel.SPACING = Math.PI / TaskRender.CIRCULAR_REPEAT_SPACING;
+            Pixel.REPEAT = TaskRender.PATTERN_REPEAT_ALG;
+            Pixel.SPACING = Math.PI / TaskRender.PATTERN_REPEAT_SPACING;
+            Pixel.CENTER = TaskRender.PATTERN_CENTER;
+            Pixel.WIDTH = width;
 
 
             if(coordinates == null || coordinates_width != width || coordinates_height != height) {
@@ -168,10 +172,10 @@ public class CircularBruteForceRender extends TaskRender {
 
                 if(hasSuccessiveRefinement) {
                     if(TaskRender.SUCCESSIVE_REFINEMENT_SQUARE_RECT_SPLIT_ALGORITHM > 0) {
-                        CircularSuccessiveRefinementGuessing2Render.initCoordinates(true);
+                        PatternedSuccessiveRefinementGuessing2Render.initCoordinates(true);
                     }
                     else {
-                        CircularSuccessiveRefinementGuessingRender.initCoordinates(true);
+                        PatternedSuccessiveRefinementGuessingRender.initCoordinates(true);
                     }
                 }
             }
@@ -201,10 +205,10 @@ public class CircularBruteForceRender extends TaskRender {
 
                 if(hasSuccessiveRefinement) {
                     if(TaskRender.SUCCESSIVE_REFINEMENT_SQUARE_RECT_SPLIT_ALGORITHM > 0) {
-                        CircularSuccessiveRefinementGuessing2Render.initCoordinates(true);
+                        PatternedSuccessiveRefinementGuessing2Render.initCoordinates(true);
                     }
                     else {
-                        CircularSuccessiveRefinementGuessingRender.initCoordinates(true);
+                        PatternedSuccessiveRefinementGuessingRender.initCoordinates(true);
                     }
                 }
             }
@@ -224,22 +228,20 @@ public class CircularBruteForceRender extends TaskRender {
 
         public static void clear() {
             coordinates = null;
-            CircularSuccessiveRefinementGuessingRender.CoordinatesPerLevel = null;
-            CircularSuccessiveRefinementGuessing2Render.CoordinatesPerLevel = null;
+            PatternedSuccessiveRefinementGuessingRender.CoordinatesPerLevel = null;
+            PatternedSuccessiveRefinementGuessing2Render.CoordinatesPerLevel = null;
         }
 
         public static void clearFastJulia() {
             coordinatesFastJulia = null;
-            CircularSuccessiveRefinementGuessingRender.CoordinatesPerLevelFastJulia = null;
-            CircularSuccessiveRefinementGuessing2Render.CoordinatesPerLevelFastJulia = null;
+            PatternedSuccessiveRefinementGuessingRender.CoordinatesPerLevelFastJulia = null;
+            PatternedSuccessiveRefinementGuessing2Render.CoordinatesPerLevelFastJulia = null;
         }
 
         @Override
         protected void render(int image_width, int image_height, boolean polar) {
 
             Location location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_width, image_height, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
-
-            int pixel_percent = (image_width * image_height) / 100;
 
             //Better brute force
             int x, y, coordinatesLoc, loc;
@@ -276,13 +278,10 @@ public class CircularBruteForceRender extends TaskRender {
                         task_calculated++;
                     }
 
-                    rendering_done++;
+                    rendering_done_per_task[taskId]++;
                 }
 
-                if(rendering_done / pixel_percent >= 1) {
-                    update(rendering_done);
-                    rendering_done = 0;
-                }
+                updateProgress();
 
             } while(true);
 
@@ -307,8 +306,6 @@ public class CircularBruteForceRender extends TaskRender {
         int supersampling_num = getExtraSamples(aaSamplesIndex, aaMethod);
         location.createAntialiasingSteps(aaMethod == 5, useJitter, supersampling_num);
 
-        int pixel_percent = (image_width * image_height) / 100;
-
         //better Brute force with antialiasing
         int x, y, loc, coordinatesLoc;
         int color;
@@ -321,7 +318,7 @@ public class CircularBruteForceRender extends TaskRender {
 
         AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(totalSamples, aaMethod, aaAvgWithMean, colorSpace, fs.aaSigmaR, fs.aaSigmaS);
 
-        aa.setNeedsPostProcessing(needsPostProcessing());
+        aa.setNeedsAllSamples(needsPostProcessing());
 
         boolean storeExtraData = pixelData != null;
 
@@ -377,14 +374,11 @@ public class CircularBruteForceRender extends TaskRender {
 
                 rgbs[loc] = aa.getColor();
 
-                rendering_done++;
+                rendering_done_per_task[taskId]++;
                 task_calculated++;
             }
 
-            if (rendering_done / pixel_percent >= 1) {
-                update(rendering_done);
-                rendering_done = 0;
-            }
+            updateProgress();
 
         } while (true);
 
@@ -401,8 +395,6 @@ public class CircularBruteForceRender extends TaskRender {
     protected void renderDomain(int image_width, int image_height, boolean polar) {
 
         Location location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_width, image_height, circle_period, rotation_center, rotation_vals, fractal, js, polar, false);
-
-        int pixel_percent = (image_width * image_height) / 100;
 
         //Better brute force
         int x, y, coordinatesLoc, loc;
@@ -439,13 +431,10 @@ public class CircularBruteForceRender extends TaskRender {
                     task_calculated++;
                 }
 
-                rendering_done++;
+                rendering_done_per_task[taskId]++;
             }
 
-            if (rendering_done / pixel_percent >= 1) {
-                update(rendering_done);
-                rendering_done = 0;
-            }
+            updateProgress();
 
         } while (true);
 
@@ -468,8 +457,6 @@ public class CircularBruteForceRender extends TaskRender {
         int supersampling_num = getExtraSamples(aaSamplesIndex, aaMethod);
         location.createAntialiasingSteps(aaMethod == 5, useJitter, supersampling_num);
 
-        int pixel_percent = (image_width * image_height) / 100;
-
         //better Brute force with antialiasing
         int x, y, loc, coordinatesLoc;
         int color;
@@ -488,7 +475,7 @@ public class CircularBruteForceRender extends TaskRender {
         boolean escaped_val;
         double f_val;
 
-        aa.setNeedsPostProcessing(needsPostProcessing());
+        aa.setNeedsAllSamples(needsPostProcessing());
 
         boolean storeExtraData = pixelData != null;
 
@@ -537,14 +524,11 @@ public class CircularBruteForceRender extends TaskRender {
 
                 rgbs[loc] = aa.getColor();
 
-                rendering_done++;
+                rendering_done_per_task[taskId]++;
                 task_calculated++;
             }
 
-            if(rendering_done / pixel_percent >= 1) {
-                update(rendering_done);
-                rendering_done = 0;
-            }
+            updateProgress();
 
         } while(true);
 
@@ -651,7 +635,7 @@ public class CircularBruteForceRender extends TaskRender {
         boolean escaped_val;
         double f_val;
 
-        aa.setNeedsPostProcessing(needsPostProcessing());
+        aa.setNeedsAllSamples(needsPostProcessing());
 
         boolean storeExtraData = pixelData_fast_julia != null;
 
@@ -725,7 +709,7 @@ public class CircularBruteForceRender extends TaskRender {
 
         if(aa != null) {
             modified = new int[aa.getTotalSamples()];
-            aa.setNeedsPostProcessing(false);
+            aa.setNeedsAllSamples(false);
         }
 
         int x, y, loc, coordinatesLoc;
@@ -765,12 +749,10 @@ public class CircularBruteForceRender extends TaskRender {
         int totalSamples = supersampling_num + 1;
         AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(totalSamples, aaMethod, aaAvgWithMean, colorSpace, fs.aaSigmaR, fs.aaSigmaS);
 
-        aa.setNeedsPostProcessing(needsPostProcessing());
+        aa.setNeedsAllSamples(needsPostProcessing());
 
         int loc;
         int condition = image_width * image_height;
-
-        int pixel_percent = (image_width * image_height) / 100;
 
         int color, x, y, coordinatesLoc;
         PixelExtraData data;
@@ -809,14 +791,11 @@ public class CircularBruteForceRender extends TaskRender {
 
                 rgbs[loc] = aa.getColor();
 
-                rendering_done++;
+                rendering_done_per_task[taskId]++;
                 task_completed++;
             }
 
-            if (rendering_done / pixel_percent >= 1) {
-                update(rendering_done);
-                rendering_done = 0;
-            }
+            updateProgress();
 
         } while(true);
 
@@ -828,8 +807,6 @@ public class CircularBruteForceRender extends TaskRender {
 
     @Override
     protected void changePalette(int image_width, int image_height) throws StopSuccessiveRefinementException {
-
-        int pixel_percent = (image_width * image_height) / 100;
 
         int x, y, loc, coordinatesLoc;
         int condition = image_width * image_height;
@@ -858,14 +835,11 @@ public class CircularBruteForceRender extends TaskRender {
                     rgbs[loc] = getStandardColor(image_iterations[loc], escaped[loc]);
                 }
 
-                rendering_done++;
+                rendering_done_per_task[taskId]++;
                 task_completed++;
             }
 
-            if (rendering_done / pixel_percent >= 1) {
-                update(rendering_done);
-                rendering_done = 0;
-            }
+            updateProgress();
 
         } while(true);
 
@@ -1077,7 +1051,7 @@ public class CircularBruteForceRender extends TaskRender {
     }
 
     @Override
-    public boolean hasCircularLogic() {
+    public boolean hasPatternedLogic() {
         return true;
     }
 

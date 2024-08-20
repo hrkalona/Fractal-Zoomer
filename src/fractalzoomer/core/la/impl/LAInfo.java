@@ -121,7 +121,7 @@ public class LAInfo extends LAInfoBase {
         out.RefRe = RefRe;
         out.RefIm = RefIm;
 
-        return out.LAThreshold < LAThreshold * Stage0PeriodDetectionThreshold;
+        return out.LAThreshold < LAThreshold * Stage0DipDetectionThreshold;
     }
 
     @Override
@@ -181,7 +181,7 @@ public class LAInfo extends LAInfoBase {
             throw new InvalidCalculationException("Invalid calculations");
         }
 
-        return temp < LAThreshold * PeriodDetectionThreshold;
+        return temp < LAThreshold * DipDetectionThreshold;
     }
 
     @Override

@@ -1,4 +1,4 @@
-package fractalzoomer.utils;
+package fractalzoomer.utils.big_arrays;
 
 import java.lang.reflect.Array;
 
@@ -83,7 +83,7 @@ public class BigArray<T> {
         BigArray<Double> b = new BigArray<>(Double.class, 400000000L);
 
         for(int i = 0; i < b.length; i++) {
-            b.set(i, new Double(i + 1));
+            b.set(i, i + 1.0);
         }
 
         b.resize(10);

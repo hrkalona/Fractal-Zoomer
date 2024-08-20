@@ -1270,6 +1270,7 @@ public final class Complex extends GenericComplex {
     /*
      *  -Real + Imaginary i
      */
+    @Override
     public final Complex negate_re() {
 
         return new Complex(-re, im);
@@ -1279,6 +1280,7 @@ public final class Complex extends GenericComplex {
     /*
      *  z = -Real + Imaginary i
      */
+    @Override
     public final Complex negate_re_mutable() {
 
         re = -re;
@@ -2929,6 +2931,7 @@ public final class Complex extends GenericComplex {
     /*
      *  z^3
      */
+    @Override
     public final Complex cubeFast(NormComponents normComponents) {
 
         double temp = (double) normComponents.reSqr;

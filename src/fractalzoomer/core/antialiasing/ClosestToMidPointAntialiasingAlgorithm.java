@@ -8,7 +8,6 @@ public class ClosestToMidPointAntialiasingAlgorithm extends AntialiasingAlgorith
     private int[] redValues;
     private int[] greenValues;
     private int[] blueValues;
-    private int index;
     private boolean avgWithMean;
     private int minRed, maxRed;
     private int minGreen, maxGreen;
@@ -22,7 +21,6 @@ public class ClosestToMidPointAntialiasingAlgorithm extends AntialiasingAlgorith
         redValues = new int[totalSamples];
         greenValues = new int[totalSamples];
         blueValues = new int[totalSamples];
-        index = 0;
         this.avgWithMean = avgWithMean;
         minRed = Integer.MAX_VALUE;
         minGreen = Integer.MAX_VALUE;
@@ -44,11 +42,11 @@ public class ClosestToMidPointAntialiasingAlgorithm extends AntialiasingAlgorith
             blueSum = blue;
         }
 
-        index = 0;
-        redValues[index] = red;
-        greenValues[index] = green;
-        blueValues[index] = blue;
-        index++;
+        addedSamples = 0;
+        redValues[addedSamples] = red;
+        greenValues[addedSamples] = green;
+        blueValues[addedSamples] = blue;
+        addedSamples = 1;
 
         minRed = maxRed = red;
         minGreen = maxGreen = green;
@@ -66,10 +64,10 @@ public class ClosestToMidPointAntialiasingAlgorithm extends AntialiasingAlgorith
             blueSum += blue;
         }
 
-        redValues[index] = red;
-        greenValues[index] = green;
-        blueValues[index] = blue;
-        index++;
+        redValues[addedSamples] = red;
+        greenValues[addedSamples] = green;
+        blueValues[addedSamples] = blue;
+        addedSamples++;
 
         if(red < minRed) {
             minRed = red;
@@ -96,6 +94,9 @@ public class ClosestToMidPointAntialiasingAlgorithm extends AntialiasingAlgorith
 
     @Override
     public int getColor() {
+        if(addedSamples != totalSamples) {
+            return 0xff000000;
+        }
 
         double avgRed = (minRed + maxRed) * 0.5;
         double avgGreen = (minGreen + maxGreen) * 0.5;

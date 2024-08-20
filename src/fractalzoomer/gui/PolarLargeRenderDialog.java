@@ -1,7 +1,7 @@
 
 package fractalzoomer.gui;
 
-import fractalzoomer.main.ImageExpanderWindow;
+import fractalzoomer.main.MinimalRendererWindow;
 import fractalzoomer.main.MainWindow;
 
 import javax.swing.*;
@@ -14,10 +14,10 @@ import java.awt.event.WindowEvent;
  */
 public class PolarLargeRenderDialog extends JDialog {
 
-    private ImageExpanderWindow ptra;
+    private MinimalRendererWindow ptra;
     private JOptionPane optionPane;
 
-    public PolarLargeRenderDialog(ImageExpanderWindow ptr, int polar_large_image_tiles, int polar_orientation) {
+    public PolarLargeRenderDialog(MinimalRendererWindow ptr, int polar_large_image_tiles, int polar_orientation) {
         super(ptr);
         
         ptra = ptr;

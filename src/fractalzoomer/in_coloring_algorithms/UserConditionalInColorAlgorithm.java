@@ -293,9 +293,11 @@ public class UserConditionalInColorAlgorithm extends InColorAlgorithm {
             parser[0].setPPvalue(((Complex)object[2]));
         }
 
-        for(int i = 0; i < Parser.EXTRA_VARS; i++) {
-            if(parser[0].foundVar(i)) {
-                parser[0].setVarsvalue(i, globalVars[i]);
+        if(parser[0].foundAnyVar()) {
+            for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+                if (parser[0].foundVar(i)) {
+                    parser[0].setVarsvalue(i, globalVars[i]);
+                }
             }
         }
 
@@ -329,9 +331,11 @@ public class UserConditionalInColorAlgorithm extends InColorAlgorithm {
             parser[1].setPPvalue(((Complex)object[2]));
         }
 
-        for(int i = 0; i < Parser.EXTRA_VARS; i++) {
-            if(parser[1].foundVar(i)) {
-                parser[1].setVarsvalue(i, globalVars[i]);
+        if(parser[1].foundAnyVar()) {
+            for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+                if (parser[1].foundVar(i)) {
+                    parser[1].setVarsvalue(i, globalVars[i]);
+                }
             }
         }
 
@@ -366,9 +370,11 @@ public class UserConditionalInColorAlgorithm extends InColorAlgorithm {
                 parser2[0].setPPvalue(((Complex)object[2]));
             }
 
-            for(int i = 0; i < Parser.EXTRA_VARS; i++) {
-                if(parser2[0].foundVar(i)) {
-                    parser2[0].setVarsvalue(i, globalVars[i]);
+            if(parser2[0].foundAnyVar()) {
+                for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+                    if (parser2[0].foundVar(i)) {
+                        parser2[0].setVarsvalue(i, globalVars[i]);
+                    }
                 }
             }
 
@@ -416,10 +422,12 @@ public class UserConditionalInColorAlgorithm extends InColorAlgorithm {
             if(parser2[1].foundPP()) {
                 parser2[1].setPPvalue(((Complex)object[2]));
             }
-            
-            for(int i = 0; i < Parser.EXTRA_VARS; i++) {
-                if(parser2[1].foundVar(i)) {
-                    parser2[1].setVarsvalue(i, globalVars[i]);
+
+            if(parser2[1].foundAnyVar()) {
+                for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+                    if (parser2[1].foundVar(i)) {
+                        parser2[1].setVarsvalue(i, globalVars[i]);
+                    }
                 }
             }
 
@@ -467,10 +475,12 @@ public class UserConditionalInColorAlgorithm extends InColorAlgorithm {
             if(parser2[2].foundPP()) {
                 parser2[2].setPPvalue(((Complex)object[2]));
             }
-            
-            for(int i = 0; i < Parser.EXTRA_VARS; i++) {
-                if(parser2[2].foundVar(i)) {
-                    parser2[2].setVarsvalue(i, globalVars[i]);
+
+            if(parser2[2].foundAnyVar()) {
+                for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+                    if (parser2[2].foundVar(i)) {
+                        parser2[2].setVarsvalue(i, globalVars[i]);
+                    }
                 }
             }
 

@@ -289,7 +289,7 @@ public class Multiwave {
         g = ((((g * s_color) + s_grey) * l_color) + l_white) * 255;
         b = ((((b * s_color) + s_grey) * l_color) + l_white) * 255;
 
-        int rgb[] = new int[3];
+        int[] rgb = new int[3];
         rgb[0] = (int)(Math.floor(r));
         rgb[1] = (int)(Math.floor(g));
         rgb[2] = (int)(Math.floor(b));
@@ -550,21 +550,6 @@ public class Multiwave {
 
     }
 
-
-    private static double mapping(double x, Integer mapping) {
-        if(mapping == MAPPING_NORMAL) {
-            return x;
-        }
-        else if(mapping == MAPPING_SQUARE) {
-            return x * x;
-        }
-        else if (mapping == MAPPING_SQRT) {
-            return Math.sqrt(x);
-        } else {
-            return Math.log(x);
-        }
-    }
-
     private static double[] blend(int blend, double[] hsl1, double[] hsl2) {
         if(blend == HSL_BIAS) {
             return hslBias(hsl1, hsl2);
@@ -648,6 +633,20 @@ public class Multiwave {
             double fval2 = mapping(fval, mapping);
             fval2 = Math.max(start, Math.min(end, fval2));
             return fastRem(fval2 - start2, period) / period;
+        }
+
+        private static double mapping(double x, Integer mapping) {
+            if(mapping == MAPPING_NORMAL) {
+                return x;
+            }
+            else if(mapping == MAPPING_SQUARE) {
+                return x * x;
+            }
+            else if (mapping == MAPPING_SQRT) {
+                return Math.sqrt(x);
+            } else {
+                return Math.log(x);
+            }
         }
     }
 

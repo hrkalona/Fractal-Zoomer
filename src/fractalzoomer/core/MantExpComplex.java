@@ -191,10 +191,27 @@ public class MantExpComplex extends GenericComplex {
     }
 
     private void setMantexp(MantExp realIn, MantExp imagIn) {
+        long realExp = realIn.exp;
+        long imagExp = imagIn.exp;
 
-        exp = Math.max(realIn.exp, imagIn.exp);
-        mantissaReal = realIn.mantissa * MantExp.getMultiplier(realIn.exp-exp);
-        mantissaImag = imagIn.mantissa * MantExp.getMultiplier(imagIn.exp-exp);
+        exp = realExp > imagExp ? realExp : imagExp;
+        mantissaReal = realIn.mantissa * MantExp.getMultiplier(realExp - exp);
+        mantissaImag = imagIn.mantissa * MantExp.getMultiplier(imagExp - exp);
+
+//        long adjustment_re = (exp - realExp) << 52;
+//        long adjustment_im = (exp - imagExp) << 52;
+//
+//        long re_i64 = Double.doubleToRawLongBits(realIn.mantissa);
+//        long im_i64 = Double.doubleToRawLongBits(imagIn.mantissa);
+//        long new_re_i64 = re_i64 - adjustment_re;
+//        long new_im_i64 = im_i64 - adjustment_im;
+//
+//        new_re_i64 &= ~(new_re_i64 ^ re_i64) >> 63;
+//        new_im_i64 &= ~(new_im_i64 ^ im_i64) >> 63;
+//
+//        mantissaReal = Double.longBitsToDouble(new_re_i64);
+//        mantissaImag = Double.longBitsToDouble(new_im_i64);
+
 
         /*if (realIn.exp == imagIn.exp) {
             exp = realIn.exp;
@@ -225,6 +242,62 @@ public class MantExpComplex extends GenericComplex {
     }
 
     public MantExpComplex plus(MantExpComplex value) {
+
+//        if(mantissaReal == 0 && mantissaImag == 0) {
+//            return new MantExpComplex(value.exp, value.mantissaReal, value.mantissaImag);
+//        }
+//
+//        if(value.mantissaReal == 0 && value.mantissaImag == 0) {
+//            return new MantExpComplex(exp, mantissaReal, mantissaImag);
+//        }
+
+        long expDiff = exp - value.exp;
+
+        if(expDiff >= MantExp.EXPONENT_DIFF_IGNORED) {
+            return new MantExpComplex(exp, mantissaReal, mantissaImag);
+        } else if(expDiff >= 0) {
+            double mul = MantExp.getMultiplier(-expDiff);
+            return new MantExpComplex(exp, mantissaReal + value.mantissaReal * mul, mantissaImag + value.mantissaImag * mul, true);
+            /*long expDiffShift = expDiff << 52;
+
+            long re_i64 = Double.doubleToRawLongBits(value.mantissaReal);
+            long im_i64 = Double.doubleToRawLongBits(value.mantissaImag);
+//            long new_re_i64 = re_i64 != 0 ? re_i64 - expDiffShift : re_i64;
+//            long new_im_i64 = im_i64 != 0 ? im_i64 - expDiffShift : im_i64;
+            long new_re_i64 = re_i64 - expDiffShift;
+            long new_im_i64 = im_i64 - expDiffShift;
+
+            new_re_i64 &= ~(new_re_i64 ^ re_i64) >> 63;
+            new_im_i64 &= ~(new_im_i64 ^ im_i64) >> 63;
+
+            return new MantExpComplex(exp, mantissaReal + Double.longBitsToDouble(new_re_i64), mantissaImag + Double.longBitsToDouble(new_im_i64), true);*/
+        }
+        /*else if(expDiff == 0) {
+            return new MantExpComplex(exp, mantissaReal + value.mantissaReal, mantissaImag + value.mantissaImag);
+        }*/
+        else if(expDiff > MantExp.MINUS_EXPONENT_DIFF_IGNORED) {
+            double mul = MantExp.getMultiplier(expDiff);
+            return new MantExpComplex(value.exp, mantissaReal * mul + value.mantissaReal, mantissaImag * mul + value.mantissaImag, true);
+            /*long expDiffShift = expDiff << 52;
+
+            long re_i64 = Double.doubleToRawLongBits(mantissaReal);
+            long im_i64 = Double.doubleToRawLongBits(mantissaImag);
+//            long new_re_i64 = re_i64 != 0 ? re_i64 - expDiffShift : re_i64;
+//            long new_im_i64 = im_i64 != 0 ? im_i64 - expDiffShift : im_i64;
+            long new_re_i64 = re_i64 + expDiffShift;
+            long new_im_i64 = im_i64 + expDiffShift;
+
+            new_re_i64 &= ~(new_re_i64 ^ re_i64) >> 63;
+            new_im_i64 &= ~(new_im_i64 ^ im_i64) >> 63;
+
+            return new MantExpComplex(value.exp, value.mantissaReal + Double.longBitsToDouble(new_re_i64), value.mantissaImag + Double.longBitsToDouble(new_im_i64), true);*/
+        } else {
+            return new MantExpComplex(value.exp, value.mantissaReal, value.mantissaImag);
+        }
+
+    }
+
+    public MantExpComplex plusOLD(MantExpComplex value) {
 
 //        if(mantissaReal == 0 && mantissaImag == 0) {
 //            return new MantExpComplex(value.exp, value.mantissaReal, value.mantissaImag);
@@ -322,16 +395,46 @@ public class MantExpComplex extends GenericComplex {
             double mul = MantExp.getMultiplier(-expDiff);
             mantissaReal = mantissaReal + value.mantissaReal * mul;
             mantissaImag = mantissaImag + value.mantissaImag * mul;
+
+            /*long expDiffShift = expDiff << 52;
+
+            long re_i64 = Double.doubleToRawLongBits(value.mantissaReal);
+            long im_i64 = Double.doubleToRawLongBits(value.mantissaImag);
+//            long new_re_i64 = re_i64 != 0 ? re_i64 - expDiffShift : re_i64;
+//            long new_im_i64 = im_i64 != 0 ? im_i64 - expDiffShift : im_i64;
+            long new_re_i64 = re_i64 - expDiffShift;
+            long new_im_i64 = im_i64 - expDiffShift;
+
+            new_re_i64 &= ~(new_re_i64 ^ re_i64) >> 63;
+            new_im_i64 &= ~(new_im_i64 ^ im_i64) >> 63;
+
+            mantissaReal = mantissaReal + Double.longBitsToDouble(new_re_i64);
+            mantissaImag = mantissaImag + Double.longBitsToDouble(new_im_i64);*/
         }
         /*else if(expDiff == 0) {
             mantissaReal = mantissaReal + value.mantissaReal;
             mantissaImag = mantissaImag + value.mantissaImag;
         }*/
         else if(expDiff > MantExp.MINUS_EXPONENT_DIFF_IGNORED) {
-            double mul = MantExp.getMultiplier(expDiff);
             exp = value.exp;
+            double mul = MantExp.getMultiplier(expDiff);
             mantissaReal = mantissaReal * mul + value.mantissaReal;
             mantissaImag =  mantissaImag * mul + value.mantissaImag;
+
+            /*long expDiffShift = expDiff << 52;
+
+            long re_i64 = Double.doubleToRawLongBits(mantissaReal);
+            long im_i64 = Double.doubleToRawLongBits(mantissaImag);
+//            long new_re_i64 = re_i64 != 0 ? re_i64 - expDiffShift : re_i64;
+//            long new_im_i64 = im_i64 != 0 ? im_i64 - expDiffShift : im_i64;
+            long new_re_i64 = re_i64 + expDiffShift;
+            long new_im_i64 = im_i64 + expDiffShift;
+
+            new_re_i64 &= ~(new_re_i64 ^ re_i64) >> 63;
+            new_im_i64 &= ~(new_im_i64 ^ im_i64) >> 63;
+
+            mantissaReal = value.mantissaReal + Double.longBitsToDouble(new_re_i64);
+            mantissaImag = value.mantissaImag + Double.longBitsToDouble(new_im_i64);*/
         } else {
             exp = value.exp;
             mantissaReal = value.mantissaReal;
@@ -791,18 +894,47 @@ public class MantExpComplex extends GenericComplex {
             return;
         }
 
-        long bitsRe = Double.doubleToRawLongBits(mantissaReal);
-        long expDiffRe = ((bitsRe & 0x7FF0000000000000L) >> 52);
+//        long bitsRe = Double.doubleToRawLongBits(mantissaReal);
+//        long expDiffRe = ((bitsRe & 0x7FF0000000000000L) >> 52);
+//
+//        long bitsIm = Double.doubleToRawLongBits(mantissaImag);
+//        long expDiffIm = ((bitsIm & 0x7FF0000000000000L) >> 52);
+//
+//        long expDiff = (expDiffRe > expDiffIm ? expDiffRe : expDiffIm) + MantExp.MIN_SMALL_EXPONENT;
+//
+//        double mul = MantExp.getMultiplier(-expDiff);
+//        mantissaReal *= mul;
+//        mantissaImag *= mul;
+//        exp += expDiff;
 
-        long bitsIm = Double.doubleToRawLongBits(mantissaImag);
-        long expDiffIm = ((bitsIm & 0x7FF0000000000000L) >> 52);
 
-        long expDiff = Math.max(expDiffRe, expDiffIm) + MantExp.MIN_SMALL_EXPONENT;
+        long re_i64 = Double.doubleToRawLongBits(mantissaReal);
+        long im_i64 = Double.doubleToRawLongBits(mantissaImag);
 
-        double mul = MantExp.getMultiplier(-expDiff);
-        mantissaReal *= mul;
-        mantissaImag *= mul;
-        exp += expDiff;
+        long abs_re_i64 = re_i64 & 0x7fffffffffffffffL;
+        long abs_im_i64 = im_i64 & 0x7fffffffffffffffL;
+
+        long max_i64 = abs_re_i64 > abs_im_i64 ? abs_re_i64 : abs_im_i64;
+
+        long adjustment = (max_i64 & 0x7FF0000000000000L) - 0x3FF0000000000000L;
+
+        exp += adjustment >> 52;
+
+        long new_re_i64 = re_i64 - adjustment;
+        long new_im_i64 = im_i64 - adjustment;
+
+        new_re_i64 &= ~(new_re_i64 ^ re_i64) >> 63;
+        new_im_i64 &= ~(new_im_i64 ^ im_i64) >> 63;
+        // Equivalent to:
+        // if (int64_t(new_re_i64 ^ re_i64) < 0) new_re_i64 = 0;
+        // if (int64_t(new_im_i64 ^ im_i64) < 0) new_im_i64 = 0;
+        // or
+        // if ((new_re_i64 >> 63) != (re_i64 >> 63)) new_re_i64 = 0;
+        // if ((new_im_i64 >> 63) != (im_i64 >> 63)) new_im_i64 = 0;
+
+        mantissaReal = Double.longBitsToDouble(new_re_i64);
+        mantissaImag = Double.longBitsToDouble(new_im_i64);
+
     }
 
 
@@ -1233,7 +1365,21 @@ public class MantExpComplex extends GenericComplex {
     }
 
     public MantExp chebyshevNorm() {
-        return MantExp.maxBothPositive(getRe().abs(), getIm().abs());
+        return MantExp.maxBothPositive(new MantExp(exp, Math.abs(mantissaReal)), new MantExp(exp, Math.abs(mantissaImag)));
+    }
+
+    @Override
+    public MantExpComplex negate_re() {
+
+        return new MantExpComplex(exp, -mantissaReal, mantissaImag);
+
+    }
+    @Override
+    public MantExpComplex negate_re_mutable() {
+
+        mantissaReal = -mantissaReal;
+        return this;
+
     }
 
     @Override
@@ -1262,9 +1408,24 @@ public class MantExpComplex extends GenericComplex {
             expIm = MantExp.MIN_BIG_EXPONENT;
         }
 
-        exp = Math.max(expRe, expIm);
-        mantissaReal = valRe * MantExp.getMultiplier(expRe-exp);
-        mantissaImag = valIm * MantExp.getMultiplier(expIm-exp);
+        exp = expRe > expIm ? expRe : expIm;
+        mantissaReal = valRe * MantExp.getMultiplier(expRe - exp);
+        mantissaImag = valIm * MantExp.getMultiplier(expIm - exp);
+
+
+//        long adjustment_re = (exp - expRe) << 52;
+//        long adjustment_im = (exp - expIm) << 52;
+//
+//        long re_i64 = Double.doubleToRawLongBits(valRe);
+//        long im_i64 = Double.doubleToRawLongBits(valIm);
+//        long new_re_i64 = re_i64 - adjustment_re;
+//        long new_im_i64 = im_i64 - adjustment_im;
+//
+//        new_re_i64 &= ~(new_re_i64 ^ re_i64) >> 63;
+//        new_im_i64 &= ~(new_im_i64 ^ im_i64) >> 63;
+//
+//        mantissaReal = Double.longBitsToDouble(new_re_i64);
+//        mantissaImag = Double.longBitsToDouble(new_im_i64);
     }
 
     public boolean isInfinite() {

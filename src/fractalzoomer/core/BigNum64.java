@@ -783,7 +783,6 @@ public class BigNum64 extends BigNum {
         // Bits 62-52 (the bits that are selected by the mask 0x7ff0000000000000L) represent the exponent.
         // Bits 51-0 (the bits that are selected by the mask 0x000fffffffffffffL) represent the significand (sometimes called the mantissa) of the floating-point number.
 
-        double res;
         if(sign == -1) {
             return Double.longBitsToDouble( (0x8000000000000000L) | (mantissa & 0xFFFFFFFFFFFFFL) | ((finalScale + Double.MAX_EXPONENT) << 52));
         }

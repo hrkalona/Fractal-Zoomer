@@ -9,8 +9,6 @@ public class GaussianAntialiasingAlgorithm extends AntialiasingAlgorithm {
     private double SumB2;
     private double SumC2;
 
-    private int sample;
-
     private boolean avgWithMean;
 
     private double[] gaussian_coefficients;
@@ -23,7 +21,6 @@ public class GaussianAntialiasingAlgorithm extends AntialiasingAlgorithm {
         SumA2 = 0;
         SumB2 = 0;
         SumC2 = 0;
-        sample = 0;
         this.gaussian_coefficients = gaussian_coefficients;
         this.avgWithMean = avgWithMean;
     }
@@ -39,11 +36,12 @@ public class GaussianAntialiasingAlgorithm extends AntialiasingAlgorithm {
             SumC2 = result[2];
         }
 
-        sample = 0;
-        double coefficient = gaussian_coefficients[sample];
+        addedSamples = 0;
+        double coefficient = gaussian_coefficients[addedSamples];
         SumA = coefficient * result[0];
         SumB = coefficient * result[1];
         SumC = coefficient * result[2];
+        addedSamples = 1;
     }
 
     @Override
@@ -57,16 +55,21 @@ public class GaussianAntialiasingAlgorithm extends AntialiasingAlgorithm {
             SumC2 += result[2];
         }
 
-        sample++;
-        double coefficient = gaussian_coefficients[sample];
+        double coefficient = gaussian_coefficients[addedSamples];
         SumA += coefficient * result[0];
         SumB += coefficient * result[1];
         SumC += coefficient * result[2];
+
+        addedSamples++;
         return true;
     }
 
     @Override
     public int getColor() {
+        if(addedSamples != totalSamples) {
+            return 0xff000000;
+        }
+
         int[] result = getAveragedColorChannels(SumA, SumB, SumC, SumA2, SumB2, SumC2);
         return  0xff000000 | (result[0] << 16) | (result[1] << 8) | result[2];
     }

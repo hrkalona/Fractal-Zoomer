@@ -1,6 +1,6 @@
 package fractalzoomer.gui;
 
-import fractalzoomer.main.ImageExpanderWindow;
+import fractalzoomer.main.MinimalRendererWindow;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.settings.SettingsFractals;
 
@@ -16,7 +16,7 @@ import java.util.ArrayList;
 
 public class BatchRenderDialog extends JDialog {
     private static final long serialVersionUID = 8403887235484988L;
-    private ImageExpanderWindow ptra2;
+    private MinimalRendererWindow ptra2;
     private JList<String> list;
 
     private JFileChooser file_chooser;
@@ -30,7 +30,7 @@ public class BatchRenderDialog extends JDialog {
 
     private JButton ok;
 
-    public BatchRenderDialog(ImageExpanderWindow ptra) {
+    public BatchRenderDialog(MinimalRendererWindow ptra) {
 
         super();
 
@@ -139,9 +139,7 @@ public class BatchRenderDialog extends JDialog {
 
         settingsLength = new JLabel("Total Files: " + list.getModel().getSize());
 
-        removeSettings.addActionListener(e -> {
-            delete();
-        });
+        removeSettings.addActionListener(e -> delete());
 
         JPanel p = new JPanel();
         p.setBackground(MainWindow.bg_color);
@@ -185,12 +183,7 @@ public class BatchRenderDialog extends JDialog {
 
         JButton cancel = new MyButton("Cancel");
         cancel.setFocusable(false);
-        cancel.addActionListener(e -> {
-
-
-            dispose();
-
-        });
+        cancel.addActionListener(e -> dispose());
 
         buttons.add(cancel);
 
@@ -276,7 +269,7 @@ public class BatchRenderDialog extends JDialog {
 
                     SettingsFractals settings = (SettingsFractals) file_temp.readObject();
 
-                    int version = settings.getVersion();
+                    settings.getVersion();
                     hasLoadedOk.add(true);
                 }
                 catch (Exception ex) {

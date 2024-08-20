@@ -6,9 +6,8 @@ import fractalzoomer.core.TaskRender;
 import fractalzoomer.core.mpfr.MpfrBigNum;
 import fractalzoomer.core.mpir.MpirBigNum;
 import fractalzoomer.functions.Fractal;
+import fractalzoomer.functions.mandelbrot.MandelbarCubed;
 import fractalzoomer.functions.mandelbrot.MandelbrotCubed;
-
-;
 
 public class WorkSpaceData {
     //This is currently implemented for some fractals
@@ -56,7 +55,7 @@ public class WorkSpaceData {
                 tempPvar = new MpfrBigNum();
                 tempPvar2 = new MpfrBigNum();
             }
-            if(f instanceof MandelbrotCubed) {
+            if(f instanceof MandelbrotCubed || f instanceof MandelbarCubed) {
                 temp3 = new MpfrBigNum();
                 temp4 = new MpfrBigNum();
             }
@@ -80,7 +79,7 @@ public class WorkSpaceData {
                 tempPvarp = new MpirBigNum();
                 tempPvar2p = new MpirBigNum();
             }
-            if(f instanceof MandelbrotCubed) {
+            if(f instanceof MandelbrotCubed || f instanceof MandelbarCubed) {
                 temp4p = new MpirBigNum();
             }
 

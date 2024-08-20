@@ -746,6 +746,7 @@ public class MpfrBigNumComplex extends GenericComplex {
 
     }
 
+    @Override
     public final MpfrBigNumComplex cubeFast(NormComponents normComponents) {
 
         MpfrBigNum temp = (MpfrBigNum)normComponents.reSqr;
@@ -1131,6 +1132,7 @@ public class MpfrBigNumComplex extends GenericComplex {
     /*
      *  -Real + Imaginary i
      */
+    @Override
     public final MpfrBigNumComplex negate_re() {
 
         return new MpfrBigNumComplex(re.negate(), new MpfrBigNum(im));
@@ -1140,6 +1142,7 @@ public class MpfrBigNumComplex extends GenericComplex {
     /*
      *  z = -Real + Imaginary i
      */
+    @Override
     public final MpfrBigNumComplex negate_re_mutable() {
 
         re.negate(re);
@@ -2844,10 +2847,7 @@ public class MpfrBigNumComplex extends GenericComplex {
     }
 
     public boolean isNaN() {
-        if(re.isNaN() || im.isNaN()) {
-            return true;
-        }
-        return false;
+        return re.isNaN() || im.isNaN();
     }
 
     /*

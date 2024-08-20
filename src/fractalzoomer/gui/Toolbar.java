@@ -188,7 +188,7 @@ public class Toolbar extends JToolBar {
 
         random_palette_button.addActionListener(e -> ptr.randomPalette());
 
-        add(random_palette_button);;
+        add(random_palette_button);
 
         custom_palette_button2_out = new MyButton();
         custom_palette_button2_out.setIcon(MainWindow.getIcon("palette_outcoloring_direct.png"));

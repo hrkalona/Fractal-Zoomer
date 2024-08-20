@@ -28,8 +28,6 @@ public class BilateralAntialiasingAlgorithm extends AntialiasingAlgorithm {
     private double SumB2;
     private double SumC2;
 
-    private int sample;
-
     private boolean avgWithMean;
 
     private double[] gaussian_coefficients;
@@ -53,7 +51,6 @@ public class BilateralAntialiasingAlgorithm extends AntialiasingAlgorithm {
         CentralA = 0;
         CentralB = 0;
         CentralC = 0;
-        sample = 0;
         combined_coefficient_sumA = 0;
         combined_coefficient_sumB = 0;
         combined_coefficient_sumC = 0;
@@ -91,8 +88,8 @@ public class BilateralAntialiasingAlgorithm extends AntialiasingAlgorithm {
         CentralB = result[1];
         CentralC = result[2];
 
-        sample = 0;
-        double coefficient = gaussian_coefficients[sample];
+        addedSamples = 0;
+        double coefficient = gaussian_coefficients[addedSamples];
 
         double ccA = coefficient;// * similarity(result[0], CentralA);
         double ccB = coefficient;// * similarity(result[1], CentralB);
@@ -105,6 +102,8 @@ public class BilateralAntialiasingAlgorithm extends AntialiasingAlgorithm {
         combined_coefficient_sumA = ccA;
         combined_coefficient_sumB = ccB;
         combined_coefficient_sumC = ccC;
+
+        addedSamples = 1;
     }
 
     private double similarity(double val, double centralVal) {
@@ -130,8 +129,7 @@ public class BilateralAntialiasingAlgorithm extends AntialiasingAlgorithm {
             SumC2 += result[2];
         }
 
-        sample++;
-        double coefficient = gaussian_coefficients[sample];
+        double coefficient = gaussian_coefficients[addedSamples];
 
         double ccA = coefficient * similarity(result[0], CentralA);
         double ccB = coefficient * similarity(result[1], CentralB);
@@ -144,11 +142,17 @@ public class BilateralAntialiasingAlgorithm extends AntialiasingAlgorithm {
         combined_coefficient_sumA += ccA;
         combined_coefficient_sumB += ccB;
         combined_coefficient_sumC += ccC;
+
+        addedSamples++;
         return true;
     }
 
     @Override
     public int getColor() {
+        if(addedSamples != totalSamples) {
+            return 0xff000000;
+        }
+
         int[] result = getAveragedColorChannels(SumA / combined_coefficient_sumA, SumB / combined_coefficient_sumB, SumC / combined_coefficient_sumC, SumA2, SumB2, SumC2);
         return  0xff000000 | (result[0] << 16) | (result[1] << 8) | result[2];
     }

@@ -1,5 +1,5 @@
 
-package fractalzoomer.utils;
+package fractalzoomer.utils.queues;
 
 import java.util.Arrays;
 

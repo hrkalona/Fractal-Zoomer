@@ -109,6 +109,7 @@ public abstract class FractalWithoutConstant extends Fractal {
 
     }
 
+    @Override
     protected Complex iterateFractalDomain(Complex[] complex, Complex pixel) {
 
         iterations = 0;

@@ -28,7 +28,7 @@ public class HistogramColoringDialog extends JDialog {
         ptra = ptr;
 
         scrollPane = new JScrollPane();
-        scrollPane.setPreferredSize(new Dimension(700, 700));
+        scrollPane.setPreferredSize(new Dimension(600, 700));
 
         setTitle("Histogram Coloring");
         setModal(true);

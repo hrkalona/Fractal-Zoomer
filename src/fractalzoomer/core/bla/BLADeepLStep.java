@@ -8,29 +8,21 @@ public class BLADeepLStep extends BLADeep {
     public double Bx;
     public double By;
     public long Bexp;
+    public int l;
 
     public static BLADeep create(MantExp r2, MantExpComplex A, MantExpComplex B, int l) {
         if(TaskRender.MANTEXPCOMPLEX_FORMAT == 1) {
-            return new BLADeepFullLStep(r2, A, B) {
-                @Override
-                public int getL() {
-                    return l;
-                }
-            };
+            return new BLADeepFullLStep(r2, A, B, l);
         }
-        return new BLADeepLStep(r2, A, B) {
-            @Override
-            public int getL() {
-                return l;
-            }
-        };
+        return new BLADeepLStep(r2, A, B, l);
     }
 
-    private BLADeepLStep(MantExp r2, MantExpComplex A, MantExpComplex B) {
+    private BLADeepLStep(MantExp r2, MantExpComplex A, MantExpComplex B, int l) {
         super(r2, A);
         this.Bx = B.getMantissaReal();
         this.By = B.getMantissaImag();
         this.Bexp = B.getExp();
+        this.l = l;
     }
 
     @Override
@@ -60,6 +52,11 @@ public class BLADeepLStep extends BLADeep {
     @Override
     public MantExpComplex getB() {
         return new MantExpComplex(Bexp, Bx, By);
+    }
+
+    @Override
+    public int getL() {
+        return l;
     }
 
 }

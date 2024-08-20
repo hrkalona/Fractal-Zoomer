@@ -54,6 +54,7 @@ public abstract class GenericComplex {
     public GenericComplex cube_mutable(MpirBigNum temp, MpirBigNum temp2, MpirBigNum temp3, MpirBigNum temp4) { return null;}
 
     public GenericComplex squareFast(NormComponents normComponents) { return null;}
+    public GenericComplex cubeFast(NormComponents normComponents) { return null;}
 
     public GenericComplex squareFast_mutable(NormComponents normComponents) { return null;}
     public GenericComplex cubeFast_mutable(NormComponents normComponents) { return null;}
@@ -110,6 +111,10 @@ public abstract class GenericComplex {
     public GenericComplex negative() { return null;}
     public GenericComplex negative_mutable() { return null;}
 
+    public GenericComplex negate_re() { return null;}
+
+    public GenericComplex negate_re_mutable() { return null;}
+
     public GenericComplex plus(Apfloat a) {return null;}
     public GenericComplex plus(int a) {return null;}
     public GenericComplex plus_mutable(int a) {return null;}
@@ -142,7 +147,7 @@ public abstract class GenericComplex {
     public DDComplex toDDComplex() { return null; }
 
 
-    public void set(GenericComplex z) {};
+    public void set(GenericComplex z) {}
 
     public GenericComplex divide(GenericComplex z) {return null;}
 

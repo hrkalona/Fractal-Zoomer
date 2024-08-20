@@ -103,37 +103,37 @@ public class ColorTransferMenu extends MyMenu {
         color_transfer_group.add(color_transfer[MainWindow.LINEAR]);
 
         color_transfer[MainWindow.KF_SQUARE_ROOT] = new JRadioButtonMenuItem(colorTransferNames[MainWindow.KF_SQUARE_ROOT]);
-        color_transfer[MainWindow.KF_SQUARE_ROOT].setToolTipText("Sets the color transfer function to kales fraktaler square root.");
+        color_transfer[MainWindow.KF_SQUARE_ROOT].setToolTipText("Sets the color transfer function to kalles fraktaler square root.");
         color_transfer[MainWindow.KF_SQUARE_ROOT].addActionListener(e -> ptr.setColorTransfer(MainWindow.KF_SQUARE_ROOT, outcoloring));
         add(color_transfer[MainWindow.KF_SQUARE_ROOT]);
         color_transfer_group.add(color_transfer[MainWindow.KF_SQUARE_ROOT]);
 
         color_transfer[MainWindow.KF_CUBE_ROOT] = new JRadioButtonMenuItem(colorTransferNames[MainWindow.KF_CUBE_ROOT]);
-        color_transfer[MainWindow.KF_CUBE_ROOT].setToolTipText("Sets the color transfer function to kales fraktaler cube root.");
+        color_transfer[MainWindow.KF_CUBE_ROOT].setToolTipText("Sets the color transfer function to kalles fraktaler cube root.");
         color_transfer[MainWindow.KF_CUBE_ROOT].addActionListener(e -> ptr.setColorTransfer(MainWindow.KF_CUBE_ROOT, outcoloring));
         add(color_transfer[MainWindow.KF_CUBE_ROOT]);
         color_transfer_group.add(color_transfer[MainWindow.KF_CUBE_ROOT]);
 
         color_transfer[MainWindow.KF_FOURTH_ROOT] = new JRadioButtonMenuItem(colorTransferNames[MainWindow.KF_FOURTH_ROOT]);
-        color_transfer[MainWindow.KF_FOURTH_ROOT].setToolTipText("Sets the color transfer function to kales fraktaler fourth root.");
+        color_transfer[MainWindow.KF_FOURTH_ROOT].setToolTipText("Sets the color transfer function to kalles fraktaler fourth root.");
         color_transfer[MainWindow.KF_FOURTH_ROOT].addActionListener(e -> ptr.setColorTransfer(MainWindow.KF_FOURTH_ROOT, outcoloring));
         add(color_transfer[MainWindow.KF_FOURTH_ROOT]);
         color_transfer_group.add(color_transfer[MainWindow.KF_FOURTH_ROOT]);
 
         color_transfer[MainWindow.KF_LOGARITHM] = new JRadioButtonMenuItem(colorTransferNames[MainWindow.KF_LOGARITHM]);
-        color_transfer[MainWindow.KF_LOGARITHM].setToolTipText("Sets the color transfer function to kales fraktaler logarithm.");
+        color_transfer[MainWindow.KF_LOGARITHM].setToolTipText("Sets the color transfer function to kalles fraktaler logarithm.");
         color_transfer[MainWindow.KF_LOGARITHM].addActionListener(e -> ptr.setColorTransfer(MainWindow.KF_LOGARITHM, outcoloring));
         add(color_transfer[MainWindow.KF_LOGARITHM]);
         color_transfer_group.add(color_transfer[MainWindow.KF_LOGARITHM]);
 
         color_transfer[MainWindow.KF_LOG_LOG] = new JRadioButtonMenuItem(colorTransferNames[MainWindow.KF_LOG_LOG]);
-        color_transfer[MainWindow.KF_LOG_LOG].setToolTipText("Sets the color transfer function to kales fraktaler log log.");
+        color_transfer[MainWindow.KF_LOG_LOG].setToolTipText("Sets the color transfer function to kalles fraktaler log log.");
         color_transfer[MainWindow.KF_LOG_LOG].addActionListener(e -> ptr.setColorTransfer(MainWindow.KF_LOG_LOG, outcoloring));
         add(color_transfer[MainWindow.KF_LOG_LOG]);
         color_transfer_group.add(color_transfer[MainWindow.KF_LOG_LOG]);
 
         color_transfer[MainWindow.KF_ATAN] = new JRadioButtonMenuItem(colorTransferNames[MainWindow.KF_ATAN]);
-        color_transfer[MainWindow.KF_ATAN].setToolTipText("Sets the color transfer function to kales fraktaler atan.");
+        color_transfer[MainWindow.KF_ATAN].setToolTipText("Sets the color transfer function to kalles fraktaler atan.");
         color_transfer[MainWindow.KF_ATAN].addActionListener(e -> ptr.setColorTransfer(MainWindow.KF_ATAN, outcoloring));
         add(color_transfer[MainWindow.KF_ATAN]);
         color_transfer_group.add(color_transfer[MainWindow.KF_ATAN]);

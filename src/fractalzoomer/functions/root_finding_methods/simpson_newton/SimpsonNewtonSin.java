@@ -59,7 +59,7 @@ public class SimpsonNewtonSin extends SimpsonNewtonRootFindingMethod {
 
         Complex combined_dfz2 = temp2.cos();
 
-        simpsonNewtonMethod(complex[0], fz, dfz, combined_dfz, combined_dfz2);;
+        simpsonNewtonMethod(complex[0], fz, dfz, combined_dfz, combined_dfz2);
 
     }
 

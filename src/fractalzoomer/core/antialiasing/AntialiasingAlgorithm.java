@@ -8,16 +8,18 @@ public abstract class AntialiasingAlgorithm {
     protected double totalSamplesReciprocal;
 
     protected int totalSamples;
-    protected boolean needsPostProcessing;
+    protected boolean needsAllSamples;
+    protected int addedSamples;
 
     protected AntialiasingAlgorithm(int totalSamples, int colorSpace) {
         this.colorSpace = colorSpace;
         totalSamplesReciprocal = 1.0 / totalSamples;
         this.totalSamples = totalSamples;
+        addedSamples = 0;
     }
 
-    public void setNeedsPostProcessing(boolean needsPostProcessing) {
-        this.needsPostProcessing = needsPostProcessing;
+    public void setNeedsAllSamples(boolean needsAllSamples) {
+        this.needsAllSamples = needsAllSamples;
     }
 
     public abstract void initialize(int color);

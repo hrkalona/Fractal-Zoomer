@@ -21,13 +21,13 @@ public class LAInfoDetection2 extends LAInfo {
     }
 
     @Override
-    protected boolean DetectPeriod(Complex z) {
-        return z.chebyshevNorm() < MinMag * PeriodDetectionThreshold2;
+    protected boolean DetectDip(Complex z) {
+        return z.chebyshevNorm() < MinMag * DipDetectionThreshold2;
     }
 
     @Override
-    protected boolean Stage0DetectPeriod(Complex z) {
-        return z.chebyshevNorm() < MinMag * Stage0PeriodDetectionThreshold2;
+    protected boolean Stage0DetectDip(Complex z) {
+        return z.chebyshevNorm() < MinMag * Stage0DipDetectionThreshold2;
     }
 
     @Override
@@ -69,7 +69,7 @@ public class LAInfoDetection2 extends LAInfo {
 
         out.MinMag = Math.min(ChebyMagz, MinMag);
 
-        return out.MinMag < MinMag * Stage0PeriodDetectionThreshold2;
+        return out.MinMag < MinMag * Stage0DipDetectionThreshold2;
     }
 
     @Override
@@ -136,7 +136,7 @@ public class LAInfoDetection2 extends LAInfo {
         double temp = Math.min (ChebyMagz, MinMag);
         out.MinMag = Math.min (temp, LA.MinMag);
 
-        return temp < MinMag * PeriodDetectionThreshold2;
+        return temp < MinMag * DipDetectionThreshold2;
     }
 
     @Override

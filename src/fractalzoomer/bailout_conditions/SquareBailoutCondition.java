@@ -83,7 +83,7 @@ public class SquareBailoutCondition extends BailoutCondition {
         z.getAbsRe(temp1);
         z.getAbsIm(temp2);
 
-        MpfrBigNum max = temp1.compare(temp2) == 1 ? temp1 : temp2;
+        MpfrBigNum max = MpfrBigNum.max(temp1, temp2);
 
         return max.compare(bound) >= 0;
     }
@@ -93,7 +93,7 @@ public class SquareBailoutCondition extends BailoutCondition {
         z.getAbsRe(temp1p);
         z.getAbsIm(temp2p);
 
-        MpirBigNum max = temp1p.compare(temp2p) == 1 ? temp1p : temp2p;
+        MpirBigNum max = MpirBigNum.max(temp1p, temp2p);
 
         return max.compare(bound) >= 0;
     }
@@ -104,7 +104,7 @@ public class SquareBailoutCondition extends BailoutCondition {
         DoubleDouble absRe = z.getAbsRe();
         DoubleDouble absIm = z.getAbsIm();
 
-        DoubleDouble max = absRe.compareTo(absIm) == 1 ? absRe : absIm;
+        DoubleDouble max = DoubleDouble.max(absRe, absIm);
 
         return max.compareTo(ddcbound) >= 0;
 

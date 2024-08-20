@@ -209,9 +209,11 @@ public class UserTrueColorAlgorithm extends TrueColorAlgorithm {
             parser1.setTrapvalue(new Complex(trap, 0));
         }
 
-        for (int i = 0; i < Parser.EXTRA_VARS; i++) {
-            if (parser1.foundVar(i)) {
-                parser1.setVarsvalue(i, globalVars[i]);
+        if(parser1.foundAnyVar()) {
+            for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+                if (parser1.foundVar(i)) {
+                    parser1.setVarsvalue(i, globalVars[i]);
+                }
             }
         }
 
@@ -262,9 +264,11 @@ public class UserTrueColorAlgorithm extends TrueColorAlgorithm {
                 parser2.setTrapvalue(new Complex(trap, 0));
             }
 
-            for (int i = 0; i < Parser.EXTRA_VARS; i++) {
-                if (parser2.foundVar(i)) {
-                    parser2.setVarsvalue(i, globalVars[i]);
+            if(parser2.foundAnyVar()) {
+                for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+                    if (parser2.foundVar(i)) {
+                        parser2.setVarsvalue(i, globalVars[i]);
+                    }
                 }
             }
 
@@ -314,9 +318,11 @@ public class UserTrueColorAlgorithm extends TrueColorAlgorithm {
                 parser3.setTrapvalue(new Complex(trap, 0));
             }
 
-            for (int i = 0; i < Parser.EXTRA_VARS; i++) {
-                if (parser3.foundVar(i)) {
-                    parser3.setVarsvalue(i, globalVars[i]);
+            if(parser3.foundAnyVar()) {
+                for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+                    if (parser3.foundVar(i)) {
+                        parser3.setVarsvalue(i, globalVars[i]);
+                    }
                 }
             }
 

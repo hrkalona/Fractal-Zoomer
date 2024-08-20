@@ -5,7 +5,7 @@ import fractalzoomer.core.TaskRender;
 import fractalzoomer.core.antialiasing.AntialiasingAlgorithm;
 import fractalzoomer.core.location.Location;
 import fractalzoomer.main.Constants;
-import fractalzoomer.main.ImageExpanderWindow;
+import fractalzoomer.main.MinimalRendererWindow;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.*;
 import fractalzoomer.utils.Pixel;
@@ -18,39 +18,39 @@ import java.util.ArrayList;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static fractalzoomer.core.rendering_algorithms.CircularBruteForceRender.coordinates;
-import static fractalzoomer.core.rendering_algorithms.CircularBruteForceRender.coordinatesFastJulia;
+import static fractalzoomer.core.rendering_algorithms.PatternedBruteForceRender.coordinates;
+import static fractalzoomer.core.rendering_algorithms.PatternedBruteForceRender.coordinatesFastJulia;
 
-public class CircularSuccessiveRefinementGuessing2Render extends CircularSuccessiveRefinementGuessingRender {
-    public CircularSuccessiveRefinementGuessing2Render(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, D3Settings d3s, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, boolean polar_projection, double circle_period, DomainColoringSettings ds, boolean inverse_dem, boolean quickRender, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring, BlendingSettings color_blending, int[] post_processing_order, PaletteGradientMergingSettings pbs, int gradient_offset, double contourFactor, GeneratedPaletteSettings gps, JitterSettings js, PostProcessSettings pps) {
+public class PatternedSuccessiveRefinementGuessing2Render extends PatternedSuccessiveRefinementGuessingRender {
+    public PatternedSuccessiveRefinementGuessing2Render(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, D3Settings d3s, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, boolean polar_projection, double circle_period, DomainColoringSettings ds, boolean inverse_dem, boolean quickRender, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring, BlendingSettings color_blending, int[] post_processing_order, PaletteGradientMergingSettings pbs, int gradient_offset, double contourFactor, GeneratedPaletteSettings gps, JitterSettings js, PostProcessSettings pps) {
         super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns, d3s, ptr, fractal_color, dem_color, image, fs, periodicity_checking, color_cycling_location, color_cycling_location2, exterior_de, exterior_de_factor, height_ratio,  polar_projection, circle_period,   ds, inverse_dem, quickRender, color_intensity, transfer_function, color_density, color_intensity2, transfer_function2, color_density2, usePaletteForInColoring,    color_blending,   post_processing_order,  pbs,  gradient_offset,  contourFactor, gps, js, pps);
     }
 
-    public CircularSuccessiveRefinementGuessing2Render(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, ImageExpanderWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, boolean polar_projection, double circle_period, DomainColoringSettings ds, boolean inverse_dem, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring, BlendingSettings color_blending, int[] post_processing_order, PaletteGradientMergingSettings pbs, int gradient_offset, double contourFactor, GeneratedPaletteSettings gps, JitterSettings js, PostProcessSettings pps) {
+    public PatternedSuccessiveRefinementGuessing2Render(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, MinimalRendererWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, boolean polar_projection, double circle_period, DomainColoringSettings ds, boolean inverse_dem, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring, BlendingSettings color_blending, int[] post_processing_order, PaletteGradientMergingSettings pbs, int gradient_offset, double contourFactor, GeneratedPaletteSettings gps, JitterSettings js, PostProcessSettings pps) {
         super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns, ptr, fractal_color, dem_color, image, fs, periodicity_checking, color_cycling_location, color_cycling_location2, exterior_de, exterior_de_factor, height_ratio,  polar_projection, circle_period,   ds, inverse_dem, color_intensity, transfer_function, color_density, color_intensity2, transfer_function2, color_density2, usePaletteForInColoring,    color_blending,   post_processing_order,  pbs,  gradient_offset,  contourFactor, gps, js, pps);
     }
 
-    public CircularSuccessiveRefinementGuessing2Render(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, D3Settings d3s, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, boolean polar_projection, double circle_period, DomainColoringSettings ds, boolean inverse_dem, boolean quickRender, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring, BlendingSettings color_blending, int[] post_processing_order, PaletteGradientMergingSettings pbs, int gradient_offset, double contourFactor, GeneratedPaletteSettings gps, JitterSettings js, PostProcessSettings pps, Apfloat xJuliaCenter, Apfloat yJuliaCenter) {
+    public PatternedSuccessiveRefinementGuessing2Render(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, D3Settings d3s, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, boolean polar_projection, double circle_period, DomainColoringSettings ds, boolean inverse_dem, boolean quickRender, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring, BlendingSettings color_blending, int[] post_processing_order, PaletteGradientMergingSettings pbs, int gradient_offset, double contourFactor, GeneratedPaletteSettings gps, JitterSettings js, PostProcessSettings pps, Apfloat xJuliaCenter, Apfloat yJuliaCenter) {
         super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns, d3s, ptr, fractal_color, dem_color, image, fs, periodicity_checking, color_cycling_location, color_cycling_location2, exterior_de, exterior_de_factor, height_ratio,  polar_projection, circle_period,   ds, inverse_dem, quickRender, color_intensity, transfer_function, color_density, color_intensity2, transfer_function2, color_density2, usePaletteForInColoring,    color_blending,   post_processing_order,  pbs,  gradient_offset,  contourFactor, gps, js, pps, xJuliaCenter, yJuliaCenter);
     }
 
-    public CircularSuccessiveRefinementGuessing2Render(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, ImageExpanderWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, boolean polar_projection, double circle_period, DomainColoringSettings ds, boolean inverse_dem, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring, BlendingSettings color_blending, int[] post_processing_order, PaletteGradientMergingSettings pbs, int gradient_offset, double contourFactor, GeneratedPaletteSettings gps, JitterSettings js, PostProcessSettings pps, Apfloat xJuliaCenter, Apfloat yJuliaCenter) {
+    public PatternedSuccessiveRefinementGuessing2Render(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, MinimalRendererWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, boolean polar_projection, double circle_period, DomainColoringSettings ds, boolean inverse_dem, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring, BlendingSettings color_blending, int[] post_processing_order, PaletteGradientMergingSettings pbs, int gradient_offset, double contourFactor, GeneratedPaletteSettings gps, JitterSettings js, PostProcessSettings pps, Apfloat xJuliaCenter, Apfloat yJuliaCenter) {
         super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns, ptr, fractal_color, dem_color, image, fs, periodicity_checking, color_cycling_location, color_cycling_location2, exterior_de, exterior_de_factor, height_ratio,  polar_projection, circle_period,   ds, inverse_dem, color_intensity, transfer_function, color_density, color_intensity2, transfer_function2, color_density2, usePaletteForInColoring,    color_blending,   post_processing_order,  pbs,  gradient_offset,  contourFactor, gps, js, pps, xJuliaCenter, yJuliaCenter);
     }
 
-    public CircularSuccessiveRefinementGuessing2Render(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, boolean polar_projection, double circle_period, boolean inverse_dem, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring, BlendingSettings color_blending, int[] post_processing_order, PaletteGradientMergingSettings pbs, int gradient_offset, double contourFactor, GeneratedPaletteSettings gps, JitterSettings js, PostProcessSettings pps) {
+    public PatternedSuccessiveRefinementGuessing2Render(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, boolean polar_projection, double circle_period, boolean inverse_dem, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring, BlendingSettings color_blending, int[] post_processing_order, PaletteGradientMergingSettings pbs, int gradient_offset, double contourFactor, GeneratedPaletteSettings gps, JitterSettings js, PostProcessSettings pps) {
         super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns, ptr, fractal_color, dem_color, image, fs, periodicity_checking, color_cycling_location, color_cycling_location2, exterior_de, exterior_de_factor, height_ratio,  polar_projection, circle_period,   inverse_dem, color_intensity, transfer_function, color_density, color_intensity2, transfer_function2, color_density2, usePaletteForInColoring,    color_blending,   post_processing_order,  pbs,  gradient_offset,  contourFactor, gps, js, pps);
     }
 
-    public CircularSuccessiveRefinementGuessing2Render(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, MainWindow ptr, Color fractal_color, Color dem_color, boolean fast_julia_filters, BufferedImage image, boolean periodicity_checking, FiltersSettings fs, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, boolean polar_projection, double circle_period, boolean inverse_dem, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring, BlendingSettings color_blending, int[] post_processing_order, PaletteGradientMergingSettings pbs, int gradient_offset, double contourFactor, GeneratedPaletteSettings gps, JitterSettings js, PostProcessSettings pps, Apfloat xJuliaCenter, Apfloat yJuliaCenter) {
+    public PatternedSuccessiveRefinementGuessing2Render(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, MainWindow ptr, Color fractal_color, Color dem_color, boolean fast_julia_filters, BufferedImage image, boolean periodicity_checking, FiltersSettings fs, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, boolean polar_projection, double circle_period, boolean inverse_dem, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring, BlendingSettings color_blending, int[] post_processing_order, PaletteGradientMergingSettings pbs, int gradient_offset, double contourFactor, GeneratedPaletteSettings gps, JitterSettings js, PostProcessSettings pps, Apfloat xJuliaCenter, Apfloat yJuliaCenter) {
         super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns, ptr, fractal_color, dem_color, fast_julia_filters, image, periodicity_checking, fs, color_cycling_location, color_cycling_location2, exterior_de, exterior_de_factor, height_ratio,  polar_projection, circle_period,   inverse_dem, color_intensity, transfer_function, color_density, color_intensity2, transfer_function2, color_density2, usePaletteForInColoring,    color_blending,   post_processing_order,  pbs,  gradient_offset,  contourFactor, gps, js, pps, xJuliaCenter, yJuliaCenter);
     }
 
-    public CircularSuccessiveRefinementGuessing2Render(int FROMx, int TOx, int FROMy, int TOy, int max_iterations, MainWindow ptr, BufferedImage image, Color fractal_color, Color dem_color, int color_cycling_location, int color_cycling_location2, FiltersSettings fs, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring, BlendingSettings color_blending, int[] post_processing_order, PaletteGradientMergingSettings pbs, DomainColoringSettings ds, int gradient_offset, double contourFactor, GeneratedPaletteSettings gps, PostProcessSettings pps, boolean banded) {
+    public PatternedSuccessiveRefinementGuessing2Render(int FROMx, int TOx, int FROMy, int TOy, int max_iterations, MainWindow ptr, BufferedImage image, Color fractal_color, Color dem_color, int color_cycling_location, int color_cycling_location2, FiltersSettings fs, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring, BlendingSettings color_blending, int[] post_processing_order, PaletteGradientMergingSettings pbs, DomainColoringSettings ds, int gradient_offset, double contourFactor, GeneratedPaletteSettings gps, PostProcessSettings pps, boolean banded) {
         super(FROMx, TOx, FROMy, TOy, max_iterations, ptr, image, fractal_color, dem_color, color_cycling_location, color_cycling_location2, fs,    color_intensity, transfer_function, color_density, color_intensity2, transfer_function2, color_density2, usePaletteForInColoring,    color_blending,  post_processing_order,  pbs,  ds, gradient_offset,  contourFactor, gps, pps, banded);
     }
 
-    public CircularSuccessiveRefinementGuessing2Render(int action, int FROMx, int TOx, int FROMy, int TOy, int max_iterations, MainWindow ptr, BufferedImage image, Color fractal_color, Color dem_color, int color_cycling_location, int color_cycling_location2, FiltersSettings fs, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring, BlendingSettings color_blending, int[] post_processing_order, PaletteGradientMergingSettings pbs, int gradient_offset, double contourFactor, GeneratedPaletteSettings gps, PostProcessSettings pps, DomainColoringSettings ds, boolean banded) {
+    public PatternedSuccessiveRefinementGuessing2Render(int action, int FROMx, int TOx, int FROMy, int TOy, int max_iterations, MainWindow ptr, BufferedImage image, Color fractal_color, Color dem_color, int color_cycling_location, int color_cycling_location2, FiltersSettings fs, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring, BlendingSettings color_blending, int[] post_processing_order, PaletteGradientMergingSettings pbs, int gradient_offset, double contourFactor, GeneratedPaletteSettings gps, PostProcessSettings pps, DomainColoringSettings ds, boolean banded) {
         super(action, FROMx, TOx, FROMy, TOy, max_iterations, ptr, image, fractal_color, dem_color, color_cycling_location, color_cycling_location2, fs,  color_intensity, transfer_function, color_density, color_intensity2, transfer_function2, color_density2, usePaletteForInColoring, color_blending,  post_processing_order, pbs, gradient_offset,  contourFactor, gps, pps, ds, banded);
     }
 
@@ -189,9 +189,6 @@ public class CircularSuccessiveRefinementGuessing2Render extends CircularSuccess
 
         Location location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_width, image_height, circle_period, rotation_center, rotation_vals, fractal, js, polar, (HIGH_PRECISION_CALCULATION || PERTURBATION_THEORY) && fractal.supportsPerturbationTheory());
 
-        int pixel_percent = (image_width * image_height) / 100;
-
-
         initialize(location);
 
 
@@ -271,7 +268,7 @@ public class CircularSuccessiveRefinementGuessing2Render extends CircularSuccess
                     if(!filled[loc2]) {
 
                         int aggregate_chunk = getAggregateChunk(current_chunk_size_x, current_chunk_size_y);
-                        boolean check = performSecondPassActions && aggregate_chunk <= min_chunk_size;
+                        boolean check = performSecondPassActions && aggregate_chunk <= min_chunk_size && prev_chunk_size_x != 0 && prev_chunk_size_y != 0;
                         if(check) {
                             current_chunk_size2x = prev_chunk_size_x;
                             current_chunk_size2y = prev_chunk_size_y;
@@ -299,16 +296,18 @@ public class CircularSuccessiveRefinementGuessing2Render extends CircularSuccess
 
                                 int midLoc = midY * image_width + midX;
 
-                                if (rgbs[midLoc] >>> 24 != Constants.NORMAL_ALPHA) {
-                                    image_iterations[midLoc] = f_val = iteration_algorithm.calculate(location.getComplex(midX, midY));
-                                    escaped[midLoc] = escaped_val = iteration_algorithm.escaped();
-                                    rgbs[midLoc] = getFinalColor(f_val, escaped_val);
-                                    task_calculated++;
-                                    task_completed++;
-                                }
+                                if(!examined[midLoc]) {
+                                    if (rgbs[midLoc] >>> 24 != Constants.NORMAL_ALPHA) {
+                                        image_iterations[midLoc] = f_val = iteration_algorithm.calculate(location.getComplex(midX, midY));
+                                        escaped[midLoc] = escaped_val = iteration_algorithm.escaped();
+                                        rgbs[midLoc] = getFinalColor(f_val, escaped_val);
+                                        task_calculated++;
+                                        task_completed++;
+                                    }
 
-                                examined[midLoc] = true;
-                                rendering_done++;
+                                    examined[midLoc] = true;
+                                    rendering_done_per_task[taskId]++;
+                                }
 
                                 fill = isTheSame(loca, midLoc);
                             }
@@ -334,7 +333,7 @@ public class CircularSuccessiveRefinementGuessing2Render extends CircularSuccess
                                                 fill_count++;
                                             }
                                             setFilledAndExaminedWithSkippedColor(examined, filled, skipped_colors, loc3, skippedColor);
-                                            rendering_done++;
+                                            rendering_done_per_task[taskId]++;
                                         }
                                     }
                                 }
@@ -354,7 +353,7 @@ public class CircularSuccessiveRefinementGuessing2Render extends CircularSuccess
                             }
 
                             examined[loc2] = true;
-                            rendering_done++;
+                            rendering_done_per_task[taskId]++;
 
                             tempx = Math.min(image_width, x + current_chunk_size_x);
                             tempy = Math.min(image_height, y + current_chunk_size_y);
@@ -369,27 +368,24 @@ public class CircularSuccessiveRefinementGuessing2Render extends CircularSuccess
                         }
                     }
 
-                    if(USE_QUICKRENDER_ON_GREEDY_SUCCESSIVE_REFINEMENT && id > stop_id && STOP_SUCCESSIVE_REFINEMENT) {
+                    if(USE_NON_BLOCKING_RENDERING && id > stop_id && STOP_RENDERING) {
                         break;
                     }
                 }
 
-                if(USE_QUICKRENDER_ON_GREEDY_SUCCESSIVE_REFINEMENT && id > stop_id && STOP_SUCCESSIVE_REFINEMENT) {
+                if(USE_NON_BLOCKING_RENDERING && id > stop_id && STOP_RENDERING) {
                     break;
                 }
 
-                if(rendering_done / pixel_percent >= 1) {
-                    update(rendering_done);
-                    rendering_done = 0;
-                }
+                updateProgress();
 
             } while (true);
 
             nano_time += System.nanoTime() - time;
 
-            if(USE_QUICKRENDER_ON_GREEDY_SUCCESSIVE_REFINEMENT) {
+            if(USE_NON_BLOCKING_RENDERING) {
                 try {
-                    successive_refinement_lock.lockRead();
+                    stop_rendering_lock.lockRead();
                 } catch (InterruptedException ex) {
 
                 }
@@ -412,12 +408,12 @@ public class CircularSuccessiveRefinementGuessing2Render extends CircularSuccess
                 ptr.getMainPanel().repaint();
             }
 
-            if(USE_QUICKRENDER_ON_GREEDY_SUCCESSIVE_REFINEMENT) {
-                if (id > stop_id && STOP_SUCCESSIVE_REFINEMENT) {
-                    successive_refinement_lock.unlockRead();
+            if(USE_NON_BLOCKING_RENDERING) {
+                if (id > stop_id && STOP_RENDERING) {
+                    stop_rendering_lock.unlockRead();
                     throw new StopSuccessiveRefinementException();
                 }
-                successive_refinement_lock.unlockRead();
+                stop_rendering_lock.unlockRead();
             }
 
             if(performSecondPassActions) {
@@ -458,7 +454,7 @@ public class CircularSuccessiveRefinementGuessing2Render extends CircularSuccess
 
         AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(totalSamples, aaMethod, aaAvgWithMean, colorSpace, fs.aaSigmaR, fs.aaSigmaS);
 
-        aa.setNeedsPostProcessing(needsPostProcessing());
+        aa.setNeedsAllSamples(needsPostProcessing());
 
         boolean storeExtraData = pixelData_fast_julia != null;
 
@@ -530,7 +526,7 @@ public class CircularSuccessiveRefinementGuessing2Render extends CircularSuccess
                     if(!filled_fast_julia[loc2]) {
 
                         int aggregate_chunk = getAggregateChunk(current_chunk_size_x, current_chunk_size_y);
-                        boolean check = performSecondPassActions && aggregate_chunk <= min_chunk_size;
+                        boolean check = performSecondPassActions && aggregate_chunk <= min_chunk_size && prev_chunk_size_x != 0 && prev_chunk_size_y != 0;
                         if(check) {
                             current_chunk_size2x = prev_chunk_size_x;
                             current_chunk_size2y = prev_chunk_size_y;
@@ -558,34 +554,36 @@ public class CircularSuccessiveRefinementGuessing2Render extends CircularSuccess
 
                                 int midLoc = midY * image_size + midX;
 
-                                image_iterations_fast_julia[midLoc] = f_val = iteration_algorithm.calculate(location.getComplex(midX, midY));
-                                escaped_fast_julia[midLoc] = escaped_val = iteration_algorithm.escaped();
-                                color = getFinalColor(f_val, escaped_val);
+                                if(!examined_fast_julia[midLoc]) {
+                                    image_iterations_fast_julia[midLoc] = f_val = iteration_algorithm.calculate(location.getComplex(midX, midY));
+                                    escaped_fast_julia[midLoc] = escaped_val = iteration_algorithm.escaped();
+                                    color = getFinalColor(f_val, escaped_val);
 
-                                examined_fast_julia[midLoc] = true;
+                                    examined_fast_julia[midLoc] = true;
 
-                                if(storeExtraData) {
-                                    pixelData_fast_julia[midLoc].set(0, color, f_val, escaped_val, totalSamples);
-                                }
-
-                                aa.initialize(color);
-
-                                //Supersampling
-                                for(int i = 0; i < supersampling_num; i++) {
-                                    temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i, midLoc));
-                                    escaped_val = iteration_algorithm.escaped();
-                                    color = getFinalColor(temp_result, escaped_val);
-
-                                    if(storeExtraData) {
-                                        pixelData_fast_julia[midLoc].set(i + 1, color, temp_result, escaped_val, totalSamples);
+                                    if (storeExtraData) {
+                                        pixelData_fast_julia[midLoc].set(0, color, f_val, escaped_val, totalSamples);
                                     }
 
-                                    if(!aa.addSample(color)) {
-                                        break;
-                                    }
-                                }
+                                    aa.initialize(color);
 
-                                rgbs[midLoc] = aa.getColor();
+                                    //Supersampling
+                                    for (int i = 0; i < supersampling_num; i++) {
+                                        temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i, midLoc));
+                                        escaped_val = iteration_algorithm.escaped();
+                                        color = getFinalColor(temp_result, escaped_val);
+
+                                        if (storeExtraData) {
+                                            pixelData_fast_julia[midLoc].set(i + 1, color, temp_result, escaped_val, totalSamples);
+                                        }
+
+                                        if (!aa.addSample(color)) {
+                                            break;
+                                        }
+                                    }
+
+                                    rgbs[midLoc] = aa.getColor();
+                                }
 
                                 fill = isTheSameFastJulia(loca, midLoc);
                             }
@@ -694,8 +692,6 @@ public class CircularSuccessiveRefinementGuessing2Render extends CircularSuccess
         int supersampling_num = getExtraSamples(aaSamplesIndex, aaMethod);
         location.createAntialiasingSteps(aaMethod == 5, useJitter, supersampling_num);
 
-        int pixel_percent = (image_width * image_height) / 100;
-
         initialize(location);
 
         boolean aaAvgWithMean = ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x1) == 1;
@@ -704,7 +700,7 @@ public class CircularSuccessiveRefinementGuessing2Render extends CircularSuccess
 
         AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(totalSamples, aaMethod, aaAvgWithMean, colorSpace, fs.aaSigmaR, fs.aaSigmaS);
 
-        aa.setNeedsPostProcessing(needsPostProcessing());
+        aa.setNeedsAllSamples(needsPostProcessing());
 
         boolean storeExtraData = pixelData != null;
 
@@ -783,7 +779,7 @@ public class CircularSuccessiveRefinementGuessing2Render extends CircularSuccess
                     if(!filled[loc2]) {
 
                         int aggregate_chunk = getAggregateChunk(current_chunk_size_x, current_chunk_size_y);
-                        boolean check = performSecondPassActions && aggregate_chunk <= min_chunk_size;
+                        boolean check = performSecondPassActions && aggregate_chunk <= min_chunk_size && prev_chunk_size_x != 0 && prev_chunk_size_y != 0;
                         if(check) {
                             current_chunk_size2x = prev_chunk_size_x;
                             current_chunk_size2y = prev_chunk_size_y;
@@ -811,37 +807,39 @@ public class CircularSuccessiveRefinementGuessing2Render extends CircularSuccess
 
                                 int midLoc = midY * image_width + midX;
 
-                                image_iterations[midLoc] = f_val = iteration_algorithm.calculate(location.getComplex(midX, midY));
-                                escaped[midLoc] = escaped_val = iteration_algorithm.escaped();
-                                color = getFinalColor(f_val, escaped_val);
-                                task_calculated++;
+                                if(!examined[midLoc]) {
+                                    image_iterations[midLoc] = f_val = iteration_algorithm.calculate(location.getComplex(midX, midY));
+                                    escaped[midLoc] = escaped_val = iteration_algorithm.escaped();
+                                    color = getFinalColor(f_val, escaped_val);
+                                    task_calculated++;
 
-                                examined[midLoc] = true;
-                                rendering_done++;
-                                task_completed++;
-
-                                if (storeExtraData) {
-                                    pixelData[midLoc].set(0, color, f_val, escaped_val, totalSamples);
-                                }
-
-                                aa.initialize(color);
-
-                                //Supersampling
-                                for (int i = 0; i < supersampling_num; i++) {
-                                    temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i, midLoc));
-                                    escaped_val = iteration_algorithm.escaped();
-                                    color = getFinalColor(temp_result, escaped_val);
+                                    examined[midLoc] = true;
+                                    rendering_done_per_task[taskId]++;
+                                    task_completed++;
 
                                     if (storeExtraData) {
-                                        pixelData[midLoc].set(i + 1, color, temp_result, escaped_val, totalSamples);
+                                        pixelData[midLoc].set(0, color, f_val, escaped_val, totalSamples);
                                     }
 
-                                    if (!aa.addSample(color)) {
-                                        break;
+                                    aa.initialize(color);
+
+                                    //Supersampling
+                                    for (int i = 0; i < supersampling_num; i++) {
+                                        temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i, midLoc));
+                                        escaped_val = iteration_algorithm.escaped();
+                                        color = getFinalColor(temp_result, escaped_val);
+
+                                        if (storeExtraData) {
+                                            pixelData[midLoc].set(i + 1, color, temp_result, escaped_val, totalSamples);
+                                        }
+
+                                        if (!aa.addSample(color)) {
+                                            break;
+                                        }
                                     }
+
+                                    rgbs[midLoc] = aa.getColor();
                                 }
-
-                                rgbs[midLoc] = aa.getColor();
 
                                 fill = isTheSame(loca, midLoc);
                             }
@@ -872,7 +870,7 @@ public class CircularSuccessiveRefinementGuessing2Render extends CircularSuccess
                                                 pixelData[loc3] = new PixelExtraData(start_extra_data, skippedColor);
                                             }
                                             task_completed++;
-                                            rendering_done++;
+                                            rendering_done_per_task[taskId]++;
                                             fill_count++;
                                         }
                                     }
@@ -888,7 +886,7 @@ public class CircularSuccessiveRefinementGuessing2Render extends CircularSuccess
                             task_calculated++;
 
                             examined[loc2] = true;
-                            rendering_done++;
+                            rendering_done_per_task[taskId]++;
                             task_completed++;
 
                             if (storeExtraData) {
@@ -925,27 +923,24 @@ public class CircularSuccessiveRefinementGuessing2Render extends CircularSuccess
                         }
                     }
 
-                    if(USE_QUICKRENDER_ON_GREEDY_SUCCESSIVE_REFINEMENT && id > stop_id && STOP_SUCCESSIVE_REFINEMENT) {
+                    if(USE_NON_BLOCKING_RENDERING && id > stop_id && STOP_RENDERING) {
                         break;
                     }
                 }
 
-                if(USE_QUICKRENDER_ON_GREEDY_SUCCESSIVE_REFINEMENT && id > stop_id && STOP_SUCCESSIVE_REFINEMENT) {
+                if(USE_NON_BLOCKING_RENDERING && id > stop_id && STOP_RENDERING) {
                     break;
                 }
 
-                if(rendering_done / pixel_percent >= 1) {
-                    update(rendering_done);
-                    rendering_done = 0;
-                }
+                updateProgress();
 
             } while (true);
 
             nano_time += System.nanoTime() - time;
 
-            if(USE_QUICKRENDER_ON_GREEDY_SUCCESSIVE_REFINEMENT) {
+            if(USE_NON_BLOCKING_RENDERING) {
                 try {
-                    successive_refinement_lock.lockRead();
+                    stop_rendering_lock.lockRead();
                 } catch (InterruptedException ex) {
 
                 }
@@ -967,12 +962,12 @@ public class CircularSuccessiveRefinementGuessing2Render extends CircularSuccess
                 ptr.getMainPanel().repaint();
             }
 
-            if(USE_QUICKRENDER_ON_GREEDY_SUCCESSIVE_REFINEMENT) {
-                if (id > stop_id && STOP_SUCCESSIVE_REFINEMENT) {
-                    successive_refinement_lock.unlockRead();
+            if(USE_NON_BLOCKING_RENDERING) {
+                if (id > stop_id && STOP_RENDERING) {
+                    stop_rendering_lock.unlockRead();
                     throw new StopSuccessiveRefinementException();
                 }
-                successive_refinement_lock.unlockRead();
+                stop_rendering_lock.unlockRead();
             }
 
             if(performSecondPassActions) {
@@ -1070,7 +1065,7 @@ public class CircularSuccessiveRefinementGuessing2Render extends CircularSuccess
                     if(!filled_fast_julia[loc2]) {
 
                         int aggregate_chunk = getAggregateChunk(current_chunk_size_x, current_chunk_size_y);
-                        boolean check = performSecondPassActions && aggregate_chunk <= min_chunk_size;
+                        boolean check = performSecondPassActions && aggregate_chunk <= min_chunk_size && prev_chunk_size_x != 0 && prev_chunk_size_y != 0;
                         if(check) {
                             current_chunk_size2x = prev_chunk_size_x;
                             current_chunk_size2y = prev_chunk_size_y;
@@ -1098,11 +1093,13 @@ public class CircularSuccessiveRefinementGuessing2Render extends CircularSuccess
 
                                 int midLoc = midY * image_size + midX;
 
-                                image_iterations_fast_julia[midLoc] = f_val = iteration_algorithm.calculate(location.getComplex(midX, midY));
-                                escaped_fast_julia[midLoc] = escaped_val = iteration_algorithm.escaped();
-                                rgbs[midLoc] = getFinalColor(f_val, escaped_val);
+                                if(!examined_fast_julia[midLoc]) {
+                                    image_iterations_fast_julia[midLoc] = f_val = iteration_algorithm.calculate(location.getComplex(midX, midY));
+                                    escaped_fast_julia[midLoc] = escaped_val = iteration_algorithm.escaped();
+                                    rgbs[midLoc] = getFinalColor(f_val, escaped_val);
 
-                                examined_fast_julia[midLoc] = true;
+                                    examined_fast_julia[midLoc] = true;
+                                }
 
                                 fill = isTheSameFastJulia(loca, midLoc);
                             }

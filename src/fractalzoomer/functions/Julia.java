@@ -619,6 +619,7 @@ public abstract class Julia extends Fractal {
         return apply_plane_on_julia;
     }
 
+    @Override
     protected void calculateJuliaReferencePoint(GenericComplex inputPixel, Apfloat size, boolean deepZoom, int[] juliaIterations, JProgressBar progress) {
 
         int iterations = juliaIterations[0];

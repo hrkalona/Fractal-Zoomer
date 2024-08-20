@@ -96,16 +96,16 @@ public class LightDialog extends JDialog {
         JPanel p2 = new JPanel();
         p2.setLayout(new GridLayout(2, 4));
 
-        JTextField light_intensity_field = new JTextField(15);
+        JTextField light_intensity_field = new JTextField(6);
         light_intensity_field.setText("" + s.pps.ls.lightintensity);
 
-        JTextField ambient_light_field = new JTextField(15);
+        JTextField ambient_light_field = new JTextField(6);
         ambient_light_field.setText("" + s.pps.ls.ambientlight);
 
-        JTextField specular_intensity_field = new JTextField(15);
+        JTextField specular_intensity_field = new JTextField(6);
         specular_intensity_field.setText("" + s.pps.ls.specularintensity);
 
-        JTextField shininess_field = new JTextField(15);
+        JTextField shininess_field = new JTextField(6);
         shininess_field.setText("" + s.pps.ls.shininess);
 
         p2.add(new JLabel("Light Intensity:", SwingConstants.HORIZONTAL));
@@ -146,7 +146,7 @@ public class LightDialog extends JDialog {
         transfer_combo.setFocusable(false);
         transfer_combo.setToolTipText("Sets the height transfer function.");
 
-        JTextField tranfer_factor_field = new JTextField(15);
+        JTextField tranfer_factor_field = new JTextField(6);
         tranfer_factor_field.setText("" + s.pps.ls.heightTransferFactor);
 
         final JComboBox<String> color_method_combo = new JComboBox<>(Constants.colorMethod);

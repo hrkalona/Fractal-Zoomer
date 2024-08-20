@@ -215,7 +215,7 @@ public class LightFilter extends WholeImageFilter {
 	}
         
         public void removeAllLights() {
-            lights.removeAll(lights);
+            lights.clear();
         }
 	
 	public Vector getLights() {
@@ -758,8 +758,7 @@ if ( bumpShape != 0 ) {
                 @Override
 		public Object clone() {
 			try {
-				Light copy = (Light)super.clone();
-				return copy;
+				return super.clone();
 			}
 			catch (CloneNotSupportedException e) {
 				return null;

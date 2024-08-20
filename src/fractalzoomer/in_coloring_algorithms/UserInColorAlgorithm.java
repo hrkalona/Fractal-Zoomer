@@ -103,10 +103,12 @@ public class UserInColorAlgorithm extends InColorAlgorithm {
         if(parser.foundPP()) {
             parser.setPPvalue(((Complex)object[2]));
         }
-        
-        for(int i = 0; i < Parser.EXTRA_VARS; i++) {
-            if(parser.foundVar(i)) {
-                parser.setVarsvalue(i, globalVars[i]);
+
+        if(parser.foundAnyVar()) {
+            for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+                if (parser.foundVar(i)) {
+                    parser.setVarsvalue(i, globalVars[i]);
+                }
             }
         }
         

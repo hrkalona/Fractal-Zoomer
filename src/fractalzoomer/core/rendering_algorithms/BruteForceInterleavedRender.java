@@ -8,7 +8,7 @@ import fractalzoomer.core.antialiasing.AntialiasingAlgorithm;
 import fractalzoomer.core.location.Location;
 import fractalzoomer.functions.Fractal;
 import fractalzoomer.main.Constants;
-import fractalzoomer.main.ImageExpanderWindow;
+import fractalzoomer.main.MinimalRendererWindow;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.*;
 import fractalzoomer.utils.StopSuccessiveRefinementException;
@@ -29,7 +29,7 @@ public class BruteForceInterleavedRender extends TaskRender {
         super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns, d3s, ptr, fractal_color, dem_color, image, fs, periodicity_checking, color_cycling_location, color_cycling_location2, exterior_de, exterior_de_factor, height_ratio,  polar_projection, circle_period,   ds, inverse_dem, quickRender, color_intensity, transfer_function, color_density, color_intensity2, transfer_function2, color_density2, usePaletteForInColoring,    color_blending,   post_processing_order,  pbs,  gradient_offset,  contourFactor, gps, js, pps);
     }
 
-    public BruteForceInterleavedRender(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, ImageExpanderWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, boolean polar_projection, double circle_period, DomainColoringSettings ds, boolean inverse_dem, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring, BlendingSettings color_blending, int[] post_processing_order, PaletteGradientMergingSettings pbs, int gradient_offset, double contourFactor, GeneratedPaletteSettings gps, JitterSettings js, PostProcessSettings pps) {
+    public BruteForceInterleavedRender(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, MinimalRendererWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, boolean polar_projection, double circle_period, DomainColoringSettings ds, boolean inverse_dem, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring, BlendingSettings color_blending, int[] post_processing_order, PaletteGradientMergingSettings pbs, int gradient_offset, double contourFactor, GeneratedPaletteSettings gps, JitterSettings js, PostProcessSettings pps) {
         super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns, ptr, fractal_color, dem_color, image, fs, periodicity_checking, color_cycling_location, color_cycling_location2, exterior_de, exterior_de_factor, height_ratio,  polar_projection, circle_period,   ds, inverse_dem, color_intensity, transfer_function, color_density, color_intensity2, transfer_function2, color_density2, usePaletteForInColoring,    color_blending,   post_processing_order,  pbs,  gradient_offset,  contourFactor, gps, js, pps);
     }
 
@@ -37,7 +37,7 @@ public class BruteForceInterleavedRender extends TaskRender {
         super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns, d3s, ptr, fractal_color, dem_color, image, fs, periodicity_checking, color_cycling_location, color_cycling_location2, exterior_de, exterior_de_factor, height_ratio,  polar_projection, circle_period,   ds, inverse_dem, quickRender, color_intensity, transfer_function, color_density, color_intensity2, transfer_function2, color_density2, usePaletteForInColoring,    color_blending,   post_processing_order,  pbs,  gradient_offset,  contourFactor, gps, js, pps, xJuliaCenter, yJuliaCenter);
     }
 
-    public BruteForceInterleavedRender(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, ImageExpanderWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, boolean polar_projection, double circle_period, DomainColoringSettings ds, boolean inverse_dem, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring, BlendingSettings color_blending, int[] post_processing_order, PaletteGradientMergingSettings pbs, int gradient_offset, double contourFactor, GeneratedPaletteSettings gps, JitterSettings js, PostProcessSettings pps, Apfloat xJuliaCenter, Apfloat yJuliaCenter) {
+    public BruteForceInterleavedRender(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, MinimalRendererWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, boolean polar_projection, double circle_period, DomainColoringSettings ds, boolean inverse_dem, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring, BlendingSettings color_blending, int[] post_processing_order, PaletteGradientMergingSettings pbs, int gradient_offset, double contourFactor, GeneratedPaletteSettings gps, JitterSettings js, PostProcessSettings pps, Apfloat xJuliaCenter, Apfloat yJuliaCenter) {
         super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns, ptr, fractal_color, dem_color, image, fs, periodicity_checking, color_cycling_location, color_cycling_location2, exterior_de, exterior_de_factor, height_ratio,  polar_projection, circle_period,   ds, inverse_dem, color_intensity, transfer_function, color_density, color_intensity2, transfer_function2, color_density2, usePaletteForInColoring,    color_blending,   post_processing_order,  pbs,  gradient_offset,  contourFactor, gps, js, pps, xJuliaCenter, yJuliaCenter);
     }
 
@@ -65,7 +65,7 @@ public class BruteForceInterleavedRender extends TaskRender {
         super(action, FROMx, TOx, FROMy, TOy, max_iterations, ptr, image, fractal_color, dem_color, color_cycling_location, color_cycling_location2, fs,  color_intensity, transfer_function, color_density, color_intensity2, transfer_function2, color_density2, usePaletteForInColoring, color_blending,  post_processing_order, pbs, gradient_offset,  contourFactor, gps, pps, ds, banded);
     }
 
-    private void renderInternal(int condition, int thread_chunk_size, int image_width, int pixel_percent, AtomicInteger dCount, Location location, int a, int b) {
+    private void renderInternal(int condition, int thread_chunk_size, int image_width, AtomicInteger dCount, Location location, int a, int b) {
         int x, y, loc;
         double f_val;
         boolean escaped_val;
@@ -89,13 +89,10 @@ public class BruteForceInterleavedRender extends TaskRender {
                     task_calculated++;
                 }
 
-                rendering_done++;
+                rendering_done_per_task[taskId]++;
             }
 
-            if(rendering_done / pixel_percent >= 1) {
-                update(rendering_done);
-                rendering_done = 0;
-            }
+            updateProgress();
 
         } while(true);
     }
@@ -105,8 +102,6 @@ public class BruteForceInterleavedRender extends TaskRender {
 
         Location location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_width, image_height, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
 
-        int pixel_percent = (image_width * image_height) / 100;
-
         int condition = image_width * image_height;
 
         initialize(location);
@@ -114,14 +109,14 @@ public class BruteForceInterleavedRender extends TaskRender {
         int thread_chunk_size = getThreadChunkSize(image_width, true);
 
         long time = System.currentTimeMillis();
-        renderInternal(condition, thread_chunk_size, image_width, pixel_percent, normal_rendering_algorithm_pixel, location, 2, 0);
-        renderInternal(condition, thread_chunk_size, image_width, pixel_percent, normal_rendering_algorithm_pixel2, location, 2, 1);
+        renderInternal(condition, thread_chunk_size, image_width, normal_rendering_algorithm_pixel, location, 2, 0);
+        renderInternal(condition, thread_chunk_size, image_width, normal_rendering_algorithm_pixel2, location, 2, 1);
         pixel_calculation_time_per_task = System.currentTimeMillis() - time;
 
         postProcess(image_width, image_height, null, location);
     }
 
-    private void renderAntialiasedInternal(int condition, int thread_chunk_size, int image_width, int pixel_percent, boolean storeExtraData, AntialiasingAlgorithm aa, int supersampling_num, int totalSamples, AtomicInteger dCount, Location location, int a, int b) {
+    private void renderAntialiasedInternal(int condition, int thread_chunk_size, int image_width, boolean storeExtraData, AntialiasingAlgorithm aa, int supersampling_num, int totalSamples, AtomicInteger dCount, Location location, int a, int b) {
         int x, y, loc;
         double f_val, temp_result;
         boolean escaped_val;
@@ -166,14 +161,11 @@ public class BruteForceInterleavedRender extends TaskRender {
 
                 rgbs[loc] = aa.getColor();
 
-                rendering_done++;
+                rendering_done_per_task[taskId]++;
                 task_calculated++;
             }
 
-            if(rendering_done / pixel_percent >= 1) {
-                update(rendering_done);
-                rendering_done = 0;
-            }
+            updateProgress();
 
         } while(true);
     }
@@ -188,8 +180,6 @@ public class BruteForceInterleavedRender extends TaskRender {
         int supersampling_num = getExtraSamples(aaSamplesIndex, aaMethod);
         location.createAntialiasingSteps(aaMethod == 5, useJitter, supersampling_num);
 
-        int pixel_percent = (image_width * image_height) / 100;
-
         int condition = image_width * image_height;
 
         boolean aaAvgWithMean = ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x1) == 1;
@@ -199,15 +189,15 @@ public class BruteForceInterleavedRender extends TaskRender {
 
         initialize(location);
 
-        aa.setNeedsPostProcessing(needsPostProcessing());
+        aa.setNeedsAllSamples(needsPostProcessing());
 
         boolean storeExtraData = pixelData != null;
 
         int thread_chunk_size = getThreadChunkSize(image_width, true);
 
         long time = System.currentTimeMillis();
-        renderAntialiasedInternal(condition, thread_chunk_size, image_width, pixel_percent, storeExtraData, aa, supersampling_num, totalSamples, normal_rendering_algorithm_pixel, location, 2, 0);
-        renderAntialiasedInternal(condition, thread_chunk_size, image_width, pixel_percent, storeExtraData, aa, supersampling_num, totalSamples, normal_rendering_algorithm_pixel2, location, 2, 1);
+        renderAntialiasedInternal(condition, thread_chunk_size, image_width, storeExtraData, aa, supersampling_num, totalSamples, normal_rendering_algorithm_pixel, location, 2, 0);
+        renderAntialiasedInternal(condition, thread_chunk_size, image_width, storeExtraData, aa, supersampling_num, totalSamples, normal_rendering_algorithm_pixel2, location, 2, 1);
         pixel_calculation_time_per_task = System.currentTimeMillis() - time;
 
         postProcess(image_width, image_height, aa, location);
@@ -350,7 +340,7 @@ public class BruteForceInterleavedRender extends TaskRender {
 
         AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(totalSamples, aaMethod, aaAvgWithMean, colorSpace, fs.aaSigmaR, fs.aaSigmaS);
 
-        aa.setNeedsPostProcessing(needsPostProcessing());
+        aa.setNeedsAllSamples(needsPostProcessing());
 
         boolean storeExtraData = pixelData_fast_julia != null;
 
@@ -406,7 +396,7 @@ public class BruteForceInterleavedRender extends TaskRender {
 
         if(aa != null) {
             modified = new int[aa.getTotalSamples()];
-            aa.setNeedsPostProcessing(false);
+            aa.setNeedsAllSamples(false);
         }
 
         int condition = image_width * image_height;
@@ -418,7 +408,7 @@ public class BruteForceInterleavedRender extends TaskRender {
 
     }
 
-    private void changePaletteWithAAInternal(int condition, int thread_chunk_size, int pixel_percent, AntialiasingAlgorithm aa, AtomicInteger dCount, int a, int b) {
+    private void changePaletteWithAAInternal(int condition, int thread_chunk_size, AntialiasingAlgorithm aa, AtomicInteger dCount, int a, int b) {
         int loc, color;
         PixelExtraData data;
         do {
@@ -447,14 +437,11 @@ public class BruteForceInterleavedRender extends TaskRender {
 
                 rgbs[loc] = aa.getColor();
 
-                rendering_done++;
+                rendering_done_per_task[taskId]++;
                 task_completed++;
             }
 
-            if (rendering_done / pixel_percent >= 1) {
-                update(rendering_done);
-                rendering_done = 0;
-            }
+            updateProgress();
 
         } while(true);
     }
@@ -470,11 +457,9 @@ public class BruteForceInterleavedRender extends TaskRender {
         int totalSamples = supersampling_num + 1;
         AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(totalSamples, aaMethod, aaAvgWithMean, colorSpace, fs.aaSigmaR, fs.aaSigmaS);
 
-        aa.setNeedsPostProcessing(true);
+        aa.setNeedsAllSamples(true);
 
         int condition = image_width * image_height;
-
-        int pixel_percent = (image_width * image_height) / 100;
 
         task_completed = 0;
 
@@ -482,8 +467,8 @@ public class BruteForceInterleavedRender extends TaskRender {
 
         long time = System.currentTimeMillis();
 
-        changePaletteWithAAInternal(condition, thread_chunk_size, pixel_percent, aa, normal_rendering_algorithm_apply_palette, 2, 0);
-        changePaletteWithAAInternal(condition, thread_chunk_size, pixel_percent, aa, normal_rendering_algorithm_apply_palette2, 2, 1);
+        changePaletteWithAAInternal(condition, thread_chunk_size, aa, normal_rendering_algorithm_apply_palette, 2, 0);
+        changePaletteWithAAInternal(condition, thread_chunk_size, aa, normal_rendering_algorithm_apply_palette2, 2, 1);
 
         pixel_calculation_time_per_task = System.currentTimeMillis() - time;
 
@@ -491,7 +476,7 @@ public class BruteForceInterleavedRender extends TaskRender {
 
     }
 
-    private void changePaletteInternal(int condition, int thread_chunk_size, int pixel_percent, AtomicInteger dCount, int a, int b) {
+    private void changePaletteInternal(int condition, int thread_chunk_size, AtomicInteger dCount, int a, int b) {
         int loc;
         do {
 
@@ -508,22 +493,17 @@ public class BruteForceInterleavedRender extends TaskRender {
                     rgbs[loc] = getStandardColor(image_iterations[loc], escaped[loc]);
                 }
 
-                rendering_done++;
+                rendering_done_per_task[taskId]++;
                 task_completed++;
             }
 
-            if (rendering_done / pixel_percent >= 1) {
-                update(rendering_done);
-                rendering_done = 0;
-            }
+            updateProgress();
 
         } while(true);
     }
 
     @Override
     protected void changePalette(int image_width, int image_height) throws StopSuccessiveRefinementException {
-
-        int pixel_percent = (image_width * image_height) / 100;
 
         int condition = image_width * image_height;
         task_completed = 0;
@@ -532,8 +512,8 @@ public class BruteForceInterleavedRender extends TaskRender {
 
         long time = System.currentTimeMillis();
 
-        changePaletteInternal(condition, thread_chunk_size, pixel_percent, normal_rendering_algorithm_apply_palette, 2, 0);
-        changePaletteInternal(condition, thread_chunk_size, pixel_percent, normal_rendering_algorithm_apply_palette2, 2, 1);
+        changePaletteInternal(condition, thread_chunk_size, normal_rendering_algorithm_apply_palette, 2, 0);
+        changePaletteInternal(condition, thread_chunk_size, normal_rendering_algorithm_apply_palette2, 2, 1);
 
         pixel_calculation_time_per_task = System.currentTimeMillis() - time;
 
@@ -541,7 +521,7 @@ public class BruteForceInterleavedRender extends TaskRender {
 
     }
 
-    private void renderDomainInternal(int condition, int thread_chunk_size, int image_width, int pixel_percent, AtomicInteger dCount, Location location, int a, int b) {
+    private void renderDomainInternal(int condition, int thread_chunk_size, int image_width, AtomicInteger dCount, Location location, int a, int b) {
         int loc, x, y;
         do {
 
@@ -567,13 +547,10 @@ public class BruteForceInterleavedRender extends TaskRender {
                     task_calculated++;
                 }
 
-                rendering_done++;
+                rendering_done_per_task[taskId]++;
             }
 
-            if (rendering_done / pixel_percent >= 1) {
-                update(rendering_done);
-                rendering_done = 0;
-            }
+            updateProgress();
 
         } while (true);
     }
@@ -583,16 +560,14 @@ public class BruteForceInterleavedRender extends TaskRender {
 
         Location location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_width, image_height, circle_period, rotation_center, rotation_vals, fractal, js, polar, false);
 
-        int pixel_percent = (image_width * image_height) / 100;
-
         int condition = image_width * image_height;
 
         int thread_chunk_size = getThreadChunkSize(image_width, true);
 
         long time = System.currentTimeMillis();
 
-        renderDomainInternal(condition, thread_chunk_size, image_width, pixel_percent, normal_rendering_algorithm_pixel, location, 2, 0);
-        renderDomainInternal(condition, thread_chunk_size, image_width, pixel_percent, normal_rendering_algorithm_pixel2, location, 2, 1);
+        renderDomainInternal(condition, thread_chunk_size, image_width, normal_rendering_algorithm_pixel, location, 2, 0);
+        renderDomainInternal(condition, thread_chunk_size, image_width, normal_rendering_algorithm_pixel2, location, 2, 1);
 
         pixel_calculation_time_per_task = System.currentTimeMillis() - time;
 
@@ -603,7 +578,7 @@ public class BruteForceInterleavedRender extends TaskRender {
 
     }
 
-    private void renderDomainAntialiasedInternal(int condition, int thread_chunk_size, int image_size, int pixel_percent, boolean storeExtraData, AntialiasingAlgorithm aa, int supersampling_num, int totalSamples, AtomicInteger dCount, Location location, int a, int b) {
+    private void renderDomainAntialiasedInternal(int condition, int thread_chunk_size, int image_size, boolean storeExtraData, AntialiasingAlgorithm aa, int supersampling_num, int totalSamples, AtomicInteger dCount, Location location, int a, int b) {
         int loc, x, y, color;
         double f_val;
         do {
@@ -650,14 +625,11 @@ public class BruteForceInterleavedRender extends TaskRender {
 
                 rgbs[loc] = aa.getColor();
 
-                rendering_done++;
+                rendering_done_per_task[taskId]++;
                 task_calculated++;
             }
 
-            if (rendering_done / pixel_percent >= 1) {
-                update(rendering_done);
-                rendering_done = 0;
-            }
+            updateProgress();
 
         } while (true);
     }
@@ -672,8 +644,6 @@ public class BruteForceInterleavedRender extends TaskRender {
         int supersampling_num = getExtraSamples(aaSamplesIndex, aaMethod);
         location.createAntialiasingSteps(aaMethod == 5, useJitter, supersampling_num);
 
-        int pixel_percent = (image_width * image_height) / 100;
-
         int condition = image_width * image_height;
 
         boolean aaAvgWithMean = ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x1) == 1;
@@ -682,7 +652,7 @@ public class BruteForceInterleavedRender extends TaskRender {
 
         AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(totalSamples, aaMethod, aaAvgWithMean, colorSpace, fs.aaSigmaR, fs.aaSigmaS);
 
-        aa.setNeedsPostProcessing(needsPostProcessing());
+        aa.setNeedsAllSamples(needsPostProcessing());
 
         boolean storeExtraData = pixelData != null;
 
@@ -690,8 +660,8 @@ public class BruteForceInterleavedRender extends TaskRender {
 
         long time = System.currentTimeMillis();
 
-        renderDomainAntialiasedInternal(condition, thread_chunk_size, image_width, pixel_percent, storeExtraData, aa, supersampling_num, totalSamples, normal_rendering_algorithm_pixel, location, 2, 0);
-        renderDomainAntialiasedInternal(condition, thread_chunk_size, image_width, pixel_percent, storeExtraData, aa, supersampling_num, totalSamples, normal_rendering_algorithm_pixel2, location, 2, 1);
+        renderDomainAntialiasedInternal(condition, thread_chunk_size, image_width, storeExtraData, aa, supersampling_num, totalSamples, normal_rendering_algorithm_pixel, location, 2, 0);
+        renderDomainAntialiasedInternal(condition, thread_chunk_size, image_width, storeExtraData, aa, supersampling_num, totalSamples, normal_rendering_algorithm_pixel2, location, 2, 1);
 
         pixel_calculation_time_per_task = System.currentTimeMillis() - time;
 

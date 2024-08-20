@@ -5,6 +5,7 @@ import fractalzoomer.core.*;
 import fractalzoomer.core.la.LAReference;
 import fractalzoomer.core.la.impl.LAInfo;
 import fractalzoomer.core.la.impl.LAInfoDeep;
+import fractalzoomer.core.mipla.MipLAStep;
 import fractalzoomer.core.mpfr.LibMpfr;
 import fractalzoomer.core.mpfr.MpfrBigNum;
 import fractalzoomer.core.mpir.LibMpir;
@@ -12,7 +13,7 @@ import fractalzoomer.core.mpir.MpirBigNum;
 import fractalzoomer.functions.Fractal;
 import fractalzoomer.main.CommonFunctions;
 import fractalzoomer.main.Constants;
-import fractalzoomer.main.ImageExpanderWindow;
+import fractalzoomer.main.MinimalRendererWindow;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.ApproximationDefaultSettings;
 import fractalzoomer.main.app_settings.Settings;
@@ -65,12 +66,13 @@ public class PerturbationTheoryDialog extends JDialog {
         JPanel FloatExpPanel2 = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JPanel BLApanel = new JPanel();
         JPanel BLA2panel = new JPanel();
+        JPanel BLA3panel = new JPanel();
         JPanel Nanomb1Panel = new JPanel();
 
         if (ptra instanceof MainWindow) {
             setIconImage(MainWindow.getIcon("mandel2.png").getImage());
-        } else if (ptra instanceof ImageExpanderWindow) {
-            setIconImage(MainWindow.getIcon("mandelExpander.png").getImage());
+        } else if (ptra instanceof MinimalRendererWindow) {
+            setIconImage(MainWindow.getIcon("mandelMinimalRenderer.png").getImage());
         }
 
         final JCheckBox enable_perturbation = new JCheckBox("Perturbation Theory");
@@ -109,6 +111,10 @@ public class PerturbationTheoryDialog extends JDialog {
         use_threads_for_bla2.setSelected(TaskRender.USE_THREADS_FOR_BLA2);
         use_threads_for_bla2.setFocusable(false);
 
+        final JCheckBox use_threads_for_bla3 = new JCheckBox("Use Threads for BLA");
+        use_threads_for_bla3.setSelected(TaskRender.USE_THREADS_FOR_BLA3);
+        use_threads_for_bla3.setFocusable(false);
+
         final JSlider bla_starting_level_slid = new JSlider(JSlider.HORIZONTAL, 1, 32, TaskRender.BLA_STARTING_LEVEL);
 
         bla_starting_level_slid.setPreferredSize(new Dimension(300, 55));
@@ -121,9 +127,23 @@ public class PerturbationTheoryDialog extends JDialog {
         bla_starting_level_slid.setMajorTickSpacing(2);
 
 
+        final JSlider bla3_starting_level_slid = new JSlider(JSlider.HORIZONTAL, 1, 32, TaskRender.BLA3_STARTING_LEVEL);
+
+        bla3_starting_level_slid.setPreferredSize(new Dimension(300, 55));
+
+        bla3_starting_level_slid.setToolTipText("Sets the BLA starting level.");
+
+        bla3_starting_level_slid.setPaintLabels(true);
+        bla3_starting_level_slid.setFocusable(false);
+        bla3_starting_level_slid.setPaintTicks(true);
+        bla3_starting_level_slid.setMajorTickSpacing(2);
+
+
         JLabel blaLevel = new JLabel("BLA Starting Level: " + bla_starting_level_slid.getValue());
+        JLabel bla3Level = new JLabel("BLA Starting Level: " + bla3_starting_level_slid.getValue());
 
         bla_starting_level_slid.addChangeListener(e -> blaLevel.setText("BLA Starting Level: " + bla_starting_level_slid.getValue()));
+        bla3_starting_level_slid.addChangeListener(e -> bla3Level.setText("BLA Starting Level: " + bla3_starting_level_slid.getValue()));
 
         final JCheckBox full_floatexp_for_deep_zooms = new JCheckBox("Use Extended Range For All Iterations In Deep Zooms");
         full_floatexp_for_deep_zooms.setSelected(TaskRender.USE_FULL_FLOATEXP_FOR_DEEP_ZOOM);
@@ -151,7 +171,7 @@ public class PerturbationTheoryDialog extends JDialog {
         JTextField bignumPrecision = new JTextField();
         bignumPrecision.setText("" + TaskRender.BIGNUM_PRECISION);
 
-        final JComboBox<String> approximation_alg = new JComboBox<>(new String[] {"No Approximation", "Series Approximation", "Bilinear Approximation (claude)", "Nanomb1", "Bilinear Approximation (Zhuoran)"});
+        final JComboBox<String> approximation_alg = new JComboBox<>(new String[] {"No Approximation", "Series Approximation", "Bilinear Approximation Mip (claude)", "Nanomb1", "Bilinear Approximation (Zhuoran)", "Bilinear Approximation Mip (Zhuoran)"});
         approximation_alg.setSelectedIndex(TaskRender.APPROXIMATION_ALGORITHM);
         approximation_alg.setFocusable(false);
         approximation_alg.setToolTipText("Sets approximation algorithm.");
@@ -177,6 +197,7 @@ public class PerturbationTheoryDialog extends JDialog {
             pixelLabel2.setVisible(approximation_alg.getSelectedIndex() == 0 || approximation_alg.getSelectedIndex() == 1 || approximation_alg.getSelectedIndex() == 3);
             BLApanel.setVisible(approximation_alg.getSelectedIndex() == 2);
             BLA2panel.setVisible(approximation_alg.getSelectedIndex() == 4);
+            BLA3panel.setVisible(approximation_alg.getSelectedIndex() == 5);
             Nanomb1Panel.setVisible(approximation_alg.getSelectedIndex() == 3);
             pack();
         });
@@ -252,8 +273,8 @@ public class PerturbationTheoryDialog extends JDialog {
 
         JLabel nanolabelM = new JLabel("M: " + nanomb1M.getValue());
 
-        nanomb1N.addChangeListener(e -> {nanolabelN.setText("N: " + nanomb1N.getValue());});
-        nanomb1M.addChangeListener(e -> {nanolabelM.setText("M: " + nanomb1M.getValue());});
+        nanomb1N.addChangeListener(e -> nanolabelN.setText("N: " + nanomb1N.getValue()));
+        nanomb1M.addChangeListener(e -> nanolabelM.setText("M: " + nanomb1M.getValue()));
 
         nanopanelN.add(nanolabelN);
         nanopanelM.add(nanolabelM);
@@ -309,9 +330,15 @@ public class PerturbationTheoryDialog extends JDialog {
         JPanel bla2ThreadsPAnel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         bla2ThreadsPAnel.add(use_threads_for_bla2);
 
+        JPanel bla3ThreadsPAnel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        bla3ThreadsPAnel.add(use_threads_for_bla3);
+
 
         JPanel blaSkipLevel1PAnelLabel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         blaSkipLevel1PAnelLabel.add(blaLevel);
+
+        JPanel bla3SkipLevel1PAnelLabel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        bla3SkipLevel1PAnelLabel.add(bla3Level);
 
         BLApanel.setLayout(new BoxLayout(BLApanel, BoxLayout.Y_AXIS));
 
@@ -329,6 +356,7 @@ public class PerturbationTheoryDialog extends JDialog {
         pixelLabel2.setVisible(approximation_alg.getSelectedIndex() == 0 || approximation_alg.getSelectedIndex() == 1 || approximation_alg.getSelectedIndex() == 3);
         BLApanel.setVisible(approximation_alg.getSelectedIndex() == 2);
         BLA2panel.setVisible(approximation_alg.getSelectedIndex() == 4);
+        BLA3panel.setVisible(approximation_alg.getSelectedIndex() == 5);
         Nanomb1Panel.setVisible(approximation_alg.getSelectedIndex() == 3);
 
         JComboBox<String> bigNumLibs = new JComboBox<>(new String[] {"Double (53 bits)", "DoubleDouble (106 bits)", "Built-in", "MPFR", "Automatic", "MPIR", "Automatic (No Double/DoubleDouble)", "Fixed Point BigInteger", "Apfloat"});
@@ -361,29 +389,30 @@ public class PerturbationTheoryDialog extends JDialog {
         bla2DetectionMethod.setFocusable(false);
 
         BLA2panel.setLayout(new BoxLayout(BLA2panel, BoxLayout.Y_AXIS));
+        BLA3panel.setLayout(new BoxLayout(BLA3panel, BoxLayout.Y_AXIS));
 
         JPanel detectionPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         detectionPanel.add(new JLabel("Detection Method:"));
 
         JPanel bla2Thresholds = new JPanel();
         bla2Thresholds.setLayout(new GridLayout(5, 2));
-        bla2Thresholds.add(new JLabel("Stage 0 Period limit:", SwingConstants.HORIZONTAL));
-        bla2Thresholds.add(new JLabel("Period limit:", SwingConstants.HORIZONTAL));
+        bla2Thresholds.add(new JLabel("Stage 0 Dip limit:", SwingConstants.HORIZONTAL));
+        bla2Thresholds.add(new JLabel("Dip limit:", SwingConstants.HORIZONTAL));
         JTextField stage0 = new JTextField();
-        stage0.setText("" + LAInfo.Stage0PeriodDetectionThreshold);
+        stage0.setText("" + LAInfo.Stage0DipDetectionThreshold);
         JTextField plimit = new JTextField();
-        plimit.setText("" + LAInfo.PeriodDetectionThreshold);
+        plimit.setText("" + LAInfo.DipDetectionThreshold);
 
         JTextField stage01 = new JTextField();
-        stage01.setText("" + LAInfo.Stage0PeriodDetectionThreshold2);
+        stage01.setText("" + LAInfo.Stage0DipDetectionThreshold2);
         JTextField plimit1 = new JTextField();
-        plimit1.setText("" + LAInfo.PeriodDetectionThreshold2);
+        plimit1.setText("" + LAInfo.DipDetectionThreshold2);
 
         JTextField double_threshold = new JTextField();
         double_threshold.setText("" + LAReference.doubleThresholdLimit.toDouble());
 
         JTextField period_divisor = new JTextField();
-        period_divisor.setText("" + LAReference.periodDivisor);
+        period_divisor.setText("" + LAReference.rootDivisor);
 
 
         bla2Thresholds.add(stage0);
@@ -418,7 +447,7 @@ public class PerturbationTheoryDialog extends JDialog {
 
         JPanel panel3 = new JPanel(new GridLayout(2, 2));
         panel3.add(new JLabel("Double Threshold Limit:", SwingConstants.HORIZONTAL));
-        panel3.add(new JLabel("Period Divisor:", SwingConstants.HORIZONTAL));
+        panel3.add(new JLabel("Root Divisor:", SwingConstants.HORIZONTAL));
         panel3.add(double_threshold);
         panel3.add(period_divisor);
 
@@ -430,13 +459,27 @@ public class PerturbationTheoryDialog extends JDialog {
         BLA2panel.add(new JLabel(" "));
         BLA2panel.add(bla2ThreadsPAnel);
 
+        JTextField bla3_valid_radius_scale = new JTextField();
+        bla3_valid_radius_scale.setText("" + MipLAStep.ValidRadiusScale);
+
+        JPanel rscale = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        rscale.add(new JLabel("Valid Radius Scale:"));
+
+        BLA3panel.add(rscale);
+        BLA3panel.add(bla3_valid_radius_scale);
+        BLA3panel.add(new JLabel(" "));
+        BLA3panel.add(bla3SkipLevel1PAnelLabel);
+        BLA3panel.add(bla3_starting_level_slid);
+        BLA3panel.add(new JLabel(" "));
+        BLA3panel.add(bla3ThreadsPAnel);
+
         reset_approximation.addActionListener(e -> {
 
-            stage0.setText("" + ApproximationDefaultSettings.Stage0PeriodDetectionThreshold);
-            plimit.setText("" + ApproximationDefaultSettings.PeriodDetectionThreshold);
+            stage0.setText("" + ApproximationDefaultSettings.Stage0DipDetectionThreshold);
+            plimit.setText("" + ApproximationDefaultSettings.DipDetectionThreshold);
 
-            stage01.setText("" + ApproximationDefaultSettings.Stage0PeriodDetectionThreshold2);
-            plimit1.setText("" + ApproximationDefaultSettings.PeriodDetectionThreshold2);
+            stage01.setText("" + ApproximationDefaultSettings.Stage0DipDetectionThreshold2);
+            plimit1.setText("" + ApproximationDefaultSettings.DipDetectionThreshold2);
 
             double_threshold.setText("" + ApproximationDefaultSettings.DoubleThresholdLimit);
 
@@ -455,7 +498,10 @@ public class PerturbationTheoryDialog extends JDialog {
             blaBits.setValue(ApproximationDefaultSettings.BLA_BITS);
             bla_starting_level_slid.setValue(ApproximationDefaultSettings.BLA_STARTING_LEVEL);
 
-            period_divisor.setText("" + ApproximationDefaultSettings.PeriodDivisor);
+            period_divisor.setText("" + ApproximationDefaultSettings.RootDivisor);
+
+            bla3_valid_radius_scale.setText("" + ApproximationDefaultSettings.BLA3ValidRadiusSCale);
+            bla3_starting_level_slid.setValue(ApproximationDefaultSettings.BLA3_STARTING_LEVEL);
 
 
         });
@@ -505,6 +551,7 @@ public class PerturbationTheoryDialog extends JDialog {
                 SApanel,
                 BLApanel,
                 BLA2panel,
+                BLA3panel,
                 Nanomb1Panel,
                 FloatExpPanel2,
                 panelmantex,
@@ -560,6 +607,7 @@ public class PerturbationTheoryDialog extends JDialog {
                             double temp9 = Double.parseDouble(lascale.getText());
                             double temp10 = Double.parseDouble(lacscale.getText());
                             double double_t_l = Double.parseDouble(double_threshold.getText());
+                            double temp13 = Double.parseDouble(bla3_valid_radius_scale.getText());
 
                             double temp11 = Double.parseDouble(compressionError.getText());
                             double temp12 = Double.parseDouble(period_divisor.getText());
@@ -606,6 +654,11 @@ public class PerturbationTheoryDialog extends JDialog {
 
                             if(temp11 <= 0) {
                                 JOptionPane.showMessageDialog(ptra, "The compression error must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+
+                            if(temp13 <= 0) {
+                                JOptionPane.showMessageDialog(ptra, "The valid radius scale value must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
                                 return;
                             }
 
@@ -734,31 +787,35 @@ public class PerturbationTheoryDialog extends JDialog {
                             TaskRender.USE_THREADS_FOR_SA = use_threads_for_sa.isSelected();
                             TaskRender.BLA_BITS = blaBits.getValue();
                             TaskRender.BLA_STARTING_LEVEL = bla_starting_level_slid.getValue();
+                            TaskRender.BLA3_STARTING_LEVEL = bla3_starting_level_slid.getValue();
                             TaskRender.USE_THREADS_FOR_BLA = use_threads_for_bla.isSelected();
                             TaskRender.USE_THREADS_FOR_BLA2 = use_threads_for_bla2.isSelected();
+                            TaskRender.USE_THREADS_FOR_BLA3 = use_threads_for_bla3.isSelected();
 
                             LAInfo.DETECTION_METHOD = bla2DetectionMethod.getSelectedIndex();
-                            LAInfo.Stage0PeriodDetectionThreshold = temp5;
-                            LAInfo.PeriodDetectionThreshold = temp6;
-                            LAInfo.Stage0PeriodDetectionThreshold2 = temp7;
-                            LAInfo.PeriodDetectionThreshold2 = temp8;
+                            LAInfo.Stage0DipDetectionThreshold = temp5;
+                            LAInfo.DipDetectionThreshold = temp6;
+                            LAInfo.Stage0DipDetectionThreshold2 = temp7;
+                            LAInfo.DipDetectionThreshold2 = temp8;
                             LAInfo.LAThresholdScale = temp9;
                             LAInfo.LAThresholdCScale = temp10;
 
-                            LAInfoDeep.Stage0PeriodDetectionThreshold = new MantExp(temp5);
-                            LAInfoDeep.PeriodDetectionThreshold = new MantExp(temp6);
-                            LAInfoDeep.Stage0PeriodDetectionThreshold2 = new MantExp(temp7);
-                            LAInfoDeep.PeriodDetectionThreshold2 = new MantExp(temp8);
+                            LAInfoDeep.Stage0DipDetectionThreshold = new MantExp(temp5);
+                            LAInfoDeep.DipDetectionThreshold = new MantExp(temp6);
+                            LAInfoDeep.Stage0DipDetectionThreshold2 = new MantExp(temp7);
+                            LAInfoDeep.DipDetectionThreshold2 = new MantExp(temp8);
                             LAInfoDeep.LAThresholdScale = new MantExp(temp9);
                             LAInfoDeep.LAThresholdCScale = new MantExp(temp10);
                             LAReference.doubleThresholdLimit = new MantExp(double_t_l);
-                            LAReference.periodDivisor = temp12;
+                            LAReference.rootDivisor = temp12;
+
+                            MipLAStep.ValidRadiusScale = temp13;
 
                             if(ptra instanceof MainWindow) {
                                 ((MainWindow)ptra).setPerturbationTheoryPost();
                             }
-                            else if(ptra instanceof ImageExpanderWindow) {
-                                ((ImageExpanderWindow)ptra).setPerturbationTheoryPost();
+                            else if(ptra instanceof MinimalRendererWindow) {
+                                ((MinimalRendererWindow)ptra).setPerturbationTheoryPost();
                             }
 
                         } catch (Exception ex) {

@@ -249,11 +249,7 @@ public class ColorMapDialog extends JDialog {
 
         JButton cancel = new MyButton("Cancel");
         cancel.setFocusable(false);
-        cancel.addActionListener(e -> {
-
-            dispose();
-
-        });
+        cancel.addActionListener(e -> dispose());
 
         buttons.add(cancel);
 

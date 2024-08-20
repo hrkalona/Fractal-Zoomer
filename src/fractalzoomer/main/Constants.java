@@ -10,7 +10,7 @@ import java.awt.*;
  * @author hrkalona2
  */
 public interface Constants {
-    public static final int VERSION = 1092;
+    public static final int VERSION = 1093;
     public static final boolean beta = false;
     public static final int TOTAL_PALETTES = 47;
     public static final int TOTAL_INCOLORING_ALGORITHMS = 12;
@@ -18,8 +18,8 @@ public interface Constants {
     public static final int TOTAL_BAILOUT_CONDITIONS = 13;
     public static final int TOTAL_CONVERGENT_BAILOUT_CONDITIONS = 10;
     public static final int TOTAL_PLANES = 67;
-    public static final int TOTAL_FUNCTIONS = 515;
-    public static final int TOTAL_FILTERS = 35;
+    public static final int TOTAL_FUNCTIONS = 517;
+    public static final int TOTAL_FILTERS = 36;
     public static final int TOTAL_COLOR_TRANSFER_FILTERS = 14;
     public static final int TOTAL_COLOR_BLENDING = 30;
     public static final int TOTAL_POST_PROCESS_ALGORITHMS = 11;
@@ -651,6 +651,10 @@ public interface Constants {
     public static final int PERPENDICULAR_BUFFALO_MANDELBROT = 512;
     public static final int FORMULA48 = 513;
     public static final int FORMULA49 = 514;
+
+    public static final int MANDELBARCUBED = 515;
+
+    public static final int FORMULA50 = 516;
     /**
      * ***************
      */
@@ -949,6 +953,8 @@ public interface Constants {
     public static final int LIGHT_EFFECTS = 32;
     public static final int EDGE_DETECTION2 = 33;
     public static final int MIRROR = 34;
+
+    public static final int QUAD_TREE_COMPRESSION = 35;
     /**
      * *****************
      */
@@ -1109,11 +1115,11 @@ public interface Constants {
      */
     public static final int BOUNDARY_TRACING = 0;
     public static final int BOUNDARY_TRACING2 = 1;
-    public static final int DIVIDE_AND_CONQUER = 2;
+    public static final int MARIANI_SILVER = 2;
     public static final int DIVIDE_AND_CONQUER2 = 3;
     public static final int SOLID_GUESSING = 4;
     public static final int SUCCESSIVE_REFINEMENT = 5;
-    public static final int CIRCULAR_SUCCESSIVE_REFINEMENT = 6;
+    public static final int PATTERNED_SUCCESSIVE_REFINEMENT = 6;
     /**
      * ***********************************
      */
@@ -1380,7 +1386,7 @@ public interface Constants {
             "-Xmx2200m\n" +
             "-XX:+UseG1GC";
 
-    public static final String IEL4j = "# Launch4j runtime config\n" +
+    public static final String MRL4j = "# Launch4j runtime config\n" +
             "# This file must be named as the executable. If the executable is AAA.exe, then this file must be named AAA.l4j.ini\n" +
             "# Configure the JVM Heap size.\n" +
             "-Xmx4000m\n" +

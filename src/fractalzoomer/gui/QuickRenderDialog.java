@@ -60,10 +60,10 @@ public class QuickRenderDialog extends JDialog {
         renderPreview.setFocusable(false);
         renderPreview.setToolTipText("Create a preview image in low resolution using quick-render on every render (First Pass/Second Pass).");
 
-        JCheckBox useQuickRenderOnGreedySucRef = new JCheckBox("Use Non-Blocking Quick Render on Greedy Successive Refinement");
-        useQuickRenderOnGreedySucRef.setSelected(TaskRender.USE_QUICKRENDER_ON_GREEDY_SUCCESSIVE_REFINEMENT);
-        useQuickRenderOnGreedySucRef.setFocusable(false);
-        useQuickRenderOnGreedySucRef.setToolTipText("Enables the use of quick-render on the greedy successive refinement algorithms.");
+        JCheckBox useNonBlockingRender = new JCheckBox("Use Non-Blocking Quick Render on Greedy Successive Refinement");
+        useNonBlockingRender.setSelected(TaskRender.USE_NON_BLOCKING_RENDERING);
+        useNonBlockingRender.setFocusable(false);
+        useNonBlockingRender.setToolTipText("Enables the use of non-blocking render on the greedy successive refinement algorithms.");
 
 
 
@@ -79,7 +79,7 @@ public class QuickRenderDialog extends JDialog {
                 " ",
                 successiveRefinement,
                 " ",
-                useQuickRenderOnGreedySucRef,
+                useNonBlockingRender,
                 " ",
                 renderPreview,
                 " ",
@@ -135,7 +135,7 @@ public class QuickRenderDialog extends JDialog {
 
                             TaskRender.QUICK_RENDER_DELAY = temp;
                             TaskRender.QUICKRENDER_SUCCESSIVE_REFINEMENT = successiveRefinement.isSelected();
-                            TaskRender.USE_QUICKRENDER_ON_GREEDY_SUCCESSIVE_REFINEMENT = useQuickRenderOnGreedySucRef.isSelected();
+                            TaskRender.USE_NON_BLOCKING_RENDERING = useNonBlockingRender.isSelected();
                         } catch (Exception ex) {
                             JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                             return;

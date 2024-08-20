@@ -71,13 +71,13 @@ public class LAInfoDeepFull extends LAInfoDeep {
     }
 
     @Override
-    protected boolean DetectPeriod(MantExpComplex z) {
-        return z.chebyshevNorm().divide(new MantExpComplexFull(ZCoeffExp, ZCoeffExpIm, ZCoeffRe, ZCoeffIm).chebyshevNorm()).multiply_mutable(LAThresholdScale).compareToBothPositive(new MantExp(LAThresholdExp, LAThresholdMant).multiply(PeriodDetectionThreshold)) < 0;
+    protected boolean DetectDip(MantExpComplex z) {
+        return z.chebyshevNorm().divide(new MantExpComplexFull(ZCoeffExp, ZCoeffExpIm, ZCoeffRe, ZCoeffIm).chebyshevNorm()).multiply_mutable(LAThresholdScale).compareToBothPositive(new MantExp(LAThresholdExp, LAThresholdMant).multiply(DipDetectionThreshold)) < 0;
     }
 
     @Override
-    protected boolean Stage0DetectPeriod(MantExpComplex z) {
-        return z.chebyshevNorm().divide(new MantExpComplexFull(ZCoeffExp, ZCoeffExpIm, ZCoeffRe, ZCoeffIm).chebyshevNorm()).multiply_mutable(LAThresholdScale).compareToBothPositive(new MantExp(LAThresholdExp, LAThresholdMant).multiply(Stage0PeriodDetectionThreshold)) < 0;
+    protected boolean Stage0DetectDip(MantExpComplex z) {
+        return z.chebyshevNorm().divide(new MantExpComplexFull(ZCoeffExp, ZCoeffExpIm, ZCoeffRe, ZCoeffIm).chebyshevNorm()).multiply_mutable(LAThresholdScale).compareToBothPositive(new MantExp(LAThresholdExp, LAThresholdMant).multiply(Stage0DipDetectionThreshold)) < 0;
     }
 
     @Override
@@ -150,7 +150,7 @@ public class LAInfoDeepFull extends LAInfoDeep {
         out.RefExp = RefExp;
         out.RefExpIm = RefExpIm;
 
-        return outLAThreshold.compareToBothPositive(LAThreshold.multiply(Stage0PeriodDetectionThreshold)) < 0;
+        return outLAThreshold.compareToBothPositive(LAThreshold.multiply(Stage0DipDetectionThreshold)) < 0;
     }
 
     @Override
@@ -243,7 +243,7 @@ public class LAInfoDeepFull extends LAInfoDeep {
         out.RefIm = RefIm;
         out.RefExpIm = RefExpIm;
 
-        return temp.compareToBothPositive(LAThreshold.multiply(PeriodDetectionThreshold)) < 0;
+        return temp.compareToBothPositive(LAThreshold.multiply(DipDetectionThreshold)) < 0;
     }
 
     @Override
@@ -261,7 +261,7 @@ public class LAInfoDeepFull extends LAInfoDeep {
         newdz.Normalize();
 
         LAstep temp = new LAstep();
-        temp.unusable = newdz.chebyshevNorm().compareToBothPositiveReduced(new MantExp(LAThresholdExp, LAThresholdMant)) >= 0;
+        temp.unusable = newdz.chebyshevNorm().compareToBothPositiveReduced(LAThresholdExp, LAThresholdMant) >= 0;
         temp.newDzDeep = newdz;
         return temp;
     }

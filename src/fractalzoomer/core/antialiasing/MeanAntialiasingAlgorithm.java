@@ -15,8 +15,8 @@ public class MeanAntialiasingAlgorithm extends AntialiasingAlgorithm {
         sumA = 0;
         sumB = 0;
         sumC = 0;
-        sinHue = 0;
-        cosHue = 0;
+        //sinHue = 0;
+        //cosHue = 0;
 
         //hasHue = colorSpace == 5|| colorSpace == 6 || colorSpace == 7 || colorSpace == 8;
     }
@@ -45,6 +45,7 @@ public class MeanAntialiasingAlgorithm extends AntialiasingAlgorithm {
             sumB = result[1];
             sumC = result[2];
         //}
+        addedSamples = 1;
     }
 
     @Override
@@ -71,12 +72,17 @@ public class MeanAntialiasingAlgorithm extends AntialiasingAlgorithm {
             sumA += result[0];
             sumB += result[1];
             sumC += result[2];
+            addedSamples++;
         //}
         return true;
     }
 
     @Override
     public int getColor() {
+        if(addedSamples != totalSamples) {
+            return 0xff000000;
+        }
+
         int[] result;
 //        if(hasHue) {
 //            result = getAveragedColorChannels(sinHue, cosHue, sumB, sumC);

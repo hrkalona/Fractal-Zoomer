@@ -3,6 +3,7 @@ package fractalzoomer.main.app_settings;
 
 import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
+import fractalzoomer.utils.QuadTree;
 
 import java.awt.*;
 
@@ -22,6 +23,19 @@ public class FiltersSettings {
     public double bluringSigmaR;
     public double bluringSigmaS;
     public int blurringKernelSelection;
+    public double quadtree_threshold;
+    public boolean quadtree_show_division;
+    public int quadtree_fill_algorithm;
+    public int quadtree_lod;
+
+    public int quadtree_algorithm;
+
+    public boolean quadtree_dynamic_threshold;
+    public int quadtree_dynamic_threshold_curve;
+
+    public int quadtree_threshold_calculation;
+
+    public boolean quadtree_merge_nodes;
     
     public FiltersSettings() {
         
@@ -44,6 +58,15 @@ public class FiltersSettings {
         bluringSigmaR = 0;
         bluringSigmaS = 0;
         blurringKernelSelection = 0;
+        quadtree_threshold = 8;
+        quadtree_show_division = true;
+        quadtree_fill_algorithm = 0;
+        quadtree_lod = QuadTree.MAX_LEVEL;
+        quadtree_algorithm = 0;
+        quadtree_dynamic_threshold = true;
+        quadtree_dynamic_threshold_curve = 0;
+        quadtree_threshold_calculation = 0;
+        quadtree_merge_nodes = false;
 
         for(int k = 0; k < filters_options_vals.length; k++) {
 
@@ -55,7 +78,7 @@ public class FiltersSettings {
             filters_options_extra_vals[1][k] = 0;
             filters_colors[k] = Color.BLACK;
 
-            if(k == Constants.SPARKLE || k == Constants.COLOR_CHANNEL_MIXING) {
+            if(k == Constants.SPARKLE || k == Constants.COLOR_CHANNEL_MIXING || k == Constants.QUAD_TREE_COMPRESSION) {
                 filters_colors[k] = Color.WHITE;
             }
             else {
@@ -136,6 +159,9 @@ public class FiltersSettings {
                 filters_extra_colors[0][k] = new Color(0xff888888);
                 filters_extra_colors[1][k] = Color.WHITE;
             }
+            else if(k == Constants.QUAD_TREE_COMPRESSION) {
+                filters_extra_colors[0][k] = Color.BLACK;
+            }
             else {
                 filters_options_vals[k] = 0;
             }
@@ -180,6 +206,7 @@ public class FiltersSettings {
         filter_order[31] = MainWindow.EDGE_DETECTION2;
         filter_order[32] = MainWindow.FADE_OUT;
         filter_order[33] = MainWindow.MIRROR;
+        filter_order[34] = MainWindow.QUAD_TREE_COMPRESSION;
         
     }
 }

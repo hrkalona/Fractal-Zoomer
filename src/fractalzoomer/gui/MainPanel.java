@@ -185,10 +185,12 @@ public class MainPanel extends JPanel implements ActionListener {
             }
 
             BufferedImage image = ptr.getImage();
-            if (zw && MainWindow.MASK_IMAGE_OUTSIDE_WINDOW > 0 &&  ptr.getLastUsed() != null) {
+            BufferedImage last_used = ptr.getLastUsed();
+
+            if (zw && MainWindow.MASK_IMAGE_OUTSIDE_WINDOW > 0 &&  last_used != null) {
                 Rectangle2D.Double rect = ptr.getZoomWindowRectangle(p);
-                maskImage(image, ptr.getLastUsed(), point -> rect != null && !rect.contains(point));
-                g.drawImage(ptr.getLastUsed(), 0, 0, null);
+                maskImage(image, last_used, point -> rect != null && !rect.contains(point));
+                g.drawImage(last_used, 0, 0, null);
             }
             else {
                 g.drawImage(image, 0, 0, null);
@@ -232,12 +234,13 @@ public class MainPanel extends JPanel implements ActionListener {
             ptr.setFirstPaint();
         }
 
-       if(ptr.getWholeImageDone()) {
-            handleNewImage(g);
-       }
-       else if(!ptr.getColorCycling()) {
-           handlePreviousImage(g);
-       }
+        synchronized (ptr.image_reset_mutex) {
+            if (ptr.getWholeImageDone()) {
+                handleNewImage(g);
+            } else if (!ptr.getColorCycling()) {
+                handlePreviousImage(g);
+            }
+        }
             
     }
 
@@ -259,7 +262,6 @@ public class MainPanel extends JPanel implements ActionListener {
 
     private void maskImage(BufferedImage image, BufferedImage image2, Predicate<Point> predicate) {
 
-        synchronized (ptr.image_reset_mutex) {
             int[] rgbs = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
             int[] rgbs2 = ((DataBufferInt) image2.getRaster().getDataBuffer()).getData();
             int image_width = image.getWidth();
@@ -293,12 +295,10 @@ public class MainPanel extends JPanel implements ActionListener {
                     rgbs2[p] = color;
                 }
             });
-        }
     }
 
     private void maskImageSlow(BufferedImage image, Graphics g, Predicate<Point> predicate) {
 
-        synchronized (ptr.image_reset_mutex) {
             int[] rgbs = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
             int image_width = image.getWidth();
             double inv_coef = 1 - MASK_COEF;
@@ -333,7 +333,6 @@ public class MainPanel extends JPanel implements ActionListener {
                     g.drawRect(x, y, 1, 1);
                 }
             }
-        }
     }
 
     public String getIterationData(int x, int y, int width, boolean domain_coloring, boolean d3) {

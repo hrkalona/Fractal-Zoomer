@@ -2,10 +2,7 @@
 
 package fractalzoomer.app_updater;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.URL;
 import java.util.StringTokenizer;
 
@@ -16,63 +13,63 @@ import java.util.StringTokenizer;
  */
 public class AppUpdater {
 
-    private static final String VERSION_URL = "https://raw.githubusercontent.com/hrkalona/Fractal-Zoomer/master/README.txt";
+    private static final String VERSION_URL = "https://raw.githubusercontent.com/hrkalona/Fractal-Zoomer/master/README.md";
+    private static final String VERSION_URL2 = "https://raw.githubusercontent.com/hrkalona/Fractal-Zoomer/master/README.txt";
     private static final String DOWNLOAD_URL = "https://sourceforge.net/projects/fractalzoomer/";
     //private static final int DELAY_MILLIS = 50;
 
     private static int getLatestVersion() {
-        InputStream is = null;
-        BufferedReader br;
-        String version = null;
 
+        int version = -1;
         try {
-            //Thread.sleep(DELAY_MILLIS);
+            version = getLatestVersionInternal(VERSION_URL);
+        }
+        catch (FileNotFoundException ex) {
+            try {
+                version = getLatestVersionInternal(VERSION_URL2);
+            }
+            catch (Exception ex2) {
+                return -1;
+            }
+        }
+        catch (Exception ex) {
+            return -1;
+        }
 
-            URL url = new URL(VERSION_URL);
+        return version;
+
+    }
+
+    private static int getLatestVersionInternal(String urlStr) throws IOException {
+        int version = -1;
+        InputStream is = null;
+        try {
+            URL url = new URL(urlStr);
             is = url.openStream();
-            br = new BufferedReader(new InputStreamReader(is));
+            BufferedReader br = new BufferedReader(new InputStreamReader(is));
             String temp = br.readLine();
-            
+
             StringTokenizer tokenizer = new StringTokenizer(temp);
 
-            if(tokenizer.countTokens() == 3) {
+            if (tokenizer.countTokens() == 3) {
                 String token1 = tokenizer.nextToken();
                 String token2 = tokenizer.nextToken();
 
-                if(token1.equals("Fractal") && token2.equals("Zoomer")) {
-                    version = tokenizer.nextToken().replace(".", "");
-                }
-                else {
-                    return -1;
+                if (token1.equals("Fractal") && token2.equals("Zoomer")) {
+                    version = Integer.parseInt(tokenizer.nextToken().replace(".", ""));
                 }
             }
-            else {
-                return -1;
+        }
+        catch (Exception ex) {
+            if(is != null) {
+                is.close();
             }
-
-        }
-        catch(Exception e) {
-            //e.printStackTrace();
-            return -1;
-        }
-        finally {
-
-            try {
-                if(is != null) {
-                    is.close();
-                }
-            }
-            catch(IOException e) {
-            }
+            throw ex;
         }
 
-        try {
-            return Integer.parseInt(version);
-        }
-        catch(Exception ex) {
-            return -1;
-        }
+        is.close();
 
+        return version;
     }
 
     public static String[] checkVersion(int currentVersion) {

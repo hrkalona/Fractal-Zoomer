@@ -5,6 +5,8 @@ import fractalzoomer.core.*;
 import fractalzoomer.core.bla.BLA;
 import fractalzoomer.core.la.LAstep;
 import fractalzoomer.core.location.Location;
+import fractalzoomer.core.mipla.MipLAPair;
+import fractalzoomer.core.mipla.MipLAStep;
 import fractalzoomer.core.mpfr.MpfrBigNum;
 import fractalzoomer.core.mpir.MpirBigNum;
 import fractalzoomer.core.nanomb1.Nanomb1;
@@ -1135,6 +1137,7 @@ public class Mandelbrot extends Julia {
         boolean isSeriesInUse = TaskRender.APPROXIMATION_ALGORITHM == 1 && supportsSeriesApproximation();
         boolean isBLAInUse = TaskRender.APPROXIMATION_ALGORITHM == 2 && supportsBilinearApproximation();
         boolean isBLA2InUse = TaskRender.APPROXIMATION_ALGORITHM == 4 && supportsBilinearApproximation2();
+        boolean isBLA3InUse = TaskRender.APPROXIMATION_ALGORITHM == 5 && supportsBilinearApproximation3();
 
         boolean usesCircleBail = bailout_algorithm2.getId() == MainWindow.BAILOUT_CONDITION_CIRCLE;
         boolean preCalcNormData = (detectPeriod && detectPeriodAlgorithm == 0);
@@ -1448,6 +1451,9 @@ public class Mandelbrot extends Julia {
         }
         else if(isBLA2InUse) {
             calculateBLA2Wrapper(deepZoom, externalLocation, progress);
+        }
+        else if(isBLA3InUse) {
+            calculateBLA3Wrapper(deepZoom, progress);
         }
 
         if(gatherTinyRefPts) {
@@ -2131,6 +2137,11 @@ public class Mandelbrot extends Julia {
         return !burning_ship && !isJulia;
     }
 
+    @Override
+    public boolean supportsBilinearApproximation3() {
+        return !burning_ship && !isJulia;
+    }
+
     /*protected boolean mandelbrotOptimization(Complex pixel) {
     
      //if(!burning_ship) {
@@ -2605,22 +2616,21 @@ public class Mandelbrot extends Julia {
 
         precalculatePerturbationData(DeltaSub0);
 
-        double normSquared = 0;
-        double DeltaNormSquared = 0;
-
         double dre = DeltaSubN.getRe(), dim = DeltaSubN.getIm();
         double tempre, tempim, d0re = DeltaSub0.getRe(), d0im = DeltaSub0.getIm();
         double temp, zre = 0, zim = 0;
 
-        Complex z = complexIn[0];
-        Complex c = complexIn[1];
+        double normSquared = 0;
+        double DeltaNormSquared;
 
         Complex pixel = dpixel.plus(refPointSmall);
+        Complex z = complexIn[0];
+        Complex c = complexIn[1];
 
         double[] RefRe = reference.re;
         double[] RefIm = reference.im;
 
-        for (; iterations < max_iterations; iterations++) {//&& perturb_iterations < PerturbIterations;
+        while (iterations < max_iterations) {
 
             //No update values
 
@@ -2644,83 +2654,6 @@ public class Mandelbrot extends Julia {
                 return getAndAccumulateStatsBLA(res);
             }
 
-            // bla steps
-            BLA b = null;
-            while (B.isValid && iterations < max_iterations && (b = B.lookupBackwards(RefIteration, DeltaNormSquared, iterations, max_iterations)) != null) {
-
-                int l = b.getL();
-
-//                if(iterations + l > max_iterations) {
-//                    break;
-//                }
-
-                iterations += l;
-                bla_steps++;
-                bla_iterations += l;
-
-//                if (iterations >= max_iterations) {//problems on interior coloring
-//                    break;
-//                }
-
-                DeltaSubN = b.getValue(dre, dim, d0re, d0im);
-                dre = DeltaSubN.getRe();
-                dim = DeltaSubN.getIm();
-
-                DeltaNormSquared = dre * dre + dim * dim;
-
-                RefIteration += l;
-
-                // rebase
-
-                zold2.assign(zold);
-                zold.assign(z);
-
-                //No Plane influence work
-                //No Pre filters work
-                zre = RefRe[RefIteration] + dre;
-                zim = RefIm[RefIteration] + dim;
-                z.assign(zre, zim);
-                //No Post filters work
-                normSquared = zre * zre + zim * zim;
-
-                if (normSquared < DeltaNormSquared || (RefIteration >= MaxRefIteration)) {
-                    dre = zre;
-                    dim = zim;
-                    RefIteration = 0;
-                    DeltaNormSquared = normSquared;
-                    rebases++;
-                }
-
-                if (statistic != null) {
-                    statistic.insert(z, zold, zold2, iterations, c, start, c0, b);
-                }
-
-
-                if (trap != null) {
-                    trap.check(z, iterations);
-                }
-
-                if (bailout_algorithm2.escaped(z, zold, zold2, iterations, c, start, c0, normSquared, pixel)) {
-                    escaped = true;
-
-                    finalizeStatistic(true, z);
-                    Object[] object = {iterations, z, zold, zold2, c, start, c0, pixel};
-                    double res = out_color_algorithm.getResult(object);
-
-                    res = getFinalValueOut(res);
-
-                    if (outTrueColorAlgorithm != null) {
-                        setTrueColorOut(z, zold, zold2, iterations, c, start, c0, pixel);
-                    }
-
-                    return getAndAccumulateStatsBLA(res);
-                }
-            }
-
-            if (iterations >= max_iterations) {
-                break;
-            }
-
             // perturbation iteration
             tempre = 2 * RefRe[RefIteration] + dre;
             tempim = 2 * RefIm[RefIteration] + dim;
@@ -2732,37 +2665,92 @@ public class Mandelbrot extends Julia {
             dre = tempre + d0re;
             dim = tempim + d0im;
 
-            DeltaNormSquared = dre * dre + dim * dim;
-
             RefIteration++;
             perturb_iterations++;
 
-            // rebase
             zold2.assign(zold);
             zold.assign(z);
 
             //No Plane influence work
             //No Pre filters work
+            //No Post filters work
             if (max_iterations > 1) {
                 zre = RefRe[RefIteration] + dre;
                 zim = RefIm[RefIteration] + dim;
                 z.assign(zre, zim);
-            }
-            //No Post filters work
-            normSquared = zre * zre + zim * zim;
-
-            if (normSquared < DeltaNormSquared || (RefIteration >= MaxRefIteration)) {
-                dre = zre;
-                dim = zim;
-                DeltaNormSquared = normSquared;
-                RefIteration = 0;
-                rebases++;
             }
 
             if (statistic != null) {
                 statistic.insert(z, zold, zold2, iterations, c, start, c0);
             }
 
+            iterations++;
+
+            DeltaNormSquared = dre * dre + dim * dim;
+
+            BLA b = null;
+            while (B.isValid && iterations < max_iterations && (b = B.lookupBackwards(RefIteration, DeltaNormSquared, iterations, max_iterations)) != null) {
+
+                if (trap != null) {
+                    trap.check(z, iterations);
+                }
+
+                if(TaskRender.CHECK_BAILOUT_DURING_MIP_BLA_STEP) {
+                    normSquared = zre * zre + zim * zim;
+                    if (bailout_algorithm2.escaped(z, zold, zold2, iterations, c, start, c0, normSquared, pixel)) {
+                        escaped = true;
+
+                        finalizeStatistic(true, z);
+                        Object[] object = {iterations, z, zold, zold2, c, start, c0, pixel};
+                        double res = out_color_algorithm.getResult(object);
+
+                        res = getFinalValueOut(res);
+
+                        if (outTrueColorAlgorithm != null) {
+                            setTrueColorOut(z, zold, zold2, iterations, c, start, c0, pixel);
+                        }
+
+                        return getAndAccumulateStatsBLA(res);
+                    }
+                }
+
+                int l = b.getL();
+
+                RefIteration += l;
+                iterations += l;
+                bla_steps++;
+                bla_iterations += l;
+
+                DeltaSubN = b.getValue(dre, dim, d0re, d0im);
+                dre = DeltaSubN.getRe();
+                dim = DeltaSubN.getIm();
+
+                zold2.assign(zold);
+                zold.assign(z);
+
+                //No Plane influence work
+                //No Pre filters work
+                //No Post filters work
+                zre = RefRe[RefIteration] + dre;
+                zim = RefIm[RefIteration] + dim;
+                z.assign(zre, zim);
+
+                if (statistic != null) {
+                    statistic.insert(z, zold, zold2, iterations, c, start, c0, b);
+                }
+
+                DeltaNormSquared = dre * dre + dim * dim;
+            }
+
+            //rebase
+            normSquared = zre * zre + zim * zim;
+
+            if (normSquared < DeltaNormSquared || (RefIteration >= MaxRefIteration)) {
+                dre = zre;
+                dim = zim;
+                RefIteration = 0;
+                rebases++;
+            }
         }
 
         finalizeStatistic(false, z);
@@ -4163,6 +4151,186 @@ public class Mandelbrot extends Julia {
         }
 
         return getAndAccumulateStatsScaled(in);
+
+    }
+
+    @Override
+    public double iterateFractalWithPerturbationBLA3(Complex[] complexIn, Complex dpixel) {
+
+        if(TaskRender.COMPRESS_REFERENCE_IF_POSSIBLE) {
+            return super.iterateFractalWithPerturbationBLA3(complexIn, dpixel);
+        }
+
+        bla_steps = 0;
+        bla_iterations = 0;
+        perturb_iterations = 0;
+        rebases = 0;
+        iterations = 0;
+
+        int RefIteration = iterations;
+
+        int MaxRefIteration = getReferenceFinalIterationNumber(true, referenceData);
+
+        Complex[] deltas = initializePerturbation(dpixel);
+        Complex DeltaSubN = deltas[0]; // Delta z
+        Complex DeltaSub0 = deltas[1]; // Delta c
+
+        precalculatePerturbationData(DeltaSub0);
+
+        double dre = DeltaSubN.getRe(), dim = DeltaSubN.getIm();
+        double tempre, tempim, d0re = DeltaSub0.getRe(), d0im = DeltaSub0.getIm();
+        double temp, zre = 0, zim = 0;
+
+        double normSquared = 0;
+
+        Complex pixel = dpixel.plus(refPointSmall);
+        Complex z = complexIn[0];
+        Complex c = complexIn[1];
+
+        double magD0 = Math.max(Math.abs(d0re), Math.abs(d0im));
+
+        double[] RefRe = reference.re;
+        double[] RefIm = reference.im;
+
+        while (iterations < max_iterations) {
+
+            //No update values
+
+            if (trap != null) {
+                trap.check(z, iterations);
+            }
+
+            if (bailout_algorithm2.escaped(z, zold, zold2, iterations, c, start, c0, normSquared, pixel)) {
+                escaped = true;
+
+                finalizeStatistic(true, z);
+                Object[] object = {iterations, z, zold, zold2, c, start, c0, pixel};
+                double res = out_color_algorithm.getResult(object);
+
+                res = getFinalValueOut(res);
+
+                if (outTrueColorAlgorithm != null) {
+                    setTrueColorOut(z, zold, zold2, iterations, c, start, c0, pixel);
+                }
+
+                return getAndAccumulateStatsBLA(res);
+            }
+
+            // perturbation iteration
+            tempre = 2 * RefRe[RefIteration] + dre;
+            tempim = 2 * RefIm[RefIteration] + dim;
+
+            temp = tempre * dre - tempim * dim;
+            tempim = tempre * dim + tempim * dre;
+            tempre = temp;
+
+            dre = tempre + d0re;
+            dim = tempim + d0im;
+
+            RefIteration++;
+            perturb_iterations++;
+
+            zold2.assign(zold);
+            zold.assign(z);
+
+            //No Plane influence work
+            //No Pre filters work
+            //No Post filters work
+            if (max_iterations > 1) {
+                zre = RefRe[RefIteration] + dre;
+                zim = RefIm[RefIteration] + dim;
+                z.assign(zre, zim);
+            }
+
+            if (statistic != null) {
+                statistic.insert(z, zold, zold2, iterations, c, start, c0);
+            }
+
+            iterations++;
+
+            while (mLA.valid && iterations < max_iterations) {
+                MipLAPair pair = mLA.Lookup(RefIteration, Math.max(Math.abs(dre), Math.abs(dim)), magD0);
+                MipLAStep step = pair.step;
+                if(step == null) {
+                    break;
+                }
+
+                int l = pair.length;
+
+                if(iterations + l > max_iterations) {
+                    break;
+                }
+
+                if (trap != null) {
+                    trap.check(z, iterations);
+                }
+
+                if(TaskRender.CHECK_BAILOUT_DURING_MIP_BLA_STEP) {
+                    normSquared = zre * zre + zim * zim;
+                    if (bailout_algorithm2.escaped(z, zold, zold2, iterations, c, start, c0, normSquared, pixel)) {
+                        escaped = true;
+
+                        finalizeStatistic(true, z);
+                        Object[] object = {iterations, z, zold, zold2, c, start, c0, pixel};
+                        double res = out_color_algorithm.getResult(object);
+
+                        res = getFinalValueOut(res);
+
+                        if (outTrueColorAlgorithm != null) {
+                            setTrueColorOut(z, zold, zold2, iterations, c, start, c0, pixel);
+                        }
+
+                        return getAndAccumulateStatsBLA(res);
+                    }
+                }
+
+                RefIteration += l;
+                iterations += l;
+                bla_steps++;
+                bla_iterations += l;
+
+                DeltaSubN = step.getValue(dre, dim, d0re, d0im);
+                dre = DeltaSubN.getRe();
+                dim = DeltaSubN.getIm();
+
+                zold2.assign(zold);
+                zold.assign(z);
+
+                //No Plane influence work
+                //No Pre filters work
+                //No Post filters work
+                zre = RefRe[RefIteration] + dre;
+                zim = RefIm[RefIteration] + dim;
+                z.assign(zre, zim);
+
+                if (statistic != null) {
+                    statistic.insert(z, zold, zold2, iterations, c, start, c0, step, l);
+                }
+            }
+
+
+            //rebase
+            normSquared = zre * zre + zim * zim;
+
+            if (normSquared < dre * dre + dim * dim || (RefIteration >= MaxRefIteration)) {
+                dre = zre;
+                dim = zim;
+                RefIteration = 0;
+                rebases++;
+            }
+        }
+
+        finalizeStatistic(false, z);
+        Object[] object = {z, zold, zold2, c, start, c0, pixel};
+        double in = in_color_algorithm.getResult(object);
+
+        in = getFinalValueIn(in);
+
+        if (inTrueColorAlgorithm != null) {
+            setTrueColorIn(z, zold, zold2, iterations, c, start, c0, pixel);
+        }
+
+        return getAndAccumulateStatsBLA(in);
 
     }
 

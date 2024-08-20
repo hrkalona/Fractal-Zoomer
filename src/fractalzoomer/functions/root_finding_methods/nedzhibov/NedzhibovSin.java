@@ -58,7 +58,7 @@ public class NedzhibovSin extends NedzhibovRootFindingMethod {
 
         Complex combined_dfz2 = temp2.cos();
 
-        nedzhibovMethod(complex[0], fz, dfz, combined_dfz, combined_dfz2);;
+        nedzhibovMethod(complex[0], fz, dfz, combined_dfz, combined_dfz2);
 
     }
 

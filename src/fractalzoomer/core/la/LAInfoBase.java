@@ -11,10 +11,10 @@ import static fractalzoomer.core.la.LAReference.f;
 
 public abstract  class LAInfoBase extends GenericLAInfo {
     public static int DETECTION_METHOD = ApproximationDefaultSettings.DETECTION_METHOD;
-    public static double Stage0PeriodDetectionThreshold = ApproximationDefaultSettings.Stage0PeriodDetectionThreshold;
-    public static double PeriodDetectionThreshold = ApproximationDefaultSettings.PeriodDetectionThreshold;
-    public static double Stage0PeriodDetectionThreshold2 = ApproximationDefaultSettings.Stage0PeriodDetectionThreshold2;
-    public static double PeriodDetectionThreshold2 = ApproximationDefaultSettings.PeriodDetectionThreshold2;
+    public static double Stage0DipDetectionThreshold = ApproximationDefaultSettings.Stage0DipDetectionThreshold;
+    public static double DipDetectionThreshold = ApproximationDefaultSettings.DipDetectionThreshold;
+    public static double Stage0DipDetectionThreshold2 = ApproximationDefaultSettings.Stage0DipDetectionThreshold2;
+    public static double DipDetectionThreshold2 = ApproximationDefaultSettings.DipDetectionThreshold2;
     public static double LAThresholdScale = ApproximationDefaultSettings.LAThresholdScale;
     public static double LAThresholdCScale = ApproximationDefaultSettings.LAThresholdCScale;
 
@@ -25,12 +25,12 @@ public abstract  class LAInfoBase extends GenericLAInfo {
     protected double LAThreshold, LAThresholdC;
 
     @Override
-    protected boolean DetectPeriod(MantExpComplex z) {
+    protected boolean DetectDip(MantExpComplex z) {
         return false;
     }
 
     @Override
-    protected boolean Stage0DetectPeriod(MantExpComplex z) {
+    protected boolean Stage0DetectDip(MantExpComplex z) {
         return false;
     }
 
@@ -209,13 +209,13 @@ public abstract  class LAInfoBase extends GenericLAInfo {
     }
 
     @Override
-    protected boolean Stage0DetectPeriod(Complex z) {
-        return z.chebyshevNorm() / new Complex(ZCoeffRe, ZCoeffIm).chebyshevNorm() * LAThresholdScale < LAThreshold * Stage0PeriodDetectionThreshold;
+    protected boolean Stage0DetectDip(Complex z) {
+        return z.chebyshevNorm() / new Complex(ZCoeffRe, ZCoeffIm).chebyshevNorm() * LAThresholdScale < LAThreshold * Stage0DipDetectionThreshold;
     }
 
     @Override
-    protected boolean DetectPeriod(Complex z) {
-        return z.chebyshevNorm() / new Complex(ZCoeffRe, ZCoeffIm).chebyshevNorm() * LAThresholdScale < LAThreshold * PeriodDetectionThreshold;
+    protected boolean DetectDip(Complex z) {
+        return z.chebyshevNorm() / new Complex(ZCoeffRe, ZCoeffIm).chebyshevNorm() * LAThresholdScale < LAThreshold * DipDetectionThreshold;
     }
 
 

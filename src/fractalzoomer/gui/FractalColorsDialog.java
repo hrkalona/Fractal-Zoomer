@@ -264,11 +264,7 @@ public class FractalColorsDialog extends JDialog {
         JButton close = new MyButton("Cancel");
         close.setFocusable(false);
 
-        close.addActionListener(e -> {
-
-            dispose();
-
-        });
+        close.addActionListener(e -> dispose());
 
         getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
                 KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "Cancel");

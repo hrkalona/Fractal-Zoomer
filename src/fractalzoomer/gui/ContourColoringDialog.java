@@ -76,8 +76,7 @@ public class ContourColoringDialog extends JDialog {
         min_contour.setEnabled(contour_coloring_algorithm_opt.getSelectedIndex() == 0
         || contour_coloring_algorithm_opt.getSelectedIndex() == 2 || contour_coloring_algorithm_opt.getSelectedIndex() == 3);
 
-        contour_coloring_algorithm_opt.addActionListener(e -> {min_contour.setEnabled(contour_coloring_algorithm_opt.getSelectedIndex() == 0
-                || contour_coloring_algorithm_opt.getSelectedIndex() == 2 || contour_coloring_algorithm_opt.getSelectedIndex() == 3);});
+        contour_coloring_algorithm_opt.addActionListener(e -> min_contour.setEnabled(contour_coloring_algorithm_opt.getSelectedIndex() == 0 || contour_coloring_algorithm_opt.getSelectedIndex() == 2 || contour_coloring_algorithm_opt.getSelectedIndex() == 3));
 
         final JComboBox<String> fractional_transfer = new JComboBox<>(Constants.fractionalTransfer);
         fractional_transfer.setSelectedIndex(s.pps.cns.fractionalTransfer);

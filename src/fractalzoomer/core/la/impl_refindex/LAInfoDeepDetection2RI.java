@@ -24,13 +24,13 @@ public class LAInfoDeepDetection2RI extends LAInfoDeepRI {
     }
 
     @Override
-    protected boolean DetectPeriod(MantExpComplex z) {
-        return z.chebyshevNorm().compareToBothPositive(new MantExp(MinMagExp, MinMagMant).multiply(PeriodDetectionThreshold2)) < 0;
+    protected boolean DetectDip(MantExpComplex z) {
+        return z.chebyshevNorm().compareToBothPositive(new MantExp(MinMagExp, MinMagMant).multiply(DipDetectionThreshold2)) < 0;
     }
 
     @Override
-    protected boolean Stage0DetectPeriod(MantExpComplex z) {
-        return z.chebyshevNorm().compareToBothPositive(new MantExp(MinMagExp, MinMagMant).multiply(Stage0PeriodDetectionThreshold2)) < 0;
+    protected boolean Stage0DetectDip(MantExpComplex z) {
+        return z.chebyshevNorm().compareToBothPositive(new MantExp(MinMagExp, MinMagMant).multiply(Stage0DipDetectionThreshold2)) < 0;
     }
 
     @Override
@@ -79,13 +79,13 @@ public class LAInfoDeepDetection2RI extends LAInfoDeepRI {
 
         out.RefIndex = RefIndex;
 
-        MantExp MinMag = new MantExp(MinMagExp, MinMagMant);;
+        MantExp MinMag = new MantExp(MinMagExp, MinMagMant);
         MantExp outMinMag = MantExp.minBothPositiveReduced(ChebyMagz, MinMag);
 
         out.MinMagExp = outMinMag.getExp();
         out.MinMagMant = outMinMag.getMantissa();
 
-        return outMinMag.compareToBothPositive(MinMag.multiply(Stage0PeriodDetectionThreshold2)) < 0;
+        return outMinMag.compareToBothPositive(MinMag.multiply(Stage0DipDetectionThreshold2)) < 0;
     }
 
     @Override
@@ -166,7 +166,7 @@ public class LAInfoDeepDetection2RI extends LAInfoDeepRI {
         out.MinMagExp = outMinMag.getExp();
         out.MinMagMant = outMinMag.getMantissa();
 
-        return temp.compareToBothPositive(MinMag.multiply(PeriodDetectionThreshold2)) < 0;
+        return temp.compareToBothPositive(MinMag.multiply(DipDetectionThreshold2)) < 0;
     }
     @Override
     protected LAInfoDeepDetection2RI Composite(LAInfoDeepRI LA, ReferenceDecompressor referenceDecompressor)  {

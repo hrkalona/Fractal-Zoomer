@@ -30,7 +30,7 @@ public class PixelExtraData {
             rgb_values = new int[length];
             escaped = new boolean[length];
         }
-        Arrays.fill(rgb_values, 0, length, Constants.EMPTY_COLOR);
+        Arrays.fill(rgb_values, Constants.EMPTY_COLOR);
     }
 
     public void set(int index, int rgb, double value, boolean esc, int totalSamples) {

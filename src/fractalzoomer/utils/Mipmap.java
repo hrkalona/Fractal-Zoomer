@@ -8,7 +8,7 @@ public class Mipmap {
     int levels;
     BufferedImage []images;
 
-    public int m_pixel_rgb(double r, double g, double b) {;
+    public int m_pixel_rgb(double r, double g, double b) {
         int ri = (int)Math.min(Math.max(255 * r + 0.5, 0), 255);
         int gi = (int)Math.min(Math.max(255 * g + 0.5, 0), 255);
         int bi = (int)Math.min(Math.max(255 * b + 0.5, 0), 255);
@@ -106,9 +106,7 @@ public class Mipmap {
         x1 = Math.max(0, Math.min(x1, width - 1));
         y1 = Math.max(0, Math.min(y1, height - 1));
 
-        int color1 = mipmap.getRGB(x1, y1);
-
-        return color1;
+        return mipmap.getRGB(x1, y1);
     }
 
     private int bilinearInterpolate(BufferedImage mipmap, double u, double v) {
@@ -159,9 +157,7 @@ public class Mipmap {
        // int color2 = closest(mipmap2, u, v);
 
         // Blend the colors using trilinear interpolation
-        int blendedColor = m_pixel_mix(color1, color2, blend);
-
-        return blendedColor;
+        return m_pixel_mix(color1, color2, blend);
     }
 
     /*

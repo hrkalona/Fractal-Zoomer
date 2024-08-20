@@ -169,7 +169,7 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
             Complex zsqr = x.square();
             return c4.times(x).sub_mutable(zsqr.times(3)).sub_mutable(csqrs3).times_mutable(zsqr).plus_mutable(csqr).sub_mutable(c4.times(x));};
 
-        Function<Complex, Complex> f2 = x -> c.sub(x).times_mutable(x).times_mutable(9).sub_mutable(csqr2s3).times_mutable(x).sub_mutable(c);;
+        Function<Complex, Complex> f2 = x -> c.sub(x).times_mutable(x).times_mutable(9).sub_mutable(csqr2s3).times_mutable(x).sub_mutable(c);
 
         Function<Complex, Complex> f3 = x -> c2.times(x).sub(x.square().times_mutable(3)).plus_mutable(1);
 
@@ -211,7 +211,7 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
             MantExpComplex zsqr = x.square();
             return c4.times(x).sub_mutable(zsqr.times(MantExp.THREE)).sub_mutable(csqrs3).times_mutable(zsqr).plus_mutable(csqr).sub_mutable(c4.times(x));};
 
-        Function<MantExpComplex, MantExpComplex> f2 = x -> c.sub(x).times_mutable(x).times_mutable(MantExp.NINE).sub_mutable(csqr2s3).times_mutable(x).sub_mutable(c);;
+        Function<MantExpComplex, MantExpComplex> f2 = x -> c.sub(x).times_mutable(x).times_mutable(MantExp.NINE).sub_mutable(csqr2s3).times_mutable(x).sub_mutable(c);
 
         Function<MantExpComplex, MantExpComplex> f3 = x -> c2.times(x).sub(x.square().times_mutable(MantExp.THREE)).plus_mutable(MantExp.ONE);
 

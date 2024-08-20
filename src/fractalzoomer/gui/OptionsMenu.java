@@ -263,7 +263,7 @@ public class OptionsMenu extends MyMenu {
 
         metrics_opt.addActionListener(e ->ptr.Metrics());
 
-        thread_stats_opt.addActionListener(e -> ptr.ThreadStats());
+        thread_stats_opt.addActionListener(e -> ptr.TaskStats());
 
         toolbar_opt.addActionListener(e -> ptr.setToolbar());
 
@@ -376,7 +376,7 @@ public class OptionsMenu extends MyMenu {
 
     }
 
-    public JMenuItem getGreedyAlgorithm() {
+    public JMenuItem getRenderingAlgorithm() {
 
         return optimizations_menu.getRenderingAlgorithm();
 

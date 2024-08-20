@@ -36,11 +36,13 @@ public class PerturbationTheoryHelpDialog {
                 "<ul>" +
                 "<li>Mandelbrot (2-5) powers and their burning ship variants</li>" +
                 "<li>Mandelbar</li>" +
+                "<li>Mandelbar Cubed</li>" +
                 "<li>Lambda</li>" +
                 "<li>Magnet 1</li>" +
                 "<li>Magnet Pataki (2-5) powers</li>" +
                 "<li>z = z^2 + c^2</li>" +
-                "<li>z = c * (z^2 + z^-2)" +
+                "<li>z = c * (z^2 + z^-2)</li>" +
+                "<li>z = 2*z^2 - z^3 + c</li>" +
                 "<li>Buffalo Mandelbrot</li>" +
                 "<li>Celtic Mandelbrot</li>" +
                 "<li>Perpendicular Mandelbrot</li>" +

@@ -15,7 +15,7 @@ class LAStageInfo {
     int LAIndex;
     int MacroItCount;
     boolean UseDoublePrecision;
-};
+}
 
 class  LAInfoI {
     int StepLength, NextStageLAIndex;
@@ -62,7 +62,7 @@ public class LAReference {
     public static boolean CREATE_AT = true;
 
     private static final int lowBound = ApproximationDefaultSettings.lowBound;
-    public static double periodDivisor = ApproximationDefaultSettings.PeriodDivisor;
+    public static double rootDivisor = ApproximationDefaultSettings.RootDivisor;
 
     private static final MantExp doubleRadiusLimit = new MantExp(0x1.0p-896);
     public static MantExp doubleThresholdLimit = new MantExp(ApproximationDefaultSettings.DoubleThresholdLimit);
@@ -133,7 +133,7 @@ public class LAReference {
 
         if (currentLaIndex >= LAsPerThread[threadId].length) {
             long newLen  = ((long) LAsPerThread[threadId].length) << 1;
-            if(newLen > (long)Integer.MAX_VALUE) {
+            if(newLen > Integer.MAX_VALUE) {
                 throw new Exception("No space");
             }
             LAsPerThread[threadId] = Arrays.copyOf(LAsPerThread[threadId], (int)newLen);
@@ -167,7 +167,7 @@ public class LAReference {
             return  (int)Math.round(Math.pow(val, 1.0 / NthRoot));
         }
 
-        double NthRoot = log2(val) / periodDivisor;
+        double NthRoot = log2(val) / rootDivisor;
         NthRoot = NthRoot < 1 ? 1 : NthRoot;
         return  (int)Math.round(Math.pow(val, 1.0 / NthRoot));
     }
@@ -204,9 +204,9 @@ public class LAReference {
 
             GenericLAInfo NewLA = GenericLAInfo.create(maxRefIteration, deepZoom);
 
-            boolean PeriodDetected = LA.Step(NewLA, i, referenceDecompressor);
+            boolean dipDetected = LA.Step(NewLA, i, referenceDecompressor);
 
-            if (PeriodDetected) {
+            if (dipDetected) {
                 Period = i;
                 LAI.StepLength = Period;
 
@@ -279,9 +279,9 @@ public class LAReference {
 
         for (; i < maxRefIteration; i++) {
             GenericLAInfo NewLA = GenericLAInfo.create(maxRefIteration, deepZoom);
-            boolean PeriodDetected = LA.Step(NewLA, i, referenceDecompressor);
+            boolean dipDetected = LA.Step(NewLA, i, referenceDecompressor);
 
-            if (PeriodDetected || i >= PeriodEnd) {
+            if (dipDetected || i >= PeriodEnd) {
                 LAI.StepLength = i - PeriodBegin;
 
                 LAData laData = new LAData();
@@ -299,10 +299,10 @@ public class LAReference {
                 boolean detected;
 
                 if(deepZoom) {
-                    detected = NewLA.DetectPeriod(f.getArrayDeepValue(referenceDecompressor, refDeep, ip1));
+                    detected = NewLA.DetectDip(f.getArrayDeepValue(referenceDecompressor, refDeep, ip1));
                 }
                 else {
-                    detected = NewLA.DetectPeriod(f.getArrayValue(referenceDecompressor, ref, ip1));
+                    detected = NewLA.DetectDip(f.getArrayValue(referenceDecompressor, ref, ip1));
                 }
 
                 if (detected || ip1 >= maxRefIteration) {
@@ -348,7 +348,7 @@ public class LAReference {
     private boolean CreateLAFromOrbit_MT(DoubleReference ref, DeepReference refDeep, int maxRefIteration, boolean deepZoom, Fractal f) throws Exception {
 
         int WorkThreshholdForThreads = 50000;
-        int MaxThreadCount = TaskRender.la_thread_executor.getCorePoolSize();
+        int MaxThreadCount = TaskRender.approximation_thread_executor.getCorePoolSize();
 
         ThreadCount = maxRefIteration / WorkThreshholdForThreads;
 
@@ -391,9 +391,9 @@ public class LAReference {
 
             GenericLAInfo NewLA = GenericLAInfo.create(maxRefIteration, deepZoom);
 
-            boolean PeriodDetected = LA.Step(NewLA, i, referenceDecompressor);
+            boolean dipDetected = LA.Step(NewLA, i, referenceDecompressor);
 
-            if (PeriodDetected) {
+            if (dipDetected) {
                 Period = i;
                 LAI.StepLength = Period;
 
@@ -493,14 +493,13 @@ public class LAReference {
                 try {
                     int threadBoundary = maxRefIteration / ThreadCount;
                     int nextThread = ThreadID + 1;
-                    int prevStart = 0;
                     ReferenceDecompressor referenceDecompressor = referenceDecompressors[ThreadID];
 
                     for (; i < maxRefIteration; i++) {
                         GenericLAInfo NewLA = GenericLAInfo.create(maxRefIteration, deepZoom);
-                        boolean PeriodDetected = LA.Step(NewLA, i, referenceDecompressor);
+                        boolean dipDetected = LA.Step(NewLA, i, referenceDecompressor);
 
-                        if (PeriodDetected || i >= PeriodEnd) {
+                        if (dipDetected || i >= PeriodEnd) {
                             LAI.StepLength = i - PeriodBegin;
 
                             LAData laData = new LAData();
@@ -518,9 +517,9 @@ public class LAReference {
                             boolean detected;
 
                             if (deepZoom) {
-                                detected = NewLA.DetectPeriod(f.getArrayDeepValue(referenceDecompressor, refDeep, ip1));
+                                detected = NewLA.DetectDip(f.getArrayDeepValue(referenceDecompressor, refDeep, ip1));
                             } else {
-                                detected = NewLA.DetectPeriod(f.getArrayValue(referenceDecompressor, ref, ip1));
+                                detected = NewLA.DetectDip(f.getArrayValue(referenceDecompressor, ref, ip1));
                             }
 
                             if (detected || ip1 >= maxRefIteration) {
@@ -591,7 +590,6 @@ public class LAReference {
                         int nextThread = ThreadID + 1;
                         int Begin = (int)((long)maxRefIteration * ThreadID / ThreadCount);
                         int End = (int)((long)maxRefIteration * (ThreadID + 1) / ThreadCount);
-                        int prevStart = 0;
 
                         int j = Begin;
 
@@ -609,14 +607,14 @@ public class LAReference {
 
                         int PeriodBegin = 0;
                         int PeriodEnd = 0;
-                        boolean PeriodDetected2 = false;
-                        boolean PeriodDetected = false;
+                        boolean dipDetected2 = false;
+                        boolean dipDetected = false;
 
                         for (; j2 < maxRefIteration || j1 < maxRefIteration; j1++, j2++) {
                             GenericLAInfo NewLA = GenericLAInfo.create(maxRefIteration, deepZoom);
-                            PeriodDetected = LA_.Step(NewLA, j1, referenceDecompressor);
+                            dipDetected = LA_.Step(NewLA, j1, referenceDecompressor);
 
-                            if(PeriodDetected) {
+                            if(dipDetected) {
                                 LAI_.NextStageLAIndex = j1;
                                 PeriodBegin = j1;
                                 PeriodEnd = PeriodBegin + Period;
@@ -637,9 +635,9 @@ public class LAReference {
 
                             if(j2 < maxRefIteration) {
                                 GenericLAInfo NewLA2 = GenericLAInfo.create(maxRefIteration, deepZoom);
-                                PeriodDetected2 = LA_2.Step(NewLA2, j2, referenceDecompressor);
+                                dipDetected2 = LA_2.Step(NewLA2, j2, referenceDecompressor);
 
-                                if (PeriodDetected2) {
+                                if (dipDetected2) {
                                     LAI_.NextStageLAIndex = j2;
                                     PeriodBegin = j2;
                                     PeriodEnd = PeriodBegin + Period;
@@ -661,11 +659,11 @@ public class LAReference {
 
                         }
 
-                        if(PeriodDetected2) {
+                        if(dipDetected2) {
                             LA_ = LA_2;
                             j = j2;
                         }
-                        else if(PeriodDetected) {
+                        else if(dipDetected) {
                             j = j1;
                         }
                         else {
@@ -690,9 +688,9 @@ public class LAReference {
 
                         for (; j < maxRefIteration; j++) {
                             GenericLAInfo NewLA = GenericLAInfo.create(maxRefIteration, deepZoom);
-                            PeriodDetected = LA_.Step(NewLA, j, referenceDecompressor);
+                            dipDetected = LA_.Step(NewLA, j, referenceDecompressor);
 
-                            if(PeriodDetected || j >= PeriodEnd) {
+                            if(dipDetected || j >= PeriodEnd) {
                                 LAI_.StepLength = j - PeriodBegin;
 
                                 LAData laData = new LAData();
@@ -709,10 +707,10 @@ public class LAReference {
                                 boolean detected;
 
                                 if(deepZoom) {
-                                    detected = NewLA.DetectPeriod(f.getArrayDeepValue(referenceDecompressor, refDeep, jp1));
+                                    detected = NewLA.DetectDip(f.getArrayDeepValue(referenceDecompressor, refDeep, jp1));
                                 }
                                 else {
-                                    detected = NewLA.DetectPeriod(f.getArrayValue(referenceDecompressor, ref, jp1));
+                                    detected = NewLA.DetectDip(f.getArrayValue(referenceDecompressor, ref, jp1));
                                 }
 
                                 if (detected || jp1 >= maxRefIteration) {
@@ -775,7 +773,7 @@ public class LAReference {
         }
 
         for(int i = 0; i < Tasks.length; i++) {
-            futures.add(TaskRender.la_thread_executor.submit(Tasks[i]));
+            futures.add(TaskRender.approximation_thread_executor.submit(Tasks[i]));
         }
 
         for(int i = 0; i < futures.size(); i++) {
@@ -869,9 +867,9 @@ public class LAReference {
             int PrevStageLAIndexj = PrevStageLAIndex + j;
             LAData prevLaDataj = LAs[PrevStageLAIndexj];
             GenericLAInfo PrevStageLAj = prevLaDataj.la;
-            boolean PeriodDetected = LA.Composite(NewLA, PrevStageLAj, referenceDecompressor);
+            boolean dipDetected = LA.Composite(NewLA, PrevStageLAj, referenceDecompressor);
 
-            if (PeriodDetected) {
+            if (dipDetected) {
                 if (PrevStageLAj.isLAThresholdZero()) break;
                 Period = i;
 
@@ -889,7 +887,7 @@ public class LAReference {
                 LAData prevLaDatajp1 = LAs[PrevStageLAIndexjp1];
                 GenericLAInfo PrevStageLAjp1 = prevLaDatajp1.la;
 
-                if (NewLA.DetectPeriod(PrevStageLAjp1.getRef(f)) || j + 1 >= PrevStageMacroItCount) {
+                if (NewLA.DetectDip(PrevStageLAjp1.getRef(f)) || j + 1 >= PrevStageMacroItCount) {
                     LA = PrevStageLAj;
                     i += prevLaDataj.StepLength;
                     j++;
@@ -965,9 +963,9 @@ public class LAReference {
 
             LAData prevLaDataj = LAs[PrevStageLAIndexj];
             GenericLAInfo PrevStageLAj = prevLaDataj.la;
-            boolean PeriodDetected = LA.Composite(NewLA, PrevStageLAj, referenceDecompressor);
+            boolean dipDetected = LA.Composite(NewLA, PrevStageLAj, referenceDecompressor);
 
-            if (PeriodDetected || i >= PeriodEnd) {
+            if (dipDetected || i >= PeriodEnd) {
                 LAI.StepLength = i - PeriodBegin;
 
                 LAData laData = new LAData();
@@ -982,7 +980,7 @@ public class LAReference {
                 LAData prevLaDatajP1 = LAs[PrevStageLAIndexj + 1];
                 GenericLAInfo PrevStageLAjp1 = prevLaDatajP1.la;
 
-                if (NewLA.DetectPeriod(PrevStageLAjp1.getRef(f)) || j + 1 >= PrevStageMacroItCount) {
+                if (NewLA.DetectDip(PrevStageLAjp1.getRef(f)) || j + 1 >= PrevStageMacroItCount) {
                     LA = PrevStageLAj;
                 } else {
                     LA = PrevStageLAj.Composite(PrevStageLAjp1, referenceDecompressor);
@@ -1060,13 +1058,13 @@ public class LAReference {
                 return;
             }
 
-            boolean PeriodDetected;
+            boolean sucessful;
             try {
                 if(TaskRender.USE_THREADS_FOR_BLA2) {
-                    PeriodDetected = CreateLAFromOrbit_MT(refData.Reference, refDeepData.Reference, maxRefIteration, deepZoom, f);
+                    sucessful = CreateLAFromOrbit_MT(refData.Reference, refDeepData.Reference, maxRefIteration, deepZoom, f);
                 }
                 else {
-                    PeriodDetected = CreateLAFromOrbit(refData.Reference, refDeepData.Reference, maxRefIteration, deepZoom, f);
+                    sucessful = CreateLAFromOrbit(refData.Reference, refDeepData.Reference, maxRefIteration, deepZoom, f);
                 }
             }
             catch (InvalidCalculationException ex) {
@@ -1074,7 +1072,7 @@ public class LAReference {
                 return;
             }
 
-            if (!PeriodDetected) return;
+            if (!sucessful) return;
 
             if (deepZoom && (!f.useFullFloatExp() || CONVERT_TO_DOUBLE_WHEN_POSSIBLE) && DoubleUsableAtPrevStage(0, radius)) {
                 performDoublePrecisionSimplePerturbation = true;
@@ -1088,7 +1086,7 @@ public class LAReference {
                 int CurrentStage = LAStageCount;
 
                 try {
-                    PeriodDetected = CreateNewLAStage(maxRefIteration, deepZoom, PrevStage, CurrentStage);
+                    sucessful = CreateNewLAStage(maxRefIteration, deepZoom, PrevStage, CurrentStage);
                 }
                 catch (InvalidCalculationException ex) {
                     DismissStage(CurrentStage);
@@ -1104,7 +1102,7 @@ public class LAReference {
                     MinimizeStage(PrevStage);
                 }
 
-                if (!PeriodDetected) break;
+                if (!sucessful) break;
             }
 
             if (deepZoom && !dismissedStage && (!f.useFullFloatExp() || CONVERT_TO_DOUBLE_WHEN_POSSIBLE) && DoubleUsableAtPrevStage(LAStageCount, radius)) {

@@ -1,4 +1,4 @@
-package fractalzoomer.utils;
+package fractalzoomer.utils.big_arrays;
 
 import java.util.Arrays;
 

@@ -163,11 +163,7 @@ public class PlaneVisualizationDialog extends JDialog {
         JButton ok = new MyButton("Ok");
         getRootPane().setDefaultButton(ok);
         ok.setFocusable(false);
-        ok.addActionListener(e -> {
-
-            dispose();
-
-        });
+        ok.addActionListener(e -> dispose());
 
         getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
                 KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "Ok");

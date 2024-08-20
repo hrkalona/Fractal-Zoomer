@@ -26,6 +26,7 @@ public class FunctionUser1ArgumentExpressionNode implements ExpressionNode {
     private ExpressionNode argument;
 
     private UserDefinedFunctionsInterface lambda;
+    //private static MethodHandle mh;
 
     /**
      * Construct a function by id and argument.
@@ -103,10 +104,14 @@ public class FunctionUser1ArgumentExpressionNode implements ExpressionNode {
     public Complex getValue() {
 
         try {
+            //return (Complex) mh.invokeExact(argument.getValue());
             return lambda.f(argument.getValue());
         } catch (Exception ex) {
             return new Complex();
         }
+//        catch (Throwable ex) {
+//            return new Complex();
+//        }
 
         //throw new EvaluationException("Invalid function id " + function + "!");
     }
@@ -126,6 +131,26 @@ public class FunctionUser1ArgumentExpressionNode implements ExpressionNode {
     }
 
     private void createUserFunction() {
+
+//        try {
+//            Method method = Parser.userClass.getDeclaredMethod(FUNC_NAME + (function + 1), Complex.class);
+//
+//            if (!Modifier.isStatic(method.getModifiers())) {
+//                throw new ParserException("Method modifier error: Method " + method.getName() + " must be declared static.");
+//            }
+//
+//            if (!method.getReturnType().equals(Complex.class)) {
+//                throw new ParserException("Return type error: Method " + method.getName() + " must have a Complex return type.");
+//            }
+//
+//            mh = Parser.lookup.unreflect(method);
+//        }
+//        catch (NoSuchMethodException ex) {
+//            throw new ParserException("Method not found error: " + Parser.sanitizeMessage(ex.getMessage()) + ".\n"
+//                    + "If the function is missing from UserDefinedFunctions.java\nrename the old file, for backup, and restart the application.");
+//        } catch (Throwable ex) {
+//            throw new ParserException("Error: " + Parser.sanitizeMessage(ex.getMessage()));
+//        }
 
         try {
             Method method = Parser.userClass.getDeclaredMethod(FUNC_NAME + (function + 1), Complex.class);

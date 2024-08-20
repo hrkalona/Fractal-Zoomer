@@ -44,8 +44,8 @@ public class DoubleReference {
     }
 
     public void reset() {
-        Arrays.fill(re, 0, re.length, 0);
-        Arrays.fill(im, 0, im.length, 0);
+        Arrays.fill(re, 0);
+        Arrays.fill(im, 0);
     }
 
     public DoubleReference(int length, int lengthOverride) {
