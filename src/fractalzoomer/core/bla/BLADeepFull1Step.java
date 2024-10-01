@@ -6,7 +6,7 @@ import fractalzoomer.core.MantExpComplexFull;
 
 public class BLADeepFull1Step extends BLADeepFull {
     //This class Assumes that B is 1 + 0i
-    public static MantExpComplex B = MantExpComplexFull.ONE;
+    public static final MantExpComplex B = MantExpComplexFull.ONE;
 
     protected BLADeepFull1Step(MantExp r2, MantExpComplex A) {
         super(r2, A);

@@ -358,31 +358,31 @@ class ColorPoint implements Comparable<ColorPoint> {
 
 
     public class ColorPaletteEditorPanel extends JPanel {
-        private volatile static ColorComponent redComponent;
-        private volatile static ColorComponent greenComponent;
-        private volatile static ColorComponent blueComponent;
-        private volatile static BufferedImage palette_preview;
+        private static ColorComponent redComponent;
+        private static ColorComponent greenComponent;
+        private static ColorComponent blueComponent;
+        private static BufferedImage palette_preview;
 
-        private volatile static JCheckBox addAnchorAtTheEnd;
+        private static JCheckBox addAnchorAtTheEnd;
 
-        private volatile static JCheckBox lockPoints;
+        private static JCheckBox lockPoints;
 
-        private volatile static JCheckBox wrapAround;
+        private static JCheckBox wrapAround;
 
-        private volatile static MyJSpinner offset_textfield;
+        private static MyJSpinner offset_textfield;
 
-        private volatile static JCheckBox addOnAllComponents;
+        private static JCheckBox addOnAllComponents;
 
-        private volatile static JComboBox<String> backgroundMode;
+        private static JComboBox<String> backgroundMode;
 
-        private volatile static JComboBox<String> interpolationMode;
-        private volatile static JComboBox<String> interpolationColorMode;
+        private static JComboBox<String> interpolationMode;
+        private static JComboBox<String> interpolationColorMode;
 
-        private volatile static JLabel paletteLength;
+        private static JLabel paletteLength;
 
-        private volatile static ImageLabel im;
+        private static ImageLabel im;
 
-        private volatile static JLabel customColorLabel;
+        private static JLabel customColorLabel;
 
         private static int mouse_color_label_x;
 
@@ -406,7 +406,7 @@ class ColorPoint implements Comparable<ColorPoint> {
 
         JCheckBox pastel;
 
-        private volatile static JCheckBox check_box_reveres_palette;
+        private static JCheckBox check_box_reveres_palette;
 
         private static final int[][] reds = new int[][] {{0, 0}, {100, 31}, {200, 234}, {300, 255}, {400, 5}, {500, 0}};
         private static final int[][] greens = new int[][] {{0, 8}, {100, 107}, {200, 253}, {300, 171}, {400, 5}, {500, 7}};
@@ -631,9 +631,7 @@ class ColorPoint implements Comparable<ColorPoint> {
                 check_box_reveres_palette.setToolTipText("Reverses the current palette.");
                 check_box_reveres_palette.setBackground(MainWindow.bg_color);
 
-                check_box_reveres_palette.addActionListener(e -> {
-                    paintPalette();
-                });
+                check_box_reveres_palette.addActionListener(e -> paintPalette());
             }
 
             JPanel tools = new JPanel();
@@ -948,11 +946,7 @@ class ColorPoint implements Comparable<ColorPoint> {
             procedural_palette.setToolTipText("Creates a procedural palette.");
             procedural_palette.setPreferredSize(new Dimension(28, 28));
 
-            procedural_palette.addActionListener(e -> {
-
-                new ProceduralPaletteDialog(frame, procedural_length, procedural_cps, width, procedural_step);
-
-            });
+            procedural_palette.addActionListener(e -> new ProceduralPaletteDialog(frame, procedural_length, procedural_cps, width, procedural_step));
 
 
             tools_in.add(procedural_palette);
@@ -1342,7 +1336,7 @@ class ColorPoint implements Comparable<ColorPoint> {
 
             if(use_contrast) {
 
-                double contrast_step = contrast_period / ((double)palette.length);
+                double contrast_step = contrast_period / palette.length;
 
                 double t = 0;
                 for(int i = 0; i < palette.length; i++) {
@@ -1352,13 +1346,13 @@ class ColorPoint implements Comparable<ColorPoint> {
                     int blue = (palette[i]) & 0xff;
                     if(contrast_algorithm == 0) {
                         double[] vals = ColorSpaceConverter.RGBtoLAB(red, green, blue);
-                        int rgb[] = ColorSpaceConverter.LABtoRGB(vals[0] * (1 - contrast_merging) + contrast_merging * ((Math.sin(2 * Math.PI * t + contrast_offset) + 1) * 0.5 * (contrast_range_max - contrast_range_min) + contrast_range_min ) * 100, vals[1], vals[2]);
+                        int[] rgb = ColorSpaceConverter.LABtoRGB(vals[0] * (1 - contrast_merging) + contrast_merging * ((Math.sin(2 * Math.PI * t + contrast_offset) + 1) * 0.5 * (contrast_range_max - contrast_range_min) + contrast_range_min ) * 100, vals[1], vals[2]);
 
                         palette[i] = 0xff000000 | (rgb[0] << 16) | (rgb[1] << 8) | (rgb[2]);
                     }
                     else if(contrast_algorithm == 1) {
                         double[] vals = ColorSpaceConverter.RGBtoOKLAB(red, green, blue);
-                        int rgb[] = ColorSpaceConverter.OKLABtoRGB(vals[0] * (1 - contrast_merging) + contrast_merging * ((Math.sin(2 * Math.PI * t + contrast_offset) + 1) * 0.5 * (contrast_range_max - contrast_range_min) + contrast_range_min ), vals[1], vals[2]);
+                        int[] rgb = ColorSpaceConverter.OKLABtoRGB(vals[0] * (1 - contrast_merging) + contrast_merging * ((Math.sin(2 * Math.PI * t + contrast_offset) + 1) * 0.5 * (contrast_range_max - contrast_range_min) + contrast_range_min ), vals[1], vals[2]);
 
                         palette[i] = 0xff000000 | (rgb[0] << 16) | (rgb[1] << 8) | (rgb[2]);
                     }

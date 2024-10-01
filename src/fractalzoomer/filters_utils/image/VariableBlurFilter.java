@@ -65,29 +65,34 @@ public class VariableBlurFilter extends AbstractBufferedImageOp {
         int[] outPixels = new int[width*height];
         getRGB( src, 0, 0, width, height, inPixels );
 
-        if ( premultiplyAlpha )
-			ImageMath.premultiply( inPixels, 0, inPixels.length );
+        if ( premultiplyAlpha ) {
+			ImageMath.premultiply(inPixels, 0, inPixels.length);
+		}
         for (int i = 0; i < iterations; i++ ) {
-            blur( inPixels, outPixels, width, height, hRadius, 1 );
-            blur( outPixels, inPixels, height, width, vRadius, 2 );
+            blur( inPixels, outPixels, width, height, 1 );
+            blur( outPixels, inPixels, height, width, 2 );
         }
-        if ( premultiplyAlpha )
-			ImageMath.unpremultiply( inPixels, 0, inPixels.length );
+        if ( premultiplyAlpha ) {
+			ImageMath.unpremultiply(inPixels, 0, inPixels.length);
+		}
 
         setRGB( dst, 0, 0, width, height, inPixels );
         return dst;
     }
 
+	@Override
     public BufferedImage createCompatibleDestImage(BufferedImage src, ColorModel dstCM) {
         if ( dstCM == null )
             dstCM = src.getColorModel();
         return new BufferedImage(dstCM, dstCM.createCompatibleWritableRaster(src.getWidth(), src.getHeight()), dstCM.isAlphaPremultiplied(), null);
     }
-    
+
+	@Override
     public Rectangle2D getBounds2D( BufferedImage src ) {
         return new Rectangle(0, 0, src.getWidth(), src.getHeight());
     }
-    
+
+	@Override
     public Point2D getPoint2D( Point2D srcPt, Point2D dstPt ) {
         if ( dstPt == null )
             dstPt = new Point2D.Double();
@@ -95,11 +100,12 @@ public class VariableBlurFilter extends AbstractBufferedImageOp {
         return dstPt;
     }
 
+	@Override
     public RenderingHints getRenderingHints() {
         return null;
     }
 
-    public void blur( int[] in, int[] out, int width, int height, int radius, int pass ) {
+    public void blur( int[] in, int[] out, int width, int height, int pass ) {
         int widthMinus1 = width-1;
         int[] r = new int[width];
         int[] g = new int[width];

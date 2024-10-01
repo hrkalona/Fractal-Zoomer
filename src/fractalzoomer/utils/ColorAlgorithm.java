@@ -45,10 +45,7 @@ public class ColorAlgorithm {
     public static double transformResultToHeight(double result, int max_iterations) {
 
         double res = Math.abs(result);
-        if(res == ColorAlgorithm.MAXIMUM_ITERATIONS) {
-            return result < 0 ? -max_iterations : max_iterations;
-        }
-        else if(res == ColorAlgorithm.MAXIMUM_ITERATIONS_DE) {
+        if(res == ColorAlgorithm.MAXIMUM_ITERATIONS || res == ColorAlgorithm.MAXIMUM_ITERATIONS_DE) {
             return result < 0 ? -max_iterations : max_iterations;
         }
         return getResultWithoutIncrement(result);

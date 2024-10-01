@@ -1,7 +1,7 @@
 
 package fractalzoomer.gui;
 
-import fractalzoomer.main.ImageExpanderWindow;
+import fractalzoomer.main.MinimalRendererWindow;
 import fractalzoomer.main.MainWindow;
 
 import javax.swing.*;
@@ -31,8 +31,8 @@ public class ThreadsDialog extends JDialog {
         
         if (ptra instanceof MainWindow) {
             setIconImage(MainWindow.getIcon("mandel2.png").getImage());
-        } else if (ptra instanceof ImageExpanderWindow) {
-            setIconImage(MainWindow.getIcon("mandelExpander.png").getImage());
+        } else if (ptra instanceof MinimalRendererWindow) {
+            setIconImage(MainWindow.getIcon("mandelMinimalRenderer.png").getImage());
         }
 
         JComboBox<String> thread_grouping = new JComboBox<>(new String[]{"Grid Split (nxn)", "Horizontal Split (n)", "Vertical Split (n)", "Auto Grid Split (n) Horizontal >= Vertical", "Auto Grid Split (n) Vertical >= Horizontal", "Grid Split(mxn)"});
@@ -205,8 +205,8 @@ public class ThreadsDialog extends JDialog {
 
                             if (ptra instanceof MainWindow) {
                                 ((MainWindow) ptra).setThreadsNumberPost(tempgrouping, temp, tempm);
-                            } else if (ptra instanceof ImageExpanderWindow) {
-                                ((ImageExpanderWindow) ptra).setThreadsNumberPost(tempgrouping, temp, tempm);
+                            } else if (ptra instanceof MinimalRendererWindow) {
+                                ((MinimalRendererWindow) ptra).setThreadsNumberPost(tempgrouping, temp, tempm);
                             }
                         } catch (Exception ex) {
                             JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);

@@ -442,6 +442,7 @@ public class MandelbrotFifth extends Julia {
 
         boolean isSeriesInUse = TaskRender.APPROXIMATION_ALGORITHM == 1 && supportsSeriesApproximation();
         boolean isBLAInUse = TaskRender.APPROXIMATION_ALGORITHM == 2 && supportsBilinearApproximation();
+        boolean isBLA3InUse = TaskRender.APPROXIMATION_ALGORITHM == 5 && supportsBilinearApproximation3();
         RefType = getRefType();
 
         boolean usesCircleBail = bailout_algorithm2.getId() == MainWindow.BAILOUT_CONDITION_CIRCLE;
@@ -694,6 +695,9 @@ public class MandelbrotFifth extends Julia {
         }
         else if(isBLAInUse) {
             calculateBLAWrapper(deepZoom, externalLocation, progress);
+        }
+        else if(isBLA3InUse) {
+            calculateBLA3Wrapper(deepZoom, progress);
         }
 
     }
@@ -1391,6 +1395,11 @@ public class MandelbrotFifth extends Julia {
 
     @Override
     public boolean supportsBilinearApproximation() {
+        return !burning_ship && !isJulia;
+    }
+
+    @Override
+    public boolean supportsBilinearApproximation3() {
         return !burning_ship && !isJulia;
     }
 

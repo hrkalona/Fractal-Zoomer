@@ -58,7 +58,7 @@ public class HarmonicSimpsonNewtonSin extends HarmonicSimpsonNewtonRootFindingMe
 
         Complex combined_dfz2 = temp2.cos();
 
-        hsnMethod(complex[0], fz, dfz, combined_dfz, combined_dfz2);;
+        hsnMethod(complex[0], fz, dfz, combined_dfz, combined_dfz2);
 
     }
 

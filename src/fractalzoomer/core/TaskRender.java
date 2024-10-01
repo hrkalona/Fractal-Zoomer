@@ -12,11 +12,13 @@ import fractalzoomer.core.la.LAReference;
 import fractalzoomer.core.location.Location;
 import fractalzoomer.core.location.normal.CartesianLocationNormalApfloatArbitrary;
 import fractalzoomer.core.location.normal.PolarLocationNormalApfloatArbitrary;
+import fractalzoomer.core.mipla.MipLAStep;
 import fractalzoomer.core.mpfr.LibMpfr;
 import fractalzoomer.core.mpfr.MpfrBigNum;
 import fractalzoomer.core.mpir.LibMpir;
 import fractalzoomer.core.mpir.MpirBigNum;
 import fractalzoomer.core.rendering_algorithms.BoundaryTracingRender;
+import fractalzoomer.core.rendering_algorithms.QueueBasedRender;
 import fractalzoomer.core.rendering_algorithms.SuccessiveRefinementGuessingRender;
 import fractalzoomer.fractal_options.iteration_statistics.*;
 import fractalzoomer.fractal_options.orbit_traps.OrbitTrap;
@@ -98,7 +100,7 @@ import fractalzoomer.functions.szegedi_butterfly.SzegediButterfly2;
 import fractalzoomer.functions.user_formulas.*;
 import fractalzoomer.main.CommonFunctions;
 import fractalzoomer.main.Constants;
-import fractalzoomer.main.ImageExpanderWindow;
+import fractalzoomer.main.MinimalRendererWindow;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.*;
 import fractalzoomer.palettes.PaletteColor;
@@ -106,6 +108,7 @@ import fractalzoomer.palettes.transfer_functions.*;
 import fractalzoomer.parser.Parser;
 import fractalzoomer.true_coloring_algorithms.TrueColorAlgorithm;
 import fractalzoomer.utils.*;
+import fractalzoomer.utils.queues.ExpandingQueueSquare;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.QRDecomposition;
@@ -148,10 +151,10 @@ public abstract class TaskRender implements Runnable {
     public static final int APPLY_PALETTE_AND_FILTER_3D_MODEL = 9;
     public static final int DOMAIN = 10;
     public static final int DOMAIN_POLAR = 11;
-    public static final int NORMAL_EXPANDER = 12;
-    public static final int POLAR_EXPANDER = 13;
-    public static final int DOMAIN_EXPANDER = 14;
-    public static final int DOMAIN_POLAR_EXPANDER = 15;
+    public static final int NORMAL_MINIMAL_RENDERER = 12;
+    public static final int POLAR_MINIMAL_RENDERER = 13;
+    public static final int DOMAIN_MINIMAL_RENDERER = 14;
+    public static final int DOMAIN_POLAR_MINIMAL_RENDERER = 15;
     public static final int POST_PROCESSING_WITH_AA_AND_FILTER = 16;
     public static final int APPLY_PALETTE_AND_POST_PROCESSING_WITH_AA_AND_FILTER = 17;
     /**
@@ -181,31 +184,15 @@ public abstract class TaskRender implements Runnable {
 
     protected static final int THREAD_CHUNK_SIZE = 500;
     protected static final int SUCCESSIVE_REFINEMENT_EXPONENT = 7;
-    protected static final int SUCCESSIVE_REFINEMENT_MAX_SIZE = 2 << (SUCCESSIVE_REFINEMENT_EXPONENT - 1);
-    protected static final int[] THREAD_CHUNK_SIZE_PER_LEVEL = {2, 4, 8, 16, 32, 64, 128, 256};
-    protected static final int[] THREAD_CHUNK_SIZE_PER_LEVEL2 = {2, 4, 4, 8, 8, 16, 16, 32, 32, 64, 64, 128, 128, 256, 256};
+    protected static int SUCCESSIVE_REFINEMENT_MAX_SIZE;
+    protected static int[] THREAD_CHUNK_SIZE_PER_LEVEL;
+    protected static int[] THREAD_CHUNK_SIZE_PER_LEVEL2;
+    protected static int[] SUCCESSIVE_REFINEMENT_SPLIT1;
+    protected static int[] SUCCESSIVE_REFINEMENT_SPLIT2;
+    protected static int[] SUCCESSIVE_REFINEMENT_SPLIT3;
+    protected static int[] SUCCESSIVE_REFINEMENT_SPLIT4;
 
-    protected static final int[] SUCCESSIVE_REFINEMENT_SPLIT1 = {SUCCESSIVE_REFINEMENT_MAX_SIZE, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 1, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 1,
-            SUCCESSIVE_REFINEMENT_MAX_SIZE >> 2, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 2, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 3, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 3,
-            SUCCESSIVE_REFINEMENT_MAX_SIZE >> 4, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 4, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 5, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 5,
-            SUCCESSIVE_REFINEMENT_MAX_SIZE >> 6, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 6, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 7, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 7};
-
-    protected static final int[] SUCCESSIVE_REFINEMENT_SPLIT2 = {SUCCESSIVE_REFINEMENT_MAX_SIZE, SUCCESSIVE_REFINEMENT_MAX_SIZE, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 1, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 1,
-            SUCCESSIVE_REFINEMENT_MAX_SIZE >> 2, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 2, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 3, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 3,
-            SUCCESSIVE_REFINEMENT_MAX_SIZE >> 4, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 4, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 5, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 5,
-            SUCCESSIVE_REFINEMENT_MAX_SIZE >> 6, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 6, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 7};
-
-
-    protected static final int[] SUCCESSIVE_REFINEMENT_SPLIT3 = {SUCCESSIVE_REFINEMENT_MAX_SIZE, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 1, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 1,
-            SUCCESSIVE_REFINEMENT_MAX_SIZE >> 1, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 2, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 3, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 3,
-            SUCCESSIVE_REFINEMENT_MAX_SIZE >> 3, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 4, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 5, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 5,
-            SUCCESSIVE_REFINEMENT_MAX_SIZE >> 5, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 6, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 7, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 7};
-
-    protected static final int[] SUCCESSIVE_REFINEMENT_SPLIT4 = {SUCCESSIVE_REFINEMENT_MAX_SIZE, SUCCESSIVE_REFINEMENT_MAX_SIZE, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 1, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 2,
-            SUCCESSIVE_REFINEMENT_MAX_SIZE >> 2, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 2, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 3, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 4,
-            SUCCESSIVE_REFINEMENT_MAX_SIZE >> 4, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 4, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 5, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 6,
-            SUCCESSIVE_REFINEMENT_MAX_SIZE >> 6, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 6, SUCCESSIVE_REFINEMENT_MAX_SIZE >> 7};
-
+    protected static ExpandingQueueSquare rectangleAreasQueueu;
 
     public static int SUCCESSIVE_REFINEMENT_SQUARE_RECT_SPLIT_ALGORITHM = 0;
 
@@ -219,7 +206,7 @@ public abstract class TaskRender implements Runnable {
     protected static int[] SUCCESSIVE_REFINEMENT_CHUNK_Y;
 
     public static boolean QUICKRENDER_SUCCESSIVE_REFINEMENT = false;
-    public static boolean USE_QUICKRENDER_ON_GREEDY_SUCCESSIVE_REFINEMENT = true;
+    public static boolean USE_NON_BLOCKING_RENDERING = true;
     public static boolean ALWAYS_SAVE_EXTRA_PIXEL_DATA_ON_AA = true;
     public static boolean ALWAYS_SAVE_EXTRA_PIXEL_DATA_ON_AA_WITH_PP = true;
     public static boolean USE_RI_ON_BLA2 = false;
@@ -228,14 +215,21 @@ public abstract class TaskRender implements Runnable {
     public static boolean USE_FAST_DELTA_LOCATION = true;
     public static int BUILT_IT_BIGNUM_IMPLEMENTATION = 0;
 
+    public static boolean SPLIT_INTO_RECTANGLE_AREAS = false;
+    public static int AREA_DIMENSION_Y = 3;
+    public static int AREA_DIMENSION_X = 3;
+    public static int RECTANGLE_AREA_SPLIT_ALGORITHM = 1;
+    private static int RECTANGLE_AREAS_QUEUE_INIT_SIZE = 6000;
+
     public static int FAST_JULIA_IMAGE_SIZE = 252;
-    protected static int randomNumber;
+    public static int randomNumber;
 
     public static boolean USE_DIRECT_COLOR;
     public static int COLOR_SMOOTHING_METHOD;
 
     public static LongAccumulator PostProcessingCalculationTime;
 
+    protected static int[] rendering_done_per_task;
     protected int rendering_done;
     protected int task_calculated;
     protected int task_completed = -1;
@@ -249,7 +243,7 @@ public abstract class TaskRender implements Runnable {
 
     protected boolean usesSquareChunks;
 
-    protected static int[] algorithm_colors;
+    public static int[] algorithm_colors;
     protected static int[] algorithm_colors2;
 
     protected int taskId;
@@ -263,12 +257,18 @@ public abstract class TaskRender implements Runnable {
     private static CyclicBarrier normalize_find_ranges_sync;
     private static CyclicBarrier normalize_sync;
     private static CyclicBarrier normalize_sync2;
+
+    private static CyclicBarrier squares_sync;
     private static CyclicBarrier normalize_find_ranges_sync_3d;
 
     protected static CyclicBarrier initialize_jobs_sync;
+    protected static CyclicBarrier initialize_jobs_sync2;
+    protected static CyclicBarrier initialize_jobs_sync3;
+    protected static CyclicBarrier initialize_jobs_sync4;
+    protected static AtomicInteger mariani_silver_first_rendering;
     private static CyclicBarrier post_processing_sync;
     private static CyclicBarrier calculate_vectors_sync;
-    private static AtomicInteger painting_sync;
+    protected static AtomicInteger painting_sync;
 
     public static AtomicInteger number_of_tasks;
     private static AtomicInteger height_scaling_sync;
@@ -306,22 +306,23 @@ public abstract class TaskRender implements Runnable {
     private static CyclicBarrier color_cycling_filters_sync;
     private static CyclicBarrier color_cycling_restart_sync;
     private static ReadWriteLock color_cycling_toggle_lock;
-    protected static ReadWriteLock successive_refinement_lock;
+    protected static ReadWriteLock stop_rendering_lock;
     protected static AtomicInteger reference_calc_sync;
     protected static CyclicBarrier reference_sync;
 
-    protected static boolean STOP_SUCCESSIVE_REFINEMENT;
-    public static boolean DONE;
+    protected static volatile boolean STOP_RENDERING;
+    public static volatile boolean DONE;
+    public static volatile int TOTAL_NUM_TASKS;
 
-    public static void stopSuccessiveRefinement() {
+    public static void stopRendering() {
         try {
-            successive_refinement_lock.lockWrite();
+            stop_rendering_lock.lockWrite();
         }
         catch (InterruptedException ex) {
 
         }
-        STOP_SUCCESSIVE_REFINEMENT = true;
-        successive_refinement_lock.unlockWrite();
+        STOP_RENDERING = true;
+        stop_rendering_lock.unlockWrite();
     }
 
     protected static int getThreadChunkSize(int width, boolean per_row) {
@@ -332,18 +333,72 @@ public abstract class TaskRender implements Runnable {
     }
 
     static {
+        SUCCESSIVE_REFINEMENT_MAX_SIZE = 2 << (SUCCESSIVE_REFINEMENT_EXPONENT - 1);
+
+        int upper_bound = 256;
+        THREAD_CHUNK_SIZE_PER_LEVEL = new int[SUCCESSIVE_REFINEMENT_EXPONENT + 1];
+        int val = 2;
+        for(int i = 0; i < THREAD_CHUNK_SIZE_PER_LEVEL.length; i++) {
+            THREAD_CHUNK_SIZE_PER_LEVEL[i] = val;
+            val <<= 1;
+            val = Math.min(val, upper_bound);
+        }
+
+        val = 2;
+        THREAD_CHUNK_SIZE_PER_LEVEL2 = new int[2 * THREAD_CHUNK_SIZE_PER_LEVEL.length - 1];
+        if(THREAD_CHUNK_SIZE_PER_LEVEL2.length >= 1) {
+            THREAD_CHUNK_SIZE_PER_LEVEL2[0] = val;
+            val <<= 1;
+            val = Math.min(val, upper_bound);
+        }
+        for(int i = 1; i < THREAD_CHUNK_SIZE_PER_LEVEL2.length - 1; i+=2) {
+            THREAD_CHUNK_SIZE_PER_LEVEL2[i] = val;
+            THREAD_CHUNK_SIZE_PER_LEVEL2[i + 1] = val;
+            val <<= 1;
+            val = Math.min(val, upper_bound);
+        }
+
+        SUCCESSIVE_REFINEMENT_SPLIT1 = new int[THREAD_CHUNK_SIZE_PER_LEVEL2.length];
+        SUCCESSIVE_REFINEMENT_SPLIT2 = new int[THREAD_CHUNK_SIZE_PER_LEVEL2.length];
+        SUCCESSIVE_REFINEMENT_SPLIT3 = new int[THREAD_CHUNK_SIZE_PER_LEVEL2.length];
+        SUCCESSIVE_REFINEMENT_SPLIT4 = new int[THREAD_CHUNK_SIZE_PER_LEVEL2.length];
+
+        for(int i = 0; i < SUCCESSIVE_REFINEMENT_SPLIT1.length; i++) {
+            SUCCESSIVE_REFINEMENT_SPLIT1[i] = SUCCESSIVE_REFINEMENT_MAX_SIZE >> ((i + 1) >> 1);
+            SUCCESSIVE_REFINEMENT_SPLIT2[i] = SUCCESSIVE_REFINEMENT_MAX_SIZE >> (i >> 1);
+        }
+
+        int val1 = 0;
+        int val2 = 0;
+        int increase1 = 1;
+        int increase2 = 2;
+        for(int i = 0; i < SUCCESSIVE_REFINEMENT_SPLIT3.length; i++) {
+            SUCCESSIVE_REFINEMENT_SPLIT3[i] = SUCCESSIVE_REFINEMENT_MAX_SIZE >> val1;
+            SUCCESSIVE_REFINEMENT_SPLIT4[i] = SUCCESSIVE_REFINEMENT_MAX_SIZE >> val2;
+            if(increase1 < 2) {
+                val1++;
+                increase1++;
+                increase2 = increase1 == 2 ? 0 : increase2;
+            }
+            else if(increase2 < 2) {
+                val2++;
+                increase2++;
+                increase1 = increase2 == 2 ? 0 : increase1;
+            }
+        }
+
         setSuccessiveRefinementChunks();
     }
 
     public static void setSuccessiveRefinementChunks() {
 
         if(SUCCESSIVE_REFINEMENT_SQUARE_RECT_SPLIT_ALGORITHM == 1) {
-            SUCCESSIVE_REFINEMENT_CHUNK_X = SUCCESSIVE_REFINEMENT_SPLIT1;
-            SUCCESSIVE_REFINEMENT_CHUNK_Y = SUCCESSIVE_REFINEMENT_SPLIT2;
-        }
-        else if(SUCCESSIVE_REFINEMENT_SQUARE_RECT_SPLIT_ALGORITHM == 2) {
             SUCCESSIVE_REFINEMENT_CHUNK_X = SUCCESSIVE_REFINEMENT_SPLIT2;
             SUCCESSIVE_REFINEMENT_CHUNK_Y = SUCCESSIVE_REFINEMENT_SPLIT1;
+        }
+        else if(SUCCESSIVE_REFINEMENT_SQUARE_RECT_SPLIT_ALGORITHM == 2) {
+            SUCCESSIVE_REFINEMENT_CHUNK_X = SUCCESSIVE_REFINEMENT_SPLIT1;
+            SUCCESSIVE_REFINEMENT_CHUNK_Y = SUCCESSIVE_REFINEMENT_SPLIT2;
         }
         else if(SUCCESSIVE_REFINEMENT_SQUARE_RECT_SPLIT_ALGORITHM == 3) {
             SUCCESSIVE_REFINEMENT_CHUNK_X = SUCCESSIVE_REFINEMENT_SPLIT3;
@@ -409,7 +464,7 @@ public abstract class TaskRender implements Runnable {
     private static long D3RenderingCalculationTime;
     protected boolean d3;
     protected D3Settings d3s;
-    private int detail;
+    protected int detail;
     private double fiX, fiY, scale, m20, m21, m22;
     private double d3_height_scale;
     private int max_range;
@@ -553,7 +608,7 @@ public abstract class TaskRender implements Runnable {
     /**
      * ** Color Cycling ***
      */
-    private static boolean color_cycling;
+    private static volatile boolean color_cycling;
     private int color_cycling_location_outcoloring;
     private int color_cycling_location_incoloring;
     private int gradient_offset;
@@ -600,12 +655,12 @@ public abstract class TaskRender implements Runnable {
     private InterpolationMethod method;
 
     private GeneratedPaletteSettings gps;
-    private BlendingSettings color_blending;
+    //private BlendingSettings color_blending;
     protected DomainColoring domain_color;
     protected JitterSettings js;
     private double contourFactor;
     protected MainWindow ptr;
-    private ImageExpanderWindow ptrExpander;
+    private MinimalRendererWindow ptrMinimalRenderer;
     protected JProgressBar progress;
     protected int action;
     private boolean quickRender;
@@ -639,20 +694,23 @@ public abstract class TaskRender implements Runnable {
     public static int BLA_BITS = ApproximationDefaultSettings.BLA_BITS;
     public static boolean USE_THREADS_FOR_BLA = true;
     public static boolean USE_THREADS_FOR_BLA2 = true;
+    public static boolean USE_THREADS_FOR_BLA3 = true;
     public static boolean DETECT_PERIOD = true;
     public static int PERIOD_DETECTION_ALGORITHM = 2;
     public static boolean STOP_REFERENCE_CALCULATION_AFTER_DETECTED_PERIOD = true;
     public static int PERTUBATION_PIXEL_ALGORITHM = 0;
     public static int BLA_STARTING_LEVEL = ApproximationDefaultSettings.BLA_STARTING_LEVEL;
+    public static int BLA3_STARTING_LEVEL = ApproximationDefaultSettings.BLA3_STARTING_LEVEL;
     public static int NANOMB1_N = ApproximationDefaultSettings.NANOMB1_N;
     public static int NANOMB1_M = ApproximationDefaultSettings.NANOMB1_M;
     public static boolean GATHER_PERTURBATION_STATISTICS = false;
     public static boolean GATHER_HIGHPRECISION_STATISTICS = false;
     public static boolean CHECK_BAILOUT_DURING_DEEP_NOT_FULL_FLOATEXP_MODE = false;
+    public static boolean CHECK_BAILOUT_DURING_MIP_BLA_STEP = false;
     public static boolean GREEDY_ALGORITHM = true;
     public static boolean GREEDY_ALGORITHM_CHECK_ITER_DATA = true;
     public static boolean GATHER_TINY_REF_INDEXES = true;
-    public static int GREEDY_ALGORITHM_SELECTION = Constants.CIRCULAR_SUCCESSIVE_REFINEMENT;
+    public static int GREEDY_ALGORITHM_SELECTION = Constants.PATTERNED_SUCCESSIVE_REFINEMENT;
     public static int BRUTE_FORCE_ALG = 0;
     public static int GUESS_BLOCKS_SELECTION = 3;
     public static boolean USE_SMOOTHING_FOR_PROCESSING_ALGS = true;
@@ -663,23 +721,26 @@ public abstract class TaskRender implements Runnable {
     public static final String[] mpirWinLibs = {"mpir_skylake_avx2.dll", "mpir_haswell_avx2.dll", "mpir_sandybridge_ivybridge.dll"};
     public static Random generator;
     public static int D3_APPLY_AVERAGE_TO_TRIANGLE_COLORS = 1;
-    public static int CIRCULAR_COMPARE_ALG = 0;
-    public static boolean CIRCULAR_REVERT_ALG = false;
-    public static boolean CIRCULAR_REPEAT_ALG = false;
-    public static double CIRCULAR_REPEAT_SPACING = 25;
-    public static double CIRCULAR_N = 2.0;
+    public static int PATTERN_COMPARE_ALG = 0;
+    public static boolean PATTERN_REVERT_ALG = false;
+    public static boolean PATTERN_REPEAT_ALG = false;
+    public static boolean PATTERN_CENTER = true;
+    public static double PATTERN_REPEAT_SPACING = 25;
+    public static double PATTERN_N = 2.0;
     public static boolean LOAD_RENDERING_ALGORITHM_FROM_SAVES = false;
     public static int MANTEXPCOMPLEX_FORMAT = 0;
     public static long SEED = 0;
 
     public static boolean SMOOTH_DATA = false;
-    public static ThreadPoolExecutor la_thread_executor;
+    public static ThreadPoolExecutor approximation_thread_executor;
     public static ThreadPoolExecutor reference_thread_executor;
     //public static ThreadPoolExecutor reference_thread_executor2;
     public static ThreadPoolExecutor thread_calculation_executor;
     public static ThreadPoolExecutor julia_map_thread_calculation_executor;
     public static ExecutorService single_thread_executor;
     public static ThreadPoolExecutor action_thread_executor;
+
+    protected int progress_one_percent;
 
     public static void shutdownThreadPools() {
         if(reference_thread_executor != null) {
@@ -700,8 +761,8 @@ public abstract class TaskRender implements Runnable {
         if(action_thread_executor != null) {
             action_thread_executor.shutdownNow();
         }
-        if(la_thread_executor != null) {
-            la_thread_executor.shutdownNow();
+        if(approximation_thread_executor != null) {
+            approximation_thread_executor.shutdownNow();
         }
     }
 
@@ -723,8 +784,8 @@ public abstract class TaskRender implements Runnable {
         if(action_thread_executor != null) {
             count += action_thread_executor.getActiveCount();
         }
-        if(la_thread_executor != null) {
-            count += la_thread_executor.getActiveCount();
+        if(approximation_thread_executor != null) {
+            count += approximation_thread_executor.getActiveCount();
         }
 
         count += ForkJoinPool.commonPool().getActiveThreadCount();
@@ -806,14 +867,14 @@ public abstract class TaskRender implements Runnable {
         settingsFractal(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns.bailout_test_algorithm, fns.bailout, fns.bailout_test_user_formula, fns.bailout_test_user_formula2, fns.bailout_test_comparison, fns.n_norm, d3s, ptr, fractal_color, dem_color, image, fs, fns.out_coloring_algorithm, fns.user_out_coloring_algorithm, fns.outcoloring_formula, fns.user_outcoloring_conditions, fns.user_outcoloring_condition_formula, fns.in_coloring_algorithm, fns.user_in_coloring_algorithm, fns.incoloring_formula, fns.user_incoloring_conditions, fns.user_incoloring_condition_formula, SMOOTH_DATA, periodicity_checking, fns.plane_type, fns.burning_ship, fns.mandel_grass, fns.mandel_grass_vals, fns.function, fns.z_exponent, fns.z_exponent_complex, color_cycling_location, color_cycling_location2, fns.rotation_vals, fns.rotation_center, fns.perturbation, fns.perturbation_vals, fns.variable_perturbation, fns.user_perturbation_algorithm, fns.user_perturbation_conditions, fns.user_perturbation_condition_formula, fns.perturbation_user_formula, fns.init_val, fns.initial_vals, fns.variable_init_value, fns.user_initial_value_algorithm, fns.user_initial_value_conditions, fns.user_initial_value_condition_formula, fns.initial_value_user_formula, fns.coefficients, fns.z_exponent_nova, fns.relaxation, fns.nova_method, fns.user_formula, fns.user_formula2, fns.bail_technique, fns.user_plane, fns.user_plane_algorithm, fns.user_plane_conditions, fns.user_plane_condition_formula, fns.user_formula_iteration_based, fns.user_formula_conditions, fns.user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, fns.plane_transform_center, fns.plane_transform_center_hp, fns.plane_transform_angle, fns.plane_transform_radius, fns.plane_transform_scales, fns.plane_transform_wavelength, fns.waveType, fns.plane_transform_angle2, fns.plane_transform_sides, fns.plane_transform_amount, fns.escaping_smooth_algorithm, fns.converging_smooth_algorithm, polar_projection, circle_period, fns.user_fz_formula, fns.user_dfz_formula, fns.user_ddfz_formula, fns.user_dddfz_formula, fns.coupling, fns.user_formula_coupled, fns.coupling_method, fns.coupling_amplitude, fns.coupling_frequency, fns.coupling_seed, ds, inverse_dem, quickRender, color_intensity, transfer_function, color_density, color_intensity2, transfer_function2, color_density2, usePaletteForInColoring, fns.laguerre_deg, color_blending, fns.kleinianLine, fns.kleinianK, fns.kleinianM, post_processing_order, pbs, fns.gcs, fns.durand_kerner_init_val, fns.mps, fns.coefficients_im, fns.lpns.lyapunovFinalExpression, fns.lpns.useLyapunovExponent, gradient_offset, fns.lpns.lyapunovFunction, fns.lpns.lyapunovExponentFunction, fns.lpns.lyapunovVariableId, fns.user_relaxation_formula, fns.user_nova_addend_formula, fns.gcps, fns.igs, fns.lfns, fns.newton_hines_k, fns.tcs, fns.lpns.lyapunovInitialValue, fns.lpns.lyapunovInitializationIteratons, fns.lpns.lyapunovskipBailoutCheck, fns.root_initialization_method, fns.preffs, fns.postffs, fns.ips, fns.defaultNovaInitialValue, fns.cbs, fns.useGlobalMethod, fns.globalMethodFactor, fns.period, fns.variable_re, fns.variable_im, fns.inflections_re, fns.inflections_im, fns.inflectionsPower);
     }
 
-    public TaskRender(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, ImageExpanderWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, boolean polar_projection, double circle_period, DomainColoringSettings ds, boolean inverse_dem, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring, BlendingSettings color_blending, int[] post_processing_order, PaletteGradientMergingSettings pbs, int gradient_offset, double contourFactor, GeneratedPaletteSettings gps, JitterSettings js, PostProcessSettings pps) {
+    public TaskRender(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, MinimalRendererWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, boolean polar_projection, double circle_period, DomainColoringSettings ds, boolean inverse_dem, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring, BlendingSettings color_blending, int[] post_processing_order, PaletteGradientMergingSettings pbs, int gradient_offset, double contourFactor, GeneratedPaletteSettings gps, JitterSettings js, PostProcessSettings pps) {
         this.contourFactor = contourFactor;
         setPostProcessingData(pps);
         SMOOTH_DATA = needsSmoothing(fns, ndes, ls, ss, bms, cns, ens, rps, fdes, sts);
         banded = fns.banded;
         this.gps = gps;
         this.js = js;
-        settingsFractalExpander(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns.bailout_test_algorithm, fns.bailout, fns.bailout_test_user_formula, fns.bailout_test_user_formula2, fns.bailout_test_comparison, fns.n_norm, ptr, fractal_color, dem_color, image, fs, fns.out_coloring_algorithm, fns.user_out_coloring_algorithm, fns.outcoloring_formula, fns.user_outcoloring_conditions, fns.user_outcoloring_condition_formula, fns.in_coloring_algorithm, fns.user_in_coloring_algorithm, fns.incoloring_formula, fns.user_incoloring_conditions, fns.user_incoloring_condition_formula, SMOOTH_DATA, periodicity_checking, fns.plane_type, fns.burning_ship, fns.mandel_grass, fns.mandel_grass_vals, fns.function, fns.z_exponent, fns.z_exponent_complex, color_cycling_location, color_cycling_location2, fns.rotation_vals, fns.rotation_center, fns.perturbation, fns.perturbation_vals, fns.variable_perturbation, fns.user_perturbation_algorithm, fns.user_perturbation_conditions, fns.user_perturbation_condition_formula, fns.perturbation_user_formula, fns.init_val, fns.initial_vals, fns.variable_init_value, fns.user_initial_value_algorithm, fns.user_initial_value_conditions, fns.user_initial_value_condition_formula, fns.initial_value_user_formula, fns.coefficients, fns.z_exponent_nova, fns.relaxation, fns.nova_method, fns.user_formula, fns.user_formula2, fns.bail_technique, fns.user_plane, fns.user_plane_algorithm, fns.user_plane_conditions, fns.user_plane_condition_formula, fns.user_formula_iteration_based, fns.user_formula_conditions, fns.user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, fns.plane_transform_center, fns.plane_transform_center_hp, fns.plane_transform_angle, fns.plane_transform_radius, fns.plane_transform_scales, fns.plane_transform_wavelength, fns.waveType, fns.plane_transform_angle2, fns.plane_transform_sides, fns.plane_transform_amount, fns.escaping_smooth_algorithm, fns.converging_smooth_algorithm, polar_projection, circle_period, fns.user_fz_formula, fns.user_dfz_formula, fns.user_ddfz_formula, fns.user_dddfz_formula, fns.coupling, fns.user_formula_coupled, fns.coupling_method, fns.coupling_amplitude, fns.coupling_frequency, fns.coupling_seed, ds, inverse_dem, color_intensity, transfer_function, color_density, color_intensity2, transfer_function2, color_density2, usePaletteForInColoring, fns.laguerre_deg, color_blending, fns.kleinianLine, fns.kleinianK, fns.kleinianM, post_processing_order, pbs, fns.gcs, fns.durand_kerner_init_val, fns.mps, fns.coefficients_im, fns.lpns.lyapunovFinalExpression, fns.lpns.useLyapunovExponent, gradient_offset, fns.lpns.lyapunovFunction, fns.lpns.lyapunovExponentFunction, fns.lpns.lyapunovVariableId, fns.user_relaxation_formula, fns.user_nova_addend_formula, fns.gcps, fns.igs, fns.lfns, fns.newton_hines_k, fns.tcs, fns.lpns.lyapunovInitialValue, fns.lpns.lyapunovInitializationIteratons, fns.lpns.lyapunovskipBailoutCheck, fns.root_initialization_method, fns.preffs, fns.postffs, fns.ips, fns.defaultNovaInitialValue, fns.cbs, fns.useGlobalMethod, fns.globalMethodFactor, fns.period, fns.variable_re, fns.variable_im, fns.inflections_re, fns.inflections_im, fns.inflectionsPower);
+        settingsFractalMinimalRenderer(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns.bailout_test_algorithm, fns.bailout, fns.bailout_test_user_formula, fns.bailout_test_user_formula2, fns.bailout_test_comparison, fns.n_norm, ptr, fractal_color, dem_color, image, fs, fns.out_coloring_algorithm, fns.user_out_coloring_algorithm, fns.outcoloring_formula, fns.user_outcoloring_conditions, fns.user_outcoloring_condition_formula, fns.in_coloring_algorithm, fns.user_in_coloring_algorithm, fns.incoloring_formula, fns.user_incoloring_conditions, fns.user_incoloring_condition_formula, SMOOTH_DATA, periodicity_checking, fns.plane_type, fns.burning_ship, fns.mandel_grass, fns.mandel_grass_vals, fns.function, fns.z_exponent, fns.z_exponent_complex, color_cycling_location, color_cycling_location2, fns.rotation_vals, fns.rotation_center, fns.perturbation, fns.perturbation_vals, fns.variable_perturbation, fns.user_perturbation_algorithm, fns.user_perturbation_conditions, fns.user_perturbation_condition_formula, fns.perturbation_user_formula, fns.init_val, fns.initial_vals, fns.variable_init_value, fns.user_initial_value_algorithm, fns.user_initial_value_conditions, fns.user_initial_value_condition_formula, fns.initial_value_user_formula, fns.coefficients, fns.z_exponent_nova, fns.relaxation, fns.nova_method, fns.user_formula, fns.user_formula2, fns.bail_technique, fns.user_plane, fns.user_plane_algorithm, fns.user_plane_conditions, fns.user_plane_condition_formula, fns.user_formula_iteration_based, fns.user_formula_conditions, fns.user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, fns.plane_transform_center, fns.plane_transform_center_hp, fns.plane_transform_angle, fns.plane_transform_radius, fns.plane_transform_scales, fns.plane_transform_wavelength, fns.waveType, fns.plane_transform_angle2, fns.plane_transform_sides, fns.plane_transform_amount, fns.escaping_smooth_algorithm, fns.converging_smooth_algorithm, polar_projection, circle_period, fns.user_fz_formula, fns.user_dfz_formula, fns.user_ddfz_formula, fns.user_dddfz_formula, fns.coupling, fns.user_formula_coupled, fns.coupling_method, fns.coupling_amplitude, fns.coupling_frequency, fns.coupling_seed, ds, inverse_dem, color_intensity, transfer_function, color_density, color_intensity2, transfer_function2, color_density2, usePaletteForInColoring, fns.laguerre_deg, color_blending, fns.kleinianLine, fns.kleinianK, fns.kleinianM, post_processing_order, pbs, fns.gcs, fns.durand_kerner_init_val, fns.mps, fns.coefficients_im, fns.lpns.lyapunovFinalExpression, fns.lpns.useLyapunovExponent, gradient_offset, fns.lpns.lyapunovFunction, fns.lpns.lyapunovExponentFunction, fns.lpns.lyapunovVariableId, fns.user_relaxation_formula, fns.user_nova_addend_formula, fns.gcps, fns.igs, fns.lfns, fns.newton_hines_k, fns.tcs, fns.lpns.lyapunovInitialValue, fns.lpns.lyapunovInitializationIteratons, fns.lpns.lyapunovskipBailoutCheck, fns.root_initialization_method, fns.preffs, fns.postffs, fns.ips, fns.defaultNovaInitialValue, fns.cbs, fns.useGlobalMethod, fns.globalMethodFactor, fns.period, fns.variable_re, fns.variable_im, fns.inflections_re, fns.inflections_im, fns.inflectionsPower);
     }
 
     public TaskRender(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, D3Settings d3s, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, boolean polar_projection, double circle_period, DomainColoringSettings ds, boolean inverse_dem, boolean quickRender, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring, BlendingSettings color_blending, int[] post_processing_order, PaletteGradientMergingSettings pbs, int gradient_offset, double contourFactor, GeneratedPaletteSettings gps, JitterSettings js, PostProcessSettings pps, Apfloat xJuliaCenter, Apfloat yJuliaCenter) {
@@ -826,14 +887,14 @@ public abstract class TaskRender implements Runnable {
         settingsJulia(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns.bailout_test_algorithm, fns.bailout, fns.bailout_test_user_formula, fns.bailout_test_user_formula2, fns.bailout_test_comparison, fns.n_norm, d3s, ptr, fractal_color, dem_color, image, fs, fns.out_coloring_algorithm, fns.user_out_coloring_algorithm, fns.outcoloring_formula, fns.user_outcoloring_conditions, fns.user_outcoloring_condition_formula, fns.in_coloring_algorithm, fns.user_in_coloring_algorithm, fns.incoloring_formula, fns.user_incoloring_conditions, fns.user_incoloring_condition_formula, SMOOTH_DATA, periodicity_checking, fns.plane_type, fns.apply_plane_on_julia, fns.apply_plane_on_julia_seed, fns.burning_ship, fns.mandel_grass, fns.mandel_grass_vals, fns.function, fns.z_exponent, fns.z_exponent_complex, color_cycling_location, color_cycling_location2, fns.rotation_vals, fns.rotation_center, fns.coefficients, fns.z_exponent_nova, fns.relaxation, fns.nova_method, fns.user_formula, fns.user_formula2, fns.bail_technique, fns.user_plane, fns.user_plane_algorithm, fns.user_plane_conditions, fns.user_plane_condition_formula, fns.user_formula_iteration_based, fns.user_formula_conditions, fns.user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, fns.plane_transform_center, fns.plane_transform_center_hp, fns.plane_transform_angle, fns.plane_transform_radius, fns.plane_transform_scales, fns.plane_transform_wavelength, fns.waveType, fns.plane_transform_angle2, fns.plane_transform_sides, fns.plane_transform_amount, fns.escaping_smooth_algorithm, fns.converging_smooth_algorithm, polar_projection, circle_period, fns.coupling, fns.user_formula_coupled, fns.coupling_method, fns.coupling_amplitude, fns.coupling_frequency, fns.coupling_seed, ds, inverse_dem, quickRender, color_intensity, transfer_function, color_density, color_intensity2, transfer_function2, color_density2, usePaletteForInColoring, color_blending, post_processing_order, pbs, fns.gcs, fns.coefficients_im, fns.lpns.lyapunovFinalExpression, fns.lpns.useLyapunovExponent, gradient_offset, fns.lpns.lyapunovFunction, fns.lpns.lyapunovExponentFunction, fns.lpns.lyapunovVariableId, fns.user_fz_formula, fns.user_dfz_formula, fns.user_ddfz_formula, fns.user_dddfz_formula, fns.user_relaxation_formula, fns.user_nova_addend_formula, fns.laguerre_deg, fns.gcps, fns.lfns, fns.newton_hines_k, fns.tcs, fns.lpns.lyapunovInitialValue, fns.lpns.lyapunovInitializationIteratons, fns.lpns.lyapunovskipBailoutCheck, fns.preffs, fns.postffs, fns.ips, fns.juliter, fns.juliterIterations, fns.juliterIncludeInitialIterations, fns.defaultNovaInitialValue, fns.perturbation, fns.perturbation_vals, fns.variable_perturbation, fns.user_perturbation_algorithm, fns.perturbation_user_formula, fns.user_perturbation_conditions, fns.user_perturbation_condition_formula, fns.init_val, fns.initial_vals, fns.variable_init_value, fns.user_initial_value_algorithm, fns.initial_value_user_formula, fns.user_initial_value_conditions, fns.user_initial_value_condition_formula, fns.cbs, fns.useGlobalMethod, fns.globalMethodFactor, fns.variable_re, fns.variable_im, fns.inflections_re, fns.inflections_im, fns.inflectionsPower, xJuliaCenter, yJuliaCenter);
     }
 
-    public TaskRender(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, ImageExpanderWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, boolean polar_projection, double circle_period, DomainColoringSettings ds, boolean inverse_dem, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring, BlendingSettings color_blending, int[] post_processing_order, PaletteGradientMergingSettings pbs, int gradient_offset, double contourFactor, GeneratedPaletteSettings gps, JitterSettings js, PostProcessSettings pps, Apfloat xJuliaCenter, Apfloat yJuliaCenter) {
+    public TaskRender(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, MinimalRendererWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, boolean polar_projection, double circle_period, DomainColoringSettings ds, boolean inverse_dem, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring, BlendingSettings color_blending, int[] post_processing_order, PaletteGradientMergingSettings pbs, int gradient_offset, double contourFactor, GeneratedPaletteSettings gps, JitterSettings js, PostProcessSettings pps, Apfloat xJuliaCenter, Apfloat yJuliaCenter) {
         this.contourFactor = contourFactor;
         setPostProcessingData(pps);
         SMOOTH_DATA = needsSmoothing(fns, ndes, ls, ss, bms, cns, ens, rps, fdes, sts);
         banded = fns.banded;
         this.gps = gps;
         this.js = js;
-        settingsJuliaExpander(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns.bailout_test_algorithm, fns.bailout, fns.bailout_test_user_formula, fns.bailout_test_user_formula2, fns.bailout_test_comparison, fns.n_norm, ptr, fractal_color, dem_color, image, fs, fns.out_coloring_algorithm, fns.user_out_coloring_algorithm, fns.outcoloring_formula, fns.user_outcoloring_conditions, fns.user_outcoloring_condition_formula, fns.in_coloring_algorithm, fns.user_in_coloring_algorithm, fns.incoloring_formula, fns.user_incoloring_conditions, fns.user_incoloring_condition_formula, SMOOTH_DATA, periodicity_checking, fns.plane_type, fns.apply_plane_on_julia, fns.apply_plane_on_julia_seed, fns.burning_ship, fns.mandel_grass, fns.mandel_grass_vals, fns.function, fns.z_exponent, fns.z_exponent_complex, color_cycling_location, color_cycling_location2, fns.rotation_vals, fns.rotation_center, fns.coefficients, fns.z_exponent_nova, fns.relaxation, fns.nova_method, fns.user_formula, fns.user_formula2, fns.bail_technique, fns.user_plane, fns.user_plane_algorithm, fns.user_plane_conditions, fns.user_plane_condition_formula, fns.user_formula_iteration_based, fns.user_formula_conditions, fns.user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, fns.plane_transform_center, fns.plane_transform_center_hp, fns.plane_transform_angle, fns.plane_transform_radius, fns.plane_transform_scales, fns.plane_transform_wavelength, fns.waveType, fns.plane_transform_angle2, fns.plane_transform_sides, fns.plane_transform_amount, fns.escaping_smooth_algorithm, fns.converging_smooth_algorithm, polar_projection, circle_period, fns.coupling, fns.user_formula_coupled, fns.coupling_method, fns.coupling_amplitude, fns.coupling_frequency, fns.coupling_seed, ds, inverse_dem, color_intensity, transfer_function, color_density, color_intensity2, transfer_function2, color_density2, usePaletteForInColoring, color_blending, post_processing_order, pbs, fns.gcs, fns.coefficients_im, fns.lpns.lyapunovFinalExpression, fns.lpns.useLyapunovExponent, gradient_offset, fns.lpns.lyapunovFunction, fns.lpns.lyapunovExponentFunction, fns.lpns.lyapunovVariableId, fns.user_fz_formula, fns.user_dfz_formula, fns.user_ddfz_formula, fns.user_dddfz_formula, fns.user_relaxation_formula, fns.user_nova_addend_formula, fns.laguerre_deg, fns.gcps, fns.lfns, fns.newton_hines_k, fns.tcs, fns.lpns.lyapunovInitialValue, fns.lpns.lyapunovInitializationIteratons, fns.lpns.lyapunovskipBailoutCheck, fns.preffs, fns.postffs, fns.ips, fns.juliter, fns.juliterIterations, fns.juliterIncludeInitialIterations, fns.defaultNovaInitialValue, fns.perturbation, fns.perturbation_vals, fns.variable_perturbation, fns.user_perturbation_algorithm, fns.perturbation_user_formula, fns.user_perturbation_conditions, fns.user_perturbation_condition_formula, fns.init_val, fns.initial_vals, fns.variable_init_value, fns.user_initial_value_algorithm, fns.initial_value_user_formula, fns.user_initial_value_conditions, fns.user_initial_value_condition_formula, fns.cbs, fns.useGlobalMethod, fns.globalMethodFactor, fns.variable_re, fns.variable_im, fns.inflections_re, fns.inflections_im, fns.inflectionsPower, xJuliaCenter, yJuliaCenter);
+        settingsJuliaMinimalRenderer(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns.bailout_test_algorithm, fns.bailout, fns.bailout_test_user_formula, fns.bailout_test_user_formula2, fns.bailout_test_comparison, fns.n_norm, ptr, fractal_color, dem_color, image, fs, fns.out_coloring_algorithm, fns.user_out_coloring_algorithm, fns.outcoloring_formula, fns.user_outcoloring_conditions, fns.user_outcoloring_condition_formula, fns.in_coloring_algorithm, fns.user_in_coloring_algorithm, fns.incoloring_formula, fns.user_incoloring_conditions, fns.user_incoloring_condition_formula, SMOOTH_DATA, periodicity_checking, fns.plane_type, fns.apply_plane_on_julia, fns.apply_plane_on_julia_seed, fns.burning_ship, fns.mandel_grass, fns.mandel_grass_vals, fns.function, fns.z_exponent, fns.z_exponent_complex, color_cycling_location, color_cycling_location2, fns.rotation_vals, fns.rotation_center, fns.coefficients, fns.z_exponent_nova, fns.relaxation, fns.nova_method, fns.user_formula, fns.user_formula2, fns.bail_technique, fns.user_plane, fns.user_plane_algorithm, fns.user_plane_conditions, fns.user_plane_condition_formula, fns.user_formula_iteration_based, fns.user_formula_conditions, fns.user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, fns.plane_transform_center, fns.plane_transform_center_hp, fns.plane_transform_angle, fns.plane_transform_radius, fns.plane_transform_scales, fns.plane_transform_wavelength, fns.waveType, fns.plane_transform_angle2, fns.plane_transform_sides, fns.plane_transform_amount, fns.escaping_smooth_algorithm, fns.converging_smooth_algorithm, polar_projection, circle_period, fns.coupling, fns.user_formula_coupled, fns.coupling_method, fns.coupling_amplitude, fns.coupling_frequency, fns.coupling_seed, ds, inverse_dem, color_intensity, transfer_function, color_density, color_intensity2, transfer_function2, color_density2, usePaletteForInColoring, color_blending, post_processing_order, pbs, fns.gcs, fns.coefficients_im, fns.lpns.lyapunovFinalExpression, fns.lpns.useLyapunovExponent, gradient_offset, fns.lpns.lyapunovFunction, fns.lpns.lyapunovExponentFunction, fns.lpns.lyapunovVariableId, fns.user_fz_formula, fns.user_dfz_formula, fns.user_ddfz_formula, fns.user_dddfz_formula, fns.user_relaxation_formula, fns.user_nova_addend_formula, fns.laguerre_deg, fns.gcps, fns.lfns, fns.newton_hines_k, fns.tcs, fns.lpns.lyapunovInitialValue, fns.lpns.lyapunovInitializationIteratons, fns.lpns.lyapunovskipBailoutCheck, fns.preffs, fns.postffs, fns.ips, fns.juliter, fns.juliterIterations, fns.juliterIncludeInitialIterations, fns.defaultNovaInitialValue, fns.perturbation, fns.perturbation_vals, fns.variable_perturbation, fns.user_perturbation_algorithm, fns.perturbation_user_formula, fns.user_perturbation_conditions, fns.user_perturbation_condition_formula, fns.init_val, fns.initial_vals, fns.variable_init_value, fns.user_initial_value_algorithm, fns.initial_value_user_formula, fns.user_initial_value_conditions, fns.user_initial_value_condition_formula, fns.cbs, fns.useGlobalMethod, fns.globalMethodFactor, fns.variable_re, fns.variable_im, fns.inflections_re, fns.inflections_im, fns.inflectionsPower, xJuliaCenter, yJuliaCenter);
     }
 
     public TaskRender(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, boolean polar_projection, double circle_period, boolean inverse_dem, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring, BlendingSettings color_blending, int[] post_processing_order, PaletteGradientMergingSettings pbs, int gradient_offset, double contourFactor, GeneratedPaletteSettings gps, JitterSettings js, PostProcessSettings pps) {
@@ -913,8 +974,6 @@ public abstract class TaskRender implements Runnable {
         this.preHeightScaling = d3s.preHeightScaling;
         this.d3s = d3s;
 
-        this.color_blending = color_blending;
-
         this.post_processing_order = post_processing_order;
 
         this.pbs = pbs;
@@ -926,6 +985,7 @@ public abstract class TaskRender implements Runnable {
         ColorAlgorithm.DomainColoringBypass = domain_coloring;
 
         progress = ptr.getProgressBar();
+        progress_one_percent = progress.getMaximum() / 100;
 
         if (domain_coloring) {
             if (polar_projection) {
@@ -980,8 +1040,8 @@ public abstract class TaskRender implements Runnable {
 
     }
 
-    //Fractal-Expander
-    private void settingsFractalExpander(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, ImageExpanderWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, int plane_type, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, int color_cycling_location2, Apfloat[] rotation_vals, Apfloat[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_val, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, boolean exterior_de, double exterior_de_factor, double height_ratio, double[] plane_transform_center, Apfloat[] plane_transform_center_hp, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, int converging_smooth_algorithm,  boolean polar_projection, double circle_period,   String user_fz_formula, String user_dfz_formula, String user_ddfz_formula, String user_dddfz_formula, double coupling, String[] user_formula_coupled, int coupling_method, double coupling_amplitude, double coupling_frequency, int coupling_seed, DomainColoringSettings ds, boolean inverse_dem, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring,    double[] laguerre_deg, BlendingSettings color_blending,   double[] kleinianLine, double kleinianK, double kleinianM, int[] post_processing_order,   PaletteGradientMergingSettings pbs,  GenericCaZbdZeSettings gcs, double[] durand_kernel_init_val, MagneticPendulumSettings mps, double[] coefficients_im, String[] lyapunovExpression, boolean useLyapunovExponent, int gradient_offset, String lyapunovFunction, String lyapunovExponentFunction, int lyapunovVariableId, String user_relaxation_formula, String user_nova_addend_formula, GenericCpAZpBCSettings gcps, InertiaGravityFractalSettings igs, LambdaFnFnSettings lfns, double[] newton_hines_k, TrueColorSettings tcs, String lyapunovInitialValue,  int lyapunovInitializationIteratons, boolean lyapunovskipBailoutCheck, int root_initialization_method, FunctionFilterSettings preffs, FunctionFilterSettings postffs, PlaneInfluenceSettings ips, boolean defaultNovaInitialValue, ConvergentBailoutConditionSettings cbs,  boolean useGlobalMethod, double[] globalMethodFactor, int period, double[] variable_re, double[] variable_im, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower) {
+    //Fractal-MinimalRenderer
+    private void settingsFractalMinimalRenderer(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, MinimalRendererWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, int plane_type, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, int color_cycling_location2, Apfloat[] rotation_vals, Apfloat[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_val, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, boolean exterior_de, double exterior_de_factor, double height_ratio, double[] plane_transform_center, Apfloat[] plane_transform_center_hp, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, int converging_smooth_algorithm, boolean polar_projection, double circle_period, String user_fz_formula, String user_dfz_formula, String user_ddfz_formula, String user_dddfz_formula, double coupling, String[] user_formula_coupled, int coupling_method, double coupling_amplitude, double coupling_frequency, int coupling_seed, DomainColoringSettings ds, boolean inverse_dem, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring, double[] laguerre_deg, BlendingSettings color_blending, double[] kleinianLine, double kleinianK, double kleinianM, int[] post_processing_order, PaletteGradientMergingSettings pbs, GenericCaZbdZeSettings gcs, double[] durand_kernel_init_val, MagneticPendulumSettings mps, double[] coefficients_im, String[] lyapunovExpression, boolean useLyapunovExponent, int gradient_offset, String lyapunovFunction, String lyapunovExponentFunction, int lyapunovVariableId, String user_relaxation_formula, String user_nova_addend_formula, GenericCpAZpBCSettings gcps, InertiaGravityFractalSettings igs, LambdaFnFnSettings lfns, double[] newton_hines_k, TrueColorSettings tcs, String lyapunovInitialValue, int lyapunovInitializationIteratons, boolean lyapunovskipBailoutCheck, int root_initialization_method, FunctionFilterSettings preffs, FunctionFilterSettings postffs, PlaneInfluenceSettings ips, boolean defaultNovaInitialValue, ConvergentBailoutConditionSettings cbs, boolean useGlobalMethod, double[] globalMethodFactor, int period, double[] variable_re, double[] variable_im, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower) {
 
         this.xCenter = xCenter;
         this.yCenter = yCenter;
@@ -995,7 +1055,7 @@ public abstract class TaskRender implements Runnable {
         this.FROMy = FROMy;
         this.TOy = TOy;
         this.max_iterations = max_iterations;
-        this.ptrExpander = ptr;
+        this.ptrMinimalRenderer = ptr;
         this.fs = fs;
         this.filters = fs.filters;
         this.image = image;
@@ -1011,8 +1071,6 @@ public abstract class TaskRender implements Runnable {
         this.filters_order = fs.filters_order;
         this.height_ratio = height_ratio;
 
-        this.color_blending = color_blending;
-
         this.post_processing_order = post_processing_order;
 
         this.pbs = pbs;
@@ -1023,18 +1081,19 @@ public abstract class TaskRender implements Runnable {
         this.domain_coloring = ds.domain_coloring;
         ColorAlgorithm.DomainColoringBypass = domain_coloring;
 
-        progress = ptrExpander.getProgressBar();
+        progress = ptrMinimalRenderer.getProgressBar();
+        progress_one_percent = progress.getMaximum() / 100;
 
         if (domain_coloring) {
             if (polar_projection) {
-                action = DOMAIN_POLAR_EXPANDER;
+                action = DOMAIN_POLAR_MINIMAL_RENDERER;
             } else {
-                action = DOMAIN_EXPANDER;
+                action = DOMAIN_MINIMAL_RENDERER;
             }
         } else if (polar_projection) {
-            action = POLAR_EXPANDER;
+            action = POLAR_MINIMAL_RENDERER;
         } else {
-            action = NORMAL_EXPANDER;
+            action = NORMAL_MINIMAL_RENDERER;
         }
 
         this.usePaletteForInColoring = usePaletteForInColoring;
@@ -1135,8 +1194,6 @@ public abstract class TaskRender implements Runnable {
         this.preHeightScaling = d3s.preHeightScaling;
         this.d3s = d3s;
 
-        this.color_blending = color_blending;
-
         this.post_processing_order = post_processing_order;
 
         this.pbs = pbs;
@@ -1148,6 +1205,7 @@ public abstract class TaskRender implements Runnable {
         ColorAlgorithm.DomainColoringBypass = domain_coloring;
 
         progress = ptr.getProgressBar();
+        progress_one_percent = progress.getMaximum() / 100;
 
         if (domain_coloring) {
             if (polar_projection) {
@@ -1204,8 +1262,8 @@ public abstract class TaskRender implements Runnable {
 
     }
 
-    //Julia-Expander
-    private void settingsJuliaExpander(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, ImageExpanderWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, int color_cycling_location2, Apfloat[] rotation_vals, Apfloat[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, boolean exterior_de, double exterior_de_factor, double height_ratio, double[] plane_transform_center, Apfloat[] plane_transform_center_hp, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, int converging_smooth_algorithm,  boolean polar_projection, double circle_period,   double coupling, String[] user_formula_coupled, int coupling_method, double coupling_amplitude, double coupling_frequency, int coupling_seed, DomainColoringSettings ds, boolean inverse_dem, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring,    BlendingSettings color_blending,   int[] post_processing_order,   PaletteGradientMergingSettings pbs,  GenericCaZbdZeSettings gcs, double[] coefficients_im, String[] lyapunovExpression, boolean useLyapunovExponent, int gradient_offset, String lyapunovFunction, String lyapunovExponentFunction, int lyapunovVariableId, String user_fz_formula, String user_dfz_formula, String user_ddfz_formula, String user_dddfz_formula, String user_relaxation_formula, String user_nova_addend_formula, double[] laguerre_deg, GenericCpAZpBCSettings gcps, LambdaFnFnSettings lfns, double[] newton_hines_k, TrueColorSettings tcs,  String lyapunovInitialValue, int lyapunovInitializationIteratons, boolean lyapunovskipBailoutCheck, FunctionFilterSettings preffs, FunctionFilterSettings postffs, PlaneInfluenceSettings ips, boolean juliter, int juliterIterations, boolean juliterIncludeInitialIterations, boolean defaultNovaInitialValue, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String perturbation_user_formula, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String initial_value_user_formula, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, ConvergentBailoutConditionSettings cbs,  boolean useGlobalMethod, double[] globalMethodFactor, double[] variable_re, double[] variable_im, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower, Apfloat xJuliaCenter, Apfloat yJuliaCenter) {
+    //Julia-MinimalRenderer
+    private void settingsJuliaMinimalRenderer(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, MinimalRendererWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, int color_cycling_location2, Apfloat[] rotation_vals, Apfloat[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, boolean exterior_de, double exterior_de_factor, double height_ratio, double[] plane_transform_center, Apfloat[] plane_transform_center_hp, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, int converging_smooth_algorithm, boolean polar_projection, double circle_period, double coupling, String[] user_formula_coupled, int coupling_method, double coupling_amplitude, double coupling_frequency, int coupling_seed, DomainColoringSettings ds, boolean inverse_dem, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring, BlendingSettings color_blending, int[] post_processing_order, PaletteGradientMergingSettings pbs, GenericCaZbdZeSettings gcs, double[] coefficients_im, String[] lyapunovExpression, boolean useLyapunovExponent, int gradient_offset, String lyapunovFunction, String lyapunovExponentFunction, int lyapunovVariableId, String user_fz_formula, String user_dfz_formula, String user_ddfz_formula, String user_dddfz_formula, String user_relaxation_formula, String user_nova_addend_formula, double[] laguerre_deg, GenericCpAZpBCSettings gcps, LambdaFnFnSettings lfns, double[] newton_hines_k, TrueColorSettings tcs, String lyapunovInitialValue, int lyapunovInitializationIteratons, boolean lyapunovskipBailoutCheck, FunctionFilterSettings preffs, FunctionFilterSettings postffs, PlaneInfluenceSettings ips, boolean juliter, int juliterIterations, boolean juliterIncludeInitialIterations, boolean defaultNovaInitialValue, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String perturbation_user_formula, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String initial_value_user_formula, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, ConvergentBailoutConditionSettings cbs, boolean useGlobalMethod, double[] globalMethodFactor, double[] variable_re, double[] variable_im, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower, Apfloat xJuliaCenter, Apfloat yJuliaCenter) {
 
         this.xCenter = xCenter;
         this.yCenter = yCenter;
@@ -1219,7 +1277,7 @@ public abstract class TaskRender implements Runnable {
         this.FROMy = FROMy;
         this.TOy = TOy;
         this.max_iterations = max_iterations;
-        this.ptrExpander = ptr;
+        this.ptrMinimalRenderer = ptr;
         this.fs = fs;
         this.filters = fs.filters;
         this.image = image;
@@ -1235,8 +1293,6 @@ public abstract class TaskRender implements Runnable {
         this.filters_order = fs.filters_order;
         this.height_ratio = height_ratio;
 
-        this.color_blending = color_blending;
-
         this.post_processing_order = post_processing_order;
 
 
@@ -1248,18 +1304,19 @@ public abstract class TaskRender implements Runnable {
         this.domain_coloring = ds.domain_coloring;
         ColorAlgorithm.DomainColoringBypass = domain_coloring;
 
-        progress = ptrExpander.getProgressBar();
+        progress = ptrMinimalRenderer.getProgressBar();
+        progress_one_percent = progress.getMaximum() / 100;
 
         if (domain_coloring) {
             if (polar_projection) {
-                action = DOMAIN_POLAR_EXPANDER;
+                action = DOMAIN_POLAR_MINIMAL_RENDERER;
             } else {
-                action = DOMAIN_EXPANDER;
+                action = DOMAIN_MINIMAL_RENDERER;
             }
         } else if (polar_projection) {
-            action = POLAR_EXPANDER;
+            action = POLAR_MINIMAL_RENDERER;
         } else {
-            action = NORMAL_EXPANDER;
+            action = NORMAL_MINIMAL_RENDERER;
         }
 
         this.usePaletteForInColoring = usePaletteForInColoring;
@@ -1335,8 +1392,6 @@ public abstract class TaskRender implements Runnable {
         this.filters_options_extra_vals = fs.filters_options_extra_vals;
         this.height_ratio = height_ratio;
 
-        this.color_blending = color_blending;
-
         ColorAlgorithm.DomainColoringBypass = domain_coloring;
 
         this.post_processing_order = post_processing_order;
@@ -1349,6 +1404,7 @@ public abstract class TaskRender implements Runnable {
         rgbs = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 
         progress = ptr.getProgressBar();
+        progress_one_percent = progress.getMaximum() / 100;
 
         this.usePaletteForInColoring = usePaletteForInColoring;
         colorTransferFactory(transfer_function, transfer_function2, color_intensity, color_intensity2, color_density, color_density2);
@@ -1449,8 +1505,6 @@ public abstract class TaskRender implements Runnable {
         this.filters_options_extra_vals = fs.filters_options_extra_vals;
         this.height_ratio = height_ratio;
 
-        this.color_blending = color_blending;
-
         this.post_processing_order = post_processing_order;
 
         this.pbs = pbs;
@@ -1461,6 +1515,7 @@ public abstract class TaskRender implements Runnable {
         rgbs = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 
         progress = ptr.getProgressBar();
+        progress_one_percent = progress.getMaximum() / 100;
 
         ColorAlgorithm.DomainColoringBypass = domain_coloring;
 
@@ -1529,8 +1584,6 @@ public abstract class TaskRender implements Runnable {
 
         this.ccs = ccs;
 
-        this.color_blending = color_blending;
-
         this.post_processing_order = post_processing_order;
 
         setPostProcessingData(pps);
@@ -1544,6 +1597,7 @@ public abstract class TaskRender implements Runnable {
         ColorAlgorithm.DomainColoringBypass = domain_coloring;
 
         progress = ptr.getProgressBar();
+        progress_one_percent = progress.getMaximum() / 100;
 
         this.usePaletteForInColoring = usePaletteForInColoring;
         colorTransferFactory(transfer_function, transfer_function2, color_intensity, color_intensity2, color_density, color_density2);
@@ -1589,8 +1643,6 @@ public abstract class TaskRender implements Runnable {
         action = APPLY_PALETTE_AND_FILTER;
         this.gps = gps;
 
-        this.color_blending = color_blending;
-
         this.post_processing_order = post_processing_order;
 
         setPostProcessingData(pps);
@@ -1603,6 +1655,7 @@ public abstract class TaskRender implements Runnable {
         ColorAlgorithm.DomainColoringBypass = domain_coloring;
 
         progress = ptr.getProgressBar();
+        progress_one_percent = progress.getMaximum() / 100;
 
         this.usePaletteForInColoring = usePaletteForInColoring;
         colorTransferFactory(transfer_function, transfer_function2, color_intensity, color_intensity2, color_density, color_density2);
@@ -1648,8 +1701,6 @@ public abstract class TaskRender implements Runnable {
         this.color_3d_blending = d3s.color_3d_blending;
         this.contourFactor = contourFactor;
 
-        this.color_blending = color_blending;
-
         rgbs = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 
         scale = d3s.d3_size_scale;
@@ -1657,6 +1708,7 @@ public abstract class TaskRender implements Runnable {
         d3_color_type = d3s.d3_color_type;
 
         progress = ptr.getProgressBar();
+        progress_one_percent = progress.getMaximum() / 100;
 
         blending = blendingFactory(COLOR_SMOOTHING_METHOD, color_blending.color_blending);
         blending.setReverseColors(color_blending.blending_reversed_colors);
@@ -1705,8 +1757,6 @@ public abstract class TaskRender implements Runnable {
         this.domain_coloring = ds.domain_coloring;
         ColorAlgorithm.DomainColoringBypass = domain_coloring;
 
-        this.color_blending = color_blending;
-
         this.post_processing_order = post_processing_order;
 
         setPostProcessingData(pps);
@@ -1716,6 +1766,7 @@ public abstract class TaskRender implements Runnable {
         this.banded = banded;
 
         progress = ptr.getProgressBar();
+        progress_one_percent = progress.getMaximum() / 100;
 
         this.usePaletteForInColoring = usePaletteForInColoring;
         colorTransferFactory(transfer_function, transfer_function2, color_intensity, color_intensity2, color_density, color_density2);
@@ -1795,17 +1846,17 @@ public abstract class TaskRender implements Runnable {
                         domainPolarRendering();
                     }
                     break;
-                case NORMAL_EXPANDER:
-                    expanderRendering();
+                case NORMAL_MINIMAL_RENDERER:
+                    minimalRendererRendering();
                     break;
-                case POLAR_EXPANDER:
-                    polarExpanderRendering();
+                case POLAR_MINIMAL_RENDERER:
+                    polarMinimalRendererRendering();
                     break;
-                case DOMAIN_EXPANDER:
-                    domainExpanderRendering();
+                case DOMAIN_MINIMAL_RENDERER:
+                    domainMinimalRendererRendering();
                     break;
-                case DOMAIN_POLAR_EXPANDER:
-                    domainPolarExpanderRendering();
+                case DOMAIN_POLAR_MINIMAL_RENDERER:
+                    domainPolarMinimalRendererRendering();
                     break;
                 case POST_PROCESSING_WITH_AA_AND_FILTER:
                     applyPostProcessingWithAAandFilter();
@@ -1815,9 +1866,9 @@ public abstract class TaskRender implements Runnable {
                     break;
             }
         } catch (OutOfMemoryError e) {
-            if (ptrExpander != null) {
-                JOptionPane.showMessageDialog(ptrExpander, "Maximum Heap size was reached.\nPlease set the maximum Heap size to a higher value.\nThe application will terminate.", "Error!", JOptionPane.ERROR_MESSAGE);
-                ptrExpander.savePreferences();
+            if (ptrMinimalRenderer != null) {
+                JOptionPane.showMessageDialog(ptrMinimalRenderer, "Maximum Heap size was reached.\nPlease set the maximum Heap size to a higher value.\nThe application will terminate.", "Error!", JOptionPane.ERROR_MESSAGE);
+                ptrMinimalRenderer.savePreferences();
             } else {
                 JOptionPane.showMessageDialog(ptr, "Maximum Heap size was reached.\nThe application will terminate.", "Error!", JOptionPane.ERROR_MESSAGE);
                 ptr.savePreferences();
@@ -1831,9 +1882,9 @@ public abstract class TaskRender implements Runnable {
 
         }
         catch (Exception ex) {
-            if (ptrExpander != null) {
-                JOptionPane.showMessageDialog(ptrExpander, "An error has occurred.", "Error!", JOptionPane.ERROR_MESSAGE);
-                ptrExpander.savePreferences();
+            if (ptrMinimalRenderer != null) {
+                JOptionPane.showMessageDialog(ptrMinimalRenderer, "An error has occurred.", "Error!", JOptionPane.ERROR_MESSAGE);
+                ptrMinimalRenderer.savePreferences();
             } else {
                 JOptionPane.showMessageDialog(ptr, "An error has occurred.", "Error!", JOptionPane.ERROR_MESSAGE);
                 ptr.savePreferences();
@@ -1876,7 +1927,7 @@ public abstract class TaskRender implements Runnable {
         return (doneByThreadId + randomNumber ) * 19;
     }
 
-    private void domainExpanderRendering() {
+    private void domainMinimalRendererRendering() {
 
         int image_width = image.getWidth();
         int image_height = image.getHeight();
@@ -1902,7 +1953,7 @@ public abstract class TaskRender implements Runnable {
             total_completed.add(task_calculated);
         }
 
-        if (finalize_sync.incrementAndGet() == ptrExpander.getNumberOfThreads()) {
+        if (finalize_sync.incrementAndGet() == ptrMinimalRenderer.getNumberOfThreads()) {
 
             image_iterations = null;
             escaped = null;
@@ -1911,9 +1962,9 @@ public abstract class TaskRender implements Runnable {
 
             progress.setValue(progress.getMaximum());
 
-            ptrExpander.writeImageToDisk();
+            ptrMinimalRenderer.writeImageToDisk();
 
-            ptrExpander.setOptions(true);
+            ptrMinimalRenderer.setOptions(true);
 
             setFullToolTipMessage(image_width * image_height);
         }
@@ -2190,13 +2241,16 @@ public abstract class TaskRender implements Runnable {
             approximation += "<b>Series Approximation</b><br>";
         }
         else if(APPROXIMATION_ALGORITHM == 2 && fractal.supportsBilinearApproximation()) {
-            approximation += "<b>Bilinear Approximation (claude)</b><br>";
+            approximation += "<b>Bilinear Approximation Mip (claude)</b><br>";
         }
         else if(APPROXIMATION_ALGORITHM == 3 && fractal.supportsNanomb1()) {
             approximation += "<b>Nanomb1</b><br>";
         }
         else if(APPROXIMATION_ALGORITHM == 4 && fractal.supportsBilinearApproximation2()) {
             approximation += "<b>Bilinear Approximation (Zhuoran)</b><br>";
+        }
+        else if(APPROXIMATION_ALGORITHM == 5 && fractal.supportsBilinearApproximation3()) {
+            approximation += "<b>Bilinear Approximation Mip (Zhuoran)</b><br>";
         }
         else {
             approximation += "<b>No Approximation</b><br>";
@@ -2207,8 +2261,8 @@ public abstract class TaskRender implements Runnable {
 
     public void setFullToolTipMessage(int total) {
 
-        long time =  ptr != null ? ptr.getCalculationTime() : ptrExpander.getCalculationTime();
-        int threads = ptr != null ? ptr.getNumberOfThreads() : ptrExpander.getNumberOfThreads();
+        long time =  ptr != null ? ptr.getCalculationTime() : ptrMinimalRenderer.getCalculationTime();
+        int threads = ptr != null ? ptr.getNumberOfThreads() : ptrMinimalRenderer.getNumberOfThreads();
 
         int aaMethod = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
         int aaSamplesIndex = (filters_options_vals[MainWindow.ANTIALIASING] % 100) % 10;
@@ -2255,6 +2309,8 @@ public abstract class TaskRender implements Runnable {
 
         long total_pp = total_post_processed.sum();
 
+        boolean usesBLA = (APPROXIMATION_ALGORITHM == 2 && fractal.supportsBilinearApproximation()) ||  (APPROXIMATION_ALGORITHM == 4 && fractal.supportsBilinearApproximation2()) || (APPROXIMATION_ALGORITHM == 5 && fractal.supportsBilinearApproximation3());
+
         progress.setToolTipText("<html><li>Total Elapsed Time: <b>" + total_time + " ms</b><br>" +
                 getPixelsString(total, total_calculated_pixels, total_calculated_extra_pixels, total_completed_pixels, total_pp, supersampling_num) +
                 "<li>Logical Processors: <b>" + Runtime.getRuntime().availableProcessors() + "</b><br>" +
@@ -2269,11 +2325,11 @@ public abstract class TaskRender implements Runnable {
                 (d3 && D3RenderingCalculationTime > 0? D3_RENDER_TIME_STRING_LABEL + D3RenderingCalculationTime + " ms</b><br>" : "") +
                 (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation && Fractal.ReferenceCalculationTime > 0 ? REFERENCE_CALCULATION_ELAPSED_TIME_STRING_LABEL + Fractal.ReferenceCalculationTime + " ms</b><br>" : "") +
                 (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation  ? "<li>Reference Point Iterations: <b>" + refPointIterations + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation && Fractal.ReferenceCalculationTime > 0 && Fractal.calculatedReferenceIterations > 0 ? "<li>Reference Point Iterations per second: <b>" + String.format("%.4f", Fractal.calculatedReferenceIterations / ((double)Fractal.ReferenceCalculationTime / 1000.0)) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation && Fractal.ReferenceCalculationTime > 0 && Fractal.calculatedReferenceIterations > 0 ? "<li>Reference Point Iterations per second: <b>" + String.format("%.4f", Fractal.calculatedReferenceIterations / (Fractal.ReferenceCalculationTime / 1000.0)) + "</b><br>" : "") +
 
                 (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation && fractal.needsSecondReference() && Fractal.SecondReferenceCalculationTime > 0 ? JULIA_EXTRA_REFERENCE_CALCULATION_ELAPSED_TIME_STRING_LABEL + Fractal.SecondReferenceCalculationTime + " ms</b><br>" : "") +
                 (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation  && fractal.needsSecondReference() ? "<li>Julia Extra Reference Point Iterations: <b>" + secondRefPointIterations + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation  && fractal.needsSecondReference() && Fractal.SecondReferenceCalculationTime > 0 && Fractal.calculatedSecondReferenceIterations > 0 ? "<li>Julia Extra Reference Point Iterations per second: <b>" + String.format("%.4f", Fractal.calculatedSecondReferenceIterations / ((double)Fractal.SecondReferenceCalculationTime / 1000.0)) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation  && fractal.needsSecondReference() && Fractal.SecondReferenceCalculationTime > 0 && Fractal.calculatedSecondReferenceIterations > 0 ? "<li>Julia Extra Reference Point Iterations per second: <b>" + String.format("%.4f", Fractal.calculatedSecondReferenceIterations / (Fractal.SecondReferenceCalculationTime / 1000.0)) + "</b><br>" : "") +
                 (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation && COMPRESS_REFERENCE_IF_POSSIBLE && fractal.supportsReferenceCompression() ? getCompressionInfo(refPointIterations, secondRefPointIterations) : "") +
                 (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation && DETECT_PERIOD && fractal.supportsPeriod()  ? "<li>Detected Period: <b>" + (Fractal.DetectedPeriod != 0 ? Fractal.DetectedPeriod : "N/A") + "</b><br>" : "") + //&& Fractal.DetectedPeriod != 0
                 //(!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation && DETECT_PERIOD && fractal.supportsPeriod() && Fractal.DetectedPeriod != Fractal.DetectedAtomPeriod ? "<li>Detected Atom Period: <b>" + Fractal.DetectedAtomPeriod + "</b><br>" : "") +
@@ -2286,28 +2342,29 @@ public abstract class TaskRender implements Runnable {
                 (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation && APPROXIMATION_ALGORITHM == 3 && fractal.supportsNanomb1() && Fractal.Nanomb1CalculationTime > 0 ? NANOMB1_CALCULATION_ELAPSED_TIME_LABEL + Fractal.Nanomb1CalculationTime + " ms</b><br>" : "") +
                 (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation && APPROXIMATION_ALGORITHM == 3 && fractal.supportsNanomb1() ? "<li>Nanomb1 M: <b>" + NANOMB1_M + "</b><br>" : "") +
                 (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation && APPROXIMATION_ALGORITHM == 3 && fractal.supportsNanomb1() ? "<li>Nanomb1 N: <b>" + NANOMB1_N + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && APPROXIMATION_ALGORITHM == 3 && fractal.supportsNanomb1() ? NANOMB1_SKIPPED_ITERATIONS_PER_PIXEL_STRING_LABEL + String.format("%.4f", Fractal.total_nanomb1_skipped_iterations.sum() / ((double) total_calculated_pixels * (supersampling_num))) + "</b><br>": "") +
-                (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation && (APPROXIMATION_ALGORITHM == 2 && fractal.supportsBilinearApproximation() ||  APPROXIMATION_ALGORITHM == 4 && fractal.supportsBilinearApproximation2() && Fractal.BLACalculationTime > 0) ? BLA_CALCULATION_ELAPSED_TIME_LABEL + Fractal.BLACalculationTime + " ms</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && APPROXIMATION_ALGORITHM == 3 && fractal.supportsNanomb1() ? NANOMB1_SKIPPED_ITERATIONS_PER_PIXEL_STRING_LABEL + String.format("%.4f", Fractal.total_nanomb1_skipped_iterations_sum() / ((double) total_calculated_pixels * (supersampling_num))) + "</b><br>": "") +
+                (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation && (usesBLA && Fractal.BLACalculationTime > 0) ? BLA_CALCULATION_ELAPSED_TIME_LABEL + Fractal.BLACalculationTime + " ms</b><br>" : "") +
                 (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation && APPROXIMATION_ALGORITHM == 2 && fractal.supportsBilinearApproximation()  ? "<li>BLA Precision: <b>" + TaskRender.BLA_BITS + " bits</b><br>" : "") +
                 (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation && APPROXIMATION_ALGORITHM == 2 && fractal.supportsBilinearApproximation()  ? "<li>BLA Starting Level: <b>" + TaskRender.BLA_STARTING_LEVEL + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation && (APPROXIMATION_ALGORITHM == 2 && fractal.supportsBilinearApproximation() || APPROXIMATION_ALGORITHM == 4 && fractal.supportsBilinearApproximation2())  ? "<li>BLA Entries: <b>" + fractal.getBLAEntries() + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && (APPROXIMATION_ALGORITHM == 2 && fractal.supportsBilinearApproximation() ||  APPROXIMATION_ALGORITHM == 4 && fractal.supportsBilinearApproximation2())  ? BLA_ITERATIONS_PER_PIXEL_STRING_LABEL +  String.format("%.4f", Fractal.total_bla_iterations.sum() / ((double) total_calculated_pixels * (supersampling_num))) + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && (APPROXIMATION_ALGORITHM == 2 && fractal.supportsBilinearApproximation() ||  APPROXIMATION_ALGORITHM == 4 && fractal.supportsBilinearApproximation2())  ? "<li>BLA Iterations Per BLA Step: <b>" +  (Fractal.total_bla_steps.sum() == 0 ? "N/A" : String.format("%.4f", Fractal.total_bla_iterations.sum() / ((double)Fractal.total_bla_steps.sum()))) + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && (APPROXIMATION_ALGORITHM == 2 && fractal.supportsBilinearApproximation() ||  APPROXIMATION_ALGORITHM == 4 && fractal.supportsBilinearApproximation2())  ? PERTURBATION_ITERATIONS_PER_PIXEL_STRING_LABEL +  String.format("%.4f", Fractal.total_perturb_iterations.sum() / ((double) total_calculated_pixels * (supersampling_num))) + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && (APPROXIMATION_ALGORITHM == 2 && fractal.supportsBilinearApproximation() ||  APPROXIMATION_ALGORITHM == 4 && fractal.supportsBilinearApproximation2())  ? "<li>BLA Steps Per Pixel: <b>" + String.format("%.4f", Fractal.total_bla_steps.sum() / ((double) total_calculated_pixels * (supersampling_num))) + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && (APPROXIMATION_ALGORITHM == 2 && fractal.supportsBilinearApproximation() ||  APPROXIMATION_ALGORITHM == 4 && fractal.supportsBilinearApproximation2())  ? "<li>Total Steps Per Pixel: <b>" + String.format("%.4f", (Fractal.total_bla_steps.sum() + Fractal.total_perturb_iterations.sum()) / ((double) total_calculated_pixels * (supersampling_num))) + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && (APPROXIMATION_ALGORITHM != 2 || !fractal.supportsBilinearApproximation()) && (APPROXIMATION_ALGORITHM != 4 || !fractal.supportsBilinearApproximation2()) && TaskRender.PERTUBATION_PIXEL_ALGORITHM == 1 && fractal.supportsScaledIterations() && isDeep ? EXTENDED_RANGE_ITERATIONS_PER_PIXEL_STRING_LABEL +  (String.format("%.4f", Fractal.total_float_exp_iterations.sum() / ((double) total_calculated_pixels * (supersampling_num)))) + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && (APPROXIMATION_ALGORITHM != 2 || !fractal.supportsBilinearApproximation()) && (APPROXIMATION_ALGORITHM != 4 || !fractal.supportsBilinearApproximation2()) && TaskRender.PERTUBATION_PIXEL_ALGORITHM == 1 && fractal.supportsScaledIterations() && isDeep ? SCALED_DOUBLE_ITERATIONS_PER_PIXEL_STRING_LABEL +  (String.format("%.4f", Fractal.total_scaled_iterations.sum() / ((double) total_calculated_pixels * (supersampling_num)))) + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && (APPROXIMATION_ALGORITHM != 2 || !fractal.supportsBilinearApproximation()) && (APPROXIMATION_ALGORITHM != 4 || !fractal.supportsBilinearApproximation2()) && TaskRender.PERTUBATION_PIXEL_ALGORITHM == 1 && fractal.supportsScaledIterations() && isDeep ? NORMAL_DOUBLE_ITERATIONS_PER_PIXEL_STRING_LABEL +  (String.format("%.4f", Fractal.total_double_iterations.sum() / ((double) total_calculated_pixels * (supersampling_num)))) + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && (APPROXIMATION_ALGORITHM != 2 || !fractal.supportsBilinearApproximation()) && (APPROXIMATION_ALGORITHM != 4 || !fractal.supportsBilinearApproximation2()) && (TaskRender.PERTUBATION_PIXEL_ALGORITHM == 0 || !fractal.supportsScaledIterations()) && isDeep ? EXTENDED_RANGE_ITERATIONS_PER_PIXEL_STRING_LABEL +  (String.format("%.4f", Fractal.total_float_exp_iterations.sum() / ((double) total_calculated_pixels * (supersampling_num)))) + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && (APPROXIMATION_ALGORITHM != 2 || !fractal.supportsBilinearApproximation()) && (APPROXIMATION_ALGORITHM != 4 || !fractal.supportsBilinearApproximation2()) && (TaskRender.PERTUBATION_PIXEL_ALGORITHM == 0 || !fractal.supportsScaledIterations()) && isDeep ? NORMAL_DOUBLE_ITERATIONS_PER_PIXEL_STRING_LABEL +  (String.format("%.4f", Fractal.total_double_iterations.sum() / ((double) total_calculated_pixels * (supersampling_num)))) + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && (APPROXIMATION_ALGORITHM != 2 || !fractal.supportsBilinearApproximation()) && (APPROXIMATION_ALGORITHM != 4 || !fractal.supportsBilinearApproximation2()) && !isDeep ? NORMAL_DOUBLE_ITERATIONS_PER_PIXEL_STRING_LABEL +  (String.format("%.4f", Fractal.total_double_iterations.sum() / ((double) total_calculated_pixels * (supersampling_num)))) + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && (APPROXIMATION_ALGORITHM != 2 || !fractal.supportsBilinearApproximation()) && (APPROXIMATION_ALGORITHM != 4 || !fractal.supportsBilinearApproximation2()) && TaskRender.PERTUBATION_PIXEL_ALGORITHM == 1 && fractal.supportsScaledIterations() && isDeep ? "<li>Re-Aligns Per Pixel: <b>" +  (String.format("%.4f", Fractal.total_realigns.sum() / ((double) total_calculated_pixels * (supersampling_num)))) + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation ? "<li>Rebases Per Pixel: <b>" +  String.format("%.4f", Fractal.total_rebases.sum() / ((double) total_calculated_pixels * (supersampling_num))) + "</b><br>" : "") +
-                (((HIGH_PRECISION_CALCULATION && GATHER_HIGHPRECISION_STATISTICS) || (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY)) && supportsPerturbation ? "<li>Average Iterations Per Pixel: <b>" +  String.format("%.4f", (Fractal.total_iterations.sum())/ ((double) total_calculated_pixels * (supersampling_num))) + "</b><br>" : "") +
-                (((HIGH_PRECISION_CALCULATION && GATHER_HIGHPRECISION_STATISTICS) || (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY)) && supportsPerturbation ? "<li>Minimum Iterations: <b>" +  Fractal.total_min_iterations.get() + "</b><br>" : "") +
-                (((HIGH_PRECISION_CALCULATION && GATHER_HIGHPRECISION_STATISTICS) || (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY)) && supportsPerturbation ? "<li>Maximum Iterations: <b>" +  Fractal.total_max_iterations.get() + "</b><br>" : "") +
-                (((HIGH_PRECISION_CALCULATION && GATHER_HIGHPRECISION_STATISTICS) || (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY)) && supportsPerturbation ? "<li>Maximum Iterations (Ignore Not Escaped Points): <b>" +  Fractal.total_max_iterations_ignore_max_iter.get() + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation && APPROXIMATION_ALGORITHM == 5 && fractal.supportsBilinearApproximation3()  ? "<li>BLA Starting Level: <b>" + TaskRender.BLA3_STARTING_LEVEL + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation && usesBLA  ? "<li>BLA Entries: <b>" + fractal.getBLAEntries() + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && usesBLA  ? BLA_ITERATIONS_PER_PIXEL_STRING_LABEL +  String.format("%.4f", Fractal.total_bla_iterations_sum() / ((double) total_calculated_pixels * (supersampling_num))) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && usesBLA  ? "<li>BLA Iterations Per BLA Step: <b>" +  (Fractal.total_bla_steps_sum() == 0 ? "N/A" : String.format("%.4f", Fractal.total_bla_iterations_sum() / ((double)Fractal.total_bla_steps_sum()))) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && usesBLA  ? PERTURBATION_ITERATIONS_PER_PIXEL_STRING_LABEL +  String.format("%.4f", Fractal.total_perturb_iterations_sum() / ((double) total_calculated_pixels * (supersampling_num))) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && usesBLA  ? "<li>BLA Steps Per Pixel: <b>" + String.format("%.4f", Fractal.total_bla_steps_sum() / ((double) total_calculated_pixels * (supersampling_num))) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && usesBLA  ? "<li>Total Steps Per Pixel: <b>" + String.format("%.4f", (Fractal.total_bla_steps_sum() + Fractal.total_perturb_iterations_sum()) / ((double) total_calculated_pixels * (supersampling_num))) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && !usesBLA && TaskRender.PERTUBATION_PIXEL_ALGORITHM == 1 && fractal.supportsScaledIterations() && isDeep ? EXTENDED_RANGE_ITERATIONS_PER_PIXEL_STRING_LABEL +  (String.format("%.4f", Fractal.total_float_exp_iterations_sum() / ((double) total_calculated_pixels * (supersampling_num)))) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && !usesBLA && TaskRender.PERTUBATION_PIXEL_ALGORITHM == 1 && fractal.supportsScaledIterations() && isDeep ? SCALED_DOUBLE_ITERATIONS_PER_PIXEL_STRING_LABEL +  (String.format("%.4f", Fractal.total_scaled_iterations_sum() / ((double) total_calculated_pixels * (supersampling_num)))) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && !usesBLA && TaskRender.PERTUBATION_PIXEL_ALGORITHM == 1 && fractal.supportsScaledIterations() && isDeep ? NORMAL_DOUBLE_ITERATIONS_PER_PIXEL_STRING_LABEL +  (String.format("%.4f", Fractal.total_double_iterations_sum() / ((double) total_calculated_pixels * (supersampling_num)))) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && !usesBLA && (TaskRender.PERTUBATION_PIXEL_ALGORITHM == 0 || !fractal.supportsScaledIterations()) && isDeep ? EXTENDED_RANGE_ITERATIONS_PER_PIXEL_STRING_LABEL +  (String.format("%.4f", Fractal.total_float_exp_iterations_sum() / ((double) total_calculated_pixels * (supersampling_num)))) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && !usesBLA && (TaskRender.PERTUBATION_PIXEL_ALGORITHM == 0 || !fractal.supportsScaledIterations()) && isDeep ? NORMAL_DOUBLE_ITERATIONS_PER_PIXEL_STRING_LABEL +  (String.format("%.4f", Fractal.total_double_iterations_sum() / ((double) total_calculated_pixels * (supersampling_num)))) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && !usesBLA && !isDeep ? NORMAL_DOUBLE_ITERATIONS_PER_PIXEL_STRING_LABEL +  (String.format("%.4f", Fractal.total_double_iterations_sum() / ((double) total_calculated_pixels * (supersampling_num)))) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && !usesBLA && TaskRender.PERTUBATION_PIXEL_ALGORITHM == 1 && fractal.supportsScaledIterations() && isDeep ? "<li>Re-Aligns Per Pixel: <b>" +  (String.format("%.4f", Fractal.total_realigns_sum() / ((double) total_calculated_pixels * (supersampling_num)))) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation ? "<li>Rebases Per Pixel: <b>" +  String.format("%.4f", Fractal.total_rebases_sum() / ((double) total_calculated_pixels * (supersampling_num))) + "</b><br>" : "") +
+                (((HIGH_PRECISION_CALCULATION && GATHER_HIGHPRECISION_STATISTICS) || (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY)) && supportsPerturbation ? "<li>Average Iterations Per Pixel: <b>" +  String.format("%.4f", (Fractal.total_iterations_sum())/ ((double) total_calculated_pixels * (supersampling_num))) + "</b><br>" : "") +
+                (((HIGH_PRECISION_CALCULATION && GATHER_HIGHPRECISION_STATISTICS) || (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY)) && supportsPerturbation ? "<li>Minimum Iterations: <b>" +  Fractal.total_min_iterations_get() + "</b><br>" : "") +
+                (((HIGH_PRECISION_CALCULATION && GATHER_HIGHPRECISION_STATISTICS) || (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY)) && supportsPerturbation ? "<li>Maximum Iterations: <b>" +  Fractal.total_max_iterations_get() + "</b><br>" : "") +
+                (((HIGH_PRECISION_CALCULATION && GATHER_HIGHPRECISION_STATISTICS) || (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY)) && supportsPerturbation ? "<li>Maximum Iterations (Ignore Not Escaped Points): <b>" +  Fractal.total_max_iterations_ignore_max_iter_get() + "</b><br>" : "") +
                 getPixelGroupingString(supersampling_num) +
 
 
@@ -2365,14 +2422,14 @@ public abstract class TaskRender implements Runnable {
 
     public void setSmallToolTipMessage(int total, boolean juliaMap, boolean afterAA) {
 
-        long time =  ptr != null ? ptr.getCalculationTime() : ptrExpander.getCalculationTime();
+        long time =  ptr != null ? ptr.getCalculationTime() : ptrMinimalRenderer.getCalculationTime();
 
         int threads;
         if(action == JULIA_MAP || action == JULIA_MAP_POLAR) {
             threads = ptr != null ? ptr.getJuliaMapSlices() : 0;
         }
         else {
-            threads = ptr != null ? ptr.getNumberOfThreads() : ptrExpander.getNumberOfThreads();
+            threads = ptr != null ? ptr.getNumberOfThreads() : ptrMinimalRenderer.getNumberOfThreads();
         }
 
         int aaMethod = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
@@ -2424,7 +2481,7 @@ public abstract class TaskRender implements Runnable {
     public static final String NANOMB1_CALCULATION_ELAPSED_TIME_LABEL = "<li>Nanomb1 Calculation Elapsed Time: <b>";
     public static final String BLA_CALCULATION_ELAPSED_TIME_LABEL = "<li>BLA Calculation Elapsed Time: <b>";
 
-    private void domainPolarExpanderRendering() {
+    private void domainPolarMinimalRendererRendering() {
 
         int image_width = image.getWidth();
         int image_height = image.getHeight();
@@ -2450,7 +2507,7 @@ public abstract class TaskRender implements Runnable {
             total_completed.add(task_calculated);
         }
 
-        if (finalize_sync.incrementAndGet() == ptrExpander.getNumberOfThreads()) {
+        if (finalize_sync.incrementAndGet() == ptrMinimalRenderer.getNumberOfThreads()) {
             image_iterations = null;
             escaped = null;
 
@@ -2458,15 +2515,15 @@ public abstract class TaskRender implements Runnable {
 
             progress.setValue(progress.getMaximum());
 
-            ptrExpander.writeImageToDisk();
+            ptrMinimalRenderer.writeImageToDisk();
 
-            ptrExpander.setOptions(true);
+            ptrMinimalRenderer.setOptions(true);
 
             setFullToolTipMessage(image_width * image_height);
         }
     }
 
-    private void polarExpanderRendering() {
+    private void polarMinimalRendererRendering() {
 
         int image_width = image.getWidth();
         int image_height = image.getHeight();
@@ -2508,7 +2565,7 @@ public abstract class TaskRender implements Runnable {
             total_completed.add(task_calculated);
         }
 
-        if (finalize_sync.incrementAndGet() == ptrExpander.getNumberOfThreads()) {
+        if (finalize_sync.incrementAndGet() == ptrMinimalRenderer.getNumberOfThreads()) {
             image_iterations = null;
             escaped = null;
 
@@ -2516,16 +2573,16 @@ public abstract class TaskRender implements Runnable {
 
             progress.setValue(progress.getMaximum());
 
-            ptrExpander.writeImageToDisk();
+            ptrMinimalRenderer.writeImageToDisk();
 
-            ptrExpander.setOptions(true);
+            ptrMinimalRenderer.setOptions(true);
 
             setFullToolTipMessage(image_width * image_height);
 
         }
     }
 
-    private void expanderRendering() {
+    private void minimalRendererRendering() {
 
         int image_width = image.getWidth();
         int image_height = image.getHeight();
@@ -2567,7 +2624,7 @@ public abstract class TaskRender implements Runnable {
             total_completed.add(task_calculated);
         }
 
-        if (finalize_sync.incrementAndGet() == ptrExpander.getNumberOfThreads()) {
+        if (finalize_sync.incrementAndGet() == ptrMinimalRenderer.getNumberOfThreads()) {
             image_iterations = null;
             escaped = null;
 
@@ -2575,9 +2632,9 @@ public abstract class TaskRender implements Runnable {
 
             progress.setValue(progress.getMaximum());
 
-            ptrExpander.writeImageToDisk();
+            ptrMinimalRenderer.writeImageToDisk();
 
-            ptrExpander.setOptions(true);
+            ptrMinimalRenderer.setOptions(true);
 
             setFullToolTipMessage(image_width * image_height);
         }
@@ -3727,7 +3784,7 @@ public abstract class TaskRender implements Runnable {
             }
         }
 
-        pixel_calculation_time_per_task = nano_time / 1000000;
+        pixel_calculation_time_per_task = nano_time / 1_000_000;
 
     }
 
@@ -3865,7 +3922,7 @@ public abstract class TaskRender implements Runnable {
             }
         }
 
-        pixel_calculation_time_per_task = nano_time / 1000000;
+        pixel_calculation_time_per_task = nano_time / 1_000_000;
 
     }
 
@@ -3879,32 +3936,49 @@ public abstract class TaskRender implements Runnable {
 
         long time = System.currentTimeMillis();
 
-        for(y = FROMy; y < TOy; y++) {
-            location.precalculateY(y);
-            for(x = FROMx, loc = y * image_width + x; x < TOx; x++, loc++) {
+        int iteration = 0;
 
-                if(rgbs[loc] >>> 24 != Constants.NORMAL_ALPHA) {
-                    Complex val = iteration_algorithm.calculateDomain(location.getComplex(x, y));
-                    image_iterations[loc] = scaleDomainHeight(getDomainHeight(val));
-                    rgbs[loc] = domain_color.getDomainColor(val);
+        initializeRectangleAreasQueue(image_width, image_height);
 
-                    if (domain_image_data_re != null && domain_image_data_im != null) {
-                        domain_image_data_re[loc] = val.getRe();
-                        domain_image_data_im[loc] = val.getIm();
+        do {
+            Square currentSquare = getNextRectangleArea(iteration);
+
+            if (currentSquare == null) {
+                break;
+            }
+            int FROMx = currentSquare.x1;
+            int TOx = currentSquare.x2;
+            int FROMy = currentSquare.y1;
+            int TOy = currentSquare.y2;
+
+            for (y = FROMy; y < TOy; y++) {
+                location.precalculateY(y);
+                for (x = FROMx, loc = y * image_width + x; x < TOx; x++, loc++) {
+
+                    if (rgbs[loc] >>> 24 != Constants.NORMAL_ALPHA) {
+                        Complex val = iteration_algorithm.calculateDomain(location.getComplex(x, y));
+                        image_iterations[loc] = scaleDomainHeight(getDomainHeight(val));
+                        rgbs[loc] = domain_color.getDomainColor(val);
+
+                        if (domain_image_data_re != null && domain_image_data_im != null) {
+                            domain_image_data_re[loc] = val.getRe();
+                            domain_image_data_im[loc] = val.getIm();
+                        }
+                        task_calculated++;
                     }
-                    task_calculated++;
+
+                    rendering_done++;
+
                 }
 
-                rendering_done++;
+                if (rendering_done / pixel_percent >= 1) {
+                    update(rendering_done);
+                    rendering_done = 0;
+                }
 
             }
-
-            if(rendering_done / pixel_percent >= 1) {
-                update(rendering_done);
-                rendering_done = 0;
-            }
-
-        }
+            iteration++;
+        } while (true);
 
         pixel_calculation_time_per_task = System.currentTimeMillis() - time;
 
@@ -3934,7 +4008,7 @@ public abstract class TaskRender implements Runnable {
 
         AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(totalSamples, aaMethod, aaAvgWithMean, colorSpace, fs.aaSigmaR, fs.aaSigmaS);
 
-        aa.setNeedsPostProcessing(needsPostProcessing());
+        aa.setNeedsAllSamples(needsPostProcessing());
 
         boolean storeExtraData = pixelData != null;
 
@@ -3942,52 +4016,69 @@ public abstract class TaskRender implements Runnable {
 
         long time = System.currentTimeMillis();
 
-        for(y = FROMy; y < TOy; y++) {
-            location.precalculateY(y);
-            for(x = FROMx, loc = y * image_width + x; x < TOx; x++, loc++) {
+        int iteration = 0;
 
-                Complex val = iteration_algorithm.calculateDomain(location.getComplex(x, y));
-                image_iterations[loc] = f_val = scaleDomainHeight(getDomainHeight(val));
-                color = domain_color.getDomainColor(val);
+        initializeRectangleAreasQueue(image_width, image_height);
 
-                if(storeExtraData) {
-                    pixelData[loc].set(0, color, f_val, true, totalSamples);
-                }
+        do {
+            Square currentSquare = getNextRectangleArea(iteration);
 
-                if (domain_image_data_re != null && domain_image_data_im != null) {
-                    domain_image_data_re[loc] = val.getRe();
-                    domain_image_data_im[loc] = val.getIm();
-                }
+            if (currentSquare == null) {
+                break;
+            }
+            int FROMx = currentSquare.x1;
+            int TOx = currentSquare.x2;
+            int FROMy = currentSquare.y1;
+            int TOy = currentSquare.y2;
 
-                aa.initialize(color);
+            for (y = FROMy; y < TOy; y++) {
+                location.precalculateY(y);
+                for (x = FROMx, loc = y * image_width + x; x < TOx; x++, loc++) {
 
-                //Supersampling
-                for (int i = 0; i < supersampling_num; i++) {
-                    val = iteration_algorithm.calculateDomain(location.getAntialiasingComplex(i, loc));
+                    Complex val = iteration_algorithm.calculateDomain(location.getComplex(x, y));
+                    image_iterations[loc] = f_val = scaleDomainHeight(getDomainHeight(val));
                     color = domain_color.getDomainColor(val);
 
-                    if(storeExtraData) {
-                        f_val = scaleDomainHeight(getDomainHeight(val));
-                        pixelData[loc].set(i + 1, color, f_val, true, totalSamples);
+                    if (storeExtraData) {
+                        pixelData[loc].set(0, color, f_val, true, totalSamples);
                     }
 
-                    if(!aa.addSample(color)) {
-                        break;
+                    if (domain_image_data_re != null && domain_image_data_im != null) {
+                        domain_image_data_re[loc] = val.getRe();
+                        domain_image_data_im[loc] = val.getIm();
                     }
+
+                    aa.initialize(color);
+
+                    //Supersampling
+                    for (int i = 0; i < supersampling_num; i++) {
+                        val = iteration_algorithm.calculateDomain(location.getAntialiasingComplex(i, loc));
+                        color = domain_color.getDomainColor(val);
+
+                        if (storeExtraData) {
+                            f_val = scaleDomainHeight(getDomainHeight(val));
+                            pixelData[loc].set(i + 1, color, f_val, true, totalSamples);
+                        }
+
+                        if (!aa.addSample(color)) {
+                            break;
+                        }
+                    }
+
+                    rgbs[loc] = aa.getColor();
+
+                    rendering_done++;
+                    task_calculated++;
                 }
 
-                rgbs[loc] = aa.getColor();
+                if (rendering_done / pixel_percent >= 1) {
+                    update(rendering_done);
+                    rendering_done = 0;
+                }
 
-                rendering_done++;
-                task_calculated++;
             }
-
-            if(rendering_done / pixel_percent >= 1) {
-                update(rendering_done);
-                rendering_done = 0;
-            }
-
-        }
+            iteration++;
+        } while (true);
 
         pixel_calculation_time_per_task = System.currentTimeMillis() - time;
 
@@ -4078,13 +4169,11 @@ public abstract class TaskRender implements Runnable {
 
     }
 
-    private void render3D(int image_width, int image_height, boolean polar) {
+    protected void render3D(int image_width, int image_height, boolean polar) {
 
         Location location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, detail, detail, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
 
         initialize(location);
-
-        int pixel_percent = detail * detail / 100;
 
         double[] temp;
 
@@ -4124,14 +4213,11 @@ public abstract class TaskRender implements Runnable {
                 escaped[loc] = escaped_val = iteration_algorithm.escaped();
                 vert_color[x][y] = getFinalColor(f_val, escaped_val);
 
-                rendering_done++;
+                rendering_done_per_task[taskId]++;
                 task_calculated++;
             }
 
-            if (rendering_done / pixel_percent >= 1) {
-                update(rendering_done);
-                rendering_done = 0;
-            }
+            updateProgress();
 
         } while (true);
 
@@ -4154,11 +4240,9 @@ public abstract class TaskRender implements Runnable {
 
     }
 
-    private void renderDomain3D(int image_width, int image_height, boolean polar) {
+    protected void renderDomain3D(int image_width, int image_height, boolean polar) {
 
         Location location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, detail, detail, circle_period, rotation_center, rotation_vals, fractal, js, polar, false);
-
-        int pixel_percent = detail * detail / 100;
 
         int image_size = Math.min(image_width, image_height);
         int w2x = (int)(image_width * 0.5);
@@ -4194,14 +4278,11 @@ public abstract class TaskRender implements Runnable {
                 vert_color[x][y] = domain_color.getDomainColor(a);
                 image_iterations[loc] = scaleDomainHeight(height);
 
-                rendering_done++;
+                rendering_done_per_task[taskId]++;
                 task_calculated++;
             }
 
-            if (rendering_done / pixel_percent >= 1) {
-                update(rendering_done);
-                rendering_done = 0;
-            }
+            updateProgress();
 
         } while (true);
 
@@ -4217,13 +4298,13 @@ public abstract class TaskRender implements Runnable {
 
         if (painting_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
 
-            paint3D((int)w2x, (int)w2y, true, 1);
+            paint3D(w2x, w2y, true, 1);
 
         }
 
     }
 
-    private void render3DAntialiased(int image_width, int image_height, boolean polar) {
+    protected void render3DAntialiased(int image_width, int image_height, boolean polar) {
 
         int aaMethod = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
         boolean useJitter = aaMethod != 6 && ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x4) == 4;
@@ -4233,8 +4314,6 @@ public abstract class TaskRender implements Runnable {
         location.createAntialiasingSteps(aaMethod == 5, useJitter, supersampling_num);
 
         initialize(location);
-
-        int pixel_percent = detail * detail / 100;
 
         double[] temp;
 
@@ -4254,7 +4333,7 @@ public abstract class TaskRender implements Runnable {
 
         AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(temp_samples, aaMethod, aaAvgWithMean, colorSpace, fs.aaSigmaR, fs.aaSigmaS);
 
-        aa.setNeedsPostProcessing(needsPostProcessing());
+        aa.setNeedsAllSamples(needsPostProcessing());
 
         int color;
 
@@ -4312,14 +4391,11 @@ public abstract class TaskRender implements Runnable {
                 vert[x][y] = fractional_transfer_3d((height / temp_samples));
                 vert_color[x][y] = aa.getColor();
 
-                rendering_done++;
+                rendering_done_per_task[taskId]++;
                 task_calculated++;
             }
 
-            if (rendering_done / pixel_percent >= 1) {
-                update(rendering_done);
-                rendering_done = 0;
-            }
+            updateProgress();
 
         } while (true);
 
@@ -4341,7 +4417,7 @@ public abstract class TaskRender implements Runnable {
 
     }
 
-    private void renderDomain3DAntialiased(int image_width, int image_height, boolean polar) {
+    protected void renderDomain3DAntialiased(int image_width, int image_height, boolean polar) {
 
         int aaMethod = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
         boolean useJitter = aaMethod != 6 && ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x4) == 4;
@@ -4349,8 +4425,6 @@ public abstract class TaskRender implements Runnable {
         int aaSamplesIndex = (filters_options_vals[MainWindow.ANTIALIASING] % 100) % 10;
         int supersampling_num = getExtraSamples(aaSamplesIndex, aaMethod);
         location.createAntialiasingSteps(aaMethod == 5, useJitter, supersampling_num);
-
-        int pixel_percent = detail * detail / 100;
 
         int image_size = Math.min(image_width, image_height);
         int w2x = (int)(image_width * 0.5);
@@ -4370,7 +4444,7 @@ public abstract class TaskRender implements Runnable {
 
         AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(temp_samples, aaMethod, aaAvgWithMean, colorSpace, fs.aaSigmaR, fs.aaSigmaS);
 
-        aa.setNeedsPostProcessing(needsPostProcessing());
+        aa.setNeedsAllSamples(needsPostProcessing());
 
         int color;
 
@@ -4430,14 +4504,11 @@ public abstract class TaskRender implements Runnable {
                 vert[x][y] = fractional_transfer_3d((height / temp_samples));
                 vert_color[x][y] = aa.getColor();
 
-                rendering_done++;
+                rendering_done_per_task[taskId]++;
                 task_calculated++;
             }
 
-            if (rendering_done / pixel_percent >= 1) {
-                update(rendering_done);
-                rendering_done = 0;
-            }
+            updateProgress();
 
         } while (true);
 
@@ -4577,7 +4648,7 @@ public abstract class TaskRender implements Runnable {
                 }
             } else if (cns.contour_algorithm == 1) {
 
-                res = 2.0 * MathUtils.fract(res);;
+                res = 2.0 * MathUtils.fract(res);
 
                 res = res > 1 ? 2.0 - res : res;
 
@@ -5417,7 +5488,9 @@ public abstract class TaskRender implements Runnable {
 
             aa.initialize(modified[0]);
 
-            for(int i = 1; i < modified.length; i++) {
+            int length = pixelData[index].getActualLength();
+
+            for(int i = 1; i < length; i++) {
                 if(!aa.addSample(modified[i])) {
                     break;
                 }
@@ -5456,15 +5529,31 @@ public abstract class TaskRender implements Runnable {
 
         if(aa != null) {
             modified = new int[aa.getTotalSamples()];
-            aa.setNeedsPostProcessing(false);
+            aa.setNeedsAllSamples(false);
         }
 
-        for (int y = FROMy; y < TOy; y++) {
-            for (int x = FROMx; x < TOx; x++) {
-                int index = y * image_width + x;
-                applyPostProcessingOnPixel(index, x, y, image_width, image_height, image_iterations, escaped, pixelData, aa, modified, sizeCorr, lightx, lighty, location);
+        int iteration = 0;
+
+        initializeRectangleAreasQueue(image_width, image_height);
+
+        do {
+            Square currentSquare = getNextRectangleArea(iteration);
+
+            if (currentSquare == null) {
+                break;
             }
-        }
+            int FROMx = currentSquare.x1;
+            int TOx = currentSquare.x2;
+            int FROMy = currentSquare.y1;
+            int TOy = currentSquare.y2;
+            for (int y = FROMy; y < TOy; y++) {
+                for (int x = FROMx; x < TOx; x++) {
+                    int index = y * image_width + x;
+                    applyPostProcessingOnPixel(index, x, y, image_width, image_height, image_iterations, escaped, pixelData, aa, modified, sizeCorr, lightx, lighty, location);
+                }
+            }
+            iteration++;
+        } while (true);
     }
 
     protected void applyPostProcessing(int image_width, int image_height, double[] image_iterations, boolean[] escaped, PixelExtraData[] pixelData, AntialiasingAlgorithm aa, Location location) {
@@ -5545,17 +5634,32 @@ public abstract class TaskRender implements Runnable {
                 CommonFunctions.adjustSlopeOffset(ss, ccs.slope_cycling_adjusting_value);
             }
 
-            for (int y = FROMy; y < TOy; y++) {
-                for (int x = FROMx, loc = y * image_width + x; x < TOx; x++, loc++) {
-                    if (domain_coloring) {
-                        domain_color.setColorCyclingLocation(color_cycling_location_outcoloring);
-                        domain_color.setGradientOffset(gradient_offset);
-                        rgbs[loc] = domain_color.getDomainColor(new Complex(domain_image_data_re[loc], domain_image_data_im[loc]));
-                    } else {
-                        rgbs[loc] = getStandardColor(image_iterations[loc], escaped[loc]);
+            int iteration = 0;
+            initializeRectangleAreasQueue(image_width, image_height);
+
+            do {
+                Square currentSquare = getNextRectangleArea(iteration);
+
+                if (currentSquare == null) {
+                    break;
+                }
+                int FROMx = currentSquare.x1;
+                int TOx = currentSquare.x2;
+                int FROMy = currentSquare.y1;
+                int TOy = currentSquare.y2;
+                for (int y = FROMy; y < TOy; y++) {
+                    for (int x = FROMx, loc = y * image_width + x; x < TOx; x++, loc++) {
+                        if (domain_coloring) {
+                            domain_color.setColorCyclingLocation(color_cycling_location_outcoloring);
+                            domain_color.setGradientOffset(gradient_offset);
+                            rgbs[loc] = domain_color.getDomainColor(new Complex(domain_image_data_re[loc], domain_image_data_im[loc]));
+                        } else {
+                            rgbs[loc] = getStandardColor(image_iterations[loc], escaped[loc]);
+                        }
                     }
                 }
-            }
+                iteration++;
+            } while (true);
 
             postProcessColorCycling(image_width, image_height);
 
@@ -5754,27 +5858,42 @@ public abstract class TaskRender implements Runnable {
         int pixel_percent = (image_width * image_height) / 100;
 
         task_completed = 0;
+        int iteration = 0;
 
         long time = System.currentTimeMillis();
 
-        for (int y = FROMy; y < TOy; y++) {
-            for (int x = FROMx, loc = y * image_width + x; x < TOx; x++, loc++) {
-                if (domain_coloring) {
-                    rgbs[loc] = domain_color.getDomainColor(new Complex(domain_image_data_re[loc], domain_image_data_im[loc]));
-                } else {
-                    rgbs[loc] = getStandardColor(image_iterations[loc], escaped[loc]);
+        initializeRectangleAreasQueue(image_width, image_height);
+
+        do {
+            Square currentSquare = getNextRectangleArea(iteration);
+
+            if (currentSquare == null) {
+                break;
+            }
+            int FROMx = currentSquare.x1;
+            int TOx = currentSquare.x2;
+            int FROMy = currentSquare.y1;
+            int TOy = currentSquare.y2;
+
+            for (int y = FROMy; y < TOy; y++) {
+                for (int x = FROMx, loc = y * image_width + x; x < TOx; x++, loc++) {
+                    if (domain_coloring) {
+                        rgbs[loc] = domain_color.getDomainColor(new Complex(domain_image_data_re[loc], domain_image_data_im[loc]));
+                    } else {
+                        rgbs[loc] = getStandardColor(image_iterations[loc], escaped[loc]);
+                    }
+
+                    rendering_done++;
+                    task_completed++;
                 }
 
-                rendering_done++;
-                task_completed++;
+                if (rendering_done / pixel_percent >= 1) {
+                    update(rendering_done);
+                    rendering_done = 0;
+                }
             }
-
-            if (rendering_done / pixel_percent >= 1) {
-                update(rendering_done);
-                rendering_done = 0;
-            }
-
-        }
+            iteration++;
+        } while (true);
 
         pixel_calculation_time_per_task = System.currentTimeMillis() - time;
 
@@ -5792,45 +5911,60 @@ public abstract class TaskRender implements Runnable {
         int totalSamples = supersampling_num + 1;
         AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(totalSamples, aaMethod, aaAvgWithMean, colorSpace, fs.aaSigmaR, fs.aaSigmaS);
 
-        aa.setNeedsPostProcessing(needsPostProcessing());
+        aa.setNeedsAllSamples(needsPostProcessing());
 
         int pixel_percent = (image_width * image_height) / 100;
-        int color;
+        int color, iteration = 0;
         PixelExtraData data;
 
         task_completed = 0;
 
         long time = System.currentTimeMillis();
 
-        for (int y = FROMy; y < TOy; y++) {
-            for (int x = FROMx, loc = y * image_width + x; x < TOx; x++, loc++) {
+        initializeRectangleAreasQueue(image_width, image_height);
 
-                data = pixelData[loc];
-                data.update_rgb(0, color = getStandardColor(data.values[0], data.escaped[0]));
+        do {
+            Square currentSquare = getNextRectangleArea(iteration);
 
-                aa.initialize(color);
+            if (currentSquare == null) {
+                break;
+            }
+            int FROMx = currentSquare.x1;
+            int TOx = currentSquare.x2;
+            int FROMy = currentSquare.y1;
+            int TOy = currentSquare.y2;
 
-                //Supersampling
-                for(int i = 0; i < supersampling_num; i++) {
-                    data.update_rgb(i + 1, color = getFinalColor(data.values[i + 1], data.escaped[i + 1]));
+            for (int y = FROMy; y < TOy; y++) {
+                for (int x = FROMx, loc = y * image_width + x; x < TOx; x++, loc++) {
 
-                    if(!aa.addSample(color)) {
-                        break;
+                    data = pixelData[loc];
+                    data.update_rgb(0, color = getStandardColor(data.values[0], data.escaped[0]));
+
+                    aa.initialize(color);
+
+                    //Supersampling
+                    for (int i = 0; i < supersampling_num; i++) {
+                        data.update_rgb(i + 1, color = getFinalColor(data.values[i + 1], data.escaped[i + 1]));
+
+                        if (!aa.addSample(color)) {
+                            break;
+                        }
                     }
+
+                    rgbs[loc] = aa.getColor();
+
+                    rendering_done++;
+                    task_completed++;
                 }
 
-                rgbs[loc] = aa.getColor();
+                if (rendering_done / pixel_percent >= 1) {
+                    update(rendering_done);
+                    rendering_done = 0;
+                }
 
-                rendering_done++;
-                task_completed++;
             }
-
-            if (rendering_done / pixel_percent >= 1) {
-                update(rendering_done);
-                rendering_done = 0;
-            }
-
-        }
+            iteration++;
+        } while (true);
 
         pixel_calculation_time_per_task = System.currentTimeMillis() - time;
 
@@ -5913,6 +6047,7 @@ public abstract class TaskRender implements Runnable {
 
         long time = System.currentTimeMillis();
 
+        //No splitting here
         for (int y = FROMy, y2 = 0; y < TOy; y++, y2++) {
             for (int x = FROMx, x2 = 0, loc = y * image_width + x; x < TOx; x++, loc++, x2++) {
 
@@ -5962,7 +6097,7 @@ public abstract class TaskRender implements Runnable {
 
         AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(totalSamples, aaMethod, aaAvgWithMean, colorSpace, fs.aaSigmaR, fs.aaSigmaS);
 
-        aa.setNeedsPostProcessing(needsPostProcessing());
+        aa.setNeedsAllSamples(needsPostProcessing());
 
         boolean storeExtraData = pixelData != null;
 
@@ -5971,6 +6106,7 @@ public abstract class TaskRender implements Runnable {
 
         long time = System.currentTimeMillis();
 
+        //No splitting here
         for (int y = FROMy, y2 = 0; y < TOy; y++, y2++) {
             for (int x = FROMx, x2 = 0, loc = y * image_width + x; x < TOx; x++, loc++, x2++) {
 
@@ -6027,99 +6163,128 @@ public abstract class TaskRender implements Runnable {
         double min = MIN_3D_SCALED_VALUE;
         double range = max_scaling * d3_height_scale;
 
-        for (int x = FROMx; x < TOx; x++) {
-            for (int y = FROMy; y < TOy; y++) {
-                int r = (vert_color[x][y] >> 16) & 0xff;
-                int g = (vert_color[x][y] >> 8) & 0xff;
-                int b = vert_color[x][y] & 0xff;
+        int iteration = 0;
 
-                double coef = 0;
+        initializeRectangleAreasQueue(detail, detail);
 
-                switch (shade_algorithm) {
-                    case 0: //lerp
-                        coef = ((vert[x][y] - min) / range - 0.5) * 2;
-                        break;
-                    case 1://cos lerp
-                        coef = -Math.cos((vert[x][y] - min) / range * Math.PI);
-                        break;
-                    case 2:
-                        double lim = 0.1;
-                        if ((vert[x][y] - min) / range <= lim) {
-                            coef = -(1 - (vert[x][y] - min) / range * (1 / lim));
-                        } else if ((vert[x][y] - min) / range >= (1 - lim)) {
-                            coef = 1 - (1 - (vert[x][y] - min) / range) * (1 / lim);
-                        } else {
-                            coef = 0;
-                        }
-                        break;
-                    case 3:
-                        lim = 0.2;
-                        if ((vert[x][y] - min) / range <= lim) {
-                            coef = -(1 - (vert[x][y] - min) / range * (1 / lim));
-                        } else if ((vert[x][y] - min) / range >= (1 - lim)) {
-                            coef = 1 - (1 - (vert[x][y] - min) / range) * (1 / lim);
-                        } else {
-                            coef = 0;
-                        }
-                        break;
-                    case 4:
-                        lim = 0.3;
-                        if ((vert[x][y] - min) / range <= lim) {
-                            coef = -(1 - (vert[x][y] - min) / range * (1 / lim));
-                        } else if ((vert[x][y] - min) / range >= (1 - lim)) {
-                            coef = 1 - (1 - (vert[x][y] - min) / range) * (1 / lim);
-                        } else {
-                            coef = 0;
-                        }
-                        break;
-                    case 5:
-                        lim = 0.4;
-                        if ((vert[x][y] - min) / range <= lim) {
-                            coef = -(1 - (vert[x][y] - min) / range * (1 / lim));
-                        } else if ((vert[x][y] - min) / range >= (1 - lim)) {
-                            coef = 1 - (1 - (vert[x][y] - min) / range) * (1 / lim);
-                        } else {
-                            coef = 0;
-                        }
-                        break;
-                }
+        do {
+            Square currentSquare = getNextRectangleArea(iteration);
 
-                if (shade_invert) {
-                    coef *= -1;
-                }
-
-                if (shade_choice == 2) { //-1 to 0 only
-                    if (coef > 0) {
-                        coef = 0;
-                    }
-                } else if (shade_choice == 1) { //0 to 1 only
-                    if (coef < 0) {
-                        coef = 0;
-                    }
-                }
-
-                int col = 0;
-                int col2 = 255 - col;
-
-                if (coef < 0) {
-                    r = (int) (col * Math.abs(coef) + r * (1 - Math.abs(coef)) + 0.5);
-                    g = (int) (col * Math.abs(coef) + g * (1 - Math.abs(coef)) + 0.5);
-                    b = (int) (col * Math.abs(coef) + b * (1 - Math.abs(coef)) + 0.5);
-                } else {
-                    r = (int) (col2 * coef + r * (1 - coef) + 0.5);
-                    g = (int) (col2 * coef + g * (1 - coef) + 0.5);
-                    b = (int) (col2 * coef + b * (1 - coef) + 0.5);
-                }
-
-                vert_color[x][y] = 0xff000000 | (r << 16) | (g << 8) | b;
+            if (currentSquare == null) {
+                break;
             }
-        }
+            int FROMx = currentSquare.x1;
+            int TOx = currentSquare.x2;
+            int FROMy = currentSquare.y1;
+            int TOy = currentSquare.y2;
+            for (int x = FROMx; x < TOx; x++) {
+                for (int y = FROMy; y < TOy; y++) {
+                    int r = (vert_color[x][y] >> 16) & 0xff;
+                    int g = (vert_color[x][y] >> 8) & 0xff;
+                    int b = vert_color[x][y] & 0xff;
+
+                    double coef = 0;
+
+                    switch (shade_algorithm) {
+                        case 0: //lerp
+                            coef = ((vert[x][y] - min) / range - 0.5) * 2;
+                            break;
+                        case 1://cos lerp
+                            coef = -Math.cos((vert[x][y] - min) / range * Math.PI);
+                            break;
+                        case 2:
+                            double lim = 0.1;
+                            if ((vert[x][y] - min) / range <= lim) {
+                                coef = -(1 - (vert[x][y] - min) / range * (1 / lim));
+                            } else if ((vert[x][y] - min) / range >= (1 - lim)) {
+                                coef = 1 - (1 - (vert[x][y] - min) / range) * (1 / lim);
+                            } else {
+                                coef = 0;
+                            }
+                            break;
+                        case 3:
+                            lim = 0.2;
+                            if ((vert[x][y] - min) / range <= lim) {
+                                coef = -(1 - (vert[x][y] - min) / range * (1 / lim));
+                            } else if ((vert[x][y] - min) / range >= (1 - lim)) {
+                                coef = 1 - (1 - (vert[x][y] - min) / range) * (1 / lim);
+                            } else {
+                                coef = 0;
+                            }
+                            break;
+                        case 4:
+                            lim = 0.3;
+                            if ((vert[x][y] - min) / range <= lim) {
+                                coef = -(1 - (vert[x][y] - min) / range * (1 / lim));
+                            } else if ((vert[x][y] - min) / range >= (1 - lim)) {
+                                coef = 1 - (1 - (vert[x][y] - min) / range) * (1 / lim);
+                            } else {
+                                coef = 0;
+                            }
+                            break;
+                        case 5:
+                            lim = 0.4;
+                            if ((vert[x][y] - min) / range <= lim) {
+                                coef = -(1 - (vert[x][y] - min) / range * (1 / lim));
+                            } else if ((vert[x][y] - min) / range >= (1 - lim)) {
+                                coef = 1 - (1 - (vert[x][y] - min) / range) * (1 / lim);
+                            } else {
+                                coef = 0;
+                            }
+                            break;
+                    }
+
+                    if (shade_invert) {
+                        coef *= -1;
+                    }
+
+                    if (shade_choice == 2) { //-1 to 0 only
+                        if (coef > 0) {
+                            coef = 0;
+                        }
+                    } else if (shade_choice == 1) { //0 to 1 only
+                        if (coef < 0) {
+                            coef = 0;
+                        }
+                    }
+
+                    int col = 0;
+                    int col2 = 255 - col;
+
+                    if (coef < 0) {
+                        r = (int) (col * Math.abs(coef) + r * (1 - Math.abs(coef)) + 0.5);
+                        g = (int) (col * Math.abs(coef) + g * (1 - Math.abs(coef)) + 0.5);
+                        b = (int) (col * Math.abs(coef) + b * (1 - Math.abs(coef)) + 0.5);
+                    } else {
+                        r = (int) (col2 * coef + r * (1 - coef) + 0.5);
+                        g = (int) (col2 * coef + g * (1 - coef) + 0.5);
+                        b = (int) (col2 * coef + b * (1 - coef) + 0.5);
+                    }
+
+                    vert_color[x][y] = 0xff000000 | (r << 16) | (g << 8) | b;
+                }
+            }
+            iteration++;
+        } while (true);
     }
 
+    //Has race condition
     protected void update(int new_percent) {
 
         progress.setValue(progress.getValue() + new_percent);
 
+    }
+
+    protected void updateProgress() {
+        if(taskId == 0) {
+            int total = 0;
+            for(int i = 0; i < rendering_done_per_task.length; i++) {
+                total += rendering_done_per_task[i];
+            }
+            if((total - progress.getValue()) > progress_one_percent) {
+                progress.setValue(total);
+            }
+        }
     }
 
     private double getGradientX(double val, double[] image_iterations, int i, int j, int index, int image_width, int image_height, Location location) {
@@ -6407,8 +6572,6 @@ public abstract class TaskRender implements Runnable {
 
     private void applyFilters() {
 
-        long time = System.currentTimeMillis();
-
         int active_filters_count = 0;
         for (int i = 0; i < filters.length; i++) {
             if (filters[i]) {
@@ -6416,28 +6579,24 @@ public abstract class TaskRender implements Runnable {
             }
         }
 
-        int old_max = progress.getMaximum();
-        int cur_val = progress.getValue();
-
         if (active_filters_count > 0) {
+            int old_max = progress.getMaximum();
+            int cur_val = progress.getValue();
+
             progress.setMaximum(active_filters_count);
             progress.setValue(0);
             progress.setForeground(MainWindow.progress_filters_color);
             progress.setString("Image Filters: " + 0 + "/" + active_filters_count);
-        }
 
-        ImageFilters.filter(image, filters, filters_options_vals, filters_options_extra_vals, filters_colors, filters_extra_colors, filters_order, fs, progress);
+            long time = System.currentTimeMillis();
+            ImageFilters.filter(image, filters, filters_options_vals, filters_options_extra_vals, filters_colors, filters_extra_colors, filters_order, fs, progress);
+            FilterCalculationTime = System.currentTimeMillis() - time;
 
-        if (active_filters_count > 0) {
             progress.setString(null);
             progress.setMaximum(old_max);
             progress.setValue(cur_val);
             progress.setForeground(MainWindow.progress_color);
         }
-        if(active_filters_count > 0) {
-            FilterCalculationTime = System.currentTimeMillis() - time;
-        }
-
     }
 
     private void applyFiltersNoProgress() {
@@ -6563,11 +6722,27 @@ public abstract class TaskRender implements Runnable {
 
     private void applyHeightFunction() {
 
-        for (int x = FROMx; x < TOx; x++) {
-            for (int y = FROMy; y < TOy; y++) {
-                vert[x][y] = calculateHeight(vert[x][y]);
+        int iteration = 0;
+
+        initializeRectangleAreasQueue(detail, detail);
+
+        do {
+            Square currentSquare = getNextRectangleArea(iteration);
+
+            if (currentSquare == null) {
+                break;
             }
-        }
+            int FROMx = currentSquare.x1;
+            int TOx = currentSquare.x2;
+            int FROMy = currentSquare.y1;
+            int TOy = currentSquare.y2;
+            for (int x = FROMx; x < TOx; x++) {
+                for (int y = FROMy; y < TOy; y++) {
+                    vert[x][y] = calculateHeight(vert[x][y]);
+                }
+            }
+            iteration++;
+        } while (true);
     }
 
     private void applyPostHeightScaling() {
@@ -6580,21 +6755,37 @@ public abstract class TaskRender implements Runnable {
 
         double new_max = local_max - local_min;
 
-        for (int x = FROMx; x < TOx; x++) {
-            for (int y = FROMy; y < TOy; y++) {
-                double val = vert[x][y];
-                if (val <= local_max && val >= local_min) {
-                    val -= local_min;
-                    vert[x][y] = (val * (max_scaling / new_max));
-                } else if (val > local_max) {
-                    vert[x][y] = max_scaling;
-                } else if (!Double.isNaN(val) && !Double.isInfinite(val)) {
-                    vert[x][y] = 0;
-                }
+        int iteration = 0;
 
-                vert[x][y] = (d3_height_scale * vert[x][y] + MIN_3D_SCALED_VALUE);
+        initializeRectangleAreasQueue(detail, detail);
+
+        do {
+            Square currentSquare = getNextRectangleArea(iteration);
+
+            if (currentSquare == null) {
+                break;
             }
-        }
+            int FROMx = currentSquare.x1;
+            int TOx = currentSquare.x2;
+            int FROMy = currentSquare.y1;
+            int TOy = currentSquare.y2;
+            for (int x = FROMx; x < TOx; x++) {
+                for (int y = FROMy; y < TOy; y++) {
+                    double val = vert[x][y];
+                    if (val <= local_max && val >= local_min) {
+                        val -= local_min;
+                        vert[x][y] = (val * (max_scaling / new_max));
+                    } else if (val > local_max) {
+                        vert[x][y] = max_scaling;
+                    } else if (!Double.isNaN(val) && !Double.isInfinite(val)) {
+                        vert[x][y] = 0;
+                    }
+
+                    vert[x][y] = (d3_height_scale * vert[x][y] + MIN_3D_SCALED_VALUE);
+                }
+            }
+            iteration++;
+        } while (true);
 
     }
 
@@ -6608,19 +6799,35 @@ public abstract class TaskRender implements Runnable {
 
         double new_max = local_max - local_min;
 
-        for (int x = FROMx; x < TOx; x++) {
-            for (int y = FROMy; y < TOy; y++) {
-                double val = vert[x][y];
-                if (val <= local_max && val >= local_min) {
-                    val -= local_min;
-                    vert[x][y] = (val * (max_scaling / new_max));
-                } else if (val > local_max) {
-                    vert[x][y] = max_scaling;
-                } else if (!Double.isNaN(val) && !Double.isInfinite(val)) {
-                    vert[x][y] = 0;
+        int iteration = 0;
+
+        initializeRectangleAreasQueue(detail, detail);
+
+        do {
+            Square currentSquare = getNextRectangleArea(iteration);
+
+            if (currentSquare == null) {
+                break;
+            }
+            int FROMx = currentSquare.x1;
+            int TOx = currentSquare.x2;
+            int FROMy = currentSquare.y1;
+            int TOy = currentSquare.y2;
+            for (int x = FROMx; x < TOx; x++) {
+                for (int y = FROMy; y < TOy; y++) {
+                    double val = vert[x][y];
+                    if (val <= local_max && val >= local_min) {
+                        val -= local_min;
+                        vert[x][y] = (val * (max_scaling / new_max));
+                    } else if (val > local_max) {
+                        vert[x][y] = max_scaling;
+                    } else if (!Double.isNaN(val) && !Double.isInfinite(val)) {
+                        vert[x][y] = 0;
+                    }
                 }
             }
-        }
+            iteration++;
+        } while (true);
     }
 
     private void gaussianHeightScalingInit() {
@@ -6657,73 +6864,102 @@ public abstract class TaskRender implements Runnable {
         int kernel_size = (int) (Math.sqrt(gaussian_kernel.length));
         int kernel_size2 = kernel_size / 2;
 
-        for (int x = FROMx; x < TOx; x++) {
-            for (int y = FROMy; y < TOy; y++) {
-                double sum = 0;
-                double centerVal = 0;
-                double combined_coef_sum = 0;
+        int iteration = 0;
 
-                if(bilateral_scaling) {
-                    centerVal = temp_array[x][y];
-                }
+        initializeRectangleAreasQueue(detail, detail);
 
-                for (int k = x - kernel_size2, p = 0; p < kernel_size; k++, p++) {
-                    for (int l = y - kernel_size2, t = 0; t < kernel_size; l++, t++) {
+        do {
+            Square currentSquare = getNextRectangleArea(iteration);
 
-                        if(k < 0 || k >= detail || l < 0 || l >= detail) {
-                            continue;
-                        }
+            if (currentSquare == null) {
+                break;
+            }
+            int FROMx = currentSquare.x1;
+            int TOx = currentSquare.x2;
+            int FROMy = currentSquare.y1;
+            int TOy = currentSquare.y2;
+            for (int x = FROMx; x < TOx; x++) {
+                for (int y = FROMy; y < TOy; y++) {
+                    double sum = 0;
+                    double centerVal = 0;
+                    double combined_coef_sum = 0;
 
-                        if(bilateral_scaling) {
-                            double currentVal = temp_array[k][l];
-                            double combined_coef = gaussian_kernel[p * kernel_size + t] * similarity(currentVal, centerVal);
-                            sum += currentVal * combined_coef;
-                            combined_coef_sum += combined_coef;
-                        }
-                        else {
-                            combined_coef_sum += gaussian_kernel[p * kernel_size + t];
-                            sum += temp_array[k][l] * gaussian_kernel[p * kernel_size + t];
+                    if (bilateral_scaling) {
+                        centerVal = temp_array[x][y];
+                    }
+
+                    for (int k = x - kernel_size2, p = 0; p < kernel_size; k++, p++) {
+                        for (int l = y - kernel_size2, t = 0; t < kernel_size; l++, t++) {
+
+                            if (k < 0 || k >= detail || l < 0 || l >= detail) {
+                                continue;
+                            }
+
+                            if (bilateral_scaling) {
+                                double currentVal = temp_array[k][l];
+                                double combined_coef = gaussian_kernel[p * kernel_size + t] * similarity(currentVal, centerVal);
+                                sum += currentVal * combined_coef;
+                                combined_coef_sum += combined_coef;
+                            } else {
+                                combined_coef_sum += gaussian_kernel[p * kernel_size + t];
+                                sum += temp_array[k][l] * gaussian_kernel[p * kernel_size + t];
+                            }
                         }
                     }
-                }
 
-                vert[x][y] = sum / combined_coef_sum;
+                    vert[x][y] = sum / combined_coef_sum;
+                }
             }
-        }
+            iteration++;
+        } while (true);
     }
 
 
     private void removeOutliers() {
 
-        for (int x = FROMx; x < TOx; x++) {
-            for (int y = FROMy; y < TOy; y++) {
-                double val = vert[x][y];
+        int iteration = 0;
 
-                if (Double.isNaN(val) || Double.isInfinite(val)) {
-                    if (val == Double.NEGATIVE_INFINITY) {
-                        vert[x][y] = lowerFence;
+        initializeRectangleAreasQueue(detail, detail);
+
+        do {
+            Square currentSquare = getNextRectangleArea(iteration);
+
+            if (currentSquare == null) {
+                break;
+            }
+            int FROMx = currentSquare.x1;
+            int TOx = currentSquare.x2;
+            int FROMy = currentSquare.y1;
+            int TOy = currentSquare.y2;
+            for (int x = FROMx; x < TOx; x++) {
+                for (int y = FROMy; y < TOy; y++) {
+                    double val = vert[x][y];
+
+                    if (Double.isNaN(val) || Double.isInfinite(val)) {
+                        if (val == Double.NEGATIVE_INFINITY) {
+                            vert[x][y] = lowerFence;
+                        } else if (val == Double.POSITIVE_INFINITY) {
+                            vert[x][y] = upperFence;
+                        } else {
+                            vert[x][y] = lowerFence;
+                        }
                     }
-                    else if (val == Double.POSITIVE_INFINITY) {
+
+                    if (val > upperFence) {
                         vert[x][y] = upperFence;
                     }
-                    else {
+
+                    if (val < lowerFence) {
                         vert[x][y] = lowerFence;
                     }
                 }
-
-                if(val > upperFence) {
-                    vert[x][y] = upperFence;
-                }
-
-                if(val < lowerFence) {
-                    vert[x][y] = lowerFence;
-                }
             }
-        }
+            iteration++;
+        } while(true);
 
     }
 
-    private void heightProcessing() {
+    protected void heightProcessing() {
 
         if (remove_outliers_pre) {
 
@@ -6856,7 +7092,7 @@ public abstract class TaskRender implements Runnable {
 
     }
 
-    private void calculate3DVectors(double d, double w2) {
+    protected void calculate3DVectors(double d, double w2) {
 
         int n1 = detail - 1;
 
@@ -6869,38 +7105,55 @@ public abstract class TaskRender implements Runnable {
 
         double norm_0_0, norm_0_1, norm_0_2, norm_1_0, norm_1_1, norm_1_2;
 
-        for (int x = FROMx; x < TOx; x++) {
+        int iteration = 0;
 
-            double c1 = d * x - w2;
+        initializeRectangleAreasQueue(detail, detail);
 
-            for (int y = FROMy; y < TOy; y++) {
-                if (x < n1 && y < n1) {
+        do {
+            Square currentSquare = getNextRectangleArea(iteration);
 
-                    norm_0_0 = vert[x][y] - vert[x + 1][y];
-                    norm_0_1 = d;
-                    norm_0_2 = vert[x + 1][y] - vert[x + 1][y + 1];
-                    mod = Math.sqrt(norm_0_0 * norm_0_0 + norm_0_1 * norm_0_1 + norm_0_2 * norm_0_2);
-                    norm_0_0 /= mod;
-                    norm_0_1 /= mod;
-                    norm_0_2 /= mod;
-
-                    norm_1_0 = vert[x][y + 1] - vert[x + 1][y + 1];
-                    norm_1_1 = d;
-                    norm_1_2 = vert[x][y] - vert[x][y + 1];
-                    mod = Math.sqrt(norm_1_0 * norm_1_0 + norm_1_1 * norm_1_1 + norm_1_2 * norm_1_2);
-                    norm_1_0 /= mod;
-                    norm_1_1 /= mod;
-                    norm_1_2 /= mod;
-
-                    Norm1z[x][y][0] = (float) (m20 * norm_0_0 + m21 * norm_0_1 + m22 * norm_0_2);
-                    Norm1z[x][y][1] = (float) (m20 * norm_1_0 + m21 * norm_1_1 + m22 * norm_1_2);
-                }
-
-                double c2 = d * y - w2;
-                vert1[x][y][0] = (float) (m00 * c1 + m02 * c2);
-                vert1[x][y][1] = (float) (m10 * c1 + m11 * vert[x][y] + m12 * c2);
+            if (currentSquare == null) {
+                break;
             }
-        }
+            int FROMx = currentSquare.x1;
+            int TOx = currentSquare.x2;
+            int FROMy = currentSquare.y1;
+            int TOy = currentSquare.y2;
+
+            for (int x = FROMx; x < TOx; x++) {
+
+                double c1 = d * x - w2;
+
+                for (int y = FROMy; y < TOy; y++) {
+                    if (x < n1 && y < n1) {
+
+                        norm_0_0 = vert[x][y] - vert[x + 1][y];
+                        norm_0_1 = d;
+                        norm_0_2 = vert[x + 1][y] - vert[x + 1][y + 1];
+                        mod = Math.sqrt(norm_0_0 * norm_0_0 + norm_0_1 * norm_0_1 + norm_0_2 * norm_0_2);
+                        norm_0_0 /= mod;
+                        norm_0_1 /= mod;
+                        norm_0_2 /= mod;
+
+                        norm_1_0 = vert[x][y + 1] - vert[x + 1][y + 1];
+                        norm_1_1 = d;
+                        norm_1_2 = vert[x][y] - vert[x][y + 1];
+                        mod = Math.sqrt(norm_1_0 * norm_1_0 + norm_1_1 * norm_1_1 + norm_1_2 * norm_1_2);
+                        norm_1_0 /= mod;
+                        norm_1_1 /= mod;
+                        norm_1_2 /= mod;
+
+                        Norm1z[x][y][0] = (float) (m20 * norm_0_0 + m21 * norm_0_1 + m22 * norm_0_2);
+                        Norm1z[x][y][1] = (float) (m20 * norm_1_0 + m21 * norm_1_1 + m22 * norm_1_2);
+                    }
+
+                    double c2 = d * y - w2;
+                    vert1[x][y][0] = (float) (m00 * c1 + m02 * c2);
+                    vert1[x][y][1] = (float) (m10 * c1 + m11 * vert[x][y] + m12 * c2);
+                }
+            }
+            iteration++;
+        } while(true);
     }
 
     int min3(int val0, int val1, int val2) {
@@ -6911,7 +7164,7 @@ public abstract class TaskRender implements Runnable {
         return Math.max(Math.max(val0, val1), val2);
     }
 
-   private void paint3D(int w2x, int w2y, boolean updateProgress, int tile_size) {
+   protected void paint3D(int w2x, int w2y, boolean updateProgress, int tile_size) {
 
        ptr.setP3Render(true);
 
@@ -7225,7 +7478,12 @@ public abstract class TaskRender implements Runnable {
     }
 
     protected boolean needsSmoothing(FunctionSettings fns, NumericalDistanceEstimatorSettings ndes, LightSettings ls, SlopeSettings ss, BumpMapSettings bms, ContourColoringSettings cns, EntropyColoringSettings ens, RainbowPaletteSettings rps, FakeDistanceEstimationSettings fdes, StatisticsSettings sts) {
-        return fns.smoothing || ((ndes.useNumericalDem || ss.slopes || ls.lighting || bms.bump_map || cns.contour_coloring || ens.entropy_coloring || rps.rainbow_palette || fdes.fake_de || sts.statistic) && USE_SMOOTHING_FOR_PROCESSING_ALGS);
+        return fns.smoothing
+                || ((ndes.useNumericalDem || ss.slopes || ls.lighting || bms.bump_map || cns.contour_coloring || ens.entropy_coloring || rps.rainbow_palette || fdes.fake_de || statisticNeedsSmoothing(sts)) && USE_SMOOTHING_FOR_PROCESSING_ALGS);
+    }
+
+    protected boolean statisticNeedsSmoothing(StatisticsSettings sts) {
+        return sts.statistic && !(sts.statisticGroup == 3 && !sts.useNormalMap && (!sts.normalMapOverrideColoring || sts.normalMapColoring == 0));
     }
 
     private boolean forcePostProcessing = false;
@@ -7276,9 +7534,9 @@ public abstract class TaskRender implements Runnable {
                 total_post_processed.add(task_post_processed);
             }
 
-            if(USE_QUICKRENDER_ON_GREEDY_SUCCESSIVE_REFINEMENT && hasSuccessiveRefinement()) {
+            if(USE_NON_BLOCKING_RENDERING && supportsNonBlockingRender()) {
                 try {
-                    successive_refinement_lock.lockRead();
+                    stop_rendering_lock.lockRead();
                 } catch (InterruptedException ex) {
 
                 }
@@ -7290,14 +7548,14 @@ public abstract class TaskRender implements Runnable {
                 } catch (BrokenBarrierException ex) {
                 }
 
-                if (STOP_SUCCESSIVE_REFINEMENT) {
-                    successive_refinement_lock.unlockRead();
+                if (STOP_RENDERING) {
+                    stop_rendering_lock.unlockRead();
 
                     finalizePostProcessing();
 
                     throw new StopSuccessiveRefinementException();
                 }
-                successive_refinement_lock.unlockRead();
+                stop_rendering_lock.unlockRead();
             }
 
             try {
@@ -7608,7 +7866,7 @@ public abstract class TaskRender implements Runnable {
         return value;
     }
 
-    private double fractional_transfer_3d(double value) {
+    protected double fractional_transfer_3d(double value) {
         value = d3s.height_invert ? -value : value;
         return fractional_transfer(value, d3s.fractionalTransfer, d3s.fractionalSmoothing, d3s.fractionalTransferMode, d3s.fractionalTransferScale);
     }
@@ -8293,9 +8551,9 @@ public abstract class TaskRender implements Runnable {
         int k_p1_p1 = k_p1_0 + 1;
 
         double ninf = 1.0 / 0.0;
-        double p[][] = new double[][] { { ninf, ninf, ninf }, { ninf, ninf, ninf }, { ninf, ninf, ninf } };
-        double px[][] = new double[][] { { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 } };
-        double py[][] = new double[][] { { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 } };
+        double[][] p = new double[][] { { ninf, ninf, ninf }, { ninf, ninf, ninf }, { ninf, ninf, ninf } };
+        double[][] px = new double[][] { { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 } };
+        double[][] py = new double[][] { { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 } };
 
         if(useData) {
 
@@ -8870,6 +9128,14 @@ public abstract class TaskRender implements Runnable {
 
     protected void renderSquares(int image_width, int image_height) {
 
+        try {
+            squares_sync.await();
+        } catch (InterruptedException ex) {
+
+        } catch (BrokenBarrierException ex) {
+
+        }
+
         int white = 0xffffffff;
         int grey = 0xffAAAAAA;
 
@@ -8877,27 +9143,44 @@ public abstract class TaskRender implements Runnable {
         int colB = grey;
 
         int length = 14;
-        for (int y = FROMy; y < TOy; y++) {
 
-            if (y % length < length / 2) {
-                colA = white;
-                colB = grey;
-            } else {
-                colB = white;
-                colA = grey;
+        int iteration = 0;
+
+        initializeRectangleAreasQueue(image_width, image_height);
+
+        do {
+            Square currentSquare = getNextRectangleArea(iteration);
+
+            if (currentSquare == null) {
+                break;
             }
+            int FROMx = currentSquare.x1;
+            int TOx = currentSquare.x2;
+            int FROMy = currentSquare.y1;
+            int TOy = currentSquare.y2;
+            for (int y = FROMy; y < TOy; y++) {
 
-            for (int x = FROMx, loc = y * image_width + x; x < TOx; x++, loc++) {
-                if (rgbs[loc] == 0x00ffffff) {
-                    if (x % length < length / 2) {
-                        rgbs[loc] = colA;
-                    } else {
-                        rgbs[loc] = colB;
+                if (y % length < length / 2) {
+                    colA = white;
+                    colB = grey;
+                } else {
+                    colB = white;
+                    colA = grey;
+                }
+
+                for (int x = FROMx, loc = y * image_width + x; x < TOx; x++, loc++) {
+                    if (rgbs[loc] == 0x00ffffff) {
+                        if (x % length < length / 2) {
+                            rgbs[loc] = colA;
+                        } else {
+                            rgbs[loc] = colB;
+                        }
+
                     }
-
                 }
             }
-        }
+            iteration++;
+        } while(true);
     }
 
     double Sigmoid(double x) {
@@ -8907,7 +9190,7 @@ public abstract class TaskRender implements Runnable {
         return 2.0* Sigmoid(Math.abs(x+1./x));
     }
 
-    private double calaculateDomainColoringHeight(double res) {
+    protected double calaculateDomainColoringHeight(double res) {
 
         //res = Math.abs(res + 1 / res);
         //res = 1 / (1 + Math.exp(-res));
@@ -9997,7 +10280,7 @@ public abstract class TaskRender implements Runnable {
         }
     }
 
-    public static void setArraysExpander(int width, int height, boolean needsExtraData) {
+    public static void setArraysMinimalRenderer(int width, int height, boolean needsExtraData) {
 
         WIDTH = width;
         HEIGHT = height;
@@ -10089,7 +10372,8 @@ public abstract class TaskRender implements Runnable {
 
     public static void resetTaskData(int num_tasks, boolean createFullImageAfterPreview) {
 
-        STOP_SUCCESSIVE_REFINEMENT = false;
+        TOTAL_NUM_TASKS = num_tasks;
+        STOP_RENDERING = false;
         DONE = false;
         number_of_tasks = new AtomicInteger(num_tasks);
         finalize_sync = new AtomicInteger(0);
@@ -10147,28 +10431,32 @@ public abstract class TaskRender implements Runnable {
         color_cycling_restart_sync = new CyclicBarrier(num_tasks);
         shade_color_height_sync = new CyclicBarrier(num_tasks);
         initialize_jobs_sync = new CyclicBarrier(num_tasks);
+        initialize_jobs_sync2 = new CyclicBarrier(num_tasks);
+        initialize_jobs_sync3 = new CyclicBarrier(num_tasks);
+        initialize_jobs_sync4 = new CyclicBarrier(num_tasks);
+        mariani_silver_first_rendering = new AtomicInteger(0);
         normalize_find_ranges_sync = new CyclicBarrier(num_tasks);
         normalize_sync = new CyclicBarrier(num_tasks);
         normalize_sync2 = new CyclicBarrier(num_tasks);
         normalize_find_ranges_sync_3d = new CyclicBarrier(num_tasks);
         color_cycling_toggle_lock = new ReadWriteLock();
-        successive_refinement_lock = new ReadWriteLock();
+        stop_rendering_lock = new ReadWriteLock();
 
         reference_calc_sync = new AtomicInteger(0);
         reference_sync = new CyclicBarrier(num_tasks);
+        squares_sync = new CyclicBarrier(num_tasks);
 
         if(!createFullImageAfterPreview) {
             RootColoring.roots.clear();
         }
 
-        Fractal.ReferenceCalculationTime = 0;
-        Fractal.SecondReferenceCalculationTime = 0;
-        Fractal.SACalculationTime = 0;
-        Fractal.BLACalculationTime = 0;
-        Fractal.Nanomb1CalculationTime = 0;
+        Fractal.resetTimes();
         D3RenderingCalculationTime = 0;
         FilterCalculationTime = 0;
 
+        QueueBasedRender.initStatic(num_tasks);
+
+        rendering_done_per_task = new int[num_tasks];
     }
 
     public void setTaskId(int taskId) {
@@ -10460,6 +10748,9 @@ public abstract class TaskRender implements Runnable {
                 break;
             case MainWindow.MANDELBAR:
                 fractal = new Mandelbar(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_center_hp, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, escaping_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.MANDELBARCUBED:
+                fractal = new MandelbarCubed(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_center_hp, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, escaping_smooth_algorithm, ots, sts);
                 break;
             case MainWindow.SPIDER:
                 fractal = new Spider(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_center_hp, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, escaping_smooth_algorithm, ots, sts);
@@ -10763,6 +11054,9 @@ public abstract class TaskRender implements Runnable {
                 break;
             case MainWindow.FORMULA49:
                 fractal = new Formula49(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_center_hp, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, escaping_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.FORMULA50:
+                fractal = new Formula50(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_center_hp, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, escaping_smooth_algorithm, ots, sts);
                 break;
             case MainWindow.PERPENDICULAR_MANDELBROT:
                 fractal = new PerpendicularMandelbrot(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_center_hp, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, escaping_smooth_algorithm, ots, sts);
@@ -11944,8 +12238,8 @@ public abstract class TaskRender implements Runnable {
                 fractal.ConvergentBailoutConditionFactory(cbs.convergent_bailout_test_algorithm, fractal.getConvergentBailout(), cbs.convergent_bailout_test_user_formula, cbs.convergent_bailout_test_user_formula2, cbs.convergent_bailout_test_comparison, cbs.convergent_n_norm, plane_transform_center);
             }
         }
-        else if(ptrExpander != null) {
-            if(ptrExpander.getSettings().hasConvergentBailout()) {
+        else if(ptrMinimalRenderer != null) {
+            if(ptrMinimalRenderer.getSettings().hasConvergentBailout()) {
                 fractal.ConvergentBailoutConditionFactory(cbs.convergent_bailout_test_algorithm, fractal.getConvergentBailout(), cbs.convergent_bailout_test_user_formula, cbs.convergent_bailout_test_user_formula2, cbs.convergent_bailout_test_comparison, cbs.convergent_n_norm, plane_transform_center);
             }
         }
@@ -11973,6 +12267,7 @@ public abstract class TaskRender implements Runnable {
             values[i] = new Complex(variable_re[i], variable_im[i]);
         }
         fractal.setInitialVariablesValues(values);
+        fractal.setTaskId(taskId);
 
         return fractal;
 
@@ -12063,6 +12358,9 @@ public abstract class TaskRender implements Runnable {
                 break;
             case MainWindow.MANDELBAR:
                 fractal = new Mandelbar(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_center_hp, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, escaping_smooth_algorithm, ots, sts, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.MANDELBARCUBED:
+                fractal = new MandelbarCubed(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_center_hp, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, escaping_smooth_algorithm, ots, sts, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.SPIDER:
                 fractal = new Spider(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_center_hp, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, escaping_smooth_algorithm, ots, sts, xJuliaCenter, yJuliaCenter);
@@ -12253,6 +12551,9 @@ public abstract class TaskRender implements Runnable {
             case MainWindow.FORMULA49:
                 fractal = new Formula49(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_center_hp, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, escaping_smooth_algorithm, ots, sts, xJuliaCenter, yJuliaCenter);
                 break;
+            case MainWindow.FORMULA50:
+                fractal = new Formula50(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_center_hp, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, escaping_smooth_algorithm, ots, sts, xJuliaCenter, yJuliaCenter);
+                break;
             case MainWindow.PERPENDICULAR_MANDELBROT:
                 fractal = new PerpendicularMandelbrot(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_center_hp, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, escaping_smooth_algorithm, ots, sts, xJuliaCenter, yJuliaCenter);
                 break;
@@ -12383,8 +12684,8 @@ public abstract class TaskRender implements Runnable {
                 fractal.ConvergentBailoutConditionFactory(cbs.convergent_bailout_test_algorithm, fractal.getConvergentBailout(), cbs.convergent_bailout_test_user_formula, cbs.convergent_bailout_test_user_formula2, cbs.convergent_bailout_test_comparison, cbs.convergent_n_norm, plane_transform_center);
             }
         }
-        else if(ptrExpander != null) {
-            if(ptrExpander.getSettings().hasConvergentBailout()) {
+        else if(ptrMinimalRenderer != null) {
+            if(ptrMinimalRenderer.getSettings().hasConvergentBailout()) {
                 fractal.ConvergentBailoutConditionFactory(cbs.convergent_bailout_test_algorithm, fractal.getConvergentBailout(), cbs.convergent_bailout_test_user_formula, cbs.convergent_bailout_test_user_formula2, cbs.convergent_bailout_test_comparison, cbs.convergent_n_norm, plane_transform_center);
             }
         }
@@ -12412,6 +12713,8 @@ public abstract class TaskRender implements Runnable {
             values[i] = new Complex(variable_re[i], variable_im[i]);
         }
         fractal.setInitialVariablesValues(values);
+
+        fractal.setTaskId(taskId);
 
         return fractal;
 
@@ -12447,13 +12750,13 @@ public abstract class TaskRender implements Runnable {
         Fractal.BLACalculationTime = 0;
         Fractal.Nanomb1CalculationTime = 0;
 
-        Fractal.total_bla_iterations = new LongAdder();
-        Fractal.total_bla_steps =  new LongAdder();
-        Fractal.total_perturb_iterations =  new LongAdder();
-        Fractal.total_nanomb1_skipped_iterations = new LongAdder();
-        Fractal.total_double_iterations = new LongAdder();
-        Fractal.total_scaled_iterations = new LongAdder();
-        Fractal.total_float_exp_iterations = new LongAdder();
+        Fractal.total_bla_iterations = new long[TOTAL_NUM_TASKS];
+        Fractal.total_bla_steps = new long[TOTAL_NUM_TASKS];
+        Fractal.total_perturb_iterations = new long[TOTAL_NUM_TASKS];
+        Fractal.total_nanomb1_skipped_iterations = new long[TOTAL_NUM_TASKS];
+        Fractal.total_double_iterations = new long[TOTAL_NUM_TASKS];
+        Fractal.total_scaled_iterations = new long[TOTAL_NUM_TASKS];
+        Fractal.total_float_exp_iterations = new long[TOTAL_NUM_TASKS];
 
         GenericComplex temp = loc.getReferencePoint();
 
@@ -12835,10 +13138,16 @@ public abstract class TaskRender implements Runnable {
     }*/
 
     public void initializeHighPrecision() {
-        Fractal.total_iterations = new LongAdder();
-        Fractal.total_min_iterations = new LongAccumulator(Math::min, Long.MAX_VALUE);
-        Fractal.total_max_iterations = new LongAccumulator(Math::max, Long.MIN_VALUE);
-        Fractal.total_max_iterations_ignore_max_iter = new LongAccumulator(Math::max, Long.MIN_VALUE);
+        Fractal.total_iterations = new long[TOTAL_NUM_TASKS];
+
+        Fractal.total_min_iterations = new long[TOTAL_NUM_TASKS];
+        Arrays.fill(Fractal.total_min_iterations,  Long.MAX_VALUE);
+
+        Fractal.total_max_iterations = new long[TOTAL_NUM_TASKS];
+        Arrays.fill(Fractal.total_max_iterations, Long.MIN_VALUE);
+
+        Fractal.total_max_iterations_ignore_max_iter = new long[TOTAL_NUM_TASKS];
+        Arrays.fill(Fractal.total_max_iterations_ignore_max_iter,  Long.MIN_VALUE);
     }
 
     public void calculateReference(Location loc) {
@@ -12849,19 +13158,25 @@ public abstract class TaskRender implements Runnable {
         Fractal.BLACalculationTime = 0;
         Fractal.Nanomb1CalculationTime = 0;
 
-        Fractal.total_bla_iterations =  new LongAdder();
-        Fractal.total_bla_steps =  new LongAdder();
-        Fractal.total_perturb_iterations =  new LongAdder();
-        Fractal.total_nanomb1_skipped_iterations = new LongAdder();
-        Fractal.total_double_iterations = new LongAdder();
-        Fractal.total_scaled_iterations = new LongAdder();
-        Fractal.total_float_exp_iterations = new LongAdder();
-        Fractal.total_rebases = new LongAdder();
-        Fractal.total_realigns = new LongAdder();
-        Fractal.total_iterations = new LongAdder();
-        Fractal.total_min_iterations = new LongAccumulator(Math::min, Long.MAX_VALUE);
-        Fractal.total_max_iterations = new LongAccumulator(Math::max, Long.MIN_VALUE);
-        Fractal.total_max_iterations_ignore_max_iter = new LongAccumulator(Math::max, Long.MIN_VALUE);
+        Fractal.total_bla_iterations = new long[TOTAL_NUM_TASKS];
+        Fractal.total_bla_steps = new long[TOTAL_NUM_TASKS];
+        Fractal.total_perturb_iterations = new long[TOTAL_NUM_TASKS];
+        Fractal.total_nanomb1_skipped_iterations = new long[TOTAL_NUM_TASKS];
+        Fractal.total_double_iterations = new long[TOTAL_NUM_TASKS];
+        Fractal.total_scaled_iterations = new long[TOTAL_NUM_TASKS];
+        Fractal.total_float_exp_iterations = new long[TOTAL_NUM_TASKS];
+        Fractal.total_rebases = new long[TOTAL_NUM_TASKS];
+        Fractal.total_realigns = new long[TOTAL_NUM_TASKS];
+        Fractal.total_iterations = new long[TOTAL_NUM_TASKS];
+
+        Fractal.total_min_iterations = new long[TOTAL_NUM_TASKS];
+        Arrays.fill(Fractal.total_min_iterations,  Long.MAX_VALUE);
+
+        Fractal.total_max_iterations = new long[TOTAL_NUM_TASKS];
+        Arrays.fill(Fractal.total_max_iterations,  Long.MIN_VALUE);
+
+        Fractal.total_max_iterations_ignore_max_iter = new long[TOTAL_NUM_TASKS];
+        Arrays.fill(Fractal.total_max_iterations_ignore_max_iter,  Long.MIN_VALUE);
 
         int old_max = progress.getMaximum();
         int cur_val = progress.getValue();
@@ -12948,6 +13263,11 @@ public abstract class TaskRender implements Runnable {
                         fractal.calculateBLA2ATWrapper(loc, progress);
                     }
                 }
+                else if(APPROXIMATION_ALGORITHM == 5 && fractal.supportsBilinearApproximation3()
+                        && (MipLAStep.ValidRadiusScale != Fractal.BLA3UsedScale
+                 || BLA3_STARTING_LEVEL != Fractal.BLA3StartingLevel)) {
+                    fractal.calculateBLA3Wrapper(isDeep, progress);
+                }
 
                 fractal.clearUnusedReferences(isDeep);
                 fractal.finalizeReference();
@@ -12986,11 +13306,11 @@ public abstract class TaskRender implements Runnable {
     }
 
     public boolean isJulia() {
-        return (action == NORMAL || action == NORMAL_EXPANDER || action == POLAR || action == POLAR_EXPANDER) && julia;
+        return (action == NORMAL || action == NORMAL_MINIMAL_RENDERER || action == POLAR || action == POLAR_MINIMAL_RENDERER) && julia;
     }
 
     public boolean isNonJulia() {
-        return (action == NORMAL || action == NORMAL_EXPANDER || action == POLAR || action == POLAR_EXPANDER) && !julia;
+        return (action == NORMAL || action == NORMAL_MINIMAL_RENDERER || action == POLAR || action == POLAR_MINIMAL_RENDERER) && !julia;
     }
 
     public boolean isJuliaMap() {
@@ -12998,7 +13318,7 @@ public abstract class TaskRender implements Runnable {
     }
 
     public boolean isDomainColoring() {
-        return action == DOMAIN || action == DOMAIN_POLAR || action == DOMAIN_EXPANDER || action == DOMAIN_POLAR_EXPANDER;
+        return action == DOMAIN || action == DOMAIN_POLAR || action == DOMAIN_MINIMAL_RENDERER || action == DOMAIN_POLAR_MINIMAL_RENDERER;
     }
 
     public static boolean allocateMPFR() {
@@ -13030,11 +13350,11 @@ public abstract class TaskRender implements Runnable {
         return false;
     }
 
-    public boolean hasSuccessiveRefinement() {
+    public boolean supportsNonBlockingRender() {
         return false;
     }
 
-    public boolean hasCircularLogic() {
+    public boolean hasPatternedLogic() {
         return false;
     }
 
@@ -13058,6 +13378,89 @@ public abstract class TaskRender implements Runnable {
 
         ofs_blending = blendingFactory(COLOR_SMOOTHING_METHOD, ofs.of_color_blending);
         ofs_blending.setReverseColors(ofs.of_reverse_color_blending);
+
+    }
+
+    protected Square getNextRectangleArea(int iteration) {
+        if(SPLIT_INTO_RECTANGLE_AREAS) {
+            synchronized (rectangleAreasQueueu) {
+                if (rectangleAreasQueueu.isEmpty()) {
+                    return null;
+                }
+                return rectangleAreasQueueu.dequeue();
+            }
+        }
+
+        if(iteration == 0) {
+            return new Square(FROMx, FROMy, TOx, TOy);
+        }
+        return null;
+    }
+
+    protected void initializeRectangleAreasQueue(int image_width, int image_height) {
+        if(!SPLIT_INTO_RECTANGLE_AREAS) {
+            return;
+        }
+
+        if(taskId == 0) {
+            rectangleAreasQueueu = new ExpandingQueueSquare(RECTANGLE_AREAS_QUEUE_INIT_SIZE);
+        }
+
+        if(RECTANGLE_AREA_SPLIT_ALGORITHM == 0) {
+            if(taskId == 0) {
+                //create rectangles of x*y pixels
+                int yLength = image_height % AREA_DIMENSION_Y == 0 ? image_height / AREA_DIMENSION_Y : image_height / AREA_DIMENSION_Y + 1;
+                int xLength = image_width % AREA_DIMENSION_X == 0 ? image_width / AREA_DIMENSION_X : image_width / AREA_DIMENSION_X + 1;
+                for(int y = 0; y < yLength; y++) {
+                    for(int x = 0; x < xLength; x++) {
+                        int FROMx = x * AREA_DIMENSION_X;
+                        int TOx = (x + 1) * AREA_DIMENSION_X;
+                        int FROMy = y * AREA_DIMENSION_Y;
+                        int TOy = (y + 1) * AREA_DIMENSION_Y;
+                        TOx = Math.min(TOx, image_width);
+                        TOy = Math.min(TOy, image_height);
+                        rectangleAreasQueueu.enqueue(new Square(FROMx, FROMy, TOx, TOy));
+                    }
+                }
+            }
+        }
+        else if(RECTANGLE_AREA_SPLIT_ALGORITHM == 1) {
+            //split the original rectangle into an x*y grid
+            try {
+                initialize_jobs_sync4.await();
+            } catch (InterruptedException ex) {
+
+            } catch (BrokenBarrierException ex) {
+
+            }
+            int area_width = TOx - FROMx;
+            int area_height = TOy - FROMy;
+            synchronized (rectangleAreasQueueu) {
+                for(int y = 0; y < AREA_DIMENSION_Y; y++) {
+                    for (int x = 0; x < AREA_DIMENSION_X; x++) {
+                        rectangleAreasQueueu.enqueue(new Square(FROMx + x * area_width / AREA_DIMENSION_X, FROMy + y * area_height / AREA_DIMENSION_Y, FROMx + (x + 1) * area_width / AREA_DIMENSION_X, FROMy + (y + 1) * area_height / AREA_DIMENSION_Y));
+                    }
+                }
+            }
+        }
+        else {
+            //split the original image into an x*y grid
+            if(taskId == 0) {
+                for(int y = 0; y < AREA_DIMENSION_Y; y++) {
+                    for (int x = 0; x < AREA_DIMENSION_X; x++) {
+                        rectangleAreasQueueu.enqueue(new Square(x * image_width / AREA_DIMENSION_X, y * image_height / AREA_DIMENSION_Y, (x + 1) * image_width / AREA_DIMENSION_X, (y + 1) * image_height / AREA_DIMENSION_Y));
+                    }
+                }
+            }
+        }
+
+        try {
+            initialize_jobs_sync3.await();
+        } catch (InterruptedException ex) {
+
+        } catch (BrokenBarrierException ex) {
+
+        }
 
     }
 }

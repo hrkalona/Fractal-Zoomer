@@ -76,9 +76,11 @@ public class King3Formula extends King3RootFindingMethod {
             parser.setNvalue(new Complex(iterations, 0));
         }
 
-        for (int i = 0; i < Parser.EXTRA_VARS; i++) {
-            if (parser.foundVar(i)) {
-                parser.setVarsvalue(i, globalVars[i]);
+        if(parser.foundAnyVar()) {
+            for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+                if (parser.foundVar(i)) {
+                    parser.setVarsvalue(i, globalVars[i]);
+                }
             }
         }
 
@@ -95,9 +97,11 @@ public class King3Formula extends King3RootFindingMethod {
                 parser2.setNvalue(new Complex(iterations, 0));
             }
 
-            for (int i = 0; i < Parser.EXTRA_VARS; i++) {
-                if (parser2.foundVar(i)) {
-                    parser2.setVarsvalue(i, globalVars[i]);
+            if(parser2.foundAnyVar()) {
+                for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+                    if (parser2.foundVar(i)) {
+                        parser2.setVarsvalue(i, globalVars[i]);
+                    }
                 }
             }
 
@@ -301,9 +305,11 @@ public class King3Formula extends King3RootFindingMethod {
             parser.setNvalue(new Complex(iterations, 0));
         }
 
-        for (int i = 0; i < Parser.EXTRA_VARS; i++) {
-            if (parser.foundVar(i)) {
-                parser.setVarsvalue(i, globalVars[i]);
+        if(parser.foundAnyVar()) {
+            for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+                if (parser.foundVar(i)) {
+                    parser.setVarsvalue(i, globalVars[i]);
+                }
             }
         }
 

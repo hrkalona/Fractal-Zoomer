@@ -72,9 +72,11 @@ public class MullerFormula extends MullerRootFindingMethod {
             parser.setNvalue(new Complex(iterations, 0));
         }
 
-        for (int i = 0; i < Parser.EXTRA_VARS; i++) {
-            if (parser.foundVar(i)) {
-                parser.setVarsvalue(i, globalVars[i]);
+        if(parser.foundAnyVar()) {
+            for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+                if (parser.foundVar(i)) {
+                    parser.setVarsvalue(i, globalVars[i]);
+                }
             }
         }
 
@@ -176,9 +178,11 @@ public class MullerFormula extends MullerRootFindingMethod {
             parser.setHeightvalue(new Complex(TaskRender.HEIGHT, 0));
         }
 
-        for (int i = 0; i < Parser.EXTRA_VARS; i++) {
-            if (parser.foundVar(i)) {
-                parser.setVarsvalue(i, globalVars[i]);
+        if(parser.foundAnyVar()) {
+            for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+                if (parser.foundVar(i)) {
+                    parser.setVarsvalue(i, globalVars[i]);
+                }
             }
         }
 
@@ -207,9 +211,11 @@ public class MullerFormula extends MullerRootFindingMethod {
             parser.setNvalue(new Complex(iterations, 0));
         }
 
-        for (int i = 0; i < Parser.EXTRA_VARS; i++) {
-            if (parser.foundVar(i)) {
-                parser.setVarsvalue(i, globalVars[i]);
+        if(parser.foundAnyVar()) {
+            for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+                if (parser.foundVar(i)) {
+                    parser.setVarsvalue(i, globalVars[i]);
+                }
             }
         }
 

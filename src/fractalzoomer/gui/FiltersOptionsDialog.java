@@ -2,8 +2,10 @@
 package fractalzoomer.gui;
 
 import fractalzoomer.core.TaskRender;
+import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.FiltersSettings;
+import fractalzoomer.utils.QuadTree;
 
 import javax.swing.*;
 import java.awt.*;
@@ -85,6 +87,8 @@ public class FiltersOptionsDialog extends JDialog {
         panel_colors.setBackground(MainWindow.bg_color);
         JPanel panel_texture = new JPanel();
         panel_texture.setBackground(MainWindow.bg_color);
+        JPanel panel_texture2 = new JPanel();
+        panel_texture2.setBackground(MainWindow.bg_color);
         JPanel panel_lighting = new JPanel();
         panel_lighting.setBackground(MainWindow.bg_color);
         order_panel = new FilterOrderSelectionPanel(filter_names, filter_order, mActiveFilters);
@@ -97,16 +101,24 @@ public class FiltersOptionsDialog extends JDialog {
 
         tabbedPane.addTab("Active Filters", panel_filters);
         tabbedPane.setIconAt(0, MainWindow.getIcon("list2.png"));
+
         tabbedPane.addTab("Order", order_panel);
         tabbedPane.setIconAt(1, MainWindow.getIcon("list.png"));
+
         tabbedPane.addTab("Details", panel_details);
         tabbedPane.setIconAt(2, MainWindow.getIcon("filter_details.png"));
+
         tabbedPane.addTab("Colors", panel_colors);
         tabbedPane.setIconAt(3, MainWindow.getIcon("filter_colors.png"));
+
         tabbedPane.addTab("Texture", panel_texture);
         tabbedPane.setIconAt(4, MainWindow.getIcon("filter_texture.png"));
+
+        tabbedPane.addTab("Texture(2)", panel_texture2);
+        tabbedPane.setIconAt(5, MainWindow.getIcon("filter_texture.png"));
+
         tabbedPane.addTab("Lighting", panel_lighting);
-        tabbedPane.setIconAt(5, MainWindow.getIcon("filter_lighting.png"));
+        tabbedPane.setIconAt(6, MainWindow.getIcon("filter_lighting.png"));
         
         
         tabbedPane.setSelectedIndex(tab_index);
@@ -207,7 +219,7 @@ public class FiltersOptionsDialog extends JDialog {
         aaMethod.addActionListener(e -> {
             aaAvgWithMean.setEnabled(aaMethod.getSelectedIndex() != 0 && aaMethod.getSelectedIndex() != 5 && aaMethod.getSelectedIndex() != 7);
             antialiasing_color_space.setEnabled(aaMethod.getSelectedIndex() == 0 || aaMethod.getSelectedIndex() == 1 || aaMethod.getSelectedIndex() == 2 || aaMethod.getSelectedIndex() == 6 || aaMethod.getSelectedIndex() == 7 || aaMethod.getSelectedIndex() == 8);
-            useJitter.setEnabled(aaMethod.getSelectedIndex() != 6 & aaMethod.getSelectedIndex() != 8);
+            useJitter.setEnabled(aaMethod.getSelectedIndex() != 6 && aaMethod.getSelectedIndex() != 8);
             sigmaR.setEnabled(aaMethod.getSelectedIndex() == 6 || aaMethod.getSelectedIndex() == 8);
             sigmaS.setEnabled(aaMethod.getSelectedIndex() == 8);
         });
@@ -728,7 +740,7 @@ public class FiltersOptionsDialog extends JDialog {
 
         panels[MainWindow.GRAYSCALE] = new JPanel();
         panels[MainWindow.GRAYSCALE].setBackground(MainWindow.bg_color);
-        String[] grayscale_str = {"Luminance NTSC", "Luminance HDTV", "Average", "Lightness", "Lightness Lab"};
+        String[] grayscale_str = {"Luminance NTSC", "Luminance HDTV", "Average", "Lightness", "Lightness Lab", "Luminance HDR"};
 
         components_filters[MainWindow.GRAYSCALE] = new JComboBox<>(grayscale_str);
         ((JComboBox)components_filters[MainWindow.GRAYSCALE]).setSelectedIndex(filters_options_vals[MainWindow.GRAYSCALE]);
@@ -2031,6 +2043,210 @@ public class FiltersOptionsDialog extends JDialog {
         panels[MainWindow.MIRROR].add(((JPanel)components_filters[MainWindow.MIRROR]));
 
         panels[MainWindow.MIRROR].setBorder(LAFManager.createTitledBorder( "Mirror"));
+
+
+        panels[MainWindow.QUAD_TREE_COMPRESSION] = new JPanel();
+        panels[MainWindow.QUAD_TREE_COMPRESSION].setBackground(MainWindow.bg_color);
+
+        components_filters[MainWindow.QUAD_TREE_COMPRESSION] = new JPanel();
+        ((JPanel)components_filters[MainWindow.QUAD_TREE_COMPRESSION]).setBackground(MainWindow.bg_color);
+        ((JPanel)components_filters[MainWindow.QUAD_TREE_COMPRESSION]).setLayout(new GridLayout(7, 1));
+
+        JPanel quad_tree_threshold_panel = new JPanel();
+        quad_tree_threshold_panel.setBackground(MainWindow.bg_color);
+
+        JTextField quad_tree_threshold = new JTextField(4);
+        quad_tree_threshold.setText("" + fs.quadtree_threshold);
+
+        quad_tree_threshold_panel.add(new JLabel("Threshold: "));
+        quad_tree_threshold_panel.add(quad_tree_threshold);
+
+        JCheckBox dynamicThreshold = new JCheckBox("Dynamic");
+        dynamicThreshold.setBackground(MainWindow.bg_color);
+        dynamicThreshold.setFocusable(false);
+        dynamicThreshold.setSelected(fs.quadtree_dynamic_threshold);
+        dynamicThreshold.setToolTipText("The threshold is dynamic depending on the area size.");
+
+        quad_tree_threshold_panel.add(dynamicThreshold);
+
+
+        JPanel quad_tree_threshold_panel2 = new JPanel();
+        quad_tree_threshold_panel2.setBackground(MainWindow.bg_color);
+
+        final JComboBox<String> dynamicThreshodCurve = new JComboBox<>(Constants.FadeAlgs);
+        dynamicThreshodCurve.setSelectedIndex(fs.quadtree_dynamic_threshold_curve);
+        dynamicThreshodCurve.setFocusable(false);
+        dynamicThreshodCurve.setToolTipText("Sets the dynamic threshold curve algorithm.");
+
+        quad_tree_threshold_panel2.add(new JLabel("Dynamic Curve: "));
+        quad_tree_threshold_panel2.add(dynamicThreshodCurve);
+
+
+        JPanel quad_tree_threshold_panel3 = new JPanel();
+        quad_tree_threshold_panel3.setBackground(MainWindow.bg_color);
+
+        final JComboBox<String> thresholdCalculation = new JComboBox<>(new String[]{"Average", "NTSC Luma", "HDTV Luma", "HDR Luma"});
+        thresholdCalculation.setSelectedIndex(fs.quadtree_threshold_calculation);
+        thresholdCalculation.setFocusable(false);
+        thresholdCalculation.setToolTipText("Sets the combine calculation algorithm.");
+
+        quad_tree_threshold_panel3.add(new JLabel("Combine Calculation: "));
+        quad_tree_threshold_panel3.add(thresholdCalculation);
+
+
+        JCheckBox quadtree_showDivision = new JCheckBox("Show Division");
+        quadtree_showDivision.setBackground(MainWindow.bg_color);
+        quadtree_showDivision.setToolTipText("Displays the borders of each division step.");
+        quadtree_showDivision.setSelected(fs.quadtree_show_division);
+
+
+        String[] tree_alg_str = {"Quad", "Binary H", "Binary V", "Binary HV", "Binary VH"};
+
+        final JComboBox<String> treeAlgorithm = new JComboBox<>(tree_alg_str);
+        treeAlgorithm.setSelectedIndex(fs.quadtree_algorithm);
+        treeAlgorithm.setFocusable(false);
+        treeAlgorithm.setToolTipText("Sets the tree algorithm.");
+
+        JCheckBox quadtree_merge = new JCheckBox("Merge");
+        quadtree_merge.setBackground(MainWindow.bg_color);
+        quadtree_merge.setToolTipText("Merges same quad-tree nodes on the same level.");
+        quadtree_merge.setSelected(fs.quadtree_merge_nodes);
+
+        quadtree_merge.setEnabled(treeAlgorithm.getSelectedIndex() == 0);
+
+        treeAlgorithm.addActionListener( e -> {
+            quadtree_merge.setEnabled(treeAlgorithm.getSelectedIndex() == 0);
+        });
+
+        String[] fill_alg_str = {"Original Color", "Level Color", "Fill Color"};
+
+        final JComboBox<String> fillAlgorithm = new JComboBox<>(fill_alg_str);
+        fillAlgorithm.setSelectedIndex(fs.quadtree_fill_algorithm);
+        fillAlgorithm.setFocusable(false);
+        fillAlgorithm.setToolTipText("Sets the fill algorithm.");
+
+        JPanel treeAlgPanel = new JPanel();
+        treeAlgPanel.setBackground(MainWindow.bg_color);
+        treeAlgPanel.add(new JLabel("Tree Algorithm: "));
+        treeAlgPanel.add(treeAlgorithm);
+        treeAlgPanel.add(quadtree_merge);
+
+        JPanel drawAlgPanel = new JPanel();
+        drawAlgPanel.setBackground(MainWindow.bg_color);
+        drawAlgPanel.add(quadtree_showDivision);
+        drawAlgPanel.add(new JLabel(" Fill: "));
+        drawAlgPanel.add(fillAlgorithm);
+
+        final JSlider quadtree_lod = new JSlider(JSlider.HORIZONTAL, 0, QuadTree.MAX_LEVEL, fs.quadtree_lod);
+        quadtree_lod.setPreferredSize(new Dimension(150, 35));
+        if(!MainWindow.useCustomLaf) {
+            quadtree_lod.setBackground(MainWindow.bg_color);
+        }
+        quadtree_lod.setFocusable(false);
+        quadtree_lod.setToolTipText("Sets the edge detection sensitivity.");
+        quadtree_lod.setPaintLabels(true);
+
+        table3 = new Hashtable<>();
+        table3.put(0, new JLabel("Min"));
+        table3.put(QuadTree.MAX_LEVEL, new JLabel("Max"));
+        quadtree_lod.setLabelTable(table3);
+
+        JPanel quadtree_lod_panel = new JPanel();
+        quadtree_lod_panel.setBackground(MainWindow.bg_color);
+        JLabel lod_label = new JLabel("Detail: " + String.format("%02d", fs.quadtree_lod) + " ");
+        quadtree_lod_panel.add(lod_label);
+        quadtree_lod_panel.add(quadtree_lod);
+
+        quadtree_lod.addChangeListener(e -> lod_label.setText("Detail: " + String.format("%02d", quadtree_lod.getValue()) + " "));
+
+        JPanel quadtree_colors_panel = new JPanel();
+        quadtree_colors_panel.setBackground(MainWindow.bg_color);
+
+        final JLabel quadTreeFillColor = new ColorLabel();
+
+        quadTreeFillColor.setPreferredSize(new Dimension(22, 22));
+        quadTreeFillColor.setBackground(filters_colors[MainWindow.QUAD_TREE_COMPRESSION]);
+        quadTreeFillColor.setToolTipText("Changes the fill color.");
+
+        quadTreeFillColor.addMouseListener(new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                new ColorChooserDialog(this_frame, "Fill Color", quadTreeFillColor, -1, -1);
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+
+            }
+
+        });
+
+        final JLabel quadTreeDivisionColor = new ColorLabel();
+
+        quadTreeDivisionColor.setPreferredSize(new Dimension(22, 22));
+        quadTreeDivisionColor.setBackground(filters_extra_colors[0][MainWindow.QUAD_TREE_COMPRESSION]);
+        quadTreeDivisionColor.setToolTipText("Changes the division color.");
+
+        quadTreeDivisionColor.addMouseListener(new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                new ColorChooserDialog(this_frame, "Division Color", quadTreeDivisionColor, -1, -1);
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+
+            }
+
+        });
+
+        quadtree_colors_panel.add(new JLabel("Fill Color: "));
+        quadtree_colors_panel.add(quadTreeFillColor);
+        quadtree_colors_panel.add(new JLabel(" Division Color: "));
+        quadtree_colors_panel.add(quadTreeDivisionColor);
+
+
+        ((JPanel)components_filters[MainWindow.QUAD_TREE_COMPRESSION]).add(quad_tree_threshold_panel);
+        ((JPanel)components_filters[MainWindow.QUAD_TREE_COMPRESSION]).add(quad_tree_threshold_panel2);
+        ((JPanel)components_filters[MainWindow.QUAD_TREE_COMPRESSION]).add(quad_tree_threshold_panel3);
+        ((JPanel)components_filters[MainWindow.QUAD_TREE_COMPRESSION]).add(treeAlgPanel);
+        ((JPanel)components_filters[MainWindow.QUAD_TREE_COMPRESSION]).add(quadtree_lod_panel);
+        ((JPanel)components_filters[MainWindow.QUAD_TREE_COMPRESSION]).add(drawAlgPanel);
+        ((JPanel)components_filters[MainWindow.QUAD_TREE_COMPRESSION]).add(quadtree_colors_panel);
+
+
+        panels[MainWindow.QUAD_TREE_COMPRESSION].add(((JPanel)components_filters[MainWindow.QUAD_TREE_COMPRESSION]));
+        panels[MainWindow.QUAD_TREE_COMPRESSION].setBorder(LAFManager.createTitledBorder( "Quad-Tree"));
         
         panels[MainWindow.GLOW] = new JPanel();
         panels[MainWindow.GLOW].setBackground(MainWindow.bg_color);
@@ -2924,6 +3140,11 @@ public class FiltersOptionsDialog extends JDialog {
         panel_texture.add(panels[MainWindow.WEAVE]);
         panel_texture.add(panels[MainWindow.SPARKLE]);
         panel_texture.add(panels[MainWindow.MIRROR]);
+
+        panel_texture2.setLayout(new GridLayout(1, 3));
+        panel_texture2.add(panels[MainWindow.QUAD_TREE_COMPRESSION]);
+        panel_texture2.add(new JLabel(""));
+        panel_texture2.add(new JLabel(""));
         
         panel_lighting.setLayout(new GridLayout(1, 1));
         panel_lighting.add(panels[MainWindow.LIGHT_EFFECTS]);
@@ -2945,13 +3166,14 @@ public class FiltersOptionsDialog extends JDialog {
 //                    return;
 //                }
 //            }
-            double temp, temp2, temp3, temp4;
+            double temp, temp2, temp3, temp4, temp5;
 
             try {
                 temp = Double.parseDouble(sigmaR.getText());
                 temp2 = Double.parseDouble(sigmaS.getText());
                 temp3 = Double.parseDouble(sigmaR2.getText());
                 temp4 = Double.parseDouble(sigmaS2.getText());
+                temp5 = Double.parseDouble(quad_tree_threshold.getText());
             }
             catch (Exception ex) {
                 JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
@@ -2963,11 +3185,27 @@ public class FiltersOptionsDialog extends JDialog {
                 return;
             }
 
+            if(temp5 < 0) {
+                JOptionPane.showMessageDialog(ptra, "The quad tree threshold must be greater or equal to 0.", "Error!", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
             fs.aaSigmaS = temp2;
             fs.aaSigmaR = temp;
             fs.bluringSigmaS = temp4;
             fs.bluringSigmaR = temp3;
             fs.blurringKernelSelection = kernels_size_opt.getSelectedIndex();
+
+            fs.quadtree_show_division = quadtree_showDivision.isSelected();
+            fs.quadtree_algorithm = treeAlgorithm.getSelectedIndex();
+            fs.quadtree_merge_nodes = quadtree_merge.isSelected();
+            fs.quadtree_fill_algorithm = fillAlgorithm.getSelectedIndex();
+            fs.quadtree_lod = quadtree_lod.getValue();
+            fs.quadtree_threshold = temp5;
+            fs.quadtree_dynamic_threshold = dynamicThreshold.isSelected();
+            fs.quadtree_dynamic_threshold_curve = dynamicThreshodCurve.getSelectedIndex();
+            fs.quadtree_threshold_calculation = thresholdCalculation.getSelectedIndex();
+
 
             boolean useJitterOld = ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x4) == 4;
             int aaMethodOld = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
@@ -3025,6 +3263,10 @@ public class FiltersOptionsDialog extends JDialog {
                         filters_colors[k] = filter_color_label2.getBackground();
                         filters_options_extra_vals[0][k] = orig;
                     }
+                    else if(k == MainWindow.QUAD_TREE_COMPRESSION) {
+                        filters_colors[k] = quadTreeFillColor.getBackground();
+                        filters_extra_colors[0][k] = quadTreeDivisionColor.getBackground();
+                    }
                     else if(k == MainWindow.GLOW) {
                         filters_options_vals[k] = glow_softness_slid.getValue() * 1000 + glow_amount_slid.getValue();
                     }
@@ -3066,8 +3308,8 @@ public class FiltersOptionsDialog extends JDialog {
                         int source = source_image.isSelected() ? 0 : 1;
                         filters_options_extra_vals[1][k] = source * 10000000 + material_shininess_slid.getValue() * 100000 + bump_box.getSelectedIndex() * 10000 + bump_height_slid.getValue() * 100 + bump_softness_slid.getValue();
                         filters_colors[k] = filter_color_label6.getBackground();
-                        filters_extra_colors[0][MainWindow.LIGHT_EFFECTS] = filter_color_label7.getBackground();
-                        filters_extra_colors[1][MainWindow.LIGHT_EFFECTS] = filter_color_label8.getBackground();
+                        filters_extra_colors[0][k] = filter_color_label7.getBackground();
+                        filters_extra_colors[1][k] = filter_color_label8.getBackground();
                     }
                     else if(k == MainWindow.MIRROR) {
                         filters_options_vals[k] = 1000000 * opacity_slid.getValue() + 1000 * mirrory_slid.getValue() + mirror_gap_slid.getValue();
@@ -3105,7 +3347,7 @@ public class FiltersOptionsDialog extends JDialog {
 
             dispose();
 
-            ptra2.filtersOptionsChanged(filters_options_vals, filters_options_extra_vals, filters_colors, filters_extra_colors, order_panel.getFilterOrder(), mActiveFilters, aaSamplesIndexNew != aaSamplesIndexOld || old_supersampling_num != new_supersampling_num, useJitterOld != useJitterNew);
+            ptra2.filtersOptionsChanged(filters_options_vals, filters_options_extra_vals, filters_colors, filters_extra_colors, order_panel.getFilterOrder(), mActiveFilters, (aaSamplesIndexNew != aaSamplesIndexOld) || (old_supersampling_num != new_supersampling_num) || (aaMethodOld == 5 && aaMethodNew != 5) || (aaMethodOld != 5 && aaMethodNew == 5), useJitterOld != useJitterNew);
 
             tab_index = tabbedPane.getSelectedIndex();
 

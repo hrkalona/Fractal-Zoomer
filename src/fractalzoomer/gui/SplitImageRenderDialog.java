@@ -1,7 +1,7 @@
 
 package fractalzoomer.gui;
 
-import fractalzoomer.main.ImageExpanderWindow;
+import fractalzoomer.main.MinimalRendererWindow;
 import fractalzoomer.main.MainWindow;
 
 import javax.swing.*;
@@ -14,10 +14,10 @@ import java.awt.event.WindowEvent;
  */
 public class SplitImageRenderDialog extends JDialog {
 
-    private ImageExpanderWindow ptra;
+    private MinimalRendererWindow ptra;
     private JOptionPane optionPane;
 
-    public SplitImageRenderDialog(ImageExpanderWindow ptr, int split_image_grid_dimension) {
+    public SplitImageRenderDialog(MinimalRendererWindow ptr, int split_image_grid_dimension) {
         super(ptr);
         
         ptra = ptr;

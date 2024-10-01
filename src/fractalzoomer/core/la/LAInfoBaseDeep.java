@@ -11,10 +11,10 @@ import static fractalzoomer.core.la.LAReference.f;
 
 public abstract class LAInfoBaseDeep extends GenericLAInfo {
 
-    public static MantExp Stage0PeriodDetectionThreshold = new MantExp(LAInfo.Stage0PeriodDetectionThreshold);
-    public static MantExp PeriodDetectionThreshold = new MantExp(LAInfo.PeriodDetectionThreshold);
-    public static MantExp Stage0PeriodDetectionThreshold2 = new MantExp(LAInfo.Stage0PeriodDetectionThreshold2);
-    public static MantExp PeriodDetectionThreshold2 = new MantExp(LAInfo.PeriodDetectionThreshold2);
+    public static MantExp Stage0DipDetectionThreshold = new MantExp(LAInfo.Stage0DipDetectionThreshold);
+    public static MantExp DipDetectionThreshold = new MantExp(LAInfo.DipDetectionThreshold);
+    public static MantExp Stage0DipDetectionThreshold2 = new MantExp(LAInfo.Stage0DipDetectionThreshold2);
+    public static MantExp DipDetectionThreshold2 = new MantExp(LAInfo.DipDetectionThreshold2);
     public static MantExp LAThresholdScale = new MantExp(LAInfo.LAThresholdScale);
     public static MantExp LAThresholdCScale = new MantExp(LAInfo.LAThresholdCScale);
 
@@ -86,12 +86,12 @@ public abstract class LAInfoBaseDeep extends GenericLAInfo {
     }
 
     @Override
-    protected boolean DetectPeriod(Complex z) {
+    protected boolean DetectDip(Complex z) {
         return false;
     }
 
     @Override
-    protected boolean Stage0DetectPeriod(Complex z) {
+    protected boolean Stage0DetectDip(Complex z) {
         return false;
     }
 
@@ -126,13 +126,13 @@ public abstract class LAInfoBaseDeep extends GenericLAInfo {
     }
 
     @Override
-    protected boolean DetectPeriod(MantExpComplex z) {
-        return z.chebyshevNorm().divide(new MantExpComplex(ZCoeffExp, ZCoeffRe, ZCoeffIm).chebyshevNorm()).multiply_mutable(LAThresholdScale).compareToBothPositive(new MantExp(LAThresholdExp, LAThresholdMant).multiply(PeriodDetectionThreshold)) < 0;
+    protected boolean DetectDip(MantExpComplex z) {
+        return z.chebyshevNorm().divide(new MantExpComplex(ZCoeffExp, ZCoeffRe, ZCoeffIm).chebyshevNorm()).multiply_mutable(LAThresholdScale).compareToBothPositive(new MantExp(LAThresholdExp, LAThresholdMant).multiply(DipDetectionThreshold)) < 0;
     }
 
     @Override
-    protected boolean Stage0DetectPeriod(MantExpComplex z) {
-        return z.chebyshevNorm().divide(new MantExpComplex(ZCoeffExp, ZCoeffRe, ZCoeffIm).chebyshevNorm()).multiply_mutable(LAThresholdScale).compareToBothPositive(new MantExp(LAThresholdExp, LAThresholdMant).multiply(Stage0PeriodDetectionThreshold)) < 0;
+    protected boolean Stage0DetectDip(MantExpComplex z) {
+        return z.chebyshevNorm().divide(new MantExpComplex(ZCoeffExp, ZCoeffRe, ZCoeffIm).chebyshevNorm()).multiply_mutable(LAThresholdScale).compareToBothPositive(new MantExp(LAThresholdExp, LAThresholdMant).multiply(Stage0DipDetectionThreshold)) < 0;
     }
 
     @Override

@@ -126,6 +126,7 @@ public class Parser {
     boolean found_pixel;
 
     boolean[] found_vars;
+    boolean found_any_var;
 
     ArrayList<VariableExpressionNode> z_var;
     ArrayList<VariableExpressionNode> c_var;
@@ -209,6 +210,7 @@ public class Parser {
         found_pixel = false;
 
         found_vars = new boolean[EXTRA_VARS];
+        found_any_var = false;
 
         for(int i = 0; i < found_vars.length; i++) {
             found_vars[i] = false;
@@ -827,6 +829,7 @@ public class Parser {
             for(int i = 0; i < vars_var.size(); i++) {
                 if(temp.equalsIgnoreCase("v" + (i + 1))) {
                     found_vars[i] = true;
+                    found_any_var = true;
                     vars_var.get(i).add((VariableExpressionNode)expr);
                     break;
                 }
@@ -1042,13 +1045,8 @@ public class Parser {
 
     public boolean foundAnyVar() {
 
-        for(int i = 0; i < found_vars.length; i++) {
-            if(found_vars[i]) {
-                return true;
-            }
-        }
+        return found_any_var;
 
-        return false;
     }
 
 

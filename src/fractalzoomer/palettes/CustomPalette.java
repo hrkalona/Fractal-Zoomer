@@ -1176,7 +1176,7 @@ public class CustomPalette extends Palette {
             g = colors[p][2];
             b = colors[p][3];
 
-            float res[] = new float[3];
+            float[] res = new float[3];
 
             Color.RGBtoHSB(r, g, b, res);
 
@@ -1227,7 +1227,7 @@ public class CustomPalette extends Palette {
             g = colors[p][2];
             b = colors[p][3];
 
-            float res[] = new float[3];
+            float[] res = new float[3];
 
             Color.RGBtoHSB(r, g, b, res);
 
@@ -1276,7 +1276,7 @@ public class CustomPalette extends Palette {
             g = colors[p][2];
             b = colors[p][3];
 
-            float res[] = new float[3];
+            float[] res = new float[3];
 
             Color.RGBtoHSB(r, g, b, res);
 
@@ -1325,7 +1325,7 @@ public class CustomPalette extends Palette {
             g = colors[p][2];
             b = colors[p][3];
 
-            float res[] = new float[3];
+            float[] res = new float[3];
 
             Color.RGBtoHSB(r, g, b, res);
 
@@ -1418,7 +1418,7 @@ public class CustomPalette extends Palette {
             g = colors[p][2];
             b = colors[p][3];
 
-            double res[] = ColorSpaceConverter.RGBtoRYB(r, g, b);
+            double[] res = ColorSpaceConverter.RGBtoRYB(r, g, b);
 
             double valr = res[0] + number;
             double valy = res[1] + number;
@@ -1718,7 +1718,7 @@ public class CustomPalette extends Palette {
 
     private static void histogramEqualization(int[] palette, int processing_alg) {
 
-        int hist[] = new int[1025];
+        int[] hist = new int[1025];
 
         int i;
         double mult, count, percentage, next_percentage;
@@ -1735,7 +1735,7 @@ public class CustomPalette extends Palette {
             b = palette[p] & 0xff;
 
             if (processing_alg == MainWindow.PROCESSING_HISTOGRAM_BRIGHTNESS) {
-                float res[] = new float[3];
+                float[] res = new float[3];
                 Color.RGBtoHSB(r, g, b, res);
                 hist[(int) (res[2] * hist_len + 0.5)]++;
             } else {
@@ -1798,7 +1798,7 @@ public class CustomPalette extends Palette {
             b = palette[p] & 0xff;
 
             if (processing_alg == MainWindow.PROCESSING_HISTOGRAM_BRIGHTNESS) {
-                float res[] = new float[3];
+                float[] res = new float[3];
 
                 Color.RGBtoHSB(r, g, b, res);
 

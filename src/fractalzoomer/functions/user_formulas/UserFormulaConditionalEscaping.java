@@ -196,9 +196,11 @@ public class UserFormulaConditionalEscaping extends Julia {
             parser[0].setCvalue(complex[1]);
         }
 
-        for (int i = 0; i < Parser.EXTRA_VARS; i++) {
-            if (parser[0].foundVar(i)) {
-                parser[0].setVarsvalue(i, globalVars[i]);
+        if(parser[0].foundAnyVar()) {
+            for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+                if (parser[0].foundVar(i)) {
+                    parser[0].setVarsvalue(i, globalVars[i]);
+                }
             }
         }
 
@@ -215,9 +217,11 @@ public class UserFormulaConditionalEscaping extends Julia {
             parser[1].setCvalue(complex[1]);
         }
 
-        for (int i = 0; i < Parser.EXTRA_VARS; i++) {
-            if (parser[1].foundVar(i)) {
-                parser[1].setVarsvalue(i, globalVars[i]);
+        if(parser[1].foundAnyVar()) {
+            for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+                if (parser[1].foundVar(i)) {
+                    parser[1].setVarsvalue(i, globalVars[i]);
+                }
             }
         }
 
@@ -236,9 +240,11 @@ public class UserFormulaConditionalEscaping extends Julia {
                 parser2[0].setCvalue(complex[1]);
             }
 
-            for (int i = 0; i < Parser.EXTRA_VARS; i++) {
-                if (parser2[0].foundVar(i)) {
-                    parser2[0].setVarsvalue(i, globalVars[i]);
+            if(parser2[0].foundAnyVar()) {
+                for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+                    if (parser2[0].foundVar(i)) {
+                        parser2[0].setVarsvalue(i, globalVars[i]);
+                    }
                 }
             }
 
@@ -256,9 +262,11 @@ public class UserFormulaConditionalEscaping extends Julia {
                 parser2[1].setCvalue(complex[1]);
             }
 
-            for (int i = 0; i < Parser.EXTRA_VARS; i++) {
-                if (parser2[1].foundVar(i)) {
-                    parser2[1].setVarsvalue(i, globalVars[i]);
+            if(parser2[1].foundAnyVar()) {
+                for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+                    if (parser2[1].foundVar(i)) {
+                        parser2[1].setVarsvalue(i, globalVars[i]);
+                    }
                 }
             }
 
@@ -276,9 +284,11 @@ public class UserFormulaConditionalEscaping extends Julia {
                 parser2[2].setCvalue(complex[1]);
             }
 
-            for (int i = 0; i < Parser.EXTRA_VARS; i++) {
-                if (parser2[2].foundVar(i)) {
-                    parser2[2].setVarsvalue(i, globalVars[i]);
+            if(parser2[2].foundAnyVar()) {
+                for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+                    if (parser2[2].foundVar(i)) {
+                        parser2[2].setVarsvalue(i, globalVars[i]);
+                    }
                 }
             }
 

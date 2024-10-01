@@ -4,7 +4,14 @@ package fractalzoomer.core.rendering_algorithms;
 import fractalzoomer.core.TaskRender;
 import fractalzoomer.core.location.Location;
 import fractalzoomer.main.Constants;
+import fractalzoomer.main.MainWindow;
+import fractalzoomer.main.app_settings.*;
+import fractalzoomer.utils.Square;
 import fractalzoomer.utils.StopSuccessiveRefinementException;
+import org.apfloat.Apfloat;
+
+import java.awt.*;
+import java.awt.image.BufferedImage;
 
 /**
  *
@@ -18,7 +25,12 @@ public class BoundaryTracing3Render extends TaskRender {
     private static final int LEFT  = 1;
     private static final int UP = 2;
     private static final int DOWN = 3;
-    private void Trace(int x, int y, int pix, Location location, int image_width, int culcColor)
+
+    public BoundaryTracing3Render(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, D3Settings d3s, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, boolean polar_projection, double circle_period, DomainColoringSettings ds, boolean inverse_dem, boolean quickRender, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring, BlendingSettings color_blending, int[] post_processing_order, PaletteGradientMergingSettings pbs, int gradient_offset, double contourFactor, GeneratedPaletteSettings gps, JitterSettings js, PostProcessSettings pps) {
+        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns, d3s, ptr, fractal_color, dem_color, image, fs, periodicity_checking, color_cycling_location, color_cycling_location2, exterior_de, exterior_de_factor, height_ratio,  polar_projection, circle_period,   ds, inverse_dem, quickRender, color_intensity, transfer_function, color_density, color_intensity2, transfer_function2, color_density2, usePaletteForInColoring,    color_blending,   post_processing_order,  pbs,  gradient_offset,  contourFactor, gps, js, pps);
+    }
+
+    private void Trace(int x, int y, int pix, Location location, int image_width, int culcColor, int FROMx, int TOx, int FROMy, int TOy)
     {
         int sx,sy,nextColor,dir=RIGHT;
         boolean fill = false;
@@ -414,31 +426,46 @@ public class BoundaryTracing3Render extends TaskRender {
 
         final int culcColor = Constants.EMPTY_ALPHA;
 
-        int last_rendering_done = 0;
+        int last_rendering_done = 0, iteration = 0;
 
         task_completed = 0;
 
         long time = System.currentTimeMillis();
 
-        stop:
-        for(int y = FROMy; y < TOy; y++) {
-            for (int x = FROMx, loc = y * image_width + x; x < TOx; x++, loc++) {
-                if (rgbs[loc] >>> 24 != culcColor) {
-                    continue;
-                }
-                Trace(x,y, loc, location, image_width, culcColor);
+        initializeRectangleAreasQueue(image_width, image_height);
 
-                int dif = rendering_done - last_rendering_done;
-                if (dif / pixel_percent >= 1) {
-                    update(dif);
-                    last_rendering_done = rendering_done;
-                }
+        do {
+            Square currentSquare = getNextRectangleArea(iteration);
 
-                if (rendering_done == totalPixels) {
-                    break stop;
+            if (currentSquare == null) {
+                break;
+            }
+            int FROMx = currentSquare.x1;
+            int TOx = currentSquare.x2;
+            int FROMy = currentSquare.y1;
+            int TOy = currentSquare.y2;
+
+            stop:
+            for (int y = FROMy; y < TOy; y++) {
+                for (int x = FROMx, loc = y * image_width + x; x < TOx; x++, loc++) {
+                    if (rgbs[loc] >>> 24 != culcColor) {
+                        continue;
+                    }
+                    Trace(x, y, loc, location, image_width, culcColor, FROMx, TOx, FROMy, TOy);
+
+                    int dif = rendering_done - last_rendering_done;
+                    if (dif / pixel_percent >= 1) {
+                        update(dif);
+                        last_rendering_done = rendering_done;
+                    }
+
+                    if (!SPLIT_INTO_RECTANGLE_AREAS && rendering_done == totalPixels) {
+                        break stop;
+                    }
                 }
             }
-        }
+            iteration++;
+        } while (true);
 
         int dif = rendering_done - last_rendering_done;
         if (dif > 0) {

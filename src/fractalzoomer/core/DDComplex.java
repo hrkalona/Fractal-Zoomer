@@ -326,6 +326,7 @@ public class DDComplex extends GenericComplex {
     /*
      *  z^3
      */
+    @Override
     public final DDComplex cubeFast(NormComponents normComponents) {
 
         DoubleDouble temp = (DoubleDouble)normComponents.reSqr;
@@ -508,6 +509,7 @@ public class DDComplex extends GenericComplex {
     /*
      *  -Real + Imaginary i
      */
+    @Override
     public final DDComplex negate_re() {
 
         return new DDComplex(re.negate(), im);
@@ -1701,5 +1703,12 @@ public class DDComplex extends GenericComplex {
     @Override
     public Object Norm() {
         return norm();
+    }
+
+    @Override
+    public final DDComplex negate_re_mutable() {
+
+        return negate_re();
+
     }
 }

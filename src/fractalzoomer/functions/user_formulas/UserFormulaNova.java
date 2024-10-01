@@ -667,9 +667,11 @@ public class UserFormulaNova extends ExtendedConvergentType {
             parserAddend.setCvalue(complex[1]);
         }
 
-        for (int i = 0; i < Parser.EXTRA_VARS; i++) {
-            if (parserAddend.foundVar(i)) {
-                parserAddend.setVarsvalue(i, globalVars[i]);
+        if(parserAddend.foundAnyVar()) {
+            for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+                if (parserAddend.foundVar(i)) {
+                    parserAddend.setVarsvalue(i, globalVars[i]);
+                }
             }
         }
 
@@ -688,9 +690,11 @@ public class UserFormulaNova extends ExtendedConvergentType {
             parserRelaxation.setCvalue(complex[1]);
         }
 
-        for (int i = 0; i < Parser.EXTRA_VARS; i++) {
-            if (parserRelaxation.foundVar(i)) {
-                parserRelaxation.setVarsvalue(i, globalVars[i]);
+        if(parserRelaxation.foundAnyVar()) {
+            for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+                if (parserRelaxation.foundVar(i)) {
+                    parserRelaxation.setVarsvalue(i, globalVars[i]);
+                }
             }
         }
 
@@ -709,9 +713,11 @@ public class UserFormulaNova extends ExtendedConvergentType {
             parser.setCvalue(complex[1]);
         }
 
-        for (int i = 0; i < Parser.EXTRA_VARS; i++) {
-            if (parser.foundVar(i)) {
-                parser.setVarsvalue(i, globalVars[i]);
+        if(parser.foundAnyVar()) {
+            for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+                if (parser.foundVar(i)) {
+                    parser.setVarsvalue(i, globalVars[i]);
+                }
             }
         }
 
@@ -736,9 +742,11 @@ public class UserFormulaNova extends ExtendedConvergentType {
                     parser2.setCvalue(complex[1]);
                 }
 
-                for (int i = 0; i < Parser.EXTRA_VARS; i++) {
-                    if (parser2.foundVar(i)) {
-                        parser2.setVarsvalue(i, globalVars[i]);
+                if(parser2.foundAnyVar()) {
+                    for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+                        if (parser2.foundVar(i)) {
+                            parser2.setVarsvalue(i, globalVars[i]);
+                        }
                     }
                 }
 
@@ -791,9 +799,11 @@ public class UserFormulaNova extends ExtendedConvergentType {
                     parser3.setCvalue(complex[1]);
                 }
 
-                for (int i = 0; i < Parser.EXTRA_VARS; i++) {
-                    if (parser3.foundVar(i)) {
-                        parser3.setVarsvalue(i, globalVars[i]);
+                if(parser3.foundAnyVar()) {
+                    for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+                        if (parser3.foundVar(i)) {
+                            parser3.setVarsvalue(i, globalVars[i]);
+                        }
                     }
                 }
 
@@ -834,9 +844,11 @@ public class UserFormulaNova extends ExtendedConvergentType {
                     parser4.setCvalue(complex[1]);
                 }
 
-                for (int i = 0; i < Parser.EXTRA_VARS; i++) {
-                    if (parser4.foundVar(i)) {
-                        parser4.setVarsvalue(i, globalVars[i]);
+                if(parser4.foundAnyVar()) {
+                    for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+                        if (parser4.foundVar(i)) {
+                            parser4.setVarsvalue(i, globalVars[i]);
+                        }
                     }
                 }
 
@@ -1098,9 +1110,11 @@ public class UserFormulaNova extends ExtendedConvergentType {
                 parser.setCvalue(complex[1]);
             }
 
-            for (int i = 0; i < Parser.EXTRA_VARS; i++) {
-                if (parser.foundVar(i)) {
-                    parser.setVarsvalue(i, globalVars[i]);
+            if(parser.foundAnyVar()) {
+                for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+                    if (parser.foundVar(i)) {
+                        parser.setVarsvalue(i, globalVars[i]);
+                    }
                 }
             }
 
@@ -1120,9 +1134,11 @@ public class UserFormulaNova extends ExtendedConvergentType {
                 parser.setCvalue(complex[1]);
             }
 
-            for (int i = 0; i < Parser.EXTRA_VARS; i++) {
-                if (parser.foundVar(i)) {
-                    parser.setVarsvalue(i, globalVars[i]);
+            if(parser.foundAnyVar()) {
+                for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+                    if (parser.foundVar(i)) {
+                        parser.setVarsvalue(i, globalVars[i]);
+                    }
                 }
             }
 
@@ -1499,9 +1515,11 @@ public class UserFormulaNova extends ExtendedConvergentType {
             parser.setCvalue(c);
         }
 
-        for (int i = 0; i < Parser.EXTRA_VARS; i++) {
-            if (parser.foundVar(i)) {
-                parser.setVarsvalue(i, globalVars[i]);
+        if(parser.foundAnyVar()) {
+            for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+                if (parser.foundVar(i)) {
+                    parser.setVarsvalue(i, globalVars[i]);
+                }
             }
         }
 

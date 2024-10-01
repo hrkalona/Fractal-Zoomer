@@ -207,12 +207,12 @@ public class CommonFunctions implements Constants {
     }
 
 
-    public void threadStats(JFrame ptr, TaskRender[][] tasks) {
+    public void taskStats(JFrame ptr, TaskRender[][] tasks) {
         JEditorPane textArea = new JEditorPane();
 
         textArea.setEditable(false);
         textArea.setContentType("text/html");
-        textArea.setPreferredSize(new Dimension(500, 400));
+        textArea.setPreferredSize(new Dimension(500, 300));
         //textArea.setLineWrap(false);
         //textArea.setWrapStyleWord(false);
 
@@ -306,7 +306,7 @@ public class CommonFunctions implements Constants {
 
         pixelcountStatistics.setFocusable(false);
 
-        JButton pixelCalculationTime = new JButton("Pixel Elapsed Time Statistics");
+        JButton pixelCalculationTime = new JButton("Elapsed Time Statistics");
         pixelCalculationTime.setIcon(MainWindow.getIcon("bar_chart.png"));
 
         pixelCalculationTime.setFocusable(false);
@@ -315,12 +315,41 @@ public class CommonFunctions implements Constants {
 
         pixelCalculationTime.addActionListener( e-> new TaskElapsedTimeChartDialog(ptr, taskStatistics, maxTime, maxTimePostProcessing).setVisible(true));
 
+        JButton guessedPixels = new JButton("Guessed Pixels Statistics");
+        guessedPixels.setIcon(MainWindow.getIcon("pie_chart.png"));
+
+        guessedPixels.setFocusable(false);
+        guessedPixels.addActionListener(e -> new TaskGuessedPixelChartDialog(ptr, taskStatistics).setVisible(true));
+
+        JButton calculatedPixels = new JButton("Calculated Pixels Statistics");
+        calculatedPixels.setIcon(MainWindow.getIcon("pie_chart.png"));
+
+        calculatedPixels.setFocusable(false);
+        calculatedPixels.addActionListener(e -> new TaskCalculatedPixelChartDialog(ptr, taskStatistics).setVisible(true));
+
+        JButton completedPixels = new JButton("Completed Pixels Statistics");
+        completedPixels.setIcon(MainWindow.getIcon("pie_chart.png"));
+
+        completedPixels.setFocusable(false);
+        completedPixels.addActionListener(e -> new TaskCompletedPixelChartDialog(ptr, taskStatistics).setVisible(true));
+
+        JButton pixelCalculationElapsedTime = new JButton("Pixel Calculation Elapsed Time Statistics");
+        pixelCalculationElapsedTime.setIcon(MainWindow.getIcon("pie_chart.png"));
+
+        pixelCalculationElapsedTime.setFocusable(false);
+        pixelCalculationElapsedTime.addActionListener(e -> new TaskPixelCalculationElapsedTimeChartDialog(ptr, taskStatistics, maxTime).setVisible(true));
+
+
         Object[] message = {
                 " ",
                 scroll_pane_2,
                 " ",
                 pixelCalculationTime,
                 pixelcountStatistics,
+                pixelCalculationElapsedTime,
+                calculatedPixels,
+                guessedPixels,
+                completedPixels,
                 " "};
 
         textArea.setCaretPosition(0);
@@ -336,14 +365,14 @@ public class CommonFunctions implements Constants {
             pb = ((MainWindow)ptr).getProgressBar();
         }
         else {
-            pb = ((ImageExpanderWindow)ptr).getProgressBar();
+            pb = ((MinimalRendererWindow)ptr).getProgressBar();
         }
 
         textArea.setEditable(false);
         textArea.setContentType("text/html");
-        textArea.setPreferredSize(new Dimension(500, 400));
-        textArea.setMaximumSize(new Dimension(500, 400));
-        textArea.setSize(new Dimension(500, 400));
+        textArea.setPreferredSize(new Dimension(500, 300));
+        textArea.setMaximumSize(new Dimension(500, 300));
+        textArea.setSize(new Dimension(500, 300));
         //textArea.setLineWrap(false);
         //textArea.setWrapStyleWord(false);
 
@@ -419,7 +448,7 @@ public class CommonFunctions implements Constants {
 
         textArea.setCaretPosition(0);
 
-        int res = JOptionPane.showOptionDialog(ptr, message, "Statistics", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, MainWindow.getIcon("stats_large.png"), null, null);
+        JOptionPane.showOptionDialog(ptr, message, "Statistics", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, MainWindow.getIcon("stats_large.png"), null, null);
 
         timer.cancel();
         timer2.cancel();
@@ -2273,8 +2302,6 @@ public class CommonFunctions implements Constants {
                         try {
                             File file = file_chooser.getSelectedFile();
 
-                            FileNameExtensionFilter filter = (FileNameExtensionFilter) file_chooser.getFileFilter();
-
                             if (!file.getAbsolutePath().endsWith(".html")) {
                                 file = new File(file.getAbsolutePath() + ".html");
                             }
@@ -2305,7 +2332,7 @@ public class CommonFunctions implements Constants {
 
                 textArea.setCaretPosition(0);
 
-                int res = JOptionPane.showOptionDialog(parent, message, "Options Overview", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, MainWindow.getIcon("overview_large.png"), null, null);
+                JOptionPane.showOptionDialog(parent, message, "Options Overview", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, MainWindow.getIcon("overview_large.png"), null, null);
 
             }
         } else {
@@ -2314,7 +2341,7 @@ public class CommonFunctions implements Constants {
 
             textArea.setCaretPosition(0);
 
-            int res = JOptionPane.showOptionDialog(parent, message, "Options Overview", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, MainWindow.getIcon("overview_large.png"), null, null);
+            JOptionPane.showOptionDialog(parent, message, "Options Overview", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, MainWindow.getIcon("overview_large.png"), null, null);
         }
 
     }

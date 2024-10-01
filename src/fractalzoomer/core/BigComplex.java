@@ -435,6 +435,7 @@ public class BigComplex extends GenericComplex {
     /*
      *  -Real + Imaginary i
      */
+    @Override
     public final BigComplex negate_re() {
 
         return new BigComplex(re.negate(), im);
@@ -837,6 +838,7 @@ public class BigComplex extends GenericComplex {
     /*
      *  z^3
      */
+    @Override
     public final BigComplex cubeFast(NormComponents normComponents) {
 
         Apfloat temp = (Apfloat) normComponents.reSqr;
@@ -1125,4 +1127,16 @@ public class BigComplex extends GenericComplex {
 
     @Override
     public BigComplex times2_mutable() {return times2();}
+
+    @Override
+    public BigComplex negative_mutable() {
+        return negative();
+    }
+
+    @Override
+    public final BigComplex negate_re_mutable() {
+
+        return negate_re();
+
+    }
 }

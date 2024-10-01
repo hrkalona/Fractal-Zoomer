@@ -22,7 +22,7 @@ public class SelectionRectangle {
 
     private static final Stroke SELECTION_STOKE_1 = new BasicStroke(1);
 
-    private static enum SelectionMode { NONE, WAIT, RESIZE, MOVE, ROTATE };
+    private static enum SelectionMode { NONE, WAIT, RESIZE, MOVE, ROTATE }
 
     private int[] selX = new int[6];
     private int[] selY = new int[6];

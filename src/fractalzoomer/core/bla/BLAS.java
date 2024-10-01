@@ -13,7 +13,7 @@ import static fractalzoomer.main.Constants.BLA_CALCULATION_STR;
 public class BLAS {
     public int M;
     public int L;
-    private int LM2;//Level -1 is not attainable due to Zero R
+    private int LM1;//Level -1
     public BLA[][] b;
     public BLADeep[][] bdeep;
     public boolean isValid;
@@ -49,18 +49,6 @@ public class BLAS {
         return BLADeep1Step.create(r2, A);
     }
 
-    private void initLStep(int level, int m, DoubleReference Ref, double blaSize, double epsilon, ReferenceDecompressor referenceDecompressor) {
-
-        b[level][m - 1] = createLStep(level, m, Ref, blaSize, epsilon, referenceDecompressor);
-
-    }
-
-    private void initLStep(int level, int m, DeepReference Ref, MantExp blaSize, MantExp epsilon, ReferenceDecompressor referenceDecompressor) {
-
-        bdeep[level][m - 1] = createLStep(level, m, Ref, blaSize, epsilon, referenceDecompressor);
-
-    }
-
     private BLA mergeTwoBlas(BLA x, BLA y, double blaSize) {
         int l = x.getL() + y.getL();
         // A = y.A * x.A
@@ -71,12 +59,7 @@ public class BLAS {
         double xB = x.hypotB();
         double r = Math.min(Math.sqrt(x.r2), Math.max(0, (Math.sqrt(y.r2) - xB * blaSize) / xA));
         double r2 = r * r;
-        return new BLALStep(r2, A, B) {
-            @Override
-            public int getL() {
-                return l;
-            }
-        };
+        return new BLALStep(r2, A, B, l);
     }
 
     private BLADeep mergeTwoBlas(BLADeep x, BLADeep y, MantExp blaSize) {
@@ -159,12 +142,12 @@ public class BLAS {
     private long old_chunk;
     private void init(DoubleReference Ref, double blaSize, double epsilon, JProgressBar progress, long divisor) {
 
-        int elements = elementsPerLevel[firstLevel] + 1;
+        int elements = elementsPerLevel[firstLevel];
         if(TaskRender.USE_THREADS_FOR_BLA) {
             done = 0; //we dont care fore race condition
 
             ArrayList<Future<?>> futures = new ArrayList<>();
-            final int ThreadCount = TaskRender.la_thread_executor.getCorePoolSize();
+            final int ThreadCount = TaskRender.approximation_thread_executor.getCorePoolSize();
             Runnable[] Tasks = new Runnable[ThreadCount];
 
             long expectedVal = done + elements;
@@ -180,12 +163,10 @@ public class BLAS {
                             int Start = (int)((long)elements * ThreadID / ThreadCount);
                             int End = (int)((long)elements * (ThreadID + 1) / ThreadCount);
 
-                            Start = ThreadID == 0 ? Start + 1 : Start;
-
                             ReferenceDecompressor referenceDecompressor = referenceDecompressors[ThreadID];
 
                             for(int m = Start; m < End; m++) {
-                                initLStep(firstLevel, m, Ref, blaSize, epsilon, referenceDecompressor);
+                                b[firstLevel][m] = createLStep(firstLevel, m + 1, Ref, blaSize, epsilon, referenceDecompressor);
 
                                 if (progress != null) {
                                     if (ThreadID == 0) {
@@ -209,7 +190,7 @@ public class BLAS {
                 }
 
                 for (int i = 0; i < Tasks.length; i++) {
-                    futures.add(TaskRender.la_thread_executor.submit(Tasks[i]));
+                    futures.add(TaskRender.approximation_thread_executor.submit(Tasks[i]));
                 }
 
                 for (int i = 0; i < futures.size(); i++) {
@@ -227,8 +208,9 @@ public class BLAS {
         }
         else {
             done = 0;
-            for(int m = 1; m < elements; m++) {
-                initLStep(firstLevel, m, Ref, blaSize, epsilon, referenceDecompressor);
+            for(int m = 0; m < elements; m++) {
+                b[firstLevel][m] = createLStep(firstLevel, m + 1, Ref, blaSize, epsilon, referenceDecompressor);
+
                 if (progress != null) {
                     done++;
                     long val = done;
@@ -256,13 +238,13 @@ public class BLAS {
 
     private void init(DeepReference Ref, MantExp blaSize, MantExp epsilon, JProgressBar progress, long divisor) {
 
-        int elements = elementsPerLevel[firstLevel] + 1;
+        int elements = elementsPerLevel[firstLevel];
         if(TaskRender.USE_THREADS_FOR_BLA) {
 
             done = 0; //we dont care for race conditions
 
             ArrayList<Future<?>> futures = new ArrayList<>();
-            final int ThreadCount = TaskRender.la_thread_executor.getCorePoolSize();
+            final int ThreadCount = TaskRender.approximation_thread_executor.getCorePoolSize();
             Runnable[] Tasks = new Runnable[ThreadCount];
 
             long expectedVal = done + elements;
@@ -279,10 +261,8 @@ public class BLAS {
                             int End = (int)((long)elements * (ThreadID + 1) / ThreadCount);
                             ReferenceDecompressor referenceDecompressor = referenceDecompressors[ThreadID];
 
-                            Start = ThreadID == 0 ? Start + 1 : Start;
-
                             for(int m = Start; m < End; m++) {
-                                initLStep(firstLevel, m , Ref, blaSize, epsilon, referenceDecompressor);
+                                bdeep[firstLevel][m] = createLStep(firstLevel, m + 1, Ref, blaSize, epsilon, referenceDecompressor);
                                 if (progress != null) {
                                     if (ThreadID == 0) {
                                         done++;
@@ -304,7 +284,7 @@ public class BLAS {
                 }
 
                 for (int i = 0; i < Tasks.length; i++) {
-                    futures.add(TaskRender.la_thread_executor.submit(Tasks[i]));
+                    futures.add(TaskRender.approximation_thread_executor.submit(Tasks[i]));
                 }
 
                 for (int i = 0; i < futures.size(); i++) {
@@ -322,8 +302,8 @@ public class BLAS {
         }
         else {
             done = 0;
-            for(int m = 1; m < elements; m++) {
-                initLStep(firstLevel, m , Ref, blaSize, epsilon, referenceDecompressor);
+            for(int m = 0; m < elements; m++) {
+                bdeep[firstLevel][m] = createLStep(firstLevel, m + 1, Ref, blaSize, epsilon, referenceDecompressor);
                 if (progress != null) {
                     done++;
                     long val = done;
@@ -388,7 +368,7 @@ public class BLAS {
             if(useThreadsForBla) {
 
                 ArrayList<Future<?>> futures = new ArrayList<>();
-                final int ThreadCount = TaskRender.la_thread_executor.getCorePoolSize();
+                final int ThreadCount = TaskRender.approximation_thread_executor.getCorePoolSize();
                 Runnable[] Tasks = new Runnable[ThreadCount];
 
                 long expectedVal = done + elementsDst;
@@ -428,7 +408,7 @@ public class BLAS {
                     }
 
                     for (int i = 0; i < Tasks.length; i++) {
-                        futures.add(TaskRender.la_thread_executor.submit(Tasks[i]));
+                        futures.add(TaskRender.approximation_thread_executor.submit(Tasks[i]));
                     }
 
                     for (int i = 0; i < futures.size(); i++) {
@@ -489,7 +469,7 @@ public class BLAS {
             if(useThreadsForBla) {
 
                 ArrayList<Future<?>> futures = new ArrayList<>();
-                final int ThreadCount = TaskRender.la_thread_executor.getCorePoolSize();
+                final int ThreadCount = TaskRender.approximation_thread_executor.getCorePoolSize();
                 Runnable[] Tasks = new Runnable[ThreadCount];
 
                 long expectedVal = done + elementsDst;
@@ -529,7 +509,7 @@ public class BLAS {
                     }
 
                     for (int i = 0; i < Tasks.length; i++) {
-                        futures.add(TaskRender.la_thread_executor.submit(Tasks[i]));
+                        futures.add(TaskRender.approximation_thread_executor.submit(Tasks[i]));
                     }
 
                     for (int i = 0; i < futures.size(); i++) {
@@ -618,7 +598,7 @@ public class BLAS {
 
         L = count;
         b = new BLA[count][];
-        LM2 = L - 2;
+        LM1 = L - 1;
 
         if(firstLevel >= elementsPerLevel.length){
             return;
@@ -633,7 +613,7 @@ public class BLAS {
         }
 
         if(TaskRender.USE_THREADS_FOR_BLA) {
-            referenceDecompressors = new ReferenceDecompressor[TaskRender.la_thread_executor.getCorePoolSize()];
+            referenceDecompressors = new ReferenceDecompressor[TaskRender.approximation_thread_executor.getCorePoolSize()];
             if (referenceDecompressor != null) {
                 for (int i = 0; i < referenceDecompressors.length; i++) {
                     referenceDecompressors[i] = new ReferenceDecompressor(referenceDecompressor);
@@ -700,7 +680,7 @@ public class BLAS {
 
         L = count;
         bdeep = new BLADeep[count][];
-        LM2 = L - 2;
+        LM1 = L - 1;
 
         if(firstLevel >= elementsPerLevel.length){
             return;
@@ -715,7 +695,7 @@ public class BLAS {
         }
 
         if(TaskRender.USE_THREADS_FOR_BLA) {
-            referenceDecompressors = new ReferenceDecompressor[TaskRender.la_thread_executor.getCorePoolSize()];
+            referenceDecompressors = new ReferenceDecompressor[TaskRender.approximation_thread_executor.getCorePoolSize()];
             if (referenceDecompressor != null) {
                 for (int i = 0; i < referenceDecompressors.length; i++) {
                     referenceDecompressors[i] = new ReferenceDecompressor(referenceDecompressor);
@@ -740,7 +720,7 @@ public class BLAS {
     }
 
     public BLA lookup(int m, double z2, int iterations, int max_iterations) {
-        if (m == 0) {
+        if (m == 0 || m >= M) {
             return null;
         }
 
@@ -763,7 +743,7 @@ public class BLAS {
 
     public BLA lookupBackwards(int m, double z2, int iterations, int max_iterations) {
 
-        if (m == 0) {
+        if (m == 0 || m >= M) {
             return null;
         }
 
@@ -793,12 +773,10 @@ public class BLAS {
             ix = k >>> zeros;
         }
 
-        int startLevel = zeros <= LM2 ? zeros : LM2;
+        int startLevel = zeros <= LM1 ? zeros : LM1;
         for (int level = startLevel; level >= firstLevel; --level) {
-            if (z2 < (tempB = b[level][ix]).r2) {
-                if(iterations + tempB.getL() <= max_iterations) {
-                    return tempB;
-                }
+            if (z2 < (tempB = b[level][ix]).r2 && iterations + tempB.getL() <= max_iterations) {
+                return tempB;
             }
             ix = ix << 1;
         }
@@ -806,7 +784,7 @@ public class BLAS {
     }
 
     public BLADeep lookup(int m, MantExp z2, int iterations, int max_iterations) {
-        if (m == 0) {
+        if (m == 0 || m >= M) {
             return null;
         }
 
@@ -816,8 +794,10 @@ public class BLAS {
         int ix = (m - 1) >>> firstLevel;
         for (int level = firstLevel; level < L; ++level) {
             int ixm = (ix << level) + 1;
-            if (m == ixm && z2.compareToBothPositiveReduced((tempB = bdeep[level][ix]).getR2()) < 0) {
-                if(iterations + tempB.getL() <= max_iterations) {
+            if (m == ixm) {
+                tempB = bdeep[level][ix];
+                if(z2.compareToBothPositiveReduced(tempB.r2exp, tempB.r2) < 0
+                        && iterations + tempB.getL() <= max_iterations) {
                     B = tempB;
                 }
             } else {
@@ -830,7 +810,7 @@ public class BLAS {
 
     public BLADeep lookupBackwards(int m, MantExp z2, int iterations, int max_iterations) {
 
-        if (m == 0) {
+        if (m == 0 || m >= M) {
             return null;
         }
 
@@ -839,8 +819,11 @@ public class BLAS {
         int k = m - 1;
 
         if((k & 1) == 1) { // m - 1 is odd
-            if (returnL1 && z2.compareToBothPositiveReduced((tempB = bdeep[0][k]).getR2()) < 0) {
-                return tempB;
+            if(returnL1) {
+                tempB = bdeep[0][k];
+                if(z2.compareToBothPositiveReduced(tempB.r2exp, tempB.r2) < 0) {
+                    return tempB;
+                }
             }
             return null;
         }
@@ -848,7 +831,8 @@ public class BLAS {
         int zeros;
         int ix;
         if(k == 0) {
-            if(z2.compareToBothPositiveReduced(bdeep[firstLevel][0].getR2()) >= 0) { //k >>> firstLevel, This could be done for all K values, but it was shown through statistics that most effort is done on k == 0
+            BLADeep bd = bdeep[firstLevel][0];
+            if(z2.compareToBothPositiveReduced(bd.r2exp, bd.r2) >= 0) { //k >>> firstLevel, This could be done for all K values, but it was shown through statistics that most effort is done on k == 0
                 return null;
             }
 
@@ -861,12 +845,11 @@ public class BLAS {
             ix = k >>> zeros;
         }
 
-        int startLevel = zeros <= LM2 ? zeros : LM2;
+        int startLevel = zeros <= LM1 ? zeros : LM1;
         for (int level = startLevel; level >= firstLevel; --level) {
-            if (z2.compareToBothPositiveReduced((tempB = bdeep[level][ix]).getR2()) < 0) {
-                if(iterations + tempB.getL() <= max_iterations) {
-                    return tempB;
-                }
+            tempB = bdeep[level][ix];
+            if (z2.compareToBothPositiveReduced(tempB.r2exp, tempB.r2) < 0 && iterations + tempB.getL() <= max_iterations) {
+                return tempB;
             }
             ix = ix << 1;
         }

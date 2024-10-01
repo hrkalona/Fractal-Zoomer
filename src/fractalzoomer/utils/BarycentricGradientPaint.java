@@ -363,10 +363,8 @@ public class BarycentricGradientPaint implements Paint {
             int[] toCache = dataFromRaster(ras);
             if (cache != null) {
                 int[] data = cache.get();
-                if (data != null) {
-                    if (toCache.length < data.length) {
-                        return;
-                    }
+                if (data != null && toCache.length < data.length) {
+                    return;
                 }
             }
             cache = new WeakReference<>(toCache);
@@ -374,8 +372,7 @@ public class BarycentricGradientPaint implements Paint {
 
         protected WritableRaster createRaster(int w, int h, int[] data) {
             DataBufferInt buffer = new DataBufferInt(data, w*h);
-            WritableRaster raster = Raster.createPackedRaster(buffer, w, h, w, cm.getMasks(), null);
-            return raster;
+            return Raster.createPackedRaster(buffer, w, h, w, cm.getMasks(), null);
         }
 
         private static int[] dataFromRaster(WritableRaster wr) {

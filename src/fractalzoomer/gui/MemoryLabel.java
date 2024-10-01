@@ -21,7 +21,7 @@ import static fractalzoomer.main.CommonFunctions.makeRoundedCorner;
  */
 public class MemoryLabel extends JLabel {
 	private static final long serialVersionUID = 3645023799182837311L;
-	private final double MiB = 1024.0 * 1024.0;
+	private static final double MiB = 1024.0 * 1024.0;
     private double maxMemory;
     private final double installedMemory = getInstalledMemory() / MiB;
     private double allocatedMemory, usedMemory;

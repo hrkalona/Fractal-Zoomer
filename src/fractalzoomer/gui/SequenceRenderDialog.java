@@ -4,7 +4,7 @@ package fractalzoomer.gui;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fractalzoomer.core.MyApfloat;
 import fractalzoomer.functions.Fractal;
-import fractalzoomer.main.ImageExpanderWindow;
+import fractalzoomer.main.MinimalRendererWindow;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
 import fractalzoomer.main.app_settings.ZoomSequenceSettings;
@@ -27,7 +27,7 @@ import static fractalzoomer.gui.CenterSizeDialog.TEMPLATE_TFIELD;
  */
 public class SequenceRenderDialog extends JDialog {
 
-    private ImageExpanderWindow ptra;
+    private MinimalRendererWindow ptra;
     private JOptionPane optionPane;
 
     private final JScrollPane scrollPane;
@@ -54,7 +54,7 @@ public class SequenceRenderDialog extends JDialog {
 
     private JTextField startAtIndex;
 
-    public SequenceRenderDialog(ImageExpanderWindow ptr, Settings s, ZoomSequenceSettings zss) {
+    public SequenceRenderDialog(MinimalRendererWindow ptr, Settings s, ZoomSequenceSettings zss) {
 
         super(ptr);
         
@@ -344,7 +344,7 @@ public class SequenceRenderDialog extends JDialog {
 
     private void load(Settings s) {
 
-        JFileChooser file_chooser = new JFileChooser(ImageExpanderWindow.outputDirectory);
+        JFileChooser file_chooser = new JFileChooser(MinimalRendererWindow.outputDirectory);
 
         file_chooser.setAcceptAllFileFilterUsed(false);
         file_chooser.setDialogType(JFileChooser.OPEN_DIALOG);

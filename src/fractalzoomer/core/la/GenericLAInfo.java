@@ -111,17 +111,17 @@ public abstract class GenericLAInfo {
     protected abstract boolean isLAThresholdZero();
     protected abstract boolean isZCoeffZero();
 
-    protected abstract boolean DetectPeriod(Complex z);
-    protected abstract boolean Stage0DetectPeriod(Complex z);
-    protected abstract boolean DetectPeriod(MantExpComplex z);
-    protected abstract boolean Stage0DetectPeriod(MantExpComplex z);
+    protected abstract boolean DetectDip(Complex z);
+    protected abstract boolean Stage0DetectDip(Complex z);
+    protected abstract boolean DetectDip(MantExpComplex z);
+    protected abstract boolean Stage0DetectDip(MantExpComplex z);
 
-    protected boolean DetectPeriod(GenericComplex z) {
+    protected boolean DetectDip(GenericComplex z) {
         if(z instanceof  Complex) {
-            return DetectPeriod((Complex) z);
+            return DetectDip((Complex) z);
         }
         else {
-            return DetectPeriod((MantExpComplex) z);
+            return DetectDip((MantExpComplex) z);
         }
     }
 

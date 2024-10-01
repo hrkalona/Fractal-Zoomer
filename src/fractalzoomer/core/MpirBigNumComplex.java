@@ -632,6 +632,7 @@ public class MpirBigNumComplex extends GenericComplex {
 
     }
 
+    @Override
     public final MpirBigNumComplex cubeFast(NormComponents normComponents) {
 
         MpirBigNum temp = (MpirBigNum)normComponents.reSqr;
@@ -1025,6 +1026,7 @@ public class MpirBigNumComplex extends GenericComplex {
     /*
      *  -Real + Imaginary i
      */
+    @Override
     public final MpirBigNumComplex negate_re() {
 
         return new MpirBigNumComplex(re.negate(), new MpirBigNum(im));
@@ -1034,6 +1036,7 @@ public class MpirBigNumComplex extends GenericComplex {
     /*
      *  z = -Real + Imaginary i
      */
+    @Override
     public final MpirBigNumComplex negate_re_mutable() {
 
         re.negate(re);

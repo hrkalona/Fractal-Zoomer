@@ -1,38 +1,38 @@
-package fractalzoomer.utils;
+package fractalzoomer.utils.big_arrays;
 
 import java.util.Arrays;
 
-public class BigArrayLong {
-    private long [][] array;
+public class BigArrayDouble {
+    private double [][] array;
     public long length;
 
-    public BigArrayLong(long length) {
+    public BigArrayDouble(long length) {
         this.length = length;
         int chucks = (int)(length >> BigArray.SHIFT) + 1;
         int remaining = (int)(length & BigArray.MAX_VALUE_M1);
 
-        array = new long[chucks][];
+        array = new double[chucks][];
 
         if(chucks == 1) {
-            array[0] = new long[remaining];
+            array[0] = new double[remaining];
         }
         else {
             int i = 0;
             for (; i < array.length - 1; i++) {
-                array[i] = new long[BigArray.MAX_VALUE];
+                array[i] = new double[BigArray.MAX_VALUE];
             }
-            array[i] = new long[remaining];
+            array[i] = new double[remaining];
         }
 
     }
 
-    public long get(long index) {
+    public double get(long index) {
         int i = (int)(index >> BigArray.SHIFT);
         int j = (int)(index & BigArray.MAX_VALUE_M1);
         return array[i][j];
     }
 
-    public void set(long index, long val) {
+    public void set(long index, double val) {
         int i = (int)(index >> BigArray.SHIFT);
         int j = (int)(index & BigArray.MAX_VALUE_M1);
         array[i][j] = val;
@@ -48,9 +48,9 @@ public class BigArrayLong {
         int chucks = (int)(length >> BigArray.SHIFT) + 1;
         int remaining = (int)(length & BigArray.MAX_VALUE_M1);
 
-        long[][] old_array = array;
+        double[][] old_array = array;
 
-        array = new long[chucks][];
+        array = new double[chucks][];
 
         int i = 0;
         for (; i < array.length - 1; i++) {

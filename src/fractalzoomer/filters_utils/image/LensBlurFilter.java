@@ -114,9 +114,6 @@ public class LensBlurFilter extends AbstractBufferedImageOp {
         int tileWidth = 128;
         int tileHeight = tileWidth;
 
-        int adjustedWidth = (int)(width + iradius*2);
-        int adjustedHeight = (int)(height + iradius*2);
-
 		tileWidth = iradius < 32 ? Math.min(128, width+2*iradius) : Math.min(256, width+2*iradius);
 		tileHeight = iradius < 32 ? Math.min(128, height+2*iradius) : Math.min(256, height+2*iradius);
 
@@ -238,14 +235,17 @@ public class LensBlurFilter extends AbstractBufferedImageOp {
                         float b = (rgb[k] & 0xff);
 
 						// Bloom...
-                        if ( r > bloomThreshold )
-							r *= bloom;
+                        if ( r > bloomThreshold ) {
+                            r *= bloom;
+                        }
 //							r = bloomThreshold + (r-bloomThreshold) * bloom;
-                        if ( g > bloomThreshold )
-							g *= bloom;
+                        if ( g > bloomThreshold ) {
+                            g *= bloom;
+                        }
 //							g = bloomThreshold + (g-bloomThreshold) * bloom;
-                        if ( b > bloomThreshold )
-							b *= bloom;
+                        if ( b > bloomThreshold ) {
+                            b *= bloom;
+                        }
 //							b = bloomThreshold + (b-bloomThreshold) * bloom;
 
 						ar[1][i] = r;

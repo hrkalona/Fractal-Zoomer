@@ -69,7 +69,8 @@ public class UnsharpFilter extends GaussianFilter {
 	public float getAmount() {
 		return amount;
 	}
-	
+
+	@Override
     public BufferedImage filter( BufferedImage src, BufferedImage dst ) {
         int width = src.getWidth();
         int height = src.getHeight();
@@ -119,6 +120,7 @@ public class UnsharpFilter extends GaussianFilter {
         return dst;
     }
 
+	@Override
 	public String toString() {
 		return "Blur/Unsharp Mask...";
 	}

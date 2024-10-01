@@ -1,5 +1,7 @@
 
-package fractalzoomer.utils;
+package fractalzoomer.utils.queues;
+
+import fractalzoomer.utils.Pixel;
 
 import java.util.Arrays;
 
@@ -7,7 +9,7 @@ import java.util.Arrays;
  *
  * @author hrkalona
  */
-public class ExpandingQueueSquare {
+public class ExpandingQueuePixel {
 
     private static final int LINKED_QUEUES_SIZE = 10;
     private Object[] LinkedQueues;
@@ -18,13 +20,13 @@ public class ExpandingQueueSquare {
     private int head;
     private int tail;
     private int initialAllocation;
-    private static final int dataSize = 5;
+    //private static final int dataSize = 2;
 
-    public ExpandingQueueSquare(int initSize) {
+    public ExpandingQueuePixel(int initSize) {
 
         LinkedQueues = new Object[LINKED_QUEUES_SIZE];
         head = tail = 0;
-        headQueue = tailQueue = new int[initSize * dataSize];
+        headQueue = tailQueue = new int[initSize << 1]; //datasize is 2
         LinkedQueues[0] = headQueue;
         size = 0;
         initialAllocation = initSize;
@@ -49,27 +51,21 @@ public class ExpandingQueueSquare {
         return size == 0;
     }
 
-    public void enqueue(Square item) {
+    public void enqueue(Pixel item) {
         /*if (item == null) {
             throw new NullPointerException("Item must not be null");
         }*/
 
         int locationInQueue = tail % initialAllocation;
 
-        int dataIndex = locationInQueue * dataSize;
+        int dataIndex = locationInQueue << 1;
 
-        tailQueue[dataIndex] = item.x1;
+        tailQueue[dataIndex] = item.x;
         dataIndex++;
-        tailQueue[dataIndex] = item.y1;
-        dataIndex++;
-        tailQueue[dataIndex] = item.x2;
-        dataIndex++;
-        tailQueue[dataIndex] = item.y2;
-        dataIndex++;
-        tailQueue[dataIndex] = item.iteration;
+        tailQueue[dataIndex] = item.y;
 
         if(locationInQueue == initialAllocation - 1) {
-            tailQueue = new int[initialAllocation * dataSize];
+            tailQueue = new int[initialAllocation << 1];
 
             int LinkedQueueuIndex = tail / initialAllocation + 1;
             if (LinkedQueueuIndex >= LinkedQueues.length) {
@@ -86,16 +82,16 @@ public class ExpandingQueueSquare {
         }*/
     }
 
-    public Square dequeue() {
+    public Pixel dequeue() {
         /*if (isEmpty()) {
             throw new NoSuchElementException("There is nothing in the queue");
         }*/
 
         int locationInQueue = head % initialAllocation;
 
-        int dataIndex = locationInQueue * dataSize;
+        int dataIndex = locationInQueue << 1;
 
-        Square item = new Square(headQueue[dataIndex], headQueue[dataIndex + 1], headQueue[dataIndex + 2], headQueue[dataIndex + 3], headQueue[dataIndex + 4]);
+        Pixel item = new Pixel(headQueue[dataIndex], headQueue[dataIndex + 1]);
 
         if(locationInQueue == initialAllocation - 1) {
             int currentQueue = head / initialAllocation;
@@ -109,7 +105,7 @@ public class ExpandingQueueSquare {
         return item;
     }
 
-    public Square last() {
+    public Pixel last() {
         /*if (isEmpty()) {
             throw new NoSuchElementException("There is nothing in the queue");
         }*/
@@ -125,8 +121,8 @@ public class ExpandingQueueSquare {
             tailQueue = (int[]) LinkedQueues[currentQueue]; //assuming that tail is always greater or equal to head, this access shoud be fine
         }
 
-        int dataIndex = locationInQueue * dataSize;
-        return new Square(tailQueue[dataIndex], tailQueue[dataIndex + 1], tailQueue[dataIndex + 2], tailQueue[dataIndex + 3], tailQueue[dataIndex + 4]);
+        int dataIndex = locationInQueue << 1;
+        return new Pixel(tailQueue[dataIndex], tailQueue[dataIndex + 1]);
 
     }
 

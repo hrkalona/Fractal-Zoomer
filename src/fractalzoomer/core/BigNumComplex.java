@@ -252,6 +252,7 @@ public class BigNumComplex extends GenericComplex {
     /*
      *  z^3
      */
+    @Override
     public final BigNumComplex cubeFast(NormComponents normComponents) {
 
         BigNum temp = (BigNum)normComponents.reSqr;
@@ -399,6 +400,7 @@ public class BigNumComplex extends GenericComplex {
     /*
      *  -Real + Imaginary i
      */
+    @Override
     public final BigNumComplex negate_re() {
 
         return new BigNumComplex(re.negate(), im);
@@ -901,6 +903,13 @@ public class BigNumComplex extends GenericComplex {
     @Override
     public Object Norm() {
         return norm();
+    }
+
+    @Override
+    public final BigNumComplex negate_re_mutable() {
+
+        return negate_re();
+
     }
 
     public static void main(String[] args) {

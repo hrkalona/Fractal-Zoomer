@@ -923,8 +923,7 @@ public strictfp class DoubleDouble
             oldSum = sum;
             sum = sum.add(term);
         } while(sum.ne(oldSum));
-        DoubleDouble ans = coefficient.multiply(sum);
-        return ans;
+        return coefficient.multiply(sum);
     }
 
     /**
@@ -1086,8 +1085,7 @@ public strictfp class DoubleDouble
         if ((this.abs()).gt(DoubleDouble.valueOf(1.0))) {
             return NaN;
         }
-        DoubleDouble s = PI_2.subtract(this.asin());
-        return s;
+        return PI_2.subtract(this.asin());
     }
 
     /**
@@ -1235,7 +1233,7 @@ public strictfp class DoubleDouble
             // B2*n+1 = 0 for n = 1,2,3
             return DoubleDouble.valueOf(0.0);
         }
-        DoubleDouble BN[] = new DoubleDouble[n+1];
+        DoubleDouble[] BN = new DoubleDouble[n+1];
         BN[0] = DoubleDouble.valueOf(1.0);
         if (n == 0) {
             return BN[0];
@@ -1287,7 +1285,7 @@ public strictfp class DoubleDouble
             // B2*n+1 = 0 for n = 1,2,3
             return DoubleDouble.valueOf(0.0);
         }
-        DoubleDouble BN[] = new DoubleDouble[n+1];
+        DoubleDouble[] BN = new DoubleDouble[n+1];
         BN[0] = DoubleDouble.valueOf(1.0);
         if (n == 0) {
             return BN[0];
@@ -1359,7 +1357,7 @@ public strictfp class DoubleDouble
         // Ci(x) (x >= 0)
         // Input x: Argument of Ci(x) and Si(x)
         // Output: Ci(x), Si(x)
-        DoubleDouble bj[] = new DoubleDouble[101];
+        DoubleDouble[] bj = new DoubleDouble[101];
         // Euler's constant
         DoubleDouble el = DoubleDouble.valueOf(.57721566490153286060651209008240243104215933593992);
         DoubleDouble x2;
@@ -1473,7 +1471,6 @@ public strictfp class DoubleDouble
             Ci = ((xf.multiply(x.sin())).divide(x)).subtract((xg.multiply(x.cos())).divide(x));
             Si = (DoubleDouble.PI_2.subtract((xf.multiply(x.cos())).divide(x))).subtract((xg.multiply(x.sin())).divide(x));
         }
-        return;
     }
 
     /**
@@ -1590,8 +1587,7 @@ public strictfp class DoubleDouble
         DoubleDouble div = this.divide(x);
         DoubleDouble rdiv = DoubleDouble.valueOf(div.intValue());
         DoubleDouble mul = rdiv.multiply(x);
-        DoubleDouble ans = this.subtract(mul);
-        return ans;
+        return this.subtract(mul);
     }
 
     /**

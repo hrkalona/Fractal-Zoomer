@@ -41,6 +41,7 @@ public class MidPointAntialiasingAlgorithm extends AntialiasingAlgorithm {
         minRed = maxRed = res0;
         minGreen = maxGreen = res1;
         minBlue = maxBlue = res2;
+        addedSamples = 1;
     }
 
     @Override
@@ -77,11 +78,15 @@ public class MidPointAntialiasingAlgorithm extends AntialiasingAlgorithm {
             maxBlue = res2;
         }
 
+        addedSamples++;
         return true;
     }
 
     @Override
     public int getColor() {
+        if(addedSamples != totalSamples) {
+            return 0xff000000;
+        }
         int[] result = getAveragedColorChannels(minRed, minGreen, minBlue, maxRed, maxGreen, maxBlue, redSum, greenSum, blueSum);
         return  0xff000000 | (result[0] << 16) | (result[1] << 8) | result[2];
     }

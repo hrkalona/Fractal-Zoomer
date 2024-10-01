@@ -6,7 +6,7 @@ import fractalzoomer.core.TaskRender;
 
 public class BLADeep1Step extends BLADeep {
     //This class Assumes that B is 1 + 0i
-    public static MantExpComplex B = MantExpComplex.ONE;
+    public static final MantExpComplex B = MantExpComplex.ONE;
 
     public static BLADeep create(MantExp r2, MantExpComplex A) {
         if(TaskRender.MANTEXPCOMPLEX_FORMAT == 1) {

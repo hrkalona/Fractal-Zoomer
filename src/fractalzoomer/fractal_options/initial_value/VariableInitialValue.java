@@ -64,9 +64,11 @@ public class VariableInitialValue extends PlanePointOption {
             parser.setCvalue(pixel);
         }
 
-        for (int i = 0; i < Parser.EXTRA_VARS; i++) {
-            if (parser.foundVar(i)) {
-                parser.setVarsvalue(i, globalVars[i]);
+        if(parser.foundAnyVar()) {
+            for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+                if (parser.foundVar(i)) {
+                    parser.setVarsvalue(i, globalVars[i]);
+                }
             }
         }
 

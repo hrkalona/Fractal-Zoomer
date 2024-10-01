@@ -25,13 +25,13 @@ public class LAInfoDeepDetection2FullRI extends LAInfoDeepFullRI {
     }
 
     @Override
-    protected boolean DetectPeriod(MantExpComplex z) {
-        return z.chebyshevNorm().compareToBothPositive(new MantExp(MinMagExp, MinMagMant).multiply(PeriodDetectionThreshold2)) < 0;
+    protected boolean DetectDip(MantExpComplex z) {
+        return z.chebyshevNorm().compareToBothPositive(new MantExp(MinMagExp, MinMagMant).multiply(DipDetectionThreshold2)) < 0;
     }
 
     @Override
-    protected boolean Stage0DetectPeriod(MantExpComplex z) {
-        return z.chebyshevNorm().compareToBothPositive(new MantExp(MinMagExp, MinMagMant).multiply(Stage0PeriodDetectionThreshold2)) < 0;
+    protected boolean Stage0DetectDip(MantExpComplex z) {
+        return z.chebyshevNorm().compareToBothPositive(new MantExp(MinMagExp, MinMagMant).multiply(Stage0DipDetectionThreshold2)) < 0;
     }
 
     @Override
@@ -88,7 +88,7 @@ public class LAInfoDeepDetection2FullRI extends LAInfoDeepFullRI {
         out.MinMagExp = outMinMag.getExp();
         out.MinMagMant = outMinMag.getMantissa();
 
-        return outMinMag.compareToBothPositive(MinMag.multiply(Stage0PeriodDetectionThreshold2)) < 0;
+        return outMinMag.compareToBothPositive(MinMag.multiply(Stage0DipDetectionThreshold2)) < 0;
     }
     @Override
     protected boolean Composite(LAInfoDeepRI out1, LAInfoDeepRI LA1, ReferenceDecompressor referenceDecompressor) {
@@ -170,7 +170,7 @@ public class LAInfoDeepDetection2FullRI extends LAInfoDeepFullRI {
         out.MinMagExp = outMinMag.getExp();
         out.MinMagMant = outMinMag.getMantissa();
 
-        return temp.compareToBothPositive(MinMag.multiply(PeriodDetectionThreshold2)) < 0;
+        return temp.compareToBothPositive(MinMag.multiply(DipDetectionThreshold2)) < 0;
     }
 
     @Override

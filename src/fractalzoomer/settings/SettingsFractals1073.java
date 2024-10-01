@@ -104,7 +104,7 @@ public class SettingsFractals1073 extends SettingsFractals1072 implements Serial
     /**
      * @return the gradient_offset
      */
-    public int getGradientOffset() {
+    public int getGSGradientOffset() {
         return gradient_offset;
     }
 

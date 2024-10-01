@@ -8,6 +8,7 @@ import fractalzoomer.filters_utils.image.LightFilter.Material;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.FiltersSettings;
 import fractalzoomer.utils.ColorSpaceConverter;
+import fractalzoomer.utils.QuadTree;
 
 import javax.swing.*;
 import java.awt.*;
@@ -36,7 +37,7 @@ public class ImageFilters {
         int algorithm = (int) (((int) (((int) (filter_value % 100000.0)) % 1000.0)) % 10.0);
 
         if (algorithm == 2) {
-            int kernelWidth = (int) Math.sqrt((double) EMBOSS.length);
+            int kernelWidth = (int) Math.sqrt(EMBOSS.length);
             int kernelHeight = kernelWidth;
             int xOffset = (kernelWidth - 1) / 2;
             int yOffset = xOffset;
@@ -69,11 +70,7 @@ public class ImageFilters {
             f.setElevation((float) elevation);
             f.setBumpHeight((float) bump_height);
 
-            if (algorithm == 0) {
-                f.setEmboss(false);
-            } else {
-                f.setEmboss(true);
-            }
+            f.setEmboss(algorithm != 0);
 
             f.filter(image, image);
         }
@@ -106,7 +103,7 @@ public class ImageFilters {
             EDGES = thin_edges;
         }
 
-        int kernelWidth = (int) Math.sqrt((double) EDGES.length);
+        int kernelWidth = (int) Math.sqrt(EDGES.length);
 
         int image_width = image.getWidth();
         int image_height = image.getHeight();
@@ -152,7 +149,7 @@ public class ImageFilters {
 
             float[] SHARPNESS = sharpness_high;
 
-            int kernelWidth = (int) Math.sqrt((double) SHARPNESS.length);
+            int kernelWidth = (int) Math.sqrt(SHARPNESS.length);
             int kernelHeight = kernelWidth;
             int xOffset = (kernelWidth - 1) / 2;
             int yOffset = xOffset;
@@ -282,7 +279,7 @@ public class ImageFilters {
              h, g, g, g, g, g, g, g, g, g, g, g, g, g, h,
              h, h, h, h, h, h, h, h, h, h, h, h, h, h, h};*/
             //resize the picture to cover the image edges
-            int kernelWidth = (int) Math.sqrt((double) blur.length);
+            int kernelWidth = (int) Math.sqrt(blur.length);
             int kernelHeight = kernelWidth;
             int xOffset = (kernelWidth - 1) / 2;
             int yOffset = xOffset;
@@ -384,7 +381,7 @@ public class ImageFilters {
                 g = (raster[p] >> 8) & 0xff;
                 b = raster[p] & 0xff;
 
-                float res[] = new float[3];
+                float[] res = new float[3];
 
                 Color.RGBtoHSB(r, g, b, res);
 
@@ -394,7 +391,7 @@ public class ImageFilters {
                 g = (raster[p] >> 8) & 0xff;
                 b = raster[p] & 0xff;
 
-                float res[] = new float[3];
+                float[] res = new float[3];
 
                 Color.RGBtoHSB(r, g, b, res);
 
@@ -404,7 +401,7 @@ public class ImageFilters {
                 g = (raster[p] >> 8) & 0xff;
                 b = raster[p] & 0xff;
 
-                float res[] = new float[3];
+                float[] res = new float[3];
 
                 Color.RGBtoHSB(r, g, b, res);
 
@@ -511,7 +508,7 @@ public class ImageFilters {
 
         TemperatureFilter f = new TemperatureFilter();
 
-        f.setTemperature((float) filter_value);
+        f.setTemperature(filter_value);
 
         f.filter(image, image);
     }
@@ -545,9 +542,12 @@ public class ImageFilters {
                 rgb = (int) ((r + g + b) / 3.0 + 0.5);	// simple average  
             } else if (filter_value == 3) {
                 rgb = (int) ((Math.max(Math.max(r, g), b) + Math.min(Math.min(r, g), b)) / 2.0 + 0.5);
-            } else {
+            } else if (filter_value == 4) {
                 double[] lab = ColorSpaceConverter.RGBtoLAB(r, g, b);
                 rgb = (int) ((lab[0] / 100.0) * 255 + 0.5);
+            }
+            else {
+                rgb = (int)(r * 0.2627 + g * 0.6780 + b * 0.0593 + 0.5);	// HDR luma
             }
 
             raster[p] = 0xff000000 | (rgb << 16) | (rgb << 8) | rgb;
@@ -608,7 +608,7 @@ public class ImageFilters {
          }*/
         if (filter_value == 1) { //gimp levels
 
-            int hist[][] = new int[3][256];
+            int[][] hist = new int[3][256];
 
             int i, c;
             double mult, count, percentage, next_percentage;
@@ -684,7 +684,7 @@ public class ImageFilters {
                 raster[p] = 0xff000000 | (r << 16) | (g << 8) | b;
             });
         } else if (filter_value == 0 || filter_value == 5 || filter_value == 6 || filter_value == 7) { //brightness, hue ,saturation, lightness
-            int hist[] = new int[1025];
+            int[] hist = new int[1025];
 
             int i;
             double mult, count, percentage, next_percentage;
@@ -700,17 +700,17 @@ public class ImageFilters {
                 b = raster[p] & 0xff;
 
                 if (filter_value == 0) {
-                    float res[] = new float[3];
+                    float[] res = new float[3];
 
                     Color.RGBtoHSB(r, g, b, res);
                     hist[(int) (res[2] * hist_len + 0.5)]++;
                 } else if (filter_value == 5) {
-                    float res[] = new float[3];
+                    float[] res = new float[3];
 
                     Color.RGBtoHSB(r, g, b, res);
                     hist[(int) (res[0] * hist_len + 0.5)]++;
                 } else if (filter_value == 6) {
-                    float res[] = new float[3];
+                    float[] res = new float[3];
 
                     Color.RGBtoHSB(r, g, b, res);
                     hist[(int) (res[1] * hist_len + 0.5)]++;
@@ -777,19 +777,19 @@ public class ImageFilters {
                 b = raster[p] & 0xff;
 
                 if (filter_value == 0) {
-                    float res[] = new float[3];
+                    float[] res = new float[3];
 
                     Color.RGBtoHSB(r, g, b, res);
                     double temp = hist[(int) (res[2] * hist_len + 0.5)] / ((double) hist_len);
                     raster[p] = Color.HSBtoRGB(res[0], res[1], (float) temp);
                 } else if (filter_value == 5) {
-                    float res[] = new float[3];
+                    float[] res = new float[3];
 
                     Color.RGBtoHSB(r, g, b, res);
                     double temp = hist[(int) (res[0] * hist_len + 0.5)] / ((double) hist_len);
                     raster[p] = Color.HSBtoRGB((float) temp, res[1], res[2]);
                 } else if (filter_value == 6) {
-                    float res[] = new float[3];
+                    float[] res = new float[3];
 
                     Color.RGBtoHSB(r, g, b, res);
                     double temp = hist[(int) (res[1] * hist_len + 0.5)] / ((double) hist_len);
@@ -803,7 +803,7 @@ public class ImageFilters {
             });
 
         } else if (filter_value == 2 || filter_value == 3 || filter_value == 4) { //red, green, blue
-            int hist[] = new int[256];
+            int[] hist = new int[256];
 
             int i;
             double mult, count, percentage, next_percentage;
@@ -983,12 +983,7 @@ public class ImageFilters {
         } else {
             DiffusionFilter f = new DiffusionFilter();
 
-            if (serpentine == 1) {
-                f.setSerpentine(true);
-            } else {
-                f.setSerpentine(false);
-            }
-
+            f.setSerpentine(serpentine == 1);
             f.setLevels(levels);
             f.filter(image, image);
         }
@@ -1076,17 +1071,8 @@ public class ImageFilters {
 
         CrystallizeFilter f = new CrystallizeFilter();
 
-        if (fade_edges == 1) {
-            f.setFadeEdges(true);
-        } else {
-            f.setFadeEdges(false);
-        }
-
-        if (original == 1) {
-            f.setUseOriginalColor(true);
-        } else {
-            f.setUseOriginalColor(false);
-        }
+        f.setFadeEdges(fade_edges == 1);
+        f.setUseOriginalColor(original == 1);
 
         f.setGridType(shape);
         f.setEdgeThickness((float) edge_size);
@@ -1131,17 +1117,8 @@ public class ImageFilters {
         double grid_size = ((int) (((int) (((int) (((int) (((int) (filter_value % 1000000000.0)) % 100000000.0)) % 1000000.0)) % 10000.0)) % 100.0)) / 80.0 * 100;
         int original = filter_value2;
 
-        if (fill == 1) {
-            f.setFadeEdges(true);
-        } else {
-            f.setFadeEdges(false);
-        }
-
-        if (original == 1) {
-            f.setUseOriginalColor(true);
-        } else {
-            f.setUseOriginalColor(false);
-        }
+        f.setFadeEdges(fill == 1);
+        f.setUseOriginalColor(original == 1);
 
         f.setScale((float) grid_size);
         f.setFuzziness((float) fuzziness);
@@ -1180,17 +1157,8 @@ public class ImageFilters {
         int round_threads = (int) (((int) (filter_value % 1000000000.0)) / 100000000.0);
         int shade_crossings = (int) (filter_value / 1000000000.0);
 
-        if (round_threads == 1) {
-            f.setRoundThreads(true);
-        } else {
-            f.setRoundThreads(false);
-        }
-
-        if (shade_crossings == 1) {
-            f.setShadeCrossings(true);
-        } else {
-            f.setShadeCrossings(false);
-        }
+        f.setRoundThreads(round_threads == 1);
+        f.setShadeCrossings(shade_crossings == 1);
 
         f.setXWidth((float) x_width);
         f.setYWidth((float) y_width);
@@ -1247,11 +1215,7 @@ public class ImageFilters {
         int distribution = (int) (((int) (filter_value % 10000000.0)) / 1000000.0);
         int monochrome = (int) (filter_value / 10000000.0);
 
-        if (monochrome == 1) {
-            f.setMonochrome(true);
-        } else {
-            f.setMonochrome(false);
-        }
+        f.setMonochrome(monochrome == 1);
 
         f.setDistribution(distribution);
         f.setAmount(amount);
@@ -1372,6 +1336,22 @@ public class ImageFilters {
 
     }
 
+    private static void filterQuadTree(BufferedImage image, double std_threshold, boolean showDivision, int fillAlgorithm, int fillColor, int divisionColor, int level_of_detail, int treeAlgorithm, boolean dynamicThreshold, int dynamicThresholdCurve, int threshold_calculation, boolean merge_nodes) {
+
+        int image_width = image.getWidth();
+        int image_height = image.getHeight();
+
+        int[] raster = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
+
+        QuadTree t = new QuadTree(raster, image_width, image_height, std_threshold, treeAlgorithm, dynamicThreshold, dynamicThresholdCurve, threshold_calculation, merge_nodes);
+
+        int tree_height = t.maxTreeHeight() - 1;
+        tree_height = tree_height - (QuadTree.MAX_LEVEL - level_of_detail);
+        tree_height = Math.max(0, tree_height);
+
+        t.paintQuadImage(raster, image_width, image_height, tree_height, showDivision, fillAlgorithm, divisionColor, fillColor);
+    }
+
     public static double[] createGaussianKernel(int length, double weight) {
         double[] gaussian_kernel = new double[length * length];
         double sumTotal = 0;
@@ -1455,7 +1435,7 @@ public class ImageFilters {
             switch (filters_order[i]) {
                 case MainWindow.CRYSTALLIZE:
                     if (filters[MainWindow.CRYSTALLIZE]) {
-                        ImageFilters.filterCrystallize(image, filters_options_vals[MainWindow.CRYSTALLIZE], filters_options_extra_vals[0][MainWindow.CRYSTALLIZE], filters_colors[MainWindow.CRYSTALLIZE]);
+                        filterCrystallize(image, filters_options_vals[MainWindow.CRYSTALLIZE], filters_options_extra_vals[0][MainWindow.CRYSTALLIZE], filters_colors[MainWindow.CRYSTALLIZE]);
                         if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
@@ -1464,7 +1444,7 @@ public class ImageFilters {
                     break;
                 case MainWindow.POINTILLIZE:
                     if (filters[MainWindow.POINTILLIZE]) {
-                        ImageFilters.filterPointillize(image, filters_options_vals[MainWindow.POINTILLIZE], filters_options_extra_vals[0][MainWindow.POINTILLIZE], filters_colors[MainWindow.POINTILLIZE]);
+                        filterPointillize(image, filters_options_vals[MainWindow.POINTILLIZE], filters_options_extra_vals[0][MainWindow.POINTILLIZE], filters_colors[MainWindow.POINTILLIZE]);
                         if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
@@ -1473,7 +1453,7 @@ public class ImageFilters {
                     break;
                 case MainWindow.LIGHT_EFFECTS:
                     if (filters[MainWindow.LIGHT_EFFECTS]) {
-                        ImageFilters.filterLightEffects(image, filters_options_vals[MainWindow.LIGHT_EFFECTS], filters_options_extra_vals[0][MainWindow.LIGHT_EFFECTS], filters_options_extra_vals[1][MainWindow.LIGHT_EFFECTS], filters_colors[MainWindow.LIGHT_EFFECTS], filters_extra_colors[0][MainWindow.LIGHT_EFFECTS], filters_extra_colors[1][MainWindow.LIGHT_EFFECTS]);
+                        filterLightEffects(image, filters_options_vals[MainWindow.LIGHT_EFFECTS], filters_options_extra_vals[0][MainWindow.LIGHT_EFFECTS], filters_options_extra_vals[1][MainWindow.LIGHT_EFFECTS], filters_colors[MainWindow.LIGHT_EFFECTS], filters_extra_colors[0][MainWindow.LIGHT_EFFECTS], filters_extra_colors[1][MainWindow.LIGHT_EFFECTS]);
                         if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
@@ -1482,7 +1462,7 @@ public class ImageFilters {
                     break;
                 case MainWindow.OIL:
                     if (filters[MainWindow.OIL]) {
-                        ImageFilters.filterOil(image, filters_options_vals[MainWindow.OIL]);
+                        filterOil(image, filters_options_vals[MainWindow.OIL]);
                         if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
@@ -1491,7 +1471,7 @@ public class ImageFilters {
                     break;
                 case MainWindow.MARBLE:
                     if (filters[MainWindow.MARBLE]) {
-                        ImageFilters.filterMarble(image, filters_options_vals[MainWindow.MARBLE]);
+                        filterMarble(image, filters_options_vals[MainWindow.MARBLE]);
                         if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
@@ -1500,7 +1480,7 @@ public class ImageFilters {
                     break;
                 case MainWindow.WEAVE:
                     if (filters[MainWindow.WEAVE]) {
-                        ImageFilters.filterWeave(image, filters_options_vals[MainWindow.WEAVE], filters_colors[MainWindow.WEAVE]);
+                        filterWeave(image, filters_options_vals[MainWindow.WEAVE], filters_colors[MainWindow.WEAVE]);
                         if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
@@ -1509,7 +1489,7 @@ public class ImageFilters {
                     break;
                 case MainWindow.SPARKLE:
                     if (filters[MainWindow.SPARKLE]) {
-                        ImageFilters.filterSparkle(image, filters_options_vals[MainWindow.SPARKLE], filters_colors[MainWindow.SPARKLE]);
+                        filterSparkle(image, filters_options_vals[MainWindow.SPARKLE], filters_colors[MainWindow.SPARKLE]);
                         if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
@@ -1518,7 +1498,7 @@ public class ImageFilters {
                     break;
                 case MainWindow.COLOR_CHANNEL_SWAPPING:
                     if (filters[MainWindow.COLOR_CHANNEL_SWAPPING]) {
-                        ImageFilters.filterColorChannelSwapping(image, filters_options_vals[MainWindow.COLOR_CHANNEL_SWAPPING]);
+                        filterColorChannelSwapping(image, filters_options_vals[MainWindow.COLOR_CHANNEL_SWAPPING]);
                         if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
@@ -1527,7 +1507,7 @@ public class ImageFilters {
                     break;
                 case MainWindow.COLOR_CHANNEL_SWIZZLING:
                     if (filters[MainWindow.COLOR_CHANNEL_SWIZZLING]) {
-                        ImageFilters.filterColorChannelSwizzling(image, filters_options_vals[MainWindow.COLOR_CHANNEL_SWIZZLING]);
+                        filterColorChannelSwizzling(image, filters_options_vals[MainWindow.COLOR_CHANNEL_SWIZZLING]);
                         if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
@@ -1536,7 +1516,7 @@ public class ImageFilters {
                     break;
                 case MainWindow.COLOR_CHANNEL_MIXING:
                     if (filters[MainWindow.COLOR_CHANNEL_MIXING]) {
-                        ImageFilters.filterColorChannelMixing(image, filters_options_vals[MainWindow.COLOR_CHANNEL_MIXING], filters_colors[MainWindow.COLOR_CHANNEL_MIXING]);
+                        filterColorChannelMixing(image, filters_options_vals[MainWindow.COLOR_CHANNEL_MIXING], filters_colors[MainWindow.COLOR_CHANNEL_MIXING]);
                         if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
@@ -1545,7 +1525,7 @@ public class ImageFilters {
                     break;
                 case MainWindow.COLOR_CHANNEL_ADJUSTING:
                     if (filters[MainWindow.COLOR_CHANNEL_ADJUSTING]) {
-                        ImageFilters.filterColorChannelAdjusting(image, filters_options_vals[MainWindow.COLOR_CHANNEL_ADJUSTING]);
+                        filterColorChannelAdjusting(image, filters_options_vals[MainWindow.COLOR_CHANNEL_ADJUSTING]);
                         if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
@@ -1554,7 +1534,7 @@ public class ImageFilters {
                     break;
                 case MainWindow.COLOR_CHANNEL_HSB_ADJUSTING:
                     if (filters[MainWindow.COLOR_CHANNEL_HSB_ADJUSTING]) {
-                        ImageFilters.filterHSBcolorChannelAdjusting(image, filters_options_vals[MainWindow.COLOR_CHANNEL_HSB_ADJUSTING]);
+                        filterHSBcolorChannelAdjusting(image, filters_options_vals[MainWindow.COLOR_CHANNEL_HSB_ADJUSTING]);
                         if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
@@ -1563,7 +1543,7 @@ public class ImageFilters {
                     break;
                 case MainWindow.COLOR_CHANNEL_SCALING:
                     if (filters[MainWindow.COLOR_CHANNEL_SCALING]) {
-                        ImageFilters.filterColorChannelScaling(image, filters_options_vals[MainWindow.COLOR_CHANNEL_SCALING]);
+                        filterColorChannelScaling(image, filters_options_vals[MainWindow.COLOR_CHANNEL_SCALING]);
                         if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
@@ -1572,7 +1552,7 @@ public class ImageFilters {
                     break;
                 case MainWindow.GRAYSCALE:
                     if (filters[MainWindow.GRAYSCALE]) {
-                        ImageFilters.filterGrayscale(image, filters_options_vals[MainWindow.GRAYSCALE]);
+                        filterGrayscale(image, filters_options_vals[MainWindow.GRAYSCALE]);
                         if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
@@ -1581,7 +1561,7 @@ public class ImageFilters {
                     break;
                 case MainWindow.POSTERIZE:
                     if (filters[MainWindow.POSTERIZE]) {
-                        ImageFilters.filterPosterize(image, filters_options_vals[MainWindow.POSTERIZE]);
+                        filterPosterize(image, filters_options_vals[MainWindow.POSTERIZE]);
                         if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
@@ -1590,7 +1570,7 @@ public class ImageFilters {
                     break;
                 case MainWindow.DITHER:
                     if (filters[MainWindow.DITHER]) {
-                        ImageFilters.filterDither(image, filters_options_vals[MainWindow.DITHER]);
+                        filterDither(image, filters_options_vals[MainWindow.DITHER]);
                         if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
@@ -1599,7 +1579,7 @@ public class ImageFilters {
                     break;
                 case MainWindow.INVERT_COLORS:
                     if (filters[MainWindow.INVERT_COLORS]) {
-                        ImageFilters.filterInvertColors(image, filters_options_vals[MainWindow.INVERT_COLORS]);
+                        filterInvertColors(image, filters_options_vals[MainWindow.INVERT_COLORS]);
                         if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
@@ -1608,7 +1588,7 @@ public class ImageFilters {
                     break;
                 case MainWindow.SOLARIZE:
                     if (filters[MainWindow.SOLARIZE]) {
-                        ImageFilters.filterSolarize(image);
+                        filterSolarize(image);
                         if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
@@ -1617,7 +1597,7 @@ public class ImageFilters {
                     break;
                 case MainWindow.COLOR_TEMPERATURE:
                     if (filters[MainWindow.COLOR_TEMPERATURE]) {
-                        ImageFilters.filterColorTemperature(image, filters_options_vals[MainWindow.COLOR_TEMPERATURE]);
+                        filterColorTemperature(image, filters_options_vals[MainWindow.COLOR_TEMPERATURE]);
                         if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
@@ -1626,7 +1606,7 @@ public class ImageFilters {
                     break;
                 case MainWindow.CONTRAST_BRIGHTNESS:
                     if (filters[MainWindow.CONTRAST_BRIGHTNESS]) {
-                        ImageFilters.filterContrastBrightness(image, filters_options_vals[MainWindow.CONTRAST_BRIGHTNESS]);
+                        filterContrastBrightness(image, filters_options_vals[MainWindow.CONTRAST_BRIGHTNESS]);
                         if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
@@ -1635,7 +1615,7 @@ public class ImageFilters {
                     break;
                 case MainWindow.GAIN:
                     if (filters[MainWindow.GAIN]) {
-                        ImageFilters.filterGain(image, filters_options_vals[MainWindow.GAIN]);
+                        filterGain(image, filters_options_vals[MainWindow.GAIN]);
                         if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
@@ -1644,7 +1624,7 @@ public class ImageFilters {
                     break;
                 case MainWindow.GAMMA:
                     if (filters[MainWindow.GAMMA]) {
-                        ImageFilters.filterGamma(image, filters_options_vals[MainWindow.GAMMA]);
+                        filterGamma(image, filters_options_vals[MainWindow.GAMMA]);
                         if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
@@ -1653,7 +1633,7 @@ public class ImageFilters {
                     break;
                 case MainWindow.EXPOSURE:
                     if (filters[MainWindow.EXPOSURE]) {
-                        ImageFilters.filterExposure(image, filters_options_vals[MainWindow.EXPOSURE]);
+                        filterExposure(image, filters_options_vals[MainWindow.EXPOSURE]);
                         if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
@@ -1662,7 +1642,7 @@ public class ImageFilters {
                     break;
                 case MainWindow.HISTOGRAM_EQUALIZATION:
                     if (filters[MainWindow.HISTOGRAM_EQUALIZATION]) {
-                        ImageFilters.filterHistogramEqualization(image, filters_options_vals[MainWindow.HISTOGRAM_EQUALIZATION]);
+                        filterHistogramEqualization(image, filters_options_vals[MainWindow.HISTOGRAM_EQUALIZATION]);
                         if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
@@ -1671,7 +1651,7 @@ public class ImageFilters {
                     break;
                 case MainWindow.COLOR_CHANNEL_MASKING:
                     if (filters[MainWindow.COLOR_CHANNEL_MASKING]) {
-                        ImageFilters.filterMaskColors(image, filters_options_vals[MainWindow.COLOR_CHANNEL_MASKING]);
+                        filterMaskColors(image, filters_options_vals[MainWindow.COLOR_CHANNEL_MASKING]);
                         if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
@@ -1680,7 +1660,7 @@ public class ImageFilters {
                     break;
                 case MainWindow.NOISE:
                     if (filters[MainWindow.NOISE]) {
-                        ImageFilters.filterNoise(image, filters_options_vals[MainWindow.NOISE]);
+                        filterNoise(image, filters_options_vals[MainWindow.NOISE]);
                         if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
@@ -1689,7 +1669,7 @@ public class ImageFilters {
                     break;
                 case MainWindow.SHARPNESS:
                     if (filters[MainWindow.SHARPNESS]) {
-                        ImageFilters.filterSharpness(image, filters_options_vals[MainWindow.SHARPNESS]);
+                        filterSharpness(image, filters_options_vals[MainWindow.SHARPNESS]);
                         if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
@@ -1698,7 +1678,7 @@ public class ImageFilters {
                     break;
                 case MainWindow.BLURRING:
                     if (filters[MainWindow.BLURRING]) {
-                        ImageFilters.filterBlurring(image, filters_options_vals[MainWindow.BLURRING], fs.bluringSigmaR, fs.bluringSigmaS, fs.blurringKernelSelection * 2 + 3);
+                        filterBlurring(image, filters_options_vals[MainWindow.BLURRING], fs.bluringSigmaR, fs.bluringSigmaS, fs.blurringKernelSelection * 2 + 3);
                         if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
@@ -1707,7 +1687,7 @@ public class ImageFilters {
                     break;
                 case MainWindow.GLOW:
                     if (filters[MainWindow.GLOW]) {
-                        ImageFilters.filterGlow(image, filters_options_vals[MainWindow.GLOW]);
+                        filterGlow(image, filters_options_vals[MainWindow.GLOW]);
                         if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
@@ -1716,7 +1696,7 @@ public class ImageFilters {
                     break;
                 case MainWindow.EMBOSS:
                     if (filters[MainWindow.EMBOSS]) {
-                        ImageFilters.filterEmboss(image, filters_options_vals[MainWindow.EMBOSS]);
+                        filterEmboss(image, filters_options_vals[MainWindow.EMBOSS]);
                         if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
@@ -1725,7 +1705,7 @@ public class ImageFilters {
                     break;
                 case MainWindow.EDGE_DETECTION:
                     if (filters[MainWindow.EDGE_DETECTION]) {
-                        ImageFilters.filterEdgeDetection(image, filters_options_vals[MainWindow.EDGE_DETECTION], filters_colors[MainWindow.EDGE_DETECTION]);
+                        filterEdgeDetection(image, filters_options_vals[MainWindow.EDGE_DETECTION], filters_colors[MainWindow.EDGE_DETECTION]);
                         if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
@@ -1734,7 +1714,7 @@ public class ImageFilters {
                     break;
                 case MainWindow.EDGE_DETECTION2:
                     if (filters[MainWindow.EDGE_DETECTION2]) {
-                        ImageFilters.filterEdgeDetection2(image, filters_options_vals[MainWindow.EDGE_DETECTION2]);
+                        filterEdgeDetection2(image, filters_options_vals[MainWindow.EDGE_DETECTION2]);
                         if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
@@ -1743,7 +1723,7 @@ public class ImageFilters {
                     break;
                 case MainWindow.FADE_OUT:
                     if (filters[MainWindow.FADE_OUT]) {
-                        ImageFilters.filterFadeOut(image);
+                        filterFadeOut(image);
                         if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
@@ -1752,7 +1732,16 @@ public class ImageFilters {
                     break;
                 case MainWindow.MIRROR:
                     if (filters[MainWindow.MIRROR]) {
-                        ImageFilters.filterMirror(image, filters_options_vals[MainWindow.MIRROR]);
+                        filterMirror(image, filters_options_vals[MainWindow.MIRROR]);
+                        if (progressbar != null) {
+                            active++;
+                            setProgress(progressbar, active);
+                        }
+                    }
+                    break;
+                case MainWindow.QUAD_TREE_COMPRESSION:
+                    if (filters[MainWindow.QUAD_TREE_COMPRESSION]) {
+                        filterQuadTree(image, fs.quadtree_threshold, fs.quadtree_show_division, fs.quadtree_fill_algorithm, filters_colors[MainWindow.QUAD_TREE_COMPRESSION].getRGB(), filters_extra_colors[0][MainWindow.QUAD_TREE_COMPRESSION].getRGB(), fs.quadtree_lod, fs.quadtree_algorithm, fs.quadtree_dynamic_threshold, fs.quadtree_dynamic_threshold_curve, fs.quadtree_threshold_calculation, fs.quadtree_merge_nodes);
                         if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);

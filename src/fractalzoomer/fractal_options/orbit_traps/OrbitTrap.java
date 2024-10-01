@@ -64,7 +64,7 @@ public abstract class OrbitTrap {
         doFirstIterationSkipCheck = !isJulia && (usesHighPrecision || usesStaticInitVal);
 
         if(keepLastXItems) {
-            Arrays.fill(sampleItems, 0, sampleItems.length, null);
+            Arrays.fill(sampleItems, null);
             sampleItem = 0;
             processedLastItems = false;
         }

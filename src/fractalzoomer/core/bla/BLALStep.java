@@ -2,15 +2,17 @@ package fractalzoomer.core.bla;
 
 import fractalzoomer.core.Complex;
 
-public abstract class BLALStep extends BLA {
+public class BLALStep extends BLA {
 
     public double Bx;
     public double By;
+    public int l;
 
-    protected BLALStep(double r2, Complex A, Complex B) {
+    protected BLALStep(double r2, Complex A, Complex B, int l) {
         super(r2, A);
         this.Bx = B.getRe();
         this.By = B.getIm();
+        this.l = l;
     }
 
     @Override
@@ -48,4 +50,9 @@ public abstract class BLALStep extends BLA {
 
     @Override
     public double getBy() { return By;}
+
+    @Override
+    public int getL() {
+        return l;
+    }
 }

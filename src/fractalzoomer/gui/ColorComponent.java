@@ -88,7 +88,7 @@ public class ColorComponent extends JPanel {
                 selectedIndex = closestIndex;
 
                 if(e.getButton() == MouseEvent.BUTTON3 && selectedIndex != -1) {
-                    if(colorPoints.size() >= 1 && colorPoints.get(selectedIndex).canBeDeleted()) {
+                    if(!colorPoints.isEmpty() && colorPoints.get(selectedIndex).canBeDeleted()) {
                         colorPoints.remove(selectedIndex);
                     }
                     selectedIndex = -1;
@@ -418,7 +418,7 @@ public class ColorComponent extends JPanel {
             double x1 = cp.getX();
 
             if(x1 == xc) {
-                return (int) ((yc / (double) height) * 255 + 0.5);
+                return (int) ((yc / height) * 255 + 0.5);
             }
 
             return getFinalColor(x, xc, yc, x1, y1);
@@ -448,7 +448,7 @@ public class ColorComponent extends JPanel {
             double x1 = maxX;
 
             if(x1 == xc) {
-                return (int) ((yc / (double) height) * 255 + 0.5);
+                return (int) ((yc / height) * 255 + 0.5);
             }
 
             return getFinalColor(x, xc, yc, x1, y1);
@@ -522,15 +522,15 @@ public class ColorComponent extends JPanel {
 
         if (editor.getInterpolationColorMode() == 10) {
             double newY = yc +  (1 - getCoef((x - xc) / (x1 - xc))) * (y1 - yc);
-            return (int) ((newY / (double) height) * 255 + 0.5);
+            return (int) ((newY / height) * 255 + 0.5);
         }
         else if (editor.getInterpolationColorMode() < 10) {
             double newY = yc + getCoef((x - xc) / (x1 - xc)) * (y1 - yc);
-            return (int) ((newY / (double) height) * 255 + 0.5);
+            return (int) ((newY / height) * 255 + 0.5);
         }
         else {
             double newY = yc + fractional_transfer(getCoef((x - xc) / (x1 - xc)), editor.getInterpolationColorMode()) * (y1 - yc);
-            return (int) ((newY / (double) height) * 255 + 0.5);
+            return (int) ((newY / height) * 255 + 0.5);
         }
 
 
@@ -657,7 +657,7 @@ public class ColorComponent extends JPanel {
     }
 
     public boolean hasLastAnchor() {
-        return colorPoints.size() >= 1 && colorPoints.get(colorPoints.size() - 1).getX() != 0 && colorPoints.get(colorPoints.size() - 1).isAnchor() && !colorPoints.get(colorPoints.size() - 1).canBeDeleted();
+        return !colorPoints.isEmpty() && colorPoints.get(colorPoints.size() - 1).getX() != 0 && colorPoints.get(colorPoints.size() - 1).isAnchor() && !colorPoints.get(colorPoints.size() - 1).canBeDeleted();
     }
 
     public void clear() {

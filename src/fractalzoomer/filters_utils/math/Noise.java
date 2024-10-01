@@ -235,13 +235,13 @@ public class Noise implements Function1D, Function2D, Function3D {
 		return a + t * (b - a);
 	}
 
-	private static void normalize2(float v[]) {
+	private static void normalize2(float[] v) {
 		float s = (float)Math.sqrt(v[0] * v[0] + v[1] * v[1]);
 		v[0] = v[0] / s;
 		v[1] = v[1] / s;
 	}
 
-	static void normalize3(float v[]) {
+	static void normalize3(float[] v) {
 		float s = (float)Math.sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
 		v[0] = v[0] / s;
 		v[1] = v[1] / s;

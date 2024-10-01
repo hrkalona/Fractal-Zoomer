@@ -366,6 +366,7 @@ public class BigDecNumComplex extends GenericComplex {
     /*
      *  z^3
      */
+    @Override
     public final BigDecNumComplex cubeFast(NormComponents normComponents) {
 
         BigDecNum temp = (BigDecNum)normComponents.reSqr;
@@ -1009,5 +1010,18 @@ public class BigDecNumComplex extends GenericComplex {
     @Override
     public Object im() {
         return getIm();
+    }
+
+    @Override
+    public BigDecNumComplex negate_re() {
+
+        return new BigDecNumComplex(re.negate(), im);
+
+    }
+    @Override
+    public BigDecNumComplex negate_re_mutable() {
+
+        return negate_re();
+
     }
 }

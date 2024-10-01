@@ -107,9 +107,10 @@ public class ATInfo {
 
             //z = z.square_mutable_plus_c_mutable(c, zre_sqr, zim_sqr, norm_squared);
 
-            temp = zre + zim;
+            temp = zre * zim;
+            zim = temp + temp + cim;
             zre = zre_sqr - zim_sqr + cre;
-            zim = temp * temp - norm_squared + cim;
+
             z.assign(zre, zim);
         }
 

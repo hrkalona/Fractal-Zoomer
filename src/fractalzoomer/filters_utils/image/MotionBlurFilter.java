@@ -175,10 +175,6 @@ public class MotionBlurFilter extends AbstractBufferedImageOp {
         int[] outPixels = new int[width*height];
         getRGB( src, 0, 0, width, height, inPixels );
 
-		float sinAngle = (float)Math.sin(angle);
-		float cosAngle = (float)Math.cos(angle);
-
-		float total;
 		int cx = width/2;
 		int cy = height/2;
 		int index = 0;
@@ -191,8 +187,9 @@ public class MotionBlurFilter extends AbstractBufferedImageOp {
 		AffineTransform t = new AffineTransform();
 		Point2D.Float p = new Point2D.Float();
 
-        if ( premultiplyAlpha )
-			ImageMath.premultiply( inPixels, 0, inPixels.length );
+        if ( premultiplyAlpha ) {
+			ImageMath.premultiply(inPixels, 0, inPixels.length);
+		}
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
 				int a = 0, r = 0, g = 0, b = 0;
@@ -246,8 +243,9 @@ public class MotionBlurFilter extends AbstractBufferedImageOp {
 				index++;
 			}
 		}
-        if ( premultiplyAlpha )
-			ImageMath.unpremultiply( outPixels, 0, inPixels.length );
+        if ( premultiplyAlpha ) {
+			ImageMath.unpremultiply(outPixels, 0, inPixels.length);
+		}
 
         setRGB( dst, 0, 0, width, height, outPixels );
         return dst;

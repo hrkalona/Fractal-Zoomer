@@ -65,6 +65,7 @@ public class FiltersMenu extends MyMenu {
         filterNames[MainWindow.LIGHT_EFFECTS] = "Light Effects";
         filterNames[MainWindow.EDGE_DETECTION2] = "Edge Detection 2";
         filterNames[MainWindow.MIRROR] = "Mirror";
+        filterNames[MainWindow.QUAD_TREE_COMPRESSION] = "Quad-Tree";
     }
 
     public FiltersMenu(MainWindow ptr2, String name) {
@@ -119,6 +120,7 @@ public class FiltersMenu extends MyMenu {
         filters_opt[MainWindow.NOISE] = new MyCheckBoxMenuItem(filterNames[MainWindow.NOISE]);
         filters_opt[MainWindow.LIGHT_EFFECTS] = new MyCheckBoxMenuItem(filterNames[MainWindow.LIGHT_EFFECTS]);
         filters_opt[MainWindow.MIRROR] = new MyCheckBoxMenuItem(filterNames[MainWindow.MIRROR]);
+        filters_opt[MainWindow.QUAD_TREE_COMPRESSION] = new MyCheckBoxMenuItem(filterNames[MainWindow.QUAD_TREE_COMPRESSION]);
 
         filters_opt[MainWindow.ANTIALIASING].setToolTipText("Smooths the jagged look of the image.");
         filters_opt[MainWindow.EDGE_DETECTION].setToolTipText("Detects the edges of the image.");
@@ -155,6 +157,7 @@ public class FiltersMenu extends MyMenu {
         filters_opt[MainWindow.COLOR_CHANNEL_MIXING].setToolTipText("Mixes the color channels of the image.");
         filters_opt[MainWindow.LIGHT_EFFECTS].setToolTipText("Adds light effects to the image.");
         filters_opt[MainWindow.MIRROR].setToolTipText("Creates a mirror effect with transparency.");
+        filters_opt[MainWindow.QUAD_TREE_COMPRESSION].setToolTipText("Applies the effect of quad tree compression to the image.");
         
         filters_opt[MainWindow.ANTIALIASING].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G, 0));
         filters_opt[MainWindow.EDGE_DETECTION].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, ActionEvent.CTRL_MASK));
@@ -191,6 +194,7 @@ public class FiltersMenu extends MyMenu {
         filters_opt[MainWindow.COLOR_CHANNEL_MIXING].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, 0));
         filters_opt[MainWindow.LIGHT_EFFECTS].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_1, ActionEvent.CTRL_MASK));
         filters_opt[MainWindow.MIRROR].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_3, ActionEvent.CTRL_MASK));
+        filters_opt[MainWindow.QUAD_TREE_COMPRESSION].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_7, ActionEvent.ALT_MASK));
         
         filters_opt[MainWindow.ANTIALIASING].addActionListener(e -> ptr.setFilter(MainWindow.ANTIALIASING));
 
@@ -259,6 +263,8 @@ public class FiltersMenu extends MyMenu {
         filters_opt[MainWindow.NOISE].addActionListener(e -> ptr.setFilter(MainWindow.NOISE));
         
         filters_opt[MainWindow.MIRROR].addActionListener(e -> ptr.setFilter(MainWindow.MIRROR));
+
+        filters_opt[MainWindow.QUAD_TREE_COMPRESSION].addActionListener(e -> ptr.setFilter(MainWindow.QUAD_TREE_COMPRESSION));
 
         filters_opt[MainWindow.LIGHT_EFFECTS].addActionListener(e -> ptr.setFilter(MainWindow.LIGHT_EFFECTS));
 
@@ -329,6 +335,8 @@ public class FiltersMenu extends MyMenu {
         texture_filters_menu.add(filters_opt[MainWindow.SPARKLE]);
         texture_filters_menu.addSeparator();
         texture_filters_menu.add(filters_opt[MainWindow.MIRROR]);
+        texture_filters_menu.addSeparator();
+        texture_filters_menu.add(filters_opt[MainWindow.QUAD_TREE_COMPRESSION]);
 
         light_filters_menu.add(filters_opt[MainWindow.LIGHT_EFFECTS]);
 

@@ -46,6 +46,7 @@ package fractalzoomer.main;
  import fractalzoomer.core.location.Location;
  import fractalzoomer.core.location.normal.CartesianLocationNormalApfloatArbitrary;
  import fractalzoomer.core.location.normal.PolarLocationNormalApfloatArbitrary;
+ import fractalzoomer.core.mipla.MipLAStep;
  import fractalzoomer.core.rendering_algorithms.*;
  import fractalzoomer.functions.Fractal;
  import fractalzoomer.gui.ColorChooserDialog;
@@ -152,7 +153,7 @@ public class MainWindow extends JFrame implements Constants {
 
     public static boolean ZOOM_ON_THE_CURSOR = true;
     public static boolean QUICK_RENDER_ZOOM_TO_CURRENT_CENTER = false;
-    public static boolean CIRCULAR_RENDER_FOLLOWS_ZOOM_TO_CURSOR = false;
+    public static boolean PATTERNED_RENDER_FOLLOWS_ZOOM_TO_CURSOR = false;
     public static boolean ZOOM_TO_THE_SELECTED_AREA = false;
     public static boolean DRAGGING_TRANSFORMS_IMAGE = true;
     public static boolean REUSE_DATA_ON_ITERATION_CHANGE = true;
@@ -271,7 +272,7 @@ public class MainWindow extends JFrame implements Constants {
 
     private boolean initialized;
 
-    Lock successive_refinement_mutex = new ReentrantLock();
+    Lock start_rendering_mutex = new ReentrantLock();
     private Object new_calculation_mutex = new Object();
     public Object image_reset_mutex = new Object();
 
@@ -319,7 +320,7 @@ public class MainWindow extends JFrame implements Constants {
         TaskRender.thread_calculation_executor = (ThreadPoolExecutor)Executors.newFixedThreadPool(m * n);
         TaskRender.single_thread_executor = Executors.newSingleThreadExecutor();
         TaskRender.action_thread_executor = (ThreadPoolExecutor)Executors.newFixedThreadPool(4);
-        TaskRender.la_thread_executor = (ThreadPoolExecutor)Executors.newFixedThreadPool(procs);
+        TaskRender.approximation_thread_executor = (ThreadPoolExecutor)Executors.newFixedThreadPool(procs);
 
         thread_grouping = 3;
         julia_grid_first_dimension = 2;
@@ -415,7 +416,7 @@ public class MainWindow extends JFrame implements Constants {
 
         file_menu = new FileMenu(ptr, "File");
 
-        options_menu = new OptionsMenu(ptr, "Options", s.ps, s.ps2, s.hasSmoothing(), show_orbit_converging_point, s.fns.apply_plane_on_julia, s.fns.apply_plane_on_julia_seed, s.fns.out_coloring_algorithm, s.fns.in_coloring_algorithm, s.fns.function, s.fns.plane_type, s.fns.bailout_test_algorithm, s.color_blending.color_blending, s.color_blending.blending_reversed_colors, s.temp_color_cycling_location, s.temp_color_cycling_location_second_palette, s.fns.preffs.functionFilter, s.fns.postffs.functionFilter, s.fns.ips.influencePlane, s.fns.cbs.convergent_bailout_test_algorithm, s.flip_real, s.flip_imaginary);
+        options_menu = new OptionsMenu(ptr, "Options", s.ps, s.ps2, s.fns.smoothing, show_orbit_converging_point, s.fns.apply_plane_on_julia, s.fns.apply_plane_on_julia_seed, s.fns.out_coloring_algorithm, s.fns.in_coloring_algorithm, s.fns.function, s.fns.plane_type, s.fns.bailout_test_algorithm, s.color_blending.color_blending, s.color_blending.blending_reversed_colors, s.temp_color_cycling_location, s.temp_color_cycling_location_second_palette, s.fns.preffs.functionFilter, s.fns.postffs.functionFilter, s.fns.ips.influencePlane, s.fns.cbs.convergent_bailout_test_algorithm, s.flip_real, s.flip_imaginary);
 
         fractal_functions = options_menu.getFractalFunctions();
 
@@ -1288,6 +1289,9 @@ public class MainWindow extends JFrame implements Constants {
             case MANDELBAR:
                 temp += "   Mandelbar";
                 break;
+            case MANDELBARCUBED:
+                temp += "   Mandelbar Cubed";
+                break;
             case SPIDER:
                 temp += "   Spider";
                 break;
@@ -1498,6 +1502,9 @@ public class MainWindow extends JFrame implements Constants {
             case FORMULA47:
                 temp += "   z = z^2 + c^2";
                 break;
+            case FORMULA50:
+                temp += "   z = 2*z^2 - z^3 + c";
+                break;
             case PERPENDICULAR_MANDELBROT:
                 temp += "   Perpendicular Mandelbrot";
                 break;
@@ -1682,7 +1689,7 @@ public class MainWindow extends JFrame implements Constants {
             }
 
             if (doPreview && !doQuickRender) {
-                if(!(TaskRender.GREEDY_ALGORITHM && (TaskRender.GREEDY_ALGORITHM_SELECTION == SUCCESSIVE_REFINEMENT || TaskRender.GREEDY_ALGORITHM_SELECTION == CIRCULAR_SUCCESSIVE_REFINEMENT))) {
+                if(!(TaskRender.GREEDY_ALGORITHM && (TaskRender.GREEDY_ALGORITHM_SELECTION == SUCCESSIVE_REFINEMENT || TaskRender.GREEDY_ALGORITHM_SELECTION == PATTERNED_SUCCESSIVE_REFINEMENT))) {
                     doQuickRender = TaskRender.RENDER_IMAGE_PREVIEW;
                     createPreview = doQuickRender;
                 }
@@ -1724,7 +1731,7 @@ public class MainWindow extends JFrame implements Constants {
                                     } else {
                                         tasks[i][j] = new BoundaryTracingRender(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, PERIODICITY_CHECKING, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.ds, s.inverse_dem, doQuickRender, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps, s.xJuliaCenter, s.yJuliaCenter);
                                     }
-                                } else if (TaskRender.GREEDY_ALGORITHM_SELECTION == DIVIDE_AND_CONQUER) {
+                                } else if (TaskRender.GREEDY_ALGORITHM_SELECTION == MARIANI_SILVER) {
                                     if(TaskRender.SUCCESSIVE_REFINEMENT_SQUARE_RECT_SPLIT_ALGORITHM > 0) {
                                         if (TaskRender.GREEDY_ALGORITHM_CHECK_ITER_DATA) {
                                             tasks[i][j] = new MarianiSilver3ColorsAndIterationDataRender(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, PERIODICITY_CHECKING, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.polar_projection, s.circle_period, s.ds, s.inverse_dem, doQuickRender, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending, s.post_processing_order, s.pbs, s.gs.gradient_offset, s.contourFactor, s.gps, s.js, s.pps, s.xJuliaCenter, s.yJuliaCenter);
@@ -1756,19 +1763,19 @@ public class MainWindow extends JFrame implements Constants {
                                         }
                                     }
                                 }
-                                else if (TaskRender.GREEDY_ALGORITHM_SELECTION == CIRCULAR_SUCCESSIVE_REFINEMENT) {
+                                else if (TaskRender.GREEDY_ALGORITHM_SELECTION == PATTERNED_SUCCESSIVE_REFINEMENT) {
                                     if(TaskRender.SUCCESSIVE_REFINEMENT_SQUARE_RECT_SPLIT_ALGORITHM > 0) {
                                         if (TaskRender.GREEDY_ALGORITHM_CHECK_ITER_DATA) {
-                                            tasks[i][j] = new CircularSuccessiveRefinementGuessing2ColorsAndIterationDataRender(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, PERIODICITY_CHECKING, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.polar_projection, s.circle_period, s.ds, s.inverse_dem, doQuickRender, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending, s.post_processing_order, s.pbs, s.gs.gradient_offset, s.contourFactor, s.gps, s.js, s.pps, s.xJuliaCenter, s.yJuliaCenter);
+                                            tasks[i][j] = new PatternedSuccessiveRefinementGuessing2ColorsAndIterationDataRender(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, PERIODICITY_CHECKING, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.polar_projection, s.circle_period, s.ds, s.inverse_dem, doQuickRender, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending, s.post_processing_order, s.pbs, s.gs.gradient_offset, s.contourFactor, s.gps, s.js, s.pps, s.xJuliaCenter, s.yJuliaCenter);
                                         } else {
-                                            tasks[i][j] = new CircularSuccessiveRefinementGuessing2Render(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, PERIODICITY_CHECKING, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.polar_projection, s.circle_period, s.ds, s.inverse_dem, doQuickRender, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending, s.post_processing_order, s.pbs, s.gs.gradient_offset, s.contourFactor, s.gps, s.js, s.pps, s.xJuliaCenter, s.yJuliaCenter);
+                                            tasks[i][j] = new PatternedSuccessiveRefinementGuessing2Render(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, PERIODICITY_CHECKING, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.polar_projection, s.circle_period, s.ds, s.inverse_dem, doQuickRender, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending, s.post_processing_order, s.pbs, s.gs.gradient_offset, s.contourFactor, s.gps, s.js, s.pps, s.xJuliaCenter, s.yJuliaCenter);
                                         }
                                     }
                                     else {
                                         if (TaskRender.GREEDY_ALGORITHM_CHECK_ITER_DATA) {
-                                            tasks[i][j] = new CircularSuccessiveRefinementGuessingColorsAndIterationDataRender(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, PERIODICITY_CHECKING, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.polar_projection, s.circle_period, s.ds, s.inverse_dem, doQuickRender, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending, s.post_processing_order, s.pbs, s.gs.gradient_offset, s.contourFactor, s.gps, s.js, s.pps, s.xJuliaCenter, s.yJuliaCenter);
+                                            tasks[i][j] = new PatternedSuccessiveRefinementGuessingColorsAndIterationDataRender(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, PERIODICITY_CHECKING, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.polar_projection, s.circle_period, s.ds, s.inverse_dem, doQuickRender, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending, s.post_processing_order, s.pbs, s.gs.gradient_offset, s.contourFactor, s.gps, s.js, s.pps, s.xJuliaCenter, s.yJuliaCenter);
                                         } else {
-                                            tasks[i][j] = new CircularSuccessiveRefinementGuessingRender(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, PERIODICITY_CHECKING, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.polar_projection, s.circle_period, s.ds, s.inverse_dem, doQuickRender, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending, s.post_processing_order, s.pbs, s.gs.gradient_offset, s.contourFactor, s.gps, s.js, s.pps, s.xJuliaCenter, s.yJuliaCenter);
+                                            tasks[i][j] = new PatternedSuccessiveRefinementGuessingRender(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, PERIODICITY_CHECKING, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.polar_projection, s.circle_period, s.ds, s.inverse_dem, doQuickRender, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending, s.post_processing_order, s.pbs, s.gs.gradient_offset, s.contourFactor, s.gps, s.js, s.pps, s.xJuliaCenter, s.yJuliaCenter);
                                         }
                                     }
                                 }
@@ -1779,7 +1786,7 @@ public class MainWindow extends JFrame implements Constants {
                                     tasks[i][j] = new BruteForce2Render(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, PERIODICITY_CHECKING, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.ds, s.inverse_dem, doQuickRender, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps, s.xJuliaCenter, s.yJuliaCenter);
                                 }
                                 else if (TaskRender.BRUTE_FORCE_ALG == 2){
-                                    tasks[i][j] = new CircularBruteForceRender(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, PERIODICITY_CHECKING, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.ds, s.inverse_dem, doQuickRender, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps, s.xJuliaCenter, s.yJuliaCenter);
+                                    tasks[i][j] = new PatternedBruteForceRender(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, PERIODICITY_CHECKING, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.ds, s.inverse_dem, doQuickRender, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps, s.xJuliaCenter, s.yJuliaCenter);
                                 }
                                 else {
                                     tasks[i][j] = new BruteForceInterleavedRender(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, PERIODICITY_CHECKING, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.ds, s.inverse_dem, doQuickRender, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps, s.xJuliaCenter, s.yJuliaCenter);
@@ -1792,7 +1799,7 @@ public class MainWindow extends JFrame implements Constants {
                                 } else {
                                     tasks[i][j] = new BoundaryTracingRender(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, PERIODICITY_CHECKING, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.ds, s.inverse_dem, doQuickRender, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps);
                                 }
-                            } else if (TaskRender.GREEDY_ALGORITHM_SELECTION == DIVIDE_AND_CONQUER) {
+                            } else if (TaskRender.GREEDY_ALGORITHM_SELECTION == MARIANI_SILVER) {
                                 if(TaskRender.SUCCESSIVE_REFINEMENT_SQUARE_RECT_SPLIT_ALGORITHM > 0) {
                                     if (TaskRender.GREEDY_ALGORITHM_CHECK_ITER_DATA) {
                                         tasks[i][j] = new MarianiSilver3ColorsAndIterationDataRender(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, PERIODICITY_CHECKING, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.polar_projection, s.circle_period, s.ds, s.inverse_dem, doQuickRender, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending, s.post_processing_order, s.pbs, s.gs.gradient_offset, s.contourFactor, s.gps, s.js, s.pps);
@@ -1824,19 +1831,19 @@ public class MainWindow extends JFrame implements Constants {
                                     }
                                 }
                             }
-                            else if(TaskRender.GREEDY_ALGORITHM_SELECTION == CIRCULAR_SUCCESSIVE_REFINEMENT) {
+                            else if(TaskRender.GREEDY_ALGORITHM_SELECTION == PATTERNED_SUCCESSIVE_REFINEMENT) {
                                 if(TaskRender.SUCCESSIVE_REFINEMENT_SQUARE_RECT_SPLIT_ALGORITHM > 0) {
                                     if (TaskRender.GREEDY_ALGORITHM_CHECK_ITER_DATA) {
-                                        tasks[i][j] = new CircularSuccessiveRefinementGuessing2ColorsAndIterationDataRender(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, PERIODICITY_CHECKING, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.polar_projection, s.circle_period, s.ds, s.inverse_dem, doQuickRender, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending, s.post_processing_order, s.pbs, s.gs.gradient_offset, s.contourFactor, s.gps, s.js, s.pps);
+                                        tasks[i][j] = new PatternedSuccessiveRefinementGuessing2ColorsAndIterationDataRender(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, PERIODICITY_CHECKING, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.polar_projection, s.circle_period, s.ds, s.inverse_dem, doQuickRender, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending, s.post_processing_order, s.pbs, s.gs.gradient_offset, s.contourFactor, s.gps, s.js, s.pps);
                                     } else {
-                                        tasks[i][j] = new CircularSuccessiveRefinementGuessing2Render(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, PERIODICITY_CHECKING, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.polar_projection, s.circle_period, s.ds, s.inverse_dem, doQuickRender, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending, s.post_processing_order, s.pbs, s.gs.gradient_offset, s.contourFactor, s.gps, s.js, s.pps);
+                                        tasks[i][j] = new PatternedSuccessiveRefinementGuessing2Render(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, PERIODICITY_CHECKING, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.polar_projection, s.circle_period, s.ds, s.inverse_dem, doQuickRender, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending, s.post_processing_order, s.pbs, s.gs.gradient_offset, s.contourFactor, s.gps, s.js, s.pps);
                                     }
                                 }
                                 else {
                                     if (TaskRender.GREEDY_ALGORITHM_CHECK_ITER_DATA) {
-                                        tasks[i][j] = new CircularSuccessiveRefinementGuessingColorsAndIterationDataRender(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, PERIODICITY_CHECKING, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.polar_projection, s.circle_period, s.ds, s.inverse_dem, doQuickRender, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending, s.post_processing_order, s.pbs, s.gs.gradient_offset, s.contourFactor, s.gps, s.js, s.pps);
+                                        tasks[i][j] = new PatternedSuccessiveRefinementGuessingColorsAndIterationDataRender(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, PERIODICITY_CHECKING, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.polar_projection, s.circle_period, s.ds, s.inverse_dem, doQuickRender, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending, s.post_processing_order, s.pbs, s.gs.gradient_offset, s.contourFactor, s.gps, s.js, s.pps);
                                     } else {
-                                        tasks[i][j] = new CircularSuccessiveRefinementGuessingRender(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, PERIODICITY_CHECKING, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.polar_projection, s.circle_period, s.ds, s.inverse_dem, doQuickRender, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending, s.post_processing_order, s.pbs, s.gs.gradient_offset, s.contourFactor, s.gps, s.js, s.pps);
+                                        tasks[i][j] = new PatternedSuccessiveRefinementGuessingRender(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, PERIODICITY_CHECKING, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.polar_projection, s.circle_period, s.ds, s.inverse_dem, doQuickRender, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending, s.post_processing_order, s.pbs, s.gs.gradient_offset, s.contourFactor, s.gps, s.js, s.pps);
                                     }
                                 }
                             }
@@ -1847,7 +1854,7 @@ public class MainWindow extends JFrame implements Constants {
                                 tasks[i][j] = new BruteForce2Render(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, PERIODICITY_CHECKING, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.ds, s.inverse_dem, doQuickRender, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps);
                             }
                             else if (TaskRender.BRUTE_FORCE_ALG == 2) {
-                                tasks[i][j] = new CircularBruteForceRender(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, PERIODICITY_CHECKING, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.ds, s.inverse_dem, doQuickRender, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps);
+                                tasks[i][j] = new PatternedBruteForceRender(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, PERIODICITY_CHECKING, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.ds, s.inverse_dem, doQuickRender, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps);
                             }
                             else {
                                 tasks[i][j] = new BruteForceInterleavedRender(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, PERIODICITY_CHECKING, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.ds, s.inverse_dem, doQuickRender, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps);
@@ -1861,19 +1868,19 @@ public class MainWindow extends JFrame implements Constants {
                     }
                 }
 
-                if(tasks[0][0].hasCircularLogic()) {
-                    CircularBruteForceRender.initCoordinates(image_width, image_height, zoom_to_cursor && CIRCULAR_RENDER_FOLLOWS_ZOOM_TO_CURSOR, !doQuickRender || TaskRender.QUICKRENDER_SUCCESSIVE_REFINEMENT, tasks[0][0].usesSuccessiveRefinement());
+                if(tasks[0][0].hasPatternedLogic()) {
+                    PatternedBruteForceRender.initCoordinates(image_width, image_height, zoom_to_cursor && PATTERNED_RENDER_FOLLOWS_ZOOM_TO_CURSOR, !doQuickRender || TaskRender.QUICKRENDER_SUCCESSIVE_REFINEMENT, tasks[0][0].usesSuccessiveRefinement());
                     if(tasks[0][0].usesSuccessiveRefinement()) {
                         if(TaskRender.SUCCESSIVE_REFINEMENT_SQUARE_RECT_SPLIT_ALGORITHM > 0) {
-                            CircularSuccessiveRefinementGuessing2Render.initCoordinates(false);
+                            PatternedSuccessiveRefinementGuessing2Render.initCoordinates(false);
                         }
                         else {
-                            CircularSuccessiveRefinementGuessingRender.initCoordinates(false);
+                            PatternedSuccessiveRefinementGuessingRender.initCoordinates(false);
                         }
                     }
                 }
                 else {
-                    CircularBruteForceRender.clear();
+                    PatternedBruteForceRender.clear();
                 }
 
                 if(tasks[0][0].usesSuccessiveRefinement()) {
@@ -2243,7 +2250,6 @@ public class MainWindow extends JFrame implements Constants {
             options_menu.getOutTrueColoring().setEnabled(false);
             options_menu.getInTrueColoring().setEnabled(false);
 
-            options_menu.getGreedyAlgorithm().setEnabled(false);
             options_menu.getPeriodicityChecking().setEnabled(false);
             options_menu.getBailout().setEnabled(false);
             options_menu.getBailoutConditionMenu().setEnabled(false);
@@ -2725,7 +2731,7 @@ public class MainWindow extends JFrame implements Constants {
         file_chooser.addChoosableFileFilter(new FileNameExtensionFilter("PPM (*.ppm)", "ppm"));
         file_chooser.addChoosableFileFilter(new FileNameExtensionFilter("PGM (*.pgm)", "pgm"));
 
-        String name = "fractal " + DateTimeFormatter.ofPattern("yyyy-MM-dd HH;mm;ss").format(LocalDateTime.now()) + ".png";
+        String name = "fractal zoomer " + DateTimeFormatter.ofPattern("yyyy-MM-dd HH;mm;ss").format(LocalDateTime.now()) + ".png";
         file_chooser.setSelectedFile(new File(name));
 
         file_chooser.addPropertyChangeListener(JFileChooser.FILE_FILTER_CHANGED_PROPERTY, arg0 -> {
@@ -3080,12 +3086,8 @@ public class MainWindow extends JFrame implements Constants {
 
     public void onPeriodChange() {
 
-        if(s.canSkipCalculatedAreas() && s.old_max_iterations != s.max_iterations) {
-            reRender(true);
-        }
-        else {
-            reRender(false);
-        }
+        reRender(s.canSkipCalculatedAreas() && s.old_max_iterations != s.max_iterations);
+
     }
 
     public void setIterations() {
@@ -3303,7 +3305,7 @@ public class MainWindow extends JFrame implements Constants {
 
                 resetImageAndCopy(s.d3s.d3, false);
 
-                if ((TaskRender.GREEDY_ALGORITHM && TaskRender.GREEDY_ALGORITHM_SELECTION == DIVIDE_AND_CONQUER) || s.requiresRecalculation(false)) {
+                if ((TaskRender.GREEDY_ALGORITHM && TaskRender.GREEDY_ALGORITHM_SELECTION == MARIANI_SILVER) || s.requiresRecalculation(false)) {
                     if (s.d3s.d3) {
                         createTasksPaletteAndFilter3DModel();
                     } else {
@@ -3725,7 +3727,7 @@ public class MainWindow extends JFrame implements Constants {
     }
 
     public boolean canSelectPointInstantly() {
-        return !(s.fns.julia && first_seed) && !color_cycling && !s.julia_map && !s.d3s.d3 && TaskRender.USE_QUICKRENDER_ON_GREEDY_SUCCESSIVE_REFINEMENT && TaskRender.GREEDY_ALGORITHM && (TaskRender.GREEDY_ALGORITHM_SELECTION == Constants.SUCCESSIVE_REFINEMENT || TaskRender.GREEDY_ALGORITHM_SELECTION == Constants.CIRCULAR_SUCCESSIVE_REFINEMENT);
+        return !(s.fns.julia && first_seed) && !color_cycling && !s.julia_map && !s.d3s.d3 && TaskRender.USE_NON_BLOCKING_RENDERING && TaskRender.GREEDY_ALGORITHM && (TaskRender.GREEDY_ALGORITHM_SELECTION == Constants.SUCCESSIVE_REFINEMENT || TaskRender.GREEDY_ALGORITHM_SELECTION == Constants.PATTERNED_SUCCESSIVE_REFINEMENT);
     }
 
     private void selectAreaFractal() {
@@ -3747,12 +3749,12 @@ public class MainWindow extends JFrame implements Constants {
 
             if (canSelectPointInstantly()) {
                 TaskRender.action_thread_executor.submit(() -> {
-                    if (successive_refinement_mutex.tryLock()) {
+                    if (start_rendering_mutex.tryLock()) {
                         try {
-                            stopSuccessiveRefinement();
+                            stopRendering();
                             selectAreaFractalInternal(curX, curY, areaWidth, areaHeight, rotation);
                         } finally {
-                            successive_refinement_mutex.unlock();
+                            start_rendering_mutex.unlock();
                         }
                     }
                 });
@@ -3830,12 +3832,12 @@ public class MainWindow extends JFrame implements Constants {
             else {*/
                 if (canSelectPointInstantly()) {
                     TaskRender.action_thread_executor.submit(() -> {
-                        if (successive_refinement_mutex.tryLock()) {
+                        if (start_rendering_mutex.tryLock()) {
                             try {
-                                stopSuccessiveRefinement();
+                                stopRendering();
                                 selectPointFractalInternal(e, curX, curY);
                             } finally {
-                                successive_refinement_mutex.unlock();
+                                start_rendering_mutex.unlock();
                             }
                         }
                     });
@@ -3959,12 +3961,12 @@ public class MainWindow extends JFrame implements Constants {
 
             if (canSelectPointInstantly()) {
                 TaskRender.action_thread_executor.submit(() -> {
-                    if (successive_refinement_mutex.tryLock()) {
+                    if (start_rendering_mutex.tryLock()) {
                         try {
-                            stopSuccessiveRefinement();
+                            stopRendering();
                             scrollPointInternal(e, false, curX, curY);
                         } finally {
-                            successive_refinement_mutex.unlock();
+                            start_rendering_mutex.unlock();
                         }
                     }
                 });
@@ -4045,12 +4047,12 @@ public class MainWindow extends JFrame implements Constants {
 
                 if (canSelectPointInstantly()) {
                     TaskRender.action_thread_executor.submit(() -> {
-                        if (successive_refinement_mutex.tryLock()) {
+                        if (start_rendering_mutex.tryLock()) {
                             try {
-                                stopSuccessiveRefinement();
+                                stopRendering();
                                 dragPointInternal(e, false, curX, curY);
                             } finally {
-                                successive_refinement_mutex.unlock();
+                                start_rendering_mutex.unlock();
                             }
                         }
                     });
@@ -4225,12 +4227,12 @@ public class MainWindow extends JFrame implements Constants {
 
                 if (canSelectPointInstantly()) {
                     TaskRender.action_thread_executor.submit(() -> {
-                        if (successive_refinement_mutex.tryLock()) {
+                        if (start_rendering_mutex.tryLock()) {
                             try {
-                                stopSuccessiveRefinement();
+                                stopRendering();
                                 selectPointForPlaneInternal(e, false, curX, curY);
                             } finally {
-                                successive_refinement_mutex.unlock();
+                                start_rendering_mutex.unlock();
                             }
                         }
                     });
@@ -4511,12 +4513,12 @@ public class MainWindow extends JFrame implements Constants {
 
                 if (canSelectPointInstantly()) {
                     TaskRender.action_thread_executor.submit(() -> {
-                        if (successive_refinement_mutex.tryLock()) {
+                        if (start_rendering_mutex.tryLock()) {
                             try {
-                                stopSuccessiveRefinement();
+                                stopRendering();
                                 rotatePointInternal(e, false, curX, curY);
                             } finally {
-                                successive_refinement_mutex.unlock();
+                                start_rendering_mutex.unlock();
                             }
                         }
                     });
@@ -4718,12 +4720,12 @@ public class MainWindow extends JFrame implements Constants {
 
             if (canSelectPointInstantly()) {
                 TaskRender.action_thread_executor.submit(() -> {
-                    if (successive_refinement_mutex.tryLock()) {
+                    if (start_rendering_mutex.tryLock()) {
                         try {
-                            stopSuccessiveRefinement();
+                            stopRendering();
                             scrollPointPolarInternal(e, false, curX, curY);
                         } finally {
-                            successive_refinement_mutex.unlock();
+                            start_rendering_mutex.unlock();
                         }
                     }
                 });
@@ -4883,12 +4885,12 @@ public class MainWindow extends JFrame implements Constants {
 
             if (canSelectPointInstantly()) {
                 TaskRender.action_thread_executor.submit(() -> {
-                    if (successive_refinement_mutex.tryLock()) {
+                    if (start_rendering_mutex.tryLock()) {
                         try {
-                            stopSuccessiveRefinement();
+                            stopRendering();
                             selectPointJuliaInternal(e, curX, curY);
                         } finally {
-                            successive_refinement_mutex.unlock();
+                            start_rendering_mutex.unlock();
                         }
                     }
                 });
@@ -4964,8 +4966,8 @@ public class MainWindow extends JFrame implements Constants {
         startTasks();
     }
 
-    private void stopSuccessiveRefinement() {
-        TaskRender.stopSuccessiveRefinement();
+    private void stopRendering() {
+        TaskRender.stopRendering();
 
        // synchronized (this) {
             try {
@@ -5002,12 +5004,12 @@ public class MainWindow extends JFrame implements Constants {
 
             if (canSelectPointInstantly()) {
                 TaskRender.action_thread_executor.submit(() -> {
-                    if (successive_refinement_mutex.tryLock()) {
+                    if (start_rendering_mutex.tryLock()) {
                         try {
-                            stopSuccessiveRefinement();
+                            stopRendering();
                             selectPointPolarInternal(e, curX, curY);
                         } finally {
-                            successive_refinement_mutex.unlock();
+                            start_rendering_mutex.unlock();
                         }
                     }
                 });
@@ -5291,12 +5293,12 @@ public class MainWindow extends JFrame implements Constants {
         synchronized (new_calculation_mutex) {
             if (canSelectPointInstantly()) {
                 TaskRender.action_thread_executor.submit(() -> {
-                    if (successive_refinement_mutex.tryLock()) {
+                    if (start_rendering_mutex.tryLock()) {
                         try {
-                            stopSuccessiveRefinement();
+                            stopRendering();
                             zoomInInternal();
                         } finally {
-                            successive_refinement_mutex.unlock();
+                            start_rendering_mutex.unlock();
                         }
                     }
                 });
@@ -5312,12 +5314,12 @@ public class MainWindow extends JFrame implements Constants {
         synchronized (new_calculation_mutex) {
             if (canSelectPointInstantly()) {
                 TaskRender.action_thread_executor.submit(() -> {
-                    if (successive_refinement_mutex.tryLock()) {
+                    if (start_rendering_mutex.tryLock()) {
                         try {
-                            stopSuccessiveRefinement();
+                            stopRendering();
                             zoomOutInternal();
                         } finally {
-                            successive_refinement_mutex.unlock();
+                            start_rendering_mutex.unlock();
                         }
                     }
                 });
@@ -5471,12 +5473,12 @@ public class MainWindow extends JFrame implements Constants {
         synchronized (new_calculation_mutex) {
             if (canSelectPointInstantly()) {
                 TaskRender.action_thread_executor.submit(() -> {
-                    if (successive_refinement_mutex.tryLock()) {
+                    if (start_rendering_mutex.tryLock()) {
                         try {
-                            stopSuccessiveRefinement();
+                            stopRendering();
                             moveToInternal(where);
                         } finally {
-                            successive_refinement_mutex.unlock();
+                            start_rendering_mutex.unlock();
                         }
                     }
                 });
@@ -5624,8 +5626,8 @@ public class MainWindow extends JFrame implements Constants {
             options_menu.getPeriodicityChecking().setEnabled(option);
         }
 
-        if (!s.ds.domain_coloring && !s.d3s.d3 && !s.julia_map) {
-            options_menu.getGreedyAlgorithm().setEnabled(option);
+        if (!s.julia_map) {
+            options_menu.getRenderingAlgorithm().setEnabled(option);
         }
 
         if (((!s.fns.julia && !orbit) || (!first_seed && !orbit)) && !s.ds.domain_coloring && !zoom_window && !s.julia_map && !s.d3s.d3  && s.functionSupportsC()) {
@@ -6362,12 +6364,12 @@ public class MainWindow extends JFrame implements Constants {
         synchronized (new_calculation_mutex) {
             if (canSelectPointInstantly()) {
                 TaskRender.action_thread_executor.submit(() -> {
-                    if (successive_refinement_mutex.tryLock()) {
+                    if (start_rendering_mutex.tryLock()) {
                         try {
-                            stopSuccessiveRefinement();
+                            stopRendering();
                             startingPositionInternal();
                         } finally {
-                            successive_refinement_mutex.unlock();
+                            start_rendering_mutex.unlock();
                         }
                     }
                 });
@@ -6458,7 +6460,7 @@ public class MainWindow extends JFrame implements Constants {
     public void setSizeOfImage() {
 
         resetOrbit();
-        new ImageSizeDialog(ptr, image_width, image_height);
+        new ImageSizeDialog(ptr, image_width, image_height, 0);
 
     }
 
@@ -6671,7 +6673,7 @@ public class MainWindow extends JFrame implements Constants {
                                 } else {
                                     tasks[i][j] = new BoundaryTracingRender(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, FAST_JULIA_FILTERS, fast_julia_image, PERIODICITY_CHECKING, s.fs, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps, temp_xJuliaCenter, temp_yJuliaCenter);
                                 }
-                            } else if (TaskRender.GREEDY_ALGORITHM_SELECTION == DIVIDE_AND_CONQUER) {
+                            } else if (TaskRender.GREEDY_ALGORITHM_SELECTION == MARIANI_SILVER) {
                                 if(TaskRender.SUCCESSIVE_REFINEMENT_SQUARE_RECT_SPLIT_ALGORITHM > 0) {
                                     if (TaskRender.GREEDY_ALGORITHM_CHECK_ITER_DATA) {
                                         tasks[i][j] = new MarianiSilver3ColorsAndIterationDataRender(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, FAST_JULIA_FILTERS, fast_julia_image, PERIODICITY_CHECKING, s.fs, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.polar_projection, s.circle_period, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending, s.post_processing_order, s.pbs, s.gs.gradient_offset, s.contourFactor, s.gps, s.js, s.pps, temp_xJuliaCenter, temp_yJuliaCenter);
@@ -6703,19 +6705,19 @@ public class MainWindow extends JFrame implements Constants {
                                     }
                                 }
                             }
-                            else if (TaskRender.GREEDY_ALGORITHM_SELECTION == CIRCULAR_SUCCESSIVE_REFINEMENT) {
+                            else if (TaskRender.GREEDY_ALGORITHM_SELECTION == PATTERNED_SUCCESSIVE_REFINEMENT) {
                                 if(TaskRender.SUCCESSIVE_REFINEMENT_SQUARE_RECT_SPLIT_ALGORITHM > 0) {
                                     if (TaskRender.GREEDY_ALGORITHM_CHECK_ITER_DATA) {
-                                        tasks[i][j] = new CircularSuccessiveRefinementGuessing2ColorsAndIterationDataRender(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, FAST_JULIA_FILTERS, fast_julia_image, PERIODICITY_CHECKING, s.fs, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.polar_projection, s.circle_period, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending, s.post_processing_order, s.pbs, s.gs.gradient_offset, s.contourFactor, s.gps, s.js, s.pps, temp_xJuliaCenter, temp_yJuliaCenter);
+                                        tasks[i][j] = new PatternedSuccessiveRefinementGuessing2ColorsAndIterationDataRender(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, FAST_JULIA_FILTERS, fast_julia_image, PERIODICITY_CHECKING, s.fs, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.polar_projection, s.circle_period, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending, s.post_processing_order, s.pbs, s.gs.gradient_offset, s.contourFactor, s.gps, s.js, s.pps, temp_xJuliaCenter, temp_yJuliaCenter);
                                     } else {
-                                        tasks[i][j] = new CircularSuccessiveRefinementGuessing2Render(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, FAST_JULIA_FILTERS, fast_julia_image, PERIODICITY_CHECKING, s.fs, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.polar_projection, s.circle_period, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending, s.post_processing_order, s.pbs, s.gs.gradient_offset, s.contourFactor, s.gps, s.js, s.pps, temp_xJuliaCenter, temp_yJuliaCenter);
+                                        tasks[i][j] = new PatternedSuccessiveRefinementGuessing2Render(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, FAST_JULIA_FILTERS, fast_julia_image, PERIODICITY_CHECKING, s.fs, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.polar_projection, s.circle_period, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending, s.post_processing_order, s.pbs, s.gs.gradient_offset, s.contourFactor, s.gps, s.js, s.pps, temp_xJuliaCenter, temp_yJuliaCenter);
                                     }
                                 }
                                 else {
                                     if (TaskRender.GREEDY_ALGORITHM_CHECK_ITER_DATA) {
-                                        tasks[i][j] = new CircularSuccessiveRefinementGuessingColorsAndIterationDataRender(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, FAST_JULIA_FILTERS, fast_julia_image, PERIODICITY_CHECKING, s.fs, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.polar_projection, s.circle_period, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending, s.post_processing_order, s.pbs, s.gs.gradient_offset, s.contourFactor, s.gps, s.js, s.pps, temp_xJuliaCenter, temp_yJuliaCenter);
+                                        tasks[i][j] = new PatternedSuccessiveRefinementGuessingColorsAndIterationDataRender(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, FAST_JULIA_FILTERS, fast_julia_image, PERIODICITY_CHECKING, s.fs, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.polar_projection, s.circle_period, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending, s.post_processing_order, s.pbs, s.gs.gradient_offset, s.contourFactor, s.gps, s.js, s.pps, temp_xJuliaCenter, temp_yJuliaCenter);
                                     } else {
-                                        tasks[i][j] = new CircularSuccessiveRefinementGuessingRender(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, FAST_JULIA_FILTERS, fast_julia_image, PERIODICITY_CHECKING, s.fs, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.polar_projection, s.circle_period, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending, s.post_processing_order, s.pbs, s.gs.gradient_offset, s.contourFactor, s.gps, s.js, s.pps, temp_xJuliaCenter, temp_yJuliaCenter);
+                                        tasks[i][j] = new PatternedSuccessiveRefinementGuessingRender(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, FAST_JULIA_FILTERS, fast_julia_image, PERIODICITY_CHECKING, s.fs, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.polar_projection, s.circle_period, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending, s.post_processing_order, s.pbs, s.gs.gradient_offset, s.contourFactor, s.gps, s.js, s.pps, temp_xJuliaCenter, temp_yJuliaCenter);
                                     }
                                 }
                             }
@@ -6726,7 +6728,7 @@ public class MainWindow extends JFrame implements Constants {
                                 tasks[i][j] = new BruteForce2Render(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, FAST_JULIA_FILTERS, fast_julia_image, PERIODICITY_CHECKING, s.fs, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps, temp_xJuliaCenter, temp_yJuliaCenter);
                             }
                             else if (TaskRender.BRUTE_FORCE_ALG == 2) {
-                                tasks[i][j] = new CircularBruteForceRender(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, FAST_JULIA_FILTERS, fast_julia_image, PERIODICITY_CHECKING, s.fs, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps, temp_xJuliaCenter, temp_yJuliaCenter);
+                                tasks[i][j] = new PatternedBruteForceRender(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, FAST_JULIA_FILTERS, fast_julia_image, PERIODICITY_CHECKING, s.fs, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps, temp_xJuliaCenter, temp_yJuliaCenter);
                             }
                             else {
                                 tasks[i][j] = new BruteForceInterleavedRender(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, FAST_JULIA_FILTERS, fast_julia_image, PERIODICITY_CHECKING, s.fs, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio,  s.polar_projection, s.circle_period,   s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,    s.color_blending,   s.post_processing_order,   s.pbs,  s.gs.gradient_offset,  s.contourFactor, s.gps, s.js, s.pps, temp_xJuliaCenter, temp_yJuliaCenter);
@@ -6737,18 +6739,18 @@ public class MainWindow extends JFrame implements Constants {
                     }
                 }
 
-                if(tasks[0][0].hasCircularLogic()) {
-                    CircularBruteForceRender.initCoordinatesFastJulia(TaskRender.FAST_JULIA_IMAGE_SIZE, tasks[0][0].usesSuccessiveRefinement());
+                if(tasks[0][0].hasPatternedLogic()) {
+                    PatternedBruteForceRender.initCoordinatesFastJulia(TaskRender.FAST_JULIA_IMAGE_SIZE, tasks[0][0].usesSuccessiveRefinement());
                     if(tasks[0][0].usesSuccessiveRefinement()) {
                         if (TaskRender.SUCCESSIVE_REFINEMENT_SQUARE_RECT_SPLIT_ALGORITHM > 0) {
-                            CircularSuccessiveRefinementGuessing2Render.initCoordinatesFastJulia(false);
+                            PatternedSuccessiveRefinementGuessing2Render.initCoordinatesFastJulia(false);
                         } else {
-                            CircularSuccessiveRefinementGuessingRender.initCoordinatesFastJulia(false);
+                            PatternedSuccessiveRefinementGuessingRender.initCoordinatesFastJulia(false);
                         }
                     }
                 }
                 else {
-                    CircularBruteForceRender.clearFastJulia();
+                    PatternedBruteForceRender.clearFastJulia();
                 }
 
                 if(tasks[0][0].usesSuccessiveRefinement()) {
@@ -6880,11 +6882,11 @@ public class MainWindow extends JFrame implements Constants {
                 for (int j = 0; j < tasks[i].length; j++, taskId++) {
                     TaskSplitCoordinates tsc = TaskSplitCoordinates.get(j, i, thread_grouping, n, m, image_width, image_height);
 
-                    if(TaskRender.GREEDY_ALGORITHM && TaskRender.GREEDY_ALGORITHM_SELECTION == Constants.CIRCULAR_SUCCESSIVE_REFINEMENT) {
-                        tasks[i][j] = new CircularSuccessiveRefinementGuessingRender(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs,  s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,      s.color_blending,  s.post_processing_order,   s.pbs,  s.ds, s.gs.gradient_offset,  s.contourFactor, s.gps, s.pps, s.fns.banded);
+                    if(TaskRender.GREEDY_ALGORITHM && TaskRender.GREEDY_ALGORITHM_SELECTION == Constants.PATTERNED_SUCCESSIVE_REFINEMENT) {
+                        tasks[i][j] = new PatternedSuccessiveRefinementGuessingRender(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs,  s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,      s.color_blending,  s.post_processing_order,   s.pbs,  s.ds, s.gs.gradient_offset,  s.contourFactor, s.gps, s.pps, s.fns.banded);
                     }
                     else if (!TaskRender.GREEDY_ALGORITHM && TaskRender.BRUTE_FORCE_ALG == 2) {
-                        tasks[i][j] = new CircularBruteForceRender(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs,  s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,      s.color_blending,  s.post_processing_order,   s.pbs,  s.ds, s.gs.gradient_offset,  s.contourFactor, s.gps, s.pps, s.fns.banded);
+                        tasks[i][j] = new PatternedBruteForceRender(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs,  s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,      s.color_blending,  s.post_processing_order,   s.pbs,  s.ds, s.gs.gradient_offset,  s.contourFactor, s.gps, s.pps, s.fns.banded);
                     }
                     else if (!TaskRender.GREEDY_ALGORITHM && TaskRender.BRUTE_FORCE_ALG == 0) {
                         tasks[i][j] = new BruteForceRender(tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs,  s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring,      s.color_blending,  s.post_processing_order,   s.pbs,  s.ds, s.gs.gradient_offset,  s.contourFactor, s.gps, s.pps, s.fns.banded);
@@ -6900,19 +6902,19 @@ public class MainWindow extends JFrame implements Constants {
                 }
             }
 
-            if(tasks[0][0].hasCircularLogic()) {
-                CircularBruteForceRender.initCoordinates(image_width, image_height, false, true, tasks[0][0].usesSuccessiveRefinement());
+            if(tasks[0][0].hasPatternedLogic()) {
+                PatternedBruteForceRender.initCoordinates(image_width, image_height, false, true, tasks[0][0].usesSuccessiveRefinement());
                 if(tasks[0][0].usesSuccessiveRefinement()) {
                     if(TaskRender.SUCCESSIVE_REFINEMENT_SQUARE_RECT_SPLIT_ALGORITHM > 0) {
-                        CircularSuccessiveRefinementGuessing2Render.initCoordinates(false);
+                        PatternedSuccessiveRefinementGuessing2Render.initCoordinates(false);
                     }
                     else {
-                        CircularSuccessiveRefinementGuessingRender.initCoordinates(false);
+                        PatternedSuccessiveRefinementGuessingRender.initCoordinates(false);
                     }
                 }
             }
             else {
-                CircularBruteForceRender.clear();
+                PatternedBruteForceRender.clear();
             }
         }
     }
@@ -6937,11 +6939,11 @@ public class MainWindow extends JFrame implements Constants {
                 for (int j = 0; j < tasks[i].length; j++, taskId++) {
                     TaskSplitCoordinates tsc = TaskSplitCoordinates.get(j, i, thread_grouping, n, m, image_width, image_height);
 
-                    if(TaskRender.GREEDY_ALGORITHM && TaskRender.GREEDY_ALGORITHM_SELECTION == Constants.CIRCULAR_SUCCESSIVE_REFINEMENT) {
-                        tasks[i][j] = new CircularSuccessiveRefinementGuessingRender(action, tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs,  s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending,  s.post_processing_order, s.pbs, s.gs.gradient_offset,  s.contourFactor, s.gps, s.pps, s.ds, s.fns.banded);
+                    if(TaskRender.GREEDY_ALGORITHM && TaskRender.GREEDY_ALGORITHM_SELECTION == Constants.PATTERNED_SUCCESSIVE_REFINEMENT) {
+                        tasks[i][j] = new PatternedSuccessiveRefinementGuessingRender(action, tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs,  s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending,  s.post_processing_order, s.pbs, s.gs.gradient_offset,  s.contourFactor, s.gps, s.pps, s.ds, s.fns.banded);
                     }
                     else if (!TaskRender.GREEDY_ALGORITHM && TaskRender.BRUTE_FORCE_ALG == 2) {
-                        tasks[i][j] = new CircularBruteForceRender(action, tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs,  s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending,  s.post_processing_order, s.pbs, s.gs.gradient_offset,  s.contourFactor, s.gps, s.pps, s.ds, s.fns.banded);
+                        tasks[i][j] = new PatternedBruteForceRender(action, tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs,  s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending,  s.post_processing_order, s.pbs, s.gs.gradient_offset,  s.contourFactor, s.gps, s.pps, s.ds, s.fns.banded);
                     }
                     else if (!TaskRender.GREEDY_ALGORITHM && TaskRender.BRUTE_FORCE_ALG == 0) {
                         tasks[i][j] = new BruteForceRender(action, tsc.FROMx, tsc.TOx, tsc.FROMy, tsc.TOy, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs,  s.ps.color_intensity, s.ps.transfer_function, s.ps.color_density, s.ps2.color_intensity, s.ps2.transfer_function, s.ps2.color_density, s.usePaletteForInColoring, s.color_blending,  s.post_processing_order, s.pbs, s.gs.gradient_offset,  s.contourFactor, s.gps, s.pps, s.ds, s.fns.banded);
@@ -6957,19 +6959,19 @@ public class MainWindow extends JFrame implements Constants {
                 }
             }
 
-            if(tasks[0][0].hasCircularLogic()) {
-                CircularBruteForceRender.initCoordinates(image_width, image_height, false, true, tasks[0][0].usesSuccessiveRefinement());
+            if(tasks[0][0].hasPatternedLogic()) {
+                PatternedBruteForceRender.initCoordinates(image_width, image_height, false, true, tasks[0][0].usesSuccessiveRefinement());
                 if(tasks[0][0].usesSuccessiveRefinement()) {
                     if(TaskRender.SUCCESSIVE_REFINEMENT_SQUARE_RECT_SPLIT_ALGORITHM > 0) {
-                        CircularSuccessiveRefinementGuessing2Render.initCoordinates(false);
+                        PatternedSuccessiveRefinementGuessing2Render.initCoordinates(false);
                     }
                     else {
-                        CircularSuccessiveRefinementGuessingRender.initCoordinates(false);
+                        PatternedSuccessiveRefinementGuessingRender.initCoordinates(false);
                     }
                 }
             }
             else {
-                CircularBruteForceRender.clear();
+                PatternedBruteForceRender.clear();
             }
         }
     }
@@ -7080,43 +7082,30 @@ public class MainWindow extends JFrame implements Constants {
 
         if (s.fns.plane_type == USER_PLANE) {
             new PlaneFormulaDialog(ptr, s, oldSelected, planes);
-            return;
         } else if (s.fns.plane_type == TWIRL_PLANE) {
             new TwirlPlaneDialog(ptr, s, oldSelected, planes);
-            return;
         } else if (s.fns.plane_type == SHEAR_PLANE) {
             new ShearPlaneDialog(ptr, s, oldSelected, planes);
-            return;
         } else if (s.fns.plane_type == RIPPLES_PLANE) {
             new RipplesPlaneDialog(ptr, s, oldSelected, planes);
-            return;
         } else if (s.fns.plane_type == KALEIDOSCOPE_PLANE) {
             new KaleidoscopePlaneDialog(ptr, s, oldSelected, planes);
-            return;
         } else if (s.fns.plane_type == PINCH_PLANE) {
             new PinchPlaneDialog(ptr, s, oldSelected, planes);
-            return;
         } else if (s.fns.plane_type == FOLDUP_PLANE || s.fns.plane_type == FOLDDOWN_PLANE || s.fns.plane_type == FOLDRIGHT_PLANE || s.fns.plane_type == FOLDLEFT_PLANE || s.fns.plane_type == INFLECTION_PLANE || s.fns.plane_type == BIPOLAR_PLANE || s.fns.plane_type == INVERSED_BIPOLAR_PLANE) {
             new GenericPlaneDialog(ptr, s, oldSelected, planes);
-            return;
         } else if (s.fns.plane_type == FOLDIN_PLANE || s.fns.plane_type == FOLDOUT_PLANE) {
             new FoldInOutPlaneDialog(ptr, s, oldSelected, planes);
-            return;
         } else if (s.fns.plane_type == CIRCLEINVERSION_PLANE) {
             new CircleInversionPlaneDialog(ptr, s, oldSelected, planes);
-            return;
-
         } else if (s.fns.plane_type == SKEW_PLANE) {
             new SkewPlaneDialog(ptr, s, oldSelected, planes);
-            return;
         }
         else if (s.fns.plane_type == STRETCH_PLANE) {
             new StretchPlaneDialog(ptr, s, oldSelected, planes);
-            return;
         }
         else if (s.fns.plane_type == INFLECTIONS_PLANE) {
             new InflectionsPlaneDialog(ptr, s, oldSelected, planes);
-            return;
         }
         else {
             defaultFractalSettings(true);
@@ -7417,7 +7406,7 @@ public class MainWindow extends JFrame implements Constants {
                 fractal_functions[KLEINIAN].setEnabled(false);
                 fractal_functions[INERTIA_GRAVITY].setEnabled(false);
 
-                options_menu.getGreedyAlgorithm().setEnabled(false);
+                options_menu.getRenderingAlgorithm().setEnabled(false);
 
                 tools_menu.getJulia().setEnabled(false);
                 toolbar.getJuliaButton().setEnabled(false);
@@ -8029,10 +8018,10 @@ public class MainWindow extends JFrame implements Constants {
 
         if (outcoloring_mode) {
             resetOrbit();
-            new CustomPaletteEditorDialog(ptr, options_menu.getOutColoringPalette(), s.hasSmoothing(), palette_id, s.ps.color_choice, s.ps.custom_palette, s.ps.color_interpolation, s.ps.color_space, s.ps.reversed_palette, s.temp_color_cycling_location, s.ps.scale_factor_palette_val, s.ps.processing_alg, outcoloring_mode);
+            new CustomPaletteEditorDialog(ptr, options_menu.getOutColoringPalette(), s.fns.smoothing, palette_id, s.ps.color_choice, s.ps.custom_palette, s.ps.color_interpolation, s.ps.color_space, s.ps.reversed_palette, s.temp_color_cycling_location, s.ps.scale_factor_palette_val, s.ps.processing_alg, outcoloring_mode);
         } else {
             resetOrbit();
-            new CustomPaletteEditorDialog(ptr, options_menu.getInColoringPalette(), s.hasSmoothing(), palette_id, s.ps2.color_choice, s.ps2.custom_palette, s.ps2.color_interpolation, s.ps2.color_space, s.ps2.reversed_palette, s.temp_color_cycling_location_second_palette, s.ps2.scale_factor_palette_val, s.ps2.processing_alg, outcoloring_mode);
+            new CustomPaletteEditorDialog(ptr, options_menu.getInColoringPalette(), s.fns.smoothing, palette_id, s.ps2.color_choice, s.ps2.custom_palette, s.ps2.color_interpolation, s.ps2.color_space, s.ps2.reversed_palette, s.temp_color_cycling_location_second_palette, s.ps2.scale_factor_palette_val, s.ps2.processing_alg, outcoloring_mode);
         }
 
     }
@@ -8769,7 +8758,6 @@ public class MainWindow extends JFrame implements Constants {
                     options_menu.getOutTrueColoring().setEnabled(false);
                     options_menu.getInTrueColoring().setEnabled(false);
 
-                    options_menu.getGreedyAlgorithm().setEnabled(false);
                     options_menu.getPeriodicityChecking().setEnabled(false);
                     options_menu.getBailout().setEnabled(false);
                     options_menu.getBailoutConditionMenu().setEnabled(false);
@@ -9035,8 +9023,6 @@ public class MainWindow extends JFrame implements Constants {
 
                     scroll_pane.getHorizontalScrollBar().setValue((int) (scroll_pane.getHorizontalScrollBar().getMaximum() / 2.0 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2.0));
                     scroll_pane.getVerticalScrollBar().setValue((int) (scroll_pane.getVerticalScrollBar().getMaximum() / 2.0 - scroll_pane.getVerticalScrollBar().getSize().getHeight() / 2.0));
-
-                    options_menu.getGreedyAlgorithm().setEnabled(false);
 
                     toolbar.get3DButton().setSelected(true);
                 }
@@ -9318,11 +9304,11 @@ public class MainWindow extends JFrame implements Constants {
 
     }
 
-    public void ThreadStats() {
+    public void TaskStats() {
 
         resetOrbit();
         try {
-            common.threadStats(ptr, tasks);
+            common.taskStats(ptr, tasks);
         } catch (Exception ex) {
         }
 
@@ -9398,7 +9384,7 @@ public class MainWindow extends JFrame implements Constants {
             BufferedImage palette_preview = new BufferedImage(250, 24, BufferedImage.TYPE_INT_ARGB);
             Graphics2D g = palette_preview.createGraphics();
             for (int j = 0; j < c.length; j++) {
-                if (s.hasSmoothing()) {
+                if (s.fns.smoothing) {
                     GradientPaint gp = new GradientPaint(j * palette_preview.getWidth() / ((float)c.length), 0, c[j], (j + 1) * palette_preview.getWidth() / ((float)c.length), 0, c[(j + 1) % c.length]);
                     g.setPaint(gp);
                     g.fill(new Rectangle2D.Double(j * palette_preview.getWidth() / ((double)c.length), 0, (j + 1) * palette_preview.getWidth() / ((double)c.length) - j * palette_preview.getWidth() / ((double)c.length), palette_preview.getHeight()));
@@ -9440,7 +9426,7 @@ public class MainWindow extends JFrame implements Constants {
             BufferedImage palette_preview = new BufferedImage(250, 24, BufferedImage.TYPE_INT_ARGB);
             Graphics2D g = palette_preview.createGraphics();
             for (int j = 0; j < c.length; j++) {
-                if (s.hasSmoothing()) {
+                if (s.fns.smoothing) {
                     GradientPaint gp = new GradientPaint(j * palette_preview.getWidth() / ((float)c.length), 0, c[j], (j + 1) * palette_preview.getWidth() / ((float)c.length), 0, c[(j + 1) % c.length]);
                     g.setPaint(gp);
                     g.fill(new Rectangle2D.Double(j * palette_preview.getWidth() / ((double)c.length), 0, (j + 1) * palette_preview.getWidth() / ((double)c.length) - j * palette_preview.getWidth() / ((double)c.length), palette_preview.getHeight()));
@@ -9514,7 +9500,12 @@ public class MainWindow extends JFrame implements Constants {
             writer.println("greedy_drawing_algorithm_id " + TaskRender.GREEDY_ALGORITHM_SELECTION);
             writer.println("greedy_drawing_algorithm_use_iter_data " + TaskRender.GREEDY_ALGORITHM_CHECK_ITER_DATA);
             writer.println("skipped_pixels_coloring " + TaskRender.SKIPPED_PIXELS_ALG);
-            writer.println("mariani_silver_use_dfs " + MarianiSilverRender.RENDER_USING_DFS);
+            writer.println("mariani_silver_use_dfs " + QueueBasedRender.RENDER_USING_DFS);
+            writer.println("mariani_silver_work_stealing_enabled " + QueueBasedRender.WORK_STEALING_ENABLED);
+            writer.println("mariani_silver_work_steal_algorithm " + QueueBasedRender.WORK_STEAL_ALGORITHM);
+            writer.println("mariani_silver_wait_and_steal " + QueueBasedRender.WAIT_AND_STEAL);
+            writer.println("mariani_silver_initial_work_stealing_enabled " + QueueBasedRender.INITIAL_WORK_STEALING_ENABLED);
+            writer.println("mariani_silver_perimeter_accuracy " + QueueBasedRender.PERIMETER_ACCURACY);
             writer.println("guess_blocks_selection " + TaskRender.GUESS_BLOCKS_SELECTION);
             writer.println("greedy_successive_refinement_squares_and_rectangles_algorithm " + TaskRender.SUCCESSIVE_REFINEMENT_SQUARE_RECT_SPLIT_ALGORITHM);
             writer.println("two_pass_successive_refinement " + TaskRender.TWO_PASS_SUCCESSIVE_REFINEMENT);
@@ -9538,6 +9529,8 @@ public class MainWindow extends JFrame implements Constants {
             writer.println("bla_precision_bits " + TaskRender.BLA_BITS);
             writer.println("bla_starting_level " + TaskRender.BLA_STARTING_LEVEL);
             writer.println("use_threads_for_bla " + TaskRender.USE_THREADS_FOR_BLA);
+            writer.println("bla3_valid_radius_scale " + MipLAStep.ValidRadiusScale);
+            writer.println("bla3_starting_level " + TaskRender.BLA3_STARTING_LEVEL);
             writer.println("detect_period " + TaskRender.DETECT_PERIOD);
             writer.println("brute_force_alg " + TaskRender.BRUTE_FORCE_ALG);
             writer.println("one_chunk_per_row " + TaskRender.CHUNK_SIZE_PER_ROW);
@@ -9562,25 +9555,27 @@ public class MainWindow extends JFrame implements Constants {
             writer.println("#available libs: " + String.join(", ", TaskRender.mpirWinLibs));
             writer.println("mpir_lib " + TaskRender.MPIR_LIB);
             writer.println("period_detection_algorithm " + TaskRender.PERIOD_DETECTION_ALGORITHM);
-            writer.println("circular_compare_alg " + TaskRender.CIRCULAR_COMPARE_ALG);
-            writer.println("circular_revert_alg " + TaskRender.CIRCULAR_REVERT_ALG);
-            writer.println("circular_repeat_alg " + TaskRender.CIRCULAR_REPEAT_ALG);
-            writer.println("circular_repeat_spacing " + TaskRender.CIRCULAR_REPEAT_SPACING);
-            writer.println("circular_n " + TaskRender.CIRCULAR_N);
+            writer.println("pattern_compare_alg " + TaskRender.PATTERN_COMPARE_ALG);
+            writer.println("pattern_revert_alg " + TaskRender.PATTERN_REVERT_ALG);
+            writer.println("pattern_repeat_alg " + TaskRender.PATTERN_REPEAT_ALG);
+            writer.println("pattern_repeat_spacing " + TaskRender.PATTERN_REPEAT_SPACING);
+            writer.println("pattern_centered " + TaskRender.PATTERN_CENTER);
+            writer.println("pattern_n " + TaskRender.PATTERN_N);
             writer.println("bla2_detection_method " + LAInfo.DETECTION_METHOD);
-            writer.println("bla2_stage0_period_detection_threshold " + LAInfo.Stage0PeriodDetectionThreshold);
-            writer.println("bla2_stage0_period_detection_threshold2 " + LAInfo.Stage0PeriodDetectionThreshold2);
-            writer.println("bla2_period_detection_threshold " + LAInfo.PeriodDetectionThreshold);
-            writer.println("bla2_period_detection_threshold2 " + LAInfo.PeriodDetectionThreshold2);
+            writer.println("bla2_stage0_dip_detection_threshold " + LAInfo.Stage0DipDetectionThreshold);
+            writer.println("bla2_stage0_dip_detection_threshold2 " + LAInfo.Stage0DipDetectionThreshold2);
+            writer.println("bla2_dip_detection_threshold " + LAInfo.DipDetectionThreshold);
+            writer.println("bla2_dip_detection_threshold2 " + LAInfo.DipDetectionThreshold2);
             writer.println("bla2_la_threshold_scale " + LAInfo.LAThresholdScale);
             writer.println("bla2_la_threshold_c_scale " + LAInfo.LAThresholdCScale);
             writer.println("bla2_double_threshold_limit " + LAReference.doubleThresholdLimit.toDouble());
             writer.println("bla2_convert_to_double_when_possible " + LAReference.CONVERT_TO_DOUBLE_WHEN_POSSIBLE);
-            writer.println("bla2_period_divisor " + LAReference.periodDivisor);
+            writer.println("bla2_root_divisor " + LAReference.rootDivisor);
             writer.println("bla2_create_at " + LAReference.CREATE_AT);
             writer.println("use_threads_for_bla2 " + TaskRender.USE_THREADS_FOR_BLA2);
             writer.println("use_ref_index_on_bla2 " + TaskRender.USE_RI_ON_BLA2);
             writer.println("disable_ref_index_on_bla2 " + TaskRender.DISABLE_RI_ON_BLA2);
+            writer.println("use_threads_for_bla3 " + TaskRender.USE_THREADS_FOR_BLA3);
             writer.println("always_check_for_precision_decrease " + MyApfloat.alwaysCheckForDecrease);
             writer.println("use_threads_in_bignum_libs " + TaskRender.USE_THREADS_IN_BIGNUM_LIBS);
             writer.println("calculate_period_every_time_from_start " + TaskRender.CALCULATE_PERIOD_EVERY_TIME_FROM_START);
@@ -9590,6 +9585,11 @@ public class MainWindow extends JFrame implements Constants {
             writer.println("always_save_extra_pixel_data_on_aa_with_pp " + TaskRender.ALWAYS_SAVE_EXTRA_PIXEL_DATA_ON_AA_WITH_PP);
             writer.println("reference_compression " + TaskRender.COMPRESS_REFERENCE_IF_POSSIBLE);
             writer.println("reference_compression_error " + ReferenceCompressor.CompressionError);
+            writer.println("check_bailout_during_mip_bla_step " + TaskRender.CHECK_BAILOUT_DURING_MIP_BLA_STEP);
+            writer.println("split_into_rectangle_areas " + TaskRender.SPLIT_INTO_RECTANGLE_AREAS);
+            writer.println("rectangle_area_split_algorithm " + TaskRender.RECTANGLE_AREA_SPLIT_ALGORITHM);
+            writer.println("area_dimension_x " + TaskRender.AREA_DIMENSION_X);
+            writer.println("area_dimension_y " + TaskRender.AREA_DIMENSION_Y);
 
             writer.println();
             writer.println("[General]");
@@ -9599,7 +9599,7 @@ public class MainWindow extends JFrame implements Constants {
             writer.println("auto_repaint_image_delay " + MainPanel.REPAINT_SLEEP_TIME);
             writer.println("use_smoothing_for_processing_algs " + TaskRender.USE_SMOOTHING_FOR_PROCESSING_ALGS);
             writer.println("zoom_on_cursor " + ZOOM_ON_THE_CURSOR);
-            writer.println("circular_draw_follows_zoom_to_cursor " + CIRCULAR_RENDER_FOLLOWS_ZOOM_TO_CURSOR);
+            writer.println("pattern_draw_follows_zoom_to_cursor " + PATTERNED_RENDER_FOLLOWS_ZOOM_TO_CURSOR);
             writer.println("draw_image_preview " + TaskRender.RENDER_IMAGE_PREVIEW);
             writer.println("3d_apply_average_to_triangle_colors " + TaskRender.D3_APPLY_AVERAGE_TO_TRIANGLE_COLORS);
             writer.println("load_drawing_algorithm_from_saves " + TaskRender.LOAD_RENDERING_ALGORITHM_FROM_SAVES);
@@ -9684,7 +9684,7 @@ public class MainWindow extends JFrame implements Constants {
             writer.println("quickdraw_delay " + TaskRender.QUICK_RENDER_DELAY);
             writer.println("quickdraw_zoom_to_center " + QUICK_RENDER_ZOOM_TO_CURRENT_CENTER);
             writer.println("quickdraw_successive_refinement " + TaskRender.QUICKRENDER_SUCCESSIVE_REFINEMENT);
-            writer.println("use_quick_draw_on_greedy_successive_refinement " + TaskRender.USE_QUICKRENDER_ON_GREEDY_SUCCESSIVE_REFINEMENT);
+            writer.println("use_non_blocking_rendering " + TaskRender.USE_NON_BLOCKING_RENDERING);
 
             writer.println();
             writer.println("[Core]");
@@ -9780,13 +9780,25 @@ public class MainWindow extends JFrame implements Constants {
                         } catch (Exception ex) {
                         }
                     }
-                    else if (token.equals("bla2_period_divisor") && tokenizer.countTokens() == 1) {
+                    else if (token.equals("bla3_starting_level") && tokenizer.countTokens() == 1) {
+
+                        try {
+                            int temp = Integer.parseInt(tokenizer.nextToken());
+
+                            if (temp > 0 && temp <= 32) {
+                                TaskRender.BLA3_STARTING_LEVEL = temp;
+                            }
+                        } catch (Exception ex) {
+                        }
+
+                    }
+                    else if (token.equals("bla2_root_divisor") && tokenizer.countTokens() == 1) {
 
                         try {
                             double temp = Double.parseDouble(tokenizer.nextToken());
 
                             if (temp > 0) {
-                                LAReference.periodDivisor = temp;
+                                LAReference.rootDivisor = temp;
                             }
                         } catch (Exception ex) {
                         }
@@ -9825,21 +9837,137 @@ public class MainWindow extends JFrame implements Constants {
 
                         token = tokenizer.nextToken();
 
-                        if(token.equals("false")) {
+                        if(token.equalsIgnoreCase("false")) {
                             TaskRender.STOP_REFERENCE_CALCULATION_AFTER_DETECTED_PERIOD = false;
                         }
-                        else if(token.equals("true")) {
+                        else if(token.equalsIgnoreCase("true")) {
                             TaskRender.STOP_REFERENCE_CALCULATION_AFTER_DETECTED_PERIOD = true;
+                        }
+                    }
+                    else if(token.equals("use_threads_for_bla3") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if(token.equalsIgnoreCase("false")) {
+                            TaskRender.USE_THREADS_FOR_BLA3 = false;
+                        }
+                        else if(token.equalsIgnoreCase("true")) {
+                            TaskRender.USE_THREADS_FOR_BLA3 = true;
+                        }
+                    }
+                    else if(token.equals("check_bailout_during_mip_bla_step") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if(token.equalsIgnoreCase("false")) {
+                            TaskRender.CHECK_BAILOUT_DURING_MIP_BLA_STEP = false;
+                        }
+                        else if(token.equalsIgnoreCase("true")) {
+                            TaskRender.CHECK_BAILOUT_DURING_MIP_BLA_STEP = true;
+                        }
+                    }
+                    else if(token.equals("mariani_silver_work_stealing_enabled") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if(token.equalsIgnoreCase("false")) {
+                            QueueBasedRender.WORK_STEALING_ENABLED = false;
+                        }
+                        else if(token.equalsIgnoreCase("true")) {
+                            QueueBasedRender.WORK_STEALING_ENABLED = true;
+                        }
+                    }
+                    else if(token.equals("mariani_silver_initial_work_stealing_enabled") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if(token.equalsIgnoreCase("false")) {
+                            QueueBasedRender.INITIAL_WORK_STEALING_ENABLED = false;
+                        }
+                        else if(token.equalsIgnoreCase("true")) {
+                            QueueBasedRender.INITIAL_WORK_STEALING_ENABLED = true;
+                        }
+                    }
+                    else if(token.equals("split_into_rectangle_areas") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if(token.equalsIgnoreCase("false")) {
+                            TaskRender.SPLIT_INTO_RECTANGLE_AREAS = false;
+                        }
+                        else if(token.equalsIgnoreCase("true")) {
+                            TaskRender.SPLIT_INTO_RECTANGLE_AREAS = true;
+                        }
+                    }
+                    else if (token.equals("rectangle_area_split_algorithm") && tokenizer.countTokens() == 1) {
+                        try {
+                            int temp = Integer.parseInt(tokenizer.nextToken());
+
+                            if (temp >= 0 && temp <= 2) {
+                                TaskRender.RECTANGLE_AREA_SPLIT_ALGORITHM = temp;
+                            }
+                        } catch (Exception ex) {
+                        }
+                    }
+                    else if (token.equals("mariani_silver_perimeter_accuracy") && tokenizer.countTokens() == 1) {
+                        try {
+                            double temp = Double.parseDouble(tokenizer.nextToken());
+
+                            if (temp >= 0 && temp <= 1) {
+                                QueueBasedRender.PERIMETER_ACCURACY = temp;
+                            }
+                        } catch (Exception ex) {
+                        }
+                    }
+                    else if (token.equals("area_dimension_x") && tokenizer.countTokens() == 1) {
+                        try {
+                            int temp = Integer.parseInt(tokenizer.nextToken());
+
+                            if (temp > 0) {
+                                TaskRender.AREA_DIMENSION_X = temp;
+                            }
+                        } catch (Exception ex) {
+                        }
+                    }
+                    else if (token.equals("area_dimension_y") && tokenizer.countTokens() == 1) {
+                        try {
+                            int temp = Integer.parseInt(tokenizer.nextToken());
+
+                            if (temp > 0) {
+                                TaskRender.AREA_DIMENSION_Y = temp;
+                            }
+                        } catch (Exception ex) {
+                        }
+                    }
+                    else if(token.equals("mariani_silver_wait_and_steal") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if(token.equalsIgnoreCase("false")) {
+                            QueueBasedRender.WAIT_AND_STEAL = false;
+                        }
+                        else if(token.equalsIgnoreCase("true")) {
+                            QueueBasedRender.WAIT_AND_STEAL = true;
+                        }
+                    }
+                    else if (token.equals("mariani_silver_work_steal_algorithm") && tokenizer.countTokens() == 1) {
+                        try {
+                            int temp = Integer.parseInt(tokenizer.nextToken());
+
+                            if (temp >= 0 && temp <= 2) {
+                                QueueBasedRender.WORK_STEAL_ALGORITHM = temp;
+                            }
+                        } catch (Exception ex) {
                         }
                     }
                     else if(token.equals("aa_fixed_jitter_size") && tokenizer.countTokens() == 1) {
 
                         token = tokenizer.nextToken();
 
-                        if(token.equals("false")) {
+                        if(token.equalsIgnoreCase("false")) {
                             Location.FIXED_JITTER_SIZE = false;
                         }
-                        else if(token.equals("true")) {
+                        else if(token.equalsIgnoreCase("true")) {
                             Location.FIXED_JITTER_SIZE = true;
                         }
                     }
@@ -9847,10 +9975,10 @@ public class MainWindow extends JFrame implements Constants {
 
                         token = tokenizer.nextToken();
 
-                        if(token.equals("false")) {
+                        if(token.equalsIgnoreCase("false")) {
                             LAReference.CREATE_AT = false;
                         }
-                        else if(token.equals("true")) {
+                        else if(token.equalsIgnoreCase("true")) {
                             LAReference.CREATE_AT = true;
                         }
                     }
@@ -9858,10 +9986,10 @@ public class MainWindow extends JFrame implements Constants {
 
                         token = tokenizer.nextToken();
 
-                        if(token.equals("false")) {
+                        if(token.equalsIgnoreCase("false")) {
                             REUSE_DATA_ON_ITERATION_CHANGE = false;
                         }
-                        else if(token.equals("true")) {
+                        else if(token.equalsIgnoreCase("true")) {
                             REUSE_DATA_ON_ITERATION_CHANGE = true;
                         }
                     }
@@ -9869,10 +9997,10 @@ public class MainWindow extends JFrame implements Constants {
 
                         token = tokenizer.nextToken();
 
-                        if(token.equals("false")) {
+                        if(token.equalsIgnoreCase("false")) {
                             DRAGGING_TRANSFORMS_IMAGE = false;
                         }
-                        else if(token.equals("true")) {
+                        else if(token.equalsIgnoreCase("true")) {
                             DRAGGING_TRANSFORMS_IMAGE = true;
                         }
                     }
@@ -9880,10 +10008,10 @@ public class MainWindow extends JFrame implements Constants {
 //
 //                        token = tokenizer.nextToken();
 //
-//                        if(token.equals("false")) {
+//                        if(token.equalsIgnoreCase("false")) {
 //                            hints.get("perturbation_theory").shouldDisplay = false;
 //                        }
-//                        else if(token.equals("true")) {
+//                        else if(token.equalsIgnoreCase("true")) {
 //                            hints.get("perturbation_theory").shouldDisplay = true;
 //                        }
 //                    }
@@ -9901,19 +10029,19 @@ public class MainWindow extends JFrame implements Constants {
                     else if(token.equals("zoom_to_rectangle_selection") && tokenizer.countTokens() == 1) {
                         token = tokenizer.nextToken();
 
-                        if (token.equals("false") && options_menu.getZoomToRectangleSelection().isSelected()) {
+                        if (token.equalsIgnoreCase("false") && options_menu.getZoomToRectangleSelection().isSelected()) {
                             options_menu.getZoomToRectangleSelection().doClick();
-                        } else if (token.equals("true") && !options_menu.getZoomToRectangleSelection().isSelected()) {
+                        } else if (token.equalsIgnoreCase("true") && !options_menu.getZoomToRectangleSelection().isSelected()) {
                             options_menu.getZoomToRectangleSelection().doClick();
                         }
 
-                        if (token.equals("false")) {
+                        if (token.equalsIgnoreCase("false")) {
                             toolbar.getZoom_method_mouse_toggle().doClick();
-                        } else if (token.equals("true")) {
+                        } else if (token.equalsIgnoreCase("true")) {
                             toolbar.getZoom_method_selection_toggle().doClick();
                         }
 
-                        if(token.equals("false")) {
+                        if(token.equalsIgnoreCase("false")) {
                             ZOOM_TO_THE_SELECTED_AREA = false;
                         }
                         else {
@@ -9923,18 +10051,18 @@ public class MainWindow extends JFrame implements Constants {
                     else if(token.equals("auto_zoom_to_rectangle_selection") && tokenizer.countTokens() == 1) {
                         token = tokenizer.nextToken();
 
-                        if (token.equals("false") && options_menu.getAutoZoomToRectangleSelection().isSelected()) {
+                        if (token.equalsIgnoreCase("false") && options_menu.getAutoZoomToRectangleSelection().isSelected()) {
                             options_menu.getAutoZoomToRectangleSelection().doClick();
-                        } else if (token.equals("true") && !options_menu.getAutoZoomToRectangleSelection().isSelected()) {
+                        } else if (token.equalsIgnoreCase("true") && !options_menu.getAutoZoomToRectangleSelection().isSelected()) {
                             options_menu.getAutoZoomToRectangleSelection().doClick();
                         }
                     }
                     else if(token.equals("always_show_progressbar") && tokenizer.countTokens() == 1) {
                         token = tokenizer.nextToken();
 
-                        if (token.equals("false") && options_menu.getAlways_show_progress_bar().isSelected()) {
+                        if (token.equalsIgnoreCase("false") && options_menu.getAlways_show_progress_bar().isSelected()) {
                             options_menu.getAlways_show_progress_bar().doClick();
-                        } else if (token.equals("true") && !options_menu.getAlways_show_progress_bar().isSelected()) {
+                        } else if (token.equalsIgnoreCase("true") && !options_menu.getAlways_show_progress_bar().isSelected()) {
                             options_menu.getAlways_show_progress_bar().doClick();
                         }
                     }
@@ -9942,10 +10070,10 @@ public class MainWindow extends JFrame implements Constants {
 
                         token = tokenizer.nextToken();
 
-                        if(token.equals("false")) {
+                        if(token.equalsIgnoreCase("false")) {
                             TaskRender.INCLUDE_AA_DATA_ON_RANK_ORDER = false;
                         }
-                        else if(token.equals("true")) {
+                        else if(token.equalsIgnoreCase("true")) {
                             TaskRender.INCLUDE_AA_DATA_ON_RANK_ORDER = true;
                         }
                     }
@@ -9953,10 +10081,10 @@ public class MainWindow extends JFrame implements Constants {
 
                         token = tokenizer.nextToken();
 
-                        if(token.equals("false")) {
+                        if(token.equalsIgnoreCase("false")) {
                             TaskRender.USE_THREADS_FOR_BLA2 = false;
                         }
-                        else if(token.equals("true")) {
+                        else if(token.equalsIgnoreCase("true")) {
                             TaskRender.USE_THREADS_FOR_BLA2 = true;
                         }
                     }
@@ -9964,10 +10092,10 @@ public class MainWindow extends JFrame implements Constants {
 
                         token = tokenizer.nextToken();
 
-                        if(token.equals("false")) {
+                        if(token.equalsIgnoreCase("false")) {
                             TaskRender.USE_RI_ON_BLA2 = false;
                         }
-                        else if(token.equals("true")) {
+                        else if(token.equalsIgnoreCase("true")) {
                             TaskRender.USE_RI_ON_BLA2 = true;
                         }
                     }
@@ -9975,10 +10103,10 @@ public class MainWindow extends JFrame implements Constants {
 
                         token = tokenizer.nextToken();
 
-                        if(token.equals("false")) {
+                        if(token.equalsIgnoreCase("false")) {
                             TaskRender.DISABLE_RI_ON_BLA2 = false;
                         }
-                        else if(token.equals("true")) {
+                        else if(token.equalsIgnoreCase("true")) {
                             TaskRender.DISABLE_RI_ON_BLA2 = true;
                         }
                     }
@@ -9986,10 +10114,10 @@ public class MainWindow extends JFrame implements Constants {
 
                         token = tokenizer.nextToken();
 
-                        if(token.equals("false")) {
+                        if(token.equalsIgnoreCase("false")) {
                             TaskRender.TWO_PASS_SUCCESSIVE_REFINEMENT = false;
                         }
-                        else if(token.equals("true")) {
+                        else if(token.equalsIgnoreCase("true")) {
                             TaskRender.TWO_PASS_SUCCESSIVE_REFINEMENT = true;
                         }
                     }
@@ -9997,10 +10125,10 @@ public class MainWindow extends JFrame implements Constants {
 
                         token = tokenizer.nextToken();
 
-                        if(token.equals("false")) {
+                        if(token.equalsIgnoreCase("false")) {
                             TaskRender.TWO_PASS_CHECK_CENTER = false;
                         }
-                        else if(token.equals("true")) {
+                        else if(token.equalsIgnoreCase("true")) {
                             TaskRender.TWO_PASS_CHECK_CENTER = true;
                         }
                     }
@@ -10018,10 +10146,10 @@ public class MainWindow extends JFrame implements Constants {
 
                         token = tokenizer.nextToken();
 
-                        if(token.equals("false")) {
+                        if(token.equalsIgnoreCase("false")) {
                             TaskRender.CHUNK_SIZE_PER_ROW = false;
                         }
-                        else if(token.equals("true")) {
+                        else if(token.equalsIgnoreCase("true")) {
                             TaskRender.CHUNK_SIZE_PER_ROW = true;
                         }
                     }
@@ -10029,10 +10157,10 @@ public class MainWindow extends JFrame implements Constants {
 
                         token = tokenizer.nextToken();
 
-                        if(token.equals("false")) {
+                        if(token.equalsIgnoreCase("false")) {
                             TaskRender.COMPRESS_REFERENCE_IF_POSSIBLE = false;
                         }
-                        else if(token.equals("true")) {
+                        else if(token.equalsIgnoreCase("true")) {
                             TaskRender.COMPRESS_REFERENCE_IF_POSSIBLE = true;
                         }
                     }
@@ -10051,10 +10179,10 @@ public class MainWindow extends JFrame implements Constants {
 
                         token = tokenizer.nextToken();
 
-                        if(token.equals("false")) {
+                        if(token.equalsIgnoreCase("false")) {
                             TaskRender.ALWAYS_SAVE_EXTRA_PIXEL_DATA_ON_AA = false;
                         }
-                        else if(token.equals("true")) {
+                        else if(token.equalsIgnoreCase("true")) {
                             TaskRender.ALWAYS_SAVE_EXTRA_PIXEL_DATA_ON_AA = true;
                         }
                     }
@@ -10062,10 +10190,10 @@ public class MainWindow extends JFrame implements Constants {
 
                         token = tokenizer.nextToken();
 
-                        if(token.equals("false")) {
+                        if(token.equalsIgnoreCase("false")) {
                             TaskRender.ALWAYS_SAVE_EXTRA_PIXEL_DATA_ON_AA_WITH_PP = false;
                         }
-                        else if(token.equals("true")) {
+                        else if(token.equalsIgnoreCase("true")) {
                             TaskRender.ALWAYS_SAVE_EXTRA_PIXEL_DATA_ON_AA_WITH_PP = true;
                         }
                     }
@@ -10073,10 +10201,10 @@ public class MainWindow extends JFrame implements Constants {
 
                         token = tokenizer.nextToken();
 
-                        if(token.equals("false")) {
+                        if(token.equalsIgnoreCase("false")) {
                             TaskRender.USE_FAST_DELTA_LOCATION = false;
                         }
-                        else if(token.equals("true")) {
+                        else if(token.equalsIgnoreCase("true")) {
                             TaskRender.USE_FAST_DELTA_LOCATION = true;
                         }
                     }
@@ -10084,21 +10212,21 @@ public class MainWindow extends JFrame implements Constants {
 
                         token = tokenizer.nextToken();
 
-                        if(token.equals("false")) {
-                            TaskRender.USE_QUICKRENDER_ON_GREEDY_SUCCESSIVE_REFINEMENT = false;
+                        if(token.equalsIgnoreCase("false")) {
+                            TaskRender.USE_NON_BLOCKING_RENDERING = false;
                         }
-                        else if(token.equals("true")) {
-                            TaskRender.USE_QUICKRENDER_ON_GREEDY_SUCCESSIVE_REFINEMENT = true;
+                        else if(token.equalsIgnoreCase("true")) {
+                            TaskRender.USE_NON_BLOCKING_RENDERING = true;
                         }
                     }
                     else if(token.equals("bla2_convert_to_double_when_possible") && tokenizer.countTokens() == 1) {
 
                         token = tokenizer.nextToken();
 
-                        if(token.equals("false")) {
+                        if(token.equalsIgnoreCase("false")) {
                             LAReference.CONVERT_TO_DOUBLE_WHEN_POSSIBLE = false;
                         }
-                        else if(token.equals("true")) {
+                        else if(token.equalsIgnoreCase("true")) {
                             LAReference.CONVERT_TO_DOUBLE_WHEN_POSSIBLE = true;
                         }
                     }
@@ -10106,11 +10234,11 @@ public class MainWindow extends JFrame implements Constants {
 
                         token = tokenizer.nextToken();
 
-                        if(token.equals("false")) {
-                            MarianiSilverRender.RENDER_USING_DFS = false;
+                        if(token.equalsIgnoreCase("false")) {
+                            QueueBasedRender.RENDER_USING_DFS = false;
                         }
-                        else if(token.equals("true")) {
-                            MarianiSilverRender.RENDER_USING_DFS = true;
+                        else if(token.equalsIgnoreCase("true")) {
+                            QueueBasedRender.RENDER_USING_DFS = true;
                         }
                     }
                     else if (token.equals("bla2_double_threshold_limit") && tokenizer.countTokens() == 1) {
@@ -10124,58 +10252,69 @@ public class MainWindow extends JFrame implements Constants {
                         } catch (Exception ex) {
                         }
                     }
-                    else if(token.equals("circular_draw_follows_zoom_to_cursor") && tokenizer.countTokens() == 1) {
+                    else if(token.equals("pattern_draw_follows_zoom_to_cursor") && tokenizer.countTokens() == 1) {
 
                         token = tokenizer.nextToken();
 
-                        if(token.equals("false")) {
-                            CIRCULAR_RENDER_FOLLOWS_ZOOM_TO_CURSOR = false;
+                        if(token.equalsIgnoreCase("false")) {
+                            PATTERNED_RENDER_FOLLOWS_ZOOM_TO_CURSOR = false;
                         }
-                        else if(token.equals("true")) {
-                            CIRCULAR_RENDER_FOLLOWS_ZOOM_TO_CURSOR = true;
+                        else if(token.equalsIgnoreCase("true")) {
+                            PATTERNED_RENDER_FOLLOWS_ZOOM_TO_CURSOR = true;
                         }
                     }
-                    else if(token.equals("circular_revert_alg") && tokenizer.countTokens() == 1) {
+                    else if(token.equals("pattern_revert_alg") && tokenizer.countTokens() == 1) {
 
                         token = tokenizer.nextToken();
 
-                        if(token.equals("false")) {
-                            TaskRender.CIRCULAR_REVERT_ALG = false;
+                        if(token.equalsIgnoreCase("false")) {
+                            TaskRender.PATTERN_REVERT_ALG = false;
                         }
-                        else if(token.equals("true")) {
-                            TaskRender.CIRCULAR_REVERT_ALG = true;
+                        else if(token.equalsIgnoreCase("true")) {
+                            TaskRender.PATTERN_REVERT_ALG = true;
                         }
                     }
-                    else if (token.equals("circular_repeat_spacing") && tokenizer.countTokens() == 1) {
+                    else if (token.equals("pattern_repeat_spacing") && tokenizer.countTokens() == 1) {
 
                         try {
                             double temp = Double.parseDouble(tokenizer.nextToken());
 
                             if (temp > 0) {
-                                TaskRender.CIRCULAR_REPEAT_SPACING = temp;
+                                TaskRender.PATTERN_REPEAT_SPACING = temp;
                             }
                         } catch (Exception ex) {
                         }
                     }
-                    else if(token.equals("circular_repeat_alg") && tokenizer.countTokens() == 1) {
+                    else if(token.equals("pattern_repeat_alg") && tokenizer.countTokens() == 1) {
 
                         token = tokenizer.nextToken();
 
-                        if(token.equals("false")) {
-                            TaskRender.CIRCULAR_REPEAT_ALG = false;
+                        if(token.equalsIgnoreCase("false")) {
+                            TaskRender.PATTERN_REPEAT_ALG = false;
                         }
-                        else if(token.equals("true")) {
-                            TaskRender.CIRCULAR_REPEAT_ALG = true;
+                        else if(token.equalsIgnoreCase("true")) {
+                            TaskRender.PATTERN_REPEAT_ALG = true;
+                        }
+                    }
+                    else if(token.equals("pattern_centered") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if(token.equalsIgnoreCase("false")) {
+                            TaskRender.PATTERN_CENTER = false;
+                        }
+                        else if(token.equalsIgnoreCase("true")) {
+                            TaskRender.PATTERN_CENTER = true;
                         }
                     }
                     else if(token.equals("calculate_period_every_time_from_start") && tokenizer.countTokens() == 1) {
 
                         token = tokenizer.nextToken();
 
-                        if(token.equals("false")) {
+                        if(token.equalsIgnoreCase("false")) {
                             TaskRender.CALCULATE_PERIOD_EVERY_TIME_FROM_START = false;
                         }
-                        else if(token.equals("true")) {
+                        else if(token.equalsIgnoreCase("true")) {
                             TaskRender.CALCULATE_PERIOD_EVERY_TIME_FROM_START = true;
                         }
                     }
@@ -10183,10 +10322,10 @@ public class MainWindow extends JFrame implements Constants {
 
                         token = tokenizer.nextToken();
 
-                        if(token.equals("false")) {
+                        if(token.equalsIgnoreCase("false")) {
                             TaskRender.USE_THREADS_IN_BIGNUM_LIBS = false;
                         }
-                        else if(token.equals("true")) {
+                        else if(token.equalsIgnoreCase("true")) {
                             TaskRender.USE_THREADS_IN_BIGNUM_LIBS = true;
                         }
                     }
@@ -10194,10 +10333,10 @@ public class MainWindow extends JFrame implements Constants {
 
                         token = tokenizer.nextToken();
 
-                        if(token.equals("false")) {
+                        if(token.equalsIgnoreCase("false")) {
                             TaskRender.QUICKRENDER_SUCCESSIVE_REFINEMENT = false;
                         }
-                        else if(token.equals("true")) {
+                        else if(token.equalsIgnoreCase("true")) {
                             TaskRender.QUICKRENDER_SUCCESSIVE_REFINEMENT = true;
                         }
                     }
@@ -10205,10 +10344,10 @@ public class MainWindow extends JFrame implements Constants {
 
                         token = tokenizer.nextToken();
 
-                        if(token.equals("false")) {
+                        if(token.equalsIgnoreCase("false")) {
                             MyApfloat.alwaysCheckForDecrease = false;
                         }
-                        else if(token.equals("true")) {
+                        else if(token.equalsIgnoreCase("true")) {
                             MyApfloat.alwaysCheckForDecrease = true;
                         }
                     }
@@ -10257,10 +10396,10 @@ public class MainWindow extends JFrame implements Constants {
 
                         token = tokenizer.nextToken();
 
-                        if(token.equals("false")) {
+                        if(token.equalsIgnoreCase("false")) {
                             P3D_AA = false;
                         }
-                        else if(token.equals("true")) {
+                        else if(token.equalsIgnoreCase("true")) {
                             P3D_AA = true;
                         }
                     }
@@ -10288,10 +10427,10 @@ public class MainWindow extends JFrame implements Constants {
 
                         token = tokenizer.nextToken();
 
-                        if(token.equals("false")) {
+                        if(token.equalsIgnoreCase("false")) {
                             TaskRender.USE_SMOOTHING_FOR_PROCESSING_ALGS = false;
                         }
-                        else if(token.equals("true")) {
+                        else if(token.equalsIgnoreCase("true")) {
                             TaskRender.USE_SMOOTHING_FOR_PROCESSING_ALGS = true;
                         }
                     }
@@ -10299,31 +10438,31 @@ public class MainWindow extends JFrame implements Constants {
 
                         token = tokenizer.nextToken();
 
-                        if(token.equals("false")) {
+                        if(token.equalsIgnoreCase("false")) {
                             TaskRender.RENDER_IMAGE_PREVIEW = false;
                         }
-                        else if(token.equals("true")) {
+                        else if(token.equalsIgnoreCase("true")) {
                             TaskRender.RENDER_IMAGE_PREVIEW = true;
                         }
                     }
-                    else if (token.equals("circular_compare_alg") && tokenizer.countTokens() == 1) {
+                    else if (token.equals("pattern_compare_alg") && tokenizer.countTokens() == 1) {
 
                         try {
                             int temp = Integer.parseInt(tokenizer.nextToken());
 
-                            if (temp >= 0 && temp <= 16) {
-                                TaskRender.CIRCULAR_COMPARE_ALG = temp;
+                            if (temp >= 0 && temp <= 23) {
+                                TaskRender.PATTERN_COMPARE_ALG = temp;
                             }
                         } catch (Exception ex) {
                         }
                     }
-                    else if (token.equals("circular_n") && tokenizer.countTokens() == 1) {
+                    else if (token.equals("pattern_n") && tokenizer.countTokens() == 1) {
 
                         try {
                             double temp = Double.parseDouble(tokenizer.nextToken());
 
                             if (temp != 0) {
-                                TaskRender.CIRCULAR_N = temp;
+                                TaskRender.PATTERN_N = temp;
                             }
                         } catch (Exception ex) {
                         }
@@ -10332,10 +10471,10 @@ public class MainWindow extends JFrame implements Constants {
 
                         token = tokenizer.nextToken();
 
-                        if(token.equals("false")) {
+                        if(token.equalsIgnoreCase("false")) {
                             TaskRender.GREEDY_ALGORITHM_CHECK_ITER_DATA = false;
                         }
-                        else if(token.equals("true")) {
+                        else if(token.equalsIgnoreCase("true")) {
                             TaskRender.GREEDY_ALGORITHM_CHECK_ITER_DATA = true;
                         }
                     }
@@ -10370,51 +10509,60 @@ public class MainWindow extends JFrame implements Constants {
                         } catch (Exception ex) {
                         }
                     }
-                    else if (token.equals("bla2_stage0_period_detection_threshold") && tokenizer.countTokens() == 1) {
+                    else if (token.equals("bla2_stage0_dip_detection_threshold") && tokenizer.countTokens() == 1) {
 
                         try {
                             double temp = Double.parseDouble(tokenizer.nextToken());
 
                             if (temp > 0 && temp <= 10) {
-                                LAInfo.Stage0PeriodDetectionThreshold = temp;
-                                LAInfoDeep.Stage0PeriodDetectionThreshold = new MantExp(temp);
+                                LAInfo.Stage0DipDetectionThreshold = temp;
+                                LAInfoDeep.Stage0DipDetectionThreshold = new MantExp(temp);
                             }
                         } catch (Exception ex) {
                         }
                     }
-                    else if (token.equals("bla2_stage0_period_detection_threshold2") && tokenizer.countTokens() == 1) {
+                    else if (token.equals("bla2_stage0_dip_detection_threshold2") && tokenizer.countTokens() == 1) {
 
                         try {
                             double temp = Double.parseDouble(tokenizer.nextToken());
 
                             if (temp > 0 && temp <= 10) {
-                                LAInfo.Stage0PeriodDetectionThreshold2 = temp;
-                                LAInfoDeep.Stage0PeriodDetectionThreshold2 = new MantExp(temp);
+                                LAInfo.Stage0DipDetectionThreshold2 = temp;
+                                LAInfoDeep.Stage0DipDetectionThreshold2 = new MantExp(temp);
                             }
                         } catch (Exception ex) {
                         }
                     }
-
-                    else if (token.equals("bla2_period_detection_threshold") && tokenizer.countTokens() == 1) {
-
+                    else if (token.equals("bla3_valid_radius_scale") && tokenizer.countTokens() == 1) {
                         try {
                             double temp = Double.parseDouble(tokenizer.nextToken());
 
-                            if (temp > 0 && temp <= 10) {
-                                LAInfo.PeriodDetectionThreshold = temp;
-                                LAInfoDeep.PeriodDetectionThreshold = new MantExp(temp);
+                            if (temp > 0) {
+                                MipLAStep.ValidRadiusScale = temp;
                             }
                         } catch (Exception ex) {
                         }
                     }
-                    else if (token.equals("bla2_period_detection_threshold2") && tokenizer.countTokens() == 1) {
+                    else if (token.equals("bla2_dip_detection_threshold") && tokenizer.countTokens() == 1) {
 
                         try {
                             double temp = Double.parseDouble(tokenizer.nextToken());
 
                             if (temp > 0 && temp <= 10) {
-                                LAInfo.PeriodDetectionThreshold2 = temp;
-                                LAInfoDeep.PeriodDetectionThreshold2 = new MantExp(temp);
+                                LAInfo.DipDetectionThreshold = temp;
+                                LAInfoDeep.DipDetectionThreshold = new MantExp(temp);
+                            }
+                        } catch (Exception ex) {
+                        }
+                    }
+                    else if (token.equals("bla2_dip_detection_threshold2") && tokenizer.countTokens() == 1) {
+
+                        try {
+                            double temp = Double.parseDouble(tokenizer.nextToken());
+
+                            if (temp > 0 && temp <= 10) {
+                                LAInfo.DipDetectionThreshold2 = temp;
+                                LAInfoDeep.DipDetectionThreshold2 = new MantExp(temp);
                             }
                         } catch (Exception ex) {
                         }
@@ -10468,10 +10616,10 @@ public class MainWindow extends JFrame implements Constants {
 
                         token = tokenizer.nextToken();
 
-                        if(token.equals("false")) {
+                        if(token.equalsIgnoreCase("false")) {
                             TaskRender.CHECK_BAILOUT_DURING_DEEP_NOT_FULL_FLOATEXP_MODE = false;
                         }
-                        else if(token.equals("true")) {
+                        else if(token.equalsIgnoreCase("true")) {
                             TaskRender.CHECK_BAILOUT_DURING_DEEP_NOT_FULL_FLOATEXP_MODE = true;
                         }
                     }
@@ -10479,10 +10627,10 @@ public class MainWindow extends JFrame implements Constants {
 
                         token = tokenizer.nextToken();
 
-                        if(token.equals("false")) {
+                        if(token.equalsIgnoreCase("false")) {
                             TaskRender.USE_CUSTOM_FLOATEXP_REQUIREMENT = false;
                         }
-                        else if(token.equals("true")) {
+                        else if(token.equalsIgnoreCase("true")) {
                             TaskRender.USE_CUSTOM_FLOATEXP_REQUIREMENT = true;
                         }
                     }
@@ -10588,9 +10736,9 @@ public class MainWindow extends JFrame implements Constants {
 
                         token = tokenizer.nextToken();
 
-                        if (token.equals("false")) {
+                        if (token.equalsIgnoreCase("false")) {
                             TaskRender.GREEDY_ALGORITHM = false;
-                        } else if (token.equals("true")) {
+                        } else if (token.equalsIgnoreCase("true")) {
                             TaskRender.GREEDY_ALGORITHM = true;
                         }
                     }
@@ -10598,9 +10746,9 @@ public class MainWindow extends JFrame implements Constants {
 
                         token = tokenizer.nextToken();
 
-                        if (token.equals("false")) {
+                        if (token.equalsIgnoreCase("false")) {
                             QUICK_RENDER_ZOOM_TO_CURRENT_CENTER = false;
-                        } else if (token.equals("true")) {
+                        } else if (token.equalsIgnoreCase("true")) {
                             QUICK_RENDER_ZOOM_TO_CURRENT_CENTER = true;
                         }
                     }
@@ -10608,10 +10756,10 @@ public class MainWindow extends JFrame implements Constants {
 
                         token = tokenizer.nextToken();
 
-                        if(token.equals("false")) {
+                        if(token.equalsIgnoreCase("false")) {
                             TaskRender.GATHER_PERTURBATION_STATISTICS = false;
                         }
-                        else if(token.equals("true")) {
+                        else if(token.equalsIgnoreCase("true")) {
                             TaskRender.GATHER_PERTURBATION_STATISTICS = true;
                         }
                     }
@@ -10619,10 +10767,10 @@ public class MainWindow extends JFrame implements Constants {
 
                         token = tokenizer.nextToken();
 
-                        if(token.equals("false")) {
+                        if(token.equalsIgnoreCase("false")) {
                             TaskRender.GATHER_HIGHPRECISION_STATISTICS = false;
                         }
-                        else if(token.equals("true")) {
+                        else if(token.equalsIgnoreCase("true")) {
                             TaskRender.GATHER_HIGHPRECISION_STATISTICS = true;
                         }
                     }
@@ -10630,10 +10778,10 @@ public class MainWindow extends JFrame implements Constants {
 //
 //                        token = tokenizer.nextToken();
 //
-//                        if(token.equals("false")) {
+//                        if(token.equalsIgnoreCase("false")) {
 //                            ThreadDraw.HIGH_PRECISION_CALCULATION = false;
 //                        }
-//                        else if(token.equals("true")) {
+//                        else if(token.equalsIgnoreCase("true")) {
 //                            ThreadDraw.HIGH_PRECISION_CALCULATION = true;
 //                        }
 //                    }
@@ -10641,10 +10789,10 @@ public class MainWindow extends JFrame implements Constants {
 
                         token = tokenizer.nextToken();
 
-                        if(token.equals("false")) {
+                        if(token.equalsIgnoreCase("false")) {
                             TaskRender.GATHER_TINY_REF_INDEXES = false;
                         }
-                        else if(token.equals("true")) {
+                        else if(token.equalsIgnoreCase("true")) {
                             TaskRender.GATHER_TINY_REF_INDEXES = true;
                         }
                     }
@@ -10652,10 +10800,10 @@ public class MainWindow extends JFrame implements Constants {
 
                         token = tokenizer.nextToken();
 
-                        if(token.equals("false")) {
+                        if(token.equalsIgnoreCase("false")) {
                             MyApfloat.setAutomaticPrecision = false;
                         }
-                        else if(token.equals("true")) {
+                        else if(token.equalsIgnoreCase("true")) {
                             MyApfloat.setAutomaticPrecision = true;
                         }
                     }
@@ -10664,7 +10812,7 @@ public class MainWindow extends JFrame implements Constants {
                         try {
                             int temp = Integer.parseInt(tokenizer.nextToken());
 
-                            if (temp == BOUNDARY_TRACING || temp == DIVIDE_AND_CONQUER || temp == SUCCESSIVE_REFINEMENT || temp == CIRCULAR_SUCCESSIVE_REFINEMENT) {
+                            if (temp == BOUNDARY_TRACING || temp == MARIANI_SILVER || temp == SUCCESSIVE_REFINEMENT || temp == PATTERNED_SUCCESSIVE_REFINEMENT) {
                                 TaskRender.GREEDY_ALGORITHM_SELECTION = temp;
                             }
                         } catch (Exception ex) {
@@ -10719,13 +10867,13 @@ public class MainWindow extends JFrame implements Constants {
 
                         token = tokenizer.nextToken();
 
-                        if (token.equals("false") && options_menu.getPeriodicityChecking().isSelected()) {
+                        if (token.equalsIgnoreCase("false") && options_menu.getPeriodicityChecking().isSelected()) {
                             options_menu.getPeriodicityChecking().doClick();
-                        } else if (token.equals("true") && !options_menu.getPeriodicityChecking().isSelected()) {
+                        } else if (token.equalsIgnoreCase("true") && !options_menu.getPeriodicityChecking().isSelected()) {
                             options_menu.getPeriodicityChecking().doClick();
                         }
 
-                        if(token.equals("false")) {
+                        if(token.equalsIgnoreCase("false")) {
                             PERIODICITY_CHECKING = false;
                         }
                         else {
@@ -10736,13 +10884,13 @@ public class MainWindow extends JFrame implements Constants {
 
                         token = tokenizer.nextToken();
 
-                        if (token.equals("false") && options_menu.getAutoRepaintImage().isSelected()) {
+                        if (token.equalsIgnoreCase("false") && options_menu.getAutoRepaintImage().isSelected()) {
                             options_menu.getAutoRepaintImage().doClick();
-                        } else if (token.equals("true") && !options_menu.getAutoRepaintImage().isSelected()) {
+                        } else if (token.equalsIgnoreCase("true") && !options_menu.getAutoRepaintImage().isSelected()) {
                             options_menu.getAutoRepaintImage().doClick();
                         }
 
-                        if(token.equals("false")) {
+                        if(token.equalsIgnoreCase("false")) {
                             AUTO_REPAINT_IMAGE = false;
                         }
                         else {
@@ -10753,13 +10901,13 @@ public class MainWindow extends JFrame implements Constants {
 
                         token = tokenizer.nextToken();
 
-                        if (token.equals("false") && options_menu.getZoomOnCursor().isSelected()) {
+                        if (token.equalsIgnoreCase("false") && options_menu.getZoomOnCursor().isSelected()) {
                             options_menu.getZoomOnCursor().doClick();
-                        } else if (token.equals("true") && !options_menu.getZoomOnCursor().isSelected()) {
+                        } else if (token.equalsIgnoreCase("true") && !options_menu.getZoomOnCursor().isSelected()) {
                             options_menu.getZoomOnCursor().doClick();
                         }
 
-                        if(token.equals("false")) {
+                        if(token.equalsIgnoreCase("false")) {
                             ZOOM_ON_THE_CURSOR = false;
                         }
                         else {
@@ -10770,9 +10918,9 @@ public class MainWindow extends JFrame implements Constants {
 
                         token = tokenizer.nextToken();
 
-                        if (token.equals("false")) {
+                        if (token.equalsIgnoreCase("false")) {
                            TaskRender.PERTURBATION_THEORY = false;
-                        } else if (token.equals("true")) {
+                        } else if (token.equalsIgnoreCase("true")) {
                             TaskRender.PERTURBATION_THEORY = true;
                         }
                     }
@@ -10780,9 +10928,9 @@ public class MainWindow extends JFrame implements Constants {
 
                         token = tokenizer.nextToken();
 
-                        if (token.equals("false")) {
+                        if (token.equalsIgnoreCase("false")) {
                             TaskRender.DETECT_PERIOD = false;
-                        } else if (token.equals("true")) {
+                        } else if (token.equalsIgnoreCase("true")) {
                             TaskRender.DETECT_PERIOD = true;
                         }
                     }
@@ -10790,9 +10938,9 @@ public class MainWindow extends JFrame implements Constants {
 
                         token = tokenizer.nextToken();
 
-                        if (token.equals("false")) {
+                        if (token.equalsIgnoreCase("false")) {
                             TaskRender.USE_THREADS_FOR_SA = false;
-                        } else if (token.equals("true")) {
+                        } else if (token.equalsIgnoreCase("true")) {
                             TaskRender.USE_THREADS_FOR_SA = true;
                         }
                     }
@@ -10800,9 +10948,9 @@ public class MainWindow extends JFrame implements Constants {
 
                         token = tokenizer.nextToken();
 
-                        if (token.equals("false")) {
+                        if (token.equalsIgnoreCase("false")) {
                             TaskRender.USE_THREADS_FOR_BLA = false;
-                        } else if (token.equals("true")) {
+                        } else if (token.equalsIgnoreCase("true")) {
                             TaskRender.USE_THREADS_FOR_BLA = true;
                         }
                     }
@@ -10822,9 +10970,9 @@ public class MainWindow extends JFrame implements Constants {
 
                         token = tokenizer.nextToken();
 
-                        if (token.equals("false")) {
+                        if (token.equalsIgnoreCase("false")) {
                             TaskRender.BIGNUM_AUTOMATIC_PRECISION = false;
-                        } else if (token.equals("true")) {
+                        } else if (token.equalsIgnoreCase("true")) {
                             TaskRender.BIGNUM_AUTOMATIC_PRECISION = true;
                         }
                     }
@@ -10877,7 +11025,7 @@ public class MainWindow extends JFrame implements Constants {
                         try {
                             int temp = Integer.parseInt(tokenizer.nextToken());
 
-                            if (temp >= 0 && temp <= 4) {
+                            if (temp >= 0 && temp <= 5) {
                                 TaskRender.APPROXIMATION_ALGORITHM = temp;
                             }
                         } catch (Exception ex) {
@@ -10887,9 +11035,9 @@ public class MainWindow extends JFrame implements Constants {
 
                         token = tokenizer.nextToken();
 
-                        if (token.equals("false")) {
+                        if (token.equalsIgnoreCase("false")) {
                             TaskRender.USE_FULL_FLOATEXP_FOR_DEEP_ZOOM = false;
-                        } else if (token.equals("true")) {
+                        } else if (token.equalsIgnoreCase("true")) {
                             TaskRender.USE_FULL_FLOATEXP_FOR_DEEP_ZOOM = true;
                         }
                     }
@@ -10897,9 +11045,9 @@ public class MainWindow extends JFrame implements Constants {
 
                         token = tokenizer.nextToken();
 
-                        if (token.equals("false")) {
+                        if (token.equalsIgnoreCase("false")) {
                             TaskRender.USE_FULL_FLOATEXP_FOR_ALL_ZOOM = false;
-                        } else if (token.equals("true")) {
+                        } else if (token.equalsIgnoreCase("true")) {
                             TaskRender.USE_FULL_FLOATEXP_FOR_ALL_ZOOM = true;
                         }
                     }
@@ -10958,18 +11106,18 @@ public class MainWindow extends JFrame implements Constants {
 
                         token = tokenizer.nextToken();
 
-                        if (token.equals("true")) {
+                        if (token.equalsIgnoreCase("true")) {
                             setExtendedState(JFrame.MAXIMIZED_BOTH);
-                        } else if (token.equals("false")) {
+                        } else if (token.equalsIgnoreCase("false")) {
                             setExtendedState(JFrame.NORMAL);
                         }
                     } else if (token.equals("window_fullscreen") && tokenizer.countTokens() == 1) {
 
                         token = tokenizer.nextToken();
 
-                        if (token.equals("false") && options_menu.getFullscreen().isSelected()) {
+                        if (token.equalsIgnoreCase("false") && options_menu.getFullscreen().isSelected()) {
                             options_menu.getFullscreen().doClick();
-                        } else if (token.equals("true") && !options_menu.getFullscreen().isSelected()) {
+                        } else if (token.equalsIgnoreCase("true") && !options_menu.getFullscreen().isSelected()) {
                             options_menu.getFullscreen().doClick();
                         }
                     } else if (token.equals("window_size") && tokenizer.countTokens() == 2) {
@@ -10994,27 +11142,27 @@ public class MainWindow extends JFrame implements Constants {
 
                         token = tokenizer.nextToken();
 
-                        if (token.equals("false") && options_menu.getToolbar().isSelected()) {
+                        if (token.equalsIgnoreCase("false") && options_menu.getToolbar().isSelected()) {
                             options_menu.getToolbar().doClick();
-                        } else if (token.equals("true") && !options_menu.getToolbar().isSelected()) {
+                        } else if (token.equalsIgnoreCase("true") && !options_menu.getToolbar().isSelected()) {
                             options_menu.getToolbar().doClick();
                         }
                     } else if (token.equals("window_infobar") && tokenizer.countTokens() == 1) {
 
                         token = tokenizer.nextToken();
 
-                        if (token.equals("false") && options_menu.getInfobar().isSelected()) {
+                        if (token.equalsIgnoreCase("false") && options_menu.getInfobar().isSelected()) {
                             options_menu.getInfobar().doClick();
-                        } else if (token.equals("true") && !options_menu.getInfobar().isSelected()) {
+                        } else if (token.equalsIgnoreCase("true") && !options_menu.getInfobar().isSelected()) {
                             options_menu.getInfobar().doClick();
                         }
                     } else if (token.equals("window_statusbar") && tokenizer.countTokens() == 1) {
 
                         token = tokenizer.nextToken();
 
-                        if (token.equals("false") && options_menu.getStatusbar().isSelected()) {
+                        if (token.equalsIgnoreCase("false") && options_menu.getStatusbar().isSelected()) {
                             options_menu.getStatusbar().doClick();
-                        } else if (token.equals("true") && !options_menu.getStatusbar().isSelected()) {
+                        } else if (token.equalsIgnoreCase("true") && !options_menu.getStatusbar().isSelected()) {
                             options_menu.getStatusbar().doClick();
                         }
                     }
@@ -11022,9 +11170,9 @@ public class MainWindow extends JFrame implements Constants {
 
                         token = tokenizer.nextToken();
 
-                        if (token.equals("false") && options_menu.getDebugbar().isSelected()) {
+                        if (token.equalsIgnoreCase("false") && options_menu.getDebugbar().isSelected()) {
                             options_menu.getDebugbar().doClick();
-                        } else if (token.equals("true") && !options_menu.getDebugbar().isSelected()) {
+                        } else if (token.equalsIgnoreCase("true") && !options_menu.getDebugbar().isSelected()) {
                             options_menu.getDebugbar().doClick();
                         }
                     }
@@ -11044,13 +11192,13 @@ public class MainWindow extends JFrame implements Constants {
 
                         token = tokenizer.nextToken();
 
-                        if (token.equals("false") && options_menu.getShowOrbitConvergingPoint().isSelected()) {
+                        if (token.equalsIgnoreCase("false") && options_menu.getShowOrbitConvergingPoint().isSelected()) {
                             options_menu.getShowOrbitConvergingPoint().doClick();
-                        } else if (token.equals("true") && !options_menu.getShowOrbitConvergingPoint().isSelected()) {
+                        } else if (token.equalsIgnoreCase("true") && !options_menu.getShowOrbitConvergingPoint().isSelected()) {
                             options_menu.getShowOrbitConvergingPoint().doClick();
                         }
 
-                        if (token.equals("false")) {
+                        if (token.equalsIgnoreCase("false")) {
                             show_orbit_converging_point = false;
                         } else {
                             show_orbit_converging_point = true;
@@ -11163,13 +11311,13 @@ public class MainWindow extends JFrame implements Constants {
 
                         token = tokenizer.nextToken();
 
-                        if (token.equals("false") && options_menu.getFastJuliaFiltersOptions().isSelected()) {
+                        if (token.equalsIgnoreCase("false") && options_menu.getFastJuliaFiltersOptions().isSelected()) {
                             options_menu.getFastJuliaFiltersOptions().doClick();
-                        } else if (token.equals("true") && !options_menu.getFastJuliaFiltersOptions().isSelected()) {
+                        } else if (token.equalsIgnoreCase("true") && !options_menu.getFastJuliaFiltersOptions().isSelected()) {
                             options_menu.getFastJuliaFiltersOptions().doClick();
                         }
 
-                        if (token.equals("false")) {
+                        if (token.equalsIgnoreCase("false")) {
                             FAST_JULIA_FILTERS = false;
                         } else {
                             FAST_JULIA_FILTERS = true;
@@ -11206,9 +11354,9 @@ public class MainWindow extends JFrame implements Constants {
 
                         token = tokenizer.nextToken();
 
-                        if (token.equals("true")) {
+                        if (token.equalsIgnoreCase("true")) {
                             CustomPaletteEditorDialog.equal_hues = true;
-                        } else if (token.equals("false")) {
+                        } else if (token.equalsIgnoreCase("false")) {
                             CustomPaletteEditorDialog.equal_hues = false;
                         }
                     }
@@ -11216,9 +11364,9 @@ public class MainWindow extends JFrame implements Constants {
 
                         token = tokenizer.nextToken();
 
-                        if (token.equals("true")) {
+                        if (token.equalsIgnoreCase("true")) {
                             CustomPaletteEditorDialog.pastel = true;
-                        } else if (token.equals("false")) {
+                        } else if (token.equalsIgnoreCase("false")) {
                             CustomPaletteEditorDialog.pastel = false;
                         }
                     }
@@ -11304,8 +11452,6 @@ public class MainWindow extends JFrame implements Constants {
                         } catch (Exception ex) {
                         }
 
-                    }else {
-                        continue;
                     }
                 }
 
@@ -11361,10 +11507,10 @@ public class MainWindow extends JFrame implements Constants {
 
                         token = tokenizer.nextToken();
 
-                        if(token.equals("false")) {
+                        if(token.equalsIgnoreCase("false")) {
                             TaskRender.LOAD_MPIR = false;
                         }
-                        else if(token.equals("true")) {
+                        else if(token.equalsIgnoreCase("true")) {
                             TaskRender.LOAD_MPIR = true;
                         }
                     }
@@ -11372,10 +11518,10 @@ public class MainWindow extends JFrame implements Constants {
 
                         token = tokenizer.nextToken();
 
-                        if(token.equals("false")) {
+                        if(token.equalsIgnoreCase("false")) {
                             minimalProgressBar = false;
                         }
-                        else if(token.equals("true")) {
+                        else if(token.equalsIgnoreCase("true")) {
                             minimalProgressBar = true;
                         }
                     }
@@ -11383,10 +11529,10 @@ public class MainWindow extends JFrame implements Constants {
 
                         token = tokenizer.nextToken();
 
-                        if(token.equals("false")) {
+                        if(token.equalsIgnoreCase("false")) {
                             Settings.DISPLAY_USER_CODE_WARNING = false;
                         }
-                        else if(token.equals("true")) {
+                        else if(token.equalsIgnoreCase("true")) {
                             Settings.DISPLAY_USER_CODE_WARNING = true;
                         }
                     }
@@ -11394,10 +11540,10 @@ public class MainWindow extends JFrame implements Constants {
 
                         token = tokenizer.nextToken();
 
-                        if(token.equals("false")) {
+                        if(token.equalsIgnoreCase("false")) {
                             TaskRender.LOAD_MPFR = false;
                         }
-                        else if(token.equals("true")) {
+                        else if(token.equalsIgnoreCase("true")) {
                             TaskRender.LOAD_MPFR = true;
                         }
                     }
@@ -11405,10 +11551,10 @@ public class MainWindow extends JFrame implements Constants {
 
                         token = tokenizer.nextToken();
 
-                        if(token.equals("false")) {
+                        if(token.equalsIgnoreCase("false")) {
                             TaskRender.LOAD_RENDERING_ALGORITHM_FROM_SAVES = false;
                         }
-                        else if(token.equals("true")) {
+                        else if(token.equalsIgnoreCase("true")) {
                             TaskRender.LOAD_RENDERING_ALGORITHM_FROM_SAVES = true;
                         }
                     }
@@ -11454,9 +11600,6 @@ public class MainWindow extends JFrame implements Constants {
                             }
                         } catch (Exception ex) {
                         }
-                    }
-                    else {
-                        continue;
                     }
                 }
 
@@ -11509,7 +11652,7 @@ public class MainWindow extends JFrame implements Constants {
 
         resetImageAndCopy(s.d3s.d3, false);
 
-        if ((oldAAValue && TaskRender.GREEDY_ALGORITHM && TaskRender.GREEDY_ALGORITHM_SELECTION == DIVIDE_AND_CONQUER) || s.fs.filters[ANTIALIASING] || s.requiresRecalculation(false)) {
+        if ((oldAAValue && TaskRender.GREEDY_ALGORITHM && TaskRender.GREEDY_ALGORITHM_SELECTION == MARIANI_SILVER) || s.fs.filters[ANTIALIASING] || s.requiresRecalculation(false)) {
 
             if(s.fs.filters[ANTIALIASING] && TaskRender.hasExtraData(image_width, image_height) && !s.d3s.d3 && !s.ds.domain_coloring
                     && !samplesChanged && !jitterChanged) {
@@ -11879,11 +12022,7 @@ public class MainWindow extends JFrame implements Constants {
 
     }
 
-    public void boundaryTracingOptionsChanged(boolean greedy_algorithm, int algorithm, int brute_force_alg) {
-
-        TaskRender.GREEDY_ALGORITHM = greedy_algorithm;
-        TaskRender.GREEDY_ALGORITHM_SELECTION = algorithm;
-        TaskRender.BRUTE_FORCE_ALG = brute_force_alg;
+    public void renderingOptionsChanged() {
 
         setOptions(false);
 
@@ -11893,7 +12032,8 @@ public class MainWindow extends JFrame implements Constants {
 
         whole_image_done = false;
 
-        resetImageAndCopy(s.d3s.d3, false);
+        //resetImageAndCopy(s.d3s.d3, false);
+        resetImage();
 
         createTasks(false, false, false, false);
 
@@ -11980,7 +12120,7 @@ public class MainWindow extends JFrame implements Constants {
     public void setRenderingAlgorithms() {
 
         resetOrbit();
-        new RenderingAlgorithmsDialog(ptr, TaskRender.GREEDY_ALGORITHM, TaskRender.GREEDY_ALGORITHM_SELECTION, TaskRender.BRUTE_FORCE_ALG, TaskRender.GUESS_BLOCKS_SELECTION);
+        new RenderingAlgorithmsDialog(ptr);
 
     }
 
@@ -12098,7 +12238,7 @@ public class MainWindow extends JFrame implements Constants {
                 BoundaryTracingRender.examined = new boolean[image_width * image_height];
             }
 
-            if (!d3 && (!TaskRender.GREEDY_ALGORITHM || (TaskRender.GREEDY_ALGORITHM_SELECTION == DIVIDE_AND_CONQUER || TaskRender.GREEDY_ALGORITHM_SELECTION == BOUNDARY_TRACING || TaskRender.GREEDY_ALGORITHM_SELECTION == SUCCESSIVE_REFINEMENT || TaskRender.GREEDY_ALGORITHM_SELECTION == CIRCULAR_SUCCESSIVE_REFINEMENT))) {
+            if (!d3 && (!TaskRender.GREEDY_ALGORITHM || (TaskRender.GREEDY_ALGORITHM_SELECTION == MARIANI_SILVER || TaskRender.GREEDY_ALGORITHM_SELECTION == BOUNDARY_TRACING || TaskRender.GREEDY_ALGORITHM_SELECTION == SUCCESSIVE_REFINEMENT || TaskRender.GREEDY_ALGORITHM_SELECTION == PATTERNED_SUCCESSIVE_REFINEMENT))) {
                 int[] dataDest = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
                 int[] dataSrc = ((DataBufferInt) last_used.getRaster().getDataBuffer()).getData();
                 int total = dataDest.length;
@@ -12915,7 +13055,7 @@ public class MainWindow extends JFrame implements Constants {
     }
 
     public void setColorMap(boolean outcoloring_mode) {
-        new ColorMapDialog(ptr, s.hasSmoothing(), outcoloring_mode, outcoloring_mode ? options_menu.getOutColoringPalette() : options_menu.getInColoringPalette());
+        new ColorMapDialog(ptr, s.fns.smoothing, outcoloring_mode, outcoloring_mode ? options_menu.getOutColoringPalette() : options_menu.getInColoringPalette());
     }
 
     public void setCustomDirectPalette(boolean outcoloring_mode) {
@@ -13019,7 +13159,7 @@ public class MainWindow extends JFrame implements Constants {
         UIManager.put( "OptionPane.showIcon", true );
         UIManager.put( "TitlePane.unifiedBackground", true );
         UIManager.put( "TitlePane.showIcon", true );
-        UIManager.put( "MenuItem.selectionType", true ? "underline" : null );
+        UIManager.put( "MenuItem.selectionType", "underline");
         UIManager.put( "TitlePane.menuBarEmbedded", true );
         UIManager.put( "Component.hideMnemonics", false );
 
@@ -13192,6 +13332,8 @@ public class MainWindow extends JFrame implements Constants {
             switch (Power) {
                 case 2:
                     return MANDELBAR;
+                case 3:
+                    return MANDELBARCUBED;
             }
         }
         else if(FractalType == 6) { //Perpendicular Mandelbrot
@@ -13225,6 +13367,12 @@ public class MainWindow extends JFrame implements Constants {
                     s.fns.z_exponent_nova[1] = 0;
                     s.fns.nova_method = 0;
                     return NOVA;
+            }
+        }
+        else if(FractalType == 44) { //TheRedshiftRider 3
+            switch (Power) {
+                case 3:
+                    return FORMULA50;
             }
         }
         else if(FractalType == 98) { //Newton Nova Mandelbrot
@@ -13458,9 +13606,6 @@ public class MainWindow extends JFrame implements Constants {
                         JitterShape = tokenizer.nextToken();
                         matchedAny = true;
                     }
-                    else {
-                        continue;
-                    }
                 }
 
             }
@@ -13613,7 +13758,7 @@ public class MainWindow extends JFrame implements Constants {
                     }
 
                     s.ps.color_choice = DIRECT_PALETTE_ID;
-                    s.ps.direct_palette = finalCols.stream().mapToInt(i -> i.getRGB()).toArray();
+                    s.ps.direct_palette = finalCols.stream().mapToInt(Color::getRGB).toArray();
                 }
             }
             catch (Exception ex) {

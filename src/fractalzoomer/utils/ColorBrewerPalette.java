@@ -40,7 +40,7 @@ public class ColorBrewerPalette {
     private static final int[] MIXED8 = {-10596446, -13465411, -10042715, -5513820, -1641064, -65, -73589, -151967, -758461, -2802097, -6422206};
     private static final int[] MIXED9 = {-16750537, -15034288, -10044061, -5842582, -2494581, -65, -73589, -151967, -758461, -2674649, -5963738};
 
-    public static Color[] generate2(int max_colors) {
+    public static Color[] generate2(Random generator, int max_colors) {
         ArrayList<int[]> greens = new ArrayList<>();
         greens.add(GREEN1);
         greens.add(GREEN2);
@@ -80,8 +80,6 @@ public class ColorBrewerPalette {
         colors.add(blacks);
 
         int count = 0;
-
-        Random generator = new Random();
 
         Color[] palette = new Color[max_colors];
 
@@ -124,7 +122,7 @@ public class ColorBrewerPalette {
         return palette;
     }
 
-    public static Color[] generate(int max_colors) {
+    public static Color[] generate(Random generator, int max_colors) {
         ArrayList<int[]> mixed = new ArrayList<>();
 
         mixed.add(MIXED1);
@@ -138,8 +136,6 @@ public class ColorBrewerPalette {
         mixed.add(MIXED9);
 
         int count = 0;
-
-        Random generator = new Random();
 
         Color[] palette = new Color[max_colors];
 

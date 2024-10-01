@@ -92,9 +92,11 @@ public class Abbasbandy3Formula extends Abbasbandy3RootFindingMethod {
             parser.setNvalue(new Complex(iterations, 0));
         }
 
-        for (int i = 0; i < Parser.EXTRA_VARS; i++) {
-            if (parser.foundVar(i)) {
-                parser.setVarsvalue(i, globalVars[i]);
+        if(parser.foundAnyVar()) {
+            for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+                if (parser.foundVar(i)) {
+                    parser.setVarsvalue(i, globalVars[i]);
+                }
             }
         }
 
@@ -113,9 +115,11 @@ public class Abbasbandy3Formula extends Abbasbandy3RootFindingMethod {
                 parser2.setNvalue(new Complex(iterations, 0));
             }
 
-            for (int i = 0; i < Parser.EXTRA_VARS; i++) {
-                if (parser2.foundVar(i)) {
-                    parser2.setVarsvalue(i, globalVars[i]);
+            if(parser2.foundAnyVar()) {
+                for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+                    if (parser2.foundVar(i)) {
+                        parser2.setVarsvalue(i, globalVars[i]);
+                    }
                 }
             }
 
@@ -129,9 +133,11 @@ public class Abbasbandy3Formula extends Abbasbandy3RootFindingMethod {
                 parser3.setNvalue(new Complex(iterations, 0));
             }
 
-            for (int i = 0; i < Parser.EXTRA_VARS; i++) {
-                if (parser3.foundVar(i)) {
-                    parser3.setVarsvalue(i, globalVars[i]);
+            if(parser3.foundAnyVar()) {
+                for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+                    if (parser3.foundVar(i)) {
+                        parser3.setVarsvalue(i, globalVars[i]);
+                    }
                 }
             }
 
@@ -145,9 +151,11 @@ public class Abbasbandy3Formula extends Abbasbandy3RootFindingMethod {
                 parser4.setNvalue(new Complex(iterations, 0));
             }
 
-            for (int i = 0; i < Parser.EXTRA_VARS; i++) {
-                if (parser4.foundVar(i)) {
-                    parser4.setVarsvalue(i, globalVars[i]);
+            if(parser4.foundAnyVar()) {
+                for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+                    if (parser4.foundVar(i)) {
+                        parser4.setVarsvalue(i, globalVars[i]);
+                    }
                 }
             }
 
@@ -494,9 +502,11 @@ public class Abbasbandy3Formula extends Abbasbandy3RootFindingMethod {
             parser.setNvalue(new Complex(iterations, 0));
         }
 
-        for (int i = 0; i < Parser.EXTRA_VARS; i++) {
-            if (parser.foundVar(i)) {
-                parser.setVarsvalue(i, globalVars[i]);
+        if(parser.foundAnyVar()) {
+            for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+                if (parser.foundVar(i)) {
+                    parser.setVarsvalue(i, globalVars[i]);
+                }
             }
         }
 

@@ -73,11 +73,11 @@ public class DeepReference {
     }
 
     public void reset() {
-        Arrays.fill(mantsRe, 0, mantsRe.length, 0);
-        Arrays.fill(mantsIm, 0, mantsIm.length, 0);
-        Arrays.fill(exps, 0, exps.length, 0);
+        Arrays.fill(mantsRe, 0);
+        Arrays.fill(mantsIm, 0);
+        Arrays.fill(exps,  0);
         if(TaskRender.MANTEXPCOMPLEX_FORMAT == 1) {
-            Arrays.fill(expsIm, 0, expsIm.length, 0);
+            Arrays.fill(expsIm, 0);
         }
 
     }

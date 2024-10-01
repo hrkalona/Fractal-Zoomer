@@ -9,13 +9,15 @@ public class BLADeepFullLStep extends BLADeepFull {
     public double By;
     public long Bexp;
     public long BexpIm;
+    public int l;
 
-    protected BLADeepFullLStep(MantExp r2, MantExpComplex A, MantExpComplex B) {
+    protected BLADeepFullLStep(MantExp r2, MantExpComplex A, MantExpComplex B, int l) {
         super(r2, A);
         this.Bx = B.getMantissaReal();
         this.By = B.getMantissaImag();
         this.Bexp = B.getExp();
         this.BexpIm = B.getExpImag();
+        this.l = l;
     }
 
     @Override
@@ -46,6 +48,11 @@ public class BLADeepFullLStep extends BLADeepFull {
     @Override
     public MantExpComplex getB() {
         return new MantExpComplexFull(Bexp, BexpIm, Bx, By);
+    }
+
+    @Override
+    public int getL() {
+        return l;
     }
 
 }

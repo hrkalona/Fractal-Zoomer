@@ -385,8 +385,8 @@ public class Gradient extends ArrayColormap implements Cloneable {
 			for (int j = xKnots[i]; j < end; j++) {
 				int rgb1 = yKnots[i];
 				int rgb2 = yKnots[i+1];
-				float hsb1[] = Color.RGBtoHSB((rgb1 >> 16) & 0xff, (rgb1 >> 8) & 0xff, rgb1 & 0xff, null);
-				float hsb2[] = Color.RGBtoHSB((rgb2 >> 16) & 0xff, (rgb2 >> 8) & 0xff, rgb2 & 0xff, null);
+				float[] hsb1 = Color.RGBtoHSB((rgb1 >> 16) & 0xff, (rgb1 >> 8) & 0xff, rgb1 & 0xff, null);
+				float[] hsb2 = Color.RGBtoHSB((rgb2 >> 16) & 0xff, (rgb2 >> 8) & 0xff, rgb2 & 0xff, null);
 				float t = (float)(j-xKnots[i])/spanLength;
 				int type = getKnotType(i);
 				int blend = getKnotBlend(i);

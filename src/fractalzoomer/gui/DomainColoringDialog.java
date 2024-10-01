@@ -298,11 +298,7 @@ public class DomainColoringDialog extends JDialog {
 
         JButton cancel = new MyButton("Cancel");
         cancel.setFocusable(false);
-        cancel.addActionListener(e -> {
-
-            dispose();
-
-        });
+        cancel.addActionListener(e -> dispose());
 
         getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
                 KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "Cancel");

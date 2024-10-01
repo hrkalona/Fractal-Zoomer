@@ -293,10 +293,6 @@ public class CellularFilter extends WholeImageFilter implements Function2D, Clon
 		int numPoints;
 		random.setSeed(571*cubeX + 23*cubeY);
 		switch (gridType) {
-		case RANDOM:
-		default:
-			numPoints = probabilities[random.nextInt() & 0x1fff];
-			break;
 		case SQUARE:
 			numPoints = 1;
 			break;
@@ -308,6 +304,10 @@ public class CellularFilter extends WholeImageFilter implements Function2D, Clon
 			break;
 		case TRIANGULAR:
 			numPoints = 2;
+			break;
+		case RANDOM:
+		default:
+			numPoints = probabilities[random.nextInt() & 0x1fff];
 			break;
 		}
 		for (int i = 0; i < numPoints; i++) {
@@ -366,8 +366,8 @@ public class CellularFilter extends WholeImageFilter implements Function2D, Clon
 				}
 				break;
 			}
-			float dx = (float)Math.abs(x-px);
-			float dy = (float)Math.abs(y-py);
+			float dx = Math.abs(x-px);
+			float dy = Math.abs(y-py);
 			float d;
 			dx *= weight;
 			dy *= weight;
@@ -519,8 +519,8 @@ public class CellularFilter extends WholeImageFilter implements Function2D, Clon
         @Override
 	public Object clone() {
 		CellularFilter f = (CellularFilter)super.clone();
-		f.coefficients = (float[])coefficients.clone();
-		f.results = (Point[])results.clone();
+		f.coefficients = coefficients.clone();
+		f.results = results.clone();
 		f.random = new Random();
 //		if (colormap != null)
 //			f.colormap = (Colormap)colormap.clone();

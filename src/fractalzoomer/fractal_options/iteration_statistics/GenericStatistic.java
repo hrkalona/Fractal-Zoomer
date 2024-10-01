@@ -9,6 +9,8 @@ import fractalzoomer.core.bla.BLA;
 import fractalzoomer.core.bla.BLADeep;
 import fractalzoomer.core.interpolation.InterpolationMethod;
 import fractalzoomer.core.la.LAstep;
+import fractalzoomer.core.mipla.MipLADeepStep;
+import fractalzoomer.core.mipla.MipLAStep;
 import fractalzoomer.core.norms.Norm;
 import org.apfloat.Apfloat;
 
@@ -175,6 +177,14 @@ public abstract class GenericStatistic {
         insert(z, zold, zold2, iterations, c, start, c0);
     }
 
+    public void insert(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0, MipLAStep mla, int step_length) {
+        insert(z, zold, zold2, iterations, c, start, c0);
+    }
+
+    public void insert(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0, MipLADeepStep mla, int step_length) {
+        insert(z, zold, zold2, iterations, c, start, c0);
+    }
+
     public void initialize(Complex pixel, Complex untransformedPixel) {
         z_val.reset();
         zold_val.reset();
@@ -190,7 +200,7 @@ public abstract class GenericStatistic {
         hasData = false;
 
         if(keepLastXItems) {
-            Arrays.fill(sampleItems, 0, sampleItems.length, null);
+            Arrays.fill(sampleItems,  null);
             sampleItem = 0;
         }
     }

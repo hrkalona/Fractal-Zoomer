@@ -11,8 +11,6 @@ public class AdaptiveMeanAntialiasingAlgorithm extends AntialiasingAlgorithm {
 
     private double VarC;
 
-    private int sampleCount;
-
     private int MinSamples;
     private double AdaptiveThreshold;
 
@@ -26,7 +24,6 @@ public class AdaptiveMeanAntialiasingAlgorithm extends AntialiasingAlgorithm {
         VarA = 0;
         VarB = 0;
         VarC = 0;
-        sampleCount = 0;
         MinSamples = minAdaptiveSteps;
 
         sampleCountReciprocals = new double[totalSamples + 1];
@@ -56,7 +53,7 @@ public class AdaptiveMeanAntialiasingAlgorithm extends AntialiasingAlgorithm {
         VarA = 0;
         VarB = 0;
         VarC = 0;
-        sampleCount = 1;
+        addedSamples = 1;
 
     }
 
@@ -65,9 +62,9 @@ public class AdaptiveMeanAntialiasingAlgorithm extends AntialiasingAlgorithm {
 
         double[] result = getColorChannels(color);
 
-        sampleCount++;
+        addedSamples++;
 
-        double rec = sampleCountReciprocals[sampleCount];
+        double rec = sampleCountReciprocals[addedSamples];
 
         double a = result[0];
         double b = result[1];
@@ -81,7 +78,7 @@ public class AdaptiveMeanAntialiasingAlgorithm extends AntialiasingAlgorithm {
         MeanB += deltaB * rec;
         MeanC += deltaC * rec;
 
-        if(needsPostProcessing) {
+        if(needsAllSamples) {
             return true;
         }
 
@@ -89,14 +86,14 @@ public class AdaptiveMeanAntialiasingAlgorithm extends AntialiasingAlgorithm {
         VarB += (b - MeanB) * deltaB;
         VarC += (c - MeanC) * deltaC;
 
-        if(sampleCount <= MinSamples) {
+        if(addedSamples <= MinSamples) {
             return true;
         }
 
         //The three variances need to be divided by sampleCount, but instead we multiply the test with sampleCount
-        double VarianceSum = VarA + VarB + VarC;
+        double VarianceSum = (VarA + VarB + VarC) / 3;
 
-        return VarianceSum >= AdaptiveThreshold * sampleCount * sampleCount;
+        return VarianceSum >= AdaptiveThreshold * addedSamples * addedSamples;
     }
 
     @Override

@@ -21,11 +21,11 @@ import static fractalzoomer.main.Constants.ESCAPE_TIME_SQUARES2;
  */
 public class Kleinian extends FractalWithoutConstant {
 
-    private final double error = 1e-8;
+    private final static double error = 1e-8;
     private double u;
     private double v;
     private final Complex t;
-    private final int N = 100000000;
+    private final static int N = 100000000;
     private double K;
     private double M;
 

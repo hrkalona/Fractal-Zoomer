@@ -8,6 +8,8 @@ import fractalzoomer.core.bla.BLA;
 import fractalzoomer.core.bla.BLADeep;
 import fractalzoomer.core.interpolation.InterpolationMethod;
 import fractalzoomer.core.la.LAstep;
+import fractalzoomer.core.mipla.MipLADeepStep;
+import fractalzoomer.core.mipla.MipLAStep;
 import fractalzoomer.utils.ColorAlgorithm;
 import org.apfloat.Apfloat;
 
@@ -73,6 +75,18 @@ public class CombinedStatisticWithNormalMap extends GenericStatistic {
     public void insert(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0, LAstep las) {
         nm.insert(z, zold, zold2, iterations, c, start, c0, las);
         gs.insert(z, zold, zold2, iterations, c, start, c0, las);
+    }
+
+    @Override
+    public void insert(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0, MipLAStep mla, int step_length) {
+        nm.insert(z, zold, zold2, iterations, c, start, c0, mla, step_length);
+        gs.insert(z, zold, zold2, iterations, c, start, c0, mla, step_length);
+    }
+
+    @Override
+    public void insert(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0, MipLADeepStep mla, int step_length) {
+        nm.insert(z, zold, zold2, iterations, c, start, c0, mla, step_length);
+        gs.insert(z, zold, zold2, iterations, c, start, c0, mla, step_length);
     }
 
     @Override

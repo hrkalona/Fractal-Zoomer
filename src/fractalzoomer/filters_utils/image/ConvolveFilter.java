@@ -181,11 +181,13 @@ public class ConvolveFilter extends AbstractBufferedImageOp {
         int[] outPixels = new int[width*height];
         getRGB( src, 0, 0, width, height, inPixels );
 
-        if ( premultiplyAlpha )
-			ImageMath.premultiply( inPixels, 0, inPixels.length );
+        if ( premultiplyAlpha ) {
+			ImageMath.premultiply(inPixels, 0, inPixels.length);
+		}
 		convolve(kernel, inPixels, outPixels, width, height, alpha, edgeAction);
-        if ( premultiplyAlpha )
-			ImageMath.unpremultiply( outPixels, 0, outPixels.length );
+        if ( premultiplyAlpha ) {
+			ImageMath.unpremultiply(outPixels, 0, outPixels.length);
+		}
 
         setRGB( dst, 0, 0, width, height, outPixels );
         return dst;

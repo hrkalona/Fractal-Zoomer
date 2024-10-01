@@ -2,8 +2,11 @@
 package fractalzoomer.gui;
 
 import fractalzoomer.main.MainWindow;
+import fractalzoomer.main.MinimalRendererWindow;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -13,10 +16,24 @@ import java.awt.event.WindowEvent;
  */
 public class ImageSizeDialog extends JDialog {
 
-    private MainWindow ptra;
+    private JFrame ptra;
     private JOptionPane optionPane;
+    private double epsilon = 1e-2;
+    private int max_denom = 1000;
 
-    public ImageSizeDialog(MainWindow ptr, int image_width, int image_height) {
+    private DocumentListener field_listener;
+    private DocumentListener field_listener2;
+    private DocumentListener ar1_listener;
+    private DocumentListener ar2_listener;
+    private DocumentListener ar_fractional_listener;
+    private JTextField field;
+    private JTextField field2;
+    private JComboBox<String> templates;
+    private JTextField ar1;
+    private JTextField ar2;
+    private JTextField ar_fractional;
+
+    public ImageSizeDialog(JFrame ptr, int image_width, int image_height, int imageFormat) {
         
         super(ptr);
 
@@ -24,62 +41,221 @@ public class ImageSizeDialog extends JDialog {
 
         setTitle("Image Size");
         setModal(true);
-        setIconImage(MainWindow.getIcon("mandel2.png").getImage());
+        if(ptr instanceof MainWindow) {
+            setIconImage(MainWindow.getIcon("mandel2.png").getImage());
+        }
+        else {
+            setIconImage(MainWindow.getIcon("mandelMinimalRenderer.png").getImage());
+        }
 
-        JTextField field = new JTextField();
+        field = new JTextField();
         field.addAncestorListener(new RequestFocusListener());
         field.setText("" + image_width);
 
-        JTextField field2 = new JTextField();
+        field2 = new JTextField();
         field2.setText("" + image_height);
 
-        final JComboBox<String> templates = new JComboBox<>(new String[] {"", "788x788 1:1", "1024x768 4:3", "1280x720 16:9", "1920x1080 16:9", "2560x1440 16:9", "3840x2160 16:9"});
+        int[] res = fareyApproximation(((double) image_width)/image_height, epsilon, max_denom);
+
+        templates = new JComboBox<>(new String[] {"", "788x788 1:1", "1024x768 4:3", "1280x720 16:9", "1920x1080 16:9", "2560x1440 16:9", "3840x2160 16:9", "With Aspect Ratio"});
+
+        ar1 = new JTextField(5);
+        ar1.setText("" + res[0]);
+        ar2 = new JTextField(5);
+        ar2.setText("" + res[1]);
+        JPanel ar = new JPanel();
+        ar.add(new JLabel("Aspect Ratio: "));
+        ar.add(ar1);
+        ar.add(new JLabel("/"));
+        ar.add(ar2);
+
+        ar1.setEnabled(false);
+        ar2.setEnabled(false);
+
+        ar_fractional = new JTextField(14);
+        ar_fractional.setEnabled(false);
+        ar_fractional.setText("" + ((double) image_width)/image_height);
+
+        JPanel ar_fractional_panel = new JPanel();
+        ar_fractional_panel.add(new JLabel("Aspect Ratio Decimal: "));
+        ar_fractional_panel.add(ar_fractional);
 
         templates.setFocusable(false);
         templates.addActionListener( e-> {
+
+            removeListeners();
             switch (templates.getSelectedIndex()) {
                 case 1:
                     field.setText("788");
                     field2.setText("788");
                     field.setEnabled(false);
                     field2.setEnabled(false);
+                    ar1.setText("1");
+                    ar2.setText("1");
+                    ar_fractional.setText("" + 1.0);
+                    ar1.setEnabled(false);
+                    ar2.setEnabled(false);
+                    ar_fractional.setEnabled(false);
                     break;
                 case 2:
                     field.setText("1024");
                     field2.setText("768");
                     field.setEnabled(false);
                     field2.setEnabled(false);
+                    ar1.setText("4");
+                    ar2.setText("3");
+                    ar_fractional.setText("" + 4.0 / 3.0);
+                    ar1.setEnabled(false);
+                    ar2.setEnabled(false);
+                    ar_fractional.setEnabled(false);
                     break;
                 case 3:
                     field.setText("1280");
                     field2.setText("720");
                     field.setEnabled(false);
                     field2.setEnabled(false);
+                    ar1.setText("16");
+                    ar2.setText("9");
+                    ar_fractional.setText("" + 16.0 / 9.0);
+                    ar1.setEnabled(false);
+                    ar2.setEnabled(false);
+                    ar_fractional.setEnabled(false);
                     break;
                 case 4:
                     field.setText("1920");
                     field2.setText("1080");
                     field.setEnabled(false);
                     field2.setEnabled(false);
+                    ar1.setText("16");
+                    ar2.setText("9");
+                    ar_fractional.setText("" + 16.0 / 9.0);
+                    ar1.setEnabled(false);
+                    ar2.setEnabled(false);
+                    ar_fractional.setEnabled(false);
                     break;
                 case 5:
                     field.setText("2560");
                     field2.setText("1440");
                     field.setEnabled(false);
                     field2.setEnabled(false);
+                    ar1.setText("16");
+                    ar2.setText("9");
+                    ar_fractional.setText("" + 16.0 / 9.0);
+                    ar1.setEnabled(false);
+                    ar2.setEnabled(false);
+                    ar_fractional.setEnabled(false);
                     break;
                 case 6:
                     field.setText("3840");
                     field2.setText("2160");
                     field.setEnabled(false);
                     field2.setEnabled(false);
+                    ar1.setText("16");
+                    ar2.setText("9");
+                    ar_fractional.setText("" + 16.0 / 9.0);
+                    ar1.setEnabled(false);
+                    ar2.setEnabled(false);
+                    ar_fractional.setEnabled(false);
+                    break;
+                case 7:
+                    field.setText("788");
+                    field2.setText("788");
+                    field.setEnabled(true);
+                    field2.setEnabled(true);
+                    ar1.setText("1");
+                    ar2.setText("1");
+                    ar_fractional.setText("" + 1.0);
+                    ar1.setEnabled(true);
+                    ar2.setEnabled(true);
+                    ar_fractional.setEnabled(true);
                     break;
                 case 0:
                     field.setEnabled(true);
                     field2.setEnabled(true);
+                    ar1.setEnabled(false);
+                    ar2.setEnabled(false);
+                    ar_fractional.setEnabled(false);
                     break;
             }
+            addListeners();
         });
+
+        ar1_listener = new DocumentListener() {
+            public void changedUpdate(DocumentEvent e) {
+                onArChange();
+            }
+            public void removeUpdate(DocumentEvent e) {
+                onArChange();
+            }
+            public void insertUpdate(DocumentEvent e) {
+                onArChange();
+            }
+        };
+
+        ar2_listener = new DocumentListener() {
+            public void changedUpdate(DocumentEvent e) {
+                onArChange();
+            }
+            public void removeUpdate(DocumentEvent e) {
+                onArChange();
+            }
+            public void insertUpdate(DocumentEvent e) {
+                onArChange();
+            }
+        };
+
+        field_listener = new DocumentListener() {
+            public void changedUpdate(DocumentEvent e) {
+                onField1Change();
+            }
+            public void removeUpdate(DocumentEvent e) {
+                onField1Change();
+            }
+            public void insertUpdate(DocumentEvent e) {
+                onField1Change();
+            }
+        };
+
+        field_listener2 = new DocumentListener() {
+            public void changedUpdate(DocumentEvent e) {
+                onField2Change();
+            }
+            public void removeUpdate(DocumentEvent e) {
+                onField2Change();
+            }
+            public void insertUpdate(DocumentEvent e) {
+                onField2Change();
+            }
+        };
+
+        ar_fractional_listener = new DocumentListener() {
+            public void changedUpdate(DocumentEvent e) {
+                onArFractionalChange();
+            }
+            public void removeUpdate(DocumentEvent e) {
+                onArFractionalChange();
+            }
+            public void insertUpdate(DocumentEvent e) {
+                onArFractionalChange();
+            }
+        };
+
+        ar1.getDocument().addDocumentListener(ar1_listener);
+        ar2.getDocument().addDocumentListener(ar2_listener);
+        field.getDocument().addDocumentListener(field_listener);
+        field2.getDocument().addDocumentListener(field_listener2);
+        ar_fractional.getDocument().addDocumentListener(ar_fractional_listener);
+
+        final JComboBox<String> imageFormatOpt = new JComboBox<>(new String[] {"PNG", "JPEG", "BMP", "PPM", "PGM"});
+        imageFormatOpt.setFocusable(false);
+        imageFormatOpt.setSelectedIndex(imageFormat);
+        imageFormatOpt.setVisible(ptr instanceof MinimalRendererWindow);
+
+        JLabel out = new JLabel("Output Format:");
+        out.setVisible(ptr instanceof MinimalRendererWindow);
+
+        JLabel extraSpace = new JLabel(" ");
+        extraSpace.setVisible(ptr instanceof MinimalRendererWindow);
 
         Object[] message3 = {
             " ",
@@ -87,11 +263,17 @@ public class ImageSizeDialog extends JDialog {
                 "Templates:",
                 templates,
                 " ",
+                ar,
+                ar_fractional_panel,
+                " ",
                 "Width:",
-            field,
+                field,
                 "Height:",
                 field2,
-            " ",};
+                extraSpace,
+                out,
+                imageFormatOpt,
+        " "};
 
         optionPane = new JOptionPane(message3, JOptionPane.QUESTION_MESSAGE, JOptionPane.OK_CANCEL_OPTION, null, null, null);
 
@@ -157,7 +339,12 @@ public class ImageSizeDialog extends JDialog {
                         }
 
                         dispose();
-                        ptr.setSizeOfImagePost(temp, temp2);
+                        if(ptr instanceof MainWindow) {
+                            ((MainWindow)ptr).setSizeOfImagePost(temp, temp2);
+                        }
+                        else {
+                            ((MinimalRendererWindow)ptra).setSizeOfImagePost(temp, temp2, imageFormatOpt.getSelectedIndex());
+                        }
                     }
                 });
 
@@ -170,6 +357,195 @@ public class ImageSizeDialog extends JDialog {
         setLocation((int) (ptra.getLocation().getX() + ptra.getSize().getWidth() / 2) - (getWidth() / 2), (int) (ptra.getLocation().getY() + ptra.getSize().getHeight() / 2) - (getHeight() / 2));
         setVisible(true);
 
+    }
+
+    public void onArChange() {
+        if(templates.getSelectedIndex() != 7) {
+            return;
+        }
+
+        removeListeners();
+        try {
+            int width = Integer.parseInt(field.getText());
+            int num = Integer.parseInt(ar1.getText());
+            int denom = Integer.parseInt(ar2.getText());
+
+            if(denom == 0 || num == 0) {
+                throw new Exception();
+            }
+
+            field2.setText("" + (int)(width / (((double)num) / denom)));
+            ar_fractional.setText("" + ((double)num) / denom);
+        }
+        catch (Exception ex) {
+            field2.setText("");
+            ar_fractional.setText("");
+        }
+
+        addListeners();
+    }
+
+    private void onArFractionalChange() {
+
+        if(templates.getSelectedIndex() != 7) {
+            return;
+        }
+
+        removeListeners();
+
+        int[] res = null;
+        try {
+            double val = Double.parseDouble(ar_fractional.getText());
+
+            if(val == 0) {
+                throw new Exception();
+            }
+
+            res = fareyApproximation(val, epsilon, max_denom);
+
+            ar1.setText("" + res[0]);
+            ar2.setText("" + res[1]);
+        }
+        catch (Exception ex) {
+            ar1.setText("");
+            ar2.setText("");
+        }
+
+        try {
+            if(res == null) {
+                throw new Exception();
+            }
+            int width = Integer.parseInt(field.getText());
+            field2.setText("" + (int)(width / (((double)res[0]) / res[1])));
+        }
+        catch (Exception ex) {
+            field2.setText("");
+        }
+
+        addListeners();
+
+    }
+
+    private void onField2Change() {
+        removeListeners();
+        if(templates.getSelectedIndex() != 7) {
+            try {
+                int width = Integer.parseInt(field.getText());
+                int height = Integer.parseInt(field2.getText());
+                if(height == 0 || width == 0) {
+                    throw new Exception();
+                }
+                int[] res = fareyApproximation(((double) width) / height, epsilon, max_denom);
+                ar1.setText("" + res[0]);
+                ar2.setText("" + res[1]);
+                ar_fractional.setText("" + ((double) width)/height);
+            }
+            catch (Exception ex) {
+                ar1.setText("");
+                ar2.setText("");
+
+                ar_fractional.setText("");
+            }
+        }
+        else {
+            try {
+                int height = Integer.parseInt(field2.getText());
+                int num = Integer.parseInt(ar1.getText());
+                int denom = Integer.parseInt(ar2.getText());
+
+                if(num == 0 || denom == 0) {
+                    throw new Exception();
+                }
+
+                field.setText("" + (int)(height * (((double)num) / denom)));
+            }
+            catch (Exception ex) {
+                field.setText("");
+            }
+        }
+        addListeners();
+    }
+
+    private void onField1Change() {
+
+        removeListeners();
+        if(templates.getSelectedIndex() != 7) {
+            try {
+                int width = Integer.parseInt(field.getText());
+                int height = Integer.parseInt(field2.getText());
+                if(height == 0 || width == 0) {
+                    throw new Exception();
+                }
+                int[] res = fareyApproximation(((double) width) / height, epsilon, max_denom);
+                ar1.setText("" + res[0]);
+                ar2.setText("" + res[1]);
+                ar_fractional.setText("" + ((double) width)/height);
+            }
+            catch (Exception ex) {
+                ar1.setText("");
+                ar2.setText("");
+                ar_fractional.setText("");
+            }
+        }
+        else {
+            try {
+                int width = Integer.parseInt(field.getText());
+                int num = Integer.parseInt(ar1.getText());
+                int denom = Integer.parseInt(ar2.getText());
+
+                if(num == 0 || denom == 0) {
+                    throw new Exception();
+                }
+
+                field2.setText("" + (int)(width / (((double)num) / denom)));
+            }
+            catch (Exception ex) {
+                field2.setText("");
+            }
+        }
+        addListeners();
+    }
+
+    private void removeListeners() {
+        field.getDocument().removeDocumentListener(field_listener);
+        field2.getDocument().removeDocumentListener(field_listener2);
+        ar1.getDocument().removeDocumentListener(ar1_listener);
+        ar2.getDocument().removeDocumentListener(ar2_listener);
+        ar_fractional.getDocument().removeDocumentListener(ar_fractional_listener);
+    }
+
+    private void addListeners() {
+        field.getDocument().addDocumentListener(field_listener);
+        field2.getDocument().addDocumentListener(field_listener2);
+        ar1.getDocument().addDocumentListener(ar1_listener);
+        ar2.getDocument().addDocumentListener(ar2_listener);
+        ar_fractional.getDocument().addDocumentListener(ar_fractional_listener);
+    }
+
+    public static int[] fareyApproximation(double targetRatio, double epsilon, int maxDenominator) {
+        double bestError = Double.MAX_VALUE;
+        int bestNumerator = 0;
+        int bestDenominator = 1;
+
+        for (int denominator = 1; denominator <= maxDenominator; denominator++) {
+            int numerator = (int) Math.round(targetRatio * denominator);
+            double ratio = (double) numerator / denominator;
+            double error = Math.abs(targetRatio - ratio);
+
+            if(error < epsilon) {
+                bestNumerator = numerator;
+                bestDenominator = denominator;
+                break;
+            }
+
+            if (error < bestError) {
+                bestError = error;
+                bestNumerator = numerator;
+                bestDenominator = denominator;
+            }
+        }
+
+        return new int[] {bestNumerator, bestDenominator};
     }
 
 }

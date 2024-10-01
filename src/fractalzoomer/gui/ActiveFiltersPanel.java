@@ -108,6 +108,7 @@ public class ActiveFiltersPanel extends JPanel {
         texture_filters.add(filters_opt[MainWindow.WEAVE]);
         texture_filters.add(filters_opt[MainWindow.SPARKLE]);
         texture_filters.add(filters_opt[MainWindow.MIRROR]);
+        texture_filters.add(filters_opt[MainWindow.QUAD_TREE_COMPRESSION]);
         
         JPanel lighting_filters = new JPanel();
         

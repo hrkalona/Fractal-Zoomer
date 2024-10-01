@@ -88,7 +88,7 @@ public class PaletteMenu extends MyMenu {
         paletteNames[43] = "FX Three Primaries";
         paletteNames[44] = "FX Six Primaries";
         paletteNames[45] = "Xaos Default";
-        paletteNames[46] = "Kales Fraktaler Default";
+        paletteNames[46] = "Kalles Fraktaler Default";
     }
 
     public PaletteMenu(MainWindow ptr2, String name, int color_choice, boolean smoothing, int[][] custom_palette, int color_interpolation, int color_space, boolean reversed_palette, int color_cycling_location, double scale_factor_palette_val, int processing_alg, final boolean outcoloring_mode, int temp_color_cycling_location) {
@@ -226,7 +226,7 @@ public class PaletteMenu extends MyMenu {
         } else {
             colorMapframe.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, ActionEvent.CTRL_MASK | ActionEvent.SHIFT_MASK));
         }
-        colorMapframe.addActionListener(e -> {ptr.setColorMap(outcoloring_mode);});
+        colorMapframe.addActionListener(e -> ptr.setColorMap(outcoloring_mode));
 
         addSeparator();
         add(colorMapframe);
@@ -238,7 +238,7 @@ public class PaletteMenu extends MyMenu {
         } else {
             alternativeCustomDirectPalette.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.CTRL_MASK | ActionEvent.SHIFT_MASK));
         }
-        alternativeCustomDirectPalette.addActionListener(e -> {ptr.setCustomDirectPalette(outcoloring_mode);});
+        alternativeCustomDirectPalette.addActionListener(e -> ptr.setCustomDirectPalette(outcoloring_mode));
 
         addSeparator();
         add(alternativeCustomDirectPalette);
@@ -292,7 +292,7 @@ public class PaletteMenu extends MyMenu {
         palette[43].setToolTipText("A palette from Fractal Extreme.");
         palette[44].setToolTipText("A palette from Fractal Extreme.");
         palette[45].setToolTipText("A palette from Xaos.");
-        palette[46].setToolTipText("A palette from Kales Fraktaler.");
+        palette[46].setToolTipText("A palette from Kalles Fraktaler.");
     }
 
     public JRadioButtonMenuItem[] getPalette() {

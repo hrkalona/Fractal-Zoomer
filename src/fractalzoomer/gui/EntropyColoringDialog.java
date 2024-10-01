@@ -58,9 +58,7 @@ public class EntropyColoringDialog extends JDialog {
             entropy_offset_field.setEnabled(false);
         }
 
-        entropy_coloring_method_opt.addActionListener(e -> {
-            entropy_offset_field.setEnabled(entropy_coloring_method_opt.getSelectedIndex() == 0);
-        });
+        entropy_coloring_method_opt.addActionListener(e -> entropy_offset_field.setEnabled(entropy_coloring_method_opt.getSelectedIndex() == 0));
 
         JPanel blend_panel = new JPanel();
 

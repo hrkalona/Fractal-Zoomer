@@ -541,6 +541,20 @@ public class MantExpComplexFull extends MantExpComplex {
     }
 
     @Override
+    public final MantExpComplexFull negate_re() {
+
+        return new MantExpComplexFull(re.negate(), im);
+
+    }
+    @Override
+    public final MantExpComplex negate_re_mutable() {
+
+        re.negate_mutable();
+        return this;
+
+    }
+
+    @Override
     public Complex toComplex() {
 
         return new Complex(re.toDouble(), im.toDouble());
@@ -597,11 +611,13 @@ public class MantExpComplexFull extends MantExpComplex {
 
     }
 
+    @Override
     public void addExp(long exp) {
         re.exp += exp;
         im.exp += exp;
     }
 
+    @Override
     public void subExp(long exp) {
         re.exp -= exp;
         im.exp -= exp;
@@ -666,6 +682,7 @@ public class MantExpComplexFull extends MantExpComplex {
 
     }
 
+    @Override
     public void assign(long exp1, long expIm1, double mantissaReal1, double mantissaImag1) {
         re.mantissa = mantissaReal1;
         im.mantissa = mantissaImag1;
@@ -721,6 +738,11 @@ public class MantExpComplexFull extends MantExpComplex {
     @Override
     public Object Norm() {
         return norm();
+    }
+
+    @Override
+    public MantExp chebyshevNorm() {
+        return MantExp.maxBothPositive(re.abs(), im.abs());
     }
 }
 

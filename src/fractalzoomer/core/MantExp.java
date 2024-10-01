@@ -628,6 +628,37 @@ public class MantExp {
         }
     }
 
+    public int compareToBothPositiveReduced(long compareToExp, double compareToMant) {
+
+        if(mantissa == 0 || compareToMant == 0) {
+            if(mantissa > compareToMant) {
+                return 1;
+            }
+            else if(mantissa < compareToMant) {
+                return -1;
+            }
+            return 0;
+        }
+
+        if(exp > compareToExp) {
+            return 1;
+        }
+        else if(exp < compareToExp){
+            return -1;
+        }
+        else {
+            if(mantissa > compareToMant) {
+                return 1;
+            }
+            else if(mantissa < compareToMant) {
+                return - 1;
+            }
+            else {
+                return 0;
+            }
+        }
+    }
+
     public int compareToBothPositive(MantExp compareTo) {
         Normalize();
         compareTo.Normalize();

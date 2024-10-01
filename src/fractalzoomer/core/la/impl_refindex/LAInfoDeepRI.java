@@ -135,7 +135,7 @@ public class LAInfoDeepRI extends LAInfoBaseDeep {
 
         out.RefIndex = RefIndex;
 
-        return outLAThreshold.compareToBothPositive(LAThreshold.multiply(Stage0PeriodDetectionThreshold)) < 0;
+        return outLAThreshold.compareToBothPositive(LAThreshold.multiply(Stage0DipDetectionThreshold)) < 0;
     }
 
     @Override
@@ -206,7 +206,7 @@ public class LAInfoDeepRI extends LAInfoBaseDeep {
 
         out.RefIndex = RefIndex;
 
-        return temp.compareToBothPositive(LAThreshold.multiply(PeriodDetectionThreshold)) < 0;
+        return temp.compareToBothPositive(LAThreshold.multiply(DipDetectionThreshold)) < 0;
     }
 
     @Override
@@ -231,7 +231,7 @@ public class LAInfoDeepRI extends LAInfoBaseDeep {
         newdz.Normalize();
 
         LAstep temp = new LAstep();
-        temp.unusable = newdz.chebyshevNorm().compareToBothPositiveReduced(new MantExp(LAThresholdExp, LAThresholdMant)) >= 0;
+        temp.unusable = newdz.chebyshevNorm().compareToBothPositiveReduced(LAThresholdExp, LAThresholdMant) >= 0;
         temp.newDzDeep = newdz;
         return temp;
     }
