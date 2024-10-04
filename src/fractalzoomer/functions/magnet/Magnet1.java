@@ -5,6 +5,10 @@ import fractalzoomer.core.*;
 import fractalzoomer.core.location.Location;
 import fractalzoomer.core.mpfr.MpfrBigNum;
 import fractalzoomer.core.mpir.MpirBigNum;
+import fractalzoomer.core.reference.DoubleReference;
+import fractalzoomer.core.reference.ReferenceCompressor;
+import fractalzoomer.core.reference.ReferenceData;
+import fractalzoomer.core.reference.ReferenceDeepData;
 import fractalzoomer.fractal_options.initial_value.InitialValue;
 import fractalzoomer.fractal_options.initial_value.VariableConditionalInitialValue;
 import fractalzoomer.fractal_options.initial_value.VariableInitialValue;
@@ -373,7 +377,7 @@ public class Magnet1 extends MagnetType {
             }
         }
 
-        int bigNumLib = TaskRender.getBignumImplementation(size, this);
+        int bigNumLib = NumericLibrary.getBignumImplementation(size, this);
 
 
         GenericComplex z, c, zold, zold2, start, c0, pixel;
@@ -962,7 +966,7 @@ public class Magnet1 extends MagnetType {
 
         Location loc = new Location();
 
-        int bigNumLib = TaskRender.getBignumImplementation(size, this);
+        int bigNumLib = NumericLibrary.getBignumImplementation(size, this);
 
         GenericComplex z, c, zold, zold2, start, c0, pixel;
         Object normSquared, root;

@@ -17,7 +17,6 @@ public class TemperatureFilter extends PointFilter
     public TemperatureFilter()
     {
         temperature = 6650F;
-        canFilterIndexColorModel = true;
     }
 
     public void setTemperature(float temperature)

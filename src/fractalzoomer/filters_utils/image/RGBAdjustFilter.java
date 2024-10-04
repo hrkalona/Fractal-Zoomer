@@ -28,7 +28,6 @@ public class RGBAdjustFilter extends PointFilter {
 		rFactor = 1+r;
 		gFactor = 1+g;
 		bFactor = 1+b;
-		canFilterIndexColorModel = true;
 	}
 
 	public void setRFactor( float rFactor ) {

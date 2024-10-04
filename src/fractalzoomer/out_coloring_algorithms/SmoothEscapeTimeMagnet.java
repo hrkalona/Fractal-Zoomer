@@ -41,30 +41,35 @@ public class SmoothEscapeTimeMagnet extends SmoothEscapeTime {
     @Override
     public double getResult(Object[] object) {
 
+        return (int)object[0] + getFractionalPart(object);
+
+    }
+
+    @Override
+    public double getFractionalPart(Object[] object) {
         if((boolean)object[2]) {
 
             if(algorithm == 0) {
-                return (int)object[0] + getSmoothing1((Complex)object[1], (Complex)object[3], log_bailout, normImpl) + MAGNET_INCREMENT;
+                return getSmoothing1((Complex)object[1], (Complex)object[3], log_bailout, normImpl) + MAGNET_INCREMENT;
             }
             else if(algorithm == 2) {
-                return (int)object[0] + getSmoothing3((Complex)object[1], (Complex)object[3], bailout, normImpl) + MAGNET_INCREMENT;
+                return getSmoothing3((Complex)object[1], (Complex)object[3], bailout, normImpl) + MAGNET_INCREMENT;
             }
             else {
                 //double temp2 = ((Complex)object[1]).norm_squared();
-                //return (int)object[0] + 1 - Math.log((Math.log(temp2)) / log_bailout_squared) / log_power + MAGNET_INCREMENT;
+                //return 1 - Math.log((Math.log(temp2)) / log_bailout_squared) / log_power + MAGNET_INCREMENT;
 
-                return (int)object[0] + getSmoothing2((Complex)object[1], (Complex)object[3], log_bailout, usePower, log_power, normImpl) + MAGNET_INCREMENT;
+                return getSmoothing2((Complex)object[1], (Complex)object[3], log_bailout, usePower, log_power, normImpl) + MAGNET_INCREMENT;
             }
         }
         else {
             if(algorithm2 == 0) {
-                return (int)object[0] + getConvSmoothing1((Complex)object[1], (Complex)object[3], log_convergent_bailout, cNormImpl);
+                return getConvSmoothing1((Complex)object[1], (Complex)object[3], log_convergent_bailout, cNormImpl);
             }
             else {
-                return (int)object[0] + getConvSmoothing2((Complex)object[1], (Complex)object[3], log_convergent_bailout, cNormImpl);
+                return getConvSmoothing2((Complex)object[1], (Complex)object[3], log_convergent_bailout, cNormImpl);
             }
         }
-
     }
 
     private static double getConvSmoothing1(Complex z, Complex zold, double log_convergent_bailout, Norm cNormImpl) {

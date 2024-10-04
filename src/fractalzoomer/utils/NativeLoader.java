@@ -11,27 +11,22 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 
 public class NativeLoader {
-
-//    private static int doublePrec = 53;
-//    private static int tempPrec = 300;
-//
-//    private static double numberA = 3.53419310543634;
-//    private static double numberB = -0.532542342123;
     public static Path tmpdir;
     private static String libDir = "fzNativeLibs";
+    public static final String mpfrWinLib = "mpfr.dll";
+    public static final String mpirWinLib = "mpir.dll";
+    public static final String mpfrMacosArmLib = "libmpfr.6.dylib";
     public static final String mpfrLinuxLib = "libmpfr.so";
-    public static final String mpfrWindowsLib = "libmpfr-6.dll";
-
-    //"mpir_skylake_avx2.dll", "mpir_haswell_avx2.dll", "mpir_sandybridge_ivybridge.dll"
-    //"mpir_broadwell_avx2.dll"
-    public static final String[] mpfrWinLibs = {mpfrWindowsLib, "libgmp-10.dll", "libwinpthread-1.dll"};
-   private static String[] winLibs;
-    private static final String[] linuxLibs = new String[] {mpfrLinuxLib};
+    public static final String[] mpfrGeneralExtraWinLibs = {"libgmp-10.dll", "libwinpthread-1.dll"};//"libgomp-1.dll", "libgcc_s_seh-1.dll"
+    public static final String[] mpfrExtraMacosLibs = {"libomp.dylib", "libgmp.10.dylib"};
+    public static final String[] mpfrGeneralVcpkgMsvcExtraWinLibs = {"gmp-10.dll"};
+    private static String[] winLibs;
+    private static String[] linuxLibs;
+    public static String[] macosLibs;
 
     public static void init() {
 
@@ -40,15 +35,47 @@ public class NativeLoader {
     static {
 
         List<String> resultList = new ArrayList<>();
-        Collections.addAll(resultList, mpfrWinLibs);
-        Collections.addAll(resultList, TaskRender.mpirWinLibs);
+        if(Platform.isWindows()) {
+            if(Platform.is64Bit()) {
+                for (String arch : TaskRender.mpirWinArchitecture) {
+                    resultList.add(arch + "/" + Platform.RESOURCE_PREFIX + "/" + mpirWinLib);
+                }
+                for (String arch : TaskRender.mpfrWinArchitecture) {
+                    resultList.add(arch + "/" + Platform.RESOURCE_PREFIX + "/" + mpfrWinLib);
+                    if (arch.equals(TaskRender.generalArchitecture)) {
+                        for (String extra : mpfrGeneralExtraWinLibs) {
+                            resultList.add(arch + "/" + Platform.RESOURCE_PREFIX + "/" + extra);
+                        }
+                    }
+                    else if(arch.equals(TaskRender.generalVcpkgMsvcArchitecture)) {
+                        for (String extra : mpfrGeneralVcpkgMsvcExtraWinLibs) {
+                            resultList.add(arch + "/" + Platform.RESOURCE_PREFIX + "/" + extra);
+                        }
+                    }
+                }
+            }
+            else { //32 bit
+                resultList.add(TaskRender.generalArchitecture + "/" + Platform.RESOURCE_PREFIX + "/" + mpfrWinLib);
+                for (String extra : mpfrGeneralExtraWinLibs) {
+                    resultList.add(TaskRender.generalArchitecture + "/" + Platform.RESOURCE_PREFIX + "/" + extra);
+                }
+            }
+            winLibs = new String[resultList.size()];
+            winLibs = resultList.toArray(winLibs);
+        }
+        else if(isMacArm64()) {
+            resultList.add(TaskRender.generalArchitecture + "/" + Platform.RESOURCE_PREFIX + "/" + mpfrMacosArmLib);
+            for (String extra : mpfrExtraMacosLibs) {
+                resultList.add(TaskRender.generalArchitecture + "/" + Platform.RESOURCE_PREFIX + "/" + extra);
+            }
+            macosLibs = new String[resultList.size()];
+            macosLibs = resultList.toArray(macosLibs);
+        }
+        else {
+            linuxLibs = new String[] {TaskRender.generalArchitecture + "/" + Platform.RESOURCE_PREFIX + "/" + mpfrLinuxLib};
+        }
 
-        winLibs = new String[resultList.size()];
-        winLibs = resultList.toArray(winLibs);
-
-        String resourcesDir = "/fractalzoomer/native/" + Platform.RESOURCE_PREFIX;
-
-        System.out.println("Looking for " + resourcesDir + " in the jar");
+        String resourcesDir = "/fractalzoomer/native";
 
         try {
             exportLibraries(resourcesDir);
@@ -66,73 +93,6 @@ public class NativeLoader {
         catch (Error er) {
             System.out.println("Cannot load mpfr: " + er.getMessage());
         }
-
-        /*//Test which dll to load
-
-        if(Platform.isWindows() && Native.SIZE_T_SIZE == 8) {
-            boolean libOk = false;
-            try {
-                TestMpirSkylakeAvx2.init();
-                libOk = !TestMpirSkylakeAvx2.test();
-                TestMpirSkylakeAvx2.delete();
-
-                if (libOk) {
-                    mpirWindowsLib = TestMpirSkylakeAvx2.dllName;
-                }
-            } catch (Exception ex) {
-                System.out.println(ex.getMessage());
-            } catch (Error er) {
-                System.out.println(er.getMessage());
-            }
-
-//            if(!libOk) {
-//                try {
-//                    TestMpirBroadwellAvx2.init();
-//                    libOk = !TestMpirBroadwellAvx2.test();
-//                    TestMpirBroadwellAvx2.delete();
-//
-//                    if (libOk) {
-//                        mpirWindowsLib = TestMpirBroadwellAvx2.dllName;
-//                    }
-//                } catch (Exception ex) {
-//                    System.out.println(ex.getMessage());
-//                } catch (Error er) {
-//                    System.out.println(er.getMessage());
-//                }
-//            }
-
-            if(!libOk) {
-                try {
-                    TestMpirHaswellAvx2.init();
-                    libOk = !TestMpirHaswellAvx2.test();
-                    TestMpirHaswellAvx2.delete();
-
-                    if (libOk) {
-                        mpirWindowsLib = TestMpirHaswellAvx2.dllName;
-                    }
-                } catch (Exception ex) {
-                    System.out.println(ex.getMessage());
-                } catch (Error er) {
-                    System.out.println(er.getMessage());
-                }
-            }
-
-            if(!libOk) {
-                try {
-                    TestMpirSandybridgeIvybridge.init();
-                    libOk = !TestMpirSandybridgeIvybridge.test();
-                    TestMpirSandybridgeIvybridge.delete();
-
-                    if (libOk) {
-                        mpirWindowsLib = TestMpirSandybridgeIvybridge.dllName;
-                    }
-                } catch (Exception ex) {
-                    System.out.println(ex.getMessage());
-                } catch (Error er) {
-                    System.out.println(er.getMessage());
-                }
-            }
-        }*/
 
         try {
             LibMpir.init();
@@ -169,7 +129,14 @@ public class NativeLoader {
         tmpdir = Files.createTempDirectory(globalTempDir, libDir);
         tmpdir.toFile().deleteOnExit();
 
-        String[] libs = Platform.isWindows() ? winLibs : linuxLibs;
+        String[] libs = new String[0];
+        if(Platform.isWindows()) {
+            libs = winLibs;
+        } else if(isMacArm64()) {
+            libs = macosLibs;
+        } else if(Platform.isLinux()) {
+            libs = linuxLibs;
+        }
 
         for(String lib : libs) {
             InputStream in = NativeLoader.class.getResourceAsStream(resourcesDir + "/" + lib);
@@ -177,450 +144,14 @@ public class NativeLoader {
                 throw new Exception("The resource " + resourcesDir + "/" + lib + " is not available in the jar file");
             }
             Path tgt = tmpdir.resolve(lib);
+            Files.createDirectories(tgt.getParent());
             Files.copy(in, tgt);
             tgt.toFile().deleteOnExit();
         }
 
     }
 
-   /* private static class TestMpirSkylakeAvx2 {
-        public static final String dllName = "mpir_skylake_avx2.dll";
-
-        public static Exception LOAD_ERROR = null;
-        private static NativeLibrary library;
-
-        public static boolean hasError() {
-            return LOAD_ERROR != null;
-        }
-
-        static {
-
-            try {
-                loadLibMpir();
-            } catch (Exception ex) {
-                LOAD_ERROR = ex;
-            }
-            catch (Error ex) {
-                LOAD_ERROR = new Exception(ex.getMessage());
-            }
-
-        }
-
-        private static void loadLibMpir() throws Exception {
-
-            load(NativeLoader.tmpdir.resolve(dllName).toAbsolutePath().toString());
-
-        }
-
-        public static void init() {
-        }
-
-        private static void load(String name) {
-            library = NativeLibrary.getInstance(name, TestMpirSkylakeAvx2.class.getClassLoader());
-            Native.register(TestMpirSkylakeAvx2.class, library);
-        }
-
-        public static void delete() {
-            if(!hasError()) {
-                Memory.disposeAll();
-                Native.unregister(TestMpirSkylakeAvx2.class);
-                library.close();
-            }
-        }
-
-        public static boolean test() {
-
-            if(!hasError()) {
-                System.out.println("Testing " + dllName);
-
-                MpfMemory a = new MpfMemory(true);
-                MpfMemory b = new MpfMemory(true);
-                MpfMemory c = new MpfMemory(true);
-
-                boolean error = false;
-                try {
-                    __gmpf_init2(a.peer, doublePrec);
-                    __gmpf_set_d(a.peer, numberA);
-
-                    __gmpf_init2(b.peer, doublePrec);
-                    __gmpf_set_d(b.peer, numberB);
-
-                    __gmpf_init2(c.peer, tempPrec);
-                    __gmpf_add(c.peer, a.peer, b.peer);
-                    __gmpf_sub(c.peer, a.peer, b.peer);
-                    __gmpf_mul(c.peer, a.peer, b.peer);
-                    __gmpf_div(c.peer, a.peer, b.peer);
-                    __gmpf_sqrt(c.peer, a.peer);
-                } catch (Exception ex) {
-                    System.out.println("Testing " + dllName + " failed " + ex.getMessage());
-                    error = true;
-                } catch (Error er) {
-                    System.out.println("Testing " + dllName + " failed " + er.getMessage());
-                    error = true;
-                }
-
-                try {
-                    __gmpf_clear(a.peer);
-                    __gmpf_clear(b.peer);
-                    __gmpf_clear(c.peer);
-                } catch (Exception ex) {
-
-                } catch (Error er) {
-
-                }
-
-                c.peer = null;
-                b.peer = null;
-                a.peer = null;
-
-                return error;
-            }
-
-            return true;
-        }
-
-        public static native void __gmpf_init2(mpf_t x, long precision);
-        public static native int __gmpf_set(mpf_t rop, mpf_t op);
-        public static native int __gmpf_set_d(mpf_t rop, double op);
-        public static native int __gmpf_set_si (mpf_t rop, long  op);
-        public static native void __gmpf_clear(mpf_t op);
-        public static native int __gmpf_add(mpf_t rop, mpf_t op1, mpf_t op2);
-        public static native int __gmpf_sub(mpf_t rop, mpf_t op1, mpf_t op2);
-        public static native int __gmpf_mul(mpf_t rop, mpf_t op1, mpf_t op2);
-        public static native int __gmpf_div(mpf_t rop, mpf_t op1, mpf_t op2);
-
-        public static native int __gmpf_sqrt(mpf_t rop, mpf_t op1);
-
-    }*/
-
-   /* private static class TestMpirHaswellAvx2 {
-        public static final String dllName = "mpir_haswell_avx2.dll";
-
-        public static Exception LOAD_ERROR = null;
-        private static NativeLibrary library;
-
-        public static boolean hasError() {
-            return LOAD_ERROR != null;
-        }
-
-        static {
-
-            try {
-                loadLibMpir();
-            } catch (Exception ex) {
-                LOAD_ERROR = ex;
-            }
-            catch (Error ex) {
-                LOAD_ERROR = new Exception(ex.getMessage());
-            }
-
-        }
-
-        private static void loadLibMpir() throws Exception {
-
-            load(NativeLoader.tmpdir.resolve(dllName).toAbsolutePath().toString());
-
-        }
-
-        public static void init() {
-        }
-
-        private static void load(String name) {
-            library = NativeLibrary.getInstance(name, TestMpirHaswellAvx2.class.getClassLoader());
-            Native.register(TestMpirHaswellAvx2.class, library);
-        }
-
-        public static void delete() {
-            if(!hasError()) {
-                Memory.disposeAll();
-                Native.unregister(TestMpirHaswellAvx2.class);
-                library.close();
-            }
-        }
-
-        public static boolean test() {
-
-            if(!hasError()) {
-                System.out.println("Testing " + dllName);
-
-                MpfMemory a = new MpfMemory(true);
-                MpfMemory b = new MpfMemory(true);
-                MpfMemory c = new MpfMemory(true);
-
-                boolean error = false;
-                try {
-                    __gmpf_init2(a.peer, doublePrec);
-                    __gmpf_set_d(a.peer, numberA);
-
-                    __gmpf_init2(b.peer, doublePrec);
-                    __gmpf_set_d(b.peer, numberB);
-
-                    __gmpf_init2(c.peer, tempPrec);
-                    __gmpf_add(c.peer, a.peer, b.peer);
-                    __gmpf_sub(c.peer, a.peer, b.peer);
-                    __gmpf_mul(c.peer, a.peer, b.peer);
-                    __gmpf_div(c.peer, a.peer, b.peer);
-                    __gmpf_sqrt(c.peer, a.peer);
-                } catch (Exception ex) {
-                    System.out.println("Testing " + dllName + " failed " + ex.getMessage());
-                    error = true;
-                } catch (Error er) {
-                    System.out.println("Testing " + dllName + " failed " + er.getMessage());
-                    error = true;
-                }
-
-                try {
-                    __gmpf_clear(a.peer);
-                    __gmpf_clear(b.peer);
-                    __gmpf_clear(c.peer);
-                } catch (Exception ex) {
-
-                } catch (Error er) {
-
-                }
-
-                c.peer = null;
-                b.peer = null;
-                a.peer = null;
-
-                return error;
-            }
-
-            return true;
-        }
-
-        public static native void __gmpf_init2(mpf_t x, long precision);
-        public static native int __gmpf_set(mpf_t rop, mpf_t op);
-        public static native int __gmpf_set_d(mpf_t rop, double op);
-        public static native int __gmpf_set_si (mpf_t rop, long  op);
-        public static native void __gmpf_clear(mpf_t op);
-        public static native int __gmpf_add(mpf_t rop, mpf_t op1, mpf_t op2);
-        public static native int __gmpf_sub(mpf_t rop, mpf_t op1, mpf_t op2);
-        public static native int __gmpf_mul(mpf_t rop, mpf_t op1, mpf_t op2);
-        public static native int __gmpf_div(mpf_t rop, mpf_t op1, mpf_t op2);
-
-        public static native int __gmpf_sqrt(mpf_t rop, mpf_t op1);
-
-    }*/
-
-    /*private static class TestMpirBroadwellAvx2 {
-        public static final String dllName = "mpir_broadwell_avx2.dll";
-
-        public static Exception LOAD_ERROR = null;
-        private static NativeLibrary library;
-
-        public static boolean hasError() {
-            return LOAD_ERROR != null;
-        }
-
-        static {
-
-            try {
-                loadLibMpir();
-            } catch (Exception ex) {
-                LOAD_ERROR = ex;
-            }
-            catch (Error ex) {
-                LOAD_ERROR = new Exception(ex.getMessage());
-            }
-
-        }
-
-        private static void loadLibMpir() throws Exception {
-
-            load(NativeLoader.tmpdir.resolve(dllName).toAbsolutePath().toString());
-
-        }
-
-        public static void init() {
-        }
-
-        private static void load(String name) {
-            library = NativeLibrary.getInstance(name, TestMpirBroadwellAvx2.class.getClassLoader());
-            Native.register(TestMpirBroadwellAvx2.class, library);
-        }
-
-        public static void delete() {
-            if(!hasError()) {
-                Memory.disposeAll();
-                Native.unregister(TestMpirBroadwellAvx2.class);
-                library.close();
-            }
-        }
-
-        public static boolean test() {
-
-            if(!hasError()) {
-                System.out.println("Testing " + dllName);
-
-                MpfMemory a = new MpfMemory(true);
-                MpfMemory b = new MpfMemory(true);
-                MpfMemory c = new MpfMemory(true);
-
-                boolean error = false;
-                try {
-                    __gmpf_init2(a.peer, doublePrec);
-                    __gmpf_set_d(a.peer, numberA);
-
-                    __gmpf_init2(b.peer, doublePrec);
-                    __gmpf_set_d(b.peer, numberB);
-
-                    __gmpf_init2(c.peer, tempPrec);
-                    __gmpf_add(c.peer, a.peer, b.peer);
-                    __gmpf_sub(c.peer, a.peer, b.peer);
-                    __gmpf_mul(c.peer, a.peer, b.peer);
-                    __gmpf_div(c.peer, a.peer, b.peer);
-                    __gmpf_sqrt(c.peer, a.peer);
-                } catch (Exception ex) {
-                    System.out.println("Testing " + dllName + " failed " + ex.getMessage());
-                    error = true;
-                } catch (Error er) {
-                    System.out.println("Testing " + dllName + " failed " + er.getMessage());
-                    error = true;
-                }
-
-                try {
-                    __gmpf_clear(a.peer);
-                    __gmpf_clear(b.peer);
-                    __gmpf_clear(c.peer);
-                } catch (Exception ex) {
-
-                } catch (Error er) {
-
-                }
-
-                c.peer = null;
-                b.peer = null;
-                a.peer = null;
-
-                return error;
-            }
-
-            return true;
-        }
-
-        public static native void __gmpf_init2(mpf_t x, long precision);
-        public static native int __gmpf_set(mpf_t rop, mpf_t op);
-        public static native int __gmpf_set_d(mpf_t rop, double op);
-        public static native int __gmpf_set_si (mpf_t rop, long  op);
-        public static native void __gmpf_clear(mpf_t op);
-        public static native int __gmpf_add(mpf_t rop, mpf_t op1, mpf_t op2);
-        public static native int __gmpf_sub(mpf_t rop, mpf_t op1, mpf_t op2);
-        public static native int __gmpf_mul(mpf_t rop, mpf_t op1, mpf_t op2);
-        public static native int __gmpf_div(mpf_t rop, mpf_t op1, mpf_t op2);
-
-        public static native int __gmpf_sqrt(mpf_t rop, mpf_t op1);
-
-    }*/
-
-    /*private static class TestMpirSandybridgeIvybridge {
-        public static final String dllName = "mpir_sandybridge_ivybridge.dll";
-
-        public static Exception LOAD_ERROR = null;
-        private static NativeLibrary library;
-
-        public static boolean hasError() {
-            return LOAD_ERROR != null;
-        }
-
-        static {
-
-            try {
-                loadLibMpir();
-            } catch (Exception ex) {
-                LOAD_ERROR = ex;
-            }
-            catch (Error ex) {
-                LOAD_ERROR = new Exception(ex.getMessage());
-            }
-
-        }
-
-        private static void loadLibMpir() throws Exception {
-
-            load(NativeLoader.tmpdir.resolve(dllName).toAbsolutePath().toString());
-
-        }
-
-        public static void init() {
-        }
-
-        private static void load(String name) {
-            library = NativeLibrary.getInstance(name, TestMpirSandybridgeIvybridge.class.getClassLoader());
-            Native.register(TestMpirSandybridgeIvybridge.class, library);
-        }
-
-        public static void delete() {
-            if(!hasError()) {
-                Memory.disposeAll();
-                Native.unregister(TestMpirSandybridgeIvybridge.class);
-                library.close();
-            }
-        }
-
-        public static boolean test() {
-
-            if(!hasError()) {
-                System.out.println("Testing " + dllName);
-
-                MpfMemory a = new MpfMemory(true);
-                MpfMemory b = new MpfMemory(true);
-                MpfMemory c = new MpfMemory(true);
-
-                boolean error = false;
-                try {
-                    __gmpf_init2(a.peer, doublePrec);
-                    __gmpf_set_d(a.peer, numberA);
-
-                    __gmpf_init2(b.peer, doublePrec);
-                    __gmpf_set_d(b.peer, numberB);
-
-                    __gmpf_init2(c.peer, tempPrec);
-                    __gmpf_add(c.peer, a.peer, b.peer);
-                    __gmpf_sub(c.peer, a.peer, b.peer);
-                    __gmpf_mul(c.peer, a.peer, b.peer);
-                    __gmpf_div(c.peer, a.peer, b.peer);
-                    __gmpf_sqrt(c.peer, a.peer);
-                } catch (Exception ex) {
-                    System.out.println("Testing " + dllName + " failed " + ex.getMessage());
-                    error = true;
-                } catch (Error er) {
-                    System.out.println("Testing " + dllName + " failed " + er.getMessage());
-                    error = true;
-                }
-
-                try {
-                    __gmpf_clear(a.peer);
-                    __gmpf_clear(b.peer);
-                    __gmpf_clear(c.peer);
-                } catch (Exception ex) {
-
-                } catch (Error er) {
-
-                }
-
-                c.peer = null;
-                b.peer = null;
-                a.peer = null;
-
-                return error;
-            }
-
-            return true;
-        }
-
-        public static native void __gmpf_init2(mpf_t x, long precision);
-        public static native int __gmpf_set(mpf_t rop, mpf_t op);
-        public static native int __gmpf_set_d(mpf_t rop, double op);
-        public static native int __gmpf_set_si (mpf_t rop, long  op);
-        public static native void __gmpf_clear(mpf_t op);
-        public static native int __gmpf_add(mpf_t rop, mpf_t op1, mpf_t op2);
-        public static native int __gmpf_sub(mpf_t rop, mpf_t op1, mpf_t op2);
-        public static native int __gmpf_mul(mpf_t rop, mpf_t op1, mpf_t op2);
-        public static native int __gmpf_div(mpf_t rop, mpf_t op1, mpf_t op2);
-
-        public static native int __gmpf_sqrt(mpf_t rop, mpf_t op1);
-
-
-    }*/
+    public static boolean isMacArm64() {
+        return "darwin-aarch64".equals(Platform.RESOURCE_PREFIX);
+    }
 }

@@ -438,4 +438,9 @@ public class UserFormulaCoupledEscaping extends Julia {
             parser2.setPointvalue(point);
         }
     }
+
+    @Override
+    public boolean hasFiniteBailoutCheck() {
+        return true;
+    }
 }

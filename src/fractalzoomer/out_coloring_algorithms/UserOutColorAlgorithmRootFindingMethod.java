@@ -13,19 +13,21 @@ import fractalzoomer.utils.ColorAlgorithm;
  * @author hrkalona2
  */
 public class UserOutColorAlgorithmRootFindingMethod extends OutColorAlgorithm {
-    
+    protected OutColorAlgorithm escape_time_alg;
     private ExpressionNode expr;
     private Parser parser;
     protected int max_iterations;
     private Complex[] globalVars;
     
-    public UserOutColorAlgorithmRootFindingMethod(String outcoloring_formula, double convergent_bailout, int max_iterations, double xCenter, double yCenter, double size, double[] point, Complex[] globalVars) {
+    public UserOutColorAlgorithmRootFindingMethod(String outcoloring_formula, double convergent_bailout, int max_iterations, double xCenter, double yCenter, double size, double[] point, Complex[] globalVars, OutColorAlgorithm escape_time_alg) {
         
         super();
         
         this.globalVars = globalVars;
         
         this.max_iterations = max_iterations;
+
+        this.escape_time_alg = escape_time_alg;
         
         parser = new Parser();
         expr = parser.parse(outcoloring_formula);
@@ -71,6 +73,10 @@ public class UserOutColorAlgorithmRootFindingMethod extends OutColorAlgorithm {
         
         if(parser.foundN()) {
             parser.setNvalue(new Complex((int)object[0], 0));
+        }
+
+        if(parser.foundNF()) {
+            parser.setNFvalue(new Complex(escape_time_alg.getFractionalPart(object), 0));
         }
         
         if(parser.foundZ()) {

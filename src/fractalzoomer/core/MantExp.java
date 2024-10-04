@@ -100,11 +100,9 @@ public class MantExp {
             return;
         }
 
-        Apfloat exp = MyApfloat.fp.multiply(new MyApfloat(number.scale() - 1), MyApfloat.RECIPROCAL_LOG_TWO_BASE_TEN);
-
         long long_exp = 0;
 
-        double double_exp = exp.doubleValue();
+        double double_exp = (number.scale() - 1) * MyApfloat.log10base2;
 
         if(double_exp < 0) {
             long_exp = (long)(double_exp - 0.5);
@@ -129,11 +127,9 @@ public class MantExp {
             return;
         }
 
-        BigDecNum exp = BigDecNum.RECIPROCAL_LOG_TWO_BASE_TEN.mult(number.scale());
-
         int long_exp = 0;
 
-        double double_exp = exp.doubleValue();
+        double double_exp = number.scale() * MyApfloat.log10base2;
 
         if(double_exp < 0) {
             long_exp = (int)(double_exp - 0.5);
@@ -912,5 +908,10 @@ public class MantExp {
                 return x.multiply(y);
             }
         }
+    }
+
+    public static void main(String[] args) {
+        MyApfloat.setPrecision(1000);
+        new MantExp(new MyApfloat("3.4234325e-800"));
     }
  }

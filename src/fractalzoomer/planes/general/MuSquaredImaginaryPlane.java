@@ -25,7 +25,7 @@ public class MuSquaredImaginaryPlane extends Plane {
 
             ddcexponent = new DDComplex(0, 2);
 
-            if(!LibMpfr.hasError()) {
+            if(!LibMpfr.mpfrHasError()) {
                 mpfrbnexponent = new MpfrBigNumComplex(0, 2);
             }
 

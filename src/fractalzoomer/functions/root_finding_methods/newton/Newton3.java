@@ -4,6 +4,10 @@ package fractalzoomer.functions.root_finding_methods.newton;
 
 import fractalzoomer.core.*;
 import fractalzoomer.core.location.Location;
+import fractalzoomer.core.reference.DoubleReference;
+import fractalzoomer.core.reference.ReferenceCompressor;
+import fractalzoomer.core.reference.ReferenceData;
+import fractalzoomer.core.reference.ReferenceDeepData;
 import fractalzoomer.fractal_options.initial_value.InitialValue;
 import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
@@ -193,7 +197,7 @@ public class Newton3 extends NewtonRootFindingMethod {
         //Due to zero, all around zero will not work
         inputPixel = sanitizeInputPixel(inputPixel);
 
-        int bigNumLib = TaskRender.getBignumImplementation(size, this);
+        int bigNumLib = NumericLibrary.getBignumImplementation(size, this);
 
         GenericComplex z, zold, zold2, start, pixel, initVal;
 
@@ -494,7 +498,7 @@ public class Newton3 extends NewtonRootFindingMethod {
 
         GenericComplex z, zold, zold2, start, pixel, initVal;
 
-        int bigNumLib = TaskRender.getBignumImplementation(size, this);
+        int bigNumLib = NumericLibrary.getBignumImplementation(size, this);
 
         if(bigNumLib == Constants.BIGNUM_MPFR) {
             initVal = new MpfrBigNumComplex(defaultInitVal.getValue(null));

@@ -107,4 +107,9 @@ public class Tanh extends Julia {
         complex[0] = complex[0].tanh().plus_mutable(complex[1]);
 
     }
+
+    @Override
+    public boolean hasFiniteBailoutCheck() {
+        return true;
+    }
 }

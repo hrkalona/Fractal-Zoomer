@@ -4,6 +4,7 @@ package fractalzoomer.planes.distort;
 import fractalzoomer.core.*;
 import fractalzoomer.core.mpfr.MpfrBigNum;
 import fractalzoomer.core.mpir.MpirBigNum;
+import fractalzoomer.functions.Fractal;
 import fractalzoomer.planes.Plane;
 import org.apfloat.Apcomplex;
 import org.apfloat.Apfloat;
@@ -33,7 +34,7 @@ public class SkewPlane extends Plane {
     private MpfrBigNumComplex centermpfr;
     private MpirBigNumComplex centermpir;
 
-    public SkewPlane(double plane_transform_angle, double plane_transform_angle2, Apfloat[] center) {
+    public SkewPlane(double plane_transform_angle, double plane_transform_angle2, Apfloat[] center, Fractal f) {
 
         super();
 
@@ -47,9 +48,9 @@ public class SkewPlane extends Plane {
             bnscales = new BigNumComplex(scales);
             binscales = new BigIntNumComplex(scales);
 
-            if (TaskRender.allocateMPFR()) {
+            if (NumericLibrary.allocateMPFR(f)) {
                 mpfrbnscales = new MpfrBigNumComplex(scales);
-            } else if (TaskRender.allocateMPIR()) {
+            } else if (NumericLibrary.allocateMPIR(f)) {
                 mpirbnscales = new MpirBigNumComplex(scales);
             }
         }
@@ -68,9 +69,9 @@ public class SkewPlane extends Plane {
 
                 centerbin = new BigIntNumComplex(new BigIntNum(xcenter), new BigIntNum(ycenter));
 
-                if (TaskRender.allocateMPFR()) {
+                if (NumericLibrary.allocateMPFR(f)) {
                     centermpfr = new MpfrBigNumComplex(new MpfrBigNum(xcenter), new MpfrBigNum(ycenter));
-                } else if (TaskRender.allocateMPIR()) {
+                } else if (NumericLibrary.allocateMPIR(f)) {
                     centermpir = new MpirBigNumComplex(MpirBigNum.fromApfloat(xcenter), MpirBigNum.fromApfloat(ycenter));
                 }
             }

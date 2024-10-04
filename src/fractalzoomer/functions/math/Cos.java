@@ -107,4 +107,9 @@ public class Cos extends Julia {
         complex[0] = complex[0].cos().plus_mutable(complex[1]);
 
     }
+
+    @Override
+    public boolean hasFiniteBailoutCheck() {
+        return true;
+    }
 }

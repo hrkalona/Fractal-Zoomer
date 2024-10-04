@@ -7,9 +7,9 @@ package fractalzoomer.core.blending;
  */
 public class HardLightBlending extends Blending {
 
-    public HardLightBlending(int color_interpolation) {
+    public HardLightBlending(int color_interpolation, int color_space) {
 
-        super(color_interpolation);
+        super(color_interpolation, color_space);
 
     }
 
@@ -41,7 +41,7 @@ public class HardLightBlending extends Blending {
             temp_blue = (int)(2 * blueA * blueB / 256.0 + 0.5);
         }
         
-        return method.interpolate(redB, greenB, blueB, temp_red, temp_green, temp_blue, coef);
+        return method.interpolateColors(redB, greenB, blueB, temp_red, temp_green, temp_blue, coef, false);
 
     }
     

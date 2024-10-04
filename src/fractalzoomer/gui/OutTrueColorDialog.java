@@ -114,7 +114,7 @@ public class OutTrueColorDialog extends JDialog {
         color_space_panel.add(color_space_label);
         color_space_panel.add(color_space_opt);
 
-        Object[] labels3 = ptra.createUserFormulaLabels("z, c, s, c0, pixel, p, pp, n, maxn, bail, cbail, center, size, sizei, width, height, v1 - v30, point, stat, trap");
+        Object[] labels3 = ptra.createUserFormulaLabels("z, c, s, c0, pixel, p, pp, n, nf, maxn, bail, cbail, center, size, sizei, width, height, v1 - v30, point, stat, trap");
 
         if (s.fns.tcs.trueColorOutMode == 0) {
             presetButton.setSelected(true);

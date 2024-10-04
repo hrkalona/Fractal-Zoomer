@@ -438,4 +438,9 @@ public class UserFormulaCoupledEscapingOrConverging extends EscapingOrConverging
             parser2.setPointvalue(point);
         }
     }
+
+    @Override
+    public boolean hasFiniteBailoutCheck() {
+        return true;
+    }
 }

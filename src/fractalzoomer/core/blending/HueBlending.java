@@ -9,8 +9,8 @@ import java.awt.*;
  */
 public class HueBlending extends Blending {
 
-    public HueBlending(int color_interpolation) {
-        super(color_interpolation);
+    public HueBlending(int color_interpolation, int color_space) {
+        super(color_interpolation, color_space);
     }
 
     @Override
@@ -36,7 +36,7 @@ public class HueBlending extends Blending {
             temp_blue = temp_color & 0xFF;
         }
         
-        return method.interpolate(redB, greenB, blueB, temp_red, temp_green, temp_blue, coef);
+        return method.interpolateColors(redB, greenB, blueB, temp_red, temp_green, temp_blue, coef, false);
 
     }
     

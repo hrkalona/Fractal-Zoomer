@@ -6,6 +6,7 @@ import fractalzoomer.core.*;
 import fractalzoomer.core.mpfr.MpfrBigNum;
 import fractalzoomer.core.mpir.MpirBigNum;
 import fractalzoomer.core.norms.Norm1;
+import fractalzoomer.functions.Fractal;
 import org.apfloat.Apfloat;
 
 /**
@@ -19,17 +20,17 @@ public class RhombusBailoutCondition extends BailoutCondition {
     private MpirBigNum temp1p;
     private MpirBigNum temp2p;
     
-    public RhombusBailoutCondition(double bound) {
+    public RhombusBailoutCondition(double bound, Fractal f) {
         
         super(bound);
 
         normImpl = new Norm1();
 
         if(TaskRender.PERTURBATION_THEORY || TaskRender.HIGH_PRECISION_CALCULATION) {
-            if (TaskRender.allocateMPFR()) {
+            if (NumericLibrary.allocateMPFR(f)) {
                 temp1 = new MpfrBigNum();
                 temp2 = new MpfrBigNum();
-            } else if (TaskRender.allocateMPIR()) {
+            } else if (NumericLibrary.allocateMPIR(f)) {
                 temp1p = new MpirBigNum();
                 temp2p = new MpirBigNum();
             }

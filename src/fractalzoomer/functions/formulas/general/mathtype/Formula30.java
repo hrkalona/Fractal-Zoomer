@@ -107,4 +107,9 @@ public class Formula30 extends Julia {
         complex[0] = complex[0].sin().times_mutable(complex[1]);
 
     }
+
+    @Override
+    public boolean hasFiniteBailoutCheck() {
+        return true;
+    }
 }

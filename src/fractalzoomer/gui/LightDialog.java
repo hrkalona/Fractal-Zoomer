@@ -1,6 +1,7 @@
 
 package fractalzoomer.gui;
 
+import fractalzoomer.core.PostProcessing;
 import fractalzoomer.core.TaskRender;
 import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
@@ -296,7 +297,7 @@ public class LightDialog extends JDialog {
                             s.pps.ls.l_noise_reducing_factor = temp;
 
                             s.pps.ls.specularReflectionMethod = reflection_mode_combo.getSelectedIndex();
-                            TaskRender.loadWindowImage(s.pps.ls.specularReflectionMethod);
+                            PostProcessing.loadWindowImage(s.pps.ls.specularReflectionMethod);
                             s.pps.ls.fractionalTransfer = fractional_transfer.getSelectedIndex();
                             s.pps.ls.fractionalSmoothing = fractional_smoothing.getSelectedIndex();
                             s.pps.ls.fractionalTransferMode = fractional_transfer_mode.getSelectedIndex();

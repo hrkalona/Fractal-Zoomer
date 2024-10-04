@@ -171,5 +171,7 @@ public class ColorChooserDialog extends JDialog {
         add(scrollPane);
 
         setVisible(true);
+
+        repaint();
     }
 }

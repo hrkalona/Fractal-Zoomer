@@ -316,6 +316,8 @@ public class ProcessingOrderingDialog extends JDialog {
         add(scrollPane);
 
         setVisible(true);
+
+        repaint();
     }
     
     public int[] getProcessingOrder() {

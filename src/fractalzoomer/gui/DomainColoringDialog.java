@@ -343,6 +343,8 @@ public class DomainColoringDialog extends JDialog {
         add(scrollPane);
 
         setVisible(true);
+
+        repaint();
     }
 
 }

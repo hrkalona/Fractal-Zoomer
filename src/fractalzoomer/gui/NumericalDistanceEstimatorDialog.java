@@ -40,6 +40,11 @@ public class NumericalDistanceEstimatorDialog extends JDialog {
         cap_to_palette_length.setSelected(s.pps.ndes.cap_to_palette_length);
         cap_to_palette_length.setFocusable(false);
 
+        final JCheckBox applyWidthScaling = new JCheckBox("Apply Width Scaling");
+        applyWidthScaling.setSelected(s.pps.ndes.applyWidthScaling);
+        applyWidthScaling.setFocusable(false);
+        applyWidthScaling.setToolTipText("Applies a scale factor based on the width of the image (based on KF)");
+
 
         JTextField offset_field = new JTextField();
         offset_field.setText("" + s.pps.ndes.distanceOffset);
@@ -90,6 +95,7 @@ public class NumericalDistanceEstimatorDialog extends JDialog {
                 ,
             "Set the transfer factor.",
             "Transfer Factor:", numerical_palette_factor_field,
+                applyWidthScaling,
                 cap_to_palette_length,
             " ",
             "Set the coloring offset.",
@@ -169,6 +175,7 @@ public class NumericalDistanceEstimatorDialog extends JDialog {
                             s.pps.ndes.cap_to_palette_length = cap_to_palette_length.isSelected();
                             s.pps.ndes.nde_color_blending = blend_modes.getSelectedIndex();
                             s.pps.ndes.nde_reverse_color_blending = reverse_blending.isSelected();
+                            s.pps.ndes.applyWidthScaling = applyWidthScaling.isSelected();
                            // s.pps.ndes.useJitter = useJitter.isSelected();
                         } catch (Exception ex) {
                             JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);

@@ -34,9 +34,9 @@ public class CustomDomainColoring extends DomainColoring {
 
     private Norm normImpl;
 
-    public CustomDomainColoring(DomainColoringSettings ds, PaletteColor palette, TransferFunction color_transfer, int color_cycling_location, GeneratedPaletteSettings gps, Blending blending, int[] gradient, int interpolation, int gradient_offset, double countourFactor) {
+    public CustomDomainColoring(DomainColoringSettings ds, PaletteColor palette, TransferFunction color_transfer, int color_cycling_location, GeneratedPaletteSettings gps, Blending blending, int[] gradient, int interpolation, int gradient_offset, double countourFactor, int color_space) {
 
-        super(ds.domain_coloring_mode, palette, color_transfer, color_cycling_location, gps, interpolation, blending, countourFactor);
+        super(ds.domain_coloring_mode, palette, color_transfer, color_cycling_location, gps, interpolation, blending, countourFactor, color_space);
 
         circlesBlending = ds.circlesBlending;
         gridBlending = ds.gridBlending;

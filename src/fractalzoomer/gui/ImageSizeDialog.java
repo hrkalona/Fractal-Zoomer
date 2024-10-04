@@ -7,6 +7,9 @@ import fractalzoomer.main.MinimalRendererWindow;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -26,6 +29,8 @@ public class ImageSizeDialog extends JDialog {
     private DocumentListener ar1_listener;
     private DocumentListener ar2_listener;
     private DocumentListener ar_fractional_listener;
+
+    private ActionListener template_listener;
     private JTextField field;
     private JTextField field2;
     private JComboBox<String> templates;
@@ -33,7 +38,9 @@ public class ImageSizeDialog extends JDialog {
     private JTextField ar2;
     private JTextField ar_fractional;
 
-    public ImageSizeDialog(JFrame ptr, int image_width, int image_height, int imageFormat) {
+    private JCheckBox keep_ar;
+
+    public ImageSizeDialog(JFrame ptr, int image_width, int image_height, int imageFormat, float jpegQuality, int downscaleFactor) {
         
         super(ptr);
 
@@ -57,7 +64,7 @@ public class ImageSizeDialog extends JDialog {
 
         int[] res = fareyApproximation(((double) image_width)/image_height, epsilon, max_denom);
 
-        templates = new JComboBox<>(new String[] {"", "788x788 1:1", "1024x768 4:3", "1280x720 16:9", "1920x1080 16:9", "2560x1440 16:9", "3840x2160 16:9", "With Aspect Ratio"});
+        templates = new JComboBox<>(new String[] {"", "788x788 1:1", "1024x768 4:3", "1280x720 16:9", "1920x1080 16:9", "2560x1440 16:9", "3840x2160 16:9"});
 
         ar1 = new JTextField(5);
         ar1.setText("" + res[0]);
@@ -80,105 +87,95 @@ public class ImageSizeDialog extends JDialog {
         ar_fractional_panel.add(new JLabel("Aspect Ratio Decimal: "));
         ar_fractional_panel.add(ar_fractional);
 
-        templates.setFocusable(false);
-        templates.addActionListener( e-> {
+        keep_ar = new JCheckBox("Keep Aspect Ratio");
+        keep_ar.setFocusable(false);
+        keep_ar.addActionListener(e -> {
+            if(keep_ar.isSelected()) {
+                removeListeners();
+                field.setText("788");
+                field2.setText("788");
+                ar1.setText("1");
+                ar2.setText("1");
+                ar_fractional.setText("" + 1.0);
+                ar1.setEnabled(true);
+                ar2.setEnabled(true);
+                ar_fractional.setEnabled(true);
+                templates.setSelectedIndex(0);
+                addListeners();
+            }
+            else {
+                ar1.setEnabled(false);
+                ar2.setEnabled(false);
+                ar_fractional.setEnabled(false);
+                templates.setSelectedIndex(0);
+            }
+        });
 
+        if(keep_ar.isSelected()) {
+            ar1.setEnabled(true);
+            ar2.setEnabled(true);
+            ar_fractional.setEnabled(true);
+        }
+        else {
+            ar1.setEnabled(false);
+            ar2.setEnabled(false);
+            ar_fractional.setEnabled(false);
+        }
+
+        templates.setFocusable(false);
+
+        template_listener = e -> {
             removeListeners();
             switch (templates.getSelectedIndex()) {
                 case 1:
                     field.setText("788");
                     field2.setText("788");
-                    field.setEnabled(false);
-                    field2.setEnabled(false);
                     ar1.setText("1");
                     ar2.setText("1");
                     ar_fractional.setText("" + 1.0);
-                    ar1.setEnabled(false);
-                    ar2.setEnabled(false);
-                    ar_fractional.setEnabled(false);
                     break;
                 case 2:
                     field.setText("1024");
                     field2.setText("768");
-                    field.setEnabled(false);
-                    field2.setEnabled(false);
                     ar1.setText("4");
                     ar2.setText("3");
                     ar_fractional.setText("" + 4.0 / 3.0);
-                    ar1.setEnabled(false);
-                    ar2.setEnabled(false);
-                    ar_fractional.setEnabled(false);
                     break;
                 case 3:
                     field.setText("1280");
                     field2.setText("720");
-                    field.setEnabled(false);
-                    field2.setEnabled(false);
                     ar1.setText("16");
                     ar2.setText("9");
                     ar_fractional.setText("" + 16.0 / 9.0);
-                    ar1.setEnabled(false);
-                    ar2.setEnabled(false);
-                    ar_fractional.setEnabled(false);
                     break;
                 case 4:
                     field.setText("1920");
                     field2.setText("1080");
-                    field.setEnabled(false);
-                    field2.setEnabled(false);
                     ar1.setText("16");
                     ar2.setText("9");
                     ar_fractional.setText("" + 16.0 / 9.0);
-                    ar1.setEnabled(false);
-                    ar2.setEnabled(false);
-                    ar_fractional.setEnabled(false);
                     break;
                 case 5:
                     field.setText("2560");
                     field2.setText("1440");
-                    field.setEnabled(false);
-                    field2.setEnabled(false);
                     ar1.setText("16");
                     ar2.setText("9");
                     ar_fractional.setText("" + 16.0 / 9.0);
-                    ar1.setEnabled(false);
-                    ar2.setEnabled(false);
-                    ar_fractional.setEnabled(false);
                     break;
                 case 6:
                     field.setText("3840");
                     field2.setText("2160");
-                    field.setEnabled(false);
-                    field2.setEnabled(false);
                     ar1.setText("16");
                     ar2.setText("9");
                     ar_fractional.setText("" + 16.0 / 9.0);
-                    ar1.setEnabled(false);
-                    ar2.setEnabled(false);
-                    ar_fractional.setEnabled(false);
-                    break;
-                case 7:
-                    field.setText("788");
-                    field2.setText("788");
-                    field.setEnabled(true);
-                    field2.setEnabled(true);
-                    ar1.setText("1");
-                    ar2.setText("1");
-                    ar_fractional.setText("" + 1.0);
-                    ar1.setEnabled(true);
-                    ar2.setEnabled(true);
-                    ar_fractional.setEnabled(true);
                     break;
                 case 0:
-                    field.setEnabled(true);
-                    field2.setEnabled(true);
-                    ar1.setEnabled(false);
-                    ar2.setEnabled(false);
-                    ar_fractional.setEnabled(false);
                     break;
             }
             addListeners();
-        });
+        };
+
+        templates.addActionListener(template_listener);
 
         ar1_listener = new DocumentListener() {
             public void changedUpdate(DocumentEvent e) {
@@ -257,11 +254,38 @@ public class ImageSizeDialog extends JDialog {
         JLabel extraSpace = new JLabel(" ");
         extraSpace.setVisible(ptr instanceof MinimalRendererWindow);
 
+        final JSlider jpeg_quality_opt = new JSlider(JSlider.HORIZONTAL, 0, 100, 0);
+        jpeg_quality_opt.setValue((int)(100 * jpegQuality));
+
+        jpeg_quality_opt.setMajorTickSpacing(10);
+        jpeg_quality_opt.setMinorTickSpacing(1);
+        jpeg_quality_opt.setToolTipText("Sets the jpeg quality.");
+        jpeg_quality_opt.setFocusable(false);
+        jpeg_quality_opt.setPaintLabels(true);
+        jpeg_quality_opt.setVisible(ptr instanceof MinimalRendererWindow);
+
+        jpeg_quality_opt.setEnabled(imageFormatOpt.getSelectedIndex() == 1);
+        imageFormatOpt.addActionListener(e -> jpeg_quality_opt.setEnabled(imageFormatOpt.getSelectedIndex() == 1));
+        JLabel extraSpace2 = new JLabel(" ");
+        JLabel jpegLabel = new JLabel("JPEG Quality:");
+        jpegLabel.setVisible(ptr instanceof MinimalRendererWindow);
+        extraSpace2.setVisible(ptr instanceof MinimalRendererWindow);
+
+        JTextField downscaleFactorOpt = new JTextField();
+        downscaleFactorOpt.setText("" + downscaleFactor);
+        JLabel downscaleLabel = new JLabel("Downscale Factor:");
+        downscaleLabel.setVisible(ptr instanceof MinimalRendererWindow);
+        JLabel extraSpace3 = new JLabel(" ");
+        extraSpace3.setVisible(ptr instanceof MinimalRendererWindow);
+        downscaleFactorOpt.setVisible(ptr instanceof MinimalRendererWindow);
+
         Object[] message3 = {
             " ",
             "Your image size is " + image_width + "x" + image_height + " .\nInsert the new image size.",
                 "Templates:",
                 templates,
+                " ",
+                keep_ar,
                 " ",
                 ar,
                 ar_fractional_panel,
@@ -273,6 +297,12 @@ public class ImageSizeDialog extends JDialog {
                 extraSpace,
                 out,
                 imageFormatOpt,
+                extraSpace2,
+                jpegLabel,
+                jpeg_quality_opt,
+                extraSpace3,
+                downscaleLabel,
+                downscaleFactorOpt,
         " "};
 
         optionPane = new JOptionPane(message3, JOptionPane.QUESTION_MESSAGE, JOptionPane.OK_CANCEL_OPTION, null, null, null);
@@ -309,10 +339,11 @@ public class ImageSizeDialog extends JDialog {
                             return;
                         }
 
-                        int temp = 0, temp2 = 0;
+                        int temp = 0, temp2 = 0, temp3 = 0;
                         try {
                             temp = Integer.parseInt(field.getText());
                             temp2 = Integer.parseInt(field2.getText());
+                            temp3 = Integer.parseInt(downscaleFactorOpt.getText());
 
                             if (temp < 1) {
                                 JOptionPane.showMessageDialog(ptra, "Image width must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
@@ -333,6 +364,15 @@ public class ImageSizeDialog extends JDialog {
                                 JOptionPane.showMessageDialog(ptra, "Image height must be less than than 46501.", "Error!", JOptionPane.ERROR_MESSAGE);
                                 return;
                             }
+
+                            if (temp3 <= 0) {
+                                JOptionPane.showMessageDialog(ptra, "The downscale factor must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+                            if (temp3 > 25) {
+                                JOptionPane.showMessageDialog(ptra, "The downscale factor must be lower than 26.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
                         } catch (Exception ex) {
                             JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                             return;
@@ -343,7 +383,7 @@ public class ImageSizeDialog extends JDialog {
                             ((MainWindow)ptr).setSizeOfImagePost(temp, temp2);
                         }
                         else {
-                            ((MinimalRendererWindow)ptra).setSizeOfImagePost(temp, temp2, imageFormatOpt.getSelectedIndex());
+                            ((MinimalRendererWindow)ptra).setSizeOfImagePost(temp, temp2, imageFormatOpt.getSelectedIndex(), jpeg_quality_opt.getValue() / 100.f, temp3);
                         }
                     }
                 });
@@ -360,7 +400,7 @@ public class ImageSizeDialog extends JDialog {
     }
 
     public void onArChange() {
-        if(templates.getSelectedIndex() != 7) {
+        if(!keep_ar.isSelected()) {
             return;
         }
 
@@ -387,7 +427,7 @@ public class ImageSizeDialog extends JDialog {
 
     private void onArFractionalChange() {
 
-        if(templates.getSelectedIndex() != 7) {
+        if(!keep_ar.isSelected()) {
             return;
         }
 
@@ -428,7 +468,7 @@ public class ImageSizeDialog extends JDialog {
 
     private void onField2Change() {
         removeListeners();
-        if(templates.getSelectedIndex() != 7) {
+        if(!keep_ar.isSelected()) {
             try {
                 int width = Integer.parseInt(field.getText());
                 int height = Integer.parseInt(field2.getText());
@@ -469,7 +509,7 @@ public class ImageSizeDialog extends JDialog {
     private void onField1Change() {
 
         removeListeners();
-        if(templates.getSelectedIndex() != 7) {
+        if(!keep_ar.isSelected()) {
             try {
                 int width = Integer.parseInt(field.getText());
                 int height = Integer.parseInt(field2.getText());
@@ -507,6 +547,7 @@ public class ImageSizeDialog extends JDialog {
     }
 
     private void removeListeners() {
+        templates.removeActionListener(template_listener);
         field.getDocument().removeDocumentListener(field_listener);
         field2.getDocument().removeDocumentListener(field_listener2);
         ar1.getDocument().removeDocumentListener(ar1_listener);
@@ -515,6 +556,7 @@ public class ImageSizeDialog extends JDialog {
     }
 
     private void addListeners() {
+        templates.addActionListener(template_listener);
         field.getDocument().addDocumentListener(field_listener);
         field2.getDocument().addDocumentListener(field_listener2);
         ar1.getDocument().addDocumentListener(ar1_listener);

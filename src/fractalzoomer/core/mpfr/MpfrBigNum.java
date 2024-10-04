@@ -1,11 +1,15 @@
 package fractalzoomer.core.mpfr;
 
+import com.sun.jna.Platform;
 import fractalzoomer.core.*;
 import fractalzoomer.core.mpir.MpirBigNum;
 import fractalzoomer.core.mpir.mpf_t;
 import org.apfloat.Apfloat;
 
+import java.util.Arrays;
+
 import static fractalzoomer.core.mpfr.LibMpfr.*;
+
 
 
 public class MpfrBigNum {
@@ -16,6 +20,12 @@ public class MpfrBigNum {
 
     public static long precision = TaskRender.BIGNUM_PRECISION;
 
+    public static int THREADS_THRESHOLD = 3820; // bits of precision
+    public static int THREADS_THRESHOLD_WITH_MPIR = 4400; // bits of precision
+
+    private static int use_threads = 0;
+    private static int algorithm = 1; //1 is the best if we use mpfr+mpir, 0 is best if we use mpfr+gmp
+
     public static final long intPrec = 32;
     public static final long doublePrec = 53;
     public static final int base = 10;
@@ -24,7 +34,7 @@ public class MpfrBigNum {
     static {
 
         try {
-            if (!hasError()) {
+            if (!mpfrHasError()) {
                 SQRT_TWO = new MpfrBigNum(2).sqrt();
                 PI = MpfrBigNum.getPi();
                 HALF_PI = PI.divide2();
@@ -35,24 +45,41 @@ public class MpfrBigNum {
                 a = SQRT_TWO.mult(SQRT_TWO);
                 a = SQRT_TWO.divide(10000);
             }
+            else {
+                if(Platform.isWindows() && Platform.is64Bit()) {
+                    int index = Arrays.asList(TaskRender.mpfrWinArchitecture).indexOf(TaskRender.MPFR_WINDOWS_ARCHITECTURE);
+                    if (index != -1) {//Try to fallback to another for the next load
+                        TaskRender.MPFR_WINDOWS_ARCHITECTURE = TaskRender.mpfrWinArchitecture[(index + 1) % TaskRender.mpfrWinArchitecture.length];
+                    }
+                }
+            }
         }
         catch (Error ex) {
             LibMpfr.delete();
-            LOAD_ERROR = new Exception(ex.getMessage());
-            System.out.println("Cannot load mpfr: " + LOAD_ERROR.getMessage());
-        }
+            MPFR_LOAD_ERROR = new Exception(ex.getMessage());
+            System.out.println("Cannot load mpfr: " + MPFR_LOAD_ERROR.getMessage());
 
+            if(Platform.isWindows() && Platform.is64Bit()) {
+                int index = Arrays.asList(TaskRender.mpfrWinArchitecture).indexOf(TaskRender.MPFR_WINDOWS_ARCHITECTURE);
+                if (index != -1) {//Try to fallback to another for the next load
+                    TaskRender.MPFR_WINDOWS_ARCHITECTURE = TaskRender.mpfrWinArchitecture[(index + 1) % TaskRender.mpfrWinArchitecture.length];
+                }
+            }
+        }
 
     }
 
     public static void reinitialize(double digits) {
         precision = (int)(digits * TaskRender.BIGNUM_PRECISION_FACTOR + 0.5);
 
-        if(!hasError()) {
+        if(!mpfrHasError()) {
             SQRT_TWO = new MpfrBigNum(2).sqrt();
             PI = MpfrBigNum.getPi();
             HALF_PI = PI.divide2();
         }
+
+        algorithm = LibMpfr.getAlgorithm();
+        use_threads = LibMpfr.hasThreadSupport() && TaskRender.USE_THREADS_IN_BIGNUM_LIBS && precision >= LibMpfr.getThreadThreshold() && Runtime.getRuntime().availableProcessors() >= 2 ? 1 : 0;
     }
 
     private MpfrMemory mpfrMemory;
@@ -649,9 +676,15 @@ public class MpfrBigNum {
 
     }
 
-    public static void z_sqr_p_c(MpfrBigNum re, MpfrBigNum im, MpfrBigNum temp1, MpfrBigNum temp2, MpfrBigNum cre, MpfrBigNum cim) {
+    public static void z_sqr_p_c(MpfrBigNum re, MpfrBigNum im, MpfrBigNum temp1, MpfrBigNum temp2, MpfrBigNum temp3, MpfrBigNum cre, MpfrBigNum cim) {
 
-        mpfr_fz_square_plus_c_simple(re.mpfrMemory.peer, im.mpfrMemory.peer, temp1.mpfrMemory.peer, temp2.mpfrMemory.peer, cre.mpfrMemory.peer, cim.mpfrMemory.peer, rounding);
+        mpfr_fz_square_plus_c_simple(re.mpfrMemory.peer, im.mpfrMemory.peer, temp1.mpfrMemory.peer, temp2.mpfrMemory.peer, temp3.mpfrMemory.peer, cre.mpfrMemory.peer, cim.mpfrMemory.peer, rounding, algorithm, use_threads);
+
+    }
+
+    public static void z_sqr_p_c_no_threads(MpfrBigNum re, MpfrBigNum im, MpfrBigNum temp1, MpfrBigNum temp2, MpfrBigNum temp3, MpfrBigNum cre, MpfrBigNum cim) {
+
+        mpfr_fz_square_plus_c_simple(re.mpfrMemory.peer, im.mpfrMemory.peer, temp1.mpfrMemory.peer, temp2.mpfrMemory.peer, temp3.mpfrMemory.peer, cre.mpfrMemory.peer, cim.mpfrMemory.peer, rounding, algorithm, 0);
 
     }
 
@@ -671,20 +704,20 @@ public class MpfrBigNum {
     static int[] reExp = new int[1];
     static int[] imExp = new int[1];
 
-    public static void z_sqr_p_c_with_reduction(MpfrBigNum re, MpfrBigNum im, MpfrBigNum temp1, MpfrBigNum temp2, MpfrBigNum cre, MpfrBigNum cim, boolean deepZoom, Complex cz, MantExpComplex mcz) {
+    public static void z_sqr_p_c_with_reduction(MpfrBigNum re, MpfrBigNum im, MpfrBigNum temp1, MpfrBigNum temp2, MpfrBigNum temp3, MpfrBigNum cre, MpfrBigNum cim, boolean deepZoom, Complex cz, MantExpComplex mcz) {
 
         if(deepZoom) {
             if(isLong4) {
-                mpfr_fz_square_plus_c_simple_with_reduction_deep(re.mpfrMemory.peer, im.mpfrMemory.peer, temp1.mpfrMemory.peer, temp2.mpfrMemory.peer, cre.mpfrMemory.peer, cim.mpfrMemory.peer, rounding, mantissaRe, mantissaIm, reExp, imExp);
+                mpfr_fz_square_plus_c_simple_with_reduction_deep(re.mpfrMemory.peer, im.mpfrMemory.peer, temp1.mpfrMemory.peer, temp2.mpfrMemory.peer, temp3.mpfrMemory.peer, cre.mpfrMemory.peer, cim.mpfrMemory.peer, rounding, algorithm, use_threads, mantissaRe, mantissaIm, reExp, imExp);
                 mcz.set(reExp[0], imExp[0], mantissaRe[0], mantissaIm[0]);
             }
             else {
-                mpfr_fz_square_plus_c_simple_with_reduction_deep(re.mpfrMemory.peer, im.mpfrMemory.peer, temp1.mpfrMemory.peer, temp2.mpfrMemory.peer, cre.mpfrMemory.peer, cim.mpfrMemory.peer, rounding, mantissaRe, mantissaIm, reExpL, imExpL);
+                mpfr_fz_square_plus_c_simple_with_reduction_deep(re.mpfrMemory.peer, im.mpfrMemory.peer, temp1.mpfrMemory.peer, temp2.mpfrMemory.peer, temp3.mpfrMemory.peer, cre.mpfrMemory.peer, cim.mpfrMemory.peer, rounding, algorithm, use_threads, mantissaRe, mantissaIm, reExpL, imExpL);
                 mcz.set(reExpL[0], imExpL[0], mantissaRe[0], mantissaIm[0]);
             }
         }
         else {
-            mpfr_fz_square_plus_c_simple_with_reduction_not_deep(re.mpfrMemory.peer, im.mpfrMemory.peer, temp1.mpfrMemory.peer, temp2.mpfrMemory.peer, cre.mpfrMemory.peer, cim.mpfrMemory.peer, rounding, valRe, valIm);
+            mpfr_fz_square_plus_c_simple_with_reduction_not_deep(re.mpfrMemory.peer, im.mpfrMemory.peer, temp1.mpfrMemory.peer, temp2.mpfrMemory.peer, temp3.mpfrMemory.peer, cre.mpfrMemory.peer, cim.mpfrMemory.peer, rounding, algorithm, use_threads, valRe, valIm);
             cz.assign(valRe[0], valIm[0]);
         }
 
@@ -692,13 +725,19 @@ public class MpfrBigNum {
 
     public static void norm_sqr_with_components( MpfrBigNum reSqr, MpfrBigNum imSqr, MpfrBigNum normSqr, MpfrBigNum re, MpfrBigNum im) {
 
-        mpfr_fz_norm_square_with_components(reSqr.mpfrMemory.peer, imSqr.mpfrMemory.peer, normSqr.mpfrMemory.peer, re.mpfrMemory.peer, im.mpfrMemory.peer, rounding);
+        mpfr_fz_norm_square_with_components(reSqr.mpfrMemory.peer, imSqr.mpfrMemory.peer, normSqr.mpfrMemory.peer, re.mpfrMemory.peer, im.mpfrMemory.peer, rounding, use_threads);
 
     }
 
     public static void norm_sqr( MpfrBigNum normSqr, MpfrBigNum temp1, MpfrBigNum re, MpfrBigNum im) {
 
-        mpfr_fz_norm_square(normSqr.mpfrMemory.peer, temp1.mpfrMemory.peer, re.mpfrMemory.peer, im.mpfrMemory.peer, rounding);
+        mpfr_fz_norm_square(normSqr.mpfrMemory.peer, temp1.mpfrMemory.peer, re.mpfrMemory.peer, im.mpfrMemory.peer, rounding, use_threads);
+
+    }
+
+    public static void norm_sqr_no_threads( MpfrBigNum normSqr, MpfrBigNum temp1, MpfrBigNum re, MpfrBigNum im) {
+
+        mpfr_fz_norm_square(normSqr.mpfrMemory.peer, temp1.mpfrMemory.peer, re.mpfrMemory.peer, im.mpfrMemory.peer, rounding, use_threads);
 
     }
 

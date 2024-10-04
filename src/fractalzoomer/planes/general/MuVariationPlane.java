@@ -4,6 +4,7 @@ package fractalzoomer.planes.general;
 
 import fractalzoomer.core.*;
 import fractalzoomer.core.mpir.MpirBigNum;
+import fractalzoomer.functions.Fractal;
 import fractalzoomer.planes.Plane;
 
 /**
@@ -13,11 +14,11 @@ import fractalzoomer.planes.Plane;
 public class MuVariationPlane extends Plane {
     private MpirBigNum _025;
     
-    public MuVariationPlane() {
+    public MuVariationPlane(Fractal f) {
 
         super();
 
-        if (TaskRender.allocateMPIR()) {
+        if (NumericLibrary.allocateMPIR(f)) {
             _025 = new MpirBigNum(0.25);
         }
 

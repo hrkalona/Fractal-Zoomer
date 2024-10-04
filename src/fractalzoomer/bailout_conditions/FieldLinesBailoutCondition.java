@@ -4,6 +4,7 @@ package fractalzoomer.bailout_conditions;
 import fractalzoomer.core.*;
 import fractalzoomer.core.mpfr.MpfrBigNum;
 import fractalzoomer.core.mpir.MpirBigNum;
+import fractalzoomer.functions.Fractal;
 import org.apfloat.Apfloat;
 
 /**
@@ -17,15 +18,15 @@ public class FieldLinesBailoutCondition extends BailoutCondition {
     private MpirBigNum temp2p;
 
 
-    public FieldLinesBailoutCondition(double bound) {
+    public FieldLinesBailoutCondition(double bound, Fractal f) {
         
         super(bound);
 
         if(TaskRender.PERTURBATION_THEORY || TaskRender.HIGH_PRECISION_CALCULATION) {
-            if (TaskRender.allocateMPFR()) {
+            if (NumericLibrary.allocateMPFR(f)) {
                 temp1 = new MpfrBigNum();
                 temp2 = new MpfrBigNum();
-            } else if (TaskRender.allocateMPIR()) {
+            } else if (NumericLibrary.allocateMPIR(f)) {
                 temp1p = new MpirBigNum();
                 temp2p = new MpirBigNum();
             }
@@ -63,7 +64,8 @@ public class FieldLinesBailoutCondition extends BailoutCondition {
 
     @Override
     public boolean escaped(BigNumComplex z, BigNumComplex zold, BigNumComplex zold2, int iterations, BigNumComplex c, BigNumComplex start, BigNumComplex c0, BigNum norm_squared, BigNumComplex pixel) {
-        return escaped(z.toComplex(), zold.toComplex(), zold2.toComplex(), iterations, c.toComplex(), start.toComplex(), c0.toComplex(), norm_squared.doubleValue(), pixel.toComplex());
+        double normSquared = norm_squared != null ? norm_squared.doubleValue() : 0;
+        return escaped(z.toComplex(), zold.toComplex(), zold2.toComplex(), iterations, c.toComplex(), start.toComplex(), c0.toComplex(), normSquared, pixel.toComplex());
     }
 
     @Override

@@ -24,7 +24,7 @@ public abstract class TransferFilter extends PointFilter {
 	protected boolean initialized = false;
 	
 	public TransferFilter() {
-		canFilterIndexColorModel = true;
+
 	}
 
         @Override

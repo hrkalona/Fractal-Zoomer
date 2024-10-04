@@ -1,5 +1,8 @@
 package fractalzoomer.core.antialiasing;
 
+import fractalzoomer.utils.ColorCorrection;
+
+@Deprecated
 public class ClosestToMidPointAntialiasingAlgorithm extends AntialiasingAlgorithm {
 
     private double redSum;
@@ -133,10 +136,10 @@ public class ClosestToMidPointAntialiasingAlgorithm extends AntialiasingAlgorith
             double greenRes = ((greenSum * totalSamplesReciprocal) + greenValues[minDistanceIndexGreen]) * 0.5 + 0.5;
             double blueRes = ((blueSum * totalSamplesReciprocal) + blueValues[minDistanceIndexBlue]) * 0.5 + 0.5;
 
-            return 0xff000000 | ((int)redRes) << 16 | ((int)greenRes) << 8 | ((int)blueRes);
+            return ColorCorrection.linearToGamma(redRes, greenRes, blueRes);
         }
         else {
-            return 0xff000000 | (redValues[minDistanceIndexRed] << 16) | (greenValues[minDistanceIndexGreen] << 8) | (blueValues[minDistanceIndexBlue]);
+            return ColorCorrection.linearToGamma(redValues[minDistanceIndexRed], greenValues[minDistanceIndexGreen], blueValues[minDistanceIndexBlue]);
         }
     }
 }

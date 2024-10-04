@@ -2,6 +2,7 @@
 package fractalzoomer.planes.general;
 
 import fractalzoomer.core.*;
+import fractalzoomer.functions.Fractal;
 import fractalzoomer.planes.Plane;
 
 /**
@@ -20,7 +21,7 @@ public class InflectionPlane extends Plane {
     private MpfrBigNumComplex mpfrbncenter;
     private MpirBigNumComplex mpirbncenter;
     
-    public InflectionPlane(double[] plane_transform_center) {
+    public InflectionPlane(double[] plane_transform_center, Fractal f) {
         
         super();
         center = new Complex(plane_transform_center[0], plane_transform_center[1]);
@@ -30,9 +31,9 @@ public class InflectionPlane extends Plane {
             bnicenter = new BigIntNumComplex(center);
             ddccenter = new DDComplex(center);
 
-            if (TaskRender.allocateMPFR()) {
+            if (NumericLibrary.allocateMPFR(f)) {
                 mpfrbncenter = new MpfrBigNumComplex(center);
-            } else if (TaskRender.allocateMPIR()) {
+            } else if (NumericLibrary.allocateMPIR(f)) {
                 mpirbncenter = new MpirBigNumComplex(center);
             }
         }

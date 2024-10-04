@@ -92,6 +92,19 @@ public class JsonPalettesContainer {
 
                 values = vals;
             }
+            else if(entry.getKey().equals("values_double")) {
+                ArrayList<ArrayList<Double>> values_double = (ArrayList<ArrayList<Double>>)entry.getValue();
+                values = new ArrayList<>();
+                for(ArrayList<Double> v : values_double) {
+                    if(v.size() >= 3) {
+                        ArrayList<Integer> rgb = new ArrayList<>();
+                        rgb.add(ColorSpaceConverter.clamp((int)(v.get(0) * 255)));
+                        rgb.add(ColorSpaceConverter.clamp((int)(v.get(1) * 255)));
+                        rgb.add(ColorSpaceConverter.clamp((int)(v.get(2) * 255)));
+                        values.add(rgb);
+                    }
+                }
+            }
             else if(entry.getKey().equals("values_int")) {
                 ArrayList<Integer> ints = (ArrayList<Integer>)entry.getValue();
                 ArrayList<ArrayList<Integer>> vals = new ArrayList<>();

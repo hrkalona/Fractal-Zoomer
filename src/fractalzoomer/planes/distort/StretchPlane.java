@@ -3,6 +3,7 @@ package fractalzoomer.planes.distort;
 import fractalzoomer.core.*;
 import fractalzoomer.core.mpfr.MpfrBigNum;
 import fractalzoomer.core.mpir.MpirBigNum;
+import fractalzoomer.functions.Fractal;
 import fractalzoomer.planes.Plane;
 import org.apfloat.Apcomplex;
 import org.apfloat.Apfloat;
@@ -58,7 +59,7 @@ public class StretchPlane extends Plane {
     private MpirBigNum ycentermpir;
     private boolean use_center;
 
-    public StretchPlane(double stretchAngle, double strechAmount, Apfloat[] center) {
+    public StretchPlane(double stretchAngle, double strechAmount, Apfloat[] center, Fractal f) {
         r = Math.pow(2, strechAmount);
         double rad_angle = Math.toRadians(stretchAngle);
         double cosanagle = Math.cos(rad_angle);
@@ -94,7 +95,7 @@ public class StretchPlane extends Plane {
             v3bin = new BigIntNum(v3d);
             v4bin = new BigIntNum(v4d);
 
-            if (TaskRender.allocateMPFR()) {
+            if (NumericLibrary.allocateMPFR(f)) {
                 v1mpfr = new MpfrBigNum(v1d);
                 v2mpfr = new MpfrBigNum(v2d);
                 v3mpfr = new MpfrBigNum(v3d);
@@ -106,7 +107,7 @@ public class StretchPlane extends Plane {
                 temp2mpfr = new MpfrBigNum();
                 temp3mpfr = new MpfrBigNum();
                 temp4mpfr = new MpfrBigNum();
-            } else if (TaskRender.allocateMPIR()) {
+            } else if (NumericLibrary.allocateMPIR(f)) {
                 v1mpir = new MpirBigNum(v1d);
                 v2mpir = new MpirBigNum(v2d);
                 v3mpir = new MpirBigNum(v3d);
@@ -138,10 +139,10 @@ public class StretchPlane extends Plane {
                 xcenterbin = new BigIntNum(xcenter);
                 ycenterbin = new BigIntNum(ycenter);
 
-                if (TaskRender.allocateMPFR()) {
+                if (NumericLibrary.allocateMPFR(f)) {
                     xcentermpfr = new MpfrBigNum(xcenter);
                     ycentermpfr = new MpfrBigNum(ycenter);
-                } else if (TaskRender.allocateMPIR()) {
+                } else if (NumericLibrary.allocateMPIR(f)) {
                     xcentermpir = MpirBigNum.fromApfloat(xcenter);
                     ycentermpir = MpirBigNum.fromApfloat(ycenter);
                 }

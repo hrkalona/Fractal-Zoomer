@@ -4,12 +4,12 @@ import fractalzoomer.core.Complex;
 import fractalzoomer.core.GenericComplex;
 import fractalzoomer.core.MantExp;
 import fractalzoomer.core.MantExpComplex;
-import fractalzoomer.core.bla.BLA;
-import fractalzoomer.core.bla.BLADeep;
+import fractalzoomer.core.approximation.mip_la_claude.BLA;
+import fractalzoomer.core.approximation.mip_la_claude.BLADeep;
 import fractalzoomer.core.interpolation.InterpolationMethod;
-import fractalzoomer.core.la.LAstep;
-import fractalzoomer.core.mipla.MipLADeepStep;
-import fractalzoomer.core.mipla.MipLAStep;
+import fractalzoomer.core.approximation.la_zhuoran.LAstep;
+import fractalzoomer.core.approximation.mip_la_zhuoran.MipLADeepStep;
+import fractalzoomer.core.approximation.mip_la_zhuoran.MipLAStep;
 import fractalzoomer.utils.ColorAlgorithm;
 import org.apfloat.Apfloat;
 

@@ -33,6 +33,7 @@ public class PaletteMenu extends MyMenu {
     private JMenu paletteLegacyFractintMen;
 
     private JMenuItem colorMapframe;
+    private JMenuItem exportDirectPalette;
     private JMenuItem alternativeCustomDirectPalette;
 
     public static int SPLIT_VAL = 14;
@@ -231,6 +232,12 @@ public class PaletteMenu extends MyMenu {
         addSeparator();
         add(colorMapframe);
 
+        exportDirectPalette = new MyMenuItem("Save Direct Palette", MainWindow.getIcon("palette_save.png"));
+        exportDirectPalette.addActionListener(e -> ptr.saveDirectPalette(outcoloring_mode));
+        exportDirectPalette.setToolTipText("Saves the current palette into a RGB triplets format.");
+        addSeparator();
+        add(exportDirectPalette);
+
         alternativeCustomDirectPalette  = new MyMenuItem("Custom Direct Palette", MainWindow.getIcon("palette.png"));
         alternativeCustomDirectPalette.setToolTipText("Creates a custom direct palette.");
         if (outcoloring_mode) {
@@ -351,7 +358,7 @@ public class PaletteMenu extends MyMenu {
     }
     
     public static java.util.List<Integer> importDialog(java.util.List<Integer> colors, Component parent) {
-        final JCheckBox invert = new JCheckBox("Reverse Palette");
+        final JCheckBox invert = new JCheckBox("Reversed");
         invert.setSelected(false);
         invert.setFocusable(false);
         invert.setToolTipText("Imports the palette in reversed order.");

@@ -2,9 +2,11 @@ package fractalzoomer.core.location.delta;
 
 import fractalzoomer.core.*;
 import fractalzoomer.core.location.Location;
+import fractalzoomer.fractal_options.Rotation;
 import fractalzoomer.functions.Fractal;
 import fractalzoomer.main.Constants;
 import fractalzoomer.main.app_settings.JitterSettings;
+import fractalzoomer.planes.Plane;
 import org.apfloat.Apfloat;
 
 public class CartesianLocationDelta extends Location {
@@ -34,7 +36,12 @@ public class CartesianLocationDelta extends Location {
     private int width;
     private int height;
 
-    public CartesianLocationDelta(Apfloat xCenter, Apfloat yCenter, Apfloat ddsize, double height_ratio, int width, int height, JitterSettings js, Fractal fractal, int bignumLib) {
+    private Rotation rotation;
+    private boolean hasRotation;
+    private double rotationRe;
+    private double rotationIm;
+
+    public CartesianLocationDelta(Apfloat xCenter, Apfloat yCenter, Apfloat ddsize, double height_ratio, int width, int height, Apfloat[] rotation_center, Apfloat[] rotation_vals, JitterSettings js, Fractal fractal, int bignumLib) {
 
         super();
 
@@ -70,6 +77,7 @@ public class CartesianLocationDelta extends Location {
         temp_x_corner = - size_2_x;
         temp_y_corner = size_2_y;
 
+        createRotation(rotation_center, rotation_vals);
     }
 
     public CartesianLocationDelta(CartesianLocationDelta other) {
@@ -93,6 +101,10 @@ public class CartesianLocationDelta extends Location {
         image_size_2y = other.image_size_2y;
         width = other.width;
         height = other.height;
+        rotation = other.rotation;
+        hasRotation = other.hasRotation;
+        rotationRe = other.rotationRe;
+        rotationIm = other.rotationIm;
     }
 
     private Complex getComplexBase(int x, int y) {
@@ -113,7 +125,21 @@ public class CartesianLocationDelta extends Location {
         indexX = x;
         indexY = y;
 
-        return new Complex(tempX, tempY);
+        double finalX = tempX;
+        double finalY = tempY;
+
+        if(hasRotation) {
+            double temp = finalX * rotationRe - finalY * rotationIm;
+            finalY = finalX * rotationIm + finalY * rotationRe;
+            finalX = temp;
+        }
+        if(Plane.FLIP_REAL) {
+            finalX = -finalX;
+        }
+        if(Plane.FLIP_IMAGINARY) {
+            finalY = -finalY;
+        }
+        return new Complex(finalX, finalY);
     }
 
     @Override
@@ -131,7 +157,21 @@ public class CartesianLocationDelta extends Location {
 
         indexX = x;
 
-        return new Complex(tempX, tempY);
+        double finalX = tempX;
+        double finalY = tempY;
+
+        if(hasRotation) {
+            double temp = finalX * rotationRe - finalY * rotationIm;
+            finalY = finalX * rotationIm + finalY * rotationRe;
+            finalX = temp;
+        }
+        if(Plane.FLIP_REAL) {
+            finalX = -finalX;
+        }
+        if(Plane.FLIP_IMAGINARY) {
+            finalY = -finalY;
+        }
+        return new Complex(finalX, finalY);
     }
 
     @Override
@@ -149,7 +189,21 @@ public class CartesianLocationDelta extends Location {
 
         indexY = y;
 
-        return new Complex(tempX, tempY);
+        double finalX = tempX;
+        double finalY = tempY;
+
+        if(hasRotation) {
+            double temp = finalX * rotationRe - finalY * rotationIm;
+            finalY = finalX * rotationIm + finalY * rotationRe;
+            finalX = temp;
+        }
+        if(Plane.FLIP_REAL) {
+            finalX = -finalX;
+        }
+        if(Plane.FLIP_IMAGINARY) {
+            finalY = -finalY;
+        }
+        return new Complex(finalX, finalY);
     }
 
     @Override
@@ -185,29 +239,130 @@ public class CartesianLocationDelta extends Location {
 
     }
 
+    private void createRotation(Apfloat[] rotation_center, Apfloat[] rotation_vals) {
+        hasRotation = Rotation.usesRotation(rotation_center, rotation_vals);
+        if (!hasRotation) {
+            return;
+        }
+
+        if(bignumLib == Constants.BIGNUM_BUILT_IN) {
+            rotation = new Rotation(new BigNumComplex(rotation_vals[0], rotation_vals[1]), new BigNumComplex(rotation_center[0], rotation_center[1]));
+        }
+        else if(bignumLib == Constants.BIGNUM_BIGINT) {
+            rotation = new Rotation(new BigIntNumComplex(rotation_vals[0], rotation_vals[1]), new BigIntNumComplex(rotation_center[0], rotation_center[1]));
+        }
+        else if (bignumLib == Constants.BIGNUM_MPFR) {
+            rotation = new Rotation(new MpfrBigNumComplex(rotation_vals[0], rotation_vals[1]), new MpfrBigNumComplex(rotation_center[0], rotation_center[1]));
+        }
+        else if (bignumLib == Constants.BIGNUM_MPIR) {
+            rotation = new Rotation(new MpirBigNumComplex(rotation_vals[0], rotation_vals[1]), new MpirBigNumComplex(rotation_center[0], rotation_center[1]));
+        }
+        else if (bignumLib == Constants.BIGNUM_DOUBLEDOUBLE) {
+            rotation = new Rotation(new DDComplex(rotation_vals[0], rotation_vals[1]), new DDComplex(rotation_center[0], rotation_center[1]));
+        }
+        else if (bignumLib == Constants.BIGNUM_DOUBLE) {
+            rotation = new Rotation(new Complex(rotation_vals[0].doubleValue(), rotation_vals[1].doubleValue()), new Complex(rotation_center[0].doubleValue(), rotation_center[1].doubleValue()));
+        }
+        else {
+            rotation = new Rotation(new BigComplex(rotation_vals[0], rotation_vals[1]), new BigComplex(rotation_center[0], rotation_center[1]));
+        }
+        rotationRe = rotation_vals[0].doubleValue();
+        rotationIm = rotation_vals[1].doubleValue();
+    }
+
     @Override
     public GenericComplex getReferencePoint() {
 
         if(bignumLib == Constants.BIGNUM_BUILT_IN) {
-            return new BigNumComplex(ddxcenter, ddycenter);
+            BigNumComplex c = new BigNumComplex(ddxcenter, ddycenter);
+            if(hasRotation) {
+                c = rotation.rotate(c);
+            }
+            if (Plane.FLIP_REAL) {
+                c = c.negate_re_mutable();
+            }
+            if (Plane.FLIP_IMAGINARY) {
+                c = c.conjugate_mutable();
+            }
+            return c;
         }
         else if(bignumLib == Constants.BIGNUM_BIGINT) {
-            return new BigIntNumComplex(ddxcenter, ddycenter);
+            BigIntNumComplex c = new BigIntNumComplex(ddxcenter, ddycenter);
+            if(hasRotation) {
+                c = rotation.rotate(c);
+            }
+            if (Plane.FLIP_REAL) {
+                c = c.negate_re_mutable();
+            }
+            if (Plane.FLIP_IMAGINARY) {
+                c = c.conjugate_mutable();
+            }
+            return c;
         }
         else if (bignumLib == Constants.BIGNUM_MPFR) {
-            return new MpfrBigNumComplex(ddxcenter, ddycenter);
+            MpfrBigNumComplex c = new MpfrBigNumComplex(ddxcenter, ddycenter);
+            if(hasRotation) {
+                c = rotation.rotate(c);
+            }
+            if (Plane.FLIP_REAL) {
+                c = c.negate_re_mutable();
+            }
+            if (Plane.FLIP_IMAGINARY) {
+                c = c.conjugate_mutable();
+            }
+            return c;
         }
         else if (bignumLib == Constants.BIGNUM_MPIR) {
-            return new MpirBigNumComplex(ddxcenter, ddycenter);
+            MpirBigNumComplex c = new MpirBigNumComplex(ddxcenter, ddycenter);
+            if(hasRotation) {
+                c = rotation.rotate(c);
+            }
+            if (Plane.FLIP_REAL) {
+                c = c.negate_re_mutable();
+            }
+            if (Plane.FLIP_IMAGINARY) {
+                c = c.conjugate_mutable();
+            }
+            return c;
         }
         else if (bignumLib == Constants.BIGNUM_DOUBLEDOUBLE) {
-            return new DDComplex(ddxcenter, ddycenter);
+            DDComplex c = new DDComplex(ddxcenter, ddycenter);
+            if(hasRotation) {
+                c = rotation.rotate(c);
+            }
+            if (Plane.FLIP_REAL) {
+                c = c.negate_re_mutable();
+            }
+            if (Plane.FLIP_IMAGINARY) {
+                c = c.conjugate_mutable();
+            }
+            return c;
         }
         else if (bignumLib == Constants.BIGNUM_DOUBLE) {
-            return new Complex(ddxcenter, ddycenter);
+            Complex c = new Complex(ddxcenter, ddycenter);
+            if(hasRotation) {
+                c = rotation.rotate(c);
+            }
+            if (Plane.FLIP_REAL) {
+                c = c.negate_re_mutable();
+            }
+            if (Plane.FLIP_IMAGINARY) {
+                c = c.conjugate_mutable();
+            }
+            return c;
         }
         else {
-            return new BigComplex(ddxcenter, ddycenter);
+            BigComplex c = new BigComplex(ddxcenter, ddycenter);
+            if(hasRotation) {
+                c = rotation.rotate(c);
+            }
+            if (Plane.FLIP_REAL) {
+                c = c.negate_re_mutable();
+            }
+            if (Plane.FLIP_IMAGINARY) {
+                c = c.conjugate_mutable();
+            }
+            return c;
         }
     }
 
@@ -226,19 +381,33 @@ public class CartesianLocationDelta extends Location {
     @Override
     public GenericComplex getAntialiasingComplex(int sample, int loc) {
 
-        Complex temp;
+        double finalX;
+        double finalY;
 
         if(aaJitter) {
             int r = (int)(hash(loc) % NUMBER_OF_AA_JITTER_KERNELS);
             double[] antialiasing_x = precalculatedJitterDataDouble[r][0];
             double[] antialiasing_y = precalculatedJitterDataDouble[r][1];
-            temp = new Complex(tempX + antialiasing_x[sample], tempY + antialiasing_y[sample]);
+            finalX = tempX + antialiasing_x[sample];
+            finalY = tempY + antialiasing_y[sample];
         }
         else {
-            temp = new Complex(tempX + antialiasing_x[sample], tempY + antialiasing_y[sample]);
+            finalX = tempX + antialiasing_x[sample];
+            finalY = tempY + antialiasing_y[sample];
         }
 
-        return temp;
+        if(hasRotation) {
+            double temp = finalX * rotationRe - finalY * rotationIm;
+            finalY = finalX * rotationIm + finalY * rotationRe;
+            finalX = temp;
+        }
+        if(Plane.FLIP_REAL) {
+            finalX = -finalX;
+        }
+        if(Plane.FLIP_IMAGINARY) {
+            finalY = -finalY;
+        }
+        return new Complex(finalX, finalY);
 
     }
 

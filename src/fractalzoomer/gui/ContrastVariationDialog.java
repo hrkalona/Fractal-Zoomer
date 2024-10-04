@@ -26,7 +26,7 @@ public class ContrastVariationDialog extends JDialog {
         setModal(true);
         setIconImage(MainWindow.getIcon("mandel2.png").getImage());
 
-        JComboBox<String> mapping = new JComboBox<>(new String[]  {"Lab", "OKLab"});
+        JComboBox<String> mapping = new JComboBox<>(new String[]  {"Lab", "OKLab", "HSB", "HSL", "HSL_uv", "HPL_uv"});
         mapping.setSelectedIndex(contrast_method);
         mapping.setFocusable(false);
         mapping.setToolTipText("Sets the contrast method.");

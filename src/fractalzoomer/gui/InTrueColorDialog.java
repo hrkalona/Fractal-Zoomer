@@ -258,8 +258,8 @@ public class InTrueColorDialog extends JDialog {
                             if (userDefinedButton.isSelected()) {
                                 s.parser.parse(field_c1.getText());
 
-                                if (s.parser.foundR()) {
-                                    JOptionPane.showMessageDialog(ptra, "The variable: r cannot be used in the formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                if (s.parser.foundNF() || s.parser.foundR()) {
+                                    JOptionPane.showMessageDialog(ptra, "The variable: nf, r cannot be used in the formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                                     return;
                                 }
 
@@ -276,8 +276,8 @@ public class InTrueColorDialog extends JDialog {
                                 if (color_space_opt.getSelectedIndex() != ColorSpaceConverter.DIRECT && color_space_opt.getSelectedIndex() != ColorSpaceConverter.PALETTE && color_space_opt.getSelectedIndex() != ColorSpaceConverter.GRADIENT) {
                                     s.parser.parse(field_c2.getText());
 
-                                    if (s.parser.foundR()) {
-                                        JOptionPane.showMessageDialog(ptra, "The variable: r cannot be used in the formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                    if (s.parser.foundNF() || s.parser.foundR()) {
+                                        JOptionPane.showMessageDialog(ptra, "The variable: nf, r cannot be used in the formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                                         return;
                                     }
 
@@ -293,8 +293,8 @@ public class InTrueColorDialog extends JDialog {
 
                                     s.parser.parse(field_c3.getText());
 
-                                    if (s.parser.foundR()) {
-                                        JOptionPane.showMessageDialog(ptra, "The variable: r cannot be used in the formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                    if (s.parser.foundNF() || s.parser.foundR()) {
+                                        JOptionPane.showMessageDialog(ptra, "The variable: nf, r cannot be used in the formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                                         return;
                                     }
 

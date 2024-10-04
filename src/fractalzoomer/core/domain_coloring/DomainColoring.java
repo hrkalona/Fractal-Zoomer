@@ -8,6 +8,7 @@ import fractalzoomer.core.interpolation.*;
 import fractalzoomer.main.app_settings.GeneratedPaletteSettings;
 import fractalzoomer.palettes.PaletteColor;
 import fractalzoomer.palettes.transfer_functions.TransferFunction;
+import fractalzoomer.utils.ColorCorrection;
 import fractalzoomer.utils.ColorSpaceConverter;
 import fractalzoomer.utils.Cubehelix;
 
@@ -88,7 +89,7 @@ public abstract class DomainColoring {
 
     protected double shadingPercent;
 
-    protected DomainColoring(int coloring_mode, PaletteColor palette, TransferFunction color_transfer, int color_cycling_location, GeneratedPaletteSettings gps, int color_interpolation, Blending blending, double countourFactor) {
+    protected DomainColoring(int coloring_mode, PaletteColor palette, TransferFunction color_transfer, int color_cycling_location, GeneratedPaletteSettings gps, int color_interpolation, Blending blending, double countourFactor, int color_space) {
 
         this.coloring_mode = coloring_mode;
         this.palette = palette;
@@ -116,6 +117,7 @@ public abstract class DomainColoring {
         this.blending = blending;
 
         method = InterpolationMethod.create(color_interpolation);
+        method.setColorSpace(color_space);
     }
 
     public abstract int getDomainColor(Complex res);
@@ -140,7 +142,7 @@ public abstract class DomainColoring {
             return palette.getPaletteColor(result + color_cycling_location);
         }
         else {
-            return palette.calculateColor(result, gps.generatedPaletteOutColoringId, color_cycling_location, gps.restartGeneratedOutColoringPaletteAt, gps.outColoringIQ);
+            return palette.calculateColor(result, gps.generatedPaletteOutColoringId, color_cycling_location, gps.GeneratedOutColoringPaletteOffset, gps.restartGeneratedOutColoringPaletteAt, gps.GeneratedOutColoringPaletteFactor, gps.outColoringIQ, false);
         }
 
     }
@@ -402,7 +404,7 @@ public abstract class DomainColoring {
             tempBlue = grad_color & 0xff;
         }
 
-        return method.interpolate(red, green, blue, tempRed, tempGreen, tempBlue, b);
+        return method.interpolateColors(red, green, blue, tempRed, tempGreen, tempBlue, b, true);
 
     }
 
@@ -459,7 +461,7 @@ public abstract class DomainColoring {
             }
         }
 
-        return method.interpolate(red, green, blue, tempRed, tempGreen, tempBlue, b);
+        return method.interpolateColors(red, green, blue, tempRed, tempGreen, tempBlue, b, true);
 
     }
 
@@ -517,7 +519,7 @@ public abstract class DomainColoring {
             tempBlue = argColor & 0xff;
         }
 
-        return method.interpolate(red, green, blue, tempRed, tempGreen, tempBlue, coef);
+        return method.interpolateColors(red, green, blue, tempRed, tempGreen, tempBlue, coef, true);
     }
 
     protected int applyNormContours(int color, double norm) {
@@ -940,27 +942,36 @@ public abstract class DomainColoring {
     }
      
      private int applyContour(int red, int green, int blue, double coef) {
-         
+
          if(contourMethod == 0) { //Lab
+             red = ColorCorrection.gammaToLinear(red);
+             green = ColorCorrection.gammaToLinear(green);
+             blue = ColorCorrection.gammaToLinear(blue);
              double[] res = ColorSpaceConverter.RGBtoLAB(red, green, blue);
              double val = countourFactor * coef * res[0];
              val = val > 100 ? 100 : val;
-             int[] rgb = ColorSpaceConverter.LABtoRGB(val, res[1], res[2]);   
-             return 0xff000000 | (rgb[0] << 16) | (rgb[1] << 8) | rgb[2];
+             int[] rgb = ColorSpaceConverter.LABtoRGB(val, res[1], res[2]);
+             return ColorCorrection.linearToGamma(rgb[0], rgb[1], rgb[2]);
          }
          else if(contourMethod == 1) { //HSB
+             red = ColorCorrection.gammaToLinear(red);
+             green = ColorCorrection.gammaToLinear(green);
+             blue = ColorCorrection.gammaToLinear(blue);
              double[] res = ColorSpaceConverter.RGBtoHSB(red, green, blue);
              double val = countourFactor * coef * res[2];
              val = val > 1 ? 1 : val;
              int[] rgb = ColorSpaceConverter.HSBtoRGB(res[0], res[1], val);
-             return 0xff000000 | (rgb[0] << 16) | (rgb[1] << 8) | rgb[2];
+             return ColorCorrection.linearToGamma(rgb[0], rgb[1], rgb[2]);
          }
          else if(contourMethod == 2) { //HSL
+             red = ColorCorrection.gammaToLinear(red);
+             green = ColorCorrection.gammaToLinear(green);
+             blue = ColorCorrection.gammaToLinear(blue);
              double[] res = ColorSpaceConverter.RGBtoHSL(red, green, blue);
              double val = countourFactor * coef * res[2];
              val = val > 1 ? 1 : val;
              int[] rgb = ColorSpaceConverter.HSLtoRGB(res[0], res[1], val);
-             return 0xff000000 | (rgb[0] << 16) | (rgb[1] << 8) | rgb[2];
+             return ColorCorrection.linearToGamma(rgb[0], rgb[1], rgb[2]);
          }
          else if(contourMethod == 3) {// blend
              int index = (int)(coef * (gradient.length - 1) + 0.5);
@@ -974,22 +985,27 @@ public abstract class DomainColoring {
              return blending.blend(temp_red, temp_green, temp_blue, red, green, blue, 1 - contourBlending);
          }
          else if(contourMethod == 4) { //scale
+             red = ColorCorrection.gammaToLinear(red);
+             green = ColorCorrection.gammaToLinear(green);
+             blue = ColorCorrection.gammaToLinear(blue);
             red = (int)(countourFactor * coef * red + 0.5);
             green = (int)(countourFactor * coef * green + 0.5);
             blue = (int)(countourFactor * coef * blue + 0.5);
             red = red > 255 ? 255 : red;
             green = green > 255 ? 255 : green;
             blue = blue > 255 ? 255 : blue;
-            return 0xff000000 | (red << 16) | (green << 8) | blue;
+            return ColorCorrection.linearToGamma(red, green, blue);
          }
          else {
+             red = ColorCorrection.gammaToLinear(red);
+             green = ColorCorrection.gammaToLinear(green);
+             blue = ColorCorrection.gammaToLinear(blue);
              double[] res = ColorSpaceConverter.RGBtoOKLAB(red, green, blue);
              double val = countourFactor * coef * res[0];
              val = val > 1 ? 1 : val;
              int[] rgb = ColorSpaceConverter.OKLABtoRGB(val, res[1], res[2]);
-             return 0xff000000 | (rgb[0] << 16) | (rgb[1] << 8) | rgb[2];
+             return ColorCorrection.linearToGamma(rgb[0], rgb[1], rgb[2]);
          }
-      
      }
 
     private static final double LOG2 = Math.log(2);

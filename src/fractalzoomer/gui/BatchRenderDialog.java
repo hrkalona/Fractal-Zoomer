@@ -231,6 +231,8 @@ public class BatchRenderDialog extends JDialog {
         requestFocus();
 
         setVisible(true);
+
+        repaint();
     }
 
     public void loadSettings() {

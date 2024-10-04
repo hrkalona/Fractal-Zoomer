@@ -153,7 +153,7 @@ public class ColorMapDialog extends JDialog {
         p.add(total);
 
 
-        JButton loadInExplorer = new JButton();
+        JButton loadInExplorer = new MyButton();
         loadInExplorer.setIcon(MainWindow.getIcon("folder.png"));
         loadInExplorer.setPreferredSize(new Dimension(32, 32));
         loadInExplorer.setFocusable(false);
@@ -167,7 +167,7 @@ public class ColorMapDialog extends JDialog {
             }
         });
 
-        JButton reload = new JButton();
+        JButton reload = new MyButton();
         reload.setIcon(MainWindow.getIcon("reset.png"));
         reload.setPreferredSize(new Dimension(32, 32));
         reload.setFocusable(false);
@@ -297,5 +297,7 @@ public class ColorMapDialog extends JDialog {
         requestFocus();
 
         setVisible(true);
+
+        repaint();
     }
 }

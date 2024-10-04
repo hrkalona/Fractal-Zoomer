@@ -181,6 +181,7 @@ public class PeanoGenericCurve {
     public static void main(String[] args) throws IOException {
         BufferedImage a = new BufferedImage(1700, 1700, BufferedImage.TYPE_INT_ARGB);
 
+        RenderFrame frame = new RenderFrame(a);
 
         boolean horizontal_orientation = false;
         int size = 27 * 3;
@@ -263,6 +264,8 @@ public class PeanoGenericCurve {
                 g2d.drawString("" + p.get(i).order, p1x - radius / 2, p1y - radius / 2);
                 g2d.drawString("" + p.get(i + 1).order, p2x - radius / 2, p2y - radius / 2);
             }
+
+            frame.repaint();
         }
 
         System.out.println("Vertical Edges: " + vertical_edges);

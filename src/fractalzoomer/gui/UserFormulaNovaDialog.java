@@ -296,8 +296,8 @@ public class UserFormulaNovaDialog extends JDialog {
 
                         try {
                             s.parser.parse(field_fz_formula9.getText());
-                            if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
-                                JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r, stat, trap cannot be used in the f(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                            if (s.parser.foundNF() || s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                                JOptionPane.showMessageDialog(ptra, "The variables: nf, bail, cbail, r, stat, trap cannot be used in the f(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                                 return;
                             }
                             boolean temp_bool = s.parser.foundC();
@@ -305,8 +305,8 @@ public class UserFormulaNovaDialog extends JDialog {
                             if (Settings.isFourFunctionsNovaFormula(method_choice.getSelectedIndex()) || Settings.isThreeFunctionsNovaFormula(method_choice.getSelectedIndex()) || Settings.isTwoFunctionsNovaFormula(method_choice.getSelectedIndex())) {
                                 s.parser.parse(field_dfz_formula9.getText());
 
-                                if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
-                                    JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r, stat, trap cannot be used in the f'(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                if (s.parser.foundNF() || s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                                    JOptionPane.showMessageDialog(ptra, "The variables: nf, bail, cbail, r, stat, trap cannot be used in the f'(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                                     return;
                                 }
 
@@ -316,8 +316,8 @@ public class UserFormulaNovaDialog extends JDialog {
                             if (Settings.isFourFunctionsNovaFormula(method_choice.getSelectedIndex()) || Settings.isThreeFunctionsNovaFormula(method_choice.getSelectedIndex())) {
                                 s.parser.parse(field_ddfz_formula9.getText());
 
-                                if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
-                                    JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r, stat, trap cannot be used in the f''(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                if (s.parser.foundNF() || s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                                    JOptionPane.showMessageDialog(ptra, "The variables: nf, bail, cbail, r, stat, trap cannot be used in the f''(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                                     return;
                                 }
 
@@ -327,8 +327,8 @@ public class UserFormulaNovaDialog extends JDialog {
                             if (Settings.isFourFunctionsNovaFormula(method_choice.getSelectedIndex())) {
                                 s.parser.parse(field_dddfz_formula9.getText());
 
-                                if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
-                                    JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r, stat, trap cannot be used in the f'''(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                if (s.parser.foundNF() || s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                                    JOptionPane.showMessageDialog(ptra, "The variables: nf, bail, cbail, r, stat, trap cannot be used in the f'''(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                                     return;
                                 }
 
@@ -337,8 +337,8 @@ public class UserFormulaNovaDialog extends JDialog {
 
                             s.parser.parse(field_relaxation.getText());
 
-                            if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
-                                JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r, stat, trap cannot be used in the relaxation formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                            if (s.parser.foundNF() || s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                                JOptionPane.showMessageDialog(ptra, "The variables: nf, bail, cbail, r, stat, trap cannot be used in the relaxation formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                                 return;
                             }
 
@@ -346,8 +346,8 @@ public class UserFormulaNovaDialog extends JDialog {
 
                             s.parser.parse(field_addend.getText());
 
-                            if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
-                                JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r, stat, trap cannot be used in the addend formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                            if (s.parser.foundNF() || s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                                JOptionPane.showMessageDialog(ptra, "The variables: nf, bail, cbail, r, stat, trap cannot be used in the addend formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                                 return;
                             }
 

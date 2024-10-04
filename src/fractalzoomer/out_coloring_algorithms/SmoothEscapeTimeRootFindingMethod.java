@@ -43,13 +43,7 @@ public class SmoothEscapeTimeRootFindingMethod extends OutColorAlgorithm {
     @Override
     public double getResult(Object[] object) {
 
-
-        if(algorithm == 0) {
-            return (int)object[0] + getSmoothing1((Complex)object[1], (Complex)object[2], (Complex)object[3], log_convergent_bailout, cNormImpl);
-        }
-        else {
-            return (int)object[0] + getSmoothing2((Complex)object[1], (Complex)object[2], (Complex)object[3], log_convergent_bailout, cNormImpl);
-        }
+        return (int)object[0] + getFractionalPart(object);
 
     }
 
@@ -65,5 +59,15 @@ public class SmoothEscapeTimeRootFindingMethod extends OutColorAlgorithm {
         //double offset = APPLY_OFFSET_OF_1_IN_SMOOTHING ? 1 : 0;
         return 1 - fractionalPartConverging2(z, zold, zold2, log_convergent_bailout, cNormImpl);
 
+    }
+
+    @Override
+    public double getFractionalPart(Object[] object) {
+        if(algorithm == 0) {
+            return getSmoothing1((Complex)object[1], (Complex)object[2], (Complex)object[3], log_convergent_bailout, cNormImpl);
+        }
+        else {
+            return getSmoothing2((Complex)object[1], (Complex)object[2], (Complex)object[3], log_convergent_bailout, cNormImpl);
+        }
     }
 }

@@ -3,6 +3,7 @@ package fractalzoomer.main.app_settings;
 import java.io.Serializable;
 
 public class CosinePaletteSettings implements Serializable {
+    private static final long serialVersionUID =  -4896175689810736751L;
     public double redA;
     public double redB;
     public double redC;
@@ -44,5 +45,26 @@ public class CosinePaletteSettings implements Serializable {
         greenG = 0.5450980392156862;
         blueG = 0.16470588235294117;
 
+    }
+
+    public CosinePaletteSettings(CosinePaletteSettings other) {
+        redA = other.redA;
+        redB = other.redB;
+        greenA = other.greenA;
+        greenB = other.greenB;
+        blueA = other.blueA;
+        blueB = other.blueB;
+
+        redC = other.redC;
+        greenC = other.greenC;
+        blueC = other.blueC;
+
+        redD = other.redD;
+        greenD = other.greenD;
+        blueD = other.blueD;
+
+        redG = other.redG;
+        greenG = other.greenG;
+        blueG = other.blueG;
     }
 }

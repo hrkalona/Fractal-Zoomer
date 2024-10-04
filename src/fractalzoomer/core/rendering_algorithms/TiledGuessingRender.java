@@ -7,6 +7,7 @@ import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.*;
 import fractalzoomer.utils.Square;
+import fractalzoomer.utils.StopExecutionException;
 import fractalzoomer.utils.StopSuccessiveRefinementException;
 import org.apfloat.Apfloat;
 
@@ -27,7 +28,7 @@ public class TiledGuessingRender extends TaskRender {
     }
 
     @Override
-    protected void render(int image_width, int image_height, boolean polar) throws StopSuccessiveRefinementException {
+    protected void render(int image_width, int image_height, boolean polar) throws StopSuccessiveRefinementException, StopExecutionException {
 
         Location location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_width, image_height, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
 

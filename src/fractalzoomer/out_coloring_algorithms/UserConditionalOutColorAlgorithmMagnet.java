@@ -12,9 +12,9 @@ import fractalzoomer.utils.ColorAlgorithm;
  */
 public class UserConditionalOutColorAlgorithmMagnet extends UserConditionalOutColorAlgorithm {
     
-    public UserConditionalOutColorAlgorithmMagnet(String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, double bailout, int max_iterations, double xCenter, double yCenter, double size, double[] point, Complex[] globalVars) {
+    public UserConditionalOutColorAlgorithmMagnet(String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, double bailout, int max_iterations, double xCenter, double yCenter, double size, double[] point, Complex[] globalVars, OutColorAlgorithm escape_time_alg) {
 
-        super(user_outcoloring_conditions, user_outcoloring_condition_formula, bailout, max_iterations, xCenter, yCenter, size, point, globalVars);
+        super(user_outcoloring_conditions, user_outcoloring_condition_formula, bailout, max_iterations, xCenter, yCenter, size, point, globalVars, escape_time_alg);
         OutUsingIncrement = false;
         
     }
@@ -22,9 +22,18 @@ public class UserConditionalOutColorAlgorithmMagnet extends UserConditionalOutCo
     @Override
     public double getResult(Object[] object) {
 
+        double nf = 0;
+        if(parser[0].foundNF() || parser[1].foundNF() || parser2[0].foundNF() || parser2[1].foundNF() || parser2[2].foundNF()) {
+            nf = escape_time_alg.getFractionalPart(object);
+        }
+
         /* LEFT */
         if(parser[0].foundN()) {
             parser[0].setNvalue(new Complex((int)object[0], 0));
+        }
+
+        if(parser[0].foundNF()) {
+            parser[0].setNFvalue(new Complex(nf, 0));
         }
 
         if(parser[0].foundZ()) {
@@ -66,6 +75,10 @@ public class UserConditionalOutColorAlgorithmMagnet extends UserConditionalOutCo
         /* RIGHT */
         if(parser[1].foundN()) {
             parser[1].setNvalue(new Complex((int)object[0], 0));
+        }
+
+        if(parser[1].foundNF()) {
+            parser[1].setNFvalue(new Complex(nf, 0));
         }
 
         if(parser[1].foundZ()) {
@@ -110,6 +123,10 @@ public class UserConditionalOutColorAlgorithmMagnet extends UserConditionalOutCo
         if(result == -1) { // left > right
             if(parser2[0].foundN()) {
                 parser2[0].setNvalue(new Complex((int)object[0], 0));
+            }
+
+            if(parser2[0].foundNF()) {
+                parser2[0].setNFvalue(new Complex(nf, 0));
             }
 
             if(parser2[0].foundZ()) {
@@ -175,6 +192,10 @@ public class UserConditionalOutColorAlgorithmMagnet extends UserConditionalOutCo
                 parser2[1].setNvalue(new Complex((int)object[0], 0));
             }
 
+            if(parser2[1].foundNF()) {
+                parser2[1].setNFvalue(new Complex(nf, 0));
+            }
+
             if(parser2[1].foundZ()) {
                 parser2[1].setZvalue(((Complex)object[1]));
             }
@@ -235,6 +256,10 @@ public class UserConditionalOutColorAlgorithmMagnet extends UserConditionalOutCo
         else if(result == 0) { //left == right
             if(parser2[2].foundN()) {
                 parser2[2].setNvalue(new Complex((int)object[0], 0));
+            }
+
+            if(parser2[2].foundNF()) {
+                parser2[2].setNFvalue(new Complex(nf, 0));
             }
 
             if(parser2[2].foundZ()) {

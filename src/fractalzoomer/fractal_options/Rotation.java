@@ -16,7 +16,6 @@ public class Rotation {
   private Complex rotation;
   private Complex inv_rotation;
   private Complex center;
-
   private Apfloat ddrotationA;
   private Apfloat ddrotationApB;
   private Apfloat ddrotationAsB;

@@ -12,17 +12,20 @@ import fractalzoomer.utils.ColorAlgorithm;
  * @author hrkalona2
  */
 public class UserOutColorAlgorithm extends OutColorAlgorithm {
+    protected OutColorAlgorithm escape_time_alg;
 
     protected ExpressionNode expr;
     protected Parser parser;
     protected int max_iterations;
     protected Complex[] globalVars;
 
-    public UserOutColorAlgorithm(String outcoloring_formula, double bailout, int max_iterations, double xCenter, double yCenter, double size, double[] point, Complex[] globalVars) {
+    public UserOutColorAlgorithm(String outcoloring_formula, double bailout, int max_iterations, double xCenter, double yCenter, double size, double[] point, Complex[] globalVars, OutColorAlgorithm escape_time_alg) {
 
         super();
 
         this.globalVars = globalVars;
+
+        this.escape_time_alg = escape_time_alg;
 
         this.max_iterations = max_iterations;
 
@@ -73,6 +76,10 @@ public class UserOutColorAlgorithm extends OutColorAlgorithm {
 
         if (parser.foundZ()) {
             parser.setZvalue(((Complex) object[1]));
+        }
+
+        if(parser.foundNF()) {
+            parser.setNFvalue(new Complex(escape_time_alg.getFractionalPart(object), 0));
         }
 
         if (parser.foundC()) {

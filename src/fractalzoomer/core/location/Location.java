@@ -139,16 +139,16 @@ public class Location {
 
     public GenericComplex getAntialiasingComplex(int sample, int loc) {return  null;}
     public void setReference(GenericComplex ref) {
-        reference = ref;
+        reference = ref; //Todo hopefully this is ok for multithreading for mpfr
         fractal.initializeReferenceDecompressor();
     }
 
     public static Location getInstanceForRendering(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int width, int height, double circle_period, Apfloat[] rotation_center, Apfloat[] rotation_vals, Fractal fractal, JitterSettings js, boolean polar, boolean highPresicion) {
 
         if(highPresicion && TaskRender.HIGH_PRECISION_CALCULATION) {
-            int lib = TaskRender.getHighPrecisionImplementation(size, fractal);
+            int lib = NumericLibrary.getHighPrecisionImplementation(size, fractal);
             if(polar) {
-                if(lib == Constants.ARBITRARY_MPFR || (lib == Constants.ARBITRARY_MPIR && !LibMpfr.hasError())) {
+                if(lib == Constants.ARBITRARY_MPFR || (lib == Constants.ARBITRARY_MPIR && !LibMpfr.mpfrHasError())) {
                     return new PolarLocationNormalMpfrBigNumArbitrary(xCenter, yCenter, size, height_ratio, width, height, circle_period, rotation_center, rotation_vals, fractal, js);
                 }
                 else if(lib == Constants.ARBITRARY_DOUBLEDOUBLE) {
@@ -180,12 +180,12 @@ public class Location {
             }
         }
 
-        int bignumLib = TaskRender.getBignumImplementation(size, fractal);
+        int bignumLib = NumericLibrary.getBignumImplementation(size, fractal);
         boolean isDeep = TaskRender.useExtendedRange(size, fractal);
 
         if(polar) {
             if(highPresicion && isDeep) {
-                if(bignumLib == Constants.BIGNUM_MPFR || (bignumLib == Constants.BIGNUM_MPIR && !LibMpfr.hasError())) {
+                if(bignumLib == Constants.BIGNUM_MPFR || (bignumLib == Constants.BIGNUM_MPIR && !LibMpfr.mpfrHasError())) {
                     return new PolarLocationDeltaDeepMpfrBigNum(xCenter, yCenter, size, height_ratio, width, height, circle_period, rotation_center, rotation_vals, fractal, js);
                 }
                 else {
@@ -193,7 +193,7 @@ public class Location {
                 }
             }
             else if(highPresicion) {
-                if (bignumLib == Constants.BIGNUM_MPFR || (bignumLib == Constants.BIGNUM_MPIR && !LibMpfr.hasError())) {
+                if (bignumLib == Constants.BIGNUM_MPFR || (bignumLib == Constants.BIGNUM_MPIR && !LibMpfr.mpfrHasError())) {
                     return new PolarLocationDeltaMpfrBigNum(xCenter, yCenter, size, height_ratio, width, height, circle_period, rotation_center, rotation_vals, fractal, js);
                 }
                 else if (bignumLib == Constants.BIGNUM_DOUBLEDOUBLE) {
@@ -213,8 +213,8 @@ public class Location {
         else {
             if(highPresicion && isDeep) {
 
-                if(TaskRender.USE_FAST_DELTA_LOCATION && fractal.usesDefaultPlane() && !Rotation.usesRotation(rotation_center, rotation_vals)) {
-                    return new CartesianLocationDeltaDeep(xCenter, yCenter, size, height_ratio, width, height, js, fractal, bignumLib);
+                if(TaskRender.USE_FAST_DELTA_LOCATION && fractal.usesDefaultPlane()) {
+                    return new CartesianLocationDeltaDeep(xCenter, yCenter, size, height_ratio, width, height, rotation_center, rotation_vals, js, fractal, bignumLib);
                 }
 
                 if(bignumLib == Constants.BIGNUM_BUILT_IN) {
@@ -235,9 +235,9 @@ public class Location {
             }
             else if(highPresicion) {
                 if(TaskRender.USE_FAST_DELTA_LOCATION
-                        && fractal.usesDefaultPlane() && !Rotation.usesRotation(rotation_center, rotation_vals)
+                        && fractal.usesDefaultPlane()
                      && size.doubleValue() / Math.min(offset.getWidth(width), offset.getHeight(height)) > 1e-305) {
-                    return new CartesianLocationDelta(xCenter, yCenter, size, height_ratio, width, height, js, fractal, bignumLib);
+                    return new CartesianLocationDelta(xCenter, yCenter, size, height_ratio, width, height, rotation_center, rotation_vals, js, fractal, bignumLib);
                 }
 
                 if(bignumLib == Constants.BIGNUM_BUILT_IN) {
@@ -381,10 +381,9 @@ public class Location {
             exponent = MantExp.ZERO.getExp();
         }
         else {
-            Apfloat exp = MyApfloat.fp.multiply(new MyApfloat(c.scale() - 1), MyApfloat.RECIPROCAL_LOG_TWO_BASE_TEN);
             long long_exp = 0;
 
-            double double_exp = exp.doubleValue();
+            double double_exp = (c.scale() - 1) * MyApfloat.log10base2;
 
             if(double_exp < 0) {
                 long_exp = (long)(double_exp - 0.5);
@@ -425,10 +424,9 @@ public class Location {
             exponent = MantExp.ZERO.getExp();
         }
         else {
-            BigDecNum exp = BigDecNum.RECIPROCAL_LOG_TWO_BASE_TEN.mult(c.scale());
             int long_exp = 0;
 
-            double double_exp = exp.doubleValue();
+            double double_exp = c.scale() * MyApfloat.log10base2;
 
             if(double_exp < 0) {
                 long_exp = (int)(double_exp - 0.5);

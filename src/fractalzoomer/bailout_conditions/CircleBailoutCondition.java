@@ -4,6 +4,7 @@ package fractalzoomer.bailout_conditions;
 import fractalzoomer.core.*;
 import fractalzoomer.core.mpfr.MpfrBigNum;
 import fractalzoomer.core.mpir.MpirBigNum;
+import fractalzoomer.functions.Fractal;
 import org.apfloat.Apfloat;
 
 
@@ -18,16 +19,16 @@ public class CircleBailoutCondition extends BailoutCondition {
     private MpirBigNum temp1p;
     private MpirBigNum temp2p;
  
-    public CircleBailoutCondition(double bound, boolean allocateMemory) {
+    public CircleBailoutCondition(double bound, boolean allocateMemory, Fractal f) {
         
         super(bound);
 
         if(TaskRender.PERTURBATION_THEORY || TaskRender.HIGH_PRECISION_CALCULATION) {
             if(allocateMemory) {
-                if (TaskRender.allocateMPFR()) {
+                if (NumericLibrary.allocateMPFR(f)) {
                     temp1 = new MpfrBigNum();
                     temp2 = new MpfrBigNum();
-                } else if (TaskRender.allocateMPIR()) {
+                } else if (NumericLibrary.allocateMPIR(f)) {
                     temp1p = new MpirBigNum();
                     temp2p = new MpirBigNum();
                 }
@@ -81,7 +82,12 @@ public class CircleBailoutCondition extends BailoutCondition {
 
     @Override
     public boolean escaped(MpfrBigNumComplex z, MpfrBigNumComplex zold, MpfrBigNumComplex zold2, int iterations, MpfrBigNumComplex c, MpfrBigNumComplex start, MpfrBigNumComplex c0, MpfrBigNum norm_squared, MpfrBigNumComplex pixel) {
-        return z.norm_squared(temp1, temp2).compare(bound) >= 0;
+        if(useThreads) {
+            return z.norm_squared(temp1, temp2).compare(bound) >= 0;
+        }
+        else {
+            return z.norm_squared_no_threads(temp1, temp2).compare(bound) >= 0;
+        }
     }
 
     @Override

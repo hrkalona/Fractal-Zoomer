@@ -12,9 +12,11 @@ public class NumericalDistanceEstimatorSettings {
     //public boolean useJitter;
     public int nde_color_blending;
     public boolean nde_reverse_color_blending;
+    public boolean applyWidthScaling;
 
     public NumericalDistanceEstimatorSettings() {
         useNumericalDem = false;
+        applyWidthScaling = false;
         distanceFactor = 2;
         differencesMethod = 0;
         n_noise_reducing_factor = 1e-10;

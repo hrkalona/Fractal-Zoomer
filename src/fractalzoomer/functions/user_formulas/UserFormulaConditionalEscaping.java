@@ -616,4 +616,9 @@ public class UserFormulaConditionalEscaping extends Julia {
             parser2[2].setPointvalue(point);
         }
     }
+
+    @Override
+    public boolean hasFiniteBailoutCheck() {
+        return true;
+    }
 }

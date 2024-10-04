@@ -107,4 +107,9 @@ public class Log extends Julia {
         complex[0].log_mutable().plus_mutable(complex[1]);
 
     }
+
+    @Override
+    public boolean hasFiniteBailoutCheck() {
+        return true;
+    }
 }

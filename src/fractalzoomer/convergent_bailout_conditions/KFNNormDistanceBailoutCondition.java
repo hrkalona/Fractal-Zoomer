@@ -55,7 +55,7 @@ public class KFNNormDistanceBailoutCondition extends ConvergentBailoutCondition 
                 ddcn_norm_reciprocal = ddcn_norm.reciprocal();
             }
 
-            if(!LibMpfr.hasError()) {
+            if(!LibMpfr.mpfrHasError()) {
                 mpfrbn_norm = new MpfrBigNum(n_norm);
                 temp1 = new MpfrBigNum();
                 temp2 = new MpfrBigNum();

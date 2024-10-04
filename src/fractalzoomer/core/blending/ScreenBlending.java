@@ -7,9 +7,9 @@ package fractalzoomer.core.blending;
  */
 public class ScreenBlending extends Blending {
 
-    public ScreenBlending(int color_interpolation) {
+    public ScreenBlending(int color_interpolation, int color_space) {
 
-        super(color_interpolation);
+        super(color_interpolation, color_space);
 
     }
 
@@ -20,7 +20,7 @@ public class ScreenBlending extends Blending {
         int temp_green = (int)(255 - (255 - greenA)*(255 - greenB) / 255.0 + 0.5);
         int temp_blue = (int)(255 - (255 - blueA)*(255 - blueB) / 255.0 + 0.5);
         
-        return method.interpolate(redB, greenB, blueB, temp_red, temp_green, temp_blue, coef);
+        return method.interpolateColors(redB, greenB, blueB, temp_red, temp_green, temp_blue, coef, false);
 
     }
     

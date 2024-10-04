@@ -1,6 +1,7 @@
 package fractalzoomer.utils.big_arrays;
 
 import java.lang.reflect.Array;
+import java.util.Arrays;
 
 public class BigArray<T> {
     //private static final long MAX_VALUE = Long.MAX_VALUE >> 10 // for doubles;
@@ -60,13 +61,46 @@ public class BigArray<T> {
 
         array = (T [][]) Array.newInstance(type, chucks, 0);
 
-        int i = 0;
-        for (; i < array.length - 1; i++) {
-            array[i] = (T []) Array.newInstance(type, MAX_VALUE);
-            System.arraycopy(old_array[i], 0, array[i], 0, Math.min(old_array[i].length, array[i].length));
+        if(chucks == 1) {
+            if(old_array.length > 0) {
+                array[0] = copy(old_array[0], remaining);
+            } else {
+                array[0] = (T []) Array.newInstance(type, remaining);
+            }
         }
-        array[i] = (T []) Array.newInstance(type, remaining);
-        System.arraycopy(old_array[i], 0, array[i], 0, Math.min(old_array[i].length, array[i].length));
+        else {
+            int i = 0;
+            for (; i < array.length - 1; i++) {
+                if(i < old_array.length) {
+                    array[i] = copy(old_array[i], BigArray.MAX_VALUE);
+                }
+                else {
+                    array[i] = (T []) Array.newInstance(type, BigArray.MAX_VALUE);
+                }
+            }
+            if(i < old_array.length) {
+                array[i] = copy(old_array[i], remaining);
+            }
+            else {
+                array[i] = (T []) Array.newInstance(type, remaining);
+            }
+        }
+    }
+
+    private T[] copy(T[] src, int dest_length) {
+        if(dest_length == src.length) {
+            return src;
+        } else {
+            T[] array = (T []) Array.newInstance(type, dest_length);
+            System.arraycopy(src, 0, array, 0, Math.min(src.length, array.length));
+            return array;
+        }
+    }
+
+    public void reset() {
+        for (int i = 0; i < array.length; i++) {
+            Arrays.fill(array[i], null);
+        }
     }
 
     public static void main(String[] args) {

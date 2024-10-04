@@ -2,16 +2,17 @@
 package fractalzoomer.functions.mandelbrot;
 
 import fractalzoomer.core.*;
-import fractalzoomer.core.bla.BLA;
-import fractalzoomer.core.la.LAstep;
+import fractalzoomer.core.approximation.mip_la_claude.BLA;
+import fractalzoomer.core.approximation.la_zhuoran.LAstep;
 import fractalzoomer.core.location.Location;
-import fractalzoomer.core.mipla.MipLAPair;
-import fractalzoomer.core.mipla.MipLAStep;
+import fractalzoomer.core.approximation.mip_la_zhuoran.MipLAPair;
+import fractalzoomer.core.approximation.mip_la_zhuoran.MipLAStep;
 import fractalzoomer.core.mpfr.MpfrBigNum;
 import fractalzoomer.core.mpir.MpirBigNum;
-import fractalzoomer.core.nanomb1.Nanomb1;
-import fractalzoomer.core.nanomb1.biPoly;
-import fractalzoomer.core.nanomb1.tmpPoly;
+import fractalzoomer.core.approximation.nanomb1.Nanomb1;
+import fractalzoomer.core.approximation.nanomb1.biPoly;
+import fractalzoomer.core.approximation.nanomb1.tmpPoly;
+import fractalzoomer.core.reference.*;
 import fractalzoomer.fractal_options.BurningShip;
 import fractalzoomer.fractal_options.MandelGrass;
 import fractalzoomer.fractal_options.MandelVariation;
@@ -313,7 +314,7 @@ public class Mandelbrot extends Julia {
                     res = getFinalValueOut(res);
 
                     if (outTrueColorAlgorithm != null) {
-                        setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+                        setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel, object);
                     }
 
                     return res;
@@ -386,7 +387,7 @@ public class Mandelbrot extends Julia {
                     res = getFinalValueOut(res);
 
                     if (outTrueColorAlgorithm != null) {
-                        setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+                        setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel, object);
                     }
 
                     return res;
@@ -456,7 +457,7 @@ public class Mandelbrot extends Julia {
                 res = getFinalValueOut(res);
 
                 if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel, object);
                 }
 
                 return res;
@@ -520,7 +521,7 @@ public class Mandelbrot extends Julia {
                 res = getFinalValueOut(res);
 
                 if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(z, zold, zold2, iterations, c, start, c0, pixel);
+                    setTrueColorOut(z, zold, zold2, iterations, c, start, c0, pixel, object);
                 }
 
                 return res;
@@ -576,7 +577,7 @@ public class Mandelbrot extends Julia {
                 res = getFinalValueOut(res);
 
                 if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel, object);
                 }
 
                 return res;
@@ -670,7 +671,7 @@ public class Mandelbrot extends Julia {
                     res = getFinalValueOut(res);
 
                     if (outTrueColorAlgorithm != null) {
-                        setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+                        setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel, object);
                     }
 
                     return res;
@@ -739,7 +740,7 @@ public class Mandelbrot extends Julia {
                     res = getFinalValueOut(res);
 
                     if (outTrueColorAlgorithm != null) {
-                        setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+                        setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel, object);
                     }
 
                     return res;
@@ -801,7 +802,7 @@ public class Mandelbrot extends Julia {
                 res = getFinalValueOut(res);
 
                 if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel, object);
                 }
 
                 return res;
@@ -855,7 +856,7 @@ public class Mandelbrot extends Julia {
                 res = getFinalValueOut(res);
 
                 if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel, object);
                 }
 
                 return res;
@@ -1003,7 +1004,7 @@ public class Mandelbrot extends Julia {
         GenericComplex z, c, zold, zold2, start, c0, pixel;
         Object normSquared, r = null, r0 = null, norm = null;
 
-        int bigNumLib = TaskRender.getBignumImplementation(size, this);
+        int bigNumLib = NumericLibrary.getBignumImplementation(size, this);
         int detectPeriodAlgorithm = getPeriodDetectionAlgorithm();
 
         if(bigNumLib == Constants.BIGNUM_BUILT_IN) {
@@ -1364,10 +1365,10 @@ public class Mandelbrot extends Julia {
                 else {
                     if(isMpfrComplex) {
                         if (burning_ship) {
-                            z = z.abs_mutable().square_plus_c_mutable_with_reduction(c, workSpaceData.temp1, workSpaceData.temp2, deepZoom, cz, mcz);
+                            z = z.abs_mutable().square_plus_c_mutable_with_reduction(c, workSpaceData.temp1, workSpaceData.temp2, workSpaceData.temp3, deepZoom, cz, mcz);
                         }
                         else {
-                            z = z.square_plus_c_mutable_with_reduction(c, workSpaceData.temp1, workSpaceData.temp2, deepZoom, cz, mcz);
+                            z = z.square_plus_c_mutable_with_reduction(c, workSpaceData.temp1, workSpaceData.temp2, workSpaceData.temp3, deepZoom, cz, mcz);
                         }
                     }
                     else if(isMpirComplex) {
@@ -1539,10 +1540,10 @@ public class Mandelbrot extends Julia {
         else {
             if(z instanceof MpfrBigNumComplex) {
                 if (burning_ship) {
-                    z = z.abs_mutable().square_plus_c_mutable(c, workSpaceData.temp1, workSpaceData.temp2);
+                    z = z.abs_mutable().square_plus_c_mutable(c, workSpaceData.temp1, workSpaceData.temp2, workSpaceData.temp3);
                 }
                 else {
-                    z = z.square_plus_c_mutable(c, workSpaceData.temp1, workSpaceData.temp2);
+                    z = z.square_plus_c_mutable(c, workSpaceData.temp1, workSpaceData.temp2, workSpaceData.temp3);
                 }
             }
             else if(z instanceof MpirBigNumComplex) {
@@ -2250,10 +2251,10 @@ public class Mandelbrot extends Julia {
 
         if(complex[0] instanceof MpfrBigNumComplex) {
             if(not_burning_ship) {
-                complex[0] = complex[0].square_plus_c_mutable(complex[1], workSpaceData.temp1, workSpaceData.temp2);
+                complex[0] = complex[0].square_plus_c_mutable_no_threads(complex[1], workSpaceData.temp1, workSpaceData.temp2, workSpaceData.temp3);
             }
             else {
-                complex[0] = complex[0].abs_mutable().square_plus_c_mutable(complex[1], workSpaceData.temp1, workSpaceData.temp2);
+                complex[0] = complex[0].abs_mutable().square_plus_c_mutable_no_threads(complex[1], workSpaceData.temp1, workSpaceData.temp2, workSpaceData.temp3);
             }
         }
         else if(complex[0] instanceof MpirBigNumComplex) {
@@ -2530,7 +2531,7 @@ public class Mandelbrot extends Julia {
                 res = getFinalValueOut(res);
 
                 if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(z, zold, zold2, iterations, c, start, c0, pixel);
+                    setTrueColorOut(z, zold, zold2, iterations, c, start, c0, pixel, object);
                 }
 
                 return getAndAccumulateStatsNotDeep(res);
@@ -2648,7 +2649,7 @@ public class Mandelbrot extends Julia {
                 res = getFinalValueOut(res);
 
                 if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(z, zold, zold2, iterations, c, start, c0, pixel);
+                    setTrueColorOut(z, zold, zold2, iterations, c, start, c0, pixel, object);
                 }
 
                 return getAndAccumulateStatsBLA(res);
@@ -2707,7 +2708,7 @@ public class Mandelbrot extends Julia {
                         res = getFinalValueOut(res);
 
                         if (outTrueColorAlgorithm != null) {
-                            setTrueColorOut(z, zold, zold2, iterations, c, start, c0, pixel);
+                            setTrueColorOut(z, zold, zold2, iterations, c, start, c0, pixel, object);
                         }
 
                         return getAndAccumulateStatsBLA(res);
@@ -2823,30 +2824,30 @@ public class Mandelbrot extends Julia {
 
         double CDeltaSub0ChebyshevNorm = Math.max(Math.abs(d0re), Math.abs(d0im));
 
-        RefIteration = 0;
-
         int CurrentLAStage = laReference.isValid ? laReference.LAStageCount : 0;
 
+        RefIteration = laReference.getBegin(CurrentLAStage - 1);
 
         while (CurrentLAStage > 0) {
 
             CurrentLAStage--;
 
-            int LAIndex = laReference.getLAIndex(CurrentLAStage);
+            int begin = laReference.getBegin(CurrentLAStage);
 
-            if(laReference.isLAStageInvalid(LAIndex, CDeltaSub0ChebyshevNorm)) {
+            if(laReference.isLAStageInvalid(begin, CDeltaSub0ChebyshevNorm)) {
+                RefIteration = laReference.getNextStageLAIndex(begin);
                 continue;
             }
 
-            int MacroItCount = laReference.getMacroItCount(CurrentLAStage);
+            int end = laReference.getEnd(CurrentLAStage);
 
 
             while(iterations < max_iterations) {
 
-                LAstep las = laReference.getLA(this, LAIndex, dre, dim, RefIteration, iterations, max_iterations);
+                LAstep las = laReference.getLA(this, RefIteration, dre, dim, iterations, max_iterations);
 
                 if(las.unusable) {
-                    RefIteration = las.nextStageLAindex;
+                    RefIteration = las.NextStageLAIndex;
                     break;
                 }
 
@@ -2883,10 +2884,10 @@ public class Mandelbrot extends Julia {
 
                 // rebase
 
-                if(Math.max(Math.abs(zre), Math.abs(zim)) < Math.max(Math.abs(dre), Math.abs(dim)) || RefIteration >= MacroItCount) {
+                if(Math.max(Math.abs(zre), Math.abs(zim)) < Math.max(Math.abs(dre), Math.abs(dim)) || RefIteration >= end) {
                     dre = zre;
                     dim = zim;
-                    RefIteration = 0;
+                    RefIteration = begin;
                     rebases++;
                 }
 
@@ -2938,7 +2939,7 @@ public class Mandelbrot extends Julia {
                 res = getFinalValueOut(res);
 
                 if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(z, zold, zold2, iterations, c, start, c0, pixel);
+                    setTrueColorOut(z, zold, zold2, iterations, c, start, c0, pixel, object);
                 }
 
                 return getAndAccumulateStatsBLA(res);
@@ -3053,13 +3054,13 @@ public class Mandelbrot extends Julia {
             zc = z.toComplex();
         }
 
-        RefIteration = 0;
-
         int CurrentLAStage = laReference.isValid ? laReference.LAStageCount : 0;
 
         boolean DPEvaluation = false;
 
         boolean needsComplexZ = trap != null || statistic != null;
+
+        RefIteration = laReference.getBegin(CurrentLAStage - 1);
 
         while (CurrentLAStage > 0) {
             if (laReference.useDoublePrecisionAtStage(CurrentLAStage - 1)) {
@@ -3069,21 +3070,22 @@ public class Mandelbrot extends Julia {
 
             CurrentLAStage--;
 
-            int LAIndex = laReference.getLAIndex(CurrentLAStage);
+            int begin = laReference.getBegin(CurrentLAStage);
 
-            if(laReference.isLAStageInvalid(LAIndex, DeltaSub0ChebyshevNorm)) {
+            if(laReference.isLAStageInvalid(begin, DeltaSub0ChebyshevNorm)) {
+                RefIteration = laReference.getNextStageLAIndex(begin);
                 continue;
             }
 
-            int MacroItCount = laReference.getMacroItCount(CurrentLAStage);
+            int end = laReference.getEnd(CurrentLAStage);
 
 
             while(iterations < max_iterations) {
 
-                LAstep las = laReference.getLA(this, LAIndex, DeltaSubN, RefIteration, iterations, max_iterations);
+                LAstep las = laReference.getLA(this, RefIteration, DeltaSubN, iterations, max_iterations);
 
                 if(las.unusable) {
-                    RefIteration = las.nextStageLAindex;
+                    RefIteration = las.NextStageLAIndex;
                     break;
                 }
 
@@ -3123,9 +3125,9 @@ public class Mandelbrot extends Julia {
 
                 // rebase
 
-                if(z.chebyshevNorm().compareToBothPositiveReduced(DeltaSubN.chebyshevNorm()) < 0|| RefIteration >= MacroItCount) {
+                if(z.chebyshevNorm().compareToBothPositiveReduced(DeltaSubN.chebyshevNorm()) < 0|| RefIteration >= end) {
                     DeltaSubN = z;
-                    RefIteration = 0;
+                    RefIteration = begin;
                     rebases++;
                 }
 
@@ -3171,7 +3173,7 @@ public class Mandelbrot extends Julia {
                     res = getFinalValueOut(res);
 
                     if (outTrueColorAlgorithm != null) {
-                        setTrueColorOut(zc, zold, zold2, iterations, c, start, c0, pixel);
+                        setTrueColorOut(zc, zold, zold2, iterations, c, start, c0, pixel, object);
                     }
 
                     return getAndAccumulateStatsBLA(res);
@@ -3226,21 +3228,22 @@ public class Mandelbrot extends Julia {
             while (CurrentLAStage > 0) {
                 CurrentLAStage--;
 
-                int LAIndex = laReference.getLAIndex(CurrentLAStage);
+                int begin = laReference.getBegin(CurrentLAStage);
 
-                if(laReference.isLAStageInvalid(LAIndex, CDeltaSub0ChebyshevNorm)) {
+                if(laReference.isLAStageInvalid(begin, CDeltaSub0ChebyshevNorm)) {
+                    RefIteration = laReference.getNextStageLAIndex(begin);
                     continue;
                 }
 
-                int MacroItCount = laReference.getMacroItCount(CurrentLAStage);
+                int end = laReference.getEnd(CurrentLAStage);
 
 
                 while(iterations < max_iterations) {
 
-                    LAstep las = laReference.getLA(this, LAIndex, dre, dim, RefIteration, iterations, max_iterations);
+                    LAstep las = laReference.getLA(this, RefIteration, dre, dim, iterations, max_iterations);
 
                     if(las.unusable) {
-                        RefIteration = las.nextStageLAindex;
+                        RefIteration = las.NextStageLAIndex;
                         break;
                     }
 
@@ -3284,10 +3287,10 @@ public class Mandelbrot extends Julia {
 
                     // rebase
 
-                    if(Math.max(Math.abs(zre), Math.abs(zim)) < Math.max(Math.abs(dre), Math.abs(dim)) || RefIteration >= MacroItCount) {
+                    if(Math.max(Math.abs(zre), Math.abs(zim)) < Math.max(Math.abs(dre), Math.abs(dim)) || RefIteration >= end) {
                         dre = zre;
                         dim = zim;
-                        RefIteration = 0;
+                        RefIteration = begin;
                         rebases++;
                     }
 
@@ -3373,7 +3376,7 @@ public class Mandelbrot extends Julia {
                 res = getFinalValueOut(res);
 
                 if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(z, zold, zold2, iterations, c, start, c0, pixel);
+                    setTrueColorOut(z, zold, zold2, iterations, c, start, c0, pixel, object);
                 }
 
                 return res;
@@ -3489,7 +3492,7 @@ public class Mandelbrot extends Julia {
                 res = getFinalValueOut(res);
 
                 if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(z, zold, zold2, iterations, c, start, c0, pixel);
+                    setTrueColorOut(z, zold, zold2, iterations, c, start, c0, pixel, object);
                 }
 
                 return getAndAccumulateStatsNotDeep(res);
@@ -3606,7 +3609,7 @@ public class Mandelbrot extends Julia {
                     res = getFinalValueOut(res);
 
                     if (outTrueColorAlgorithm != null) {
-                        setTrueColorOut(zc, zold, zold2, iterations, c, start, c0, pixel);
+                        setTrueColorOut(zc, zold, zold2, iterations, c, start, c0, pixel, object);
                     }
 
                     return getAndAccumulateStatsNotScaled(res);
@@ -3681,7 +3684,7 @@ public class Mandelbrot extends Julia {
                     res = getFinalValueOut(res);
 
                     if (outTrueColorAlgorithm != null) {
-                        setTrueColorOut(zc, zold, zold2, iterations, c, start, c0, pixel);
+                        setTrueColorOut(zc, zold, zold2, iterations, c, start, c0, pixel, object);
                     }
 
                     return getAndAccumulateStatsNotScaled(res);
@@ -3865,7 +3868,7 @@ public class Mandelbrot extends Julia {
                         res = getFinalValueOut(res);
 
                         if (outTrueColorAlgorithm != null) {
-                            setTrueColorOut(zc, zold, zold2, iterations, c, start, c0, pixel);
+                            setTrueColorOut(zc, zold, zold2, iterations, c, start, c0, pixel, object);
                         }
 
                         return getAndAccumulateStatsScaled(res);
@@ -3969,7 +3972,7 @@ public class Mandelbrot extends Julia {
                         res = getFinalValueOut(res);
 
                         if (outTrueColorAlgorithm != null) {
-                            setTrueColorOut(zc, zold, zold2, iterations, c, start, c0, pixel);
+                            setTrueColorOut(zc, zold, zold2, iterations, c, start, c0, pixel, object);
                         }
 
                         return getAndAccumulateStatsScaled(res);
@@ -4210,7 +4213,7 @@ public class Mandelbrot extends Julia {
                 res = getFinalValueOut(res);
 
                 if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(z, zold, zold2, iterations, c, start, c0, pixel);
+                    setTrueColorOut(z, zold, zold2, iterations, c, start, c0, pixel, object);
                 }
 
                 return getAndAccumulateStatsBLA(res);
@@ -4277,7 +4280,7 @@ public class Mandelbrot extends Julia {
                         res = getFinalValueOut(res);
 
                         if (outTrueColorAlgorithm != null) {
-                            setTrueColorOut(z, zold, zold2, iterations, c, start, c0, pixel);
+                            setTrueColorOut(z, zold, zold2, iterations, c, start, c0, pixel, object);
                         }
 
                         return getAndAccumulateStatsBLA(res);

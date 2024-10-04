@@ -140,7 +140,7 @@ public class FiltersOptionsDialog extends JDialog {
         aaSamples.setFocusable(false);
         aaSamples.setToolTipText("Sets the sampled pixels number for the anti-aliasing.");
 
-        String[] antialiasing_method_str = {"Mean", "Median", "Mid-Point", "Closest to Mean", "Closest To Mid-Point", "Adaptive (Min 5, Max 25)", "Gaussian", "Mean Without Outliers", "Bilateral"};
+        String[] antialiasing_method_str = {"Mean", "Median", "Geometric Median", "Closest to Mean", "TriMean", "Adaptive (Min 5, Max 25)", "Gaussian", "Mean Without Outliers", "Geometric Mean", "RMS Mean"};
 
         JComboBox<String> aaMethod = new JComboBox<>(antialiasing_method_str);
         aaMethod.setSelectedIndex((filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10);
@@ -157,7 +157,7 @@ public class FiltersOptionsDialog extends JDialog {
         aaAvgWithMean.setEnabled(aaMethod.getSelectedIndex() != 0 && aaMethod.getSelectedIndex() != 5 && aaMethod.getSelectedIndex() != 7);
 
 
-        String[] antialiasing_color_space_str = {"RGB", "XYZ", "Lab", "RYB", "Luv", "OKLab", "JzAzBz", "Linear sRGB"};//, "HSB", "HSL", "LCH"};
+        String[] antialiasing_color_space_str = {"RGB", "XYZ", "Lab", "RYB", "Luv", "OKLab", "JzAzBz", "Linear sRGB", "YCbCr"};//, "HSB", "HSL", "LCH"};
 
         JComboBox<String> antialiasing_color_space = new JComboBox<>(antialiasing_color_space_str);
         antialiasing_color_space.setSelectedIndex((filters_options_extra_vals[0][MainWindow.ANTIALIASING]));
@@ -170,9 +170,9 @@ public class FiltersOptionsDialog extends JDialog {
         useJitter.setToolTipText("Adds jitter to the sampling.");
         useJitter.setSelected(((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x4) == 4);
 
-        useJitter.setEnabled(aaMethod.getSelectedIndex() != 6 && aaMethod.getSelectedIndex() != 8);
+        useJitter.setEnabled(aaMethod.getSelectedIndex() != 6);
 
-        antialiasing_color_space.setEnabled(aaMethod.getSelectedIndex() == 0 || aaMethod.getSelectedIndex() == 1 || aaMethod.getSelectedIndex() == 2 || aaMethod.getSelectedIndex() == 6 || aaMethod.getSelectedIndex() == 7 || aaMethod.getSelectedIndex() == 8);
+        antialiasing_color_space.setEnabled(aaMethod.getSelectedIndex() != 5);
 
 
         JPanel samples = new JPanel();
@@ -206,22 +206,16 @@ public class FiltersOptionsDialog extends JDialog {
         sigmaR.setText("" + fs.aaSigmaR);
 
 
-        JTextField sigmaS = new JTextField(6);
-        sigmaS.setText("" + fs.aaSigmaS);
-        sigmapanel.add(new JLabel("Sigma R: "));
+        sigmapanel.add(new JLabel("Sigma: "));
         sigmapanel.add(sigmaR);
-        sigmapanel.add(new JLabel(" S: "));
-        sigmapanel.add(sigmaS);
 
-        sigmaR.setEnabled(aaMethod.getSelectedIndex() == 6 || aaMethod.getSelectedIndex() == 8);
-        sigmaS.setEnabled(aaMethod.getSelectedIndex() == 8);
+        sigmaR.setEnabled(aaMethod.getSelectedIndex() == 6);
 
         aaMethod.addActionListener(e -> {
             aaAvgWithMean.setEnabled(aaMethod.getSelectedIndex() != 0 && aaMethod.getSelectedIndex() != 5 && aaMethod.getSelectedIndex() != 7);
-            antialiasing_color_space.setEnabled(aaMethod.getSelectedIndex() == 0 || aaMethod.getSelectedIndex() == 1 || aaMethod.getSelectedIndex() == 2 || aaMethod.getSelectedIndex() == 6 || aaMethod.getSelectedIndex() == 7 || aaMethod.getSelectedIndex() == 8);
-            useJitter.setEnabled(aaMethod.getSelectedIndex() != 6 && aaMethod.getSelectedIndex() != 8);
-            sigmaR.setEnabled(aaMethod.getSelectedIndex() == 6 || aaMethod.getSelectedIndex() == 8);
-            sigmaS.setEnabled(aaMethod.getSelectedIndex() == 8);
+            antialiasing_color_space.setEnabled(aaMethod.getSelectedIndex() != 5);
+            useJitter.setEnabled(aaMethod.getSelectedIndex() != 6);
+            sigmaR.setEnabled(aaMethod.getSelectedIndex() == 6);
         });
 
         ((JPanel)components_filters[MainWindow.ANTIALIASING]).add(samples);
@@ -3166,11 +3160,10 @@ public class FiltersOptionsDialog extends JDialog {
 //                    return;
 //                }
 //            }
-            double temp, temp2, temp3, temp4, temp5;
+            double temp, temp3, temp4, temp5;
 
             try {
                 temp = Double.parseDouble(sigmaR.getText());
-                temp2 = Double.parseDouble(sigmaS.getText());
                 temp3 = Double.parseDouble(sigmaR2.getText());
                 temp4 = Double.parseDouble(sigmaS2.getText());
                 temp5 = Double.parseDouble(quad_tree_threshold.getText());
@@ -3180,7 +3173,7 @@ public class FiltersOptionsDialog extends JDialog {
                 return;
             }
 
-            if(temp < 0 || temp2 < 0 || temp3 < 0 || temp4 < 0) {
+            if(temp < 0 || temp3 < 0 || temp4 < 0) {
                 JOptionPane.showMessageDialog(ptra, "The sigma values must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
                 return;
             }
@@ -3190,7 +3183,6 @@ public class FiltersOptionsDialog extends JDialog {
                 return;
             }
 
-            fs.aaSigmaS = temp2;
             fs.aaSigmaR = temp;
             fs.bluringSigmaS = temp4;
             fs.bluringSigmaR = temp3;
@@ -3435,6 +3427,8 @@ public class FiltersOptionsDialog extends JDialog {
         requestFocus();
 
         setVisible(true);
+
+        repaint();
         
     }
    

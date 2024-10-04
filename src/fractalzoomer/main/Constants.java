@@ -10,7 +10,7 @@ import java.awt.*;
  * @author hrkalona2
  */
 public interface Constants {
-    public static final int VERSION = 1093;
+    public static final int VERSION = 1094;
     public static final boolean beta = false;
     public static final int TOTAL_PALETTES = 47;
     public static final int TOTAL_INCOLORING_ALGORITHMS = 12;
@@ -18,7 +18,7 @@ public interface Constants {
     public static final int TOTAL_BAILOUT_CONDITIONS = 13;
     public static final int TOTAL_CONVERGENT_BAILOUT_CONDITIONS = 10;
     public static final int TOTAL_PLANES = 67;
-    public static final int TOTAL_FUNCTIONS = 517;
+    public static final int TOTAL_FUNCTIONS = 518;
     public static final int TOTAL_FILTERS = 36;
     public static final int TOTAL_COLOR_TRANSFER_FILTERS = 14;
     public static final int TOTAL_COLOR_BLENDING = 30;
@@ -83,20 +83,22 @@ public interface Constants {
     public static final String[] derivativeMethod = {"Provided", "Numerical Forward", "Numerical Central", "Numerical Backward"};
     public static final String[] gridAlgorithms = {"sin", "mod"};
     public static final String[] combineAlgorithms = {"Multiply", "Average"};
+    public static final String[] colorSpaces = {"RGB", "HSB", "Exp", "Square", "Sqrt", "RYB", "Lab", "XYZ", "LCH_ab", "Bezier RGB", "HSL", "Luv", "LCH_uv", "OKLab", "LCH_oklab", "JzAzBz", "LCH_JzAzBz", "HSL_uv", "HPL_uv", "HWB", "Linear sRGB", "yCbCr", "Cubehelix", "B-Spline RGB", "HSB(L)", "HSL(L)", "LCH_ab(L)", "LCH_uv(L)", "LCH_oklab(L)", "LCH_JzAzBz(L)", "HSL_uv(L)", "HPL_uv(L)", "HWB(L)", "Cubehelix(L)"};
     public static final String[] trapHeightAlgorithms = {"Linear", "Cosine", "Square Root", "Exponential", "Cube Root", "Fourth Root", "Square", "Sine", "Deceleration", "3rd Degree Poly", "5th Degree Poly", "Smooth Transition", "Quarter Sine"};
     public static final String[] novaMethods = {"Newton Method", "Halley Method", "Schroder Method", "Householder Method", "Secant Method", "Steffensen Method", "Muller Method", "Parhalley Method", "Laguerre Method", "Newton-Hines Method", "Whittaker Method", "Whittaker Double Convex Method", "Super Halley Method",  "Midpoint Method", "Traub-Ostrowski Method", "Stirling Method", "Jaratt Method", "Jaratt 2 Method", "Weerakoon-Fernando Method", "Third Order Newton Method", "Abbasbandy Method", "Householder3 Method", "Contra Harmonic Newton", "Chun-Ham", "Chun-Kim", "Euler-Chebyshev Method", "Ezzati-Saleki 2 Method", "Homeier Method", "Abbasbandy 2 Method", "Abbasbandy 3 Method", "Popovski Method", "Changbum-Chun Method", "Changbum-Chun 2 Method", "King 3 Method", "Homeier 2 Method", "Kou-Li-Wang Method", "Kim-Chun Method", "Maheshweri Method", "Rafiullah Method", "Rafis-Rafiuallah Method", "Changbum-Chun 3 Method", "Ezzati-Saleki Method", "Feng Method", "King Method"
     , "Noor-Gupta Method", "Harmonic-Simpson-Newton Method", "Nedzhibov Method", "Simpson-Newton Method"};
     public static final String[] rootInitializationMethod = {"(a^i) * z", "z's circle", "z * cos(a * i)", "z * e^(a * i)"};
     public static final String[] equicontinuityColorMethods = {"HSL", "HSB", "LCH_ab", "Arg-Palette", "Palette"};
     public static final String[] equicontinuityArgs = {"Final Z value", "Start Z value", "Pixel Value", "C Value"};
-    public static final String[] normalMapColoringMethods = {"Original Color", "Rainbow Palette", "Distance Estimator", "Distance Estimator Variation"};
+    public static final String[] normalMapColoringMethods = {"Original Color", "Rainbow Palette", "Distance Estimator", "Distance Estimator Variation", "Distance Estimator Variation 2", "Distance Estimator Variation 3"};
     public static final String[] rootShadingFunction = {"Linear", "Square Root", "Cube Root", "Cosine", "Exponential", "Constant", "Square", "Sine", "Deceleration", "3rd Degree Poly", "5th Degree Poly", "Fourth Root", "Smooth Transition", "Quarter Sine"};
     public static final String[] twinLampsFunction = {"Linear", "Sqrt"};
     public static final String[] langNormTypes = {"Norm Squared", "Norm", "Rhombus-Norm", "Square-Norm", "N-Norm"};
     public static final String[] atomNormTypes = {"Norm", "Rhombus-Norm", "Square-Norm", "N-Norm"};
     public static final String[] histogramMapping = {"Histogram", "Linear", "Square Root", "Cube Root", "Fourth Root", "Logarithmic", "Rank Order"};
 
-    public static final String[] generatedPalettes = {"Multiwave: default", "Multiwave: g_spdz2", "Multiwave: g_spdz2_custom", "IQ: A + B * cos(2 * pi * (C * t + D) + G)"};
+    public static final String[] multiwavePalettes = {"", "default", "g_spdz2", "g_spdz2_custom"};
+    public static final String[] generatedPalettes = {"Multiwave: default", "Multiwave: g_spdz2", "Multiwave: g_spdz2_custom", "IQ: A + B * cos(2 * pi * (C * t + D) + G)", "Multiwave: User Selected", "Infinite Waves (KF)", "Simple Multiwave"};
     public static final String[] blend_algorithms = {"Normal", "Multiply", "Divide", "Addition", "Subtraction", "Difference", "Value (HSV)", "Soft Light", "Screen", "Dodge", "Burn", "Darken Only", "Lighten Only", "Hard Light", "Grain Extract", "Grain Merge", "Saturation (HSV)", "Color (HSV)", "Hue (HSV)", "Exclusion", "Pin Light", "Linear Light", "Vivid Light", "Overlay", "Chroma (LCH)", "Color (LCH)", "Hue (LCH)", "Lightness (LCH)", "Luminance", "Linear Burn"};
     /**
      * ** FUNCTION ***
@@ -655,6 +657,7 @@ public interface Constants {
     public static final int MANDELBARCUBED = 515;
 
     public static final int FORMULA50 = 516;
+    public static final int FORMULA51 = 517;
     /**
      * ***************
      */
@@ -1022,6 +1025,25 @@ public interface Constants {
     public static final int COLOR_SPACE_LINEAR_RGB = 20;
 
     public static final int COLOR_SPACE_YCBCR = 21;
+
+    public static final int COLOR_SPACE_CUBEHELIX = 22;
+
+    public static final int COLOR_SPACE_BASIS_SPLINE_RGB = 23;
+
+    public static final int COLOR_SPACE_HSB_LONG = 24;
+    public static final int COLOR_SPACE_HSL_LONG = 25;
+    public static final int COLOR_SPACE_LCH_ab_LONG = 26;
+    public static final int COLOR_SPACE_LCH_uv_LONG = 27;
+
+    public static final int COLOR_SPACE_LCH_oklab_LONG = 28;
+    public static final int COLOR_SPACE_LCH_JzAzBz_LONG = 29;
+
+    public static final int COLOR_SPACE_HSL_uv_LONG = 30;
+
+    public static final int COLOR_SPACE_HPL_uv_LONG = 31;
+
+    public static final int COLOR_SPACE_HWB_LONG = 32;
+    public static final int COLOR_SPACE_CUBEHELIX_LONG = 33;
     /**
      * *******************
      */
@@ -1332,8 +1354,6 @@ public interface Constants {
 
     public static final int CUSTOM_PALETTE_ID = 18;
     public static final int DIRECT_PALETTE_ID = 19;
-    
-    public static final int GRADIENT_LENGTH = 512;
     
     public static final Color bg_color = Color.white;
     public static final Color progress_color = new Color(190, 81, 69);//new Color(255, 185, 15);

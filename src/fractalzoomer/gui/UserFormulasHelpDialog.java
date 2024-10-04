@@ -30,6 +30,7 @@ public class UserFormulasHelpDialog {
                 + "<font  face='arial'><font size='5' face='arial'>&#8226; </font><font color='red'><b>p</b></font>: previous sequence point, z(n - 1).<br>"
                 + "<font  face='arial'><font size='5' face='arial'>&#8226; </font><font color='red'><b>pp</b></font>: second to previous sequence point, z(n - 2).<br>"
                 + "<font  face='arial'><font size='5' face='arial'>&#8226; </font><font color='red'><b>n</b></font>: current iteration.<br>"
+                + "<font  face='arial'><font size='5' face='arial'>&#8226; </font><font color='red'><b>nf</b></font>: current fractional part of the smooth iteration.<br>"
                 + "<font  face='arial'><font size='5' face='arial'>&#8226; </font><font color='red'><b>maxn</b></font>: current maximum iterations.<br>"
                 + "<font  face='arial'><font size='5' face='arial'>&#8226; </font><font color='red'><b>bail</b></font>: current bailout.<br>"
                 + "<font  face='arial'><font size='5' face='arial'>&#8226; </font><font color='red'><b>cbail</b></font>: convergent bailout, for root finding methods.<br>"

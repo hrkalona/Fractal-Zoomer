@@ -868,6 +868,8 @@ public class CustomDomainColoringDialog extends JDialog {
         add(scrollPane);
 
         setVisible(true);
+
+        repaint();
     }
     
     public int[] getOrder() {

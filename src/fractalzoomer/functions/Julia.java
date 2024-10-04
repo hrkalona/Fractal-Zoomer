@@ -3,6 +3,10 @@ package fractalzoomer.functions;
 
 import fractalzoomer.core.*;
 import fractalzoomer.core.location.Location;
+import fractalzoomer.core.reference.DoubleReference;
+import fractalzoomer.core.reference.ReferenceCompressor;
+import fractalzoomer.core.reference.ReferenceData;
+import fractalzoomer.core.reference.ReferenceDeepData;
 import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
@@ -228,7 +232,7 @@ public abstract class Julia extends Fractal {
 
         GenericComplex[] complex = new GenericComplex[2];
 
-        int lib = TaskRender.getHighPrecisionImplementation(dsize, this);
+        int lib = NumericLibrary.getHighPrecisionImplementation(dsize, this);
 
         if(lib == ARBITRARY_MPFR) {
             workSpaceData.z.set(pixel);
@@ -392,7 +396,7 @@ public abstract class Julia extends Fractal {
                 res = getFinalValueOut(res);
 
                 if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(z, zold, zold2, iterations, c, start, c0, pixel);
+                    setTrueColorOut(z, zold, zold2, iterations, c, start, c0, pixel, object);
                 }
 
                 return getAndAccumulateStatsNotDeep(res);
@@ -495,7 +499,7 @@ public abstract class Julia extends Fractal {
                     res = getFinalValueOut(res);
 
                     if (outTrueColorAlgorithm != null) {
-                        setTrueColorOut(zc, zold, zold2, iterations, c, start, c0, pixel);
+                        setTrueColorOut(zc, zold, zold2, iterations, c, start, c0, pixel, object);
                     }
 
                     return getAndAccumulateStatsNotScaled(res);
@@ -563,7 +567,7 @@ public abstract class Julia extends Fractal {
                     res = getFinalValueOut(res);
 
                     if (outTrueColorAlgorithm != null) {
-                        setTrueColorOut(zc, zold, zold2, iterations, c, start, c0, pixel);
+                        setTrueColorOut(zc, zold, zold2, iterations, c, start, c0, pixel, object);
                     }
 
                     return getAndAccumulateStatsNotScaled(res);
@@ -674,7 +678,7 @@ public abstract class Julia extends Fractal {
         GenericComplex z, c, zold, zold2, start, c0, pixel, initVal;
         Object normSquared;
 
-        int bigNumLib = TaskRender.getBignumImplementation(size, this);
+        int bigNumLib = NumericLibrary.getBignumImplementation(size, this);
 
         if(bigNumLib == Constants.BIGNUM_BUILT_IN) {
             initVal = new BigNumComplex(defaultInitVal.getValue(null));

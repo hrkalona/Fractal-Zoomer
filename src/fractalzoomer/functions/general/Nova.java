@@ -3,6 +3,10 @@ package fractalzoomer.functions.general;
 
 import fractalzoomer.core.*;
 import fractalzoomer.core.location.Location;
+import fractalzoomer.core.reference.DoubleReference;
+import fractalzoomer.core.reference.ReferenceCompressor;
+import fractalzoomer.core.reference.ReferenceData;
+import fractalzoomer.core.reference.ReferenceDeepData;
 import fractalzoomer.fractal_options.initial_value.DefaultInitialValue;
 import fractalzoomer.fractal_options.initial_value.InitialValue;
 import fractalzoomer.fractal_options.initial_value.VariableConditionalInitialValue;
@@ -960,7 +964,7 @@ public class Nova extends ExtendedConvergentType {
             inputPixel = sanitizeInputPixel(inputPixel);
         }
 
-        int bigNumLib = TaskRender.getBignumImplementation(size, this);
+        int bigNumLib = NumericLibrary.getBignumImplementation(size, this);
 
         GenericComplex z, c, zold, zold2, start, c0, initVal, pixel;
         if(bigNumLib == Constants.BIGNUM_MPFR) {
@@ -1286,7 +1290,7 @@ public class Nova extends ExtendedConvergentType {
 
         GenericComplex z, c, zold, zold2, start, c0, pixel, initVal;
 
-        int bigNumLib = TaskRender.getBignumImplementation(size, this);
+        int bigNumLib = NumericLibrary.getBignumImplementation(size, this);
 
         if(bigNumLib == Constants.BIGNUM_MPFR) {
 

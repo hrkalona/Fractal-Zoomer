@@ -5,6 +5,7 @@ package fractalzoomer.bailout_conditions;
 import fractalzoomer.core.*;
 import fractalzoomer.core.mpfr.MpfrBigNum;
 import fractalzoomer.core.mpir.MpirBigNum;
+import fractalzoomer.functions.Fractal;
 import org.apfloat.Apfloat;
 
 
@@ -16,15 +17,15 @@ public class RealStripBailoutCondition extends BailoutCondition {
     private MpfrBigNum temp1;
     private MpirBigNum temp1p;
  
-    public RealStripBailoutCondition(double bound) {
+    public RealStripBailoutCondition(double bound, Fractal f) {
         
         super(bound);
 
         if(TaskRender.PERTURBATION_THEORY || TaskRender.HIGH_PRECISION_CALCULATION) {
-            if(TaskRender.allocateMPFR()) {
+            if(NumericLibrary.allocateMPFR(f)) {
                 temp1 = new MpfrBigNum();
             }
-            else if(TaskRender.allocateMPIR()) {
+            else if(NumericLibrary.allocateMPIR(f)) {
                 temp1p = new MpirBigNum();
             }
         }

@@ -57,7 +57,7 @@ public class SettingsFractals1080 extends SettingsFractals1079 implements Serial
         rootShadingFunction = s.pps.sts.rootShadingFunction;
         revertRootShading = s.pps.sts.revertRootShading;
         highlightRoots = s.pps.sts.highlightRoots;
-        rootSmooting = s.pps.sts.rootSmooting;
+        rootSmooting = s.pps.sts.rootSmoothing;
         rootColors = s.pps.sts.rootColors;
 
         MagnetColorOffset = s.MagnetColorOffset;

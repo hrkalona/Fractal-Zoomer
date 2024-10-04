@@ -28,7 +28,6 @@ public class MaskFilter extends PointFilter {
 	}
 
 	public MaskFilter(int mask) {
-		canFilterIndexColorModel = true;
 		setMask(mask);
 	}
 

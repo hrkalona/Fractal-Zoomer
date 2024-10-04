@@ -25,7 +25,7 @@ public class ChannelMixFilter extends PointFilter {
 	private int intoR, intoG, intoB;
 	
 	public ChannelMixFilter() {
-		canFilterIndexColorModel = true;
+
 	}
 
 	public void setBlueGreen(int blueGreen) {

@@ -138,5 +138,4 @@ public abstract class BailoutCondition {
     public Norm getNormImpl() {
         return normImpl;
     }
-
 }

@@ -2,6 +2,7 @@ package fractalzoomer.utils;
 
 import fractalzoomer.core.MpfrBigNumComplex;
 import fractalzoomer.core.MpirBigNumComplex;
+import fractalzoomer.core.NumericLibrary;
 import fractalzoomer.core.TaskRender;
 import fractalzoomer.core.mpfr.MpfrBigNum;
 import fractalzoomer.core.mpir.MpirBigNum;
@@ -47,16 +48,16 @@ public class WorkSpaceData {
 
     public WorkSpaceData(Fractal f) {
 
-        if(TaskRender.allocateMPFR()) {
+        if(NumericLibrary.allocateMPFR(f)) {
             temp1 = new MpfrBigNum();
             temp2 = new MpfrBigNum();
+            temp3 = new MpfrBigNum();
 
             if(f.supportsPeriod() && TaskRender.DETECT_PERIOD) {
                 tempPvar = new MpfrBigNum();
                 tempPvar2 = new MpfrBigNum();
             }
             if(f instanceof MandelbrotCubed || f instanceof MandelbarCubed) {
-                temp3 = new MpfrBigNum();
                 temp4 = new MpfrBigNum();
             }
 
@@ -70,7 +71,7 @@ public class WorkSpaceData {
                 seed = new MpfrBigNumComplex();
                 root = new MpfrBigNum();
             }
-        } else if (TaskRender.allocateMPIR()) {
+        } else if (NumericLibrary.allocateMPIR(f)) {
             temp1p = new MpirBigNum();
             temp2p = new MpirBigNum();
             temp3p = new MpirBigNum();

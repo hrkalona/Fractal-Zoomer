@@ -53,12 +53,43 @@ public class BigArrayInt {
 
         array = new int[chucks][];
 
-        int i = 0;
-        for (; i < array.length - 1; i++) {
-            array[i] = Arrays.copyOf(old_array[i], BigArray.MAX_VALUE);
+        if(chucks == 1) {
+            if(old_array.length > 0) {
+                array[0] = copy(old_array[0], remaining);
+            } else {
+                array[0] = new int[remaining];
+            }
         }
-
-        array[i] = Arrays.copyOf(old_array[i], remaining);
+        else {
+            int i = 0;
+            for (; i < array.length - 1; i++) {
+                if(i < old_array.length) {
+                    array[i] = copy(old_array[i], BigArray.MAX_VALUE);
+                }
+                else {
+                    array[i] = new int[BigArray.MAX_VALUE];
+                }
+            }
+            if(i < old_array.length) {
+                array[i] = copy(old_array[i], remaining);
+            }
+            else {
+                array[i] = new int[remaining];
+            }
+        }
     }
 
+    private int[] copy(int[] src, int dest_length) {
+        if(dest_length == src.length) {
+            return src;
+        } else {
+            return Arrays.copyOf(src, dest_length);
+        }
+    }
+
+    public void reset() {
+        for (int i = 0; i < array.length; i++) {
+            Arrays.fill(array[i], 0);
+        }
+    }
 }

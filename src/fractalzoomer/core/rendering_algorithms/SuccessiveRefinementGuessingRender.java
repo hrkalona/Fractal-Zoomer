@@ -9,12 +9,13 @@ import fractalzoomer.main.Constants;
 import fractalzoomer.main.MinimalRendererWindow;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.*;
+import fractalzoomer.utils.StopExecutionException;
 import fractalzoomer.utils.StopSuccessiveRefinementException;
+import fractalzoomer.utils.WaitOnCondition;
 import org.apfloat.Apfloat;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class SuccessiveRefinementGuessingRender extends TaskRender {
@@ -80,7 +81,7 @@ public class SuccessiveRefinementGuessingRender extends TaskRender {
 
 
     @Override
-    protected void render(int image_width, int image_height, boolean polar) throws StopSuccessiveRefinementException {
+    protected void render(int image_width, int image_height, boolean polar) throws StopSuccessiveRefinementException, StopExecutionException {
 
         Location location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_width, image_height, circle_period, rotation_center, rotation_vals, fractal, js, polar, (HIGH_PRECISION_CALCULATION || PERTURBATION_THEORY) && fractal.supportsPerturbationTheory());
 
@@ -269,20 +270,10 @@ public class SuccessiveRefinementGuessingRender extends TaskRender {
             nano_time += System.nanoTime() - time;
 
             if(USE_NON_BLOCKING_RENDERING) {
-                try {
-                    stop_rendering_lock.lockRead();
-                } catch (InterruptedException ex) {
-
-                }
+                WaitOnCondition.LockRead(stop_rendering_lock);
             }
 
-            try {
-                successive_refinement_rendering_algorithm_barrier.await();
-            } catch (InterruptedException ex) {
-
-            } catch (BrokenBarrierException ex) {
-
-            }
+            WaitOnCondition.WaitOnCyclicBarrier(successive_refinement_rendering_algorithm_barrier);
 
             if(taskId == 0 && ptr != null) {
                 if(id == 0) {
@@ -295,10 +286,10 @@ public class SuccessiveRefinementGuessingRender extends TaskRender {
 
             if(USE_NON_BLOCKING_RENDERING) {
                 if (id > stop_id && STOP_RENDERING) {
-                    stop_rendering_lock.unlockRead();
+                    WaitOnCondition.UnlockRead(stop_rendering_lock);
                     throw new StopSuccessiveRefinementException();
                 }
-                stop_rendering_lock.unlockRead();
+                WaitOnCondition.UnlockRead(stop_rendering_lock);
             }
 
             prev_chunk_size = current_chunk_size;
@@ -406,7 +397,7 @@ public class SuccessiveRefinementGuessingRender extends TaskRender {
     }
 
     @Override
-    protected void renderFastJuliaAntialiased(int image_size, boolean polar) {
+    protected void renderFastJuliaAntialiased(int image_size, boolean polar) throws StopExecutionException {
 
         int aaMethod = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
         boolean useJitter = aaMethod != 6 && ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x4) == 4;
@@ -421,7 +412,7 @@ public class SuccessiveRefinementGuessingRender extends TaskRender {
         int colorSpace = filters_options_extra_vals[0][MainWindow.ANTIALIASING];
         int totalSamples = supersampling_num + 1;
 
-        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(totalSamples, aaMethod, aaAvgWithMean, colorSpace, fs.aaSigmaR, fs.aaSigmaS);
+        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(totalSamples, aaMethod, aaAvgWithMean, colorSpace, fs.aaSigmaR);
 
         aa.setNeedsAllSamples(needsPostProcessing());
 
@@ -608,13 +599,7 @@ public class SuccessiveRefinementGuessingRender extends TaskRender {
 
             } while (true);
 
-            try {
-                successive_refinement_rendering_algorithm_barrier.await();
-            } catch (InterruptedException ex) {
-
-            } catch (BrokenBarrierException ex) {
-
-            }
+            WaitOnCondition.WaitOnCyclicBarrier(successive_refinement_rendering_algorithm_barrier);
 
             prev_chunk_size = current_chunk_size;
             if(performSecondPassActions) {
@@ -640,7 +625,7 @@ public class SuccessiveRefinementGuessingRender extends TaskRender {
     }
 
     @Override
-    protected void renderAntialiased(int image_width, int image_height, boolean polar) throws StopSuccessiveRefinementException {
+    protected void renderAntialiased(int image_width, int image_height, boolean polar) throws StopSuccessiveRefinementException, StopExecutionException {
 
         int aaMethod = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
         boolean useJitter = aaMethod != 6 && ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x4) == 4;
@@ -655,7 +640,7 @@ public class SuccessiveRefinementGuessingRender extends TaskRender {
         int colorSpace = filters_options_extra_vals[0][MainWindow.ANTIALIASING];
         int totalSamples = supersampling_num + 1;
 
-        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(totalSamples, aaMethod, aaAvgWithMean, colorSpace, fs.aaSigmaR, fs.aaSigmaS);
+        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(totalSamples, aaMethod, aaAvgWithMean, colorSpace, fs.aaSigmaR);
 
         aa.setNeedsAllSamples(needsPostProcessing());
 
@@ -884,19 +869,10 @@ public class SuccessiveRefinementGuessingRender extends TaskRender {
             nano_time += System.nanoTime() - time;
 
             if(USE_NON_BLOCKING_RENDERING) {
-                try {
-                    stop_rendering_lock.lockRead();
-                } catch (InterruptedException ex) {
-
-                }
+                WaitOnCondition.LockRead(stop_rendering_lock);
             }
 
-            try {
-                successive_refinement_rendering_algorithm_barrier.await();
-            } catch (InterruptedException ex) {
-
-            } catch (BrokenBarrierException ex) {
-            }
+            WaitOnCondition.WaitOnCyclicBarrier(successive_refinement_rendering_algorithm_barrier);
 
             if(taskId == 0 && ptr != null) {
                 if(id == 0) {
@@ -909,10 +885,10 @@ public class SuccessiveRefinementGuessingRender extends TaskRender {
 
             if(USE_NON_BLOCKING_RENDERING) {
                 if (id > stop_id && STOP_RENDERING) {
-                    stop_rendering_lock.unlockRead();
+                    WaitOnCondition.UnlockRead(stop_rendering_lock);
                     throw new StopSuccessiveRefinementException();
                 }
-                stop_rendering_lock.unlockRead();
+                WaitOnCondition.UnlockRead(stop_rendering_lock);
             }
 
             prev_chunk_size = current_chunk_size;
@@ -938,7 +914,7 @@ public class SuccessiveRefinementGuessingRender extends TaskRender {
     }
 
     @Override
-    protected void renderFastJulia(int image_size, boolean polar) {
+    protected void renderFastJulia(int image_size, boolean polar) throws StopExecutionException {
 
         Location location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_size, image_size, circle_period, rotation_center, rotation_vals, fractal, js, polar, (HIGH_PRECISION_CALCULATION || PERTURBATION_THEORY) && fractal.supportsPerturbationTheory());
 
@@ -1071,13 +1047,7 @@ public class SuccessiveRefinementGuessingRender extends TaskRender {
 
             } while (true);
 
-            try {
-                successive_refinement_rendering_algorithm_barrier.await();
-            } catch (InterruptedException ex) {
-
-            } catch (BrokenBarrierException ex) {
-
-            }
+            WaitOnCondition.WaitOnCyclicBarrier(successive_refinement_rendering_algorithm_barrier);
 
             prev_chunk_size = current_chunk_size;
             if(performSecondPassActions) {
@@ -1128,7 +1098,7 @@ public class SuccessiveRefinementGuessingRender extends TaskRender {
     }
 
     @Override
-    protected void applyPostProcessingPointFilter(int image_width, int image_height, double[] image_iterations, boolean[] escaped, PixelExtraData[] pixelData, AntialiasingAlgorithm aa, Location location) {
+    protected void applyPostProcessingPointFilter(int image_width, int image_height, double[] image_iterations, boolean[] escaped, PixelExtraData[] pixelData, AntialiasingAlgorithm aa, Location location) throws StopExecutionException {
 
         if(d3 || action == COLOR_CYCLING) {
             super.applyPostProcessingPointFilter(image_width, image_height, image_iterations, escaped, pixelData, aa, location);
@@ -1175,17 +1145,13 @@ public class SuccessiveRefinementGuessingRender extends TaskRender {
             }
 
             if(USE_NON_BLOCKING_RENDERING && !isFastJulia()) {
-                try {
-                    stop_rendering_lock.lockRead();
-                } catch (InterruptedException ex) {
-
-                }
+                WaitOnCondition.LockRead(stop_rendering_lock);
 
                 if (STOP_RENDERING) {
-                    stop_rendering_lock.unlockRead();
+                    WaitOnCondition.UnlockRead(stop_rendering_lock);
                     break;
                 }
-                stop_rendering_lock.unlockRead();
+                WaitOnCondition.UnlockRead(stop_rendering_lock);
             }
 
         } while(true);
@@ -1193,7 +1159,7 @@ public class SuccessiveRefinementGuessingRender extends TaskRender {
     }
 
     @Override
-    protected void changePalette(int image_width, int image_height) throws StopSuccessiveRefinementException {
+    protected void changePalette(int image_width, int image_height) throws StopSuccessiveRefinementException, StopExecutionException {
 
         int loc;
         int condition = image_width * image_height;
@@ -1225,17 +1191,13 @@ public class SuccessiveRefinementGuessingRender extends TaskRender {
             updateProgress();
 
             if(USE_NON_BLOCKING_RENDERING) {
-                try {
-                    stop_rendering_lock.lockRead();
-                } catch (InterruptedException ex) {
-
-                }
+                WaitOnCondition.LockRead(stop_rendering_lock);
 
                 if (STOP_RENDERING) {
-                    stop_rendering_lock.unlockRead();
+                    WaitOnCondition.UnlockRead(stop_rendering_lock);
                     break;
                 }
-                stop_rendering_lock.unlockRead();
+                WaitOnCondition.UnlockRead(stop_rendering_lock);
             }
 
         } while(true);
@@ -1243,24 +1205,15 @@ public class SuccessiveRefinementGuessingRender extends TaskRender {
         pixel_calculation_time_per_task = System.currentTimeMillis() - time;
 
         if(USE_NON_BLOCKING_RENDERING) {
-            try {
-                stop_rendering_lock.lockRead();
-            } catch (InterruptedException ex) {
+            WaitOnCondition.LockRead(stop_rendering_lock);
 
-            }
-
-            try {
-                successive_refinement_rendering_algorithm_barrier.await();
-            } catch (InterruptedException ex) {
-
-            } catch (BrokenBarrierException ex) {
-            }
+            WaitOnCondition.WaitOnCyclicBarrier(successive_refinement_rendering_algorithm_barrier);
 
             if (STOP_RENDERING) {
-                stop_rendering_lock.unlockRead();
+                WaitOnCondition.UnlockRead(stop_rendering_lock);
                 throw new StopSuccessiveRefinementException();
             }
-            stop_rendering_lock.unlockRead();
+            WaitOnCondition.UnlockRead(stop_rendering_lock);
         }
 
         postProcess(image_width, image_height, null, null);
@@ -1268,7 +1221,7 @@ public class SuccessiveRefinementGuessingRender extends TaskRender {
     }
 
     @Override
-    protected void changePaletteWithAA(int image_width, int image_height) throws StopSuccessiveRefinementException {
+    protected void changePaletteWithAA(int image_width, int image_height) throws StopSuccessiveRefinementException, StopExecutionException {
 
         int aaMethod = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
         int aaSamplesIndex = (filters_options_vals[MainWindow.ANTIALIASING] % 100) % 10;
@@ -1276,7 +1229,7 @@ public class SuccessiveRefinementGuessingRender extends TaskRender {
         int colorSpace = filters_options_extra_vals[0][MainWindow.ANTIALIASING];
         int supersampling_num = getExtraSamples(aaSamplesIndex, aaMethod);
         int totalSamples = supersampling_num + 1;
-        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(totalSamples, aaMethod, aaAvgWithMean, colorSpace, fs.aaSigmaR, fs.aaSigmaS);
+        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(totalSamples, aaMethod, aaAvgWithMean, colorSpace, fs.aaSigmaR);
 
         aa.setNeedsAllSamples(needsPostProcessing());
 
@@ -1324,17 +1277,13 @@ public class SuccessiveRefinementGuessingRender extends TaskRender {
             updateProgress();
 
             if(USE_NON_BLOCKING_RENDERING) {
-                try {
-                    stop_rendering_lock.lockRead();
-                } catch (InterruptedException ex) {
-
-                }
+                WaitOnCondition.LockRead(stop_rendering_lock);
 
                 if (STOP_RENDERING) {
-                    stop_rendering_lock.unlockRead();
+                    WaitOnCondition.UnlockRead(stop_rendering_lock);
                     break;
                 }
-                stop_rendering_lock.unlockRead();
+                WaitOnCondition.UnlockRead(stop_rendering_lock);
             }
 
         } while(true);
@@ -1342,24 +1291,15 @@ public class SuccessiveRefinementGuessingRender extends TaskRender {
         pixel_calculation_time_per_task = System.currentTimeMillis() - time;
 
         if(USE_NON_BLOCKING_RENDERING) {
-            try {
-                stop_rendering_lock.lockRead();
-            } catch (InterruptedException ex) {
+            WaitOnCondition.LockRead(stop_rendering_lock);
 
-            }
-
-            try {
-                successive_refinement_rendering_algorithm_barrier.await();
-            } catch (InterruptedException ex) {
-
-            } catch (BrokenBarrierException ex) {
-            }
+            WaitOnCondition.WaitOnCyclicBarrier(successive_refinement_rendering_algorithm_barrier);
 
             if (STOP_RENDERING) {
-                stop_rendering_lock.unlockRead();
+                WaitOnCondition.UnlockRead(stop_rendering_lock);
                 throw new StopSuccessiveRefinementException();
             }
-            stop_rendering_lock.unlockRead();
+            WaitOnCondition.UnlockRead(stop_rendering_lock);
         }
 
         postProcess(image_width, image_height, aa, null);
@@ -1367,7 +1307,7 @@ public class SuccessiveRefinementGuessingRender extends TaskRender {
     }
 
     @Override
-    protected void renderDomain(int image_width, int image_height, boolean polar) {
+    protected void renderDomain(int image_width, int image_height, boolean polar) throws StopExecutionException {
 
         Location location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_width, image_height, circle_period, rotation_center, rotation_vals, fractal, js, polar, false);
 
@@ -1421,7 +1361,7 @@ public class SuccessiveRefinementGuessingRender extends TaskRender {
     }
 
     @Override
-    protected void renderDomainAntialiased(int image_width, int image_height, boolean polar) {
+    protected void renderDomainAntialiased(int image_width, int image_height, boolean polar) throws StopExecutionException {
 
         int aaMethod = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
         boolean useJitter = aaMethod != 6 && ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x4) == 4;
@@ -1440,7 +1380,7 @@ public class SuccessiveRefinementGuessingRender extends TaskRender {
         int colorSpace = filters_options_extra_vals[0][MainWindow.ANTIALIASING];
         int totalSamples = supersampling_num + 1;
 
-        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(totalSamples, aaMethod, aaAvgWithMean, colorSpace, fs.aaSigmaR, fs.aaSigmaS);
+        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(totalSamples, aaMethod, aaAvgWithMean, colorSpace, fs.aaSigmaR);
 
         aa.setNeedsAllSamples(needsPostProcessing());
 

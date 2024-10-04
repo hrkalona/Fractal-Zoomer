@@ -466,6 +466,7 @@ public class FractalFunctionsMenu extends MyMenu {
         functionNames[MainWindow.FORMULA48] = "z = c(z^2 + z^-2)";
         functionNames[MainWindow.FORMULA49] = "z = ((z^2 + 1.5) / (-2z + 0.5))^2 + c";
         functionNames[MainWindow.FORMULA50] = "z = 2*z^2 - z^3 + c";
+        functionNames[MainWindow.FORMULA51] = "Zenex";
     }
 
     public FractalFunctionsMenu(MainWindow ptr2, String name, int function) {
@@ -664,6 +665,12 @@ public class FractalFunctionsMenu extends MyMenu {
         fractal_functions[MainWindow.FORMULA50].addActionListener(e -> ptr.setFunction(MainWindow.FORMULA50));
         m_like_generalizations_type_functions.add(fractal_functions[MainWindow.FORMULA50]);
         functions_button_group.add(fractal_functions[MainWindow.FORMULA50]);
+        m_like_generalizations_type_functions.addSeparator();
+
+        fractal_functions[MainWindow.FORMULA51] = new JRadioButtonMenuItem(functionNames[MainWindow.FORMULA51]);
+        fractal_functions[MainWindow.FORMULA51].addActionListener(e -> ptr.setFunction(MainWindow.FORMULA51));
+        m_like_generalizations_type_functions.add(fractal_functions[MainWindow.FORMULA51]);
+        functions_button_group.add(fractal_functions[MainWindow.FORMULA51]);
         m_like_generalizations_type_functions.addSeparator();
 
         fractal_functions[MainWindow.BUFFALO_MANDELBROT] = new JRadioButtonMenuItem(functionNames[MainWindow.BUFFALO_MANDELBROT]);
