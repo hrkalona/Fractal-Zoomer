@@ -7,9 +7,9 @@ package fractalzoomer.core.blending;
  */
 public class DifferenceBlending extends Blending {
 
-    public DifferenceBlending(int color_interpolation) {
+    public DifferenceBlending(int color_interpolation, int color_space) {
 
-        super(color_interpolation);
+        super(color_interpolation, color_space);
 
     }
 
@@ -20,7 +20,7 @@ public class DifferenceBlending extends Blending {
         int temp_green = Math.abs(greenB - greenA);
         int temp_blue = Math.abs(blueB - blueA);
         
-        return method.interpolate(redB, greenB, blueB, temp_red, temp_green, temp_blue, coef);
+        return method.interpolateColors(redB, greenB, blueB, temp_red, temp_green, temp_blue, coef, false);
 
     }
     

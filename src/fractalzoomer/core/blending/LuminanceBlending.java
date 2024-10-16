@@ -10,9 +10,9 @@ import fractalzoomer.utils.ColorSpaceConverter;
  */
 public class LuminanceBlending extends Blending {
     
-    public LuminanceBlending(int color_interpolation) {
+    public LuminanceBlending(int color_interpolation, int color_space) {
 
-        super(color_interpolation);
+        super(color_interpolation, color_space);
         
     }
 
@@ -42,7 +42,7 @@ public class LuminanceBlending extends Blending {
         temp_green = temp_green > 255 ? 255 : temp_green;
         temp_blue = temp_blue > 255 ? 255 : temp_blue;
         
-        return method.interpolate(redB, greenB, blueB, temp_red, temp_green, temp_blue, coef);
+        return method.interpolateColors(redB, greenB, blueB, temp_red, temp_green, temp_blue, coef, false);
         
     }     
 }

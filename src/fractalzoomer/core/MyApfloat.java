@@ -10,6 +10,9 @@ import org.apfloat.Apint;
 import org.apfloat.FixedPrecisionApfloatHelper;
 
 import java.math.BigDecimal;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class MyApfloat extends Apfloat {
     public static long precision;
@@ -32,6 +35,9 @@ public class MyApfloat extends Apfloat {
     public static Apint ZERO;
     public static Apfloat SQRT_TWO;
     public static Apfloat LOG_TWO;
+    public static Apfloat LOG_TEN;
+
+    public static Apfloat LOG_POW_TEN;
     public static Apfloat RECIPROCAL_LOG_TWO_BASE_TEN;
     public static Apfloat E;
     public static Apfloat MAX_DOUBLE_SIZE;
@@ -196,7 +202,9 @@ public class MyApfloat extends Apfloat {
         TWO_PI = fp.multiply(PI, TWO);
         SQRT_TWO = fp.sqrt(TWO);
         LOG_TWO = fp.log(TWO);
-        RECIPROCAL_LOG_TWO_BASE_TEN = fp.divide(fp.log(TEN), LOG_TWO);
+        LOG_TEN = fp.log(TEN);
+        LOG_POW_TEN = fp.log(fp.pow(TEN, precision));
+        RECIPROCAL_LOG_TWO_BASE_TEN = fp.divide(LOG_TEN, LOG_TWO);
         MAX_DOUBLE_SIZE = new MyApfloat(1.0e-300);
         MIN_DOUBLE_SIZE = new MyApfloat(5.0e-13);
         SA_START_SIZE = new MyApfloat(1.0e-5);
@@ -204,7 +212,7 @@ public class MyApfloat extends Apfloat {
         NativeLoader.init();
 
         if(TaskRender.BIGNUM_AUTOMATIC_PRECISION) {
-            double temp = fp.divide(fp.log(fp.pow(TEN, precision)), LOG_TWO).doubleValue();
+            double temp = fp.divide(LOG_POW_TEN, LOG_TWO).doubleValue();
 
             BigNum.reinitialize(temp);
             BigIntNum.reinitialize(temp);
@@ -224,18 +232,63 @@ public class MyApfloat extends Apfloat {
     public static void setPrecision(long prec) {
         precision = prec;
         fp = new FixedPrecisionApfloatHelper(precision);
-        PI = fp.pi();
-        E = fp.e();
-        TWO_PI = fp.multiply(PI, TWO);
-        SQRT_TWO = fp.sqrt(TWO);
-        LOG_TWO = fp.log(TWO);
-        RECIPROCAL_LOG_TWO_BASE_TEN = fp.divide(fp.log(TEN), LOG_TWO);
+
+        if(prec > 250) {
+
+            ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+
+            Runnable task1 = () -> {
+                PI = fp.pi();
+                TWO_PI = fp.multiply(PI, TWO);
+            };
+
+            Runnable task2 = () -> E = fp.e();
+
+            Runnable task3 = () -> SQRT_TWO = fp.sqrt(TWO);
+
+            Runnable task4 = () -> LOG_TWO = fp.log(TWO);
+
+            Runnable task5 = () -> LOG_TEN = fp.log(TEN);
+
+            Runnable task6 = () -> LOG_POW_TEN = fp.log(fp.pow(TEN, precision));
+
+            Future<?> f1 = executorService.submit(task1);
+            Future<?> f2 = executorService.submit(task2);
+            Future<?> f3 = executorService.submit(task3);
+            Future<?> f4 = executorService.submit(task4);
+            Future<?> f5 = executorService.submit(task5);
+            Future<?> f6 = executorService.submit(task6);
+
+            try {
+                f1.get();
+                f2.get();
+                f3.get();
+                f4.get();
+                f5.get();
+                f6.get();
+            }
+            catch (Exception ex) {
+
+            }
+
+            executorService.shutdown();
+        }
+        else {
+            PI = fp.pi();
+            E = fp.e();
+            TWO_PI = fp.multiply(PI, TWO);
+            SQRT_TWO = fp.sqrt(TWO);
+            LOG_TWO = fp.log(TWO);
+            LOG_TEN = fp.log(TEN);
+            LOG_POW_TEN = fp.log(fp.pow(TEN, precision));
+        }
+        RECIPROCAL_LOG_TWO_BASE_TEN = fp.divide(LOG_TEN, LOG_TWO);
         MAX_DOUBLE_SIZE = new MyApfloat(1.0e-300);
         MIN_DOUBLE_SIZE = new MyApfloat(5.0e-13);
         SA_START_SIZE = new MyApfloat(1.0e-5);
 
         if(TaskRender.BIGNUM_AUTOMATIC_PRECISION) {
-            double temp = fp.divide(fp.log(fp.pow(TEN, precision)), LOG_TWO).doubleValue();
+            double temp = fp.divide(LOG_POW_TEN, LOG_TWO).doubleValue();
 
             BigNum.reinitialize(temp);
             BigIntNum.reinitialize(temp);

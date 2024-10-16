@@ -733,11 +733,11 @@ public class PerturbationTheoryDialog extends JDialog {
                                 Fractal.clearReferences(true, true);
                             }
 
-                            if(TaskRender.PERTURBATION_THEORY && TaskRender.BIGNUM_IMPLEMENTATION == Constants.BIGNUM_MPFR && LibMpfr.hasError()) {
+                            if(TaskRender.PERTURBATION_THEORY && TaskRender.BIGNUM_IMPLEMENTATION == Constants.BIGNUM_MPFR && LibMpfr.mpfrHasError()) {
                                 JOptionPane.showMessageDialog(ptra, "The MPFR library is not available, and the engine will fallback to an alternative library.", "Warning!", JOptionPane.WARNING_MESSAGE);
                             }
 
-                            if(TaskRender.PERTURBATION_THEORY && TaskRender.BIGNUM_IMPLEMENTATION == Constants.BIGNUM_MPIR && LibMpir.hasError()) {
+                            if(TaskRender.PERTURBATION_THEORY && TaskRender.BIGNUM_IMPLEMENTATION == Constants.BIGNUM_MPIR && LibMpir.mpirHasError()) {
                                 JOptionPane.showMessageDialog(ptra, "The MPIR library is not available, and the engine will fallback to an alternative library.", "Warning!", JOptionPane.WARNING_MESSAGE);
                             }
 

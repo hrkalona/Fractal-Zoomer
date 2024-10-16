@@ -11,7 +11,7 @@ import fractalzoomer.utils.NativeLoader;
 
 public class LibMpfr {
 
-    public static Exception LOAD_ERROR = null;
+    public static Exception MPFR_LOAD_ERROR = null;
 
     public static boolean isLong4 = Native.LONG_SIZE == 4;
 
@@ -27,8 +27,8 @@ public class LibMpfr {
 
     private static NativeLibrary library;
 
-    public static boolean hasError() {
-        return LOAD_ERROR != null;
+    public static boolean mpfrHasError() {
+        return MPFR_LOAD_ERROR != null;
     }
 
     static {
@@ -47,33 +47,70 @@ public class LibMpfr {
     static {
 
         if(!TaskRender.LOAD_MPFR) {
-            LOAD_ERROR = new Exception("Disabled loading of mpfr");
+            MPFR_LOAD_ERROR = new Exception("Disabled loading of mpfr");
         }
         else if(!Platform.isWindows() && !Platform.isLinux()) {
-            LOAD_ERROR = new Exception("Cannot load mpfr if the platform is not windows or linux");
+            MPFR_LOAD_ERROR = new Exception("Cannot load mpfr if the platform is not windows or linux");
         }
         else {
             try {
                 loadLibMpfr();
             } catch (Exception ex) {
-                LOAD_ERROR = ex;
+                MPFR_LOAD_ERROR = ex;
             }
             catch (Error ex) {
-                LOAD_ERROR = new Exception(ex.getMessage());
+                MPFR_LOAD_ERROR = new Exception(ex.getMessage());
             }
         }
 
-        if(hasError()) {
-            System.out.println("Cannot load mpfr: " + LOAD_ERROR.getMessage());
+        if(mpfrHasError()) {
+            System.out.println("Cannot load mpfr: " + MPFR_LOAD_ERROR.getMessage());
         }
 
+    }
+
+    public static boolean hasThreadSupport() {
+        if(!Platform.isWindows()) { //Todo revisit when you can test it in linux
+            return false;
+        }
+
+        if(!Platform.is64Bit()) {
+            return false;
+        }
+
+        return !TaskRender.MPFR_WINDOWS_ARCHITECTURE.equals(TaskRender.generalArchitecture);
+    }
+
+    public static int getAlgorithm() {
+        if(!Platform.isWindows()) {
+            return 0;
+        }
+
+        if(!Platform.is64Bit()) {
+            return 0;
+        }
+
+        return !TaskRender.MPFR_WINDOWS_ARCHITECTURE.equals(TaskRender.generalArchitecture) ? 1 : 0;
     }
 
 
 
     private static void loadLibMpfr() throws Exception {
 
-        String libName = Platform.isWindows() ? NativeLoader.mpfrWindowsLib : NativeLoader.mpfrLinuxLib;
+        String libName;
+
+        if(Platform.isWindows()) {
+            if(TaskRender.MPFR_WINDOWS_ARCHITECTURE.isEmpty()) {
+                MPFR_LOAD_ERROR = new Exception("Cannot load mpfr, no available architecture was found");
+                return;
+            }
+            libName = TaskRender.MPFR_WINDOWS_ARCHITECTURE + "/" + Platform.RESOURCE_PREFIX + "/" + NativeLoader.mpfrWinLib;
+        }
+        else {
+            libName = TaskRender.generalArchitecture + "/" + Platform.RESOURCE_PREFIX + "/" + NativeLoader.mpfrLinuxLib;
+        }
+
+        System.out.println("Loading " + libName);
 
         try {
             load(NativeLoader.tmpdir.resolve(libName).toAbsolutePath().toString());
@@ -81,11 +118,11 @@ public class LibMpfr {
         }
         catch (UnsatisfiedLinkError e) {
             System.out.println(e.getMessage());
-            LOAD_ERROR = new Exception(e.getMessage());
+            MPFR_LOAD_ERROR = new Exception(e.getMessage());
         }
         catch (Exception e) {
             System.out.println(e.getMessage());
-            LOAD_ERROR = e;
+            MPFR_LOAD_ERROR = e;
         }
         // Fall back to system-wide search.
 //        try {
@@ -112,7 +149,7 @@ public class LibMpfr {
 
     public static void delete() {
 
-        if(!hasError()) {
+        if(!mpfrHasError()) {
             Memory.disposeAll();
             Native.unregister(LibMpfr.class);
             Native.unregister(SIZE_T_CLASS);
@@ -132,7 +169,7 @@ public class LibMpfr {
 
     static {
 
-        if(!hasError()) {
+        if(!mpfrHasError()) {
 
             if(Platform.isWindows()) {
                 __gmp_version = NativeLibrary.getProcess() // library is already loaded and linked.
@@ -348,16 +385,16 @@ public class LibMpfr {
     //Custom functions implemented for better performance
     public static native void mpfr_fz_square_plus_c (mpfr_t re, mpfr_t im, mpfr_t temp, mpfr_t re_sqr, mpfr_t im_sqr, mpfr_t norm_sqr, mpfr_t cre, mpfr_t cim, int rnd);
     public static native void mpfr_fz_square (mpfr_t re, mpfr_t im, mpfr_t temp, mpfr_t re_sqr, mpfr_t im_sqr, mpfr_t norm_sqr, int rnd);
-    public static native void mpfr_fz_norm_square_with_components (mpfr_t re_sqr, mpfr_t im_sqr, mpfr_t norm_sqr, mpfr_t re, mpfr_t im, int rnd);
+    public static native void mpfr_fz_norm_square_with_components (mpfr_t re_sqr, mpfr_t im_sqr, mpfr_t norm_sqr, mpfr_t re, mpfr_t im, int rnd, int use_threads);
     public static native void mpfr_fz_get_d (double[] valRe, double[] valIm, mpfr_t re, mpfr_t im, int rnd);
     public static native void mpfr_fz_get_d_2exp (double[] valRe, double[] valIm, long[] expRe, long[] expIm, mpfr_t re, mpfr_t im, int rnd);
     public static native void mpfr_fz_get_d_2exp (double[] valRe, double[] valIm, int[] expRe, int[] expIm, mpfr_t re, mpfr_t im, int rnd);
-    public static native void mpfr_fz_square_plus_c_simple (mpfr_t re, mpfr_t im, mpfr_t temp1, mpfr_t temp2, mpfr_t cre, mpfr_t cim, int rnd);
-    public static native void mpfr_fz_square_plus_c_simple_with_reduction_not_deep (mpfr_t re, mpfr_t im, mpfr_t temp1, mpfr_t temp2, mpfr_t cre, mpfr_t cim, int rnd, double[] valRe, double[] valIm);
-    public static native void mpfr_fz_square_plus_c_simple_with_reduction_deep (mpfr_t re, mpfr_t im, mpfr_t temp1, mpfr_t temp2, mpfr_t cre, mpfr_t cim, int rnd, double[] valRe, double[] valIm, long[] expRe, long[] expIm);
-    public static native void mpfr_fz_square_plus_c_simple_with_reduction_deep (mpfr_t re, mpfr_t im, mpfr_t temp1, mpfr_t temp2, mpfr_t cre, mpfr_t cim, int rnd, double[] valRe, double[] valIm, int[] expRe, int[] expIm);
+    public static native void mpfr_fz_square_plus_c_simple (mpfr_t re, mpfr_t im, mpfr_t temp1, mpfr_t temp2, mpfr_t temp3, mpfr_t cre, mpfr_t cim, int rnd, int algorithm, int use_threads);
+    public static native void mpfr_fz_square_plus_c_simple_with_reduction_not_deep (mpfr_t re, mpfr_t im, mpfr_t temp1, mpfr_t temp2, mpfr_t temp3, mpfr_t cre, mpfr_t cim, int rnd, int algorithm, int use_threads, double[] valRe, double[] valIm);
+    public static native void mpfr_fz_square_plus_c_simple_with_reduction_deep (mpfr_t re, mpfr_t im, mpfr_t temp1, mpfr_t temp2, mpfr_t temp3, mpfr_t cre, mpfr_t cim, int rnd, int algorithm, int use_threads, double[] valRe, double[] valIm, long[] expRe, long[] expIm);
+    public static native void mpfr_fz_square_plus_c_simple_with_reduction_deep (mpfr_t re, mpfr_t im, mpfr_t temp1, mpfr_t temp2, mpfr_t temp3, mpfr_t cre, mpfr_t cim, int rnd, int algorithm, int use_threads, double[] valRe, double[] valIm, int[] expRe, int[] expIm);
     public static native void mpfr_fz_set (mpfr_t destre, mpfr_t destim, mpfr_t srcre, mpfr_t srcim, int rnd);
-    public static native void mpfr_fz_norm_square (mpfr_t norm_sqr, mpfr_t temp1, mpfr_t re, mpfr_t im, int rnd);
+    public static native void mpfr_fz_norm_square (mpfr_t norm_sqr, mpfr_t temp1, mpfr_t re, mpfr_t im, int rnd, int use_threads);
     public static native void mpfr_fz_self_add (mpfr_t re, mpfr_t im, mpfr_t val_re, mpfr_t val_im, int rnd);
     public static native void mpfr_fz_self_sub (mpfr_t re, mpfr_t im, mpfr_t val_re, mpfr_t val_im, int rnd);
     public static native void mpfr_fz_rotation (mpfr_t x, mpfr_t y, mpfr_t temp_re, mpfr_t temp_im, mpfr_t f, mpfr_t a, mpfr_t asb, mpfr_t apb, int rnd);

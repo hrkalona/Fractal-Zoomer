@@ -1,6 +1,7 @@
 package fractalzoomer.gui;
 
 import fractalzoomer.core.interpolation.*;
+import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
 
 import javax.swing.*;
@@ -62,7 +63,7 @@ public class ColorComponent extends JPanel {
             colorPoints.add(new ColorPoint(data[i][0], (int)((data[i][1] / 255.0) * height + 0.5), i == 0 && data[i][0] == 0, true));
         }
 
-        Collections.sort(colorPoints);
+        sort();
 
 
         selectedIndex = -1;
@@ -89,12 +90,17 @@ public class ColorComponent extends JPanel {
 
                 if(e.getButton() == MouseEvent.BUTTON3 && selectedIndex != -1) {
                     if(!colorPoints.isEmpty() && colorPoints.get(selectedIndex).canBeDeleted()) {
-                        colorPoints.remove(selectedIndex);
+                        if(editor.getLinkedPoints()) {
+                            editor.removeFromAll(colorPoints.get(selectedIndex).getX(), selectedIndex);
+                        }
+                        else {
+                            colorPoints.remove(selectedIndex);
+                        }
                     }
                     selectedIndex = -1;
                 }
                 else if(e.getButton() == MouseEvent.BUTTON3 && selectedIndex == -1) {
-                    if(editor.getAddOnAllComponents().isSelected()) {
+                    if(editor.getAddOnAllComponents() || editor.getLinkedPoints()) {
                         editor.addOnAllComponents(x, y, height);
                     }
                     else {
@@ -102,7 +108,7 @@ public class ColorComponent extends JPanel {
                     }
                 }
 
-                Collections.sort(colorPoints);
+                sort();
 
                 repaint();
                 editor.paintPalette();
@@ -117,22 +123,36 @@ public class ColorComponent extends JPanel {
                 int y = height - e.getY();
                 if (selectedIndex >= 0 && x >= 0 && x <= getWidth() && y >= 0 && y <= getHeight()) {
 
-                    if(editor.getLockPoints().isSelected()) {
+                    boolean moved = false;
+                    int old_x = -1;
+                    if(editor.getLockPoints()) {
                         if(selectedIndex > 0 && selectedIndex < colorPoints.size() - 1) {
                             if(x > colorPoints.get(selectedIndex - 1).getX() &&
                                     x < colorPoints.get(selectedIndex + 1).getX()) {
-                                colorPoints.get(selectedIndex).setX(x);
+                                old_x = colorPoints.get(selectedIndex).getX();
+                                moved = colorPoints.get(selectedIndex).setX(x);
                             }
                         }
                         else {
-                            colorPoints.get(selectedIndex).setX(x);
+                            old_x = colorPoints.get(selectedIndex).getX();
+                            moved = colorPoints.get(selectedIndex).setX(x);
                         }
                     }
                     else {
-                        colorPoints.get(selectedIndex).setX(x);
+                        old_x = colorPoints.get(selectedIndex).getX();
+                        moved = colorPoints.get(selectedIndex).setX(x);
                     }
+
                     colorPoints.get(selectedIndex).setY(y);
-                    Collections.sort(colorPoints);
+
+                    if(editor.getLinkedPoints() && moved) {
+                        editor.moveHorizontalAll(x, old_x, selectedIndex);
+                    }
+
+                    if (moved) {
+                        sort();
+                    }
+
                     editor.colorChanged();
                 }
             }
@@ -237,7 +257,7 @@ public class ColorComponent extends JPanel {
         g2d.setStroke(new BasicStroke(2));
         g.setColor(lineColor);
 
-        if(editor.getInterpolationMode() == 0 && editor.getInterpolationColorMode() == 0) {
+        if(editor.getInterpolationMode() == 0 && editor.getInterpolationColorMode() == 0 && (!editor.getLinkedPoints() || editor.getColorSpace() == 0)) {
 
             if(!colorPoints.isEmpty()) {
                 if(colorPoints.get(0).getX() != 0) {
@@ -256,39 +276,23 @@ public class ColorComponent extends JPanel {
         else {
             g2d.setStroke(new BasicStroke(1.5f));
 
-            if(!colorPoints.isEmpty()) {
-                if(colorPoints.get(0).getX() != 0) {
-                    int x = 0;
-                    int xp1 = colorPoints.get(0).getX();
+            int[] palette = editor.getPalette(true);
 
-                    for(int curx = x; curx < xp1; curx++) {
-                        int val1 = getValue(curx, false, 0, maxX);
-                        int val2 = getValue(curx + 1, false, 0, maxX);
-                        g.drawLine(curx, height - (int)((val1 / 255.0) * height + 0.5), curx + 1, height - (int)((val2 / 255.0) * height + 0.5));
-                    }
+            for(int i = 0; i < maxX; i++) {
+                int v1, v2;
+                if(name.equals("R")) {
+                    v1 = (palette[i] >> 16) & 0xFF;
+                    v2 = i < maxX - 1 ? (palette[i + 1] >> 16) & 0xFF : (int)((colorPoints.get(colorPoints.size() - 1).getY() / (double)height) * 255 + 0.5);
                 }
-
-                if(colorPoints.get(colorPoints.size() - 1).getX() != maxX) {
-                    int x = colorPoints.get(colorPoints.size() - 1).getX();
-                    int xp1 = maxX;
-
-                    for(int curx = x; curx < xp1; curx++) {
-                        int val1 = getValue(curx, false, 0, maxX);
-                        int val2 = getValue(curx + 1, false, 0, maxX);
-                        g.drawLine(curx, height - (int)((val1 / 255.0) * height + 0.5), curx + 1, height - (int)((val2 / 255.0) * height + 0.5));
-                    }
+                else if(name.equals("G")) {
+                    v1 = (palette[i] >> 8) & 0xFF;
+                    v2 = i < maxX - 1 ? (palette[i + 1] >> 8) & 0xFF : (int)((colorPoints.get(colorPoints.size() - 1).getY() / (double)height) * 255 + 0.5);
                 }
-            }
-
-            for (int i = 0; i < colorPoints.size() - 1; i++) {
-                int x = colorPoints.get(i).getX();
-                int xp1 = colorPoints.get(i + 1).getX();
-
-                for(int curx = x; curx < xp1; curx++) {
-                    int val1 = getValue(curx, false, 0, maxX);
-                    int val2 = getValue(curx + 1, false, 0, maxX);
-                    g.drawLine(curx, height - (int)((val1 / 255.0) * height + 0.5), curx + 1, height - (int)((val2 / 255.0) * height + 0.5));
+                else {
+                    v1 = palette[i] & 0xFF;
+                    v2 = i < maxX - 1 ? palette[i + 1] & 0xFF : (int)((colorPoints.get(colorPoints.size() - 1).getY() / (double)height) * 255 + 0.5);
                 }
+                g.drawLine(i, height - (int) ((v1 / 255.0) * height + 0.5), i + 1, height - (int) ((v2 / 255.0) * height + 0.5));
             }
             g2d.setStroke(new BasicStroke(2));
         }
@@ -326,7 +330,7 @@ public class ColorComponent extends JPanel {
                 g.drawOval(- circleSize / 2, (height - colorPoints.get(0).getY()) - circleSize / 2, circleSize, circleSize);
             }
 
-            if(colorPoints.get(colorPoints.size() - 1).getX() != maxX) {
+            if( colorPoints.get(colorPoints.size() - 1).getX() != maxX) {
                 g.setColor(Color.ORANGE);
                 g.fillOval(maxX - circleSize / 2, (height - colorPoints.get(colorPoints.size() - 1).getY()) - circleSize / 2, circleSize, circleSize);
                 g.setColor(lineColor);
@@ -336,45 +340,48 @@ public class ColorComponent extends JPanel {
 
     }
 
-    private double getCoef(double coef) {
+    private static double getCoef(double coef, int interpolation_method) {
+        return InterpolationMethod.create(interpolationMethodMapping(interpolation_method)).getCoef(coef);
+    }
 
-        switch (editor.getInterpolationMode()) {
+    public static int interpolationMethodMapping(int interpolation_method) {
+        switch (interpolation_method) {
             case 0:
-                return LinearInterpolation.getCoefficient(coef);
+                return Constants.INTERPOLATION_LINEAR;
             case 1:
-                return CosineInterpolation.getCoefficient(coef);
+                return Constants.INTERPOLATION_COSINE;
             case 2:
-                return AccelerationInterpolation.getCoefficient(coef);
+                return Constants.INTERPOLATION_ACCELERATION;
             case 3:
-                return DecelerationInterpolation.getCoefficient(coef);
+                return Constants.INTERPOLATION_DECELERATION;
             case 4:
-                return ExponentialInterpolation.getCoefficient(coef);
+                return Constants.INTERPOLATION_EXPONENTIAL;
             case 5:
-                return CatmullRomInterpolation.getCoefficient(coef);
+                return Constants.INTERPOLATION_CATMULLROM;
             case 6:
-                return CatmullRom2Interpolation.getCoefficient(coef);
+                return Constants.INTERPOLATION_CATMULLROM2;
             case 7:
-                return SigmoidInterpolation.getCoefficient(coef);
+                return Constants.INTERPOLATION_SIGMOID;
             case 8:
-                return SineInterpolation.getCoefficient(coef);
+                return Constants.INTERPOLATION_SINE;
             case 9:
-                return SqrtInterpolation.getCoefficient(coef);
+                return Constants.INTERPOLATION_SQRT;
             case 10:
-                return ThirdPolynomialInterpolation.getCoefficient(coef);
+                return Constants.INTERPOLATION_THIRD_POLY;
             case 11:
-                return FifthPolynomialInterpolation.getCoefficient(coef);
+                return Constants.INTERPOLATION_FIFTH_POLY;
             case 12:
-                return Exponential2Interpolation.getCoefficient(coef);
+                return Constants.INTERPOLATION_EXPONENTIAL_2;
             case 13:
-                return CbrtInterpolation.getCoefficient(coef);
+                return Constants.INTERPOLATION_CUBE_ROOT;
             case 14:
-                return FrthrootInterpolation.getCoefficient(coef);
+                return Constants.INTERPOLATION_FOURTH_ROOT;
             case 15:
-                return SmoothTransitionFunctionInterpolation.getCoefficient(coef);
+                return Constants.INTERPOLATION_SMOOTH_TRANSITION_STEP;
             case 16:
-                return QuarterSinInterpolation.getCoefficient(coef);
+                return Constants.INTERPOLATION_QUARTER_SIN;
             default:
-                return coef;
+                return Constants.INTERPOLATION_LINEAR;
 
         }
     }
@@ -389,6 +396,97 @@ public class ColorComponent extends JPanel {
         }
         else {
             return editor.getIntermediateColor().getBlue();
+        }
+    }
+
+    public static int getValueLinked(double x, boolean wrapAround, int stepWrap, int maxX, ColorComponent red, ColorComponent green, ColorComponent blue, int height, int interpolation_method, int interpolation_color_mode, int custom_red, int custom_green, int custom_blue, int color_space) {
+        ArrayList<ColorPoint> reds = red.colorPoints;
+        ArrayList<ColorPoint> greens = green.colorPoints;
+        ArrayList<ColorPoint> blues = blue.colorPoints;
+
+        for(int i = 0; i < reds.size() - 1; i++) {
+
+            if (x >= reds.get(i).getX() && x < reds.get(i + 1).getX()) {
+                double ycr = reds.get(i).getY();
+                double y1r = reds.get(i + 1).getY();
+                double ycg = greens.get(i).getY();
+                double y1g = greens.get(i + 1).getY();
+                double ycb = blues.get(i).getY();
+                double y1b = blues.get(i + 1).getY();
+                double xc = reds.get(i).getX();
+                double x1 = reds.get(i + 1).getX();
+
+                return getFinalColorLinked(x, xc, x1, ycr, y1r, ycg, y1g, ycb, y1b, interpolation_method, interpolation_color_mode, color_space, height, custom_red, custom_green, custom_blue);
+            }
+
+        }
+
+        if(reds.isEmpty()) {
+            return 0;
+        }
+
+        if(x < reds.get(0).getX()) {
+
+            ColorPoint cpr = reds.get(0);
+            ColorPoint cpg = greens.get(0);
+            ColorPoint cpb = blues.get(0);
+
+            double ycr = cpr.getY();
+            double y1r = ycr;
+
+            double ycg = cpg.getY();
+            double y1g = ycg;
+
+            double ycb = cpb.getY();
+            double y1b = ycb;
+            double xc = 0;
+            double x1 = cpr.getX();
+
+            if(x1 == xc) {
+                return 0xff000000 | ((int) ((ycr / height) * 255 + 0.5) << 16) | ((int) ((ycg / height) * 255 + 0.5) << 8) | ((int) ((ycb / height) * 255 + 0.5));
+            }
+
+            return getFinalColorLinked(x, xc, x1, ycr, y1r, ycg, y1g, ycb, y1b, interpolation_method, interpolation_color_mode, color_space, height, custom_red, custom_green, custom_blue);
+        }
+
+        if(wrapAround && x >= maxX) {
+            int index = reds.size() - 1;
+            double lastX = maxX + stepWrap;
+
+            if(x <= lastX) {
+                double ycr = reds.get(index).getY();
+                double y1r = reds.get(0).getY();
+                double ycg = greens.get(index).getY();
+                double y1g = greens.get(0).getY();
+                double ycb = blues.get(index).getY();
+                double y1b = blues.get(0).getY();
+                double xc = maxX;
+                double x1 = lastX;
+
+                return getFinalColorLinked(x, xc, x1, ycr, y1r, ycg, y1g, ycb, y1b, interpolation_method, interpolation_color_mode, color_space, height, custom_red, custom_green, custom_blue);
+            }
+            else {
+                return 0xff000000 | ((int) ((reds.get(0).getY() / (double) height) * 255 + 0.5) << 16) | ((int) ((greens.get(0).getY() / (double) height) * 255 + 0.5) << 8) | ((int) ((blues.get(0).getY() / (double) height) * 255 + 0.5));
+            }
+        }
+        else {
+            ColorPoint cpr = reds.get(reds.size() - 1);
+            ColorPoint cpg = greens.get(greens.size() - 1);
+            ColorPoint cpb = blues.get(blues.size() - 1);
+            double ycr = cpr.getY();
+            double y1r = ycr;
+            double ycg = cpg.getY();
+            double y1g = ycg;
+            double ycb = cpb.getY();
+            double y1b = ycb;
+            double xc = cpr.getX();
+            double x1 = maxX;
+
+            if(x1 == xc) {
+                return 0xff000000 | ((int) ((ycr / height) * 255 + 0.5) << 16) | ((int) ((ycg / height) * 255 + 0.5) << 8) | ((int) ((ycb / height) * 255 + 0.5));
+            }
+
+            return getFinalColorLinked(x, xc, x1, ycr, y1r, ycg, y1g, ycb, y1b, interpolation_method, interpolation_color_mode, color_space, height, custom_red, custom_green, custom_blue);
         }
     }
 
@@ -455,47 +553,46 @@ public class ColorComponent extends JPanel {
         }
     }
 
-    private int getFinalColor(double x, double xc, double yc, double x1, double y1) {
-
-        if(editor.getInterpolationColorMode() == 1 || editor.getInterpolationColorMode() == 4 || editor.getInterpolationColorMode() == 7) {
+    private static double[] transformValues(double x, double xc, double yc, double x1, double y1, int interpolation_color_mode, int height, int custom_color_component) {
+        if(interpolation_color_mode == 1 || interpolation_color_mode == 4 || interpolation_color_mode == 7) {
             if(xc != x1) {
                 x1--;
             }
-            if(editor.getInterpolationColorMode() == 1) {
+            if(interpolation_color_mode == 1) {
                 y1 = 0;
             }
-            else if(editor.getInterpolationColorMode() == 4) {
+            else if(interpolation_color_mode == 4) {
                 y1 = height;
             }
             else {
-                y1 = (getCustomColorComponent() / 255.0) * height;
+                y1 = (custom_color_component / 255.0) * height;
             }
         }
-        else if(editor.getInterpolationColorMode() == 2 || editor.getInterpolationColorMode() == 5 || editor.getInterpolationColorMode() == 8) {
-            if(editor.getInterpolationColorMode() == 2) {
+        else if(interpolation_color_mode == 2 || interpolation_color_mode == 5 || interpolation_color_mode == 8) {
+            if(interpolation_color_mode == 2) {
                 yc = 0;
             }
-            else if(editor.getInterpolationColorMode() == 5) {
+            else if(interpolation_color_mode == 5) {
                 yc = height;
             }
             else {
-                yc = (getCustomColorComponent() / 255.0) * height;
+                yc = (custom_color_component / 255.0) * height;
             }
         }
-        else if(editor.getInterpolationColorMode() == 3 || editor.getInterpolationColorMode() == 6 || editor.getInterpolationColorMode() == 9) {
+        else if(interpolation_color_mode == 3 || interpolation_color_mode == 6 || interpolation_color_mode == 9) {
             if(xc != x1) {
                 x1--;
             }
             if(x < xc + (x1 - xc) * NEON_PERCENTAGE ) {
                 y1 = yc;
-                if(editor.getInterpolationColorMode() == 3) {
+                if(interpolation_color_mode == 3) {
                     yc = 0;
                 }
-                else if(editor.getInterpolationColorMode() == 6) {
+                else if(interpolation_color_mode == 6) {
                     yc = height;
                 }
                 else {
-                    yc = (getCustomColorComponent() / 255.0) * height;
+                    yc = (custom_color_component / 255.0) * height;
                 }
                 x1 = xc + (x1 - xc) * NEON_PERCENTAGE;
             }
@@ -507,36 +604,89 @@ public class ColorComponent extends JPanel {
             else {
                 yc = y1;
 
-                if(editor.getInterpolationColorMode() == 3) {
+                if(interpolation_color_mode == 3) {
                     y1 = 0;
                 }
-                else if(editor.getInterpolationColorMode() == 6) {
+                else if(interpolation_color_mode == 6) {
                     y1 = height;
                 }
                 else {
-                    y1 = (getCustomColorComponent() / 255.0) * height;
+                    y1 = (custom_color_component / 255.0) * height;
                 }
                 xc = xc + (x1 - xc) * (1 - NEON_PERCENTAGE);
             }
         }
 
-        if (editor.getInterpolationColorMode() == 10) {
-            double newY = yc +  (1 - getCoef((x - xc) / (x1 - xc))) * (y1 - yc);
-            return (int) ((newY / height) * 255 + 0.5);
-        }
-        else if (editor.getInterpolationColorMode() < 10) {
-            double newY = yc + getCoef((x - xc) / (x1 - xc)) * (y1 - yc);
-            return (int) ((newY / height) * 255 + 0.5);
-        }
-        else {
-            double newY = yc + fractional_transfer(getCoef((x - xc) / (x1 - xc)), editor.getInterpolationColorMode()) * (y1 - yc);
-            return (int) ((newY / height) * 255 + 0.5);
-        }
+        return new double[] {xc, yc, x1, y1};
+    }
 
+    private int getFinalColor(double x, double xc, double yc, double x1, double y1) {
+
+        double[] res = transformValues(x, xc, yc, x1, y1, editor.getInterpolationColorMode(), height, getCustomColorComponent());
+        xc = res[0];
+        yc = res[1];
+        x1 = res[2];
+        y1 = res[3];
+
+        double coef = getFinalCoef(editor.getInterpolationColorMode(), editor.getInterpolationMode(), x, xc, x1, true);
+
+        double newY = yc + coef * (y1 - yc);
+        return (int) ((newY / height) * 255 + 0.5);
 
     }
 
-    private double fractional_transfer(double fract_part, int fractional_transfer) {
+    private static int getFinalColorLinked(double x, double xc, double x1, double ycr, double y1r, double ycg, double y1g, double ycb, double y1b, int interpolation_method, int interpolation_color_mode, int color_space, int height, int custom_red, int custom_green, int custom_blue) {
+
+        double[] res_red = transformValues(x, xc, ycr, x1, y1r, interpolation_color_mode, height, custom_red);
+        double[] res_green = transformValues(x, xc, ycg, x1, y1g, interpolation_color_mode, height, custom_green);
+        double[] res_blue = transformValues(x, xc, ycb, x1, y1b, interpolation_color_mode, height, custom_blue);
+
+        xc = res_red[0];
+        x1 = res_red[2];
+
+        ycr = res_red[1];
+        y1r = res_red[3];
+        ycg = res_green[1];
+        y1g = res_green[3];
+        ycb = res_blue[1];
+        y1b = res_blue[3];
+        double coef = getFinalCoef(interpolation_color_mode, interpolation_method, x, xc, x1, false);
+
+        InterpolationMethod method = InterpolationMethod.create(interpolationMethodMapping(interpolation_method));
+
+        int r1 = (int)((ycr / height) * 255 + 0.5);
+        int g1 = (int)((ycg / height) * 255 + 0.5);
+        int b1 = (int)((ycb / height) * 255 + 0.5);
+
+        int r2 = (int)((y1r / height) * 255 + 0.5);
+        int g2 = (int)((y1g / height) * 255 + 0.5);
+        int b2 = (int)((y1b / height) * 255 + 0.5);
+
+        return InterpolationMethod.interpolateColors(color_space, method, coef, 0, r1, g1, b1, r2, g2, b2);
+    }
+
+    private static double getFinalCoef(int interpolation_color_mode, int interpolation_method, double x, double xc, double x1, boolean applyCoefFuction) {
+        if(applyCoefFuction) {
+            if (interpolation_color_mode == 10) {
+                return 1 - getCoef((x - xc) / (x1 - xc), interpolation_method);
+            } else if (interpolation_color_mode < 10) {
+                return getCoef((x - xc) / (x1 - xc), interpolation_method);
+            } else {
+                return getCoef(fractional_transfer((x - xc) / (x1 - xc), interpolation_color_mode), interpolation_method);
+            }
+        }
+        else {
+            if (interpolation_color_mode == 10) {
+                return 1 - (x - xc) / (x1 - xc);
+            } else if (interpolation_color_mode < 10) {
+                return (x - xc) / (x1 - xc);
+            } else {
+                return fractional_transfer((x - xc) / (x1 - xc), interpolation_color_mode);
+            }
+        }
+    }
+
+    private static double fractional_transfer(double fract_part, int fractional_transfer) {
 
         switch (fractional_transfer) {
             case 11:
@@ -631,9 +781,7 @@ public class ColorComponent extends JPanel {
             }
         }
 
-        Collections.sort(colorPoints);
-        repaint();
-        editor.paintPalette();
+        sort();
     }
 
     public void setData(int[][] data) {
@@ -652,7 +800,7 @@ public class ColorComponent extends JPanel {
             colorPoints.add(new ColorPoint(data[i][0], (int)((data[i][1] / 255.0) * height + 0.5), i == 0 && data[i][0] == 0, true));
         }
 
-        Collections.sort(colorPoints);
+        sort();
         repaint();
     }
 
@@ -668,16 +816,24 @@ public class ColorComponent extends JPanel {
         colorPoints.clear();
     }
 
-    public void add(int x, int y) {
-        colorPoints.add(new ColorPoint(x, (int) ((y / 255.0) * height + 0.5), false, true));
+    public void addColor(int x, int color_val) {
+        if(color_val < 0) {
+            addOnClick(x, color_val);
+        }
+        else {
+            addOnClick(x, (int) ((color_val / 255.0) * height + 0.5));
+        }
     }
 
     public void addWithFirstAnchor(int x, int y) {
         colorPoints.add(new ColorPoint(x, (int)((y / 255.0) * height + 0.5), x == 0, true));
     }
 
-    public void update() {
+    public void sort() {
         Collections.sort(colorPoints);
+    }
+
+    public void update() {
         repaint();
         editor.paintPalette();
     }
@@ -696,5 +852,42 @@ public class ColorComponent extends JPanel {
         else {
             return (int)(average_step / samples + 0.5);
         }
+    }
+
+    public boolean hasPoint(int x) {
+        for(ColorPoint p : colorPoints) {
+            if(p.getX() == x) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void fixMissing() {
+        sort();
+        for(int i = 0; i < colorPoints.size(); i++) {
+            if(colorPoints.get(i).getY() < 0) {
+                if(i == 0) {
+                    if(i + 1 < colorPoints.size()) {
+                        colorPoints.get(i).setY(colorPoints.get(i + 1).getY());
+                    }
+                    else {
+                        colorPoints.get(i).setY(0);
+                    }
+                }
+                else if(i > 0 && i < colorPoints.size() - 1) {
+                    double xp = colorPoints.get(i - 1).getX();
+                    double x1 = colorPoints.get(i + 1).getX();
+                    double yp = colorPoints.get(i - 1).getY();
+                    double y1 = colorPoints.get(i + 1).getY();
+                    double newY = yp + ((colorPoints.get(i).getX() - xp) / (x1 - xp)) * (y1 - yp);
+                    colorPoints.get(i).setY((int) (newY + 0.5));
+                }
+                else if(i > 0) {
+                    colorPoints.get(i).setY(colorPoints.get(i - 1).getY());
+                }
+            }
+        }
+        repaint();
     }
 }

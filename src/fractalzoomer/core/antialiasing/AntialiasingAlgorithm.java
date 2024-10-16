@@ -1,6 +1,7 @@
 package fractalzoomer.core.antialiasing;
 
 import fractalzoomer.core.location.Location;
+import fractalzoomer.utils.ColorCorrection;
 import fractalzoomer.utils.ColorSpaceConverter;
 
 public abstract class AntialiasingAlgorithm {
@@ -34,6 +35,9 @@ public abstract class AntialiasingAlgorithm {
         int r = (color >> 16) & 0xff;
         int g = (color >> 8) & 0xff;
         int b = color & 0xff;
+        r = ColorCorrection.gammaToLinear(r);
+        g = ColorCorrection.gammaToLinear(g);
+        b = ColorCorrection.gammaToLinear(b);
         if(colorSpace == 0) {
             return new double[] {r, g, b};
         }

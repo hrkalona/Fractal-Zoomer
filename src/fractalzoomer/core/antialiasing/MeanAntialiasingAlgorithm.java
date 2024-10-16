@@ -1,5 +1,7 @@
 package fractalzoomer.core.antialiasing;
 
+import fractalzoomer.utils.ColorCorrection;
+
 public class MeanAntialiasingAlgorithm extends AntialiasingAlgorithm {
     private double sumA;
     private double sumB;
@@ -90,7 +92,6 @@ public class MeanAntialiasingAlgorithm extends AntialiasingAlgorithm {
 //        else {
             result = getAveragedColorChannels(sumA, sumB, sumC);
         //}
-
-        return  0xff000000 | (result[0] << 16) | (result[1] << 8) | result[2];
+        return ColorCorrection.linearToGamma(result[0], result[1], result[2]);
     }
 }

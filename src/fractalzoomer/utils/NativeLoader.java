@@ -11,7 +11,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 
@@ -25,13 +24,11 @@ public class NativeLoader {
     public static Path tmpdir;
     private static String libDir = "fzNativeLibs";
     public static final String mpfrLinuxLib = "libmpfr.so";
-    public static final String mpfrWindowsLib = "libmpfr-6.dll";
-
-    //"mpir_skylake_avx2.dll", "mpir_haswell_avx2.dll", "mpir_sandybridge_ivybridge.dll"
-    //"mpir_broadwell_avx2.dll"
-    public static final String[] mpfrWinLibs = {mpfrWindowsLib, "libgmp-10.dll", "libwinpthread-1.dll"};
-   private static String[] winLibs;
-    private static final String[] linuxLibs = new String[] {mpfrLinuxLib};
+    public static final String[] mpfrGeneralExtraWinLibs = {"libgmp-10.dll", "libwinpthread-1.dll"};//"libgomp-1.dll", "libgcc_s_seh-1.dll"
+    private static String[] winLibs;
+    private static String[] linuxLibs;
+    public static final String mpfrWinLib = "mpfr.dll";
+    public static final String mpirWinLib = "mpir.dll";
 
     public static void init() {
 
@@ -40,15 +37,34 @@ public class NativeLoader {
     static {
 
         List<String> resultList = new ArrayList<>();
-        Collections.addAll(resultList, mpfrWinLibs);
-        Collections.addAll(resultList, TaskRender.mpirWinLibs);
+        if(Platform.isWindows()) {
+            if(Platform.is64Bit()) {
+                for (String arch : TaskRender.mpirWinArchitecture) {
+                    resultList.add(arch + "/" + Platform.RESOURCE_PREFIX + "/" + mpirWinLib);
+                }
+                for (String arch : TaskRender.mpfrWinArchitecture) {
+                    resultList.add(arch + "/" + Platform.RESOURCE_PREFIX + "/" + mpfrWinLib);
+                    if (arch.equals(TaskRender.generalArchitecture)) {
+                        for (String extra : mpfrGeneralExtraWinLibs) {
+                            resultList.add(arch + "/" + Platform.RESOURCE_PREFIX + "/" + extra);
+                        }
+                    }
+                }
+            }
+            else { //32 bit
+                resultList.add(TaskRender.generalArchitecture + "/" + Platform.RESOURCE_PREFIX + "/" + mpfrWinLib);
+                for (String extra : mpfrGeneralExtraWinLibs) {
+                    resultList.add(TaskRender.generalArchitecture + "/" + Platform.RESOURCE_PREFIX + "/" + extra);
+                }
+            }
+            winLibs = new String[resultList.size()];
+            winLibs = resultList.toArray(winLibs);
+        }
+        else {
+            linuxLibs = new String[] {TaskRender.generalArchitecture + "/" + Platform.RESOURCE_PREFIX + "/" + mpfrLinuxLib};
+        }
 
-        winLibs = new String[resultList.size()];
-        winLibs = resultList.toArray(winLibs);
-
-        String resourcesDir = "/fractalzoomer/native/" + Platform.RESOURCE_PREFIX;
-
-        System.out.println("Looking for " + resourcesDir + " in the jar");
+        String resourcesDir = "/fractalzoomer/native";
 
         try {
             exportLibraries(resourcesDir);
@@ -177,6 +193,7 @@ public class NativeLoader {
                 throw new Exception("The resource " + resourcesDir + "/" + lib + " is not available in the jar file");
             }
             Path tgt = tmpdir.resolve(lib);
+            Files.createDirectories(tgt.getParent());
             Files.copy(in, tgt);
             tgt.toFile().deleteOnExit();
         }
@@ -184,7 +201,7 @@ public class NativeLoader {
     }
 
    /* private static class TestMpirSkylakeAvx2 {
-        public static final String dllName = "mpir_skylake_avx2.dll";
+        public static final String dllName = "mpir.dll";
 
         public static Exception LOAD_ERROR = null;
         private static NativeLibrary library;

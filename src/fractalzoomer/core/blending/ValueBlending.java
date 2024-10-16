@@ -9,8 +9,8 @@ import java.awt.*;
  */
 public class ValueBlending extends Blending {
 
-    public ValueBlending(int color_interpolation) {
-        super(color_interpolation);
+    public ValueBlending(int color_interpolation, int color_space) {
+        super(color_interpolation, color_space);
     }
 
     @Override
@@ -28,6 +28,6 @@ public class ValueBlending extends Blending {
         int temp_green = (temp_color >> 8 ) & 0xFF;
         int temp_blue = temp_color & 0xFF;
         
-        return method.interpolate(redB, greenB, blueB, temp_red, temp_green, temp_blue, coef);
+        return method.interpolateColors(redB, greenB, blueB, temp_red, temp_green, temp_blue, coef, false);
     }
 }

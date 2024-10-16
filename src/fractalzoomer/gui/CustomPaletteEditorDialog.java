@@ -7,6 +7,7 @@ import de.articdive.jnoise.generators.noisegen.opensimplex.FastSimplexNoiseGener
 import de.articdive.jnoise.generators.noisegen.perlin.PerlinNoiseGenerator;
 import fractalzoomer.core.TaskRender;
 import fractalzoomer.main.CommonFunctions;
+import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.palettes.CustomPalette;
 import fractalzoomer.settings.SettingsPalette;
@@ -119,7 +120,7 @@ public class CustomPaletteEditorDialog extends JDialog {
     private Future<?> future;
     private boolean smoothing;
 
-    public CustomPaletteEditorDialog(MainWindow ptra, final JRadioButtonMenuItem[] palette, boolean smoothing, final int palette_id, final int color_choice, int[][] custom_palette, int color_interpolation2, int color_space2, boolean reversed_palette2, int temp_color_cycling_location2, double scale_factor_palette_val2, int processing_alg2, final boolean outcoloring_mode) {
+    public CustomPaletteEditorDialog(MainWindow ptra, final JRadioButtonMenuItem[] palette, boolean smoothing, final int palette_id, final int color_choice, int[][] custom_palette, int color_interpolation2, int color_space2, boolean reversed_palette2, int temp_color_cycling_location2, double scale_factor_palette_val2, int processing_alg2, final boolean outcoloring_mode, final int original_color_cycling_location, final int original_color_cycling_location2 ) {
 
         super();
         this.smoothing = smoothing;
@@ -774,7 +775,7 @@ public class CustomPaletteEditorDialog extends JDialog {
         options_panel.setLayout(new FlowLayout());
         options_panel.setBackground(MainWindow.bg_color);
 
-        check_box_reveres_palette = new JCheckBox("Reverse Palette");
+        check_box_reveres_palette = new JCheckBox("Reversed");
         check_box_reveres_palette.setSelected(reversed_palette);
         check_box_reveres_palette.setFocusable(false);
         check_box_reveres_palette.setToolTipText("Reverses the current palette.");
@@ -801,7 +802,7 @@ public class CustomPaletteEditorDialog extends JDialog {
 
         options_panel.add(check_box_reveres_palette);
 
-        JLabel offset_label = new JLabel(" Palette Offset");
+        JLabel offset_label = new JLabel(" Offset");
 
         options_panel.add(offset_label);
 
@@ -1002,11 +1003,8 @@ public class CustomPaletteEditorDialog extends JDialog {
         color_space_panel.setLayout(new FlowLayout());
         color_space_panel.setBackground(MainWindow.bg_color);
 
-        String[] color_space_str = {"RGB", "HSB", "Exp", "Square", "Sqrt", "RYB", "Lab", "XYZ", "LCH_ab", "Bezier RGB", "HSL", "Luv", "LCH_uv", "OKLab", "LCH_oklab", "JzAzBz", "LCH_JzAzBz", "HSL_uv", "HPL_uv", "HWB", "Linear sRGB", "yCbCr"};
-
-        combo_box_color_space = new JComboBox<>(color_space_str);
+        combo_box_color_space = new JComboBox<>(Constants.colorSpaces);
         combo_box_color_space.setSelectedIndex(color_space);
-        combo_box_color_space.setFocusable(false);
         combo_box_color_space.setToolTipText("Sets the color space option.");
 
         combo_box_color_space.addActionListener(e -> {
@@ -1037,7 +1035,6 @@ public class CustomPaletteEditorDialog extends JDialog {
 
         combo_box_color_interp = new JComboBox<>(color_interp_str);
         combo_box_color_interp.setSelectedIndex(color_interpolation);
-        combo_box_color_interp.setFocusable(false);
         combo_box_color_interp.setToolTipText("Sets the color interpolation option.");
 
         combo_box_color_interp.addActionListener(e -> {
@@ -1320,13 +1317,90 @@ public class CustomPaletteEditorDialog extends JDialog {
         buttons_panel.setBackground(MainWindow.bg_color);
 
         if(MainWindow.useCustomLaf) {
-            buttons_panel.setLayout(new GridLayout(1, 10));
+            buttons_panel.setLayout(new GridLayout(1, 11));
         }
         else {
             buttons_panel.setLayout(new GridLayout(2, 5));
         }
 
         buttons_panel.add(reset_palette);
+
+        JButton importActive = new MyButton();
+        importActive.setIcon(MainWindow.getIcon("palette_import.png"));
+        importActive.setFocusable(false);
+        importActive.setToolTipText("Imports the current active palette.");
+        importActive.setPreferredSize(new Dimension(28, 28));
+
+        importActive.addActionListener( e-> {
+            int[] pcolors = outcoloring_mode ? TaskRender.palette_outcoloring.getPalette() : TaskRender.palette_incoloring.getPalette();
+            int offset = outcoloring_mode ? original_color_cycling_location : original_color_cycling_location2;
+
+            JTextField length_field = new JTextField();
+            length_field.setText("" + pcolors.length);
+
+            Object[] message = {
+                    "Set the import length.",
+                    "Length:",
+                    length_field};
+
+            JOptionPane.showMessageDialog(this, message, "Import Active Palette", JOptionPane.INFORMATION_MESSAGE);
+
+            int custom_length = pcolors.length;
+            try {
+                custom_length = Integer.parseInt(length_field.getText());
+            }
+            catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            if(custom_length <= 0) {
+                JOptionPane.showMessageDialog(this, "The length value must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            reset_palette.doClick();
+
+            int max_length = temp_custom_palette.length * 99;
+            int final_length = custom_length > max_length ? max_length : custom_length;
+
+            blockUpdate = true;
+            for (int m = 0; m < labels.length; m++) {
+
+                int color = pcolors[((int)(((double)m / (labels.length - 1)) * (pcolors.length - 1)) + offset) % pcolors.length];
+                int red = (color >> 16) & 0xFF;
+                int green = (color >> 8) & 0xFF;
+                int blue = color & 0xFF;
+
+                temp_custom_palette[m][0] = final_length / labels.length;
+                temp_custom_palette[m][1] = red;
+                temp_custom_palette[m][2] = green;
+                temp_custom_palette[m][3] = blue;
+                labels[m].setBackground(new Color(temp_custom_palette[m][1], temp_custom_palette[m][2], temp_custom_palette[m][3]));
+                textfields[m].setText("" + temp_custom_palette[m][0]);
+            }
+            blockUpdate = false;
+
+            try {
+                Color[] c16 = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2.0) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
+
+                paintGradientAndGraph(c16);
+            } catch (ArithmeticException ex) {
+                length_label.setText("0");
+                Graphics2D g = colors.createGraphics();
+                g.setColor(Color.LIGHT_GRAY);
+                g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
+                gradient.repaint();
+
+                Graphics2D g2 = colors2.createGraphics();
+                g2.setColor(Color.WHITE);
+                g2.fillRect(0, 0, colors2.getWidth(), colors2.getHeight());
+                graph.repaint();
+            }
+
+        });
+
+        buttons_panel.add(importActive);
 
         JButton clear_palette = new MyButton();
         clear_palette.setIcon(MainWindow.getIcon("palette_clear.png"));
@@ -2221,6 +2295,8 @@ public class CustomPaletteEditorDialog extends JDialog {
                 }
             } catch (Exception ex) {
             }
+
+            MainWindow.SaveSettingsPath = file.getParent();
         }
 
     }
@@ -2585,6 +2661,9 @@ public class CustomPaletteEditorDialog extends JDialog {
                 min_sat = max_sat = generator.nextDouble() * 3;
             }
 
+            //double start = (0.5) * 120;
+            //double rotation = (-1.5) * 360;
+            //gamma = 1;
             ArrayList<int[]> colors = Cubehelix.makePalette(start, rotation, gamma, Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE, min_sat, max_sat, 0.0, 1.0, palette.length, false);
 
             for (int m = 0; m < colors.size(); m++) {

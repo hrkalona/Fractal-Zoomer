@@ -13,11 +13,12 @@ public class PaletteColorSmooth extends PaletteColor {
 
     public static int SMOOTHING_COLOR_SELECTION = 0;
 
-    public PaletteColorSmooth(int[] palette, Color special_color, int color_smoothing_method, boolean special_use_palette_color, int fractional_transfer_method) {
+    public PaletteColorSmooth(int[] palette, Color special_color, int color_smoothing_method, boolean special_use_palette_color, int fractional_transfer_method, int color_space) {
 
         super(palette, special_color, special_use_palette_color);
 
         interpolator = InterpolationMethod.create(color_smoothing_method);
+        interpolator.setColorSpace(color_space);
         this.fractional_transfer_method = fractional_transfer_method;
 
     }
@@ -151,7 +152,7 @@ public class PaletteColorSmooth extends PaletteColor {
 
         double coef = result - (long)result; //fractional part
         
-        return interpolator.interpolate(color_red, color_green, color_blue, color2_red, color2_green, color2_blue, coef);
+        return interpolator.interpolateColors(color_red, color_green, color_blue, color2_red, color2_green, color2_blue, coef, true);
 
     }
 
@@ -185,6 +186,6 @@ public class PaletteColorSmooth extends PaletteColor {
 
         double coef = result - (long)result; //fractional part
 
-        return interpolator.interpolate(color_red, color_green, color_blue, color2_red, color2_green, color2_blue, coef);
+        return interpolator.interpolateColors(color_red, color_green, color_blue, color2_red, color2_green, color2_blue, coef, true);
     }
 }

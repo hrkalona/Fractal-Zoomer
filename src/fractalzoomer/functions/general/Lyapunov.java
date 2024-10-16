@@ -391,7 +391,7 @@ public class Lyapunov extends Julia {
                 out = getFinalValueOut(out);
 
                 if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel, object);
                 }
 
                 return out;
@@ -492,7 +492,7 @@ public class Lyapunov extends Julia {
                 out = getFinalValueOut(out);
 
                 if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel, object);
                 }
 
                 return out;

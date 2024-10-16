@@ -62,6 +62,10 @@ public abstract class PaletteColor {
         return useGeneratedPalette ? generatedPaletteLength : palette.length;
 
     }
+
+    public int[] getPalette() {
+        return palette;
+    }
     
     public int getSpecialColor() {
         

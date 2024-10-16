@@ -13,6 +13,7 @@ public class BoxPeriod {
 
     MpfrBigNum[] temp1;
     MpfrBigNum[] temp2;
+    MpfrBigNum[] temp3;
     MpirBigNum[] temp1p;
     MpirBigNum[] temp2p;
     MpirBigNum[] temp3p;
@@ -88,6 +89,7 @@ public class BoxPeriod {
         if(usesMpfr) {
             temp1 = new MpfrBigNum[edges.length];
             temp2 = new MpfrBigNum[edges.length];
+            temp3 = new MpfrBigNum[edges.length];
 
             for(int i = 0; i < edges.length; i++) {
                 temp1[i] = new MpfrBigNum();
@@ -267,7 +269,7 @@ public class BoxPeriod {
 
         for (int i = 0; i < 4; ++i) {
             if(usesMpfr) {
-                z[i] = z[i].square_plus_c_mutable(c[i], temp1[i], temp2[i]);
+                z[i] = z[i].square_plus_c_mutable(c[i], temp1[i], temp2[i], temp3[i]);
             }
             else if(usesMpir) {
                 z[i] = z[i].square_plus_c_mutable(c[i], temp1p[i], temp2p[i], temp3p[i]);

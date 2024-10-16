@@ -81,7 +81,12 @@ public class CircleBailoutCondition extends BailoutCondition {
 
     @Override
     public boolean escaped(MpfrBigNumComplex z, MpfrBigNumComplex zold, MpfrBigNumComplex zold2, int iterations, MpfrBigNumComplex c, MpfrBigNumComplex start, MpfrBigNumComplex c0, MpfrBigNum norm_squared, MpfrBigNumComplex pixel) {
-        return z.norm_squared(temp1, temp2).compare(bound) >= 0;
+        if(useThreads) {
+            return z.norm_squared(temp1, temp2).compare(bound) >= 0;
+        }
+        else {
+            return z.norm_squared_no_threads(temp1, temp2).compare(bound) >= 0;
+        }
     }
 
     @Override

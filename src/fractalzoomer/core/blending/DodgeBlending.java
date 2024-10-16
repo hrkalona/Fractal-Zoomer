@@ -7,9 +7,9 @@ package fractalzoomer.core.blending;
  */
 public class DodgeBlending extends Blending {
 
-    public DodgeBlending(int color_interpolation) {
+    public DodgeBlending(int color_interpolation, int color_space) {
 
-        super(color_interpolation);
+        super(color_interpolation, color_space);
 
     }
 
@@ -30,7 +30,7 @@ public class DodgeBlending extends Blending {
         temp_green = temp_green > 255 ? 255 : temp_green;
         temp_blue = temp_blue > 255 ? 255 : temp_blue;
         
-        return method.interpolate(redB, greenB, blueB, temp_red, temp_green, temp_blue, coef);
+        return method.interpolateColors(redB, greenB, blueB, temp_red, temp_green, temp_blue, coef, false);
 
     }
     

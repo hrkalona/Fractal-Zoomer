@@ -148,7 +148,7 @@ public class Location {
         if(highPresicion && TaskRender.HIGH_PRECISION_CALCULATION) {
             int lib = TaskRender.getHighPrecisionImplementation(size, fractal);
             if(polar) {
-                if(lib == Constants.ARBITRARY_MPFR || (lib == Constants.ARBITRARY_MPIR && !LibMpfr.hasError())) {
+                if(lib == Constants.ARBITRARY_MPFR || (lib == Constants.ARBITRARY_MPIR && !LibMpfr.mpfrHasError())) {
                     return new PolarLocationNormalMpfrBigNumArbitrary(xCenter, yCenter, size, height_ratio, width, height, circle_period, rotation_center, rotation_vals, fractal, js);
                 }
                 else if(lib == Constants.ARBITRARY_DOUBLEDOUBLE) {
@@ -185,7 +185,7 @@ public class Location {
 
         if(polar) {
             if(highPresicion && isDeep) {
-                if(bignumLib == Constants.BIGNUM_MPFR || (bignumLib == Constants.BIGNUM_MPIR && !LibMpfr.hasError())) {
+                if(bignumLib == Constants.BIGNUM_MPFR || (bignumLib == Constants.BIGNUM_MPIR && !LibMpfr.mpfrHasError())) {
                     return new PolarLocationDeltaDeepMpfrBigNum(xCenter, yCenter, size, height_ratio, width, height, circle_period, rotation_center, rotation_vals, fractal, js);
                 }
                 else {
@@ -193,7 +193,7 @@ public class Location {
                 }
             }
             else if(highPresicion) {
-                if (bignumLib == Constants.BIGNUM_MPFR || (bignumLib == Constants.BIGNUM_MPIR && !LibMpfr.hasError())) {
+                if (bignumLib == Constants.BIGNUM_MPFR || (bignumLib == Constants.BIGNUM_MPIR && !LibMpfr.mpfrHasError())) {
                     return new PolarLocationDeltaMpfrBigNum(xCenter, yCenter, size, height_ratio, width, height, circle_period, rotation_center, rotation_vals, fractal, js);
                 }
                 else if (bignumLib == Constants.BIGNUM_DOUBLEDOUBLE) {

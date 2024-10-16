@@ -7,9 +7,9 @@ package fractalzoomer.core.blending;
  */
 public class AdditionBlending extends Blending {
 
-    public AdditionBlending(int color_interpolation) {
+    public AdditionBlending(int color_interpolation, int color_space) {
 
-        super(color_interpolation);
+        super(color_interpolation, color_space);
 
     }
 
@@ -20,7 +20,7 @@ public class AdditionBlending extends Blending {
         int temp_green = Math.min(greenB + greenA, 255);
         int temp_blue = Math.min(blueB + blueA, 255);
         
-        return method.interpolate(redB, greenB, blueB, temp_red, temp_green, temp_blue, coef);
+        return method.interpolateColors(redB, greenB, blueB, temp_red, temp_green, temp_blue, coef, false);
 
     }
     

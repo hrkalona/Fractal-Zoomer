@@ -106,5 +106,9 @@ public abstract class OutColorAlgorithm extends ColorAlgorithm {
         return 1 - (log_convergent_bailout - temp) / (Math.log(cNormImpl.computeWithoutRoot(z.sub(root))) - temp);
 
     }
+
+    public double getFractionalPart(Object[] object) {
+        return 0;
+    }
  
 }

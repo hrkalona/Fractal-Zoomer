@@ -13,9 +13,9 @@ import fractalzoomer.utils.ColorAlgorithm;
  */
 public class UserOutColorAlgorithmEOC extends  UserOutColorAlgorithm {
 
-    public UserOutColorAlgorithmEOC(String outcoloring_formula, double bailout, int max_iterations, double xCenter, double yCenter, double size, double[] point, Complex[] globalVars) {
+    public UserOutColorAlgorithmEOC(String outcoloring_formula, double bailout, int max_iterations, double xCenter, double yCenter, double size, double[] point, Complex[] globalVars, OutColorAlgorithm escape_time_alg) {
 
-        super(outcoloring_formula, bailout, max_iterations, xCenter, yCenter, size, point, globalVars);
+        super(outcoloring_formula, bailout, max_iterations, xCenter, yCenter, size, point, globalVars, escape_time_alg);
 
         OutUsingIncrement = false;
 
@@ -26,6 +26,10 @@ public class UserOutColorAlgorithmEOC extends  UserOutColorAlgorithm {
 
         if(parser.foundN()) {
             parser.setNvalue(new Complex((int)object[0], 0));
+        }
+
+        if(parser.foundNF()) {
+            parser.setNFvalue(new Complex(escape_time_alg.getFractionalPart(object), 0));
         }
         
         if(parser.foundZ()) {

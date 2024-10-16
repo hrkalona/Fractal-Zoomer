@@ -27,14 +27,13 @@ public abstract class GenericComplex {
     public MantExpComplex toMantExpComplex() {return null;}
 
     public GenericComplex square_plus_c_mutable(GenericComplex c) { return null;}
-
     public GenericComplex square_plus_c_mutable_no_threads(GenericComplex c) { return null;}
 
     public GenericComplex squareFast_plus_c_mutable(NormComponents normComponents, GenericComplex c) { return null;}
 
-    public GenericComplex square_plus_c_mutable(GenericComplex c, MpfrBigNum temp, MpfrBigNum temp2) {return null;}
+    public GenericComplex square_plus_c_mutable(GenericComplex c, MpfrBigNum temp, MpfrBigNum temp2, MpfrBigNum temp3) {return null;}
 
-    public GenericComplex square_plus_c_mutable_with_reduction(GenericComplex c, MpfrBigNum temp, MpfrBigNum temp2, boolean deepZoom, Complex cz, MantExpComplex mcz) {return null;}
+    public GenericComplex square_plus_c_mutable_with_reduction(GenericComplex c, MpfrBigNum temp, MpfrBigNum temp2, MpfrBigNum temp3, boolean deepZoom, Complex cz, MantExpComplex mcz) {return null;}
 
     public GenericComplex square_mutable(MpfrBigNum temp1, MpfrBigNum temp2) { return null; }
 
@@ -44,6 +43,7 @@ public abstract class GenericComplex {
 
     public GenericComplex square_plus_c_mutable_with_reduction(GenericComplex c, MpirBigNum temp, MpirBigNum temp2, MpirBigNum temp3, boolean deepZoom, Complex cz, MantExpComplex mcz) {return null;}
 
+    public GenericComplex square_plus_c_mutable_no_threads(GenericComplex c, MpfrBigNum temp, MpfrBigNum temp2, MpfrBigNum temp3) {return null;}
     public GenericComplex square_plus_c_mutable_no_threads(GenericComplex c, MpirBigNum temp, MpirBigNum temp2, MpirBigNum temp3) {return null;}
     public GenericComplex sub(GenericComplex v, MpfrBigNum temp, MpfrBigNum temp2) {return null;}
 

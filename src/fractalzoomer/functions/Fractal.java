@@ -82,6 +82,7 @@ public abstract class Fractal {
     protected double bailout;
     protected double bailout_squared;
     protected double[] point;
+    protected OutColorAlgorithm escape_time_algorithm;
     protected OutColorAlgorithm out_color_algorithm;
     protected InColorAlgorithm in_color_algorithm;
     protected BailoutCondition bailout_algorithm;
@@ -1354,7 +1355,7 @@ public abstract class Fractal {
                 out = getFinalValueOut(out);
 
                 if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel, object);
                 }
 
                 return out;
@@ -1406,7 +1407,7 @@ public abstract class Fractal {
                 out = getFinalValueOut(out);
 
                 if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel, object);
                 }
 
                 return out;
@@ -1939,7 +1940,7 @@ public abstract class Fractal {
                 res = getFinalValueOut(res);
 
                 if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(z, zold, zold2, iterations, c, start, c0, pixel);
+                    setTrueColorOut(z, zold, zold2, iterations, c, start, c0, pixel, object);
                 }
 
                 return getAndAccumulateStatsBLA(res);
@@ -1988,7 +1989,7 @@ public abstract class Fractal {
                         res = getFinalValueOut(res);
 
                         if (outTrueColorAlgorithm != null) {
-                            setTrueColorOut(z, zold, zold2, iterations, c, start, c0, pixel);
+                            setTrueColorOut(z, zold, zold2, iterations, c, start, c0, pixel, object);
                         }
 
                         return getAndAccumulateStatsBLA(res);
@@ -2087,7 +2088,7 @@ public abstract class Fractal {
                 res = getFinalValueOut(res);
 
                 if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(z, zold, zold2, iterations, c, start, c0, pixel);
+                    setTrueColorOut(z, zold, zold2, iterations, c, start, c0, pixel, object);
                 }
 
                 return getAndAccumulateStatsBLA(res);
@@ -2144,7 +2145,7 @@ public abstract class Fractal {
                         res = getFinalValueOut(res);
 
                         if (outTrueColorAlgorithm != null) {
-                            setTrueColorOut(z, zold, zold2, iterations, c, start, c0, pixel);
+                            setTrueColorOut(z, zold, zold2, iterations, c, start, c0, pixel, object);
                         }
 
                         return getAndAccumulateStatsBLA(res);
@@ -2358,7 +2359,7 @@ public abstract class Fractal {
                     res = getFinalValueOut(res);
 
                     if (outTrueColorAlgorithm != null) {
-                        setTrueColorOut(zc, zold, zold2, iterations, c, start, c0, pixel);
+                        setTrueColorOut(zc, zold, zold2, iterations, c, start, c0, pixel, object);
                     }
 
                     return getAndAccumulateStatsBLA(res);
@@ -2623,7 +2624,7 @@ public abstract class Fractal {
                 res = getFinalValueOut(res);
 
                 if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(z, zold, zold2, iterations, c, start, c0, pixel);
+                    setTrueColorOut(z, zold, zold2, iterations, c, start, c0, pixel, object);
                 }
 
                 return getAndAccumulateStatsBLA(res);
@@ -2724,7 +2725,7 @@ public abstract class Fractal {
                 res = getFinalValueOut(res);
 
                 if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(zc, zold, zold2, iterations, c, start, c0, pixel);
+                    setTrueColorOut(zc, zold, zold2, iterations, c, start, c0, pixel, object);
                 }
 
                 return getAndAccumulateStatsBLA(res);
@@ -2778,7 +2779,7 @@ public abstract class Fractal {
                         res = getFinalValueOut(res);
 
                         if (outTrueColorAlgorithm != null) {
-                            setTrueColorOut(zc, zold, zold2, iterations, c, start, c0, pixel);
+                            setTrueColorOut(zc, zold, zold2, iterations, c, start, c0, pixel, object);
                         }
 
                         return getAndAccumulateStatsBLA(res);
@@ -2885,7 +2886,7 @@ public abstract class Fractal {
                 res = getFinalValueOut(res);
 
                 if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(zc, zold, zold2, iterations, c, start, c0, pixel);
+                    setTrueColorOut(zc, zold, zold2, iterations, c, start, c0, pixel, object);
                 }
 
                 return getAndAccumulateStatsBLA(res);
@@ -2945,7 +2946,7 @@ public abstract class Fractal {
                         res = getFinalValueOut(res);
 
                         if (outTrueColorAlgorithm != null) {
-                            setTrueColorOut(zc, zold, zold2, iterations, c, start, c0, pixel);
+                            setTrueColorOut(zc, zold, zold2, iterations, c, start, c0, pixel, object);
                         }
 
                         return getAndAccumulateStatsBLA(res);
@@ -3056,7 +3057,7 @@ public abstract class Fractal {
                 res = getFinalValueOut(res);
 
                 if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(z, zold, zold2, iterations, c, start, c0, pixel);
+                    setTrueColorOut(z, zold, zold2, iterations, c, start, c0, pixel, object);
                 }
 
                 return getAndAccumulateStatsNotDeep(res);
@@ -3212,7 +3213,7 @@ public abstract class Fractal {
                         res = getFinalValueOut(res);
 
                         if (outTrueColorAlgorithm != null) {
-                            setTrueColorOut(zc, zold, zold2, iterations, c, start, c0, pixel);
+                            setTrueColorOut(zc, zold, zold2, iterations, c, start, c0, pixel, object);
                         }
 
                         return getAndAccumulateStatsScaled(res);
@@ -3311,7 +3312,7 @@ public abstract class Fractal {
                         res = getFinalValueOut(res);
 
                         if (outTrueColorAlgorithm != null) {
-                            setTrueColorOut(zc, zold, zold2, iterations, c, start, c0, pixel);
+                            setTrueColorOut(zc, zold, zold2, iterations, c, start, c0, pixel, object);
                         }
 
                         return getAndAccumulateStatsScaled(res);
@@ -3495,7 +3496,7 @@ public abstract class Fractal {
                 res = getFinalValueOut(res);
 
                 if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(z, zold, zold2, iterations, c, start, c0, pixel);
+                    setTrueColorOut(z, zold, zold2, iterations, c, start, c0, pixel, object);
                 }
 
                 return res;
@@ -3618,7 +3619,7 @@ public abstract class Fractal {
                     res = getFinalValueOut(res);
 
                     if (outTrueColorAlgorithm != null) {
-                        setTrueColorOut(zc, zold, zold2, iterations, c, start, c0, pixel);
+                        setTrueColorOut(zc, zold, zold2, iterations, c, start, c0, pixel, object);
                     }
 
                     return getAndAccumulateStatsNotScaled(res);
@@ -3716,7 +3717,7 @@ public abstract class Fractal {
                 out = getFinalValueOut(out);
 
                 if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(z, zold, zold2, iterations, c, start, c0, pixelC);
+                    setTrueColorOut(z, zold, zold2, iterations, c, start, c0, pixelC, object);
                 }
 
                 return getAndAccumulateHP(out);
@@ -4120,86 +4121,88 @@ public abstract class Fractal {
     }
 
     protected void OutColoringAlgorithmFactory(int out_coloring_algorithm, boolean smoothing, int escaping_smooth_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, double[] plane_transform_center) {
+
+        escape_time_algorithm = getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm);
         switch (out_coloring_algorithm) {
 
             case MainWindow.ESCAPE_TIME:
-                out_color_algorithm = getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm);
+                out_color_algorithm = escape_time_algorithm;
                 break;
             case MainWindow.BINARY_DECOMPOSITION:
-                out_color_algorithm = new BinaryDecomposition(getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm));
+                out_color_algorithm = new BinaryDecomposition(escape_time_algorithm);
                 break;
             case MainWindow.BINARY_DECOMPOSITION2:
-                out_color_algorithm = new BinaryDecomposition2(getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm));
+                out_color_algorithm = new BinaryDecomposition2(escape_time_algorithm);
                 break;
             case MainWindow.ITERATIONS_PLUS_RE:
-                out_color_algorithm = new EscapeTimePlusRe(getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm));
+                out_color_algorithm = new EscapeTimePlusRe(escape_time_algorithm);
                 break;
             case MainWindow.ITERATIONS_PLUS_IM:
-                out_color_algorithm = new EscapeTimePlusIm(getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm));
+                out_color_algorithm = new EscapeTimePlusIm(escape_time_algorithm);
                 break;
             case MainWindow.ITERATIONS_PLUS_RE_DIVIDE_IM:
-                out_color_algorithm = new EscapeTimePlusReDivideIm(getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm));
+                out_color_algorithm = new EscapeTimePlusReDivideIm(escape_time_algorithm);
                 break;
             case MainWindow.ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM:
-                out_color_algorithm = new EscapeTimePlusRePlusImPlusReDivideIm(getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm));
+                out_color_algorithm = new EscapeTimePlusRePlusImPlusReDivideIm(escape_time_algorithm);
                 break;
             case MainWindow.BIOMORPH:
-                out_color_algorithm = new Biomorphs(bailout, getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm));
+                out_color_algorithm = new Biomorphs(bailout, escape_time_algorithm);
                 break;
             case MainWindow.COLOR_DECOMPOSITION:
                 out_color_algorithm = new ColorDecomposition();
                 break;
             case MainWindow.ESCAPE_TIME_COLOR_DECOMPOSITION:
-                out_color_algorithm = new EscapeTimeColorDecomposition(getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm));
+                out_color_algorithm = new EscapeTimeColorDecomposition(escape_time_algorithm);
                 break;
             case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER:
-                out_color_algorithm = new EscapeTimeGaussianInteger(getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm));
+                out_color_algorithm = new EscapeTimeGaussianInteger(escape_time_algorithm);
                 break;
             case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER2:
-                out_color_algorithm = new EscapeTimeGaussianInteger2(getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm));
+                out_color_algorithm = new EscapeTimeGaussianInteger2(escape_time_algorithm);
                 break;
             case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER3:
-                out_color_algorithm = new EscapeTimeGaussianInteger3(getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm));
+                out_color_algorithm = new EscapeTimeGaussianInteger3(escape_time_algorithm);
                 break;
             case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER4:
-                out_color_algorithm = new EscapeTimeGaussianInteger4(getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm));
+                out_color_algorithm = new EscapeTimeGaussianInteger4(escape_time_algorithm);
                 break;
             case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER5:
-                out_color_algorithm = new EscapeTimeGaussianInteger5(getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm));
+                out_color_algorithm = new EscapeTimeGaussianInteger5(escape_time_algorithm);
                 break;
             case MainWindow.ESCAPE_TIME_ALGORITHM:
-                out_color_algorithm = new EscapeTimeAlgorithm1(2, getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm));
+                out_color_algorithm = new EscapeTimeAlgorithm1(2, escape_time_algorithm);
                 break;
             case MainWindow.ESCAPE_TIME_ALGORITHM2:
-                out_color_algorithm = new EscapeTimeAlgorithm2(getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm));
+                out_color_algorithm = new EscapeTimeAlgorithm2(escape_time_algorithm);
                 break;
             case MainWindow.ESCAPE_TIME_ESCAPE_RADIUS:
-                out_color_algorithm = new EscapeTimeEscapeRadius(bailout, getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm), bailout_algorithm.getNormImpl());
+                out_color_algorithm = new EscapeTimeEscapeRadius(bailout, escape_time_algorithm, bailout_algorithm.getNormImpl());
                 break;
             case MainWindow.ESCAPE_TIME_GRID:
-                out_color_algorithm = new EscapeTimeGrid(bailout, getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm), false, bailout_algorithm.getNormImpl());
+                out_color_algorithm = new EscapeTimeGrid(bailout, escape_time_algorithm, false, bailout_algorithm.getNormImpl());
                 break;
             case MainWindow.BANDED:
                 out_color_algorithm = new Banded();
                 break;
             case MainWindow.ESCAPE_TIME_FIELD_LINES:
-                out_color_algorithm = new EscapeTimeFieldLines(bailout, getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm), bailout_algorithm.getNormImpl());
+                out_color_algorithm = new EscapeTimeFieldLines(bailout, escape_time_algorithm, bailout_algorithm.getNormImpl());
                 break;
             case MainWindow.ESCAPE_TIME_FIELD_LINES2:
-                out_color_algorithm = new EscapeTimeFieldLines2(bailout, getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm), bailout_algorithm.getNormImpl());
+                out_color_algorithm = new EscapeTimeFieldLines2(bailout, escape_time_algorithm, bailout_algorithm.getNormImpl());
                 break;
             case MainWindow.USER_OUTCOLORING_ALGORITHM:
                 if (user_out_coloring_algorithm == 0) {
-                    out_color_algorithm = new UserOutColorAlgorithm(outcoloring_formula, bailout, max_iterations, xCenter, yCenter, size, plane_transform_center, globalVars);
+                    out_color_algorithm = new UserOutColorAlgorithm(outcoloring_formula, bailout, max_iterations, xCenter, yCenter, size, plane_transform_center, globalVars, escape_time_algorithm);
                 } else {
-                    out_color_algorithm = new UserConditionalOutColorAlgorithm(user_outcoloring_conditions, user_outcoloring_condition_formula, bailout, max_iterations, xCenter, yCenter, size, plane_transform_center, globalVars);
+                    out_color_algorithm = new UserConditionalOutColorAlgorithm(user_outcoloring_conditions, user_outcoloring_condition_formula, bailout, max_iterations, xCenter, yCenter, size, plane_transform_center, globalVars, escape_time_algorithm);
                 }
                 break;
             case ESCAPE_TIME_SQUARES:
-                out_color_algorithm = new EscapeTimeSquares(6, getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm));
+                out_color_algorithm = new EscapeTimeSquares(6, escape_time_algorithm);
                 break;
             case ESCAPE_TIME_SQUARES2:
-                out_color_algorithm = new EscapeTimeSquares2(6, getEscapeTimeAlgorithm(smoothing, escaping_smooth_algorithm));
+                out_color_algorithm = new EscapeTimeSquares2(6, escape_time_algorithm);
                 break;
 
         }
@@ -4763,16 +4766,23 @@ public abstract class Fractal {
 
     }
 
-    protected void setTrueColorOut(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0, Complex pixel) {
+    protected void setTrueColorOut(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0, Complex pixel, Object[] outcoloring_method_data) {
 
-        trueColorValue = outTrueColorAlgorithm.createColor(z, zold, zold2, iterations, c, start, c0, pixel, statValue, trapValue, true);
+        double fractional_part = 0;
+        if(outTrueColorAlgorithm instanceof UserTrueColorAlgorithm) {
+            fractional_part = escape_time_algorithm.getFractionalPart(outcoloring_method_data);
+            if(fractional_part < 0) {
+                fractional_part = 1 + fractional_part;
+            }
+        }
+        trueColorValue = outTrueColorAlgorithm.createColor(z, zold, zold2, iterations, c, start, c0, pixel, statValue, trapValue, true, fractional_part);
         hasTrueColor = true;
 
     }
 
     protected void setTrueColorIn(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0, Complex pixel) {
 
-        trueColorValue = inTrueColorAlgorithm.createColor(z, zold, zold2, iterations, c, start, c0, pixel, statValue, trapValue, false);
+        trueColorValue = inTrueColorAlgorithm.createColor(z, zold, zold2, iterations, c, start, c0, pixel, statValue, trapValue, false, 0);
         hasTrueColor = true;
 
     }

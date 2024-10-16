@@ -226,6 +226,7 @@ public abstract class TaskRender implements Runnable {
 
     public static boolean USE_DIRECT_COLOR;
     public static int COLOR_SMOOTHING_METHOD;
+    public static int COLOR_SPACE;
 
     public static LongAccumulator PostProcessingCalculationTime;
 
@@ -717,8 +718,11 @@ public abstract class TaskRender implements Runnable {
     public static boolean RENDER_IMAGE_PREVIEW = false;
     public static boolean LOAD_MPFR = true;
     public static boolean LOAD_MPIR = true;
-    public static String MPIR_LIB = "mpir_skylake_avx2.dll";
-    public static final String[] mpirWinLibs = {"mpir_skylake_avx2.dll", "mpir_haswell_avx2.dll", "mpir_sandybridge_ivybridge.dll"};
+    public static final String generalArchitecture = "general";
+    public static String MPIR_WINDOWS_ARCHITECTURE = "skylake_avx2";
+    public static String MPFR_WINDOWS_ARCHITECTURE = "skylake_avx2";
+    public static final String[] mpirWinArchitecture = {"skylake_avx2", "haswell_avx2", "sandybridge_ivybridge"};
+    public static final String[] mpfrWinArchitecture = {"skylake_avx2", "haswell_avx2", "sandybridge_ivybridge", generalArchitecture};
     public static Random generator;
     public static int D3_APPLY_AVERAGE_TO_TRIANGLE_COLORS = 1;
     public static int PATTERN_COMPARE_ALG = 0;
@@ -1007,7 +1011,7 @@ public abstract class TaskRender implements Runnable {
 
         rgbs = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 
-        interpolationFactory(COLOR_SMOOTHING_METHOD);
+        interpolationFactory(COLOR_SMOOTHING_METHOD, COLOR_SPACE);
 
         fractal = fractalFactory(function, xCenter.doubleValue(), yCenter.doubleValue(), size, size.doubleValue(), max_iterations, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, plane_type, Settings.fromDDArray(rotation_vals), Settings.fromDDArray(rotation_center), burning_ship, mandel_grass, mandel_grass_vals, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_center_hp, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, z_exponent, z_exponent_complex, coefficients, coefficients_im, z_exponent_nova, relaxation, nova_method, bail_technique, user_formula, user_formula2, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, coupling, user_formula_coupled, coupling_method, coupling_amplitude, coupling_frequency, coupling_seed, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, gcs, lyapunovExpression, ots, exterior_de, exterior_de_factor, inverse_dem, escaping_smooth_algorithm, converging_smooth_algorithm, sts, useLyapunovExponent, user_fz_formula, user_dfz_formula, user_ddfz_formula, user_dddfz_formula, kleinianLine, kleinianK, kleinianM, laguerre_deg, durand_kernel_init_val, mps, lyapunovFunction, lyapunovExponentFunction, lyapunovVariableId, user_relaxation_formula, user_nova_addend_formula, gcps, igs, lfns, newton_hines_k, tcs, lyapunovInitialValue, lyapunovInitializationIteratons, lyapunovskipBailoutCheck, root_initialization_method, preffs, postffs, ips, defaultNovaInitialValue, cbs, useGlobalMethod, globalMethodFactor, period, variable_re, variable_im, inflections_re, inflections_im, inflectionsPower);
 
@@ -1021,7 +1025,7 @@ public abstract class TaskRender implements Runnable {
 
         setTrueColoringOptions(tcs);
 
-        blending = blendingFactory(COLOR_SMOOTHING_METHOD, color_blending.color_blending);
+        blending = blendingFactory(COLOR_SMOOTHING_METHOD, color_blending.color_blending, COLOR_SPACE);
         blending.setReverseColors(color_blending.blending_reversed_colors);
 
         iteration_algorithm = new FractalIterationAlgorithm(fractal);
@@ -1031,7 +1035,7 @@ public abstract class TaskRender implements Runnable {
         convergent_bailout = fractal.getConvergentBailout();
 
         if (domain_coloring) {
-            domainColoringFactory(ds, COLOR_SMOOTHING_METHOD);
+            domainColoringFactory(ds, COLOR_SMOOTHING_METHOD, COLOR_SPACE);
         }
 
         rendering_done = 0;
@@ -1103,7 +1107,7 @@ public abstract class TaskRender implements Runnable {
 
         rgbs = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 
-        interpolationFactory(COLOR_SMOOTHING_METHOD);
+        interpolationFactory(COLOR_SMOOTHING_METHOD, COLOR_SPACE);
 
         fractal = fractalFactory(function, xCenter.doubleValue(), yCenter.doubleValue(), size, size.doubleValue(), max_iterations, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, plane_type, Settings.fromDDArray(rotation_vals), Settings.fromDDArray(rotation_center), burning_ship, mandel_grass, mandel_grass_vals, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_center_hp, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, z_exponent, z_exponent_complex, coefficients, coefficients_im, z_exponent_nova, relaxation, nova_method, bail_technique, user_formula, user_formula2, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, coupling, user_formula_coupled, coupling_method, coupling_amplitude, coupling_frequency, coupling_seed, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, gcs, lyapunovExpression, ots, exterior_de, exterior_de_factor, inverse_dem, escaping_smooth_algorithm, converging_smooth_algorithm, sts, useLyapunovExponent, user_fz_formula, user_dfz_formula, user_ddfz_formula, user_dddfz_formula, kleinianLine, kleinianK, kleinianM, laguerre_deg, durand_kernel_init_val, mps, lyapunovFunction, lyapunovExponentFunction, lyapunovVariableId, user_relaxation_formula, user_nova_addend_formula, gcps, igs, lfns, newton_hines_k, tcs, lyapunovInitialValue, lyapunovInitializationIteratons, lyapunovskipBailoutCheck, root_initialization_method, preffs, postffs, ips, defaultNovaInitialValue, cbs, useGlobalMethod, globalMethodFactor, period, variable_re, variable_im, inflections_re, inflections_im, inflectionsPower);
 
@@ -1117,7 +1121,7 @@ public abstract class TaskRender implements Runnable {
 
         setTrueColoringOptions(tcs);
 
-        blending = blendingFactory(COLOR_SMOOTHING_METHOD, color_blending.color_blending);
+        blending = blendingFactory(COLOR_SMOOTHING_METHOD, color_blending.color_blending, COLOR_SPACE);
         blending.setReverseColors(color_blending.blending_reversed_colors);
 
         iteration_algorithm = new FractalIterationAlgorithm(fractal);
@@ -1127,7 +1131,7 @@ public abstract class TaskRender implements Runnable {
         convergent_bailout = fractal.getConvergentBailout();
 
         if (domain_coloring) {
-            domainColoringFactory(ds, COLOR_SMOOTHING_METHOD);
+            domainColoringFactory(ds, COLOR_SMOOTHING_METHOD, COLOR_SPACE);
         }
 
         rendering_done = 0;
@@ -1224,7 +1228,7 @@ public abstract class TaskRender implements Runnable {
 
         rgbs = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 
-        interpolationFactory(COLOR_SMOOTHING_METHOD);
+        interpolationFactory(COLOR_SMOOTHING_METHOD, COLOR_SPACE);
 
         fractal = juliaFactory(function, xCenter.doubleValue(), yCenter.doubleValue(), size, size.doubleValue(), max_iterations, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, Settings.fromDDArray(rotation_vals), Settings.fromDDArray(rotation_center), burning_ship, mandel_grass, mandel_grass_vals, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_center_hp, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, z_exponent, z_exponent_complex, coefficients, coefficients_im, z_exponent_nova, relaxation, nova_method, bail_technique, user_formula, user_formula2, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, coupling, user_formula_coupled, coupling_method, coupling_amplitude, coupling_frequency, coupling_seed, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, gcs, lyapunovExpression, ots, exterior_de, exterior_de_factor, inverse_dem, escaping_smooth_algorithm, converging_smooth_algorithm, sts, useLyapunovExponent, lyapunovFunction, lyapunovExponentFunction, lyapunovVariableId, user_fz_formula, user_dfz_formula, user_ddfz_formula, user_dddfz_formula, user_relaxation_formula, user_nova_addend_formula, laguerre_deg, gcps, lfns, newton_hines_k, tcs, lyapunovInitialValue, lyapunovInitializationIteratons, lyapunovskipBailoutCheck, preffs, postffs, ips, juliter, juliterIterations, juliterIncludeInitialIterations, defaultNovaInitialValue, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, perturbation_user_formula, user_perturbation_conditions, user_perturbation_condition_formula, init_value, initial_vals, variable_init_value, user_initial_value_algorithm, initial_value_user_formula, user_initial_value_conditions, user_initial_value_condition_formula, cbs, useGlobalMethod, globalMethodFactor, variable_re, variable_im, inflections_re, inflections_im, inflectionsPower, xJuliaCenter, yJuliaCenter);
 
@@ -1239,7 +1243,7 @@ public abstract class TaskRender implements Runnable {
 
         setTrueColoringOptions(tcs);
 
-        blending = blendingFactory(COLOR_SMOOTHING_METHOD, color_blending.color_blending);
+        blending = blendingFactory(COLOR_SMOOTHING_METHOD, color_blending.color_blending, COLOR_SPACE);
         blending.setReverseColors(color_blending.blending_reversed_colors);
 
         iteration_algorithm = new JuliaIterationAlgorithm(fractal);
@@ -1252,7 +1256,7 @@ public abstract class TaskRender implements Runnable {
         convergent_bailout = fractal.getConvergentBailout();
 
         if (domain_coloring) {
-            domainColoringFactory(ds, COLOR_SMOOTHING_METHOD);
+            domainColoringFactory(ds, COLOR_SMOOTHING_METHOD, COLOR_SPACE);
         }
 
         rendering_done = 0;
@@ -1324,7 +1328,7 @@ public abstract class TaskRender implements Runnable {
 
         rgbs = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 
-        interpolationFactory(COLOR_SMOOTHING_METHOD);
+        interpolationFactory(COLOR_SMOOTHING_METHOD, COLOR_SPACE);
 
         fractal = juliaFactory(function, xCenter.doubleValue(), yCenter.doubleValue(), size, size.doubleValue(), max_iterations, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, Settings.fromDDArray(rotation_vals), Settings.fromDDArray(rotation_center), burning_ship, mandel_grass, mandel_grass_vals, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_center_hp, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, z_exponent, z_exponent_complex, coefficients, coefficients_im, z_exponent_nova, relaxation, nova_method, bail_technique, user_formula, user_formula2, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, coupling, user_formula_coupled, coupling_method, coupling_amplitude, coupling_frequency, coupling_seed, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, gcs, lyapunovExpression, ots, exterior_de, exterior_de_factor, inverse_dem, escaping_smooth_algorithm, converging_smooth_algorithm, sts, useLyapunovExponent, lyapunovFunction, lyapunovExponentFunction, lyapunovVariableId, user_fz_formula, user_dfz_formula, user_ddfz_formula, user_dddfz_formula, user_relaxation_formula, user_nova_addend_formula, laguerre_deg, gcps, lfns, newton_hines_k, tcs, lyapunovInitialValue, lyapunovInitializationIteratons, lyapunovskipBailoutCheck, preffs, postffs, ips, juliter, juliterIterations, juliterIncludeInitialIterations, defaultNovaInitialValue, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, perturbation_user_formula, user_perturbation_conditions, user_perturbation_condition_formula, init_value, initial_vals, variable_init_value, user_initial_value_algorithm, initial_value_user_formula, user_initial_value_conditions, user_initial_value_condition_formula, cbs,  useGlobalMethod, globalMethodFactor, variable_re, variable_im, inflections_re, inflections_im, inflectionsPower, xJuliaCenter, yJuliaCenter);
 
@@ -1339,7 +1343,7 @@ public abstract class TaskRender implements Runnable {
 
         setTrueColoringOptions(tcs);
 
-        blending = blendingFactory(COLOR_SMOOTHING_METHOD, color_blending.color_blending);
+        blending = blendingFactory(COLOR_SMOOTHING_METHOD, color_blending.color_blending, COLOR_SPACE);
         blending.setReverseColors(color_blending.blending_reversed_colors);
 
         iteration_algorithm = new JuliaIterationAlgorithm(fractal);
@@ -1351,7 +1355,7 @@ public abstract class TaskRender implements Runnable {
         convergent_bailout = fractal.getConvergentBailout();
 
         if (domain_coloring) {
-            domainColoringFactory(ds, COLOR_SMOOTHING_METHOD);
+            domainColoringFactory(ds, COLOR_SMOOTHING_METHOD, COLOR_SPACE);
         }
 
         rendering_done = 0;
@@ -1442,7 +1446,7 @@ public abstract class TaskRender implements Runnable {
             mapxCenter = -2;
         }
 
-        interpolationFactory(COLOR_SMOOTHING_METHOD);
+        interpolationFactory(COLOR_SMOOTHING_METHOD, COLOR_SPACE);
 
         fractal = juliaFactory(function, mapxCenter, mapyCenter, size, size.doubleValue(), max_iterations, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, Settings.fromDDArray(rotation_vals), Settings.fromDDArray(rotation_center), burning_ship, mandel_grass, mandel_grass_vals, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_center_hp, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, z_exponent, z_exponent_complex, coefficients, coefficients_im, z_exponent_nova, relaxation, nova_method, bail_technique, user_formula, user_formula2, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, coupling, user_formula_coupled, coupling_method, coupling_amplitude, coupling_frequency, coupling_seed, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, gcs, lyapunovExpression, ots, exterior_de, exterior_de_factor, inverse_dem, escaping_smooth_algorithm, converging_smooth_algorithm, sts, useLyapunovExponent, lyapunovFunction, lyapunovExponentFunction, lyapunovVariableId, user_fz_formula, user_dfz_formula, user_ddfz_formula, user_dddfz_formula, user_relaxation_formula, user_nova_addend_formula, laguerre_deg, gcps, lfns, newton_hines_k, tcs, lyapunovInitialValue, lyapunovInitializationIteratons, lyapunovskipBailoutCheck, preffs, postffs, ips, juliter, juliterIterations, juliterIncludeInitialIterations, defaultNovaInitialValue, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, perturbation_user_formula, user_perturbation_conditions, user_perturbation_condition_formula, init_value, initial_vals, variable_init_value, user_initial_value_algorithm, initial_value_user_formula, user_initial_value_conditions, user_initial_value_condition_formula, cbs,  useGlobalMethod, globalMethodFactor, variable_re, variable_im, inflections_re, inflections_im, inflectionsPower, xJuliaCenter, yJuliaCenter);
         fractal.setJuliaMap(true);
@@ -1459,7 +1463,7 @@ public abstract class TaskRender implements Runnable {
 
         setTrueColoringOptions(tcs);
 
-        blending = blendingFactory(COLOR_SMOOTHING_METHOD, color_blending.color_blending);
+        blending = blendingFactory(COLOR_SMOOTHING_METHOD, color_blending.color_blending, COLOR_SPACE);
         blending.setReverseColors(color_blending.blending_reversed_colors);
 
         iteration_algorithm = new JuliaIterationAlgorithm(fractal);
@@ -1528,7 +1532,7 @@ public abstract class TaskRender implements Runnable {
         this.usePaletteForInColoring = usePaletteForInColoring;
         colorTransferFactory(transfer_function, transfer_function2, color_intensity, color_intensity2, color_density, color_density2);
 
-        interpolationFactory(COLOR_SMOOTHING_METHOD);
+        interpolationFactory(COLOR_SMOOTHING_METHOD, COLOR_SPACE);
 
         fractal = juliaFactory(function, xCenter.doubleValue(), yCenter.doubleValue(), size, size.doubleValue(), max_iterations, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, Settings.fromDDArray(rotation_vals), Settings.fromDDArray(rotation_center), burning_ship, mandel_grass, mandel_grass_vals, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_center_hp, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, z_exponent, z_exponent_complex, coefficients, coefficients_im, z_exponent_nova, relaxation, nova_method, bail_technique, user_formula, user_formula2, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, coupling, user_formula_coupled, coupling_method, coupling_amplitude, coupling_frequency, coupling_seed, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, gcs, lyapunovExpression, ots, exterior_de, exterior_de_factor, inverse_dem, escaping_smooth_algorithm, converging_smooth_algorithm, sts, useLyapunovExponent, lyapunovFunction, lyapunovExponentFunction, lyapunovVariableId, user_fz_formula, user_dfz_formula, user_ddfz_formula, user_dddfz_formula, user_relaxation_formula, user_nova_addend_formula, laguerre_deg, gcps, lfns, newton_hines_k, tcs, lyapunovInitialValue, lyapunovInitializationIteratons, lyapunovskipBailoutCheck, preffs, postffs, ips, juliter, juliterIterations, juliterIncludeInitialIterations, defaultNovaInitialValue, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, perturbation_user_formula, user_perturbation_conditions, user_perturbation_condition_formula, init_value, initial_vals, variable_init_value, user_initial_value_algorithm, initial_value_user_formula, user_initial_value_conditions, user_initial_value_condition_formula, cbs, useGlobalMethod, globalMethodFactor, variable_re, variable_im, inflections_re, inflections_im, inflectionsPower, xJuliaCenter, yJuliaCenter);
 
@@ -1543,7 +1547,7 @@ public abstract class TaskRender implements Runnable {
 
         setTrueColoringOptions(tcs);
 
-        blending = blendingFactory(COLOR_SMOOTHING_METHOD, color_blending.color_blending);
+        blending = blendingFactory(COLOR_SMOOTHING_METHOD, color_blending.color_blending, COLOR_SPACE);
         blending.setReverseColors(color_blending.blending_reversed_colors);
 
         iteration_algorithm = new JuliaIterationAlgorithm(fractal);
@@ -1602,13 +1606,13 @@ public abstract class TaskRender implements Runnable {
         this.usePaletteForInColoring = usePaletteForInColoring;
         colorTransferFactory(transfer_function, transfer_function2, color_intensity, color_intensity2, color_density, color_density2);
 
-        blending = blendingFactory(COLOR_SMOOTHING_METHOD, color_blending.color_blending);
+        blending = blendingFactory(COLOR_SMOOTHING_METHOD, color_blending.color_blending, COLOR_SPACE);
         blending.setReverseColors(color_blending.blending_reversed_colors);
 
-        interpolationFactory(COLOR_SMOOTHING_METHOD);
+        interpolationFactory(COLOR_SMOOTHING_METHOD, COLOR_SPACE);
 
         if (domain_coloring) {
-            domainColoringFactory(ds, COLOR_SMOOTHING_METHOD);
+            domainColoringFactory(ds, COLOR_SMOOTHING_METHOD, COLOR_SPACE);
         }
 
         rgbs = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
@@ -1660,13 +1664,13 @@ public abstract class TaskRender implements Runnable {
         this.usePaletteForInColoring = usePaletteForInColoring;
         colorTransferFactory(transfer_function, transfer_function2, color_intensity, color_intensity2, color_density, color_density2);
 
-        blending = blendingFactory(COLOR_SMOOTHING_METHOD, color_blending.color_blending);
+        blending = blendingFactory(COLOR_SMOOTHING_METHOD, color_blending.color_blending, COLOR_SPACE);
         blending.setReverseColors(color_blending.blending_reversed_colors);
 
-        interpolationFactory(COLOR_SMOOTHING_METHOD);
+        interpolationFactory(COLOR_SMOOTHING_METHOD, COLOR_SPACE);
 
         if (domain_coloring) {
-            domainColoringFactory(ds, COLOR_SMOOTHING_METHOD);
+            domainColoringFactory(ds, COLOR_SMOOTHING_METHOD, COLOR_SPACE);
         }
 
         rgbs = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
@@ -1710,10 +1714,10 @@ public abstract class TaskRender implements Runnable {
         progress = ptr.getProgressBar();
         progress_one_percent = progress.getMaximum() / 100;
 
-        blending = blendingFactory(COLOR_SMOOTHING_METHOD, color_blending.color_blending);
+        blending = blendingFactory(COLOR_SMOOTHING_METHOD, color_blending.color_blending, COLOR_SPACE);
         blending.setReverseColors(color_blending.blending_reversed_colors);
 
-        interpolationFactory(COLOR_SMOOTHING_METHOD);
+        interpolationFactory(COLOR_SMOOTHING_METHOD, COLOR_SPACE);
 
         ColorAlgorithm.DomainColoringBypass = domain_coloring;
 
@@ -1771,10 +1775,10 @@ public abstract class TaskRender implements Runnable {
         this.usePaletteForInColoring = usePaletteForInColoring;
         colorTransferFactory(transfer_function, transfer_function2, color_intensity, color_intensity2, color_density, color_density2);
 
-        blending = blendingFactory(COLOR_SMOOTHING_METHOD, color_blending.color_blending);
+        blending = blendingFactory(COLOR_SMOOTHING_METHOD, color_blending.color_blending, COLOR_SPACE);
         blending.setReverseColors(color_blending.blending_reversed_colors);
 
-        interpolationFactory(COLOR_SMOOTHING_METHOD);
+        interpolationFactory(COLOR_SMOOTHING_METHOD, COLOR_SPACE);
 
         rgbs = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 
@@ -3174,121 +3178,7 @@ public abstract class TaskRender implements Runnable {
             coef2 = coef2 < 0 ? 0 : coef2;
             coef2 = coef2 * sts.normalMapLightFactor;
 
-            if (sts.normalMapColorMode == 0) { //Lab
-                double[] res = ColorSpaceConverter.RGBtoLAB(r, g, b);
-                int[] rgb = ColorSpaceConverter.LABtoRGB(res[0] * coef + coef2 * 100, res[1], res[2]);
-                output_color = 0xff000000 | (rgb[0] << 16) | (rgb[1] << 8) | rgb[2];
-            } else if (sts.normalMapColorMode == 1) { //HSB
-                double[] res = ColorSpaceConverter.RGBtoHSB(r, g, b);
-
-                double val = res[2] * coef + coef2;
-
-                if (val > 1) {
-                    val = 1;
-                }
-                if (val < 0) {
-                    val = 0;
-                }
-
-                int[] rgb = ColorSpaceConverter.HSBtoRGB(res[0], res[1], val);
-                output_color = 0xff000000 | (rgb[0] << 16) | (rgb[1] << 8) | rgb[2];
-            } else if (sts.normalMapColorMode == 2) { //HSL
-                double[] res = ColorSpaceConverter.RGBtoHSL(r, g, b);
-
-                double val = res[2] * coef + coef2;
-
-                if (val > 1) {
-                    val = 1;
-                }
-                if (val < 0) {
-                    val = 0;
-                }
-
-                int[] rgb = ColorSpaceConverter.HSLtoRGB(res[0], res[1], val);
-                output_color = 0xff000000 | (rgb[0] << 16) | (rgb[1] << 8) | rgb[2];
-            } else if (sts.normalMapColorMode == 3) { //Blending
-                if (coef > 1) {
-                    coef = 1;
-                }
-                if (coef < 0) {
-                    coef = 0;
-                }
-
-                int index = (int) ((1 - coef) * (gradient.length - 1) + 0.5);
-                index = gradient.length - 1 - index;
-
-                int grad_color = getGradientColor(index + gradient_offset);
-
-                int temp_red = (grad_color >> 16) & 0xff;
-                int temp_green = (grad_color >> 8) & 0xff;
-                int temp_blue = grad_color & 0xff;
-
-                int new_color = blending.blend(temp_red, temp_green, temp_blue, r, g, b, 1 - sts.normalMapBlending);
-
-                r = (new_color >> 16) & 0xFF;
-                g = (new_color >> 8) & 0xFF;
-                b = new_color & 0xFF;
-
-                double temp = coef2 * 255;
-                r = (int) (r + temp + 0.5);
-                g = (int) (g + temp + 0.5);
-                b = (int) (b + temp + 0.5);
-
-                if (r > 255) {
-                    r = 255;
-                }
-                if (g > 255) {
-                    g = 255;
-                }
-                if (b > 255) {
-                    b = 255;
-                }
-
-                if (r < 0) {
-                    r = 0;
-                }
-                if (g < 0) {
-                    g = 0;
-                }
-                if (b < 0) {
-                    b = 0;
-                }
-
-                output_color = 0xff000000 | (r << 16) | (g << 8) | b;
-            } else if (sts.normalMapColorMode == 4) { //scaling
-
-                double temp = coef2 * 255;
-                r = (int) (r * coef + temp + 0.5);
-                g = (int) (g * coef + temp + 0.5);
-                b = (int) (b * coef + temp + 0.5);
-
-                if (r > 255) {
-                    r = 255;
-                }
-                if (g > 255) {
-                    g = 255;
-                }
-                if (b > 255) {
-                    b = 255;
-                }
-
-                if (r < 0) {
-                    r = 0;
-                }
-                if (g < 0) {
-                    g = 0;
-                }
-                if (b < 0) {
-                    b = 0;
-                }
-
-                output_color = 0xff000000 | (r << 16) | (g << 8) | b;
-            }
-            else {
-                double[] res = ColorSpaceConverter.RGBtoOKLAB(r, g, b);
-                int[] rgb = ColorSpaceConverter.OKLABtoRGB(res[0] * coef + coef2, res[1], res[2]);
-                output_color = 0xff000000 | (rgb[0] << 16) | (rgb[1] << 8) | rgb[2];
-            }
+            output_color = applyContour(sts.normalMapColorMode, r, g, b, coef, coef2, sts.normalMapBlending);
         }
 
         if(sts.normalMapUseDE && sts.normalMapDEAAEffect) {
@@ -3319,7 +3209,7 @@ public abstract class TaskRender implements Runnable {
                 b2 = dem_color & 0xFF;
             }
 
-            output_color = method.interpolate(r1, g1, b1, r2, g2, b2, 1 - nm.getDeCoefficient());
+            output_color = method.interpolateColors(r1, g1, b1, r2, g2, b2, 1 - nm.getDeCoefficient(), true);
         }
 
         return output_color;
@@ -3416,7 +3306,7 @@ public abstract class TaskRender implements Runnable {
             int temp_green1 = !sts.revertRootShading ? sts.rootShadingColor.getGreen()  : 255 - sts.rootShadingColor.getGreen();
             int temp_blue1 = !sts.revertRootShading ? sts.rootShadingColor.getBlue()  : 255 - sts.rootShadingColor.getBlue();
 
-            return method.interpolate(temp_red1, temp_green1, temp_blue1, temp_red2, temp_green2, temp_blue2, highlightFactor);
+            return method.interpolateColors(temp_red1, temp_green1, temp_blue1, temp_red2, temp_green2, temp_blue2, highlightFactor, true);
 
         }
 
@@ -3498,34 +3388,64 @@ public abstract class TaskRender implements Runnable {
         int temp_blue = grad_color & 0xff;
 
         if (pbs.merging_type == 0) { //Lab
+            old_red = ColorCorrection.gammaToLinear(old_red);
+            old_green = ColorCorrection.gammaToLinear(old_green);
+            old_blue = ColorCorrection.gammaToLinear(old_blue);
+            temp_red = ColorCorrection.gammaToLinear(temp_red);
+            temp_green = ColorCorrection.gammaToLinear(temp_green);
+            temp_blue = ColorCorrection.gammaToLinear(temp_blue);
             double[] grad = ColorSpaceConverter.RGBtoLAB(temp_red, temp_green, temp_blue);
             double[] res = ColorSpaceConverter.RGBtoLAB(old_red, old_green, old_blue);
             int[] rgb = ColorSpaceConverter.LABtoRGB(grad[0], res[1], res[2]);
-            return 0xff000000 | (rgb[0] << 16) | (rgb[1] << 8) | rgb[2];
+            return ColorCorrection.linearToGamma(rgb[0], rgb[1], rgb[2]);
         } else if (pbs.merging_type == 1) { //HSB
+            old_red = ColorCorrection.gammaToLinear(old_red);
+            old_green = ColorCorrection.gammaToLinear(old_green);
+            old_blue = ColorCorrection.gammaToLinear(old_blue);
+            temp_red = ColorCorrection.gammaToLinear(temp_red);
+            temp_green = ColorCorrection.gammaToLinear(temp_green);
+            temp_blue = ColorCorrection.gammaToLinear(temp_blue);
             double[] grad = ColorSpaceConverter.RGBtoHSB(temp_red, temp_green, temp_blue);
             double[] res = ColorSpaceConverter.RGBtoHSB(old_red, old_green, old_blue);
             int[] rgb = ColorSpaceConverter.HSBtoRGB(res[0], res[1], grad[2]);
-            return 0xff000000 | (rgb[0] << 16) | (rgb[1] << 8) | rgb[2];
+            return ColorCorrection.linearToGamma(rgb[0], rgb[1], rgb[2]);
         } else if (pbs.merging_type == 2) { //HSL
+            old_red = ColorCorrection.gammaToLinear(old_red);
+            old_green = ColorCorrection.gammaToLinear(old_green);
+            old_blue = ColorCorrection.gammaToLinear(old_blue);
+            temp_red = ColorCorrection.gammaToLinear(temp_red);
+            temp_green = ColorCorrection.gammaToLinear(temp_green);
+            temp_blue = ColorCorrection.gammaToLinear(temp_blue);
             double[] grad = ColorSpaceConverter.RGBtoHSL(temp_red, temp_green, temp_blue);
             double[] res = ColorSpaceConverter.RGBtoHSL(old_red, old_green, old_blue);
             int[] rgb = ColorSpaceConverter.HSLtoRGB(res[0], res[1], grad[2]);
-            return 0xff000000 | (rgb[0] << 16) | (rgb[1] << 8) | rgb[2];
+            return ColorCorrection.linearToGamma(rgb[0], rgb[1], rgb[2]);
         } else if (pbs.merging_type == 3) {// blend
             return blending.blend(temp_red, temp_green, temp_blue, old_red, old_green, old_blue, 1 - pbs.palette_blending);
         } else if (pbs.merging_type == 4) { //scale
+            old_red = ColorCorrection.gammaToLinear(old_red);
+            old_green = ColorCorrection.gammaToLinear(old_green);
+            old_blue = ColorCorrection.gammaToLinear(old_blue);
+            temp_red = ColorCorrection.gammaToLinear(temp_red);
+            temp_green = ColorCorrection.gammaToLinear(temp_green);
+            temp_blue = ColorCorrection.gammaToLinear(temp_blue);
             double avg = ((temp_red + temp_green + temp_blue) / 3.0) / 255.0;
             old_red = (int) (old_red * avg + 0.5);
             old_green = (int) (old_green * avg + 0.5);
             old_blue = (int) (old_blue * avg + 0.5);
-            return 0xff000000 | (old_red << 16) | (old_green << 8) | old_blue;
+            return ColorCorrection.linearToGamma(old_red, old_green, old_blue);
         }
         else {
+            old_red = ColorCorrection.gammaToLinear(old_red);
+            old_green = ColorCorrection.gammaToLinear(old_green);
+            old_blue = ColorCorrection.gammaToLinear(old_blue);
+            temp_red = ColorCorrection.gammaToLinear(temp_red);
+            temp_green = ColorCorrection.gammaToLinear(temp_green);
+            temp_blue = ColorCorrection.gammaToLinear(temp_blue);
             double[] grad = ColorSpaceConverter.RGBtoOKLAB(temp_red, temp_green, temp_blue);
             double[] res = ColorSpaceConverter.RGBtoOKLAB(old_red, old_green, old_blue);
             int[] rgb = ColorSpaceConverter.OKLABtoRGB(grad[0], res[1], res[2]);
-            return 0xff000000 | (rgb[0] << 16) | (rgb[1] << 8) | rgb[2];
+            return ColorCorrection.linearToGamma(rgb[0], rgb[1], rgb[2]);
         }
 
     }
@@ -3660,7 +3580,7 @@ public abstract class TaskRender implements Runnable {
                 }
             }
 
-            trapColor = method.interpolate(red, green, blue, trapRed, trapGreen, trapBlue, ots.trapColorInterpolation);
+            trapColor = method.interpolateColors(red, green, blue, trapRed, trapGreen, trapBlue, ots.trapColorInterpolation, true);
 
         }
 
@@ -3686,7 +3606,7 @@ public abstract class TaskRender implements Runnable {
                 coef = 1 - coef;
             }
 
-            trapColor = method.interpolate(ots.trapCellularColor.getRed(), ots.trapCellularColor.getGreen(), ots.trapCellularColor.getBlue(), trapRed, trapGreen, trapBlue, 1 - coef);
+            trapColor = method.interpolateColors(ots.trapCellularColor.getRed(), ots.trapCellularColor.getGreen(), ots.trapCellularColor.getBlue(), trapRed, trapGreen, trapBlue, 1 - coef, true);
         }
 
         return trapColor;
@@ -4640,7 +4560,7 @@ public abstract class TaskRender implements Runnable {
                     int temp_green2 = (color2 >> 8) & 0xff;
                     int temp_blue2 = color2 & 0xff;
 
-                    output[m] = method.interpolate(temp_red1, temp_green1, temp_blue1, temp_red2, temp_green2, temp_blue2, coef);
+                    output[m] = method.interpolateColors(temp_red1, temp_green1, temp_blue1, temp_red2, temp_green2, temp_blue2, coef, true);
                 }
                 else {
 
@@ -4697,7 +4617,7 @@ public abstract class TaskRender implements Runnable {
                     int temp_green1 = (color1 >> 8) & 0xff;
                     int temp_blue1 = color1 & 0xff;
 
-                    output[m] = method.interpolate(temp_red1, temp_green1, temp_blue1, r, g, b, coef);
+                    output[m] = method.interpolateColors(temp_red1, temp_green1, temp_blue1, r, g, b, coef, true);
                 }
                 else {
                     output[m] = color;
@@ -5241,7 +5161,7 @@ public abstract class TaskRender implements Runnable {
             int fc_green = (new_colors[m] >> 8) & 0xFF;
             int fc_blue = new_colors[m] & 0xFF;
 
-            output[m] = method.interpolate(fc_red, fc_green, fc_blue, r, g, b, coef);
+            output[m] = method.interpolateColors(fc_red, fc_green, fc_blue, r, g, b, coef, true);
         }
         return output;
 
@@ -5385,7 +5305,7 @@ public abstract class TaskRender implements Runnable {
                 coef = 1 - coef;
             }
 
-            output[m] = method.interpolate(fc_red, fc_green, fc_blue, r, g, b, coef);
+            output[m] = method.interpolateColors(fc_red, fc_green, fc_blue, r, g, b, coef, true);
         }
         return output;
 
@@ -7592,167 +7512,167 @@ public abstract class TaskRender implements Runnable {
         }
     }
 
-    private Blending blendingFactory(int interpolation, int color_blending) {
+    private Blending blendingFactory(int interpolation, int color_blending, int color_space) {
 
         switch (color_blending) {
             case MainWindow.NORMAL_BLENDING:
-                return new NormalBlending(interpolation);
+                return new NormalBlending(interpolation, color_space);
             case MainWindow.MULTIPLY_BLENDING:
-                return new MultiplyBlending(interpolation);
+                return new MultiplyBlending(interpolation, color_space);
             case MainWindow.DIVIDE_BLENDING:
-                return new DivideBlending(interpolation);
+                return new DivideBlending(interpolation, color_space);
             case MainWindow.ADDITION_BLENDING:
-                return new AdditionBlending(interpolation);
+                return new AdditionBlending(interpolation, color_space);
             case MainWindow.SUBTRACTION_BLENDING:
-                return new SubtractionBlending(interpolation);
+                return new SubtractionBlending(interpolation, color_space);
             case MainWindow.DIFFERENCE_BLENDING:
-                return new DifferenceBlending(interpolation);
+                return new DifferenceBlending(interpolation, color_space);
             case MainWindow.VALUE_BLENDING:
-                return new ValueBlending(interpolation);
+                return new ValueBlending(interpolation, color_space);
             case MainWindow.SOFT_LIGHT_BLENDING:
-                return new SoftLightBlending(interpolation);
+                return new SoftLightBlending(interpolation, color_space);
             case MainWindow.SCREEN_BLENDING:
-                return new ScreenBlending(interpolation);
+                return new ScreenBlending(interpolation, color_space);
             case MainWindow.DODGE_BLENDING:
-                return new DodgeBlending(interpolation);
+                return new DodgeBlending(interpolation, color_space);
             case MainWindow.BURN_BLENDING:
-                return new BurnBlending(interpolation);
+                return new BurnBlending(interpolation, color_space);
             case MainWindow.DARKEN_ONLY_BLENDING:
-                return new DarkenOnlyBlending(interpolation);
+                return new DarkenOnlyBlending(interpolation, color_space);
             case MainWindow.LIGHTEN_ONLY_BLENDING:
-                return new LightenOnlyBlending(interpolation);
+                return new LightenOnlyBlending(interpolation, color_space);
             case MainWindow.HARD_LIGHT_BLENDING:
-                return new HardLightBlending(interpolation);
+                return new HardLightBlending(interpolation, color_space);
             case MainWindow.GRAIN_EXTRACT_BLENDING:
-                return new GrainExtractBlending(interpolation);
+                return new GrainExtractBlending(interpolation, color_space);
             case MainWindow.GRAIN_MERGE_BLENDING:
-                return new GrainMergeBlending(interpolation);
+                return new GrainMergeBlending(interpolation, color_space);
             case MainWindow.SATURATION_BLENDING:
-                return new SaturationBlending(interpolation);
+                return new SaturationBlending(interpolation, color_space);
             case MainWindow.COLOR_BLENDING:
-                return new ColorBlending(interpolation);
+                return new ColorBlending(interpolation, color_space);
             case MainWindow.HUE_BLENDING:
-                return new HueBlending(interpolation);
+                return new HueBlending(interpolation, color_space);
             case MainWindow.EXCLUSION_BLENDING:
-                return new ExclusionBlending(interpolation);
+                return new ExclusionBlending(interpolation, color_space);
             case MainWindow.PIN_LIGHT_BLENDING:
-                return new PinLightBlending(interpolation);
+                return new PinLightBlending(interpolation, color_space);
             case MainWindow.LINEAR_LIGHT_BLENDING:
-                return new LinearLightBlending(interpolation);
+                return new LinearLightBlending(interpolation, color_space);
             case MainWindow.VIVID_LIGHT_BLENDING:
-                return new VividLightBlending(interpolation);
+                return new VividLightBlending(interpolation, color_space);
             case MainWindow.OVERLAY_BLENDING:
-                return new OverlayBlending(interpolation);
+                return new OverlayBlending(interpolation, color_space);
             case MainWindow.LCH_CHROMA_BLENDING:
-                return new LCHChromaBlending(interpolation);
+                return new LCHChromaBlending(interpolation, color_space);
             case MainWindow.LCH_COLOR_BLENDING:
-                return new LCHColorBlending(interpolation);
+                return new LCHColorBlending(interpolation, color_space);
             case MainWindow.LCH_HUE_BLENDING:
-                return new LCHHueBlending(interpolation);
+                return new LCHHueBlending(interpolation, color_space);
             case MainWindow.LCH_LIGHTNESS_BLENDING:
-                return new LCHLightnessBlending(interpolation);
+                return new LCHLightnessBlending(interpolation, color_space);
             case MainWindow.LUMINANCE_BLENDING:
-                return new LuminanceBlending(interpolation);
+                return new LuminanceBlending(interpolation, color_space);
             case MainWindow.LINEAR_BURN_BLENDING:
-                return new LinearBurnBlending(interpolation);
+                return new LinearBurnBlending(interpolation, color_space);
         }
 
         return null;
     }
 
-    private void domainColoringFactory(DomainColoringSettings ds, int interpolation) {
+    private void domainColoringFactory(DomainColoringSettings ds, int interpolation, int color_space) {
 
         this.ds = ds;
 
         if (ds.customDomainColoring) {
-            domain_color = new CustomDomainColoring(ds, palette_outcoloring, color_transfer_outcoloring, color_cycling_location_outcoloring, gps, blending, gradient, interpolation, gradient_offset, contourFactor);
+            domain_color = new CustomDomainColoring(ds, palette_outcoloring, color_transfer_outcoloring, color_cycling_location_outcoloring, gps, blending, gradient, interpolation, gradient_offset, contourFactor, color_space);
             return;
         }
 
         switch (ds.domain_coloring_alg) {
             case 0:
-                domain_color = new BlackGridWhiteCirclesLog2DomainColoring(ds.domain_coloring_mode, palette_outcoloring, color_transfer_outcoloring, color_cycling_location_outcoloring, gps, blending, interpolation, contourFactor);
+                domain_color = new BlackGridWhiteCirclesLog2DomainColoring(ds.domain_coloring_mode, palette_outcoloring, color_transfer_outcoloring, color_cycling_location_outcoloring, gps, blending, interpolation, contourFactor, color_space);
                 break;
             case 1:
-                domain_color = new WhiteGridBlackCirclesLog2DomainColoring(ds.domain_coloring_mode, palette_outcoloring, color_transfer_outcoloring, color_cycling_location_outcoloring, gps, blending, interpolation, contourFactor);
+                domain_color = new WhiteGridBlackCirclesLog2DomainColoring(ds.domain_coloring_mode, palette_outcoloring, color_transfer_outcoloring, color_cycling_location_outcoloring, gps, blending, interpolation, contourFactor, color_space);
                 break;
             case 2:
-                domain_color = new BlackGridDomainColoring(ds.domain_coloring_mode, palette_outcoloring, color_transfer_outcoloring, color_cycling_location_outcoloring, gps, blending, interpolation, contourFactor);
+                domain_color = new BlackGridDomainColoring(ds.domain_coloring_mode, palette_outcoloring, color_transfer_outcoloring, color_cycling_location_outcoloring, gps, blending, interpolation, contourFactor, color_space);
                 break;
             case 3:
-                domain_color = new WhiteGridDomainColoring(ds.domain_coloring_mode, palette_outcoloring, color_transfer_outcoloring, color_cycling_location_outcoloring, gps, blending, interpolation, contourFactor);
+                domain_color = new WhiteGridDomainColoring(ds.domain_coloring_mode, palette_outcoloring, color_transfer_outcoloring, color_cycling_location_outcoloring, gps, blending, interpolation, contourFactor, color_space);
                 break;
             case 4:
-                domain_color = new BlackGridBrightContoursLog2DomainColoring(ds.domain_coloring_mode, palette_outcoloring, color_transfer_outcoloring, color_cycling_location_outcoloring, gps, blending, interpolation, contourFactor);
+                domain_color = new BlackGridBrightContoursLog2DomainColoring(ds.domain_coloring_mode, palette_outcoloring, color_transfer_outcoloring, color_cycling_location_outcoloring, gps, blending, interpolation, contourFactor, color_space);
                 break;
             case 5:
-                domain_color = new WhiteGridDarkContoursLog2DomainColoring(ds.domain_coloring_mode, palette_outcoloring, color_transfer_outcoloring, color_cycling_location_outcoloring, gps, blending, interpolation, contourFactor);
+                domain_color = new WhiteGridDarkContoursLog2DomainColoring(ds.domain_coloring_mode, palette_outcoloring, color_transfer_outcoloring, color_cycling_location_outcoloring, gps, blending, interpolation, contourFactor, color_space);
                 break;
             case 6:
-                domain_color = new NormBlackGridWhiteCirclesLog2DomainColoring(ds.domain_coloring_mode, palette_outcoloring, color_transfer_outcoloring, color_cycling_location_outcoloring, gps, blending, interpolation, contourFactor);
+                domain_color = new NormBlackGridWhiteCirclesLog2DomainColoring(ds.domain_coloring_mode, palette_outcoloring, color_transfer_outcoloring, color_cycling_location_outcoloring, gps, blending, interpolation, contourFactor, color_space);
                 break;
             case 7:
-                domain_color = new NormWhiteGridBlackCirclesLog2DomainColoring(ds.domain_coloring_mode, palette_outcoloring, color_transfer_outcoloring, color_cycling_location_outcoloring, gps, blending, interpolation, contourFactor);
+                domain_color = new NormWhiteGridBlackCirclesLog2DomainColoring(ds.domain_coloring_mode, palette_outcoloring, color_transfer_outcoloring, color_cycling_location_outcoloring, gps, blending, interpolation, contourFactor, color_space);
                 break;
             case 8:
-                domain_color = new NormBlackGridDomainColoring(ds.domain_coloring_mode, palette_outcoloring, color_transfer_outcoloring, color_cycling_location_outcoloring, gps, blending, interpolation, contourFactor);
+                domain_color = new NormBlackGridDomainColoring(ds.domain_coloring_mode, palette_outcoloring, color_transfer_outcoloring, color_cycling_location_outcoloring, gps, blending, interpolation, contourFactor, color_space);
                 break;
             case 9:
-                domain_color = new NormWhiteGridDomainColoring(ds.domain_coloring_mode, palette_outcoloring, color_transfer_outcoloring, color_cycling_location_outcoloring, gps, blending, interpolation, contourFactor);
+                domain_color = new NormWhiteGridDomainColoring(ds.domain_coloring_mode, palette_outcoloring, color_transfer_outcoloring, color_cycling_location_outcoloring, gps, blending, interpolation, contourFactor, color_space);
                 break;
             case 10:
-                domain_color = new NormBlackGridBrightContoursLog2DomainColoring(ds.domain_coloring_mode, palette_outcoloring, color_transfer_outcoloring, color_cycling_location_outcoloring, gps, blending, interpolation, contourFactor);
+                domain_color = new NormBlackGridBrightContoursLog2DomainColoring(ds.domain_coloring_mode, palette_outcoloring, color_transfer_outcoloring, color_cycling_location_outcoloring, gps, blending, interpolation, contourFactor, color_space);
                 break;
             case 11:
-                domain_color = new NormWhiteGridDarkContoursLog2DomainColoring(ds.domain_coloring_mode, palette_outcoloring, color_transfer_outcoloring, color_cycling_location_outcoloring, gps, blending, interpolation, contourFactor);
+                domain_color = new NormWhiteGridDarkContoursLog2DomainColoring(ds.domain_coloring_mode, palette_outcoloring, color_transfer_outcoloring, color_cycling_location_outcoloring, gps, blending, interpolation, contourFactor, color_space);
                 break;
             case 12:
-                domain_color = new WhiteCirclesLog2DomainColoring(ds.domain_coloring_mode, palette_outcoloring, color_transfer_outcoloring, color_cycling_location_outcoloring, gps, blending, interpolation, contourFactor);
+                domain_color = new WhiteCirclesLog2DomainColoring(ds.domain_coloring_mode, palette_outcoloring, color_transfer_outcoloring, color_cycling_location_outcoloring, gps, blending, interpolation, contourFactor, color_space);
                 break;
             case 13:
-                domain_color = new BlackCirclesLog2DomainColoring(ds.domain_coloring_mode, palette_outcoloring, color_transfer_outcoloring, color_cycling_location_outcoloring, gps, blending, interpolation, contourFactor);
+                domain_color = new BlackCirclesLog2DomainColoring(ds.domain_coloring_mode, palette_outcoloring, color_transfer_outcoloring, color_cycling_location_outcoloring, gps, blending, interpolation, contourFactor, color_space);
                 break;
             case 14:
-                domain_color = new BrightContoursLog2DomainColoring(ds.domain_coloring_mode, palette_outcoloring, color_transfer_outcoloring, color_cycling_location_outcoloring, gps, blending, interpolation, contourFactor);
+                domain_color = new BrightContoursLog2DomainColoring(ds.domain_coloring_mode, palette_outcoloring, color_transfer_outcoloring, color_cycling_location_outcoloring, gps, blending, interpolation, contourFactor, color_space);
                 break;
             case 15:
-                domain_color = new DarkContoursLog2DomainColoring(ds.domain_coloring_mode, palette_outcoloring, color_transfer_outcoloring, color_cycling_location_outcoloring, gps, blending, interpolation, contourFactor);
+                domain_color = new DarkContoursLog2DomainColoring(ds.domain_coloring_mode, palette_outcoloring, color_transfer_outcoloring, color_cycling_location_outcoloring, gps, blending, interpolation, contourFactor, color_space);
                 break;
             case 16:
-                domain_color = new NormWhiteCirclesLog2DomainColoring(ds.domain_coloring_mode, palette_outcoloring, color_transfer_outcoloring, color_cycling_location_outcoloring, gps, blending, interpolation, contourFactor);
+                domain_color = new NormWhiteCirclesLog2DomainColoring(ds.domain_coloring_mode, palette_outcoloring, color_transfer_outcoloring, color_cycling_location_outcoloring, gps, blending, interpolation, contourFactor, color_space);
                 break;
             case 17:
-                domain_color = new NormBlackCirclesLog2DomainColoring(ds.domain_coloring_mode, palette_outcoloring, color_transfer_outcoloring, color_cycling_location_outcoloring, gps, blending, interpolation, contourFactor);
+                domain_color = new NormBlackCirclesLog2DomainColoring(ds.domain_coloring_mode, palette_outcoloring, color_transfer_outcoloring, color_cycling_location_outcoloring, gps, blending, interpolation, contourFactor, color_space);
                 break;
             case 18:
-                domain_color = new NormBrightContoursLog2DomainColoring(ds.domain_coloring_mode, palette_outcoloring, color_transfer_outcoloring, color_cycling_location_outcoloring, gps, blending, interpolation, contourFactor);
+                domain_color = new NormBrightContoursLog2DomainColoring(ds.domain_coloring_mode, palette_outcoloring, color_transfer_outcoloring, color_cycling_location_outcoloring, gps, blending, interpolation, contourFactor, color_space);
                 break;
             case 19:
-                domain_color = new NormDarkContoursLog2DomainColoring(ds.domain_coloring_mode, palette_outcoloring, color_transfer_outcoloring, color_cycling_location_outcoloring, gps, blending, interpolation, contourFactor);
+                domain_color = new NormDarkContoursLog2DomainColoring(ds.domain_coloring_mode, palette_outcoloring, color_transfer_outcoloring, color_cycling_location_outcoloring, gps, blending, interpolation, contourFactor, color_space);
                 break;
             case 20:
-                domain_color = new BlackGridContoursLog2IsoLinesDomainColoring(ds.domain_coloring_mode, palette_outcoloring, color_transfer_outcoloring, color_cycling_location_outcoloring, gps, blending, interpolation, contourFactor);
+                domain_color = new BlackGridContoursLog2IsoLinesDomainColoring(ds.domain_coloring_mode, palette_outcoloring, color_transfer_outcoloring, color_cycling_location_outcoloring, gps, blending, interpolation, contourFactor, color_space);
                 break;
             case 21:
-                domain_color = new NormBlackGridContoursLog2IsoLinesDomainColoring(ds.domain_coloring_mode, palette_outcoloring, color_transfer_outcoloring, color_cycling_location_outcoloring, gps, blending, interpolation, contourFactor);
+                domain_color = new NormBlackGridContoursLog2IsoLinesDomainColoring(ds.domain_coloring_mode, palette_outcoloring, color_transfer_outcoloring, color_cycling_location_outcoloring, gps, blending, interpolation, contourFactor, color_space);
                 break;
             case 22:
-                domain_color = new BlackGridIsoContoursDomainColoring(ds.domain_coloring_mode, palette_outcoloring, color_transfer_outcoloring, color_cycling_location_outcoloring, gps, blending, interpolation, contourFactor);
+                domain_color = new BlackGridIsoContoursDomainColoring(ds.domain_coloring_mode, palette_outcoloring, color_transfer_outcoloring, color_cycling_location_outcoloring, gps, blending, interpolation, contourFactor, color_space);
                 break;
             case 23:
-                domain_color = new NormBlackGridIsoContoursDomainColoring(ds.domain_coloring_mode, palette_outcoloring, color_transfer_outcoloring, color_cycling_location_outcoloring, gps, blending, interpolation, contourFactor);
+                domain_color = new NormBlackGridIsoContoursDomainColoring(ds.domain_coloring_mode, palette_outcoloring, color_transfer_outcoloring, color_cycling_location_outcoloring, gps, blending, interpolation, contourFactor, color_space);
                 break;
             case 24:
-                domain_color = new IsoContoursContoursLog2DomainColoring(ds.domain_coloring_mode, palette_outcoloring, color_transfer_outcoloring, color_cycling_location_outcoloring, gps, blending, interpolation, contourFactor);
+                domain_color = new IsoContoursContoursLog2DomainColoring(ds.domain_coloring_mode, palette_outcoloring, color_transfer_outcoloring, color_cycling_location_outcoloring, gps, blending, interpolation, contourFactor, color_space);
                 break;
             case 25:
-                domain_color = new NormIsoContoursContoursLog2DomainColoring(ds.domain_coloring_mode, palette_outcoloring, color_transfer_outcoloring, color_cycling_location_outcoloring, gps, blending, interpolation, contourFactor);
+                domain_color = new NormIsoContoursContoursLog2DomainColoring(ds.domain_coloring_mode, palette_outcoloring, color_transfer_outcoloring, color_cycling_location_outcoloring, gps, blending, interpolation, contourFactor, color_space);
                 break;
             case 26:
-                domain_color = new GridContoursIsoLinesDomainColoring(ds.domain_coloring_mode, palette_outcoloring, color_transfer_outcoloring, color_cycling_location_outcoloring, gps, blending, interpolation, contourFactor);
+                domain_color = new GridContoursIsoLinesDomainColoring(ds.domain_coloring_mode, palette_outcoloring, color_transfer_outcoloring, color_cycling_location_outcoloring, gps, blending, interpolation, contourFactor, color_space);
                 break;
             case 27:
-                domain_color = new NormGridContoursIsoLinesDomainColoring(ds.domain_coloring_mode, palette_outcoloring, color_transfer_outcoloring, color_cycling_location_outcoloring, gps, blending, interpolation, contourFactor);
+                domain_color = new NormGridContoursIsoLinesDomainColoring(ds.domain_coloring_mode, palette_outcoloring, color_transfer_outcoloring, color_cycling_location_outcoloring, gps, blending, interpolation, contourFactor, color_space);
                 break;
         }
 
@@ -8412,121 +8332,7 @@ public abstract class TaskRender implements Runnable {
             int g = (colors[m] >> 8) & 0xFF;
             int b = colors[m] & 0xFF;
 
-            if (ls.colorMode == 0) { //Lab
-                double[] res = ColorSpaceConverter.RGBtoLAB(r, g, b);
-                int[] rgb = ColorSpaceConverter.LABtoRGB(res[0] * coef + coef2 * 100, res[1], res[2]);
-                output[m] = 0xff000000 | (rgb[0] << 16) | (rgb[1] << 8) | rgb[2];
-            } else if (ls.colorMode == 1) { //HSB
-                double[] res = ColorSpaceConverter.RGBtoHSB(r, g, b);
-
-                double val = res[2] * coef + coef2;
-
-                if (val > 1) {
-                    val = 1;
-                }
-                if (val < 0) {
-                    val = 0;
-                }
-
-                int[] rgb = ColorSpaceConverter.HSBtoRGB(res[0], res[1], val);
-                output[m] = 0xff000000 | (rgb[0] << 16) | (rgb[1] << 8) | rgb[2];
-            } else if (ls.colorMode == 2) { //HSL
-                double[] res = ColorSpaceConverter.RGBtoHSL(r, g, b);
-
-                double val = res[2] * coef + coef2;
-
-                if (val > 1) {
-                    val = 1;
-                }
-                if (val < 0) {
-                    val = 0;
-                }
-
-                int[] rgb = ColorSpaceConverter.HSLtoRGB(res[0], res[1], val);
-                output[m] = 0xff000000 | (rgb[0] << 16) | (rgb[1] << 8) | rgb[2];
-            } else if (ls.colorMode == 3) { //Blending
-                if (coef > 1) {
-                    coef = 1;
-                }
-                if (coef < 0) {
-                    coef = 0;
-                }
-
-                int index = (int) ((1 - coef) * (gradient.length - 1) + 0.5);
-                index = gradient.length - 1 - index;
-
-                int grad_color = getGradientColor(index + gradient_offset);
-
-                int temp_red = (grad_color >> 16) & 0xff;
-                int temp_green = (grad_color >> 8) & 0xff;
-                int temp_blue = grad_color & 0xff;
-
-                int new_color = blending.blend(temp_red, temp_green, temp_blue, r, g, b, 1 - ls.light_blending);
-
-                r = (new_color >> 16) & 0xFF;
-                g = (new_color >> 8) & 0xFF;
-                b = new_color & 0xFF;
-
-                double temp = coef2 * 255;
-                r = (int) (r + temp + 0.5);
-                g = (int) (g + temp + 0.5);
-                b = (int) (b + temp + 0.5);
-
-                if (r > 255) {
-                    r = 255;
-                }
-                if (g > 255) {
-                    g = 255;
-                }
-                if (b > 255) {
-                    b = 255;
-                }
-
-                if (r < 0) {
-                    r = 0;
-                }
-                if (g < 0) {
-                    g = 0;
-                }
-                if (b < 0) {
-                    b = 0;
-                }
-
-                output[m] = 0xff000000 | (r << 16) | (g << 8) | b;
-            } else if (ls.colorMode == 4) { //scaling
-
-                double temp = coef2 * 255;
-                r = (int) (r * coef + temp + 0.5);
-                g = (int) (g * coef + temp + 0.5);
-                b = (int) (b * coef + temp + 0.5);
-
-                if (r > 255) {
-                    r = 255;
-                }
-                if (g > 255) {
-                    g = 255;
-                }
-                if (b > 255) {
-                    b = 255;
-                }
-
-                if (r < 0) {
-                    r = 0;
-                }
-                if (g < 0) {
-                    g = 0;
-                }
-                if (b < 0) {
-                    b = 0;
-                }
-
-                output[m] = 0xff000000 | (r << 16) | (g << 8) | b;
-            }
-            else {
-                double[] res = ColorSpaceConverter.RGBtoOKLAB(r, g, b);
-                int[] rgb = ColorSpaceConverter.OKLABtoRGB(res[0] * coef + coef2, res[1], res[2]);
-                output[m] = 0xff000000 | (rgb[0] << 16) | (rgb[1] << 8) | rgb[2];
-            }
+            output[m] = applyContour(ls.colorMode, r, g, b, coef, coef2, ls.light_blending);
         }
 
         return output;
@@ -9027,11 +8833,17 @@ public abstract class TaskRender implements Runnable {
             int b = colors[m] & 0xFF;
 
             if (ss.colorMode == 0) { //Lab
+                r = ColorCorrection.gammaToLinear(r);
+                g = ColorCorrection.gammaToLinear(g);
+                b = ColorCorrection.gammaToLinear(b);
                 double[] res = ColorSpaceConverter.RGBtoLAB(r, g, b);
                 double val = diffWasPositive ? (1 - diff) * res[0] : (1 - diff) * res[0] + diff * 100;
                 int[] rgb = ColorSpaceConverter.LABtoRGB(val, res[1], res[2]);
-                output[m] = 0xff000000 | (rgb[0] << 16) | (rgb[1] << 8) | rgb[2];
+                output[m] = ColorCorrection.linearToGamma(rgb[0], rgb[1], rgb[2]);
             } else if (ss.colorMode == 1) { //HSB
+                r = ColorCorrection.gammaToLinear(r);
+                g = ColorCorrection.gammaToLinear(g);
+                b = ColorCorrection.gammaToLinear(b);
                 double[] res = ColorSpaceConverter.RGBtoHSB(r, g, b);
 
                 double val = diffWasPositive ? (1 - diff) * res[2] : (1 - diff) * res[2] + diff;
@@ -9044,8 +8856,11 @@ public abstract class TaskRender implements Runnable {
                 }
 
                 int[] rgb = ColorSpaceConverter.HSBtoRGB(res[0], res[1], val);
-                output[m] = 0xff000000 | (rgb[0] << 16) | (rgb[1] << 8) | rgb[2];
+                output[m] = ColorCorrection.linearToGamma(rgb[0], rgb[1], rgb[2]);
             } else if (ss.colorMode == 2) { //HSL
+                r = ColorCorrection.gammaToLinear(r);
+                g = ColorCorrection.gammaToLinear(g);
+                b = ColorCorrection.gammaToLinear(b);
                 double[] res = ColorSpaceConverter.RGBtoHSL(r, g, b);
 
                 double val = diffWasPositive ? (1 - diff) * res[2] : (1 - diff) * res[2] + diff;
@@ -9058,7 +8873,7 @@ public abstract class TaskRender implements Runnable {
                 }
 
                 int[] rgb = ColorSpaceConverter.HSLtoRGB(res[0], res[1], val);
-                output[m] = 0xff000000 | (rgb[0] << 16) | (rgb[1] << 8) | rgb[2];
+                output[m] = ColorCorrection.linearToGamma(rgb[0], rgb[1], rgb[2]);
             } else if (ss.colorMode == 3) { //Blending
 
                 double val = diffWasPositive ? (1 - diff) : (1 - diff) + diff;
@@ -9072,14 +8887,11 @@ public abstract class TaskRender implements Runnable {
                 int temp_green = (grad_color >> 8) & 0xff;
                 int temp_blue = grad_color & 0xff;
 
-                int new_color = blending.blend(temp_red, temp_green, temp_blue, r, g, b, 1 - ss.slope_blending);
-
-                r = (new_color >> 16) & 0xFF;
-                g = (new_color >> 8) & 0xFF;
-                b = new_color & 0xFF;
-
-                output[m] = 0xff000000 | (r << 16) | (g << 8) | b;
+                output[m] = blending.blend(temp_red, temp_green, temp_blue, r, g, b, 1 - ss.slope_blending);
             } else if (ss.colorMode == 4) { //scaling
+                r = ColorCorrection.gammaToLinear(r);
+                g = ColorCorrection.gammaToLinear(g);
+                b = ColorCorrection.gammaToLinear(b);
                 if(diffWasPositive) {
                     r = (int)((1 - diff)*r + 0.5);
                     g = (int)((1 - diff)*g + 0.5);
@@ -9111,13 +8923,16 @@ public abstract class TaskRender implements Runnable {
                     b = 0;
                 }
 
-                output[m] = 0xff000000 | (r << 16) | (g << 8) | b;
+                output[m] = ColorCorrection.linearToGamma(r, g, b);
             }
             else {
+                r = ColorCorrection.gammaToLinear(r);
+                g = ColorCorrection.gammaToLinear(g);
+                b = ColorCorrection.gammaToLinear(b);
                 double[] res = ColorSpaceConverter.RGBtoOKLAB(r, g, b);
                 double val = diffWasPositive ? (1 - diff) * res[0] : (1 - diff) * res[0] + diff;
                 int[] rgb = ColorSpaceConverter.OKLABtoRGB(val, res[1], res[2]);
-                output[m] = 0xff000000 | (rgb[0] << 16) | (rgb[1] << 8) | rgb[2];
+                output[m] = ColorCorrection.linearToGamma(rgb[0], rgb[1], rgb[2]);
             }
 
         }
@@ -10577,23 +10392,32 @@ public abstract class TaskRender implements Runnable {
     private int getModifiedColor(int red, int green, int blue, double coef, int colorMethod, double colorBlending, boolean reverseBlending) {
 
         if (colorMethod == 0) { //Lab
+            red = ColorCorrection.gammaToLinear(red);
+            green = ColorCorrection.gammaToLinear(green);
+            blue = ColorCorrection.gammaToLinear(blue);
             double[] res = ColorSpaceConverter.RGBtoLAB(red, green, blue);
             double val = contourFactor * coef * res[0];
             val = val > 100 ? 100 : val;
             int[] rgb = ColorSpaceConverter.LABtoRGB(val, res[1], res[2]);
-            return 0xff000000 | (rgb[0] << 16) | (rgb[1] << 8) | rgb[2];
+            return ColorCorrection.linearToGamma(rgb[0], rgb[1], rgb[2]);
         } else if (colorMethod == 1) { //HSB
+            red = ColorCorrection.gammaToLinear(red);
+            green = ColorCorrection.gammaToLinear(green);
+            blue = ColorCorrection.gammaToLinear(blue);
             double[] res = ColorSpaceConverter.RGBtoHSB(red, green, blue);
             double val = contourFactor * coef * res[2];
             val = val > 1 ? 1 : val;
             int[] rgb = ColorSpaceConverter.HSBtoRGB(res[0], res[1], val);
-            return 0xff000000 | (rgb[0] << 16) | (rgb[1] << 8) | rgb[2];
+            return ColorCorrection.linearToGamma(rgb[0], rgb[1], rgb[2]);
         } else if (colorMethod == 2) { //HSL
+            red = ColorCorrection.gammaToLinear(red);
+            green = ColorCorrection.gammaToLinear(green);
+            blue = ColorCorrection.gammaToLinear(blue);
             double[] res = ColorSpaceConverter.RGBtoHSL(red, green, blue);
             double val = contourFactor * coef * res[2];
             val = val > 1 ? 1 : val;
             int[] rgb = ColorSpaceConverter.HSLtoRGB(res[0], res[1], val);
-            return 0xff000000 | (rgb[0] << 16) | (rgb[1] << 8) | rgb[2];
+            return ColorCorrection.linearToGamma(rgb[0], rgb[1], rgb[2]);
         } else if (colorMethod == 3) {// blend
             int index = (int) (coef * (gradient.length - 1) + 0.5);
 
@@ -10609,20 +10433,26 @@ public abstract class TaskRender implements Runnable {
 
             return blending.blend(temp_red, temp_green, temp_blue, red, green, blue, colorBlending);
         } else if (colorMethod == 4) { //scale
+            red = ColorCorrection.gammaToLinear(red);
+            green = ColorCorrection.gammaToLinear(green);
+            blue = ColorCorrection.gammaToLinear(blue);
             red = (int) (contourFactor * coef * red + 0.5);
             green = (int) (contourFactor * coef * green + 0.5);
             blue = (int) (contourFactor * coef * blue + 0.5);
             red = red > 255 ? 255 : red;
             green = green > 255 ? 255 : green;
             blue = blue > 255 ? 255 : blue;
-            return 0xff000000 | (red << 16) | (green << 8) | blue;
+            return ColorCorrection.linearToGamma(red, green, blue);
         }
         else {
+            red = ColorCorrection.gammaToLinear(red);
+            green = ColorCorrection.gammaToLinear(green);
+            blue = ColorCorrection.gammaToLinear(blue);
             double[] res = ColorSpaceConverter.RGBtoOKLAB(red, green, blue);
             double val = contourFactor * coef * res[0];
             val = val > 1 ? 1 : val;
             int[] rgb = ColorSpaceConverter.OKLABtoRGB(val, res[1], res[2]);
-            return 0xff000000 | (rgb[0] << 16) | (rgb[1] << 8) | rgb[2];
+            return ColorCorrection.linearToGamma(rgb[0], rgb[1], rgb[2]);
         }
     }
 
@@ -10636,9 +10466,10 @@ public abstract class TaskRender implements Runnable {
 
     }
 
-    private void interpolationFactory(int color_interpolation) {
+    private void interpolationFactory(int color_interpolation, int color_space) {
 
         method = InterpolationMethod.create(color_interpolation);
+        method.setColorSpace(color_space);
 
     }
 
@@ -12792,7 +12623,7 @@ public abstract class TaskRender implements Runnable {
 
             return Constants.ARBITRARY_APFLOAT;
         }
-        else if(TaskRender.HIGH_PRECISION_IMPLEMENTATION == Constants.ARBITRARY_MPFR && !LibMpfr.hasError()) {
+        else if(TaskRender.HIGH_PRECISION_IMPLEMENTATION == Constants.ARBITRARY_MPFR && !LibMpfr.mpfrHasError()) {
             if(f.supportsMpfrBignum()) {
                 return Constants.ARBITRARY_MPFR;
             }
@@ -12803,7 +12634,7 @@ public abstract class TaskRender implements Runnable {
 
             return Constants.ARBITRARY_APFLOAT;
         }
-        else if(TaskRender.HIGH_PRECISION_IMPLEMENTATION == Constants.ARBITRARY_MPFR && LibMpfr.hasError()) {
+        else if(TaskRender.HIGH_PRECISION_IMPLEMENTATION == Constants.ARBITRARY_MPFR && LibMpfr.mpfrHasError()) {
 
             if(size.doubleValue() > f.getDoubleDoubleLimit()) {
                 return Constants.ARBITRARY_DOUBLEDOUBLE;
@@ -12819,7 +12650,7 @@ public abstract class TaskRender implements Runnable {
 
             return Constants.ARBITRARY_APFLOAT;
         }
-        else if(TaskRender.HIGH_PRECISION_IMPLEMENTATION == Constants.ARBITRARY_MPIR && !LibMpir.hasError()) {
+        else if(TaskRender.HIGH_PRECISION_IMPLEMENTATION == Constants.ARBITRARY_MPIR && !LibMpir.mpirHasError()) {
             if(f.supportsMpirBignum()) {
                 return Constants.ARBITRARY_MPIR;
             }
@@ -12830,7 +12661,7 @@ public abstract class TaskRender implements Runnable {
 
             return Constants.ARBITRARY_APFLOAT;
         }
-        else if(TaskRender.HIGH_PRECISION_IMPLEMENTATION == Constants.ARBITRARY_MPIR && LibMpir.hasError()) {
+        else if(TaskRender.HIGH_PRECISION_IMPLEMENTATION == Constants.ARBITRARY_MPIR && LibMpir.mpirHasError()) {
 
             if(size.doubleValue() > f.getDoubleDoubleLimit()) {
                 return Constants.ARBITRARY_DOUBLEDOUBLE;
@@ -12852,11 +12683,11 @@ public abstract class TaskRender implements Runnable {
                 return Constants.ARBITRARY_DOUBLEDOUBLE;
             }
 
-            if(!LibMpir.hasError() && f.supportsMpirBignum() && (MpirBigNum.precision >= 1200 || (!f.supportsBigIntnum() && !f.supportsBignum()))) {
+            if(!LibMpir.mpirHasError() && f.supportsMpirBignum() && (MpirBigNum.precision >= 1200 || (!f.supportsBigIntnum() && !f.supportsBignum()))) {
                 return Constants.ARBITRARY_MPIR;
             }
 
-            if(!LibMpfr.hasError() && f.supportsMpfrBignum() && (MpfrBigNum.precision >= 1350 || (!f.supportsBigIntnum() && !f.supportsBignum()))) {
+            if(!LibMpfr.mpfrHasError() && f.supportsMpfrBignum() && (MpfrBigNum.precision >= 1350 || (!f.supportsBigIntnum() && !f.supportsBignum()))) {
                 return Constants.ARBITRARY_MPFR;
             }
 
@@ -12913,7 +12744,7 @@ public abstract class TaskRender implements Runnable {
 
             return Constants.BIGNUM_APFLOAT;
         }
-        else if(TaskRender.BIGNUM_IMPLEMENTATION == Constants.BIGNUM_MPFR && !LibMpfr.hasError()) {
+        else if(TaskRender.BIGNUM_IMPLEMENTATION == Constants.BIGNUM_MPFR && !LibMpfr.mpfrHasError()) {
             if(f.supportsMpfrBignum()) {
                 return Constants.BIGNUM_MPFR;
             }
@@ -12928,7 +12759,7 @@ public abstract class TaskRender implements Runnable {
 
             return Constants.BIGNUM_APFLOAT;
         }
-        else if(TaskRender.BIGNUM_IMPLEMENTATION == Constants.BIGNUM_MPFR && LibMpfr.hasError()) {
+        else if(TaskRender.BIGNUM_IMPLEMENTATION == Constants.BIGNUM_MPFR && LibMpfr.mpfrHasError()) {
             if(f.supportsDouble() && dsize > f.getDoubleLimit()) {
                 return Constants.BIGNUM_DOUBLE;
             }
@@ -12947,7 +12778,7 @@ public abstract class TaskRender implements Runnable {
 
             return Constants.BIGNUM_APFLOAT;
         }
-        else if(TaskRender.BIGNUM_IMPLEMENTATION == Constants.BIGNUM_MPIR && !LibMpir.hasError()) {
+        else if(TaskRender.BIGNUM_IMPLEMENTATION == Constants.BIGNUM_MPIR && !LibMpir.mpirHasError()) {
             if(f.supportsMpirBignum()) {
                 return Constants.BIGNUM_MPIR;
             }
@@ -12962,7 +12793,7 @@ public abstract class TaskRender implements Runnable {
 
             return Constants.BIGNUM_APFLOAT;
         }
-        else if(TaskRender.BIGNUM_IMPLEMENTATION == Constants.BIGNUM_MPIR && LibMpir.hasError()) {
+        else if(TaskRender.BIGNUM_IMPLEMENTATION == Constants.BIGNUM_MPIR && LibMpir.mpirHasError()) {
             if(f.supportsDouble() && dsize > f.getDoubleLimit()) {
                 return Constants.BIGNUM_DOUBLE;
             }
@@ -12990,11 +12821,12 @@ public abstract class TaskRender implements Runnable {
                 return Constants.BIGNUM_DOUBLEDOUBLE;
             }
 
-            if(!LibMpir.hasError() && f.supportsMpirBignum() && (MpirBigNum.precision >= 1200 || (!f.supportsBigIntnum() && !f.supportsBignum()))) { //(f.supportsPeriod() && DETECT_PERIOD && MpfrBigNum.precision >= 450)
+            //Todo windows mpfr with mpir is better
+            if(!LibMpir.mpirHasError() && f.supportsMpirBignum() && (MpirBigNum.precision >= 1200 || (!f.supportsBigIntnum() && !f.supportsBignum()))) { //(f.supportsPeriod() && DETECT_PERIOD && MpfrBigNum.precision >= 450)
                 return Constants.BIGNUM_MPIR;
             }
 
-            if(!LibMpfr.hasError() && f.supportsMpfrBignum() && (MpfrBigNum.precision >= 1350 || (!f.supportsBigIntnum() && !f.supportsBignum()))) { //(f.supportsPeriod() && DETECT_PERIOD && MpfrBigNum.precision >= 450)
+            if(!LibMpfr.mpfrHasError() && f.supportsMpfrBignum() && (MpfrBigNum.precision >= 1350 || (!f.supportsBigIntnum() && !f.supportsBignum()))) { //(f.supportsPeriod() && DETECT_PERIOD && MpfrBigNum.precision >= 450)
                 return Constants.BIGNUM_MPFR;
             }
 
@@ -13009,11 +12841,11 @@ public abstract class TaskRender implements Runnable {
             return Constants.BIGNUM_APFLOAT;
         }
         else if(TaskRender.BIGNUM_IMPLEMENTATION == Constants.BIGNUM_AUTOMATIC_ONLY_BIGNUM) {
-            if(!LibMpir.hasError() && f.supportsMpirBignum() && (MpirBigNum.precision >= 1200 || (!f.supportsBigIntnum() && !f.supportsBignum()))) { //(f.supportsPeriod() && DETECT_PERIOD && MpfrBigNum.precision >= 450)
+            if(!LibMpir.mpirHasError() && f.supportsMpirBignum() && (MpirBigNum.precision >= 1200 || (!f.supportsBigIntnum() && !f.supportsBignum()))) { //(f.supportsPeriod() && DETECT_PERIOD && MpfrBigNum.precision >= 450)
                 return Constants.BIGNUM_MPIR;
             }
 
-            if(!LibMpfr.hasError() && f.supportsMpfrBignum() && (MpfrBigNum.precision >= 1350 || (!f.supportsBigIntnum() && !f.supportsBignum()))) { //(f.supportsPeriod() && DETECT_PERIOD && MpfrBigNum.precision >= 450)
+            if(!LibMpfr.mpfrHasError() && f.supportsMpfrBignum() && (MpfrBigNum.precision >= 1350 || (!f.supportsBigIntnum() && !f.supportsBignum()))) { //(f.supportsPeriod() && DETECT_PERIOD && MpfrBigNum.precision >= 450)
                 return Constants.BIGNUM_MPFR;
             }
 
@@ -13323,18 +13155,158 @@ public abstract class TaskRender implements Runnable {
 
     public static boolean allocateMPFR() {
         if(HIGH_PRECISION_CALCULATION) {
-            return (HIGH_PRECISION_IMPLEMENTATION == Constants.ARBITRARY_MPFR || (HIGH_PRECISION_IMPLEMENTATION == Constants.ARBITRARY_AUTOMATIC && LibMpir.hasError())) && !LibMpfr.hasError();
+            return (HIGH_PRECISION_IMPLEMENTATION == Constants.ARBITRARY_MPFR || (HIGH_PRECISION_IMPLEMENTATION == Constants.ARBITRARY_AUTOMATIC && LibMpir.mpirHasError())) && !LibMpfr.mpfrHasError();
         }
 
-        return (BIGNUM_IMPLEMENTATION == Constants.BIGNUM_MPFR || ((BIGNUM_IMPLEMENTATION == Constants.BIGNUM_AUTOMATIC || BIGNUM_IMPLEMENTATION == Constants.BIGNUM_AUTOMATIC_ONLY_BIGNUM) && LibMpir.hasError())) && !LibMpfr.hasError();
+        return (BIGNUM_IMPLEMENTATION == Constants.BIGNUM_MPFR || ((BIGNUM_IMPLEMENTATION == Constants.BIGNUM_AUTOMATIC || BIGNUM_IMPLEMENTATION == Constants.BIGNUM_AUTOMATIC_ONLY_BIGNUM) && LibMpir.mpirHasError())) && !LibMpfr.mpfrHasError();
     }
 
     public static boolean allocateMPIR() {
         if(HIGH_PRECISION_CALCULATION) {
-            return (HIGH_PRECISION_IMPLEMENTATION == Constants.ARBITRARY_MPIR || HIGH_PRECISION_IMPLEMENTATION == Constants.ARBITRARY_AUTOMATIC) && !LibMpir.hasError();
+            return (HIGH_PRECISION_IMPLEMENTATION == Constants.ARBITRARY_MPIR || HIGH_PRECISION_IMPLEMENTATION == Constants.ARBITRARY_AUTOMATIC) && !LibMpir.mpirHasError();
         }
 
-        return (BIGNUM_IMPLEMENTATION == Constants.BIGNUM_MPIR || BIGNUM_IMPLEMENTATION == Constants.BIGNUM_AUTOMATIC || BIGNUM_IMPLEMENTATION == Constants.BIGNUM_AUTOMATIC_ONLY_BIGNUM) && !LibMpir.hasError();
+        return (BIGNUM_IMPLEMENTATION == Constants.BIGNUM_MPIR || BIGNUM_IMPLEMENTATION == Constants.BIGNUM_AUTOMATIC || BIGNUM_IMPLEMENTATION == Constants.BIGNUM_AUTOMATIC_ONLY_BIGNUM) && !LibMpir.mpirHasError();
+    }
+
+    private int applyContour(int colorMode, int r, int g, int b, double coef, double coef2, double blending_coef) {
+        if (colorMode == 0) { //Lab
+            r = ColorCorrection.gammaToLinear(r);
+            g = ColorCorrection.gammaToLinear(g);
+            b = ColorCorrection.gammaToLinear(b);
+            double[] res = ColorSpaceConverter.RGBtoLAB(r, g, b);
+            int[] rgb = ColorSpaceConverter.LABtoRGB(res[0] * coef + coef2 * 100, res[1], res[2]);
+            return ColorCorrection.linearToGamma(rgb[0], rgb[1], rgb[2]);
+        } else if (colorMode == 1) { //HSB
+            r = ColorCorrection.gammaToLinear(r);
+            g = ColorCorrection.gammaToLinear(g);
+            b = ColorCorrection.gammaToLinear(b);
+            double[] res = ColorSpaceConverter.RGBtoHSB(r, g, b);
+
+            double val = res[2] * coef + coef2;
+
+            if (val > 1) {
+                val = 1;
+            }
+            if (val < 0) {
+                val = 0;
+            }
+
+            int[] rgb = ColorSpaceConverter.HSBtoRGB(res[0], res[1], val);
+            return ColorCorrection.linearToGamma(rgb[0], rgb[1], rgb[2]);
+        } else if (colorMode == 2) { //HSL
+            r = ColorCorrection.gammaToLinear(r);
+            g = ColorCorrection.gammaToLinear(g);
+            b = ColorCorrection.gammaToLinear(b);
+            double[] res = ColorSpaceConverter.RGBtoHSL(r, g, b);
+
+            double val = res[2] * coef + coef2;
+
+            if (val > 1) {
+                val = 1;
+            }
+            if (val < 0) {
+                val = 0;
+            }
+
+            int[] rgb = ColorSpaceConverter.HSLtoRGB(res[0], res[1], val);
+            return ColorCorrection.linearToGamma(rgb[0], rgb[1], rgb[2]);
+        } else if (colorMode == 3) { //Blending
+            if (coef > 1) {
+                coef = 1;
+            }
+            if (coef < 0) {
+                coef = 0;
+            }
+
+            int index = (int) ((1 - coef) * (gradient.length - 1) + 0.5);
+            index = gradient.length - 1 - index;
+
+            int grad_color = getGradientColor(index + gradient_offset);
+
+            int temp_red = (grad_color >> 16) & 0xff;
+            int temp_green = (grad_color >> 8) & 0xff;
+            int temp_blue = grad_color & 0xff;
+
+            temp_red = ColorCorrection.gammaToLinear(temp_red);
+            temp_green = ColorCorrection.gammaToLinear(temp_green);
+            temp_blue = ColorCorrection.gammaToLinear(temp_blue);
+
+            int new_color = blending.blend(temp_red, temp_green, temp_blue, r, g, b, 1 - blending_coef);
+
+            r = (new_color >> 16) & 0xFF;
+            g = (new_color >> 8) & 0xFF;
+            b = new_color & 0xFF;
+
+            r = ColorCorrection.gammaToLinear(r);
+            g = ColorCorrection.gammaToLinear(g);
+            b = ColorCorrection.gammaToLinear(b);
+
+            double temp = coef2 * 255;
+            r = (int) (r + temp + 0.5);
+            g = (int) (g + temp + 0.5);
+            b = (int) (b + temp + 0.5);
+
+            if (r > 255) {
+                r = 255;
+            }
+            if (g > 255) {
+                g = 255;
+            }
+            if (b > 255) {
+                b = 255;
+            }
+
+            if (r < 0) {
+                r = 0;
+            }
+            if (g < 0) {
+                g = 0;
+            }
+            if (b < 0) {
+                b = 0;
+            }
+
+            return ColorCorrection.linearToGamma(r, g, b);
+        } else if (colorMode == 4) { //scaling
+            r = ColorCorrection.gammaToLinear(r);
+            g = ColorCorrection.gammaToLinear(g);
+            b = ColorCorrection.gammaToLinear(b);
+            double temp = coef2 * 255;
+            r = (int) (r * coef + temp + 0.5);
+            g = (int) (g * coef + temp + 0.5);
+            b = (int) (b * coef + temp + 0.5);
+
+            if (r > 255) {
+                r = 255;
+            }
+            if (g > 255) {
+                g = 255;
+            }
+            if (b > 255) {
+                b = 255;
+            }
+
+            if (r < 0) {
+                r = 0;
+            }
+            if (g < 0) {
+                g = 0;
+            }
+            if (b < 0) {
+                b = 0;
+            }
+
+            return ColorCorrection.linearToGamma(r, g, b);
+        }
+        else {
+            r = ColorCorrection.gammaToLinear(r);
+            g = ColorCorrection.gammaToLinear(g);
+            b = ColorCorrection.gammaToLinear(b);
+            double[] res = ColorSpaceConverter.RGBtoOKLAB(r, g, b);
+            int[] rgb = ColorSpaceConverter.OKLABtoRGB(res[0] * coef + coef2, res[1], res[2]);
+            return ColorCorrection.linearToGamma(rgb[0], rgb[1], rgb[2]);
+        }
     }
 
     public static void deleteLibs() {
@@ -13364,19 +13336,19 @@ public abstract class TaskRender implements Runnable {
 
     private void setPostProcessingBlending() {
 
-        ens_blending = blendingFactory(COLOR_SMOOTHING_METHOD, ens.en_color_blending);
+        ens_blending = blendingFactory(COLOR_SMOOTHING_METHOD, ens.en_color_blending, COLOR_SPACE);
         ens_blending.setReverseColors(ens.en_reverse_color_blending);
 
-        rps_blending = blendingFactory(COLOR_SMOOTHING_METHOD, rps.rp_color_blending);
+        rps_blending = blendingFactory(COLOR_SMOOTHING_METHOD, rps.rp_color_blending, COLOR_SPACE);
         rps_blending.setReverseColors(rps.rp_reverse_color_blending);
 
-        ndes_blending = blendingFactory(COLOR_SMOOTHING_METHOD, ndes.nde_color_blending);
+        ndes_blending = blendingFactory(COLOR_SMOOTHING_METHOD, ndes.nde_color_blending, COLOR_SPACE);
         ndes_blending.setReverseColors(ndes.nde_reverse_color_blending);
 
-        hss_blending = blendingFactory(COLOR_SMOOTHING_METHOD, hss.hs_color_blending);
+        hss_blending = blendingFactory(COLOR_SMOOTHING_METHOD, hss.hs_color_blending, COLOR_SPACE);
         hss_blending.setReverseColors(hss.hs_reverse_color_blending);
 
-        ofs_blending = blendingFactory(COLOR_SMOOTHING_METHOD, ofs.of_color_blending);
+        ofs_blending = blendingFactory(COLOR_SMOOTHING_METHOD, ofs.of_color_blending, COLOR_SPACE);
         ofs_blending.setReverseColors(ofs.of_reverse_color_blending);
 
     }

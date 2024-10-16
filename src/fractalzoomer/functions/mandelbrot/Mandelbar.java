@@ -128,7 +128,7 @@ public class Mandelbar extends Julia {
         }
         else {
             if(z instanceof MpfrBigNumComplex) {
-                z = z.conjugate_mutable().square_plus_c_mutable(c, workSpaceData.temp1, workSpaceData.temp2);
+                z = z.conjugate_mutable().square_plus_c_mutable(c, workSpaceData.temp1, workSpaceData.temp2, workSpaceData.temp3);
             }
             else if(z instanceof MpirBigNumComplex) {
                 z = z.conjugate_mutable().square_plus_c_mutable(c, workSpaceData.temp1p, workSpaceData.temp2p, workSpaceData.temp3p);
@@ -144,7 +144,7 @@ public class Mandelbar extends Julia {
     @Override
     public void function(GenericComplex[] complex) {
         if(complex[0] instanceof MpfrBigNumComplex) {
-            complex[0] = complex[0].conjugate_mutable().square_plus_c_mutable(complex[1], workSpaceData.temp1, workSpaceData.temp2);
+            complex[0] = complex[0].conjugate_mutable().square_plus_c_mutable_no_threads(complex[1], workSpaceData.temp1, workSpaceData.temp2, workSpaceData.temp3);
         }
         else if(complex[0] instanceof MpirBigNumComplex) {
             complex[0] = complex[0].conjugate_mutable().square_plus_c_mutable_no_threads(complex[1], workSpaceData.temp1p, workSpaceData.temp2p, workSpaceData.temp3p);

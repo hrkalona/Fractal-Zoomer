@@ -237,7 +237,7 @@ public class PerpendicularMandelbrot extends Julia {
         complex[0] = complex[0].absNegateRe_mutable();
 
         if(complex[0] instanceof MpfrBigNumComplex) {
-            complex[0] = complex[0].square_plus_c_mutable(complex[1], workSpaceData.temp1, workSpaceData.temp2);
+            complex[0] = complex[0].square_plus_c_mutable_no_threads(complex[1], workSpaceData.temp1, workSpaceData.temp2, workSpaceData.temp3);
         }
         else if(complex[0] instanceof MpirBigNumComplex) {
             complex[0] = complex[0].square_plus_c_mutable_no_threads(complex[1], workSpaceData.temp1p, workSpaceData.temp2p, workSpaceData.temp3p);
@@ -268,7 +268,7 @@ public class PerpendicularMandelbrot extends Julia {
         z = z.absNegateRe_mutable();
 
         if(z instanceof MpfrBigNumComplex) {
-            z = z.square_plus_c_mutable(c, workSpaceData.temp1, workSpaceData.temp2);
+            z = z.square_plus_c_mutable(c, workSpaceData.temp1, workSpaceData.temp2, workSpaceData.temp3);
         }
         else if(z instanceof MpirBigNumComplex) {
             z = z.square_plus_c_mutable(c, workSpaceData.temp1p, workSpaceData.temp2p, workSpaceData.temp3p);

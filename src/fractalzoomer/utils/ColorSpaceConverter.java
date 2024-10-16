@@ -310,10 +310,15 @@ import java.util.ArrayList;
     }
 
     private static double PQ_inv(double X) {
+        if(X < 0) {
+            X = 0;
+        }
         double XX = Math.pow(X, 7.460772656268214e-03);
-        return 1e4 * Math.pow(
-                (0.8359375 - XX) / (18.6875*XX - 18.8515625),
-                6.277394636015326);
+        double v = (0.8359375 - XX) / (18.6875*XX - 18.8515625);
+        if(v < 0) {
+            v = 0;
+        }
+        return 1e4 * Math.pow(v, 6.277394636015326);
     }
 
 
@@ -351,9 +356,6 @@ import java.util.ArrayList;
 
       /**
        * Convert LUV to XYZ.
-       * @param L
-       * @param a
-       * @param b
        * @return XYZ values
        */
       public static double[] LUVtoXYZ(double L, double u, double v) {
@@ -758,9 +760,6 @@ import java.util.ArrayList;
 
     /**
      * Convert RGB to XYZ
-     * @param R
-     * @param G
-     * @param B
      * @return XYZ in double array.
      * 
      * D65
@@ -934,10 +933,15 @@ import java.util.ArrayList;
 
 
     private static double PQ(double X) {
+        if(X < 0) {
+            X = 0;
+        }
         double XX = Math.pow(X*1e-4, 0.1593017578125);
-          return Math.pow(
-                  (0.8359375 + 18.8515625*XX) / (1 + 18.6875*XX),
-                  134.034375);
+        double v = (0.8359375 + 18.8515625*XX) / (1 + 18.6875*XX);
+        if(v < 0) {
+            v = 0;
+        }
+        return Math.pow(v, 134.034375);
     }
 
       public static double[] XYZtoJzAzBz(double X, double Y, double Z) {
@@ -1046,9 +1050,6 @@ import java.util.ArrayList;
 
     /**
      * Convert XYZ to RGB.
-     * @param X
-     * @param Y
-     * @param Z
      * @return RGB in int array.
      */
 
@@ -1652,6 +1653,57 @@ import java.util.ArrayList;
           return yCbCr;
       }
 
+      static double A = -0.14861,
+              B = +1.78277,
+              C = -0.29227,
+              D = -0.90649,
+              E = +1.97294,
+              ED = E * D,
+              EB = E * B,
+              BC_DA = B * C - D * A;
+
+      public static double[] RGBtoCubehelix(int[] RGB) {
+          return RGBtoCubehelix(RGB[0], RGB[1], RGB[2]);
+      }
+
+      public static double[] RGBtoCubehelix(int rin, int gin, int bin) {
+          double r = rin / 255.0,
+                  g = gin / 255.0,
+                  b = bin / 255.0;
+
+          double l = (BC_DA * b + ED * r - EB * g) / (BC_DA + ED - EB),
+                  bl = b - l,
+                  k = (E * (g - l) - C * bl) / D;
+
+          k = Math.abs(k) < 1e-14 ? 0 : k;
+          bl = Math.abs(bl) < 1e-14 ? 0 : bl;
+
+          double s = Math.sqrt(k * k + bl * bl) / (E * l * (1 - l)); // NaN if l=0 or l=1
+          double h = Double.NaN;
+          if(!Double.isNaN(s)) {
+              h = Math.toDegrees(Math.atan2(k, bl)) - 120;
+          }
+
+          return new double[] {h < 0 ? h + 360 : h, s, l};
+      }
+
+
+      public static int[] CubehelixtoRGB(double[] hsl) {
+          return CubehelixtoRGB(hsl[0], hsl[1], hsl[2]);
+      }
+
+      public static int[] CubehelixtoRGB(double hin, double sin, double lin) {
+          double h = Double.isNaN(hin) ? 0 : Math.toRadians(hin + 120),
+                  l = lin,
+                  a = Double.isNaN(sin) ? 0 : sin * l * (1 - l),
+                  cosh = Math.cos(h),
+                  sinh = Math.sin(h);
+
+          return new int[] {(int)(255 * (l + a * (A * cosh + B * sinh)) + 0.5),
+                  (int)(255 * (l + a * (C * cosh + D * sinh)) + 0.5),
+                  (int)(255 * (l + a * (E * cosh)) + 0.5)};
+      }
+
     public static int[] HWBtoRGB(double[] HWB) {
         return HWBtoRGB(HWB[0], HWB[1], HWB[2]);
     }
@@ -1751,13 +1803,38 @@ double g(double K) {
 
       public static void main(String[] args) {
 
-
+          double minA = Double.MAX_VALUE, minB = Double.MAX_VALUE, minC = Double.MAX_VALUE;
+          double maxA = -Double.MAX_VALUE, maxB = -Double.MAX_VALUE, maxC = -Double.MAX_VALUE;
           for(int r = 0; r < 256; r++) {
               for(int g = 0; g < 256; g++) {
                   for(int b = 0; b < 256; b++) {
-                      int[] res = ColorSpaceConverter.RGBtoYCbCr(r, g, b);
+                      double[] res = ColorSpaceConverter.RGBtoCubehelix(r, g, b);
 
-                      int[] rgb = ColorSpaceConverter.YCbCrtoRGB(res);
+                      if(res[0] < minA){
+                        minA = res[0];
+                      }
+
+                      if(res[1] < minB){
+                          minB = res[1];
+                      }
+
+                      if(res[2] < minC){
+                          minC = res[2];
+                      }
+
+                      if(res[0] > maxA){
+                          maxA = res[0];
+                      }
+
+                      if(res[1] > maxB){
+                          maxB = res[1];
+                      }
+
+                      if(res[2] > maxC){
+                          maxC = res[2];
+                      }
+
+                      int[] rgb = ColorSpaceConverter.CubehelixtoRGB(res);
 
                       if(r != rgb[0]) {
                           System.out.println("Red: " + r + " " + rgb[0]);
@@ -1775,6 +1852,8 @@ double g(double K) {
               }
           }
 
+          System.out.println("Min: " + minA + " " + minB + " " + minC);
+          System.out.println("Max: " + maxA + " " + maxB + " " + maxC);
 
 
       }

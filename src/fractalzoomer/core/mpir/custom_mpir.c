@@ -4,11 +4,13 @@
 //Add to gmp-h.in
 /*__GMP_DECLSPEC void mpir_fz_square_plus_c(mpf_ptr re, mpf_ptr im, mpf_ptr temp, mpf_srcptr re_sqr, mpf_srcptr im_sqr, mpf_srcptr norm_sqr, mpf_srcptr cre, mpf_srcptr cim);
 __GMP_DECLSPEC void mpir_fz_square(mpf_ptr re, mpf_ptr im, mpf_ptr temp, mpf_srcptr re_sqr, mpf_srcptr im_sqr, mpf_srcptr norm_sqr);
-__GMP_DECLSPEC void mpir_fz_square_plus_c_simple(mpf_ptr re, mpf_ptr im, mpf_ptr temp1, mpf_ptr temp2, mpf_ptr temp3, mpf_srcptr cre, mpf_srcptr cim, int use_threads);
-__GMP_DECLSPEC void mpir_fz_norm_square_with_components(mpf_ptr re_sqr, mpf_ptr im_sqr, mpf_ptr norm_sqr, mpf_srcptr re, mpf_srcptr im, int algorithm, int use_threads);
+__GMP_DECLSPEC void mpir_fz_square_plus_c_simple(mpf_ptr re, mpf_ptr im, mpf_ptr temp1, mpf_ptr temp2, mpf_ptr temp3, mpf_srcptr cre, mpf_srcptr cim, int algorithm, int use_threads);
+__GMP_DECLSPEC void mpir_fz_square_plus_c_simple_with_reduction_not_deep(mpf_ptr re, mpf_ptr im, mpf_ptr temp1, mpf_ptr temp2, mpf_ptr temp3, mpf_srcptr cre, mpf_srcptr cim, int algorithm, int use_threads, double* valRe, double* valIm);
+__GMP_DECLSPEC void mpir_fz_square_plus_c_simple_with_reduction_deep(mpf_ptr re, mpf_ptr im, mpf_ptr temp1, mpf_ptr temp2, mpf_ptr temp3, mpf_srcptr cre, mpf_srcptr cim, int algorithm, int use_threads, double* mantissaRe, double* mantissaIm, long* expRe, long* expIm);
+__GMP_DECLSPEC void mpir_fz_norm_square_with_components(mpf_ptr re_sqr, mpf_ptr im_sqr, mpf_ptr norm_sqr, mpf_srcptr re, mpf_srcptr im, int use_threads);
 __GMP_DECLSPEC void mpir_fz_norm_square(mpf_ptr norm_sqr, mpf_ptr temp1, mpf_srcptr re, mpf_srcptr im, int use_threads);
 __GMP_DECLSPEC void mpir_fz_get_d(double* valRe, double* valIm, mpf_srcptr re, mpf_srcptr im);
-__GMP_DECLSPEC int mpir_fz_get_d_2exp(double* valRe, double* valIm, long* expRe, long* expIm, mpf_srcptr re, mpf_srcptr im);
+__GMP_DECLSPEC void mpir_fz_get_d_2exp(double* valRe, double* valIm, long* expRe, long* expIm, mpf_srcptr re, mpf_srcptr im);
 __GMP_DECLSPEC void mpir_fz_set(mpf_ptr destre, mpf_ptr destim, mpf_srcptr srcre, mpf_srcptr srcim);
 __GMP_DECLSPEC void mpir_fz_self_add(mpf_ptr re, mpf_ptr im, mpf_srcptr val_re, mpf_srcptr val_im);
 __GMP_DECLSPEC void mpir_fz_self_sub(mpf_ptr re, mpf_ptr im, mpf_srcptr val_re, mpf_srcptr val_im);

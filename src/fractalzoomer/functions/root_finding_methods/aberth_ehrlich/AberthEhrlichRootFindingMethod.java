@@ -118,7 +118,7 @@ public abstract class AberthEhrlichRootFindingMethod extends RootFindingMethods 
                 out = getFinalValueOut(out);
 
                 if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(complex[0], zold, zold2, iterations, pixel, start, c0, pixel);
+                    setTrueColorOut(complex[0], zold, zold2, iterations, pixel, start, c0, pixel, object);
                 }
 
                 return out;

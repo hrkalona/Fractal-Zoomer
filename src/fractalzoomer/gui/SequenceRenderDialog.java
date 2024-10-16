@@ -95,7 +95,7 @@ public class SequenceRenderDialog extends JDialog {
 
 
 
-        field_size = new JTextArea(3, 50);
+        field_size = new JTextArea(6, 50);
         field_size.setLineWrap(true);
         field_size.setFont(TEMPLATE_TFIELD.getFont());
         field_size.setText("" + zss.size);
@@ -107,7 +107,7 @@ public class SequenceRenderDialog extends JDialog {
         disableKeys(scrollSize.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT));
 
 
-        JTextArea settings_size = new JTextArea(3, 50);
+        JTextArea settings_size = new JTextArea(6, 50);
         settings_size.setLineWrap(true);
         settings_size.setFont(TEMPLATE_TFIELD.getFont());
         settings_size.setEditable(false);
@@ -125,6 +125,16 @@ public class SequenceRenderDialog extends JDialog {
             scrollSettingsSize.getVerticalScrollBar().setValue(0);
         });
 
+        JButton magnification = new MyButton("Magnification/Zoom");
+        magnification.setToolTipText("An alternative size option.");
+        magnification.setFocusable(false);
+        magnification.setIcon(MainWindow.getIcon("magnification.png"));
+
+        magnification.addActionListener(e -> new SequenceMagnificationDialog(ptr, s, field_size, settings_size));
+
+        JPanel button_panel = new JPanel();
+        button_panel.setLayout(new FlowLayout());
+        button_panel.add(magnification);
 
         fieldZoom = new MyJSpinner(new SpinnerNumberModel(zss.zoom_factor, 1.001, 32.0, 0.5));
 
@@ -164,6 +174,7 @@ public class SequenceRenderDialog extends JDialog {
                 scrollSize,
                 "Settings Size:",
                 scrollSettingsSize,
+                button_panel,
                 " ",
                 "Set the zoom sequence parameters.",
                 "Zooming Factor:",

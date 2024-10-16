@@ -50,13 +50,13 @@ public class WorkSpaceData {
         if(TaskRender.allocateMPFR()) {
             temp1 = new MpfrBigNum();
             temp2 = new MpfrBigNum();
+            temp3 = new MpfrBigNum();
 
             if(f.supportsPeriod() && TaskRender.DETECT_PERIOD) {
                 tempPvar = new MpfrBigNum();
                 tempPvar2 = new MpfrBigNum();
             }
             if(f instanceof MandelbrotCubed || f instanceof MandelbarCubed) {
-                temp3 = new MpfrBigNum();
                 temp4 = new MpfrBigNum();
             }
 

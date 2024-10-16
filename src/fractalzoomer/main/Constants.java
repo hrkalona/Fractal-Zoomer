@@ -83,6 +83,7 @@ public interface Constants {
     public static final String[] derivativeMethod = {"Provided", "Numerical Forward", "Numerical Central", "Numerical Backward"};
     public static final String[] gridAlgorithms = {"sin", "mod"};
     public static final String[] combineAlgorithms = {"Multiply", "Average"};
+    public static final String[] colorSpaces = {"RGB", "HSB", "Exp", "Square", "Sqrt", "RYB", "Lab", "XYZ", "LCH_ab", "Bezier RGB", "HSL", "Luv", "LCH_uv", "OKLab", "LCH_oklab", "JzAzBz", "LCH_JzAzBz", "HSL_uv", "HPL_uv", "HWB", "Linear sRGB", "yCbCr", "Cubehelix", "B-Spline RGB", "HSB(L)", "HSL(L)", "LCH_ab(L)", "LCH_uv(L)", "LCH_oklab(L)", "LCH_JzAzBz(L)", "HSL_uv(L)", "HPL_uv(L)", "HWB(L)", "Cubehelix(L)"};
     public static final String[] trapHeightAlgorithms = {"Linear", "Cosine", "Square Root", "Exponential", "Cube Root", "Fourth Root", "Square", "Sine", "Deceleration", "3rd Degree Poly", "5th Degree Poly", "Smooth Transition", "Quarter Sine"};
     public static final String[] novaMethods = {"Newton Method", "Halley Method", "Schroder Method", "Householder Method", "Secant Method", "Steffensen Method", "Muller Method", "Parhalley Method", "Laguerre Method", "Newton-Hines Method", "Whittaker Method", "Whittaker Double Convex Method", "Super Halley Method",  "Midpoint Method", "Traub-Ostrowski Method", "Stirling Method", "Jaratt Method", "Jaratt 2 Method", "Weerakoon-Fernando Method", "Third Order Newton Method", "Abbasbandy Method", "Householder3 Method", "Contra Harmonic Newton", "Chun-Ham", "Chun-Kim", "Euler-Chebyshev Method", "Ezzati-Saleki 2 Method", "Homeier Method", "Abbasbandy 2 Method", "Abbasbandy 3 Method", "Popovski Method", "Changbum-Chun Method", "Changbum-Chun 2 Method", "King 3 Method", "Homeier 2 Method", "Kou-Li-Wang Method", "Kim-Chun Method", "Maheshweri Method", "Rafiullah Method", "Rafis-Rafiuallah Method", "Changbum-Chun 3 Method", "Ezzati-Saleki Method", "Feng Method", "King Method"
     , "Noor-Gupta Method", "Harmonic-Simpson-Newton Method", "Nedzhibov Method", "Simpson-Newton Method"};
@@ -1022,6 +1023,25 @@ public interface Constants {
     public static final int COLOR_SPACE_LINEAR_RGB = 20;
 
     public static final int COLOR_SPACE_YCBCR = 21;
+
+    public static final int COLOR_SPACE_CUBEHELIX = 22;
+
+    public static final int COLOR_SPACE_BASIS_SPLINE_RGB = 23;
+
+    public static final int COLOR_SPACE_HSB_LONG = 24;
+    public static final int COLOR_SPACE_HSL_LONG = 25;
+    public static final int COLOR_SPACE_LCH_ab_LONG = 26;
+    public static final int COLOR_SPACE_LCH_uv_LONG = 27;
+
+    public static final int COLOR_SPACE_LCH_oklab_LONG = 28;
+    public static final int COLOR_SPACE_LCH_JzAzBz_LONG = 29;
+
+    public static final int COLOR_SPACE_HSL_uv_LONG = 30;
+
+    public static final int COLOR_SPACE_HPL_uv_LONG = 31;
+
+    public static final int COLOR_SPACE_HWB_LONG = 32;
+    public static final int COLOR_SPACE_CUBEHELIX_LONG = 33;
     /**
      * *******************
      */
