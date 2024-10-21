@@ -133,7 +133,7 @@ public class InColoringPaletteMenu extends MyMenu {
 
     public void updateIcons(Settings s) {
 
-        if(s.gps.useGeneratedPaletteInColoring) {
+        if(s.gps.useGeneratedPaletteInColoring || s.gps.blendNormalPaletteWithGeneratedPaletteInColoring) {
             generated_palette_opt.setIcon(MainWindow.getIcon("palette_enabled.png"));
         }
         else {

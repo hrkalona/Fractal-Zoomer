@@ -13,9 +13,9 @@ import fractalzoomer.palettes.transfer_functions.TransferFunction;
  */
 public class NormGridContoursIsoLinesDomainColoring extends DomainColoring {
 
-    public NormGridContoursIsoLinesDomainColoring(int domain_coloring_mode, PaletteColor palette, TransferFunction color_transfer, int color_cycling_location, GeneratedPaletteSettings gps, Blending blending, int interpolation, double countourFactor) {
+    public NormGridContoursIsoLinesDomainColoring(int domain_coloring_mode, PaletteColor palette, TransferFunction color_transfer, int color_cycling_location, GeneratedPaletteSettings gps, Blending blending, int interpolation, double countourFactor, int color_space) {
 
-        super(domain_coloring_mode, palette, color_transfer, color_cycling_location, gps, interpolation, blending, countourFactor);
+        super(domain_coloring_mode, palette, color_transfer, color_cycling_location, gps, interpolation, blending, countourFactor, color_space);
         
         iso_distance = 1.0 / 12.0;
         iso_factor = 0.5;

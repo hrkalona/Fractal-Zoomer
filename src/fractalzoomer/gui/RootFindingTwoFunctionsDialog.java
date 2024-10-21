@@ -233,15 +233,15 @@ public class RootFindingTwoFunctionsDialog extends JDialog {
                             double temp_im2 = Double.parseDouble(k_imag.getText());
 
                             s.parser.parse(field_fz_formula.getText());
-                            if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundC0() || s.parser.foundC() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
-                                JOptionPane.showMessageDialog(ptra, "The variables: c, c0, bail, cbail, r, stat, trap cannot be used in the f(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                            if (s.parser.foundNF() || s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundC0() || s.parser.foundC() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                                JOptionPane.showMessageDialog(ptra, "The variables: c, c0, nf, bail, cbail, r, stat, trap cannot be used in the f(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                                 return;
                             }
 
                             s.parser.parse(field_dfz_formula.getText());
 
-                            if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundC() || s.parser.foundC0() ||  s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
-                                JOptionPane.showMessageDialog(ptra, "The variables: c, c0, bail, cbail, r, stat, trap cannot be used in the f'(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                            if (s.parser.foundNF() || s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundC() || s.parser.foundC0() ||  s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                                JOptionPane.showMessageDialog(ptra, "The variables: c, c0, nf, bail, cbail, r, stat, trap cannot be used in the f'(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                                 return;
                             }
 

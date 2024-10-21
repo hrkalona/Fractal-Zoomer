@@ -176,14 +176,14 @@ public class UserBailoutConditionDialog extends JDialog {
                             s.parser.parse(field_condition.getText());
 
                             if(mode) {
-                                if (s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
-                                    JOptionPane.showMessageDialog(ptra, "The variables: cbail, r, stat, trap cannot be used in left condition formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                if (s.parser.foundNF() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                                    JOptionPane.showMessageDialog(ptra, "The variables: nf, cbail, r, stat, trap cannot be used in left condition formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                                     return;
                                 }
                             }
                             else {
-                                if (s.parser.foundBail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
-                                    JOptionPane.showMessageDialog(ptra, "The variables: bail, r, stat, trap cannot be used in left condition formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                if (s.parser.foundNF() || s.parser.foundBail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                                    JOptionPane.showMessageDialog(ptra, "The variables: nf, bail, r, stat, trap cannot be used in left condition formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                                     return;
                                 }
                             }
@@ -191,14 +191,14 @@ public class UserBailoutConditionDialog extends JDialog {
                             s.parser.parse(field_condition2.getText());
 
                             if(mode) {
-                                if (s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
-                                    JOptionPane.showMessageDialog(ptra, "The variables: cbail, r, stat, trap cannot be used in the right condition formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                if (s.parser.foundNF() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                                    JOptionPane.showMessageDialog(ptra, "The variables: nf, cbail, r, stat, trap cannot be used in the right condition formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                                     return;
                                 }
                             }
                             else {
-                                if (s.parser.foundBail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
-                                    JOptionPane.showMessageDialog(ptra, "The variables: bail, r, stat, trap cannot be used in the right condition formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                if (s.parser.foundNF() || s.parser.foundBail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                                    JOptionPane.showMessageDialog(ptra, "The variables: nf, bail, r, stat, trap cannot be used in the right condition formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                                     return;
                                 }
                             }

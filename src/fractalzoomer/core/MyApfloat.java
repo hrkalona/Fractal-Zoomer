@@ -10,9 +10,13 @@ import org.apfloat.Apint;
 import org.apfloat.FixedPrecisionApfloatHelper;
 
 import java.math.BigDecimal;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class MyApfloat extends Apfloat {
     public static long precision;
+    public static double log10base2 = Math.log(10) / Math.log(2);
     public static Apfloat PI;
     public static Apfloat TWO_PI;
     public static Apint TWO;
@@ -30,9 +34,7 @@ public class MyApfloat extends Apfloat {
     public static Apint TWENTYFOUR;
     public static Apint THIRTYTWO;
     public static Apint ZERO;
-    public static Apfloat SQRT_TWO;
-    public static Apfloat LOG_TWO;
-    public static Apfloat RECIPROCAL_LOG_TWO_BASE_TEN;
+
     public static Apfloat E;
     public static Apfloat MAX_DOUBLE_SIZE;
     public static Apfloat MIN_DOUBLE_SIZE;
@@ -194,9 +196,6 @@ public class MyApfloat extends Apfloat {
         THIRTYTWO = new Apint(32);
         E = fp.e();
         TWO_PI = fp.multiply(PI, TWO);
-        SQRT_TWO = fp.sqrt(TWO);
-        LOG_TWO = fp.log(TWO);
-        RECIPROCAL_LOG_TWO_BASE_TEN = fp.divide(fp.log(TEN), LOG_TWO);
         MAX_DOUBLE_SIZE = new MyApfloat(1.0e-300);
         MIN_DOUBLE_SIZE = new MyApfloat(5.0e-13);
         SA_START_SIZE = new MyApfloat(1.0e-5);
@@ -204,7 +203,7 @@ public class MyApfloat extends Apfloat {
         NativeLoader.init();
 
         if(TaskRender.BIGNUM_AUTOMATIC_PRECISION) {
-            double temp = fp.divide(fp.log(fp.pow(TEN, precision)), LOG_TWO).doubleValue();
+            double temp = precision * log10base2;
 
             BigNum.reinitialize(temp);
             BigIntNum.reinitialize(temp);
@@ -224,18 +223,16 @@ public class MyApfloat extends Apfloat {
     public static void setPrecision(long prec) {
         precision = prec;
         fp = new FixedPrecisionApfloatHelper(precision);
+
         PI = fp.pi();
         E = fp.e();
         TWO_PI = fp.multiply(PI, TWO);
-        SQRT_TWO = fp.sqrt(TWO);
-        LOG_TWO = fp.log(TWO);
-        RECIPROCAL_LOG_TWO_BASE_TEN = fp.divide(fp.log(TEN), LOG_TWO);
         MAX_DOUBLE_SIZE = new MyApfloat(1.0e-300);
         MIN_DOUBLE_SIZE = new MyApfloat(5.0e-13);
         SA_START_SIZE = new MyApfloat(1.0e-5);
 
         if(TaskRender.BIGNUM_AUTOMATIC_PRECISION) {
-            double temp = fp.divide(fp.log(fp.pow(TEN, precision)), LOG_TWO).doubleValue();
+            double temp = precision * log10base2;
 
             BigNum.reinitialize(temp);
             BigIntNum.reinitialize(temp);
@@ -266,7 +263,7 @@ public class MyApfloat extends Apfloat {
     }
 
     public static void setBigNumPrecision() {
-        double temp = fp.divide(fp.log(fp.pow(TEN, precision)), LOG_TWO).doubleValue();
+        double temp = precision * log10base2;
         BigNum.reinitialize(temp);
         BigIntNum.reinitialize(temp);
         MpfrBigNum.reinitialize(temp);

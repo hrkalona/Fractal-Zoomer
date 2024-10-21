@@ -8,14 +8,14 @@ import fractalzoomer.core.TaskRender;
 import fractalzoomer.utils.NativeLoader;
 
 public class LibMpir {
-    public static Exception LOAD_ERROR = null;
+    public static Exception MPIR_LOAD_ERROR = null;
 
     public static boolean isLong4 = Native.LONG_SIZE == 4;
 
     private static NativeLibrary library;
 
-    public static boolean hasError() {
-        return LOAD_ERROR != null;
+    public static boolean mpirHasError() {
+        return MPIR_LOAD_ERROR != null;
     }
 
     private static final Class SIZE_T_CLASS;
@@ -33,37 +33,37 @@ public class LibMpir {
     static {
 
         if(!TaskRender.LOAD_MPIR) {
-            LOAD_ERROR = new Exception("Disabled loading of mpir");
+            MPIR_LOAD_ERROR = new Exception("Disabled loading of mpir");
         }
         else if(!Platform.isWindows()) {
-            LOAD_ERROR = new Exception("Cannot load mpir if the platform is not windows");
+            MPIR_LOAD_ERROR = new Exception("Cannot load mpir if the platform is not windows");
         }
-        else if(Native.SIZE_T_SIZE  == 4) {
-            LOAD_ERROR = new Exception("Cannot load mpir if the OS is 32 bit");
+        else if(!Platform.is64Bit()) {
+            MPIR_LOAD_ERROR = new Exception("Cannot load mpir if the OS is 32 bit");
         }
-        else if(TaskRender.MPIR_LIB.isEmpty()) {
-            LOAD_ERROR = new Exception("Cannot load mpir, no available library was found");
+        else if(TaskRender.MPIR_WINDOWS_ARCHITECTURE.isEmpty()) {
+            MPIR_LOAD_ERROR = new Exception("Cannot load mpir, no available architecture was found");
         }
         else {
             try {
                 loadLibMpir();
             } catch (Exception ex) {
-                LOAD_ERROR = ex;
+                MPIR_LOAD_ERROR = ex;
             }
             catch (Error ex) {
-                LOAD_ERROR = new Exception(ex.getMessage());
+                MPIR_LOAD_ERROR = new Exception(ex.getMessage());
             }
         }
 
-        if(hasError()) {
-            System.out.println("Cannot load mpir: " + LOAD_ERROR.getMessage());
+        if(mpirHasError()) {
+            System.out.println("Cannot load mpir: " + MPIR_LOAD_ERROR.getMessage());
         }
 
     }
 
     private static void loadLibMpir() throws Exception {
 
-        String libName = TaskRender.MPIR_LIB;
+        String libName = TaskRender.MPIR_WINDOWS_ARCHITECTURE + "/" + Platform.RESOURCE_PREFIX + "/" + NativeLoader.mpirWinLib;
 
         System.out.println("Loading " + libName);
 
@@ -73,11 +73,11 @@ public class LibMpir {
         }
         catch (UnsatisfiedLinkError e) {
             System.out.println(e.getMessage());
-            LOAD_ERROR = new Exception(e.getMessage());
+            MPIR_LOAD_ERROR = new Exception(e.getMessage());
         }
         catch (Exception e) {
             System.out.println(e.getMessage());
-            LOAD_ERROR = e;
+            MPIR_LOAD_ERROR = e;
         }
         // Fall back to system-wide search.
 //        try {
@@ -103,7 +103,7 @@ public class LibMpir {
     }
 
     public static void delete() {
-        if(!hasError()) {
+        if(!mpirHasError()) {
             Memory.disposeAll();
             Native.unregister(LibMpir.class);
             Native.unregister(SIZE_T_CLASS);
@@ -127,7 +127,7 @@ public class LibMpir {
 //                .getPointer(0) // const char* __gmp_version
 //                .getString(0);
 
-        if(!hasError()) {
+        if(!mpirHasError()) {
             __mpir_version = NativeLibrary.getProcess() // library is already loaded and linked.
                     .getGlobalVariableAddress("__mpir_version") // &(const char* __gmp_version)
                     .getPointer(0) // const char* __mpir_version

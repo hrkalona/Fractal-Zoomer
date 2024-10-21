@@ -11,8 +11,12 @@ public class Cubehelix {
     public static ArrayList<int[]> makePalette(double start, double rotation, double gamma, double start_hue, double end_hue, double sat, double min_sat, double max_sat, double min_light, double max_light, int n, boolean reversed) {
 
         if (start_hue != Double.MAX_VALUE && end_hue != Double.MAX_VALUE) {
-            start = (start_hue / 360.0 - 1.) * 3.0;
-            rotation = end_hue / 360.0 - start / 3.0 - 1.0;
+            start = Math.toRadians(start_hue * 120);
+            rotation = Math.toRadians(end_hue * 120) - start;
+        }
+        else {
+            start = Math.toRadians(start * 120);
+            rotation = Math.toRadians(rotation * 360);
         }
 
         double[] lambd = new double[n];
@@ -30,7 +34,7 @@ public class Cubehelix {
         double[] phi = new double[n];
 
         for(int i = 0; i < n; i++) {
-            phi[i] = 2 * Math.PI * (start / 3.0  + 1.0 + rotation * lambd[i]);
+            phi[i] = start + rotation * lambd[i];
         }
 
         double[] sat_vector = new double[n];
@@ -91,5 +95,35 @@ public class Cubehelix {
         }
 
         return rgbList;
+    }
+
+    public static int[] makePaletteFlat(double start, double rotation, double gamma, double start_hue, double end_hue, double sat, double min_sat, double max_sat, double min_light, double max_light, int n, boolean reversed) {
+        ArrayList<int[]> palette = makePalette(start, rotation, gamma, start_hue, end_hue, sat, min_sat, max_sat, min_light, max_light, n, reversed);
+        int[] data = new int[palette.size()];
+        for(int i = 0; i < data.length; i++) {
+            int[] rgb = palette.get(i);
+            data[i] = 0xff000000 | (rgb[0] << 16) | (rgb[1] << 8) | rgb[2];
+        }
+        return data;
+    }
+
+    public static int[] makePaletteFlat(double gamma, double[] hsl1, double[] hsl2, int n, boolean reversed) {
+        ArrayList<int[]> palette = makePalette(0, 0, gamma, hsl1[0], hsl2[0], Double.MAX_VALUE, hsl1[1], hsl2[1], hsl1[2], hsl2[2], n, reversed);
+        int[] data = new int[palette.size()];
+        for(int i = 0; i < data.length; i++) {
+            int[] rgb = palette.get(i);
+            data[i] = 0xff000000 | (rgb[0] << 16) | (rgb[1] << 8) | rgb[2];
+        }
+        return data;
+    }
+
+    public static int[] makePaletteFlat(double start, double rotation, double gamma, double sat, int n, boolean reversed) {
+        ArrayList<int[]> palette = makePalette(start, rotation, gamma, Double.MAX_VALUE, Double.MAX_VALUE, sat, Double.MAX_VALUE, Double.MAX_VALUE, 0, 1, n, reversed);
+        int[] data = new int[palette.size()];
+        for(int i = 0; i < data.length; i++) {
+            int[] rgb = palette.get(i);
+            data[i] = 0xff000000 | (rgb[0] << 16) | (rgb[1] << 8) | rgb[2];
+        }
+        return data;
     }
 }

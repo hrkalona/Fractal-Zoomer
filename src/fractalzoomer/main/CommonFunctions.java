@@ -301,12 +301,12 @@ public class CommonFunctions implements Constants {
         textArea.setText("<html>" + "<center><b><u><font size='5' face='arial' color='blue'>Task Statistics</font></u></b></center><br><br>" +
                 "<font size='4' face='arial'>" + data + "</font></html>");
 
-        JButton pixelcountStatistics = new JButton("Pixel Count Statistics");
+        JButton pixelcountStatistics = new MyButton("Pixel Count Statistics");
         pixelcountStatistics.setIcon(MainWindow.getIcon("bar_chart.png"));
 
         pixelcountStatistics.setFocusable(false);
 
-        JButton pixelCalculationTime = new JButton("Elapsed Time Statistics");
+        JButton pixelCalculationTime = new MyButton("Elapsed Time Statistics");
         pixelCalculationTime.setIcon(MainWindow.getIcon("bar_chart.png"));
 
         pixelCalculationTime.setFocusable(false);
@@ -315,25 +315,25 @@ public class CommonFunctions implements Constants {
 
         pixelCalculationTime.addActionListener( e-> new TaskElapsedTimeChartDialog(ptr, taskStatistics, maxTime, maxTimePostProcessing).setVisible(true));
 
-        JButton guessedPixels = new JButton("Guessed Pixels Statistics");
+        JButton guessedPixels = new MyButton("Guessed Pixels Statistics");
         guessedPixels.setIcon(MainWindow.getIcon("pie_chart.png"));
 
         guessedPixels.setFocusable(false);
         guessedPixels.addActionListener(e -> new TaskGuessedPixelChartDialog(ptr, taskStatistics).setVisible(true));
 
-        JButton calculatedPixels = new JButton("Calculated Pixels Statistics");
+        JButton calculatedPixels = new MyButton("Calculated Pixels Statistics");
         calculatedPixels.setIcon(MainWindow.getIcon("pie_chart.png"));
 
         calculatedPixels.setFocusable(false);
         calculatedPixels.addActionListener(e -> new TaskCalculatedPixelChartDialog(ptr, taskStatistics).setVisible(true));
 
-        JButton completedPixels = new JButton("Completed Pixels Statistics");
+        JButton completedPixels = new MyButton("Completed Pixels Statistics");
         completedPixels.setIcon(MainWindow.getIcon("pie_chart.png"));
 
         completedPixels.setFocusable(false);
         completedPixels.addActionListener(e -> new TaskCompletedPixelChartDialog(ptr, taskStatistics).setVisible(true));
 
-        JButton pixelCalculationElapsedTime = new JButton("Pixel Calculation Elapsed Time Statistics");
+        JButton pixelCalculationElapsedTime = new MyButton("Pixel Calculation Elapsed Time Statistics");
         pixelCalculationElapsedTime.setIcon(MainWindow.getIcon("pie_chart.png"));
 
         pixelCalculationElapsedTime.setFocusable(false);
@@ -392,35 +392,35 @@ public class CommonFunctions implements Constants {
         java.util.Timer timer2 = new Timer();
         timer2.schedule(new RefreshCpuTask(cpuLabel), CPU_DELAY, CPU_DELAY);
 
-        JButton overallTime = new JButton("Overall Elapsed Time Statistics");
+        JButton overallTime = new MyButton("Overall Elapsed Time Statistics");
         overallTime.setIcon(MainWindow.getIcon("pie_chart.png"));
 
         overallTime.setFocusable(false);
 
         overallTime.addActionListener( e-> new OverallTimeChartDialog(ptr, tooltip).setVisible(true));
 
-        JButton overallPixelCount = new JButton("Pixel Count Statistics");
+        JButton overallPixelCount = new MyButton("Pixel Count Statistics");
         overallPixelCount.setIcon(MainWindow.getIcon("bar_chart.png"));
 
         overallPixelCount.setFocusable(false);
 
         overallPixelCount.addActionListener( e-> new OverallPixelCalculationCountsChartDialog(ptr, tooltip).setVisible(true));
 
-        JButton overallPixelDistribution = new JButton("Pixel Distribution Statistics");
+        JButton overallPixelDistribution = new MyButton("Pixel Distribution Statistics");
         overallPixelDistribution.setIcon(MainWindow.getIcon("pie_chart.png"));
 
         overallPixelDistribution.setFocusable(false);
 
         overallPixelDistribution.addActionListener( e-> new OverallPixelDistributionChartDialog(ptr, tooltip).setVisible(true));
 
-        JButton guessedPixelGrouping = new JButton("Guessed Pixels Group Statistics");
+        JButton guessedPixelGrouping = new MyButton("Guessed Pixels Group Statistics");
         guessedPixelGrouping.setIcon(MainWindow.getIcon("pie_chart.png"));
 
         guessedPixelGrouping.setFocusable(false);
 
         guessedPixelGrouping.addActionListener( e-> new OverallGuessedPixelGroupingChartDialog(ptr, tooltip).setVisible(true));
 
-        JButton perturbationStatistics = new JButton("Perturbation Statistics");
+        JButton perturbationStatistics = new MyButton("Perturbation Statistics");
         perturbationStatistics.setIcon(MainWindow.getIcon("pie_chart.png"));
 
         perturbationStatistics.setFocusable(false);
@@ -1516,7 +1516,7 @@ public class CommonFunctions implements Constants {
                                 overview += tab3 + "Color Blending = " + s.pps.sts.rootBlending + "<br>";
                             }
 
-                            if (s.pps.sts.rootSmooting) {
+                            if (s.pps.sts.rootSmoothing) {
                                 overview += tab2 + "Uses Contour Smoothing" + "<br>";
                             }
                         }
@@ -1637,7 +1637,11 @@ public class CommonFunctions implements Constants {
 
         if ((!s.ds.domain_coloring || (s.ds.domain_coloring && s.ds.domain_coloring_mode == 1)) && !s.useDirectColor) {
 
-            if(s.gps.useGeneratedPaletteOutColoring) {
+            if(s.gps.blendNormalPaletteWithGeneratedPaletteOutColoring) {
+                overview += "<b><font color='red'>Palette(Out):</font></b> " + PaletteMenu.paletteNames[s.ps.color_choice] + ", " + Constants.generatedPalettes[s.gps.generatedPaletteOutColoringId] + "<br>";
+                overview += tab + "Color Blending = " + s.gps.blendingOutColoring + "<br>";
+            }
+            else if(s.gps.useGeneratedPaletteOutColoring) {
                 overview += "<b><font color='red'>Palette(Out):</font></b> " + Constants.generatedPalettes[s.gps.generatedPaletteOutColoringId] + "<br>";
             }
             else {
@@ -1651,7 +1655,11 @@ public class CommonFunctions implements Constants {
             overview += tab + "Color Intensity = " + s.ps.color_intensity + "<br><br>";
 
             if (!s.ds.domain_coloring && s.usePaletteForInColoring) {
-                if(s.gps.useGeneratedPaletteInColoring) {
+                if(s.gps.blendNormalPaletteWithGeneratedPaletteInColoring) {
+                    overview += "<b><font color='red'>Palette(In):</font></b> " + PaletteMenu.paletteNames[s.ps2.color_choice] + ", " + Constants.generatedPalettes[s.gps.generatedPaletteInColoringId] + "<br>";
+                    overview += tab + "Color Blending = " + s.gps.blendingInColoring + "<br>";
+                }
+                else if(s.gps.useGeneratedPaletteInColoring) {
                     overview += "<b><font color='red'>Palette(In):</font></b> " + Constants.generatedPalettes[s.gps.generatedPaletteInColoringId] + "<br>";
                 }
                 else {
@@ -1669,7 +1677,8 @@ public class CommonFunctions implements Constants {
                 if (s.fns.smoothing) {
                     overview += "<b><font color='red'>Color Smoothing:</font></b><br>";
                     overview += tab + "Fractional Transfer = " + Constants.smoothingFractionalTransfer[s.fns.smoothing_fractional_transfer_method] + "<br>";
-                    overview += tab + "Interpolation = " + color_interp_str[s.color_smoothing_method] + "<br><br>";
+                    overview += tab + "Interpolation = " + color_interp_str[s.color_smoothing_method] + "<br>";
+                    overview += tab + "Color Space = " + colorSpaces[s.color_space] + "<br><br>";
                 }
             }
             else if (s.fns.smoothing) {
@@ -1688,7 +1697,8 @@ public class CommonFunctions implements Constants {
                 } else {
                     overview += tab + "Converging Smooth Algorithm 2<br>";
                 }
-                overview += tab + "Interpolation = " + color_interp_str[s.color_smoothing_method] + "<br><br>";
+                overview += tab + "Interpolation = " + color_interp_str[s.color_smoothing_method] + "<br>";
+                overview += tab + "Color Space = " + colorSpaces[s.color_space] + "<br><br>";
             }
         }
 
@@ -2107,10 +2117,13 @@ public class CommonFunctions implements Constants {
 
         if (!s.useDirectColor) {
             overview += "<b><font color='red'>Color Blending Mode:</font></b> " + ColorBlendingMenu.colorBlendingNames[s.color_blending.color_blending] + "<br>";
-            overview += tab + "Interpolation = " + color_interp_str[s.color_smoothing_method] + "<br><br>";
+            overview += tab + "Interpolation = " + color_interp_str[s.color_smoothing_method] + "<br>";
+            overview += tab + "Color Space = " + colorSpaces[s.color_space] + "<br><br>";
 
-
-            overview += "<b><font color='red'>Contour Factor:</font></b> " + s.contourFactor + "<br><br>";
+            overview += "<b><font color='red'>Contour Factor:</font></b> " + s.contourFactor + "<br>";
+            overview += "<b><font color='red'>Gamma:</font></b> " + s.gamma + "<br>";
+            overview += "<b><font color='red'>Interpolation Exponent:</font></b> " + s.interpolation_exponent + "<br>";
+            overview += "<b><font color='red'>Intensity Exponent:</font></b> " + s.intesity_exponent + "<br><br>";
         }
 
         if (s.ds.domain_coloring && !s.useDirectColor) {
@@ -2118,6 +2131,7 @@ public class CommonFunctions implements Constants {
                 overview += "<b><font color='red'>Domain Coloring:</font></b><br>";
                 overview += tab + "Algorithm = " + Constants.domainAlgNames[s.ds.domain_coloring_alg] + "<br>";
                 overview += tab + "Interpolation = " + color_interp_str[s.color_smoothing_method] + "<br>";
+                overview += tab + "Color Space = " + colorSpaces[s.color_space] + "<br><br>";
                 overview += tab + "Processing Transfer Function = " + Constants.domainProcessingTransferNames[s.ds.domainProcessingTransfer] + "<br>";
                 overview += tab + "Processing Factor = " + s.ds.domainProcessingHeightFactor + "<br>";
             } else {
@@ -2181,6 +2195,7 @@ public class CommonFunctions implements Constants {
                 }
 
                 overview += tab + "Interpolation = " + Constants.color_interp_str[s.color_smoothing_method] + "<br>";
+                overview += tab + "Color Space = " + colorSpaces[s.color_space] + "<br>";
                 overview += tab + "Circle Log Base = " + s.ds.logBase + "<br>";
                 overview += tab + "Grid Spacing = " + s.ds.gridFactor + "<br>";
                 overview += tab + "Grid Algorithm = " + Constants.gridAlgorithms[s.ds.gridAlgorithm] + "<br>";
@@ -2251,10 +2266,10 @@ public class CommonFunctions implements Constants {
                 Object[] message = {
                     scroll_pane_2,
                     " ",
-                    s.pps.sts.statistic && s.pps.sts.statisticGroup == 4 || s.gps.useGeneratedPaletteOutColoring ? null : palette_text_label,
-                        s.pps.sts.statistic && s.pps.sts.statisticGroup == 4 || s.gps.useGeneratedPaletteOutColoring ? null : palette_label,
-                        s.pps.sts.statistic && s.pps.sts.statisticGroup == 4 || s.gps.useGeneratedPaletteInColoring ? null : palette_in_text_label,
-                        s.pps.sts.statistic && s.pps.sts.statisticGroup == 4 || s.gps.useGeneratedPaletteInColoring ? null : palette_in_label,
+                    s.pps.sts.statistic && s.pps.sts.statisticGroup == 4 || (s.gps.useGeneratedPaletteOutColoring && !s.gps.blendNormalPaletteWithGeneratedPaletteOutColoring) ? null : palette_text_label,
+                        s.pps.sts.statistic && s.pps.sts.statisticGroup == 4 || (s.gps.useGeneratedPaletteOutColoring && !s.gps.blendNormalPaletteWithGeneratedPaletteOutColoring) ? null : palette_label,
+                        s.pps.sts.statistic && s.pps.sts.statisticGroup == 4 || (s.gps.useGeneratedPaletteInColoring && !s.gps.blendNormalPaletteWithGeneratedPaletteInColoring) ? null : palette_in_text_label,
+                        s.pps.sts.statistic && s.pps.sts.statisticGroup == 4 || (s.gps.useGeneratedPaletteInColoring && !s.gps.blendNormalPaletteWithGeneratedPaletteInColoring) ? null : palette_in_label,
                     gradient_text_label,
                     gradient_label};
 
@@ -2323,8 +2338,8 @@ public class CommonFunctions implements Constants {
                 Object[] message = {
                     scroll_pane_2,
                     " ",
-                        s.pps.sts.statistic && s.pps.sts.statisticGroup == 4 || (s.gps.useGeneratedPaletteOutColoring && (!s.ds.domain_coloring || (s.ds.domain_coloring && s.ds.domain_coloring_mode == 1))) ? null : palette_text_label,
-                        s.pps.sts.statistic && s.pps.sts.statisticGroup == 4 || (s.gps.useGeneratedPaletteOutColoring && (!s.ds.domain_coloring || (s.ds.domain_coloring && s.ds.domain_coloring_mode == 1))) ? null : palette_label,
+                        s.pps.sts.statistic && s.pps.sts.statisticGroup == 4 || ((s.gps.useGeneratedPaletteOutColoring && !s.gps.blendNormalPaletteWithGeneratedPaletteOutColoring) && (!s.ds.domain_coloring || (s.ds.domain_coloring && s.ds.domain_coloring_mode == 1))) ? null : palette_text_label,
+                        s.pps.sts.statistic && s.pps.sts.statisticGroup == 4 || ((s.gps.useGeneratedPaletteOutColoring && !s.gps.blendNormalPaletteWithGeneratedPaletteOutColoring) && (!s.ds.domain_coloring || (s.ds.domain_coloring && s.ds.domain_coloring_mode == 1))) ? null : palette_label,
                     gradient_text_label,
                     gradient_label
                     ," ",

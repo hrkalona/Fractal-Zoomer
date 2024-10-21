@@ -1,6 +1,7 @@
 
 package fractalzoomer.gui;
 
+import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.GradientSettings;
 import fractalzoomer.palettes.CustomPalette;
@@ -172,7 +173,6 @@ public class GradientDialog extends JDialog {
 
         combo_box_color_interp = new JComboBox<>(color_interp_str);
         combo_box_color_interp.setSelectedIndex(gs.gradient_interpolation);
-        combo_box_color_interp.setFocusable(false);
         combo_box_color_interp.setToolTipText("Sets the color interpolation option.");
 
         combo_box_color_interp.addActionListener(e -> {
@@ -203,11 +203,8 @@ public class GradientDialog extends JDialog {
 
         color_interp_panel.add(combo_box_color_interp);
 
-        String[] color_space_str = {"RGB", "HSB", "Exp", "Square", "Sqrt", "RYB", "Lab", "XYZ", "LCH_ab", "Bezier RGB", "HSL", "Luv", "LCH_uv", "OKLab", "LCH_oklab", "JzAzBz", "LCH_JzAzBz", "HSL_uv", "HPL_uv", "HWB", "Linear sRGB"};
-
-        combo_box_color_space = new JComboBox<>(color_space_str);
+        combo_box_color_space = new JComboBox<>(Constants.colorSpaces);
         combo_box_color_space.setSelectedIndex(gs.gradient_color_space);
-        combo_box_color_space.setFocusable(false);
         combo_box_color_space.setToolTipText("Sets the color space option.");
 
         combo_box_color_space.addActionListener(e -> {
@@ -377,7 +374,7 @@ public class GradientDialog extends JDialog {
 
         gp.add(gradient_label);
 
-        JLabel offset_label = new JLabel(" Gradient Offset");
+        JLabel offset_label = new JLabel(" Offset");
 
         color_panel.add(offset_label);
 

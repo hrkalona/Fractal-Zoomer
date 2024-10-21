@@ -513,6 +513,8 @@ public class MinimalRendererWindow extends JFrame implements Constants {
 
         common = new CommonFunctions(ptr);
 
+        repaint();
+
     }
 
     public Settings getSettings() {
@@ -676,14 +678,14 @@ public class MinimalRendererWindow extends JFrame implements Constants {
 
         if (thread_grouping == 0) {
             tasks = new TaskRender[n][n];
-            TaskRender.resetTaskData(n * n, false);
+            TaskRender.resetTaskData(n * n, false, s.size);
         } else if (thread_grouping == 1 || thread_grouping == 2){
             tasks = new TaskRender[1][n];
-            TaskRender.resetTaskData(n, false);
+            TaskRender.resetTaskData(n, false, s.size);
         }
         else if(thread_grouping == 3 || thread_grouping == 4 || thread_grouping == 5) {
             tasks = new TaskRender[m][n];
-            TaskRender.resetTaskData(m * n, false);
+            TaskRender.resetTaskData(m * n, false, s.size);
         }
 
         try {
@@ -1003,11 +1005,19 @@ public class MinimalRendererWindow extends JFrame implements Constants {
             if (runsOnSequenceMode) {
                 Path path = Paths.get(outputDirectory);
 
-                if (Files.exists(path) && Files.isDirectory(path)) {
-                    name = path.resolve(settingsName + " - zoom sequence - " + " (" + sequenceIndex + ")" + extension).toString();
+                if(!zss.file_name_pattern.isEmpty()) {
+                    if (Files.exists(path) && Files.isDirectory(path)) {
+                        name = path.resolve(String.format(zss.file_name_pattern, sequenceIndex) + extension).toString();
+                    } else {
+                        name = String.format(zss.file_name_pattern, sequenceIndex) + extension;
+                    }
                 }
                 else {
-                    name = settingsName + " - zoom sequence - " + " (" + sequenceIndex + ")" + extension;
+                    if (Files.exists(path) && Files.isDirectory(path)) {
+                        name = path.resolve(settingsName + " - zoom sequence - " + " (" + sequenceIndex + ")" + extension).toString();
+                    } else {
+                        name = settingsName + " - zoom sequence - " + " (" + sequenceIndex + ")" + extension;
+                    }
                 }
             }
             else if(runsOnSplitImageMode) {
@@ -1220,8 +1230,8 @@ public class MinimalRendererWindow extends JFrame implements Constants {
         JScrollPane scroll_pane_2 = new JScrollPane(textArea);
 
         String help = "<html><center><font size='5' face='arial' color='blue'><b><u>Help</u></b></font></center><br>"
-                + "<font size='4' face='arial'>This tool lets you create larger images than the main application,<br>"
-                + "which has a limit of 6000x6000 as an image size.<br><br>"
+                + "<font size='4' face='arial'>This tool lets you perform some additional renderings,<br>"
+                + "which are not provided in the main application.<br><br>"
                 + "In order to use this tool the right way you must set the JVM's heap size, through<br>"
                 + "command line. For instance to execute it using the jar file, use<br>"
                 + "<b>java -jar -Xmx4000m FZMinimalRenderer.jar</b> in order to request maximum 4Gb<br>"
@@ -1333,8 +1343,10 @@ public class MinimalRendererWindow extends JFrame implements Constants {
             writer.println("use_custom_floatexp_requirement " + TaskRender.USE_CUSTOM_FLOATEXP_REQUIREMENT);
             writer.println("load_mpfr " + TaskRender.LOAD_MPFR);
             writer.println("load_mpir " + TaskRender.LOAD_MPIR);
-            writer.println("#available libs: " + String.join(", ", TaskRender.mpirWinLibs));
-            writer.println("mpir_lib " + TaskRender.MPIR_LIB);
+            writer.println("#available architectures: " + String.join(", ", TaskRender.mpirWinArchitecture));
+            writer.println("mpir_win_architecture " + TaskRender.MPIR_WINDOWS_ARCHITECTURE);
+            writer.println("#available architectures: " + String.join(", ", TaskRender.mpfrWinArchitecture));
+            writer.println("mpfr_win_architecture " + TaskRender.MPFR_WINDOWS_ARCHITECTURE);
             writer.println("period_detection_algorithm " + TaskRender.PERIOD_DETECTION_ALGORITHM);
             writer.println("pattern_compare_alg " + TaskRender.PATTERN_COMPARE_ALG);
             writer.println("pattern_n " + TaskRender.PATTERN_N);
@@ -1485,12 +1497,20 @@ public class MinimalRendererWindow extends JFrame implements Constants {
 
                         }
                     }
-                    else if(token.equals("mpir_lib") && tokenizer.countTokens() == 1) {
+                    else if(token.equals("mpir_win_architecture") && tokenizer.countTokens() == 1) {
 
                         token = tokenizer.nextToken();
 
-                        if(Arrays.asList(TaskRender.mpirWinLibs).contains(token)) {
-                            TaskRender.MPIR_LIB = token;
+                        if(Arrays.asList(TaskRender.mpirWinArchitecture).contains(token)) {
+                            TaskRender.MPIR_WINDOWS_ARCHITECTURE = token;
+                        }
+                    }
+                    else if(token.equals("mpfr_win_architecture") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if(Arrays.asList(TaskRender.mpfrWinArchitecture).contains(token)) {
+                            TaskRender.MPFR_WINDOWS_ARCHITECTURE = token;
                         }
                     }
                     else if (token.equals("thread_grouping") && tokenizer.countTokens() == 1) {
@@ -2925,8 +2945,10 @@ public class MinimalRendererWindow extends JFrame implements Constants {
 
         numberOfSequenceSteps = 0;
 
-        Apfloat temp = zss.zooming_mode == 0 ? zss.size : s.size;
-        while ((zss.zooming_mode == 0 && temp.compareTo(s.size) > 0) || (zss.zooming_mode == 1 && temp.compareTo(zss.size) < 0)) {
+        Apfloat original_size = s.size;
+
+        Apfloat temp = zss.zooming_mode == 0 ? zss.startSize : zss.endSize;
+        while ((zss.zooming_mode == 0 && temp.compareTo(zss.endSize) > 0) || (zss.zooming_mode == 1 && temp.compareTo(zss.startSize) < 0)) {
             if(zss.zooming_mode == 0) {
                 temp = MyApfloat.fp.divide(temp, new MyApfloat(zss.zoom_factor));
             }
@@ -2965,9 +2987,15 @@ public class MinimalRendererWindow extends JFrame implements Constants {
 
             startGlobalTimer();
 
+            long total = numberOfSequenceSteps;
+
+            if(zss.stop_after_n_steps > 0) {
+                total = Math.min(zss.stop_after_n_steps, numberOfSequenceSteps);
+            }
+
             int max_steps = 1000000;
-            long divisor = numberOfSequenceSteps > max_steps ? numberOfSequenceSteps / 100 : 1;
-            totalprogress.setMaximum((int)(numberOfSequenceSteps > max_steps ? 100 : numberOfSequenceSteps));
+            long divisor = total > max_steps ? total / 100 : 1;
+            totalprogress.setMaximum((int)(total > max_steps ? 100 : total));
 
             totalprogress.setValue(0);
 
@@ -2985,7 +3013,6 @@ public class MinimalRendererWindow extends JFrame implements Constants {
             runsOnSequenceMode = true;
             sequenceIndex = zss.flipSequenceIndexing ? numberOfSequenceSteps : 1;
 
-            Apfloat originalSize = s.size;
             Apfloat[] originalRotCenter = new Apfloat[2];
             originalRotCenter[0] = s.fns.rotation_center[0];
             originalRotCenter[1] = s.fns.rotation_center[1];
@@ -3011,9 +3038,9 @@ public class MinimalRendererWindow extends JFrame implements Constants {
 
             Fractal.clearStatistics();
 
-            s.size = zss.zooming_mode == 0 ? zss.size : s.size;
+            s.size = zss.zooming_mode == 0 ? zss.startSize : zss.endSize;
 
-            int renderCount = 0;
+            long renderCount = 0;
 
             for(int k = 1; k <= numberOfSequenceSteps; k++) {
 
@@ -3071,7 +3098,13 @@ public class MinimalRendererWindow extends JFrame implements Constants {
                     sequenceIndex++;
                 }
 
-                totalprogress.setValue((int)(k / divisor));
+                if(zss.stop_after_n_steps > 0) {
+                    totalprogress.setValue((int)(renderCount / divisor));
+                }
+                else {
+                    totalprogress.setValue((int)(k / divisor));
+                }
+
                 if(divisor == 1) {
                     totalprogress.setString("Zoom Sequence: " + totalprogress.getValue() + "/" + totalprogress.getMaximum());
                 }
@@ -3111,13 +3144,17 @@ public class MinimalRendererWindow extends JFrame implements Constants {
                 if (s.pps.ss.slopes && zss.slopes_direction_adjusting_value != 0) {
                     CommonFunctions.adjustSlopeOffset(s.pps.ss, zss.slopes_direction_adjusting_value);
                 }
+
+                if(zss.stop_after_n_steps > 0 && renderCount >= zss.stop_after_n_steps) {
+                    break;
+                }
             }
 
             runsOnSequenceMode = false;
             cleanUp();
 
             //Rollback
-            s.size = originalSize;
+            s.size = original_size;
             s.fns.rotation_center[0] = originalRotCenter[0];
             s.fns.rotation_center[1] = originalRotCenter[1];
             s.fns.rotation =  originalRotation;
@@ -3163,16 +3200,26 @@ public class MinimalRendererWindow extends JFrame implements Constants {
     }
 
     private void writeInfo(Path path) {
-        String infoName;
-        if (Files.exists(path) && Files.isDirectory(path)) {
-            infoName = path.resolve(settingsName + " - zoom sequence - " + " (" + sequenceIndex + ")" + ".info").toString();
+        String infoName = "";
+        if(!zss.file_name_pattern.isEmpty()) {
+            if (Files.exists(path) && Files.isDirectory(path)) {
+                infoName = path.resolve(String.format(zss.file_name_pattern, sequenceIndex) + ".info").toString();
+            } else {
+                infoName = String.format(zss.file_name_pattern, sequenceIndex) + ".info";
+            }
         }
         else {
-            infoName = settingsName + " - zoom sequence - " + " (" + sequenceIndex + ")" + ".info";
+            if (Files.exists(path) && Files.isDirectory(path)) {
+                infoName = path.resolve(settingsName + " - zoom sequence - " + " (" + sequenceIndex + ")" + ".info").toString();
+            } else {
+                infoName = settingsName + " - zoom sequence - " + " (" + sequenceIndex + ")" + ".info";
+            }
         }
 
         String info = "Size: " + normalizeValue(s.size.toString(), 4) + "\n" +
-                "Magnification/Zoom: " + normalizeValue(MyApfloat.fp.divide(Constants.DEFAULT_MAGNIFICATION, s.size).toString(), 6);
+                "Magnification/Zoom: " + normalizeValue(MyApfloat.fp.divide(Constants.DEFAULT_MAGNIFICATION, s.size).toString(), 6) + "\n" +
+                "Size(Full): " + s.size.toString() + "\n" +
+                "Magnification/Zoom(Full): " + MyApfloat.fp.divide(Constants.DEFAULT_MAGNIFICATION, s.size).toString();
 
         try {
             Files.write(Paths.get(infoName), info.getBytes());

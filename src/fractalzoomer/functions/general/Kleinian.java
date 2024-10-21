@@ -48,7 +48,7 @@ public class Kleinian extends FractalWithoutConstant {
             StatisticFactory(sts, plane_transform_center);
         }
 
-        bailout_algorithm = new CircleBailoutCondition(4, false);
+        bailout_algorithm = new CircleBailoutCondition(4, false, this);
 
     }
 
@@ -125,7 +125,7 @@ public class Kleinian extends FractalWithoutConstant {
                 out = getFinalValueOut(out);
 
                 if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(complex[0], zold, zold2, iterations, pixel, start, c0, pixel);
+                    setTrueColorOut(complex[0], zold, zold2, iterations, pixel, start, c0, pixel, object);
                 }
 
                 return out;
@@ -179,51 +179,59 @@ public class Kleinian extends FractalWithoutConstant {
 
         super.OutColoringAlgorithmFactory(out_coloring_algorithm, smoothing, escaping_smooth_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, plane_transform_center);
 
+        escape_time_algorithm = new SmoothEscapeTimeKleinian(u);
         switch (out_coloring_algorithm) {
 
             case MainWindow.ESCAPE_TIME:
                 if (smoothing) {
-                    out_color_algorithm = new SmoothEscapeTimeKleinian(u);
+                    out_color_algorithm = escape_time_algorithm;
                 }
                 break;
             case MainWindow.BINARY_DECOMPOSITION:
                 if (smoothing) {
-                    out_color_algorithm = new BinaryDecomposition(new SmoothEscapeTimeKleinian(u));
+                    out_color_algorithm = new BinaryDecomposition(escape_time_algorithm);
                 }
                 break;
             case MainWindow.BINARY_DECOMPOSITION2:
                 if (smoothing) {
-                    out_color_algorithm = new BinaryDecomposition2(new SmoothEscapeTimeKleinian(u));
+                    out_color_algorithm = new BinaryDecomposition2(escape_time_algorithm);
                 }
                 break;
             case MainWindow.BIOMORPH:
                 if (smoothing) {
-                    out_color_algorithm = new Biomorphs(bailout, new SmoothEscapeTimeKleinian(u));
+                    out_color_algorithm = new Biomorphs(bailout, escape_time_algorithm);
                 }
                 break;
             case MainWindow.ESCAPE_TIME_GRID:
                 if (smoothing) {
-                    out_color_algorithm = new EscapeTimeGrid(bailout, new SmoothEscapeTimeKleinian(u), false, bailout_algorithm.getNormImpl());
+                    out_color_algorithm = new EscapeTimeGrid(bailout, escape_time_algorithm, false, bailout_algorithm.getNormImpl());
                 }
                 break;
             case MainWindow.ESCAPE_TIME_FIELD_LINES:
                 if (smoothing) {
-                    out_color_algorithm = new EscapeTimeFieldLines(bailout, new SmoothEscapeTimeKleinian(u), bailout_algorithm.getNormImpl());
+                    out_color_algorithm = new EscapeTimeFieldLines(bailout, escape_time_algorithm, bailout_algorithm.getNormImpl());
                 }
                 break;
             case MainWindow.ESCAPE_TIME_FIELD_LINES2:
                 if (smoothing) {
-                    out_color_algorithm = new EscapeTimeFieldLines2(bailout, new SmoothEscapeTimeKleinian(u), bailout_algorithm.getNormImpl());
+                    out_color_algorithm = new EscapeTimeFieldLines2(bailout, escape_time_algorithm, bailout_algorithm.getNormImpl());
                 }
                 break;
             case ESCAPE_TIME_SQUARES:
                 if (smoothing) {
-                    out_color_algorithm = new EscapeTimeSquares(5, new SmoothEscapeTimeKleinian(u));
+                    out_color_algorithm = new EscapeTimeSquares(5, escape_time_algorithm);
                 }
                 break;
             case ESCAPE_TIME_SQUARES2:
                 if (smoothing) {
-                    out_color_algorithm = new EscapeTimeSquares2(5, new SmoothEscapeTimeKleinian(u));
+                    out_color_algorithm = new EscapeTimeSquares2(5, escape_time_algorithm);
+                }
+                break;
+            case MainWindow.USER_OUTCOLORING_ALGORITHM:
+                if (user_out_coloring_algorithm == 0) {
+                    out_color_algorithm = new UserOutColorAlgorithm(outcoloring_formula, bailout, max_iterations, xCenter, yCenter, size, plane_transform_center, globalVars, escape_time_algorithm);
+                } else {
+                    out_color_algorithm = new UserConditionalOutColorAlgorithm(user_outcoloring_conditions, user_outcoloring_condition_formula, bailout, max_iterations, xCenter, yCenter, size, plane_transform_center, globalVars, escape_time_algorithm);
                 }
                 break;
 

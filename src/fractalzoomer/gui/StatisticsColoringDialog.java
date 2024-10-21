@@ -866,7 +866,7 @@ public class StatisticsColoringDialog extends JDialog {
         rootSmoothing = new JCheckBox("Contour Smoothing");
         rootSmoothing.setToolTipText("Enables the contour smoothing.");
         rootSmoothing.setBackground(MainWindow.bg_color);
-        rootSmoothing.setSelected(sts.rootSmooting);
+        rootSmoothing.setSelected(sts.rootSmoothing);
         rootSmoothing.setFocusable(false);
 
 
@@ -1650,8 +1650,8 @@ public class StatisticsColoringDialog extends JDialog {
             try {
                 s.parser.parse(field_formula.getText());
 
-                if(s.parser.foundR() || s.parser.foundTrap()) {
-                    JOptionPane.showMessageDialog(ptra, "The variables: r, trap cannot be used in the value formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                if(s.parser.foundNF() || s.parser.foundR() || s.parser.foundTrap()) {
+                    JOptionPane.showMessageDialog(ptra, "The variables: nf, r, trap cannot be used in the value formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
 
@@ -1668,8 +1668,8 @@ public class StatisticsColoringDialog extends JDialog {
 
                 s.parser.parse(field_formula_init.getText());
 
-                if (s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundC0() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
-                    JOptionPane.showMessageDialog(ptra, "The variables: z, n, s, c0, p, pp, bail, cbail, r, stat, trap cannot be used in the value(0) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                if (s.parser.foundNF() || s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundC0() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                    JOptionPane.showMessageDialog(ptra, "The variables: z, n, s, c0, p, pp, nf, bail, cbail, r, stat, trap cannot be used in the value(0) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
             }
@@ -1731,7 +1731,7 @@ public class StatisticsColoringDialog extends JDialog {
             sts.rootShadingFunction = root_shading_function_combo.getSelectedIndex();
             sts.highlightRoots = hightlight.isSelected();
             sts.rootColors = tempColors;
-            sts.rootSmooting = rootSmoothing.isSelected();
+            sts.rootSmoothing = rootSmoothing.isSelected();
             sts.unmmapedRootColor = unmmapped_root_label.getBackground();
             sts.rootShadingColor = root_shading_color_label.getBackground();
             sts.rootScalingCapto1 = root_Scale_cap.isSelected();

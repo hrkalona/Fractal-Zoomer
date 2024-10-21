@@ -164,13 +164,17 @@ public class UserTrueColorAlgorithm extends TrueColorAlgorithm {
     }
 
     @Override
-    public int createColor(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0, Complex pixel, double stat, double trap, boolean escaped) {
+    public int createColor(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0, Complex pixel, double stat, double trap, boolean escaped, double fractional_part) {
 
         /**
          * * C1 ***
          */
         if (parser1.foundN()) {
             parser1.setNvalue(new Complex(iterations, 0));
+        }
+
+        if (parser1.foundNF()) {
+            parser1.setNFvalue(new Complex(fractional_part, 0));
         }
 
         if (parser1.foundZ()) {
@@ -228,6 +232,10 @@ public class UserTrueColorAlgorithm extends TrueColorAlgorithm {
                 parser2.setNvalue(new Complex(iterations, 0));
             }
 
+            if (parser2.foundNF()) {
+                parser2.setNFvalue(new Complex(fractional_part, 0));
+            }
+
             if (parser2.foundZ()) {
                 parser2.setZvalue(z);
             }
@@ -280,6 +288,10 @@ public class UserTrueColorAlgorithm extends TrueColorAlgorithm {
              */
             if (parser3.foundN()) {
                 parser3.setNvalue(new Complex(iterations, 0));
+            }
+
+            if (parser3.foundNF()) {
+                parser3.setNFvalue(new Complex(fractional_part, 0));
             }
 
             if (parser3.foundZ()) {

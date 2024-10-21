@@ -4,10 +4,12 @@ package fractalzoomer.gui;
 import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
+import fractalzoomer.utils.Item;
 
 import javax.swing.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
 
 import static fractalzoomer.main.Constants.color_interp_str;
 
@@ -61,6 +63,26 @@ public class SmoothingDialog extends JDialog {
         combo_box_color_interp.setFocusable(false);
         combo_box_color_interp.setToolTipText("Sets the color interpolation method.");
 
+        ArrayList<Item> items = new ArrayList<>();
+        for(int i = 0; i < Constants.colorSpaces.length; i++) {
+            if(i != Constants.COLOR_SPACE_BEZIER_RGB && i != Constants.COLOR_SPACE_BASIS_SPLINE_RGB) {
+                items.add(new Item(Constants.colorSpaces[i], i));
+            }
+        }
+        Item[] items_ar = new Item[items.size()];
+        items_ar = items.toArray(items_ar);
+
+        int selectedItemIndex = 0;
+        for(int i = 0; i < items_ar.length; i++) {
+            if(s.color_space == items_ar[i].value) {
+                selectedItemIndex = i;
+            }
+        }
+        final JComboBox<Item> combo_box_color_space = new JComboBox<>(items_ar);
+        combo_box_color_space.setSelectedIndex(selectedItemIndex);
+        combo_box_color_space.setFocusable(false);
+        combo_box_color_space.setToolTipText("Sets the color space.");
+
         JComboBox<String> color_selection = new JComboBox<>(new String[] {"n - 1, n", "n, n + 1"});
         color_selection.setSelectedIndex(s.fns.smoothing_color_selection);
         color_selection.setFocusable(false);
@@ -80,6 +102,13 @@ public class SmoothingDialog extends JDialog {
             fractional_transfer.setEnabled(false);
         }
 
+        JTextField gamma_field = new JTextField();
+        gamma_field.setText("" + s.gamma);
+        JTextField intensity_exponent_field = new JTextField();
+        intensity_exponent_field.setText("" + s.intesity_exponent);
+        JTextField interpolation_exponent_field = new JTextField();
+        interpolation_exponent_field.setText("" + s.interpolation_exponent);
+
         Object[] message = {
             " ",
             enable_smoothing,
@@ -98,8 +127,19 @@ public class SmoothingDialog extends JDialog {
             "Escaping:", escaping_alg_combo,
             "Converging:", converging_alg_combo,
             " ",
-            "Set the color interpolation method.",
+            "Set the color interpolation method and color space.",
+                "Interpolation Method:",
             combo_box_color_interp,
+                "Color Space:",
+                combo_box_color_space,
+                " ",
+                "Set the gamma, the interpolation and intensity exponent.",
+                "Gamma:",
+                gamma_field,
+                "Interpolation Exponent:",
+                interpolation_exponent_field,
+                "Intensity Exponent:",
+                intensity_exponent_field,
             " ",};
 
         optionPane = new JOptionPane(message, JOptionPane.QUESTION_MESSAGE, JOptionPane.OK_CANCEL_OPTION, null, null, null);
@@ -148,12 +188,25 @@ public class SmoothingDialog extends JDialog {
                                 recalculate = true;
                             }
 
+                            double temp = Double.parseDouble(gamma_field.getText());
+                            double temp2 = Double.parseDouble(intensity_exponent_field.getText());
+                            double temp3 = Double.parseDouble(interpolation_exponent_field.getText());
+
+                            if(temp <= 0 || temp2 <= 0 || temp3 <= 0) {
+                                JOptionPane.showMessageDialog(ptra, "The gamma, interpolation/intensity exponent values must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+                            s.gamma = temp;
+                            s.intesity_exponent = temp2;
+                            s.interpolation_exponent = temp3;
+
                            // s.fns.apply_offset_in_smoothing = apply_offset_of_1.isSelected();
                             s.fns.smoothing_color_selection = color_selection.getSelectedIndex();
                             s.fns.escaping_smooth_algorithm = escaping_alg_combo.getSelectedIndex();
                             s.fns.converging_smooth_algorithm = converging_alg_combo.getSelectedIndex();
                             s.color_smoothing_method = combo_box_color_interp.getSelectedIndex();
                             s.fns.smoothing_fractional_transfer_method = fractional_transfer.getSelectedIndex();
+                            s.color_space = ((Item)combo_box_color_space.getSelectedItem()).value;
                         } catch (Exception ex) {
                             JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                             return;

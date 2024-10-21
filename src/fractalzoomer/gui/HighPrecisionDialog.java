@@ -190,11 +190,11 @@ public class HighPrecisionDialog extends JDialog {
 
                             TaskRender.HIGH_PRECISION_IMPLEMENTATION = arbitraryLibs.getSelectedIndex();
 
-                            if(TaskRender.HIGH_PRECISION_CALCULATION  && TaskRender.HIGH_PRECISION_IMPLEMENTATION == Constants.ARBITRARY_MPFR && LibMpfr.hasError()) {
+                            if(TaskRender.HIGH_PRECISION_CALCULATION  && TaskRender.HIGH_PRECISION_IMPLEMENTATION == Constants.ARBITRARY_MPFR && LibMpfr.mpfrHasError()) {
                                 JOptionPane.showMessageDialog(ptra, "The MPFR library is not available, and the engine will fallback to an alternative library.", "Warning!", JOptionPane.WARNING_MESSAGE);
                             }
 
-                            if(TaskRender.HIGH_PRECISION_CALCULATION && TaskRender.HIGH_PRECISION_IMPLEMENTATION == Constants.ARBITRARY_MPIR && LibMpir.hasError()) {
+                            if(TaskRender.HIGH_PRECISION_CALCULATION && TaskRender.HIGH_PRECISION_IMPLEMENTATION == Constants.ARBITRARY_MPIR && LibMpir.mpirHasError()) {
                                 JOptionPane.showMessageDialog(ptra, "The MPIR library is not available, and the engine will fallback to an alternative library.", "Warning!", JOptionPane.WARNING_MESSAGE);
                             }
 

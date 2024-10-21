@@ -60,7 +60,7 @@ public class NNormBailoutCondition extends BailoutCondition {
             Baf = new MyApfloat(B);
 
 
-            if(!LibMpfr.hasError()) {
+            if(!LibMpfr.mpfrHasError()) {
                 mpfrbn_norm = new MpfrBigNum(n_norm);
                 temp1 = new MpfrBigNum();
                 temp2 = new MpfrBigNum();

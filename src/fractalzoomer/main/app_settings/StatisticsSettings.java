@@ -68,7 +68,7 @@ public class StatisticsSettings implements Constants {
     public int rootShadingFunction;
     public boolean revertRootShading;
     public boolean highlightRoots;
-    public boolean rootSmooting;
+    public boolean rootSmoothing;
     public int[] rootColors;
 
     public int twlFunction;
@@ -155,7 +155,7 @@ public class StatisticsSettings implements Constants {
         rootShadingFunction = copy.rootShadingFunction;
         revertRootShading = copy.revertRootShading;
         highlightRoots = copy.highlightRoots;
-        rootSmooting = copy.rootSmooting;
+        rootSmoothing = copy.rootSmoothing;
 
         rootColors = new int[copy.rootColors.length];
         for(int i = 0; i < rootColors.length; i++) {
@@ -254,7 +254,7 @@ public class StatisticsSettings implements Constants {
         for(int i = 0; i < rootColors.length; i++) {
             rootColors[i] = defRootColors[i];
         }
-        rootSmooting = true;
+        rootSmoothing = true;
 
         twlFunction = 0;
         twlPoint = new double[2];

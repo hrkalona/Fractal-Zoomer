@@ -1,6 +1,8 @@
 package fractalzoomer.core.antialiasing;
 
 
+import fractalzoomer.utils.ColorCorrection;
+
 public class MidPointAntialiasingAlgorithm extends AntialiasingAlgorithm {
     private double minRed, maxRed;
     private double minGreen, maxGreen;
@@ -88,7 +90,7 @@ public class MidPointAntialiasingAlgorithm extends AntialiasingAlgorithm {
             return 0xff000000;
         }
         int[] result = getAveragedColorChannels(minRed, minGreen, minBlue, maxRed, maxGreen, maxBlue, redSum, greenSum, blueSum);
-        return  0xff000000 | (result[0] << 16) | (result[1] << 8) | result[2];
+        return ColorCorrection.linearToGamma(result[0], result[1], result[2]);
     }
 
     @Override

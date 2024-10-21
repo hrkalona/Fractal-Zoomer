@@ -962,6 +962,14 @@ public class MpfrBigNumComplex extends GenericComplex {
 
     }
 
+    public final MpfrBigNum norm_squared_no_threads(MpfrBigNum temp1, MpfrBigNum temp2) {
+
+        MpfrBigNum.norm_sqr_no_threads(temp1, temp2, re, im);
+
+        return temp1;
+
+    }
+
     /*
      *  |z1 - z2|^2
      */
@@ -1457,7 +1465,7 @@ public class MpfrBigNumComplex extends GenericComplex {
     }
 
     @Override
-    public final MpfrBigNumComplex square_plus_c_mutable(GenericComplex ca, MpfrBigNum temp1, MpfrBigNum temp2) {
+    public final MpfrBigNumComplex square_plus_c_mutable(GenericComplex ca, MpfrBigNum temp1, MpfrBigNum temp2, MpfrBigNum temp3) {
         MpfrBigNumComplex c = (MpfrBigNumComplex)ca;
 
         /*re.add(im, temp1);
@@ -1471,16 +1479,16 @@ public class MpfrBigNumComplex extends GenericComplex {
 
         im.mult2(im);
         im.add(c.im, im);*/
-        MpfrBigNum.z_sqr_p_c(re, im, temp1, temp2, c.re, c.im);
+        MpfrBigNum.z_sqr_p_c(re, im, temp1, temp2, temp3, c.re, c.im);
 
         return this;
 
     }
 
     @Override
-    public MpfrBigNumComplex square_plus_c_mutable_with_reduction(GenericComplex ca, MpfrBigNum temp1, MpfrBigNum temp2, boolean deepZoom, Complex cz, MantExpComplex mcz) {
+    public MpfrBigNumComplex square_plus_c_mutable_with_reduction(GenericComplex ca, MpfrBigNum temp1, MpfrBigNum temp2, MpfrBigNum temp3, boolean deepZoom, Complex cz, MantExpComplex mcz) {
         MpfrBigNumComplex c = (MpfrBigNumComplex)ca;
-        MpfrBigNum.z_sqr_p_c_with_reduction(re, im, temp1, temp2, c.re, c.im, deepZoom, cz, mcz);
+        MpfrBigNum.z_sqr_p_c_with_reduction(re, im, temp1, temp2, temp3, c.re, c.im, deepZoom, cz, mcz);
         return this;
 
     }
@@ -3209,6 +3217,23 @@ public class MpfrBigNumComplex extends GenericComplex {
     @Override
     public Object Norm() {
         return norm();
+    }
+
+    @Override
+    public final MpfrBigNumComplex square_plus_c_mutable_no_threads(GenericComplex ca, MpfrBigNum temp1, MpfrBigNum temp2, MpfrBigNum temp3) {
+        MpfrBigNumComplex c = (MpfrBigNumComplex)ca;
+
+        MpfrBigNum.z_sqr_p_c_no_threads(re, im, temp1, temp2, temp3, c.re, c.im);
+
+        return this;
+
+    }
+
+    @Override
+    public final MpfrBigNumComplex square_plus_c_mutable_no_threads(GenericComplex cn) {
+
+        return square_plus_c(cn);
+
     }
 
 }

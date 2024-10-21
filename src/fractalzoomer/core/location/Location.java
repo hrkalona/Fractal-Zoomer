@@ -148,7 +148,7 @@ public class Location {
         if(highPresicion && TaskRender.HIGH_PRECISION_CALCULATION) {
             int lib = TaskRender.getHighPrecisionImplementation(size, fractal);
             if(polar) {
-                if(lib == Constants.ARBITRARY_MPFR || (lib == Constants.ARBITRARY_MPIR && !LibMpfr.hasError())) {
+                if(lib == Constants.ARBITRARY_MPFR || (lib == Constants.ARBITRARY_MPIR && !LibMpfr.mpfrHasError())) {
                     return new PolarLocationNormalMpfrBigNumArbitrary(xCenter, yCenter, size, height_ratio, width, height, circle_period, rotation_center, rotation_vals, fractal, js);
                 }
                 else if(lib == Constants.ARBITRARY_DOUBLEDOUBLE) {
@@ -185,7 +185,7 @@ public class Location {
 
         if(polar) {
             if(highPresicion && isDeep) {
-                if(bignumLib == Constants.BIGNUM_MPFR || (bignumLib == Constants.BIGNUM_MPIR && !LibMpfr.hasError())) {
+                if(bignumLib == Constants.BIGNUM_MPFR || (bignumLib == Constants.BIGNUM_MPIR && !LibMpfr.mpfrHasError())) {
                     return new PolarLocationDeltaDeepMpfrBigNum(xCenter, yCenter, size, height_ratio, width, height, circle_period, rotation_center, rotation_vals, fractal, js);
                 }
                 else {
@@ -193,7 +193,7 @@ public class Location {
                 }
             }
             else if(highPresicion) {
-                if (bignumLib == Constants.BIGNUM_MPFR || (bignumLib == Constants.BIGNUM_MPIR && !LibMpfr.hasError())) {
+                if (bignumLib == Constants.BIGNUM_MPFR || (bignumLib == Constants.BIGNUM_MPIR && !LibMpfr.mpfrHasError())) {
                     return new PolarLocationDeltaMpfrBigNum(xCenter, yCenter, size, height_ratio, width, height, circle_period, rotation_center, rotation_vals, fractal, js);
                 }
                 else if (bignumLib == Constants.BIGNUM_DOUBLEDOUBLE) {
@@ -381,10 +381,9 @@ public class Location {
             exponent = MantExp.ZERO.getExp();
         }
         else {
-            Apfloat exp = MyApfloat.fp.multiply(new MyApfloat(c.scale() - 1), MyApfloat.RECIPROCAL_LOG_TWO_BASE_TEN);
             long long_exp = 0;
 
-            double double_exp = exp.doubleValue();
+            double double_exp = (c.scale() - 1) * MyApfloat.log10base2;
 
             if(double_exp < 0) {
                 long_exp = (long)(double_exp - 0.5);
@@ -425,10 +424,9 @@ public class Location {
             exponent = MantExp.ZERO.getExp();
         }
         else {
-            BigDecNum exp = BigDecNum.RECIPROCAL_LOG_TWO_BASE_TEN.mult(c.scale());
             int long_exp = 0;
 
-            double double_exp = exp.doubleValue();
+            double double_exp = c.scale() * MyApfloat.log10base2;
 
             if(double_exp < 0) {
                 long_exp = (int)(double_exp - 0.5);

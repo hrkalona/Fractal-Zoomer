@@ -268,7 +268,7 @@ public class InflectionsPlaneDialog extends JDialog {
                         }
 
                         dispose();
-                        ptra.defaultFractalSettings(true);
+                        ptra.defaultFractalSettings(true, false);
 
                     }
                 });

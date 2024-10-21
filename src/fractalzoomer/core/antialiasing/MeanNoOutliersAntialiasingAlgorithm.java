@@ -1,5 +1,7 @@
 package fractalzoomer.core.antialiasing;
 
+import fractalzoomer.utils.ColorCorrection;
+
 import java.util.Arrays;
 
 public class MeanNoOutliersAntialiasingAlgorithm extends AntialiasingAlgorithm {
@@ -117,7 +119,7 @@ public class MeanNoOutliersAntialiasingAlgorithm extends AntialiasingAlgorithm {
         Object[] res3 = getSumAndSamples(blueValues);
 
         int[] result = getAveragedColorChannels((double)res1[0], (double)res2[0], (double)res3[0], (int)res1[1], (int)res2[1], (int)res3[1]);
-        return  0xff000000 | (result[0] << 16) | (result[1] << 8) | result[2];
+        return ColorCorrection.linearToGamma(result[0], result[1], result[2]);
     }
 
 }

@@ -125,8 +125,8 @@ public class UserFormulaIterationBasedDialog extends JDialog {
                         try {
                             s.parser.parse(field_formula_it_based1.getText());
 
-                            if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
-                                JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r, stat, trap cannot be used in the 1st iteration formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                            if (s.parser.foundNF() || s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                                JOptionPane.showMessageDialog(ptra, "The variables: nf, bail, cbail, r, stat, trap cannot be used in the 1st iteration formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                                 return;
                             }
 
@@ -134,8 +134,8 @@ public class UserFormulaIterationBasedDialog extends JDialog {
 
                             s.parser.parse(field_formula_it_based2.getText());
 
-                            if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
-                                JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r, stat, trap cannot be used in the 2nd iteration formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                            if (s.parser.foundNF() || s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                                JOptionPane.showMessageDialog(ptra, "The variables: nf, bail, cbail, r, stat, trap cannot be used in the 2nd iteration formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                                 return;
                             }
 
@@ -143,8 +143,8 @@ public class UserFormulaIterationBasedDialog extends JDialog {
 
                             s.parser.parse(field_formula_it_based3.getText());
 
-                            if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
-                                JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r, stat, trap cannot be used in the 3rd iteration formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                            if (s.parser.foundNF() || s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                                JOptionPane.showMessageDialog(ptra, "The variables: nf, bail, cbail, r, stat, trap cannot be used in the 3rd iteration formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                                 return;
                             }
 
@@ -152,8 +152,8 @@ public class UserFormulaIterationBasedDialog extends JDialog {
 
                             s.parser.parse(field_formula_it_based4.getText());
 
-                            if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
-                                JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r, stat, trap cannot be used in the 4th iteration formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                            if (s.parser.foundNF() || s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                                JOptionPane.showMessageDialog(ptra, "The variables: nf, bail, cbail, r, stat, trap cannot be used in the 4th iteration formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                                 return;
                             }
 

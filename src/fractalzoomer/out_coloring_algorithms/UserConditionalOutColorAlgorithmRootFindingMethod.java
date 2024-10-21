@@ -13,6 +13,7 @@ import fractalzoomer.utils.ColorAlgorithm;
  */
 public class UserConditionalOutColorAlgorithmRootFindingMethod extends OutColorAlgorithm {
 
+    protected OutColorAlgorithm escape_time_alg;
     private ExpressionNode[] expr;
     private Parser[] parser;
     private ExpressionNode[] expr2;
@@ -24,9 +25,11 @@ public class UserConditionalOutColorAlgorithmRootFindingMethod extends OutColorA
     protected int max_iterations;
     private Complex[] globalVars;
 
-    public UserConditionalOutColorAlgorithmRootFindingMethod(String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, double convergent_bailout, int max_iterations, double xCenter, double yCenter, double size, double[] point, Complex[] globalVars) {
+    public UserConditionalOutColorAlgorithmRootFindingMethod(String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, double convergent_bailout, int max_iterations, double xCenter, double yCenter, double size, double[] point, Complex[] globalVars, OutColorAlgorithm escape_time_alg) {
 
         super();
+
+        this.escape_time_alg = escape_time_alg;
 
         this.globalVars = globalVars;
         
@@ -229,9 +232,18 @@ public class UserConditionalOutColorAlgorithmRootFindingMethod extends OutColorA
     @Override
     public double getResult(Object[] object) {
 
+        double nf = 0;
+        if(parser[0].foundNF() || parser[1].foundNF() || parser2[0].foundNF() || parser2[1].foundNF() || parser2[2].foundNF()) {
+            nf = escape_time_alg.getFractionalPart(object);
+        }
+
         /* LEFT */
         if(parser[0].foundN()) {
             parser[0].setNvalue(new Complex((int)object[0], 0));
+        }
+
+        if(parser[0].foundNF()) {
+            parser[0].setNFvalue(new Complex(nf, 0));
         }
 
         if(parser[0].foundZ()) {
@@ -275,6 +287,10 @@ public class UserConditionalOutColorAlgorithmRootFindingMethod extends OutColorA
             parser[1].setNvalue(new Complex((int)object[0], 0));
         }
 
+        if(parser[1].foundNF()) {
+            parser[1].setNFvalue(new Complex(nf, 0));
+        }
+
         if(parser[1].foundZ()) {
             parser[1].setZvalue(((Complex)object[1]));
         }
@@ -316,6 +332,10 @@ public class UserConditionalOutColorAlgorithmRootFindingMethod extends OutColorA
         if(result == -1) { // left > right
             if(parser2[0].foundN()) {
                 parser2[0].setNvalue(new Complex((int)object[0], 0));
+            }
+
+            if(parser2[0].foundNF()) {
+                parser2[0].setNFvalue(new Complex(nf, 0));
             }
 
             if(parser2[0].foundZ()) {
@@ -375,6 +395,10 @@ public class UserConditionalOutColorAlgorithmRootFindingMethod extends OutColorA
                 parser2[1].setNvalue(new Complex((int)object[0], 0));
             }
 
+            if(parser2[1].foundNF()) {
+                parser2[1].setNFvalue(new Complex(nf, 0));
+            }
+
             if(parser2[1].foundZ()) {
                 parser2[1].setZvalue(((Complex)object[1]));
             }
@@ -430,6 +454,10 @@ public class UserConditionalOutColorAlgorithmRootFindingMethod extends OutColorA
         else if(result == 0) { //left == right
             if(parser2[2].foundN()) {
                 parser2[2].setNvalue(new Complex((int)object[0], 0));
+            }
+
+            if(parser2[2].foundNF()) {
+                parser2[2].setNFvalue(new Complex(nf, 0));
             }
 
             if(parser2[2].foundZ()) {

@@ -45,4 +45,25 @@ public class CosinePaletteSettings implements Serializable {
         blueG = 0.16470588235294117;
 
     }
+
+    public CosinePaletteSettings(CosinePaletteSettings other) {
+        redA = other.redA;
+        redB = other.redB;
+        greenA = other.greenA;
+        greenB = other.greenB;
+        blueA = other.blueA;
+        blueB = other.blueB;
+
+        redC = other.redC;
+        greenC = other.greenC;
+        blueC = other.blueC;
+
+        redD = other.redD;
+        greenD = other.greenD;
+        blueD = other.blueD;
+
+        redG = other.redG;
+        greenG = other.greenG;
+        blueG = other.blueG;
+    }
 }

@@ -1,5 +1,7 @@
 package fractalzoomer.core.antialiasing;
 
+import fractalzoomer.utils.ColorCorrection;
+
 public class BilateralAntialiasingAlgorithm extends AntialiasingAlgorithm {
     /*
         Huber:  1 / sigma if |x| <= sigma
@@ -154,7 +156,7 @@ public class BilateralAntialiasingAlgorithm extends AntialiasingAlgorithm {
         }
 
         int[] result = getAveragedColorChannels(SumA / combined_coefficient_sumA, SumB / combined_coefficient_sumB, SumC / combined_coefficient_sumC, SumA2, SumB2, SumC2);
-        return  0xff000000 | (result[0] << 16) | (result[1] << 8) | result[2];
+        return ColorCorrection.linearToGamma(result[0], result[1], result[2]);
     }
 
     @Override

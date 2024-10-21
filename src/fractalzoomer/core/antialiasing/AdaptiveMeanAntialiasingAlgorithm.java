@@ -1,5 +1,7 @@
 package fractalzoomer.core.antialiasing;
 
+import fractalzoomer.utils.ColorCorrection;
+
 public class AdaptiveMeanAntialiasingAlgorithm extends AntialiasingAlgorithm {
     private double MeanA;
     private double MeanB;
@@ -99,7 +101,7 @@ public class AdaptiveMeanAntialiasingAlgorithm extends AntialiasingAlgorithm {
     @Override
     public int getColor() {
 
-        return  0xff000000 | (((int)(MeanA + 0.5)) << 16) | (((int)(MeanB + 0.5)) << 8) | ((int)(MeanC + 0.5));
+        return ColorCorrection.linearToGamma(MeanA, MeanB, MeanC);
 
     }
 }

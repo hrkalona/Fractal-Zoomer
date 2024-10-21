@@ -9,9 +9,9 @@ import fractalzoomer.utils.ColorSpaceConverter;
  */
 public class LCHChromaBlending extends Blending {
 
-    public LCHChromaBlending(int color_interpolation) {
+    public LCHChromaBlending(int color_interpolation, int color_space) {
 
-        super(color_interpolation);
+        super(color_interpolation, color_space);
 
     }
 
@@ -56,7 +56,7 @@ public class LCHChromaBlending extends Blending {
         temp_green = temp_green < 0 ? 0 : temp_green;
         temp_blue = temp_blue < 0 ? 0 : temp_blue;
 
-        return method.interpolate(redB, greenB, blueB, temp_red, temp_green, temp_blue, coef);
+        return method.interpolateColors(redB, greenB, blueB, temp_red, temp_green, temp_blue, coef, false);
 
     }
 

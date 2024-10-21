@@ -351,7 +351,7 @@ public class PaletteMenu extends MyMenu {
     }
     
     public static java.util.List<Integer> importDialog(java.util.List<Integer> colors, Component parent) {
-        final JCheckBox invert = new JCheckBox("Reverse Palette");
+        final JCheckBox invert = new JCheckBox("Reversed");
         invert.setSelected(false);
         invert.setFocusable(false);
         invert.setToolTipText("Imports the palette in reversed order.");

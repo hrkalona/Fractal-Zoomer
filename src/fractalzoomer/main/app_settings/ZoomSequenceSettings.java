@@ -22,14 +22,22 @@ public class ZoomSequenceSettings {
     public boolean flipSequenceIndexing;
     public long startAtSequenceIndex;
     public  String sizeStr;
+    public  String endSizeStr;
+
+    public String file_name_pattern;
+
+    public long stop_after_n_steps;
 
     @JsonIgnore
-    public Apfloat size;
+    public Apfloat startSize;
+
+    @JsonIgnore
+    public Apfloat endSize;
 
 
     public ZoomSequenceSettings() {
-        size = Constants.DEFAULT_MAGNIFICATION;
-        sizeStr = size.toString();
+        startSize = Constants.DEFAULT_MAGNIFICATION;
+        sizeStr = startSize.toString();
 
         zoom_factor = 2.0;
         flipSequenceIndexing = false;
@@ -47,5 +55,19 @@ public class ZoomSequenceSettings {
         zooming_mode = 0;
 
         zoom_every_n_frame = 1;
+
+        file_name_pattern = "";
+
+        stop_after_n_steps = 0;
+    }
+
+    public void setStartSize(Apfloat startSize) {
+        this.startSize = startSize;
+        sizeStr = startSize.toString();
+    }
+
+    public void setEndSize(Apfloat endSize) {
+        this.endSize = endSize;
+        endSizeStr = endSize.toString();
     }
 }

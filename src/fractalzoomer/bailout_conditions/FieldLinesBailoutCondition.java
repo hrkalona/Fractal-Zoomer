@@ -4,6 +4,7 @@ package fractalzoomer.bailout_conditions;
 import fractalzoomer.core.*;
 import fractalzoomer.core.mpfr.MpfrBigNum;
 import fractalzoomer.core.mpir.MpirBigNum;
+import fractalzoomer.functions.Fractal;
 import org.apfloat.Apfloat;
 
 /**
@@ -17,15 +18,15 @@ public class FieldLinesBailoutCondition extends BailoutCondition {
     private MpirBigNum temp2p;
 
 
-    public FieldLinesBailoutCondition(double bound) {
+    public FieldLinesBailoutCondition(double bound, Fractal f) {
         
         super(bound);
 
         if(TaskRender.PERTURBATION_THEORY || TaskRender.HIGH_PRECISION_CALCULATION) {
-            if (TaskRender.allocateMPFR()) {
+            if (TaskRender.allocateMPFR(f)) {
                 temp1 = new MpfrBigNum();
                 temp2 = new MpfrBigNum();
-            } else if (TaskRender.allocateMPIR()) {
+            } else if (TaskRender.allocateMPIR(f)) {
                 temp1p = new MpirBigNum();
                 temp2p = new MpirBigNum();
             }

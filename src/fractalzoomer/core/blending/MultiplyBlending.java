@@ -7,9 +7,9 @@ package fractalzoomer.core.blending;
  */
 public class MultiplyBlending extends Blending {
 
-    public MultiplyBlending(int color_interpolation) {
+    public MultiplyBlending(int color_interpolation, int color_space) {
 
-        super(color_interpolation);
+        super(color_interpolation, color_space);
 
     }
 
@@ -20,7 +20,7 @@ public class MultiplyBlending extends Blending {
         int temp_green = (int)((greenA * greenB) / 255.0 + 0.5);
         int temp_blue = (int)((blueA * blueB) / 255.0 + 0.5);
         
-        return method.interpolate(redB, greenB, blueB, temp_red, temp_green, temp_blue, coef);
+        return method.interpolateColors(redB, greenB, blueB, temp_red, temp_green, temp_blue, coef, false);
 
     }
 }

@@ -95,7 +95,9 @@ package fractalzoomer.main;
  import java.util.stream.IntStream;
  import java.util.stream.Stream;
 
-/**
+ import static fractalzoomer.main.app_settings.GeneratedPaletteSettings.DEFAULT_LARGE_LENGTH;
+
+ /**
  *
  * @author hrkalona
  */
@@ -1697,14 +1699,14 @@ public class MainWindow extends JFrame implements Constants {
 
             if (thread_grouping == 0) {
                 tasks = new TaskRender[n][n];
-                TaskRender.resetTaskData(n * n, createFullImageAfterPreview);
+                TaskRender.resetTaskData(n * n, createFullImageAfterPreview, s.size);
             } else if (thread_grouping == 1 || thread_grouping == 2){
                 tasks = new TaskRender[1][n];
-                TaskRender.resetTaskData(n, createFullImageAfterPreview);
+                TaskRender.resetTaskData(n, createFullImageAfterPreview, s.size);
             }
             else if(thread_grouping == 3 || thread_grouping == 4 || thread_grouping == 5) {
                 tasks = new TaskRender[m][n];
-                TaskRender.resetTaskData(m * n, createFullImageAfterPreview);
+                TaskRender.resetTaskData(m * n, createFullImageAfterPreview, s.size);
             }
 
 
@@ -1938,7 +1940,6 @@ public class MainWindow extends JFrame implements Constants {
 
         resetOrbit();
 
-
         file_chooser = new JFileChooser(SaveSettingsPath.isEmpty() ? "." : SaveSettingsPath);
 
         file_chooser.setAcceptAllFileFilterUsed(false);
@@ -1946,7 +1947,7 @@ public class MainWindow extends JFrame implements Constants {
 
         file_chooser.addChoosableFileFilter(new FileNameExtensionFilter("Fractal Zoomer Settings (*.fzs)", "fzs"));
 
-        String name = "fractal " + DateTimeFormatter.ofPattern("yyyy-MM-dd HH;mm;ss").format(LocalDateTime.now()) + ".fzs";
+        String name = "fractal zoomer " + DateTimeFormatter.ofPattern("yyyy-MM-dd HH;mm;ss").format(LocalDateTime.now()) + ".fzs";
 
         file_chooser.setSelectedFile(new File(name));
 
@@ -1962,7 +1963,13 @@ public class MainWindow extends JFrame implements Constants {
 
             SaveSettingsPath = file.getParent();
 
-            s.save(file.toString());
+            String fileName = file.toString();
+
+            if(!fileName.toLowerCase().endsWith(".fzs")) {
+                fileName = fileName + ".fzs";
+            }
+
+            s.save(fileName);
         }
 
         main_panel.repaint();
@@ -2163,12 +2170,12 @@ public class MainWindow extends JFrame implements Constants {
         bailout_tests[s.fns.bailout_test_algorithm].setSelected(true);
         convergent_bailout_tests[s.fns.cbs.convergent_bailout_test_algorithm].setSelected(true);
 
-        if(s.gps.useGeneratedPaletteOutColoring) {
+        if(s.gps.useGeneratedPaletteOutColoring && !s.gps.blendNormalPaletteWithGeneratedPaletteOutColoring) {
             infobar.getOutColoringPalettePreview().setVisible(false);
             infobar.getOutColoringPalettePreviewLabel().setVisible(false);
         }
 
-        if(s.gps.useGeneratedPaletteInColoring && s.usePaletteForInColoring) {
+        if((s.gps.useGeneratedPaletteInColoring && !s.gps.blendNormalPaletteWithGeneratedPaletteInColoring) && s.usePaletteForInColoring) {
             infobar.getInColoringPalettePreview().setVisible(false);
             infobar.getInColoringPalettePreviewLabel().setVisible(false);
         }
@@ -2212,8 +2219,8 @@ public class MainWindow extends JFrame implements Constants {
             infobar.getGradientPreviewLabel().setVisible(true);
             infobar.getGradientPreview().setVisible(true);
 
-            infobar.getOutColoringPalettePreview().setVisible(!s.gps.useGeneratedPaletteOutColoring || (s.ds.domain_coloring && s.ds.domain_coloring_mode != 1));
-            infobar.getOutColoringPalettePreviewLabel().setVisible(!s.gps.useGeneratedPaletteOutColoring || (s.ds.domain_coloring && s.ds.domain_coloring_mode != 1));
+            infobar.getOutColoringPalettePreview().setVisible(!(s.gps.useGeneratedPaletteOutColoring && !s.gps.blendNormalPaletteWithGeneratedPaletteOutColoring) || (s.ds.domain_coloring && s.ds.domain_coloring_mode != 1));
+            infobar.getOutColoringPalettePreviewLabel().setVisible(!(s.gps.useGeneratedPaletteOutColoring && !s.gps.blendNormalPaletteWithGeneratedPaletteOutColoring) || (s.ds.domain_coloring && s.ds.domain_coloring_mode != 1));
 
             if (s.ds.domain_coloring_mode != 1) {
                 toolbar.getOutCustomPaletteButton().setEnabled(false);
@@ -2265,7 +2272,7 @@ public class MainWindow extends JFrame implements Constants {
         } else {
             if (!s.useDirectColor && !(s.pps.sts.statistic && s.pps.sts.statisticGroup == 4)) {
                 if (s.usePaletteForInColoring) {
-                    if(!s.gps.useGeneratedPaletteInColoring) {
+                    if(!(s.gps.useGeneratedPaletteInColoring && !s.gps.blendNormalPaletteWithGeneratedPaletteInColoring)) {
                         infobar.getInColoringPalettePreview().setVisible(true);
                         infobar.getInColoringPalettePreviewLabel().setVisible(true);
                     }
@@ -2834,7 +2841,7 @@ public class MainWindow extends JFrame implements Constants {
 
     }
 
-    public void defaultFractalSettings(boolean resetImage) {
+    public void defaultFractalSettings(boolean resetImage, boolean resetBailout) {
 
         if(!Settings.hasFunctionParameterization(s.fns.function)) {
             toolbar.getCurrentFunction().setEnabled(false);
@@ -2849,7 +2856,7 @@ public class MainWindow extends JFrame implements Constants {
 
         Fractal.clearReferences(true, true);
 
-        s.defaultFractalSettings();
+        s.defaultFractalSettings(resetBailout);
 
         if (s.size.compareTo(new MyApfloat(0.05)) < 0) {
             tools_menu.getBoundaries().setEnabled(false);
@@ -2980,7 +2987,7 @@ public class MainWindow extends JFrame implements Constants {
 
     public void setJuliaSeedPost() {
         first_seed = false;
-        defaultFractalSettings(true);
+        defaultFractalSettings(true, false);
     }
 
     public void goToJulia() {
@@ -3027,15 +3034,15 @@ public class MainWindow extends JFrame implements Constants {
         }
 
         if (s.ps.color_choice == CUSTOM_PALETTE_ID) {
-            TaskRender.palette_outcoloring = new CustomPalette(s.ps.custom_palette, s.ps.color_interpolation, s.ps.color_space, s.ps.reversed_palette, s.ps.scale_factor_palette_val, s.ps.processing_alg, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method).getRawPalette();
+            TaskRender.palette_outcoloring = new CustomPalette(s.ps.custom_palette, s.ps.color_interpolation, s.ps.color_space, s.ps.reversed_palette, s.ps.scale_factor_palette_val, s.ps.processing_alg, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method, s.color_space).getRawPalette();
         } else {
-            TaskRender.palette_outcoloring = new PresetPalette(s.ps.color_choice, s.ps.direct_palette, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method).getRawPalette();
+            TaskRender.palette_outcoloring = new PresetPalette(s.ps.color_choice, s.ps.direct_palette, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method, s.color_space).getRawPalette();
         }
 
         if (s.ps2.color_choice == CUSTOM_PALETTE_ID) {
-            TaskRender.palette_incoloring = new CustomPalette(s.ps2.custom_palette, s.ps2.color_interpolation, s.ps2.color_space, s.ps2.reversed_palette, s.ps2.scale_factor_palette_val, s.ps2.processing_alg, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method).getRawPalette();
+            TaskRender.palette_incoloring = new CustomPalette(s.ps2.custom_palette, s.ps2.color_interpolation, s.ps2.color_space, s.ps2.reversed_palette, s.ps2.scale_factor_palette_val, s.ps2.processing_alg, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method, s.color_space).getRawPalette();
         } else {
-            TaskRender.palette_incoloring = new PresetPalette(s.ps2.color_choice, s.ps2.direct_palette, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method).getRawPalette();
+            TaskRender.palette_incoloring = new PresetPalette(s.ps2.color_choice, s.ps2.direct_palette, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method, s.color_space).getRawPalette();
         }
 
         TaskRender.palette_outcoloring.setGeneratedPaletteSettings(true, s.gps);
@@ -3218,9 +3225,9 @@ public class MainWindow extends JFrame implements Constants {
             options_menu.getOutColoringPalette()[s.ps.color_choice].setSelected(true);
 
             if (s.ps.color_choice == CUSTOM_PALETTE_ID) {
-                TaskRender.palette_outcoloring = new CustomPalette(s.ps.custom_palette, s.ps.color_interpolation, s.ps.color_space, s.ps.reversed_palette, s.ps.scale_factor_palette_val, s.ps.processing_alg, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method).getRawPalette();
+                TaskRender.palette_outcoloring = new CustomPalette(s.ps.custom_palette, s.ps.color_interpolation, s.ps.color_space, s.ps.reversed_palette, s.ps.scale_factor_palette_val, s.ps.processing_alg, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method, s.color_space).getRawPalette();
             } else {
-                TaskRender.palette_outcoloring = new PresetPalette(s.ps.color_choice, s.ps.direct_palette, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method).getRawPalette();
+                TaskRender.palette_outcoloring = new PresetPalette(s.ps.color_choice, s.ps.direct_palette, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method, s.color_space).getRawPalette();
             }
 
             s.ps2.color_choice = temp2;
@@ -3231,9 +3238,9 @@ public class MainWindow extends JFrame implements Constants {
             options_menu.getInColoringPalette()[s.ps2.color_choice].setSelected(true);
 
             if (s.ps2.color_choice == CUSTOM_PALETTE_ID) {
-                TaskRender.palette_incoloring = new CustomPalette(s.ps2.custom_palette, s.ps2.color_interpolation, s.ps2.color_space, s.ps2.reversed_palette, s.ps2.scale_factor_palette_val, s.ps2.processing_alg, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method).getRawPalette();
+                TaskRender.palette_incoloring = new CustomPalette(s.ps2.custom_palette, s.ps2.color_interpolation, s.ps2.color_space, s.ps2.reversed_palette, s.ps2.scale_factor_palette_val, s.ps2.processing_alg, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method, s.color_space).getRawPalette();
             } else {
-                TaskRender.palette_incoloring = new PresetPalette(s.ps2.color_choice, s.ps2.direct_palette, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method).getRawPalette();
+                TaskRender.palette_incoloring = new PresetPalette(s.ps2.color_choice, s.ps2.direct_palette, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method, s.color_space).getRawPalette();
             }
         } else if (mode == 0) {
             s.ps.color_choice = temp2;
@@ -3248,9 +3255,9 @@ public class MainWindow extends JFrame implements Constants {
             options_menu.getOutColoringPalette()[s.ps.color_choice].setSelected(true);
 
             if (s.ps.color_choice == CUSTOM_PALETTE_ID) {
-                TaskRender.palette_outcoloring = new CustomPalette(s.ps.custom_palette, s.ps.color_interpolation, s.ps.color_space, s.ps.reversed_palette, s.ps.scale_factor_palette_val, s.ps.processing_alg, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method).getRawPalette();
+                TaskRender.palette_outcoloring = new CustomPalette(s.ps.custom_palette, s.ps.color_interpolation, s.ps.color_space, s.ps.reversed_palette, s.ps.scale_factor_palette_val, s.ps.processing_alg, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method, s.color_space).getRawPalette();
             } else {
-                TaskRender.palette_outcoloring = new PresetPalette(s.ps.color_choice, s.ps.direct_palette, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method).getRawPalette();
+                TaskRender.palette_outcoloring = new PresetPalette(s.ps.color_choice, s.ps.direct_palette, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method, s.color_space).getRawPalette();
             }
         } else {
             s.ps2.color_choice = temp2;
@@ -3265,9 +3272,9 @@ public class MainWindow extends JFrame implements Constants {
             options_menu.getInColoringPalette()[s.ps2.color_choice].setSelected(true);
 
             if (s.ps2.color_choice == CUSTOM_PALETTE_ID) {
-                TaskRender.palette_incoloring = new CustomPalette(s.ps2.custom_palette, s.ps2.color_interpolation, s.ps2.color_space, s.ps2.reversed_palette, s.ps2.scale_factor_palette_val, s.ps2.processing_alg, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method).getRawPalette();
+                TaskRender.palette_incoloring = new CustomPalette(s.ps2.custom_palette, s.ps2.color_interpolation, s.ps2.color_space, s.ps2.reversed_palette, s.ps2.scale_factor_palette_val, s.ps2.processing_alg, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method, s.color_space).getRawPalette();
             } else {
-                TaskRender.palette_incoloring = new PresetPalette(s.ps2.color_choice, s.ps2.direct_palette, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method).getRawPalette();
+                TaskRender.palette_incoloring = new PresetPalette(s.ps2.color_choice, s.ps2.direct_palette, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method, s.color_space).getRawPalette();
             }
         }
 
@@ -4782,7 +4789,7 @@ public class MainWindow extends JFrame implements Constants {
 
                 main_panel.repaint();
 
-                defaultFractalSettings(true);
+                defaultFractalSettings(true, false);
                 return;
             }
         } else {
@@ -4967,7 +4974,12 @@ public class MainWindow extends JFrame implements Constants {
     }
 
     private void stopRendering() {
-        TaskRender.stopRendering();
+        try {
+            TaskRender.stopRendering();
+        }
+        catch (StopExecutionException ex) {
+
+        }
 
        // synchronized (this) {
             try {
@@ -5037,7 +5049,7 @@ public class MainWindow extends JFrame implements Constants {
                 fractal_functions[INERTIA_GRAVITY].setEnabled(true);
             }
             if (!first_seed) {
-                defaultFractalSettings(true);
+                defaultFractalSettings(true, false);
                 main_panel.repaint();
             } else {
                 setOptions(true);
@@ -6101,7 +6113,7 @@ public class MainWindow extends JFrame implements Constants {
             s.pps.sts.statisticGroup = 0;
         }
 
-        defaultFractalSettings(true);
+        defaultFractalSettings(true, true);
 
     }
 
@@ -6289,7 +6301,7 @@ public class MainWindow extends JFrame implements Constants {
         }
 
         if (s.fns.function <= 9 || s.fns.function == MANDELPOLY || s.fns.function == MANDELBROTWTH) {
-            defaultFractalSettings(true);
+            defaultFractalSettings(true, true);
         }
 
     }
@@ -6646,14 +6658,14 @@ public class MainWindow extends JFrame implements Constants {
         synchronized (this) {
             if (thread_grouping == 0) {
                 tasks = new TaskRender[n][n];
-                TaskRender.resetTaskData(n * n, false);
+                TaskRender.resetTaskData(n * n, false, s.size);
             } else if (thread_grouping == 1 || thread_grouping == 2){
                 tasks = new TaskRender[1][n];
-                TaskRender.resetTaskData(n, false);
+                TaskRender.resetTaskData(n, false, s.size);
             }
             else if(thread_grouping == 3 || thread_grouping == 4 || thread_grouping == 5) {
                 tasks = new TaskRender[m][n];
-                TaskRender.resetTaskData(m * n, false);
+                TaskRender.resetTaskData(m * n, false, s.size);
             }
 
             Parser.usesUserCode = false;
@@ -6785,7 +6797,12 @@ public class MainWindow extends JFrame implements Constants {
                 color_cycling = false;
                 toolbar.getColorCyclingButton().setSelected(false);
 
-                TaskRender.terminateColorCycling();
+                try {
+                    TaskRender.terminateColorCycling();
+                }
+                catch (StopExecutionException ex) {
+
+                }
 
                 try {
                     for(Future<?> future : futures) {
@@ -6855,7 +6872,12 @@ public class MainWindow extends JFrame implements Constants {
 
             createTasksColorCycling();
 
-            TaskRender.initializeColorCycling();
+            try {
+                TaskRender.initializeColorCycling();
+            }
+            catch (StopExecutionException ex) {
+
+            }
 
             startTasks();
         }
@@ -6867,14 +6889,14 @@ public class MainWindow extends JFrame implements Constants {
         synchronized (this) {
             if (thread_grouping == 0) {
                 tasks = new TaskRender[n][n];
-                TaskRender.resetTaskData(n * n, false);
+                TaskRender.resetTaskData(n * n, false, s.size);
             } else if (thread_grouping == 1 || thread_grouping == 2){
                 tasks = new TaskRender[1][n];
-                TaskRender.resetTaskData(n, false);
+                TaskRender.resetTaskData(n, false, s.size);
             }
             else if(thread_grouping == 3 || thread_grouping == 4 || thread_grouping == 5) {
                 tasks = new TaskRender[m][n];
-                TaskRender.resetTaskData(m * n, false);
+                TaskRender.resetTaskData(m * n, false, s.size);
             }
 
             int taskId = 0;
@@ -6924,14 +6946,14 @@ public class MainWindow extends JFrame implements Constants {
         synchronized (this) {
             if (thread_grouping == 0) {
                 tasks = new TaskRender[n][n];
-                TaskRender.resetTaskData(n * n, false);
+                TaskRender.resetTaskData(n * n, false, s.size);
             } else if (thread_grouping == 1 || thread_grouping == 2){
                 tasks = new TaskRender[1][n];
-                TaskRender.resetTaskData(n, false);
+                TaskRender.resetTaskData(n, false, s.size);
             }
             else if(thread_grouping == 3 || thread_grouping == 4 || thread_grouping == 5) {
                 tasks = new TaskRender[m][n];
-                TaskRender.resetTaskData(m * n, false);
+                TaskRender.resetTaskData(m * n, false, s.size);
             }
 
             int taskId = 0;
@@ -6981,14 +7003,14 @@ public class MainWindow extends JFrame implements Constants {
         synchronized (this) {
             if (thread_grouping == 0) {
                 tasks = new TaskRender[n][n];
-                TaskRender.resetTaskData(n * n, false);
+                TaskRender.resetTaskData(n * n, false, s.size);
             } else if (thread_grouping == 1 || thread_grouping == 2){
                 tasks = new TaskRender[1][n];
-                TaskRender.resetTaskData(n, false);
+                TaskRender.resetTaskData(n, false, s.size);
             }
             else if(thread_grouping == 3 || thread_grouping == 4 || thread_grouping == 5) {
                 tasks = new TaskRender[m][n];
-                TaskRender.resetTaskData(m * n, false);
+                TaskRender.resetTaskData(m * n, false, s.size);
             }
 
             int taskId = 0;
@@ -7007,14 +7029,14 @@ public class MainWindow extends JFrame implements Constants {
         synchronized (this) {
             if (thread_grouping == 0) {
                 tasks = new TaskRender[n][n];
-                TaskRender.resetTaskData(n * n, false);
+                TaskRender.resetTaskData(n * n, false, s.size);
             } else if (thread_grouping == 1 || thread_grouping == 2){
                 tasks = new TaskRender[1][n];
-                TaskRender.resetTaskData(n, false);
+                TaskRender.resetTaskData(n, false, s.size);
             }
             else if(thread_grouping == 3 || thread_grouping == 4 || thread_grouping == 5) {
                 tasks = new TaskRender[m][n];
-                TaskRender.resetTaskData(m * n, false);
+                TaskRender.resetTaskData(m * n, false, s.size);
             }
 
             int tile = s.d3s.detail <= 60 ? 1 : TaskRender.TILE_SIZE;
@@ -7036,14 +7058,14 @@ public class MainWindow extends JFrame implements Constants {
         synchronized (this) {
             if (thread_grouping == 0) {
                 tasks = new TaskRender[n][n];
-                TaskRender.resetTaskData(n * n, false);
+                TaskRender.resetTaskData(n * n, false, s.size);
             } else if (thread_grouping == 1 || thread_grouping == 2) {
                 tasks = new TaskRender[1][n];
-                TaskRender.resetTaskData(n, false);
+                TaskRender.resetTaskData(n, false, s.size);
             }
             else if(thread_grouping == 3 || thread_grouping == 4 || thread_grouping == 5) {
                 tasks = new TaskRender[m][n];
-                TaskRender.resetTaskData(m * n, false);
+                TaskRender.resetTaskData(m * n, false, s.size);
             }
 
             int taskId = 0;
@@ -7108,7 +7130,7 @@ public class MainWindow extends JFrame implements Constants {
             new InflectionsPlaneDialog(ptr, s, oldSelected, planes);
         }
         else {
-            defaultFractalSettings(true);
+            defaultFractalSettings(true, false);
         }
     }
 
@@ -7276,22 +7298,25 @@ public class MainWindow extends JFrame implements Constants {
     }
 
     public void setSmoothingPost(boolean recalculate) {
+        ColorCorrection.set(s.gamma, s.intesity_exponent, s.interpolation_exponent);
+
         if (s.ps.color_choice == CUSTOM_PALETTE_ID) {
-            TaskRender.palette_outcoloring = new CustomPalette(s.ps.custom_palette, s.ps.color_interpolation, s.ps.color_space, s.ps.reversed_palette, s.ps.scale_factor_palette_val, s.ps.processing_alg, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method).getRawPalette();
+            TaskRender.palette_outcoloring = new CustomPalette(s.ps.custom_palette, s.ps.color_interpolation, s.ps.color_space, s.ps.reversed_palette, s.ps.scale_factor_palette_val, s.ps.processing_alg, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method, s.color_space).getRawPalette();
         } else {
-            TaskRender.palette_outcoloring = new PresetPalette(s.ps.color_choice, s.ps.direct_palette, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method).getRawPalette();
+            TaskRender.palette_outcoloring = new PresetPalette(s.ps.color_choice, s.ps.direct_palette, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method, s.color_space).getRawPalette();
         }
 
         if (s.ps2.color_choice == CUSTOM_PALETTE_ID) {
-            TaskRender.palette_incoloring = new CustomPalette(s.ps2.custom_palette, s.ps2.color_interpolation, s.ps2.color_space, s.ps2.reversed_palette, s.ps2.scale_factor_palette_val, s.ps2.processing_alg, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method).getRawPalette();
+            TaskRender.palette_incoloring = new CustomPalette(s.ps2.custom_palette, s.ps2.color_interpolation, s.ps2.color_space, s.ps2.reversed_palette, s.ps2.scale_factor_palette_val, s.ps2.processing_alg, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method, s.color_space).getRawPalette();
         } else {
-            TaskRender.palette_incoloring = new PresetPalette(s.ps2.color_choice, s.ps2.direct_palette, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method).getRawPalette();
+            TaskRender.palette_incoloring = new PresetPalette(s.ps2.color_choice, s.ps2.direct_palette, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color, s.fns.smoothing_fractional_transfer_method, s.color_space).getRawPalette();
         }
 
         TaskRender.palette_outcoloring.setGeneratedPaletteSettings(true, s.gps);
         TaskRender.palette_incoloring.setGeneratedPaletteSettings(false, s.gps);
 
         TaskRender.COLOR_SMOOTHING_METHOD = s.color_smoothing_method;
+        TaskRender.COLOR_SPACE = s.color_space;
 
         //SmoothEscapeTime.APPLY_OFFSET_OF_1_IN_SMOOTHING = s.fns.apply_offset_in_smoothing;
         PaletteColorSmooth.SMOOTHING_COLOR_SELECTION = s.fns.smoothing_color_selection;
@@ -8018,10 +8043,10 @@ public class MainWindow extends JFrame implements Constants {
 
         if (outcoloring_mode) {
             resetOrbit();
-            new CustomPaletteEditorDialog(ptr, options_menu.getOutColoringPalette(), s.fns.smoothing, palette_id, s.ps.color_choice, s.ps.custom_palette, s.ps.color_interpolation, s.ps.color_space, s.ps.reversed_palette, s.temp_color_cycling_location, s.ps.scale_factor_palette_val, s.ps.processing_alg, outcoloring_mode);
+            new CustomPaletteEditorDialog(ptr, options_menu.getOutColoringPalette(), s.fns.smoothing, palette_id, s.ps.color_choice, s.ps.custom_palette, s.ps.color_interpolation, s.ps.color_space, s.ps.reversed_palette, s.temp_color_cycling_location, s.ps.scale_factor_palette_val, s.ps.processing_alg, outcoloring_mode, s.ps.color_cycling_location, s.ps2.color_cycling_location);
         } else {
             resetOrbit();
-            new CustomPaletteEditorDialog(ptr, options_menu.getInColoringPalette(), s.fns.smoothing, palette_id, s.ps2.color_choice, s.ps2.custom_palette, s.ps2.color_interpolation, s.ps2.color_space, s.ps2.reversed_palette, s.temp_color_cycling_location_second_palette, s.ps2.scale_factor_palette_val, s.ps2.processing_alg, outcoloring_mode);
+            new CustomPaletteEditorDialog(ptr, options_menu.getInColoringPalette(), s.fns.smoothing, palette_id, s.ps2.color_choice, s.ps2.custom_palette, s.ps2.color_interpolation, s.ps2.color_space, s.ps2.reversed_palette, s.temp_color_cycling_location_second_palette, s.ps2.scale_factor_palette_val, s.ps2.processing_alg, outcoloring_mode, s.ps.color_cycling_location, s.ps2.color_cycling_location);
         }
 
     }
@@ -8052,7 +8077,7 @@ public class MainWindow extends JFrame implements Constants {
         synchronized (this) {
             tasks = new TaskRender[julia_grid_first_dimension][julia_grid_first_dimension];
 
-            TaskRender.resetTaskData(julia_grid_first_dimension * julia_grid_first_dimension, false);
+            TaskRender.resetTaskData(julia_grid_first_dimension * julia_grid_first_dimension, false, s.size);
             Parser.usesUserCode = false;
 
             int n = julia_grid_first_dimension;
@@ -8265,7 +8290,7 @@ public class MainWindow extends JFrame implements Constants {
             s.usePaletteForInColoring = true;
 
             if(!(s.pps.sts.statistic && s.pps.sts.statisticGroup == 4)) {
-                if(!s.gps.useGeneratedPaletteInColoring) {
+                if(!(s.gps.useGeneratedPaletteInColoring && !s.gps.blendNormalPaletteWithGeneratedPaletteInColoring)) {
                     infobar.getInColoringPalettePreview().setVisible(true);
                     infobar.getInColoringPalettePreviewLabel().setVisible(true);
                 }
@@ -8351,7 +8376,7 @@ public class MainWindow extends JFrame implements Constants {
             }
         }
 
-        defaultFractalSettings(true);
+        defaultFractalSettings(true, false);
 
     }
 
@@ -8392,7 +8417,7 @@ public class MainWindow extends JFrame implements Constants {
             }
         }
 
-        defaultFractalSettings(true);
+        defaultFractalSettings(true, false);
 
     }
 
@@ -8745,8 +8770,8 @@ public class MainWindow extends JFrame implements Constants {
 
                     infobar.getGradientPreviewLabel().setVisible(true);
                     infobar.getGradientPreview().setVisible(true);
-                    infobar.getOutColoringPalettePreview().setVisible(!s.gps.useGeneratedPaletteOutColoring || (s.ds.domain_coloring && s.ds.domain_coloring_mode != 1));
-                    infobar.getOutColoringPalettePreviewLabel().setVisible(!s.gps.useGeneratedPaletteOutColoring || (s.ds.domain_coloring && s.ds.domain_coloring_mode != 1));
+                    infobar.getOutColoringPalettePreview().setVisible(!(s.gps.useGeneratedPaletteOutColoring && !s.gps.blendNormalPaletteWithGeneratedPaletteOutColoring) || (s.ds.domain_coloring && s.ds.domain_coloring_mode != 1));
+                    infobar.getOutColoringPalettePreviewLabel().setVisible(!(s.gps.useGeneratedPaletteOutColoring && !s.gps.blendNormalPaletteWithGeneratedPaletteOutColoring) || (s.ds.domain_coloring && s.ds.domain_coloring_mode != 1));
                     infobar.getInColoringPalettePreview().setVisible(false);
                     infobar.getInColoringPalettePreviewLabel().setVisible(false);
 
@@ -8788,8 +8813,8 @@ public class MainWindow extends JFrame implements Constants {
                         options_menu.getOutColoringPaletteMenu().setEnabled(true);
                     }
 
-                    infobar.getOutColoringPalettePreview().setVisible(!s.gps.useGeneratedPaletteOutColoring || (s.ds.domain_coloring && s.ds.domain_coloring_mode != 1));
-                    infobar.getOutColoringPalettePreviewLabel().setVisible(!s.gps.useGeneratedPaletteOutColoring || (s.ds.domain_coloring && s.ds.domain_coloring_mode != 1));
+                    infobar.getOutColoringPalettePreview().setVisible(!(s.gps.useGeneratedPaletteOutColoring && !s.gps.blendNormalPaletteWithGeneratedPaletteOutColoring) || (s.ds.domain_coloring && s.ds.domain_coloring_mode != 1));
+                    infobar.getOutColoringPalettePreviewLabel().setVisible(!(s.gps.useGeneratedPaletteOutColoring && !s.gps.blendNormalPaletteWithGeneratedPaletteOutColoring) || (s.ds.domain_coloring && s.ds.domain_coloring_mode != 1));
 
                     updatePalettePreview(s.ps.color_cycling_location, s.ps2.color_cycling_location);
                 }
@@ -8832,7 +8857,7 @@ public class MainWindow extends JFrame implements Constants {
 
                 if(!(s.pps.sts.statistic && s.pps.sts.statisticGroup == 4)) {
                     if (s.usePaletteForInColoring) {
-                        if(!s.gps.useGeneratedPaletteInColoring) {
+                        if(!(s.gps.useGeneratedPaletteInColoring && !s.gps.blendNormalPaletteWithGeneratedPaletteInColoring)) {
                             infobar.getInColoringPalettePreview().setVisible(true);
                             infobar.getInColoringPalettePreviewLabel().setVisible(true);
                         }
@@ -8849,8 +8874,8 @@ public class MainWindow extends JFrame implements Constants {
                         infobar.getInColoringPalettePreviewLabel().setVisible(false);
                     }
 
-                    infobar.getOutColoringPalettePreview().setVisible(!s.gps.useGeneratedPaletteOutColoring || (s.ds.domain_coloring && s.ds.domain_coloring_mode != 1));
-                    infobar.getOutColoringPalettePreviewLabel().setVisible(!s.gps.useGeneratedPaletteOutColoring || (s.ds.domain_coloring && s.ds.domain_coloring_mode != 1));
+                    infobar.getOutColoringPalettePreview().setVisible(!(s.gps.useGeneratedPaletteOutColoring && !s.gps.blendNormalPaletteWithGeneratedPaletteOutColoring) || (s.ds.domain_coloring && s.ds.domain_coloring_mode != 1));
+                    infobar.getOutColoringPalettePreviewLabel().setVisible(!(s.gps.useGeneratedPaletteOutColoring && !s.gps.blendNormalPaletteWithGeneratedPaletteOutColoring) || (s.ds.domain_coloring && s.ds.domain_coloring_mode != 1));
                 }
                 else {
                     infobar.getMaxIterationsColorPreview().setVisible(false);
@@ -8997,7 +9022,7 @@ public class MainWindow extends JFrame implements Constants {
                     if(!(s.pps.sts.statistic && s.pps.sts.statisticGroup == 4)) {
                         if (!s.ds.domain_coloring) {
                             if (s.usePaletteForInColoring) {
-                                if(!s.gps.useGeneratedPaletteInColoring) {
+                                if(!(s.gps.useGeneratedPaletteInColoring && !s.gps.blendNormalPaletteWithGeneratedPaletteInColoring)) {
                                     infobar.getInColoringPalettePreview().setVisible(true);
                                     infobar.getInColoringPalettePreviewLabel().setVisible(true);
                                 }
@@ -9014,8 +9039,8 @@ public class MainWindow extends JFrame implements Constants {
                                 infobar.getInColoringPalettePreviewLabel().setVisible(false);
                             }
                         }
-                        infobar.getOutColoringPalettePreview().setVisible(!s.gps.useGeneratedPaletteOutColoring || (s.ds.domain_coloring && s.ds.domain_coloring_mode != 1));
-                        infobar.getOutColoringPalettePreviewLabel().setVisible(!s.gps.useGeneratedPaletteOutColoring || (s.ds.domain_coloring && s.ds.domain_coloring_mode != 1));
+                        infobar.getOutColoringPalettePreview().setVisible(!(s.gps.useGeneratedPaletteOutColoring && !s.gps.blendNormalPaletteWithGeneratedPaletteOutColoring) || (s.ds.domain_coloring && s.ds.domain_coloring_mode != 1));
+                        infobar.getOutColoringPalettePreviewLabel().setVisible(!(s.gps.useGeneratedPaletteOutColoring && !s.gps.blendNormalPaletteWithGeneratedPaletteOutColoring) || (s.ds.domain_coloring && s.ds.domain_coloring_mode != 1));
                     }
 
                     infobar.getGradientPreviewLabel().setVisible(true);
@@ -9233,7 +9258,7 @@ public class MainWindow extends JFrame implements Constants {
 
         Plane.FLIP_REAL = s.flip_real;
 
-        defaultFractalSettings(true);
+        defaultFractalSettings(true, false);
     }
 
     public void FlipImaginary() {
@@ -9247,7 +9272,7 @@ public class MainWindow extends JFrame implements Constants {
 
         Plane.FLIP_IMAGINARY = s.flip_imaginary;
 
-        defaultFractalSettings(true);
+        defaultFractalSettings(true, false);
     }
 
     public void setApplyPlaneOnWholeJulia() {
@@ -9261,7 +9286,7 @@ public class MainWindow extends JFrame implements Constants {
         }
 
         if (s.fns.julia || s.julia_map) {
-            defaultFractalSettings(true);
+            defaultFractalSettings(true, false);
         }
 
     }
@@ -9277,7 +9302,7 @@ public class MainWindow extends JFrame implements Constants {
         }
 
         if (s.fns.julia || s.julia_map) {
-            defaultFractalSettings(true);
+            defaultFractalSettings(true, false);
         }
 
     }
@@ -9552,8 +9577,10 @@ public class MainWindow extends JFrame implements Constants {
             writer.println("use_custom_floatexp_requirement " + TaskRender.USE_CUSTOM_FLOATEXP_REQUIREMENT);
             writer.println("load_mpfr " + TaskRender.LOAD_MPFR);
             writer.println("load_mpir " + TaskRender.LOAD_MPIR);
-            writer.println("#available libs: " + String.join(", ", TaskRender.mpirWinLibs));
-            writer.println("mpir_lib " + TaskRender.MPIR_LIB);
+            writer.println("#available architectures: " + String.join(", ", TaskRender.mpirWinArchitecture));
+            writer.println("mpir_win_architecture " + TaskRender.MPIR_WINDOWS_ARCHITECTURE);
+            writer.println("#available architectures: " + String.join(", ", TaskRender.mpfrWinArchitecture));
+            writer.println("mpfr_win_architecture " + TaskRender.MPFR_WINDOWS_ARCHITECTURE);
             writer.println("period_detection_algorithm " + TaskRender.PERIOD_DETECTION_ALGORITHM);
             writer.println("pattern_compare_alg " + TaskRender.PATTERN_COMPARE_ALG);
             writer.println("pattern_revert_alg " + TaskRender.PATTERN_REVERT_ALG);
@@ -11558,12 +11585,20 @@ public class MainWindow extends JFrame implements Constants {
                             TaskRender.LOAD_RENDERING_ALGORITHM_FROM_SAVES = true;
                         }
                     }
-                    else if(token.equals("mpir_lib") && tokenizer.countTokens() == 1) {
+                    else if(token.equals("mpir_win_architecture") && tokenizer.countTokens() == 1) {
 
                         token = tokenizer.nextToken();
 
-                        if(Arrays.asList(TaskRender.mpirWinLibs).contains(token)) {
-                            TaskRender.MPIR_LIB = token;
+                        if(Arrays.asList(TaskRender.mpirWinArchitecture).contains(token)) {
+                            TaskRender.MPIR_WINDOWS_ARCHITECTURE = token;
+                        }
+                    }
+                    else if(token.equals("mpfr_win_architecture") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if(Arrays.asList(TaskRender.mpfrWinArchitecture).contains(token)) {
+                            TaskRender.MPFR_WINDOWS_ARCHITECTURE = token;
                         }
                     }
                     else if(token.equals("built_in_bignum_implementation") && tokenizer.countTokens() == 1) {
@@ -11937,36 +11972,36 @@ public class MainWindow extends JFrame implements Constants {
         }
     }
 
-    /*public void cancelOperation() {
+    public void cancelOperation() {
 
         resetOrbit();
 
         synchronized (this) {
             for(Future<?> future : futures) {
-                future.cancel(true);
+               future.cancel(true);
             }
         }
 
         while (!tasksCompleted()) {}
 
-        TaskRender.thread_calculation_executor.shutdownNow();
-        TaskRender.thread_calculation_executor = (ThreadPoolExecutor)Executors.newFixedThreadPool(getNumberOfThreads());
+        //TaskRender.thread_calculation_executor.shutdownNow();
+        //TaskRender.thread_calculation_executor = (ThreadPoolExecutor)Executors.newFixedThreadPool(getNumberOfThreads());
 
         if(s.d3s.d3) {
             progress.setMaximum(s.d3s.detail * s.d3s.detail + 1);
         }
         else {
-            progress.setMaximum(image_size * image_size + 1);
+            progress.setMaximum(image_width * image_height + 1);
         }
 
         progress.setForeground(MainWindow.progress_color);
         progress.setString(null);
 
-        Fractal.clearReferences(true);
+        Fractal.clearReferences(true, true);
         s.max_iterations = s.max_iterations > 500 ? 500 : s.max_iterations;
-        defaultFractalSettings(false);
+        defaultFractalSettings(false, false);
 
-    }*/
+    }
 
     public void createCompleteImage(int delay, boolean d3, boolean preview, boolean zoomToCursor) {
         if (timer == null) {
@@ -12466,7 +12501,7 @@ public class MainWindow extends JFrame implements Constants {
     private void setPalettePreviewsVisible() {
         if (!s.ds.domain_coloring) {
             if (s.usePaletteForInColoring) {
-                if(!s.gps.useGeneratedPaletteInColoring) {
+                if(!(s.gps.useGeneratedPaletteInColoring && !s.gps.blendNormalPaletteWithGeneratedPaletteInColoring)) {
                     infobar.getInColoringPalettePreview().setVisible(true);
                     infobar.getInColoringPalettePreviewLabel().setVisible(true);
                 }
@@ -12483,8 +12518,8 @@ public class MainWindow extends JFrame implements Constants {
                 infobar.getInColoringPalettePreviewLabel().setVisible(false);
             }
         }
-        infobar.getOutColoringPalettePreview().setVisible(!s.gps.useGeneratedPaletteOutColoring || (s.ds.domain_coloring && s.ds.domain_coloring_mode != 1));
-        infobar.getOutColoringPalettePreviewLabel().setVisible(!s.gps.useGeneratedPaletteOutColoring || (s.ds.domain_coloring && s.ds.domain_coloring_mode != 1));
+        infobar.getOutColoringPalettePreview().setVisible(!(s.gps.useGeneratedPaletteOutColoring && !s.gps.blendNormalPaletteWithGeneratedPaletteOutColoring) || (s.ds.domain_coloring && s.ds.domain_coloring_mode != 1));
+        infobar.getOutColoringPalettePreviewLabel().setVisible(!(s.gps.useGeneratedPaletteOutColoring && !s.gps.blendNormalPaletteWithGeneratedPaletteOutColoring) || (s.ds.domain_coloring && s.ds.domain_coloring_mode != 1));
     }
 
     public void setDirectColor() {
@@ -12733,12 +12768,60 @@ public class MainWindow extends JFrame implements Constants {
         return ZOOM_TO_THE_SELECTED_AREA && !s.d3s.d3 && !s.polar_projection && !color_cycling && !(s.fns.julia && first_seed) && !orbit;
     }
 
-    public void setGeneratedPalettePost() {
+    public void setGeneratedPalettePost(boolean outcoloring) {
 
         TaskRender.palette_outcoloring.setGeneratedPaletteSettings(true, s.gps);
         TaskRender.palette_incoloring.setGeneratedPaletteSettings(false, s.gps);
 
-        if(s.gps.useGeneratedPaletteOutColoring && !(s.ds.domain_coloring && s.ds.domain_coloring_mode != 1)) {
+        try {
+            if (outcoloring) {
+                Multiwave.user_params_out = Multiwave.jsonToParams(s.gps.outcoloring_multiwave_user_palette);
+            } else {
+                Multiwave.user_params_in = Multiwave.jsonToParams(s.gps.incoloring_multiwave_user_palette);
+            }
+        }
+        catch (Exception ex) {
+            if(outcoloring) {
+                Multiwave.user_params_out = Multiwave.empty;
+            }
+            else {
+                Multiwave.user_params_in = Multiwave.empty;
+            }
+        }
+
+        try {
+            if (outcoloring) {
+                InfiniteWave.user_params_out = InfiniteWave.jsonToParams(s.gps.outcoloring_infinite_wave_user_palette);
+            } else {
+                InfiniteWave.user_params_in = InfiniteWave.jsonToParams(s.gps.incoloring_infinite_wave_user_palette);
+            }
+        }
+        catch (Exception ex) {
+            if(outcoloring) {
+                InfiniteWave.user_params_out = InfiniteWave.empty;
+            }
+            else {
+                InfiniteWave.user_params_in = InfiniteWave.empty;
+            }
+        }
+
+        try {
+            if (outcoloring) {
+                MultiwaveSimple.user_params_out = MultiwaveSimple.jsonToParams(s.gps.outcoloring_simple_multiwave_user_palette);
+            } else {
+                MultiwaveSimple.user_params_in = MultiwaveSimple.jsonToParams(s.gps.incoloring_simple_multiwave_user_palette);
+            }
+        }
+        catch (Exception ex) {
+            if(outcoloring) {
+                MultiwaveSimple.user_params_out = MultiwaveSimple.empty;
+            }
+            else {
+                MultiwaveSimple.user_params_in = MultiwaveSimple.empty;
+            }
+        }
+
+        if((s.gps.useGeneratedPaletteOutColoring && !s.gps.blendNormalPaletteWithGeneratedPaletteOutColoring) && !(s.ds.domain_coloring && s.ds.domain_coloring_mode != 1)) {
             infobar.getOutColoringPalettePreview().setVisible(false);
             infobar.getOutColoringPalettePreviewLabel().setVisible(false);
         } else if (!s.useDirectColor && !(s.pps.sts.statistic && s.pps.sts.statisticGroup == 4)) {
@@ -12747,7 +12830,7 @@ public class MainWindow extends JFrame implements Constants {
         }
 
 
-        if(s.gps.useGeneratedPaletteInColoring) {
+        if(s.gps.useGeneratedPaletteInColoring && !s.gps.blendNormalPaletteWithGeneratedPaletteInColoring) {
             infobar.getInColoringPalettePreview().setVisible(false);
             infobar.getInColoringPalettePreviewLabel().setVisible(false);
         }
@@ -12987,7 +13070,7 @@ public class MainWindow extends JFrame implements Constants {
             }
         }
 
-        ptr.defaultFractalSettings(true);
+        ptr.defaultFractalSettings(true, false);
     }
 
     public void setPlaneInfluence(int plane_influence) {
@@ -13003,7 +13086,7 @@ public class MainWindow extends JFrame implements Constants {
             return;
         }
 
-        ptr.defaultFractalSettings(true);
+        ptr.defaultFractalSettings(true, false);
     }
 
     public void clickCurrentFunction() {
@@ -13059,7 +13142,7 @@ public class MainWindow extends JFrame implements Constants {
     }
 
     public void setCustomDirectPalette(boolean outcoloring_mode) {
-       new ColorPaletteEditorDialog(ptr, outcoloring_mode, outcoloring_mode ? options_menu.getOutColoringPalette() : options_menu.getInColoringPalette(), outcoloring_mode ? s.ps.color_space : s.ps2.color_space);
+       new ColorPaletteEditorDialog(ptr, outcoloring_mode, s, outcoloring_mode ? options_menu.getOutColoringPalette() : options_menu.getInColoringPalette());
     }
 
     public void setJitterPost() {
@@ -13451,6 +13534,9 @@ public class MainWindow extends JFrame implements Constants {
             String JitterSeed = "0";
             String JitterShape = "0";
             String JitterScale = "1";
+            String MultiColor = "0";
+            String BlendMC = "0";
+            String MultiColors = "";
 
             boolean matchedAny = false;
             while ((str_line = br.readLine()) != null) {
@@ -13474,6 +13560,21 @@ public class MainWindow extends JFrame implements Constants {
                     }
                     else if(token.equalsIgnoreCase("Iterations:") && tokenizer.countTokens() == 1) {
                         iterations = tokenizer.nextToken();
+                        matchedAny = true;
+                    }
+                    else if(token.equalsIgnoreCase("MultiColor:") && tokenizer.countTokens() == 1) {
+                        MultiColor = tokenizer.nextToken();
+                        matchedAny = true;
+                    }
+                    else if(token.equalsIgnoreCase("BlendMC:") && tokenizer.countTokens() == 1) {
+                        BlendMC = tokenizer.nextToken();
+                        matchedAny = true;
+                    }
+                    else if(token.equalsIgnoreCase("MultiColors:") && tokenizer.countTokens() >= 1) {
+                        int tokens_size = tokenizer.countTokens();
+                        for(int i = 0; i < tokens_size; i++) {
+                            MultiColors += tokenizer.nextToken();
+                        }
                         matchedAny = true;
                     }
                     else if(token.equalsIgnoreCase("Colors:") && tokenizer.countTokens() >= 1) {
@@ -13707,6 +13808,63 @@ public class MainWindow extends JFrame implements Constants {
             }
             catch (Exception ex) {}
 
+            s.color_space = COLOR_SPACE_RGB;
+            s.gamma = 1;
+            s.intesity_exponent = 1;
+            s.interpolation_exponent = 1;
+            s.color_blending.color_blending = Constants.NORMAL_BLENDING;
+
+            if(MultiColor.equals("1")) {
+                try {
+                    String[] tokens = MultiColors.split(",");
+
+                    ArrayList<InfiniteWave.InfiniteColorWaveParams> params = new ArrayList<>();
+                    for (int i = 0; i < tokens.length; i ++) {
+                        String[] tokens2 = tokens[i].split("\\s+");
+
+                        if(tokens2.length != 3) {
+                            throw new Exception();
+                        }
+
+                        InfiniteWave.WaveType type;
+                        if(tokens2[2].equals("2")) {
+                            type = InfiniteWave.WaveType.BRIGHTNESS;
+                        }
+                        else if(tokens2[2].equals("1")) {
+                            type = InfiniteWave.WaveType.SATURATION;
+                        }
+                        else {
+                            type = InfiniteWave.WaveType.HUE;
+                        }
+
+                        params.add(new InfiniteWave.InfiniteColorWaveParams(type, Double.parseDouble(tokens2[0])));
+                    }
+
+                    InfiniteWave.InfiniteColorWaveParams[] p = new InfiniteWave.InfiniteColorWaveParams[params.size()];
+                    for(int i = 0; i < p.length; i++) {
+                        p[i] = params.get(i);
+                    }
+
+                    try {
+                        s.gps.outcoloring_infinite_wave_user_palette = InfiniteWave.paramsToJson(p, false);
+                    }
+                    catch (Exception ex) {
+                        throw ex;
+                    }
+
+                    if(BlendMC.equals("1")) {
+                        s.gps.blendNormalPaletteWithGeneratedPaletteOutColoring = true;
+                    }
+                    s.gps.blendingOutColoring = 0.5;
+                    s.gps.useGeneratedPaletteOutColoring = true;
+                    s.gps.restartGeneratedOutColoringPaletteAt = DEFAULT_LARGE_LENGTH;
+                    s.gps.generatedPaletteOutColoringId = 5;
+                }
+                catch (Exception ex) {
+
+                }
+            }
+
             try {
                 ArrayList<Color> primaryCols = new ArrayList<>();
 
@@ -13754,7 +13912,7 @@ public class MainWindow extends JFrame implements Constants {
                         p = (int) temp;
                         int pn = (p + 1) % m_nParts;
                         temp -= p;
-                        finalCols.add(lerp.interpolate(primaryCols.get(p), primaryCols.get(pn), temp));
+                        finalCols.add(lerp.interpolateColors(primaryCols.get(p), primaryCols.get(pn), temp, false));
                     }
 
                     s.ps.color_choice = DIRECT_PALETTE_ID;

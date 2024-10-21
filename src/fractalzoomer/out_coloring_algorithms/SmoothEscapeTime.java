@@ -63,21 +63,25 @@ public class SmoothEscapeTime extends OutColorAlgorithm {
 
     @Override
     public double getResult(Object[] object) {
-        
+
+        return (int)object[0] + getFractionalPart(object);
+
+    }
+
+    @Override
+    public double getFractionalPart(Object[] object) {
         if(algorithm == 0 && !usePower) {
-            return (int)object[0] + getSmoothing1((Complex)object[1], (Complex)object[2], log_bailout, normImpl);
+            return getSmoothing1((Complex)object[1], (Complex)object[2], log_bailout, normImpl);
         }
         else if(algorithm == 2 && !usePower) {
-            return (int)object[0] + getSmoothing3((Complex)object[1], (Complex)object[2], bailout, normImpl);
+            return getSmoothing3((Complex)object[1], (Complex)object[2], bailout, normImpl);
         }
         else {
             //double temp2 = ((Complex)object[1]).norm_squared();
-            //return (int)object[0] + 1 - Math.log(Math.log(temp2) / log_bailout_squared) / log_power;
+            //return  1 - Math.log(Math.log(temp2) / log_bailout_squared) / log_power;
 
-            return (int)object[0] + getSmoothing2((Complex)object[1], (Complex)object[2], log_bailout, usePower, log_power, normImpl);
-
+            return getSmoothing2((Complex)object[1], (Complex)object[2], log_bailout, usePower, log_power, normImpl);
         }
-
     }
 
     protected static double getSmoothing1(Complex z, Complex zold, double log_bailout_squared, Norm normImpl) {

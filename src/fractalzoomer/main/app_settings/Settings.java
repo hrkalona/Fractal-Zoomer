@@ -22,7 +22,7 @@ import fractalzoomer.parser.Parser;
 import fractalzoomer.parser.ParserException;
 import fractalzoomer.planes.Plane;
 import fractalzoomer.settings.*;
-import fractalzoomer.utils.ColorAlgorithm;
+import fractalzoomer.utils.*;
 import org.apfloat.Apfloat;
 
 import javax.swing.*;
@@ -63,6 +63,7 @@ public class Settings implements Constants {
     public long old_max_iterations;
     public double circle_period;
     public int color_smoothing_method;
+    public int color_space;
     public Color fractal_color;
     public Color dem_color;
     public Color special_color;
@@ -93,6 +94,9 @@ public class Settings implements Constants {
     public double lchab_constant_c;
     public double lchuv_constant_l;
     public double lchuv_constant_c;
+    public double gamma;
+    public double intesity_exponent;
+    public double interpolation_exponent;
 
 
     public Settings() {
@@ -116,6 +120,10 @@ public class Settings implements Constants {
 
         flip_real = false;
         flip_imaginary = false;
+
+        gamma = 1;
+        intesity_exponent = 1;
+        interpolation_exponent = 1;
 
         hsb_constant_b = 1;
         hsb_constant_s = 1;
@@ -170,6 +178,7 @@ public class Settings implements Constants {
         circle_period = 1;
 
         color_smoothing_method = INTERPOLATION_LINEAR;
+        color_space = COLOR_SPACE_RGB;
 
         special_use_palette_color = true;
 
@@ -1316,7 +1325,7 @@ public class Settings implements Constants {
             pps.sts.rootShadingFunction = defaults.pps.sts.rootShadingFunction;
             pps.sts.revertRootShading = defaults.pps.sts.revertRootShading;
             pps.sts.highlightRoots = defaults.pps.sts.highlightRoots;
-            pps.sts.rootSmooting = defaults.pps.sts.rootSmooting;
+            pps.sts.rootSmoothing = defaults.pps.sts.rootSmoothing;
             pps.sts.rootColors = defaults.pps.sts.rootColors;
 
             MagnetColorOffset = defaults.MagnetColorOffset;
@@ -1349,7 +1358,7 @@ public class Settings implements Constants {
             pps.sts.rootShadingFunction = ((SettingsFractals1080) settings).getRootShadingFunction();
             pps.sts.revertRootShading = ((SettingsFractals1080) settings).getRevertRootShading();
             pps.sts.highlightRoots = ((SettingsFractals1080) settings).getHighlightRoots();
-            pps.sts.rootSmooting = ((SettingsFractals1080) settings).getRootSmooting();
+            pps.sts.rootSmoothing = ((SettingsFractals1080) settings).getRootSmooting();
             pps.sts.rootColors = ((SettingsFractals1080) settings).getRootColors();
 
             MagnetColorOffset = ((SettingsFractals1080) settings).getMagnetColorOffset();
@@ -2587,7 +2596,7 @@ public class Settings implements Constants {
         pps.sts.user_statistic_init_value = "0.0";
     }
 
-    public void defaultFractalSettings() {
+    public void defaultFractalSettings(boolean resetBailout) {
 
         switch (fns.function) {
             case MANDEL_NEWTON:
@@ -2596,7 +2605,7 @@ public class Settings implements Constants {
                 xCenter = new MyApfloat(0.0);
                 yCenter = new MyApfloat(0.0);
                 size = new MyApfloat(24);
-                fns.bailout = fns.bailout < 8 ? 8 : fns.bailout;
+                fns.bailout = resetBailout && fns.bailout < 8 ? 8 : fns.bailout;
                 break;
             case MAGNET1:
             case MAGNET13:
@@ -2605,12 +2614,12 @@ public class Settings implements Constants {
                     xCenter = new MyApfloat(0.0);
                     yCenter = new MyApfloat(0.0);
                     size = new MyApfloat(28);
-                    fns.bailout = fns.bailout < 13 ? 13 : fns.bailout;
+                    fns.bailout = resetBailout && fns.bailout < 13 ? 13 : fns.bailout;
                 } else {
                     xCenter = new MyApfloat(1.35);
                     yCenter = new MyApfloat(0.0);
                     size = new MyApfloat(8);
-                    fns.bailout = fns.bailout < 13 ? 13 : fns.bailout;
+                    fns.bailout = resetBailout && fns.bailout < 13 ? 13 : fns.bailout;
                 }
                 break;
             case MAGNET2:
@@ -2620,12 +2629,12 @@ public class Settings implements Constants {
                     xCenter = new MyApfloat(0.0);
                     yCenter = new MyApfloat(0.0);
                     size = new MyApfloat(56);
-                    fns.bailout = fns.bailout < 13 ? 13 : fns.bailout;
+                    fns.bailout = resetBailout && fns.bailout < 13 ? 13 : fns.bailout;
                 } else {
                     xCenter = new MyApfloat(1.0);
                     yCenter = new MyApfloat(0.0);
                     size = new MyApfloat(7);
-                    fns.bailout = fns.bailout < 13 ? 13 : fns.bailout;
+                    fns.bailout = resetBailout && fns.bailout < 13 ? 13 : fns.bailout;
                 }
                 break;
             case BARNSLEY1:
@@ -2633,13 +2642,13 @@ public class Settings implements Constants {
                 xCenter = new MyApfloat(0.0);
                 yCenter = new MyApfloat(0.0);
                 size = new MyApfloat(7);
-                fns.bailout = fns.bailout < 2 ? 2 : fns.bailout;
+                fns.bailout = resetBailout && fns.bailout < 2 ? 2 : fns.bailout;
                 break;
             case SIERPINSKI_GASKET:
                 xCenter = new MyApfloat(0.5);
                 yCenter = new MyApfloat(0.5);
                 size = new MyApfloat(3);
-                fns.bailout = fns.bailout < 100 ? 100 : fns.bailout;
+                fns.bailout = resetBailout && fns.bailout < 100 ? 100 : fns.bailout;
                 break;
             case KLEINIAN:
                 xCenter = new MyApfloat(0.0);
@@ -2669,7 +2678,7 @@ public class Settings implements Constants {
                 xCenter = new MyApfloat(0.0);
                 yCenter = new MyApfloat(0.0);
                 size = new MyApfloat(6);
-                fns.bailout = fns.bailout < 8 ? 8 : fns.bailout;
+                fns.bailout = resetBailout && fns.bailout < 8 ? 8 : fns.bailout;
                 break;
             case FORMULA2:
             case FORMULA13:
@@ -2681,7 +2690,7 @@ public class Settings implements Constants {
                 xCenter = new MyApfloat(0.0);
                 yCenter = new MyApfloat(0.0);
                 size = new MyApfloat(6);
-                fns.bailout = fns.bailout < 4 ? 4 : fns.bailout;
+                fns.bailout = resetBailout && fns.bailout < 4 ? 4 : fns.bailout;
                 break;
             case FORMULA3:
             case FORMULA9:
@@ -2689,45 +2698,45 @@ public class Settings implements Constants {
                 xCenter = new MyApfloat(0.0);
                 yCenter = new MyApfloat(0.0);
                 size = new MyApfloat(3);
-                fns.bailout = fns.bailout < 4 ? 4 : fns.bailout;
+                fns.bailout = resetBailout && fns.bailout < 4 ? 4 : fns.bailout;
                 break;
             case FORMULA4:
             case FORMULA5:
                 xCenter = new MyApfloat(0.0);
                 yCenter = new MyApfloat(0.0);
                 size = new MyApfloat(1.5);
-                fns.bailout = fns.bailout < 4 ? 4 : fns.bailout;
+                fns.bailout = resetBailout && fns.bailout < 4 ? 4 : fns.bailout;
                 break;
             case FORMULA7:
             case FORMULA12:
                 xCenter = new MyApfloat(0.0);
                 yCenter = new MyApfloat(0.0);
                 size = new MyApfloat(12);
-                fns.bailout = fns.bailout < 8 ? 8 : fns.bailout;
+                fns.bailout = resetBailout && fns.bailout < 8 ? 8 : fns.bailout;
                 break;
             case FORMULA8:
                 xCenter = new MyApfloat(0.0);
                 yCenter = new MyApfloat(0.0);
                 size = new MyApfloat(3);
-                fns.bailout = fns.bailout < 16 ? 16 : fns.bailout;
+                fns.bailout = resetBailout && fns.bailout < 16 ? 16 : fns.bailout;
                 break;
             case FORMULA11:
                 xCenter = new MyApfloat(0.0);
                 yCenter = new MyApfloat(0.0);
                 size = new MyApfloat(1.5);
-                fns.bailout = fns.bailout < 100 ? 100 : fns.bailout;
+                fns.bailout = resetBailout && fns.bailout < 100 ? 100 : fns.bailout;
                 break;
             case FORMULA27:
                 if (fns.julia) {
                     xCenter = new MyApfloat(-2);
                     yCenter = new MyApfloat(0.0);
                     size = new MyApfloat(6);
-                    fns.bailout = fns.bailout < 8 ? 8 : fns.bailout;
+                    fns.bailout = resetBailout && fns.bailout < 8 ? 8 : fns.bailout;
                 } else {
                     xCenter = new MyApfloat(0.0);
                     yCenter = new MyApfloat(0.0);
                     size = new MyApfloat(3);
-                    fns.bailout = fns.bailout < 8 ? 8 : fns.bailout;
+                    fns.bailout = resetBailout && fns.bailout < 8 ? 8 : fns.bailout;
                 }
                 break;
             case FORMULA28:
@@ -2736,12 +2745,12 @@ public class Settings implements Constants {
                     xCenter = new MyApfloat(0.0);
                     yCenter = new MyApfloat(0.0);
                     size = new MyApfloat(12);
-                    fns.bailout = fns.bailout < 16 ? 16 : fns.bailout;
+                    fns.bailout = resetBailout && fns.bailout < 16 ? 16 : fns.bailout;
                 } else {
                     xCenter = new MyApfloat(0.0);
                     yCenter = new MyApfloat(0.0);
                     size = new MyApfloat(3);
-                    fns.bailout = fns.bailout < 16 ? 16 : fns.bailout;
+                    fns.bailout = resetBailout && fns.bailout < 16 ? 16 : fns.bailout;
                 }
                 break;
             case FORMULA32:
@@ -2752,32 +2761,32 @@ public class Settings implements Constants {
                 xCenter = new MyApfloat(0.0);
                 yCenter = new MyApfloat(0.0);
                 size = new MyApfloat(6);
-                fns.bailout = fns.bailout < 16 ? 16 : fns.bailout;
+                fns.bailout = resetBailout && fns.bailout < 16 ? 16 : fns.bailout;
                 break;
             case FORMULA38:
                 xCenter = new MyApfloat(0.0);
                 yCenter = new MyApfloat(0.0);
                 size = new MyApfloat(1.5);
-                fns.bailout = fns.bailout < 2 ? 2 : fns.bailout;
+                fns.bailout = resetBailout && fns.bailout < 2 ? 2 : fns.bailout;
                 break;
             case FORMULA42:
                 xCenter = new MyApfloat(0.0);
                 yCenter = new MyApfloat(0.0);
                 size = new MyApfloat(12);
-                fns.bailout = fns.bailout < 12 ? 12 : fns.bailout;
+                fns.bailout = resetBailout && fns.bailout < 12 ? 12 : fns.bailout;
                 break;
             case FORMULA43:
                 xCenter = new MyApfloat(0.0);
                 yCenter = new MyApfloat(0.0);
                 size = new MyApfloat(24);
-                fns.bailout = fns.bailout < 12 ? 12 : fns.bailout;
+                fns.bailout = resetBailout && fns.bailout < 12 ? 12 : fns.bailout;
                 break;
             case FORMULA44:
             case FORMULA45:
                 xCenter = new MyApfloat(0.0);
                 yCenter = new MyApfloat(0.0);
                 size = new MyApfloat(24);
-                fns.bailout = fns.bailout < 16 ? 16 : fns.bailout;
+                fns.bailout = resetBailout && fns.bailout < 16 ? 16 : fns.bailout;
                 break;
             case FORMULA46:
             case MAGNET_PATAKI2:
@@ -2789,20 +2798,20 @@ public class Settings implements Constants {
                 xCenter = new MyApfloat(0.0);
                 yCenter = new MyApfloat(0.0);
                 size = new MyApfloat(6);
-                fns.bailout = fns.bailout < 100 ? 100 : fns.bailout;
+                fns.bailout = resetBailout && fns.bailout < 100 ? 100 : fns.bailout;
                 break;
             case LYAPUNOV:
                 xCenter = new MyApfloat(0.0);
                 yCenter = new MyApfloat(0.0);
                 size = new MyApfloat(24);
-                fns.bailout = fns.bailout < 100 ? 100 : fns.bailout;
+                fns.bailout = resetBailout && fns.bailout < 100 ? 100 : fns.bailout;
                 break;
             case SZEGEDI_BUTTERFLY1:
             case SZEGEDI_BUTTERFLY2:
                 xCenter = new MyApfloat(0.0);
                 yCenter = new MyApfloat(0.0);
                 size = new MyApfloat(12);
-                fns.bailout = fns.bailout < 4 ? 4 : fns.bailout;
+                fns.bailout = resetBailout && fns.bailout < 4 ? 4 : fns.bailout;
                 break;
             default:
                 xCenter = new MyApfloat(0.0);
@@ -2810,14 +2819,16 @@ public class Settings implements Constants {
                 size = new MyApfloat(6);
 
                 if(!isRootSolvingMethod(fns.function) && fns.function != NOVA && fns.function != MAGNETIC_PENDULUM) {
-                    fns.bailout = fns.bailout < 2 ? 2 : fns.bailout;
+                    fns.bailout = resetBailout && fns.bailout < 2 ? 2 : fns.bailout;
                 }
                 break;
         }
 
         fns.period = 0;
-        fns.convergent_bailout = 0;
-        TaskRender.USER_CONVERGENT_BAILOUT = 0;
+        if(resetBailout) {
+            fns.convergent_bailout = 0;
+            TaskRender.USER_CONVERGENT_BAILOUT = 0;
+        }
     }
 
     public void createPoly() {
@@ -3199,17 +3210,57 @@ public class Settings implements Constants {
     }
 
     public void applyStaticSettings() {
+        ColorCorrection.set(gamma, intesity_exponent, interpolation_exponent);
 
         if (ps.color_choice == CUSTOM_PALETTE_ID) {
-            TaskRender.palette_outcoloring = new CustomPalette(ps.custom_palette, ps.color_interpolation, ps.color_space, ps.reversed_palette, ps.scale_factor_palette_val, ps.processing_alg, fns.smoothing, special_color, color_smoothing_method, special_use_palette_color, fns.smoothing_fractional_transfer_method).getRawPalette();
+            TaskRender.palette_outcoloring = new CustomPalette(ps.custom_palette, ps.color_interpolation, ps.color_space, ps.reversed_palette, ps.scale_factor_palette_val, ps.processing_alg, fns.smoothing, special_color, color_smoothing_method, special_use_palette_color, fns.smoothing_fractional_transfer_method, color_space).getRawPalette();
         } else {
-            TaskRender.palette_outcoloring = new PresetPalette(ps.color_choice, ps.direct_palette, fns.smoothing, special_color, color_smoothing_method, special_use_palette_color, fns.smoothing_fractional_transfer_method).getRawPalette();
+            TaskRender.palette_outcoloring = new PresetPalette(ps.color_choice, ps.direct_palette, fns.smoothing, special_color, color_smoothing_method, special_use_palette_color, fns.smoothing_fractional_transfer_method, color_space).getRawPalette();
         }
 
         if (ps2.color_choice == CUSTOM_PALETTE_ID) {
-            TaskRender.palette_incoloring = new CustomPalette(ps2.custom_palette, ps2.color_interpolation, ps2.color_space, ps2.reversed_palette, ps2.scale_factor_palette_val, ps2.processing_alg, fns.smoothing, special_color, color_smoothing_method, special_use_palette_color, fns.smoothing_fractional_transfer_method).getRawPalette();
+            TaskRender.palette_incoloring = new CustomPalette(ps2.custom_palette, ps2.color_interpolation, ps2.color_space, ps2.reversed_palette, ps2.scale_factor_palette_val, ps2.processing_alg, fns.smoothing, special_color, color_smoothing_method, special_use_palette_color, fns.smoothing_fractional_transfer_method, color_space).getRawPalette();
         } else {
-            TaskRender.palette_incoloring = new PresetPalette(ps2.color_choice, ps2.direct_palette, fns.smoothing, special_color, color_smoothing_method, special_use_palette_color, fns.smoothing_fractional_transfer_method).getRawPalette();
+            TaskRender.palette_incoloring = new PresetPalette(ps2.color_choice, ps2.direct_palette, fns.smoothing, special_color, color_smoothing_method, special_use_palette_color, fns.smoothing_fractional_transfer_method, color_space).getRawPalette();
+        }
+
+        try {
+            Multiwave.user_params_out = Multiwave.jsonToParams(gps.outcoloring_multiwave_user_palette);
+        }
+        catch (Exception ex) {
+            Multiwave.user_params_out = Multiwave.empty;
+        }
+        try {
+            Multiwave.user_params_in = Multiwave.jsonToParams(gps.incoloring_multiwave_user_palette);
+        }
+        catch (Exception ex) {
+            Multiwave.user_params_in = Multiwave.empty;
+        }
+
+        try {
+            InfiniteWave.user_params_out = InfiniteWave.jsonToParams(gps.outcoloring_infinite_wave_user_palette);
+        }
+        catch (Exception ex) {
+            InfiniteWave.user_params_out = InfiniteWave.empty;
+        }
+        try {
+            InfiniteWave.user_params_in = InfiniteWave.jsonToParams(gps.incoloring_infinite_wave_user_palette);
+        }
+        catch (Exception ex) {
+            InfiniteWave.user_params_in = InfiniteWave.empty;
+        }
+
+        try {
+            MultiwaveSimple.user_params_out = MultiwaveSimple.jsonToParams(gps.outcoloring_simple_multiwave_user_palette);
+        }
+        catch (Exception ex) {
+            MultiwaveSimple.user_params_out = MultiwaveSimple.empty;
+        }
+        try {
+            MultiwaveSimple.user_params_in = MultiwaveSimple.jsonToParams(gps.incoloring_simple_multiwave_user_palette);
+        }
+        catch (Exception ex) {
+            MultiwaveSimple.user_params_in = MultiwaveSimple.empty;
         }
 
         NNormDistanceBailoutCondition.A = fns.cbs.norm_a;
@@ -3238,6 +3289,7 @@ public class Settings implements Constants {
         TaskRender.gradient = CustomPalette.createGradient(gs.colorA.getRGB(), gs.colorB.getRGB(), Constants.GRADIENT_LENGTH, gs.gradient_interpolation, gs.gradient_color_space, gs.gradient_reversed, 0);
 
         TaskRender.COLOR_SMOOTHING_METHOD = color_smoothing_method;
+        TaskRender.COLOR_SPACE = color_space;
 
         SkipBailoutCondition.SKIPPED_ITERATION_COUNT = fns.skip_bailout_iterations;
 

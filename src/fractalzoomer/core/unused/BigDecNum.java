@@ -23,7 +23,6 @@ public class BigDecNum {
     private static final int Q_MIN_D = (Double.MIN_EXPONENT - (P_D - 1));  // -1_074
     private static final int Q_MAX_D = (Double.MAX_EXPONENT - (P_D - 1));  // 971
 
-    public static BigDecNum RECIPROCAL_LOG_TWO_BASE_TEN;
     public static BigDecNum TWO;
 
     public static boolean use_threads;
@@ -32,7 +31,6 @@ public class BigDecNum {
 
     static {
         mc = new MathContext((int) MyApfloat.precision, RoundingMode.HALF_EVEN);
-        RECIPROCAL_LOG_TWO_BASE_TEN = new BigDecNum(MyApfloat.RECIPROCAL_LOG_TWO_BASE_TEN);
         TWO = new BigDecNum(2);
         use_threads = TaskRender.USE_THREADS_IN_BIGNUM_LIBS && MyApfloat.precision >= THREADS_THRESHOLD && Runtime.getRuntime().availableProcessors() >= 2;
     }
@@ -40,7 +38,6 @@ public class BigDecNum {
     public static void reinitialize(double prec) {
         int precision = (int)(prec + 0.5);
         mc = new MathContext(precision, RoundingMode.HALF_EVEN);
-        RECIPROCAL_LOG_TWO_BASE_TEN = new BigDecNum(MyApfloat.RECIPROCAL_LOG_TWO_BASE_TEN);
         TWO = new BigDecNum(2);
         use_threads = TaskRender.USE_THREADS_IN_BIGNUM_LIBS && precision >= THREADS_THRESHOLD && Runtime.getRuntime().availableProcessors() >= 2;
     }

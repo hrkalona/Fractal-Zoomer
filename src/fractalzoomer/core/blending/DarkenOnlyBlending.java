@@ -7,9 +7,9 @@ package fractalzoomer.core.blending;
  */
 public class DarkenOnlyBlending extends Blending {
 
-    public DarkenOnlyBlending(int color_interpolation) {
+    public DarkenOnlyBlending(int color_interpolation, int color_space) {
 
-        super(color_interpolation);
+        super(color_interpolation, color_space);
 
     }
 
@@ -20,7 +20,7 @@ public class DarkenOnlyBlending extends Blending {
         int temp_green = Math.min(greenB, greenA);
         int temp_blue = Math.min(blueB, blueA);
         
-        return method.interpolate(redB, greenB, blueB, temp_red, temp_green, temp_blue, coef);
+        return method.interpolateColors(redB, greenB, blueB, temp_red, temp_green, temp_blue, coef, false);
 
     }
     

@@ -11,12 +11,12 @@ import fractalzoomer.main.MinimalRendererWindow;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.*;
 import fractalzoomer.utils.Square;
+import fractalzoomer.utils.StopExecutionException;
 import fractalzoomer.utils.StopSuccessiveRefinementException;
 import org.apfloat.Apfloat;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.util.concurrent.BrokenBarrierException;
 
 /**
  *
@@ -57,7 +57,7 @@ public class BruteForce2Render extends TaskRender {
     }
 
     @Override
-    protected void render(int image_width, int image_height, boolean polar) throws StopSuccessiveRefinementException {
+    protected void render(int image_width, int image_height, boolean polar) throws StopSuccessiveRefinementException, StopExecutionException {
 
         Location location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_width, image_height, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
 
@@ -106,7 +106,7 @@ public class BruteForce2Render extends TaskRender {
     }
 
     @Override
-    protected void renderAntialiased(int image_width, int image_height, boolean polar) throws StopSuccessiveRefinementException {
+    protected void renderAntialiased(int image_width, int image_height, boolean polar) throws StopSuccessiveRefinementException, StopExecutionException {
 
         int aaMethod = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
         boolean useJitter = aaMethod != 6 && ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x4) == 4;
@@ -199,25 +199,11 @@ public class BruteForce2Render extends TaskRender {
     }
 
     @Override
-    protected void renderFastJulia(int image_size, boolean polar) {
+    protected void renderFastJulia(int image_size, boolean polar) throws StopExecutionException {
 
         Location location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_size, image_size, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
 
-        if(PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && !HIGH_PRECISION_CALCULATION) {
-
-            if (reference_calc_sync.getAndIncrement() == 0) {
-                calculateReferenceFastJulia(location);
-            }
-
-            try {
-                reference_sync.await();
-            } catch (InterruptedException ex) {
-
-            } catch (BrokenBarrierException ex) {
-
-            }
-            location.setReference(Fractal.refPoint);
-        }
+        initializeFastJulia(location);
 
         int x, y, loc, iteration = 0;
 
@@ -252,7 +238,7 @@ public class BruteForce2Render extends TaskRender {
     }
 
     @Override
-    protected void renderFastJuliaAntialiased(int image_size, boolean polar) {
+    protected void renderFastJuliaAntialiased(int image_size, boolean polar) throws StopExecutionException {
 
         int aaMethod = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
         boolean useJitter = aaMethod != 6 && ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x4) == 4;
@@ -261,21 +247,7 @@ public class BruteForce2Render extends TaskRender {
         int supersampling_num = getExtraSamples(aaSamplesIndex, aaMethod);
         location.createAntialiasingSteps(aaMethod == 5, useJitter, supersampling_num);
 
-        if(PERTURBATION_THEORY && fractal.supportsPerturbationTheory() && !HIGH_PRECISION_CALCULATION) {
-
-            if (reference_calc_sync.getAndIncrement() == 0) {
-                calculateReferenceFastJulia(location);
-            }
-
-            try {
-                reference_sync.await();
-            } catch (InterruptedException ex) {
-
-            } catch (BrokenBarrierException ex) {
-
-            }
-            location.setReference(Fractal.refPoint);
-        }
+        initializeFastJulia(location);
 
         int x, y, loc, iteration = 0;
         int color;
@@ -349,7 +321,7 @@ public class BruteForce2Render extends TaskRender {
     }
 
     @Override
-    protected void render3D(int image_width, int image_height, boolean polar) {
+    protected void render3D(int image_width, int image_height, boolean polar) throws StopExecutionException {
 
         Location location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, detail, detail, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
 
@@ -420,7 +392,7 @@ public class BruteForce2Render extends TaskRender {
     }
 
     @Override
-    protected void render3DAntialiased(int image_width, int image_height, boolean polar) {
+    protected void render3DAntialiased(int image_width, int image_height, boolean polar) throws StopExecutionException {
 
         int aaMethod = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
         boolean useJitter = aaMethod != 6 && ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x4) == 4;
@@ -535,7 +507,7 @@ public class BruteForce2Render extends TaskRender {
     }
 
     @Override
-    protected void renderDomain3D(int image_width, int image_height, boolean polar) {
+    protected void renderDomain3D(int image_width, int image_height, boolean polar) throws StopExecutionException {
 
         Location location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, detail, detail, circle_period, rotation_center, rotation_vals, fractal, js, polar, false);
 
@@ -600,7 +572,7 @@ public class BruteForce2Render extends TaskRender {
     }
 
     @Override
-    protected void renderDomain3DAntialiased(int image_width, int image_height, boolean polar) {
+    protected void renderDomain3DAntialiased(int image_width, int image_height, boolean polar) throws StopExecutionException {
 
         int aaMethod = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
         boolean useJitter = aaMethod != 6 && ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x4) == 4;
