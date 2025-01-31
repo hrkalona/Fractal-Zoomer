@@ -45,6 +45,7 @@ public class SnakeCurve {
 
         BufferedImage a = new BufferedImage(1700, 1700, BufferedImage.TYPE_INT_ARGB);
 
+        RenderFrame frame = new RenderFrame(a);
 
         int width = 32;
         int height = 32;
@@ -114,6 +115,8 @@ public class SnakeCurve {
                 g2d.drawString("" + p.get(i).order, p1x - radius / 2, p1y - radius / 2);
                 g2d.drawString("" + p.get(i + 1).order, p2x - radius / 2, p2y - radius / 2);
             }
+
+            frame.repaint();
         }
 
         g2d.dispose();

@@ -1,5 +1,7 @@
 package fractalzoomer.core.antialiasing;
 
+import fractalzoomer.utils.ColorCorrection;
+
 import java.util.Arrays;
 
 public class MedianAntialiasingAlgorithm extends AntialiasingAlgorithm {
@@ -78,17 +80,16 @@ public class MedianAntialiasingAlgorithm extends AntialiasingAlgorithm {
         Arrays.sort(CValues);
 
         if(avgWithMean) {
-            int[] result = getColorChannels(AValues[median], BValues[median], CValues[median]);
-            int[] result2 = getAveragedColorChannels(ASum, BSum, CSum);
-            double redRes = (result2[0] + result[0]) * 0.5 + 0.5;
-            double greenRes = (result2[1] + result[1]) * 0.5 + 0.5;
-            double blueRes = (result2[2] + result[2]) * 0.5 + 0.5;
+            double finalA = (AValues[median] + ASum * totalSamplesReciprocal) * 0.5;
+            double finalB = (BValues[median] + BSum * totalSamplesReciprocal) * 0.5;
+            double finalC = (CValues[median] + CSum * totalSamplesReciprocal) * 0.5;
 
-            return 0xff000000 | ((int)redRes) << 16 | ((int)greenRes) << 8 | ((int)blueRes);
+            int[] result = getColorChannels(finalA, finalB, finalC);
+            return ColorCorrection.linearToGamma(result[0], result[1], result[2]);
         }
         else {
             int[] result = getColorChannels(AValues[median], BValues[median], CValues[median]);
-            return  0xff000000 | (result[0] << 16) | (result[1] << 8) | result[2];
+            return ColorCorrection.linearToGamma(result[0], result[1], result[2]);
         }
     }
 

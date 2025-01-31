@@ -679,6 +679,8 @@ public class RenderingAlgorithmsDialog extends JDialog {
         add(scrollPane);
 
         setVisible(true);
+
+        repaint();
     }
 
     public void toggled(boolean toggled) {

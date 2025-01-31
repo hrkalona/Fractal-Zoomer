@@ -28,6 +28,8 @@ public class JuliaSeedDialog extends JDialog {
         
         super(ptr);
 
+        while (!ptr.tasksCompleted()) {}
+
         ptra = ptr;
 
         if(s.fns.juliter) {

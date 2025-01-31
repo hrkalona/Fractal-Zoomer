@@ -3,6 +3,7 @@ package fractalzoomer.convergent_bailout_conditions;
 import fractalzoomer.core.*;
 import fractalzoomer.core.mpfr.MpfrBigNum;
 import fractalzoomer.core.mpir.MpirBigNum;
+import fractalzoomer.functions.Fractal;
 import org.apfloat.Apfloat;
 
 public class KFCircleDistanceBailoutCondition extends ConvergentBailoutCondition {
@@ -14,16 +15,16 @@ public class KFCircleDistanceBailoutCondition extends ConvergentBailoutCondition
     private MpirBigNum temp2p;
     private MpirBigNum temp3p;
     private MpirBigNum temp4p;
-    public KFCircleDistanceBailoutCondition(double convergent_bailout) {
+    public KFCircleDistanceBailoutCondition(double convergent_bailout, Fractal f) {
         super(convergent_bailout);
 
         if(TaskRender.PERTURBATION_THEORY || TaskRender.HIGH_PRECISION_CALCULATION) {
-            if (TaskRender.allocateMPFR()) {
+            if (NumericLibrary.allocateMPFR(f)) {
                 temp1 = new MpfrBigNum();
                 temp2 = new MpfrBigNum();
                 temp3 = new MpfrBigNum();
                 temp4 = new MpfrBigNum();
-            } else if (TaskRender.allocateMPIR()) {
+            } else if (NumericLibrary.allocateMPIR(f)) {
                 temp1p = new MpirBigNum();
                 temp2p = new MpirBigNum();
                 temp3p = new MpirBigNum();

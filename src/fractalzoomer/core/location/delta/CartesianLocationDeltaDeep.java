@@ -2,9 +2,11 @@ package fractalzoomer.core.location.delta;
 
 import fractalzoomer.core.*;
 import fractalzoomer.core.location.Location;
+import fractalzoomer.fractal_options.Rotation;
 import fractalzoomer.functions.Fractal;
 import fractalzoomer.main.Constants;
 import fractalzoomer.main.app_settings.JitterSettings;
+import fractalzoomer.planes.Plane;
 import org.apfloat.Apfloat;
 
 public class CartesianLocationDeltaDeep extends Location {
@@ -34,8 +36,12 @@ public class CartesianLocationDeltaDeep extends Location {
 
     private int width;
     private int height;
+    private Rotation rotation;
+    private boolean hasRotation;
+    private MantExp rotationRe;
+    private MantExp rotationIm;
 
-    public CartesianLocationDeltaDeep(Apfloat xCenter, Apfloat yCenter, Apfloat ddsize, double height_ratio, int width, int height, JitterSettings js, Fractal fractal, int bignumLib) {
+    public CartesianLocationDeltaDeep(Apfloat xCenter, Apfloat yCenter, Apfloat ddsize, double height_ratio, int width, int height, Apfloat[] rotation_center, Apfloat[] rotation_vals, JitterSettings js, Fractal fractal, int bignumLib) {
 
         super();
 
@@ -75,6 +81,7 @@ public class CartesianLocationDeltaDeep extends Location {
 
         temp_x_corner = size_2_x.negate();
         temp_y_corner = size_2_y;
+        createRotation(rotation_center, rotation_vals);
 
     }
 
@@ -99,6 +106,10 @@ public class CartesianLocationDeltaDeep extends Location {
         image_size_2y = other.image_size_2y;
         width = other.width;
         height = other.height;
+        rotation = other.rotation;
+        hasRotation = other.hasRotation;
+        rotationRe = other.rotationRe;
+        rotationIm = other.rotationIm;
     }
 
     private MantExpComplex getComplexBase(int x, int y) {
@@ -130,7 +141,24 @@ public class CartesianLocationDeltaDeep extends Location {
         indexX = x;
         indexY = y;
 
-        return MantExpComplex.create(tempX, tempY);
+        MantExp finalX = new MantExp(tempX);
+        MantExp finalY = new MantExp(tempY);
+
+        if(hasRotation) {
+            MantExp temp = finalX.multiply(rotationRe).subtract_mutable(finalY.multiply(rotationIm));
+            finalY = finalX.multiply(rotationIm).add_mutable(finalY.multiply(rotationRe));
+            finalX = temp;
+            finalX.Normalize();
+            finalY.Normalize();
+        }
+        if(Plane.FLIP_REAL) {
+            finalX.negate_mutable();
+        }
+        if(Plane.FLIP_IMAGINARY) {
+            finalY.negate_mutable();
+        }
+
+        return MantExpComplex.create(finalX, finalY);
     }
 
     @Override
@@ -148,10 +176,26 @@ public class CartesianLocationDeltaDeep extends Location {
 
         tempX = temp_size_image_size_x.multiply(x - image_size_2x);
         tempX.Normalize();
-
         indexX = x;
 
-        return MantExpComplex.create(tempX, tempY);
+        MantExp finalX = new MantExp(tempX);
+        MantExp finalY = new MantExp(tempY);
+
+        if(hasRotation) {
+            MantExp temp = finalX.multiply(rotationRe).subtract_mutable(finalY.multiply(rotationIm));
+            finalY = finalX.multiply(rotationIm).add_mutable(finalY.multiply(rotationRe));
+            finalX = temp;
+            finalX.Normalize();
+            finalY.Normalize();
+        }
+        if(Plane.FLIP_REAL) {
+            finalX.negate_mutable();
+        }
+        if(Plane.FLIP_IMAGINARY) {
+            finalY.negate_mutable();
+        }
+
+        return MantExpComplex.create(finalX, finalY);
     }
 
     @Override
@@ -171,7 +215,24 @@ public class CartesianLocationDeltaDeep extends Location {
 
         indexY = y;
 
-        return MantExpComplex.create(tempX, tempY);
+        MantExp finalX = new MantExp(tempX);
+        MantExp finalY = new MantExp(tempY);
+
+        if(hasRotation) {
+            MantExp temp = finalX.multiply(rotationRe).subtract_mutable(finalY.multiply(rotationIm));
+            finalY = finalX.multiply(rotationIm).add_mutable(finalY.multiply(rotationRe));
+            finalX = temp;
+            finalX.Normalize();
+            finalY.Normalize();
+        }
+        if(Plane.FLIP_REAL) {
+            finalX.negate_mutable();
+        }
+        if(Plane.FLIP_IMAGINARY) {
+            finalY.negate_mutable();
+        }
+
+        return MantExpComplex.create(finalX, finalY);
     }
 
     @Override
@@ -211,29 +272,130 @@ public class CartesianLocationDeltaDeep extends Location {
 
     }
 
+    private void createRotation(Apfloat[] rotation_center, Apfloat[] rotation_vals) {
+        hasRotation = Rotation.usesRotation(rotation_center, rotation_vals);
+        if (!hasRotation) {
+            return;
+        }
+
+        if(bignumLib == Constants.BIGNUM_BUILT_IN) {
+            rotation = new Rotation(new BigNumComplex(rotation_vals[0], rotation_vals[1]), new BigNumComplex(rotation_center[0], rotation_center[1]));
+        }
+        else if(bignumLib == Constants.BIGNUM_BIGINT) {
+            rotation = new Rotation(new BigIntNumComplex(rotation_vals[0], rotation_vals[1]), new BigIntNumComplex(rotation_center[0], rotation_center[1]));
+        }
+        else if (bignumLib == Constants.BIGNUM_MPFR) {
+            rotation = new Rotation(new MpfrBigNumComplex(rotation_vals[0], rotation_vals[1]), new MpfrBigNumComplex(rotation_center[0], rotation_center[1]));
+        }
+        else if (bignumLib == Constants.BIGNUM_MPIR) {
+            rotation = new Rotation(new MpirBigNumComplex(rotation_vals[0], rotation_vals[1]), new MpirBigNumComplex(rotation_center[0], rotation_center[1]));
+        }
+        else if (bignumLib == Constants.BIGNUM_DOUBLEDOUBLE) {
+            rotation = new Rotation(new DDComplex(rotation_vals[0], rotation_vals[1]), new DDComplex(rotation_center[0], rotation_center[1]));
+        }
+        else if (bignumLib == Constants.BIGNUM_DOUBLE) {
+            rotation = new Rotation(new Complex(rotation_vals[0].doubleValue(), rotation_vals[1].doubleValue()), new Complex(rotation_center[0].doubleValue(), rotation_center[1].doubleValue()));
+        }
+        else {
+            rotation = new Rotation(new BigComplex(rotation_vals[0], rotation_vals[1]), new BigComplex(rotation_center[0], rotation_center[1]));
+        }
+        rotationRe = new MantExp(rotation_vals[0]);
+        rotationIm = new MantExp(rotation_vals[1]);
+    }
+
     @Override
     public GenericComplex getReferencePoint() {
 
         if(bignumLib == Constants.BIGNUM_BUILT_IN) {
-            return new BigNumComplex(ddxcenter, ddycenter);
+            BigNumComplex c = new BigNumComplex(ddxcenter, ddycenter);
+            if(hasRotation) {
+                c = rotation.rotate(c);
+            }
+            if (Plane.FLIP_REAL) {
+                c = c.negate_re_mutable();
+            }
+            if (Plane.FLIP_IMAGINARY) {
+                c = c.conjugate_mutable();
+            }
+            return c;
         }
         else if(bignumLib == Constants.BIGNUM_BIGINT) {
-            return new BigIntNumComplex(ddxcenter, ddycenter);
+            BigIntNumComplex c = new BigIntNumComplex(ddxcenter, ddycenter);
+            if(hasRotation) {
+                c = rotation.rotate(c);
+            }
+            if (Plane.FLIP_REAL) {
+                c = c.negate_re_mutable();
+            }
+            if (Plane.FLIP_IMAGINARY) {
+                c = c.conjugate_mutable();
+            }
+            return c;
         }
         else if (bignumLib == Constants.BIGNUM_MPFR) {
-            return new MpfrBigNumComplex(ddxcenter, ddycenter);
+            MpfrBigNumComplex c = new MpfrBigNumComplex(ddxcenter, ddycenter);
+            if(hasRotation) {
+                c = rotation.rotate(c);
+            }
+            if (Plane.FLIP_REAL) {
+                c = c.negate_re_mutable();
+            }
+            if (Plane.FLIP_IMAGINARY) {
+                c = c.conjugate_mutable();
+            }
+            return c;
         }
         else if (bignumLib == Constants.BIGNUM_MPIR) {
-            return new MpirBigNumComplex(ddxcenter, ddycenter);
+            MpirBigNumComplex c = new MpirBigNumComplex(ddxcenter, ddycenter);
+            if(hasRotation) {
+                c = rotation.rotate(c);
+            }
+            if (Plane.FLIP_REAL) {
+                c = c.negate_re_mutable();
+            }
+            if (Plane.FLIP_IMAGINARY) {
+                c = c.conjugate_mutable();
+            }
+            return c;
         }
         else if (bignumLib == Constants.BIGNUM_DOUBLEDOUBLE) {
-            return new DDComplex(ddxcenter, ddycenter);
+            DDComplex c = new DDComplex(ddxcenter, ddycenter);
+            if(hasRotation) {
+                c = rotation.rotate(c);
+            }
+            if (Plane.FLIP_REAL) {
+                c = c.negate_re_mutable();
+            }
+            if (Plane.FLIP_IMAGINARY) {
+                c = c.conjugate_mutable();
+            }
+            return c;
         }
         else if (bignumLib == Constants.BIGNUM_DOUBLE) {
-            return new Complex(ddxcenter, ddycenter);
+            Complex c = new Complex(ddxcenter, ddycenter);
+            if(hasRotation) {
+                c = rotation.rotate(c);
+            }
+            if (Plane.FLIP_REAL) {
+                c = c.negate_re_mutable();
+            }
+            if (Plane.FLIP_IMAGINARY) {
+                c = c.conjugate_mutable();
+            }
+            return c;
         }
         else {
-            return new BigComplex(ddxcenter, ddycenter);
+            BigComplex c = new BigComplex(ddxcenter, ddycenter);
+            if(hasRotation) {
+                c = rotation.rotate(c);
+            }
+            if (Plane.FLIP_REAL) {
+                c = c.negate_re_mutable();
+            }
+            if (Plane.FLIP_IMAGINARY) {
+                c = c.conjugate_mutable();
+            }
+            return c;
         }
     }
 
@@ -260,27 +422,40 @@ public class CartesianLocationDeltaDeep extends Location {
     @Override
     public GenericComplex getAntialiasingComplex(int sample, int loc) {
 
-        MantExpComplex temp;
+        MantExp finalX;
+        MantExp finalY;
 
         if(aaJitter) {
             int r = (int)(hash(loc) % NUMBER_OF_AA_JITTER_KERNELS);
             MantExp[] antialiasing_x = precalculatedJitterDataMantexp[r][0];
             MantExp[] antialiasing_y = precalculatedJitterDataMantexp[r][1];
-            MantExp x = tempX.add(antialiasing_x[sample]);
-            x.Normalize();
-            MantExp y = tempY.add(antialiasing_y[sample]);
-            y.Normalize();
-            temp = MantExpComplex.create(x, y);
+            finalX = tempX.add(antialiasing_x[sample]);
+            finalX.Normalize();
+            finalY = tempY.add(antialiasing_y[sample]);
+            finalY.Normalize();
         }
         else {
-            MantExp x = tempX.add(antialiasing_x[sample]);
-            x.Normalize();
-            MantExp y = tempY.add(antialiasing_y[sample]);
-            y.Normalize();
-            temp = MantExpComplex.create(x, y);
+            finalX = tempX.add(antialiasing_x[sample]);
+            finalX.Normalize();
+            finalY = tempY.add(antialiasing_y[sample]);
+            finalY.Normalize();
         }
 
-        return temp;
+        if(hasRotation) {
+            MantExp temp = finalX.multiply(rotationRe).subtract_mutable(finalY.multiply(rotationIm));
+            finalY = finalX.multiply(rotationIm).add_mutable(finalY.multiply(rotationRe));
+            finalX = temp;
+            finalX.Normalize();
+            finalY.Normalize();
+        }
+        if(Plane.FLIP_REAL) {
+            finalX.negate_mutable();
+        }
+        if(Plane.FLIP_IMAGINARY) {
+            finalY.negate_mutable();
+        }
+
+        return MantExpComplex.create(finalX, finalY);
 
     }
 

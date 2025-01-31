@@ -1,3 +1,28 @@
+Version 1.0.9.4
+    -Added a new optimized mpfr variant for windows based on mpir
+    -Added a secondary mpfr variant for windows which was built using msvc that includes multithreading
+    -Implemented multithreading for linux mpfr variant
+    -Added a mpfr variant for Mac-Os arm architecture (Thanks Fernando: nangdoide@gmail.com)
+    -Implemented Zhuoran's magnitude based LA
+    -Refactored the old LA code from Zhuoran to use his new implementation (https://github.com/ImaginaFractal/Algorithms)
+    -Optimized the performance in Zhuoran's LA when using compressed reference
+    -Added a new function, Zenex
+    -Replaced some of the old Anti-Aliasing algorithms including new ones (Geometric median, e.t.c)
+    -Added the option for color space on the new palette editor, when using linked points
+    -Added the option to import a sampled version of the current palette into the custom palette editors
+    -Added the option to modify some color interpolation parameters (gamma, interpolation exponent, intensity exponent)
+    -Revamped the Generated Palette Dialog by adding some new Multiwave variants and also adding the ability to create your own palettes (by using json)
+    -Added a trend plot when using the Minimal Renderer (only available on some operations)
+    -Added the option in Minimal Renderer to downscale the rendered images (Alternative way for super-sampling)
+    -Added more options in the Zoom Sequence dialog
+    -Added the fractional iteration count as a variable on some of the user formula dialogs
+    -Improved the porting of some settings between KF and Fz
+    -Added the option to save a minimal KFR file with only basic location settings (No coloring)
+    -Fixed some discontinuities on some functions (exp, sin, cos, e.t.c) (Thanks pauldelbrot)
+    -Fixed a race condition that caused some of the statistics to be calculated incorrectly
+    -Fixed a bug during very deep zoom calculation which improved the rendering performance when using settings imported from KF
+    -Various bug fixes and improvements
+
 Version 1.0.9.3
     -Added Mandelbar Cubed and z = 2*z^2 - z^3 + c and implemented perturbation theory for both of them
     -Improved the Mariani/Silver algorithm by adding a work-stealing ability between threads to equalize the work

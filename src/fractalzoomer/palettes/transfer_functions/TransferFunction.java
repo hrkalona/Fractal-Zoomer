@@ -21,4 +21,7 @@ public abstract class TransferFunction {
     
     public abstract double transfer(double result);
 
+    public void setBanded(boolean banded) {
+        this.banded = banded;
+    }
 }

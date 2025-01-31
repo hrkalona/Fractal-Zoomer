@@ -1,6 +1,9 @@
 package fractalzoomer.core.antialiasing;
 
 
+import fractalzoomer.utils.ColorCorrection;
+
+@Deprecated
 public class MidPointAntialiasingAlgorithm extends AntialiasingAlgorithm {
     private double minRed, maxRed;
     private double minGreen, maxGreen;
@@ -10,7 +13,7 @@ public class MidPointAntialiasingAlgorithm extends AntialiasingAlgorithm {
     private double greenSum;
     private double blueSum;
 
-    public MidPointAntialiasingAlgorithm(int totalSamples, boolean avgWithMean,  int colorSpace) {
+    public MidPointAntialiasingAlgorithm(int totalSamples, boolean avgWithMean, int colorSpace) {
         super(totalSamples, colorSpace);
         minRed = Double.MAX_VALUE;
         minGreen = Double.MAX_VALUE;
@@ -32,7 +35,7 @@ public class MidPointAntialiasingAlgorithm extends AntialiasingAlgorithm {
         double res1 = result[1];
         double res2 = result[2];
 
-        if(avgWithMean) {
+        if (avgWithMean) {
             redSum = res0;
             greenSum = res1;
             blueSum = res2;
@@ -52,29 +55,29 @@ public class MidPointAntialiasingAlgorithm extends AntialiasingAlgorithm {
         double res1 = result[1];
         double res2 = result[2];
 
-        if(avgWithMean) {
+        if (avgWithMean) {
             redSum += res0;
             greenSum += res1;
             blueSum += res2;
         }
 
-        if(res0 < minRed) {
+        if (res0 < minRed) {
             minRed = res0;
         }
-        if(res1 < minGreen) {
+        if (res1 < minGreen) {
             minGreen = res1;
         }
-        if(res2 < minBlue) {
+        if (res2 < minBlue) {
             minBlue = res2;
         }
 
-        if(res0 > maxRed) {
+        if (res0 > maxRed) {
             maxRed = res0;
         }
-        if(res1 > maxGreen) {
+        if (res1 > maxGreen) {
             maxGreen = res1;
         }
-        if(res2 > maxBlue) {
+        if (res2 > maxBlue) {
             maxBlue = res2;
         }
 
@@ -84,20 +87,19 @@ public class MidPointAntialiasingAlgorithm extends AntialiasingAlgorithm {
 
     @Override
     public int getColor() {
-        if(addedSamples != totalSamples) {
+        if (addedSamples != totalSamples) {
             return 0xff000000;
         }
-        int[] result = getAveragedColorChannels(minRed, minGreen, minBlue, maxRed, maxGreen, maxBlue, redSum, greenSum, blueSum);
-        return  0xff000000 | (result[0] << 16) | (result[1] << 8) | result[2];
-    }
 
-    @Override
-    protected double function(double value, double value2, double value3) {
-        if(avgWithMean) {
-            return ((value + value2) * 0.5 + value3 * totalSamplesReciprocal) * 0.5;
-        }
-        else {
-            return (value + value2) * 0.5;
+        if (avgWithMean) {
+            double finalA = ((minRed + maxRed) * 0.5 + redSum * totalSamplesReciprocal) * 0.5;
+            double finalB = ((minGreen + maxGreen) * 0.5 + greenSum * totalSamplesReciprocal) * 0.5;
+            double finalC = ((minBlue + maxBlue) * 0.5 + blueSum * totalSamplesReciprocal) * 0.5;
+            int[] result = getColorChannels(finalA, finalB, finalC);
+            return ColorCorrection.linearToGamma(result[0], result[1], result[2]);
+        } else {
+            int[] result = getColorChannels((minRed + maxRed) * 0.5, (minGreen + maxGreen) * 0.5, (minBlue + maxBlue) * 0.5);
+            return ColorCorrection.linearToGamma(result[0], result[1], result[2]);
         }
     }
 }

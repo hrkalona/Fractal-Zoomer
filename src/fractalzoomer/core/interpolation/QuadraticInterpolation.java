@@ -8,7 +8,7 @@ public class QuadraticInterpolation extends InterpolationMethod {
     }
 
     @Override
-    public int interpolate(int r1, int g1, int b1, int r2, int g2, int b2, double coef) {
+    protected int interpolateColorsInternal(int r1, int g1, int b1, int r2, int g2, int b2, double coef) {
 
         double tempr1 = Math.pow(r1, power);
         double tempg1 = Math.pow(g1, power);

@@ -20,8 +20,10 @@ public class SlopeSettings {
 
     public int heightTransfer;
     public double heightTransferFactor;
+    public boolean applyWidthScaling;
     public SlopeSettings() {
         slopes = false;
+        applyWidthScaling = false;
         SlopeAngle = 135;
         SlopeRatio = 0.2;
         SlopePower = 0.5;
@@ -68,5 +70,6 @@ public class SlopeSettings {
         fractionalSmoothing = copy.fractionalSmoothing;
         fractionalTransferMode = copy.fractionalTransferMode;
         fractionalTransferScale = copy.fractionalTransferScale;
+        applyWidthScaling = copy.applyWidthScaling;
     }
 }

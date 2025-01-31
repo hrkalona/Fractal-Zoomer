@@ -19,7 +19,6 @@ public class FiltersSettings {
     public Color[] filters_colors;
     public Color[][] filters_extra_colors;
     public double aaSigmaR;
-    public double aaSigmaS;
     public double bluringSigmaR;
     public double bluringSigmaS;
     public int blurringKernelSelection;
@@ -54,7 +53,6 @@ public class FiltersSettings {
     public void defaultFilters(boolean reset_checked) {
 
         aaSigmaR = 0;
-        aaSigmaS = 0;
         bluringSigmaR = 0;
         bluringSigmaS = 0;
         blurringKernelSelection = 0;

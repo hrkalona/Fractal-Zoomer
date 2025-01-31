@@ -2,6 +2,8 @@
 package fractalzoomer.functions;
 
 import fractalzoomer.core.*;
+import fractalzoomer.core.reference.ReferenceData;
+import fractalzoomer.core.reference.ReferenceDeepData;
 import fractalzoomer.fractal_options.iteration_statistics.*;
 import fractalzoomer.in_coloring_algorithms.*;
 import fractalzoomer.main.MainWindow;
@@ -83,88 +85,89 @@ public abstract class ExtendedConvergentType extends Julia {
     
     @Override
     protected void OutColoringAlgorithmFactory(int out_coloring_algorithm, boolean smoothing, int converging_smooth_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, double[] plane_transform_center) {
-        
+
+        escape_time_algorithm = getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm);
         switch (out_coloring_algorithm) {
 
             case MainWindow.ESCAPE_TIME:
-                out_color_algorithm = getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm);
+                out_color_algorithm = escape_time_algorithm;
                 break;
             case MainWindow.BINARY_DECOMPOSITION:
-                out_color_algorithm = new BinaryDecomposition(getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm));
+                out_color_algorithm = new BinaryDecomposition(escape_time_algorithm);
                 break;
             case MainWindow.BINARY_DECOMPOSITION2:
-                out_color_algorithm = new BinaryDecomposition2(getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm));
+                out_color_algorithm = new BinaryDecomposition2(escape_time_algorithm);
                 break;
             case MainWindow.ITERATIONS_PLUS_RE:
-                out_color_algorithm = new EscapeTimePlusRe(getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm));
+                out_color_algorithm = new EscapeTimePlusRe(escape_time_algorithm);
                 break;
             case MainWindow.ITERATIONS_PLUS_IM:
-                out_color_algorithm = new EscapeTimePlusIm(getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm));
+                out_color_algorithm = new EscapeTimePlusIm(escape_time_algorithm);
                 break;
             case MainWindow.ITERATIONS_PLUS_RE_DIVIDE_IM:
-                out_color_algorithm = new EscapeTimePlusReDivideIm(getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm));
+                out_color_algorithm = new EscapeTimePlusReDivideIm(escape_time_algorithm);
                 break;
             case MainWindow.ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM:
-                out_color_algorithm = new EscapeTimePlusRePlusImPlusReDivideIm(getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm));
+                out_color_algorithm = new EscapeTimePlusRePlusImPlusReDivideIm(escape_time_algorithm);
                 break;
             case MainWindow.BIOMORPH:
-                out_color_algorithm = new Biomorphs(4, getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm));
+                out_color_algorithm = new Biomorphs(4, escape_time_algorithm);
                 break;
             case MainWindow.COLOR_DECOMPOSITION:
-                out_color_algorithm = new ColorDecompositionRootFindingMethod(getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm));
+                out_color_algorithm = new ColorDecompositionRootFindingMethod(escape_time_algorithm);
                 break;
             case MainWindow.ESCAPE_TIME_COLOR_DECOMPOSITION:
-                out_color_algorithm = new EscapeTimeColorDecompositionRootFindingMethod(getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm));
+                out_color_algorithm = new EscapeTimeColorDecompositionRootFindingMethod(escape_time_algorithm);
                 break;
             case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER:
-                out_color_algorithm = new EscapeTimeGaussianInteger(getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm));
+                out_color_algorithm = new EscapeTimeGaussianInteger(escape_time_algorithm);
                 break;
             case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER2:
-                out_color_algorithm = new EscapeTimeGaussianInteger2(getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm));
+                out_color_algorithm = new EscapeTimeGaussianInteger2(escape_time_algorithm);
                 break;
             case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER3:
-                out_color_algorithm = new EscapeTimeGaussianInteger3(getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm));
+                out_color_algorithm = new EscapeTimeGaussianInteger3(escape_time_algorithm);
                 break;
             case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER4:
-                out_color_algorithm = new EscapeTimeGaussianInteger4(getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm));
+                out_color_algorithm = new EscapeTimeGaussianInteger4(escape_time_algorithm);
                 break;
             case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER5:
-                out_color_algorithm = new EscapeTimeGaussianInteger5(getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm));
+                out_color_algorithm = new EscapeTimeGaussianInteger5(escape_time_algorithm);
                 break;
             case MainWindow.ESCAPE_TIME_ALGORITHM:
-                out_color_algorithm = new EscapeTimeAlgorithm1(2, getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm));
+                out_color_algorithm = new EscapeTimeAlgorithm1(2, escape_time_algorithm);
                 break;
             case MainWindow.ESCAPE_TIME_ALGORITHM2:
-                out_color_algorithm = new EscapeTimeAlgorithm2(getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm));
+                out_color_algorithm = new EscapeTimeAlgorithm2(escape_time_algorithm);
                 break;
             case MainWindow.ESCAPE_TIME_ESCAPE_RADIUS:
-                out_color_algorithm = new EscapeTimeEscapeRadius(4, getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm), bailout_algorithm.getNormImpl());
+                out_color_algorithm = new EscapeTimeEscapeRadius(4, escape_time_algorithm, bailout_algorithm.getNormImpl());
                 break;
             case MainWindow.ESCAPE_TIME_GRID:
-                out_color_algorithm = new EscapeTimeGrid(4, getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm), true, bailout_algorithm.getNormImpl());
+                out_color_algorithm = new EscapeTimeGrid(4, escape_time_algorithm, true, bailout_algorithm.getNormImpl());
                 break;
             case MainWindow.BANDED:
                 out_color_algorithm = new Banded();
                 break;
             case MainWindow.ESCAPE_TIME_FIELD_LINES:
-                out_color_algorithm = new EscapeTimeFieldLines(4, getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm), bailout_algorithm.getNormImpl());
+                out_color_algorithm = new EscapeTimeFieldLines(4, escape_time_algorithm, bailout_algorithm.getNormImpl());
                 break;
             case MainWindow.ESCAPE_TIME_FIELD_LINES2:
-                out_color_algorithm = new EscapeTimeFieldLines2(4, getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm), bailout_algorithm.getNormImpl());
+                out_color_algorithm = new EscapeTimeFieldLines2(4, escape_time_algorithm, bailout_algorithm.getNormImpl());
                 break;
             case MainWindow.USER_OUTCOLORING_ALGORITHM:
                 if(user_out_coloring_algorithm == 0) {
-                    out_color_algorithm = new UserOutColorAlgorithmRootFindingMethod(outcoloring_formula, getConvergentBailout(), max_iterations, xCenter, yCenter, size, plane_transform_center, globalVars);
+                    out_color_algorithm = new UserOutColorAlgorithmRootFindingMethod(outcoloring_formula, getConvergentBailout(), max_iterations, xCenter, yCenter, size, plane_transform_center, globalVars, escape_time_algorithm);
                 }
                 else {
-                    out_color_algorithm = new UserConditionalOutColorAlgorithmRootFindingMethod(user_outcoloring_conditions, user_outcoloring_condition_formula, getConvergentBailout(), max_iterations, xCenter, yCenter, size, plane_transform_center, globalVars);
+                    out_color_algorithm = new UserConditionalOutColorAlgorithmRootFindingMethod(user_outcoloring_conditions, user_outcoloring_condition_formula, getConvergentBailout(), max_iterations, xCenter, yCenter, size, plane_transform_center, globalVars, escape_time_algorithm);
                 }
                 break;
             case ESCAPE_TIME_SQUARES:
-                out_color_algorithm = new EscapeTimeSquares(6, getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm));
+                out_color_algorithm = new EscapeTimeSquares(6, escape_time_algorithm);
                 break;
             case ESCAPE_TIME_SQUARES2:
-                out_color_algorithm = new EscapeTimeSquares2(6, getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm));
+                out_color_algorithm = new EscapeTimeSquares2(6, escape_time_algorithm);
                 break;
 
         }
@@ -237,7 +240,7 @@ public abstract class ExtendedConvergentType extends Julia {
             return;
         }
         else if(sts.statisticGroup == 4) {
-            statistic = new RootColoring(sts.rootIterationsScaling, max_iterations, sts.rootColors, sts.rootSmooting, this, sts.unmmapedRootColor.getRGB(), sts.rootScalingCapto1);
+            statistic = new RootColoring(sts.rootIterationsScaling, max_iterations, sts.rootColors, sts.rootSmoothing, this, sts.unmmapedRootColor.getRGB(), sts.rootScalingCapto1);
             return;
         }
 
@@ -311,7 +314,7 @@ public abstract class ExtendedConvergentType extends Julia {
                 out = getFinalValueOut(out);
 
                 if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(z, zold, zold2, iterations, c, start, c0, pixelC);
+                    setTrueColorOut(z, zold, zold2, iterations, c, start, c0, pixelC, object);
                 }
 
                 return getAndAccumulateHP(out);
@@ -370,7 +373,7 @@ public abstract class ExtendedConvergentType extends Julia {
                 out = getFinalValueOut(out);
 
                 if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
+                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel, object);
                 }
 
                 return out;
@@ -519,7 +522,7 @@ public abstract class ExtendedConvergentType extends Julia {
                     res = getFinalValueOut(res);
 
                     if (outTrueColorAlgorithm != null) {
-                        setTrueColorOut(zc, zold, zold2, iterations, c, start, c0, pixel);
+                        setTrueColorOut(zc, zold, zold2, iterations, c, start, c0, pixel, object);
                     }
 
                     return getAndAccumulateStatsNotScaled(res);
@@ -603,7 +606,7 @@ public abstract class ExtendedConvergentType extends Julia {
                     res = getFinalValueOut(res);
 
                     if (outTrueColorAlgorithm != null) {
-                        setTrueColorOut(zc, zold, zold2, iterations, c, start, c0, pixel);
+                        setTrueColorOut(zc, zold, zold2, iterations, c, start, c0, pixel, object);
                     }
 
                     return getAndAccumulateStatsNotScaled(res);
@@ -718,7 +721,7 @@ public abstract class ExtendedConvergentType extends Julia {
                 res = getFinalValueOut(res);
 
                 if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(z, zold, zold2, iterations, c, start, c0, pixel);
+                    setTrueColorOut(z, zold, zold2, iterations, c, start, c0, pixel, object);
                 }
 
                 return getAndAccumulateStatsNotDeep(res);
@@ -812,7 +815,7 @@ public abstract class ExtendedConvergentType extends Julia {
                 res = getFinalValueOut(res);
 
                 if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(z, zold, zold2, iterations, c, start, c0, pixel);
+                    setTrueColorOut(z, zold, zold2, iterations, c, start, c0, pixel, object);
                 }
 
                 return getAndAccumulateStatsNotDeep(res);
@@ -925,7 +928,7 @@ public abstract class ExtendedConvergentType extends Julia {
                     res = getFinalValueOut(res);
 
                     if (outTrueColorAlgorithm != null) {
-                        setTrueColorOut(zc, zold, zold2, iterations, c, start, c0, pixel);
+                        setTrueColorOut(zc, zold, zold2, iterations, c, start, c0, pixel, object);
                     }
 
                     return getAndAccumulateStatsNotScaled(res);
@@ -997,7 +1000,7 @@ public abstract class ExtendedConvergentType extends Julia {
                     res = getFinalValueOut(res);
 
                     if (outTrueColorAlgorithm != null) {
-                        setTrueColorOut(zc, zold, zold2, iterations, c, start, c0, pixel);
+                        setTrueColorOut(zc, zold, zold2, iterations, c, start, c0, pixel, object);
                     }
 
                     return getAndAccumulateStatsNotScaled(res);

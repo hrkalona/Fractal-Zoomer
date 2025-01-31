@@ -20,6 +20,8 @@ public class HistogramColoringSettings {
     public int rank_order_digits_grouping;
     public int hs_color_blending;
     public boolean hs_reverse_color_blending;
+    public boolean use_integer_iterations;
+    public double mapping_exponent;
 
     public HistogramColoringSettings() {
         histogramColoring = false;
@@ -35,5 +37,7 @@ public class HistogramColoringSettings {
         rank_order_digits_grouping = 2;
         hs_color_blending = 0;
         hs_reverse_color_blending = false;
+        use_integer_iterations = false;
+        mapping_exponent = 1;
     }
 }

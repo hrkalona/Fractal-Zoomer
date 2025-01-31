@@ -7,9 +7,9 @@ package fractalzoomer.core.blending;
  */
 public class GrainMergeBlending extends Blending {
 
-    public GrainMergeBlending(int color_interpolation) {
+    public GrainMergeBlending(int color_interpolation, int color_space) {
 
-        super(color_interpolation);
+        super(color_interpolation, color_space);
 
     }
 
@@ -28,7 +28,7 @@ public class GrainMergeBlending extends Blending {
         temp_green = temp_green < 0 ? 0 : temp_green;
         temp_blue = temp_blue < 0 ? 0 : temp_blue;
         
-        return method.interpolate(redB, greenB, blueB, temp_red, temp_green, temp_blue, coef);
+        return method.interpolateColors(redB, greenB, blueB, temp_red, temp_green, temp_blue, coef, false);
 
     }
     

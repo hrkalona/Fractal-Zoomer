@@ -26,8 +26,6 @@ import java.util.stream.IntStream;
  */
 public abstract class PointFilter extends AbstractBufferedImageOp {
 
-	protected boolean canFilterIndexColorModel = false;
-
         @Override
     public BufferedImage filter( BufferedImage src, BufferedImage dst ) {
         int width = src.getWidth();

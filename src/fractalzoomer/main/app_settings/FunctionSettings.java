@@ -138,6 +138,8 @@ public class FunctionSettings implements Constants {
     public ArrayList<Double> inflections_re;
     public ArrayList<Double> inflections_im;
     public double inflectionsPower;
+    public double[] zenex_re;
+    public double[] zenex_im;
     
     public FunctionSettings() {
         period = 0;
@@ -174,6 +176,14 @@ public class FunctionSettings implements Constants {
 
         variable_re = new double[Parser.EXTRA_VARS];
         variable_im = new double[Parser.EXTRA_VARS];
+
+        zenex_re = new double[7];
+        zenex_im = new double[7];
+        zenex_re[0] = 1;
+        zenex_re[1] = 7;
+        zenex_re[2] = -1;
+        zenex_re[3] = -9;
+        zenex_re[4] = 9;
 
         rotation = 0;
 

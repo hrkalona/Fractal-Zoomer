@@ -3,6 +3,7 @@
 package fractalzoomer.planes.fold;
 
 import fractalzoomer.core.*;
+import fractalzoomer.functions.Fractal;
 import fractalzoomer.planes.Plane;
 
 /**
@@ -23,7 +24,7 @@ public class FoldUpPlane extends Plane {
 
     private DDComplex ddccenter;
 
-    public FoldUpPlane(double[] plane_transform_center) {
+    public FoldUpPlane(double[] plane_transform_center, Fractal f) {
 
         super();
         center = new Complex(plane_transform_center[0], plane_transform_center[1]);
@@ -34,9 +35,9 @@ public class FoldUpPlane extends Plane {
             bncenter = new BigNumComplex(center);
             bincenter = new BigIntNumComplex(center);
 
-            if (TaskRender.allocateMPFR()) {
+            if (NumericLibrary.allocateMPFR(f)) {
                 mpfrbncenter = new MpfrBigNumComplex(center);
-            } else if (TaskRender.allocateMPIR()) {
+            } else if (NumericLibrary.allocateMPIR(f)) {
                 mpirbncenter = new MpirBigNumComplex(center);
             }
         }

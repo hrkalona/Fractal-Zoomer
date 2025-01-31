@@ -6,12 +6,13 @@ import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.*;
 import fractalzoomer.utils.Square;
+import fractalzoomer.utils.StopExecutionException;
 import fractalzoomer.utils.StopSuccessiveRefinementException;
+import fractalzoomer.utils.WaitOnCondition;
 import org.apfloat.Apfloat;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.util.concurrent.BrokenBarrierException;
 
 /**
  *
@@ -26,7 +27,7 @@ public class MarianiSilver2Render extends MarianiSilverRender {
     }
     
     @Override
-    protected void render(int image_width, int image_height, boolean polar) throws StopSuccessiveRefinementException {
+    protected void render(int image_width, int image_height, boolean polar) throws StopSuccessiveRefinementException, StopExecutionException {
 
         Location location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_width, image_height, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
 
@@ -51,13 +52,7 @@ public class MarianiSilver2Render extends MarianiSilverRender {
             iteration++;
         } while (true);
 
-        try {
-            initialize_jobs_sync.await();
-        } catch (InterruptedException ex) {
-
-        } catch (BrokenBarrierException ex) {
-
-        }
+        WaitOnCondition.WaitOnCyclicBarrier(initialize_jobs_sync);
 
         int x = 0;
         int y = 0;
@@ -321,7 +316,12 @@ public class MarianiSilver2Render extends MarianiSilverRender {
                             fill_count++;
                         }
                     }
-                    rendering_done += chunk;
+                    if(perform_work_stealing_and_wait) {
+                        rendering_done_per_task[taskId] += chunk;
+                    }
+                    else {
+                        rendering_done += chunk;
+                    }
                 }
                 task_pixel_grouping[currentIteration] += fill_count;
 

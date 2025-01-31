@@ -5,6 +5,7 @@ package fractalzoomer.planes.general;
 import fractalzoomer.core.*;
 import fractalzoomer.core.mpfr.MpfrBigNum;
 import fractalzoomer.core.mpir.MpirBigNum;
+import fractalzoomer.functions.Fractal;
 import fractalzoomer.planes.Plane;
 
 /**
@@ -26,19 +27,19 @@ public class LambdaPlane extends Plane {
     private MpirBigNum temp3p;
     private MpirBigNum temp4p;
     
-    public LambdaPlane() {
+    public LambdaPlane(Fractal f) {
         
         super();
 
         if(TaskRender.PERTURBATION_THEORY || TaskRender.HIGH_PRECISION_CALCULATION) {
-            if (TaskRender.allocateMPFR()) {
+            if (NumericLibrary.allocateMPFR(f)) {
                 tempRe = new MpfrBigNum();
                 tempIm = new MpfrBigNum();
                 temp1 = new MpfrBigNum();
                 temp2 = new MpfrBigNum();
                 temp3 = new MpfrBigNum();
                 temp4 = new MpfrBigNum();
-            } else if (TaskRender.allocateMPIR()) {
+            } else if (NumericLibrary.allocateMPIR(f)) {
                 tempRep = new MpirBigNum();
                 tempImp = new MpirBigNum();
                 temp1p = new MpirBigNum();

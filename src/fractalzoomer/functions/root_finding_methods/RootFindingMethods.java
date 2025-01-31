@@ -2,6 +2,8 @@
 package fractalzoomer.functions.root_finding_methods;
 
 import fractalzoomer.core.*;
+import fractalzoomer.core.reference.ReferenceData;
+import fractalzoomer.core.reference.ReferenceDeepData;
 import fractalzoomer.fractal_options.initial_value.DefaultInitialValue;
 import fractalzoomer.fractal_options.iteration_statistics.*;
 import fractalzoomer.functions.Fractal;
@@ -80,7 +82,7 @@ public abstract class RootFindingMethods extends Fractal {
 
         GenericComplex[] complex = new GenericComplex[1];
 
-        int lib = TaskRender.getHighPrecisionImplementation(dsize, this);
+        int lib = NumericLibrary.getHighPrecisionImplementation(dsize, this);
 
         if(lib == ARBITRARY_MPFR) {
 
@@ -185,7 +187,7 @@ public abstract class RootFindingMethods extends Fractal {
                 out = getFinalValueOut(out);
 
                 if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(z, zold, zold2, iterations, pixelC, start, c0, pixelC);
+                    setTrueColorOut(z, zold, zold2, iterations, pixelC, start, c0, pixelC, object);
                 }
 
                 return getAndAccumulateHP(out);
@@ -243,7 +245,7 @@ public abstract class RootFindingMethods extends Fractal {
                 out = getFinalValueOut(out);
 
                 if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(complex[0], zold, zold2, iterations, pixel, start, c0, pixel);
+                    setTrueColorOut(complex[0], zold, zold2, iterations, pixel, start, c0, pixel, object);
                 }
 
                 return out;
@@ -370,38 +372,39 @@ public abstract class RootFindingMethods extends Fractal {
     @Override
     protected void OutColoringAlgorithmFactory(int out_coloring_algorithm, boolean smoothing, int converging_smooth_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, double[] plane_transform_center) {
 
+        escape_time_algorithm = getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm);
         switch (out_coloring_algorithm) {
 
             case MainWindow.ESCAPE_TIME:
-                out_color_algorithm = getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm);
+                out_color_algorithm = escape_time_algorithm;
                 break;
             case MainWindow.BINARY_DECOMPOSITION:
-                out_color_algorithm = new BinaryDecomposition(getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm));
+                out_color_algorithm = new BinaryDecomposition(escape_time_algorithm);
                 break;
             case MainWindow.BINARY_DECOMPOSITION2:
-                out_color_algorithm = new BinaryDecomposition2(getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm));
+                out_color_algorithm = new BinaryDecomposition2(escape_time_algorithm);
                 break;
             case MainWindow.COLOR_DECOMPOSITION:
-                out_color_algorithm = new ColorDecompositionRootFindingMethod(getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm));
+                out_color_algorithm = new ColorDecompositionRootFindingMethod(escape_time_algorithm);
                 break;
             case MainWindow.ESCAPE_TIME_COLOR_DECOMPOSITION:
-                out_color_algorithm = new EscapeTimeColorDecompositionRootFindingMethod(getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm));
+                out_color_algorithm = new EscapeTimeColorDecompositionRootFindingMethod(escape_time_algorithm);
                 break;
             case MainWindow.ESCAPE_TIME_ALGORITHM:
-                out_color_algorithm = new EscapeTimeAlgorithm1(2, getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm));
+                out_color_algorithm = new EscapeTimeAlgorithm1(2, escape_time_algorithm);
                 break;
             case MainWindow.USER_OUTCOLORING_ALGORITHM:
                 if (user_out_coloring_algorithm == 0) {
-                    out_color_algorithm = new UserOutColorAlgorithmRootFindingMethod(outcoloring_formula, getConvergentBailout(), max_iterations, xCenter, yCenter, size, plane_transform_center, globalVars);
+                    out_color_algorithm = new UserOutColorAlgorithmRootFindingMethod(outcoloring_formula, getConvergentBailout(), max_iterations, xCenter, yCenter, size, plane_transform_center, globalVars, escape_time_algorithm);
                 } else {
-                    out_color_algorithm = new UserConditionalOutColorAlgorithmRootFindingMethod(user_outcoloring_conditions, user_outcoloring_condition_formula, getConvergentBailout(), max_iterations, xCenter, yCenter, size, plane_transform_center, globalVars);
+                    out_color_algorithm = new UserConditionalOutColorAlgorithmRootFindingMethod(user_outcoloring_conditions, user_outcoloring_condition_formula, getConvergentBailout(), max_iterations, xCenter, yCenter, size, plane_transform_center, globalVars, escape_time_algorithm);
                 }
                 break;
             case ESCAPE_TIME_SQUARES:
-                out_color_algorithm = new EscapeTimeSquares(6, getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm));
+                out_color_algorithm = new EscapeTimeSquares(6, escape_time_algorithm);
                 break;
             case ESCAPE_TIME_SQUARES2:
-                out_color_algorithm = new EscapeTimeSquares2(6, getEscapeTimeAlgorithm(smoothing, converging_smooth_algorithm));
+                out_color_algorithm = new EscapeTimeSquares2(6, escape_time_algorithm);
                 break;
 
         }
@@ -503,7 +506,7 @@ public abstract class RootFindingMethods extends Fractal {
             return;
         }
         else if(sts.statisticGroup == 4) {
-            statistic = new RootColoring(sts.rootIterationsScaling, max_iterations, sts.rootColors, sts.rootSmooting, this, sts.unmmapedRootColor.getRGB(), sts.rootScalingCapto1);
+            statistic = new RootColoring(sts.rootIterationsScaling, max_iterations, sts.rootColors, sts.rootSmoothing, this, sts.unmmapedRootColor.getRGB(), sts.rootScalingCapto1);
             return;
         }
 
@@ -608,7 +611,7 @@ public abstract class RootFindingMethods extends Fractal {
                 res = getFinalValueOut(res);
 
                 if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(z, zold, zold2, iterations, pixel, start, c0, pixel);
+                    setTrueColorOut(z, zold, zold2, iterations, pixel, start, c0, pixel, object);
                 }
 
                 return getAndAccumulateStatsNotDeep(res);
@@ -722,7 +725,7 @@ public abstract class RootFindingMethods extends Fractal {
                     res = getFinalValueOut(res);
 
                     if (outTrueColorAlgorithm != null) {
-                        setTrueColorOut(zc, zold, zold2, iterations, pixel, start, c0, pixel);
+                        setTrueColorOut(zc, zold, zold2, iterations, pixel, start, c0, pixel, object);
                     }
 
                     return getAndAccumulateStatsNotScaled(res);
@@ -796,7 +799,7 @@ public abstract class RootFindingMethods extends Fractal {
                     res = getFinalValueOut(res);
 
                     if (outTrueColorAlgorithm != null) {
-                        setTrueColorOut(zc, zold, zold2, iterations, pixel, start, c0, pixel);
+                        setTrueColorOut(zc, zold, zold2, iterations, pixel, start, c0, pixel, object);
                     }
 
                     return getAndAccumulateStatsNotScaled(res);

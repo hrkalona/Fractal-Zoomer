@@ -5,6 +5,7 @@ import fractalzoomer.core.*;
 import fractalzoomer.core.location.Location;
 import fractalzoomer.core.mpfr.MpfrBigNum;
 import fractalzoomer.core.mpir.MpirBigNum;
+import fractalzoomer.core.reference.*;
 import fractalzoomer.fractal_options.BurningShip;
 import fractalzoomer.fractal_options.MandelGrass;
 import fractalzoomer.fractal_options.MandelVariation;
@@ -308,7 +309,7 @@ public class MandelbrotFifth extends Julia {
             DetectedPeriod = 0;
         }
 
-        int bigNumLib = TaskRender.getBignumImplementation(size, this);
+        int bigNumLib = NumericLibrary.getBignumImplementation(size, this);
         int detectPeriodAlgorithm = getPeriodDetectionAlgorithm();
 
         if(bigNumLib == Constants.BIGNUM_BUILT_IN) {

@@ -2,6 +2,7 @@ package fractalzoomer.gui;
 
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.CosinePaletteSettings;
+import fractalzoomer.main.app_settings.Settings;
 
 import javax.swing.*;
 import java.awt.*;
@@ -14,7 +15,7 @@ public class ColorPaletteEditorDialog extends JDialog {
     private MainWindow ptra2;
     private ColorPaletteEditorPanel p;
 
-    public ColorPaletteEditorDialog(MainWindow ptra, boolean outcoloring_mode, JRadioButtonMenuItem[] palettes, int color_space) {
+    public ColorPaletteEditorDialog(MainWindow ptra, boolean outcoloring_mode, Settings s, JRadioButtonMenuItem[] palettes) {
         super();
 
         ptra2 = ptra;
@@ -30,7 +31,7 @@ public class ColorPaletteEditorDialog extends JDialog {
         setSize(filters_options_window_width, filters_options_window_height);
         setLocation((int)(ptra2.getLocation().getX() + ptra2.getSize().getWidth() / 2) - (filters_options_window_width / 2), (int)(ptra2.getLocation().getY() + ptra2.getSize().getHeight() / 2) - (filters_options_window_height / 2));
 
-        p = new ColorPaletteEditorPanel(width, height, color_space, this);
+        p = new ColorPaletteEditorPanel(width, height, this, outcoloring_mode, s);
         p.setBackground(MainWindow.bg_color);
         p.setPreferredSize(new Dimension(width + 40, 600));
 
@@ -66,7 +67,7 @@ public class ColorPaletteEditorDialog extends JDialog {
 
             dispose();
 
-            ptra2.setPalette(MainWindow.DIRECT_PALETTE_ID, p.getPalette(), outcoloring_mode ? 0 : 1);
+            ptra2.setPalette(MainWindow.DIRECT_PALETTE_ID, p.getPalette(false), outcoloring_mode ? 0 : 1);
             palettes[MainWindow.DIRECT_PALETTE_ID].setSelected(true);
 
 
@@ -149,6 +150,8 @@ public class ColorPaletteEditorDialog extends JDialog {
         requestFocus();
 
         setVisible(true);
+
+        repaint();
     }
 
     public void colorChanged() {

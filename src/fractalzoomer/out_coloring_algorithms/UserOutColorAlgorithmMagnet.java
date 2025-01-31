@@ -13,9 +13,9 @@ import fractalzoomer.utils.ColorAlgorithm;
  */
 public class UserOutColorAlgorithmMagnet extends  UserOutColorAlgorithm {
 
-    public UserOutColorAlgorithmMagnet(String outcoloring_formula, double bailout, int max_iterations, double xCenter, double yCenter, double size, double[] point, Complex[] globalVars) {
+    public UserOutColorAlgorithmMagnet(String outcoloring_formula, double bailout, int max_iterations, double xCenter, double yCenter, double size, double[] point, Complex[] globalVars, OutColorAlgorithm escape_time_alg) {
 
-        super(outcoloring_formula, bailout, max_iterations, xCenter, yCenter, size, point, globalVars);
+        super(outcoloring_formula, bailout, max_iterations, xCenter, yCenter, size, point, globalVars, escape_time_alg);
         
         this.max_iterations = max_iterations;
         OutUsingIncrement = false;
@@ -27,6 +27,10 @@ public class UserOutColorAlgorithmMagnet extends  UserOutColorAlgorithm {
 
         if(parser.foundN()) {
             parser.setNvalue(new Complex((int)object[0], 0));
+        }
+
+        if(parser.foundNF()) {
+            parser.setNFvalue(new Complex(escape_time_alg.getFractionalPart(object), 0));
         }
         
         if(parser.foundZ()) {

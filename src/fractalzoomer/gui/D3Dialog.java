@@ -426,8 +426,8 @@ public class D3Dialog extends JDialog {
                             if (temp < 10) {
                                 JOptionPane.showMessageDialog(ptra, "The 3D detail level must be greater than 9.", "Error!", JOptionPane.ERROR_MESSAGE);
                                 return;
-                            } else if (temp > 4000) {
-                                JOptionPane.showMessageDialog(ptra, "The 3D detail level must be less than 4001.", "Error!", JOptionPane.ERROR_MESSAGE);
+                            } else if (temp > 6000) {
+                                JOptionPane.showMessageDialog(ptra, "The 3D detail level must be less than 6001.", "Error!", JOptionPane.ERROR_MESSAGE);
                                 return;
                             }
 

@@ -16,6 +16,7 @@ public class GradientSettings {
     public int gradient_interpolation;
     public boolean gradient_reversed;
     public int gradient_offset;
+    public int gradient_length;
     
     public GradientSettings() {
         colorA = Color.BLACK;
@@ -24,5 +25,6 @@ public class GradientSettings {
         gradient_interpolation = Constants.INTERPOLATION_LINEAR;
         gradient_reversed = false;
         gradient_offset = 0;
+        gradient_length = 512;
     }           
 }

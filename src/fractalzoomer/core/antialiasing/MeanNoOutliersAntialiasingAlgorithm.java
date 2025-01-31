@@ -1,5 +1,7 @@
 package fractalzoomer.core.antialiasing;
 
+import fractalzoomer.utils.ColorCorrection;
+
 import java.util.Arrays;
 
 public class MeanNoOutliersAntialiasingAlgorithm extends AntialiasingAlgorithm {
@@ -38,7 +40,7 @@ public class MeanNoOutliersAntialiasingAlgorithm extends AntialiasingAlgorithm {
         return true;
     }
 
-    private double calculateMedian(double[] values, int start, int end) {
+    public static double calculateMedian(double[] values, int start, int end) {
         int length = end - start;
         int middle = start + length / 2;
 
@@ -49,7 +51,7 @@ public class MeanNoOutliersAntialiasingAlgorithm extends AntialiasingAlgorithm {
         return values[middle];
     }
 
-    private Object[] getSumAndSamples(double[] vals) {
+    private double getAverage(double[] vals) {
 
         boolean allTheSame = true;
         for(int i = 0; i < vals.length; i++) {
@@ -103,7 +105,7 @@ public class MeanNoOutliersAntialiasingAlgorithm extends AntialiasingAlgorithm {
             }
         }
 
-        return new Object[] {sum, samples};
+        return samples > 0 ? sum / samples : 0;
     }
 
     @Override
@@ -112,12 +114,13 @@ public class MeanNoOutliersAntialiasingAlgorithm extends AntialiasingAlgorithm {
             return 0xff000000;
         }
 
-        Object[] res1 = getSumAndSamples(redValues);
-        Object[] res2 = getSumAndSamples(greenValues);
-        Object[] res3 = getSumAndSamples(blueValues);
+        double finalA = getAverage(redValues);
+        double finalB = getAverage(greenValues);
+        double finalC = getAverage(blueValues);
 
-        int[] result = getAveragedColorChannels((double)res1[0], (double)res2[0], (double)res3[0], (int)res1[1], (int)res2[1], (int)res3[1]);
-        return  0xff000000 | (result[0] << 16) | (result[1] << 8) | result[2];
+        int[] result = getColorChannels(finalA, finalB, finalC);
+        return ColorCorrection.linearToGamma(result[0], result[1], result[2]);
+
     }
 
 }

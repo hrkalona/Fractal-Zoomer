@@ -79,6 +79,11 @@ public class SlopesDialog extends JDialog {
         p1.add(p333);
         p1.add(ratio);
 
+        final JCheckBox applyWidthScaling = new JCheckBox("Apply Width Scaling");
+        applyWidthScaling.setSelected(s.pps.ss.applyWidthScaling);
+        applyWidthScaling.setFocusable(false);
+        applyWidthScaling.setToolTipText("Applies a scale factor based on the width of the image (based on KF)");
+
 
         JTextField noise_factor_field = new JTextField();
         noise_factor_field.setText("" + s.pps.ss.s_noise_reducing_factor);
@@ -171,6 +176,8 @@ public class SlopesDialog extends JDialog {
             " ",
             "Set the slope angle, power, and ratio.",
             " ", p1,
+                " ",
+                applyWidthScaling,
             " ",
             "Set the height transfer and fractional transfer/smoothing.",
             p3,
@@ -245,6 +252,8 @@ public class SlopesDialog extends JDialog {
                             s.pps.ss.lightVector[1] = Math.sin(lightAngleRadians);
 
                             s.pps.ss.s_noise_reducing_factor = temp;
+
+                            s.pps.ss.applyWidthScaling = applyWidthScaling.isSelected();
 
                             s.pps.ss.fractionalTransfer = fractional_transfer.getSelectedIndex();
                             s.pps.ss.fractionalSmoothing = fractional_smoothing.getSelectedIndex();

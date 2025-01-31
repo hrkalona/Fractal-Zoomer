@@ -295,7 +295,7 @@ public class Infobar extends JToolBar {
         metrics_button.setToolTipText("Displays some time-series metrics.");
         metrics_button.addActionListener(e ->ptr.Metrics());
 
-        cancel_button= new MyButton();
+        cancel_button = new MyButton();
         cancel_button.setIcon(MainWindow.getIcon("abort.png"));
         cancel_button.setFocusable(false);
         cancel_button.setToolTipText("Cancels the current rendering operation and resets.");
@@ -540,6 +540,12 @@ public class Infobar extends JToolBar {
 
         popup.addSeparator();
         popup.add(colorMapframe);
+
+        JMenuItem exportDirectPalette = new MyMenuItem("Save Direct Palette", MainWindow.getIcon("palette_save.png"));
+        exportDirectPalette.addActionListener(ev -> ptr.saveDirectPalette(outcoloring_mode));
+        exportDirectPalette.setToolTipText("Saves the current palette into a RGB triplets format.");
+        popup.addSeparator();
+        popup.add(exportDirectPalette);
 
         JMenuItem alternativeCustomDirectPalette  = new MyMenuItem("Custom Direct Palette", MainWindow.getIcon("palette.png"));
         alternativeCustomDirectPalette.setToolTipText("Creates a custom direct palette.");

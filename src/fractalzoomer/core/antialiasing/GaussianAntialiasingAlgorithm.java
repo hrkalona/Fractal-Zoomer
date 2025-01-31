@@ -1,5 +1,7 @@
 package fractalzoomer.core.antialiasing;
 
+import fractalzoomer.utils.ColorCorrection;
+
 public class GaussianAntialiasingAlgorithm extends AntialiasingAlgorithm {
     private double SumA;
     private double SumB;
@@ -70,17 +72,15 @@ public class GaussianAntialiasingAlgorithm extends AntialiasingAlgorithm {
             return 0xff000000;
         }
 
-        int[] result = getAveragedColorChannels(SumA, SumB, SumC, SumA2, SumB2, SumC2);
-        return  0xff000000 | (result[0] << 16) | (result[1] << 8) | result[2];
-    }
-
-    @Override
-    protected double function(double value, double value2) {
         if(avgWithMean) {
-            return (value + value2 * totalSamplesReciprocal) * 0.5;
-        }
-        else {
-            return value;
+            double finalA = (SumA + SumA2 * totalSamplesReciprocal) * 0.5;
+            double finalB = (SumB + SumB2 * totalSamplesReciprocal) * 0.5;
+            double finalC = (SumC + SumC2 * totalSamplesReciprocal) * 0.5;
+            int[] result = getColorChannels(finalA, finalB, finalC);
+            return ColorCorrection.linearToGamma(result[0], result[1], result[2]);
+        } else {
+            int[] result = getColorChannels(SumA, SumB, SumC);
+            return ColorCorrection.linearToGamma(result[0], result[1], result[2]);
         }
     }
 

@@ -9,13 +9,14 @@ import fractalzoomer.main.MinimalRendererWindow;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.*;
 import fractalzoomer.utils.Pixel;
+import fractalzoomer.utils.StopExecutionException;
 import fractalzoomer.utils.StopSuccessiveRefinementException;
+import fractalzoomer.utils.WaitOnCondition;
 import org.apfloat.Apfloat;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static fractalzoomer.core.rendering_algorithms.PatternedBruteForceRender.coordinates;
@@ -185,7 +186,7 @@ public class PatternedSuccessiveRefinementGuessing2Render extends PatternedSucce
     }
 
     @Override
-    protected void render(int image_width, int image_height, boolean polar) throws StopSuccessiveRefinementException {
+    protected void render(int image_width, int image_height, boolean polar) throws StopSuccessiveRefinementException, StopExecutionException {
 
         Location location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_width, image_height, circle_period, rotation_center, rotation_vals, fractal, js, polar, (HIGH_PRECISION_CALCULATION || PERTURBATION_THEORY) && fractal.supportsPerturbationTheory());
 
@@ -384,20 +385,10 @@ public class PatternedSuccessiveRefinementGuessing2Render extends PatternedSucce
             nano_time += System.nanoTime() - time;
 
             if(USE_NON_BLOCKING_RENDERING) {
-                try {
-                    stop_rendering_lock.lockRead();
-                } catch (InterruptedException ex) {
-
-                }
+                WaitOnCondition.LockRead(stop_rendering_lock);
             }
 
-            try {
-                successive_refinement_rendering_algorithm_barrier.await();
-            } catch (InterruptedException ex) {
-
-            } catch (BrokenBarrierException ex) {
-
-            }
+            WaitOnCondition.WaitOnCyclicBarrier(successive_refinement_rendering_algorithm_barrier);
 
             if(taskId == 0 && ptr != null) {
                 if(id == 0) {
@@ -410,10 +401,10 @@ public class PatternedSuccessiveRefinementGuessing2Render extends PatternedSucce
 
             if(USE_NON_BLOCKING_RENDERING) {
                 if (id > stop_id && STOP_RENDERING) {
-                    stop_rendering_lock.unlockRead();
+                    WaitOnCondition.UnlockRead(stop_rendering_lock);
                     throw new StopSuccessiveRefinementException();
                 }
-                stop_rendering_lock.unlockRead();
+                WaitOnCondition.UnlockRead(stop_rendering_lock);
             }
 
             if(performSecondPassActions) {
@@ -437,7 +428,7 @@ public class PatternedSuccessiveRefinementGuessing2Render extends PatternedSucce
     }
 
     @Override
-    protected void renderFastJuliaAntialiased(int image_size, boolean polar) {
+    protected void renderFastJuliaAntialiased(int image_size, boolean polar) throws StopExecutionException {
 
         int aaMethod = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
         boolean useJitter = aaMethod != 6 && ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x4) == 4;
@@ -452,7 +443,7 @@ public class PatternedSuccessiveRefinementGuessing2Render extends PatternedSucce
         int colorSpace = filters_options_extra_vals[0][MainWindow.ANTIALIASING];
         int totalSamples = supersampling_num + 1;
 
-        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(totalSamples, aaMethod, aaAvgWithMean, colorSpace, fs.aaSigmaR, fs.aaSigmaS);
+        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(totalSamples, aaMethod, aaAvgWithMean, colorSpace, fs.aaSigmaR);
 
         aa.setNeedsAllSamples(needsPostProcessing());
 
@@ -653,13 +644,7 @@ public class PatternedSuccessiveRefinementGuessing2Render extends PatternedSucce
 
             } while (true);
 
-            try {
-                successive_refinement_rendering_algorithm_barrier.await();
-            } catch (InterruptedException ex) {
-
-            } catch (BrokenBarrierException ex) {
-
-            }
+            WaitOnCondition.WaitOnCyclicBarrier(successive_refinement_rendering_algorithm_barrier);
 
             if(performSecondPassActions) {
                 iteration++;
@@ -683,7 +668,7 @@ public class PatternedSuccessiveRefinementGuessing2Render extends PatternedSucce
     }
 
     @Override
-    protected void renderAntialiased(int image_width, int image_height, boolean polar) throws StopSuccessiveRefinementException {
+    protected void renderAntialiased(int image_width, int image_height, boolean polar) throws StopSuccessiveRefinementException, StopExecutionException {
 
         int aaMethod = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
         boolean useJitter = aaMethod != 6 && ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x4) == 4;
@@ -698,7 +683,7 @@ public class PatternedSuccessiveRefinementGuessing2Render extends PatternedSucce
         int colorSpace = filters_options_extra_vals[0][MainWindow.ANTIALIASING];
         int totalSamples = supersampling_num + 1;
 
-        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(totalSamples, aaMethod, aaAvgWithMean, colorSpace, fs.aaSigmaR, fs.aaSigmaS);
+        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(totalSamples, aaMethod, aaAvgWithMean, colorSpace, fs.aaSigmaR);
 
         aa.setNeedsAllSamples(needsPostProcessing());
 
@@ -939,19 +924,10 @@ public class PatternedSuccessiveRefinementGuessing2Render extends PatternedSucce
             nano_time += System.nanoTime() - time;
 
             if(USE_NON_BLOCKING_RENDERING) {
-                try {
-                    stop_rendering_lock.lockRead();
-                } catch (InterruptedException ex) {
-
-                }
+                WaitOnCondition.LockRead(stop_rendering_lock);
             }
 
-            try {
-                successive_refinement_rendering_algorithm_barrier.await();
-            } catch (InterruptedException ex) {
-
-            } catch (BrokenBarrierException ex) {
-            }
+            WaitOnCondition.WaitOnCyclicBarrier(successive_refinement_rendering_algorithm_barrier);
 
             if(taskId == 0 && ptr != null) {
                 if(id == 0) {
@@ -964,10 +940,10 @@ public class PatternedSuccessiveRefinementGuessing2Render extends PatternedSucce
 
             if(USE_NON_BLOCKING_RENDERING) {
                 if (id > stop_id && STOP_RENDERING) {
-                    stop_rendering_lock.unlockRead();
+                    WaitOnCondition.UnlockRead(stop_rendering_lock);
                     throw new StopSuccessiveRefinementException();
                 }
-                stop_rendering_lock.unlockRead();
+                WaitOnCondition.UnlockRead(stop_rendering_lock);
             }
 
             if(performSecondPassActions) {
@@ -991,7 +967,7 @@ public class PatternedSuccessiveRefinementGuessing2Render extends PatternedSucce
     }
 
     @Override
-    protected void renderFastJulia(int image_size, boolean polar) {
+    protected void renderFastJulia(int image_size, boolean polar) throws StopExecutionException {
 
         Location location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_size, image_size, circle_period, rotation_center, rotation_vals, fractal, js, polar, (HIGH_PRECISION_CALCULATION || PERTURBATION_THEORY) && fractal.supportsPerturbationTheory());
 
@@ -1138,13 +1114,7 @@ public class PatternedSuccessiveRefinementGuessing2Render extends PatternedSucce
 
             } while (true);
 
-            try {
-                successive_refinement_rendering_algorithm_barrier.await();
-            } catch (InterruptedException ex) {
-
-            } catch (BrokenBarrierException ex) {
-
-            }
+            WaitOnCondition.WaitOnCyclicBarrier(successive_refinement_rendering_algorithm_barrier);
 
             if(performSecondPassActions) {
                 iteration++;

@@ -105,6 +105,8 @@ public class Parser {
     boolean found_z;
     boolean found_c;
     boolean found_n;
+
+    boolean found_nf;
     boolean found_p;
     boolean found_s;
     boolean found_pp;
@@ -131,6 +133,8 @@ public class Parser {
     ArrayList<VariableExpressionNode> z_var;
     ArrayList<VariableExpressionNode> c_var;
     ArrayList<VariableExpressionNode> n_var;
+
+    ArrayList<VariableExpressionNode> nf_var;
     ArrayList<VariableExpressionNode> p_var;
     ArrayList<VariableExpressionNode> s_var;
     ArrayList<VariableExpressionNode> pp_var;
@@ -154,6 +158,8 @@ public class Parser {
     VariableExpressionNode[] z_var_arr;
     VariableExpressionNode[] c_var_arr;
     VariableExpressionNode[] n_var_arr;
+
+    VariableExpressionNode[] nf_var_arr;
     VariableExpressionNode[] p_var_arr;
     VariableExpressionNode[] s_var_arr;
     VariableExpressionNode[] pp_var_arr;
@@ -191,6 +197,7 @@ public class Parser {
         found_z = false;
         found_c = false;
         found_n = false;
+        found_nf = false;
         found_p = false;
         found_s = false;
         found_pp = false;
@@ -219,6 +226,7 @@ public class Parser {
         z_var = new ArrayList<>();
         c_var = new ArrayList<>();
         n_var = new ArrayList<>();
+        nf_var = new ArrayList<>();
         p_var = new ArrayList<>();
         s_var = new ArrayList<>();
         pp_var = new ArrayList<>();
@@ -278,6 +286,7 @@ public class Parser {
         z_var_arr = new VariableExpressionNode[z_var.size()];
         c_var_arr = new VariableExpressionNode[c_var.size()];
         n_var_arr = new VariableExpressionNode[n_var.size()];
+        nf_var_arr = new VariableExpressionNode[nf_var.size()];
         p_var_arr = new VariableExpressionNode[p_var.size()];
         s_var_arr = new VariableExpressionNode[s_var.size()];
         pp_var_arr = new VariableExpressionNode[pp_var.size()];
@@ -299,6 +308,7 @@ public class Parser {
         z_var_arr = z_var.toArray(z_var_arr);
         c_var_arr = c_var.toArray(c_var_arr);
         n_var_arr = n_var.toArray(n_var_arr);
+        nf_var_arr = nf_var.toArray(nf_var_arr);
         p_var_arr = p_var.toArray(p_var_arr);
         s_var_arr = s_var.toArray(s_var_arr);
         pp_var_arr = pp_var.toArray(pp_var_arr);
@@ -688,7 +698,7 @@ public class Parser {
                 vars_exist |= temp.equalsIgnoreCase("v" + (i + 1));
             }
             
-            if(!temp.equalsIgnoreCase("z") && !temp.equalsIgnoreCase("c") && !temp.equalsIgnoreCase("n") && !temp.equalsIgnoreCase("p") && !temp.equalsIgnoreCase("s") && !temp.equalsIgnoreCase("pp") && !temp.equalsIgnoreCase("bail") && !temp.equalsIgnoreCase("cbail") && !temp.equalsIgnoreCase("maxn") && !temp.equalsIgnoreCase("pi") && !temp.equalsIgnoreCase("e") && !temp.equalsIgnoreCase("c10")
+            if(!temp.equalsIgnoreCase("z") && !temp.equalsIgnoreCase("c") && !temp.equalsIgnoreCase("n") && !temp.equalsIgnoreCase("nf") && !temp.equalsIgnoreCase("p") && !temp.equalsIgnoreCase("s") && !temp.equalsIgnoreCase("pp") && !temp.equalsIgnoreCase("bail") && !temp.equalsIgnoreCase("cbail") && !temp.equalsIgnoreCase("maxn") && !temp.equalsIgnoreCase("pi") && !temp.equalsIgnoreCase("e") && !temp.equalsIgnoreCase("c10")
                     && !temp.equalsIgnoreCase("phi") && !temp.equalsIgnoreCase("alpha") && !temp.equalsIgnoreCase("delta") && !temp.equalsIgnoreCase("center") && !temp.equalsIgnoreCase("size")
                     && !vars_exist
                     && !temp.equalsIgnoreCase("point") && !temp.equalsIgnoreCase("sizei")
@@ -700,6 +710,7 @@ public class Parser {
                     && !temp.equalsIgnoreCase("pixel")
                     && !temp.equalsIgnoreCase("width")
                     && !temp.equalsIgnoreCase("height")
+                    && !temp.equalsIgnoreCase("maxnde")
             ) {
                 throw new ParserException("Unrecognized variable %s found.", lookahead);
             }
@@ -758,6 +769,11 @@ public class Parser {
             if(temp.equalsIgnoreCase("n")) {
                 found_n = true;
                 n_var.add((VariableExpressionNode)expr);
+            }
+
+            if(temp.equalsIgnoreCase("nf")) {
+                found_nf = true;
+                nf_var.add((VariableExpressionNode)expr);
             }
 
             if(temp.equalsIgnoreCase("p")) {
@@ -965,6 +981,10 @@ public class Parser {
         return found_n;
     }
 
+    public boolean foundNF() {
+        return found_nf;
+    }
+
     public boolean foundP() {
         return found_p;
     }
@@ -1074,6 +1094,14 @@ public class Parser {
 
         for(int i = 0; i < n_var_arr.length; i++) {
             n_var_arr[i].setValue(new Complex(value));
+        }
+
+    }
+
+    public void setNFvalue(Complex value) {
+
+        for(int i = 0; i < nf_var_arr.length; i++) {
+            nf_var_arr[i].setValue(new Complex(value));
         }
 
     }

@@ -1,6 +1,7 @@
 package fractalzoomer.core.mpir;
 
 
+import com.sun.jna.Platform;
 import fractalzoomer.core.*;
 import fractalzoomer.core.mpfr.LibMpfr;
 import fractalzoomer.core.mpfr.MpfrBigNum;
@@ -16,6 +17,7 @@ public class MpirBigNum {
     public static long precision = TaskRender.BIGNUM_PRECISION;
     public static int THREADS_THRESHOLD = 3820; // bits of precision
     private static int use_threads = 0;
+    private static int algorithm = 1; //1 is the best
 
     public static final long doublePrec = MpfrBigNum.doublePrec;
     public static final int base = MpfrBigNum.base;
@@ -26,7 +28,7 @@ public class MpirBigNum {
     static {
 
         try {
-            if (!hasError()) {
+            if (!mpirHasError()) {
                 SQRT_TWO = new MpirBigNum(2).sqrt();
                 //Test
                 MpirBigNum a = SQRT_TWO.add(10000);
@@ -35,20 +37,24 @@ public class MpirBigNum {
                 a = SQRT_TWO.divide(10000);
             }
             else {
-                int index = Arrays.asList(TaskRender.mpirWinLibs).indexOf(TaskRender.MPIR_LIB);
-                if(index != -1) {//Try to fallback to another for the next load
-                    TaskRender.MPIR_LIB = TaskRender.mpirWinLibs[(index + 1) % TaskRender.mpirWinLibs.length];
+                if(Platform.isWindows() && Platform.is64Bit()) {
+                    int index = Arrays.asList(TaskRender.mpirWinArchitecture).indexOf(TaskRender.MPIR_WINDOWS_ARCHITECTURE);
+                    if (index != -1) {//Try to fallback to another for the next load
+                        TaskRender.MPIR_WINDOWS_ARCHITECTURE = TaskRender.mpirWinArchitecture[(index + 1) % TaskRender.mpirWinArchitecture.length];
+                    }
                 }
             }
         }
         catch (Error ex) {
             LibMpir.delete();
-            LOAD_ERROR = new Exception(ex.getMessage());
-            System.out.println("Cannot load mpir: " + LOAD_ERROR.getMessage());
+            MPIR_LOAD_ERROR = new Exception(ex.getMessage());
+            System.out.println("Cannot load mpir: " + MPIR_LOAD_ERROR.getMessage());
 
-            int index = Arrays.asList(TaskRender.mpirWinLibs).indexOf(TaskRender.MPIR_LIB);
-            if(index != -1) {//Try to fallback to another for the next load
-                TaskRender.MPIR_LIB = TaskRender.mpirWinLibs[(index + 1) % TaskRender.mpirWinLibs.length];
+            if(Platform.isWindows() && Platform.is64Bit()) {
+                int index = Arrays.asList(TaskRender.mpirWinArchitecture).indexOf(TaskRender.MPIR_WINDOWS_ARCHITECTURE);
+                if (index != -1) {//Try to fallback to another for the next load
+                    TaskRender.MPIR_WINDOWS_ARCHITECTURE = TaskRender.mpirWinArchitecture[(index + 1) % TaskRender.mpirWinArchitecture.length];
+                }
             }
         }
     }
@@ -56,7 +62,7 @@ public class MpirBigNum {
     public static void reinitialize(double digits) {
         precision = (int)(digits * TaskRender.BIGNUM_PRECISION_FACTOR + 0.5);
 
-        if(!hasError()) {
+        if(!mpirHasError()) {
             SQRT_TWO = new MpirBigNum(2).sqrt();
         }
 
@@ -83,7 +89,7 @@ public class MpirBigNum {
 
 
     public static MpirBigNum fromApfloat(Apfloat number) {
-        if(!LibMpfr.hasError()) {
+        if(!LibMpfr.mpfrHasError()) {
             try {
                 return new MpirBigNum(new MpfrBigNum(number));
             }
@@ -97,7 +103,7 @@ public class MpirBigNum {
     }
 
     public static MpirBigNum fromString(String number) {
-        if(!LibMpfr.hasError()) {
+        if(!LibMpfr.mpfrHasError()) {
             try {
                 return new MpirBigNum(new MpfrBigNum(number));
             }
@@ -536,7 +542,7 @@ public class MpirBigNum {
 
     public static void z_sqr_p_c(MpirBigNum re, MpirBigNum im, MpirBigNum temp1, MpirBigNum temp2, MpirBigNum temp3, MpirBigNum cre, MpirBigNum cim) {
 
-        mpir_fz_square_plus_c_simple(re.mpfMemory.peer, im.mpfMemory.peer, temp1.mpfMemory.peer, temp2.mpfMemory.peer, temp3.mpfMemory.peer, cre.mpfMemory.peer, cim.mpfMemory.peer, 1, use_threads);
+        mpir_fz_square_plus_c_simple(re.mpfMemory.peer, im.mpfMemory.peer, temp1.mpfMemory.peer, temp2.mpfMemory.peer, temp3.mpfMemory.peer, cre.mpfMemory.peer, cim.mpfMemory.peer, algorithm, use_threads);
 
     }
 
@@ -554,16 +560,16 @@ public class MpirBigNum {
 
         if(deepZoom) {
             if(isLong4) {
-                mpir_fz_square_plus_c_simple_with_reduction_deep(re.mpfMemory.peer, im.mpfMemory.peer, temp1.mpfMemory.peer, temp2.mpfMemory.peer, temp3.mpfMemory.peer, cre.mpfMemory.peer, cim.mpfMemory.peer, 1, use_threads, mantissaRe, mantissaIm, reExp, imExp);
+                mpir_fz_square_plus_c_simple_with_reduction_deep(re.mpfMemory.peer, im.mpfMemory.peer, temp1.mpfMemory.peer, temp2.mpfMemory.peer, temp3.mpfMemory.peer, cre.mpfMemory.peer, cim.mpfMemory.peer, algorithm, use_threads, mantissaRe, mantissaIm, reExp, imExp);
                 mcz.set(reExp[0], imExp[0], mantissaRe[0], mantissaIm[0]);
             }
             else {
-                mpir_fz_square_plus_c_simple_with_reduction_deep(re.mpfMemory.peer, im.mpfMemory.peer, temp1.mpfMemory.peer, temp2.mpfMemory.peer, temp3.mpfMemory.peer, cre.mpfMemory.peer, cim.mpfMemory.peer, 1, use_threads, mantissaRe, mantissaIm, reExpL, imExpL);
+                mpir_fz_square_plus_c_simple_with_reduction_deep(re.mpfMemory.peer, im.mpfMemory.peer, temp1.mpfMemory.peer, temp2.mpfMemory.peer, temp3.mpfMemory.peer, cre.mpfMemory.peer, cim.mpfMemory.peer, algorithm, use_threads, mantissaRe, mantissaIm, reExpL, imExpL);
                 mcz.set(reExpL[0], imExpL[0], mantissaRe[0], mantissaIm[0]);
             }
         }
         else {
-            mpir_fz_square_plus_c_simple_with_reduction_not_deep(re.mpfMemory.peer, im.mpfMemory.peer, temp1.mpfMemory.peer, temp2.mpfMemory.peer, temp3.mpfMemory.peer, cre.mpfMemory.peer, cim.mpfMemory.peer, 1, use_threads, valRe, valIm);
+            mpir_fz_square_plus_c_simple_with_reduction_not_deep(re.mpfMemory.peer, im.mpfMemory.peer, temp1.mpfMemory.peer, temp2.mpfMemory.peer, temp3.mpfMemory.peer, cre.mpfMemory.peer, cim.mpfMemory.peer, algorithm, use_threads, valRe, valIm);
             cz.assign(valRe[0], valIm[0]);
         }
 
@@ -571,7 +577,7 @@ public class MpirBigNum {
 
     public static void z_sqr_p_c_no_threads(MpirBigNum re, MpirBigNum im, MpirBigNum temp1, MpirBigNum temp2, MpirBigNum temp3, MpirBigNum cre, MpirBigNum cim) {
 
-        mpir_fz_square_plus_c_simple(re.mpfMemory.peer, im.mpfMemory.peer, temp1.mpfMemory.peer, temp2.mpfMemory.peer, temp3.mpfMemory.peer, cre.mpfMemory.peer, cim.mpfMemory.peer, 1, 0);
+        mpir_fz_square_plus_c_simple(re.mpfMemory.peer, im.mpfMemory.peer, temp1.mpfMemory.peer, temp2.mpfMemory.peer, temp3.mpfMemory.peer, cre.mpfMemory.peer, cim.mpfMemory.peer, algorithm, 0);
 
     }
 

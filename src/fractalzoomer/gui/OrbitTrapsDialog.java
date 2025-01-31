@@ -864,6 +864,8 @@ public class OrbitTrapsDialog extends JDialog {
         add(scrollPane);
 
         setVisible(true);
+
+        repaint();
     }
 
     public void toggled() {

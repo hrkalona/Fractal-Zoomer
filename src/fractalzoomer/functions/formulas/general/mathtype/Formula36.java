@@ -107,4 +107,9 @@ public class Formula36 extends Julia {
         complex[0] = (complex[0].cosh().times2_mutable()).sub_mutable(2).plus_mutable(complex[1]);
 
     }
+
+    @Override
+    public boolean hasFiniteBailoutCheck() {
+        return true;
+    }
 }

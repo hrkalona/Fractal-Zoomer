@@ -118,7 +118,7 @@ public class OutColoringPaletteMenu extends MyMenu {
 
     public void updateIcons(Settings s) {
 
-        if(s.gps.useGeneratedPaletteOutColoring) {
+        if(s.gps.useGeneratedPaletteOutColoring || s.gps.blendNormalPaletteWithGeneratedPaletteOutColoring) {
             generated_palette_opt.setIcon(MainWindow.getIcon("palette_enabled.png"));
         }
         else {

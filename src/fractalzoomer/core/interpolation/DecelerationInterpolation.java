@@ -12,7 +12,7 @@ public class DecelerationInterpolation extends InterpolationMethod {
     }
     
     @Override
-    public int interpolate(int r1, int g1, int b1, int r2, int g2, int b2, double coef) {
+    protected int interpolateColorsInternal(int r1, int g1, int b1, int r2, int g2, int b2, double coef) {
 
         coef = getCoefficient(coef);
         

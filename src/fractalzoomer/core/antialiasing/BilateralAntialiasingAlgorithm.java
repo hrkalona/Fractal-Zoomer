@@ -1,5 +1,9 @@
 package fractalzoomer.core.antialiasing;
 
+import fractalzoomer.utils.ColorCorrection;
+
+//Does not work for Anti-Aliasing, time to say good-bye
+@Deprecated
 public class BilateralAntialiasingAlgorithm extends AntialiasingAlgorithm {
     /*
         Huber:  1 / sigma if |x| <= sigma
@@ -153,17 +157,15 @@ public class BilateralAntialiasingAlgorithm extends AntialiasingAlgorithm {
             return 0xff000000;
         }
 
-        int[] result = getAveragedColorChannels(SumA / combined_coefficient_sumA, SumB / combined_coefficient_sumB, SumC / combined_coefficient_sumC, SumA2, SumB2, SumC2);
-        return  0xff000000 | (result[0] << 16) | (result[1] << 8) | result[2];
-    }
-
-    @Override
-    protected double function(double value, double value2) {
         if(avgWithMean) {
-            return (value + value2 * totalSamplesReciprocal) * 0.5;
-        }
-        else {
-            return value;
+            double finalA = (SumA / combined_coefficient_sumA + SumA2 * totalSamplesReciprocal) * 0.5;
+            double finalB = (SumB / combined_coefficient_sumB + SumB2 * totalSamplesReciprocal) * 0.5;
+            double finalC = (SumC / combined_coefficient_sumC + SumC2 * totalSamplesReciprocal) * 0.5;
+            int[] result = getColorChannels(finalA, finalB, finalC);
+            return ColorCorrection.linearToGamma(result[0], result[1], result[2]);
+        } else {
+            int[] result = getColorChannels(SumA / combined_coefficient_sumA, SumB / combined_coefficient_sumB, SumC / combined_coefficient_sumC);
+            return ColorCorrection.linearToGamma(result[0], result[1], result[2]);
         }
     }
 }

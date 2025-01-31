@@ -30,7 +30,6 @@ public class HSBAdjustFilter extends PointFilter {
 		hFactor = r;
 		sFactor = g;
 		bFactor = b;
-		canFilterIndexColorModel = true;
 	}
 
 	public void setHFactor( float hFactor ) {

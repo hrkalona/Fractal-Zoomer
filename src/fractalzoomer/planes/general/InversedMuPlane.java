@@ -5,6 +5,7 @@ package fractalzoomer.planes.general;
 import fractalzoomer.core.*;
 import fractalzoomer.core.mpfr.MpfrBigNum;
 import fractalzoomer.core.mpir.MpirBigNum;
+import fractalzoomer.functions.Fractal;
 import fractalzoomer.planes.Plane;
 
 
@@ -19,15 +20,15 @@ public class InversedMuPlane extends Plane {
     private MpirBigNum tempRep;
     private MpirBigNum tempImp;
 
-    public InversedMuPlane() {
+    public InversedMuPlane(Fractal f) {
 
         super();
 
         if(TaskRender.PERTURBATION_THEORY || TaskRender.HIGH_PRECISION_CALCULATION) {
-            if (TaskRender.allocateMPFR()) {
+            if (NumericLibrary.allocateMPFR(f)) {
                 tempRe = new MpfrBigNum();
                 tempIm = new MpfrBigNum();
-            } else if (TaskRender.allocateMPIR()) {
+            } else if (NumericLibrary.allocateMPIR(f)) {
                 tempRep = new MpirBigNum();
                 tempImp = new MpirBigNum();
             }

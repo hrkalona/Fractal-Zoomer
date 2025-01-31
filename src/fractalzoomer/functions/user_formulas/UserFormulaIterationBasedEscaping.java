@@ -338,4 +338,9 @@ public class UserFormulaIterationBasedEscaping extends Julia {
         }
 
     }
+
+    @Override
+    public boolean hasFiniteBailoutCheck() {
+        return true;
+    }
 }

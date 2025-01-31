@@ -1,6 +1,8 @@
 package fractalzoomer.functions.formulas.m_like_generalization;
 
 import fractalzoomer.core.*;
+import fractalzoomer.core.reference.ReferenceData;
+import fractalzoomer.core.reference.ReferenceDeepData;
 import fractalzoomer.fractal_options.initial_value.InitialValue;
 import fractalzoomer.fractal_options.initial_value.VariableConditionalInitialValue;
 import fractalzoomer.fractal_options.initial_value.VariableInitialValue;
@@ -236,7 +238,7 @@ public class PerpendicularBurningShip extends Julia {
         complex[0] = complex[0].absNegateIm_mutable();
 
         if(complex[0] instanceof MpfrBigNumComplex) {
-            complex[0] = complex[0].square_plus_c_mutable(complex[1], workSpaceData.temp1, workSpaceData.temp2);
+            complex[0] = complex[0].square_plus_c_mutable_no_threads(complex[1], workSpaceData.temp1, workSpaceData.temp2, workSpaceData.temp3);
         }
         else if(complex[0] instanceof MpirBigNumComplex) {
             complex[0] = complex[0].square_plus_c_mutable_no_threads(complex[1], workSpaceData.temp1p, workSpaceData.temp2p, workSpaceData.temp3p);
@@ -267,7 +269,7 @@ public class PerpendicularBurningShip extends Julia {
         z = z.absNegateIm_mutable();
 
         if(z instanceof MpfrBigNumComplex) {
-            z = z.square_plus_c_mutable(c, workSpaceData.temp1, workSpaceData.temp2);
+            z = z.square_plus_c_mutable(c, workSpaceData.temp1, workSpaceData.temp2, workSpaceData.temp3);
         }
         else if(z instanceof MpirBigNumComplex) {
             z = z.square_plus_c_mutable(c, workSpaceData.temp1p, workSpaceData.temp2p, workSpaceData.temp3p);

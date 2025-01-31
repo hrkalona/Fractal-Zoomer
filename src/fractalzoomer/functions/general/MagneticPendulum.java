@@ -201,7 +201,7 @@ public class MagneticPendulum extends FractalWithoutConstant {
         out = getFinalValueOut(out);
 
         if (outTrueColorAlgorithm != null) {
-            setTrueColorOut(complex[0], zold, zold2, iterations, pixel, start, c0, pixel);
+            setTrueColorOut(complex[0], zold, zold2, iterations, pixel, start, c0, pixel, object);
         }
 
         return out;
@@ -211,38 +211,39 @@ public class MagneticPendulum extends FractalWithoutConstant {
     @Override
     protected void OutColoringAlgorithmFactory(int out_coloring_algorithm, boolean smoothing, int converging_smooth_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, double[] plane_transform_center) {
 
+        escape_time_algorithm = new EscapeTimeMagneticPendulum();
         switch (out_coloring_algorithm) {
 
             case MainWindow.ESCAPE_TIME:
-                out_color_algorithm = new EscapeTimeMagneticPendulum();
+                out_color_algorithm = escape_time_algorithm;
                 break;
             case MainWindow.BINARY_DECOMPOSITION:
-                out_color_algorithm = new BinaryDecomposition(new EscapeTimeMagneticPendulum());
+                out_color_algorithm = new BinaryDecomposition(escape_time_algorithm);
                 break;
             case MainWindow.BINARY_DECOMPOSITION2:
-                out_color_algorithm = new BinaryDecomposition2(new EscapeTimeMagneticPendulum());
+                out_color_algorithm = new BinaryDecomposition2(escape_time_algorithm);
                 break;
             case MainWindow.COLOR_DECOMPOSITION:
                 out_color_algorithm = new ColorDecompositionMagneticPendulum(magnets);
                 break;
             case MainWindow.ESCAPE_TIME_COLOR_DECOMPOSITION:
-                out_color_algorithm = new EscapeTimeColorDecompositionMagneticPendulum(magnets, new EscapeTimeMagneticPendulum());
+                out_color_algorithm = new EscapeTimeColorDecompositionMagneticPendulum(magnets, escape_time_algorithm);
                 break;
             case MainWindow.ESCAPE_TIME_ALGORITHM:
-                out_color_algorithm = new EscapeTimeAlgorithm1(3, new EscapeTimeMagneticPendulum());
+                out_color_algorithm = new EscapeTimeAlgorithm1(3, escape_time_algorithm);
                 break;
             case MainWindow.USER_OUTCOLORING_ALGORITHM:
                 if (user_out_coloring_algorithm == 0) {
-                    out_color_algorithm = new UserOutColorAlgorithmRootFindingMethod(outcoloring_formula, getConvergentBailout(), max_iterations, xCenter, yCenter, size, plane_transform_center, globalVars);
+                    out_color_algorithm = new UserOutColorAlgorithmRootFindingMethod(outcoloring_formula, getConvergentBailout(), max_iterations, xCenter, yCenter, size, plane_transform_center, globalVars, escape_time_algorithm);
                 } else {
-                    out_color_algorithm = new UserConditionalOutColorAlgorithmRootFindingMethod(user_outcoloring_conditions, user_outcoloring_condition_formula, 0, max_iterations, xCenter, yCenter, size, plane_transform_center, globalVars);
+                    out_color_algorithm = new UserConditionalOutColorAlgorithmRootFindingMethod(user_outcoloring_conditions, user_outcoloring_condition_formula, 0, max_iterations, xCenter, yCenter, size, plane_transform_center, globalVars, escape_time_algorithm);
                 }
                 break;
             case ESCAPE_TIME_SQUARES:
-                out_color_algorithm = new EscapeTimeSquares(7, new EscapeTimeMagneticPendulum());
+                out_color_algorithm = new EscapeTimeSquares(7, escape_time_algorithm);
                 break;
             case ESCAPE_TIME_SQUARES2:
-                out_color_algorithm = new EscapeTimeSquares2(7, new EscapeTimeMagneticPendulum());
+                out_color_algorithm = new EscapeTimeSquares2(7, escape_time_algorithm);
                 break;
 
         }

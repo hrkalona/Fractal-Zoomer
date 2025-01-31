@@ -107,4 +107,9 @@ public class Cot extends Julia {
         complex[0] = complex[0].cot().plus_mutable(complex[1]);
 
     }
+
+    @Override
+    public boolean hasFiniteBailoutCheck() {
+        return true;
+    }
 }

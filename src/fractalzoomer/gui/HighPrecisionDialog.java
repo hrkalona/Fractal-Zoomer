@@ -1,10 +1,7 @@
 
 package fractalzoomer.gui;
 
-import fractalzoomer.core.BigIntNum;
-import fractalzoomer.core.BigNum;
-import fractalzoomer.core.MyApfloat;
-import fractalzoomer.core.TaskRender;
+import fractalzoomer.core.*;
 import fractalzoomer.core.mpfr.LibMpfr;
 import fractalzoomer.core.mpfr.MpfrBigNum;
 import fractalzoomer.core.mpir.LibMpir;
@@ -79,7 +76,7 @@ public class HighPrecisionDialog extends JDialog {
         bignumPrecision.setText("" + TaskRender.BIGNUM_PRECISION);
 
         JComboBox<String> arbitraryLibs = new JComboBox<>(new String[] {"DoubleDouble (106 bits)", "Built-in", "MPFR", "Apfloat", "Automatic", "MPIR", "Fixed Point BigInteger"});
-        arbitraryLibs.setSelectedIndex(TaskRender.HIGH_PRECISION_IMPLEMENTATION);
+        arbitraryLibs.setSelectedIndex(NumericLibrary.HIGH_PRECISION_IMPLEMENTATION);
         arbitraryLibs.setFocusable(false);
 
         automaticBignumPrecision.addActionListener(e -> bignumPrecision.setEnabled(!automaticBignumPrecision.isSelected() && arbitraryLibs.getSelectedIndex() != Constants.ARBITRARY_DOUBLEDOUBLE && arbitraryLibs.getSelectedIndex() != Constants.ARBITRARY_APFLOAT));
@@ -188,13 +185,13 @@ public class HighPrecisionDialog extends JDialog {
                             TaskRender.GATHER_HIGHPRECISION_STATISTICS = gatherHpStatistics.isSelected();
 
 
-                            TaskRender.HIGH_PRECISION_IMPLEMENTATION = arbitraryLibs.getSelectedIndex();
+                            NumericLibrary.HIGH_PRECISION_IMPLEMENTATION = arbitraryLibs.getSelectedIndex();
 
-                            if(TaskRender.HIGH_PRECISION_CALCULATION  && TaskRender.HIGH_PRECISION_IMPLEMENTATION == Constants.ARBITRARY_MPFR && LibMpfr.hasError()) {
+                            if(TaskRender.HIGH_PRECISION_CALCULATION  && NumericLibrary.HIGH_PRECISION_IMPLEMENTATION == Constants.ARBITRARY_MPFR && LibMpfr.mpfrHasError()) {
                                 JOptionPane.showMessageDialog(ptra, "The MPFR library is not available, and the engine will fallback to an alternative library.", "Warning!", JOptionPane.WARNING_MESSAGE);
                             }
 
-                            if(TaskRender.HIGH_PRECISION_CALCULATION && TaskRender.HIGH_PRECISION_IMPLEMENTATION == Constants.ARBITRARY_MPIR && LibMpir.hasError()) {
+                            if(TaskRender.HIGH_PRECISION_CALCULATION && NumericLibrary.HIGH_PRECISION_IMPLEMENTATION == Constants.ARBITRARY_MPIR && LibMpir.mpirHasError()) {
                                 JOptionPane.showMessageDialog(ptra, "The MPIR library is not available, and the engine will fallback to an alternative library.", "Warning!", JOptionPane.WARNING_MESSAGE);
                             }
 

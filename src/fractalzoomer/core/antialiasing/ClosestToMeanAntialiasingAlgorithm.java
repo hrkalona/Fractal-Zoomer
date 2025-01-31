@@ -1,54 +1,53 @@
 package fractalzoomer.core.antialiasing;
 
+import fractalzoomer.utils.ColorCorrection;
+
 public class ClosestToMeanAntialiasingAlgorithm extends AntialiasingAlgorithm {
 
-    private double redSum;
-    private double greenSum;
-    private double blueSum;
-    private int[] redValues;
-    private int[] greenValues;
-    private int[] blueValues;
+    private double ASum;
+    private double BSum;
+    private double CSum;
+    private double[] AValues;
+    private double[] BValues;
+    private double[] CValues;
     private boolean avgWithMean;
 
-    public ClosestToMeanAntialiasingAlgorithm(int totalSamples, boolean avgWithMean) {
-        super(totalSamples, 0);
-        redSum = 0;
-        greenSum = 0;
-        blueSum = 0;
-        redValues = new int[totalSamples];
-        greenValues = new int[totalSamples];
-        blueValues = new int[totalSamples];
+    public ClosestToMeanAntialiasingAlgorithm(int totalSamples, boolean avgWithMean, int colorSpace) {
+        super(totalSamples, colorSpace);
+        ASum = 0;
+        BSum = 0;
+        CSum = 0;
+        AValues = new double[totalSamples];
+        BValues = new double[totalSamples];
+        CValues = new double[totalSamples];
         this.avgWithMean = avgWithMean;
     }
 
     @Override
     public void initialize(int color) {
-        int red = (color >> 16) & 0xff;
-        int green = (color >> 8) & 0xff;
-        int blue = color & 0xff;
-        redSum = red;
-        greenSum = green;
-        blueSum = blue;
+        double[] result = getColorChannels(color);
+
+        ASum = result[0];
+        BSum = result[1];
+        CSum = result[2];
 
         addedSamples = 0;
-        redValues[addedSamples] = red;
-        greenValues[addedSamples] = green;
-        blueValues[addedSamples] = blue;
+        AValues[addedSamples] = result[0];
+        BValues[addedSamples] = result[1];
+        CValues[addedSamples] = result[2];
         addedSamples = 1;
     }
 
     @Override
     public boolean addSample(int color) {
-        int red = (color >> 16) & 0xff;
-        int green = (color >> 8) & 0xff;
-        int blue = color & 0xff;
-        redSum += red;
-        greenSum += green;
-        blueSum += blue;
+        double[] result = getColorChannels(color);
+        ASum += result[0];
+        BSum += result[1];
+        CSum += result[2];
 
-        redValues[addedSamples] = red;
-        greenValues[addedSamples] = green;
-        blueValues[addedSamples] = blue;
+        AValues[addedSamples] = result[0];
+        BValues[addedSamples] = result[1];
+        CValues[addedSamples] = result[2];
         addedSamples++;
         return true;
     }
@@ -58,45 +57,47 @@ public class ClosestToMeanAntialiasingAlgorithm extends AntialiasingAlgorithm {
             return 0xff000000;
         }
 
-        double avgRed = redSum * totalSamplesReciprocal;
-        double avgGreen = greenSum * totalSamplesReciprocal;
-        double avgBlue = blueSum * totalSamplesReciprocal;
+        double avgA = ASum * totalSamplesReciprocal;
+        double avgB = BSum * totalSamplesReciprocal;
+        double avgC = CSum * totalSamplesReciprocal;
 
-        int minDistanceIndexRed = 0;
-        int minDistanceIndexGreen = 0;
-        int minDistanceIndexBlue = 0;
+        int minDistanceIndexA = 0;
+        int minDistanceIndexB = 0;
+        int minDistanceIndexC = 0;
 
-        double minDistanceRed = Double.MAX_VALUE;
-        double minDistanceGreen = Double.MAX_VALUE;
-        double minDistanceBlue = Double.MAX_VALUE;
+        double minDistanceA = Double.MAX_VALUE;
+        double minDistanceB = Double.MAX_VALUE;
+        double minDistanceC = Double.MAX_VALUE;
 
-        for(int i = 0; i < redValues.length; i++) {
-            double redDist = Math.abs(avgRed - redValues[i]);
-            double greenDist = Math.abs(avgGreen - greenValues[i]);
-            double blueDist = Math.abs(avgBlue - blueValues[i]);
-            if(redDist < minDistanceRed) {
-                minDistanceRed = redDist;
-                minDistanceIndexRed = i;
+        for(int i = 0; i < AValues.length; i++) {
+            double ADist = Math.abs(avgA - AValues[i]);
+            double BDist = Math.abs(avgB - BValues[i]);
+            double CDist = Math.abs(avgC - CValues[i]);
+            if(ADist < minDistanceA) {
+                minDistanceA = ADist;
+                minDistanceIndexA = i;
             }
-            if(greenDist < minDistanceGreen) {
-                minDistanceGreen = greenDist;
-                minDistanceIndexGreen = i;
+            if(BDist < minDistanceB) {
+                minDistanceB = BDist;
+                minDistanceIndexB = i;
             }
-            if(blueDist < minDistanceBlue) {
-                minDistanceBlue = blueDist;
-                minDistanceIndexBlue = i;
+            if(CDist < minDistanceC) {
+                minDistanceC = CDist;
+                minDistanceIndexC = i;
             }
         }
 
         if(avgWithMean) {
-            double redRes = ((redSum * totalSamplesReciprocal) + redValues[minDistanceIndexRed]) * 0.5 + 0.5;
-            double greenRes = ((greenSum * totalSamplesReciprocal) + greenValues[minDistanceIndexGreen]) * 0.5 + 0.5;
-            double blueRes = ((blueSum * totalSamplesReciprocal) + blueValues[minDistanceIndexBlue]) * 0.5 + 0.5;
+            double finalA = ((ASum * totalSamplesReciprocal) + AValues[minDistanceIndexA]) * 0.5 + 0.5;
+            double finalB = ((BSum * totalSamplesReciprocal) + BValues[minDistanceIndexB]) * 0.5 + 0.5;
+            double finalC = ((CSum * totalSamplesReciprocal) + CValues[minDistanceIndexC]) * 0.5 + 0.5;
 
-            return 0xff000000 | ((int)redRes) << 16 | ((int)greenRes) << 8 | ((int)blueRes);
+            int[] result = getColorChannels(finalA, finalB, finalC);
+            return ColorCorrection.linearToGamma(result[0], result[1], result[2]);
         }
         else {
-            return 0xff000000 | (redValues[minDistanceIndexRed] << 16) | (greenValues[minDistanceIndexGreen] << 8) | (blueValues[minDistanceIndexBlue]);
+            int[] result = getColorChannels(AValues[minDistanceIndexA], BValues[minDistanceIndexB], CValues[minDistanceIndexC]);
+            return ColorCorrection.linearToGamma(result[0], result[1], result[2]);
         }
     }
 }

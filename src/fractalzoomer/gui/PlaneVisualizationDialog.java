@@ -1,6 +1,7 @@
 
 package fractalzoomer.gui;
 
+import fractalzoomer.core.NumericLibrary;
 import fractalzoomer.core.PlaneVisualizer;
 import fractalzoomer.core.TaskRender;
 import fractalzoomer.main.MainWindow;
@@ -85,7 +86,7 @@ public class PlaneVisualizationDialog extends JDialog {
         catch(ParserException e) {
             JOptionPane.showMessageDialog(thiss, e.getMessage() + "\nThe application will terminate.", "Error!", JOptionPane.ERROR_MESSAGE);
             ptra2.savePreferences();
-            TaskRender.deleteLibs();
+            NumericLibrary.deleteLibs();
             TaskRender.shutdownThreadPools();
             System.exit(-1);
         }
@@ -101,7 +102,7 @@ public class PlaneVisualizationDialog extends JDialog {
             catch(ParserException ex) {
                 JOptionPane.showMessageDialog(thiss, ex.getMessage() + "\nThe application will terminate.", "Error!", JOptionPane.ERROR_MESSAGE);
                 ptra2.savePreferences();
-                TaskRender.deleteLibs();
+                NumericLibrary.deleteLibs();
                 TaskRender.shutdownThreadPools();
                 System.exit(-1);
             }
@@ -117,7 +118,7 @@ public class PlaneVisualizationDialog extends JDialog {
             catch(ParserException ex) {
                 JOptionPane.showMessageDialog(thiss, ex.getMessage() + "\nThe application will terminate.", "Error!", JOptionPane.ERROR_MESSAGE);
                 ptra2.savePreferences();
-                TaskRender.deleteLibs();
+                NumericLibrary.deleteLibs();
                 TaskRender.shutdownThreadPools();
                 System.exit(-1);
             }
@@ -221,6 +222,8 @@ public class PlaneVisualizationDialog extends JDialog {
         requestFocus();
 
         setVisible(true);
+
+        repaint();
     }
 
 }

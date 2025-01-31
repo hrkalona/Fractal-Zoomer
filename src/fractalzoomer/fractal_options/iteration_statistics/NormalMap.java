@@ -1,11 +1,11 @@
 package fractalzoomer.fractal_options.iteration_statistics;
 
 import fractalzoomer.core.*;
-import fractalzoomer.core.bla.BLA;
-import fractalzoomer.core.bla.BLADeep;
-import fractalzoomer.core.la.LAstep;
-import fractalzoomer.core.mipla.MipLADeepStep;
-import fractalzoomer.core.mipla.MipLAStep;
+import fractalzoomer.core.approximation.mip_la_claude.BLA;
+import fractalzoomer.core.approximation.mip_la_claude.BLADeep;
+import fractalzoomer.core.approximation.la_zhuoran.LAstep;
+import fractalzoomer.core.approximation.mip_la_zhuoran.MipLADeepStep;
+import fractalzoomer.core.approximation.mip_la_zhuoran.MipLAStep;
 import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.utils.ColorAlgorithm;
@@ -687,6 +687,7 @@ public class NormalMap extends GenericStatistic {
                 double norm_z = z_val_deep.norm().toDouble();
                 MantExpComplex u = z_val_deep.divide(derivative_m);
                 MantExpComplex temp = u.times(Math.log(norm_z)).times(MantExp.TWO);
+                temp.Normalize();
                 return ((1 + temp.toComplex().arg() / (2 * Math.PI)) % 1.0);//Todo: Bug here
 
             }
@@ -700,7 +701,7 @@ public class NormalMap extends GenericStatistic {
             }
 
         }
-        else if(normalMapColoring == 2 || normalMapColoring == 3){
+        else if(normalMapColoring == 2 || normalMapColoring == 3) {
             //double norm_z = z_val.norm();
             //Complex temp = z_val.times(Math.log(norm_z)).times2().divide(derivative);
             //return 1 / Math.tanh(temp.norm());
@@ -709,7 +710,9 @@ public class NormalMap extends GenericStatistic {
                 double temp2 = z_val_deep.norm().toDouble();
                 double temp3 = Math.log(temp2);
                 MantExp temp4 = new MantExp(temp2).divide(derivative_m.norm());
-                double temp = -4.0 * new MantExp(temp3 * normalMapDistanceEstimatorfactor).multiply(temp4).multiply_mutable(MantExp.TWO).log();
+                MantExp res = new MantExp(temp3 * normalMapDistanceEstimatorfactor).multiply(temp4).multiply_mutable(MantExp.TWO);
+                res.Normalize();
+                double temp = -4.0 * res.log();
 
                 return temp < 0 ? 0 : temp;
             }
@@ -720,6 +723,26 @@ public class NormalMap extends GenericStatistic {
                 double temp = -4.0 * Math.log(2 * temp3 * temp4 * normalMapDistanceEstimatorfactor);
 
                 return temp < 0 ? 0 : temp;
+            }
+
+        }
+        else if(normalMapColoring == 4 || normalMapColoring == 5) {
+            if(supportsDeepCalculations()) {
+                MantExp FinalMagDzdc = derivative_m.norm();
+                MantExp FinalMagnitude = z_val_deep.norm();
+                double LogMagnitude = FinalMagnitude.log();
+                MantExp InvDE = (FinalMagDzdc.multiply2()).divide(FinalMagnitude.multiply(LogMagnitude)).add(MantExp.ONE);
+                InvDE.Normalize();
+                double LogInvDE = InvDE.log();
+                return LogInvDE * 8 * normalMapDistanceEstimatorfactor;
+            }
+            else {
+                double FinalMagDzdc = derivative.norm();
+                double FinalMagnitude = z_val.norm();
+                double LogMagnitude = Math.log(FinalMagnitude);
+                double InvDE = (FinalMagDzdc + FinalMagDzdc) / (FinalMagnitude * LogMagnitude);
+                double LogInvDE = Math.log(InvDE + 1);
+                return LogInvDE * 8 * normalMapDistanceEstimatorfactor;
             }
 
         }
@@ -737,6 +760,7 @@ public class NormalMap extends GenericStatistic {
 
             MantExp d = new MantExp(temp2).multiply(new MantExp(temp3)).divide_mutable(derivative_m.norm());
             MantExp t_m = d.divide(DELimit_m);
+            t_m.Normalize();
             t = t_m.toDouble();
         }
         else {
@@ -829,7 +853,7 @@ public class NormalMap extends GenericStatistic {
 
     @Override
     public boolean isAdditive() {
-        if(normalMapOverrideColoring && normalMapColoring == 2) {
+        if(normalMapOverrideColoring && (normalMapColoring == 2 || normalMapColoring == 4)) {
             return false;
         }
         return true;

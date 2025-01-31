@@ -22,7 +22,7 @@ package fractalzoomer.filters_utils.image;
 public class GrayFilter extends PointFilter {
 
 	public GrayFilter() {
-		canFilterIndexColorModel = true;
+
 	}
 
         @Override

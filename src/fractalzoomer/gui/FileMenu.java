@@ -21,6 +21,7 @@ public class FileMenu extends MyMenu {
     private JMenuItem save_settings;
     private JMenuItem load_settings;
     private JMenuItem load_kfr_settings;
+    private JMenuItem save_kfr_settings;
     private JMenuItem save_settings_image;
     private JMenuItem code_editor;
     private JMenuItem library_code;
@@ -60,7 +61,8 @@ public class FileMenu extends MyMenu {
         
         default_opt = new MyMenuItem("Default Settings", MainWindow.getIcon("default.png"));
 
-        save_settings = new MyMenuItem("Save Settings As...", MainWindow.getIcon("save.png"));
+        save_settings = new MyMenuItem("Save Settings", MainWindow.getIcon("save.png"));
+        save_kfr_settings = new MyMenuItem("Save KFR Settings", MainWindow.getIcon("save.png"));
 
         load_settings = new MyMenuItem("Load Settings", MainWindow.getIcon("load.png"));
         load_kfr_settings = new MyMenuItem("Load KFR Settings", MainWindow.getIcon("load.png"));
@@ -87,6 +89,7 @@ public class FileMenu extends MyMenu {
         left.setToolTipText("Moves one screen left.");
         right.setToolTipText("Moves one screen right.");
         save_settings.setToolTipText("Saves the active settings.");
+        save_kfr_settings.setToolTipText("Saves some basic settings into Kalles Fraktaler format.");
         load_settings.setToolTipText("Load settings created by Fractal Zoomer.");
         load_kfr_settings.setToolTipText("Loads settings created by Kalles Fraktaler.");
         save_image.setToolTipText("Saves an image.");
@@ -99,7 +102,7 @@ public class FileMenu extends MyMenu {
         repaint_opt.setToolTipText("Repaints the image, using the current active settings.");
         save_initial_settings_opt.setToolTipText("Creates a save file, called autoload.fzs, that will be always loaded at start-up.");
         cancel_operation.setToolTipText("Cancels the current rendering operation and resets.");
-        
+
         starting_position.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F2, ActionEvent.CTRL_MASK));
         go_to.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F3, ActionEvent.CTRL_MASK));
         zoom_in.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, 0));
@@ -132,9 +135,10 @@ public class FileMenu extends MyMenu {
         go_to.addActionListener(e -> ptr.goTo());
 
         save_settings.addActionListener(e -> ptr.saveSettings());
+        save_kfr_settings.addActionListener(e -> ptr.saveBasicKFRSettings());
 
         load_settings.addActionListener(e -> ptr.loadSettings());
-        load_kfr_settings.addActionListener(e -> ptr.loadKFRSettings());
+        load_kfr_settings.addActionListener(e -> ptr.loadKFRSettings(false));
 
         save_image.addActionListener(e -> ptr.saveImage(false));
         
@@ -176,6 +180,7 @@ public class FileMenu extends MyMenu {
         addSeparator();
         add(save_settings);
         add(load_settings);
+        add(save_kfr_settings);
         add(load_kfr_settings);
         add(default_opt);
         add(save_initial_settings_opt);
@@ -311,6 +316,10 @@ public class FileMenu extends MyMenu {
         
         return save_initial_settings_opt;
         
+    }
+
+    public JMenuItem getSaveKfrSettings() {
+        return save_kfr_settings;
     }
     
 }

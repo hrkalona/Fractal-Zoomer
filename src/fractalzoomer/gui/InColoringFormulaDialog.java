@@ -144,8 +144,8 @@ public class InColoringFormulaDialog extends JDialog {
                             if (tabbedPane.getSelectedIndex() == 0) {
                                 s.parser.parse(field_formula.getText());
 
-                                if(s.parser.foundR()|| s.parser.foundStat() || s.parser.foundTrap()) {
-                                    JOptionPane.showMessageDialog(ptra, "The variables: r, stat, trap cannot be used in the in formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                if(s.parser.foundNF() || s.parser.foundR()|| s.parser.foundStat() || s.parser.foundTrap()) {
+                                    JOptionPane.showMessageDialog(ptra, "The variables: nf, r, stat, trap cannot be used in the in formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                                     return;
                                 }
 
@@ -161,8 +161,8 @@ public class InColoringFormulaDialog extends JDialog {
                             } else {
                                 s.parser.parse(field_condition.getText());
 
-                                if(s.parser.foundR()|| s.parser.foundStat() || s.parser.foundTrap()) {
-                                    JOptionPane.showMessageDialog(ptra, "The variables: r, stat, trap cannot be used in the left condition formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                if(s.parser.foundNF() || s.parser.foundR()|| s.parser.foundStat() || s.parser.foundTrap()) {
+                                    JOptionPane.showMessageDialog(ptra, "The variables: nf, r, stat, trap cannot be used in the left condition formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                                     return;
                                 }
 
@@ -178,8 +178,8 @@ public class InColoringFormulaDialog extends JDialog {
 
                                 s.parser.parse(field_condition2.getText());
 
-                                if(s.parser.foundR()|| s.parser.foundStat() || s.parser.foundTrap()) {
-                                    JOptionPane.showMessageDialog(ptra, "The variables: r, stat, trap cannot be used in the right condition formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                if(s.parser.foundNF() || s.parser.foundR()|| s.parser.foundStat() || s.parser.foundTrap()) {
+                                    JOptionPane.showMessageDialog(ptra, "The variables: nf, r, stat, trap cannot be used in the right condition formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                                     return;
                                 }
 
@@ -195,8 +195,8 @@ public class InColoringFormulaDialog extends JDialog {
 
                                 s.parser.parse(field_formula_cond1.getText());
 
-                                if(s.parser.foundR()|| s.parser.foundStat() || s.parser.foundTrap()) {
-                                    JOptionPane.showMessageDialog(ptra, "The variables: r, stat, trap cannot be used in the left > right in formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                if(s.parser.foundNF() || s.parser.foundR()|| s.parser.foundStat() || s.parser.foundTrap()) {
+                                    JOptionPane.showMessageDialog(ptra, "The variables: nf, r, stat, trap cannot be used in the left > right in formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                                     return;
                                 }
 
@@ -212,8 +212,8 @@ public class InColoringFormulaDialog extends JDialog {
 
                                 s.parser.parse(field_formula_cond2.getText());
 
-                                if(s.parser.foundR()|| s.parser.foundStat() || s.parser.foundTrap()) {
-                                    JOptionPane.showMessageDialog(ptra, "The variables: r, stat, trap cannot be used in the left < right in formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                if(s.parser.foundNF() || s.parser.foundR()|| s.parser.foundStat() || s.parser.foundTrap()) {
+                                    JOptionPane.showMessageDialog(ptra, "The variables: nf, r, stat, trap cannot be used in the left < right in formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                                     return;
                                 }
 
@@ -229,8 +229,8 @@ public class InColoringFormulaDialog extends JDialog {
 
                                 s.parser.parse(field_formula_cond3.getText());
 
-                                if(s.parser.foundR()|| s.parser.foundStat() || s.parser.foundTrap()) {
-                                    JOptionPane.showMessageDialog(ptra, "The variables: r, stat, trap cannot be used in the left = right in formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                if(s.parser.foundNF() || s.parser.foundR()|| s.parser.foundStat() || s.parser.foundTrap()) {
+                                    JOptionPane.showMessageDialog(ptra, "The variables: nf, r, stat, trap cannot be used in the left = right in formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                                     return;
                                 }
 

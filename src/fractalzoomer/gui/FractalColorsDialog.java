@@ -313,6 +313,8 @@ public class FractalColorsDialog extends JDialog {
         add(scrollPane);
 
         setVisible(true);
+
+        repaint();
     }
     
 }

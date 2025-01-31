@@ -98,13 +98,24 @@ public class CenterSizeDialog extends JDialog {
         magnification.setFocusable(false);
         magnification.setIcon(MainWindow.getIcon("magnification.png"));
 
-        JPanel cornersPanel = new JPanel();
-        cornersPanel.add(corners);
-        cornersPanel.add(magnification);
+        JButton kfrLocation = new MyButton("Load KFR Location");
+        kfrLocation.setToolTipText("Loads the location directly from a Kalles Fraktaler file.");
+        kfrLocation.setFocusable(false);
+        kfrLocation.setIcon(MainWindow.getIcon("location.png"));
+
+        JPanel actions = new JPanel();
+        actions.add(corners);
+        actions.add(magnification);
+        actions.add(kfrLocation);
 
         corners.addActionListener(e -> new CornersDialog(ptr, s, field_real, field_imaginary, field_size, image_width, image_height));
 
         magnification.addActionListener(e -> new MagnificationDialog(ptr, s, field_size));
+
+        kfrLocation.addActionListener(e -> {
+            dispose();
+            ptra.loadKFRSettings(true);
+        });
 
         SwingUtilities.invokeLater(() -> {
             scrollSize.getVerticalScrollBar().setValue(0);
@@ -121,7 +132,7 @@ public class CenterSizeDialog extends JDialog {
             "Imaginary:", scrollImaginary,
             "Size:", scrollSize,
             " ",
-            cornersPanel,
+                actions,
             " "};
 
         optionPane = new JOptionPane(message, JOptionPane.QUESTION_MESSAGE, JOptionPane.OK_CANCEL_OPTION, null, null, null);

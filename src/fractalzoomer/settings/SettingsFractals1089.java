@@ -150,7 +150,7 @@ public class SettingsFractals1089 extends SettingsFractals1088 implements Serial
         checkerNormValue = s.pps.sts.checkerNormValue;
 
         aaSigmaR = s.fs.aaSigmaR;
-        aaSigmaS = s.fs.aaSigmaS;
+        aaSigmaS = 0; //Unused
         bluringSigmaR = s.fs.bluringSigmaR;
         bluringSigmaS = s.fs.bluringSigmaS;
         blurringKernelSelection = s.fs.blurringKernelSelection;

@@ -712,8 +712,8 @@ public class StatisticsColoringDialog extends JDialog {
         panel87.add(inverDe);
 
         panel81.add(panel86);
-        panel81.add(panel88);
         panel81.add(panel87);
+        panel81.add(panel88);
 
         JPanel panel84 = new JPanel();
         panel84.setBackground(MainWindow.bg_color);
@@ -750,19 +750,19 @@ public class StatisticsColoringDialog extends JDialog {
         panel89.setBackground(MainWindow.bg_color);
         panel89.add(combineNormalMap);
 
-        demFactor.setEnabled(sts.normalMapOverrideColoring && (normal_map_color_method_combo.getSelectedIndex() == 2 || normal_map_color_method_combo.getSelectedIndex() == 3));
+        demFactor.setEnabled(sts.normalMapOverrideColoring && (normal_map_color_method_combo.getSelectedIndex() == 2 || normal_map_color_method_combo.getSelectedIndex() == 3 || normal_map_color_method_combo.getSelectedIndex() == 4 || normal_map_color_method_combo.getSelectedIndex() == 5));
 
         normal_map_color_method_combo.setEnabled(sts.normalMapOverrideColoring);
 
 
-        normal_map_color_method_combo.addActionListener(e -> demFactor.setEnabled(sts.normalMapOverrideColoring && (normal_map_color_method_combo.getSelectedIndex() == 2 || normal_map_color_method_combo.getSelectedIndex() == 3)));
+        normal_map_color_method_combo.addActionListener(e -> demFactor.setEnabled(sts.normalMapOverrideColoring && (normal_map_color_method_combo.getSelectedIndex() == 2 || normal_map_color_method_combo.getSelectedIndex() == 3 || normal_map_color_method_combo.getSelectedIndex() == 4 || normal_map_color_method_combo.getSelectedIndex() == 5)));
 
         normalMapOverrideColoring.addActionListener(e -> {
             normal_map_color_method_combo.setEnabled(normalMapOverrideColoring.isSelected());
             nmLightFactor.setEnabled(normalMapOverrideColoring.isSelected() && normalMap.isSelected());
             color_method_combo.setEnabled(normalMapOverrideColoring.isSelected() && normalMap.isSelected());
             color_blend_opt.setEnabled(normalMapOverrideColoring.isSelected() && normalMap.isSelected() && color_method_combo.getSelectedIndex() == 3);
-            demFactor.setEnabled(sts.normalMapOverrideColoring && (normal_map_color_method_combo.getSelectedIndex() == 2 || normal_map_color_method_combo.getSelectedIndex() == 3));
+            demFactor.setEnabled(sts.normalMapOverrideColoring && (normal_map_color_method_combo.getSelectedIndex() == 2 || normal_map_color_method_combo.getSelectedIndex() == 3 || normal_map_color_method_combo.getSelectedIndex() == 4 || normal_map_color_method_combo.getSelectedIndex() == 5));
         });
 
         panel8.add(panel84);
@@ -866,7 +866,7 @@ public class StatisticsColoringDialog extends JDialog {
         rootSmoothing = new JCheckBox("Contour Smoothing");
         rootSmoothing.setToolTipText("Enables the contour smoothing.");
         rootSmoothing.setBackground(MainWindow.bg_color);
-        rootSmoothing.setSelected(sts.rootSmooting);
+        rootSmoothing.setSelected(sts.rootSmoothing);
         rootSmoothing.setFocusable(false);
 
 
@@ -1625,8 +1625,8 @@ public class StatisticsColoringDialog extends JDialog {
                 return;
             }
 
-            if (temp10 < 1) {
-                JOptionPane.showMessageDialog(this_frame, "The normal map height factor must be greater or equal to 1.", "Error!", JOptionPane.ERROR_MESSAGE);
+            if (temp10 < 0) {
+                JOptionPane.showMessageDialog(this_frame, "The normal map height factor must be greater or equal to 0.", "Error!", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
@@ -1650,8 +1650,8 @@ public class StatisticsColoringDialog extends JDialog {
             try {
                 s.parser.parse(field_formula.getText());
 
-                if(s.parser.foundR() || s.parser.foundTrap()) {
-                    JOptionPane.showMessageDialog(ptra, "The variables: r, trap cannot be used in the value formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                if(s.parser.foundNF() || s.parser.foundR() || s.parser.foundTrap()) {
+                    JOptionPane.showMessageDialog(ptra, "The variables: nf, r, trap cannot be used in the value formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
 
@@ -1668,8 +1668,8 @@ public class StatisticsColoringDialog extends JDialog {
 
                 s.parser.parse(field_formula_init.getText());
 
-                if (s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundC0() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
-                    JOptionPane.showMessageDialog(ptra, "The variables: z, n, s, c0, p, pp, bail, cbail, r, stat, trap cannot be used in the value(0) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                if (s.parser.foundNF() || s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundC0() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                    JOptionPane.showMessageDialog(ptra, "The variables: z, n, s, c0, p, pp, nf, bail, cbail, r, stat, trap cannot be used in the value(0) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
             }
@@ -1731,7 +1731,7 @@ public class StatisticsColoringDialog extends JDialog {
             sts.rootShadingFunction = root_shading_function_combo.getSelectedIndex();
             sts.highlightRoots = hightlight.isSelected();
             sts.rootColors = tempColors;
-            sts.rootSmooting = rootSmoothing.isSelected();
+            sts.rootSmoothing = rootSmoothing.isSelected();
             sts.unmmapedRootColor = unmmapped_root_label.getBackground();
             sts.rootShadingColor = root_shading_color_label.getBackground();
             sts.rootScalingCapto1 = root_Scale_cap.isSelected();
@@ -1862,6 +1862,8 @@ public class StatisticsColoringDialog extends JDialog {
         add(scrollPane);
 
         setVisible(true);
+
+        repaint();
     }
 
     public void toggled(boolean toggled) {

@@ -338,4 +338,9 @@ public class UserFormulaIterationBasedEscapingOrConverging extends EscapingOrCon
         }
 
     }
+
+    @Override
+    public boolean hasFiniteBailoutCheck() {
+        return true;
+    }
 }

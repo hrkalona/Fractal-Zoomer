@@ -2,6 +2,10 @@ package fractalzoomer.functions.general;
 
 import fractalzoomer.core.*;
 import fractalzoomer.core.location.Location;
+import fractalzoomer.core.reference.DoubleReference;
+import fractalzoomer.core.reference.ReferenceCompressor;
+import fractalzoomer.core.reference.ReferenceData;
+import fractalzoomer.core.reference.ReferenceDeepData;
 import fractalzoomer.fractal_options.initial_value.DefaultInitialValueWithFactor;
 import fractalzoomer.fractal_options.initial_value.InitialValue;
 import fractalzoomer.fractal_options.initial_value.VariableConditionalInitialValue;
@@ -287,7 +291,7 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
             }
         }
 
-        int bigNumLib = TaskRender.getBignumImplementation(size, this);
+        int bigNumLib = NumericLibrary.getBignumImplementation(size, this);
 
         GenericComplex z, c, zold, zold2, start, c0, initVal, pixel;
 
@@ -737,7 +741,7 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
 
         GenericComplex z, c, zold, zold2, start, c0, pixel, initVal;
 
-        int bigNumLib = TaskRender.getBignumImplementation(size, this);
+        int bigNumLib = NumericLibrary.getBignumImplementation(size, this);
 
         if (bigNumLib == Constants.BIGNUM_MPFR) {
             MpfrBigNumComplex bn = new MpfrBigNumComplex(inputPixel.toMpfrBigNumComplex());
@@ -1320,7 +1324,7 @@ public class NewtonThirdDegreeParameterSpace extends ExtendedConvergentType {
 
         GenericComplex[] complex = new GenericComplex[2];
 
-        int lib = TaskRender.getHighPrecisionImplementation(dsize, this);
+        int lib = NumericLibrary.getHighPrecisionImplementation(dsize, this);
 
         if(lib == ARBITRARY_MPFR) {
 

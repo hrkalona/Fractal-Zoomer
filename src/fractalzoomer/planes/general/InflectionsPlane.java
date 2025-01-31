@@ -1,6 +1,7 @@
 package fractalzoomer.planes.general;
 
 import fractalzoomer.core.*;
+import fractalzoomer.functions.Fractal;
 import fractalzoomer.planes.Plane;
 
 import java.util.ArrayList;
@@ -17,7 +18,7 @@ public class InflectionsPlane extends Plane {
     private MpirBigNumComplex[] mpirbninflections;
     private double power;
 
-    public InflectionsPlane(ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionPower) {
+    public InflectionsPlane(ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionPower, Fractal f) {
         super();
         power = inflectionPower;
         inflections = new Complex[inflections_re.size()];
@@ -31,9 +32,9 @@ public class InflectionsPlane extends Plane {
             bninflections = new BigNumComplex[inflections.length];
             bniinflections = new BigIntNumComplex[inflections.length];
 
-            if (TaskRender.allocateMPFR()) {
+            if (NumericLibrary.allocateMPFR(f)) {
                 mpfrbninflections = new MpfrBigNumComplex[inflections.length];
-            } else if (TaskRender.allocateMPIR()) {
+            } else if (NumericLibrary.allocateMPIR(f)) {
                 mpirbninflections = new MpirBigNumComplex[inflections.length];
             }
 
@@ -43,9 +44,9 @@ public class InflectionsPlane extends Plane {
                 bninflections[i] = new BigNumComplex(inflections[i]);
                 bniinflections[i] = new BigIntNumComplex(inflections[i]);
 
-                if (TaskRender.allocateMPFR()) {
+                if (NumericLibrary.allocateMPFR(f)) {
                     mpfrbninflections[i] = new MpfrBigNumComplex(inflections[i]);
-                } else if (TaskRender.allocateMPIR()) {
+                } else if (NumericLibrary.allocateMPIR(f)) {
                     mpirbninflections[i] = new MpirBigNumComplex(inflections[i]);
                 }
             }
