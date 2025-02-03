@@ -3,7 +3,7 @@
 package fractalzoomer.fractal_options.perturbation;
 
 import fractalzoomer.core.Complex;
-import fractalzoomer.core.MantExpComplex;
+import fractalzoomer.core.numerics.MantExpComplex;
 import fractalzoomer.fractal_options.PlanePointOption;
 
 

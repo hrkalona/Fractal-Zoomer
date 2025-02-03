@@ -1,9 +1,9 @@
 package fractalzoomer.core.location.normal;
 
-import fractalzoomer.core.GenericComplex;
-import fractalzoomer.core.MpfrBigNumComplex;
 import fractalzoomer.core.location.Location;
-import fractalzoomer.core.mpfr.MpfrBigNum;
+import fractalzoomer.core.numerics.GenericComplex;
+import fractalzoomer.core.numerics.MpfrBigNumComplex;
+import fractalzoomer.core.numerics.mpfr.MpfrBigNum;
 import fractalzoomer.fractal_options.Rotation;
 import fractalzoomer.functions.Fractal;
 import fractalzoomer.main.app_settings.JitterSettings;
@@ -14,19 +14,22 @@ public class PolarLocationNormalMpfrBigNumArbitrary extends Location {
 
     protected MpfrBigNum ddxcenter;
     protected MpfrBigNum ddycenter;
+    protected MpfrBigNum ddsize;
 
-    private MpfrBigNum[] ddantialiasing_x;
+    private double[] antialiasing_x;
 
-    private MpfrBigNum ddmuly;
+    private double muly;
+    protected double mulx;
     protected MpfrBigNum ddmulx;
-    private MpfrBigNum ddstartx;
-    private MpfrBigNum ddstarty;
-    protected MpfrBigNum ddcenter;
-    private MpfrBigNum[] ddantialiasing_y_sin;
-    private MpfrBigNum[] ddantialiasing_y_cos;
+    private MpfrBigNum expddstartx;
+    private double starty;
+    private double[] antialiasing_y_sin;
+    private double[] antialiasing_y_cos;
 
 
     //Dont copy those
+    private double temp_sf;
+    private double temp_cf;
     private MpfrBigNum temp_ddsf;
     private MpfrBigNum temp_ddcf;
     private MpfrBigNum temp_ddr;
@@ -34,14 +37,13 @@ public class PolarLocationNormalMpfrBigNumArbitrary extends Location {
     private MpfrBigNum ddemulx;
     private MpfrBigNum ddInvemulx;
 
-    private MpfrBigNum ddcosmuly;
-    private MpfrBigNum ddsinmuly;
+    private double cosmuly;
+    private double sinmuly;
 
     private MpfrBigNum tempResult;
     private MpfrBigNum tempResult2;
 
     private MpfrBigNum tempResult3;
-    private MpfrBigNum tempResult4;
 
     private MpfrBigNum tempResultX;
     private MpfrBigNum tempResultY;
@@ -65,43 +67,36 @@ public class PolarLocationNormalMpfrBigNumArbitrary extends Location {
 
         ddxcenter = new MpfrBigNum(xCenter);
         ddycenter = new MpfrBigNum(yCenter);
-
-        ddcenter = new MpfrBigNum(size);
-        ddcenter.log(ddcenter);
+        ddsize = new MpfrBigNum(size);
 
         double coefx = width == image_size ? 0.5 : (1 + (width - (double)height) / height) * 0.5;
         double coefy = height == image_size ? 0.5 : (1 + (height - (double)width) / width) * 0.5;
 
-        ddmuly = MpfrBigNum.PI.mult(2.0 * circle_period);
-        ddmuly.divide(image_size, ddmuly);
+        muly = (2 * circle_period * Math.PI) / image_size;
 
+        mulx = muly * height_ratio;
 
-        ddmulx = ddmuly.mult(height_ratio);
+        ddmulx = new MpfrBigNum(mulx);
 
-        ddstartx = ddmulx.mult(image_size);
-        ddstartx.mult(coefx, ddstartx);
+        expddstartx = ddsize.mult(Math.exp(-mulx * image_size * coefx));
 
-        ddcenter.sub(ddstartx, ddstartx);
-
-        ddstarty = ddmuly.mult(image_size);
-        ddstarty.mult(0.5 - coefy, ddstarty);
+        starty = muly * image_size * (0.5 - coefy);
 
         rotation = new Rotation(new MpfrBigNumComplex(rotation_vals[0], rotation_vals[1]), new MpfrBigNumComplex(rotation_center[0], rotation_center[1]));
 
-        ddemulx = ddmulx.exp();
-        ddInvemulx = ddemulx.reciprocal();
+        double emulx = Math.exp(mulx);
+        ddemulx = new MpfrBigNum(emulx);
+        ddInvemulx = new MpfrBigNum(1 / emulx);
 
-        MpfrBigNum[] res = ddmuly.sin_cos();
-        ddcosmuly = res[1];
-        ddsinmuly = res[0];
+        cosmuly = Math.cos(muly);
+        sinmuly = Math.sin(muly);
 
+        temp_ddr = new MpfrBigNum();
         temp_ddcf = new MpfrBigNum();
         temp_ddsf = new MpfrBigNum();
-        temp_ddr = new MpfrBigNum();
         tempResult = new MpfrBigNum();
         tempResult2 = new MpfrBigNum();
         tempResult3 = new MpfrBigNum();
-        tempResult4 = new MpfrBigNum();
         tempResultX = new MpfrBigNum();
         tempResultY = new MpfrBigNum();
 
@@ -115,28 +110,28 @@ public class PolarLocationNormalMpfrBigNumArbitrary extends Location {
 
         fractal = other.fractal;
 
-        ddcenter = other.ddcenter;
-
         ddxcenter = other.ddxcenter;
         ddycenter = other.ddycenter;
+        ddsize = other.ddsize;
 
+        mulx = other.mulx;
         ddmulx = other.ddmulx;
-        ddmuly = other.ddmuly;
-        ddstartx = other.ddstartx;
-        ddstarty = other.ddstarty;
+        muly = other.muly;
+        expddstartx = other.expddstartx;
+        starty = other.starty;
 
         ddemulx = other.ddemulx;
         ddInvemulx = other.ddInvemulx;
-        ddcosmuly = other.ddcosmuly;
-        ddsinmuly = other.ddsinmuly;
+        cosmuly = other.cosmuly;
+        sinmuly = other.sinmuly;
 
         width = other.width;
 
         rotation = other.rotation;
 
-        ddantialiasing_y_cos = other.ddantialiasing_y_cos;
-        ddantialiasing_y_sin = other.ddantialiasing_y_sin;
-        ddantialiasing_x = other.ddantialiasing_x;
+        antialiasing_y_cos = other.antialiasing_y_cos;
+        antialiasing_y_sin = other.antialiasing_y_sin;
+        antialiasing_x = other.antialiasing_x;
 
         temp_ddcf = new MpfrBigNum();
         temp_ddsf = new MpfrBigNum();
@@ -144,7 +139,6 @@ public class PolarLocationNormalMpfrBigNumArbitrary extends Location {
         tempResult = other.tempResult;
         tempResult2 = other.tempResult2;
         tempResult3 = other.tempResult3;
-        tempResult4 = other.tempResult4;
         tempResultX = other.tempResultX;
         tempResultY = other.tempResultY;
 
@@ -167,18 +161,11 @@ public class PolarLocationNormalMpfrBigNumArbitrary extends Location {
 
         if(js.enableJitter) {
             double[] res = GetPixelOffset(y, x, js.jitterSeed, js.jitterShape, js.jitterScale);
+            expddstartx.mult(Math.exp((x + res[1]) * mulx), temp_ddr);
 
-            ddmulx.mult(x + res[1], temp_ddr);
-            temp_ddr.add(ddstartx, temp_ddr);
-            temp_ddr.exp(temp_ddr);
-
-            ddmuly.mult(y + res[0], tempResult);
-            tempResult.add(ddstarty, tempResult);
-            tempResult.sin_cos(tempResult, tempResult3);
-
-            //temp_ddsf.set(tempResult);
-            //temp_ddcf.set(tempResult3);
-            MpfrBigNum.set(temp_ddsf, temp_ddcf, tempResult, tempResult3);
+            double f = (y + res[0]) * muly + starty;
+            temp_sf = Math.sin(f);
+            temp_cf = Math.cos(f);
         }
         else {
             if (x == indexX + 1) {
@@ -186,61 +173,34 @@ public class PolarLocationNormalMpfrBigNumArbitrary extends Location {
             } else if (x == indexX - 1) {
                 temp_ddr.mult(ddInvemulx, temp_ddr);
             } else if (x != indexX) {
-                ddmulx.mult(x, temp_ddr);
-                temp_ddr.add(ddstartx, temp_ddr);
-                temp_ddr.exp(temp_ddr);
+                expddstartx.mult(Math.exp(x * mulx), temp_ddr);
             }
 
             if (y == indexY + 1) {
+                double tempSin = temp_sf * cosmuly + temp_cf * sinmuly;
+                double tempCos = temp_cf * cosmuly - temp_sf * sinmuly;
 
-                temp_ddsf.mult(ddcosmuly, tempResult);
-                temp_ddcf.mult(ddsinmuly, tempResult2);
-                tempResult.add(tempResult2, tempResult);
-
-                temp_ddcf.mult(ddcosmuly, tempResult3);
-                temp_ddsf.mult(ddsinmuly, tempResult4);
-                tempResult3.sub(tempResult4, tempResult3);
-
-
-                //temp_ddsf.set(tempResult);
-                //temp_ddcf.set(tempResult3);
-
-                MpfrBigNum.set(temp_ddsf, temp_ddcf, tempResult, tempResult3);
+                temp_sf = tempSin;
+                temp_cf = tempCos;
             } else if (y == indexY - 1) {
-                temp_ddsf.mult(ddcosmuly, tempResult);
-                temp_ddcf.mult(ddsinmuly, tempResult2);
-                tempResult.sub(tempResult2, tempResult);
+                double tempSin = temp_sf * cosmuly - temp_cf * sinmuly;
+                double tempCos = temp_cf * cosmuly + temp_sf * sinmuly;
 
-                temp_ddcf.mult(ddcosmuly, tempResult3);
-                temp_ddsf.mult(ddsinmuly, tempResult4);
-                tempResult3.add(tempResult4, tempResult3);
-
-                //temp_ddsf.set(tempResult);
-                //temp_ddcf.set(tempResult3);
-                MpfrBigNum.set(temp_ddsf, temp_ddcf, tempResult, tempResult3);
+                temp_sf = tempSin;
+                temp_cf = tempCos;
             } else if (y != indexY) {
-                ddmuly.mult(y, tempResult);
-                tempResult.add(ddstarty, tempResult);
-                tempResult.sin_cos(tempResult, tempResult3);
-
-                //temp_ddsf.set(tempResult);
-                //temp_ddcf.set(tempResult3);
-                MpfrBigNum.set(temp_ddsf, temp_ddcf, tempResult, tempResult3);
+                double f = y * muly + starty;
+                temp_sf = Math.sin(f);
+                temp_cf = Math.cos(f);
             }
         }
+
+        temp_ddsf.set(temp_sf);
+        temp_ddcf.set(temp_cf);
 
         indexX = x;
         indexY = y;
 
-        //ddmuly.mult(y, tempResult); //As alternative as it works with low prec as well
-        //temp_ddsf.set(Math.sin(tempResult.doubleValue()));
-        //temp_ddcf.set(Math.cos(tempResult.doubleValue()));
-
-//        temp_ddr.mult(temp_ddcf, tempResultX);
-//        tempResultX.add(ddxcenter, tempResultX);
-//
-//        temp_ddr.mult(temp_ddsf, tempResultY);
-//        tempResultY.add(ddycenter, tempResultY);
 
         MpfrBigNum.ApBmC_DpEmG(tempResultX, tempResultY, ddxcenter, temp_ddr, temp_ddcf, ddycenter, temp_ddr, temp_ddsf);
 
@@ -264,41 +224,24 @@ public class PolarLocationNormalMpfrBigNumArbitrary extends Location {
 
         if(!js.enableJitter) {
             if (y == indexY + 1) {
+                double tempSin = temp_sf * cosmuly + temp_cf * sinmuly;
+                double tempCos = temp_cf * cosmuly - temp_sf * sinmuly;
 
-                temp_ddsf.mult(ddcosmuly, tempResult);
-                temp_ddcf.mult(ddsinmuly, tempResult2);
-                tempResult.add(tempResult2, tempResult);
-
-                temp_ddcf.mult(ddcosmuly, tempResult3);
-                temp_ddsf.mult(ddsinmuly, tempResult4);
-                tempResult3.sub(tempResult4, tempResult3);
-
-
-                //temp_ddsf.set(tempResult);
-                //temp_ddcf.set(tempResult3);
-                MpfrBigNum.set(temp_ddsf, temp_ddcf, tempResult, tempResult3);
+                temp_sf = tempSin;
+                temp_cf = tempCos;
             } else if (y == indexY - 1) {
-                temp_ddsf.mult(ddcosmuly, tempResult);
-                temp_ddcf.mult(ddsinmuly, tempResult2);
-                tempResult.sub(tempResult2, tempResult);
+                double tempSin = temp_sf * cosmuly - temp_cf * sinmuly;
+                double tempCos = temp_cf * cosmuly + temp_sf * sinmuly;
 
-                temp_ddcf.mult(ddcosmuly, tempResult3);
-                temp_ddsf.mult(ddsinmuly, tempResult4);
-                tempResult3.add(tempResult4, tempResult3);
-
-                //temp_ddsf.set(tempResult);
-                //temp_ddcf.set(tempResult3);
-                MpfrBigNum.set(temp_ddsf, temp_ddcf, tempResult, tempResult3);
+                temp_sf = tempSin;
+                temp_cf = tempCos;
             } else if (y != indexY) {
-
-                ddmuly.mult(y, tempResult);
-                tempResult.add(ddstarty, tempResult);
-                tempResult.sin_cos(tempResult, tempResult3);
-
-                //temp_ddsf.set(tempResult);
-                //temp_ddcf.set(tempResult3);
-                MpfrBigNum.set(temp_ddsf, temp_ddcf, tempResult, tempResult3);
+                double f = y * muly + starty;
+                temp_sf = Math.sin(f);
+                temp_cf = Math.cos(f);
             }
+            temp_ddsf.set(temp_sf);
+            temp_ddcf.set(temp_cf);
         }
 
         indexY = y;
@@ -316,9 +259,7 @@ public class PolarLocationNormalMpfrBigNumArbitrary extends Location {
             } else if (x == indexX - 1) {
                 temp_ddr.mult(ddInvemulx, temp_ddr);
             } else if (x != indexX) {
-                ddmulx.mult(x, temp_ddr);
-                temp_ddr.add(ddstartx, temp_ddr);
-                temp_ddr.exp(temp_ddr);
+                expddstartx.mult(Math.exp(x * mulx), temp_ddr);
             }
         }
 
@@ -348,18 +289,10 @@ public class PolarLocationNormalMpfrBigNumArbitrary extends Location {
             temp_ddr.mult(ddInvemulx, temp_ddr);
         }
         else if (x != indexX) {
-            ddmulx.mult(x, temp_ddr);
-            temp_ddr.add(ddstartx, temp_ddr);
-            temp_ddr.exp(temp_ddr);
+            expddstartx.mult(Math.exp(x * mulx), temp_ddr);
         }
 
         indexX = x;
-
-//        temp_ddr.mult(temp_ddcf, tempResultX);
-//        tempResultX.add(ddxcenter, tempResultX);
-//
-//        temp_ddr.mult(temp_ddsf, tempResultY);
-//        tempResultY.add(ddycenter, tempResultY);
 
         MpfrBigNum.ApBmC_DpEmG(tempResultX, tempResultY, ddxcenter, temp_ddr, temp_ddcf, ddycenter, temp_ddr, temp_ddsf);
 
@@ -390,52 +323,28 @@ public class PolarLocationNormalMpfrBigNumArbitrary extends Location {
             return getComplexBase(indexX, y);
         }
 
-        if(y == indexY + 1) {
+        if (y == indexY + 1) {
+            double tempSin = temp_sf * cosmuly + temp_cf * sinmuly;
+            double tempCos = temp_cf * cosmuly - temp_sf * sinmuly;
 
-            temp_ddsf.mult(ddcosmuly, tempResult);
-            temp_ddcf.mult(ddsinmuly, tempResult2);
-            tempResult.add(tempResult2, tempResult);
+            temp_sf = tempSin;
+            temp_cf = tempCos;
+        } else if (y == indexY - 1) {
+            double tempSin = temp_sf * cosmuly - temp_cf * sinmuly;
+            double tempCos = temp_cf * cosmuly + temp_sf * sinmuly;
 
-            temp_ddcf.mult(ddcosmuly, tempResult3);
-            temp_ddsf.mult(ddsinmuly, tempResult4);
-            tempResult3.sub(tempResult4, tempResult3);
-
-
-            //temp_ddsf.set(tempResult);
-            //temp_ddcf.set(tempResult3);
-            MpfrBigNum.set(temp_ddsf, temp_ddcf, tempResult, tempResult3);
+            temp_sf = tempSin;
+            temp_cf = tempCos;
+        } else if (y != indexY) {
+            double f = y * muly + starty;
+            temp_sf = Math.sin(f);
+            temp_cf = Math.cos(f);
         }
-        else if(y == indexY - 1) {
-            temp_ddsf.mult(ddcosmuly, tempResult);
-            temp_ddcf.mult(ddsinmuly, tempResult2);
-            tempResult.sub(tempResult2, tempResult);
 
-            temp_ddcf.mult(ddcosmuly, tempResult3);
-            temp_ddsf.mult(ddsinmuly, tempResult4);
-            tempResult3.add(tempResult4, tempResult3);
-
-            //temp_ddsf.set(tempResult);
-            //temp_ddcf.set(tempResult3);
-            MpfrBigNum.set(temp_ddsf, temp_ddcf, tempResult, tempResult3);
-        }
-        else if (y != indexY) {
-
-            ddmuly.mult(y, tempResult);
-            tempResult.add(ddstarty, tempResult);
-            tempResult.sin_cos(tempResult, tempResult3);
-
-            //temp_ddsf.set(tempResult);
-            //temp_ddcf.set(tempResult3);
-            MpfrBigNum.set(temp_ddsf, temp_ddcf, tempResult, tempResult3);
-        }
+        temp_ddsf.set(temp_sf);
+        temp_ddcf.set(temp_cf);
 
         indexY = y;
-
-//        temp_ddr.mult(temp_ddcf, tempResultX);
-//        tempResultX.add(ddxcenter, tempResultX);
-//
-//        temp_ddr.mult(temp_ddsf, tempResultY);
-//        tempResultY.add(ddycenter, tempResultY);
 
         MpfrBigNum.ApBmC_DpEmG(tempResultX, tempResultY, ddxcenter, temp_ddr, temp_ddcf, ddycenter, temp_ddr, temp_ddsf);
 
@@ -450,12 +359,12 @@ public class PolarLocationNormalMpfrBigNumArbitrary extends Location {
     }
 
     @Override
-    public void createAntialiasingSteps(boolean adaptive, boolean jitter, int numberOfExtraSamples) {
-        super.createAntialiasingSteps(adaptive, jitter, numberOfExtraSamples);
-        MpfrBigNum[][] steps = createAntialiasingPolarStepsMpfrBigNum(ddmulx, ddmuly, adaptive, jitter, numberOfExtraSamples);
-        ddantialiasing_x = steps[0];
-        ddantialiasing_y_sin = steps[1];
-        ddantialiasing_y_cos = steps[2];
+    public void createAntialiasingSteps(boolean adaptive, boolean jitter, int aaType, int numberOfExtraSamples, boolean gaussian) {
+        super.createAntialiasingSteps(adaptive, jitter, aaType, numberOfExtraSamples, gaussian);
+        double[][] steps = createAntialiasingPolarStepsDouble(mulx, muly, adaptive, jitter, aaType, numberOfExtraSamples, gaussian);
+        antialiasing_x = steps[0];
+        antialiasing_y_sin = steps[1];
+        antialiasing_y_cos = steps[2];
     }
 
     @Override
@@ -465,41 +374,29 @@ public class PolarLocationNormalMpfrBigNumArbitrary extends Location {
 
     protected MpfrBigNumComplex getAntialiasingComplexBase(int sample, int loc) {
 
-
-
         if(aaJitter) {
             int r = (int)(hash(loc) % NUMBER_OF_AA_JITTER_KERNELS);
-            MpfrBigNum[] ddantialiasing_x = precalculatedJitterDataPolarMpfrBigNum[r][0];
-            MpfrBigNum[] ddantialiasing_y_sin = precalculatedJitterDataPolarMpfrBigNum[r][1];
-            MpfrBigNum[] ddantialiasing_y_cos = precalculatedJitterDataPolarMpfrBigNum[r][2];
+            double[] antialiasing_x = precalculatedJitterDataPolarDouble[r][0];
+            double[] antialiasing_y_sin = precalculatedJitterDataPolarDouble[r][1];
+            double[] antialiasing_y_cos = precalculatedJitterDataPolarDouble[r][2];
 
-            temp_ddsf.mult(ddantialiasing_y_cos[sample], tempResult);
-            temp_ddcf.mult(ddantialiasing_y_sin[sample], tempResult2);
-            tempResult.add(tempResult2, tempResult); //sf2
+            double sf2 = temp_sf * antialiasing_y_cos[sample] + temp_cf * antialiasing_y_sin[sample];
+            double cf2 = temp_cf * antialiasing_y_cos[sample] - temp_sf * antialiasing_y_sin[sample];
 
-            temp_ddcf.mult(ddantialiasing_y_cos[sample], tempResult3);
-            temp_ddsf.mult(ddantialiasing_y_sin[sample], tempResult4);
-            tempResult3.sub(tempResult4, tempResult3); //cf2
+            tempResult.set(sf2); //sf2
+            tempResult3.set(cf2); //cf2
 
-            temp_ddr.mult(ddantialiasing_x[sample], tempResult2); //r2
+            temp_ddr.mult(antialiasing_x[sample], tempResult2); //r2
         }
         else {
-            temp_ddsf.mult(ddantialiasing_y_cos[sample], tempResult);
-            temp_ddcf.mult(ddantialiasing_y_sin[sample], tempResult2);
-            tempResult.add(tempResult2, tempResult); //sf2
+            double sf2 = temp_sf * antialiasing_y_cos[sample] + temp_cf * antialiasing_y_sin[sample];
+            double cf2 = temp_cf * antialiasing_y_cos[sample] - temp_sf * antialiasing_y_sin[sample];
 
-            temp_ddcf.mult(ddantialiasing_y_cos[sample], tempResult3);
-            temp_ddsf.mult(ddantialiasing_y_sin[sample], tempResult4);
-            tempResult3.sub(tempResult4, tempResult3); //cf2
+            tempResult.set(sf2); //sf2
+            tempResult3.set(cf2); //cf2
 
-            temp_ddr.mult(ddantialiasing_x[sample], tempResult2); //r2
+            temp_ddr.mult(antialiasing_x[sample], tempResult2); //r2
         }
-
-//        tempResult2.mult(tempResult3, tempResultX);
-//        tempResultX.add(ddxcenter, tempResultX); //ddxcenter + r2 * cf2
-//
-//        tempResult2.mult(tempResult, tempResultY);
-//        tempResultY.add(ddycenter, tempResultY); //ddycenter + r2 * sf2
 
         MpfrBigNum.ApBmC_DpEmG(tempResultX, tempResultY, ddxcenter, tempResult2, tempResult3, ddycenter, tempResult2, tempResult);
 

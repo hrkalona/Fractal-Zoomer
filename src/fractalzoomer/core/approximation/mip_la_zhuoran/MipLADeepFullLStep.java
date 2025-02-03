@@ -1,8 +1,8 @@
 package fractalzoomer.core.approximation.mip_la_zhuoran;
 
-import fractalzoomer.core.MantExp;
-import fractalzoomer.core.MantExpComplex;
-import fractalzoomer.core.MantExpComplexFull;
+import fractalzoomer.core.numerics.MantExp;
+import fractalzoomer.core.numerics.MantExpComplex;
+import fractalzoomer.core.numerics.MantExpComplexFull;
 
 public class MipLADeepFullLStep extends MipLADeepFullStep {
     protected double Bx;
@@ -10,7 +10,7 @@ public class MipLADeepFullLStep extends MipLADeepFullStep {
 
     protected long Bexp;
     protected long BexpIm;
-    //protected int l;
+    protected int l;
 
     protected MipLADeepFullLStep() {
 
@@ -58,7 +58,7 @@ public class MipLADeepFullLStep extends MipLADeepFullStep {
         result.By = resultB.getMantissaImag();
         result.Bexp = resultB.getExp();
         result.BexpIm = resultB.getExpImag();
-        //result.l = getL() + step.getL();
+        result.l = getL() + step.getL();
 
         return result;
     }
@@ -78,8 +78,8 @@ public class MipLADeepFullLStep extends MipLADeepFullStep {
         return new MantExpComplexFull(Bexp, BexpIm, Bx, By);
     }
 
-//    @Override
-//    public int getL() {
-//        return l;
-//    }
+    @Override
+    public int getL() {
+        return l;
+    }
 }

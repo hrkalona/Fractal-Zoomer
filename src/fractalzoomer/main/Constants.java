@@ -10,20 +10,20 @@ import java.awt.*;
  * @author hrkalona2
  */
 public interface Constants {
-    public static final int VERSION = 1094;
+    public static final int VERSION = 1095;
     public static final boolean beta = false;
-    public static final int TOTAL_PALETTES = 47;
+    public static final int TOTAL_PALETTES = 48;
     public static final int TOTAL_INCOLORING_ALGORITHMS = 12;
     public static final int TOTAL_OUTCOLORING_ALGORITHMS = 27;
     public static final int TOTAL_BAILOUT_CONDITIONS = 13;
     public static final int TOTAL_CONVERGENT_BAILOUT_CONDITIONS = 10;
     public static final int TOTAL_PLANES = 67;
-    public static final int TOTAL_FUNCTIONS = 518;
+    public static final int TOTAL_FUNCTIONS = 519;
     public static final int TOTAL_FILTERS = 36;
     public static final int TOTAL_COLOR_TRANSFER_FILTERS = 14;
     public static final int TOTAL_COLOR_BLENDING = 30;
-    public static final int TOTAL_POST_PROCESS_ALGORITHMS = 11;
-    public static final int TOTAL_FUNCTION_FILTERS = 10;
+    public static final int TOTAL_POST_PROCESS_ALGORITHMS = 13;
+    public static final int TOTAL_FUNCTION_FILTERS = 11;
     public static final int TOTAL_PLANE_INFLUENCES = 3;
 
     public static final int MAX_ITERATIONS_NUMBER = Integer.MAX_VALUE;
@@ -98,7 +98,7 @@ public interface Constants {
     public static final String[] histogramMapping = {"Histogram", "Linear", "Square Root", "Cube Root", "Fourth Root", "Logarithmic", "Rank Order"};
 
     public static final String[] multiwavePalettes = {"", "default", "g_spdz2", "g_spdz2_custom"};
-    public static final String[] generatedPalettes = {"Multiwave: default", "Multiwave: g_spdz2", "Multiwave: g_spdz2_custom", "IQ: A + B * cos(2 * pi * (C * t + D) + G)", "Multiwave: User Selected", "Infinite Waves (KF)", "Simple Multiwave"};
+    public static final String[] generatedPalettes = {"Multiwave: default", "Multiwave: g_spdz2", "Multiwave: g_spdz2_custom", "IQ: A + B * cos(2 * pi * (C * t + D) + G)", "Multiwave: User Selected", "Infinite Waves (KF)", "Simple Multiwave", "Bernstein Polynomials"};
     public static final String[] blend_algorithms = {"Normal", "Multiply", "Divide", "Addition", "Subtraction", "Difference", "Value (HSV)", "Soft Light", "Screen", "Dodge", "Burn", "Darken Only", "Lighten Only", "Hard Light", "Grain Extract", "Grain Merge", "Saturation (HSV)", "Color (HSV)", "Hue (HSV)", "Exclusion", "Pin Light", "Linear Light", "Vivid Light", "Overlay", "Chroma (LCH)", "Color (LCH)", "Hue (LCH)", "Lightness (LCH)", "Luminance", "Linear Burn"};
     /**
      * ** FUNCTION ***
@@ -658,6 +658,7 @@ public interface Constants {
 
     public static final int FORMULA50 = 516;
     public static final int FORMULA51 = 517;
+    public static final int FORMULA52 = 518;
     /**
      * ***************
      */
@@ -975,6 +976,7 @@ public interface Constants {
     public static final int EXP_FUNCTION_FILTER = 7;
     public static final int LOG_FUNCTION_FILTER = 8;
     public static final int USER_FUNCTION_FILTER = 9;
+    public static final int MOBIUS_FUNCTION_FILTER = 10;
     /**
      * *******************
      */
@@ -1299,8 +1301,7 @@ public interface Constants {
     public static final int MOVING_AVERAGE_2_TRAP = 45;
 
 
-
-
+    //****************************************************************
 
 
     public static final int TRAP_COLOR_PER_TRAP = 0;
@@ -1338,10 +1339,12 @@ public interface Constants {
     public static final int LIGHT = 7;
     public static final int SLOPES = 8;
     public static final int NUMERICAL_DISTANCE_ESTIMATOR = 9;
-
     public static final int HISTOGRAM_COLORING = 10;
+
+    public static final int TEXTURE = 11;
+    public static final int BLINN_LIGHT = 12;
     
-    public static String[] processingAlgorithNames = {"Fake Distance Estimation", "Entropy Coloring", "Offset Coloring", "Rainbow Palette", "Greyscale Coloring", "Contour Coloring", "Bump Mapping", "Light", "Slopes", "Numerical Distance Estimator", "Histogram Coloring"};
+    public static String[] processingAlgorithNames = {"Fake Distance Estimation", "Entropy Coloring", "Offset Coloring", "Rainbow Palette", "Greyscale Coloring", "Contour Coloring", "Bump Mapping", "Light", "Slopes", "Numerical Distance Estimator", "Histogram Coloring", "Texture Mapping", "Blinn-Phong Light"};
     /**
      * **************************************
      */

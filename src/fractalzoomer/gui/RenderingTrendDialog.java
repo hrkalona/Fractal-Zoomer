@@ -1,6 +1,5 @@
 package fractalzoomer.gui;
 
-import fractalzoomer.core.TaskRender;
 import fractalzoomer.main.MainWindow;
 
 import javax.swing.*;
@@ -57,23 +56,23 @@ public class RenderingTrendDialog extends JDialog {
 
     }
 
-    public void addSampleData(long render, String report, long imageWriteTime) {
+    public void addSampleData(long render, String report, long imageWriteTime, long writeInfoTime) {
         render++;
 
         String[] lines = report.split("<br>");
         {
             String[] labels = RenderingTimeChartPanel.labels;
 
-            int labelsLength = labels.length - 1;
+            int actualDataLength = labels.length - 2;
 
-            long[] times = new long[labelsLength];
+            long[] times = new long[actualDataLength];
             String[] labels2 = RenderingIterationsChartPanel.labels;
             double[] iterations = new double[labels2.length];
 
             for (String line : lines) {
                 int index = -1;
                 int i;
-                for (i = 0; i < labelsLength; i++) {
+                for (i = 0; i < actualDataLength; i++) {
                     index = line.indexOf(labels[i]);
                     if (index != -1) {
                         break;
@@ -109,13 +108,15 @@ public class RenderingTrendDialog extends JDialog {
                 }
             }
 
-            for (int i = 0; i < labelsLength; i++) {
+            int i;
+            for (i = 0; i < actualDataLength; i++) {
                 p.addTimeData(i, render, times[i]);
             }
 
-            p.addTimeData(labelsLength, render, imageWriteTime);
+            p.addTimeData(i, render, imageWriteTime);
+            p.addTimeData(i + 1, render, writeInfoTime);
 
-            for (int i = 0; i < iterations.length; i++) {
+            for (i = 0; i < iterations.length; i++) {
                 p2.addIterationData(i, render, iterations[i]);
             }
         }

@@ -1,8 +1,10 @@
 
 package fractalzoomer.core;
 
-import fractalzoomer.filters_utils.image.GrayFilter;
+import fractalzoomer.core.interpolation.InterpolationMethod;
+import fractalzoomer.core.interpolation.LinearInterpolation;
 import fractalzoomer.filters_utils.image.*;
+import fractalzoomer.filters_utils.image.GrayFilter;
 import fractalzoomer.filters_utils.image.LightFilter.Light;
 import fractalzoomer.filters_utils.image.LightFilter.Material;
 import fractalzoomer.main.MainWindow;
@@ -175,6 +177,102 @@ public class ImageFilters {
             f.filter(image, image);
         }
 
+    }
+
+    private static void filterFog(BufferedImage image, double opacity, double gaussianRadius) {
+        int width = image.getWidth();
+        int height = image.getHeight();
+        BufferedImage blurPass = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        int[] inputRaster = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
+        int[] blurRaster = ((DataBufferInt) blurPass.getRaster().getDataBuffer()).getData();
+
+        int condition = width * height;
+
+        GaussianFilter f = new GaussianFilter();
+        f.setRadius((float) gaussianRadius);
+        f.filter(image, blurPass);
+
+        InterpolationMethod method = new LinearInterpolation();
+
+        IntStream.range(0, condition)
+            .parallel().forEach(p -> {
+                int color = inputRaster[p];
+                int r = (color >>> 16) & 0xFF;
+                int g = (color >>> 8) & 0xFF;
+                int b = (color) & 0xFF;
+
+                double gs = (r + g + b) / 3.0;
+
+                int color2 = blurRaster[p];
+                int r2 = (color2 >>> 16) & 0xFF;
+                int g2 = (color2 >>> 8) & 0xFF;
+                int b2 = (color2) & 0xFF;
+
+                int temp = method.interpolateColors(r, g, b, r2, g2, b2, opacity, false);
+
+                int tr = (temp >>> 16) & 0xFF;
+                int tg = (temp >>> 8) & 0xFF;
+                int tb = (temp) & 0xFF;
+
+                double tgs = (tr + tg + tb) / 3.0;
+
+                if (gs < tgs) {
+                    inputRaster[p] = temp;
+                }
+            });
+    }
+
+    private static void filterBloom(BufferedImage image, int bloomThreshold, double gaussianRadius, double bloomSoftness, double bloomIntensity, double originalFactor) {
+        int width = image.getWidth();
+        int height = image.getHeight();
+        BufferedImage brightPass = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        int[] inputRaster = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
+        int[] brightRaster = ((DataBufferInt) brightPass.getRaster().getDataBuffer()).getData();
+
+        int condition = width * height;
+
+        IntStream.range(0, condition)
+            .parallel().forEach(p -> {
+                int color = inputRaster[p];
+                int r = (color >>> 16) & 0xFF;
+                int g = (color >>> 8) & 0xFF;
+                int b = (color) & 0xFF;
+                double brightness = (r + g + b) / 3.0;
+                if (brightness >= bloomThreshold) {
+                    brightRaster[p] = 0xffffffff;
+                } else {
+                    brightRaster[p] = 0xff000000;
+                }
+            });
+
+        GaussianFilter f = new GaussianFilter();
+        f.setRadius((float) gaussianRadius);
+        f.filter(brightPass, brightPass);
+
+        InterpolationMethod method = new LinearInterpolation();
+
+        IntStream.range(0, condition)
+            .parallel().forEach(p -> {
+                int color = inputRaster[p];
+                int r = (color >>> 16) & 0xFF;
+                int g = (color >>> 8) & 0xFF;
+                int b = (color) & 0xFF;
+
+                int color2 = brightRaster[p];
+                int r2 = (color2 >>> 16) & 0xFF;
+                int g2 = (color2 >>> 8) & 0xFF;
+                int b2 = (color2) & 0xFF;
+
+                int temp = method.interpolateColors(r, g, b, r2, g2, b2, bloomSoftness, false);
+                int tr = (temp >>> 16) & 0xFF;
+                int tg = (temp >>> 8) & 0xFF;
+                int tb = (temp) & 0xFF;
+
+                inputRaster[p] = 0xff000000
+                        | (ColorSpaceConverter.clamp(((int)(r * originalFactor + tr * bloomIntensity + 0.5))) << 16)
+                        | (ColorSpaceConverter.clamp(((int)(g * originalFactor + tg * bloomIntensity + 0.5))) << 8)
+                        | ColorSpaceConverter.clamp(((int)(b * originalFactor + tb * bloomIntensity + 0.5)));
+            });
     }
 
     private static void filterBlurring(BufferedImage image, int filter_value, double sigmaR, double sigmaS, int kernel_size) { //OLD antialiasing method (blurring)

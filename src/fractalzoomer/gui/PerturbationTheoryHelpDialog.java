@@ -41,8 +41,9 @@ public class PerturbationTheoryHelpDialog {
                 "<li>Magnet 1</li>" +
                 "<li>Magnet Pataki (2-5) powers</li>" +
                 "<li>z = z^2 + c^2</li>" +
-                "<li>z = c * (z^2 + z^-2)</li>" +
-                "<li>z = 2*z^2 - z^3 + c</li>" +
+                "<li>z = c(z^2 + z^-2)</li>" +
+                "<li>z = 2z^2 - z^3 + c</li>" +
+                "<li>z = (z^3)/(z + c)</li>" +
                 "<li>Buffalo Mandelbrot</li>" +
                 "<li>Celtic Mandelbrot</li>" +
                 "<li>Perpendicular Mandelbrot</li>" +
@@ -50,7 +51,7 @@ public class PerturbationTheoryHelpDialog {
                 "<li>Perpendicular Buffalo Mandelbrot</li>" +
                 "<li>Perpendicular Celtic Mandelbrot</li>" +
                 "<li>Nova (power 3 + 0i, relaxation 1 + 0i)</li>" +
-                "<li>Newton Third Degree Parameter Space (Experimental, has glitches in some areas)</li>" +
+                "<li>Newton Parameter Space (z - 1)(z + 1)(z - c) (Experimental, has glitches in some areas)</li>" +
                 "<li>Newton 3 (No Julia Set available)</li>" +
                 "</ul>" +
                 "<br><br>"+

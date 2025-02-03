@@ -3,6 +3,7 @@
 package fractalzoomer.in_coloring_algorithms;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.utils.InColorData;
 
 /**
  *
@@ -20,9 +21,10 @@ public class CosMag extends InColorAlgorithm {
     }
     
     @Override
-    public double getResult(Object[] object) {
- 
-        return ((int)(((Complex)object[0]).norm_squared() * 10)) % 2 == 1 ? -(Math.abs(Math.cos(((Complex)object[0]).getRe() * ((Complex)object[0]).getIm() * ((Complex)object[0]).getAbsRe() * ((Complex)object[0]).getAbsIm())) * 400 + INCREMENT + max_iterations) : max_iterations + Math.abs(Math.sin(((Complex)object[0]).getRe() * ((Complex)object[0]).getIm() * ((Complex)object[0]).getAbsRe() * ((Complex)object[0]).getAbsIm())) * 400;
+    public double getResult(InColorData data) {
+
+        Complex z = data.z;
+        return ((int)(z.norm_squared() * 10)) % 2 == 1 ? -(Math.abs(Math.cos(z.getRe() * z.getIm() * z.getAbsRe() * z.getAbsIm())) * 400 + INCREMENT + max_iterations) : max_iterations + Math.abs(Math.sin(z.getRe() * z.getIm() * z.getAbsRe() * z.getAbsIm())) * 400;
        
     }
     

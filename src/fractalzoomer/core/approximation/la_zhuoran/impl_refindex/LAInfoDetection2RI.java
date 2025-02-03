@@ -1,10 +1,10 @@
 package fractalzoomer.core.approximation.la_zhuoran.impl_refindex;
 
 import fractalzoomer.core.Complex;
-import fractalzoomer.core.reference.ReferenceDecompressor;
 import fractalzoomer.core.approximation.la_zhuoran.GenericLAInfo;
 import fractalzoomer.core.approximation.la_zhuoran.InvalidCalculationException;
 import fractalzoomer.core.approximation.la_zhuoran.LAReference;
+import fractalzoomer.core.reference.ReferenceDecompressor;
 import fractalzoomer.functions.Fractal;
 
 public class LAInfoDetection2RI extends LAInfoRI {
@@ -47,7 +47,7 @@ public class LAInfoDetection2RI extends LAInfoRI {
 
         LAInfoDetection2RI out = (LAInfoDetection2RI)out1;
 
-        Complex z = LAReference.f.getArrayValue(referenceDecompressor, Fractal.reference, zRefIndex);
+        Complex z = LAReference.f.getReferenceValue(referenceDecompressor, Fractal.reference, zRefIndex);
 
         double ChebyMagz = z.chebyshevNorm();
 
@@ -93,7 +93,7 @@ public class LAInfoDetection2RI extends LAInfoRI {
         LAInfoDetection2RI LA = (LAInfoDetection2RI)LA1;
 
         int zRefIndex = LA.RefIndex;
-        Complex z = LAReference.f.getArrayValue(referenceDecompressor, Fractal.reference, zRefIndex);
+        Complex z = LAReference.f.getReferenceValue(referenceDecompressor, Fractal.reference, zRefIndex);
         Complex ZCoeff = new Complex(ZCoeffRe, ZCoeffIm);
         Complex CCoeff = new Complex(CCoeffRe, CCoeffIm);
 

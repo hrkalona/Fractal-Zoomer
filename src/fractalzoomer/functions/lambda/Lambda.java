@@ -1,10 +1,13 @@
 
 package fractalzoomer.functions.lambda;
 
-import fractalzoomer.core.*;
+import fractalzoomer.core.Complex;
+import fractalzoomer.core.TaskRender;
 import fractalzoomer.core.location.Location;
+import fractalzoomer.core.numerics.*;
 import fractalzoomer.core.reference.ReferenceData;
 import fractalzoomer.core.reference.ReferenceDeepData;
+import fractalzoomer.core.reference.SerializableFunction;
 import fractalzoomer.fractal_options.initial_value.InitialValue;
 import fractalzoomer.fractal_options.initial_value.VariableConditionalInitialValue;
 import fractalzoomer.fractal_options.initial_value.VariableInitialValue;
@@ -17,7 +20,6 @@ import fractalzoomer.utils.NormComponents;
 import org.apfloat.Apfloat;
 
 import java.util.ArrayList;
-import java.util.function.Function;
 
 /**
  *
@@ -133,6 +135,11 @@ public class Lambda extends Julia {
     }
 
     @Override
+    public boolean supportsReferenceSavingOrLoading() {
+        return true;
+    }
+
+    @Override
     public String getRefType() {
         return super.getRefType() + (isJulia ? "-Julia-" + bigSeed.toStringPretty() : "");
     }
@@ -164,12 +171,12 @@ public class Lambda extends Julia {
                 .sub_mutable(refPointSmall.times(DnSqrPlustwoDnXn));*/
         Complex refZ = null;
         if(reference.compressed) {
-            refZ = getArrayValue(reference, RefIteration);
+            refZ = getReferenceValue(reference, RefIteration);
         }
 
-        Complex temp = z.plus(getArrayValue(referenceData.PrecalculatedTerms[0], RefIteration, refZ)).times_mutable(z).negative_mutable();
+        Complex temp = z.plus(getExpressionValue(referenceData.PrecalculatedTerms[0], RefIteration, refZ)).times_mutable(z).negative_mutable();
 
-        return temp.times(C).plus_mutable(getArrayValue(referenceData.PrecalculatedTerms[1], RefIteration, refZ).plus_mutable(temp).times_mutable(c));
+        return temp.times(C).plus_mutable(getExpressionValue(referenceData.PrecalculatedTerms[1], RefIteration, refZ).plus_mutable(temp).times_mutable(c));
 
 
 
@@ -180,12 +187,12 @@ public class Lambda extends Julia {
 
         MantExpComplex refZ = null;
         if(referenceDeep.compressed) {
-            refZ = getArrayDeepValue(referenceDeep, RefIteration);
+            refZ = getReferenceDeepValue(referenceDeep, RefIteration);
         }
 
-        MantExpComplex temp = z.plus(getArrayDeepValue(referenceDeepData.PrecalculatedTerms[0], RefIteration, refZ)).times_mutable(z).negative_mutable();
+        MantExpComplex temp = z.plus(getExpressionDeepValue(referenceDeepData.PrecalculatedTerms[0], RefIteration, refZ)).times_mutable(z).negative_mutable();
 
-        return temp.times(Cdeep).plus_mutable(getArrayDeepValue(referenceDeepData.PrecalculatedTerms[1], RefIteration, refZ).plus_mutable(temp).times_mutable(c));
+        return temp.times(Cdeep).plus_mutable(getExpressionDeepValue(referenceDeepData.PrecalculatedTerms[1], RefIteration, refZ).plus_mutable(temp).times_mutable(c));
     }
 
     @Override
@@ -193,10 +200,10 @@ public class Lambda extends Julia {
 
         Complex refZ = null;
         if(reference.compressed) {
-            refZ = getArrayValue(reference, RefIteration);
+            refZ = getReferenceValue(reference, RefIteration);
         }
 
-        Complex temp = z.plus(getArrayValue(referenceData.PrecalculatedTerms[0], RefIteration, refZ)).times_mutable(z).negative_mutable();
+        Complex temp = z.plus(getExpressionValue(referenceData.PrecalculatedTerms[0], RefIteration, refZ)).times_mutable(z).negative_mutable();
 
         return temp.times(C);
     }
@@ -206,10 +213,10 @@ public class Lambda extends Julia {
 
         MantExpComplex refZ = null;
         if(referenceDeep.compressed) {
-            refZ = getArrayDeepValue(referenceDeep, RefIteration);
+            refZ = getReferenceDeepValue(referenceDeep, RefIteration);
         }
 
-        MantExpComplex temp = z.plus(getArrayDeepValue(referenceDeepData.PrecalculatedTerms[0], RefIteration, refZ)).times_mutable(z).negative_mutable();
+        MantExpComplex temp = z.plus(getExpressionDeepValue(referenceDeepData.PrecalculatedTerms[0], RefIteration, refZ)).times_mutable(z).negative_mutable();
 
         return temp.times(Cdeep);
     }
@@ -219,10 +226,10 @@ public class Lambda extends Julia {
 
         Complex refZ = null;
         if(data.Reference.compressed) {
-            refZ = getArrayValue(data.Reference, RefIteration);
+            refZ = getReferenceValue(data.Reference, RefIteration);
         }
 
-        Complex temp = z.plus(getArrayValue(data.PrecalculatedTerms[0], RefIteration, refZ)).times_mutable(z).negative_mutable();
+        Complex temp = z.plus(getExpressionValue(data.PrecalculatedTerms[0], RefIteration, refZ)).times_mutable(z).negative_mutable();
 
         return temp.times(C);
     }
@@ -232,10 +239,10 @@ public class Lambda extends Julia {
 
         MantExpComplex refZ = null;
         if(data.Reference.compressed) {
-            refZ = getArrayDeepValue(data.Reference, RefIteration);
+            refZ = getReferenceDeepValue(data.Reference, RefIteration);
         }
 
-        MantExpComplex temp = z.plus(getArrayDeepValue(data.PrecalculatedTerms[0], RefIteration, refZ)).times_mutable(z).negative_mutable();
+        MantExpComplex temp = z.plus(getExpressionDeepValue(data.PrecalculatedTerms[0], RefIteration, refZ)).times_mutable(z).negative_mutable();
 
         return temp.times(Cdeep);
     }
@@ -260,7 +267,7 @@ public class Lambda extends Julia {
 
         int ReferencePeriod = getPeriod();
 
-        int MaxRefIteration = getReferenceFinalIterationNumber(true, referenceData);
+        int MaxRefIteration = getReferenceFinalIterationNumber(true);
 
         Complex refZ;
         Complex zWithoutInitVal = new Complex();
@@ -268,14 +275,14 @@ public class Lambda extends Julia {
         Complex c = complexIn[1];
 
         if(iterations != 0 && RefIteration < MaxRefIteration) {
-            refZ = getArrayValue(reference, RefIteration);
-            zWithoutInitVal = getArrayValue(referenceData.ReferenceSubCp, RefIteration, refZ).plus_mutable(DeltaSubN);
+            refZ = getReferenceValue(reference, RefIteration);
+            zWithoutInitVal = getExpressionValue(referenceData.ReferenceSubCp, RefIteration, refZ).plus_mutable(DeltaSubN);
             z = refZ.plus_mutable(DeltaSubN);
         }
         else if(iterations != 0 && ReferencePeriod != 0) {
             RefIteration = RefIteration % ReferencePeriod;
-            refZ = getArrayValue(reference, RefIteration);
-            zWithoutInitVal = getArrayValue(referenceData.ReferenceSubCp, RefIteration, refZ).plus_mutable(DeltaSubN);
+            refZ = getReferenceValue(reference, RefIteration);
+            zWithoutInitVal = getExpressionValue(referenceData.ReferenceSubCp, RefIteration, refZ).plus_mutable(DeltaSubN);
             z = refZ.plus_mutable(DeltaSubN);
         }
 
@@ -293,13 +300,13 @@ public class Lambda extends Julia {
                 escaped = true;
 
                 finalizeStatistic(true, z);
-                Object[] object = {iterations, z, zold, zold2, c, start, c0, pixel};
-                double res = out_color_algorithm.getResult(object);
+                outColorData.setData(iterations, z, zold, zold2, c, start, c0, pixel);
+                double res = out_color_algorithm.getResult(outColorData);
 
                 res = getFinalValueOut(res);
 
                 if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(z, zold, zold2, iterations, c, start, c0, pixel, object);
+                    setTrueColorOut(z, zold, zold2, iterations, c, start, c0, pixel);
                 }
 
                 return getAndAccumulateStatsNotDeep(res);
@@ -316,8 +323,8 @@ public class Lambda extends Julia {
             //No Plane influence work
             //No Pre filters work
             if(max_iterations > 1){
-                refZ = getArrayValue(reference, RefIteration);
-                zWithoutInitVal = getArrayValue(referenceData.ReferenceSubCp, RefIteration, refZ).plus_mutable(DeltaSubN);
+                refZ = getReferenceValue(reference, RefIteration);
+                zWithoutInitVal = getExpressionValue(referenceData.ReferenceSubCp, RefIteration, refZ).plus_mutable(DeltaSubN);
                 z = refZ.plus_mutable(DeltaSubN);
             }
             //No Post filters work
@@ -335,8 +342,8 @@ public class Lambda extends Julia {
         }
 
         finalizeStatistic(false,z);
-        Object[] object = {z, zold, zold2, c, start, c0, pixel};
-        double in = in_color_algorithm.getResult(object);
+        inColorData.setData(z, zold, zold2, c, start, c0, pixel);
+        double in = in_color_algorithm.getResult(inColorData);
 
         in = getFinalValueIn(in);
 
@@ -367,7 +374,7 @@ public class Lambda extends Julia {
 
         int ReferencePeriod = getPeriod();
 
-        int MaxRefIteration = getReferenceFinalIterationNumber(true, referenceData);
+        int MaxRefIteration = getReferenceFinalIterationNumber(true);
 
         int minExp = -1000;
         int reducedExp = minExp / (int)getPower();
@@ -392,15 +399,15 @@ public class Lambda extends Julia {
             MantExpComplex zWithoutInitVal = MantExpComplex.create();
             MantExpComplex z = MantExpComplex.create();
             if(iterations != 0 && RefIteration < MaxRefIteration) {
-                refZm = getArrayDeepValue(referenceDeep, RefIteration);
-                zWithoutInitVal = getArrayDeepValue(referenceDeepData.ReferenceSubCp, RefIteration, refZm).plus_mutable(DeltaSubN);
+                refZm = getReferenceDeepValue(referenceDeep, RefIteration);
+                zWithoutInitVal = getExpressionDeepValue(referenceDeepData.ReferenceSubCp, RefIteration, refZm).plus_mutable(DeltaSubN);
                 z = refZm.plus_mutable(DeltaSubN);
                 zc = z.toComplex();
             }
             else if(iterations != 0 && ReferencePeriod != 0) {
                 RefIteration = RefIteration % ReferencePeriod;
-                refZm = getArrayDeepValue(referenceDeep, RefIteration);
-                zWithoutInitVal = getArrayDeepValue(referenceDeepData.ReferenceSubCp, RefIteration, refZm).plus_mutable(DeltaSubN);
+                refZm = getReferenceDeepValue(referenceDeep, RefIteration);
+                zWithoutInitVal = getExpressionDeepValue(referenceDeepData.ReferenceSubCp, RefIteration, refZm).plus_mutable(DeltaSubN);
                 z = refZm.plus_mutable(DeltaSubN);
                 zc = z.toComplex();
             }
@@ -417,13 +424,13 @@ public class Lambda extends Julia {
                     escaped = true;
 
                     finalizeStatistic(true, zc);
-                    Object[] object = {iterations, zc, zold, zold2, c, start, c0, pixel};
-                    double res = out_color_algorithm.getResult(object);
+                    outColorData.setData(iterations, zc, zold, zold2, c, start, c0, pixel);
+                    double res = out_color_algorithm.getResult(outColorData);
 
                     res = getFinalValueOut(res);
 
                     if (outTrueColorAlgorithm != null) {
-                        setTrueColorOut(zc, zold, zold2, iterations, c, start, c0, pixel, object);
+                        setTrueColorOut(zc, zold, zold2, iterations, c, start, c0, pixel);
                     }
 
                     return getAndAccumulateStatsNotScaled(res);
@@ -439,8 +446,8 @@ public class Lambda extends Julia {
                 zoldDeep = z;
 
                 if (max_iterations > 1) {
-                    refZm = getArrayDeepValue(referenceDeep, RefIteration);
-                    zWithoutInitVal = getArrayDeepValue(referenceDeepData.ReferenceSubCp, RefIteration, refZm).plus_mutable(DeltaSubN);
+                    refZm = getReferenceDeepValue(referenceDeep, RefIteration);
+                    zWithoutInitVal = getExpressionDeepValue(referenceDeepData.ReferenceSubCp, RefIteration, refZm).plus_mutable(DeltaSubN);
                     z = refZm.plus_mutable(DeltaSubN);
                     zc = z.toComplex();
                 }
@@ -476,14 +483,14 @@ public class Lambda extends Julia {
             Complex refZ;
 
             if(!usedDeepCode && iterations != 0 && RefIteration < MaxRefIteration) {
-                refZ = getArrayValue(reference, RefIteration);
-                zWithoutInitVal = getArrayValue(referenceData.ReferenceSubCp, RefIteration, refZ).plus_mutable(CDeltaSubN);
+                refZ = getReferenceValue(reference, RefIteration);
+                zWithoutInitVal = getExpressionValue(referenceData.ReferenceSubCp, RefIteration, refZ).plus_mutable(CDeltaSubN);
                 zc = refZ.plus_mutable(CDeltaSubN);
             }
             else if(!usedDeepCode && iterations != 0 && ReferencePeriod != 0) {
                 RefIteration = RefIteration % ReferencePeriod;
-                refZ = getArrayValue(reference, RefIteration);
-                zWithoutInitVal = getArrayValue(referenceData.ReferenceSubCp, RefIteration, refZ).plus_mutable(CDeltaSubN);
+                refZ = getReferenceValue(reference, RefIteration);
+                zWithoutInitVal = getExpressionValue(referenceData.ReferenceSubCp, RefIteration, refZ).plus_mutable(CDeltaSubN);
                 zc = refZ.plus_mutable(CDeltaSubN);
             }
 
@@ -499,13 +506,13 @@ public class Lambda extends Julia {
                     escaped = true;
 
                     finalizeStatistic(true, zc);
-                    Object[] object = {iterations, zc, zold, zold2, c, start, c0, pixel};
-                    double res = out_color_algorithm.getResult(object);
+                    outColorData.setData(iterations, zc, zold, zold2, c, start, c0, pixel);
+                    double res = out_color_algorithm.getResult(outColorData);
 
                     res = getFinalValueOut(res);
 
                     if (outTrueColorAlgorithm != null) {
-                        setTrueColorOut(zc, zold, zold2, iterations, c, start, c0, pixel, object);
+                        setTrueColorOut(zc, zold, zold2, iterations, c, start, c0, pixel);
                     }
 
                     return getAndAccumulateStatsNotScaled(res);
@@ -526,8 +533,8 @@ public class Lambda extends Julia {
                 //No Plane influence work
                 //No Pre filters work
                 if (max_iterations > 1) {
-                    refZ = getArrayValue(reference, RefIteration);
-                    zWithoutInitVal = getArrayValue(referenceData.ReferenceSubCp, RefIteration, refZ).plus_mutable(CDeltaSubN);
+                    refZ = getReferenceValue(reference, RefIteration);
+                    zWithoutInitVal = getExpressionValue(referenceData.ReferenceSubCp, RefIteration, refZ).plus_mutable(CDeltaSubN);
                     zc = refZ.plus_mutable(CDeltaSubN);
                 }
                 //No Post filters work
@@ -546,8 +553,8 @@ public class Lambda extends Julia {
         }
 
         finalizeStatistic(false, zc);
-        Object[] object = {zc, zold, zold2, c, start, c0, pixel};
-        double in = in_color_algorithm.getResult(object);
+        inColorData.setData(zc, zold, zold2, c, start, c0, pixel);
+        double in = in_color_algorithm.getResult(inColorData);
 
         in = getFinalValueIn(in);
 
@@ -577,7 +584,7 @@ public class Lambda extends Julia {
         Complex c = complexIn[1];
 
         ReferenceData data = referenceData;
-        int MaxRefIteration = data.MaxRefIteration;
+        int MaxRefIteration = referenceOrbit.MaxRefIteration;
 
         Complex zWithoutInitVal = new Complex();
 
@@ -595,13 +602,13 @@ public class Lambda extends Julia {
                 escaped = true;
 
                 finalizeStatistic(true, z);
-                Object[] object = {iterations, z, zold, zold2, c, start, c0, pixel};
-                double res = out_color_algorithm.getResult(object);
+                outColorData.setData(iterations, z, zold, zold2, c, start, c0, pixel);
+                double res = out_color_algorithm.getResult(outColorData);
 
                 res = getFinalValueOut(res);
 
                 if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(z, zold, zold2, iterations, c, start, c0, pixel, object);
+                    setTrueColorOut(z, zold, zold2, iterations, c, start, c0, pixel);
                 }
 
                 return getAndAccumulateStatsNotDeep(res);
@@ -618,8 +625,8 @@ public class Lambda extends Julia {
             //No Plane influence work
             //No Pre filters work
             if(max_iterations > 1) {
-                refZ = getArrayValue(data.Reference, RefIteration);
-                zWithoutInitVal = getArrayValue(data.ReferenceSubCp, RefIteration, refZ).plus_mutable(DeltaSubN);
+                refZ = getReferenceValue(data.Reference, RefIteration);
+                zWithoutInitVal = getExpressionValue(data.ReferenceSubCp, RefIteration, refZ).plus_mutable(DeltaSubN);
                 z = refZ.plus_mutable(DeltaSubN);
             }
             //No Post filters work
@@ -633,14 +640,14 @@ public class Lambda extends Julia {
                 RefIteration = 0;
 
                 data = secondReferenceData;
-                MaxRefIteration = data.MaxRefIteration;
+                MaxRefIteration = secondReferenceOrbit.MaxRefIteration;
                 rebases++;
             }
         }
 
         finalizeStatistic(false, z);
-        Object[] object = {z, zold, zold2, c, start, c0, pixel};
-        double in = in_color_algorithm.getResult(object);
+        inColorData.setData(z, zold, zold2, c, start, c0, pixel);
+        double in = in_color_algorithm.getResult(inColorData);
 
         in = getFinalValueIn(in);
 
@@ -675,7 +682,7 @@ public class Lambda extends Julia {
 
         ReferenceDeepData deepData = referenceDeepData;
         ReferenceData data = referenceData;
-        int MaxRefIteration = data.MaxRefIteration;
+        int MaxRefIteration = referenceOrbit.MaxRefIteration;
 
         int minExp = -1000;
         int reducedExp = minExp / (int)getPower();
@@ -690,7 +697,7 @@ public class Lambda extends Julia {
 
         if(useFullFloatExp || (totalSkippedIterations == 0 && exp <= minExp) || (totalSkippedIterations != 0 && exp <= reducedExp)) {
             MantExpComplex zWithoutInitVal = MantExpComplex.create();
-            MantExpComplex z = getArrayDeepValue(deepData.Reference, RefIteration).plus_mutable(DeltaSubN);
+            MantExpComplex z = getReferenceDeepValue(deepData.Reference, RefIteration).plus_mutable(DeltaSubN);
             MantExpComplex zoldDeep;
 
             for (; iterations < max_iterations; iterations++) {
@@ -702,13 +709,13 @@ public class Lambda extends Julia {
                     escaped = true;
 
                     finalizeStatistic(true, zc);
-                    Object[] object = {iterations, zc, zold, zold2, c, start, c0, pixel};
-                    double res = out_color_algorithm.getResult(object);
+                    outColorData.setData(iterations, zc, zold, zold2, c, start, c0, pixel);
+                    double res = out_color_algorithm.getResult(outColorData);
 
                     res = getFinalValueOut(res);
 
                     if (outTrueColorAlgorithm != null) {
-                        setTrueColorOut(zc, zold, zold2, iterations, c, start, c0, pixel, object);
+                        setTrueColorOut(zc, zold, zold2, iterations, c, start, c0, pixel);
                     }
 
                     return getAndAccumulateStatsNotScaled(res);
@@ -724,8 +731,8 @@ public class Lambda extends Julia {
                 zoldDeep = z;
 
                 if (max_iterations > 1) {
-                    refZm = getArrayDeepValue(deepData.Reference, RefIteration);
-                    zWithoutInitVal = getArrayDeepValue(deepData.ReferenceSubCp, RefIteration, refZm).plus_mutable(DeltaSubN);
+                    refZm = getReferenceDeepValue(deepData.Reference, RefIteration);
+                    zWithoutInitVal = getExpressionDeepValue(deepData.ReferenceSubCp, RefIteration, refZm).plus_mutable(DeltaSubN);
                     z = refZm.plus_mutable(DeltaSubN);
                     zc = z.toComplex();
                 }
@@ -740,7 +747,7 @@ public class Lambda extends Julia {
 
                     deepData = secondReferenceDeepData;
                     data = secondReferenceData;
-                    MaxRefIteration = data.MaxRefIteration;
+                    MaxRefIteration = secondReferenceOrbit.MaxRefIteration;
 
                     rebases++;
                 }
@@ -775,13 +782,13 @@ public class Lambda extends Julia {
                     escaped = true;
 
                     finalizeStatistic(true, zc);
-                    Object[] object = {iterations, zc, zold, zold2, c, start, c0, pixel};
-                    double res = out_color_algorithm.getResult(object);
+                    outColorData.setData(iterations, zc, zold, zold2, c, start, c0, pixel);
+                    double res = out_color_algorithm.getResult(outColorData);
 
                     res = getFinalValueOut(res);
 
                     if (outTrueColorAlgorithm != null) {
-                        setTrueColorOut(zc, zold, zold2, iterations, c, start, c0, pixel, object);
+                        setTrueColorOut(zc, zold, zold2, iterations, c, start, c0, pixel);
                     }
 
                     return getAndAccumulateStatsNotScaled(res);
@@ -798,8 +805,8 @@ public class Lambda extends Julia {
                 //No Plane influence work
                 //No Pre filters work
                 if (max_iterations > 1) {
-                    refZ = getArrayValue(data.Reference, RefIteration);
-                    zWithoutInitVal = getArrayValue(data.ReferenceSubCp, RefIteration, refZ).plus_mutable(CDeltaSubN);
+                    refZ = getReferenceValue(data.Reference, RefIteration);
+                    zWithoutInitVal = getExpressionValue(data.ReferenceSubCp, RefIteration, refZ).plus_mutable(CDeltaSubN);
                     zc = refZ.plus_mutable(CDeltaSubN);
                 }
                 //No Post filters work
@@ -813,7 +820,7 @@ public class Lambda extends Julia {
                     RefIteration = 0;
 
                     data = secondReferenceData;
-                    MaxRefIteration = data.MaxRefIteration;
+                    MaxRefIteration = secondReferenceOrbit.MaxRefIteration;
                     rebases++;
                 }
 
@@ -821,8 +828,8 @@ public class Lambda extends Julia {
         }
 
         finalizeStatistic(false, zc);
-        Object[] object = {zc, zold, zold2, c, start, c0, pixel};
-        double in = in_color_algorithm.getResult(object);
+        inColorData.setData(zc, zold, zold2, c, start, c0, pixel);
+        double in = in_color_algorithm.getResult(inColorData);
 
         in = getFinalValueIn(in);
 
@@ -873,10 +880,10 @@ public class Lambda extends Julia {
         MantExpComplex precalcm = null;
         if(deepZoom) {
             precalcm = loc.getMantExpComplex(preCalc);
-            setArrayDeepValue(referenceDeepData.PrecalculatedTerms[0], iterations, precalcm, mcz);
+            setExpressionDeepValue(referenceDeepData.PrecalculatedTerms[0], iterations, precalcm, mcz);
         }
         if(lowPrecReferenceOrbitNeeded) {
-            setArrayValue(referenceData.PrecalculatedTerms[0], iterations, deepZoom ? precalcm.toComplex() : preCalc.toComplex(), cz);
+            setExpressionValue(referenceData.PrecalculatedTerms[0], iterations, deepZoom ? precalcm.toComplex() : preCalc.toComplex(), cz);
         }
 
         GenericComplex preCalc2;
@@ -893,10 +900,10 @@ public class Lambda extends Julia {
             MantExpComplex precalc2m = null;
             if(deepZoom) {
                 precalc2m = loc.getMantExpComplex(preCalc2);
-                setArrayDeepValue(referenceDeepData.PrecalculatedTerms[1], iterations, precalc2m, mcz);
+                setExpressionDeepValue(referenceDeepData.PrecalculatedTerms[1], iterations, precalc2m, mcz);
             }
             if(lowPrecReferenceOrbitNeeded) {
-                setArrayValue(referenceData.PrecalculatedTerms[1], iterations, deepZoom ? precalc2m.toComplex() : preCalc2.toComplex(), cz);
+                setExpressionValue(referenceData.PrecalculatedTerms[1], iterations, deepZoom ? precalc2m.toComplex() : preCalc2.toComplex(), cz);
             }
         }
 
@@ -913,49 +920,23 @@ public class Lambda extends Julia {
     }
 
     @Override
-    protected Function[] getPrecalculatedTermsFunctions(Complex c) {
-        Function<Complex, Complex> f1 = x -> x.times2().sub_mutable(1);
+    protected SerializableFunction[] getPrecalculatedTermsFunctions(Complex c) {
+        SerializableFunction<Complex, Complex> f1 = x -> x.times2().sub_mutable(1);
         if (!isJulia) {
-            Function<Complex, Complex> f2 = x -> x.sub(x.square());
-            return new Function[] {f1, f2};
+            SerializableFunction<Complex, Complex> f2 = x -> x.sub(x.square());
+            return new SerializableFunction[] {f1, f2};
         }
-        return new Function[] {f1};
+        return new SerializableFunction[] {f1};
     }
 
     @Override
-    protected Function[] getPrecalculatedTermsFunctionsDeep(MantExpComplex c) {
-        Function<MantExpComplex, MantExpComplex> f1 = x -> x.times2().sub_mutable(MantExp.ONE);
+    protected SerializableFunction[] getPrecalculatedTermsFunctionsDeep(MantExpComplex c) {
+        SerializableFunction<MantExpComplex, MantExpComplex> f1 = x -> x.times2().sub_mutable(MantExp.ONE);
         if (!isJulia) {
-            Function<MantExpComplex, MantExpComplex> f2 = x -> x.sub(x.square());
-            return new Function[] {f1, f2};
+            SerializableFunction<MantExpComplex, MantExpComplex> f2 = x -> x.sub(x.square());
+            return new SerializableFunction[] {f1, f2};
         }
-        return new Function[] {f1};
-    }
-
-    @Override
-    protected void calculateRefSubCp(GenericComplex z, GenericComplex initVal, Location loc, int bigNumLib, boolean lowPrecReferenceOrbitNeeded, boolean deepZoom, ReferenceData referenceData, ReferenceDeepData referenceDeepData, int iterations, Complex cz, MantExpComplex mcz) {
-
-        GenericComplex zsubcp;
-        if(bigNumLib == Constants.BIGNUM_MPFR) {
-            zsubcp = z.sub(initVal, workSpaceData.temp1, workSpaceData.temp2);
-        }
-        else if(bigNumLib == Constants.BIGNUM_MPIR) {
-            zsubcp = z.sub(initVal, workSpaceData.temp1p, workSpaceData.temp2p);
-        }
-        else {
-            zsubcp = z.sub(initVal);
-        }
-
-        MantExpComplex zsubcpm = null;
-        if(deepZoom) {
-            zsubcpm = loc.getMantExpComplex(zsubcp);
-            setArrayDeepValue(referenceDeepData.ReferenceSubCp, iterations, zsubcpm, mcz);
-        }
-
-        if(lowPrecReferenceOrbitNeeded) {
-            setArrayValue(referenceData.ReferenceSubCp, iterations, deepZoom ? zsubcpm.toComplex() : zsubcp.toComplex(), cz);
-        }
-
+        return new SerializableFunction[] {f1};
     }
 
     @Override

@@ -347,6 +347,13 @@ public class PresetPalette extends Palette {
                     palette_color = new PaletteColorSmooth(kf_default, special_color, color_smoothing_method, special_use_palette_color, fractional_transfer_method, smoothing_color_space, color_smoothing);
                 }
                 break;
+            case 47:
+                if (!smoothing) {
+                    palette_color = new PaletteColorNormal(sunset, special_color, special_use_palette_color);
+                } else {
+                    palette_color = new PaletteColorSmooth(sunset, special_color, color_smoothing_method, special_use_palette_color, fractional_transfer_method, smoothing_color_space, color_smoothing);
+                }
+                break;
 
         }
     }
@@ -501,6 +508,9 @@ public class PresetPalette extends Palette {
                 break;
             case 46:
                 palette = kf_default;
+                break;
+            case 47:
+                palette = sunset;
                 break;
             default:
                 palette = default_fractint;

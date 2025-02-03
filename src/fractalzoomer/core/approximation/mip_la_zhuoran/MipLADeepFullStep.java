@@ -1,13 +1,13 @@
 package fractalzoomer.core.approximation.mip_la_zhuoran;
 
-import fractalzoomer.core.MantExp;
-import fractalzoomer.core.MantExpComplex;
-import fractalzoomer.core.MantExpComplexFull;
+import fractalzoomer.core.numerics.MantExp;
+import fractalzoomer.core.numerics.MantExpComplex;
+import fractalzoomer.core.numerics.MantExpComplexFull;
 import fractalzoomer.functions.Fractal;
 
 import static fractalzoomer.core.approximation.mip_la_zhuoran.MipLAStep.ValidRadiusScale;
 
-public abstract class MipLADeepFullStep extends MipLADeepStep{
+public abstract class MipLADeepFullStep extends MipLADeepStep {
     public long AexpIm;
 
     public MipLADeepFullStep() {

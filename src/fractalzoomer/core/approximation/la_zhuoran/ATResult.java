@@ -1,7 +1,7 @@
 package fractalzoomer.core.approximation.la_zhuoran;
 
-import fractalzoomer.core.GenericComplex;
-import fractalzoomer.core.MantExpComplex;
+import fractalzoomer.core.numerics.GenericComplex;
+import fractalzoomer.core.numerics.MantExpComplex;
 
 public class ATResult {
     public ATResult() {

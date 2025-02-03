@@ -1,9 +1,9 @@
 package fractalzoomer.core.location.normal;
 
-import fractalzoomer.core.DDComplex;
-import fractalzoomer.core.DoubleDouble;
-import fractalzoomer.core.GenericComplex;
 import fractalzoomer.core.location.Location;
+import fractalzoomer.core.numerics.DDComplex;
+import fractalzoomer.core.numerics.DoubleDouble;
+import fractalzoomer.core.numerics.GenericComplex;
 import fractalzoomer.fractal_options.Rotation;
 import fractalzoomer.functions.Fractal;
 import fractalzoomer.main.app_settings.JitterSettings;
@@ -16,19 +16,21 @@ public class PolarLocationNormalDoubleDoubleArbitrary extends Location {
 
     protected DoubleDouble ddxcenter;
     protected DoubleDouble ddycenter;
+    protected DoubleDouble ddsize;
+    private double[] antialiasing_x;
 
-    private DoubleDouble[] ddantialiasing_x;
-
-    private DoubleDouble ddmuly;
+    private double muly;
+    protected double mulx;
     protected DoubleDouble ddmulx;
-    private DoubleDouble ddstartx;
-    private DoubleDouble ddstarty;
-    protected DoubleDouble ddcenter;
-    private DoubleDouble[] ddantialiasing_y_sin;
-    private DoubleDouble[] ddantialiasing_y_cos;
+    private DoubleDouble expddstartx;
+    private double starty;
+    private double[] antialiasing_y_sin;
+    private double[] antialiasing_y_cos;
 
 
     //Dont copy those
+    private double temp_sf;
+    private double temp_cf;
     private DoubleDouble temp_ddsf;
     private DoubleDouble temp_ddcf;
     private DoubleDouble temp_ddr;
@@ -36,8 +38,8 @@ public class PolarLocationNormalDoubleDoubleArbitrary extends Location {
     private DoubleDouble ddemulx;
     private DoubleDouble ddInvemulx;
 
-    private DoubleDouble ddcosmuly;
-    private DoubleDouble ddsinmuly;
+    private double cosmuly;
+    private double sinmuly;
 
     private JitterSettings js;
 
@@ -52,31 +54,33 @@ public class PolarLocationNormalDoubleDoubleArbitrary extends Location {
         height = offset.getHeight(height);
         int image_size = Math.min(width, height);
 
+        ddsize = new DoubleDouble(size);
+
         requiresVariablePixelSize = fractal.requiresVariablePixelSize();
 
         ddxcenter = new DoubleDouble(xCenter);
         ddycenter = new DoubleDouble(yCenter);
 
-        ddcenter = new DoubleDouble(size).log();
-
         double coefx = width == image_size ? 0.5 : (1 + (width - (double)height) / height) * 0.5;
         double coefy = height == image_size ? 0.5 : (1 + (height - (double)width) / width) * 0.5;
 
-        ddmuly =  DoubleDouble.PI.multiply(2.0 * circle_period).divide(image_size);
+        muly = (2 * circle_period * Math.PI) / image_size;
 
+        mulx = muly * height_ratio;
 
-        ddmulx = ddmuly.multiply(height_ratio);
+        ddmulx = new DoubleDouble(mulx);
 
-        ddstartx = ddcenter.subtract(ddmulx.multiply(image_size).multiply(coefx));
-        ddstarty = ddmuly.multiply(image_size).multiply(0.5 - coefy);
+        expddstartx = ddsize.multiply(new DoubleDouble(Math.exp(-mulx * image_size * coefx)));
+        starty = muly * image_size * (0.5 - coefy);
 
         rotation = new Rotation(new DDComplex(rotation_vals[0], rotation_vals[1]), new DDComplex(rotation_center[0], rotation_center[1]));
 
-        ddemulx = ddmulx.exp();
-        ddInvemulx = ddemulx.reciprocal();
+        double emulx = Math.exp(mulx);
+        ddemulx = new DoubleDouble(emulx);
+        ddInvemulx = new DoubleDouble(1 / emulx);
 
-        ddcosmuly = ddmuly.cos();
-        ddsinmuly = ddmuly.sin();
+        cosmuly = Math.cos(muly);
+        sinmuly = Math.sin(muly);
 
         this.js = js;
         this.width = width;
@@ -88,28 +92,28 @@ public class PolarLocationNormalDoubleDoubleArbitrary extends Location {
 
         fractal = other.fractal;
 
-        ddcenter = other.ddcenter;
-
         ddxcenter = other.ddxcenter;
         ddycenter = other.ddycenter;
+        ddsize = other.ddsize;
 
         ddmulx = other.ddmulx;
-        ddmuly = other.ddmuly;
-        ddstartx = other.ddstartx;
-        ddstarty = other.ddstarty;
+        muly = other.muly;
+        mulx = other.mulx;
+        expddstartx = other.expddstartx;
+        starty = other.starty;
 
         ddemulx = other.ddemulx;
         ddInvemulx = other.ddInvemulx;
-        ddcosmuly = other.ddcosmuly;
-        ddsinmuly = other.ddsinmuly;
+        cosmuly = other.cosmuly;
+        sinmuly = other.sinmuly;
 
         width = other.width;
 
         rotation = other.rotation;
 
-        ddantialiasing_y_cos = other.ddantialiasing_y_cos;
-        ddantialiasing_y_sin = other.ddantialiasing_y_sin;
-        ddantialiasing_x = other.ddantialiasing_x;
+        antialiasing_y_cos = other.antialiasing_y_cos;
+        antialiasing_y_sin = other.antialiasing_y_sin;
+        antialiasing_x = other.antialiasing_x;
 
         js = other.js;
         requiresVariablePixelSize = other.requiresVariablePixelSize;
@@ -129,12 +133,11 @@ public class PolarLocationNormalDoubleDoubleArbitrary extends Location {
 
         if(js.enableJitter) {
             double[] res = GetPixelOffset(y, x, js.jitterSeed, js.jitterShape, js.jitterScale);
+            temp_ddr = new DoubleDouble(Math.exp((x + res[1]) * mulx)).multiply(expddstartx);
 
-            temp_ddr = ddstartx.add(ddmulx.multiply(x + res[1])).exp();
-
-            DoubleDouble f = ddmuly.multiply(y + res[0]).add(ddstarty);
-            temp_ddsf = f.sin();
-            temp_ddcf = f.cos();
+            double f = (y + res[0]) * muly + starty;
+            temp_sf = Math.sin(f);
+            temp_cf = Math.cos(f);
         }
         else {
             if (x == indexX + 1) {
@@ -142,27 +145,30 @@ public class PolarLocationNormalDoubleDoubleArbitrary extends Location {
             } else if (x == indexX - 1) {
                 temp_ddr = temp_ddr.multiply(ddInvemulx);
             } else if (x != indexX) {
-                temp_ddr = ddstartx.add(ddmulx.multiply(x)).exp();
+                temp_ddr = new DoubleDouble(Math.exp(x * mulx)).multiply(expddstartx);
             }
 
             if (y == indexY + 1) {
-                DoubleDouble tempSin = temp_ddsf.multiply(ddcosmuly).add(temp_ddcf.multiply(ddsinmuly));
-                DoubleDouble tempCos = temp_ddcf.multiply(ddcosmuly).subtract(temp_ddsf.multiply(ddsinmuly));
+                double tempSin = temp_sf * cosmuly + temp_cf * sinmuly;
+                double tempCos = temp_cf * cosmuly - temp_sf * sinmuly;
 
-                temp_ddsf = tempSin;
-                temp_ddcf = tempCos;
+                temp_sf = tempSin;
+                temp_cf = tempCos;
             } else if (y == indexY - 1) {
-                DoubleDouble tempSin = temp_ddsf.multiply(ddcosmuly).subtract(temp_ddcf.multiply(ddsinmuly));
-                DoubleDouble tempCos = temp_ddcf.multiply(ddcosmuly).add(temp_ddsf.multiply(ddsinmuly));
+                double tempSin = temp_sf * cosmuly - temp_cf * sinmuly;
+                double tempCos = temp_cf * cosmuly + temp_sf * sinmuly;
 
-                temp_ddsf = tempSin;
-                temp_ddcf = tempCos;
+                temp_sf = tempSin;
+                temp_cf = tempCos;
             } else if (y != indexY) {
-                DoubleDouble f = ddmuly.multiply(y).add(ddstarty);
-                temp_ddsf = f.sin();
-                temp_ddcf = f.cos();
+                double f = y * muly + starty;
+                temp_sf = Math.sin(f);
+                temp_cf = Math.cos(f);
             }
         }
+
+        temp_ddsf = new DoubleDouble(temp_sf);
+        temp_ddcf = new DoubleDouble(temp_cf);
 
         indexX = x;
         indexY = y;
@@ -189,22 +195,25 @@ public class PolarLocationNormalDoubleDoubleArbitrary extends Location {
 
         if(!js.enableJitter) {
             if (y == indexY + 1) {
-                DoubleDouble tempSin = temp_ddsf.multiply(ddcosmuly).add(temp_ddcf.multiply(ddsinmuly));
-                DoubleDouble tempCos = temp_ddcf.multiply(ddcosmuly).subtract(temp_ddsf.multiply(ddsinmuly));
+                double tempSin = temp_sf * cosmuly + temp_cf * sinmuly;
+                double tempCos = temp_cf * cosmuly - temp_sf * sinmuly;
 
-                temp_ddsf = tempSin;
-                temp_ddcf = tempCos;
+                temp_sf = tempSin;
+                temp_cf = tempCos;
             } else if (y == indexY - 1) {
-                DoubleDouble tempSin = temp_ddsf.multiply(ddcosmuly).subtract(temp_ddcf.multiply(ddsinmuly));
-                DoubleDouble tempCos = temp_ddcf.multiply(ddcosmuly).add(temp_ddsf.multiply(ddsinmuly));
+                double tempSin = temp_sf * cosmuly - temp_cf * sinmuly;
+                double tempCos = temp_cf * cosmuly + temp_sf * sinmuly;
 
-                temp_ddsf = tempSin;
-                temp_ddcf = tempCos;
+                temp_sf = tempSin;
+                temp_cf = tempCos;
             } else if (y != indexY) {
-                DoubleDouble f = ddmuly.multiply(y).add(ddstarty);
-                temp_ddsf = f.sin();
-                temp_ddcf = f.cos();
+                double f = y * muly + starty;
+                temp_sf = Math.sin(f);
+                temp_cf = Math.cos(f);
             }
+
+            temp_ddsf = new DoubleDouble(temp_sf);
+            temp_ddcf = new DoubleDouble(temp_cf);
         }
 
         indexY = y;
@@ -222,7 +231,7 @@ public class PolarLocationNormalDoubleDoubleArbitrary extends Location {
             } else if (x == indexX - 1) {
                 temp_ddr = temp_ddr.multiply(ddInvemulx);
             } else if (x != indexX) {
-                temp_ddr = ddstartx.add(ddmulx.multiply(x)).exp();
+                temp_ddr = new DoubleDouble(Math.exp(x * mulx)).multiply(expddstartx);
             }
         }
 
@@ -250,7 +259,7 @@ public class PolarLocationNormalDoubleDoubleArbitrary extends Location {
         } else if (x == indexX - 1) {
             temp_ddr = temp_ddr.multiply(ddInvemulx);
         } else if (x != indexX) {
-            temp_ddr = ddstartx.add(ddmulx.multiply(x)).exp();
+            temp_ddr = new DoubleDouble(Math.exp(x * mulx)).multiply(expddstartx);
         }
 
         indexX = x;
@@ -283,22 +292,25 @@ public class PolarLocationNormalDoubleDoubleArbitrary extends Location {
         }
 
         if (y == indexY + 1) {
-            DoubleDouble tempSin = temp_ddsf.multiply(ddcosmuly).add(temp_ddcf.multiply(ddsinmuly));
-            DoubleDouble tempCos = temp_ddcf.multiply(ddcosmuly).subtract(temp_ddsf.multiply(ddsinmuly));
+            double tempSin = temp_sf * cosmuly + temp_cf * sinmuly;
+            double tempCos = temp_cf * cosmuly - temp_sf * sinmuly;
 
-            temp_ddsf = tempSin;
-            temp_ddcf = tempCos;
+            temp_sf = tempSin;
+            temp_cf = tempCos;
         } else if (y == indexY - 1) {
-            DoubleDouble tempSin = temp_ddsf.multiply(ddcosmuly).subtract(temp_ddcf.multiply(ddsinmuly));
-            DoubleDouble tempCos = temp_ddcf.multiply(ddcosmuly).add(temp_ddsf.multiply(ddsinmuly));
+            double tempSin = temp_sf * cosmuly - temp_cf * sinmuly;
+            double tempCos = temp_cf * cosmuly + temp_sf * sinmuly;
 
-            temp_ddsf = tempSin;
-            temp_ddcf = tempCos;
+            temp_sf = tempSin;
+            temp_cf = tempCos;
         } else if (y != indexY) {
-            DoubleDouble f = ddmuly.multiply(y).add(ddstarty);
-            temp_ddsf = f.sin();
-            temp_ddcf = f.cos();
+            double f = y * muly + starty;
+            temp_sf = Math.sin(f);
+            temp_cf = Math.cos(f);
         }
+
+        temp_ddsf = new DoubleDouble(temp_sf);
+        temp_ddcf = new DoubleDouble(temp_cf);
 
         indexY = y;
 
@@ -312,12 +324,12 @@ public class PolarLocationNormalDoubleDoubleArbitrary extends Location {
     }
 
     @Override
-    public void createAntialiasingSteps(boolean adaptive, boolean jitter, int numberOfExtraSamples) {
-        super.createAntialiasingSteps(adaptive, jitter, numberOfExtraSamples);
-        DoubleDouble[][] steps = createAntialiasingPolarStepsDoubleDouble(ddmulx, ddmuly, adaptive, jitter, numberOfExtraSamples);
-        ddantialiasing_x = steps[0];
-        ddantialiasing_y_sin = steps[1];
-        ddantialiasing_y_cos = steps[2];
+    public void createAntialiasingSteps(boolean adaptive, boolean jitter, int aaType, int numberOfExtraSamples, boolean gaussian) {
+        super.createAntialiasingSteps(adaptive, jitter, aaType, numberOfExtraSamples, gaussian);
+        double[][] steps = createAntialiasingPolarStepsDouble(mulx, muly, adaptive, jitter, aaType, numberOfExtraSamples, gaussian);
+        antialiasing_x = steps[0];
+        antialiasing_y_sin = steps[1];
+        antialiasing_y_cos = steps[2];
     }
 
     @Override
@@ -327,31 +339,32 @@ public class PolarLocationNormalDoubleDoubleArbitrary extends Location {
 
     protected DDComplex getAntialiasingComplexBase(int sample, int loc) {
 
-        DoubleDouble ddsf2, ddcf2, ddr2;
+        DoubleDouble ddr2;
+        double sf2, cf2;
 
         if(aaJitter) {
             int r = (int)(hash(loc) % NUMBER_OF_AA_JITTER_KERNELS);
-            DoubleDouble[] ddantialiasing_x = precalculatedJitterDataPolarDoubleDouble[r][0];
-            DoubleDouble[] ddantialiasing_y_sin = precalculatedJitterDataPolarDoubleDouble[r][1];
-            DoubleDouble[] ddantialiasing_y_cos = precalculatedJitterDataPolarDoubleDouble[r][2];
+            double[] antialiasing_x = precalculatedJitterDataPolarDouble[r][0];
+            double[] antialiasing_y_sin = precalculatedJitterDataPolarDouble[r][1];
+            double[] antialiasing_y_cos = precalculatedJitterDataPolarDouble[r][2];
 
-            ddsf2 = temp_ddsf.multiply(ddantialiasing_y_cos[sample]).add(temp_ddcf.multiply(ddantialiasing_y_sin[sample]));
-            ddcf2 = temp_ddcf.multiply(ddantialiasing_y_cos[sample]).subtract(temp_ddsf.multiply(ddantialiasing_y_sin[sample]));
+            sf2 = temp_sf * antialiasing_y_cos[sample] + temp_cf * antialiasing_y_sin[sample];
+            cf2 = temp_cf * antialiasing_y_cos[sample] - temp_sf * antialiasing_y_sin[sample];
 
-            ddr2 = temp_ddr.multiply(ddantialiasing_x[sample]);
+            ddr2 = temp_ddr.multiply(new DoubleDouble(antialiasing_x[sample]));
         }
         else {
-            ddsf2 = temp_ddsf.multiply(ddantialiasing_y_cos[sample]).add(temp_ddcf.multiply(ddantialiasing_y_sin[sample]));
-            ddcf2 = temp_ddcf.multiply(ddantialiasing_y_cos[sample]).subtract(temp_ddsf.multiply(ddantialiasing_y_sin[sample]));
+            sf2 = temp_sf * antialiasing_y_cos[sample] + temp_cf * antialiasing_y_sin[sample];
+            cf2 = temp_cf * antialiasing_y_cos[sample] - temp_sf * antialiasing_y_sin[sample];
 
-            ddr2 = temp_ddr.multiply(ddantialiasing_x[sample]);
+            ddr2 = temp_ddr.multiply(new DoubleDouble(antialiasing_x[sample]));
         }
 
         if(requiresVariablePixelSize) {
             setVariablePixelSize(ddr2);
         }
 
-        DDComplex temp = new DDComplex(ddxcenter.add(ddr2.multiply(ddcf2)), ddycenter.add(ddr2.multiply(ddsf2)));
+        DDComplex temp = new DDComplex(ddxcenter.add(ddr2.multiply(new DoubleDouble(cf2))), ddycenter.add(ddr2.multiply(new DoubleDouble(sf2))));
 
         temp = rotation.rotate(temp);
 

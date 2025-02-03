@@ -2,10 +2,10 @@
 package fractalzoomer.gui;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import fractalzoomer.core.MyApfloat;
+import fractalzoomer.core.numerics.MyApfloat;
 import fractalzoomer.functions.Fractal;
-import fractalzoomer.main.MinimalRendererWindow;
 import fractalzoomer.main.MainWindow;
+import fractalzoomer.main.MinimalRendererWindow;
 import fractalzoomer.main.app_settings.Settings;
 import fractalzoomer.main.app_settings.ZoomSequenceSettings;
 import org.apfloat.Apfloat;
@@ -48,6 +48,7 @@ public class SequenceRenderDialog extends JDialog {
     private MyJSpinner fieldLightCycling;
 
     private MyJSpinner fieldSlopesCycling;
+    private MyJSpinner fieldBlinnLightCycling;
 
     private MyJSpinner filedBumpLightCycling;
 
@@ -63,8 +64,11 @@ public class SequenceRenderDialog extends JDialog {
     private JTextField namePattern;
 
     private JCheckBox saveSettingsOnEachStep;
+    private JCheckBox saveReference;
+    private JCheckBox saveKFB;
 
     private JTextField overrideMaxIterations;
+    private JTextField loadReferenceFilePath;
 
     public SequenceRenderDialog(MinimalRendererWindow ptr, Settings s, ZoomSequenceSettings zss) {
 
@@ -92,7 +96,7 @@ public class SequenceRenderDialog extends JDialog {
         reset.setFocusable(false);
         reset.setIcon(MainWindow.getIcon("reset_small.png"));
 
-        reset.addActionListener(e -> reset());
+        reset.addActionListener(e -> reset(s));
 
         JPanel action_panel = new JPanel();
         action_panel.setLayout(new FlowLayout());
@@ -176,6 +180,8 @@ public class SequenceRenderDialog extends JDialog {
 
         fieldSlopesCycling = new MyJSpinner(new SpinnerNumberModel(zss.slopes_direction_adjusting_value, -90.0, 90.0, 1));
 
+        fieldBlinnLightCycling = new MyJSpinner(new SpinnerNumberModel(zss.blinn_light_direction_adjusting_value, -90.0, 90.0, 1));
+
         filedBumpLightCycling = new MyJSpinner(new SpinnerNumberModel(zss.bump_direction_adjusting_value, -90.0, 90.0, 1));
 
         fieldZoomEveryNFrame = new MyJSpinner(new SpinnerNumberModel(zss.zoom_every_n_frame, 1, 20, 1));
@@ -206,6 +212,40 @@ public class SequenceRenderDialog extends JDialog {
         saveSettingsOnEachStep = new JCheckBox("Save Settings on Each Step");
         saveSettingsOnEachStep.setFocusable(false);
         saveSettingsOnEachStep.setToolTipText("Creates a .fzs file on each zoom sequence step.");
+        saveSettingsOnEachStep.setSelected(zss.saveSettingsOnEachStep);
+
+        saveKFB = new JCheckBox("Save KFB on Each Step");
+        saveKFB.setFocusable(false);
+        saveKFB.setToolTipText("Creates a .kfb file on each zoom sequence step with the raw iteration data.");
+        saveKFB.setSelected(zss.saveKFB);
+
+        saveReference = new JCheckBox("Save Reference");
+        saveReference.setFocusable(false);
+        saveReference.setToolTipText("Saves the reference orbit.");
+        saveReference.setSelected(zss.saveReference);
+
+        loadReferenceFilePath = new JTextField(40);
+        loadReferenceFilePath.setText(zss.loadReferenceFilePath);
+        loadReferenceFilePath.setEditable(false);
+
+        MyButton selectReference = new MyButton("Load Reference");
+        selectReference.setFocusable(false);
+        selectReference.setToolTipText("Loads the reference data");
+        selectReference.setIcon(MainWindow.getIcon("load_small.png"));
+
+        selectReference.addActionListener(e -> loadReference(loadReferenceFilePath));
+
+        JPanel savePanel = new JPanel();
+        savePanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+        savePanel.add(saveSettingsOnEachStep);
+        savePanel.add(saveKFB);
+        savePanel.add(saveReference);
+
+
+        JPanel loadRefPanel = new JPanel();
+        loadRefPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+        loadRefPanel.add(loadReferenceFilePath);
+        loadRefPanel.add(selectReference);
 
         JScrollPane scrollOverrideMaxIterSize = new JScrollPane (override_max_iterations_size,
                 JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
@@ -245,6 +285,8 @@ public class SequenceRenderDialog extends JDialog {
                 filedBumpLightCycling,
                 "Slope Direction Adjusting Value in degrees (When Slopes is Enabled):",
                 fieldSlopesCycling,
+                "Blinn-Phong Light Polar Angle Adjusting Value in degrees (When Blinn-Phong Light is Enabled):",
+                fieldBlinnLightCycling,
                 " ",
                 "Set the max iterations override.",
                 "Override Max Iterations when size > than:",
@@ -265,7 +307,10 @@ public class SequenceRenderDialog extends JDialog {
                 "File Name Pattern:",
                 namePattern,
                 " ",
-                saveSettingsOnEachStep,
+                "Reference Data:",
+                loadRefPanel,
+                " ",
+                savePanel,
 
             " "};
 
@@ -316,6 +361,7 @@ public class SequenceRenderDialog extends JDialog {
                             long stopAfterN = Long.parseLong(stopAfterNSteps.getText());
                             long indexOffs = Long.parseLong(indexOffset.getText());
                             int max_iterations_override = Integer.parseInt(overrideMaxIterations.getText());
+                            double tempBlinnLight = Double.parseDouble(fieldBlinnLightCycling.getText());
 
                             if(MyApfloat.setAutomaticPrecision) {
                                 long precision = MyApfloat.getAutomaticPrecision(new String[]{field_size.getText(), end_size.getText(), override_max_iterations_size.getText()}, new boolean[]{true, true, true}, s.fns.function);
@@ -379,6 +425,11 @@ public class SequenceRenderDialog extends JDialog {
                                 return;
                             }
 
+                            if(tempBlinnLight > 90 || tempBlinnLight < -90) {
+                                JOptionPane.showMessageDialog(ptra, "The blinn-phong light polar angle adjusting value must be a number in the range [-90, 90] degrees.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+
                             if(tempBumpLight > 90 || tempBumpLight < -90) {
                                 JOptionPane.showMessageDialog(ptra, "The bump mapping light direction adjusting value must be a number in the range [-90, 90] degrees.", "Error!", JOptionPane.ERROR_MESSAGE);
                                 return;
@@ -410,6 +461,7 @@ public class SequenceRenderDialog extends JDialog {
                             zss.color_cycling_adjusting_value = tempColorCycling;
                             zss.light_direction_adjusting_value = tempLight;
                             zss.bump_direction_adjusting_value = tempBumpLight;
+                            zss.blinn_light_direction_adjusting_value = tempBlinnLight;
                             zss.zoom_every_n_frame = tempZoomNFrame;
                             zss.gradient_color_cycling_adjusting_value = tempGradientColorCycling;
                             zss.flipSequenceIndexing = flipIndex.isSelected();
@@ -423,6 +475,9 @@ public class SequenceRenderDialog extends JDialog {
                             zss.override_max_iterations = max_iterations_override;
                             zss.sequenceIndexOffset = indexOffs;
                             zss.saveSettingsOnEachStep = saveSettingsOnEachStep.isSelected();
+                            zss.saveReference = saveReference.isSelected();
+                            zss.loadReferenceFilePath = loadReferenceFilePath.getText();
+                            zss.saveKFB = saveKFB.isSelected();
 
                             ptr.startSequenceRender();
 
@@ -495,7 +550,7 @@ public class SequenceRenderDialog extends JDialog {
                 zss.setEndSize(new MyApfloat(zss.endSizeStr));
                 zss.setOverrideMaxIterationsSizeLimit(new MyApfloat(zss.overrideMaxIterationsSizeLimitStr));
 
-                setFromSettings(zss);
+                setFromSettings(zss, s);
             } catch (IOException ex) {
                 JOptionPane.showMessageDialog(this, "Error while loading the file.", "Error!", JOptionPane.ERROR_MESSAGE);
             }
@@ -503,14 +558,43 @@ public class SequenceRenderDialog extends JDialog {
 
     }
 
-    private void reset() {
+    private void loadReference(JTextField textField) {
 
-        setFromSettings(new ZoomSequenceSettings());
+        JFileChooser file_chooser = new JFileChooser(MinimalRendererWindow.outputDirectory);
+
+        file_chooser.setAcceptAllFileFilterUsed(false);
+        file_chooser.setDialogType(JFileChooser.OPEN_DIALOG);
+
+        file_chooser.addChoosableFileFilter(new FileNameExtensionFilter("Reference Data (*.ref)", "ref"));
+
+        file_chooser.addPropertyChangeListener(JFileChooser.FILE_FILTER_CHANGED_PROPERTY, evt -> {
+            String file_name = ((BasicFileChooserUI) file_chooser.getUI()).getFileName();
+            file_chooser.setSelectedFile(new File(file_name));
+        });
+
+        int returnVal = file_chooser.showDialog(this, "Load Reference");
+
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            File file = file_chooser.getSelectedFile();
+            if (file != null) {
+                textField.setText(file.getAbsolutePath());
+            }
+        }
 
     }
 
-    private void setFromSettings(ZoomSequenceSettings zss) {
+    private void reset(Settings s) {
+
+        setFromSettings(new ZoomSequenceSettings(), s);
+
+    }
+
+    private void setFromSettings(ZoomSequenceSettings zss, Settings s) {
         zoooming_mode.setSelectedIndex(zss.zooming_mode);
+
+        if(zss.endSize == null) {
+            zss.setEndSize(s.size);
+        }
 
         field_size.setText("" + zss.startSize);
         end_size.setText("" + zss.endSize);
@@ -521,6 +605,7 @@ public class SequenceRenderDialog extends JDialog {
         fieldGradientColorCycling.setValue(zss.gradient_color_cycling_adjusting_value);
         fieldLightCycling.setValue(zss.light_direction_adjusting_value);
         fieldSlopesCycling.setValue(zss.slopes_direction_adjusting_value);
+        fieldBlinnLightCycling.setValue(zss.blinn_light_direction_adjusting_value);
         filedBumpLightCycling.setValue(zss.bump_direction_adjusting_value);
         fieldZoomEveryNFrame.setValue(zss.zoom_every_n_frame);
         flipIndex.setSelected(zss.flipSequenceIndexing);
@@ -531,6 +616,9 @@ public class SequenceRenderDialog extends JDialog {
         override_max_iterations_size.setText("" + zss.overrideMaxIterationsSizeLimit);
         overrideMaxIterations.setText("" + zss.override_max_iterations);
         saveSettingsOnEachStep.setSelected(zss.saveSettingsOnEachStep);
+        saveReference.setSelected(zss.saveReference);
+        loadReferenceFilePath.setText(zss.loadReferenceFilePath);
+        saveKFB.setSelected(zss.saveKFB);
     }
 
 }

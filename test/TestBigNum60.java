@@ -1,7 +1,7 @@
 package test;
-import fractalzoomer.core.BigNum;
-import fractalzoomer.core.MyApfloat;
-import fractalzoomer.core.BigNum60;
+import fractalzoomer.core.numerics.BigNum;
+import fractalzoomer.core.numerics.MyApfloat;
+import fractalzoomer.core.numerics.BigNum60;
 import fractalzoomer.core.TaskRender;
 import org.apfloat.Apfloat;
 

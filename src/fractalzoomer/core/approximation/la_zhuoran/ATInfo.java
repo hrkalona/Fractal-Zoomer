@@ -1,9 +1,9 @@
 package fractalzoomer.core.approximation.la_zhuoran;
 
 import fractalzoomer.core.Complex;
-import fractalzoomer.core.GenericComplex;
-import fractalzoomer.core.MantExp;
-import fractalzoomer.core.MantExpComplex;
+import fractalzoomer.core.numerics.GenericComplex;
+import fractalzoomer.core.numerics.MantExp;
+import fractalzoomer.core.numerics.MantExpComplex;
 
 public class ATInfo {
     public static final MantExp factor = new MantExp(0x1.0p32);

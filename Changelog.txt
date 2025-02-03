@@ -1,3 +1,15 @@
+Version 1.0.9.5
+    -Added a new post-processing algorithm for image texture mapping
+    -Added a new post-processing algorithm for light effects
+    -Added new sampling patterns for Anti-Aliasing
+    -Added a new pre/post function filter (Mobius)
+    -Added a new function z = (z^3)/(z+c) which also supports perturbation theory
+    -Added reference orbit saving/loading during zoom sequence rendering (Minimal Renderer)
+    -Added the option to save kfb files during zoom sequence rendering (Minimal Renderer)
+    -Fixed the 3d renderers to be consistent when using image filters
+    -Optimized polar location calculation
+    -Various bug fixes and improvements
+
 Version 1.0.9.4
     -Added a new optimized mpfr variant for windows based on mpir
     -Added a secondary mpfr variant for windows which was built using msvc that includes multithreading

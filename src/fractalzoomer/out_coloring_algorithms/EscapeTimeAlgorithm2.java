@@ -3,6 +3,7 @@
 package fractalzoomer.out_coloring_algorithms;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.utils.OutColorData;
 
 /**
  *
@@ -20,11 +21,12 @@ public class EscapeTimeAlgorithm2 extends OutColorAlgorithm {
     }
 
     @Override
-    public double getResult(Object[] object) {
+    public double getResult(OutColorData data) {
 
-        Complex temp = ((Complex)object[1]).sub(((Complex)object[1]).sin());
+        Complex z = data.z;
+        Complex temp = z.sub(z.sin());
         
-        return EscapeTimeAlg.getResult(object) +  Math.abs(Math.atan(temp.getIm() / temp.getRe())) * 8;
+        return EscapeTimeAlg.getResult(data) +  Math.abs(Math.atan(temp.getIm() / temp.getRe())) * 8;
                 
     }
     

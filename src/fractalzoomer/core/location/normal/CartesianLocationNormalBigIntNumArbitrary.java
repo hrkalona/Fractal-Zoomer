@@ -1,9 +1,9 @@
 package fractalzoomer.core.location.normal;
 
-import fractalzoomer.core.BigIntNum;
-import fractalzoomer.core.BigIntNumComplex;
-import fractalzoomer.core.GenericComplex;
 import fractalzoomer.core.location.Location;
+import fractalzoomer.core.numerics.BigIntNum;
+import fractalzoomer.core.numerics.BigIntNumComplex;
+import fractalzoomer.core.numerics.GenericComplex;
 import fractalzoomer.fractal_options.Rotation;
 import fractalzoomer.functions.Fractal;
 import fractalzoomer.main.app_settings.JitterSettings;
@@ -243,9 +243,9 @@ public class CartesianLocationNormalBigIntNumArbitrary extends Location {
     }
 
     @Override
-    public void createAntialiasingSteps(boolean adaptive, boolean jitter, int numberOfExtraSamples) {
-        super.createAntialiasingSteps(adaptive, jitter, numberOfExtraSamples);
-        BigIntNum[][] steps = createAntialiasingStepsBigIntNum(bntemp_size_image_size_x, bntemp_size_image_size_y, adaptive, jitter, numberOfExtraSamples);
+    public void createAntialiasingSteps(boolean adaptive, boolean jitter, int aaType, int numberOfExtraSamples, boolean gaussian) {
+        super.createAntialiasingSteps(adaptive, jitter, aaType, numberOfExtraSamples, gaussian);
+        BigIntNum[][] steps = createAntialiasingStepsBigIntNum(bntemp_size_image_size_x, bntemp_size_image_size_y, adaptive, jitter,aaType,  numberOfExtraSamples, gaussian);
         bnantialiasing_x = steps[0];
         bnantialiasing_y = steps[1];
     }

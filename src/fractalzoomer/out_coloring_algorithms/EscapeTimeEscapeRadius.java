@@ -4,6 +4,7 @@ package fractalzoomer.out_coloring_algorithms;
 
 import fractalzoomer.core.Complex;
 import fractalzoomer.core.norms.Norm;
+import fractalzoomer.utils.OutColorData;
 
 /**
  *
@@ -35,12 +36,13 @@ public class EscapeTimeEscapeRadius extends OutColorAlgorithm {
     }
 
     @Override
-    public double getResult(Object[] object) {
+    public double getResult(OutColorData data) {
+
+        Complex z = data.z;
+        double zabs = Math.log(normImpl.computeWithoutRoot(z)) / log_bailout - 1.0f;
+        double zarg = (z.arg() / (pi2) + 1.0f) % 1.0;
         
-        double zabs = Math.log(normImpl.computeWithoutRoot((Complex)object[1])) / log_bailout - 1.0f;
-        double zarg = (((Complex)object[1]).arg() / (pi2) + 1.0f) % 1.0;
-        
-        return EscapeTimeAlg.getResult(object) + zabs + zarg;
+        return EscapeTimeAlg.getResult(data) + zabs + zarg;
 
     }
     

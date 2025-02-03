@@ -1,8 +1,8 @@
-0 0 0       MAPGEN FRACTINT .MAP created 03-09-1995
-1 5 150     RGB cycles    2    2    1
-0 4 150     RGB max's   170  122  151
-0 3 151     RGB phases 2.97 2.69 6.09
-0 2 151     SEED was     3
+0 0 0
+1 5 150
+0 4 150
+0 3 151
+0 2 151
 0 1 151
 1 1 151
 1 0 151

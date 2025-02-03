@@ -3,6 +3,7 @@
 package fractalzoomer.out_coloring_algorithms;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.utils.OutColorData;
 
 
 /**
@@ -23,11 +24,12 @@ public class Biomorphs extends OutColorAlgorithm {
     }
 
     @Override
-    public double getResult(Object[] object) {
+    public double getResult(OutColorData data) {
 
-        double result = EscapeTimeAlg.getResult(object);
-        double temp = ((Complex)object[1]).getRe();
-        double temp2 = ((Complex)object[1]).getIm();
+        double result = EscapeTimeAlg.getResult(data);
+        Complex z = data.z;
+        double temp = z.getRe();
+        double temp2 = z.getIm();
         return temp > -bailout && temp < bailout || temp2 > -bailout && temp2 < bailout ?  result : -(result + INCREMENT);
 
     }

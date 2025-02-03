@@ -68,14 +68,15 @@ public class GaussianAntialiasingAlgorithm extends AntialiasingAlgorithm {
 
     @Override
     public int getColor() {
-        if(addedSamples != totalSamples) {
+        if(addedSamples == 0) {
             return 0xff000000;
         }
 
         if(avgWithMean) {
-            double finalA = (SumA + SumA2 * totalSamplesReciprocal) * 0.5;
-            double finalB = (SumB + SumB2 * totalSamplesReciprocal) * 0.5;
-            double finalC = (SumC + SumC2 * totalSamplesReciprocal) * 0.5;
+            double addedSamplesReciprocal = 1.0 / addedSamples;
+            double finalA = (SumA + SumA2 * addedSamplesReciprocal) * 0.5;
+            double finalB = (SumB + SumB2 * addedSamplesReciprocal) * 0.5;
+            double finalC = (SumC + SumC2 * addedSamplesReciprocal) * 0.5;
             int[] result = getColorChannels(finalA, finalB, finalC);
             return ColorCorrection.linearToGamma(result[0], result[1], result[2]);
         } else {
@@ -99,6 +100,7 @@ public class GaussianAntialiasingAlgorithm extends AntialiasingAlgorithm {
 
         double distance = 0;
         double sigmaSqr2 = 2.0 * sigma * sigma;
+        double sigmaSqr2Reciprocal = 1 / sigmaSqr2;
 
         double calculatedEuler = 1.0 / (sigmaSqr2 * Math.PI);
 
@@ -109,7 +111,7 @@ public class GaussianAntialiasingAlgorithm extends AntialiasingAlgorithm {
             int filterX = X[i];
             int filterY = Y[i];
 
-            distance = ((filterX * filterX) + (filterY * filterY)) / (sigmaSqr2);
+            distance = ((filterX * filterX) + (filterY * filterY)) * sigmaSqr2Reciprocal;
             temp = gaussian_kernel[i] = calculatedEuler * Math.exp(-distance);
             sumTotal += temp;
         }

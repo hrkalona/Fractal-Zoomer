@@ -4,6 +4,7 @@ package fractalzoomer.out_coloring_algorithms;
 
 import fractalzoomer.core.Complex;
 import fractalzoomer.core.norms.Norm;
+import fractalzoomer.utils.OutColorData;
 
 //import static fractalzoomer.out_coloring_algorithms.SmoothEscapeTime.APPLY_OFFSET_OF_1_IN_SMOOTHING;
 
@@ -41,9 +42,9 @@ public class SmoothEscapeTimeRootFindingMethod extends OutColorAlgorithm {
     }
 
     @Override
-    public double getResult(Object[] object) {
+    public double getResult(OutColorData data) {
 
-        return (int)object[0] + getFractionalPart(object);
+        return data.iterations + getFractionalPart(data);
 
     }
 
@@ -62,12 +63,12 @@ public class SmoothEscapeTimeRootFindingMethod extends OutColorAlgorithm {
     }
 
     @Override
-    public double getFractionalPart(Object[] object) {
+    public double getFractionalPart(OutColorData data) {
         if(algorithm == 0) {
-            return getSmoothing1((Complex)object[1], (Complex)object[2], (Complex)object[3], log_convergent_bailout, cNormImpl);
+            return getSmoothing1(data.z, data.zold, data.zold2, log_convergent_bailout, cNormImpl);
         }
         else {
-            return getSmoothing2((Complex)object[1], (Complex)object[2], (Complex)object[3], log_convergent_bailout, cNormImpl);
+            return getSmoothing2(data.z, data.zold, data.zold2, log_convergent_bailout, cNormImpl);
         }
     }
 }

@@ -1,7 +1,8 @@
 
 package fractalzoomer.functions.mandelbrot;
 
-import fractalzoomer.core.*;
+import fractalzoomer.core.Complex;
+import fractalzoomer.core.numerics.*;
 import fractalzoomer.core.reference.ReferenceData;
 import fractalzoomer.core.reference.ReferenceDeepData;
 import fractalzoomer.fractal_options.initial_value.DefaultInitialValue;
@@ -159,7 +160,7 @@ public class Mandelbar extends Julia {
     @Override
     public Complex perturbationFunction(Complex DeltaSubN, Complex DeltaSub0, int RefIteration) {
 
-        Complex X = getArrayValue(reference, RefIteration);
+        Complex X = getReferenceValue(reference, RefIteration);
 
         double r = X.getRe();
         double i = X.getIm();
@@ -176,7 +177,7 @@ public class Mandelbar extends Julia {
     @Override
     public MantExpComplex perturbationFunction(MantExpComplex DeltaSubN, MantExpComplex DeltaSub0, int RefIteration) {
 
-        MantExpComplex X = getArrayDeepValue(referenceDeep, RefIteration);
+        MantExpComplex X = getReferenceDeepValue(referenceDeep, RefIteration);
 
         MantExp r = X.getRe();
         MantExp i = X.getIm();
@@ -192,7 +193,7 @@ public class Mandelbar extends Julia {
     @Override
     public Complex perturbationFunction(Complex DeltaSubN, int RefIteration) {
 
-        Complex X = getArrayValue(reference, RefIteration);
+        Complex X = getReferenceValue(reference, RefIteration);
 
         double r = X.getRe();
         double i = X.getIm();
@@ -208,7 +209,7 @@ public class Mandelbar extends Julia {
     @Override
     public MantExpComplex perturbationFunction(MantExpComplex DeltaSubN, int RefIteration) {
 
-        MantExpComplex X = getArrayDeepValue(referenceDeep, RefIteration);
+        MantExpComplex X = getReferenceDeepValue(referenceDeep, RefIteration);
 
         MantExp r = X.getRe();
         MantExp i = X.getIm();
@@ -223,7 +224,7 @@ public class Mandelbar extends Julia {
 
     @Override
     public Complex perturbationFunction(Complex DeltaSubN, ReferenceData data, int RefIteration) {
-        Complex X = getArrayValue(data.Reference, RefIteration);
+        Complex X = getReferenceValue(data.Reference, RefIteration);
 
         double r = X.getRe();
         double i = X.getIm();
@@ -238,7 +239,7 @@ public class Mandelbar extends Julia {
 
     @Override
     public MantExpComplex perturbationFunction(MantExpComplex DeltaSubN, ReferenceDeepData data, int RefIteration) {
-        MantExpComplex X = getArrayDeepValue(data.Reference, RefIteration);
+        MantExpComplex X = getReferenceDeepValue(data.Reference, RefIteration);
 
         MantExp r = X.getRe();
         MantExp i = X.getIm();
@@ -272,6 +273,11 @@ public class Mandelbar extends Julia {
 
     @Override
     public boolean supportsReferenceCompression() {
+        return true;
+    }
+
+    @Override
+    public boolean supportsReferenceSavingOrLoading() {
         return true;
     }
 

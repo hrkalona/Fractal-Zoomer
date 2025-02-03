@@ -42,4 +42,8 @@ public class Square {
         }
         else return x1 != x2;
     }
+
+    public boolean isSmall() {
+        return Math.abs(x1 - x2) <= 4 || Math.abs(y1 - y2) <= 4;
+    }
 }

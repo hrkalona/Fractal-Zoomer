@@ -30,6 +30,7 @@ public class PaletteMenu extends MyMenu {
     private MainWindow ptr;
     private JRadioButtonMenuItem[] palette;
     public static final String[] paletteNames;
+    public static final String[] paletteToolTips;
     private JMenu paletteLegacyFractintMen;
 
     private JMenuItem colorMapframe;
@@ -90,6 +91,63 @@ public class PaletteMenu extends MyMenu {
         paletteNames[44] = "FX Six Primaries";
         paletteNames[45] = "Xaos Default";
         paletteNames[46] = "Kalles Fraktaler Default";
+        paletteNames[47] = "Sunset";
+
+        paletteToolTips = new String[MainWindow.TOTAL_PALETTES];
+
+        paletteToolTips[0]  = "The default palette.";
+        paletteToolTips[1]  = "A palette based on color spectrum based.";
+        paletteToolTips[2]  = "A palette based on software, Fractal Extreme.";
+        paletteToolTips[3]  = "An alternative palette.";
+        paletteToolTips[4]  = "An alternative palette.";
+        paletteToolTips[5]  = "An alternative palette.";
+        paletteToolTips[6]  = "An alternative palette.";
+        paletteToolTips[7]  = "An alternative palette.";
+        paletteToolTips[8]  = "An alternative palette.";
+        paletteToolTips[9]  = "An alternative palette.";
+        paletteToolTips[10] = "A palette based on software Ultra Fractal.";
+        paletteToolTips[11] = "A palette based on the colors of dusk.";
+        paletteToolTips[12] = "A palette based on gray scale.";
+        paletteToolTips[13] = "A palette based on colors of earth and sky.";
+        paletteToolTips[14] = "A palette based on colors of hot and cold.";
+        paletteToolTips[15] = "A palette based on color temperature.";
+        paletteToolTips[16] = "A palette based on colors of fire.";
+        paletteToolTips[17] = "A palette based on matlab's colormap.";
+
+        paletteToolTips[MainWindow.CUSTOM_PALETTE_ID]  = "A palette custom made by the user.";
+        paletteToolTips[MainWindow.DIRECT_PALETTE_ID]  = "A palette loaded directly from a file (RGB: 0-255 0-255 0-255 format).";
+
+        paletteToolTips[20] = "A legacy FractInt palette.";
+        paletteToolTips[21] = "A legacy FractInt palette.";
+        paletteToolTips[22] = "A legacy FractInt palette.";
+        paletteToolTips[23] = "A legacy FractInt palette.";
+        paletteToolTips[24] = "A legacy FractInt palette.";
+        paletteToolTips[25] = "A legacy FractInt palette.";
+        paletteToolTips[26] = "A legacy FractInt palette.";
+        paletteToolTips[27] = "A legacy FractInt palette.";
+        paletteToolTips[28] = "A legacy FractInt palette.";
+        paletteToolTips[29] = "A legacy FractInt palette.";
+        paletteToolTips[30] = "A legacy FractInt palette.";
+        paletteToolTips[31] = "A legacy FractInt palette.";
+        paletteToolTips[32] = "A legacy FractInt palette.";
+        paletteToolTips[33] = "A legacy FractInt palette.";
+        paletteToolTips[34] = "A legacy FractInt palette.";
+        paletteToolTips[35] = "A legacy FractInt palette.";
+
+        paletteToolTips[36] = "A palette from QFractal.";
+        paletteToolTips[37] = "A palette from QFractal.";
+        paletteToolTips[38] = "A palette from QFractal.";
+        paletteToolTips[39] = "A palette from QFractal.";
+        paletteToolTips[40] = "A palette from QFractal.";
+
+        paletteToolTips[41] = "A palette from Fractal Extreme.";
+        paletteToolTips[42] = "A palette from Fractal Extreme.";
+        paletteToolTips[43] = "A palette from Fractal Extreme.";
+        paletteToolTips[44] = "A palette from Fractal Extreme.";
+
+        paletteToolTips[45] = "A palette from Xaos.";
+        paletteToolTips[46] = "A palette from Kalles Fraktaler.";
+        paletteToolTips[47] = "A palette from mathematica.";
     }
 
     public PaletteMenu(MainWindow ptr2, String name, int color_choice, boolean smoothing, int[][] custom_palette, int color_interpolation, int color_space, boolean reversed_palette, int color_cycling_location, double scale_factor_palette_val, int processing_alg, final boolean outcoloring_mode, int temp_color_cycling_location) {
@@ -216,6 +274,7 @@ public class PaletteMenu extends MyMenu {
                 }
             }
 
+            palette[i].setToolTipText(paletteToolTips[i]);
             
             palettes_group.add(palette[i]);
         }
@@ -252,54 +311,6 @@ public class PaletteMenu extends MyMenu {
 
         palette[color_choice].setSelected(true);
 
-        palette[0].setToolTipText("The default palette.");
-        palette[1].setToolTipText("A palette based on color spectrum based.");
-        palette[2].setToolTipText("A palette based on software, Fractal Extreme.");
-        palette[3].setToolTipText("An alternative palette.");
-        palette[4].setToolTipText("An alternative palette.");
-        palette[5].setToolTipText("An alternative palette.");
-        palette[6].setToolTipText("An alternative palette.");
-        palette[7].setToolTipText("An alternative palette.");
-        palette[8].setToolTipText("An alternative palette.");
-        palette[9].setToolTipText("An alternative palette.");
-        palette[10].setToolTipText("A palette based on software Ultra Fractal.");
-        palette[11].setToolTipText("A palette based on the colors of dusk.");
-        palette[12].setToolTipText("A palette based on gray scale.");
-        palette[13].setToolTipText("A palette based on colors of earth and sky.");
-        palette[14].setToolTipText("A palette based on colors of hot and cold.");
-        palette[15].setToolTipText("A palette based on color temperature.");
-        palette[16].setToolTipText("A palette based on colors of fire.");
-        palette[17].setToolTipText("A palette based on matlab's colormap.");
-        palette[MainWindow.CUSTOM_PALETTE_ID].setToolTipText("A palette custom made by the user.");
-        palette[MainWindow.DIRECT_PALETTE_ID].setToolTipText("A palette loaded directly from a file (RGB: 0-255 0-255 0-255 format).");
-        
-        palette[20].setToolTipText("A legacy FractInt palette.");
-        palette[21].setToolTipText("A legacy FractInt palette.");
-        palette[22].setToolTipText("A legacy FractInt palette.");
-        palette[23].setToolTipText("A legacy FractInt palette.");
-        palette[24].setToolTipText("A legacy FractInt palette.");
-        palette[25].setToolTipText("A legacy FractInt palette.");
-        palette[26].setToolTipText("A legacy FractInt palette.");
-        palette[27].setToolTipText("A legacy FractInt palette.");
-        palette[28].setToolTipText("A legacy FractInt palette.");
-        palette[29].setToolTipText("A legacy FractInt palette.");
-        palette[30].setToolTipText("A legacy FractInt palette.");
-        palette[31].setToolTipText("A legacy FractInt palette.");
-        palette[32].setToolTipText("A legacy FractInt palette.");
-        palette[33].setToolTipText("A legacy FractInt palette.");
-        palette[34].setToolTipText("A legacy FractInt palette.");
-        palette[35].setToolTipText("A legacy FractInt palette.");
-        palette[36].setToolTipText("A palette from QFractal.");
-        palette[37].setToolTipText("A palette from QFractal.");
-        palette[38].setToolTipText("A palette from QFractal.");
-        palette[39].setToolTipText("A palette from QFractal.");
-        palette[40].setToolTipText("A palette from QFractal.");
-        palette[41].setToolTipText("A palette from Fractal Extreme.");
-        palette[42].setToolTipText("A palette from Fractal Extreme.");
-        palette[43].setToolTipText("A palette from Fractal Extreme.");
-        palette[44].setToolTipText("A palette from Fractal Extreme.");
-        palette[45].setToolTipText("A palette from Xaos.");
-        palette[46].setToolTipText("A palette from Kalles Fraktaler.");
     }
 
     public JRadioButtonMenuItem[] getPalette() {
@@ -333,13 +344,13 @@ public class PaletteMenu extends MyMenu {
                 int g = Integer.parseInt(st.nextToken());
                 int b = Integer.parseInt(st.nextToken());
                 
-                r = r < 0 ? 0 : r;
-                g = g < 0 ? 0 : g;
-                b = b < 0 ? 0 : b;
+                r = Math.max(r, 0);
+                g = Math.max(g, 0);
+                b = Math.max(b, 0);
                 
-                r = r > 255 ? 255 : r;
-                g = g > 255 ? 255 : g;
-                b = b > 255 ? 255 : b;
+                r = Math.min(r, 255);
+                g = Math.min(g, 255);
+                b = Math.min(b, 255);
                 
                 rgbs.add(0xFF000000 | r << 16 | g << 8 | b);
             }

@@ -139,6 +139,21 @@ public abstract class PaletteColor {
                 catch (Exception ex) {
                     return 0xff000000;
                 }
+            case 7:
+                t = value / cycle;
+                double oneMinusT = 1 - t;
+                double tSquared = t * t;
+                double tCubed = tSquared * t;
+                double oneMinusTSquared = oneMinusT * oneMinusT;
+                double oneMinusTCubed = oneMinusTSquared * oneMinusT;
+                //Todo add parameters
+                red = (int)(9 * oneMinusT * tCubed * 255.0 + 0.5);
+                green = (int)(15 * oneMinusTSquared * tSquared * 255.0 + 0.5);
+                blue = (int)(8.5 * oneMinusTCubed * t * 255.0 + 0.5);
+                red = ColorSpaceConverter.clamp(red);
+                green = ColorSpaceConverter.clamp(green);
+                blue = ColorSpaceConverter.clamp(blue);
+                return 0xff000000 | (red << 16) | (green << 8) | blue;
         }
 
         return 0;

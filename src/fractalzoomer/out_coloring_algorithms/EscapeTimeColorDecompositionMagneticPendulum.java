@@ -2,6 +2,7 @@
 package fractalzoomer.out_coloring_algorithms;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.utils.OutColorData;
 
 /**
  *
@@ -17,9 +18,9 @@ public class EscapeTimeColorDecompositionMagneticPendulum extends EscapeTimeColo
     }
 
     @Override
-    public double getResult(Object[] object) {
+    public double getResult(OutColorData data) {
 
-        Complex z = ((Complex)object[1]);
+        Complex z = data.z;
         int min_i = 0;
         double min = Double.MAX_VALUE;
         
@@ -31,14 +32,14 @@ public class EscapeTimeColorDecompositionMagneticPendulum extends EscapeTimeColo
             }
         }
  
-        return pi59 * (min_i + 1) + EscapeTimeAlg.getResult(object);
+        return pi59 * (min_i + 1) + EscapeTimeAlg.getResult(data);
         
     }
     
     @Override
-    public double getResult3D(Object[] object, double result) {
+    public double getResult3D(OutColorData data, double result) {
         
-        return ((Complex)object[7]).getRe();
+        return data.c0.getRe();
         
     }
     

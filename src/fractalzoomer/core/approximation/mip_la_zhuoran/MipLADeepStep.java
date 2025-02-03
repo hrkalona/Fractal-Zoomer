@@ -1,7 +1,7 @@
 package fractalzoomer.core.approximation.mip_la_zhuoran;
 
-import fractalzoomer.core.MantExp;
-import fractalzoomer.core.MantExpComplex;
+import fractalzoomer.core.numerics.MantExp;
+import fractalzoomer.core.numerics.MantExpComplex;
 import fractalzoomer.functions.Fractal;
 
 public abstract class MipLADeepStep {
@@ -49,5 +49,6 @@ public abstract class MipLADeepStep {
     public MantExp getValidRadiusC() {
         return new MantExp(ValidRadiusCExp, ValidRadiusC);
     }
-    //public abstract int getL();
+
+    public abstract int getL();
 }

@@ -19,7 +19,7 @@ public class ProcessingOrderingDialog extends JDialog {
     private JList<String> list;
     private int[] processing_order;
 
-    public ProcessingOrderingDialog(MainWindow ptra, int[] processing_order, final boolean fake_distance_estimation, final boolean entropy_coloring, final boolean offset_coloring, final boolean rainbow_palette, final boolean greyscale_coloring, final boolean contour_coloring, final boolean bump_mapping, final boolean light, final boolean slopes, final boolean numerical_dem, final boolean histogram) {
+    public ProcessingOrderingDialog(MainWindow ptra, int[] processing_order, final boolean fake_distance_estimation, final boolean entropy_coloring, final boolean offset_coloring, final boolean rainbow_palette, final boolean greyscale_coloring, final boolean contour_coloring, final boolean bump_mapping, final boolean light, final boolean slopes, final boolean numerical_dem, final boolean histogram, final boolean texture, final boolean blinn_light) {
 
         super();
 
@@ -113,6 +113,12 @@ public class ProcessingOrderingDialog extends JDialog {
                 else if(MainWindow.processingAlgorithNames[10].equals(value)) {
                     icon.setIcon(MainWindow.getIcon("histogram.png"));
                 }
+                else if(MainWindow.processingAlgorithNames[11].equals(value)) {
+                    icon.setIcon(MainWindow.getIcon("texture.png"));
+                }
+                else if(MainWindow.processingAlgorithNames[12].equals(value)) {
+                    icon.setIcon(MainWindow.getIcon("blinn_light.png"));
+                }
                 
                 label.setText(value);
                 label.setForeground(list.getForeground());
@@ -182,6 +188,18 @@ public class ProcessingOrderingDialog extends JDialog {
                 }
                 else if(MainWindow.processingAlgorithNames[10].equals(value)) {
                     if(histogram) {
+                        p.setBackground(activeColor);
+                        label.setForeground(list.getSelectionForeground());
+                    }
+                }
+                else if(MainWindow.processingAlgorithNames[11].equals(value)) {
+                    if(texture) {
+                        p.setBackground(activeColor);
+                        label.setForeground(list.getSelectionForeground());
+                    }
+                }
+                else if(MainWindow.processingAlgorithNames[12].equals(value)) {
+                    if(blinn_light) {
                         p.setBackground(activeColor);
                         label.setForeground(list.getSelectionForeground());
                     }

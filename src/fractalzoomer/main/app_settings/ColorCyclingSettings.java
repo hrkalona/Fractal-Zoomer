@@ -7,6 +7,7 @@ public class ColorCyclingSettings {
     public int slope_cycling_adjusting_value;
     public int light_cycling_adjusting_value;
     public int bump_cycling_adjusting_value;
+    public int blinn_light_cycling_adjusting_value;
 
     public ColorCyclingSettings() {
         color_cycling_adjusting_value = 1;
@@ -14,6 +15,7 @@ public class ColorCyclingSettings {
         slope_cycling_adjusting_value = 0;
         light_cycling_adjusting_value = 0;
         bump_cycling_adjusting_value = 0;
+        blinn_light_cycling_adjusting_value = 0;
         color_cycling_speed = 140;
     }
 }

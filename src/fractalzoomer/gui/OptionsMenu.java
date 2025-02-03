@@ -450,6 +450,12 @@ public class OptionsMenu extends MyMenu {
 
     }
 
+    public JMenuItem getTexture() {
+
+        return colors_menu.getTexture();
+
+    }
+
     public JMenuItem getSmoothing() {
 
         return colors_menu.getSmoothing();
@@ -800,6 +806,12 @@ public class OptionsMenu extends MyMenu {
     public JMenuItem getLight() {
 
         return colors_menu.getLight();
+
+    }
+
+    public JMenuItem getBlinnLight() {
+
+        return colors_menu.getBlinnLight();
 
     }
 

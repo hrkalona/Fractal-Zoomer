@@ -2,7 +2,8 @@
 
 package fractalzoomer.planes.newton;
 
-import fractalzoomer.core.*;
+import fractalzoomer.core.Complex;
+import fractalzoomer.core.numerics.*;
 import fractalzoomer.planes.Plane;
 
 /**

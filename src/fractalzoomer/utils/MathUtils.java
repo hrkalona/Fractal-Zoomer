@@ -1,8 +1,7 @@
 
 package fractalzoomer.utils;
 
-import fractalzoomer.core.BigPoint;
-import fractalzoomer.core.MyApfloat;
+import fractalzoomer.core.numerics.MyApfloat;
 import org.apfloat.Apfloat;
 import org.apfloat.ApfloatMath;
 
@@ -72,7 +71,7 @@ public class MathUtils {
 		double coefy = height == image_size ? 0.5 : (1 + (height - (double)width) / width) * 0.5;
 
 		Apfloat coefxdd = new MyApfloat(coefx);
-		Apfloat coefydd = new Apfloat(coefy);
+		Apfloat coefydd = new MyApfloat(coefy);
 
 		Apfloat sizeX = MyApfloat.fp.multiply(size, coefxdd);
 		Apfloat sizeY = MyApfloat.fp.multiply(size, coefydd);

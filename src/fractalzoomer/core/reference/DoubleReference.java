@@ -1,8 +1,10 @@
 package fractalzoomer.core.reference;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
-public class DoubleReference {
+public class DoubleReference implements Serializable {
+    private static final long serialVersionUID = 22259L;
     public double[] re;
     public double[] im;
     protected int length;
@@ -13,14 +15,16 @@ public class DoubleReference {
     public static boolean SHOULD_SAVE_MEMORY = false;
     public int id;
     public boolean compressed;
+    public ReferenceType type = ReferenceType.INVALID;
 
-    public DoubleReference() {
+    public DoubleReference(ReferenceType type) {
         id = -1;
         compressed = false;
+        saveMemory = false;
+        this.type = type;
     }
 
-    public DoubleReference(int length) {
-
+    public DoubleReference(int length, ReferenceType type) {
         int actualLength = getCreationLength(length);
 
         re = new double[actualLength];
@@ -32,6 +36,18 @@ public class DoubleReference {
 
         id = -1;
         compressed = false;
+        this.type = type;
+    }
+
+    public DoubleReference(int length, int lengthOverride, ReferenceType type) {
+        this.lengthOverride = lengthOverride;
+        re = new double[length];
+        im = new double[length];
+        saveMemory = false;
+        this.length = length;
+        id = -1;
+        compressed = false;
+        this.type = type;
     }
 
     private int getCreationLength(int length) {
@@ -46,17 +62,6 @@ public class DoubleReference {
     public void reset() {
         Arrays.fill(re, 0);
         Arrays.fill(im, 0);
-    }
-
-    public DoubleReference(int length, int lengthOverride) {
-
-        this.lengthOverride = lengthOverride;
-        re = new double[length];
-        im = new double[length];
-        saveMemory = false;
-        this.length = length;
-        id = -1;
-        compressed = false;
     }
 
     public void setLengthOverride(int lengthOverride) {
@@ -100,5 +105,17 @@ public class DoubleReference {
             im = Arrays.copyOf(im, newLength);
         }
 
+    }
+
+    public double getCompressionError() {
+        return 0;
+    }
+
+    public void setFunction(SerializableFunction<?, ?> function) {
+
+    }
+
+    public SerializableFunction<?, ?> getFuction() {
+        return null;
     }
 }

@@ -7,6 +7,7 @@ import fractalzoomer.core.TaskRender;
 import fractalzoomer.parser.ExpressionNode;
 import fractalzoomer.parser.Parser;
 import fractalzoomer.utils.ColorAlgorithm;
+import fractalzoomer.utils.InColorData;
 
 /**
  *
@@ -74,34 +75,34 @@ public class UserInColorAlgorithm extends InColorAlgorithm {
     }
 
     @Override
-    public double getResult(Object[] object) {
+    public double getResult(InColorData data) {
 
         if(parser.foundZ()) {
-            parser.setZvalue(((Complex)object[0]));
+            parser.setZvalue(data.z);
         }
         
         if(parser.foundC()) {
-            parser.setCvalue(((Complex)object[3]));
+            parser.setCvalue(data.c);
         }
         
         if(parser.foundS()) {
-            parser.setSvalue(((Complex)object[4]));
+            parser.setSvalue(data.start);
         }
 
         if(parser.foundC0()) {
-            parser.setC0value(((Complex)object[5]));
+            parser.setC0value(data.c0);
         }
 
         if(parser.foundPixel()) {
-            parser.setPixelvalue(((Complex)object[6]));
+            parser.setPixelvalue(data.pixel);
         }
         
         if(parser.foundP()) {
-            parser.setPvalue(((Complex)object[1]));
+            parser.setPvalue(data.zold);
         }
         
         if(parser.foundPP()) {
-            parser.setPPvalue(((Complex)object[2]));
+            parser.setPPvalue(data.zold2);
         }
 
         if(parser.foundAnyVar()) {

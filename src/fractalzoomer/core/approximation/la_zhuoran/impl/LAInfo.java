@@ -1,14 +1,10 @@
 package fractalzoomer.core.approximation.la_zhuoran.impl;
 
 import fractalzoomer.core.Complex;
-import fractalzoomer.core.GenericComplex;
-import fractalzoomer.core.MantExp;
-import fractalzoomer.core.reference.ReferenceDecompressor;
 import fractalzoomer.core.approximation.la_zhuoran.*;
-import fractalzoomer.core.approximation.la_zhuoran.GenericLAInfo;
-import fractalzoomer.core.approximation.la_zhuoran.InvalidCalculationException;
-import fractalzoomer.core.approximation.la_zhuoran.LAInfoBase;
-import fractalzoomer.core.approximation.la_zhuoran.LAstep;
+import fractalzoomer.core.numerics.GenericComplex;
+import fractalzoomer.core.numerics.MantExp;
+import fractalzoomer.core.reference.ReferenceDecompressor;
 import fractalzoomer.functions.Fractal;
 
 public class LAInfo extends LAInfoBase {
@@ -34,7 +30,7 @@ public class LAInfo extends LAInfoBase {
 
     protected LAInfo(int RefIndex, ReferenceDecompressor referenceDecompressor) {
         super(RefIndex);
-        Complex val = LAReference.f.getArrayValue(referenceDecompressor, Fractal.reference, RefIndex);
+        Complex val = LAReference.f.getReferenceValue(referenceDecompressor, Fractal.reference, RefIndex);
         RefRe = val.getRe();
         RefIm = val.getIm();
         ZCoeffRe = 1.0;
@@ -91,7 +87,7 @@ public class LAInfo extends LAInfoBase {
     @Override
     protected boolean Step(LAInfo out, int zRefIndex, ReferenceDecompressor referenceDecompressor, boolean checkDip) throws InvalidCalculationException {
 
-        Complex z = LAReference.f.getArrayValue(referenceDecompressor, Fractal.reference, zRefIndex);
+        Complex z = LAReference.f.getReferenceValue(referenceDecompressor, Fractal.reference, zRefIndex);
 
         double ChebyMagz = z.chebyshevNorm();
 

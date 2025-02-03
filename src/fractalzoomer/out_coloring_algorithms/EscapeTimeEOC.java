@@ -2,6 +2,8 @@
 
 package fractalzoomer.out_coloring_algorithms;
 
+import fractalzoomer.utils.OutColorData;
+
 public class EscapeTimeEOC extends EscapeTime {
 
     public EscapeTimeEOC() {
@@ -10,9 +12,9 @@ public class EscapeTimeEOC extends EscapeTime {
     }
 
     @Override
-    public double getResult(Object[] object) {
+    public double getResult(OutColorData data) {
 
-        return  (boolean)object[8] ? (int)object[0] + MAGNET_INCREMENT  : (int)object[0];
+        return data.escaped ? data.iterations + MAGNET_INCREMENT  : data.iterations;
 
     }
     

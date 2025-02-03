@@ -1,6 +1,6 @@
 package fractalzoomer.gui;
 
-import fractalzoomer.core.interpolation.*;
+import fractalzoomer.core.interpolation.InterpolationMethod;
 import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
 

@@ -1,15 +1,15 @@
 package fractalzoomer.fractal_options.iteration_statistics;
 
 import fractalzoomer.core.Complex;
-import fractalzoomer.core.GenericComplex;
-import fractalzoomer.core.MantExp;
-import fractalzoomer.core.MantExpComplex;
+import fractalzoomer.core.approximation.la_zhuoran.LAstep;
 import fractalzoomer.core.approximation.mip_la_claude.BLA;
 import fractalzoomer.core.approximation.mip_la_claude.BLADeep;
-import fractalzoomer.core.interpolation.InterpolationMethod;
-import fractalzoomer.core.approximation.la_zhuoran.LAstep;
 import fractalzoomer.core.approximation.mip_la_zhuoran.MipLADeepStep;
 import fractalzoomer.core.approximation.mip_la_zhuoran.MipLAStep;
+import fractalzoomer.core.interpolation.InterpolationMethod;
+import fractalzoomer.core.numerics.GenericComplex;
+import fractalzoomer.core.numerics.MantExp;
+import fractalzoomer.core.numerics.MantExpComplex;
 import fractalzoomer.utils.ColorAlgorithm;
 import org.apfloat.Apfloat;
 

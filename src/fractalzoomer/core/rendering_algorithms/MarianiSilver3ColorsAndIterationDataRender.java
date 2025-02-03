@@ -1,8 +1,8 @@
 
 package fractalzoomer.core.rendering_algorithms;
 
-import fractalzoomer.main.MinimalRendererWindow;
 import fractalzoomer.main.MainWindow;
+import fractalzoomer.main.MinimalRendererWindow;
 import fractalzoomer.main.app_settings.*;
 import org.apfloat.Apfloat;
 

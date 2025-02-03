@@ -3,6 +3,7 @@
 package fractalzoomer.in_coloring_algorithms;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.utils.InColorData;
 
 /**
  *
@@ -26,10 +27,11 @@ public class Squares extends InColorAlgorithm {
     }
     
     @Override
-    public double getResult(Object[] object) {
-        
-        double re = ((Complex)object[0]).getRe();
-        double im = ((Complex)object[0]).getIm();
+    public double getResult(InColorData data) {
+
+        Complex z = data.z;
+        double re = z.getRe();
+        double im = z.getIm();
         
         return ((Math.abs((int)(re * 40)) % 2) ^ (Math.abs((int)(im * 40)) % 2)) == 1 ? max_iterations + Math.abs((Math.atan2(im, re) / (pi2)  + 0.75) * pi59) :  max_iterations + Math.abs((Math.atan2(re, im) / (pi2)  + 0.75) * pi59);
 

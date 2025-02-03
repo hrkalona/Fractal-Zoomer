@@ -1,18 +1,13 @@
 
 package fractalzoomer.core.rendering_algorithms;
 
-import fractalzoomer.core.PixelExtraData;
 import fractalzoomer.core.antialiasing.AntialiasingAlgorithm;
 import fractalzoomer.core.location.Location;
-import fractalzoomer.functions.Fractal;
 import fractalzoomer.main.Constants;
-import fractalzoomer.main.MinimalRendererWindow;
 import fractalzoomer.main.MainWindow;
+import fractalzoomer.main.MinimalRendererWindow;
 import fractalzoomer.main.app_settings.*;
-import fractalzoomer.utils.Square;
-import fractalzoomer.utils.StopExecutionException;
-import fractalzoomer.utils.StopSuccessiveRefinementException;
-import fractalzoomer.utils.WaitOnCondition;
+import fractalzoomer.utils.*;
 import org.apfloat.Apfloat;
 
 import java.awt.*;
@@ -53,7 +48,7 @@ public class MarianiSilverRender extends QueueBasedRender {
     @Override
     protected void render(int image_width, int image_height, boolean polar) throws StopSuccessiveRefinementException, StopExecutionException {
 
-        Location location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_width, image_height, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
+        location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_width, image_height, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
 
         initialize(location);
 
@@ -456,7 +451,7 @@ public class MarianiSilverRender extends QueueBasedRender {
         } while(true);
     }
 
-    private void firstRenderAntialiased(int image_width, Location location, AntialiasingAlgorithm aa, int supersampling_num, int totalSamples, boolean storeExtraData) throws StopExecutionException {
+    private void firstRenderAntialiased(int image_width, Location location, AntialiasingAlgorithm aa, int max_samples, int totalSamples, boolean storeExtraData) throws StopExecutionException {
         if (!firstIndexesLocal.isEmpty()) {
             synchronized (firstIndexes) {
                 firstIndexes.addAll(firstIndexesLocal);
@@ -498,7 +493,7 @@ public class MarianiSilverRender extends QueueBasedRender {
                 aa.initialize(color);
 
                 //Supersampling
-                for (int i = 0; i < supersampling_num; i++) {
+                for (int i = 0; i < max_samples; i++) {
                     temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i, loc));
                     escaped_val = iteration_algorithm.escaped();
                     color = getFinalColor(temp_result, escaped_val);
@@ -574,7 +569,7 @@ public class MarianiSilverRender extends QueueBasedRender {
         } while(true);
     }
 
-    private void firstRenderFastJuliaAntialiased(int image_size, Location location, AntialiasingAlgorithm aa, int supersampling_num, int totalSamples, boolean storeExtraData) throws StopExecutionException {
+    private void firstRenderFastJuliaAntialiased(int image_size, Location location, AntialiasingAlgorithm aa, int max_samples, int totalSamples, boolean storeExtraData) throws StopExecutionException {
         if (!firstIndexesLocal.isEmpty()) {
             synchronized (firstIndexes) {
                 firstIndexes.addAll(firstIndexesLocal);
@@ -615,7 +610,7 @@ public class MarianiSilverRender extends QueueBasedRender {
                 aa.initialize(color);
 
                 //Supersampling
-                for(int i = 0; i < supersampling_num; i++) {
+                for(int i = 0; i < max_samples; i++) {
                     temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i, loc));
                     escaped_val = iteration_algorithm.escaped();
                     color = getFinalColor(temp_result, escaped_val);
@@ -668,7 +663,7 @@ public class MarianiSilverRender extends QueueBasedRender {
         }
     }
 
-    private void normalRenderAntialiased(int slice_FROMx, int slice_TOx, int slice_FROMy, int slice_TOy, Location location, int image_width, AntialiasingAlgorithm aa, int supersampling_num, int totalSamples, boolean storeExtraData) {
+    private void normalRenderAntialiased(int slice_FROMx, int slice_TOx, int slice_FROMy, int slice_TOy, Location location, int image_width, AntialiasingAlgorithm aa, int max_samples, int totalSamples, boolean storeExtraData) {
 
         int y, x, loc, color;
         double f_val, temp_result;
@@ -688,7 +683,7 @@ public class MarianiSilverRender extends QueueBasedRender {
                 aa.initialize(color);
 
                 //Supersampling
-                for (int i = 0; i < supersampling_num; i++) {
+                for (int i = 0; i < max_samples; i++) {
                     temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i, loc));
                     escaped_val = iteration_algorithm.escaped();
                     color = getFinalColor(temp_result, escaped_val);
@@ -739,7 +734,7 @@ public class MarianiSilverRender extends QueueBasedRender {
         }
     }
 
-    private void normalRenderFastJuliaAntialiased(int slice_FROMx, int slice_TOx, int slice_FROMy, int slice_TOy, Location location, int image_size, AntialiasingAlgorithm aa, int supersampling_num, int totalSamples, boolean storeExtraData) {
+    private void normalRenderFastJuliaAntialiased(int slice_FROMx, int slice_TOx, int slice_FROMy, int slice_TOy, Location location, int image_size, AntialiasingAlgorithm aa, int max_samples, int totalSamples, boolean storeExtraData) {
 
         int y, x, loc, color;
         double f_val, temp_result;
@@ -757,7 +752,7 @@ public class MarianiSilverRender extends QueueBasedRender {
                 aa.initialize(color);
 
                 //Supersampling
-                for (int i = 0; i < supersampling_num; i++) {
+                for (int i = 0; i < max_samples; i++) {
                     temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i, loc));
                     escaped_val = iteration_algorithm.escaped();
                     color = getFinalColor(temp_result, escaped_val);
@@ -833,7 +828,7 @@ public class MarianiSilverRender extends QueueBasedRender {
         enqueueSquare(square1, square2, square3, square4);
     }
 
-    protected void performSubDivisionAntialiased(int currentIteration, int slice_FROMx, int slice_TOx, int slice_FROMy, int slice_TOy, int xLength, int yLength, Location location, int image_width, AntialiasingAlgorithm aa, int supersampling_num, int totalSamples, boolean storeExtraData) {
+    protected void performSubDivisionAntialiased(int currentIteration, int slice_FROMx, int slice_TOx, int slice_FROMy, int slice_TOy, int xLength, int yLength, Location location, int image_width, AntialiasingAlgorithm aa, int max_samples, int totalSamples, boolean storeExtraData) {
 
         int halfY = slice_FROMy + (yLength >>> 1);
         int halfX = slice_FROMx + (xLength >>> 1);
@@ -858,7 +853,7 @@ public class MarianiSilverRender extends QueueBasedRender {
             aa.initialize(color);
 
             //Supersampling
-            for (int i = 0; i < supersampling_num; i++) {
+            for (int i = 0; i < max_samples; i++) {
                 temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i, loc));
                 escaped_val = iteration_algorithm.escaped();
                 color = getFinalColor(temp_result, escaped_val);
@@ -901,7 +896,7 @@ public class MarianiSilverRender extends QueueBasedRender {
                 aa.initialize(color);
 
                 //Supersampling
-                for (int i = 0; i < supersampling_num; i++) {
+                for (int i = 0; i < max_samples; i++) {
                     temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i, loc));
                     escaped_val = iteration_algorithm.escaped();
                     color = getFinalColor(temp_result, escaped_val);
@@ -971,7 +966,7 @@ public class MarianiSilverRender extends QueueBasedRender {
         enqueueSquare(square1, square2, square3, square4);
     }
 
-    protected void performSubDivisionFastJuliaAntialiased(int currentIteration, int slice_FROMx, int slice_TOx, int slice_FROMy, int slice_TOy, int xLength, int yLength, Location location, int image_size, AntialiasingAlgorithm aa, int supersampling_num, int totalSamples, boolean storeExtraData) {
+    protected void performSubDivisionFastJuliaAntialiased(int currentIteration, int slice_FROMx, int slice_TOx, int slice_FROMy, int slice_TOy, int xLength, int yLength, Location location, int image_size, AntialiasingAlgorithm aa, int max_samples, int totalSamples, boolean storeExtraData) {
         int halfY = slice_FROMy + (yLength >>> 1);
         int halfX = slice_FROMx + (xLength >>> 1);
 
@@ -996,7 +991,7 @@ public class MarianiSilverRender extends QueueBasedRender {
             aa.initialize(color);
 
             //Supersampling
-            for (int i = 0; i < supersampling_num; i++) {
+            for (int i = 0; i < max_samples; i++) {
                 temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i, loc));
                 escaped_val = iteration_algorithm.escaped();
                 color = getFinalColor(temp_result, escaped_val);
@@ -1030,7 +1025,7 @@ public class MarianiSilverRender extends QueueBasedRender {
                 aa.initialize(color);
 
                 //Supersampling
-                for (int i = 0; i < supersampling_num; i++) {
+                for (int i = 0; i < max_samples; i++) {
                     temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i, loc));
                     escaped_val = iteration_algorithm.escaped();
                     color = getFinalColor(temp_result, escaped_val);
@@ -1062,10 +1057,10 @@ public class MarianiSilverRender extends QueueBasedRender {
 
         int aaMethod = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
         boolean useJitter = aaMethod != 6 && ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x4) == 4;
-        Location location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_width, image_height, circle_period, rotation_center, rotation_vals, fractal, js, polar, PERTURBATION_THEORY  && fractal.supportsPerturbationTheory());
+        location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_width, image_height, circle_period, rotation_center, rotation_vals, fractal, js, polar, PERTURBATION_THEORY  && fractal.supportsPerturbationTheory());
         int aaSamplesIndex = (filters_options_vals[MainWindow.ANTIALIASING] % 100) % 10;
         int supersampling_num = getExtraSamples(aaSamplesIndex, aaMethod);
-        location.createAntialiasingSteps(aaMethod == 5, useJitter, supersampling_num);
+        location.createAntialiasingSteps(aaMethod == 5, useJitter, fs.aaType, supersampling_num, aaMethod == 6);
 
         initialize(location);
 
@@ -1073,9 +1068,9 @@ public class MarianiSilverRender extends QueueBasedRender {
 
         boolean aaAvgWithMean = ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x1) == 1;
         int colorSpace = filters_options_extra_vals[0][MainWindow.ANTIALIASING];
-        int totalSamples = supersampling_num + 1;
-
-        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(totalSamples, aaMethod, aaAvgWithMean, colorSpace, fs.aaSigmaR);
+        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(supersampling_num + 1, aaMethod, aaAvgWithMean, colorSpace, fs.aaSigmaR);
+        max_samples = location.getMaxSamples(supersampling_num);
+        int totalSamples = max_samples + 1;
 
         aa.setNeedsAllSamples(needsPostProcessing());
 
@@ -1133,7 +1128,7 @@ public class MarianiSilverRender extends QueueBasedRender {
                 aa.initialize(color);
 
                 //Supersampling
-                for (int i = 0; i < supersampling_num; i++) {
+                for (int i = 0; i < max_samples; i++) {
                     temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i, loc));
                     escaped_val = iteration_algorithm.escaped();
                     color = getFinalColor(temp_result, escaped_val);
@@ -1183,7 +1178,7 @@ public class MarianiSilverRender extends QueueBasedRender {
                     aa.initialize(color);
 
                     //Supersampling
-                    for (int i = 0; i < supersampling_num; i++) {
+                    for (int i = 0; i < max_samples; i++) {
                         temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i, loc));
                         escaped_val = iteration_algorithm.escaped();
                         color = getFinalColor(temp_result, escaped_val);
@@ -1233,7 +1228,7 @@ public class MarianiSilverRender extends QueueBasedRender {
                 aa.initialize(color);
 
                 //Supersampling
-                for (int i = 0; i < supersampling_num; i++) {
+                for (int i = 0; i < max_samples; i++) {
                     temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i, loc));
                     escaped_val = iteration_algorithm.escaped();
                     color = getFinalColor(temp_result, escaped_val);
@@ -1290,7 +1285,7 @@ public class MarianiSilverRender extends QueueBasedRender {
                     aa.initialize(color);
 
                     //Supersampling
-                    for (int i = 0; i < supersampling_num; i++) {
+                    for (int i = 0; i < max_samples; i++) {
                         temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i, loc));
                         escaped_val = iteration_algorithm.escaped();
                         color = getFinalColor(temp_result, escaped_val);
@@ -1320,7 +1315,7 @@ public class MarianiSilverRender extends QueueBasedRender {
         } while (true);
 
         if(perform_initial_work_stealing) {
-            firstRenderAntialiased(image_width, location, aa, supersampling_num, totalSamples, storeExtraData);
+            firstRenderAntialiased(image_width, location, aa, max_samples, totalSamples, storeExtraData);
         }
 
         if(perform_work_stealing_and_wait) {
@@ -1420,9 +1415,9 @@ public class MarianiSilverRender extends QueueBasedRender {
 
             if (!whole_area) {
                 if (canSubDivide(xLength, yLength)) {
-                    performSubDivisionAntialiased(currentSquare.iteration, slice_FROMx, slice_TOx, slice_FROMy, slice_TOy, xLength, yLength, location, image_width, aa, supersampling_num, totalSamples, storeExtraData);
+                    performSubDivisionAntialiased(currentSquare.iteration, slice_FROMx, slice_TOx, slice_FROMy, slice_TOy, xLength, yLength, location, image_width, aa, max_samples, totalSamples, storeExtraData);
                 } else {
-                    normalRenderAntialiased(slice_FROMx, slice_TOx, slice_FROMy, slice_TOy, location, image_width, aa, supersampling_num, totalSamples, storeExtraData);
+                    normalRenderAntialiased(slice_FROMx, slice_TOx, slice_FROMy, slice_TOy, location, image_width, aa, max_samples, totalSamples, storeExtraData);
                 }
             } else {
                 y = slice_FROMyp1;
@@ -1506,7 +1501,7 @@ public class MarianiSilverRender extends QueueBasedRender {
     @Override
     protected void renderFastJulia(int image_size, boolean polar) throws StopExecutionException {
 
-        Location location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_size, image_size, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
+        location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_size, image_size, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
 
         initializeFastJulia(location);
 
@@ -1736,10 +1731,10 @@ public class MarianiSilverRender extends QueueBasedRender {
 
         int aaMethod = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
         boolean useJitter = aaMethod != 6 && ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x4) == 4;
-        Location location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_size, image_size, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
+        location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_size, image_size, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
         int aaSamplesIndex = (filters_options_vals[MainWindow.ANTIALIASING] % 100) % 10;
         int supersampling_num = getExtraSamples(aaSamplesIndex, aaMethod);
-        location.createAntialiasingSteps(aaMethod == 5, useJitter, supersampling_num);
+        location.createAntialiasingSteps(aaMethod == 5, useJitter, fs.aaType, supersampling_num, aaMethod == 6);
 
         initializeFastJulia(location);
 
@@ -1753,9 +1748,9 @@ public class MarianiSilverRender extends QueueBasedRender {
 
         boolean aaAvgWithMean = ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x1) == 1;
         int colorSpace = filters_options_extra_vals[0][MainWindow.ANTIALIASING];
-        int totalSamples = supersampling_num + 1;
-
-        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(totalSamples, aaMethod, aaAvgWithMean, colorSpace, fs.aaSigmaR);
+        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(supersampling_num + 1, aaMethod, aaAvgWithMean, colorSpace, fs.aaSigmaR);
+        max_samples = location.getMaxSamples(supersampling_num);
+        int totalSamples = max_samples + 1;
 
         boolean escaped_val;
         double f_val;
@@ -1804,7 +1799,7 @@ public class MarianiSilverRender extends QueueBasedRender {
                 aa.initialize(color);
 
                 //Supersampling
-                for (int i = 0; i < supersampling_num; i++) {
+                for (int i = 0; i < max_samples; i++) {
                     temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i, loc));
                     escaped_val = iteration_algorithm.escaped();
                     color = getFinalColor(temp_result, escaped_val);
@@ -1845,7 +1840,7 @@ public class MarianiSilverRender extends QueueBasedRender {
                     aa.initialize(color);
 
                     //Supersampling
-                    for (int i = 0; i < supersampling_num; i++) {
+                    for (int i = 0; i < max_samples; i++) {
                         temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i, loc));
                         escaped_val = iteration_algorithm.escaped();
                         color = getFinalColor(temp_result, escaped_val);
@@ -1884,7 +1879,7 @@ public class MarianiSilverRender extends QueueBasedRender {
                 aa.initialize(color);
 
                 //Supersampling
-                for (int i = 0; i < supersampling_num; i++) {
+                for (int i = 0; i < max_samples; i++) {
                     temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i, loc));
                     escaped_val = iteration_algorithm.escaped();
                     color = getFinalColor(temp_result, escaped_val);
@@ -1930,7 +1925,7 @@ public class MarianiSilverRender extends QueueBasedRender {
                     aa.initialize(color);
 
                     //Supersampling
-                    for (int i = 0; i < supersampling_num; i++) {
+                    for (int i = 0; i < max_samples; i++) {
                         temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i, loc));
                         escaped_val = iteration_algorithm.escaped();
                         color = getFinalColor(temp_result, escaped_val);
@@ -1951,7 +1946,7 @@ public class MarianiSilverRender extends QueueBasedRender {
         } while (true);
 
         if(perform_initial_work_stealing) {
-            firstRenderFastJuliaAntialiased(image_size, location, aa, supersampling_num, totalSamples, storeExtraData);
+            firstRenderFastJuliaAntialiased(image_size, location, aa, max_samples, totalSamples, storeExtraData);
         }
 
         for(Square square : squares) {
@@ -2041,9 +2036,9 @@ public class MarianiSilverRender extends QueueBasedRender {
 
             if (!whole_area) {
                 if (canSubDivide(xLength, yLength)) {
-                    performSubDivisionFastJuliaAntialiased(currentSquare.iteration, slice_FROMx, slice_TOx, slice_FROMy, slice_TOy, xLength, yLength, location, image_size, aa, supersampling_num, totalSamples, storeExtraData);
+                    performSubDivisionFastJuliaAntialiased(currentSquare.iteration, slice_FROMx, slice_TOx, slice_FROMy, slice_TOy, xLength, yLength, location, image_size, aa, max_samples, totalSamples, storeExtraData);
                 } else {
-                    normalRenderFastJuliaAntialiased(slice_FROMx, slice_TOx, slice_FROMy, slice_TOy, location, image_size, aa, supersampling_num, totalSamples, storeExtraData);
+                    normalRenderFastJuliaAntialiased(slice_FROMx, slice_TOx, slice_FROMy, slice_TOy, location, image_size, aa, max_samples, totalSamples, storeExtraData);
                 }
             } else {
                 y = slice_FROMyp1;

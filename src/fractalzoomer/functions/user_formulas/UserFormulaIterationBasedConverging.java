@@ -160,95 +160,30 @@ public class UserFormulaIterationBasedConverging extends ExtendedConvergentType 
     @Override
     public void function(Complex[] complex) {
 
-        if (iterations % 4 == 0) {
-            if (parser[0].foundN()) {
-                parser[0].setNvalue(new Complex(iterations, 0));
-            }
+        int idx = iterations % parser.length;
+        Parser par = parser[idx];
 
-            if (parser[0].foundZ()) {
-                parser[0].setZvalue(complex[0]);
-            }
-
-            if (parser[0].foundC()) {
-                parser[0].setCvalue(complex[1]);
-            }
-
-            if(parser[0].foundAnyVar()) {
-                for (int i = 0; i < Parser.EXTRA_VARS; i++) {
-                    if (parser[0].foundVar(i)) {
-                        parser[0].setVarsvalue(i, globalVars[i]);
-                    }
-                }
-            }
-
-            complex[0] = expr[0].getValue();
-        } else if (iterations % 4 == 1) {
-            if (parser[1].foundN()) {
-                parser[1].setNvalue(new Complex(iterations, 0));
-            }
-
-            if (parser[1].foundZ()) {
-                parser[1].setZvalue(complex[0]);
-            }
-
-            if (parser[1].foundC()) {
-                parser[1].setCvalue(complex[1]);
-            }
-
-            if(parser[1].foundAnyVar()) {
-                for (int i = 0; i < Parser.EXTRA_VARS; i++) {
-                    if (parser[1].foundVar(i)) {
-                        parser[1].setVarsvalue(i, globalVars[i]);
-                    }
-                }
-            }
-
-            complex[0] = expr[1].getValue();
-        } else if (iterations % 4 == 2) {
-            if (parser[2].foundN()) {
-                parser[2].setNvalue(new Complex(iterations, 0));
-            }
-
-            if (parser[2].foundZ()) {
-                parser[2].setZvalue(complex[0]);
-            }
-
-            if (parser[2].foundC()) {
-                parser[2].setCvalue(complex[1]);
-            }
-
-            if(parser[2].foundAnyVar()) {
-                for (int i = 0; i < Parser.EXTRA_VARS; i++) {
-                    if (parser[2].foundVar(i)) {
-                        parser[2].setVarsvalue(i, globalVars[i]);
-                    }
-                }
-            }
-
-            complex[0] = expr[2].getValue();
-        } else {
-            if (parser[3].foundN()) {
-                parser[3].setNvalue(new Complex(iterations, 0));
-            }
-
-            if (parser[3].foundZ()) {
-                parser[3].setZvalue(complex[0]);
-            }
-
-            if (parser[3].foundC()) {
-                parser[3].setCvalue(complex[1]);
-            }
-
-            if(parser[3].foundAnyVar()) {
-                for (int i = 0; i < Parser.EXTRA_VARS; i++) {
-                    if (parser[3].foundVar(i)) {
-                        parser[3].setVarsvalue(i, globalVars[i]);
-                    }
-                }
-            }
-
-            complex[0] = expr[3].getValue();
+        if (par.foundN()) {
+            par.setNvalue(new Complex(iterations, 0));
         }
+
+        if (par.foundZ()) {
+            par.setZvalue(complex[0]);
+        }
+
+        if (par.foundC()) {
+            par.setCvalue(complex[1]);
+        }
+
+        if (par.foundAnyVar()) {
+            for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+                if (par.foundVar(i)) {
+                    par.setVarsvalue(i, globalVars[i]);
+                }
+            }
+        }
+
+        complex[0] = expr[idx].getValue();
 
         setVariables(zold, zold2);
 

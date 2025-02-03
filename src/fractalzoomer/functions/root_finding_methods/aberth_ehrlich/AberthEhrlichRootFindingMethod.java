@@ -111,14 +111,13 @@ public abstract class AberthEhrlichRootFindingMethod extends RootFindingMethods 
 
                 //Todo: some kind of bug in smoothing?
                 finalizeStatistic(true, complex[0]);
-                Object[] object = {iterations, complex[0], zold, zold2, pixel, start, c0, pixel};
-                iterationData = object;
-                double out = out_color_algorithm.getResult(object);
+                outColorData.setData(iterations, complex[0], zold, zold2, pixel, start, c0, pixel);
+                double out = out_color_algorithm.getResult(outColorData);
 
                 out = getFinalValueOut(out);
 
                 if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(complex[0], zold, zold2, iterations, pixel, start, c0, pixel, object);
+                    setTrueColorOut(complex[0], zold, zold2, iterations, pixel, start, c0, pixel);
                 }
 
                 return out;
@@ -137,9 +136,8 @@ public abstract class AberthEhrlichRootFindingMethod extends RootFindingMethods 
         }
 
         finalizeStatistic(false, complex[0]);
-        Object[] object = {complex[0], zold, zold2, pixel, start, c0, pixel};
-        iterationData = object;
-        double in = in_color_algorithm.getResult(object);
+        inColorData.setData(complex[0], zold, zold2, pixel, start, c0, pixel);
+        double in = in_color_algorithm.getResult(inColorData);
 
         in = getFinalValueIn(in);
 

@@ -2,7 +2,10 @@
 
 package fractalzoomer.planes.fold;
 
-import fractalzoomer.core.*;
+import fractalzoomer.core.Complex;
+import fractalzoomer.core.NumericLibrary;
+import fractalzoomer.core.TaskRender;
+import fractalzoomer.core.numerics.*;
 import fractalzoomer.functions.Fractal;
 import fractalzoomer.planes.Plane;
 

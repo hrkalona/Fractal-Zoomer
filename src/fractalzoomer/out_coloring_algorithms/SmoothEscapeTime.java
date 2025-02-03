@@ -4,6 +4,7 @@ package fractalzoomer.out_coloring_algorithms;
 
 import fractalzoomer.core.Complex;
 import fractalzoomer.core.norms.Norm;
+import fractalzoomer.utils.OutColorData;
 
 /**
  *
@@ -62,25 +63,25 @@ public class SmoothEscapeTime extends OutColorAlgorithm {
     }
 
     @Override
-    public double getResult(Object[] object) {
+    public double getResult(OutColorData data) {
 
-        return (int)object[0] + getFractionalPart(object);
+        return data.iterations + getFractionalPart(data);
 
     }
 
     @Override
-    public double getFractionalPart(Object[] object) {
+    public double getFractionalPart(OutColorData data) {
         if(algorithm == 0 && !usePower) {
-            return getSmoothing1((Complex)object[1], (Complex)object[2], log_bailout, normImpl);
+            return getSmoothing1(data.z, data.zold, log_bailout, normImpl);
         }
         else if(algorithm == 2 && !usePower) {
-            return getSmoothing3((Complex)object[1], (Complex)object[2], bailout, normImpl);
+            return getSmoothing3(data.z, data.zold, bailout, normImpl);
         }
         else {
             //double temp2 = ((Complex)object[1]).norm_squared();
             //return  1 - Math.log(Math.log(temp2) / log_bailout_squared) / log_power;
 
-            return getSmoothing2((Complex)object[1], (Complex)object[2], log_bailout, usePower, log_power, normImpl);
+            return getSmoothing2(data.z, data.zold, log_bailout, usePower, log_power, normImpl);
         }
     }
 

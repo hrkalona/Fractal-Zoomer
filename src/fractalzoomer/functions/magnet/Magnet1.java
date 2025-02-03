@@ -1,14 +1,17 @@
 
 package fractalzoomer.functions.magnet;
 
-import fractalzoomer.core.*;
+import fractalzoomer.core.Complex;
+import fractalzoomer.core.NumericLibrary;
+import fractalzoomer.core.TaskRender;
 import fractalzoomer.core.location.Location;
-import fractalzoomer.core.mpfr.MpfrBigNum;
-import fractalzoomer.core.mpir.MpirBigNum;
+import fractalzoomer.core.numerics.*;
+import fractalzoomer.core.numerics.mpfr.MpfrBigNum;
+import fractalzoomer.core.numerics.mpir.MpirBigNum;
 import fractalzoomer.core.reference.DoubleReference;
-import fractalzoomer.core.reference.ReferenceCompressor;
 import fractalzoomer.core.reference.ReferenceData;
 import fractalzoomer.core.reference.ReferenceDeepData;
+import fractalzoomer.core.reference.SerializableFunction;
 import fractalzoomer.fractal_options.initial_value.InitialValue;
 import fractalzoomer.fractal_options.initial_value.VariableConditionalInitialValue;
 import fractalzoomer.fractal_options.initial_value.VariableInitialValue;
@@ -22,7 +25,6 @@ import org.apfloat.Apfloat;
 
 import javax.swing.*;
 import java.util.ArrayList;
-import java.util.function.Function;
 
 import static fractalzoomer.main.Constants.REFERENCE_CALCULATION_STR;
 
@@ -177,7 +179,7 @@ public class Magnet1 extends MagnetType {
     }
 
     @Override
-    protected Function[] getPrecalculatedTermsFunctions(Complex c) {
+    protected SerializableFunction[] getPrecalculatedTermsFunctions(Complex c) {
 
         Complex csqr = c.square();
         Complex ccube = c.cube();
@@ -206,16 +208,16 @@ public class Magnet1 extends MagnetType {
 
         Complex precalc11 = ccube.sub(csqr7).plus_mutable(c12s6);
 
-        Function<Complex, Complex> f1 = x -> precalc2.plus(cs24.times(x)).plus_mutable(x.square().times4_mutable());
+        SerializableFunction<Complex, Complex> f1 = x -> precalc2.plus(cs24.times(x)).plus_mutable(x.square().times4_mutable());
 
-        Function<Complex, Complex> f2 = x -> cs23.times(x.cube()).plus_mutable(x.fourth().times2_mutable()).plus_mutable(precalc2.times(x.square())).plus_mutable(precalc14.times(x))
+        SerializableFunction<Complex, Complex> f2 = x -> cs23.times(x.cube()).plus_mutable(x.fourth().times2_mutable()).plus_mutable(precalc2.times(x.square())).plus_mutable(precalc14.times(x))
                 .plus_mutable(precalc6).times_mutable(x).plus_mutable(precalc12);
 
-        Function<Complex, Complex> f3 = x -> precalc10.plus(cs2.times(x.cube()).times_mutable(32)).plus_mutable(x.cube().times_mutable(16).plus_mutable(precalc2.times(x).times_mutable(24)).plus_mutable(precalc5).times_mutable(x));
+        SerializableFunction<Complex, Complex> f3 = x -> precalc10.plus(cs2.times(x.cube()).times_mutable(32)).plus_mutable(x.cube().times_mutable(16).plus_mutable(precalc2.times(x).times_mutable(24)).plus_mutable(precalc5).times_mutable(x));
 
-        Function<Complex, Complex> f4 = x -> precalc4.plus(cs212.times(x.square())).plus_mutable(x.cube().times_mutable(8)).plus_mutable(precalc2.times(x).times_mutable(6)).plus_mutable(c12s8);
+        SerializableFunction<Complex, Complex> f4 = x -> precalc4.plus(cs212.times(x.square())).plus_mutable(x.cube().times_mutable(8)).plus_mutable(precalc2.times(x).times_mutable(6)).plus_mutable(c12s8);
 
-        Function<Complex, Complex> f7 = x -> precalc2.plus(cs24.times(x)).times_mutable(x.square()).times_mutable(3)
+        SerializableFunction<Complex, Complex> f7 = x -> precalc2.plus(cs24.times(x)).times_mutable(x.square()).times_mutable(3)
                 .plus_mutable(x.fourth().times_mutable(10))
                 .plus_mutable(precalc11).plus_mutable(precalcl.times4().times_mutable(x));
 
@@ -228,18 +230,18 @@ public class Magnet1 extends MagnetType {
             Complex precalc7 =  csqr.sub(c.times(6)).plus_mutable(4);
             Complex cs6 = c.sub(6);
 
-            Function<Complex, Complex> f5 = x -> precalc9.sub(precalc2.plus(x.square().times4_mutable()).sub_mutable(x.cube().sub_mutable(precalc8.times(x))).times_mutable(x));
-            Function<Complex, Complex> f6 = x -> x.cube().plus_mutable(precalc8.times(x)).sub_mutable(cs24).times_mutable(x).plus_mutable(precalc13);
-            Function<Complex, Complex> f8 = x -> cs6.times(x.cube()).plus_mutable(x.fourth().times2_mutable()).plus_mutable(precalc7.times(x)).plus_mutable(x.square().times4_mutable())
+            SerializableFunction<Complex, Complex> f5 = x -> precalc9.sub(precalc2.plus(x.square().times4_mutable()).sub_mutable(x.cube().sub_mutable(precalc8.times(x))).times_mutable(x));
+            SerializableFunction<Complex, Complex> f6 = x -> x.cube().plus_mutable(precalc8.times(x)).sub_mutable(cs24).times_mutable(x).plus_mutable(precalc13);
+            SerializableFunction<Complex, Complex> f8 = x -> cs6.times(x.cube()).plus_mutable(x.fourth().times2_mutable()).plus_mutable(precalc7.times(x)).plus_mutable(x.square().times4_mutable())
                     .sub_mutable(precalc3).times_mutable(x).plus_mutable(precalcl);
 
-            return new Function[] {f1, f2, f3, f4, f5, f6, f7, f8};
+            return new SerializableFunction[] {f1, f2, f3, f4, f5, f6, f7, f8};
         }
-        return new Function[] {f1, f2, f3, f4, f7};
+        return new SerializableFunction[] {f1, f2, f3, f4, f7};
     }
 
     @Override
-    protected Function[] getPrecalculatedTermsFunctionsDeep(MantExpComplex c) {
+    protected SerializableFunction[] getPrecalculatedTermsFunctionsDeep(MantExpComplex c) {
         MantExpComplex csqr = c.square();
         csqr.Normalize();
         MantExpComplex ccube = c.cube();
@@ -290,16 +292,16 @@ public class Magnet1 extends MagnetType {
         MantExpComplex precalc11 = ccube.sub(csqr7).plus_mutable(c12s6);
         precalc11.Normalize();
 
-        Function<MantExpComplex, MantExpComplex> f1 = x -> precalc2.plus(cs24.times(x)).plus_mutable(x.square().times4_mutable());
+        SerializableFunction<MantExpComplex, MantExpComplex> f1 = x -> precalc2.plus(cs24.times(x)).plus_mutable(x.square().times4_mutable());
 
-        Function<MantExpComplex, MantExpComplex> f2 = x -> cs23.times(x.cube()).plus_mutable(x.fourth().times2_mutable()).plus_mutable(precalc2.times(x.square())).plus_mutable(precalc14.times(x))
+        SerializableFunction<MantExpComplex, MantExpComplex> f2 = x -> cs23.times(x.cube()).plus_mutable(x.fourth().times2_mutable()).plus_mutable(precalc2.times(x.square())).plus_mutable(precalc14.times(x))
                 .plus_mutable(precalc6).times_mutable(x).plus_mutable(precalc12);
 
-        Function<MantExpComplex, MantExpComplex> f3 = x -> precalc10.plus(cs2.times(x.cube()).times32_mutable()).plus_mutable(x.cube().times16_mutable().plus_mutable(precalc2.times(x).times_mutable(MantExp.TWENTYFOUR)).plus_mutable(precalc5).times_mutable(x));
+        SerializableFunction<MantExpComplex, MantExpComplex> f3 = x -> precalc10.plus(cs2.times(x.cube()).times32_mutable()).plus_mutable(x.cube().times16_mutable().plus_mutable(precalc2.times(x).times_mutable(MantExp.TWENTYFOUR)).plus_mutable(precalc5).times_mutable(x));
 
-        Function<MantExpComplex, MantExpComplex> f4 = x -> precalc4.plus(cs212.times(x.square())).plus_mutable(x.cube().times8_mutable()).plus_mutable(precalc2.times(x).times_mutable(MantExp.SIX)).plus_mutable(c12s8);
+        SerializableFunction<MantExpComplex, MantExpComplex> f4 = x -> precalc4.plus(cs212.times(x.square())).plus_mutable(x.cube().times8_mutable()).plus_mutable(precalc2.times(x).times_mutable(MantExp.SIX)).plus_mutable(c12s8);
 
-        Function<MantExpComplex, MantExpComplex> f7 = x -> precalc2.plus(cs24.times(x)).times_mutable(x.square()).times_mutable(MantExp.THREE)
+        SerializableFunction<MantExpComplex, MantExpComplex> f7 = x -> precalc2.plus(cs24.times(x)).times_mutable(x.square()).times_mutable(MantExp.THREE)
                 .plus_mutable(x.fourth().times_mutable(MantExp.TEN))
                 .plus_mutable(precalc11).plus_mutable(precalcl.times4().times_mutable(x));
 
@@ -319,20 +321,20 @@ public class Magnet1 extends MagnetType {
             MantExpComplex cs6 = c.sub(MantExp.SIX);
             cs6.Normalize();
 
-            Function<MantExpComplex, MantExpComplex> f5 = x -> precalc9.sub(precalc2.plus(x.square().times4_mutable()).sub_mutable(x.cube().sub_mutable(precalc8.times(x))).times_mutable(x));
-            Function<MantExpComplex, MantExpComplex> f6 = x -> x.cube().plus_mutable(precalc8.times(x)).sub_mutable(cs24).times_mutable(x).plus_mutable(precalc13);
-            Function<MantExpComplex, MantExpComplex> f8 = x -> cs6.times(x.cube()).plus_mutable(x.fourth().times2_mutable()).plus_mutable(precalc7.times(x)).plus_mutable(x.square().times4_mutable())
+            SerializableFunction<MantExpComplex, MantExpComplex> f5 = x -> precalc9.sub(precalc2.plus(x.square().times4_mutable()).sub_mutable(x.cube().sub_mutable(precalc8.times(x))).times_mutable(x));
+            SerializableFunction<MantExpComplex, MantExpComplex> f6 = x -> x.cube().plus_mutable(precalc8.times(x)).sub_mutable(cs24).times_mutable(x).plus_mutable(precalc13);
+            SerializableFunction<MantExpComplex, MantExpComplex> f8 = x -> cs6.times(x.cube()).plus_mutable(x.fourth().times2_mutable()).plus_mutable(precalc7.times(x)).plus_mutable(x.square().times4_mutable())
                     .sub_mutable(precalc3).times_mutable(x).plus_mutable(precalcl);
 
-            return new Function[] {f1, f2, f3, f4, f5, f6, f7, f8};
+            return new SerializableFunction[] {f1, f2, f3, f4, f5, f6, f7, f8};
         }
-        return new Function[] {f1, f2, f3, f4, f7};
+        return new SerializableFunction[] {f1, f2, f3, f4, f7};
     }
 
     @Override
-    public void calculateReferencePoint(GenericComplex inputPixel, Apfloat size, boolean deepZoom, int[] Iterations, int[] juliaIterations, Location externalLocation, JProgressBar progress) {
+    public void calculateReferenceOrbit(GenericComplex inputPixel, Apfloat size, boolean deepZoom, int[] Iterations, int[] juliaIterations, Location externalLocation, JProgressBar progress) {
 
-        LastCalculationSize = size;
+        referenceOrbit.LastCalculationSize = size;
 
         long time = System.currentTimeMillis();
 
@@ -350,32 +352,11 @@ public class Magnet1 extends MagnetType {
 
         boolean lowPrecReferenceOrbitNeeded = !needsOnlyExtendedReferenceOrbit(deepZoom, false);
         DoubleReference.SHOULD_SAVE_MEMORY = false;
-        boolean useCompressedRef = TaskRender.COMPRESS_REFERENCE_IF_POSSIBLE && supportsReferenceCompression();
+        boolean useCompressedRef = useCompressedRef();
         int [] preCalcIndexes = getNeededPrecalculatedTermsIndexes();
+        boolean needsRefSubCp = needsRefSubCp();
 
-        if (iterations == 0) {
-            if(lowPrecReferenceOrbitNeeded) {
-                referenceData.createAndSetShortcut(max_ref_iterations, false, preCalcIndexes, useCompressedRef);
-            }
-            else {
-                referenceData.deallocate();
-            }
-
-            if (deepZoom) {
-                referenceDeepData.createAndSetShortcut(max_ref_iterations, false, preCalcIndexes, useCompressedRef);
-            }
-        } else if (max_ref_iterations > getReferenceLength()) {
-            if(lowPrecReferenceOrbitNeeded) {
-                referenceData.resize(max_ref_iterations);
-            }
-            else {
-                referenceData.deallocate();
-            }
-
-            if (deepZoom) {
-                referenceDeepData.resize(max_ref_iterations);
-            }
-        }
+        initializeReference(deepZoom, lowPrecReferenceOrbitNeeded, iterations, max_ref_iterations, needsRefSubCp, useCompressedRef, preCalcIndexes);
 
         int bigNumLib = NumericLibrary.getBignumImplementation(size, this);
 
@@ -385,10 +366,10 @@ public class Magnet1 extends MagnetType {
 
         if (bigNumLib == Constants.BIGNUM_MPFR) {
             MpfrBigNumComplex bn = new MpfrBigNumComplex(inputPixel.toMpfrBigNumComplex());
-            z = iterations == 0 ? (isJulia ? bn : new MpfrBigNumComplex()) : referenceData.lastZValue;
+            z = iterations == 0 ? (isJulia ? bn : new MpfrBigNumComplex()) : referenceOrbit.lastZValue;
             c = isJulia ? getSeed(bigNumLib) : bn;
-            zold = iterations == 0 ? new MpfrBigNumComplex() : referenceData.secondTolastZValue;
-            zold2 = iterations == 0 ? new MpfrBigNumComplex() : referenceData.thirdTolastZValue;
+            zold = iterations == 0 ? new MpfrBigNumComplex() : referenceOrbit.secondTolastZValue;
+            zold2 = iterations == 0 ? new MpfrBigNumComplex() : referenceOrbit.thirdTolastZValue;
             start = isJulia ? new MpfrBigNumComplex(bn) : new MpfrBigNumComplex();
             c0 = new MpfrBigNumComplex((MpfrBigNumComplex)c);
             pixel = new MpfrBigNumComplex(bn);
@@ -396,10 +377,10 @@ public class Magnet1 extends MagnetType {
         }
         else if (bigNumLib == Constants.BIGNUM_MPIR) {
             MpirBigNumComplex bn = new MpirBigNumComplex(inputPixel.toMpirBigNumComplex());
-            z = iterations == 0 ? (isJulia ? bn : new MpirBigNumComplex()) : referenceData.lastZValue;
+            z = iterations == 0 ? (isJulia ? bn : new MpirBigNumComplex()) : referenceOrbit.lastZValue;
             c = isJulia ? getSeed(bigNumLib) : bn;
-            zold = iterations == 0 ? new MpirBigNumComplex() : referenceData.secondTolastZValue;
-            zold2 = iterations == 0 ? new MpirBigNumComplex() : referenceData.thirdTolastZValue;
+            zold = iterations == 0 ? new MpirBigNumComplex() : referenceOrbit.secondTolastZValue;
+            zold2 = iterations == 0 ? new MpirBigNumComplex() : referenceOrbit.thirdTolastZValue;
             start = isJulia ? new MpirBigNumComplex(bn) : new MpirBigNumComplex();
             c0 = new MpirBigNumComplex((MpirBigNumComplex)c);
             pixel = new MpirBigNumComplex(bn);
@@ -407,10 +388,10 @@ public class Magnet1 extends MagnetType {
         }
         else if(bigNumLib == Constants.BIGNUM_DOUBLEDOUBLE) {
             DDComplex ddn = inputPixel.toDDComplex();
-            z = iterations == 0 ? (isJulia ? ddn : new DDComplex()) : referenceData.lastZValue;
+            z = iterations == 0 ? (isJulia ? ddn : new DDComplex()) : referenceOrbit.lastZValue;
             c = isJulia ? getSeed(bigNumLib) : ddn;
-            zold = iterations == 0 ? new DDComplex() : referenceData.secondTolastZValue;
-            zold2 = iterations == 0 ? new DDComplex() : referenceData.thirdTolastZValue;
+            zold = iterations == 0 ? new DDComplex() : referenceOrbit.secondTolastZValue;
+            zold2 = iterations == 0 ? new DDComplex() : referenceOrbit.thirdTolastZValue;
             start = isJulia ? ddn : new DDComplex();
             c0 = c;
             pixel = ddn;
@@ -418,10 +399,10 @@ public class Magnet1 extends MagnetType {
         }
         else if(bigNumLib == Constants.BIGNUM_BIGINT) {
             BigIntNumComplex bin = inputPixel.toBigIntNumComplex();
-            z = iterations == 0 ? (isJulia ? bin : new BigIntNumComplex()) : referenceData.lastZValue;
+            z = iterations == 0 ? (isJulia ? bin : new BigIntNumComplex()) : referenceOrbit.lastZValue;
             c = isJulia ? getSeed(bigNumLib) : bin;
-            zold = iterations == 0 ? new BigIntNumComplex() : referenceData.secondTolastZValue;
-            zold2 = iterations == 0 ? new BigIntNumComplex() : referenceData.thirdTolastZValue;
+            zold = iterations == 0 ? new BigIntNumComplex() : referenceOrbit.secondTolastZValue;
+            zold2 = iterations == 0 ? new BigIntNumComplex() : referenceOrbit.thirdTolastZValue;
             start = isJulia ? bin : new BigIntNumComplex();
             c0 = c;
             pixel = bin;
@@ -429,20 +410,20 @@ public class Magnet1 extends MagnetType {
         }
         else if(bigNumLib == Constants.BIGNUM_DOUBLE) {
             Complex bn = inputPixel.toComplex();
-            z = iterations == 0 ? (isJulia ? bn : new Complex()) : referenceData.lastZValue;
+            z = iterations == 0 ? (isJulia ? bn : new Complex()) : referenceOrbit.lastZValue;
             c = isJulia ? getSeed(bigNumLib) : bn;
-            zold = iterations == 0 ? new Complex() : referenceData.secondTolastZValue;
-            zold2 = iterations == 0 ? new Complex() : referenceData.thirdTolastZValue;
+            zold = iterations == 0 ? new Complex() : referenceOrbit.secondTolastZValue;
+            zold2 = iterations == 0 ? new Complex() : referenceOrbit.thirdTolastZValue;
             start = isJulia ? new Complex(bn) : new Complex();
             c0 = new Complex((Complex) c);
             pixel = new Complex(bn);
             root = 1.0;
         }
         else {
-            z = iterations == 0 ? (isJulia ? inputPixel : new BigComplex()) : referenceData.lastZValue;
+            z = iterations == 0 ? (isJulia ? inputPixel : new BigComplex()) : referenceOrbit.lastZValue;
             c = isJulia ? getSeed(bigNumLib) : inputPixel;
-            zold = iterations == 0 ? new BigComplex() : referenceData.secondTolastZValue;
-            zold2 = iterations == 0 ? new BigComplex() : referenceData.thirdTolastZValue;
+            zold = iterations == 0 ? new BigComplex() : referenceOrbit.secondTolastZValue;
+            zold2 = iterations == 0 ? new BigComplex() : referenceOrbit.thirdTolastZValue;
             start = isJulia ? inputPixel : new BigComplex();
             pixel = inputPixel;
             c0 = c;
@@ -453,7 +434,7 @@ public class Magnet1 extends MagnetType {
 
         Location loc = new Location();
 
-        refPoint = inputPixel;
+        referenceOrbit.refPoint = inputPixel;
 
         GenericComplex c2big = c.times2();
 
@@ -658,7 +639,7 @@ public class Magnet1 extends MagnetType {
         precalc14big = precalclbig.times2();
 
         if(deepZoom) {
-            refPointSmallDeep = loc.getMantExpComplex(refPoint);
+            refPointSmallDeep = loc.getMantExpComplex(referenceOrbit.refPoint);
             Cdeep = loc.getMantExpComplex(c);
 
             refPointSmall = refPointSmallDeep.toComplex();
@@ -676,7 +657,7 @@ public class Magnet1 extends MagnetType {
             }
         }
         else {
-            refPointSmall = refPoint.toComplex();
+            refPointSmall = referenceOrbit.refPoint.toComplex();
 
             if(lowPrecReferenceOrbitNeeded) {
                 C = c.toComplex();
@@ -687,32 +668,14 @@ public class Magnet1 extends MagnetType {
             }
         }
 
-        RefType = getRefType();
+        referenceOrbit.RefType = getRefType();
 
-        boolean preCalcNormData = bailout_algorithm2.getId() == MainWindow.BAILOUT_CONDITION_CIRCLE;
+        boolean usesCircleBail = usesCircleBail();
+        boolean preCalcNormData = usesCircleBail;
         NormComponents normData = null;
 
         if(useCompressedRef) {
-            if(deepZoom) {
-                referenceCompressor[referenceDeep.id] = new ReferenceCompressor(this, iterations == 0 ? z.toMantExpComplex() : referenceData.compressorZm, c.toMantExpComplex(), start.toMantExpComplex());
-
-                Function<MantExpComplex, MantExpComplex>[] fs = getPrecalculatedTermsFunctionsDeep(c.toMantExpComplex());
-                for(int i = 0; i < preCalcIndexes.length; i++) {
-                    int id = referenceDeepData.PrecalculatedTerms[preCalcIndexes[i]].id;
-                    functions[id] = fs[i];
-                    subexpressionsCompressor[id] = new ReferenceCompressor(fs[i], true);
-                }
-            }
-            if(lowPrecReferenceOrbitNeeded) {
-                referenceCompressor[reference.id] = new ReferenceCompressor(this, iterations == 0 ? z.toComplex() : referenceData.compressorZ, c.toComplex(), start.toComplex());
-
-                Function<Complex, Complex>[] fs = getPrecalculatedTermsFunctions(c.toComplex());
-                for(int i = 0; i < preCalcIndexes.length; i++) {
-                    int id = referenceData.PrecalculatedTerms[preCalcIndexes[i]].id;
-                    functions[id] = fs[i];
-                    subexpressionsCompressor[id] = new ReferenceCompressor(fs[i]);
-                }
-            }
+            initializeCompressedReference(deepZoom, lowPrecReferenceOrbitNeeded, iterations, needsRefSubCp, preCalcIndexes, z, c, null, start);
         }
 
         calculatedReferenceIterations = 0;
@@ -798,7 +761,7 @@ public class Magnet1 extends MagnetType {
                 if (czm.isInfinite() || czm.isNaN()) {
                     break;
                 }
-                tempczm = setArrayDeepValue(referenceDeep, iterations, czm);
+                tempczm = setReferenceDeepValue(referenceDeep, iterations, czm);
             }
 
             if (lowPrecReferenceOrbitNeeded) {
@@ -807,7 +770,7 @@ public class Magnet1 extends MagnetType {
                     break;
                 }
 
-                cz = setArrayValue(reference, iterations, cz);
+                cz = setReferenceValue(reference, iterations, cz);
             }
 
             czm = tempczm;
@@ -818,42 +781,42 @@ public class Magnet1 extends MagnetType {
                 precal3m = loc.getMantExpComplex(preCalc3);
                 precal4m = loc.getMantExpComplex(preCalc4);
                 precalc7m = loc.getMantExpComplex(preCalc7);
-                setArrayDeepValue(referenceDeepData.PrecalculatedTerms[0], iterations, precalm, czm);
-                setArrayDeepValue(referenceDeepData.PrecalculatedTerms[1], iterations, precal2m, czm);
-                setArrayDeepValue(referenceDeepData.PrecalculatedTerms[2], iterations, precal3m, czm);
-                setArrayDeepValue(referenceDeepData.PrecalculatedTerms[3], iterations, precal4m, czm);
-                setArrayDeepValue(referenceDeepData.PrecalculatedTerms[6], iterations, precalc7m, czm);
+                setExpressionDeepValue(referenceDeepData.PrecalculatedTerms[0], iterations, precalm, czm);
+                setExpressionDeepValue(referenceDeepData.PrecalculatedTerms[1], iterations, precal2m, czm);
+                setExpressionDeepValue(referenceDeepData.PrecalculatedTerms[2], iterations, precal3m, czm);
+                setExpressionDeepValue(referenceDeepData.PrecalculatedTerms[3], iterations, precal4m, czm);
+                setExpressionDeepValue(referenceDeepData.PrecalculatedTerms[6], iterations, precalc7m, czm);
 
                 if(!isJulia) {
                     precal5m = loc.getMantExpComplex(preCalc5);
                     precal6m = loc.getMantExpComplex(preCalc6);
                     precal8m = loc.getMantExpComplex(preCalc8);
-                    setArrayDeepValue(referenceDeepData.PrecalculatedTerms[4], iterations, precal5m, czm);
-                    setArrayDeepValue(referenceDeepData.PrecalculatedTerms[5], iterations, precal6m, czm);
-                    setArrayDeepValue(referenceDeepData.PrecalculatedTerms[7], iterations, precal8m, czm);
+                    setExpressionDeepValue(referenceDeepData.PrecalculatedTerms[4], iterations, precal5m, czm);
+                    setExpressionDeepValue(referenceDeepData.PrecalculatedTerms[5], iterations, precal6m, czm);
+                    setExpressionDeepValue(referenceDeepData.PrecalculatedTerms[7], iterations, precal8m, czm);
                 }
             }
 
             if (lowPrecReferenceOrbitNeeded) {
-                setArrayValue(referenceData.PrecalculatedTerms[0], iterations, deepZoom ? precalm.toComplex() : preCalc.toComplex(), cz);
-                setArrayValue(referenceData.PrecalculatedTerms[1], iterations, deepZoom ? precal2m.toComplex() : preCalc2.toComplex(), cz);
-                setArrayValue(referenceData.PrecalculatedTerms[2], iterations, deepZoom ? precal3m.toComplex() : preCalc3.toComplex(), cz);
-                setArrayValue(referenceData.PrecalculatedTerms[3], iterations, deepZoom ? precal4m.toComplex() : preCalc4.toComplex(), cz);
-                setArrayValue(referenceData.PrecalculatedTerms[6], iterations, deepZoom ? precalc7m.toComplex() : preCalc7.toComplex(), cz);
+                setExpressionValue(referenceData.PrecalculatedTerms[0], iterations, deepZoom ? precalm.toComplex() : preCalc.toComplex(), cz);
+                setExpressionValue(referenceData.PrecalculatedTerms[1], iterations, deepZoom ? precal2m.toComplex() : preCalc2.toComplex(), cz);
+                setExpressionValue(referenceData.PrecalculatedTerms[2], iterations, deepZoom ? precal3m.toComplex() : preCalc3.toComplex(), cz);
+                setExpressionValue(referenceData.PrecalculatedTerms[3], iterations, deepZoom ? precal4m.toComplex() : preCalc4.toComplex(), cz);
+                setExpressionValue(referenceData.PrecalculatedTerms[6], iterations, deepZoom ? precalc7m.toComplex() : preCalc7.toComplex(), cz);
 
                 if(!isJulia) {
-                    setArrayValue(referenceData.PrecalculatedTerms[4], iterations, deepZoom ? precal5m.toComplex() : preCalc5.toComplex(), cz);
-                    setArrayValue(referenceData.PrecalculatedTerms[5], iterations, deepZoom ? precal6m.toComplex() : preCalc6.toComplex(), cz);
-                    setArrayValue(referenceData.PrecalculatedTerms[7], iterations, deepZoom ? precal8m.toComplex() : preCalc8.toComplex(), cz);
+                    setExpressionValue(referenceData.PrecalculatedTerms[4], iterations, deepZoom ? precal5m.toComplex() : preCalc5.toComplex(), cz);
+                    setExpressionValue(referenceData.PrecalculatedTerms[5], iterations, deepZoom ? precal6m.toComplex() : preCalc6.toComplex(), cz);
+                    setExpressionValue(referenceData.PrecalculatedTerms[7], iterations, deepZoom ? precal8m.toComplex() : preCalc8.toComplex(), cz);
                 }
             }
 
             if (iterations > 0 && (convergent_bailout_algorithm.Converged(z, root, zold, zold2, iterations, c, start, c0, pixel)
-                    || bailout_algorithm2.Escaped(z, zold, zold2, iterations, c, start, c0, normSquared, pixel))) {
+                    || bailout_algorithm2.Escaped(z, zold, zold2, iterations, c, start, c0, normSquared, pixel, cz, czm))) {
                 break;
             }
 
-            if(!preCalcNormData) {
+            if(!usesCircleBail) {
                 zold2.set(zold);
                 zold.set(z);
             }
@@ -874,30 +837,15 @@ public class Magnet1 extends MagnetType {
 
         }
 
-        referenceData.lastZValue = z;
-        referenceData.secondTolastZValue = zold;
-        referenceData.thirdTolastZValue = zold2;
+        referenceOrbit.lastZValue = z;
+        referenceOrbit.c = c;
+        referenceOrbit.secondTolastZValue = !usesCircleBail ? zold : null;
+        referenceOrbit.thirdTolastZValue = !usesCircleBail ? zold2 : null;
 
-        referenceData.MaxRefIteration = iterations - 1;
+        referenceOrbit.MaxRefIteration = iterations - 1;
 
         if(useCompressedRef) {
-            if(deepZoom) {
-                referenceCompressor[referenceDeep.id].compact(referenceDeep);
-                referenceData.compressorZm = referenceCompressor[referenceDeep.id].getZDeep();
-
-                for(int i = 0; i < preCalcIndexes.length; i++) {
-                    subexpressionsCompressor[referenceDeepData.PrecalculatedTerms[preCalcIndexes[i]].id].compact(referenceDeepData.PrecalculatedTerms[preCalcIndexes[i]]);
-                }
-            }
-
-            if(lowPrecReferenceOrbitNeeded) {
-                referenceCompressor[reference.id].compact(reference);
-                referenceData.compressorZ = referenceCompressor[reference.id].getZ();
-
-                for(int i = 0; i < preCalcIndexes.length; i++) {
-                    subexpressionsCompressor[referenceData.PrecalculatedTerms[preCalcIndexes[i]].id].compact(referenceData.PrecalculatedTerms[preCalcIndexes[i]]);
-                }
-            }
+            finalizeCompressedReference(deepZoom, lowPrecReferenceOrbitNeeded, needsRefSubCp, preCalcIndexes);
         }
 
         SAskippedIterations = 0;
@@ -907,15 +855,19 @@ public class Magnet1 extends MagnetType {
             progress.setString(REFERENCE_CALCULATION_STR + " 100%");
         }
 
+        if(TaskRender.SAVE_REFERENCE && supportsReferenceSavingOrLoading()) {
+            saveReference(TaskRender.SAVE_REFERENCE_FILE_PATH);
+        }
+
         ReferenceCalculationTime = System.currentTimeMillis() - time;
 
         if(isJulia) {
-            calculateJuliaReferencePoint(inputPixel, size, deepZoom, juliaIterations, progress);
+            this.calculateJuliaReferenceOrbit(inputPixel, size, deepZoom, juliaIterations, progress);
         }
     }
 
     @Override
-    protected void calculateJuliaReferencePoint(GenericComplex inputPixel, Apfloat size, boolean deepZoom, int[] juliaIterations, JProgressBar progress) {
+    protected void calculateJuliaReferenceOrbit(GenericComplex inputPixel, Apfloat size, boolean deepZoom, int[] juliaIterations, JProgressBar progress) {
 
         int iterations = juliaIterations[0];
         if(iterations == 0 && ((!deepZoom && secondReferenceData.Reference != null) || (deepZoom && secondReferenceDeepData.Reference != null))) {
@@ -937,46 +889,24 @@ public class Magnet1 extends MagnetType {
 
         boolean lowPrecReferenceOrbitNeeded = !needsOnlyExtendedReferenceOrbit(deepZoom, false);
         DoubleReference.SHOULD_SAVE_MEMORY = false;
-        boolean useCompressedRef = TaskRender.COMPRESS_REFERENCE_IF_POSSIBLE && supportsReferenceCompression();
+        boolean useCompressedRef = useCompressedRef();
         int[] preCalcIndexes = getNeededPrecalculatedTermsIndexes();
+        boolean needsRefSubCp = needsRefSubCp();
 
-        if (iterations == 0) {
-            if(lowPrecReferenceOrbitNeeded) {
-                secondReferenceData.create(max_ref_iterations,false, preCalcIndexes, useCompressedRef);
-            }
-            else {
-                secondReferenceData.deallocate();
-            }
-
-            if (deepZoom) {
-                secondReferenceDeepData.create(max_ref_iterations,false, preCalcIndexes, useCompressedRef);
-            }
-        } else if (max_ref_iterations > getSecondReferenceLength()) {
-            if(lowPrecReferenceOrbitNeeded) {
-                secondReferenceData.resize(max_ref_iterations);
-            }
-            else {
-                secondReferenceData.deallocate();
-            }
-
-            if (deepZoom) {
-                secondReferenceDeepData.resize(max_ref_iterations);
-            }
-        }
+        initializeSecondReference(deepZoom, lowPrecReferenceOrbitNeeded, iterations, max_ref_iterations, needsRefSubCp, useCompressedRef, preCalcIndexes);
 
         Location loc = new Location();
 
         int bigNumLib = NumericLibrary.getBignumImplementation(size, this);
 
-        GenericComplex z, c, zold, zold2, start, c0, pixel;
+        GenericComplex z, c = getSeed(bigNumLib), zold, zold2, start, c0, pixel;
         Object normSquared, root;
 
         if (bigNumLib == Constants.BIGNUM_MPFR) {
             MpfrBigNumComplex bn = new MpfrBigNumComplex(inputPixel.toMpfrBigNumComplex());
-            z = iterations == 0 ? new MpfrBigNumComplex() : secondReferenceData.lastZValue;
-            c = getSeed(bigNumLib);
-            zold = iterations == 0 ? new MpfrBigNumComplex() : secondReferenceData.secondTolastZValue;
-            zold2 = iterations == 0 ? new MpfrBigNumComplex() : secondReferenceData.thirdTolastZValue;
+            z = iterations == 0 ? new MpfrBigNumComplex() : secondReferenceOrbit.lastZValue;
+            zold = iterations == 0 ? new MpfrBigNumComplex() : secondReferenceOrbit.secondTolastZValue;
+            zold2 = iterations == 0 ? new MpfrBigNumComplex() : secondReferenceOrbit.thirdTolastZValue;
             start = new MpfrBigNumComplex();
             c0 = new MpfrBigNumComplex((MpfrBigNumComplex)c);
             pixel = new MpfrBigNumComplex(bn);
@@ -984,10 +914,9 @@ public class Magnet1 extends MagnetType {
         }
         else if (bigNumLib == Constants.BIGNUM_MPIR) {
             MpirBigNumComplex bn = new MpirBigNumComplex(inputPixel.toMpirBigNumComplex());
-            z = iterations == 0 ? new MpirBigNumComplex() : secondReferenceData.lastZValue;
-            c = getSeed(bigNumLib);
-            zold = iterations == 0 ? new MpirBigNumComplex() : secondReferenceData.secondTolastZValue;
-            zold2 = iterations == 0 ? new MpirBigNumComplex() : secondReferenceData.thirdTolastZValue;
+            z = iterations == 0 ? new MpirBigNumComplex() : secondReferenceOrbit.lastZValue;
+            zold = iterations == 0 ? new MpirBigNumComplex() : secondReferenceOrbit.secondTolastZValue;
+            zold2 = iterations == 0 ? new MpirBigNumComplex() : secondReferenceOrbit.thirdTolastZValue;
             start = new MpirBigNumComplex();
             c0 = new MpirBigNumComplex((MpirBigNumComplex)c);
             pixel = new MpirBigNumComplex(bn);
@@ -995,10 +924,9 @@ public class Magnet1 extends MagnetType {
         }
         else if(bigNumLib == Constants.BIGNUM_DOUBLEDOUBLE) {
             DDComplex ddn = inputPixel.toDDComplex();
-            z = iterations == 0 ? new DDComplex() : secondReferenceData.lastZValue;
-            c = getSeed(bigNumLib);
-            zold = iterations == 0 ? new DDComplex() : secondReferenceData.secondTolastZValue;
-            zold2 = iterations == 0 ? new DDComplex() : secondReferenceData.thirdTolastZValue;
+            z = iterations == 0 ? new DDComplex() : secondReferenceOrbit.lastZValue;
+            zold = iterations == 0 ? new DDComplex() : secondReferenceOrbit.secondTolastZValue;
+            zold2 = iterations == 0 ? new DDComplex() : secondReferenceOrbit.thirdTolastZValue;
             start = new DDComplex();
             c0 = c;
             pixel = ddn;
@@ -1006,10 +934,9 @@ public class Magnet1 extends MagnetType {
         }
         else if(bigNumLib == Constants.BIGNUM_BIGINT) {
             BigIntNumComplex bin = inputPixel.toBigIntNumComplex();
-            z = iterations == 0 ? new BigIntNumComplex() : secondReferenceData.lastZValue;
-            c = getSeed(bigNumLib);
-            zold = iterations == 0 ? new BigIntNumComplex() : secondReferenceData.secondTolastZValue;
-            zold2 = iterations == 0 ? new BigIntNumComplex() : secondReferenceData.thirdTolastZValue;
+            z = iterations == 0 ? new BigIntNumComplex() : secondReferenceOrbit.lastZValue;
+            zold = iterations == 0 ? new BigIntNumComplex() : secondReferenceOrbit.secondTolastZValue;
+            zold2 = iterations == 0 ? new BigIntNumComplex() : secondReferenceOrbit.thirdTolastZValue;
             start = new BigIntNumComplex();
             c0 = c;
             pixel = bin;
@@ -1017,20 +944,18 @@ public class Magnet1 extends MagnetType {
         }
         else if(bigNumLib == Constants.BIGNUM_DOUBLE) {
             Complex bn = inputPixel.toComplex();
-            z = iterations == 0 ? new Complex() : secondReferenceData.lastZValue;
-            c = getSeed(bigNumLib);
-            zold = iterations == 0 ? new Complex() : secondReferenceData.secondTolastZValue;
-            zold2 = iterations == 0 ? new Complex() : secondReferenceData.thirdTolastZValue;
+            z = iterations == 0 ? new Complex() : secondReferenceOrbit.lastZValue;
+            zold = iterations == 0 ? new Complex() : secondReferenceOrbit.secondTolastZValue;
+            zold2 = iterations == 0 ? new Complex() : secondReferenceOrbit.thirdTolastZValue;
             start = new Complex();
             c0 = new Complex((Complex) c);
             pixel = new Complex(bn);
             root = 1.0;
         }
         else {
-            z = iterations == 0 ? new BigComplex() : secondReferenceData.lastZValue;
-            c = getSeed(bigNumLib);
-            zold = iterations == 0 ? new BigComplex() : secondReferenceData.secondTolastZValue;
-            zold2 = iterations == 0 ? new BigComplex() : secondReferenceData.thirdTolastZValue;
+            z = iterations == 0 ? new BigComplex() : secondReferenceOrbit.lastZValue;
+            zold = iterations == 0 ? new BigComplex() : secondReferenceOrbit.secondTolastZValue;
+            zold2 = iterations == 0 ? new BigComplex() : secondReferenceOrbit.thirdTolastZValue;
             start = new BigComplex();
             pixel = inputPixel;
             c0 = c;
@@ -1038,30 +963,12 @@ public class Magnet1 extends MagnetType {
         }
 
         normSquared = z.normSquared();
-        boolean preCalcNormData = bailout_algorithm2.getId() == MainWindow.BAILOUT_CONDITION_CIRCLE;
+        boolean usesCircleBail = usesCircleBail();
+        boolean preCalcNormData = usesCircleBail;
         NormComponents normData = null;
 
         if(useCompressedRef) {
-            if(deepZoom) {
-                referenceCompressor[secondReferenceDeepData.Reference.id] = new ReferenceCompressor(this, iterations == 0 ? z.toMantExpComplex() : secondReferenceData.compressorZm, c.toMantExpComplex(), start.toMantExpComplex());
-
-                Function<MantExpComplex, MantExpComplex>[] fs = getPrecalculatedTermsFunctionsDeep(c.toMantExpComplex());
-                for(int i = 0; i < preCalcIndexes.length; i++) {
-                    int id = secondReferenceDeepData.PrecalculatedTerms[preCalcIndexes[i]].id;
-                    functions[id] = fs[i];
-                    subexpressionsCompressor[id] = new ReferenceCompressor(fs[i], true);
-                }
-            }
-            if(lowPrecReferenceOrbitNeeded) {
-                referenceCompressor[secondReferenceData.Reference.id] = new ReferenceCompressor(this, iterations == 0 ? z.toComplex() : secondReferenceData.compressorZ, c.toComplex(), start.toComplex());
-
-                Function<Complex, Complex>[] fs = getPrecalculatedTermsFunctions(c.toComplex());
-                for(int i = 0; i < preCalcIndexes.length; i++) {
-                    int id = secondReferenceData.PrecalculatedTerms[preCalcIndexes[i]].id;
-                    functions[id] = fs[i];
-                    subexpressionsCompressor[id] = new ReferenceCompressor(fs[i]);
-                }
-            }
+            initializeSecondCompressedReference(deepZoom, lowPrecReferenceOrbitNeeded, iterations, needsRefSubCp, preCalcIndexes, z, c, null, start);
         }
 
         calculatedSecondReferenceIterations = 0;
@@ -1133,7 +1040,7 @@ public class Magnet1 extends MagnetType {
                 if (czm.isInfinite() || czm.isNaN()) {
                     break;
                 }
-                tempmcz = setArrayDeepValue(secondReferenceDeepData.Reference, iterations, czm);
+                tempmcz = setReferenceDeepValue(secondReferenceDeepData.Reference, iterations, czm);
             }
 
             if(lowPrecReferenceOrbitNeeded) {
@@ -1142,7 +1049,7 @@ public class Magnet1 extends MagnetType {
                     break;
                 }
 
-                cz = setArrayValue(secondReferenceData.Reference, iterations, cz);
+                cz = setReferenceValue(secondReferenceData.Reference, iterations, cz);
             }
 
             czm = tempmcz;
@@ -1154,27 +1061,27 @@ public class Magnet1 extends MagnetType {
                 precal4m = loc.getMantExpComplex(preCalc4);
                 precalc7m = loc.getMantExpComplex(preCalc7);
 
-                setArrayDeepValue(secondReferenceDeepData.PrecalculatedTerms[0], iterations, precalm, czm);
-                setArrayDeepValue(secondReferenceDeepData.PrecalculatedTerms[1], iterations, precal2m, czm);
-                setArrayDeepValue(secondReferenceDeepData.PrecalculatedTerms[2], iterations, precal3m, czm);
-                setArrayDeepValue(secondReferenceDeepData.PrecalculatedTerms[3], iterations, precal4m, czm);
-                setArrayDeepValue(secondReferenceDeepData.PrecalculatedTerms[6], iterations, precalc7m, czm);
+                setExpressionDeepValue(secondReferenceDeepData.PrecalculatedTerms[0], iterations, precalm, czm);
+                setExpressionDeepValue(secondReferenceDeepData.PrecalculatedTerms[1], iterations, precal2m, czm);
+                setExpressionDeepValue(secondReferenceDeepData.PrecalculatedTerms[2], iterations, precal3m, czm);
+                setExpressionDeepValue(secondReferenceDeepData.PrecalculatedTerms[3], iterations, precal4m, czm);
+                setExpressionDeepValue(secondReferenceDeepData.PrecalculatedTerms[6], iterations, precalc7m, czm);
             }
 
             if(lowPrecReferenceOrbitNeeded) {
-                setArrayValue(secondReferenceData.PrecalculatedTerms[0], iterations, deepZoom ? precalm.toComplex() : preCalc.toComplex(), cz);
-                setArrayValue(secondReferenceData.PrecalculatedTerms[1], iterations, deepZoom ? precal2m.toComplex() : preCalc2.toComplex(), cz);
-                setArrayValue(secondReferenceData.PrecalculatedTerms[2], iterations, deepZoom ? precal3m.toComplex() : preCalc3.toComplex(), cz);
-                setArrayValue(secondReferenceData.PrecalculatedTerms[3], iterations, deepZoom ? precal4m.toComplex() : preCalc4.toComplex(), cz);
-                setArrayValue(secondReferenceData.PrecalculatedTerms[6], iterations, deepZoom ? precalc7m.toComplex() : preCalc7.toComplex(), cz);
+                setExpressionValue(secondReferenceData.PrecalculatedTerms[0], iterations, deepZoom ? precalm.toComplex() : preCalc.toComplex(), cz);
+                setExpressionValue(secondReferenceData.PrecalculatedTerms[1], iterations, deepZoom ? precal2m.toComplex() : preCalc2.toComplex(), cz);
+                setExpressionValue(secondReferenceData.PrecalculatedTerms[2], iterations, deepZoom ? precal3m.toComplex() : preCalc3.toComplex(), cz);
+                setExpressionValue(secondReferenceData.PrecalculatedTerms[3], iterations, deepZoom ? precal4m.toComplex() : preCalc4.toComplex(), cz);
+                setExpressionValue(secondReferenceData.PrecalculatedTerms[6], iterations, deepZoom ? precalc7m.toComplex() : preCalc7.toComplex(), cz);
             }
 
             if (iterations > 0 && (convergent_bailout_algorithm.Converged(z, root, zold, zold2, iterations, c, start, c0, pixel)
-                    || bailout_algorithm2.Escaped(z, zold, zold2, iterations, c, start, c0, normSquared, pixel))) {
+                    || bailout_algorithm2.Escaped(z, zold, zold2, iterations, c, start, c0, normSquared, pixel, cz, czm))) {
                 break;
             }
 
-            if(!preCalcNormData) {
+            if(!usesCircleBail) {
                 zold2.set(zold);
                 zold.set(z);
             }
@@ -1195,35 +1102,23 @@ public class Magnet1 extends MagnetType {
 
         }
 
-        secondReferenceData.lastZValue = z;
-        secondReferenceData.secondTolastZValue = zold;
-        secondReferenceData.thirdTolastZValue = zold2;
+        secondReferenceOrbit.lastZValue = z;
+        secondReferenceOrbit.secondTolastZValue = !usesCircleBail ? zold : null;
+        secondReferenceOrbit.thirdTolastZValue = !usesCircleBail ? zold2 : null;
 
-        secondReferenceData.MaxRefIteration = iterations - 1;
+        secondReferenceOrbit.MaxRefIteration = iterations - 1;
 
         if(useCompressedRef) {
-            if(deepZoom) {
-                referenceCompressor[secondReferenceDeepData.Reference.id].compact(secondReferenceDeepData.Reference);
-                secondReferenceData.compressorZm = referenceCompressor[secondReferenceDeepData.Reference.id].getZDeep();
-
-                for(int i = 0; i < preCalcIndexes.length; i++) {
-                    subexpressionsCompressor[secondReferenceDeepData.PrecalculatedTerms[preCalcIndexes[i]].id].compact(secondReferenceDeepData.PrecalculatedTerms[preCalcIndexes[i]]);
-                }
-            }
-
-            if(lowPrecReferenceOrbitNeeded) {
-                referenceCompressor[secondReferenceData.Reference.id].compact(secondReferenceData.Reference);
-                secondReferenceData.compressorZ = referenceCompressor[secondReferenceData.Reference.id].getZ();
-
-                for(int i = 0; i < preCalcIndexes.length; i++) {
-                    subexpressionsCompressor[secondReferenceData.PrecalculatedTerms[preCalcIndexes[i]].id].compact(secondReferenceData.PrecalculatedTerms[preCalcIndexes[i]]);
-                }
-            }
+            finalizeSecondCompressedReference(deepZoom, lowPrecReferenceOrbitNeeded, needsRefSubCp, preCalcIndexes);
         }
 
         if(progress != null) {
             progress.setValue(progress.getMaximum());
             progress.setString(REFERENCE_CALCULATION_STR + " 100%");
+        }
+
+        if(TaskRender.SAVE_REFERENCE && supportsReferenceSavingOrLoading()) {
+            saveReference(TaskRender.SAVE_REFERENCE_FILE_PATH);
         }
 
         SecondReferenceCalculationTime = System.currentTimeMillis() - time;
@@ -1243,7 +1138,7 @@ public class Magnet1 extends MagnetType {
     @Override
     public Complex perturbationFunction(Complex z, Complex c, int RefIteration) {
 
-        Complex Z = getArrayValue(reference, RefIteration);
+        Complex Z = getReferenceValue(reference, RefIteration);
 
         //((C^2 + 4*(C - 2)*Z + 4*Z^2 - 4*C + 4)*z^4 + 4*(4*(C - 2)*Z^2 + 4*Z^3 + (C^2 - 4*C + 4)*Z)*z^3 - (Z^4 + 2*(C - 3)*Z^2 - 4*(C - 2)*Z + 2*C - 3)*c^2 + 2*(12*(C - 2)*Z^3 + 10*Z^4 + C^3 + 3*(C^2 - 4*C + 4)*Z^2 - 7*C^2 + 4*(C^2 - 3*C + 2)*Z + (C^2 + 4*(C - 2)*Z + 4*Z^2 - 4*C + 4)*c + 12*C - 6)*z^2 - 2*((C - 6)*Z^4 + 2*Z^5 + (C^2 - 6*C + 4)*Z^2 + 4*Z^3 + C^2 - 2*(C^2 - 4*C + 3)*Z - 3*C + 2)*c + 4*(3*(C - 2)*Z^4 + 2*Z^5 + (C^2 - 4*C + 4)*Z^3 - C^3 + 2*(C^2 - 3*C + 2)*Z^2 + 4*C^2 + (C^3 - 7*C^2 + 12*C - 6)*Z - (Z^4 - 2*(C - 3)*Z^2 - 4*Z^3 + C^2 - (C^2 - 4*C + 4)*Z - 2*C + 1)*c - 5*C + 2)*z)
         //        /(C^4 + 32*(C - 2)*Z^3 + 16*Z^4 - 8*C^3 + 24*(C^2 - 4*C + 4)*Z^2 + (C^2 + 4*(C - 2)*Z + 4*Z^2 - 4*C + 4)*c^2 + 4*(C^2 + 4*(C - 2)*Z + 4*Z^2 - 4*C + 4)*z^2 + 24*C^2 + 8*(C^3 - 6*C^2 + 12*C - 8)*Z + 2*(C^3 + 12*(C - 2)*Z^2 + 8*Z^3 - 6*C^2 + 6*(C^2 - 4*C + 4)*Z + 12*C - 8)*c + 4*(C^3 + 12*(C - 2)*Z^2 + 8*Z^3 - 6*C^2 + 6*(C^2 - 4*C + 4)*Z + (C^2 + 4*(C - 2)*Z + 4*Z^2 - 4*C + 4)*c + 12*C - 8)*z - 32*C + 16)
@@ -1252,9 +1147,9 @@ public class Magnet1 extends MagnetType {
         Complex zsqr = z.square();
 
 
-        Complex temp2 = getArrayValue(referenceData.PrecalculatedTerms[0], RefIteration, Z);//C^2 + 4*(C - 2)*Z + 4*Z^2 - 4*C + 4
+        Complex temp2 = getExpressionValue(referenceData.PrecalculatedTerms[0], RefIteration, Z);//C^2 + 4*(C - 2)*Z + 4*Z^2 - 4*C + 4
         Complex temp9 = temp2.times(c);
-        Complex temp10 = getArrayValue(referenceData.PrecalculatedTerms[3], RefIteration, Z);
+        Complex temp10 = getExpressionValue(referenceData.PrecalculatedTerms[3], RefIteration, Z);
 
         //        C^4
         //        + 32*(C - 2)*Z^3
@@ -1269,7 +1164,7 @@ public class Magnet1 extends MagnetType {
         //        + 4*(C^3 + 12*(C - 2)*Z^2 + 8*Z^3 - 6*C^2 + 6*(C^2 - 4*C + 4)*Z + (C^2 + 4*(C - 2)*Z + 4*Z^2 - 4*C + 4)*c + 12*C - 8)*z
         //        - 32*C
         //        + 16
-        Complex denom = getArrayValue(referenceData.PrecalculatedTerms[2], RefIteration, Z)
+        Complex denom = getExpressionValue(referenceData.PrecalculatedTerms[2], RefIteration, Z)
                 .plus_mutable(temp2.times(csqr))
                 .plus_mutable(temp2.times(zsqr).times4_mutable())
                 .plus_mutable(temp10.times(c).times2_mutable())
@@ -1289,13 +1184,13 @@ public class Magnet1 extends MagnetType {
 
         Complex b1 = (temp2.times(Z)).times(z.cube()).times4_mutable();
 
-        Complex c1 = getArrayValue(referenceData.PrecalculatedTerms[5], RefIteration, Z).times_mutable(csqr);
+        Complex c1 = getExpressionValue(referenceData.PrecalculatedTerms[5], RefIteration, Z).times_mutable(csqr);
 
-        Complex d1 = getArrayValue(referenceData.PrecalculatedTerms[6], RefIteration, Z).plus_mutable(temp9).times2_mutable().times_mutable(zsqr);
+        Complex d1 = getExpressionValue(referenceData.PrecalculatedTerms[6], RefIteration, Z).plus_mutable(temp9).times2_mutable().times_mutable(zsqr);
 
-        Complex e1 = getArrayValue(referenceData.PrecalculatedTerms[7], RefIteration, Z).times2_mutable().times_mutable(c);
+        Complex e1 = getExpressionValue(referenceData.PrecalculatedTerms[7], RefIteration, Z).times2_mutable().times_mutable(c);
 
-        Complex f1 = (getArrayValue(referenceData.PrecalculatedTerms[1], RefIteration, Z).sub_mutable(getArrayValue(referenceData.PrecalculatedTerms[4], RefIteration, Z).times_mutable(c))
+        Complex f1 = (getExpressionValue(referenceData.PrecalculatedTerms[1], RefIteration, Z).sub_mutable(getExpressionValue(referenceData.PrecalculatedTerms[4], RefIteration, Z).times_mutable(c))
                 ).times4_mutable().times_mutable(z);
 
         Complex num = a1
@@ -1312,7 +1207,7 @@ public class Magnet1 extends MagnetType {
     public MantExpComplex perturbationFunction(MantExpComplex z, MantExpComplex c, int RefIteration) {
 
 
-        MantExpComplex Z = getArrayDeepValue(referenceDeep, RefIteration);
+        MantExpComplex Z = getReferenceDeepValue(referenceDeep, RefIteration);
 
         //((C^2 + 4*(C - 2)*Z + 4*Z^2 - 4*C + 4)*z^4 + 4*(4*(C - 2)*Z^2 + 4*Z^3 + (C^2 - 4*C + 4)*Z)*z^3 - (Z^4 + 2*(C - 3)*Z^2 - 4*(C - 2)*Z + 2*C - 3)*c^2 + 2*(12*(C - 2)*Z^3 + 10*Z^4 + C^3 + 3*(C^2 - 4*C + 4)*Z^2 - 7*C^2 + 4*(C^2 - 3*C + 2)*Z + (C^2 + 4*(C - 2)*Z + 4*Z^2 - 4*C + 4)*c + 12*C - 6)*z^2 - 2*((C - 6)*Z^4 + 2*Z^5 + (C^2 - 6*C + 4)*Z^2 + 4*Z^3 + C^2 - 2*(C^2 - 4*C + 3)*Z - 3*C + 2)*c + 4*(3*(C - 2)*Z^4 + 2*Z^5 + (C^2 - 4*C + 4)*Z^3 - C^3 + 2*(C^2 - 3*C + 2)*Z^2 + 4*C^2 + (C^3 - 7*C^2 + 12*C - 6)*Z - (Z^4 - 2*(C - 3)*Z^2 - 4*Z^3 + C^2 - (C^2 - 4*C + 4)*Z - 2*C + 1)*c - 5*C + 2)*z)
         //        /(C^4 + 32*(C - 2)*Z^3 + 16*Z^4 - 8*C^3 + 24*(C^2 - 4*C + 4)*Z^2 + (C^2 + 4*(C - 2)*Z + 4*Z^2 - 4*C + 4)*c^2 + 4*(C^2 + 4*(C - 2)*Z + 4*Z^2 - 4*C + 4)*z^2 + 24*C^2 + 8*(C^3 - 6*C^2 + 12*C - 8)*Z + 2*(C^3 + 12*(C - 2)*Z^2 + 8*Z^3 - 6*C^2 + 6*(C^2 - 4*C + 4)*Z + 12*C - 8)*c + 4*(C^3 + 12*(C - 2)*Z^2 + 8*Z^3 - 6*C^2 + 6*(C^2 - 4*C + 4)*Z + (C^2 + 4*(C - 2)*Z + 4*Z^2 - 4*C + 4)*c + 12*C - 8)*z - 32*C + 16)
@@ -1321,9 +1216,9 @@ public class Magnet1 extends MagnetType {
         MantExpComplex zsqr = z.square();
 
 
-        MantExpComplex temp2 = getArrayDeepValue(referenceDeepData.PrecalculatedTerms[0], RefIteration, Z);//C^2 + 4*(C - 2)*Z + 4*Z^2 - 4*C + 4
+        MantExpComplex temp2 = getExpressionDeepValue(referenceDeepData.PrecalculatedTerms[0], RefIteration, Z);//C^2 + 4*(C - 2)*Z + 4*Z^2 - 4*C + 4
         MantExpComplex temp9 = temp2.times(c);
-        MantExpComplex temp10 = getArrayDeepValue(referenceDeepData.PrecalculatedTerms[3], RefIteration, Z);
+        MantExpComplex temp10 = getExpressionDeepValue(referenceDeepData.PrecalculatedTerms[3], RefIteration, Z);
 
         //        C^4
         //        + 32*(C - 2)*Z^3
@@ -1338,7 +1233,7 @@ public class Magnet1 extends MagnetType {
         //        + 4*(C^3 + 12*(C - 2)*Z^2 + 8*Z^3 - 6*C^2 + 6*(C^2 - 4*C + 4)*Z + (C^2 + 4*(C - 2)*Z + 4*Z^2 - 4*C + 4)*c + 12*C - 8)*z
         //        - 32*C
         //        + 16
-        MantExpComplex denom = getArrayDeepValue(referenceDeepData.PrecalculatedTerms[2], RefIteration, Z)
+        MantExpComplex denom = getExpressionDeepValue(referenceDeepData.PrecalculatedTerms[2], RefIteration, Z)
                 .plus_mutable(temp2.times(csqr))
                 .plus_mutable(temp2.times(zsqr).times4_mutable())
                 .plus_mutable(temp10.times(c).times2_mutable())
@@ -1358,13 +1253,13 @@ public class Magnet1 extends MagnetType {
 
         MantExpComplex b1 = (temp2.times(Z)).times(z.cube()).times4_mutable();
 
-        MantExpComplex c1 = getArrayDeepValue(referenceDeepData.PrecalculatedTerms[5], RefIteration, Z).times_mutable(csqr);
+        MantExpComplex c1 = getExpressionDeepValue(referenceDeepData.PrecalculatedTerms[5], RefIteration, Z).times_mutable(csqr);
 
-        MantExpComplex d1 = getArrayDeepValue(referenceDeepData.PrecalculatedTerms[6], RefIteration, Z).plus_mutable(temp9).times2_mutable().times_mutable(zsqr);
+        MantExpComplex d1 = getExpressionDeepValue(referenceDeepData.PrecalculatedTerms[6], RefIteration, Z).plus_mutable(temp9).times2_mutable().times_mutable(zsqr);
 
-        MantExpComplex e1 = getArrayDeepValue(referenceDeepData.PrecalculatedTerms[7], RefIteration, Z).times2_mutable().times_mutable(c);
+        MantExpComplex e1 = getExpressionDeepValue(referenceDeepData.PrecalculatedTerms[7], RefIteration, Z).times2_mutable().times_mutable(c);
 
-        MantExpComplex f1 = (getArrayDeepValue(referenceDeepData.PrecalculatedTerms[1], RefIteration, Z).sub_mutable(getArrayDeepValue(referenceDeepData.PrecalculatedTerms[4], RefIteration, Z).times_mutable(c))
+        MantExpComplex f1 = (getExpressionDeepValue(referenceDeepData.PrecalculatedTerms[1], RefIteration, Z).sub_mutable(getExpressionDeepValue(referenceDeepData.PrecalculatedTerms[4], RefIteration, Z).times_mutable(c))
         ).times4_mutable().times_mutable(z);
 
         MantExpComplex num = a1
@@ -1381,7 +1276,7 @@ public class Magnet1 extends MagnetType {
     @Override
     public Complex perturbationFunction(Complex z, int RefIteration) {
 
-        Complex Z = getArrayValue(reference, RefIteration);
+        Complex Z = getReferenceValue(reference, RefIteration);
 
         //((C^2 + 4*(C - 2)*Z + 4*Z^2 - 4*C + 4)*z^4 + 4*(4*(C - 2)*Z^2 + 4*Z^3 + (C^2 - 4*C + 4)*Z)*z^3 - (Z^4 + 2*(C - 3)*Z^2 - 4*(C - 2)*Z + 2*C - 3)*c^2 + 2*(12*(C - 2)*Z^3 + 10*Z^4 + C^3 + 3*(C^2 - 4*C + 4)*Z^2 - 7*C^2 + 4*(C^2 - 3*C + 2)*Z + (C^2 + 4*(C - 2)*Z + 4*Z^2 - 4*C + 4)*c + 12*C - 6)*z^2 - 2*((C - 6)*Z^4 + 2*Z^5 + (C^2 - 6*C + 4)*Z^2 + 4*Z^3 + C^2 - 2*(C^2 - 4*C + 3)*Z - 3*C + 2)*c + 4*(3*(C - 2)*Z^4 + 2*Z^5 + (C^2 - 4*C + 4)*Z^3 - C^3 + 2*(C^2 - 3*C + 2)*Z^2 + 4*C^2 + (C^3 - 7*C^2 + 12*C - 6)*Z - (Z^4 - 2*(C - 3)*Z^2 - 4*Z^3 + C^2 - (C^2 - 4*C + 4)*Z - 2*C + 1)*c - 5*C + 2)*z)
         //        /(C^4 + 32*(C - 2)*Z^3 + 16*Z^4 - 8*C^3 + 24*(C^2 - 4*C + 4)*Z^2 + (C^2 + 4*(C - 2)*Z + 4*Z^2 - 4*C + 4)*c^2 + 4*(C^2 + 4*(C - 2)*Z + 4*Z^2 - 4*C + 4)*z^2 + 24*C^2 + 8*(C^3 - 6*C^2 + 12*C - 8)*Z + 2*(C^3 + 12*(C - 2)*Z^2 + 8*Z^3 - 6*C^2 + 6*(C^2 - 4*C + 4)*Z + 12*C - 8)*c + 4*(C^3 + 12*(C - 2)*Z^2 + 8*Z^3 - 6*C^2 + 6*(C^2 - 4*C + 4)*Z + (C^2 + 4*(C - 2)*Z + 4*Z^2 - 4*C + 4)*c + 12*C - 8)*z - 32*C + 16)
@@ -1389,8 +1284,8 @@ public class Magnet1 extends MagnetType {
         Complex zsqr = z.square();
 
 
-        Complex temp2 = getArrayValue(referenceData.PrecalculatedTerms[0], RefIteration, Z);//C^2 + 4*(C - 2)*Z + 4*Z^2 - 4*C + 4
-        Complex temp10 = getArrayValue(referenceData.PrecalculatedTerms[3], RefIteration, Z);
+        Complex temp2 = getExpressionValue(referenceData.PrecalculatedTerms[0], RefIteration, Z);//C^2 + 4*(C - 2)*Z + 4*Z^2 - 4*C + 4
+        Complex temp10 = getExpressionValue(referenceData.PrecalculatedTerms[3], RefIteration, Z);
 
         //        C^4
         //        + 32*(C - 2)*Z^3
@@ -1405,7 +1300,7 @@ public class Magnet1 extends MagnetType {
         //        + 4*(C^3 + 12*(C - 2)*Z^2 + 8*Z^3 - 6*C^2 + 6*(C^2 - 4*C + 4)*Z + (C^2 + 4*(C - 2)*Z + 4*Z^2 - 4*C + 4)*c + 12*C - 8)*z
         //        - 32*C
         //        + 16
-        Complex denom = getArrayValue(referenceData.PrecalculatedTerms[2], RefIteration, Z)
+        Complex denom = getExpressionValue(referenceData.PrecalculatedTerms[2], RefIteration, Z)
                 .plus_mutable(temp2.times(zsqr).times4_mutable())
                 .plus_mutable(temp10.times(z).times4_mutable());
 
@@ -1424,10 +1319,10 @@ public class Magnet1 extends MagnetType {
         Complex b1 = (temp2.times(Z)).times(z.cube()).times4_mutable();
 
 
-        Complex d1 = getArrayValue(referenceData.PrecalculatedTerms[6], RefIteration, Z).times2_mutable().times_mutable(zsqr);
+        Complex d1 = getExpressionValue(referenceData.PrecalculatedTerms[6], RefIteration, Z).times2_mutable().times_mutable(zsqr);
 
 
-        Complex f1 = (getArrayValue(referenceData.PrecalculatedTerms[1], RefIteration, Z)
+        Complex f1 = (getExpressionValue(referenceData.PrecalculatedTerms[1], RefIteration, Z)
         ).times4_mutable().times_mutable(z);
 
         Complex num = a1
@@ -1441,7 +1336,7 @@ public class Magnet1 extends MagnetType {
     @Override
     public MantExpComplex perturbationFunction(MantExpComplex z, int RefIteration) {
 
-        MantExpComplex Z = getArrayDeepValue(referenceDeep, RefIteration);
+        MantExpComplex Z = getReferenceDeepValue(referenceDeep, RefIteration);
 
         //((C^2 + 4*(C - 2)*Z + 4*Z^2 - 4*C + 4)*z^4 + 4*(4*(C - 2)*Z^2 + 4*Z^3 + (C^2 - 4*C + 4)*Z)*z^3 - (Z^4 + 2*(C - 3)*Z^2 - 4*(C - 2)*Z + 2*C - 3)*c^2 + 2*(12*(C - 2)*Z^3 + 10*Z^4 + C^3 + 3*(C^2 - 4*C + 4)*Z^2 - 7*C^2 + 4*(C^2 - 3*C + 2)*Z + (C^2 + 4*(C - 2)*Z + 4*Z^2 - 4*C + 4)*c + 12*C - 6)*z^2 - 2*((C - 6)*Z^4 + 2*Z^5 + (C^2 - 6*C + 4)*Z^2 + 4*Z^3 + C^2 - 2*(C^2 - 4*C + 3)*Z - 3*C + 2)*c + 4*(3*(C - 2)*Z^4 + 2*Z^5 + (C^2 - 4*C + 4)*Z^3 - C^3 + 2*(C^2 - 3*C + 2)*Z^2 + 4*C^2 + (C^3 - 7*C^2 + 12*C - 6)*Z - (Z^4 - 2*(C - 3)*Z^2 - 4*Z^3 + C^2 - (C^2 - 4*C + 4)*Z - 2*C + 1)*c - 5*C + 2)*z)
         //        /(C^4 + 32*(C - 2)*Z^3 + 16*Z^4 - 8*C^3 + 24*(C^2 - 4*C + 4)*Z^2 + (C^2 + 4*(C - 2)*Z + 4*Z^2 - 4*C + 4)*c^2 + 4*(C^2 + 4*(C - 2)*Z + 4*Z^2 - 4*C + 4)*z^2 + 24*C^2 + 8*(C^3 - 6*C^2 + 12*C - 8)*Z + 2*(C^3 + 12*(C - 2)*Z^2 + 8*Z^3 - 6*C^2 + 6*(C^2 - 4*C + 4)*Z + 12*C - 8)*c + 4*(C^3 + 12*(C - 2)*Z^2 + 8*Z^3 - 6*C^2 + 6*(C^2 - 4*C + 4)*Z + (C^2 + 4*(C - 2)*Z + 4*Z^2 - 4*C + 4)*c + 12*C - 8)*z - 32*C + 16)
@@ -1449,8 +1344,8 @@ public class Magnet1 extends MagnetType {
         MantExpComplex zsqr = z.square();
 
 
-        MantExpComplex temp2 = getArrayDeepValue(referenceDeepData.PrecalculatedTerms[0], RefIteration, Z);//C^2 + 4*(C - 2)*Z + 4*Z^2 - 4*C + 4
-        MantExpComplex temp10 = getArrayDeepValue(referenceDeepData.PrecalculatedTerms[3], RefIteration, Z);
+        MantExpComplex temp2 = getExpressionDeepValue(referenceDeepData.PrecalculatedTerms[0], RefIteration, Z);//C^2 + 4*(C - 2)*Z + 4*Z^2 - 4*C + 4
+        MantExpComplex temp10 = getExpressionDeepValue(referenceDeepData.PrecalculatedTerms[3], RefIteration, Z);
 
         //        C^4
         //        + 32*(C - 2)*Z^3
@@ -1465,7 +1360,7 @@ public class Magnet1 extends MagnetType {
         //        + 4*(C^3 + 12*(C - 2)*Z^2 + 8*Z^3 - 6*C^2 + 6*(C^2 - 4*C + 4)*Z + (C^2 + 4*(C - 2)*Z + 4*Z^2 - 4*C + 4)*c + 12*C - 8)*z
         //        - 32*C
         //        + 16
-        MantExpComplex denom = getArrayDeepValue(referenceDeepData.PrecalculatedTerms[2], RefIteration, Z)
+        MantExpComplex denom = getExpressionDeepValue(referenceDeepData.PrecalculatedTerms[2], RefIteration, Z)
                 .plus_mutable(temp2.times(zsqr).times4_mutable())
                 .plus_mutable(temp10.times(z).times4_mutable());
 
@@ -1484,10 +1379,10 @@ public class Magnet1 extends MagnetType {
         MantExpComplex b1 = (temp2.times(Z)).times(z.cube()).times4_mutable();
 
 
-        MantExpComplex d1 = getArrayDeepValue(referenceDeepData.PrecalculatedTerms[6], RefIteration, Z).times2_mutable().times_mutable(zsqr);
+        MantExpComplex d1 = getExpressionDeepValue(referenceDeepData.PrecalculatedTerms[6], RefIteration, Z).times2_mutable().times_mutable(zsqr);
 
 
-        MantExpComplex f1 = (getArrayDeepValue(referenceDeepData.PrecalculatedTerms[1], RefIteration, Z)
+        MantExpComplex f1 = (getExpressionDeepValue(referenceDeepData.PrecalculatedTerms[1], RefIteration, Z)
         ).times4_mutable().times_mutable(z);
 
         MantExpComplex num = a1
@@ -1502,7 +1397,7 @@ public class Magnet1 extends MagnetType {
     @Override
     public Complex perturbationFunction(Complex z, ReferenceData data, int RefIteration) {
 
-        Complex Z = getArrayValue(data.Reference, RefIteration);
+        Complex Z = getReferenceValue(data.Reference, RefIteration);
 
         //((C^2 + 4*(C - 2)*Z + 4*Z^2 - 4*C + 4)*z^4 + 4*(4*(C - 2)*Z^2 + 4*Z^3 + (C^2 - 4*C + 4)*Z)*z^3 - (Z^4 + 2*(C - 3)*Z^2 - 4*(C - 2)*Z + 2*C - 3)*c^2 + 2*(12*(C - 2)*Z^3 + 10*Z^4 + C^3 + 3*(C^2 - 4*C + 4)*Z^2 - 7*C^2 + 4*(C^2 - 3*C + 2)*Z + (C^2 + 4*(C - 2)*Z + 4*Z^2 - 4*C + 4)*c + 12*C - 6)*z^2 - 2*((C - 6)*Z^4 + 2*Z^5 + (C^2 - 6*C + 4)*Z^2 + 4*Z^3 + C^2 - 2*(C^2 - 4*C + 3)*Z - 3*C + 2)*c + 4*(3*(C - 2)*Z^4 + 2*Z^5 + (C^2 - 4*C + 4)*Z^3 - C^3 + 2*(C^2 - 3*C + 2)*Z^2 + 4*C^2 + (C^3 - 7*C^2 + 12*C - 6)*Z - (Z^4 - 2*(C - 3)*Z^2 - 4*Z^3 + C^2 - (C^2 - 4*C + 4)*Z - 2*C + 1)*c - 5*C + 2)*z)
         //        /(C^4 + 32*(C - 2)*Z^3 + 16*Z^4 - 8*C^3 + 24*(C^2 - 4*C + 4)*Z^2 + (C^2 + 4*(C - 2)*Z + 4*Z^2 - 4*C + 4)*c^2 + 4*(C^2 + 4*(C - 2)*Z + 4*Z^2 - 4*C + 4)*z^2 + 24*C^2 + 8*(C^3 - 6*C^2 + 12*C - 8)*Z + 2*(C^3 + 12*(C - 2)*Z^2 + 8*Z^3 - 6*C^2 + 6*(C^2 - 4*C + 4)*Z + 12*C - 8)*c + 4*(C^3 + 12*(C - 2)*Z^2 + 8*Z^3 - 6*C^2 + 6*(C^2 - 4*C + 4)*Z + (C^2 + 4*(C - 2)*Z + 4*Z^2 - 4*C + 4)*c + 12*C - 8)*z - 32*C + 16)
@@ -1510,8 +1405,8 @@ public class Magnet1 extends MagnetType {
         Complex zsqr = z.square();
 
 
-        Complex temp2 = getArrayValue(data.PrecalculatedTerms[0], RefIteration, Z);//C^2 + 4*(C - 2)*Z + 4*Z^2 - 4*C + 4
-        Complex temp10 = getArrayValue(data.PrecalculatedTerms[3], RefIteration, Z);
+        Complex temp2 = getExpressionValue(data.PrecalculatedTerms[0], RefIteration, Z);//C^2 + 4*(C - 2)*Z + 4*Z^2 - 4*C + 4
+        Complex temp10 = getExpressionValue(data.PrecalculatedTerms[3], RefIteration, Z);
 
         //        C^4
         //        + 32*(C - 2)*Z^3
@@ -1526,7 +1421,7 @@ public class Magnet1 extends MagnetType {
         //        + 4*(C^3 + 12*(C - 2)*Z^2 + 8*Z^3 - 6*C^2 + 6*(C^2 - 4*C + 4)*Z + (C^2 + 4*(C - 2)*Z + 4*Z^2 - 4*C + 4)*c + 12*C - 8)*z
         //        - 32*C
         //        + 16
-        Complex denom = getArrayValue(data.PrecalculatedTerms[2], RefIteration, Z)
+        Complex denom = getExpressionValue(data.PrecalculatedTerms[2], RefIteration, Z)
                 .plus_mutable(temp2.times(zsqr).times4_mutable())
                 .plus_mutable(temp10.times(z).times4_mutable());
 
@@ -1545,10 +1440,10 @@ public class Magnet1 extends MagnetType {
         Complex b1 = (temp2.times(Z)).times(z.cube()).times4_mutable();
 
 
-        Complex d1 = getArrayValue(data.PrecalculatedTerms[6], RefIteration, Z).times2_mutable().times_mutable(zsqr);
+        Complex d1 = getExpressionValue(data.PrecalculatedTerms[6], RefIteration, Z).times2_mutable().times_mutable(zsqr);
 
 
-        Complex f1 = (getArrayValue(data.PrecalculatedTerms[1], RefIteration, Z)
+        Complex f1 = (getExpressionValue(data.PrecalculatedTerms[1], RefIteration, Z)
         ).times4_mutable().times_mutable(z);
 
         Complex num = a1
@@ -1562,7 +1457,7 @@ public class Magnet1 extends MagnetType {
     @Override
     public MantExpComplex perturbationFunction(MantExpComplex z, ReferenceDeepData data, int RefIteration) {
 
-        MantExpComplex Z = getArrayDeepValue(data.Reference, RefIteration);
+        MantExpComplex Z = getReferenceDeepValue(data.Reference, RefIteration);
 
         //((C^2 + 4*(C - 2)*Z + 4*Z^2 - 4*C + 4)*z^4 + 4*(4*(C - 2)*Z^2 + 4*Z^3 + (C^2 - 4*C + 4)*Z)*z^3 - (Z^4 + 2*(C - 3)*Z^2 - 4*(C - 2)*Z + 2*C - 3)*c^2 + 2*(12*(C - 2)*Z^3 + 10*Z^4 + C^3 + 3*(C^2 - 4*C + 4)*Z^2 - 7*C^2 + 4*(C^2 - 3*C + 2)*Z + (C^2 + 4*(C - 2)*Z + 4*Z^2 - 4*C + 4)*c + 12*C - 6)*z^2 - 2*((C - 6)*Z^4 + 2*Z^5 + (C^2 - 6*C + 4)*Z^2 + 4*Z^3 + C^2 - 2*(C^2 - 4*C + 3)*Z - 3*C + 2)*c + 4*(3*(C - 2)*Z^4 + 2*Z^5 + (C^2 - 4*C + 4)*Z^3 - C^3 + 2*(C^2 - 3*C + 2)*Z^2 + 4*C^2 + (C^3 - 7*C^2 + 12*C - 6)*Z - (Z^4 - 2*(C - 3)*Z^2 - 4*Z^3 + C^2 - (C^2 - 4*C + 4)*Z - 2*C + 1)*c - 5*C + 2)*z)
         //        /(C^4 + 32*(C - 2)*Z^3 + 16*Z^4 - 8*C^3 + 24*(C^2 - 4*C + 4)*Z^2 + (C^2 + 4*(C - 2)*Z + 4*Z^2 - 4*C + 4)*c^2 + 4*(C^2 + 4*(C - 2)*Z + 4*Z^2 - 4*C + 4)*z^2 + 24*C^2 + 8*(C^3 - 6*C^2 + 12*C - 8)*Z + 2*(C^3 + 12*(C - 2)*Z^2 + 8*Z^3 - 6*C^2 + 6*(C^2 - 4*C + 4)*Z + 12*C - 8)*c + 4*(C^3 + 12*(C - 2)*Z^2 + 8*Z^3 - 6*C^2 + 6*(C^2 - 4*C + 4)*Z + (C^2 + 4*(C - 2)*Z + 4*Z^2 - 4*C + 4)*c + 12*C - 8)*z - 32*C + 16)
@@ -1570,8 +1465,8 @@ public class Magnet1 extends MagnetType {
         MantExpComplex zsqr = z.square();
 
 
-        MantExpComplex temp2 = getArrayDeepValue(data.PrecalculatedTerms[0], RefIteration, Z);//C^2 + 4*(C - 2)*Z + 4*Z^2 - 4*C + 4
-        MantExpComplex temp10 = getArrayDeepValue(data.PrecalculatedTerms[3], RefIteration, Z);
+        MantExpComplex temp2 = getExpressionDeepValue(data.PrecalculatedTerms[0], RefIteration, Z);//C^2 + 4*(C - 2)*Z + 4*Z^2 - 4*C + 4
+        MantExpComplex temp10 = getExpressionDeepValue(data.PrecalculatedTerms[3], RefIteration, Z);
 
         //        C^4
         //        + 32*(C - 2)*Z^3
@@ -1586,7 +1481,7 @@ public class Magnet1 extends MagnetType {
         //        + 4*(C^3 + 12*(C - 2)*Z^2 + 8*Z^3 - 6*C^2 + 6*(C^2 - 4*C + 4)*Z + (C^2 + 4*(C - 2)*Z + 4*Z^2 - 4*C + 4)*c + 12*C - 8)*z
         //        - 32*C
         //        + 16
-        MantExpComplex denom = getArrayDeepValue(data.PrecalculatedTerms[2], RefIteration, Z)
+        MantExpComplex denom = getExpressionDeepValue(data.PrecalculatedTerms[2], RefIteration, Z)
                 .plus_mutable(temp2.times(zsqr).times4_mutable())
                 .plus_mutable(temp10.times(z).times4_mutable());
 
@@ -1605,10 +1500,10 @@ public class Magnet1 extends MagnetType {
         MantExpComplex b1 = (temp2.times(Z)).times(z.cube()).times4_mutable();
 
 
-        MantExpComplex d1 = getArrayDeepValue(data.PrecalculatedTerms[6], RefIteration, Z).times2_mutable().times_mutable(zsqr);
+        MantExpComplex d1 = getExpressionDeepValue(data.PrecalculatedTerms[6], RefIteration, Z).times2_mutable().times_mutable(zsqr);
 
 
-        MantExpComplex f1 = (getArrayDeepValue(data.PrecalculatedTerms[1], RefIteration, Z)
+        MantExpComplex f1 = (getExpressionDeepValue(data.PrecalculatedTerms[1], RefIteration, Z)
         ).times4_mutable().times_mutable(z);
 
         MantExpComplex num = a1
@@ -1638,6 +1533,11 @@ public class Magnet1 extends MagnetType {
 
     @Override
     public boolean supportsReferenceCompression() {
+        return true;
+    }
+
+    @Override
+    public boolean supportsReferenceSavingOrLoading() {
         return true;
     }
 

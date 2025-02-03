@@ -525,6 +525,7 @@ public class Infobar extends JToolBar {
                 }
             }
 
+            palette[i].setToolTipText(PaletteMenu.paletteToolTips[i]);
             palettes_group.add(palette[i]);
 
         }
@@ -559,55 +560,6 @@ public class Infobar extends JToolBar {
         popup.addSeparator();
         popup.add(alternativeCustomDirectPalette);
 
-        palette[0].setToolTipText("The default palette.");
-        palette[1].setToolTipText("A palette based on color spectrum based.");
-        palette[2].setToolTipText("A palette based on software, Fractal Extreme.");
-        palette[3].setToolTipText("An alternative palette.");
-        palette[4].setToolTipText("An alternative palette.");
-        palette[5].setToolTipText("An alternative palette.");
-        palette[6].setToolTipText("An alternative palette.");
-        palette[7].setToolTipText("An alternative palette.");
-        palette[8].setToolTipText("An alternative palette.");
-        palette[9].setToolTipText("An alternative palette.");
-        palette[10].setToolTipText("A palette based on software Ultra Fractal.");
-        palette[11].setToolTipText("A palette based on the colors of dusk.");
-        palette[12].setToolTipText("A palette based on gray scale.");
-        palette[13].setToolTipText("A palette based on colors of earth and sky.");
-        palette[14].setToolTipText("A palette based on colors of hot and cold.");
-        palette[15].setToolTipText("A palette based on color temperature.");
-        palette[16].setToolTipText("A palette based on colors of fire.");
-        palette[17].setToolTipText("A palette based on matlab's colormap.");
-        palette[MainWindow.CUSTOM_PALETTE_ID].setToolTipText("A palette custom made by the user.");
-        palette[MainWindow.DIRECT_PALETTE_ID].setToolTipText("A palette loaded directly from a file (RGB: 0-255 0-255 0-255 format).");
-
-        palette[20].setToolTipText("A legacy FractInt palette.");
-        palette[21].setToolTipText("A legacy FractInt palette.");
-        palette[22].setToolTipText("A legacy FractInt palette.");
-        palette[23].setToolTipText("A legacy FractInt palette.");
-        palette[24].setToolTipText("A legacy FractInt palette.");
-        palette[25].setToolTipText("A legacy FractInt palette.");
-        palette[26].setToolTipText("A legacy FractInt palette.");
-        palette[27].setToolTipText("A legacy FractInt palette.");
-        palette[28].setToolTipText("A legacy FractInt palette.");
-        palette[29].setToolTipText("A legacy FractInt palette.");
-        palette[30].setToolTipText("A legacy FractInt palette.");
-        palette[31].setToolTipText("A legacy FractInt palette.");
-        palette[32].setToolTipText("A legacy FractInt palette.");
-        palette[33].setToolTipText("A legacy FractInt palette.");
-        palette[34].setToolTipText("A legacy FractInt palette.");
-        palette[35].setToolTipText("A legacy FractInt palette.");
-        palette[36].setToolTipText("A palette from QFractal.");
-        palette[37].setToolTipText("A palette from QFractal.");
-        palette[38].setToolTipText("A palette from QFractal.");
-        palette[39].setToolTipText("A palette from QFractal.");
-        palette[40].setToolTipText("A palette from QFractal.");
-        palette[41].setToolTipText("A palette from Fractal Extreme.");
-        palette[42].setToolTipText("A palette from Fractal Extreme.");
-        palette[43].setToolTipText("A palette from Fractal Extreme.");
-        palette[44].setToolTipText("A palette from Fractal Extreme.");
-        palette[45].setToolTipText("A palette from Xaos.");
-        palette[46].setToolTipText("A palette from Kalles Fraktaler.");
-        
         palette[color_choice].setSelected(true);
         popup.show(e.getComponent(), e.getX(), e.getY());
 

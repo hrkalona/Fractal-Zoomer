@@ -1,7 +1,7 @@
 package fractalzoomer.fractal_options.initial_value;
 
 import fractalzoomer.core.Complex;
-import fractalzoomer.core.MantExpComplex;
+import fractalzoomer.core.numerics.MantExpComplex;
 import fractalzoomer.fractal_options.PlanePointOption;
 
 public class DefaultInitialValueWithFactor extends PlanePointOption {
@@ -26,6 +26,9 @@ public class DefaultInitialValueWithFactor extends PlanePointOption {
     public MantExpComplex getValueDeep(MantExpComplex pixel) {
         return pixel.times(factor);
     }
+
+    @Override
+    public boolean isStatic() { return false; }
 
     @Override
     public String toString() {

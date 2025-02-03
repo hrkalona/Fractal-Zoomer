@@ -2,7 +2,11 @@
 
 package fractalzoomer.planes.math.inverse_trigonometric;
 
-import fractalzoomer.core.*;
+import fractalzoomer.core.Complex;
+import fractalzoomer.core.numerics.BigComplex;
+import fractalzoomer.core.numerics.DDComplex;
+import fractalzoomer.core.numerics.MpfrBigNumComplex;
+import fractalzoomer.core.numerics.MpirBigNumComplex;
 import fractalzoomer.planes.Plane;
 
 /**

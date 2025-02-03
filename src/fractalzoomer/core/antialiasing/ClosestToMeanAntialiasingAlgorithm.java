@@ -53,13 +53,14 @@ public class ClosestToMeanAntialiasingAlgorithm extends AntialiasingAlgorithm {
     }
     @Override
     public int getColor() {
-        if(addedSamples != totalSamples) {
+        if (addedSamples == 0) {
             return 0xff000000;
         }
 
-        double avgA = ASum * totalSamplesReciprocal;
-        double avgB = BSum * totalSamplesReciprocal;
-        double avgC = CSum * totalSamplesReciprocal;
+        double addedSamplesReciprocal = 1.0 / addedSamples;
+        double avgA = ASum * addedSamplesReciprocal;
+        double avgB = BSum * addedSamplesReciprocal;
+        double avgC = CSum * addedSamplesReciprocal;
 
         int minDistanceIndexA = 0;
         int minDistanceIndexB = 0;
@@ -69,7 +70,7 @@ public class ClosestToMeanAntialiasingAlgorithm extends AntialiasingAlgorithm {
         double minDistanceB = Double.MAX_VALUE;
         double minDistanceC = Double.MAX_VALUE;
 
-        for(int i = 0; i < AValues.length; i++) {
+        for(int i = 0; i < addedSamples; i++) {
             double ADist = Math.abs(avgA - AValues[i]);
             double BDist = Math.abs(avgB - BValues[i]);
             double CDist = Math.abs(avgC - CValues[i]);
@@ -88,9 +89,9 @@ public class ClosestToMeanAntialiasingAlgorithm extends AntialiasingAlgorithm {
         }
 
         if(avgWithMean) {
-            double finalA = ((ASum * totalSamplesReciprocal) + AValues[minDistanceIndexA]) * 0.5 + 0.5;
-            double finalB = ((BSum * totalSamplesReciprocal) + BValues[minDistanceIndexB]) * 0.5 + 0.5;
-            double finalC = ((CSum * totalSamplesReciprocal) + CValues[minDistanceIndexC]) * 0.5 + 0.5;
+            double finalA = (ASum * addedSamplesReciprocal + AValues[minDistanceIndexA]) * 0.5 + 0.5;
+            double finalB = (BSum * addedSamplesReciprocal + BValues[minDistanceIndexB]) * 0.5 + 0.5;
+            double finalC = (CSum * addedSamplesReciprocal + CValues[minDistanceIndexC]) * 0.5 + 0.5;
 
             int[] result = getColorChannels(finalA, finalB, finalC);
             return ColorCorrection.linearToGamma(result[0], result[1], result[2]);

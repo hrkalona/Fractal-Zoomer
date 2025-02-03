@@ -1,7 +1,6 @@
 package fractalzoomer.core.location.delta;
 
-import fractalzoomer.core.GenericComplex;
-import fractalzoomer.core.MyApfloat;
+import fractalzoomer.core.numerics.GenericComplex;
 import fractalzoomer.functions.Fractal;
 import fractalzoomer.main.app_settings.JitterSettings;
 import org.apfloat.Apfloat;
@@ -38,10 +37,5 @@ public class PolarLocationDeltaApfloat extends PolarLocationDeltaGenericApfloat 
     @Override
     public GenericComplex getAntialiasingComplex(int sample, int loc) {
         return getAntialiasingComplexInternal(sample, loc).toComplex();
-    }
-
-    @Override
-    protected Apfloat expFunction(Apfloat val) {
-        return MyApfloat.fastExp(val);
     }
 }

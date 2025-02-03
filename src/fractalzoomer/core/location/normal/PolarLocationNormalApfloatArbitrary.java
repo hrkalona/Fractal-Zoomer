@@ -1,46 +1,47 @@
 package fractalzoomer.core.location.normal;
 
-import fractalzoomer.core.*;
+import fractalzoomer.core.Complex;
 import fractalzoomer.core.location.Location;
+import fractalzoomer.core.numerics.BigComplex;
+import fractalzoomer.core.numerics.GenericComplex;
+import fractalzoomer.core.numerics.MyApfloat;
 import fractalzoomer.fractal_options.Rotation;
 import fractalzoomer.functions.Fractal;
 import fractalzoomer.main.app_settings.JitterSettings;
+import fractalzoomer.utils.BigPoint;
 import org.apfloat.Apfloat;
 
 public class PolarLocationNormalApfloatArbitrary extends Location {
 
     protected Apfloat ddxcenter;
     protected Apfloat ddycenter;
+    protected Apfloat size;
 
-    private Apfloat[] ddantialiasing_x;
+    private double[] antialiasing_x;
     protected Rotation rotation;
-    private Apfloat ddmuly;
+    private double muly;
+    protected double mulx;
     protected Apfloat ddmulx;
-    private Apfloat ddstartx;
-    private Apfloat ddstarty;
-    protected Apfloat ddcenter;
+    private Apfloat expddstartx;
+    private double starty;
 
-    private Apfloat[] ddantialiasing_y_sin;
-    private Apfloat[] ddantialiasing_y_cos;
+    private double[] antialiasing_y_sin;
+    private double[] antialiasing_y_cos;
 
+    private double cosmuly;
+    private double sinmuly;
 
     //Dont copy those
-
+    private double temp_sf;
+    private double temp_cf;
     private Apfloat temp_ddsf;
     private Apfloat temp_ddcf;
     private Apfloat temp_ddr;
-    private static int expIterations = 8;
 
     private Apfloat ddemulx;
     private Apfloat ddInvemulx;
 
-    private Apfloat coefxdd;
-    private Apfloat coefydd;
-
     private JitterSettings js;
-
-    //private Apfloat ddcosmuly;
-    //private Apfloat ddsinmuly;
 
     private boolean requiresVariablePixelSize;
 
@@ -60,31 +61,28 @@ public class PolarLocationNormalApfloatArbitrary extends Location {
 
         ddxcenter = xCenter;
         ddycenter = yCenter;
-
-        ddcenter = MyApfloat.fp.log(size);
+        this.size = size;
 
         double coefx = width == image_size ? 0.5 : (1 + (width - (double)height) / height) * 0.5;
         double coefy = height == image_size ? 0.5 : (1 + (height - (double)width) / width) * 0.5;
 
-        Apfloat ddimage_size = new MyApfloat(image_size);
+        muly = (2 * circle_period * Math.PI) / image_size;
 
-        ddmuly = MyApfloat.fp.divide(MyApfloat.fp.multiply(MyApfloat.fp.multiply(new MyApfloat(circle_period), MyApfloat.TWO), MyApfloat.getPi()), ddimage_size);
+        mulx = muly * height_ratio;
+        ddmulx = new MyApfloat(mulx);
 
-        ddmulx = MyApfloat.fp.multiply(ddmuly, new MyApfloat(height_ratio));
-
-        coefxdd = new MyApfloat(coefx);
-        coefydd = new MyApfloat(coefy);
-
-        ddstartx = MyApfloat.fp.subtract(ddcenter, MyApfloat.fp.multiply(MyApfloat.fp.multiply(ddmulx, ddimage_size), coefxdd));
-        ddstarty = MyApfloat.fp.multiply(MyApfloat.fp.multiply(ddmuly, ddimage_size), MyApfloat.fp.subtract(new MyApfloat(0.5), coefydd));
+        expddstartx = MyApfloat.fp.multiply(size, new MyApfloat(Math.exp(-mulx * image_size * coefx)));
+        starty = muly * image_size * (0.5 - coefy);
 
         rotation = new Rotation(new BigComplex(rotation_vals[0], rotation_vals[1]), new BigComplex(rotation_center[0], rotation_center[1]));
 
-        ddemulx = expFunction(ddmulx);
-        ddInvemulx = MyApfloat.reciprocal(ddemulx);
+        double emulx = Math.exp(mulx);
+        ddemulx = new MyApfloat(emulx);
+        ddInvemulx = new MyApfloat(1 / emulx);
 
-        //ddcosmuly = MyApfloat.fastCos(ddmuly);
-        //ddsinmuly = MyApfloat.fastSin(ddmuly);
+        cosmuly = Math.cos(muly);
+        sinmuly = Math.sin(muly);
+
         this.js = js;
         this.width = width;
 
@@ -98,52 +96,47 @@ public class PolarLocationNormalApfloatArbitrary extends Location {
 
         ddxcenter = other.ddxcenter;
         ddycenter = other.ddycenter;
+        size = other.size;
 
         ddemulx = other.ddemulx;
         ddInvemulx = other.ddInvemulx;
 
+        mulx = other.mulx;
         ddmulx = other.ddmulx;
-        ddmuly = other.ddmuly;
-        ddstartx = other.ddstartx;
-        ddstarty = other.ddstarty;
-        ddcenter = other.ddcenter;
-
-        coefydd = other.coefydd;
-        coefxdd = other.coefxdd;
+        muly = other.muly;
+        expddstartx = other.expddstartx;
+        starty = other.starty;
 
         rotation = other.rotation;
 
-        ddantialiasing_y_cos = other.ddantialiasing_y_cos;
-        ddantialiasing_y_sin = other.ddantialiasing_y_sin;
-        ddantialiasing_x = other.ddantialiasing_x;
+        antialiasing_y_cos = other.antialiasing_y_cos;
+        antialiasing_y_sin = other.antialiasing_y_sin;
+        antialiasing_x = other.antialiasing_x;
 
         js = other.js;
 
         requiresVariablePixelSize = other.requiresVariablePixelSize;
         width = other.width;
 
-        //ddcosmuly = other.ddcosmuly;
-        //ddsinmuly = other.ddsinmuly;
+        cosmuly = other.cosmuly;
+        sinmuly = other.sinmuly;
     }
 
     public PolarLocationNormalApfloatArbitrary(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int width, int height, double circle_period) {
         super();
         ddxcenter = xCenter;
         ddycenter = yCenter;
+        this.size = size;
 
         int image_size = Math.min(width, height);
         double coefx = width == image_size ? 0.5 : (1 + (width - (double)height) / height) * 0.5;
         double coefy = height == image_size ? 0.5 : (1 + (height - (double)width) / width) * 0.5;
 
-        coefxdd = new MyApfloat(coefx);
-        coefydd = new MyApfloat(coefy);
-
-        ddcenter = MyApfloat.fp.log(size);
-        Apfloat ddimage_size = new MyApfloat(image_size);
-        ddmuly = MyApfloat.fp.divide(MyApfloat.fp.multiply(MyApfloat.fp.multiply(new MyApfloat(circle_period), MyApfloat.TWO), MyApfloat.getPi()), ddimage_size);
-        ddmulx = MyApfloat.fp.multiply(ddmuly, new MyApfloat(height_ratio));
-        ddstartx = MyApfloat.fp.subtract(ddcenter, MyApfloat.fp.multiply(MyApfloat.fp.multiply(ddmulx, ddimage_size), coefxdd));
-        ddstarty = MyApfloat.fp.multiply(MyApfloat.fp.multiply(ddmuly, ddimage_size), MyApfloat.fp.subtract(new MyApfloat(0.5), coefydd));
+        muly = (2 * circle_period * Math.PI) / image_size;
+        mulx = muly * height_ratio;
+        ddmulx = new MyApfloat(mulx);
+        expddstartx = MyApfloat.fp.multiply(size, new MyApfloat(-mulx * image_size * coefx));
+        starty = muly * image_size * (0.5 - coefy);
     }
 
     public void setVariablePixelSize(Apfloat expValue) {
@@ -159,10 +152,10 @@ public class PolarLocationNormalApfloatArbitrary extends Location {
 
         if(js.enableJitter) {
             double[] res = GetPixelOffset(y, x, js.jitterSeed, js.jitterShape, js.jitterScale);
-            temp_ddr = expFunction(MyApfloat.fp.add(MyApfloat.fp.multiply(ddmulx, new MyApfloat(x + res[1])), ddstartx));
-            Apfloat f = MyApfloat.fp.add(MyApfloat.fp.multiply(ddmuly, new MyApfloat(y + res[0])), ddstarty);
-            temp_ddsf = MyApfloat.fastSin(f);
-            temp_ddcf = MyApfloat.fastCos(f);
+            temp_ddr = MyApfloat.fp.multiply(new MyApfloat(Math.exp((x + res[1]) * mulx)), expddstartx);
+            double f = (y + res[0]) * muly + starty;
+            temp_sf = Math.sin(f);
+            temp_cf = Math.cos(f);
         }
         else {
             if (x == indexX + 1) {
@@ -170,34 +163,30 @@ public class PolarLocationNormalApfloatArbitrary extends Location {
             } else if (x == indexX - 1) {
                 temp_ddr = MyApfloat.fp.multiply(temp_ddr, ddInvemulx);
             } else if (x != indexX) {
-                temp_ddr = expFunction(MyApfloat.fp.add(MyApfloat.fp.multiply(ddmulx, new MyApfloat(x)), ddstartx));
+                temp_ddr = MyApfloat.fp.multiply(new MyApfloat(Math.exp(x * mulx)), expddstartx);
             }
 
-            Apfloat f = MyApfloat.fp.add(MyApfloat.fp.multiply(ddmuly, new MyApfloat(y)), ddstarty);
-            temp_ddsf = MyApfloat.fastSin(f);
-            temp_ddcf = MyApfloat.fastCos(f);
+            if (y == indexY + 1) {
+                double tempSin = temp_sf * cosmuly + temp_cf * sinmuly;
+                double tempCos = temp_cf * cosmuly - temp_sf * sinmuly;
+
+                temp_sf = tempSin;
+                temp_cf = tempCos;
+            } else if (y == indexY - 1) {
+                double tempSin = temp_sf * cosmuly - temp_cf * sinmuly;
+                double tempCos = temp_cf * cosmuly + temp_sf * sinmuly;
+
+                temp_sf = tempSin;
+                temp_cf = tempCos;
+            } else if (y != indexY) {
+                double f = y * muly + starty;
+                temp_sf = Math.sin(f);
+                temp_cf = Math.cos(f);
+            }
         }
 
-        //Given that we use fastSin and fastCos which are essentially just doubles, these extra multiplications will take longer
-//            if(y == indexY + 1) {
-//                Apfloat tempSin = MyApfloat.fp.add(MyApfloat.fp.multiply(temp_ddsf, ddcosmuly), MyApfloat.fp.multiply(temp_ddcf, ddsinmuly));
-//                Apfloat tempCos = MyApfloat.fp.subtract(MyApfloat.fp.multiply(temp_ddcf, ddcosmuly), MyApfloat.fp.multiply(temp_ddsf, ddsinmuly));
-//
-//                temp_ddsf = tempSin;
-//                temp_ddcf = tempCos;
-//            }
-//            else if(y == indexY - 1) {
-//                Apfloat tempSin = MyApfloat.fp.subtract(MyApfloat.fp.multiply(temp_ddsf, ddcosmuly), MyApfloat.fp.multiply(temp_ddcf, ddsinmuly));
-//                Apfloat tempCos = MyApfloat.fp.add(MyApfloat.fp.multiply(temp_ddcf, ddcosmuly), MyApfloat.fp.multiply(temp_ddsf, ddsinmuly));
-//
-//                temp_ddsf = tempSin;
-//                temp_ddcf = tempCos;
-//            }
-//            else if (y != indexY) {
-//                Apfloat f = MyApfloat.fp.multiply(ddmuly, new MyApfloat(y));
-//                temp_ddsf = MyApfloat.fastSin(f);
-//                temp_ddcf = MyApfloat.fastCos(f);
-//            }
+        temp_ddsf = new MyApfloat(temp_sf);
+        temp_ddcf = new MyApfloat(temp_cf);
 
         indexX = x;
         indexY = y;
@@ -221,9 +210,26 @@ public class PolarLocationNormalApfloatArbitrary extends Location {
         y = offset.getY(y);
 
         if(!js.enableJitter) {
-            Apfloat f = MyApfloat.fp.add(MyApfloat.fp.multiply(ddmuly, new MyApfloat(y)), ddstarty);
-            temp_ddsf = MyApfloat.fastSin(f);
-            temp_ddcf = MyApfloat.fastCos(f);
+            if (y == indexY + 1) {
+                double tempSin = temp_sf * cosmuly + temp_cf * sinmuly;
+                double tempCos = temp_cf * cosmuly - temp_sf * sinmuly;
+
+                temp_sf = tempSin;
+                temp_cf = tempCos;
+            } else if (y == indexY - 1) {
+                double tempSin = temp_sf * cosmuly - temp_cf * sinmuly;
+                double tempCos = temp_cf * cosmuly + temp_sf * sinmuly;
+
+                temp_sf = tempSin;
+                temp_cf = tempCos;
+            } else if (y != indexY) {
+                double f = y * muly + starty;
+                temp_sf = Math.sin(f);
+                temp_cf = Math.cos(f);
+            }
+
+            temp_ddsf = new MyApfloat(temp_sf);
+            temp_ddcf = new MyApfloat(temp_cf);
         }
         indexY = y;
 
@@ -240,7 +246,7 @@ public class PolarLocationNormalApfloatArbitrary extends Location {
             } else if (x == indexX - 1) {
                 temp_ddr = MyApfloat.fp.multiply(temp_ddr, ddInvemulx);
             } else if (x != indexX) {
-                temp_ddr = expFunction(MyApfloat.fp.add(MyApfloat.fp.multiply(ddmulx, new MyApfloat(x)), ddstartx));
+                temp_ddr = MyApfloat.fp.multiply(new MyApfloat(Math.exp(x * mulx)), expddstartx);
             }
         }
 
@@ -270,7 +276,7 @@ public class PolarLocationNormalApfloatArbitrary extends Location {
             temp_ddr = MyApfloat.fp.multiply(temp_ddr, ddInvemulx);
         }
         else if (x != indexX) {
-            temp_ddr = expFunction(MyApfloat.fp.add(MyApfloat.fp.multiply(ddmulx, new MyApfloat(x)), ddstartx));
+            temp_ddr = MyApfloat.fp.multiply(new MyApfloat(Math.exp(x * mulx)), expddstartx);
         }
 
         indexX = x;
@@ -295,9 +301,26 @@ public class PolarLocationNormalApfloatArbitrary extends Location {
             return getComplexBase(indexX, y);
         }
 
-        Apfloat f = MyApfloat.fp.add(MyApfloat.fp.multiply(ddmuly, new MyApfloat(y)), ddstarty);
-        temp_ddsf = MyApfloat.fastSin(f);
-        temp_ddcf = MyApfloat.fastCos(f);
+        if (y == indexY + 1) {
+            double tempSin = temp_sf * cosmuly + temp_cf * sinmuly;
+            double tempCos = temp_cf * cosmuly - temp_sf * sinmuly;
+
+            temp_sf = tempSin;
+            temp_cf = tempCos;
+        } else if (y == indexY - 1) {
+            double tempSin = temp_sf * cosmuly - temp_cf * sinmuly;
+            double tempCos = temp_cf * cosmuly + temp_sf * sinmuly;
+
+            temp_sf = tempSin;
+            temp_cf = tempCos;
+        } else if (y != indexY) {
+            double f = y * muly + starty;
+            temp_sf = Math.sin(f);
+            temp_cf = Math.cos(f);
+        }
+
+        temp_ddsf = new MyApfloat(temp_sf);
+        temp_ddcf = new MyApfloat(temp_cf);
 
         indexY = y;
         BigComplex temp = new BigComplex(MyApfloat.fp.add(ddxcenter, MyApfloat.fp.multiply(temp_ddr, temp_ddcf)), MyApfloat.fp.add(ddycenter, MyApfloat.fp.multiply(temp_ddr, temp_ddsf)));
@@ -307,12 +330,12 @@ public class PolarLocationNormalApfloatArbitrary extends Location {
     }
 
     @Override
-    public void createAntialiasingSteps(boolean adaptive, boolean jitter, int numberOfExtraSamples) {
-        super.createAntialiasingSteps(adaptive, jitter, numberOfExtraSamples);
-        Apfloat[][] steps = createAntialiasingPolarStepsApfloat(ddmulx, ddmuly, adaptive, jitter, numberOfExtraSamples);
-        ddantialiasing_x = steps[0];
-        ddantialiasing_y_sin = steps[1];
-        ddantialiasing_y_cos = steps[2];
+    public void createAntialiasingSteps(boolean adaptive, boolean jitter, int aaType, int numberOfExtraSamples, boolean gaussian) {
+        super.createAntialiasingSteps(adaptive, jitter, aaType, numberOfExtraSamples, gaussian);
+        double[][] steps = createAntialiasingPolarStepsDouble(mulx, muly, adaptive, jitter, aaType, numberOfExtraSamples, gaussian);
+        antialiasing_x = steps[0];
+        antialiasing_y_sin = steps[1];
+        antialiasing_y_cos = steps[2];
     }
 
     @Override
@@ -321,32 +344,33 @@ public class PolarLocationNormalApfloatArbitrary extends Location {
     }
 
     protected BigComplex getAntialiasingComplexBase(int sample, int loc) {
-        Apfloat sf2, cf2, r2;
+        Apfloat r2;
+        double sf2, cf2;
 
         if(aaJitter) {
 
             int r = (int)(hash(loc) % NUMBER_OF_AA_JITTER_KERNELS);
-            Apfloat[] ddantialiasing_x = precalculatedJitterDataPolarApfloat[r][0];
-            Apfloat[] ddantialiasing_y_sin = precalculatedJitterDataPolarApfloat[r][1];
-            Apfloat[] ddantialiasing_y_cos = precalculatedJitterDataPolarApfloat[r][2];
+            double[] antialiasing_x = precalculatedJitterDataPolarDouble[r][0];
+            double[] antialiasing_y_sin = precalculatedJitterDataPolarDouble[r][1];
+            double[] antialiasing_y_cos = precalculatedJitterDataPolarDouble[r][2];
 
-            sf2 = MyApfloat.fp.add(MyApfloat.fp.multiply(temp_ddsf, ddantialiasing_y_cos[sample]), MyApfloat.fp.multiply(temp_ddcf, ddantialiasing_y_sin[sample]));
-            cf2 = MyApfloat.fp.subtract(MyApfloat.fp.multiply(temp_ddcf, ddantialiasing_y_cos[sample]), MyApfloat.fp.multiply(temp_ddsf, ddantialiasing_y_sin[sample]));
+            sf2 = temp_sf * antialiasing_y_cos[sample] + temp_cf * antialiasing_y_sin[sample];
+            cf2 = temp_cf * antialiasing_y_cos[sample] - temp_sf * antialiasing_y_sin[sample];
 
-            r2 = MyApfloat.fp.multiply(temp_ddr, ddantialiasing_x[sample]);
+            r2 = MyApfloat.fp.multiply(temp_ddr, new MyApfloat(antialiasing_x[sample]));
         }
         else {
-            sf2 = MyApfloat.fp.add(MyApfloat.fp.multiply(temp_ddsf, ddantialiasing_y_cos[sample]), MyApfloat.fp.multiply(temp_ddcf, ddantialiasing_y_sin[sample]));
-            cf2 = MyApfloat.fp.subtract(MyApfloat.fp.multiply(temp_ddcf, ddantialiasing_y_cos[sample]), MyApfloat.fp.multiply(temp_ddsf, ddantialiasing_y_sin[sample]));
+            sf2 = temp_sf * antialiasing_y_cos[sample] + temp_cf * antialiasing_y_sin[sample];
+            cf2 = temp_cf * antialiasing_y_cos[sample] - temp_sf * antialiasing_y_sin[sample];
 
-            r2 = MyApfloat.fp.multiply(temp_ddr, ddantialiasing_x[sample]);
+            r2 = MyApfloat.fp.multiply(temp_ddr, new MyApfloat(antialiasing_x[sample]));
         }
 
         if(requiresVariablePixelSize) {
             setVariablePixelSize(r2);
         }
 
-        BigComplex temp = new BigComplex(MyApfloat.fp.add(ddxcenter, MyApfloat.fp.multiply(r2, cf2)), MyApfloat.fp.add(ddycenter, MyApfloat.fp.multiply(r2, sf2)));
+        BigComplex temp = new BigComplex(MyApfloat.fp.add(ddxcenter, MyApfloat.fp.multiply(r2, new MyApfloat(cf2))), MyApfloat.fp.add(ddycenter, MyApfloat.fp.multiply(r2, new MyApfloat(sf2))));
 
         temp = rotation.rotate(temp);
         temp = fractal.getPlaneTransformedPixel(temp);
@@ -358,23 +382,21 @@ public class PolarLocationNormalApfloatArbitrary extends Location {
     public boolean isPolar() {return true;}
 
     public BigPoint getPoint(int x, int y) {
-        Apfloat f = MyApfloat.fp.add(MyApfloat.fp.multiply(ddmuly, new MyApfloat(y)), ddstarty);
-        Apfloat sf = MyApfloat.sin(f);
-        Apfloat cf = MyApfloat.cos(f);
-        Apfloat r = MyApfloat.exp(MyApfloat.fp.add(MyApfloat.fp.multiply(ddmulx, new MyApfloat(x)), ddstartx));
-        return new BigPoint(MyApfloat.fp.add(ddxcenter, MyApfloat.fp.multiply(r, cf)), MyApfloat.fp.add(ddycenter, MyApfloat.fp.multiply(r, sf)));
+        double f = y * muly + starty;
+        double sf = Math.sin(f);
+        double cf = Math.cos(f);
+
+        Apfloat r = MyApfloat.fp.multiply(new MyApfloat(Math.exp(x * mulx)), expddstartx);
+        return new BigPoint(MyApfloat.fp.add(ddxcenter, MyApfloat.fp.multiply(r, new MyApfloat(cf))), MyApfloat.fp.add(ddycenter, MyApfloat.fp.multiply(r, new MyApfloat(sf))));
     }
 
     public Complex getComplexOrbit(int x, int y) {
-        Apfloat f = MyApfloat.fp.add(MyApfloat.fp.multiply(ddmuly, new MyApfloat(y)), ddstarty);
-        Apfloat temp_ddsfO = MyApfloat.fastSin(f);
-        Apfloat temp_ddcfO = MyApfloat.fastCos(f);
-        Apfloat temp_ddrO = MyApfloat.exp(MyApfloat.fp.add(MyApfloat.fp.multiply(ddmulx, new MyApfloat(x)), ddstartx));
-        BigComplex temp = new BigComplex(MyApfloat.fp.add(ddxcenter, MyApfloat.fp.multiply(temp_ddrO, temp_ddcfO)), MyApfloat.fp.add(ddycenter, MyApfloat.fp.multiply(temp_ddrO, temp_ddsfO)));
-        return temp.toComplex();
-    }
+        double f = y * muly + starty;
+        double sf = Math.sin(f);
+        double cf = Math.cos(f);
 
-    protected Apfloat expFunction(Apfloat val) {
-        return MyApfloat.exp(val, expIterations);
+        Apfloat ddr = MyApfloat.fp.multiply(new MyApfloat(Math.exp(x * mulx)), expddstartx);
+        BigComplex temp = new BigComplex(MyApfloat.fp.add(ddxcenter, MyApfloat.fp.multiply(ddr, new MyApfloat(cf))), MyApfloat.fp.add(ddycenter, MyApfloat.fp.multiply(ddr, new MyApfloat(sf))));
+        return temp.toComplex();
     }
 }

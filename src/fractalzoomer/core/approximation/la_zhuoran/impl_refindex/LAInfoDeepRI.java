@@ -1,11 +1,14 @@
 package fractalzoomer.core.approximation.la_zhuoran.impl_refindex;
 
-import fractalzoomer.core.*;
+import fractalzoomer.core.TaskRender;
 import fractalzoomer.core.approximation.la_zhuoran.GenericLAInfo;
 import fractalzoomer.core.approximation.la_zhuoran.LAInfoBaseDeep;
 import fractalzoomer.core.approximation.la_zhuoran.LAReference;
 import fractalzoomer.core.approximation.la_zhuoran.LAstep;
 import fractalzoomer.core.approximation.la_zhuoran.impl.LAInfo;
+import fractalzoomer.core.numerics.GenericComplex;
+import fractalzoomer.core.numerics.MantExp;
+import fractalzoomer.core.numerics.MantExpComplex;
 import fractalzoomer.core.reference.ReferenceDecompressor;
 import fractalzoomer.functions.Fractal;
 
@@ -91,12 +94,12 @@ public class LAInfoDeepRI extends LAInfoBaseDeep {
 
     @Override
     public GenericComplex getRef(Fractal f) {
-        return f.getArrayDeepValue(Fractal.referenceDeep, RefIndex);
+        return f.getReferenceDeepValue(Fractal.referenceDeep, RefIndex);
     }
 
     @Override
     protected boolean Step(LAInfoDeepRI out, int zRefIndex, ReferenceDecompressor referenceDecompressor, boolean checkDip) {
-        MantExpComplex z = LAReference.f.getArrayDeepValue(referenceDecompressor, Fractal.referenceDeep, zRefIndex);
+        MantExpComplex z = LAReference.f.getReferenceDeepValue(referenceDecompressor, Fractal.referenceDeep, zRefIndex);
         MantExp ChebyMagz = z.chebyshevNorm();
 
         MantExpComplex ZCoeff = new MantExpComplex(ZCoeffExp, ZCoeffRe, ZCoeffIm);
@@ -146,7 +149,7 @@ public class LAInfoDeepRI extends LAInfoBaseDeep {
     @Override
     protected boolean Composite(LAInfoDeepRI out, LAInfoDeepRI LA, ReferenceDecompressor referenceDecompressor, boolean checkDip) {
         int zRefIndex = LA.RefIndex;
-        MantExpComplex z = LAReference.f.getArrayDeepValue(referenceDecompressor, Fractal.referenceDeep, zRefIndex);
+        MantExpComplex z = LAReference.f.getReferenceDeepValue(referenceDecompressor, Fractal.referenceDeep, zRefIndex);
         MantExp ChebyMagz = z.chebyshevNorm();
 
         MantExpComplex ZCoeff = new MantExpComplex(ZCoeffExp, ZCoeffRe, ZCoeffIm);
@@ -235,7 +238,7 @@ public class LAInfoDeepRI extends LAInfoBaseDeep {
 
     @Override
     protected LAstep Prepare(Fractal f, MantExpComplex dz)  {
-        MantExpComplex newdz = dz.times(f.getArrayDeepValue(Fractal.referenceDeep, RefIndex).times2_mutable().plus_mutable(dz));
+        MantExpComplex newdz = dz.times(f.getReferenceDeepValue(Fractal.referenceDeep, RefIndex).times2_mutable().plus_mutable(dz));
         newdz.Normalize();
 
         LAstep temp = new LAstep();

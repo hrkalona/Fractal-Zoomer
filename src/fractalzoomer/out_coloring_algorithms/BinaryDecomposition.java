@@ -2,7 +2,7 @@
 
 package fractalzoomer.out_coloring_algorithms;
 
-import fractalzoomer.core.Complex;
+import fractalzoomer.utils.OutColorData;
 
 
 /**
@@ -21,10 +21,10 @@ public class BinaryDecomposition extends OutColorAlgorithm {
     }
 
     @Override
-    public double getResult(Object[] object) {
+    public double getResult(OutColorData data) {
 
-        double val = EscapeTimeAlg.getResult(object);
-        return ((Complex)object[1]).getIm() < 0 ? -(val + INCREMENT) : val;
+        double val = EscapeTimeAlg.getResult(data);
+        return data.z.getIm() < 0 ? -(val + INCREMENT) : val;
 
     }
 

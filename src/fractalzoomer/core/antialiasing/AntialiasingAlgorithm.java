@@ -6,7 +6,6 @@ import fractalzoomer.utils.ColorSpaceConverter;
 
 public abstract class AntialiasingAlgorithm {
     protected int colorSpace;
-    protected double totalSamplesReciprocal;
 
     protected int totalSamples;
     protected boolean needsAllSamples;
@@ -14,7 +13,6 @@ public abstract class AntialiasingAlgorithm {
 
     protected AntialiasingAlgorithm(int totalSamples, int colorSpace) {
         this.colorSpace = colorSpace;
-        totalSamplesReciprocal = 1.0 / totalSamples;
         this.totalSamples = totalSamples;
         addedSamples = 0;
     }
@@ -128,7 +126,7 @@ public abstract class AntialiasingAlgorithm {
 //                return new MeanAntialiasingAlgorithmLAB(totalSamples);
 //            }
         }
-        else if (method == 1){
+        else if (method == 1) {
             //if(colorspace == 0) {
                 return new MedianAntialiasingAlgorithm(totalSamples, avgWithMean, colorSpace);
 //            }

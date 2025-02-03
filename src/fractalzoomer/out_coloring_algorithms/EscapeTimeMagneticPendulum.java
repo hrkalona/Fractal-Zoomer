@@ -1,7 +1,7 @@
 
 package fractalzoomer.out_coloring_algorithms;
 
-import fractalzoomer.core.Complex;
+import fractalzoomer.utils.OutColorData;
 
 /**
  *
@@ -15,16 +15,16 @@ public class EscapeTimeMagneticPendulum extends OutColorAlgorithm {
     }
 
     @Override
-    public double getResult(Object[] object) {
+    public double getResult(OutColorData data) {
 
-        return (int)((Complex)object[9]).getRe() + getFractionalPart(object);
+        return (int)(data.pendulumLen.getRe()) + getFractionalPart(data);
 
     }
 
     @Override
-    public double getFractionalPart(Object[] object) {
-        double val = ((Complex)object[9]).getRe();
-        return val - (int)val;
+    public double getFractionalPart(OutColorData data) {
+        double val = data.pendulumLen.getRe();
+        return val - (long)val;
     }
     
 }

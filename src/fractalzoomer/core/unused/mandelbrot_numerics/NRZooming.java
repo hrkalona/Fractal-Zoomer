@@ -1,7 +1,7 @@
 package fractalzoomer.core.unused.mandelbrot_numerics;
 
-import fractalzoomer.core.BigIntNum;
-import fractalzoomer.core.BigIntNumComplex;
+import fractalzoomer.core.numerics.BigIntNum;
+import fractalzoomer.core.numerics.BigIntNumComplex;
 import org.apfloat.Apfloat;
 
 public class NRZooming {

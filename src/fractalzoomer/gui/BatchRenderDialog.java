@@ -1,7 +1,7 @@
 package fractalzoomer.gui;
 
-import fractalzoomer.main.MinimalRendererWindow;
 import fractalzoomer.main.MainWindow;
+import fractalzoomer.main.MinimalRendererWindow;
 import fractalzoomer.settings.SettingsFractals;
 
 import javax.swing.*;

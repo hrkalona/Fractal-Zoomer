@@ -2,10 +2,10 @@
 
 package fractalzoomer.planes.math;
 
-import fractalzoomer.core.BigComplex;
 import fractalzoomer.core.Complex;
-import fractalzoomer.core.DDComplex;
-import fractalzoomer.core.MpfrBigNumComplex;
+import fractalzoomer.core.numerics.BigComplex;
+import fractalzoomer.core.numerics.DDComplex;
+import fractalzoomer.core.numerics.MpfrBigNumComplex;
 import fractalzoomer.planes.Plane;
 
 /**

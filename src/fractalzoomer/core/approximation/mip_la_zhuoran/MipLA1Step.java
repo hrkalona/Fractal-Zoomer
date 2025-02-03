@@ -26,6 +26,7 @@ public class MipLA1Step extends MipLAStep {
         result.Ay = resultA.getIm();
         result.Bx = resultB.getRe();
         result.By = resultB.getIm();
+        result.l = getL() + step.getL();
 
         return result;
     }
@@ -33,6 +34,11 @@ public class MipLA1Step extends MipLAStep {
     @Override
     public Complex getB() {
         return new Complex(1, 0);
+    }
+
+    @Override
+    public int getL() {
+        return 1;
     }
 
     @Override
@@ -53,7 +59,6 @@ public class MipLA1Step extends MipLAStep {
     public Complex getValue(Complex dz, double dc) {
         double zx = dz.getRe();
         double zy = dz.getIm();
-        double cx = dc;
-        return new Complex(Ax * zx - Ay * zy + cx, Ax * zy + Ay * zx);
+        return new Complex(Ax * zx - Ay * zy + dc, Ax * zy + Ay * zx);
     }
 }

@@ -1,41 +1,21 @@
 package fractalzoomer.core.reference;
 
-import fractalzoomer.core.Complex;
-import fractalzoomer.core.GenericComplex;
-import fractalzoomer.core.MantExpComplex;
-import fractalzoomer.core.reference.CompressedDoubleReference;
-import fractalzoomer.core.reference.DoubleReference;
 import fractalzoomer.functions.Fractal;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.stream.IntStream;
 
-public class ReferenceData {
-    public static int REFERENCE_DATA_COUNT = 4;
-    public static final int MAX_PRECALCULATED_TERMS = 10;
-    public static final int SUBEXPRESSION_LENGTH = (1 + MAX_PRECALCULATED_TERMS);
+import static fractalzoomer.core.reference.ReferenceOrbit.DATA_LENGTH;
+import static fractalzoomer.core.reference.ReferenceOrbit.MAX_PRECALCULATED_TERMS;
+
+public class ReferenceData implements Serializable {
+    private static final long serialVersionUID = -6978567595222259L;
 
     public DoubleReference Reference;
     public DoubleReference ReferenceSubCp;
     public DoubleReference[] PrecalculatedTerms;
-    public DoubleReference[] ReferenceSubCps;
-    public int MaxRefIteration;
-    public GenericComplex lastZValue;
-    public GenericComplex secondTolastZValue;
-    public GenericComplex thirdTolastZValue;
-
-    public Object lastRValue;
-    //public Object minValue;
-
-    public Complex dzdc;
-    public MantExpComplex mdzdc;
-
-    public Complex compressorZ;
-    public MantExpComplex compressorZm;
-
-    public Complex period_dzdc;
-    public MantExpComplex period_mdzdc;
+    //public DoubleReference[] ReferenceSubCps;
 
     public int id;
 
@@ -44,49 +24,15 @@ public class ReferenceData {
         this.id = id;
     }
 
-    public void clear() {
-        deallocate();
-        MaxRefIteration = 0;
-        secondTolastZValue = null;
-        thirdTolastZValue = null;
-        lastZValue = null;
-        lastRValue = null;
-        dzdc = null;
-        mdzdc = null;
-        period_dzdc = null;
-        period_mdzdc = null;
-        //minValue = null;
-
-    }
-
-    public void clearWithoutDeallocation() {
-        MaxRefIteration = 0;
-        secondTolastZValue = null;
-        thirdTolastZValue = null;
-        lastZValue = null;
-        lastRValue = null;
-        dzdc = null;
-        mdzdc = null;
-        period_dzdc = null;
-        period_mdzdc = null;
-        //minValue = null;
-
-    }
-
     public void deallocate() {
         Reference = null;
         ReferenceSubCp = null;
         Arrays.fill(PrecalculatedTerms, null);
-        if(ReferenceSubCps != null) {
-            Arrays.fill(ReferenceSubCps, null);
-            ReferenceSubCps = null;
-        }
+//        if(ReferenceSubCps != null) {
+//            Arrays.fill(ReferenceSubCps, null);
+//            ReferenceSubCps = null;
+//        }
         Fractal.reference = null;
-    }
-
-    public void createAndSetShortcut(int max_iterations, boolean needsRefSubCp, int precalCount, boolean compression) {
-        create(max_iterations, needsRefSubCp, precalCount, compression);
-        Fractal.reference = Reference;
     }
 
     /*public void createAndSetShortcut(int max_iterations, int cps, int precalCount, boolean compression) {
@@ -104,15 +50,6 @@ public class ReferenceData {
         Fractal.reference = Reference;
     }
 
-    //Use this on julia ref
-    public void create(int max_iterations, boolean needsRefSubCp, int precalCount, boolean compression) {
-        int[] indexes = new int[0];
-        if(precalCount > 0) {
-            indexes = IntStream.range(0, precalCount).toArray();
-        }
-        create(max_iterations, needsRefSubCp, indexes, compression);
-    }
-
     /*public void create(int max_iterations, int cps, int precalCount, boolean compression) {
         int[] indexes = new int[0];
         if(precalCount > 0) {
@@ -123,13 +60,13 @@ public class ReferenceData {
 
     public void create(int max_iterations, boolean needsRefSubCp, int[] indexes, boolean compression) {
         if(compression) {
-            Reference = new CompressedDoubleReference(max_iterations);
-            Reference.id = id;
+            Reference = new CompressedDoubleReference(max_iterations, ReferenceType.NORMAL);
+            Reference.id = id * DATA_LENGTH;
         }
         else {
             if (Reference == null || Reference.shouldCreateNew(max_iterations)) {
-                Reference = new DoubleReference(max_iterations);
-                Reference.id = id;
+                Reference = new DoubleReference(max_iterations, ReferenceType.NORMAL);
+                Reference.id = id * DATA_LENGTH;
             } else {
                 Reference.reset();
             }
@@ -137,12 +74,13 @@ public class ReferenceData {
 
         if(needsRefSubCp) {
             if(compression) {
-                ReferenceSubCp = new CompressedDoubleReference(max_iterations);
-                ReferenceSubCp.id = id * SUBEXPRESSION_LENGTH;
+                ReferenceSubCp = new CompressedDoubleReference(max_iterations, ReferenceType.CP);
+                ReferenceSubCp.id = id * DATA_LENGTH + 1;
             }
             else {
                 if (ReferenceSubCp == null || ReferenceSubCp.shouldCreateNew(max_iterations)) {
-                    ReferenceSubCp = new DoubleReference(max_iterations);
+                    ReferenceSubCp = new DoubleReference(max_iterations, ReferenceType.CP);
+                    ReferenceSubCp.id = id * DATA_LENGTH + 1;
                 } else {
                     ReferenceSubCp.reset();
                 }
@@ -153,12 +91,13 @@ public class ReferenceData {
             int index = indexes[i];
             if(index < PrecalculatedTerms.length) {
                 if(compression) {
-                    PrecalculatedTerms[index] = new CompressedDoubleReference(max_iterations);
-                    PrecalculatedTerms[index].id = id * SUBEXPRESSION_LENGTH + (index + 1);
+                    PrecalculatedTerms[index] = new CompressedDoubleReference(max_iterations, ReferenceType.EXPRESSION);
+                    PrecalculatedTerms[index].id = id * DATA_LENGTH + (index + 2);
                 }
                 else {
                     if (PrecalculatedTerms[index] == null || PrecalculatedTerms[index].shouldCreateNew(max_iterations)) {
-                        PrecalculatedTerms[index] = new DoubleReference(max_iterations);
+                        PrecalculatedTerms[index] = new DoubleReference(max_iterations, ReferenceType.EXPRESSION);
+                        PrecalculatedTerms[index].id = id * DATA_LENGTH + (index + 2);
                     } else {
                         PrecalculatedTerms[index].reset();
                     }
@@ -234,13 +173,13 @@ public class ReferenceData {
             }
         }
 
-        if(ReferenceSubCps != null) {
-            for (int i = 0; i < ReferenceSubCps.length; i++) {
-                if (ReferenceSubCps[i] != null) {
-                    ReferenceSubCps[i].resize(max_iterations);
-                }
-            }
-        }
+//        if(ReferenceSubCps != null) {
+//            for (int i = 0; i < ReferenceSubCps.length; i++) {
+//                if (ReferenceSubCps[i] != null) {
+//                    ReferenceSubCps[i].resize(max_iterations);
+//                }
+//            }
+//        }
     }
 
     public ArrayList<Integer> getWaypointsLength() {

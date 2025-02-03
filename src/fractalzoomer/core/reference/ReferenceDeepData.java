@@ -2,19 +2,20 @@ package fractalzoomer.core.reference;
 
 import fractalzoomer.functions.Fractal;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.stream.IntStream;
 
-import static fractalzoomer.core.reference.ReferenceData.MAX_PRECALCULATED_TERMS;
-import static fractalzoomer.core.reference.ReferenceData.SUBEXPRESSION_LENGTH;
+import static fractalzoomer.core.reference.ReferenceOrbit.DATA_LENGTH;
+import static fractalzoomer.core.reference.ReferenceOrbit.MAX_PRECALCULATED_TERMS;
 
-public class ReferenceDeepData {
+public class ReferenceDeepData implements Serializable {
+    private static final long serialVersionUID = -12345222259L;
 
     public DeepReference Reference;
     public DeepReference ReferenceSubCp;
     public DeepReference[] PrecalculatedTerms;
-    public DeepReference[] ReferenceSubCps;
+    //public DeepReference[] ReferenceSubCps;
     public int id;
 
 
@@ -23,26 +24,15 @@ public class ReferenceDeepData {
         this.id = id;
     }
 
-    public void clear() {
-
-        deallocate();
-
-    }
-
     public void deallocate() {
         Reference = null;
         ReferenceSubCp = null;
         Arrays.fill(PrecalculatedTerms, null);
-        if(ReferenceSubCps != null) {
-            Arrays.fill(ReferenceSubCps, null);
-            ReferenceSubCps = null;
-        }
+//        if(ReferenceSubCps != null) {
+//            Arrays.fill(ReferenceSubCps, null);
+//            ReferenceSubCps = null;
+//        }
         Fractal.referenceDeep = null;
-    }
-
-    public void createAndSetShortcut(int max_iterations, boolean needsRefSubCp, int precalCount, boolean compress) {
-        create(max_iterations, needsRefSubCp, precalCount, compress);
-        Fractal.referenceDeep = Reference;
     }
 
     public void createAndSetShortcut(int max_iterations, boolean needsRefSubCp, int[] indexes, boolean compress) {
@@ -60,14 +50,6 @@ public class ReferenceDeepData {
         Fractal.referenceDeep = Reference;
     }*/
 
-    public void create(int max_iterations, boolean needsRefSubCp, int precalCount, boolean compress) {
-        int[] indexes = new int[0];
-        if(precalCount > 0) {
-            indexes = IntStream.range(0, precalCount).toArray();
-        }
-        create(max_iterations, needsRefSubCp, indexes, compress);
-    }
-
     /*public void create(int max_iterations, int cps, int precalCount, boolean compression) {
         int[] indexes = new int[0];
         if(precalCount > 0) {
@@ -80,13 +62,13 @@ public class ReferenceDeepData {
     public void create(int max_iterations, boolean needsRefSubCp, int[] indexes, boolean compression) {
 
         if(compression) {
-            Reference = new CompressedDeepReference(max_iterations);
-            Reference.id = id;
+            Reference = new CompressedDeepReference(max_iterations, ReferenceType.NORMAL);
+            Reference.id = id * DATA_LENGTH;
         }
         else {
             if (Reference == null || Reference.shouldCreateNew(max_iterations)) {
-                Reference = new DeepReference(max_iterations);
-                Reference.id = id;
+                Reference = new DeepReference(max_iterations, ReferenceType.NORMAL);
+                Reference.id = id * DATA_LENGTH;
             } else {
                 Reference.reset();
             }
@@ -94,12 +76,13 @@ public class ReferenceDeepData {
 
         if(needsRefSubCp) {
             if(compression) {
-                ReferenceSubCp = new CompressedDeepReference(max_iterations);
-                ReferenceSubCp.id = id * SUBEXPRESSION_LENGTH;
+                ReferenceSubCp = new CompressedDeepReference(max_iterations, ReferenceType.CP);
+                ReferenceSubCp.id = id * DATA_LENGTH + 1;
             }
             else {
                 if (ReferenceSubCp == null || ReferenceSubCp.shouldCreateNew(max_iterations)) {
-                    ReferenceSubCp = new DeepReference(max_iterations);
+                    ReferenceSubCp = new DeepReference(max_iterations, ReferenceType.CP);
+                    ReferenceSubCp.id = id * DATA_LENGTH + 1;
                 } else {
                     ReferenceSubCp.reset();
                 }
@@ -110,12 +93,13 @@ public class ReferenceDeepData {
             int index = indexes[i];
             if(index < PrecalculatedTerms.length) {
                 if(compression) {
-                    PrecalculatedTerms[index] = new CompressedDeepReference(max_iterations);
-                    PrecalculatedTerms[index].id = id * SUBEXPRESSION_LENGTH + (index + 1);
+                    PrecalculatedTerms[index] = new CompressedDeepReference(max_iterations, ReferenceType.EXPRESSION);
+                    PrecalculatedTerms[index].id = id * DATA_LENGTH + (index + 2);
                 }
                 else {
                     if (PrecalculatedTerms[index] == null || PrecalculatedTerms[index].shouldCreateNew(max_iterations)) {
-                        PrecalculatedTerms[index] = new DeepReference(max_iterations);
+                        PrecalculatedTerms[index] = new DeepReference(max_iterations, ReferenceType.EXPRESSION);
+                        PrecalculatedTerms[index].id = id * DATA_LENGTH + (index + 2);
                     } else {
                         PrecalculatedTerms[index].reset();
                     }
@@ -190,13 +174,13 @@ public class ReferenceDeepData {
             }
         }
 
-        if(ReferenceSubCps != null) {
-            for (int i = 0; i < ReferenceSubCps.length; i++) {
-                if (ReferenceSubCps[i] != null) {
-                    ReferenceSubCps[i].resize(max_iterations);
-                }
-            }
-        }
+//        if(ReferenceSubCps != null) {
+//            for (int i = 0; i < ReferenceSubCps.length; i++) {
+//                if (ReferenceSubCps[i] != null) {
+//                    ReferenceSubCps[i].resize(max_iterations);
+//                }
+//            }
+//        }
     }
 
     public ArrayList<Integer> getWaypointsLength() {

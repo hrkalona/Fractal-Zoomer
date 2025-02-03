@@ -1,17 +1,17 @@
 
 package fractalzoomer.core.rendering_algorithms;
 
-import fractalzoomer.core.GenericComplex;
 import fractalzoomer.core.TaskRender;
 import fractalzoomer.core.location.Location;
+import fractalzoomer.core.numerics.GenericComplex;
 import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.*;
+import fractalzoomer.utils.Pixel;
 import fractalzoomer.utils.Square;
 import fractalzoomer.utils.StopExecutionException;
-import fractalzoomer.utils.queues.ExpandingQueuePixel;
-import fractalzoomer.utils.Pixel;
 import fractalzoomer.utils.StopSuccessiveRefinementException;
+import fractalzoomer.utils.queues.ExpandingQueuePixel;
 import org.apfloat.Apfloat;
 
 import java.awt.*;
@@ -91,7 +91,7 @@ public class BoundaryTracing2Render extends TaskRender {
     @Override
     protected void render(int image_width, int image_height, boolean polar) throws StopSuccessiveRefinementException, StopExecutionException {
 
-        Location location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_width, image_height, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
+        location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_width, image_height, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
 
         initialize(location);
 

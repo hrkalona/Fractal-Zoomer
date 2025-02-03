@@ -2,11 +2,13 @@ package fractalzoomer.core.reference;
 
 import fractalzoomer.core.TaskRender;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
 import static fractalzoomer.core.reference.DoubleReference.*;
 
-public class DeepReference {
+public class DeepReference implements Serializable {
+    private static final long serialVersionUID = -5395222259L;
     public double[] mantsRe;
     public double[] mantsIm;
     public long[] exps;
@@ -19,12 +21,15 @@ public class DeepReference {
     public boolean saveMemory;
     public int id;
     public boolean compressed;
+    public ReferenceType type = ReferenceType.INVALID;
 
-    public DeepReference() {
+    public DeepReference(ReferenceType type) {
         id = -1;
         compressed = false;
+        this.type = type;
     }
-    public DeepReference(int length) {
+
+    public DeepReference(int length, ReferenceType type) {
 
         int actualLength = getCreationLength(length);
 
@@ -39,10 +44,11 @@ public class DeepReference {
         this.length = length;
         id = -1;
         compressed = false;
+        this.type = type;
 
     }
 
-    public DeepReference(int length, int lengthOverride) {
+    public DeepReference(int length, int lengthOverride, ReferenceType type) {
         mantsRe = new double[length];
         mantsIm = new double[length];
         exps = new long[length];
@@ -55,6 +61,7 @@ public class DeepReference {
         this.length = length;
         id = -1;
         compressed = false;
+        this.type = type;
     }
 
     private int getCreationLength(int length) {
@@ -136,6 +143,26 @@ public class DeepReference {
             }
         }
 
+    }
+
+    public double getCompressionError() {
+        return 0;
+    }
+
+    public int dataLength() {
+        return length;
+    }
+
+    public boolean hasTwoExponents() {
+        return expsIm != null;
+    }
+
+    public void setFunction(SerializableFunction<?, ?> function) {
+
+    }
+
+    public SerializableFunction<?, ?> getFuction() {
+        return null;
     }
 }
 

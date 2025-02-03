@@ -2,7 +2,7 @@
 
 package fractalzoomer.in_coloring_algorithms;
 
-import fractalzoomer.core.Complex;
+import fractalzoomer.utils.InColorData;
 
 /**
  *
@@ -26,9 +26,9 @@ public class DecompositionLike  extends InColorAlgorithm {
     }
     
     @Override
-    public double getResult(Object[] object) {
+    public double getResult(InColorData data) {
         
-        return max_iterations + Math.abs((((Complex)object[0]).arg() / (pi2)  + 0.75) * pi59);
+        return max_iterations + Math.abs((data.z.arg() / (pi2)  + 0.75) * pi59);
 
     }
     

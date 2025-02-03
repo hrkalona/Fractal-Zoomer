@@ -57,7 +57,6 @@ public class PostProcessing {
     private TaskRender tr;
     private int max_iterations;
     private int gradient_offset;
-    private double lz = Double.MAX_VALUE;
     private LightSettings ls;
     private SlopeSettings ss;
     private OffsetColoringSettings ofs;
@@ -68,6 +67,8 @@ public class PostProcessing {
     private FakeDistanceEstimationSettings fdes;
     private BumpMapSettings bms;
     private HistogramColoringSettings hss;
+    private TextureSettings ts;
+    private BlinnLightSettings bls;
 
     private static double maxIterationEscaped;
     private static double maxIterationNotEscaped;
@@ -93,20 +94,30 @@ public class PostProcessing {
         normalize_sync = new CyclicBarrier(num_tasks);
     }
 
-    public PostProcessing(TaskRender tr, int max_iterations, int gradient_offset, PostProcessSettings pps) {
+    public PostProcessing(TaskRender tr, int max_iterations, int gradient_offset, PostProcessSettings pps, BumpMapSettings bms, LightSettings ls, SlopeSettings ss, BlinnLightSettings bls) {
         this.tr = tr;
         this.max_iterations = max_iterations;
-        this.ls = pps.ls;
-        this.ss = pps.ss;
+        this.ls = ls != null ? ls : pps.ls;
+        this.ss = ss != null ? ss : pps.ss;
         this.ofs = pps.ofs;
         this.ens = pps.ens;
         this.ndes = pps.ndes;
         this.rps = pps.rps;
         this.cns = pps.cns;
         this.fdes = pps.fdes;
-        this.bms = pps.bms;
+        this.bms = bms != null ? bms : pps.bms;
         this.hss = pps.hss;
+        this.ts = pps.ts;
+        this.bls = bls != null ? bls : pps.bls;
         this.gradient_offset = gradient_offset;
+    }
+
+    public int[] blin_light(double[] image_iterations, PixelExtraData[] data, int[] colors, int i, int j, int image_width, int image_height, Location location, AntialiasingAlgorithm aa) {
+        BlinnLighting b = new BlinnLighting(bls.ambient, bls.colorAmbient);
+        b.addLightSource(bls.diffuse, bls.specular, bls.shininess, bls.polarAngle, bls.azimuthAngle, bls.color, bls.materialSpecularColor, bls.heightTransfer, bls.heightTransferFactor, bls.fractionalTransfer, bls.fractionalSmoothing, bls.fractionalTransferMode, bls.fractionalTransferScale);
+        b.setTaskRender(tr);
+        b.setMaxIterations(max_iterations);
+        return b.shade(image_iterations, data, colors, i, j, image_width, image_height, location, aa);
     }
 
     public int[] light(double[] image_iterations, PixelExtraData[] data, int[] colors, int i, int j, int image_width, int image_height, Location location, AntialiasingAlgorithm aa) {
@@ -156,9 +167,9 @@ public class PostProcessing {
             }
 
 
-            h00 = height_transfer(h00);
-            h10 = height_transfer(h10);
-            h01 = height_transfer(h01);
+            h00 = height_transfer_light(h00);
+            h10 = height_transfer_light(h10);
+            h01 = height_transfer_light(h01);
 
             double xz = h10 - h00;
             double yz = h01 - h00;
@@ -177,9 +188,7 @@ public class PostProcessing {
             double lx = ls.lightVector[0];
             double ly = -ls.lightVector[1];
 
-            if (lz == Double.MAX_VALUE) {
-                lz = Math.sqrt(1 - lx * lx - ly * ly);
-            }
+            double lz = Math.sqrt(1 - lx * lx - ly * ly);
 
             // Lambert's law.
             double NdotL = lx * nx + ly * ny + lz * nz;
@@ -261,6 +270,109 @@ public class PostProcessing {
             int b = colors[m] & 0xFF;
 
             output[m] = tr.applyContour(ls.colorMode, r, g, b, coef, coef2, ls.light_blending);
+        }
+
+        return output;
+
+    }
+
+    public int[] texture(double[] image_iterations, PixelExtraData[] data, int[] colors, int i, int j, int image_width, int image_height, Location location, AntialiasingAlgorithm aa) {
+
+        int k0 = image_width * i + j;
+
+        int kx = k0 + 1;
+        int sx = 1;
+
+        if (location == null && j == image_width - 1) {
+            kx -= 2;
+            sx = -1;
+        }
+
+        int ky = k0 + image_width;
+        int sy = 1;
+
+        if (location == null && i == image_height - 1) {
+            ky -= 2 * image_width;
+            sy = -1;
+        }
+
+        Blending texture_blending = tr.getTextureBlending();
+
+        int[] output = new int[colors.length];
+
+        PixelExtraData dataK0 = null;
+        PixelExtraData dataKx = null;
+        PixelExtraData dataKy = null;
+
+        int textureWidth = ts.textureImg.getWidth();
+        int textureHeight = ts.textureImg.getHeight();
+
+        if (data != null && output.length > 1) {
+            dataK0 = data[k0];
+            dataKx = tr.getIterData(i, j + 1, kx, data, image_width, image_height, location, aa, true);
+            dataKy = tr.getIterData(i + 1, j, ky, data, image_width, image_height, location, aa, true);
+        }
+
+        for (int m = 0; m < output.length; m++) {
+
+            if (data != null && output.length > 1) {
+                if (tr.skipPostProcessing(data[k0].values[m])) {
+                    output[m] = tr.getStandardColor(data[k0].values[m], data[k0].escaped[m]);
+                    continue;
+                }
+            } else {
+                if (tr.skipPostProcessing(image_iterations[k0])) {
+                    output[m] = tr.getStandardColor(image_iterations[k0], escaped[k0]);
+                    continue;
+                }
+            }
+
+            double h00, h10, h01;
+
+            if (data != null && output.length > 1) {
+                h00 = ColorAlgorithm.transformResultToHeight(dataK0.values[m], max_iterations);
+                h10 = ColorAlgorithm.transformResultToHeight(dataKx.values[m], max_iterations);
+                h01 = ColorAlgorithm.transformResultToHeight(dataKy.values[m], max_iterations);
+            } else {
+                h00 = ColorAlgorithm.transformResultToHeight(image_iterations[k0], max_iterations);
+                h10 = ColorAlgorithm.transformResultToHeight(tr.getIterData(i, j + 1, kx, image_iterations, image_width, image_height, location, true), max_iterations);
+                h01 = ColorAlgorithm.transformResultToHeight(tr.getIterData(i + 1, j, ky, image_iterations, image_width, image_height, location, true), max_iterations);
+            }
+
+            double xz = h10 - h00;
+            double yz = h01 - h00;
+
+            double nx = -xz * sy;
+            double ny = -sx * yz;
+            double nz = sx * (double) sy;
+
+            // normalize nx, ny and nz
+            double nlen = Math.sqrt(nx * nx + ny * ny + nz * nz);
+
+            nx = nx / nlen;
+            ny = ny / nlen;
+            //nz = nz / nlen;
+
+            int r = (colors[m] >> 16) & 0xFF;
+            int g = (colors[m] >> 8) & 0xFF;
+            int b = colors[m] & 0xFF;
+
+            double arg = (Math.atan2(ny, nx) + Math.PI) /  (2 * Math.PI);
+
+            double px = (arg * ts.textureScaleX) % 1.0;
+            double py = (h00 * ts.textureScaleY) % 1.0;
+
+            int tx = (int) (px * textureWidth + 0.5) + ts.textureOffset;
+            int ty = (int) (py * textureHeight + 0.5);
+            int color = ts.textureImg.getRGB(tx % textureWidth, ty % textureHeight);
+
+            int tr = (color >> 16) & 0xFF;
+            int tg = (color >> 8) & 0xFF;
+            int tb = color & 0xFF;
+
+            double coef = 1 - ts.texture_blending;
+
+            output[m] = texture_blending.blend(r, g, b, tr, tg, tb, coef);
         }
 
         return output;
@@ -581,7 +693,7 @@ public class PostProcessing {
 
             int color2;
             if (data != null && output.length > 1) {
-                if (tr.skipTrapPostProcessing(data[loc].values[m])) {
+                if (tr.skipPostProcessing(data[loc].values[m])) {
                     output[m] = tr.getStandardColor(data[loc].values[m], data[loc].escaped[m]);
                     continue;
                 }
@@ -590,7 +702,7 @@ public class PostProcessing {
 
                 color2 = tr.getStandardColor(res + ofs.post_process_offset, data[loc].escaped[m]);
             } else {
-                if (tr.skipTrapPostProcessing(image_iterations[loc])) {
+                if (tr.skipPostProcessing(image_iterations[loc])) {
                     output[m] = tr.getStandardColor(image_iterations[loc], escaped[loc]);
                     continue;
                 }
@@ -628,12 +740,12 @@ public class PostProcessing {
         for (int m = 0; m < output.length; m++) {
 
             if (data != null && output.length > 1) {
-                if (tr.skipTrapPostProcessing(data[loc].values[m])) {
+                if (tr.skipPostProcessing(data[loc].values[m])) {
                     output[m] = tr.getStandardColor(data[loc].values[m], data[loc].escaped[m]);
                     continue;
                 }
             } else {
-                if (tr.skipTrapPostProcessing(image_iterations[loc])) {
+                if (tr.skipPostProcessing(image_iterations[loc])) {
                     output[m] = tr.getStandardColor(image_iterations[loc], escaped[loc]);
                     continue;
                 }
@@ -769,12 +881,12 @@ public class PostProcessing {
 
             if (data != null && output.length > 1) {
 
-                if (tr.skipTrapPostProcessing(dataK0.values[m])) {
+                if (tr.skipPostProcessing(dataK0.values[m])) {
                     output[m] = tr.getStandardColor(dataK0.values[m], dataK0.escaped[m]);
                     continue;
                 }
             } else {
-                if (tr.skipTrapPostProcessing(image_iterations[k0])) {
+                if (tr.skipPostProcessing(image_iterations[k0])) {
                     output[m] = tr.getStandardColor(image_iterations[k0], escaped[k0]);
                     continue;
                 }
@@ -971,7 +1083,7 @@ public class PostProcessing {
             double n0;
 
             if (data != null && output.length > 1) {
-                if (tr.skipTrapPostProcessing(dataK0.values[m])) {
+                if (tr.skipPostProcessing(dataK0.values[m])) {
                     output[m] = tr.getStandardColor(dataK0.values[m], dataK0.escaped[m]);
                     continue;
                 }
@@ -998,7 +1110,7 @@ public class PostProcessing {
                     zy2 = sy2 * (ny2 - n0);
                 }
             } else {
-                if (tr.skipTrapPostProcessing(image_iterations[k0])) {
+                if (tr.skipPostProcessing(image_iterations[k0])) {
                     output[m] = tr.getStandardColor(image_iterations[k0], escaped[k0]);
                     continue;
                 }
@@ -1091,14 +1203,14 @@ public class PostProcessing {
 
             double res;
             if (data != null && output.length > 1) {
-                if (tr.skipTrapPostProcessing(data[loc].values[m])) {
+                if (tr.skipPostProcessing(data[loc].values[m])) {
                     output[m] = tr.getStandardColor(data[loc].values[m], data[loc].escaped[m]);
                     continue;
                 }
 
                 res = ColorAlgorithm.transformResultToHeight(data[loc].values[m], max_iterations);
             } else {
-                if (tr.skipTrapPostProcessing(image_iterations[loc])) {
+                if (tr.skipPostProcessing(image_iterations[loc])) {
                     output[m] = tr.getStandardColor(image_iterations[loc], escaped[loc]);
                     continue;
                 }
@@ -1213,12 +1325,12 @@ public class PostProcessing {
         for (int m = 0; m < output.length; m++) {
 
             if (data != null && output.length > 1) {
-                if (tr.skipTrapPostProcessing(data[loc].values[m])) {
+                if (tr.skipPostProcessing(data[loc].values[m])) {
                     output[m] = tr.getStandardColor(data[loc].values[m], data[loc].escaped[m]);
                     continue;
                 }
             } else {
-                if (tr.skipTrapPostProcessing(image_iterations[loc])) {
+                if (tr.skipPostProcessing(image_iterations[loc])) {
                     output[m] = tr.getStandardColor(image_iterations[loc], escaped[loc]);
                     continue;
                 }
@@ -1440,11 +1552,7 @@ public class PostProcessing {
 
                         double val = data[j].values[i];
 
-                        if (tr.isMaximumIterations(val)) {
-                            continue;
-                        }
-
-                        if (Double.isNaN(val) || Double.isInfinite(val)) {
+                        if (tr.isMaximumIterations(val) || Double.isNaN(val) || Double.isInfinite(val)) {
                             continue;
                         }
 
@@ -1519,11 +1627,7 @@ public class PostProcessing {
 
                         double val = data[j].values[i];
 
-                        if (tr.isMaximumIterations(val)) {
-                            continue;
-                        }
-
-                        if (Double.isNaN(val) || Double.isInfinite(val)) {
+                        if (tr.isMaximumIterations(val) || Double.isNaN(val) || Double.isInfinite(val)) {
                             continue;
                         }
 
@@ -1588,11 +1692,7 @@ public class PostProcessing {
                     for (int i = 0; i < length; i++) {
                         double val = data[j].values[i];
 
-                        if (tr.isMaximumIterations(val)) {
-                            continue;
-                        }
-
-                        if (Double.isNaN(val) || Double.isInfinite(val)) {
+                        if (tr.isMaximumIterations(val) || Double.isNaN(val) || Double.isInfinite(val)) {
                             continue;
                         }
 
@@ -1701,11 +1801,7 @@ public class PostProcessing {
 
                     double val = image_iterations[i];
 
-                    if (tr.isMaximumIterations(val)) {
-                        continue;
-                    }
-
-                    if (Double.isNaN(val) || Double.isInfinite(val)) {
+                    if (tr.isMaximumIterations(val) || Double.isNaN(val) || Double.isInfinite(val)) {
                         continue;
                     }
 
@@ -1779,11 +1875,7 @@ public class PostProcessing {
 
                     double val = image_iterations[i];
 
-                    if (tr.isMaximumIterations(val)) {
-                        continue;
-                    }
-
-                    if (Double.isNaN(val) || Double.isInfinite(val)) {
+                    if (tr.isMaximumIterations(val) || Double.isNaN(val) || Double.isInfinite(val)) {
                         continue;
                     }
 
@@ -1840,11 +1932,7 @@ public class PostProcessing {
                 for (int i = 0; i < image_iterations.length; i++) {
                     double val = image_iterations[i];
 
-                    if (tr.isMaximumIterations(val)) {
-                        continue;
-                    }
-
-                    if (Double.isNaN(val) || Double.isInfinite(val)) {
+                    if (tr.isMaximumIterations(val) || Double.isNaN(val) || Double.isInfinite(val)) {
                         continue;
                     }
 
@@ -1921,6 +2009,7 @@ public class PostProcessing {
     public int[] applyRankOrderMappingToPixel(int index, int[] colors, PixelExtraData[] data, double[] image_iterations, boolean[] escaped) {
 
         int[] output = new int[colors.length];
+
         Blending hss_blending = tr.getHSSBlending();
         boolean banded = tr.getBanded();
 
@@ -1938,6 +2027,7 @@ public class PostProcessing {
             }
 
             if (Double.isNaN(val) || Double.isInfinite(val) || tr.isMaximumIterations(val)) {
+                output[j] = colors[j];
                 continue;
             }
 
@@ -1967,7 +2057,7 @@ public class PostProcessing {
                         g1 = 1.0;
                     }
                     else {
-                        double in = i + ((originalVal - arrayEscaped[i])/(arrayEscaped[i + 1] - arrayEscaped[i]));
+                        double in = i + ((originalVal - arrayEscaped[i]) / (arrayEscaped[i + 1] - arrayEscaped[i]));
                         g1 = in / (arrayEscaped.length - 1);
                     }
                 }
@@ -1986,7 +2076,7 @@ public class PostProcessing {
                         g1 = 1.0;
                     }
                     else {
-                        double in = i + ((originalVal - arraynotEscaped[i])/(arraynotEscaped[i + 1] - arraynotEscaped[i]));
+                        double in = i + ((originalVal - arraynotEscaped[i]) / (arraynotEscaped[i + 1] - arraynotEscaped[i]));
                         g1 = in / (arraynotEscaped.length - 1);
                     }
                 }
@@ -2002,6 +2092,7 @@ public class PostProcessing {
             val = sign * g1;
 
             if (Double.isNaN(val) || Double.isInfinite(val)) {
+                output[j] = colors[j];
                 continue;
             }
 
@@ -2031,6 +2122,7 @@ public class PostProcessing {
     public int[] applyHistogramToPixel(int index, int[] colors, PixelExtraData[] data, int histogramGranularity, double histogramDensity, double[] image_iterations, boolean[] escaped) {
 
         int[] output = new int[colors.length];
+
         InterpolationMethod method = tr.getInterpolationMethod();
         Blending hss_blending = tr.getHSSBlending();
         boolean banded = tr.getBanded();
@@ -2048,8 +2140,8 @@ public class PostProcessing {
                 esc = escaped[index];
             }
 
-
             if (Double.isNaN(val) || Double.isInfinite(val) || tr.isMaximumIterations(val)) {
+                output[j] = colors[j];
                 continue;
             }
 
@@ -2111,6 +2203,7 @@ public class PostProcessing {
             val = sign * g1;
 
             if (Double.isNaN(val) || Double.isInfinite(val)) {
+                output[j] = colors[j];
                 continue;
             }
 
@@ -2154,6 +2247,7 @@ public class PostProcessing {
             }
 
             if (Double.isNaN(val) || Double.isInfinite(val) || tr.isMaximumIterations(val)) {
+                output[j] = colors[j];
                 continue;
             }
 
@@ -2263,7 +2357,7 @@ public class PostProcessing {
         }
     }
 
-    private double height_transfer(double value) {
+    private double height_transfer_light(double value) {
 
         value = tr.fractional_transfer(value, ls.fractionalTransfer, ls.fractionalSmoothing, ls.fractionalTransferMode, ls.fractionalTransferScale);
 
@@ -2771,19 +2865,45 @@ public class PostProcessing {
     private int closestPoint(double[] array, double target) {
         int left = 0;
         int right = array.length - 1;
+        int mid;
 
         while (left <= right) {
-            int mid = (int)(((long)left + right) >>> 1);
+            int diff = right - left;
+            if (!USE_INTERPOLATION_BINARY_SEARCH || diff <= BINARY_SEARCH_HYBRID_DIFF) {
+                mid = (int)(((long)left + right) >>> 1);
+            } else {
+                double v_left = array[left];
+                double v_right = array[right];
 
-            if (array[mid] == target) {
+                if (v_left == v_right) {
+                    mid = (int)(((long)left + right) >>> 1);
+                } else {
+                    double num = ((target - v_left)) * diff;
+                    double den = (v_right - v_left);
+                    mid = left + (int) Math.round(num / den);
+
+                    if (mid < left) {
+                        mid = left;
+                    }
+                    if (mid > right) {
+                        mid = right;
+                    }
+                }
+            }
+
+            double v_mid = array[mid];
+            if (v_mid == target) {
                 return mid;
-            } else if (array[mid] < target) {
+            } else if (v_mid < target) {
                 left = mid + 1;
             } else {
                 right = mid - 1;
             }
         }
 
+        if (right < 0) {
+            return -1;
+        }
         return right;
     }
 
@@ -2832,6 +2952,243 @@ public class PostProcessing {
         }
 
         return values.get(middle);
+    }
+
+    private static class BlinnLighting {
+
+        private double kAmbient;
+        private double[] colorAmbient; // length 3
+        private List<LightSource> lightSources;
+        private TaskRender tr;
+        private int max_iterations;
+
+        public BlinnLighting(double kAmbient, double[] colorAmbient) {
+            this.kAmbient = kAmbient;
+            this.colorAmbient = Arrays.copyOf(colorAmbient, 3);
+            this.lightSources = new ArrayList<>();
+        }
+
+        public void setTaskRender(TaskRender tr) {
+            this.tr = tr;
+        }
+
+        public void setMaxIterations(int max_iterations) {
+            this.max_iterations = max_iterations;
+        }
+
+        public void addLightSource(double[] kDiffuse, double[] kSpecular, double shininess,
+                                   double polarAngle, double azimuthAngle,
+                                   double[] color, Double[] materialSpecularColor, int heightTransfer, double heightTransferFactor,
+                                   int fractionalTransfer, int fractionalSmoothing, int fractionalTransferMode, double fractionalTransferScale) {
+            LightSource ls = new LightSource(kDiffuse,
+                    kSpecular,
+                    shininess,
+                    polarAngle,
+                    azimuthAngle,
+                    color != null ? Arrays.copyOf(color, 3) : new double[]{1.0, 1.0, 1.0},
+                    materialSpecularColor,
+                    heightTransfer,
+                    heightTransferFactor,
+                    fractionalTransfer,
+                    fractionalSmoothing,
+                    fractionalTransferMode,
+                    fractionalTransferScale
+            );
+            lightSources.add(ls);
+        }
+
+        public int[] shade(double[] image_iterations, PixelExtraData[] data, int[] colors, int i, int j, int image_width, int image_height, Location location, AntialiasingAlgorithm aa) {
+
+            int[] output = new int[colors.length];
+
+            PixelExtraData dataK0 = null;
+            PixelExtraData dataKx = null;
+            PixelExtraData dataKy = null;
+
+            int k0 = image_width * i + j;
+
+            int kx = k0 + 1;
+            if (location == null && j == image_width - 1) {
+                kx -= 2;
+            }
+
+            int ky = k0 + image_width;
+            if (location == null && i == image_height - 1) {
+                ky -= 2 * image_width;
+            }
+
+            if (data != null && output.length > 1) {
+                dataK0 = data[k0];
+                dataKx = tr.getIterData(i, j + 1, kx, data, image_width, image_height, location, aa, true);
+                dataKy = tr.getIterData(i + 1, j, ky, data, image_width, image_height, location, aa, true);
+            }
+
+            for(int m = 0; m < output.length; m++) {
+                int r = (colors[m] >> 16) & 0xFF;
+                int g = (colors[m] >> 8) & 0xFF;
+                int b = colors[m] & 0xFF;
+
+                double[] XYZ = ColorSpaceConverter.RGBtoXYZ(r, g, b);
+
+                for (int c = 0; c < XYZ.length; c++) {
+                    XYZ[c] = XYZ[c] * kAmbient * colorAmbient[c];
+                }
+
+                for (LightSource ls : lightSources) {
+                    double[] partial = partialShade(ls, XYZ, image_iterations, data, colors, i, j, image_width, image_height, location, m, dataK0, dataKx, dataKy);
+                    for (int c = 0; c < XYZ.length; c++) {
+                        XYZ[c] += partial[c];
+                    }
+                }
+
+                int[] res = ColorSpaceConverter.XYZtoRGB(XYZ);
+                output[m] = 0xff000000 | (res[0] << 16) | (res[1] << 8) | res[2];
+            }
+            return output;
+        }
+
+        private double height_transfer_light(double value, LightSource ls) {
+
+            value = tr.fractional_transfer(value, ls.fractionalTransfer, ls.fractionalSmoothing, ls.fractionalTransferMode, ls.fractionalTransferScale);
+
+            switch (ls.heightTransfer) {
+                case 0:
+                    return value * ls.heightTransferFactor;
+                case 1:
+                    return Math.sqrt(value * ls.heightTransferFactor);
+                case 2:
+                    return value * ls.heightTransferFactor * value * ls.heightTransferFactor;
+            }
+
+            return 0;
+
+        }
+
+        private double[] partialShade(LightSource ls, double[] XYZ, double[] image_iterations, PixelExtraData[] data, int[] output, int i, int j, int image_width, int image_height, Location location, int m, PixelExtraData dataK0, PixelExtraData dataKx, PixelExtraData dataKy) {
+
+            int k0 = image_width * i + j;
+
+            int kx = k0 + 1;
+            int sx = 1;
+
+            if (location == null && j == image_width - 1) {
+                kx -= 2;
+                sx = -1;
+            }
+
+            int ky = k0 + image_width;
+            int sy = 1;
+
+            if (location == null && i == image_height - 1) {
+                ky -= 2 * image_width;
+                sy = -1;
+            }
+
+            double h00, h10, h01;
+
+            if (data != null && output.length > 1) {
+                h00 = ColorAlgorithm.transformResultToHeight(dataK0.values[m], max_iterations);
+                h10 = ColorAlgorithm.transformResultToHeight(dataKx.values[m], max_iterations);
+                h01 = ColorAlgorithm.transformResultToHeight(dataKy.values[m], max_iterations);
+            } else {
+                h00 = ColorAlgorithm.transformResultToHeight(image_iterations[k0], max_iterations);
+                h10 = ColorAlgorithm.transformResultToHeight(tr.getIterData(i, j + 1, kx, image_iterations, image_width, image_height, location, true), max_iterations);
+                h01 = ColorAlgorithm.transformResultToHeight(tr.getIterData(i + 1, j, ky, image_iterations, image_width, image_height, location, true), max_iterations);
+            }
+
+            h00 = height_transfer_light(h00, ls);
+            h10 = height_transfer_light(h10, ls);
+            h01 = height_transfer_light(h01, ls);
+
+            double xz = h10 - h00;
+            double yz = h01 - h00;
+
+            double nx_ = -xz * sy;
+            double ny_ = -sx * yz;
+            double nz_ = sx * (double) sy;
+
+            double nlen = Math.sqrt(nx_ * nx_ + ny_ * ny_ + nz_ * nz_);
+
+            nx_ = nx_ / nlen;
+            ny_ = ny_ / nlen;
+            nz_ = nz_ / nlen;
+
+            double lambertVal = ls.LSx * nx_ + ls.LSy * ny_ + ls.LSz * nz_;
+            double lambert = Math.max(0.0, lambertVal);
+            double specular = 0;
+
+            double specularCoeff = 0.0;
+            if (!Arrays.equals(ls.kSpecular, new double[]{0.0, 0.0, 0.0})) {
+                specularCoeff = ls.halfX * nx_ + ls.halfY * ny_ + ls.halfZ * nz_;
+                specularCoeff = Math.max(0.0, specularCoeff);
+                specular = Math.pow(specularCoeff, ls.shininess);
+            }
+
+            double[] result = new double[XYZ.length];
+            for (int c = 0; c < XYZ.length; c++) {
+                double diffuseTerm = ls.kDiffuse[c] * lambert * XYZ[c];
+                double specularTerm = ls.kSpecular[c] * specular * (ls.materialSpecularColor[c] == null ? XYZ[c] : ls.materialSpecularColor[c]);
+                result[c] = (diffuseTerm + specularTerm) * ls.color[c];
+            }
+
+            return result;
+        }
+
+        private static class LightSource {
+            double[] kDiffuse;
+            double[] kSpecular;
+            double shininess;
+            double polarAngle;
+            double azimuthAngle;
+            double[] color;
+            Double[] materialSpecularColor;
+            double LSx;
+            double LSy;
+            double LSz;
+            double halfX;
+            double halfY;
+            double halfZ;
+            double heightTransferFactor;
+            int heightTransfer;
+            int fractionalTransfer;
+            int fractionalSmoothing;
+            int fractionalTransferMode;
+            double fractionalTransferScale;
+
+            LightSource(double[] kDiffuse, double[] kSpecular, double shininess,
+                        double polarAngle, double azimuthAngle,
+                        double[] color, Double[] materialSpecularColor, int heightTransfer, double heightTransferFactor,
+                        int fractionalTransfer, int fractionalSmoothing, int fractionalTransferMode, double fractionalTransferScale) {
+                this.kDiffuse = kDiffuse;
+                this.kSpecular = kSpecular;
+                this.shininess = shininess;
+                this.polarAngle = polarAngle;
+                this.azimuthAngle = azimuthAngle;
+                this.color = color;
+                this.materialSpecularColor = materialSpecularColor;
+                this.heightTransfer = heightTransfer;
+                this.heightTransferFactor = heightTransferFactor;
+                this.fractionalTransfer = fractionalTransfer;
+                this.fractionalTransferMode = fractionalTransferMode;
+                this.fractionalTransferScale = fractionalTransferScale;
+                this.fractionalSmoothing = fractionalSmoothing;
+
+                double thetaLS = Math.toRadians(polarAngle);
+                double phiLS = Math.toRadians(azimuthAngle);
+                double CosThetaLs = Math.cos(thetaLS);
+                double SinThetaLs = Math.sin(thetaLS);
+                double CosPhiLs = Math.cos(phiLS);
+                LSx = CosThetaLs * CosPhiLs;
+                LSy = SinThetaLs * CosPhiLs;
+                LSz = Math.sin(phiLS);
+
+                double phiHalf = (Math.PI * 0.5 + phiLS) * 0.5;
+                double CosPhiHalf = Math.cos(phiHalf);
+                halfX = CosThetaLs * CosPhiHalf;
+                halfY = SinThetaLs * CosPhiHalf;
+                halfZ = Math.sin(phiHalf);
+            }
+        }
     }
 
     public static void clear() {

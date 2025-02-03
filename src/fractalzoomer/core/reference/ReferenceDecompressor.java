@@ -1,9 +1,11 @@
 package fractalzoomer.core.reference;
 
-import fractalzoomer.core.*;
+import fractalzoomer.core.Complex;
+import fractalzoomer.core.TaskRender;
+import fractalzoomer.core.numerics.MantExp;
+import fractalzoomer.core.numerics.MantExpComplex;
+import fractalzoomer.core.numerics.MantExpComplexFull;
 import fractalzoomer.functions.Fractal;
-
-import java.util.function.Function;
 
 public class ReferenceDecompressor {
     private Complex c;
@@ -24,10 +26,10 @@ public class ReferenceDecompressor {
 
     private Waypoint currentWaypoint;
 
-    private Function<Complex, Complex> function;
-    private Function<MantExpComplex, MantExpComplex> functionm;
+    private SerializableFunction<Complex, Complex> function;
+    private SerializableFunction<MantExpComplex, MantExpComplex> functionm;
 
-    public ReferenceDecompressor(Function<Complex, Complex> function) {
+    public ReferenceDecompressor(SerializableFunction<Complex, Complex> function) {
         this.function = function;
         prevIteration = Integer.MIN_VALUE;
         nextWaypointIteration = Long.MIN_VALUE;
@@ -38,7 +40,7 @@ public class ReferenceDecompressor {
         prevZ = new Complex();
     }
 
-    public ReferenceDecompressor(Function<MantExpComplex, MantExpComplex> function, boolean deep) {
+    public ReferenceDecompressor(SerializableFunction<MantExpComplex, MantExpComplex> function, boolean deep) {
         this.functionm = function;
         prevIteration = Integer.MIN_VALUE;
         nextWaypointIteration = Long.MIN_VALUE;
@@ -113,7 +115,7 @@ public class ReferenceDecompressor {
             throw new UnsupportedOperationException("Invalid length");
         }
 
-        DoubleReference ref = new DoubleReference(cref.length, cref.lengthOverride);
+        DoubleReference ref = new DoubleReference(cref.length, cref.lengthOverride, cref.type);
 
         ref.re[0] = z.getRe();
         ref.im[0] = z.getIm();
@@ -140,7 +142,7 @@ public class ReferenceDecompressor {
 
     //maxRefIteration should be +1
     @Deprecated
-    public static DoubleReference uncompressReferenceWithExpression(DoubleReference reference, CompressedDoubleReference cexprref, Function<Complex, Complex> function, int maxRefIteration) {
+    public static DoubleReference uncompressReferenceWithExpression(DoubleReference reference, CompressedDoubleReference cexprref, SerializableFunction<Complex, Complex> function, int maxRefIteration) {
 
         if(reference.compressed) {
             throw new UnsupportedOperationException("This reference is compressed.");
@@ -158,7 +160,7 @@ public class ReferenceDecompressor {
             throw new UnsupportedOperationException("Invalid length");
         }
 
-        DoubleReference output = new DoubleReference(cexprref.length, cexprref.lengthOverride);
+        DoubleReference output = new DoubleReference(cexprref.length, cexprref.lengthOverride, cexprref.type);
 
         int compressed_index = 0;
 
@@ -182,7 +184,7 @@ public class ReferenceDecompressor {
         return output;
     }
 
-    public static DoubleReference uncompressReferenceWithExpression(CompressedDoubleReference reference, CompressedDoubleReference cexprref, Function<Complex, Complex> function, Fractal f, Complex z, Complex c, int maxRefIteration) {
+    public static DoubleReference uncompressReferenceWithExpression(CompressedDoubleReference reference, CompressedDoubleReference cexprref, SerializableFunction<Complex, Complex> function, Fractal f, Complex z, Complex c, int maxRefIteration) {
 
 
         if(reference.isCompressedExtended() || cexprref.isCompressedExtended()) {
@@ -197,7 +199,7 @@ public class ReferenceDecompressor {
             throw new UnsupportedOperationException("Invalid length");
         }
 
-        DoubleReference output = new DoubleReference(cexprref.length, cexprref.lengthOverride);
+        DoubleReference output = new DoubleReference(cexprref.length, cexprref.lengthOverride, cexprref.type);
 
         int compressed_index = 0;
         int compressed_index2 = 0;
@@ -233,7 +235,7 @@ public class ReferenceDecompressor {
 
     //maxRefIteration should be +1
     @Deprecated
-    public static DeepReference uncompressReferenceWithExpression(DeepReference reference, CompressedDeepReference cexprref, Function<MantExpComplex, MantExpComplex> function, int maxRefIteration) {
+    public static DeepReference uncompressReferenceWithExpression(DeepReference reference, CompressedDeepReference cexprref, SerializableFunction<MantExpComplex, MantExpComplex> function, int maxRefIteration) {
 
         if(reference.compressed) {
             throw new UnsupportedOperationException("This reference is compressed.");
@@ -251,7 +253,7 @@ public class ReferenceDecompressor {
             throw new UnsupportedOperationException("Invalid length");
         }
 
-        DeepReference output = new DeepReference(cexprref.length, cexprref.lengthOverride);
+        DeepReference output = new DeepReference(cexprref.length, cexprref.lengthOverride, cexprref.type);
 
         int compressed_index = 0;
 
@@ -288,7 +290,7 @@ public class ReferenceDecompressor {
         return output;
     }
 
-    public static DeepReference uncompressReferenceWithExpression(CompressedDeepReference reference, CompressedDeepReference cexprref, Function<MantExpComplex, MantExpComplex> function, Fractal f, MantExpComplex z, MantExpComplex c, int maxRefIteration) {
+    public static DeepReference uncompressReferenceWithExpression(CompressedDeepReference reference, CompressedDeepReference cexprref, SerializableFunction<MantExpComplex, MantExpComplex> function, Fractal f, MantExpComplex z, MantExpComplex c, int maxRefIteration) {
 
         if(cexprref.isCompressedExtended() || reference.isCompressedExtended()) {
             throw new UnsupportedOperationException("Cannot uncompress due to different compression algorithm.");
@@ -302,7 +304,7 @@ public class ReferenceDecompressor {
             throw new UnsupportedOperationException("Invalid length");
         }
 
-        DeepReference output = new DeepReference(cexprref.length, cexprref.lengthOverride);
+        DeepReference output = new DeepReference(cexprref.length, cexprref.lengthOverride, cexprref.type);
 
         int compressed_index = 0;
         int compressed_index2 = 0;
@@ -397,7 +399,7 @@ public class ReferenceDecompressor {
             throw new UnsupportedOperationException("Cannot uncompress due to different compression algorithm.");
         }
 
-        DoubleReference ref = new DoubleReference(cref.length, cref.lengthOverride);
+        DoubleReference ref = new DoubleReference(cref.length, cref.lengthOverride, cref.type);
 
         if(cref.compressedLength() == 0) {
             throw new UnsupportedOperationException("Cannot uncompress due to corrupted compressed data.");
@@ -477,7 +479,7 @@ public class ReferenceDecompressor {
             throw new UnsupportedOperationException("Cannot uncompress due to different compression algorithm.");
         }
 
-        DeepReference ref = new DeepReference(cref.length, cref.lengthOverride);
+        DeepReference ref = new DeepReference(cref.length, cref.lengthOverride, cref.type);
 
         if(cref.compressedLength() == 0) {
             throw new UnsupportedOperationException("Cannot uncompress due to corrupted compressed data.");
@@ -588,7 +590,7 @@ public class ReferenceDecompressor {
             throw new UnsupportedOperationException("Invalid length");
         }
 
-        DeepReference ref = new DeepReference(cref.length, cref.lengthOverride);
+        DeepReference ref = new DeepReference(cref.length, cref.lengthOverride, cref.type);
 
         boolean twoExponents = TaskRender.MANTEXPCOMPLEX_FORMAT == 1;
 
@@ -626,7 +628,11 @@ public class ReferenceDecompressor {
         return ref;
     }
 
-    public MantExpComplex getArrayDeepValue(DeepReference array, int iteration) {
+    public MantExpComplex getReferenceDeepValue(DeepReference array, int iteration) {
+//        if (array.type != ReferenceType.NORMAL) {
+//            throw new RuntimeException("Reference type mismatch");
+//        }
+
         CompressedDeepReference cref = (CompressedDeepReference) array;
         MantExpComplex z;
 
@@ -691,7 +697,11 @@ public class ReferenceDecompressor {
         return z;
     }
 
-    public Complex getArrayValue(DoubleReference array, int iteration) {
+    public Complex getReferenceValue(DoubleReference array, int iteration) {
+
+//        if (array.type != ReferenceType.NORMAL) {
+//            throw new RuntimeException("Reference type mismatch");
+//        }
 
         Complex z;
         CompressedDoubleReference cref = (CompressedDoubleReference) array;
@@ -756,7 +766,11 @@ public class ReferenceDecompressor {
 
     }
 
-    public Complex getArrayValue(DoubleReference array, int iteration, Complex refZ) {
+    public Complex getExpressionValue(DoubleReference array, int iteration, Complex refZ) {
+
+//        if (array.type != ReferenceType.CP && array.type != ReferenceType.EXPRESSION) {
+//            throw new RuntimeException("Reference type mismatch");
+//        }
 
         Complex z;
         CompressedDoubleReference cref = (CompressedDoubleReference) array;
@@ -810,7 +824,11 @@ public class ReferenceDecompressor {
 
     }
 
-    public MantExpComplex getArrayDeepValue(DeepReference array, int iteration, MantExpComplex refZ) {
+    public MantExpComplex getExpressionDeepValue(DeepReference array, int iteration, MantExpComplex refZ) {
+
+//        if (array.type != ReferenceType.CP && array.type != ReferenceType.EXPRESSION) {
+//            throw new RuntimeException("Reference type mismatch");
+//        }
 
         MantExpComplex z;
         CompressedDeepReference cref = (CompressedDeepReference) array;
@@ -867,7 +885,7 @@ public class ReferenceDecompressor {
 
 
     //when using a single decompressor on a multithreaded level
-    public MantExpComplex getArrayDeepValueRandomAccess(DeepReference array, int iteration) {
+    public MantExpComplex getReferenceDeepValueRandomAccess(DeepReference array, int iteration) {
         CompressedDeepReference cref = (CompressedDeepReference) array;
         Waypoint waypoint = cref.getClosestWaypoint(iteration); //binary search
         MantExpComplex z;
@@ -888,7 +906,7 @@ public class ReferenceDecompressor {
     }
 
     //when using a single decompressor on a multithreaded level
-    public Complex getArrayValueRandomAccess(DoubleReference array, int iteration) {
+    public Complex getReferenceValueRandomAccess(DoubleReference array, int iteration) {
         CompressedDoubleReference cref = (CompressedDoubleReference) array;
         Waypoint waypoint = cref.getClosestWaypoint(iteration); //binary search
         Complex z;
@@ -907,7 +925,7 @@ public class ReferenceDecompressor {
         return z;
     }
 
-    public MantExpComplex getArrayDeepValueRandomAccess(DeepReference array, int iteration, MantExpComplex refZ) {
+    public MantExpComplex getExpressionDeepValueRandomAccess(DeepReference array, int iteration, MantExpComplex refZ) {
 
         CompressedDeepReference cref = (CompressedDeepReference) array;
 
@@ -925,7 +943,7 @@ public class ReferenceDecompressor {
 
     }
 
-    public Complex getArrayValueRandomAccess(DoubleReference array, int iteration, Complex refZ) {
+    public Complex getExpressionValueRandomAccess(DoubleReference array, int iteration, Complex refZ) {
 
         CompressedDoubleReference cref = (CompressedDoubleReference) array;
 

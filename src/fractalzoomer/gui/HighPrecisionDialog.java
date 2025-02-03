@@ -1,11 +1,15 @@
 
 package fractalzoomer.gui;
 
-import fractalzoomer.core.*;
-import fractalzoomer.core.mpfr.LibMpfr;
-import fractalzoomer.core.mpfr.MpfrBigNum;
-import fractalzoomer.core.mpir.LibMpir;
-import fractalzoomer.core.mpir.MpirBigNum;
+import fractalzoomer.core.NumericLibrary;
+import fractalzoomer.core.TaskRender;
+import fractalzoomer.core.numerics.BigIntNum;
+import fractalzoomer.core.numerics.BigNum;
+import fractalzoomer.core.numerics.MyApfloat;
+import fractalzoomer.core.numerics.mpfr.LibMpfr;
+import fractalzoomer.core.numerics.mpfr.MpfrBigNum;
+import fractalzoomer.core.numerics.mpir.LibMpir;
+import fractalzoomer.core.numerics.mpir.MpirBigNum;
 import fractalzoomer.functions.Fractal;
 import fractalzoomer.main.CommonFunctions;
 import fractalzoomer.main.Constants;
@@ -103,7 +107,7 @@ public class HighPrecisionDialog extends JDialog {
                 "BigNum Implementation:",
                 arbitraryLibs,
                 automaticBignumPrecision,
-                "BigNum bits precision:",
+                "BigNum precision (bits):",
                 bignumPrecision,
                 " ",
                 gatherHpStatistics,
@@ -154,7 +158,7 @@ public class HighPrecisionDialog extends JDialog {
                             }
 
                             if (temp4 < 1) {
-                                JOptionPane.showMessageDialog(ptra, "BigNum bits Precision number must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                JOptionPane.showMessageDialog(ptra, "BigNum Precision bits number must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
                                 return;
                             }
 

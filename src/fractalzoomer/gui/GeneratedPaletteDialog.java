@@ -5,10 +5,8 @@ import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.GeneratedPaletteSettings;
 import fractalzoomer.main.app_settings.Settings;
-import fractalzoomer.utils.Multiwave;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -106,7 +104,7 @@ public class GeneratedPaletteDialog extends JDialog {
             multiwave_edit.setEnabled(generated_palettes_combon.getSelectedIndex() == 4);
             infinitewave_edit.setEnabled(generated_palettes_combon.getSelectedIndex() == 5);
             simple_multiwave_edit.setEnabled(generated_palettes_combon.getSelectedIndex() == 6);
-            if(generated_palettes_combon.getSelectedIndex() == 3) {
+            if(generated_palettes_combon.getSelectedIndex() == 3 || generated_palettes_combon.getSelectedIndex() == 7) {
                 try {
                     int length = Integer.parseInt(generated_palette_restart_field.getText());
 

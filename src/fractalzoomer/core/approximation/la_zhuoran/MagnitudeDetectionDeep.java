@@ -1,6 +1,6 @@
 package fractalzoomer.core.approximation.la_zhuoran;
 
-import fractalzoomer.core.MantExp;
+import fractalzoomer.core.numerics.MantExp;
 
 public class MagnitudeDetectionDeep extends MagnitudeDetectionBase {
     public static MantExp DipDetectionThreshold = new MantExp(MagnitudeDetection.DipDetectionThreshold);

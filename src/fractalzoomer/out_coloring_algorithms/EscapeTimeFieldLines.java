@@ -3,6 +3,7 @@ package fractalzoomer.out_coloring_algorithms;
 
 import fractalzoomer.core.Complex;
 import fractalzoomer.core.norms.Norm;
+import fractalzoomer.utils.OutColorData;
 
 /**
  *
@@ -33,16 +34,17 @@ public class EscapeTimeFieldLines extends OutColorAlgorithm {
     }
 
     @Override
-    public double getResult(Object[] object) {
+    public double getResult(OutColorData data) {
 
+        Complex z = data.z;
         double lineWidth = 0.008;  // freely adjustable
-        double fx = ((Complex)object[1]).arg() / (pi2);  // angle within cell
-        double fy = Math.log(normImpl.computeWithoutRoot((Complex)object[1])) / log_bailout;  // radius within cell
+        double fx = z.arg() / (pi2);  // angle within cell
+        double fy = Math.log(normImpl.computeWithoutRoot(z)) / log_bailout;  // radius within cell
         double fz = Math.pow(0.5, -fy);  // make wider on the outside
 
         boolean line = Math.abs(fx) > lineWidth * fz;
 
-        double result = EscapeTimeAlg.getResult(object);
+        double result = EscapeTimeAlg.getResult(data);
                 
         return line ? result : -(result + INCREMENT);
 

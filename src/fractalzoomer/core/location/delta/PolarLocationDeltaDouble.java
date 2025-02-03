@@ -1,9 +1,9 @@
 package fractalzoomer.core.location.delta;
 
 import fractalzoomer.core.Complex;
-import fractalzoomer.core.GenericComplex;
-import fractalzoomer.core.MantExp;
 import fractalzoomer.core.location.Location;
+import fractalzoomer.core.numerics.GenericComplex;
+import fractalzoomer.core.numerics.MantExp;
 import fractalzoomer.fractal_options.Rotation;
 import fractalzoomer.functions.Fractal;
 import fractalzoomer.main.app_settings.JitterSettings;
@@ -14,13 +14,13 @@ public class PolarLocationDeltaDouble extends Location {
     private Rotation rotation;
     private double muly;
     private double mulx;
-    private double startx;
+    private double expstartx;
     private double starty;
 
     private double xcenter;
     private double ycenter;
+    private double dsize;
 
-    private double center;
 
     private double[] antialiasing_x;
 
@@ -58,18 +58,17 @@ public class PolarLocationDeltaDouble extends Location {
 
         xcenter = xCenter.doubleValue();
         ycenter = yCenter.doubleValue();
-        double dsize = size.doubleValue();
+        dsize = size.doubleValue();
 
         double coefx = width == image_size ? 0.5 : (1 + (width - (double)height) / height) * 0.5;
         double coefy = height == image_size ? 0.5 : (1 + (height - (double)width) / width) * 0.5;
 
-        center = Math.log(dsize);
 
         muly = (2 * circle_period * Math.PI) / image_size;
 
         mulx = muly * height_ratio;
 
-        startx = center - mulx * image_size * coefx;
+        expstartx = dsize * Math.exp(-mulx * image_size * coefx);
         starty = muly * image_size * (0.5 - coefy);
 
         emulx = Math.exp(mulx);
@@ -94,18 +93,17 @@ public class PolarLocationDeltaDouble extends Location {
 
         xcenter = other.xcenter;
         ycenter = other.ycenter;
+        dsize = other.dsize;
 
         mulx = other.mulx;
         muly = other.muly;
-        startx = other.startx;
+        expstartx = other.expstartx;
         starty = other.starty;
 
         emulx = other.emulx;
         Invemulx = other.Invemulx;
         cosmuly = other.cosmuly;
         sinmuly = other.sinmuly;
-
-        center = other.center;
 
         antialiasing_y_cos = other.antialiasing_y_cos;
         antialiasing_y_sin = other.antialiasing_y_sin;
@@ -129,7 +127,7 @@ public class PolarLocationDeltaDouble extends Location {
     private Complex getComplexBase(int x, int y) {
         if(js.enableJitter) {
             double[] res = GetPixelOffset(y, x, js.jitterSeed, js.jitterShape, js.jitterScale);
-            temp_r = Math.exp((x + res[1]) * mulx + startx);
+            temp_r = Math.exp((x + res[1]) * mulx) * expstartx;
             double f = (y + res[0]) * muly + starty;
             temp_sf = Math.sin(f);
             temp_cf = Math.cos(f);
@@ -158,7 +156,7 @@ public class PolarLocationDeltaDouble extends Location {
             } else if (x == indexX - 1) {
                 temp_r = temp_r * Invemulx;
             } else {
-                temp_r = Math.exp(x * mulx + startx);
+                temp_r = Math.exp(x * mulx) * expstartx;
             }
         }
 
@@ -223,7 +221,7 @@ public class PolarLocationDeltaDouble extends Location {
             } else if (x == indexX - 1) {
                 temp_r = temp_r * Invemulx;
             } else {
-                temp_r = Math.exp(x * mulx + startx);
+                temp_r = Math.exp(x * mulx) * expstartx;
             }
         }
 
@@ -247,7 +245,7 @@ public class PolarLocationDeltaDouble extends Location {
             temp_r = temp_r * Invemulx;
         }
         else {
-            temp_r = Math.exp(x * mulx + startx);
+            temp_r = Math.exp(x * mulx) * expstartx;
         }
 
         indexX = x;
@@ -317,9 +315,9 @@ public class PolarLocationDeltaDouble extends Location {
     }
 
     @Override
-    public void createAntialiasingSteps(boolean adaptive, boolean jitter, int numberOfExtraSamples) {
-        super.createAntialiasingSteps(adaptive, jitter, numberOfExtraSamples);
-        double[][] steps = createAntialiasingPolarStepsDouble(mulx, muly, adaptive, jitter, numberOfExtraSamples);
+    public void createAntialiasingSteps(boolean adaptive, boolean jitter, int aaType, int numberOfExtraSamples, boolean gaussian) {
+        super.createAntialiasingSteps(adaptive, jitter, aaType, numberOfExtraSamples, gaussian);
+        double[][] steps = createAntialiasingPolarStepsDouble(mulx, muly, adaptive, jitter, aaType, numberOfExtraSamples, gaussian);
         antialiasing_x = steps[0];
         antialiasing_y_sin = steps[1];
         antialiasing_y_cos = steps[2];
@@ -373,8 +371,7 @@ public class PolarLocationDeltaDouble extends Location {
 
     @Override
     public MantExp getMaxSizeInImage() {
-        double end = center + mulx * width * 0.5;
-        return new MantExp(Math.exp(end));
+        return new MantExp(dsize * Math.exp(mulx * width * 0.5));
     }
 
     @Override

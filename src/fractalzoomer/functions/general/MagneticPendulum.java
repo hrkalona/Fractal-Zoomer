@@ -35,7 +35,6 @@ public class MagneticPendulum extends FractalWithoutConstant {
     private Complex pendulum;
     private Complex stepsize;
     private Complex stepsize_squared;
-    private Object[] iterationData;
     private int magnetPendVariableId;
 
     public MagneticPendulum(double xCenter, double yCenter, double size, int max_iterations, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, Apfloat[] plane_transform_center_hp, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower, int converging_smooth_algorithm, OrbitTrapSettings ots, StatisticsSettings sts, MagneticPendulumSettings mps) {
@@ -194,14 +193,13 @@ public class MagneticPendulum extends FractalWithoutConstant {
         escaped = true;
 
         finalizeStatistic(true, complex[0]);
-        Object[] object = {iterations, complex[0], 0, zold, zold2, pixel, start, c0, pixel, complex[4]};
-        iterationData = object;
-        double out = out_color_algorithm.getResult(object);
+        outColorData.setData(iterations, complex[0], zold, zold2, pixel, start, c0, pixel, complex[4]);
+        double out = out_color_algorithm.getResult(outColorData);
 
         out = getFinalValueOut(out);
 
         if (outTrueColorAlgorithm != null) {
-            setTrueColorOut(complex[0], zold, zold2, iterations, pixel, start, c0, pixel, object);
+            setTrueColorOut(complex[0], zold, zold2, iterations, pixel, start, c0, pixel);
         }
 
         return out;
@@ -230,7 +228,7 @@ public class MagneticPendulum extends FractalWithoutConstant {
                 out_color_algorithm = new EscapeTimeColorDecompositionMagneticPendulum(magnets, escape_time_algorithm);
                 break;
             case MainWindow.ESCAPE_TIME_ALGORITHM:
-                out_color_algorithm = new EscapeTimeAlgorithm1(3, escape_time_algorithm);
+                out_color_algorithm = new EscapeTimeAlgorithm1(escape_time_algorithm);
                 break;
             case MainWindow.USER_OUTCOLORING_ALGORITHM:
                 if (user_out_coloring_algorithm == 0) {
@@ -240,10 +238,10 @@ public class MagneticPendulum extends FractalWithoutConstant {
                 }
                 break;
             case ESCAPE_TIME_SQUARES:
-                out_color_algorithm = new EscapeTimeSquares(7, escape_time_algorithm);
+                out_color_algorithm = new EscapeTimeSquares(escape_time_algorithm);
                 break;
             case ESCAPE_TIME_SQUARES2:
-                out_color_algorithm = new EscapeTimeSquares2(7, escape_time_algorithm);
+                out_color_algorithm = new EscapeTimeSquares2(escape_time_algorithm);
                 break;
 
         }
@@ -257,9 +255,9 @@ public class MagneticPendulum extends FractalWithoutConstant {
     public double getFractal3DHeight(double value) {
 
         if (escaped) {
-            finalizeStatistic(true, (Complex) iterationData[1]);
+            finalizeStatistic(true, outColorData.z);
 
-            double res = out_color_algorithm.getResult3D(iterationData, value);
+            double res = out_color_algorithm.getResult3D(outColorData, value);
 
             res = getFinalValueOut(res);
 

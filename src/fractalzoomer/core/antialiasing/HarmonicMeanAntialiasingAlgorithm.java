@@ -2,7 +2,6 @@ package fractalzoomer.core.antialiasing;
 
 import fractalzoomer.utils.ColorCorrection;
 
-import java.util.Arrays;
 
 public class HarmonicMeanAntialiasingAlgorithm extends AntialiasingAlgorithm {
     private boolean avgWithMean;
@@ -75,7 +74,7 @@ public class HarmonicMeanAntialiasingAlgorithm extends AntialiasingAlgorithm {
 
     @Override
     public int getColor() {
-        if(addedSamples != totalSamples) {
+        if (addedSamples == 0) {
             return 0xff000000;
         }
 
@@ -84,9 +83,10 @@ public class HarmonicMeanAntialiasingAlgorithm extends AntialiasingAlgorithm {
         double harmonicC = (HCSum > 0) ? addedSamples / HCSum : 0;
 
         if(avgWithMean) {
-            double finalA = (harmonicA + ASum * totalSamplesReciprocal) * 0.5;
-            double finalB = (harmonicB + BSum * totalSamplesReciprocal) * 0.5;
-            double finalC = (harmonicC + CSum * totalSamplesReciprocal) * 0.5;
+            double addedSamplesReciprocal = 1.0 / addedSamples;
+            double finalA = (harmonicA + ASum * addedSamplesReciprocal) * 0.5;
+            double finalB = (harmonicB + BSum * addedSamplesReciprocal) * 0.5;
+            double finalC = (harmonicC + CSum * addedSamplesReciprocal) * 0.5;
 
             int[] result = getColorChannels(finalA, finalB, finalC);
             return ColorCorrection.linearToGamma(result[0], result[1], result[2]);

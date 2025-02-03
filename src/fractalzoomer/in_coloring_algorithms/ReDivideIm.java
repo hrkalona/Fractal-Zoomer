@@ -3,6 +3,7 @@
 package fractalzoomer.in_coloring_algorithms;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.utils.InColorData;
 
 /**
  *
@@ -20,9 +21,10 @@ public class ReDivideIm extends InColorAlgorithm {
     }
     
     @Override
-    public double getResult(Object[] object) {
-        
-        return max_iterations + Math.abs(((Complex)object[0]).getRe() / ((Complex)object[0]).getIm()) * 8;
+    public double getResult(InColorData data) {
+
+        Complex z = data.z;
+        return max_iterations + Math.abs(z.getRe() / z.getIm()) * 8;
 
     }
     

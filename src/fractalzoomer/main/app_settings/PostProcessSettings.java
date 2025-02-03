@@ -14,6 +14,8 @@ public class PostProcessSettings {
     public BumpMapSettings bms;
     public EntropyColoringSettings ens;
     public NumericalDistanceEstimatorSettings ndes;
+    public TextureSettings ts;
+    public BlinnLightSettings bls;
 
     public PostProcessSettings() {
         sts = new StatisticsSettings();
@@ -29,5 +31,7 @@ public class PostProcessSettings {
         gss = new GreyscaleColoringSettings();
         fdes = new FakeDistanceEstimationSettings();
         ndes = new NumericalDistanceEstimatorSettings();
+        ts = new TextureSettings();
+        bls = new BlinnLightSettings();
     }
 }

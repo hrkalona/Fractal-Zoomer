@@ -1,7 +1,6 @@
 
 package fractalzoomer.gui;
 
-import fractalzoomer.main.CommonFunctions;
 import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.GeneratedPaletteSettings;

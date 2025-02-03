@@ -1,11 +1,11 @@
 package fractalzoomer.utils;
 
-import fractalzoomer.core.MpfrBigNumComplex;
-import fractalzoomer.core.MpirBigNumComplex;
 import fractalzoomer.core.NumericLibrary;
 import fractalzoomer.core.TaskRender;
-import fractalzoomer.core.mpfr.MpfrBigNum;
-import fractalzoomer.core.mpir.MpirBigNum;
+import fractalzoomer.core.numerics.MpfrBigNumComplex;
+import fractalzoomer.core.numerics.MpirBigNumComplex;
+import fractalzoomer.core.numerics.mpfr.MpfrBigNum;
+import fractalzoomer.core.numerics.mpir.MpirBigNum;
 import fractalzoomer.functions.Fractal;
 import fractalzoomer.functions.mandelbrot.MandelbarCubed;
 import fractalzoomer.functions.mandelbrot.MandelbrotCubed;

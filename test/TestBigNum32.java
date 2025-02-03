@@ -1,8 +1,8 @@
 package test;
-import fractalzoomer.core.BigNum;
-import fractalzoomer.core.MyApfloat;
+import fractalzoomer.core.numerics.BigNum;
+import fractalzoomer.core.numerics.MyApfloat;
 import fractalzoomer.core.TaskRender;
-import fractalzoomer.core.BigNum32;
+import fractalzoomer.core.numerics.BigNum32;
 import org.apfloat.Apfloat;
 
 public class TestBigNum32 {

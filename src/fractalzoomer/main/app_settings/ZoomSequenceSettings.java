@@ -1,7 +1,7 @@
 package fractalzoomer.main.app_settings;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import fractalzoomer.core.MyApfloat;
+import fractalzoomer.core.numerics.MyApfloat;
 import fractalzoomer.main.Constants;
 import org.apfloat.Apfloat;
 
@@ -14,6 +14,7 @@ public class ZoomSequenceSettings {
     public double light_direction_adjusting_value;
     public double slopes_direction_adjusting_value;
     public double bump_direction_adjusting_value;
+    public double blinn_light_direction_adjusting_value;
     public int zooming_mode;
 
     public int zoom_every_n_frame;
@@ -33,6 +34,9 @@ public class ZoomSequenceSettings {
     public int override_max_iterations;
     public String overrideMaxIterationsSizeLimitStr;
     public boolean saveSettingsOnEachStep;
+    public boolean saveReference;
+    public boolean saveKFB;
+    public String loadReferenceFilePath;
 
     @JsonIgnore
     public Apfloat startSize;
@@ -53,6 +57,9 @@ public class ZoomSequenceSettings {
         startAtSequenceIndex = 0;
 
         saveSettingsOnEachStep = false;
+        saveReference = false;
+        saveKFB = false;
+        loadReferenceFilePath = "";
 
         rotation_adjusting_value = 0;
         color_cycling_adjusting_value = 0;

@@ -60,6 +60,9 @@ public class ColorCyclingDialog extends JDialog {
         JTextField field_slope_cycle_adjust = new JTextField();
         field_slope_cycle_adjust.setText("" + ccs.slope_cycling_adjusting_value);
 
+        JTextField field_blinn_light_cycle_adjust = new JTextField();
+        field_blinn_light_cycle_adjust.setText("" + ccs.blinn_light_cycling_adjusting_value);
+
         Object[] message3 = {
             " ",
             "Set the color cycling speed.",
@@ -77,6 +80,8 @@ public class ColorCyclingDialog extends JDialog {
                 field_bump_cycle_adjust,
                 "Slope Cycling:",
                 field_slope_cycle_adjust,
+                "Blinn-Phong Light Cycling:",
+                field_blinn_light_cycle_adjust,
             " ",};
 
         optionPane = new JOptionPane(message3, JOptionPane.QUESTION_MESSAGE, JOptionPane.OK_CANCEL_OPTION, null, null, null);
@@ -119,6 +124,7 @@ public class ColorCyclingDialog extends JDialog {
                             int temp3 = Integer.parseInt(field_light_cycle_adjust.getText());
                             int temp4 = Integer.parseInt(field_bump_cycle_adjust.getText());
                             int temp5 = Integer.parseInt(field_slope_cycle_adjust.getText());
+                            int temp6 = Integer.parseInt(field_blinn_light_cycle_adjust.getText());
 
                             if(temp < -50 || temp > 50) {
                                 JOptionPane.showMessageDialog(ptra, "The color cycling adjusting value must be in the range of [-50, 50].", "Error!", JOptionPane.ERROR_MESSAGE);
@@ -145,11 +151,17 @@ public class ColorCyclingDialog extends JDialog {
                                 return;
                             }
 
+                            if(temp6 < -50 || temp6 > 50) {
+                                JOptionPane.showMessageDialog(ptra, "The blinn-phong light cycling adjusting value must be in the range of [-50, 50].", "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+
                             ccs.color_cycling_adjusting_value = temp;
                             ccs.gradient_cycling_adjusting_value = temp2;
                             ccs.light_cycling_adjusting_value = temp3;
                             ccs.bump_cycling_adjusting_value = temp4;
                             ccs.slope_cycling_adjusting_value = temp5;
+                            ccs.blinn_light_cycling_adjusting_value = temp6;
                         } catch (Exception ex) {
                             JOptionPane.showMessageDialog(ptra, "Illegal Argument: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                             return;

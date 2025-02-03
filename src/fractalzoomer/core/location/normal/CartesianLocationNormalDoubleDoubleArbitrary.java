@@ -1,9 +1,9 @@
 package fractalzoomer.core.location.normal;
 
-import fractalzoomer.core.DDComplex;
-import fractalzoomer.core.DoubleDouble;
-import fractalzoomer.core.GenericComplex;
 import fractalzoomer.core.location.Location;
+import fractalzoomer.core.numerics.DDComplex;
+import fractalzoomer.core.numerics.DoubleDouble;
+import fractalzoomer.core.numerics.GenericComplex;
 import fractalzoomer.fractal_options.Rotation;
 import fractalzoomer.functions.Fractal;
 import fractalzoomer.main.app_settings.JitterSettings;
@@ -237,9 +237,9 @@ public class CartesianLocationNormalDoubleDoubleArbitrary extends Location {
     }
 
     @Override
-    public void createAntialiasingSteps(boolean adaptive, boolean jitter, int numberOfExtraSamples) {
-        super.createAntialiasingSteps(adaptive, jitter, numberOfExtraSamples);
-        DoubleDouble[][] steps = createAntialiasingStepsDoubleDouble(ddtemp_size_image_size_x, ddtemp_size_image_size_y, adaptive, jitter, numberOfExtraSamples);
+    public void createAntialiasingSteps(boolean adaptive, boolean jitter, int aaType, int numberOfExtraSamples, boolean gaussian) {
+        super.createAntialiasingSteps(adaptive, jitter, aaType, numberOfExtraSamples, gaussian);
+        DoubleDouble[][] steps = createAntialiasingStepsDoubleDouble(ddtemp_size_image_size_x, ddtemp_size_image_size_y, adaptive, jitter, aaType, numberOfExtraSamples, gaussian);
         ddantialiasing_x = steps[0];
         ddantialiasing_y = steps[1];
     }

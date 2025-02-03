@@ -3,8 +3,12 @@ package fractalzoomer.main;
 
 import com.sun.jna.Platform;
 import fractalzoomer.app_updater.AppUpdater;
-import fractalzoomer.core.*;
+import fractalzoomer.core.Complex;
+import fractalzoomer.core.Derivative;
+import fractalzoomer.core.TaskRender;
 import fractalzoomer.core.domain_coloring.DomainColoring;
+import fractalzoomer.core.numerics.BigComplex;
+import fractalzoomer.core.numerics.MyApfloat;
 import fractalzoomer.functions.root_finding_methods.durand_kerner.DurandKernerRootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.newton_hines.NewtonHinesRootFindingMethod;
 import fractalzoomer.gui.*;
@@ -33,8 +37,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Timer;
 import java.util.*;
+import java.util.Timer;
 
 import static fractalzoomer.gui.CpuLabel.CPU_DELAY;
 import static fractalzoomer.gui.MemoryLabel.MEMORY_DELAY;
@@ -1032,6 +1036,11 @@ public class CommonFunctions implements Constants {
                     overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[" + s.fns.preffs.user_function_filter_conditions[0] + " = " + s.fns.preffs.user_function_filter_conditions[1] + "]</font> <font color='" + keyword_color + "'>then</font> z = " + s.fns.preffs.user_function_filter_condition_formula[2] + "<br>";
                 }
                 overview += "<br>";
+            } else if (s.fns.preffs.functionFilter == MOBIUS_FUNCTION_FILTER) {
+                overview += "<b><font color='red'>Pre Function Filter:</font></b> " + FunctionFiltersMenu.functionFilternNames[s.fns.preffs.functionFilter] + "<br>";
+                overview += tab + "A = " + s.fns.preffs.mobiusA + "<br>";
+                overview += tab + "B = " + s.fns.preffs.mobiusB + "<br>";
+                overview += "<br>";
             } else {
                 overview += "<b><font color='red'>Pre Function Filter:</font></b> " + FunctionFiltersMenu.functionFilternNames[s.fns.preffs.functionFilter] + "<br><br>";
             }
@@ -1046,6 +1055,11 @@ public class CommonFunctions implements Constants {
                     overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[" + s.fns.postffs.user_function_filter_conditions[0] + " &#60; " + s.fns.postffs.user_function_filter_conditions[1] + "]</font> <font color='" + keyword_color + "'>then</font> z = " + s.fns.postffs.user_function_filter_condition_formula[1] + "<br>";
                     overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[" + s.fns.postffs.user_function_filter_conditions[0] + " = " + s.fns.postffs.user_function_filter_conditions[1] + "]</font> <font color='" + keyword_color + "'>then</font> z = " + s.fns.postffs.user_function_filter_condition_formula[2] + "<br>";
                 }
+                overview += "<br>";
+            } else if (s.fns.preffs.functionFilter == MOBIUS_FUNCTION_FILTER) {
+                overview += "<b><font color='red'>Post Function Filter:</font></b> " + FunctionFiltersMenu.functionFilternNames[s.fns.postffs.functionFilter] + "<br>";
+                overview += tab + "A = " + s.fns.postffs.mobiusA + "<br>";
+                overview += tab + "B = " + s.fns.postffs.mobiusB + "<br>";
                 overview += "<br>";
             } else {
                 overview += "<b><font color='red'>Post Function Filter:</font></b> " + FunctionFiltersMenu.functionFilternNames[s.fns.postffs.functionFilter] + "<br><br>";
@@ -1977,6 +1991,31 @@ public class CommonFunctions implements Constants {
                             overview += tab + "Noise Reduction Factor = " + s.pps.hss.hs_noise_reducing_factor + "<br><br>";
                         }
                         break;
+                    case BLINN_LIGHT:
+                        if (s.pps.bls.lighting) {
+                            overview += "<b><font color='red'>Blinn-Phong Light:</font></b><br>";
+                            overview += tab + "Polar Angle = " + s.pps.bls.polarAngle + " degrees<br>";
+                            overview += tab + "Azimuth Angle = " + s.pps.bls.azimuthAngle + " degrees<br>";
+                            overview += tab + "Shininess = " + s.pps.bls.shininess + "<br>";
+                            overview += tab + "Ambient = " + s.pps.bls.ambient + "<br>";
+                            overview += tab + "Ambient Color = " + s.pps.bls.colorAmbient[0] + ", " + s.pps.bls.colorAmbient[1] + ", " + s.pps.bls.colorAmbient[2] + "<br>";
+                            overview += tab + "Specular = " + s.pps.bls.specular[0] + ", " + s.pps.bls.specular[1] + ", " + s.pps.bls.specular[2] + "<br>";
+                            overview += tab + "Diffuse = " + s.pps.bls.diffuse[0] + ", " + s.pps.bls.diffuse[1] + ", " + s.pps.bls.diffuse[2] + "<br>";
+                            overview += tab + "Color = " + s.pps.bls.color[0] + ", " + s.pps.bls.color[1] + ", " + s.pps.bls.color[2] + "<br>";
+                            overview += tab + "Material Specular Color = "
+                                    + (s.pps.bls.materialSpecularColor[0] != null ? s.pps.bls.materialSpecularColor[0] : "N/A")
+                                    + ", " + (s.pps.bls.materialSpecularColor[1] != null ? s.pps.bls.materialSpecularColor[1] : "N/A")
+                                    + ", " + (s.pps.bls.materialSpecularColor[2] != null ? s.pps.bls.materialSpecularColor[2] : "N/A") + "<br>";
+                            overview += tab + "Height Transfer = " + Constants.lightTransfer[s.pps.bls.heightTransfer] + "<br>";
+                            overview += tab + "Height Transfer Factor = " + s.pps.bls.heightTransferFactor + "<br>";
+                            overview += tab + "Fractional Transfer = " + Constants.fractionalTransfer[s.pps.bls.fractionalTransfer] + "<br";
+                            if(s.pps.bls.fractionalTransfer != 0) {
+                                overview += tab + "Fractional Transfer Mode = " + Constants.fractionalTransferMode[s.pps.bls.fractionalTransferMode] + "<br";
+                            }
+                            overview += tab + "Fractional Smoothing = " + Constants.FadeAlgs[s.pps.bls.fractionalSmoothing] + "<br";
+                            overview += tab + "Noise Reduction Factor = " + s.pps.bls.bls_noise_reducing_factor + "<br><br>";
+                        }
+                        break;
                     case LIGHT:
                         if (s.pps.ls.lighting) {
                             overview += "<b><font color='red'>Light:</font></b><br>";
@@ -2034,6 +2073,17 @@ public class CommonFunctions implements Constants {
                                 overview += tab + "Factor = " + s.pps.fdes.fake_de_factor + "<br>";
                                 overview += tab + "Fade Method = " + Constants.FadeAlgs[s.pps.fdes.fade_algorithm] + "<br><br>";
                             }
+                        }
+                        break;
+                    case TEXTURE:
+                        if (!s.ds.domain_coloring && s.pps.ts.applyTexture) {
+                            overview += "<b><font color='red'>Texture:</font></b><br>";
+                            overview += tab + "Scale X = " + s.pps.ts.textureScaleX + "<br>";
+                            overview += tab + "Scale Y = " + s.pps.ts.textureScaleY + "<br>";
+                            overview += tab + "Offset = " + s.pps.ts.textureOffset + "<br>";
+                            overview += tab + "Color Blending Mode = " + Constants.blend_algorithms[s.pps.ts.texture_color_blending] + "<br>";
+                            overview += tab + "Color Blending = " + s.pps.ts.texture_blending + "<br>";
+                            overview += tab + "Noise Reduction Factor = " + s.pps.ts.texture_noise_reducing_factor + "<br><br>";
                         }
                         break;
                     case ENTROPY_COLORING:
@@ -2516,6 +2566,18 @@ public class CommonFunctions implements Constants {
         return DomainColoring.getDomainColoringPaletteLength(domain_coloring_mode);
     }
 
+    public static void adjustBlinnLightOffset(BlinnLightSettings bls, double adjust) {
+        bls.polarAngle += adjust;
+        if (adjust > 0) {
+            bls.polarAngle = bls.polarAngle % 360.0;
+        }
+        else {
+            if (bls.polarAngle <= -360) {
+                bls.polarAngle += 360;
+            }
+        }
+    }
+
     public static void adjustBumpOffset(BumpMapSettings bms, double adjust) {
         bms.lightDirectionDegrees += adjust;
         if (adjust > 0) {
@@ -2527,6 +2589,7 @@ public class CommonFunctions implements Constants {
             }
         }
     }
+
     public static void adjustSlopeOffset(SlopeSettings ss, double adjustment) {
         ss.SlopeAngle += adjustment;
 

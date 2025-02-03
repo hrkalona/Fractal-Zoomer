@@ -1,7 +1,8 @@
 package fractalzoomer.core.location.delta;
 
-import fractalzoomer.core.*;
+import fractalzoomer.core.Complex;
 import fractalzoomer.core.location.Location;
+import fractalzoomer.core.numerics.*;
 import fractalzoomer.fractal_options.Rotation;
 import fractalzoomer.functions.Fractal;
 import fractalzoomer.main.Constants;
@@ -412,9 +413,9 @@ public class CartesianLocationDelta extends Location {
     }
 
     @Override
-    public void createAntialiasingSteps(boolean adaptive, boolean jitter, int numberOfExtraSamples) {
-        super.createAntialiasingSteps(adaptive, jitter, numberOfExtraSamples);
-        double[][] steps = createAntialiasingStepsDouble(temp_size_image_size_x, temp_size_image_size_y, adaptive, jitter, numberOfExtraSamples);
+    public void createAntialiasingSteps(boolean adaptive, boolean jitter, int aaType, int numberOfExtraSamples, boolean gaussian) {
+        super.createAntialiasingSteps(adaptive, jitter, aaType, numberOfExtraSamples, gaussian);
+        double[][] steps = createAntialiasingStepsDouble(temp_size_image_size_x, temp_size_image_size_y, adaptive, jitter, aaType, numberOfExtraSamples, gaussian);
         antialiasing_x = steps[0];
         antialiasing_y = steps[1];
     }

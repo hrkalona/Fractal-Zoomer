@@ -231,53 +231,32 @@ public class UserPlaneConditional extends Plane {
 
         int result = expr[0].getValue().compare(expr[1].getValue());
 
-        if(result == -1) { // left > right
-            if(parser2[0].foundZ()) {
-                parser2[0].setZvalue(pixel);
-            }
+        ExpressionNode resultExpr;
+        Parser resultParser;
+        if (result == -1) { // left > right
+            resultParser = parser2[0];
+            resultExpr = expr2[0];
+        } else if (result == 1) { // right > left
+            resultParser = parser2[1];
+            resultExpr = expr2[1];
+        } else { // right == left
+            resultParser = parser2[2];
+            resultExpr = expr2[2];
+        }
 
-            if(parser2[0].foundAnyVar()) {
-                for (int i = 0; i < Parser.EXTRA_VARS; i++) {
-                    if (parser2[0].foundVar(i)) {
-                        parser2[0].setVarsvalue(i, globalVars[i]);
-                    }
+        if(resultParser.foundZ()) {
+            resultParser.setZvalue(pixel);
+        }
+
+        if(resultParser.foundAnyVar()) {
+            for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+                if (resultParser.foundVar(i)) {
+                    resultParser.setVarsvalue(i, globalVars[i]);
                 }
             }
-            
-            return expr2[0].getValue();
         }
-        else if(result == 1) { // right > left
-            if(parser2[1].foundZ()) {
-                parser2[1].setZvalue(pixel);
-            }
 
-            if(parser2[1].foundAnyVar()) {
-                for (int i = 0; i < Parser.EXTRA_VARS; i++) {
-                    if (parser2[1].foundVar(i)) {
-                        parser2[1].setVarsvalue(i, globalVars[i]);
-                    }
-                }
-            }
-            
-            return expr2[1].getValue();
-        }
-        else if (result == 0) { //left == right
-            if(parser2[2].foundZ()) {
-                parser2[2].setZvalue(pixel);
-            }
-
-            if(parser2[2].foundAnyVar()) {
-                for (int i = 0; i < Parser.EXTRA_VARS; i++) {
-                    if (parser2[2].foundVar(i)) {
-                        parser2[2].setVarsvalue(i, globalVars[i]);
-                    }
-                }
-            }
-            
-            return expr2[2].getValue();
-        }
-        
-        return pixel;
+        return resultExpr.getValue();
     }
     
     public boolean usesCenter() {

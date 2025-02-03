@@ -1,6 +1,7 @@
 package fractalzoomer.core.unused.mandelbrot_numerics;
 
-import fractalzoomer.core.*;
+import fractalzoomer.core.Complex;
+import fractalzoomer.core.numerics.*;
 import org.apfloat.Apfloat;
 
 public class Nucleus {

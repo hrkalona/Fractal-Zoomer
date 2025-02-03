@@ -2,7 +2,7 @@
 package fractalzoomer.main.app_settings;
 
 import fractalzoomer.core.Derivative;
-import fractalzoomer.core.MyApfloat;
+import fractalzoomer.core.numerics.MyApfloat;
 import fractalzoomer.main.Constants;
 import fractalzoomer.parser.Parser;
 import org.apfloat.Apfloat;

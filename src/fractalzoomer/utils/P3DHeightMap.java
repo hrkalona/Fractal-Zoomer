@@ -17,9 +17,12 @@ import java.awt.*;
 import java.io.File;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class P3DHeightMap extends PApplet {
+    public static List<P3DHeightMap> heightMapFrames = new ArrayList<>();
 
     private MainWindow ptra;
     private int details;
@@ -802,7 +805,7 @@ public class P3DHeightMap extends PApplet {
 
         file_chooser.addChoosableFileFilter(new FileNameExtensionFilter("PNG (*.png)", "png"));
 
-        String name = "fractal " + DateTimeFormatter.ofPattern("yyyy-MM-dd HH;mm;ss").format(LocalDateTime.now()) + ".png";
+        String name = "fractal zoomer " + DateTimeFormatter.ofPattern("yyyy-MM-dd HH;mm;ss").format(LocalDateTime.now()) + ".png";
         file_chooser.setSelectedFile(new File(name));
 
         file_chooser.addPropertyChangeListener(JFileChooser.FILE_FILTER_CHANGED_PROPERTY, evt -> {
@@ -918,12 +921,11 @@ public class P3DHeightMap extends PApplet {
     @Override
     public void draw() {
 
-        double[][] data = TaskRender.vert;
-        int[][] data_color = TaskRender.vert_color;
-
         try {
+            double[][] data = TaskRender.vert;
+            int[] rgbs = TaskRender.raster_3d;
 
-            background(0);
+            background(MainWindow.D3_BG_COLOR.getRGB());
 
             scale(scale);
             translate(width / (2 * scale), height / (2 * scale));
@@ -931,7 +933,7 @@ public class P3DHeightMap extends PApplet {
             rotateZ(rotZ);
             translate(-image_size / 2, -image_size / 2);
 
-            if(data == null || data_color == null) {
+            if(data == null || rgbs == null) {
                 return;
             }
 
@@ -955,19 +957,19 @@ public class P3DHeightMap extends PApplet {
 //                specular(0.49019608f, 0.49019608f, 0.49019608f);
 //            }
 
-            /*if(useAmbient.isSelected()) {
-                ambient(Float.parseFloat(ambient_slid_v1.getText()), Float.parseFloat(ambient_slid_v2.getText()), Float.parseFloat(ambient_slid_v3.getText()));
-            }
-            else {
-                ambient(1, 1, 1);
-            }*/
+//            if(useAmbient.isSelected()) {
+//                ambient(Float.parseFloat(ambient_slid_v1.getText()), Float.parseFloat(ambient_slid_v2.getText()), Float.parseFloat(ambient_slid_v3.getText()));
+//            }
+//            else {
+//                ambient(1, 1, 1);
+//            }
 
-            /*if(useEmmisive.isSelected()) {
-                emissive(Float.parseFloat(emmisive_slid_v1.getText()), Float.parseFloat(emmisive_slid_v2.getText()), Float.parseFloat(emmisive_slid_v3.getText()));
-            }
-            else {
-                emissive(0, 0, 0);
-            }*/
+//            if(useEmmisive.isSelected()) {
+//                emissive(Float.parseFloat(emmisive_slid_v1.getText()), Float.parseFloat(emmisive_slid_v2.getText()), Float.parseFloat(emmisive_slid_v3.getText()));
+//            }
+//            else {
+//                emissive(0, 0, 0);
+//            }
 
             lightSpecular(Float.parseFloat(light_specular_slid_v1.getText()), Float.parseFloat(light_specular_slid_v2.getText()), Float.parseFloat(light_specular_slid_v3.getText()));
             lightFalloff(Float.parseFloat(light_fallof_slid_v1.getText()), 0, 0);
@@ -993,116 +995,85 @@ public class P3DHeightMap extends PApplet {
 
             }
 
-            float scale_factor = Float.parseFloat(scaling.getText());
+            boolean inverted = invertcb.isSelected();
 
-            if(TaskRender.D3_APPLY_AVERAGE_TO_TRIANGLE_COLORS == 1) {
-                int red, green, blue;
+            float scale_factor = Float.parseFloat(scaling.getText());
+            float sclX = scl;
+            float sclY = scl;
+
+            if (TaskRender.D3_APPLY_AVERAGE_TO_TRIANGLE_COLORS == 1) {
                 for (int y = 0; y < details - 1; y++) {
                     int yp1 = y + 1;
                     beginShape(TRIANGLE_STRIP);
                     for (int x = 0; x < details; x++) {
-                        red = (data_color[x][y] >> 16) & 0xff;
-                        green = (data_color[x][y] >> 8) & 0xff;
-                        blue = (data_color[x][y]) & 0xff;
+                        // Top vertex
+                        fill(rgbs[y * details + x]);
+                        float x_sclX = x * sclX;
+                        vertex(x_sclX, y * sclY, (float)(scale_factor * (inverted ? -data[x][y] : data[x][y])));
 
-                        fill(red, green, blue);
-
-                        vertex(x * scl, y * scl,  (float)(scale_factor * (invertcb.isSelected() ? -data[x][y] : data[x][y])));
-                        red = (data_color[x][yp1] >> 16) & 0xff;
-                        green = (data_color[x][yp1] >> 8) & 0xff;
-                        blue = (data_color[x][yp1]) & 0xff;
-
-                        fill(red, green, blue);
-
-                        vertex(x * scl, yp1 * scl, (float)(scale_factor * (invertcb.isSelected() ? -data[x][yp1] : data[x][yp1])));
+                        // Bottom vertex
+                        fill(rgbs[yp1 * details + x]);
+                        vertex(x_sclX, yp1 * sclY, (float)(scale_factor * (inverted ? -data[x][yp1] : data[x][yp1])));
                     }
                     endShape();
                 }
-            }
-            else {
+            } else {
+                beginShape(TRIANGLES);
+                for (int y = 0; y < details - 1; y++) {
+                    int yp1 = y + 1;
+                    for (int x = 0; x < details - 1; x++) {
+                        int xp1 = x + 1;
+                        int c00 = rgbs[y * details + x];
+                        int c10 = rgbs[y * details + xp1];
+                        int c01 = 0;
 
-                int red, green, blue;
+                        int red, green, blue;
 
-                for (int x = 0; x < details - 1; x++) {
-                    int xp1 = x + 1;
-                    for (int y = 0; y < details - 1; y++) {
-
-                        int red1 = (data_color[x][y] >> 16) & 0xff;
-                        int green1 = (data_color[x][y] >> 8) & 0xff;
-                        int blue1 = (data_color[x][y]) & 0xff;
-
-                        int yp1 = y + 1;
-
-                        if(TaskRender.D3_APPLY_AVERAGE_TO_TRIANGLE_COLORS == 0) {
-                            red = red1;
-                            green = green1;
-                            blue = blue1;
-                        }
-                        else {
-                            int red2 = (data_color[xp1][y] >> 16) & 0xff;
-                            int green2 = (data_color[xp1][y] >> 8) & 0xff;
-                            int blue2 = (data_color[xp1][y]) & 0xff;
-
-                            int red3 = (data_color[x][yp1] >> 16) & 0xff;
-                            int green3 = (data_color[x][yp1] >> 8) & 0xff;
-                            int blue3 = (data_color[x][yp1]) & 0xff;
-
-                            red = (int)((red1 + red2 + red3) / 3.0 + 0.5);
-                            green = (int)((green1 + green2 + green3) / 3.0 + 0.5);
-                            blue = (int)((blue1 + blue2 + blue3) / 3.0 + 0.5);
+                        // First triangle
+                        if (TaskRender.D3_APPLY_AVERAGE_TO_TRIANGLE_COLORS == 0) {
+                            fill(c00);
+                        } else {
+                            c01 = rgbs[yp1 * details + x];
+                            red = (int)(((c00 >> 16 & 0xff) + (c10 >> 16 & 0xff) + (c01 >> 16 & 0xff)) / 3.0 + 0.5);
+                            green = (int)(((c00 >> 8 & 0xff) + (c10 >> 8 & 0xff) + (c01 >> 8 & 0xff)) / 3.0 + 0.5);
+                            blue = (int)(((c00 & 0xff) + (c10 & 0xff) + (c01 & 0xff)) / 3.0 + 0.5);
+                            fill(red, green, blue);
                         }
 
 
-                        beginShape(TRIANGLE);
-                        fill(red, green, blue);
+                        float x_sclX = x * sclX;
+                        float y_sclY = y * sclY;
+                        float xp1_sclX = xp1 * sclX;
+                        float yp1_sclY = yp1 * sclY;
+                        vertex(x_sclX, y_sclY, (float)(scale_factor * (inverted ? -data[x][y] : data[x][y])));
+                        vertex(xp1_sclX, y_sclY, (float)(scale_factor * (inverted ? -data[xp1][y] : data[xp1][y])));
+                        float temp = (float)(scale_factor * (inverted ? -data[x][yp1] : data[x][yp1]));
+                        vertex(x_sclX, yp1_sclY, temp);
 
-                        vertex(x * scl, y * scl, (float)(scale_factor * (invertcb.isSelected() ? -data[x][y] : data[x][y])));
-                        vertex(xp1 * scl, y * scl, (float)(scale_factor * (invertcb.isSelected() ? -data[xp1][y] : data[xp1][y])));
-                        vertex(x * scl, yp1 * scl, (float)(scale_factor * (invertcb.isSelected() ? -data[x][yp1] : data[x][yp1])));
-                        endShape();
-
-
-                        red1 = (data_color[xp1][y] >> 16) & 0xff;
-                        green1 = (data_color[xp1][y] >> 8) & 0xff;
-                        blue1 = (data_color[xp1][y]) & 0xff;
-
-                        if(TaskRender.D3_APPLY_AVERAGE_TO_TRIANGLE_COLORS == 0) {
-                            red = red1;
-                            green = green1;
-                            blue = blue1;
-                        }
-                        else {
-                            int red2 = (data_color[xp1][yp1] >> 16) & 0xff;
-                            int green2 = (data_color[xp1][yp1] >> 8) & 0xff;
-                            int blue2 = (data_color[xp1][yp1]) & 0xff;
-
-                            int red3 = (data_color[x][yp1] >> 16) & 0xff;
-                            int green3 = (data_color[x][yp1] >> 8) & 0xff;
-                            int blue3 = (data_color[x][yp1]) & 0xff;
-
-                            red = (int)((red1 + red2 + red3) / 3.0 + 0.5);
-                            green = (int)((green1 + green2 + green3) / 3.0 + 0.5);
-                            blue = (int)((blue1 + blue2 + blue3) / 3.0 + 0.5);
+                        // Second triangle
+                        if (TaskRender.D3_APPLY_AVERAGE_TO_TRIANGLE_COLORS == 0) {
+                            fill(c10);
+                        } else {
+                            int c11 = rgbs[yp1 * details + xp1];
+                            red = (int)(((c10 >> 16 & 0xff) + (c11 >> 16 & 0xff) + (c01 >> 16 & 0xff)) / 3.0 + 0.5);
+                            green = (int)(((c10 >> 8 & 0xff) + (c11 >> 8 & 0xff) + (c01 >> 8 & 0xff)) / 3.0 + 0.5);
+                            blue = (int)(((c10 & 0xff) + (c11 & 0xff) + (c01 & 0xff)) / 3.0 + 0.5);
+                            fill(red, green, blue);
                         }
 
-
-                        beginShape(TRIANGLE);
-                        fill(red, green, blue);
-
-                        vertex(xp1 * scl, y * scl, (float)(scale_factor * (invertcb.isSelected() ? -data[xp1][y] : data[xp1][y])));
-                        vertex(xp1 * scl, yp1 * scl, (float)(scale_factor * (invertcb.isSelected() ? -data[xp1][yp1] : data[xp1][yp1])) );
-                        vertex(x * scl, yp1 * scl, (float)(scale_factor * (invertcb.isSelected() ? -data[x][yp1] : data[x][yp1])));
-
-                        endShape();
+                        vertex(xp1_sclX, y_sclY, (float)(scale_factor * (inverted ? -data[xp1][y] : data[xp1][y])));
+                        vertex(xp1_sclX, yp1_sclY, (float)(scale_factor * (inverted ? -data[xp1][yp1] : data[xp1][yp1])));
+                        vertex(x_sclX, yp1_sclY, temp);
                     }
                 }
+                endShape();
             }
-
-
         }
         catch (Exception ex) {
 
         }
+
+        surface.setTitle("Processing 3D (FPS: " + (int)frameRate + ")");
 
         if(saveImagePath != null) {
             save(saveImagePath);
@@ -1112,5 +1083,50 @@ public class P3DHeightMap extends PApplet {
 
     public void setReadyToRender(boolean readyToRender) {
         this.readyToRender = readyToRender;
+    }
+
+    public static void closeAllFrames() {
+        for(P3DHeightMap heightMapFrame : heightMapFrames) {
+            if (heightMapFrame.isValid()) {
+                heightMapFrame.close();
+            }
+        }
+        heightMapFrames.clear();
+    }
+
+    public static void updateAllFrames(int image_width, int image_height, int detail) {
+        for(P3DHeightMap heightMapFrame : heightMapFrames) {
+            if (heightMapFrame.isValid()) {
+                heightMapFrame.update(Math.min(image_width, image_height), detail);
+            }
+        }
+    }
+
+    public static void setReadyAllFrames(boolean val) {
+        for(P3DHeightMap heightMapFrame : heightMapFrames) {
+            if (heightMapFrame.isValid()) {
+                heightMapFrame.setReadyToRender(val);
+            }
+        }
+    }
+
+    public static void bringAllFramesToFront() {
+        for(P3DHeightMap heightMapFrame : heightMapFrames) {
+            if (heightMapFrame.isValid()) {
+                heightMapFrame.bringToFront();
+            }
+        }
+    }
+
+    public static void bringAllFramesToBack() {
+        for(P3DHeightMap heightMapFrame : heightMapFrames) {
+            if (heightMapFrame.isValid()) {
+                heightMapFrame.bringToBack();
+            }
+        }
+    }
+
+    public static void addFrame(P3DHeightMap frame) {
+        heightMapFrames.add(frame);
     }
 }

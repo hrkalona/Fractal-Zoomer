@@ -1,10 +1,7 @@
 package fractalzoomer.gui;
 
-import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.GeneratedPaletteSettings;
-import fractalzoomer.main.app_settings.Settings;
-import fractalzoomer.utils.Multiwave;
 
 import javax.swing.*;
 import java.awt.*;

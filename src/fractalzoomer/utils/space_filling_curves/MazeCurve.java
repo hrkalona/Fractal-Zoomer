@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.List;
+import java.util.Queue;
 
 import static fractalzoomer.utils.space_filling_curves.CurveData.*;
 
@@ -959,7 +960,9 @@ public class MazeCurve {
         int height = size;
 
         Object[] data =
+                //generateHybrid(width, height, new Random(1), 9);
                 //generateKruskalsRandom(width, height, new Random(1));
+                //generateAldousBroder(width, height, new Random(1));
                 //generateRandomPrims(width, height, new Random(1));
                 generateBacktracking(width, height, new Random(1));
                 //generateSidewinder(width, height, new Random(1), 0, 0.5);

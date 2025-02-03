@@ -3,6 +3,7 @@
 package fractalzoomer.in_coloring_algorithms;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.utils.InColorData;
 
 
 /**
@@ -21,11 +22,12 @@ public class MagTimesCosReSquared extends InColorAlgorithm {
     }
     
     @Override
-    public double getResult(Object[] object) {
+    public double getResult(InColorData data) {
+
+        Complex z = data.z;
+        double re = z.getRe();
         
-        double re = ((Complex)object[0]).getRe();
-        
-        return max_iterations + ((Complex)object[0]).norm_squared() * Math.abs(Math.cos(re * re)) * 400; 
+        return max_iterations + z.norm_squared() * Math.abs(Math.cos(re * re)) * 400;
              
     }
     
